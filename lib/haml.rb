@@ -12,6 +12,9 @@ module HAML
     end
     
     def render(template = "", locals = {})
+      puts @base.inspect
+      
+      
       @pony_land = HappyMagicPonyLand.new(@base, locals)
       @result = ""
       @to_close_queue = []
@@ -20,28 +23,37 @@ module HAML
       #and interpretation
       template.each_line do |line|
         count, line = count_levels(line)
-        if count <= @to_close_queue.size
+        if count < @to_close_queue.size
           close_tag
         end
         case line.first
           when '.', '#'
             render_div(line)
-          when '<'
-            render_tag_or_line(line)
+          when '%'
+            render_tag(line)
           when '/'
             render_comment(line)
           when '='
             add template_eval(line[1, line.length])
           else
-            add line
+            add_single line
           end
       end
-      puts "closing... " + @to_close_queue.inspect
       @to_close_queue.each { close_tag }
       @result
     end
-    
+
     def add(line)
+      return nil if line.nil?
+      if (list = line.to_a).size > 1
+        list.each { |me| add(me) }
+      else 
+        #bleh, stupid line to make sure a \n isn't on the end... dumb.
+        add_single(line)
+      end
+    end
+    
+    def add_single(line)
       @result << tabify(@to_close_queue.size) + line + "\n"
     end
     
@@ -70,9 +82,9 @@ module HAML
       add "<!-- #{line} -->"
     end
     
-    def render_tag_or_line(line)
-      line.scan(/[<]([a-zA-Z]+)([a-zA-Z.\#]*)([=]?)([^\n]*)/).each do |tag_name, attributes, action, value|
-        puts tag_name
+    def render_tag(line)
+      line.scan(/[%]([a-zA-Z]+)([a-zA-Z.\#]*)([=]?)([^\n]*)/).each do |tag_name, attributes, action, value|
+        #puts "tag = " + tag_name + " " + attributes + " " + action + " " + value
         open_tag(tag_name, parse_attributes(attributes))
         unless value.empty?
           if(action == '=')
@@ -122,6 +134,7 @@ module HAML
         @table[name.to_sym]
       elsif @_action_view.respond_to? name
         @_action_view.send(name, *args, &block)
+      elsif @_action_view.respond_to? name.to_s[1, name.length].to_sym
       else 
         nil
       end
