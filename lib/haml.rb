@@ -75,7 +75,7 @@ module HAML
     end
     
     def render_tag(line)
-      line.scan(/[%]([-_a-z0-9]+)([-_a-z.\#]*)([=]?)([^\n]*)/).each do |tag_name, attributes, action, value|
+      line.scan(/[%]([-_a-z1-9]+)([-_a-z.\#]*)([=]?)([^\n]*)/).each do |tag_name, attributes, action, value|
         val = template_eval(value)
         attribute_hash = parse_attributes(attributes)
         attribute_hash.merge!(val) && val = nil if val.class == Hash
