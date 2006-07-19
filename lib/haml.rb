@@ -14,6 +14,10 @@ module HAML
     def render(template = "", locals = {})
       @result = ""
       @to_close_queue = []
+
+      locals.each do |variable_name, value|
+        @base.instance_eval "@" + variable_name.to_s + " = value"
+      end
       
       #main loop handling line reading
       #and interpretation
@@ -22,8 +26,9 @@ module HAML
           @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
         else
           count, line = count_levels(line)
+          #puts count.to_s + "::" + line
           if count <= @to_close_queue.size && @to_close_queue.size > 0
-            close_tag
+            (@to_close_queue.size - count).times { close_tag }
           end
           case line.first
             when '.', '#'
@@ -55,11 +60,22 @@ module HAML
     end
     
     def open_tag(name, attributes = {})
-     attribute_array = attributes.collect do |attr_name, val|
-      attr_name.to_s + "='" + val + "'" 
-     end
-     add "<#{name.to_s}#{attribute_array.empty? ? "" : " "}#{attribute_array.join(" ")}>"
-     @to_close_queue.push(name)
+      add "<#{name.to_s}#{build_attributes(attributes)}>"
+      @to_close_queue.push(name)
+    end
+
+    def one_line_tag(name, value, attributes = {})
+      add "<#{name.to_s}#{build_attributes(attributes)}>#{value}</#{name.to_s}>"
+    end
+
+    #used to create single line tags... aka <hello />
+    def atomic_tag(name, attributes = {})
+      add "<#{name.to_s}#{build_attributes(attributes)} />"
+    end
+
+    def build_attributes(attributes = {})
+      return "" if attributes.empty?
+      " " + (attributes.collect { |attr_name, val| attr_name.to_s + "='" + val + "'" }).join(" ")
     end
     
     def close_tag
@@ -75,15 +91,29 @@ module HAML
     end
     
     def render_tag(line)
-      line.scan(/[%]([-_a-z1-9]+)([-_a-z.\#]*)([=]?)([^\n]*)/).each do |tag_name, attributes, action, value|
+      line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)([=\/]?)([^\n]*)/).each do |tag_name, attributes, action, value|
         val = template_eval(value)
         attribute_hash = parse_attributes(attributes)
-        attribute_hash.merge!(val) && val = nil if val.class == Hash
-        open_tag(tag_name, attribute_hash)
-        
-        if(action == '=')
-          add(val)
-          close_tag
+        if val.class == Hash
+          attribute_hash.merge!(val) && val = nil
+        elsif !val.nil?
+          val = val.to_s
+        end
+
+        #check to see if we're a one liner
+        if(action == "\/")
+          atomic_tag(tag_name, attribute_hash)
+        else
+          if(!val.nil? && ((val.length < 50) || val.scan(/\n/).empty?))
+            one_line_tag(tag_name, val, attribute_hash)
+          else
+            open_tag(tag_name, attribute_hash)
+            
+            if(action == '=')
+              add(val)
+              close_tag
+            end
+          end
         end
       end
     end
@@ -106,7 +136,7 @@ module HAML
     end
     
     def count_levels(line)
-      [line.index(/[^ ]/), line.strip]
+      [line.index(/[^ ]/)/2, line.strip]
     end
   end
   
