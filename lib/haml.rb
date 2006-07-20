@@ -121,7 +121,8 @@ module HAML
         if(action == "\/")
           atomic_tag(tag_name, attributes)
         elsif(action == "=")
-          print_tag(tag_name, template_eval(value).to_s, attributes)
+          value = template_eval(value)
+          print_tag(tag_name, value.to_s, attributes) if value != false
         else
           print_tag(tag_name, value, attributes)
         end
