@@ -5,6 +5,7 @@ module HAML
     def initialize(base)
       @base = base
       @tab_index = ["", "  "]
+      @happy_land = HappyLand.new(@base, @base.assigns)
       #pre-build the tab index up to 9
       10.times do |num|
         @tab_index << @tab_index.last + "  " 
@@ -14,10 +15,11 @@ module HAML
     def render(template = "", locals = {})
       @result = ""
       @to_close_queue = []
+      
 
-      locals.each do |variable_name, value|
-        @base.instance_eval "@" + variable_name.to_s + " = value"
-      end
+      @happy_land.set_locals(locals)
+      
+      #breakpoint
       
       #main loop handling line reading
       #and interpretation
@@ -67,6 +69,21 @@ module HAML
     def one_line_tag(name, value, attributes = {})
       add "<#{name.to_s}#{build_attributes(attributes)}>#{value}</#{name.to_s}>"
     end
+    
+    def print_tag(name, value, attributes = {})
+      unless value.empty?
+        if one_liner?(value)
+          one_line_tag(name, value, attributes)
+        else
+          open_tag(name, attributes)
+          add(value)
+          close_tag
+        end
+      else
+        open_tag(name, attributes)
+        add(value)
+      end
+    end
 
     #used to create single line tags... aka <hello />
     def atomic_tag(name, attributes = {})
@@ -91,37 +108,27 @@ module HAML
     end
     
     def render_tag(line)
-      line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)([=\/]?)([^\n]*)/).each do |tag_name, attributes, action, value|
-        val = template_eval(value)
-        attribute_hash = parse_attributes(attributes)
-        if val.class == Hash
-          attribute_hash.merge!(val) && val = nil
-        elsif !val.nil?
-          val = val.to_s
+      broken_up = line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)(\{.*\})?([=\/]?)?([^\n]*)?/)
+      broken_up.each do |tag_name, attributes, attributes_hash, action, value|
+        attributes = parse_attributes(attributes.to_s)
+        
+        unless(attributes_hash.nil? || attributes_hash.empty?)
+          attributes_hash = template_eval(attributes_hash)
+          attributes = attributes.merge(attributes_hash)
         end
-
+        
         #check to see if we're a one liner
         if(action == "\/")
-          atomic_tag(tag_name, attribute_hash)
+          atomic_tag(tag_name, attributes)
+        elsif(action == "=")
+          print_tag(tag_name, template_eval(value).to_s, attributes)
         else
-          if(!val.nil? && ((val.length < 50) || val.scan(/\n/).empty?))
-            one_line_tag(tag_name, val, attribute_hash)
-          else
-            open_tag(tag_name, attribute_hash)
-            
-            if(action == '=')
-              add(val)
-              close_tag
-            end
-          end
+          print_tag(tag_name, value, attributes)
         end
       end
     end
     
-    def template_eval(code)
-      @base.instance_eval(code)
-    end
-    
+
     def parse_attributes(list)
       attributes = {}
       list.scan(/([#.])([-a-zA-Z_()]+)/).each do |type, property|
@@ -137,6 +144,52 @@ module HAML
     
     def count_levels(line)
       [line.index(/[^ ]/)/2, line.strip]
+    end
+    
+    def one_liner?(value)
+      ((value.length < 50) && value.scan(/\n/).empty?)
+    end
+    
+    def template_eval(code)
+      #@base.instance_eval(code)
+      #render :inline => "<%=#{code}%>"
+      @happy_land.instance_eval(code)
+    end
+    
+  end
+  
+  class HappyLand #:nodoc
+    def initialize(base, hash_of_assigns, hash_of_locals = {})
+      base.instance_variables.each do |key|
+        value = base.instance_eval(key)
+        eval("#{key} = value")
+      end
+      hash_of_assigns.each do |key, value|
+        eval("@#{key} = value")
+      end
+      @__locals = hash_of_locals
+      @__base = base
+    end
+    
+    def set_locals(hash_of_locals)
+      @__locals.merge!(hash_of_locals)
+    end
+    
+    def instance_eval(code)
+      eval(code)
+    end
+    
+    def method_missing(action, *args, &block)
+      if action.to_s.first == "@"
+        result = @__base.instance_eval(action)
+      else
+        begin
+          result = @__base.send(action, *args, &block)
+        rescue
+          result = @__locals[action.to_s] || @__locals[action.to_sym]
+        end
+      end
+      result
     end
   end
   
