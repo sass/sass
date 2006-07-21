@@ -182,15 +182,10 @@ module HAML
     
     def method_missing(action, *args, &block)
       if action.to_s.first == "@"
-        result = @__base.instance_eval(action)
+        @__base.instance_eval(action)
       else
-        begin
-          result = @__base.send(action, *args, &block)
-        rescue
-          result = @__locals[action.to_s] || @__locals[action.to_sym]
-        end
+        @__locals[action.to_s] || @__locals[action.to_sym] || @__base.send(action, *args, &block)
       end
-      result
     end
   end
   
