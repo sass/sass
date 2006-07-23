@@ -7,7 +7,7 @@ module HAML
       @tab_index = ["", "  "]
       @happy_land = HappyLand.new(@base, @base.assigns)
       #pre-build the tab index up to 9
-      10.times do |num|
+      20.times do |num|
         @tab_index << @tab_index.last + "  " 
       end
     end
@@ -15,8 +15,12 @@ module HAML
     def render(template = "", locals = {})
       @result = ""
       @to_close_queue = []
-      
 
+      #this helps get the right values for helpers.
+      @base.assigns.each do |key,value|
+        @base.instance_eval("@#{key} = value")
+      end
+      
       @happy_land.set_locals(locals)
       
       #breakpoint
