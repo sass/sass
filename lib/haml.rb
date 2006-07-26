@@ -96,7 +96,7 @@ module HAML
 
     def build_attributes(attributes = {})
       return "" if attributes.empty?
-      " " + (attributes.collect { |attr_name, val| attr_name.to_s + "='" + val + "'" }).join(" ")
+      " " + (attributes.collect { |attr_name, val| attr_name.to_s + "='" + val.to_s + "'" }).join(" ")
     end
     
     def close_tag
