@@ -1,6 +1,8 @@
 module HAML
 
   class TemplateEngine
+
+    include HAMLHelpers
     
     def initialize(base)
       @base = base
@@ -112,21 +114,21 @@ module HAML
     end
     
     def render_tag(line)
-      broken_up = line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)(\{.*\})?([=\/]?)?([^\n]*)?/)
+      broken_up = line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)(\{.*\})?([=\/\~]?)?(.*)?/)
       broken_up.each do |tag_name, attributes, attributes_hash, action, value|
         attributes = parse_attributes(attributes.to_s)
-        
-        unless(attributes_hash.nil? || attributes_hash.empty?)
-          attributes_hash = template_eval(attributes_hash)
-          attributes = attributes.merge(attributes_hash)
-        end
-        
+        attributes.merge!(template_eval(attributes_hash)) unless (attributes_hash.nil? || attributes_hash.empty?)
+
+        #TODO: this is seriously dirty stuff.
         #check to see if we're a one liner
         if(action == "\/")
           atomic_tag(tag_name, attributes)
         elsif(action == "=")
           value = template_eval(value)
           print_tag(tag_name, value.to_s, attributes) if value != false
+        elsif(action == "~") #worse than ugly... un-DRY!
+          value = template_eval(value)
+          one_line_tag(tag_name, value.to_s, attributes) if value != false
         else
           print_tag(tag_name, value, attributes)
         end
