@@ -1,4 +1,4 @@
-require 'haml'
-require 'haml_helpers'
+require 'haml/engine'
+require 'haml/helpers'
 
-ActionView::Base.register_template_handler("haml", HAML::TemplateEngine)
+ActionView::Base.register_template_handler("haml", HAML::Engine)

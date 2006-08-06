@@ -1,6 +1,10 @@
+
+require File.dirname(__FILE__) + '/helpers'
+
 module HAML
 
-  class TemplateEngine
+  class Engine
+    attr_accessor :base
 
     include HAMLHelpers
     
@@ -13,7 +17,7 @@ module HAML
         @tab_index << @tab_index.last + "  " 
       end
     end
-    
+
     def render(template = "", locals = {})
       @result = ""
       @to_close_queue = []
@@ -22,11 +26,9 @@ module HAML
       @base.assigns.each do |key,value|
         @base.instance_eval("@#{key} = value")
       end
-      
+
       @happy_land.set_locals(locals)
-      
-      #breakpoint
-      
+
       #main loop handling line reading
       #and interpretation
       template.each_line do |line|
@@ -48,25 +50,25 @@ module HAML
             when '='
               add template_eval(line[1, line.length])
             else
-              add line
+              add line.strip
             end
         end
       end
-      
+
       @to_close_queue.length.times { close_tag }
       @result
     end
 
     def add(line)
       return nil if line.nil?
-      line.each_line { |me| add_single(me) }
+      line.to_s.each_line { |me| add_single(me) }
     end
-    
+
     def add_single(line = "")
       @result << @tab_index[@to_close_queue.size]
       @result << line.chomp + "\n"
     end
-    
+
     def open_tag(name, attributes = {})
       add "<#{name.to_s}#{build_attributes(attributes)}>"
       @to_close_queue.push(name)
@@ -75,7 +77,7 @@ module HAML
     def one_line_tag(name, value, attributes = {})
       add "<#{name.to_s}#{build_attributes(attributes)}>#{value}</#{name.to_s}>"
     end
-    
+
     def print_tag(name, value, attributes = {})
       unless value.empty?
         if one_liner?(value)
@@ -100,19 +102,19 @@ module HAML
       return "" if attributes.empty?
       " " + (attributes.collect { |attr_name, val| attr_name.to_s + "='" + val.to_s + "'" }).join(" ")
     end
-    
+
     def close_tag
       add "</#{name = @to_close_queue.pop}>"
     end
-    
+
     def render_div(line)
       render_tag("%div" + line)
     end
-    
+
     def render_comment(line)
-      add "<!-- #{line} -->"
+      add "<!-- #{line[1..line.length].strip} -->"
     end
-    
+
     def render_tag(line)
       broken_up = line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)(\{.*\})?([=\/\~]?)?(.*)?/)
       broken_up.each do |tag_name, attributes, attributes_hash, action, value|
@@ -130,11 +132,10 @@ module HAML
           value = template_eval(value)
           one_line_tag(tag_name, value.to_s, attributes) if value != false
         else
-          print_tag(tag_name, value, attributes)
+          print_tag(tag_name, value.to_s.strip, attributes)
         end
       end
     end
-    
 
     def parse_attributes(list)
       attributes = {}
@@ -148,24 +149,26 @@ module HAML
       end
       attributes
     end
-    
+
     def count_levels(line)
       [line.index(/[^ ]/)/2, line.strip]
     end
-    
+
     def one_liner?(value)
       ((value.length < 50) && value.scan(/\n/).empty?)
     end
-    
+
     def template_eval(code)
       #@base.instance_eval(code)
       #render :inline => "<%=#{code}%>"
       @happy_land.instance_eval(code)
     end
-    
+
   end
-  
+
   class HappyLand #:nodoc
+    include HAMLHelpers
+
     def initialize(base, hash_of_assigns, hash_of_locals = {})
       base.instance_variables.each do |key|
         value = base.instance_eval(key)

@@ -1,6 +1,8 @@
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
+$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
+
 
 desc 'Default: run unit tests.'
 task :default => :test
