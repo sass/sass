@@ -22,5 +22,12 @@ class HamlTest < Test::Unit::TestCase
                  find_and_flatten("<div class='text_area_test_area'>\n  <textarea>Two\n  lines</textarea>\n</div>\n"))
     assert_equal(                 "<code>Two&#x000A;lines</code><pre>a&#x000A;b&#x000A;c</pre>",
                  find_and_flatten("<code>Two\nlines</code><pre>a\nb\nc</pre>"))
+    assert_equal(                 "<pre>Two&#x000A;lines</pre>\n<pre>a&#x000A;b&#x000A;c</pre>",
+                 find_and_flatten("<pre>Two\nlines</pre>\n<pre>a\nb\nc</pre>"))
+  end
+
+  def tabs
+    assert_equals("  ", tabs(1))
+    assert_equals("          ", tabs(5))
   end
 end

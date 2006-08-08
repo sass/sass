@@ -10,19 +10,14 @@ module HAML
     
     def initialize(base)
       @base = base
-      @tab_index = ["", "  "]
       @happy_land = HappyLand.new(@base, @base.assigns)
-      #pre-build the tab index up to 9
-      20.times do |num|
-        @tab_index << @tab_index.last + "  " 
-      end
     end
 
     def render(template = "", locals = {})
-      @result = ""
-      @to_close_queue = []
-
+      @result, @to_close_queue = "", []
+      
       #this helps get the right values for helpers.
+      #though, it is definitely in the "hack" category
       @base.assigns.each do |key,value|
         @base.instance_eval("@#{key} = value")
       end
@@ -35,7 +30,7 @@ module HAML
         if line.strip[0, 3] == "!!!"
           @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
         else
-          count, line = count_levels(line)
+          count, line = count_soft_tabs(line)
           #puts count.to_s + "::" + line
           if count <= @to_close_queue.size && @to_close_queue.size > 0
             (@to_close_queue.size - count).times { close_tag }
@@ -67,7 +62,7 @@ module HAML
     end
 
     def add_single(line = "")
-      @result << @tab_index[@to_close_queue.size]
+      @result << tabs(@to_close_queue.size)
       @result << line.chomp + "\n"
     end
 
@@ -149,18 +144,12 @@ module HAML
       end
       attributes
     end
-
-    def count_levels(line)
-      [line.index(/[^ ]/)/2, line.strip]
-    end
-
+    
     def one_liner?(value)
       ((value.length < 50) && value.scan(/\n/).empty?)
     end
 
     def template_eval(code)
-      #@base.instance_eval(code)
-      #render :inline => "<%=#{code}%>"
       @happy_land.instance_eval(code)
     end
 

@@ -13,12 +13,19 @@ module HAMLHelpers
   end
 
   def find_and_flatten(input)
-    s, result = StringScanner.new(input), ""
-    while s.scan_until(/<(textarea|code|pre)[^>]*>/i)
-      result += s.pre_match.to_s + s.matched
-      tag_name = s.matched.scan(/(textarea|code|pre)/).first
-      result += flatten(s.scan_until(/<\/#{tag_name}>/i))
+    sets = input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im)
+    sets.each do |thing|
+      input = input.gsub(thing[1], flatten(thing[1]))
     end
-    result + s.rest
+    input
   end
+
+  def tabs(count)
+    "  " * count
+  end
+
+  def count_soft_tabs(line)
+    [line.index(/[^ ]/)/2, line.strip]
+  end
+  
 end

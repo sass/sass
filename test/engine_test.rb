@@ -20,11 +20,11 @@ class HamlTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name)
-    #tupleize(load_result(name).scan(/\n/), @base.render(name).scan(/\n/)).each do |pair|
+    tupleize(load_result(name).scan(/\n/), @base.render(name).scan(/\n/)).each do |pair|
       #test each line to make sure it matches... (helps with error messages to do them seperately)
-    #  assert_equal(pair.first, pair.last)
-    #end
-    assert_equal(load_result(name), @base.render(name))
+      assert_equal(pair.first, pair.last)
+    end
+    #assert_equal(load_result(name), @base.render(name))
   end
 
   # Make sure our little environment builds
