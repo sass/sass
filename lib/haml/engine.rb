@@ -49,6 +49,8 @@ module HAML
               render_comment(line)
             when '='
               add template_eval(line[1, line.length])
+            when '~'
+              add find_and_flatten(template_eval(line[1, line.length]))
             else
               add line.strip
             end
@@ -125,12 +127,10 @@ module HAML
         #check to see if we're a one liner
         if(action == "\/")
           atomic_tag(tag_name, attributes)
-        elsif(action == "=")
+        elsif(action == "=" || action == "~")
           value = template_eval(value)
+          value = find_and_flatten(value) if action == "~"
           print_tag(tag_name, value.to_s, attributes) if value != false
-        elsif(action == "~") #worse than ugly... un-DRY!
-          value = template_eval(value)
-          one_line_tag(tag_name, value.to_s, attributes) if value != false
         else
           print_tag(tag_name, value.to_s.strip, attributes)
         end

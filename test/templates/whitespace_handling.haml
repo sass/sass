@@ -1,0 +1,6 @@
+#whitespace_test
+  = render :file => "_text_area.haml", :locals => { :value => "Oneline" }
+  = render :file => "_text_area.haml", :locals => { :value => "Two\nlines" }
+  ~ render :file => "_text_area.haml", :locals => { :value => "Oneline" }
+  ~ render :file => "_text_area.haml", :locals => { :value => "Two\nlines" }
+  #flattened~ render :file => "_text_area.haml", :locals => { :value => "Two\nlines" }
