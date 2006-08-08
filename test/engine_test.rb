@@ -10,6 +10,7 @@ class HamlTest < Test::Unit::TestCase
   def setup
     ActionView::Base.register_template_handler("haml", HAML::Engine)
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/../test/templates/")
+    @base.instance_eval("@hello_world = 'Hello, World!'")
     @engine = HAML::Engine.new(@base)
   end
 

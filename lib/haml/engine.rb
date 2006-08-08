@@ -179,11 +179,11 @@ module HAML
     end
     
     def method_missing(action, *args, &block)
-      if action.to_s.first == "@"
-        @__base.instance_eval(action)
-      else
+      #if action.to_s.first == "@"
+      #  @__base.instance_eval(action)
+      #else
         @__locals[action.to_s] || @__locals[action.to_sym] || @__base.send(action, *args, &block)
-      end
+      #end
     end
   end
   
