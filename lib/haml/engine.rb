@@ -1,4 +1,3 @@
-
 require File.dirname(__FILE__) + '/helpers'
 
 module HAML
@@ -7,7 +6,7 @@ module HAML
     attr_accessor :base
 
     include HAMLHelpers
-    
+
     def initialize(base)
       @base = base
       @happy_land = HappyLand.new(@base, @base.assigns)
@@ -15,7 +14,7 @@ module HAML
 
     def render(template = "", locals = {})
       @result, @to_close_queue = "", []
-      
+
       #this helps get the right values for helpers.
       #though, it is definitely in the "hack" category
       @base.assigns.each do |key,value|
@@ -23,6 +22,7 @@ module HAML
       end
 
       @happy_land.set_locals(locals)
+      @happy_land.update_instance_variables
 
       #main loop handling line reading
       #and interpretation
@@ -31,10 +31,11 @@ module HAML
           @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
         else
           count, line = count_soft_tabs(line)
-          #puts count.to_s + "::" + line
+          
           if count <= @to_close_queue.size && @to_close_queue.size > 0
             (@to_close_queue.size - count).times { close_tag }
           end
+          
           case line.first
             when '.', '#'
               render_div(line)
@@ -144,7 +145,7 @@ module HAML
       end
       attributes
     end
-    
+
     def one_liner?(value)
       ((value.length < 50) && value.scan(/\n/).empty?)
     end
@@ -159,32 +160,39 @@ module HAML
     include HAMLHelpers
 
     def initialize(base, hash_of_assigns, hash_of_locals = {})
-      base.instance_variables.each do |key|
-        value = base.instance_eval(key)
-        eval("#{key} = value")
-      end
       hash_of_assigns.each do |key, value|
         eval("@#{key} = value")
       end
       @__locals = hash_of_locals
       @__base = base
     end
+
+    def base
+      @__base
+    end
     
+    def update_instance_variables
+      base.instance_variables.each do |key|
+        value = base.instance_eval(key)
+        eval("#{key} = value")
+      end
+    end
+
     def set_locals(hash_of_locals)
       @__locals.merge!(hash_of_locals)
     end
-    
+
     def instance_eval(code)
       eval(code)
     end
-    
+
     def method_missing(action, *args, &block)
-      #if action.to_s.first == "@"
-      #  @__base.instance_eval(action)
-      #else
+      if action.to_s[0] == 64
+        @__base.instance_eval(action)
+      else
         @__locals[action.to_s] || @__locals[action.to_sym] || @__base.send(action, *args, &block)
-      #end
+      end
     end
   end
-  
+
 end

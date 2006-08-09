@@ -1,6 +1,6 @@
 
-
 module HAMLHelpers
+
   def flatten(input)
     input.gsub(/\n/, '&#x000A;').gsub(/\r/, '')
   end
@@ -27,5 +27,5 @@ module HAMLHelpers
   def count_soft_tabs(line)
     [line.index(/[^ ]/)/2, line.strip]
   end
-  
+
 end

@@ -53,4 +53,9 @@ class HamlTest < Test::Unit::TestCase
     assert_equal("<div class='author'>Hampton Catlin</div>\n", @engine.render(".author= @content_for_layout + ' ' + @last_name"))
   end
 
+  def test_instance_variables_changing
+    @base.instance_eval("@author = 'Hampton'")
+    assert_equal("Hampton\n", @engine.render("= @author"))
+  end
+
 end

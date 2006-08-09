@@ -26,8 +26,8 @@ class HamlTest < Test::Unit::TestCase
                  find_and_flatten("<pre>Two\nlines</pre>\n<pre>a\nb\nc</pre>"))
   end
 
-  def tabs
-    assert_equals("  ", tabs(1))
-    assert_equals("          ", tabs(5))
+  def test_tabs
+    assert_equal("  ", tabs(1))
+    assert_equal("          ", tabs(5))
   end
 end
