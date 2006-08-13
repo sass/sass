@@ -66,4 +66,9 @@ class HamlTest < Test::Unit::TestCase
     assert_equal("<div class='no_attributes'>\n</div>\n",
                  render(".no_attributes{:nil => nil}"))
   end
+
+  def test_stripped_strings
+    assert_equal("<div class='stripped'>This should have no spaces in front of it</div>\n",
+                 render(".stripped    This should have no spaces in front of it"))
+  end
 end
