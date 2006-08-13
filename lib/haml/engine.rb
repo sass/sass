@@ -98,7 +98,7 @@ module HAML
 
     def build_attributes(attributes = {})
       return "" if attributes.empty?
-      " " + (attributes.collect { |attr_name, val| attr_name.to_s + "='" + val.to_s + "'" }).join(" ")
+      " " + (attributes.collect { |attr_name, val| attr_name.to_s + "='" + val.to_s + "'" unless val.nil? }).compact.join(" ")
     end
 
     def close_tag
@@ -116,7 +116,7 @@ module HAML
     def render_tag(line)
       broken_up = line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)(\{.*\})?([=\/\~]?)?(.*)?/)
       broken_up.each do |tag_name, attributes, attributes_hash, action, value|
-        attributes = parse_attributes(attributes.to_s)
+        attributes = parse_class_and_id(attributes.to_s)
         attributes.merge!(template_eval(attributes_hash)) unless (attributes_hash.nil? || attributes_hash.empty?)
 
         #TODO: this is seriously dirty stuff.
@@ -133,7 +133,7 @@ module HAML
       end
     end
 
-    def parse_attributes(list)
+    def parse_class_and_id(list)
       attributes = {}
       list.scan(/([#.])([-a-zA-Z_()]+)/).each do |type, property|
        case type

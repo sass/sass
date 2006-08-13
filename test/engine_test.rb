@@ -14,6 +14,10 @@ class HamlTest < Test::Unit::TestCase
     @engine = HAML::Engine.new(@base)
   end
 
+  def render(text)
+    @engine.render(text)
+  end
+
   def load_result(name)
     @result = ""
     File.new(File.dirname(__FILE__) + "/results/" + name + ".xhtml").each_line { |l| @result += l}
@@ -35,7 +39,7 @@ class HamlTest < Test::Unit::TestCase
   end
 
   def test_empty_render
-    assert_equal("", @engine.render(""))
+    assert_equal("", render(""))
   end
 
   def test_renderings
@@ -50,12 +54,16 @@ class HamlTest < Test::Unit::TestCase
     @base.instance_eval("@assigns['last_name'] = 'Catlin'")
     #make sure to reload!
     @engine = HAML::Engine.new(@base)
-    assert_equal("<div class='author'>Hampton Catlin</div>\n", @engine.render(".author= @content_for_layout + ' ' + @last_name"))
+    assert_equal("<div class='author'>Hampton Catlin</div>\n", render(".author= @content_for_layout + ' ' + @last_name"))
   end
 
   def test_instance_variables_changing
     @base.instance_eval("@author = 'Hampton'")
-    assert_equal("Hampton\n", @engine.render("= @author"))
+    assert_equal("Hampton\n", render("= @author"))
   end
 
+  def test_nil_attribute
+    assert_equal("<div class='no_attributes'>\n</div>\n",
+                 render(".no_attributes{:nil => nil}"))
+  end
 end
