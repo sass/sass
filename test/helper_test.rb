@@ -7,10 +7,6 @@ require 'action_view'
 class HamlTest < Test::Unit::TestCase
   include HAMLHelpers
 
-  def test_tupleize
-    assert_equal(tupleize([1,2,3], [4,5,6]), [[1,4],[2,5],[3,6]])
-  end
-
   def test_find_and_flatten
     assert_equal(find_and_flatten("<br/><textarea></textarea><br/>"),
                                   "<br/><textarea></textarea><br/>")

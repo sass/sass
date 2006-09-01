@@ -5,13 +5,6 @@ module HAMLHelpers
     input.gsub(/\n/, '&#x000A;').gsub(/\r/, '')
   end
 
-  def tupleize(first, second)
-    second = second.reverse
-    first.collect do |f|
-      [f, second.pop]
-    end
-  end
-
   def find_and_flatten(input)
     sets = input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im)
     sets.each do |thing|
