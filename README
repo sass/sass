@@ -1,4 +1,79 @@
-Haml
-====
+= HAML (XHTML Abstraction Markup Language)
 
-Description goes here
+HAML is a markup language that is used to cleanly and simply describe the XHTML 
+of any web document without the use of inline code. HAML functions as a 
+replacement for inline page templating systems such PHP, RHTML, and ASP. 
+However, HAML avoids the need for explicitly coding XHTML into the template, 
+because it iself is a description of the XHTML, with some code to generate 
+dynamic content.
+
+== Features
+
+* Whitespace Active
+* Well-formatted XHTML
+* DRY
+* Follows styles common in CSS
+
+== Using HAML as a Rails plugin
+
+Write Rails templates with the .haml extension. Example:
+
+  %html
+    %head
+      %title= "Teen Wolf (1985)"
+    %body
+      #contents
+        %h1 "A highschooler discovers that he is a werewolf"
+        %ul.cast
+          %li "Scott Howard"
+          %li "Rupert 'Stiles' Stilinski"
+          %li "Lisa 'Boof' Marconi"
+          %li "Lewis"
+
+Would result in this XHTML:
+
+  <html>
+    <head>
+      <title>Teen Wolf (1985)</title>
+    </head>
+    <body>
+      <div id="contents">
+        <h1>A highschooler discovers that he is a werewolf</h1>
+        <ul class="cast">
+          <li>Scott Howard</li>
+          <li>Rupert 'Stiles' Stilinski</li>
+          <li>Lisa 'Boof' Marconi</li>
+          <li>Lewis</li>
+        </ul>
+      </div>
+    </body>
+  </html>
+
+You can access instance variables in HAML templates the same way you do in ERb templates.
+
+  file: app/controllers/movies_controller.rb
+
+  class MoviesController < ApplicationController
+    def index
+      @title = "Teen Wolf"
+    end
+  end
+
+  file: app/views/movies/index.haml
+
+  #content
+   .title
+     %h1= @title
+ 
+Would produce the following HTML:
+
+  <div id="content">
+    <div class="title">
+      <h1>Teen Wolf</h1>
+    </div>
+  </div>
+
+
+
+---
+Copyright (c) 2006 Hampton Catlin
