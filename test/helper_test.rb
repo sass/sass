@@ -1,11 +1,13 @@
 require 'test/unit'
 require File.dirname(__FILE__) + '/../lib/haml/engine'
+
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
+
 require 'rubygems'
 require 'action_view'
 
 class HamlTest < Test::Unit::TestCase
-  include HAMLHelpers
+  include Haml::Helpers
 
   def test_find_and_flatten
     assert_equal(find_and_flatten("<br/><textarea></textarea><br/>"),
