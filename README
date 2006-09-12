@@ -19,7 +19,8 @@ dynamic content.
 == Authors
 
 HAML was originally created by Hampton Catlin (hcatlin). Help with the
-Ruby On Rails implementation by Jeff Hardy (packagethief).
+Ruby On Rails implementation and much of the documentation by 
+Jeff Hardy (packagethief).
 
 If you use this software, you must pay Hampton a compliment. Say something
 nice about it. Beyond that, the implementation is licensed under the MIT
