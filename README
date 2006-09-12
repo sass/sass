@@ -16,6 +16,15 @@ dynamic content.
 * Interpolates Ruby code
 * Implements Rails templates with the .haml extension
 
+== Authors
+
+HAML was originally created by Hampton Catlin (hcatlin). Help with the
+Ruby On Rails implementation by Jeff Hardy (packagethief).
+
+If you use this software, you must pay Hampton a compliment. Say something
+nice about it. Beyond that, the implementation is licensed under the MIT
+License. Ok, fine, I guess that means compliments aren't *required*.
+
 == Formatting
 
 Haml is sensitive to spacing and indentation; it uses nesting to convey
@@ -30,11 +39,11 @@ using two spaces. Remember, spaces are not the same as tabs. Example:
 
 is compiled to:
 
-  <div id="contact">
+  <div id='contact'>
     <h1>Eugene Mumbai</h1>
-    <ul class="info">
-      <li class="login">eugene</li>
-      <li class="email">eugene@example.com</li>
+    <ul class='info'>
+      <li class='login'>eugene</li>
+      <li class='email'>eugene@example.com</li>
     </ul>
   </div>
   
@@ -54,7 +63,7 @@ is compiled to:
 
   <one>
     <two>
-      <meta content="something" />
+      <meta content='something' />
       <three>Hey there</three>
     </two>
   </one>
@@ -65,7 +74,7 @@ self-closing tag, use the forward slash character. Example:
 
   %br/ # => <br />
   %meta{:http-equiv => 'Content-Type', :content => 'text/html'}
-  # => <meta http-equiv="Content-Type" content="text/html" />
+  # => <meta http-equiv='Content-Type' content='text/html' />
 
 HTML div elements are assumed when no <tt>%tag</tt> is present and the line is
 preceeded by either the <tt>#</tt> or the <tt>.</tt> characters. This convention
@@ -84,8 +93,8 @@ is the same as:
 
 and is comiled to:
 
-  <div id="collection">
-    <div class="item">Broken record album</div>
+  <div id='collection'>
+    <div class='item'>Broken record album</div>
   </div>
 
 There is a shortcut when you want to specify either the id or class attributes
@@ -98,9 +107,9 @@ of an element: follow the element name with either the <tt>#</tt> or the
 
 is compiled to:
 
-  <div id="things">
-    <span id="rice">Chicken Fried</span>
-    <p class="beans">The magical fruit</p>
+  <div id='things'>
+    <span id='rice'>Chicken Fried</span>
+    <p class='beans'>The magical fruit</p>
   </div>
   
 === Specifying a document type
@@ -153,9 +162,9 @@ is compiled to:
       <title>Teen Wolf (1985)</title>
     </head>
     <body>
-      <div id="contents">
+      <div id='contents'>
         <h1>A highschooler discovers that he is a werewolf</h1>
-        <ul class="cast">
+        <ul class='cast'>
           <li>Scott Howard</li>
           <li>Rupert 'Stiles' Stilinski</li>
           <li>Lisa 'Boof' Marconi</li>
@@ -188,10 +197,10 @@ method call will be inserted into the stream. Example:
  
 is be compiled to:
 
-  <div id="content">
-    <div class="title">
+  <div id='content'>
+    <div class='title'>
       <h1>Teen Wolf</h1>
-      <a href="/">Home</a>
+      <a href='/'>Home</a>
     </div>
   </div>
 
@@ -200,3 +209,4 @@ is be compiled to:
 
 ---
 Copyright (c) 2006 Hampton Catlin
+Licensed under the MIT License
