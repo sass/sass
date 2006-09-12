@@ -46,7 +46,7 @@ by the element name. To specify attributes, include a hash of attributes inside
 curly braces. Example:
 
   %one
-    %meta{:content => 'something'}
+    %meta{:content => 'something'}/
     %two
       %three Hey there
 
