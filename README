@@ -1,6 +1,6 @@
 = HAML (XHTML Abstraction Markup Language)
 
-HAML is a markup language that is used to cleanly and simply describe the XHTML 
+HAML is a markup language that's used to cleanly and simply describe the XHTML 
 of any web document without the use of inline code. HAML functions as a 
 replacement for inline page templating systems such PHP, RHTML, and ASP. 
 However, HAML avoids the need for explicitly coding XHTML into the template, 
