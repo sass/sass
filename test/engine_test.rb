@@ -26,8 +26,9 @@ class HamlTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name)
-    load_result(name).scan(/\n/).zip(@base.render(name).scan(/\n/)).each do |pair|
+    load_result(name).split("\n").zip(@base.render(name).split("\n")).each do |pair|
       assert_equal(pair.first, pair.last)
+      #puts pair.inspect
     end
   end
 
@@ -48,6 +49,7 @@ class HamlTest < Test::Unit::TestCase
     assert_renders_correctly("helpers")
     assert_renders_correctly("whitespace_handling")
     assert_renders_correctly("original_engine")
+    assert_renders_correctly("list")
   end
 
   def test_instance_variables

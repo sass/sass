@@ -130,7 +130,7 @@ module Haml #:nodoc:
         attributes = parse_class_and_id(attributes.to_s)
         attributes.merge!(template_eval(attributes_hash)) unless (attributes_hash.nil? || attributes_hash.empty?)
 
-        if action == '\/'
+        if action == '/'
           atomic_tag(tag_name, attributes)
         elsif action == '=' || action == '~'
           value = template_eval(value)
