@@ -74,7 +74,7 @@ closing tags for any element. When you want to force the output of a
 self-closing tag, use the forward slash character. Example:
 
   %br/ # => <br />
-  %meta{:http-equiv => 'Content-Type', :content => 'text/html'}
+  %meta{:http-equiv => 'Content-Type', :content => 'text/html'}/
   # => <meta http-equiv='Content-Type' content='text/html' />
 
 HTML div elements are assumed when no <tt>%tag</tt> is present and the line is
