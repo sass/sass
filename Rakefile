@@ -6,11 +6,19 @@ $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 desc 'Default: run unit tests.'
 task :default => :test
 
-desc 'Test the haml plugin.'
+desc 'Test the HAML plugin'
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib'
   t.pattern = 'test/**/*_test.rb'
   t.verbose = true
+end
+
+desc 'Benchmark HAML against ERb. The benchmark routine is run 100. Use TIMES=n to override'
+task :benchmark do
+  puts '-'*51, "+ Benchmark: HAML vs. ERb", '-'*51
+  puts "Running benchmark #{ENV['TIMES']} times..." if ENV['TIMES']
+  puts `ruby test/benchmark.rb #{ENV['TIMES']}` 
+  puts '-'*51
 end
 
 desc 'Generate documentation for the haml plugin.'
