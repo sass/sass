@@ -1,11 +1,12 @@
 require File.dirname(__FILE__) + '/helpers'
 
-module Haml
+module Haml #:nodoc:
   class Engine
     include Haml::Helpers
   
     # Set the maximum length for a line to be considered a one-liner
-    # Lines <= the maximum will be rendered on one line, i.e. +<p>Hello world</p>+
+    # Lines <= the maximum will be rendered on one line,
+    # i.e. <tt><p>Hello world</p></tt>
     ONE_LINER_LENGTH = 50
   
     def initialize(view)
@@ -40,6 +41,7 @@ module Haml
         count, line = count_soft_tabs(line)
       
         if count && line
+          # TODO only check for the doctype directive if we're on the first line
           if line.strip[0, 3] == '!!!'
             @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
           else
@@ -102,7 +104,7 @@ module Haml
       end
     end
 
-    # Creates single line tags, i.e. +<hello />+
+    # Creates single line tags, i.e. <tt><hello /></tt>
     def atomic_tag(name, attributes = {})
       add "<#{name.to_s}#{build_attributes(attributes)} />"
     end
@@ -140,10 +142,7 @@ module Haml
       end
     end
 
-    # Search for `#` and `.` characters indicating id and class attributes
-    # respectively
-    #
-    # Returns the attributes hash
+    # Searches for `#` and `.` characters indicating id and class attributes
     def parse_class_and_id(list)
       attributes = {}
       list.scan(/([#.])([-a-zA-Z_()]+)/).each do |type, property|
@@ -161,7 +160,7 @@ module Haml
       value.length <= ONE_LINER_LENGTH && value.scan(/\n/).empty?
     end
 
-    # Evaluate in the context of the view object we recieved in the constructor
+    # Evaluates input in the context of the current ActionView instance
     def template_eval(args)
       @view.instance_eval(args)
     end

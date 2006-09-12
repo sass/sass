@@ -1,20 +1,136 @@
-= HAML (XHTML Abstraction Markup Language)
+= Haml (XHTML Abstraction Markup Language)
 
 HAML is a markup language that's used to cleanly and simply describe the XHTML 
-of any web document without the use of inline code. HAML functions as a 
+of any web document without the use of inline code. Haml functions as a 
 replacement for inline page templating systems such PHP, RHTML, and ASP. 
-However, HAML avoids the need for explicitly coding XHTML into the template, 
+However, Haml avoids the need for explicitly coding XHTML into the template, 
 because it iself is a description of the XHTML, with some code to generate 
 dynamic content.
 
 == Features
 
-* Whitespace Active
-* Well-formatted XHTML
+* Whitespace active
+* Well-formatted markup
 * DRY
-* Follows styles common in CSS
+* Follows CSS conventions
+* Interpolates Ruby code
+* Implements Rails templates with the .haml extension
 
-== Using HAML as a Rails plugin
+== Formatting
+
+Haml is sensitive to spacing and indentation; it uses nesting to convey
+structure. When you want an element to have children, indent the lines below it
+using two spaces. Remember, spaces are not the same as tabs. Example:
+
+  #contact
+    %h1 Eugene Mumbai
+    %ul.info
+      %li.login eugene
+      %li.email eugene@example.com
+
+is compiled to:
+
+  <div id="contact">
+    <h1>Eugene Mumbai</h1>
+    <ul class="info">
+      <li class="login">eugene</li>
+      <li class="email">eugene@example.com</li>
+    </ul>
+  </div>
+  
+== Characters with meaning to Haml
+
+Haml responds to certain special characters. To create an element in the form of
+<tt><element></element></tt> use the <tt>%</tt> character, immediately followed
+by the element name. To specify attributes, include a hash of attributes inside
+curly braces. Example:
+
+  %one
+    %meta{:content => 'something'}
+    %two
+      %three Hey there
+
+is compiled to:
+
+  <one>
+    <two>
+      <meta content="something" />
+      <three>Hey there</three>
+    </two>
+  </one>
+
+Any string is a valid element name; Haml will automatically generate opening and
+closing tags for any element. When you want to force the output of a
+self-closing tag, use the forward slash character. Example:
+
+  %br/ # => <br />
+  %meta{:http-equiv => 'Content-Type', :content => 'text/html'}
+  # => <meta http-equiv="Content-Type" content="text/html" />
+
+HTML div elements are assumed when no <tt>%tag</tt> is present and the line is
+preceeded by either the <tt>#</tt> or the <tt>.</tt> characters. This convention
+uses familiar CSS semantics: <tt>#</tt> denotes the id of the element,
+<tt>.</tt> denotes its class name. Example:
+
+  #collection
+    .item
+      Broken record album
+    
+is the same as:
+
+  %div{:id => collection}
+    %div{:class => 'item'}
+      Broken record album
+
+and is comiled to:
+
+  <div id="collection">
+    <div class="item">Broken record album</div>
+  </div>
+
+There is a shortcut when you want to specify either the id or class attributes
+of an element: follow the element name with either the <tt>#</tt> or the
+<tt>.</tt> characters. Example:
+
+  #things
+    %span#rice Chicken Fried
+    %p.beans The magical fruit
+
+is compiled to:
+
+  <div id="things">
+    <span id="rice">Chicken Fried</span>
+    <p class="beans">The magical fruit</p>
+  </div>
+  
+=== Specifying a document type
+
+When describing xhtml documents with Haml, you can have a document type
+generated automatically by including the characters <tt>!!!</tt> as the first
+line in your document. Example:
+
+  !!!
+  %html
+    %head
+      %title Myspace
+    %body
+      %h1 I am the international space station
+      %p Sign my guestbook
+
+is compiled to:
+
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html>
+    <head>
+      <title>Myspace</title>
+    </head>
+    <body>
+      <h1>I am the international space station</h1>
+      <p>Sign my guestbook</p>
+    </body>
+  </html>
+
+== Using Haml as a Rails plugin
 
 Write Rails templates with the .haml extension. Example:
 
@@ -30,7 +146,7 @@ Write Rails templates with the .haml extension. Example:
           %li "Lisa 'Boof' Marconi"
           %li "Lewis"
 
-Would result in this XHTML:
+is compiled to:
 
   <html>
     <head>
@@ -49,7 +165,11 @@ Would result in this XHTML:
     </body>
   </html>
 
-You can access instance variables in HAML templates the same way you do in ERb templates.
+You can access instance variables in Haml templates the same way you do in ERb
+templates. Helper methods are also available in Haml templates. To specify that
+a line should be evaulated as Ruby, use the <tt>=</tt> character at the begining
+of a line, or immediately following an element name. The return value of the
+method call will be inserted into the stream. Example:
 
   file: app/controllers/movies_controller.rb
 
@@ -64,14 +184,17 @@ You can access instance variables in HAML templates the same way you do in ERb t
   #content
    .title
      %h1= @title
+     = link_to 'Home', home_url
  
-Would produce the following HTML:
+is be compiled to:
 
   <div id="content">
     <div class="title">
       <h1>Teen Wolf</h1>
+      <a href="/">Home</a>
     </div>
   </div>
+
 
 
 
