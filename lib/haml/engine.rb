@@ -52,6 +52,8 @@ module Haml #:nodoc:
             when '.', '#'
               render_div(line)
             when '%'
+              # Check for square brackets inside which there should be a model object
+              
               render_tag(line)
             when '/'
               render_comment(line)
@@ -126,10 +128,15 @@ module Haml #:nodoc:
     end
 
     def render_tag(line)
-      line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)(\{.*\})?([=\/\~]?)?(.*)?/).each do |tag_name, attributes, attributes_hash, action, value|
+      line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/).each do |tag_name, attributes, attributes_hash, object_ref, action, value|
         attributes = parse_class_and_id(attributes.to_s)
         attributes.merge!(template_eval(attributes_hash)) unless (attributes_hash.nil? || attributes_hash.empty?)
 
+        if object_ref && (object_ref = template_eval(object_ref).first)
+          class_name = object_ref.class.to_s.underscore
+          attributes.merge!(:id => "#{class_name}_#{object_ref.id}", :class => class_name)
+        end
+        
         if action == '/'
           atomic_tag(tag_name, attributes)
         elsif action == '=' || action == '~'

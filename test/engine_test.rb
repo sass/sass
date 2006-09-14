@@ -1,5 +1,6 @@
 require 'test/unit'
 require File.dirname(__FILE__) + '/../lib/haml/engine'
+require File.dirname(__FILE__) + '/mocks/article'
 
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
@@ -13,6 +14,7 @@ class HamlTest < Test::Unit::TestCase
     ActionView::Base.register_template_handler("haml", Haml::Engine)
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/../test/templates/")
     @engine = Haml::Engine.new(@base)
+    @base.instance_variable_set("@article", Article.new)
   end
 
   def render(text)
@@ -50,6 +52,7 @@ class HamlTest < Test::Unit::TestCase
     assert_renders_correctly("whitespace_handling")
     assert_renders_correctly("original_engine")
     assert_renders_correctly("list")
+    assert_renders_correctly("helpful")
   end
 
   def test_instance_variables
