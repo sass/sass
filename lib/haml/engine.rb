@@ -52,8 +52,6 @@ module Haml #:nodoc:
             when '.', '#'
               render_div(line)
             when '%'
-              # Check for square brackets inside which there should be a model object
-              
               render_tag(line)
             when '/'
               render_comment(line)
