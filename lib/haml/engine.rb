@@ -25,15 +25,15 @@ module Haml #:nodoc:
 
       # Get inside the view object's world
       @view.instance_eval do
-  		  # Set all the instance variables
-  		  assigns.each do |key,val|
-  		    instance_variable_set "@#{key}", val
-  	    end
+        # Set all the instance variables
+        assigns.each do |key,val|
+          instance_variable_set "@#{key}", val
+        end
 		  
-  		  # Set all the local assigns
-  		  local_assigns.each do |key,val|
-  	  		class << self; self; end.send(:define_method, key) { val }
-  			end
+        # Set all the local assigns
+        local_assigns.each do |key,val|
+          class << self; self; end.send(:define_method, key) { val }
+        end
       end
 
       # Process each line of the template returning the resuting string
