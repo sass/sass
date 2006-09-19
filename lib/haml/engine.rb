@@ -35,7 +35,7 @@ module Haml #:nodoc:
         end
       end
 
-      # Process each line of the template returning the resuting string
+      # Process each line of the template returning the resulting string
       template.each_with_index do |line, index|
         count, line = count_soft_tabs(line)
       
