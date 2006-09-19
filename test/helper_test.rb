@@ -5,6 +5,7 @@ $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
 require 'rubygems'
 require 'action_view'
+require 'active_support'
 
 class HamlTest < Test::Unit::TestCase
   include Haml::Helpers
@@ -27,5 +28,10 @@ class HamlTest < Test::Unit::TestCase
   def test_tabs
     assert_equal("  ", tabs(1))
     assert_equal("          ", tabs(5))
+  end
+
+  def test_list_of
+    assert_equal("<li>1</li>\n<li>2</li>", (list_of([1, 2]) { |i| i.to_s}))
+    assert_equal("<li>1</li>", (list_of([[1]]) { |i| i.first}))
   end
 end
