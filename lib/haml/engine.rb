@@ -29,7 +29,6 @@ module Haml #:nodoc:
         assigns.each do |key,val|
           instance_variable_set "@#{key}", val
         end
-		  
         # Set all the local assigns
         local_assigns.each do |key,val|
           class << self; self; end.send(:define_method, key) { val }
@@ -37,13 +36,14 @@ module Haml #:nodoc:
       end
 
       # Process each line of the template returning the resuting string
-      template.split(/\n/).map do |line|
+      template.each_with_index do |line, index|
         count, line = count_soft_tabs(line)
       
         if count && line
-          # TODO only check for the doctype directive if we're on the first line
           if line.strip[0, 3] == '!!!'
-            @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
+            if index == 0
+              @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
+            end
           else
             if count <= @to_close_queue.size && @to_close_queue.size > 0
               (@to_close_queue.size - count).times { close_tag }
