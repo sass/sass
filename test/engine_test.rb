@@ -53,7 +53,6 @@ class HamlTest < Test::Unit::TestCase
     assert_renders_correctly("original_engine")
     assert_renders_correctly("list")
     assert_renders_correctly("helpful")
-    assert_renders_correctly("doctype")
   end
 
   def test_instance_variables

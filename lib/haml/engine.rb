@@ -41,9 +41,7 @@ module Haml #:nodoc:
       
         if count && line
           if line.strip[0, 3] == '!!!'
-            if index == 0
-              @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
-            end
+            @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
           else
             if count <= @to_close_queue.size && @to_close_queue.size > 0
               (@to_close_queue.size - count).times { close_tag }
