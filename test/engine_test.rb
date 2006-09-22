@@ -12,7 +12,7 @@ class HamlTest < Test::Unit::TestCase
 
   def setup
     ActionView::Base.register_template_handler("haml", Haml::Engine)
-    @base = ActionView::Base.new(File.dirname(__FILE__) + "/../test/templates/")
+    @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/")
     @engine = Haml::Engine.new(@base)
     @base.instance_variable_set("@article", Article.new)
   end

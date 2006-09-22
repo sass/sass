@@ -8,6 +8,7 @@ module Haml #:nodoc:
     # Lines <= the maximum will be rendered on one line,
     # i.e. <tt><p>Hello world</p></tt>
     ONE_LINER_LENGTH = 50
+    MULTILINE_CHAR_VALUE = '|'[0]
   
     def initialize(view)
       @view = view
@@ -38,29 +39,11 @@ module Haml #:nodoc:
       # Process each line of the template returning the resulting string
       template.each_with_index do |line, index|
         count, line = count_soft_tabs(line)
-      
-        if count && line
-          if line.strip[0, 3] == '!!!'
-            @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
-          else
-            if count <= @to_close_queue.size && @to_close_queue.size > 0
-              (@to_close_queue.size - count).times { close_tag }
-            end
-            case line.first
-            when '.', '#'
-              render_div(line)
-            when '%'
-              render_tag(line)
-            when '/'
-              render_comment(line)
-            when '='
-              add template_eval(line[1, line.length]).to_s
-            when '~'
-              add find_and_flatten(template_eval(line[1, line.length])).to_s
-            else
-              add line.strip
-            end
-          end
+
+        surpress_render, line, count = handle_multiline(count, line)
+
+        if !surpress_render && count && line
+          count, line = process_line(count, line)
         end
       end
     
@@ -69,6 +52,52 @@ module Haml #:nodoc:
     
       # Return the result string
       @result
+    end
+
+    def process_line(count, line)
+      if line.strip[0, 3] == '!!!'
+        @result << %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n|
+      else
+        if count <= @to_close_queue.size && @to_close_queue.size > 0
+          (@to_close_queue.size - count).times { close_tag }
+        end
+        
+        case line.first
+        when '.', '#'
+          render_div(line)
+        when '%'
+          render_tag(line)
+        when '/'
+          render_comment(line)
+        when '='
+          add template_eval(line[1, line.length]).to_s
+        when '~'
+          add find_and_flatten(template_eval(line[1, line.length])).to_s
+        else
+          add line.strip
+        end
+      end
+      return count, line
+    end
+
+    def handle_multiline(count, line)
+      # The code to handle how a multi-line object should work.
+      if @multiline_buffer && line[-1] == MULTILINE_CHAR_VALUE # '|' is 124 
+        # A multiline string is active, and is being continued 
+        @multiline_buffer += line[0...-1]
+        supress_render = true
+      elsif line[-1] == MULTILINE_CHAR_VALUE 
+        # A multiline string has just been activated, start adding the lines
+        @multiline_buffer = line[0...-1]
+        @multiline_count = count
+        supress_render = true
+      elsif @multiline_buffer
+        # A multiline string has just ended, make line into the result
+        process_line(@multiline_count, @multiline_buffer)
+        @multiline_buffer = nil
+        supress_render = false
+      end
+      return supress_render, line, count
     end
 
     def add(line)
@@ -132,7 +161,7 @@ module Haml #:nodoc:
           class_name = object_ref.class.to_s.underscore
           attributes.merge!(:id => "#{class_name}_#{object_ref.id}", :class => class_name)
         end
-        
+
         if action == '/'
           atomic_tag(tag_name, attributes)
         elsif action == '=' || action == '~'
