@@ -192,7 +192,7 @@ module Haml #:nodoc:
     end
     
     def template_eval(args)
-       !@supress_eval ? @scope_object.instance_eval(args) : ""
+       !@suppress_eval ? @scope_object.instance_eval(args) : ""
     end
   end
 end

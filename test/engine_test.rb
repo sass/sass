@@ -14,7 +14,7 @@ class EngineTest < Test::Unit::TestCase
   end
 
   def test_stop_eval
-    assert_equal("", render("= 'Hello'", :supress_eval => true))
+    assert_equal("", render("= 'Hello'", :suppress_eval => true))
   end
 
   # This is ugly because Hashes are unordered; we don't always know the order
