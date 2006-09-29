@@ -2,8 +2,6 @@ require 'test/unit'
 require File.dirname(__FILE__) + '/../lib/haml/engine'
 
 class EngineTest < Test::Unit::TestCase
-  def setup
-  end
 
   def render(text, options = {})
     Haml::Engine.new(text, options).to_html
