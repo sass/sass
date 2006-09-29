@@ -1,3 +1,4 @@
 %div[@article]
   %h1= @article.title
   %div= @article.body
+%div{:class => "article full"}[@article]= "boo"

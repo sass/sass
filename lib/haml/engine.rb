@@ -152,20 +152,20 @@ module Haml #:nodoc:
       line.scan(/[%]([-_a-z1-9]+)([-_a-z\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/).each do |tag_name, attributes, attributes_hash, object_ref, action, value|
         attributes = parse_class_and_id(attributes.to_s)
         
-        unless (attributes_hash.nil? || attributes_hash.empty?) 
-          # Determine whether to eval the attributes hash in the context of a template
-          add_attributes = @view ? template_eval(attributes_hash) : eval(attributes_hash)
-          attributes.merge!(add_attributes)
-        end
-        
-
+        #SimplyHelpful style logic with the [@model] helper
         if @view
           if object_ref && (object_ref = template_eval(object_ref).first)
             class_name = object_ref.class.to_s.underscore
             attributes.merge!(:id => "#{class_name}_#{object_ref.id}", :class => class_name)
           end
         end
-        
+
+        unless (attributes_hash.nil? || attributes_hash.empty?) 
+          # Determine whether to eval the attributes hash in the context of a template
+          add_attributes = @view ? template_eval(attributes_hash) : eval(attributes_hash)
+          attributes.merge!(add_attributes)
+        end
+
         case action
         when '/'
           atomic_tag(tag_name, attributes)
