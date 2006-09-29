@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/helpers'
 module Haml #:nodoc:
   class Engine
     include Haml::Helpers
-    
+
     # Set the maximum length for a line to be considered a one-liner
     # Lines <= the maximum will be rendered on one line,
     # i.e. <tt><p>Hello world</p></tt>
@@ -17,10 +17,9 @@ module Haml #:nodoc:
       options.each { |k,v| eval("@#{k} = v") }
 
       @template = template #String
-      @result = String.new
-      @to_close_queue = []
+      @result, @to_close_queue = String.new, []
     end
-    
+
     def to_html
       # Process each line of the template
       @template.each_with_index do |line, index|
