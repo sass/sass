@@ -5,18 +5,16 @@ class EngineTest < Test::Unit::TestCase
   def setup
   end
 
-  def render(text)
-    Haml::Engine.new(text).to_html
+  def render(text, options = {})
+    Haml::Engine.new(text, options).to_html
   end
   
   def test_empty_render_should_remain_empty
     assert_equal('', render(''))
   end
 
-  def test_normal_renders_should_not_eval
-    assert_equal("", render("= 1+1"))
-    assert_equal("", render("= @content_for_layout"))
-    assert_equal("", render("~ @foobar"))
+  def test_stop_eval
+    assert_equal("", render("= 'Hello'", :supress_eval => true))
   end
 
   # This is ugly because Hashes are unordered; we don't always know the order

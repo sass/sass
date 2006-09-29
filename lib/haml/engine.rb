@@ -12,8 +12,10 @@ module Haml #:nodoc:
     MULTILINE_CHAR_VALUE = '|'[0]
     MULTILINE_STARTERS   = SPECIAL_CHARACTERS - ["/"[0]]
 
-    def initialize(template, action_view=nil)
-      @view = action_view
+    def initialize(template, options = {})
+      #turn each of the options into instance variables for the object
+      options.each { |k,v| eval("@#{k} = v") }
+
       @template = template #String
       @result = String.new
       @to_close_queue = []
@@ -53,9 +55,9 @@ module Haml #:nodoc:
         when '/'
           render_comment(line)
         when '='
-          add template_eval(line[1, line.length]).to_s if @view
+          add template_eval(line[1, line.length]).to_s
         when '~'
-          add find_and_flatten(template_eval(line[1, line.length])).to_s if @view
+          add find_and_flatten(template_eval(line[1, line.length])).to_s
         else
           add line.strip
         end
@@ -92,7 +94,15 @@ module Haml #:nodoc:
     end
 
     def build_attributes(attributes = {})
-      attributes.empty? ? String.new : String.new(' ') << (attributes.collect {|a,v| "#{a.to_s}='#{v.to_s}'" unless v.nil? }).compact.join(' ')
+      result = attributes.collect { |a,v|
+        unless v.nil?
+          first_quote_type = v.to_s.scan(/['"]/).first
+          quote_type = (first_quote_type == "'") ? '"' : "'"
+          "#{a.to_s}=#{quote_type}#{v.to_s}#{quote_type}"
+        end
+      }
+      result = result.compact.join(' ')
+      (attributes.empty? ? String.new : String.new(' ')) + result
     end
 
     def open_tag(name, attributes = {})
@@ -150,16 +160,14 @@ module Haml #:nodoc:
         attributes = parse_class_and_id(attributes.to_s)
         
         #SimplyHelpful style logic with the [@model] helper
-        if @view
-          if object_ref && (object_ref = template_eval(object_ref).first)
-            class_name = object_ref.class.to_s.underscore
-            attributes.merge!(:id => "#{class_name}_#{object_ref.id}", :class => class_name)
-          end
+        if object_ref && (object_ref = template_eval(object_ref).first)
+          class_name = object_ref.class.to_s.underscore
+          attributes.merge!(:id => "#{class_name}_#{object_ref.id}", :class => class_name)
         end
 
         unless (attributes_hash.nil? || attributes_hash.empty?) 
           # Determine whether to eval the attributes hash in the context of a template
-          add_attributes = @view ? template_eval(attributes_hash) : eval(attributes_hash)
+          add_attributes = template_eval(attributes_hash)
           attributes.merge!(add_attributes)
         end
 
@@ -167,9 +175,9 @@ module Haml #:nodoc:
         when '/'
           atomic_tag(tag_name, attributes)
         when '=', '~'
-          value = template_eval(value) if @view
-          value = find_and_flatten(value) if action == '~' and @view
-          print_tag(tag_name, value.to_s, attributes) if value
+          value = template_eval(value)
+          value = find_and_flatten(value) if action == '~'
+          print_tag(tag_name, value.to_s, attributes)
         else
           print_tag(tag_name, value.to_s.strip, attributes)
         end
@@ -185,7 +193,7 @@ module Haml #:nodoc:
     end
     
     def template_eval(args)
-      @view.instance_eval(args)
+       !@supress_eval ? @scope_object.instance_eval(args) : ""
     end
   end
 end

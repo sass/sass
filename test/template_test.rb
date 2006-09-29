@@ -13,7 +13,7 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def render(text)
-    Haml::Engine.new(text, @base).to_html
+    Haml::Engine.new(text, :scope_object => @base).to_html
   end
 
   def load_result(name)

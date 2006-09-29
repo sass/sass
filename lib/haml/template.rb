@@ -26,7 +26,7 @@ module Haml
         end
       end
       
-      Haml::Engine.new(template, @view).to_html
+      Haml::Engine.new(template, :scope_object => @view).to_html
     end
   end
 end
