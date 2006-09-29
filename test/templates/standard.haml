@@ -11,12 +11,13 @@
       The question is if this would translate! Ahah!
       = 1 + 9 + 8 + 2 #numbers should work and this should be ignored
     #body= " Quotes should be loved! Just like people!"
+    Wow.|
     %p 
       = "Holy cow        " + |
         "multiline       " + |      
         "tags!           " + |
         "A pipe (|) even!"   |
-      Wow.
+      = [1, 2, 3].collect { |n| "PipesIgnored|" }
       = [1, 2, 3].collect { |n|     |
           n.to_s                    |
         }.join("|")                 |

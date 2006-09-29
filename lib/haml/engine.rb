@@ -7,8 +7,10 @@ module Haml #:nodoc:
     # Set the maximum length for a line to be considered a one-liner
     # Lines <= the maximum will be rendered on one line,
     # i.e. <tt><p>Hello world</p></tt>
-    ONE_LINER_LENGTH = 50
+    ONE_LINER_LENGTH     = 50
+    SPECIAL_CHARACTERS   = %w(# . = ~ % /).collect { |c| c[0] }
     MULTILINE_CHAR_VALUE = '|'[0]
+    MULTILINE_STARTERS   = SPECIAL_CHARACTERS - ["/"[0]]
 
     def initialize(template, action_view=nil)
       @view = action_view
@@ -42,8 +44,8 @@ module Haml #:nodoc:
         if count <= @to_close_queue.size && @to_close_queue.size > 0
           (@to_close_queue.size - count).times { close_tag }
         end
-      
-        case line.first
+
+        case line[0..0]
         when '.', '#'
           render_div(line)
         when '%'
@@ -63,21 +65,16 @@ module Haml #:nodoc:
 
     def handle_multiline(count, line)
       # Multilines are denoting by ending with a `|` (124)
-      if @multiline_buffer && line[-1] == MULTILINE_CHAR_VALUE 
-
+      if (line[-1] == MULTILINE_CHAR_VALUE) && @multiline_buffer
         # A multiline string is active, and is being continued 
         @multiline_buffer += line[0...-1]
         supress_render = true
-
-      elsif line[-1] == MULTILINE_CHAR_VALUE 
-
+      elsif (line[-1] == MULTILINE_CHAR_VALUE) && (MULTILINE_STARTERS.include? line[0])
         # A multiline string has just been activated, start adding the lines
         @multiline_buffer = line[0...-1]
         @multiline_count = count
         supress_render = true
-
       elsif @multiline_buffer
-
         # A multiline string has just ended, make line into the result
         process_line(@multiline_count, @multiline_buffer)
         @multiline_buffer = nil
