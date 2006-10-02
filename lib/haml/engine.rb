@@ -96,7 +96,7 @@ module Haml #:nodoc:
       # Set the local variables pointing to the buffer
       result = @result
       @scope_object.instance_eval do
-        @haml_stack =|| Array.new
+        @haml_stack ||= Array.new
         @haml_stack.push(result)
         self.class.instance_eval { include Haml::Helpers }
       end
