@@ -20,6 +20,10 @@ module Haml
     def count_soft_tabs(line)
       line.index(/[^ ]/) ? [line.index(/[^ ]/)/2, line.strip] : []
     end
+    
+    def wrap_script(script, count)
+      "(#{script}).to_s.chomp.gsub(\"\\n\", \"\\n#{tabs(count)}\")"
+    end
 
     # List_for is a really nifty little helper that helps
     # cleanup your code. Basically, give it an array of
