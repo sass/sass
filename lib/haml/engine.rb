@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helpers'
 
-module Haml #:nodoc:
+module Haml
   class Engine
     include Haml::Helpers
 
@@ -17,7 +17,7 @@ module Haml #:nodoc:
       options.each { |k,v| eval("@#{k} = v") }
 
       @template = template #String
-      @result, @precompiled, @to_close_queue = String.new, String.new, []
+      @result, @precompiled, @to_close_stack = String.new, String.new, []
       @scope_object = Object.new if @scope_object.nil?
     end
 
@@ -36,7 +36,7 @@ module Haml #:nodoc:
       handle_multiline(0, nil)
 
       # Close all the open tags
-      @to_close_queue.length.times { close_tag }
+      @to_close_stack.length.times { close_tag }
 
       # Compile the @precompiled buffer
       compile
@@ -49,8 +49,8 @@ module Haml #:nodoc:
       if line.strip[0, 3] == '!!!'
         push_text %|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">|
       else
-        if count <= @to_close_queue.size && @to_close_queue.size > 0
-          (@to_close_queue.size - count).times { close_tag }
+        if count <= @to_close_stack.size && @to_close_stack.size > 0
+          (@to_close_stack.size - count).times { close_tag }
         end
         if line.length > 0
           case line[0].chr
@@ -112,7 +112,7 @@ module Haml #:nodoc:
     end
 
     def push_visible(text)
-      @precompiled << "@haml_stack[-1] << #{tabs(@to_close_queue.size).dump} << #{text}\n"
+      @precompiled << "@haml_stack[-1] << #{tabs(@to_close_stack.size).dump} << #{text}\n"
     end
 
     def push_silent(text)
@@ -129,7 +129,7 @@ module Haml #:nodoc:
         if flattened
           push_silent("haml_temp = find_and_flatten(haml_temp)")
         end
-        push_visible("#{wrap_script("haml_temp", @to_close_queue.size)} << \"\\n\"")
+        push_visible("#{wrap_script("haml_temp", @to_close_stack.size)} << \"\\n\"")
       end
     end
 
@@ -147,11 +147,11 @@ module Haml #:nodoc:
 
     def open_tag(name, attributes = {})
       push_text "<#{name.to_s}#{build_attributes(attributes)}>"
-      @to_close_queue.push name
+      @to_close_stack.push name
     end
 
     def close_tag
-      push_text "</#{@to_close_queue.pop}>"
+      push_text "</#{@to_close_stack.pop}>"
     end
 
     def one_line_tag(name, value, attributes = {})
