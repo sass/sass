@@ -21,11 +21,14 @@ task :benchmark do
   puts '-'*51
 end
 
-desc 'Generate documentation for the haml plugin.'
+desc 'Generate documentation for the haml plugin. Use DEVEL=1 to generate documentation for private methods as well.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'Haml'
   rdoc.options << '--line-numbers' << '--inline-source'
+  if ENV['DEVEL']
+    rdoc.options << '--all'
+  end
   rdoc.rdoc_files.include('README')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
