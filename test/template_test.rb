@@ -46,10 +46,10 @@ class TemplateTest < Test::Unit::TestCase
 
   def test_instance_variables_should_work_inside_templates
     @base.instance_variable_set("@content_for_layout", 'something')
-    assert_equal("<p>\n  something\n</p>", render("%p= @content_for_layout").chomp)
+    assert_equal("<p>something</p>", render("%p= @content_for_layout").chomp)
     
     @base.instance_eval("@author = 'Hampton Catlin'")
-    assert_equal("<div class='author'>\n  Hampton Catlin\n</div>", render(".author= @author").chomp)
+    assert_equal("<div class='author'>Hampton Catlin</div>", render(".author= @author").chomp)
 
     @base.instance_eval("@author = 'Hampton'")
     assert_equal("Hampton", render("= @author").chomp)

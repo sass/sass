@@ -1,16 +1,11 @@
 require File.dirname(__FILE__) + '/engine'
 
 module Haml
-  # This is the class that is registered as the template handler for
-  # ActionView. Beyond fitting into that interface, it has little use.
   class Template
-    # Creates a new Template class using the given ActionView::Base instance.
     def initialize(view)
       @view = view
     end
-    
-    # Assigns the variables in the <tt>local_assigns</tt> hash, renders the given
-    # template, and returns the result.
+
     def render(template, local_assigns={})
       assigns = @view.assigns.dup
   

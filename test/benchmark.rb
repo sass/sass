@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'active_support'
 require 'action_view'
 
 require File.dirname(__FILE__) + '/../lib/haml/template'
