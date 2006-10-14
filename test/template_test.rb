@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'test/unit'
 require 'rubygems'
 require 'active_support'
@@ -7,6 +9,17 @@ require File.dirname(__FILE__) + '/../lib/haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
 
 class TemplateTest < Test::Unit::TestCase
+  # These are specific lines of templates that, for one reason or
+  # another, might not be exactly equivalent to the pre-rendered
+  # version.
+  EXCEPTIONS = {
+    'standard' => [
+      # Line 4 has many attributes; because attributes aren't sorted,
+      # this can vary unpredictably.
+      4
+    ]
+  }
+
   def setup
     ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/../test/templates/")
@@ -24,8 +37,15 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name)
-    load_result(name).split("\n").zip(@base.render(name).split("\n")).each do |pair|
-      assert_equal(pair.first, pair.last)
+    load_result(name).split("\n").zip(@base.render(name).split("\n")).each_with_index do |pair, line|
+      if (EXCEPTIONS['name'].nil? || EXCEPTIONS['name'].include?(line))
+        if pair.first != pair.last
+          puts "\nWarning: line #{line} of template \"#{name}\" may have rendered incorrectly."
+        end
+      else
+        message = "template: #{name}\nline:     #{line}"
+        assert_equal(pair.first, pair.last, message)
+      end
     end
   end
 
@@ -34,7 +54,8 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_templates_should_render_correctly
-    %w{very_basic standard helpers whitespace_handling original_engine list helpful}.each do |template|
+    %w{very_basic        standard   helpers   whitespace_handling
+       original_engine   list       helpful   silent_script}.each do |template|
       assert_renders_correctly template
     end
   end
@@ -65,5 +86,31 @@ class TemplateTest < Test::Unit::TestCase
 
   def test_template_renders_should_eval
     assert_equal("2\n", render("= 1+1"))
+  end
+  
+  def test_exceptions_should_work_correctly
+    template = <<END
+%p
+  %h1 Hello!
+  = "lots of lines"
+  - raise "Oh no!"
+  %p
+    this is after the exception
+    %strong yes it is!
+ho ho ho.
+END
+    @base.haml_filename = "(test)"
+    begin
+      render(template.chomp)
+    rescue Exception => e
+      assert_equal("(test).haml:4", e.backtrace[0])
+    end
+    
+    @base.haml_filename = nil
+    begin
+      render(template.chomp)
+    rescue Exception => e
+      assert_equal("(haml):4", e.backtrace[0])
+    end
   end
 end

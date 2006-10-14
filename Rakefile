@@ -1,7 +1,19 @@
+require 'rubygems'
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
-$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
+
+volatile_requires = ['rcov/rcovtask']
+not_loaded = []
+volatile_requires.each do |file|
+  begin
+    require file
+  rescue LoadError
+    not_loaded.push file
+  end
+end
+
+# ----- Default: Testing ------
 
 desc 'Default: run unit tests.'
 task :default => :test
@@ -13,23 +25,79 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
-desc 'Benchmark HAML against ERb. The benchmark routine is run 100. Use TIMES=n to override'
+# ----- Benchmarking -----
+
+temp_desc = <<END
+Benchmark HAML against ERb.
+  TIMES=n sets the number of runs. Defaults to 100.
+END
+desc temp_desc.chomp
 task :benchmark do
-  puts '-'*51, "+ Benchmark: HAML vs. ERb", '-'*51
+  require 'test/benchmark'
+
+  puts '-'*51, "Benchmark: HAML vs. ERb", '-'*51
   puts "Running benchmark #{ENV['TIMES']} times..." if ENV['TIMES']
-  puts `ruby test/benchmark.rb #{ENV['TIMES']}` 
+  args = []
+  args.push ENV['TIMES'].to_i if ENV['TIMES']
+  benchmarker = Haml::Benchmarker.new
+  puts benchmarker.benchmark(*args)
   puts '-'*51
 end
 
-desc 'Generate documentation for the haml plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
+# ----- Documentation -----
+
+rdoc_task = Proc.new do |rdoc|
   rdoc.title    = 'Haml'
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include('README')
   rdoc.rdoc_files.include('lib/**/*.rb')
+  rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
 end
 
-task :rcov do
-  `rcov test/*.rb`
+Rake::RDocTask.new do |rdoc|
+  rdoc_task.call(rdoc)
+  rdoc.rdoc_dir = 'rdoc'
+end
+
+Rake::RDocTask.new(:rdoc_devel) do |rdoc|
+  rdoc_task.call(rdoc)
+  rdoc.rdoc_dir = 'rdoc_devel'
+  rdoc.options << '--all'
+  rdoc.rdoc_files.include('test/*.rb')
+  rdoc.rdoc_files = Rake::FileList.new(*rdoc.rdoc_files.to_a)
+  rdoc.rdoc_files.include('lib/haml/buffer.rb')
+end
+
+# ----- Coverage -----
+
+unless not_loaded.include? 'rcov/rcovtask'
+  Rcov::RcovTask.new do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/*_test.rb']
+    t.verbose = true
+  end
+end
+
+# ----- Profiling -----
+
+temp_desc = <<END
+Run a profile of HAML.
+  TIMES=n sets the number of runs. Defaults to 100.
+  FILE=n sets the file to profile. Defaults to 'standard'.
+END
+desc temp_desc.chomp
+task :profile do
+  require 'test/profile'
+  
+  puts '-'*51, "Profiling HAML::Template", '-'*51
+  
+  args = []
+  args.push ENV['TIMES'].to_i if ENV['TIMES']
+  args.push ENV['FILE'] if ENV['FILE']
+  
+  profiler = Haml::Profiler.new
+  res = profiler.profile(*args)
+  puts res
+  
+  puts '-'*51
 end
