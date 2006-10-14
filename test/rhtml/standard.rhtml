@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xml-lang='en-US'>
   <head>
-    <title><%= "Hampton Catlin Is Totally Awesome" %></title>
+    <title>Hampton Catlin Is Totally Awesome</title>
     <meta content='text/html; charset=utf-8' http-equiv='Content-Type' />
   </head>
   <body>
@@ -11,8 +11,32 @@
       Fantastic! This should be multi-line output
       The question is if this would translate! Ahah!
       <%= 1 + 9 + 8 + 2 %>
+      <%# numbers should work and this should be ignored %>
     </div>
     <div id='body'><%= " Quotes should be loved! Just like people!" %></div>
+    Wow.
+    <p>
+      <%= "Holy cow        " +
+          "multiline       " +
+          "tags!           " +
+          "A pipe (|) even!"  %>
+      <%= [1, 2, 3].collect { |n| "PipesIgnored|" } %>
+      <%= [1, 2, 3].collect { |n|
+          n.to_s
+        }.join("|") %>
+    </p>
+    <div class='silent'>
+      <% foo = String.new
+         foo << "this"
+         foo << " shouldn't"
+         foo << " evaluate" %>
+      <%= foo + "but now it should!" %>
+      <%# Woah crap a comment! %>
+    </div>
+    <ul class='really cool'>
+      <% ('a'..'f').each do |a|%>
+      <li><%= a %>
+      <% end %>
     <div class='of_divs_with_underscore' id='combo'><%= @should_eval = "with this text" %></div>
     <div class='footer'>
       <strong class='shout'>

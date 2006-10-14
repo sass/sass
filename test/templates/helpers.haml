@@ -1,1 +1,10 @@
-= h("&&&&&&&&&&&") #this is an ActionView Helper... should load
+= h("&&&&&&&&&&&") # This is an ActionView Helper... should load
+- foo = capture do # This ActionView Helper is designed for ERB, but should work with HAML
+  %div
+    %p.title Title
+    %p.text
+      Woah this is really crazy
+      I mean wow,
+      man.
+- 3.times do
+  = foo

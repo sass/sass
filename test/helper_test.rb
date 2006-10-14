@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'test/unit'
 require File.dirname(__FILE__) + '/../lib/haml/helpers'
 
@@ -22,11 +24,6 @@ class HelperTest < Test::Unit::TestCase
 
     assert_equal(find_and_flatten("<pre>Two\nlines</pre>\n<pre>a\nb\nc</pre>"),
                                   "<pre>Two&#x000A;lines</pre>\n<pre>a&#x000A;b&#x000A;c</pre>")
-  end
-
-  def test_tabs_should_render_correctly
-    assert_equal("  ", tabs(1))
-    assert_equal("          ", tabs(5))
   end
 
   def test_list_of_should_render_correctly

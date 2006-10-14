@@ -22,6 +22,9 @@ HAML was originally created by Hampton Catlin (hcatlin). Help with the
 Ruby On Rails implementation and much of the documentation by 
 Jeff Hardy (packagethief).
 
+Nathan Weizenbaum (Nex3) contribued the buffered-engine code along with many
+other enhancements including the silent-line syntax ("-").
+
 If you use this software, you must pay Hampton a compliment. Say something
 nice about it. Beyond that, the implementation is licensed under the MIT
 License. Ok, fine, I guess that means compliments aren't *required*.
@@ -50,72 +53,185 @@ is compiled to:
   
 == Characters with meaning to Haml
 
-Haml responds to certain special characters. To create an element in the form of
-<tt><element></element></tt> use the <tt>%</tt> character, immediately followed
-by the element name. To specify attributes, include a hash of attributes inside
-curly braces. Example:
+Various characters, when placed at a certain point in a line, instruct HAML
+to render different types of things.
+
+=== XHTML Tags
+
+These characters render XHTML tags.
+
+==== %
+
+This element is placed at the beginning of a line. It's followed immediately
+by the name of an element, then optionally by modifiers (see below), a space,
+and text to be rendered inside the element. It creates an element in the form of
+<tt><element></element></tt>. For example:
 
   %one
-    %meta{:content => 'something'}/
     %two
       %three Hey there
-
+      
 is compiled to:
 
   <one>
     <two>
-      <meta content='something' />
       <three>Hey there</three>
     </two>
   </one>
 
 Any string is a valid element name; Haml will automatically generate opening and
-closing tags for any element. When you want to force the output of a
-self-closing tag, use the forward slash character. Example:
+closing tags for any element.
 
-  %br/ # => <br />
-  %meta{:http-equiv => 'Content-Type', :content => 'text/html'}/
-  # => <meta http-equiv='Content-Type' content='text/html' />
+==== {}
 
-HTML div elements are assumed when no <tt>%tag</tt> is present and the line is
-preceeded by either the <tt>#</tt> or the <tt>.</tt> characters. This convention
-uses familiar CSS semantics: <tt>#</tt> denotes the id of the element,
-<tt>.</tt> denotes its class name. Example:
+Brackets represent a Ruby hash that is used for specifying the attributes of an
+element. It is literally evaluated as a Ruby hash, so logic will work in it. At
+the moment, though, it doesn't see local variables. The hash is placed after
+the tag is defined. For example:
 
-  #collection
-    .item
-      Broken record album
-    
-is the same as:
+  %head{ :name => "doc_head" }
+    %script{ 'type' => "text/" + "javascript", :src => "javascripts/script_#{2 + 7}" }
 
-  %div{:id => collection}
-    %div{:class => 'item'}
-      Broken record album
+is compiled to:
 
-and is comiled to:
+  <head name="doc_head">
+    <script src='javascripts/script_9' type='text/javascript'>
+    </script>
+  </head>
+  
+==== []
 
-  <div id='collection'>
-    <div class='item'>Broken record album</div>
+Square brackets follow a tag definiton and contain a Ruby object that is used to
+set the class and id of that tag. The class is set to the object's class
+(transformed to use underlines rather than camel case), and the id is set to the
+object's class followed by its id. Because the id of an object is normally an
+obscure implementation detail, this is most useful for elements that represent
+instances of Models. For example:
+
+  # file: app/controllers/users_controller.rb
+  
+  def show
+    @user = CrazyUser.find(15)
+  end
+  
+  # file: app/views/users/show.haml
+
+  %div[@user]
+    %bar[290]/
+    Hello!
+
+is compiled to:
+
+  <div class="crazy_user" id="crazy_user_15">
+    <bar class="fixnum" id="fixnum_581" />
+    Hello!
   </div>
 
-There is a shortcut when you want to specify either the id or class attributes
-of an element: follow the element name with either the <tt>#</tt> or the
-<tt>.</tt> characters. Example:
+This is based off of DHH's SimplyHelpful syntax as presented at RailsConf Europe 2006.
 
-  #things
+==== /
+
+The forward slash character, when placed at the end of a tag definition, causes
+the tag to be self-closed. For example:
+
+  %br/
+  %meta{:http-equiv => 'Content-Type', :content => 'text/html'}/
+
+is compiled to:
+
+  <br />
+  <meta http-equiv='Content-Type' content='text/html' />
+  
+==== . and #
+
+The period and pound sign are borrowed from CSS and used as shortcuts to specify the
+<tt>class</tt> and <tt>id</tt> attributes of an element, respectively. They are
+placed immediately after the tag, and before an attributes hash. For example:
+
+  div#things
     %span#rice Chicken Fried
-    %p.beans The magical fruit
+    %p.beans{ :food => 'true' } The magical fruit
+    %h1.class#id La La La
 
 is compiled to:
 
   <div id='things'>
     <span id='rice'>Chicken Fried</span>
-    <p class='beans'>The magical fruit</p>
+    <p class='beans' food='true'>The magical fruit</p>
+    <h1 class='class' id='id'>La La La</h1>
   </div>
   
-=== Specifying a document type
+==== Assumed Divs
 
-When describing xhtml documents with Haml, you can have a document type
+Because the div element is used so often, it is the default element. If you only
+define a class and/or id using the <tt>.</tt> or <tt>#</tt> syntax, a div element
+is automatically used. For example:
+
+  #collection
+    .item
+      .description What a cool item!
+
+is the same as:
+
+  %div{:id => collection}
+    %div{:class => 'item'}
+      %div{:class => 'description'} What a cool item!
+
+and is compiled to:
+
+  <div id='collection'>
+    <div class='item'>Broken record album</div>
+    <div class='description'>What a cool item!</div>
+  </div>
+  
+==== = and ~
+
+<tt>=</tt> and <tt>~</tt> are placed at the end of a tag definition, after class,
+id, and attribute declarations. They're just shortcuts for inserting Ruby code
+into an element. They work the same as <tt>=</tt> and <tt>~</tt> without a tag;
+see below for documentation of those. For example:
+
+  %p= "hello"
+  %h1~ 1 + 2
+  
+is the same as:
+
+  %p
+    = "hello"
+  %h1
+    ~ 1 + 2
+ 
+and is compiled to:
+
+  <p>
+    hello
+  </p>
+  <h1>
+    3
+  </h1>
+  
+=== XHTML Helpers
+
+==== No Special Character
+
+If no special character appears at the beginning of a line, it is rendered as plain
+text. For example:
+
+  %gee
+    %whiz
+      Wow this is cool!
+
+is compiled to:
+
+  <gee>
+    <whiz>
+      Wow this is cool!
+    </whiz>
+  </gee>
+  
+==== !!!
+
+When describing XHTML documents with Haml, you can have a document type
 generated automatically by including the characters <tt>!!!</tt> as the first
 line in your document. Example:
 
@@ -139,11 +255,158 @@ is compiled to:
       <p>Sign my guestbook</p>
     </body>
   </html>
+  
+==== /
+
+The forward slash character, when placed at the beginning of a line, wraps all
+text after it in an HTML comment. For example:
+
+  %billabong
+    / This is the billabong element
+    I like billabongs!
+
+is compiled to:
+
+  <billabong>
+    <!-- This is the billabong element -->
+    I like billabongs!
+  </billabong>
+  
+==== |
+
+The pipe character designates a multiline string. It's placed at the end of a line,
+and means that all following lines that end with <tt>|</tt> will be evaluated as
+though they were on the same line. For example:
+
+  %whoo
+    %hoo I think this might get |
+      pretty long so I should |
+      probably make it |
+      multiline so it doesn't |
+      look awful. |
+    %p This is short.
+
+is compiled to:
+
+  %hoo I think this might get |
+    pretty long so I should |
+    probably make it |
+    multiline so it doesn't |
+    look awful. |
+  
+=== Ruby evaluators
+
+==== =
+
+The equals character is followed by Ruby code, which is evaluated and the output
+inserted into the document as plain text. For example:
+
+  %p
+    = ['hi', 'there', 'reader!'].join " "
+    = "yo"
+
+is compiled to:
+
+  <p>
+    hi there reader!
+    yo
+  </p>
+  
+==== ~
+
+The tilde character works the same as the equals character, but the output is
+modified in such a way that newlines in whitespace-sensitive elements work
+properly. For example:
+
+  %foo
+    = "Woah    <pre>  this is   \n</pre>    crazy"
+  %foo2
+    ~ "Woah    <pre>  this is   \n</pre>    crazy"
+      
+is compiled to:
+
+  <foo>
+    Woah    <pre>  this is   
+    </pre>    crazy
+  </foo>
+  <foo2>
+    Woah    <pre>  this is   &#x000A;</pre>    crazy
+  </foo2>
+  
+==== -
+
+The hyphen character makes the text following it into "silent script", or
+Ruby script that is evaluated, but not output.
+
+<b>It is not reccomended that you use this widely; almost all processing
+code and logic should be kept to the Controller, the Helper, or partials.</b>
+
+For example:
+
+  - foo = "hello"
+  - foo << " there"
+  - foo << " you!"
+  %p= foo
+  
+is compiled to:
+
+  <p>
+    hello there you!
+  </p>
+  
+===== Blocks
+
+Like XHTML tags, you don't need to explicity close your Ruby blocks in
+HAML. Rather, they're automatically closed based on tabs. A block begins
+whenever the indentation is increased after a silent script command, and
+ends when the indentation decreases (as long as it's not an +else+ clause
+or something similar). For example:
+
+  - (42...47).each do |i|
+    %p= i
+  %p See, I can count!
+  
+is compiled to:
+
+  <p>
+    42
+  </p>
+  <p>
+    43
+  </p>
+  <p>
+    44
+  </p>
+  <p>
+    45
+  </p>
+  <p>
+    46
+  </p>
+  
+Another example:
+
+  %p
+    - case 2
+    - when 1
+      = "1!"
+    - when 2
+      = "2?"
+    - when 3
+      = "3."
+      
+is compiled to:
+
+  <p>
+    2?
+  </p>
 
 == Using Haml as a Rails plugin
 
 Write Rails templates with the .haml extension. Example:
 
+  # file: app/views/movies/teen_wolf.haml
+  
   %html
     %head
       %title= "Teen Wolf (1985)"
@@ -176,12 +439,9 @@ is compiled to:
   </html>
 
 You can access instance variables in Haml templates the same way you do in ERb
-templates. Helper methods are also available in Haml templates. To specify that
-a line should be evaulated as Ruby, use the <tt>=</tt> character at the begining
-of a line, or immediately following an element name. The return value of the
-method call will be inserted into the stream. Example:
+templates. Helper methods are also available in Haml templates. Example:
 
-  file: app/controllers/movies_controller.rb
+  # file: app/controllers/movies_controller.rb
 
   class MoviesController < ApplicationController
     def index
@@ -189,14 +449,14 @@ method call will be inserted into the stream. Example:
     end
   end
 
-  file: app/views/movies/index.haml
+  # file: app/views/movies/index.haml
 
   #content
    .title
      %h1= @title
      = link_to 'Home', home_url
  
-is be compiled to:
+may be compiled to:
 
   <div id='content'>
     <div class='title'>
@@ -204,8 +464,6 @@ is be compiled to:
       <a href='/'>Home</a>
     </div>
   </div>
-
-
 
 
 ---
