@@ -120,7 +120,13 @@ module Haml
     # Takes a hash and builds a list of XHTML attributes from it, returning
     # the result.
     def build_attributes(attributes = {})
-      result = attributes.collect do |a,v|
+      attributes.each do |key, value|
+        unless key.is_a? String
+          attributes.delete key
+          attributes[key.to_s] = value
+        end
+      end
+      result = attributes.sort.collect do |a,v|
         unless v.nil?
           first_quote_type = v.to_s.scan(/['"]/).first
           quote_type = (first_quote_type == "'") ? '"' : "'"
