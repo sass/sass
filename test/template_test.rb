@@ -95,5 +95,23 @@ END
     rescue Exception => e
       assert_equal("(haml):4", e.backtrace[0])
     end
+    
+    template = <<END
+%p
+  %h1 Hello!
+  = "lots of lines"
+  = "even more!"
+  - compile_error(
+  %p
+    this is after the exception
+    %strong yes it is!
+ho ho ho.
+END
+
+    begin
+      render(template.chomp)
+    rescue Exception => e
+      assert_equal("(haml):5", e.backtrace[0])
+    end
   end
 end
