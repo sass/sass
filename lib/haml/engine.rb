@@ -13,6 +13,9 @@ module Haml
   #   puts output
   class Engine
     include Haml::Helpers
+
+    # Allow access to the precompiled template
+    attr_reader :precompiled
     
     # Keeps track of the ASCII values of the characters that begin a 
     # specially-interpreted line.
@@ -60,30 +63,19 @@ module Haml
 
       @template = template #String
       @buffer = Haml::Buffer.new
-      @precompiled = String.new
+
       @to_close_stack = []
       @tabulation = 0
-      @scope_object = Object.new if @scope_object.nil?
+
+      # Only do the first round of pre-compiling if we really need to.
+      # They might be passing in the precompiled string.
+      do_precompile if @precompiled.nil? && (@precompiled = String.new)
     end
 
     # Processes the template and returns the resulting (X)HTML code as
     # a string.
-    def to_html
-      # Process each line of the template
-      @template.each_with_index do |line, index|
-        count, line = count_soft_tabs(line)
-        suppress_render = handle_multiline(count, line, index)
-
-        if !suppress_render && count && line
-          count, line = process_line(count, line, index)
-        end
-      end
-
-      # Make sure an ending multiline gets closed
-      handle_multiline(0, nil, 0)
-
-      # Close all the open tags
-      @to_close_stack.length.times { close }
+    def to_html(scope = Object.new)
+      @scope = scope
 
       # Compile the @precompiled buffer
       compile
@@ -92,8 +84,26 @@ module Haml
       @buffer.buffer
     end
     
-    private
-
+   private
+    
+    #Precompile each line
+    def do_precompile
+      @template.each_with_index do |line, index|
+        count, line = count_soft_tabs(line)
+        suppress_render = handle_multiline(count, line, index)
+  
+        if !suppress_render && count && line
+          count, line = process_line(count, line, index)
+        end
+      end
+  
+      # Make sure an ending multiline gets closed
+      handle_multiline(0, nil, 0)
+  
+      # Close all the open tags
+      @to_close_stack.length.times { close }
+    end
+    
     # Processes a single line of HAML. <tt>count</tt> does *not* represent the
     # line number; rather, it represents the tabulation count (the number of
     # spaces before the line divided by two).
