@@ -26,7 +26,7 @@ module Haml
         end
         # Set all the local assigns
         local_assigns.each do |key,val|
-          class << self; self; end.send(:define_method, key) &:val
+          self.class.send(:define_method, key) { val }
         end
       end
 

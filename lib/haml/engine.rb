@@ -1,6 +1,5 @@
 require File.dirname(__FILE__) + '/helpers'
 require File.dirname(__FILE__) + '/buffer'
-require 'profiler'
 
 module Haml
   # This is the class where all the parsing and processing of the HAML
@@ -75,7 +74,7 @@ module Haml
     # Processes the template and returns the resulting (X)HTML code as
     # a string.
     def to_html(scope = Object.new)
-      @scope = scope
+      @scope_object = scope
 
       # Compile the @precompiled buffer
       compile
