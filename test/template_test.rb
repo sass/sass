@@ -9,17 +9,6 @@ require File.dirname(__FILE__) + '/../lib/haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
 
 class TemplateTest < Test::Unit::TestCase
-  # These are specific lines of templates that, for one reason or
-  # another, might not be exactly equivalent to the pre-rendered
-  # version.
-  EXCEPTIONS = {
-    'standard' => [
-      # Line 4 has many attributes; because attributes aren't sorted,
-      # this can vary unpredictably.
-      4
-    ]
-  }
-
   def setup
     ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/../test/templates/")
@@ -38,14 +27,8 @@ class TemplateTest < Test::Unit::TestCase
 
   def assert_renders_correctly(name)
     load_result(name).split("\n").zip(@base.render(name).split("\n")).each_with_index do |pair, line|
-      if (EXCEPTIONS['name'].nil? || EXCEPTIONS['name'].include?(line))
-        if pair.first != pair.last
-          puts "\nWarning: line #{line} of template \"#{name}\" may have rendered incorrectly."
-        end
-      else
-        message = "template: #{name}\nline:     #{line}"
-        assert_equal(pair.first, pair.last, message)
-      end
+      message = "template: #{name}\nline:     #{line}"
+      assert_equal(pair.first, pair.last, message)
     end
   end
 
@@ -111,6 +94,24 @@ END
       render(template.chomp)
     rescue Exception => e
       assert_equal("(haml):4", e.backtrace[0])
+    end
+    
+    template = <<END
+%p
+  %h1 Hello!
+  = "lots of lines"
+  = "even more!"
+  - compile_error(
+  %p
+    this is after the exception
+    %strong yes it is!
+ho ho ho.
+END
+
+    begin
+      render(template.chomp)
+    rescue Exception => e
+      assert_equal("(haml):5", e.backtrace[0])
     end
   end
 end

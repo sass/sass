@@ -213,10 +213,13 @@ _erbout = _hamlout.buffer
 #{@precompiled}
 END
       
-      # Evaluate the buffer in the context of the scope object
       begin
+        # Evaluate the buffer in the context of the scope object
         @scope_object.instance_eval @precompiled
       rescue Exception => e
+        # Get information from the exception and format it so that
+        # Rails can understand it.
+        compile_error = e.message.scan(/\(eval\):([0-9]*):in `[-_a-zA-Z]*': compile error/)[0]
         filename = "(haml)"
         if @scope_object.methods.include? "haml_filename"
           # For some reason that I can't figure out,
@@ -227,7 +230,15 @@ END
             filename = "#{@scope_object.haml_filename}.haml"
           end
         end
-        e.backtrace.unshift "#{filename}:#{@scope_object.haml_lineno}"
+        lineno = @scope_object.haml_lineno
+        
+        if compile_error
+          eval_line = compile_error[0].to_i
+          line_marker = @precompiled.split("\n")[0...eval_line].grep(/@haml_lineno = [0-9]*/)[-1]
+          lineno = line_marker.scan(/[0-9]+/)[0].to_i if line_marker
+        end
+        
+        e.backtrace.unshift "#{filename}:#{lineno}"
         raise e
       end
       
