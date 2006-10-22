@@ -17,3 +17,11 @@
       = "true"
     - else
       = "false"
+  - if true
+    - 5.times do |i|
+      - if i % 2 == 1
+        Odd!
+      - else
+        Even!
+  - else
+    = "This can't happen!"

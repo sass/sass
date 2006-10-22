@@ -159,12 +159,18 @@ module Haml
           @to_close_stack.push '_haml_end_block'
         end
         
-      elsif count <= @to_close_stack.size && @to_close_stack.size > 0 &&
-          (line.length == 0 || line[0] != SILENT_SCRIPT || !MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0]))
-          
+      elsif count <= @to_close_stack.size && @to_close_stack.size > 0          
         # The tabulation has gone down, and it's not because of one of
         # Ruby's mid-block keywords
-        (@to_close_stack.size - count).times { close }
+        to_close = @to_close_stack.size - count
+
+        to_close.times do |i|
+          offset = to_close - 1 - i
+          unless offset == 0 && line.length > 2 && line[0] == SILENT_SCRIPT &&
+                MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0])
+            close
+          end
+        end
       end
       
       if line.length > 0
