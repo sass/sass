@@ -72,6 +72,11 @@ class TemplateTest < Test::Unit::TestCase
     assert_equal("2\n", render("= 1+1"))
   end
   
+  def test_rhtml_still_renders
+    res = @base.render("../rhtml/standard")
+    assert !(res.nil? || res.empty?)
+  end
+  
   def test_exceptions_should_work_correctly
     template = <<END
 %p
