@@ -36,8 +36,12 @@ module Haml
         engine = Haml::Engine.new(File.read(template_file_name))
         set_precompiled(template_file_name, engine.precompiled)
       end
+      
+      yield_proc = @view.instance_eval do
+        proc { |*name| instance_variable_get("@content_for_#{name.first || 'layout'}") }
+      end
 
-      engine.to_html(@view)
+      engine.to_html(@view) { |*args| yield_proc.call(*args) }
 
     end
 

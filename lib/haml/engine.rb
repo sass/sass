@@ -112,11 +112,11 @@ module Haml
 
     # Processes the template and returns the resulting (X)HTML code as
     # a string.
-    def to_html(scope = Object.new)
+    def to_html(scope = Object.new, &block)
       @scope_object = scope
 
       # Compile the @precompiled buffer
-      compile
+      compile &block
 
       # Return the result string
       @buffer.buffer
@@ -126,6 +126,11 @@ module Haml
     
     #Precompile each line
     def do_precompile
+      push_silent <<-END
+        def _haml_render
+        _hamlout = @haml_stack[-1]
+        _erbout = _hamlout.buffer
+      END
       @template.each_with_index do |line, index|
         count, line = count_soft_tabs(line)
         suppress_render = handle_multiline(count, line, index)
@@ -140,6 +145,8 @@ module Haml
   
       # Close all the open tags
       @to_close_stack.length.times { close }
+      
+      push_silent "end"
     end
     
     # Processes a single line of HAML. <tt>count</tt> does *not* represent the
@@ -245,7 +252,7 @@ module Haml
     # evaluates it in the context of <tt>@scope_object</tt>, after preparing
     # <tt>@scope_object</tt>. The code in <tt>@precompiled</tt> populates
     # <tt>@buffer</tt> with the compiled XHTML code.
-    def compile
+    def compile(&block)
       # Set the local variables pointing to the buffer
       buffer = @buffer
       @scope_object.instance_eval do
@@ -258,15 +265,10 @@ module Haml
         end
       end
       
-      @precompiled = <<END
-_hamlout = @haml_stack[-1]
-_erbout = _hamlout.buffer
-#{@precompiled}
-END
-      
       begin
         # Evaluate the buffer in the context of the scope object
         @scope_object.instance_eval @precompiled
+        @scope_object._haml_render &block
       rescue Exception => e
         # Get information from the exception and format it so that
         # Rails can understand it.
