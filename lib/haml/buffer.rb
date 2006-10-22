@@ -70,7 +70,6 @@ module Haml
       end
     end
     
-    
     # Creates a closing tag with the given name.
     def close_tag(name, tabulation)
       if @one_liner_pending
@@ -78,6 +77,28 @@ module Haml
         @one_liner_pending = false
       else
         push_text("</#{name}>", tabulation)
+      end
+    end
+    
+    # Opens an XHTML comment.
+    def open_comment(try_one_line, conditional, tabulation)
+      conditional << ">" if conditional
+      @buffer << "#{tabs(tabulation)}<!--#{conditional.to_s} "
+      if try_one_line
+        @one_liner_pending = true
+      else
+        @buffer << "\n"
+      end
+    end
+    
+    # Closes an XHTML comment.
+    def close_comment(has_conditional, tabulation)
+      close_tag = has_conditional ? "<![endif]-->" : "-->"
+      if @one_liner_pending
+        @buffer << " #{close_tag}\n"
+        @one_liner_pending = false
+      else
+        push_text(close_tag, tabulation)
       end
     end
     

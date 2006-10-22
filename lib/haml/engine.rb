@@ -163,7 +163,7 @@ module Haml
         
           # The indentation was increased after silent script,
           # it must be a block
-          @to_close_stack.push '_haml_end_block'
+          @to_close_stack.push [:script]
         end
         
       elsif count <= @to_close_stack.size && @to_close_stack.size > 0          
@@ -332,11 +332,14 @@ module Haml
 
     # Closes the most recent item in <tt>@to_close_stack</tt>.
     def close
-      tag = @to_close_stack.pop
-      if tag == '_haml_end_block'
+      tag, value = @to_close_stack.pop
+      case tag
+      when :script
         close_block
-      else
-        close_tag tag
+      when :comment
+        close_comment value
+      when :element
+        close_tag value
       end
     end
 
@@ -350,6 +353,12 @@ module Haml
     # Closes a Ruby block.
     def close_block
       push_silent "end"
+    end
+    
+    # Closes a comment.
+    def close_comment(has_conditional)
+      @tabulation -= 1
+      push_silent "_hamlout.close_comment(#{has_conditional}, #{@tabulation})"
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
@@ -372,10 +381,10 @@ module Haml
         attributes_hash = "nil" unless attributes_hash
         object_ref = "nil" unless object_ref
         
-        @precompiled << "_hamlout.open_tag(#{tag_name.inspect}, #{@tabulation}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref})\n"
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@tabulation}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref})\n"
         
         unless atomic
-          @to_close_stack.push tag_name
+          @to_close_stack.push [:element, tag_name]
           @tabulation += 1
           
           if value_exists
@@ -398,7 +407,16 @@ module Haml
 
     # Renders an XHTML comment.
     def render_comment(line)
-      push_text "<!-- #{line[1..line.length].strip} -->"
+      conditional, content = line.scan(/\/(\[[a-zA-Z0-9 ]*\])?(.*)/)[0]
+      content = content.strip
+      try_one_line = !content.empty?
+      push_silent "_hamlout.open_comment(#{try_one_line}, #{conditional.inspect}, #{@tabulation})"
+      @tabulation += 1
+      @to_close_stack.push [:comment, !conditional.nil?]
+      if try_one_line
+        push_text content
+        close
+      end
     end
   end
 end

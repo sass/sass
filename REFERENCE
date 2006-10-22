@@ -271,6 +271,37 @@ is compiled to:
     <!-- This is the billabong element -->
     I like billabongs!
   </billabong>
+
+The forward slash can also wrap indented sections of code. For example:
+
+  /
+    %p This doesn't render...
+    %div
+      %h1 Because it's commented out!
+
+is compiled to:
+
+  <!-- 
+    <p>This doesn't render...</p>
+    <div>
+      <h1>Because it's commented out!</h1>
+    </div>
+  -->
+
+You can also use Interet Explorer conditional comments (about)[http://www.quirksmode.org/css/condcom.html]
+by enclosing the condition in square brackets after the <tt>/</tt>. For example:
+
+  /[if IE]
+    %a{ :href => 'http://www.mozilla.com/en-US/firefox/' }
+      %h1 Get Firefox
+
+is compiled to:
+
+  <!--[if IE]> 
+    <a href='http://www.mozilla.com/en-US/firefox/'>
+      <h1>Get Firefox</h1>
+    </a>
+  <![endif]-->
   
 ==== |
 
