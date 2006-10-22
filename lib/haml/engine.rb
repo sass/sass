@@ -28,6 +28,9 @@ module Haml
     # Designates an XHTML/XML comment.
     COMMENT         = '/'[0]
     
+    # Designates an XHTML doctype.
+    DOCTYPE         = '!'[0]
+    
     # Designates script, the result of which is output.
     SCRIPT          = '='[0]
     
@@ -40,6 +43,9 @@ module Haml
     # When following SILENT_SCRIPT, designates a comment that is not output.
     SILENT_COMMENT  = '#'[0]
     
+    # Designates a non-parsed line. Not actually a character.
+    PLAIN_TEXT      = -1
+    
     # Keeps track of the ASCII values of the characters that begin a 
     # specially-interpreted line.
     SPECIAL_CHARACTERS   = [
@@ -47,6 +53,7 @@ module Haml
       DIV_CLASS,
       DIV_ID,
       COMMENT,
+      DOCTYPE,
       SCRIPT,
       FLAT_SCRIPT,
       SILENT_SCRIPT
@@ -142,53 +149,55 @@ module Haml
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.
     def process_line(count, line, index)
-      if line.lstrip[0, 3] == '!!!'
-        push_text '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+      if count > @to_close_stack.size
+      
+        # Indentation has been increased without a new tag
+        if @latest_command == SILENT_SCRIPT
         
-      else
-        if count > @to_close_stack.size
-        
-          # Indentation has been increased without a new tag
-          if @latest_command == SILENT_SCRIPT
-          
-            # The indentation was increased after silent script,
-            # it must be a block
-            @to_close_stack.push '_haml_end_block'
-          end
-          
-        elsif count <= @to_close_stack.size && @to_close_stack.size > 0 &&
-            (line.length == 0 || line[0] != SILENT_SCRIPT || !MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0]))
-            
-          # The tabulation has gone down, and it's not because of one of
-          # Ruby's mid-block keywords
-          (@to_close_stack.size - count).times { close }
+          # The indentation was increased after silent script,
+          # it must be a block
+          @to_close_stack.push '_haml_end_block'
         end
         
-        if line.length > 0
-          @latest_command = line[0]
-          case @latest_command
-          when DIV_CLASS, DIV_ID
-            render_div(line, index)
-          when ELEMENT
-            render_tag(line, index)
-          when COMMENT
-            render_comment(line)
-          when SCRIPT
-            push_script(line[1..-1], false, index)
-          when FLAT_SCRIPT
-            push_script(line[1..-1], true, index)
-          when SILENT_SCRIPT
-            sub_line = line[1..-1]
-            unless sub_line[0] == SILENT_COMMENT
-              push_silent(sub_line, index)
-            else
-              @latest_command = SILENT_COMMENT
-            end
+      elsif count <= @to_close_stack.size && @to_close_stack.size > 0 &&
+          (line.length == 0 || line[0] != SILENT_SCRIPT || !MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0]))
+          
+        # The tabulation has gone down, and it's not because of one of
+        # Ruby's mid-block keywords
+        (@to_close_stack.size - count).times { close }
+      end
+      
+      if line.length > 0
+        @latest_command = line[0]
+        case @latest_command
+        when DIV_CLASS, DIV_ID
+          render_div(line, index)
+        when ELEMENT
+          render_tag(line, index)
+        when COMMENT
+          render_comment(line)
+        when SCRIPT
+          push_script(line[1..-1], false, index)
+        when FLAT_SCRIPT
+          push_script(line[1..-1], true, index)
+        when SILENT_SCRIPT
+          sub_line = line[1..-1]
+          unless sub_line[0] == SILENT_COMMENT
+            push_silent(sub_line, index)
           else
+            @latest_command = SILENT_COMMENT
+          end
+        when DOCTYPE
+          if line[0...3] == '!!!'
+            push_text '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+          else
+            @latest_command = PLAIN_TEXT
             push_text line.strip
           end
+        else
+          @latest_command = PLAIN_TEXT
+          push_text line.strip
         end
-        
       end
     end
 
