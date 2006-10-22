@@ -16,9 +16,41 @@ module Haml
     # Allow access to the precompiled template
     attr_reader :precompiled
     
+    # Designates an XHTML/XML element.
+    ELEMENT         = '%'[0]
+    
+    # Designates a <tt><div></tt> element with the given class.
+    DIV_CLASS       = '.'[0]
+    
+    # Designates a <tt><div></tt> element with the given id.
+    DIV_ID          = '#'[0]
+    
+    # Designates an XHTML/XML comment.
+    COMMENT         = '/'[0]
+    
+    # Designates script, the result of which is output.
+    SCRIPT          = '='[0]
+    
+    # Designates script, the result of which is flattened and output.
+    FLAT_SCRIPT     = '~'[0]
+    
+    # Designates script which is run but not output.
+    SILENT_SCRIPT   = '-'[0]
+    
+    # When following SILENT_SCRIPT, designates a comment that is not output.
+    SILENT_COMMENT  = '#'[0]
+    
     # Keeps track of the ASCII values of the characters that begin a 
     # specially-interpreted line.
-    SPECIAL_CHARACTERS   = %w(# . = ~ % /).collect { |c| c[0] }
+    SPECIAL_CHARACTERS   = [
+      ELEMENT,
+      DIV_CLASS,
+      DIV_ID,
+      COMMENT,
+      SCRIPT,
+      FLAT_SCRIPT,
+      SILENT_SCRIPT
+    ]
 
     # The value of the character that designates that a line is part
     # of a multiline string.
@@ -117,7 +149,7 @@ module Haml
         if count > @to_close_stack.size
         
           # Indentation has been increased without a new tag
-          if @latest_command == 45 # '-'
+          if @latest_command == SILENT_SCRIPT
           
             # The indentation was increased after silent script,
             # it must be a block
@@ -125,7 +157,7 @@ module Haml
           end
           
         elsif count <= @to_close_stack.size && @to_close_stack.size > 0 &&
-            (line.length == 0 || line[0] != 45 || !MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0]))
+            (line.length == 0 || line[0] != SILENT_SCRIPT || !MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0]))
             
           # The tabulation has gone down, and it's not because of one of
           # Ruby's mid-block keywords
@@ -135,22 +167,22 @@ module Haml
         if line.length > 0
           @latest_command = line[0]
           case @latest_command
-          when 46, 35 # '.', '#'
+          when DIV_CLASS, DIV_ID
             render_div(line, index)
-          when 37 # '%'
+          when ELEMENT
             render_tag(line, index)
-          when 47 # '/'
+          when COMMENT
             render_comment(line)
-          when 61 # '='
+          when SCRIPT
             push_script(line[1..-1], false, index)
-          when 126 # '~'
+          when FLAT_SCRIPT
             push_script(line[1..-1], true, index)
-          when 45 # '-'
+          when SILENT_SCRIPT
             sub_line = line[1..-1]
-            unless sub_line[0] == 35 # '#'
+            unless sub_line[0] == SILENT_COMMENT
               push_silent(sub_line, index)
             else
-              @latest_command = 35
+              @latest_command = SILENT_COMMENT
             end
           else
             push_text line.strip
@@ -169,11 +201,11 @@ module Haml
     # rendered normally.
     def handle_multiline(count, line, index)
       # Multilines are denoting by ending with a `|` (124)
-      if line && (line[-1] == MULTILINE_CHAR_VALUE) && @multiline_buffer
+      if is_multiline?(line) && @multiline_buffer
         # A multiline string is active, and is being continued 
         @multiline_buffer += line[0...-1]
         suppress_render = true
-      elsif line && (line[-1] == MULTILINE_CHAR_VALUE) && (MULTILINE_STARTERS.include? line[0])
+      elsif is_multiline?(line) && (MULTILINE_STARTERS.include? line[0])
         # A multiline string has just been activated, start adding the lines
         @multiline_buffer = line[0...-1]
         @multiline_count = count
@@ -187,6 +219,11 @@ module Haml
       end
 
       return suppress_render
+    end
+    
+    # Checks whether or not +line+ is in a multiline sequence.
+    def is_multiline?(line)                                          # ' '[0] == 32
+      line && line.length > 1 && line[-1] == MULTILINE_CHAR_VALUE && line[-2] == 32
     end
 
     # Takes <tt>@precompiled</tt>, a string buffer of Ruby code, and
