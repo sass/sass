@@ -38,7 +38,8 @@ class TemplateTest < Test::Unit::TestCase
 
   def test_templates_should_render_correctly
     %w{very_basic        standard   helpers   whitespace_handling
-       original_engine   list       helpful   silent_script}.each do |template|
+       original_engine   list       helpful   silent_script
+       tag_parsing}.each do |template|
       assert_renders_correctly template
     end
   end
