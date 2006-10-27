@@ -16,6 +16,9 @@ module Haml
     # Allow access to the precompiled template
     attr_reader :precompiled
     
+    # Allow reading and writing of the options hash
+    attr :options, true
+    
     # Designates an XHTML/XML element.
     ELEMENT         = '%'[0]
     
@@ -86,18 +89,20 @@ module Haml
     # 
     # Available options are:
     # 
-    # [<tt>scope_object</tt>]  The object within which the template will
-    #                          be compiled, via instance_eval. For a Rails
-    #                          application, this will typically be an
-    #                          instance of ActionView::Base. If not specified,
-    #                          this defaults to an instance of the Object class.
-    # [<tt>suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
-    #                          designated by <tt>=</tt> or <tt>~</tt> should be
-    #                          evaluated. If this is true, said scripts are
-    #                          rendered as empty strings. Defaults to false.
+    # [<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
+    #                           designated by <tt>=</tt> or <tt>~</tt> should be
+    #                           evaluated. If this is true, said scripts are
+    #                           rendered as empty strings. Defaults to false.
+    #
+    # [<tt>:precompiled</tt>]   A string containing a precompiled Haml template.
+    #                           If this is passed, <tt>template</tt> is ignored
+    #                           and no precompilation is done.
+    
     def initialize(template, options = {})
-      #turn each of the options into instance variables for the object
-      options.each { |k,v| eval("@#{k} = v") }
+      @options = {
+        :suppress_eval => false
+      }.merge options
+      @precompiled = @options[:precompiled]
 
       @template = template #String
       @to_close_stack = []
@@ -337,7 +342,7 @@ module Haml
     # If <tt>flattened</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
     def push_script(text, flattened, index)
-      unless @suppress_eval
+      unless options[:suppress_eval]
         push_silent("haml_temp = #{text}", index)
         @precompiled << "haml_temp = _hamlout.push_script(haml_temp, #{@tabulation}, #{flattened})\n"
       end

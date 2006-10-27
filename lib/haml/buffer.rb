@@ -16,7 +16,8 @@ module Haml
     attr_accessor :buffer
     
     # Creates a new buffer.
-    def initialize
+    def initialize(options = {})
+      @options = options
       @buffer = ""
       @one_liner_pending = false
     end
