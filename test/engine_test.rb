@@ -48,4 +48,11 @@ class EngineTest < Test::Unit::TestCase
   def test_long_liner_should_not_print_on_one_line
     assert_equal("<div>\n  #{'x' * 51}\n</div>", render("%div #{'x' * 51}").chomp)
   end
+  
+  def test_multi_render
+    engine = Haml::Engine.new("%strong Hi there!")
+    assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
+    assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
+    assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
+  end
 end

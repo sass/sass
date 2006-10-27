@@ -100,8 +100,6 @@ module Haml
       options.each { |k,v| eval("@#{k} = v") }
 
       @template = template #String
-      @buffer = Haml::Buffer.new
-
       @to_close_stack = []
       @tabulation = 0
 
@@ -114,6 +112,7 @@ module Haml
     # a string.
     def to_html(scope = Object.new, &block)
       @scope_object = scope
+      @buffer = Haml::Buffer.new
 
       # Compile the @precompiled buffer
       compile &block
