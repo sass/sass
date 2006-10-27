@@ -256,6 +256,24 @@ is compiled to:
     </body>
   </html>
   
+You can also specify the version and type of XHTML after the <tt>!!!</tt>.
+XHTML 1.0 Strict, Transitional, and Frameset and XHTML 1.1 are supported.
+The default version is 1.0 and the default type is Transitional. For example,
+
+  !!! 1.1
+  
+is compiled to:
+  
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+  
+and
+
+  !!! Strict
+  
+is compiled to:
+
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  
 ==== /
 
 The forward slash character, when placed at the beginning of a line, wraps all

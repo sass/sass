@@ -202,7 +202,21 @@ module Haml
           end
         when DOCTYPE
           if line[0...3] == '!!!'
-            push_text '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+            version, type = line.scan(/!!![\s]*([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/)[0]
+            type = type.downcase if type
+            if version == "1.1"
+              doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+            else
+              case type
+              when "strict"
+                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+              when "frameset"
+                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
+              else
+                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+              end
+            end
+            push_text doctype
           else
             @latest_command = PLAIN_TEXT
             push_text line.strip
