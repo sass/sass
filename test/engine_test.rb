@@ -16,6 +16,11 @@ class EngineTest < Test::Unit::TestCase
   def test_stop_eval
     assert_equal("", render("= 'Hello'", :suppress_eval => true))
   end
+  
+  def test_attr_wrapper
+    assert_equal("<p strange=*attrs*>\n</p>\n", render("%p{ :strange => 'attrs'}", :attr_wrapper => '*'))
+    assert_equal("<p escaped=\"quo&quot;te\">\n</p>\n", render("%p{ :escaped => 'quo\"te'}", :attr_wrapper => '"'))
+  end
 
   # This is ugly because Hashes are unordered; we don't always know the order
   # in which attributes will be returned.

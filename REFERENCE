@@ -85,9 +85,10 @@ closing tags for any element.
 ==== {}
 
 Brackets represent a Ruby hash that is used for specifying the attributes of an
-element. It is literally evaluated as a Ruby hash, so logic will work in it. At
-the moment, though, it doesn't see local variables. The hash is placed after
-the tag is defined. For example:
+element. It is literally evaluated as a Ruby hash, so logic will work in it, and
+local variables may be used. Quote characters within the attribute will be replaced
+by appropriate escape sequences. The hash is placed after the tag is defined. For
+example:
 
   %head{ :name => "doc_head" }
     %script{ 'type' => "text/" + "javascript", :src => "javascripts/script_#{2 + 7}" }

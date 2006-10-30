@@ -18,6 +18,7 @@ module Haml
     # Creates a new buffer.
     def initialize(options = {})
       @options = options
+      @quote_escape = options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
       @buffer = ""
       @one_liner_pending = false
     end
@@ -150,9 +151,12 @@ module Haml
       end
       result = attributes.sort.collect do |a,v|
         unless v.nil?
-          first_quote_type = v.to_s.scan(/['"]/).first
-          quote_type = (first_quote_type == "'") ? '"' : "'"
-          "#{a.to_s}=#{quote_type}#{v.to_s}#{quote_type}"
+          v = v.to_s
+          attr_wrapper = @options[:attr_wrapper]
+          if v.include? attr_wrapper
+            v = v.gsub(attr_wrapper, @quote_escape)
+          end
+          "#{a.to_s}=#{attr_wrapper}#{v}#{attr_wrapper}"
         end
       end
       result = result.compact.join(' ')

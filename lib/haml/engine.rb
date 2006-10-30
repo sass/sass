@@ -97,10 +97,17 @@ module Haml
     # [<tt>:precompiled</tt>]   A string containing a precompiled Haml template.
     #                           If this is passed, <tt>template</tt> is ignored
     #                           and no precompilation is done.
+    #
+    # [<tt>:attr_wrapper</tt>]  The character that should wrap element attributes.
+    #                           This defaults to <tt>'</tt> (an apostrophe). Characters
+    #                           of this type within the attributes will be escaped
+    #                           (e.g. by replacing them with <tt>&apos;</tt>) if
+    #                           the character is an apostrophe or a quotation mark.
     
     def initialize(template, options = {})
       @options = {
-        :suppress_eval => false
+        :suppress_eval => false,
+        :attr_wrapper => "'"
       }.merge options
       @precompiled = @options[:precompiled]
 
@@ -117,7 +124,7 @@ module Haml
     # a string.
     def to_html(scope = Object.new, &block)
       @scope_object = scope
-      @buffer = Haml::Buffer.new
+      @buffer = Haml::Buffer.new(@options)
 
       # Compile the @precompiled buffer
       compile &block
