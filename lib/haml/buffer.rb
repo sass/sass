@@ -115,7 +115,7 @@ module Haml
     # that can then be merged with another attributes hash.
     def parse_class_and_id(list)
       attributes = {}
-      list.scan(/([#.])([-a-zA-Z_()]+)/) do |type, property|
+      list.scan(/([#.])([-_a-zA-Z0-9]+)/) do |type, property|
         case type
         when '.'
           if attributes[:class]
