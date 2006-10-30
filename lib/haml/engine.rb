@@ -85,24 +85,13 @@ module Haml
     MID_BLOCK_KEYWORDS   = ['else', 'elsif', 'rescue', 'ensure', 'when']
 
     # Creates a new instace of Haml::Engine to compile the given
-    # template string.
-    # 
-    # Available options are:
-    # 
-    # [<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
-    #                           designated by <tt>=</tt> or <tt>~</tt> should be
-    #                           evaluated. If this is true, said scripts are
-    #                           rendered as empty strings. Defaults to false.
+    # template string. See REFERENCE for available options.
     #
-    # [<tt>:precompiled</tt>]   A string containing a precompiled Haml template.
-    #                           If this is passed, <tt>template</tt> is ignored
-    #                           and no precompilation is done.
+    #--
+    # When adding options, remember to add information about them
+    # to REFERENCE!
+    #++
     #
-    # [<tt>:attr_wrapper</tt>]  The character that should wrap element attributes.
-    #                           This defaults to <tt>'</tt> (an apostrophe). Characters
-    #                           of this type within the attributes will be escaped
-    #                           (e.g. by replacing them with <tt>&apos;</tt>) if
-    #                           the character is an apostrophe or a quotation mark.
     
     def initialize(template, options = {})
       @options = {

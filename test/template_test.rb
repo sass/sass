@@ -77,6 +77,13 @@ class TemplateTest < Test::Unit::TestCase
     assert !(res.nil? || res.empty?)
   end
   
+  def test_haml_options
+    Haml::Template.options = { :suppress_eval => true }
+    assert_equal({ :suppress_eval => true }, Haml::Template.options)
+    assert_renders_correctly("eval_suppressed")
+    Haml::Template.options = {}
+  end
+  
   def test_exceptions_should_work_correctly
     template = <<END
 %p

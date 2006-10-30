@@ -4,6 +4,20 @@ require 'action_view'
 
 module Haml
   class Template
+  
+    class << self
+      @@options = {}
+      
+      # Gets various options for HAML. See REFERENCE for details.
+      def options
+        @@options
+      end
+      
+      # Sets various options for HAML. See REFERENCE for details.
+      def options=(value)
+        @@options = value
+      end
+    end
 
     def initialize(view)
       @view = view
@@ -29,11 +43,12 @@ module Haml
           self.class.send(:define_method, key) { val }
         end
       end
-
+      
       if @precompiled = get_precompiled(template_file_name)
-        engine = Haml::Engine.new("", :precompiled => @precompiled)
+        options = { :precompiled => @precompiled }.merge @@options
+        engine = Haml::Engine.new("", options)
       else
-        engine = Haml::Engine.new(File.read(template_file_name))
+        engine = Haml::Engine.new(File.read(template_file_name), @@options)
         set_precompiled(template_file_name, engine.precompiled)
       end
       
