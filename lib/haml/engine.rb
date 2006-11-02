@@ -135,7 +135,7 @@ module Haml
         count, line = count_soft_tabs(line)
         suppress_render = handle_multiline(count, line, index)
   
-        if !suppress_render && count && line
+        if !suppress_render && count && line && (line.strip.size > 0)
           count, line = process_line(count, line, index)
         end
       end
