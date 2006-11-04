@@ -16,6 +16,11 @@ class EngineTest < Test::Unit::TestCase
   def test_stop_eval
     assert_equal("", render("= 'Hello'", :suppress_eval => true))
   end
+  
+  def test_attr_wrapper
+    assert_equal("<p strange=*attrs*>\n</p>\n", render("%p{ :strange => 'attrs'}", :attr_wrapper => '*'))
+    assert_equal("<p escaped=\"quo&quot;te\">\n</p>\n", render("%p{ :escaped => 'quo\"te'}", :attr_wrapper => '"'))
+  end
 
   # This is ugly because Hashes are unordered; we don't always know the order
   # in which attributes will be returned.
@@ -47,5 +52,12 @@ class EngineTest < Test::Unit::TestCase
 
   def test_long_liner_should_not_print_on_one_line
     assert_equal("<div>\n  #{'x' * 51}\n</div>", render("%div #{'x' * 51}").chomp)
+  end
+  
+  def test_multi_render
+    engine = Haml::Engine.new("%strong Hi there!")
+    assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
+    assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
+    assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
   end
 end

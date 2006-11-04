@@ -49,7 +49,7 @@ end
 rdoc_task = Proc.new do |rdoc|
   rdoc.title    = 'Haml'
   rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
+  rdoc.rdoc_files.include('REFERENCE')
   rdoc.rdoc_files.include('lib/**/*.rb')
   rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
 end
@@ -74,6 +74,9 @@ unless not_loaded.include? 'rcov/rcovtask'
   Rcov::RcovTask.new do |t|
     t.libs << "test"
     t.test_files = FileList['test/*_test.rb']
+    if ENV['NON_NATIVE']
+      t.rcov_opts << "--no-rcovrt"
+    end
     t.verbose = true
   end
 end

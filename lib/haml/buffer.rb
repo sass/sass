@@ -16,7 +16,9 @@ module Haml
     attr_accessor :buffer
     
     # Creates a new buffer.
-    def initialize
+    def initialize(options = {})
+      @options = options
+      @quote_escape = options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
       @buffer = ""
       @one_liner_pending = false
     end
@@ -70,7 +72,6 @@ module Haml
       end
     end
     
-    
     # Creates a closing tag with the given name.
     def close_tag(name, tabulation)
       if @one_liner_pending
@@ -78,6 +79,28 @@ module Haml
         @one_liner_pending = false
       else
         push_text("</#{name}>", tabulation)
+      end
+    end
+    
+    # Opens an XHTML comment.
+    def open_comment(try_one_line, conditional, tabulation)
+      conditional << ">" if conditional
+      @buffer << "#{tabs(tabulation)}<!--#{conditional.to_s} "
+      if try_one_line
+        @one_liner_pending = true
+      else
+        @buffer << "\n"
+      end
+    end
+    
+    # Closes an XHTML comment.
+    def close_comment(has_conditional, tabulation)
+      close_tag = has_conditional ? "<![endif]-->" : "-->"
+      if @one_liner_pending
+        @buffer << " #{close_tag}\n"
+        @one_liner_pending = false
+      else
+        push_text(close_tag, tabulation)
       end
     end
     
@@ -93,7 +116,7 @@ module Haml
     # that can then be merged with another attributes hash.
     def parse_class_and_id(list)
       attributes = {}
-      list.scan(/([#.])([-a-zA-Z_()]+)/) do |type, property|
+      list.scan(/([#.])([-_a-zA-Z0-9]+)/) do |type, property|
         case type
         when '.'
           if attributes[:class]
@@ -120,11 +143,20 @@ module Haml
     # Takes a hash and builds a list of XHTML attributes from it, returning
     # the result.
     def build_attributes(attributes = {})
-      result = attributes.collect do |a,v|
+      attributes.each do |key, value|
+        unless key.is_a? String
+          attributes.delete key
+          attributes[key.to_s] = value
+        end
+      end
+      result = attributes.sort.collect do |a,v|
         unless v.nil?
-          first_quote_type = v.to_s.scan(/['"]/).first
-          quote_type = (first_quote_type == "'") ? '"' : "'"
-          "#{a.to_s}=#{quote_type}#{v.to_s}#{quote_type}"
+          v = v.to_s
+          attr_wrapper = @options[:attr_wrapper]
+          if v.include? attr_wrapper
+            v = v.gsub(attr_wrapper, @quote_escape)
+          end
+          "#{a.to_s}=#{attr_wrapper}#{v}#{attr_wrapper}"
         end
       end
       result = result.compact.join(' ')

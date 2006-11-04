@@ -85,9 +85,10 @@ closing tags for any element.
 ==== {}
 
 Brackets represent a Ruby hash that is used for specifying the attributes of an
-element. It is literally evaluated as a Ruby hash, so logic will work in it. At
-the moment, though, it doesn't see local variables. The hash is placed after
-the tag is defined. For example:
+element. It is literally evaluated as a Ruby hash, so logic will work in it, and
+local variables may be used. Quote characters within the attribute will be replaced
+by appropriate escape sequences. The hash is placed after the tag is defined. For
+example:
 
   %head{ :name => "doc_head" }
     %script{ 'type' => "text/" + "javascript", :src => "javascripts/script_#{2 + 7}" }
@@ -256,6 +257,24 @@ is compiled to:
     </body>
   </html>
   
+You can also specify the version and type of XHTML after the <tt>!!!</tt>.
+XHTML 1.0 Strict, Transitional, and Frameset and XHTML 1.1 are supported.
+The default version is 1.0 and the default type is Transitional. For example,
+
+  !!! 1.1
+  
+is compiled to:
+  
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+  
+and
+
+  !!! Strict
+  
+is compiled to:
+
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  
 ==== /
 
 The forward slash character, when placed at the beginning of a line, wraps all
@@ -271,6 +290,37 @@ is compiled to:
     <!-- This is the billabong element -->
     I like billabongs!
   </billabong>
+
+The forward slash can also wrap indented sections of code. For example:
+
+  /
+    %p This doesn't render...
+    %div
+      %h1 Because it's commented out!
+
+is compiled to:
+
+  <!-- 
+    <p>This doesn't render...</p>
+    <div>
+      <h1>Because it's commented out!</h1>
+    </div>
+  -->
+
+You can also use Interet Explorer conditional comments (about)[http://www.quirksmode.org/css/condcom.html]
+by enclosing the condition in square brackets after the <tt>/</tt>. For example:
+
+  /[if IE]
+    %a{ :href => 'http://www.mozilla.com/en-US/firefox/' }
+      %h1 Get Firefox
+
+is compiled to:
+
+  <!--[if IE]> 
+    <a href='http://www.mozilla.com/en-US/firefox/'>
+      <h1>Get Firefox</h1>
+    </a>
+  <![endif]-->
   
 ==== |
 
@@ -464,7 +514,26 @@ may be compiled to:
       <a href='/'>Home</a>
     </div>
   </div>
+  
+=== Setting Options
 
+Options can be set by setting the hash <tt>Haml::Template.options</tt>
+from <tt>environment.rb</tt>. Available options are:
+
+[<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
+                          designated by <tt>=</tt> or <tt>~</tt> should be
+                          evaluated. If this is true, said scripts are
+                          rendered as empty strings. Defaults to false.
+
+[<tt>:precompiled</tt>]   A string containing a precompiled Haml template.
+                          If this is passed, <tt>template</tt> is ignored
+                          and no precompilation is done.
+
+[<tt>:attr_wrapper</tt>]  The character that should wrap element attributes.
+                          This defaults to <tt>'</tt> (an apostrophe). Characters
+                          of this type within the attributes will be escaped
+                          (e.g. by replacing them with <tt>&apos;</tt>) if
+                          the character is an apostrophe or a quotation mark.
 
 ---
 Copyright (c) 2006 Hampton Catlin
