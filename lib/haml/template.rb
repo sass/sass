@@ -4,15 +4,15 @@ require 'action_view'
 
 module Haml
   class Template
-  
+
     class << self
       @@options = {}
-      
+
       # Gets various options for HAML. See REFERENCE for details.
       def options
         @@options
       end
-      
+
       # Sets various options for HAML. See REFERENCE for details.
       def options=(value)
         @@options = value
@@ -38,20 +38,21 @@ module Haml
         assigns.each do |key,val|
           instance_variable_set "@#{key}", val
         end
-        # Set all the local assigns
-        local_assigns.each do |key,val|
-          self.class.send(:define_method, key) { val }
-        end
       end
-      
+
+      options = @@options.dup
+      locals = options[:locals] || {}
+      locals.merge! local_assigns
+      options[:locals] = locals
+
       if @precompiled = get_precompiled(template_file_name)
-        options = { :precompiled => @precompiled }.merge @@options
+        options[:precompiled] ||= @precompiled
         engine = Haml::Engine.new("", options)
       else
-        engine = Haml::Engine.new(File.read(template_file_name), @@options)
+        engine = Haml::Engine.new(File.read(template_file_name), options)
         set_precompiled(template_file_name, engine.precompiled)
       end
-      
+
       yield_proc = @view.instance_eval do
         proc { |*name| instance_variable_get("@content_for_#{name.first || 'layout'}") }
       end

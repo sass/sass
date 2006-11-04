@@ -549,6 +549,11 @@ from <tt>environment.rb</tt>. Available options are:
                           (e.g. by replacing them with <tt>&apos;</tt>) if
                           the character is an apostrophe or a quotation mark.
 
+[<tt>:locals</tt>]        The local variables that will be available within the
+                          template. For instance, if <tt>:locals</tt> is
+                          <tt>{ :foo => "bar" }</tt>, then within the template,
+                          <tt>= foo</tt> will produce <tt>bar</tt>.
+
 ---
 Copyright (c) 2006 Hampton Catlin
 Licensed under the MIT License

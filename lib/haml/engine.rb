@@ -96,7 +96,8 @@ module Haml
     def initialize(template, options = {})
       @options = {
         :suppress_eval => false,
-        :attr_wrapper => "'"
+        :attr_wrapper => "'",
+        :locals => {}
       }.merge options
       @precompiled = @options[:precompiled]
 
@@ -118,6 +119,16 @@ module Haml
     def to_html(scope = Object.new, &block)
       @scope_object = scope
       @buffer = Haml::Buffer.new(@options)
+
+      local_assigns = @options[:locals]
+
+      # Get inside the view object's world
+      @scope_object.instance_eval do
+        # Set all the local assigns
+        local_assigns.each do |key,val|
+          self.class.send(:define_method, key) { val }
+        end
+      end
 
       # Compile the @precompiled buffer
       compile &block
