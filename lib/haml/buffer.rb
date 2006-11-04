@@ -5,16 +5,16 @@ module Haml
   # processing done within instance_eval'd code.
   class Buffer
     include Haml::Helpers
-    
+
     # Set the maximum length for a line to be considered a one-liner.
     # Lines <= the maximum will be rendered on one line,
     # i.e. <tt><p>Hello world</p></tt>
     ONE_LINER_LENGTH     = 50
-    
+
     # The string that holds the compiled XHTML. This is aliased as
     # _erbout for compatibility with ERB-specific code.
     attr_accessor :buffer
-    
+
     # Creates a new buffer.
     def initialize(options = {})
       @options = options
@@ -22,11 +22,16 @@ module Haml
       @buffer = ""
       @one_liner_pending = false
     end
-    
+
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
-    def push_text(text, tabulation)
-      if @one_liner_pending && one_liner?(text)
+    def push_text(text, tabulation, flattened = false)
+      if flattened
+        # In this case, tabulation is the number of spaces, rather
+        # than the number of tabs.
+        @buffer << "#{' ' * tabulation}#{flatten(text + "\n")}"
+        @one_liner_pending = true
+      elsif @one_liner_pending && one_liner?(text)
         @buffer << text
       else
         if @one_liner_pending
@@ -36,7 +41,7 @@ module Haml
         @buffer << "#{tabs(tabulation)}#{text}\n"
       end
     end
-    
+
     # Properly formats the output of a script that was run in the
     # instance_eval.
     def push_script(result, tabulation, flattened)
@@ -49,29 +54,29 @@ module Haml
       end
       nil
     end
-    
+
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, tabulation, atomic, try_one_line, class_id, attributes_hash, obj_ref)
+    def open_tag(name, tabulation, atomic, try_one_line, class_id, attributes_hash, obj_ref, flattened)
       attributes = {}
       attributes.merge!(parse_object_ref(obj_ref)) if obj_ref
       attributes.merge!(parse_class_and_id(class_id)) if class_id
       attributes.merge!(attributes_hash) unless attributes_hash.nil? || attributes_hash.empty?
-      
+
       @buffer << "#{tabs(tabulation)}<#{name}#{build_attributes(attributes)}"
       @one_liner_pending = false
       if atomic
         @buffer << " />\n"
+      elsif try_one_line
+        @one_liner_pending = true
+        @buffer << ">"
+      elsif flattened
+        @buffer << ">&#x000A;"
       else
-        if try_one_line
-          @one_liner_pending = true
-          @buffer << ">"
-        else
-          @buffer << ">\n"
-        end
+        @buffer << ">\n"
       end
     end
-    
+
     # Creates a closing tag with the given name.
     def close_tag(name, tabulation)
       if @one_liner_pending
@@ -81,7 +86,7 @@ module Haml
         push_text("</#{name}>", tabulation)
       end
     end
-    
+
     # Opens an XHTML comment.
     def open_comment(try_one_line, conditional, tabulation)
       conditional << ">" if conditional
@@ -92,7 +97,7 @@ module Haml
         @buffer << "\n"
       end
     end
-    
+
     # Closes an XHTML comment.
     def close_comment(has_conditional, tabulation)
       close_tag = has_conditional ? "<![endif]-->" : "-->"
@@ -103,14 +108,14 @@ module Haml
         push_text(close_tag, tabulation)
       end
     end
-    
+
     private
-    
+
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count)
       '  ' * count
     end
-    
+
     # Iterates through the classes and ids supplied through <tt>.</tt>
     # and <tt>#</tt> syntax, and returns a hash with them as attributes,
     # that can then be merged with another attributes hash.
@@ -131,7 +136,7 @@ module Haml
       end
       attributes
     end
-    
+
     # Takes an array of objects and uses the class and id of the first
     # one to create an attributes hash.
     def parse_object_ref(ref)
@@ -139,7 +144,7 @@ module Haml
       class_name = ref.class.to_s.underscore
       {:id => "#{class_name}_#{ref.id}", :class => class_name}
     end
-    
+
     # Takes a hash and builds a list of XHTML attributes from it, returning
     # the result.
     def build_attributes(attributes = {})
@@ -162,7 +167,7 @@ module Haml
       result = result.compact.join(' ')
       (attributes.empty? ? String.new : String.new(' ')) + result
     end
-    
+
     # Returns whether or not the given value is short enough to be rendered
     # on one line.
     def one_liner?(value)

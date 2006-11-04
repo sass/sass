@@ -22,7 +22,8 @@ module Haml
 
     # Counts the tabulation of a line. Mostly for internal use.
     def count_soft_tabs(line)
-      line.index(/[^ ]/) ? [line.index(/[^ ]/)/2, line.strip] : []
+      spaces = line.index(/[^ ]/)
+      spaces ? [spaces, spaces/2] : []
     end
 
     # Takes an array and a block and iterates the array,

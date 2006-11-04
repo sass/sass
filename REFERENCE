@@ -1,10 +1,10 @@
 = Haml (XHTML Abstraction Markup Language)
 
-HAML is a markup language that's used to cleanly and simply describe the XHTML 
-of any web document without the use of inline code. Haml functions as a 
-replacement for inline page templating systems such PHP, RHTML, and ASP. 
-However, Haml avoids the need for explicitly coding XHTML into the template, 
-because it iself is a description of the XHTML, with some code to generate 
+HAML is a markup language that's used to cleanly and simply describe the XHTML
+of any web document without the use of inline code. Haml functions as a
+replacement for inline page templating systems such PHP, RHTML, and ASP.
+However, Haml avoids the need for explicitly coding XHTML into the template,
+because it iself is a description of the XHTML, with some code to generate
 dynamic content.
 
 == Features
@@ -19,7 +19,7 @@ dynamic content.
 == Authors
 
 HAML was originally created by Hampton Catlin (hcatlin). Help with the
-Ruby On Rails implementation and much of the documentation by 
+Ruby On Rails implementation and much of the documentation by
 Jeff Hardy (packagethief).
 
 Nathan Weizenbaum (Nex3) contribued the buffered-engine code along with many
@@ -50,7 +50,7 @@ is compiled to:
       <li class='email'>eugene@example.com</li>
     </ul>
   </div>
-  
+
 == Characters with meaning to Haml
 
 Various characters, when placed at a certain point in a line, instruct HAML
@@ -70,7 +70,7 @@ and text to be rendered inside the element. It creates an element in the form of
   %one
     %two
       %three Hey there
-      
+
 is compiled to:
 
   <one>
@@ -99,7 +99,7 @@ is compiled to:
     <script src='javascripts/script_9' type='text/javascript'>
     </script>
   </head>
-  
+
 ==== []
 
 Square brackets follow a tag definiton and contain a Ruby object that is used to
@@ -110,11 +110,11 @@ obscure implementation detail, this is most useful for elements that represent
 instances of Models. For example:
 
   # file: app/controllers/users_controller.rb
-  
+
   def show
     @user = CrazyUser.find(15)
   end
-  
+
   # file: app/views/users/show.haml
 
   %div[@user]
@@ -142,7 +142,7 @@ is compiled to:
 
   <br />
   <meta http-equiv='Content-Type' content='text/html' />
-  
+
 ==== . and #
 
 The period and pound sign are borrowed from CSS and used as shortcuts to specify the
@@ -161,7 +161,7 @@ is compiled to:
     <p class='beans' food='true'>The magical fruit</p>
     <h1 class='class' id='id'>La La La</h1>
   </div>
-  
+
 ==== Assumed Divs
 
 Because the div element is used so often, it is the default element. If you only
@@ -184,33 +184,47 @@ and is compiled to:
     <div class='item'>Broken record album</div>
     <div class='description'>What a cool item!</div>
   </div>
-  
+
 ==== = and ~
 
 <tt>=</tt> and <tt>~</tt> are placed at the end of a tag definition, after class,
 id, and attribute declarations. They're just shortcuts for inserting Ruby code
 into an element. They work the same as <tt>=</tt> and <tt>~</tt> without a tag;
-see below for documentation of those. For example:
+see below for documentation of those. However, if the result is short enough, it
+is displayed entirely on one line. For example:
 
   %p= "hello"
   %h1~ 1 + 2
-  
-is the same as:
+
+is not quite the same as:
 
   %p
     = "hello"
   %h1
     ~ 1 + 2
- 
-and is compiled to:
 
-  <p>
-    hello
-  </p>
-  <h1>
-    3
-  </h1>
-  
+It's compiled to:
+
+  <p>hello</p>
+  <h1>3</h1>
+
+In addition, if the tilde character is followed by an indented section of text,
+the text is rendered on one line using the XHTML newline escape character.
+For example,
+
+  .house
+    %pre~
+       /^^^\
+      |[] []|
+      |_____|
+
+is compiled to:
+
+  <div class="house">
+    <pre>&#x000A; /^^^\&#x000A;|[] []|&#x000A;|_____|&#x000A;</pre>
+  </div>
+
+
 === XHTML Helpers
 
 ==== No Special Character
@@ -229,7 +243,7 @@ is compiled to:
       Wow this is cool!
     </whiz>
   </gee>
-  
+
 ==== !!!
 
 When describing XHTML documents with Haml, you can have a document type
@@ -256,25 +270,25 @@ is compiled to:
       <p>Sign my guestbook</p>
     </body>
   </html>
-  
+
 You can also specify the version and type of XHTML after the <tt>!!!</tt>.
 XHTML 1.0 Strict, Transitional, and Frameset and XHTML 1.1 are supported.
 The default version is 1.0 and the default type is Transitional. For example,
 
   !!! 1.1
-  
+
 is compiled to:
-  
+
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-  
+
 and
 
   !!! Strict
-  
+
 is compiled to:
 
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-  
+
 ==== /
 
 The forward slash character, when placed at the beginning of a line, wraps all
@@ -300,7 +314,7 @@ The forward slash can also wrap indented sections of code. For example:
 
 is compiled to:
 
-  <!-- 
+  <!--
     <p>This doesn't render...</p>
     <div>
       <h1>Because it's commented out!</h1>
@@ -316,12 +330,12 @@ by enclosing the condition in square brackets after the <tt>/</tt>. For example:
 
 is compiled to:
 
-  <!--[if IE]> 
+  <!--[if IE]>
     <a href='http://www.mozilla.com/en-US/firefox/'>
       <h1>Get Firefox</h1>
     </a>
   <![endif]-->
-  
+
 ==== |
 
 The pipe character designates a multiline string. It's placed at the end of a line,
@@ -343,7 +357,7 @@ is compiled to:
     probably make it |
     multiline so it doesn't |
     look awful. |
-  
+
 === Ruby evaluators
 
 ==== =
@@ -361,7 +375,7 @@ is compiled to:
     hi there reader!
     yo
   </p>
-  
+
 ==== ~
 
 The tilde character works the same as the equals character, but the output is
@@ -372,17 +386,17 @@ properly. For example:
     = "Woah    <pre>  this is   \n</pre>    crazy"
   %foo2
     ~ "Woah    <pre>  this is   \n</pre>    crazy"
-      
+
 is compiled to:
 
   <foo>
-    Woah    <pre>  this is   
+    Woah    <pre>  this is
     </pre>    crazy
   </foo>
   <foo2>
     Woah    <pre>  this is   &#x000A;</pre>    crazy
   </foo2>
-  
+
 ==== -
 
 The hyphen character makes the text following it into "silent script", or
@@ -397,13 +411,13 @@ For example:
   - foo << " there"
   - foo << " you!"
   %p= foo
-  
+
 is compiled to:
 
   <p>
     hello there you!
   </p>
-  
+
 ===== Blocks
 
 Like XHTML tags, you don't need to explicity close your Ruby blocks in
@@ -415,7 +429,7 @@ or something similar). For example:
   - (42...47).each do |i|
     %p= i
   %p See, I can count!
-  
+
 is compiled to:
 
   <p>
@@ -433,7 +447,7 @@ is compiled to:
   <p>
     46
   </p>
-  
+
 Another example:
 
   %p
@@ -444,7 +458,7 @@ Another example:
       = "2?"
     - when 3
       = "3."
-      
+
 is compiled to:
 
   <p>
@@ -456,7 +470,7 @@ is compiled to:
 Write Rails templates with the .haml extension. Example:
 
   # file: app/views/movies/teen_wolf.haml
-  
+
   %html
     %head
       %title= "Teen Wolf (1985)"
@@ -505,7 +519,7 @@ templates. Helper methods are also available in Haml templates. Example:
    .title
      %h1= @title
      = link_to 'Home', home_url
- 
+
 may be compiled to:
 
   <div id='content'>
@@ -514,7 +528,7 @@ may be compiled to:
       <a href='/'>Home</a>
     </div>
   </div>
-  
+
 === Setting Options
 
 Options can be set by setting the hash <tt>Haml::Template.options</tt>
