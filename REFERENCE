@@ -1,6 +1,6 @@
 = Haml (XHTML Abstraction Markup Language)
 
-HAML is a markup language that's used to cleanly and simply describe the XHTML
+Haml is a markup language that's used to cleanly and simply describe the XHTML
 of any web document without the use of inline code. Haml functions as a
 replacement for inline page templating systems such PHP, RHTML, and ASP.
 However, Haml avoids the need for explicitly coding XHTML into the template,
@@ -18,7 +18,7 @@ dynamic content.
 
 == Authors
 
-HAML was originally created by Hampton Catlin (hcatlin). Help with the
+Haml was originally created by Hampton Catlin (hcatlin). Help with the
 Ruby On Rails implementation and much of the documentation by
 Jeff Hardy (packagethief).
 
@@ -53,7 +53,7 @@ is compiled to:
 
 == Characters with meaning to Haml
 
-Various characters, when placed at a certain point in a line, instruct HAML
+Various characters, when placed at a certain point in a line, instruct Haml
 to render different types of things.
 
 === XHTML Tags
@@ -145,9 +145,11 @@ is compiled to:
 
 ==== . and #
 
-The period and pound sign are borrowed from CSS and used as shortcuts to specify the
-<tt>class</tt> and <tt>id</tt> attributes of an element, respectively. They are
-placed immediately after the tag, and before an attributes hash. For example:
+The period and sharp sign are borrowed from CSS and used as shortcuts to specify the
+<tt>class</tt> and <tt>id</tt> attributes of an element, respectively. Multiple class
+attributes can be specified by chaining thier names together with a dot, similiar to the
+way they are expressed in CSS. They should be placed immediately after the element name
+and before an optional attributes hash. For example:
 
   div#things
     %span#rice Chicken Fried
@@ -162,7 +164,30 @@ is compiled to:
     <h1 class='class' id='id'>La La La</h1>
   </div>
 
-==== Assumed Divs
+And,
+
+  #content
+    .articles
+      .article.title
+        Doogie Howser Comes Out
+      .article.date
+        2006-11-05
+      .article.entry
+        Neil Patrick Harris would like to dispel any rumors that he is straight
+
+is compiled to:
+
+  <div id="content">
+    <div class="articles">
+      <div class="article title">Doogie Howser Comes Out</div>
+      <div class="article date">2006-11-05</div>
+      <div class="article entry">
+        Neil Patrick Harris would like to dispel any rumors that he is straight
+      </div>
+    </div>
+  </div>
+
+==== Implicit Div Elements
 
 Because the div element is used so often, it is the default element. If you only
 define a class and/or id using the <tt>.</tt> or <tt>#</tt> syntax, a div element
@@ -443,7 +468,7 @@ is compiled to:
 ===== Blocks
 
 Like XHTML tags, you don't need to explicity close your Ruby blocks in
-HAML. Rather, they're automatically closed based on tabs. A block begins
+Haml. Rather, they're automatically closed based on spacing. A block begins
 whenever the indentation is increased after a silent script command, and
 ends when the indentation decreases (as long as it's not an +else+ clause
 or something similar). For example:
