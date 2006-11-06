@@ -24,7 +24,7 @@ module Haml
       @@precompiled_templates ||= {}
     end
 
-    def render(template_file_name, local_assigns={})
+    def render(template, local_assigns={})
       assigns = @view.assigns.dup
 
       # Do content for layout on its own to keep things working in partials
@@ -45,12 +45,14 @@ module Haml
       locals.merge! local_assigns
       options[:locals] = locals
 
-      if @precompiled = get_precompiled(template_file_name)
+      if @view.haml_inline
+        engine = Haml::Engine.new(template, options)
+      elsif @precompiled = get_precompiled(template)
         options[:precompiled] ||= @precompiled
         engine = Haml::Engine.new("", options)
       else
-        engine = Haml::Engine.new(File.read(template_file_name), options)
-        set_precompiled(template_file_name, engine.precompiled)
+        engine = Haml::Engine.new(File.read(template), options)
+        set_precompiled(template, engine.precompiled)
       end
 
       yield_proc = @view.instance_eval do
@@ -77,6 +79,7 @@ end
 
 class ActionView::Base
   attr :haml_filename, true
+  attr :haml_inline
 
   alias_method :haml_old_render_file, :render_file
   def render_file(template_path, use_full_path = true, local_assigns = {})
@@ -91,5 +94,11 @@ class ActionView::Base
     else
       read_template_file_old(template_path, extension)
     end
+  end
+
+  alias_method :render_template_old, :render_template
+  def render_template(template_extension, template, file_path = nil, local_assigns = {})
+    @haml_inline = !template.nil?
+    render_template_old(template_extension, template, file_path, local_assigns)
   end
 end
