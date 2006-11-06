@@ -55,11 +55,6 @@ module Haml
       nil
     end
 
-    # Adds an XML processor direction to the buffer.
-    def push_proc(target, attributes, tabulation)
-      @buffer << "#{tabs(tabulation)}<?#{target}#{build_attributes(attributes)} ?>\n"
-    end
-
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
     def open_tag(name, tabulation, atomic, try_one_line, class_id, attributes_hash, obj_ref, flattened)

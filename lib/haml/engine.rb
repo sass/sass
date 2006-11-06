@@ -34,9 +34,6 @@ module Haml
     # Designates an XHTML doctype.
     DOCTYPE         = '!'[0]
 
-    # Designates an XML processing instruction.
-    PROCESS         = '?'[0]
-
     # Designates script, the result of which is output.
     SCRIPT          = '='[0]
 
@@ -60,7 +57,6 @@ module Haml
       DIV_ID,
       COMMENT,
       DOCTYPE,
-      PROCESS,
       SCRIPT,
       FLAT_SCRIPT,
       SILENT_SCRIPT
@@ -214,8 +210,6 @@ module Haml
           render_tag(line, index)
         when COMMENT
           render_comment(line)
-        when PROCESS
-          render_process(line, index)
         when SCRIPT
           push_script(line[1..-1], false, index)
         when FLAT_SCRIPT
@@ -410,17 +404,6 @@ module Haml
       push_silent "_hamlout.close_comment(#{has_conditional}, #{@tabulation})"
     end
 
-    # Renders an XML processing direction.
-    def render_process(line, index)
-      target, attributes = line[1..-1].split("{")
-      target = "xml" if target.empty?
-      if attributes
-        push_silent "_hamlout.push_proc(#{target.dump}, {#{attributes}, #{@tabulation})"
-      else
-        push_text "<?#{target} ?>"
-      end
-    end
-      
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line, index)
