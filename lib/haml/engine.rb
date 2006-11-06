@@ -11,8 +11,6 @@ module Haml
   #   output = haml_engine.to_html
   #   puts output
   class Engine
-    include Haml::Helpers
-
     # Allow access to the precompiled template
     attr_reader :precompiled
 
@@ -464,6 +462,12 @@ module Haml
         push_text content
         close
       end
+    end
+
+    # Counts the tabulation of a line.
+    def count_soft_tabs(line)
+      spaces = line.index(/[^ ]/)
+      spaces ? [spaces, spaces/2] : []
     end
   end
 end

@@ -175,5 +175,14 @@ module Haml
     def one_liner?(value)
       value.length <= ONE_LINER_LENGTH && value.scan(/\n/).empty?
     end
+
+    # Isolates the whitespace-sensitive tags in the string and uses Haml::Helpers#flatten
+    # to convert any endlines inside them into html entities.
+    def find_and_flatten(input)
+      input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im).each do |thing|
+        input = input.gsub(thing[1], Haml::Helpers.flatten(thing[1]))
+      end
+      input
+    end
   end
 end

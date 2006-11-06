@@ -4,26 +4,13 @@ module Haml
   # that a HAML template is parsed in, so all these methods are at your
   # disposal from within the template.
   module Helpers
+    self.extend self
+
     # Takes any string, finds all the endlines and converts them to
     # html entities for endlines so they'll render correctly in
     # whitespace-sensitive tags.
     def flatten(input)
       input.gsub(/\n/, '&#x000A;').gsub(/\r/, '')
-    end
-
-    # Isolates the whitespace-sensitive tags in the string and uses flatten
-    # to convert any endlines inside them into html entities.
-    def find_and_flatten(input)
-      input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im).each do |thing|
-        input = input.gsub(thing[1], flatten(thing[1]))
-      end
-      input
-    end
-
-    # Counts the tabulation of a line. Mostly for internal use.
-    def count_soft_tabs(line)
-      spaces = line.index(/[^ ]/)
-      spaces ? [spaces, spaces/2] : []
     end
 
     # Takes an array and a block and iterates the array,
