@@ -289,6 +289,28 @@ is compiled to:
 
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
+==== ?
+
+The question mark character creates an XML processing directive (an XML
+prolog, a stylesheet link, or another format-specific directive). It's
+followed by the "target" of the directive, followed by any attributes
+of the directive. If the target is left out, it defaults to "xml." For
+example:
+
+  ?{ :version => "1.0", :encoding => "UTF-8" }
+
+is compiled to:
+
+  <?xml version='1.0' encoding='UTF-8' ?>
+
+and
+
+  ?xml-stylesheet{ :href => "stylesheets/rss.css", :type => "text/css" }
+
+is compiled to:
+
+  <?xml-stylesheet href='stylesheets/rss.css' type='text/css' ?>
+
 ==== /
 
 The forward slash character, when placed at the beginning of a line, wraps all
