@@ -136,6 +136,7 @@ module Haml
     # one to create an attributes hash.
     def parse_object_ref(ref)
       ref = ref[0]
+      return {} if ref.nil?
       class_name = ref.class.to_s.underscore
       {:id => "#{class_name}_#{ref.id}", :class => class_name}
     end
