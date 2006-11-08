@@ -30,5 +30,24 @@ module Haml
     def list_of(array) # :yields: item
       (array.collect { |i| "<li>#{yield(i)}</li>" }).join("\n")
     end
+
+    # Increments the tabulation modifier of the buffer. This is the
+    # number of tabs the buffer automatically adds to the lines of the
+    # template.
+    def tab_up(i = 1)
+      buffer.tabulation += i
+    end
+
+    # Decrements the tabulation modifier of the buffer. This is the
+    # number of tabs the buffer automatically adds to the lines of the
+    # template.
+    def tab_down(i = 1)
+      buffer.tabulation -= i
+    end
+
+    # Gets a reference to the current Haml::Buffer object.
+    def buffer # :nodoc:
+      @haml_stack[-1]
+    end
   end
 end
