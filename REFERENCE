@@ -271,10 +271,11 @@ is compiled to:
 
 ==== !!!
 
-When describing XHTML documents with Haml, you can have a document type
-generated automatically by including the characters <tt>!!!</tt> as the first
-line in your document. Example:
+When describing XHTML documents with Haml, you can have a document type declaration
+or an XML prolog generated automatically by including the characters <tt>!!!</tt>.
+For example:
 
+  !!! XML
   !!!
   %html
     %head
@@ -285,6 +286,7 @@ line in your document. Example:
 
 is compiled to:
 
+  <?xml version="1.0" encoding="utf-8" ?>
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <html>
     <head>
@@ -314,27 +316,14 @@ is compiled to:
 
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-==== ?
+If you're not using the UTF-8 characterset for your document, you can specify
+which encoding should appear in the XML prolog in a similar way. For example,
 
-The question mark character creates an XML processing directive (an XML
-prolog, a stylesheet link, or another format-specific directive). It's
-followed by the "target" of the directive, followed by any attributes
-of the directive. If the target is left out, it defaults to "xml." For
-example:
-
-  ?{ :version => "1.0", :encoding => "UTF-8" }
+  !!! XML iso-8859-1
 
 is compiled to:
 
-  <?xml version='1.0' encoding='UTF-8' ?>
-
-and
-
-  ?xml-stylesheet{ :href => "stylesheets/rss.css", :type => "text/css" }
-
-is compiled to:
-
-  <?xml-stylesheet href='stylesheets/rss.css' type='text/css' ?>
+  <?xml version="1.0" encoding="iso-8859-1" ?>
 
 ==== /
 

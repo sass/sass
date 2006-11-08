@@ -15,12 +15,17 @@ module Haml
     # _erbout for compatibility with ERB-specific code.
     attr_accessor :buffer
 
+    # The number of tabs that are added or subtracted from the
+    # tabulation proscribed by the precompiled template.
+    attr_accessor :tabulation
+
     # Creates a new buffer.
     def initialize(options = {})
       @options = options
       @quote_escape = options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
       @buffer = ""
       @one_liner_pending = false
+      @tabulation = 0
     end
 
     # Renders +text+ with the proper tabulation. This also deals with
@@ -113,7 +118,7 @@ module Haml
 
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count)
-      '  ' * count
+      '  ' * (count + @tabulation)
     end
 
     # Iterates through the classes and ids supplied through <tt>.</tt>
