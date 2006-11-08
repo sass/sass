@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/engine'
+require 'rubygems'
 require 'active_support'
 require 'action_view'
 
