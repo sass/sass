@@ -28,6 +28,7 @@ class HelperTest < Test::Unit::TestCase
 
   def test_buffer_access
     assert(render("= buffer") =~ /#<Haml::Buffer:0x[a-z0-9]+>/)
+    assert_equal(render("= (buffer == _hamlout)"), "true\n")
   end
 
   def test_tabs
