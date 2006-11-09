@@ -118,7 +118,7 @@ module Haml
 
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count)
-      (count + @tabulation) * ' '
+      '  ' * (count + @tabulation)
     end
 
     # Iterates through the classes and ids supplied through <tt>.</tt>
