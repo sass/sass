@@ -35,17 +35,45 @@ class HelperTest < Test::Unit::TestCase
     assert_equal(render("foo\n- tab_up\nbar\n- tab_down\nbaz"), "foo\n  bar\nbaz\n")
   end
   
-  def test_helper_leak
+  def test_helpers_dont_leak
     # Haml helpers shouldn't be accessible from ERB
     render("foo")
     proper_behavior = false
-    
+
     begin
       ActionView::Base.new.render(:inline => "<%= flatten('Foo\\nBar') %>")
     rescue NoMethodError
       proper_behavior = true
     end
-    
+    assert(proper_behavior)
+
+    begin
+      ActionView::Base.new.render(:inline => "<%= concat('foo') %>")
+    rescue ArgumentError
+      proper_behavior = true
+    end    
     assert(proper_behavior)
   end
+  
+  def test_action_view_included
+    assert(Haml::Helpers.action_view?)
+  end
+  
+  def test_action_view_not_included
+    #This is for 100% rcov, rather than any real testing purposes.
+    Kernel.module_eval do
+      alias_method :old_require, :require
+      def require(string)
+        raise LoadError if string == "action_view"
+        old_require string
+      end
+    end
+
+    load File.dirname(__FILE__) + '/../lib/haml/helpers/action_view_mods.rb'
+
+    Kernel.module_eval do
+      alias_method :require, :old_require
+    end
+  end
 end
+

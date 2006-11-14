@@ -1,3 +1,5 @@
+require File.dirname(__FILE__) + '/helpers/action_view_mods'
+
 module Haml
   # This module contains various helpful methods to make it easier to do
   # various tasks. Haml::Helpers is automatically included in the context
@@ -5,6 +7,19 @@ module Haml
   # disposal from within the template.
   module Helpers
     self.extend self
+    
+    @@action_view = false
+    @@force_no_action_view = false
+
+    # Returns whether or not ActionView is available.
+    def self.action_view?
+      @@action_view
+    end
+    
+    # Sets whether or not ActionView is available.
+    def self.action_view(value) # :nodoc:
+      @@action_view = value
+    end
 
     # Takes any string, finds all the endlines and converts them to
     # html entities for endlines so they'll render correctly in
@@ -49,5 +64,7 @@ module Haml
     def buffer # :nodoc:
       @haml_stack[-1]
     end
+    
+    include ActionViewMods if self.const_defined?  "ActionViewMods"
   end
 end
