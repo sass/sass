@@ -295,10 +295,10 @@ module Haml
     def compile(&block)
       # Set the local variables pointing to the buffer
       buffer = @buffer
+      @scope_object.extend Haml::Helpers
       @scope_object.instance_eval do
         @haml_stack ||= Array.new
         @haml_stack.push(buffer)
-        self.class.instance_eval { include Haml::Helpers }
 
         class << self
           attr :haml_lineno

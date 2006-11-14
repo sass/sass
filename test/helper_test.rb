@@ -34,4 +34,18 @@ class HelperTest < Test::Unit::TestCase
   def test_tabs
     assert_equal(render("foo\n- tab_up\nbar\n- tab_down\nbaz"), "foo\n  bar\nbaz\n")
   end
+  
+  def test_helper_leak
+    # Haml helpers shouldn't be accessible from ERB
+    render("foo")
+    proper_behavior = false
+    
+    begin
+      ActionView::Base.new.render(:inline => "<%= flatten('Foo\\nBar') %>")
+    rescue NoMethodError
+      proper_behavior = true
+    end
+    
+    assert(proper_behavior)
+  end
 end
