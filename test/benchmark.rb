@@ -43,10 +43,14 @@ module Haml
       old_stdout = $stdout
       $stdout = StringIO.new
       
-      Benchmark.bmbm do |b|
+      times = Benchmark.bmbm do |b|
         b.report("haml:") { runs.times { @base.render haml_template } }
         b.report("erb:") { runs.times { @base.render rhtml_template } }
       end
+      
+      #puts times.inspect
+      ratio = sprintf("%g", times[0].to_a[5] / times[1].to_a[5])
+      puts "Haml/ERB: " + ratio
       
       $stdout.pos = 0
       to_return = $stdout.read
