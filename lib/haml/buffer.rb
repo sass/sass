@@ -65,21 +65,21 @@ module Haml
     def open_tag(name, tabulation, atomic, try_one_line, class_id, attributes_hash, obj_ref, flattened)
       attributes = {}
       attributes.merge!(parse_object_ref(obj_ref)) if obj_ref
-      attributes.merge!(parse_class_and_id(class_id)) if class_id
-      attributes.merge!(attributes_hash) unless attributes_hash.nil? || attributes_hash.empty?
+      attributes.merge!(parse_class_and_id(class_id)) unless class_id.nil? || class_id.empty?
+      attributes.merge!(attributes_hash) if attributes_hash
 
-      @buffer << "#{tabs(tabulation)}<#{name}#{build_attributes(attributes)}"
       @one_liner_pending = false
       if atomic
-        @buffer << " />\n"
+        str = " />\n"
       elsif try_one_line
         @one_liner_pending = true
-        @buffer << ">"
+        str = ">"
       elsif flattened
-        @buffer << ">&#x000A;"
+        str = ">&#x000A;"
       else
-        @buffer << ">\n"
+        str = ">\n"
       end
+      @buffer << "#{tabs(tabulation)}<#{name}#{build_attributes(attributes)}#{str}"
     end
 
     # Creates a closing tag with the given name.
@@ -155,24 +155,18 @@ module Haml
     # Takes a hash and builds a list of XHTML attributes from it, returning
     # the result.
     def build_attributes(attributes = {})
-      attributes.each do |key, value|
-        unless key.is_a? String
-          attributes.delete key
-          attributes[key.to_s] = value
-        end
-      end
-      result = attributes.sort.collect do |a,v|
+      result = attributes.collect do |a,v|
         unless v.nil?
+          a = a.to_s
           v = v.to_s
           attr_wrapper = @options[:attr_wrapper]
           if v.include? attr_wrapper
             v = v.gsub(attr_wrapper, @quote_escape)
           end
-          "#{a.to_s}=#{attr_wrapper}#{v}#{attr_wrapper}"
+          " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
         end
       end
-      result = result.compact.join(' ')
-      (attributes.empty? ? String.new : String.new(' ')) + result
+      result.compact.sort.join
     end
 
     # Returns whether or not the given value is short enough to be rendered
