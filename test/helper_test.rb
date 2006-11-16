@@ -5,9 +5,19 @@ require File.dirname(__FILE__) + '/../lib/haml/helpers'
 
 class HelperTest < Test::Unit::TestCase
   include Haml::Helpers
+  
+  def setup
+    ActionView::Base.register_template_handler("haml", Haml::Template)
+    @base = ActionView::Base.new
+    @base.controller = ActionController::Base.new
+  end
 
   def render(text, options = {})
-    Haml::Engine.new(text, options).to_html
+    if options == :action_view
+      @base.render :inline => text, :type => :haml
+    else
+      Haml::Engine.new(text, options).to_html
+    end
   end
 
   def test_flatten
@@ -74,6 +84,16 @@ class HelperTest < Test::Unit::TestCase
     Kernel.module_eval do
       alias_method :require, :old_require
     end
+  end
+  
+  def test_form_tag
+    # Until the next Rails is released, form_tag with a block can have one of
+    # two behaviors.
+    
+    result = render("- form_tag 'foo' do\n  %p bar\n  %strong baz", :action_view)
+    new_rails = "<form action=\"foo\" method=\"post\">\n  <p>foo</p>\n</form>\n"
+    old_rails = "" 
+    assert(result == new_rails || result == old_rails)
   end
 end
 

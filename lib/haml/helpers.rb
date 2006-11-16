@@ -65,6 +65,14 @@ module Haml
       @haml_stack[-1]
     end
     
+    # Gives a proc the same local "_hamlout" and "_erbout" variables
+    # that the current template has.
+    def bind_proc(&proc)
+      _hamlout = buffer
+      _erbout = _hamlout.buffer
+      proc { |*args| proc.call(*args) }
+    end
+    
     include ActionViewMods if self.const_defined?  "ActionViewMods"
   end
 end
