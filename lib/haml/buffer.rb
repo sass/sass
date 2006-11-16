@@ -54,7 +54,13 @@ module Haml
         result = find_and_flatten(result)
       end
       unless result.nil?
-        result = result.to_s.chomp.gsub("\n", "\n#{tabs(tabulation)}")
+        result = result.to_s
+        while result[-1] == 10 # \n
+          # String#chomp is slow
+          result = result[0...-1]
+        end
+        
+        result = result.gsub("\n", "\n#{tabs(tabulation)}")
         push_text result, tabulation
       end
       nil
@@ -157,7 +163,6 @@ module Haml
     def build_attributes(attributes = {})
       result = attributes.collect do |a,v|
         unless v.nil?
-          a = a.to_s
           v = v.to_s
           attr_wrapper = @options[:attr_wrapper]
           if v.include? attr_wrapper
@@ -166,7 +171,7 @@ module Haml
           " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
         end
       end
-      result.compact.sort.join
+      result.sort.join
     end
 
     # Returns whether or not the given value is short enough to be rendered
@@ -178,10 +183,21 @@ module Haml
     # Isolates the whitespace-sensitive tags in the string and uses Haml::Helpers#flatten
     # to convert any endlines inside them into html entities.
     def find_and_flatten(input)
-      input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im).each do |thing|
-        input = input.gsub(thing[1], Haml::Helpers.flatten(thing[1]))
+      input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im) do |tag, contents|
+        input = input.gsub(contents, Haml::Helpers.flatten(contents))
       end
       input
+    end
+  end
+end
+
+class String # :nodoc
+  alias_method :old_comp, :<=>
+  def <=>(other)
+    if other.is_a? NilClass
+      -1
+    else
+      old_comp(other)
     end
   end
 end
