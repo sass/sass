@@ -44,6 +44,9 @@ module Haml
     # When following SILENT_SCRIPT, designates a comment that is not output.
     SILENT_COMMENT  = '#'[0]
 
+    # Designates a non-parsed line.
+    ESCAPE          = '\\'[0]
+
     # Designates a non-parsed line. Not actually a character.
     PLAIN_TEXT      = -1
 
@@ -57,7 +60,8 @@ module Haml
       DOCTYPE,
       SCRIPT,
       FLAT_SCRIPT,
-      SILENT_SCRIPT
+      SILENT_SCRIPT,
+      ESCAPE
     ]
 
     # The value of the character that designates that a line is part
@@ -246,6 +250,8 @@ module Haml
             @latest_command = PLAIN_TEXT
             push_text line
           end
+        when ESCAPE
+          push_text line[1..-1]
         else
           @latest_command = PLAIN_TEXT
           push_text line

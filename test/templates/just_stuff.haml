@@ -8,6 +8,11 @@
 !!! FRAMESET
 %strong{:apos => "Foo's bar!"} Boo!
 .render= render :inline => "%em= 'wow!'", :type => :haml
+%p
+  \Escape
+  \- character
+  \%p foo
+  \yee\ha
 / Short comment
 / This is a really long comment look how long it is it should be on a line of its own don't you think?
 /

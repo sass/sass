@@ -404,6 +404,23 @@ is compiled to:
     </a>
   <![endif]-->
 
+==== \
+
+The backslash character escapes the first character of a line,
+allowing use of otherwise interpreted characters as plain text.
+For example:
+
+  %title
+    = @title
+    \- MySite
+
+is compiled to:
+
+  <title>
+    MyPage
+    - MySite
+  </title>
+
 ==== |
 
 The pipe character designates a multiline string.
