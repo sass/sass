@@ -201,3 +201,12 @@ class String # :nodoc
     end
   end
 end
+
+class NilClass # :nodoc:
+  include Comparable
+  
+  def <=>(other)
+    other.nil? ? 0 : 1
+  end
+end
+
