@@ -161,9 +161,17 @@ module Haml
           block_opened = tabs > old_tabs
           
           suppress_render = handle_multiline(old_spaces, old_tabs, old_line, old_index, block_opened)
-  
+          
           if !suppress_render && old_spaces
-            process_line(old_spaces, old_tabs, old_line, old_index, block_opened)
+            line_empty = old_line.empty?
+            process_indent(old_tabs, old_line) unless line_empty
+            flat = @flat_spaces != -1
+
+            if flat
+              push_flat(old_line, old_spaces)
+            elsif !line_empty
+              process_line(old_tabs, old_line, old_index, block_opened)
+            end
           end
         end
         
@@ -178,6 +186,19 @@ module Haml
 
       push_silent "end"
     end
+    
+    def process_indent(count, line)
+      if count <= @to_close_stack.size && @to_close_stack.size > 0
+        to_close = @to_close_stack.size - count
+
+        to_close.times do |i|
+          offset = to_close - 1 - i
+          unless offset == 0 && mid_block_keyword?(line)
+            close
+          end
+        end
+      end
+    end
 
     # Processes a single line of HAML. <tt>count</tt> does *not* represent the
     # line number; rather, it represents the tabulation count (the number of
@@ -185,75 +206,56 @@ module Haml
     #
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.
-    def process_line(spaces, count, line, index, block_opened)
-      if line.length > 0
-        if count <= @to_close_stack.size && @to_close_stack.size > 0
-          # The tabulation has gone down, and it's not because of one of
-          # Ruby's mid-block keywords
-          to_close = @to_close_stack.size - count
-
-          to_close.times do |i|
-            offset = to_close - 1 - i
-            unless offset == 0 && mid_block_keyword?(line)
-              close
-            end
+    def process_line(count, line, index, block_opened)
+      case line[0]
+      when DIV_CLASS, DIV_ID
+        render_div(line, index)
+      when ELEMENT
+        render_tag(line, index)
+      when COMMENT
+        render_comment(line)
+      when SCRIPT
+        push_script(line[1..-1], false, index)
+      when FLAT_SCRIPT
+        push_script(line[1..-1], true, index)
+      when SILENT_SCRIPT
+        sub_line = line[1..-1]
+        unless sub_line[0] == SILENT_COMMENT
+          push_silent(sub_line, index)
+          if block_opened && !mid_block_keyword?(line)
+            @to_close_stack.push([:script])
           end
         end
-      end
-
-      if @flat_spaces != -1
-        push_flat(line, spaces)
-      elsif line.length > 0
-        case line[0]
-        when DIV_CLASS, DIV_ID
-          render_div(line, index)
-        when ELEMENT
-          render_tag(line, index)
-        when COMMENT
-          render_comment(line)
-        when SCRIPT
-          push_script(line[1..-1], false, index)
-        when FLAT_SCRIPT
-          push_script(line[1..-1], true, index)
-        when SILENT_SCRIPT
-          sub_line = line[1..-1]
-          unless sub_line[0] == SILENT_COMMENT
-            push_silent(sub_line, index)
-            if block_opened && !mid_block_keyword?(line)
-              @to_close_stack.push([:script])
-            end
-          end
-        when DOCTYPE
-          if line[0...3] == '!!!'
-            line = line[3..-1].lstrip.downcase
-            if line[0...3] == "xml"
-              encoding = line.split[1] || "utf-8"
-              wrapper = @options[:attr_wrapper]
-              doctype = "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{encoding}#{wrapper} ?>"
+      when DOCTYPE
+        if line[0...3] == '!!!'
+          line = line[3..-1].lstrip.downcase
+          if line[0...3] == "xml"
+            encoding = line.split[1] || "utf-8"
+            wrapper = @options[:attr_wrapper]
+            doctype = "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{encoding}#{wrapper} ?>"
+          else
+            version, type = line.scan(/([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/)[0]
+            if version == "1.1"
+              doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
             else
-              version, type = line.scan(/([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/)[0]
-              if version == "1.1"
-                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+              case type
+              when "strict"
+                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+              when "frameset"
+                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
               else
-                case type
-                when "strict"
-                  doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
-                when "frameset"
-                  doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
-                else
-                  doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-                end
+                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
               end
             end
-            push_text doctype
-          else
-            push_text line
           end
-        when ESCAPE
-          push_text line[1..-1]
+          push_text doctype
         else
           push_text line
         end
+      when ESCAPE
+        push_text line[1..-1]
+      else
+        push_text line
       end
     end
     
@@ -281,11 +283,10 @@ module Haml
         @multiline_buffer = line[0...-1]
         @multiline_count = count
         @multiline_index = index
-        @multiline_spaces = spaces
         suppress_render = true
       elsif @multiline_buffer
         # A multiline string has just ended, make line into the result
-        process_line(@multiline_spaces, @multiline_count, @multiline_buffer, @multiline_index, block_opened)
+        process_line(@multiline_count, @multiline_buffer, @multiline_index, block_opened)
         @multiline_buffer = nil
         suppress_render = false
       end

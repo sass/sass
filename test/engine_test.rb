@@ -84,4 +84,9 @@ class EngineTest < Test::Unit::TestCase
 
     assert_equal("<p>Haml Rocks Socks</p>\n", render("%h1 I shall not be rendered", :precompiled => precompiled))
   end
+  
+  def test_comps
+    assert_equal(-1, "foo" <=> nil)
+    assert_equal(1, nil <=> "foo")
+  end
 end
