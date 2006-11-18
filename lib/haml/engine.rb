@@ -229,27 +229,7 @@ module Haml
         end
       when DOCTYPE
         if line[0...3] == '!!!'
-          line = line[3..-1].lstrip.downcase
-          if line[0...3] == "xml"
-            encoding = line.split[1] || "utf-8"
-            wrapper = @options[:attr_wrapper]
-            doctype = "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{encoding}#{wrapper} ?>"
-          else
-            version, type = line.scan(/([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/)[0]
-            if version == "1.1"
-              doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
-            else
-              case type
-              when "strict"
-                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
-              when "frameset"
-                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
-              else
-                doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-              end
-            end
-          end
-          push_text doctype
+          render_doctype(line)
         else
           push_text line
         end
@@ -502,6 +482,31 @@ module Haml
         push_text content
         close
       end
+    end
+    
+    # Renders an XHTML doctype or XML shebang.
+    def render_doctype(line)
+      line = line[3..-1].lstrip.downcase
+      if line[0...3] == "xml"
+        encoding = line.split[1] || "utf-8"
+        wrapper = @options[:attr_wrapper]
+        doctype = "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{encoding}#{wrapper} ?>"
+      else
+        version, type = line.scan(/([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/)[0]
+        if version == "1.1"
+          doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+        else
+          case type
+          when "strict"
+            doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+          when "frameset"
+            doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
+          else
+            doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+          end
+        end
+      end
+      push_text doctype
     end
     
     # Starts a flattened block.
