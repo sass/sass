@@ -161,7 +161,7 @@ module Haml
         if old_line
           block_opened = tabs > old_tabs
           
-          suppress_render = handle_multiline(old_tabs, old_line, old_index, block_opened)
+          suppress_render = handle_multiline(old_tabs, old_line, old_index)
           
           if !suppress_render && old_spaces
             line_empty = old_line.empty?
@@ -253,7 +253,7 @@ module Haml
     #
     # This returns whether or not the line should be
     # rendered normally.
-    def handle_multiline(count, line, index, block_opened)
+    def handle_multiline(count, line, index)
       # Multilines are denoting by ending with a `|` (124)
       if is_multiline?(line) && @multiline_buffer
         # A multiline string is active, and is being continued
@@ -264,10 +264,11 @@ module Haml
         @multiline_buffer = line[0...-1]
         @multiline_count = count
         @multiline_index = index
+        process_indent(count, line)
         suppress_render = true
       elsif @multiline_buffer
         # A multiline string has just ended, make line into the result
-        process_line(@multiline_count, @multiline_buffer, @multiline_index, block_opened)
+        process_line(@multiline_count, @multiline_buffer, @multiline_index, count > @multiline_count)
         @multiline_buffer = nil
         suppress_render = false
       end
