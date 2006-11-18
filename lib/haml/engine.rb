@@ -218,7 +218,7 @@ module Haml
       when SCRIPT
         push_script(line[1..-1], false, index)
       when FLAT_SCRIPT
-        push_script(line[1..-1], true, index)
+        push_flat_script(line[1..-1], index)
       when SILENT_SCRIPT
         sub_line = line[1..-1]
         unless sub_line[0] == SILENT_COMMENT
@@ -387,6 +387,16 @@ module Haml
         @precompiled << "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened})\n"
       end
     end
+    
+    # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
+    # to be run on it afterwards.
+    def push_flat_script(text, index)
+      unless text.empty?
+        push_script(text, true, index)
+      else
+        start_flat(false)
+      end
+    end
 
     # Closes the most recent item in <tt>@to_close_stack</tt>.
     def close
@@ -398,6 +408,8 @@ module Haml
         close_comment value
       when :element
         close_tag value
+      when :flat
+        close_flat value
       end
     end
 
@@ -405,7 +417,6 @@ module Haml
     # the most recently opened tag.
     def close_tag(tag)
       @output_tabs -= 1
-      @flat_spaces = -1
       @template_tabs -= 1
       @precompiled << "_hamlout.close_tag(#{tag.dump}, #{@output_tabs})\n"
     end
@@ -421,6 +432,16 @@ module Haml
       @output_tabs -= 1
       @template_tabs -= 1
       push_silent "_hamlout.close_comment(#{has_conditional}, #{@output_tabs})"
+    end
+    
+    # Closes a flattened section.
+    def close_flat(in_tag)
+      @flat_spaces = -1
+      if in_tag
+        close
+      else
+        push_silent("_erbout.concat('\n')")
+      end
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
@@ -457,9 +478,7 @@ module Haml
             end
             close
           elsif flattened
-            # @flat_spaces is the number of indentations in the template
-            # that forms the base of the flattened area
-            @flat_spaces = @template_tabs * 2
+            start_flat(true)
           end
         end
       end
@@ -483,6 +502,18 @@ module Haml
         push_text content
         close
       end
+    end
+    
+    # Starts a flattened block.
+    def start_flat(in_tag)
+      # @flat_spaces is the number of indentations in the template
+      # that forms the base of the flattened area
+      if in_tag
+        @to_close_stack.push([:flat, true])
+      else
+        push_and_tabulate([:flat])
+      end
+      @flat_spaces = @template_tabs * 2
     end
 
     # Counts the tabulation of a line.

@@ -257,23 +257,6 @@ It's compiled to:
   <p>hello</p>
   <h1>3</h1>
 
-In addition, if the tilde character is followed by an indented section of text,
-the text is rendered on one line using the XHTML newline escape character.
-For example:
-
-  .house
-    %pre~
-       /^^^\
-      |[] []|
-      |_____|
-
-is compiled to:
-
-  <div class="house">
-    <pre>&#x000A; /^^^\&#x000A;|[] []|&#x000A;|_____|&#x000A;</pre>
-  </div>
-
-
 === XHTML Helpers
 
 ==== No Special Character
@@ -485,6 +468,30 @@ is compiled to:
   <foo2>
     Woah    <pre>  this is   &#x000A;</pre>    crazy
   </foo2>
+
+If the ~ character isn't followed by text,
+it doesn't evaluate Ruby at all.
+Instead, an indented section following it will be rendered
+in a whitespace-sensitive manner,
+using HTML encodings for newlines.
+For example:
+
+For example:
+
+  .house
+    %pre
+      ~
+         /^^^\
+        |[] []|
+        |_____|
+
+is compiled to:
+
+  <div class="house">
+    <pre>
+      &#x000A; /^^^\&#x000A;|[] []|&#x000A;|_____|&#x000A;
+    </pre>
+  </div>
 
 ==== -
 
