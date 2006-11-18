@@ -183,14 +183,14 @@ module Haml
       end
 
       # Close all the open tags
-      @to_close_stack.length.times { close }
+      @template_tabs.times { close }
 
       push_silent "end"
     end
     
     def process_indent(count, line)
-      if count <= @to_close_stack.size && @to_close_stack.size > 0
-        to_close = @to_close_stack.size - count
+      if count <= @template_tabs && @template_tabs > 0
+        to_close = @template_tabs - count
 
         to_close.times do |i|
           offset = to_close - 1 - i
@@ -224,7 +224,7 @@ module Haml
         unless sub_line[0] == SILENT_COMMENT
           push_silent(sub_line, index)
           if block_opened && !mid_block_keyword?(line)
-            @to_close_stack.push([:script])
+            push_and_tabulate([:script])
           end
         end
       when DOCTYPE
@@ -406,17 +406,20 @@ module Haml
     def close_tag(tag)
       @output_tabs -= 1
       @flat_spaces = -1
+      @template_tabs -= 1
       @precompiled << "_hamlout.close_tag(#{tag.dump}, #{@output_tabs})\n"
     end
 
     # Closes a Ruby block.
     def close_block
       push_silent "end"
+      @template_tabs -= 1
     end
 
     # Closes a comment.
     def close_comment(has_conditional)
       @output_tabs -= 1
+      @template_tabs -= 1
       push_silent "_hamlout.close_comment(#{has_conditional}, #{@output_tabs})"
     end
 
@@ -443,7 +446,7 @@ module Haml
         push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref}, #{flattened.inspect})"
 
         unless atomic
-          @to_close_stack.push [:element, tag_name]
+          push_and_tabulate([:element, tag_name])
           @output_tabs += 1
 
           if value_exists
@@ -456,7 +459,7 @@ module Haml
           elsif flattened
             # @flat_spaces is the number of indentations in the template
             # that forms the base of the flattened area
-            @flat_spaces = @to_close_stack.size * 2
+            @flat_spaces = @template_tabs * 2
           end
         end
       end
@@ -475,7 +478,7 @@ module Haml
       try_one_line = !content.empty?
       push_silent "_hamlout.open_comment(#{try_one_line}, #{conditional.inspect}, #{@output_tabs})"
       @output_tabs += 1
-      @to_close_stack.push [:comment, !conditional.nil?]
+      push_and_tabulate([:comment, !conditional.nil?])
       if try_one_line
         push_text content
         close
@@ -486,6 +489,13 @@ module Haml
     def count_soft_tabs(line)
       spaces = line.index(/[^ ]/)
       spaces ? [spaces, spaces/2] : []
+    end
+    
+    # Pushes value onto <tt>@to_close_stack</tt> and increases
+    # <tt>@template_tabs</tt>.
+    def push_and_tabulate(value)
+      @to_close_stack.push(value)
+      @template_tabs += 1
     end
   end
 end
