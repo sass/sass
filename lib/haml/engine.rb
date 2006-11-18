@@ -105,7 +105,8 @@ module Haml
 
       @template = template #String
       @to_close_stack = []
-      @tabulation = 0
+      @output_tabs = 0
+      @template_tabs = 0
 
       # This is the base tabulation of the currently active
       # flattened block. -1 signifies that there is no such block.
@@ -160,7 +161,7 @@ module Haml
         if old_line
           block_opened = tabs > old_tabs
           
-          suppress_render = handle_multiline(old_spaces, old_tabs, old_line, old_index, block_opened)
+          suppress_render = handle_multiline(old_tabs, old_line, old_index, block_opened)
           
           if !suppress_render && old_spaces
             line_empty = old_line.empty?
@@ -272,7 +273,7 @@ module Haml
     #
     # This returns whether or not the line should be
     # rendered normally.
-    def handle_multiline(spaces, count, line, index, block_opened)
+    def handle_multiline(count, line, index, block_opened)
       # Multilines are denoting by ending with a `|` (124)
       if is_multiline?(line) && @multiline_buffer
         # A multiline string is active, and is being continued
@@ -366,7 +367,7 @@ module Haml
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
     # without parsing it.
     def push_text(text)
-      @precompiled << "_hamlout.push_text(#{text.dump}, #{@tabulation})\n"
+      @precompiled << "_hamlout.push_text(#{text.dump}, #{@output_tabs})\n"
     end
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
@@ -383,7 +384,7 @@ module Haml
     def push_script(text, flattened, index)
       unless options[:suppress_eval]
         push_silent("haml_temp = #{text}", index)
-        @precompiled << "haml_temp = _hamlout.push_script(haml_temp, #{@tabulation}, #{flattened})\n"
+        @precompiled << "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened})\n"
       end
     end
 
@@ -403,9 +404,9 @@ module Haml
     # Puts a line in <tt>@precompiled</tt> that will add the closing tag of
     # the most recently opened tag.
     def close_tag(tag)
-      @tabulation -= 1
+      @output_tabs -= 1
       @flat_spaces = -1
-      @precompiled << "_hamlout.close_tag(#{tag.dump}, #{@tabulation})\n"
+      @precompiled << "_hamlout.close_tag(#{tag.dump}, #{@output_tabs})\n"
     end
 
     # Closes a Ruby block.
@@ -415,8 +416,8 @@ module Haml
 
     # Closes a comment.
     def close_comment(has_conditional)
-      @tabulation -= 1
-      push_silent "_hamlout.close_comment(#{has_conditional}, #{@tabulation})"
+      @output_tabs -= 1
+      push_silent "_hamlout.close_comment(#{has_conditional}, #{@output_tabs})"
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
@@ -439,11 +440,11 @@ module Haml
         attributes_hash = "nil" unless attributes_hash
         object_ref = "nil" unless object_ref
 
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@tabulation}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref}, #{flattened.inspect})"
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref}, #{flattened.inspect})"
 
         unless atomic
           @to_close_stack.push [:element, tag_name]
-          @tabulation += 1
+          @output_tabs += 1
 
           if value_exists
             if parse
@@ -472,8 +473,8 @@ module Haml
       conditional, content = line.scan(/\/(\[[a-zA-Z0-9 ]*\])?(.*)/)[0]
       content = content.strip
       try_one_line = !content.empty?
-      push_silent "_hamlout.open_comment(#{try_one_line}, #{conditional.inspect}, #{@tabulation})"
-      @tabulation += 1
+      push_silent "_hamlout.open_comment(#{try_one_line}, #{conditional.inspect}, #{@output_tabs})"
+      @output_tabs += 1
       @to_close_stack.push [:comment, !conditional.nil?]
       if try_one_line
         push_text content
