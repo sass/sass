@@ -202,11 +202,9 @@ module Haml
       end
 
       if @flat_spaces != -1
-        @latest_command = PLAIN_TEXT
         push_flat(line, spaces)
       elsif line.length > 0
-        @latest_command = line[0]
-        case @latest_command
+        case line[0]
         when DIV_CLASS, DIV_ID
           render_div(line, index)
         when ELEMENT
@@ -224,8 +222,6 @@ module Haml
             if block_opened && !mid_block_keyword?(line)
               @to_close_stack.push([:script])
             end
-          else
-            @latest_command = SILENT_COMMENT
           end
         when DOCTYPE
           if line[0...3] == '!!!'
@@ -251,13 +247,11 @@ module Haml
             end
             push_text doctype
           else
-            @latest_command = PLAIN_TEXT
             push_text line
           end
         when ESCAPE
           push_text line[1..-1]
         else
-          @latest_command = PLAIN_TEXT
           push_text line
         end
       end
