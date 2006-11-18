@@ -148,18 +148,30 @@ module Haml
         _hamlout = @haml_stack[-1]
         _erbout = _hamlout.buffer
       END
-      @template.each_with_index do |line, index|
+      
+      old_line = nil
+      old_index = nil
+      old_spaces = nil
+      old_tabs = nil
+      (@template + "\n\n").each_with_index do |line, index|
         spaces, tabs = count_soft_tabs(line)
         line = line.strip
-        suppress_render = handle_multiline(spaces, tabs, line, index)
-
-        if !suppress_render && spaces
-          count, line = process_line(spaces, tabs, line, index)
+        
+        if old_line
+          block_opened = tabs > old_tabs
+          
+          suppress_render = handle_multiline(old_spaces, old_tabs, old_line, old_index, block_opened)
+  
+          if !suppress_render && old_spaces
+            process_line(old_spaces, old_tabs, old_line, old_index, block_opened)
+          end
         end
+        
+        old_line = line
+        old_index = index
+        old_spaces = spaces
+        old_tabs = tabs
       end
-
-      # Make sure an ending multiline gets closed
-      handle_multiline(0, 0, nil, 0)
 
       # Close all the open tags
       @to_close_stack.length.times { close }
@@ -173,27 +185,16 @@ module Haml
     #
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.
-    def process_line(spaces, count, line, index)
+    def process_line(spaces, count, line, index, block_opened)
       if line.length > 0
-        if count > @to_close_stack.size
-
-          # Indentation has been increased without a new tag
-          if @latest_command == SILENT_SCRIPT
-
-            # The indentation was increased after silent script,
-            # it must be a block
-            @to_close_stack.push [:script]
-          end
-
-        elsif count <= @to_close_stack.size && @to_close_stack.size > 0
+        if count <= @to_close_stack.size && @to_close_stack.size > 0
           # The tabulation has gone down, and it's not because of one of
           # Ruby's mid-block keywords
           to_close = @to_close_stack.size - count
 
           to_close.times do |i|
             offset = to_close - 1 - i
-            unless offset == 0 && line.length > 2 && line[0] == SILENT_SCRIPT &&
-                  MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0])
+            unless offset == 0 && mid_block_keyword?(line)
               close
             end
           end
@@ -220,6 +221,9 @@ module Haml
           sub_line = line[1..-1]
           unless sub_line[0] == SILENT_COMMENT
             push_silent(sub_line, index)
+            if block_opened && !mid_block_keyword?(line)
+              @to_close_stack.push([:script])
+            end
           else
             @latest_command = SILENT_COMMENT
           end
@@ -258,6 +262,12 @@ module Haml
         end
       end
     end
+    
+    # Returns whether or not the line is a silent script line with one
+    # of Ruby's mid-block keywords.
+    def mid_block_keyword?(line)
+      line.length > 2 && line[0] == SILENT_SCRIPT && MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0])
+    end
 
     # Deals with all the logic of figuring out whether a given line is
     # the beginning, continuation, or end of a multiline sequence. Like
@@ -266,7 +276,7 @@ module Haml
     #
     # This returns whether or not the line should be
     # rendered normally.
-    def handle_multiline(spaces, count, line, index)
+    def handle_multiline(spaces, count, line, index, block_opened)
       # Multilines are denoting by ending with a `|` (124)
       if is_multiline?(line) && @multiline_buffer
         # A multiline string is active, and is being continued
@@ -281,7 +291,7 @@ module Haml
         suppress_render = true
       elsif @multiline_buffer
         # A multiline string has just ended, make line into the result
-        process_line(@multiline_spaces, @multiline_count, @multiline_buffer, @multiline_index)
+        process_line(@multiline_spaces, @multiline_count, @multiline_buffer, @multiline_index, block_opened)
         @multiline_buffer = nil
         suppress_render = false
       end
