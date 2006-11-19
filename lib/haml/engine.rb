@@ -216,9 +216,9 @@ module Haml
       when COMMENT
         render_comment(line)
       when SCRIPT
-        push_script(line[1..-1], false, index)
+        push_script(line[1..-1], false, block_opened, index)
       when FLAT_SCRIPT
-        push_flat_script(line[1..-1], index)
+        push_flat_script(line[1..-1], block_opened, index)
       when SILENT_SCRIPT
         sub_line = line[1..-1]
         unless sub_line[0] == SILENT_COMMENT
@@ -362,18 +362,23 @@ module Haml
     #
     # If <tt>flattened</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
-    def push_script(text, flattened, index)
+    def push_script(text, flattened, block_opened, index)
       unless options[:suppress_eval]
         push_silent("haml_temp = #{text}", index)
-        @precompiled << "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened})\n"
+        out = "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened})\n"
+        if block_opened
+          push_and_tabulate([:loud, out])
+        else
+          @precompiled << out
+        end
       end
     end
     
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
-    def push_flat_script(text, index)
+    def push_flat_script(text, block_opened, index)
       unless text.empty?
-        push_script(text, true, index)
+        push_script(text, true, block_opened, index)
       else
         start_flat(false)
       end
@@ -391,6 +396,8 @@ module Haml
         close_tag value
       when :flat
         close_flat value
+      when :loud
+        close_loud value
       end
     end
 
@@ -421,8 +428,16 @@ module Haml
       if in_tag
         close
       else
-        push_silent("_erbout.concat('\n')")
+        push_silent('_erbout.concat("\n")')
+        @template_tabs -= 1
       end
+    end
+    
+    # Closes a loud Ruby block.
+    def close_loud(command)
+      push_silent "end"
+      @precompiled << command
+      @template_tabs -= 1
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
@@ -453,7 +468,7 @@ module Haml
 
           if value_exists
             if parse
-              push_script(value, flattened, index)
+              push_script(value, flattened, false, index)
             else
               push_text(value)
             end
