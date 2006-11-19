@@ -183,6 +183,7 @@ module Haml
     # Isolates the whitespace-sensitive tags in the string and uses Haml::Helpers#flatten
     # to convert any endlines inside them into html entities.
     def find_and_flatten(input)
+      input = input.to_s
       input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im) do |tag, contents|
         input = input.gsub(contents, Haml::Helpers.flatten(contents))
       end
