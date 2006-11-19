@@ -119,6 +119,12 @@ module Haml
         push_text(close_tag, tabulation)
       end
     end
+    
+    # Stops parsing a flat section.
+    def stop_flat
+      buffer.concat("\n")
+      @one_liner_pending = false
+    end
 
     private
 

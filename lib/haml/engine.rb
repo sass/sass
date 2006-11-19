@@ -428,7 +428,7 @@ module Haml
       if in_tag
         close
       else
-        push_silent('_erbout.concat("\n")')
+        push_silent('_hamlout.stop_flat')
         @template_tabs -= 1
       end
     end
