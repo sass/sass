@@ -188,6 +188,7 @@ module Haml
       push_silent "end"
     end
     
+    # Processes and deals with lowering indentation.
     def process_indent(count, line)
       if count <= @template_tabs && @template_tabs > 0
         to_close = @template_tabs - count
