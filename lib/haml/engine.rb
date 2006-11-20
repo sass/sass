@@ -171,7 +171,7 @@ module Haml
             if flat
               push_flat(old_line, old_spaces)
             elsif !line_empty
-              process_line(old_tabs, old_line, old_index, block_opened)
+              process_line(old_line, old_index, block_opened)
             end
           end
         end
@@ -201,13 +201,11 @@ module Haml
       end
     end
 
-    # Processes a single line of HAML. <tt>count</tt> does *not* represent the
-    # line number; rather, it represents the tabulation count (the number of
-    # spaces before the line divided by two).
+    # Processes a single line of HAML.
     #
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.
-    def process_line(count, line, index, block_opened)
+    def process_line(line, index, block_opened)
       case line[0]
       when DIV_CLASS, DIV_ID
         render_div(line, index)
@@ -247,9 +245,7 @@ module Haml
     end
 
     # Deals with all the logic of figuring out whether a given line is
-    # the beginning, continuation, or end of a multiline sequence. Like
-    # process_line, <tt>count</tt> represents the tabulation, not line
-    # number.
+    # the beginning, continuation, or end of a multiline sequence.
     #
     # This returns whether or not the line should be
     # rendered normally.
@@ -268,7 +264,7 @@ module Haml
         suppress_render = true
       elsif @multiline_buffer
         # A multiline string has just ended, make line into the result
-        process_line(@multiline_count, @multiline_buffer, @multiline_index, count > @multiline_count)
+        process_line(@multiline_buffer, @multiline_index, count > @multiline_count)
         @multiline_buffer = nil
         suppress_render = false
       end
