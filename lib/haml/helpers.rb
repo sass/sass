@@ -67,7 +67,7 @@ module Haml
     
     # Gives a proc the same local "_hamlout" and "_erbout" variables
     # that the current template has.
-    def bind_proc(&proc)
+    def bind_proc(&proc) # :nodoc:
       _hamlout = buffer
       _erbout = _hamlout.buffer
       proc { |*args| proc.call(*args) }
