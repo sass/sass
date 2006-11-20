@@ -19,6 +19,13 @@
         %h1 Big!
         %p Small
         / Invisible
+  = surround '(', ')' do
+    %strong parentheses!
+= precede '*' do
+  %span.small Not really
+click
+= succeed '.' do
+  %a{:href=>"thing"} here
 %p baz
 - buffer.tabulation = 10
 %p boom

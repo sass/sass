@@ -60,6 +60,65 @@ module Haml
       buffer.tabulation -= i
     end
     
+    # Surrounds the given block of Haml code with the given characters,
+    # with no whitespace in between.
+    # For example,
+    #
+    #   = surround '(', ')' do
+    #     %a{:href => "food"} chicken
+    #
+    # makes
+    #
+    #   (<a href='food'>chicken</a>)
+    #
+    # and
+    #
+    #   = surround '*' do
+    #     %strong angry
+    #
+    # makes
+    #
+    #   *<strong>angry</strong>*
+    #
+    def surround(front, back = nil, &block)
+      back ||= front
+      output = capture_haml(&block)
+      
+      "#{front}#{output.chomp}#{back}\n"
+    end
+    
+    # Prepends the given character to the beginning of the Haml block,
+    # with no whitespace between.
+    # For example:
+    #
+    #   = precede '*' do
+    #     %span.small Not really
+    #
+    # compiles to
+    #
+    #   *<span class='small'>Not really</span>
+    #
+    def precede(char, &block)
+      "#{char}#{capture_haml(&block).chomp}\n"
+    end
+    
+    # Appends the given character to the end of the Haml block,
+    # with no whitespace between.
+    # For example:
+    #
+    #   click
+    #   = succeed '.' do
+    #     %a{:href=>"thing"} here
+    #
+    # compiles to
+    #
+    #   click
+    #   <a href='thing'>here</a>.
+    #
+    def succeed(char, &block)
+      "#{capture_haml(&block).chomp}#{char}\n"
+    end
+    
     # Captures the result of the given block of Haml code,
     # gets rid of the excess indentation,
     # and returns it as a string.
