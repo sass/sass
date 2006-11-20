@@ -95,5 +95,9 @@ class HelperTest < Test::Unit::TestCase
     old_rails = "" 
     assert(result == new_rails || result == old_rails)
   end
+  
+  def test_capture_haml
+    assert_equal("\"<p>13</p>\\n\"\n", render("- foo = capture_haml(13) do |a|\n  %p= a\n= foo.dump"))
+  end
 end
 

@@ -12,8 +12,12 @@
 - tab_up
 %p reeeeeeeeeeeeeeeeeeeeeeeeeeeeeeally loooooooooooooooooong
 - tab_down
+= capture_haml do
+  %div
+    %h1 Big!
+    %p Small
+    / Invisible
 %p baz
 - buffer.tabulation = 10
 %p boom
 - concat "foo\n"
-

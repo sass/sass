@@ -59,6 +59,22 @@ module Haml
     def tab_down(i = 1)
       buffer.tabulation -= i
     end
+    
+    # Captures the result of the given block of Haml code and returns
+    # them as a string. For example, after the following,
+    #
+    #   - foo = capture_haml(13) do |a|
+    #     %p= a
+    #
+    # the local variable <tt>foo</tt> would be assigned to "<p>13</p>\n".
+    def capture_haml(*args, &block)
+      buffer_buffer = buffer.buffer
+      position = buffer_buffer.length
+      
+      block.call(*args)
+      
+      buffer_buffer.slice!(position..-1)
+    end
 
     # Gets a reference to the current Haml::Buffer object.
     def buffer # :nodoc:
