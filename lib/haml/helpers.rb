@@ -60,11 +60,14 @@ module Haml
       buffer.tabulation -= i
     end
     
-    # Captures the result of the given block of Haml code and returns
-    # them as a string. For example, after the following,
+    # Captures the result of the given block of Haml code,
+    # gets rid of the excess indentation,
+    # and returns it as a string.
+    # For example, after the following,
     #
-    #   - foo = capture_haml(13) do |a|
-    #     %p= a
+    #   .foo
+    #     - foo = capture_haml(13) do |a|
+    #       %p= a
     #
     # the local variable <tt>foo</tt> would be assigned to "<p>13</p>\n".
     def capture_haml(*args, &block)
@@ -73,7 +76,19 @@ module Haml
       
       block.call(*args)
       
-      buffer_buffer.slice!(position..-1)
+      captured = buffer_buffer.slice!(position..-1)
+      
+      min_tabs = nil
+      captured.each do |line|
+        tabs = line.index(/[^ ]/)
+        min_tabs ||= tabs
+        min_tabs = min_tabs > tabs ? tabs : min_tabs
+      end
+      
+      result = captured.map do |line|
+        line[min_tabs..-1]
+      end
+      result.to_s
     end
 
     # Gets a reference to the current Haml::Buffer object.
