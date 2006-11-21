@@ -18,16 +18,20 @@ if action_view_included
       # This module overrides various helpers in ActionView to make them
       # work more effectively with Haml. It's not available unless ActionView
       # is installed.
+      #
+      #--
+      # Methods in this module should be nodoc'd.
+      #++
       module ActionViewMods
-        def self.included(othermod)
+        def self.included(othermod) # :nodoc:
           othermod.action_view(true)
         end
         
-        def concat(string, binding = nil)
+        def concat(string, binding = nil) # :nodoc:
           buffer.buffer.concat(string)
         end
         
-        def form_tag(url_for_options = {}, options = {}, *parameters_for_url, &proc)
+        def form_tag(url_for_options = {}, options = {}, *parameters_for_url, &proc) # :nodoc:
           if block_given?
             oldproc = proc 
             proc = bind_proc do |*args|

@@ -86,15 +86,15 @@ module Haml
     # is a member of this array.
     MID_BLOCK_KEYWORDS   = ['else', 'elsif', 'rescue', 'ensure', 'when']
 
-    # Creates a new instace of Haml::Engine to compile the given
-    # template string. See REFERENCE for available options.
+    # Creates a new instace of Haml::Engine that will compile the given
+    # template string when <tt>to_html</tt> is called.
+    # See REFERENCE for available options.
     #
     #--
     # When adding options, remember to add information about them
     # to REFERENCE!
     #++
     #
-
     def initialize(template, options = {})
       @options = {
         :suppress_eval => false,
@@ -117,8 +117,7 @@ module Haml
       do_precompile if @precompiled.nil? && (@precompiled = String.new)
     end
 
-    # Processes the template and returns the resulting (X)HTML code as
-    # a string.
+    # Processes the template and returns the result as a string.
     def to_html(scope = Object.new, &block)
       @scope_object = scope
       @buffer = Haml::Buffer.new(@options)
@@ -291,7 +290,7 @@ module Haml
         @haml_stack.push(buffer)
 
         class << self
-          attr :haml_lineno
+          attr :haml_lineno # :nodoc:
         end
       end
 
