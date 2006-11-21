@@ -24,7 +24,10 @@ if action_view_included
       #++
       module ActionViewMods
         def self.included(othermod) # :nodoc:
-          othermod.action_view(true)
+          othermod.class_eval do
+            action_view(true)
+            alias_method :capture_erb_with_buffer, :capture_haml_with_buffer
+          end
         end
         
         def concat(string, binding = nil) # :nodoc:

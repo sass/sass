@@ -15,11 +15,6 @@ module Haml
     def self.action_view?
       @@action_view
     end
-    
-    # Sets whether or not ActionView is installed on the system.
-    def self.action_view(value) # :nodoc:
-      @@action_view = value
-    end
 
     # Takes any string, finds all the endlines and converts them to
     # HTML entities for endlines so they'll render correctly in
@@ -145,12 +140,37 @@ module Haml
     # the local variable <tt>foo</tt> would be assigned to "<p>13</p>\n".
     #
     def capture_haml(*args, &block)
-      buffer_buffer = buffer.buffer
-      position = buffer_buffer.length
+      capture_haml_with_buffer(buffer.buffer, *args, &block)
+    end
+    
+    private
+    
+    # Sets whether or not ActionView is installed on the system.
+    def self.action_view(value) # :nodoc:
+      @@action_view = value
+    end
+
+    # Gets a reference to the current Haml::Buffer object.
+    def buffer
+      @haml_stack[-1]
+    end
+    
+    # Gives a proc the same local "_hamlout" and "_erbout" variables
+    # that the current template has.
+    def bind_proc(&proc)
+      _hamlout = buffer
+      _erbout = _hamlout.buffer
+      proc { |*args| proc.call(*args) }
+    end
+    
+    # Performs the function of capture_haml, assuming <tt>local_buffer</tt>
+    # is where the output of block goes.
+    def capture_haml_with_buffer(local_buffer, *args, &block)
+      position = local_buffer.length
       
       block.call(*args)
       
-      captured = buffer_buffer.slice!(position..-1)
+      captured = local_buffer.slice!(position..-1)
       
       min_tabs = nil
       captured.each do |line|
@@ -163,19 +183,6 @@ module Haml
         line[min_tabs..-1]
       end
       result.to_s
-    end
-
-    # Gets a reference to the current Haml::Buffer object.
-    def buffer # :nodoc:
-      @haml_stack[-1]
-    end
-    
-    # Gives a proc the same local "_hamlout" and "_erbout" variables
-    # that the current template has.
-    def bind_proc(&proc) # :nodoc:
-      _hamlout = buffer
-      _erbout = _hamlout.buffer
-      proc { |*args| proc.call(*args) }
     end
     
     include ActionViewMods if self.const_defined?  "ActionViewMods"

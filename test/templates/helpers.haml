@@ -19,6 +19,10 @@
         %h1 Big!
         %p Small
         / Invisible
+    = capture do
+      .dilly
+        %p foo
+        %h1 bar
   = surround '(', ')' do
     %strong parentheses!
 = precede '*' do
