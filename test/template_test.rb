@@ -9,6 +9,10 @@ require File.dirname(__FILE__) + '/../lib/haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
 
 class TemplateTest < Test::Unit::TestCase
+  @@templates = %w{       very_basic        standard  helpers
+    whitespace_handling   original_engine   list      helpful
+    silent_script         tag_parsing       just_stuff}
+
   def setup
     ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/../test/templates/")
@@ -26,10 +30,14 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name)
-    load_result(name).split("\n").zip(@base.render(name).split("\n")).each_with_index do |pair, line|
-      message = "template: #{name}\nline:     #{line}"
-      assert_equal(pair.first, pair.last, message)
+    test = Proc.new do |rendered|
+      load_result(name).split("\n").zip(rendered.split("\n")).each_with_index do |pair, line|
+        message = "template: #{name}\nline:     #{line}"
+        assert_equal(pair.first, pair.last, message)
+      end
     end
+    test.call(@base.render(name))
+    test.call(@base.render(:file => "partialize", :locals => { :name => name }))
   end
 
   def test_empty_render_should_remain_empty
@@ -37,9 +45,7 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_templates_should_render_correctly
-    %w{very_basic        standard   helpers   whitespace_handling
-       original_engine   list       helpful   silent_script
-       tag_parsing       just_stuff}.each do |template|
+    @@templates.each do |template|
       assert_renders_correctly template
     end
   end
