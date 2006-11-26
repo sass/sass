@@ -484,7 +484,7 @@ module Haml
 
     # Renders an XHTML comment.
     def render_comment(line)
-      conditional, content = line.scan(/\/(\[[a-zA-Z0-9 ]*\])?(.*)/)[0]
+      conditional, content = line.scan(/\/(\[[a-zA-Z0-9 \.]*\])?(.*)/)[0]
       content = content.strip
       try_one_line = !content.empty?
       push_silent "_hamlout.open_comment(#{try_one_line}, #{conditional.inspect}, #{@output_tabs})"
