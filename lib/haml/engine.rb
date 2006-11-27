@@ -162,7 +162,7 @@ module Haml
           
           suppress_render = handle_multiline(old_tabs, old_line, old_index)
           
-          if !suppress_render && old_spaces
+          if !suppress_render
             line_empty = old_line.empty?
             process_indent(old_tabs, old_line) unless line_empty
             flat = @flat_spaces != -1
@@ -250,6 +250,7 @@ module Haml
     # This returns whether or not the line should be
     # rendered normally.
     def handle_multiline(count, line, index)
+      suppress_render = false
       # Multilines are denoting by ending with a `|` (124)
       if is_multiline?(line) && @multiline_buffer
         # A multiline string is active, and is being continued
@@ -264,9 +265,10 @@ module Haml
         suppress_render = true
       elsif @multiline_buffer
         # A multiline string has just ended, make line into the result
-        process_line(@multiline_buffer, @multiline_index, count > @multiline_count)
-        @multiline_buffer = nil
-        suppress_render = false
+        unless line.empty?
+          process_line(@multiline_buffer, @multiline_index, count > @multiline_count)
+          @multiline_buffer = nil
+        end
       end
 
       return suppress_render
