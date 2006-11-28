@@ -19,7 +19,7 @@ module Sass
       end
 
       def stylesheet_needs_update?(file_location)
-        !File.exists?(file_location + ".css") || (File.mtime("#{file_location}.sass") - 60) > File.mtime("#{file_location}.css")
+        !File.exists?(file_location + ".css") || (File.mtime("#{file_location}.sass") - 2) > File.mtime("#{file_location}.css")
       end
     end
 
