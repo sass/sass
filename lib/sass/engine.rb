@@ -18,7 +18,9 @@ module Sass
               buffer << "}\n"
             end
             if level <= last_level
-              stack.delete_at(stack.size - 1)
+              (last_level - level + 1).times do 
+                stack.delete_at(stack.size - 1)
+              end
               if stack.empty?
                 buffer << "\n"
               end

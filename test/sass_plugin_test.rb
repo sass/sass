@@ -17,6 +17,10 @@ class SassPluginTest < Test::Unit::TestCase
     clear_file_render :basic
   end
 
+  def test_complex_render
+    do_file_render :complex
+  end
+
   def test_no_update
     base_file_location = base_file_location(:basic)
     assert Sass::SassHelper.stylesheet_needs_update?(base_file_location)
