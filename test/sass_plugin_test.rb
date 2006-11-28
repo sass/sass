@@ -2,13 +2,13 @@
 
 require 'test/unit'
 require File.dirname(__FILE__) + '/../lib/sass/engine'
-require File.dirname(__FILE__) + '/../lib/sass/plugin'
+require File.dirname(__FILE__) + '/../lib/sass/sass_helper'
 require File.dirname(__FILE__) + '/mocks/fake_controller'
 
 class SassPluginTest < Test::Unit::TestCase
   def setup
-    Sass::Plugin.options[:stylesheet_location] = File.dirname(__FILE__) + '/sass'
-    Sass::Plugin.options[:always_update]       = true
+    Sass::SassHelper.options[:stylesheet_location] = File.dirname(__FILE__) + '/sass'
+    Sass::SassHelper.options[:always_update]       = true
     @controller                                = FakeController.new
   end
 
@@ -19,9 +19,9 @@ class SassPluginTest < Test::Unit::TestCase
 
   def test_no_update
     base_file_location = base_file_location(:basic)
-    assert Sass::Plugin.stylesheet_needs_update?(base_file_location)
+    assert Sass::SassHelper.stylesheet_needs_update?(base_file_location)
     do_file_render :basic
-    assert !Sass::Plugin.stylesheet_needs_update?(base_file_location)
+    assert !Sass::SassHelper.stylesheet_needs_update?(base_file_location)
   end
 
  private

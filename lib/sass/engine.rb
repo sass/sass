@@ -1,4 +1,3 @@
-
 require File.dirname(__FILE__) + '/css/parser'
 
 module Sass

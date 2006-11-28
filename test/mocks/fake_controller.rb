@@ -1,6 +1,5 @@
-require File.dirname(__FILE__) + '/../../lib/sass/engine'
-require File.dirname(__FILE__) + '/../../lib/sass/plugin'
+require File.dirname(__FILE__) + '/../../lib/sass/sass_helper'
 
 class FakeController
-  include Sass::Plugin
+  include Sass::SassHelper
 end
