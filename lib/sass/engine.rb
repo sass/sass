@@ -3,6 +3,12 @@ require File.dirname(__FILE__) + '/css/parser'
 
 module Sass
   class Engine
+    def render_file(location)
+      @result = ""
+      File.open(location).each_line { |l| @result += l }
+      render(@result)
+    end
+    
     def render(input)
       buffer, stack, last_level, first = "", [], 0, true
       input.each do |line|

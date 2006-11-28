@@ -1,27 +1,35 @@
 
+require File.dirname(__FILE__) + "/engine"
+
 #Rails plugin stuff. For use with action_view
 
 module Sass
   module Plugin
+    @@options = {}
 
-    def options
-      @@options
-    end
+    class << self
+      def options; @@options; end
 
-    def stylesheet_location
-      @@options[:stylesheet_location] || (RAILS_ROOT + "/public/stylesheets/")
-    end
-    
-    def sass_template(name)
-      file_location = stylesheet_location + name
-      if stylesheet_needs_update?(file_location)
-        file = File.open(file_location + ".css")
-        Sass::Engine.new.render(file_location + ".sass")
+      def _stylesheet_location
+        @@options[:stylesheet_location] || (RAILS_ROOT + "/public/stylesheets/")
+      end
+
+      def _always_update
+        @@options[:always_update] || false
+      end
+
+      def stylesheet_needs_update?(file_location)
+        !File.exists?(file_location + ".css") || (File.mtime("#{file_location}.sass") - 60) > File.mtime("#{file_location}.css")
       end
     end
 
-    def stylesheet_needs_update?(file_location)
-      !File.exists?(file_location + ".css") || (File.mtime("#{file_location}.sass") - 60) > File.mtime("#{file_location}.css")
+    def sass_template(name)
+      file_location = Plugin._stylesheet_location + "/" + name.to_s
+      if Plugin._always_update || Plugin.stylesheet_needs_update?(file_location)
+        output_file = File.open(file_location + ".css", "w+")
+        output_file << Sass::Engine.new.render_file(file_location + ".sass")
+        output_file.close
+      end
     end
   end
 end

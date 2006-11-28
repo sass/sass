@@ -1,0 +1,11 @@
+
+%body { font: Arial; background: blue; }
+
+#page { width: 700px; height: 100%; }
+#page #header { height: 300px; }
+#page #header %h1 { font-size: 50px; color: blue; }
+#page #header #content.user.show { }
+#page #header #content.user.show #container.top { }
+#page #header #content.user.show #container.top #column.left { width: 100px; }
+#page #header #content.user.show #container.top #column.right { width: 600px; }
+#page #header #content.user.show #container.top #container.bottom { background: brown; }
