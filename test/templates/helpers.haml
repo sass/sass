@@ -34,3 +34,6 @@ click
 - buffer.tabulation = 10
 %p boom
 - concat "foo\n"
+- buffer.tabulation = 0
+= list_of({:google => 'http://www.google.com'}) do |name, link|
+  %a{ :href => link }= name

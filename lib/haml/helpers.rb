@@ -23,22 +23,52 @@ module Haml
       input.gsub(/\n/, '&#x000A;').gsub(/\r/, '')
     end
 
-    # Takes an array and a block and iterates over the array,
-    # yielding each element to the block and putting the
-    # result into <tt><li></tt> elements, creating a list
-    # of the results of the block. For example:
+    # Takes an Enumerable object and a block
+    # and iterates over the object,
+    # yielding each element to a Haml block
+    # and putting the result into <tt><li></tt> elements.
+    # This creates a list of the results of the block.
+    # For example:
     #
-    #   list_of([['hello'], ['yall']]) { |i| i[0] }
-    # or
-    #   list_of(['hello', 'yall'])
+    #   = list_of([['hello'], ['yall']]) do |i|
+    #     = i[0]
     #
-    # Both produce:
+    # Produces:
     #
     #   <li>hello</li>
     #   <li>yall</li>
     #
-    def list_of(array) # :yields: item
-      (array.collect { |i| "<li>#{yield(i)}</li>" }).join("\n")
+    # And
+    #
+    #   = list_of({:title => 'All the stuff', :description => 'A book about all the stuff.'}) do |key, val|
+    #     %h3= key.humanize
+    #     %p= val
+    #
+    # Produces:
+    #
+    #   <li>
+    #     <h3>Title</h3>
+    #     <p>All the stuff</p>
+    #   </li>
+    #   <li>
+    #     <h3>Description</h3>
+    #     <p>A book about all the stuff.</p>
+    #   </li>
+    #
+    def list_of(array, &block) # :yields: item
+      to_return = array.collect do |i|
+        result = capture_haml(i, &block)
+        
+        if result.count("\n") > 1
+          result.gsub!("\n", "\n  ")
+          result = "\n  #{result.strip}\n"
+        else
+          result.strip!
+        end
+        
+        "<li>#{result}</li>"
+      end
+      to_return.join("\n")
     end
 
     # Increments the number of tabs the buffer automatically adds

@@ -32,8 +32,10 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_list_of_should_render_correctly
-    assert_equal("<li>1</li>\n<li>2</li>", (list_of([1, 2]) { |i| i.to_s}))
-    assert_equal("<li>1</li>", (list_of([[1]]) { |i| i.first}))
+    assert_equal("<li>1</li>\n<li>2</li>\n", render("= list_of([1, 2]) do |i|\n  = i"))
+    assert_equal("<li>1</li>\n", render("= list_of([[1]]) do |i|\n  = i.first"))
+    assert_equal("<li>\n  <h1>Fee</h1>\n  <p>A word!</p>\n</li>\n<li>\n  <h1>Fi</h1>\n  <p>A word!</p>\n</li>\n<li>\n  <h1>Fo</h1>\n  <p>A word!</p>\n</li>\n<li>\n  <h1>Fum</h1>\n  <p>A word!</p>\n</li>\n",
+      render("= list_of(['Fee', 'Fi', 'Fo', 'Fum']) do |title|\n  %h1= title\n  %p A word!"))
   end
 
   def test_buffer_access
