@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require File.dirname(__FILE__) + '/../lib/haml/template'
+require File.dirname(__FILE__) + '/../../lib/haml/template'
 
 class HelperTest < Test::Unit::TestCase
   include Haml::Helpers
@@ -81,7 +81,7 @@ class HelperTest < Test::Unit::TestCase
       end
     end
 
-    load File.dirname(__FILE__) + '/../lib/haml/helpers/action_view_mods.rb'
+    load File.dirname(__FILE__) + '/../../lib/haml/helpers/action_view_mods.rb'
 
     Kernel.module_eval do
       alias_method :require, :old_require

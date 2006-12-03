@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require File.dirname(__FILE__) + '/../lib/haml/engine'
+require File.dirname(__FILE__) + '/../../lib/haml/engine'
 
 class EngineTest < Test::Unit::TestCase
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require File.dirname(__FILE__) + '/../lib/sass/engine'
-require File.dirname(__FILE__) + '/../lib/sass/sass_helper'
+require File.dirname(__FILE__) + '/../../lib/sass/engine'
+require File.dirname(__FILE__) + '/../../lib/sass/sass_helper'
 require File.dirname(__FILE__) + '/mocks/fake_controller'
 
 class SassPluginTest < Test::Unit::TestCase
   def setup
-    Sass::SassHelper.options[:stylesheet_location] = File.dirname(__FILE__) + '/sass'
+    Sass::SassHelper.options[:stylesheet_location] = File.dirname(__FILE__) + '/templates'
     Sass::SassHelper.options[:always_update]       = true
     @controller                                = FakeController.new
   end
@@ -35,15 +35,15 @@ class SassPluginTest < Test::Unit::TestCase
       sass_template(name)
     end
 
-    assert FileUtils.compare_file(File.dirname(__FILE__) + "/sass/#{name}.css",
-                                  File.dirname(__FILE__) + "/css/#{name}.css")
+    assert FileUtils.compare_file(File.dirname(__FILE__) + "/templates/#{name}.css",
+                                  File.dirname(__FILE__) + "/results/#{name}.css")
   end
 
   def base_file_location(name)
-    File.dirname(__FILE__) + "/sass/#{name}"
+    File.dirname(__FILE__) + "/templates/#{name}"
   end
 
   def clear_file_render(name)
-    FileUtils.rm(File.dirname(__FILE__) + "/sass/#{name}.css")
+    FileUtils.rm(File.dirname(__FILE__) + "/templates/#{name}.css")
   end
 end

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require File.dirname(__FILE__) + '/../lib/sass/engine'
+require File.dirname(__FILE__) + '/../../lib/sass/engine'
 
 class SassEngineTest < Test::Unit::TestCase
   def setup
@@ -22,7 +22,7 @@ class SassEngineTest < Test::Unit::TestCase
 
   def load_file(name, type = "sass")
     @result = ''
-    File.new(File.dirname(__FILE__) + "/#{type}/#{name}.#{type}").each_line { |l| @result += l }
+    File.new(File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}").each_line { |l| @result += l }
     @result
   end
 end

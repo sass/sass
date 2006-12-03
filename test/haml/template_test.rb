@@ -5,7 +5,7 @@ require 'rubygems'
 require 'active_support'
 require 'action_view'
 
-require File.dirname(__FILE__) + '/../lib/haml/template'
+require File.dirname(__FILE__) + '/../../lib/haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
 
 class TemplateTest < Test::Unit::TestCase
@@ -15,7 +15,7 @@ class TemplateTest < Test::Unit::TestCase
 
   def setup
     ActionView::Base.register_template_handler("haml", Haml::Template)
-    @base = ActionView::Base.new(File.dirname(__FILE__) + "/../test/templates/")
+    @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/")
     @base.instance_variable_set("@article", Article.new)
     @base.instance_variable_set("@foo", 'value one')
   end
