@@ -17,7 +17,7 @@ class SassEngineTest < Test::Unit::TestCase
     css_file   = load_file(name, "css")
     css_result = @engine.render(sass_file)
     #puts css_result.collect { |a| a.inspect }.join("\n  ")
-    assert_equal css_file, css_result
+    assert_equal css_file.strip, css_result.strip
   end
 
   def load_file(name, type = "sass")
