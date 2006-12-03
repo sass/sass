@@ -1,0 +1,12 @@
+%p
+  @foo = 
+  = @foo
+- @foo = 'value two'
+%p
+  @foo = 
+  = @foo
+= render :file => "_partial.haml"
+%p
+  @foo = 
+  = @foo
+- @foo = 'value one'
