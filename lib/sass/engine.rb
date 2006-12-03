@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/css/parser'
+require File.dirname(__FILE__) + '/../sass'
+require 'sass/css/parser'
 
 module Sass
   class Engine

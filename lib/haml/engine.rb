@@ -1,5 +1,6 @@
-require File.dirname(__FILE__) + '/helpers'
-require File.dirname(__FILE__) + '/buffer'
+require File.dirname(__FILE__) + '/../haml'
+require 'haml/helpers'
+require 'haml/buffer'
 
 module Haml
   # This is the class where all the parsing and processing of the HAML

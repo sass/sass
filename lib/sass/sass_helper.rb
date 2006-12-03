@@ -1,5 +1,5 @@
-
-require File.dirname(__FILE__) + "/engine"
+require File.dirname(__FILE__) + '/../sass'
+require 'sass/engine'
 
 #Rails plugin stuff. For use with action_view
 

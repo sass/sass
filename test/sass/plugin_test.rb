@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require File.dirname(__FILE__) + '/../../lib/sass/engine'
-require File.dirname(__FILE__) + '/../../lib/sass/sass_helper'
+require File.dirname(__FILE__) + '/../../lib/sass'
+require 'sass/engine'
+require 'sass/sass_helper'
 require File.dirname(__FILE__) + '/mocks/fake_controller'
 
 class SassPluginTest < Test::Unit::TestCase

@@ -5,7 +5,8 @@ require 'rubygems'
 require 'active_support'
 require 'action_view'
 
-require File.dirname(__FILE__) + '/../../lib/haml/template'
+require File.dirname(__FILE__) + '/../../lib/haml'
+require 'haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
 
 class TemplateTest < Test::Unit::TestCase

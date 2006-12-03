@@ -92,7 +92,7 @@ if is_task?('rcov', 'clobber_rcov')
   unless not_loaded.include? 'rcov/rcovtask'
     Rcov::RcovTask.new do |t|
       t.libs << "test"
-      t.test_files = FileList['test/*_test.rb']
+      t.test_files = FileList['test/**/*_test.rb']
       if ENV['NON_NATIVE']
         t.rcov_opts << "--no-rcovrt"
       end
