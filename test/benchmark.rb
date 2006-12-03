@@ -33,8 +33,8 @@ module Haml
     # 
     def benchmark(runs = 100, template_name = 'standard', other_template = nil)
       if other_template.nil?
-        haml_template = "templates/#{template_name}"
-        rhtml_template = "rhtml/#{template_name}"
+        haml_template = "haml/templates/#{template_name}"
+        rhtml_template = "haml/rhtml/#{template_name}"
       else
         haml_template = template_name
         rhtml_template = other_template
