@@ -9,13 +9,5 @@ module Sass::Tree
       @value = value
       super()
     end
-    
-    def to_s(tabs = 0)
-      res = "#{'  ' * tabs}#{value.to_s}\n"
-      children.each do |child|
-        res += child.to_s(tabs + 1)
-      end
-      res
-    end
   end
 end
