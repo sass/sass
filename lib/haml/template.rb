@@ -48,18 +48,8 @@ module Haml
     # with <tt>local_assigns</tt> available as local variables within the template.
     # Returns the result as a string.
     def render(template, local_assigns={})
-      unless @view.instance_variable_get("@assigns_added")
-        assigns = @view.assigns.dup
-      
-        # Get inside the view object's world
-        @view.instance_eval do
-          # Set all the instance variables
-          assigns.each do |key,val|
-            instance_variable_set "@#{key}", val
-          end
-        end
-        
-        @view.instance_variable_set("@assigns_added", true)
+      @view.instance_eval do
+        evaluate_assigns
       end
 
       options = @@options.dup

@@ -16,9 +16,7 @@ class TemplateTest < Test::Unit::TestCase
 
   def setup
     ActionView::Base.register_template_handler("haml", Haml::Template)
-    @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/")
-    @base.instance_variable_set("@article", Article.new)
-    @base.instance_variable_set("@foo", 'value one')
+    @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/", {'article' => Article.new, 'foo' => 'value one'})
   end
 
   def render(text)
