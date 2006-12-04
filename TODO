@@ -1,0 +1,12 @@
+Testing:
+  Test Sass for alternate options settings
+  Add Sass support for various utilities (benchmark, profile)
+
+Documentation:
+  ! Add Sass info to REFERENCE
+  ! Comment Sass code
+
+Features:
+  Sassy variables
+  Sass checks for lack of template_location, creates if necessary
+  Filters for Haml
