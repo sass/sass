@@ -26,12 +26,12 @@ module Haml
     class << self
       @@options = {}
 
-      # Gets various options for HAML. See REFERENCE for details.
+      # Gets various options for Haml. See REFERENCE for details.
       def options
         @@options
       end
 
-      # Sets various options for HAML. See REFERENCE for details.
+      # Sets various options for Haml. See REFERENCE for details.
       def options=(value)
         @@options = value
       end

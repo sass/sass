@@ -5,9 +5,6 @@ require File.dirname(__FILE__) + '/../../lib/sass'
 require 'sass/engine'
 
 class SassEngineTest < Test::Unit::TestCase
-  def setup
-    @engine = Sass::Engine.new
-  end
   
   def test_basic_render
     renders_correctly "basic"
@@ -16,7 +13,7 @@ class SassEngineTest < Test::Unit::TestCase
   def renders_correctly(name)
     sass_file  = load_file(name, "sass")
     css_file   = load_file(name, "css")
-    css_result = @engine.render(sass_file)
+    css_result = Sass::Engine.new(sass_file).render
     #puts css_result.collect { |a| a.inspect }.join("\n  ")
     assert_equal css_file.strip, css_result.strip
   end

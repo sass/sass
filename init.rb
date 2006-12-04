@@ -1,9 +1,7 @@
 require 'haml'
 require 'haml/template'
 require 'sass'
-require 'sass/sass_helper'
+require 'sass/plugin'
 
 ActionView::Base.register_template_handler('haml', Haml::Template)
-ActionView::Base.class_eval do
-  include Sass::SassHelper
-end
+Sass::Plugin.update_stylesheets

@@ -3,15 +3,14 @@ require 'sass/css/parser'
 
 module Sass
   class Engine
-    def render_file(location)
-      @result = ""
-      File.open(location).each_line { |l| @result += l }
-      render(@result)
+    def initialize(template, options={})
+      @template = template
+      @options = options
     end
-    
-    def render(input)
+  
+    def render
       buffer, stack, last_level, first = "", [], 0, true
-      input.each do |line|
+      @template.each do |line|
         line, level = [line.strip, line.scan(/[ ]*/)[0].length / 2]
         unless line.empty?
           if '%.#'.index line[0..0]
