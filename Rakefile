@@ -28,7 +28,7 @@ task :default => :test
 if is_task?('test', 'default')
   require 'rake/testtask'
 
-  desc 'Test the HAML plugin'
+  desc 'Test the Haml plugin'
   Rake::TestTask.new(:test) do |t|
     t.libs << 'lib'
     t.pattern = 'test/**/*_test.rb'
@@ -48,12 +48,11 @@ END
   task :benchmark do
     require 'test/benchmark'
 
-    puts '-'*51, "Benchmark: HAML vs. ERb", '-'*51
+    puts '-'*51, "Benchmark: Haml vs. ERb", '-'*51
     puts "Running benchmark #{ENV['TIMES']} times..." if ENV['TIMES']
-    args = []
-    args.push ENV['TIMES'].to_i if ENV['TIMES']
+    times = ENV['TIMES'].to_i if ENV['TIMES']
     benchmarker = Haml::Benchmarker.new
-    puts benchmarker.benchmark(*args)
+    puts benchmarker.benchmark(times || 100)
     puts '-'*51
   end
 end
@@ -113,7 +112,7 @@ END
   task :profile do
     require 'test/profile'
     
-    puts '-'*51, "Profiling HAML::Template", '-'*51
+    puts '-'*51, "Profiling Haml::Template", '-'*51
     
     args = []
     args.push ENV['TIMES'].to_i if ENV['TIMES']

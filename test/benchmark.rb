@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/../lib/haml'
 require 'haml/template'
+require 'sass/engine'
 require 'rubygems'
 require 'active_support'
 require 'action_view'
@@ -20,26 +21,15 @@ module Haml
       end
     end
     
-    # Benchmarks HAML against ERb. If <tt>template_name</tt> is specified,
-    # looks for a haml template in ./templates and an rhtml template in
-    # ./rhtml with the name <tt>template_name</tt>. Otherwise, uses
-    # <tt>haml_template</tt> and <tt>rhtml_template</tt> as the location of
-    # the templates.
+    # Benchmarks HAML against ERb, and Sass on its own.
     # 
     # Returns the results of the benchmarking as a string.
     # 
-    # :call-seq:
-    # benchmark(runs = 100, template_name = 'standard')
-    # benchmark(runs = 100, haml_template, rhtml_template)
-    # 
-    def benchmark(runs = 100, template_name = 'standard', other_template = nil)
-      if other_template.nil?
-        haml_template = "haml/templates/#{template_name}"
-        rhtml_template = "haml/rhtml/#{template_name}"
-      else
-        haml_template = template_name
-        rhtml_template = other_template
-      end
+    def benchmark(runs = 100)
+      template_name = 'standard'
+      haml_template = "haml/templates/#{template_name}"
+      rhtml_template = "haml/rhtml/#{template_name}"
+      sass_template = File.dirname(__FILE__) + "/sass/templates/complex.sass"
       
       old_stdout = $stdout
       $stdout = StringIO.new
@@ -47,9 +37,10 @@ module Haml
       times = Benchmark.bmbm do |b|
         b.report("haml:") { runs.times { @base.render haml_template } }
         b.report("erb:") { runs.times { @base.render rhtml_template } }
+        b.report("sass:") { runs.times { Sass::Engine.new(File.read(sass_template)).render } }
       end
       
-      #puts times.inspect
+      #puts times[0].inspect, times[1].inspect
       ratio = sprintf("%g", times[0].to_a[5] / times[1].to_a[5])
       puts "Haml/ERB: " + ratio
       
