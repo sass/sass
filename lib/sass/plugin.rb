@@ -9,8 +9,8 @@ module Sass
   module Plugin
     class << self
       @@options = {
-        :template_location  => RAILS_ROOT + 'public/stylesheets/sass',
-        :css_locations      => RAILS_ROOT + 'public/stylesheets',
+        :template_location  => RAILS_ROOT + '/public/stylesheets/sass',
+        :css_locations      => RAILS_ROOT + '/public/stylesheets',
         :always_update      => false,
         :always_check       => RAILS_ENV != "production"
       }
