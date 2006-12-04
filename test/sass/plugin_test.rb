@@ -49,7 +49,7 @@ class SassPluginTest < Test::Unit::TestCase
  private
  
   def assert_renders_correctly(name)
-    File.read(tempfile_loc(name)).split("\n").zip(File.read(result_loc(name)).split("\n")).each_with_index do |pair, line|
+    File.read(result_loc(name)).split("\n").zip(File.read(tempfile_loc(name)).split("\n")).each_with_index do |pair, line|
       message = "template: #{name}\nline:     #{line}"
       assert_equal(pair.first, pair.last, message)
     end
