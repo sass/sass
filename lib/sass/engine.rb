@@ -18,12 +18,10 @@ module Sass
     end
   
     def render
-      plain_root = Tree::Node.new
+      root = Tree::Node.new
       first_line, first_tabs = next_line
-      
-      build_plain_tree(first_line, plain_root, first_tabs)
-      css_root = build_css_tree(plain_root)
-      css_root.to_s
+      build_plain_tree(first_line, root, first_tabs)
+      root.to_s
     end
     
     private
@@ -36,7 +34,7 @@ module Sass
         if current_tabs.nil?
           line, current_tabs = next_line
         elsif current_tabs == tabs
-          node << Tree::ValueNode.new(line)
+          node << parse_line(line)
           
           line, current_tabs = next_line
         else # current_tabs > tabs        
@@ -57,19 +55,6 @@ module Sass
       line.strip!
       @index += 1
       [line, current_tabs]
-    end
-    
-    def build_css_tree(plain_node)
-      if plain_node.is_a? Tree::ValueNode
-        css_node = parse_line(plain_node.value)
-      else
-        css_node = Tree::Node.new
-      end
-      
-      plain_node.children.each do |child|
-        css_node << build_css_tree(child)
-      end
-      css_node
     end
     
     def parse_line(line)
