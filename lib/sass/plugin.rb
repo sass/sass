@@ -12,7 +12,8 @@ module Sass
         :template_location  => RAILS_ROOT + '/public/stylesheets/sass',
         :css_location       => RAILS_ROOT + '/public/stylesheets',
         :always_update      => false,
-        :always_check       => RAILS_ENV != "production"
+        :always_check       => RAILS_ENV != "production",
+        :style              => :nested
       }
 
       # Gets various options for Sass.
@@ -39,6 +40,7 @@ module Sass
             engine = Engine.new(File.read(template_filename(name)), @@options.dup)
             result = engine.render
             
+            Dir.mkdir(options[:css_location]) unless File.exist?(options[:css_location])
             File.open(css, 'w') do |file|
               file.print(result)
             end

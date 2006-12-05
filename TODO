@@ -8,5 +8,4 @@ Documentation:
 
 Features:
   Sassy variables
-  Sass checks for lack of template_location, creates if necessary
   Filters for Haml
