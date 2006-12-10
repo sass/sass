@@ -23,6 +23,7 @@ module Haml
     def initialize(options = {})
       @options = options
       @quote_escape = options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
+      @other_quote_char = options[:attr_wrapper] == '"' ? "'" : '"'
       @buffer = ""
       @one_liner_pending = false
       @tabulation = 0
@@ -172,7 +173,11 @@ module Haml
           v = v.to_s
           attr_wrapper = @options[:attr_wrapper]
           if v.include? attr_wrapper
-            v = v.gsub(attr_wrapper, @quote_escape)
+            if v.include? @other_quote_char
+              v = v.gsub(attr_wrapper, @quote_escape)
+            else
+              attr_wrapper = @other_quote_char
+            end
           end
           " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
         end
