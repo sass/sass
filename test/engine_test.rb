@@ -60,7 +60,8 @@ class EngineTest < Test::Unit::TestCase
 
   def test_attr_wrapper
     assert_equal("<p strange=*attrs*>\n</p>\n", render("%p{ :strange => 'attrs'}", :attr_wrapper => '*'))
-    assert_equal("<p escaped=\"quo&quot;te\">\n</p>\n", render("%p{ :escaped => 'quo\"te'}", :attr_wrapper => '"'))
+    assert_equal("<p escaped='quo\"te'>\n</p>\n", render("%p{ :escaped => 'quo\"te'}", :attr_wrapper => '"'))
+    assert_equal("<p escaped=\"q'uo&quot;te\">\n</p>\n", render("%p{ :escaped => 'q\\'uo\"te'}", :attr_wrapper => '"'))
     assert_equal("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n", render("!!! XML", :attr_wrapper => '"'))
   end
 
