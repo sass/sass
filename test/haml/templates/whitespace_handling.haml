@@ -1,0 +1,66 @@
+#whitespace_test
+  = render :file => "_text_area.haml", :locals => { :value => "Oneline" }
+  = render :file => "_text_area.haml", :locals => { :value => "Two\nlines" }
+  ~ render :file => "_text_area.haml", :locals => { :value => "Oneline" }
+  ~ render :file => "_text_area.haml", :locals => { :value => "Two\nlines" }
+  #flattened~ render :file => "_text_area.haml", :locals => { :value => "Two\nlines" }
+.hithere
+  ~ "Foo bar"
+  ~ "<pre>foo bar</pre>"
+  ~ "<pre>foo\nbar</pre>"
+  %p~ "<pre>foo\nbar</pre>"
+  %p~ "foo\nbar"
+  %pre~
+                                                     ___
+                                                  ,o88888
+                                               ,o8888888'
+                         ,:o:o:oooo.        ,8O88Pd8888"
+                     ,.::.::o:ooooOoOoO. ,oO8O8Pd888'"
+                   ,.:.::o:ooOoOoOO8O8OOo.8OOPd8O8O"
+                  , ..:.::o:ooOoOOOO8OOOOo.FdO8O8"
+                 , ..:.::o:ooOoOO8O888O8O,COCOO"
+                , . ..:.::o:ooOoOOOO8OOOOCOCO"
+                 . ..:.::o:ooOoOoOO8O8OCCCC"o
+                    . ..:.::o:ooooOoCoCCC"o:o
+                    . ..:.::o:o:,cooooCo"oo:o:
+                 `   . . ..:.:cocoooo"'o:o:::'
+                 .`   . ..::ccccoc"'o:o:o:::'
+                :.:.    ,c:cccc"':.:.:.:.:.'
+              ..:.:"'`::::c:"'..:.:.:.:.:.'  http://www.chris.com/ASCII/
+            ...:.'.:.::::"'    . . . . .'
+           .. . ....:."' `   .  . . ''
+         . . . ...."'
+         .. . ."'     -hrr-
+        .
+
+
+                                                  It's a planet!
+    %strong This shouldn't be bold!
+  %strong This should!
+  %textarea
+    ~
+            ___           ___           ___           ___ 
+           /\__\         /\  \         /\__\         /\__\
+          /:/  /        /::\  \       /::|  |       /:/  /
+         /:/__/        /:/\:\  \     /:|:|  |      /:/  / 
+        /::\  \ ___   /::\~\:\  \   /:/|:|__|__   /:/  /  
+       /:/\:\  /\__\ /:/\:\ \:\__\ /:/ |::::\__\ /:/__/   
+       \/__\:\/:/  / \/__\:\/:/  / \/__/~~/:/  / \:\  \   
+            \::/  /       \::/  /        /:/  /   \:\  \  
+            /:/  /        /:/  /        /:/  /     \:\  \ 
+           /:/  /        /:/  /        /:/  /       \:\__\
+           \/__/         \/__/         \/__/         \/__/
+           
+           Many
+                         thanks
+                 to
+                                      http://www.network-science.de/ascii/
+    %strong indeed!
+.foo
+  ~ 13
+  ~ ['a', 'b', 'c'].map do |a|
+    - "<textarea>\n#{a}\n</textarea>"
+%pre
+  ~
+    foo
+  bar

@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/../lib/haml/template'
+require File.dirname(__FILE__) + '/../lib/haml'
+require 'haml/template'
 require 'rubygems'
 require 'active_support'
 require 'action_view'
@@ -12,7 +13,7 @@ module Haml
   
     # Creates a new profiler that looks for templates in the base
     # directory.
-    def initialize(base = File.join(File.dirname(__FILE__), 'templates'))
+    def initialize(base = File.join(File.dirname(__FILE__), 'haml', 'templates'))
       ActionView::Base.register_template_handler("haml", Haml::Template)
       unless base.class == ActionView::Base
         @base = ActionView::Base.new(base)
