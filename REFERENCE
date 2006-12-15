@@ -1,0 +1,662 @@
+= Haml (XHTML Abstraction Markup Language)
+
+Haml is a markup language
+that's used to cleanly and simply describe the XHTML of any web document,
+without the use of inline code.
+Haml functions as a replacement
+for inline page templating systems such as PHP, RHTML, and ASP. 
+However, Haml avoids the need for explicitly coding XHTML into the template, 
+because it is actually an abstract description of the XHTML,
+with some code to generate dynamic content.
+
+== Features
+
+* Whitespace active
+* Well-formatted markup
+* DRY
+* Follows CSS conventions
+* Interpolates Ruby code
+* Implements Rails templates with the .haml extension
+
+== Authors
+
+Haml was originally created by Hampton Catlin (hcatlin).
+Help with the Ruby On Rails implementation and much of the documentation
+by Jeff Hardy (packagethief).
+
+Nathan Weizenbaum (Nex3) contributed the buffered-engine code,
+along with many other enhancements
+(including the silent-line syntax: "-").
+
+If you use this software, you must pay Hampton a compliment.
+Say something nice about it.
+Beyond that, the implementation is licensed under the MIT License.
+Ok, fine, I guess that means compliments aren't *required*.
+
+== Formatting
+
+Haml is sensitive to spacing and indentation;
+it uses nesting to convey structure.
+When you want an element to have children,
+indent the lines below it using two spaces.
+Remember, spaces are not the same as tabs.
+For example:
+
+  #contact
+    %h1 Eugene Mumbai
+    %ul.info
+      %li.login eugene
+      %li.email eugene@example.com
+
+is compiled to:
+
+  <div id='contact'>
+    <h1>Eugene Mumbai</h1>
+    <ul class='info'>
+      <li class='login'>eugene</li>
+      <li class='email'>eugene@example.com</li>
+    </ul>
+  </div>
+
+== Characters with meaning to Haml
+
+Various characters, when placed at a certain point in a line,
+instruct Haml to render different types of things.
+
+=== XHTML Tags
+
+These characters render XHTML tags.
+
+==== %
+
+
+This element is placed at the beginning of a line.
+It's followed immediately by the name of an element,
+then optionally by modifiers (see below), a space,
+and text to be rendered inside the element.
+It creates an element in the form of <tt><element></element></tt>.
+For example:
+
+  %one
+    %two
+      %three Hey there
+
+is compiled to:
+
+  <one>
+    <two>
+      <three>Hey there</three>
+    </two>
+  </one>
+
+Any string is a valid element name;
+Haml will automatically generate opening and closing tags for any element.
+
+==== {}
+
+Brackets represent a Ruby hash
+that is used for specifying the attributes of an element.
+It is literally evaluated as a Ruby hash,
+so logic will work in it and local variables may be used.
+Quote characters within the attribute
+will be replaced by appropriate escape sequences.
+The hash is placed after the tag is defined.
+For example:
+
+  %head{ :name => "doc_head" }
+    %script{ 'type' => "text/" + "javascript",
+             :src   => "javascripts/script_#{2 + 7}" }
+
+is compiled to:
+
+  <head name="doc_head">
+    <script src='javascripts/script_9' type='text/javascript'>
+    </script>
+  </head>
+
+==== []
+
+Square brackets follow a tag definition and contain a Ruby object
+that is used to set the class and id of that tag.
+The class is set to the object's class
+(transformed to use underlines rather than camel case)
+and the id is set to the object's class, followed by its id.
+Because the id of an object is normally an obscure implementation detail,
+this is most useful for elements that represent instances of Models.
+For example:
+
+  # file: app/controllers/users_controller.rb
+
+  def show
+    @user = CrazyUser.find(15)
+  end
+
+  # file: app/views/users/show.haml
+
+  %div[@user]
+    %bar[290]/
+    Hello!
+
+is compiled to:
+
+  <div class="crazy_user" id="crazy_user_15">
+    <bar class="fixnum" id="fixnum_581" />
+    Hello!
+  </div>
+
+This is based off of DHH's SimplyHelpful syntax,
+as presented at RailsConf Europe 2006.
+
+==== /
+
+The forward slash character, when placed at the end of a tag definition,
+causes the tag to be self-closed.
+For example:
+
+  %br/
+  %meta{:http-equiv => 'Content-Type', :content => 'text/html'}/
+
+is compiled to:
+
+  <br />
+  <meta http-equiv='Content-Type' content='text/html' />
+
+==== . and #
+
+The period and pound sign are borrowed from CSS.
+They are used as shortcuts to specify the <tt>class</tt>
+and <tt>id</tt> attributes of an element, respectively.
+Multiple class names can be specified in a similar way to CSS,
+by chaining the class names together with periods.
+They are placed immediately after the tag and before an attributes hash.
+For example:
+
+  div#things
+    %span#rice Chicken Fried
+    %p.beans{ :food => 'true' } The magical fruit
+    %h1.class.otherclass#id La La La
+
+is compiled to:
+
+  <div id='things'>
+    <span id='rice'>Chicken Fried</span>
+    <p class='beans' food='true'>The magical fruit</p>
+    <h1 class='class' id='id'>La La La</h1>
+  </div>
+
+And,
+
+  #content
+    .articles
+      .article.title
+        Doogie Howser Comes Out
+      .article.date
+        2006-11-05
+      .article.entry
+        Neil Patrick Harris would like to dispel any rumors that he is straight
+
+is compiled to:
+
+  <div id="content">
+    <div class="articles">
+      <div class="article title">Doogie Howser Comes Out</div>
+      <div class="article date">2006-11-05</div>
+      <div class="article entry">
+        Neil Patrick Harris would like to dispel any rumors that he is straight
+      </div>
+    </div>
+  </div>
+
+==== Implicit Div Elements
+
+Because the div element is used so often, it is the default element.
+If you only define a class and/or id using the <tt>.</tt> or <tt>#</tt> syntax,
+a div element is automatically used.
+For example:
+
+  #collection
+    .item
+      .description What a cool item!
+
+is the same as:
+
+  %div{:id => collection}
+    %div{:class => 'item'}
+      %div{:class => 'description'} What a cool item!
+
+and is compiled to:
+
+  <div id='collection'>
+    <div class='item'>Broken record album</div>
+    <div class='description'>What a cool item!</div>
+  </div>
+
+==== = and ~
+
+<tt>=</tt> and <tt>~</tt> are placed at the end of a tag definition,
+after class, id, and attribute declarations.
+They're just shortcuts for inserting Ruby code into an element.
+They work the same as <tt>=</tt> and <tt>~</tt> without a tag;
+see below for documentation of those.
+However, if the result is short enough,
+it is displayed entirely on one line.
+For example:
+
+  %p= "hello"
+  %h1~ 1 + 2
+
+is not quite the same as:
+
+  %p
+    = "hello"
+  %h1
+    ~ 1 + 2
+
+It's compiled to:
+
+  <p>hello</p>
+  <h1>3</h1>
+
+=== XHTML Helpers
+
+==== No Special Character
+
+If no special character appears at the beginning of a line,
+the line is rendered as plain text.
+For example:
+
+  %gee
+    %whiz
+      Wow this is cool!
+
+is compiled to:
+
+  <gee>
+    <whiz>
+      Wow this is cool!
+    </whiz>
+  </gee>
+
+==== !!!
+
+When describing XHTML documents with Haml,
+you can have a document type or XML prolog generated automatically
+by including the characters <tt>!!!</tt>.
+For example:
+
+  !!! XML
+  !!!
+  %html
+    %head
+      %title Myspace
+    %body
+      %h1 I am the international space station
+      %p Sign my guestbook
+
+is compiled to:
+
+  <?xml version="1.0" encoding="utf-8" ?>
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html>
+    <head>
+      <title>Myspace</title>
+    </head>
+    <body>
+      <h1>I am the international space station</h1>
+      <p>Sign my guestbook</p>
+    </body>
+  </html>
+
+You can also specify the version and type of XHTML after the <tt>!!!</tt>.
+XHTML 1.0 Strict, Transitional, and Frameset and XHTML 1.1 are supported.
+The default version is 1.0 and the default type is Transitional.
+For example:
+
+  !!! 1.1
+
+is compiled to:
+
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+and
+
+  !!! Strict
+
+is compiled to:
+
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+If you're not using the UTF-8 characterset for your document,
+you can specify which encoding should appear
+in the XML prolog in a similar way.
+For example:
+
+  !!! XML iso-8859-1
+
+is compiled to:
+
+  <?xml version="1.0" encoding="iso-8859-1" ?>
+
+==== /
+
+The forward slash character, when placed at the beginning of a line,
+wraps all text after it in an HTML comment.
+For example:
+
+  %billabong
+    / This is the billabong element
+    I like billabongs!
+
+is compiled to:
+
+  <billabong>
+    <!-- This is the billabong element -->
+    I like billabongs!
+  </billabong>
+
+The forward slash can also wrap indented sections of code. For example:
+
+  /
+    %p This doesn't render...
+    %div
+      %h1 Because it's commented out!
+
+is compiled to:
+
+  <!--
+    <p>This doesn't render...</p>
+    <div>
+      <h1>Because it's commented out!</h1>
+    </div>
+  -->
+
+You can also use Internet Explorer conditional comments
+(about)[http://www.quirksmode.org/css/condcom.html]
+by enclosing the condition in square brackets after the <tt>/</tt>.
+For example:
+
+  /[if IE]
+    %a{ :href => 'http://www.mozilla.com/en-US/firefox/' }
+      %h1 Get Firefox
+
+is compiled to:
+
+  <!--[if IE]>
+    <a href='http://www.mozilla.com/en-US/firefox/'>
+      <h1>Get Firefox</h1>
+    </a>
+  <![endif]-->
+
+==== \
+
+The backslash character escapes the first character of a line,
+allowing use of otherwise interpreted characters as plain text.
+For example:
+
+  %title
+    = @title
+    \- MySite
+
+is compiled to:
+
+  <title>
+    MyPage
+    - MySite
+  </title>
+
+==== |
+
+The pipe character designates a multiline string.
+It's placed at the end of a line
+and means that all following lines that end with <tt>|</tt>
+will be evaluated as though they were on the same line.
+For example:
+
+  %whoo
+    %hoo I think this might get |
+      pretty long so I should |
+      probably make it |
+      multiline so it doesn't |
+      look awful. |
+    %p This is short.
+
+is compiled to:
+
+  %hoo I think this might get |
+    pretty long so I should |
+    probably make it |
+    multiline so it doesn't |
+    look awful. |
+
+=== Ruby evaluators
+
+==== =
+
+The equals character is followed by Ruby code,
+which is evaluated and the output inserted into the document as plain text.
+For example:
+
+  %p
+    = ['hi', 'there', 'reader!'].join " "
+    = "yo"
+
+is compiled to:
+
+  <p>
+    hi there reader!
+    yo
+  </p>
+
+==== ~
+
+The tilde character works the same as the equals character,
+but the output is modified in such a way
+that newlines in whitespace-sensitive elements work properly.
+For example:
+
+  %foo
+    = "Woah    <pre>  this is   \n</pre>    crazy"
+  %foo2
+    ~ "Woah    <pre>  this is   \n</pre>    crazy"
+
+is compiled to:
+
+  <foo>
+    Woah    <pre>  this is
+    </pre>    crazy
+  </foo>
+  <foo2>
+    Woah    <pre>  this is   &#x000A;</pre>    crazy
+  </foo2>
+
+If the ~ character isn't followed by text,
+it doesn't evaluate Ruby at all.
+Instead, an indented section following it will be rendered
+in a whitespace-sensitive manner,
+using HTML encodings for newlines.
+For example:
+
+For example:
+
+  .house
+    %pre
+      ~
+         /^^^\
+        |[] []|
+        |_____|
+
+is compiled to:
+
+  <div class="house">
+    <pre>
+      &#x000A; /^^^\&#x000A;|[] []|&#x000A;|_____|&#x000A;
+    </pre>
+  </div>
+
+==== -
+
+The hyphen character makes the text following it into "silent script":
+Ruby script that is evaluated, but not output.
+
+<b>It is not recommended that you use this widely;
+almost all processing code and logic should be restricted
+to the Controller, the Helper, or partials.</b>
+
+For example:
+
+  - foo = "hello"
+  - foo << " there"
+  - foo << " you!"
+  %p= foo
+
+is compiled to:
+
+  <p>
+    hello there you!
+  </p>
+
+===== Blocks
+
+Ruby blocks, like XHTML tags, don't need to be explicitly closed in Haml.
+Rather, they're automatically closed, based on indentation.
+A block begins whenever the indentation is increased
+after a silent script command.
+It ends when the indentation decreases
+(as long as it's not an +else+ clause or something similar).
+For example:
+
+  - (42...47).each do |i|
+    %p= i
+  %p See, I can count!
+
+is compiled to:
+
+  <p>
+    42
+  </p>
+  <p>
+    43
+  </p>
+  <p>
+    44
+  </p>
+  <p>
+    45
+  </p>
+  <p>
+    46
+  </p>
+
+Another example:
+
+  %p
+    - case 2
+    - when 1
+      = "1!"
+    - when 2
+      = "2?"
+    - when 3
+      = "3."
+
+is compiled to:
+
+  <p>
+    2?
+  </p>
+
+== Using Haml as a Rails plugin
+
+Write Rails templates with the .haml extension.
+For example:
+
+  # file: app/views/movies/teen_wolf.haml
+
+  %html
+    %head
+      %title= "Teen Wolf (1985)"
+    %body
+      #contents
+        %h1 "A highschooler discovers that he is a werewolf"
+        %ul.cast
+          %li "Scott Howard"
+          %li "Rupert 'Stiles' Stilinski"
+          %li "Lisa 'Boof' Marconi"
+          %li "Lewis"
+
+is compiled to:
+
+  <html>
+    <head>
+      <title>Teen Wolf (1985)</title>
+    </head>
+    <body>
+      <div id='contents'>
+        <h1>A highschooler discovers that he is a werewolf</h1>
+        <ul class='cast'>
+          <li>Scott Howard</li>
+          <li>Rupert 'Stiles' Stilinski</li>
+          <li>Lisa 'Boof' Marconi</li>
+          <li>Lewis</li>
+        </ul>
+      </div>
+    </body>
+  </html>
+
+You can access instance variables in Haml templates
+the same way you do in ERb templates.
+Helper methods are also available in Haml templates.
+For example:
+
+  # file: app/controllers/movies_controller.rb
+
+  class MoviesController < ApplicationController
+    def index
+      @title = "Teen Wolf"
+    end
+  end
+
+  # file: app/views/movies/index.haml
+
+  #content
+   .title
+     %h1= @title
+     = link_to 'Home', home_url
+
+may be compiled to:
+
+  <div id='content'>
+    <div class='title'>
+      <h1>Teen Wolf</h1>
+      <a href='/'>Home</a>
+    </div>
+  </div>
+
+=== Setting Options
+
+Options can be set by setting the hash <tt>Haml::Template.options</tt>
+from <tt>environment.rb</tt>.
+Available options are:
+
+[<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
+                          designated by <tt>=</tt> or <tt>~</tt> should be
+                          evaluated. If this is true, said scripts are
+                          rendered as empty strings. Defaults to false.
+
+[<tt>:precompiled</tt>]   A string containing a precompiled Haml template.
+                          If this is passed, <tt>template</tt> is ignored
+                          and no precompilation is done.
+
+[<tt>:attr_wrapper</tt>]  The character that should wrap element attributes.
+                          This defaults to <tt>'</tt> (an apostrophe). Characters
+                          of this type within the attributes will be escaped
+                          (e.g. by replacing them with <tt>&apos;</tt>) if
+                          the character is an apostrophe or a quotation mark.
+
+[<tt>:locals</tt>]        The local variables that will be available within the
+                          template. For instance, if <tt>:locals</tt> is
+                          <tt>{ :foo => "bar" }</tt>, then within the template,
+                          <tt>= foo</tt> will produce <tt>bar</tt>.
+
+---
+Copyright (c) 2006 Hampton Catlin
+Licensed under the MIT License

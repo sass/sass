@@ -1,0 +1,6 @@
+%div[@article]
+  %h1= @article.title
+  %div= @article.body
+%div{:class => "article full"}[@article]= "boo"
+%span[@not_a_real_variable_and_will_be_nil]
+  Boo

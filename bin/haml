@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+# The command line Haml parser.
+
+if ARGV[0] == "--help" or ARGV[0] == "-h" or ARGV[0] == "-?"
+  puts <<END
+Usage: haml (template file) (output file)
+
+Description:
+  Uses the Haml engine to parse the specified template
+  and outputs the result to the specified file.
+END
+else
+  require File.join(File.dirname(__FILE__), '..', 'lib', 'haml', 'engine')
+
+  template = File.read(ARGV[0])
+  result = Haml::Engine.new(template).to_html
+  File.open(ARGV[1], "w") { |f| f.write(result) }
+end
