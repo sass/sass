@@ -21,7 +21,7 @@ module Haml
       end
     end
     
-    # Benchmarks HAML against ERb, and Sass on its own.
+    # Benchmarks haml against ERb, and Sass on its own.
     # 
     # Returns the results of the benchmarking as a string.
     # 

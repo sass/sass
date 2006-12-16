@@ -3,7 +3,7 @@ require 'haml/helpers'
 require 'haml/buffer'
 
 module Haml
-  # This is the class where all the parsing and processing of the HAML
+  # This is the class where all the parsing and processing of the haml
   # template is done. It can be directly used by the user by creating a
   # new instance and calling to_html to render the template. For example:
   #
@@ -202,7 +202,7 @@ module Haml
       end
     end
 
-    # Processes a single line of HAML.
+    # Processes a single line of haml.
     #
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.

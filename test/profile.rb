@@ -7,8 +7,8 @@ require 'profiler'
 require 'stringio'
 
 module Haml
-  # A profiler for HAML, mostly for development use. This simply implements
-  # the Ruby profiler for profiling HAML code.
+  # A profiler for haml, mostly for development use. This simply implements
+  # the Ruby profiler for profiling haml code.
   class Profiler
   
     # Creates a new profiler that looks for templates in the base
@@ -22,9 +22,9 @@ module Haml
       end
     end
 
-    # Profiles HAML on the given template with the given number of runs.
+    # Profiles haml on the given template with the given number of runs.
     # The template name shouldn't have a file extension; this will
-    # automatically look for a HAML template.
+    # automatically look for a haml template.
     # 
     # Returns the results of the profiling as a string.
     def profile(runs = 100, template_name = 'standard')      

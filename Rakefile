@@ -14,7 +14,7 @@ end
 # ----- Benchmarking -----
 
 temp_desc = <<END
-Benchmark HAML against ERb.
+Benchmark haml against ERb.
   TIMES=n sets the number of runs. Defaults to 100.
 END
 
@@ -130,7 +130,7 @@ unless ARGV[0] == 'benchmark'
   # ----- Profiling -----
 
   temp_desc = <<-END
-  Run a profile of HAML.
+  Run a profile of haml.
     TIMES=n sets the number of runs. Defaults to 100.
     FILE=n sets the file to profile. Defaults to 'standard'.
   END
