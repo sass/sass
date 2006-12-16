@@ -11,21 +11,33 @@ volatile_requires.each do |file|
   end
 end
 
-# For some crazy reason,
-# some Rake tasks interfere with others
-# (specifically, benchmarking).
-# Thus, it's advantageous to only show
-# the task currently being used.
-def is_task?(*tasks)
-  ARGV[0].nil? || tasks.include?(ARGV[0])
+# ----- Benchmarking -----
+
+temp_desc = <<END
+Benchmark HAML against ERb.
+  TIMES=n sets the number of runs. Defaults to 100.
+END
+
+desc temp_desc.chomp
+task :benchmark do
+  require 'test/benchmark'
+
+  puts '-'*51, "Benchmark: Haml vs. ERb", '-'*51
+  puts "Running benchmark #{ENV['TIMES']} times..." if ENV['TIMES']
+  times = ENV['TIMES'].to_i if ENV['TIMES']
+  benchmarker = Haml::Benchmarker.new
+  puts benchmarker.benchmark(times || 100)
+  puts '-'*51
 end
 
-# ----- Default: Testing ------
+# 
+unless ARGV[0] == 'benchmark'
 
-desc 'Default: run unit tests.'
-task :default => :test
+  # ----- Default: Testing ------
 
-if is_task?('test', 'default')
+  desc 'Default: run unit tests.'
+  task :default => :test
+
   require 'rake/testtask'
 
   desc 'Test the Haml plugin'
@@ -34,13 +46,11 @@ if is_task?('test', 'default')
     t.pattern = 'test/**/*_test.rb'
     t.verbose = true
   end
-end
 
-# ----- Packaging -----
+  # ----- Packaging -----
 
-if is_task?('package', 'repackage', 'clobber_package')
   require 'rake/gempackagetask'
-  
+
   spec = Gem::Specification.new do |spec|
     spec.name = 'haml'
     spec.summary = 'An elegant, structured XHTML/XML templating engine.'
@@ -75,36 +85,13 @@ if is_task?('package', 'repackage', 'clobber_package')
     ]
     spec.test_files = FileList['test/**/*_test.rb'].to_a
   end
-  
+
   Rake::GemPackageTask.new(spec) { |pkg| }
-end
 
-# ----- Benchmarking -----
+  # ----- Documentation -----
 
-if is_task?('benchmark')
-  temp_desc = <<END
-Benchmark HAML against ERb.
-  TIMES=n sets the number of runs. Defaults to 100.
-END
-  
-  desc temp_desc.chomp
-  task :benchmark do
-    require 'test/benchmark'
-
-    puts '-'*51, "Benchmark: Haml vs. ERb", '-'*51
-    puts "Running benchmark #{ENV['TIMES']} times..." if ENV['TIMES']
-    times = ENV['TIMES'].to_i if ENV['TIMES']
-    benchmarker = Haml::Benchmarker.new
-    puts benchmarker.benchmark(times || 100)
-    puts '-'*51
-  end
-end
-
-# ----- Documentation -----
-
-if is_task?('rdoc', 'rerdoc', 'clobber_rdoc', 'rdoc_devel', 'rerdoc_devel', 'clobber_rdoc_devel')
   require 'rake/rdoctask'
-  
+
   rdoc_task = Proc.new do |rdoc|
     rdoc.title    = 'Haml'
     rdoc.options << '--line-numbers' << '--inline-source'
@@ -126,11 +113,9 @@ if is_task?('rdoc', 'rerdoc', 'clobber_rdoc', 'rdoc_devel', 'rerdoc_devel', 'clo
     rdoc.rdoc_files = Rake::FileList.new(*rdoc.rdoc_files.to_a)
     rdoc.rdoc_files.include('lib/haml/buffer.rb')
   end
-end
 
-# ----- Coverage -----
+  # ----- Coverage -----
 
-if is_task?('rcov', 'clobber_rcov')
   unless not_loaded.include? 'rcov/rcovtask'
     Rcov::RcovTask.new do |t|
       t.libs << "test"
@@ -141,16 +126,14 @@ if is_task?('rcov', 'clobber_rcov')
       t.verbose = true
     end
   end
-end
 
-# ----- Profiling -----
+  # ----- Profiling -----
 
-if is_task?('profile')
-  temp_desc = <<END
-Run a profile of HAML.
-  TIMES=n sets the number of runs. Defaults to 100.
-  FILE=n sets the file to profile. Defaults to 'standard'.
-END
+  temp_desc = <<-END
+  Run a profile of HAML.
+    TIMES=n sets the number of runs. Defaults to 100.
+    FILE=n sets the file to profile. Defaults to 'standard'.
+  END
   desc temp_desc.chomp
   task :profile do
     require 'test/profile'
@@ -167,4 +150,5 @@ END
     
     puts '-'*51
   end
+
 end
