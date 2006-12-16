@@ -30,7 +30,8 @@ task :benchmark do
   puts '-'*51
 end
 
-# 
+# Benchmarking gets screwed up if some other tasks have been
+# initialized.
 unless ARGV[0] == 'benchmark'
 
   # ----- Default: Testing ------
