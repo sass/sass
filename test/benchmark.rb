@@ -37,12 +37,17 @@ module Haml
       times = Benchmark.bmbm do |b|
         b.report("haml:") { runs.times { @base.render haml_template } }
         b.report("erb:") { runs.times { @base.render rhtml_template } }
-        b.report("sass:") { runs.times { Sass::Engine.new(File.read(sass_template)).render } }
       end
       
       #puts times[0].inspect, times[1].inspect
       ratio = sprintf("%g", times[0].to_a[5] / times[1].to_a[5])
       puts "Haml/ERB: " + ratio
+      
+      puts '', '-' * 50, 'Sass on its own', '-' * 50
+      
+      Benchmark.bmbm do |b|
+        b.report("sass:") { runs.times { Sass::Engine.new(File.read(sass_template)).render } }
+      end
       
       $stdout.pos = 0
       to_return = $stdout.read
