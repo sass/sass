@@ -99,6 +99,7 @@ unless ARGV[0] == 'benchmark'
     rdoc.rdoc_files.include('REFERENCE')
     rdoc.rdoc_files.include('lib/**/*.rb')
     rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
+    rdoc.rdoc_files.exclude('lib/sass/tree/*')
   end
 
   Rake::RDocTask.new do |rdoc|
@@ -111,8 +112,11 @@ unless ARGV[0] == 'benchmark'
     rdoc.rdoc_dir = 'rdoc_devel'
     rdoc.options << '--all'
     rdoc.rdoc_files.include('test/*.rb')
+    
+    # Get rid of exclusion rules
     rdoc.rdoc_files = Rake::FileList.new(*rdoc.rdoc_files.to_a)
     rdoc.rdoc_files.include('lib/haml/buffer.rb')
+    rdoc.rdoc_files.include('lib/sass/tree/*')
   end
 
   # ----- Coverage -----

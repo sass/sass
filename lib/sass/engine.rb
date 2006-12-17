@@ -4,6 +4,14 @@ require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
 
 module Sass
+  # This is the class where all the parsing and processing of the Sass
+  # template is done. It can be directly used by the user by creating a
+  # new instance and calling <tt>render</tt> to render the template. For example:
+  #
+  #   template = File.load('stylesheets/sassy.sass')
+  #   sass_engine = Sass::Engine.new(template)
+  #   output = sass_engine.render
+  #   puts output
   class Engine
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ':'[0]
@@ -11,12 +19,25 @@ module Sass
     # The string that begins one-line comments.
     COMMENT_STRING  = '//'
   
+    # Creates a new instace of Sass::Engine that will compile the given
+    # template string when <tt>render</tt> is called.
+    # See REFERENCE for available options.
+    #
+    #--
+    #
+    # TODO: Add current options to REFRENCE.
+    #
+    # When adding options, remember to add information about them
+    # to REFERENCE!
+    #++
+    #
     def initialize(template, options={})
       @template = template.split("\n")
       @options = options
       @index = 0
     end
   
+    # Processes the template and returns the result as a string.
     def render
       root = Tree::Node.new
       first_line, first_tabs = next_line

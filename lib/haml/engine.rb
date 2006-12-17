@@ -3,9 +3,9 @@ require 'haml/helpers'
 require 'haml/buffer'
 
 module Haml
-  # This is the class where all the parsing and processing of the haml
+  # This is the class where all the parsing and processing of the Haml
   # template is done. It can be directly used by the user by creating a
-  # new instance and calling to_html to render the template. For example:
+  # new instance and calling <tt>to_html</tt> to render the template. For example:
   #
   #   template = File.load('templates/really_cool_template.haml')
   #   haml_engine = Haml::Engine.new(template)
@@ -202,7 +202,7 @@ module Haml
       end
     end
 
-    # Processes a single line of haml.
+    # Processes a single line of Haml.
     #
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.

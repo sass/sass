@@ -5,7 +5,9 @@ require 'rubygems'
 require 'action_controller'
 
 module Sass
-  #Rails plugin stuff. For use with ActionView.
+  # This module contains methods that ActionController calls
+  # to automatically update Sass templates that need updating.
+  # It wasn't designed to be used outside of the context of ActionController.
   module Plugin
     class << self
       @@options = {
@@ -16,7 +18,7 @@ module Sass
         :style              => :nested
       }
 
-      # Gets various options for Sass.
+      # Gets various options for Sass. See REFERENCE for details.
       #--
       # TODO: *DOCUMENT OPTIONS*
       #++
@@ -29,6 +31,11 @@ module Sass
         @@options.merge!(value)
       end
       
+      # Checks each stylesheet in <tt>options[:css_location]</tt>
+      # to see if it needs updating,
+      # and updates it using the corresponding template
+      # from <tt>options[:templates]</tt>
+      # if it does.
       def update_stylesheets
         Dir[options[:template_location] + '/*.sass'].each do |file|
           name = File.basename(file)[0...-5]
@@ -65,8 +72,13 @@ module Sass
   end
 end
 
+# This module refers to the ActionController module that's part of Ruby on Rails.
+# Sass can be used as an alternate templating engine for Rails,
+# and includes some modifications to make this more doable.
+# The documentation can be found
+# here[http://rubyonrails.org/api/classes/ActionController/Base.html].
 module ActionController
-  class Base
+  class Base # :nodoc:
     alias_method :sass_old_process, :process
     def process(*args)
       Sass::Plugin.update_stylesheets if Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
