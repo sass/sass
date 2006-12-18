@@ -21,14 +21,14 @@ module Sass
   
     # Creates a new instace of Sass::Engine that will compile the given
     # template string when <tt>render</tt> is called.
-    # See REFERENCE for available options.
+    # See README for available options.
     #
     #--
     #
     # TODO: Add current options to REFRENCE.
     #
     # When adding options, remember to add information about them
-    # to REFERENCE!
+    # to README!
     #++
     #
     def initialize(template, options={})

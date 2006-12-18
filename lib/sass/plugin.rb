@@ -18,7 +18,7 @@ module Sass
         :style              => :nested
       }
 
-      # Gets various options for Sass. See REFERENCE for details.
+      # Gets various options for Sass. See README for details.
       #--
       # TODO: *DOCUMENT OPTIONS*
       #++

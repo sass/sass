@@ -89,11 +89,11 @@ module Haml
 
     # Creates a new instace of Haml::Engine that will compile the given
     # template string when <tt>to_html</tt> is called.
-    # See REFERENCE for available options.
+    # See README for available options.
     #
     #--
     # When adding options, remember to add information about them
-    # to REFERENCE!
+    # to README!
     #++
     #
     def initialize(template, options = {})

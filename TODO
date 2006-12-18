@@ -3,7 +3,7 @@ Testing:
   Add Sass support for various utilities (benchmark, profile)
 
 Documentation:
-  ! Add Sass info to REFERENCE
+  ! Add Sass info to README
   ! Comment Sass code
 
 Features:

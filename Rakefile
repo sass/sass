@@ -79,7 +79,7 @@ unless ARGV[0] == 'benchmark'
     spec.extra_rdoc_files = readmes
     spec.rdoc_options += [
       '--title', 'Haml',
-      '--main', 'REFERENCE',
+      '--main', 'README',
       '--exclude', 'lib/haml/buffer.rb',
       '--line-numbers',
       '--inline-source'
@@ -96,7 +96,7 @@ unless ARGV[0] == 'benchmark'
   rdoc_task = Proc.new do |rdoc|
     rdoc.title    = 'Haml'
     rdoc.options << '--line-numbers' << '--inline-source'
-    rdoc.rdoc_files.include('REFERENCE')
+    rdoc.rdoc_files.include('README')
     rdoc.rdoc_files.include('lib/**/*.rb')
     rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
     rdoc.rdoc_files.exclude('lib/sass/tree/*')
