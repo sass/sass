@@ -41,13 +41,13 @@ module Sass
     def render
       root = Tree::Node.new
       first_line, first_tabs = next_line
-      build_plain_tree(first_line, root, first_tabs)
+      build_tree(first_line, root, first_tabs)
       root.to_s
     end
     
     private
     
-    def build_plain_tree(line, node, tabs)
+    def build_tree(line, node, tabs)
       current_tabs = tabs
       tabs ||= 0
       
@@ -59,7 +59,7 @@ module Sass
           
           line, current_tabs = next_line
         else # current_tabs > tabs        
-          line, current_tabs = build_plain_tree(line, node.children[-1], current_tabs)
+          line, current_tabs = build_tree(line, node.children[-1], current_tabs)
         end
       end
       
