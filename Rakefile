@@ -94,7 +94,7 @@ unless ARGV[0] == 'benchmark'
   require 'rake/rdoctask'
 
   rdoc_task = Proc.new do |rdoc|
-    rdoc.title    = 'Haml'
+    rdoc.title    = 'Haml/Sass'
     rdoc.options << '--line-numbers' << '--inline-source'
     rdoc.rdoc_files.include('README')
     rdoc.rdoc_files.include('lib/**/*.rb')
