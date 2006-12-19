@@ -33,49 +33,65 @@ module Sass
     #
     def initialize(template, options={})
       @template = template.split("\n")
+      @lines = []
       @options = options
-      @index = 0
     end
   
     # Processes the template and returns the result as a string.
     def render
+      split_lines
+      
       root = Tree::Node.new
-      first_line, first_tabs = next_line
-      build_tree(first_line, root, first_tabs)
+      index = 0
+      while @lines[index]
+        child, index = build_tree(index)
+        root << child
+      end
       root.to_s
     end
     
     private
     
-    def build_tree(line, node, tabs)
-      current_tabs = tabs
-      tabs ||= 0
+    # Readies each line in the template for parsing,
+    # and computes the tabulation of the line.
+    def split_lines
+      @template.each do |line|
       
-      while line && (current_tabs.nil? || current_tabs >= tabs)
-        if current_tabs.nil?
-          line, current_tabs = next_line
-        elsif current_tabs == tabs
-          node << parse_line(line)
+        # TODO: Allow comments appended to the end of lines, find some way to make url(http://www.google.com/) work
+        unless line[0..1] == COMMENT_STRING # unless line is a comment
+          tabs = count_tabs(line)
           
-          line, current_tabs = next_line
-        else # current_tabs > tabs        
-          line, current_tabs = build_tree(line, node.children[-1], current_tabs)
+          if tabs # if line isn't blank
+            @lines << [line.strip, tabs]
+          end
         end
       end
-      
-      [line, current_tabs]
     end
     
-    def next_line
-      line = @template[@index]
-      return if line.nil?
+    # Counts the tabulation of a line.
+    def count_tabs(line)
+      spaces = line.index(/[^ ]/)
+      spaces ? spaces/2 : nil
+    end
+    
+    def build_tree(index)
+      line, tabs = @lines[index]
+      index += 1
+      node = parse_line(line)
+      has_children = has_children?(index, tabs)
       
-      # TODO: Allow comments appended to the end of lines, find some way to make url(http://www.google.com/) work
-      line = '' if line[0..1] == COMMENT_STRING
-      current_tabs = count_soft_tabs(line)
-      line.strip!
-      @index += 1
-      [line, current_tabs]
+      while has_children
+        child, index = build_tree(index)
+        node << child
+        has_children = has_children?(index, tabs)
+      end
+      
+      return node, index
+    end
+    
+    def has_children?(index, tabs)
+      next_line = @lines[index]
+      next_line && next_line[1] > tabs
     end
     
     def parse_line(line)
@@ -86,12 +102,6 @@ module Sass
       else
         Tree::RuleNode.new(line)
       end
-    end
-    
-    # Counts the tabulation of a line.
-    def count_soft_tabs(line)
-      spaces = line.index(/[^ ]/)
-      spaces ? spaces/2 : nil
     end
   end
 end
