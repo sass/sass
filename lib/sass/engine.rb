@@ -16,8 +16,12 @@ module Sass
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ':'[0]
     
-    # The attribute that begins a constant.
-    CONSTANT_CHAR   = '@'[0]
+    # The character that begins a constant.
+    CONSTANT_CHAR   = '!'[0]
+    
+    # The character that designates that
+    # an attribute should be assigned to the result of constant arithmetic.
+    SCRIPT_CHAR     = '='[0]
     
     # The string that begins one-line comments.
     COMMENT_STRING  = '//'
@@ -114,10 +118,9 @@ module Sass
       name, *value = line.split(' ')
       name = name[1..-1]
       
-      if value.size == 1 and value[0][0] == CONSTANT_CHAR
-        const_name = value[0][1..-1]
-        value = @constants[const_name]
-        raise "Constant \"#{const_name}\" is undefined." unless value
+      if name[-1] == SCRIPT_CHAR
+        name.slice!(-1)
+        value = Sass::Constant.parse(value.join(' '), @constants).to_s
       end
       
       Tree::AttrNode.new(name, value)
@@ -126,7 +129,7 @@ module Sass
     def parse_constant(line)
       name, value = line.scan(/^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s=]+)\s*=\s*(.+)/)[0]
       raise "Invalid constant assignment:\n#{line}" unless name && value
-      @constants[name] = value
+      @constants[name] = Sass::Constant.parse(value, @constants)
       nil
     end
   end
