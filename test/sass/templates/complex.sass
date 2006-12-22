@@ -8,7 +8,10 @@ body
   :width      900px
   :margin     0 auto
   :background #440008
-  :border-top 5px solid #ff8500
+  :border-top
+    :width 5px
+    :style solid
+    :color #ff8500
 
 #header
   :height  75px
@@ -18,14 +21,24 @@ body
     :width  274px
     :height 75px
     :margin 0
-    :background url(/images/global_logo.gif) no-repeat
+    :background
+      :image url(/images/global_logo.gif)
+      :repeat no-repeat
     :text-indent -9999px
   .status
     :float   right
-    :padding .5em .5em 0 .5em
+    :padding
+      :top .5em
+      :left .5em
+      :right .5em
+      :bottom 0
     p
       :float  left
-      :margin 0 0.5em 0 0
+      :margin
+        :top 0
+        :right 0.5em
+        :bottom 0
+        :left 0
     ul
       :float   left
       :margin  0
@@ -110,7 +123,14 @@ body
           :padding 0.5em
           :background #6e000d url(/images/hdr_participant.gif) 2px 2px no-repeat
           :text-indent -9999px
-          :border-top 5px solid #a20013
+          :border
+            :top
+              :width 5px
+              :style solid
+              :color #a20013
+            :right
+              :width 1px
+              :style dotted
     .column.middle
       :width 500px
     .column.right
