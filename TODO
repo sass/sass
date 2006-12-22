@@ -3,9 +3,9 @@ Testing:
   Add Sass support for various utilities (benchmark, profile)
 
 Documentation:
-  ! Add Sass info to README
-  ! Comment Sass code
+  ! Document Sass module
 
 Features:
-  Sassy variables
+  Arithmetic with Sassy variables
+  Exceptions thrown by Sass code should have their own class
   Filters for Haml

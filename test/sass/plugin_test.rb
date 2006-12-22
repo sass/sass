@@ -9,7 +9,7 @@ RAILS_ENV  = 'testing'
 require 'sass/plugin'
 
 class SassPluginTest < Test::Unit::TestCase
-  @@templates = %w{ complex }
+  @@templates = %w{ complex constants }
 
   def setup
     Sass::Plugin.options[:template_location]  = File.dirname(__FILE__) + '/templates'

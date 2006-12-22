@@ -16,6 +16,9 @@ module Sass
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ':'[0]
     
+    # The attribute that begins a constant.
+    CONSTANT_CHAR   = '@'[0]
+    
     # The string that begins one-line comments.
     COMMENT_STRING  = '//'
   
@@ -32,9 +35,10 @@ module Sass
     #++
     #
     def initialize(template, options={})
+      @options = options
       @template = template.split("\n")
       @lines = []
-      @options = options
+      @constants = {}
     end
   
     # Processes the template and returns the result as a string.
@@ -45,7 +49,7 @@ module Sass
       index = 0
       while @lines[index]
         child, index = build_tree(index)
-        root << child
+        root << child if child
       end
       root.to_s
     end
@@ -78,11 +82,12 @@ module Sass
       line, tabs = @lines[index]
       index += 1
       node = parse_line(line)
+      return nil, index unless node
       has_children = has_children?(index, tabs)
       
       while has_children
         child, index = build_tree(index)
-        node << child
+        node << child if child
         has_children = has_children?(index, tabs)
       end
       
@@ -95,13 +100,34 @@ module Sass
     end
     
     def parse_line(line)
-      if line[0] == ATTRIBUTE_CHAR
-        name, *value = line.split(' ')
-        name = name[1..-1]
-        Tree::AttrNode.new(name, value)
-      else
-        Tree::RuleNode.new(line)
+      case line[0]
+        when ATTRIBUTE_CHAR
+          parse_attribute(line)
+        when CONSTANT_CHAR
+          parse_constant(line)
+        else
+          Tree::RuleNode.new(line)
       end
+    end
+    
+    def parse_attribute(line)
+      name, *value = line.split(' ')
+      name = name[1..-1]
+      
+      if value.size == 1 and value[0][0] == CONSTANT_CHAR
+        const_name = value[0][1..-1]
+        value = @constants[const_name]
+        raise "Constant \"#{const_name}\" is undefined." unless value
+      end
+      
+      Tree::AttrNode.new(name, value)
+    end
+    
+    def parse_constant(line)
+      name, value = line.scan(/^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s=]+)\s*=\s*(.+)/)[0]
+      raise "Invalid constant assignment:\n#{line}" unless name && value
+      @constants[name] = value
+      nil
     end
   end
 end
