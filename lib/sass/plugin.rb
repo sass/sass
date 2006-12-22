@@ -45,7 +45,15 @@ module Sass
             File.delete(css) if File.exists?(css)
             
             engine = Engine.new(File.read(template_filename(name)), @@options.dup)
-            result = engine.render
+            begin
+              result = engine.render
+            rescue Exception => e
+              if RAILS_ENV != "production"
+                result = "#{e}\n\nBacktrace:\n#{e.backtrace.join("\n")}\n"
+              else
+                raise e
+              end
+            end
             
             Dir.mkdir(options[:css_location]) unless File.exist?(options[:css_location])
             File.open(css, 'w') do |file|
