@@ -34,7 +34,21 @@ class SassPluginTest < Test::Unit::TestCase
     assert !Sass::Plugin.stylesheet_needs_update?('basic')
   end
   
-  def assert(*args)
+  def test_exception_handling
+    File.open(tempfile_loc('bork')) do |file|
+      assert file.gets == "bork bork bork!\n"
+    end
+    File.delete(tempfile_loc('bork'))
+    Sass.const_set('RAILS_ENV', 'production')
+    raised = false
+    begin
+      Sass::Plugin.update_stylesheets
+    rescue
+      raised = true
+    end
+    assert raised
+    assert !File.exists?(tempfile_loc('bork'))
+    Sass::Plugin.const_set('RAILS_ENV', 'testing')
   end
   
   def test_controller_process
@@ -67,6 +81,15 @@ end
 module Sass::Plugin
   class << self
     public :stylesheet_needs_update?
+  end
+end
+
+class Sass::Engine
+  alias_method :old_render, :render
+  
+  def render
+    raise "bork bork bork!" if @template[0] == "{bork now!}"
+    old_render
   end
 end
 
