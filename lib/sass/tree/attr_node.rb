@@ -7,7 +7,6 @@ module Sass::Tree
     
     def initialize(name, value)
       @name = name
-      value = value.join('  ') if value.is_a? Array
       super(value)
     end
     

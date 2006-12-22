@@ -115,12 +115,12 @@ module Sass
     end
     
     def parse_attribute(line)
-      name, *value = line.split(' ')
+      name, value = line.split(' ', 2)
       name = name[1..-1]
       
       if name[-1] == SCRIPT_CHAR
         name.slice!(-1)
-        value = Sass::Constant.parse(value.join(' '), @constants).to_s
+        value = Sass::Constant.parse(value, @constants).to_s
       end
       
       Tree::AttrNode.new(name, value)
