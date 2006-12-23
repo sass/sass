@@ -22,7 +22,11 @@ module Sass::Constant
       begin
         literal1.send(@operator, literal2)
       rescue NoMethodError
-        raise "Undefined operation:\n#{literal1} #{@operator} #{literal2}\n"
+        begin
+          literal2.send(@operator, literal1)
+        rescue NoMethodError
+          raise "Undefined operation:\n#{literal1} #{@operator} #{literal2}\n"
+        end
       end
     end
   end
