@@ -1,10 +1,9 @@
 require 'sass/constant/literal'
 
 module Sass::Constant
-  class String
-    include Literal
+  class String < Literal
     
-    def initialize(value)
+    def parse(value)
       @value = value
     end
     

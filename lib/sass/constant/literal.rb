@@ -1,10 +1,10 @@
-module Sass::Constant; module Literal; end; end; # Let the subclasses see the superclass
+module Sass::Constant; class Literal; end; end; # Let the subclasses see the superclass
 
 require 'sass/constant/string'
 require 'sass/constant/number'
 require 'sass/constant/color'
 
-module Sass::Constant::Literal
+class Sass::Constant::Literal
   # The regular expression matching numbers.
   NUMBER  = /^[0-9]*\.?[0-9]+$/
 
@@ -22,7 +22,20 @@ module Sass::Constant::Literal
     end
   end
   
+  def initialize(value = nil)
+    self.parse(value) if value
+  end
+  
   def perform
     self
+  end
+  
+  protected
+  
+  attr_reader :value
+  
+  def self.from_value(value)
+    instance = self.new
+    instance.instance_variable_set('@value', value)
   end
 end
