@@ -9,3 +9,5 @@ Features:
   Arithmetic with Sassy variables
   Exceptions thrown by Sass code should have their own class
   Filters for Haml
+  Haml and Sass should throw syntax errors rather than blithely parsing ill-formatted documents
+  There should be a way to represent options in-document  
