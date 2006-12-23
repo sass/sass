@@ -126,7 +126,9 @@ module Sass
     end
     
     def parse_constant(line)
-      name, value = line.scan(/^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s=]+)\s*=\s*(.+)/)[0]
+      not_in_name = Sass::Constant::SYMBOLS.keys + [ Sass::Constant::ESCAPE_CHAR, '='[0] ]
+      not_in_name.map! { |c| "\\#{c.chr}" }
+      name, value = line.scan(/^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{not_in_name.join}]+)\s*=\s*(.+)/)[0]
       raise "Invalid constant assignment:\n#{line}" unless name && value
       @constants[name] = Sass::Constant.parse(value, @constants)
       nil

@@ -1,2 +1,2 @@
 #main { width: 500px; background-color: #000; color: #fff; }
-#main #sidebar { background-color: #00ff98; }
+#main #sidebar { background-color: #00ff98; num-normal: 10; num-dec: 10.2; num-dec0: 99; num-neg: -10; esc: 10+12; }

@@ -1,4 +1,5 @@
 require 'sass/constant/string'
+require 'sass/constant/number'
 
 module Sass::Constant
   class Operation
@@ -9,14 +10,19 @@ module Sass::Constant
     end
     
     def parse(value)
-      Sass::Constant::String.new(value)
+      case value
+        when /^[0-9]*\.?[0-9]+$/ # Number with one or zero decimal points
+          Sass::Constant::Number.new(value)
+        else
+          Sass::Constant::String.new(value)
+      end
     end
     
     def perform
-      if @operator
-      else
+      #if @operator
+      #else
         @operand1.to_s
-      end
+      #end
     end
   end
 end
