@@ -4,34 +4,26 @@ require 'sass/constant/color'
 
 module Sass::Constant
   class Operation
-    # The regular expression matching numbers.
-    NUMBER  = /^[0-9]*\.?[0-9]+$/
-  
-    # The regular expression matching colors.
-    COLOR = /^\#(#{"[0-9a-f]" * 3}|#{"[0-9a-f]" * 6})/
-  
-    def initialize(operand1, operand2=nil, operator=nil)
-      @operand1 = parse(operand1)
-      @operand2 = parse(operand2) if operand2
-      @operator = operator if operator
+    def initialize(operand1, operand2, operator)
+      @operand1 = operand1
+      @operand2 = operand2
+      @operator = operator
     end
     
-    def parse(value)
-      case value
-        when NUMBER
-          Sass::Constant::Number.new(value)
-        when COLOR
-          Sass::Constant::Color.new(value)
-        else
-          Sass::Constant::String.new(value)
-      end
+    def to_s
+      self.perform.to_s
     end
+    
+    protected
     
     def perform
-      #if @operator
-      #else
-        @operand1.to_s
-      #end
+      literal1 = @operand1.perform
+      literal2 = @operand2.perform
+      begin
+        literal1.send(@operator, literal2)
+      rescue NoMethodError
+        raise "Undefined operation:\n#{literal1} #{@operator} #{literal2}\n"
+      end
     end
   end
 end

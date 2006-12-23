@@ -1,4 +1,5 @@
 require 'sass/constant/operation'
+require 'sass/constant/literal'
 
 module Sass
   module Constant
@@ -28,7 +29,7 @@ module Sass
   
     class << self    
       def parse(value, constants)
-        operationalize(parenthesize(tokenize(value)), value, constants).perform
+        operationalize(parenthesize(tokenize(value)), value, constants).to_s
       end
       
       private
@@ -103,7 +104,7 @@ module Sass
         value = [value] unless value.is_a?(Array)
         length = value.length
         if length == 1
-          Operation.new(insert_constant(value[0], constants))
+          Literal.parse(insert_constant(value[0], constants))
         elsif length == 2
           raise "Improperly formatted script:\n#{original}"
         elsif length == 3

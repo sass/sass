@@ -1,5 +1,9 @@
+require 'sass/constant/literal'
+
 module Sass::Constant
   class Color
+    include Literal
+  
     REGEXP = /\##{"([0-9a-f]{1,2})" * 3}/
   
     def initialize(value)
