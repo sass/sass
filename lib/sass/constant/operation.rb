@@ -22,15 +22,8 @@ module Sass::Constant
       begin
         literal1.send(@operator, literal2)
       rescue NoMethodError => e
-        raise e unless e.name == @operator
-        
-        begin
-          literal2.send(@operator, literal1)
-        rescue NoMethodError => e
-          raise e unless e.name == @operator
-        
-          raise "Undefined operation:\n#{literal1} #{@operator} #{literal2}\n"
-        end
+        raise e unless e.name == @operator        
+        raise "Undefined operation:\n#{literal1} #{@operator} #{literal2}\n"
       end
     end
   end
