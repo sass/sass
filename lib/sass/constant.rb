@@ -122,7 +122,7 @@ module Sass
         to_return = value
         if value[0] == Sass::Engine::CONSTANT_CHAR
           to_return = constants[value[1..-1]]
-          raise "Undefined constant:\n#{to_return}" unless to_return
+          raise "Undefined constant:\n#{value}" unless to_return
         end
         to_return
       end
