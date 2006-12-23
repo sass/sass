@@ -36,7 +36,7 @@ class SassPluginTest < Test::Unit::TestCase
   
   def test_exception_handling
     File.open(tempfile_loc('bork')) do |file|
-      assert file.gets == "bork bork bork!\n"
+      assert file.gets + file.gets == "Undefined constant:\n!bork\n"
     end
     File.delete(tempfile_loc('bork'))
     Sass.const_set('RAILS_ENV', 'production')
