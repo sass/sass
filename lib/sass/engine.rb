@@ -1,4 +1,3 @@
-require File.dirname(__FILE__) + '/../sass'
 require 'sass/tree/node'
 require 'sass/tree/value_node'
 require 'sass/tree/rule_node'

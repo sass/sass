@@ -1,4 +1,3 @@
-require File.dirname(__FILE__) + '/../haml'
 require 'haml/engine'
 require 'rubygems'
 require 'active_support'

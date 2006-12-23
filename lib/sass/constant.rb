@@ -1,4 +1,3 @@
-require File.dirname(__FILE__) + '/../sass'
 require 'sass/constant/operation'
 
 module Sass

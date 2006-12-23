@@ -1,6 +1,4 @@
-require File.dirname(__FILE__) + '/../sass'
 require 'sass/engine'
-
 require 'rubygems'
 require 'action_controller'
 

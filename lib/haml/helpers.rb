@@ -1,4 +1,3 @@
-require File.dirname(__FILE__) + '/../haml'
 require 'haml/helpers/action_view_mods'
 
 module Haml
