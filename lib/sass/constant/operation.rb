@@ -12,10 +12,10 @@ module Sass::Constant
       Sass::Constant::String.new(value)
     end
     
-    def perform(constants)
+    def perform
       if @operator
       else
-        @operand1.to_s(constants)
+        @operand1.to_s
       end
     end
   end

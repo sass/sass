@@ -4,13 +4,8 @@ module Sass::Constant
       @value = value
     end
     
-    def to_s(constants={})
-      to_return = @value
-      if @value[0] == Sass::Engine::CONSTANT_CHAR
-        to_return = constants[@value[1..-1]]
-        raise "Undefined constant:\n#{to_return}" unless to_return
-      end
-      to_return
+    def to_s
+      @value
     end
   end
 end

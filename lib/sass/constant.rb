@@ -28,7 +28,7 @@ module Sass
   
     class << self    
       def parse(value, constants)
-        operationalize(parenthesize(tokenize(value)), value).perform(constants)
+        operationalize(parenthesize(tokenize(value)), value, constants).perform
       end
       
       private
@@ -99,23 +99,32 @@ module Sass
         return to_return, i + 1
       end
       
-      def operationalize(value, original)
-        return Operation.new(value) unless value.is_a?(Array)
+      def operationalize(value, original, constants)
+        value = [value] unless value.is_a?(Array)
         length = value.length
         if length == 1
-          Operation.new(value[0])
+          Operation.new(insert_constant(value[0], constants))
         elsif length == 2
           raise "Improperly formatted script:\n#{original}"
         elsif length == 3
-          Operation.new(operationalize(value[0], original), operationalize(value[2], original), value[1])
+          Operation.new(operationalize(value[0], original, constants), operationalize(value[2], original, constants), value[1])
         else
           raise "Improperly formatted script:\n#{original}" unless length >= 5 && length % 2 == 1
           if SECOND_ORDER.include?(value[1]) && FIRST_ORDER.include?(value[3])
-            operationalize([value[1], value[2], operationalize(value[3..5]), *value[6..-1]], original)
+            operationalize([value[1], value[2], operationalize(value[3..5]), *value[6..-1]], original, constants)
           else
-            operationalize([operationalize(value[0..2]), *value[4..-1]], original)
+            operationalize([operationalize(value[0..2]), *value[4..-1]], original, constants)
           end
         end
+      end
+      
+      def insert_constant(value, constants)
+        to_return = value
+        if value[0] == Sass::Engine::CONSTANT_CHAR
+          to_return = constants[value[1..-1]]
+          raise "Undefined constant:\n#{to_return}" unless to_return
+        end
+        to_return
       end
     end
   end
