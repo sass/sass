@@ -30,12 +30,13 @@ class Sass::Constant::Literal
     self
   end
   
-  protected
-  
   attr_reader :value
+  
+  protected
   
   def self.from_value(value)
     instance = self.new
     instance.instance_variable_set('@value', value)
+    instance
   end
 end

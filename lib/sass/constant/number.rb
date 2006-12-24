@@ -10,7 +10,11 @@ module Sass::Constant
     end
     
     def plus(other)
-      Number.from_value(self.value + other.value)
+      if other.is_a? Number
+        Number.from_value(self.value + other.value)
+      else
+        Sass::Constant::String.from_value(self.to_s + other.to_s)
+      end
     end
     
     def to_s
