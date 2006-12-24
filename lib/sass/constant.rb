@@ -121,7 +121,7 @@ module Sass
         else
           raise "Syntax error:\n#{original}" unless length >= 5 && length % 2 == 1
           if SECOND_ORDER.include?(value[1]) && FIRST_ORDER.include?(value[3])
-            operationalize([value[1], value[2], operationalize(value[3..5], original, constants), *value[6..-1]], original, constants)
+            operationalize([value[0], value[1], operationalize(value[2..4], original, constants), *value[5..-1]], original, constants)
           else
             operationalize([operationalize(value[0..2], original, constants), *value[3..-1]], original, constants)
           end
