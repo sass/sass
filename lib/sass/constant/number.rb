@@ -4,8 +4,7 @@ module Sass::Constant
   class Number < Literal
   
     def parse(value)
-      value = value.to_f
-      value = self.class.filter_value(value)
+      value = value.include?('.') ? value.to_f : value.to_i
       @value = value
     end
     
@@ -19,6 +18,14 @@ module Sass::Constant
       end
     end
     
+    def minus(other)
+      if other.is_a? Number
+        operate(other, :-)
+      else
+        raise NoMethodError.new(nil, :minus)
+      end
+    end
+    
     def times(other)
       if other.is_a? Number
         operate(other, :*)
@@ -29,22 +36,24 @@ module Sass::Constant
       end
     end
     
+    def div(other)
+      if other.is_a? Number
+        operate(other, :/)
+      else
+        raise NoMethodError.new(nil, :div)
+      end
+    end
+    
     def to_s
-      @value.to_s
+      value = @value
+      value = value.to_i if value % 1 == 0.0
+      value.to_s
     end
     
     protected
     
     def operate(other, operation)
       Number.from_value(self.value.send(operation, other.value))
-    end
-    
-    def self.filter_value(value)
-      if value % 1 == 0.0
-        value.to_i
-      else
-        value
-      end
     end
   end
 end

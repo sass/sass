@@ -25,6 +25,7 @@
 #plus
   :num
     :num= 5+2
+    :num-neg= 10 + -13
     :str= 100 + px
     :col= 13 + #aaa
   :str
@@ -34,6 +35,13 @@
     :num= #f02 + 123.5
     :col= #12a + #405162
 
+#minus
+  :num
+    :num= 912 - 12
+  :col
+    :num= #fffffa - 5.2
+    :col= #abcdef - #fedcba
+
 #times
   :num
     :num= 2 * 3.5
@@ -41,3 +49,11 @@
   :col
     :num= #12468a * 0.5
     :col= #121212 * #020304
+    
+#div
+  :num
+    :num= 10 / 3.0
+    :num2= 10 / 3
+  :col
+    :num= #12468a / 2
+    :col= #abcdef / 16

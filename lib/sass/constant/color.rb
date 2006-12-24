@@ -17,11 +17,27 @@ module Sass::Constant
       end
     end
     
+    def minus(other)
+      if other.is_a? Sass::Constant::String
+        raise NoMethodError.new(nil, :minus)
+      else
+        piecewise(other, :-)
+      end
+    end
+    
     def times(other)
       if other.is_a? Sass::Constant::String
         raise NoMethodError.new(nil, :times)
       else
         piecewise(other, :*)
+      end
+    end
+    
+    def div(other)
+      if other.is_a? Sass::Constant::String
+        raise NoMethodError.new(nil, :div)
+      else
+        piecewise(other, :/)
       end
     end
     
@@ -44,7 +60,8 @@ module Sass::Constant
     
       rgb = []
       for i in (0...3)
-        rgb[i] = [@value[i].send(operation, other_num ? other_val : other_val[i]), 255].min
+        res = @value[i].send(operation, other_num ? other_val : other_val[i])
+        rgb[i] = [ [res, 255].min, 0 ].max
       end
       Color.from_value(rgb)
     end
