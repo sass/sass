@@ -1,4 +1,4 @@
 #main { width: 30; background-color: #000; color: #ffffaf; }
-#main #sidebar { background-color: #00ff98; num-normal: 10; num-dec: 10.2; num-dec0: 99; num-neg: -10; esc: 10+12; }
+#main #sidebar { background-color: #00ff98; num-normal: 10; num-dec: 10.2; num-dec0: 99; num-neg: -10; esc: 10+12; many: 6; complex: 18#3a8b9fhi4; }
 
 #plus { num-num: 7; num-str: 100px; num-col: 13#ffffff; str-str: hi there; str-num: times: 13; col-num: #ff8aaa; col-col: #5f80ff; }

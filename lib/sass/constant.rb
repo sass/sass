@@ -84,37 +84,46 @@ module Sass
         beginning = i
         token = value[i]
         
-        while i < value_len && token != :close
-          i += 1
-          token = value[i]
-          
+        while i < value_len && token != :close          
           if token == :open
             to_return.push(*value[beginning...i])
             sub, i = parenthesize_helper(i + 1, value, value_len)
             beginning = i
-            token = value[i]
             to_return << sub
+          else
+            i += 1
           end
+          
+          token = value[i]
         end
         to_return.push(*value[beginning...i])
         return to_return, i + 1
       end
       
+      #--
+      # TODO: Don't pass around original value;
+      #       have Constant.parse automatically add it to exception.
+      #++
       def operationalize(value, original, constants)
         value = [value] unless value.is_a?(Array)
         length = value.length
         if length == 1
-          Literal.parse(insert_constant(value[0], constants))
+          value = value[0]
+          if value.is_a? Operation
+            value
+          else
+            Literal.parse(insert_constant(value, constants))
+          end
         elsif length == 2
-          raise "Improperly formatted script:\n#{original}"
+          raise "Syntax error:\n#{original}"
         elsif length == 3
           Operation.new(operationalize(value[0], original, constants), operationalize(value[2], original, constants), value[1])
         else
-          raise "Improperly formatted script:\n#{original}" unless length >= 5 && length % 2 == 1
+          raise "Syntax error:\n#{original}" unless length >= 5 && length % 2 == 1
           if SECOND_ORDER.include?(value[1]) && FIRST_ORDER.include?(value[3])
-            operationalize([value[1], value[2], operationalize(value[3..5]), *value[6..-1]], original, constants)
+            operationalize([value[1], value[2], operationalize(value[3..5], original, constants), *value[6..-1]], original, constants)
           else
-            operationalize([operationalize(value[0..2]), *value[4..-1]], original, constants)
+            operationalize([operationalize(value[0..2], original, constants), *value[3..-1]], original, constants)
           end
         end
       end
