@@ -44,6 +44,14 @@ module Sass::Constant
       end
     end
     
+    def mod(other)
+      if other.is_a? Number
+        operate(other, :%)
+      else
+        raise NoMethodError.new(nil, :mod)
+      end
+    end
+    
     def to_s
       value = @value
       value = value.to_i if value % 1 == 0.0

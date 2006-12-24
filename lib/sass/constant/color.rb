@@ -41,6 +41,14 @@ module Sass::Constant
       end
     end
     
+    def mod(other)
+      if other.is_a? Sass::Constant::String
+        raise NoMethodError.new(nil, :mod)
+      else
+        piecewise(other, :%)
+      end
+    end
+    
     def to_s
       red, green, blue = @value.map { |num| num.to_s(16).rjust(2, '0') }
       "##{red}#{green}#{blue}"
