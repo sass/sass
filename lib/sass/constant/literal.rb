@@ -34,9 +34,13 @@ class Sass::Constant::Literal
   
   protected
   
+  def self.filter_value(value)
+    value
+  end
+  
   def self.from_value(value)
     instance = self.new
-    instance.instance_variable_set('@value', value)
+    instance.instance_variable_set('@value', self.filter_value(value))
     instance
   end
 end

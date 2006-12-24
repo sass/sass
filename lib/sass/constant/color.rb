@@ -13,7 +13,15 @@ module Sass::Constant
       if other.is_a? Sass::Constant::String
         Sass::Constant::String.from_value(self.to_s + other.to_s)
       else
-        Color.piecewise(self, other) { |val1, val2| [val1 + val2, 255].min }
+        piecewise(other, :+)
+      end
+    end
+    
+    def times(other)
+      if other.is_a? Sass::Constant::String
+        raise NoMethodError.new(nil, :times)
+      else
+        piecewise(other, :*)
       end
     end
     
@@ -24,13 +32,19 @@ module Sass::Constant
     
     protected
     
-    def self.piecewise(color1, other)
+    def self.filter_value(value)
+      value.map { |num| num.to_i }
+    end
+    
+    private
+    
+    def piecewise(other, operation)
       other_num = other.is_a? Number
       other_val = other.value
     
       rgb = []
       for i in (0...3)
-        rgb[i] = yield(color1.value[i], other_num ? other_val : other_val[i])
+        rgb[i] = [@value[i].send(operation, other_num ? other_val : other_val[i]), 255].min
       end
       Color.from_value(rgb)
     end
