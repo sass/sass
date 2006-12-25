@@ -54,7 +54,7 @@ unless ARGV[0] == 'benchmark'
 
   spec = Gem::Specification.new do |spec|
     spec.name = 'haml'
-    spec.summary = 'An elegant, structured XHTML/XML templating engine.'
+    spec.summary = "An elegant, structured XHTML/XML templating engine.\nComes with Sass, a similar CSS templating engine."
     spec.version = File.read('VERSION').strip
     spec.author = 'Hampton Catlin'
     spec.email = 'haml@googlegroups.com'
@@ -72,7 +72,7 @@ unless ARGV[0] == 'benchmark'
       list.exclude(/[a-z]/)
       list.exclude('TODO')
     end.to_a
-    spec.executables = ['haml']
+    spec.executables = ['haml', 'sass']
     spec.files = FileList['lib/**/*', 'bin/*', 'test/**/*', 'Rakefile'].to_a + readmes
     spec.homepage = 'http://haml.hamptoncatlin.com/'
     spec.has_rdoc = true
