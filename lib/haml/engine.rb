@@ -158,7 +158,7 @@ module Haml
         line = line.strip
         
         if old_line
-          block_opened = tabs > old_tabs
+          block_opened = tabs > old_tabs && !line.empty?
           
           suppress_render = handle_multiline(old_tabs, old_line, old_index)
           
