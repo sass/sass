@@ -13,6 +13,6 @@ else
   require File.dirname(__FILE__) + '/../lib/sass'
 
   template = File.read(ARGV[0])
-  result = Sass::Engine.new(template).result
+  result = Sass::Engine.new(template).render
   File.open(ARGV[1], "w") { |f| f.write(result) }
 end
