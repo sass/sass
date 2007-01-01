@@ -1,6 +1,7 @@
 require 'sass/tree/node'
 require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
+require 'sass/constant'
 
 module Sass
   # This is the class where all the parsing and processing of the Sass
