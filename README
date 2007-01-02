@@ -4,7 +4,7 @@ Haml and Sass are templating engines
 for the two most common types of documents on the web:
 HTML and CSS, respectively.
 They are designed to make it both easier and more pleasant
-to cose HTML and CSS documents,
+to code HTML and CSS documents,
 by eliminating redundancy,
 reflecting the underlying structure that the document represents,
 and providing elegant, easily understandable, and powerful syntax.
