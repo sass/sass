@@ -103,7 +103,7 @@ module Haml
       }.merge options
       @precompiled = @options[:precompiled]
 
-      @template = template #String
+      @template = template.strip #String
       @to_close_stack = []
       @output_tabs = 0
       @template_tabs = 0
@@ -153,32 +153,38 @@ module Haml
       old_index = nil
       old_spaces = nil
       old_tabs = nil
-      (@template + "\n\n").each_with_index do |line, index|
+      (@template + "\n-#").each_with_index do |line, index|
         spaces, tabs = count_soft_tabs(line)
         line = line.strip
         
-        if old_line
-          block_opened = tabs > old_tabs && !line.empty?
-          
-          suppress_render = handle_multiline(old_tabs, old_line, old_index)
-          
-          if !suppress_render
-            line_empty = old_line.empty?
-            process_indent(old_tabs, old_line) unless line_empty
-            flat = @flat_spaces != -1
+        if !line.empty?
+          if old_line
+            block_opened = tabs > old_tabs && !line.empty?
+            
+            suppress_render = handle_multiline(old_tabs, old_line, old_index)
+            
+            if !suppress_render
+              line_empty = old_line.empty?
+              process_indent(old_tabs, old_line) unless line_empty
+              flat = @flat_spaces != -1
 
-            if flat
-              push_flat(old_line, old_spaces)
-            elsif !line_empty
-              process_line(old_line, old_index, block_opened)
+              if flat
+                push_flat(old_line, old_spaces)
+              elsif !line_empty
+                process_line(old_line, old_index, block_opened)
+              end
             end
           end
+          
+          old_line = line
+          old_index = index
+          old_spaces = spaces
+          old_tabs = tabs
+        elsif @flat_spaces != -1
+          push_flat(old_line, old_spaces)
+          old_line = ''
+          old_spaces = 0
         end
-        
-        old_line = line
-        old_index = index
-        old_spaces = spaces
-        old_tabs = tabs
       end
 
       # Close all the open tags
