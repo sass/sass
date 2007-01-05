@@ -73,7 +73,11 @@ if is_task?('package', 'repackage', 'clobber_package')
     spec.test_files = FileList['test/**/*_test.rb'].to_a
   end
   
-  Rake::GemPackageTask.new(spec) { |pkg| }
+  Rake::GemPackageTask.new(spec) do |pkg|
+    pkg.need_zip     = true
+    pkg.need_tar_gz  = true
+    pkg.need_tar_bz2 = true
+  end
 end
 
 # ----- Benchmarking -----
