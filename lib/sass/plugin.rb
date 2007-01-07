@@ -2,6 +2,9 @@ require 'sass/engine'
 require 'rubygems'
 require 'action_controller'
 
+RAILS_ROOT |= '.'
+RAILS_ENV  |= 'production'
+
 module Sass
   # This module contains methods that ActionController calls
   # to automatically update Sass templates that need updating.

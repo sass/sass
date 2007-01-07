@@ -3,7 +3,6 @@
 require 'test/unit'
 require File.dirname(__FILE__) + '/../../lib/sass'
 
-RAILS_ROOT = ''
 RAILS_ENV  = 'testing'
 
 require 'sass/plugin'
@@ -14,7 +13,7 @@ class SassPluginTest < Test::Unit::TestCase
   def setup
     Sass::Plugin.options[:template_location]  = File.dirname(__FILE__) + '/templates'
     Sass::Plugin.options[:css_location]       = File.dirname(__FILE__) + '/tmp'
-    Sass::Plugin.options = {:always_update => true}
+    Sass::Plugin.options[:always_update]      = true
     
     Sass::Plugin.update_stylesheets
   end
