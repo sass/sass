@@ -141,20 +141,23 @@ unless ARGV[0] == 'benchmark'
 
   temp_desc = <<-END
   Run a profile of haml.
+    ENGINE=str sets the engine to be profiled (Haml or Sass).
     TIMES=n sets the number of runs. Defaults to 100.
     FILE=n sets the file to profile. Defaults to 'standard'.
   END
   desc temp_desc.chomp
   task :profile do
     require 'test/profile'
+
+    engine = ENV['ENGINE'] && ENV['ENGINE'].downcase == 'sass' ? Sass : Haml
     
-    puts '-'*51, "Profiling Haml::Template", '-'*51
+    puts '-'*51, "Profiling #{engine}", '-'*51
     
     args = []
     args.push ENV['TIMES'].to_i if ENV['TIMES']
     args.push ENV['FILE'] if ENV['FILE']
     
-    profiler = Haml::Profiler.new
+    profiler = engine::Profiler.new
     res = profiler.profile(*args)
     puts res
     

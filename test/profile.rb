@@ -7,7 +7,26 @@ require 'profiler'
 require 'stringio'
 
 module Haml
-  # A profiler for haml, mostly for development use. This simply implements
+  # Used by both Haml::Profiler and Sass::Profiler.
+  # Encapsulates profiling behavior.
+  module AbstractProfiler
+    def self.profile(times, &block)
+      # Runs the profiler, collects information
+      Profiler__::start_profile
+      times.times &block
+      Profiler__::stop_profile
+      
+      # Outputs information to a StringIO, returns result
+      io = StringIO.new
+      Profiler__::print_profile(io)
+      io.pos = 0
+      result = io.read
+      io.close
+      result
+    end
+  end
+
+  # A profiler for Haml, mostly for development use. This simply implements
   # the Ruby profiler for profiling haml code.
   class Profiler
   
@@ -28,19 +47,17 @@ module Haml
     # 
     # Returns the results of the profiling as a string.
     def profile(runs = 100, template_name = 'standard')      
-      # Runs the profiler, collects information
-      Profiler__::start_profile
-      runs.times { @base.render template_name }
-      Profiler__::stop_profile
-      
-      # Outputs information to a StringIO, returns result
-      io = StringIO.new
-      Profiler__::print_profile(io)
-      io.pos = 0
-      result = io.read
-      io.close
-      return result
+      AbstractProfiler.profile(runs) { @base.render template_name }
     end
+  end
+end
 
+module Sass
+  class Profiler
+    def profile(runs = 100, template_name = 'complex')
+      Haml::AbstractProfiler.profile(runs) do
+        Sass::Engine.new("#{File.dirname(__FILE__)}/sass/templates/#{template_name}.sass").render
+      end
+    end
   end
 end
