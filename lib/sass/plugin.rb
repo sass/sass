@@ -2,8 +2,8 @@ require 'sass/engine'
 require 'rubygems'
 require 'action_controller'
 
-RAILS_ROOT ||= '.'
-RAILS_ENV  ||= 'production'
+RAILS_ROOT = '. 'unless Kernel.const_defined?('RAILS_ROOT')
+RAILS_ENV  = 'production' unless Kernel.const_defined?('RAILS_ENV')
 
 module Sass
   # This module contains methods that ActionController calls
