@@ -18,34 +18,34 @@ module Haml
     attr :options, true
 
     # Designates an XHTML/XML element.
-    ELEMENT         = '%'[0]
+    ELEMENT         = ?%
 
     # Designates a <tt><div></tt> element with the given class.
-    DIV_CLASS       = '.'[0]
+    DIV_CLASS       = ?.
 
     # Designates a <tt><div></tt> element with the given id.
-    DIV_ID          = '#'[0]
+    DIV_ID          = ?#
 
     # Designates an XHTML/XML comment.
-    COMMENT         = '/'[0]
+    COMMENT         = ?/
 
     # Designates an XHTML doctype.
-    DOCTYPE         = '!'[0]
+    DOCTYPE         = ?!
 
     # Designates script, the result of which is output.
-    SCRIPT          = '='[0]
+    SCRIPT          = ?=
 
     # Designates script, the result of which is flattened and output.
-    FLAT_SCRIPT     = '~'[0]
+    FLAT_SCRIPT     = ?~
 
     # Designates script which is run but not output.
-    SILENT_SCRIPT   = '-'[0]
+    SILENT_SCRIPT   = ?-
 
     # When following SILENT_SCRIPT, designates a comment that is not output.
-    SILENT_COMMENT  = '#'[0]
+    SILENT_COMMENT  = ?#
 
     # Designates a non-parsed line.
-    ESCAPE          = '\\'[0]
+    ESCAPE          = ?\\
 
     # Designates a non-parsed line. Not actually a character.
     PLAIN_TEXT      = -1
@@ -66,11 +66,11 @@ module Haml
 
     # The value of the character that designates that a line is part
     # of a multiline string.
-    MULTILINE_CHAR_VALUE = '|'[0]
+    MULTILINE_CHAR_VALUE = ?|
 
     # Characters that designate that a multiline string may be about
     # to begin.
-    MULTILINE_STARTERS   = SPECIAL_CHARACTERS - ["/"[0]]
+    MULTILINE_STARTERS   = SPECIAL_CHARACTERS - [?/]
 
     # Keywords that appear in the middle of a Ruby block with lowered
     # indentation. If a block has been started using indentation,
