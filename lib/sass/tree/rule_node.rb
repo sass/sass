@@ -10,6 +10,11 @@ module Sass::Tree
       attributes = []
       sub_rules = []
       total_rule = super_rules ? "#{super_rules} #{self.rule}" : self.rule
+      total_rule = if super_rules
+                     self.rule.split(/,\s*/).collect! {|r| "#{super_rules} #{r}"}.join(", ")
+                   else
+                     self.rule
+                   end 
       
       children.each do |child|
         if child.is_a? AttrNode

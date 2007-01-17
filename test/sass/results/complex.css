@@ -8,7 +8,7 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #header .status p { float: left; margin-top: 0; margin-right: 0.5em; margin-bottom: 0; margin-left: 0; }
 #header .status ul { float: left; margin: 0; padding: 0; }
 #header .status li { list-style-type: none; display: inline; margin: 0 5px; }
-#header .status a:link, a:visited { color: #ff8500; text-decoration: none; }
+#header .status a:link, #header .status a:visited { color: #ff8500; text-decoration: none; }
 #header .status a:hover { text-decoration: underline; }
 #header .search { float: right; clear: right; margin: 12px 0 0 0; }
 #header .search form { margin: 0; }
@@ -17,14 +17,14 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #menu { clear: both; text-align: right; height: 20px; border-bottom: 5px solid #006b95; background:: #00a4e4; }
 #menu .contests ul { margin: 0 5px 0 0; padding: 0; }
 #menu .contests ul li { list-style-type: none; margin: 0 5px; padding: 5px 5px 0 5px; display: inline; font-size: 1.1em; color: #fff; background: #00a4e4; }
-#menu .contests a:link, a:visited { color: #fff; text-decoration: none; font-weight: bold; }
+#menu .contests a:link, #menu .contests a:visited { color: #fff; text-decoration: none; font-weight: bold; }
 #menu .contests a:hover { text-decoration: underline; }
 
 #content { clear: both; }
 #content .container { clear: both; }
 #content .container .column { float: left; }
 #content .container .column .right { float: right; }
-#content a:link, a:visited { color: #93d700; text-decoration: none; }
+#content a:link, #content a:visited { color: #93d700; text-decoration: none; }
 #content a:hover { text-decoration: underline; }
 
 #content .container.video .column.left { width: 200px; }
@@ -40,7 +40,7 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 
 #content.contests .container.information .column.right .box { margin: 1em 0; }
 #content.contests .container.information .column.right .box.videos .thumbnail img { width: 200px; height: 150px; margin-bottom: 5px; }
-#content.contests .container.information .column.right .box.videos a:link, a:visited { color: #93d700; text-decoration: none; }
+#content.contests .container.information .column.right .box.videos a:link, #content.contests .container.information .column.right .box.videos a:visited { color: #93d700; text-decoration: none; }
 #content.contests .container.information .column.right .box.videos a:hover { text-decoration: underline; }
 #content.contests .container.information .column.right .box.votes a { display: block; width: 200px; height: 60px; margin: 15px 0; background: url(/images/btn_votenow.gif) no-repeat; text-indent: -9999px; outline: none; border: none; }
 #content.contests .container.information .column.right .box.votes h2 { margin: 52px 0 10px 0; padding: 0.5em; background: #6e000d url(/images/hdr_videostats.gif) 2px 2px no-repeat; text-indent: -9999px; border-top: 5px solid #a20013; }
@@ -49,7 +49,7 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #content.contests .container.video .box.videos table { width: 100; }
 #content.contests .container.video .box.videos table td { padding: 1em; width: 25; vertical-align: top; }
 #content.contests .container.video .box.videos table td p { margin: 0 0 5px 0; }
-#content.contests .container.video .box.videos table td a:link, a:visited { color: #93d700; text-decoration: none; }
+#content.contests .container.video .box.videos table td a:link, #content.contests .container.video .box.videos table td a:visited { color: #93d700; text-decoration: none; }
 #content.contests .container.video .box.videos table td a:hover { text-decoration: underline; }
 #content.contests .container.video .box.videos .thumbnail { float: left; }
 #content.contests .container.video .box.videos .thumbnail img { width: 80px; height: 60px; margin: 0 10px 0 0; border: 1px solid #6e000d; }
@@ -69,7 +69,7 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #footer ul { margin: 0; padding: 0; list-style-type: none; }
 #footer ul li { display: inline; margin: 0 0.5em; color: #440008; }
 #footer ul.links { float: left; }
-#footer ul.links a:link, a:visited { color: #440008; text-decoration: none; }
+#footer ul.links a:link, #footer ul.links a:visited { color: #440008; text-decoration: none; }
 #footer ul.links a:hover { text-decoration: underline; }
 #footer ul.copyright { float: right; }
 
