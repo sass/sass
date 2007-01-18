@@ -27,6 +27,8 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #content a:link, #content a:visited { color: #93d700; text-decoration: none; }
 #content a:hover { text-decoration: underline; }
 
+#content p, #content div { width: 40em; }
+#content p li, #content p dt, #content p dd, #content div li, #content div dt, #content div dd { color: #ddffdd; background-color: #4792bb; }
 #content .container.video .column.left { width: 200px; }
 #content .container.video .column.left .box { margin-top: 10px; }
 #content .container.video .column.left .box p { margin: 0 1em auto 1em; }
