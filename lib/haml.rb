@@ -391,6 +391,59 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     probably make it |
 #     multiline so it doesn't |
 #     look awful. |
+#
+# ==== :
+#
+# The colon character designates a filter.
+# This allows you to pass an indented block of text as input
+# to another filtering program and add the result to the output of Haml.
+# The syntax is simply a colon followed by the name of the filter.
+# For example,
+#
+#   %p
+#     :markdown
+#       Textile
+#       =======
+#
+#       Hello, *World*
+#
+# is compiled to
+#
+#   <p>
+#     <h1>Textile</h1>
+#
+#     <p>Hello, <em>World</em></p>
+#   </p>
+#
+# Haml has the following filters defined:
+#
+# [plain]     Does not parse the filtered text.
+#
+# [ruby]      Parses the filtered text with the normal Ruby interpreter.
+#             All output sent to <tt>$stdout</tt>, like with +puts+,
+#             is output into the Haml document.
+#             Not available if the <tt>suppress_eval</tt> option is set to true.
+#
+# [erb]       Parses the filtered text with ERB, like an RHTML template.
+#             Not available if the <tt>suppress_eval</tt> option is set to true.
+#             At the moment, this doesn't support access to variables
+#             defined by Ruby on Rails or Haml code.
+#
+# [sass]      Parses the filtered text with Sass to produce CSS output.
+#
+# [redcloth]  Parses the filtered text with RedCloth (http://whytheluckystiff.net/ruby/redcloth),
+#             which uses both Textile and Markdown syntax.
+#             Only works if RedCloth is installed.
+#
+# [textile]   Parses the filtered text with Textile (http://www.textism.com/tools/textile).
+#             Only works if RedCloth is installed.
+#
+# [markdown]  Parses the filtered text with Markdown (http://daringfireball.net/projects/markdown).
+#             Only works if RedCloth or BlueCloth (http://www.deveiate.org/projects/BlueCloth)
+#             is installed
+#             (BlueCloth takes precedence if both are installed).
+#
+# You can also define your own filters (see Setting Options, below).
 # 
 # === Ruby evaluators
 # 
@@ -615,6 +668,18 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           of this type within the attributes will be escaped
 #                           (e.g. by replacing them with <tt>&apos;</tt>) if
 #                           the character is an apostrophe or a quotation mark.
+#
+# [<tt>:filters</tt>]       A hash of filters that can be applied to Haml code.
+#                           The keys are the string names of the filters;
+#                           the values are references to the classes of the filters.
+#                           User-defined filters should always have lowercase keys,
+#                           and should have:
+#                           * An +initialize+ method that accepts one parameter,
+#                             the text to be filtered.
+#                           * A +render+ method that returns the result of the filtering.
+#                           * An optional <tt>haml_scope_object=</tt> method
+#                             that takes a reference to the object
+#                             that Ruby code in Haml is evaluated within.
 # 
 # [<tt>:locals</tt>]        The local variables that will be available within the
 #                           template. For instance, if <tt>:locals</tt> is

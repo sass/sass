@@ -1,5 +1,6 @@
 require 'haml/helpers'
 require 'haml/buffer'
+require 'haml/filters'
 
 module Haml
   # This is the class where all the parsing and processing of the Haml
@@ -47,6 +48,9 @@ module Haml
     # Designates a non-parsed line.
     ESCAPE          = ?\\
 
+    # Designates a block of filtered text.
+    FILTER          = ?:
+
     # Designates a non-parsed line. Not actually a character.
     PLAIN_TEXT      = -1
 
@@ -61,7 +65,8 @@ module Haml
       SCRIPT,
       FLAT_SCRIPT,
       SILENT_SCRIPT,
-      ESCAPE
+      ESCAPE,
+      FILTER
     ]
 
     # The value of the character that designates that a line is part
@@ -99,8 +104,32 @@ module Haml
       @options = {
         :suppress_eval => false,
         :attr_wrapper => "'",
-        :locals => {}
-      }.merge options
+        :locals => {},
+        :filters => {
+          'sass' => Sass::Engine,
+          'plain' => Haml::Filters::Plain
+        }
+      }
+
+      unless @options[:suppress_eval]
+        @options[:filters].merge!({
+          'erb' => ERB,
+          'ruby' => Haml::Filters::Ruby
+        })
+      end
+
+      if !NOT_LOADED.include? 'redcloth'
+        @options[:filters].merge!({
+          'redcloth' => RedCloth,
+          'textile' => Haml::Filters::Textile,
+          'markdown' => Haml::Filters::Markdown
+        })
+      elsif !NOT_LOADED.include? 'bluecloth'
+        @options[:filters]['markdown'] = Haml::Filters::Markdown
+      end
+
+      @options.merge! options
+
       @precompiled = @options[:precompiled]
 
       @template = template.strip #String
@@ -155,7 +184,7 @@ module Haml
       old_tabs = nil
       (@template + "\n-#").each_with_index do |line, index|
         spaces, tabs = count_soft_tabs(line)
-        line = line.strip
+        line.strip!
         
         if !line.empty?
           if old_line
@@ -181,9 +210,13 @@ module Haml
           old_spaces = spaces
           old_tabs = tabs
         elsif @flat_spaces != -1
-          push_flat(old_line, old_spaces)
-          old_line = ''
-          old_spaces = 0
+          process_indent(old_tabs, old_line) unless old_line.empty?
+
+          if @flat_spaces != -1
+            push_flat(old_line, old_spaces)
+            old_line = ''
+            old_spaces = 0
+          end
         end
       end
 
@@ -231,6 +264,9 @@ module Haml
             push_and_tabulate([:script])
           end
         end
+      when FILTER
+        name = line[1..-1].downcase
+        start_filtered(options[:filters][name] || name)
       when DOCTYPE
         if line[0...3] == '!!!'
           render_doctype(line)
@@ -358,7 +394,12 @@ module Haml
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
     def push_flat(text, spaces)
       tabulation = spaces - @flat_spaces
-      @precompiled << "_hamlout.push_text(#{text.dump}, #{tabulation > -1 ? tabulation : 0}, true)\n"
+      tabulation = tabulation > -1 ? tabulation : 0
+      if @filter_buffer
+        @filter_buffer << "#{' ' * tabulation}#{text}\n"
+      else
+        @precompiled << "_hamlout.push_text(#{text.dump}, #{tabulation}, true)\n"
+      end
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
@@ -402,6 +443,8 @@ module Haml
         close_flat value
       when :loud
         close_loud value
+      when :filtered
+        close_filtered value
       end
     end
 
@@ -441,6 +484,23 @@ module Haml
     def close_loud(command)
       push_silent "end"
       @precompiled << command
+      @template_tabs -= 1
+    end
+
+    # Closes a filtered block.
+    def close_filtered(filter)
+      @flat_spaces = -1
+      if filter.is_a? String
+        if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
+          push_text("You must have the RedCloth gem installed to use #{filter}")
+        else
+          push_text("Filter \"#{filter}\" is not defined!")
+        end
+      else
+        push_text(filter.new(@filter_buffer).render.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
+      end
+
+      @filter_buffer = nil
       @template_tabs -= 1
     end
 
@@ -539,6 +599,13 @@ module Haml
         push_and_tabulate([:flat])
       end
       @flat_spaces = @template_tabs * 2
+    end
+
+    # Starts a filtered block.
+    def start_filtered(filter)
+      push_and_tabulate([:filtered, filter])
+      @flat_spaces = @template_tabs * 2
+      @filter_buffer = String.new
     end
 
     # Counts the tabulation of a line.

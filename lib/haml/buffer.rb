@@ -203,22 +203,25 @@ module Haml
   end
 end
 
-class String # :nodoc
-  alias_method :old_comp, :<=>
-  def <=>(other)
-    if other.is_a? NilClass
-      -1
-    else
-      old_comp(other)
+unless String.methods.include? 'old_comp'
+  class String # :nodoc
+    alias_method :old_comp, :<=>
+    
+    def <=>(other)
+      if other.is_a? NilClass
+        -1
+      else
+        old_comp(other)
+      end
     end
   end
-end
-
-class NilClass # :nodoc:
-  include Comparable
-  
-  def <=>(other)
-    other.nil? ? 0 : 1
+    
+  class NilClass # :nodoc:
+    include Comparable
+    
+    def <=>(other)
+      other.nil? ? 0 : 1
+    end
   end
 end
 
