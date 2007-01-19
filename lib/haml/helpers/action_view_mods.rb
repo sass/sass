@@ -1,6 +1,7 @@
 begin
   require 'rubygems'
   require 'active_support'
+  require 'action_controller'
   require 'action_view'
   action_view_included = true
 rescue LoadError

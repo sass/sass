@@ -93,7 +93,7 @@ class HelperTest < Test::Unit::TestCase
     # two behaviors.
     
     result = render("- form_tag 'foo' do\n  %p bar\n  %strong baz", :action_view)
-    new_rails = "<form action=\"foo\" method=\"post\">\n  <p>foo</p>\n</form>\n"
+    new_rails = "<form action=\"foo\" method=\"post\">\n  <p>bar</p>\n  <strong>baz</strong>\n</form>"
     old_rails = "" 
     assert(result == new_rails || result == old_rails)
   end
