@@ -145,7 +145,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   <div id='things'>
 #     <span id='rice'>Chicken Fried</span>
 #     <p class='beans' food='true'>The magical fruit</p>
-#     <h1 class='class' id='id'>La La La</h1>
+#     <h1 class='class otherclass' id='id'>La La La</h1>
 #   </div>
 # 
 # And,
