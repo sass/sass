@@ -171,7 +171,7 @@ by chaining the class names together with periods.
 They are placed immediately after the tag and before an attributes hash.
 For example:
 
-  div#things
+  %div#things
     %span#rice Chicken Fried
     %p.beans{ :food => 'true' } The magical fruit
     %h1.class.otherclass#id La La La
@@ -181,7 +181,7 @@ is compiled to:
   <div id='things'>
     <span id='rice'>Chicken Fried</span>
     <p class='beans' food='true'>The magical fruit</p>
-    <h1 class='class' id='id'>La La La</h1>
+    <h1 class='class otherclass' id='id'>La La La</h1>
   </div>
 
 And,
