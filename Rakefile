@@ -73,7 +73,7 @@ unless ARGV[0] == 'benchmark'
       list.exclude('TODO')
     end.to_a
     spec.executables = ['haml', 'sass']
-    spec.files = FileList['lib/**/*', 'bin/*', 'test/**/*', 'Rakefile'].to_a + readmes
+    spec.files = FileList['lib/**/*', 'bin/*', 'test/**/*', 'Rakefile', 'init.rb'].to_a + readmes
     spec.homepage = 'http://haml.hamptoncatlin.com/'
     spec.has_rdoc = true
     spec.extra_rdoc_files = readmes
