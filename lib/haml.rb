@@ -677,9 +677,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           * An +initialize+ method that accepts one parameter,
 #                             the text to be filtered.
 #                           * A +render+ method that returns the result of the filtering.
-#                           * An optional <tt>haml_scope_object=</tt> method
-#                             that takes a reference to the object
-#                             that Ruby code in Haml is evaluated within.
 # 
 # [<tt>:locals</tt>]        The local variables that will be available within the
 #                           template. For instance, if <tt>:locals</tt> is
