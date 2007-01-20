@@ -135,7 +135,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # They are placed immediately after the tag and before an attributes hash.
 # For example:
 # 
-#   div#things
+#   %div#things
 #     %span#rice Chicken Fried
 #     %p.beans{ :food => 'true' } The magical fruit
 #     %h1.class.otherclass#id La La La
