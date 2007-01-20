@@ -118,7 +118,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # For example:
 # 
 #   %br/
-#   %meta{:http-equiv => 'Content-Type', :content => 'text/html'}/
+#   %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}/
 # 
 # is compiled to:
 # 
