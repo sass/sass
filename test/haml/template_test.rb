@@ -9,6 +9,16 @@ require File.dirname(__FILE__) + '/../../lib/haml'
 require 'haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
 
+class TestFilter
+  def initialize(text)
+    @text = text
+  end
+
+  def render
+    "TESTING HAHAHAHA!"
+  end
+end
+
 class TemplateTest < Test::Unit::TestCase
   @@templates = %w{       very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
@@ -17,6 +27,7 @@ class TemplateTest < Test::Unit::TestCase
 
   def setup
     ActionView::Base.register_template_handler("haml", Haml::Template)
+    Haml::Template.options = { :filters => { 'test'=>TestFilter } }
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/", {'article' => Article.new, 'foo' => 'value one'})
   end
 
