@@ -128,7 +128,7 @@ module Haml
         @options[:filters]['markdown'] = Haml::Filters::Markdown
       end
 
-      @options.merge! options
+      @options.rec_merge! options
 
       @precompiled = @options[:precompiled]
 
@@ -620,5 +620,25 @@ module Haml
       @to_close_stack.push(value)
       @template_tabs += 1
     end
+  end
+end
+
+class Hash # :nodoc
+  # Same as Hash#merge!, but recursively merges sub-hashes.
+  def rec_merge!(other)
+    other.each do |key, value|
+      myval = self[key]
+      if value.is_a?(Hash) && myval.is_a?(Hash)
+        myval.rec_merge!(value)
+      else
+        self[key] = value
+      end
+    end
+    self
+  end
+
+  def rec_merge(other)
+    toret = self.clone
+    toret.rec_merge! other
   end
 end
