@@ -93,6 +93,11 @@ class TemplateTest < Test::Unit::TestCase
   def test_rhtml_still_renders
     res = @base.render("../rhtml/standard")
     assert !(res.nil? || res.empty?)
+    class << @base
+      include Haml::Helpers
+    end
+    res = @base.render("../rhtml/standard")
+    assert !(res.nil? || res.empty?)
   end
 
   def test_haml_options
