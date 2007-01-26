@@ -32,7 +32,7 @@ if action_view_included
         end
         
         def concat(string, binding = nil) # :nodoc:
-          if @haml_stack
+          if is_haml?
             buffer.buffer.concat(string)
           else
             old_concat(string, binding)
@@ -40,7 +40,7 @@ if action_view_included
         end
         
         def form_tag(url_for_options = {}, options = {}, *parameters_for_url, &proc) # :nodoc:
-          if block_given? && @haml_stack
+          if block_given? && is_haml?
             oldproc = proc 
             proc = bind_proc do |*args|
               concat "\n"
