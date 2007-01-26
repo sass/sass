@@ -214,7 +214,22 @@ module Haml
       end
       result.to_s
     end
+
+    # Returns whether or not the current template is a Haml template.
+    # 
+    # This function, unlike other Haml::Helpers functions,
+    # also works in other ActionView templates,
+    # where it will always return false.
+    def is_haml?
+      @haml_stack ? @haml_stack.size > 0 : false
+    end
     
     include ActionViewMods if self.const_defined?  "ActionViewMods"
+  end
+end
+
+class ActionView::Base # :nodoc:
+  def is_haml?
+    false
   end
 end

@@ -80,6 +80,14 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_rhtml_still_renders
+    # Make sure it renders normally
+    res = @base.render("../rhtml/standard")
+    assert !(res.nil? || res.empty?)
+
+    # Register Haml stuff in @base...
+    @base.render("standard") 
+
+    # Does it still render?
     res = @base.render("../rhtml/standard")
     assert !(res.nil? || res.empty?)
   end
