@@ -27,8 +27,16 @@ module Haml
     def add_backtrace_entry(lineno, filename = nil) # :nodoc:
       @haml_line = lineno
       @haml_filename = filename
-      backtrace.unshift "#{filename || '(haml)'}:#{lineno}"
+      self.backtrace ||= []
+      self.backtrace.unshift "#{filename || '(haml)'}:#{lineno}"
     end
+  end
+
+  # SyntaxError is the type of exception thrown when Haml encounters an
+  # ill-formatted document.
+  # It's not particularly interesting, except in that it includes Haml::Error.
+  class SyntaxError < StandardError
+    include Haml::Error
   end
 
   # This is the class where all the parsing and processing of the Haml
@@ -169,9 +177,13 @@ module Haml
       # flattened block. -1 signifies that there is no such block.
       @flat_spaces = -1
 
-      # Only do the first round of pre-compiling if we really need to.
-      # They might be passing in the precompiled string.
-      do_precompile if @precompiled.nil? && (@precompiled = String.new)
+      begin
+        # Only do the first round of pre-compiling if we really need to.
+        # They might be passing in the precompiled string.
+        do_precompile if @precompiled.nil? && (@precompiled = String.new)
+      rescue Haml::SyntaxError => e
+        e.add_backtrace_entry(@index, @options[:filename])
+      end
     end
 
     # Processes the template and returns the result as a string.
@@ -302,9 +314,17 @@ module Haml
           push_text line
         end
       when ESCAPE
-        push_text line[1..-1]
+        if block_opened
+          raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.")
+        else
+          push_text line[1..-1]
+        end
       else
-        push_text line
+        if block_opened
+          raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.")
+        else
+          push_text line
+        end
       end
     end
     
@@ -375,20 +395,11 @@ module Haml
           include Haml::Error
         end
 
+        lineno = @scope_object.haml_lineno
+
         # Get information from the exception and format it so that
         # Rails can understand it.
         compile_error = e.message.scan(/\(eval\):([0-9]*):in `[-_a-zA-Z]*': compile error/)[0]
-        filename = nil
-        if @scope_object.respond_to? :haml_filename
-          # For some reason that I can't figure out,
-          # @scope_object.methods.include? "haml_filename" && @scope_object.haml_filename
-          # is false when it shouldn't be. Nested if statements work, though.
-
-          if @scope_object.haml_filename
-            filename = "#{@scope_object.haml_filename}.haml"
-          end
-        end
-        lineno = @scope_object.haml_lineno
 
         if compile_error
           eval_line = compile_error[0].to_i
@@ -396,7 +407,7 @@ module Haml
           lineno = line_marker.scan(/[0-9]+/)[0].to_i if line_marker
         end
 
-        e.add_backtrace_entry(lineno, filename)
+        e.add_backtrace_entry(lineno, @options[:filename])
         raise e
       end
 

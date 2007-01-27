@@ -58,12 +58,15 @@ module Haml
 
       if @view.haml_inline
         engine = Haml::Engine.new(template, options)
-      elsif @precompiled = get_precompiled(template)
-        options[:precompiled] ||= @precompiled
-        engine = Haml::Engine.new("", options)
       else
-        engine = Haml::Engine.new(File.read(template), options)
-        set_precompiled(template, engine.precompiled)
+        options[:filename] ||= template
+        if @precompiled = get_precompiled(template)
+          options[:precompiled] ||= @precompiled
+          engine = Haml::Engine.new("", options)
+        else
+          engine = Haml::Engine.new(File.read(template), options)
+          set_precompiled(template, engine.precompiled)
+        end
       end
 
       yield_proc = @view.instance_eval do
@@ -101,14 +104,7 @@ end
 # here[http://rubyonrails.org/api/classes/ActionView/Base.html].
 module ActionView
   class Base # :nodoc:
-    attr :haml_filename, true
     attr :haml_inline
-
-    alias_method :haml_old_render_file, :render_file
-    def render_file(template_path, use_full_path = true, local_assigns = {})
-      @haml_filename = File.basename(template_path)
-      haml_old_render_file(template_path, use_full_path, local_assigns)
-    end
 
     alias_method :read_template_file_old, :read_template_file
     def read_template_file(template_path, extension)

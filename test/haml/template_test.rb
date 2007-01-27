@@ -111,28 +111,16 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_exceptions_should_work_correctly
-    template = <<END
-%p
-  %h1 Hello!
-  = "lots of lines"
-  - raise "Oh no!"
-  %p
-    this is after the exception
-    %strong yes it is!
-ho ho ho.
-END
-    @base.haml_filename = "(test)"
     begin
-      render(template.chomp)
+      Haml::Template.new(@base).render(File.dirname(__FILE__) + '/templates/breakage.haml')
     rescue Exception => e
-      assert_equal("(test).haml:4", e.backtrace[0])
+      assert_equal("./test/haml/templates/breakage.haml:4", e.backtrace[0])
     end
 
-    @base.haml_filename = nil
     begin
-      render(template.chomp)
+      render("- raise 'oops!'")
     rescue Exception => e
-      assert_equal("(haml):4", e.backtrace[0])
+      assert_equal("(haml):1", e.backtrace[0])
     end
 
     template = <<END
@@ -140,7 +128,7 @@ END
   %h1 Hello!
   = "lots of lines"
   = "even more!"
-  - compile_error(
+  - raise 'oh no!'
   %p
     this is after the exception
     %strong yes it is!
