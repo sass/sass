@@ -103,4 +103,18 @@ class EngineTest < Test::Unit::TestCase
     hash1.rec_merge!(hash2)
     assert_equal(hash3, hash1)
   end
+
+  def test_exception_type
+    begin
+      render("%p hi\n= undefined")
+    rescue Exception => e
+      assert(e.is_a?(Haml::Error))
+      assert_equal(2, e.haml_line)
+      assert_equal(nil, e.haml_filename)
+      assert_equal('(haml):2', e.backtrace[0])
+    else
+      # Test failed... should have raised an exception
+      assert(false)
+    end
+  end
 end

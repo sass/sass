@@ -3,6 +3,34 @@ require 'haml/buffer'
 require 'haml/filters'
 
 module Haml
+  # The abstract type of exception raised by Haml code.
+  # Haml::SyntaxError includes this module,
+  # as do all exceptions raised by Ruby code within Haml.
+  #
+  # Haml::Error encapsulates information about the exception,
+  # such as the line of the Haml template it was raised on
+  # and the Haml file that was being parsed (if applicable).
+  # It also provides a handy way to rescue only exceptions raised
+  # because of a faulty template.
+  module Error
+    # The line of the Haml template on which the exception was thrown.
+    attr_reader :haml_line
+
+    # The name of the file that was being parsed when the exception was raised.
+    # This will be nil unless Haml is being used as an ActionView plugin.
+    attr_reader :haml_filename
+
+    # Adds a properly formatted entry to the exception's backtrace.
+    # +lineno+ should be the line on which the error occurred.
+    # +filename+ should be the file in which the error occurred,
+    # if applicable (defaults to "(haml)").
+    def add_backtrace_entry(lineno, filename = nil) # :nodoc:
+      @haml_line = lineno
+      @haml_filename = filename
+      backtrace.unshift "#{filename || '(haml)'}:#{lineno}"
+    end
+  end
+
   # This is the class where all the parsing and processing of the Haml
   # template is done. It can be directly used by the user by creating a
   # new instance and calling <tt>to_html</tt> to render the template. For example:
@@ -343,11 +371,15 @@ module Haml
         @scope_object.instance_eval @precompiled
         @scope_object._haml_render &block
       rescue Exception => e
+        class << e
+          include Haml::Error
+        end
+
         # Get information from the exception and format it so that
         # Rails can understand it.
         compile_error = e.message.scan(/\(eval\):([0-9]*):in `[-_a-zA-Z]*': compile error/)[0]
-        filename = "(haml)"
-        if @scope_object.methods.include? "haml_filename"
+        filename = nil
+        if @scope_object.respond_to? :haml_filename
           # For some reason that I can't figure out,
           # @scope_object.methods.include? "haml_filename" && @scope_object.haml_filename
           # is false when it shouldn't be. Nested if statements work, though.
@@ -364,7 +396,7 @@ module Haml
           lineno = line_marker.scan(/[0-9]+/)[0].to_i if line_marker
         end
 
-        e.backtrace.unshift "#{filename}:#{lineno}"
+        e.add_backtrace_entry(lineno, filename)
         raise e
       end
 
