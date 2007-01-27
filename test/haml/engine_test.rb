@@ -117,4 +117,33 @@ class EngineTest < Test::Unit::TestCase
       assert(false)
     end
   end
+
+  def test_syntax_errors
+    errs = [ "!!!\n  a", "a\n  b", "a\n:foo\nb", "/ a\n  b",
+      "% a", "%p a\n  b", "a\n%p=\nb", "%p=\n  a",
+      "a\n%p~\nb", "a\n~\nb", "%p/\n  a"
+    ]
+    errs.each do |err|
+      begin
+        render(err)
+      rescue Exception => e
+        assert(e.is_a?(Haml::SyntaxError),
+               "#{err.dump} doesn't produce Haml::SyntaxError!")
+      else
+        assert(false,
+               "#{err.dump} doesn't produce an exception!")
+      end
+    end
+  end
+
+  def test_compile_error
+    begin
+      render("a\nb\n- fee do\nc")
+    rescue Exception => e
+      assert_equal(3, e.haml_line)
+    else
+      assert(false,
+             '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
+    end
+  end
 end

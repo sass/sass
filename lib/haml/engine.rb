@@ -1,44 +1,9 @@
 require 'haml/helpers'
 require 'haml/buffer'
 require 'haml/filters'
+require 'haml/error'
 
 module Haml
-  # The abstract type of exception raised by Haml code.
-  # Haml::SyntaxError includes this module,
-  # as do all exceptions raised by Ruby code within Haml.
-  #
-  # Haml::Error encapsulates information about the exception,
-  # such as the line of the Haml template it was raised on
-  # and the Haml file that was being parsed (if applicable).
-  # It also provides a handy way to rescue only exceptions raised
-  # because of a faulty template.
-  module Error
-    # The line of the Haml template on which the exception was thrown.
-    attr_reader :haml_line
-
-    # The name of the file that was being parsed when the exception was raised.
-    # This will be nil unless Haml is being used as an ActionView plugin.
-    attr_reader :haml_filename
-
-    # Adds a properly formatted entry to the exception's backtrace.
-    # +lineno+ should be the line on which the error occurred.
-    # +filename+ should be the file in which the error occurred,
-    # if applicable (defaults to "(haml)").
-    def add_backtrace_entry(lineno, filename = nil) # :nodoc:
-      @haml_line = lineno
-      @haml_filename = filename
-      self.backtrace ||= []
-      self.backtrace.unshift "#{filename || '(haml)'}:#{lineno}"
-    end
-  end
-
-  # SyntaxError is the type of exception thrown when Haml encounters an
-  # ill-formatted document.
-  # It's not particularly interesting, except in that it includes Haml::Error.
-  class SyntaxError < StandardError
-    include Haml::Error
-  end
-
   # This is the class where all the parsing and processing of the Haml
   # template is done. It can be directly used by the user by creating a
   # new instance and calling <tt>to_html</tt> to render the template. For example:
@@ -316,20 +281,12 @@ module Haml
         if line[0...3] == '!!!'
           render_doctype(line)
         else
-          push_text line
+          push_plain line
         end
       when ESCAPE
-        if @block_opened
-          raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.")
-        else
-          push_text line[1..-1]
-        end
+        push_plain line[1..-1]
       else
-        if @block_opened
-          raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.")
-        else
-          push_text line
-        end
+        push_plain line
       end
     end
     
@@ -439,6 +396,15 @@ module Haml
       @precompiled << "_hamlout.push_text(#{text.dump}, #{@output_tabs})\n"
     end
 
+    # Renders a block of text as plain text.
+    # Also checks for an illegally opened block.
+    def push_plain(text)
+      if @block_opened
+        raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.")
+      end
+      push_text text
+    end
+
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
     def push_flat(text, spaces)
       tabulation = spaces - @flat_spaces
@@ -473,6 +439,9 @@ module Haml
       unless text.empty?
         push_script(text, true)
       else
+        unless @block_opened
+          raise SyntaxError.new('Filters must have nested text.')
+        end
         start_flat(false)
       end
     end
@@ -555,7 +524,9 @@ module Haml
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
+      matched = false
       line.scan(/[%]([-:_a-zA-Z0-9]+)([-_a-zA-Z0-9\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/) do |tag_name, attributes, attributes_hash, object_ref, action, value|
+        matched = true
         value = value.to_s
 
         case action
@@ -571,6 +542,16 @@ module Haml
         value_exists = !value.empty?
         attributes_hash = "nil" unless attributes_hash
         object_ref = "nil" unless object_ref
+
+        if @block_opened 
+          if atomic
+            raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.")
+          elsif action == '=' || value_exists
+            raise SyntaxError.new("Illegal Nesting: Nesting within a tag that already has content is illegal.")
+          end
+        elsif parse && !value_exists
+          raise SyntaxError.new("No tag content to parse.")
+        end
 
         push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref}, #{flattened.inspect})", true
 
@@ -590,6 +571,10 @@ module Haml
           end
         end
       end
+
+      unless matched
+        raise SyntaxError.new("Invalid tag: \"#{line}\"")
+      end
     end
 
     # Renders a line that creates an XHTML tag and has an implicit div because of
@@ -601,7 +586,12 @@ module Haml
     # Renders an XHTML comment.
     def render_comment(line)
       conditional, content = line.scan(/\/(\[[a-zA-Z0-9 \.]*\])?(.*)/)[0]
-      content = content.strip
+      content.strip!
+
+      if @block_opened && !content.empty?
+        raise SyntaxError.new('Illegal Nesting: Nesting within a tag that already has content is illegal.')
+      end
+
       try_one_line = !content.empty?
       push_silent "_hamlout.open_comment(#{try_one_line}, #{conditional.inspect}, #{@output_tabs})"
       @output_tabs += 1
@@ -614,6 +604,9 @@ module Haml
     
     # Renders an XHTML doctype or XML shebang.
     def render_doctype(line)
+      if @block_opened
+        raise SyntaxError.new("Illegal Nesting: Nesting within a header command is illegal.")
+      end
       line = line[3..-1].lstrip.downcase
       if line[0...3] == "xml"
         encoding = line.split[1] || "utf-8"
@@ -651,6 +644,9 @@ module Haml
 
     # Starts a filtered block.
     def start_filtered(filter)
+      unless @block_opened
+        raise SyntaxError.new('Filters must have nested text.')
+      end
       push_and_tabulate([:filtered, filter])
       @flat_spaces = @template_tabs * 2
       @filter_buffer = String.new
@@ -659,7 +655,7 @@ module Haml
     # Counts the tabulation of a line.
     def count_soft_tabs(line)
       spaces = line.index(/[^ ]/)
-      spaces ? [spaces, spaces/2] : []
+      [spaces, spaces/2]
     end
     
     # Pushes value onto <tt>@to_close_stack</tt> and increases

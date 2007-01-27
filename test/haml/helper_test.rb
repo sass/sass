@@ -102,5 +102,9 @@ class HelperTest < Test::Unit::TestCase
   def test_capture_haml
     assert_equal("\"<p>13</p>\\n\"\n", render("- foo = capture_haml(13) do |a|\n  %p= a\n= foo.dump"))
   end
+
+  def test_is_haml
+    assert(!ActionView::Base.new.is_haml?)
+  end
 end
 
