@@ -288,6 +288,8 @@ module Haml
     # adds the appropriate code to <tt>@precompiled</tt>.
     def process_line(line, index, block_opened)
       @index = index + 1
+      @block_opened = block_opened
+
       case line[0]
       when DIV_CLASS, DIV_ID
         render_div(line)
@@ -296,14 +298,14 @@ module Haml
       when COMMENT
         render_comment(line)
       when SCRIPT
-        push_script(line[1..-1], false, block_opened)
+        push_script(line[1..-1], false)
       when FLAT_SCRIPT
-        push_flat_script(line[1..-1], block_opened)
+        push_flat_script(line[1..-1])
       when SILENT_SCRIPT
         sub_line = line[1..-1]
         unless sub_line[0] == SILENT_COMMENT
           push_silent(sub_line, true)
-          if block_opened && !mid_block_keyword?(line)
+          if @block_opened && !mid_block_keyword?(line)
             push_and_tabulate([:script])
           end
         end
@@ -317,13 +319,13 @@ module Haml
           push_text line
         end
       when ESCAPE
-        if block_opened
+        if @block_opened
           raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.")
         else
           push_text line[1..-1]
         end
       else
-        if block_opened
+        if @block_opened
           raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.")
         else
           push_text line
@@ -453,11 +455,11 @@ module Haml
     #
     # If <tt>flattened</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
-    def push_script(text, flattened, block_opened)
+    def push_script(text, flattened)
       unless options[:suppress_eval]
         push_silent("haml_temp = #{text}", true)
         out = "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened})\n"
-        if block_opened
+        if @block_opened
           push_and_tabulate([:loud, out])
         else
           @precompiled << out
@@ -467,9 +469,9 @@ module Haml
     
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
-    def push_flat_script(text, block_opened)
+    def push_flat_script(text)
       unless text.empty?
-        push_script(text, true, block_opened)
+        push_script(text, true)
       else
         start_flat(false)
       end
@@ -578,7 +580,7 @@ module Haml
 
           if value_exists
             if parse
-              push_script(value, flattened, false)
+              push_script(value, flattened)
             else
               push_text(value)
             end
