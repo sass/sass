@@ -3,6 +3,7 @@ Testing:
 
 Documentation:
   ! Document Sass module
+  Haml::Engine public method info could use work
 
 Features:
   Exceptions thrown by Sass code should have their own class
