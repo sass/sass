@@ -201,13 +201,23 @@ module Haml
             
             if !suppress_render
               line_empty = old_line.empty?
+
               process_indent(old_tabs, old_line) unless line_empty
               flat = @flat_spaces != -1
+
+
+              if !flat && old_spaces != old_tabs * 2
+                raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
+              end
 
               if flat
                 push_flat(old_line, old_spaces)
               elsif !line_empty
                 process_line(old_line, old_index, block_opened)
+              end
+
+              if @flat_spaces == -1 && tabs - old_tabs > 1
+                raise SyntaxError.new("Illegal Indentation: Indenting more than once per line is illegal.")
               end
             end
           end
@@ -655,6 +665,9 @@ module Haml
     # Counts the tabulation of a line.
     def count_soft_tabs(line)
       spaces = line.index(/[^ ]/)
+      if line[spaces] == ?\t
+        raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
+      end
       [spaces, spaces/2]
     end
     
