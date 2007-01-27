@@ -172,6 +172,7 @@ module Haml
       @to_close_stack = []
       @output_tabs = 0
       @template_tabs = 0
+      @index = 0
 
       # This is the base tabulation of the currently active
       # flattened block. -1 signifies that there is no such block.
@@ -183,6 +184,7 @@ module Haml
         do_precompile if @precompiled.nil? && (@precompiled = String.new)
       rescue Haml::SyntaxError => e
         e.add_backtrace_entry(@index, @options[:filename])
+        raise e
       end
     end
 
@@ -285,21 +287,22 @@ module Haml
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.
     def process_line(line, index, block_opened)
+      @index = index + 1
       case line[0]
       when DIV_CLASS, DIV_ID
-        render_div(line, index)
+        render_div(line)
       when ELEMENT
-        render_tag(line, index)
+        render_tag(line)
       when COMMENT
         render_comment(line)
       when SCRIPT
-        push_script(line[1..-1], false, block_opened, index)
+        push_script(line[1..-1], false, block_opened)
       when FLAT_SCRIPT
-        push_flat_script(line[1..-1], block_opened, index)
+        push_flat_script(line[1..-1], block_opened)
       when SILENT_SCRIPT
         sub_line = line[1..-1]
         unless sub_line[0] == SILENT_COMMENT
-          push_silent(sub_line, index)
+          push_silent(sub_line, true)
           if block_opened && !mid_block_keyword?(line)
             push_and_tabulate([:script])
           end
@@ -419,9 +422,9 @@ module Haml
 
     # Evaluates <tt>text</tt> in the context of <tt>@scope_object</tt>, but
     # does not output the result.
-    def push_silent(text, index = nil)
-      if index
-        @precompiled << "@haml_lineno = #{index + 1}\n#{text}\n"
+    def push_silent(text, add_index = false)
+      if add_index
+        @precompiled << "@haml_lineno = #{@index}\n#{text}\n"
       else
         # Not really DRY, but probably faster
         @precompiled << "#{text}\n"
@@ -450,9 +453,9 @@ module Haml
     #
     # If <tt>flattened</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
-    def push_script(text, flattened, block_opened, index)
+    def push_script(text, flattened, block_opened)
       unless options[:suppress_eval]
-        push_silent("haml_temp = #{text}", index)
+        push_silent("haml_temp = #{text}", true)
         out = "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened})\n"
         if block_opened
           push_and_tabulate([:loud, out])
@@ -464,9 +467,9 @@ module Haml
     
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
-    def push_flat_script(text, block_opened, index)
+    def push_flat_script(text, block_opened)
       unless text.empty?
-        push_script(text, true, block_opened, index)
+        push_script(text, true, block_opened)
       else
         start_flat(false)
       end
@@ -525,7 +528,7 @@ module Haml
     
     # Closes a loud Ruby block.
     def close_loud(command)
-      push_silent "end"
+      push_silent 'end'
       @precompiled << command
       @template_tabs -= 1
     end
@@ -549,7 +552,7 @@ module Haml
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
-    def render_tag(line, index)
+    def render_tag(line)
       line.scan(/[%]([-:_a-zA-Z0-9]+)([-_a-zA-Z0-9\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/) do |tag_name, attributes, attributes_hash, object_ref, action, value|
         value = value.to_s
 
@@ -567,7 +570,7 @@ module Haml
         attributes_hash = "nil" unless attributes_hash
         object_ref = "nil" unless object_ref
 
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref}, #{flattened.inspect})"
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref}, #{flattened.inspect})", true
 
         unless atomic
           push_and_tabulate([:element, tag_name])
@@ -575,7 +578,7 @@ module Haml
 
           if value_exists
             if parse
-              push_script(value, flattened, false, index)
+              push_script(value, flattened, false)
             else
               push_text(value)
             end
@@ -589,8 +592,8 @@ module Haml
 
     # Renders a line that creates an XHTML tag and has an implicit div because of
     # <tt>.</tt> or <tt>#</tt>.
-    def render_div(line, index)
-      render_tag('%div' + line, index)
+    def render_div(line)
+      render_tag('%div' + line)
     end
 
     # Renders an XHTML comment.

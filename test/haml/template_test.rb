@@ -115,12 +115,16 @@ class TemplateTest < Test::Unit::TestCase
       Haml::Template.new(@base).render(File.dirname(__FILE__) + '/templates/breakage.haml')
     rescue Exception => e
       assert_equal("./test/haml/templates/breakage.haml:4", e.backtrace[0])
+    else
+      assert false
     end
 
     begin
       render("- raise 'oops!'")
     rescue Exception => e
       assert_equal("(haml):1", e.backtrace[0])
+    else
+      assert false
     end
 
     template = <<END
@@ -139,6 +143,8 @@ END
       render(template.chomp)
     rescue Exception => e
       assert_equal("(haml):5", e.backtrace[0])
+    else
+      assert false
     end
   end
 end
