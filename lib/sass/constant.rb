@@ -3,11 +3,14 @@ require 'sass/constant/literal'
 
 module Sass
   module Constant
+    # The character that begins a constant.
+    CONSTANT_CHAR   = ?!
+
     # Whitespace characters
-    WHITESPACE = [' '[0], "\t"[0], "\n"[0], "\r"[0]]
+    WHITESPACE = [?\ , ?\t, ?\n, ?\r]
   
     # The character used to escape values
-    ESCAPE_CHAR = '\\'[0]
+    ESCAPE_CHAR = ?\\
     
     # A mapping of syntactically-significant characters
     # to parsed symbols
@@ -20,6 +23,9 @@ module Sass
       '/'[0] => :div,
       '%'[0] => :mod
     }
+
+    # The regular expression used to parse constants
+    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ESCAPE_CHAR, ?= ]).map {|c| Regexp.escape("#{c.chr}") }}]+)\s*=\s*(.+)/
     
     # First-order operations
     FIRST_ORDER = [:times, :div, :mod]
@@ -130,7 +136,7 @@ module Sass
       
       def insert_constant(value, constants)
         to_return = value
-        if value[0] == Sass::Engine::CONSTANT_CHAR
+        if value[0] == CONSTANT_CHAR
           to_return = constants[value[1..-1]]
           raise "Undefined constant:\n#{value}" unless to_return
         end

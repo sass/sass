@@ -2,6 +2,7 @@ require 'sass/tree/node'
 require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
 require 'sass/constant'
+require 'sass/error'
 
 module Sass
   # This is the class where all the parsing and processing of the Sass
@@ -14,14 +15,11 @@ module Sass
   #   puts output
   class Engine
     # The character that begins a CSS attribute.
-    ATTRIBUTE_CHAR  = ':'[0]
-    
-    # The character that begins a constant.
-    CONSTANT_CHAR   = '!'[0]
+    ATTRIBUTE_CHAR  = ?:
     
     # The character that designates that
     # an attribute should be assigned to the result of constant arithmetic.
-    SCRIPT_CHAR     = '='[0]
+    SCRIPT_CHAR     = ?=
     
     # The string that begins one-line comments.
     COMMENT_STRING  = '//'
@@ -53,8 +51,11 @@ module Sass
       index = 0
       while @lines[index]
         child, index = build_tree(index)
+        child.line = index if child
         root << child if child
       end
+      @line = nil
+
       root.to_s
     end
     
@@ -63,9 +64,11 @@ module Sass
     # Readies each line in the template for parsing,
     # and computes the tabulation of the line.
     def split_lines
-      @template.each do |line|
+      @template.each_with_index do |line, index|
+        @line = index + 1
       
-        # TODO: Allow comments appended to the end of lines, find some way to make url(http://www.google.com/) work
+        # TODO: Allow comments appended to the end of lines,
+        # find some way to make url(http://www.google.com/) work
         unless line[0..1] == COMMENT_STRING # unless line is a comment
           tabs = count_tabs(line)
           
@@ -74,23 +77,36 @@ module Sass
           end
         end
       end
+      @line = nil
     end
     
     # Counts the tabulation of a line.
     def count_tabs(line)
       spaces = line.index(/[^ ]/)
-      spaces ? spaces/2 : nil
+      if spaces
+        if line[spaces] == ?\t
+          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.") 
+        end
+        spaces / 2
+      else
+        nil
+      end
     end
     
     def build_tree(index)
       line, tabs = @lines[index]
       index += 1
+      @line = index + 1
       node = parse_line(line)
+
+      # Node is nil if it's non-outputting, like a constant assignment
       return nil, index unless node
+
       has_children = has_children?(index, tabs)
       
       while has_children
         child, index = build_tree(index)
+        child.line = index
         node << child if child
         has_children = has_children?(index, tabs)
       end
@@ -107,7 +123,7 @@ module Sass
       case line[0]
         when ATTRIBUTE_CHAR
           parse_attribute(line)
-        when CONSTANT_CHAR
+        when Constant::CONSTANT_CHAR
           parse_constant(line)
         else
           Tree::RuleNode.new(line)
@@ -116,6 +132,12 @@ module Sass
     
     def parse_attribute(line)
       name, value = line.split(' ', 2)
+      value = value.to_s
+
+      if name.nil? || name == ':' || name == ':='
+        raise SyntaxError.new("Invalid attribute: \"#{line}\"", @line)
+      end
+
       name = name[1..-1]
       
       if name[-1] == SCRIPT_CHAR
@@ -127,10 +149,10 @@ module Sass
     end
     
     def parse_constant(line)
-      not_in_name = Sass::Constant::SYMBOLS.keys + [ Sass::Constant::ESCAPE_CHAR, '='[0] ]
-      not_in_name.map! { |c| Regexp.escape("#{c.chr}") }
-      name, value = line.scan(/^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{not_in_name.join}]+)\s*=\s*(.+)/)[0]
-      raise "Invalid constant assignment:\n#{line}" unless name && value
+      name, value = line.scan(Sass::Constant::MATCH)[0]
+      unless name && value
+        raise SyntaxError.new("Invalid constant: #{line}", @line)
+      end
       @constants[name] = Sass::Constant.parse(value, @constants)
       nil
     end

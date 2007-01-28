@@ -17,7 +17,10 @@ module Sass::Tree
         children.each { |kid| to_return += "#{kid.to_s(real_name)} " }
         to_return[0...-1]
       else
-        parent_name += '-' if parent_name
+        if value.length < 1
+          raise SyntaxError.new("Invalid attribute: \":#{name} #{value}\"", @line)
+        end
+
         "#{real_name}: #{value};"
       end
     end
