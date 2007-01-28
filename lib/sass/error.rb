@@ -6,7 +6,7 @@ module Sass
   # because of a faulty template.
   class SyntaxError < StandardError
     # The line of the Sass template on which the exception was thrown.
-    attr_reader :sass_line
+    attr_accessor :sass_line
 
     # The name of the file that was being parsed when the exception was raised.
     # This will be nil unless Sass is being used as an ActionView plugin.
@@ -14,7 +14,7 @@ module Sass
 
     # Creates a new SyntaxError.
     # +lineno+ should be the line of the Sass template on which the error occurred.
-    def initialize(msg, lineno)
+    def initialize(msg, lineno = nil)
       super(msg)
       @sass_line = lineno
     end
