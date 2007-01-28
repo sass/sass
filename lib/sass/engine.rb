@@ -142,7 +142,7 @@ module Sass
       
       if name[-1] == SCRIPT_CHAR
         name.slice!(-1)
-        value = Sass::Constant.parse(value, @constants).to_s
+        value = Sass::Constant.parse(value, @constants, @line).to_s
       end
       
       Tree::AttrNode.new(name, value)
@@ -153,7 +153,7 @@ module Sass
       unless name && value
         raise SyntaxError.new("Invalid constant: #{line}", @line)
       end
-      @constants[name] = Sass::Constant.parse(value, @constants)
+      @constants[name] = Sass::Constant.parse(value, @constants, @line)
       nil
     end
   end

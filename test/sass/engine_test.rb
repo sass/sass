@@ -6,16 +6,16 @@ require 'sass/engine'
 
 class SassEngineTest < Test::Unit::TestCase
   EXCEPTION_MAP = {
-    "!a = 1 + " => "Syntax error:\n1 +",
-    "!a = 1 + 2 +" => "Syntax error:\n1 + 2 +",
-    "!a = #aaa - a" => "Undefined operation:\n#afafaf minus a",
-    "!a = #aaa / a" => "Undefined operation:\n#afafaf div a",
-    "!a = #aaa * a" => "Undefined operation:\n#afafaf times a",
-    "!a = #aaa % a" => "Undefined operation:\n#afafaf mod a",
-    "!a = 1 - a" => "Undefined operation:\n1 minus a",
-    "!a = 1 * a" => "Undefined operation:\n1 times a",
-    "!a = 1 / a" => "Undefined operation:\n1 div a",
-    "!a = 1 % a" => "Undefined operation:\n1 mod a",
+    "!a = 1 + " => "Constant arithmetic error: 1 +",
+    "!a = 1 + 2 +" => "Constant arithmetic error: 1 + 2 +",
+    "!a = #aaa - a" => "Undefined operation: #afafaf minus a",
+    "!a = #aaa / a" => "Undefined operation: #afafaf div a",
+    "!a = #aaa * a" => "Undefined operation: #afafaf times a",
+    "!a = #aaa % a" => "Undefined operation: #afafaf mod a",
+    "!a = 1 - a" => "Undefined operation: 1 minus a",
+    "!a = 1 * a" => "Undefined operation: 1 times a",
+    "!a = 1 / a" => "Undefined operation: 1 div a",
+    "!a = 1 % a" => "Undefined operation: 1 mod a",
   }
   
   def test_basic_render
@@ -24,11 +24,13 @@ class SassEngineTest < Test::Unit::TestCase
   
   def test_exceptions
     EXCEPTION_MAP.each do |key, value|
-      val_lines = value.split("\n")
       begin
         Sass::Engine.new(key).render
-      rescue RuntimeError => res_lines; end
-      val_lines.zip(res_lines.to_s.split("\n")) { |val, res| assert_equal(val, res) }
+      rescue Sass::SyntaxError => err
+        assert_equal(value, err.message)
+      else
+        assert(false, "Exception not raised!")
+      end
     end
   end
   

@@ -4,10 +4,11 @@ require 'sass/constant/color'
 
 module Sass::Constant
   class Operation
-    def initialize(operand1, operand2, operator)
+    def initialize(operand1, operand2, operator, line)
       @operand1 = operand1
       @operand2 = operand2
       @operator = operator
+      @line = line
     end
     
     def to_s
@@ -23,7 +24,7 @@ module Sass::Constant
         literal1.send(@operator, literal2)
       rescue NoMethodError => e
         raise e unless e.name == @operator        
-        raise "Undefined operation:\n#{literal1} #{@operator} #{literal2}\n"
+        raise Sass::SyntaxError.new("Undefined operation: #{literal1} #{@operator} #{literal2}", @line)
       end
     end
   end
