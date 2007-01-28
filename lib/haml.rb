@@ -669,6 +669,12 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           (e.g. by replacing them with <tt>&apos;</tt>) if
 #                           the character is an apostrophe or a quotation mark.
 #
+# [<tt>:filename</tt>]      The name of the Haml file being parsed.
+#                           This is only used as information when exceptions are raised.
+#                           This is automatically assigned when working through ActionView,
+#                           so it's really only useful for the user to assign
+#                           when dealing with Haml programatically.
+#
 # [<tt>:filters</tt>]       A hash of filters that can be applied to Haml code.
 #                           The keys are the string names of the filters;
 #                           the values are references to the classes of the filters.
