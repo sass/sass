@@ -125,7 +125,8 @@ module Haml
           'textile' => Haml::Filters::Textile,
           'markdown' => Haml::Filters::Markdown
         })
-      elsif !NOT_LOADED.include? 'bluecloth'
+      end
+      if !NOT_LOADED.include? 'bluecloth'
         @options[:filters]['markdown'] = Haml::Filters::Markdown
       end
 
@@ -147,7 +148,7 @@ module Haml
         # Only do the first round of pre-compiling if we really need to.
         # They might be passing in the precompiled string.
         do_precompile if @precompiled.nil? && (@precompiled = String.new)
-      rescue Haml::SyntaxError => e
+      rescue Haml::Error => e
         e.add_backtrace_entry(@index, @options[:filename])
         raise e
       end
@@ -519,9 +520,9 @@ module Haml
       @flat_spaces = -1
       if filter.is_a? String
         if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
-          push_text("You must have the RedCloth gem installed to use #{filter}")
+          raise HamlError.new("You must have the RedCloth gem installed to use #{filter}")
         else
-          push_text("Filter \"#{filter}\" is not defined!")
+          raise HamlError.new("Filter \"#{filter}\" is not defined!")
         end
       else
         push_text(filter.new(@filter_buffer).render.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))

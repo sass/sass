@@ -122,13 +122,14 @@ class EngineTest < Test::Unit::TestCase
     errs = [ "!!!\n  a", "a\n  b", "a\n:foo\nb", "/ a\n  b",
       "% a", "%p a\n  b", "a\n%p=\nb", "%p=\n  a",
       "a\n%p~\nb", "a\n~\nb", "%p/\n  a", "%p\n \t%a b",
-      "%a\n b\nc", "%a\n    b\nc"
+      "%a\n b\nc", "%a\n    b\nc",
+      ":notafilter\n  This isn't\n  a filter!",
     ]
     errs.each do |err|
       begin
         render(err)
       rescue Exception => e
-        assert(e.is_a?(Haml::SyntaxError),
+        assert(e.is_a?(Haml::Error),
                "#{err.dump} doesn't produce Haml::SyntaxError!")
       else
         assert(false,
@@ -146,5 +147,74 @@ class EngineTest < Test::Unit::TestCase
       assert(false,
              '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
     end
+  end
+
+  def test_no_bluecloth
+    old_markdown = false
+    if defined?(Haml::Filters::Markdown)
+      old_markdown = Haml::Filters::Markdown
+    end
+
+    Kernel.module_eval do
+      alias_method :haml_old_require, :gem_original_require
+
+      def gem_original_require(file)
+        raise LoadError if file == 'bluecloth'
+        haml_old_require(file)
+      end
+    end
+    
+    if old_markdown
+      Haml::Filters.instance_eval do
+        remove_const 'Markdown'
+      end
+    end
+
+    # This is purposefully redundant, so it doesn't stop
+    # haml/filters from being required later on.
+    require 'haml/../haml/filters'
+
+    assert_equal("<h1>Foo</h1>\t<p>- a\n- b</p>\n",
+                 Haml::Engine.new(":markdown\n  Foo\n  ===\n  - a\n  - b").to_html)
+
+    Haml::Filters.instance_eval do
+      remove_const 'Markdown'
+    end
+
+    Haml::Filters.const_set('Markdown', old_markdown) if old_markdown
+
+    Kernel.module_eval do
+      alias_method :gem_original_require, :haml_old_require
+    end
+
+    NOT_LOADED.delete 'bluecloth'
+  end
+
+  def test_no_redcloth
+    Kernel.module_eval do
+      alias_method :haml_old_require2, :gem_original_require
+
+      def gem_original_require(file)
+        raise LoadError if file == 'redcloth'
+        haml_old_require2(file)
+      end
+    end
+
+    # This is purposefully redundant, so it doesn't stop
+    # haml/filters from being required later on.
+    require 'haml/../haml/../haml/filters'
+
+    begin
+      Haml::Engine.new(":redcloth\n  _foo_").to_html
+    rescue Haml::HamlError
+    else
+      assert(false, "No exception raised!")
+    end
+
+    Kernel.module_eval do
+      alias_method :gem_original_require2, :haml_old_require
+    end
+
+    NOT_LOADED.delete 'redcloth'
   end
 end

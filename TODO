@@ -3,9 +3,9 @@ Testing:
 
 Documentation:
   ! Document Sass module
-  Haml::Engine public method info could use work
+  Haml::Engine public method documentation could use work
 
 Features:
-  Sass needs to throw exceptions
+  Sass should throw generic errors for undefined constants, not syntax errors
   There should be a way to represent options in-document
   Haml and Sass executables should return meaningful exit codes

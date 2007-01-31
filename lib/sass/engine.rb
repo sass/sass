@@ -45,18 +45,23 @@ module Sass
   
     # Processes the template and returns the result as a string.
     def render
-      split_lines
+      begin
+        split_lines
       
-      root = Tree::Node.new
-      index = 0
-      while @lines[index]
-        child, index = build_tree(index)
-        child.line = index if child
-        root << child if child
-      end
-      @line = nil
+        root = Tree::Node.new
+        index = 0
+        while @lines[index]
+          child, index = build_tree(index)
+          child.line = index if child
+          root << child if child
+        end
+        @line = nil
 
-      root.to_s
+        root.to_s
+      rescue SyntaxError => err
+        err.add_backtrace_entry
+        raise err
+      end
     end
     
     private
@@ -75,7 +80,7 @@ module Sass
           
           if tabs # if line isn't blank
             if tabs - old_tabs > 1
-              raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.") 
+              raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line) 
             end
             @lines << [line.strip, tabs]
 
@@ -91,7 +96,7 @@ module Sass
       spaces = line.index(/[^ ]/)
       if spaces
         if spaces % 2 == 1 || line[spaces] == ?\t
-          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.") 
+          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line) 
         end
         spaces / 2
       else

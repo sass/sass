@@ -16,7 +16,7 @@ module Sass
         result = String.new
         children.each do |child|
           if child.is_a? AttrNode
-            raise SyntaxError.new('Attributes aren\'t allowed at the root of a document.', @line)
+            raise SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
           end
 
           result += "#{child.to_s}\n"

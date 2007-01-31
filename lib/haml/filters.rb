@@ -8,7 +8,7 @@ require 'sass/engine'
 require 'stringio'
 
 volatile_requires = ['rubygems', 'redcloth', 'bluecloth']
-NOT_LOADED = []
+NOT_LOADED = [] unless defined?(NOT_LOADED)
 volatile_requires.each do |file|
   begin
     require file
@@ -50,6 +50,10 @@ module Haml
       end
     end
 
+    unless NOT_LOADED.include? 'bluecloth'
+      Markdown = BlueCloth unless defined?(Markdown)
+    end
+
     unless NOT_LOADED.include? 'redcloth'
       class ::RedCloth; alias_method :render, :to_html; end
       
@@ -60,15 +64,13 @@ module Haml
         end
       end
 
-      unless defined?(BlueCloth)
+      unless defined?(Markdown)
         # Uses RedCloth to provide only Markdown (not Textile) parsing
         class Markdown < RedCloth
           def render
             self.to_html(:markdown)
           end
         end
-      else
-        Markdown = BlueCloth
       end
     end
   end
