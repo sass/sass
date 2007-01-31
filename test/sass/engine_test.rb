@@ -40,6 +40,8 @@ class SassEngineTest < Test::Unit::TestCase
         Sass::Engine.new(key).render
       rescue Sass::SyntaxError => err
         assert_equal(value, err.message)
+        assert(err.sass_line, "Line: #{key}")
+        assert_match(/\(sass\):[0-9]+/, err.backtrace[0], "Line: #{key}")
       else
         assert(false, "Exception not raised for '#{key}'!")
       end
