@@ -11,8 +11,10 @@ class SassPluginTest < Test::Unit::TestCase
   @@templates = %w{ complex constants }
 
   def setup
-    Sass::Plugin.options[:template_location]  = File.dirname(__FILE__) + '/templates'
-    Sass::Plugin.options[:css_location]       = File.dirname(__FILE__) + '/tmp'
+    Sass::Plugin.options = {
+      :template_location => File.dirname(__FILE__) + '/templates',
+      :css_location => File.dirname(__FILE__) + '/tmp',
+    }
     Sass::Plugin.options[:always_update]      = true
     
     Sass::Plugin.update_stylesheets
