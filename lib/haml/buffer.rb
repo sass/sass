@@ -169,8 +169,8 @@ module Haml
     # the result.
     def build_attributes(attributes = {})
       result = attributes.collect do |a,v|
-        unless v.nil?
-          v = v.to_s
+        v = v.to_s
+        unless v.nil? || v.empty?
           attr_wrapper = @options[:attr_wrapper]
           if v.include? attr_wrapper
             if v.include? @other_quote_char
