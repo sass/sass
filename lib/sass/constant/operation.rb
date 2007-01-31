@@ -23,7 +23,7 @@ module Sass::Constant
         literal1.send(@operator, literal2)
       rescue NoMethodError => e
         raise e unless e.name == @operator
-        raise Sass::SyntaxError.new("Undefined operation: #{literal1} #{@operator} #{literal2}")
+        raise Sass::SyntaxError.new("Undefined operation: \"#{literal1} #{@operator} #{literal2}\"")
       end
     end
   end

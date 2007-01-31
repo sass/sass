@@ -64,6 +64,7 @@ module Sass
     # Readies each line in the template for parsing,
     # and computes the tabulation of the line.
     def split_lines
+      old_tabs = 0
       @template.each_with_index do |line, index|
         @line = index + 1
       
@@ -73,7 +74,12 @@ module Sass
           tabs = count_tabs(line)
           
           if tabs # if line isn't blank
+            if tabs - old_tabs > 1
+              raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.") 
+            end
             @lines << [line.strip, tabs]
+
+            old_tabs = tabs
           end
         end
       end
@@ -84,7 +90,7 @@ module Sass
     def count_tabs(line)
       spaces = line.index(/[^ ]/)
       if spaces
-        if line[spaces] == ?\t
+        if spaces % 2 == 1 || line[spaces] == ?\t
           raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.") 
         end
         spaces / 2
@@ -151,7 +157,7 @@ module Sass
     def parse_constant(line)
       name, value = line.scan(Sass::Constant::MATCH)[0]
       unless name && value
-        raise SyntaxError.new("Invalid constant: #{line}", @line)
+        raise SyntaxError.new("Invalid constant: \"#{line}\"", @line)
       end
       @constants[name] = Sass::Constant.parse(value, @constants, @line)
       nil

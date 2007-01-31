@@ -18,7 +18,7 @@ module Sass::Tree
         to_return[0...-1]
       else
         if value.length < 1
-          raise SyntaxError.new("Invalid attribute: \":#{name} #{value}\"", @line)
+          raise Sass::SyntaxError.new("Invalid attribute: \":#{name} #{value}\"", @line)
         end
 
         "#{real_name}: #{value};"

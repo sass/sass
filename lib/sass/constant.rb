@@ -126,12 +126,12 @@ module Sass
             Literal.parse(insert_constant(value, constants))
           end
         elsif length == 2
-          raise SyntaxError.new("Constant arithmetic error: #{original}")
+          raise SyntaxError.new("Constant arithmetic error: \"#{original}\"")
         elsif length == 3
           Operation.new(operationalize(value[0], original, constants), operationalize(value[2], original, constants), value[1])
         else
           unless length >= 5 && length % 2 == 1
-            raise SyntaxError.new("Constant arithmetic error: #{original}")
+            raise SyntaxError.new("Constant arithmetic error: \"#{original}\"")
           end
           if SECOND_ORDER.include?(value[1]) && FIRST_ORDER.include?(value[3])
             operationalize([value[0], value[1], operationalize(value[2..4], original, constants), *value[5..-1]], original, constants)
@@ -146,7 +146,7 @@ module Sass
         if value[0] == CONSTANT_CHAR
           to_return = constants[value[1..-1]]
           unless to_return
-            raise SyntaxError.new("Undefined constant: #{value}")
+            raise SyntaxError.new("Undefined constant: \"#{value}\"")
           end
         end
         to_return
