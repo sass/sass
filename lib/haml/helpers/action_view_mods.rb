@@ -12,6 +12,8 @@ if action_view_included
   class ActionView::Base
     alias_method :old_concat, :concat unless instance_methods.include? "old_concat"
     alias_method :old_form_tag, :form_tag unless instance_methods.include? "old_form_tag"
+
+    alias_method :old_form_for, :form_for unless instance_methods.include? "old_form_for"
   end
   
   module Haml
@@ -49,7 +51,22 @@ if action_view_included
               tab_down
             end
           end
-          old_form_tag(url_for_options, options, *parameters_for_url, &proc)
+          res = old_form_tag(url_for_options, options, *parameters_for_url, &proc) + "\n"
+          concat "\n" if block_given? && is_haml?
+          res
+        end
+
+        def form_for(object_name, *args, &proc)
+          if block_given? && is_haml?
+            oldproc = proc 
+            proc = bind_proc do |*args|
+              tab_up
+              oldproc.call(*args)
+              tab_down
+            end            
+          end
+          old_form_for(object_name, *args, &proc)
+          concat "\n" if block_given? && is_haml?
         end
       end
     end
