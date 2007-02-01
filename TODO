@@ -6,6 +6,7 @@ Documentation:
   Haml::Engine public method documentation could use work
 
 Features:
+  #foo.bar[@person] => <div id="foo_person_12345" class="bar person">
   Sass should throw generic errors for undefined constants, not syntax errors
   There should be a way to represent options in-document
   Haml and Sass executables should return meaningful exit codes
