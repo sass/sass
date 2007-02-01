@@ -63,6 +63,8 @@ module Sass
         raise err
       end
     end
+
+    alias_method :to_css, :render
     
     private
     

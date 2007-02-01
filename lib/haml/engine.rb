@@ -155,7 +155,7 @@ module Haml
     end
 
     # Processes the template and returns the result as a string.
-    def to_html(scope = Object.new, &block)
+    def render(scope = Object.new, &block)
       @scope_object = scope
       @buffer = Haml::Buffer.new(@options)
 
@@ -175,6 +175,8 @@ module Haml
       # Return the result string
       @buffer.buffer
     end
+
+    alias_method :to_html, :render
 
    private
 
