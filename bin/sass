@@ -1,18 +1,8 @@
 #!/usr/bin/env ruby
 # The command line Sass parser.
 
-if ARGV[0] == "--help" or ARGV[0] == "-h" or ARGV[0] == "-?"
-  puts <<END
-Usage: sass (template file) (output file)
+require File.dirname(__FILE__) + '/../lib/haml'
+require 'haml/exec'
 
-Description:
-  Uses the Sass engine to parse the specified template
-  and outputs the result to the specified file.
-END
-else
-  require File.dirname(__FILE__) + '/../lib/sass'
-
-  template = File.read(ARGV[0])
-  result = Sass::Engine.new(template).render
-  File.open(ARGV[1], "w") { |f| f.write(result) }
-end
+opts = Haml::Exec::Sass.new(ARGV)
+opts.parse!
