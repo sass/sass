@@ -1,6 +1,3 @@
-Bugs:
-  Why doesn't "body\n  :foo= bar\n\n  :baz boom" work in Sass?
-
 Testing:
   Add Sass support for various utilities (benchmark, profile)
 
