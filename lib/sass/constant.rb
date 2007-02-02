@@ -25,7 +25,7 @@ module Sass
     }
 
     # The regular expression used to parse constants
-    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ESCAPE_CHAR, ?= ]).map {|c| Regexp.escape("#{c.chr}") }}]+)\s*=\s*(.+)/
+    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s\=]+)\s*=\s*(.+)/
     
     # First-order operations
     FIRST_ORDER = [:times, :div, :mod]
