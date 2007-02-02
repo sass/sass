@@ -95,7 +95,7 @@ module Haml
 
       def set_opts(opts)
         opts.banner = <<END
-Usage: #{@name.downcase} [options] (template file) (output file)
+Usage: #{@name.downcase} [options] (#{@name.downcase} file) (output file)
 
 Description:
   Uses the #{@name} engine to parse the specified template
@@ -152,6 +152,31 @@ END
         result = ::Haml::Engine.new(template).to_html
         output.write(result)
         output.close() if output.is_a? File
+      end
+    end
+
+    # A class encapsulating executable functionality
+    # specific to the html2haml executable.
+    class HTML2Haml < Generic
+      def set_opts(opts)
+        opts.banner = <<END
+Usage: html2haml [options] (html file) (output file)
+
+Description: Transforms an HTML file into corresponding Haml code.
+
+Options:
+END
+
+        super
+      end
+
+      def process_result
+        super
+
+        input = @options[:input]
+        output = @options[:output]
+
+        output.write(Hpricot(input).to_haml)
       end
     end
   end

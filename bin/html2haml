@@ -1,22 +1,27 @@
 #!/usr/bin/env ruby
 
+require File.dirname(__FILE__) + '/../lib/haml'
+require 'haml/engine'
 require 'rubygems'
 require 'hpricot'
-require 'open-uri'
-
-doc = open(ARGV[0]) { |f| Hpricot(f) }
 
 def tabulate(tabs)
   '  ' * tabs
 end
+
+TEXT_REGEXP = /^(\s*).*$/
 
 def parse_text(text, tabs)
   text.strip!
   if text.empty?
     String.new
   else
-    text = text.gsub(/[\t ]+/, " ").gsub(/(\r|\n|\r\n)\s*/, "\n#{tabulate(tabs)}")
-    "#{tabulate(tabs)}#{text}\n"
+    lines = text.split("\n")
+
+    lines.map do |line|
+      line.strip!
+      "#{tabulate(tabs)}#{'\\' if Haml::Engine::SPECIAL_CHARACTERS.include?(line[0])}#{line}\n"
+    end.join
   end
 end
 
@@ -76,5 +81,9 @@ class Hpricot::Elem
   end
 end
 
-puts doc.to_haml
+# Must be required after Hpricot mods,
+# so they're in scope
+require 'haml/exec'
 
+opts = Haml::Exec::HTML2Haml.new(ARGV)
+opts.parse!
