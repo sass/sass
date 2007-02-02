@@ -30,7 +30,7 @@ module Sass
     #
     #--
     #
-    # TODO: Add current options to REFRENCE.
+    # TODO: Add current options to REFRENCE. Remember :filename!
     #
     # When adding options, remember to add information about them
     # to README!
@@ -59,7 +59,7 @@ module Sass
 
         root.to_s
       rescue SyntaxError => err
-        err.add_backtrace_entry
+        err.add_backtrace_entry(@options[:filename])
         raise err
       end
     end
@@ -109,7 +109,7 @@ module Sass
     def build_tree(index)
       line, tabs = @lines[index]
       index += 1
-      @line = index + 1
+      @line = index
       node = parse_line(line)
 
       # Node is nil if it's non-outputting, like a constant assignment
@@ -119,7 +119,7 @@ module Sass
       
       while has_children
         child, index = build_tree(index)
-        child.line = index
+        child.line = @line
         node << child if child
         has_children = has_children?(index, tabs)
       end

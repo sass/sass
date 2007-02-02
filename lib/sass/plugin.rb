@@ -45,14 +45,37 @@ module Sass
             css = css_filename(name)
             File.delete(css) if File.exists?(css)
             
-            engine = Engine.new(File.read(template_filename(name)), @@options.dup)
+            filename = template_filename(name)
+            options = @@options.dup
+            options[:filename] = filename
+            engine = Engine.new(File.read(filename), options)
             begin
               result = engine.render
             rescue Exception => e
               if RAILS_ENV != "production"
-                result = "#{e}\n\nBacktrace:\n#{e.backtrace.join("\n")}\n"
+                e_string = "#{e.class}: #{e.message}"
+
+                if e.is_a? Sass::SyntaxError
+                  e_string << "\non line #{e.sass_line}"
+
+                  if e.sass_filename
+                    e_string << " of #{e.sass_filename}"
+
+                    if File.exists?(e.sass_filename)
+                      e_string << "\n\n"
+
+                      min = [e.sass_line - 5, 0].max
+                      File.read(e.sass_filename).rstrip.split("\n")[
+                          min .. e.sass_line + 5
+                      ].each_with_index do |line, i|
+                        e_string << "#{min + i + 1}: #{line}\n"
+                      end
+                    end
+                  end
+                end
+                result = "/*\n#{e_string}\n\nBacktrace:\n#{e.backtrace.join("\n")}\n*/"
               else
-                raise e
+                result = "/* Internal stylesheet error */"
               end
             end
             

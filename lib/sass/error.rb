@@ -22,7 +22,7 @@ module Sass
     # Adds a properly formatted entry to the exception's backtrace.
     # +filename+ should be the file in which the error occurred,
     # if applicable (defaults to "(sass)").
-    def add_backtrace_entry(filename = nil) # :nodoc:
+    def add_backtrace_entry(filename) # :nodoc:
       @sass_filename = filename
       self.backtrace ||= []
       self.backtrace.unshift "#{filename || '(sass)'}:#{@sass_line}"

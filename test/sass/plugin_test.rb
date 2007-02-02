@@ -37,19 +37,9 @@ class SassPluginTest < Test::Unit::TestCase
   
   def test_exception_handling
     File.open(tempfile_loc('bork')) do |file|
-      assert_equal("Undefined constant: \"!bork\"", file.gets.strip)
+      assert_equal("/*\nSass::SyntaxError: Undefined constant: \"!bork\"\non line 2 of #{File.dirname(__FILE__) + '/templates/bork.sass'}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
     end
     File.delete(tempfile_loc('bork'))
-    Sass.const_set('RAILS_ENV', 'production')
-    raised = false
-    begin
-      Sass::Plugin.update_stylesheets
-    rescue
-      raised = true
-    end
-    assert raised
-    assert !File.exists?(tempfile_loc('bork'))
-    Sass::Plugin.const_set('RAILS_ENV', 'testing')
   end
   
   def test_controller_process
