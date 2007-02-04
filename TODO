@@ -8,6 +8,6 @@ Documentation:
 Features:
   Sass should throw generic errors for undefined constants, not syntax errors
   Sass::Plugin should log errors
-  "#main\n  :color: #fff" and "#main\n  :color #fff;" should throw errors.
+  Line numbers on Sass errors should be correct after empty lines
   There should be a way to represent options in-document
   Haml and Sass executables should return meaningful exit codes
