@@ -45,7 +45,7 @@ class TemplateTest < Test::Unit::TestCase
     test = Proc.new do |rendered|
       load_result(name).split("\n").zip(rendered.split("\n")).each_with_index do |pair, line|
         message = "template: #{name}\nline:     #{line}"
-        assert_equal(pair.first, pair.last, message)
+        assert_equal(pair.last, pair.first, message)
       end
     end
     test.call(@base.render(name))
