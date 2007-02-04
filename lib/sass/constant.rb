@@ -11,21 +11,26 @@ module Sass
   
     # The character used to escape values
     ESCAPE_CHAR = ?\\
+
+    # The character used to open and close strings
+    STRING_CHAR = ?"
     
     # A mapping of syntactically-significant characters
     # to parsed symbols
     SYMBOLS = {
-      '('[0] => :open,
-      ')'[0] => :close,
-      '+'[0] => :plus,
-      '-'[0] => :minus,
-      '*'[0] => :times,
-      '/'[0] => :div,
-      '%'[0] => :mod
+      ?( => :open,
+      ?) => :close,
+      ?+ => :plus,
+      ?- => :minus,
+      ?* => :times,
+      ?/ => :div,
+      ?% => :mod,
+      STRING_CHAR => :str,
+      ESCAPE_CHAR => :esc
     }
 
     # The regular expression used to parse constants
-    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ESCAPE_CHAR, ?= ]).map {|c| Regexp.escape("#{c.chr}") }}]+)\s*=\s*(.+)/
+    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }}]+)\s*=\s*(.+)/
     
     # First-order operations
     FIRST_ORDER = [:times, :div, :mod]
@@ -40,7 +45,7 @@ module Sass
         rescue Sass::SyntaxError => e
           if e.message == "Constant arithmetic error"
             e.instance_eval do
-              @message += ": \"#{value}\""
+              @message += ": #{value.dump}"
             end
           end
           e.sass_line = line
@@ -52,6 +57,7 @@ module Sass
       
       def tokenize(value)
         escaped = false
+        is_string = false
         negative_okay = true
         str = ''
         to_return = []
@@ -63,22 +69,31 @@ module Sass
         
         value.each_byte do |byte|
           unless escaped
-            if WHITESPACE.include?(byte)
-              str = reset_str.call
-              next
-            end
-            
             if byte == ESCAPE_CHAR
               escaped = true
               next
             end
-            
-            symbol = SYMBOLS[byte]
-            if symbol && !(negative_okay && symbol == :minus)
+
+            if byte == STRING_CHAR
               str = reset_str.call
-              negative_okay = true
-              to_return << symbol
+              is_string = !is_string
               next
+            end
+
+            unless is_string
+
+              if WHITESPACE.include?(byte)
+                str = reset_str.call
+                next
+              end
+            
+              symbol = SYMBOLS[byte]
+              if symbol && !(negative_okay && symbol == :minus)
+                str = reset_str.call
+                negative_okay = true
+                to_return << symbol
+                next
+              end
             end
           end
           

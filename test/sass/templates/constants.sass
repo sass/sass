@@ -6,8 +6,14 @@
 !dec_0 = 99.0
 !neg = -10
 !esc= 10\+12
+!str= "Hello!"
+!qstr= "Quo\"te!"
+!hstr= "Hyph-en!"
 
 #main
+  :content= !str
+  :qstr= !qstr
+  :hstr= !hstr
   :width= !width
   :background-color #000
   :color= !main_text
@@ -31,6 +37,7 @@
     :col= 13 + #aaa
   :str
     :str= hi + \ there
+    :str2= hi + " there"
     :num= times:\  + 13
   :col
     :num= #f02 + 123.5
