@@ -66,11 +66,9 @@ module Haml
           exit 1
         end
 
-        [input, output].each do |file|
-          if file.is_a?(String) && !File.exists?(file)
-            puts "File #{file} doesn't exist!"
-            exit 1
-          end
+        if input.is_a?(String) && !input.exists?(file)
+          puts "File #{file} doesn't exist!"
+          exit 1
         end
 
         unless input.is_a? IO
