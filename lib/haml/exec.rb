@@ -66,8 +66,8 @@ module Haml
           exit 1
         end
 
-        if input.is_a?(String) && !input.exists?(file)
-          puts "File #{file} doesn't exist!"
+        if input.is_a?(String) && !File.exists?(input)
+          puts "File #{input} doesn't exist!"
           exit 1
         end
 
