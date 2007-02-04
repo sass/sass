@@ -71,8 +71,8 @@ module Haml
     # element, formats it, and adds it to the buffer.
     def open_tag(name, tabulation, atomic, try_one_line, class_id, attributes_hash, obj_ref, flattened)
       attributes = {}
-      attributes.merge!(parse_object_ref(obj_ref)) if obj_ref
       attributes.merge!(parse_class_and_id(class_id)) unless class_id.nil? || class_id.empty?
+      attributes.merge!(parse_object_ref(obj_ref, attributes[:id], attributes[:class])) if obj_ref
       attributes.merge!(attributes_hash) if attributes_hash
 
       @one_liner_pending = false
@@ -157,12 +157,22 @@ module Haml
 
     # Takes an array of objects and uses the class and id of the first
     # one to create an attributes hash.
-    def parse_object_ref(ref)
+    def parse_object_ref(ref, old_id, old_class)
       ref = ref[0]
       # Let's make sure the value isn't nil. If it is, return the default Hash.
       return {} if ref.nil?
       class_name = ref.class.to_s.underscore
-      {:id => "#{class_name}_#{ref.id}", :class => class_name}
+      id = "#{class_name}_#{ref.id}"
+
+      if old_class
+        class_name += " #{old_class}"
+      end
+
+      if old_id
+        id = "#{old_id}_#{id}"
+      end
+
+      {:id => id, :class => class_name}
     end
 
     # Takes a hash and builds a list of XHTML attributes from it, returning
