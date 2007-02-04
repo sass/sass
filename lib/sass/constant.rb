@@ -102,6 +102,9 @@ module Sass
           str << byte.chr
         end
         
+        if is_string
+          raise Sass::SyntaxError.new("Unterminated string: #{value.dump}")
+        end
         str = reset_str.call
         to_return
       end
