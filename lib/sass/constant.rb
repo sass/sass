@@ -36,8 +36,13 @@ module Sass
     class << self    
       def parse(value, constants, line)
         begin
-          operationalize(parenthesize(tokenize(value)), value, constants).to_s
-        rescue SyntaxError => e
+          operationalize(parenthesize(tokenize(value)), constants).to_s
+        rescue Sass::SyntaxError => e
+          if e.message == "Constant arithmetic error"
+            e.instance_eval do
+              @message += ": \"#{value}\""
+            end
+          end
           e.sass_line = line
           raise e
         end
@@ -115,7 +120,7 @@ module Sass
       # TODO: Don't pass around original value;
       #       have Constant.parse automatically add it to exception.
       #++
-      def operationalize(value, original, constants)
+      def operationalize(value, constants)
         value = [value] unless value.is_a?(Array)
         length = value.length
         if length == 1
@@ -126,17 +131,17 @@ module Sass
             Literal.parse(insert_constant(value, constants))
           end
         elsif length == 2
-          raise SyntaxError.new("Constant arithmetic error: \"#{original}\"")
+          raise SyntaxError.new("Constant arithmetic error")
         elsif length == 3
-          Operation.new(operationalize(value[0], original, constants), operationalize(value[2], original, constants), value[1])
+          Operation.new(operationalize(value[0], constants), operationalize(value[2], constants), value[1])
         else
           unless length >= 5 && length % 2 == 1
-            raise SyntaxError.new("Constant arithmetic error: \"#{original}\"")
+            raise SyntaxError.new("Constant arithmetic error")
           end
           if SECOND_ORDER.include?(value[1]) && FIRST_ORDER.include?(value[3])
-            operationalize([value[0], value[1], operationalize(value[2..4], original, constants), *value[5..-1]], original, constants)
+            operationalize([value[0], value[1], operationalize(value[2..4], constants), *value[5..-1]], constants)
           else
-            operationalize([operationalize(value[0..2], original, constants), *value[3..-1]], original, constants)
+            operationalize([operationalize(value[0..2], constants), *value[3..-1]], constants)
           end
         end
       end

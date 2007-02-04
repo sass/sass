@@ -8,5 +8,7 @@ Documentation:
 Features:
   #foo.bar[@person] => <div id="foo_person_12345" class="bar person">
   Sass should throw generic errors for undefined constants, not syntax errors
+  Sass::Plugin should log errors
+  "#main\n  :color: #fff" and "#main\n  :color #fff;" should throw errors.
   There should be a way to represent options in-document
   Haml and Sass executables should return meaningful exit codes

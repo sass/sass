@@ -15,7 +15,7 @@ module Sass
     # Creates a new SyntaxError.
     # +lineno+ should be the line of the Sass template on which the error occurred.
     def initialize(msg, lineno = nil)
-      super(msg)
+      @message = msg
       @sass_line = lineno
     end
 
@@ -26,6 +26,10 @@ module Sass
       @sass_filename = filename
       self.backtrace ||= []
       self.backtrace.unshift "#{filename || '(sass)'}:#{@sass_line}"
+    end
+
+    def to_s # :nodoc
+      @message
     end
   end
 end
