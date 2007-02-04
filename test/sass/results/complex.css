@@ -12,9 +12,9 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #header .status a:hover { text-decoration: underline; }
 #header .search { float: right; clear: right; margin: 12px 0 0 0; }
 #header .search form { margin: 0; }
-#header .search input { margin: 0 3px 0 0; padding:: 2px; border:: none; }
+#header .search input { margin: 0 3px 0 0; padding: 2px; border: none; }
 
-#menu { clear: both; text-align: right; height: 20px; border-bottom: 5px solid #006b95; background:: #00a4e4; }
+#menu { clear: both; text-align: right; height: 20px; border-bottom: 5px solid #006b95; background: #00a4e4; }
 #menu .contests ul { margin: 0 5px 0 0; padding: 0; }
 #menu .contests ul li { list-style-type: none; margin: 0 5px; padding: 5px 5px 0 5px; display: inline; font-size: 1.1em; color: #fff; background: #00a4e4; }
 #menu .contests a:link, #menu .contests a:visited { color: #fff; text-decoration: none; font-weight: bold; }
