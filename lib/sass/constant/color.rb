@@ -3,7 +3,7 @@ require 'sass/constant/literal'
 module Sass::Constant
   class Color < Literal
   
-    REGEXP = /\##{"([0-9a-f]{1,2})" * 3}/
+    REGEXP = /\##{"([0-9a-fA-F]{1,2})" * 3}/
   
     def parse(value)
       @value = value.scan(REGEXP)[0].map { |num| num.ljust(2, 'f').to_i(16) }

@@ -9,7 +9,7 @@ class Sass::Constant::Literal
   NUMBER  = /^\-?[0-9]*\.?[0-9]+$/
 
   # The regular expression matching colors.
-  COLOR = /^\#(#{"[0-9a-f]" * 3}|#{"[0-9a-f]" * 6})/
+  COLOR = /^\#(#{"[0-9a-fA-F]" * 3}|#{"[0-9a-fA-F]" * 6})/
   
   def self.parse(value)
     case value
