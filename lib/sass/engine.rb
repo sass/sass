@@ -119,6 +119,11 @@ module Sass
       
       while has_children
         child, index = build_tree(index)
+
+        if child.nil?
+          raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
+        end
+
         child.line = @line
         node << child if child
         has_children = has_children?(index, tabs)
