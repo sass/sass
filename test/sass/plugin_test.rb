@@ -14,6 +14,7 @@ class SassPluginTest < Test::Unit::TestCase
     Sass::Plugin.options = {
       :template_location => File.dirname(__FILE__) + '/templates',
       :css_location => File.dirname(__FILE__) + '/tmp',
+      :style => :compact
     }
     Sass::Plugin.options[:always_update] = true
     
@@ -24,11 +25,21 @@ class SassPluginTest < Test::Unit::TestCase
     File.delete(*Dir[tempfile_loc('*')])
   end
 
-  def test_expanded_style
+  def test_alternate_styles
     engine = Sass::Engine.new(File.read(File.dirname(__FILE__) + '/templates/expanded.sass'),
                               { :style => :expanded })
     File.open(tempfile_loc('expanded'), 'w') { |f| f.write(engine.render) }
     assert_renders_correctly('expanded')
+
+    engine = Sass::Engine.new(File.read(File.dirname(__FILE__) + '/templates/compact.sass'),
+                              { :style => :compact })
+    File.open(tempfile_loc('compact'), 'w') { |f| f.write(engine.render)}
+    assert_renders_correctly('compact')
+
+    engine = Sass::Engine.new(File.read(File.dirname(__FILE__) + '/templates/nested.sass'),
+                              { :style => :nested })
+    File.open(tempfile_loc('nested'), 'w') { |f| f.write(engine.render)}
+    assert_renders_correctly('nested')    
   end
 
   def test_templates_should_render_correctly

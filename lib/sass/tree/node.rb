@@ -20,7 +20,7 @@ module Sass
             raise SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
           end
 
-          result += "#{child.to_s}\n"
+          result += "#{child.to_s(1)}\n"
         end
         result[0...-1]
       end

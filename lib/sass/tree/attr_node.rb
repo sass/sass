@@ -18,12 +18,13 @@ module Sass::Tree
       if children.size > 0
         to_return = String.new
         children.each do |kid|
-          if @style == :expanded
-            to_return << "#{kid.to_s(real_name)}\n  "
-          else
+          if @style == :compact
             to_return << "#{kid.to_s(real_name)} "
+          else
+            to_return << "#{kid.to_s(real_name)}\n"
           end
         end
+        to_return << "\n" unless @style == :compact
         to_return[0...-1]
       else
         if value.length < 1

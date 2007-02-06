@@ -36,7 +36,13 @@ class SassEngineTest < Test::Unit::TestCase
   }
   
   def test_basic_render
-    renders_correctly "basic"
+    renders_correctly "basic", { :style => :compact }
+  end
+
+  def test_alternate_styles
+    renders_correctly "expanded", { :style => :expanded }
+    renders_correctly "compact", { :style => :compact }
+    renders_correctly "nested", { :style => :nested }
   end
   
   def test_exceptions
@@ -66,11 +72,10 @@ class SassEngineTest < Test::Unit::TestCase
   
   private
 
-  def renders_correctly(name)
+  def renders_correctly(name, options={})
     sass_file  = load_file(name, "sass")
     css_file   = load_file(name, "css")
-    css_result = Sass::Engine.new(sass_file).render
-    #puts css_result.collect { |a| a.inspect }.join("\n  ")
+    css_result = Sass::Engine.new(sass_file, options).render
     assert_equal css_file, css_result
   end
 

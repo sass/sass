@@ -15,8 +15,7 @@ module Sass
         :template_location  => RAILS_ROOT + '/public/stylesheets/sass',
         :css_location       => RAILS_ROOT + '/public/stylesheets',
         :always_update      => false,
-        :always_check       => RAILS_ENV != "production",
-        :style              => :nested
+        :always_check       => RAILS_ENV != "production"
       }
 
       # Gets various options for Sass. See README for details.

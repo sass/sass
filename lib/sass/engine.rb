@@ -38,7 +38,7 @@ module Sass
     #
     def initialize(template, options={})
       @options = {
-        :style => :compact
+        :style => :nested
       }.merge! options
       @template = template.split("\n")
       @lines = []
