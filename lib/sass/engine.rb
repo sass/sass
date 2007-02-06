@@ -37,7 +37,9 @@ module Sass
     #++
     #
     def initialize(template, options={})
-      @options = options
+      @options = {
+        :style => :compact
+      }.merge! options
       @template = template.split("\n")
       @lines = []
       @constants = {}
@@ -48,7 +50,7 @@ module Sass
       begin
         split_lines
       
-        root = Tree::Node.new
+        root = Tree::Node.new(@options[:style])
         index = 0
         while @lines[index]
           child, index = build_tree(index)
@@ -144,7 +146,7 @@ module Sass
         when Constant::CONSTANT_CHAR
           parse_constant(line)
         else
-          Tree::RuleNode.new(line)
+          Tree::RuleNode.new(line, @options[:style])
       end
     end
     
@@ -163,7 +165,7 @@ module Sass
         value = Sass::Constant.parse(value, @constants, @line).to_s
       end
       
-      Tree::AttrNode.new(name, value)
+      Tree::AttrNode.new(name, value, @options[:style])
     end
     
     def parse_constant(line)

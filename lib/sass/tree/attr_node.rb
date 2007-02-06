@@ -4,9 +4,9 @@ module Sass::Tree
   class AttrNode < ValueNode
     attr_accessor :name
     
-    def initialize(name, value)
+    def initialize(name, value, style)
       @name = name
-      super(value)
+      super(value, style)
     end
     
     def to_s(parent_name = nil)
@@ -17,7 +17,13 @@ module Sass::Tree
       real_name = "#{parent_name}-#{real_name}" if parent_name
       if children.size > 0
         to_return = String.new
-        children.each { |kid| to_return += "#{kid.to_s(real_name)} " }
+        children.each do |kid|
+          if @style == :expanded
+            to_return << "#{kid.to_s(real_name)}\n  "
+          else
+            to_return << "#{kid.to_s(real_name)} "
+          end
+        end
         to_return[0...-1]
       else
         if value.length < 1

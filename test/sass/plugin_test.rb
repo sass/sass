@@ -15,13 +15,20 @@ class SassPluginTest < Test::Unit::TestCase
       :template_location => File.dirname(__FILE__) + '/templates',
       :css_location => File.dirname(__FILE__) + '/tmp',
     }
-    Sass::Plugin.options[:always_update]      = true
+    Sass::Plugin.options[:always_update] = true
     
     Sass::Plugin.update_stylesheets
   end
   
   def teardown
     File.delete(*Dir[tempfile_loc('*')])
+  end
+
+  def test_expanded_style
+    engine = Sass::Engine.new(File.read(File.dirname(__FILE__) + '/templates/expanded.sass'),
+                              { :style => :expanded })
+    File.open(tempfile_loc('expanded'), 'w') { |f| f.write(engine.render) }
+    assert_renders_correctly('expanded')
   end
 
   def test_templates_should_render_correctly

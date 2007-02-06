@@ -4,7 +4,8 @@ module Sass
       attr_accessor :children
       attr_accessor :line
 
-      def initialize
+      def initialize(style)
+        @style = style
         @children = []
       end
 

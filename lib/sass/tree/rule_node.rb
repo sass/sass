@@ -27,7 +27,11 @@ module Sass::Tree
       
       to_return = ''
       unless attributes.empty?
-        to_return << "#{total_rule} { #{attributes.join(' ')} }\n"
+        if @style == :expanded
+          to_return << "#{total_rule} {\n  #{attributes.join("\n  ").rstrip}\n}\n"
+        else
+          to_return << "#{total_rule} { #{attributes.join(' ')} }\n"
+        end
       end
       
       sub_rules.each { |sub| to_return << sub.to_s(total_rule) }
