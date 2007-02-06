@@ -567,10 +567,8 @@ END
         end
 
         flattened = (action == '~')
-
-        if flattened && !defined?(Test::Unit)
-          warn(FLAT_WARNING)
-        end
+        
+        warn(FLAT_WARNING) if flattened && !defined?(Test::Unit)
 
         value_exists = !value.empty?
         attributes_hash = "nil" unless attributes_hash
