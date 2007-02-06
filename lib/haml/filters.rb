@@ -50,6 +50,16 @@ module Haml
       end
     end
 
+    class Preserve
+      def initialize(text)
+        @text = text
+      end
+
+      def render
+        Haml::Helpers.preserve(@text)
+      end
+    end
+
     unless NOT_LOADED.include? 'bluecloth'
       Markdown = BlueCloth unless defined?(Markdown)
     end

@@ -16,12 +16,24 @@ module Haml
       @@action_view
     end
 
+    # Isolates the whitespace-sensitive tags in the string and uses preserve
+    # to convert any endlines inside them into HTML entities for endlines.
+    def find_and_preserve(input)
+      input = input.to_s
+      input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im) do |tag, contents|
+        input = input.gsub(contents, preserve(contents))
+      end
+      input
+    end
+
     # Takes any string, finds all the endlines and converts them to
     # HTML entities for endlines so they'll render correctly in
     # whitespace-sensitive tags without screwing up the indentation.
-    def flatten(input)
+    def preserve(input)      
       input.gsub(/\n/, '&#x000A;').gsub(/\r/, '')
     end
+
+    alias_method :flatten, :preserve
 
     # Takes an Enumerable object and a block
     # and iterates over the object,

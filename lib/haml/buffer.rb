@@ -52,7 +52,7 @@ module Haml
     # instance_eval.
     def push_script(result, tabulation, flattened)
       if flattened
-        result = find_and_flatten(result)
+        result = Haml::Helpers.find_and_preserve(result)
       end
       unless result.nil?
         result = result.to_s
@@ -199,16 +199,6 @@ module Haml
     # on one line.
     def one_liner?(value)
       value.length <= ONE_LINER_LENGTH && value.scan(/\n/).empty?
-    end
-
-    # Isolates the whitespace-sensitive tags in the string and uses Haml::Helpers#flatten
-    # to convert any endlines inside them into html entities.
-    def find_and_flatten(input)
-      input = input.to_s
-      input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im) do |tag, contents|
-        input = input.gsub(contents, Haml::Helpers.flatten(contents))
-      end
-      input
     end
   end
 end

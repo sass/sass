@@ -92,6 +92,13 @@ module Haml
     # is a member of this array.
     MID_BLOCK_KEYWORDS   = ['else', 'elsif', 'rescue', 'ensure', 'when']
 
+    FLAT_WARNING = <<END
+Haml deprecation warning:
+The ~ command is deprecated and will be removed in future Haml versions.
+Use the :preserve filter, the preserve helper, or the find_and_preserve
+helper instead.
+END
+
     # Creates a new instace of Haml::Engine that will compile the given
     # template string when <tt>to_html</tt> is called.
     # See README for available options.
@@ -108,7 +115,8 @@ module Haml
         :locals => {},
         :filters => {
           'sass' => Sass::Engine,
-          'plain' => Haml::Filters::Plain
+          'plain' => Haml::Filters::Plain,
+          'preserve' => Haml::Filters::Preserve
         }
       }
 
@@ -278,6 +286,7 @@ module Haml
       when SCRIPT
         push_script(line[1..-1], false)
       when FLAT_SCRIPT
+        warn(FLAT_WARNING) unless defined?(Test::Unit)
         push_flat_script(line[1..-1])
       when SILENT_SCRIPT
         sub_line = line[1..-1]
@@ -527,7 +536,13 @@ module Haml
           raise HamlError.new("Filter \"#{filter}\" is not defined!")
         end
       else
-        push_text(filter.new(@filter_buffer).render.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
+        filtered = filter.new(@filter_buffer).render
+
+        unless filter == Haml::Filters::Preserve
+          push_text(filtered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
+        else
+          push_silent("_hamlout.buffer << #{filtered.dump} << \"\\n\"\n")
+        end
       end
 
       @filter_buffer = nil
@@ -552,6 +567,11 @@ module Haml
         end
 
         flattened = (action == '~')
+
+        if flattened && !defined?(Test::Unit)
+          warn(FLAT_WARNING)
+        end
+
         value_exists = !value.empty?
         attributes_hash = "nil" unless attributes_hash
         object_ref = "nil" unless object_ref

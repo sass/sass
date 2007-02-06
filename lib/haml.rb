@@ -195,31 +195,27 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     <div class='description'>What a cool item!</div>
 #   </div>
 # 
-# ==== = and ~
+# ==== =
 # 
-# <tt>=</tt> and <tt>~</tt> are placed at the end of a tag definition,
+# <tt>=</tt> is placed at the end of a tag definition,
 # after class, id, and attribute declarations.
-# They're just shortcuts for inserting Ruby code into an element.
-# They work the same as <tt>=</tt> and <tt>~</tt> without a tag;
-# see below for documentation of those.
+# It's just a shortcut for inserting Ruby code into an element.
+# It works the same as <tt>=</tt> without a tag:
+# it inserts the result of the Ruby code into the template.
 # However, if the result is short enough,
 # it is displayed entirely on one line.
 # For example:
 # 
 #   %p= "hello"
-#   %h1~ 1 + 2
 # 
 # is not quite the same as:
 # 
 #   %p
 #     = "hello"
-#   %h1
-#     ~ 1 + 2
 # 
 # It's compiled to:
 # 
 #   <p>hello</p>
-#   <h1>3</h1>
 # 
 # === XHTML Helpers
 # 
@@ -418,11 +414,19 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # Haml has the following filters defined:
 #
 # [plain]     Does not parse the filtered text.
+#             This is useful for large blocks of text without HTML tags,
+#             when you don't want lines starting with <tt>.</tt> or <tt>-</tt>
+#             to be parsed.
 #
 # [ruby]      Parses the filtered text with the normal Ruby interpreter.
 #             All output sent to <tt>$stdout</tt>, like with +puts+,
 #             is output into the Haml document.
 #             Not available if the <tt>suppress_eval</tt> option is set to true.
+#
+# [preserve]  Inserts the filtered text into the template with whitespace preserved.
+#             <tt>preserve</tt>d blocks of text aren't indented,
+#             and newlines are replaced with the HTML escape code for newlines,
+#             to preserve nice-looking output.
 #
 # [erb]       Parses the filtered text with ERB, like an RHTML template.
 #             Not available if the <tt>suppress_eval</tt> option is set to true.
@@ -463,52 +467,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     hi there reader!
 #     yo
 #   </p>
-# 
-# ==== ~
-# 
-# The tilde character works the same as the equals character,
-# but the output is modified in such a way
-# that newlines in whitespace-sensitive elements work properly.
-# For example:
-# 
-#   %foo
-#     = "Woah    <pre>  this is   \n</pre>    crazy"
-#   %foo2
-#     ~ "Woah    <pre>  this is   \n</pre>    crazy"
-# 
-# is compiled to:
-# 
-#   <foo>
-#     Woah    <pre>  this is
-#     </pre>    crazy
-#   </foo>
-#   <foo2>
-#     Woah    <pre>  this is   &#x000A;</pre>    crazy
-#   </foo2>
-# 
-# If the ~ character isn't followed by text,
-# it doesn't evaluate Ruby at all.
-# Instead, an indented section following it will be rendered
-# in a whitespace-sensitive manner,
-# using HTML encodings for newlines.
-# For example:
-# 
-# For example:
-# 
-#   .house
-#     %pre
-#       ~
-#          /^^^\
-#         |[] []|
-#         |_____|
-# 
-# is compiled to:
-# 
-#   <div class="house">
-#     <pre>
-#       &#x000A; /^^^\&#x000A;|[] []|&#x000A;|_____|&#x000A;
-#     </pre>
-#   </div>
 # 
 # ==== -
 # 
