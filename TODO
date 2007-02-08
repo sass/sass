@@ -6,6 +6,7 @@ Documentation:
   Haml::Engine public method documentation could use work
 
 Features:
+  Sass number constants should remember units
   Sass should throw generic errors for undefined constants, not syntax errors
   Sass::Plugin should log errors
   Line numbers on Sass errors should be correct after empty lines
