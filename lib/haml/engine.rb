@@ -200,9 +200,11 @@ END
       old_index = nil
       old_spaces = nil
       old_tabs = nil
+      old_uline = nil
       (@template + "\n-#").each_with_index do |line, index|
         spaces, tabs = count_soft_tabs(line)
-        line.strip!
+        uline = line.lstrip[0...-1]
+        line = uline.rstrip
         
         if !line.empty?
           if old_line
@@ -222,7 +224,7 @@ END
               end
 
               if flat
-                push_flat(old_line, old_spaces)
+                push_flat(old_uline, old_spaces)
               elsif !line_empty
                 process_line(old_line, old_index, block_opened)
               end
@@ -237,12 +239,14 @@ END
           old_index = index
           old_spaces = spaces
           old_tabs = tabs
+          old_uline = uline
         elsif @flat_spaces != -1
           process_indent(old_tabs, old_line) unless old_line.empty?
 
           if @flat_spaces != -1
             push_flat(old_line, old_spaces)
             old_line = ''
+            old_uline = ''
             old_spaces = 0
           end
         end
