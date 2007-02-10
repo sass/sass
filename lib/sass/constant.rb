@@ -87,7 +87,15 @@ module Sass
                 next
               end
             
+              last = to_return[-1]
               symbol = SYMBOLS[byte]
+
+              if (symbol.nil? || symbol == :open) &&
+                  last && (!last.is_a?(Symbol) || last == :close)
+                # Two values connected without an operator
+                to_return << :concat
+              end
+
               if symbol && !(negative_okay && symbol == :minus)
                 str = reset_str.call
                 negative_okay = true
@@ -153,9 +161,6 @@ module Sass
         elsif length == 3
           Operation.new(operationalize(value[0], constants), operationalize(value[2], constants), value[1])
         else
-          unless length >= 5 && length % 2 == 1
-            raise SyntaxError.new("Constant arithmetic error")
-          end
           if SECOND_ORDER.include?(value[1]) && FIRST_ORDER.include?(value[3])
             operationalize([value[0], value[1], operationalize(value[2..4], constants), *value[5..-1]], constants)
           else

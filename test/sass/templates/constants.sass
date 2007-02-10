@@ -7,8 +7,9 @@
 !neg = -10
 !esc= 10\+12
 !str= "Hello!"
-!qstr= "Quo\"te!"
+!qstr= "Quo\"ted\"!"
 !hstr= "Hyph-en!"
+!concat = (5 + 4) hi there
 
 #main
   :content= !str
@@ -17,6 +18,7 @@
   :width= !width
   :background-color #000
   :color= !main_text
+  :con= foo bar (!concat boom)
   #sidebar
     :background-color= !color
     :num

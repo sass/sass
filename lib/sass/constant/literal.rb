@@ -29,6 +29,10 @@ class Sass::Constant::Literal
   def perform
     self
   end
+
+  def concat(other)
+    Sass::Constant::String.from_value("#{self.to_s} #{other.to_s}")
+  end
   
   attr_reader :value
   
