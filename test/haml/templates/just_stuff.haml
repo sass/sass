@@ -7,6 +7,10 @@
 !!! Strict foo bar
 !!! FRAMESET
 %strong{:apos => "Foo's bar!"} Boo!
+== Embedded? false!
+== Embedded? #{true}!
+- embedded = true
+== Embedded? #{embedded}!
 .render= render :inline => "%em= 'wow!'", :type => :haml
 = "stuff followed by whitespace"
   

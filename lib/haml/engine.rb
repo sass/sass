@@ -288,7 +288,12 @@ END
       when COMMENT
         render_comment(line)
       when SCRIPT
-        push_script(line[1..-1], false)
+        sub_line = line[1..-1]
+        if sub_line[0] == SCRIPT
+          push_script(sub_line[1..-1].strip.dump.gsub('\\#', '#'), false)
+        else
+          push_script(sub_line, false)
+        end
       when FLAT_SCRIPT
         warn(FLAT_WARNING) unless defined?(Test::Unit)
         push_flat_script(line[1..-1])
