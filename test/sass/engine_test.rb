@@ -33,7 +33,7 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n :b c" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
     "a\n    :b c" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
     "a\n  :b\n  !c = 3" => "Constants may only be declared at the root of a document.",
-#    "!a = b c d" => 'Undefined operation: "b c d"'
+    "!a = b c d" => 'Undefined operation: "b c d"'
   }
   
   def test_basic_render
