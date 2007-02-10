@@ -22,7 +22,7 @@ module Sass::Constant
       begin
         literal1.send(@operator, literal2)
       rescue NoMethodError => e
-        raise e unless e.name == @operator
+        raise e unless e.name.to_s == @operator.to_s
         raise Sass::SyntaxError.new("Undefined operation: \"#{literal1} #{@operator} #{literal2}\"")
       end
     end
