@@ -6,7 +6,7 @@ require 'sass/constant/color'
 
 class Sass::Constant::Literal
   # The regular expression matching numbers.
-  NUMBER  = /^(-?[0-9]*?\.?)([0-9]+)([^0-9]*)$/
+  NUMBER  = /^(-?[0-9]*?\.?)([0-9]+)([^0-9\s]*)$/
 
   # The regular expression matching colors.
   COLOR = /^\#(#{"[0-9a-fA-F]" * 3}|#{"[0-9a-fA-F]" * 6})/
