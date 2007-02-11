@@ -210,7 +210,7 @@ END
           if old_line
             block_opened = tabs > old_tabs && !line.empty?
             
-            suppress_render = handle_multiline(old_tabs, old_line, old_index)
+            suppress_render = handle_multiline(old_tabs, old_line, old_index) unless @flat_spaces != -1
             
             if !suppress_render
               line_empty = old_line.empty?
