@@ -3,6 +3,7 @@ Bugs:
 
 Testing:
   Add Sass support for various utilities (benchmark, profile)
+  Test html2haml
 
 Documentation:
   ! Document Sass module
