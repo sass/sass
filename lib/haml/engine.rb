@@ -92,6 +92,15 @@ module Haml
     # is a member of this array.
     MID_BLOCK_KEYWORDS   = ['else', 'elsif', 'rescue', 'ensure', 'when']
 
+    # The Regex that matches an HTML comment command.
+    COMMENT_REGEX = /\/(\[[a-zA-Z0-9 \.]*\])?(.*)/
+
+    # The Regex that matches a Doctype command.
+    DOCTYPE_REGEX = /([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/
+
+    # The Regex that matches an HTML tag command.
+    TAG_REGEX = /[%]([-:_a-zA-Z0-9]+)([-_a-zA-Z0-9\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
+
     FLAT_WARNING = <<END
 Haml deprecation warning:
 The ~ command is deprecated and will be removed in future Haml versions.
@@ -562,7 +571,7 @@ END
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
       matched = false
-      line.scan(/[%]([-:_a-zA-Z0-9]+)([-_a-zA-Z0-9\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/) do |tag_name, attributes, attributes_hash, object_ref, action, value|
+      line.scan(TAG_REGEX) do |tag_name, attributes, attributes_hash, object_ref, action, value|
         matched = true
         value = value.to_s
 
@@ -625,7 +634,7 @@ END
 
     # Renders an XHTML comment.
     def render_comment(line)
-      conditional, content = line.scan(/\/(\[[a-zA-Z0-9 \.]*\])?(.*)/)[0]
+      conditional, content = line.scan(COMMENT_REGEX)[0]
       content.strip!
 
       if @block_opened && !content.empty?
@@ -653,7 +662,7 @@ END
         wrapper = @options[:attr_wrapper]
         doctype = "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{encoding}#{wrapper} ?>"
       else
-        version, type = line.scan(/([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/)[0]
+        version, type = line.scan(DOCTYPE_REGEX)[0]
         if version == "1.1"
           doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
         else
