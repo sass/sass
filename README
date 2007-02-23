@@ -9,6 +9,20 @@ by eliminating redundancy,
 reflecting the underlying structure that the document represents,
 and providing elegant, easily understandable, and powerful syntax.
 
+== Using
+
+There are two ways to use Haml and Sass.
+The easiest is as a Rails plugin:
+Simply type <tt>./script/plugin install http://hamptoncatlin.com/haml/stable</tt>
+and both Haml and Sass will be installed.
+Views with the <tt>.haml</tt> extension will automatically use Haml.
+Sass is a little more complicated;
+<tt>.sass</tt> files should be placed in public/stylesheets/sass,
+where they'll be automatically compiled
+to corresponding CSS files in public/stylesheets when needed
+(the Sass template directory is customizable...
+see the Sass module docs for details).
+
 == Formatting
 
 === Haml
@@ -76,7 +90,127 @@ Check out the reference documentation in the Haml module.
 
 === Sass
 
-*add docs*
+At its most basic,
+Sass is just another way of writing CSS.
+Although it's very much like normal CSS,
+the basic syntax offers a few helpful features:
+tabulation (using *two spaces*)
+indicates the attributes in a rule,
+rather than non-DRY brackets;
+and newlines indicate the end of an attribute,
+rather than a semicolon.
+For example:
+
+  #main
+    :background-color #f00
+    :width 98%
+
+becomes:
+
+  #main {
+    background-color: #f00;
+    width: 98% }
+
+However, Sass provides much more than a way to make CSS look nice.
+In CSS, it's important to have accurate selectors,
+so your styles don't just apply to everything.
+However, in order to do this,
+you need to use nested element selectors.
+These get very ugly very quickly.
+I'm sure everyone's had to write something like
+"#main .sidebar .top p h1 a",
+followed by
+"#main .sidebar .top p h1 a:visited" and
+"#main .sidebar .top p h1 a:hover".
+Well, Sass gets rid of that.
+Like Haml, it uses indentation to indicate the structure of the document.
+So, what was:
+
+  #main {
+    width: 90%;
+  }
+  #main p {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #00f;
+  }
+  #main p a {
+    text-decoration: none;
+    font-weight: bold;
+  }
+  #main p a:hover {
+    text-decoration: underline;
+  }
+
+becomes:
+
+  #main
+    :width 90%
+    p
+      :border-style solid
+      :border-width 1px
+      :border-color #00f
+      a
+        :text-decoration none
+        :font-weight bold
+      a:hover
+        :text-decoration underline
+
+Pretty nice, no? Well, it gets better.
+One of the main complaints against CSS is that it doesn't allow constants.
+What if have a color or a width you re-use all the time?
+In CSS, you just have to re-type it each time,
+which is a nightmare when you decide to change it later.
+Not so for Sass!
+You can use the "!" character to set constants.
+Then, if you put "=" after your attribute name,
+you can set it to a constant.
+For example:
+
+  !note_bg= #55aaff
+
+  #main
+    :width 70%
+    .note
+      :background-color= !note_bg
+    p
+      :width 5em
+      :background-color= !note_bg
+
+becomes:
+
+  #main {
+    width: 70%; }
+    #main .note {
+      background-color: #55aaff; }
+    #main p {
+      width: 5em;
+      background-color: #55aaff; }
+
+You can even do simple arithmetic operations with constants,
+adding numbers and even colors together:
+
+  !main_bg= #46ar12
+  !main_width= 40em
+
+  #main
+    :background-color= !main_bg
+    :width= !main_width
+    .sidebar
+      :background-color= !main_bg + #333333
+      :width= !main_width - 25em
+
+becomes:
+
+  #main {
+    background-color: #46a312;
+    width: 40em; }
+    #main .sidebar {
+      background-color: #79d645;
+      width: 15em; }
+
+A comprehensive list of features is in
+the documentation for the Sass module.
 
 == Authors
 
