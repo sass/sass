@@ -382,11 +382,11 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # 
 # is compiled to:
 # 
-#   %hoo I think this might get |
-#     pretty long so I should |
-#     probably make it |
-#     multiline so it doesn't |
-#     look awful. |
+#   <whoo>
+#     <hoo>
+#       I think this might get pretty long so I should probably make it multiline so it doesn't look awful.
+#     </hoo>
+#   </whoo>
 #
 # ==== :
 #

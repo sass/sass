@@ -8,7 +8,7 @@ module Haml
   # template is done. It can be directly used by the user by creating a
   # new instance and calling <tt>to_html</tt> to render the template. For example:
   #
-  #   template = File.load('templates/really_cool_template.haml')
+  #   template = File.read('templates/really_cool_template.haml')
   #   haml_engine = Haml::Engine.new(template)
   #   output = haml_engine.to_html
   #   puts output
