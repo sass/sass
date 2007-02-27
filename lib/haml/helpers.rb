@@ -240,8 +240,9 @@ module Haml
   end
 end
 
-class ActionView::Base # :nodoc:
-  def is_haml?
-    false
+module ActionView
+  class Base # :nodoc:
+    def is_haml?
+      false
   end
 end
