@@ -1,4 +1,4 @@
-Sdir = File.dirname(__FILE__)
+dir = File.dirname(__FILE__)
 $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 
 # = Sass (Syntactically Awesome StyleSheets)
