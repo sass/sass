@@ -23,6 +23,9 @@ module Sass
     
     # The string that begins one-line comments.
     COMMENT_STRING  = '//'
+
+    # The regex that matches attributes.
+    ATTRIBUTE = /:([^\s=]+)\s*(=?)\s*(.*)/
   
     # Creates a new instace of Sass::Engine that will compile the given
     # template string when <tt>render</tt> is called.
@@ -151,17 +154,13 @@ module Sass
     end
     
     def parse_attribute(line)
-      name, value = line.split(' ', 2)
-      value = value.to_s
+      name, eq, value = line.scan(ATTRIBUTE)[0]
 
-      if name.nil? || name == ':' || name == ':='
+      if name.nil? || value.nil?
         raise SyntaxError.new("Invalid attribute: \"#{line}\"", @line)
       end
-
-      name = name[1..-1]
       
-      if name[-1] == SCRIPT_CHAR
-        name.slice!(-1)
+      if eq[0] == SCRIPT_CHAR
         value = Sass::Constant.parse(value, @constants, @line).to_s
       end
       
