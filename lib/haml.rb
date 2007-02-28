@@ -7,7 +7,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # that's used to cleanly and simply describe the XHTML of any web document,
 # without the use of inline code.
 # Haml functions as a replacement
-# for inline page templating systems such as PHP, RHTML, and ASP. 
+# for inline page templating systems such as PHP, ERB, and ASP. 
 # However, Haml avoids the need for explicitly coding XHTML into the template, 
 # because it is actually an abstract description of the XHTML,
 # with some code to generate dynamic content.
@@ -18,9 +18,30 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # * Well-formatted markup
 # * DRY
 # * Follows CSS conventions
-# * Interpolates Ruby code
+# * Integrates Ruby code
 # * Implements Rails templates with the .haml extension
+#
+# == Using Haml
+#
+# Haml can be used in two ways.
+# It's most commonly used as a plugin for Ruby on Rails;
+# it can be installed as a plugin using the Rails plugin installer:
 # 
+#   ./script/plugin install http://svn.hamptoncatlin.com/haml/tags/stable
+#
+# Once it's installed, all view files with the ".haml" extension
+# will be compiled using Haml.
+#
+# Haml can also be used completely separately from Rails and ActionView.
+# To do this, install the gem with RubyGems:
+#
+#   gem install haml
+#
+# You can then use it by including the "haml" gem in Ruby code,
+# and using Haml::Engine like so:
+#
+#   engine = Haml::Engine.new("%p Haml code!")
+#   engine.render #=> "<p>Haml code!</p>\n"
 # 
 # == Characters with meaning to Haml
 # 
@@ -34,7 +55,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # ==== %
 # 
 # 
-# This element is placed at the beginning of a line.
+# The percent character is placed at the beginning of a line.
 # It's followed immediately by the name of an element,
 # then optionally by modifiers (see below), a space,
 # and text to be rendered inside the element.
