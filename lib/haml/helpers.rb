@@ -244,5 +244,6 @@ module ActionView
   class Base # :nodoc:
     def is_haml?
       false
+      end
   end
 end
