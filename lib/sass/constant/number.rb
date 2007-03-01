@@ -1,7 +1,7 @@
 require 'sass/constant/literal'
 
-module Sass::Constant
-  class Number < Literal
+module Sass::Constant  # :nodoc:
+  class Number < Literal # :nodoc:
 
     attr_reader :unit
 

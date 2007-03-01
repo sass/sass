@@ -719,7 +719,7 @@ END
   end
 end
 
-class Hash # :nodoc
+class Hash # :nodoc:
   # Same as Hash#merge!, but recursively merges sub-hashes.
   def rec_merge!(other)
     other.each do |key, value|

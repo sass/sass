@@ -1,7 +1,7 @@
 require 'sass/constant/literal'
 
-module Sass::Constant
-  class Color < Literal
+module Sass::Constant # :nodoc:
+  class Color < Literal # :nodoc:
   
     REGEXP = /\##{"([0-9a-fA-F]{1,2})" * 3}/
   

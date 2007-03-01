@@ -2,8 +2,8 @@ require 'sass/constant/string'
 require 'sass/constant/number'
 require 'sass/constant/color'
 
-module Sass::Constant
-  class Operation
+module Sass::Constant # :nodoc:
+  class Operation # :nodoc:
     def initialize(operand1, operand2, operator)
       @operand1 = operand1
       @operand2 = operand2

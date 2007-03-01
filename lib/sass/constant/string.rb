@@ -1,7 +1,7 @@
 require 'sass/constant/literal'
 
-module Sass::Constant
-  class String < Literal
+module Sass::Constant # :nodoc:
+  class String < Literal # :nodoc:
     
     def parse(value)
       @value = value

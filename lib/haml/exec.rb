@@ -9,7 +9,7 @@ module Haml
   module Exec # :nodoc:
     # A class that encapsulates the executable code
     # for all three executables.
-    class Generic
+    class Generic # :nodoc:
       def initialize(args)
         @args = args
         @options = {}
@@ -88,7 +88,7 @@ module Haml
 
     # A class encapsulating the executable functionality
     # specific to Haml and Sass.
-    class HamlSass < Generic
+    class HamlSass < Generic # :nodoc:
       private
 
       def set_opts(opts)
@@ -113,7 +113,7 @@ END
 
     # A class encapsulating executable functionality
     # specific to Sass.
-    class Sass < HamlSass
+    class Sass < HamlSass # :nodoc:
       def initialize(args)
         super
         @name = "Sass"
@@ -134,7 +134,7 @@ END
 
     # A class encapsulating executable functionality
     # specific to Haml.
-    class Haml < HamlSass
+    class Haml < HamlSass # :nodoc:
       def initialize(args)
         super
         @name = "Haml"
@@ -155,7 +155,7 @@ END
 
     # A class encapsulating executable functionality
     # specific to the html2haml executable.
-    class HTML2Haml < Generic
+    class HTML2Haml < Generic # :nodoc:
       def set_opts(opts)
         opts.banner = <<END
 Usage: html2haml [options] (html file) (output file)

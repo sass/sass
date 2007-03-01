@@ -1,10 +1,11 @@
-module Sass::Constant; class Literal; end; end; # Let the subclasses see the superclass
+# Let the subclasses see the superclass
+module Sass::Constant; class Literal; end; end; # :nodoc:
 
 require 'sass/constant/string'
 require 'sass/constant/number'
 require 'sass/constant/color'
 
-class Sass::Constant::Literal
+class Sass::Constant::Literal # :nodoc:
   # The regular expression matching numbers.
   NUMBER  = /^(-?[0-9]*?\.?)([0-9]+)([^0-9\s]*)$/
 

@@ -167,6 +167,252 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     font-size: 30em;
 #     font-weight: bold; }
 #
+# == Constants
+#
+# Sass has support for setting document-wide constants.
+# They're set using an exclamation mark followed by the name,
+# an equals sign, and the value.
+# An attribute can then be set to the value of a constant
+# by following it with another equals sign.
+# For example:
+#
+#   !main_color = #00ff00
+#
+#   #main
+#     :color = !main_color
+#     :p
+#       :background-color = !main_color
+#       :color #000000
+#
+# is compiled to:
+#
+#   #main {
+#     color: #00ff00; }
+#     #main p {
+#       background-color: #00ff00;
+#       color: #000000; }
+#
+# === Arithmetic
+#
+# You can even do basic arithmetic with constants.
+# Sass recognizes numbers, colors,
+# lengths (numbers with units),
+# and strings (everything that's not one of the above),
+# and various operators that work on various values.
+# All the normal arithmetic operators
+# (+, -, *, /, %, and parentheses for grouping)
+# are defined as usual
+# for numbers, colors, and lengths.
+# The "+" operator is also defined for Strings
+# as the concatenation operator.
+# For example:
+#
+#   !main_width = 10
+#   !unit1 = em
+#   !unit2 = px
+#   !bg_color = #a5f39e
+#
+#   #main
+#     :background-color = !bg_color
+#     p
+#       :background-color = !bg_color + #202020
+#       :width = !main_width + !unit1
+#     img.thumb
+#       :width = (!main_width + 15) + !unit2
+#
+# is compiled to:
+#
+#   #main {
+#     background-color: #a5f39e; }
+#     #main p {
+#       background-color: #c5ffbe;
+#       width: 10em; }
+#     #main img.thumb {
+#       width: 25em; }
+#
+# === Colors
+#
+# Not only can arithmetic be done between colors and other colors,
+# but it can be done between colors and normal numbers.
+# In this case, the operation is done piecewise one each of the
+# Red, Green, and Blue components of the color.
+# For example:
+#
+#   !main_color = #a5f39e
+#
+#   #main
+#     :background-color = !main_color
+#     p
+#       :background-color = !bg_color + 32
+#
+# is compiled to:
+#
+#   #main {
+#     background-color: #a5f39e; }
+#     #main p {
+#       background-color: #c5ffbe; }
+#
+# === Strings
+#
+# Strings are the type that's used by default
+# when an element in a bit of constant arithmetic isn't recognized
+# as another type of constant.
+# However, they can also be created explicitly be wrapping a section of code with quotation marks.
+# Inside the quotation marks,
+# a backslash can be used to
+# escape quotation marks that you want to appear in the CSS.
+# For example:
+#
+#   !content = "Hello, \"Hubert\" Bean."
+#
+#   #main
+#     :content = "string(" + !content + ")"
+#
+# is compiled to:
+#
+#   #main {
+#     content: string(Hello, "Hubert" Bean.) }
+#
+# === Default Concatenation
+#
+# All those plusses and quotes for concatenating strings
+# can get pretty messy, though.
+# Most of the time, if you want to concatenate stuff,
+# you just want individual values with spaces in between them.
+# Thus, in Sass, when two values are next to each other without an operator,
+# they're simply joined with a space.
+# For example:
+#
+#   !font_family = sans-serif
+#   !main_font_size = 1em
+#
+#   #main
+#     :font
+#       :family = !font-family
+#       :size = !main_font_size
+#     h6
+#       :font = italic small-caps bold (!main_font_size + 0.1em) !font-family
+#
+# is compiled to:
+#
+#   #main {
+#     font-family: sans-serif;
+#     font-size: 1em; }
+#     #main h6 {
+#       font: italic small-caps bold 1.1em sans-serif; }
+#
+# == Output Style
+#
+# Although the default CSS style that Sass outputs is very nice,
+# and reflects the structure of the document in a similar way that Sass does,
+# sometimes it's good to have other formats available.
+#
+# Sass allows you to choose between three different output styles
+# by setting the <tt>:style</tt> option.
+# In Rails, this is done by setting <tt>Sass::Template.options[:style]</tt>;
+# outside Rails, it's done by passing an options hash with </tt>:style</tt> set.
+#
+# === <tt>:nested</tt>
+#
+# Nested style is the default Sass style,
+# because it reflects the structure of the document
+# in much the same way Sass does.
+# Each attribute has its own line,
+# but the indentation isn't constant.
+# Each rule is indented based on how deeply it's nested.
+# For example:
+#
+#   #main {
+#     color: #fff;
+#     background-color: #000; }
+#     #main p {
+#       width: 10em; }
+#
+#   .huge {
+#     font-size: 10em;
+#     font-weight: bold;
+#     text-decoration: underline; }
+#
+# Nested style is very useful when looking at large CSS files
+# for the same reason Sass is useful for making them:
+# it allows you to very easily grasp the structure of the file
+# without actually reading anything.
+#
+# === <tt>:expanded</tt>
+#
+# Expanded is the typical human-made CSS style,
+# with each attribute and rule taking up one line.
+# Attributes are indented within the rules,
+# but the rules aren't indented in any special way.
+# For example:
+#
+# #main {
+#   color: #fff;
+#   background-color: #000;
+# }
+# #main p {
+#   width: 10em;
+# }
+#
+# .huge {
+#   font-size: 10em;
+#   font-weight: bold;
+#   text-decoration: underline;
+# }
+#
+# === <tt>:compact</tt>
+#
+# Compact style, as the name would imply,
+# takes up less space than Nested or Expanded.
+# However, it's also harder to read.
+# Each CSS rule takes up only one line,
+# with every attribute defined on that line.
+# Nested rules are placed next to each other with no newline,
+# while groups of rules have newlines between them.
+# For example:
+#
+# #main { color: #fff; background-color: #000; }
+# #main p { width: 10em; }
+#
+# .huge { font-size: 10em; font-weight: bold; text-decoration: underline; } 
+#
+# == Sass Options
+#
+# Options can be set by setting the hash <tt>Sass::Plugin.options</tt>
+# from <tt>environment.rb</tt> in Rails,
+# or by passing an options hash to Sass::Engine.
+# Available options are:
+#
+# [<tt>:style</tt>]             Sets the style of the CSS output.
+#                               See the section on Output Style, above.
+#
+# [<tt>:always_update</tt>]     Whether the CSS files should be updated every
+#                               time a controller is accessed,
+#                               as opposed to only when the template has been modified.
+#                               Defaults to false.
+#                               Only has meaning within Ruby on Rails.
+#                               
+# [<tt>:always_update</tt>]     Whether a Sass template should be checked for updates every
+#                               time a controller is accessed,
+#                               as opposed to only when the Rails server starts.
+#                               If a Sass template has been updated,
+#                               it will be recompiled and will overwrite the corresponding CSS file.
+#                               Defaults to false if Rails is running in production mode,
+#                               true otherwise.
+#                               Only has meaning within Ruby on Rails.
+#
+# [<tt>:template_location</tt>] The directory where Sass templates should be read from.
+#                               Defaults to <tt>RAILS_ROOT + "/public/stylesheets/sass"</tt>.
+#                               Only has meaning within Ruby on Rails.
+#
+# [<tt>:css_location</tt>]      The directory where CSS output should be written to.
+#                               Defaults to <tt>RAILS_ROOT + "/public/stylesheets"</tt>.
+#                               Only has meaning within Ruby on Rails.
+#
+# [<tt>:filename</tt>]          The filename of the file being rendered.
+#                               This is used solely for reporting errors,
+#                               and is automatically set when using Rails.
+# 
 module Sass; end
 
 require 'sass/engine'

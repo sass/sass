@@ -28,7 +28,7 @@ module Sass
       self.backtrace.unshift "#{filename || '(sass)'}:#{@sass_line}"
     end
 
-    def to_s # :nodoc
+    def to_s # :nodoc:
       @message
     end
   end

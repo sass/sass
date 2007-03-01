@@ -23,14 +23,50 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # == Using Haml
 #
-# Haml can be used in two ways.
-# It's most commonly used as a plugin for Ruby on Rails;
-# it can be installed as a plugin using the Rails plugin installer:
+# Haml can be used in two ways:
+# as a plugin for Ruby on Rails,
+# and as a standalong Ruby module.
+#
+# === Rails
+# 
+# Haml is most commonly used as a plugin.
+# It can be installed as a plugin using the Rails plugin installer:
 # 
 #   ./script/plugin install http://svn.hamptoncatlin.com/haml/tags/stable
 #
 # Once it's installed, all view files with the ".haml" extension
 # will be compiled using Haml.
+#
+# You can access instance variables in Haml templates
+# the same way you do in ERb templates.
+# Helper methods are also available in Haml templates.
+# For example:
+# 
+#   # file: app/controllers/movies_controller.rb
+# 
+#   class MoviesController < ApplicationController
+#     def index
+#       @title = "Teen Wolf"
+#     end
+#   end
+# 
+#   # file: app/views/movies/index.haml
+# 
+#   #content
+#    .title
+#      %h1= @title
+#      = link_to 'Home', home_url
+# 
+# may be compiled to:
+# 
+#   <div id='content'>
+#     <div class='title'>
+#       <h1>Teen Wolf</h1>
+#       <a href='/'>Home</a>
+#     </div>
+#   </div>
+#
+# === Ruby Module
 #
 # Haml can also be used completely separately from Rails and ActionView.
 # To do this, install the gem with RubyGems:
@@ -560,77 +596,11 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     2?
 #   </p>
 # 
-# == Using Haml as a Rails plugin
-# 
-# Write Rails templates with the .haml extension.
-# For example:
-# 
-#   # file: app/views/movies/teen_wolf.haml
-# 
-#   %html
-#     %head
-#       %title= "Teen Wolf (1985)"
-#     %body
-#       #contents
-#         %h1 "A highschooler discovers that he is a werewolf"
-#         %ul.cast
-#           %li "Scott Howard"
-#           %li "Rupert 'Stiles' Stilinski"
-#           %li "Lisa 'Boof' Marconi"
-#           %li "Lewis"
-# 
-# is compiled to:
-# 
-#   <html>
-#     <head>
-#       <title>Teen Wolf (1985)</title>
-#     </head>
-#     <body>
-#       <div id='contents'>
-#         <h1>A highschooler discovers that he is a werewolf</h1>
-#         <ul class='cast'>
-#           <li>Scott Howard</li>
-#           <li>Rupert 'Stiles' Stilinski</li>
-#           <li>Lisa 'Boof' Marconi</li>
-#           <li>Lewis</li>
-#         </ul>
-#       </div>
-#     </body>
-#   </html>
-# 
-# You can access instance variables in Haml templates
-# the same way you do in ERb templates.
-# Helper methods are also available in Haml templates.
-# For example:
-# 
-#   # file: app/controllers/movies_controller.rb
-# 
-#   class MoviesController < ApplicationController
-#     def index
-#       @title = "Teen Wolf"
-#     end
-#   end
-# 
-#   # file: app/views/movies/index.haml
-# 
-#   #content
-#    .title
-#      %h1= @title
-#      = link_to 'Home', home_url
-# 
-# may be compiled to:
-# 
-#   <div id='content'>
-#     <div class='title'>
-#       <h1>Teen Wolf</h1>
-#       <a href='/'>Home</a>
-#     </div>
-#   </div>
-# 
-# === Setting Options
+# == Haml Options
 # 
 # Options can be set by setting the hash <tt>Haml::Template.options</tt>
-# from <tt>environment.rb</tt>.
+# from <tt>environment.rb</tt> in Rails,
+# or by passing an options hash to Haml::Engine.
 # Available options are:
 # 
 # [<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts

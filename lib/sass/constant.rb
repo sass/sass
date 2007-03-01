@@ -2,7 +2,7 @@ require 'sass/constant/operation'
 require 'sass/constant/literal'
 
 module Sass
-  module Constant
+  module Constant # :nodoc:
     # The character that begins a constant.
     CONSTANT_CHAR   = ?!
 
@@ -38,7 +38,7 @@ module Sass
     # Second-order operations
     SECOND_ORDER = [:plus, :minus]
   
-    class << self    
+    class << self
       def parse(value, constants, line)
         begin
           operationalize(parenthesize(tokenize(value)), constants).to_s
