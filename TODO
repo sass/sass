@@ -6,7 +6,6 @@ Testing:
   Test html2haml
 
 Documentation:
-  ! Document Sass module
   Haml::Engine public method documentation could use work
 
 Features:
