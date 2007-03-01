@@ -45,9 +45,9 @@ module Sass
             File.delete(css) if File.exists?(css)
             
             filename = template_filename(name)
-            options = @@options.dup
-            options[:filename] = filename
-            engine = Engine.new(File.read(filename), options)
+            l_options = @@options.dup
+            l_options[:filename] = filename
+            engine = Engine.new(File.read(filename), l_options)
             begin
               result = engine.render
             rescue Exception => e
@@ -78,7 +78,7 @@ module Sass
               end
             end
             
-            Dir.mkdir(options[:css_location]) unless File.exist?(options[:css_location])
+            Dir.mkdir(l_options[:css_location]) unless File.exist?(l_options[:css_location])
             File.open(css, 'w') do |file|
               file.print(result)
             end
