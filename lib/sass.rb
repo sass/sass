@@ -11,7 +11,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # and implements various features that are useful
 # for creating manageable stylesheets.
 #
-# == Features
+# == Features 
 #
 # * Whitespace active
 # * Well-formatted output
