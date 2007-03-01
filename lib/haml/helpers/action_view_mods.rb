@@ -18,9 +18,12 @@ if action_view_included
   
   module Haml
     module Helpers
-      # This module overrides various helpers in ActionView to make them
-      # work more effectively with Haml. It's not available unless ActionView
-      # is installed.
+      # This module overrides various helpers in ActionView
+      # to make them work more effectively with Haml.
+      # It also defines several helper methods,
+      # available from a Haml template,
+      # which are only useful within the context of ActionView.
+      # It's not available unless ActionView is installed.
       #
       #--
       # Methods in this module should be nodoc'd.
@@ -56,7 +59,7 @@ if action_view_included
           res
         end
 
-        def form_for(object_name, *args, &proc)
+        def form_for(object_name, *args, &proc) # :nodoc:
           if block_given? && is_haml?
             oldproc = proc 
             proc = bind_proc do |*args|

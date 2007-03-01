@@ -346,19 +346,19 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # but the rules aren't indented in any special way.
 # For example:
 #
-# #main {
-#   color: #fff;
-#   background-color: #000;
-# }
-# #main p {
-#   width: 10em;
-# }
+#   #main {
+#     color: #fff;
+#     background-color: #000;
+#   }
+#   #main p {
+#     width: 10em;
+#   }
 #
-# .huge {
-#   font-size: 10em;
-#   font-weight: bold;
-#   text-decoration: underline;
-# }
+#   .huge {
+#     font-size: 10em;
+#     font-weight: bold;
+#     text-decoration: underline;
+#   }
 #
 # === <tt>:compact</tt>
 #
@@ -371,10 +371,10 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # while groups of rules have newlines between them.
 # For example:
 #
-# #main { color: #fff; background-color: #000; }
-# #main p { width: 10em; }
+#   #main { color: #fff; background-color: #000; }
+#   #main p { width: 10em; }
 #
-# .huge { font-size: 10em; font-weight: bold; text-decoration: underline; } 
+#   .huge { font-size: 10em; font-weight: bold; text-decoration: underline; } 
 #
 # == Sass Options
 #
