@@ -210,7 +210,7 @@ END
       old_spaces = nil
       old_tabs = nil
       old_uline = nil
-      (@template + "\n-#").each_with_index do |line, index|
+      (@template + "\n-#\n-#").each_with_index do |line, index|
         spaces, tabs = count_soft_tabs(line)
         uline = line.lstrip[0...-1]
         line = uline.rstrip
