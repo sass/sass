@@ -8,7 +8,6 @@ class SassEngineTest < Test::Unit::TestCase
   EXCEPTION_MAP = {
     "!a = 1 + " => 'Constant arithmetic error: "1 +"',
     "!a = 1 + 2 +" => 'Constant arithmetic error: "1 + 2 +"',
-    "!a = hello \"world\"" => 'Constant arithmetic error: "hello \\"world\\""',
     "!a = \"b" => 'Unterminated string: "\\"b"',
     "!a = #aaa - a" => 'Undefined operation: "#afafaf minus a"',
     "!a = #aaa / a" => 'Undefined operation: "#afafaf div a"',

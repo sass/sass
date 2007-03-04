@@ -74,9 +74,16 @@ module Sass
               next
             end
 
+            last = to_return[-1]
+
             if byte == STRING_CHAR
-              str = reset_str.call
               is_string = !is_string
+
+              if is_string && last && (!last.is_a?(Symbol) || last == :close)
+                to_return << :concat
+              end
+
+              str = reset_str.call
               next
             end
 
@@ -87,7 +94,6 @@ module Sass
                 next
               end
             
-              last = to_return[-1]
               symbol = SYMBOLS[byte]
 
               if (symbol.nil? || symbol == :open) &&
