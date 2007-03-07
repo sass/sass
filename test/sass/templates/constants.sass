@@ -1,0 +1,80 @@
+!width = 10em + 20
+!color = #00ff98
+!main_text = #ffa
+!num = 10
+!dec = 10.2
+!dec_0 = 99.0
+!neg = -10
+!esc= 10\+12
+!str= "Hello!"
+!qstr= "Quo\"ted\"!"
+!hstr= "Hyph-en!"
+!concat = (5 + 4) hi there
+
+#main
+  :content = !str
+  :qstr = !qstr
+  :hstr = !hstr
+  :width = !width
+  :background-color #000
+  :color= !main_text
+  :con= foo bar (!concat boom)
+  :con2= noquo "quo"
+  #sidebar
+    :background-color= !color
+    :num
+      :normal= !num
+      :dec= !dec
+      :dec0= !dec_0
+      :neg= !neg
+    :esc= !esc
+    :many= 1 + 2 + 3
+    :order= 1 + 2 * 3
+    :complex= ((1 + 2) + 15)+#3a8b9f + (hi+(1 +1+ 2)*   4)
+
+#plus
+  :num
+    :num= 5+2
+    :num-un= 10em + 15em
+    :num-un2= 10 + 13em
+    :num-neg= 10 + -.13
+    :str= 100 + px
+    :col= 13 + #aaa
+  :str
+    :str= hi + \ there
+    :str2= hi + " there"
+    :col= "14em solid " + #123
+    :num= times:\  + 13
+  :col
+    :num= #f02 + 123.5
+    :col= #12A + #405162
+
+#minus
+  :num
+    :num= 912 - 12
+  :col
+    :num= #fffffa - 5.2
+    :col= #abcdef - #fedcba
+
+#times
+  :num
+    :num= 2 * 3.5
+    :col= 2 * #3a4b5c
+  :col
+    :num= #12468a * 0.5
+    :col= #121212 * #020304
+    
+#div
+  :num
+    :num= 10 / 3.0
+    :num2= 10 / 3
+  :col
+    :num= #12468a / 2
+    :col= #abcdef / #0f0f0f
+
+#mod
+  :num
+    :num= 17 % 3
+  :col
+    :col= #5f6e7d % #10200a
+    :num= #aaabac % 3

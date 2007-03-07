@@ -1,0 +1,16 @@
+Bugs:
+  Find a way to make Sass comments work anywhere without breaking url(http://
+
+Testing:
+  Add Sass support for various utilities (benchmark, profile)
+  Test html2haml
+
+Documentation:
+  Haml::Engine public method documentation could use work
+
+Features:
+  Sass should throw generic errors for undefined constants, not syntax errors
+  Sass::Plugin should log errors
+  Line numbers on Sass errors should be correct after empty lines
+  There should be a way to represent options in-document
+  Haml and Sass executables should return meaningful exit codes

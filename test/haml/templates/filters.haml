@@ -1,0 +1,53 @@
+%style
+  :sass
+    p
+      :border
+        :style dotted
+        :width 10px
+        :color #ff00ff
+    h1
+      :font-weight normal
+
+:test
+  This
+  Should
+  Not
+  Print
+
+:redcloth
+  Foo
+  ===
+
+      This is preformatted!
+      Look at that!
+      Wowie-zowie!
+
+  *boldilicious!*
+
+:textile
+  h1. Yeah
+
+  _pretty much the same as above_
+
+:plain
+  This
+    Is
+      Plain
+        Text
+          %strong right?
+
+:erb
+  <% 10.times do |c| %>
+    <%= (c+97).chr %>
+  <% end %>
+
+:markdown
+  *  Foo
+  *  Bar
+  *  BAZ!
+
+= "Text!"
+
+:ruby
+  puts "Hello, World!"
+  puts "How are you doing today?"
