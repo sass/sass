@@ -102,6 +102,47 @@ Description:
 Options:
 END
        
+        opts.on('--rails RAILS_DIR', "Install Haml from the Gem to a Rails project.") do |dir|
+          original_dir = dir
+
+          dir = File.join(dir, 'vendor', 'plugins')
+
+          unless File.exists?(dir)
+            puts "Directory #{dir} doesn't exist"
+            exit
+          end
+
+          dir = File.join(dir, 'haml')
+
+          if File.exists?(dir)
+            puts "Directory #{dir} already exists."
+            exit
+          end
+
+          begin
+            Dir.mkdir(dir)
+          rescue SystemCallError
+            puts "Cannot create #{dir}"
+            exit
+          end
+
+          File.open(File.join(dir, 'init.rb'), 'w') do |file|
+            file.puts <<END
+require 'rubygems'
+require 'haml'
+require 'haml/template'
+require 'sass'
+require 'sass/plugin'
+
+ActionView::Base.register_template_handler('haml', Haml::Template)
+Sass::Plugin.update_stylesheets
+END
+          end
+
+          puts "Haml plugin added to #{original_dir}"
+          exit
+        end
+
         super
       end
 
