@@ -124,6 +124,7 @@ class EngineTest < Test::Unit::TestCase
       "a\n%p~\nb", "a\n~\nb", "%p/\n  a", "%p\n \t%a b",
       "%a\n b\nc", "%a\n    b\nc",
       ":notafilter\n  This isn't\n  a filter!",
+      ".{} a", "\#{} a", ".= 'foo'",
     ]
     errs.each do |err|
       begin

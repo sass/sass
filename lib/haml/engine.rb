@@ -592,6 +592,10 @@ END
         attributes_hash = "nil" unless attributes_hash
         object_ref = "nil" unless object_ref
 
+        if !attributes.empty? && '.#'.include?(attributes)
+          raise SyntaxError.new("Illegal element: classes and ids must have values. Use %div instead.")
+        end
+
         if @block_opened 
           if atomic
             raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.")
