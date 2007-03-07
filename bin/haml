@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# The command line Haml parser.
+
+require File.dirname(__FILE__) + '/../lib/haml'
+require 'haml/exec'
+
+opts = Haml::Exec::Haml.new(ARGV)
+opts.parse!

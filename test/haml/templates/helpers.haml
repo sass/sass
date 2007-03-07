@@ -1,0 +1,48 @@
+= h("&&&&&&&&&&&") # This is an ActionView Helper... should load
+- foo = capture do # This ActionView Helper is designed for ERB, but should work with haml
+  %div
+    %p.title Title
+    %p.text
+      Woah this is really crazy
+      I mean wow,
+      man.
+- 3.times do
+  = foo
+%p foo
+- tab_up
+%p reeeeeeeeeeeeeeeeeeeeeeeeeeeeeeally loooooooooooooooooong
+- tab_down
+.woah
+  #funky
+    = capture_haml do
+      %div
+        %h1 Big!
+        %p Small
+        / Invisible
+    = capture do
+      .dilly
+        %p foo
+        %h1 bar
+  = surround '(', ')' do
+    %strong parentheses!
+= precede '*' do
+  %span.small Not really
+click
+= succeed '.' do
+  %a{:href=>"thing"} here
+%p baz
+- buffer.tabulation = 10
+%p boom
+- concat "foo\n"
+- buffer.tabulation = 0
+- def url_for(*stuff); stuff.join(' '); end
+= form_tag 'hello/world'
+- form_tag 'heeheeaform' do
+  %div= submit_tag 'save'
+- form_for :article, @article, :url => 'article_url' do |f|
+  Title:
+  = f.text_field :title
+  Body:
+  = f.text_field :body
+= list_of({:google => 'http://www.google.com'}) do |name, link|
+  %a{ :href => link }= name
