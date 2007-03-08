@@ -25,6 +25,11 @@
   :type 'integer
   :group 'haml)
 
+(defcustom haml-backspace-function 'backward-delete-char-untabify
+  "*Function called by `haml-electric-backspace' when deleting backwards."
+  :type 'function
+  :group 'haml)
+
 ;; Helper Functions
 
 (defun string-* (str i)
@@ -42,7 +47,7 @@
 (defconst haml-blank-line-re "^[ \t]*$"
   "Regexp matching a line containing only whitespace.")
 
-(defconst haml-tag-re (hre "[%\\.#][^ \t]*\\({.*}\\)?\\(\\[.*\\]\\).?[ \t]*$")
+(defconst haml-tag-re (hre "[%\\.#][^ \t]*\\({.*}\\)?\\(\\[.*\\]\\)?.?[ \t]*$")
   "Regexp matching a Haml tag.")
 
 (defconst haml-block-re (hre "[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$")
@@ -70,6 +75,9 @@
 (if haml-mode-map
     nil
   (setq haml-mode-map (make-sparse-keymap))
+  (define-key haml-mode-map [backspace] 'haml-electric-backspace)
+  (define-key haml-mode-map "\C-?" 'haml-electric-backspace)
+  (define-key haml-mode-map "\C-a" 'haml-electric-backspace)
   (define-key haml-mode-map "\C-j" 'newline-and-indent))
 
 ;(defvar haml-mode-syntax-table nil
@@ -128,6 +136,22 @@ back-dent the line by `haml-indent-offset' spaces.  On reaching column
         (indent-to need)))
       (if (< (current-column) (current-indentation))
           (forward-to-indentation 0))))
+
+(defun haml-electric-backspace (arg)
+  "Delete characters or back-dent the current line.
+If invoked following only whitespace on a line, will back-dent to the
+immediately previous multiple of `haml-indent-offset' spaces."
+  (interactive "*p")
+  (if (or (/= (current-indentation) (current-column)) (bolp))
+      (funcall haml-backspace-function arg)
+    (let ((ci (current-column)))
+      (beginning-of-line)
+      (delete-horizontal-space)
+      (indent-to (* (/ (- ci (* arg haml-indent-offset))
+                       haml-indent-offset)
+                    haml-indent-offset)))))
+
+;; Setup/Activation
 
 (defun haml-mode-version ()
   "Diplay version of `haml-mode'."
