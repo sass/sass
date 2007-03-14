@@ -82,13 +82,15 @@ if action_view_included
         # TODO: TEST!!!!
         def open_tag(named, text = nil, options = {}, &block)
           # TODO: I'm sure re-coding this is bad. I know we do this elsewhere, obviously.
-          attributes = (options.collect { |key, value| "#{key}='#{value}'" }).join(" ")
-          push_text "<#{named}#{attributes}>"
-          tab_up
-          text || block.call
           concat "\n"
+          buffer.open_tag(named, 0, false, true, nil, options, nil, false)
+          concat "\n"
+          tab_up
+          # Print out either the text (using push_text) or call the block and add an endline
+          text ? buffer.push_text(text, 1) : (block.call && concat("\n"))
+          concat "\n"
+          buffer.close_tag(named, 0)
           tab_down
-          push_text "</#{named}>"
         end
 
         def form_for(object_name, *args, &proc) # :nodoc:
