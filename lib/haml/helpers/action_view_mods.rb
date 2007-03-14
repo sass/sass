@@ -59,6 +59,35 @@ if action_view_included
           res
         end
 
+        # View accessor for the push_text helper
+        def push_text(text, tabulation = 0)
+          buffer.push_text(text, tabulation)
+        end
+
+        # open_tag helps you construct HTML in your helpers.
+        # It can be used this way
+        #
+        #   open_tag :table do
+        #     open_tag :tr do
+        #       open_tag :td do
+        #         push_text "data"
+        #       end
+        #       open_tag :td do
+        #         push_text "more_data"
+        #       end
+        #     end
+        #   end
+        #
+        # TODO: Make it output with better tabulation
+        def open_tag(named, &block)
+          push_text "<#{named}>"
+          tab_up
+          block.call
+          concat "\n"
+          tab_down
+          push_text "</#{named}>"
+        end
+
         def form_for(object_name, *args, &proc) # :nodoc:
           if block_given? && is_haml?
             oldproc = proc 
