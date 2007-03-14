@@ -88,9 +88,9 @@ if action_view_included
           tab_up
           # Print out either the text (using push_text) or call the block and add an endline
           text ? buffer.push_text(text, 1) : (block.call && concat("\n"))
+          tab_down
           concat "\n"
           buffer.close_tag(named, 0)
-          tab_down
         end
 
         def form_for(object_name, *args, &proc) # :nodoc:
