@@ -79,8 +79,10 @@ if action_view_included
         #   end
         #
         # TODO: Make it output with better tabulation
-        def open_tag(named, &block)
-          push_text "<#{named}>"
+        def open_tag(named, options = {}, &block)
+          # TODO: I'm sure re-coding this is bad. I know we do this elsewhere, obviously.
+          attributes = (options.collect { |key, value| "#{key}='#{value}'" }).join(" ")
+          push_text "<#{named}#{attributes}>"
           tab_up
           block.call
           concat "\n"
@@ -95,7 +97,7 @@ if action_view_included
               tab_up
               oldproc.call(*args)
               tab_down
-            end            
+            end
           end
           old_form_for(object_name, *args, &proc)
           concat "\n" if block_given? && is_haml?
