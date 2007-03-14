@@ -79,12 +79,13 @@ if action_view_included
         #   end
         #
         # TODO: Make it output with better tabulation
-        def open_tag(named, options = {}, &block)
+        # TODO: TEST!!!!
+        def open_tag(named, text = nil, options = {}, &block)
           # TODO: I'm sure re-coding this is bad. I know we do this elsewhere, obviously.
           attributes = (options.collect { |key, value| "#{key}='#{value}'" }).join(" ")
           push_text "<#{named}#{attributes}>"
           tab_up
-          block.call
+          text || block.call
           concat "\n"
           tab_down
           push_text "</#{named}>"
