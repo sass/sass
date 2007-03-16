@@ -232,8 +232,6 @@ module Haml
     #     </tr>
     #   </table>
     #
-    # 
-    # TODO: TEST!!!!
     def open(name, attributes = {}, alt_atts = {}, &block)
       text = nil
       if attributes.is_a? String
