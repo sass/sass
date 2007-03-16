@@ -31,12 +31,13 @@ click
 = succeed '.' do
   %a{:href=>"thing"} here
 %p baz
-- buffer.tabulation = 10
+- tab_up
 %p boom
 - concat "foo\n"
-- buffer.tabulation = 0
+- tab_down
 - def url_for(*stuff); stuff.join(' '); end
-= form_tag 'hello/world'
+%p
+  = form_tag 'hello/world'
 - form_tag 'heeheeaform' do
   %div= submit_tag 'save'
 - form_for :article, @article, :url => 'article_url' do |f|
@@ -46,3 +47,10 @@ click
   = f.text_field :body
 = list_of({:google => 'http://www.google.com'}) do |name, link|
   %a{ :href => link }= name
+%p
+  - puts "foo"
+  %div
+    - puts "bar"
+  - puts "boom"
+  baz
+  - puts "boom, again"

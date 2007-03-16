@@ -15,9 +15,16 @@ module Haml
     # _erbout for compatibility with ERB-specific code.
     attr_accessor :buffer
 
-    # The number of tabs that are added or subtracted from the
-    # tabulation proscribed by the precompiled template.
-    attr_accessor :tabulation
+    # Gets the current tabulation of the document.
+    def tabulation
+      @real_tabs + @tabulation
+    end
+
+    # Sets the current tabulation of the document.
+    def tabulation=(val)
+      val = val - @real_tabs
+      @tabulation = val > -1 ? val : 0
+    end
 
     # Creates a new buffer.
     def initialize(options = {})
@@ -27,6 +34,10 @@ module Haml
       @buffer = ""
       @one_liner_pending = false
       @tabulation = 0
+
+      # The number of tabs that Engine thinks we should have
+      # @real_tabs + @tabulation is the number of tabs actually output
+      @real_tabs = 0
     end
 
     # Renders +text+ with the proper tabulation. This also deals with
@@ -87,6 +98,7 @@ module Haml
         str = ">\n"
       end
       @buffer << "#{tabs(tabulation)}<#{name}#{build_attributes(attributes)}#{str}"
+      @real_tabs += 1
     end
 
     # Creates a closing tag with the given name.
@@ -107,6 +119,7 @@ module Haml
         @one_liner_pending = true
       else
         @buffer << "\n"
+        @real_tabs += 1
       end
     end
 
@@ -127,10 +140,34 @@ module Haml
       @one_liner_pending = false
     end
 
+    # Some of these methods are exposed as public class methods
+    # so they can be re-used in helpers.
+
+    # Takes a hash and builds a list of XHTML attributes from it, returning
+    # the result.
+    def self.build_attributes(attributes = {})
+      result = attributes.collect do |a,v|
+        v = v.to_s
+        unless v.nil? || v.empty?
+          attr_wrapper = @options[:attr_wrapper]
+          if v.include? attr_wrapper
+            if v.include? @other_quote_char
+              v = v.gsub(attr_wrapper, @quote_escape)
+            else
+              attr_wrapper = @other_quote_char
+            end
+          end
+          " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
+        end
+      end
+      result.sort.join
+    end
+
     private
 
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count)
+      @real_tabs = count
       '  ' * (count + @tabulation)
     end
 
@@ -173,26 +210,6 @@ module Haml
       end
 
       {:id => id, :class => class_name}
-    end
-
-    # Takes a hash and builds a list of XHTML attributes from it, returning
-    # the result.
-    def build_attributes(attributes = {})
-      result = attributes.collect do |a,v|
-        v = v.to_s
-        unless v.nil? || v.empty?
-          attr_wrapper = @options[:attr_wrapper]
-          if v.include? attr_wrapper
-            if v.include? @other_quote_char
-              v = v.gsub(attr_wrapper, @quote_escape)
-            else
-              attr_wrapper = @other_quote_char
-            end
-          end
-          " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
-        end
-      end
-      result.sort.join
     end
 
     # Returns whether or not the given value is short enough to be rendered

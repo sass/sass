@@ -184,6 +184,42 @@ module Haml
     def capture_haml(*args, &block)
       capture_haml_with_buffer(buffer.buffer, *args, &block)
     end
+
+    # Outputs text directly to the Haml buffer, with the proper tabulation
+    def puts(text)
+      buffer.buffer << ('  ' * buffer.tabulation) << text << "\n"
+      nil
+    end
+
+    # open_tag helps you construct HTML in your helpers.
+    # It can be used this way
+    #
+    #   open_tag :table do
+    #     open_tag :tr do
+    #       open_tag :td do
+    #         puts "data"
+    #       end
+    #       open_tag :td do
+    #         puts "more_data"
+    #       end
+    #     end
+    #   end
+    #
+    # TODO: Make it output with better tabulation
+    # TODO: TEST!!!!
+    def open(name, text = nil, attributes = {}, &block)
+      puts "<#{name}#{Haml::Buffer.build_attributes(attributes)}>"
+      tab_up
+        # Print out either the text (using push_text) or call the block and add an endline
+        if text
+          puts(text)
+        else
+          lock.call
+        end
+      tab_down
+      puts "</#{name}>"
+      nil
+    end
     
     private
     
