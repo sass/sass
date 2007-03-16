@@ -392,7 +392,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                               Defaults to false.
 #                               Only has meaning within Ruby on Rails.
 #                               
-# [<tt>:always_update</tt>]     Whether a Sass template should be checked for updates every
+# [<tt>:always_check</tt>]      Whether a Sass template should be checked for updates every
 #                               time a controller is accessed,
 #                               as opposed to only when the Rails server starts.
 #                               If a Sass template has been updated,
