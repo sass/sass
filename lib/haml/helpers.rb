@@ -187,7 +187,7 @@ module Haml
 
     # Outputs text directly to the Haml buffer, with the proper tabulation
     def puts(text = "")
-      buffer.buffer << ('  ' * buffer.tabulation) << text << "\n"
+      buffer.buffer << ('  ' * buffer.tabulation) << text.to_s << "\n"
       nil
     end
 
