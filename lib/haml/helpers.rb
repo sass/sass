@@ -191,30 +191,63 @@ module Haml
       nil
     end
 
-    # open_tag helps you construct HTML in your helpers.
-    # It can be used this way
     #
-    #   open_tag :table do
-    #     open_tag :tr do
-    #       open_tag :td do
+    # call-seq:
+    #   open(name, attributes = {}) {...}
+    #   open(name, text, attributes = {}) {...}
+    #
+    # Creates an HTML tag with the given name and optionally text and attributes.
+    # Can take a block that will be executed
+    # between when the opening and closing tags are output.
+    # If the block is a Haml block or outputs text using puts,
+    # the text will be properly indented.
+    # 
+    # For example,
+    #
+    #   open :table do
+    #     open :tr do
+    #       open :td, {:class => 'cell'} do
+    #         open :strong, "strong!"
     #         puts "data"
     #       end
-    #       open_tag :td do
+    #       open :td do
     #         puts "more_data"
     #       end
     #     end
     #   end
     #
-    # TODO: Make it output with better tabulation
+    # outputs
+    #
+    #   <table>
+    #     <tr>
+    #       <td class='cell'>
+    #         <strong>
+    #           strong!
+    #         </strong>
+    #         data
+    #       </td>
+    #       <td>
+    #         more_data
+    #       </td>
+    #     </tr>
+    #   </table>
+    #
+    # 
     # TODO: TEST!!!!
-    def open(name, text = nil, attributes = {}, &block)
-      puts "<#{name}#{Haml::Buffer.build_attributes(attributes)}>"
+    def open(name, attributes = {}, alt_atts = {}, &block)
+      text = nil
+      if attributes.is_a? String
+        text = attributes
+        attributes = alt_atts
+      end
+
+      puts "<#{name}#{buffer.build_attributes(attributes)}>"
       tab_up
         # Print out either the text (using push_text) or call the block and add an endline
         if text
           puts(text)
-        else
-          lock.call
+        elsif block
+          block.call
         end
       tab_down
       puts "</#{name}>"

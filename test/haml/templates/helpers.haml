@@ -31,10 +31,10 @@ click
 = succeed '.' do
   %a{:href=>"thing"} here
 %p baz
-- tab_up
+- buffer.tabulation = 10
 %p boom
 - concat "foo\n"
-- tab_down
+- buffer.tabulation = 0
 - def url_for(*stuff); stuff.join(' '); end
 %p
   = form_tag 'hello/world'
@@ -54,3 +54,10 @@ click
   - puts "boom"
   baz
   - puts "boom, again"
+- open :table do
+  - open :tr do
+    - open :td, {:class => 'cell'} do
+      - open :strong, "strong!"
+      - puts "data"
+    - open :td do
+      - puts "more_data"
