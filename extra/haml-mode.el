@@ -6,6 +6,12 @@
 ;;; to that of YAML and Python, many indentation-related
 ;;; functions are similar to those in yaml-mode and python-mode.
 
+;;; To install, save this somewhere and add the following to your .emacs file:
+;;; 
+;;; (add-to-list 'load-path "/path/to/haml-mode.el")
+;;; (require 'haml-mode nil 't)
+;;; 
+
 ;;; Code:
 
 ;; User definable variables
@@ -30,11 +36,19 @@
   :type 'function
   :group 'haml)
 
+(defface haml-tab-face
+   '((((class color)) (:background "red" :foreground "red" :bold t))
+     (t (:reverse-video t)))
+  "Face to use for highlighting tabs in Haml files."
+  :group 'faces
+  :group 'haml)
+
 ;; Helper Functions
 
-(defun string-* (str i)
-  (if (= i 0) ""
-    (concat str (string-* str (- i 1)))))
+(defun string-* (str n)
+  "Concatenates a string with itself n times."
+  (if (= n 0) ""
+    (concat str (string-* str (- n 1)))))
 
 (defun hre (str)
   "Prepends a Haml-tab-matching regexp to str."
@@ -47,7 +61,13 @@
 (defconst haml-blank-line-re "^[ \t]*$"
   "Regexp matching a line containing only whitespace.")
 
-(defconst haml-tag-re (hre "[%\\.#][^ \t]*\\({.*}\\)?\\(\\[.*\\]\\)?.?[ \t]*$")
+; Base for Regexen matching a Haml tag.
+(setq haml-tag-re-base (hre "\\([%\\.#][^ \t]*\\)\\({.*}\\)?\\(\\[.*\\]\\)?"))
+
+(defconst haml-tag-nest-re (concat haml-tag-re-base "[ \t]*$")
+  "Regexp matching a Haml tag that can have nested elements.")
+
+(defconst haml-tag-re (concat haml-tag-re-base "\\(.?\\)")
   "Regexp matching a Haml tag.")
 
 (defconst haml-block-re (hre "[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$")
@@ -77,26 +97,27 @@
   (setq haml-mode-map (make-sparse-keymap))
   (define-key haml-mode-map [backspace] 'haml-electric-backspace)
   (define-key haml-mode-map "\C-?" 'haml-electric-backspace)
-  (define-key haml-mode-map "\C-a" 'haml-electric-backspace)
   (define-key haml-mode-map "\C-j" 'newline-and-indent))
 
-;(defvar haml-mode-syntax-table nil
-;  "Syntax table in use in haml-mode buffers.")
-;(if haml-mode-syntax-table
-;    nil
-;  (setq haml-mode-syntax-table (make-syntax-table))
-;  ...
-;  )
+(defvar sample-font-lock-keywords
+  '(("function \\(\\sw+\\)" (1 font-lock-function-name-face)))
+  "Keyword highlighting specification for `sample-mode'.")
 
 (define-derived-mode haml-mode fundamental-mode "Haml"
   "Simple mode to edit Haml.
 
 \\{haml-mode-map}"
-  (set (make-local-variable 'indent-line-function) 'haml-indent-line))
-;  (set (make-local-variable 'font-lock-defaults)
-;       '(haml-font-lock-keywords
-;         nil nil nil nil
-;         (font-lock-syntactic-keywords . haml-font-lock-syntactic-keywords))))
+  (set (make-local-variable 'indent-line-function) 'haml-indent-line)
+  (set (make-local-variable 'font-lock-defaults) '(sample-font-lock-keywords)))
+
+;; Font-lock support
+
+(defvar haml-font-lock-keywords
+  (list
+   (cons haml-tag-re '(1 font-lock-function-name-face))
+   '("function \\(\\sw+\\)" (1 font-lock-function-name-face))
+   '("^[\t]+" 0 'haml-tab-face t))
+   "Expressions to highlight in Haml mode.")
 
 ;; Indentation and electric keys
 
@@ -114,7 +135,7 @@
                  (looking-at haml-comment-re)
                  (looking-at haml-html-comment-re)
                  (looking-at haml-block-cont-re)
-                 (looking-at haml-tag-re)
+                 (looking-at haml-tag-nest-re)
                  (looking-at haml-block-re))
              haml-indent-offset 0)))))
 

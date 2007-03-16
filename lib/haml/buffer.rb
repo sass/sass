@@ -145,7 +145,7 @@ module Haml
 
     # Takes a hash and builds a list of XHTML attributes from it, returning
     # the result.
-    def self.build_attributes(attributes = {})
+    def build_attributes(attributes = {})
       result = attributes.collect do |a,v|
         v = v.to_s
         unless v.nil? || v.empty?
