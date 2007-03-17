@@ -50,6 +50,12 @@
   (if (= n 0) ""
     (concat str (string-* str (- n 1)))))
 
+(defun find-if (f lst)
+  "Returns the first element of a list for which a function returns a non-nil value, or nil if no such element is found."
+  (cond ((null lst) nil)
+        ((f (car lst)) (car lst))
+        (find-if f (cdr lst))))
+
 (defun sre (str)
   "Prepends a Sass-tab-matching regexp to str."
   (concat "^\\(" (string-* " " sass-indent-offset) "\\)*" str))
@@ -144,6 +150,10 @@ immediately previous multiple of `sass-indent-offset' spaces."
 
 (provide 'sass-mode)
 
-(add-to-list 'auto-mode-alist '("\\.sass\\'" . sass-mode))
+
+(unless (find-if
+         #'(lambda(it) (string= it "\\.sass\\'"))
+         (mapcar 'car auto-mode-alist))
+  (add-to-list 'auto-mode-alist '("\\.sass\\'" . sass-mode)))
 
 ;;; sass-mode.el ends here
