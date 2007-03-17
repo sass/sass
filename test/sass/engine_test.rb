@@ -61,11 +61,11 @@ class SassEngineTest < Test::Unit::TestCase
   end
 
   def test_exception_line
-    to_render = "rule\n  :attr val\n  :broken\n"
+    to_render = "rule\n  :attr val\n// comment!\n\n  :broken\n"
     begin
       Sass::Engine.new(to_render).render
     rescue Sass::SyntaxError => err
-      assert_equal(3, err.sass_line)
+      assert_equal(5, err.sass_line)
     else
       assert(false, "Exception not raised for '#{to_render}'!")
     end

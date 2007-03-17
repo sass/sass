@@ -104,6 +104,8 @@ module Sass
           @lines << [line.strip, tabs]
 
           old_tabs = tabs
+        else
+          @lines << ['//', old_tabs]
         end
       end
 
