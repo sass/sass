@@ -28,10 +28,10 @@ module Sass::Tree
       end
       
       children.each do |child|
-        if child.is_a? AttrNode
-          attributes << child
-        else
+        if child.is_a? RuleNode
           sub_rules << child
+        else
+          attributes << child
         end
       end
       

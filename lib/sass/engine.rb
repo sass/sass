@@ -1,6 +1,8 @@
 require 'sass/tree/node'
 require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
+require 'sass/tree/comment_node'
+require 'sass/tree/attr_node'
 require 'sass/constant'
 require 'sass/error'
 
@@ -25,13 +27,14 @@ module Sass
     # either Sass or CSS.
     COMMENT_CHAR = ?/
 
-    # The character that follows the normal COMMENT_CHAR and designates a Sass comment,
+    # The character that follows the general COMMENT_CHAR and designates a Sass comment,
     # which is not output as a CSS comment.
     SASS_COMMENT_CHAR = ?/
-    
-    # The string that begins one-line comments.
-    COMMENT_STRING  = COMMENT_CHAR.chr + '/'
 
+    # The character that follows the general COMMENT_CHAR and designates a CSS comment,
+    # which is embedded in the CSS document.
+    CSS_COMMENT_CHAR = ?*
+    
     # The regex that matches attributes.
     ATTRIBUTE = /:([^\s=]+)\s*(=?)\s*(.*)/
   
@@ -196,6 +199,8 @@ module Sass
     def parse_comment(line)
       if line[1] == SASS_COMMENT_CHAR
         :comment
+      elsif line[1] == CSS_COMMENT_CHAR
+        Tree::CommentNode.new(line, @options[:style])
       else
         Tree::RuleNode.new(line, @options[:style])
       end

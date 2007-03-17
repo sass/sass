@@ -358,7 +358,11 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # == Comments
 #
-# It's simple to add non-printing comments to a Sass document.
+# === Silent Comments
+#
+# It's simple to add "silent" comments,
+# which don't output anything to the CSS document,
+# to a Sass document.
 # Simply use the familiar C-style notation for a one-line comment, "//",
 # at the normal indentation level and all text following it won't be output.
 # For example:
@@ -371,6 +375,25 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # becomes
 #
 #   #awesome.rule {
+#     awesomeness: very; }
+#
+# === Loud Comments
+#
+# "Loud" comments are just as easy as silent ones.
+# These comments output to the document as CSS comments,
+# and thus use the same opening sequence: "/*".
+# For example:
+#
+#   /* A very awesome rule.
+#   #awesome.rule
+#     /* An equally awesome attribute.
+#     :awesomeness very
+#
+# becomes
+#
+#   /* A very awesome rule. */
+#   #awesome.rule {
+#     /* An equally awesome attribute. */
 #     awesomeness: very; }
 #
 # == Output Style
