@@ -86,15 +86,6 @@
   (set (make-local-variable 'indent-line-function) 'sass-indent-line)
   (set (make-local-variable 'font-lock-defaults) '(sample-font-lock-keywords)))
 
-;; Font-lock support
-
-(defvar sass-font-lock-keywords
-  (list
-   (cons sass-tag-re '(1 font-lock-function-name-face))
-   '("function \\(\\sw+\\)" (1 font-lock-function-name-face))
-   '("^[\t]+" 0 'sass-tab-face t))
-   "Expressions to highlight in Sass mode.")
-
 ;; Indentation and electric keys
 
 (defun sass-compute-indentation ()

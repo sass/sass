@@ -110,15 +110,6 @@
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'font-lock-defaults) '(sample-font-lock-keywords)))
 
-;; Font-lock support
-
-(defvar haml-font-lock-keywords
-  (list
-   (cons haml-tag-re '(1 font-lock-function-name-face))
-   '("function \\(\\sw+\\)" (1 font-lock-function-name-face))
-   '("^[\t]+" 0 'haml-tab-face t))
-   "Expressions to highlight in Haml mode.")
-
 ;; Indentation and electric keys
 
 (defun haml-compute-indentation ()
