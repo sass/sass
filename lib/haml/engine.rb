@@ -93,13 +93,13 @@ module Haml
     MID_BLOCK_KEYWORDS   = ['else', 'elsif', 'rescue', 'ensure', 'when']
 
     # The Regex that matches an HTML comment command.
-    COMMENT_REGEX = /\/(\[[a-zA-Z0-9 \.]*\])?(.*)/
+    COMMENT_REGEX = /\/(\[[\w\s\.]*\])?(.*)/
 
     # The Regex that matches a Doctype command.
-    DOCTYPE_REGEX = /([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/
+    DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
 
     # The Regex that matches an HTML tag command.
-    TAG_REGEX = /[%]([-:_a-zA-Z0-9]+)([-_a-zA-Z0-9\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
+    TAG_REGEX = /[%]([-:\w]+)([-\w\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
 
     FLAT_WARNING = <<END
 Haml deprecation warning:

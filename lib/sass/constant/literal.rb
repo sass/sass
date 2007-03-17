@@ -7,12 +7,12 @@ require 'sass/constant/color'
 
 class Sass::Constant::Literal # :nodoc:
   # The regular expression matching numbers.
-  NUMBER  = /^(-?[0-9]*?\.?)([0-9]+)([^0-9\s]*)$/
+  NUMBER  = /^(-?\d*?\.?)(\d+)([\D\S]*)$/
 
   html_color_matcher = Sass::Constant::Color::HTML4_COLORS.keys.join '|'
 
   # The regular expression matching colors.
-  COLOR = /^\# (?: [0-9a-f]{3} | [0-9a-f]{6} ) | #{html_color_matcher}/ix
+  COLOR = /^\# (?: [\da-f]{3} | [\da-f]{6} ) | #{html_color_matcher}/ix
   
   def self.parse(value)
     case value
