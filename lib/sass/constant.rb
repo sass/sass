@@ -76,9 +76,11 @@ module Sass
 
             last = to_return[-1]
 
+            # Do we need to open or close a string literal?
             if byte == STRING_CHAR
               is_string = !is_string
 
+              # Adjacent strings should be concatenated
               if is_string && last && (!last.is_a?(Symbol) || last == :close)
                 to_return << :concat
               end
@@ -89,6 +91,7 @@ module Sass
 
             unless is_string
 
+              # Are we looking at whitespace?
               if WHITESPACE.include?(byte)
                 str = reset_str.call
                 next
@@ -96,13 +99,15 @@ module Sass
             
               symbol = SYMBOLS[byte]
 
+              # Adjacent values without an operator should be concatenated
               if (symbol.nil? || symbol == :open) &&
                   last && (!last.is_a?(Symbol) || last == :close)
-                # Two values connected without an operator
                 to_return << :concat
               end
 
-              if symbol && !(negative_okay && symbol == :minus)
+              # Are we looking at an operator?
+              if symbol && !(negative_okay && symbol == :minus) &&
+                  (str.empty? || symbol != :mod)
                 str = reset_str.call
                 negative_okay = true
                 to_return << symbol
