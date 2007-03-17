@@ -50,7 +50,8 @@ module Sass::Tree
         end
       end
       
-      sub_rules.each { |sub| to_return << sub.to_s(tabs + 1, total_rule) }
+      tabs += 1 unless attributes.empty?
+      sub_rules.each { |sub| to_return << sub.to_s(tabs, total_rule) }
       to_return
     end
   end
