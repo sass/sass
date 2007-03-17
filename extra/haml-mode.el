@@ -64,11 +64,12 @@
 ;; Font lock
 (defconst haml-font-lock-keywords-1
   (list
-   '("%\\w+"        . font-lock-function-name-face)
+   '("^ *%\\w+"        . font-lock-function-name-face)
    '("#\\w+"        . font-lock-keyword-face)
-   '("= .*"         . font-lock-string-face)
-   '("[ \t]*- .*"   . font-lock-string-face)
-   '("!!!"          . font-lock-constant-face)))
+   '("\\.\\w+"        . font-lock-keyword-face)
+   '("^ *=.*"         . font-lock-string-face)
+   '("^ *-.*"   . font-lock-string-face)
+   '("^!!!.*"          . font-lock-constant-face)))
 
 ;; Constants
 
