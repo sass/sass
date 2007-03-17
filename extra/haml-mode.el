@@ -114,16 +114,11 @@
   (define-key haml-mode-map "\C-?" 'haml-electric-backspace)
   (define-key haml-mode-map "\C-j" 'newline-and-indent))
 
-(defvar sample-font-lock-keywords
-  '(("function \\(\\sw+\\)" (1 font-lock-function-name-face)))
-  "Keyword highlighting specification for `sample-mode'.")
-
 (define-derived-mode haml-mode fundamental-mode "Haml"
   "Simple mode to edit Haml.
 
 \\{haml-mode-map}"
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
-  (set (make-local-variable 'font-lock-defaults) '(sample-font-lock-keywords))
   (make-local-variable 'font-lock-defaults)
   (setq font-lock-defaults
         '((haml-font-lock-keywords-1)
