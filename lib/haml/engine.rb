@@ -589,7 +589,7 @@ END
         warn(FLAT_WARNING) if flattened && !defined?(Test::Unit)
 
         value_exists = !value.empty?
-        attributes_hash = "nil" unless attributes_hash
+        attributes_hash = "{nil}" unless attributes_hash
         object_ref = "nil" unless object_ref
 
         if !attributes.empty? && '.#'.include?(attributes)
@@ -606,7 +606,7 @@ END
           raise SyntaxError.new("No tag content to parse.")
         end
 
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref}, #{flattened.inspect})", true
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{flattened.inspect}, #{attributes_hash[1...-1]})", true
 
         unless atomic
           push_and_tabulate([:element, tag_name])

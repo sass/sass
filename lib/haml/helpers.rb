@@ -84,6 +84,22 @@ module Haml
       to_return.join("\n")
     end
 
+    # Returns a hash containing default assignments for the xmlns and xml:lang
+    # attributes of the <tt>html</tt> HTML element.
+    # It also takes an optional argument for the value of xml:lang and lang,
+    # which defaults to 'en-US'.
+    # For example,
+    #
+    #   %html{html_attrs}
+    #
+    # becomes
+    #
+    #   <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en-US' lang='en-US'>
+    #
+    def html_attrs(lang = 'en-US')
+      {:xmlns => "http://www.w3.org/1999/xhtml", 'xml:lang' => lang, :lang => lang}
+    end
+
     # Increments the number of tabs the buffer automatically adds
     # to the lines of the template.
     # For example:

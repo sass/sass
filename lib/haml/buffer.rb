@@ -80,11 +80,11 @@ module Haml
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, tabulation, atomic, try_one_line, class_id, attributes_hash, obj_ref, flattened)
+    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, flattened, *attributes_hashes)
       attributes = {}
       attributes.merge!(parse_class_and_id(class_id)) unless class_id.nil? || class_id.empty?
       attributes.merge!(parse_object_ref(obj_ref, attributes[:id], attributes[:class])) if obj_ref
-      attributes.merge!(attributes_hash) if attributes_hash
+      attributes_hashes.each { |h| attributes.merge! h if h }
 
       @one_liner_pending = false
       if atomic
