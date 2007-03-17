@@ -102,5 +102,12 @@ class HelperTest < Test::Unit::TestCase
   def test_is_haml
     assert(!ActionView::Base.new.is_haml?)
   end
+
+  def test_page_class
+    controller = Struct.new(:controller_name, :action_name).new('troller', 'tion')
+    result = render("%div{:class => page_class} MyDiv", :locals => { :controller => controller })
+    expected = "<div class='troller tion'>MyDiv</div>\n"
+    assert_equal expected, result
+  end
 end
 

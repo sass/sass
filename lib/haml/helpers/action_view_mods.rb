@@ -20,9 +20,6 @@ if action_view_included
     module Helpers
       # This module overrides various helpers in ActionView
       # to make them work more effectively with Haml.
-      # It also defines several helper methods,
-      # available from a Haml template,
-      # which are only useful within the context of ActionView.
       # It's not available unless ActionView is installed.
       #
       #--
@@ -70,10 +67,6 @@ if action_view_included
           end
           old_form_for(object_name, *args, &proc)
           concat "\n" if block_given? && is_haml?
-        end
-
-        def generate_content_class_names
-          controller.controller_name + " " + controller.action_name
         end
       end
     end

@@ -1,4 +1,5 @@
 require 'haml/helpers/action_view_mods'
+require 'haml/helpers/action_view_extensions'
 
 module Haml
   # This module contains various helpful methods to make it easier to do
@@ -303,7 +304,8 @@ module Haml
       @haml_stack ? @haml_stack.size > 0 : false
     end
     
-    include ActionViewMods if self.const_defined?  "ActionViewMods"
+    include ActionViewMods if self.const_defined? "ActionViewMods"
+    include ActionViewExtensions if self.const_defined? "ActionViewExtensions"
   end
 end
 
