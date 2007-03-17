@@ -61,7 +61,7 @@
 (defconst sass-blank-line-re "^[ \t]*$"
   "Regexp matching a line containing only whitespace.")
 
-(defconst sass-full-attr-re (sre ":[^ \t]*[ \t]*[^ \t]")
+(defconst sass-full-attr-re (sre ":[^ \t]+[ \t]+[^ \t]")
   "Regexp matching a Sass attribute with content.")
 
 ;; Mode setup
