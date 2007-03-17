@@ -54,6 +54,15 @@
   "Prepends a Haml-tab-matching regexp to str."
   (concat "^\\(" (string-* " " haml-indent-offset) "\\)*" str))
 
+;; Font lock
+(defconst haml-font-lock-keywords-1
+  (list
+   '("%\\w+"        . font-lock-function-name-face)
+   '("#\\w+"        . font-lock-keyword-face)
+   '("= .*"         . font-lock-string-face)
+   '("[ \t]*- .*"   . font-lock-string-face)
+   '("!!!"          . font-lock-constant-face)))
+
 ;; Constants
 
 (defconst haml-mode-version "0.0.1" "Version of `haml-mode.'")
@@ -108,7 +117,12 @@
 
 \\{haml-mode-map}"
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
-  (set (make-local-variable 'font-lock-defaults) '(sample-font-lock-keywords)))
+  (set (make-local-variable 'font-lock-defaults) '(sample-font-lock-keywords))
+  (make-local-variable 'font-lock-defaults)
+  (setq font-lock-defaults
+        '((haml-font-lock-keywords-1)
+          nil
+          t)))
 
 ;; Indentation and electric keys
 
