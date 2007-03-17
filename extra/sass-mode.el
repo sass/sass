@@ -52,9 +52,10 @@
 
 (defun find-if (f lst)
   "Returns the first element of a list for which a function returns a non-nil value, or nil if no such element is found."
-  (cond ((null lst) nil)
-        ((f (car lst)) (car lst))
-        (find-if f (cdr lst))))
+  (while (not (or (null lst)
+                  (apply f (list (car lst)))))
+    (setq lst (cdr lst)))
+  (if (null lst) nil (car lst)))
 
 (defun sre (str)
   "Prepends a Sass-tab-matching regexp to str."
