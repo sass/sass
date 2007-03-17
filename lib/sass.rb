@@ -232,6 +232,10 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # === Colors
 #
+# Colors may be written as three- or six-digit hex numbers prefixed
+# by a pound sign (#), or as HTML4 color names. For example,
+# "#ff0", "#ffff00" and "yellow" all refer to the same color.
+#
 # Not only can arithmetic be done between colors and other colors,
 # but it can be done between colors and normal numbers.
 # In this case, the operation is done piecewise one each of the
