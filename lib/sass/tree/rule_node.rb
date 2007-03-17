@@ -3,16 +3,26 @@ require 'sass/tree/attr_node'
 
 module Sass::Tree
   class RuleNode < ValueNode
+    # The character used to include the parent selector
+    PARENT = '&'
+
     alias_method :rule, :value
     alias_method :rule=, :value=
     
     def to_s(tabs, super_rules = nil)
       attributes = []
       sub_rules = []
+      refs_parent = self.rule.include? PARENT
       total_rule = if super_rules
         super_rules.split(/,\s*/).collect! do |s|
-          self.rule.split(/,\s*/).collect! {|r| "#{s} #{r}"}.join(", ")
+          if refs_parent
+            self.rule.gsub(PARENT, s)
+          else
+            self.rule.split(/,\s*/).collect {|r| "#{s} #{r}"}.join(", ")
+          end
         end.join(", ")
+      elsif refs_parent
+        raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'", line)
       else
         self.rule
       end

@@ -142,6 +142,57 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     #main pre {
 #       font-size: 3em; }
 #
+# === Referencing Parent Rules
+#
+# In addition to the default behavior of inserting the parent selector
+# as a CSS parent of the current selector
+# (e.g. above, "#main" is the parent of "p"),
+# you can have more fine-grained control over what's done with the parent selector
+# by using the ampersand character "&" in your selectors.
+#
+# The ampersand is automatically replaced by the parent selector,
+# instead of having it prepended.
+# This allows you to cleanly create pseudo-attributes:
+#
+#   a
+#     :font-weight bold
+#     :text-decoration none
+#     &:hover
+#       :text-decoration underline
+#     &:visited
+#       :font-weight normal
+#
+# Which would become:
+#
+#   a {
+#     font-weight: bold;
+#     text-decoration: none; }
+#     a:hover {
+#       text-decoration: underline; }
+#     a:visited {
+#       font-weight: normal; }
+#
+# It also allows you to add selectors at the base of the hierarchy,
+# which can be useuful for targeting certain styles to certain browsers:
+#
+#   #main
+#     :width 90%
+#     #sidebar
+#       :float left
+#       :margin-left 20%
+#       .ie6 &
+#         :margin-left 40%
+#
+# Which would become:
+#
+#   #main {
+#     width: 90%; }
+#     #main #sidebar {
+#       float: left;
+#       margin-left: 20%; }
+#       .ie6 #main #sidebar {
+#         margin-left: 40%; }
+#
 # === Attribute Namespaces
 #
 # CSS has quite a few attributes that are in "namespaces;"

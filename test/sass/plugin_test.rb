@@ -8,7 +8,7 @@ RAILS_ENV  = 'testing'
 require 'sass/plugin'
 
 class SassPluginTest < Test::Unit::TestCase
-  @@templates = %w{ complex constants }
+  @@templates = %w{ complex constants parent_ref }
 
   def setup
     Sass::Plugin.options = {
