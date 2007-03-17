@@ -356,6 +356,23 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     #main h6 {
 #       font: italic small-caps bold 1.1em sans-serif; }
 #
+# == Comments
+#
+# It's simple to add non-printing comments to a Sass document.
+# Simply use the familiar C-style notation for a one-line comment, "//",
+# at the normal indentation level and all text following it won't be output.
+# For example:
+#
+#   // A very awesome rule.
+#   #awesome.rule
+#     // An equally awesome attribute.
+#     :awesomeness very
+#
+# becomes
+#
+#   #awesome.rule {
+#     awesomeness: very; }
+#
 # == Output Style
 #
 # Although the default CSS style that Sass outputs is very nice,

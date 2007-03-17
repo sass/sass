@@ -20,9 +20,17 @@ module Sass
     # The character that designates that
     # an attribute should be assigned to the result of constant arithmetic.
     SCRIPT_CHAR     = ?=
+
+    # The character that designates the beginning of a comment,
+    # either Sass or CSS.
+    COMMENT_CHAR = ?/
+
+    # The character that follows the normal COMMENT_CHAR and designates a Sass comment,
+    # which is not output as a CSS comment.
+    SASS_COMMENT_CHAR = ?/
     
     # The string that begins one-line comments.
-    COMMENT_STRING  = '//'
+    COMMENT_STRING  = COMMENT_CHAR.chr + '/'
 
     # The regex that matches attributes.
     ATTRIBUTE = /:([^\s=]+)\s*(=?)\s*(.*)/
@@ -57,8 +65,11 @@ module Sass
         index = 0
         while @lines[index]
           child, index = build_tree(index)
-          child.line = index if child
-          root << child if child
+
+          if child.is_a? Tree::Node
+            child.line = index 
+            root << child
+          end
         end
         @line = nil
 
@@ -80,21 +91,22 @@ module Sass
       @template.each_with_index do |line, index|
         @line = index + 1
       
-        # TODO: Allow comments appended to the end of lines,
-        # find some way to make url(http://www.google.com/) work
-        unless line[0..1] == COMMENT_STRING # unless line is a comment
-          tabs = count_tabs(line)
+        tabs = count_tabs(line)
           
-          if tabs # if line isn't blank
-            if tabs - old_tabs > 1
-              raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line) 
-            end
-            @lines << [line.strip, tabs]
+        if line[0] == COMMENT_CHAR && line[1] == SASS_COMMENT_CHAR
+          tabs = old_tabs
+        end
 
-            old_tabs = tabs
+        if tabs # if line isn't blank
+          if tabs - old_tabs > 1
+            raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line) 
           end
+          @lines << [line.strip, tabs]
+
+          old_tabs = tabs
         end
       end
+
       @line = nil
     end
     
@@ -118,19 +130,20 @@ module Sass
       node = parse_line(line)
 
       # Node is nil if it's non-outputting, like a constant assignment
-      return nil, index unless node
+      return node, index unless node.is_a? Tree::Node
 
       has_children = has_children?(index, tabs)
       
       while has_children
         child, index = build_tree(index)
 
-        if child.nil?
+        if child == :constant
           raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
+        elsif child.is_a? Tree::Node
+          child.line = @line
+          node << child
         end
 
-        child.line = @line
-        node << child if child
         has_children = has_children?(index, tabs)
       end
       
@@ -144,12 +157,14 @@ module Sass
     
     def parse_line(line)
       case line[0]
-        when ATTRIBUTE_CHAR
-          parse_attribute(line)
-        when Constant::CONSTANT_CHAR
-          parse_constant(line)
-        else
-          Tree::RuleNode.new(line, @options[:style])
+      when ATTRIBUTE_CHAR
+        parse_attribute(line)
+      when Constant::CONSTANT_CHAR
+        parse_constant(line)
+      when COMMENT_CHAR
+        parse_comment(line)
+      else
+        Tree::RuleNode.new(line, @options[:style])
       end
     end
     
@@ -173,7 +188,15 @@ module Sass
         raise SyntaxError.new("Invalid constant: \"#{line}\"", @line)
       end
       @constants[name] = Sass::Constant.parse(value, @constants, @line)
-      nil
+      :constant
+    end
+
+    def parse_comment(line)
+      if line[1] == SASS_COMMENT_CHAR
+        :comment
+      else
+        Tree::RuleNode.new(line, @options[:style])
+      end
     end
   end
 end
