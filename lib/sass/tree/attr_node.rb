@@ -40,5 +40,11 @@ module Sass::Tree
     def declaration
       ":#{name} #{value}"
     end
+
+    def invalid_child?(child)
+      if !child.is_a?(AttrNode)
+        "Illegal nesting: Only attributes may be nested beneath attributes."
+      end
+    end
   end
 end

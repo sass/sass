@@ -33,7 +33,8 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n    :b c" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
     "a\n  :b c\n  !d = 3" => "Constants may only be declared at the root of a document.",
     "!a = 1b + 2c" => "Incompatible units: b and c",
-    "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'"
+    "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'",
+    "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes."
   }
   
   def test_basic_render

@@ -10,6 +10,9 @@ module Sass
       end
 
       def <<(child)
+        if msg = invalid_child?(child)
+          raise Sass::SyntaxError.new(msg, child.line)
+        end
         @children << child
       end
       
@@ -23,6 +26,15 @@ module Sass
           result += "#{child.to_s(1)}\n"
         end
         result[0...-1]
+      end
+
+      private
+
+      # This method should be overridden by subclasses to return an error message
+      # if the given child node is invalid,
+      # and false or nil otherwise.
+      def invalid_child?(child)
+        false
       end
     end
   end
