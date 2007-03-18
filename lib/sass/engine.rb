@@ -144,18 +144,27 @@ module Sass
 
         return node, index
       end
-      
-      while has_children
-        child, index = build_tree(index)
 
-        if child == :constant
-          raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
-        elsif child.is_a? Tree::Node
-          child.line = @line
-          node << child
+      if node.is_a? Tree::CommentNode
+        while has_children
+          line, index = raw_next_line(index)
+          node << line
+
+          has_children = has_children?(index, tabs)
         end
+      else
+        while has_children
+          child, index = build_tree(index)
+          
+          if child == :constant
+            raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
+          elsif child.is_a? Tree::Node
+            child.line = @line
+            node << child
+          end
 
-        has_children = has_children?(index, tabs)
+          has_children = has_children?(index, tabs)
+        end
       end
       
       return node, index
@@ -164,6 +173,10 @@ module Sass
     def has_children?(index, tabs)
       next_line = @lines[index]
       next_line && next_line[1] > tabs
+    end
+
+    def raw_next_line(index)
+      [@lines[index][0], index + 1]
     end
     
     def parse_line(line)
