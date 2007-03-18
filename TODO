@@ -3,6 +3,7 @@ Testing:
 
 Documentation:
   Haml::Engine public method documentation could use work
+  Sass::Engine load_paths option needs documenting.
 
 Features:
   Sass should throw generic errors for undefined constants, not syntax errors
@@ -11,3 +12,6 @@ Features:
   Haml and Sass executables should return meaningful exit codes
   There should be a way to make Haml tags not insert whitespace
   "%li, %a"?
+  Sass::Engine load_paths option should be set by executable
+  Errors in imported files should point to the proper files.
+  Sassy CSS imports should compile to a literal CSS "@import"

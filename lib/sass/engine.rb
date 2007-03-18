@@ -34,6 +34,9 @@ module Sass
     # The character that follows the general COMMENT_CHAR and designates a CSS comment,
     # which is embedded in the CSS document.
     CSS_COMMENT_CHAR = ?*
+
+    # The character used to denote a compiler directive.
+    DIRECTIVE_CHAR = ?@
     
     # The regex that matches attributes.
     ATTRIBUTE = /:([^\s=]+)\s*(=?)\s*(.*)/
@@ -52,7 +55,8 @@ module Sass
     #
     def initialize(template, options={})
       @options = {
-        :style => :nested
+        :style => :nested,
+        :load_paths => ['.']
       }.merge! options
       @template = template.split("\n")
       @lines = []
@@ -62,21 +66,7 @@ module Sass
     # Processes the template and returns the result as a string.
     def render
       begin
-        split_lines
-      
-        root = Tree::Node.new(@options[:style])
-        index = 0
-        while @lines[index]
-          child, index = build_tree(index)
-
-          if child.is_a? Tree::Node
-            child.line = index 
-            root << child
-          end
-        end
-        @line = nil
-
-        root.to_s
+        render_to_tree.to_s
       rescue SyntaxError => err
         err.add_backtrace_entry(@options[:filename])
         raise err
@@ -84,19 +74,48 @@ module Sass
     end
 
     alias_method :to_css, :render
+
+    protected
+
+    def constants
+      @constants
+    end
+
+    def render_to_tree
+      split_lines
+      
+      root = Tree::Node.new(@options[:style])
+      index = 0
+      while @lines[index]
+        child, index = build_tree(index)
+        
+        if child.is_a? Tree::Node
+          child.line = index 
+          root << child
+        elsif child.is_a? Array
+          child.each do |c|
+            root << c
+          end
+        end
+      end
+      @line = nil
+
+      root
+    end
     
     private
     
     # Readies each line in the template for parsing,
     # and computes the tabulation of the line.
     def split_lines
+      @line = 0
       old_tabs = 0
       @template.each_with_index do |line, index|
-        @line = index + 1
-      
+        @line += 1
+
         tabs = count_tabs(line)
           
-        if line[0] == COMMENT_CHAR && line[1] == SASS_COMMENT_CHAR
+        if line[0] == COMMENT_CHAR && line[1] == SASS_COMMENT_CHAR && tabs == 0
           tabs = old_tabs
         end
 
@@ -105,7 +124,7 @@ module Sass
             raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line) 
           end
           @lines << [line.strip, tabs]
-
+          
           old_tabs = tabs
         else
           @lines << ['//', old_tabs]
@@ -138,8 +157,12 @@ module Sass
 
       # Node is a symbol if it's non-outputting, like a constant assignment
       unless node.is_a? Tree::Node
-        if has_children && node == :constant
-          raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line)
+        if has_children
+          if node == :constant
+            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line)
+          elsif node.is_a? Array
+            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.", @line)
+          end
         end
 
         return node, index
@@ -158,6 +181,8 @@ module Sass
           
           if child == :constant
             raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
+          elsif child.is_a? Array
+            raise SyntaxError.new("The import directive may only be used at the root of a document.", @line)
           elsif child.is_a? Tree::Node
             child.line = @line
             node << child
@@ -187,6 +212,8 @@ module Sass
         parse_constant(line)
       when COMMENT_CHAR
         parse_comment(line)
+      when DIRECTIVE_CHAR
+        parse_directive(line)
       else
         Tree::RuleNode.new(line, @options[:style])
       end
@@ -223,6 +250,75 @@ module Sass
       else
         Tree::RuleNode.new(line, @options[:style])
       end
+    end
+
+    def parse_directive(line)
+      directive, value = line[1..-1].split(/\s+/, 2)
+
+      case directive
+      when "import"
+        import(value)
+      else
+        raise SyntaxError.new("Unknown compiler directive: #{"@{directive} #{value}".dump}")
+      end
+    end
+
+    def import(files)
+      nodes = []
+
+      files.split(/,\s*/).each do |filename|
+        engine = nil
+        File.open(find_file_to_import(filename)) do |file|
+          engine = Sass::Engine.new(file.read)
+        end
+
+        root = engine.render_to_tree
+        nodes += root.children
+        @constants.merge! engine.constants
+      end
+
+      nodes
+    end
+
+    def find_file_to_import(filename)
+      has_ext = 
+      new_filename = nil
+
+      if filename.include?('.')
+        @options[:load_paths].each do |path|
+          full_path = File.join(path, filename)
+
+          if File.readable?(full_path)
+            new_filename = full_path
+            break
+          end
+        end
+      else
+        @options[:load_paths].each do |path|
+          full_path = File.join(path, filename) + '.sass'
+
+          if File.readable?(full_path)
+            new_filename = full_path
+            break
+          end
+        end
+
+        unless new_filename
+          @options[:load_paths].each do |path|
+            full_path = File.join(path, filename) + '.css'
+
+            if File.readable?(full_path)
+              new_filename = full_path
+              break
+            end
+          end
+        end
+      end
+
+      unless new_filename
+        raise SyntaxError.new("File to import not found or unreadable: #{filename}")
+      end
+      new_filename
     end
   end
 end
