@@ -134,10 +134,16 @@ module Sass
       @line = index
       node = parse_line(line)
 
-      # Node is nil if it's non-outputting, like a constant assignment
-      return node, index unless node.is_a? Tree::Node
-
       has_children = has_children?(index, tabs)
+
+      # Node is a symbol if it's non-outputting, like a constant assignment
+      unless node.is_a? Tree::Node
+        if has_children && node == :constant
+          raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line)
+        end
+
+        return node, index
+      end
       
       while has_children
         child, index = build_tree(index)
