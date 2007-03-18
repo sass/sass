@@ -9,3 +9,5 @@ Features:
   Sass::Plugin should log errors
   There should be a way to represent options in-document
   Haml and Sass executables should return meaningful exit codes
+  There should be a way to make Haml tags not insert whitespace
+  "%li, %a"?
