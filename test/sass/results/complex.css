@@ -33,7 +33,7 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #content .container.video .column.left { width: 200px; }
 #content .container.video .column.left .box { margin-top: 10px; }
 #content .container.video .column.left .box p { margin: 0 1em auto 1em; }
-#content .container.video .column.left .box.participants img { float: left; margin: 0 1em auto 1em; border: 1px solid #6e000d; }
+#content .container.video .column.left .box.participants img { float: left; margin: 0 1em auto 1em; border: 1px solid #6e000d; border-style: solid; }
 #content .container.video .column.left .box.participants h2 { margin: 0 0 10px 0; padding: 0.5em; /* The background image is a gif! */ background: #6e000d url(/images/hdr_participant.gif) 2px 2px no-repeat; text-indent: -9999px; border-top-width: 5px; border-top-style: solid; border-top-color: #a20013; border-right-width: 1px; border-right-style: dotted; }
 #content .container.video .column.middle { width: 500px; }
 #content .container.video .column.right { width: 200px; }
