@@ -47,7 +47,7 @@ a tag without a name defaults to a div. So
 
 becomes
 
-  <div id='foo'>Hello!</foo>
+  <div id='foo'>Hello!</div>
   
 Haml uses indentation
 to bring the individual elements to represent the HTML structure.
