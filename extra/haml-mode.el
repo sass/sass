@@ -64,12 +64,14 @@
 ;; Font lock
 (defconst haml-font-lock-keywords-1
   (list
-   '("^ *%\\w+"        . font-lock-function-name-face)
-   '("#\\w+"        . font-lock-keyword-face)
+   '("^[ \t]*/.*"     . font-lock-comment-face)
+   '("^ *%\\w+\/?"    . font-lock-function-name-face)
+   '("#\\w+"          . font-lock-keyword-face)
    '("\\.\\w+"        . font-lock-keyword-face)
-   '("^ *=.*"         . font-lock-string-face)
-   '("^ *-.*"   . font-lock-string-face)
-   '("^!!!.*"          . font-lock-constant-face)))
+   '(":\\w+"          . font-lock-constant-face)
+   '("'[^']*'"        . font-lock-string-face)
+   '("{[^}]*}"        . font-lock-variable-name-face)
+   '("^!!!.*"         . font-lock-constant-face)))
 
 ;; Constants
 
@@ -107,6 +109,13 @@
 
 ;; Mode setup
 
+(defvar haml-mode-syntax-table nil
+  "Syntax table in use in haml-mode buffers.")
+(unless haml-mode-syntax-table
+  (setq haml-mode-syntax-table (make-syntax-table))
+  (modify-syntax-entry ?: "." haml-mode-syntax-table)
+  (modify-syntax-entry ?_ "w" haml-mode-syntax-table))
+
 (defvar haml-mode-map ()
   "Keymap used in `haml-mode' buffers.")
 (if haml-mode-map
@@ -120,12 +129,12 @@
   "Simple mode to edit Haml.
 
 \\{haml-mode-map}"
+  (set-syntax-table haml-mode-syntax-table)
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
-  (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults
-        '((haml-font-lock-keywords-1)
-          nil
-          t)))
+  (set (make-local-variable 'font-lock-defaults)
+       '((haml-font-lock-keywords-1)
+         nil
+         t)))
 
 ;; Indentation and electric keys
 
