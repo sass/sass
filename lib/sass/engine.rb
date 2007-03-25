@@ -268,13 +268,18 @@ module Sass
 
       files.split(/,\s*/).each do |filename|
         engine = nil
-        File.open(find_file_to_import(filename)) do |file|
-          engine = Sass::Engine.new(file.read)
-        end
+        filename = find_file_to_import(filename)
+        if filename =~ /\.css$/
+          nodes << Tree::ValueNode.new("@import #{filename}", @options[:style])
+        else
+          File.open(filename) do |file|
+            engine = Sass::Engine.new(file.read, @options)
+          end
 
-        root = engine.render_to_tree
-        nodes += root.children
-        @constants.merge! engine.constants
+          root = engine.render_to_tree
+          nodes += root.children
+          @constants.merge! engine.constants
+        end
       end
 
       nodes

@@ -1,5 +1,6 @@
 Testing:
   Test html2haml
+  Test Sassy import
 
 Documentation:
   Haml::Engine public method documentation could use work
@@ -14,4 +15,4 @@ Features:
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable
   Errors in imported files should point to the proper files.
-  Sassy CSS imports should compile to a literal CSS "@import"
+  meta, br, etc. tags should be automatically self-closed.
