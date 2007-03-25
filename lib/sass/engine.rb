@@ -68,7 +68,9 @@ module Sass
       begin
         render_to_tree.to_s
       rescue SyntaxError => err
-        err.add_backtrace_entry(@options[:filename])
+        unless err.sass_filename
+          err.add_backtrace_entry(@options[:filename])
+        end
         raise err
       end
     end
@@ -273,11 +275,21 @@ module Sass
           nodes << Tree::ValueNode.new("@import #{filename}", @options[:style])
         else
           File.open(filename) do |file|
+            new_options = @options.dup
+            new_options[:filename] = filename
             engine = Sass::Engine.new(file.read, @options)
           end
 
-          root = engine.render_to_tree
-          nodes += root.children
+          begin
+            root = engine.render_to_tree
+          rescue Sass::SyntaxError => err
+            err.add_backtrace_entry(filename)
+            raise err
+          end
+          root.children.each do |child|
+            child.filename = filename
+            nodes << child
+          end
           @constants.merge! engine.constants
         end
       end

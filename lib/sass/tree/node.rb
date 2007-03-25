@@ -3,6 +3,7 @@ module Sass
     class Node
       attr_accessor :children
       attr_accessor :line
+      attr_accessor :filename
 
       def initialize(style)
         @style = style
@@ -23,7 +24,14 @@ module Sass
             raise SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
           end
 
-          result += "#{child.to_s(1)}\n"
+          begin
+            result += "#{child.to_s(1)}\n"
+          rescue SyntaxError => e
+            if child.filename
+              e.add_backtrace_entry(child.filename)
+            end
+            raise e
+          end
         end
         result[0...-1]
       end
