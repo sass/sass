@@ -569,6 +569,12 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # [<tt>:filename</tt>]          The filename of the file being rendered.
 #                               This is used solely for reporting errors,
 #                               and is automatically set when using Rails.
+#
+# [<tt>:load_paths</tt>]        An array of filesystem paths which should be searched
+#                               for Sass templates imported with the "@import" directive.
+#                               This defaults to the working directory and, in Rails,
+#                               whatever <tt>:template_location</tt> is
+#                               (by default <tt>RAILS_ROOT + "/public/stylesheets/sass"</tt>).
 # 
 module Sass; end
 
