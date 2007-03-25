@@ -1,10 +1,8 @@
 Testing:
   Test html2haml
-  Test Sassy import
 
 Documentation:
   Haml::Engine public method documentation could use work
-  Sass::Engine load_paths option needs documenting.
 
 Features:
   Sass should throw generic errors for undefined constants, not syntax errors
@@ -14,5 +12,4 @@ Features:
   There should be a way to make Haml tags not insert whitespace
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable
-  Errors in imported files should point to the proper files.
   meta, br, etc. tags should be automatically self-closed.

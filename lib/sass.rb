@@ -356,6 +356,68 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     #main h6 {
 #       font: italic small-caps bold 1.1em sans-serif; }
 #
+# == Directives
+#
+# Directives allow the author to directly issue instructions to the Sass compiler.
+# They're prefixed with an at sign, "<tt>@</tt>",
+# followed by the name of the directive,
+# a space, and any arguments to it -
+# just like CSS directives.
+# For example:
+#
+#   @import red.sass
+#
+# === Import
+#
+# Currently, the only directive is the "import" directive.
+# It works in a very similar way to the CSS import directive,
+# and sometimes compiles to a literal CSS "@import".
+#
+# Sass can import either other Sass files or plain CSS files.
+# If it imports a Sass file,
+# not only are the rules from that file included,
+# but all constants in that file are made available in the current file.
+#
+# Sass looks for other Sass files in the working directory,
+# and the Sass file directory under Rails.
+# Additional search directories may be specified
+# using the :load_paths option (see below).
+#
+# Sass can also import plain CSS files.
+# In this case, it doesn't literally include the content of the files;
+# rather, it uses the built-in CSS "@import" directive to tell the client program
+# to import the files.
+#
+# The import directive can take either a full filename
+# or a filename without an extension.
+# If an extension isn't provided,
+# Sass will try to find a Sass file with the given basename in the load paths,
+# and, failing that, will assume a relevant CSS file will be available.
+#
+# For example,
+#
+#   @import foo.sass
+#
+# would compile to
+#
+#   .foo
+#     :color #f00
+#
+# whereas
+#
+#   @import foo.css
+#
+# would compile to
+#
+#   @import foo.css
+#
+# Finally,
+#
+#  @import foo
+#
+# might compile to either,
+# depending on whether a file called "foo.sass" existed.
+#
 # == Comments
 #
 # === Silent Comments
