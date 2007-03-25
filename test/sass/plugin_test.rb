@@ -23,7 +23,7 @@ class SassPluginTest < Test::Unit::TestCase
   end
   
   def teardown
-    #File.delete(*Dir[tempfile_loc('*')])
+    File.delete(*Dir[tempfile_loc('*')])
   end
 
   def test_templates_should_render_correctly
