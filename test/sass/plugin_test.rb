@@ -8,13 +8,14 @@ RAILS_ENV  = 'testing'
 require 'sass/plugin'
 
 class SassPluginTest < Test::Unit::TestCase
-  @@templates = %w{ complex constants parent_ref }
+  @@templates = %w{ complex constants parent_ref import }
 
   def setup
     Sass::Plugin.options = {
       :template_location => File.dirname(__FILE__) + '/templates',
       :css_location => File.dirname(__FILE__) + '/tmp',
-      :style => :compact
+      :style => :compact,
+      :load_paths => [File.dirname(__FILE__) + '/results'],
     }
     Sass::Plugin.options[:always_update] = true
     
@@ -22,7 +23,7 @@ class SassPluginTest < Test::Unit::TestCase
   end
   
   def teardown
-    File.delete(*Dir[tempfile_loc('*')])
+    #File.delete(*Dir[tempfile_loc('*')])
   end
 
   def test_templates_should_render_correctly

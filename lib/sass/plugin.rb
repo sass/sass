@@ -47,7 +47,7 @@ module Sass
             filename = template_filename(name)
             l_options = @@options.dup
             l_options[:filename] = filename
-            l_options[:load_paths] ||= [l_options[:template_location], l_options[:css_location]]
+            l_options[:load_paths] = (l_options[:load_paths] || []) + [l_options[:template_location]]
             engine = Engine.new(File.read(filename), l_options)
             begin
               result = engine.render

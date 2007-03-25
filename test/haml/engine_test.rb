@@ -93,13 +93,10 @@ class EngineTest < Test::Unit::TestCase
   end
 
   def test_rec_merge
-    hash1 = {1=>2, 3=>{5=>7, 8=>9}}
-    hash1_2 = hash1.clone
-    hash2 = {4=>5, 3=>{5=>2, 16=>12}}
-    hash3 = {1=>2, 4=>5, 3=>{5=>2, 8=>9, 16=>12}}
+    hash1 = {1=>2, 3=>{5=>7, 8=>9}, 10=>[1, 2, 3]}
+    hash2 = {4=>5, 3=>{5=>2, 16=>12}, 10=>[4, 5, 6]}
+    hash3 = {1=>2, 4=>5, 3=>{5=>2, 8=>9, 16=>12}, 10=>[1, 2, 3, 4, 5, 6]}
 
-    assert_equal(hash3, hash1.rec_merge(hash2))
-    assert_equal(hash1_2, hash1)
     hash1.rec_merge!(hash2)
     assert_equal(hash3, hash1)
   end

@@ -2,6 +2,7 @@ require 'haml/helpers'
 require 'haml/buffer'
 require 'haml/filters'
 require 'haml/error'
+require 'haml/util'
 
 module Haml
   # This is the class where all the parsing and processing of the Haml
@@ -720,25 +721,5 @@ END
       @to_close_stack.push(value)
       @template_tabs += 1
     end
-  end
-end
-
-class Hash # :nodoc:
-  # Same as Hash#merge!, but recursively merges sub-hashes.
-  def rec_merge!(other)
-    other.each do |key, value|
-      myval = self[key]
-      if value.is_a?(Hash) && myval.is_a?(Hash)
-        myval.rec_merge!(value)
-      else
-        self[key] = value
-      end
-    end
-    self
-  end
-
-  def rec_merge(other)
-    toret = self.clone
-    toret.rec_merge! other
   end
 end

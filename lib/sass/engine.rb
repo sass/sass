@@ -5,6 +5,7 @@ require 'sass/tree/comment_node'
 require 'sass/tree/attr_node'
 require 'sass/constant'
 require 'sass/error'
+require 'haml/util'
 
 module Sass
   # This is the class where all the parsing and processing of the Sass
@@ -184,7 +185,7 @@ module Sass
           if child == :constant
             raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
           elsif child.is_a? Array
-            raise SyntaxError.new("The import directive may only be used at the root of a document.", @line)
+            raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
           elsif child.is_a? Tree::Node
             child.line = @line
             node << child
@@ -261,7 +262,7 @@ module Sass
       when "import"
         import(value)
       else
-        raise SyntaxError.new("Unknown compiler directive: #{"@{directive} #{value}".dump}")
+        raise SyntaxError.new("Unknown compiler directive: #{"@#{directive} #{value}".dump}", @line)
       end
     end
 
@@ -280,6 +281,8 @@ module Sass
             engine = Sass::Engine.new(file.read, @options)
           end
 
+          engine.constants.merge! @constants
+
           begin
             root = engine.render_to_tree
           rescue Sass::SyntaxError => err
@@ -290,7 +293,7 @@ module Sass
             child.filename = filename
             nodes << child
           end
-          @constants.merge! engine.constants
+          @constants = engine.constants
         end
       end
 
@@ -298,44 +301,35 @@ module Sass
     end
 
     def find_file_to_import(filename)
-      has_ext = 
+      was_sass = false
+      original_filename = filename
       new_filename = nil
 
-      if filename.include?('.')
-        @options[:load_paths].each do |path|
-          full_path = File.join(path, filename)
+      if filename[-5..-1] == ".sass"
+        filename = filename[0...-5]
+        was_sass = true
+      elsif filename[-4..-1] == ".css"
+        return filename
+      end
 
-          if File.readable?(full_path)
-            new_filename = full_path
-            break
-          end
+      @options[:load_paths].each do |path|
+        full_path = File.join(path, filename) + '.sass'
+        
+        if File.readable?(full_path)
+          new_filename = full_path
+          break
+        end
+      end
+
+      if new_filename.nil?
+        if was_sass
+          raise SyntaxError.new("File to import not found or unreadable: #{original_filename}", @line)
+        else
+          return filename + '.css'
         end
       else
-        @options[:load_paths].each do |path|
-          full_path = File.join(path, filename) + '.sass'
-
-          if File.readable?(full_path)
-            new_filename = full_path
-            break
-          end
-        end
-
-        unless new_filename
-          @options[:load_paths].each do |path|
-            full_path = File.join(path, filename) + '.css'
-
-            if File.readable?(full_path)
-              new_filename = full_path
-              break
-            end
-          end
-        end
+        new_filename
       end
-
-      unless new_filename
-        raise SyntaxError.new("File to import not found or unreadable: #{filename}")
-      end
-      new_filename
     end
   end
 end

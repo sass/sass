@@ -36,6 +36,10 @@ class SassEngineTest < Test::Unit::TestCase
     "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'",
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
     "!a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath constants.",
+    "@import foo.sass" => "File to import not found or unreadable: foo.sass",
+    "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
+    "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
+    "@foo    bar boom" => "Unknown compiler directive: \"@foo bar boom\"",
   }
   
   def test_basic_render
@@ -70,6 +74,20 @@ class SassEngineTest < Test::Unit::TestCase
       assert_equal(5, err.sass_line)
     else
       assert(false, "Exception not raised for '#{to_render}'!")
+    end
+  end
+
+  def test_imported_exception
+    [1, 2].each do |i|
+      i = nil if i == 1
+      begin
+        Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
+      rescue Sass::SyntaxError => err
+        assert_equal(2, err.sass_line)
+        assert_match(/bork#{i}\.sass$/, err.sass_filename)
+      else
+        assert(false, "Exception not raised for imported template: bork#{i}")
+      end
     end
   end
   
