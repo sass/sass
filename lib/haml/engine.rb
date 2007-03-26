@@ -123,11 +123,11 @@ END
         :suppress_eval => false,
         :attr_wrapper => "'",
         :locals => {},
+        :autoclose => ['meta', 'img', 'link', 'script', 'br', 'hr'],
         :filters => {
           'sass' => Sass::Engine,
           'plain' => Haml::Filters::Plain,
-          'preserve' => Haml::Filters::Preserve
-        }
+          'preserve' => Haml::Filters::Preserve }
       }
 
       unless @options[:suppress_eval]
@@ -574,15 +574,13 @@ END
       matched = false
       line.scan(TAG_REGEX) do |tag_name, attributes, attributes_hash, object_ref, action, value|
         matched = true
-        value = value.to_s
+        value = value.to_s.strip
 
         case action
         when '/'
           atomic = true
         when '=', '~'
           parse = true
-        else
-          value = value.strip
         end
 
         flattened = (action == '~')
@@ -597,14 +595,20 @@ END
           raise SyntaxError.new("Illegal element: classes and ids must have values. Use %div instead.")
         end
 
-        if @block_opened 
+        if @block_opened
           if atomic
             raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.")
           elsif action == '=' || value_exists
             raise SyntaxError.new("Illegal Nesting: Nesting within a tag that already has content is illegal.")
           end
+        elsif atomic && value_exists
+          raise SyntaxError.new("Atomic tags can't have content.")
         elsif parse && !value_exists
           raise SyntaxError.new("No tag content to parse.")
+        end
+
+        if !@block_opened && !value_exists && !atomic && @options[:autoclose].include?(tag_name)
+          atomic = true
         end
 
         push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{flattened.inspect}, #{attributes_hash[1...-1]})", true

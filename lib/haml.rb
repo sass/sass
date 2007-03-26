@@ -181,6 +181,19 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # 
 #   <br />
 #   <meta http-equiv='Content-Type' content='text/html' />
+#
+# Some tags are automatically closed, as long as they have no content.
+# +meta+, +img+, +link+, +script+, +br+, and +hr+ tags are closed by default.
+# This list can be customized by setting the <tt>:autoclose</tt> option (see below).
+# For example:
+#
+#   %br
+#   %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}
+#
+# is also compiled to:
+#
+#   <br />
+#   <meta http-equiv='Content-Type' content='text/html' />
 # 
 # ==== . and #
 # 
@@ -637,6 +650,10 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           template. For instance, if <tt>:locals</tt> is
 #                           <tt>{ :foo => "bar" }</tt>, then within the template,
 #                           <tt>= foo</tt> will produce <tt>bar</tt>.
+#
+# [<tt>:autoclose</tt>]     A list of tag names that should be automatically self-closed
+#                           if they have no content.
+#                           Defaults to <tt>['meta', 'img', 'link', 'script', 'br', 'hr']</tt>.
 #
 module Haml; end
 
