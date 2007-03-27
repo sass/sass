@@ -57,6 +57,15 @@ class EngineTest < Test::Unit::TestCase
 
   def test_stop_eval
     assert_equal("", render("= 'Hello'", :suppress_eval => true))
+    assert_equal("<div id='foo' />\n", render("#foo{:yes => 'no'}/", :suppress_eval => true))
+
+    begin
+      assert_equal("", render(":ruby\n  puts 'hello'", :suppress_eval => true))
+    rescue Haml::HamlError => err
+      caught = true
+      assert_equal('Filter "ruby" is not defined!', err.message)
+    end
+    assert(caught, "Rendering a ruby filter without evaluating didn't throw an error!")
   end
 
   def test_attr_wrapper
