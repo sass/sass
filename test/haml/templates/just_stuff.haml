@@ -39,8 +39,16 @@
   Woah a period.
 = "test" |
   "test" |
-%br
-%meta{ :foo => 'bar'}
+- case :foo
+- when :bar
+  %br Blah
+- when :foo
+  %br
+- case :foo
+  - when :bar
+    %meta{ :foo => 'blah'}
+  - when :foo
+    %meta{ :foo => 'bar'}
 %img
 %script
 %hr
