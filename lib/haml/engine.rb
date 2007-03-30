@@ -310,8 +310,9 @@ END
       when SILENT_SCRIPT
         sub_line = line[1..-1]
         unless sub_line[0] == SILENT_COMMENT
-          push_silent(sub_line, true)
-          if @block_opened && !mid_block_keyword?(line)
+          mbk = mid_block_keyword?(line)
+          push_silent(sub_line, !mbk)
+          if (@block_opened && !mbk) || line[1..-1].split(' ', 2)[0] == "case"
             push_and_tabulate([:script])
           end
         end
