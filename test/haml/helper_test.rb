@@ -62,7 +62,7 @@ class HelperTest < Test::Unit::TestCase
 
     begin
       ActionView::Base.new.render(:inline => "<%= concat('foo') %>")
-    rescue ArgumentError
+    rescue ArgumentError, NameError
       proper_behavior = true
     end    
     assert(proper_behavior)

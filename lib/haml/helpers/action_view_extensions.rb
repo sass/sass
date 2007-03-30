@@ -1,6 +1,6 @@
 require 'haml/helpers/action_view_mods'
 
-if defined?(Haml::Helpers::ActionViewMods)
+if defined?(ActionView)
   module Haml
     module Helpers
       # This module contains various useful helper methods
