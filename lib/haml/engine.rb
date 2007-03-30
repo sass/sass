@@ -129,13 +129,6 @@ END
         }
       }
 
-      unless @options[:suppress_eval]
-        @options[:filters].merge!({
-          'erb' => ERB,
-          'ruby' => Haml::Filters::Ruby
-        })
-      end
-
       if !NOT_LOADED.include? 'redcloth'
         @options[:filters].merge!({
           'redcloth' => RedCloth,
@@ -148,6 +141,14 @@ END
       end
 
       @options.rec_merge! options
+
+      unless @options[:suppress_eval]
+        @options[:filters].merge!({
+          'erb' => ERB,
+          'ruby' => Haml::Filters::Ruby
+        })
+      end
+      @options[:filters].rec_merge! options[:filters] if options[:filters]
 
       @precompiled = @options[:precompiled]
 
@@ -589,7 +590,7 @@ END
         warn(FLAT_WARNING) if flattened && !defined?(Test::Unit)
 
         value_exists = !value.empty?
-        attributes_hash = "nil" unless attributes_hash
+        attributes_hash = "nil" if attributes_hash.nil? || @options[:suppress_eval]
         object_ref = "nil" unless object_ref
 
         if @block_opened 
