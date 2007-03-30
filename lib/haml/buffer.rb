@@ -198,7 +198,7 @@ module Haml
       ref = ref[0]
       # Let's make sure the value isn't nil. If it is, return the default Hash.
       return {} if ref.nil?
-      class_name = ref.class.to_s.underscore
+      class_name = underscore(ref.class)
       id = "#{class_name}_#{ref.id}"
 
       if old_class
@@ -216,6 +216,17 @@ module Haml
     # on one line.
     def one_liner?(value)
       value.length <= ONE_LINER_LENGTH && value.scan(/\n/).empty?
+    end
+
+    # Changes a word from camel case to underscores.
+    # Based on the method of the same name in Rails' Inflector,
+    # but copied here so it'll run properly without Rails.
+    def underscore(camel_cased_word)
+      camel_cased_word.to_s.gsub(/::/, '_').
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
     end
   end
 end
