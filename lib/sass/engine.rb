@@ -142,6 +142,9 @@ module Sass
       spaces = line.index(/[^ ]/)
       if spaces
         if spaces % 2 == 1 || line[spaces] == ?\t
+          # Make sure a line with just tabs isn't an error
+          return nil if line.strip.empty?
+
           raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line) 
         end
         spaces / 2

@@ -716,6 +716,8 @@ END
     def count_soft_tabs(line)
       spaces = line.index(/[^ ]/)
       if line[spaces] == ?\t
+        return nil if line.strip.empty?
+
         raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
       end
       [spaces, spaces/2]
