@@ -283,15 +283,15 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # they're simply joined with a space.
 # For example:
 #
-#   !font_family = sans-serif
+#   !font_family = "sans-serif"
 #   !main_font_size = 1em
 #
 #   #main
 #     :font
-#       :family = !font-family
+#       :family = !font_family
 #       :size = !main_font_size
 #     h6
-#       :font = italic small-caps bold (!main_font_size + 0.1em) !font-family
+#       :font = italic "small-caps" bold (!main_font_size + 0.1em) !font_family
 #
 # is compiled to:
 #
