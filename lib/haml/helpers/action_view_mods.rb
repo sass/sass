@@ -9,42 +9,24 @@ rescue LoadError
 end
 
 if action_view_included
-  class ActionView::Base
-    alias_method :old_concat, :concat unless instance_methods.include? "old_concat"
-    alias_method :old_form_tag, :form_tag unless instance_methods.include? "old_form_tag"
-
-    alias_method :old_form_for, :form_for unless instance_methods.include? "old_form_for"
-  end
-  
-  module Haml
+  module ActionView
+    # This overrides various helpers in ActionView
+    # to make them work more effectively with Haml.
     module Helpers
-      # This module overrides various helpers in ActionView
-      # to make them work more effectively with Haml.
-      # It also defines several helper methods,
-      # available from a Haml template,
-      # which are only useful within the context of ActionView.
-      # It's not available unless ActionView is installed.
-      #
-      #--
-      # Methods in this module should be nodoc'd.
-      #++
-      module ActionViewMods
-        def self.included(othermod) # :nodoc:
-          othermod.class_eval do
-            action_view(true)
-            alias_method :capture_erb_with_buffer, :capture_haml_with_buffer
-          end
-        end
-        
-        def concat(string, binding = nil) # :nodoc:
+      # :stopdoc:
+      module TextHelper
+        def concat_with_haml(string, binding = nil)
           if is_haml?
             buffer.buffer.concat(string)
           else
-            old_concat(string, binding)
+            concat_without_haml(string, binding)
           end
         end
-        
-        def form_tag(url_for_options = {}, options = {}, *parameters_for_url, &proc) # :nodoc:
+        alias_method_chain :concat, :haml
+      end
+      
+      module FormTagHelper
+        def form_tag_with_haml(url_for_options = {}, options = {}, *parameters_for_url, &proc)
           if block_given? && is_haml?
             oldproc = proc 
             proc = bind_proc do |*args|
@@ -54,29 +36,33 @@ if action_view_included
               tab_down
             end
           end
-          res = old_form_tag(url_for_options, options, *parameters_for_url, &proc) + "\n"
+          res = form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc) + "\n"
           concat "\n" if block_given? && is_haml?
           res
         end
-
-        def form_for(object_name, *args, &proc) # :nodoc:
+        alias_method_chain :form_tag, :haml
+      end
+      
+      module FormHelper
+        def form_for_with_haml(object_name, *args, &proc)
           if block_given? && is_haml?
             oldproc = proc 
             proc = bind_proc do |*args|
               tab_up
               oldproc.call(*args)
               tab_down
-            end            
+            end
           end
-          old_form_for(object_name, *args, &proc)
+          form_for_without_haml(object_name, *args, &proc)
           concat "\n" if block_given? && is_haml?
         end
-
-        def generate_content_class_names
-          controller.controller_name + " " + controller.action_name
-        end
+        alias_method_chain :form_for, :haml
       end
+      
+      def generate_content_class_names
+        controller.controller_name + " " + controller.action_name
+      end
+      # :startdoc:
     end
   end
 end
-

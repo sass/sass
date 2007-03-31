@@ -8,12 +8,12 @@ module Haml
   module Helpers
     self.extend self
     
-    @@action_view = false
+    @@action_view_defined = defined?(ActionView)
     @@force_no_action_view = false
 
     # Returns whether or not ActionView is installed on the system.
     def self.action_view?
-      @@action_view
+      @@action_view_defined
     end
 
     # Isolates the whitespace-sensitive tags in the string and uses preserve
@@ -186,11 +186,6 @@ module Haml
     end
     
     private
-    
-    # Sets whether or not ActionView is installed on the system.
-    def self.action_view(value) # :nodoc:
-      @@action_view = value
-    end
 
     # Gets a reference to the current Haml::Buffer object.
     def buffer
@@ -226,6 +221,7 @@ module Haml
       end
       result.to_s
     end
+    alias_method :capture_erb_with_buffer, :capture_haml_with_buffer
 
     # Returns whether or not the current template is a Haml template.
     # 
@@ -235,8 +231,6 @@ module Haml
     def is_haml?
       @haml_stack ? @haml_stack.size > 0 : false
     end
-    
-    include ActionViewMods if self.const_defined?  "ActionViewMods"
   end
 end
 
