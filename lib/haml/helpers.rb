@@ -8,13 +8,13 @@ module Haml
   # disposal from within the template.
   module Helpers
     self.extend self
-    
-    @@action_view = false
+
+    @@action_view_defined = defined?(ActionView)
     @@force_no_action_view = false
 
     # Returns whether or not ActionView is installed on the system.
     def self.action_view?
-      defined?(ActionView)
+      @@action_view_defined
     end
 
     # Isolates the whitespace-sensitive tags in the string and uses preserve

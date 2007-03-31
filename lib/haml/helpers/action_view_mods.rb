@@ -12,13 +12,10 @@ if action_view_included
   module ActionView
     # This overrides various helpers in ActionView
     # to make them work more effectively with Haml.
-    #
-    #--
-    # Methods in this module should be nodoc'd.
-    #++
     module Helpers
+      # :stopdoc:
       module TextHelper
-        def concat_with_haml(string, binding = nil) # :nodoc:
+        def concat_with_haml(string, binding = nil)
           if is_haml?
             buffer.buffer.concat(string)
           else
@@ -29,7 +26,7 @@ if action_view_included
       end
 
       module FormTagHelper
-        def form_tag_with_haml(url_for_options = {}, options = {}, *parameters_for_url, &proc) # :nodoc:
+        def form_tag_with_haml(url_for_options = {}, options = {}, *parameters_for_url, &proc)
           if block_given? && is_haml?
             oldproc = proc 
             proc = bind_proc do |*args|
@@ -47,7 +44,7 @@ if action_view_included
       end
 
       module FormHelper
-        def form_for_with_haml(object_name, *args, &proc) # :nodoc:
+        def form_for_with_haml(object_name, *args, &proc)
           if block_given? && is_haml?
             oldproc = proc 
             proc = bind_proc do |*args|
@@ -61,6 +58,7 @@ if action_view_included
         end
         alias_method_chain :form_for, :haml
       end
+      # :startdoc:
     end
   end
 end
