@@ -8,7 +8,6 @@ Features:
   Sass should throw generic errors for undefined constants, not syntax errors
   Sass::Plugin should log errors
   There should be a way to represent options in-document
-  Haml and Sass executables should return meaningful exit codes
   There should be a way to make Haml tags not insert whitespace
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable

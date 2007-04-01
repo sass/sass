@@ -16,12 +16,23 @@ module Haml
       end
 
       def parse!
-        @opts = OptionParser.new(&(method(:set_opts).to_proc))
-        @opts.parse!(@args)
+        begin
+          @opts = OptionParser.new(&(method(:set_opts).to_proc))
+          @opts.parse!(@args)
 
-        process_result
+          process_result
+          
+          @options
+        rescue Exception => e
+          if @options[:trace]
+            puts e
+          else
+            puts "Error: #{e.message}\nUse --trace to see traceback"
+          end
 
-        @options
+          exit 1
+        end
+        exit 0
       end
 
       def to_s
@@ -37,6 +48,15 @@ module Haml
 
         opts.on('--stdout', :NONE, 'Print output to standard output instead of an output file') do
           @options[:output] = $stdout
+        end
+
+        opts.on('-s', '--stdio', 'Read input from standard input and print output to standard output') do
+          @options[:input] = $stdin
+          @options[:output] = $stdout
+        end
+
+        opts.on('--trace', :NONE, 'Show a full traceback on error') do
+          @options[:trace] = true
         end
 
         opts.on_tail("-?", "-h", "--help", "Show this message") do
@@ -102,7 +122,7 @@ Description:
 Options:
 END
        
-        opts.on('--rails RAILS_DIR', "Install Haml from the Gem to a Rails project.") do |dir|
+        opts.on('--rails RAILS_DIR', "Install Haml from the Gem to a Rails project") do |dir|
           original_dir = dir
 
           dir = File.join(dir, 'vendor', 'plugins')
