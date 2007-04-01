@@ -70,22 +70,63 @@ module Sass
 
     def build_tree
       root = Tree::Node.new(nil)
+      whitespace
+      rules(root)
+      root
+    end
 
-      while @template.scan(RULE_RE)
-        rule = Tree::RuleNode.new(@template[0][0...-1].strip, nil)
-        root << rule
+    def rules(root)
+      rules = []
+      while @template.scan(/[^\{\s]+/)
+        rules << @template[0]
+        whitespace
 
-        while @template.scan(ATTR_RE)
-          attrs = @template[0][0...-1].split(':').map {|s| s.strip}
-          rule << Tree::AttrNode.new(attrs[0], attrs[1], nil)
-        end
+        if @template.scan(/\{/)
+          result = Tree::RuleNode.new(rules.join(' '), nil)
+          root << result
 
-        if @template.scan(/\s*\}/).nil?
-          raise "Invalid CSS!"
+          whitespace
+          attributes(result)
         end
       end
+    end
 
-      root
+    def attributes(rule)
+      while @template.scan(/[^:\}\s]+/)
+        name = @template[0]
+        whitespace
+
+        assert_match /:/
+        
+        value = ''
+        while @template.scan(/[^;\s]+/)
+          value << @template[0] << whitespace
+        end
+        
+        assert_match /;/        
+        rule << Tree::AttrNode.new(name, value, nil)
+      end
+
+      assert_match /\}/
+    end
+
+    def whitespace
+      space = @template.scan(/\s*/) || ''
+
+      # If we've hit a comment,
+      # go past it and look for more whitespace
+      if @template.scan(/\/\*/)
+        @template.scan_until(/\*\//)
+        return space + whitespace
+      end
+      return space
+    end
+
+    def assert_match(re)
+      if !@template.scan(re)
+        raise Exception.new("Invalid CSS!")
+      end
+      whitespace
     end
   end
 end
