@@ -220,6 +220,18 @@ END
     # A class encapsulating executable functionality
     # specific to the html2haml executable.
     class HTML2Haml < Generic # :nodoc:
+      def initialize(args)
+        super
+
+        begin
+          require 'haml/html'
+        rescue LoadError => err
+          dep = err.message.scan(/^no such file to load -- (.*)/)[0]
+          puts "Required dependency #{dep} not found!"
+          exit 1
+        end
+      end
+
       def set_opts(opts)
         opts.banner = <<END
 Usage: html2haml [options] (html file) (output file)
@@ -238,7 +250,7 @@ END
         input = @options[:input]
         output = @options[:output]
 
-        output.write(Hpricot(input).to_haml)
+        output.write(::Haml::HTML.new(input).render)
       end
     end
   end
