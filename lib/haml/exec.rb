@@ -253,5 +253,36 @@ END
         output.write(::Haml::HTML.new(input).render)
       end
     end
+
+    # A class encapsulating executable functionality
+    # specific to the css2sass executable.
+    class CSS2Sass < Generic # :nodoc:
+      def initialize(args)
+        super
+
+        require 'sass/css'
+      end
+
+      def set_opts(opts)
+        opts.banner = <<END
+Usage: css2sass [options] (css file) (output file)
+
+Description: Transforms a CSS file into corresponding Sass code.
+
+Options:
+END
+
+        super
+      end
+
+      def process_result
+        super
+
+        input = @options[:input]
+        output = @options[:output]
+
+        output.write(::Sass::CSS.new(input).render)
+      end
+    end
   end
 end
