@@ -24,6 +24,8 @@ module Haml
           
           @options
         rescue Exception => e
+          raise e if e.is_a? SystemExit
+
           line = e.backtrace[0].scan(/:(.*)/)[0]
           puts "#{e.class} on line #{line}: #{e.message}"
 
