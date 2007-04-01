@@ -73,10 +73,34 @@ module Haml
       end
     end
 
-    # TODO: Understand STRICT, etc. doctypes
     class ::Hpricot::DocType
       def to_haml(tabs = 0)
-        "#{tabulate(tabs)}!!!\n"
+        attrs = public_id.scan(/DTD\s+([^\s]+)\s*([^\s]*)\s*([^\s]*)\s*\/\//)[0]
+        if attrs == nil
+          raise Exception.new("Invalid doctype")
+        end
+
+        type, version, strictness = attrs.map { |a| a.downcase }
+        if type == "html"
+          version = "1.0"
+          strictness = "transitional"
+        end
+
+        if version == "1.0" || version.empty?
+          version = nil
+        end
+
+        if strictness == 'transitional' || strictness.empty?
+          strictness = nil
+        end
+
+        version = " #{version}" if version
+        if strictness
+          strictness[0] = strictness[0] - 32
+          strictness = " #{strictness}"
+        end
+
+        "#{tabulate(tabs)}!!!#{version}#{strictness}\n"
       end
     end
 
