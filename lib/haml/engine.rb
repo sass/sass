@@ -110,7 +110,7 @@ helper instead.
 END
 
     # Creates a new instace of Haml::Engine that will compile the given
-    # template string when <tt>to_html</tt> is called.
+    # template string when <tt>render</tt> is called.
     # See README for available options.
     #
     #--
