@@ -63,7 +63,14 @@ module Sass
     # Processes the document and returns the result as a string
     # containing the CSS template.
     def render
-      build_tree.to_sass
+      begin
+        build_tree.to_sass
+      rescue Exception => err
+        line = @template.string[0...@template.pos].split("\n").size
+        
+        err.backtrace.unshift "(css):#{line}"
+        raise err
+      end
     end
 
     private
