@@ -12,4 +12,3 @@ Features:
   There should be a way to make Haml tags not insert whitespace
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable
-  meta, br, etc. tags should be automatically self-closed.
