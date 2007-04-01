@@ -24,10 +24,13 @@ module Haml
           
           @options
         rescue Exception => e
+          line = e.backtrace[0].scan(/:(.*)/)[0]
+          puts "#{e.class} on line #{line}: #{e.message}"
+
           if @options[:trace]
-            puts e
+            e.backtrace[1..-1].each { |t| puts "  #{t}" }
           else
-            puts "Error: #{e.message}\nUse --trace to see traceback"
+            puts "  Use --trace to see traceback"
           end
 
           exit 1
