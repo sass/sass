@@ -2,8 +2,15 @@
 
 require File.dirname(__FILE__) + '/../lib/haml'
 require 'haml/engine'
-require 'rubygems'
-require 'hpricot'
+
+begin
+  require 'rubygems'
+  require 'hpricot'
+rescue LoadError => err
+  dep = err.message.scan(/^no such file to load -- (.*)/)[0]
+  puts "Required dependency #{dep} not found!"
+  exit 1
+end
 
 def tabulate(tabs)
   '  ' * tabs
