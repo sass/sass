@@ -60,7 +60,7 @@ end
 class Hpricot::Elem
   def to_haml(tabs)
     output = "#{tabulate(tabs)}"
-    output += "%#{name}" unless name == 'div'
+    output += "%#{name}" unless name == 'div' && (attributes.include?('id') || attributes.include?('class'))
       
     if attributes
       output += "##{attributes['id']}" if attributes['id']
