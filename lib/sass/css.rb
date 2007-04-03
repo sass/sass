@@ -17,6 +17,12 @@ module Sass
       end
     end
 
+    class ValueNode
+      def to_sass(tabs)
+        "#{value}\n"
+      end
+    end
+
     class RuleNode
       def to_sass(tabs)
         str = "#{'  ' * tabs}#{rule}\n"
@@ -78,9 +84,26 @@ module Sass
     def build_tree
       root = Tree::Node.new(nil)
       whitespace
+      directives(root)
       rules(root)
       sort_rules(root)
       root
+    end
+
+    def directives(root)
+      while @template.scan(/@/)
+        name = @template.scan /[^\s;]+/
+        whitespace
+        value = @template.scan /[^;]+/
+        assert_match /;/
+        whitespace
+
+        if name == "import" && value =~ /^(url\()?"?([^\s\(\)\"]+)\.css"?\)?$/
+          value = $2
+        end
+
+        root << Tree::ValueNode.new("@#{name} #{value};", nil)
+      end
     end
 
     def rules(root)
@@ -140,26 +163,34 @@ module Sass
 
     def sort_rules(root)
       root.children.sort! do |c1, c2|
-        c1.rule <=> c2.rule
+        if c1.is_a?(Tree::RuleNode) && c2.is_a?(Tree::RuleNode)
+          c1.rule <=> c2.rule
+        elsif !(c1.is_a?(Tree::RuleNode) || c2.is_a?(Tree::RuleNode)) || c2.is_a?(Tree::RuleNode)
+          -1
+        else
+          1
+        end
       end
 
       prev_rules = []
       prev_rule_values = []
       root.children.each do |child|
-        joined_prev_values = prev_rule_values.join(' ')
-        until prev_rules.empty? || child.rule =~ /^#{Regexp.escape(joined_prev_values)}/
-          prev_rules.pop
-          prev_rule_values.pop
+        if child.is_a? Tree::RuleNode
+          joined_prev_values = prev_rule_values.join(' ')
+          until prev_rules.empty? || child.rule =~ /^#{Regexp.escape(joined_prev_values)}/
+            prev_rules.pop
+            prev_rule_values.pop
+          end
+          
+          unless prev_rules.empty?
+            child.rule.slice!(0..(joined_prev_values.size))
+            prev_rules[-1] << child
+            root.children.delete child
+          end
+          
+          prev_rules << child
+          prev_rule_values << child.rule
         end
-
-        unless prev_rules.empty?
-          child.rule.slice!(0..(joined_prev_values.size))
-          prev_rules[-1] << child
-          root.children.delete child
-        end
-
-        prev_rules << child
-        prev_rule_values << child.rule
       end
     end
   end
