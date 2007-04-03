@@ -91,6 +91,7 @@ module Sass
         if @template.scan(/\{/)
           result = Tree::RuleNode.new(rules.join(' '), nil)
           root << result
+          rules = []
 
           whitespace
           attributes(result)
