@@ -22,7 +22,7 @@ module Sass
         str = "#{'  ' * tabs}#{rule}\n"
 
         children.each do |child|
-          str << "#{child.to_sass(tabs + 1)}\n"
+          str << "#{child.to_sass(tabs + 1)}"
         end
 
         str
@@ -31,7 +31,7 @@ module Sass
 
     class AttrNode
       def to_sass(tabs)
-        "#{'  ' * tabs}:#{name} #{value}"
+        "#{'  ' * tabs}:#{name} #{value}\n"
       end
     end
   end
@@ -79,6 +79,7 @@ module Sass
       root = Tree::Node.new(nil)
       whitespace
       rules(root)
+      sort_rules(root)
       root
     end
 
@@ -135,6 +136,31 @@ module Sass
         raise Exception.new("Invalid CSS!")
       end
       whitespace
+    end
+
+    def sort_rules(root)
+      root.children.sort! do |c1, c2|
+        c1.rule <=> c2.rule
+      end
+
+      prev_rules = []
+      prev_rule_values = []
+      root.children.each do |child|
+        joined_prev_values = prev_rule_values.join(' ')
+        until prev_rules.empty? || child.rule =~ /^#{Regexp.escape(joined_prev_values)}/
+          prev_rules.pop
+          prev_rule_values.pop
+        end
+
+        unless prev_rules.empty?
+          child.rule.slice!(0..(joined_prev_values.size))
+          prev_rules[-1] << child
+          root.children.delete child
+        end
+
+        prev_rules << child
+        prev_rule_values << child.rule
+      end
     end
   end
 end
