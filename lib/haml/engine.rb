@@ -203,6 +203,7 @@ END
     def do_precompile
       push_silent <<-END
         def _haml_render
+        @haml_is_haml = true
         _hamlout = @haml_stack[-1]
         _erbout = _hamlout.buffer
       END
@@ -266,6 +267,7 @@ END
       # Close all the open tags
       @template_tabs.times { close }
 
+      push_silent "@haml_is_haml = false"
       push_silent "end"
     end
     

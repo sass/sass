@@ -10,6 +10,17 @@ end
 
 if action_view_included  
   module ActionView
+    class Base # :nodoc:
+      def render_with_haml(*args)        
+        was_haml = is_haml?
+        @haml_is_haml = false
+        res = render_without_haml(*args)
+        @haml_is_haml = was_haml
+        res
+      end
+      alias_method_chain :render, :haml
+    end
+
     # This overrides various helpers in ActionView
     # to make them work more effectively with Haml.
     module Helpers
@@ -27,18 +38,22 @@ if action_view_included
 
       module FormTagHelper
         def form_tag_with_haml(url_for_options = {}, options = {}, *parameters_for_url, &proc)
-          if block_given? && is_haml?
-            oldproc = proc 
-            proc = bind_proc do |*args|
-              concat "\n"
-              tab_up
-              oldproc.call(*args)
-              tab_down
+          if is_haml?
+            if block_given?
+              oldproc = proc 
+              proc = bind_proc do |*args|
+                concat "\n"
+                tab_up
+                oldproc.call(*args)
+                tab_down
+              end
             end
+            res = form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc) + "\n"
+            concat "\n" if block_given? && is_haml?
+            res
+          else
+            form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc)
           end
-          res = form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc) + "\n"
-          concat "\n" if block_given? && is_haml?
-          res
         end
         alias_method_chain :form_tag, :haml
       end
