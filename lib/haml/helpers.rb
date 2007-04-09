@@ -229,7 +229,7 @@ module Haml
     # also works in other ActionView templates,
     # where it will always return false.
     def is_haml?
-      @haml_stack ? @haml_stack.size > 0 : false
+      @haml_is_haml
     end
   end
 end

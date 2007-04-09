@@ -10,6 +10,18 @@ end
 
 if action_view_included
   module ActionView
+    class Base # :nodoc:
+      def render_with_haml(*args)        
+        was_haml = is_haml?
+        @haml_is_haml = false
+        res = render_without_haml(*args)
+        @haml_is_haml = was_haml
+        res
+      end
+      alias_method :render_without_haml, :render
+      alias_method :render, :render_with_haml
+    end
+
     # This overrides various helpers in ActionView
     # to make them work more effectively with Haml.
     module Helpers
