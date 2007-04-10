@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../haml'
 require 'haml/engine'
 require 'rubygems'
 require 'hpricot'
+require 'cgi'
 
 module Haml
   # This class contains the functionality used in the +html2haml+ utility,
@@ -12,10 +13,20 @@ module Haml
     # Creates a new instance of Haml::HTML that will compile the given template,
     # which can either be a string containing HTML or an Hpricot node,
     # to a Haml string when +render+ is called.
-    def initialize(template)
+    def initialize(template, options = {})
+      @@options = options
+
       if template.is_a? Hpricot::Node
         @template = template
       else
+        if template.is_a? IO
+          template = template.read
+        end
+
+        if @@options[:rhtml]
+          match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
+          match_to_html(template, /<%(.*?)-?%>/m,  'silent')
+        end
         @template = Hpricot(template)
       end
     end
@@ -56,6 +67,10 @@ module Haml
     end
 
     # :stopdoc:
+
+    def self.options
+      @@options
+    end
     
     TEXT_REGEXP = /^(\s*).*$/
 
@@ -112,7 +127,11 @@ module Haml
 
     class ::Hpricot::Elem
       def to_haml(tabs = 0)
-        output = "#{tabulate(tabs)}"
+        output = "#{tabulate(tabs)}"        
+        if HTML.options[:rhtml] && name[0...5] == 'haml:'
+          return output + HTML.send("haml_tag_#{name[5..-1]}", self.innerHTML)
+        end
+
         output += "%#{name}" unless name == 'div' && (attributes.include?('id') || attributes.include?('class'))
         
         if attributes
@@ -131,6 +150,22 @@ module Haml
         end
 
         output
+      end
+    end
+
+    def self.haml_tag_loud(text)
+      "= #{text.gsub(/\n\s*/, '; ').strip}\n"
+    end
+
+    def self.haml_tag_silent(text)
+      text.split("\n").map { |line| "- #{line.strip}\n" }.join
+    end
+
+    private
+
+    def match_to_html(string, regex, tag)
+      string.gsub!(regex) do
+        "<haml:#{tag}>#{CGI.escapeHTML($1)}</haml:#{tag}>"
       end
     end
     # :startdoc:

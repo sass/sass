@@ -225,6 +225,8 @@ END
       def initialize(args)
         super
 
+        @module_opts = {}
+
         begin
           require 'haml/html'
         rescue LoadError => err
@@ -243,6 +245,10 @@ Description: Transforms an HTML file into corresponding Haml code.
 Options:
 END
 
+        opts.on('-r', '--rhtml', 'Parse RHTML tags.') do
+          @module_opts[:rhtml] = true
+        end
+
         super
       end
 
@@ -252,7 +258,7 @@ END
         input = @options[:input]
         output = @options[:output]
 
-        output.write(::Haml::HTML.new(input).render)
+        output.write(::Haml::HTML.new(input, @module_opts).render)
       end
     end
 
