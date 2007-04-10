@@ -57,7 +57,9 @@ class EngineTest < Test::Unit::TestCase
 
   def test_stop_eval
     assert_equal("", render("= 'Hello'", :suppress_eval => true))
+    assert_equal("", render("- _hamlout << 'foo'", :suppress_eval => true))
     assert_equal("<div id='foo' />\n", render("#foo{:yes => 'no'}/", :suppress_eval => true))
+    assert_equal("<div />\n", render("%div[1]/", :suppress_eval => true))
 
     begin
       assert_equal("", render(":ruby\n  puts 'hello'", :suppress_eval => true))

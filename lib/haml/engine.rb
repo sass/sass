@@ -313,7 +313,7 @@ END
         sub_line = line[1..-1]
         unless sub_line[0] == SILENT_COMMENT
           mbk = mid_block_keyword?(line)
-          push_silent(sub_line, !mbk)
+          push_silent(sub_line, !mbk, true)
           if (@block_opened && !mbk) || line[1..-1].split(' ', 2)[0] == "case"
             push_and_tabulate([:script])
           end
@@ -425,12 +425,14 @@ END
 
     # Evaluates <tt>text</tt> in the context of <tt>@scope_object</tt>, but
     # does not output the result.
-    def push_silent(text, add_index = false)
-      if add_index
-        @precompiled << "@haml_lineno = #{@index}\n#{text}\n"
-      else
-        # Not really DRY, but probably faster
-        @precompiled << "#{text}\n"
+    def push_silent(text, add_index = false, can_suppress = false)
+      unless can_suppress && @options[:suppress_eval]
+        if add_index
+          @precompiled << "@haml_lineno = #{@index}\n#{text}\n"
+        else
+          # Not really DRY, but probably faster
+          @precompiled << "#{text}\n"
+        end
       end
     end
 
@@ -519,7 +521,7 @@ END
 
     # Closes a Ruby block.
     def close_block
-      push_silent "end"
+      push_silent "end", false, true
       @template_tabs -= 1
     end
 
@@ -543,7 +545,7 @@ END
     
     # Closes a loud Ruby block.
     def close_loud(command)
-      push_silent 'end'
+      push_silent 'end', false, true
       @precompiled << command
       @template_tabs -= 1
     end
@@ -594,7 +596,7 @@ END
 
         value_exists = !value.empty?
         attributes_hash = "nil" if attributes_hash.nil? || @options[:suppress_eval]
-        object_ref = "nil" unless object_ref
+        object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
         if @block_opened 
           if atomic
