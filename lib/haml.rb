@@ -537,6 +537,20 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     hi there reader!
 #     yo
 #   </p>
+#
+# You can also use two equal signs, <tt>==</tt>,
+# along with conventional Ruby string-embedding syntax
+# to easily embed Ruby code in otherwise static text.
+# For example:
+#
+#   %p
+#     == 1 + 1 = #{1 + 1}
+#
+# is compiled to:
+#
+#   <p>
+#     1 + 1 = 2
+#   </p>
 # 
 # ==== -
 # 
