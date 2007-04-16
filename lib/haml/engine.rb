@@ -178,15 +178,9 @@ END
       @scope_object = scope
       @buffer = Haml::Buffer.new(@options)
 
-      local_assigns = @options[:locals]
-
-      # Get inside the view object's world
-      @scope_object.instance_eval do
-        # Set all the local assigns
-        local_assigns.each do |key,val|
-          self.class.send(:define_method, key) { val }
-        end
-      end
+      local_mod = Module.new()
+      @options[:locals].each { |key, val| local_mod.send(:define_method, key) { val } }
+      @scope_object.extend(local_mod)
 
       # Compile the @precompiled buffer
       compile &block

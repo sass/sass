@@ -226,4 +226,9 @@ class EngineTest < Test::Unit::TestCase
 
     NOT_LOADED.delete 'redcloth'
   end
+
+  def test_local_assigns_dont_modify_class
+    assert_equal("bar\n", render("= foo", :locals => {:foo => 'bar'}))
+    assert_equal(nil, defined?(foo))
+  end
 end
