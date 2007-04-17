@@ -231,4 +231,10 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("bar\n", render("= foo", :locals => {:foo => 'bar'}))
     assert_equal(nil, defined?(foo))
   end
+
+  def test_object_ref_with_nil_id
+    user = Struct.new('User', :id).new
+    assert_equal("<p class='struct_user' id='struct_user_new'>New User</p>\n",
+                 render("%p[user] New User", :locals => {:user => user}))
+  end
 end
