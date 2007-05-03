@@ -77,12 +77,27 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # === Attributes
 #
-# The syntax for attributes is also slightly different.
+# There are two different ways to write CSS attrbibutes.
+# The first is very similar to the how you're used to writing them:
+# with a colon between the name and the value.
+# However, Sass attributes don't have semicolons at the end;
+# each attribute is on its own line, so they aren't necessary.
+# For example:
+#
+#   #main p
+#     color: #00ff00
+#     width: 97%
+#
+# is compiled to:
+#
+#   #main p {
+#     color: #00ff00;
+#     width: 97% }
+#
+# The second syntax for attributes is slightly different.
 # The colon is at the beginning of the attribute,
 # rather than between the name and the value,
 # so it's easier to tell what elements are attributes just by glancing at them.
-# Attributes also don't have semicolons at the end;
-# each attribute is on its own line, so they aren't necessary.
 # For example:
 #
 #   #main p

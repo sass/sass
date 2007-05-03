@@ -1,6 +1,5 @@
 Bugs:
   Get rid of alias_method_chain dependency
-  Move new is_haml? to stable
 
 Testing:
   Test html2haml

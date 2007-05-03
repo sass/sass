@@ -19,7 +19,7 @@ module Sass
   class Engine
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ?:
-    
+
     # The character that designates that
     # an attribute should be assigned to the result of constant arithmetic.
     SCRIPT_CHAR     = ?=
@@ -38,10 +38,16 @@ module Sass
 
     # The character used to denote a compiler directive.
     DIRECTIVE_CHAR = ?@
-    
-    # The regex that matches attributes.
-    ATTRIBUTE = /:([^\s=]+)\s*(=?)\s*(.*)/
-  
+
+    # The regex that matches attributes of the form <tt>:name attr</tt>.
+    ATTRIBUTE = /:([^\s=:]+)\s*(=?)(?:\s|$)+(.*)/
+
+    # The regex that matches attributes of the form <tt>name: attr</tt>.
+    ALTERNATE_ATTRIBUTE_SELECTOR = /^[^\s:]+:(\s+|$)/
+
+    # The regex that extracts data from attributes of the form <tt>name: attr</tt>.
+    ATTRIBUTE_ALTERNATE = /([^\s=]+):\s*(=?)\s*(.*)/
+
     # Creates a new instace of Sass::Engine that will compile the given
     # template string when <tt>render</tt> is called.
     # See README for available options.
@@ -63,7 +69,7 @@ module Sass
       @lines = []
       @constants = {}
     end
-  
+
     # Processes the template and returns the result as a string.
     def render
       begin
@@ -86,14 +92,14 @@ module Sass
 
     def render_to_tree
       split_lines
-      
+
       root = Tree::Node.new(@options[:style])
       index = 0
       while @lines[index]
         child, index = build_tree(index)
-        
+
         if child.is_a? Tree::Node
-          child.line = index 
+          child.line = index
           root << child
         elsif child.is_a? Array
           child.each do |c|
@@ -105,9 +111,9 @@ module Sass
 
       root
     end
-    
+
     private
-    
+
     # Readies each line in the template for parsing,
     # and computes the tabulation of the line.
     def split_lines
@@ -117,17 +123,17 @@ module Sass
         @line += 1
 
         tabs = count_tabs(line)
-          
+
         if line[0] == COMMENT_CHAR && line[1] == SASS_COMMENT_CHAR && tabs == 0
           tabs = old_tabs
         end
 
         if tabs # if line isn't blank
           if tabs - old_tabs > 1
-            raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line) 
+            raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line)
           end
           @lines << [line.strip, tabs]
-          
+
           old_tabs = tabs
         else
           @lines << ['//', old_tabs]
@@ -136,7 +142,7 @@ module Sass
 
       @line = nil
     end
-    
+
     # Counts the tabulation of a line.
     def count_tabs(line)
       spaces = line.index(/[^ ]/)
@@ -145,14 +151,14 @@ module Sass
           # Make sure a line with just tabs isn't an error
           return nil if line.strip.empty?
 
-          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line) 
+          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line)
         end
         spaces / 2
       else
         nil
       end
     end
-    
+
     def build_tree(index)
       line, tabs = @lines[index]
       index += 1
@@ -184,7 +190,7 @@ module Sass
       else
         while has_children
           child, index = build_tree(index)
-          
+
           if child == :constant
             raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
           elsif child.is_a? Array
@@ -197,10 +203,10 @@ module Sass
           has_children = has_children?(index, tabs)
         end
       end
-      
+
       return node, index
     end
-    
+
     def has_children?(index, tabs)
       next_line = @lines[index]
       next_line && next_line[1] > tabs
@@ -209,36 +215,40 @@ module Sass
     def raw_next_line(index)
       [@lines[index][0], index + 1]
     end
-    
+
     def parse_line(line)
-      case line[0]
-      when ATTRIBUTE_CHAR
-        parse_attribute(line)
-      when Constant::CONSTANT_CHAR
-        parse_constant(line)
-      when COMMENT_CHAR
-        parse_comment(line)
-      when DIRECTIVE_CHAR
-        parse_directive(line)
+      if line[0] == ATTRIBUTE_CHAR
+        parse_attribute(line, ATTRIBUTE)
+      elsif line.match(ALTERNATE_ATTRIBUTE_SELECTOR)
+        parse_attribute(line, ATTRIBUTE_ALTERNATE)
       else
-        Tree::RuleNode.new(line, @options[:style])
+        case line[0]
+        when Constant::CONSTANT_CHAR
+          parse_constant(line)
+        when COMMENT_CHAR
+          parse_comment(line)
+        when DIRECTIVE_CHAR
+          parse_directive(line)
+        else
+          Tree::RuleNode.new(line, @options[:style])
+        end
       end
     end
-    
-    def parse_attribute(line)
-      name, eq, value = line.scan(ATTRIBUTE)[0]
+
+    def parse_attribute(line, attribute_regx)
+      name, eq, value = line.scan(attribute_regx)[0]
 
       if name.nil? || value.nil?
         raise SyntaxError.new("Invalid attribute: \"#{line}\"", @line)
       end
-      
+
       if eq[0] == SCRIPT_CHAR
         value = Sass::Constant.parse(value, @constants, @line).to_s
       end
-      
+
       Tree::AttrNode.new(name, value, @options[:style])
     end
-    
+
     def parse_constant(line)
       name, value = line.scan(Sass::Constant::MATCH)[0]
       unless name && value
@@ -317,7 +327,7 @@ module Sass
 
       @options[:load_paths].each do |path|
         full_path = File.join(path, filename) + '.sass'
-        
+
         if File.readable?(full_path)
           new_filename = full_path
           break

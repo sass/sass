@@ -63,7 +63,7 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #content .container.comments .column.left .box li { list-style-type: none; padding: 10px; margin: 0 0 1em 0; background: #6e000d; border-top: 5px solid #a20013; }
 #content .container.comments .column.left .box li div { margin-bottom: 1em; }
 #content .container.comments .column.left .box li ul { text-align: right; }
-#content .container.comments .column.left .box li ul li { display: inline; border: none; padding: 0; }; }
+#content .container.comments .column.left .box li ul li { display: inline; border: none; padding: 0; }
 #content .container.comments .column.right { width: 290px; padding-left: 10px; }
 #content .container.comments .column.right h2 { margin: 0; padding: 0.5em; background: #6e000d url(/images/hdr_addcomment.gif) 2px 2px no-repeat; text-indent: -9999px; border-top: 5px solid #a20013; }
 #content .container.comments .column.right .box textarea { width: 290px; height: 100px; border: none; }
