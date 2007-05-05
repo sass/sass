@@ -14,3 +14,4 @@ Features:
   There should be a way to make Haml tags not insert whitespace
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable
+  If an @imported document is changed, Sass should recompile the template
