@@ -40,7 +40,7 @@ module Sass
     DIRECTIVE_CHAR = ?@
 
     # The regex that matches attributes of the form <tt>:name attr</tt>.
-    ATTRIBUTE = /:([^\s=:]+)\s*(=?)(?:\s|$)+(.*)/
+    ATTRIBUTE = /:([^\s=:]+)\s*(=?)(?:\s+|$)(.*)/
 
     # The regex that matches attributes of the form <tt>name: attr</tt>.
     ALTERNATE_ATTRIBUTE_SELECTOR = /^[^\s:]+:(\s+|$)/
