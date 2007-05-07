@@ -53,6 +53,11 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
   end
 
+  def test_double_equals
+    assert_equal("<p>Hello World</p>\n", render('%p== Hello #{who}', :locals => {:who => 'World'}))
+    assert_equal("<p>\n  Hello World\n</p>\n", render("%p\n  == Hello \#{who}", :locals => {:who => 'World'}))
+  end
+
   # Options tests
 
   def test_stop_eval

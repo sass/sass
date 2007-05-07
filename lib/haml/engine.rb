@@ -612,6 +612,10 @@ END
           atomic = true
         when '=', '~'
           parse = true
+
+          if value.first == '='
+            value = value[1..-1].strip.dump.gsub('\\#', '#')
+          end
         end
 
         flattened = (action == '~')
