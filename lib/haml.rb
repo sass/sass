@@ -635,10 +635,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           evaluated. If this is true, said scripts are
 #                           rendered as empty strings. Defaults to false.
 # 
-# [<tt>:precompiled</tt>]   A string containing a precompiled Haml template.
-#                           If this is passed, <tt>template</tt> is ignored
-#                           and no precompilation is done.
-# 
 # [<tt>:attr_wrapper</tt>]  The character that should wrap element attributes.
 #                           This defaults to <tt>'</tt> (an apostrophe). Characters
 #                           of this type within the attributes will be escaped

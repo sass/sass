@@ -40,7 +40,6 @@ module Haml
     # to render its templates.
     def initialize(view)
       @view = view
-      @@precompiled_templates ||= {}
     end
 
     # Renders the file at the location <tt>template</tt>,
@@ -60,13 +59,7 @@ module Haml
         engine = Haml::Engine.new(template, options)
       else
         options[:filename] ||= template
-        if @precompiled = get_precompiled(template)
-          options[:precompiled] ||= @precompiled
-          engine = Haml::Engine.new("", options)
-        else
-          engine = Haml::Engine.new(File.read(template), options)
-          set_precompiled(template, engine.precompiled)
-        end
+        engine = Haml::Engine.new(File.read(template), options)
       end
 
       yield_proc = @view.instance_eval do
@@ -75,24 +68,6 @@ module Haml
 
       engine.to_html(@view) { |*args| yield_proc.call(*args) }
 
-    end
-    
-    private
-
-    # Gets the cached, precompiled version of the template at location <tt>filename</tt>
-    # as a string.
-    def get_precompiled(filename)
-      # Do we have it on file? Is it new enough?
-      if (precompiled, precompiled_on = @@precompiled_templates[filename]) &&
-             (precompiled_on == File.mtime(filename).to_i)
-        precompiled
-      end
-    end
-
-    # Sets the cached, precompiled version of the template at location <tt>filename</tt>
-    # to <tt>precompiled</tt>.
-    def set_precompiled(filename, precompiled)
-      @@precompiled_templates[filename] = [precompiled, File.mtime(filename).to_i]
     end
   end
 end

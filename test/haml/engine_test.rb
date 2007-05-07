@@ -80,23 +80,6 @@ class EngineTest < Test::Unit::TestCase
   def test_locals
     assert_equal("<p>Paragraph!</p>\n", render("%p= text", :locals => { :text => "Paragraph!" }))
   end
-
-  def test_precompiled
-    precompiled = <<-END
-      def _haml_render
-        _hamlout = @haml_stack[-1]
-        _erbout = _hamlout.buffer
-
-        _hamlout.open_tag("p", 0, nil, true, "", nil, nil, false)
-        @haml_lineno = 1
-        haml_temp =  "Haml Rocks Socks"
-        haml_temp = _hamlout.push_script(haml_temp, 1, false)
-        _hamlout.close_tag("p", 0)
-      end
-    END
-
-    assert_equal("<p>Haml Rocks Socks</p>\n", render("%h1 I shall not be rendered", :precompiled => precompiled))
-  end
   
   def test_comps
     assert_equal(-1, "foo" <=> nil)

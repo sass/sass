@@ -151,8 +151,6 @@ END
       end
       @options[:filters].rec_merge! options[:filters] if options[:filters]
 
-      @precompiled = @options[:precompiled]
-
       @template = template.strip #String
       @to_close_stack = []
       @output_tabs = 0
@@ -166,7 +164,7 @@ END
       begin
         # Only do the first round of pre-compiling if we really need to.
         # They might be passing in the precompiled string.
-        do_precompile if @precompiled.nil? && (@precompiled = String.new)
+        do_precompile unless @@method_names[@template]
       rescue Haml::Error => e
         e.add_backtrace_entry(@index, @options[:filename])
         raise e
@@ -185,6 +183,12 @@ END
       # Compile the @precompiled buffer
       compile &block
 
+      if @buffer.buffer.empty?
+        if @options[:filename]
+          raise @template.inspect
+        end
+      end
+
       # Return the result string
       @buffer.buffer
     end
@@ -192,11 +196,13 @@ END
     alias_method :to_html, :render
 
    private
-
+    
     #Precompile each line
     def do_precompile
+      @precompiled = ''
+      method_name = assign_method_name(@template, options[:filename])
       push_silent <<-END
-        def _haml_render
+        def #{method_name}
           @haml_is_haml = true
           _hamlout = @haml_stack[-1]
           _erbout = _hamlout.buffer
@@ -368,6 +374,22 @@ END
     def is_multiline?(line)                                          # ' '[0] == 32
       line && line.length > 1 && line[-1] == MULTILINE_CHAR_VALUE && line[-2] == 32
     end
+    
+    # Method for generating compiled method names basically ripped out of ActiveView::Base
+    # If Haml is to be used as a standalone module without rails and still use the precompiled
+    # methods technique, it will end up duplicating this stuff.  I can't decide whether
+    # checking compile times to decide whether to recompile a template belongs in here or
+    # out in template.rb
+    @@method_names = {}
+    @@render_method_count = 0
+    def assign_method_name(template, file_name)
+      @@render_method_count += 1
+      @@method_names[template] = "_render_haml_#{@@render_method_count}".intern
+    end
+    
+    module CompiledTemplates
+      # holds compiled template code
+    end
 
     # Takes <tt>@precompiled</tt>, a string buffer of Ruby code, and
     # evaluates it in the context of <tt>@scope_object</tt>, after preparing
@@ -385,11 +407,21 @@ END
           attr :haml_lineno # :nodoc:
         end
       end
+      @scope_object.class.instance_eval do
+        include CompiledTemplates
+      end
 
       begin
-        # Evaluate the buffer in the context of the scope object
-        @scope_object.instance_eval @precompiled
-        @scope_object._haml_render &block
+        if false#options[:filename]
+          method_name = @@method_names[options[:filename]]
+        else
+          method_name = @@method_names[@template]
+        end
+
+        unless @scope_object.respond_to?(method_name)
+          CompiledTemplates.module_eval @precompiled
+        end
+        @scope_object.send(method_name, &block)
       rescue Exception => e
         class << e
           include Haml::Error
