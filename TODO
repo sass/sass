@@ -1,8 +1,5 @@
-Bugs:
-  Get rid of alias_method_chain dependency
-
 Testing:
-  Test html2haml
+  Test html2haml and css2sass
 
 Documentation:
   Haml::Engine public method documentation could use work
