@@ -12,3 +12,4 @@ Features:
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable
   If an @imported document is changed, Sass should recompile the template
+  Unary minus in SassScript
