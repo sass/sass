@@ -165,10 +165,13 @@ module Haml
 
     private
 
+    @@tab_cache = {}
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count)
       @real_tabs = count
-      '  ' * (count + @tabulation)
+      tabs = count + @tabulation
+      '  ' * tabs
+      @@tab_cache[tabs] ||= '  ' * tabs
     end
 
     # Iterates through the classes and ids supplied through <tt>.</tt>
