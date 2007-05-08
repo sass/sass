@@ -183,12 +183,6 @@ END
       # Compile the @precompiled buffer
       compile &block
 
-      if @buffer.buffer.empty?
-        if @options[:filename]
-          raise @template.inspect
-        end
-      end
-
       # Return the result string
       @buffer.buffer
     end
