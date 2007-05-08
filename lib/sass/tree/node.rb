@@ -27,9 +27,6 @@ module Sass
           begin
             result += "#{child.to_s(1)}\n"
           rescue SyntaxError => e
-            if child.filename
-              e.add_backtrace_entry(child.filename)
-            end
             raise e
           end
         end
