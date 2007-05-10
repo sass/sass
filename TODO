@@ -1,3 +1,7 @@
+Bugs:
+  If an @imported document is changed, Sass should recompile the template
+  warn should be defined locally in case of no ActionPack
+
 Testing:
   Test html2haml and css2sass
 
@@ -11,5 +15,5 @@ Features:
   There should be a way to make Haml tags not insert whitespace
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable
-  If an @imported document is changed, Sass should recompile the template
   Unary minus in SassScript
+  Deprecated uses of ~ should be removed
