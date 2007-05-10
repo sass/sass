@@ -17,7 +17,8 @@ class HelperTest < Test::Unit::TestCase
     if options == :action_view
       @base.render :inline => text, :type => :haml
     else
-      Haml::Engine.new(text, options).to_html
+      scope = options.delete :scope_object
+      Haml::Engine.new(text, options).to_html(scope ? scope : Object.new)
     end
   end
 
@@ -109,7 +110,8 @@ class HelperTest < Test::Unit::TestCase
 
   def test_page_class
     controller = Struct.new(:controller_name, :action_name).new('troller', 'tion')
-    result = render("%div{:class => page_class} MyDiv", :locals => { :controller => controller })
+    scope = Struct.new(:controller).new(controller)
+    result = render("%div{:class => page_class} MyDiv", :scope_object => scope)
     expected = "<div class='troller tion'>MyDiv</div>\n"
     assert_equal expected, result
   end

@@ -118,7 +118,7 @@ END
     # to README!
     #++
     #
-    def initialize(template, options = {})
+    def initialize(template, l_options = {})
       @options = {
         :suppress_eval => false,
         :attr_wrapper => "'",
@@ -141,7 +141,7 @@ END
         @options[:filters]['markdown'] = Haml::Filters::Markdown
       end
 
-      @options.rec_merge! options
+      @options.rec_merge! l_options
 
       unless @options[:suppress_eval]
         @options[:filters].merge!({
@@ -149,7 +149,7 @@ END
           'ruby' => Haml::Filters::Ruby
         })
       end
-      @options[:filters].rec_merge! options[:filters] if options[:filters]
+      @options[:filters].rec_merge! l_options[:filters] if l_options[:filters]
 
       @template = template.strip #String
       @to_close_stack = []
@@ -164,7 +164,13 @@ END
       begin
         # Only do the first round of pre-compiling if we really need to.
         # They might be passing in the precompiled string.
-        do_precompile unless @@method_names[@template]
+        requires_precompile = true
+        if @@method_names[@template]
+          # Check that the compiled method supports a superset of the local assigns we want to do
+          supported_assigns = @@supported_local_assigns[@template]
+          requires_precompile = !@options[:locals].keys.all? {|var| supported_assigns.include? var}
+        end
+        do_precompile if requires_precompile
       rescue Haml::Error => e
         e.add_backtrace_entry(@index, @options[:filename])
         raise e
@@ -175,10 +181,6 @@ END
     def render(scope = Object.new, &block)
       @scope_object = scope
       @buffer = Haml::Buffer.new(@options)
-
-      local_mod = Module.new()
-      @options[:locals].each { |key, val| local_mod.send(:define_method, key) { val } }
-      @scope_object.extend(local_mod)
 
       # Compile the @precompiled buffer
       compile &block
@@ -196,11 +198,18 @@ END
       @precompiled = ''
       method_name = assign_method_name(@template, options[:filename])
       push_silent <<-END
-        def #{method_name}
+        def #{method_name}(_haml_local_assigns)
           @haml_is_haml = true
           _hamlout = @haml_stack[-1]
           _erbout = _hamlout.buffer
       END
+      
+      supported_local_assigns = {}
+      @@supported_local_assigns[@template] = supported_local_assigns
+      @options[:locals].each do |k,v|
+        supported_local_assigns[k] = true
+        push_silent "#{k} = _haml_local_assigns[:#{k}]"
+      end
       
       old_line = nil
       old_index = nil
@@ -375,6 +384,7 @@ END
     # checking compile times to decide whether to recompile a template belongs in here or
     # out in template.rb
     @@method_names = {}
+    @@supported_local_assigns = {}
     @@render_method_count = 0
     def assign_method_name(template, file_name)
       @@render_method_count += 1
@@ -406,16 +416,12 @@ END
       end
 
       begin
-        if false#options[:filename]
-          method_name = @@method_names[options[:filename]]
-        else
-          method_name = @@method_names[@template]
-        end
+        method_name = @@method_names[@template]
 
         unless @scope_object.respond_to?(method_name)
           CompiledTemplates.module_eval @precompiled
         end
-        @scope_object.send(method_name, &block)
+        @scope_object.send(method_name, options[:locals], &block)
       rescue Exception => e
         class << e
           include Haml::Error

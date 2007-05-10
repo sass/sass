@@ -49,7 +49,11 @@ class TemplateTest < Test::Unit::TestCase
       end
     end
     test.call(@base.render(name))
-    test.call(@base.render(:file => "partialize", :locals => { :name => name }))
+
+    # If eval's suppressed, the partial won't render anyway :p.
+    unless Haml::Template.options[:suppress_eval]
+      test.call(@base.render(:file => "partialize", :locals => { :name => name }))
+    end
   end
 
   def test_empty_render_should_remain_empty
