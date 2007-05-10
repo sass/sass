@@ -14,9 +14,6 @@ module Haml
   #   output = haml_engine.to_html
   #   puts output
   class Engine
-    # Allow access to the precompiled template
-    attr_reader :precompiled
-
     # Allow reading and writing of the options hash
     attr :options, true
 
@@ -190,6 +187,16 @@ END
     end
 
     alias_method :to_html, :render
+
+    # This method is deprecated and shouldn't be used.
+    def precompiled
+      warn <<END
+The Haml precompiled method and :precompiled option
+are deprecated and will be removed in version 2.0.
+Haml::Engine now automatically handles caching.
+END
+      nil
+    end
 
    private
     
