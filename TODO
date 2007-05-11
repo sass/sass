@@ -17,3 +17,4 @@ Features:
   Sass::Engine load_paths option should be set by executable
   Unary minus in SassScript
   Deprecated uses of ~ should be removed
+  Get rid of line number counting and make template lines one-to-one with precompiled lines
