@@ -70,7 +70,7 @@ module Haml
     #
     def list_of(array, &block) # :yields: item
       to_return = array.collect do |i|
-        result = capture_haml(i, &block)
+        result = capture_haml(*i, &block)
         
         if result.count("\n") > 1
           result.gsub!("\n", "\n  ")
@@ -286,10 +286,10 @@ module Haml
     
     # Performs the function of capture_haml, assuming <tt>local_buffer</tt>
     # is where the output of block goes.
-    def capture_haml_with_buffer(local_buffer, *args, &block)
+    def capture_haml_with_buffer(local_buffer, *args)
       position = local_buffer.length
       
-      block.call(*args)
+      yield args
       
       captured = local_buffer.slice!(position..-1)
       
@@ -305,7 +305,6 @@ module Haml
       end
       result.to_s
     end
-    alias_method :capture_erb_with_buffer, :capture_haml_with_buffer
 
     # Returns whether or not the current template is a Haml template.
     # 

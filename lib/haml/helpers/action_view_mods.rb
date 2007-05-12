@@ -26,6 +26,18 @@ if action_view_included
     # to make them work more effectively with Haml.
     module Helpers
       # :stopdoc:
+      module CaptureHelper
+        def capture_erb_with_buffer_with_haml(*args, &block)
+          if is_haml?
+            capture_haml_with_buffer(*args, &block)
+          else
+            capture_erb_with_buffer_without_haml(*args, &block)
+          end
+        end
+        alias_method :capture_erb_with_buffer_without_haml, :capture_erb_with_buffer
+        alias_method :capture_erb_with_buffer, :capture_erb_with_buffer_with_haml
+      end
+
       module TextHelper
         def concat_with_haml(string, binding = nil)
           if is_haml?

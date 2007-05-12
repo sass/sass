@@ -115,5 +115,9 @@ class HelperTest < Test::Unit::TestCase
     expected = "<div class='troller tion'>MyDiv</div>\n"
     assert_equal expected, result
   end
+
+  def test_indented_capture
+    assert_equal("  \n  Foo\n  ", @base.render(:inline => "  <% res = capture do %>\n  Foo\n  <% end %><%= res %>"))
+  end
 end
 
