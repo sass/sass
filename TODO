@@ -1,6 +1,7 @@
 Bugs:
   If an @imported document is changed, Sass should recompile the template
   warn should be defined locally in case of no ActionPack
+  == #{"Foo"} doesn't work
 
 Testing:
   Test html2haml and css2sass
