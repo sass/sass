@@ -78,7 +78,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   engine = Haml::Engine.new("%p Haml code!")
 #   engine.render #=> "<p>Haml code!</p>\n"
-# 
+#
 # == Characters with meaning to Haml
 # 
 # Various characters, when placed at a certain point in a line,
@@ -622,8 +622,18 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   <p>
 #     2?
 #   </p>
+#
+# == Other Useful Things
+#
+# === Helpers
+#
+# Haml offers a bunch of helpers that are useful
+# for doing stuff like preserving whitespace,
+# creating nicely indented output for user-defined helpers,
+# and other useful things.
+# The helpers are all documented in the Haml::Helpers and Haml::Helpers::ActionViewExtensions modules.
 # 
-# == Haml Options
+# === Haml Options
 # 
 # Options can be set by setting the hash <tt>Haml::Template.options</tt>
 # from <tt>environment.rb</tt> in Rails,
