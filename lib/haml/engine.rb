@@ -440,7 +440,7 @@ END
         # Rails can understand it.
         compile_error = e.message.scan(/\(eval\):([0-9]*):in `[-_a-zA-Z]*': compile error/)[0]
 
-        if compile_error
+        if compile_error && @precompiled
           eval_line = compile_error[0].to_i
           line_marker = @precompiled.split("\n")[0...eval_line].grep(/@haml_lineno = [0-9]*/)[-1]
           lineno = line_marker.scan(/[0-9]+/)[0].to_i if line_marker
