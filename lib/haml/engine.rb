@@ -609,6 +609,27 @@ END
       @filter_buffer = nil
       @template_tabs -= 1
     end
+    
+    # Iterates through the classes and ids supplied through <tt>.</tt>
+    # and <tt>#</tt> syntax, and returns a hash with them as attributes,
+    # that can then be merged with another attributes hash.
+    def parse_class_and_id(list)
+      attributes = {}
+      list.scan(/([#.])([-_a-zA-Z0-9]+)/) do |type, property|
+        case type
+        when '.'
+          if attributes[:class]
+            attributes[:class] += " "
+          else
+            attributes[:class] = ""
+          end
+          attributes[:class] += property
+        when '#'
+          attributes[:id] = property
+        end
+      end
+      attributes
+    end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
@@ -640,6 +661,9 @@ END
         if !attributes.empty? && '.#'.include?(attributes)
           raise SyntaxError.new("Illegal element: classes and ids must have values. Use %div instead.")
         end
+        
+        # Preparse the attributes hash
+        attributes = parse_class_and_id(attributes)
 
         if @block_opened
           if atomic

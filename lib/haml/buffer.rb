@@ -81,8 +81,7 @@ module Haml
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
     def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, flattened, *attributes_hashes)
-      attributes = {}
-      attributes.merge!(parse_class_and_id(class_id)) unless class_id.nil? || class_id.empty?
+      attributes = class_id
       attributes.merge!(parse_object_ref(obj_ref, attributes[:id], attributes[:class])) if obj_ref
       attributes_hashes.each { |h| attributes.merge! h if h }
 
@@ -172,27 +171,6 @@ module Haml
       tabs = count + @tabulation
       '  ' * tabs
       @@tab_cache[tabs] ||= '  ' * tabs
-    end
-
-    # Iterates through the classes and ids supplied through <tt>.</tt>
-    # and <tt>#</tt> syntax, and returns a hash with them as attributes,
-    # that can then be merged with another attributes hash.
-    def parse_class_and_id(list)
-      attributes = {}
-      list.scan(/([#.])([-_a-zA-Z0-9]+)/) do |type, property|
-        case type
-        when '.'
-          if attributes[:class]
-            attributes[:class] += " "
-          else
-            attributes[:class] = ""
-          end
-          attributes[:class] += property
-        when '#'
-          attributes[:id] = property
-        end
-      end
-      attributes
     end
 
     # Takes an array of objects and uses the class and id of the first
