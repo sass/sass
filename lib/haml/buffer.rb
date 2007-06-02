@@ -82,7 +82,7 @@ module Haml
     # element, formats it, and adds it to the buffer.
     def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, flattened, *attributes_hashes)
       attributes = class_id
-      attributes.merge!(parse_object_ref(obj_ref, attributes[:id], attributes[:class])) if obj_ref
+      attributes.merge!(parse_object_ref(obj_ref, attributes['id'], attributes['class'])) if obj_ref
       attributes_hashes.each { |h| attributes.merge! h if h }
 
       @one_liner_pending = false
@@ -183,14 +183,20 @@ module Haml
       id = "#{class_name}_#{ref.id || 'new'}"
 
       if old_class
-        class_name += " #{old_class}"
+        # Make sure that we aren't duplicating a classname that the user has already
+        # put in there another way.
+        if old_class.split.grep(class_name).empty?
+          class_name += " #{old_class}"
+        else
+          class_name = old_class
+        end
       end
 
       if old_id
         id = "#{old_id}_#{id}"
       end
 
-      {:id => id, :class => class_name}
+      {'id' => id, 'class' => class_name}
     end
 
     # Returns whether or not the given value is short enough to be rendered

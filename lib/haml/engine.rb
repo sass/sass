@@ -99,6 +99,9 @@ module Haml
     # The Regex that matches an HTML tag command.
     TAG_REGEX = /[%]([-:\w]+)([-\w\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
 
+    # The Regex that matches a literal string or symbol value
+    LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\]*?)\4))\s*$/
+
     FLAT_WARNING = <<END
 Haml deprecation warning:
 The ~ command is deprecated and will be removed in future Haml versions.
@@ -618,14 +621,45 @@ END
       list.scan(/([#.])([-_a-zA-Z0-9]+)/) do |type, property|
         case type
         when '.'
-          if attributes[:class]
-            attributes[:class] += " "
+          if attributes['class']
+            attributes['class'] += " "
           else
-            attributes[:class] = ""
+            attributes['class'] = ""
           end
-          attributes[:class] += property
+          attributes['class'] += property
         when '#'
-          attributes[:id] = property
+          attributes['id'] = property
+        end
+      end
+      attributes
+    end
+    
+    def parse_literal_value(text)
+      text.match(LITERAL_VALUE_REGEX)
+
+      # $2 holds the value matched by a symbol, but is nil for a string match
+      # $5 holds the value matched by a string
+      $2 || $5
+    end
+    
+    def parse_literal_hash(text)  
+      unless text
+        return {}
+      end
+      
+      attributes = {}
+      if inner = text.scan(/^\{(.*)\}$/)[0]
+        inner[0].split(',').each do |attrib|
+          key, value, more = attrib.split('=>')
+
+          # Make sure the key and value and only the key and value exist
+          # Otherwise, it's too complicated and we'll defer it to the actual Ruby parser
+          if more || (key = parse_literal_value(key)).nil? ||
+              (value = parse_literal_value(value)).nil?
+            return nil
+          end
+
+          attributes[key] = value
         end
       end
       attributes
@@ -653,9 +687,10 @@ END
         flattened = (action == '~')
         
         warn(FLAT_WARNING) if flattened && !defined?(Test::Unit)
-
+        
         value_exists = !value.empty?
-        attributes_hash = "{nil}" if attributes_hash.nil? || @options[:suppress_eval]
+        literal_attributes = parse_literal_hash(attributes_hash)
+        attributes_hash = "{nil}" if attributes_hash.nil? || literal_attributes || @options[:suppress_eval]
         object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
         if !attributes.empty? && '.#'.include?(attributes)
@@ -664,6 +699,7 @@ END
         
         # Preparse the attributes hash
         attributes = parse_class_and_id(attributes)
+        attributes.merge!(literal_attributes) if literal_attributes
 
         if @block_opened
           if atomic

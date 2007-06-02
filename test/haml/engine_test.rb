@@ -63,7 +63,8 @@ class EngineTest < Test::Unit::TestCase
   def test_stop_eval
     assert_equal("", render("= 'Hello'", :suppress_eval => true))
     assert_equal("", render("- puts 'foo'", :suppress_eval => true))
-    assert_equal("<div id='foo' />\n", render("#foo{:yes => 'no'}/", :suppress_eval => true))
+    assert_equal("<div id='foo' yes='no' />\n", render("#foo{:yes => 'no'}/", :suppress_eval => true))
+    assert_equal("<div id='foo' />\n", render("#foo{:yes => 'no', :call => a_function() }/", :suppress_eval => true))
     assert_equal("<div />\n", render("%div[1]/", :suppress_eval => true))
 
     begin
@@ -80,6 +81,12 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p escaped='quo\"te'>\n</p>\n", render("%p{ :escaped => 'quo\"te'}", :attr_wrapper => '"'))
     assert_equal("<p escaped=\"q'uo&quot;te\">\n</p>\n", render("%p{ :escaped => 'q\\'uo\"te'}", :attr_wrapper => '"'))
     assert_equal("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n", render("!!! XML", :attr_wrapper => '"'))
+  end
+
+  def test_attrs_parsed_correctly
+    assert_equal("<p boom=>biddly='bar => baz'>\n</p>\n", render("%p{'boom=>biddly' => 'bar => baz'}"))
+    assert_equal("<p foo,bar='baz, qux'>\n</p>\n", render("%p{'foo,bar' => 'baz, qux'}"))
+    assert_equal("<p escaped='quo\nte'>\n</p>\n", render("%p{ :escaped => \"quo\\nte\"}"))
   end
 
   def test_locals
