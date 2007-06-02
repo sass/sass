@@ -87,6 +87,7 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p boom=>biddly='bar => baz'>\n</p>\n", render("%p{'boom=>biddly' => 'bar => baz'}"))
     assert_equal("<p foo,bar='baz, qux'>\n</p>\n", render("%p{'foo,bar' => 'baz, qux'}"))
     assert_equal("<p escaped='quo\nte'>\n</p>\n", render("%p{ :escaped => \"quo\\nte\"}"))
+    assert_equal("<p escaped='quo4te'>\n</p>\n", render("%p{ :escaped => \"quo\#{2 + 2}te\"}"))
   end
 
   def test_locals
