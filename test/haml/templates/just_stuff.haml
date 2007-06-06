@@ -58,3 +58,6 @@
 %script Inline content
 %br
   Nested content
+%p.foo{:class => true ? 'bar' : 'baz'}[@article] Blah
+%p.foo{:class => false ? 'bar' : ''}[@article] Blah
+%p.qux{:class => 'quux'}[@article] Blump

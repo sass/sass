@@ -85,10 +85,13 @@ module Haml
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, flattened, *attributes_hashes)
+    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, flattened, attributes_hash)
       attributes = class_id
-      attributes.merge!(parse_object_ref(obj_ref, attributes['id'], attributes['class'])) if obj_ref
-      attributes_hashes.each { |h| attributes.merge! h if h }
+      if attributes_hash
+        attributes_hash.keys.each { |key| attributes_hash[key.to_s] = attributes_hash.delete(key) }
+        self.class.merge_attrs(attributes, attributes_hash)
+      end
+      self.class.merge_attrs(attributes, parse_object_ref(obj_ref)) if obj_ref
 
       @one_liner_pending = false
       if atomic
@@ -103,6 +106,19 @@ module Haml
       end
       @buffer << "#{tabs(tabulation)}<#{name}#{build_attributes(attributes)}#{str}"
       @real_tabs += 1
+    end
+
+    def self.merge_attrs(to, from)
+      if to['id'] && from['id']
+        to['id'] << '_' << from.delete('id')
+      end
+
+      if to['class'] && from['class']
+        # Make sure we don't duplicate class names
+        from['class'] = (from['class'].split(' ') | to['class'].split(' ')).join(' ')
+      end
+
+      to.merge!(from)
     end
 
     # Creates a closing tag with the given name.
@@ -186,26 +202,12 @@ module Haml
 
     # Takes an array of objects and uses the class and id of the first
     # one to create an attributes hash.
-    def parse_object_ref(ref, old_id, old_class)
+    def parse_object_ref(ref)
       ref = ref[0]
       # Let's make sure the value isn't nil. If it is, return the default Hash.
       return {} if ref.nil?
       class_name = underscore(ref.class)
       id = "#{class_name}_#{ref.id || 'new'}"
-
-      if old_class
-        # Make sure that we aren't duplicating a classname that the user has already
-        # put in there another way.
-        if old_class.split.grep(class_name).empty?
-          class_name += " #{old_class}"
-        else
-          class_name = old_class
-        end
-      end
-
-      if old_id
-        id = "#{old_id}_#{id}"
-      end
 
       {'id' => id, 'class' => class_name}
     end

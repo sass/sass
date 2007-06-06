@@ -730,7 +730,7 @@ END
         
         # Preparse the attributes hash
         attributes = parse_class_and_id(attributes)
-        attributes.merge!(literal_attributes) if literal_attributes
+        Buffer.merge_attrs(attributes, literal_attributes) if literal_attributes
 
         if @block_opened
           if atomic
