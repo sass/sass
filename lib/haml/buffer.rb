@@ -48,7 +48,7 @@ module Haml
         # than the number of tabs.
         @buffer << "#{' ' * tabulation}#{flatten(text + "\n")}"
         @one_liner_pending = true
-      elsif @one_liner_pending && one_liner?(text)
+      elsif @one_liner_pending && Buffer.one_liner?(text)
         @buffer << text
       else
         if @one_liner_pending
@@ -76,6 +76,11 @@ module Haml
         push_text result, tabulation
       end
       nil
+    end
+    
+    def open_prerendered_tag(tag, tabulation)
+      @buffer << "#{tabs(tabulation)}#{tag}"
+      @real_tabs += 1
     end
 
     # Takes the various information about the opening tag for an
@@ -161,6 +166,12 @@ module Haml
       end
       result.sort.join
     end
+    
+    # Returns whether or not the given value is short enough to be rendered
+    # on one line.
+    def self.one_liner?(value)
+      value.length <= ONE_LINER_LENGTH && value.scan(/\n/).empty?
+    end
 
     private
 
@@ -197,12 +208,6 @@ module Haml
       end
 
       {'id' => id, 'class' => class_name}
-    end
-
-    # Returns whether or not the given value is short enough to be rendered
-    # on one line.
-    def one_liner?(value)
-      value.length <= ONE_LINER_LENGTH && value.scan(/\n/).empty?
     end
 
     # Changes a word from camel case to underscores.

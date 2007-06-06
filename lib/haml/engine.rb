@@ -633,7 +633,7 @@ END
       end
       attributes
     end
-    
+
     def parse_literal_value(text)
       text.match(LITERAL_VALUE_REGEX)
 
@@ -663,6 +663,37 @@ END
         end
       end
       attributes
+    end
+
+    def build_attributes(attributes = {})
+      @quote_escape = @options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
+      @other_quote_char = @options[:attr_wrapper] == '"' ? "'" : '"'
+  
+      result = attributes.collect do |a,v|
+        v = v.to_s
+        unless v.nil? || v.empty?
+          attr_wrapper = @options[:attr_wrapper]
+          if v.include? attr_wrapper
+            if v.include? @other_quote_char
+              v = v.gsub(attr_wrapper, @quote_escape)
+            else
+              attr_wrapper = @other_quote_char
+            end
+          end
+          " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
+        end
+      end
+      result.sort.join
+    end
+
+    def prerender_tag(name, atomic, attributes)
+      if atomic
+        str = " />"
+      else
+        str = ">"
+      end
+  
+      "<#{name}#{build_attributes(attributes)}#{str}"
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
@@ -713,12 +744,29 @@ END
           raise SyntaxError.new("No tag content to parse.")
         end
 
-        if !@block_opened && !value_exists && !atomic && @options[:autoclose].include?(tag_name)
+        if !@block_opened && !value_exists && @options[:autoclose].include?(tag_name)
           atomic = true
         end
-
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{flattened.inspect}, #{attributes_hash[1...-1]})", true
-
+        
+        do_one_liner = value_exists && !parse && Buffer.one_liner?(value)
+        
+        if(object_ref == "nil" && attributes_hash == "{nil}" && !flattened && (do_one_liner || !value_exists))
+          # This means that we can render the tag directly to text and not process it in the buffer
+          open_tag = prerender_tag(tag_name, atomic, attributes)
+          
+          if do_one_liner
+            open_tag += value
+            open_tag += "</#{tag_name}>"
+          end
+          
+          open_tag += "\n"
+            
+          push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs})"
+          return if do_one_liner
+        else
+          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{flattened.inspect}, #{attributes_hash[1...-1]})", true
+        end
+          
         unless atomic
           push_and_tabulate([:element, tag_name])
           @output_tabs += 1
