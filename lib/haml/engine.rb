@@ -654,6 +654,10 @@ END
           attr_wrapper = @options[:attr_wrapper]
           if v.include? attr_wrapper
             if v.include? @other_quote_char
+              # An imperfection in LITERAL_VALUE_REGEX prevents this
+              # from ever actually being reached,
+              # but in case it becomes possible,
+              # I'm leaving it in.
               v = v.gsub(attr_wrapper, @quote_escape)
             else
               attr_wrapper = @other_quote_char
@@ -741,7 +745,7 @@ END
           push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs})"
           return if do_one_liner
         else
-          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{flattened.inspect}, #{attributes_hash[1...-1]})", true
+          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{attributes_hash[1...-1]})", true
         end
           
         unless atomic

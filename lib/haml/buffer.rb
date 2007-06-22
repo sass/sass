@@ -80,7 +80,7 @@ module Haml
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, flattened, attributes_hash)
+    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, attributes_hash)
       attributes = class_id
       if attributes_hash
         attributes_hash.keys.each { |key| attributes_hash[key.to_s] = attributes_hash.delete(key) }
@@ -94,8 +94,6 @@ module Haml
       elsif try_one_line
         @one_liner_pending = true
         str = ">"
-      elsif flattened
-        str = ">&#x000A;"
       else
         str = ">\n"
       end

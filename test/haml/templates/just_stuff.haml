@@ -62,3 +62,5 @@
 %p.foo{:class => false ? 'bar' : ''}[@article] Blah
 %p.qux{:class => 'quux'}[@article] Blump
 == #{"Woah inner quotes"}
+%p.dynamic_quote{:quotes => "single '", :dyn => 1 + 2}
+%p.dynamic_atomic{:dyn => 1 + 2}/
