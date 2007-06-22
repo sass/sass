@@ -1,7 +1,5 @@
 Bugs:
   If an @imported document is changed, Sass should recompile the template
-  == #{"Foo"} doesn't work in Haml
-  "&.foo, bar" in Sass should read as "&.foo, & bar"
 
 Testing:
   Test html2haml and css2sass
