@@ -522,13 +522,10 @@ END
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
     def push_flat_script(text)
-      unless text.empty?
-        push_script(text, true)
+      if text.empty?
+        raise SyntaxError.new("Tag has no content.")
       else
-        unless @block_opened
-          raise SyntaxError.new('Filters must have nested text.')
-        end
-        start_flat(false)
+        push_script(text, true)
       end
     end
 
@@ -717,8 +714,6 @@ END
 
         flattened = (action == '~')
         
-        warn(FLAT_WARNING) if flattened && !defined?(Test::Unit)
-        
         value_exists = !value.empty?
         literal_attributes = parse_literal_hash(attributes_hash)
         attributes_hash = "{nil}" if attributes_hash.nil? || literal_attributes || @options[:suppress_eval]
@@ -741,7 +736,7 @@ END
         elsif atomic && value_exists
           raise SyntaxError.new("Atomic tags can't have content.")
         elsif parse && !value_exists
-          raise SyntaxError.new("No tag content to parse.")
+          raise SyntaxError.new("Tag has no content.")
         end
 
         if !@block_opened && !value_exists && @options[:autoclose].include?(tag_name)
@@ -750,7 +745,7 @@ END
         
         do_one_liner = value_exists && !parse && Buffer.one_liner?(value)
         
-        if(object_ref == "nil" && attributes_hash == "{nil}" && !flattened && (do_one_liner || !value_exists))
+        if object_ref == "nil" && attributes_hash == "{nil}" && !flattened && (do_one_liner || !value_exists)
           # This means that we can render the tag directly to text and not process it in the buffer
           open_tag = prerender_tag(tag_name, atomic, attributes)
           
@@ -779,7 +774,7 @@ END
             end
             close
           elsif flattened
-            start_flat(true)
+            raise SyntaxError.new("Tag has no content.")
           end
         end
       end
