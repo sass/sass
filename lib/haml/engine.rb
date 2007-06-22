@@ -182,7 +182,7 @@ END
       @scope_object = scope
       @buffer = Haml::Buffer.new(@options)
 
-      # Compile the @precompiled buffer
+      # Run the compiled evaluator function
       compile &block
 
       # Return the result string
@@ -494,11 +494,7 @@ END
     def push_flat(text, spaces)
       tabulation = spaces - @flat_spaces
       tabulation = tabulation > -1 ? tabulation : 0
-      if @filter_buffer
-        @filter_buffer << "#{' ' * tabulation}#{text}\n"
-      else
-        @precompiled << "_hamlout.push_text(#{text.dump}, #{tabulation}, true)\n"
-      end
+      @filter_buffer << "#{' ' * tabulation}#{text}\n"
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
@@ -538,8 +534,6 @@ END
         close_comment value
       when :element
         close_tag value
-      when :flat
-        close_flat value
       when :loud
         close_loud value
       when :filtered
@@ -566,17 +560,6 @@ END
       @output_tabs -= 1
       @template_tabs -= 1
       push_silent "_hamlout.close_comment(#{has_conditional}, #{@output_tabs})"
-    end
-    
-    # Closes a flattened section.
-    def close_flat(in_tag)
-      @flat_spaces = -1
-      if in_tag
-        close
-      else
-        push_silent('_hamlout.stop_flat')
-        @template_tabs -= 1
-      end
     end
     
     # Closes a loud Ruby block.
@@ -834,18 +817,6 @@ END
         end
       end
       push_text doctype
-    end
-    
-    # Starts a flattened block.
-    def start_flat(in_tag)
-      # @flat_spaces is the number of indentations in the template
-      # that forms the base of the flattened area
-      if in_tag
-        @to_close_stack.push([:flat, true])
-      else
-        push_and_tabulate([:flat])
-      end
-      @flat_spaces = @template_tabs * 2
     end
 
     # Starts a filtered block.

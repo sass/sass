@@ -42,13 +42,8 @@ module Haml
 
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
-    def push_text(text, tabulation, flattened = false)
-      if flattened
-        # In this case, tabulation is the number of spaces, rather
-        # than the number of tabs.
-        @buffer << "#{' ' * tabulation}#{flatten(text + "\n")}"
-        @one_liner_pending = true
-      elsif @one_liner_pending && Buffer.one_liner?(text)
+    def push_text(text, tabulation)
+      if @one_liner_pending && Buffer.one_liner?(text)
         @buffer << text
       else
         if @one_liner_pending
@@ -152,12 +147,6 @@ module Haml
       else
         push_text(close_tag, tabulation)
       end
-    end
-    
-    # Stops parsing a flat section.
-    def stop_flat
-      buffer.concat("\n")
-      @one_liner_pending = false
     end
 
     # Some of these methods are exposed as public class methods
