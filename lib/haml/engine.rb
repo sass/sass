@@ -315,7 +315,7 @@ END
       when SCRIPT
         sub_line = line[1..-1]
         if sub_line[0] == SCRIPT
-          push_script(sub_line[1..-1].strip.dump.gsub('\\#', '#'), false)
+          push_script(unescape_interpolation(sub_line[1..-1].strip), false)
         else
           push_script(sub_line, false)
         end
@@ -856,6 +856,12 @@ END
       push_and_tabulate([:filtered, filter])
       @flat_spaces = @template_tabs * 2
       @filter_buffer = String.new
+    end
+
+    def unescape_interpolation(str)
+      str.dump.gsub('\\#', '#').gsub(/\#\{[^\}]+\}/) do |substr|
+        substr.gsub('\\"', '"')
+      end
     end
 
     # Counts the tabulation of a line.
