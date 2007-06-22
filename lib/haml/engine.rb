@@ -193,7 +193,7 @@ END
 
     # This method is deprecated and shouldn't be used.
     def precompiled
-      warn <<END
+      $stderr.puts <<END
 The Haml precompiled method and :precompiled option
 are deprecated and will be removed in version 2.0.
 Haml::Engine now automatically handles caching.
@@ -320,7 +320,6 @@ END
           push_script(sub_line, false)
         end
       when FLAT_SCRIPT
-        warn(FLAT_WARNING) unless defined?(Test::Unit)
         push_flat_script(line[1..-1])
       when SILENT_SCRIPT
         sub_line = line[1..-1]
