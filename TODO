@@ -15,4 +15,3 @@ Features:
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable
   Unary minus in SassScript
-  Deprecated uses of ~ should be removed
