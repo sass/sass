@@ -16,12 +16,12 @@ class Sass::Constant::Literal # :nodoc:
   
   def self.parse(value)
     case value
-      when NUMBER
-        Sass::Constant::Number.new(value)
-      when COLOR
-        Sass::Constant::Color.new(value)
-      else
-        Sass::Constant::String.new(value)
+    when NUMBER
+      Sass::Constant::Number.new(value)
+    when COLOR
+      Sass::Constant::Color.new(value)
+    else
+      Sass::Constant::String.new(value)
     end
   end
   

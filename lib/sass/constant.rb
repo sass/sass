@@ -105,9 +105,15 @@ module Sass
                 to_return << :concat
               end
 
+              # Time for a unary minus!
+              if negative_okay && symbol == :minus
+                negative_okay = true
+                to_return << :neg
+                next
+              end
+
               # Are we looking at an operator?
-              if symbol && !(negative_okay && symbol == :minus) &&
-                  (str.empty? || symbol != :mod)
+              if symbol && (str.empty? || symbol != :mod)
                 str = reset_str.call
                 negative_okay = true
                 to_return << symbol
@@ -137,12 +143,25 @@ module Sass
         beginning = i
         token = value[i]
         
-        while i < value_len && token != :close          
+        while i < value_len && token != :close
           if token == :open
             to_return.push(*value[beginning...i])
             sub, i = parenthesize_helper(i + 1, value, value_len)
             beginning = i
             to_return << sub
+          elsif token == :neg
+            if value[i + 1].nil?
+              raise Sass::SyntaxError("Unterminated unary minus.")
+            elsif value[i + 1] == :open
+              to_return.push(*value[beginning...i])
+              sub, i = parenthesize_helper(i + 2, value, value_len)
+              beginning = i
+              to_return << [:neg, sub]
+            else
+              to_return.push(*value[beginning...i])
+              to_return << [:neg, value[i + 1]]
+              beginning = i = i + 2
+            end
           else
             i += 1
           end
@@ -159,17 +178,22 @@ module Sass
       #++
       def operationalize(value, constants)
         value = [value] unless value.is_a?(Array)
-        length = value.length
-        if length == 1
+        if value.length == 1
           value = value[0]
-          if value.is_a? Operation
+          if value.is_a? Array
+            operationalize(value, constants)
+          elsif value.is_a? Operation
             value
           else
             Literal.parse(insert_constant(value, constants))
           end
-        elsif length == 2
-          raise SyntaxError.new("Constant arithmetic error")
-        elsif length == 3
+        elsif value.length == 2
+          if value[0] == :neg
+            Operation.new(Sass::Constant::Number.new('0'), operationalize(value[1], constants), :minus)
+          else
+            raise SyntaxError.new("Constant arithmetic error")
+          end
+        elsif value.length == 3
           Operation.new(operationalize(value[0], constants), operationalize(value[2], constants), value[1])
         else
           if SECOND_ORDER.include?(value[1]) && FIRST_ORDER.include?(value[3])
