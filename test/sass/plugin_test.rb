@@ -26,7 +26,7 @@ class SassPluginTest < Test::Unit::TestCase
   end
   
   def teardown
-    FileUtils.rm_r  File.dirname(__FILE__) + '/tmp'
+    FileUtils.rm_r File.dirname(__FILE__) + '/tmp'
   end
 
   def test_templates_should_render_correctly

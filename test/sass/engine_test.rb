@@ -22,7 +22,11 @@ class SassEngineTest < Test::Unit::TestCase
     ":= a" => 'Invalid attribute: ":= a"',
     "a\n  :b" => 'Invalid attribute: ":b "',
     "a\n  :b: c" => 'Invalid attribute: ":b: c"',
+    "a\n  :b:c d" => 'Invalid attribute: ":b:c d"',
+    "a\n  :b=c d" => 'Invalid attribute: ":b=c d"',
     "a\n  :b c;" => 'Invalid attribute: ":b c;" (This isn\'t CSS!)',
+    "a\n  b : c" => 'Invalid attribute: "b : c"',
+    "a\n  b=c: d" => 'Invalid attribute: "b=c: d"',
     ":a" => 'Attributes aren\'t allowed at the root of a document.',
     "!" => 'Invalid constant: "!"',
     "!a" => 'Invalid constant: "!a"',
@@ -61,7 +65,7 @@ class SassEngineTest < Test::Unit::TestCase
         assert(err.sass_line, "Line: #{key}")
         assert_match(/\(sass\):[0-9]+/, err.backtrace[0], "Line: #{key}")
       else
-        assert(false, "Exception not raised for '#{key}'!")
+        assert(false, "Exception not raised for\n#{key}")
       end
     end
   end

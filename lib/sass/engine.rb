@@ -39,14 +39,16 @@ module Sass
     # The character used to denote a compiler directive.
     DIRECTIVE_CHAR = ?@
 
-    # The regex that matches attributes of the form <tt>:name attr</tt>.
-    ATTRIBUTE = /:([^\s=:]+)\s*(=?)(?:\s+|$)(.*)/
+    # The regex that matches and extracts data from
+    # attributes of the form <tt>:name attr</tt>.
+    ATTRIBUTE = /^:([^\s=:]+)\s*(=?)(?:\s+|$)(.*)/
 
     # The regex that matches attributes of the form <tt>name: attr</tt>.
-    ALTERNATE_ATTRIBUTE_SELECTOR = /^[^\s:]+:(\s+|$)/
+    ATTRIBUTE_ALTERNATE_MATCHER = /^[^\s:]+\s*[=:](\s|$)/
 
-    # The regex that extracts data from attributes of the form <tt>name: attr</tt>.
-    ATTRIBUTE_ALTERNATE = /([^\s=]+):\s*(=?)\s*(.*)/
+    # The regex that matches and extracts data from
+    # attributes of the form <tt>name: attr</tt>.
+    ATTRIBUTE_ALTERNATE = /^([^\s=:]+)(\s*=|:)(?:\s+|$)(.*)/
 
     # Creates a new instace of Sass::Engine that will compile the given
     # template string when <tt>render</tt> is called.
@@ -217,18 +219,18 @@ module Sass
     end
 
     def parse_line(line)
-      if line[0] == ATTRIBUTE_CHAR
+      case line[0]
+      when ATTRIBUTE_CHAR
         parse_attribute(line, ATTRIBUTE)
-      elsif line.match(ALTERNATE_ATTRIBUTE_SELECTOR)
-        parse_attribute(line, ATTRIBUTE_ALTERNATE)
+      when Constant::CONSTANT_CHAR
+        parse_constant(line)
+      when COMMENT_CHAR
+        parse_comment(line)
+      when DIRECTIVE_CHAR
+        parse_directive(line)
       else
-        case line[0]
-        when Constant::CONSTANT_CHAR
-          parse_constant(line)
-        when COMMENT_CHAR
-          parse_comment(line)
-        when DIRECTIVE_CHAR
-          parse_directive(line)
+        if line =~ ATTRIBUTE_ALTERNATE_MATCHER
+          parse_attribute(line, ATTRIBUTE_ALTERNATE)
         else
           Tree::RuleNode.new(line, @options[:style])
         end
@@ -242,7 +244,7 @@ module Sass
         raise SyntaxError.new("Invalid attribute: \"#{line}\"", @line)
       end
 
-      if eq[0] == SCRIPT_CHAR
+      if eq.strip[0] == SCRIPT_CHAR
         value = Sass::Constant.parse(value, @constants, @line).to_s
       end
 
