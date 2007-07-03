@@ -250,7 +250,7 @@ END
 
               if flat
                 push_flat(old_uline, old_spaces)
-              elsif !line_empty
+              elsif !line_empty && !@haml_comment
                 process_line(old_line, old_index, block_opened)
               end
 
@@ -329,6 +329,8 @@ END
           if (@block_opened && !mbk) || line[1..-1].split(' ', 2)[0] == "case"
             push_and_tabulate([:script])
           end
+        else
+          start_haml_comment
         end
       when FILTER
         name = line[1..-1].downcase
@@ -524,6 +526,13 @@ END
       end
     end
 
+    def start_haml_comment
+      if @block_opened
+        @haml_comment = true
+        push_and_tabulate([:haml_comment])
+      end
+    end
+
     # Closes the most recent item in <tt>@to_close_stack</tt>.
     def close
       tag, value = @to_close_stack.pop
@@ -538,6 +547,8 @@ END
         close_loud value
       when :filtered
         close_filtered value
+      when :haml_comment
+        close_haml_comment
       end
     end
 
@@ -589,6 +600,11 @@ END
       end
 
       @filter_buffer = nil
+      @template_tabs -= 1
+    end
+
+    def close_haml_comment
+      @haml_comment = false
       @template_tabs -= 1
     end
     

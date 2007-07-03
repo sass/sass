@@ -1,6 +1,5 @@
 Bugs:
   If an @imported document is changed, Sass should recompile the template
-  "bar= !foo" should work in Sass.
 
 Testing:
   Test html2haml and css2sass
