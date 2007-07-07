@@ -7,19 +7,21 @@ require 'sass/constant/color'
 
 class Sass::Constant::Literal # :nodoc:
   # The regular expression matching numbers.
-  NUMBER  = /^(-?[0-9]*?\.?)([0-9]+)([^0-9\s]*)$/
+  NUMBER  = /^(-?\d*?\.?)(\d+)([^\d\s]*)$/
+
+  html_color_matcher = Sass::Constant::Color::HTML4_COLORS.keys.join '|'
 
   # The regular expression matching colors.
-  COLOR = /^\#(#{"[0-9a-fA-F]" * 3}|#{"[0-9a-fA-F]" * 6})/
+  COLOR = /^\# (?: [\da-f]{3} | [\da-f]{6} ) | #{html_color_matcher}/ix
   
   def self.parse(value)
     case value
-      when NUMBER
-        Sass::Constant::Number.new(value)
-      when COLOR
-        Sass::Constant::Color.new(value)
-      else
-        Sass::Constant::String.new(value)
+    when NUMBER
+      Sass::Constant::Number.new(value)
+    when COLOR
+      Sass::Constant::Color.new(value)
+    else
+      Sass::Constant::String.new(value)
     end
   end
   

@@ -78,7 +78,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   engine = Haml::Engine.new("%p Haml code!")
 #   engine.render #=> "<p>Haml code!</p>\n"
-# 
+#
 # == Characters with meaning to Haml
 # 
 # Various characters, when placed at a certain point in a line,
@@ -179,6 +179,19 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # 
 # is compiled to:
 # 
+#   <br />
+#   <meta http-equiv='Content-Type' content='text/html' />
+#
+# Some tags are automatically closed, as long as they have no content.
+# +meta+, +img+, +link+, +script+, +br+, and +hr+ tags are closed by default.
+# This list can be customized by setting the <tt>:autoclose</tt> option (see below).
+# For example:
+#
+#   %br
+#   %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}
+#
+# is also compiled to:
+#
 #   <br />
 #   <meta http-equiv='Content-Type' content='text/html' />
 # 
@@ -609,8 +622,18 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   <p>
 #     2?
 #   </p>
+#
+# == Other Useful Things
+#
+# === Helpers
+#
+# Haml offers a bunch of helpers that are useful
+# for doing stuff like preserving whitespace,
+# creating nicely indented output for user-defined helpers,
+# and other useful things.
+# The helpers are all documented in the Haml::Helpers and Haml::Helpers::ActionViewExtensions modules.
 # 
-# == Haml Options
+# === Haml Options
 # 
 # Options can be set by setting the hash <tt>Haml::Template.options</tt>
 # from <tt>environment.rb</tt> in Rails,
@@ -621,10 +644,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           designated by <tt>=</tt> or <tt>~</tt> should be
 #                           evaluated. If this is true, said scripts are
 #                           rendered as empty strings. Defaults to false.
-# 
-# [<tt>:precompiled</tt>]   A string containing a precompiled Haml template.
-#                           If this is passed, <tt>template</tt> is ignored
-#                           and no precompilation is done.
 # 
 # [<tt>:attr_wrapper</tt>]  The character that should wrap element attributes.
 #                           This defaults to <tt>'</tt> (an apostrophe). Characters
@@ -651,6 +670,10 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           template. For instance, if <tt>:locals</tt> is
 #                           <tt>{ :foo => "bar" }</tt>, then within the template,
 #                           <tt>= foo</tt> will produce <tt>bar</tt>.
+#
+# [<tt>:autoclose</tt>]     A list of tag names that should be automatically self-closed
+#                           if they have no content.
+#                           Defaults to <tt>['meta', 'img', 'link', 'script', 'br', 'hr']</tt>.
 #
 module Haml; end
 

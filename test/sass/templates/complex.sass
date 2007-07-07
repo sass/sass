@@ -78,9 +78,13 @@ body
         :margin 0 5px
         :padding 5px 5px 0 5px
         :display inline
+// This comment is in the middle of this rule
         :font-size 1.1em
+        // This comment is properly indented
         :color #fff
         :background #00a4e4
+        / This rule isn't a comment!
+          :red green
     a:link, a:visited
       :color #fff
       :text-decoration none
@@ -105,6 +109,9 @@ body
   a:hover
     :text-decoration underline
 
+// A hard tab:
+	
+
 #content
   p, div
     :width 40em
@@ -123,11 +130,20 @@ body
           :float  left
           :margin 0 1em auto 1em
           :border 1px solid #6e000d
+            :style solid
         h2
           :margin 0 0 10px 0
           :padding 0.5em
+          /* The background image is a gif!
           :background #6e000d url(/images/hdr_participant.gif) 2px 2px no-repeat
+          /* Okay check this out
+            Multiline comments
+            Wow dude
+            I mean seriously, WOW
           :text-indent -9999px
+          // And also...
+            Multiline comments that don't output!
+            Snazzy, no?
           :border
             :top
               :width 5px
@@ -231,7 +247,9 @@ body
           ul
             :text-align right
             li
-              :display inline; border: none; padding: 0; }
+              :display inline
+              :border none
+              :padding 0
     .column.right
       :width        290px
       :padding-left 10px

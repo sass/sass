@@ -2,6 +2,7 @@ require 'haml/helpers'
 require 'haml/buffer'
 require 'haml/filters'
 require 'haml/error'
+require 'haml/util'
 
 module Haml
   # This is the class where all the parsing and processing of the Haml
@@ -13,9 +14,6 @@ module Haml
   #   output = haml_engine.to_html
   #   puts output
   class Engine
-    # Allow access to the precompiled template
-    attr_reader :precompiled
-
     # Allow reading and writing of the options hash
     attr :options, true
 
@@ -93,13 +91,16 @@ module Haml
     MID_BLOCK_KEYWORDS   = ['else', 'elsif', 'rescue', 'ensure', 'when']
 
     # The Regex that matches an HTML comment command.
-    COMMENT_REGEX = /\/(\[[a-zA-Z0-9 \.]*\])?(.*)/
+    COMMENT_REGEX = /\/(\[[\w\s\.]*\])?(.*)/
 
     # The Regex that matches a Doctype command.
-    DOCTYPE_REGEX = /([0-9]\.[0-9])?[\s]*([a-zA-Z]*)/
+    DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
 
     # The Regex that matches an HTML tag command.
-    TAG_REGEX = /[%]([-:_a-zA-Z0-9]+)([-_a-zA-Z0-9\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
+    TAG_REGEX = /[%]([-:\w]+)([-\w\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
+
+    # The Regex that matches a literal string or symbol value
+    LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\\#]*?)\4))\s*$/
 
     FLAT_WARNING = <<END
 Haml deprecation warning:
@@ -109,7 +110,7 @@ helper instead.
 END
 
     # Creates a new instace of Haml::Engine that will compile the given
-    # template string when <tt>to_html</tt> is called.
+    # template string when <tt>render</tt> is called.
     # See README for available options.
     #
     #--
@@ -117,16 +118,16 @@ END
     # to README!
     #++
     #
-    def initialize(template, options = {})
+    def initialize(template, l_options = {})
       @options = {
         :suppress_eval => false,
         :attr_wrapper => "'",
         :locals => {},
+        :autoclose => ['meta', 'img', 'link', 'script', 'br', 'hr'],
         :filters => {
           'sass' => Sass::Engine,
           'plain' => Haml::Filters::Plain,
-          'preserve' => Haml::Filters::Preserve
-        }
+          'preserve' => Haml::Filters::Preserve }
       }
 
       if !NOT_LOADED.include? 'redcloth'
@@ -140,7 +141,7 @@ END
         @options[:filters]['markdown'] = Haml::Filters::Markdown
       end
 
-      @options.rec_merge! options
+      @options.rec_merge! l_options
 
       unless @options[:suppress_eval]
         @options[:filters].merge!({
@@ -148,9 +149,7 @@ END
           'ruby' => Haml::Filters::Ruby
         })
       end
-      @options[:filters].rec_merge! options[:filters] if options[:filters]
-
-      @precompiled = @options[:precompiled]
+      @options[:filters].rec_merge! l_options[:filters] if l_options[:filters]
 
       @template = template.strip #String
       @to_close_stack = []
@@ -165,7 +164,13 @@ END
       begin
         # Only do the first round of pre-compiling if we really need to.
         # They might be passing in the precompiled string.
-        do_precompile if @precompiled.nil? && (@precompiled = String.new)
+        requires_precompile = true
+        if @@method_names[@template]
+          # Check that the compiled method supports a superset of the local assigns we want to do
+          supported_assigns = @@supported_local_assigns[@template]
+          requires_precompile = !@options[:locals].keys.all? {|var| supported_assigns.include? var}
+        end
+        do_precompile if requires_precompile
       rescue Haml::Error => e
         e.add_backtrace_entry(@index, @options[:filename])
         raise e
@@ -177,17 +182,7 @@ END
       @scope_object = scope
       @buffer = Haml::Buffer.new(@options)
 
-      local_assigns = @options[:locals]
-
-      # Get inside the view object's world
-      @scope_object.instance_eval do
-        # Set all the local assigns
-        local_assigns.each do |key,val|
-          self.class.send(:define_method, key) { val }
-        end
-      end
-
-      # Compile the @precompiled buffer
+      # Run the compiled evaluator function
       compile &block
 
       # Return the result string
@@ -196,16 +191,35 @@ END
 
     alias_method :to_html, :render
 
-   private
+    # This method is deprecated and shouldn't be used.
+    def precompiled
+      $stderr.puts <<END
+The Haml precompiled method and :precompiled option
+are deprecated and will be removed in version 2.0.
+Haml::Engine now automatically handles caching.
+END
+      nil
+    end
 
+   private
+    
     #Precompile each line
     def do_precompile
+      @precompiled = ''
+      method_name = assign_method_name(@template, options[:filename])
       push_silent <<-END
-        def _haml_render
-        @haml_is_haml = true
-        _hamlout = @haml_stack[-1]
-        _erbout = _hamlout.buffer
+        def #{method_name}(_haml_local_assigns)
+          @haml_is_haml = true
+          _hamlout = @haml_stack[-1]
+          _erbout = _hamlout.buffer
       END
+      
+      supported_local_assigns = {}
+      @@supported_local_assigns[@template] = supported_local_assigns
+      @options[:locals].each do |k,v|
+        supported_local_assigns[k] = true
+        push_silent "#{k} = _haml_local_assigns[:#{k}]"
+      end
       
       old_line = nil
       old_index = nil
@@ -236,7 +250,7 @@ END
 
               if flat
                 push_flat(old_uline, old_spaces)
-              elsif !line_empty
+              elsif !line_empty && !@haml_comment
                 process_line(old_line, old_index, block_opened)
               end
 
@@ -266,8 +280,7 @@ END
       # Close all the open tags
       @template_tabs.times { close }
 
-      push_silent "@haml_is_haml = false"
-      push_silent "end"
+      push_silent "@haml_is_haml = false\nend\n"
     end
     
     # Processes and deals with lowering indentation.
@@ -302,12 +315,11 @@ END
       when SCRIPT
         sub_line = line[1..-1]
         if sub_line[0] == SCRIPT
-          push_script(sub_line[1..-1].strip.dump.gsub('\\#', '#'), false)
+          push_script(unescape_interpolation(sub_line[1..-1].strip), false)
         else
           push_script(sub_line, false)
         end
       when FLAT_SCRIPT
-        warn(FLAT_WARNING) unless defined?(Test::Unit)
         push_flat_script(line[1..-1])
       when SILENT_SCRIPT
         sub_line = line[1..-1]
@@ -317,6 +329,8 @@ END
           if (@block_opened && !mbk) || line[1..-1].split(' ', 2)[0] == "case"
             push_and_tabulate([:script])
           end
+        else
+          start_haml_comment
         end
       when FILTER
         name = line[1..-1].downcase
@@ -374,6 +388,23 @@ END
     def is_multiline?(line)                                          # ' '[0] == 32
       line && line.length > 1 && line[-1] == MULTILINE_CHAR_VALUE && line[-2] == 32
     end
+    
+    # Method for generating compiled method names basically ripped out of ActiveView::Base
+    # If Haml is to be used as a standalone module without rails and still use the precompiled
+    # methods technique, it will end up duplicating this stuff.  I can't decide whether
+    # checking compile times to decide whether to recompile a template belongs in here or
+    # out in template.rb
+    @@method_names = {}
+    @@supported_local_assigns = {}
+    @@render_method_count = 0
+    def assign_method_name(template, file_name)
+      @@render_method_count += 1
+      @@method_names[template] = "_render_haml_#{@@render_method_count}".intern
+    end
+    
+    module CompiledTemplates
+      # holds compiled template code
+    end
 
     # Takes <tt>@precompiled</tt>, a string buffer of Ruby code, and
     # evaluates it in the context of <tt>@scope_object</tt>, after preparing
@@ -391,11 +422,17 @@ END
           attr :haml_lineno # :nodoc:
         end
       end
+      @scope_object.class.instance_eval do
+        include CompiledTemplates
+      end
 
       begin
-        # Evaluate the buffer in the context of the scope object
-        @scope_object.instance_eval @precompiled
-        @scope_object._haml_render &block
+        method_name = @@method_names[@template]
+
+        unless @scope_object.respond_to?(method_name)
+          CompiledTemplates.module_eval @precompiled
+        end
+        @scope_object.send(method_name, options[:locals], &block)
       rescue Exception => e
         class << e
           include Haml::Error
@@ -408,9 +445,13 @@ END
         compile_error = e.message.scan(/\(eval\):([0-9]*):in `[-_a-zA-Z]*': compile error/)[0]
 
         if compile_error
-          eval_line = compile_error[0].to_i
-          line_marker = @precompiled.split("\n")[0...eval_line].grep(/@haml_lineno = [0-9]*/)[-1]
-          lineno = line_marker.scan(/[0-9]+/)[0].to_i if line_marker
+          if @precompiled
+            eval_line = compile_error[0].to_i
+            line_marker = @precompiled.split("\n")[0...eval_line].grep(/@haml_lineno = [0-9]*/)[-1]
+            lineno = line_marker.scan(/[0-9]+/)[0].to_i if line_marker
+          else
+            lineno = -1
+          end
         end
 
         e.add_backtrace_entry(lineno, @options[:filename])
@@ -426,7 +467,7 @@ END
     # Evaluates <tt>text</tt> in the context of <tt>@scope_object</tt>, but
     # does not output the result.
     def push_silent(text, add_index = false, can_suppress = false)
-      unless can_suppress && @options[:suppress_eval]
+      unless (can_suppress && options[:suppress_eval])
         if add_index
           @precompiled << "@haml_lineno = #{@index}\n#{text}\n"
         else
@@ -455,11 +496,7 @@ END
     def push_flat(text, spaces)
       tabulation = spaces - @flat_spaces
       tabulation = tabulation > -1 ? tabulation : 0
-      if @filter_buffer
-        @filter_buffer << "#{' ' * tabulation}#{text}\n"
-      else
-        @precompiled << "_hamlout.push_text(#{text.dump}, #{tabulation}, true)\n"
-      end
+      @filter_buffer << "#{' ' * tabulation}#{text}\n"
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
@@ -482,13 +519,17 @@ END
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
     def push_flat_script(text)
-      unless text.empty?
-        push_script(text, true)
+      if text.empty?
+        raise SyntaxError.new("Tag has no content.")
       else
-        unless @block_opened
-          raise SyntaxError.new('Filters must have nested text.')
-        end
-        start_flat(false)
+        push_script(text, true)
+      end
+    end
+
+    def start_haml_comment
+      if @block_opened
+        @haml_comment = true
+        push_and_tabulate([:haml_comment])
       end
     end
 
@@ -502,12 +543,12 @@ END
         close_comment value
       when :element
         close_tag value
-      when :flat
-        close_flat value
       when :loud
         close_loud value
       when :filtered
         close_filtered value
+      when :haml_comment
+        close_haml_comment
       end
     end
 
@@ -530,17 +571,6 @@ END
       @output_tabs -= 1
       @template_tabs -= 1
       push_silent "_hamlout.close_comment(#{has_conditional}, #{@output_tabs})"
-    end
-    
-    # Closes a flattened section.
-    def close_flat(in_tag)
-      @flat_spaces = -1
-      if in_tag
-        close
-      else
-        push_silent('_hamlout.stop_flat')
-        @template_tabs -= 1
-      end
     end
     
     # Closes a loud Ruby block.
@@ -573,43 +603,167 @@ END
       @template_tabs -= 1
     end
 
+    def close_haml_comment
+      @haml_comment = false
+      @template_tabs -= 1
+    end
+    
+    # Iterates through the classes and ids supplied through <tt>.</tt>
+    # and <tt>#</tt> syntax, and returns a hash with them as attributes,
+    # that can then be merged with another attributes hash.
+    def parse_class_and_id(list)
+      attributes = {}
+      list.scan(/([#.])([-_a-zA-Z0-9]+)/) do |type, property|
+        case type
+        when '.'
+          if attributes['class']
+            attributes['class'] += " "
+          else
+            attributes['class'] = ""
+          end
+          attributes['class'] += property
+        when '#'
+          attributes['id'] = property
+        end
+      end
+      attributes
+    end
+
+    def parse_literal_value(text)
+      text.match(LITERAL_VALUE_REGEX)
+
+      # $2 holds the value matched by a symbol, but is nil for a string match
+      # $5 holds the value matched by a string
+      $2 || $5
+    end
+    
+    def parse_literal_hash(text)  
+      unless text
+        return {}
+      end
+      
+      attributes = {}
+      if inner = text.scan(/^\{(.*)\}$/)[0]
+        inner[0].split(',').each do |attrib|
+          key, value, more = attrib.split('=>')
+
+          # Make sure the key and value and only the key and value exist
+          # Otherwise, it's too complicated and we'll defer it to the actual Ruby parser
+          if more || (key = parse_literal_value(key)).nil? ||
+              (value = parse_literal_value(value)).nil?
+            return nil
+          end
+
+          attributes[key] = value
+        end
+      end
+      attributes
+    end
+
+    def build_attributes(attributes = {})
+      @quote_escape = @options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
+      @other_quote_char = @options[:attr_wrapper] == '"' ? "'" : '"'
+  
+      result = attributes.collect do |a,v|
+        v = v.to_s
+        unless v.nil? || v.empty?
+          attr_wrapper = @options[:attr_wrapper]
+          if v.include? attr_wrapper
+            if v.include? @other_quote_char
+              # An imperfection in LITERAL_VALUE_REGEX prevents this
+              # from ever actually being reached,
+              # but in case it becomes possible,
+              # I'm leaving it in.
+              v = v.gsub(attr_wrapper, @quote_escape)
+            else
+              attr_wrapper = @other_quote_char
+            end
+          end
+          " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
+        end
+      end
+      result.sort.join
+    end
+
+    def prerender_tag(name, atomic, attributes)
+      if atomic
+        str = " />"
+      else
+        str = ">"
+      end
+  
+      "<#{name}#{build_attributes(attributes)}#{str}"
+    end
+
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
       matched = false
       line.scan(TAG_REGEX) do |tag_name, attributes, attributes_hash, object_ref, action, value|
         matched = true
-        value = value.to_s
+        value = value.to_s.strip
 
         case action
         when '/'
           atomic = true
         when '=', '~'
           parse = true
-        else
-          value = value.strip
+
+          if value.first == '='
+            value = value[1..-1].strip.dump.gsub('\\#', '#')
+          end
         end
 
         flattened = (action == '~')
         
-        warn(FLAT_WARNING) if flattened && !defined?(Test::Unit)
-
         value_exists = !value.empty?
-        attributes_hash = "nil" if attributes_hash.nil? || @options[:suppress_eval]
+        literal_attributes = parse_literal_hash(attributes_hash)
+        attributes_hash = "{nil}" if attributes_hash.nil? || literal_attributes || @options[:suppress_eval]
         object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
-        if @block_opened 
+        if !attributes.empty? && '.#'.include?(attributes)
+          raise SyntaxError.new("Illegal element: classes and ids must have values. Use %div instead.")
+        end
+        
+        # Preparse the attributes hash
+        attributes = parse_class_and_id(attributes)
+        Buffer.merge_attrs(attributes, literal_attributes) if literal_attributes
+
+        if @block_opened
           if atomic
             raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.")
           elsif action == '=' || value_exists
             raise SyntaxError.new("Illegal Nesting: Nesting within a tag that already has content is illegal.")
           end
+        elsif atomic && value_exists
+          raise SyntaxError.new("Atomic tags can't have content.")
         elsif parse && !value_exists
-          raise SyntaxError.new("No tag content to parse.")
+          raise SyntaxError.new("Tag has no content.")
         end
 
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{attributes_hash}, #{object_ref}, #{flattened.inspect})", true
-
+        if !@block_opened && !value_exists && @options[:autoclose].include?(tag_name)
+          atomic = true
+        end
+        
+        do_one_liner = value_exists && !parse && Buffer.one_liner?(value)
+        
+        if object_ref == "nil" && attributes_hash == "{nil}" && !flattened && (do_one_liner || !value_exists)
+          # This means that we can render the tag directly to text and not process it in the buffer
+          open_tag = prerender_tag(tag_name, atomic, attributes)
+          
+          if do_one_liner
+            open_tag += value
+            open_tag += "</#{tag_name}>"
+          end
+          
+          open_tag += "\n"
+            
+          push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs})"
+          return if do_one_liner
+        else
+          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{attributes_hash[1...-1]})", true
+        end
+          
         unless atomic
           push_and_tabulate([:element, tag_name])
           @output_tabs += 1
@@ -622,7 +776,7 @@ END
             end
             close
           elsif flattened
-            start_flat(true)
+            raise SyntaxError.new("Tag has no content.")
           end
         end
       end
@@ -684,18 +838,6 @@ END
       end
       push_text doctype
     end
-    
-    # Starts a flattened block.
-    def start_flat(in_tag)
-      # @flat_spaces is the number of indentations in the template
-      # that forms the base of the flattened area
-      if in_tag
-        @to_close_stack.push([:flat, true])
-      else
-        push_and_tabulate([:flat])
-      end
-      @flat_spaces = @template_tabs * 2
-    end
 
     # Starts a filtered block.
     def start_filtered(filter)
@@ -707,10 +849,18 @@ END
       @filter_buffer = String.new
     end
 
+    def unescape_interpolation(str)
+      str.dump.gsub('\\#', '#').gsub(/\#\{[^\}]+\}/) do |substr|
+        substr.gsub('\\"', '"')
+      end
+    end
+
     # Counts the tabulation of a line.
     def count_soft_tabs(line)
       spaces = line.index(/[^ ]/)
       if line[spaces] == ?\t
+        return nil if line.strip.empty?
+
         raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
       end
       [spaces, spaces/2]
@@ -722,25 +872,5 @@ END
       @to_close_stack.push(value)
       @template_tabs += 1
     end
-  end
-end
-
-class Hash # :nodoc:
-  # Same as Hash#merge!, but recursively merges sub-hashes.
-  def rec_merge!(other)
-    other.each do |key, value|
-      myval = self[key]
-      if value.is_a?(Hash) && myval.is_a?(Hash)
-        myval.rec_merge!(value)
-      else
-        self[key] = value
-      end
-    end
-    self
-  end
-
-  def rec_merge(other)
-    toret = self.clone
-    toret.rec_merge! other
   end
 end

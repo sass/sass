@@ -8,7 +8,7 @@ rescue LoadError
   action_view_included = false
 end
 
-if action_view_included
+if action_view_included  
   module ActionView
     class Base # :nodoc:
       def render_with_haml(*args)        
@@ -26,6 +26,18 @@ if action_view_included
     # to make them work more effectively with Haml.
     module Helpers
       # :stopdoc:
+      module CaptureHelper
+        def capture_erb_with_buffer_with_haml(*args, &block)
+          if is_haml?
+            capture_haml_with_buffer(*args, &block)
+          else
+            capture_erb_with_buffer_without_haml(*args, &block)
+          end
+        end
+        alias_method :capture_erb_with_buffer_without_haml, :capture_erb_with_buffer
+        alias_method :capture_erb_with_buffer, :capture_erb_with_buffer_with_haml
+      end
+
       module TextHelper
         def concat_with_haml(string, binding = nil)
           if is_haml?
@@ -37,26 +49,30 @@ if action_view_included
         alias_method :concat_without_haml, :concat
         alias_method :concat, :concat_with_haml
       end
-      
+
       module FormTagHelper
         def form_tag_with_haml(url_for_options = {}, options = {}, *parameters_for_url, &proc)
-          if block_given? && is_haml?
-            oldproc = proc 
-            proc = bind_proc do |*args|
-              concat "\n"
-              tab_up
-              oldproc.call(*args)
-              tab_down
+          if is_haml?
+            if block_given?
+              oldproc = proc 
+              proc = bind_proc do |*args|
+                concat "\n"
+                tab_up
+                oldproc.call(*args)
+                tab_down
+              end
             end
+            res = form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc) + "\n"
+            concat "\n" if block_given? && is_haml?
+            res
+          else
+            form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc)
           end
-          res = form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc) + "\n"
-          concat "\n" if block_given? && is_haml?
-          res
         end
         alias_method :form_tag_without_haml, :form_tag
         alias_method :form_tag, :form_tag_with_haml
       end
-      
+
       module FormHelper
         def form_for_with_haml(object_name, *args, &proc)
           if block_given? && is_haml?
@@ -73,11 +89,8 @@ if action_view_included
         alias_method :form_for_without_haml, :form_for
         alias_method :form_for, :form_for_with_haml
       end
-      
-      def generate_content_class_names
-        controller.controller_name + " " + controller.action_name
-      end
       # :startdoc:
     end
   end
 end
+

@@ -77,12 +77,27 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # === Attributes
 #
-# The syntax for attributes is also slightly different.
+# There are two different ways to write CSS attrbibutes.
+# The first is very similar to the how you're used to writing them:
+# with a colon between the name and the value.
+# However, Sass attributes don't have semicolons at the end;
+# each attribute is on its own line, so they aren't necessary.
+# For example:
+#
+#   #main p
+#     color: #00ff00
+#     width: 97%
+#
+# is compiled to:
+#
+#   #main p {
+#     color: #00ff00;
+#     width: 97% }
+#
+# The second syntax for attributes is slightly different.
 # The colon is at the beginning of the attribute,
 # rather than between the name and the value,
 # so it's easier to tell what elements are attributes just by glancing at them.
-# Attributes also don't have semicolons at the end;
-# each attribute is on its own line, so they aren't necessary.
 # For example:
 #
 #   #main p
@@ -141,6 +156,57 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #         font-weight: bold; }
 #     #main pre {
 #       font-size: 3em; }
+#
+# === Referencing Parent Rules
+#
+# In addition to the default behavior of inserting the parent selector
+# as a CSS parent of the current selector
+# (e.g. above, "#main" is the parent of "p"),
+# you can have more fine-grained control over what's done with the parent selector
+# by using the ampersand character "&" in your selectors.
+#
+# The ampersand is automatically replaced by the parent selector,
+# instead of having it prepended.
+# This allows you to cleanly create pseudo-attributes:
+#
+#   a
+#     :font-weight bold
+#     :text-decoration none
+#     &:hover
+#       :text-decoration underline
+#     &:visited
+#       :font-weight normal
+#
+# Which would become:
+#
+#   a {
+#     font-weight: bold;
+#     text-decoration: none; }
+#     a:hover {
+#       text-decoration: underline; }
+#     a:visited {
+#       font-weight: normal; }
+#
+# It also allows you to add selectors at the base of the hierarchy,
+# which can be useuful for targeting certain styles to certain browsers:
+#
+#   #main
+#     :width 90%
+#     #sidebar
+#       :float left
+#       :margin-left 20%
+#       .ie6 &
+#         :margin-left 40%
+#
+# Which would become:
+#
+#   #main {
+#     width: 90%; }
+#     #main #sidebar {
+#       float: left;
+#       margin-left: 20%; }
+#       .ie6 #main #sidebar {
+#         margin-left: 40%; }
 #
 # === Attribute Namespaces
 #
@@ -232,6 +298,10 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # === Colors
 #
+# Colors may be written as three- or six-digit hex numbers prefixed
+# by a pound sign (#), or as HTML4 color names. For example,
+# "#ff0", "#ffff00" and "yellow" all refer to the same color.
+#
 # Not only can arithmetic be done between colors and other colors,
 # but it can be done between colors and normal numbers.
 # In this case, the operation is done piecewise one each of the
@@ -300,6 +370,108 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     font-size: 1em; }
 #     #main h6 {
 #       font: italic small-caps bold 1.1em sans-serif; }
+#
+# == Directives
+#
+# Directives allow the author to directly issue instructions to the Sass compiler.
+# They're prefixed with an at sign, "<tt>@</tt>",
+# followed by the name of the directive,
+# a space, and any arguments to it -
+# just like CSS directives.
+# For example:
+#
+#   @import red.sass
+#
+# === Import
+#
+# Currently, the only directive is the "import" directive.
+# It works in a very similar way to the CSS import directive,
+# and sometimes compiles to a literal CSS "@import".
+#
+# Sass can import either other Sass files or plain CSS files.
+# If it imports a Sass file,
+# not only are the rules from that file included,
+# but all constants in that file are made available in the current file.
+#
+# Sass looks for other Sass files in the working directory,
+# and the Sass file directory under Rails.
+# Additional search directories may be specified
+# using the :load_paths option (see below).
+#
+# Sass can also import plain CSS files.
+# In this case, it doesn't literally include the content of the files;
+# rather, it uses the built-in CSS "@import" directive to tell the client program
+# to import the files.
+#
+# The import directive can take either a full filename
+# or a filename without an extension.
+# If an extension isn't provided,
+# Sass will try to find a Sass file with the given basename in the load paths,
+# and, failing that, will assume a relevant CSS file will be available.
+#
+# For example,
+#
+#   @import foo.sass
+#
+# would compile to
+#
+#   .foo
+#     :color #f00
+#
+# whereas
+#
+#   @import foo.css
+#
+# would compile to
+#
+#   @import foo.css
+#
+# Finally,
+#
+#  @import foo
+#
+# might compile to either,
+# depending on whether a file called "foo.sass" existed.
+#
+# == Comments
+#
+# === Silent Comments
+#
+# It's simple to add "silent" comments,
+# which don't output anything to the CSS document,
+# to a Sass document.
+# Simply use the familiar C-style notation for a one-line comment, "//",
+# at the normal indentation level and all text following it won't be output.
+# For example:
+#
+#   // A very awesome rule.
+#   #awesome.rule
+#     // An equally awesome attribute.
+#     :awesomeness very
+#
+# becomes
+#
+#   #awesome.rule {
+#     awesomeness: very; }
+#
+# === Loud Comments
+#
+# "Loud" comments are just as easy as silent ones.
+# These comments output to the document as CSS comments,
+# and thus use the same opening sequence: "/*".
+# For example:
+#
+#   /* A very awesome rule.
+#   #awesome.rule
+#     /* An equally awesome attribute.
+#     :awesomeness very
+#
+# becomes
+#
+#   /* A very awesome rule. */
+#   #awesome.rule {
+#     /* An equally awesome attribute. */
+#     awesomeness: very; }
 #
 # == Output Style
 #
@@ -412,6 +584,12 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # [<tt>:filename</tt>]          The filename of the file being rendered.
 #                               This is used solely for reporting errors,
 #                               and is automatically set when using Rails.
+#
+# [<tt>:load_paths</tt>]        An array of filesystem paths which should be searched
+#                               for Sass templates imported with the "@import" directive.
+#                               This defaults to the working directory and, in Rails,
+#                               whatever <tt>:template_location</tt> is
+#                               (by default <tt>RAILS_ROOT + "/public/stylesheets/sass"</tt>).
 # 
 module Sass; end
 

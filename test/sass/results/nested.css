@@ -12,3 +12,10 @@
   font-weight: bold;
   
   float: left; }
+
+#right .header {
+  border-style: solid; }
+#right .body {
+  border-style: dotted; }
+#right .footer {
+  border-style: dashed; }

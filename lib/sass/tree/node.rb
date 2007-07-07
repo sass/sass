@@ -3,6 +3,7 @@ module Sass
     class Node
       attr_accessor :children
       attr_accessor :line
+      attr_accessor :filename
 
       def initialize(style)
         @style = style
@@ -10,6 +11,9 @@ module Sass
       end
 
       def <<(child)
+        if msg = invalid_child?(child)
+          raise Sass::SyntaxError.new(msg, child.line)
+        end
         @children << child
       end
       
@@ -20,9 +24,22 @@ module Sass
             raise SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
           end
 
-          result += "#{child.to_s(1)}\n"
+          begin
+            result += "#{child.to_s(1)}\n"
+          rescue SyntaxError => e
+            raise e
+          end
         end
         result[0...-1]
+      end
+
+      private
+
+      # This method should be overridden by subclasses to return an error message
+      # if the given child node is invalid,
+      # and false or nil otherwise.
+      def invalid_child?(child)
+        false
       end
     end
   end

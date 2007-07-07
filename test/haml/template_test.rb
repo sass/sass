@@ -3,6 +3,7 @@
 require 'test/unit'
 require 'rubygems'
 require 'active_support'
+require 'action_controller'
 require 'action_view'
 
 require File.dirname(__FILE__) + '/../../lib/haml'
@@ -45,11 +46,15 @@ class TemplateTest < Test::Unit::TestCase
     test = Proc.new do |rendered|
       load_result(name).split("\n").zip(rendered.split("\n")).each_with_index do |pair, line|
         message = "template: #{name}\nline:     #{line}"
-        assert_equal(pair.last, pair.first, message)
+        assert_equal(pair.first, pair.last, message)
       end
     end
     test.call(@base.render(name))
-    test.call(@base.render(:file => "partialize", :locals => { :name => name }))
+
+    # If eval's suppressed, the partial won't render anyway :p.
+    unless Haml::Template.options[:suppress_eval]
+      test.call(@base.render(:file => "partialize", :locals => { :name => name }))
+    end
   end
 
   def test_empty_render_should_remain_empty

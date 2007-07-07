@@ -23,9 +23,9 @@ module Sass
     # +filename+ should be the file in which the error occurred,
     # if applicable (defaults to "(sass)").
     def add_backtrace_entry(filename) # :nodoc:
-      @sass_filename = filename
+      @sass_filename ||= filename
       self.backtrace ||= []
-      self.backtrace.unshift "#{filename || '(sass)'}:#{@sass_line}"
+      self.backtrace.unshift "#{@sass_filename || '(sass)'}:#{@sass_line}"
     end
 
     def to_s # :nodoc:

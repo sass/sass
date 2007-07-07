@@ -8,5 +8,9 @@ module Sass::Tree
       @value = value
       super(style)
     end
+
+    def to_s(tabs = 0)
+      value
+    end
   end
 end

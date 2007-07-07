@@ -1,20 +1,24 @@
 #!/usr/bin/env ruby
 
-require 'test/unit'
-require File.dirname(__FILE__) + '/../../lib/sass'
-
 RAILS_ENV  = 'testing'
-
+require 'test/unit'
+require 'fileutils'
+require File.dirname(__FILE__) + '/../../lib/sass'
 require 'sass/plugin'
 
 class SassPluginTest < Test::Unit::TestCase
-  @@templates = %w{ complex constants }
+  @@templates = %w{
+    complex constants parent_ref import alt
+    subdir/subdir subdir/nested_subdir/nested_subdir
+  }
 
   def setup
+    FileUtils.mkdir File.dirname(__FILE__) + '/tmp'
     Sass::Plugin.options = {
       :template_location => File.dirname(__FILE__) + '/templates',
       :css_location => File.dirname(__FILE__) + '/tmp',
-      :style => :compact
+      :style => :compact,
+      :load_paths => [File.dirname(__FILE__) + '/results'],
     }
     Sass::Plugin.options[:always_update] = true
     
@@ -22,7 +26,7 @@ class SassPluginTest < Test::Unit::TestCase
   end
   
   def teardown
-    File.delete(*Dir[tempfile_loc('*')])
+    FileUtils.rm_r File.dirname(__FILE__) + '/tmp'
   end
 
   def test_templates_should_render_correctly

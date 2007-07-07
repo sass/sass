@@ -37,9 +37,11 @@ module Sass
       # from <tt>options[:templates]</tt>
       # if it does.
       def update_stylesheets
-        Dir[options[:template_location] + '/*.sass'].each do |file|
-          name = File.basename(file)[0...-5]
+        Dir.glob(File.join(options[:template_location], "**", "*.sass")).entries.each do |file|
           
+          # Get the relative path to the file with no extension
+          name = file.sub(options[:template_location] + "/", "")[0...-5]
+                    
           if options[:always_update] || stylesheet_needs_update?(name)
             css = css_filename(name)
             File.delete(css) if File.exists?(css)
@@ -47,6 +49,7 @@ module Sass
             filename = template_filename(name)
             l_options = @@options.dup
             l_options[:filename] = filename
+            l_options[:load_paths] = (l_options[:load_paths] || []) + [l_options[:template_location]]
             engine = Engine.new(File.read(filename), l_options)
             begin
               result = engine.render
@@ -78,7 +81,12 @@ module Sass
               end
             end
             
-            Dir.mkdir(l_options[:css_location]) unless File.exist?(l_options[:css_location])
+            # Create any directories that might be necessary
+            dirs = [l_options[:css_location]]
+            name.split("/")[0...-1].each { |dir| dirs << "#{dirs[-1]}/#{dir}" }
+            dirs.each { |dir| Dir.mkdir(dir) unless File.exist?(dir) }
+            
+            # Finally, write the file
             File.open(css, 'w') do |file|
               file.print(result)
             end

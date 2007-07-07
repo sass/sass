@@ -53,12 +53,18 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
   end
 
+  def test_double_equals
+    assert_equal("<p>Hello World</p>\n", render('%p== Hello #{who}', :locals => {:who => 'World'}))
+    assert_equal("<p>\n  Hello World\n</p>\n", render("%p\n  == Hello \#{who}", :locals => {:who => 'World'}))
+  end
+
   # Options tests
 
   def test_stop_eval
     assert_equal("", render("= 'Hello'", :suppress_eval => true))
-    assert_equal("", render("- _hamlout << 'foo'", :suppress_eval => true))
-    assert_equal("<div id='foo' />\n", render("#foo{:yes => 'no'}/", :suppress_eval => true))
+    assert_equal("", render("- puts 'foo'", :suppress_eval => true))
+    assert_equal("<div id='foo' yes='no' />\n", render("#foo{:yes => 'no'}/", :suppress_eval => true))
+    assert_equal("<div id='foo' />\n", render("#foo{:yes => 'no', :call => a_function() }/", :suppress_eval => true))
     assert_equal("<div />\n", render("%div[1]/", :suppress_eval => true))
 
     begin
@@ -77,27 +83,30 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n", render("!!! XML", :attr_wrapper => '"'))
   end
 
+  def test_attrs_parsed_correctly
+    assert_equal("<p boom=>biddly='bar => baz'>\n</p>\n", render("%p{'boom=>biddly' => 'bar => baz'}"))
+    assert_equal("<p foo,bar='baz, qux'>\n</p>\n", render("%p{'foo,bar' => 'baz, qux'}"))
+    assert_equal("<p escaped='quo\nte'>\n</p>\n", render("%p{ :escaped => \"quo\\nte\"}"))
+    assert_equal("<p escaped='quo4te'>\n</p>\n", render("%p{ :escaped => \"quo\#{2 + 2}te\"}"))
+  end
+
   def test_locals
     assert_equal("<p>Paragraph!</p>\n", render("%p= text", :locals => { :text => "Paragraph!" }))
   end
-
-  def test_precompiled
-    precompiled = <<-END
-      def _haml_render
-        _hamlout = @haml_stack[-1]
-        _erbout = _hamlout.buffer
-
-        _hamlout.open_tag("p", 0, nil, true, "", nil, nil, false)
-        @haml_lineno = 1
-        haml_temp =  "Haml Rocks Socks"
-        haml_temp = _hamlout.push_script(haml_temp, 1, false)
-        _hamlout.close_tag("p", 0)
-      end
-    END
-
-    assert_equal("<p>Haml Rocks Socks</p>\n", render("%h1 I shall not be rendered", :precompiled => precompiled))
-  end
   
+  def test_recompile_with_new_locals
+    template = "%p= (text == 'first time') ? text : new_text"
+    assert_equal("<p>first time</p>\n", render(template, :locals => { :text => "first time" }))
+    assert_equal("<p>second time</p>\n", render(template, :locals => { :text => "recompile", :new_text => "second time" }))
+
+    # Make sure the method called will return junk unless recompiled
+    method_name = Haml::Engine.send(:class_variable_get, '@@method_names')[template]
+    Haml::Engine::CompiledTemplates.module_eval "def #{method_name}(stuff); @haml_stack[-1].push_text 'NOT RECOMPILED', 0; end"
+
+    assert_equal("NOT RECOMPILED\n", render(template, :locals => { :text => "first time" }))
+    assert_equal("<p>first time</p>\n", render(template, :locals => { :text => "first time", :foo => 'bar' }))
+  end
+    
   def test_comps
     assert_equal(-1, "foo" <=> nil)
     assert_equal(1, nil <=> "foo")
@@ -105,12 +114,9 @@ class EngineTest < Test::Unit::TestCase
 
   def test_rec_merge
     hash1 = {1=>2, 3=>{5=>7, 8=>9}}
-    hash1_2 = hash1.clone
     hash2 = {4=>5, 3=>{5=>2, 16=>12}}
     hash3 = {1=>2, 4=>5, 3=>{5=>2, 8=>9, 16=>12}}
 
-    assert_equal(hash3, hash1.rec_merge(hash2))
-    assert_equal(hash1_2, hash1)
     hash1.rec_merge!(hash2)
     assert_equal(hash3, hash1)
   end
@@ -131,11 +137,11 @@ class EngineTest < Test::Unit::TestCase
 
   def test_syntax_errors
     errs = [ "!!!\n  a", "a\n  b", "a\n:foo\nb", "/ a\n  b",
-      "% a", "%p a\n  b", "a\n%p=\nb", "%p=\n  a",
-      "a\n%p~\nb", "a\n~\nb", "%p/\n  a", "%p\n \t%a b",
-      "%a\n b\nc", "%a\n    b\nc",
-      ":notafilter\n  This isn't\n  a filter!",
-    ]
+             "% a", "%p a\n  b", "a\n%p=\nb", "%p=\n  a",
+             "a\n%p~\nb", "a\n~\nb", "a\n~\n  b", "%p~\n  b", "%p/\n  a",
+             "%p\n \t%a b", "%a\n b\nc", "%a\n    b\nc",
+             ":notafilter\n  This isn't\n  a filter!",
+             ".{} a", "\#{} a", ".= 'foo'", "%a/ b" ]
     errs.each do |err|
       begin
         render(err)
@@ -227,5 +233,16 @@ class EngineTest < Test::Unit::TestCase
     end
 
     NOT_LOADED.delete 'redcloth'
+  end
+
+  def test_local_assigns_dont_modify_class
+    assert_equal("bar\n", render("= foo", :locals => {:foo => 'bar'}))
+    assert_equal(nil, defined?(foo))
+  end
+
+  def test_object_ref_with_nil_id
+    user = Struct.new('User', :id).new
+    assert_equal("<p class='struct_user' id='struct_user_new'>New User</p>\n",
+                 render("%p[user] New User", :locals => {:user => user}))
   end
 end

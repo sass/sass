@@ -29,6 +29,10 @@
   cool, huh?
   %strong there can even be sub-tags!
   = "Or script!"
+-# Haml comment
+-#
+  Nested Haml comment
+  - raise 'dead'
 %p{ :class => "" } class attribute shouldn't appear!
 /[if lte IE6] conditional comment!
 /[if gte IE7]
@@ -39,13 +43,28 @@
   Woah a period.
 = "test" |
   "test" |
+-# Hard tabs shouldn't throw errors.
+	
 - case :foo
 - when :bar
-  %bar/
+  %br Blah
 - when :foo
-  %foo/
+  %br
 - case :foo
   - when :bar
-    %bar/
+    %meta{ :foo => 'blah'}
   - when :foo
-    %foo/
+    %meta{ :foo => 'bar'}
+%img
+%script
+%hr
+%link
+%script Inline content
+%br
+  Nested content
+%p.foo{:class => true ? 'bar' : 'baz'}[@article] Blah
+%p.foo{:class => false ? 'bar' : ''}[@article] Blah
+%p.qux{:class => 'quux'}[@article] Blump
+== #{"Woah inner quotes"}
+%p.dynamic_quote{:quotes => "single '", :dyn => 1 + 2}
+%p.dynamic_atomic{:dyn => 1 + 2}/

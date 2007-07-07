@@ -17,6 +17,7 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #menu { clear: both; text-align: right; height: 20px; border-bottom: 5px solid #006b95; background: #00a4e4; }
 #menu .contests ul { margin: 0 5px 0 0; padding: 0; }
 #menu .contests ul li { list-style-type: none; margin: 0 5px; padding: 5px 5px 0 5px; display: inline; font-size: 1.1em; color: #fff; background: #00a4e4; }
+#menu .contests ul li / This rule isn't a comment! { red: green; }
 #menu .contests a:link, #menu .contests a:visited { color: #fff; text-decoration: none; font-weight: bold; }
 #menu .contests a:hover { text-decoration: underline; }
 
@@ -32,8 +33,8 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #content .container.video .column.left { width: 200px; }
 #content .container.video .column.left .box { margin-top: 10px; }
 #content .container.video .column.left .box p { margin: 0 1em auto 1em; }
-#content .container.video .column.left .box.participants img { float: left; margin: 0 1em auto 1em; border: 1px solid #6e000d; }
-#content .container.video .column.left .box.participants h2 { margin: 0 0 10px 0; padding: 0.5em; background: #6e000d url(/images/hdr_participant.gif) 2px 2px no-repeat; text-indent: -9999px; border-top-width: 5px; border-top-style: solid; border-top-color: #a20013; border-right-width: 1px; border-right-style: dotted; }
+#content .container.video .column.left .box.participants img { float: left; margin: 0 1em auto 1em; border: 1px solid #6e000d; border-style: solid; }
+#content .container.video .column.left .box.participants h2 { margin: 0 0 10px 0; padding: 0.5em; /* The background image is a gif! */ background: #6e000d url(/images/hdr_participant.gif) 2px 2px no-repeat; /* Okay check this out Multiline comments Wow dude I mean seriously, WOW */ text-indent: -9999px; border-top-width: 5px; border-top-style: solid; border-top-color: #a20013; border-right-width: 1px; border-right-style: dotted; }
 #content .container.video .column.middle { width: 500px; }
 #content .container.video .column.right { width: 200px; }
 #content .container.video .column.right .box { margin-top: 0; }
@@ -62,7 +63,7 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #content .container.comments .column.left .box li { list-style-type: none; padding: 10px; margin: 0 0 1em 0; background: #6e000d; border-top: 5px solid #a20013; }
 #content .container.comments .column.left .box li div { margin-bottom: 1em; }
 #content .container.comments .column.left .box li ul { text-align: right; }
-#content .container.comments .column.left .box li ul li { display: inline; border: none; padding: 0; }; }
+#content .container.comments .column.left .box li ul li { display: inline; border: none; padding: 0; }
 #content .container.comments .column.right { width: 290px; padding-left: 10px; }
 #content .container.comments .column.right h2 { margin: 0; padding: 0.5em; background: #6e000d url(/images/hdr_addcomment.gif) 2px 2px no-repeat; text-indent: -9999px; border-top: 5px solid #a20013; }
 #content .container.comments .column.right .box textarea { width: 290px; height: 100px; border: none; }

@@ -10,6 +10,7 @@
 !qstr= "Quo\"ted\"!"
 !hstr= "Hyph-en!"
 !concat = (5 + 4) hi there
+!percent= 11%
 
 #main
   :content = !str
@@ -18,6 +19,8 @@
   :width = !width
   :background-color #000
   :color= !main_text
+  :short-color= #123
+  :named-color= olive
   :con= foo bar (!concat boom)
   :con2= noquo "quo"
   #sidebar
@@ -40,6 +43,7 @@
     :num-neg= 10 + -.13
     :str= 100 + px
     :col= 13 + #aaa
+    :perc = !percent + 20%
   :str
     :str= hi + \ there
     :str2= hi + " there"
@@ -55,6 +59,10 @@
   :col
     :num= #fffffa - 5.2
     :col= #abcdef - #fedcba
+  :unary
+    :num= -1
+    :const= -!neg
+    :paren= -(5 + 6)
 
 #times
   :num

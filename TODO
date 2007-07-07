@@ -1,9 +1,8 @@
 Bugs:
-  Find a way to make Sass comments work anywhere without breaking url(http://
+  If an @imported document is changed, Sass should recompile the template
 
 Testing:
-  Add Sass support for various utilities (benchmark, profile)
-  Test html2haml
+  Test html2haml and css2sass
 
 Documentation:
   Haml::Engine public method documentation could use work
@@ -11,6 +10,7 @@ Documentation:
 Features:
   Sass should throw generic errors for undefined constants, not syntax errors
   Sass::Plugin should log errors
-  Line numbers on Sass errors should be correct after empty lines
   There should be a way to represent options in-document
-  Haml and Sass executables should return meaningful exit codes
+  There should be a way to make Haml tags not insert whitespace
+  "%li, %a"?
+  Sass::Engine load_paths option should be set by executable

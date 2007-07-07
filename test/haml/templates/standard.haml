@@ -1,8 +1,8 @@
 !!!
-%html{"xml-lang" => "en-US"}
+%html{html_attrs}
   %head
     %title Hampton Catlin Is Totally Awesome
-    %meta{"http-equiv" => "Content-Type", :content => "text/html; charset=utf-8"}/
+    %meta{"http-equiv" => "Content-Type", :content => "text/html; charset=utf-8"}
   %body
     / You're In my house now!
     - concat("foo\n")
@@ -15,7 +15,7 @@
     - 120.times do |number|
       - number
     Wow.|
-    %p 
+    %p
       = "Holy cow        " + |
         "multiline       " + |      
         "tags!           " + |
