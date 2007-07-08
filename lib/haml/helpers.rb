@@ -256,15 +256,22 @@ module Haml
         attributes = alt_atts
       end
 
+      if text.nil? && block.nil?
+        puts "<#{name}#{buffer.build_attributes(attributes)} />"
+        return nil
+      end
+
       puts "<#{name}#{buffer.build_attributes(attributes)}>"
-      tab_up
+      unless text && text.empty?
+        tab_up
         # Print out either the text (using push_text) or call the block and add an endline
         if text
           puts(text)
         elsif block
           block.call
         end
-      tab_down
+        tab_down
+      end
       puts "</#{name}>"
       nil
     end
