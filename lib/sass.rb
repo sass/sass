@@ -313,7 +313,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   #main
 #     :background-color = !main_color
 #     p
-#       :background-color = !bg_color + 32
+#       :background-color = !main_color + 32
 #
 # is compiled to:
 #
