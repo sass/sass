@@ -73,9 +73,10 @@ module Haml
       nil
     end
     
-    def open_prerendered_tag(tag, tabulation)
+    def open_prerendered_tag(tag, tabulation, try_one_liner, tag_closed)
       @buffer << "#{tabs(tabulation)}#{tag}"
-      @real_tabs += 1
+      @one_liner_pending = true if try_one_liner      
+      @real_tabs += 1 unless tag_closed
     end
 
     # Takes the various information about the opening tag for an

@@ -745,21 +745,20 @@ END
           atomic = true
         end
         
-        do_one_liner = value_exists && !parse && Buffer.one_liner?(value)
+        do_one_liner = value_exists && (parse || Buffer.one_liner?(value))
         
         if object_ref == "nil" && attributes_hash == "{nil}" && !flattened && (do_one_liner || !value_exists)
           # This means that we can render the tag directly to text and not process it in the buffer
           open_tag = prerender_tag(tag_name, atomic, attributes)
           
-          if do_one_liner
+          if tag_closed = do_one_liner && !parse
             open_tag += value
             open_tag += "</#{tag_name}>"
           end
           
-          open_tag += "\n"
-            
-          push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs})"
-          return if do_one_liner
+          open_tag += "\n" unless parse          
+          push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs}, #{parse.inspect}, #{tag_closed.inspect})"
+          return if tag_closed
         else
           push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{attributes_hash[1...-1]})", true
         end
