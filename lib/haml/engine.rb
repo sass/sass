@@ -570,7 +570,8 @@ END
     def close_comment(has_conditional)
       @output_tabs -= 1
       @template_tabs -= 1
-      push_silent "_hamlout.close_comment(#{has_conditional}, #{@output_tabs})"
+      close_tag = has_conditional ? "<![endif]-->" : "-->"
+      push_text(close_tag)
     end
     
     # Closes a loud Ruby block.
@@ -795,18 +796,24 @@ END
     def render_comment(line)
       conditional, content = line.scan(COMMENT_REGEX)[0]
       content.strip!
-
+      conditional << ">" if conditional
+      
       if @block_opened && !content.empty?
         raise SyntaxError.new('Illegal Nesting: Nesting within a tag that already has content is illegal.')
       end
 
-      try_one_line = !content.empty?
-      push_silent "_hamlout.open_comment(#{try_one_line}, #{conditional.inspect}, #{@output_tabs})"
-      @output_tabs += 1
-      push_and_tabulate([:comment, !conditional.nil?])
-      if try_one_line
-        push_text content
-        close
+      text_out = "<!--#{conditional.to_s} "
+      if do_one_liner = !content.empty? && Buffer.one_liner?(content)
+        close_tag = conditional ? "<![endif]-->" : "-->"
+        push_text("#{text_out}#{content} #{close_tag}")
+      else
+        push_text(text_out)
+        @output_tabs += 1
+        push_and_tabulate([:comment, !conditional.nil?])
+        if !content.empty?
+          push_text(content)
+          close
+        end
       end
     end
     
