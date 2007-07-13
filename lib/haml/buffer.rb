@@ -77,8 +77,8 @@ module Haml
             tabulation += 1
           end
           
-          result = result.gsub("\n", "\n#{tabs(tabulation)}")
-          @buffer << "#{tabs(tabulation)}#{result}\n"
+          result = result.gsub(/^/m, tabs(tabulation))
+          @buffer << "#{result}\n"
           
           if @one_liner_pending
             @one_liner_pending = false
