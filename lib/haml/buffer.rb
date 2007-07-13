@@ -68,7 +68,7 @@ module Haml
       end
       unless result.nil?
         result = result.to_s
-        while result[-1] == 10 # \n
+        while result[-1] == ?\n
           # String#chomp is slow
           result = result[0...-1]
         end
