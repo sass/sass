@@ -134,17 +134,6 @@ module Haml
       to.merge!(from)
     end
 
-    # Creates a closing tag with the given name.
-    def close_tag(name, tabulation)
-      @real_tabs = tabulation
-      if @one_liner_pending
-        @buffer << "</#{name}>\n"
-        @one_liner_pending = false
-      else
-        push_text("#{'  ' * tabulation}</#{name}>\n")
-      end
-    end
-
     # Some of these methods are exposed as public class methods
     # so they can be re-used in helpers.
 
