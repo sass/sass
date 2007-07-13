@@ -481,20 +481,27 @@ END
 
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
     # without parsing it.
-    def push_text(text, tab_change = 0)
+    def push_merged_text(text, tab_change = 0, try_one_liner = false)
       @merged_text ||= ''
-      @merged_text << "#{'  ' * @output_tabs}#{text}\n"
+      @merged_text << "#{'  ' * @output_tabs}#{text}"
       @tab_change ||= 0
       @tab_change += tab_change
+      @try_one_liner = try_one_liner
+    end
+    
+    def push_text(text, tab_change = 0, try_one_liner = false)
+      push_merged_text("#{text}\n", tab_change, try_one_liner)
     end
     
     def flush_merged_text
       if @merged_text && !@merged_text.empty?
         args = @merged_text.dump
-        args += ", #{@tab_change}" if @tab_change != 0
+        args << ", #{@tab_change}" if @tab_change != 0 || @try_one_liner
+        args << ", true" if @try_one_liner
         @precompiled << "_hamlout.push_text(#{args})\n"
         @merged_text = nil
         @tab_change = 0
+        @try_one_liner = false
       end
     end  
 
@@ -718,8 +725,6 @@ END
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
-      flush_merged_text
-      
       matched = false
       line.scan(TAG_REGEX) do |tag_name, attributes, attributes_hash, object_ref, action, value|
         matched = true
@@ -783,10 +788,12 @@ END
             open_tag += "</#{tag_name}>"
           end
           
-          open_tag += "\n" unless parse          
-          push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs}, #{parse.inspect}, #{tag_closed.inspect})"
+          open_tag += "\n" unless parse
+          push_merged_text(open_tag, tag_closed ? 0 : 1, parse)
+          #push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs}, #{parse.inspect}, #{tag_closed.inspect})"
           return if tag_closed
         else
+          flush_merged_text
           content = !value_exists || parse ? 'nil' : value.dump
           push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})", true
         end
@@ -799,6 +806,7 @@ END
 
           if value_exists
             if parse
+              flush_merged_text
               push_script(value, flattened, tag_name)
             end
           elsif flattened

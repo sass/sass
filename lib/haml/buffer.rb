@@ -42,7 +42,7 @@ module Haml
 
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
-    def push_text(text, tab_change = 0)
+    def push_text(text, tab_change = 0, try_one_liner = false)
       if @one_liner_pending && Buffer.one_liner?(text)
         @buffer << text
       else
@@ -51,12 +51,13 @@ module Haml
           @one_liner_pending = false
         end
         if(@tabulation > 0)
-          text.gsub!(/^/m, '  ')
+          text.gsub!(/^/m, '  ' * @tabulation)
         end
         
         @buffer << "#{text}"
       end
       @real_tabs += tab_change
+      @one_liner_pending = try_one_liner
     end
 
     # Properly formats the output of a script that was run in the

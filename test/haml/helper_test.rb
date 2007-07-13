@@ -46,7 +46,8 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_tabs
-    assert_equal(render("foo\n- tab_up\nbar\n- tab_down\nbaz"), "foo\n  bar\nbaz\n")
+    assert_equal("foo\n  bar\nbaz\n", render("foo\n- tab_up\nbar\n- tab_down\nbaz"))
+    assert_equal("          <p>tabbed</p>\n", render("- buffer.tabulation=5\n%p tabbed"))
   end
   
   def test_helpers_dont_leak
