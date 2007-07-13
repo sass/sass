@@ -574,11 +574,9 @@ END
     # Puts a line in <tt>@precompiled</tt> that will add the closing tag of
     # the most recently opened tag.
     def close_tag(tag)
-      flush_merged_text
-      
       @output_tabs -= 1
       @template_tabs -= 1
-      @precompiled << "_hamlout.close_tag(#{tag.dump}, #{@output_tabs})\n"
+      push_text("</#{tag}>", -1)
     end
 
     # Closes a Ruby block.
