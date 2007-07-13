@@ -42,7 +42,7 @@ module Haml
 
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
-    def push_text(text, tabulation)
+    def push_text(text, tab_change = 0)
       if @one_liner_pending && Buffer.one_liner?(text)
         @buffer << text
       else
@@ -50,13 +50,18 @@ module Haml
           @buffer << "\n"
           @one_liner_pending = false
         end
-        @buffer << "#{tabs(tabulation)}#{text}\n"
+        if(@tabulation > 0)
+          text.gsub!(/^/m, '  ')
+        end
+        
+        @buffer << "#{text}"
       end
+      @real_tabs += tab_change
     end
 
     # Properly formats the output of a script that was run in the
     # instance_eval.
-    def push_script(result, tabulation, flattened)
+    def push_script(result, tabulation, flattened, close_tag = nil)
       if flattened
         result = Haml::Helpers.find_and_preserve(result)
       end
@@ -67,8 +72,25 @@ module Haml
           result = result[0...-1]
         end
         
-        result = result.gsub("\n", "\n#{tabs(tabulation)}")
-        push_text result, tabulation
+        if @one_liner_pending && Buffer.one_liner?(result)
+          @buffer << result
+          @buffer << "</#{close_tag}>\n"
+          @one_liner_pending = false
+          @real_tabs -= 1
+        else
+          if @one_liner_pending
+            @buffer << "\n"
+            tabulation += 1
+          end
+          
+          result = result.gsub("\n", "\n#{tabs(tabulation)}")
+          @buffer << "#{tabs(tabulation)}#{result}\n"
+          
+          if @one_liner_pending
+            @one_liner_pending = false
+            @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
+          end
+        end
       end
       nil
     end
@@ -81,7 +103,7 @@ module Haml
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, attributes_hash)
+    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, content, attributes_hash)
       attributes = class_id
       if attributes_hash
         attributes_hash.keys.each { |key| attributes_hash[key.to_s] = attributes_hash.delete(key) }
@@ -99,7 +121,16 @@ module Haml
         str = ">\n"
       end
       @buffer << "#{tabs(tabulation)}<#{name}#{build_attributes(attributes)}#{str}"
-      @real_tabs += 1
+      if content
+        if Buffer.one_liner?(content)
+          @buffer << "#{content}</#{name}>\n"
+        else
+          @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
+        end
+        @one_liner_pending = false
+      else
+        @real_tabs += 1
+      end
     end
 
     def self.merge_attrs(to, from)
@@ -117,11 +148,12 @@ module Haml
 
     # Creates a closing tag with the given name.
     def close_tag(name, tabulation)
+      @real_tabs = tabulation
       if @one_liner_pending
         @buffer << "</#{name}>\n"
         @one_liner_pending = false
       else
-        push_text("</#{name}>", tabulation)
+        push_text("#{'  ' * tabulation}</#{name}>\n")
       end
     end
 
@@ -159,7 +191,6 @@ module Haml
     @@tab_cache = {}
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count)
-      @real_tabs = count
       tabs = count + @tabulation
       '  ' * tabs
       @@tab_cache[tabs] ||= '  ' * tabs

@@ -101,7 +101,7 @@ class EngineTest < Test::Unit::TestCase
 
     # Make sure the method called will return junk unless recompiled
     method_name = Haml::Engine.send(:class_variable_get, '@@method_names')[template]
-    Haml::Engine::CompiledTemplates.module_eval "def #{method_name}(stuff); @haml_stack[-1].push_text 'NOT RECOMPILED', 0; end"
+    Haml::Engine::CompiledTemplates.module_eval "def #{method_name}(stuff); @haml_stack[-1].push_text(\"NOT RECOMPILED\n\"); end"
 
     assert_equal("NOT RECOMPILED\n", render(template, :locals => { :text => "first time" }))
     assert_equal("<p>first time</p>\n", render(template, :locals => { :text => "first time", :foo => 'bar' }))

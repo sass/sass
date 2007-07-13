@@ -467,6 +467,8 @@ END
     # Evaluates <tt>text</tt> in the context of <tt>@scope_object</tt>, but
     # does not output the result.
     def push_silent(text, add_index = false, can_suppress = false)
+      flush_merged_text
+      
       unless (can_suppress && options[:suppress_eval])
         if add_index
           @precompiled << "@haml_lineno = #{@index}\n#{text}\n"
@@ -479,9 +481,22 @@ END
 
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
     # without parsing it.
-    def push_text(text)
-      @precompiled << "_hamlout.push_text(#{text.dump}, #{@output_tabs})\n"
+    def push_text(text, tab_change = 0)
+      @merged_text ||= ''
+      @merged_text << "#{'  ' * @output_tabs}#{text}\n"
+      @tab_change ||= 0
+      @tab_change += tab_change
     end
+    
+    def flush_merged_text
+      if @merged_text && !@merged_text.empty?
+        args = @merged_text.dump
+        args += ", #{@tab_change}" if @tab_change != 0
+        @precompiled << "_hamlout.push_text(#{args})\n"
+        @merged_text = nil
+        @tab_change = 0
+      end
+    end  
 
     # Renders a block of text as plain text.
     # Also checks for an illegally opened block.
@@ -504,10 +519,12 @@ END
     #
     # If <tt>flattened</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
-    def push_script(text, flattened)
+    def push_script(text, flattened, close_tag = nil)
+      flush_merged_text
+      
       unless options[:suppress_eval]
         push_silent("haml_temp = #{text}", true)
-        out = "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened})\n"
+        out = "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened}, #{close_tag.inspect})\n"
         if @block_opened
           push_and_tabulate([:loud, out])
         else
@@ -519,6 +536,8 @@ END
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
     def push_flat_script(text)
+      flush_merged_text
+      
       if text.empty?
         raise SyntaxError.new("Tag has no content.")
       else
@@ -555,6 +574,8 @@ END
     # Puts a line in <tt>@precompiled</tt> that will add the closing tag of
     # the most recently opened tag.
     def close_tag(tag)
+      flush_merged_text
+      
       @output_tabs -= 1
       @template_tabs -= 1
       @precompiled << "_hamlout.close_tag(#{tag.dump}, #{@output_tabs})\n"
@@ -571,7 +592,7 @@ END
       @output_tabs -= 1
       @template_tabs -= 1
       close_tag = has_conditional ? "<![endif]-->" : "-->"
-      push_text(close_tag)
+      push_text(close_tag, -1)
     end
     
     # Closes a loud Ruby block.
@@ -699,6 +720,8 @@ END
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
+      flush_merged_text
+      
       matched = false
       line.scan(TAG_REGEX) do |tag_name, attributes, attributes_hash, object_ref, action, value|
         matched = true
@@ -718,6 +741,11 @@ END
         flattened = (action == '~')
         
         value_exists = !value.empty?
+        if value_exists && parse && @options[:suppress_eval]
+          parse = false
+          value = ''
+        end
+        
         literal_attributes = parse_literal_hash(attributes_hash)
         attributes_hash = "{nil}" if attributes_hash.nil? || literal_attributes || @options[:suppress_eval]
         object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
@@ -761,20 +789,20 @@ END
           push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs}, #{parse.inspect}, #{tag_closed.inspect})"
           return if tag_closed
         else
-          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{attributes_hash[1...-1]})", true
+          content = !value_exists || parse ? 'nil' : value.dump
+          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})", true
         end
           
         unless atomic
-          push_and_tabulate([:element, tag_name])
-          @output_tabs += 1
+          unless value_exists
+            push_and_tabulate([:element, tag_name])
+            @output_tabs += 1
+          end
 
           if value_exists
             if parse
-              push_script(value, flattened)
-            else
-              push_text(value)
+              push_script(value, flattened, tag_name)
             end
-            close
           elsif flattened
             raise SyntaxError.new("Tag has no content.")
           end
@@ -807,7 +835,7 @@ END
         close_tag = conditional ? "<![endif]-->" : "-->"
         push_text("#{text_out}#{content} #{close_tag}")
       else
-        push_text(text_out)
+        push_text(text_out, 1)
         @output_tabs += 1
         push_and_tabulate([:comment, !conditional.nil?])
         if !content.empty?
