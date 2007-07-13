@@ -531,7 +531,7 @@ END
       
       unless options[:suppress_eval]
         push_silent("haml_temp = #{text}", true)
-        out = "haml_temp = _hamlout.push_script(haml_temp, #{@output_tabs}, #{flattened}, #{close_tag.inspect})\n"
+        out = "haml_temp = _hamlout.push_script(haml_temp, #{flattened}, #{close_tag.inspect})\n"
         if @block_opened
           push_and_tabulate([:loud, out])
         else
@@ -789,13 +789,12 @@ END
           end
           
           open_tag += "\n" unless parse
-          push_merged_text(open_tag, tag_closed ? 0 : 1, parse)
-          #push_silent "_hamlout.open_prerendered_tag(#{open_tag.dump}, #{@output_tabs}, #{parse.inspect}, #{tag_closed.inspect})"
+          push_merged_text(open_tag, tag_closed || atomic ? 0 : 1, parse)
           return if tag_closed
         else
           flush_merged_text
           content = !value_exists || parse ? 'nil' : value.dump
-          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{@output_tabs}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})", true
+          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})", true
         end
           
         unless atomic

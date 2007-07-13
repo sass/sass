@@ -55,7 +55,9 @@ module Haml
 
     # Properly formats the output of a script that was run in the
     # instance_eval.
-    def push_script(result, tabulation, flattened, close_tag = nil)
+    def push_script(result, flattened, close_tag = nil)
+      tabulation = @real_tabs
+      
       if flattened
         result = Haml::Helpers.find_and_preserve(result)
       end
@@ -74,7 +76,7 @@ module Haml
         else
           if @one_liner_pending
             @buffer << "\n"
-            tabulation += 1
+            #tabulation += 1
           end
           
           result = result.gsub(/^/m, tabs(tabulation))
@@ -83,6 +85,7 @@ module Haml
           if @one_liner_pending
             @one_liner_pending = false
             @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
+            @real_tabs -= 1
           end
         end
       end
@@ -91,7 +94,9 @@ module Haml
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, content, attributes_hash)
+    def open_tag(name, atomic, try_one_line, class_id, obj_ref, content, attributes_hash)
+      tabulation = @real_tabs
+      
       attributes = class_id
       if attributes_hash
         attributes_hash.keys.each { |key| attributes_hash[key.to_s] = attributes_hash.delete(key) }
