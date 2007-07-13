@@ -45,6 +45,10 @@ class EngineTest < Test::Unit::TestCase
   def test_long_liner_should_not_print_on_one_line
     assert_equal("<div>\n  #{'x' * 51}\n</div>", render("%div #{'x' * 51}").chomp)
   end
+  
+  def test_non_prerendered_one_liner
+    assert_equal("<p class='awesome'>One line</p>\n", render("%p{:class => c} One line", :locals => {:c => 'awesome'}))
+  end
 
   def test_multi_render
     engine = Haml::Engine.new("%strong Hi there!")
