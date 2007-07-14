@@ -17,6 +17,31 @@ module Haml
       @@action_view_defined
     end
 
+    # Note: this does *not* need to be called
+    # when using Haml helpers normally
+    # in Rails.
+    #
+    # Initializes the current object
+    # as though it were in the same context
+    # as a normal ActionView rendering
+    # using Haml.
+    # This is useful if you want to use the helpers in a context
+    # other than the normal setup with ActionView.
+    # For example:
+    #
+    #   context = Object.new
+    #   class << context
+    #     include Haml::Helpers
+    #   end
+    #   context.init_haml_helpers
+    #   context.open :p, "Stuff"
+    # 
+    def init_haml_helpers
+      @haml_is_haml = true
+      @haml_stack = [Haml::Buffer.new]
+      nil
+    end
+
     # Isolates the whitespace-sensitive tags in the string and uses preserve
     # to convert any endlines inside them into HTML entities for endlines.
     def find_and_preserve(input)
@@ -321,7 +346,7 @@ module Haml
     def is_haml?
       @haml_is_haml
     end
-    
+
     include ActionViewExtensions if self.const_defined? "ActionViewExtensions"
   end
 end

@@ -132,5 +132,21 @@ class HelperTest < Test::Unit::TestCase
 
     assert_equal("1\n\n2\n\n3\n\n", render("- trc([1, 2, 3]) do |i|\n  = i.inspect"))
   end
+
+  def test_init_haml_helpers
+    context = Object.new
+    class << context
+      include Haml::Helpers
+    end
+    context.init_haml_helpers
+
+    result = context.capture_haml do
+      context.open :p, :attr => "val" do
+        context.puts "Blah"
+      end
+    end
+
+    assert_equal("<p attr='val'>\n  Blah\n</p>\n", result)
+  end
 end
 
