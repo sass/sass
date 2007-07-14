@@ -28,7 +28,9 @@ module Haml
 
     # Creates a new buffer.
     def initialize(options = {})
-      @options = options
+      @options = {
+        :attr_wrapper => "'"
+      }.merge options
       @quote_escape = options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
       @other_quote_char = options[:attr_wrapper] == '"' ? "'" : '"'
       @buffer = ""
