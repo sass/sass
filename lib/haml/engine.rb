@@ -783,7 +783,8 @@ END
           # This means that we can render the tag directly to text and not process it in the buffer
           open_tag = prerender_tag(tag_name, atomic, attributes)
           
-          if tag_closed = do_one_liner && !parse
+          tag_closed = do_one_liner && !parse
+          if tag_closed
             open_tag += value
             open_tag += "</#{tag_name}>"
           end

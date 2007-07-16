@@ -129,7 +129,8 @@ module Haml
       def to_haml(tabs = 0)
         output = "#{tabulate(tabs)}"        
         if HTML.options[:rhtml] && name[0...5] == 'haml:'
-          return output + HTML.send("haml_tag_#{name[5..-1]}", self.innerHTML)
+          return output + HTML.send("haml_tag_#{name[5..-1]}",
+                                    CGI.unescapeHTML(self.innerHTML))
         end
 
         output += "%#{name}" unless name == 'div' && (attributes.include?('id') || attributes.include?('class'))
