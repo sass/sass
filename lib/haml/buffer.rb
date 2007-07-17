@@ -34,7 +34,6 @@ module Haml
       @quote_escape = options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
       @other_quote_char = options[:attr_wrapper] == '"' ? "'" : '"'
       @buffer = ""
-      @one_liner_pending = false
       @tabulation = 0
 
       # The number of tabs that Engine thinks we should have
@@ -44,7 +43,7 @@ module Haml
 
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
-    def push_text(text, tab_change = 0, try_one_liner = false)
+    def push_text(text, tab_change = 0)
       if(@tabulation > 0)
         # Have to push every line in by the extra user set tabulation
         text.gsub!(/^/m, '  ' * @tabulation)
@@ -52,7 +51,6 @@ module Haml
       
       @buffer << "#{text}"
       @real_tabs += tab_change
-      @one_liner_pending = try_one_liner
     end
 
     # Properly formats the output of a script that was run in the
@@ -71,21 +69,19 @@ module Haml
           result = result[0...-1]
         end
         
-        if @one_liner_pending && Buffer.one_liner?(result)
+        if close_tag && Buffer.one_liner?(result)
           @buffer << result
           @buffer << "</#{close_tag}>\n"
-          @one_liner_pending = false
           @real_tabs -= 1
         else
-          if @one_liner_pending
+          if close_tag
             @buffer << "\n"
           end
           
           result = result.gsub(/^/m, tabs(tabulation))
           @buffer << "#{result}\n"
           
-          if @one_liner_pending
-            @one_liner_pending = false
+          if close_tag
             @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
             @real_tabs -= 1
           end
@@ -106,11 +102,9 @@ module Haml
       end
       self.class.merge_attrs(attributes, parse_object_ref(obj_ref)) if obj_ref
 
-      @one_liner_pending = false
       if atomic
         str = " />\n"
       elsif try_one_line
-        @one_liner_pending = true
         str = ">"
       else
         str = ">\n"
@@ -122,7 +116,6 @@ module Haml
         else
           @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
         end
-        @one_liner_pending = false
       else
         @real_tabs += 1
       end

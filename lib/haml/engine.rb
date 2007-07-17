@@ -490,7 +490,6 @@ END
       if @merged_text && !@merged_text.empty?
         args = @merged_text.dump
         args << ", #{@tab_change}" if @tab_change != 0 || @try_one_liner
-        args << ", true" if @try_one_liner
         @precompiled << "_hamlout.push_text(#{args})\n"
         @merged_text = nil
         @tab_change = 0

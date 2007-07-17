@@ -49,6 +49,14 @@ class EngineTest < Test::Unit::TestCase
   def test_non_prerendered_one_liner
     assert_equal("<p class='awesome'>One line</p>\n", render("%p{:class => c} One line", :locals => {:c => 'awesome'}))
   end
+  
+  def test_non_prerendered_script_one_liner
+    assert_equal("<p class='awesome'>One line</p>\n", render("%p{:class => c}= 'One line'", :locals => {:c => 'awesome'}))
+  end
+  
+  def test_non_prerendered_long_script_one_liner
+    assert_equal("<p class='awesome'>\n  #{'x' * 60}\n</p>\n", render("%p{:class => c}= 'x' * 60", :locals => {:c => 'awesome'}))
+  end
 
   def test_multi_render
     engine = Haml::Engine.new("%strong Hi there!")
