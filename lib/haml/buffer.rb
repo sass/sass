@@ -63,6 +63,7 @@ module Haml
       if flattened
         result = Haml::Helpers.find_and_preserve(result)
       end
+      
       unless result.nil?
         result = result.to_s
         while result[-1] == ?\n
@@ -78,7 +79,6 @@ module Haml
         else
           if @one_liner_pending
             @buffer << "\n"
-            #tabulation += 1
           end
           
           result = result.gsub(/^/m, tabs(tabulation))

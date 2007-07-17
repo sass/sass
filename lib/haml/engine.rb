@@ -102,13 +102,6 @@ module Haml
     # The Regex that matches a literal string or symbol value
     LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\\#]*?)\4))\s*$/
 
-    FLAT_WARNING = <<END
-Haml deprecation warning:
-The ~ command is deprecated and will be removed in future Haml versions.
-Use the :preserve filter, the preserve helper, or the find_and_preserve
-helper instead.
-END
-
     # Creates a new instace of Haml::Engine that will compile the given
     # template string when <tt>render</tt> is called.
     # See README for available options.
