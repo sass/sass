@@ -116,7 +116,7 @@ module Haml
         :suppress_eval => false,
         :attr_wrapper => "'",
         :locals => {},
-        :autoclose => ['meta', 'img', 'link', 'script', 'br', 'hr'],
+        :autoclose => ['meta', 'img', 'link', 'br', 'hr'],
         :filters => {
           'sass' => Sass::Engine,
           'plain' => Haml::Filters::Plain,
