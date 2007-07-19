@@ -709,7 +709,7 @@ END
         when '=', '~'
           parse = true
 
-          if value.first == '='
+          if value[0] == ?=
             value = value[1..-1].strip.dump.gsub('\\#', '#')
           end
         end
