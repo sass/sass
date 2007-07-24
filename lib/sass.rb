@@ -481,7 +481,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # Sass allows you to choose between three different output styles
 # by setting the <tt>:style</tt> option.
-# In Rails, this is done by setting <tt>Sass::Template.options[:style]</tt>;
+# In Rails, this is done by setting <tt>Sass::Plugin.options[:style]</tt>;
 # outside Rails, it's done by passing an options hash with </tt>:style</tt> set.
 #
 # === <tt>:nested</tt>
