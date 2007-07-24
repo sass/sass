@@ -201,7 +201,7 @@ END
       @precompiled = ''
       method_name = assign_method_name(@template, options[:filename])
       push_silent <<-END
-        def #{method_name}(_haml_local_assigns)
+        def #{method_name}(local_assigns)
           @haml_is_haml = true
           _hamlout = @haml_stack[-1]
           _erbout = _hamlout.buffer
@@ -211,7 +211,7 @@ END
       @@supported_local_assigns[@template] = supported_local_assigns
       @options[:locals].each do |k,v|
         supported_local_assigns[k] = true
-        push_silent "#{k} = _haml_local_assigns[:#{k}]"
+        push_silent "#{k} = local_assigns[:#{k}]"
       end
       
       old_line = nil
