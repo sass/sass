@@ -684,8 +684,8 @@ END
       @other_quote_char = @options[:attr_wrapper] == '"' ? "'" : '"'
   
       result = attributes.collect do |a,v|
-        v = v.to_s
-        unless v.nil? || v.empty?
+        unless v.nil? 
+          v = v.to_s
           attr_wrapper = @options[:attr_wrapper]
           if v.include? attr_wrapper
             if v.include? @other_quote_char

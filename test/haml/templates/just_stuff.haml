@@ -33,7 +33,8 @@
 -#
   Nested Haml comment
   - raise 'dead'
-%p{ :class => "" } class attribute shouldn't appear!
+%p{ :class => "" } class attribute should appear!
+%p{ :gorbachev => nil } this attribute shouldn't appear
 /[if lte IE6] conditional comment!
 /[if gte IE7]
   %p Block conditional comment
