@@ -101,6 +101,16 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p escaped='quo\nte'>\n</p>\n", render("%p{ :escaped => \"quo\\nte\"}"))
     assert_equal("<p escaped='quo4te'>\n</p>\n", render("%p{ :escaped => \"quo\#{2 + 2}te\"}"))
   end
+  
+  def test_empty_attrs
+    assert_equal("<p attr=''>empty</p>\n", render("%p{ :attr => '' } empty"))
+    assert_equal("<p attr=''>empty</p>\n", render("%p{ :attr => x } empty", :locals => {:x => ''}))
+  end
+  
+  def test_nil_attrs
+    assert_equal("<p>nil</p>\n", render("%p{ :attr => nil } nil"))
+    assert_equal("<p>nil</p>\n", render("%p{ :attr => x } nil", :locals => {:x => nil}))
+  end
 
   def test_locals
     assert_equal("<p>Paragraph!</p>\n", render("%p= text", :locals => { :text => "Paragraph!" }))
