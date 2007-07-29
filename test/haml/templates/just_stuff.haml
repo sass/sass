@@ -11,6 +11,7 @@
 == Embedded? #{true}!
 - embedded = true
 == Embedded? #{embedded}!
+== Embedded? #{"twice! #{true}"}!
 .render= render :inline => "%em= 'wow!'", :type => :haml
 = "stuff followed by whitespace"
   

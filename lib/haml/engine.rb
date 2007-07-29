@@ -882,9 +882,21 @@ END
     end
 
     def unescape_interpolation(str)
-      str.dump.gsub('\\#', '#').gsub(/\#\{[^\}]+\}/) do |substr|
-        substr.gsub('\\"', '"')
+      first = str.index(/(^|[^\\])\#\{/)
+
+      if first.nil?
+        return str.dump
+      elsif first != 0
+        first -= 1
       end
+
+      last = str.rindex '}'
+
+      interpolation = str.slice!(first, last + 1)
+      str.insert(first, "_haml_interpolation")
+
+      str = str.dump
+      str.gsub("_haml_interpolation", interpolation)
     end
 
     # Counts the tabulation of a line.
