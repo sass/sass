@@ -105,6 +105,12 @@ module Sass
                 to_return << :concat
               end
 
+              # String then open with no whitespace means funcall
+              if symbol == :open && !str.empty?
+                str = reset_str.call
+                to_return << :funcall
+              end
+
               # Time for a unary minus!
               if negative_okay && symbol == :minus
                 negative_okay = true
@@ -113,7 +119,7 @@ module Sass
               end
 
               # Are we looking at an operator?
-              if symbol && (str.empty? || symbol != :mod)
+              if symbol && (symbol != :mod || str.empty?)
                 str = reset_str.call
                 negative_okay = true
                 to_return << symbol

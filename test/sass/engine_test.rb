@@ -94,8 +94,17 @@ class SassEngineTest < Test::Unit::TestCase
       end
     end
   end
+
+  def test_default_function
+    assert_equal("foo {\n  bar: url(foo.png); }\n",
+                 render("foo\n  bar = url(foo.png)\n"));
+  end
   
   private
+
+  def render(sass, options = {})
+    Sass::Engine.new(sass, options).render
+  end
 
   def renders_correctly(name, options={})
     sass_file  = load_file(name, "sass")
