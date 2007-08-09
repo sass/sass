@@ -334,7 +334,7 @@ END
         end
       when FILTER
         name = line[1..-1].downcase
-        start_filtered(options[:filters][name] || name)
+        start_filtered(options[:filters][name.to_s] || name)
       when DOCTYPE
         if line[0...3] == '!!!'
           render_doctype(line)
