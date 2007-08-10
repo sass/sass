@@ -75,6 +75,15 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     <attribute>
 #     ...
 #
+# Like CSS, you can stretch rules over multiple lines.
+# However, unlike CSS, you can only do this if each line but the last
+# ends with a comma.
+# For example:
+#
+#   .users #userTab,
+#   .posts #postsTab
+#     <attributes>
+#
 # === Attributes
 #
 # There are two different ways to write CSS attrbibutes.

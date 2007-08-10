@@ -39,6 +39,7 @@ class SassEngineTest < Test::Unit::TestCase
     "!a = 1b + 2c" => "Incompatible units: b and c",
     "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'",
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
+    "a,\n  :b c" => "Rules can\'t end in commas.",
     "!a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath constants.",
     "@import foo.sass" => "File to import not found or unreadable: foo.sass",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
@@ -98,6 +99,15 @@ class SassEngineTest < Test::Unit::TestCase
   def test_default_function
     assert_equal("foo {\n  bar: url(foo.png); }\n",
                  render("foo\n  bar = url(foo.png)\n"));
+  end
+
+  def test_multiline_selector
+    assert_equal("#foo #bar,\n#baz #boom {\n  foo: bar; }\n",
+                 render("#foo #bar,\n#baz #boom\n  :foo bar"))
+    assert_equal("#foo #bar,\n#foo #baz {\n  foo: bar; }\n",
+                 render("#foo\n  #bar,\n  #baz\n    :foo bar"))
+    assert_equal("#foo #bar, #baz #boom { foo: bar; }\n",
+                 render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compact))
   end
   
   private
