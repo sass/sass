@@ -120,19 +120,11 @@ module Haml
         :filters => {
           'sass' => Sass::Engine,
           'plain' => Haml::Filters::Plain,
-          'preserve' => Haml::Filters::Preserve }
-      }
-
-      if !NOT_LOADED.include? 'redcloth'
-        @options[:filters].merge!({
-          'redcloth' => RedCloth,
+          'preserve' => Haml::Filters::Preserve,
+          'redcloth' => Haml::Filters::RedCloth,
           'textile' => Haml::Filters::Textile,
-          'markdown' => Haml::Filters::Markdown
-        })
-      end
-      if !NOT_LOADED.include? 'bluecloth'
-        @options[:filters]['markdown'] = Haml::Filters::Markdown
-      end
+          'markdown' => Haml::Filters::Markdown }
+      }
 
       @options.rec_merge! l_options
 

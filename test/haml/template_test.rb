@@ -49,11 +49,14 @@ class TemplateTest < Test::Unit::TestCase
         assert_equal(pair.first, pair.last, message)
       end
     end
-    test.call(@base.render(name))
-
-    # If eval's suppressed, the partial won't render anyway :p.
-    unless Haml::Template.options[:suppress_eval]
-      test.call(@base.render(:file => "partialize", :locals => { :name => name }))
+    begin
+      test.call(@base.render(name))
+    rescue ActionView::TemplateError => e
+      if e.message =~ /Can't run [\w:]+ filter; required (one of|file) ((?:'\w+'(?: or )?)+)(, but none were found| not found)/
+        puts "\nCouldn't require #{$2}; skipping a test."
+      else
+        raise e
+      end
     end
   end
 

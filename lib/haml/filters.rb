@@ -7,21 +7,11 @@ require 'erb'
 require 'sass/engine'
 require 'stringio'
 
-volatile_requires = ['rubygems', 'redcloth', 'bluecloth']
-NOT_LOADED = [] unless defined?(NOT_LOADED)
-volatile_requires.each do |file|
-  begin
-    require file
-  rescue LoadError
-    NOT_LOADED.push file
-  end
-end
+begin
+  require 'rubygems'
+rescue LoadError; end
 
 class ERB; alias_method :render, :result; end
-
-unless NOT_LOADED.include? 'bluecloth'
-  class BlueCloth; alias_method :render, :to_html; end
-end
 
 module Haml
   module Filters
@@ -60,26 +50,66 @@ module Haml
       end
     end
 
-    unless NOT_LOADED.include? 'bluecloth'
-      Markdown = BlueCloth unless defined?(Markdown)
+    class LazyLoaded
+      def initialize(*reqs)
+        reqs[0...-1].each do |req|
+          begin
+            @required = req
+            require @required
+            return
+          rescue LoadError; end # RCov doesn't see this, but it is run
+        end
+       
+        begin
+          @required = reqs[-1]
+          require @required
+        rescue LoadError => e
+          classname = self.class.to_s.gsub(/\w+::/, '')
+
+          if reqs.size == 1
+            raise HamlError.new("Can't run #{classname} filter; required file '#{reqs.first}' not found")
+          else
+            raise HamlError.new("Can't run #{classname} filter; required #{reqs.map { |r| "'#{r}'" }.join(' or ')}, but none were found")
+          end
+        end
+      end
+    end
+    
+    class RedCloth < LazyLoaded
+      def initialize(text)
+        super('redcloth')
+        @engine = ::RedCloth.new(text)
+      end
+
+      def render
+        @engine.to_html
+      end
+    end
+      
+    # Uses RedCloth to provide only Textile (not Markdown) parsing
+    class Textile < RedCloth
+      def render
+        @engine.to_html(:textile)
+      end
     end
 
-    unless NOT_LOADED.include? 'redcloth'
-      class ::RedCloth; alias_method :render, :to_html; end
-      
-      # Uses RedCloth to provide only Textile (not Markdown) parsing
-      class Textile < RedCloth
-        def render
-          self.to_html(:textile)
+    # Uses BlueCloth or RedCloth to provide only Markdown (not Textile) parsing
+    class Markdown < LazyLoaded
+      def initialize(text)
+        super('bluecloth', 'redcloth')
+
+        if @required == 'bluecloth'
+          @engine = ::BlueCloth.new(text)
+        else
+          @engine = ::RedCloth.new(text)
         end
       end
 
-      unless defined?(Markdown)
-        # Uses RedCloth to provide only Markdown (not Textile) parsing
-        class Markdown < RedCloth
-          def render
-            self.to_html(:markdown)
-          end
+      def render
+        if @engine.is_a?(::BlueCloth)
+          @engine.to_html
+        else
+          @engine.to_html(:markdown)
         end
       end
     end
