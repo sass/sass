@@ -238,6 +238,14 @@ module Sass
     end
 
     def parse_attribute(line, attribute_regx)
+      if @options[:attribute_syntax] == :normal &&
+          attribute_regx == ATTRIBUTE_ALTERNATE
+        raise SyntaxError.new("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.")
+      elsif @options[:attribute_syntax] == :alternate &&
+          attribute_regx == ATTRIBUTE
+        raise SyntaxError.new("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.")
+      end
+
       name, eq, value = line.scan(attribute_regx)[0]
 
       if name.nil? || value.nil?

@@ -119,6 +119,10 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     color: #00ff00;
 #     width: 97% }
 #
+# By default, either attribute syntax may be used.
+# If you want to force one or the other,
+# see the :attribute_syntax option below.
+#
 # === Nested Rules
 #
 # Rules can also be nested within each other.
@@ -566,6 +570,18 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # [<tt>:style</tt>]             Sets the style of the CSS output.
 #                               See the section on Output Style, above.
+#
+# [<tt>:attribute_syntax</tt>]  Forces the document to use one syntax for attributes.
+#                               If the correct syntax isn't used, an error is thrown.
+#                               <tt>:normal</tt> forces the use of a colon
+#                               before the attribute name.
+#                               For example: <tt>:color #0f3</tt>
+#                               or <tt>:width = !main_width</tt>.
+#                               <tt>:alternate</tt> forces the use of a colon or equals sign
+#                               after the attribute name.
+#                               For example: <tt>color: #0f3</tt>
+#                               or <tt>width = !main_width</tt>.
+#                               By default, either syntax is valid.
 #
 # [<tt>:always_update</tt>]     Whether the CSS files should be updated every
 #                               time a controller is accessed,

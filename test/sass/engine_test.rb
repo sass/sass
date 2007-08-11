@@ -109,6 +109,26 @@ class SassEngineTest < Test::Unit::TestCase
     assert_equal("#foo #bar, #baz #boom { foo: bar; }\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compact))
   end
+
+  def test_colon_only
+    begin
+      render("a\n  b: c", :attribute_syntax => :normal)
+    rescue Sass::SyntaxError => e
+      assert_equal("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.",
+                   e.message)
+    else
+      assert(false, "SyntaxError not raised for :attribute_syntax => :normal")
+    end
+
+    begin
+      render("a\n  :b c", :attribute_syntax => :alternate)
+    rescue Sass::SyntaxError => e
+      assert_equal("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.",
+                   e.message)
+    else
+      assert(false, "SyntaxError not raised for :attribute_syntax => :alternate")
+    end
+  end
   
   private
 
