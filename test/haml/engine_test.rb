@@ -70,6 +70,11 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p>\n  Hello World\n</p>\n", render("%p\n  == Hello \#{who}", :locals => {:who => 'World'}))
   end
 
+  def test_double_equals_in_the_middle_of_a_string
+    assert_equal("\"title 'Title'. \"\n",
+                 render("== \"title '\#{\"Title\"}'. \""))
+  end
+
   # Options tests
 
   def test_stop_eval

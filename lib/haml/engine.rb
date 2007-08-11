@@ -887,12 +887,12 @@ END
       if first.nil?
         return str.dump
       elsif first != 0
-        first -= 1
+        first += 1
       end
 
       last = str.rindex '}'
 
-      interpolation = str.slice!(first, last + 1)
+      interpolation = str.slice!(first, last - first)
       str.insert(first, "_haml_interpolation")
 
       str = str.dump
