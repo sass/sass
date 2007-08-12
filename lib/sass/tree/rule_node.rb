@@ -46,9 +46,8 @@ module Sass::Tree
       
       to_return = ''
       if !attributes.empty?
-        spaces = tabs
-        old_spaces = '  ' * (spaces - 1)
-        spaces = '  ' * spaces
+        old_spaces = '  ' * (tabs - 1)
+        spaces = '  ' * tabs
         if @style == :compact
           attributes = attributes.map { |a| a.to_s(1) }.join(' ')
           to_return << "#{old_spaces}#{total_rule} { #{attributes} }\n"
