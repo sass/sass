@@ -44,7 +44,6 @@ class SassEngineTest < Test::Unit::TestCase
     "@import foo.sass" => "File to import not found or unreadable: foo.sass",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
-    "@foo    bar boom" => "Unknown compiler directive: \"@foo bar boom\"",
   }
   
   def test_basic_render
@@ -128,6 +127,57 @@ class SassEngineTest < Test::Unit::TestCase
     else
       assert(false, "SyntaxError not raised for :attribute_syntax => :alternate")
     end
+  end
+
+  def test_directive
+    assert_equal("@a b;", render("@a b"))
+
+    assert_equal("@a {\n  b: c; }\n", render("@a\n  :b c"))
+    assert_equal("@a { b: c; }\n", render("@a\n  :b c", :style => :compact))
+    assert_equal("@a {\n  b: c;\n}\n", render("@a\n  :b c", :style => :expanded))
+
+    assert_equal("@a {\n  b: c;\n  d: e; }\n",
+                 render("@a\n  :b c\n  :d e"))
+    assert_equal("@a { b: c; d: e; }\n",
+                 render("@a\n  :b c\n  :d e", :style => :compact))
+    assert_equal("@a {\n  b: c;\n  d: e;\n}\n",
+                 render("@a\n  :b c\n  :d e", :style => :expanded))
+
+    assert_equal("@a {\n  #b {\n    c: d; } }\n",
+                 render("@a\n  #b\n    :c d"))
+    assert_equal("@a { #b { c: d; } }\n",
+                 render("@a\n  #b\n    :c d", :style => :compact))
+    assert_equal("@a {\n  #b {\n    c: d;\n  }\n}\n",
+                 render("@a\n  #b\n    :c d", :style => :expanded))
+
+    assert_equal("@a {\n  #b {\n    a: b; }\n    #b #c {\n      d: e; } }\n",
+                 render("@a\n  #b\n    :a b\n    #c\n      :d e"))
+    assert_equal("@a { #b { a: b; }\n  #b #c { d: e; } }\n",
+                 render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :compact))
+    assert_equal("@a {\n  #b {\n    a: b;\n  }\n  #b #c {\n    d: e;\n  }\n}\n",
+                 render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :expanded))
+
+    assert_equal("@a {\n  #foo,\n  #bar {\n    b: c; } }\n",
+                 render("@a\n  #foo, \n  #bar\n    :b c"))
+    assert_equal("@a { #foo, #bar { b: c; } }\n",
+                 render("@a\n  #foo, \n  #bar\n    :b c", :style => :compact))
+    assert_equal("@a {\n  #foo,\n  #bar {\n    b: c;\n  }\n}\n",
+                 render("@a\n  #foo, \n  #bar\n    :b c", :style => :expanded))
+
+    to_render = <<END
+@a
+  :b c
+  #d
+    :e f
+  :g h
+END
+    rendered = <<END
+@a { b: c;
+  #d { e: f; }
+  g: h; }
+END
+
+    assert_equal(rendered, render(to_render, :style => :compact))
   end
   
   private

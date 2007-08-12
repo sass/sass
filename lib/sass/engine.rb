@@ -3,6 +3,7 @@ require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/attr_node'
+require 'sass/tree/directive_node'
 require 'sass/constant'
 require 'sass/error'
 require 'haml/util'
@@ -285,7 +286,7 @@ module Sass
       when "import"
         import(value)
       else
-        raise SyntaxError.new("Unknown compiler directive: #{"@#{directive} #{value}".dump}", @line)
+        Tree::DirectiveNode.new(line, @options[:style])
       end
     end
 

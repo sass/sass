@@ -9,7 +9,7 @@ module Sass::Tree
       super(value, style)
     end
     
-    def to_s(parent_name = nil)
+    def to_s(tabs, parent_name = nil)
       if value[-1] == ?;
         raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (This isn't CSS!)", @line)
       end
@@ -21,19 +21,16 @@ module Sass::Tree
       end
 
       join_string = @style == :compact ? ' ' : "\n"
+      spaces = '  ' * (tabs - 1)
       to_return = ''
       if !value.empty?
-        to_return << "#{real_name}: #{value};#{join_string}"
+        to_return << "#{spaces}#{real_name}: #{value};#{join_string}"
       end
 
       children.each do |kid|
-        if @style == :compact
-          to_return << "#{kid.to_s(real_name)} "
-        else
-          to_return << "#{kid.to_s(real_name)}\n"
-        end
+        to_return << "#{kid.to_s(tabs, real_name)}" <<
+          (@style == :compact ? " " : "\n")
       end
-      to_return << "\n" unless children.empty? || @style == :compact
       to_return[0...-1]
     end
 

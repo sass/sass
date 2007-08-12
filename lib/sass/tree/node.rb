@@ -26,11 +26,7 @@ module Sass
             check_multiline_rule(child)
             result << child.to_s(1)
           else
-            begin
-              result << "#{child.to_s(1)}\n"
-            rescue SyntaxError => e
-              raise e
-            end
+            result << "#{child.to_s(1)}\n"
           end
         end
         result[0...-1]

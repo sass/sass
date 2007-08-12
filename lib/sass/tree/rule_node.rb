@@ -46,22 +46,22 @@ module Sass::Tree
       
       to_return = ''
       if !attributes.empty?
+        spaces = tabs
+        old_spaces = '  ' * (spaces - 1)
+        spaces = '  ' * spaces
         if @style == :compact
-          to_return << "#{total_rule} { #{attributes.join(' ')} }\n"
+          attributes = attributes.map { |a| a.to_s(1) }.join(' ')
+          to_return << "#{old_spaces}#{total_rule} { #{attributes} }\n"
         else
-          spaces = (@style == :expanded ? 2 : tabs * 2)
-          old_spaces = ' ' * (spaces - 2)
-          spaces = ' ' * spaces
-
-          attributes = attributes.join("\n").gsub("\n", "\n#{spaces}").rstrip
-          end_attrs = (@style == :expanded ? "\n" : ' ')
-          to_return << "#{old_spaces}#{total_rule} {\n#{spaces}#{attributes}#{end_attrs}}\n"
+          attributes = attributes.map { |a| a.to_s(tabs + 1) }.join("\n")
+          end_attrs = (@style == :expanded ? "\n" + old_spaces : ' ')
+          to_return << "#{old_spaces}#{total_rule} {\n#{attributes}#{end_attrs}}\n"
         end
       elsif continued?
-        to_return << total_rule + (@style == :compact ? ' ' : "\n")
+        to_return << ('  ' * (tabs - 1)) + total_rule + (@style == :compact ? ' ' : "\n")
       end
       
-      tabs += 1 unless attributes.empty?
+      tabs += 1 unless attributes.empty? || @style != :nested
       sub_rules.each do |sub|
         if sub.continued?
           check_multiline_rule(sub)
