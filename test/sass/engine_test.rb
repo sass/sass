@@ -94,7 +94,11 @@ class SassEngineTest < Test::Unit::TestCase
       end
     end
   end
-  
+
+  def test_empty_first_line
+    assert_equal("#a {\n  b: c; }\n", Sass::Engine.new("#a\n\n  b: c").render)
+  end
+    
   private
 
   def renders_correctly(name, options={})
