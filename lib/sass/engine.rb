@@ -211,7 +211,11 @@ module Sass
     end
 
     def has_children?(index, tabs)
-      next_line = @lines[index]
+      next_line = ['//', 0]
+      while !next_line.nil? && next_line[0] == '//' && next_line[1] = 0
+        next_line = @lines[index]
+        index += 1
+      end
       next_line && next_line[1] > tabs
     end
 

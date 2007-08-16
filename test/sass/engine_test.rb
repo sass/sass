@@ -179,6 +179,10 @@ END
 
     assert_equal(rendered, render(to_render, :style => :compact))
   end
+
+  def test_empty_first_line
+    assert_equal("#a {\n  b: c; }\n", render("#a\n\n  b: c"))
+  end
   
   private
 
