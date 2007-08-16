@@ -9,7 +9,7 @@ class Sass::Constant::Literal # :nodoc:
   # The regular expression matching numbers.
   NUMBER  = /^(-?\d*?\.?)(\d+)([^\d\s]*)$/
 
-  html_color_matcher = Sass::Constant::Color::HTML4_COLORS.keys.join '|'
+  html_color_matcher = Sass::Constant::Color::HTML4_COLORS.keys.map { |c| "^#{c}$" }.join '|'
 
   # The regular expression matching colors.
   COLOR = /^\# (?: [\da-f]{3} | [\da-f]{6} ) | #{html_color_matcher}/ix
