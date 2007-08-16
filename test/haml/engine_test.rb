@@ -75,6 +75,14 @@ class EngineTest < Test::Unit::TestCase
                  render("== \"title '\#{\"Title\"}'. \""))
   end
 
+  def test_nil_tag_value_should_render_as_empty
+    assert_equal("<p></p>\n", render("%p= nil"))
+  end
+
+  def test_tag_with_failed_if_should_render_as_empty
+    assert_equal("<p></p>\n", render("%p= 'Hello' if false"))
+  end
+
   # Options tests
 
   def test_stop_eval

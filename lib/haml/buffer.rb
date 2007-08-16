@@ -62,29 +62,27 @@ module Haml
         result = Haml::Helpers.find_and_preserve(result)
       end
       
-      unless result.nil?
-        result = result.to_s
-        while result[-1] == ?\n
-          # String#chomp is slow
-          result = result[0...-1]
+      result = result.to_s
+      while result[-1] == ?\n
+        # String#chomp is slow
+        result = result[0...-1]
+      end
+      
+      if close_tag && Buffer.one_liner?(result)
+        @buffer << result
+        @buffer << "</#{close_tag}>\n"
+        @real_tabs -= 1
+      else
+        if close_tag
+          @buffer << "\n"
         end
         
-        if close_tag && Buffer.one_liner?(result)
-          @buffer << result
-          @buffer << "</#{close_tag}>\n"
+        result = result.gsub(/^/m, tabs(tabulation))
+        @buffer << "#{result}\n"
+        
+        if close_tag
+          @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
           @real_tabs -= 1
-        else
-          if close_tag
-            @buffer << "\n"
-          end
-          
-          result = result.gsub(/^/m, tabs(tabulation))
-          @buffer << "#{result}\n"
-          
-          if close_tag
-            @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
-            @real_tabs -= 1
-          end
         end
       end
       nil
