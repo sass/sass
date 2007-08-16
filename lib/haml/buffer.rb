@@ -60,18 +60,18 @@ module Haml
       if flattened
         result = Haml::Helpers.find_and_preserve(result)
       end
-      unless result.nil?
-        result = result.to_s
-        while result[-1] == 10 # \n
-          # String#chomp is slow
-          result = result[0...-1]
-        end
-        
-        result = result.gsub("\n", "\n#{tabs(tabulation)}")
-        push_text result, tabulation
+
+      result = result.to_s
+      while result[-1] == 10 # \n
+        # String#chomp is slow
+        result = result[0...-1]
       end
+      
+      result = result.gsub("\n", "\n#{tabs(tabulation)}")
+      push_text result, tabulation
       nil
     end
+
     
     def open_prerendered_tag(tag, tabulation)
       @buffer << "#{tabs(tabulation)}#{tag}"
