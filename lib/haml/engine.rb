@@ -100,7 +100,7 @@ module Haml
     TAG_REGEX = /[%]([-:\w]+)([-\w\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
 
     # The Regex that matches a literal string or symbol value
-    LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\\#]*?)\4))\s*$/
+    LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\\#'"]*?)\4))\s*$/
 
     FLAT_WARNING = <<END
 Haml deprecation warning:
