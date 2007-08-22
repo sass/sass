@@ -100,7 +100,7 @@ module Haml
     TAG_REGEX = /[%]([-:\w]+)([-\w\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
 
     # The Regex that matches a literal string or symbol value
-    LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\\#]*?)\4))\s*$/
+    LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\\#'"]*?)\4))\s*$/
 
     # Creates a new instace of Haml::Engine that will compile the given
     # template string when <tt>render</tt> is called.
