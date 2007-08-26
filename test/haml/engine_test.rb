@@ -142,7 +142,7 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p>first time</p>\n", render(template, :locals => { :text => "first time", :foo => 'bar' }))
   end
 
-  def test_dynamc_attrs_shouldnt_register_as_literal_values
+  def test_dynamic_attrs_shouldnt_register_as_literal_values
     assert_equal("<p a='b2c'>\n</p>\n", render('%p{:a => "b#{1 + 1}c"}'))
     assert_equal("<p a='b2c'>\n</p>\n", render("%p{:a => 'b' + (1 + 1).to_s + 'c'}"))
   end

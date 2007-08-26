@@ -203,7 +203,7 @@ END
       @@supported_local_assigns[@template] = supported_local_assigns
       @options[:locals].each do |k,v|
         supported_local_assigns[k] = true
-        push_silent "#{k} = local_assigns[:#{k}]"
+        push_silent "#{k} = local_assigns[#{k.inspect}]"
       end
       
       old_line = nil
