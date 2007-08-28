@@ -24,4 +24,6 @@ body { font: Arial; background: blue; }
 
 @import basic.css
 @import ../results/complex.css
+#foo { background-color: #baf; }
+
 nonimported { myconst: hello; otherconst: goodbye; }

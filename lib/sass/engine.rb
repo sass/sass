@@ -331,7 +331,6 @@ module Sass
     def find_file_to_import(filename)
       was_sass = false
       original_filename = filename
-      new_filename = nil
 
       if filename[-5..-1] == ".sass"
         filename = filename[0...-5]
@@ -340,14 +339,7 @@ module Sass
         return filename
       end
 
-      @options[:load_paths].each do |path|
-        full_path = File.join(path, filename) + '.sass'
-
-        if File.readable?(full_path)
-          new_filename = full_path
-          break
-        end
-      end
+      new_filename = find_full_path("#{filename}.sass")
 
       if new_filename.nil?
         if was_sass
@@ -358,6 +350,18 @@ module Sass
       else
         new_filename
       end
+    end
+
+    def find_full_path(filename)
+      @options[:load_paths].each do |path|
+        ["_#{filename}", filename].each do |name|
+          full_path = File.join(path, name)
+          if File.readable?(full_path)
+            return full_path
+          end
+        end
+      end
+      nil
     end
   end
 end

@@ -42,7 +42,7 @@ module Sass
           # Get the relative path to the file with no extension
           name = file.sub(options[:template_location] + "/", "")[0...-5]
 
-          if options[:always_update] || stylesheet_needs_update?(name)
+          if !forbid_update?(name) && (options[:always_update] || stylesheet_needs_update?(name))
             css = css_filename(name)
             File.delete(css) if File.exists?(css)
 
@@ -106,6 +106,10 @@ module Sass
 
       def css_filename(name)
         "#{@@options[:css_location]}/#{name}.css"
+      end
+
+      def forbid_update?(name)
+        name[0] == ?_
       end
 
       def stylesheet_needs_update?(name)
