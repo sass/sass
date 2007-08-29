@@ -623,6 +623,24 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     2?
 #   </p>
 #
+# ==== -#
+#
+# The hyphen followed immediately by the pound sign
+# signifies a silent comment.
+# Any text following this isn't rendered in the resulting document
+# at all.
+# 
+# For example:
+#
+# %p foo
+# -# This is a comment
+# %p bar
+#
+# is compiled to:
+#
+# <p>foo</p>
+# <p>bar</p>
+# 
 # == Other Useful Things
 #
 # === Helpers
