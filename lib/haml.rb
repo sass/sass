@@ -261,8 +261,9 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # and is compiled to:
 # 
 #   <div id='collection'>
-#     <div class='item'>Broken record album</div>
-#     <div class='description'>What a cool item!</div>
+#     <div class='item'>
+#       <div class='description'>What a cool item!</div>
+#     </div>
 #   </div>
 # 
 # ==== =
