@@ -40,6 +40,22 @@ class SassPluginTest < Test::Unit::TestCase
     assert !Sass::Plugin.stylesheet_needs_update?('basic')
   end
 
+  def test_update_needed_when_modified
+    sleep(1)
+    FileUtils.touch(template_loc('basic'))
+    assert Sass::Plugin.stylesheet_needs_update?('basic')
+    Sass::Plugin.update_stylesheets
+    assert !Sass::Plugin.stylesheet_needs_update?('basic')
+  end
+
+  def test_update_needed_when_dependency_modified
+    sleep(1)
+    FileUtils.touch(template_loc('basic'))
+    assert Sass::Plugin.stylesheet_needs_update?('import')
+    Sass::Plugin.update_stylesheets
+    assert !Sass::Plugin.stylesheet_needs_update?('import')
+  end
+
   def test_exception_handling
     File.delete(tempfile_loc('bork'))
     Sass::Plugin.update_stylesheets
@@ -80,6 +96,10 @@ class SassPluginTest < Test::Unit::TestCase
       message = "template: #{name}\nline:     #{line + 1}"
       assert_equal(pair.first, pair.last, message)
     end
+  end
+
+  def template_loc(name)
+    File.dirname(__FILE__) + "/templates/#{name}.sass"
   end
 
   def tempfile_loc(name)

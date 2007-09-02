@@ -299,7 +299,13 @@ module Sass
 
       files.split(/,\s*/).each do |filename|
         engine = nil
-        filename = find_file_to_import(filename)
+
+        begin
+          filename = self.class.find_file_to_import(filename, @options[:load_paths])
+        rescue Exception => e
+          raise SyntaxError.new(e.message, @line)
+        end
+
         if filename =~ /\.css$/
           nodes << Tree::ValueNode.new("@import #{filename}", @options[:style])
         else
@@ -328,7 +334,7 @@ module Sass
       nodes
     end
 
-    def find_file_to_import(filename)
+    def self.find_file_to_import(filename, load_paths)
       was_sass = false
       original_filename = filename
 
@@ -339,11 +345,11 @@ module Sass
         return filename
       end
 
-      new_filename = find_full_path("#{filename}.sass")
+      new_filename = find_full_path("#{filename}.sass", load_paths)
 
       if new_filename.nil?
         if was_sass
-          raise SyntaxError.new("File to import not found or unreadable: #{original_filename}", @line)
+          raise Exception.new("File to import not found or unreadable: #{original_filename}")
         else
           return filename + '.css'
         end
@@ -352,8 +358,8 @@ module Sass
       end
     end
 
-    def find_full_path(filename)
-      @options[:load_paths].each do |path|
+    def self.find_full_path(filename, load_paths)
+      load_paths.each do |path|
         ["_#{filename}", filename].each do |name|
           full_path = File.join(path, name)
           if File.readable?(full_path)

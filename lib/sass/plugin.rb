@@ -37,6 +37,8 @@ module Sass
       # from <tt>options[:templates]</tt>
       # if it does.
       def update_stylesheets
+        return if options[:never_update]
+
         Dir.glob(File.join(options[:template_location], "**", "*.sass")).entries.each do |file|
 
           # Get the relative path to the file with no extension
@@ -49,7 +51,7 @@ module Sass
             filename = template_filename(name)
             l_options = @@options.dup
             l_options[:filename] = filename
-            l_options[:load_paths] = (l_options[:load_paths] || []) + [l_options[:template_location]]
+            l_options[:load_paths] = load_paths
             engine = Engine.new(File.read(filename), l_options)
             result = begin
                        engine.render
@@ -71,6 +73,10 @@ module Sass
       end
 
       private
+
+      def load_paths
+        (options[:load_paths] || []) + [options[:template_location]]
+      end
 
       def exception_string(e)
         if RAILS_ENV != "production"
@@ -101,11 +107,11 @@ module Sass
       end
 
       def template_filename(name)
-        "#{@@options[:template_location]}/#{name}.sass"
+        "#{options[:template_location]}/#{name}.sass"
       end
 
       def css_filename(name)
-        "#{@@options[:css_location]}/#{name}.css"
+        "#{options[:css_location]}/#{name}.css"
       end
 
       def forbid_update?(name)
@@ -113,7 +119,28 @@ module Sass
       end
 
       def stylesheet_needs_update?(name)
-        !File.exists?(css_filename(name)) || (File.mtime(template_filename(name)) - 2) > File.mtime(css_filename(name))
+        if !File.exists?(css_filename(name))
+          return true
+        else
+          css_mtime = File.mtime(css_filename(name))
+          File.mtime(template_filename(name)) > css_mtime ||
+            dependencies(template_filename(name)).any?(&dependency_updated?(css_mtime))
+        end
+      end
+
+      def dependency_updated?(css_mtime)
+        lambda do |dep|
+          File.mtime(dep) > css_mtime ||
+            dependencies(dep).any?(&dependency_updated?(css_mtime))
+        end
+      end
+
+      def dependencies(filename)
+        File.readlines(filename).grep(/^@import /).map do |line|
+          line[8..-1].split(',').map do |inc|
+            Sass::Engine.find_file_to_import(inc.strip, load_paths)
+          end
+        end.flatten.grep(/\.sass$/)
       end
     end
   end

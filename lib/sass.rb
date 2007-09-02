@@ -582,6 +582,12 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                               For example: <tt>color: #0f3</tt>
 #                               or <tt>width = !main_width</tt>.
 #                               By default, either syntax is valid.
+#                               
+# [<tt>:never_update</tt>]      Whether the CSS files should never be updated,
+#                               even if the template file changes.
+#                               Setting this to true may give small performance gains.
+#                               It's never true by default,
+#                               even in production mode.
 #
 # [<tt>:always_update</tt>]     Whether the CSS files should be updated every
 #                               time a controller is accessed,
