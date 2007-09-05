@@ -46,10 +46,9 @@ module Haml
     # to convert any endlines inside them into HTML entities for endlines.
     def find_and_preserve(input)
       input = input.to_s
-      input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im) do |tag, contents|
-        input = input.gsub(contents, preserve(contents))
+      input.gsub(/<(textarea|code|pre)([^>]*)>(.*?)(<\/\1>)/im) do
+        "<#{$1}#{$2}>#{preserve($3)}</#{$1}>"
       end
-      input
     end
 
     # Takes any string, finds all the endlines and converts them to
