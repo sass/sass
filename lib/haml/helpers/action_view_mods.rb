@@ -11,10 +11,10 @@ end
 if action_view_included  
   module ActionView
     class Base # :nodoc:
-      def render_with_haml(*args)        
+      def render_with_haml(*args, &block)
         was_haml = is_haml?
         @haml_is_haml = false
-        res = render_without_haml(*args)
+        res = render_without_haml(*args, &block)
         @haml_is_haml = was_haml
         res
       end
