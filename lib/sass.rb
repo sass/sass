@@ -561,6 +561,16 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   .huge { font-size: 10em; font-weight: bold; text-decoration: underline; } 
 #
+# === <tt>:compressed</tt>
+#
+# Compressed style takes up the minimum amount of space possible,
+# having no whitespace except that necessary to separate selectors
+# and a newline at the end of the file.
+# It's not meant to be human-readable.
+# For example:
+#
+#   #main{color:#fff;background-color:#000}#main p{width:10em}.huge{font-size:10em;font-weight:bold;text-decoration:underline} 
+#
 # == Sass Options
 #
 # Options can be set by setting the hash <tt>Sass::Plugin.options</tt>

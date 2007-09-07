@@ -51,13 +51,20 @@ module Sass::Tree
         if @style == :compact
           attributes = attributes.map { |a| a.to_s(1) }.join(' ')
           to_return << "#{old_spaces}#{total_rule} { #{attributes} }\n"
+        elsif @style == :compressed
+          attributes = attributes.map { |a| a.to_s(1) }.join(';')
+          to_return << "#{total_rule}{#{attributes}}"
         else
           attributes = attributes.map { |a| a.to_s(tabs + 1) }.join("\n")
           end_attrs = (@style == :expanded ? "\n" + old_spaces : ' ')
           to_return << "#{old_spaces}#{total_rule} {\n#{attributes}#{end_attrs}}\n"
         end
       elsif continued?
-        to_return << ('  ' * (tabs - 1)) + total_rule + (@style == :compact ? ' ' : "\n")
+        to_return << ('  ' * (tabs - 1)) + total_rule + case @style
+                                                        when :compressed: ''
+                                                        when :compact: ' '
+                                                        else "\n"
+                                                        end
       end
       
       tabs += 1 unless attributes.empty? || @style != :nested

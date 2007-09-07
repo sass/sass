@@ -7,8 +7,10 @@ module Sass::Tree
     end
 
     def to_s(parent_name = nil)
-      join_string = @style == :compact ? ' ' : "\n * "
-      "/* #{value}#{join_string unless children.empty?}#{children.join join_string} */"
+      unless @style == :compressed
+        join_string = @style == :compact ? ' ' : "\n * "
+        "/* #{value}#{join_string unless children.empty?}#{children.join join_string} */"
+      end
     end
   end
 end

@@ -26,10 +26,10 @@ module Sass
             check_multiline_rule(child)
             result << child.to_s(1)
           else
-            result << "#{child.to_s(1)}\n"
+            result << "#{child.to_s(1)}" + (@style == :compressed ? '' : "\n")
           end
         end
-        result[0...-1]
+        @style == :compressed ? result+"\n" : result[0...-1]
       end
 
       protected

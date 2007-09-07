@@ -7,7 +7,11 @@ module Sass::Tree
       if children.empty?
         value + ";"
       else
-        result = "#{'  ' * (tabs - 1)}#{value} {" + (@style == :compact ? ' ' : "\n")
+        result = if @style == :compressed
+                   "#{value}{"
+                 else
+                   "#{'  ' * (tabs - 1)}#{value} {" + (@style == :compact ? ' ' : "\n")
+                 end
         was_attr = false
         first = true
         children.each do |child|
@@ -29,11 +33,18 @@ module Sass::Tree
             end
             was_attr = child.is_a?(AttrNode)
             first = continued_rule
+          elsif @style == :compressed
+            result << (was_attr ? ";#{child.to_s(1)}" : child.to_s(1))
+            was_attr = child.is_a?(AttrNode)
           else
             result << child.to_s(tabs + 1) + (continued_rule ? '' : "\n")
           end
         end
-        result.rstrip + (@style == :expanded ? "\n" : " ") + "}\n"
+        result.rstrip + if @style == :compressed
+                          "}"
+                        else
+                          (@style == :expanded ? "\n" : " ") + "}\n"
+                        end
       end
     end
   end
