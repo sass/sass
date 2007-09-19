@@ -7,7 +7,7 @@ require 'haml/engine'
 class EngineTest < Test::Unit::TestCase
 
   def render(text, options = {})
-    Haml::Engine.new(text, options).to_html
+    Haml::Engine.new(text, options).to_html(options.delete(:scope) || Object.new)
   end
 
   def test_empty_render_should_remain_empty
@@ -128,18 +128,27 @@ class EngineTest < Test::Unit::TestCase
   def test_locals
     assert_equal("<p>Paragraph!</p>\n", render("%p= text", :locals => { :text => "Paragraph!" }))
   end
-  
-  def test_recompile_with_new_locals
-    template = "%p= (text == 'first time') ? text : new_text"
-    assert_equal("<p>first time</p>\n", render(template, :locals => { :text => "first time" }))
-    assert_equal("<p>second time</p>\n", render(template, :locals => { :text => "recompile", :new_text => "second time" }))
 
-    # Make sure the method called will return junk unless recompiled
-    method_name = Haml::Engine.send(:class_variable_get, '@@method_names')[template]
-    Haml::Engine::CompiledTemplates.module_eval "def #{method_name}(stuff); @haml_stack[-1].push_text(\"NOT RECOMPILED\n\"); end"
+  def test_same_templates_with_different_options_should_cache_separately
+    assert_equal("foobar\n", render("- puts 'foobar'"))
+    assert_equal("",         render("- puts 'foobar'", :suppress_eval => true))
 
-    assert_equal("NOT RECOMPILED\n", render(template, :locals => { :text => "first time" }))
-    assert_equal("<p>first time</p>\n", render(template, :locals => { :text => "first time", :foo => 'bar' }))
+    assert_equal("<a href='boo'>Boo!</a>\n",   render("%a{:href => 'boo'} Boo!"))
+    assert_equal("<a href=\"boo\">Boo!</a>\n", render("%a{:href => 'boo'} Boo!", :attr_wrapper => '"'))
+  end
+
+  def test_different_locals_values_shouldnt_recompile
+    scope = Object.new
+    def scope.method_name
+      caller[0].scan(/`([^']*)'/)[0][0]
+    end
+    
+    rendered1 = render("= local\n= method_name", :locals => {:local => 'l1'}, :scope => scope)
+    assert_equal("l1", rendered1.split[0])
+    
+    rendered2 = render("= local\n= method_name", :locals => {:local => 'l2'}, :scope => scope)
+    assert_equal("l2", rendered2.split[0])
+    assert_equal(rendered1.split[1], rendered2.split[1])
   end
 
   def test_dynamic_attrs_shouldnt_register_as_literal_values

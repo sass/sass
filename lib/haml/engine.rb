@@ -146,21 +146,13 @@ module Haml
       # flattened block. -1 signifies that there is no such block.
       @flat_spaces = -1
 
-      begin
-        # Only do the first round of pre-compiling if we really need to.
-        # They might be passing in the precompiled string.
-        requires_precompile = true
-        if @@method_names[@template]
-          # Check that the compiled method supports a superset of the local assigns we want to do
-          supported_assigns = @@supported_local_assigns[@template]
-          requires_precompile = !@options[:locals].keys.all? {|var| supported_assigns.include? var}
-        end
-        do_precompile if requires_precompile
-      rescue Haml::Error => e
-        e.add_backtrace_entry(@index, @options[:filename])
-        raise e
-      end
+      # Only do the first round of pre-compiling if we really need to.
+      do_precompile if @@method_names[[@template, options_for_cache]].nil?
+    rescue Haml::Error => e
+      e.add_backtrace_entry(@index, @options[:filename])
+      raise e
     end
+
 
     # Processes the template and returns the result as a string.
     def render(scope = Object.new, &block)
@@ -199,10 +191,7 @@ END
           _erbout = _hamlout.buffer
       END
       
-      supported_local_assigns = {}
-      @@supported_local_assigns[@template] = supported_local_assigns
       @options[:locals].each do |k,v|
-        supported_local_assigns[k] = true
         push_silent "#{k} = local_assigns[#{k.inspect}]"
       end
       
@@ -380,11 +369,10 @@ END
     # checking compile times to decide whether to recompile a template belongs in here or
     # out in template.rb
     @@method_names = {}
-    @@supported_local_assigns = {}
     @@render_method_count = 0
     def assign_method_name(template, file_name)
       @@render_method_count += 1
-      @@method_names[template] = "_render_haml_#{@@render_method_count}".intern
+      @@method_names[[template, options_for_cache]] = "_render_haml_#{@@render_method_count}".intern
     end
     
     module CompiledTemplates
@@ -398,6 +386,7 @@ END
     def compile(&block)
       # Set the local variables pointing to the buffer
       buffer = @buffer
+
       @scope_object.extend Haml::Helpers
       @scope_object.instance_eval do
         @haml_stack ||= Array.new
@@ -412,7 +401,7 @@ END
       end
 
       begin
-        method_name = @@method_names[@template]
+        method_name = @@method_names[[@template, options_for_cache]]
 
         unless @scope_object.respond_to?(method_name)
           CompiledTemplates.module_eval @precompiled
@@ -907,6 +896,18 @@ END
     def push_and_tabulate(value)
       @to_close_stack.push(value)
       @template_tabs += 1
+    end
+
+    # Returns a hash of options
+    # that identifies the options for a given template
+    # so that e.g. the same template with a different suppress_eval value causes recompilation
+    # but the same template with the same locals but different values does not.
+    def options_for_cache
+      opts = options.dup
+      opts[:locals] = opts[:locals].keys
+      opts[:filters] = opts[:filters].to_a
+      opts.delete :filename
+      opts.to_a
     end
   end
 end
