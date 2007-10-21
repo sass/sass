@@ -721,7 +721,7 @@ END
         attributes_hash = "{nil}" if attributes_hash.nil? || literal_attributes || @options[:suppress_eval]
         object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
-        if !attributes.empty? && '.#'.include?(attributes)
+        if attributes =~ /[\.#](\.|#|\z)/
           raise SyntaxError.new("Illegal element: classes and ids must have values. Use %div instead.")
         end
         
