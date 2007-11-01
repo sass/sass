@@ -152,7 +152,7 @@ module Haml
           " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
         end
       end
-      result.sort.join
+      result.compact.sort.join
     end
     
     # Returns whether or not the given value is short enough to be rendered
@@ -195,26 +195,3 @@ module Haml
     end
   end
 end
-
-unless String.methods.include? 'old_comp'
-  class String # :nodoc
-    alias_method :old_comp, :<=>
-    
-    def <=>(other)
-      if other.is_a? NilClass
-        -1
-      else
-        old_comp(other)
-      end
-    end
-  end
-    
-  class NilClass # :nodoc:
-    include Comparable
-    
-    def <=>(other)
-      other.nil? ? 0 : 1
-    end
-  end
-end
-

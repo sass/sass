@@ -155,11 +155,6 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p a='b2c'>\n</p>\n", render('%p{:a => "b#{1 + 1}c"}'))
     assert_equal("<p a='b2c'>\n</p>\n", render("%p{:a => 'b' + (1 + 1).to_s + 'c'}"))
   end
-    
-  def test_comps
-    assert_equal(-1, "foo" <=> nil)
-    assert_equal(1, nil <=> "foo")
-  end
 
   def test_rec_merge
     hash1 = {1=>2, 3=>{5=>7, 8=>9}}
