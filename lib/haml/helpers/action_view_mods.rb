@@ -1,4 +1,5 @@
 begin
+  raise LoadError if defined?(Merb::Plugins)
   require 'rubygems'
   require 'active_support'
   require 'action_controller'

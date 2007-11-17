@@ -1,21 +1,17 @@
 require 'sass/engine'
-require 'rubygems'
-require 'action_controller'
-
-RAILS_ROOT = '. 'unless self.class.const_defined?('RAILS_ROOT')
-RAILS_ENV  = 'production' unless self.class.const_defined?('RAILS_ENV')
 
 module Sass
-  # This module contains methods that ActionController calls
-  # to automatically update Sass templates that need updating.
-  # It wasn't designed to be used outside of the context of ActionController.
+  # This module contains methods to aid in using Sass
+  # as a stylesheet-rendering plugin for various systems.
+  # Currently Rails/ActionController and Merb are supported out of the box.
   module Plugin
     class << self
       @@options = {
-        :template_location  => RAILS_ROOT + '/public/stylesheets/sass',
-        :css_location       => RAILS_ROOT + '/public/stylesheets',
+        :template_location  => './public/stylesheets/sass',
+        :css_location       => './public/stylesheets',
         :always_update      => false,
-        :always_check       => RAILS_ENV != "production"
+        :always_check       => true,
+        :full_exception     => true
       }
 
       # Gets various options for Sass. See README for details.
@@ -79,7 +75,7 @@ module Sass
       end
 
       def exception_string(e)
-        if RAILS_ENV != "production"
+        if options[:full_exception]
           e_string = "#{e.class}: #{e.message}"
 
           if e.is_a? Sass::SyntaxError
@@ -146,17 +142,5 @@ module Sass
   end
 end
 
-# This module refers to the ActionController module that's part of Ruby on Rails.
-# Sass can be used as an alternate templating engine for Rails,
-# and includes some modifications to make this more doable.
-# The documentation can be found
-# here[http://rubyonrails.org/api/classes/ActionController/Base.html].
-module ActionController
-  class Base # :nodoc:
-    alias_method :sass_old_process, :process
-    def process(*args)
-      Sass::Plugin.update_stylesheets if Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
-      sass_old_process(*args)
-    end
-  end
-end
+require 'sass/plugin/rails' if defined?(ActionController)
+require 'sass/plugin/merb'  if defined?(Merb::Plugins)
