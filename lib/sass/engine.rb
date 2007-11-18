@@ -292,7 +292,7 @@ module Sass
         engine = nil
         filename = find_file_to_import(filename)
         if filename =~ /\.css$/
-          nodes << Tree::ValueNode.new("@import #{filename}", @options[:style])
+          nodes << Tree::ValueNode.new("@import url(#{filename});", @options[:style])
         else
           File.open(filename) do |file|
             new_options = @options.dup
