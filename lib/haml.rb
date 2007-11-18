@@ -27,20 +27,29 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # as a plugin for Ruby on Rails,
 # and as a standalong Ruby module.
 #
-# === Rails
+# Sass can be used in several ways:
+# As a template engine for Ruby on Rails or Merb,
+# or as a standalone engine.
+# The first step for all of these is to install the Haml gem:
+#
+#   gem install haml
+#
+# To enable it as a Rails plugin,
+# then run
 # 
-# Haml is most commonly used as a plugin.
-# It can be installed as a plugin using the Rails plugin installer:
+#   haml --rails path/to/rails/app
 # 
-#   ./script/plugin install http://svn.hamptoncatlin.com/haml/tags/stable
+# Haml is enabled in Merb by default,
+# so Merb users don't have to do anything more.
 #
 # Once it's installed, all view files with the ".haml" extension
+# (or ".html.haml" for Merb or edge Rails)
 # will be compiled using Haml.
 #
 # You can access instance variables in Haml templates
 # the same way you do in ERb templates.
 # Helper methods are also available in Haml templates.
-# For example:
+# For example (this example uses Rails, but the principle for Merb is the same):
 # 
 #   # file: app/controllers/movies_controller.rb
 # 

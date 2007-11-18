@@ -20,19 +20,29 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # == Using Sass
 #
-# Sass can be used in two ways:
-# As a plugin for Ruby on Rails
-# and as a standalone parser.
+# Sass can be used in several ways:
+# As a plugin for Ruby on Rails or Merb,
+# or as a standalone parser.
 # Sass is bundled with Haml,
 # so if the Haml plugin or RubyGem is installed,
 # Sass will already be installed as a plugin or gem, respectively.
+# The first step for all of these is to install the Haml gem:
 #
-# To install Haml and Sass as a Ruby on Rails plugin,
-# use the normal Rails plugin installer:
+#   gem install haml
 #
-#   ./script/plugin install http://svn.hamptoncatlin.com/haml/tags/stable
+# To enable it as a Rails plugin,
+# then run
+# 
+#   haml --rails path/to/rails/app
+# 
+# To enable Sass in Merb,
+# add
 #
-# Sass templates in Rails don't quite function in the same way as views,
+#   dependency "haml"
+#
+# to config/dependencies.rb.
+#
+# Sass templates in Rails and Merb don't quite function in the same way as views,
 # because they don't contain dynamic content,
 # and so only need to be compiled when the template file has been updated.
 # By default (see options, below),
@@ -41,11 +51,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # For instance, public/stylesheets/sass/main.sass would be compiled to public/stylesheets/main.css.
 #
 # Using Sass in Ruby code is very simple.
-# First install the Haml/Sass RubyGem:
-#
-#   gem install haml
-#
-# Then you can use it by including the "sass" gem
+# After installing the Haml gem,
+# you can use it by running <tt>require "sass"</tt>
 # and using Sass::Engine like so:
 #
 #   engine = Sass::Engine.new("#main\n  :background-color #0000ff")
