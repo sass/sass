@@ -1,8 +1,11 @@
-require File.dirname(__FILE__) + '/../lib/haml'
-require 'haml/template'
 require 'rubygems'
 require 'active_support'
+require 'action_controller'
 require 'action_view'
+
+require File.dirname(__FILE__) + '/../lib/haml'
+require 'haml/template'
+
 require 'profiler'
 require 'stringio'
 

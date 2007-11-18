@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
+require 'active_support'
+require 'action_controller'
+require 'action_view'
+
 require 'test/unit'
 require File.dirname(__FILE__) + '/../../lib/haml'
 require 'haml/template'
@@ -72,23 +77,6 @@ class HelperTest < Test::Unit::TestCase
   
   def test_action_view_included
     assert(Haml::Helpers.action_view?)
-  end
-  
-  def test_action_view_not_included
-    #This is for 100% rcov, rather than any real testing purposes.
-    Kernel.module_eval do
-      alias_method :old_require, :require
-      def require(string)
-        raise LoadError if string == "action_view"
-        old_require string
-      end
-    end
-
-    load File.dirname(__FILE__) + '/../../lib/haml/helpers/action_view_mods.rb'
-
-    Kernel.module_eval do
-      alias_method :require, :old_require
-    end
   end
   
   def test_form_tag
