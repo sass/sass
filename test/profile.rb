@@ -1,8 +1,10 @@
-require File.dirname(__FILE__) + '/../lib/haml'
-require 'haml/template'
 require 'rubygems'
 require 'active_support'
+require 'action_controller'
 require 'action_view'
+
+require File.dirname(__FILE__) + '/../lib/haml'
+require 'haml/template'
 require 'profiler'
 require 'stringio'
 
@@ -46,7 +48,7 @@ module Haml
     # automatically look for a haml template.
     # 
     # Returns the results of the profiling as a string.
-    def profile(runs = 100, template_name = 'standard')      
+    def profile(runs = 100, template_name = 'standard')
       AbstractProfiler.profile(runs) { @base.render template_name }
     end
   end

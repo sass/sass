@@ -1,15 +1,4 @@
-begin
-  raise LoadError if defined?(Merb::Plugins)
-  require 'rubygems'
-  require 'active_support'
-  require 'action_controller'
-  require 'action_view'
-  action_view_included = true
-rescue LoadError
-  action_view_included = false
-end
-
-if action_view_included  
+if defined?(ActionView) and not defined?(Merb::Plugins)
   module ActionView
     class Base # :nodoc:
       def render_with_haml(*args, &block)
