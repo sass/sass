@@ -20,19 +20,29 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # == Using Sass
 #
-# Sass can be used in two ways:
-# As a plugin for Ruby on Rails
-# and as a standalone parser.
+# Sass can be used in several ways:
+# As a plugin for Ruby on Rails or Merb,
+# or as a standalone parser.
 # Sass is bundled with Haml,
 # so if the Haml plugin or RubyGem is installed,
 # Sass will already be installed as a plugin or gem, respectively.
+# The first step for all of these is to install the Haml gem:
 #
-# To install Haml and Sass as a Ruby on Rails plugin,
-# use the normal Rails plugin installer:
+#   gem install haml
 #
-#   ./script/plugin install http://svn.hamptoncatlin.com/haml/tags/stable
+# To enable it as a Rails plugin,
+# then run
+# 
+#   haml --rails path/to/rails/app
+# 
+# To enable Sass in Merb,
+# add
 #
-# Sass templates in Rails don't quite function in the same way as views,
+#   dependency "haml"
+#
+# to config/dependencies.rb.
+#
+# Sass templates in Rails and Merb don't quite function in the same way as views,
 # because they don't contain dynamic content,
 # and so only need to be compiled when the template file has been updated.
 # By default (see options, below),
@@ -41,11 +51,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # For instance, public/stylesheets/sass/main.sass would be compiled to public/stylesheets/main.css.
 #
 # Using Sass in Ruby code is very simple.
-# First install the Haml/Sass RubyGem:
-#
-#   gem install haml
-#
-# Then you can use it by including the "sass" gem
+# After installing the Haml gem,
+# you can use it by running <tt>require "sass"</tt>
 # and using Sass::Engine like so:
 #
 #   engine = Sass::Engine.new("#main\n  :background-color #0000ff")
@@ -394,7 +401,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # but all constants in that file are made available in the current file.
 #
 # Sass looks for other Sass files in the working directory,
-# and the Sass file directory under Rails.
+# and the Sass file directory under Rails or Merb.
 # Additional search directories may be specified
 # using the :load_paths option (see below).
 #
@@ -562,7 +569,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                               time a controller is accessed,
 #                               as opposed to only when the template has been modified.
 #                               Defaults to false.
-#                               Only has meaning within Ruby on Rails.
+#                               Only has meaning within Ruby on Rails or Merb.
 #                               
 # [<tt>:always_check</tt>]      Whether a Sass template should be checked for updates every
 #                               time a controller is accessed,
@@ -573,24 +580,34 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                               true otherwise.
 #                               Only has meaning within Ruby on Rails.
 #
+# [<tt>:full_exception</tt>]    Whether an error in the Sass code
+#                               should cause Sass to provide a detailed description.
+#                               If set to true, the specific error will be displayed
+#                               along with a line number and source snippet.
+#                               Otherwise, a simple uninformative error message will be displayed.
+#                               Defaults to false in production mode, true otherwise.
+#                               Only has meaning within Ruby on Rails or Merb.
+#
 # [<tt>:template_location</tt>] The directory where Sass templates should be read from.
-#                               Defaults to <tt>RAILS_ROOT + "/public/stylesheets/sass"</tt>.
-#                               Only has meaning within Ruby on Rails.
+#                               Defaults to <tt>RAILS_ROOT + "/public/stylesheets/sass"</tt>
+#                               or <tt>MERB_ROOT + "/public/stylesheets/sass"</tt>.
+#                               Only has meaning within Ruby on Rails or Merb.
 #
 # [<tt>:css_location</tt>]      The directory where CSS output should be written to.
-#                               Defaults to <tt>RAILS_ROOT + "/public/stylesheets"</tt>.
-#                               Only has meaning within Ruby on Rails.
+#                               Defaults to <tt>RAILS_ROOT + "/public/stylesheets"</tt>
+#                               or <tt>MERB_ROOT + "/public/stylesheets"</tt>.
+#                               Only has meaning within Ruby on Rails or Merb.
 #
 # [<tt>:filename</tt>]          The filename of the file being rendered.
 #                               This is used solely for reporting errors,
-#                               and is automatically set when using Rails.
+#                               and is automatically set when using Rails or Merb.
 #
 # [<tt>:load_paths</tt>]        An array of filesystem paths which should be searched
 #                               for Sass templates imported with the "@import" directive.
-#                               This defaults to the working directory and, in Rails,
-#                               whatever <tt>:template_location</tt> is
-#                               (by default <tt>RAILS_ROOT + "/public/stylesheets/sass"</tt>).
+#                               This defaults to the working directory and, in Rails or Merb,
+#                               whatever <tt>:template_location</tt> is.
 # 
 module Sass; end
 
 require 'sass/engine'
+require 'sass/plugin' if defined?(Merb::Plugins)

@@ -11,17 +11,36 @@ and providing elegant, easily understandable, and powerful syntax.
 
 == Using
 
-There are two ways to use Haml and Sass.
-The easiest is as a Rails plugin:
-Simply type <tt>./script/plugin install http://hamptoncatlin.com/haml/stable</tt>
+There are several ways to use Haml and Sass.
+They can be used as a plugins for Rails or Merb,
+or embedded on their own in other applications.
+The first step of all of these is to install the Haml gem:
+
+  gem install haml
+
+To install Haml and Sass as a Rails plugin,
+just run <tt>haml --rails path/to/rails/app</tt>
 and both Haml and Sass will be installed.
-Views with the <tt>.haml</tt> extension will automatically use Haml.
+Views with the <tt>.haml</tt> (or <tt>.html.haml</tt> for edge)
+extension will automatically use Haml.
 Sass is a little more complicated;
 <tt>.sass</tt> files should be placed in public/stylesheets/sass,
 where they'll be automatically compiled
 to corresponding CSS files in public/stylesheets when needed
 (the Sass template directory is customizable...
 see the Sass module docs for details).
+
+For Merb, <tt>.html.haml</tt> views will work without any further modification.
+To enable Sass, you also need to add it add a dependency.
+To do so, just add
+
+  dependency "haml"
+
+to config/dependencies.rb.
+Then it'll work just like it does in Rails.
+
+To use Haml and Sass programatically,
+check out the RDocs for the Haml and Sass modules.
 
 == Formatting
 
