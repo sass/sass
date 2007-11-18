@@ -123,7 +123,7 @@ END
         :suppress_eval => false,
         :attr_wrapper => "'",
         :locals => {},
-        :autoclose => ['meta', 'img', 'link', 'br', 'hr'],
+        :autoclose => ['meta', 'img', 'link', 'br', 'hr', 'input', 'area'],
         :filters => {
           'sass' => Sass::Engine,
           'plain' => Haml::Filters::Plain,
