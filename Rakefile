@@ -96,7 +96,7 @@ unless ARGV[0] == 'benchmark'
   end
 
   task :install => [:package] do
-    sh %{gem install pkg/haml-#{File.read('VERSION').strip}}
+    sh %{gem install --no-ri pkg/haml-#{File.read('VERSION').strip}}
   end
 
   # ----- Documentation -----
