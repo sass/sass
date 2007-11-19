@@ -25,7 +25,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # Haml can be used in two ways:
 # as a plugin for Ruby on Rails,
-# and as a standalong Ruby module.
+# and as a standalone Ruby module.
 #
 # Sass can be used in several ways:
 # As a template engine for Ruby on Rails or Merb,
@@ -59,7 +59,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     end
 #   end
 # 
-#   # file: app/views/movies/index.haml
+#   -# file: app/views/movies/index.haml
 # 
 #   #content
 #    .title
@@ -161,7 +161,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     @user = CrazyUser.find(15)
 #   end
 # 
-#   # file: app/views/users/show.haml
+#   -# file: app/views/users/show.haml
 # 
 #   %div[@user]
 #     %bar[290]/
@@ -366,7 +366,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # 
 #   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 # 
-# If you're not using the UTF-8 characterset for your document,
+# If you're not using the UTF-8 character set for your document,
 # you can specify which encoding should appear
 # in the XML prolog in a similar way.
 # For example:
@@ -383,16 +383,16 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # wraps all text after it in an HTML comment.
 # For example:
 # 
-#   %billabong
-#     / This is the billabong element
-#     I like billabongs!
+#   %peanutbutterjelly
+#     / This is the peanutbutterjelly element
+#     I like sandwiches!
 # 
 # is compiled to:
 # 
-#   <billabong>
-#     <!-- This is the billabong element -->
-#     I like billabongs!
-#   </billabong>
+#   <peanutbutterjelly>
+#     <!-- This is the peanutbutterjelly element -->
+#     I like sandwiches!
+#   </peanutbutterjelly>
 # 
 # The forward slash can also wrap indented sections of code. For example:
 # 
