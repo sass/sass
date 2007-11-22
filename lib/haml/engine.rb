@@ -868,17 +868,5 @@ module Haml
       @to_close_stack.push(value)
       @template_tabs += 1
     end
-
-    # Returns a hash of options
-    # that identifies the options for a given template
-    # so that e.g. the same template with a different suppress_eval value causes recompilation
-    # but the same template with the same locals but different values does not.
-    def options_for_cache
-      opts = options.dup
-      opts[:locals] = opts[:locals].keys
-      opts[:filters] = opts[:filters].to_a
-      opts.delete :filename
-      opts.to_a
-    end
   end
 end
