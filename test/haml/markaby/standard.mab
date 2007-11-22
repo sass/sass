@@ -6,7 +6,6 @@ html(:xmlns=>'http://www.w3.org/1999/xhtml', 'xml:lang'=>'en-US') do
   end
   body do
     # You're In my house now!
-    concat("Foo")
     div :class => "header" do
       self << %|Yes, ladies and gentileman. He is just that egotistical.
       Fantastic! This should be multi-line output

@@ -25,8 +25,7 @@ task :benchmark do
   puts '-'*51, "Benchmark: Haml vs. ERb", '-'*51
   puts "Running benchmark #{ENV['TIMES']} times..." if ENV['TIMES']
   times = ENV['TIMES'].to_i if ENV['TIMES']
-  benchmarker = Haml::Benchmarker.new
-  puts benchmarker.benchmark(times || 100)
+  Haml.benchmark(times || 100)
   puts '-'*51
 end
 
