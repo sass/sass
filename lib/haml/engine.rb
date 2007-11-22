@@ -660,29 +660,26 @@ END
       attributes
     end
 
-    def build_attributes(attributes = {})
-      @quote_escape = @options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
-      @other_quote_char = @options[:attr_wrapper] == '"' ? "'" : '"'
+    # This is a class method so it can be accessed from Buffer.
+    def self.build_attributes(attr_wrapper, attributes = {})
+      quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
+      other_quote_char = attr_wrapper == '"' ? "'" : '"'
   
       result = attributes.collect do |a,v|
         unless v.nil? 
           v = v.to_s
-          attr_wrapper = @options[:attr_wrapper]
+          this_attr_wrapper = attr_wrapper
           if v.include? attr_wrapper
-            if v.include? @other_quote_char
-              # An imperfection in LITERAL_VALUE_REGEX prevents this
-              # from ever actually being reached,
-              # but in case it becomes possible,
-              # I'm leaving it in.
-              v = v.gsub(attr_wrapper, @quote_escape)
+            if v.include? other_quote_char
+              v = v.gsub(attr_wrapper, quote_escape)
             else
-              attr_wrapper = @other_quote_char
+              this_attr_wrapper = other_quote_char
             end
           end
-          " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
+          " #{a}=#{this_attr_wrapper}#{v}#{this_attr_wrapper}"
         end
       end
-      result.sort.join
+      result.compact.sort.join
     end
 
     def prerender_tag(name, atomic, attributes)
@@ -692,7 +689,7 @@ END
         str = ">"
       end
   
-      "<#{name}#{build_attributes(attributes)}#{str}"
+      "<#{name}#{self.class.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will

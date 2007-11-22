@@ -281,11 +281,11 @@ module Haml
       end
 
       if text.nil? && block.nil?
-        puts "<#{name}#{buffer.build_attributes(attributes)} />"
+        puts "<#{name}#{Haml::Engine.build_attributes(buffer.options[:attr_wrapper], attributes)} />"
         return nil
       end
 
-      puts "<#{name}#{buffer.build_attributes(attributes)}>"
+      puts "<#{name}#{Haml::Engine.build_attributes(buffer.options[:attr_wrapper], attributes)}>"
       unless text && text.empty?
         tab_up
         # Print out either the text (using push_text) or call the block and add an endline

@@ -15,6 +15,9 @@ module Haml
     # _erbout for compatibility with ERB-specific code.
     attr_accessor :buffer
 
+    # The options hash passed in from Haml::Engine.
+    attr_accessor :options
+
     # Gets the current tabulation of the document.
     def tabulation
       @real_tabs + @tabulation
@@ -107,7 +110,7 @@ module Haml
       else
         str = ">\n"
       end
-      @buffer << "#{tabs(tabulation)}<#{name}#{build_attributes(attributes)}#{str}"
+      @buffer << "#{tabs(tabulation)}<#{name}#{Haml::Engine.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
       if content
         if Buffer.one_liner?(content)
           @buffer << "#{content}</#{name}>\n"
@@ -135,26 +138,6 @@ module Haml
     # Some of these methods are exposed as public class methods
     # so they can be re-used in helpers.
 
-    # Takes a hash and builds a list of XHTML attributes from it, returning
-    # the result.
-    def build_attributes(attributes = {})
-      result = attributes.collect do |a,v|
-        unless v.nil?
-          v = v.to_s
-          attr_wrapper = @options[:attr_wrapper]
-          if v.include? attr_wrapper
-            if v.include? @other_quote_char
-              v = v.gsub(attr_wrapper, @quote_escape)
-            else
-              attr_wrapper = @other_quote_char
-            end
-          end
-          " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
-        end
-      end
-      result.compact.sort.join
-    end
-    
     # Returns whether or not the given value is short enough to be rendered
     # on one line.
     def self.one_liner?(value)

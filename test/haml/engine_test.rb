@@ -88,6 +88,14 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p></p>\n", render("%p= 'Hello' if false"))
   end
 
+  def test_static_attributes_with_empty_attr
+    assert_equal("<img alt='' src='/foo.png' />\n", render("%img{:src => '/foo.png', :alt => ''}"))
+  end
+
+  def test_dynamic_attributes_with_empty_attr
+    assert_equal("<img alt='' src='/foo.png' />\n", render("%img{:width => nil, :src => '/foo.png', :alt => String.new}"))
+  end
+
   # Options tests
 
   def test_stop_eval
