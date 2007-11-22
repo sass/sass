@@ -168,16 +168,6 @@ module Haml
 
     alias_method :to_html, :render
 
-    # This method is deprecated and shouldn't be used.
-    def precompiled
-      $stderr.puts <<END
-The Haml precompiled method and :precompiled option
-are deprecated and will be removed in version 2.0.
-Haml::Engine now automatically handles caching.
-END
-      nil
-    end
-
    private
     
     #Precompile each line
