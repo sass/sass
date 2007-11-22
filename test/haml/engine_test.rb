@@ -150,20 +150,6 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<a href=\"boo\">Boo!</a>\n", render("%a{:href => 'boo'} Boo!", :attr_wrapper => '"'))
   end
 
-  def test_different_locals_values_shouldnt_recompile
-    scope = Object.new
-    def scope.method_name
-      caller[0].scan(/`([^']*)'/)[0][0]
-    end
-    
-    rendered1 = render("= local\n= method_name", :locals => {:local => 'l1'}, :scope => scope)
-    assert_equal("l1", rendered1.split[0])
-    
-    rendered2 = render("= local\n= method_name", :locals => {:local => 'l2'}, :scope => scope)
-    assert_equal("l2", rendered2.split[0])
-    assert_equal(rendered1.split[1], rendered2.split[1])
-  end
-
   def test_dynamic_attrs_shouldnt_register_as_literal_values
     assert_equal("<p a='b2c'>\n</p>\n", render('%p{:a => "b#{1 + 1}c"}'))
     assert_equal("<p a='b2c'>\n</p>\n", render("%p{:a => 'b' + (1 + 1).to_s + 'c'}"))

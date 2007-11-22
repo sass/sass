@@ -146,8 +146,10 @@ module Haml
       # flattened block. -1 signifies that there is no such block.
       @flat_spaces = -1
 
+      @method_name = get_method_name
+
       # Only do the first round of pre-compiling if we really need to.
-      do_precompile if @@method_names[[@template, options_for_cache]].nil?
+      do_precompile
     rescue Haml::Error => e
       e.add_backtrace_entry(@index, @options[:filename])
       raise e
@@ -173,9 +175,8 @@ module Haml
     #Precompile each line
     def do_precompile
       @precompiled = ''
-      method_name = assign_method_name(@template, options[:filename])
       push_silent <<-END
-        def #{method_name}(local_assigns)
+        def #{@method_name}(local_assigns)
           @haml_is_haml = true
           _hamlout = @haml_stack[-1]
           _erbout = _hamlout.buffer
@@ -353,20 +354,10 @@ module Haml
       line && line.length > 1 && line[-1] == MULTILINE_CHAR_VALUE && line[-2] == 32
     end
     
-    # Method for generating compiled method names basically ripped out of ActiveView::Base
-    # If Haml is to be used as a standalone module without rails and still use the precompiled
-    # methods technique, it will end up duplicating this stuff.  I can't decide whether
-    # checking compile times to decide whether to recompile a template belongs in here or
-    # out in template.rb
-    @@method_names = {}
     @@render_method_count = 0
-    def assign_method_name(template, file_name)
+    def get_method_name
       @@render_method_count += 1
-      @@method_names[[template, options_for_cache]] = "_render_haml_#{@@render_method_count}".intern
-    end
-    
-    module CompiledTemplates
-      # holds compiled template code
+      "_render_haml_#{@@render_method_count}"
     end
 
     # Takes <tt>@precompiled</tt>, a string buffer of Ruby code, and
@@ -386,17 +377,10 @@ module Haml
           attr :haml_lineno # :nodoc:
         end
       end
-      @scope_object.class.instance_eval do
-        include CompiledTemplates
-      end
 
       begin
-        method_name = @@method_names[[@template, options_for_cache]]
-
-        unless @scope_object.respond_to?(method_name)
-          CompiledTemplates.module_eval @precompiled
-        end
-        @scope_object.send(method_name, options[:locals], &block)
+        @scope_object.instance_eval(@precompiled)
+        @scope_object.send(@method_name, options[:locals], &block)
       rescue Exception => e
         class << e
           include Haml::Error
