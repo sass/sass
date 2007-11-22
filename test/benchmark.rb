@@ -30,15 +30,17 @@ module Haml
       b.report("erubis:") { runs.times { Erubis::Eruby.new(erb_template).result } }
       b.report("mab:")    { runs.times { Markaby::Template.new(markaby_template).render } }
     end
+
+    print_result = proc do |s, n|
+      printf "%1$*2$s %3$*4$g",
+        "Haml/#{s}:", -13, times[0].to_a[5] / times[n].to_a[5], -17
+      printf "%1$*2$s %3$g\n",
+        "#{s}/Haml:", -13, times[n].to_a[5] / times[0].to_a[5]
+    end
     
-    ratio = sprintf("%g", times[0].to_a[5] / times[1].to_a[5])
-    puts "Haml/ERB:     " + ratio
- 
-    ratio = sprintf("%g", times[0].to_a[5] / times[2].to_a[5])
-    puts "Haml/Erubis:  " + ratio
-   
-    ratio = sprintf("%g", times[0].to_a[5] / times[3].to_a[5])
-    puts "Haml/Markaby: " + ratio
+    print_result["ERB", 1]
+    print_result["Erubis", 2]
+    print_result["Markaby", 3]
     
     puts '', '-' * 50, 'Sass on its own', '-' * 50
     sass_template = File.read("#{File.dirname(__FILE__)}/sass/templates/complex.sass")
