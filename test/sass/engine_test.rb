@@ -44,6 +44,8 @@ class SassEngineTest < Test::Unit::TestCase
     "@import foo.sass" => "File to import not found or unreadable: foo.sass",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
+    "!foo = bar baz !" => "Unterminated constant.",
+    "!foo = !(foo)" => "Invalid constant.",
   }
   
   def test_basic_render
