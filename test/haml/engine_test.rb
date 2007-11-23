@@ -11,8 +11,8 @@ require 'haml/engine'
 
 class EngineTest < Test::Unit::TestCase
 
-  def render(text, options = {})
-    Haml::Engine.new(text, options).to_html(options.delete(:scope) || Object.new)
+  def render(text, options = {}, &block)
+    Haml::Engine.new(text, options).to_html(options.delete(:scope) || Object.new, &block)
   end
 
   def test_empty_render_should_remain_empty
@@ -309,5 +309,9 @@ class EngineTest < Test::Unit::TestCase
 
     assert_equal("<p>THIS IS A STRING!</p>\n<p>Instance variable</p>\n<p>Local variable</p>\n",
                  render("%p= upcase\n%p= @var\n%p= var", :scope => b))
+  end
+
+  def test_yield_should_work_with_binding
+    assert_equal("12\nFOO\n", render("= yield\n= upcase", :scope => "foo".instance_eval{binding}) { 12 })
   end
 end

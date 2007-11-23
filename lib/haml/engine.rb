@@ -72,6 +72,26 @@ module Haml
     end
 
     # Processes the template and returns the result as a string.
+    #
+    # +scope+ is the context in which the template is evaluated.
+    # If it's a Binding or Proc object,
+    # Haml uses it as the second argument to Kernel#eval;
+    # otherwise, Haml just uses its #instance_eval context.
+    # Note that Haml modifies the context,
+    # extending it with Haml::Helpers
+    # and performing various other modifications.
+    #
+    # If a block is passed to render,
+    # that block is run when +yield+ is called
+    # within the template.
+    #
+    # Note that due to some Ruby quirks,
+    # if scope is a Binding or Proc object and a block is given,
+    # the evaluation context may not be quite what the user expects.
+    # In particular, it's equivalent to passing <tt>eval("self", scope)</tt> as scope.
+    # This won't have an effect in most cases,
+    # but if you're relying on local variables defined in the context of scope,
+    # they won't work.
     def render(scope = Object.new, &block)
       @buffer = Haml::Buffer.new(@options)
       compile scope, &block
@@ -86,12 +106,17 @@ module Haml
     # The code in <tt>@precompiled</tt> populates
     # <tt>@buffer</tt> with the compiled XHTML code.
     def compile(scope, &block)
-      if Binding === scope
+      if scope.is_a?(Binding) || scope.is_a?(Proc)
         scope_object = eval("self", scope)
+        scope = scope_object.instance_eval{binding} if block_given?
       else
         scope_object = scope
-        scope = scope.instance_eval{binding}
+        scope = scope_object.instance_eval{binding}
       end
+
+      scope_object.send(:instance_variable_set, '@_haml_locals', @options[:locals])
+      set_locals = @options[:locals].keys.map { |k| "#{k} = @_haml_locals[#{k.inspect}]" }.join("\n")
+      eval(set_locals, scope)
 
       scope_object.extend Haml::Helpers
       buffer = @buffer
@@ -100,12 +125,8 @@ module Haml
         @haml_stack.push(buffer)
       end
 
-      scope_object.send(:instance_variable_set, '@_haml_locals', @options[:locals])
-      set_locals = @options[:locals].keys.map { |k| "#{k} = @_haml_locals[#{k.inspect}]" }.join("\n")
-      eval(set_locals, scope)
-
       begin
-        eval(@precompiled, scope, '(haml-eval)', &block)
+        eval(@precompiled, scope, '(haml-eval)')
       rescue Exception => e
         raise add_exception_info(e, scope_object)
       end
