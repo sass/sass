@@ -114,14 +114,13 @@ module Haml
         scope = scope_object.instance_eval{binding}
       end
 
-      scope_object.send(:instance_variable_set, '@_haml_locals', @options[:locals])
-      set_locals = @options[:locals].keys.map { |k| "#{k} = @_haml_locals[#{k.inspect}]" }.join("\n")
-      eval(set_locals, scope)
+      set_locals(@options[:locals].merge(:_hamlout => buffer, :_erbout => buffer.buffer), scope, scope_object)
 
-      scope_object.extend Haml::Helpers
       scope_object.instance_eval do
+        extend Haml::Helpers
         @haml_stack ||= Array.new
         @haml_stack.push(buffer)
+        @haml_is_haml = true
       end
 
       begin
@@ -133,7 +132,14 @@ module Haml
       # Get rid of the current buffer
       scope_object.instance_eval do
         @haml_stack.pop
+        @haml_is_haml = false
       end
+    end
+
+    def set_locals(locals, scope, scope_object)
+      scope_object.send(:instance_variable_set, '@_haml_locals', locals)
+      set_locals = locals.keys.map { |k| "#{k} = @_haml_locals[#{k.inspect}]" }.join("\n")
+      eval(set_locals, scope)
     end
 
     def add_exception_info(e, scope_object)

@@ -89,12 +89,7 @@ module Haml
 
     def precompile
       @precompiled = ''
-      push_silent <<-END
-        @haml_is_haml = true
-        _hamlout = @haml_stack[-1]
-        _erbout = _hamlout.buffer
-      END
-      
+
       old_line = nil
       old_index = nil
       old_spaces = nil
@@ -153,8 +148,7 @@ module Haml
 
       # Close all the open tags
       @template_tabs.times { close }
-
-      push_silent "@haml_is_haml = false\n"
+      flush_merged_text
     end
         
     # Processes and deals with lowering indentation.
