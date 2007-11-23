@@ -69,7 +69,7 @@ module Sass
       }.merge! options
       @template = template.split(/\n\r|\n/)
       @lines = []
-      @constants = {}
+      @constants = {"important" => "!important"}
     end
 
     # Processes the template and returns the result as a string.

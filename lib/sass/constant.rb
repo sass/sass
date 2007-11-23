@@ -101,7 +101,7 @@ module Sass
               symbol = SYMBOLS[byte]
 
               # Adjacent values without an operator should be concatenated
-              if (symbol.nil? || symbol == :open) &&
+              if (symbol.nil? || symbol == :open || symbol == :const) &&
                   last && (!last.is_a?(Symbol) || last == :close)
                 to_return << :concat
               end
