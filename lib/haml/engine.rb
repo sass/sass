@@ -146,5 +146,11 @@ module Haml
 
       return e
     end
+
+    # Returns a hash of options that Haml::Buffer cares about.
+    # This should remain loadable form #inspect.
+    def options_for_buffer
+      {:attr_wrapper => @options[:attr_wrapper]}
+    end
   end
 end
