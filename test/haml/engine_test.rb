@@ -184,12 +184,25 @@ class EngineTest < Test::Unit::TestCase
       begin
         render(err)
       rescue Exception => e
-        assert(e.is_a?(Haml::Error),
-               "#{err.dump} doesn't produce Haml::SyntaxError!")
+        assert(e.is_a?(Haml::Error), "#{err.dump} doesn't produce Haml::SyntaxError")
       else
-        assert(false,
-               "#{err.dump} doesn't produce an exception!")
+        assert(false, "#{err.dump} doesn't produce an exception")
       end
+    end
+  end
+
+  def test_syntax_error
+    begin
+      render("a\nb\n!!!\n  c\nd")
+    rescue Haml::SyntaxError => e
+      assert_equal(e.message, "Illegal Nesting: Nesting within a header command is illegal.")
+      assert_equal(3, e.haml_line)
+      assert_equal(nil, e.haml_filename)
+      assert_equal('(haml):3', e.backtrace[0])
+    rescue Exception => e
+      assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce a Haml::SyntaxError')
+    else
+      assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce an exception')
     end
   end
 
