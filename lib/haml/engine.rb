@@ -92,20 +92,30 @@ module Haml
     # This won't have an effect in most cases,
     # but if you're relying on local variables defined in the context of scope,
     # they won't work.
-    def render(scope = Object.new, &block)
-      @buffer = Haml::Buffer.new(@options)
-      compile scope, &block
-      @buffer.buffer
+    def render(scope = Object.new, options = {}, &block)
+      temporarily_merge_options(options) do
+        buffer = Haml::Buffer.new(@options)
+        compile scope, buffer, &block
+        buffer.buffer
+      end
     end
     alias_method :to_html, :render
 
     private
 
+    def temporarily_merge_options(new)
+      old = @options.dup
+      @options.merge!(new)
+      res = yield
+      @options = old
+      res
+    end
+
     # Takes <tt>@precompiled</tt>, a string buffer of Ruby code, and
-    # evaluates it in the context of <tt>scope_object</tt>.
+    # evaluates it in the context of <tt>scope</tt>.
     # The code in <tt>@precompiled</tt> populates
-    # <tt>@buffer</tt> with the compiled XHTML code.
-    def compile(scope, &block)
+    # <tt>buffer</tt> with the compiled XHTML code.
+    def compile(scope, buffer)
       if scope.is_a?(Binding) || scope.is_a?(Proc)
         scope_object = eval("self", scope)
         scope = scope_object.instance_eval{binding} if block_given?
@@ -119,7 +129,6 @@ module Haml
       eval(set_locals, scope)
 
       scope_object.extend Haml::Helpers
-      buffer = @buffer
       scope_object.instance_eval do
         @haml_stack ||= Array.new
         @haml_stack.push(buffer)
