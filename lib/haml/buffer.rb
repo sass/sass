@@ -110,7 +110,7 @@ module Haml
       else
         str = ">\n"
       end
-      @buffer << "#{tabs(tabulation)}<#{name}#{Haml::Engine.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
+      @buffer << "#{tabs(tabulation)}<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
       if content
         if Buffer.one_liner?(content)
           @buffer << "#{content}</#{name}>\n"
