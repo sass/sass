@@ -158,11 +158,10 @@ module Haml
 
     # Processes the template and returns the result as a string.
     def render(scope = Object.new, &block)
-      @scope_object = scope
       @buffer = Haml::Buffer.new(@options)
 
       # Run the compiled evaluator function
-      compile &block
+      compile scope, &block
 
       # Return the result string
       @buffer.buffer
@@ -176,10 +175,11 @@ module Haml
     def do_precompile
       @precompiled = ''
       push_silent <<-END
-        def #{@method_name}(local_assigns)
-          @haml_is_haml = true
-          _hamlout = @haml_stack[-1]
-          _erbout = _hamlout.buffer
+        class << self
+          def #{@method_name}(local_assigns)
+            @haml_is_haml = true
+            _hamlout = @haml_stack[-1]
+            _erbout = _hamlout.buffer
       END
       
       @options[:locals].each do |k,v|
@@ -245,7 +245,7 @@ module Haml
       # Close all the open tags
       @template_tabs.times { close }
 
-      push_silent "@haml_is_haml = false\nend\n"
+      push_silent "@haml_is_haml = false\nend\nend\n"
     end
     
     # Processes and deals with lowering indentation.
@@ -361,38 +361,44 @@ module Haml
     end
 
     # Takes <tt>@precompiled</tt>, a string buffer of Ruby code, and
-    # evaluates it in the context of <tt>@scope_object</tt>, after preparing
-    # <tt>@scope_object</tt>. The code in <tt>@precompiled</tt> populates
+    # evaluates it in the context of <tt>scope_object</tt>.
+    # The code in <tt>@precompiled</tt> populates
     # <tt>@buffer</tt> with the compiled XHTML code.
-    def compile(&block)
-      # Set the local variables pointing to the buffer
-      buffer = @buffer
+    def compile(scope, &block)
+      if Binding === scope
+        scope_object = eval("self", scope)
+      else
+        scope_object = scope
+        scope = scope.instance_eval{binding}
+      end
 
-      @scope_object.extend Haml::Helpers
-      @scope_object.instance_eval do
+      scope_object.extend Haml::Helpers
+      buffer = @buffer
+      scope_object.instance_eval do
         @haml_stack ||= Array.new
         @haml_stack.push(buffer)
+      end
 
-        class << self
-          attr :haml_lineno # :nodoc:
-        end
+      class << scope_object
+        attr :haml_lineno # :nodoc:
       end
 
       begin
-        @scope_object.instance_eval(@precompiled)
-        @scope_object.send(@method_name, options[:locals], &block)
+        eval(@precompiled, scope, '(haml-eval)')
+        scope_object.send(@method_name, options[:locals], &block)
       rescue Exception => e
-        class << e
-          include Haml::Error
-        end
+        metaclass = class << e; self; end
+        metaclass.send(:include, Haml::Error)
 
-        lineno = @scope_object.haml_lineno
+        lineno = scope_object.haml_lineno
 
         # Get information from the exception and format it so that
         # Rails can understand it.
-        compile_error = e.message.scan(/\(eval\):([0-9]*):in `[-_a-zA-Z]*': compile error/)[0]
+        compile_error, message = e.message.scan(/compile error\n\(haml-eval\):([0-9]*): (.*)/)[0]
 
         if compile_error
+          metaclass.send(:define_method, :message) { "compile error: #{message}" }
+
           if @precompiled
             eval_line = compile_error[0].to_i
             line_marker = @precompiled.split("\n")[0...eval_line].grep(/@haml_lineno = [0-9]*/)[-1]
@@ -407,12 +413,12 @@ module Haml
       end
 
       # Get rid of the current buffer
-      @scope_object.instance_eval do
+      scope_object.instance_eval do
         @haml_stack.pop
       end
     end
 
-    # Evaluates <tt>text</tt> in the context of <tt>@scope_object</tt>, but
+    # Evaluates <tt>text</tt> in the context of the scope object, but
     # does not output the result.
     def push_silent(text, add_index = false, can_suppress = false)
       flush_merged_text
@@ -469,7 +475,7 @@ module Haml
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
-    # <tt>@scope_object</tt> and the result to be added to <tt>@buffer</tt>.
+    # the scope object and the result to be added to <tt>@buffer</tt>.
     #
     # If <tt>flattened</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>

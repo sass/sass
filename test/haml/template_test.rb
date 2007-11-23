@@ -130,6 +130,7 @@ class TemplateTest < Test::Unit::TestCase
     begin
       render("- raise 'oops!'")
     rescue Exception => e
+      assert_equal("oops!", e.message)
       assert_equal("(haml):1", e.backtrace[0])
     else
       assert false

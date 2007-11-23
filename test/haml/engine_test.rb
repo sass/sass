@@ -202,6 +202,7 @@ class EngineTest < Test::Unit::TestCase
     begin
       render("a\nb\n- fee do\nc")
     rescue Exception => e
+      assert_equal("compile error: syntax error, unexpected $end, expecting kEND", e.message)
       assert_equal(3, e.haml_line)
     else
       assert(false,
@@ -288,5 +289,14 @@ class EngineTest < Test::Unit::TestCase
     user = Struct.new('User', :id).new
     assert_equal("<p class='struct_user' id='struct_user_new'>New User</p>\n",
                  render("%p[user] New User", :locals => {:user => user}))
+  end
+
+  def test_render_should_accept_a_binding_as_scope
+    string = "This is a string!"
+    string.instance_variable_set("@var", "Instance variable")
+    b = string.instance_eval{binding}
+
+    assert_equal("<p>THIS IS A STRING!</p>\n<p>Instance variable</p>\n",
+                 render("%p= upcase\n%p= @var", :scope => b))
   end
 end
