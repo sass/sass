@@ -100,10 +100,6 @@ module Haml
         @haml_stack.push(buffer)
       end
 
-      class << scope_object
-        attr :haml_lineno # :nodoc:
-      end
-
       scope_object.send(:instance_variable_set, '@_haml_locals', @options[:locals])
       set_locals = @options[:locals].keys.map { |k| "#{k} = @_haml_locals[#{k.inspect}]" }.join("\n")
       eval(set_locals, scope)
@@ -111,35 +107,28 @@ module Haml
       begin
         eval(@precompiled, scope, '(haml-eval)', &block)
       rescue Exception => e
-        metaclass = class << e; self; end
-        metaclass.send(:include, Haml::Error)
-
-        lineno = scope_object.haml_lineno
-
-        # Get information from the exception and format it so that
-        # Rails can understand it.
-        compile_error, message = e.message.scan(/compile error\n\(haml-eval\):([0-9]*): (.*)/)[0]
-
-        if compile_error
-          metaclass.send(:define_method, :message) { "compile error: #{message}" }
-
-          if @precompiled
-            eval_line = compile_error[0].to_i
-            line_marker = @precompiled.split("\n")[0...eval_line].grep(/@haml_lineno = [0-9]*/)[-1]
-            lineno = line_marker.scan(/[0-9]+/)[0].to_i if line_marker
-          else
-            lineno = -1
-          end
-        end
-
-        e.add_backtrace_entry(lineno, @options[:filename])
-        raise e
+        raise add_exception_info(e, scope_object)
       end
 
       # Get rid of the current buffer
       scope_object.instance_eval do
         @haml_stack.pop
       end
+    end
+
+    def add_exception_info(e, scope_object)
+      metaclass = class << e; self; end
+      metaclass.send(:include, Haml::Error)
+
+      eval_line = e.backtrace[0].scan(/:([0-9]*)/)[0][0].to_i
+      line_marker = @precompiled.split("\n")[0...eval_line].grep(/#haml_lineno: [0-9]+/)[-1]
+      e.add_backtrace_entry(line_marker ? line_marker.scan(/[0-9]+/)[0].to_i : -1, @options[:filename])
+
+      # Format Ruby compiler errors nicely
+      message = e.message.scan(/compile error\n\(haml-eval\):[0-9]*: (.*)/)[0]
+      metaclass.send(:define_method, :message) { "compile error: #{message}" } if message
+
+      return e
     end
   end
 end

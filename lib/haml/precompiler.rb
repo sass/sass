@@ -271,7 +271,7 @@ module Haml
       
       unless (can_suppress && options[:suppress_eval])
         if add_index
-          @precompiled << "@haml_lineno = #{@index}\n#{text}\n"
+          @precompiled << "#haml_lineno: #{@index}\n#{text}\n"
         else
           # Not really DRY, but probably faster
           @precompiled << "#{text}\n"
