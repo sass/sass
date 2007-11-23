@@ -10,3 +10,5 @@
 #div { num-num: 3.33333333333333; num-num2: 3; col-num: #092345; col-col: #0b0d0f; }
 
 #mod { num-num: 2; col-col: #0f0e05; col-num: #020001; }
+
+#const { escaped-quote: !foo; escaped-slash: !foo; default: Hello! !important; }
