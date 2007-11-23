@@ -146,10 +146,8 @@ module Haml
       # flattened block. -1 signifies that there is no such block.
       @flat_spaces = -1
 
-      @method_name = get_method_name
-
       # Only do the first round of pre-compiling if we really need to.
-      do_precompile
+      precompile
     rescue Haml::Error => e
       e.add_backtrace_entry(@index, @options[:filename])
       raise e
@@ -172,19 +170,13 @@ module Haml
    private
     
     #Precompile each line
-    def do_precompile
+    def precompile
       @precompiled = ''
       push_silent <<-END
-        class << self
-          def #{@method_name}(local_assigns)
-            @haml_is_haml = true
-            _hamlout = @haml_stack[-1]
-            _erbout = _hamlout.buffer
+        @haml_is_haml = true
+        _hamlout = @haml_stack[-1]
+        _erbout = _hamlout.buffer
       END
-      
-      @options[:locals].each do |k,v|
-        push_silent "#{k} = local_assigns[#{k.inspect}]"
-      end
       
       old_line = nil
       old_index = nil
@@ -245,7 +237,7 @@ module Haml
       # Close all the open tags
       @template_tabs.times { close }
 
-      push_silent "@haml_is_haml = false\nend\nend\n"
+      push_silent "@haml_is_haml = false\n"
     end
     
     # Processes and deals with lowering indentation.
@@ -353,12 +345,6 @@ module Haml
     def is_multiline?(line)                                          # ' '[0] == 32
       line && line.length > 1 && line[-1] == MULTILINE_CHAR_VALUE && line[-2] == 32
     end
-    
-    @@render_method_count = 0
-    def get_method_name
-      @@render_method_count += 1
-      "_render_haml_#{@@render_method_count}"
-    end
 
     # Takes <tt>@precompiled</tt>, a string buffer of Ruby code, and
     # evaluates it in the context of <tt>scope_object</tt>.
@@ -383,9 +369,12 @@ module Haml
         attr :haml_lineno # :nodoc:
       end
 
+      scope_object.send(:instance_variable_set, '@_haml_locals', @options[:locals])
+      set_locals = @options[:locals].keys.map { |k| "#{k} = @_haml_locals[#{k.inspect}]" }.join("\n")
+      eval(set_locals, scope)
+
       begin
-        eval(@precompiled, scope, '(haml-eval)')
-        scope_object.send(@method_name, options[:locals], &block)
+        eval(@precompiled, scope, '(haml-eval)', &block)
       rescue Exception => e
         metaclass = class << e; self; end
         metaclass.send(:include, Haml::Error)

@@ -294,9 +294,12 @@ class EngineTest < Test::Unit::TestCase
   def test_render_should_accept_a_binding_as_scope
     string = "This is a string!"
     string.instance_variable_set("@var", "Instance variable")
-    b = string.instance_eval{binding}
+    b = string.instance_eval do
+      var = "Local variable"
+      binding
+    end
 
-    assert_equal("<p>THIS IS A STRING!</p>\n<p>Instance variable</p>\n",
-                 render("%p= upcase\n%p= @var", :scope => b))
+    assert_equal("<p>THIS IS A STRING!</p>\n<p>Instance variable</p>\n<p>Local variable</p>\n",
+                 render("%p= upcase\n%p= @var\n%p= var", :scope => b))
   end
 end
