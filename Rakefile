@@ -22,8 +22,7 @@ desc temp_desc.chomp
 task :benchmark do
   require 'test/benchmark'
 
-  puts '-'*51, "Benchmark: Haml vs. Other Template Engines", '-'*51
-  puts "Running benchmark #{ENV['TIMES']} times..." if ENV['TIMES']
+  puts "Running benchmarks #{ENV['TIMES']} times..." if ENV['TIMES']
   times = ENV['TIMES'].to_i if ENV['TIMES']
   Haml.benchmark(times || 100)
   puts '-'*51

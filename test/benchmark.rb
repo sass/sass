@@ -24,6 +24,8 @@ module Haml
     erb_template =   File.read("#{directory}/rhtml/#{template_name}.rhtml")
     markaby_template = File.read("#{directory}/markaby/#{template_name}.mab")
 
+    puts '-'*51, "Haml and Friends: No Caching", '-'*51
+
     times = Benchmark.bmbm do |b|
       b.report("haml:")   { runs.times { Haml::Engine.new(haml_template).render } }
       b.report("erb:")    { runs.times { ERB.new(erb_template, nil, '-').render } }
@@ -41,8 +43,42 @@ module Haml
     print_result["ERB", 1]
     print_result["Erubis", 2]
     print_result["Markaby", 3]
+
+    puts '', '-' * 50, 'Haml and Friends: Cached', '-' * 50
+
+    haml   = Haml::Engine.new(haml_template).render_proc
+    erb    = ERB.new(erb_template, nil, '-')
+    erubis = Object.new
+    Erubis::Eruby.new(erb_template).def_method(erubis, :render)
+    mab = Markaby::Template.new(markaby_template)
+    times = Benchmark.bmbm do |b|
+      b.report("haml:")   { runs.times { haml.call     } }
+      b.report("erb:")    { runs.times { erb.render    } }
+      b.report("erubis:") { runs.times { erubis.render } }
+      b.report("mab:")    { runs.times { mab.render    } }
+    end    
+
+    print_result["ERB", 1]
+    print_result["Erubis", 2]
+    print_result["Markaby", 3]
+
+    puts '', '-' * 50, 'Haml and Friends: Via ActionView', '-' * 50
+
+    require 'active_support'
+    require 'action_controller'
+    require 'action_view'
+    require 'haml/template'
+
+    ActionView::Base.register_template_handler("haml", Haml::Template)
+    @base = ActionView::Base.new(File.dirname(__FILE__))
+    times = Benchmark.bmbm do |b|
+      b.report("haml:")   { runs.times { @base.render 'haml/templates/standard' } }
+      b.report("erb:")    { runs.times { @base.render 'haml/rhtml/standard'     } }
+    end
+
+    print_result["ERB", 1]
     
-    puts '', '-' * 50, 'Sass on its own', '-' * 50
+    puts '', '-' * 50, 'Sass', '-' * 50
     sass_template = File.read("#{File.dirname(__FILE__)}/sass/templates/complex.sass")
     
     Benchmark.bmbm do |b|
