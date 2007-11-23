@@ -19,13 +19,8 @@ class EngineTest < Test::Unit::TestCase
     assert_equal('', render(''))
   end
 
-  # This is ugly because Hashes are unordered; we don't always know the order
-  # in which attributes will be returned.
-  # There is probably a better way to do this.
   def test_attributes_should_render_correctly
     assert_equal("<div class='atlantis' style='ugly'>\n</div>", render(".atlantis{:style => 'ugly'}").chomp)
-  rescue
-    assert_equal("<div style='ugly' class='atlantis'>\n</div>", render(".atlantis{:style => 'ugly'}").chomp)
   end
 
   def test_ruby_code_should_work_inside_attributes
