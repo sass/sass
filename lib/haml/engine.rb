@@ -29,7 +29,7 @@ module Haml
     # to README!
     #++
     #
-    def initialize(template, l_options = {})
+    def initialize(template, options = {})
       @options = {
         :suppress_eval => false,
         :attr_wrapper => "'",
@@ -44,7 +44,7 @@ module Haml
           'markdown' => Haml::Filters::Markdown }
       }
 
-      @options.rec_merge! l_options
+      @options.rec_merge! options
 
       unless @options[:suppress_eval]
         @options[:filters].merge!({
@@ -52,19 +52,15 @@ module Haml
           'ruby' => Haml::Filters::Ruby
         })
       end
-      @options[:filters].rec_merge! l_options[:filters] if l_options[:filters]
+      @options[:filters].rec_merge! options[:filters] if options[:filters]
 
       @template = template.strip #String
       @to_close_stack = []
       @output_tabs = 0
       @template_tabs = 0
       @index = 0
-
-      # This is the base tabulation of the currently active
-      # flattened block. -1 signifies that there is no such block.
       @flat_spaces = -1
 
-      # Only do the first round of pre-compiling if we really need to.
       precompile
     rescue Haml::Error => e
       e.add_backtrace_entry(@index, @options[:filename])
