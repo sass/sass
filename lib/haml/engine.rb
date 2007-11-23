@@ -89,19 +89,8 @@ module Haml
     # but if you're relying on local variables defined in the context of scope,
     # they won't work.
     def render(scope = Object.new, &block)
-      buffer = Haml::Buffer.new(@options)
-      compile scope, buffer, &block
-      buffer.buffer
-    end
-    alias_method :to_html, :render
+      buffer = Haml::Buffer.new(options_for_buffer)
 
-    private
-
-    # Takes <tt>@precompiled</tt>, a string buffer of Ruby code, and
-    # evaluates it in the context of <tt>scope</tt>.
-    # The code in <tt>@precompiled</tt> populates
-    # <tt>buffer</tt> with the compiled XHTML code.
-    def compile(scope, buffer)
       if scope.is_a?(Binding) || scope.is_a?(Proc)
         scope_object = eval("self", scope)
         scope = scope_object.instance_eval{binding} if block_given?
@@ -130,7 +119,12 @@ module Haml
         @haml_stack.pop
         @haml_is_haml = false
       end
+
+      buffer.buffer
     end
+    alias_method :to_html, :render
+
+    private
 
     def set_locals(locals, scope, scope_object)
       scope_object.send(:instance_variable_set, '@_haml_locals', locals)
