@@ -25,6 +25,7 @@ module Sass
       ?* => :times,
       ?/ => :div,
       ?% => :mod,
+      CONSTANT_CHAR => :const,
       STRING_CHAR => :str,
       ESCAPE_CHAR => :esc
     }
@@ -58,7 +59,7 @@ module Sass
       def tokenize(value)
         escaped = false
         is_string = false
-        negative_okay = true
+        beginning_of_token = true
         str = ''
         to_return = []
         
@@ -106,16 +107,23 @@ module Sass
               end
 
               # Time for a unary minus!
-              if negative_okay && symbol == :minus
-                negative_okay = true
+              if beginning_of_token && symbol == :minus
+                beginning_of_token = true
                 to_return << :neg
+                next
+              end
+
+              # Is this a constant?
+              if beginning_of_token && symbol == :const
+                beginning_of_token = true
+                to_return << :const
                 next
               end
 
               # Are we looking at an operator?
               if symbol && (str.empty? || symbol != :mod)
                 str = reset_str.call
-                negative_okay = true
+                beginning_of_token = true
                 to_return << symbol
                 next
               end
@@ -123,7 +131,7 @@ module Sass
           end
           
           escaped = false
-          negative_okay = false
+          beginning_of_token = false
           str << byte.chr
         end
         
@@ -138,7 +146,7 @@ module Sass
         parenthesize_helper(0, value, value.length)[0]
       end
       
-      def parenthesize_helper(i, value, value_len)
+      def parenthesize_helper(i, value, value_len, return_after_expr = false)
         to_return = []
         beginning = i
         token = value[i]
@@ -151,10 +159,16 @@ module Sass
             to_return << sub
           elsif token == :neg
             if value[i + 1].nil?
-              raise Sass::SyntaxError("Unterminated unary minus.")
+              # This is never actually reached, but we'll leave it in just in case.
+              raise Sass::SyntaxError.new("Unterminated unary minus.")
             elsif value[i + 1] == :open
               to_return.push(*value[beginning...i])
               sub, i = parenthesize_helper(i + 2, value, value_len)
+              beginning = i
+              to_return << [:neg, sub]
+            elsif value[i + 1].is_a?(::Symbol)
+              to_return.push(*value[beginning...i])
+              sub, i = parenthesize_helper(i + 1, value, value_len, true)
               beginning = i
               to_return << [:neg, sub]
             else
@@ -162,6 +176,15 @@ module Sass
               to_return << [:neg, value[i + 1]]
               beginning = i = i + 2
             end
+            return to_return[0], i if return_after_expr
+          elsif token == :const
+            raise Sass::SyntaxError.new("Unterminated constant.") if value[i + 1].nil?
+            raise Sass::SyntaxError.new("Invalid constant.") unless value[i + 1].is_a?(::String)
+
+            to_return.push(*value[beginning...i])
+            to_return << [:const, value[i + 1]]
+            beginning = i = i + 2
+            return to_return[0], i if return_after_expr
           else
             i += 1
           end
@@ -185,11 +208,13 @@ module Sass
           elsif value.is_a? Operation
             value
           else
-            Literal.parse(insert_constant(value, constants))
+            Literal.parse(value)
           end
         elsif value.length == 2
           if value[0] == :neg
             Operation.new(Sass::Constant::Number.new('0'), operationalize(value[1], constants), :minus)
+          elsif value[0] == :const
+            Literal.parse(get_constant(value[1], constants))
           else
             raise SyntaxError.new("Constant arithmetic error")
           end
@@ -204,14 +229,9 @@ module Sass
         end
       end
       
-      def insert_constant(value, constants)
-        to_return = value
-        if value[0] == CONSTANT_CHAR
-          to_return = constants[value[1..-1]]
-          unless to_return
-            raise SyntaxError.new("Undefined constant: \"#{value}\"")
-          end
-        end
+      def get_constant(value, constants)
+        to_return = constants[value]
+        raise SyntaxError.new("Undefined constant: \"!#{value}\"") unless to_return
         to_return
       end
     end
