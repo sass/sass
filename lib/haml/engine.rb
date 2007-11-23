@@ -124,6 +124,30 @@ module Haml
     end
     alias_method :to_html, :render
 
+    # Returns a proc that, when called,
+    # renders the template and returns the result as a string.
+    #
+    # +scope+ works the same as it does for render.
+    #
+    # The proc doesn't take a block;
+    # any yields in the template will fail.
+    def render_proc(scope = Object.new)
+      if scope.is_a?(Binding) || scope.is_a?(Proc)
+        scope_object = eval("self", scope)
+      else
+        scope_object = scope
+        scope = scope_object.instance_eval{binding}
+      end
+
+      set_locals(@options[:locals], scope, scope_object)
+
+      begin
+        eval("proc {#{precompiled_with_ambles}}\n", scope, '(haml-eval)')
+      rescue Exception => e
+        raise add_exception_info(e, scope_object)
+      end
+    end
+
     private
 
     def set_locals(locals, scope, scope_object)

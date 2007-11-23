@@ -30,6 +30,7 @@ class TemplateTest < Test::Unit::TestCase
     ActionView::Base.register_template_handler("haml", Haml::Template)
     Haml::Template.options = { :filters => { 'test'=>TestFilter } }
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/", {'article' => Article.new, 'foo' => 'value one'})
+    @base.send(:evaluate_assigns)
   end
 
   def render(text)
@@ -42,7 +43,8 @@ class TemplateTest < Test::Unit::TestCase
     @result
   end
 
-  def assert_renders_correctly(name)
+  def assert_renders_correctly(name, &render_method)
+    render_method ||= proc { |name| @base.render(name) }
     test = Proc.new do |rendered|
       load_result(name).split("\n").zip(rendered.split("\n")).each_with_index do |pair, line|
         message = "template: #{name}\nline:     #{line}"
@@ -50,7 +52,7 @@ class TemplateTest < Test::Unit::TestCase
       end
     end
     begin
-      test.call(@base.render(name))
+      test.call(render_method[name])
     rescue ActionView::TemplateError => e
       if e.message =~ /Can't run [\w:]+ filter; required (one of|file) ((?:'\w+'(?: or )?)+)(, but none were found| not found)/
         puts "\nCouldn't require #{$2}; skipping a test."
@@ -67,6 +69,15 @@ class TemplateTest < Test::Unit::TestCase
   def test_templates_should_render_correctly
     @@templates.each do |template|
       assert_renders_correctly template
+    end
+  end
+
+  def test_templates_should_render_correctly_with_render_proc
+    @@templates.each do |template|
+      assert_renders_correctly(template) do |name|
+        engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"), :filters => { 'test'=>TestFilter })
+        engine.render_proc(@base).call
+      end
     end
   end
 
@@ -155,5 +166,5 @@ END
     else
       assert false
     end
-  end
+  end  
 end

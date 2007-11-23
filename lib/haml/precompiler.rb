@@ -87,6 +87,21 @@ module Haml
 
     private
 
+    # Returns the precompiled string with the preamble and postamble
+    def precompiled_with_ambles
+      <<END
+extend Haml::Helpers
+@haml_stack ||= Array.new
+@haml_stack.push(Haml::Buffer.new(#{options_for_buffer.inspect}))
+@haml_is_haml = true
+_hamlout = @haml_stack[-1]
+_erbout = _hamlout.buffer
+#{@precompiled}
+@haml_is_haml = false
+_hamlout.buffer
+END
+    end
+
     def precompile
       @precompiled = ''
 
