@@ -148,9 +148,6 @@ module Haml
 
       # Only do the first round of pre-compiling if we really need to.
       precompile
-    rescue Haml::Error => e
-      e.add_backtrace_entry(@index, @options[:filename])
-      raise e
     end
 
 

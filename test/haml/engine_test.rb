@@ -167,6 +167,8 @@ class EngineTest < Test::Unit::TestCase
       assert_equal(2, e.haml_line)
       assert_equal(nil, e.haml_filename)
       assert_equal('(haml):2', e.backtrace[0])
+
+      p e.backtrace
     else
       # Test failed... should have raised an exception
       assert(false)
