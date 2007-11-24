@@ -46,9 +46,7 @@ module Haml
     # with <tt>local_assigns</tt> available as local variables within the template.
     # Returns the result as a string.
     def render(template, local_assigns={})
-      @view.instance_eval do
-        evaluate_assigns
-      end
+      @view.send(:evaluate_assigns)
 
       options = @@options.dup
       locals = options[:locals] || {}
@@ -67,7 +65,6 @@ module Haml
       end
 
       engine.to_html(@view) { |*args| yield_proc.call(*args) }
-
     end
   end
 end

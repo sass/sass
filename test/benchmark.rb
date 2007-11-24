@@ -72,8 +72,8 @@ module Haml
     ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new(File.dirname(__FILE__))
     times = Benchmark.bmbm do |b|
-      b.report("haml:")   { runs.times { @base.render 'haml/templates/standard' } }
-      b.report("erb:")    { runs.times { @base.render 'haml/rhtml/standard'     } }
+      b.report("haml:") { runs.times { @base.render 'haml/templates/action_view' } }
+      b.report("erb:")  { runs.times { @base.render 'haml/rhtml/action_view'     } }
     end
 
     print_result["ERB", 1]
