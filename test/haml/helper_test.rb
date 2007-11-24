@@ -13,7 +13,6 @@ class HelperTest < Test::Unit::TestCase
   include Haml::Helpers
   
   def setup
-    ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new
     @base.controller = ActionController::Base.new
   end

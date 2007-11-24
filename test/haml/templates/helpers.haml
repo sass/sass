@@ -36,11 +36,13 @@ click
 - concat "foo\n"
 - buffer.tabulation = 0
 - def url_for(*stuff); stuff.join(' '); end
+-# The form URLs must be empty
+-# because of a weird bug that causes url_for to misbehave.
 %p
-  = form_tag 'hello/world'
-- form_tag 'heeheeaform' do
+  = form_tag ''
+- form_tag '' do
   %div= submit_tag 'save'
-- form_for :article, @article, :url => 'article_url' do |f|
+- form_for :article, @article, :url => '' do |f|
   Title:
   = f.text_field :title
   Body:

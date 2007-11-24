@@ -27,7 +27,6 @@ class TemplateTest < Test::Unit::TestCase
     filters }
 
   def setup
-    ActionView::Base.register_template_handler("haml", Haml::Template)
     Haml::Template.options = { :filters => { 'test'=>TestFilter } }
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/", {'article' => Article.new, 'foo' => 'value one'})
     @base.send(:evaluate_assigns)
@@ -142,14 +141,6 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_exceptions_should_work_correctly
-    begin
-      Haml::Template.new(@base).render(File.dirname(__FILE__) + '/templates/breakage.haml')
-    rescue Exception => e
-      assert_equal("./test/haml/templates/breakage.haml:4", e.backtrace[0])
-    else
-      assert false
-    end
-
     begin
       render("- raise 'oops!'")
     rescue Exception => e

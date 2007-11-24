@@ -4,24 +4,7 @@ require 'active_support'
 require 'action_view'
 
 module Haml
-  # This class interfaces with ActionView
-  # to make Haml usable as a Ruby on Rails plugin.
-  # It usually shouldn't need to be used by end users.
-  # Just in case, though, here's what you might do to render
-  # <tt>templates/index.haml</tt>:
-  #
-  #   ActionView::Base.register_template_handler("haml", Haml::Template)
-  #   base = ActionView::Base.new("templates")
-  #   base.render("index")
-  #
-  # Or, if you want to really get into the nitty-gritty:
-  #
-  #   base = ActionView::Base.new
-  #   template = Haml::Template.new(base)
-  #   template.render("templates/index.haml")
-  #
   class Template
-
     class << self
       @@options = {}
 
@@ -35,29 +18,6 @@ module Haml
         @@options = value
       end
     end
-
-    # Creates a new Haml::Template object that uses <tt>view</tt>
-    # to render its templates.
-    def initialize(view)
-      @view = view
-    end
-
-    # Renders the file at the location <tt>template</tt>,
-    # with <tt>local_assigns</tt> available as local variables within the template.
-    # Returns the result as a string.
-    def render(template, local_assigns={})
-      @view.send(:evaluate_assigns)
-
-      options = @@options.dup
-
-      yield_proc = @view.instance_eval do
-        proc { |*name| instance_variable_get("@content_for_#{name.first || 'layout'}") }
-      end
-      return Haml::Engine.new(template, options).to_html(@view, local_assigns, &yield_proc) if @view.haml_inline
-
-      options[:filename] ||= template
-      Haml::Engine.new(File.read(template), options).to_html(@view, local_assigns, &yield_proc)
-    end
   end
 end
 
@@ -68,21 +28,42 @@ end
 # here[http://rubyonrails.org/api/classes/ActionView/Base.html].
 module ActionView
   class Base # :nodoc:
-    attr :haml_inline
-
-    alias_method :read_template_file_old, :read_template_file
-    def read_template_file(template_path, extension)
-      if extension =~ /haml/i
-        template_path
-      else
-        read_template_file_old(template_path, extension)
-      end
+    def delegate_template_exists_with_haml(template_path)
+      template_exists?(template_path, :haml) && [:haml]
     end
+    alias_method :delegate_template_exists_without_haml, :delegate_template_exists?
+    alias_method :delegate_template_exists?, :delegate_template_exists_with_haml
 
-    alias_method :render_template_old, :render_template
-    def render_template(template_extension, template, file_path = nil, local_assigns = {})
-      @haml_inline = !template.nil?
-      render_template_old(template_extension, template, file_path, local_assigns)
+    def compile_template_with_haml(extension, template, file_name, local_assigns)
+      return compile_haml(template, file_name, local_assigns) if extension.to_s == "haml"
+      compile_template_without_haml(extension, template, file_name, local_assigns)
+    end
+    alias_method :compile_template_without_haml, :compile_template
+    alias_method :compile_template, :compile_template_with_haml
+
+    def compile_haml(template, file_name, local_assigns)
+      render_symbol = assign_method_name(:haml, template, file_name)
+      locals = local_assigns.keys
+      
+      @@template_args[render_symbol] ||= {}
+      locals_keys = @@template_args[render_symbol].keys | locals
+      @@template_args[render_symbol] = locals_keys.inject({}) { |h, k| h[k] = true; h }
+
+      options = Haml::Template.options.dup
+      options[:filename] = file_name || 'compiled-template'
+
+      begin
+        Haml::Engine.new(template, options).def_method(CompiledTemplates, render_symbol, *locals)
+      rescue Exception => e
+        if logger
+          logger.debug "ERROR: compiling #{render_symbol} RAISED #{e}"
+          logger.debug "Backtrace: #{e.backtrace.join("\n")}"
+        end
+
+        raise TemplateError.new(@base_path, file_name || template, @assigns, template, e)
+      end
+
+      @@compile_time[render_symbol] = Time.now
     end
   end
 end

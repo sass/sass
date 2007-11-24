@@ -69,7 +69,6 @@ module Haml
     require 'action_view'
     require 'haml/template'
 
-    ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new(File.dirname(__FILE__))
     times = Benchmark.bmbm do |b|
       b.report("haml:") { runs.times { @base.render 'haml/templates/standard' } }
@@ -80,7 +79,6 @@ module Haml
 
     puts '', '-' * 50, 'Haml and ERB: Via ActionView with deep partials', '-' * 50
 
-    ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new(File.dirname(__FILE__))
     times = Benchmark.bmbm do |b|
       b.report("haml:") { runs.times { @base.render 'haml/templates/action_view' } }

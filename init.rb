@@ -3,4 +3,4 @@ require 'haml/template'
 require 'sass'
 require 'sass/plugin'
 
-ActionView::Base.register_template_handler('haml', Haml::Template)
+# All the necessary modifications are made via the cougar's kiss
