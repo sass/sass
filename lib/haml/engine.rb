@@ -111,7 +111,7 @@ module Haml
       begin
         eval(@precompiled, scope, '(haml-eval)')
       rescue Exception => e
-        raise add_exception_info(e, scope_object)
+        raise Engine.add_exception_info(e, scope_object, @precompiled, @options[:filename])
       end
 
       # Get rid of the current buffer
@@ -156,13 +156,13 @@ module Haml
       eval(set_locals, scope)
     end
 
-    def add_exception_info(e, scope_object)
+    def self.add_exception_info(e, scope_object, precompiled, filename)
       metaclass = class << e; self; end
       metaclass.send(:include, Haml::Error)
 
       eval_line = e.backtrace[0].scan(/:([0-9]*)/)[0][0].to_i
-      line_marker = @precompiled.split("\n")[0...eval_line].grep(/#haml_lineno: [0-9]+/)[-1]
-      e.add_backtrace_entry(line_marker ? line_marker.scan(/[0-9]+/)[0].to_i : -1, @options[:filename])
+      line_marker = precompiled.split("\n")[0...eval_line].grep(/#haml_lineno: [0-9]+/)[-1]
+      e.add_backtrace_entry(line_marker ? line_marker.scan(/[0-9]+/)[0].to_i : -1, filename)
 
       # Format Ruby compiler errors nicely
       message = e.message.scan(/compile error\n\(haml-eval\):[0-9]*: (.*)/)[0]

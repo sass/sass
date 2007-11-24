@@ -89,17 +89,23 @@ module Haml
 
     # Returns the precompiled string with the preamble and postamble
     def precompiled_with_ambles
-      <<END
+      preamble = <<END
 extend Haml::Helpers
 @haml_stack ||= Array.new
 @haml_stack.push(Haml::Buffer.new(#{options_for_buffer.inspect}))
 @haml_is_haml = true
 _hamlout = @haml_stack[-1]
 _erbout = _hamlout.buffer
-#{@precompiled}
+begin
+END
+      postamble = <<END
+rescue Exception => e
+  raise Haml::Engine.add_exception_info(e, self, #{@precompiled.inspect}, #{@options[:filename].inspect})
+end
 @haml_is_haml = false
 _hamlout.buffer
 END
+      preamble + @precompiled + postamble
     end
 
     def precompile

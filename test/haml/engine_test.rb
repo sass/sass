@@ -173,6 +173,20 @@ class EngineTest < Test::Unit::TestCase
     end
   end
 
+  def test_render_proc_exception_type
+    begin
+      Haml::Engine.new("%p hi\n= undefined").render_proc.call
+    rescue Exception => e
+      assert(e.is_a?(Haml::Error))
+      assert_equal(2, e.haml_line)
+      assert_equal(nil, e.haml_filename)
+      assert_equal('(haml):2', e.backtrace[0])
+    else
+      # Test failed... should have raised an exception
+      assert(false)
+    end
+  end
+
   def test_syntax_errors
     errs = [ "!!!\n  a", "a\n  b", "a\n:foo\nb", "/ a\n  b",
              "% a", "%p a\n  b", "a\n%p=\nb", "%p=\n  a",
