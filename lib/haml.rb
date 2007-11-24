@@ -693,11 +693,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           * An +initialize+ method that accepts one parameter,
 #                             the text to be filtered.
 #                           * A +render+ method that returns the result of the filtering.
-# 
-# [<tt>:locals</tt>]        The local variables that will be available within the
-#                           template. For instance, if <tt>:locals</tt> is
-#                           <tt>{ :foo => "bar" }</tt>, then within the template,
-#                           <tt>= foo</tt> will produce <tt>bar</tt>.
 #
 # [<tt>:autoclose</tt>]     A list of tag names that should be automatically self-closed
 #                           if they have no content.

@@ -49,17 +49,14 @@ module Haml
       @view.send(:evaluate_assigns)
 
       options = @@options.dup
-      locals = options[:locals] || {}
-      locals.merge! local_assigns
-      options[:locals] = locals
 
       yield_proc = @view.instance_eval do
         proc { |*name| instance_variable_get("@content_for_#{name.first || 'layout'}") }
       end
-      return Haml::Engine.new(template, options).to_html(@view, &yield_proc) if @view.haml_inline
+      return Haml::Engine.new(template, options).to_html(@view, local_assigns, &yield_proc) if @view.haml_inline
 
       options[:filename] ||= template
-      Haml::Engine.new(File.read(template), options).to_html(@view, &yield_proc)
+      Haml::Engine.new(File.read(template), options).to_html(@view, local_assigns, &yield_proc)
     end
   end
 end

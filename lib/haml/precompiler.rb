@@ -88,7 +88,7 @@ module Haml
     private
 
     # Returns the precompiled string with the preamble and postamble
-    def precompiled_with_ambles
+    def precompiled_with_ambles(local_names)
       preamble = <<END.gsub("\n", ";")
 extend Haml::Helpers
 @haml_stack ||= Array.new
@@ -100,12 +100,20 @@ begin
 END
       postamble = <<END.gsub("\n", ";")
 rescue Exception => e
-  raise Haml::Engine.add_exception_info(e, self, #{@precompiled.inspect}, #{@options[:filename].inspect})
+  raise Haml::Engine.add_exception_info(e, #{@precompiled.inspect}, #{@options[:filename].inspect})
 end
 @haml_is_haml = false
 _hamlout.buffer
 END
-      preamble + @precompiled + postamble
+      preamble + locals_code(local_names) + @precompiled + postamble
+    end
+
+    def locals_code(names)
+      names = names.keys if Hash == names
+
+      names.map do |name|
+        "#{name} = _haml_locals[#{name.to_sym.inspect}] || _haml_locals[#{name.to_s.inspect}]"
+      end.join(';') + ';'
     end
 
     def precompile

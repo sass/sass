@@ -12,7 +12,9 @@ require 'haml/engine'
 class EngineTest < Test::Unit::TestCase
 
   def render(text, options = {}, &block)
-    Haml::Engine.new(text, options).to_html(options.delete(:scope) || Object.new, &block)
+    scope  = options.delete(:scope)  || Object.new
+    locals = options.delete(:locals) || {}
+    Haml::Engine.new(text, options).to_html(scope, locals, &block)
   end
 
   def test_empty_render_should_remain_empty
@@ -137,12 +139,16 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p>Paragraph!</p>\n", render("%p= text", :locals => { :text => "Paragraph!" }))
   end
 
-  def test_same_templates_with_different_options_should_cache_separately
-    assert_equal("foobar\n", render("- puts 'foobar'"))
-    assert_equal("",         render("- puts 'foobar'", :suppress_eval => true))
+  def test_deprecated_locals_option
+    Kernel.module_eval do
+      def warn_with_stub(msg); end
+      alias_method :warn_without_stub, :warn
+      alias_method :warn, :warn_with_stub
+    end
 
-    assert_equal("<a href='boo'>Boo!</a>\n",   render("%a{:href => 'boo'} Boo!"))
-    assert_equal("<a href=\"boo\">Boo!</a>\n", render("%a{:href => 'boo'} Boo!", :attr_wrapper => '"'))
+    assert_equal("<p>Paragraph!</p>\n", Haml::Engine.new("%p= text", :locals => { :text => "Paragraph!" }).render)
+
+    Kernel.module_eval { alias_method :warn, :warn_without_stub }
   end
 
   def test_dynamic_attrs_shouldnt_register_as_literal_values
@@ -157,49 +163,6 @@ class EngineTest < Test::Unit::TestCase
 
     hash1.rec_merge!(hash2)
     assert_equal(hash3, hash1)
-  end
-
-  def test_exception_type
-    begin
-      render("%p hi\n= undefined\n= 12")
-    rescue Exception => e
-      assert(e.is_a?(Haml::Error))
-      assert_equal(2, e.haml_line)
-      assert_equal(nil, e.haml_filename)
-      assert_equal('(haml):2', e.backtrace[0])
-    else
-      # Test failed... should have raised an exception
-      assert(false)
-    end
-  end
-
-  def test_def_method_exception_type
-    begin
-      o = Object.new
-      Haml::Engine.new("%p hi\n= undefined\n= 12").def_method(o, :render)
-      o.render
-    rescue Exception => e
-      assert(e.is_a?(Haml::Error))
-      assert_equal(2, e.haml_line)
-      assert_equal(nil, e.haml_filename)
-      assert_equal('(haml):2', e.backtrace[0])
-    else
-      # Test failed... should have raised an exception
-      assert(false)
-    end
-  end
-  def test_render_proc_exception_type
-    begin
-      Haml::Engine.new("%p hi\n= undefined\n= 12").render_proc.call
-    rescue Exception => e
-      assert(e.is_a?(Haml::Error))
-      assert_equal(2, e.haml_line)
-      assert_equal(nil, e.haml_filename)
-      assert_equal('(haml):2', e.backtrace[0])
-    else
-      # Test failed... should have raised an exception
-      assert(false)
-    end
   end
 
   def test_syntax_errors
@@ -221,30 +184,85 @@ class EngineTest < Test::Unit::TestCase
   end
 
   def test_syntax_error
-    begin
-      render("a\nb\n!!!\n  c\nd")
-    rescue Haml::SyntaxError => e
-      assert_equal(e.message, "Illegal Nesting: Nesting within a header command is illegal.")
-      assert_equal(3, e.haml_line)
-      assert_equal(nil, e.haml_filename)
-      assert_equal('(haml):3', e.backtrace[0])
-    rescue Exception => e
-      assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce a Haml::SyntaxError')
-    else
-      assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce an exception')
-    end
+    render("a\nb\n!!!\n  c\nd")
+  rescue Haml::SyntaxError => e
+    assert_equal(e.message, "Illegal Nesting: Nesting within a header command is illegal.")
+    assert_equal(3, e.haml_line)
+    assert_equal(nil, e.haml_filename)
+    assert_equal('(haml):3', e.backtrace[0])
+  rescue Exception => e
+    assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce a Haml::SyntaxError')
+  else
+    assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce an exception')
+  end
+
+  def test_exception_type
+    render("%p hi\n= undefined\n= 12")
+  rescue Exception => e
+    assert(e.is_a?(Haml::Error))
+    assert_equal(2, e.haml_line)
+    assert_equal(nil, e.haml_filename)
+    assert_equal('(haml):2', e.backtrace[0])
+  else
+    # Test failed... should have raised an exception
+    assert(false)
+  end
+
+  def test_def_method_exception_type
+    o = Object.new
+    Haml::Engine.new("%p hi\n= undefined\n= 12").def_method(o, :render)
+    o.render
+  rescue Exception => e
+    assert(e.is_a?(Haml::Error))
+    assert_equal(2, e.haml_line)
+    assert_equal(nil, e.haml_filename)
+    assert_equal('(haml):2', e.backtrace[0])
+  else
+    # Test failed... should have raised an exception
+    assert(false)
+  end
+
+  def test_render_proc_exception_type
+    Haml::Engine.new("%p hi\n= undefined\n= 12").render_proc.call
+  rescue Exception => e
+    assert(e.is_a?(Haml::Error))
+    assert_equal(2, e.haml_line)
+    assert_equal(nil, e.haml_filename)
+    assert_equal('(haml):2', e.backtrace[0])
+  else
+    # Test failed... should have raised an exception
+    assert(false)
   end
 
   def test_compile_error
-    begin
-      render("a\nb\n- fee do\nc")
-    rescue Exception => e
-      assert_equal("compile error: syntax error, unexpected $end, expecting kEND", e.message)
-      assert_equal(3, e.haml_line)
-    else
-      assert(false,
-             '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
-    end
+    render("a\nb\n- fee do\nc")
+  rescue Exception => e
+    assert_match(/^compile error: syntax error/, e.message)
+    assert_equal(3, e.haml_line)
+  else
+    assert(false,
+           '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
+  end
+
+  def test_def_method_compile_error
+    o = Object.new
+    Haml::Engine.new("a\nb\n- fee do\nc").def_method(o, :render)
+  rescue Exception => e
+    assert_match(/^compile error: syntax error/, e.message)
+    assert_equal(3, e.haml_line)
+  else
+    assert(false,
+           '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
+  end
+
+  def test_render_proc_compile_error
+    Haml::Engine.new("a\nb\n- fee do\nc").render_proc
+  rescue Exception => e
+    assert_match(/^compile error: syntax error/, e.message)
+    assert_equal(3, e.haml_line)
+  else
+    assert(false,
+           '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
   end
 
   def test_no_bluecloth
@@ -353,5 +371,20 @@ class EngineTest < Test::Unit::TestCase
   def test_def_method_with_module
     Haml::Engine.new("= yield\n= upcase").def_method(String, :render_haml)
     assert_equal("12\nFOO\n", "foo".render_haml { 12 })
+  end
+
+  def test_def_method_locals
+    obj = Object.new
+    Haml::Engine.new("%p= foo\n.bar{:baz => baz}= boom").def_method(obj, :render, :foo, :baz, :boom)
+    assert_equal("<p>1</p>\n<div baz='2' class='bar'>3</div>\n", obj.render(:foo => 1, :baz => 2, :boom => 3))
+  end
+
+  def test_render_proc_locals
+    proc = Haml::Engine.new("%p= foo\n.bar{:baz => baz}= boom").render_proc(Object.new, :foo, :baz, :boom)
+    assert_equal("<p>1</p>\n<div baz='2' class='bar'>3</div>\n", proc[:foo => 1, :baz => 2, :boom => 3])
+  end
+
+  def test_render_proc_with_binding
+    assert_equal("FOO\n", Haml::Engine.new("= upcase").render_proc("foo".instance_eval{binding}).call)
   end
 end
