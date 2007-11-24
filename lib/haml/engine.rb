@@ -73,7 +73,8 @@ module Haml
     # If it's a Binding or Proc object,
     # Haml uses it as the second argument to Kernel#eval;
     # otherwise, Haml just uses its #instance_eval context.
-    # Note that Haml modifies the context,
+    # 
+    # Note that Haml modifies the evaluation context,
     # extending it with Haml::Helpers
     # and performing various other modifications.
     #
@@ -131,6 +132,10 @@ module Haml
     #
     # The proc doesn't take a block;
     # any yields in the template will fail.
+    #
+    # Note that Haml modifies the evaluation context,
+    # extending it with Haml::Helpers
+    # and performing various other modifications.
     def render_proc(scope = Object.new)
       if scope.is_a?(Binding) || scope.is_a?(Proc)
         scope_object = eval("self", scope)
@@ -154,6 +159,12 @@ module Haml
     #
     # If +object+ is a class or module,
     # the method will instead by defined as an instance method.
+    #
+    # Note that the :locals option has no effect for def_method.
+    #
+    # Note also that Haml modifies the evaluation context,
+    # extending it with Haml::Helpers
+    # and performing various other modifications.
     #
     # For example:
     #
