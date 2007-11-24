@@ -53,18 +53,13 @@ module Haml
       locals.merge! local_assigns
       options[:locals] = locals
 
-      if @view.haml_inline
-        engine = Haml::Engine.new(template, options)
-      else
-        options[:filename] ||= template
-        engine = Haml::Engine.new(File.read(template), options)
-      end
-
       yield_proc = @view.instance_eval do
         proc { |*name| instance_variable_get("@content_for_#{name.first || 'layout'}") }
       end
+      return Haml::Engine.new(template, options).to_html(@view, &yield_proc) if @view.haml_inline
 
-      engine.to_html(@view) { |*args| yield_proc.call(*args) }
+      options[:filename] ||= template
+      Haml::Engine.new(File.read(template), options).to_html(@view, &yield_proc)
     end
   end
 end
