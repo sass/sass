@@ -161,7 +161,7 @@ class EngineTest < Test::Unit::TestCase
 
   def test_exception_type
     begin
-      render("%p hi\n= undefined")
+      render("%p hi\n= undefined\n= 12")
     rescue Exception => e
       assert(e.is_a?(Haml::Error))
       assert_equal(2, e.haml_line)
@@ -173,9 +173,24 @@ class EngineTest < Test::Unit::TestCase
     end
   end
 
+  def test_def_method_exception_type
+    begin
+      o = Object.new
+      Haml::Engine.new("%p hi\n= undefined\n= 12").def_method(o, :render)
+      o.render
+    rescue Exception => e
+      assert(e.is_a?(Haml::Error))
+      assert_equal(2, e.haml_line)
+      assert_equal(nil, e.haml_filename)
+      assert_equal('(haml):2', e.backtrace[0])
+    else
+      # Test failed... should have raised an exception
+      assert(false)
+    end
+  end
   def test_render_proc_exception_type
     begin
-      Haml::Engine.new("%p hi\n= undefined").render_proc.call
+      Haml::Engine.new("%p hi\n= undefined\n= 12").render_proc.call
     rescue Exception => e
       assert(e.is_a?(Haml::Error))
       assert_equal(2, e.haml_line)
@@ -327,5 +342,16 @@ class EngineTest < Test::Unit::TestCase
 
   def test_yield_should_work_with_binding
     assert_equal("12\nFOO\n", render("= yield\n= upcase", :scope => "foo".instance_eval{binding}) { 12 })
+  end
+
+  def test_yield_should_work_with_def_method
+    s = "foo"
+    Haml::Engine.new("= yield\n= upcase").def_method(s, :render)
+    assert_equal("12\nFOO\n", s.render { 12 })
+  end
+
+  def test_def_method_with_module
+    Haml::Engine.new("= yield\n= upcase").def_method(String, :render_haml)
+    assert_equal("12\nFOO\n", "foo".render_haml { 12 })
   end
 end

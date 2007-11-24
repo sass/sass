@@ -46,15 +46,15 @@ module Haml
 
     puts '', '-' * 50, 'Haml and Friends: Cached', '-' * 50
 
-    haml   = Haml::Engine.new(haml_template).render_proc
+    obj = Object.new
+    Haml::Engine.new(haml_template).def_method(obj, :haml)
     erb    = ERB.new(erb_template, nil, '-')
-    erubis = Object.new
-    Erubis::Eruby.new(erb_template).def_method(erubis, :render)
+    Erubis::Eruby.new(erb_template).def_method(obj, :erubis)
     mab = Markaby::Template.new(markaby_template)
     times = Benchmark.bmbm do |b|
-      b.report("haml:")   { runs.times { haml.call     } }
+      b.report("haml:")   { runs.times { obj.haml      } }
       b.report("erb:")    { runs.times { erb.render    } }
-      b.report("erubis:") { runs.times { erubis.render } }
+      b.report("erubis:") { runs.times { obj.erubis    } }
       b.report("mab:")    { runs.times { mab.render    } }
     end    
 

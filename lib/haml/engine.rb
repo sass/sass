@@ -148,6 +148,32 @@ module Haml
       end
     end
 
+    # Defines a method on +object+
+    # with the given name
+    # that renders the template and returns the result as a string.
+    #
+    # If +object+ is a class or module,
+    # the method will instead by defined as an instance method.
+    #
+    # For example:
+    #
+    #   t = Time.now
+    #   Haml::Engine.new("%p\n  Today's date is\n  .date= self.to_s").def_method(t, :render)
+    #   t.render #=> "<p>\n  Today's date is\n  <div class='date'>Fri Nov 23 18:28:29 -0800 2007</div>\n</p>\n"
+    #
+    #   Haml::Engine.new(".upcased= upcase").def_method(String, :upcased_div)
+    #   "foobar".upcased_div #=> "<div class='upcased'>FOOBAR</div>\n"
+    # 
+    def def_method(object, name)
+      method = object.is_a?(Module) ? :module_eval : :instance_eval
+
+      begin
+        object.send(method, "def #{name}; #{precompiled_with_ambles}; end", '(haml-eval)')
+      rescue Exception => e
+        raise add_exception_info(e, scope_object)
+      end
+    end
+
     private
 
     def set_locals(locals, scope, scope_object)

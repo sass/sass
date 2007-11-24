@@ -81,6 +81,18 @@ class TemplateTest < Test::Unit::TestCase
     end
   end
 
+  def test_templates_should_render_correctly_with_def_method
+    @@templates.each do |template|
+      assert_renders_correctly(template) do |name|
+        method = "render_haml_" + name.gsub(/[^a-zA-Z0-9]/, '_')
+
+        engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"), :filters => { 'test'=>TestFilter })
+        engine.def_method(@base, method)
+        @base.send(method)
+      end
+    end
+  end
+
   def test_action_view_templates_render_correctly
     @base.instance_variable_set("@content_for_layout", 'Lorem ipsum dolor sit amet')
     assert_renders_correctly 'content_for_layout'
