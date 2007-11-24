@@ -62,12 +62,23 @@ module Haml
     print_result["Erubis", 2]
     print_result["Markaby", 3]
 
-    puts '', '-' * 50, 'Haml and Friends: Via ActionView', '-' * 50
+    puts '', '-' * 50, 'Haml and ERB: Via ActionView', '-' * 50
 
     require 'active_support'
     require 'action_controller'
     require 'action_view'
     require 'haml/template'
+
+    ActionView::Base.register_template_handler("haml", Haml::Template)
+    @base = ActionView::Base.new(File.dirname(__FILE__))
+    times = Benchmark.bmbm do |b|
+      b.report("haml:") { runs.times { @base.render 'haml/templates/standard' } }
+      b.report("erb:")  { runs.times { @base.render 'haml/rhtml/standard'     } }
+    end
+
+    print_result["ERB", 1]
+
+    puts '', '-' * 50, 'Haml and ERB: Via ActionView with deep partials', '-' * 50
 
     ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new(File.dirname(__FILE__))
