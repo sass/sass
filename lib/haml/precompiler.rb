@@ -130,7 +130,7 @@ END
           process_indent(old_line.tabs, old_line.text) unless !flat? || old_line.text.empty?
           next unless flat?
 
-          push_flat(old_line.text, old_line.spaces)
+          push_flat(old_line.unstripped, old_line.spaces)
           old_line.text, old_line.unstripped, old_line.spaces = '', '', 0
           next
         end
