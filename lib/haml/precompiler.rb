@@ -171,14 +171,12 @@ END
         
     # Processes and deals with lowering indentation.
     def process_indent(line)
-      if line.tabs <= @template_tabs && @template_tabs > 0
-        to_close = @template_tabs - line.tabs
+      return unless line.tabs <= @template_tabs && @template_tabs > 0
+      to_close = @template_tabs - line.tabs
 
-        to_close.times do |i|
-          offset = to_close - 1 - i
-          unless offset == 0 && mid_block_keyword?(line.text)
-            close
-          end
+      to_close.times do |i|
+        unless to_close - 1 - i == 0 && mid_block_keyword?(line.text)
+          close
         end
       end
     end
