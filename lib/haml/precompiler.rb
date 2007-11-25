@@ -127,7 +127,7 @@ END
         line.spaces, line.tabs = count_soft_tabs(text)
 
         if line.text.empty?
-          process_indent(old_line.tabs, old_line.text) unless !flat? || old_line.text.empty?
+          process_indent(old_line) unless !flat? || old_line.text.empty?
           next unless flat?
 
           push_flat(old_line)
@@ -142,7 +142,7 @@ END
           next
         end
 
-        process_indent(old_line.tabs, old_line.text) unless old_line.text.empty?
+        process_indent(old_line) unless old_line.text.empty?
 
         if flat?
           push_flat(old_line)
@@ -170,19 +170,18 @@ END
     end
         
     # Processes and deals with lowering indentation.
-    def process_indent(count, line)
-      if count <= @template_tabs && @template_tabs > 0
-        to_close = @template_tabs - count
+    def process_indent(line)
+      if line.tabs <= @template_tabs && @template_tabs > 0
+        to_close = @template_tabs - line.tabs
 
         to_close.times do |i|
           offset = to_close - 1 - i
-          unless offset == 0 && mid_block_keyword?(line)
+          unless offset == 0 && mid_block_keyword?(line.text)
             close
           end
         end
       end
     end
-
 
     # Processes a single line of Haml.
     #
@@ -258,7 +257,7 @@ END
       # A multiline string has just been activated, start adding the lines
       if is_multiline?(text) && (MULTILINE_STARTERS.include? text[0])
         @multiline = Line.new text[0...-1], nil, line.index, nil, line.tabs
-        process_indent(line.tabs, text)
+        process_indent(line)
         return true
       end
 
@@ -272,8 +271,8 @@ END
     end
 
     # Checks whether or not +line+ is in a multiline sequence.
-    def is_multiline?(line)
-      line && line.length > 1 && line[-1] == MULTILINE_CHAR_VALUE && line[-2] == ?\s
+    def is_multiline?(text)
+      text && text.length > 1 && text[-1] == MULTILINE_CHAR_VALUE && text[-2] == ?\s
     end
 
     # Evaluates <tt>text</tt> in the context of the scope object, but
