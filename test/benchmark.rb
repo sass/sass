@@ -51,12 +51,10 @@ module Haml
     erb = ERB.new(erb_template, nil, '-')
     obj.instance_eval("def erb; #{erb.src}; end")
     Erubis::Eruby.new(erb_template).def_method(obj, :erubis)
-    mab = Markaby::Template.new(markaby_template)
     times = Benchmark.bmbm do |b|
       b.report("haml:")   { runs.times { obj.haml      } }
       b.report("erb:")    { runs.times { obj.erb       } }
       b.report("erubis:") { runs.times { obj.erubis    } }
-      b.report("mab:")    { runs.times { mab.render    } }
     end    
 
     print_result["ERB", 1]
