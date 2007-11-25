@@ -381,10 +381,10 @@ END
       @flat_spaces = -1
       filtered = filter.new(@filter_buffer).render
 
-      unless filter == Haml::Filters::Preserve
-        push_text(filtered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
-      else
+      if filter == Haml::Filters::Preserve
         push_silent("_hamlout.buffer << #{filtered.dump} << \"\\n\"\n")
+      else
+        push_text(filtered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
       end
 
       @filter_buffer = nil
@@ -410,14 +410,14 @@ END
             attributes['class'] = ""
           end
           attributes['class'] += property
-        when '#'
-          attributes['id'] = property
+        when '#': attributes['id'] = property
         end
       end
       attributes
     end
 
     def parse_literal_value(text)
+      return nil unless text
       text.match(LITERAL_VALUE_REGEX)
 
       # $2 holds the value matched by a symbol, but is nil for a string match
@@ -426,24 +426,19 @@ END
     end
     
     def parse_literal_hash(text)  
-      unless text
-        return {}
-      end
-      
+      return {} unless text && inner = text.scan(/^\{(.*)\}$/)[0]
+
       attributes = {}
-      if inner = text.scan(/^\{(.*)\}$/)[0]
-        inner[0].split(',').each do |attrib|
-          key, value, more = attrib.split('=>')
+      inner[0].split(',').each do |attrib|
+        key, value, more = attrib.split('=>')
 
-          # Make sure the key and value and only the key and value exist
-          # Otherwise, it's too complicated and we'll defer it to the actual Ruby parser
-          if more || (key = parse_literal_value(key)).nil? ||
-              (value = parse_literal_value(value)).nil?
-            return nil
-          end
+        # Make sure the key and value and only the key and value exist
+        # Otherwise, it's too complicated and we'll defer it to the actual Ruby parser
+        key = parse_literal_value key
+        value = parse_literal_value value
+        return nil if more || key.nil? || value.nil?
 
-          attributes[key] = value
-        end
+        attributes[key] = value
       end
       attributes
     end
@@ -453,31 +448,25 @@ END
       quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
       other_quote_char = attr_wrapper == '"' ? "'" : '"'
   
-      result = attributes.collect do |a,v|
-        unless v.nil? 
-          v = v.to_s
-          this_attr_wrapper = attr_wrapper
-          if v.include? attr_wrapper
-            if v.include? other_quote_char
-              v = v.gsub(attr_wrapper, quote_escape)
-            else
-              this_attr_wrapper = other_quote_char
-            end
+      result = attributes.collect do |attr, value|
+        next if value.nil?
+
+        value = value.to_s
+        this_attr_wrapper = attr_wrapper
+        if value.include? attr_wrapper
+          if value.include? other_quote_char
+            value = value.gsub(attr_wrapper, quote_escape)
+          else
+            this_attr_wrapper = other_quote_char
           end
-          " #{a}=#{this_attr_wrapper}#{v}#{this_attr_wrapper}"
         end
+        " #{attr}=#{this_attr_wrapper}#{value}#{this_attr_wrapper}"
       end
       result.compact.sort.join
     end
 
     def prerender_tag(name, atomic, attributes)
-      if atomic
-        str = " />"
-      else
-        str = ">"
-      end
-  
-      "<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
+      "<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{atomic ? ' />' : '>'}"
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
