@@ -59,7 +59,6 @@ module Haml
 
     print_result["ERB", 1]
     print_result["Erubis", 2]
-    print_result["Markaby", 3]
 
     puts '', '-' * 50, 'Haml and ERB: Via ActionView', '-' * 50
 
