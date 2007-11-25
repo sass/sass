@@ -116,63 +116,54 @@ END
       end.join(';') + ';'
     end
 
+    Line = Struct.new("Line", :line, :index, :spaces, :tabs, :uline)
+
     def precompile
       @precompiled = ''
 
-      old_line = nil
-      old_index = nil
-      old_spaces = nil
-      old_tabs = nil
-      old_uline = nil
-      (@template + "\n-#\n-#").each_with_index do |line, index|
+      old_line = old_index = old_spaces = old_tabs = old_uline = nil
+      (@template + "\n-#").each_with_index do |line, index|
         spaces, tabs = count_soft_tabs(line)
         uline = line.lstrip.chomp
         line = uline.rstrip
-        
-        if !line.empty?
-          if old_line
-            block_opened = tabs > old_tabs && !line.empty?
-            
-            suppress_render = handle_multiline(old_tabs, old_line, old_index) unless @flat_spaces != -1
-            
-            if !suppress_render
-              line_empty = old_line.empty?
 
-              process_indent(old_tabs, old_line) unless line_empty
-              flat = @flat_spaces != -1
+        if line.empty?
+          next if @flat_spaces == -1
 
+          process_indent(old_tabs, old_line) unless old_line.empty?
+          next if @flat_spaces == -1
 
-              if !flat && old_spaces != old_tabs * 2
-                raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
-              end
+          push_flat(old_line, old_spaces)
+          old_line = ''
+          old_uline = ''
+          old_spaces = 0
+          next
+        end
 
-              if flat
-                push_flat(old_uline, old_spaces)
-              elsif !line_empty && !@haml_comment
-                process_line(old_line, old_index, block_opened)
-              end
-
-              if @flat_spaces == -1 && tabs - old_tabs > 1
-                raise SyntaxError.new("Illegal Indentation: Indenting more than once per line is illegal.")
-              end
-            end
-          end
-          
-          old_line = line
-          old_index = index
-          old_spaces = spaces
-          old_tabs = tabs
-          old_uline = uline
-        elsif @flat_spaces != -1
+        suppress_render = handle_multiline(old_tabs, old_line, old_index) if @flat_spaces == -1
+        if old_line && !suppress_render
           process_indent(old_tabs, old_line) unless old_line.empty?
 
+          if @flat_spaces == -1 && old_spaces != old_tabs * 2
+            raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
+          end
+
           if @flat_spaces != -1
-            push_flat(old_line, old_spaces)
-            old_line = ''
-            old_uline = ''
-            old_spaces = 0
+            push_flat(old_uline, old_spaces)
+          elsif !old_line.empty? && !@haml_comment
+            process_line(old_line, old_index, tabs > old_tabs && !line.empty?)
+          end
+
+          if @flat_spaces == -1 && tabs - old_tabs > 1
+            raise SyntaxError.new("Illegal Indentation: Indenting more than once per line is illegal.")
           end
         end
+        
+        old_line = line
+        old_index = index
+        old_spaces = spaces
+        old_tabs = tabs
+        old_uline = uline
       end
 
       # Close all the open tags
