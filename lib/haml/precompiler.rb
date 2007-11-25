@@ -310,7 +310,7 @@ END
       return if options[:suppress_eval]
 
       push_silent("haml_temp = #{text}", true)
-      out = "haml_temp = _hamlout.push_script(haml_temp, #{flattened}, #{close_tag.inspect})\n"
+      out = "haml_temp = _hamlout.push_script(haml_temp, #{flattened.inspect}, #{close_tag.inspect})\n"
       if @block_opened
         push_and_tabulate([:loud, out])
       else
@@ -425,7 +425,7 @@ END
       $2 || $5
     end
     
-    def parse_literal_hash(text)  
+    def parse_static_hash(text)  
       return {} unless text && inner = text.scan(/^\{(.*)\}$/)[0]
 
       attributes = {}
@@ -472,98 +472,66 @@ END
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
-      matched = false
-      line.scan(TAG_REGEX) do |tag_name, attributes, attributes_hash, object_ref, action, value|
-        matched = true
-        value = value.to_s.strip
+      raise SyntaxError.new("Invalid tag: \"#{line}\"") unless match = line.scan(TAG_REGEX)[0]
+      tag_name, attributes, attributes_hash, object_ref, action, value = match
+      value = value.to_s.strip
 
-        case action
-        when '/'
-          atomic = true
-        when '=', '~'
-          parse = true
+      raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
-          if value[0] == ?=
-            value = value[1..-1].strip.dump.gsub('\\#', '#')
-          end
-        end
-
-        flattened = (action == '~')
+      case action
+      when '/': atomic = true
+      when '~': parse = flattened = true
+      when '=':
+        parse = true
+        value = value[1..-1].strip.dump.gsub('\\#', '#') if value[0] == ?=
+      end
         
-        value_exists = !value.empty?
-        if value_exists && parse && @options[:suppress_eval]
-          parse = false
-          value = ''
-        end
-        
-        literal_attributes = parse_literal_hash(attributes_hash)
-        attributes_hash = "{nil}" if attributes_hash.nil? || literal_attributes || @options[:suppress_eval]
-        object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
-
-        if attributes =~ /[\.#](\.|#|\z)/
-          raise SyntaxError.new("Illegal element: classes and ids must have values.")
-        end
-        
-        # Preparse the attributes hash
-        attributes = parse_class_and_id(attributes)
-        Buffer.merge_attrs(attributes, literal_attributes) if literal_attributes
-
-        if @block_opened
-          if atomic
-            raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.")
-          elsif action == '=' || value_exists
-            raise SyntaxError.new("Illegal Nesting: Nesting within a tag that already has content is illegal.")
-          end
-        elsif atomic && value_exists
-          raise SyntaxError.new("Atomic tags can't have content.")
-        elsif parse && !value_exists
-          raise SyntaxError.new("Tag has no content.")
-        end
-
-        if !@block_opened && !value_exists && @options[:autoclose].include?(tag_name)
-          atomic = true
-        end
-        
-        do_one_liner = value_exists && (parse || Buffer.one_liner?(value))
-        
-        if object_ref == "nil" && attributes_hash == "{nil}" && !flattened && (do_one_liner || !value_exists)
-          # This means that we can render the tag directly to text and not process it in the buffer
-          open_tag = prerender_tag(tag_name, atomic, attributes)
-          
-          tag_closed = do_one_liner && !parse
-          if tag_closed
-            open_tag += value
-            open_tag += "</#{tag_name}>"
-          end
-          
-          open_tag += "\n" unless parse
-          push_merged_text(open_tag, tag_closed || atomic ? 0 : 1, parse)
-          return if tag_closed
-        else
-          flush_merged_text
-          content = !value_exists || parse ? 'nil' : value.dump
-          push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{value_exists.inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})", true
-        end
-          
-        unless atomic
-          unless value_exists
-            push_and_tabulate([:element, tag_name])
-            @output_tabs += 1
-          end
-
-          if value_exists
-            if parse
-              flush_merged_text
-              push_script(value, flattened, tag_name)
-            end
-          elsif flattened
-            raise SyntaxError.new("Tag has no content.")
-          end
-        end
+      if parse && @options[:suppress_eval]
+        parse = false
+        value = ''
       end
 
-      unless matched
-        raise SyntaxError.new("Invalid tag: \"#{line}\"")
+      object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
+
+      static_attributes = parse_static_hash(attributes_hash) # Try pre-compiling a static attributes hash
+      attributes_hash = "{nil}" if attributes_hash.nil? || static_attributes || @options[:suppress_eval]
+      attributes = parse_class_and_id(attributes)
+      Buffer.merge_attrs(attributes, static_attributes) if static_attributes
+
+      raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.") if @block_opened && atomic
+      raise SyntaxError.new("Illegal Nesting: Nesting within a tag that already has content is illegal.") if @block_opened && !value.empty?
+      raise SyntaxError.new("Tag has no content.") if parse && value.empty?
+      raise SyntaxError.new("Atomic tags can't have content.") if atomic && !value.empty?
+
+      atomic = true if !@block_opened && value.empty? && @options[:autoclose].include?(tag_name)
+      
+      if object_ref == "nil" && attributes_hash == "{nil}" && !flattened && (parse || Buffer.one_liner?(value))
+        # This means that we can render the tag directly to text and not process it in the buffer
+        tag_closed = !value.empty? && Buffer.one_liner?(value) && !parse
+
+        open_tag  = prerender_tag(tag_name, atomic, attributes)
+        open_tag << "#{value}</#{tag_name}>" if tag_closed
+        open_tag << "\n" unless parse
+
+        push_merged_text(open_tag, tag_closed || atomic ? 0 : 1, parse)
+        return if tag_closed
+      else
+        flush_merged_text
+        content = value.empty? || parse ? 'nil' : value.dump
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})", true
+      end
+          
+      return if atomic
+
+      if value.empty?
+        push_and_tabulate([:element, tag_name])
+        @output_tabs += 1
+        return
+      end
+      
+      if parse
+        flush_merged_text
+        push_script(value, flattened, tag_name)
       end
     end
 
