@@ -172,13 +172,9 @@ END
     # Processes and deals with lowering indentation.
     def process_indent(line)
       return unless line.tabs <= @template_tabs && @template_tabs > 0
-      to_close = @template_tabs - line.tabs
 
-      to_close.times do |i|
-        unless to_close - 1 - i == 0 && mid_block_keyword?(line.text)
-          close
-        end
-      end
+      to_close = @template_tabs - line.tabs
+      to_close.times { |i| close unless to_close - 1 - i == 0 && mid_block_keyword?(line.text) }
     end
 
     # Processes a single line of Haml.
