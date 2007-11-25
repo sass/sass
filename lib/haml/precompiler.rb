@@ -120,6 +120,8 @@ END
 
     def precompile
       @precompiled = ''
+      @merged_text = ''
+      @tab_change  = 0
 
       old_line = Line.new
       (@template + "\n-#").each_with_index do |text, index|
@@ -254,25 +256,18 @@ END
     # Evaluates <tt>text</tt> in the context of the scope object, but
     # does not output the result.
     def push_silent(text, add_index = false, can_suppress = false)
-      flush_merged_text
-      
-      unless (can_suppress && options[:suppress_eval])
-        if add_index
-          @precompiled << "#haml_lineno: #{@index}\n#{text}\n"
-        else
-          # Not really DRY, but probably faster
-          @precompiled << "#{text}\n"
-        end
-      end
+      flush_merged_text      
+      return if can_suppress && options[:suppress_eval]
+
+      @precompiled << "#haml_lineno: #{@index}\n" if add_index
+      @precompiled << "#{text}\n"
     end
 
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
     # without parsing it.
     def push_merged_text(text, tab_change = 0, try_one_liner = false)
-      @merged_text ||= ''
-      @merged_text << "#{'  ' * @output_tabs}#{text}"
-      @tab_change ||= 0
-      @tab_change += tab_change
+      @merged_text  << "#{'  ' * @output_tabs}#{text}"
+      @tab_change   += tab_change
       @try_one_liner = try_one_liner
     end
     
@@ -281,22 +276,20 @@ END
     end
     
     def flush_merged_text
-      if @merged_text && !@merged_text.empty?
-        args = @merged_text.dump
-        args << ", #{@tab_change}" if @tab_change != 0 || @try_one_liner
-        @precompiled << "_hamlout.push_text(#{args})\n"
-        @merged_text = nil
-        @tab_change = 0
-        @try_one_liner = false
-      end
+      return if @merged_text.empty?
+
+      @precompiled  << "_hamlout.push_text(#{@merged_text.dump}"
+      @precompiled  << ", #{@tab_change}" if @tab_change != 0 || @try_one_liner
+      @precompiled  << ")\n"
+      @merged_text   = ''
+      @tab_change    = 0
+      @try_one_liner = false
     end  
 
     # Renders a block of text as plain text.
     # Also checks for an illegally opened block.
     def push_plain(text)
-      if @block_opened
-        raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.")
-      end
+      raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.") if @block_opened
       push_text text
     end
 
@@ -314,15 +307,14 @@ END
     # the result before it is added to <tt>@buffer</tt>
     def push_script(text, flattened, close_tag = nil)
       flush_merged_text
-      
-      unless options[:suppress_eval]
-        push_silent("haml_temp = #{text}", true)
-        out = "haml_temp = _hamlout.push_script(haml_temp, #{flattened}, #{close_tag.inspect})\n"
-        if @block_opened
-          push_and_tabulate([:loud, out])
-        else
-          @precompiled << out
-        end
+      return if options[:suppress_eval]
+
+      push_silent("haml_temp = #{text}", true)
+      out = "haml_temp = _hamlout.push_script(haml_temp, #{flattened}, #{close_tag.inspect})\n"
+      if @block_opened
+        push_and_tabulate([:loud, out])
+      else
+        @precompiled << out
       end
     end
     
@@ -331,36 +323,27 @@ END
     def push_flat_script(text)
       flush_merged_text
       
-      if text.empty?
-        raise SyntaxError.new("Tag has no content.")
-      else
-        push_script(text, true)
-      end
+      raise SyntaxError.new("Tag has no content.") if text.empty?
+      push_script(text, true)
     end
 
     def start_haml_comment
-      if @block_opened
-        @haml_comment = true
-        push_and_tabulate([:haml_comment])
-      end
+      return unless @block_opened
+
+      @haml_comment = true
+      push_and_tabulate([:haml_comment])
     end
 
     # Closes the most recent item in <tt>@to_close_stack</tt>.
     def close
       tag, value = @to_close_stack.pop
       case tag
-      when :script
-        close_block
-      when :comment
-        close_comment value
-      when :element
-        close_tag value
-      when :loud
-        close_loud value
-      when :filtered
-        close_filtered value
-      when :haml_comment
-        close_haml_comment
+      when :script: close_block
+      when :comment: close_comment value
+      when :element: close_tag value
+      when :loud: close_loud value
+      when :filtered: close_filtered value
+      when :haml_comment: close_haml_comment
       end
     end
 
