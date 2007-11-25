@@ -130,12 +130,12 @@ END
           process_indent(old_line.tabs, old_line.text) unless !flat? || old_line.text.empty?
           next unless flat?
 
-          push_flat(old_line.unstripped, old_line.spaces)
+          push_flat(old_line)
           old_line.text, old_line.unstripped, old_line.spaces = '', '', 0
           next
         end
 
-        suppress_render = handle_multiline(old_line.tabs, old_line.text, old_line.index) unless flat?
+        suppress_render = handle_multiline(old_line) unless flat?
 
         if old_line.text.nil? || suppress_render
           old_line = line
@@ -145,7 +145,7 @@ END
         process_indent(old_line.tabs, old_line.text) unless old_line.text.empty?
 
         if flat?
-          push_flat(old_line.unstripped, old_line.spaces)
+          push_flat(old_line)
           old_line = line
           next
         end
@@ -246,29 +246,29 @@ END
     #
     # This returns whether or not the line should be
     # rendered normally.
-    def handle_multiline(count, line, index)
-      suppress_render = false
-      # Multilines are denoting by ending with a `|` (124)
-      if is_multiline?(line) && @multiline_buffer
-        # A multiline string is active, and is being continued
-        @multiline_buffer += line[0...-1]
-        suppress_render = true
-      elsif is_multiline?(line) && (MULTILINE_STARTERS.include? line[0])
-        # A multiline string has just been activated, start adding the lines
-        @multiline_buffer = line[0...-1]
-        @multiline_count = count
-        @multiline_index = index
-        process_indent(count, line)
-        suppress_render = true
-      elsif @multiline_buffer
-        # A multiline string has just ended, make line into the result
-        unless line.empty?
-          process_line(@multiline_buffer, @multiline_index, count > @multiline_count)
-          @multiline_buffer = nil
-        end
+    def handle_multiline(line)
+      text = line.text
+
+      # A multiline string is active, and is being continued
+      if is_multiline?(text) && @multiline
+        @multiline.text << text[0...-1]
+        return true
+      end
+      
+      # A multiline string has just been activated, start adding the lines
+      if is_multiline?(text) && (MULTILINE_STARTERS.include? text[0])
+        @multiline = Line.new text[0...-1], nil, line.index, nil, line.tabs
+        process_indent(line.tabs, text)
+        return true
       end
 
-      return suppress_render
+      # A multiline string has just ended, make line into the result
+      if @multiline && !line.text.empty?
+        process_line(@multiline.text, @multiline.index, line.tabs > @multiline.tabs)
+        @multiline = nil
+      end
+
+      return false
     end
 
     # Checks whether or not +line+ is in a multiline sequence.
@@ -326,10 +326,10 @@ END
     end
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
-    def push_flat(text, spaces)
-      tabulation = spaces - @flat_spaces
+    def push_flat(line)
+      tabulation = line.spaces - @flat_spaces
       tabulation = tabulation > -1 ? tabulation : 0
-      @filter_buffer << "#{' ' * tabulation}#{text}\n"
+      @filter_buffer << "#{' ' * tabulation}#{line.unstripped}\n"
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
