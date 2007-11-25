@@ -269,7 +269,7 @@ END
           process_indent(old_tabs, old_line) unless old_line.empty?
 
           if @flat_spaces != -1
-            push_flat(old_line, old_spaces)
+            push_flat(old_uline, old_spaces)
             old_line = ''
             old_uline = ''
             old_spaces = 0
