@@ -106,7 +106,7 @@ class EngineTest < Test::Unit::TestCase
       assert_equal("", render(":ruby\n  puts 'hello'", :suppress_eval => true))
     rescue Haml::HamlError => err
       caught = true
-      assert_equal('Filter "ruby" is not defined!', err.message)
+      assert_equal('"ruby" filter is not defined!', err.message)
     end
     assert(caught, "Rendering a ruby filter without evaluating didn't throw an error!")
   end

@@ -187,57 +187,39 @@ END
     #
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.
-    def process_line(line, index, block_opened)
+    def process_line(text, index, block_opened)
       @index = index + 1
       @block_opened = block_opened
 
-      case line[0]
-      when DIV_CLASS, DIV_ID
-        render_div(line)
-      when ELEMENT
-        render_tag(line)
-      when COMMENT
-        render_comment(line)
+      case text[0]
+      when DIV_CLASS, DIV_ID: render_div(text)
+      when ELEMENT: render_tag(text)
+      when COMMENT: render_comment(text)
       when SCRIPT
-        sub_line = line[1..-1]
-        if sub_line[0] == SCRIPT
-          push_script(unescape_interpolation(sub_line[1..-1].strip), false)
-        else
-          push_script(sub_line, false)
-        end
-      when FLAT_SCRIPT
-        push_flat_script(line[1..-1])
+        return push_script(unescape_interpolation(text[2..-1].strip), false) if text[1] == SCRIPT
+        push_script(text[1..-1], false)
+      when FLAT_SCRIPT: push_flat_script(text[1..-1])
       when SILENT_SCRIPT
-        sub_line = line[1..-1]
-        unless sub_line[0] == SILENT_COMMENT
-          mbk = mid_block_keyword?(line)
-          push_silent(sub_line, !mbk, true)
-          if (@block_opened && !mbk) || line[1..-1].split(' ', 2)[0] == "case"
-            push_and_tabulate([:script])
-          end
-        else
-          start_haml_comment
+        return start_haml_comment if text[1] == SILENT_COMMENT
+
+        mbk = mid_block_keyword?(text)
+        push_silent(text[1..-1], !mbk, true)
+        if (@block_opened && !mbk) || text[1..-1].split(' ', 2)[0] == "case"
+          push_and_tabulate([:script])
         end
-      when FILTER
-        name = line[1..-1].downcase
-        start_filtered(options[:filters][name.to_s] || name)
+      when FILTER: start_filtered(text[1..-1].downcase)
       when DOCTYPE
-        if line[0...3] == '!!!'
-          render_doctype(line)
-        else
-          push_plain line
-        end
-      when ESCAPE
-        push_plain line[1..-1]
-      else
-        push_plain line
+        return render_doctype(text) if text[0...3] == '!!!'
+        push_plain text
+      when ESCAPE: push_plain text[1..-1]
+      else push_plain text
       end
     end
     
-    # Returns whether or not the line is a silent script line with one
+    # Returns whether or not the text is a silent script text with one
     # of Ruby's mid-block keywords.
-    def mid_block_keyword?(line)
-      line.length > 2 && line[0] == SILENT_SCRIPT && MID_BLOCK_KEYWORDS.include?(line[1..-1].split[0])
+    def mid_block_keyword?(text)
+      text.length > 2 && text[0] == SILENT_SCRIPT && MID_BLOCK_KEYWORDS.include?(text[1..-1].split[0])
     end
 
     # Deals with all the logic of figuring out whether a given line is
@@ -420,20 +402,12 @@ END
     # Closes a filtered block.
     def close_filtered(filter)
       @flat_spaces = -1
-      if filter.is_a? String
-        if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
-          raise HamlError.new("You must have the RedCloth gem installed to use #{filter}")
-        else
-          raise HamlError.new("Filter \"#{filter}\" is not defined!")
-        end
-      else
-        filtered = filter.new(@filter_buffer).render
+      filtered = filter.new(@filter_buffer).render
 
-        unless filter == Haml::Filters::Preserve
-          push_text(filtered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
-        else
-          push_silent("_hamlout.buffer << #{filtered.dump} << \"\\n\"\n")
-        end
+      unless filter == Haml::Filters::Preserve
+        push_text(filtered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
+      else
+        push_silent("_hamlout.buffer << #{filtered.dump} << \"\\n\"\n")
       end
 
       @filter_buffer = nil
@@ -687,10 +661,16 @@ END
     end
 
     # Starts a filtered block.
-    def start_filtered(filter)
-      unless @block_opened
-        raise SyntaxError.new('Filters must have nested text.')
+    def start_filtered(name)
+      raise SyntaxError.new('Filters must have nested text.') unless @block_opened
+
+      unless filter = options[:filters][name]
+        if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
+          raise HamlError.new("You must have the RedCloth gem installed to use \"#{name}\" filter")
+        end
+        raise HamlError.new("\"#{name}\" filter is not defined!")
       end
+
       push_and_tabulate([:filtered, filter])
       @flat_spaces = @template_tabs * 2
       @filter_buffer = String.new
