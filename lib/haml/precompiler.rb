@@ -483,7 +483,7 @@ END
       when '~': parse = flattened = true
       when '=':
         parse = true
-        value = value[1..-1].strip.dump.gsub('\\#', '#') if value[0] == ?=
+        value = unescape_interpolation(value[1..-1].strip) if value[0] == ?=
       end
         
       if parse && @options[:suppress_eval]
@@ -551,47 +551,45 @@ END
         raise SyntaxError.new('Illegal Nesting: Nesting within a tag that already has content is illegal.')
       end
 
-      text_out = "<!--#{conditional.to_s} "
-      if do_one_liner = !content.empty? && Buffer.one_liner?(content)
-        close_tag = conditional ? "<![endif]-->" : "-->"
-        push_text("#{text_out}#{content} #{close_tag}")
-      else
-        push_text(text_out, 1)
-        @output_tabs += 1
-        push_and_tabulate([:comment, !conditional.nil?])
-        if !content.empty?
-          push_text(content)
-          close
-        end
+      open = "<!--#{conditional} "
+      
+      # Render it statically if possible
+      if !content.empty? && Buffer.one_liner?(content)
+        return push_text("#{open}#{content} #{conditional ? "<![endif]-->" : "-->"}")
+      end
+
+      push_text(open, 1)
+      @output_tabs += 1
+      push_and_tabulate([:comment, !conditional.nil?])
+      unless content.empty?
+        push_text(content)
+        close
       end
     end
     
     # Renders an XHTML doctype or XML shebang.
     def render_doctype(line)
-      if @block_opened
-        raise SyntaxError.new("Illegal Nesting: Nesting within a header command is illegal.")
-      end
-      line = line[3..-1].lstrip.downcase
-      if line[0...3] == "xml"
-        encoding = line.split[1] || "utf-8"
+      raise SyntaxError.new("Illegal Nesting: Nesting within a header command is illegal.") if @block_opened
+      push_text text_for_doctype(line)
+    end
+
+    def text_for_doctype(text)
+      text = text[3..-1].lstrip.downcase
+      if text[0...3] == "xml"
         wrapper = @options[:attr_wrapper]
-        doctype = "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{encoding}#{wrapper} ?>"
-      else
-        version, type = line.scan(DOCTYPE_REGEX)[0]
-        if version == "1.1"
-          doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
-        else
-          case type
-          when "strict"
-            doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
-          when "frameset"
-            doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
-          else
-            doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-          end
-        end
+        return "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{text.split(' ')[1] || "utf-8"}#{wrapper} ?>"
       end
-      push_text doctype
+
+      version, type = text.scan(DOCTYPE_REGEX)[0]
+      if version == "1.1"
+        return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+      end
+
+      case type
+      when "strict":   return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+      when "frameset": return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
+      else             return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+      end
     end
 
     # Starts a filtered block.
@@ -613,11 +611,8 @@ END
     def unescape_interpolation(str)
       first = str.index(/(^|[^\\])\#\{/)
 
-      if first.nil?
-        return str.dump
-      elsif first != 0
-        first += 1
-      end
+      return str.dump if first.nil?
+      first += 1 unless first == 0
 
       last = str.rindex '}'
 
