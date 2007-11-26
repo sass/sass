@@ -101,7 +101,7 @@ _erbout = _hamlout.buffer
 END
       postamble = <<END.gsub("\n", ";")
 @haml_is_haml = false
-_hamlout.buffer
+@haml_stack.pop.buffer
 END
       preamble + locals_code(local_names) + @precompiled + postamble
     end
