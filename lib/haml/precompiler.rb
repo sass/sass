@@ -98,12 +98,8 @@ extend Haml::Helpers
 @haml_is_haml = true
 _hamlout = @haml_stack[-1]
 _erbout = _hamlout.buffer
-begin
 END
       postamble = <<END.gsub("\n", ";")
-rescue Exception => e
-  raise Haml::Engine.add_exception_info(e, #{@precompiled.inspect}, #{@options[:filename].inspect})
-end
 @haml_is_haml = false
 _hamlout.buffer
 END
@@ -132,10 +128,15 @@ END
 
         if line.text.empty?
           process_indent(old_line) unless !flat? || old_line.text.empty?
-          next unless flat?
+
+          unless flat?
+            newline
+            next
+          end
 
           push_flat(old_line)
           old_line.text, old_line.unstripped, old_line.spaces = '', '', 0
+          newline
           next
         end
 
@@ -143,6 +144,7 @@ END
 
         if old_line.text.nil? || suppress_render
           old_line = line
+          newline
           next
         end
 
@@ -151,6 +153,7 @@ END
         if flat?
           push_flat(old_line)
           old_line = line
+          newline
           next
         end
 
@@ -166,6 +169,7 @@ END
           raise SyntaxError.new("Illegal Indentation: Indenting more than once per line is illegal.")
         end
         old_line = line
+        newline
       end
 
       # Close all the open tags
@@ -186,8 +190,8 @@ END
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.
     def process_line(text, index, block_opened)
-      @index = index + 1
       @block_opened = block_opened
+      @index = index + 1
 
       case text[0]
       when DIV_CLASS, DIV_ID: render_div(text)
@@ -200,9 +204,9 @@ END
       when SILENT_SCRIPT
         return start_haml_comment if text[1] == SILENT_COMMENT
 
-        mbk = mid_block_keyword?(text)
-        push_silent(text[1..-1], !mbk, true)
-        if (@block_opened && !mbk) || text[1..-1].split(' ', 2)[0] == "case"
+        push_silent(text[1..-1], true)
+        newline true
+        if (@block_opened && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"
           push_and_tabulate([:script])
         end
       when FILTER: start_filtered(text[1..-1].downcase)
@@ -257,12 +261,10 @@ END
 
     # Evaluates <tt>text</tt> in the context of the scope object, but
     # does not output the result.
-    def push_silent(text, add_index = false, can_suppress = false)
+    def push_silent(text, can_suppress = false)
       flush_merged_text      
       return if can_suppress && options[:suppress_eval]
-
-      @precompiled << "#haml_lineno: #{@index}\n" if add_index
-      @precompiled << "#{text}\n"
+      @precompiled << "#{text};"
     end
 
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
@@ -282,7 +284,7 @@ END
 
       @precompiled  << "_hamlout.push_text(#{@merged_text.dump}"
       @precompiled  << ", #{@tab_change}" if @tab_change != 0 || @try_one_liner
-      @precompiled  << ")\n"
+      @precompiled  << ");"
       @merged_text   = ''
       @tab_change    = 0
       @try_one_liner = false
@@ -311,8 +313,9 @@ END
       flush_merged_text
       return if options[:suppress_eval]
 
-      push_silent("haml_temp = #{text}", true)
-      out = "haml_temp = _hamlout.push_script(haml_temp, #{flattened.inspect}, #{close_tag.inspect})\n"
+      push_silent "haml_temp = #{text}"
+      newline true
+      out = "haml_temp = _hamlout.push_script(haml_temp, #{flattened.inspect}, #{close_tag.inspect});"
       if @block_opened
         push_and_tabulate([:loud, out])
       else
@@ -359,7 +362,7 @@ END
 
     # Closes a Ruby block.
     def close_block
-      push_silent "end", false, true
+      push_silent "end", true
       @template_tabs -= 1
     end
 
@@ -373,7 +376,7 @@ END
     
     # Closes a loud Ruby block.
     def close_loud(command)
-      push_silent 'end', false, true
+      push_silent 'end', true
       @precompiled << command
       @template_tabs -= 1
     end
@@ -384,7 +387,7 @@ END
       filtered = filter.new(@filter_buffer).render
 
       if filter == Haml::Filters::Preserve
-        push_silent("_hamlout.buffer << #{filtered.dump} << \"\\n\"\n")
+        push_silent("_hamlout.buffer << #{filtered.dump} << \"\\n\";")
       else
         push_text(filtered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
       end
@@ -520,7 +523,7 @@ END
       else
         flush_merged_text
         content = value.empty? || parse ? 'nil' : value.dump
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})", true
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})"
       end
           
       return if atomic
@@ -641,7 +644,6 @@ END
       spaces = line.index(/[^ ]/)
       if line[spaces] == ?\t
         return nil if line.strip.empty?
-
         raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
       end
       [spaces, spaces/2]
@@ -656,6 +658,12 @@ END
 
     def flat?
       @flat_spaces != -1
+    end
+
+    def newline(skip_next = false)
+      return @skip_next_newline = false if @skip_next_newline
+      @skip_next_newline = true if skip_next
+      @precompiled << "\n"
     end
   end
 end

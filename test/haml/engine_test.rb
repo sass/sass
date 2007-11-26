@@ -187,82 +187,29 @@ class EngineTest < Test::Unit::TestCase
     render("a\nb\n!!!\n  c\nd")
   rescue Haml::SyntaxError => e
     assert_equal(e.message, "Illegal Nesting: Nesting within a header command is illegal.")
-    assert_equal(3, e.haml_line)
-    assert_equal(nil, e.haml_filename)
-    assert_equal('(haml):3', e.backtrace[0])
+    assert_equal("(haml):3", e.backtrace[0])
   rescue Exception => e
     assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce a Haml::SyntaxError')
   else
     assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce an exception')
   end
 
-  def test_exception_type
-    render("%p hi\n= undefined\n= 12")
+  def test_exception
+    render("%p\n  hi\n  %a= undefined\n= 12")
   rescue Exception => e
-    assert(e.is_a?(Haml::Error))
-    assert_equal(2, e.haml_line)
-    assert_equal(nil, e.haml_filename)
-    assert_equal('(haml):2', e.backtrace[0])
-  else
-    # Test failed... should have raised an exception
-    assert(false)
-  end
-
-  def test_def_method_exception_type
-    o = Object.new
-    Haml::Engine.new("%p hi\n= undefined\n= 12").def_method(o, :render)
-    o.render
-  rescue Exception => e
-    assert(e.is_a?(Haml::Error))
-    assert_equal(2, e.haml_line)
-    assert_equal(nil, e.haml_filename)
-    assert_equal('(haml):2', e.backtrace[0])
-  else
-    # Test failed... should have raised an exception
-    assert(false)
-  end
-
-  def test_render_proc_exception_type
-    Haml::Engine.new("%p hi\n= undefined\n= 12").render_proc.call
-  rescue Exception => e
-    assert(e.is_a?(Haml::Error))
-    assert_equal(2, e.haml_line)
-    assert_equal(nil, e.haml_filename)
-    assert_equal('(haml):2', e.backtrace[0])
+    assert_match("(haml):3", e.backtrace[0])
   else
     # Test failed... should have raised an exception
     assert(false)
   end
 
   def test_compile_error
-    render("a\nb\n- fee do\nc")
+    render("a\nb\n- fee)\nc")
   rescue Exception => e
-    assert_match(/^compile error: syntax error/, e.message)
-    assert_equal(3, e.haml_line)
+    assert_match(/^compile error\n\(haml\):3: syntax error/i, e.message)
   else
     assert(false,
-           '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
-  end
-
-  def test_def_method_compile_error
-    o = Object.new
-    Haml::Engine.new("a\nb\n- fee do\nc").def_method(o, :render)
-  rescue Exception => e
-    assert_match(/^compile error: syntax error/, e.message)
-    assert_equal(3, e.haml_line)
-  else
-    assert(false,
-           '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
-  end
-
-  def test_render_proc_compile_error
-    Haml::Engine.new("a\nb\n- fee do\nc").render_proc
-  rescue Exception => e
-    assert_match(/^compile error: syntax error/, e.message)
-    assert_equal(3, e.haml_line)
-  else
-    assert(false,
-           '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
+           '"a\nb\n- fee)\nc" doesn\'t produce an exception!')
   end
 
   def test_unbalanced_brackets

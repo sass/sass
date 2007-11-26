@@ -145,7 +145,7 @@ class TemplateTest < Test::Unit::TestCase
       render("- raise 'oops!'")
     rescue Exception => e
       assert_equal("oops!", e.message)
-      assert_equal("(haml):1", e.backtrace[0])
+      assert_match(/^\(haml\):1/, e.backtrace[0])
     else
       assert false
     end
@@ -165,7 +165,7 @@ END
     begin
       render(template.chomp)
     rescue Exception => e
-      assert_equal("(haml):5", e.backtrace[0])
+      assert_match(/^\(haml\):5/, e.backtrace[0])
     else
       assert false
     end

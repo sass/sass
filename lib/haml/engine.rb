@@ -40,7 +40,8 @@ module Haml
           'preserve' => Haml::Filters::Preserve,
           'redcloth' => Haml::Filters::RedCloth,
           'textile' => Haml::Filters::Textile,
-          'markdown' => Haml::Filters::Markdown }
+          'markdown' => Haml::Filters::Markdown },
+        :filename => '(haml)'
       }
       @options.rec_merge! options
 
@@ -68,9 +69,9 @@ END
       @flat_spaces = -1
 
       precompile
-    rescue Haml::Error => e
-      e.add_backtrace_entry(@index, @options[:filename])
-      raise e
+    rescue Haml::Error
+      $!.backtrace.unshift "#{@options[:filename]}:#{@index}"
+      raise
     end
 
     # Processes the template and returns the result as a string.
@@ -129,11 +130,7 @@ END
         @haml_is_haml = true
       end
 
-      begin
-        eval(@precompiled, scope, '(haml-eval)')
-      rescue Exception => e
-        raise Engine.add_exception_info(e, @precompiled, @options[:filename])
-      end
+      eval(@precompiled, scope, @options[:filename], 0)
 
       # Get rid of the current buffer
       scope_object.instance_eval do
@@ -174,12 +171,8 @@ END
         scope = scope_object.instance_eval{binding}
       end
 
-      begin
-        eval("Proc.new { |*_haml_locals| _haml_locals = _haml_locals[0] || {};" +
-             precompiled_with_ambles(local_names) + "}\n", scope, '(haml-eval)')
-      rescue Exception => e
-        raise Haml::Engine.add_exception_info(e, @precompiled, @options[:filename])
-      end
+      eval("Proc.new { |*_haml_locals| _haml_locals = _haml_locals[0] || {};" +
+           precompiled_with_ambles(local_names) + "}\n", scope, @options[:filename], 0)
     end
 
     # Defines a method on +object+
@@ -220,11 +213,8 @@ END
     def def_method(object, name, *local_names)
       method = object.is_a?(Module) ? :module_eval : :instance_eval
 
-      begin
-        object.send(method, "def #{name}(_haml_locals = {}); #{precompiled_with_ambles(local_names)}; end", '(haml-eval)')
-      rescue Exception => e
-        raise Haml::Engine.add_exception_info(e, @precompiled, @options[:filename])
-      end
+      object.send(method, "def #{name}(_haml_locals = {}); #{precompiled_with_ambles(local_names)}; end",
+                  @options[:filename], 0)
     end
 
     private
@@ -233,21 +223,6 @@ END
       scope_object.send(:instance_variable_set, '@_haml_locals', locals)
       set_locals = locals.keys.map { |k| "#{k} = @_haml_locals[#{k.inspect}]" }.join("\n")
       eval(set_locals, scope)
-    end
-
-    def self.add_exception_info(e, precompiled, filename)
-      metaclass = class << e; self; end
-      metaclass.send(:include, Haml::Error)
-
-      eval_line = e.backtrace[0].scan(/:([0-9]*)/)[0][0].to_i
-      line_marker = precompiled.split("\n")[0...eval_line].grep(/#haml_lineno: [0-9]+/)[-1]
-      e.add_backtrace_entry(line_marker ? line_marker.scan(/[0-9]+/)[0].to_i : -1, filename)
-
-      # Format Ruby compiler errors nicely
-      message = e.message.scan(/compile error\n\(haml-eval\):[0-9]*: (.*)/)[0]
-      metaclass.send(:define_method, :message) { "compile error: #{message}" } if message
-
-      return e
     end
 
     # Returns a hash of options that Haml::Buffer cares about.
