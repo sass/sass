@@ -265,6 +265,12 @@ class EngineTest < Test::Unit::TestCase
            '"a\nb\n- fee do\nc" doesn\'t produce an exception!')
   end
 
+  def test_unbalanced_brackets
+    render('== #{1 + 5} foo #{6 + 7 bar #{8 + 9}')
+  rescue Haml::SyntaxError => e
+    assert_equal("Unbalanced brackets.", e.message)
+  end
+
   def test_no_bluecloth
     Kernel.module_eval do
       def gem_original_require_with_bluecloth(file)

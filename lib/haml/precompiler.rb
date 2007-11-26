@@ -1,3 +1,5 @@
+require 'strscan'
+
 module Haml
   module Precompiler
     # Designates an XHTML/XML element.
@@ -609,18 +611,29 @@ END
     end
 
     def unescape_interpolation(str)
-      first = str.index(/(^|[^\\])\#\{/)
+      scan = StringScanner.new(str.dump)
+      str = ''
 
-      return str.dump if first.nil?
-      first += 1 unless first == 0
+      while scan.scan(/(.*?)\\\#\{/)
+        str << scan.matched[0...-3]
+        str << eval("\"\\\#{#{balance_brackets(scan)}}\"")
+      end
 
-      last = str.rindex '}'
+      str + scan.rest
+    end
 
-      interpolation = str.slice!(first, last - first)
-      str.insert(first, "_haml_interpolation")
+    def balance_brackets(scanner)
+      str = ''
+      count = 1
 
-      str = str.dump
-      str.gsub("_haml_interpolation", interpolation)
+      while scanner.scan(/(.*?)[\{\}]/)
+        str << scanner.matched
+        count += 1 if scanner.matched[-1] == ?{
+        count -= 1 if scanner.matched[-1] == ?}
+        return str[0...-1] if count == 0
+      end
+
+      raise SyntaxError.new("Unbalanced brackets.")
     end
 
     # Counts the tabulation of a line.
