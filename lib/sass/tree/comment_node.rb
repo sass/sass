@@ -7,10 +7,14 @@ module Sass::Tree
     end
 
     def to_s(tabs = 0, parent_name = nil)
-      unless @style == :compressed
-        join_string = @style == :compact ? ' ' : "\n * "
-        "/* #{value}#{join_string unless children.empty?}#{children.join join_string} */"
-      end
+      return if @style == :compressed
+
+      spaces = '  ' * (tabs - 1)
+      join_string = @style == :compact ? ' ' : "\n#{spaces} * "
+      str = "#{spaces}/* #{value}"
+      str << join_string unless children.empty?
+      str << "#{children.join join_string} */"
+      str
     end
   end
 end
