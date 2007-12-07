@@ -45,7 +45,7 @@ module Sass::Tree
     end
 
     def invalid_child?(child)
-      if !child.is_a?(AttrNode)
+      if !child.is_a?(AttrNode) && !child.is_a?(CommentNode)
         "Illegal nesting: Only attributes may be nested beneath attributes."
       end
     end

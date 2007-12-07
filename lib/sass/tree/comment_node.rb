@@ -6,7 +6,7 @@ module Sass::Tree
       super(value[2..-1].strip, style)
     end
 
-    def to_s(parent_name = nil)
+    def to_s(tabs = 0, parent_name = nil)
       unless @style == :compressed
         join_string = @style == :compact ? ' ' : "\n * "
         "/* #{value}#{join_string unless children.empty?}#{children.join join_string} */"
