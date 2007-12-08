@@ -17,7 +17,7 @@ module Haml
 
       def parse!
         begin
-          @opts = OptionParser.new(&(method(:set_opts).to_proc))
+          @opts = OptionParser.new(&method(:set_opts))
           @opts.parse!(@args)
 
           process_result
@@ -93,6 +93,11 @@ module Haml
     # A class encapsulating the executable functionality
     # specific to Haml and Sass.
     class HamlSass < Generic # :nodoc:
+      def initialize(args)
+        super
+        @options[:for_engine] = {}
+      end
+
       private
 
       def set_opts(opts)
@@ -106,7 +111,7 @@ Description:
 Options:
 END
        
-        opts.on('--rails RAILS_DIR', "Install Haml from the Gem to a Rails project") do |dir|
+        opts.on('--rails RAILS_DIR', "Install Haml and Sass from the Gem to a Rails project") do |dir|
           original_dir = dir
 
           dir = File.join(dir, 'vendor', 'plugins')
@@ -156,6 +161,15 @@ END
         @name = "Sass"
       end
 
+      def set_opts(opts)
+        super
+
+        opts.on('-t', '--style NAME',
+                'Output style. Can be nested (default), compact, or expanded.') do |name|
+          @options[:for_engine][:style] = name.to_sym
+        end
+      end
+
       def process_result
         super
         input = @options[:input]
@@ -165,7 +179,7 @@ END
         input.close() if input.is_a? File
 
         begin
-          result = ::Sass::Engine.new(template).render
+          result = ::Sass::Engine.new(template, @options[:for_engine]).render
         rescue ::Sass::SyntaxError => e
           raise e if @options[:trace]
           raise "Syntax error on line #{get_line e}: #{e.message}"
@@ -193,7 +207,7 @@ END
         input.close() if input.is_a? File
 
         begin
-          result = ::Haml::Engine.new(template).to_html
+          result = ::Haml::Engine.new(template, @options[:for_engine]).to_html
         rescue Exception => e
           raise e if @options[:trace]
 
