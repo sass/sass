@@ -47,17 +47,8 @@ module Haml
       private
 
       def set_opts(opts)
-        opts.on('--stdin', :NONE, 'Read input from standard input instead of an input file') do
+        opts.on('s', '--stdin', :NONE, 'Read input from standard input instead of an input file') do
           @options[:input] = $stdin
-        end
-
-        opts.on('--stdout', :NONE, 'Print output to standard output instead of an output file') do
-          @options[:output] = $stdout
-        end
-
-        opts.on('-s', '--stdio', 'Read input from standard input and print output to standard output') do
-          @options[:input] = $stdin
-          @options[:output] = $stdout
         end
 
         opts.on('--trace', :NONE, 'Show a full traceback on error') do
@@ -76,38 +67,24 @@ module Haml
       end
 
       def process_result
-        input = @options[:input]
-        output = @options[:output]
+        input, output = @options[:input], @options[:output]
+        input_file, output_file = if input
+                                    [nil, open_file(ARGV[0], 'w')]
+                                  else
+                                    [open_file(ARGV[0]), open_file(ARGV[1], 'w')]
+                                  end
 
-        if input
-          output ||= ARGV[0]
-        else
-          input ||= ARGV[0]
-          output ||= ARGV[1]
-        end
+        input  ||= input_file
+        output ||= output_file
+        input  ||= $stdin
+        output ||= $stdout
 
-        unless input && output
-          puts @opts
-          exit 1
-        end
+        @options[:input], @options[:output] = input, output
+      end
 
-        if input.is_a?(String) && !File.exists?(input)
-          puts "File #{input} doesn't exist!"
-          exit 1
-        end
-
-        unless input.is_a? IO
-          input = File.open(input)
-          input_file = true
-        end
-
-        unless output.is_a? IO
-          output = File.open(output, "w")
-          output_file = true
-        end
-
-        @options[:input] = input
-        @options[:output] = output
+      def open_file(filename, flag = 'r')
+        return if filename.nil?
+        File.open(filename, flag)
       end
     end
 
@@ -118,7 +95,7 @@ module Haml
 
       def set_opts(opts)
         opts.banner = <<END
-Usage: #{@name.downcase} [options] (#{@name.downcase} file) (output file)
+Usage: #{@name.downcase} [options] [INPUT] [OUTPUT]
 
 Description:
   Uses the #{@name} engine to parse the specified template
@@ -230,7 +207,7 @@ END
 
       def set_opts(opts)
         opts.banner = <<END
-Usage: html2haml [options] (html file) (output file)
+Usage: html2haml [options] [INPUT] [OUTPUT]
 
 Description: Transforms an HTML file into corresponding Haml code.
 
@@ -265,7 +242,7 @@ END
 
       def set_opts(opts)
         opts.banner = <<END
-Usage: css2sass [options] (css file) (output file)
+Usage: css2sass [options] [INPUT] [OUTPUT]
 
 Description: Transforms a CSS file into corresponding Sass code.
 
