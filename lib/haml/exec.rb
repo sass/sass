@@ -26,14 +26,10 @@ module Haml
         rescue Exception => e
           raise e if e.is_a? SystemExit
 
-          line = e.backtrace[0].scan(/:(.*)/)[0]
-          puts "#{e.class} on line #{line}: #{e.message}"
+          $stderr.print "#{e.class} on line #{get_line e}: " if @options[:trace]
+          $stderr.puts e.message
 
-          if @options[:trace]
-            e.backtrace[1..-1].each { |t| puts "  #{t}" }
-          else
-            puts "  Use --trace to see traceback"
-          end
+          e.backtrace[1..-1].each { |t| $stderr.puts "  #{t}" } if @options[:trace]
 
           exit 1
         end
@@ -43,11 +39,17 @@ module Haml
       def to_s
         @opts.to_s
       end
+
+      protected
+
+      def get_line(exception)
+        exception.backtrace[0].scan(/:(\d+)/)[0]
+      end
       
       private
 
       def set_opts(opts)
-        opts.on('s', '--stdin', :NONE, 'Read input from standard input instead of an input file') do
+        opts.on('-s', '--stdin', :NONE, 'Read input from standard input instead of an input file') do
           @options[:input] = $stdin
         end
 
@@ -161,7 +163,14 @@ END
 
         template = input.read()
         input.close() if input.is_a? File
-        result = ::Sass::Engine.new(template).render
+
+        begin
+          result = ::Sass::Engine.new(template).render
+        rescue ::Sass::SyntaxError => e
+          raise e if @options[:trace]
+          raise "Syntax error on line #{get_line e}: #{e.message}"
+        end
+
         output.write(result)
         output.close() if output.is_a? File
       end
@@ -182,7 +191,19 @@ END
 
         template = input.read()
         input.close() if input.is_a? File
-        result = ::Haml::Engine.new(template).to_html
+
+        begin
+          result = ::Haml::Engine.new(template).to_html
+        rescue Exception => e
+          raise e if @options[:trace]
+
+          case e
+          when ::Haml::SyntaxError: raise "Syntax error on line #{get_line e}: #{e.message}"
+          when ::Haml::HamlError:   raise "Haml error on line #{get_line e}: #{e.message}"
+          else raise "Exception on line #{get_line e}: #{e.message}\n  Use --trace for backtrace."
+          end
+        end
+
         output.write(result)
         output.close() if output.is_a? File
       end
