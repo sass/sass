@@ -474,6 +474,21 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   #awesome.rule {
 #     awesomeness: very; }
 #
+# You can also nest text beneath a comment to comment out a whole block.
+# For example:
+#
+#   // A very awesome rule
+#   #awesome.rule
+#     // Don't use these attributes
+#       color: green
+#       font-size: 10em
+#     color: red
+#
+# becomes
+#
+#   #awesome.rule {
+#     color: red; }
+#
 # === Loud Comments
 #
 # "Loud" comments are just as easy as silent ones.
@@ -492,6 +507,26 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   #awesome.rule {
 #     /* An equally awesome attribute. */
 #     awesomeness: very; }
+#
+# You can also nest content beneath loud comments. For example:
+#
+#   #pbj
+#     /* This rule describes
+#       the styling of the element
+#       that represents
+#       a peanut butter and jelly sandwich.
+#     :background-image url(/images/pbj.png)
+#     :color red
+#
+# becomes
+#
+#   #pbj {
+#     /* This rule describes
+#      * the styling of the element
+#      * that represents
+#      * a peanut butter and jelly sandwich. */
+#     background-image: url(/images/pbj.png);
+#     color: red; }
 #
 # == Output Style
 #

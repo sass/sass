@@ -650,6 +650,21 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # <p>foo</p>
 # <p>bar</p>
+#
+# You can also nest text beneath a silent comment.
+# None of this text will be rendered.
+# For example:
+#
+# %p foo
+# -#
+#   This won't be displayed
+#     Nor will this
+# %p bar
+#
+# is compiled to:
+#
+# <p>foo</p>
+# <p>bar</p>
 # 
 # == Other Useful Things
 #
