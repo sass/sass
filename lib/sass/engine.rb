@@ -39,6 +39,9 @@ module Sass
 
     # The character used to denote a compiler directive.
     DIRECTIVE_CHAR = ?@
+    
+    # Designates a non-parsed rule.
+    ESCAPE_CHAR    = ?\\
 
     # The regex that matches and extracts data from
     # attributes of the form <tt>:name attr</tt>.
@@ -233,6 +236,8 @@ module Sass
         parse_comment(line)
       when DIRECTIVE_CHAR
         parse_directive(line)
+      when ESCAPE_CHAR
+        Tree::RuleNode.new(line[1..-1], @options[:style])
       else
         if line =~ ATTRIBUTE_ALTERNATE_MATCHER
           parse_attribute(line, ATTRIBUTE_ALTERNATE)

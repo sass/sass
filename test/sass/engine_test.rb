@@ -199,6 +199,11 @@ END
   def test_empty_first_line
     assert_equal("#a {\n  b: c; }\n", render("#a\n\n  b: c"))
   end
+
+  def test_escaped_rule
+    assert_equal(":focus {\n  a: b; }\n", render("\\:focus\n  a: b"))
+    assert_equal("a {\n  b: c; }\n  a :focus {\n    d: e; }\n", render("\\a\n  b: c\n  \\:focus\n    d: e"))
+  end
   
   private
 
