@@ -2,9 +2,7 @@
 
 require 'test/unit'
 require 'rubygems'
-require 'active_support'
-require 'action_controller'
-require 'action_view'
+require 'action_pack'
 
 require File.dirname(__FILE__) + '/../../lib/haml'
 require 'haml/template'
@@ -30,6 +28,10 @@ class TemplateTest < Test::Unit::TestCase
     Haml::Template.options = { :filters => { 'test'=>TestFilter } }
     @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/", {'article' => Article.new, 'foo' => 'value one'})
     @base.send(:evaluate_assigns)
+
+    # This is used by form_for.
+    # It's usually provided by ActionController::Base.
+    def @base.protect_against_forgery?; false; end
   end
 
   def render(text)
