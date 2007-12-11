@@ -713,6 +713,15 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           if they have no content.
 #                           Defaults to <tt>['meta', 'img', 'link', 'script', 'br', 'hr']</tt>.
 #
-module Haml; end
+module Haml
+  # This method is called by init.rb,
+  # which is run by Rails on startup.
+  # We use it rather than putting stuff straight into init.rb
+  # so we can change the initialization behavior
+  # without modifying the file itself.
+  def self.init_rails(binding)
+    %w[haml/template sass sass/plugin].each(&:require)
+  end
+end
 
 require 'haml/engine'
