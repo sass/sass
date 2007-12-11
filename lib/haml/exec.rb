@@ -144,6 +144,11 @@ END
           exit
         end
 
+        opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
+          @options[:check_syntax] = true
+          @options[:output] = StringIO.new
+        end
+
         super
       end
 
@@ -179,6 +184,9 @@ END
         input.close() if input.is_a? File
 
         begin
+          # We don't need to do any special handling of @options[:check_syntax] here,
+          # because the Sass syntax checking happens alongside evaluation
+          # and evaluation doesn't actually evaluate any code anyway.
           result = ::Sass::Engine.new(template, @options[:for_engine]).render
         rescue ::Sass::SyntaxError => e
           raise e if @options[:trace]
@@ -207,7 +215,12 @@ END
         input.close() if input.is_a? File
 
         begin
-          result = ::Haml::Engine.new(template, @options[:for_engine]).to_html
+          engine = ::Haml::Engine.new(template, @options[:for_engine])
+          if @options[:check_syntax]
+            puts "Syntax OK"
+            return
+          end
+          result = engine.to_html
         rescue Exception => e
           raise e if @options[:trace]
 
