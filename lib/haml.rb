@@ -720,7 +720,7 @@ module Haml
   # so we can change the initialization behavior
   # without modifying the file itself.
   def self.init_rails(binding)
-    %w[haml/template sass sass/plugin].each(&:require)
+    %w[haml/template sass sass/plugin].each(&method(:require))
   end
 end
 
