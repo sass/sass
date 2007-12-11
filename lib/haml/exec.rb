@@ -266,6 +266,10 @@ END
           @module_opts[:rhtml] = true
         end
 
+        opts.on('-x', '--xhtml', 'Parse the input using the more strict XHTML parser.') do
+          @module_opts[:xhtml] = true
+        end
+
         super
       end
 

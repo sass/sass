@@ -27,7 +27,9 @@ module Haml
           match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
           match_to_html(template, /<%(.*?)-?%>/m,  'silent')
         end
-        @template = Hpricot(template)
+
+        method = @@options[:xhtml] ? Hpricot.method(:XML) : method(:Hpricot)
+        @template = method.call(template)
       end
     end
 
