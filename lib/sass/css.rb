@@ -248,7 +248,7 @@ module Sass
     #     color: red
     # 
     def flatten_rules(root)
-      if root.children.size == 1 && root.children.first.is_a?(Tree::RuleNode)
+      while root.children.size == 1 && root.children.first.is_a?(Tree::RuleNode)
         child = root.children.first
         root.rule = "#{root.rule} #{child.rule}"
         root.children = child.children
