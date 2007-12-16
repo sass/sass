@@ -121,6 +121,7 @@ module Sass
       expand_commas root
       nest_rules    root
       flatten_rules root
+      fold_commas   root
       root
     end
 
@@ -283,6 +284,37 @@ module Sass
       end
 
       flatten_rules(rule)
+    end
+
+    # Transform
+    #
+    #   foo
+    #     bar
+    #       color: blue
+    #     baz
+    #       color: blue
+    #
+    # into
+    #
+    #   foo
+    #     bar, baz
+    #       color: blue
+    #
+    def fold_commas(root)
+      prev_rule = nil
+      root.children.map! do |child|
+        next child unless Tree::RuleNode === child
+
+        if prev_rule && prev_rule.children == child.children
+          prev_rule.rule << ", #{child.rule}"
+          next nil
+        end
+
+        fold_commas(child)
+        prev_rule = child
+        child
+      end
+      root.children.compact!
     end
   end
 end
