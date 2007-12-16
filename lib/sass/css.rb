@@ -116,10 +116,10 @@ module Sass
     def build_tree
       root = Tree::Node.new(nil)
       whitespace
-      directives(root)
-      rules(root)
-      nest_rules(root)
-      root.children.each { |child| flatten_rules(child) if child.is_a?(Tree::RuleNode) }
+      directives    root
+      rules         root
+      nest_rules    root
+      flatten_rules root
       root
     end
 
@@ -214,13 +214,9 @@ module Sass
     # 
     def nest_rules(root)
       rules = OrderedHash.new
-
-      is_rule = proc { |e| e.is_a? Tree::RuleNode }
-      children = root.children.select(&is_rule)
-      root.children.reject!(&is_rule)
-
-      children.each do |child|
+      root.children.dup.each do |child|
         next unless child.is_a? Tree::RuleNode
+        root.children.delete child
         first, rest = child.rule.split(' ', 2)
         rules[first] ||= Tree::RuleNode.new(first, nil)
         if rest
@@ -248,13 +244,17 @@ module Sass
     #     color: red
     # 
     def flatten_rules(root)
-      while root.children.size == 1 && root.children.first.is_a?(Tree::RuleNode)
-        child = root.children.first
-        root.rule = "#{root.rule} #{child.rule}"
-        root.children = child.children
+      root.children.each { |child| flatten_rules(child) if child.is_a?(Tree::RuleNode) }
+    end
+
+    def flatten_rule(rule)
+      while rule.children.size == 1 && rule.children.first.is_a?(Tree::RuleNode)
+        child = rule.children.first
+        rule.rule = "#{root.rule} #{child.rule}"
+        rule.children = child.children
       end
 
-      root.children.each { |child| flatten_rules(child) if child.is_a?(Tree::RuleNode) }
+      flatten_rules(rule)
     end
   end
 end
