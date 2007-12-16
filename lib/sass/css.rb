@@ -118,6 +118,7 @@ module Sass
       whitespace
       directives    root
       rules         root
+      expand_commas root
       nest_rules    root
       flatten_rules root
       root
@@ -194,6 +195,34 @@ module Sass
       whitespace
     end
 
+    # Transform
+    #
+    #   foo, bar, baz
+    #     color: blue
+    #
+    # into
+    #
+    #   foo
+    #     color: blue
+    #   bar
+    #     color: blue
+    #   baz
+    #     color: blue
+    #
+    # Yes, this expands the amount of code,
+    # but it's necessary to get nesting to work properly.
+    def expand_commas(root)
+      root.children.map! do |child|
+        next child unless Tree::RuleNode === child && child.rule.include?(',')
+        child.rule.split(',').map do |rule|
+          node = Tree::RuleNode.new(rule, nil)
+          node.children = child.children
+          node
+        end
+      end
+      root.children.flatten!
+    end
+
     # Nest rules so that
     #
     #   foo
@@ -214,8 +243,7 @@ module Sass
     # 
     def nest_rules(root)
       rules = OrderedHash.new
-      root.children.dup.each do |child|
-        next unless child.is_a? Tree::RuleNode
+      root.children.select { |c| Tree::RuleNode === c }.each do |child|
         root.children.delete child
         first, rest = child.rule.split(' ', 2)
         rules[first] ||= Tree::RuleNode.new(first, nil)
