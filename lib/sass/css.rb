@@ -41,20 +41,52 @@ module Sass
       end
     end
   end
+
+  # This class is based on the Ruby 1.9 ordered hashes.
+  # It keeps the semantics and most of the efficiency of normal hashes
+  # while also keeping track of the order in which elements were set.
+  class OrderedHash
+    Node = Struct.new('Node', :key, :value, :next)
+    include Enumerable
+
+    def initialize
+      @hash = {}
+    end
+
+    def [](key)
+      @hash[key] && @hash[key].value
+    end
+
+    def []=(key, value)
+      node = Node.new(key, value, nil)
+      if @first.nil?
+        @first = @last = node
+      else
+        @last.next = node
+        @last = node
+      end
+      @hash[key] = node
+      value
+    end
+
+    def each
+      return unless @first
+      yield [@first.key, @first.value]
+      node = @first
+      yield [node.key, node.value] while node = node.next
+      self
+    end
+
+    def values
+      self.map { |k, v| v }
+    end
+  end
+
   # :startdoc:
 
   # This class contains the functionality used in the +css2sass+ utility,
   # namely converting CSS documents to Sass templates.
   class CSS
-    # :stopdoc:
-
-    # The Regexp matching a CSS rule
-    RULE_RE = /\s*([^\{]+)\s*\{/
-
-    # The Regexp matching a CSS attribute
-    ATTR_RE = /\s*[^::\{\}]+\s*:\s*[^:;\{\}]+\s*;/
-
-    # :startdoc:
 
     # Creates a new instance of Sass::CSS that will compile the given document
     # to a Sass string when +render+ is called.
@@ -86,7 +118,8 @@ module Sass
       whitespace
       directives(root)
       rules(root)
-      sort_rules(root)
+      nest_rules(root)
+      root.children.each { |child| flatten_rules(child) if child.is_a?(Tree::RuleNode) }
       root
     end
 
@@ -161,37 +194,67 @@ module Sass
       whitespace
     end
 
-    def sort_rules(root)
-      root.children.sort! do |c1, c2|
-        if c1.is_a?(Tree::RuleNode) && c2.is_a?(Tree::RuleNode)
-          c1.rule <=> c2.rule
-        elsif !(c1.is_a?(Tree::RuleNode) || c2.is_a?(Tree::RuleNode)) || c2.is_a?(Tree::RuleNode)
-          -1
+    # Nest rules so that
+    #
+    #   foo
+    #     color: green
+    #   foo bar
+    #     color: red
+    #   foo baz
+    #     color: blue
+    #
+    # becomes
+    #
+    #   foo
+    #     color: green
+    #     bar
+    #       color: red
+    #     baz
+    #       color: blue
+    # 
+    def nest_rules(root)
+      rules = OrderedHash.new
+
+      is_rule = proc { |e| e.is_a? Tree::RuleNode }
+      children = root.children.select(&is_rule)
+      root.children.reject!(&is_rule)
+
+      children.each do |child|
+        next unless child.is_a? Tree::RuleNode
+        first, rest = child.rule.split(' ', 2)
+        rules[first] ||= Tree::RuleNode.new(first, nil)
+        if rest
+          child.rule = rest
+          rules[first] << child
         else
-          1
+          rules[first].children += child.children
         end
       end
 
-      prev_rules = []
-      prev_rule_values = []
-      root.children.each do |child|
-        if child.is_a? Tree::RuleNode
-          joined_prev_values = prev_rule_values.join(' ')
-          until prev_rules.empty? || child.rule =~ /^#{Regexp.escape(joined_prev_values)}/
-            prev_rules.pop
-            prev_rule_values.pop
-          end
-          
-          unless prev_rules.empty?
-            child.rule.slice!(0..(joined_prev_values.size))
-            prev_rules[-1] << child
-            root.children.delete child
-          end
-          
-          prev_rules << child
-          prev_rule_values << child.rule
-        end
+      rules.values.each { |v| nest_rules(v) }
+      root.children += rules.values
+    end
+
+    # Flatten rules so that
+    #
+    #   foo
+    #     bar
+    #       baz
+    #         color: red
+    #
+    # becomes
+    #
+    #   foo bar baz
+    #     color: red
+    # 
+    def flatten_rules(root)
+      if root.children.size == 1 && root.children.first.is_a?(Tree::RuleNode)
+        child = root.children.first
+        root.rule = "#{root.rule} #{child.rule}"
+        root.children = child.children
       end
+
+      root.children.each { |child| flatten_rules(child) if child.is_a?(Tree::RuleNode) }
     end
   end
 end
