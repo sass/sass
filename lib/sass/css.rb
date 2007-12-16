@@ -164,11 +164,11 @@ module Sass
         assert_match /:/
         
         value = ''
-        while @template.scan(/[^;\s]+/)
+        while @template.scan(/[^;\s\}]+/)
           value << @template[0] << whitespace
         end
         
-        assert_match /;/        
+        assert_match /(;|(?=\}))/
         rule << Tree::AttrNode.new(name, value, nil)
       end
 
