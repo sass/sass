@@ -299,6 +299,12 @@ class EngineTest < Test::Unit::TestCase
                  render("%p[user] New User", :locals => {:user => user}))
   end
 
+  def test_non_literal_attributes
+    assert_equal("<p a1='foo' a2='bar' a3='baz' />\n",
+                 render("%p{a2, a1, :a3 => 'baz'}/",
+                        :locals => {:a1 => {:a1 => 'foo'}, :a2 => {:a2 => 'bar'}}))
+  end
+
   def test_render_should_accept_a_binding_as_scope
     string = "This is a string!"
     string.instance_variable_set("@var", "Instance variable")

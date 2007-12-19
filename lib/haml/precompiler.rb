@@ -431,14 +431,14 @@ END
     end
     
     def parse_static_hash(text)  
-      return {} unless text && inner = text.scan(/^\{(.*)\}$/)[0]
+      return {} unless text
 
       attributes = {}
-      inner[0].split(',').each do |attrib|
+      text.split(',').each do |attrib|
         key, value, more = attrib.split('=>')
 
         # Make sure the key and value and only the key and value exist
-        # Otherwise, it's too complicated and we'll defer it to the actual Ruby parser
+        # Otherwise, it's too complicated or dynamic and we'll defer it to the actual Ruby parser
         key = parse_literal_value key
         value = parse_literal_value value
         return nil if more || key.nil? || value.nil?
@@ -480,6 +480,7 @@ END
       raise SyntaxError.new("Invalid tag: \"#{line}\"") unless match = line.scan(TAG_REGEX)[0]
       tag_name, attributes, attributes_hash, object_ref, action, value = match
       value = value.to_s.strip
+      attributes_hash = attributes_hash[1...-1] if attributes_hash
 
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
@@ -499,7 +500,7 @@ END
       object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
       static_attributes = parse_static_hash(attributes_hash) # Try pre-compiling a static attributes hash
-      attributes_hash = "{nil}" if attributes_hash.nil? || static_attributes || @options[:suppress_eval]
+      attributes_hash = nil if static_attributes || @options[:suppress_eval]
       attributes = parse_class_and_id(attributes)
       Buffer.merge_attrs(attributes, static_attributes) if static_attributes
 
@@ -510,7 +511,7 @@ END
 
       atomic = true if !@block_opened && value.empty? && @options[:autoclose].include?(tag_name)
       
-      if object_ref == "nil" && attributes_hash == "{nil}" && !flattened && (parse || Buffer.one_liner?(value))
+      if object_ref == "nil" && attributes_hash.nil? && !flattened && (parse || Buffer.one_liner?(value))
         # This means that we can render the tag directly to text and not process it in the buffer
         tag_closed = !value.empty? && Buffer.one_liner?(value) && !parse
 
@@ -523,7 +524,8 @@ END
       else
         flush_merged_text
         content = value.empty? || parse ? 'nil' : value.dump
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{attributes.inspect}, #{object_ref}, #{content}, #{attributes_hash[1...-1]})"
+        attributes_hash = ', ' + attributes_hash if attributes_hash
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
       end
           
       return if atomic

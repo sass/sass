@@ -91,11 +91,11 @@ module Haml
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, atomic, try_one_line, class_id, obj_ref, content, attributes_hash)
+    def open_tag(name, atomic, try_one_line, class_id, obj_ref, content, *attributes_hashes)
       tabulation = @real_tabs
       
       attributes = class_id
-      if attributes_hash
+      attributes_hashes.each do |attributes_hash|
         attributes_hash.keys.each { |key| attributes_hash[key.to_s] = attributes_hash.delete(key) }
         self.class.merge_attrs(attributes, attributes_hash)
       end
