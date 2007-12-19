@@ -143,6 +143,45 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     <script src='javascripts/script_9' type='text/javascript'>
 #     </script>
 #   </head>
+#
+# A Ruby method call that returns a hash
+# can be substituted for the hash contents.
+# For example, Haml::Helpers defines the following method:
+#
+#   def html_attrs(lang = 'en-US')
+#     {:xmlns => "http://www.w3.org/1999/xhtml", 'xml:lang' => lang, :lang => lang}
+#   end
+#
+# This can then be used in Haml, like so:
+#
+#   %html{html_attrs('fr-fr')}
+#
+# This is compiled to:
+#
+#   <html lang='fr-fr' xml:lang='fr=fr' xmlns='http://www.w3.org/1999/xhtml'>
+#   </html>
+#
+# You can use as many such attribute methods as you want
+# by separating them with commas,
+# like a Ruby argument list.
+# All the hashes will me merged together, from left to right.
+# For example, if you defined
+#
+#   def hash1
+#     {:bread => 'white', :filling => 'peanut butter and jelly'}
+#   end
+#
+#   def hash2
+#     {:bread => 'whole wheat'}
+#   end
+#
+# then
+#
+#   %sandwich{hash1, hash2, :delicious => true}/
+#
+# would compile to:
+#
+#   <sandwich bread='whole wheat' delicious='true' filling='peanut butter and jelly' />
 # 
 # ==== []
 # 
