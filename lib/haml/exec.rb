@@ -225,8 +225,8 @@ END
           raise e if @options[:trace]
 
           case e
-          when ::Haml::SyntaxError: raise "Syntax error on line #{get_line e}: #{e.message}"
-          when ::Haml::HamlError:   raise "Haml error on line #{get_line e}: #{e.message}"
+          when ::Haml::SyntaxError; raise "Syntax error on line #{get_line e}: #{e.message}"
+          when ::Haml::HamlError;   raise "Haml error on line #{get_line e}: #{e.message}"
           else raise "Exception on line #{get_line e}: #{e.message}\n  Use --trace for backtrace."
           end
         end

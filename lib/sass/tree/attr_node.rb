@@ -21,8 +21,8 @@ module Sass::Tree
       end
 
       join_string = case @style
-                    when :compact: ' '
-                    when :compressed: ''
+                    when :compact; ' '
+                    when :compressed; ''
                     else "\n"
                     end
       spaces = '  ' * (tabs - 1)

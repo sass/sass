@@ -61,8 +61,8 @@ module Sass::Tree
         end
       elsif continued?
         to_return << ('  ' * (tabs - 1)) + total_rule + case @style
-                                                        when :compressed: ''
-                                                        when :compact: ' '
+                                                        when :compressed; ''
+                                                        when :compact; ' '
                                                         else "\n"
                                                         end
       end

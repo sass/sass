@@ -194,13 +194,13 @@ END
       @index = index + 1
 
       case text[0]
-      when DIV_CLASS, DIV_ID: render_div(text)
-      when ELEMENT: render_tag(text)
-      when COMMENT: render_comment(text)
+      when DIV_CLASS, DIV_ID; render_div(text)
+      when ELEMENT; render_tag(text)
+      when COMMENT; render_comment(text)
       when SCRIPT
         return push_script(unescape_interpolation(text[2..-1].strip), false) if text[1] == SCRIPT
         push_script(text[1..-1], false)
-      when FLAT_SCRIPT: push_flat_script(text[1..-1])
+      when FLAT_SCRIPT; push_flat_script(text[1..-1])
       when SILENT_SCRIPT
         return start_haml_comment if text[1] == SILENT_COMMENT
 
@@ -209,11 +209,11 @@ END
         if (@block_opened && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"
           push_and_tabulate([:script])
         end
-      when FILTER: start_filtered(text[1..-1].downcase)
+      when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
         push_plain text
-      when ESCAPE: push_plain text[1..-1]
+      when ESCAPE; push_plain text[1..-1]
       else push_plain text
       end
     end
@@ -343,12 +343,12 @@ END
     def close
       tag, value = @to_close_stack.pop
       case tag
-      when :script: close_block
-      when :comment: close_comment value
-      when :element: close_tag value
-      when :loud: close_loud value
-      when :filtered: close_filtered value
-      when :haml_comment: close_haml_comment
+      when :script; close_block
+      when :comment; close_comment value
+      when :element; close_tag value
+      when :loud; close_loud value
+      when :filtered; close_filtered value
+      when :haml_comment; close_haml_comment
       end
     end
 
@@ -415,7 +415,7 @@ END
             attributes['class'] = ""
           end
           attributes['class'] += property
-        when '#': attributes['id'] = property
+        when '#'; attributes['id'] = property
         end
       end
       attributes
@@ -485,9 +485,9 @@ END
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
       case action
-      when '/': atomic = true
-      when '~': parse = flattened = true
-      when '=':
+      when '/'; atomic = true
+      when '~'; parse = flattened = true
+      when '='
         parse = true
         value = unescape_interpolation(value[1..-1].strip) if value[0] == ?=
       end
@@ -593,8 +593,8 @@ END
       end
 
       case type
-      when "strict":   return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
-      when "frameset": return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
+      when "strict";   return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+      when "frameset"; return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
       else             return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
       end
     end
