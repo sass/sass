@@ -643,7 +643,7 @@ END
 
     # Counts the tabulation of a line.
     def count_soft_tabs(line)
-      spaces = line.index(/[^ ]/)
+      spaces = line.index(/([^ ]|$)/)
       if line[spaces] == ?\t
         return nil if line.strip.empty?
         raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
