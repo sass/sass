@@ -71,7 +71,7 @@ unless ARGV[0] == 'benchmark'
       list.exclude(/[a-z]/)
       list.exclude('TODO')
     end.to_a
-    spec.executables = ['haml', 'html2haml', 'sass']
+    spec.executables = ['haml', 'html2haml', 'sass', 'css2sass']
     spec.files = FileList['lib/**/*', 'bin/*', 'test/**/*', 'Rakefile', 'init.rb'].to_a + readmes
     spec.autorequire = ['haml', 'sass']
     spec.homepage = 'http://haml.hamptoncatlin.com/'
