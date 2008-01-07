@@ -750,7 +750,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # [<tt>:autoclose</tt>]     A list of tag names that should be automatically self-closed
 #                           if they have no content.
-#                           Defaults to <tt>['meta', 'img', 'link', 'script', 'br', 'hr']</tt>.
+#                           Defaults to <tt>['meta', 'img', 'link', 'br', 'hr', 'input', 'area']</tt>.
 #
 module Haml
   # This method is called by init.rb,
