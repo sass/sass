@@ -42,19 +42,31 @@ module Haml
       nil
     end
 
+    # call-seq:
+    #   find_and_preserve(input)
+    #   find_and_preserve {...}
+    #   
     # Isolates the whitespace-sensitive tags in the string and uses preserve
     # to convert any endlines inside them into HTML entities for endlines.
-    def find_and_preserve(input)
+    def find_and_preserve(input = '', &block)
+      return find_and_preserve(capture_haml(&block)) if block
+
       input = input.to_s
       input.gsub(/<(textarea|code|pre)([^>]*)>(.*?)(<\/\1>)/im) do
         "<#{$1}#{$2}>#{preserve($3)}</#{$1}>"
       end
     end
 
+    # call-seq:
+    #   preserve(input)
+    #   preserve {...}
+    #
     # Takes any string, finds all the endlines and converts them to
     # HTML entities for endlines so they'll render correctly in
     # whitespace-sensitive tags without screwing up the indentation.
-    def preserve(input)      
+    def preserve(input = '', &block)
+      return preserve(capture_haml(&block)) if block
+
       input.gsub(/\n/, '&#x000A;').gsub(/\r/, '')
     end
 

@@ -122,6 +122,16 @@ class HelperTest < Test::Unit::TestCase
     assert_equal("1\n\n2\n\n3\n\n", render("- trc([1, 2, 3]) do |i|\n  = i.inspect"))
   end
 
+  def test_find_and_preserve_with_block
+    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>\nFoo\nBar\n",
+                 render("= find_and_preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
+  end
+
+  def test_preserve_with_block
+    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>&#x000A;Foo&#x000A;Bar&#x000A;\n",
+                 render("= preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
+  end
+
   def test_init_haml_helpers
     context = Object.new
     class << context
