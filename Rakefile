@@ -22,11 +22,9 @@ desc temp_desc.chomp
 task :benchmark do
   require 'test/benchmark'
 
-  puts '-'*51, "Benchmark: Haml vs. ERb", '-'*51
-  puts "Running benchmark #{ENV['TIMES']} times..." if ENV['TIMES']
+  puts "Running benchmarks #{ENV['TIMES']} times..." if ENV['TIMES']
   times = ENV['TIMES'].to_i if ENV['TIMES']
-  benchmarker = Haml::Benchmarker.new
-  puts benchmarker.benchmark(times || 100)
+  Haml.benchmark(times || 100)
   puts '-'*51
 end
 
@@ -97,6 +95,17 @@ unless ARGV[0] == 'benchmark'
 
   task :install => [:package] do
     sh %{gem install --no-ri pkg/haml-#{File.read('VERSION').strip}}
+  end
+
+  task :release => [:package] do
+    name, version = ENV['NAME'], ENV['VERSION']
+    raise "Must supply NAME and VERSION for release task." unless name && version
+    exit
+    sh %{rubyforge login}
+    sh %{rubyforge add_release haml #{name} #{version} pkg/#{name}-#{version}.gem}
+    sh %{rubyforge add_file    haml #{name} #{version} pkg/#{name}-#{version}.tar.gz}
+    sh %{rubyforge add_file    haml #{name} #{version} pkg/#{name}-#{version}.tar.bz2}
+    sh %{rubyforge add_file    haml #{name} #{version} pkg/#{name}-#{version}.zip}
   end
 
   # ----- Documentation -----

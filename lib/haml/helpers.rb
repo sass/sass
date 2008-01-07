@@ -17,20 +17,56 @@ module Haml
       @@action_view_defined
     end
 
-    # Isolates the whitespace-sensitive tags in the string and uses preserve
-    # to convert any endlines inside them into HTML entities for endlines.
-    def find_and_preserve(input)
-      input = input.to_s
-      input.scan(/<(textarea|code|pre)[^>]*>(.*?)<\/\1>/im) do |tag, contents|
-        input = input.gsub(contents, preserve(contents))
-      end
-      input
+    # Note: this does *not* need to be called
+    # when using Haml helpers normally
+    # in Rails.
+    #
+    # Initializes the current object
+    # as though it were in the same context
+    # as a normal ActionView rendering
+    # using Haml.
+    # This is useful if you want to use the helpers in a context
+    # other than the normal setup with ActionView.
+    # For example:
+    #
+    #   context = Object.new
+    #   class << context
+    #     include Haml::Helpers
+    #   end
+    #   context.init_haml_helpers
+    #   context.open :p, "Stuff"
+    # 
+    def init_haml_helpers
+      @haml_is_haml = true
+      @haml_stack = [Haml::Buffer.new]
+      nil
     end
 
+    # call-seq:
+    #   find_and_preserve(input)
+    #   find_and_preserve {...}
+    #   
+    # Isolates the whitespace-sensitive tags in the string and uses preserve
+    # to convert any endlines inside them into HTML entities for endlines.
+    def find_and_preserve(input = '', &block)
+      return find_and_preserve(capture_haml(&block)) if block
+
+      input = input.to_s
+      input.gsub(/<(textarea|code|pre)([^>]*)>(.*?)(<\/\1>)/im) do
+        "<#{$1}#{$2}>#{preserve($3)}</#{$1}>"
+      end
+    end
+
+    # call-seq:
+    #   preserve(input)
+    #   preserve {...}
+    #
     # Takes any string, finds all the endlines and converts them to
     # HTML entities for endlines so they'll render correctly in
     # whitespace-sensitive tags without screwing up the indentation.
-    def preserve(input)      
+    def preserve(input = '', &block)
+      return preserve(capture_haml(&block)) if block
+
       input.gsub(/\n/, '&#x000A;').gsub(/\r/, '')
     end
 
@@ -256,15 +292,22 @@ module Haml
         attributes = alt_atts
       end
 
-      puts "<#{name}#{buffer.build_attributes(attributes)}>"
-      tab_up
+      if text.nil? && block.nil?
+        puts "<#{name}#{Haml::Precompiler.build_attributes(buffer.options[:attr_wrapper], attributes)} />"
+        return nil
+      end
+
+      puts "<#{name}#{Haml::Precompiler.build_attributes(buffer.options[:attr_wrapper], attributes)}>"
+      unless text && text.empty?
+        tab_up
         # Print out either the text (using push_text) or call the block and add an endline
         if text
           puts(text)
         elsif block
           block.call
         end
-      tab_down
+        tab_down
+      end
       puts "</#{name}>"
       nil
     end
@@ -314,7 +357,7 @@ module Haml
     def is_haml?
       @haml_is_haml
     end
-    
+
     include ActionViewExtensions if self.const_defined? "ActionViewExtensions"
   end
 end

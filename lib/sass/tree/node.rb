@@ -22,15 +22,22 @@ module Sass
         children.each do |child|
           if child.is_a? AttrNode
             raise SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
-          end
-
-          begin
-            result += "#{child.to_s(1)}\n"
-          rescue SyntaxError => e
-            raise e
+          elsif child.is_a?(RuleNode) && child.continued?
+            check_multiline_rule(child)
+            result << child.to_s(1)
+          else
+            result << "#{child.to_s(1)}" + (@style == :compressed ? '' : "\n")
           end
         end
-        result[0...-1]
+        @style == :compressed ? result+"\n" : result[0...-1]
+      end
+
+      protected
+
+      def check_multiline_rule(rule)
+        unless rule.children.empty?
+          raise SyntaxError.new('Rules can\'t end in commas.', rule.line)
+        end
       end
 
       private

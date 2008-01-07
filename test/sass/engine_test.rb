@@ -39,11 +39,11 @@ class SassEngineTest < Test::Unit::TestCase
     "!a = 1b + 2c" => "Incompatible units: b and c",
     "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'",
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
+    "a,\n  :b c" => "Rules can\'t end in commas.",
     "!a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath constants.",
     "@import foo.sass" => "File to import not found or unreadable: foo.sass",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
-    "@foo    bar boom" => "Unknown compiler directive: \"@foo bar boom\"",
     "!foo = bar baz !" => "Unterminated constant.",
     "!foo = !(foo)" => "Invalid constant.",
   }
@@ -56,6 +56,7 @@ class SassEngineTest < Test::Unit::TestCase
     renders_correctly "expanded", { :style => :expanded }
     renders_correctly "compact", { :style => :compact }
     renders_correctly "nested", { :style => :nested }
+    renders_correctly "compressed", { :style => :compressed }
   end
   
   def test_exceptions
@@ -97,11 +98,118 @@ class SassEngineTest < Test::Unit::TestCase
     end
   end
 
-  def test_empty_first_line
-    assert_equal("#a {\n  b: c; }\n", Sass::Engine.new("#a\n\n  b: c").render)
+  def test_default_function
+    assert_equal("foo {\n  bar: url(foo.png); }\n",
+                 render("foo\n  bar = url(foo.png)\n"));
   end
+
+  def test_multiline_selector
+    assert_equal("#foo #bar,\n#baz #boom {\n  foo: bar; }\n",
+                 render("#foo #bar,\n#baz #boom\n  :foo bar"))
+    assert_equal("#foo #bar,\n#foo #baz {\n  foo: bar; }\n",
+                 render("#foo\n  #bar,\n  #baz\n    :foo bar"))
+    assert_equal("#foo #bar, #baz #boom { foo: bar; }\n",
+                 render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compact))
+                 
+    assert_equal("#foo #bar,#baz #boom{foo:bar}\n",
+                 render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compressed))
+  end
+
+  def test_colon_only
+    begin
+      render("a\n  b: c", :attribute_syntax => :normal)
+    rescue Sass::SyntaxError => e
+      assert_equal("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.",
+                   e.message)
+    else
+      assert(false, "SyntaxError not raised for :attribute_syntax => :normal")
+    end
+
+    begin
+      render("a\n  :b c", :attribute_syntax => :alternate)
+    rescue Sass::SyntaxError => e
+      assert_equal("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.",
+                   e.message)
+    else
+      assert(false, "SyntaxError not raised for :attribute_syntax => :alternate")
+    end
+  end
+
+  def test_directive
+    assert_equal("@a b;", render("@a b"))
+
+    assert_equal("@a {\n  b: c; }\n", render("@a\n  :b c"))
+    assert_equal("@a { b: c; }\n", render("@a\n  :b c", :style => :compact))
+    assert_equal("@a {\n  b: c;\n}\n", render("@a\n  :b c", :style => :expanded))
+    assert_equal("@a{b:c}\n", render("@a\n  :b c", :style => :compressed))
+
+    assert_equal("@a {\n  b: c;\n  d: e; }\n",
+                 render("@a\n  :b c\n  :d e"))
+    assert_equal("@a { b: c; d: e; }\n",
+                 render("@a\n  :b c\n  :d e", :style => :compact))
+    assert_equal("@a {\n  b: c;\n  d: e;\n}\n",
+                 render("@a\n  :b c\n  :d e", :style => :expanded))
+    assert_equal("@a{b:c;d:e}\n",
+                 render("@a\n  :b c\n  :d e", :style => :compressed))
+
+    assert_equal("@a {\n  #b {\n    c: d; } }\n",
+                 render("@a\n  #b\n    :c d"))
+    assert_equal("@a { #b { c: d; } }\n",
+                 render("@a\n  #b\n    :c d", :style => :compact))
+    assert_equal("@a {\n  #b {\n    c: d;\n  }\n}\n",
+                 render("@a\n  #b\n    :c d", :style => :expanded))
+    assert_equal("@a{#b{c:d}}\n",
+                 render("@a\n  #b\n    :c d", :style => :compressed))
+
+    assert_equal("@a {\n  #b {\n    a: b; }\n    #b #c {\n      d: e; } }\n",
+                 render("@a\n  #b\n    :a b\n    #c\n      :d e"))
+    assert_equal("@a { #b { a: b; }\n  #b #c { d: e; } }\n",
+                 render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :compact))
+    assert_equal("@a {\n  #b {\n    a: b;\n  }\n  #b #c {\n    d: e;\n  }\n}\n",
+                 render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :expanded))
+    assert_equal("@a{#b{a:b}#b #c{d:e}}\n",
+                 render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :compressed))
+                 
+    assert_equal("@a {\n  #foo,\n  #bar {\n    b: c; } }\n",
+                 render("@a\n  #foo, \n  #bar\n    :b c"))
+    assert_equal("@a { #foo, #bar { b: c; } }\n",
+                 render("@a\n  #foo, \n  #bar\n    :b c", :style => :compact))
+    assert_equal("@a {\n  #foo,\n  #bar {\n    b: c;\n  }\n}\n",
+                 render("@a\n  #foo, \n  #bar\n    :b c", :style => :expanded))
+    assert_equal("@a{#foo,#bar{b:c}}\n",
+                 render("@a\n  #foo, \n  #bar\n    :b c", :style => :compressed))
+
+    to_render = <<END
+@a
+  :b c
+  #d
+    :e f
+  :g h
+END
+    rendered = <<END
+@a { b: c;
+  #d { e: f; }
+  g: h; }
+END
+    assert_equal(rendered, render(to_render, :style => :compact))
     
+    assert_equal("@a{b:c;#d{e:f}g:h}\n", render(to_render, :style => :compressed))
+  end
+
+  def test_empty_first_line
+    assert_equal("#a {\n  b: c; }\n", render("#a\n\n  b: c"))
+  end
+
+  def test_escaped_rule
+    assert_equal(":focus {\n  a: b; }\n", render("\\:focus\n  a: b"))
+    assert_equal("a {\n  b: c; }\n  a :focus {\n    d: e; }\n", render("\\a\n  b: c\n  \\:focus\n    d: e"))
+  end
+  
   private
+
+  def render(sass, options = {})
+    Sass::Engine.new(sass, options).render
+  end
 
   def renders_correctly(name, options={})
     sass_file  = load_file(name, "sass")

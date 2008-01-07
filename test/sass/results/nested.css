@@ -3,6 +3,8 @@
   color: #0000ff; }
   #main p {
     border-style: dotted;
+    /* Nested comment
+     * More nested stuff */
     border-width: 2px; }
   #main .cool {
     width: 100px; }
@@ -10,7 +12,6 @@
 #left {
   font-size: 2em;
   font-weight: bold;
-  
   float: left; }
 
 #right .header {

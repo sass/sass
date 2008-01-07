@@ -3,6 +3,7 @@ require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/attr_node'
+require 'sass/tree/directive_node'
 require 'sass/constant'
 require 'sass/error'
 require 'haml/util'
@@ -38,6 +39,9 @@ module Sass
 
     # The character used to denote a compiler directive.
     DIRECTIVE_CHAR = ?@
+    
+    # Designates a non-parsed rule.
+    ESCAPE_CHAR    = ?\\
 
     # The regex that matches and extracts data from
     # attributes of the form <tt>:name attr</tt>.
@@ -232,6 +236,8 @@ module Sass
         parse_comment(line)
       when DIRECTIVE_CHAR
         parse_directive(line)
+      when ESCAPE_CHAR
+        Tree::RuleNode.new(line[1..-1], @options[:style])
       else
         if line =~ ATTRIBUTE_ALTERNATE_MATCHER
           parse_attribute(line, ATTRIBUTE_ALTERNATE)
@@ -242,6 +248,14 @@ module Sass
     end
 
     def parse_attribute(line, attribute_regx)
+      if @options[:attribute_syntax] == :normal &&
+          attribute_regx == ATTRIBUTE_ALTERNATE
+        raise SyntaxError.new("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.")
+      elsif @options[:attribute_syntax] == :alternate &&
+          attribute_regx == ATTRIBUTE
+        raise SyntaxError.new("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.")
+      end
+
       name, eq, value = line.scan(attribute_regx)[0]
 
       if name.nil? || value.nil?
@@ -281,7 +295,7 @@ module Sass
       when "import"
         import(value)
       else
-        raise SyntaxError.new("Unknown compiler directive: #{"@#{directive} #{value}".dump}", @line)
+        Tree::DirectiveNode.new(line, @options[:style])
       end
     end
 
@@ -290,7 +304,13 @@ module Sass
 
       files.split(/,\s*/).each do |filename|
         engine = nil
-        filename = find_file_to_import(filename)
+
+        begin
+          filename = self.class.find_file_to_import(filename, @options[:load_paths])
+        rescue Exception => e
+          raise SyntaxError.new(e.message, @line)
+        end
+
         if filename =~ /\.css$/
           nodes << Tree::ValueNode.new("@import url(#{filename});", @options[:style])
         else
@@ -319,10 +339,9 @@ module Sass
       nodes
     end
 
-    def find_file_to_import(filename)
+    def self.find_file_to_import(filename, load_paths)
       was_sass = false
       original_filename = filename
-      new_filename = nil
 
       if filename[-5..-1] == ".sass"
         filename = filename[0...-5]
@@ -331,24 +350,29 @@ module Sass
         return filename
       end
 
-      @options[:load_paths].each do |path|
-        full_path = File.join(path, filename) + '.sass'
-
-        if File.readable?(full_path)
-          new_filename = full_path
-          break
-        end
-      end
+      new_filename = find_full_path("#{filename}.sass", load_paths)
 
       if new_filename.nil?
         if was_sass
-          raise SyntaxError.new("File to import not found or unreadable: #{original_filename}", @line)
+          raise Exception.new("File to import not found or unreadable: #{original_filename}")
         else
           return filename + '.css'
         end
       else
         new_filename
       end
+    end
+
+    def self.find_full_path(filename, load_paths)
+      load_paths.each do |path|
+        ["_#{filename}", filename].each do |name|
+          full_path = File.join(path, name)
+          if File.readable?(full_path)
+            return full_path
+          end
+        end
+      end
+      nil
     end
   end
 end

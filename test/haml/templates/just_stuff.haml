@@ -11,6 +11,14 @@
 == Embedded? #{true}!
 - embedded = true
 == Embedded? #{embedded}!
+== Embedded? #{"twice! #{true}"}!
+== Embedded? #{"one"} af"t"er #{"another"}!
+%p== Embedded? false!
+%p== Embedded? #{true}!
+- embedded = true
+%p== Embedded? #{embedded}!
+%p== Embedded? #{"twice! #{true}"}!
+%p== Embedded? #{"one"} af"t"er #{"another"}!
 .render= render :inline => "%em= 'wow!'", :type => :haml
 = "stuff followed by whitespace"
   
@@ -33,6 +41,8 @@
 -#
   Nested Haml comment
   - raise 'dead'
+%p{ :class => "" } class attribute should appear!
+%p{ :gorbachev => nil } this attribute shouldn't appear
 /[if lte IE6] conditional comment!
 /[if gte IE7]
   %p Block conditional comment

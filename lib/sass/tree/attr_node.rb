@@ -9,7 +9,7 @@ module Sass::Tree
       super(value, style)
     end
     
-    def to_s(parent_name = nil)
+    def to_s(tabs, parent_name = nil)
       if value[-1] == ?;
         raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (This isn't CSS!)", @line)
       end
@@ -20,21 +20,22 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump}", @line)
       end
 
-      join_string = @style == :compact ? ' ' : "\n"
+      join_string = case @style
+                    when :compact; ' '
+                    when :compressed; ''
+                    else "\n"
+                    end
+      spaces = '  ' * (tabs - 1)
       to_return = ''
       if !value.empty?
-        to_return << "#{real_name}: #{value};#{join_string}"
+        to_return << "#{spaces}#{real_name}:#{@style == :compressed ? '' : ' '}#{value};#{join_string}"
       end
 
       children.each do |kid|
-        if @style == :compact
-          to_return << "#{kid.to_s(real_name)} "
-        else
-          to_return << "#{kid.to_s(real_name)}\n"
-        end
+        to_return << "#{kid.to_s(tabs, real_name)}" << join_string
       end
-      to_return << "\n" unless children.empty? || @style == :compact
-      to_return[0...-1]
+            
+      (@style == :compressed && parent_name) ? to_return : to_return[0...-1]
     end
 
     private
@@ -44,7 +45,7 @@ module Sass::Tree
     end
 
     def invalid_child?(child)
-      if !child.is_a?(AttrNode)
+      if !child.is_a?(AttrNode) && !child.is_a?(CommentNode)
         "Illegal nesting: Only attributes may be nested beneath attributes."
       end
     end

@@ -82,6 +82,15 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     <attribute>
 #     ...
 #
+# Like CSS, you can stretch rules over multiple lines.
+# However, unlike CSS, you can only do this if each line but the last
+# ends with a comma.
+# For example:
+#
+#   .users #userTab,
+#   .posts #postsTab
+#     <attributes>
+#
 # === Attributes
 #
 # There are two different ways to write CSS attrbibutes.
@@ -116,6 +125,10 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   #main p {
 #     color: #00ff00;
 #     width: 97% }
+#
+# By default, either attribute syntax may be used.
+# If you want to force one or the other,
+# see the :attribute_syntax option below.
 #
 # === Nested Rules
 #
@@ -461,6 +474,21 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   #awesome.rule {
 #     awesomeness: very; }
 #
+# You can also nest text beneath a comment to comment out a whole block.
+# For example:
+#
+#   // A very awesome rule
+#   #awesome.rule
+#     // Don't use these attributes
+#       color: green
+#       font-size: 10em
+#     color: red
+#
+# becomes
+#
+#   #awesome.rule {
+#     color: red; }
+#
 # === Loud Comments
 #
 # "Loud" comments are just as easy as silent ones.
@@ -479,6 +507,26 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   #awesome.rule {
 #     /* An equally awesome attribute. */
 #     awesomeness: very; }
+#
+# You can also nest content beneath loud comments. For example:
+#
+#   #pbj
+#     /* This rule describes
+#       the styling of the element
+#       that represents
+#       a peanut butter and jelly sandwich.
+#     :background-image url(/images/pbj.png)
+#     :color red
+#
+# becomes
+#
+#   #pbj {
+#     /* This rule describes
+#      * the styling of the element
+#      * that represents
+#      * a peanut butter and jelly sandwich. */
+#     background-image: url(/images/pbj.png);
+#     color: red; }
 #
 # == Output Style
 #
@@ -555,6 +603,16 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   .huge { font-size: 10em; font-weight: bold; text-decoration: underline; } 
 #
+# === <tt>:compressed</tt>
+#
+# Compressed style takes up the minimum amount of space possible,
+# having no whitespace except that necessary to separate selectors
+# and a newline at the end of the file.
+# It's not meant to be human-readable.
+# For example:
+#
+#   #main{color:#fff;background-color:#000}#main p{width:10em}.huge{font-size:10em;font-weight:bold;text-decoration:underline} 
+#
 # == Sass Options
 #
 # Options can be set by setting the hash <tt>Sass::Plugin.options</tt>
@@ -564,6 +622,24 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # [<tt>:style</tt>]             Sets the style of the CSS output.
 #                               See the section on Output Style, above.
+#
+# [<tt>:attribute_syntax</tt>]  Forces the document to use one syntax for attributes.
+#                               If the correct syntax isn't used, an error is thrown.
+#                               <tt>:normal</tt> forces the use of a colon
+#                               before the attribute name.
+#                               For example: <tt>:color #0f3</tt>
+#                               or <tt>:width = !main_width</tt>.
+#                               <tt>:alternate</tt> forces the use of a colon or equals sign
+#                               after the attribute name.
+#                               For example: <tt>color: #0f3</tt>
+#                               or <tt>width = !main_width</tt>.
+#                               By default, either syntax is valid.
+#                               
+# [<tt>:never_update</tt>]      Whether the CSS files should never be updated,
+#                               even if the template file changes.
+#                               Setting this to true may give small performance gains.
+#                               It always defaults to false.
+#                               Only has meaning within Ruby on Rails or Merb.
 #
 # [<tt>:always_update</tt>]     Whether the CSS files should be updated every
 #                               time a controller is accessed,
@@ -576,9 +652,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                               as opposed to only when the Rails server starts.
 #                               If a Sass template has been updated,
 #                               it will be recompiled and will overwrite the corresponding CSS file.
-#                               Defaults to false if Rails is running in production mode,
-#                               true otherwise.
-#                               Only has meaning within Ruby on Rails.
+#                               Defaults to false in production mode, true otherwise.
+#                               Only has meaning within Ruby on Rails or Merb.
 #
 # [<tt>:full_exception</tt>]    Whether an error in the Sass code
 #                               should cause Sass to provide a detailed description.

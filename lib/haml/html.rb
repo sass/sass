@@ -27,7 +27,9 @@ module Haml
           match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
           match_to_html(template, /<%(.*?)-?%>/m,  'silent')
         end
-        @template = Hpricot(template)
+
+        method = @@options[:xhtml] ? Hpricot.method(:XML) : method(:Hpricot)
+        @template = method.call(template)
       end
     end
 
@@ -129,7 +131,8 @@ module Haml
       def to_haml(tabs = 0)
         output = "#{tabulate(tabs)}"        
         if HTML.options[:rhtml] && name[0...5] == 'haml:'
-          return output + HTML.send("haml_tag_#{name[5..-1]}", self.innerHTML)
+          return output + HTML.send("haml_tag_#{name[5..-1]}",
+                                    CGI.unescapeHTML(self.innerHTML))
         end
 
         output += "%#{name}" unless name == 'div' && (attributes.include?('id') || attributes.include?('class'))
@@ -137,9 +140,9 @@ module Haml
         if attributes
           output += "##{attributes['id']}" if attributes['id']
           attributes['class'].split(' ').each { |c| output += ".#{c}" } if attributes['class']
-          attributes.delete("id")
-          attributes.delete("class")
-          output += attributes.inspect if attributes.length > 0
+          remove_attribute('id')
+          remove_attribute('class')
+          output += haml_attributes if attributes.length > 0
         end
         
         output += "/" if children.length == 0
@@ -150,6 +153,18 @@ module Haml
         end
 
         output
+      end
+
+      private
+
+      # Returns a string representation of an attributes hash
+      # that's prettier than that produced by Hash#inspect
+      def haml_attributes
+        attrs = attributes.map do |name, value|
+          name = name.index(/\W/) ? name.inspect : ":#{name}"
+          "#{name} => #{value.inspect}"
+        end
+        "{ #{attrs.join(', ')} }"
       end
     end
 

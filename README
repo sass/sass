@@ -233,16 +233,24 @@ the documentation for the Sass module.
 
 == Authors
 
-Haml and Sass are designed by Hampton Catlin (hcatlin).
-Help with the Ruby On Rails implementation and much of the documentation
-by Jeff Hardy (packagethief).
+Haml and Sass are designed by Hampton Catlin (hcatlin) and he is the author
+of the original implementation. However, Hampton doesn't even know his way
+around the code anymore and mostly just concentrates on the language issues. 
+Hampton lives in Toronto, Ontario (though he's an American by birth) and 
+is a partner at Unspace Interactive.
 
-Nathan Weizenbaum (Nex3) contributed the buffered-engine code to Haml,
-along with many other enhancements
-(including the silent-line syntax: "-").
-He continues to actively work on both Haml and Sass.
+Nathan Weizenbaum is the primary maintainer and architect of the "modern" Ruby
+implementation of Haml. His hard work has kept the project alive by endlessly
+answering forum posts, fixing bugs, refactoring, finding speed improvements,
+writing documentation, implementing new features, and getting Hampton
+coffee (a fitting task for a boy-genius). Nathan lives in Seattle, Washington and
+while not being a student at University of Washington he consults for
+Unspace Interactive and Microsoft.
 
-If you use this software, you must pay Hampton a compliment.
-Say something nice about it.
+If you use this software, you must pay Hampton a compliment. And
+buy Nathan some jelly beans. Maybe pet a kitten. Yeah. Pet that kitty.
+
+Some of the work on Haml was supported by Unspace Interactive.
+
 Beyond that, the implementation is licensed under the MIT License.
 Ok, fine, I guess that means compliments aren't *required*.

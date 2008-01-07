@@ -5,6 +5,7 @@ require 'action_view'
 
 require File.dirname(__FILE__) + '/../lib/haml'
 require 'haml/template'
+
 require 'profiler'
 require 'stringio'
 
@@ -35,7 +36,6 @@ module Haml
     # Creates a new profiler that looks for templates in the base
     # directory.
     def initialize(base = File.join(File.dirname(__FILE__), 'haml', 'templates'))
-      ActionView::Base.register_template_handler("haml", Haml::Template)
       unless base.class == ActionView::Base
         @base = ActionView::Base.new(base)
       else
@@ -48,7 +48,7 @@ module Haml
     # automatically look for a haml template.
     # 
     # Returns the results of the profiling as a string.
-    def profile(runs = 100, template_name = 'standard')
+    def profile(runs = 100, template_name = 'standard')      
       AbstractProfiler.profile(runs) { @base.render template_name }
     end
   end

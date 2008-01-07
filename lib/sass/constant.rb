@@ -31,7 +31,7 @@ module Sass
     }
 
     # The regular expression used to parse constants
-    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }}]+)\s*=\s*(.+)/
+    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }.join}]+)\s*=\s*(.+)/
     
     # First-order operations
     FIRST_ORDER = [:times, :div, :mod]
@@ -106,6 +106,12 @@ module Sass
                 to_return << :concat
               end
 
+              # String then open with no whitespace means funcall
+              if symbol == :open && !str.empty?
+                str = reset_str.call
+                to_return << :funcall
+              end
+
               # Time for a unary minus!
               if beginning_of_token && symbol == :minus
                 beginning_of_token = true
@@ -121,7 +127,7 @@ module Sass
               end
 
               # Are we looking at an operator?
-              if symbol && (str.empty? || symbol != :mod)
+              if symbol && (symbol != :mod || str.empty?)
                 str = reset_str.call
                 beginning_of_token = true
                 to_return << symbol

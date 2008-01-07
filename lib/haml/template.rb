@@ -4,24 +4,7 @@ require 'active_support'
 require 'action_view'
 
 module Haml
-  # This class interfaces with ActionView
-  # to make Haml usable as a Ruby on Rails plugin.
-  # It usually shouldn't need to be used by end users.
-  # Just in case, though, here's what you might do to render
-  # <tt>templates/index.haml</tt>:
-  #
-  #   ActionView::Base.register_template_handler("haml", Haml::Template)
-  #   base = ActionView::Base.new("templates")
-  #   base.render("index")
-  #
-  # Or, if you want to really get into the nitty-gritty:
-  #
-  #   base = ActionView::Base.new
-  #   template = Haml::Template.new(base)
-  #   template.render("templates/index.haml")
-  #
   class Template
-
     class << self
       @@options = {}
 
@@ -35,65 +18,27 @@ module Haml
         @@options = value
       end
     end
-
-    # Creates a new Haml::Template object that uses <tt>view</tt>
-    # to render its templates.
-    def initialize(view)
-      @view = view
-    end
-
-    # Renders the file at the location <tt>template</tt>,
-    # with <tt>local_assigns</tt> available as local variables within the template.
-    # Returns the result as a string.
-    def render(template, local_assigns={})
-      @view.instance_eval do
-        evaluate_assigns
-      end
-
-      options = @@options.dup
-      locals = options[:locals] || {}
-      locals.merge! local_assigns
-      options[:locals] = locals
-
-      if @view.haml_inline
-        engine = Haml::Engine.new(template, options)
-      else
-        options[:filename] ||= template
-        engine = Haml::Engine.new(File.read(template), options)
-      end
-
-      yield_proc = @view.instance_eval do
-        proc { |*name| instance_variable_get("@content_for_#{name.first || 'layout'}") }
-      end
-
-      engine.to_html(@view) { |*args| yield_proc.call(*args) }
-
-    end
   end
 end
 
-# This module refers to the ActionView module that's part of Ruby on Rails.
-# Haml can be used as an alternate templating engine for it,
-# and includes several modifications to make it more Haml-friendly.
-# The documentation can be found
-# here[http://rubyonrails.org/api/classes/ActionView/Base.html].
-module ActionView
-  class Base # :nodoc:
-    attr :haml_inline
+# Decide how we want to load Haml into Rails.
+# Patching was necessary for versions <= 2.0.1,
+# but we can make it a normal handler for higher versions.
+if defined?(ActionView::TemplateHandler)
+  require 'haml/template/plugin'
+else
+  require 'haml/template/patch'
+end
 
-    alias_method :read_template_file_old, :read_template_file
-    def read_template_file(template_path, extension)
-      if extension =~ /haml/i
-        template_path
-      else
-        read_template_file_old(template_path, extension)
-      end
-    end
-
-    alias_method :render_template_old, :render_template
-    def render_template(template_extension, template, file_path = nil, local_assigns = {})
-      @haml_inline = !template.nil?
-      render_template_old(template_extension, template, file_path, local_assigns)
-    end
-  end
+# Update init.rb to the current version
+# if it's out of date.
+#
+# We can probably remove this as of v1.9,
+# because the new init file is sufficiently flexible
+# to not need updating.
+rails_init_file = File.join(RAILS_ROOT, 'vendor', 'plugins', 'haml', 'init.rb')
+haml_init_file = File.join(File.dirname(__FILE__), '..', '..', 'init.rb')
+if File.exists?(rails_init_file)
+  require 'fileutils'
+  FileUtils.cp(haml_init_file, rails_init_file) unless FileUtils.cmp(rails_init_file, haml_init_file)
 end

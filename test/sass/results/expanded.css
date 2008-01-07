@@ -4,6 +4,8 @@
 }
 #main p {
   border-style: dotted;
+  /* Nested comment
+   * More nested stuff */
   border-width: 2px;
 }
 #main .cool {
@@ -13,6 +15,5 @@
 #left {
   font-size: 2em;
   font-weight: bold;
-  
   float: left;
 }

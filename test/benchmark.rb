@@ -1,62 +1,95 @@
+# There's a bizarre error where ActionController tries to load a benchmark file
+# and ends up finding this.
+# These declarations then cause it to break.
+# This only happens when running rcov, though, so we can avoid it.
+unless $0 =~ /rcov$/
+  require File.dirname(__FILE__) + '/../lib/haml'
+  require 'haml'
+end
+
 require 'rubygems'
-require 'active_support'
-require 'action_controller'
-require 'action_view'
-
-require File.dirname(__FILE__) + '/../lib/haml'
-require 'haml/template'
-require 'sass/engine'
-
+require 'erb'
+require 'erubis'
+require 'markaby'
 require 'benchmark'
 require 'stringio'
+require 'open-uri'
 
 module Haml
-  class Benchmarker
-  
-    # Creates a new benchmarker that looks for templates in the base
-    # directory.
-    def initialize(base = File.dirname(__FILE__))
-      ActionView::Base.register_template_handler("haml", Haml::Template)
-      unless base.class == ActionView::Base
-        @base = ActionView::Base.new(base)
-      else
-        @base = base
-      end
+  # Benchmarks Haml against ERB, Erubis, and Markaby and Sass on its own.
+  def self.benchmark(runs = 100)
+    template_name = 'standard'
+    directory = File.dirname(__FILE__) + '/haml'
+    haml_template =    File.read("#{directory}/templates/#{template_name}.haml")
+    erb_template =   File.read("#{directory}/rhtml/#{template_name}.rhtml")
+    markaby_template = File.read("#{directory}/markaby/#{template_name}.mab")
+
+    puts '-'*51, "Haml and Friends: No Caching", '-'*51
+
+    times = Benchmark.bmbm do |b|
+      b.report("haml:")   { runs.times { Haml::Engine.new(haml_template).render } }
+      b.report("erb:")    { runs.times { ERB.new(erb_template, nil, '-').render } }
+      b.report("erubis:") { runs.times { Erubis::Eruby.new(erb_template).result } }
+      b.report("mab:")    { runs.times { Markaby::Template.new(markaby_template).render } }
+    end
+
+    print_result = proc do |s, n|
+      printf "%1$*2$s %3$*4$g",
+        "Haml/#{s}:", -13, times[0].to_a[5] / times[n].to_a[5], -17
+      printf "%1$*2$s %3$g\n",
+        "#{s}/Haml:", -13, times[n].to_a[5] / times[0].to_a[5]
     end
     
-    # Benchmarks haml against ERb, and Sass on its own.
-    # 
-    # Returns the results of the benchmarking as a string.
-    # 
-    def benchmark(runs = 100)
-      template_name = 'standard'
-      haml_template = "haml/templates/#{template_name}"
-      rhtml_template = "haml/rhtml/#{template_name}"
-      sass_template = File.dirname(__FILE__) + "/sass/templates/complex.sass"
-      
-      old_stdout = $stdout
-      $stdout = StringIO.new
-      
-      times = Benchmark.bmbm do |b|
-        b.report("haml:") { runs.times { @base.render haml_template } }
-        b.report("erb:") { runs.times { @base.render rhtml_template } }
-      end
-      
-      #puts times[0].inspect, times[1].inspect
-      ratio = sprintf("%g", times[0].to_a[5] / times[1].to_a[5])
-      puts "Haml/ERB: " + ratio
-      
-      puts '', '-' * 50, 'Sass on its own', '-' * 50
-      
-      Benchmark.bmbm do |b|
-        b.report("sass:") { runs.times { Sass::Engine.new(File.read(sass_template)).render } }
-      end
-      
-      $stdout.pos = 0
-      to_return = $stdout.read
-      $stdout = old_stdout
-      
-      to_return
+    print_result["ERB", 1]
+    print_result["Erubis", 2]
+    print_result["Markaby", 3]
+
+    puts '', '-' * 50, 'Haml and Friends: Cached', '-' * 50
+
+    obj = Object.new
+    Haml::Engine.new(haml_template).def_method(obj, :haml)
+    erb = ERB.new(erb_template, nil, '-')
+    obj.instance_eval("def erb; #{erb.src}; end")
+    Erubis::Eruby.new(erb_template).def_method(obj, :erubis)
+    times = Benchmark.bmbm do |b|
+      b.report("haml:")   { runs.times { obj.haml      } }
+      b.report("erb:")    { runs.times { obj.erb       } }
+      b.report("erubis:") { runs.times { obj.erubis    } }
+    end    
+
+    print_result["ERB", 1]
+    print_result["Erubis", 2]
+
+    puts '', '-' * 50, 'Haml and ERB: Via ActionView', '-' * 50
+
+    require 'active_support'
+    require 'action_controller'
+    require 'action_view'
+    require 'haml/template'
+
+    @base = ActionView::Base.new(File.dirname(__FILE__))
+    times = Benchmark.bmbm do |b|
+      b.report("haml:") { runs.times { @base.render 'haml/templates/standard' } }
+      b.report("erb:")  { runs.times { @base.render 'haml/rhtml/standard'     } }
+    end
+
+    print_result["ERB", 1]
+
+    puts '', '-' * 50, 'Haml and ERB: Via ActionView with deep partials', '-' * 50
+
+    @base = ActionView::Base.new(File.dirname(__FILE__))
+    times = Benchmark.bmbm do |b|
+      b.report("haml:") { runs.times { @base.render 'haml/templates/action_view' } }
+      b.report("erb:")  { runs.times { @base.render 'haml/rhtml/action_view'     } }
+    end
+
+    print_result["ERB", 1]
+    
+    puts '', '-' * 50, 'Sass', '-' * 50
+    sass_template = File.read("#{File.dirname(__FILE__)}/sass/templates/complex.sass")
+    
+    Benchmark.bmbm do |b|
+      b.report("sass:") { runs.times { Sass::Engine.new(sass_template).render } }
     end
   end
 end

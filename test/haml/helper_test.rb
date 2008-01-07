@@ -13,7 +13,6 @@ class HelperTest < Test::Unit::TestCase
   include Haml::Helpers
   
   def setup
-    ActionView::Base.register_template_handler("haml", Haml::Template)
     @base = ActionView::Base.new
     @base.controller = ActionController::Base.new
   end
@@ -51,7 +50,8 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_tabs
-    assert_equal(render("foo\n- tab_up\nbar\n- tab_down\nbaz"), "foo\n  bar\nbaz\n")
+    assert_equal("foo\n  bar\nbaz\n", render("foo\n- tab_up\nbar\n- tab_down\nbaz"))
+    assert_equal("          <p>tabbed</p>\n", render("- buffer.tabulation=5\n%p tabbed"))
   end
   
   def test_helpers_dont_leak
@@ -77,8 +77,10 @@ class HelperTest < Test::Unit::TestCase
   def test_action_view_included
     assert(Haml::Helpers.action_view?)
   end
-    
+  
   def test_form_tag
+    # This is usually provided by ActionController::Base.
+    def @base.protect_against_forgery?; false; end
     result = render("- form_tag 'foo' do\n  %p bar\n  %strong baz", :action_view)
     should_be = "<form action=\"foo\" method=\"post\">\n  <p>bar</p>\n  <strong>baz</strong>\n</form>\n"
     assert_equal(should_be, result)
@@ -118,6 +120,32 @@ class HelperTest < Test::Unit::TestCase
     end
 
     assert_equal("1\n\n2\n\n3\n\n", render("- trc([1, 2, 3]) do |i|\n  = i.inspect"))
+  end
+
+  def test_find_and_preserve_with_block
+    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>\nFoo\nBar\n",
+                 render("= find_and_preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
+  end
+
+  def test_preserve_with_block
+    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>&#x000A;Foo&#x000A;Bar&#x000A;\n",
+                 render("= preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
+  end
+
+  def test_init_haml_helpers
+    context = Object.new
+    class << context
+      include Haml::Helpers
+    end
+    context.init_haml_helpers
+
+    result = context.capture_haml do
+      context.open :p, :attr => "val" do
+        context.puts "Blah"
+      end
+    end
+
+    assert_equal("<p attr='val'>\n  Blah\n</p>\n", result)
   end
 end
 

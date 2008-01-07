@@ -4,6 +4,11 @@
     %title Hampton Catlin Is Totally Awesome
     %meta{"http-equiv" => "Content-Type", :content => "text/html; charset=utf-8"}
   %body
+    %h1
+      This is very much like the standard template,
+      except that it has some ActionView-specific stuff.
+      It's only used for benchmarking.
+    .crazy_partials= render :partial => 'haml/templates/av_partial_1'
     / You're In my house now!
     .header
       Yes, ladies and gentileman. He is just that egotistical.

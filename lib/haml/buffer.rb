@@ -15,6 +15,9 @@ module Haml
     # _erbout for compatibility with ERB-specific code.
     attr_accessor :buffer
 
+    # The options hash passed in from Haml::Engine.
+    attr_accessor :options
+
     # Gets the current tabulation of the document.
     def tabulation
       @real_tabs + @tabulation
@@ -28,11 +31,10 @@ module Haml
 
     # Creates a new buffer.
     def initialize(options = {})
-      @options = options
-      @quote_escape = options[:attr_wrapper] == '"' ? "&quot;" : "&apos;"
-      @other_quote_char = options[:attr_wrapper] == '"' ? "'" : '"'
+      @options = {
+        :attr_wrapper => "'"
+      }.merge options
       @buffer = ""
-      @one_liner_pending = false
       @tabulation = 0
 
       # The number of tabs that Engine thinks we should have
@@ -42,63 +44,80 @@ module Haml
 
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
-    def push_text(text, tabulation)
-      if @one_liner_pending && Buffer.one_liner?(text)
-        @buffer << text
-      else
-        if @one_liner_pending
-          @buffer << "\n"
-          @one_liner_pending = false
-        end
-        @buffer << "#{tabs(tabulation)}#{text}\n"
+    def push_text(text, tab_change = 0)
+      if(@tabulation > 0)
+        # Have to push every line in by the extra user set tabulation
+        text.gsub!(/^/m, '  ' * @tabulation)
       end
+      
+      @buffer << "#{text}"
+      @real_tabs += tab_change
     end
 
     # Properly formats the output of a script that was run in the
     # instance_eval.
-    def push_script(result, tabulation, flattened)
+    def push_script(result, flattened, close_tag = nil)
+      tabulation = @real_tabs
+      
       if flattened
         result = Haml::Helpers.find_and_preserve(result)
       end
-
+      
       result = result.to_s
-      while result[-1] == 10 # \n
+      while result[-1] == ?\n
         # String#chomp is slow
         result = result[0...-1]
       end
       
-      result = result.gsub("\n", "\n#{tabs(tabulation)}")
-      push_text result, tabulation
+      if close_tag && Buffer.one_liner?(result)
+        @buffer << result
+        @buffer << "</#{close_tag}>\n"
+        @real_tabs -= 1
+      else
+        if close_tag
+          @buffer << "\n"
+        end
+        
+        result = result.gsub(/^/m, tabs(tabulation))
+        @buffer << "#{result}\n"
+        
+        if close_tag
+          @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
+          @real_tabs -= 1
+        end
+      end
       nil
-    end
-
-    
-    def open_prerendered_tag(tag, tabulation)
-      @buffer << "#{tabs(tabulation)}#{tag}"
-      @real_tabs += 1
     end
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, tabulation, atomic, try_one_line, class_id, obj_ref, attributes_hash)
+    def open_tag(name, atomic, try_one_line, class_id, obj_ref, content, *attributes_hashes)
+      tabulation = @real_tabs
+      
       attributes = class_id
-      if attributes_hash
+      attributes_hashes.each do |attributes_hash|
         attributes_hash.keys.each { |key| attributes_hash[key.to_s] = attributes_hash.delete(key) }
         self.class.merge_attrs(attributes, attributes_hash)
       end
       self.class.merge_attrs(attributes, parse_object_ref(obj_ref)) if obj_ref
 
-      @one_liner_pending = false
       if atomic
         str = " />\n"
       elsif try_one_line
-        @one_liner_pending = true
         str = ">"
       else
         str = ">\n"
       end
-      @buffer << "#{tabs(tabulation)}<#{name}#{build_attributes(attributes)}#{str}"
-      @real_tabs += 1
+      @buffer << "#{tabs(tabulation)}<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
+      if content
+        if Buffer.one_liner?(content)
+          @buffer << "#{content}</#{name}>\n"
+        else
+          @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
+        end
+      else
+        @real_tabs += 1
+      end
     end
 
     def self.merge_attrs(to, from)
@@ -114,62 +133,9 @@ module Haml
       to.merge!(from)
     end
 
-    # Creates a closing tag with the given name.
-    def close_tag(name, tabulation)
-      if @one_liner_pending
-        @buffer << "</#{name}>\n"
-        @one_liner_pending = false
-      else
-        push_text("</#{name}>", tabulation)
-      end
-    end
-
-    # Opens an XHTML comment.
-    def open_comment(try_one_line, conditional, tabulation)
-      conditional << ">" if conditional
-      @buffer << "#{tabs(tabulation)}<!--#{conditional.to_s} "
-      if try_one_line
-        @one_liner_pending = true
-      else
-        @buffer << "\n"
-        @real_tabs += 1
-      end
-    end
-
-    # Closes an XHTML comment.
-    def close_comment(has_conditional, tabulation)
-      close_tag = has_conditional ? "<![endif]-->" : "-->"
-      if @one_liner_pending
-        @buffer << " #{close_tag}\n"
-        @one_liner_pending = false
-      else
-        push_text(close_tag, tabulation)
-      end
-    end
-
     # Some of these methods are exposed as public class methods
     # so they can be re-used in helpers.
 
-    # Takes a hash and builds a list of XHTML attributes from it, returning
-    # the result.
-    def build_attributes(attributes = {})
-      result = attributes.collect do |a,v|
-        unless v.nil?
-          v = v.to_s
-          attr_wrapper = @options[:attr_wrapper]
-          if v.include? attr_wrapper
-            if v.include? @other_quote_char
-              v = v.gsub(attr_wrapper, @quote_escape)
-            else
-              attr_wrapper = @other_quote_char
-            end
-          end
-          " #{a}=#{attr_wrapper}#{v}#{attr_wrapper}"
-        end
-      end
-      result.compact.sort.join
-    end
-    
     # Returns whether or not the given value is short enough to be rendered
     # on one line.
     def self.one_liner?(value)
@@ -181,7 +147,6 @@ module Haml
     @@tab_cache = {}
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count)
-      @real_tabs = count
       tabs = count + @tabulation
       '  ' * tabs
       @@tab_cache[tabs] ||= '  ' * tabs

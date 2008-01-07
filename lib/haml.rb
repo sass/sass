@@ -143,6 +143,45 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     <script src='javascripts/script_9' type='text/javascript'>
 #     </script>
 #   </head>
+#
+# A Ruby method call that returns a hash
+# can be substituted for the hash contents.
+# For example, Haml::Helpers defines the following method:
+#
+#   def html_attrs(lang = 'en-US')
+#     {:xmlns => "http://www.w3.org/1999/xhtml", 'xml:lang' => lang, :lang => lang}
+#   end
+#
+# This can then be used in Haml, like so:
+#
+#   %html{html_attrs('fr-fr')}
+#
+# This is compiled to:
+#
+#   <html lang='fr-fr' xml:lang='fr=fr' xmlns='http://www.w3.org/1999/xhtml'>
+#   </html>
+#
+# You can use as many such attribute methods as you want
+# by separating them with commas,
+# like a Ruby argument list.
+# All the hashes will me merged together, from left to right.
+# For example, if you defined
+#
+#   def hash1
+#     {:bread => 'white', :filling => 'peanut butter and jelly'}
+#   end
+#
+#   def hash2
+#     {:bread => 'whole wheat'}
+#   end
+#
+# then
+#
+#   %sandwich{hash1, hash2, :delicious => true}/
+#
+# would compile to:
+#
+#   <sandwich bread='whole wheat' delicious='true' filling='peanut butter and jelly' />
 # 
 # ==== []
 # 
@@ -583,7 +622,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   <p>
 #     hello there you!
 #   </p>
-#
+# 
 # ===== Blocks
 # 
 # Ruby blocks, like XHTML tags, don't need to be explicitly closed in Haml.
@@ -650,6 +689,21 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # <p>foo</p>
 # <p>bar</p>
+#
+# You can also nest text beneath a silent comment.
+# None of this text will be rendered.
+# For example:
+#
+# %p foo
+# -#
+#   This won't be displayed
+#     Nor will this
+# %p bar
+#
+# is compiled to:
+#
+# <p>foo</p>
+# <p>bar</p>
 # 
 # == Other Useful Things
 #
@@ -693,16 +747,20 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           * An +initialize+ method that accepts one parameter,
 #                             the text to be filtered.
 #                           * A +render+ method that returns the result of the filtering.
-# 
-# [<tt>:locals</tt>]        The local variables that will be available within the
-#                           template. For instance, if <tt>:locals</tt> is
-#                           <tt>{ :foo => "bar" }</tt>, then within the template,
-#                           <tt>= foo</tt> will produce <tt>bar</tt>.
 #
 # [<tt>:autoclose</tt>]     A list of tag names that should be automatically self-closed
 #                           if they have no content.
 #                           Defaults to <tt>['meta', 'img', 'link', 'script', 'br', 'hr']</tt>.
 #
-module Haml; end
+module Haml
+  # This method is called by init.rb,
+  # which is run by Rails on startup.
+  # We use it rather than putting stuff straight into init.rb
+  # so we can change the initialization behavior
+  # without modifying the file itself.
+  def self.init_rails(binding)
+    %w[haml/template sass sass/plugin].each(&method(:require))
+  end
+end
 
 require 'haml/engine'

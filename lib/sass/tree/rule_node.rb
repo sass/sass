@@ -8,10 +8,18 @@ module Sass::Tree
 
     alias_method :rule, :value
     alias_method :rule=, :value=
+
+    def continued?
+      rule[-1] == ?,
+    end
     
     def to_s(tabs, super_rules = nil)
       attributes = []
       sub_rules = []
+
+      # Save this because the comma's removed by the super_rule additions
+      was_continued = continued?
+
       total_rule = if super_rules
         super_rules.split(/,\s*/).collect! do |s|
           self.rule.split(/,\s*/).collect do |r|
@@ -21,7 +29,7 @@ module Sass::Tree
               "#{s} #{r}"
             end
           end.join(", ")
-        end.join(", ")
+        end.join(", ") + (was_continued ? ',' : '')
       elsif self.rule.include?(PARENT)
         raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'", line)
       else
@@ -37,22 +45,36 @@ module Sass::Tree
       end
       
       to_return = ''
-      unless attributes.empty?
+      if !attributes.empty?
+        old_spaces = '  ' * (tabs - 1)
+        spaces = '  ' * tabs
         if @style == :compact
-          to_return << "#{total_rule} { #{attributes.join(' ')} }\n"
+          attributes = attributes.map { |a| a.to_s(1) }.join(' ')
+          to_return << "#{old_spaces}#{total_rule} { #{attributes} }\n"
+        elsif @style == :compressed
+          attributes = attributes.map { |a| a.to_s(1) }.join(';')
+          to_return << "#{total_rule}{#{attributes}}"
         else
-          spaces = (@style == :expanded ? 2 : tabs * 2)
-          old_spaces = ' ' * (spaces - 2)
-          spaces = ' ' * spaces
-
-          attributes = attributes.join("\n").gsub("\n", "\n#{spaces}").rstrip
-          end_attrs = (@style == :expanded ? "\n" : ' ')
-          to_return << "#{old_spaces}#{total_rule} {\n#{spaces}#{attributes}#{end_attrs}}\n"
+          attributes = attributes.map { |a| a.to_s(tabs + 1) }.join("\n")
+          end_attrs = (@style == :expanded ? "\n" + old_spaces : ' ')
+          to_return << "#{old_spaces}#{total_rule} {\n#{attributes}#{end_attrs}}\n"
         end
+      elsif continued?
+        to_return << ('  ' * (tabs - 1)) + total_rule + case @style
+                                                        when :compressed; ''
+                                                        when :compact; ' '
+                                                        else "\n"
+                                                        end
       end
       
-      tabs += 1 unless attributes.empty?
-      sub_rules.each { |sub| to_return << sub.to_s(tabs, total_rule) }
+      tabs += 1 unless attributes.empty? || @style != :nested
+      sub_rules.each do |sub|
+        if sub.continued?
+          check_multiline_rule(sub)
+        end
+
+        to_return << sub.to_s(tabs, total_rule)
+      end
       to_return
     end
   end
