@@ -101,10 +101,10 @@ unless ARGV[0] == 'benchmark'
     name, version = ENV['NAME'], ENV['VERSION']
     raise "Must supply NAME and VERSION for release task." unless name && version
     sh %{rubyforge login}
-    sh %{rubyforge add_release haml haml "#{name} (#{version})" pkg/haml-#{version}.gem}
-    sh %{rubyforge add_file    haml haml "#{name} (#{version})" pkg/haml-#{version}.tar.gz}
-    sh %{rubyforge add_file    haml haml "#{name} (#{version})" pkg/haml-#{version}.tar.bz2}
-    sh %{rubyforge add_file    haml haml "#{name} (#{version})" pkg/haml-#{version}.zip}
+    sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
+    sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
+    sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.bz2}
+    sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.zip}
   end
 
   # ----- Documentation -----
