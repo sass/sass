@@ -6,8 +6,9 @@ unless defined?(Sass::RAILS_LOADED)
                               :always_check       => RAILS_ENV != "production",
                               :full_exception     => RAILS_ENV != "production")
   
-  module ActionController # :nodoc:
-    class Base # :nodoc:
+  # :stopdoc:
+  module ActionController
+    class Base
       alias_method :sass_old_process, :process
       def process(*args)
         Sass::Plugin.update_stylesheets if Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
@@ -15,4 +16,5 @@ unless defined?(Sass::RAILS_LOADED)
       end
     end
   end
+  # :startdoc:
 end
