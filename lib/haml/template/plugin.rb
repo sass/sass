@@ -1,3 +1,4 @@
+# :stopdoc:
 # This file makes Haml work with Rails
 # using the > 2.0.1 template handler API.
 
@@ -19,3 +20,4 @@ module Haml
 end
 
 ActionView::Base.register_template_handler(:haml, Haml::Template)
+# :startdoc:
