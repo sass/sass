@@ -93,6 +93,10 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<img alt='' src='/foo.png' />\n", render("%img{:width => nil, :src => '/foo.png', :alt => String.new}"))
   end
 
+  def test_end_of_file_multiline
+    assert_equal("<p>0</p>\n<p>1</p>\n<p>2</p>\n", render("- for i in (0...3)\n  %p= |\n   i |"))
+  end
+
   # Options tests
 
   def test_stop_eval
