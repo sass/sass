@@ -1,10 +1,19 @@
 unless defined?(Sass::MERB_LOADED)
   Sass::MERB_LOADED = true
 
-  Sass::Plugin.options.merge!(:template_location  => MERB_ROOT + '/public/stylesheets/sass',
-                              :css_location       => MERB_ROOT + '/public/stylesheets',
-                              :always_check       => MERB_ENV != "production",
-                              :full_exception     => MERB_ENV != "production")
+  version = Merb::VERSION.split('.').map { |n| n.to_i }
+  if version[0] <= 0 && version[1] < 5
+    root = MERB_ROOT
+    env  = MERB_ENV
+  else
+    root = Merb.root
+    env  = Merb.environment
+  end
+
+  Sass::Plugin.options.merge!(:template_location  => root + '/public/stylesheets/sass',
+                              :css_location       => root + '/public/stylesheets',
+                              :always_check       => env != "production",
+                              :full_exception     => env != "production")
   config = Merb::Plugins.config[:sass] || Merb::Plugins.config["sass"] || {}
   config.symbolize_keys!
   Sass::Plugin.options.merge!(config)
