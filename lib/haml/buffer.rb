@@ -123,11 +123,15 @@ module Haml
     def self.merge_attrs(to, from)
       if to['id'] && from['id']
         to['id'] << '_' << from.delete('id')
+      elsif to['id'] || from['id']
+        from['id'] ||= to['id']
       end
 
       if to['class'] && from['class']
         # Make sure we don't duplicate class names
         from['class'] = (from['class'].split(' ') | to['class'].split(' ')).join(' ')
+      elsif to['class'] || from['class']
+        from['class'] ||= to['class']
       end
 
       to.merge!(from)

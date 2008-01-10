@@ -139,6 +139,19 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p>nil</p>\n", render("%p{ :attr => x } nil", :locals => {:x => nil}))
   end
 
+  def test_nil_id_with_syntactic_id
+    assert_equal("<p id='foo'>nil</p>\n", render("%p#foo{:id => nil} nil"))
+    assert_equal("<p id='foo_bar'>nil</p>\n", render("%p#foo{{:id => 'bar'}, :id => nil} nil"))
+    assert_equal("<p id='foo_bar'>nil</p>\n", render("%p#foo{{:id => nil}, :id => 'bar'} nil"))
+  end
+
+  def test_nil_class_with_syntactic_class
+    assert_equal("<p class='foo'>nil</p>\n", render("%p.foo{:class => nil} nil"))
+    assert_equal("<p class='bar foo'>nil</p>\n", render("%p.bar.foo{:class => nil} nil"))
+    assert_equal("<p class='bar foo'>nil</p>\n", render("%p.foo{{:class => 'bar'}, :class => nil} nil"))
+    assert_equal("<p class='bar foo'>nil</p>\n", render("%p.foo{{:class => nil}, :class => 'bar'} nil"))
+  end
+
   def test_locals
     assert_equal("<p>Paragraph!</p>\n", render("%p= text", :locals => { :text => "Paragraph!" }))
   end
