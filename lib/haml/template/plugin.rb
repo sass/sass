@@ -8,6 +8,18 @@ module Haml
       1
     end
 
+    def self.compilable?
+      true
+    end
+   
+    def compilable?
+      self.class.compilable?
+    end
+ 
+    def line_offset
+      self.class.line_offset
+    end
+
     def initialize(view)
       @view = view
     end
