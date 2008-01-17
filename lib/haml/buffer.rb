@@ -115,7 +115,7 @@ module Haml
         else
           @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
         end
-      else
+      elsif !atomic
         @real_tabs += 1
       end
     end
