@@ -9,6 +9,10 @@ module Haml
     def self.line_offset
       1
     end
+
+    def compilable?
+      true
+    end
  
     def line_offset
       self.class.line_offset
