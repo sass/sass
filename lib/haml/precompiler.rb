@@ -122,7 +122,7 @@ END
       @tab_change  = 0
 
       old_line = Line.new
-      (@template + "\n-#\n-#").split("\n").each_with_index do |text, index|
+      (@template + "\n-#\n-#").split(/\n?\r|\r?\n/).each_with_index do |text, index|
         line = Line.new text.strip, text.lstrip.chomp, index
         line.spaces, line.tabs = count_soft_tabs(text)
 

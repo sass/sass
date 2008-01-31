@@ -204,6 +204,10 @@ END
     assert_equal(":focus {\n  a: b; }\n", render("\\:focus\n  a: b"))
     assert_equal("a {\n  b: c; }\n  a :focus {\n    d: e; }\n", render("\\a\n  b: c\n  \\:focus\n    d: e"))
   end
+
+  def test_cr_newline
+    assert_equal("foo {\n  a: b;\n  c: d;\n  e: f; }\n", render("foo\r  a: b\r\n  c: d\n\r  e: f"))
+  end
   
   private
 
