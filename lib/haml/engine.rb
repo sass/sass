@@ -20,6 +20,10 @@ module Haml
     # Allow reading and writing of the options hash
     attr :options, true
 
+    # This string contains the source code that is evaluated
+    # to produce the Haml document.
+    attr :precompiled, true
+
     # Creates a new instace of Haml::Engine that will compile the given
     # template string when <tt>render</tt> is called.
     # See README for available options.
