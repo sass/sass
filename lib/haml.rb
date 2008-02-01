@@ -761,16 +761,6 @@ module Haml
   def self.init_rails(binding)
     %w[haml/template sass sass/plugin].each(&method(:require))
   end
-  
-  def cache_fragment(block, name = {}, options = nil)
-    @view.fragment_for(block, name, options) do
-      eval("_hamlout.buffer", block.binding)
-    end
-  end
-  
-  def read_template_file(template_path, extension)
-    File.read(template_path)
-  end
 end
 
 require 'haml/engine'
