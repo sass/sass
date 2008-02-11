@@ -473,15 +473,29 @@ END
     def prerender_tag(name, atomic, attributes)
       "<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{atomic ? ' />' : '>'}"
     end
+    
+    # Parses a line into tag_name, attributes, attributes_hash, object_ref, action, value
+    def parse_tag(line)
+      raise SyntaxError.new("Invalid tag: \"#{line}\"") unless match = line.scan(/[%]([-:\w]+)([-\w\.\#]*)(.*)/)[0]
+      tag_name, attributes, rest = match
+      if rest[0] == ?{
+        scanner = StringScanner.new(rest)
+        attributes_hash, rest = balance(scanner, ?{, ?})
+        attributes_hash = attributes_hash[1, attributes_hash.length - 2] if attributes_hash
+      end
+      if rest
+        object_ref, rest = balance(rest, ?[, ?]) if rest[0] == ?[
+        action, value = rest.scan(/([=\/\~]?)?(.*)?/)[0]
+      end
+      value = value.to_s.strip
+      [tag_name, attributes, attributes_hash, object_ref, action, value]
+    end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
-      raise SyntaxError.new("Invalid tag: \"#{line}\"") unless match = line.scan(TAG_REGEX)[0]
-      tag_name, attributes, attributes_hash, object_ref, action, value = match
-      value = value.to_s.strip
-      attributes_hash = attributes_hash[1...-1] if attributes_hash
-
+      tag_name, attributes, attributes_hash, object_ref, action, value = parse_tag(line)
+      
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
       case action
@@ -621,25 +635,26 @@ END
 
       while scan.scan(/(.*?)\\\#\{/)
         str << scan.matched[0...-3]
-        str << eval("\"\\\#{#{balance_brackets(scan)}}\"")
+        str << eval("\"\\\#{#{balance(scan, ?{, ?}, 1)[0][0...-1]}}\"")
       end
 
       str + scan.rest
     end
 
-    def balance_brackets(scanner)
+    def balance(scanner, start, finish, count = 0)
       str = ''
-      count = 1
-
-      while scanner.scan(/(.*?)[\{\}]/)
+      scanner = StringScanner.new(scanner) unless scanner.is_a? StringScanner
+      regexp = Regexp.new("(.*?)[\\#{start.chr}\\#{finish.chr}]")
+      while scanner.scan(regexp)
         str << scanner.matched
-        count += 1 if scanner.matched[-1] == ?{
-        count -= 1 if scanner.matched[-1] == ?}
-        return str[0...-1] if count == 0
+        count += 1 if scanner.matched[-1] == start
+        count -= 1 if scanner.matched[-1] == finish
+        return [str.strip, scanner.rest] if count == 0
       end
 
       raise SyntaxError.new("Unbalanced brackets.")
     end
+    
 
     # Counts the tabulation of a line.
     def count_soft_tabs(line)
