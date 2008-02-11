@@ -505,7 +505,7 @@ END
       Buffer.merge_attrs(attributes, static_attributes) if static_attributes
 
       raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.") if @block_opened && atomic
-      raise SyntaxError.new("Illegal Nesting: Nesting within a tag that already has content is illegal.") if @block_opened && !value.empty?
+      raise SyntaxError.new("Illegal Nesting: Content can't be both given on the same line as %#{tag_name} and nested within it.") if @block_opened && !value.empty?
       raise SyntaxError.new("Tag has no content.") if parse && value.empty?
       raise SyntaxError.new("Atomic tags can't have content.") if atomic && !value.empty?
 
