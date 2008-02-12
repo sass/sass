@@ -20,7 +20,11 @@ unless defined?(Sass::MERB_LOADED)
   
   class MerbHandler # :nodoc:
     def process_with_sass(request, response)
-      Sass::Plugin.update_stylesheets if Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
+      if !Sass::Plugin.checked_for_updates ||
+          Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
+        Sass::Plugin.update_stylesheets
+      end
+
       process_without_sass(request, response)
     end
     alias_method :process_without_sass, :process
