@@ -11,7 +11,11 @@ unless defined?(Sass::RAILS_LOADED)
     class Base
       alias_method :sass_old_process, :process
       def process(*args)
-        Sass::Plugin.update_stylesheets if Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
+        if !Sass::Plugin.checked_for_updates ||
+            Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
+          Sass::Plugin.update_stylesheets
+        end
+
         sass_old_process(*args)
       end
     end
