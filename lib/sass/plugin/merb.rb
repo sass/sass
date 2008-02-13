@@ -18,16 +18,35 @@ unless defined?(Sass::MERB_LOADED)
   config.symbolize_keys!
   Sass::Plugin.options.merge!(config)
   
-  class MerbHandler # :nodoc:
-    def process_with_sass(request, response)
-      if !Sass::Plugin.checked_for_updates ||
-          Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
-        Sass::Plugin.update_stylesheets
-      end
+  if version[0] > 0 || version[1] >= 9
 
-      process_without_sass(request, response)
+    class Merb::Rack::Application # :nodoc:
+      def call_with_sass(env)
+        if !Sass::Plugin.checked_for_updates ||
+            Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
+          Sass::Plugin.update_stylesheets
+        end
+
+        call_without_sass(env)
+      end
+      alias_method :call_without_sass, :call
+      alias_method :call, :call_with_sass
     end
-    alias_method :process_without_sass, :process
-    alias_method :process, :process_with_sass
+
+  else
+
+    class MerbHandler # :nodoc:
+      def process_with_sass(request, response)
+        if !Sass::Plugin.checked_for_updates ||
+            Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
+          Sass::Plugin.update_stylesheets
+        end
+
+        process_without_sass(request, response)
+      end
+      alias_method :process_without_sass, :process
+      alias_method :process, :process_with_sass
+    end
+
   end
 end
