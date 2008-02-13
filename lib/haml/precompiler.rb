@@ -270,7 +270,7 @@ END
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
     # without parsing it.
     def push_merged_text(text, tab_change = 0, try_one_liner = false)
-      @merged_text  << "#{'  ' * @output_tabs}#{text}"
+      @merged_text  << (@options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}")
       @tab_change   += tab_change
       @try_one_liner = try_one_liner
     end
@@ -299,9 +299,13 @@ END
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
     def push_flat(line)
-      tabulation = line.spaces - @flat_spaces
-      tabulation = tabulation > -1 ? tabulation : 0
-      @filter_buffer << "#{' ' * tabulation}#{line.unstripped}\n"
+      unless @options[:ugly]
+        tabulation = line.spaces - @flat_spaces
+        tabulation = tabulation > -1 ? tabulation : 0
+        @filter_buffer << "#{' ' * tabulation}#{line.unstripped}\n"
+      else
+        @filter_buffer << "#{line.unstripped}\n"
+      end
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
@@ -388,6 +392,8 @@ END
 
       if filter == Haml::Filters::Preserve
         push_silent("_hamlout.buffer << #{filtered.dump} << \"\\n\";")
+      elsif @options[:ugly]
+        push_text(filtered.rstrip)
       else
         push_text(filtered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
       end

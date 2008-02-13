@@ -45,7 +45,8 @@ module Haml
           'redcloth' => Haml::Filters::RedCloth,
           'textile' => Haml::Filters::Textile,
           'markdown' => Haml::Filters::Markdown },
-        :filename => '(haml)'
+        :filename => '(haml)',
+        :ugly => false
       }
       @options.rec_merge! options
 
@@ -232,7 +233,10 @@ END
     # Returns a hash of options that Haml::Buffer cares about.
     # This should remain loadable form #inspect.
     def options_for_buffer
-      {:attr_wrapper => @options[:attr_wrapper]}
+      {
+        :attr_wrapper => @options[:attr_wrapper],
+        :ugly => @options[:ugly]
+      }
     end
   end
 end

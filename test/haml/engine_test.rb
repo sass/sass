@@ -383,4 +383,18 @@ class EngineTest < Test::Unit::TestCase
   def test_render_proc_with_binding
     assert_equal("FOO\n", Haml::Engine.new("= upcase").render_proc("foo".instance_eval{binding}).call)
   end
+
+  def test_ugly_true
+    input     = "#outer\n  #inner\n    %p hello world"
+    actual    = Haml::Engine.new(input, :ugly => true).render
+    expected  = "<div id='outer'>\n<div id='inner'>\n<p>hello world</p>\n</div>\n</div>\n"
+    assert_equal(expected, actual)
+  end
+
+  def test_ugly_false
+    input     = "#outer\n  #inner\n    %p hello world"
+    actual    = Haml::Engine.new(input, :ugly => false).render
+    expected  = "<div id='outer'>\n  <div id='inner'>\n    <p>hello world</p>\n  </div>\n</div>\n"
+    assert_equal(expected, actual)
+  end
 end

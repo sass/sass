@@ -32,7 +32,8 @@ module Haml
     # Creates a new buffer.
     def initialize(options = {})
       @options = {
-        :attr_wrapper => "'"
+        :attr_wrapper => "'",
+        :ugly => false
       }.merge options
       @buffer = ""
       @tabulation = 0
@@ -45,7 +46,7 @@ module Haml
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
     def push_text(text, tab_change = 0)
-      if(@tabulation > 0)
+      if(@tabulation > 0 && !@options[:ugly])
         # Have to push every line in by the extra user set tabulation
         text.gsub!(/^/m, '  ' * @tabulation)
       end
@@ -78,11 +79,11 @@ module Haml
           @buffer << "\n"
         end
         
-        result = result.gsub(/^/m, tabs(tabulation))
+        (result = result.gsub(/^/m, tabs(tabulation))) unless @options[:ugly]
         @buffer << "#{result}\n"
         
         if close_tag
-          @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
+          @buffer << (@options[:ugly] ? "</#{close_tag}>\n" : "#{tabs(tabulation-1)}</#{close_tag}>\n")
           @real_tabs -= 1
         end
       end
@@ -108,10 +109,16 @@ module Haml
       else
         str = ">\n"
       end
-      @buffer << "#{tabs(tabulation)}<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
+      if @options[:ugly]
+        @buffer << "<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
+      else
+        @buffer << "#{tabs(tabulation)}<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
+      end
       if content
         if Buffer.one_liner?(content)
           @buffer << "#{content}</#{name}>\n"
+        elsif @options[:ugly]
+          @buffer << "\n#{content}\n</#{name}>\n"
         else
           @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
         end
@@ -152,7 +159,6 @@ module Haml
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count)
       tabs = count + @tabulation
-      '  ' * tabs
       @@tab_cache[tabs] ||= '  ' * tabs
     end
 

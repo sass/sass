@@ -144,6 +144,11 @@ END
           exit
         end
 
+        opts.on('-t', '--style NAME',
+                'Output style. Can be indented (default) or ugly.') do |name|
+          @options[:for_engine][:ugly] = true if name.to_sym == :ugly
+        end
+
         opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
           @options[:check_syntax] = true
           @options[:output] = StringIO.new
