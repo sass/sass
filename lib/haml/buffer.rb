@@ -46,12 +46,12 @@ module Haml
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
     def push_text(text, tab_change = 0)
-      if(@tabulation > 0 && !@options[:ugly])
+      if @tabulation > 0 && !@options[:ugly]
         # Have to push every line in by the extra user set tabulation
         text.gsub!(/^/m, '  ' * @tabulation)
       end
       
-      @buffer << "#{text}"
+      @buffer << text
       @real_tabs += tab_change
     end
 
@@ -70,20 +70,20 @@ module Haml
         result = result[0...-1]
       end
       
-      if close_tag && Buffer.one_liner?(result)
-        @buffer << result
-        @buffer << "</#{close_tag}>\n"
+      if close_tag && (@options[:ugly] || Buffer.one_liner?(result))
+        @buffer << "#{result}</#{close_tag}>\n"
         @real_tabs -= 1
       else
         if close_tag
           @buffer << "\n"
         end
         
-        (result = result.gsub(/^/m, tabs(tabulation))) unless @options[:ugly]
+        result = result.gsub(/^/m, tabs(tabulation)) unless @options[:ugly]
         @buffer << "#{result}\n"
         
         if close_tag
-          @buffer << (@options[:ugly] ? "</#{close_tag}>\n" : "#{tabs(tabulation-1)}</#{close_tag}>\n")
+          # We never get here if @options[:ugly] is true
+          @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
           @real_tabs -= 1
         end
       end
@@ -109,16 +109,12 @@ module Haml
       else
         str = ">\n"
       end
-      if @options[:ugly]
-        @buffer << "<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
-      else
-        @buffer << "#{tabs(tabulation)}<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
-      end
+
+      @buffer << "#{@options[:ugly] ? '' : tabs(tabulation)}<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
+
       if content
-        if Buffer.one_liner?(content)
+        if @options[:ugly] || Buffer.one_liner?(content)
           @buffer << "#{content}</#{name}>\n"
-        elsif @options[:ugly]
-          @buffer << "\n#{content}\n</#{name}>\n"
         else
           @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
         end

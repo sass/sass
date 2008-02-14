@@ -385,16 +385,13 @@ class EngineTest < Test::Unit::TestCase
   end
 
   def test_ugly_true
-    input     = "#outer\n  #inner\n    %p hello world"
-    actual    = Haml::Engine.new(input, :ugly => true).render
-    expected  = "<div id='outer'>\n<div id='inner'>\n<p>hello world</p>\n</div>\n</div>\n"
-    assert_equal(expected, actual)
-  end
+    assert_equal("<div id='outer'>\n<div id='inner'>\n<p>hello world</p>\n</div>\n</div>\n",
+                 render("#outer\n  #inner\n    %p hello world", :ugly => true))
 
-  def test_ugly_false
-    input     = "#outer\n  #inner\n    %p hello world"
-    actual    = Haml::Engine.new(input, :ugly => false).render
-    expected  = "<div id='outer'>\n  <div id='inner'>\n    <p>hello world</p>\n  </div>\n</div>\n"
-    assert_equal(expected, actual)
+    assert_equal("<p>#{'s' * 75}</p>\n",
+                 render("%p #{'s' * 75}", :ugly => true))
+
+    assert_equal("<p>#{'s' * 75}</p>\n",
+                 render("%p= 's' * 75", :ugly => true))
   end
 end
