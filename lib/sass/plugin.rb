@@ -13,6 +13,7 @@ module Sass
         :always_check       => true,
         :full_exception     => true
       }
+      @@checked_for_updates = false
 
       # Whether or not Sass has *ever* checked if the stylesheets need updates
       # (in this Ruby instance).
