@@ -1,5 +1,5 @@
 ;;; sass-mode.el -- Major mode for editing Sass files
-;;; Version 0.0.1
+;;; Version 0.0.2
 ;;; Written by Nathan Weizenbaum
 
 ;;; Because Sass's indentation schema is similar
@@ -7,10 +7,10 @@
 ;;; functions are similar to those in yaml-mode and python-mode.
 
 ;;; To install, save this somewhere and add the following to your .emacs file:
-;;; 
+;;;
 ;;; (add-to-list 'load-path "/path/to/sass-mode.el")
 ;;; (require 'sass-mode nil 't)
-;;; 
+;;;
 
 ;;; Code:
 
@@ -61,9 +61,49 @@
   "Prepends a Sass-tab-matching regexp to str."
   (concat "^\\(" (string-* " " sass-indent-offset) "\\)*" str))
 
+;; Font lock
+
+(defconst sass-font-lock-keywords-1
+  (list
+   ;; directives
+   '("^@.*"                                   0 font-lock-constant-face)
+   ;; strings and hex constants
+   '("\\(\'[^']*'\\)"                         1 font-lock-string-face append)
+   '("\\(\"[^\"]*\"\\)"                       1 font-lock-string-face append)
+   '("\\(#[0-9a-fA-F]\\{3\\}\\{1,2\\}\\>\\)"  1 font-lock-string-face append)
+   ;; attributes
+   '("\\(:[A-Za-z-]+\\|[A-Za-z-]+:\\)"        0 font-lock-constant-face append)
+   ;; constants
+   '("![a-z0-9_-]+"                           0 font-lock-variable-name-face append)
+   ;; comments
+   '("^ *\\(/[/*].*\\)$"                      1 font-lock-comment-face append)
+   ;; ids
+   '("\\(?:^\\|,\\) *\\(#[a-z0-9_-]+\/?\\)"   1 font-lock-keyword-face)
+   ;; classes
+   '("\\(?:^\\|,\\) *\\(\\.[a-z0-9_-]+\/?\\)" 1 font-lock-type-face)
+   ;; tags
+   '("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" 1 font-lock-function-name-face )
+   ;; class after id
+   '("\\(?:^\\|,\\) *\\(#[a-z0-9_]+\/?\\)"    (1 font-lock-keyword-face)
+     ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
+   ;; class after class
+   '("\\(?:^\\|,\\) *\\(\\.[a-z0-9_]+\/?\\)"  (1 font-lock-type-face)
+     ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
+   ;; id after class
+   '("\\(?:^\\|,\\) *\\(\\.[a-z0-9_]+\/?\\)"  (1 font-lock-type-face)
+     ("\\#[a-z0-9_-]+" nil nil                (0 font-lock-keyword-face)))
+   ;; class after tag
+   '("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" (1 font-lock-function-name-face)
+     ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
+   ;; id after tag
+   '("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" (1 font-lock-function-name-face)
+     ("\\#[a-z0-9_-]+" nil nil                (0 font-lock-keyword-face)))
+   ;; expressions
+   '("\\([=]\\)"                              0 font-lock-preprocessor-face prepend)))
+
 ;; Constants
 
-(defconst sass-mode-version "0.0.1" "Version of `sass-mode.'")
+(defconst sass-mode-version "0.0.2" "Version of `sass-mode.'")
 
 (defconst sass-blank-line-re "^[ \t]*$"
   "Regexp matching a line containing only whitespace.")
@@ -86,7 +126,11 @@
   "Simple mode to edit Sass.
 
 \\{sass-mode-map}"
-  (set (make-local-variable 'indent-line-function) 'sass-indent-line))
+  (set (make-local-variable 'indent-line-function) 'sass-indent-line)
+  (set (make-local-variable 'font-lock-defaults)
+       '((sass-font-lock-keywords-1)
+         nil
+         t)))
 
 ;; Indentation and electric keys
 
