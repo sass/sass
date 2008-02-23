@@ -546,39 +546,42 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # Haml has the following filters defined:
 #
-# [plain]     Does not parse the filtered text.
-#             This is useful for large blocks of text without HTML tags,
-#             when you don't want lines starting with <tt>.</tt> or <tt>-</tt>
-#             to be parsed.
+# [plain]      Does not parse the filtered text.
+#              This is useful for large blocks of text without HTML tags,
+#              when you don't want lines starting with <tt>.</tt> or <tt>-</tt>
+#              to be parsed.
 #
-# [ruby]      Parses the filtered text with the normal Ruby interpreter.
-#             All output sent to <tt>$stdout</tt>, like with +puts+,
-#             is output into the Haml document.
-#             Not available if the <tt>suppress_eval</tt> option is set to true.
-#             The Ruby code is evaluated in the same context as the Haml template.
+# [javascript] Surrounds the filtered text with <script> and CDATA tags.
+#              Useful for including inline Javascript.
 #
-# [preserve]  Inserts the filtered text into the template with whitespace preserved.
-#             <tt>preserve</tt>d blocks of text aren't indented,
-#             and newlines are replaced with the HTML escape code for newlines,
-#             to preserve nice-looking output.
+# [ruby]       Parses the filtered text with the normal Ruby interpreter.
+#              All output sent to <tt>$stdout</tt>, like with +puts+,
+#              is output into the Haml document.
+#              Not available if the <tt>suppress_eval</tt> option is set to true.
+#              The Ruby code is evaluated in the same context as the Haml template.
 #
-# [erb]       Parses the filtered text with ERB, like an RHTML template.
-#             Not available if the <tt>suppress_eval</tt> option is set to true.
-#             Embedded Ruby code is evaluated in the same context as the Haml template.
+# [preserve]   Inserts the filtered text into the template with whitespace preserved.
+#              <tt>preserve</tt>d blocks of text aren't indented,
+#              and newlines are replaced with the HTML escape code for newlines,
+#              to preserve nice-looking output.
 #
-# [sass]      Parses the filtered text with Sass to produce CSS output.
+# [erb]        Parses the filtered text with ERB, like an RHTML template.
+#              Not available if the <tt>suppress_eval</tt> option is set to true.
+#              Embedded Ruby code is evaluated in the same context as the Haml template.
 #
-# [redcloth]  Parses the filtered text with RedCloth (http://whytheluckystiff.net/ruby/redcloth),
-#             which uses both Textile and Markdown syntax.
-#             Only works if RedCloth is installed.
+# [sass]       Parses the filtered text with Sass to produce CSS output.
 #
-# [textile]   Parses the filtered text with Textile (http://www.textism.com/tools/textile).
-#             Only works if RedCloth is installed.
+# [redcloth]   Parses the filtered text with RedCloth (http://whytheluckystiff.net/ruby/redcloth),
+#              which uses both Textile and Markdown syntax.
+#              Only works if RedCloth is installed.
 #
-# [markdown]  Parses the filtered text with Markdown (http://daringfireball.net/projects/markdown).
-#             Only works if RedCloth or BlueCloth (http://www.deveiate.org/projects/BlueCloth)
-#             is installed
-#             (BlueCloth takes precedence if both are installed).
+# [textile]    Parses the filtered text with Textile (http://www.textism.com/tools/textile).
+#              Only works if RedCloth is installed.
+#
+# [markdown]   Parses the filtered text with Markdown (http://daringfireball.net/projects/markdown).
+#              Only works if RedCloth or BlueCloth (http://www.deveiate.org/projects/BlueCloth)
+#              is installed
+#              (BlueCloth takes precedence if both are installed).
 #
 # You can also define your own filters (see Setting Options, below).
 # 

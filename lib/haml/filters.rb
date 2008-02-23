@@ -142,6 +142,20 @@ module Haml
       def render(text); text; end
     end
 
+    module Javascript
+      include Base
+
+      def render(text)
+        <<END
+<script type='text/javascript'>
+  //<![CDATA[
+    #{text.rstrip.gsub("\n", "\n    ")}
+  //]]>
+</script>
+END
+      end
+    end
+
     module Ruby
       include Base
       lazy_require 'stringio'

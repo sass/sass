@@ -41,6 +41,7 @@ module Haml
         :filters => {
           'sass' => Haml::Filters::Sass,
           'plain' => Haml::Filters::Plain,
+          'javascript' => Haml::Filters::Javascript,
           'preserve' => Haml::Filters::Preserve,
           'redcloth' => Haml::Filters::RedCloth,
           'textile' => Haml::Filters::Textile,
