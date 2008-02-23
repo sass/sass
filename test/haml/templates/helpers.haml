@@ -31,10 +31,10 @@ click
 = succeed '.' do
   %a{:href=>"thing"} here
 %p baz
-- buffer.tabulation = 10
+- haml_buffer.tabulation = 10
 %p boom
 - concat "foo\n"
-- buffer.tabulation = 0
+- haml_buffer.tabulation = 0
 - def url_for(*stuff); stuff.join(' '); end
 -# The form URLs must be empty
 -# because of a weird bug that causes url_for to misbehave.
