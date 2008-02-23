@@ -394,7 +394,7 @@ END
     # Closes a filtered block.
     def close_filtered(filter)
       @flat_spaces = -1
-      filter.compile(self, @filter_buffer)
+      filter.internal_compile(self, @filter_buffer)
       @filter_buffer = nil
       @template_tabs -= 1
     end

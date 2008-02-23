@@ -41,6 +41,11 @@ module Haml
         raise HamlError.new("#{self.inspect}#render not defined!")
       end
 
+      def internal_compile(*args) # :nodoc:
+        resolve_lazy_requires
+        compile(*args)
+      end
+
       # compile should be overridden when a filter needs to have access
       # to the Haml evaluation context.
       # Rather than applying a filter to a string at compile-time,
