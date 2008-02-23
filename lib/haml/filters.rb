@@ -146,13 +146,16 @@ module Haml
       include Base
       lazy_require 'stringio'
 
-      def render(text)
-        old_stdout = $stdout
-        $stdout = StringIO.new
-        Object.new.instance_eval(text)
-        old_stdout, $stdout = $stdout, old_stdout
-        old_stdout.pos = 0
-        old_stdout.read
+      def compile(precompiler, text)
+        precompiler.instance_eval do
+          push_silent <<-END.gsub("\n", ';')
+            _haml_old_stdout = $stdout
+            $stdout = StringIO.new(_hamlout.buffer, 'a')
+            #{text}
+            _haml_old_stdout, $stdout = $stdout, _haml_old_stdout
+            _haml_old_stdout.close
+          END
+        end
       end
     end
 

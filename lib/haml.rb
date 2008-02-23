@@ -555,6 +555,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #             All output sent to <tt>$stdout</tt>, like with +puts+,
 #             is output into the Haml document.
 #             Not available if the <tt>suppress_eval</tt> option is set to true.
+#             The Ruby code is evaluated in the same context as the Haml template.
 #
 # [preserve]  Inserts the filtered text into the template with whitespace preserved.
 #             <tt>preserve</tt>d blocks of text aren't indented,
