@@ -39,7 +39,7 @@ module Haml
         :attr_wrapper => "'",
         :autoclose => ['meta', 'img', 'link', 'br', 'hr', 'input', 'area'],
         :filters => {
-          'sass' => Sass::Engine,
+          'sass' => Haml::Filters::Sass,
           'plain' => Haml::Filters::Plain,
           'preserve' => Haml::Filters::Preserve,
           'redcloth' => Haml::Filters::RedCloth,
@@ -52,7 +52,7 @@ module Haml
 
       unless @options[:suppress_eval]
         @options[:filters].merge!({
-          'erb' => ERB,
+          'erb' => Haml::Filters::ERB,
           'ruby' => Haml::Filters::Ruby
         })
       end

@@ -3,56 +3,46 @@
 
 # :stopdoc:
 
-require 'erb'
-require 'sass/engine'
-require 'stringio'
-
 begin
   require 'rubygems'
 rescue LoadError; end
 
-class ERB; alias_method :render, :result; end
-
 module Haml
   module Filters
-    class Plain
-      def initialize(text)
-        @text = text
+    module Base
+      def self.included(base)
+        base.extend(base)
       end
 
-      def render
-        @text
-      end
-    end
+      def compile(precompiler, text)
+        resolve_lazy_requires
+        filter = self
+        precompiler.instance_eval do
+          if contains_interpolation?(text)
+            return if options[:suppress_eval]
 
-    class Ruby
-      def initialize(text)
-        @text = text
-      end
+            push_script("#{filter.inspect}.render(#{unescape_interpolation(text)})", false)
+            return
+          end
 
-      def render
-        old_stdout = $stdout
-        $stdout = StringIO.new
-        Object.new.instance_eval(@text)
-        old_stdout, $stdout = $stdout, old_stdout
-        old_stdout.pos = 0
-        old_stdout.read
-      end
-    end
+          rendered = filter.render(text)
 
-    class Preserve
-      def initialize(text)
-        @text = text
+          if !options[:ugly]
+            push_text(rendered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
+          else
+            push_text(rendered.rstrip)
+          end
+        end
       end
 
-      def render
-        Haml::Helpers.preserve(@text)
+      def lazy_require(*reqs)
+        @lazy_requires = reqs
       end
-    end
 
-    class LazyLoaded
-      def initialize(*reqs)
-        reqs[0...-1].each do |req|
+      def resolve_lazy_requires
+        return unless @lazy_requires
+
+        @lazy_requires[0...-1].each do |req|
           begin
             @required = req
             require @required
@@ -61,55 +51,106 @@ module Haml
         end
        
         begin
-          @required = reqs[-1]
+          @required = @lazy_requires[-1]
           require @required
         rescue LoadError => e
           classname = self.class.to_s.gsub(/\w+::/, '')
 
-          if reqs.size == 1
-            raise HamlError.new("Can't run #{classname} filter; required file '#{reqs.first}' not found")
+          if @lazy_requires.size == 1
+            raise HamlError.new("Can't run #{classname} filter; required file '#{@lazy_requires.first}' not found")
           else
-            raise HamlError.new("Can't run #{classname} filter; required #{reqs.map { |r| "'#{r}'" }.join(' or ')}, but none were found")
+            raise HamlError.new("Can't run #{classname} filter; required #{@lazy_requires.map { |r| "'#{r}'" }.join(' or ')}, but none were found")
           end
         end
       end
     end
-    
-    class RedCloth < LazyLoaded
-      def initialize(text)
-        super('redcloth')
-        @engine = ::RedCloth.new(text)
-      end
 
-      def render
-        @engine.to_html
+    module Plain
+      include Base
+
+      def render(text); text; end
+    end
+
+    module Ruby
+      include Base
+      lazy_require 'stringio'
+
+      def render(text)
+        old_stdout = $stdout
+        $stdout = StringIO.new
+        Object.new.instance_eval(text)
+        old_stdout, $stdout = $stdout, old_stdout
+        old_stdout.pos = 0
+        old_stdout.read
+      end
+    end
+
+    module Preserve
+      include Base
+
+      def compile(precompiler, text)
+        text = Haml::Helpers.preserve(text) + "\n"
+
+        precompiler.instance_eval do
+          if contains_interpolation?(text)
+            return if options[:suppress_eval]
+
+            push_silent("_hamlout.buffer << #{unescape_interpolation(text)};")
+            return
+          end
+
+          concat_merged_text(text)
+        end
+      end
+    end
+
+    module Sass
+      include Base
+      lazy_require 'sass/engine'
+
+      def render(text)
+        ::Sass::Engine.new(text).render
+      end
+    end
+
+    module ERB
+      include Base
+      lazy_require 'erb'
+
+      def render(text)
+        ::ERB.new(text).result(binding)
+      end
+    end
+    
+    module RedCloth
+      include Base
+      lazy_require 'redcloth'
+
+      def render(text)
+        ::RedCloth.new(text).to_html
       end
     end
       
     # Uses RedCloth to provide only Textile (not Markdown) parsing
-    class Textile < RedCloth
-      def render
-        @engine.to_html(:textile)
+    module Textile
+      include Base
+      lazy_require 'redcloth'
+
+      def render(text)
+        ::RedCloth.new(text).to_html(:textile)
       end
     end
 
     # Uses BlueCloth or RedCloth to provide only Markdown (not Textile) parsing
-    class Markdown < LazyLoaded
-      def initialize(text)
-        super('bluecloth', 'redcloth')
+    module Markdown
+      include Base
+      lazy_require 'bluecloth', 'redcloth'
 
+      def render(text)
         if @required == 'bluecloth'
-          @engine = ::BlueCloth.new(text)
+          ::BlueCloth.new(text).to_html
         else
-          @engine = ::RedCloth.new(text)
-        end
-      end
-
-      def render
-        if @engine.is_a?(::BlueCloth)
-          @engine.to_html
-        else
-          @engine.to_html(:markdown)
+          ::RedCloth.new(text).to_html(:markdown)
         end
       end
     end

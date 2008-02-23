@@ -274,6 +274,12 @@ END
       @tab_change   += tab_change
       @try_one_liner = try_one_liner
     end
+
+    # Concatenate <tt>text</tt> to <tt>@buffer</tt> without tabulation.
+    def concat_merged_text(text)
+      @merged_text  << text
+      @try_one_liner = false
+    end
     
     def push_text(text, tab_change = 0, try_one_liner = false)
       push_merged_text("#{text}\n", tab_change, try_one_liner)
@@ -388,16 +394,7 @@ END
     # Closes a filtered block.
     def close_filtered(filter)
       @flat_spaces = -1
-      filtered = filter.new(@filter_buffer).render
-
-      if filter == Haml::Filters::Preserve
-        push_silent("_hamlout.buffer << #{filtered.dump} << \"\\n\";")
-      elsif @options[:ugly]
-        push_text(filtered.rstrip)
-      else
-        push_text(filtered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
-      end
-
+      filter.compile(self, @filter_buffer)
       @filter_buffer = nil
       @template_tabs -= 1
     end
@@ -633,6 +630,11 @@ END
       push_and_tabulate([:filtered, filter])
       @flat_spaces = @template_tabs * 2
       @filter_buffer = String.new
+      @block_opened = false
+    end
+
+    def contains_interpolation?(str)
+      str.include?('#{')
     end
 
     def unescape_interpolation(str)

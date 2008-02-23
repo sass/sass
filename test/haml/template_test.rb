@@ -8,12 +8,10 @@ require File.dirname(__FILE__) + '/../../lib/haml'
 require 'haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
 
-class TestFilter
-  def initialize(text)
-    @text = text
-  end
+module TestFilter
+  include Haml::Filters::Base
 
-  def render
+  def render(text)
     "TESTING HAHAHAHA!"
   end
 end

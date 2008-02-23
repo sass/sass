@@ -1,9 +1,10 @@
 %style
+  - width = 5 + 17
   :sass
     p
       :border
         :style dotted
-        :width 10px
+        :width #{width}px
         :color #ff00ff
     h1
       :font-weight normal
@@ -35,6 +36,17 @@
       Plain
         Text
           %strong right?
+
+- last = "noitalo"
+%p
+  %pre
+    :preserve
+      This pre is pretty deeply
+            nested.
+         Does #{"interp" + last.reverse} work?
+    :preserve
+        This one is, too.
+      Nested, that is.
 
 :erb
   <% 10.times do |c| %>
