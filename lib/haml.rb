@@ -564,8 +564,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # [erb]       Parses the filtered text with ERB, like an RHTML template.
 #             Not available if the <tt>suppress_eval</tt> option is set to true.
-#             At the moment, this doesn't support access to variables
-#             defined by Ruby on Rails or Haml code.
+#             Embedded Ruby code is evaluated in the same context as the Haml template.
 #
 # [sass]      Parses the filtered text with Sass to produce CSS output.
 #

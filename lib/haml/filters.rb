@@ -191,8 +191,9 @@ module Haml
       include Base
       lazy_require 'erb'
 
-      def render(text)
-        ::ERB.new(text).result(binding)
+      def compile(precompiler, text)
+        src = ::ERB.new(text).src.sub(/^_erbout = '';/, "").gsub("\n", ';')
+        precompiler.send(:push_silent, src)
       end
     end
     

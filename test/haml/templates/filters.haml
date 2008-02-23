@@ -52,10 +52,15 @@
         This one is, too.
       Nested, that is.
 
-:erb
-  <% 10.times do |c| %>
-    <%= (c+97).chr %>
-  <% end %>
+- num = 10
+%ul
+  :erb
+    <% num.times do |c| %>
+      <li><%= (c+97).chr %></li>
+    <% end %>
+    <% res = 178 %>
+
+.res= res
 
 :markdown
   *  Foo
