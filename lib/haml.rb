@@ -640,6 +640,19 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   <p>This is scrumptious cake!</p>
 #
+# Backslashes can be used to escape "#{" strings,
+# but they don't act as escapes anywhere else in the string.
+# For example:
+#
+#   %p
+#     == \\ Look at \\#{h word} lack of backslash: \#{foo}
+#
+# might compile to
+#
+#  <p>
+#    \\ Look at \yon lack of backslash: #{foo}
+#  </p>
+#
 # ===== Blocks
 # 
 # Ruby blocks, like XHTML tags, don't need to be explicitly closed in Haml.

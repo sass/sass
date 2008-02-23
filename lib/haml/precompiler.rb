@@ -641,10 +641,15 @@ END
       scan = StringScanner.new(str.dump)
       str = ''
 
-      while scan.scan(/(.*?)\\\#\{/)
-        str << scan.matched[0...-3]
-        # Use eval to get rid of string escapes
-        str << "\#{" + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"
+      while scan.scan(/(.*?)(\\+)\#\{/)
+        escapes = (scan[2].size - 1) / 2
+        str << scan.matched[0...-3 - escapes]
+        if escapes % 2 == 1
+          str << '#{'
+        else
+          # Use eval to get rid of string escapes
+          str << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"
+        end
       end
 
       str + scan.rest
