@@ -153,7 +153,7 @@ module Haml
     #   <strong>baz</strong>
     #
     def tab_up(i = 1)
-      buffer.tabulation += i
+      haml_buffer.tabulation += i
     end
 
     # Increments the number of tabs the buffer automatically adds
@@ -161,7 +161,7 @@ module Haml
     #
     # See tab_up.
     def tab_down(i = 1)
-      buffer.tabulation -= i
+      haml_buffer.tabulation -= i
     end
     
     # Surrounds the given block of Haml code with the given characters,
@@ -235,12 +235,12 @@ module Haml
     # the local variable <tt>foo</tt> would be assigned to "<p>13</p>\n".
     #
     def capture_haml(*args, &block)
-      capture_haml_with_buffer(buffer.buffer, *args, &block)
+      capture_haml_with_buffer(haml_buffer.buffer, *args, &block)
     end
 
     # Outputs text directly to the Haml buffer, with the proper tabulation
     def puts(text = "")
-      buffer.buffer << ('  ' * buffer.tabulation) << text.to_s << "\n"
+      haml_buffer.buffer << ('  ' * haml_buffer.tabulation) << text.to_s << "\n"
       nil
     end
 
@@ -293,11 +293,11 @@ module Haml
       end
 
       if text.nil? && block.nil?
-        puts "<#{name}#{Haml::Precompiler.build_attributes(buffer.options[:attr_wrapper], attributes)} />"
+        puts "<#{name}#{Haml::Precompiler.build_attributes(haml_buffer.options[:attr_wrapper], attributes)} />"
         return nil
       end
 
-      puts "<#{name}#{Haml::Precompiler.build_attributes(buffer.options[:attr_wrapper], attributes)}>"
+      puts "<#{name}#{Haml::Precompiler.build_attributes(haml_buffer.options[:attr_wrapper], attributes)}>"
       unless text && text.empty?
         tab_up
         # Print out either the text (using push_text) or call the block and add an endline
@@ -324,14 +324,14 @@ END
     private
 
     # Gets a reference to the current Haml::Buffer object.
-    def buffer
+    def haml_buffer
       @haml_stack[-1]
     end
     
     # Gives a proc the same local "_hamlout" and "_erbout" variables
     # that the current template has.
-    def bind_proc(&proc)
-      _hamlout = buffer
+    def haml_bind_proc(&proc)
+      _hamlout = haml_buffer
       _erbout = _hamlout.buffer
       proc { |*args| proc.call(*args) }
     end

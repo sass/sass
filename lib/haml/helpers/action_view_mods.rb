@@ -31,7 +31,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       module TextHelper
         def concat_with_haml(string, binding = nil)
           if is_haml?
-            buffer.buffer.concat(string)
+            haml_buffer.buffer.concat(string)
           else
             concat_without_haml(string, binding)
           end
@@ -45,7 +45,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
           if is_haml?
             if block_given?
               oldproc = proc
-              proc = bind_proc do |*args|
+              proc = haml_bind_proc do |*args|
                 concat "\n"
                 tab_up
                 oldproc.call(*args)
@@ -67,7 +67,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
         def form_for_with_haml(object_name, *args, &proc)
           if block_given? && is_haml?
             oldproc = proc 
-            proc = bind_proc do |*args|
+            proc = haml_bind_proc do |*args|
               tab_up
               oldproc.call(*args)
               tab_down
