@@ -643,7 +643,8 @@ END
 
       while scan.scan(/(.*?)\\\#\{/)
         str << scan.matched[0...-3]
-        str << eval("\"\\\#{#{balance(scan, ?{, ?}, 1)[0][0...-1]}}\"")
+        # Use eval to get rid of string escapes
+        str << "\#{" + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"
       end
 
       str + scan.rest
