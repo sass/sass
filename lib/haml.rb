@@ -530,6 +530,20 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     <p>Hello, <em>World</em></p>
 #   </p>
 #
+# Filters can have Ruby code interpolated, like with ==.
+# For example,
+#
+#   - flavor = "raspberry"
+#   #content
+#     :textile
+#       I *really* prefer _#{h flavor}_ jam.
+#
+# is compiled to
+#
+#   <div id='content'>
+#     <p>I <strong>really</strong> prefer <em>raspberry</em> jam.</p>
+#   </div>
+#
 # Haml has the following filters defined:
 #
 # [plain]     Does not parse the filtered text.
