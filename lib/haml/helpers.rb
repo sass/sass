@@ -285,7 +285,7 @@ module Haml
     #     </tr>
     #   </table>
     #
-    def open(name, attributes = {}, alt_atts = {}, &block)
+    def haml_tag(name, attributes = {}, alt_atts = {}, &block)
       text = nil
       if attributes.is_a? String
         text = attributes
@@ -310,6 +310,15 @@ module Haml
       end
       puts "</#{name}>"
       nil
+    end
+
+    def open(*args, &block)
+              warn <<END
+DEPRECATION WARNING:
+The Haml #open helper is deprecated and will be removed in version 2.0.
+Use the #haml_tag method instead.
+END
+      haml_tag(*args, &block)
     end
     
     private

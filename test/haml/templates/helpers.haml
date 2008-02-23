@@ -58,12 +58,12 @@ click
   - puts "boom"
   baz
   - puts "boom, again"
-- open :table do
-  - open :tr do
-    - open :td, {:class => 'cell'} do
-      - open :strong, "strong!"
+- haml_tag :table do
+  - haml_tag :tr do
+    - haml_tag :td, {:class => 'cell'} do
+      - haml_tag :strong, "strong!"
       - puts "data"
-    - open :td do
+    - haml_tag :td do
       - puts "more_data"
-- open :hr
-- open :div, ''
+- haml_tag :hr
+- haml_tag :div, ''

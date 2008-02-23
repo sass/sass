@@ -140,7 +140,7 @@ class HelperTest < Test::Unit::TestCase
     context.init_haml_helpers
 
     result = context.capture_haml do
-      context.open :p, :attr => "val" do
+      context.haml_tag :p, :attr => "val" do
         context.puts "Blah"
       end
     end
