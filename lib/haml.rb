@@ -601,19 +601,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     yo
 #   </p>
 #
-# You can also use two equal signs, <tt>==</tt>,
-# along with conventional Ruby string-embedding syntax
-# to easily embed Ruby code in otherwise static text.
-# For example:
-#
-#   %p
-#     == 1 + 1 = #{1 + 1}
-#
-# is compiled to:
-#
-#   <p>
-#     1 + 1 = 2
-#   </p>
 # 
 # ==== -
 # 
@@ -637,6 +624,22 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     hello there you!
 #   </p>
 # 
+# ==== ==
+#
+# Two equals characters interpolates Ruby code into plain text,
+# similarly to Ruby string interpolation.
+# For example,
+#
+#   %p== This is #{h quality} cake!
+#
+# is the same as
+#
+#   %p= "This is #{h quality} cake!"
+#
+# and might compile to
+#
+#   <p>This is scrumptious cake!</p>
+#
 # ===== Blocks
 # 
 # Ruby blocks, like XHTML tags, don't need to be explicitly closed in Haml.
