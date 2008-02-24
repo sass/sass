@@ -47,7 +47,8 @@ module Haml
           'textile' => Haml::Filters::Textile,
           'markdown' => Haml::Filters::Markdown },
         :filename => '(haml)',
-        :ugly => false
+        :ugly => false,
+        :output => :xhtml
       }
       @options.rec_merge! options
 

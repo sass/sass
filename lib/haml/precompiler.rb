@@ -473,8 +473,8 @@ END
       result.compact.sort.join
     end
 
-    def prerender_tag(name, atomic, attributes)
-      "<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{atomic ? ' />' : '>'}"
+    def prerender_tag(name, self_close, attributes)
+      "<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{self_close ? ' />' : '>'}"
     end
     
     # Parses a line into tag_name, attributes, attributes_hash, object_ref, action, value
@@ -532,7 +532,7 @@ END
         # This means that we can render the tag directly to text and not process it in the buffer
         tag_closed = !value.empty? && Buffer.one_liner?(value) && !parse
 
-        open_tag  = prerender_tag(tag_name, atomic, attributes)
+        open_tag  = prerender_tag(tag_name, atomic && options[:output] == :xhtml, attributes)
         open_tag << "#{value}</#{tag_name}>" if tag_closed
         open_tag << "\n" unless parse
 
@@ -600,22 +600,31 @@ END
     def text_for_doctype(text)
       text = text[3..-1].lstrip.downcase
       if text[0...3] == "xml"
+        raise SyntaxError.new("XML prolog only valid for XHTML documents.") unless options[:output] == :xhtml
         wrapper = @options[:attr_wrapper]
         return "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{text.split(' ')[1] || "utf-8"}#{wrapper} ?>"
       end
 
       version, type = text.scan(DOCTYPE_REGEX)[0]
-      if version == "1.1"
-        return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
-      end
+      if @options[:output] == :xhtml
+        if version == "1.1"
+          return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+        end
 
-      case type
-      when "strict";   return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
-      when "frameset"; return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
-      else             return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+        case type
+        when "strict";   return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+        when "frameset"; return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
+        else             return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+        end
+      else
+        case type
+        when "strict";   return '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'
+        when "frameset"; return '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">'
+        else             return '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
+        end
       end
     end
-
+    
     # Starts a filtered block.
     def start_filtered(name)
       raise SyntaxError.new('Filters must have nested text.') unless @block_opened

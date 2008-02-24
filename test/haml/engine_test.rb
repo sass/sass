@@ -394,4 +394,12 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p>#{'s' * 75}</p>\n",
                  render("%p= 's' * 75", :ugly => true))
   end
+  
+  def test_renders_correct_html_or_xhtml
+    assert_equal("<br>\n", render("%br", :output => :html))
+    assert_equal("<br />\n", render("%br"))
+
+    assert_raise(Haml::SyntaxError) { render("!!! XML", :output => :html) }
+    assert_nothing_raised { render("!!! XML") }
+  end
 end
