@@ -474,7 +474,8 @@ END
     end
 
     def prerender_tag(name, self_close, attributes)
-      "<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{self_close ? ' />' : '>'}"
+      attributes_string = Precompiler.build_attributes(@options[:attr_wrapper], attributes)
+      "<#{name}#{attributes_string}#{self_close && !@options[:html4] ? ' /' : ''}>"
     end
     
     # Parses a line into tag_name, attributes, attributes_hash, object_ref, action, value
@@ -502,7 +503,7 @@ END
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
       case action
-      when '/'; atomic = true
+      when '/'; atomic = !@options[:html4]
       when '~'; parse = flattened = true
       when '='
         parse = true
@@ -521,18 +522,18 @@ END
       attributes = parse_class_and_id(attributes)
       Buffer.merge_attrs(attributes, static_attributes) if static_attributes
 
-      raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.") if @block_opened && atomic
-      raise SyntaxError.new("Illegal Nesting: Content can't be both given on the same line as %#{tag_name} and nested within it.") if @block_opened && !value.empty?
-      raise SyntaxError.new("Tag has no content.") if parse && value.empty?
-      raise SyntaxError.new("Atomic tags can't have content.") if atomic && !value.empty?
+      raise SyntaxError, "Illegal Nesting: Nesting within an atomic tag is illegal." if @block_opened && atomic
+      raise SyntaxError, "Illegal Nesting: Content can't be both given on the same line as %#{tag_name} and nested within it." if @block_opened && !value.empty?
+      raise SyntaxError, "Tag has no content." if parse && value.empty?
+      raise SyntaxError, "Atomic tags can't have content." if atomic && !value.empty?
 
-      atomic = true if !@block_opened && value.empty? && @options[:autoclose].include?(tag_name)
+      atomic ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
       
       if object_ref == "nil" && attributes_hash.nil? && !flattened && (parse || Buffer.one_liner?(value))
         # This means that we can render the tag directly to text and not process it in the buffer
         tag_closed = !value.empty? && Buffer.one_liner?(value) && !parse
 
-        open_tag  = prerender_tag(tag_name, atomic && options[:output] == :xhtml, attributes)
+        open_tag  = prerender_tag(tag_name, atomic, attributes)
         open_tag << "#{value}</#{tag_name}>" if tag_closed
         open_tag << "\n" unless parse
 
@@ -600,13 +601,14 @@ END
     def text_for_doctype(text)
       text = text[3..-1].lstrip.downcase
       if text[0...3] == "xml"
-        raise SyntaxError.new("XML prolog only valid for XHTML documents.") unless options[:output] == :xhtml
+        return nil if @options[:html4]
         wrapper = @options[:attr_wrapper]
         return "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{text.split(' ')[1] || "utf-8"}#{wrapper} ?>"
       end
 
       version, type = text.scan(DOCTYPE_REGEX)[0]
-      if @options[:output] == :xhtml
+      
+      unless @options[:html4]
         if version == "1.1"
           return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
         end

@@ -37,7 +37,7 @@ module Haml
       @options = {
         :suppress_eval => false,
         :attr_wrapper => "'",
-        :autoclose => ['meta', 'img', 'link', 'br', 'hr', 'input', 'area'],
+        :autoclose => %w(meta img link br hr input area param col base),
         :filters => {
           'sass' => Haml::Filters::Sass,
           'plain' => Haml::Filters::Plain,
@@ -48,7 +48,7 @@ module Haml
           'markdown' => Haml::Filters::Markdown },
         :filename => '(haml)',
         :ugly => false,
-        :output => :xhtml
+        :html4 => false
       }
       @options.rec_merge! options
 
