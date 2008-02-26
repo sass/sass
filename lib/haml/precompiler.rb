@@ -475,7 +475,7 @@ END
 
     def prerender_tag(name, self_close, attributes)
       attributes_string = Precompiler.build_attributes(@options[:attr_wrapper], attributes)
-      "<#{name}#{attributes_string}#{self_close && !@options[:html4] ? ' /' : ''}>"
+      "<#{name}#{attributes_string}#{self_close && xhtml? ? ' /' : ''}>"
     end
     
     # Parses a line into tag_name, attributes, attributes_hash, object_ref, action, value
@@ -503,7 +503,7 @@ END
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
       case action
-      when '/'; atomic = !@options[:html4]
+      when '/'; atomic = xhtml?
       when '~'; parse = flattened = true
       when '='
         parse = true
@@ -601,14 +601,14 @@ END
     def text_for_doctype(text)
       text = text[3..-1].lstrip.downcase
       if text[0...3] == "xml"
-        return nil if @options[:html4]
+        return nil if html4?
         wrapper = @options[:attr_wrapper]
         return "<?xml version=#{wrapper}1.0#{wrapper} encoding=#{wrapper}#{text.split(' ')[1] || "utf-8"}#{wrapper} ?>"
       end
 
       version, type = text.scan(DOCTYPE_REGEX)[0]
       
-      unless @options[:html4]
+      unless html4?
         if version == "1.1"
           return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
         end

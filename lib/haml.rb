@@ -754,7 +754,13 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # from <tt>environment.rb</tt> in Rails,
 # or by passing an options hash to Haml::Engine.
 # Available options are:
-# 
+#
+# [<tt>:output</tt>]        Determines the output format. The default is :xhtml.
+#                           Currently, the only other option is :html4,
+#                           which is identical to :xhtml except that tags
+#                           that are normally auto-closed aren't,
+#                           and HTML4 doctypes are generated rather than XHTML.
+#
 # [<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
 #                           designated by <tt>=</tt> or <tt>~</tt> should be
 #                           evaluated. If this is true, said scripts are
@@ -783,7 +789,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # [<tt>:autoclose</tt>]     A list of tag names that should be automatically self-closed
 #                           if they have no content.
-#                           Defaults to <tt>['meta', 'img', 'link', 'br', 'hr', 'input', 'area']</tt>.
+#                           Defaults to <tt>['meta', 'img', 'link', 'br', 'hr', 'input', 'area', 'param', 'col', 'base']</tt>.
 #
 module Haml
   # This method is called by init.rb,

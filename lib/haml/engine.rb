@@ -24,6 +24,16 @@ module Haml
     # to produce the Haml document.
     attr :precompiled, true
 
+    # Returns whether or not this Engine instance is generating XHTML output.
+    def xhtml?
+      not html4?
+    end
+
+    # Returns whether or not this Engine instance is generating HTML4 output.
+    def html4?
+      @options[:output] == :html4
+    end
+
     # Creates a new instace of Haml::Engine that will compile the given
     # template string when <tt>render</tt> is called.
     # See README for available options.
@@ -37,6 +47,8 @@ module Haml
       @options = {
         :suppress_eval => false,
         :attr_wrapper => "'",
+
+        # Don't forget to update the docs in lib/haml.rb if you update these
         :autoclose => %w(meta img link br hr input area param col base),
         :filters => {
           'sass' => Haml::Filters::Sass,
@@ -48,9 +60,13 @@ module Haml
           'markdown' => Haml::Filters::Markdown },
         :filename => '(haml)',
         :ugly => false,
-        :html4 => false
+        :output => :xhtml
       }
       @options.rec_merge! options
+
+      unless [:xhtml, :html4].include?(@options[:output])
+        raise Haml::Error, "Invalid output format #{@options[:output].inspect}"
+      end
 
       unless @options[:suppress_eval]
         @options[:filters].merge!({
