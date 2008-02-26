@@ -394,4 +394,28 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p>#{'s' * 75}</p>\n",
                  render("%p= 's' * 75", :ugly => true))
   end
+
+  # HTML 4.0
+
+  def test_html_has_no_self_closing_tags
+    assert_equal "<p>\n  <br>\n</p>\n", render("%p\n  %br", :html4 => :true)
+    assert_equal "<br>\n", render("%br/", :html4 => :true)
+  end
+
+  def test_html_renders_empty_node_with_closing_tag
+    assert_equal %{<div class='foo'>\n</div>\n}, render(".foo", :html4 => :true)
+  end
+
+  def test_html_ignores_explicit_self_closing_declaration
+    assert_equal "<a>\n</a>\n", render("%a/", :html4 => :true)
+  end
+
+  def test_html_ignores_xml_prolog_declaration
+    assert_equal "\n", render('!!! XML', :html4 => :true)
+  end
+
+  def test_html_has_different_doctype
+    assert_equal %{<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\n},
+      render('!!!', :html4 => :true)
+  end
 end
