@@ -756,10 +756,9 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # Available options are:
 #
 # [<tt>:output</tt>]        Determines the output format. The default is :xhtml.
-#                           Currently, the only other option is :html4,
-#                           which is identical to :xhtml except that tags
-#                           that are normally auto-closed aren't,
-#                           and HTML4 doctypes are generated rather than XHTML.
+#                           Other options are :html4 and :html5, which are
+#                           identical to :xhtml except there are no self-closing tags,
+#                           XML prolog is ignored and correct DOCTYPEs are generated.
 #
 # [<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
 #                           designated by <tt>=</tt> or <tt>~</tt> should be
