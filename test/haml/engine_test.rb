@@ -432,4 +432,9 @@ class EngineTest < Test::Unit::TestCase
   def test_xml_prolog_and_doctype_dont_result_in_a_leading_whitespace_in_html
     assert_no_match /^\s+/, render("!!! xml\n!!!", :output => :html4)
   end
+
+  # HTML5
+  def test_html5_doctype
+    assert_equal %{<!DOCTYPE html>\n}, render('!!!', :output => :html5)
+  end
 end

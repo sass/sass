@@ -24,9 +24,9 @@ module Haml
     # to produce the Haml document.
     attr :precompiled, true
 
-    # True when the output is XHTML
+    # True if the output is not HTML
     def xhtml?
-      @options[:output] == :xhtml
+      not html?
     end
 
     # True if the output is any flavor of HTML
@@ -74,7 +74,7 @@ module Haml
       }
       @options.rec_merge! options
 
-      unless [:xhtml, :html4].include?(@options[:output])
+      unless [:xhtml, :html4, :html5].include?(@options[:output])
         raise Haml::Error, "Invalid output format #{@options[:output].inspect}"
       end
 
