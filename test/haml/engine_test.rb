@@ -420,11 +420,16 @@ class EngineTest < Test::Unit::TestCase
   end
 
   def test_html_ignores_xml_prolog_declaration
-    assert_equal "\n", render('!!! XML', :output => :html4)
+    assert_equal "", render('!!! XML', :output => :html4)
   end
 
   def test_html_has_different_doctype
     assert_equal %{<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\n},
     render('!!!', :output => :html4)
+  end
+
+  # because anything before the doctype triggers quirks mode in IE
+  def test_xml_prolog_and_doctype_dont_result_in_a_leading_whitespace_in_html
+    assert_no_match /^\s+/, render("!!! xml\n!!!", :output => :html4)
   end
 end

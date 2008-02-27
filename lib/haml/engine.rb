@@ -24,14 +24,24 @@ module Haml
     # to produce the Haml document.
     attr :precompiled, true
 
-    # Returns whether or not this Engine instance is generating XHTML output.
+    # True when the output is XHTML
     def xhtml?
-      not html4?
+      @options[:output] == :xhtml
     end
 
-    # Returns whether or not this Engine instance is generating HTML4 output.
+    # True if the output is any flavor of HTML
+    def html?
+      html4? or html5?
+    end
+
+    # True when the output is HTML4
     def html4?
       @options[:output] == :html4
+    end
+
+    # True when the output is HTML5
+    def html5?
+      @options[:output] == :html5
     end
 
     # Creates a new instace of Haml::Engine that will compile the given
