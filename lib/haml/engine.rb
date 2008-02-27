@@ -24,7 +24,7 @@ module Haml
     # to produce the Haml document.
     attr :precompiled, true
 
-    # True if the output is not HTML
+    # True if the output is XHTML
     def xhtml?
       not html?
     end
@@ -34,12 +34,12 @@ module Haml
       html4? or html5?
     end
 
-    # True when the output is HTML4
+    # True if the output is HTML4
     def html4?
       @options[:output] == :html4
     end
 
-    # True when the output is HTML5
+    # True if the output is HTML5
     def html5?
       @options[:output] == :html5
     end
