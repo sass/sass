@@ -24,24 +24,24 @@ module Haml
     # to produce the Haml document.
     attr :precompiled, true
 
-    # True if the output is XHTML
+    # True if the format is XHTML
     def xhtml?
       not html?
     end
 
-    # True if the output is any flavor of HTML
+    # True if the format is any flavor of HTML
     def html?
       html4? or html5?
     end
 
-    # True if the output is HTML4
+    # True if the format is HTML4
     def html4?
-      @options[:output] == :html4
+      @options[:format] == :html4
     end
 
-    # True if the output is HTML5
+    # True if the format is HTML5
     def html5?
-      @options[:output] == :html5
+      @options[:format] == :html5
     end
 
     # Creates a new instace of Haml::Engine that will compile the given
@@ -70,12 +70,12 @@ module Haml
           'markdown' => Haml::Filters::Markdown },
         :filename => '(haml)',
         :ugly => false,
-        :output => :xhtml
+        :format => :xhtml
       }
       @options.rec_merge! options
 
-      unless [:xhtml, :html4, :html5].include?(@options[:output])
-        raise Haml::Error, "Invalid output format #{@options[:output].inspect}"
+      unless [:xhtml, :html4, :html5].include?(@options[:format])
+        raise Haml::Error, "Invalid format #{@options[:format].inspect}"
       end
 
       unless @options[:suppress_eval]

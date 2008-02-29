@@ -396,45 +396,45 @@ class EngineTest < Test::Unit::TestCase
   end
 
   def test_xhtml_output_option
-    assert_equal "<p>\n  <br />\n</p>\n", render("%p\n  %br", :output => :xhtml)
-    assert_equal "<a />\n", render("%a/", :output => :xhtml)
+    assert_equal "<p>\n  <br />\n</p>\n", render("%p\n  %br", :format => :xhtml)
+    assert_equal "<a />\n", render("%a/", :format => :xhtml)
   end
 
   def test_arbitrary_output_option
-    assert_raise(Haml::Error, "Invalid output format :html1") { Haml::Engine.new("%br", :output => :html1) }
+    assert_raise(Haml::Error, "Invalid output format :html1") { Haml::Engine.new("%br", :format => :html1) }
   end
 
   # HTML 4.0
 
   def test_html_has_no_self_closing_tags
-    assert_equal "<p>\n  <br>\n</p>\n", render("%p\n  %br", :output => :html4)
-    assert_equal "<br>\n", render("%br/", :output => :html4)
+    assert_equal "<p>\n  <br>\n</p>\n", render("%p\n  %br", :format => :html4)
+    assert_equal "<br>\n", render("%br/", :format => :html4)
   end
 
   def test_html_renders_empty_node_with_closing_tag
-    assert_equal %{<div class='foo'>\n</div>\n}, render(".foo", :output => :html4)
+    assert_equal %{<div class='foo'>\n</div>\n}, render(".foo", :format => :html4)
   end
 
   def test_html_ignores_explicit_self_closing_declaration
-    assert_equal "<a>\n</a>\n", render("%a/", :output => :html4)
+    assert_equal "<a>\n</a>\n", render("%a/", :format => :html4)
   end
 
   def test_html_ignores_xml_prolog_declaration
-    assert_equal "", render('!!! XML', :output => :html4)
+    assert_equal "", render('!!! XML', :format => :html4)
   end
 
   def test_html_has_different_doctype
     assert_equal %{<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\n},
-    render('!!!', :output => :html4)
+    render('!!!', :format => :html4)
   end
 
   # because anything before the doctype triggers quirks mode in IE
   def test_xml_prolog_and_doctype_dont_result_in_a_leading_whitespace_in_html
-    assert_no_match /^\s+/, render("!!! xml\n!!!", :output => :html4)
+    assert_no_match /^\s+/, render("!!! xml\n!!!", :format => :html4)
   end
 
   # HTML5
   def test_html5_doctype
-    assert_equal %{<!DOCTYPE html>\n}, render('!!!', :output => :html5)
+    assert_equal %{<!DOCTYPE html>\n}, render('!!!', :format => :html5)
   end
 end
