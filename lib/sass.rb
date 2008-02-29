@@ -363,6 +363,39 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #   #main {
 #     content: string(Hello, "Hubert" Bean.) }
 #
+# === Optional Assignment
+#
+# You can assign Sass constants if they aren't already assigned
+# using the ||= assignment operator.
+# This means that if the constant has already been assigned to,
+# it won't be re-assigned,
+# but if it doesn't have a value yet,
+# it will be given one.
+# For example:
+#
+#   !content = "First content"
+#   !content ||= "Second content?"
+#
+#   #main
+#     content = content
+#
+# is compiled to:
+#
+#   #main {
+#     content: First content; }
+#
+# However,
+#
+#   !content ||= "Second content?"
+#
+#   #main
+#     content = content
+#
+# is compiled to:
+#
+#   #main {
+#     content: Second content?; }
+#
 # === Default Concatenation
 #
 # All those plusses and quotes for concatenating strings

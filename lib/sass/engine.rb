@@ -270,11 +270,18 @@ module Sass
     end
 
     def parse_constant(line)
-      name, value = line.scan(Sass::Constant::MATCH)[0]
+      name, op, value = line.scan(Sass::Constant::MATCH)[0]
       unless name && value
         raise SyntaxError.new("Invalid constant: \"#{line}\"", @line)
       end
-      @constants[name] = Sass::Constant.parse(value, @constants, @line)
+
+      constant = Sass::Constant.parse(value, @constants, @line)
+      if op == '||='
+        @constants[name] ||= constant
+      else
+        @constants[name] = constant
+      end
+
       :constant
     end
 
