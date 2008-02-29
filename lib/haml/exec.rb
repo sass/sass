@@ -213,6 +213,11 @@ END
                 'Output style. Can be indented (default) or ugly.') do |name|
           @options[:for_engine][:ugly] = true if name.to_sym == :ugly
         end
+
+        opts.on('-f', '--format NAME',
+                'Output format. Can be xhtml (default), html4, or html5.') do |name|
+          @options[:for_engine][:output] = name.to_sym
+        end
       end
 
       def process_result
