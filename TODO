@@ -1,17 +1,9 @@
-Bugs:
-  If an @imported document is changed, Sass should recompile the template
-
 Testing:
   Test html2haml and css2sass
-
-Documentation:
-  Haml::Engine public method documentation could use work
-  !! Document at-rules.
 
 Features:
   Sass should throw generic errors for undefined constants, not syntax errors
   Sass::Plugin should log errors
-  There should be a way to represent options in-document
   There should be a way to make Haml tags not insert whitespace
   "%li, %a"?
   Sass::Engine load_paths option should be set by executable
