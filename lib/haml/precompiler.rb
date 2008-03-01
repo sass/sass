@@ -452,12 +452,16 @@ END
     end
 
     # This is a class method so it can be accessed from Buffer.
-    def self.build_attributes(attr_wrapper, attributes = {})
+    def self.build_attributes(is_html, attr_wrapper, attributes = {})
       quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
       other_quote_char = attr_wrapper == '"' ? "'" : '"'
   
       result = attributes.collect do |attr, value|
         next if value.nil?
+
+        if value == true && is_html
+          next " #{attr}"
+        end
 
         value = value.to_s
         this_attr_wrapper = attr_wrapper
@@ -474,7 +478,7 @@ END
     end
 
     def prerender_tag(name, self_close, attributes)
-      attributes_string = Precompiler.build_attributes(@options[:attr_wrapper], attributes)
+      attributes_string = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)
       "<#{name}#{attributes_string}#{self_close && xhtml? ? ' /' : ''}>"
     end
     

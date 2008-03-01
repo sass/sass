@@ -259,11 +259,12 @@ END
     end
 
     # Returns a hash of options that Haml::Buffer cares about.
-    # This should remain loadable form #inspect.
+    # This should remain loadable from #inspect.
     def options_for_buffer
       {
         :attr_wrapper => @options[:attr_wrapper],
-        :ugly => @options[:ugly]
+        :ugly => @options[:ugly],
+        :format => @options[:format]
       }
     end
   end

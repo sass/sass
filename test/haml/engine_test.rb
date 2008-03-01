@@ -437,4 +437,8 @@ class EngineTest < Test::Unit::TestCase
   def test_html5_doctype
     assert_equal %{<!DOCTYPE html>\n}, render('!!!', :format => :html5)
   end
+
+  def test_html_attributes
+    assert_equal "<p bar baz='true' foo='bar'>\n</p>\n", render("%p{:foo => 'bar', :bar => true, :baz => 'true'}", :format => :html4)
+  end
 end

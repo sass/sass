@@ -292,12 +292,14 @@ module Haml
         attributes = alt_atts
       end
 
+      attributes = Haml::Precompiler.build_attributes(haml_buffer.html?,
+                                                      haml_buffer.options[:attr_wrapper], attributes)
       if text.nil? && block.nil?
-        puts "<#{name}#{Haml::Precompiler.build_attributes(haml_buffer.options[:attr_wrapper], attributes)} />"
+        puts "<#{name}#{attributes} />"
         return nil
       end
 
-      puts "<#{name}#{Haml::Precompiler.build_attributes(haml_buffer.options[:attr_wrapper], attributes)}>"
+      puts "<#{name}#{attributes}>"
       unless text && text.empty?
         tab_up
         # Print out either the text (using push_text) or call the block and add an endline

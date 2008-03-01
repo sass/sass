@@ -144,6 +144,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     </script>
 #   </head>
 #
+# ===== Attribute Methods
+#
 # A Ruby method call that returns a hash
 # can be substituted for the hash contents.
 # For example, Haml::Helpers defines the following method:
@@ -182,6 +184,30 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # would compile to:
 #
 #   <sandwich bread='whole wheat' delicious='true' filling='peanut butter and jelly' />
+#
+# ===== Boolean Attributes
+#
+# Some attributes, such as "checked" for <tt>input</tt> tags or "selected" for <tt>option</tt> tags,
+# are "boolean" in the sense that their values don't matter -
+# it only matters whether or not they're present.
+# In HTML (but not XHTML), these attributes can be written as
+#
+#   <input selected>
+#
+# To do this in Haml, just assign a Ruby true value to the attribute:
+#
+#   %input{:selected => true}
+#
+# Note that <b>a false value will not cause the attribute not to be rendered</b>.
+# The following:
+#
+#   %input{:selected => false}
+#
+# will compile to
+#
+#   <input selected="false">
+#
+# which is not the same as having no "selected" attribute.
 # 
 # ==== []
 # 

@@ -18,6 +18,26 @@ module Haml
     # The options hash passed in from Haml::Engine.
     attr_accessor :options
 
+    # True if the format is XHTML
+    def xhtml?
+      not html?
+    end
+
+    # True if the format is any flavor of HTML
+    def html?
+      html4? or html5?
+    end
+
+    # True if the format is HTML4
+    def html4?
+      @options[:format] == :html4
+    end
+
+    # True if the format is HTML5
+    def html5?
+      @options[:format] == :html5
+    end
+
     # Gets the current tabulation of the document.
     def tabulation
       @real_tabs + @tabulation
@@ -33,7 +53,8 @@ module Haml
     def initialize(options = {})
       @options = {
         :attr_wrapper => "'",
-        :ugly => false
+        :ugly => false,
+        :format => :xhtml
       }.merge options
       @buffer = ""
       @tabulation = 0
@@ -110,7 +131,8 @@ module Haml
         str = ">\n"
       end
 
-      @buffer << "#{@options[:ugly] ? '' : tabs(tabulation)}<#{name}#{Precompiler.build_attributes(@options[:attr_wrapper], attributes)}#{str}"
+      attributes = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)
+      @buffer << "#{@options[:ugly] ? '' : tabs(tabulation)}<#{name}#{attributes}#{str}"
 
       if content
         if @options[:ugly] || Buffer.one_liner?(content)
