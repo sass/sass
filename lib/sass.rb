@@ -486,6 +486,40 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # might compile to either,
 # depending on whether a file called "foo.sass" existed.
 #
+# === @font-face, @media, etc.
+#
+# Sass behaves as you'd expect for normal CSS @-directives.
+# For example:
+#
+#   @font-face
+#     font-family: "Bitstream Vera Sans"
+#     src: url(http://foo.bar/bvs")
+#
+# compiles to:
+#
+#   @font-face {
+#     font-family: "Bitstream Vera Sans";
+#     src: url(http://foo.bar/bvs"); }
+#
+# and
+#
+#   @media print
+#     #sidebar
+#       display: none
+#
+#     #main
+#       background-color: white
+#
+# compiles to:
+#
+#   @media print {
+#     #sidebar {
+#       display: none; }
+#
+#     #main {
+#       background-color: white; }
+#   }
+#
 # == Comments
 #
 # === Silent Comments
