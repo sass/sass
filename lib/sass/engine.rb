@@ -291,8 +291,9 @@ module Sass
     def parse_directive(line)
       directive, value = line[1..-1].split(/\s+/, 2)
 
-      case directive
-      when "import"
+      # If value begins with url( or ",
+      # it's a CSS @import rule and we don't want to touch it.
+      if directive == "import" && value !~ /^(url\(|")/
         import(value)
       else
         Tree::DirectiveNode.new(line, @options[:style])
