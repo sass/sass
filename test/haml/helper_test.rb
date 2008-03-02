@@ -85,6 +85,11 @@ class HelperTest < Test::Unit::TestCase
     should_be = "<form action=\"foo\" method=\"post\">\n  <p>bar</p>\n  <strong>baz</strong>\n</form>\n"
     assert_equal(should_be, result)
   end
+
+  def test_text_area_tag
+    assert_equal("<textarea id=\"body\" name=\"body\">Foo&#x000A;Bar&#x000A; Baz&#x000A;   Boom</textarea>\n",
+                 render('= text_area_tag "body", "Foo\nBar\n Baz\n   Boom"', :action_view))
+  end
   
   def test_capture_haml
     assert_equal("\"<p>13</p>\\n\"\n", render("- foo = capture_haml(13) do |a|\n  %p= a\n= foo.dump"))

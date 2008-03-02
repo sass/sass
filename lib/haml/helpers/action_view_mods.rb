@@ -61,6 +61,12 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
         end
         alias_method :form_tag_without_haml, :form_tag
         alias_method :form_tag, :form_tag_with_haml
+
+        def text_area_tag_with_haml(*args)
+          preserve text_area_tag_without_haml(*args)
+        end
+        alias_method :text_area_tag_without_haml, :text_area_tag
+        alias_method :text_area_tag, :text_area_tag_with_haml
       end
 
       module FormHelper
