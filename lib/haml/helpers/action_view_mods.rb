@@ -43,7 +43,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       module TagHelper        
         def content_tag_with_haml(name, *args, &block)
           content = content_tag_without_haml(name, *args, &block)
-          content = Haml::Helpers.preserve content if name.to_s == 'textarea'
+          content = Haml::Helpers.preserve content if haml_buffer.options[:preserve].include?(name.to_s)
           content
         end
         alias_method :content_tag_without_haml, :content_tag
@@ -52,6 +52,10 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
 
       class InstanceTag
         # Includes TagHelper
+
+        def haml_buffer
+          @template_object.send :haml_buffer
+        end
 
         alias_method :content_tag_without_haml, :content_tag
         alias_method :content_tag, :content_tag_with_haml

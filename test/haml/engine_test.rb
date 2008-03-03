@@ -105,6 +105,9 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<textarea>Foo&#x000A;  bar&#x000A;   baz</textarea>\n",
                  render('%textarea= "Foo\n  bar\n   baz"'))
 
+    assert_equal("<pre>Foo&#x000A;  bar&#x000A;   baz</pre>\n",
+                 render('%pre= "Foo\n  bar\n   baz"'))
+
     assert_equal("<textarea>#{'a' * 100}</textarea>\n",
                  render("%textarea #{'a' * 100}"))
   end

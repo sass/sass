@@ -506,7 +506,7 @@ END
       
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
-      preserve_tag = (tag_name == 'textarea')
+      preserve_tag = options[:preserve].include?(tag_name)
 
       case action
       when '/'; atomic = xhtml?

@@ -59,7 +59,9 @@ module Haml
         :attr_wrapper => "'",
 
         # Don't forget to update the docs in lib/haml.rb if you update these
-        :autoclose => %w(meta img link br hr input area param col base),
+        :autoclose => %w[meta img link br hr input area param col base],
+        :preserve => %w[textarea pre],
+
         :filters => {
           'sass' => Haml::Filters::Sass,
           'plain' => Haml::Filters::Plain,
@@ -262,6 +264,7 @@ END
     # This should remain loadable from #inspect.
     def options_for_buffer
       {
+        :preserve => @options[:preserve],
         :attr_wrapper => @options[:attr_wrapper],
         :ugly => @options[:ugly],
         :format => @options[:format]

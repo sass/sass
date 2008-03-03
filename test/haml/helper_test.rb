@@ -94,6 +94,9 @@ class HelperTest < Test::Unit::TestCase
 
     assert_equal(%(<textarea cols="40" id="post_body" name="post[body]" rows="20">Foo bar&#x000A;baz</textarea>\n),
                  render('= text_area :post, :body', :action_view))    
+
+    assert_equal(%(<pre>Foo bar&#x000A;   baz</pre>\n),
+                 render('= content_tag "pre", "Foo bar\n   baz"', :action_view))    
   end
   
   def test_capture_haml

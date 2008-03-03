@@ -816,6 +816,19 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           if they have no content.
 #                           Defaults to <tt>['meta', 'img', 'link', 'br', 'hr', 'input', 'area', 'param', 'col', 'base']</tt>.
 #
+# [<tt>:preserve</tt>]      A list of tag names that should automatically have their newlines preserved
+#                           using the Haml::Helpers#preserve helper.
+#                           This means that any content given on the same line as the tag will be preserved.
+#                           For example:
+#
+#                             %textarea= "Foo\nBar"
+#
+#                           compiles to:
+#
+#                             <textarea>Foo&&#x000A;Bar</textarea>
+#
+#                           Defaults to <tt>['textarea', 'pre']</tt>.
+#
 module Haml
   # This method is called by init.rb,
   # which is run by Rails on startup.
