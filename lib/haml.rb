@@ -198,16 +198,19 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   %input{:selected => true}
 #
-# Note that <b>a false value will not cause the attribute not to be rendered</b>.
-# The following:
+# In XHTML, the only valid value for these attributes is the name of the attribute.
+# Thus this will render in XHTML as
+# 
+#   <input selected="selected">
+#
+# To set these attributes to false, simply assign them to a Ruby false value.
+# In both XHTML and HTML
 #
 #   %input{:selected => false}
 #
-# will compile to
+# will just render as
 #
-#   <input selected="false">
-#
-# which is not the same as having no "selected" attribute.
+#   <input>
 # 
 # ==== []
 # 

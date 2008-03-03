@@ -112,6 +112,18 @@ class EngineTest < Test::Unit::TestCase
                  render("%textarea #{'a' * 100}"))
   end
 
+  def test_boolean_attributes
+    assert_equal("<p bar baz='true' foo='bar'>\n</p>\n",
+                 render("%p{:foo => 'bar', :bar => true, :baz => 'true'}", :format => :html4))
+    assert_equal("<p bar='bar' baz='true' foo='bar'>\n</p>\n",
+                 render("%p{:foo => 'bar', :bar => true, :baz => 'true'}", :format => :xhtml))
+
+    assert_equal("<p baz='false' foo='bar'>\n</p>\n",
+                 render("%p{:foo => 'bar', :bar => false, :baz => 'false'}", :format => :html4))
+    assert_equal("<p baz='false' foo='bar'>\n</p>\n",
+                 render("%p{:foo => 'bar', :bar => false, :baz => 'false'}", :format => :xhtml))
+  end
+
   # Options tests
 
   def test_stop_eval
@@ -447,9 +459,5 @@ class EngineTest < Test::Unit::TestCase
   # HTML5
   def test_html5_doctype
     assert_equal %{<!DOCTYPE html>\n}, render('!!!', :format => :html5)
-  end
-
-  def test_html_attributes
-    assert_equal "<p bar baz='true' foo='bar'>\n</p>\n", render("%p{:foo => 'bar', :bar => true, :baz => 'true'}", :format => :html4)
   end
 end

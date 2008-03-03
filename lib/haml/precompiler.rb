@@ -459,8 +459,11 @@ END
       result = attributes.collect do |attr, value|
         next if value.nil?
 
-        if value == true && is_html
-          next " #{attr}"
+        if value == true
+          next " #{attr}" if is_html
+          next " #{attr}=#{attr_wrapper}#{attr}#{attr_wrapper}"
+        elsif value == false
+          next
         end
 
         value = value.to_s
