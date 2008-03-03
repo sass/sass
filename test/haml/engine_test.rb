@@ -101,6 +101,14 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p>foo</p>\n<p>bar</p>\n<p>baz</p>\n<p>boom</p>\n", render("%p foo\r%p bar\r\n%p baz\n\r%p boom"))
   end
 
+  def test_textareas
+    assert_equal("<textarea>Foo&#x000A;  bar&#x000A;   baz</textarea>\n",
+                 render('%textarea= "Foo\n  bar\n   baz"'))
+
+    assert_equal("<textarea>#{'a' * 100}</textarea>\n",
+                 render("%textarea #{'a' * 100}"))
+  end
+
   # Options tests
 
   def test_stop_eval

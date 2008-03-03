@@ -317,15 +317,15 @@ END
     # Causes <tt>text</tt> to be evaluated in the context of
     # the scope object and the result to be added to <tt>@buffer</tt>.
     #
-    # If <tt>flattened</tt> is true, Haml::Helpers#find_and_flatten is run on
+    # If <tt>preserve_script</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
-    def push_script(text, flattened, close_tag = nil)
+    def push_script(text, preserve_script, close_tag = nil, preserve_tag = false)
       flush_merged_text
       return if options[:suppress_eval]
 
       push_silent "haml_temp = #{text}"
       newline true
-      out = "haml_temp = _hamlout.push_script(haml_temp, #{flattened.inspect}, #{close_tag.inspect});"
+      out = "haml_temp = _hamlout.push_script(haml_temp, #{preserve_script.inspect}, #{close_tag.inspect}, #{preserve_tag.inspect});"
       if @block_opened
         push_and_tabulate([:loud, out])
       else
@@ -506,9 +506,11 @@ END
       
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
+      preserve_tag = (tag_name == 'textarea')
+
       case action
       when '/'; atomic = xhtml?
-      when '~'; parse = flattened = true
+      when '~'; parse = preserve_script = true
       when '='
         parse = true
         value = unescape_interpolation(value[1..-1].strip) if value[0] == ?=
@@ -532,10 +534,11 @@ END
       raise SyntaxError, "Atomic tags can't have content." if atomic && !value.empty?
 
       atomic ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
-      
-      if object_ref == "nil" && attributes_hash.nil? && !flattened && (parse || Buffer.one_liner?(value))
+
+      one_liner = Buffer.one_liner?(value) || preserve_tag
+      if object_ref == "nil" && attributes_hash.nil? && !preserve_script && (parse || one_liner)
         # This means that we can render the tag directly to text and not process it in the buffer
-        tag_closed = !value.empty? && Buffer.one_liner?(value) && !parse
+        tag_closed = !value.empty? && one_liner && !parse
 
         open_tag  = prerender_tag(tag_name, atomic, attributes)
         open_tag << "#{value}</#{tag_name}>" if tag_closed
@@ -547,9 +550,9 @@ END
         flush_merged_text
         content = value.empty? || parse ? 'nil' : value.dump
         attributes_hash = ', ' + attributes_hash if attributes_hash
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{preserve_tag.inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
       end
-          
+
       return if atomic
 
       if value.empty?
@@ -560,7 +563,7 @@ END
       
       if parse
         flush_merged_text
-        push_script(value, flattened, tag_name)
+        push_script(value, preserve_script, tag_name, preserve_tag)
       end
     end
 

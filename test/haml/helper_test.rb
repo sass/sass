@@ -11,10 +11,12 @@ require 'haml/template'
 
 class HelperTest < Test::Unit::TestCase
   include Haml::Helpers
+  Post = Struct.new('Post', :body)
   
   def setup
     @base = ActionView::Base.new
     @base.controller = ActionController::Base.new
+    @base.instance_variable_set('@post', Post.new("Foo bar\nbaz"))
   end
 
   def render(text, options = {})
@@ -86,9 +88,12 @@ class HelperTest < Test::Unit::TestCase
     assert_equal(should_be, result)
   end
 
-  def test_text_area_tag
-    assert_equal("<textarea id=\"body\" name=\"body\">Foo&#x000A;Bar&#x000A; Baz&#x000A;   Boom</textarea>\n",
+  def test_text_area
+    assert_equal(%(<textarea id="body" name="body">Foo&#x000A;Bar&#x000A; Baz&#x000A;   Boom</textarea>\n),
                  render('= text_area_tag "body", "Foo\nBar\n Baz\n   Boom"', :action_view))
+
+    assert_equal(%(<textarea cols="40" id="post_body" name="post[body]" rows="20">Foo bar&#x000A;baz</textarea>\n),
+                 render('= text_area :post, :body', :action_view))    
   end
   
   def test_capture_haml

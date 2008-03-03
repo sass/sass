@@ -40,6 +40,23 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
         alias_method :concat, :concat_with_haml
       end
 
+      module TagHelper        
+        def content_tag_with_haml(name, *args, &block)
+          content = content_tag_without_haml(name, *args, &block)
+          content = Haml::Helpers.preserve content if name.to_s == 'textarea'
+          content
+        end
+        alias_method :content_tag_without_haml, :content_tag
+        alias_method :content_tag, :content_tag_with_haml
+      end
+
+      class InstanceTag
+        # Includes TagHelper
+
+        alias_method :content_tag_without_haml, :content_tag
+        alias_method :content_tag, :content_tag_with_haml
+      end
+
       module FormTagHelper
         def form_tag_with_haml(url_for_options = {}, options = {}, *parameters_for_url, &proc)
           if is_haml?
@@ -61,12 +78,6 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
         end
         alias_method :form_tag_without_haml, :form_tag
         alias_method :form_tag, :form_tag_with_haml
-
-        def text_area_tag_with_haml(*args)
-          preserve text_area_tag_without_haml(*args)
-        end
-        alias_method :text_area_tag_without_haml, :text_area_tag
-        alias_method :text_area_tag, :text_area_tag_with_haml
       end
 
       module FormHelper
