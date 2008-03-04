@@ -3,11 +3,7 @@
 require 'test/unit'
 require 'rubygems'
 require 'action_pack'
-
-if path = $:.detect {|p| p =~ %r{actionpack-[\d.]+/lib$} }
-  $:.unshift(path + '/action_controller/vendor/html-scanner')
-end
-
+require 'action_controller'
 require 'active_support'
 require 'action_view'
 require File.dirname(__FILE__) + '/../../lib/haml'
