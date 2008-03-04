@@ -4,6 +4,12 @@ require 'test/unit'
 require 'rubygems'
 require 'action_pack'
 
+if path = $:.detect {|p| p =~ %r{actionpack-[\d.]+/lib$} }
+  $:.unshift(path + '/action_controller/vendor/html-scanner')
+end
+
+require 'active_support'
+require 'action_view'
 require File.dirname(__FILE__) + '/../../lib/haml'
 require 'haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
