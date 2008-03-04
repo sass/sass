@@ -1,7 +1,4 @@
 require 'haml/engine'
-require 'rubygems'
-require 'active_support'
-require 'action_view'
 
 module Haml
   class Template
