@@ -1,13 +1,5 @@
 #!/usr/bin/env ruby
-
-require 'rubygems'
-require 'active_support'
-require 'action_controller'
-require 'action_view'
-
-require 'test/unit'
-require File.dirname(__FILE__) + '/../../lib/haml'
-require 'haml/engine'
+require File.dirname(__FILE__) + '/test_helper'
 
 class EngineTest < Test::Unit::TestCase
 
