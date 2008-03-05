@@ -1,8 +1,5 @@
-require 'rubygems'
-require 'active_support'
-require 'action_controller'
-require 'action_view'
-require '../../lib/haml/template'
+require File.dirname(__FILE__) + '/test_helper'
+require 'haml/template'
 require 'fileutils'
 
 haml_template_engine = Haml::Template.new(ActionView::Base.new)
