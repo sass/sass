@@ -34,7 +34,7 @@ module Haml
     #     include Haml::Helpers
     #   end
     #   context.init_haml_helpers
-    #   context.open :p, "Stuff"
+    #   context.haml_tag :p, "Stuff"
     # 
     def init_haml_helpers
       @haml_is_haml = true
@@ -156,10 +156,10 @@ module Haml
       haml_buffer.tabulation += i
     end
 
-    # Increments the number of tabs the buffer automatically adds
+    # Decrements the number of tabs the buffer automatically adds
     # to the lines of the template.
     #
-    # See tab_up.
+    # See also tab_up.
     def tab_down(i = 1)
       haml_buffer.tabulation -= i
     end
@@ -246,8 +246,8 @@ module Haml
 
     #
     # call-seq:
-    #   open(name, attributes = {}) {...}
-    #   open(name, text, attributes = {}) {...}
+    #   haml_tag(name, attributes = {}) {...}
+    #   haml_tag(name, text, attributes = {}) {...}
     #
     # Creates an HTML tag with the given name and optionally text and attributes.
     # Can take a block that will be executed
@@ -257,13 +257,13 @@ module Haml
     # 
     # For example,
     #
-    #   open :table do
-    #     open :tr do
-    #       open :td, {:class => 'cell'} do
-    #         open :strong, "strong!"
+    #   haml_tag :table do
+    #     haml_tag :tr do
+    #       haml_tag :td, {:class => 'cell'} do
+    #         haml_tag :strong, "strong!"
     #         puts "data"
     #       end
-    #       open :td do
+    #       haml_tag :td do
     #         puts "more_data"
     #       end
     #     end
