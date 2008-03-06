@@ -39,12 +39,14 @@ unless ARGV[0] == 'benchmark'
 
   require 'rake/testtask'
 
-  desc 'Test the Haml plugin'
-  Rake::TestTask.new(:test) do |t|
+  Rake::TestTask.new do |t|
     t.libs << 'lib'
     t.pattern = 'test/**/*_test.rb'
     t.verbose = true
   end
+  Rake::Task[:test].send(:add_comment, <<END)
+To run with an alternate version of Rails, make test/rails a symlink to that version.
+END
 
   # ----- Packaging -----
 
