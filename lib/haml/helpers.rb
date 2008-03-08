@@ -38,7 +38,7 @@ module Haml
     # 
     def init_haml_helpers
       @haml_is_haml = true
-      @haml_stack = [Haml::Buffer.new]
+      @haml_stack = [Haml::Buffer.new(Haml::Engine.new('').send(:options_for_buffer))]
       nil
     end
 
