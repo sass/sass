@@ -43,7 +43,11 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       module TagHelper        
         def content_tag_with_haml(name, *args, &block)
           content = content_tag_without_haml(name, *args, &block)
-          content = Haml::Helpers.preserve content if haml_buffer.options[:preserve].include?(name.to_s)
+
+          if is_haml? && haml_buffer.options[:preserve].include?(name.to_s)
+            content = Haml::Helpers.preserve content
+          end
+
           content
         end
         alias_method :content_tag_without_haml, :content_tag
@@ -55,6 +59,10 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
 
         def haml_buffer
           @template_object.send :haml_buffer
+        end
+
+        def is_haml?
+          @template_object.send :is_haml?
         end
 
         alias_method :content_tag_without_haml, :content_tag
