@@ -46,11 +46,11 @@ module Haml
 
     # Creates a new instace of Haml::Engine that will compile the given
     # template string when <tt>render</tt> is called.
-    # See README for available options.
+    # See README.rdoc for available options.
     #
     #--
     # When adding options, remember to add information about them
-    # to README!
+    # to README.rdoc!
     #++
     #
     def initialize(template, options = {})
