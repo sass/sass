@@ -21,7 +21,7 @@ module Sass
         @@checked_for_updates
       end
 
-      # Gets various options for Sass. See README for details.
+      # Gets various options for Sass. See README.rdoc for details.
       #--
       # TODO: *DOCUMENT OPTIONS*
       #++

@@ -70,7 +70,7 @@ END
     #'
     
     readmes = FileList.new('*') do |list|
-      list.exclude(/[a-z]/)
+      list.exclude(/(^|[^.a-z])[a-z]+/)
       list.exclude('TODO')
     end.to_a
     spec.executables = ['haml', 'html2haml', 'sass', 'css2sass']
@@ -81,7 +81,7 @@ END
     spec.extra_rdoc_files = readmes
     spec.rdoc_options += [
       '--title', 'Haml',
-      '--main', 'README',
+      '--main', 'README.rdoc',
       '--exclude', 'lib/haml/buffer.rb',
       '--line-numbers',
       '--inline-source'
@@ -116,7 +116,7 @@ END
   rdoc_task = Proc.new do |rdoc|
     rdoc.title    = 'Haml/Sass'
     rdoc.options << '--line-numbers' << '--inline-source'
-    rdoc.rdoc_files.include('README')
+    rdoc.rdoc_files.include('README.rdoc')
     rdoc.rdoc_files.include('lib/**/*.rb')
     rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
     rdoc.rdoc_files.exclude('lib/haml/util.rb')
