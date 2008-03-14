@@ -218,6 +218,11 @@ END
                 'Output format. Can be xhtml (default), html4, or html5.') do |name|
           @options[:for_engine][:format] = name.to_sym
         end
+        
+        opts.on('-e', '--escape-html',
+                'Escape HTML characters (like ampersands and angle brackets) by default.') do
+          @options[:for_engine][:escape_html] = true
+        end
       end
 
       def process_result

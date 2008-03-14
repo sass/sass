@@ -78,7 +78,7 @@ module Haml
 
     # Properly formats the output of a script that was run in the
     # instance_eval.
-    def push_script(result, preserve_script, close_tag = nil, preserve_tag = false)
+    def push_script(result, preserve_script, close_tag = nil, preserve_tag = false, escape_html = false)
       tabulation = @real_tabs
 
       if preserve_tag
@@ -93,6 +93,8 @@ module Haml
         result = result[0...-1]
       end
       
+      result = html_escape(result) if escape_html
+
       if close_tag && (@options[:ugly] || Buffer.one_liner?(result) || preserve_tag)
         @buffer << "#{result}</#{close_tag}>\n"
         @real_tabs -= 1

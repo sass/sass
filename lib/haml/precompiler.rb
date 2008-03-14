@@ -20,6 +20,9 @@ module Haml
     # Designates script, the result of which is output.
     SCRIPT          = ?=
 
+    # Designates script that is always be HTML-escaped.
+    SANITIZE        = ?&
+
     # Designates script, the result of which is flattened and output.
     FLAT_SCRIPT     = ?~
 
@@ -47,6 +50,7 @@ module Haml
       COMMENT,
       DOCTYPE,
       SCRIPT,
+      SANITIZE,
       FLAT_SCRIPT,
       SILENT_SCRIPT,
       ESCAPE,
@@ -197,9 +201,16 @@ END
       when DIV_CLASS, DIV_ID; render_div(text)
       when ELEMENT; render_tag(text)
       when COMMENT; render_comment(text)
+      when ?&
+        return push_script(text[2..-1].strip, false, nil, false, true) if text[1] == SCRIPT
+        push_plain text
       when SCRIPT
         return push_script(unescape_interpolation(text[2..-1].strip), false) if text[1] == SCRIPT
-        push_script(text[1..-1], false)
+        if options[:escape_html]
+          push_script(text[1..-1], false, nil, false, true)
+        else
+          push_script(text[1..-1], false)
+        end
       when FLAT_SCRIPT; push_flat_script(text[1..-1])
       when SILENT_SCRIPT
         return start_haml_comment if text[1] == SILENT_COMMENT
@@ -212,6 +223,7 @@ END
       when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
+        return push_script(text[2..-1].strip, false) if text[1] == SCRIPT
         push_plain text
       when ESCAPE; push_plain text[1..-1]
       else push_plain text
@@ -319,13 +331,13 @@ END
     #
     # If <tt>preserve_script</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
-    def push_script(text, preserve_script, close_tag = nil, preserve_tag = false)
+    def push_script(text, preserve_script, close_tag = nil, preserve_tag = false, escape_html = false)
       flush_merged_text
       return if options[:suppress_eval]
 
       push_silent "haml_temp = #{text}"
       newline true
-      out = "haml_temp = _hamlout.push_script(haml_temp, #{preserve_script.inspect}, #{close_tag.inspect}, #{preserve_tag.inspect});"
+      out = "haml_temp = _hamlout.push_script(haml_temp, #{preserve_script.inspect}, #{close_tag.inspect}, #{preserve_tag.inspect}, #{escape_html.inspect});"
       if @block_opened
         push_and_tabulate([:loud, out])
       else
@@ -496,7 +508,7 @@ END
       end
       if rest
         object_ref, rest = balance(rest, ?[, ?]) if rest[0] == ?[
-        action, value = rest.scan(/([=\/\~]?)?(.*)?/)[0]
+        action, value = rest.scan(/([=\/\~&!]?)?(.*)?/)[0]
       end
       value = value.to_s.strip
       [tag_name, attributes, attributes_hash, object_ref, action, value]
@@ -517,12 +529,19 @@ END
       when '='
         parse = true
         value = unescape_interpolation(value[1..-1].strip) if value[0] == ?=
+      when '&', '!'
+        if value[0] == ?=
+          parse = true
+          value = value[1..-1].strip
+        end
       end
-        
+      
       if parse && @options[:suppress_eval]
         parse = false
         value = ''
       end
+
+      escape_html = (action == '&' || (action != '!' && @options[:escape_html]))
 
       object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
@@ -566,7 +585,7 @@ END
       
       if parse
         flush_merged_text
-        push_script(value, preserve_script, tag_name, preserve_tag)
+        push_script(value, preserve_script, tag_name, preserve_tag, escape_html)
       end
     end
 
@@ -695,7 +714,6 @@ END
 
       raise SyntaxError.new("Unbalanced brackets.")
     end
-    
 
     # Counts the tabulation of a line.
     def count_soft_tabs(line)

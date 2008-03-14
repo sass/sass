@@ -72,7 +72,8 @@ module Haml
           'markdown' => Haml::Filters::Markdown },
         :filename => '(haml)',
         :ugly => false,
-        :format => :xhtml
+        :format => :xhtml,
+        :escape_html => false
       }
       @options.rec_merge! options
 

@@ -116,6 +116,38 @@ class EngineTest < Test::Unit::TestCase
                  render("%p{:foo => 'bar', :bar => false, :baz => 'false'}", :format => :xhtml))
   end
 
+  # HTML escaping tests
+
+  def test_script_ending_in_comment_should_render_when_html_is_escaped
+    assert_equal("foo&amp;bar\n", render("= 'foo&bar' #comment", :escape_html => true))
+  end
+
+  def test_ampersand_equals
+    assert_equal("<p>\n  foo &amp; bar\n</p>\n", render("%p\n  &= 'foo & bar'", :escape_html => false))
+  end
+
+  def test_ampersand_equals_inline
+    assert_equal("<p>foo &amp; bar</p>\n", render("%p&= 'foo & bar'", :escape_html => false))
+  end
+
+  def test_bang_equals
+    assert_equal("<p>\n  foo & bar\n</p>\n", render("%p\n  != 'foo & bar'", :escape_html => true))
+  end
+
+  def test_bang_equals_inline
+    assert_equal("<p>foo & bar</p>\n", render("%p!= 'foo & bar'", :escape_html => true))
+  end
+
+  def test_escape_html_option_for_scripts
+    assert_equal("<p>\n  foo &amp; bar\n</p>\n", render("%p\n  = 'foo & bar'", :escape_html => true))
+    assert_equal("<p>\n  foo & bar\n</p>\n", render("%p\n  = 'foo & bar'", :escape_html => false))
+  end
+
+  def test_escape_html_option_for_inline_scripts
+    assert_equal("<p>foo &amp; bar</p>\n", render("%p= 'foo & bar'", :escape_html => true))
+    assert_equal("<p>foo & bar</p>\n", render("%p= 'foo & bar'", :escape_html => false))
+  end
+
   # Options tests
 
   def test_stop_eval

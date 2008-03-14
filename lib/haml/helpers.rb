@@ -322,7 +322,16 @@ Use the #haml_tag method instead.
 END
       haml_tag(*args, &block)
     end
-    
+
+    # Returns a copy of <tt>text</tt> with ampersands, angle brackets and quotes
+    # escaped into HTML entities.
+    def html_escape(text)
+      text.to_s.gsub(/[&<>"]/) { |s| ESCAPE_TABLE[s] }
+    end
+    # Characters that need to be escaped to HTML entities from user input
+    ESCAPE_TABLE = { '&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;', '"'=>'&quot;', "'"=>'&#039;', }
+
+
     private
 
     # Gets a reference to the current Haml::Buffer object.
