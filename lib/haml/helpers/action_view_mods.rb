@@ -17,6 +17,16 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
     module Helpers
       # :stopdoc:
       module CaptureHelper
+        def capture_with_haml(*args, &block)
+          if is_haml?
+            capture_haml(*args, &block)
+          else
+            capture_without_haml(*args, &block)
+          end
+        end
+        alias_method :capture_without_haml, :capture
+        alias_method :capture, :capture_with_haml
+
         def capture_erb_with_buffer_with_haml(*args, &block)
           if is_haml?
             capture_haml_with_buffer(*args, &block)
