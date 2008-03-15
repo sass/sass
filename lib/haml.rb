@@ -753,6 +753,9 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           Defaults to <tt>['meta', 'img', 'link', 'br', 'hr', 'input', 'area']</tt>.
 #
 module Haml
+  # A string representing the version of Haml
+  VERSION = File.read(File.dirname(__FILE__) + '/../VERSION').strip
+
   # This method is called by init.rb,
   # which is run by Rails on startup.
   # We use it rather than putting stuff straight into init.rb
