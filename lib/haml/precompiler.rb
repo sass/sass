@@ -14,13 +14,13 @@ module Haml
     # Designates an XHTML/XML comment.
     COMMENT         = ?/
 
-    # Designates an XHTML doctype.
+    # Designates an XHTML doctype or script that is never HTML-escaped.
     DOCTYPE         = ?!
 
     # Designates script, the result of which is output.
     SCRIPT          = ?=
 
-    # Designates script that is always be HTML-escaped.
+    # Designates script that is always HTML-escaped.
     SANITIZE        = ?&
 
     # Designates script, the result of which is flattened and output.
@@ -206,11 +206,8 @@ END
         push_plain text
       when SCRIPT
         return push_script(unescape_interpolation(text[2..-1].strip), false) if text[1] == SCRIPT
-        if options[:escape_html]
-          push_script(text[1..-1], false, nil, false, true)
-        else
-          push_script(text[1..-1], false)
-        end
+        return push_script(text[1..-1], false, nil, false, true) if options[:escape_html]
+        push_script(text[1..-1], false)
       when FLAT_SCRIPT; push_flat_script(text[1..-1])
       when SILENT_SCRIPT
         return start_haml_comment if text[1] == SILENT_COMMENT
