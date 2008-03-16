@@ -201,7 +201,7 @@ END
       when DIV_CLASS, DIV_ID; render_div(text)
       when ELEMENT; render_tag(text)
       when COMMENT; render_comment(text)
-      when ?&
+      when SANITIZE
         return push_script(text[2..-1].strip, false, nil, false, true) if text[1] == SCRIPT
         push_plain text
       when SCRIPT
