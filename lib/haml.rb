@@ -754,7 +754,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 module Haml
   # A string representing the version of Haml
-  VERSION = File.read(File.dirname(__FILE__) + '/../VERSION').strip
+  VERSION = File.read(File.dirname(__FILE__) + '/../VERSION').strip unless defined?(VERSION)
 
   # This method is called by init.rb,
   # which is run by Rails on startup.
