@@ -117,7 +117,7 @@ module Haml
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, atomic, try_one_line, preserve_tag, class_id, obj_ref, content, *attributes_hashes)
+    def open_tag(name, atomic, try_one_line, preserve_tag, escape_html, class_id, obj_ref, content, *attributes_hashes)
       tabulation = @real_tabs
       
       attributes = class_id
@@ -135,7 +135,7 @@ module Haml
         str = ">\n"
       end
 
-      attributes = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)
+      attributes = Precompiler.build_attributes(html?, @options[:attr_wrapper], escape_html, attributes)
       @buffer << "#{@options[:ugly] ? '' : tabs(tabulation)}<#{name}#{attributes}#{str}"
 
       if content

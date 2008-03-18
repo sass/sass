@@ -696,8 +696,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # ==== &=
 #
-# An ampersand followed by an equals character
-# evaluates Ruby code just like the single equals,
+# An ampersand followed by one or two equals characters
+# evaluates Ruby code just like the equals without the ampersand,
 # but sanitizes any HTML-sensitive characters in the result of the code.
 # For example:
 #
@@ -712,8 +712,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # ==== !=
 #
-# An exclamation mark followed by an equals character
-# evaluates Ruby code just like the single equals,
+# An exclamation mark followed by one or two equals characters
+# evaluates Ruby code just like the equals would,
 # but never sanitizes the HTML.
 #
 # By default, the single equals doesn't sanitize HTML either.
@@ -835,7 +835,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # [<tt>:escape_html</tt>]   Sets whether or not to escape HTML-sensitive characters in script.
 #                           If this is true, = behaves like &=;
 #                           otherwise, it behaves like !=.
-#                           <b>Note that this doesn't affect attributes or == interpolation.</b>
+#                           <b>Note that this escapes tag attributes.</b>
 #                           Defaults to false.
 #
 # [<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts

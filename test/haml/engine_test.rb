@@ -118,34 +118,77 @@ class EngineTest < Test::Unit::TestCase
 
   # HTML escaping tests
 
-  def test_script_ending_in_comment_should_render_when_html_is_escaped
-    assert_equal("foo&amp;bar\n", render("= 'foo&bar' #comment", :escape_html => true))
-  end
-
-  def test_ampersand_equals
+  def test_ampersand_equals_should_escape
     assert_equal("<p>\n  foo &amp; bar\n</p>\n", render("%p\n  &= 'foo & bar'", :escape_html => false))
   end
 
-  def test_ampersand_equals_inline
+  def test_ampersand_equals_inline_should_escape
     assert_equal("<p>foo &amp; bar</p>\n", render("%p&= 'foo & bar'", :escape_html => false))
   end
 
-  def test_bang_equals
+  def test_bang_equals_should_not_escape
     assert_equal("<p>\n  foo & bar\n</p>\n", render("%p\n  != 'foo & bar'", :escape_html => true))
   end
 
-  def test_bang_equals_inline
+  def test_bang_equals_inline_should_not_escape
     assert_equal("<p>foo & bar</p>\n", render("%p!= 'foo & bar'", :escape_html => true))
   end
+  
+  def test_static_attributes_should_be_escaped
+    assert_equal("<img class='atlantis' style='ugly&amp;stupid' />\n",
+                 render("%img.atlantis{:style => 'ugly&stupid'}", :escape_html => true))
+    assert_equal("<div class='atlantis' style='ugly&amp;stupid'>foo</div>\n",
+                 render(".atlantis{:style => 'ugly&stupid'} foo", :escape_html => true))
+    assert_equal("<p class='atlantis' style='ugly&amp;stupid'>foo</p>\n",
+                render("%p.atlantis{:style => 'ugly&stupid'}= 'foo'", :escape_html => true))
+  end
 
-  def test_escape_html_option_for_scripts
+  def test_dynamic_attributes_should_be_escaped
+    assert_equal("<img alt='' src='/foo.png' />\n",
+                 render("%img{:width => nil, :src => '/foo.png', :alt => String.new}", :escape_html => true))
+    assert_equal("<p alt='' src='/foo.png'>foo</p>\n",
+                 render("%p{:width => nil, :src => '/foo.png', :alt => String.new} foo", :escape_html => true))
+    assert_equal("<div alt='' src='/foo.png'>foo</div>\n",
+                 render("%div{:width => nil, :src => '/foo.png', :alt => String.new}= 'foo'", :escape_html => true))
+  end
+  
+  def test_string_interpolation_should_be_esaped
+    assert_equal("<p>4&amp;3</p>\n", render("%p== #{2+2}&#{2+1}", :escape_html => true))
+    assert_equal("<p>4&3</p>\n", render("%p== #{2+2}&#{2+1}", :escape_html => false))
+  end
+
+  def test_escaped_inline_string_interpolation
+    assert_equal("<p>4&amp;3</p>\n", render("%p&== #{2+2}&#{2+1}", :escape_html => true))
+    assert_equal("<p>4&amp;3</p>\n", render("%p&== #{2+2}&#{2+1}", :escape_html => false))
+  end
+
+  def test_unescaped_inline_string_interpolation
+    assert_equal("<p>4&3</p>\n", render("%p!== #{2+2}&#{2+1}", :escape_html => true))
+    assert_equal("<p>4&3</p>\n", render("%p!== #{2+2}&#{2+1}", :escape_html => false))
+  end
+
+  def test_escaped_string_interpolation
+    assert_equal("<p>\n  4&amp;3\n</p>\n", render("%p\n  &== #{2+2}&#{2+1}", :escape_html => true))
+    assert_equal("<p>\n  4&amp;3\n</p>\n", render("%p\n  &== #{2+2}&#{2+1}", :escape_html => false))
+  end
+
+  def test_unescaped_string_interpolation
+    assert_equal("<p>\n  4&3\n</p>\n", render("%p\n  !== #{2+2}&#{2+1}", :escape_html => true))
+    assert_equal("<p>\n  4&3\n</p>\n", render("%p\n  !== #{2+2}&#{2+1}", :escape_html => false))
+  end
+
+  def test_scripts_should_respect_escape_html_option
     assert_equal("<p>\n  foo &amp; bar\n</p>\n", render("%p\n  = 'foo & bar'", :escape_html => true))
     assert_equal("<p>\n  foo & bar\n</p>\n", render("%p\n  = 'foo & bar'", :escape_html => false))
   end
 
-  def test_escape_html_option_for_inline_scripts
+  def test_inline_scripts_should_respect_escape_html_option
     assert_equal("<p>foo &amp; bar</p>\n", render("%p= 'foo & bar'", :escape_html => true))
     assert_equal("<p>foo & bar</p>\n", render("%p= 'foo & bar'", :escape_html => false))
+  end
+
+  def test_script_ending_in_comment_should_render_when_html_is_escaped
+    assert_equal("foo&amp;bar\n", render("= 'foo&bar' #comment", :escape_html => true))
   end
 
   # Options tests

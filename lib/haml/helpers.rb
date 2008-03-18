@@ -293,7 +293,9 @@ module Haml
       end
 
       attributes = Haml::Precompiler.build_attributes(haml_buffer.html?,
-                                                      haml_buffer.options[:attr_wrapper], attributes)
+                                                      haml_buffer.options[:attr_wrapper],
+                                                      haml_buffer.options[:escape_html],
+                                                      attributes)
       if text.nil? && block.nil?
         puts "<#{name}#{attributes} />"
         return nil

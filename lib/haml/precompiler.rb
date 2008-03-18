@@ -202,6 +202,7 @@ END
       when ELEMENT; render_tag(text)
       when COMMENT; render_comment(text)
       when SANITIZE
+        return push_script(unescape_interpolation(text[3..-1].strip), false, nil, false, true) if text[1..2] == "=="
         return push_script(text[2..-1].strip, false, nil, false, true) if text[1] == SCRIPT
         push_plain text
       when SCRIPT
@@ -220,6 +221,7 @@ END
       when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
+        return push_script(unescape_interpolation(text[3..-1].strip), false) if text[1..2] == "=="
         return push_script(text[2..-1].strip, false) if text[1] == SCRIPT
         push_plain text
       when ESCAPE; push_plain text[1..-1]
@@ -461,7 +463,7 @@ END
     end
 
     # This is a class method so it can be accessed from Buffer.
-    def self.build_attributes(is_html, attr_wrapper, attributes = {})
+    def self.build_attributes(is_html, attr_wrapper, escape_html, attributes = {})
       quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
       other_quote_char = attr_wrapper == '"' ? "'" : '"'
   
@@ -485,12 +487,13 @@ END
           end
         end
         " #{attr}=#{this_attr_wrapper}#{value}#{this_attr_wrapper}"
-      end
-      result.compact.sort.join
+      end.compact.sort.join
+
+      escape_html ? Haml::Helpers.html_escape(result) : result
     end
 
-    def prerender_tag(name, self_close, attributes)
-      attributes_string = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)
+    def prerender_tag(name, self_close, escape_html, attributes)
+      attributes_string = Precompiler.build_attributes(html?, @options[:attr_wrapper], escape_html, attributes)
       "<#{name}#{attributes_string}#{self_close && xhtml? ? ' /' : ''}>"
     end
     
@@ -529,10 +532,10 @@ END
       when '&', '!'
         if value[0] == ?=
           parse = true
-          value = value[1..-1].strip
+          value = (value[1] == ?= ? unescape_interpolation(value[2..-1].strip) : value[1..-1].strip)
         end
       end
-      
+
       if parse && @options[:suppress_eval]
         parse = false
         value = ''
@@ -559,7 +562,7 @@ END
         # This means that we can render the tag directly to text and not process it in the buffer
         tag_closed = !value.empty? && one_liner && !parse
 
-        open_tag  = prerender_tag(tag_name, atomic, attributes)
+        open_tag  = prerender_tag(tag_name, atomic, escape_html, attributes)
         open_tag << "#{value}</#{tag_name}>" if tag_closed
         open_tag << "\n" unless parse
 
@@ -569,7 +572,7 @@ END
         flush_merged_text
         content = value.empty? || parse ? 'nil' : value.dump
         attributes_hash = ', ' + attributes_hash if attributes_hash
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{preserve_tag.inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{preserve_tag.inspect}, #{escape_html.inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
       end
 
       return if atomic
