@@ -325,14 +325,20 @@ END
       haml_tag(*args, &block)
     end
 
+    # Characters that need to be escaped to HTML entities from user input
+    HTML_ESCAPE = { '&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;', '"'=>'&quot;', "'"=>'&#039;', }
+
     # Returns a copy of <tt>text</tt> with ampersands, angle brackets and quotes
     # escaped into HTML entities.
     def html_escape(text)
-      text.to_s.gsub(/[&<>"]/) { |s| ESCAPE_TABLE[s] }
+      text.to_s.gsub(/[\"><&]/) { |s| HTML_ESCAPE[s] }
     end
-    # Characters that need to be escaped to HTML entities from user input
-    ESCAPE_TABLE = { '&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;', '"'=>'&quot;', "'"=>'&#039;', }
-
+    
+    # Escapes HTML entities in <tt>text</tt>, but without escaping an ampersand
+    # that is already part of an escaped entity.
+    def escape_once(text)
+      text.to_s.gsub(/[\"><]|&(?!([a-zA-Z]+|(#\d+));)/) { |s| HTML_ESCAPE[s] }
+    end
 
     private
 

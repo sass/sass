@@ -489,7 +489,7 @@ END
         " #{attr}=#{this_attr_wrapper}#{value}#{this_attr_wrapper}"
       end.compact.sort.join
 
-      escape_html ? Haml::Helpers.html_escape(result) : result
+      escape_html ? Haml::Helpers.escape_once(result) : result
     end
 
     def prerender_tag(name, self_close, escape_html, attributes)
