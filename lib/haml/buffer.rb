@@ -135,7 +135,7 @@ module Haml
         str = ">\n"
       end
 
-      attributes = Precompiler.build_attributes(html?, @options[:attr_wrapper], escape_html, attributes)
+      attributes = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)
       @buffer << "#{@options[:ugly] ? '' : tabs(tabulation)}<#{name}#{attributes}#{str}"
 
       if content

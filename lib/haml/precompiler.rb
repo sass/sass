@@ -463,7 +463,7 @@ END
     end
 
     # This is a class method so it can be accessed from Buffer.
-    def self.build_attributes(is_html, attr_wrapper, escape_html, attributes = {})
+    def self.build_attributes(is_html, attr_wrapper, attributes = {})
       quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
       other_quote_char = attr_wrapper == '"' ? "'" : '"'
   
@@ -477,7 +477,7 @@ END
           next
         end
 
-        value = value.to_s
+        value = Haml::Helpers.escape_once(value.to_s)
         this_attr_wrapper = attr_wrapper
         if value.include? attr_wrapper
           if value.include? other_quote_char
@@ -487,13 +487,12 @@ END
           end
         end
         " #{attr}=#{this_attr_wrapper}#{value}#{this_attr_wrapper}"
-      end.compact.sort.join
-
-      escape_html ? Haml::Helpers.escape_once(result) : result
+      end
+      result.compact.sort.join
     end
 
-    def prerender_tag(name, self_close, escape_html, attributes)
-      attributes_string = Precompiler.build_attributes(html?, @options[:attr_wrapper], escape_html, attributes)
+    def prerender_tag(name, self_close, attributes)
+      attributes_string = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)
       "<#{name}#{attributes_string}#{self_close && xhtml? ? ' /' : ''}>"
     end
     
@@ -562,7 +561,7 @@ END
         # This means that we can render the tag directly to text and not process it in the buffer
         tag_closed = !value.empty? && one_liner && !parse
 
-        open_tag  = prerender_tag(tag_name, atomic, escape_html, attributes)
+        open_tag  = prerender_tag(tag_name, atomic, attributes)
         open_tag << "#{value}</#{tag_name}>" if tag_closed
         open_tag << "\n" unless parse
 
