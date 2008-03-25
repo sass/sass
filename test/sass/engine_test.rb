@@ -108,7 +108,7 @@ class SassEngineTest < Test::Unit::TestCase
                  render("foo\n  bar = url(foo.png)\n"));
   end
 
-  def test_multiline_selector
+  def test_basic_multiline_selector
     assert_equal("#foo #bar,\n#baz #boom {\n  foo: bar; }\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar"))
     assert_equal("#foo #bar,\n#foo #baz {\n  foo: bar; }\n",
@@ -118,6 +118,10 @@ class SassEngineTest < Test::Unit::TestCase
                  
     assert_equal("#foo #bar,#baz #boom{foo:bar}\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compressed))
+  end
+
+  def test_complex_multiline_selector
+    renders_correctly "multiline"
   end
 
   def test_colon_only
