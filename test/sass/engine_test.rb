@@ -109,9 +109,9 @@ class SassEngineTest < Test::Unit::TestCase
   end
 
   def test_basic_multiline_selector
-    assert_equal("#foo #bar,\n#baz #boom {\n  foo: bar; }\n",
+    assert_equal("#foo #bar, #baz #boom {\n  foo: bar; }\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar"))
-    assert_equal("#foo #bar,\n#foo #baz {\n  foo: bar; }\n",
+    assert_equal("#foo #bar, #foo #baz {\n  foo: bar; }\n",
                  render("#foo\n  #bar,\n  #baz\n    :foo bar"))
     assert_equal("#foo #bar, #baz #boom { foo: bar; }\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compact))
@@ -179,11 +179,11 @@ class SassEngineTest < Test::Unit::TestCase
     assert_equal("@a{#b{a:b}#b #c{d:e}}\n",
                  render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :compressed))
                  
-    assert_equal("@a {\n  #foo,\n  #bar {\n    b: c; } }\n",
+    assert_equal("@a {\n  #foo, #bar {\n    b: c; } }\n",
                  render("@a\n  #foo, \n  #bar\n    :b c"))
     assert_equal("@a { #foo, #bar { b: c; } }\n",
                  render("@a\n  #foo, \n  #bar\n    :b c", :style => :compact))
-    assert_equal("@a {\n  #foo,\n  #bar {\n    b: c;\n  }\n}\n",
+    assert_equal("@a {\n  #foo, #bar {\n    b: c;\n  }\n}\n",
                  render("@a\n  #foo, \n  #bar\n    :b c", :style => :expanded))
     assert_equal("@a{#foo,#bar{b:c}}\n",
                  render("@a\n  #foo, \n  #bar\n    :b c", :style => :compressed))

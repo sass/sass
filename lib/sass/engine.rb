@@ -138,6 +138,15 @@ module Sass
           if tabs - old_tabs > 1
             raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line)
           end
+          line.strip!
+          next_line = @template[index+1]
+          if next_line
+            next_tabs = count_tabs(next_line)
+            if line[-1] == ?, && tabs == next_tabs
+              @template[index+1] = "#{'  '*tabs}#{line} #{next_line.strip}"
+              next
+            end
+          end
           @lines << [line.strip, tabs]
 
           old_tabs = tabs

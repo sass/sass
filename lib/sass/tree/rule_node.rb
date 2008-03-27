@@ -20,20 +20,22 @@ module Sass::Tree
       # Save this because the comma's removed by the super_rule additions
       was_continued = continued?
 
+      rule_split = /\s*,\s*/
+      rule_separator = @style == :compressed ? ',' : ', '
       total_rule = if super_rules
-        super_rules.split(/,\s*/).collect! do |s|
-          self.rule.split(/,\s*/).collect do |r|
+        super_rules.split(rule_split).collect! do |s|
+          self.rule.split(rule_split).collect do |r|
             if r.include?(PARENT)
               r.gsub(PARENT, s)
             else
               "#{s} #{r}"
             end
-          end.join(", ")
-        end.join(", ") + (was_continued ? ',' : '')
+          end.join(rule_separator)
+        end.join(rule_separator) + (was_continued ? rule_separator: "")
       elsif self.rule.include?(PARENT)
         raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'", line)
       else
-        self.rule
+        self.rule.gsub(rule_split, rule_separator)
       end
       
       children.each do |child|
