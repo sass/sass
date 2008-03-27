@@ -113,7 +113,7 @@ module Sass
           end
         end
       end
-      @line = nil
+      @lines.clear
 
       root
     end

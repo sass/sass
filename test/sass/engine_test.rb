@@ -52,6 +52,11 @@ class SassEngineTest < Test::Unit::TestCase
     renders_correctly "basic", { :style => :compact }
   end
 
+  def test_multiple_calls_to_render
+    sass = Sass::Engine.new("a\n  b: c")
+    assert_equal sass.render, sass.render
+  end
+
   def test_alternate_styles
     renders_correctly "expanded", { :style => :expanded }
     renders_correctly "compact", { :style => :compact }
