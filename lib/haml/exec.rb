@@ -170,7 +170,7 @@ END
         super
 
         opts.on('-t', '--style NAME',
-                'Output style. Can be nested (default), compact, or expanded.') do |name|
+                'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
         end
       end
