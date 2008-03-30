@@ -15,11 +15,6 @@ module Sass::Tree
         was_attr = false
         first = true
         children.each do |child|
-          if child.is_a?(RuleNode) && child.continued?
-            check_multiline_rule(child)
-            continued_rule = true
-          end
-
           if @style == :compact
             if child.is_a?(AttrNode)
               result << "#{child.to_s(first || was_attr ? 1 : tabs + 1)} "
@@ -32,12 +27,12 @@ module Sass::Tree
               result << rendered
             end
             was_attr = child.is_a?(AttrNode)
-            first = continued_rule
+            first = false
           elsif @style == :compressed
             result << (was_attr ? ";#{child.to_s(1)}" : child.to_s(1))
             was_attr = child.is_a?(AttrNode)
           else
-            result << child.to_s(tabs + 1) + (continued_rule ? '' : "\n")
+            result << child.to_s(tabs + 1) + "\n"
           end
         end
         result.rstrip + if @style == :compressed
