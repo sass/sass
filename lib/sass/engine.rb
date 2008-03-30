@@ -138,15 +138,6 @@ module Sass
           if tabs - old_tabs > 1
             raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line)
           end
-          line.strip!
-          next_line = @template[index+1]
-          if next_line
-            next_tabs = count_tabs(next_line)
-            if line[-1] == ?, && tabs == next_tabs
-              @template[index+1] = "#{'  '*tabs}#{line} #{next_line.strip}"
-              next
-            end
-          end
           @lines << [line.strip, tabs]
 
           old_tabs = tabs
@@ -202,21 +193,38 @@ module Sass
 
           has_children = has_children?(index, tabs)
         end
-      else
-        while has_children
-          child, index = build_tree(index)
 
-          if child == :constant
-            raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
-          elsif child.is_a? Array
-            raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
-          elsif child.is_a? Tree::Node
-            child.line = @line
-            node << child
+        return node, index
+      end
+
+      # Resolve multiline rules
+      if node.is_a?(Tree::RuleNode)
+        continued = node.continued?
+        while continued
+          child, index = build_tree(index) if @lines[old_index = index]
+          if @lines[old_index].nil? || has_children?(old_index, tabs) || !child.is_a?(Tree::RuleNode)
+            raise SyntaxError.new("Rules can't end in commas.", @line)
           end
 
-          has_children = has_children?(index, tabs)
+          node.add_rule child
+          continued = child.continued?
         end
+        node.children = child.children if child
+      end
+
+      while has_children
+        child, index = build_tree(index)
+
+        if child == :constant
+          raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
+        elsif child.is_a? Array
+          raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
+        elsif child.is_a? Tree::Node
+          child.line = @line
+          node << child
+        end
+
+        has_children = has_children?(index, tabs)
       end
 
       return node, index
