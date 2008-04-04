@@ -231,6 +231,35 @@ becomes:
 A comprehensive list of features is in
 the documentation for the Sass module.
 
+== Executables
+
+The Haml gem includes several executables that are useful
+for dealing with Haml and Sass from the command line.
+
+=== +haml+
+
+The +haml+ executable transforms a source Haml file into HTML.
+See <tt>haml --help</tt> for further information and options.
+
+=== +sass+
+
+The +sass+ executable transforms a source Sass file into CSS.
+See <tt>sass --help</tt> for further information and options.
+
+=== <tt>html2haml</tt>
+
+The <tt>html2haml</tt> executable attempts to transform HTML,
+optionally with ERB markup, into Haml code.
+Since HTML is so variable, this transformation is not always perfect;
+it's a good idea to have a human check the output of this tool.
+See <tt>html2haml --help</tt> for further information and options.
+
+=== <tt>css2sass</tt>
+
+The <tt>css2sass</tt> executable attempts to transform CSS into Sass code.
+This transformation attempts to use Sass nesting where possible.
+See <tt>css2sass --help</tt> for further information and options.
+
 == Authors
 
 Haml and Sass are designed by Hampton Catlin (hcatlin) and he is the author
