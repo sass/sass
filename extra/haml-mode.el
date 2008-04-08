@@ -7,10 +7,10 @@
 ;;; functions are similar to those in yaml-mode and python-mode.
 
 ;;; To install, save this somewhere and add the following to your .emacs file:
-;;; 
+;;;
 ;;; (add-to-list 'load-path "/path/to/haml-mode.el")
 ;;; (require 'haml-mode nil 't)
-;;; 
+;;;
 
 ;;; Code:
 

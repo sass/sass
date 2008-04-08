@@ -13,7 +13,7 @@ class Sass::Constant::Literal # :nodoc:
 
   # The regular expression matching colors.
   COLOR = /^\# (?: [\da-f]{3} | [\da-f]{6} ) | #{html_color_matcher}/ix
-  
+
   def self.parse(value)
     case value
     when NUMBER
@@ -24,11 +24,11 @@ class Sass::Constant::Literal # :nodoc:
       Sass::Constant::String.new(value)
     end
   end
-  
+
   def initialize(value = nil)
     self.parse(value) if value
   end
-  
+
   def perform
     self
   end
@@ -36,15 +36,15 @@ class Sass::Constant::Literal # :nodoc:
   def concat(other)
     Sass::Constant::String.from_value("#{self.to_s} #{other.to_s}")
   end
-  
+
   attr_reader :value
-  
+
   protected
-  
+
   def self.filter_value(value)
     value
   end
-  
+
   def self.from_value(value)
     instance = self.new
     instance.instance_variable_set('@value', self.filter_value(value))

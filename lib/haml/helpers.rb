@@ -35,7 +35,7 @@ module Haml
     #   end
     #   context.init_haml_helpers
     #   context.haml_tag :p, "Stuff"
-    # 
+    #
     def init_haml_helpers
       @haml_is_haml = true
       @haml_stack = [Haml::Buffer.new(Haml::Engine.new('').send(:options_for_buffer))]
@@ -45,7 +45,7 @@ module Haml
     # call-seq:
     #   find_and_preserve(input)
     #   find_and_preserve {...}
-    #   
+    #
     # Isolates the whitespace-sensitive tags in the string and uses preserve
     # to convert any endlines inside them into HTML entities for endlines.
     def find_and_preserve(input = '', &block)
@@ -107,14 +107,14 @@ module Haml
     def list_of(array, &block) # :yields: item
       to_return = array.collect do |i|
         result = capture_haml(i, &block)
-        
+
         if result.count("\n") > 1
           result.gsub!("\n", "\n  ")
           result = "\n  #{result.strip}\n"
         else
           result.strip!
         end
-        
+
         "<li>#{result}</li>"
       end
       to_return.join("\n")
@@ -163,7 +163,7 @@ module Haml
     def tab_down(i = 1)
       haml_buffer.tabulation -= i
     end
-    
+
     # Surrounds the given block of Haml code with the given characters,
     # with no whitespace in between.
     # For example:
@@ -187,10 +187,10 @@ module Haml
     def surround(front, back = nil, &block)
       back ||= front
       output = capture_haml(&block)
-      
+
       "#{front}#{output.chomp}#{back}\n"
     end
-    
+
     # Prepends the given character to the beginning of the Haml block,
     # with no whitespace between.
     # For example:
@@ -205,7 +205,7 @@ module Haml
     def precede(char, &block)
       "#{char}#{capture_haml(&block).chomp}\n"
     end
-    
+
     # Appends the given character to the end of the Haml block,
     # with no whitespace between.
     # For example:
@@ -222,7 +222,7 @@ module Haml
     def succeed(char, &block)
       "#{capture_haml(&block).chomp}#{char}\n"
     end
-    
+
     # Captures the result of the given block of Haml code,
     # gets rid of the excess indentation,
     # and returns it as a string.
@@ -254,7 +254,7 @@ module Haml
     # between when the opening and closing tags are output.
     # If the block is a Haml block or outputs text using puts,
     # the text will be properly indented.
-    # 
+    #
     # For example,
     #
     #   haml_tag :table do
@@ -331,7 +331,7 @@ END
     def html_escape(text)
       text.to_s.gsub(/[><&]/) { |s| HTML_ESCAPE[s] }
     end
-    
+
     # Escapes HTML entities in <tt>text</tt>, but without escaping an ampersand
     # that is already part of an escaped entity.
     def escape_once(text)
@@ -344,7 +344,7 @@ END
     def haml_buffer
       @haml_stack[-1]
     end
-    
+
     # Gives a proc the same local "_hamlout" and "_erbout" variables
     # that the current template has.
     def haml_bind_proc(&proc)
@@ -352,23 +352,23 @@ END
       _erbout = _hamlout.buffer
       proc { |*args| proc.call(*args) }
     end
-    
+
     # Performs the function of capture_haml, assuming <tt>local_buffer</tt>
     # is where the output of block goes.
     def capture_haml_with_buffer(local_buffer, *args, &block)
       position = local_buffer.length
-      
+
       block.call *args
-      
+
       captured = local_buffer.slice!(position..-1)
-      
+
       min_tabs = nil
       captured.each do |line|
         tabs = line.index(/[^ ]/)
         min_tabs ||= tabs
         min_tabs = min_tabs > tabs ? tabs : min_tabs
       end
-      
+
       result = captured.map do |line|
         line[min_tabs..-1]
       end
@@ -376,7 +376,7 @@ END
     end
 
     # Returns whether or not the current template is a Haml template.
-    # 
+    #
     # This function, unlike other Haml::Helpers functions,
     # also works in other ActionView templates,
     # where it will always return false.

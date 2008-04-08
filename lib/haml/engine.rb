@@ -116,7 +116,7 @@ END
     # If it's a Binding or Proc object,
     # Haml uses it as the second argument to Kernel#eval;
     # otherwise, Haml just uses its #instance_eval context.
-    # 
+    #
     # Note that Haml modifies the evaluation context
     # (either the scope object or the "self" object of the scope binding).
     # It extends Haml::Helpers, and various instance variables are set
@@ -225,7 +225,7 @@ END
     #
     #   Haml::Engine.new(".upcased= upcase").def_method(String, :upcased_div)
     #   "foobar".upcased_div #=> "<div class='upcased'>FOOBAR</div>\n"
-    # 
+    #
     # The first argument of the defined method is a hash of local variable names to values.
     # However, due to an unfortunate Ruby quirk,
     # the local variables which can be assigned must be pre-declared.
@@ -241,7 +241,7 @@ END
     #   obj = Object.new
     #   Haml::Engine.new("%p= foo").def_method(obj, :render)
     #   obj.render(:foo => "Hello!") #=> NameError: undefined local variable or method `foo'
-    # 
+    #
     # Note that Haml modifies the evaluation context
     # (either the scope object or the "self" object of the scope binding).
     # It extends Haml::Helpers, and various instance variables are set

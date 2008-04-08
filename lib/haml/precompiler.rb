@@ -180,7 +180,7 @@ END
       close until @to_close_stack.empty?
       flush_merged_text
     end
-        
+
     # Processes and deals with lowering indentation.
     def process_indent(line)
       return unless line.tabs <= @template_tabs && @template_tabs > 0
@@ -228,7 +228,7 @@ END
       else push_plain text
       end
     end
-    
+
     # Returns whether or not the text is a silent script text with one
     # of Ruby's mid-block keywords.
     def mid_block_keyword?(text)
@@ -248,7 +248,7 @@ END
         @multiline.text << text[0...-1]
         return true
       end
-      
+
       # A multiline string has just been activated, start adding the lines
       if is_multiline?(text) && (MULTILINE_STARTERS.include? text[0])
         @multiline = Line.new text[0...-1], nil, line.index, nil, line.tabs
@@ -273,7 +273,7 @@ END
     # Evaluates <tt>text</tt> in the context of the scope object, but
     # does not output the result.
     def push_silent(text, can_suppress = false)
-      flush_merged_text      
+      flush_merged_text
       return if can_suppress && options[:suppress_eval]
       @precompiled << "#{text};"
     end
@@ -291,11 +291,11 @@ END
       @merged_text  << text
       @try_one_liner = false
     end
-    
+
     def push_text(text, tab_change = 0, try_one_liner = false)
       push_merged_text("#{text}\n", tab_change, try_one_liner)
     end
-    
+
     def flush_merged_text
       return if @merged_text.empty?
 
@@ -305,7 +305,7 @@ END
       @merged_text   = ''
       @tab_change    = 0
       @try_one_liner = false
-    end  
+    end
 
     # Renders a block of text as plain text.
     # Also checks for an illegally opened block.
@@ -343,12 +343,12 @@ END
         @precompiled << out
       end
     end
-    
+
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
     def push_flat_script(text)
       flush_merged_text
-      
+
       raise SyntaxError.new("Tag has no content.") if text.empty?
       push_script(text, true)
     end
@@ -394,7 +394,7 @@ END
       close_tag = has_conditional ? "<![endif]-->" : "-->"
       push_text(close_tag, -1)
     end
-    
+
     # Closes a loud Ruby block.
     def close_loud(command)
       push_silent 'end', true
@@ -414,7 +414,7 @@ END
       @haml_comment = false
       @template_tabs -= 1
     end
-    
+
     # Iterates through the classes and ids supplied through <tt>.</tt>
     # and <tt>#</tt> syntax, and returns a hash with them as attributes,
     # that can then be merged with another attributes hash.
@@ -443,8 +443,8 @@ END
       # $5 holds the value matched by a string
       $2 || $5
     end
-    
-    def parse_static_hash(text)  
+
+    def parse_static_hash(text)
       return {} unless text
 
       attributes = {}
@@ -466,7 +466,7 @@ END
     def self.build_attributes(is_html, attr_wrapper, attributes = {})
       quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
       other_quote_char = attr_wrapper == '"' ? "'" : '"'
-  
+
       result = attributes.collect do |attr, value|
         next if value.nil?
 
@@ -495,7 +495,7 @@ END
       attributes_string = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)
       "<#{name}#{attributes_string}#{self_close && xhtml? ? ' /' : ''}>"
     end
-    
+
     # Parses a line into tag_name, attributes, attributes_hash, object_ref, action, value
     def parse_tag(line)
       raise SyntaxError.new("Invalid tag: \"#{line}\"") unless match = line.scan(/[%]([-:\w]+)([-\w\.\#]*)(.*)/)[0]
@@ -517,7 +517,7 @@ END
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
       tag_name, attributes, attributes_hash, object_ref, action, value = parse_tag(line)
-      
+
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
       preserve_tag = options[:preserve].include?(tag_name)
@@ -581,7 +581,7 @@ END
         @output_tabs += 1
         return
       end
-      
+
       if parse
         flush_merged_text
         push_script(value, preserve_script, tag_name, preserve_tag, escape_html)
@@ -599,13 +599,13 @@ END
       conditional, content = line.scan(COMMENT_REGEX)[0]
       content.strip!
       conditional << ">" if conditional
-      
+
       if @block_opened && !content.empty?
         raise SyntaxError.new('Illegal Nesting: Nesting within a tag that already has content is illegal.')
       end
 
       open = "<!--#{conditional} "
-      
+
       # Render it statically if possible
       if !content.empty? && Buffer.one_liner?(content)
         return push_text("#{open}#{content} #{conditional ? "<![endif]-->" : "-->"}")
@@ -619,7 +619,7 @@ END
         close
       end
     end
-    
+
     # Renders an XHTML doctype or XML shebang.
     def render_doctype(line)
       raise SyntaxError.new("Illegal Nesting: Nesting within a header command is illegal.") if @block_opened
@@ -639,7 +639,7 @@ END
         '<!DOCTYPE html>'
       else
         version, type = text.scan(DOCTYPE_REGEX)[0]
-        
+
         if xhtml?
           if version == "1.1"
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
@@ -660,7 +660,7 @@ END
         end
       end
     end
-    
+
     # Starts a filtered block.
     def start_filtered(name)
       raise SyntaxError.new('Filters must have nested text.') unless @block_opened
@@ -723,7 +723,7 @@ END
       end
       [spaces, spaces/2]
     end
-    
+
     # Pushes value onto <tt>@to_close_stack</tt> and increases
     # <tt>@template_tabs</tt>.
     def push_and_tabulate(value)

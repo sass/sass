@@ -31,7 +31,7 @@ if defined?(ActionView)
         #
         #   .entry
         #     :color #00f
-        # 
+        #
         def page_class
           controller.controller_name + " " + controller.action_name
         end

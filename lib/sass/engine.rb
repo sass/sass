@@ -39,7 +39,7 @@ module Sass
 
     # The character used to denote a compiler directive.
     DIRECTIVE_CHAR = ?@
-    
+
     # Designates a non-parsed rule.
     ESCAPE_CHAR    = ?\\
 

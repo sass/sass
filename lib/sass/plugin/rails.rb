@@ -5,7 +5,7 @@ unless defined?(Sass::RAILS_LOADED)
                               :css_location       => RAILS_ROOT + '/public/stylesheets',
                               :always_check       => RAILS_ENV != "production",
                               :full_exception     => RAILS_ENV != "production")
-  
+
   # :stopdoc:
   module ActionController
     class Base

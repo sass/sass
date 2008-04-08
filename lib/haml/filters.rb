@@ -93,7 +93,7 @@ module Haml
       #
       #     ...
       #   end
-      # 
+      #
       def lazy_require(*reqs)
         @lazy_requires = reqs
       end
@@ -110,7 +110,7 @@ module Haml
             return
           rescue LoadError; end # RCov doesn't see this, but it is run
         end
-       
+
         begin
           @required = @lazy_requires[-1]
           require @required
@@ -210,7 +210,7 @@ END
         precompiler.send(:push_silent, src)
       end
     end
-    
+
     module RedCloth
       include Base
       lazy_require 'redcloth'
@@ -219,7 +219,7 @@ END
         ::RedCloth.new(text).to_html
       end
     end
-      
+
     # Uses RedCloth to provide only Textile (not Markdown) parsing
     module Textile
       include Base
