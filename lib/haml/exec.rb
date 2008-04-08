@@ -21,7 +21,7 @@ module Haml
           @opts.parse!(@args)
 
           process_result
-          
+
           @options
         rescue Exception => e
           raise e if e.is_a? SystemExit
@@ -45,7 +45,7 @@ module Haml
       def get_line(exception)
         exception.backtrace[0].scan(/:(\d+)/)[0]
       end
-      
+
       private
 
       def set_opts(opts)
@@ -110,7 +110,7 @@ Description:
 
 Options:
 END
-       
+
         opts.on('--rails RAILS_DIR', "Install Haml and Sass from the Gem to a Rails project") do |dir|
           original_dir = dir
 

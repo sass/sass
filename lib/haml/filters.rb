@@ -59,7 +59,7 @@ module Haml
             return
           rescue LoadError; end # RCov doesn't see this, but it is run
         end
-       
+
         begin
           @required = reqs[-1]
           require @required
@@ -74,7 +74,7 @@ module Haml
         end
       end
     end
-    
+
     class RedCloth < LazyLoaded
       def initialize(text)
         super('redcloth')
@@ -85,7 +85,7 @@ module Haml
         @engine.to_html
       end
     end
-      
+
     # Uses RedCloth to provide only Textile (not Markdown) parsing
     class Textile < RedCloth
       def render

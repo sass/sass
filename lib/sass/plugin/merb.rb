@@ -15,13 +15,13 @@ unless defined?(Sass::MERB_LOADED)
                               :always_check       => env != "production",
                               :full_exception     => env != "production")
   config = Merb::Plugins.config[:sass] || Merb::Plugins.config["sass"] || {}
-  
+
   if defined? config.symbolize_keys!
     config.symbolize_keys!
   end
 
   Sass::Plugin.options.merge!(config)
-  
+
   if version[0] > 0 || version[1] >= 9
 
     class Merb::Rack::Application # :nodoc:

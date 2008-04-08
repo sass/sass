@@ -67,7 +67,7 @@ a tag without a name defaults to a div. So
 becomes
 
   <div id='foo'>Hello!</div>
-  
+
 Haml uses indentation
 to bring the individual elements to represent the HTML structure.
 A tag's children are indented two spaces more than the parent tag.
@@ -264,8 +264,8 @@ See <tt>css2sass --help</tt> for further information and options.
 
 Haml and Sass are designed by Hampton Catlin (hcatlin) and he is the author
 of the original implementation. However, Hampton doesn't even know his way
-around the code anymore and mostly just concentrates on the language issues. 
-Hampton lives in Toronto, Ontario (though he's an American by birth) and 
+around the code anymore and mostly just concentrates on the language issues.
+Hampton lives in Toronto, Ontario (though he's an American by birth) and
 is a partner at Unspace Interactive.
 
 Nathan Weizenbaum is the primary maintainer and architect of the "modern" Ruby

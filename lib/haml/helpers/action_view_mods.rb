@@ -66,7 +66,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       module FormHelper
         def form_for_with_haml(object_name, *args, &proc)
           if block_given? && is_haml?
-            oldproc = proc 
+            oldproc = proc
             proc = haml_bind_proc do |*args|
               tab_up
               oldproc.call(*args)

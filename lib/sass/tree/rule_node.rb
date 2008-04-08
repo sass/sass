@@ -21,7 +21,7 @@ module Sass::Tree
     def continued?
       rule[-1] == ?,
     end
-    
+
     def to_s(tabs, super_rules = nil)
       attributes = []
       sub_rules = []
@@ -52,7 +52,7 @@ module Sass::Tree
           per_rule_indent + r.gsub(/,$/, '').gsub(rule_split, rule_separator).rstrip
         end.join(line_separator)
       end
-      
+
       children.each do |child|
         if child.is_a? RuleNode
           sub_rules << child
@@ -60,7 +60,7 @@ module Sass::Tree
           attributes << child
         end
       end
-      
+
       to_return = ''
       if !attributes.empty?
         old_spaces = '  ' * (tabs - 1)
@@ -77,7 +77,7 @@ module Sass::Tree
           to_return << "#{total_rule} {\n#{attributes}#{end_attrs}}\n"
         end
       end
-      
+
       tabs += 1 unless attributes.empty? || @style != :nested
       sub_rules.each do |sub|
         to_return << sub.to_s(tabs, total_rule)

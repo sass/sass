@@ -59,7 +59,7 @@ module Haml
           String.new
         else
           lines = text.split("\n")
-          
+
           lines.map do |line|
             line.strip!
             "#{tabulate(tabs)}#{'\\' if Haml::Engine::SPECIAL_CHARACTERS.include?(line[0])}#{line}\n"
@@ -73,7 +73,7 @@ module Haml
     def self.options
       @@options
     end
-    
+
     TEXT_REGEXP = /^(\s*).*$/
 
     class ::Hpricot::Doc
@@ -129,14 +129,14 @@ module Haml
 
     class ::Hpricot::Elem
       def to_haml(tabs = 0)
-        output = "#{tabulate(tabs)}"        
+        output = "#{tabulate(tabs)}"
         if HTML.options[:rhtml] && name[0...5] == 'haml:'
           return output + HTML.send("haml_tag_#{name[5..-1]}",
                                     CGI.unescapeHTML(self.innerHTML))
         end
 
         output += "%#{name}" unless name == 'div' && (attributes.include?('id') || attributes.include?('class'))
-        
+
         if attributes
           output += "##{attributes['id']}" if attributes['id']
           attributes['class'].split(' ').each { |c| output += ".#{c}" } if attributes['class']
@@ -144,10 +144,10 @@ module Haml
           remove_attribute('class')
           output += haml_attributes if attributes.length > 0
         end
-        
+
         output += "/" if children.length == 0
         output += "\n"
-        
+
         self.children.each do |child|
           output += child.to_haml(tabs + 1)
         end

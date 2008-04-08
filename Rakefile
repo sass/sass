@@ -68,7 +68,7 @@ END
       but it can function as a stand-alone templating engine.
     END
     #'
-    
+
     readmes = FileList.new('*') do |list|
       list.exclude(/(^|[^.a-z])[a-z]+/)
       list.exclude('TODO')
@@ -133,7 +133,7 @@ END
     rdoc.rdoc_dir = 'rdoc_devel'
     rdoc.options << '--all'
     rdoc.rdoc_files.include('test/*.rb')
-    
+
     # Get rid of exclusion rules
     rdoc.rdoc_files = Rake::FileList.new(*rdoc.rdoc_files.to_a)
     rdoc.rdoc_files.include('lib/haml/buffer.rb')
@@ -167,17 +167,17 @@ END
     require 'test/profile'
 
     engine = ENV['ENGINE'] && ENV['ENGINE'].downcase == 'sass' ? Sass : Haml
-    
+
     puts '-'*51, "Profiling #{engine}", '-'*51
-    
+
     args = []
     args.push ENV['TIMES'].to_i if ENV['TIMES']
     args.push ENV['FILE'] if ENV['FILE']
-    
+
     profiler = engine::Profiler.new
     res = profiler.profile(*args)
     puts res
-    
+
     puts '-'*51
   end
 

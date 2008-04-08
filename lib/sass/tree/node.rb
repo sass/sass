@@ -16,7 +16,7 @@ module Sass
         end
         @children << child
       end
-      
+
       def to_s
         result = String.new
         children.each do |child|

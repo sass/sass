@@ -7,10 +7,10 @@
 ;;; functions are similar to those in yaml-mode and python-mode.
 
 ;;; To install, save this somewhere and add the following to your .emacs file:
-;;; 
+;;;
 ;;; (add-to-list 'load-path "/path/to/sass-mode.el")
 ;;; (require 'sass-mode nil 't)
-;;; 
+;;;
 
 ;;; Code:
 

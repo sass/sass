@@ -21,9 +21,9 @@ module Sass::Constant # :nodoc:
       'teal'    => 0x008080,
       'aqua'    => 0x00ffff
     }
-  
+
     REGEXP = /\##{"([0-9a-fA-F]{1,2})" * 3}/
-  
+
     def parse(value)
       if (value =~ REGEXP)
         @value = value.scan(REGEXP)[0].map { |num| num.ljust(2, num).to_i(16) }
@@ -32,7 +32,7 @@ module Sass::Constant # :nodoc:
         @value = (0..2).map{ |n| color >> (n << 3) & 0xff }.reverse
       end
     end
-    
+
     def plus(other)
       if other.is_a? Sass::Constant::String
         Sass::Constant::String.from_value(self.to_s + other.to_s)
@@ -40,7 +40,7 @@ module Sass::Constant # :nodoc:
         piecewise(other, :+)
       end
     end
-    
+
     def minus(other)
       if other.is_a? Sass::Constant::String
         raise NoMethodError.new(nil, :minus)
@@ -48,7 +48,7 @@ module Sass::Constant # :nodoc:
         piecewise(other, :-)
       end
     end
-    
+
     def times(other)
       if other.is_a? Sass::Constant::String
         raise NoMethodError.new(nil, :times)
@@ -56,7 +56,7 @@ module Sass::Constant # :nodoc:
         piecewise(other, :*)
       end
     end
-    
+
     def div(other)
       if other.is_a? Sass::Constant::String
         raise NoMethodError.new(nil, :div)
@@ -64,7 +64,7 @@ module Sass::Constant # :nodoc:
         piecewise(other, :/)
       end
     end
-    
+
     def mod(other)
       if other.is_a? Sass::Constant::String
         raise NoMethodError.new(nil, :mod)
@@ -72,24 +72,24 @@ module Sass::Constant # :nodoc:
         piecewise(other, :%)
       end
     end
-    
+
     def to_s
       red, green, blue = @value.map { |num| num.to_s(16).rjust(2, '0') }
       "##{red}#{green}#{blue}"
     end
-    
+
     protected
-    
+
     def self.filter_value(value)
       value.map { |num| num.to_i }
     end
-    
+
     private
-    
+
     def piecewise(other, operation)
       other_num = other.is_a? Number
       other_val = other.value
-    
+
       rgb = []
       for i in (0...3)
         res = @value[i].send(operation, other_num ? other_val : other_val[i])

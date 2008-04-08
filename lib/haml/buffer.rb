@@ -49,7 +49,7 @@ module Haml
         # Have to push every line in by the extra user set tabulation
         text.gsub!(/^/m, '  ' * @tabulation)
       end
-      
+
       @buffer << "#{text}"
       @real_tabs += tab_change
     end
@@ -58,17 +58,17 @@ module Haml
     # instance_eval.
     def push_script(result, flattened, close_tag = nil)
       tabulation = @real_tabs
-      
+
       if flattened
         result = Haml::Helpers.find_and_preserve(result)
       end
-      
+
       result = result.to_s
       while result[-1] == ?\n
         # String#chomp is slow
         result = result[0...-1]
       end
-      
+
       if close_tag && Buffer.one_liner?(result)
         @buffer << result
         @buffer << "</#{close_tag}>\n"
@@ -77,10 +77,10 @@ module Haml
         if close_tag
           @buffer << "\n"
         end
-        
+
         result = result.gsub(/^/m, tabs(tabulation))
         @buffer << "#{result}\n"
-        
+
         if close_tag
           @buffer << "#{tabs(tabulation-1)}</#{close_tag}>\n"
           @real_tabs -= 1
@@ -93,7 +93,7 @@ module Haml
     # element, formats it, and adds it to the buffer.
     def open_tag(name, atomic, try_one_line, class_id, obj_ref, content, *attributes_hashes)
       tabulation = @real_tabs
-      
+
       attributes = class_id
       attributes_hashes.each do |attributes_hash|
         attributes_hash.keys.each { |key| attributes_hash[key.to_s] = attributes_hash.delete(key) }

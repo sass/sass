@@ -9,13 +9,13 @@ module Sass::Constant # :nodoc:
       @operand2 = operand2
       @operator = operator
     end
-    
+
     def to_s
       self.perform.to_s
     end
-    
+
     protected
-    
+
     def perform
       literal1 = @operand1.perform
       literal2 = @operand2.perform

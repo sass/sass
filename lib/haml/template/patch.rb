@@ -26,7 +26,7 @@ module ActionView
     def compile_haml(template, file_name, local_assigns)
       render_symbol = assign_method_name(:haml, template, file_name)
       locals = local_assigns.keys
-      
+
       @@template_args[render_symbol] ||= {}
       locals_keys = @@template_args[render_symbol].keys | locals
       @@template_args[render_symbol] = locals_keys.inject({}) { |h, k| h[k] = true; h }

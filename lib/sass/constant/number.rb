@@ -10,7 +10,7 @@ module Sass::Constant  # :nodoc:
       @value = first.empty? ? second.to_i : "#{first}#{second}".to_f
       @unit = unit unless unit.empty?
     end
-    
+
     def plus(other)
       if other.is_a? Number
         operate(other, :+)
@@ -20,7 +20,7 @@ module Sass::Constant  # :nodoc:
         Sass::Constant::String.from_value(self.to_s + other.to_s)
       end
     end
-    
+
     def minus(other)
       if other.is_a? Number
         operate(other, :-)
@@ -28,7 +28,7 @@ module Sass::Constant  # :nodoc:
         raise NoMethodError.new(nil, :minus)
       end
     end
-    
+
     def times(other)
       if other.is_a? Number
         operate(other, :*)
@@ -38,7 +38,7 @@ module Sass::Constant  # :nodoc:
         raise NoMethodError.new(nil, :times)
       end
     end
-    
+
     def div(other)
       if other.is_a? Number
         operate(other, :/)
@@ -46,7 +46,7 @@ module Sass::Constant  # :nodoc:
         raise NoMethodError.new(nil, :div)
       end
     end
-    
+
     def mod(other)
       if other.is_a? Number
         operate(other, :%)
@@ -54,13 +54,13 @@ module Sass::Constant  # :nodoc:
         raise NoMethodError.new(nil, :mod)
       end
     end
-    
+
     def to_s
       value = @value
       value = value.to_i if value % 1 == 0.0
       "#{value}#{@unit}"
     end
-    
+
     protected
 
     def self.from_value(value, unit=nil)
@@ -68,7 +68,7 @@ module Sass::Constant  # :nodoc:
       instance.instance_variable_set('@unit', unit)
       instance
     end
-    
+
     def operate(other, operation)
       unit = nil
       if other.unit.nil?

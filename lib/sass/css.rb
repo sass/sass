@@ -105,7 +105,7 @@ module Sass
         build_tree.to_sass
       rescue Exception => err
         line = @template.string[0...@template.pos].split("\n").size
-        
+
         err.backtrace.unshift "(css):#{line}"
         raise err
       end
@@ -164,12 +164,12 @@ module Sass
         whitespace
 
         assert_match /:/
-        
+
         value = ''
         while @template.scan(/[^;\s\}]+/)
           value << @template[0] << whitespace
         end
-        
+
         assert_match /(;|(?=\}))/
         rule << Tree::AttrNode.new(name, value, nil)
       end
@@ -241,7 +241,7 @@ module Sass
     #       color: red
     #     baz
     #       color: blue
-    # 
+    #
     def nest_rules(root)
       rules = OrderedHash.new
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
@@ -271,7 +271,7 @@ module Sass
     #
     #   foo bar baz
     #     color: red
-    # 
+    #
     def flatten_rules(root)
       root.children.each { |child| flatten_rule(child) if child.is_a?(Tree::RuleNode) }
     end

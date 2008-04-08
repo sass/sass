@@ -13,7 +13,7 @@ module Haml
     def compilable?
       true
     end
- 
+
     def line_offset
       self.class.line_offset
     end
@@ -26,13 +26,13 @@ module Haml
       options = Haml::Template.options.dup
       Haml::Engine.new(template, options).send(:precompiled_with_ambles, [])
     end
-   
+
     def cache_fragment(block, name = {}, options = nil)
       @view.fragment_for(block, name, options) do
         eval("_hamlout.buffer", block.binding)
       end
     end
-   
+
     def read_template_file(template_path, extension)
       File.read(template_path)
     end
