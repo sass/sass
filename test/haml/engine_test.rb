@@ -234,6 +234,14 @@ class EngineTest < Test::Unit::TestCase
     foo[0] = Struct.new('Foo', :id).new
     assert_equal("<p class='struct_foo' id='struct_foo_new'>New User]</p>\n",
                  render("%p[foo[0]] New User]", :locals => {:foo => foo}))
+    assert_equal("<p class='prefix_struct_foo' id='prefix_struct_foo_new'>New User]</p>\n",
+                 render("%p[foo[0], :prefix] New User]", :locals => {:foo => foo}))
+
+    foo[0].id = 1
+    assert_equal("<p class='struct_foo' id='struct_foo_1'>New User]</p>\n",
+                 render("%p[foo[0]] New User]", :locals => {:foo => foo}))
+    assert_equal("<p class='prefix_struct_foo' id='prefix_struct_foo_1'>New User]</p>\n",
+                 render("%p[foo[0], :prefix] New User]", :locals => {:foo => foo}))
   end
   
   def test_empty_attrs
