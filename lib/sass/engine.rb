@@ -43,6 +43,12 @@ module Sass
     # Designates a non-parsed rule.
     ESCAPE_CHAR    = ?\\
 
+    # Designates block as mixin definition rather than CSS rules to output
+    MIXIN_DEFINITION_CHAR = ?-
+
+    # Includes named mixin declared using MIXIN_DEFINITION_CHAR
+    MIXIN_INCLUDE_CHAR    = ?+
+
     # The regex that matches and extracts data from
     # attributes of the form <tt>:name attr</tt>.
     ATTRIBUTE = /^:([^\s=:]+)\s*(=?)(?:\s+|$)(.*)/
@@ -74,6 +80,7 @@ module Sass
       @template = template.split(/\n?\r|\r?\n/)
       @lines = []
       @constants = {"important" => "!important"}
+      @mixins = {}
     end
 
     # Processes the template and returns the result as a string.
@@ -179,10 +186,16 @@ module Sass
           if node == :constant
             raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line)
           elsif node.is_a? Array
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.", @line)
+            # arrays can either be full of import statements
+            # or attributes from mixin includes
+            # in either case they shouldn't have children.
+            # Need to peek into the array in order to give meaningful errors
+            directive_type = (node.first.is_a?(Tree::DirectiveNode) ? "import" : "mixin")
+            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath #{directive_type} directives.", @line)
           end
         end
 
+        index = @line if node == :mixin
         return node, index
       end
 
@@ -215,19 +228,32 @@ module Sass
       while has_children
         child, index = build_tree(index)
 
-        if child == :constant
-          raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
-        elsif child.is_a? Array
-          raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
-        elsif child.is_a? Tree::Node
-          child.line = @line
-          node << child
-        end
+        validate_and_append_child(node, child)
 
         has_children = has_children?(index, tabs)
       end
 
       return node, index
+    end
+
+    def validate_and_append_child(parent, child)
+      case child
+      when :constant
+        raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
+      when :mixin
+        raise SyntaxError.new("Mixins may only be defined at the root of a document.", @line)
+      when Array
+        child.each do |c|
+          if c.is_a?(Tree::DirectiveNode)
+            raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
+          end
+          c.line = @line
+          parent << c
+        end
+      when Tree::Node
+        child.line = @line
+        parent << child
+      end
     end
 
     def has_children?(index, tabs)
@@ -255,6 +281,10 @@ module Sass
         parse_directive(line)
       when ESCAPE_CHAR
         Tree::RuleNode.new(line[1..-1], @options[:style])
+      when MIXIN_DEFINITION_CHAR
+        parse_mixin_definition(line)
+      when MIXIN_INCLUDE_CHAR
+        parse_mixin_include(line)
       else
         if line =~ ATTRIBUTE_ALTERNATE_MATCHER
           parse_attribute(line, ATTRIBUTE_ALTERNATE)
@@ -324,6 +354,27 @@ module Sass
       end
     end
 
+    def parse_mixin_definition(line)
+      mixin_name = line[1..-1]
+      @mixins[mixin_name] =  []
+      index = @line
+      line, tabs = @lines[index]
+      while !line.nil? && tabs > 0
+        child, index = build_tree(index)
+        validate_and_append_child(@mixins[mixin_name], child)
+        line, tabs = @lines[index]
+      end
+      :mixin
+    end
+
+    def parse_mixin_include(line)
+      mixin_name = line[1..-1]
+      unless @mixins.has_key?(mixin_name)
+        raise SyntaxError.new("Undefined mixin '#{mixin_name}'", @line)
+      end
+      @mixins[mixin_name]
+    end
+
     def import(files)
       nodes = []
 
@@ -337,7 +388,7 @@ module Sass
         end
 
         if filename =~ /\.css$/
-          nodes << Tree::ValueNode.new("@import url(#{filename});", @options[:style])
+          nodes << Tree::DirectiveNode.new("@import url(#{filename})", @options[:style])
         else
           File.open(filename) do |file|
             new_options = @options.dup

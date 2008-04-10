@@ -228,6 +228,40 @@ becomes:
       background-color: #79d645;
       width: 15em; }
 
+Taking the idea of constants a bit further are mixins.
+These let you group whole swathes of CSS attributes into a single
+directive and then include those anywhere you want:
+
+-blue-border
+  :border
+    :color blue
+    :width 2px
+    :style dotted
+
+.comment
+  +blue-border
+  :padding 2px
+  :margin 10px 0
+
+.reply
+  +blue-border
+
+becomes:
+
+.comment {
+  border-color: blue;
+  border-width: 2px;
+  border-style: dotted;
+  padding: 2px;
+  margin: 10px 0;
+}
+
+.reply {
+  border-color: blue;
+  border-width: 2px;
+  border-style: dotted;
+}
+
 A comprehensive list of features is in
 the documentation for the Sass module.
 

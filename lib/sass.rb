@@ -595,6 +595,82 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     background-image: url(/images/pbj.png);
 #     color: red; }
 #
+# == Mixins
+#
+# Mixins enable you to define groups of CSS attributes and
+# then include them inline in any number of selectors
+# throughout the document.
+#
+# === Defining a Mixin
+#
+# To define a mixin you use a slightly modified form of selector syntax.
+# For example the 'large-text' mixin is defined as follows:
+#
+# -large-text
+#   :font
+#     :family Arial
+#     :size 20px
+#     :weight bold
+#   :color #ff0000
+#
+# Anything you can put into a standard selector,
+# you can put into a mixin definition. e.g.
+#
+# -clearfix
+#   display: inline-block
+#   &:after
+#     content: "."
+#     display: block
+#     height: 0
+#     clear: both
+#     visibility: hidden
+#   * html &
+#     height: 1px
+#
+#
+# === Mixing it in
+#
+# Inlining a defined mixin is simple,
+# just prepend a '+' symbol to the name of a mixin defined earlier in the document.
+# So to inline the 'large-text' defined earlier,
+# we include the statment '+large-text' in our selector definition thus:
+#
+# .page-title
+#   +large-text
+#   :padding 4px
+#   :margin
+#     :top 10px
+#
+#
+# This will produce the following CSS output:
+#
+# .page-title {
+#   font-family: Arial;
+#   font-size: 20px;
+#   font-weight: bold;
+#   color: #ff0000;
+#   padding: 4px;
+#   margin-top: 10px;
+# }
+#
+# Any number of mixins may be defined and there is no limit on
+# the number that can be included in a particular selector.
+#
+# Mixin definitions can also include references to other mixins defined earlier in the file.
+# E.g.
+#
+# -highlighted-background
+#   background:
+#     color: #fc0
+# -header-text
+#   font:
+#     size: 20px
+#
+# -compound
+#   +highlighted-background
+#   +header-text
+#
+#
 # == Output Style
 #
 # Although the default CSS style that Sass outputs is very nice,
