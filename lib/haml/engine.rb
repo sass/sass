@@ -265,6 +265,7 @@ END
     # This should remain loadable from #inspect.
     def options_for_buffer
       {
+        :autoclose => @options[:autoclose],
         :preserve => @options[:preserve],
         :attr_wrapper => @options[:attr_wrapper],
         :ugly => @options[:ugly],

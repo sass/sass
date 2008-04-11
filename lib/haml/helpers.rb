@@ -286,6 +286,8 @@ module Haml
     #   </table>
     #
     def haml_tag(name, attributes = {}, alt_atts = {}, &block)
+      name = name.to_s
+
       text = nil
       if attributes.is_a? String
         text = attributes
@@ -294,7 +296,8 @@ module Haml
 
       attributes = Haml::Precompiler.build_attributes(
         haml_buffer.html?, haml_buffer.options[:attr_wrapper], attributes)
-      if text.nil? && block.nil?
+
+      if text.nil? && block.nil? && haml_buffer.options[:autoclose].include?(name)
         puts "<#{name}#{attributes} />"
         return nil
       end

@@ -100,6 +100,14 @@ class HelperTest < Test::Unit::TestCase
     assert_equal("<p id='foo&amp;bar'>baz</p>\n", render("%p{:id => 'foo&bar'} baz", :escape_html => true))
   end
 
+  def test_haml_tag_autoclosed_tags_are_closed
+    assert_equal("<br class='foo' />\n", render("- haml_tag :br, :class => 'foo'"))
+  end
+
+  def test_haml_tag_non_autoclosed_tags_arent_closed
+    assert_equal("<p>\n</p>\n", render("- haml_tag :p"))
+  end
+
   def test_is_haml
     assert(!ActionView::Base.new.is_haml?)
     assert_equal("true\n", render("= is_haml?"))
