@@ -221,6 +221,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # and the id is set to the object's class, followed by its id.
 # Because the id of an object is normally an obscure implementation detail,
 # this is most useful for elements that represent instances of Models.
+# Additionally, the second argument (if present) will be used as a prefix for
+# both the id and class attributes.
 # For example:
 #
 #   # file: app/controllers/users_controller.rb
@@ -231,13 +233,13 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   -# file: app/views/users/show.haml
 #
-#   %div[@user]
+#   %div[@user, :greeting]
 #     %bar[290]/
 #     Hello!
 #
 # is compiled to:
 #
-#   <div class="crazy_user" id="crazy_user_15">
+#   <div class="greeting_crazy_user" id="greeting_crazy_user_15">
 #     <bar class="fixnum" id="fixnum_581" />
 #     Hello!
 #   </div>
