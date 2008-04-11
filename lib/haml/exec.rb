@@ -63,7 +63,7 @@ module Haml
         end
 
         opts.on_tail("-v", "--version", "Print version") do
-          puts("Haml " + File.read(File.dirname(__FILE__) + '/../../VERSION'))
+          puts("Haml #{::Haml.version[:string]}")
           exit
         end
       end
