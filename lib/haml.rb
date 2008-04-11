@@ -884,12 +884,17 @@ module Haml
   def self.version
     return @@version if defined?(@@version)
 
-    numbers = File.read(File.dirname(__FILE__) + '/../VERSION').strip.split('.').map { |n| n.to_i }
+    numbers = File.read(scope('VERSION')).strip.split('.').map { |n| n.to_i }
     @@version = {
       :major => numbers[0],
       :minor => numbers[1],
       :teeny => numbers[2]
     }
+  end
+
+  # Returns the path of file relative to the Haml root.
+  def self.scope(file) # :nodoc:
+    File.join(File.dirname(__FILE__), '..', file)
   end
 
   # A string representing the version of Haml.

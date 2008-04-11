@@ -35,7 +35,7 @@ if defined?(RAILS_ROOT)
   # because the new init file is sufficiently flexible
   # to not need updating.
   rails_init_file = File.join(RAILS_ROOT, 'vendor', 'plugins', 'haml', 'init.rb')
-  haml_init_file = File.join(File.dirname(__FILE__), '..', '..', 'init.rb')
+  haml_init_file = Haml.scope('init.rb')
   if File.exists?(rails_init_file)
     require 'fileutils'
     FileUtils.cp(haml_init_file, rails_init_file) unless FileUtils.cmp(rails_init_file, haml_init_file)
