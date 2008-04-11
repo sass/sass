@@ -882,6 +882,8 @@ module Haml
   # Returns a hash representing the version of Haml.
   # The :major, :minor, and :teeny keys have their respective numbers.
   # The :string key contains a human-readable string representation of the version.
+  # If Haml is checked out from Git,
+  # the :rev key will have the revision hash.
   def self.version
     return @@version if defined?(@@version)
 
@@ -892,6 +894,17 @@ module Haml
       :teeny => numbers[2]
     }
     @@version[:string] = [:major, :minor, :teeny].map { |comp| @@version[comp] }.compact.join('.')
+
+    if File.exists?(scope('.git/HEAD'))
+      rev = File.read(scope('.git/HEAD')).strip
+      if rev =~ /^ref: (.*)$/
+        rev = File.read(scope(".git/#{$1}")).strip
+      end
+
+      @@version[:rev] = rev
+      @@version[:string] << "." << rev[0...7]
+    end
+
     @@version
   end
 
