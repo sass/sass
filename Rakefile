@@ -51,6 +51,14 @@ END
   # ----- Packaging -----
 
   require 'rake/gempackagetask'
+  require 'lib/haml'
+
+  # Before we run the package task,
+  # we want to create a REVISION file
+  # if we've checked out Haml from git
+  # and we aren't building for a release.
+  create_revision = Haml.version[:rev] && !Rake.application.top_level_tasks.include?('release')
+  p create_revision
 
   spec = Gem::Specification.new do |spec|
     spec.name = 'haml'
@@ -74,6 +82,7 @@ END
       list.exclude('TODO')
     end.to_a
     spec.executables = ['haml', 'html2haml', 'sass', 'css2sass']
+    readmes << 'REVISION' if create_revision
     spec.files = FileList['lib/**/*', 'bin/*', 'test/**/*', 'Rakefile', 'init.rb'].to_a + readmes
     spec.autorequire = ['haml', 'sass']
     spec.homepage = 'http://haml.hamptoncatlin.com/'
@@ -94,6 +103,15 @@ END
     pkg.need_tar_gz  = true
     pkg.need_tar_bz2 = true
   end
+
+  desc "This is an internal task."
+  task :revision_file do
+    File.open('REVISION', 'w') { |f| f.puts Haml.version[:rev] } if create_revision
+  end
+  Rake::Task[:package].prerequisites.insert(0, :revision_file)
+
+  # We also need to get rid of this file after packaging.
+  Rake::Task[:package].enhance { File.delete('REVISION') if File.exists?('REVISION') }
 
   task :install => [:package] do
     sh %{gem install --no-ri pkg/haml-#{File.read('VERSION').strip}}

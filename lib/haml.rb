@@ -895,12 +895,16 @@ module Haml
     }
     @@version[:string] = [:major, :minor, :teeny].map { |comp| @@version[comp] }.compact.join('.')
 
-    if File.exists?(scope('.git/HEAD'))
+    if File.exists?(scope('REVISION'))
+      rev = File.read(scope('REVISION')).strip
+    elsif File.exists?(scope('.git/HEAD'))
       rev = File.read(scope('.git/HEAD')).strip
       if rev =~ /^ref: (.*)$/
         rev = File.read(scope(".git/#{$1}")).strip
       end
+    end
 
+    if rev
       @@version[:rev] = rev
       @@version[:string] << "." << rev[0...7]
     end
