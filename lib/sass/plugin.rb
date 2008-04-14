@@ -119,7 +119,7 @@ module Sass
       end
 
       def forbid_update?(name)
-        name[0] == ?_
+        name.sub(/^.*\//, '')[0] == ?_
       end
 
       def stylesheet_needs_update?(name)
