@@ -476,7 +476,7 @@ END
 
     # Parses a line into tag_name, attributes, attributes_hash, object_ref, action, value
     def parse_tag(line)
-      raise SyntaxError.new("Invalid tag: \"#{line}\"") unless match = line.scan(/[%]([-:\w]+)([-\w\.\#]*)(.*)/)[0]
+      raise SyntaxError.new("Invalid tag: \"#{line}\"") unless match = line.scan(/%([-:\w]+)([-\w\.\#]*)(.*)/)[0]
       tag_name, attributes, rest = match
       if rest[0] == ?{
         scanner = StringScanner.new(rest)
