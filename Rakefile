@@ -58,7 +58,6 @@ END
   # if we've checked out Haml from git
   # and we aren't building for a release.
   create_revision = Haml.version[:rev] && !Rake.application.top_level_tasks.include?('release')
-  p create_revision
 
   spec = Gem::Specification.new do |spec|
     spec.name = 'haml'
