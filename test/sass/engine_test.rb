@@ -48,9 +48,9 @@ class SassEngineTest < Test::Unit::TestCase
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
     "!foo = bar baz !" => "Unterminated constant.",
     "!foo = !(foo)" => "Invalid constant.",
-    "-foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'",
-    ".bar\n  -foo\n    :color red\n" => "Mixins may only be defined at the root of a document.",
-    "-foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
+    "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'",
+    ".bar\n  =foo\n    :color red\n" => "Mixins may only be defined at the root of a document.",
+    "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
   }
   
   def test_basic_render

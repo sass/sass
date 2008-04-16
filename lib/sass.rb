@@ -606,17 +606,19 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # To define a mixin you use a slightly modified form of selector syntax.
 # For example the 'large-text' mixin is defined as follows:
 #
-# -large-text
+# =large-text
 #   :font
 #     :family Arial
 #     :size 20px
 #     :weight bold
 #   :color #ff0000
 #
+# The initial '=' marks this as a mixin rather than a standard selector.
+# The CSS rules that follow won't be included until the mixin is referenced later on.
 # Anything you can put into a standard selector,
 # you can put into a mixin definition. e.g.
 #
-# -clearfix
+# =clearfix
 #   display: inline-block
 #   &:after
 #     content: "."
@@ -659,14 +661,14 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # Mixin definitions can also include references to other mixins defined earlier in the file.
 # E.g.
 #
-# -highlighted-background
+# =highlighted-background
 #   background:
 #     color: #fc0
-# -header-text
+# =header-text
 #   font:
 #     size: 20px
 #
-# -compound
+# =compound
 #   +highlighted-background
 #   +header-text
 #

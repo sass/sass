@@ -1,6 +1,6 @@
 !yellow = #fc0
 
--bordered
+=bordered
   :border
     :top
       :width 2px
@@ -8,16 +8,18 @@
     :left
       :width 1px
       :color #000
--header-font
+  -moz-border-radius: 10px
+
+=header-font
   :color #f00
   :font
     :size 20px
 
--compound
+=compound
   +header-font
   +bordered
 
--complex
+=complex
   +header-font
   text:
     decoration: none
@@ -30,7 +32,7 @@
   * html &
     height: 1px
     +header-font
--deep
+=deep
   a:hover
     :text-decoration underline
     +compound
@@ -69,3 +71,6 @@
   +complex
   +deep
   display: inline
+  -webkit-nonsense:
+    top-right: 1px
+    bottom-left: 1px

@@ -232,7 +232,7 @@ Taking the idea of constants a bit further are mixins.
 These let you group whole swathes of CSS attributes into a single
 directive and then include those anywhere you want:
 
--blue-border
+=blue-border
   :border
     :color blue
     :width 2px
