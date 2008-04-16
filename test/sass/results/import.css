@@ -1,4 +1,4 @@
-imported { otherconst: hello; myconst: goodbye; }
+imported { otherconst: hello; myconst: goodbye; pre-mixin: here; }
 
 body { font: Arial; background: blue; }
 
@@ -26,4 +26,4 @@ body { font: Arial; background: blue; }
 @import url(../results/complex.css);
 #foo { background-color: #baf; }
 
-nonimported { myconst: hello; otherconst: goodbye; }
+nonimported { myconst: hello; otherconst: goodbye; post-mixin: here; }

@@ -103,6 +103,10 @@ module Sass
       @constants
     end
 
+    def mixins
+      @mixins
+    end
+
     def render_to_tree
       split_lines
 
@@ -397,6 +401,7 @@ module Sass
           end
 
           engine.constants.merge! @constants
+          engine.mixins.merge! @mixins
 
           begin
             root = engine.render_to_tree
@@ -409,6 +414,7 @@ module Sass
             nodes << child
           end
           @constants = engine.constants
+          @mixins = engine.mixins
         end
       end
 

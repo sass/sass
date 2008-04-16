@@ -1,8 +1,12 @@
 !postconst = goodbye
 
+=postmixin
+  post-mixin: here
+
 imported
   :otherconst = !preconst
   :myconst = !postconst
+  +premixin
 
 @import basic
 

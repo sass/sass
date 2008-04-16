@@ -113,6 +113,10 @@ class SassEngineTest < Test::Unit::TestCase
     assert_equal("@import \"./fonts.css\" screen;", render("@import \"./fonts.css\" screen"))
   end
 
+  def test_sass_import
+    renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
+  end
+
   def test_default_function
     assert_equal("foo {\n  bar: url(foo.png); }\n",
                  render("foo\n  bar = url(foo.png)\n"));
