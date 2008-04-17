@@ -106,7 +106,7 @@ END
 
       precompile
     rescue Haml::Error
-      $!.backtrace.unshift "#{@options[:filename]}:#{@index}"
+      $!.backtrace.unshift "#{@options[:filename]}:#{@index}" if @index
       raise
     end
 
