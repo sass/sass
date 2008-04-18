@@ -338,7 +338,7 @@ END
       flush_merged_text
       return if options[:suppress_eval]
 
-      raise SyntaxError.new("Tag has no content.") if text.empty?
+      raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
 
       push_silent "haml_temp = #{text}"
       newline true
@@ -355,7 +355,7 @@ END
     def push_flat_script(text)
       flush_merged_text
 
-      raise SyntaxError.new("Tag has no content.") if text.empty?
+      raise SyntaxError.new("There's no Ruby code for ~ to evaluate.") if text.empty?
       push_script(text, true)
     end
 
@@ -557,7 +557,7 @@ END
 
       raise SyntaxError.new("Illegal nesting: nesting within an atomic tag is illegal.", 1) if @block_opened && atomic
       raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", 1) if @block_opened && !value.empty?
-      raise SyntaxError, "Tag has no content." if parse && value.empty?
+      raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.") if parse && value.empty?
       raise SyntaxError, "Atomic tags can't have content." if atomic && !value.empty?
 
       atomic ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
