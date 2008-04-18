@@ -104,7 +104,18 @@ module Sass
               end
             end
           end
-          "/*\n#{e_string}\n\nBacktrace:\n#{e.backtrace.join("\n")}\n*/"
+          <<END
+/*
+#{e_string}
+
+Backtrace:\n#{e.backtrace.join("\n")}
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "#{e_string.gsub('"', '\"').gsub("\n", '\\A ')}"; }
+END
+          # Fix an emacs syntax-highlighting hiccup: '
         else
           "/* Internal stylesheet error */"
         end
