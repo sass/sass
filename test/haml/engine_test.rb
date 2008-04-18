@@ -13,9 +13,13 @@ class EngineTest < Test::Unit::TestCase
     "~" => "Tag has no content.",
     "=" => "Tag has no content.",
     "%p/\n  a" => "Illegal nesting: nesting within an atomic tag is illegal.",
-    "%p\n\ta" => "Illegal indentation: only two space characters are allowed as tabulation.",
-    "%p\n a" => "Illegal indentation: only two space characters are allowed as tabulation.",
-    "%p\n    a" => "Illegal indentation: indenting more than once per line is illegal.",
+    "%p\n\ta" => <<END.strip,
+A tab character was used for indentation. Haml must be indented using two spaces.
+Are you sure you have soft tabs enabled in your editor?
+END
+    "%p\n a" => "1 space was used for indentation. Haml must be indented using two spaces.",
+    "%p\n   a" => "3 spaces were used for indentation. Haml must be indented using two spaces.",
+    "%p\n    a" => "4 spaces were used for indentation. Haml must be indented using two spaces.",
     ":a\n  b" => 'Filter "a" is not defined.',
     ":a= b" => 'Invalid filter name ":a= b".',
     "." => "Illegal element: classes and ids must have values.",

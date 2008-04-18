@@ -162,8 +162,9 @@ END
         end
 
         if old_line.spaces != old_line.tabs * 2
-          raise SyntaxError.new("Illegal indentation: only two space characters are allowed as tabulation.",
-                                1 + old_line.index - @index)
+          raise SyntaxError.new(<<END.strip, 1 + old_line.index - @index)
+#{old_line.spaces} space#{old_line.spaces == 1 ? ' was' : 's were'} used for indentation. Haml must be indented using two spaces.
+END
         end
 
         unless old_line.text.empty? || @haml_comment
@@ -171,8 +172,9 @@ END
         end
 
         if !flat? && line.tabs - old_line.tabs > 1
-          raise SyntaxError.new("Illegal indentation: indenting more than once per line is illegal.",
-                                1 + old_line.index - @index)
+          raise SyntaxError.new(<<END.strip, 1 + old_line.index - @index)
+#{line.spaces} spaces were used for indentation. Haml must be indented using two spaces.
+END
         end
         old_line = line
         newline
@@ -723,7 +725,10 @@ END
       spaces = line.index(/([^ ]|$)/)
       if line[spaces] == ?\t
         return nil if line.strip.empty?
-        raise SyntaxError.new("Illegal indentation: only two space characters are allowed as tabulation.", 2)
+        raise SyntaxError.new(<<END.strip, 2)
+A tab character was used for indentation. Haml must be indented using two spaces.
+Are you sure you have soft tabs enabled in your editor?
+END
       end
       [spaces, spaces/2]
     end
