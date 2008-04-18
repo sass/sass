@@ -336,6 +336,8 @@ END
       flush_merged_text
       return if options[:suppress_eval]
 
+      raise SyntaxError.new("Tag has no content.") if text.empty?
+
       push_silent "haml_temp = #{text}"
       newline true
       out = "haml_temp = _hamlout.push_script(haml_temp, #{preserve_script.inspect}, #{close_tag.inspect}, #{preserve_tag.inspect}, #{escape_html.inspect});"
