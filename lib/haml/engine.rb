@@ -97,7 +97,7 @@ Use the locals option for Haml::Engine#render instead.
 END
       end
 
-      @template = template.strip #String
+      @template = template.rstrip #String
       @to_close_stack = []
       @output_tabs = 0
       @template_tabs = 0
