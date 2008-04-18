@@ -3,9 +3,7 @@
 # using the > 2.0.1 template handler API.
 
 module Haml
-  class Template
-    attr_accessor :template
-
+  class Plugin < ActionView::TemplateHandler
     include ActionView::TemplateHandlers::Compilable if defined?(ActionView::TemplateHandlers::Compilable)
 
     def self.line_offset
@@ -20,15 +18,11 @@ module Haml
       self.class.line_offset
     end
 
-    def initialize(view)
-      @view = view
-    end
-
     def compile(source)
       options = Haml::Template.options.dup
 
       # template is set in Rails >=2.1.0
-      options[:filename] ||= template.filename if template
+      options[:filename] ||= template.filename if defined?(template) && template
 
       Haml::Engine.new(source, options).send(:precompiled_with_ambles, [])
     end
@@ -49,10 +43,10 @@ if defined? ActionView::Template and ActionView::Template.respond_to? :register_
   ActionView::Template
 else
   ActionView::Base
-end.register_template_handler(:haml, Haml::Template)
+end.register_template_handler(:haml, Haml::Plugin)
 
 # In Rails 2.0.2, ActionView::TemplateError took arguments
-# that we can't fill in from the Haml::Template context.
+# that we can't fill in from the Haml::Plugin context.
 # Thus, we've got to monkeypatch ActionView::Base to catch the error.
 if ActionView::TemplateError.instance_method(:initialize).arity == 5
   class ActionView::Base
