@@ -172,7 +172,7 @@ END
         end
 
         if !flat? && line.tabs - old_line.tabs > 1
-          raise SyntaxError.new(<<END.strip, 1 + old_line.index - @index)
+          raise SyntaxError.new(<<END.strip, 2 + old_line.index - @index)
 #{line.spaces} spaces were used for indentation. Haml must be indented using two spaces.
 END
         end
