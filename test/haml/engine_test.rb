@@ -5,7 +5,6 @@ class EngineTest < Test::Unit::TestCase
   EXCEPTION_MAP = {
     "!!!\n  a" => "Illegal Nesting: Nesting within a header command is illegal.",
     "a\n  b" => "Illegal Nesting: Nesting within plain text is illegal.",
-    ":a" => "Filters must have nested text.",
     "/ a\n  b" => "Illegal Nesting: Nesting within a tag that already has content is illegal.",
     "% a" => 'Invalid tag: "% a"',
     "%p a\n  b" => "Illegal Nesting: Content can't be both given on the same line as %p and nested within it.",
@@ -437,6 +436,16 @@ class EngineTest < Test::Unit::TestCase
     Kernel.module_eval do
       alias_method :gem_original_require, :gem_original_require_without_redcloth_and_bluecloth
     end    
+  end
+
+  def test_empty_filter
+    assert_equal(<<END, render(':javascript'))
+<script type='text/javascript'>
+  //<![CDATA[
+    
+  //]]>
+</script>
+END
   end
 
   def test_local_assigns_dont_modify_class

@@ -668,7 +668,6 @@ END
     # Starts a filtered block.
     def start_filtered(name)
       raise HamlError.new("Invalid filter name \":#{name}\"") unless name =~ /^\w+$/
-      raise SyntaxError.new('Filters must have nested text.') unless @block_opened
 
       unless filter = options[:filters][name]
         if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
