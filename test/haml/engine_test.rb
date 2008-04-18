@@ -2,6 +2,30 @@
 require File.dirname(__FILE__) + '/test_helper'
 
 class EngineTest < Test::Unit::TestCase
+  EXCEPTION_MAP = {
+    "!!!\n  a" => "Illegal Nesting: Nesting within a header command is illegal.",
+    "a\n  b" => "Illegal Nesting: Nesting within plain text is illegal.",
+    ":a" => "Filters must have nested text.",
+    "/ a\n  b" => "Illegal Nesting: Nesting within a tag that already has content is illegal.",
+    "% a" => 'Invalid tag: "% a"',
+    "%p a\n  b" => "Illegal Nesting: Content can't be both given on the same line as %p and nested within it.",
+    "%p=" => "Tag has no content.",
+    "%p~" => "Tag has no content.",
+    "~" => "Tag has no content.",
+    "=" => "Tag has no content.",
+    "%p/\n  a" => "Illegal Nesting: Nesting within an atomic tag is illegal.",
+    "%p\n\ta" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
+    "%p\n a" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
+    "%p\n    a" => "Illegal Indentation: Indenting more than once per line is illegal.",
+    ":a\n  b" => '"a" filter is not defined!',
+    ":a= b" => 'Invalid filter name ":a= b"',
+    "." => "Illegal element: classes and ids must have values.",
+    ".#" => "Illegal element: classes and ids must have values.",
+    ".{} a" => "Illegal element: classes and ids must have values.",
+    ".= a" => "Illegal element: classes and ids must have values.",
+    "%p..a" => "Illegal element: classes and ids must have values.",
+    "%a/ b" => "Atomic tags can't have content.",
+  }
 
   def render(text, options = {}, &block)
     scope  = options.delete(:scope)  || Object.new
@@ -301,34 +325,22 @@ class EngineTest < Test::Unit::TestCase
     assert_equal(hash3, hash1)
   end
 
-  def test_syntax_errors
-
-    errs = [ "!!!\n  a", "a\n  b", "a\n:foo\nb", "/ a\n  b",
-             "% a", "%p a\n  b", "a\n%p=\nb", "%p=\n  a",
-             "a\n%p~\nb", "a\n~\nb", "a\n~\n  b", "%p~\n  b", "%p/\n  a",
-             "%p\n \t%a b", "%a\n b\nc", "%a\n    b\nc",
-             ":notafilter\n  This isn't\n  a filter!",
-             ":invalidfilter= foo\n  This isn't a valid filter!",
-             ".{} a", "\#{} a", ".= 'foo'", "%a/ b", "%p..class", "%p..#.", "=" ]
-
-    errs.each do |err|
+  def test_exceptions
+    EXCEPTION_MAP.each do |key, value|
       begin
-        render(err)
-      rescue Exception => e
-        assert(e.is_a?(Haml::Error), "#{err.dump} doesn't produce Haml::SyntaxError")
+        render(key)
+      rescue Haml::Error => err
+        assert_equal(value, err.message)
       else
-        assert(false, "#{err.dump} doesn't produce an exception")
+        assert(false, "Haml::Error not raised for\n#{key}")
       end
     end
   end
 
-  def test_syntax_error
+  def test_exception_line
     render("a\nb\n!!!\n  c\nd")
   rescue Haml::SyntaxError => e
-    assert_equal(e.message, "Illegal Nesting: Nesting within a header command is illegal.")
     assert_equal("(haml):4", e.backtrace[0])
-  rescue Exception => e
-    assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce a Haml::SyntaxError')
   else
     assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce an exception')
   end
