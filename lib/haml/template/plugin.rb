@@ -4,6 +4,8 @@
 
 module Haml
   class Template
+    attr_accessor :template
+
     include ActionView::TemplateHandlers::Compilable if defined?(ActionView::TemplateHandlers::Compilable)
 
     def self.line_offset
@@ -22,9 +24,13 @@ module Haml
       @view = view
     end
 
-    def compile(template)
+    def compile(source)
       options = Haml::Template.options.dup
-      Haml::Engine.new(template, options).send(:precompiled_with_ambles, [])
+
+      # template is set in Rails >=2.1.0
+      options[:filename] ||= template.filename if template
+
+      Haml::Engine.new(source, options).send(:precompiled_with_ambles, [])
     end
 
     def cache_fragment(block, name = {}, options = nil)
