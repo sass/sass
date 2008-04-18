@@ -117,7 +117,7 @@ module Haml
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.
-    def open_tag(name, atomic, try_one_line, preserve_tag, escape_html, class_id, obj_ref, content, *attributes_hashes)
+    def open_tag(name, self_closing, try_one_line, preserve_tag, escape_html, class_id, obj_ref, content, *attributes_hashes)
       tabulation = @real_tabs
 
       attributes = class_id
@@ -127,7 +127,7 @@ module Haml
       end
       self.class.merge_attrs(attributes, parse_object_ref(obj_ref)) if obj_ref
 
-      if atomic
+      if self_closing
         str = " />\n"
       elsif try_one_line || preserve_tag
         str = ">"
@@ -144,7 +144,7 @@ module Haml
         else
           @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
         end
-      elsif !atomic
+      elsif !self_closing
         @real_tabs += 1
       end
     end

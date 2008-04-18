@@ -12,7 +12,7 @@ class EngineTest < Test::Unit::TestCase
     "%p~" => "There's no Ruby code for ~ to evaluate.",
     "~" => "There's no Ruby code for ~ to evaluate.",
     "=" => "There's no Ruby code for = to evaluate.",
-    "%p/\n  a" => "Illegal nesting: nesting within an atomic tag is illegal.",
+    "%p/\n  a" => "Illegal nesting: nesting within a self-closing tag is illegal.",
     "%p\n\ta" => <<END.strip,
 A tab character was used for indentation. Haml must be indented using two spaces.
 Are you sure you have soft tabs enabled in your editor?
@@ -27,7 +27,7 @@ END
     ".{} a" => "Illegal element: classes and ids must have values.",
     ".= a" => "Illegal element: classes and ids must have values.",
     "%p..a" => "Illegal element: classes and ids must have values.",
-    "%a/ b" => "Atomic tags can't have content.",
+    "%a/ b" => "Self-closing tags can't have content.",
   }
 
   def render(text, options = {}, &block)

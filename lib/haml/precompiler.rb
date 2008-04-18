@@ -529,7 +529,7 @@ END
       preserve_tag = options[:preserve].include?(tag_name)
 
       case action
-      when '/'; atomic = xhtml?
+      when '/'; self_closing = xhtml?
       when '~'; parse = preserve_script = true
       when '='
         parse = true
@@ -555,32 +555,32 @@ END
       attributes = parse_class_and_id(attributes)
       Buffer.merge_attrs(attributes, static_attributes) if static_attributes
 
-      raise SyntaxError.new("Illegal nesting: nesting within an atomic tag is illegal.", 1) if @block_opened && atomic
+      raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", 1) if @block_opened && self_closing
       raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", 1) if @block_opened && !value.empty?
       raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.") if parse && value.empty?
-      raise SyntaxError, "Atomic tags can't have content." if atomic && !value.empty?
+      raise SyntaxError.new("Self-closing tags can't have content.") if self_closing && !value.empty?
 
-      atomic ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
+      self_closing ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
 
       one_liner = Buffer.one_liner?(value) || preserve_tag
       if object_ref == "nil" && attributes_hash.nil? && !preserve_script && (parse || one_liner)
         # This means that we can render the tag directly to text and not process it in the buffer
         tag_closed = !value.empty? && one_liner && !parse
 
-        open_tag  = prerender_tag(tag_name, atomic, attributes)
+        open_tag  = prerender_tag(tag_name, self_closing, attributes)
         open_tag << "#{value}</#{tag_name}>" if tag_closed
         open_tag << "\n" unless parse
 
-        push_merged_text(open_tag, tag_closed || atomic ? 0 : 1, parse)
+        push_merged_text(open_tag, tag_closed || self_closing ? 0 : 1, parse)
         return if tag_closed
       else
         flush_merged_text
         content = value.empty? || parse ? 'nil' : value.dump
         attributes_hash = ', ' + attributes_hash if attributes_hash
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{atomic.inspect}, #{(!value.empty?).inspect}, #{preserve_tag.inspect}, #{escape_html.inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{self_closing.inspect}, #{(!value.empty?).inspect}, #{preserve_tag.inspect}, #{escape_html.inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
       end
 
-      return if atomic
+      return if self_closing
 
       if value.empty?
         push_and_tabulate([:element, tag_name])
