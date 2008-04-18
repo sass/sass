@@ -43,6 +43,10 @@ module Haml
       protected
 
       def get_line(exception)
+        # SyntaxErrors have weird line reporting
+        # when there's trailing whitespace,
+        # which there is for Haml documents.
+        return exception.message.scan(/:(\d+)/)[0] if exception.is_a?(::SyntaxError)
         exception.backtrace[0].scan(/:(\d+)/)[0]
       end
 
