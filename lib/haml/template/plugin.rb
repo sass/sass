@@ -10,14 +10,6 @@ module Haml
       1
     end
 
-    def compilable?
-      true
-    end
-
-    def line_offset
-      self.class.line_offset
-    end
-
     def compile(source)
       options = Haml::Template.options.dup
 
@@ -31,10 +23,6 @@ module Haml
       @view.fragment_for(block, name, options) do
         eval("_hamlout.buffer", block.binding)
       end
-    end
-
-    def read_template_file(template_path, extension)
-      File.read(template_path)
     end
   end
 end
