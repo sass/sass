@@ -162,7 +162,7 @@ END
         end
 
         if old_line.spaces != old_line.tabs * 2
-          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.",
+          raise SyntaxError.new("Illegal indentation: only two space characters are allowed as tabulation.",
                                 1 + old_line.index - @index)
         end
 
@@ -171,7 +171,7 @@ END
         end
 
         if !flat? && line.tabs - old_line.tabs > 1
-          raise SyntaxError.new("Illegal Indentation: Indenting more than once per line is illegal.",
+          raise SyntaxError.new("Illegal indentation: indenting more than once per line is illegal.",
                                 1 + old_line.index - @index)
         end
         old_line = line
@@ -312,7 +312,7 @@ END
     # Renders a block of text as plain text.
     # Also checks for an illegally opened block.
     def push_plain(text)
-      raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.", 1) if @block_opened
+      raise SyntaxError.new("Illegal nesting: nesting within plain text is illegal.", 1) if @block_opened
       push_text text
     end
 
@@ -502,7 +502,7 @@ END
 
     # Parses a line into tag_name, attributes, attributes_hash, object_ref, action, value
     def parse_tag(line)
-      raise SyntaxError.new("Invalid tag: \"#{line}\"") unless match = line.scan(/%([-:\w]+)([-\w\.\#]*)(.*)/)[0]
+      raise SyntaxError.new("Invalid tag: \"#{line}\".") unless match = line.scan(/%([-:\w]+)([-\w\.\#]*)(.*)/)[0]
       tag_name, attributes, rest = match
       if rest[0] == ?{
         scanner = StringScanner.new(rest)
@@ -553,8 +553,8 @@ END
       attributes = parse_class_and_id(attributes)
       Buffer.merge_attrs(attributes, static_attributes) if static_attributes
 
-      raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.", 1) if @block_opened && atomic
-      raise SyntaxError.new("Illegal Nesting: Content can't be both given on the same line as %#{tag_name} and nested within it.", 1) if @block_opened && !value.empty?
+      raise SyntaxError.new("Illegal nesting: nesting within an atomic tag is illegal.", 1) if @block_opened && atomic
+      raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", 1) if @block_opened && !value.empty?
       raise SyntaxError, "Tag has no content." if parse && value.empty?
       raise SyntaxError, "Atomic tags can't have content." if atomic && !value.empty?
 
@@ -605,7 +605,7 @@ END
       conditional << ">" if conditional
 
       if @block_opened && !content.empty?
-        raise SyntaxError.new('Illegal Nesting: Nesting within a tag that already has content is illegal.', 1)
+        raise SyntaxError.new('Illegal nesting: nesting within a tag that already has content is illegal.', 1)
       end
 
       open = "<!--#{conditional} "
@@ -626,7 +626,7 @@ END
 
     # Renders an XHTML doctype or XML shebang.
     def render_doctype(line)
-      raise SyntaxError.new("Illegal Nesting: Nesting within a header command is illegal.", 1) if @block_opened
+      raise SyntaxError.new("Illegal nesting: nesting within a header command is illegal.", 1) if @block_opened
       doctype = text_for_doctype(line)
       push_text doctype if doctype
     end
@@ -667,13 +667,13 @@ END
 
     # Starts a filtered block.
     def start_filtered(name)
-      raise HamlError.new("Invalid filter name \":#{name}\"") unless name =~ /^\w+$/
+      raise HamlError.new("Invalid filter name \":#{name}\".") unless name =~ /^\w+$/
 
       unless filter = options[:filters][name]
         if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
           raise HamlError.new("You must have the RedCloth gem installed to use \"#{name}\" filter")
         end
-        raise HamlError.new("\"#{name}\" filter is not defined!")
+        raise HamlError.new("Filter \"#{name}\" is not defined.")
       end
 
       push_and_tabulate([:filtered, filter])
@@ -723,7 +723,7 @@ END
       spaces = line.index(/([^ ]|$)/)
       if line[spaces] == ?\t
         return nil if line.strip.empty?
-        raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", 2)
+        raise SyntaxError.new("Illegal indentation: only two space characters are allowed as tabulation.", 2)
       end
       [spaces, spaces/2]
     end

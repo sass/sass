@@ -3,21 +3,21 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class EngineTest < Test::Unit::TestCase
   EXCEPTION_MAP = {
-    "!!!\n  a" => "Illegal Nesting: Nesting within a header command is illegal.",
-    "a\n  b" => "Illegal Nesting: Nesting within plain text is illegal.",
-    "/ a\n  b" => "Illegal Nesting: Nesting within a tag that already has content is illegal.",
-    "% a" => 'Invalid tag: "% a"',
-    "%p a\n  b" => "Illegal Nesting: Content can't be both given on the same line as %p and nested within it.",
+    "!!!\n  a" => "Illegal nesting: nesting within a header command is illegal.",
+    "a\n  b" => "Illegal nesting: nesting within plain text is illegal.",
+    "/ a\n  b" => "Illegal nesting: nesting within a tag that already has content is illegal.",
+    "% a" => 'Invalid tag: "% a".',
+    "%p a\n  b" => "Illegal nesting: content can't be both given on the same line as %p and nested within it.",
     "%p=" => "Tag has no content.",
     "%p~" => "Tag has no content.",
     "~" => "Tag has no content.",
     "=" => "Tag has no content.",
-    "%p/\n  a" => "Illegal Nesting: Nesting within an atomic tag is illegal.",
-    "%p\n\ta" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
-    "%p\n a" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
-    "%p\n    a" => "Illegal Indentation: Indenting more than once per line is illegal.",
-    ":a\n  b" => '"a" filter is not defined!',
-    ":a= b" => 'Invalid filter name ":a= b"',
+    "%p/\n  a" => "Illegal nesting: nesting within an atomic tag is illegal.",
+    "%p\n\ta" => "Illegal indentation: only two space characters are allowed as tabulation.",
+    "%p\n a" => "Illegal indentation: only two space characters are allowed as tabulation.",
+    "%p\n    a" => "Illegal indentation: indenting more than once per line is illegal.",
+    ":a\n  b" => 'Filter "a" is not defined.',
+    ":a= b" => 'Invalid filter name ":a= b".',
     "." => "Illegal element: classes and ids must have values.",
     ".#" => "Illegal element: classes and ids must have values.",
     ".{} a" => "Illegal element: classes and ids must have values.",
@@ -227,7 +227,7 @@ class EngineTest < Test::Unit::TestCase
       assert_equal("", render(":ruby\n  puts 'hello'", :suppress_eval => true))
     rescue Haml::HamlError => err
       caught = true
-      assert_equal('"ruby" filter is not defined!', err.message)
+      assert_equal('Filter "ruby" is not defined.', err.message)
     end
     assert(caught, "Rendering a ruby filter without evaluating didn't throw an error!")
   end
