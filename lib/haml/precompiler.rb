@@ -163,7 +163,7 @@ END
 
         if old_line.spaces != old_line.tabs * 2
           raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.",
-                                old_line.index)
+                                1 + old_line.index - @index)
         end
 
         unless old_line.text.empty? || @haml_comment
@@ -172,7 +172,7 @@ END
 
         if !flat? && line.tabs - old_line.tabs > 1
           raise SyntaxError.new("Illegal Indentation: Indenting more than once per line is illegal.",
-                                old_line.index)
+                                1 + old_line.index - @index)
         end
         old_line = line
         newline
