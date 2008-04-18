@@ -74,7 +74,7 @@ END
 
       precompile
     rescue Haml::Error
-      $!.backtrace.unshift "#{@options[:filename]}:#{@index}" if @index
+      $!.backtrace.unshift "#{@options[:filename]}:#{@index + $!.line_offset}" if @index
       raise
     end
 

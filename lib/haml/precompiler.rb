@@ -158,7 +158,7 @@ END
         end
 
         if old_line.spaces != old_line.tabs * 2
-          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
+          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", 1)
         end
 
         unless old_line.text.empty? || @haml_comment
@@ -166,7 +166,7 @@ END
         end
 
         if !flat? && line.tabs - old_line.tabs > 1
-          raise SyntaxError.new("Illegal Indentation: Indenting more than once per line is illegal.")
+          raise SyntaxError.new("Illegal Indentation: Indenting more than once per line is illegal.", 1)
         end
         old_line = line
         newline
@@ -293,7 +293,7 @@ END
     # Renders a block of text as plain text.
     # Also checks for an illegally opened block.
     def push_plain(text)
-      raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.") if @block_opened
+      raise SyntaxError.new("Illegal Nesting: Nesting within plain text is illegal.", 1) if @block_opened
       push_text text
     end
 
@@ -518,10 +518,10 @@ END
       attributes = parse_class_and_id(attributes)
       Buffer.merge_attrs(attributes, static_attributes) if static_attributes
 
-      raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.") if @block_opened && atomic
-      raise SyntaxError.new("Illegal Nesting: Content can't be both given on the same line as %#{tag_name} and nested within it.") if @block_opened && !value.empty?
-      raise SyntaxError.new("Tag has no content.") if parse && value.empty?
-      raise SyntaxError.new("Atomic tags can't have content.") if atomic && !value.empty?
+      raise SyntaxError.new("Illegal Nesting: Nesting within an atomic tag is illegal.", 1) if @block_opened && atomic
+      raise SyntaxError.new("Illegal Nesting: Content can't be both given on the same line as %#{tag_name} and nested within it.", 1) if @block_opened && !value.empty?
+      raise SyntaxError, "Tag has no content." if parse && value.empty?
+      raise SyntaxError, "Atomic tags can't have content." if atomic && !value.empty?
 
       atomic = true if !@block_opened && value.empty? && @options[:autoclose].include?(tag_name)
 
@@ -569,7 +569,7 @@ END
       conditional << ">" if conditional
 
       if @block_opened && !content.empty?
-        raise SyntaxError.new('Illegal Nesting: Nesting within a tag that already has content is illegal.')
+        raise SyntaxError.new('Illegal Nesting: Nesting within a tag that already has content is illegal.', 1)
       end
 
       open = "<!--#{conditional} "
@@ -590,7 +590,7 @@ END
 
     # Renders an XHTML doctype or XML shebang.
     def render_doctype(line)
-      raise SyntaxError.new("Illegal Nesting: Nesting within a header command is illegal.") if @block_opened
+      raise SyntaxError.new("Illegal Nesting: Nesting within a header command is illegal.", 1) if @block_opened
       push_text text_for_doctype(line)
     end
 
@@ -661,7 +661,7 @@ END
       spaces = line.index(/([^ ]|$)/)
       if line[spaces] == ?\t
         return nil if line.strip.empty?
-        raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.")
+        raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", 2)
       end
       [spaces, spaces/2]
     end

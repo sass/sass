@@ -216,7 +216,7 @@ class EngineTest < Test::Unit::TestCase
     render("a\nb\n!!!\n  c\nd")
   rescue Haml::SyntaxError => e
     assert_equal(e.message, "Illegal Nesting: Nesting within a header command is illegal.")
-    assert_equal("(haml):3", e.backtrace[0])
+    assert_equal("(haml):4", e.backtrace[0])
   rescue Exception => e
     assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce a Haml::SyntaxError')
   else
