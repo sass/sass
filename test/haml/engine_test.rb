@@ -302,12 +302,15 @@ class EngineTest < Test::Unit::TestCase
   end
 
   def test_syntax_errors
+
     errs = [ "!!!\n  a", "a\n  b", "a\n:foo\nb", "/ a\n  b",
              "% a", "%p a\n  b", "a\n%p=\nb", "%p=\n  a",
              "a\n%p~\nb", "a\n~\nb", "a\n~\n  b", "%p~\n  b", "%p/\n  a",
              "%p\n \t%a b", "%a\n b\nc", "%a\n    b\nc",
              ":notafilter\n  This isn't\n  a filter!",
+             ":invalidfilter= foo\n  This isn't a valid filter!",
              ".{} a", "\#{} a", ".= 'foo'", "%a/ b", "%p..class", "%p..#.", "=" ]
+
     errs.each do |err|
       begin
         render(err)
