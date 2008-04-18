@@ -145,6 +145,7 @@ END
         end
 
         opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
+          require 'stringio'
           @options[:check_syntax] = true
           @options[:output] = StringIO.new
         end
