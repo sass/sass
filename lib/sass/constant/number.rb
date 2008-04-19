@@ -78,7 +78,7 @@ module Sass::Constant  # :nodoc:
       elsif other.unit == self.unit
         unit = self.unit
       else
-        raise Sass::SyntaxError.new("Incompatible units: #{self.unit} and #{other.unit}")
+        raise Sass::SyntaxError.new("Incompatible units: #{self.unit} and #{other.unit}.")
       end
 
       Number.from_value(self.value.send(operation, other.value), unit)

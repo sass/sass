@@ -45,7 +45,7 @@ module Sass::Tree
           end.join(rule_separator)
         end.join(line_separator)
       elsif self.rules.any? { |r| r.include?(PARENT) }
-        raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'", line)
+        raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'.", line)
       else
         per_rule_indent, total_indent = [:nested, :expanded].include?(@style) ? [rule_indent, ''] : ['', rule_indent]
         total_indent + self.rules.map do |r|

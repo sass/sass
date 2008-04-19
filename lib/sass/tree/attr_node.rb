@@ -11,13 +11,13 @@ module Sass::Tree
 
     def to_s(tabs, parent_name = nil)
       if value[-1] == ?;
-        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (This isn't CSS!)", @line)
+        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (This isn't CSS!).", @line)
       end
       real_name = name
       real_name = "#{parent_name}-#{real_name}" if parent_name
 
       if value.empty? && children.empty?
-        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump}", @line)
+        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump}.", @line)
       end
 
       join_string = case @style

@@ -46,7 +46,7 @@ module Sass
         rescue Sass::SyntaxError => e
           if e.message == "Constant arithmetic error"
             e.instance_eval do
-              @message += ": #{value.dump}"
+              @message += ": #{value.dump}."
             end
           end
           e.sass_line = line
@@ -142,7 +142,7 @@ module Sass
         end
 
         if is_string
-          raise Sass::SyntaxError.new("Unterminated string: #{value.dump}")
+          raise Sass::SyntaxError.new("Unterminated string: #{value.dump}.")
         end
         str = reset_str.call
         to_return
@@ -237,7 +237,7 @@ module Sass
 
       def get_constant(value, constants)
         to_return = constants[value]
-        raise SyntaxError.new("Undefined constant: \"!#{value}\"") unless to_return
+        raise SyntaxError.new("Undefined constant: \"!#{value}\".") unless to_return
         to_return
       end
     end

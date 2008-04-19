@@ -58,7 +58,7 @@ class SassPluginTest < Test::Unit::TestCase
     File.delete(tempfile_loc('bork'))
     Sass::Plugin.update_stylesheets
     File.open(tempfile_loc('bork')) do |file|
-      assert_equal("/*\nSass::SyntaxError: Undefined constant: \"!bork\"\non line 2 of #{File.dirname(__FILE__) + '/templates/bork.sass'}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
+      assert_equal("/*\nSass::SyntaxError: Undefined constant: \"!bork\".\non line 2 of #{File.dirname(__FILE__) + '/templates/bork.sass'}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
     end
     File.delete(tempfile_loc('bork'))
   end

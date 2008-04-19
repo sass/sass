@@ -312,7 +312,7 @@ END
       name, eq, value = line.scan(attribute_regx)[0]
 
       if name.nil? || value.nil?
-        raise SyntaxError.new("Invalid attribute: \"#{line}\"", @line)
+        raise SyntaxError.new("Invalid attribute: \"#{line}\".", @line)
       end
 
       if eq.strip[0] == SCRIPT_CHAR
@@ -325,7 +325,7 @@ END
     def parse_constant(line)
       name, op, value = line.scan(Sass::Constant::MATCH)[0]
       unless name && value
-        raise SyntaxError.new("Invalid constant: \"#{line}\"", @line)
+        raise SyntaxError.new("Invalid constant: \"#{line}\".", @line)
       end
 
       constant = Sass::Constant.parse(value, @constants, @line)
@@ -376,7 +376,7 @@ END
     def parse_mixin_include(line)
       mixin_name = line[1..-1]
       unless @mixins.has_key?(mixin_name)
-        raise SyntaxError.new("Undefined mixin '#{mixin_name}'", @line)
+        raise SyntaxError.new("Undefined mixin '#{mixin_name}'.", @line)
       end
       @mixins[mixin_name]
     end
@@ -438,7 +438,7 @@ END
 
       if new_filename.nil?
         if was_sass
-          raise Exception.new("File to import not found or unreadable: #{original_filename}")
+          raise Exception.new("File to import not found or unreadable: #{original_filename}.")
         else
           return filename + '.css'
         end
