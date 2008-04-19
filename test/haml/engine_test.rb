@@ -229,7 +229,7 @@ END
 
     begin
       assert_equal("", render(":ruby\n  puts 'hello'", :suppress_eval => true))
-    rescue Haml::HamlError => err
+    rescue Haml::Error => err
       caught = true
       assert_equal('Filter "ruby" is not defined.', err.message)
     end
@@ -385,7 +385,7 @@ END
     begin
       assert_equal("<h1>Foo</h1>\t<p>- a\n- b</p>\n",
                    Haml::Engine.new(":markdown\n  Foo\n  ===\n  - a\n  - b").to_html)
-    rescue Haml::HamlError => e
+    rescue Haml::Error => e
       if e.message == "Can't run Markdown filter; required 'bluecloth' or 'redcloth', but none were found"
         puts "\nCouldn't require 'bluecloth' or 'redcloth'; skipping a test."
       else
@@ -410,7 +410,7 @@ END
 
     begin
       Haml::Engine.new(":redcloth\n  _foo_").to_html
-    rescue Haml::HamlError
+    rescue Haml::Error
     else
       assert(false, "No exception raised!")
     end
@@ -432,7 +432,7 @@ END
 
     begin
       Haml::Engine.new(":markdown\n  _foo_").to_html
-    rescue Haml::HamlError
+    rescue Haml::Error
     else
       assert(false, "No exception raised!")
     end

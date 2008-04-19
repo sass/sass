@@ -669,13 +669,13 @@ END
 
     # Starts a filtered block.
     def start_filtered(name)
-      raise HamlError.new("Invalid filter name \":#{name}\".") unless name =~ /^\w+$/
+      raise Error.new("Invalid filter name \":#{name}\".") unless name =~ /^\w+$/
 
       unless filter = options[:filters][name]
         if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
-          raise HamlError.new("You must have the RedCloth gem installed to use \"#{name}\" filter")
+          raise Error.new("You must have the RedCloth gem installed to use \"#{name}\" filter")
         end
-        raise HamlError.new("Filter \"#{name}\" is not defined.")
+        raise Error.new("Filter \"#{name}\" is not defined.")
       end
 
       push_and_tabulate([:filtered, filter])
