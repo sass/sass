@@ -147,7 +147,7 @@ module Sass
 
         if tabs # if line isn't blank
           if tabs - old_tabs > 1
-            raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line)
+            raise SyntaxError.new("#{tabs * 2} spaces were used for indentation. Sass must be indented using two spaces.", @line)
           end
           @lines << [line.strip, tabs]
 
@@ -162,18 +162,20 @@ module Sass
 
     # Counts the tabulation of a line.
     def count_tabs(line)
-      spaces = line.index(/[^ ]/)
-      if spaces
-        if spaces % 2 == 1 || line[spaces] == ?\t
-          # Make sure a line with just tabs isn't an error
-          return nil if line.strip.empty?
+      return nil if line.strip.empty?
+      return nil unless spaces = line.index(/[^ ]/)
 
-          raise SyntaxError.new("Illegal Indentation: Only two space characters are allowed as tabulation.", @line)
-        end
-        spaces / 2
-      else
-        nil
+      if spaces % 2 == 1
+          raise SyntaxError.new(<<END.strip, @line)
+#{spaces} space#{spaces == 1 ? ' was' : 's were'} used for indentation. Sass must be indented using two spaces.
+END
+      elsif line[spaces] == ?\t
+        raise SyntaxError.new(<<END.strip, @line)
+A tab character was used for indentation. Sass must be indented using two spaces.
+Are you sure you have soft tabs enabled in your editor?
+END
       end
+      spaces / 2
     end
 
     def build_tree(index)

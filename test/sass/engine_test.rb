@@ -32,9 +32,12 @@ class SassEngineTest < Test::Unit::TestCase
     "!a" => 'Invalid constant: "!a"',
     "! a" => 'Invalid constant: "! a"',
     "!a b" => 'Invalid constant: "!a b"',
-    "a\n\t:b c" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
-    "a\n :b c" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
-    "a\n    :b c" => "Illegal Indentation: Only two space characters are allowed as tabulation.",
+    "a\n\t:b c" => <<END.strip,
+A tab character was used for indentation. Sass must be indented using two spaces.
+Are you sure you have soft tabs enabled in your editor?
+END
+    "a\n :b c" => "1 space was used for indentation. Sass must be indented using two spaces.",
+    "a\n    :b c" => "4 spaces were used for indentation. Sass must be indented using two spaces.",
     "a\n  :b c\n  !d = 3" => "Constants may only be declared at the root of a document.",
     "!a = 1b + 2c" => "Incompatible units: b and c",
     "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'",
