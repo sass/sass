@@ -22,17 +22,17 @@
   :prefix "sass-")
 
 (defcustom sass-mode-hook nil
-  "*Hook run by `sass-mode'."
+  "Hook run when entering Sass mode."
   :type 'hook
   :group 'sass)
 
 (defcustom sass-indent-offset 2
-  "*Amount of offset per level of indentation."
+  "Amount of offset per level of indentation."
   :type 'integer
   :group 'sass)
 
 (defcustom sass-backspace-function 'backward-delete-char-untabify
-  "*Function called by `sass-electric-backspace' when deleting backwards."
+  "Function called by `sass-electric-backspace' when deleting backwards."
   :type 'function
   :group 'sass)
 
@@ -63,43 +63,28 @@
 
 ;; Font lock
 
-(defconst sass-font-lock-keywords-1
-  (list
-   ;; directives
-   '("^@.*"                                   0 font-lock-constant-face)
-   ;; strings and hex constants
-   '("\\(\'[^']*'\\)"                         1 font-lock-string-face append)
-   '("\\(\"[^\"]*\"\\)"                       1 font-lock-string-face append)
-   '("\\(#[0-9a-fA-F]\\{3\\}\\{1,2\\}\\>\\)"  1 font-lock-string-face append)
-   ;; attributes
-   '("\\(:[A-Za-z-]+\\|[A-Za-z-]+:\\)"        0 font-lock-constant-face append)
-   ;; constants
-   '("![a-z0-9_-]+"                           0 font-lock-variable-name-face append)
-   ;; comments
-   '("^ *\\(/[/*].*\\)$"                      1 font-lock-comment-face append)
-   ;; ids
-   '("\\(?:^\\|,\\) *\\(#[a-z0-9_-]+\/?\\)"   1 font-lock-keyword-face)
-   ;; classes
-   '("\\(?:^\\|,\\) *\\(\\.[a-z0-9_-]+\/?\\)" 1 font-lock-type-face)
-   ;; tags
-   '("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" 1 font-lock-function-name-face )
-   ;; class after id
-   '("\\(?:^\\|,\\) *\\(#[a-z0-9_]+\/?\\)"    (1 font-lock-keyword-face)
+(defconst sass-font-lock-keywords
+  '(("^@.*"                                   0 font-lock-constant-face)
+    ("\\(\'[^']*'\\)"                         1 font-lock-string-face append)
+    ("\\(\"[^\"]*\"\\)"                       1 font-lock-string-face append)
+    ("\\(#[0-9a-fA-F]\\{3\\}\\{1,2\\}\\>\\)"  1 font-lock-string-face append)
+    ("\\(:[A-Za-z-]+\\|[A-Za-z-]+:\\)"        0 font-lock-constant-face append)
+    ("![a-z0-9_-]+"                           0 font-lock-variable-name-face append)
+    ("^ *\\(/[/*].*\\)$"                      1 font-lock-comment-face append)
+    ("\\(?:^\\|,\\) *\\(#[a-z0-9_-]+\/?\\)"   1 font-lock-keyword-face)
+    ("\\(?:^\\|,\\) *\\(\\.[a-z0-9_-]+\/?\\)" 1 font-lock-type-face)
+    ("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" 1 font-lock-function-name-face)
+    ("\\([=]\\)"                              0 font-lock-preprocessor-face prepend)
+    ("\\(?:^\\|,\\) *\\(#[a-z0-9_]+\/?\\)"    (1 font-lock-keyword-face)
      ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
-   ;; class after class
-   '("\\(?:^\\|,\\) *\\(\\.[a-z0-9_]+\/?\\)"  (1 font-lock-type-face)
+    ("\\(?:^\\|,\\) *\\(\\.[a-z0-9_]+\/?\\)"  (1 font-lock-type-face)
      ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
-   ;; id after class
-   '("\\(?:^\\|,\\) *\\(\\.[a-z0-9_]+\/?\\)"  (1 font-lock-type-face)
+    ("\\(?:^\\|,\\) *\\(\\.[a-z0-9_]+\/?\\)"  (1 font-lock-type-face)
      ("\\#[a-z0-9_-]+" nil nil                (0 font-lock-keyword-face)))
-   ;; class after tag
-   '("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" (1 font-lock-function-name-face)
+    ("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" (1 font-lock-function-name-face)
      ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
-   ;; id after tag
-   '("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" (1 font-lock-function-name-face)
-     ("\\#[a-z0-9_-]+" nil nil                (0 font-lock-keyword-face)))
-   ;; expressions
-   '("\\([=]\\)"                              0 font-lock-preprocessor-face prepend)))
+    ("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" (1 font-lock-function-name-face)
+     ("\\#[a-z0-9_-]+" nil nil                (0 font-lock-keyword-face)))))
 
 ;; Constants
 
@@ -113,24 +98,19 @@
 
 ;; Mode setup
 
-(defvar sass-mode-map ()
-  "Keymap used in `sass-mode' buffers.")
-(if sass-mode-map
-    nil
-  (setq sass-mode-map (make-sparse-keymap))
-  (define-key sass-mode-map [backspace] 'sass-electric-backspace)
-  (define-key sass-mode-map "\C-?" 'sass-electric-backspace)
-  (define-key sass-mode-map "\C-j" 'newline-and-indent))
+(defvar sass-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key sass-mode-map [backspace] 'sass-electric-backspace)
+    (define-key sass-mode-map "\C-?" 'sass-electric-backspace)
+    map))
 
 (define-derived-mode sass-mode fundamental-mode "Sass"
-  "Simple mode to edit Sass.
+  "Major mode for editing Sass files.
 
 \\{sass-mode-map}"
   (set (make-local-variable 'indent-line-function) 'sass-indent-line)
-  (set (make-local-variable 'font-lock-defaults)
-       '((sass-font-lock-keywords-1)
-         nil
-         t)))
+  (setq font-lock-defaults
+        '(sass-font-lock-keywords nil t)))
 
 ;; Indentation and electric keys
 

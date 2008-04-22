@@ -24,17 +24,17 @@
   :prefix "haml-")
 
 (defcustom haml-mode-hook nil
-  "*Hook run by `haml-mode'."
+  "Hook run when entering Haml mode."
   :type 'hook
   :group 'haml)
 
 (defcustom haml-indent-offset 2
-  "*Amount of offset per level of indentation."
+  "Amount of offset per level of indentation."
   :type 'integer
   :group 'haml)
 
 (defcustom haml-backspace-function 'backward-delete-char-untabify
-  "*Function called by `haml-electric-backspace' when deleting backwards."
+  "Function called by `haml-electric-backspace' when deleting backwards."
   :type 'function
   :group 'haml)
 
@@ -66,45 +66,31 @@ returns a non-nil value, or nil if no such element is found."
 
 ;; Font lock
 
-(defconst haml-font-lock-keywords-1
-  (list
-   ;; instruct
-   '("^!!!.*"                    0 font-lock-constant-face)
-   ;; strings
-   '("\\('[^']*'\\)"             1 font-lock-string-face append)
-   '("\\(\"[^\"]*\"\\)"          1 font-lock-string-face append)
-   ;; symbol
-   '("&?:\\w+"                   0 font-lock-constant-face append)
-   ;; ruby varible
-   '("@[a-z0-9_]+"               0 font-lock-variable-name-face append)
-   ;; pipe
-   '("| *$"                      0 font-lock-string-face)
-   ;; comment
-   '("^[ \t]*\\(/.*\\)$"         1 font-lock-comment-face append)
-   ;; id
-   '("^ *\\(#[a-z0-9_]+\/?\\)"   1 font-lock-keyword-face)
-   ;; class
-   '("^ *\\(\\.[a-z0-9_]+\/?\\)" 1 font-lock-type-face)
-   ;; tag
-   '("^ *\\(%[a-z0-9_]+\/?\\)"   1 font-lock-function-name-face )
-   ;; class after id
-   '("^ *\\(#[a-z0-9_]+\/?\\)"   (1 font-lock-keyword-face) ("\\.[a-z0-9_]+" nil nil (0 font-lock-type-face)))
-   ;; class after class
-   '("^ *\\(\\.[a-z0-9_]+\/?\\)" (1 font-lock-type-face) ("\\.[a-z0-9_]+" nil nil (0 font-lock-type-face)))
-   ;; id after class
-   '("^ *\\(\\.[a-z0-9_]+\/?\\)" (1 font-lock-type-face) ("\\#[a-z0-9_]+" nil nil (0 font-lock-keyword-face)))
-   ;; class after tag
-   '("^ *\\(%[a-z0-9_]+\/?\\)"   (1 font-lock-function-name-face) ("\\.[a-z0-9_]+" nil nil (0 font-lock-type-face)))
-   ;; id after tag
-   '("^ *\\(%[a-z0-9_]+\/?\\)"   (1 font-lock-function-name-face) ("\\#[a-z0-9_]+" nil nil (0 font-lock-keyword-face)))
-   ;; embeded ruby: beggin of line
-   '("^ *\\([~=-] .*\\)"          1 font-lock-preprocessor-face prepend)
-   ;; embeded ruby: after tag,class,id
-   '("^ *[\\.#%a-z0-9_]+\\([~=-] .*\\)"     1 font-lock-preprocessor-face prepend)
-   ;; embeded ruby: attributes
-   '("^ *[\\.#%a-z0-9_]+\\({[^}]+}\\)"      1 font-lock-preprocessor-face prepend)
-   ;; embeded ruby: square
-   '("^ *[\\.#%a-z0-9_]+\\(\\[[^]]+\\]\\)"  1 font-lock-preprocessor-face prepend)))
+(defconst haml-font-lock-keywords
+  '(("^!!!.*"                    0 font-lock-constant-face)
+    ("\\('[^']*'\\)"             1 font-lock-string-face append)
+    ("\\(\"[^\"]*\"\\)"          1 font-lock-string-face append)
+    ("&?:\\w+"                   0 font-lock-constant-face append)
+    ("@[a-z0-9_]+"               0 font-lock-variable-name-face append)
+    ("| *$"                      0 font-lock-string-face)
+    ("^[ \t]*\\(/.*\\)$"         1 font-lock-comment-face append)
+    ("^ *\\(#[a-z0-9_]+\/?\\)"   1 font-lock-keyword-face)
+    ("^ *\\(\\.[a-z0-9_]+\/?\\)" 1 font-lock-type-face)
+    ("^ *\\(%[a-z0-9_]+\/?\\)"   1 font-lock-function-name-face)
+    ("^ *\\(#[a-z0-9_]+\/?\\)"   (1 font-lock-keyword-face)
+     ("\\.[a-z0-9_]+" nil nil    (0 font-lock-type-face)))
+    ("^ *\\(\\.[a-z0-9_]+\/?\\)" (1 font-lock-type-face)
+     ("\\.[a-z0-9_]+" nil nil    (0 font-lock-type-face)))
+    ("^ *\\(\\.[a-z0-9_]+\/?\\)" (1 font-lock-type-face)
+     ("\\#[a-z0-9_]+" nil nil    (0 font-lock-keyword-face)))
+    ("^ *\\(%[a-z0-9_]+\/?\\)"   (1 font-lock-function-name-face)
+     ("\\.[a-z0-9_]+" nil nil    (0 font-lock-type-face)))
+    ("^ *\\(%[a-z0-9_]+\/?\\)"   (1 font-lock-function-name-face)
+     ("\\#[a-z0-9_]+" nil nil    (0 font-lock-keyword-face)))
+    ("^ *\\([~=-] .*\\)"         1 font-lock-preprocessor-face prepend)
+    ("^ *[\\.#%a-z0-9_]+\\([~=-] .*\\)"     1 font-lock-preprocessor-face prepend)
+    ("^ *[\\.#%a-z0-9_]+\\({[^}]+}\\)"      1 font-lock-preprocessor-face prepend)
+    ("^ *[\\.#%a-z0-9_]+\\(\\[[^]]+\\]\\)"  1 font-lock-preprocessor-face prepend)))
 
 ;; Constants
 
@@ -113,8 +99,9 @@ returns a non-nil value, or nil if no such element is found."
 (defconst haml-blank-line-re "^[ \t]*$"
   "Regexp matching a line containing only whitespace.")
 
-; Base for Regexen matching a Haml tag.
-(setq haml-tag-re-base (hre "\\([%\\.#][^ \t]*\\)\\({.*}\\)?\\(\\[.*\\]\\)?"))
+(defconst haml-tag-re-base
+  (hre "\\([%\\.#][^ \t]*\\)\\({.*}\\)?\\(\\[.*\\]\\)?")
+  "Base for regexps matching Haml tags.")
 
 (defconst haml-tag-nest-re (concat haml-tag-re-base "[ \t]*$")
   "Regexp matching a Haml tag that can have nested elements.")
@@ -149,26 +136,21 @@ returns a non-nil value, or nil if no such element is found."
     table)
   "Syntax table in use in haml-mode buffers.")
 
-(defvar haml-mode-map ()
-  "Keymap used in `haml-mode' buffers.")
-(if haml-mode-map
-    nil
-  (setq haml-mode-map (make-sparse-keymap))
-  (define-key haml-mode-map [backspace] 'haml-electric-backspace)
-  (define-key haml-mode-map "\C-?" 'haml-electric-backspace)
-  (define-key haml-mode-map "\C-j" 'newline-and-indent))
+(defvar haml-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [backspace] 'haml-electric-backspace)
+    (define-key map "\C-?" 'haml-electric-backspace)
+    map))
 
 (define-derived-mode haml-mode fundamental-mode "Haml"
-  "Simple mode to edit Haml.
+  "Major mode for editing Haml files.
 
 \\{haml-mode-map}"
   (set-syntax-table haml-mode-syntax-table)
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
-  (set (make-local-variable 'font-lock-defaults)
-       '((haml-font-lock-keywords-1)
-         nil
-         t)))
+  (setq font-lock-defaults
+        '((haml-font-lock-keywords) nil t)))
 
 ;; Indentation and electric keys
 
