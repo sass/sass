@@ -40,17 +40,6 @@
   :group 'faces
   :group 'haml)
 
-;; Helper Functions
-
-(defun string-* (str n)
-  "Concatenates a string with itself n times."
-  (if (= n 0) ""
-    (concat str (string-* str (- n 1)))))
-
-(defun hre (str)
-  "Prepends a Haml-tab-matching regexp to str."
-  (concat "^\\(" (string-* " " haml-indent-offset) "\\)*" str))
-
 ;; Font lock
 
 (defconst haml-font-lock-keywords
@@ -85,7 +74,7 @@
   "Regexp matching a line containing only whitespace.")
 
 (defconst haml-tag-re-base
-  (hre "\\([%\\.#][^ \t]*\\)\\({.*}\\)?\\(\\[.*\\]\\)?")
+  "^ *\\([%\\.#][^ \t]*\\)\\({.*}\\)?\\(\\[.*\\]\\)?"
   "Base for regexps matching Haml tags.")
 
 (defconst haml-tag-nest-re (concat haml-tag-re-base "[ \t]*$")
@@ -94,22 +83,22 @@
 (defconst haml-tag-re (concat haml-tag-re-base "\\(.?\\)")
   "Regexp matching a Haml tag.")
 
-(defconst haml-block-re (hre "[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$")
+(defconst haml-block-re ("^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$")
   "Regexp matching a Ruby block in Haml.")
 
-(defconst haml-block-cont-re (hre (concat "-[ \t]*"
-                                          (regexp-opt '("else" "elsif"
-                                                        "rescue" "ensure"
-                                                        "when"))))
+(defconst haml-block-cont-re
+  (concat "^ *-[ \t]*"
+          (regexp-opt '("else" "elsif" "rescue" "ensure" "when")))
   "Regexp matching a continued Ruby block in Haml.")
 
-(defconst haml-html-comment-re (hre "/\\(\\[.*\\]\\)?[ \t]*$")
+(defconst haml-html-comment-re
+  "^ */\\(\\[.*\\]\\)?[ \t]*$")
   "Regexp matching a Haml HTML comment command.")
 
-(defconst haml-comment-re (hre "-#[ \t]$")
+(defconst haml-comment-re "^ *-#[ \t]$"
   "Regexp matching a Haml comment command.")
 
-(defconst haml-filter-re (hre ":")
+(defconst haml-filter-re "^ *:"
   "Regexp matching a Haml filter command.")
 
 ;; Mode setup

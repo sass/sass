@@ -38,17 +38,6 @@
   :group 'faces
   :group 'sass)
 
-;; Helper Functions
-
-(defun string-* (str n)
-  "Concatenates a string with itself n times."
-  (if (= n 0) ""
-    (concat str (string-* str (- n 1)))))
-
-(defun sre (str)
-  "Prepends a Sass-tab-matching regexp to str."
-  (concat "^\\(" (string-* " " sass-indent-offset) "\\)*" str))
-
 ;; Font lock
 
 (defconst sass-font-lock-keywords
@@ -79,7 +68,7 @@
 (defconst sass-blank-line-re "^[ \t]*$"
   "Regexp matching a line containing only whitespace.")
 
-(defconst sass-full-attr-re (sre ":[^ \t]+[ \t]+[^ \t]")
+(defconst sass-full-attr-re "^ *:[^ \t]+[ \t]+[^ \t]"
   "Regexp matching a Sass attribute with content.")
 
 ;; Mode setup
