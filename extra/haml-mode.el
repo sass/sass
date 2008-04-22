@@ -33,11 +33,6 @@
   :type 'integer
   :group 'haml)
 
-(defcustom haml-backspace-function 'backward-delete-char-untabify
-  "Function called by `haml-electric-backspace' when deleting backwards."
-  :type 'function
-  :group 'haml)
-
 (defface haml-tab-face
    '((((class color)) (:background "red" :foreground "red" :bold t))
      (t (:reverse-video t)))
@@ -232,7 +227,7 @@ If invoked following only whitespace on a line, will back-dent to the
 immediately previous multiple of `haml-indent-offset' spaces."
   (interactive "*p")
   (if (or (/= (current-indentation) (current-column)) (bolp))
-      (funcall haml-backspace-function arg)
+      (backward-delete-char arg)
     (let ((ci (current-column)))
       (beginning-of-line)
       (delete-horizontal-space)

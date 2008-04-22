@@ -31,11 +31,6 @@
   :type 'integer
   :group 'sass)
 
-(defcustom sass-backspace-function 'backward-delete-char-untabify
-  "Function called by `sass-electric-backspace' when deleting backwards."
-  :type 'function
-  :group 'sass)
-
 (defface sass-tab-face
    '((((class color)) (:background "red" :foreground "red" :bold t))
      (t (:reverse-video t)))
@@ -152,7 +147,7 @@ If invoked following only whitespace on a line, will back-dent to the
 immediately previous multiple of `sass-indent-offset' spaces."
   (interactive "*p")
   (if (or (/= (current-indentation) (current-column)) (bolp))
-      (funcall sass-backspace-function arg)
+      (backward-delete-char arg)
     (let ((ci (current-column)))
       (beginning-of-line)
       (delete-horizontal-space)
