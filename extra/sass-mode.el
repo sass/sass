@@ -138,7 +138,7 @@
   "Calculate the maximum sensible indentation for the current line."
   (save-excursion
     (beginning-of-line)
-    (if (bobp) 10
+    (if (bobp) 0
       (forward-line -1)
       (while (and (looking-at sass-blank-line-re)
                   (> (point) (point-min)))

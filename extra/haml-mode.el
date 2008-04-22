@@ -176,7 +176,7 @@ returns a non-nil value, or nil if no such element is found."
   "Calculate the maximum sensible indentation for the current line."
   (save-excursion
     (beginning-of-line)
-    (if (bobp) 10
+    (if (bobp) 0
       (forward-line -1)
       (while (and (looking-at haml-blank-line-re)
                   (> (point) (point-min)))
