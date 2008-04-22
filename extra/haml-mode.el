@@ -10,6 +10,7 @@
 ;;;
 ;;; (add-to-list 'load-path "/path/to/haml-mode.el")
 ;;; (require 'haml-mode nil 't)
+;;; (add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
 ;;;
 
 ;;; Code:
@@ -46,14 +47,6 @@
   "Concatenates a string with itself n times."
   (if (= n 0) ""
     (concat str (string-* str (- n 1)))))
-
-(defun find-if (f lst)
-  "Returns the first element of a list for which a function
-returns a non-nil value, or nil if no such element is found."
-  (while (not (or (null lst)
-                  (apply f (list (car lst)))))
-    (setq lst (cdr lst)))
-  (if (null lst) nil (car lst)))
 
 (defun hre (str)
   "Prepends a Haml-tab-matching regexp to str."
@@ -244,10 +237,5 @@ immediately previous multiple of `haml-indent-offset' spaces."
   haml-mode-version)
 
 (provide 'haml-mode)
-
-(unless (find-if
-         #'(lambda(it) (string= it "\\.haml\\'"))
-         (mapcar 'car auto-mode-alist))
-  (add-to-list 'auto-mode-alist '("\\.haml\\'" . haml-mode)))
 
 ;;; haml-mode.el ends here
