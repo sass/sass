@@ -194,7 +194,10 @@ returns a non-nil value, or nil if no such element is found."
   "Indent each nonblank line in the region.
 This is done by indenting the first line based on
 `haml-compute-indentation' and preserving the relative
-indentation of the rest of the region."
+indentation of the rest of the region.
+
+If this command is used multiple times in a row, it will cycle
+between possible indentations."
   (save-excursion
     (goto-char end)
     (setq end (point-marker))
@@ -202,7 +205,10 @@ indentation of the rest of the region."
     ;; Don't start in the middle of a line
     (unless (bolp) (forward-line 1))
     (let (this-line-column current-column
-          (next-line-column (haml-compute-indentation)))
+          (next-line-column
+           (if (and (equal last-command this-command) (/= (current-indentation) 0))
+               (* (/ (- (current-indentation) 1) haml-indent-offset) haml-indent-offset)
+             (haml-compute-indentation))))
       (while (< (point) end)
         (setq this-line-column next-line-column
               current-column (current-indentation))
