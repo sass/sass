@@ -14,6 +14,8 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl))
+
 ;; User definable variables
 
 (defgroup haml nil
@@ -51,7 +53,8 @@
     (concat str (string-* str (- n 1)))))
 
 (defun find-if (f lst)
-  "Returns the first element of a list for which a function returns a non-nil value, or nil if no such element is found."
+  "Returns the first element of a list for which a function
+returns a non-nil value, or nil if no such element is found."
   (while (not (or (null lst)
                   (apply f (list (car lst)))))
     (setq lst (cdr lst)))
@@ -161,6 +164,7 @@
 \\{haml-mode-map}"
   (set-syntax-table haml-mode-syntax-table)
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
+  (set (make-local-variable 'indent-region-function) 'haml-indent-region)
   (set (make-local-variable 'font-lock-defaults)
        '((haml-font-lock-keywords-1)
          nil
@@ -185,6 +189,35 @@
                  (looking-at haml-tag-nest-re)
                  (looking-at haml-block-re))
              haml-indent-offset 0)))))
+
+(defun haml-indent-region (start end)
+  "Indent each nonblank line in the region.
+This is done by indenting the first line based on
+`haml-compute-indentation' and preserving the relative
+indentation of the rest of the region."
+  (save-excursion
+    (goto-char end)
+    (setq end (point-marker))
+    (goto-char start)
+    ;; Don't start in the middle of a line
+    (unless (bolp) (forward-line 1))
+    (let (this-line-column current-column
+          (next-line-column (haml-compute-indentation)))
+      (while (< (point) end)
+        (setq this-line-column next-line-column
+              current-column (current-indentation))
+        ;; Delete whitespace chars at beginning of line
+        (delete-horizontal-space)
+        (unless (eolp)
+          (setq next-line-column (save-excursion
+                                   (loop do (forward-line 1)
+                                         while (and (not (eobp)) (looking-at "^[ \t]*$")))
+                                   (+ this-line-column
+                                      (- (current-indentation) current-column))))
+          ;; Don't indent an empty line
+          (unless (eolp) (indent-to this-line-column)))
+        (forward-line 1)))
+    (move-marker end nil)))
 
 (defun haml-indent-line ()
   "Indent the current line.
