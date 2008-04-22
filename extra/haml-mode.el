@@ -1,5 +1,4 @@
 ;;; haml-mode.el -- Major mode for editing Haml files
-;;; Version 0.0.1
 ;;; Written by Nathan Weizenbaum
 
 ;;; Because Haml's indentation schema is similar
@@ -81,8 +80,6 @@
     ("^ *[\\.#%a-z0-9_]+\\(\\[[^]]+\\]\\)"  1 font-lock-preprocessor-face prepend)))
 
 ;; Constants
-
-(defconst haml-mode-version "0.0.1" "Version of `haml-mode.'")
 
 (defconst haml-blank-line-re "^[ \t]*$"
   "Regexp matching a line containing only whitespace.")
@@ -230,12 +227,4 @@ immediately previous multiple of `haml-indent-offset' spaces."
 
 ;; Setup/Activation
 
-(defun haml-mode-version ()
-  "Diplay version of `haml-mode'."
-  (interactive)
-  (message "haml-mode %s" haml-mode-version)
-  haml-mode-version)
-
 (provide 'haml-mode)
-
-;;; haml-mode.el ends here

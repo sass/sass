@@ -1,5 +1,4 @@
 ;;; sass-mode.el -- Major mode for editing Sass files
-;;; Version 0.0.2
 ;;; Written by Nathan Weizenbaum
 
 ;;; Because Sass's indentation schema is similar
@@ -77,8 +76,6 @@
 
 ;; Constants
 
-(defconst sass-mode-version "0.0.2" "Version of `sass-mode.'")
-
 (defconst sass-blank-line-re "^[ \t]*$"
   "Regexp matching a line containing only whitespace.")
 
@@ -151,12 +148,4 @@ immediately previous multiple of `sass-indent-offset' spaces."
 
 ;; Setup/Activation
 
-(defun sass-mode-version ()
-  "Diplay version of `sass-mode'."
-  (interactive)
-  (message "sass-mode %s" sass-mode-version)
-  sass-mode-version)
-
 (provide 'sass-mode)
-
-;;; sass-mode.el ends here
