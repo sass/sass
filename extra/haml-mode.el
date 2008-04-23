@@ -34,8 +34,8 @@
   :group 'haml)
 
 (defface haml-tab-face
-   '((((class color)) (:background "red" :foreground "red" :bold t))
-     (t (:reverse-video t)))
+  '((((class color)) (:background "hotpink"))
+    (t (:reverse-video t)))
   "Face to use for highlighting tabs in Haml files."
   :group 'faces
   :group 'haml)
@@ -43,7 +43,8 @@
 ;; Font lock
 
 (defconst haml-font-lock-keywords
-  '(("^!!!.*"                    0 font-lock-constant-face)
+  '(("^ *\\(\t\\)"               1 'haml-tab-face)
+    ("^!!!.*"                    0 font-lock-constant-face)
     ("\\('[^']*'\\)"             1 font-lock-string-face append)
     ("\\(\"[^\"]*\"\\)"          1 font-lock-string-face append)
     ("&?:\\w+"                   0 font-lock-constant-face append)
@@ -83,7 +84,7 @@
 (defconst haml-tag-re (concat haml-tag-re-base "\\(.?\\)")
   "Regexp matching a Haml tag.")
 
-(defconst haml-block-re ("^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$")
+(defconst haml-block-re "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
   "Regexp matching a Ruby block in Haml.")
 
 (defconst haml-block-cont-re
@@ -91,8 +92,7 @@
           (regexp-opt '("else" "elsif" "rescue" "ensure" "when")))
   "Regexp matching a continued Ruby block in Haml.")
 
-(defconst haml-html-comment-re
-  "^ */\\(\\[.*\\]\\)?[ \t]*$")
+(defconst haml-html-comment-re "^ */\\(\\[.*\\]\\)?[ \t]*$"
   "Regexp matching a Haml HTML comment command.")
 
 (defconst haml-comment-re "^ *-#[ \t]$"

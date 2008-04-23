@@ -32,8 +32,8 @@
   :group 'sass)
 
 (defface sass-tab-face
-   '((((class color)) (:background "red" :foreground "red" :bold t))
-     (t (:reverse-video t)))
+  '((((class color)) (:background "hotpink"))
+    (t (:reverse-video t)))
   "Face to use for highlighting tabs in Sass files."
   :group 'faces
   :group 'sass)
@@ -41,7 +41,8 @@
 ;; Font lock
 
 (defconst sass-font-lock-keywords
-  '(("^@.*"                                   0 font-lock-constant-face)
+  '(("^ *\\(\t\\)"                            1 'sass-tab-face)
+    ("^@.*"                                   0 font-lock-constant-face)
     ("\\(\'[^']*'\\)"                         1 font-lock-string-face append)
     ("\\(\"[^\"]*\"\\)"                       1 font-lock-string-face append)
     ("\\(#[0-9a-fA-F]\\{3\\}\\{1,2\\}\\>\\)"  1 font-lock-string-face append)
