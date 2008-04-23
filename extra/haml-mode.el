@@ -40,6 +40,12 @@
   :group 'faces
   :group 'haml)
 
+(defvar haml-compute-indentation-function 'haml-compute-indentation
+  "The function used to compute the indentation of a Haml line.
+This function should return a number indicating the column at
+which the current line should be indented. This column should be
+the maximum column that makes sense to indent the line.")
+
 ;; Font lock
 
 (defconst haml-font-lock-keywords
@@ -149,7 +155,7 @@
 (defun haml-indent-region (start end)
   "Indent each nonblank line in the region.
 This is done by indenting the first line based on
-`haml-compute-indentation' and preserving the relative
+`haml-compute-indentation-function' and preserving the relative
 indentation of the rest of the region.
 
 If this command is used multiple times in a row, it will cycle
@@ -164,7 +170,7 @@ between possible indentations."
           (next-line-column
            (if (and (equal last-command this-command) (/= (current-indentation) 0))
                (* (/ (- (current-indentation) 1) haml-indent-offset) haml-indent-offset)
-             (haml-compute-indentation))))
+             (funcall haml-compute-indentation-function))))
       (while (< (point) end)
         (setq this-line-column next-line-column
               current-column (current-indentation))
@@ -190,7 +196,7 @@ back-dent the line by `haml-indent-offset' spaces.  On reaching column
   (interactive "*")
   (let ((ci (current-indentation))
         (cc (current-column))
-        (need (haml-compute-indentation)))
+        (need (funcall haml-compute-indentation-function)))
     (save-excursion
       (beginning-of-line)
       (delete-horizontal-space)

@@ -14,6 +14,8 @@
 
 ;;; Code:
 
+(require 'haml-mode)
+
 ;; User definable variables
 
 (defgroup sass nil
@@ -31,17 +33,10 @@
   :type 'integer
   :group 'sass)
 
-(defface sass-tab-face
-  '((((class color)) (:background "hotpink"))
-    (t (:reverse-video t)))
-  "Face to use for highlighting tabs in Sass files."
-  :group 'faces
-  :group 'sass)
-
 ;; Font lock
 
 (defconst sass-font-lock-keywords
-  '(("^ *\\(\t\\)"                            1 'sass-tab-face)
+  '(("^ *\\(\t\\)"                            1 'haml-tab-face)
     ("^@.*"                                   0 font-lock-constant-face)
     ("\\(\'[^']*'\\)"                         1 font-lock-string-face append)
     ("\\(\"[^\"]*\"\\)"                       1 font-lock-string-face append)
@@ -74,17 +69,10 @@
 
 ;; Mode setup
 
-(defvar sass-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key sass-mode-map [backspace] 'sass-electric-backspace)
-    (define-key sass-mode-map "\C-?" 'sass-electric-backspace)
-    map))
-
-(define-derived-mode sass-mode fundamental-mode "Sass"
-  "Major mode for editing Sass files.
-
-\\{sass-mode-map}"
-  (set (make-local-variable 'indent-line-function) 'sass-indent-line)
+(define-derived-mode sass-mode haml-mode "Sass"
+  "Major mode for editing Sass files."
+  (set (make-local-variable 'haml-compute-indentation-function) 'sass-compute-indentation)
+  (set (make-local-variable 'haml-indent-offset) sass-indent-offset)
   (setq font-lock-defaults
         '(sass-font-lock-keywords nil t)))
 
@@ -102,39 +90,6 @@
       (+ (current-indentation)
          (if (not (looking-at sass-full-attr-re))
              sass-indent-offset 0)))))
-
-(defun sass-indent-line ()
-  "Indent the current line.
-The first time this command is used, the line will be indented to the
-maximum sensible indentation.  Each immediately subsequent usage will
-back-dent the line by `sass-indent-offset' spaces.  On reaching column
-0, it will cycle back to the maximum sensible indentation."
-  (interactive "*")
-  (let ((ci (current-indentation))
-        (cc (current-column))
-        (need (sass-compute-indentation)))
-    (save-excursion
-      (beginning-of-line)
-      (delete-horizontal-space)
-      (if (and (equal last-command this-command) (/= ci 0))
-          (indent-to (* (/ (- ci 1) sass-indent-offset) sass-indent-offset))
-        (indent-to need)))
-      (if (< (current-column) (current-indentation))
-          (forward-to-indentation 0))))
-
-(defun sass-electric-backspace (arg)
-  "Delete characters or back-dent the current line.
-If invoked following only whitespace on a line, will back-dent to the
-immediately previous multiple of `sass-indent-offset' spaces."
-  (interactive "*p")
-  (if (or (/= (current-indentation) (current-column)) (bolp))
-      (backward-delete-char arg)
-    (let ((ci (current-column)))
-      (beginning-of-line)
-      (delete-horizontal-space)
-      (indent-to (* (/ (- ci (* arg sass-indent-offset))
-                       sass-indent-offset)
-                    sass-indent-offset)))))
 
 ;; Setup/Activation
 
