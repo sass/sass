@@ -113,7 +113,7 @@ END
   Rake::Task[:package].enhance { File.delete('REVISION') if File.exists?('REVISION') }
 
   task :install => [:package] do
-    sudo = RUBY_PLATFORM =~ /win32/ ? 'sudo' : ''
+    sudo = RUBY_PLATFORM =~ /win32/ ? '' : 'sudo'
     sh %{#{sudo} gem install --no-ri pkg/haml-#{File.read('VERSION').strip}}
   end
 
