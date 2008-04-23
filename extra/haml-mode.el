@@ -129,8 +129,7 @@ the maximum column that makes sense to indent the line.")
   (set-syntax-table haml-mode-syntax-table)
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
-  (setq font-lock-defaults
-        '((haml-font-lock-keywords) nil t)))
+  (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
 
 ;; Indentation and electric keys
 

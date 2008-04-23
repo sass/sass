@@ -73,8 +73,7 @@
   "Major mode for editing Sass files."
   (set (make-local-variable 'haml-compute-indentation-function) 'sass-compute-indentation)
   (set (make-local-variable 'haml-indent-offset) sass-indent-offset)
-  (setq font-lock-defaults
-        '(sass-font-lock-keywords nil t)))
+  (setq font-lock-defaults '(sass-font-lock-keywords nil t)))
 
 ;; Indentation and electric keys
 
