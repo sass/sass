@@ -10,11 +10,17 @@ module Haml
       1
     end
 
-    def compile(source)
+    def compile(template)
       options = Haml::Template.options.dup
 
-      # template is set in Rails >=2.1.0
-      options[:filename] ||= template.filename if defined?(template) && template
+      # template is a template object in Rails >=2.1.0,
+      # a source string previously
+      if template.respond_to? :source
+        options[:filename] = template.filename
+        source = template.source
+      else
+        source = template
+      end
 
       Haml::Engine.new(source, options).send(:precompiled_with_ambles, [])
     end
