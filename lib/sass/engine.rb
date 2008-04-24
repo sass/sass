@@ -190,14 +190,14 @@ END
       unless node.is_a? Tree::Node
         if has_children
           if node == :constant
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line)
+            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line + 1)
           elsif node.is_a? Array
             # arrays can either be full of import statements
             # or attributes from mixin includes
             # in either case they shouldn't have children.
             # Need to peek into the array in order to give meaningful errors
             directive_type = (node.first.is_a?(Tree::DirectiveNode) ? "import" : "mixin")
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath #{directive_type} directives.", @line)
+            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath #{directive_type} directives.", @line + 1)
           end
         end
 
