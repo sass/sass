@@ -407,11 +407,3 @@ END
     include ActionViewExtensions if self.const_defined? "ActionViewExtensions"
   end
 end
-
-module ActionView
-  class Base # :nodoc:
-    def is_haml?
-      false
-    end
-  end
-end
