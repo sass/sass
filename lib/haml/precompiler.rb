@@ -97,15 +97,14 @@ module Haml
     def precompiled_with_ambles(local_names)
       preamble = <<END.gsub("\n", ";")
 extend Haml::Helpers
-@haml_stack ||= Array.new
-@haml_stack.push(Haml::Buffer.new(#{options_for_buffer.inspect}))
+_hamlout = @haml_buffer = Haml::Buffer.new(@haml_buffer, #{options_for_buffer.inspect})
 @haml_is_haml = true
-_hamlout = @haml_stack[-1]
 _erbout = _hamlout.buffer
 END
       postamble = <<END.gsub("\n", ";")
 @haml_is_haml = false
-@haml_stack.pop.buffer
+@haml_buffer = @haml_buffer.upper
+_erbout
 END
       preamble + locals_code(local_names) + @precompiled + postamble
     end

@@ -147,7 +147,7 @@ END
     # they won't work.
     def render(scope = Object.new, locals = {}, &block)
       locals = (@options[:locals] || {}).merge(locals)
-      buffer = Haml::Buffer.new(options_for_buffer)
+      buffer = Haml::Buffer.new(scope.instance_variable_get('@haml_buffer'), options_for_buffer)
 
       if scope.is_a?(Binding) || scope.is_a?(Proc)
         scope_object = eval("self", scope)
@@ -161,8 +161,7 @@ END
 
       scope_object.instance_eval do
         extend Haml::Helpers
-        @haml_stack ||= Array.new
-        @haml_stack.push(buffer)
+        @haml_buffer = buffer
         @haml_is_haml = true
       end
 
@@ -170,7 +169,7 @@ END
 
       # Get rid of the current buffer
       scope_object.instance_eval do
-        @haml_stack.pop
+        @haml_buffer = buffer.upper
         @haml_is_haml = false
       end
 

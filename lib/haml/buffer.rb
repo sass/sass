@@ -18,6 +18,11 @@ module Haml
     # The options hash passed in from Haml::Engine.
     attr_accessor :options
 
+    # The Buffer for the enclosing Haml document.
+    # This is set for partials and similar sorts of nested templates.
+    # It's nil at the top level (see #toplevel?).
+    attr_accessor :upper
+
     # True if the format is XHTML
     def xhtml?
       not html?
@@ -38,6 +43,12 @@ module Haml
       @options[:format] == :html5
     end
 
+    # True if this buffer is a top-level template,
+    # as opposed to a nested partial.
+    def toplevel?
+      upper.nil?
+    end
+
     # Gets the current tabulation of the document.
     def tabulation
       @real_tabs + @tabulation
@@ -50,7 +61,8 @@ module Haml
     end
 
     # Creates a new buffer.
-    def initialize(options = {})
+    def initialize(upper = nil, options = {})
+      @upper = upper
       @options = {
         :attr_wrapper => "'",
         :ugly => false,

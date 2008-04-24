@@ -38,7 +38,7 @@ module Haml
     #
     def init_haml_helpers
       @haml_is_haml = true
-      @haml_stack = [Haml::Buffer.new(Haml::Engine.new('').send(:options_for_buffer))]
+      @haml_buffer = Haml::Buffer.new(@haml_buffer, Haml::Engine.new('').send(:options_for_buffer))
       nil
     end
 
@@ -345,7 +345,7 @@ END
 
     # Gets a reference to the current Haml::Buffer object.
     def haml_buffer
-      @haml_stack[-1]
+      @haml_buffer
     end
 
     # Gives a proc the same local "_hamlout" and "_erbout" variables
