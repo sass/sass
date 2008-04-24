@@ -42,6 +42,24 @@ module Haml
     end
 
     # call-seq:
+    #   non_haml { ... }
+    #
+    # Runs a block of code in a non-Haml context
+    # (i.e. #is_haml? will return false).
+    #
+    # This is mainly useful for rendering sub-templates such as partials in a non-Haml language,
+    # particularly where helpers may behave differently when run from Haml.
+    #
+    # Note that this is automatically applied to Rails partials.
+    def non_haml
+      old_buffer = @haml_buffer
+      @haml_buffer = nil
+      res = yield
+      @haml_buffer = old_buffer
+      res
+    end
+
+    # call-seq:
     #   find_and_preserve(input)
     #   find_and_preserve {...}
     #

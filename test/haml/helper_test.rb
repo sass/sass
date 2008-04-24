@@ -165,5 +165,9 @@ class HelperTest < Test::Unit::TestCase
 
     assert_equal("<p attr='val'>\n  Blah\n</p>\n", result)
   end
+
+  def test_non_haml
+    assert_equal("false\n", render("= non_haml { is_haml? }"))
+  end
 end
 
