@@ -850,10 +850,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # Blocks of literal text can be preserved using the :preserve filter (see above).
 #
-# After the top-level Haml template has been processed,
-# all newline escapes are converted back into literal newlines
-# to make the source code more readable.
-#
 # === Helpers
 #
 # Haml offers a bunch of helpers that are useful
