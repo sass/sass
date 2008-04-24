@@ -2,6 +2,10 @@
 require File.dirname(__FILE__) + '/test_helper'
 
 class EngineTest < Test::Unit::TestCase
+  # A map of erroneous Sass documents to the error messages they should produce.
+  # The error messages may be arrays;
+  # if so, the second element should be the line number that should be reported for the error.
+  # If this isn't provided, the tests will assume the line number should be the last line of the document.
   EXCEPTION_MAP = {
     "!!!\n  a" => "Illegal nesting: nesting within a header command is illegal.",
     "a\n  b" => "Illegal nesting: nesting within plain text is illegal.",
@@ -20,7 +24,7 @@ END
     "%p\n a" => "1 space was used for indentation. Haml must be indented using two spaces.",
     "%p\n   a" => "3 spaces were used for indentation. Haml must be indented using two spaces.",
     "%p\n    a" => "4 spaces were used for indentation. Haml must be indented using two spaces.",
-    ":a\n  b" => 'Filter "a" is not defined.',
+    ":a\n  b" => ['Filter "a" is not defined.', 1],
     ":a= b" => 'Invalid filter name ":a= b".',
     "." => "Illegal element: classes and ids must have values.",
     ".#" => "Illegal element: classes and ids must have values.",
@@ -333,7 +337,10 @@ END
       begin
         render(key)
       rescue Haml::Error => err
-        assert_equal(value, err.message)
+        value = [value] unless value.is_a?(Array)
+
+        assert_equal(value.first, err.message, "Line: #{key}")
+        assert_equal(value[1] || key.split("\n").length, err.backtrace[0].gsub('(haml):', '').to_i, "Line: #{key}")
       else
         assert(false, "Haml::Error not raised for\n#{key}")
       end
