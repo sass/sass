@@ -40,11 +40,20 @@
   :group 'faces
   :group 'haml)
 
-(defvar haml-compute-indentation-function 'haml-compute-indentation
-  "The function used to compute the indentation of a Haml line.
-This function should return a number indicating the column at
-which the current line should be indented. This column should be
-the maximum column that makes sense to indent the line.")
+(defvar haml-indent-function 'haml-indent-p
+  "This function should look at the current line and return true
+if the next line could be nested within this line.")
+
+(defvar haml-block-openers
+  `("^ *\\([%\\.#][^ \t]*\\)\\({.*}\\)?\\(\\[.*\\]\\)?[ \t]*$"
+    "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
+    ,(concat "^ *-[ \t]*"
+             (regexp-opt '("else" "elsif" "rescue" "ensure" "when")))
+    "^ */\\(\\[.*\\]\\)?[ \t]*$"
+    "^ *-#"
+    "^ *:")
+  "A list of regexps that match lines of Haml that could have
+text nested beneath them.")
 
 ;; Font lock
 
@@ -75,38 +84,6 @@ the maximum column that makes sense to indent the line.")
     ("^ *[\\.#%a-z0-9_]+\\({[^}]+}\\)"      1 font-lock-preprocessor-face prepend)
     ("^ *[\\.#%a-z0-9_]+\\(\\[[^]]+\\]\\)"  1 font-lock-preprocessor-face prepend)))
 
-;; Constants
-
-(defconst haml-blank-line-re "^[ \t]*$"
-  "Regexp matching a line containing only whitespace.")
-
-(defconst haml-tag-re-base
-  "^ *\\([%\\.#][^ \t]*\\)\\({.*}\\)?\\(\\[.*\\]\\)?"
-  "Base for regexps matching Haml tags.")
-
-(defconst haml-tag-nest-re (concat haml-tag-re-base "[ \t]*$")
-  "Regexp matching a Haml tag that can have nested elements.")
-
-(defconst haml-tag-re (concat haml-tag-re-base "\\(.?\\)")
-  "Regexp matching a Haml tag.")
-
-(defconst haml-block-re "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
-  "Regexp matching a Ruby block in Haml.")
-
-(defconst haml-block-cont-re
-  (concat "^ *-[ \t]*"
-          (regexp-opt '("else" "elsif" "rescue" "ensure" "when")))
-  "Regexp matching a continued Ruby block in Haml.")
-
-(defconst haml-html-comment-re "^ */\\(\\[.*\\]\\)?[ \t]*$"
-  "Regexp matching a Haml HTML comment command.")
-
-(defconst haml-comment-re "^ *-#[ \t]$"
-  "Regexp matching a Haml comment command.")
-
-(defconst haml-filter-re "^ *:"
-  "Regexp matching a Haml filter command.")
-
 ;; Mode setup
 
 (defvar haml-mode-syntax-table
@@ -133,28 +110,28 @@ the maximum column that makes sense to indent the line.")
 
 ;; Indentation and electric keys
 
+(defun haml-indent-p ()
+  "Returns true if the current line can have lines nested beneath it."
+  (loop for opener in haml-block-openers
+        if (looking-at opener) return t
+        return nil))
+
 (defun haml-compute-indentation ()
   "Calculate the maximum sensible indentation for the current line."
   (save-excursion
     (beginning-of-line)
     (if (bobp) 0
-      (forward-line -1)
-      (while (and (looking-at haml-blank-line-re)
-                  (> (point) (point-min)))
-        (forward-line -1))
+      (loop do (forward-line -1)
+            while (and (looking-at "^[ \t]$")
+                       (> (point) (point-min))))
       (+ (current-indentation)
-         (if (or (looking-at haml-filter-re)
-                 (looking-at haml-comment-re)
-                 (looking-at haml-html-comment-re)
-                 (looking-at haml-block-cont-re)
-                 (looking-at haml-tag-nest-re)
-                 (looking-at haml-block-re))
-             haml-indent-offset 0)))))
+         (if (funcall haml-indent-function) haml-indent-offset
+           0)))))
 
 (defun haml-indent-region (start end)
   "Indent each nonblank line in the region.
 This is done by indenting the first line based on
-`haml-compute-indentation-function' and preserving the relative
+`haml-compute-indentation' and preserving the relative
 indentation of the rest of the region.
 
 If this command is used multiple times in a row, it will cycle
@@ -169,7 +146,7 @@ between possible indentations."
           (next-line-column
            (if (and (equal last-command this-command) (/= (current-indentation) 0))
                (* (/ (- (current-indentation) 1) haml-indent-offset) haml-indent-offset)
-             (funcall haml-compute-indentation-function))))
+             (haml-compute-indentation))))
       (while (< (point) end)
         (setq this-line-column next-line-column
               current-column (current-indentation))
@@ -195,7 +172,7 @@ back-dent the line by `haml-indent-offset' spaces.  On reaching column
   (interactive "*")
   (let ((ci (current-indentation))
         (cc (current-column))
-        (need (funcall haml-compute-indentation-function)))
+        (need (haml-compute-indentation)))
     (save-excursion
       (beginning-of-line)
       (delete-horizontal-space)

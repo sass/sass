@@ -33,6 +33,12 @@
   :type 'integer
   :group 'sass)
 
+(defvar sass-non-block-openers
+  '("^ *:[^ \t]+[ \t]+[^ \t]"
+    "^ *[^ \t:]+[ \t]*[=:][ \t]*[^ \t]")
+  "A list of regexps that match lines of Sass that couldn't have
+text nested beneath them.")
+
 ;; Font lock
 
 (defconst sass-font-lock-keywords
@@ -61,34 +67,21 @@
 
 ;; Constants
 
-(defconst sass-blank-line-re "^[ \t]*$"
-  "Regexp matching a line containing only whitespace.")
-
-(defconst sass-full-attr-re "^ *:[^ \t]+[ \t]+[^ \t]"
-  "Regexp matching a Sass attribute with content.")
-
 ;; Mode setup
 
 (define-derived-mode sass-mode haml-mode "Sass"
   "Major mode for editing Sass files."
-  (set (make-local-variable 'haml-compute-indentation-function) 'sass-compute-indentation)
+  (set (make-local-variable 'haml-indent-function) 'sass-indent-p)
   (set (make-local-variable 'haml-indent-offset) sass-indent-offset)
   (setq font-lock-defaults '(sass-font-lock-keywords nil t)))
 
-;; Indentation and electric keys
+;; Indentation
 
-(defun sass-compute-indentation ()
-  "Calculate the maximum sensible indentation for the current line."
-  (save-excursion
-    (beginning-of-line)
-    (if (bobp) 0
-      (forward-line -1)
-      (while (and (looking-at sass-blank-line-re)
-                  (> (point) (point-min)))
-        (forward-line -1))
-      (+ (current-indentation)
-         (if (not (looking-at sass-full-attr-re))
-             sass-indent-offset 0)))))
+(defun sass-indent-p ()
+  "Returns true if the current line can have lines nested beneath it."
+  (loop for opener in sass-non-block-openers
+        unless (looking-at opener) return t
+        return nil))
 
 ;; Setup/Activation
 
