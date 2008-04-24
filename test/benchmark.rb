@@ -28,7 +28,7 @@ module Haml
 
     times = Benchmark.bmbm do |b|
       b.report("haml:")   { runs.times { Haml::Engine.new(haml_template).render } }
-      b.report("erb:")    { runs.times { ERB.new(erb_template, nil, '-').render } }
+      b.report("erb:")    { runs.times { ERB.new(erb_template, nil, '-').result } }
       b.report("erubis:") { runs.times { Erubis::Eruby.new(erb_template).result } }
       b.report("mab:")    { runs.times { Markaby::Template.new(markaby_template).render } }
     end
