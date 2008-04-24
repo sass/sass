@@ -98,11 +98,9 @@ module Haml
       preamble = <<END.gsub("\n", ";")
 extend Haml::Helpers
 _hamlout = @haml_buffer = Haml::Buffer.new(@haml_buffer, #{options_for_buffer.inspect})
-@haml_is_haml = true
 _erbout = _hamlout.buffer
 END
       postamble = <<END.gsub("\n", ";")
-@haml_is_haml = false
 @haml_buffer = @haml_buffer.upper
 _erbout
 END

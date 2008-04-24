@@ -162,7 +162,6 @@ END
       scope_object.instance_eval do
         extend Haml::Helpers
         @haml_buffer = buffer
-        @haml_is_haml = true
       end
 
       eval(@precompiled, scope, @options[:filename], 0)
@@ -170,7 +169,6 @@ END
       # Get rid of the current buffer
       scope_object.instance_eval do
         @haml_buffer = buffer.upper
-        @haml_is_haml = false
       end
 
       buffer.buffer

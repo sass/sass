@@ -2,10 +2,10 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
   module ActionView
     class Base # :nodoc:
       def render_with_haml(*args, &block)
-        was_haml = is_haml?
-        @haml_is_haml = false
+        old_buffer = @haml_buffer
+        @haml_buffer = nil
         res = render_without_haml(*args, &block)
-        @haml_is_haml = was_haml
+        @haml_buffer = old_buffer
         res
       end
       alias_method :render_without_haml, :render

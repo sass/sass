@@ -37,7 +37,6 @@ module Haml
     #   context.haml_tag :p, "Stuff"
     #
     def init_haml_helpers
-      @haml_is_haml = true
       @haml_buffer = Haml::Buffer.new(@haml_buffer, Haml::Engine.new('').send(:options_for_buffer))
       nil
     end
@@ -384,7 +383,7 @@ END
     # also works in other ActionView templates,
     # where it will always return false.
     def is_haml?
-      @haml_is_haml
+      not @haml_buffer.nil?
     end
 
     include ActionViewExtensions if self.const_defined? "ActionViewExtensions"
