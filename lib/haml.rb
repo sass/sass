@@ -367,6 +367,24 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   <p>hello</p>
 #
+# ==== ~
+#
+# ~ works just like =, except that it runs Haml::Helpers#find_and_preserve on its input.
+# For example,
+#
+#   ~ "Foo\n<pre>Bar\nBaz</pre>"
+#
+# is the same as:
+#
+#   = find_and_preserve("Foo\n<pre>Bar\nBaz</pre>")
+#
+# and is compiled to:
+#
+#   Foo
+#   <pre>Bar&#x000A;Baz</pre>
+#
+# See also Whitespace Preservation, below.
+#
 # === XHTML Helpers
 #
 # ==== No Special Character
@@ -595,6 +613,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #              <tt>preserve</tt>d blocks of text aren't indented,
 #              and newlines are replaced with the HTML escape code for newlines,
 #              to preserve nice-looking output.
+#              See also Whitespace Preservation, below.
 #
 # [erb]        Parses the filtered text with ERB, like an RHTML template.
 #              Not available if the <tt>suppress_eval</tt> option is set to true.
@@ -814,6 +833,27 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # == Other Useful Things
 #
+# === Whitespace Preservation
+#
+# Sometimes you don't want Haml to indent all your text.
+# For example, tags like +pre+ and +textarea+ are whitespace-sensitive;
+# indenting the text makes them render wrong.
+#
+# Haml deals with this by "preserving" newlines before they're put into the document --
+# converting them to the XHTML whitespace escape code, <tt>&#x000A;</tt>.
+# Then Haml won't try to re-format the indentation.
+#
+# Literal +textarea+ and +pre+ tags automatically preserve their content.
+# Dynamically can't be caught automatically,
+# and so should be passed through Haml::Helpers#find_and_preserve or the <tt>~</tt> command,
+# which has the same effect (see above).
+#
+# Blocks of literal text can be preserved using the :preserve filter (see above).
+#
+# After the top-level Haml template has been processed,
+# all newline escapes are converted back into literal newlines
+# to make the source code more readable.
+#
 # === Helpers
 #
 # Haml offers a bunch of helpers that are useful
@@ -879,6 +919,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                             <textarea>Foo&&#x000A;Bar</textarea>
 #
 #                           Defaults to <tt>['textarea', 'pre']</tt>.
+#
+#                           See also Whitespace Preservation, above.
 #
 module Haml
   # Returns a hash representing the version of Haml.

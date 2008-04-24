@@ -121,10 +121,10 @@ END
   end
 
   def test_textareas
-    assert_equal("<textarea>Foo&#x000A;  bar&#x000A;   baz</textarea>\n",
+    assert_equal("<textarea>Foo\n  bar\n   baz</textarea>\n",
                  render('%textarea= "Foo\n  bar\n   baz"'))
 
-    assert_equal("<pre>Foo&#x000A;  bar&#x000A;   baz</pre>\n",
+    assert_equal("<pre>Foo\n  bar\n   baz</pre>\n",
                  render('%pre= "Foo\n  bar\n   baz"'))
 
     assert_equal("<textarea>#{'a' * 100}</textarea>\n",

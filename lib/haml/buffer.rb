@@ -87,6 +87,13 @@ module Haml
       @real_tabs = 0
     end
 
+    # Returns the compiled string.
+    # This is distinct from #buffer in that some post-processing is done.
+    def result
+      return buffer unless @options[:ugly] || toplevel?
+      buffer.gsub('&#x000A;', "\n")
+    end
+
     # Renders +text+ with the proper tabulation. This also deals with
     # making a possible one-line tag one line or not.
     def push_text(text, tab_change = 0)

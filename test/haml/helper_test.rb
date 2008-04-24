@@ -82,13 +82,13 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_text_area
-    assert_equal(%(<textarea id="body" name="body">Foo&#x000A;Bar&#x000A; Baz&#x000A;   Boom</textarea>\n),
+    assert_equal(%(<textarea id="body" name="body">Foo\nBar\n Baz\n   Boom</textarea>\n),
                  render('= text_area_tag "body", "Foo\nBar\n Baz\n   Boom"', :action_view))
 
-    assert_equal(%(<textarea cols="40" id="post_body" name="post[body]" rows="20">Foo bar&#x000A;baz</textarea>\n),
+    assert_equal(%(<textarea cols="40" id="post_body" name="post[body]" rows="20">Foo bar\nbaz</textarea>\n),
                  render('= text_area :post, :body', :action_view))    
 
-    assert_equal(%(<pre>Foo bar&#x000A;   baz</pre>\n),
+    assert_equal(%(<pre>Foo bar\n   baz</pre>\n),
                  render('= content_tag "pre", "Foo bar\n   baz"', :action_view))    
   end
   
@@ -141,12 +141,12 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_find_and_preserve_with_block
-    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>\nFoo\nBar\n",
+    assert_equal("<pre>\n  Foo\n  Bar\n</pre>\nFoo\nBar\n",
                  render("= find_and_preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
   end
 
   def test_preserve_with_block
-    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>&#x000A;Foo&#x000A;Bar&#x000A;\n",
+    assert_equal("<pre>\n  Foo\n  Bar\n</pre>\nFoo\nBar\n\n",
                  render("= preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
   end
 

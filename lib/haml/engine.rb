@@ -171,7 +171,7 @@ END
         @haml_buffer = buffer.upper
       end
 
-      buffer.buffer
+      buffer.result
     end
     alias_method :to_html, :render
 
