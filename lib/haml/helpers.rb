@@ -52,10 +52,10 @@ module Haml
     #
     # Note that this is automatically applied to Rails partials.
     def non_haml
-      old_buffer = @haml_buffer
-      @haml_buffer = nil
+      was_active = @haml_buffer.active?
+      @haml_buffer.active = false
       res = yield
-      @haml_buffer = old_buffer
+      @haml_buffer.active = was_active
       res
     end
 
@@ -364,7 +364,7 @@ END
     # also works in other ActionView templates,
     # where it will always return false.
     def is_haml?
-      not @haml_buffer.nil?
+      !@haml_buffer.nil? && @haml_buffer.active?
     end
 
     private

@@ -23,6 +23,9 @@ module Haml
     # It's nil at the top level (see #toplevel?).
     attr_accessor :upper
 
+    # See #active?
+    attr_writer :active
+
     # True if the format is XHTML
     def xhtml?
       not html?
@@ -49,6 +52,13 @@ module Haml
       upper.nil?
     end
 
+    # True if this buffer is currently being used to render a Haml template.
+    # However, this returns false if a subtemplate is being rendered,
+    # even if it's a subtemplate of this buffer's template.
+    def active?
+      @active
+    end
+
     # Gets the current tabulation of the document.
     def tabulation
       @real_tabs + @tabulation
@@ -62,6 +72,7 @@ module Haml
 
     # Creates a new buffer.
     def initialize(upper = nil, options = {})
+      @active = true
       @upper = upper
       @options = {
         :attr_wrapper => "'",
