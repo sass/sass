@@ -358,6 +358,15 @@ END
       text.to_s.gsub(/[><]|&(?!([a-zA-Z]+|(#\d+));)/) { |s| HTML_ESCAPE[s] }
     end
 
+    # Returns whether or not the current template is a Haml template.
+    #
+    # This function, unlike other Haml::Helpers functions,
+    # also works in other ActionView templates,
+    # where it will always return false.
+    def is_haml?
+      not @haml_buffer.nil?
+    end
+
     private
 
     # Gets a reference to the current Haml::Buffer object.
@@ -393,15 +402,6 @@ END
         line[min_tabs..-1]
       end
       result.to_s
-    end
-
-    # Returns whether or not the current template is a Haml template.
-    #
-    # This function, unlike other Haml::Helpers functions,
-    # also works in other ActionView templates,
-    # where it will always return false.
-    def is_haml?
-      not @haml_buffer.nil?
     end
 
     include ActionViewExtensions if self.const_defined? "ActionViewExtensions"
