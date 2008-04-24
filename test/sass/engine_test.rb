@@ -5,6 +5,10 @@ require File.dirname(__FILE__) + '/../../lib/sass'
 require 'sass/engine'
 
 class SassEngineTest < Test::Unit::TestCase
+  # A map of erroneous Sass documents to the error messages they should produce.
+  # The error messages may be arrays;
+  # if so, the second element should be the line number that should be reported for the error.
+  # If this isn't provided, the tests will assume the line number should be the last line of the document.
   EXCEPTION_MAP = {
     "!a = 1 + " => 'Constant arithmetic error: "1 +".',
     "!a = 1 + 2 +" => 'Constant arithmetic error: "1 + 2 +".',
@@ -77,8 +81,10 @@ END
       begin
         Sass::Engine.new(key).render
       rescue Sass::SyntaxError => err
-        assert_equal(value, err.message)
-        assert(err.sass_line, "Line: #{key}")
+        value = [value] unless value.is_a?(Array)
+
+        assert_equal(value.first, err.message, "Line: #{key}")
+        assert_equal(value[1] || key.split("\n").length, err.sass_line, "Line: #{key}")
         assert_match(/\(sass\):[0-9]+/, err.backtrace[0], "Line: #{key}")
       else
         assert(false, "Exception not raised for\n#{key}")
