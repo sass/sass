@@ -22,14 +22,14 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_flatten
-    assert_equal(flatten("FooBar"), "FooBar")
+    assert_equal("FooBar", flatten("FooBar"))
 
-    assert_equal(flatten("Foo\rBar"), "FooBar")
+    assert_equal("FooBar", flatten("Foo\rBar"))
 
-    assert_equal(flatten("Foo\nBar"), "Foo&#x000A;Bar")
+    assert_equal("Foo&#x000A;Bar", flatten("Foo\nBar"))
 
-    assert_equal(flatten("Hello\nWorld!\nYOU ARE \rFLAT?\n\rOMGZ!"),
-                         "Hello&#x000A;World!&#x000A;YOU ARE FLAT?&#x000A;OMGZ!")
+    assert_equal("Hello&#x000A;World!&#x000A;YOU ARE FLAT?&#x000A;OMGZ!",
+                 flatten("Hello\nWorld!\nYOU ARE \rFLAT?\n\rOMGZ!"))
   end
 
   def test_list_of_should_render_correctly
