@@ -205,6 +205,8 @@ END
         return node, index
       end
 
+      node.line = @line
+
       if node.is_a? Tree::CommentNode
         while has_children
           line, index = raw_next_line(index)
@@ -253,11 +255,9 @@ END
           if c.is_a?(Tree::DirectiveNode)
             raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
           end
-          c.line = @line
           parent << c
         end
       when Tree::Node
-        child.line = @line
         parent << child
       end
     end
