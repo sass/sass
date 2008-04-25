@@ -937,7 +937,10 @@ module Haml
 
     if File.exists?(scope('REVISION'))
       rev = File.read(scope('REVISION')).strip
-    elsif File.exists?(scope('.git/HEAD'))
+      rev = nil if rev !~ /a-f0-9+/
+    end
+
+    if rev.nil? && File.exists?(scope('.git/HEAD'))
       rev = File.read(scope('.git/HEAD')).strip
       if rev =~ /^ref: (.*)$/
         rev = File.read(scope(".git/#{$1}")).strip
