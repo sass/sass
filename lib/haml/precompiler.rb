@@ -284,13 +284,11 @@ END
     def push_merged_text(text, tab_change = 0, try_one_liner = false)
       @merged_text  << (@options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}")
       @tab_change   += tab_change
-      @try_one_liner = try_one_liner
     end
 
     # Concatenate <tt>text</tt> to <tt>@buffer</tt> without tabulation.
     def concat_merged_text(text)
       @merged_text  << text
-      @try_one_liner = false
     end
 
     def push_text(text, tab_change = 0, try_one_liner = false)
@@ -301,11 +299,10 @@ END
       return if @merged_text.empty?
 
       @precompiled  << "_hamlout.push_text(#{@merged_text.dump}"
-      @precompiled  << ", #{@tab_change}" if @tab_change != 0 || @try_one_liner
+      @precompiled  << ", #{@tab_change}" if @tab_change != 0
       @precompiled  << ");"
       @merged_text   = ''
       @tab_change    = 0
-      @try_one_liner = false
     end
 
     # Renders a block of text as plain text.
@@ -559,10 +556,9 @@ END
 
       self_closing ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
 
-      one_liner = Buffer.one_liner?(value) || preserve_tag
-      if object_ref == "nil" && attributes_hash.nil? && !preserve_script && (parse || one_liner)
+      if object_ref == "nil" && attributes_hash.nil? && !preserve_script
         # This means that we can render the tag directly to text and not process it in the buffer
-        tag_closed = !value.empty? && one_liner && !parse
+        tag_closed = !value.empty? && !parse
 
         open_tag  = prerender_tag(tag_name, self_closing, attributes)
         open_tag << "#{value}</#{tag_name}>" if tag_closed
@@ -610,7 +606,7 @@ END
       open = "<!--#{conditional} "
 
       # Render it statically if possible
-      if !content.empty? && Buffer.one_liner?(content)
+      unless content.empty?
         return push_text("#{open}#{content} #{conditional ? "<![endif]-->" : "-->"}")
       end
 

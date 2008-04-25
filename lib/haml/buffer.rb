@@ -6,11 +6,6 @@ module Haml
   class Buffer
     include Haml::Helpers
 
-    # Set the maximum length for a line to be considered a one-liner.
-    # Lines <= the maximum will be rendered on one line,
-    # i.e. <tt><p>Hello world</p></tt>
-    ONE_LINER_LENGTH     = 50
-
     # The string that holds the compiled XHTML. This is aliased as
     # _erbout for compatibility with ERB-specific code.
     attr_accessor :buffer
@@ -118,7 +113,7 @@ module Haml
 
       result = html_escape(result) if escape_html
 
-      if close_tag && (@options[:ugly] || Buffer.one_liner?(result) || preserve_tag)
+      if close_tag && (@options[:ugly] || !result.include?("\n") || preserve_tag)
         @buffer << "#{result}</#{close_tag}>\n"
         @real_tabs -= 1
       else
@@ -162,7 +157,7 @@ module Haml
       @buffer << "#{@options[:ugly] ? '' : tabs(tabulation)}<#{name}#{attributes}#{str}"
 
       if content
-        if @options[:ugly] || Buffer.one_liner?(content)
+        if @options[:ugly] || !content.include?("\n")
           @buffer << "#{content}</#{name}>\n"
         else
           @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
@@ -189,16 +184,10 @@ module Haml
       to.merge!(from)
     end
 
+    private
+
     # Some of these methods are exposed as public class methods
     # so they can be re-used in helpers.
-
-    # Returns whether or not the given value is short enough to be rendered
-    # on one line.
-    def self.one_liner?(value)
-      value.length <= ONE_LINER_LENGTH && value.scan(/\n/).empty?
-    end
-
-    private
 
     @@tab_cache = {}
     # Gets <tt>count</tt> tabs. Mostly for internal use.

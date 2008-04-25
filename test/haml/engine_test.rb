@@ -67,20 +67,8 @@ END
     assert_equal("<p>Hello</p>", render('%p Hello').chomp)
   end
 
-  def test_long_liner_should_not_print_on_one_line
-    assert_equal("<div>\n  #{'x' * 51}\n</div>", render("%div #{'x' * 51}").chomp)
-  end
-  
-  def test_non_prerendered_one_liner
-    assert_equal("<p class='awesome'>One line</p>\n", render("%p{:class => c} One line", :locals => {:c => 'awesome'}))
-  end
-  
-  def test_non_prerendered_script_one_liner
-    assert_equal("<p class='awesome'>One line</p>\n", render("%p{:class => c}= 'One line'", :locals => {:c => 'awesome'}))
-  end
-  
-  def test_non_prerendered_long_script_one_liner
-    assert_equal("<p class='awesome'>\n  #{'x' * 60}\n</p>\n", render("%p{:class => c}= 'x' * 60", :locals => {:c => 'awesome'}))
+  def test_one_liner_with_newline_shouldnt_be_one_line
+    assert_equal("<p>\n  foo\n  bar\n</p>", render('%p= "foo\nbar"').chomp)
   end
 
   def test_multi_render
