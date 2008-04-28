@@ -45,7 +45,7 @@
 if the next line could be nested within this line.")
 
 (defvar haml-block-openers
-  `("^ *\\([%\\.#][^ \t]*\\)\\({.*}\\)?\\(\\[.*\\]\\)?[ \t]*$"
+  `("^ *\\([%\\.#][^ \t]*\\)\\(\\[.*\\]\\)?\\({.*}\\)?\\(\\[.*\\]\\)?[ \t]*$"
     "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
     ,(concat "^ *-[ \t]*"
              (regexp-opt '("else" "elsif" "rescue" "ensure" "when")))

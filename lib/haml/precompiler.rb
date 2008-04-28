@@ -497,17 +497,21 @@ END
     def parse_tag(line)
       raise SyntaxError.new("Invalid tag: \"#{line}\".") unless match = line.scan(/%([-:\w]+)([-\w\.\#]*)(.*)/)[0]
       tag_name, attributes, rest = match
-      if rest[0] == ?{
-        scanner = StringScanner.new(rest)
-        attributes_hash, rest = balance(scanner, ?{, ?})
-        attributes_hash = attributes_hash[1, attributes_hash.length - 2] if attributes_hash
-      end
+      attributes_hash, rest = parse_attributes(rest) if rest[0] == ?{
       if rest
         object_ref, rest = balance(rest, ?[, ?]) if rest[0] == ?[
+        attributes_hash, rest = parse_attributes(rest) if rest[0] == ?{ && attributes_hash.nil?
         action, value = rest.scan(/([=\/\~&!]?)?(.*)?/)[0]
       end
       value = value.to_s.strip
       [tag_name, attributes, attributes_hash, object_ref, action, value]
+    end
+
+    def parse_attributes(line)
+      scanner = StringScanner.new(line)
+      attributes_hash, rest = balance(scanner, ?{, ?})
+      attributes_hash = attributes_hash[1...-1] if attributes_hash
+      return attributes_hash, rest
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will

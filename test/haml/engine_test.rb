@@ -34,6 +34,8 @@ END
     "%a/ b" => "Self-closing tags can't have content.",
   }
 
+  User = Struct.new('User', :id)
+
   def render(text, options = {}, &block)
     scope  = options.delete(:scope)  || Object.new
     locals = options.delete(:locals) || {}
@@ -453,9 +455,15 @@ END
   end
 
   def test_object_ref_with_nil_id
-    user = Struct.new('User', :id).new
+    user = User.new
     assert_equal("<p class='struct_user' id='struct_user_new'>New User</p>\n",
                  render("%p[user] New User", :locals => {:user => user}))
+  end
+
+  def test_object_ref_before_attrs
+    user = User.new 42
+    assert_equal("<p class='struct_user' id='struct_user_42' style='width: 100px;'>New User</p>\n",
+                 render("%p[user]{:style => 'width: 100px;'} New User", :locals => {:user => user}))
   end
 
   def test_non_literal_attributes
