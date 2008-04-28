@@ -9,3 +9,16 @@
     #header div a span,
     #header div em span {
       color: pink; }
+
+#one div.nested,
+#one span.nested,
+#one p.nested,
+#two div.nested,
+#two span.nested,
+#two p.nested,
+#three div.nested,
+#three span.nested,
+#three p.nested {
+  font-weight: bold;
+  border-color: red;
+  display: block; }
