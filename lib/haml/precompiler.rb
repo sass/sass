@@ -85,9 +85,6 @@ module Haml
     # The Regex that matches a Doctype command.
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
 
-    # The Regex that matches an HTML tag command.
-    TAG_REGEX = /[%]([-:\w]+)([-\w\.\#]*)(\{.*\})?(\[.*\])?([=\/\~]?)?(.*)?/
-
     # The Regex that matches a literal string or symbol value
     LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\\#'"]*?)\4))\s*$/
 
