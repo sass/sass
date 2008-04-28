@@ -244,9 +244,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     Hello!
 #   </div>
 #
-# This is based off of DHH's SimplyHelpful syntax,
-# as presented at RailsConf Europe 2006.
-#
 # ==== /
 #
 # The forward slash character, when placed at the end of a tag definition,
