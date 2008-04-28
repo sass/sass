@@ -220,15 +220,13 @@ END
 
       # Resolve multiline rules
       if node.is_a?(Tree::RuleNode)
-        continued = node.continued?
-        while continued
+        if node.continued?
           child, index = build_tree(index) if @lines[old_index = index]
           if @lines[old_index].nil? || has_children?(old_index, tabs) || !child.is_a?(Tree::RuleNode)
             raise SyntaxError.new("Rules can't end in commas.", @line)
           end
 
-          node.add_rule child
-          continued = child.continued?
+          node.add_rules child
         end
         node.children = child.children if child
       end
