@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'rake'
+
 HAML_GEMSPEC = Gem::Specification.new do |spec|
   spec.name = 'haml'
   spec.summary = "An elegant, structured XHTML/XML templating engine.\nComes with Sass, a similar CSS templating engine."
