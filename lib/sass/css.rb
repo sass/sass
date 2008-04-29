@@ -25,7 +25,7 @@ module Sass
 
     class RuleNode
       def to_sass(tabs, opts = {})
-        str = "#{'  ' * tabs}#{rule}\n"
+        str = "\n#{'  ' * tabs}#{rule}\n"
 
         children.each do |child|
           str << "#{child.to_sass(tabs + 1, opts)}"
