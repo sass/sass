@@ -6,7 +6,7 @@ module Sass
   # :stopdoc:
   module Tree
     class Node
-      def to_sass opts = {}
+      def to_sass(opts = {})
         result = ''
 
         children.each do |child|
