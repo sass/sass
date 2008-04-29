@@ -6,10 +6,6 @@ module Haml
   class Plugin < ActionView::TemplateHandler
     include ActionView::TemplateHandlers::Compilable if defined?(ActionView::TemplateHandlers::Compilable)
 
-    def self.line_offset
-      1
-    end
-
     def compile(template)
       options = Haml::Template.options.dup
 

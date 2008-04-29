@@ -32,6 +32,10 @@ END
     ".= a" => "Illegal element: classes and ids must have values.",
     "%p..a" => "Illegal element: classes and ids must have values.",
     "%a/ b" => "Self-closing tags can't have content.",
+
+    # Regression tests
+    "- raise 'foo'\n\n\n\nbar" => ["foo", 1],
+    "= 'foo'\n-raise 'foo'" => ["foo", 2]
   }
 
   User = Struct.new('User', :id)
@@ -326,13 +330,13 @@ END
     EXCEPTION_MAP.each do |key, value|
       begin
         render(key)
-      rescue Haml::Error => err
+      rescue Exception => err
         value = [value] unless value.is_a?(Array)
 
         assert_equal(value.first, err.message, "Line: #{key}")
         assert_equal(value[1] || key.split("\n").length, err.backtrace[0].gsub('(haml):', '').to_i, "Line: #{key}")
       else
-        assert(false, "Haml::Error not raised for\n#{key}")
+        assert(false, "Exception not raised for\n#{key}")
       end
     end
   end

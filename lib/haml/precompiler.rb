@@ -161,6 +161,7 @@ END
         unless old_line.text.empty? || @haml_comment
           process_line(old_line.text, old_line.index, line.tabs > old_line.tabs && !line.text.empty?)
         end
+        resolve_newlines
 
         if !flat? && line.tabs - old_line.tabs > 1
           raise SyntaxError.new(<<END.strip, 2 + old_line.index - @index)
@@ -209,7 +210,7 @@ END
         return start_haml_comment if text[1] == SILENT_COMMENT
 
         push_silent(text[1..-1], true)
-        newline true
+        newline_now
         if (@block_opened && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"
           push_and_tabulate([:script])
         end
@@ -329,7 +330,7 @@ END
       raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
 
       push_silent "haml_temp = #{text}"
-      newline true
+      newline_now
       out = "haml_temp = _hamlout.push_script(haml_temp, #{preserve_script.inspect}, #{close_tag.inspect}, #{preserve_tag.inspect}, #{escape_html.inspect});"
       if @block_opened
         push_and_tabulate([:loud, out])
@@ -735,10 +736,18 @@ END
       @flat_spaces != -1
     end
 
-    def newline(skip_next = false)
-      return @skip_next_newline = false if @skip_next_newline
-      @skip_next_newline = true if skip_next
+    def newline
+      @newlines += 1
+    end
+
+    def newline_now
       @precompiled << "\n"
+      @newlines -= 1
+    end
+
+    def resolve_newlines
+      @precompiled << "\n" * @newlines
+      @newlines = 0
     end
   end
 end

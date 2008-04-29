@@ -103,6 +103,7 @@ END
       @template_tabs = 0
       @index = 0
       @flat_spaces = -1
+      @newlines = 0
 
       precompile
     rescue Haml::Error
@@ -164,7 +165,7 @@ END
         @haml_buffer = buffer
       end
 
-      eval(@precompiled, scope, @options[:filename], 0)
+      eval(@precompiled, scope, @options[:filename])
 
       # Get rid of the current buffer
       scope_object.instance_eval do
