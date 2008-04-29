@@ -79,9 +79,6 @@ module Haml
     # is a member of this array.
     MID_BLOCK_KEYWORDS   = ['else', 'elsif', 'rescue', 'ensure', 'when']
 
-    # The Regex that matches an HTML comment command.
-    COMMENT_REGEX = /\/(\[[\w\s\.]*\])?(.*)/
-
     # The Regex that matches a Doctype command.
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
 
@@ -198,7 +195,7 @@ END
       case text[0]
       when DIV_CLASS, DIV_ID; render_div(text)
       when ELEMENT; render_tag(text)
-      when COMMENT; render_comment(text)
+      when COMMENT; render_comment(text[1..-1].strip)
       when SANITIZE
         return push_script(unescape_interpolation(text[3..-1].strip), false, nil, false, true) if text[1..2] == "=="
         return push_script(text[2..-1].strip, false, nil, false, true) if text[1] == SCRIPT
@@ -596,26 +593,26 @@ END
 
     # Renders an XHTML comment.
     def render_comment(line)
-      conditional, content = line.scan(COMMENT_REGEX)[0]
-      content.strip!
+      conditional, line = balance(line, ?[, ?]) if line[0] == ?[
+      line.strip!
       conditional << ">" if conditional
 
-      if @block_opened && !content.empty?
+      if @block_opened && !line.empty?
         raise SyntaxError.new('Illegal nesting: nesting within a tag that already has content is illegal.', 1)
       end
 
       open = "<!--#{conditional} "
 
       # Render it statically if possible
-      unless content.empty?
-        return push_text("#{open}#{content} #{conditional ? "<![endif]-->" : "-->"}")
+      unless line.empty?
+        return push_text("#{open}#{line} #{conditional ? "<![endif]-->" : "-->"}")
       end
 
       push_text(open, 1)
       @output_tabs += 1
       push_and_tabulate([:comment, !conditional.nil?])
-      unless content.empty?
-        push_text(content)
+      unless line.empty?
+        push_text(line)
         close
       end
     end

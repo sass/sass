@@ -369,6 +369,11 @@ END
     assert_equal("Unbalanced brackets.", e.message)
   end
 
+  def test_balanced_conditional_comments
+    assert_equal("<!--[if !(IE 6)|(IE 7)]> Bracket: ] <![endif]-->\n",
+                 render("/[if !(IE 6)|(IE 7)] Bracket: ]"))
+  end
+
   def test_no_bluecloth
     Kernel.module_eval do
       def gem_original_require_with_bluecloth(file)
