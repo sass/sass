@@ -266,7 +266,7 @@ module Sass
       rules = OrderedHash.new
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
         root.children.delete child
-        first, rest = child.rule.scan(/^(&?.[^.#: \[]*)([.#: \[].*)?$/).first
+        first, rest = child.rule.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
         rules[first] ||= Tree::RuleNode.new(first, nil)
         if rest
           child.rule = "&" + rest
