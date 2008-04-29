@@ -6,11 +6,11 @@ module Sass
   # :stopdoc:
   module Tree
     class Node
-      def to_sass
+      def to_sass opts = {}
         result = ''
 
         children.each do |child|
-          result << "#{child.to_sass(0)}\n"
+          result << "#{child.to_sass(0, opts)}\n"
         end
 
         result
@@ -24,11 +24,11 @@ module Sass
     end
 
     class RuleNode
-      def to_sass(tabs)
+      def to_sass(tabs, opts = {})
         str = "#{'  ' * tabs}#{rule}\n"
 
         children.each do |child|
-          str << "#{child.to_sass(tabs + 1)}"
+          str << "#{child.to_sass(tabs + 1, opts)}"
         end
 
         str
@@ -36,8 +36,8 @@ module Sass
     end
 
     class AttrNode
-      def to_sass(tabs)
-        "#{'  ' * tabs}:#{name} #{value}\n"
+      def to_sass(tabs, opts = {})
+        "#{'  ' * tabs}#{opts[:alternate] ? '' : ':'}#{name}#{opts[:alternate] ? ':' : ''} #{value}\n"
       end
     end
   end
@@ -90,11 +90,12 @@ module Sass
 
     # Creates a new instance of Sass::CSS that will compile the given document
     # to a Sass string when +render+ is called.
-    def initialize(template)
+    def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
       end
 
+      @@options = options
       @template = StringScanner.new(template)
     end
 
@@ -102,7 +103,7 @@ module Sass
     # containing the CSS template.
     def render
       begin
-        build_tree.to_sass
+        build_tree.to_sass(@@options)
       rescue Exception => err
         line = @template.string[0...@template.pos].split("\n").size
 

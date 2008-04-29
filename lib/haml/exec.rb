@@ -313,6 +313,8 @@ END
       def initialize(args)
         super
 
+        @module_opts = {}
+
         require 'sass/css'
       end
 
@@ -325,6 +327,10 @@ Description: Transforms a CSS file into corresponding Sass code.
 Options:
 END
 
+        opts.on('-a', '--alternate', 'Output using alternative Sass syntax (margin: 1px)') do
+          @module_opts[:alternate] = true
+        end
+
         super
       end
 
@@ -334,7 +340,7 @@ END
         input = @options[:input]
         output = @options[:output]
 
-        output.write(::Sass::CSS.new(input).render)
+        output.write(::Sass::CSS.new(input, @module_opts).render)
       end
     end
   end
