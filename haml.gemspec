@@ -4,7 +4,7 @@ require 'rake'
 HAML_GEMSPEC = Gem::Specification.new do |spec|
   spec.name = 'haml'
   spec.summary = "An elegant, structured XHTML/XML templating engine.\nComes with Sass, a similar CSS templating engine."
-  spec.version = "1.9.0"
+  spec.version = File.read('VERSION').strip
   spec.authors = ['Nathan Weizenbaum', 'Hampton Catlin']
   spec.email = 'haml@googlegroups.com'
   spec.description = <<-END
