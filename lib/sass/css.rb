@@ -313,6 +313,17 @@ module Sass
     #   foo bar baz
     #     color: red
     #
+    # and
+    #
+    #   foo
+    #     &.bar
+    #       color: blue
+    #
+    # becomes
+    #
+    #   foo.bar
+    #     color: blue
+    #
     def flatten_rules(root)
       root.children.each { |child| flatten_rule(child) if child.is_a?(Tree::RuleNode) }
     end
@@ -320,7 +331,13 @@ module Sass
     def flatten_rule(rule)
       while rule.children.size == 1 && rule.children.first.is_a?(Tree::RuleNode)
         child = rule.children.first
-        rule.rule = "#{rule.rule} #{child.rule}"
+
+        if child.rule[0] == ?&
+          rule.rule = child.rule.gsub /^&/, rule.rule
+        else
+          rule.rule = "#{rule.rule} #{child.rule}"
+        end
+
         rule.children = child.children
       end
 
