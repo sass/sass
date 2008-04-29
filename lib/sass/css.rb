@@ -116,12 +116,13 @@ module Sass
     def build_tree
       root = Tree::Node.new(nil)
       whitespace
-      directives    root
-      rules         root
-      expand_commas root
-      nest_rules    root
-      flatten_rules root
-      fold_commas   root
+      directives         root
+      rules              root
+      expand_commas      root
+      parent_ref_rules   root
+      remove_parent_refs root
+      flatten_rules      root
+      fold_commas        root
       root
     end
 
@@ -227,7 +228,22 @@ module Sass
       root.children.flatten!
     end
 
-    # Nest rules so that
+    # Make rules use parent refs so that
+    #
+    #   foo
+    #     color: green
+    #   foo.bar
+    #     color: blue
+    #
+    # becomes
+    #
+    #   foo
+    #     color: green
+    #     &.bar
+    #       color: blue
+    #
+    # This has the side effect of nesting rules,
+    # so that
     #
     #   foo
     #     color: green
@@ -240,27 +256,48 @@ module Sass
     #
     #   foo
     #     color: green
-    #     bar
+    #     & bar
     #       color: red
-    #     baz
+    #     & baz
     #       color: blue
     #
-    def nest_rules(root)
+    def parent_ref_rules(root)
       rules = OrderedHash.new
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
         root.children.delete child
-        first, rest = child.rule.split(' ', 2)
+        first, rest = child.rule.scan(/^(&?.[^.#: \[]*)([.#: \[].*)?$/).first
         rules[first] ||= Tree::RuleNode.new(first, nil)
         if rest
-          child.rule = rest
+          child.rule = "&" + rest
           rules[first] << child
         else
           rules[first].children += child.children
         end
       end
 
-      rules.values.each { |v| nest_rules(v) }
+      rules.values.each { |v| parent_ref_rules(v) }
       root.children += rules.values
+    end
+
+    # Remove useless parent refs so that
+    #
+    #   foo
+    #     & bar
+    #       color: blue
+    #
+    # becomes
+    #
+    #   foo
+    #     bar
+    #       color: blue
+    #
+    def remove_parent_refs(root)
+      root.children.each do |child|
+        if child.is_a?(Tree::RuleNode)
+          child.rule.gsub! /^& /, ''
+          remove_parent_refs child
+        end
+      end
     end
 
     # Flatten rules so that
