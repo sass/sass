@@ -21,7 +21,7 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
   readmes = FileList.new('*') do |list|
     list.exclude(/(^|[^.a-z])[a-z]+/)
     list.exclude('TODO')
-    list.include('REVISION')
+    list.include('REVISION') if File.exist?('REVISION')
   end.to_a
   spec.executables = ['haml', 'html2haml', 'sass', 'css2sass']
   spec.files = FileList['lib/**/*', 'bin/*', 'test/**/*', 'Rakefile', 'init.rb'].to_a + readmes
