@@ -169,5 +169,16 @@ class HelperTest < Test::Unit::TestCase
   def test_non_haml
     assert_equal("false\n", render("= non_haml { is_haml? }"))
   end
+  
+  class ActsLikeTag
+    include ActionView::Helpers::TagHelper
+    def to_s
+      content_tag :p, 'some tag content'
+    end
+  end
+
+  def test_random_class_includes_tag_helper
+    assert_equal "<p>some tag content</p>", ActsLikeTag.new.to_s
+  end
 end
 
