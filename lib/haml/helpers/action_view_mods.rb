@@ -1,10 +1,6 @@
 if defined?(ActionView) and not defined?(Merb::Plugins)
   module ActionView
     class Base # :nodoc:
-      def is_haml?
-        false
-      end
-
       def render_with_haml(*args, &block)
         return non_haml { render_without_haml(*args, &block) } if is_haml?
         render_without_haml(*args, &block)

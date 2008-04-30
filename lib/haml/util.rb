@@ -16,3 +16,15 @@ class Hash # :nodoc:
     self
   end
 end
+
+class Object
+  # Haml overrides various ActionView helpers,
+  # which call an #is_haml? method
+  # to determine whether or not the current context object
+  # is a proper Haml context.
+  # Because ActionView helpers may be included in non-ActionView::Base classes,
+  # it's a good idea to define is_haml? for all objects.
+  def is_haml?
+    false
+  end
+end

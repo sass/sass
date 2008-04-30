@@ -171,6 +171,9 @@ class HelperTest < Test::Unit::TestCase
   end
   
   class ActsLikeTag
+    # We want to be able to have people include monkeypatched ActionView helpers
+    # without redefining is_haml?.
+    # This is accomplished via Object#is_haml?, and this is a test for it.
     include ActionView::Helpers::TagHelper
     def to_s
       content_tag :p, 'some tag content'
