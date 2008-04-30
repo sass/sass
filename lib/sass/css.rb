@@ -95,7 +95,7 @@ module Sass
         template = template.read
       end
 
-      @@options = options
+      @options = options
       @template = StringScanner.new(template)
     end
 
@@ -103,7 +103,7 @@ module Sass
     # containing the CSS template.
     def render
       begin
-        build_tree.to_sass(@@options).lstrip
+        build_tree.to_sass(@options).lstrip
       rescue Exception => err
         line = @template.string[0...@template.pos].split("\n").size
 
