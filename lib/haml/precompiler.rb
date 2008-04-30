@@ -473,6 +473,8 @@ END
         end
 
         value = Haml::Helpers.escape_once(value.to_s)
+        # We want to decide whether or not to escape quotes
+        value.gsub!('&quot;', '"')
         this_attr_wrapper = attr_wrapper
         if value.include? attr_wrapper
           if value.include? other_quote_char
