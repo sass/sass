@@ -335,18 +335,18 @@ module Haml
     end
 
     # Characters that need to be escaped to HTML entities from user input
-    HTML_ESCAPE = {'&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;'}
+    HTML_ESCAPE = { '&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;', '"'=>'&quot;', "'"=>'&#039;', }
 
     # Returns a copy of <tt>text</tt> with ampersands, angle brackets and quotes
     # escaped into HTML entities.
     def html_escape(text)
-      text.to_s.gsub(/[><&]/) { |s| HTML_ESCAPE[s] }
+      text.to_s.gsub(/[\"><&]/) { |s| HTML_ESCAPE[s] }
     end
 
     # Escapes HTML entities in <tt>text</tt>, but without escaping an ampersand
     # that is already part of an escaped entity.
     def escape_once(text)
-      text.to_s.gsub(/[><]|&(?!([a-zA-Z]+|(#\d+));)/) { |s| HTML_ESCAPE[s] }
+      text.to_s.gsub(/[\"><]|&(?!([a-zA-Z]+|(#\d+));)/) { |s| HTML_ESCAPE[s] }
     end
 
     # Returns whether or not the current template is a Haml template.
