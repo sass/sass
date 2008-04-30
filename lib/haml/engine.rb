@@ -3,7 +3,6 @@ require 'haml/buffer'
 require 'haml/precompiler'
 require 'haml/filters'
 require 'haml/error'
-require 'haml/util'
 
 module Haml
   # This is the class where all the parsing and processing of the Haml

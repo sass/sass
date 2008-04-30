@@ -100,7 +100,6 @@ END
     rdoc.rdoc_files.include('README.rdoc')
     rdoc.rdoc_files.include('lib/**/*.rb')
     rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
-    rdoc.rdoc_files.exclude('lib/haml/util.rb')
     rdoc.rdoc_files.exclude('lib/sass/tree/*')
   end
 

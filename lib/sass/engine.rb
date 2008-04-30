@@ -6,7 +6,6 @@ require 'sass/tree/attr_node'
 require 'sass/tree/directive_node'
 require 'sass/constant'
 require 'sass/error'
-require 'haml/util'
 
 module Sass
   # This is the class where all the parsing and processing of the Sass
