@@ -334,15 +334,6 @@ module Haml
       nil
     end
 
-    def open(*args, &block)
-              warn <<END
-DEPRECATION WARNING:
-The Haml #open helper is deprecated and will be removed in version 2.0.
-Use the #haml_tag method instead.
-END
-      haml_tag(*args, &block)
-    end
-
     # Characters that need to be escaped to HTML entities from user input
     HTML_ESCAPE = {'&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;'}
 
