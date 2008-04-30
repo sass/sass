@@ -317,15 +317,6 @@ END
     assert_equal("<a b='2' />\nc\n", render("%a{'b' => 1 + 1}/\n= 'c'\n"))
   end
 
-  def test_rec_merge
-    hash1 = {1=>2, 3=>{5=>7, 8=>9}}
-    hash2 = {4=>5, 3=>{5=>2, 16=>12}}
-    hash3 = {1=>2, 4=>5, 3=>{5=>2, 8=>9, 16=>12}}
-
-    hash1.rec_merge!(hash2)
-    assert_equal(hash3, hash1)
-  end
-
   def test_exceptions
     EXCEPTION_MAP.each do |key, value|
       begin

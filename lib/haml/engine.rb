@@ -75,7 +75,8 @@ module Haml
         :format => :xhtml,
         :escape_html => false
       }
-      @options.rec_merge! options
+      @options[:filters].merge! options.delete(:filters) if options[:filters]
+      @options.merge! options
 
       unless [:xhtml, :html4, :html5].include?(@options[:format])
         raise Haml::Error, "Invalid format #{@options[:format].inspect}"
@@ -87,7 +88,6 @@ module Haml
           'ruby' => Haml::Filters::Ruby
         })
       end
-      @options[:filters].rec_merge! options[:filters] if options[:filters]
 
       if @options[:locals]
         warn <<END
