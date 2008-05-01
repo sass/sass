@@ -205,7 +205,7 @@ END
       end
 
       eval("Proc.new { |*_haml_locals| _haml_locals = _haml_locals[0] || {};" +
-           precompiled_with_ambles(local_names) + "}\n", scope, @options[:filename], 0)
+           precompiled_with_ambles(local_names) + "}\n", scope, @options[:filename])
     end
 
     # Defines a method on +object+
@@ -247,7 +247,7 @@ END
       method = object.is_a?(Module) ? :module_eval : :instance_eval
 
       object.send(method, "def #{name}(_haml_locals = {}); #{precompiled_with_ambles(local_names)}; end",
-                  @options[:filename], 0)
+                  @options[:filename])
     end
 
     private
