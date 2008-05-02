@@ -122,7 +122,7 @@ END
         line.spaces, line.tabs = count_soft_tabs(text)
 
         if line.text.empty?
-          process_indent(old_line) unless !flat? || old_line.text.empty?
+          process_indent(old_line) if flat? && !old_line.text.empty?
 
           unless flat?
             newline
