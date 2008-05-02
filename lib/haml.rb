@@ -891,8 +891,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                           when dealing with Haml programatically.
 #
 # [<tt>:line</tt>]          The line offset of the Haml template being parsed.
-#                           This is useful for inline templates, similar to the last
-#                           argument to Kernel#eval
+#                           This is useful for inline templates,
+#                           similar to the last argument to Kernel#eval.
 #
 # [<tt>:filters</tt>]       A hash of filters that can be applied to Haml code.
 #                           The keys are the string names of the filters;
