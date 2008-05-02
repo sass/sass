@@ -139,6 +139,7 @@ END
 
         if old_line.text.nil? || suppress_render
           old_line = line
+          resolve_newlines
           newline
           next
         end
@@ -748,6 +749,7 @@ END
     end
 
     def resolve_newlines
+      return unless @newlines > 0
       @precompiled << "\n" * @newlines
       @newlines = 0
     end

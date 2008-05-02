@@ -35,7 +35,8 @@ END
 
     # Regression tests
     "- raise 'foo'\n\n\n\nbar" => ["foo", 1],
-    "= 'foo'\n-raise 'foo'" => ["foo", 2]
+    "= 'foo'\n-raise 'foo'" => ["foo", 2],
+    "\n\n\n- raise 'foo'" => ["foo", 4],
   }
 
   User = Struct.new('User', :id)
