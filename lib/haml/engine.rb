@@ -70,6 +70,7 @@ module Haml
           'textile' => Haml::Filters::Textile,
           'markdown' => Haml::Filters::Markdown },
         :filename => '(haml)',
+        :line => 1,
         :ugly => false,
         :format => :xhtml,
         :escape_html => false
@@ -106,7 +107,7 @@ END
 
       precompile
     rescue Haml::Error
-      $!.backtrace.unshift "#{@options[:filename]}:#{@index + $!.line_offset}" if @index
+      $!.backtrace.unshift "#{@options[:filename]}:#{@index + $!.line_offset + @options[:line] - 1}" if @index
       raise
     end
 
@@ -164,7 +165,7 @@ END
         @haml_buffer = buffer
       end
 
-      eval(@precompiled, scope, @options[:filename])
+      eval(@precompiled, scope, @options[:filename], @options[:line])
 
       # Get rid of the current buffer
       scope_object.instance_eval do
@@ -205,7 +206,7 @@ END
       end
 
       eval("Proc.new { |*_haml_locals| _haml_locals = _haml_locals[0] || {};" +
-           precompiled_with_ambles(local_names) + "}\n", scope, @options[:filename])
+           precompiled_with_ambles(local_names) + "}\n", scope, @options[:filename], @options[:line])
     end
 
     # Defines a method on +object+
@@ -247,7 +248,7 @@ END
       method = object.is_a?(Module) ? :module_eval : :instance_eval
 
       object.send(method, "def #{name}(_haml_locals = {}); #{precompiled_with_ambles(local_names)}; end",
-                  @options[:filename])
+                  @options[:filename], @options[:line])
     end
 
     private

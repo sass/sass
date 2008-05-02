@@ -218,6 +218,22 @@ END
 
   # Options tests
 
+  def test_filename_and_line
+    begin
+      render("\n\n = abc", :filename => 'test', :line => 2)
+    rescue Exception => e
+      assert_kind_of Haml::SyntaxError, e
+      assert_match /test:4/, e.backtrace.first
+    end
+
+    begin
+      render("\n\n= 123\n\n= nil[]", :filename => 'test', :line => 2)
+    rescue Exception => e
+      assert_kind_of NoMethodError, e
+      assert_match /test:6/, e.backtrace.first
+    end
+  end
+
   def test_stop_eval
     assert_equal("", render("= 'Hello'", :suppress_eval => true))
     assert_equal("", render("- puts 'foo'", :suppress_eval => true))
