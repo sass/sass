@@ -128,7 +128,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # By default, either attribute syntax may be used.
 # If you want to force one or the other,
-# see the :attribute_syntax option below.
+# see the <tt>:attribute_syntax</tt> option below.
 #
 # === Nested Rules
 #
@@ -606,28 +606,28 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # To define a mixin you use a slightly modified form of selector syntax.
 # For example the 'large-text' mixin is defined as follows:
 #
-# =large-text
-#   :font
-#     :family Arial
-#     :size 20px
-#     :weight bold
-#   :color #ff0000
+#   =large-text
+#     :font
+#       :family Arial
+#       :size 20px
+#       :weight bold
+#     :color #ff0000
 #
 # The initial '=' marks this as a mixin rather than a standard selector.
 # The CSS rules that follow won't be included until the mixin is referenced later on.
 # Anything you can put into a standard selector,
 # you can put into a mixin definition. e.g.
 #
-# =clearfix
-#   display: inline-block
-#   &:after
-#     content: "."
-#     display: block
-#     height: 0
-#     clear: both
-#     visibility: hidden
-#   * html &
-#     height: 1px
+#   =clearfix
+#     display: inline-block
+#     &:after
+#       content: "."
+#       display: block
+#       height: 0
+#       clear: both
+#       visibility: hidden
+#     * html &
+#       height: 1px
 #
 #
 # === Mixing it in
@@ -637,23 +637,23 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # So to inline the 'large-text' defined earlier,
 # we include the statment '+large-text' in our selector definition thus:
 #
-# .page-title
-#   +large-text
-#   :padding 4px
-#   :margin
-#     :top 10px
+#   .page-title
+#     +large-text
+#     :padding 4px
+#     :margin
+#       :top 10px
 #
 #
 # This will produce the following CSS output:
 #
-# .page-title {
-#   font-family: Arial;
-#   font-size: 20px;
-#   font-weight: bold;
-#   color: #ff0000;
-#   padding: 4px;
-#   margin-top: 10px;
-# }
+#   .page-title {
+#     font-family: Arial;
+#     font-size: 20px;
+#     font-weight: bold;
+#     color: #ff0000;
+#     padding: 4px;
+#     margin-top: 10px;
+#   }
 #
 # Any number of mixins may be defined and there is no limit on
 # the number that can be included in a particular selector.
@@ -661,16 +661,16 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # Mixin definitions can also include references to other mixins defined earlier in the file.
 # E.g.
 #
-# =highlighted-background
-#   background:
-#     color: #fc0
-# =header-text
-#   font:
-#     size: 20px
+#   =highlighted-background
+#     background:
+#       color: #fc0
+#   =header-text
+#     font:
+#       size: 20px
 #
-# =compound
-#   +highlighted-background
-#   +header-text
+#   =compound
+#     +highlighted-background
+#     +header-text
 #
 #
 # == Output Style
