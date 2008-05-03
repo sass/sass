@@ -38,7 +38,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # To enable Sass in Merb,
 # add
 #
-#   dependency "haml"
+#   dependency "merb-haml"
 #
 # to config/dependencies.rb.
 #
