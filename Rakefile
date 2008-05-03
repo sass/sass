@@ -88,7 +88,11 @@ END
 
   # ----- Documentation -----
 
-  require 'rake/rdoctask'
+  begin
+    require 'hanna/rdoctask'
+  rescue LoadError
+    require 'rake/rdoctask'
+  end
 
   rdoc_task = Proc.new do |rdoc|
     rdoc.title    = 'Haml/Sass'
