@@ -33,6 +33,13 @@
   :type 'integer
   :group 'haml)
 
+(defcustom haml-backspace-backdents-nesting t
+  "Non-nil to have `haml-electric-backspace' re-indent all code
+nested beneath the backspaced line be re-indented along with the
+line itself."
+  :type 'boolean
+  :group 'haml)
+
 (defface haml-tab-face
   '((((class color)) (:background "hotpink"))
     (t (:reverse-video t)))
@@ -265,17 +272,33 @@ back-dent the line by `haml-indent-offset' spaces.  On reaching column
 
 (defun haml-electric-backspace (arg)
   "Delete characters or back-dent the current line.
-If invoked following only whitespace on a line, will back-dent to the
-immediately previous multiple of `haml-indent-offset' spaces."
+If invoked following only whitespace on a line, will back-dent
+the line and all nested lines to the immediately previous
+multiple of `haml-indent-offset' spaces.
+
+Set `haml-backspace-backdents-nesting' to nil to just back-dent
+the current line."
   (interactive "*p")
-  (if (or (/= (current-indentation) (current-column)) (bolp))
+  (if (or (/= (current-indentation) (current-column))
+          (bolp)
+          (looking-at "^[ \t]+$"))
       (backward-delete-char arg)
     (let ((ci (current-column)))
       (beginning-of-line)
-      (delete-horizontal-space)
-      (indent-to (* (/ (- ci (* arg haml-indent-offset))
-                       haml-indent-offset)
-                    haml-indent-offset)))))
+      (if (not haml-backspace-backdents-nesting)
+          (set-mark (save-excursion (end-of-line) (point)))
+        (mark-sexp)
+        (set-mark
+         (save-excursion
+           (goto-char (mark))
+           (beginning-of-line)
+           (point))))
+      (save-excursion
+        (replace-regexp (concat "^" (make-string ci ? ))
+                        (make-string (max 0 (- ci (* arg haml-indent-offset))) ? )
+                        nil (point) (mark)))
+      (back-to-indentation)
+      (pop-mark))))
 
 ;; Setup/Activation
 
