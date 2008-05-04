@@ -99,6 +99,8 @@ text nested beneath them.")
     (define-key map "\C-?" 'haml-electric-backspace)
     (define-key map "\C-\M-f" 'haml-forward-sexp)
     (define-key map "\C-\M-b" 'haml-backward-sexp)
+    (define-key map "\C-\M-u" 'haml-up-list)
+    (define-key map "\C-\M-d" 'haml-down-list)
     map))
 
 (define-derived-mode haml-mode fundamental-mode "Haml"
@@ -162,6 +164,34 @@ A sexp in Haml is defined as a line of Haml code as well as any
 lines nested beneath it."
   (interactive "p")
   (haml-forward-sexp (if arg (- arg) -1)))
+
+(defun haml-up-list (&optional arg)
+  "Move out of one level of nesting.
+With ARG, do this that many times."
+  (interactive "p")
+  (or arg (setq arg 1))
+  (while (> arg 0)
+    (let ((indent (current-indentation)))
+      (loop do (haml-forward-through-whitespace t)
+            while (and (not (bobp))
+                       (>= (current-indentation) indent)))
+      (setq arg (- arg 1))))
+  (back-to-indentation))
+
+(defun haml-down-list (&optional arg)
+  "Move down one level of nesting.
+With ARG, do this that many times."
+  (interactive "p")
+  (or arg (setq arg 1))
+  (while (> arg 0)
+    (let ((indent (current-indentation)))
+      (haml-forward-through-whitespace)
+      (when (<= (current-indentation) indent)
+        (haml-forward-through-whitespace t)
+        (back-to-indentation)
+        (error "Nothing is nested beneath this line"))
+      (setq arg (- arg 1))))
+  (back-to-indentation))
 
 ;; Indentation and electric keys
 
