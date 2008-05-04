@@ -97,6 +97,8 @@ text nested beneath them.")
   (let ((map (make-sparse-keymap)))
     (define-key map [backspace] 'haml-electric-backspace)
     (define-key map "\C-?" 'haml-electric-backspace)
+    (define-key map "\C-\M-f" 'haml-forward-sexp)
+    (define-key map "\C-\M-b" 'haml-backward-sexp)
     map))
 
 (define-derived-mode haml-mode fundamental-mode "Haml"
@@ -106,7 +108,60 @@ text nested beneath them.")
   (set-syntax-table haml-mode-syntax-table)
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
+  (set (make-local-variable 'forward-sexp-function) 'haml-forward-sexp)
   (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
+
+;; Navigation
+
+(defun haml-forward-through-whitespace (&optional backward)
+  "Move the point forward at least one line, until it reaches
+either the end of the buffer or a line with no whitespace.
+
+If `backward' is non-nil, move the point backward instead."
+  (let ((arg (if backward -1 1))
+        (endp (if backward 'bobp 'eobp)))
+    (loop do (forward-line arg)
+          while (and (not (funcall endp))
+                     (looking-at "^[ \t]*$")))))
+
+(defun haml-at-indent-p ()
+  "Returns whether or not the point is at the first
+non-whitespace character in a line or whitespace preceding that
+character."
+  (let ((opoint (point)))
+    (save-excursion
+      (back-to-indentation)
+      (>= (point) opoint))))
+
+(defun haml-forward-sexp (&optional arg)
+  "Move forward across one nested expression.
+With `arg', do it that many times.  Negative arg -N means move
+backward across N balanced expressions.
+
+A sexp in Haml is defined as a line of Haml code as well as any
+lines nested beneath it."
+  (interactive "p")
+  (or arg (setq arg 1))
+  (if (and (< arg 0) (not (haml-at-indent-p)))
+      (back-to-indentation)
+    (while (/= arg 0)
+      (let ((indent (current-indentation)))
+        (loop do (haml-forward-through-whitespace (< arg 0))
+              while (and (not (eobp))
+                         (not (bobp))
+                         (> (current-indentation) indent)))
+        (back-to-indentation)
+      (setq arg (+ arg (if (> arg 0) -1 1)))))))
+
+(defun haml-backward-sexp (&optional arg)
+  "Move backward across one nested expression.
+With ARG, do it that many times.  Negative arg -N means move
+forward across N balanced expressions.
+
+A sexp in Haml is defined as a line of Haml code as well as any
+lines nested beneath it."
+  (interactive "p")
+  (haml-forward-sexp (if arg (- arg) -1)))
 
 ;; Indentation and electric keys
 
@@ -121,9 +176,7 @@ text nested beneath them.")
   (save-excursion
     (beginning-of-line)
     (if (bobp) 0
-      (loop do (forward-line -1)
-            while (and (looking-at "^[ \t]$")
-                       (> (point) (point-min))))
+      (haml-forward-through-whitespace t)
       (+ (current-indentation)
          (if (funcall haml-indent-function) haml-indent-offset
            0)))))
