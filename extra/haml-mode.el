@@ -223,8 +223,6 @@ between possible indentations."
     (goto-char end)
     (setq end (point-marker))
     (goto-char start)
-    ;; Don't start in the middle of a line
-    (unless (bolp) (forward-line 1))
     (let (this-line-column current-column
           (next-line-column
            (if (and (equal last-command this-command) (/= (current-indentation) 0))
