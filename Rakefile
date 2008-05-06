@@ -45,7 +45,13 @@ require 'rake/gempackagetask'
 require 'lib/haml'
 load    'haml.gemspec'
 
-Rake::GemPackageTask.new(HAML_GEMSPEC).define
+Rake::GemPackageTask.new(HAML_GEMSPEC) do |pkg|
+  if Rake.application.top_level_tasks.include?('release')
+    pkg.need_tar_gz  = true
+    pkg.need_tar_bz2 = true
+    pkg.need_zip     = true
+  end
+end
 
 desc "This is an internal task."
 task :revision_file do
