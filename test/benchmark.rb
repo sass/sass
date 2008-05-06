@@ -11,24 +11,10 @@ END
   exit 1
 end
 
-# There's a bizarre error where ActionController tries to load a benchmark file
-# and ends up finding this.
-# These declarations then cause it to break.
-# This only happens when running rcov, though, so we can avoid it.
-unless $0 =~ /rcov$/
-  require File.dirname(__FILE__) + '/../lib/haml'
-  require 'haml'
-  require 'sass'
-end
+require File.dirname(__FILE__) + '/../lib/haml'
+%w[sass rubygems erb erubis markaby active_support action_controller
+   action_view haml/template].each(&method(:require))
 
-require 'rubygems'
-require 'erb'
-require 'erubis'
-require 'markaby'
-require 'active_support'
-require 'action_controller'
-require 'action_view'
-require 'haml/template'
 begin
   require 'benchwarmer'
 rescue LoadError
