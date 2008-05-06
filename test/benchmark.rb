@@ -5,91 +5,84 @@
 unless $0 =~ /rcov$/
   require File.dirname(__FILE__) + '/../lib/haml'
   require 'haml'
+  require 'sass'
 end
 
 require 'rubygems'
 require 'erb'
 require 'erubis'
 require 'markaby'
-require 'benchmark'
-require 'stringio'
-require 'open-uri'
+require 'active_support'
+require 'action_controller'
+require 'action_view'
+require 'haml/template'
+begin
+  require 'benchwarmer'
+rescue LoadError
+  # Since it's not as simple as gem install at the time of writing,
+  # we need to direct folks to the benchwarmer gem.
+  raise "The Haml benchmarks require the benchwarmer gem, available from http://github.com/wycats/benchwarmer"
+end
 
 module Haml
   # Benchmarks Haml against ERB, Erubis, and Markaby and Sass on its own.
   def self.benchmark(runs = 100)
-    template_name = 'standard'
-    directory = File.dirname(__FILE__) + '/haml'
-    haml_template =    File.read("#{directory}/templates/#{template_name}.haml")
-    erb_template =   File.read("#{directory}/rhtml/#{template_name}.rhtml")
-    markaby_template = File.read("#{directory}/markaby/#{template_name}.mab")
+    Benchmark.warmer(runs) do
+      columns :haml, :erb, :erubis, :mab
+      titles :haml => "Haml", :erb => "ERB", :erubis => "Erubis", :mab => "Markaby"
 
-    puts '-'*51, "Haml and Friends: No Caching", '-'*51
+      template_name = 'standard'
+      directory = File.dirname(__FILE__) + '/haml'
+      haml_template    = File.read("#{directory}/templates/#{template_name}.haml")
+      erb_template     = File.read("#{directory}/rhtml/#{template_name}.rhtml")
+      markaby_template = File.read("#{directory}/markaby/#{template_name}.mab")
 
-    times = Benchmark.bmbm do |b|
-      b.report("haml:")   { runs.times { Haml::Engine.new(haml_template).render } }
-      b.report("erb:")    { runs.times { ERB.new(erb_template, nil, '-').result } }
-      b.report("erubis:") { runs.times { Erubis::Eruby.new(erb_template).result } }
-      b.report("mab:")    { runs.times { Markaby::Template.new(markaby_template).render } }
+      report "Uncached" do
+        haml   { Haml::Engine.new(haml_template).render }
+        erb    { ERB.new(erb_template, nil, '-').result }
+        erubis { Erubis::Eruby.new(erb_template).result }
+        mab    { Markaby::Template.new(markaby_template).render }
+      end
+
+      report "Cached" do
+        obj = Object.new
+
+        Haml::Engine.new(haml_template).def_method(obj, :haml)
+        Erubis::Eruby.new(erb_template).def_method(obj, :erubis)
+        obj.instance_eval("def erb; #{ERB.new(erb_template, nil, '-').src}; end")
+
+        haml   { obj.haml }
+        erb    { obj.erb }
+        erubis { obj.erubis }
+      end
+
+      report "ActionView" do
+        @base = ActionView::Base.new(File.dirname(__FILE__))
+
+        # To cache the template
+        @base.render 'haml/templates/standard'
+        @base.render 'haml/rhtml/standard'
+
+        haml { @base.render 'haml/templates/standard' }
+        erb  { @base.render 'haml/rhtml/standard' }
+      end
+
+      report "ActionView with deep partials" do
+        @base = ActionView::Base.new(File.dirname(__FILE__))
+
+        # To cache the template
+        @base.render 'haml/templates/action_view'
+        @base.render 'haml/rhtml/action_view'
+
+        haml { @base.render 'haml/templates/action_view' }
+        erb  { @base.render 'haml/rhtml/action_view' }
+      end
     end
 
-    print_result = proc do |s, n|
-      printf "%1$*2$s %3$*4$g",
-        "Haml/#{s}:", -13, times[0].to_a[5] / times[n].to_a[5], -17
-      printf "%1$*2$s %3$g\n",
-        "#{s}/Haml:", -13, times[n].to_a[5] / times[0].to_a[5]
-    end
-    
-    print_result["ERB", 1]
-    print_result["Erubis", 2]
-    print_result["Markaby", 3]
+    Benchmark.warmer(runs) do
+      sass_template = File.read("#{File.dirname(__FILE__)}/sass/templates/complex.sass")
 
-    puts '', '-' * 50, 'Haml and Friends: Cached', '-' * 50
-
-    obj = Object.new
-    Haml::Engine.new(haml_template).def_method(obj, :haml)
-    erb = ERB.new(erb_template, nil, '-')
-    obj.instance_eval("def erb; #{erb.src}; end")
-    Erubis::Eruby.new(erb_template).def_method(obj, :erubis)
-    times = Benchmark.bmbm do |b|
-      b.report("haml:")   { runs.times { obj.haml      } }
-      b.report("erb:")    { runs.times { obj.erb       } }
-      b.report("erubis:") { runs.times { obj.erubis    } }
-    end    
-
-    print_result["ERB", 1]
-    print_result["Erubis", 2]
-
-    puts '', '-' * 50, 'Haml and ERB: Via ActionView', '-' * 50
-
-    require 'active_support'
-    require 'action_controller'
-    require 'action_view'
-    require 'haml/template'
-
-    @base = ActionView::Base.new(File.dirname(__FILE__))
-    times = Benchmark.bmbm do |b|
-      b.report("haml:") { runs.times { @base.render 'haml/templates/standard' } }
-      b.report("erb:")  { runs.times { @base.render 'haml/rhtml/standard'     } }
-    end
-
-    print_result["ERB", 1]
-
-    puts '', '-' * 50, 'Haml and ERB: Via ActionView with deep partials', '-' * 50
-
-    @base = ActionView::Base.new(File.dirname(__FILE__))
-    times = Benchmark.bmbm do |b|
-      b.report("haml:") { runs.times { @base.render 'haml/templates/action_view' } }
-      b.report("erb:")  { runs.times { @base.render 'haml/rhtml/action_view'     } }
-    end
-
-    print_result["ERB", 1]
-    
-    puts '', '-' * 50, 'Sass', '-' * 50
-    sass_template = File.read("#{File.dirname(__FILE__)}/sass/templates/complex.sass")
-    
-    Benchmark.bmbm do |b|
-      b.report("sass:") { runs.times { Sass::Engine.new(sass_template).render } }
+      report("Sass") { Sass::Engine.new(sass_template).render }
     end
   end
 end
