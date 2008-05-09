@@ -558,9 +558,9 @@ END
 
       self_closing ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
 
+      # Check if we can render the tag directly to text and not process it in the buffer
       if object_ref == "nil" && attributes_hash.nil? && !preserve_script
-        # This means that we can render the tag directly to text and not process it in the buffer
-        tag_closed = !value.empty? && !parse
+        tag_closed = !@block_opened && !self_closing && !parse
 
         open_tag  = prerender_tag(tag_name, self_closing, attributes)
         open_tag << "#{value}</#{tag_name}>" if tag_closed
@@ -572,7 +572,7 @@ END
         flush_merged_text
         content = value.empty? || parse ? 'nil' : value.dump
         attributes_hash = ', ' + attributes_hash if attributes_hash
-        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{self_closing.inspect}, #{(!value.empty?).inspect}, #{preserve_tag.inspect}, #{escape_html.inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
+        push_silent "_hamlout.open_tag(#{tag_name.inspect}, #{self_closing.inspect}, #{(!@block_opened).inspect}, #{preserve_tag.inspect}, #{escape_html.inspect}, #{attributes.inspect}, #{object_ref}, #{content}#{attributes_hash})"
       end
 
       return if self_closing
