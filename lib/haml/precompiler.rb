@@ -277,7 +277,7 @@ END
 
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
     # without parsing it.
-    def push_merged_text(text, tab_change = 0, try_one_liner = false)
+    def push_merged_text(text, tab_change = 0)
       @merged_text  << (@options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}")
       @tab_change   += tab_change
     end
@@ -287,8 +287,8 @@ END
       @merged_text  << text
     end
 
-    def push_text(text, tab_change = 0, try_one_liner = false)
-      push_merged_text("#{text}\n", tab_change, try_one_liner)
+    def push_text(text, tab_change = 0)
+      push_merged_text("#{text}\n", tab_change)
     end
 
     def flush_merged_text
@@ -566,7 +566,7 @@ END
         open_tag << "#{value}</#{tag_name}>" if tag_closed
         open_tag << "\n" unless parse
 
-        push_merged_text(open_tag, tag_closed || self_closing ? 0 : 1, parse)
+        push_merged_text(open_tag, tag_closed || self_closing ? 0 : 1)
         return if tag_closed
       else
         flush_merged_text
