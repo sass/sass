@@ -342,6 +342,61 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     </div>
 #   </div>
 #
+# ==== > and <
+#
+# <tt>></tt> and <tt><</tt> give you more control over the whitespace near a tag.
+# <tt>></tt> will remove all whitespace surrounding a tag,
+# while <tt><</tt> will remove all whitespace immediately within a tag.
+# You can think of them as alligators eating the whitespace:
+# <tt>></tt> faces out of the tag and eats the whitespace on the outside,
+# and <tt><</tt> faces into the tag and eats the whitespace on the inside.
+# They're placed at the end of a tag definition,
+# after class, id, and attribute declarations
+# but before <tt>/</tt> or <tt>=</tt>.
+# For example:
+#
+#   %blockquote<
+#     %div
+#       Foo!
+#
+# is compiled to:
+#
+#   <blockquote><div>
+#     Foo!
+#   </div></blockquote>
+#
+# And:
+#
+#   %img
+#   %img>
+#   %img
+#
+# is compiled to:
+#
+#   <img /><img /><img />
+#
+# And:
+#
+#  %p<= "Foo\nBar"
+#
+# is compiled to:
+#
+#  <p>Foo
+#  Bar</p>
+#
+# And finally:
+#
+#   %img
+#   %pre><
+#     foo
+#     bar
+#   %img
+#
+# is compiled to:
+#
+#   <img /><pre>foo
+#   bar</pre><img />
+#
 # ==== =
 #
 # <tt>=</tt> is placed at the end of a tag definition,
