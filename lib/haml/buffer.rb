@@ -110,12 +110,7 @@ module Haml
         result = Haml::Helpers.find_and_preserve(result)
       end
 
-      result = result.to_s
-      while result[-1] == ?\n
-        # String#chomp is slow
-        result = result[0...-1]
-      end
-
+      result = result.to_s.rstrip
       result = html_escape(result) if escape_html
 
       has_newline = result.include?("\n")
