@@ -100,7 +100,8 @@ module Haml
 
     # Properly formats the output of a script that was run in the
     # instance_eval.
-    def push_script(result, preserve_script, in_tag = false, preserve_tag = false, escape_html = false)
+    def push_script(result, preserve_script, in_tag = false, preserve_tag = false,
+                    escape_html = false, nuke_inner_whitespace = false)
       tabulation = @real_tabs
 
       if preserve_tag
@@ -124,9 +125,7 @@ module Haml
         return
       end
 
-      if in_tag
-        @buffer << "\n"
-      end
+      @buffer << "\n" if in_tag && !nuke_inner_whitespace
 
       # Precompiled tabulation may be wrong
       if @tabulation > 0 && !in_tag
@@ -137,11 +136,12 @@ module Haml
         result = result.gsub "\n", "\n" + tabs(tabulation)
 
         # Add tabulation if it wasn't precompiled
-        result = tabs(tabulation) + result if in_tag
+        result = tabs(tabulation) + result if in_tag && !nuke_inner_whitespace
       end
-      @buffer << "#{result}\n"
+      @buffer << "#{result}"
+      @buffer << "\n" unless nuke_inner_whitespace
 
-      if in_tag
+      if in_tag && !nuke_inner_whitespace
         # We never get here if @options[:ugly] is true
         @buffer << tabs(tabulation-1)
         @real_tabs -= 1
@@ -164,10 +164,8 @@ module Haml
 
       if self_closing
         str = " />" + (nuke_outer_whitespace ? "" : "\n")
-      elsif try_one_line || preserve_tag
-        str = ">"
       else
-        str = ">\n"
+        str = ">" + (try_one_line || preserve_tag || nuke_inner_whitespace ? "" : "\n")
       end
 
       attributes = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)
@@ -175,9 +173,10 @@ module Haml
 
       if content
         @buffer << "#{content}</#{name}>" << (nuke_outer_whitespace ? "" : "\n")
-      elsif !self_closing
-        @real_tabs += 1
+        return
       end
+
+      @real_tabs += 1 unless self_closing || nuke_inner_whitespace
     end
 
     def self.merge_attrs(to, from)

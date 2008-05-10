@@ -327,7 +327,8 @@ END
     #
     # If <tt>preserve_script</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
-    def push_script(text, preserve_script, in_tag = false, preserve_tag = false, escape_html = false)
+    def push_script(text, preserve_script, in_tag = false, preserve_tag = false,
+                    escape_html = false, nuke_inner_whitespace = false)
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless in_tag
 
@@ -338,7 +339,8 @@ END
 
       push_silent "haml_temp = #{text}"
       newline_now
-      args = [preserve_script, in_tag, preserve_tag, escape_html].map { |a| a.inspect }.join(', ')
+      args = [preserve_script, in_tag, preserve_tag,
+              escape_html, nuke_inner_whitespace].map { |a| a.inspect }.join(', ')
       out = "haml_temp = _hamlout.push_script(haml_temp, #{args});"
       if @block_opened
         push_and_tabulate([:loud, out])
@@ -380,9 +382,11 @@ END
     # the most recently opened tag.
     def close_tag(value)
       tag, nuke_outer_whitespace, nuke_inner_whitespace = value
-      @output_tabs -= 1
+      @output_tabs -= 1 unless nuke_inner_whitespace
       @template_tabs -= 1
-      push_merged_text("</#{tag}>" + (nuke_outer_whitespace ? "" : "\n"), -1)
+      rstrip_buffer! if nuke_inner_whitespace
+      push_merged_text("</#{tag}>" + (nuke_outer_whitespace ? "" : "\n"),
+                       nuke_inner_whitespace ? 0 : -1, !nuke_inner_whitespace)
       @dont_indent_next_line = nuke_outer_whitespace
     end
 
@@ -537,14 +541,7 @@ END
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
       # Get rid of whitespace outside of the tag if we need to
-      if nuke_outer_whitespace
-        unless @merged_text.empty?
-          @merged_text.rstrip!
-        else
-          push_silent("_erbout.rstrip!", false)
-          @dont_tab_up_next_text = true
-        end
-      end
+      rstrip_buffer! if nuke_outer_whitespace
 
       preserve_tag = options[:preserve].include?(tag_name)
 
@@ -582,6 +579,10 @@ END
 
       self_closing ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
 
+      dont_indent_next_line =
+        (nuke_outer_whitespace && !@block_opened) ||
+        (nuke_inner_whitespace && @block_opened)
+
       # Check if we can render the tag directly to text and not process it in the buffer
       if object_ref == "nil" && attributes_hash.nil? && !preserve_script
         tag_closed = !@block_opened && !self_closing && !parse
@@ -591,13 +592,13 @@ END
           open_tag << "#{value}</#{tag_name}>"
           open_tag << "\n" unless nuke_outer_whitespace
         else
-          open_tag << "\n" unless parse || (self_closing && nuke_outer_whitespace)
+          open_tag << "\n" unless parse || nuke_inner_whitespace || (self_closing && nuke_outer_whitespace)
         end
         
-        push_merged_text(open_tag, tag_closed || self_closing ? 0 : 1,
+        push_merged_text(open_tag, tag_closed || self_closing || nuke_inner_whitespace ? 0 : 1,
                          !nuke_outer_whitespace)
 
-        @dont_indent_next_line = nuke_outer_whitespace && !@block_opened
+        @dont_indent_next_line = dont_indent_next_line
         return if tag_closed
       else
         flush_merged_text
@@ -607,20 +608,20 @@ END
                 attributes, nuke_outer_whitespace, nuke_inner_whitespace
                ].map { |v| v.inspect }.join(', ')
         push_silent "_hamlout.open_tag(#{args}, #{object_ref}, #{content}#{attributes_hash})"
-        @dont_tab_up_next_text = @dont_indent_next_line = nuke_outer_whitespace && !@block_opened
+        @dont_tab_up_next_text = @dont_indent_next_line = dont_indent_next_line
       end
 
       return if self_closing
 
       if value.empty?
         push_and_tabulate([:element, [tag_name, nuke_outer_whitespace, nuke_inner_whitespace]])
-        @output_tabs += 1
+        @output_tabs += 1 unless nuke_inner_whitespace
         return
       end
 
       if parse
         flush_merged_text
-        push_script(value, preserve_script, true, preserve_tag, escape_html)
+        push_script(value, preserve_script, true, preserve_tag, escape_html, nuke_inner_whitespace)
         @dont_tab_up_next_text = true
         concat_merged_text("</#{tag_name}>" + (nuke_outer_whitespace ? "" : "\n"))
       end
@@ -789,6 +790,17 @@ END
       return unless @newlines > 0
       @precompiled << "\n" * @newlines
       @newlines = 0
+    end
+
+    # Get rid of and whitespace at the end of the buffer
+    # or the merged text
+    def rstrip_buffer!
+      unless @merged_text.empty?
+        @merged_text.rstrip!
+      else
+        push_silent("_erbout.rstrip!", false)
+        @dont_tab_up_next_text = true
+      end
     end
   end
 end

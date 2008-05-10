@@ -142,6 +142,16 @@ END
                  render("%p{:foo => 'bar', :bar => false, :baz => 'false'}", :format => :xhtml))
   end
 
+  def test_both_whitespace_nukes_work_together
+    assert_equal(<<RESULT, render(<<SOURCE))
+<p><q>Foo
+  Bar</q></p>
+RESULT
+%p
+  %q><= "Foo\\nBar"
+SOURCE
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

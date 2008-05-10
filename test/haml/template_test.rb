@@ -15,7 +15,7 @@ class TemplateTest < Test::Unit::TestCase
   @@templates = %w{       very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
     silent_script         tag_parsing       just_stuff  partials
-    filters nuke_outer_whitespace }
+    filters               nuke_outer_whitespace         nuke_inner_whitespace }
 
   def setup
     Haml::Template.options = { :filters => { 'test'=>TestFilter } }
