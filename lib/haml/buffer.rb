@@ -87,7 +87,7 @@ module Haml
     def push_text(text, tab_change = 0)
       if @tabulation > 0 && !@options[:ugly]
         # Have to push every line in by the extra user set tabulation
-        text.gsub!(/^/m, '  ' * @tabulation)
+        text.gsub!(/^/m, tabs)
       end
 
       @buffer << text
@@ -113,7 +113,8 @@ module Haml
 
       result = html_escape(result) if escape_html
 
-      if close_tag && (@options[:ugly] || !result.include?("\n") || preserve_tag)
+      has_newline = result.include?("\n")
+      if close_tag && (@options[:ugly] || !has_newline || preserve_tag)
         @buffer << "#{result}</#{close_tag}>\n"
         @real_tabs -= 1
       else
@@ -121,7 +122,17 @@ module Haml
           @buffer << "\n"
         end
 
-        result = result.gsub(/^/m, tabs(tabulation)) unless @options[:ugly]
+        # Precompiled tabulation may be wrong
+        if @tabulation > 0 && !close_tag
+          result = tabs + result
+        end
+
+        if has_newline && !@options[:ugly]
+          result = result.gsub "\n", "\n" + tabs(tabulation)
+
+          # Add tabulation if it wasn't precompiled
+          result = tabs(tabulation) + result if close_tag
+        end
         @buffer << "#{result}\n"
 
         if close_tag
@@ -187,7 +198,7 @@ module Haml
 
     @@tab_cache = {}
     # Gets <tt>count</tt> tabs. Mostly for internal use.
-    def tabs(count)
+    def tabs(count = 0)
       tabs = count + @tabulation
       @@tab_cache[tabs] ||= '  ' * tabs
     end

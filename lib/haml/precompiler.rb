@@ -325,6 +325,9 @@ END
     # If <tt>preserve_script</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
     def push_script(text, preserve_script, close_tag = nil, preserve_tag = false, escape_html = false)
+      # Prerender tabulation unless we're in a tag
+      push_merged_text '' unless close_tag
+
       flush_merged_text
       return if options[:suppress_eval]
 
