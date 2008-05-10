@@ -157,11 +157,7 @@ module Haml
       @buffer << "#{@options[:ugly] ? '' : tabs(tabulation)}<#{name}#{attributes}#{str}"
 
       if content
-        if @options[:ugly] || !content.include?("\n")
-          @buffer << "#{content}</#{name}>\n"
-        else
-          @buffer << "\n#{tabs(@real_tabs+1)}#{content}\n#{tabs(@real_tabs)}</#{name}>\n"
-        end
+        @buffer << "#{content}</#{name}>\n"
       elsif !self_closing
         @real_tabs += 1
       end
