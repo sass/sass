@@ -544,6 +544,7 @@ END
       rstrip_buffer! if nuke_outer_whitespace
 
       preserve_tag = options[:preserve].include?(tag_name)
+      nuke_inner_whitespace ||= preserve_tag
 
       case action
       when '/'; self_closing = xhtml?

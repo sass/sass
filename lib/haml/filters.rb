@@ -184,19 +184,8 @@ END
     module Preserve
       include Base
 
-      def compile(precompiler, text)
-        text = Haml::Helpers.preserve(text) + "\n"
-
-        precompiler.instance_eval do
-          if contains_interpolation?(text)
-            return if options[:suppress_eval]
-
-            push_silent("_hamlout.buffer << #{unescape_interpolation(text)};")
-            return
-          end
-
-          concat_merged_text(text)
-        end
+      def render(text)
+        Haml::Helpers.preserve text
       end
     end
 

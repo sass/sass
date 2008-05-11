@@ -128,6 +128,14 @@ END
 
     assert_equal("<textarea>#{'a' * 100}</textarea>\n",
                  render("%textarea #{'a' * 100}"))
+
+    assert_equal("<p>\n  <textarea>Foo\n  Bar\n  Baz</textarea>\n</p>\n", render(<<SOURCE))
+%p
+  %textarea
+    Foo
+    Bar
+    Baz
+SOURCE
   end
 
   def test_boolean_attributes
