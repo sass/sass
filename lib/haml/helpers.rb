@@ -84,7 +84,7 @@ module Haml
     def preserve(input = '', &block)
       return preserve(capture_haml(&block)) if block
 
-      input.gsub(/\n/, '&#x000A;').gsub(/\r/, '')
+      input.chomp("\n").gsub(/\n/, '&#x000A;').gsub(/\r/, '')
     end
 
     alias_method :flatten, :preserve

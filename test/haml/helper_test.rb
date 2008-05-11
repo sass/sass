@@ -141,12 +141,12 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_find_and_preserve_with_block
-    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>\nFoo\nBar\n",
+    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar</pre>\nFoo\nBar\n",
                  render("= find_and_preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
   end
 
   def test_preserve_with_block
-    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>&#x000A;Foo&#x000A;Bar&#x000A;\n",
+    assert_equal("<pre>&#x000A;  Foo&#x000A;  Bar&#x000A;</pre>&#x000A;Foo&#x000A;Bar\n",
                  render("= preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
   end
 
