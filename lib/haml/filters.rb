@@ -156,6 +156,14 @@ END
       end
     end
 
+    module Escaped
+      include Base
+
+      def render(text)
+        Haml::Helpers.html_escape text
+      end
+    end
+
     module Ruby
       include Base
       lazy_require 'stringio'

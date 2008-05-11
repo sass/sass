@@ -65,6 +65,7 @@ module Haml
           'sass' => Haml::Filters::Sass,
           'plain' => Haml::Filters::Plain,
           'javascript' => Haml::Filters::Javascript,
+          'escaped' => Haml::Filters::Escaped,
           'preserve' => Haml::Filters::Preserve,
           'redcloth' => Haml::Filters::RedCloth,
           'textile' => Haml::Filters::Textile,

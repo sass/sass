@@ -655,6 +655,9 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # [javascript] Surrounds the filtered text with <script> and CDATA tags.
 #              Useful for including inline Javascript.
 #
+# [escaped]    Works the same as plain, but HTML-escapes the text
+#              before placing it in the document.
+#
 # [ruby]       Parses the filtered text with the normal Ruby interpreter.
 #              All output sent to <tt>$stdout</tt>, like with +puts+,
 #              is output into the Haml document.
