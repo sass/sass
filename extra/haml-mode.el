@@ -54,8 +54,9 @@ if the next line could be nested within this line.")
 (defvar haml-block-openers
   `("^ *\\([%\\.#][^ \t]*\\)\\(\\[.*\\]\\)?\\({.*}\\)?\\(\\[.*\\]\\)?[ \t]*$"
     "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
-    ,(concat "^ *-[ \t]*"
-             (regexp-opt '("else" "elsif" "rescue" "ensure" "when")))
+    ,(concat "^ *-[ \t]*\\("
+             (regexp-opt '("else" "elsif" "rescue" "ensure" "when"))
+             "\\)")
     "^ */\\(\\[.*\\]\\)?[ \t]*$"
     "^ *-#"
     "^ *:")
@@ -219,7 +220,7 @@ character of the next line."
   "Returns true if the current line can have lines nested beneath it."
   (loop for opener in haml-block-openers
         if (looking-at opener) return t
-        return nil))
+        finally return nil))
 
 (defun haml-compute-indentation ()
   "Calculate the maximum sensible indentation for the current line."
