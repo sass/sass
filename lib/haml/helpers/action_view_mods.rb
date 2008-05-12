@@ -15,7 +15,19 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       # :stopdoc:
       module CaptureHelper
         def capture_with_haml(*args, &block)
-          if is_haml?
+          # Rails' #capture helper will just return the value of the block
+          # if it's not actually in the template context,
+          # as detected by the existance of an _erbout variable.
+          # We've got to do the same thing for compatibility.
+          block_is_haml =
+            begin
+              eval('_hamlout', block)
+              true
+            rescue
+              false
+            end
+
+          if block_is_haml && is_haml?
             capture_haml(*args, &block)
           else
             capture_without_haml(*args, &block)
