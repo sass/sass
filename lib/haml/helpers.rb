@@ -60,16 +60,18 @@ module Haml
     end
 
     # call-seq:
-    #   find_and_preserve(input)
+    #   find_and_preserve(input, tags = haml_buffer.options[:preserve])
     #   find_and_preserve {...}
     #
-    # Isolates the whitespace-sensitive tags in the string and uses preserve
-    # to convert any endlines inside them into HTML entities for endlines.
-    def find_and_preserve(input = '', &block)
+    # Uses preserve to convert any newlines inside whitespace-sensitive tags
+    # into the HTML entities for endlines.
+    # @tags@ is an array of tags to preserve.
+    # It defaults to the value of the <tt>:preserve</tt> option.
+    def find_and_preserve(input = '', tags = haml_buffer.options[:preserve], &block)
       return find_and_preserve(capture_haml(&block)) if block
 
       input = input.to_s
-      input.gsub(/<(textarea|code|pre)([^>]*)>(.*?)(<\/\1>)/im) do
+      input.gsub(/<(#{tags.map(&Regexp.method(:escape)).join('|')})([^>]*)>(.*?)(<\/\1>)/im) do
         "<#{$1}#{$2}>#{preserve($3)}</#{$1}>"
       end
     end

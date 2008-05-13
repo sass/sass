@@ -107,7 +107,7 @@ module Haml
       if preserve_tag
         result = Haml::Helpers.preserve(result)
       elsif preserve_script
-        result = Haml::Helpers.find_and_preserve(result)
+        result = Haml::Helpers.find_and_preserve(result, options[:preserve])
       end
 
       result = result.to_s.rstrip
