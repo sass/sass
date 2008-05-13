@@ -68,7 +68,7 @@ module Haml
             return
           end
 
-          rendered = filter.render(text)
+          rendered = Haml::Helpers::find_and_preserve(filter.render(text), precompiler.options[:preserve])
 
           if !options[:ugly]
             push_text(rendered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
