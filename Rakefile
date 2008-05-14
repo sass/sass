@@ -94,8 +94,12 @@ end
 rdoc_task = Proc.new do |rdoc|
   rdoc.title    = 'Haml/Sass'
   rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README.rdoc')
+  rdoc.rdoc_files.include(*FileList.new('*') do |list|
+                            list.exclude(/(^|[^.a-z])[a-z]+/)
+                            list.exclude('TODO')
+                          end.to_a)
   rdoc.rdoc_files.include('lib/**/*.rb')
+  rdoc.rdoc_files.exclude('TODO')
   rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
   rdoc.rdoc_files.exclude('lib/sass/tree/*')
 end
