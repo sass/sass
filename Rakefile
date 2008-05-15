@@ -91,7 +91,7 @@ rescue LoadError
   require 'rake/rdoctask'
 end
 
-rdoc_task = Proc.new do |rdoc|
+Rake::RDocTask.new do |rdoc|
   rdoc.title    = 'Haml/Sass'
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include(*FileList.new('*') do |list|
@@ -102,23 +102,7 @@ rdoc_task = Proc.new do |rdoc|
   rdoc.rdoc_files.exclude('TODO')
   rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
   rdoc.rdoc_files.exclude('lib/sass/tree/*')
-end
-
-Rake::RDocTask.new do |rdoc|
-  rdoc_task.call(rdoc)
   rdoc.rdoc_dir = 'rdoc'
-end
-
-Rake::RDocTask.new(:rdoc_devel) do |rdoc|
-  rdoc_task.call(rdoc)
-  rdoc.rdoc_dir = 'rdoc_devel'
-  rdoc.options << '--all'
-  rdoc.rdoc_files.include('test/*.rb')
-
-  # Get rid of exclusion rules
-  rdoc.rdoc_files = Rake::FileList.new(*rdoc.rdoc_files.to_a)
-  rdoc.rdoc_files.include('lib/haml/buffer.rb')
-  rdoc.rdoc_files.include('lib/sass/tree/*')
 end
 
 # ----- Coverage -----
