@@ -103,6 +103,7 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
   rdoc.rdoc_files.exclude('lib/sass/tree/*')
   rdoc.rdoc_dir = 'rdoc'
+  rdoc.main = 'README.rdoc'
 end
 
 # ----- Coverage -----
