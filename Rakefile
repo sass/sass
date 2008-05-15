@@ -109,26 +109,37 @@ rescue LoadError; end
 
 # ----- Profiling -----
 
-desc <<END
+begin
+  require 'ruby-prof'
+
+  desc <<END
 Run a profile of haml.
-  ENGINE=str sets the engine to be profiled (Haml or Sass).
-  TIMES=n sets the number of runs. Defaults to 100.
-  FILE=n sets the file to profile. Defaults to 'standard'.
+  ENGINE=str sets the engine to be profiled. Defaults to Haml.
+  TIMES=n sets the number of runs. Defaults to 1000.
+  FILE=str sets the file to profile.
+    Defaults to 'standard' for Haml and 'complex' for Sass.
+  OUTPUT=str sets the ruby-prof output format.
+    Can be Flat, CallInfo, or Graph. Defaults to Flat. Defaults to Flat.
 END
-task :profile do
-  require 'test/profile'
+  task :profile do
+    engine = (ENV['ENGINE'] || 'haml').downcase
+    times  = (ENV['TIMES'] || '1000').to_i
+    file   = ENV['FILE']
 
-  engine = ENV['ENGINE'] && ENV['ENGINE'].downcase == 'sass' ? Sass : Haml
+    if engine == 'sass'
+      require 'lib/sass'
 
-  puts '-'*51, "Profiling #{engine}", '-'*51
+      file = File.read("#{File.dirname(__FILE__)}/test/sass/templates/#{file || 'complex'}.sass")
+      result = RubyProf.profile { times.times { Sass::Engine.new(file).render } }
+    else
+      require 'lib/haml'
 
-  args = []
-  args.push ENV['TIMES'].to_i if ENV['TIMES']
-  args.push ENV['FILE'] if ENV['FILE']
+      file = File.read("#{File.dirname(__FILE__)}/test/haml/templates/#{file || 'standard'}.haml")
+      obj = Object.new
+      Haml::Engine.new(file).def_method(obj, :render)
+      result = RubyProf.profile { times.times { obj.render } }
+    end
 
-  profiler = engine::Profiler.new
-  res = profiler.profile(*args)
-  puts res
-
-  puts '-'*51
-end
+    RubyProf.const_get("#{(ENV['OUTPUT'] || 'Flat').capitalize}Printer").new(result).print 
+  end
+rescue LoadError; end
