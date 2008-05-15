@@ -1,31 +1,18 @@
 require 'rubygems'
 require 'rake'
 
-volatile_requires = ['rcov/rcovtask']
-not_loaded = []
-volatile_requires.each do |file|
-  begin
-    require file
-  rescue LoadError
-    not_loaded.push file
-  end
-end
-
 # ----- Benchmarking -----
 
-temp_desc = <<END
+desc <<END
 Benchmark haml against ERb.
-  TIMES=n sets the number of runs. Defaults to 100.
+  TIMES=n sets the number of runs. Defaults to 1000.
 END
-
-desc temp_desc.chomp
 task :benchmark do
   sh "ruby test/benchmark.rb #{ENV['TIMES']}"
 end
 
 # ----- Default: Testing ------
 
-desc 'Default: run unit tests.'
 task :default => :test
 
 require 'rake/testtask'
@@ -53,7 +40,6 @@ Rake::GemPackageTask.new(HAML_GEMSPEC) do |pkg|
   end
 end
 
-desc "This is an internal task."
 task :revision_file do
   if Haml.version[:rev] && !Rake.application.top_level_tasks.include?('release')
     File.open('REVISION', 'w') { |f| f.puts Haml.version[:rev] }
@@ -108,7 +94,9 @@ end
 
 # ----- Coverage -----
 
-unless not_loaded.include? 'rcov/rcovtask'
+begin
+  require 'rcov/rcovtask'
+
   Rcov::RcovTask.new do |t|
     t.test_files = FileList['test/**/*_test.rb']
     t.rcov_opts << '-x' << '"^\/"'
@@ -117,17 +105,16 @@ unless not_loaded.include? 'rcov/rcovtask'
     end
     t.verbose = true
   end
-end
+rescue LoadError; end
 
 # ----- Profiling -----
 
-temp_desc = <<-END
-  Run a profile of haml.
-    ENGINE=str sets the engine to be profiled (Haml or Sass).
-    TIMES=n sets the number of runs. Defaults to 100.
-    FILE=n sets the file to profile. Defaults to 'standard'.
-  END
-desc temp_desc.chomp
+desc <<END
+Run a profile of haml.
+  ENGINE=str sets the engine to be profiled (Haml or Sass).
+  TIMES=n sets the number of runs. Defaults to 100.
+  FILE=n sets the file to profile. Defaults to 'standard'.
+END
 task :profile do
   require 'test/profile'
 
