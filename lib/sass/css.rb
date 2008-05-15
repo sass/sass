@@ -46,11 +46,15 @@ module Sass
   # It keeps the semantics and most of the efficiency of normal hashes
   # while also keeping track of the order in which elements were set.
   class OrderedHash
-    Node = Struct.new('Node', :key, :value, :next)
+    Node = Struct.new(:key, :value, :next, :prev)
     include Enumerable
 
     def initialize
       @hash = {}
+    end
+
+    def initialize_copy(other)
+      @hash = other.instance_variable_get('@hash').clone
     end
 
     def [](key)
@@ -58,13 +62,24 @@ module Sass
     end
 
     def []=(key, value)
-      node = Node.new(key, value, nil)
+      node = Node.new(key, value)
+
+      if old = @hash[key]
+        if old.prev
+          old.prev.next = old.next
+        else # old is @first and @last
+          @first = @last = nil
+        end
+      end
+
       if @first.nil?
         @first = @last = node
       else
+        node.prev = @last
         @last.next = node
         @last = node
       end
+
       @hash[key] = node
       value
     end
