@@ -29,7 +29,6 @@ END
 # ----- Packaging -----
 
 require 'rake/gempackagetask'
-require 'lib/haml'
 load    'haml.gemspec'
 
 Rake::GemPackageTask.new(HAML_GEMSPEC) do |pkg|
@@ -41,6 +40,8 @@ Rake::GemPackageTask.new(HAML_GEMSPEC) do |pkg|
 end
 
 task :revision_file do
+  require 'lib/haml'
+
   if Haml.version[:rev] && !Rake.application.top_level_tasks.include?('release')
     File.open('REVISION', 'w') { |f| f.puts Haml.version[:rev] }
   elsif Rake.application.top_level_tasks.include?('release')
