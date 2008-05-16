@@ -70,6 +70,27 @@ and renders
 
   <p><textarea>Foo&#x000A;Bar</textarea></p>
 
+=== How do I make my long lines of Ruby code look nicer in my Haml document?
+
+Put them in a helper or your model.
+
+Haml purposefully makes it annoying to put lots of Ruby code into your templates,
+because lots of code doesn't belong in the view.
+If you take that huge +link_to_remote+ call
+and move it to a +update_sidebar_link+ helper,
+it'll make your view both easier to read and more semantic.
+
+If you absolutely must put lots of code in your template,
+Haml offers a somewhat awkward multiline-continuation tool.
+Put a <tt>|</tt> (pipe character) at the end of each line you want to be merged into one
+(including the last line!).
+For example:
+
+  %p= @this.is(way.too.much). |
+      code("and I should").   |
+      really_move.it.into(    |
+        :a => @helper)        |
+
 === I have Haml installed. Why is Rails (only looking for <tt>.html.erb</tt> files | rendering Haml files as plain text | rendering Haml files as blank pages)?
 
 There are several reasons these things might be happening.
