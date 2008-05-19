@@ -90,14 +90,6 @@ module Haml
         })
       end
 
-      if @options[:locals]
-        warn <<END
-DEPRECATION WARNING:
-The Haml :locals option is deprecated and will be removed in version 2.0.
-Use the locals option for Haml::Engine#render instead.
-END
-      end
-
       @template = template.rstrip #String
       @to_close_stack = []
       @output_tabs = 0
@@ -148,7 +140,6 @@ END
     # but if you're relying on local variables defined in the context of scope,
     # they won't work.
     def render(scope = Object.new, locals = {}, &block)
-      locals = (@options[:locals] || {}).merge(locals)
       buffer = Haml::Buffer.new(scope.instance_variable_get('@haml_buffer'), options_for_buffer)
 
       if scope.is_a?(Binding) || scope.is_a?(Proc)
