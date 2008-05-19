@@ -76,7 +76,7 @@ module Sass
         :style => :nested,
         :load_paths => ['.']
       }.merge! options
-      @template = template.split(/\n?\r|\r?\n/)
+      @template = template.split(/\r\n|\r|\n/)
       @lines = []
       @constants = {"important" => "!important"}
       @mixins = {}
