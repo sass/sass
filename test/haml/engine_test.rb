@@ -331,18 +331,6 @@ SOURCE
     assert_equal("<p>Paragraph!</p>\n", render("%p= text", :locals => { :text => "Paragraph!" }))
   end
 
-  def test_deprecated_locals_option
-    Kernel.module_eval do
-      def warn_with_stub(msg); end
-      alias_method :warn_without_stub, :warn
-      alias_method :warn, :warn_with_stub
-    end
-
-    assert_equal("<p>Paragraph!</p>\n", Haml::Engine.new("%p= text", :locals => { :text => "Paragraph!" }).render)
-
-    Kernel.module_eval { alias_method :warn, :warn_without_stub }
-  end
-
   def test_dynamic_attrs_shouldnt_register_as_literal_values
     assert_equal("<p a='b2c'></p>\n", render('%p{:a => "b#{1 + 1}c"}'))
     assert_equal("<p a='b2c'></p>\n", render("%p{:a => 'b' + (1 + 1).to_s + 'c'}"))
