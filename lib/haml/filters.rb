@@ -158,6 +158,14 @@ END
       end
     end
 
+    module Cdata
+      include Base
+
+      def render(text)
+        "<![CDATA[#{("\n" + text).rstrip.gsub("\n", "\n    ")}\n]]>"
+      end
+    end
+
     module Escaped
       include Base
 

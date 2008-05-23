@@ -69,7 +69,9 @@ module Haml
           'preserve' => Haml::Filters::Preserve,
           'redcloth' => Haml::Filters::RedCloth,
           'textile' => Haml::Filters::Textile,
-          'markdown' => Haml::Filters::Markdown },
+          'markdown' => Haml::Filters::Markdown,
+          'cdata' => Haml::Filters::Cdata
+         },
         :filename => '(haml)',
         :line => 1,
         :ugly => false,
