@@ -688,7 +688,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #              is installed
 #              (BlueCloth takes precedence if both are installed).
 #
-# You can also define your own filters (see Setting Options, below).
+# You can also define your own filters (see Haml::Filters).
 #
 # === Ruby evaluators
 #
@@ -950,12 +950,6 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # [<tt>:line</tt>]          The line offset of the Haml template being parsed.
 #                           This is useful for inline templates,
 #                           similar to the last argument to Kernel#eval.
-#
-# [<tt>:filters</tt>]       A hash of filters that can be applied to Haml code.
-#                           The keys are the string names of the filters;
-#                           the values are references to the classes of the filters.
-#                           User-defined filters should always have lowercase keys,
-#                           and should have the interface described in Haml::Filters::Base.
 #
 # [<tt>:autoclose</tt>]     A list of tag names that should be automatically self-closed
 #                           if they have no content.

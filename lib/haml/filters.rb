@@ -6,6 +6,11 @@ module Haml
   # as well as the base module,
   # Haml::Filters::Base.
   module Filters
+    # Returns a hash of defined filters.
+    def self.defined
+      @defined ||= {}
+    end
+
     # The base module for Haml filters.
     # User-defined filters should be modules including this module.
     #
@@ -28,6 +33,7 @@ module Haml
     #
     module Base
       def self.included(base) # :nodoc:
+        Filters.defined[base.name.split("::").last.downcase] = base
         base.extend(base)
       end
 
@@ -179,6 +185,7 @@ END
       lazy_require 'stringio'
 
       def compile(precompiler, text)
+        return if precompiler.options[:suppress_eval]
         precompiler.instance_eval do
           push_silent <<-END.gsub("\n", ';')
             _haml_old_stdout = $stdout
@@ -213,6 +220,7 @@ END
       lazy_require 'erb'
 
       def compile(precompiler, text)
+        return if precompiler.options[:suppress_eval]
         src = ::ERB.new(text).src.sub(/^_erbout = '';/, "").gsub("\n", ';')
         precompiler.send(:push_silent, src)
       end

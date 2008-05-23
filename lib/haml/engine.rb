@@ -61,35 +61,16 @@ module Haml
         :autoclose => %w[meta img link br hr input area param col base],
         :preserve => %w[textarea pre],
 
-        :filters => {
-          'sass' => Haml::Filters::Sass,
-          'plain' => Haml::Filters::Plain,
-          'javascript' => Haml::Filters::Javascript,
-          'escaped' => Haml::Filters::Escaped,
-          'preserve' => Haml::Filters::Preserve,
-          'redcloth' => Haml::Filters::RedCloth,
-          'textile' => Haml::Filters::Textile,
-          'markdown' => Haml::Filters::Markdown,
-          'cdata' => Haml::Filters::Cdata
-         },
         :filename => '(haml)',
         :line => 1,
         :ugly => false,
         :format => :xhtml,
         :escape_html => false
       }
-      @options[:filters].merge! options.delete(:filters) if options[:filters]
       @options.merge! options
 
       unless [:xhtml, :html4, :html5].include?(@options[:format])
         raise Haml::Error, "Invalid format #{@options[:format].inspect}"
-      end
-
-      unless @options[:suppress_eval]
-        @options[:filters].merge!({
-          'erb' => Haml::Filters::ERB,
-          'ruby' => Haml::Filters::Ruby
-        })
       end
 
       @template = template.rstrip #String
@@ -99,6 +80,14 @@ module Haml
       @index = 0
       @flat_spaces = -1
       @newlines = 0
+
+      if @options[:filters]
+        warn <<END
+DEPRECATION WARNING:
+The Haml :filters option is deprecated and will be removed in version 2.1.
+Filters are now automatically registered.
+END
+      end
 
       precompile
     rescue Haml::Error

@@ -259,14 +259,7 @@ SOURCE
     assert_equal("<div id='foo' yes='no' />\n", render("#foo{:yes => 'no'}/", :suppress_eval => true))
     assert_equal("<div id='foo' />\n", render("#foo{:yes => 'no', :call => a_function() }/", :suppress_eval => true))
     assert_equal("<div />\n", render("%div[1]/", :suppress_eval => true))
-
-    begin
-      assert_equal("", render(":ruby\n  puts 'hello'", :suppress_eval => true))
-    rescue Haml::Error => err
-      caught = true
-      assert_equal('Filter "ruby" is not defined.', err.message)
-    end
-    assert(caught, "Rendering a ruby filter without evaluating didn't throw an error!")
+    assert_equal("", render(":ruby\n  puts 'hello'", :suppress_eval => true))
   end
 
   def test_attr_wrapper

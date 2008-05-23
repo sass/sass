@@ -705,7 +705,7 @@ END
     def start_filtered(name)
       raise Error.new("Invalid filter name \":#{name}\".") unless name =~ /^\w+$/
 
-      unless filter = options[:filters][name]
+      unless filter = Filters.defined[name]
         if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
           raise Error.new("You must have the RedCloth gem installed to use \"#{name}\" filter")
         end
