@@ -36,8 +36,16 @@ if defined?(RAILS_ROOT)
   # to not need updating.
   rails_init_file = File.join(RAILS_ROOT, 'vendor', 'plugins', 'haml', 'init.rb')
   haml_init_file = Haml.scope('init.rb')
-  if File.exists?(rails_init_file)
-    require 'fileutils'
-    FileUtils.cp(haml_init_file, rails_init_file) unless FileUtils.cmp(rails_init_file, haml_init_file)
+  begin
+    if File.exists?(rails_init_file)
+      require 'fileutils'
+      FileUtils.cp(haml_init_file, rails_init_file) unless FileUtils.cmp(rails_init_file, haml_init_file)
+    end
+  rescue SystemCallError
+    warn <<END
+HAML WARNING:
+#{rails_init_file} is out of date and couldn't be automatically updated.
+Please run `haml --rails #{File.expand_path(RAILS_ROOT)}' to update it.
+END
   end
 end
