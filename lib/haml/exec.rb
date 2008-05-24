@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/../haml'
 require 'optparse'
+require 'fileutils'
 
 module Haml
   # This module contains code for working with the
@@ -128,8 +129,9 @@ END
           dir = File.join(dir, 'haml')
 
           if File.exists?(dir)
-            puts "Directory #{dir} already exists."
-            exit
+            print "Directory #{dir} already exists, overwrite [y/N]? "
+            exit if gets !~ /y/i
+            FileUtils.rm_rf(dir)
           end
 
           begin
