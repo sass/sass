@@ -541,6 +541,13 @@ END
                  render("%p= 's' * 75", :ugly => true))
   end
 
+  def test_auto_preserve_unless_ugly
+    assert_equal("<pre>foo&#x000A;bar</pre>\n", render('%pre="foo\nbar"'))
+    assert_equal("<pre>foo\nbar</pre>\n", render("%pre\n  foo\n  bar"))
+    assert_equal("<pre>foo\nbar</pre>\n", render('%pre="foo\nbar"', :ugly => true))
+    assert_equal("<pre>foo\nbar</pre>\n", render("%pre\n  foo\n  bar", :ugly => true))
+  end
+
   def test_xhtml_output_option
     assert_equal "<p>\n  <br />\n</p>\n", render("%p\n  %br", :format => :xhtml)
     assert_equal "<a />\n", render("%a/", :format => :xhtml)

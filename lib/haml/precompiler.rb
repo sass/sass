@@ -545,6 +545,7 @@ END
 
       preserve_tag = options[:preserve].include?(tag_name)
       nuke_inner_whitespace ||= preserve_tag
+      preserve_tag &&= !options[:ugly]
 
       case action
       when '/'; self_closing = xhtml?
