@@ -53,7 +53,7 @@ end
 Rake::Task[:package].prerequisites.insert(0, :revision_file)
 
 # We also need to get rid of this file after packaging.
-Rake::Task[:package].enhance { File.delete('REVISION') if File.exists?('REVISION') }
+at_exit { File.delete('REVISION') rescue nil }
 
 task :install => [:package] do
   sudo = RUBY_PLATFORM =~ /win32/ ? '' : 'sudo'
