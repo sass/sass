@@ -255,9 +255,9 @@ END
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
     def push_flat(line)
       unless @options[:ugly]
-        tabulation = line.spaces - @flat_spaces
-        tabulation = tabulation > -1 ? tabulation : 0
-        @filter_buffer << "#{' ' * tabulation}#{line.unstripped}\n"
+        text = line.full.dup
+        text = "" unless text.gsub!(/^#{@flat_spaces}/, '')
+        @filter_buffer << "#{text}\n"
       else
         @filter_buffer << "#{line.unstripped}\n"
       end
@@ -354,7 +354,7 @@ END
 
     # Closes a filtered block.
     def close_filtered(filter)
-      @flat_spaces = -1
+      @flat_spaces = nil
       filter.internal_compile(self, @filter_buffer)
       @filter_buffer = nil
       @template_tabs -= 1
@@ -671,7 +671,7 @@ END
       end
 
       push_and_tabulate([:filtered, filter])
-      @flat_spaces = @template_tabs * 2
+      @flat_spaces = '  ' * @template_tabs
       @filter_buffer = String.new
       @block_opened = false
     end
@@ -786,7 +786,7 @@ END
     end
 
     def flat?
-      @flat_spaces != -1
+      !@flat_spaces.nil?
     end
 
     def newline

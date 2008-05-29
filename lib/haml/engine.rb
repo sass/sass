@@ -79,7 +79,7 @@ module Haml
       @output_tabs = 0
       @template_tabs = 0
       @index = 0
-      @flat_spaces = -1
+      @flat_spaces = nil
       @newlines = 0
       @precompiled = ''
       @merged_text = ''
