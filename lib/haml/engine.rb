@@ -94,8 +94,8 @@ END
       end
 
       precompile
-    rescue Haml::Error
-      $!.backtrace.unshift "#{@options[:filename]}:#{@index + $!.line_offset + @options[:line] - 1}" if @index
+    rescue Haml::Error => e
+      e.backtrace.unshift "#{@options[:filename]}:#{(e.line ? e.line + 1 : @index) + @options[:line] - 1}" if @index
       raise
     end
 
