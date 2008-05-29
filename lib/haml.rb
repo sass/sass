@@ -133,16 +133,23 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # The hash is placed after the tag is defined.
 # For example:
 #
-#   %head{ :name => "doc_head" }
-#     %script{ 'type' => "text/" + "javascript",
-#              :src   => "javascripts/script_#{2 + 7}" }
+#   %html{:xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en", :lang => "en"}
 #
 # is compiled to:
 #
-#   <head name="doc_head">
-#     <script src='javascripts/script_9' type='text/javascript'>
-#     </script>
-#   </head>
+#   <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"></html>
+#
+# Attribute hashes can also be stretched out over multiple lines
+# to accomidate many attributes.
+# However, newlines may only be placed immediately after commas.
+# For example:
+#
+#   %script{:type => "text/javascript",
+#           :src  => "javascripts/script_#{2 + 7}"}
+#
+# is compiled to:
+#
+#   <script src='javascripts/script_9' type='text/javascript'></script>
 #
 # ===== Attribute Methods
 #

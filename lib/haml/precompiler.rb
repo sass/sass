@@ -409,6 +409,7 @@ END
 
         attributes[key] = value
       end
+      text.count("\n").times { newline }
       attributes
     end
 
@@ -452,10 +453,10 @@ END
     def parse_tag(line)
       raise SyntaxError.new("Invalid tag: \"#{line}\".") unless match = line.scan(/%([-:\w]+)([-\w\.\#]*)(.*)/)[0]
       tag_name, attributes, rest = match
-      attributes_hash, rest = parse_attributes(rest) if rest[0] == ?{
+      attributes_hash, rest, last_line = parse_attributes(rest) if rest[0] == ?{
       if rest
         object_ref, rest = balance(rest, ?[, ?]) if rest[0] == ?[
-        attributes_hash, rest = parse_attributes(rest) if rest[0] == ?{ && attributes_hash.nil?
+        attributes_hash, rest, last_line = parse_attributes(rest) if rest[0] == ?{ && attributes_hash.nil?
         nuke_whitespace, action, value = rest.scan(/(<>|><|[><])?([=\/\~&!])?(.*)?/)[0]
         nuke_whitespace ||= ''
         nuke_outer_whitespace = nuke_whitespace.include? '>'
@@ -463,21 +464,36 @@ END
       end
       value = value.to_s.strip
       [tag_name, attributes, attributes_hash, object_ref, nuke_outer_whitespace,
-       nuke_inner_whitespace, action, value]
+       nuke_inner_whitespace, action, value, last_line || @index]
     end
 
     def parse_attributes(line)
-      scanner = StringScanner.new(line)
-      attributes_hash, rest = balance(scanner, ?{, ?})
+      line = line.dup
+      last_line = @index
+
+      begin
+        attributes_hash, rest = balance(line, ?{, ?})
+      rescue SyntaxError => e
+        if line.strip[-1] == ?, && e.message == "Unbalanced brackets."
+          line << "\n" << @next_line.text
+          last_line += 1
+          next_line
+          @block_opened = @next_line.tabs > @line.tabs && !@next_line.text.empty?
+          retry
+        end
+
+        raise e
+      end
+
       attributes_hash = attributes_hash[1...-1] if attributes_hash
-      return attributes_hash, rest
+      return attributes_hash, rest, last_line
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
       tag_name, attributes, attributes_hash, object_ref, nuke_outer_whitespace,
-        nuke_inner_whitespace, action, value = parse_tag(line)
+        nuke_inner_whitespace, action, value, last_line = parse_tag(line)
 
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
 
@@ -517,8 +533,8 @@ END
 
       raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", @next_line.index) if @block_opened && self_closing
       raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", @next_line.index) if @block_opened && !value.empty?
-      raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.") if parse && value.empty?
-      raise SyntaxError.new("Self-closing tags can't have content.") if self_closing && !value.empty?
+      raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.", last_line - 1) if parse && value.empty?
+      raise SyntaxError.new("Self-closing tags can't have content.", last_line - 1) if self_closing && !value.empty?
 
       self_closing ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
 
@@ -738,7 +754,7 @@ END
     def balance(scanner, start, finish, count = 0)
       str = ''
       scanner = StringScanner.new(scanner) unless scanner.is_a? StringScanner
-      regexp = Regexp.new("(.*?)[\\#{start.chr}\\#{finish.chr}]")
+      regexp = Regexp.new("(.*?)[\\#{start.chr}\\#{finish.chr}]", Regexp::MULTILINE)
       while scanner.scan(regexp)
         str << scanner.matched
         count += 1 if scanner.matched[-1] == start
