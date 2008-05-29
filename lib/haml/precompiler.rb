@@ -114,14 +114,7 @@ END
     def precompile
       old_line = Line.new
       while line = next_line
-        if line.text.empty?
-          process_indent(old_line) if flat? && !old_line.text.empty?
-
-          if flat?
-            push_flat(old_line)
-            old_line.text, old_line.unstripped, old_line.spaces = '', '', 0
-          end
-
+        if line.text.empty? && !flat?
           newline
           next
         end
