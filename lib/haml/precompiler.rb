@@ -749,7 +749,7 @@ END
     def count_soft_tabs(line)
       spaces = line.index(/([^ ]|$)/)
       if line[spaces] == ?\t
-        return nil if line.strip.empty?
+        return 0, 0 if line.strip.empty?
         raise SyntaxError.new(<<END.strip, @next_line.index)
 A tab character was used for indentation. Haml must be indented using two spaces.
 Are you sure you have soft tabs enabled in your editor?
