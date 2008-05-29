@@ -73,13 +73,16 @@ module Haml
         raise Haml::Error, "Invalid format #{@options[:format].inspect}"
       end
 
-      @template = template.rstrip #String
+      @template = template.rstrip + "\n-#\n-#"
       @to_close_stack = []
       @output_tabs = 0
       @template_tabs = 0
       @index = 0
       @flat_spaces = -1
       @newlines = 0
+      @precompiled = ''
+      @merged_text = ''
+      @tab_change  = 0
 
       if @options[:filters]
         warn <<END

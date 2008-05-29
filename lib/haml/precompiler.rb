@@ -109,28 +109,22 @@ END
       end.join(';') + ';'
     end
 
-    Line = Struct.new("Line", :text, :unstripped, :index, :spaces, :tabs)
+    Line = Struct.new(:text, :unstripped, :index, :spaces, :tabs)
 
     def precompile
-      @precompiled = ''
-      @merged_text = ''
-      @tab_change  = 0
-
       old_line = Line.new
-      (@template + "\n-#\n-#").split(/\r\n|\r|\n/).each_with_index do |text, index|
+      @template.split(/\r\n|\r|\n/).each_with_index do |text, index|
         line = Line.new text.strip, text.lstrip.chomp, index
         line.spaces, line.tabs = count_soft_tabs(text)
 
         if line.text.empty?
           process_indent(old_line) if flat? && !old_line.text.empty?
 
-          unless flat?
-            newline
-            next
+          if flat?
+            push_flat(old_line)
+            old_line.text, old_line.unstripped, old_line.spaces = '', '', 0
           end
 
-          push_flat(old_line)
-          old_line.text, old_line.unstripped, old_line.spaces = '', '', 0
           newline
           next
         end
