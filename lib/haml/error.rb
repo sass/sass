@@ -5,13 +5,12 @@ module Haml
 
     # By default, an error is taken to refer to the line of the template
     # that was being processed when the exception was raised.
-    # However, if line_offset is non-zero, it's added to that line number
-    # to get the line to report for the error.
-    attr_reader :line_offset
+    # However, if line is non-nil, it + 1 is used instead.
+    attr_reader :line
 
-    def initialize(message = nil, line_offset = 0)
+    def initialize(message = nil, line = nil)
       super(message)
-      @line_offset = line_offset
+      @line = line
     end
     # :startdoc:
   end

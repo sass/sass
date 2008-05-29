@@ -37,6 +37,15 @@ END
     "- raise 'foo'\n\n\n\nbar" => ["foo", 1],
     "= 'foo'\n-raise 'foo'" => ["foo", 2],
     "\n\n\n- raise 'foo'" => ["foo", 4],
+    "foo\n\n\n  bar" => ["Illegal nesting: nesting within plain text is illegal.", 4],
+    "%p/\n\n  bar" => ["Illegal nesting: nesting within a self-closing tag is illegal.", 3],
+    "%p foo\n\n  bar" => ["Illegal nesting: content can't be both given on the same line as %p and nested within it.", 3],
+    "/ foo\n\n  bar" => ["Illegal nesting: nesting within a tag that already has content is illegal.", 3],
+    "!!!\n\n  bar" => ["Illegal nesting: nesting within a header command is illegal.", 3],
+    "foo\n\n\n\tbar" => [<<END.strip, 4],
+A tab character was used for indentation. Haml must be indented using two spaces.
+Are you sure you have soft tabs enabled in your editor?
+END
   }
 
   User = Struct.new('User', :id)

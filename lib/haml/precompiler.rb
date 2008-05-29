@@ -114,7 +114,7 @@ END
     def precompile
       old_line = Line.new
       @template.split(/\r\n|\r|\n/).each_with_index do |text, index|
-        line = Line.new text.strip, text.lstrip.chomp, index
+        @next_line = line = Line.new(text.strip, text.lstrip.chomp, index)
         line.spaces, line.tabs = count_soft_tabs(text)
 
         if line.text.empty? && !flat?
@@ -141,7 +141,7 @@ END
         end
 
         if old_line.spaces != old_line.tabs * 2
-          raise SyntaxError.new(<<END.strip, 1 + old_line.index - @index)
+          raise SyntaxError.new(<<END.strip, old_line.index)
 #{old_line.spaces} space#{old_line.spaces == 1 ? ' was' : 's were'} used for indentation. Haml must be indented using two spaces.
 END
         end
@@ -152,7 +152,7 @@ END
         resolve_newlines
 
         if !flat? && line.tabs - old_line.tabs > 1
-          raise SyntaxError.new(<<END.strip, 2 + old_line.index - @index)
+          raise SyntaxError.new(<<END.strip, line.index)
 #{line.spaces} spaces were used for indentation. Haml must be indented using two spaces.
 END
         end
@@ -294,7 +294,10 @@ END
     # Renders a block of text as plain text.
     # Also checks for an illegally opened block.
     def push_plain(text)
-      raise SyntaxError.new("Illegal nesting: nesting within plain text is illegal.", 1) if @block_opened
+      if @block_opened
+        raise SyntaxError.new("Illegal nesting: nesting within plain text is illegal.", @next_line.index)
+      end
+
       push_text text
     end
 
@@ -561,8 +564,8 @@ END
       attributes = parse_class_and_id(attributes)
       Buffer.merge_attrs(attributes, static_attributes) if static_attributes
 
-      raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", 1) if @block_opened && self_closing
-      raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", 1) if @block_opened && !value.empty?
+      raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", @next_line.index) if @block_opened && self_closing
+      raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", @next_line.index) if @block_opened && !value.empty?
       raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.") if parse && value.empty?
       raise SyntaxError.new("Self-closing tags can't have content.") if self_closing && !value.empty?
 
@@ -629,7 +632,7 @@ END
       conditional << ">" if conditional
 
       if @block_opened && !line.empty?
-        raise SyntaxError.new('Illegal nesting: nesting within a tag that already has content is illegal.', 1)
+        raise SyntaxError.new('Illegal nesting: nesting within a tag that already has content is illegal.', @next_line.index)
       end
 
       open = "<!--#{conditional} "
@@ -650,7 +653,7 @@ END
 
     # Renders an XHTML doctype or XML shebang.
     def render_doctype(line)
-      raise SyntaxError.new("Illegal nesting: nesting within a header command is illegal.", 1) if @block_opened
+      raise SyntaxError.new("Illegal nesting: nesting within a header command is illegal.", @next_line.index) if @block_opened
       doctype = text_for_doctype(line)
       push_text doctype if doctype
     end
@@ -747,7 +750,7 @@ END
       spaces = line.index(/([^ ]|$)/)
       if line[spaces] == ?\t
         return nil if line.strip.empty?
-        raise SyntaxError.new(<<END.strip, 2)
+        raise SyntaxError.new(<<END.strip, @next_line.index)
 A tab character was used for indentation. Haml must be indented using two spaces.
 Are you sure you have soft tabs enabled in your editor?
 END
