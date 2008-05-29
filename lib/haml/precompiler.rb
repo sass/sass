@@ -112,15 +112,11 @@ END
     Line = Struct.new(:text, :unstripped, :full, :index, :spaces, :tabs)
 
     def precompile
-      old_line = Line.new
-      while line = next_line
-        if old_line.text.nil?
-          old_line = line
-          resolve_newlines
-          newline
-          next
-        end
+      old_line = next_line
+      resolve_newlines
+      newline
 
+      while line = next_line
         process_indent(old_line) unless old_line.text.empty?
 
         if flat?
