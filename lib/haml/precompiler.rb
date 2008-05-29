@@ -114,11 +114,6 @@ END
     def precompile
       old_line = Line.new
       while line = next_line
-        if line.text.empty? && !flat?
-          newline
-          next
-        end
-
         suppress_render = handle_multiline(old_line) unless flat?
 
         if old_line.text.nil? || suppress_render
@@ -717,7 +712,14 @@ END
       text, index = raw_next_line
       return unless text
 
-      Line.new text.strip, text.lstrip.chomp, index, *count_soft_tabs(text)
+      line = Line.new text.strip, text.lstrip.chomp, index, *count_soft_tabs(text)
+
+      if line.text.empty? && !flat?
+        newline
+        return next_line
+      end
+
+      line
     end
 
     def contains_interpolation?(str)
