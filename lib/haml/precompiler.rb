@@ -113,10 +113,7 @@ END
 
     def precompile
       old_line = Line.new
-      @template.split(/\r\n|\r|\n/).each_with_index do |text, index|
-        line = Line.new text.strip, text.lstrip.chomp, index
-        line.spaces, line.tabs = count_soft_tabs(text)
-
+      while line = next_line
         if line.text.empty?
           process_indent(old_line) if flat? && !old_line.text.empty?
 
@@ -711,6 +708,23 @@ END
       @flat_spaces = @template_tabs * 2
       @filter_buffer = String.new
       @block_opened = false
+    end
+
+    def raw_next_line
+      text = @template.shift
+      return unless text
+
+      index = @template_index
+      @template_index += 1
+
+      return text, index
+    end
+
+    def next_line
+      text, index = raw_next_line
+      return unless text
+
+      Line.new text.strip, text.lstrip.chomp, index, *count_soft_tabs(text)
     end
 
     def contains_interpolation?(str)

@@ -73,7 +73,8 @@ module Haml
         raise Haml::Error, "Invalid format #{@options[:format].inspect}"
       end
 
-      @template = template.rstrip + "\n-#\n-#"
+      @template = (template.rstrip + "\n-#\n-#").split(/\r\n|\r|\n/)
+      @template_index = 0
       @to_close_stack = []
       @output_tabs = 0
       @template_tabs = 0
