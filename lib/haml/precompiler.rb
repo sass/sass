@@ -112,37 +112,37 @@ END
     Line = Struct.new(:text, :unstripped, :full, :index, :spaces, :tabs)
 
     def precompile
-      old_line = next_line
+      @line = next_line
       resolve_newlines
       newline
 
-      while line = next_line
-        process_indent(old_line) unless old_line.text.empty?
+      while next_line
+        process_indent(@line) unless @line.text.empty?
 
         if flat?
-          push_flat(old_line)
-          old_line = line
+          push_flat(@line)
+          @line = @next_line
           newline
           next
         end
 
-        if old_line.spaces != old_line.tabs * 2
-          raise SyntaxError.new(<<END.strip, old_line.index)
-#{old_line.spaces} space#{old_line.spaces == 1 ? ' was' : 's were'} used for indentation. Haml must be indented using two spaces.
+        if @line.spaces != @line.tabs * 2
+          raise SyntaxError.new(<<END.strip, @line.index)
+#{@line.spaces} space#{@line.spaces == 1 ? ' was' : 's were'} used for indentation. Haml must be indented using two spaces.
 END
         end
 
-        unless old_line.text.empty? || @haml_comment
-          process_line(old_line.text, old_line.index, line.tabs > old_line.tabs && !line.text.empty?)
+        unless @line.text.empty? || @haml_comment
+          process_line(@line.text, @line.index, @next_line.tabs > @line.tabs && !@next_line.text.empty?)
         end
         resolve_newlines
 
-        if !flat? && line.tabs - old_line.tabs > 1
-          raise SyntaxError.new(<<END.strip, line.index)
-#{line.spaces} spaces were used for indentation. Haml must be indented using two spaces.
+        if !flat? && @next_line.tabs - @line.tabs > 1
+          raise SyntaxError.new(<<END.strip, @next_line.index)
+#{@next_line.spaces} spaces were used for indentation. Haml must be indented using two spaces.
 END
         end
-        old_line = line
+        @line = @next_line
         newline
       end
 
