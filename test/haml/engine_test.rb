@@ -37,6 +37,7 @@ END
     "- raise 'foo'\n\n\n\nbar" => ["foo", 1],
     "= 'foo'\n-raise 'foo'" => ["foo", 2],
     "\n\n\n- raise 'foo'" => ["foo", 4],
+    "%p foo |\n   bar |\n   baz |\nbop\n- raise 'foo'" => ["foo", 5],
   }
 
   User = Struct.new('User', :id)

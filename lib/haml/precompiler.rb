@@ -109,14 +109,12 @@ END
       end.join(';') + ';'
     end
 
-    Line = Struct.new(:text, :unstripped, :index, :spaces, :tabs)
+    Line = Struct.new(:text, :unstripped, :full, :index, :spaces, :tabs)
 
     def precompile
       old_line = Line.new
       while line = next_line
-        suppress_render = handle_multiline(old_line) unless flat?
-
-        if old_line.text.nil? || suppress_render
+        if old_line.text.nil?
           old_line = line
           resolve_newlines
           newline
@@ -209,41 +207,6 @@ END
     # of Ruby's mid-block keywords.
     def mid_block_keyword?(text)
       text.length > 2 && text[0] == SILENT_SCRIPT && MID_BLOCK_KEYWORDS.include?(text[1..-1].split[0])
-    end
-
-    # Deals with all the logic of figuring out whether a given line is
-    # the beginning, continuation, or end of a multiline sequence.
-    #
-    # This returns whether or not the line should be
-    # rendered normally.
-    def handle_multiline(line)
-      text = line.text
-
-      # A multiline string is active, and is being continued
-      if is_multiline?(text) && @multiline
-        @multiline.text << text[0...-1]
-        return true
-      end
-
-      # A multiline string has just been activated, start adding the lines
-      if is_multiline?(text) && (MULTILINE_STARTERS.include? text[0])
-        @multiline = Line.new text[0...-1], nil, line.index, nil, line.tabs
-        process_indent(line)
-        return true
-      end
-
-      # A multiline string has just ended, make line into the result
-      if @multiline && !line.text.empty?
-        process_line(@multiline.text, @multiline.index, line.tabs > @multiline.tabs)
-        @multiline = nil
-      end
-
-      return false
-    end
-
-    # Checks whether or not +line+ is in a multiline sequence.
-    def is_multiline?(text)
-      text && text.length > 1 && text[-1] == MULTILINE_CHAR_VALUE && text[-2] == ?\s
     end
 
     # Evaluates <tt>text</tt> in the context of the scope object, but
@@ -712,14 +675,43 @@ END
       text, index = raw_next_line
       return unless text
 
-      line = Line.new text.strip, text.lstrip.chomp, index, *count_soft_tabs(text)
+      line = Line.new text.strip, text.lstrip.chomp, text, index, *count_soft_tabs(text)
 
-      if line.text.empty? && !flat?
-        newline
-        return next_line
+      unless flat?
+        if line.text.empty?
+          newline
+          return next_line
+        end
+
+        handle_multiline(line)
       end
 
       line
+    end
+
+    def un_next_line(line)
+      return if line.nil?
+      @template.unshift line.full
+      @template_index -= 1
+    end
+
+    def handle_multiline(line)
+      if is_multiline?(line.text) && (MULTILINE_STARTERS.include? line.text[0])
+        line.text.slice! -1
+        while new_line = next_line
+          newline and next if new_line.text.empty?
+          break unless is_multiline?(new_line.text)
+          line.text << new_line.text[0...-1]
+          newline
+        end
+        un_next_line new_line
+        resolve_newlines
+      end
+    end
+
+    # Checks whether or not +line+ is in a multiline sequence.
+    def is_multiline?(text)
+      text && text.length > 1 && text[-1] == MULTILINE_CHAR_VALUE && text[-2] == ?\s
     end
 
     def contains_interpolation?(str)
