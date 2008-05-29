@@ -133,7 +133,7 @@ END
         end
 
         unless @line.text.empty? || @haml_comment
-          process_line(@line.text, @line.index, @next_line.tabs > @line.tabs && !@next_line.text.empty?)
+          process_line(@line.text, @line.index, @next_line.tabs > @line.tabs)
         end
         resolve_newlines
 
@@ -478,7 +478,7 @@ END
           line << "\n" << @next_line.text
           last_line += 1
           next_line
-          @block_opened = @next_line.tabs > @line.tabs && !@next_line.text.empty?
+          @block_opened = @next_line.tabs > @line.tabs
           retry
         end
 
