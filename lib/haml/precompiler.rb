@@ -117,14 +117,7 @@ END
         line = Line.new text.strip, text.lstrip.chomp, index
         line.spaces, line.tabs = count_soft_tabs(text)
 
-        if line.text.empty?
-          process_indent(old_line) if flat? && !old_line.text.empty?
-
-          if flat?
-            push_flat(old_line)
-            old_line.text, old_line.unstripped, old_line.spaces = '', '', 0
-          end
-
+        if line.text.empty? && !flat?
           newline
           next
         end
