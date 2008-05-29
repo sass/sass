@@ -287,7 +287,11 @@ END
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
-        parse_mixin_include(line)
+        if line[1].nil? || line[1] == ?\s
+          Tree::RuleNode.new(line, @options[:style])
+        else
+          parse_mixin_include(line)
+        end
       else
         if line =~ ATTRIBUTE_ALTERNATE_MATCHER
           parse_attribute(line, ATTRIBUTE_ALTERNATE)
