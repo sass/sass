@@ -84,6 +84,10 @@ module Haml
       @merged_text = ''
       @tab_change  = 0
 
+      if @template =~ /\A(\n*)[ \t]+/
+        raise SyntaxError.new("Indenting at the beginning of the document is illegal.", $1.size)
+      end
+
       if @options[:filters]
         warn <<END
 DEPRECATION WARNING:
