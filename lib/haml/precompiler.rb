@@ -61,10 +61,6 @@ module Haml
     # of a multiline string.
     MULTILINE_CHAR_VALUE = ?|
 
-    # Characters that designate that a multiline string may be about
-    # to begin.
-    MULTILINE_STARTERS   = SPECIAL_CHARACTERS - [?/]
-
     # Keywords that appear in the middle of a Ruby block with lowered
     # indentation. If a block has been started using indentation,
     # lowering the indentation  with one of these won't end the block.
@@ -705,18 +701,17 @@ END
     end
 
     def un_next_line(line)
-      return if line.nil?
-      @template.unshift line.full
+      @template.unshift line
       @template_index -= 1
     end
 
     def handle_multiline(line)
-      if is_multiline?(line.text) && (MULTILINE_STARTERS.include? line.text[0])
+      if is_multiline?(line.text)
         line.text.slice! -1
-        while new_line = next_line
-          newline and next if new_line.text.empty?
-          break unless is_multiline?(new_line.text)
-          line.text << new_line.text[0...-1]
+        while new_line = raw_next_line.first
+          newline and next if new_line.strip.empty?
+          break unless is_multiline?(new_line.strip)
+          line.text << new_line.strip[0...-1]
           newline
         end
         un_next_line new_line
