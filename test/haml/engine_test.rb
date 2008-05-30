@@ -39,6 +39,9 @@ END
     "%p{:a => 'b',\n:c => 'd',\n:e => 'f'}\n- raise 'foo'" => ["foo", 4],
     "%p{:a => 'b',\n:c => raise('foo'),\n:e => 'f'}" => ["foo", 2],
     "%p{:a => 'b',\n:c => 'd',\n:e => raise('foo')}" => ["foo", 3],
+    " %p foo" => "Indenting at the beginning of the document is illegal.",
+    "  %p foo" => "Indenting at the beginning of the document is illegal.",
+    "\n\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
 
     # Regression tests
     "- raise 'foo'\n\n\n\nbar" => ["foo", 1],

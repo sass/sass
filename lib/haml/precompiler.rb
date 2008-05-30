@@ -112,6 +112,8 @@ END
       resolve_newlines
       newline
 
+      raise SyntaxError.new("Indenting at the beginning of the document is illegal.", @line.index) if @line.spaces != 0
+
       while next_line
         process_indent(@line) unless @line.text.empty?
 
