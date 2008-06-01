@@ -23,6 +23,11 @@ module Haml
     # to produce the Haml document.
     attr :precompiled, true
 
+    # A string containing the indentation used for the Haml document.
+    # nil if the indentation is ambiguous
+    # (for example, for a single-level document).
+    attr :indentation, true
+
     # True if the format is XHTML
     def xhtml?
       not html?
@@ -79,7 +84,7 @@ module Haml
       @output_tabs = 0
       @template_tabs = 0
       @index = 0
-      @flat_spaces = nil
+      @flat = false
       @newlines = 0
       @precompiled = ''
       @merged_text = ''

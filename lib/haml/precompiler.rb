@@ -1,4 +1,5 @@
 require 'strscan'
+require 'haml/shared'
 
 module Haml
   module Precompiler
@@ -105,14 +106,36 @@ END
       end.join(';') + ';'
     end
 
-    Line = Struct.new(:text, :unstripped, :full, :index, :spaces, :tabs)
+    class Line < Struct.new(:text, :unstripped, :full, :index, :precompiler)
+      def tabs
+        line = self
+        @tabs ||= precompiler.instance_eval do
+          break 0 if line.text.empty? || !(whitespace = line.full[/^\s+/])
+          
+          if @indentation.nil?
+            @indentation = whitespace
+            @flat_spaces = @indentation * @template_tabs if flat?
+            break 1
+          end
+
+          tabs = whitespace.length / @indentation.length
+          break tabs if whitespace == @indentation * tabs
+          break @template_tabs if flat? && whitespace =~ /^#{@indentation * @template_tabs}/
+
+          raise SyntaxError.new(<<END.strip.gsub("\n", ' '), line.index)
+Inconsistent indentation: #{Haml::Shared.human_indentation whitespace, true} used for indentation,
+but the rest of the document was indented using #{Haml::Shared.human_indentation @indentation}.
+END
+        end
+      end
+    end
 
     def precompile
       @line = next_line
       resolve_newlines
       newline
 
-      raise SyntaxError.new("Indenting at the beginning of the document is illegal.", @line.index) if @line.spaces != 0
+      raise SyntaxError.new("Indenting at the beginning of the document is illegal.", @line.index) if @line.tabs != 0
 
       while next_line
         process_indent(@line) unless @line.text.empty?
@@ -124,22 +147,13 @@ END
           next
         end
 
-        if @line.spaces != @line.tabs * 2
-          raise SyntaxError.new(<<END.strip, @line.index)
-#{@line.spaces} space#{@line.spaces == 1 ? ' was' : 's were'} used for indentation. Haml must be indented using two spaces.
-END
-        end
-
-        unless @line.text.empty? || @haml_comment
-          process_line(@line.text, @line.index)
-        end
-        resolve_newlines
+        process_line(@line.text, @line.index) unless @line.text.empty? || @haml_comment
 
         if !flat? && @next_line.tabs - @line.tabs > 1
-          raise SyntaxError.new(<<END.strip, @next_line.index)
-#{@next_line.spaces} spaces were used for indentation. Haml must be indented using two spaces.
-END
+          raise SyntaxError.new("The line was indented #{@next_line.tabs - @line.tabs} levels deeper than the previous line.", @next_line.index)
         end
+
+        resolve_newlines
         @line = @next_line
         newline
       end
@@ -352,6 +366,7 @@ END
     # Closes a filtered block.
     def close_filtered(filter)
       filter.internal_compile(self, @filter_buffer)
+      @flat = false
       @flat_spaces = nil
       @filter_buffer = nil
       @template_tabs -= 1
@@ -667,8 +682,11 @@ END
       end
 
       push_and_tabulate([:filtered, filter])
-      @flat_spaces = '  ' * @template_tabs
+      @flat = true
       @filter_buffer = String.new
+
+      # If we don't know the indentation by now, it'll be set in Line#tabs
+      @flat_spaces = @indentation * @template_tabs if @indentation
     end
 
     def raw_next_line
@@ -685,7 +703,7 @@ END
       text, index = raw_next_line
       return unless text
 
-      line = Line.new text.strip, text.lstrip.chomp, text, index, *count_soft_tabs(text, index)
+      line = Line.new text.strip, text.lstrip.chomp, text, index, self
 
       unless flat?
         if line.text.empty?
@@ -759,19 +777,6 @@ END
       raise SyntaxError.new("Unbalanced brackets.")
     end
 
-    # Counts the tabulation of a line.
-    def count_soft_tabs(line, index)
-      spaces = line.index(/([^ ]|$)/)
-      if line[spaces] == ?\t
-        return 0, 0 if line.strip.empty?
-        raise SyntaxError.new(<<END.strip, index)
-A tab character was used for indentation. Haml must be indented using two spaces.
-Are you sure you have soft tabs enabled in your editor?
-END
-      end
-      [spaces, spaces/2]
-    end
-
     def block_opened?
       !flat? && @next_line.tabs > @line.tabs
     end
@@ -784,7 +789,7 @@ END
     end
 
     def flat?
-      !@flat_spaces.nil?
+      @flat
     end
 
     def newline
