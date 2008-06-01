@@ -36,12 +36,6 @@ class SassEngineTest < Test::Unit::TestCase
     "!a" => 'Invalid constant: "!a".',
     "! a" => 'Invalid constant: "! a".',
     "!a b" => 'Invalid constant: "!a b".',
-    "a\n\t:b c" => <<END.strip,
-A tab character was used for indentation. Sass must be indented using two spaces.
-Are you sure you have soft tabs enabled in your editor?
-END
-    "a\n :b c" => "1 space was used for indentation. Sass must be indented using two spaces.",
-    "a\n    :b c" => "4 spaces were used for indentation. Sass must be indented using two spaces.",
     "a\n  :b c\n  !d = 3" => "Constants may only be declared at the root of a document.",
     "!a = 1b + 2c" => "Incompatible units: b and c.",
     "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'.",
@@ -58,6 +52,14 @@ END
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => "Mixins may only be defined at the root of a document.",
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
+    "a\n  b: c\n b: c" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 3],
+    "a\n  b: c\na\n b: c" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 4],
+    "a\n\t\tb: c\n\tb: c" => ["Inconsistent indentation: 1 tab was used for indentation, but the rest of the document was indented using 2 tabs.", 3],
+    "a\n  b: c\n   b: c" => ["Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 2 spaces.", 3],
+    "a\n \t b: c\n  \tb: c" => ['Inconsistent indentation: "  \t" was used for indentation, but the rest of the document was indented using " \t ".', 3],
+    "a\n  b: c\n  a\n   d: e" => ["Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 2 spaces.", 4],
+    "a\n  b: c\na\n    d: e" => ["The line was indented 2 levels deeper than the previous line.", 4],
+    "a\n  b: c\n  a\n        d: e" => ["The line was indented 3 levels deeper than the previous line.", 4],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3]
@@ -77,6 +79,15 @@ END
     renders_correctly "compact", { :style => :compact }
     renders_correctly "nested", { :style => :nested }
     renders_correctly "compressed", { :style => :compressed }
+  end
+  
+  def test_flexible_tabulation
+    assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
+                 render("p\n a: b\n q\n  c: d\n"))
+    assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
+                 render("p\n\ta: b\n\tq\n\t\tc: d\n"))
+    assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
+                 render("p\n  \t \t a: b\n  \t \t q\n  \t \t   \t \t c: d\n"))
   end
   
   def test_exceptions

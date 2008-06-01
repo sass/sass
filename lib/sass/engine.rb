@@ -6,6 +6,7 @@ require 'sass/tree/attr_node'
 require 'sass/tree/directive_node'
 require 'sass/constant'
 require 'sass/error'
+require 'haml/shared'
 
 module Sass
   # This is the class where all the parsing and processing of the Sass
@@ -146,7 +147,7 @@ module Sass
 
         if tabs # if line isn't blank
           if tabs - old_tabs > 1
-            raise SyntaxError.new("#{tabs * 2} spaces were used for indentation. Sass must be indented using two spaces.", @line)
+            raise SyntaxError.new("The line was indented #{tabs - old_tabs} levels deeper than the previous line.", @line)
           end
           @lines << [line.strip, tabs]
 
@@ -162,19 +163,20 @@ module Sass
     # Counts the tabulation of a line.
     def count_tabs(line)
       return nil if line.strip.empty?
-      return nil unless spaces = line.index(/[^ ]/)
+      return 0 unless whitespace = line[/^\s+/]
 
-      if spaces % 2 == 1
-          raise SyntaxError.new(<<END.strip, @line)
-#{spaces} space#{spaces == 1 ? ' was' : 's were'} used for indentation. Sass must be indented using two spaces.
-END
-      elsif line[spaces] == ?\t
-        raise SyntaxError.new(<<END.strip, @line)
-A tab character was used for indentation. Sass must be indented using two spaces.
-Are you sure you have soft tabs enabled in your editor?
-END
+      if @indentation.nil?
+        @indentation = whitespace
+        return 1
       end
-      spaces / 2
+
+      tabs = whitespace.length / @indentation.length
+      return tabs if whitespace == @indentation * tabs
+
+      raise SyntaxError.new(<<END.strip.gsub("\n", ' '), @line)
+Inconsistent indentation: #{Haml::Shared.human_indentation whitespace, true} used for indentation,
+but the rest of the document was indented using #{Haml::Shared.human_indentation @indentation}.
+END
     end
 
     def build_tree(index)
