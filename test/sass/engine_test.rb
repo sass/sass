@@ -52,6 +52,8 @@ class SassEngineTest < Test::Unit::TestCase
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => "Mixins may only be defined at the root of a document.",
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
+    "    a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 1],
+    " \n   \n\t\n  a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 4],
     "a\n  b: c\n b: c" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 3],
     "a\n  b: c\na\n b: c" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 4],
     "a\n\t\tb: c\n\tb: c" => ["Inconsistent indentation: 1 tab was used for indentation, but the rest of the document was indented using 2 tabs.", 3],
