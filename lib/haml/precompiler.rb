@@ -114,6 +114,11 @@ END
           
           if @indentation.nil?
             @indentation = whitespace
+
+            if @indentation.include?(?\s) && @indentation.include?(?\t)
+              raise SyntaxError.new("Indentation can't use both tabs and spaces.", line.index)
+            end
+
             @flat_spaces = @indentation * @template_tabs if flat?
             break 1
           end

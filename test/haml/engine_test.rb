@@ -40,11 +40,11 @@ class EngineTest < Test::Unit::TestCase
     "%p\n  foo\n%p\n foo" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 4],
     "%p\n\t\tfoo\n\tfoo" => ["Inconsistent indentation: 1 tab was used for indentation, but the rest of the document was indented using 2 tabs.", 3],
     "%p\n  foo\n   foo" => ["Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 2 spaces.", 3],
-    "%p\n \t foo\n  \tfoo" => ['Inconsistent indentation: "  \t" was used for indentation, but the rest of the document was indented using " \t ".', 3],
     "%p\n  foo\n  %p\n   bar" => ["Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 2 spaces.", 4],
     "%p\n  :plain\n     bar\n   \t  baz" => ['Inconsistent indentation: "   \t  " was used for indentation, but the rest of the document was indented using 2 spaces.', 4],
     "%p\n  foo\n%p\n    bar" => ["The line was indented 2 levels deeper than the previous line.", 4],
     "%p\n  foo\n  %p\n        bar" => ["The line was indented 3 levels deeper than the previous line.", 4],
+    "%p\n \tfoo" => ["Indentation can't use both tabs and spaces.", 2],
 
     # Regression tests
     "- raise 'foo'\n\n\n\nbar" => ["foo", 1],
@@ -71,11 +71,6 @@ class EngineTest < Test::Unit::TestCase
                  render("%p\n foo\n%q\n bar\n %a\n  baz"))
     assert_equal("<p>\n  foo\n</p>\n<q>\n  bar\n  <a>\n    baz\n  </a>\n</q>\n",
                  render("%p\n\tfoo\n%q\n\tbar\n\t%a\n\t\tbaz"))
-    assert_equal("<p>\n  foo\n</p>\n<q>\n  bar\n  <a>\n    baz\n  </a>\n</q>\n",
-                 render("%p\n  \t \t foo\n%q\n  \t \t bar\n  \t \t %a\n  \t \t   \t \t baz"))
-
-    assert_equal("<p>\n  foo\n    \t \t bar\n   baz\n</p>\n",
-                 render("%p\n  \t \t :plain\n  \t \t   \t \t foo\n  \t \t   \t \t   \t \t bar\n  \t \t   \t \t  baz"))
     assert_equal("<p>\n      \t \t bar\n   baz\n</p>\n",
                  render("%p\n  :plain\n        \t \t bar\n     baz"))
   end

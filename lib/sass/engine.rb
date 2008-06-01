@@ -169,6 +169,11 @@ module Sass
 
       if @indentation.nil?
         @indentation = whitespace
+        
+        if @indentation.include?(?\s) && @indentation.include?(?\t)
+          raise SyntaxError.new("Indentation can't use both tabs and spaces.", @line)
+        end
+
         return 1
       end
 

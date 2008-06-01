@@ -58,10 +58,10 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  b: c\na\n b: c" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 4],
     "a\n\t\tb: c\n\tb: c" => ["Inconsistent indentation: 1 tab was used for indentation, but the rest of the document was indented using 2 tabs.", 3],
     "a\n  b: c\n   b: c" => ["Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 2 spaces.", 3],
-    "a\n \t b: c\n  \tb: c" => ['Inconsistent indentation: "  \t" was used for indentation, but the rest of the document was indented using " \t ".', 3],
     "a\n  b: c\n  a\n   d: e" => ["Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 2 spaces.", 4],
     "a\n  b: c\na\n    d: e" => ["The line was indented 2 levels deeper than the previous line.", 4],
     "a\n  b: c\n  a\n        d: e" => ["The line was indented 3 levels deeper than the previous line.", 4],
+    "a\n \tb: c" => ["Indentation can't use both tabs and spaces.", 2],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3]
@@ -88,8 +88,6 @@ class SassEngineTest < Test::Unit::TestCase
                  render("p\n a: b\n q\n  c: d\n"))
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
                  render("p\n\ta: b\n\tq\n\t\tc: d\n"))
-    assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
-                 render("p\n  \t \t a: b\n  \t \t q\n  \t \t   \t \t c: d\n"))
   end
   
   def test_exceptions
