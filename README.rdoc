@@ -264,6 +264,13 @@ becomes:
 A comprehensive list of features is in
 the documentation for the Sass module.
 
+== Indentation
+
+Indentation can be made up of one or more tabs or spaces.
+However, indentation must be consistent within a given document.
+Hard tabs and spaces can't be mixed,
+and the same number of tabs or spaces must be used throughout.
+
 == Executables
 
 The Haml gem includes several executables that are useful
