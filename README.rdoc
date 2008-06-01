@@ -70,7 +70,7 @@ becomes
 
 Haml uses indentation
 to bring the individual elements to represent the HTML structure.
-A tag's children are indented two spaces more than the parent tag.
+A tag's children are indented beneath than the parent tag.
 Again, a closing tag is automatically added.
 For example:
 
@@ -113,8 +113,7 @@ At its most basic,
 Sass is just another way of writing CSS.
 Although it's very much like normal CSS,
 the basic syntax offers a few helpful features:
-tabulation (using *two spaces*)
-indicates the attributes in a rule,
+tabulation indicates the attributes in a rule,
 rather than non-DRY brackets;
 and newlines indicate the end of an attribute,
 rather than a semicolon.

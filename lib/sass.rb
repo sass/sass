@@ -74,7 +74,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # However, some of the syntax is a little different.
 # The syntax for selectors is the same,
 # but instead of using brackets to delineate the attributes that belong to a particular rule,
-# Sass uses two spaces of indentation.
+# Sass uses indentation.
 # For example:
 #
 #   #main p
