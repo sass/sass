@@ -34,7 +34,7 @@ END
     "%a/ b" => "Self-closing tags can't have content.",
     " %p foo" => "Indenting at the beginning of the document is illegal.",
     "  %p foo" => "Indenting at the beginning of the document is illegal.",
-    "\n\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
+    " \n\t\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
 
     # Regression tests
     "- raise 'foo'\n\n\n\nbar" => ["foo", 1],
