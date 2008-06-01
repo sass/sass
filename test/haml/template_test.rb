@@ -66,26 +66,21 @@ class TemplateTest < Test::Unit::TestCase
     assert_equal('', render(''))
   end
 
-  def test_templates_should_render_correctly
-    @@templates.each do |template|
+  @@templates.each do |template|
+    define_method "test_template_should_render_correctly [template: #{template}] " do
       assert_renders_correctly template
     end
-  end
 
-  def test_templates_should_render_correctly_with_render_proc
-    @@templates.each do |template|
+    define_method "test_templates_should_render_correctly_with_render_proc [template: #{template}] " do
       assert_renders_correctly(template) do |name|
         engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
         engine.render_proc(@base).call
       end
     end
-  end
-
-  def test_templates_should_render_correctly_with_def_method
-    @@templates.each do |template|
+  
+    define_method "test_templates_should_render_correctly_with_def_method [template: #{template}] " do
       assert_renders_correctly(template) do |name|
         method = "render_haml_" + name.gsub(/[^a-zA-Z0-9]/, '_')
-
         engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
         engine.def_method(@base, method)
         @base.send(method)
