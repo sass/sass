@@ -41,6 +41,10 @@ class Sass::Constant::Literal # :nodoc:
     Sass::Constant::String.from_value("#{self.to_s}, #{other.to_s}")
   end
 
+  def inspect
+    value.inspect
+  end
+
   attr_reader :value
 
   protected

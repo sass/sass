@@ -14,6 +14,10 @@ module Sass::Constant # :nodoc:
       self.perform.to_s
     end
 
+    def inspect
+      "(#{@operator.inspect} #{@operand1.inspect} #{@operand2.inspect})"
+    end
+
     protected
 
     def perform

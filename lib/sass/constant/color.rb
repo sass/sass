@@ -77,6 +77,7 @@ module Sass::Constant # :nodoc:
       red, green, blue = @value.map { |num| num.to_s(16).rjust(2, '0') }
       "##{red}#{green}#{blue}"
     end
+    alias_method :inspect, :to_s
 
     protected
 
