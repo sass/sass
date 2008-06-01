@@ -131,7 +131,7 @@ END
         end
 
         unless @line.text.empty? || @haml_comment
-          process_line(@line.text, @line.index, @next_line.tabs > @line.tabs)
+          process_line(@line.text, @line.index)
         end
         resolve_newlines
 
@@ -161,8 +161,7 @@ END
     #
     # This method doesn't return anything; it simply processes the line and
     # adds the appropriate code to <tt>@precompiled</tt>.
-    def process_line(text, index, block_opened)
-      @block_opened = block_opened
+    def process_line(text, index)
       @index = index + 1
 
       case text[0]
@@ -183,7 +182,7 @@ END
 
         push_silent(text[1..-1], true)
         newline_now
-        if (@block_opened && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"
+        if (block_opened? && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"
           push_and_tabulate([:script])
         end
       when FILTER; start_filtered(text[1..-1].downcase)
@@ -243,7 +242,7 @@ END
     # Renders a block of text as plain text.
     # Also checks for an illegally opened block.
     def push_plain(text)
-      if @block_opened
+      if block_opened?
         raise SyntaxError.new("Illegal nesting: nesting within plain text is illegal.", @next_line.index)
       end
 
@@ -281,7 +280,7 @@ END
       args = [preserve_script, in_tag, preserve_tag,
               escape_html, nuke_inner_whitespace].map { |a| a.inspect }.join(', ')
       out = "haml_temp = _hamlout.push_script(haml_temp, #{args});"
-      if @block_opened
+      if block_opened?
         push_and_tabulate([:loud, out])
       else
         @precompiled << out
@@ -298,7 +297,7 @@ END
     end
 
     def start_haml_comment
-      return unless @block_opened
+      return unless block_opened?
 
       @haml_comment = true
       push_and_tabulate([:haml_comment])
@@ -352,8 +351,8 @@ END
 
     # Closes a filtered block.
     def close_filtered(filter)
-      @flat_spaces = nil
       filter.internal_compile(self, @filter_buffer)
+      @flat_spaces = nil
       @filter_buffer = nil
       @template_tabs -= 1
     end
@@ -476,7 +475,6 @@ END
           line << "\n" << @next_line.text
           last_line += 1
           next_line
-          @block_opened = @next_line.tabs > @line.tabs
           retry
         end
 
@@ -529,20 +527,20 @@ END
       attributes = parse_class_and_id(attributes)
       Buffer.merge_attrs(attributes, static_attributes) if static_attributes
 
-      raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", @next_line.index) if @block_opened && self_closing
-      raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", @next_line.index) if @block_opened && !value.empty?
+      raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", @next_line.index) if block_opened? && self_closing
+      raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", @next_line.index) if block_opened? && !value.empty?
       raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.", last_line - 1) if parse && value.empty?
       raise SyntaxError.new("Self-closing tags can't have content.", last_line - 1) if self_closing && !value.empty?
 
-      self_closing ||= !!( !@block_opened && value.empty? && @options[:autoclose].include?(tag_name) )
+      self_closing ||= !!( !block_opened? && value.empty? && @options[:autoclose].include?(tag_name) )
 
       dont_indent_next_line =
-        (nuke_outer_whitespace && !@block_opened) ||
-        (nuke_inner_whitespace && @block_opened)
+        (nuke_outer_whitespace && !block_opened?) ||
+        (nuke_inner_whitespace && block_opened?)
 
       # Check if we can render the tag directly to text and not process it in the buffer
       if object_ref == "nil" && attributes_hash.nil? && !preserve_script
-        tag_closed = !@block_opened && !self_closing && !parse
+        tag_closed = !block_opened? && !self_closing && !parse
 
         open_tag  = prerender_tag(tag_name, self_closing, attributes)
         if tag_closed
@@ -561,7 +559,7 @@ END
         flush_merged_text
         content = value.empty? || parse ? 'nil' : value.dump
         attributes_hash = ', ' + attributes_hash if attributes_hash
-        args = [tag_name, self_closing, !@block_opened, preserve_tag, escape_html,
+        args = [tag_name, self_closing, !block_opened?, preserve_tag, escape_html,
                 attributes, nuke_outer_whitespace, nuke_inner_whitespace
                ].map { |v| v.inspect }.join(', ')
         push_silent "_hamlout.open_tag(#{args}, #{object_ref}, #{content}#{attributes_hash})"
@@ -596,7 +594,7 @@ END
       line.strip!
       conditional << ">" if conditional
 
-      if @block_opened && !line.empty?
+      if block_opened? && !line.empty?
         raise SyntaxError.new('Illegal nesting: nesting within a tag that already has content is illegal.', @next_line.index)
       end
 
@@ -618,7 +616,7 @@ END
 
     # Renders an XHTML doctype or XML shebang.
     def render_doctype(line)
-      raise SyntaxError.new("Illegal nesting: nesting within a header command is illegal.", @next_line.index) if @block_opened
+      raise SyntaxError.new("Illegal nesting: nesting within a header command is illegal.", @next_line.index) if block_opened?
       doctype = text_for_doctype(line)
       push_text doctype if doctype
     end
@@ -671,7 +669,6 @@ END
       push_and_tabulate([:filtered, filter])
       @flat_spaces = '  ' * @template_tabs
       @filter_buffer = String.new
-      @block_opened = false
     end
 
     def raw_next_line
@@ -773,6 +770,10 @@ Are you sure you have soft tabs enabled in your editor?
 END
       end
       [spaces, spaces/2]
+    end
+
+    def block_opened?
+      !flat? && @next_line.tabs > @line.tabs
     end
 
     # Pushes value onto <tt>@to_close_stack</tt> and increases
