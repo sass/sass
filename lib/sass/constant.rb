@@ -34,6 +34,15 @@ module Sass
     # The regular expression used to parse constants
     MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }.join}]+)\s*((?:\|\|)?=)\s*(.+)/
 
+    # Order of operations hash
+    ORDER = {
+      :times => 1,
+      :div => 1,
+      :mod => 1,
+      :plus => 2,
+      :minus => 2,
+      :comma => 3,
+    }
     # First-order operations
     FIRST_ORDER = [:times, :div, :mod]
 
@@ -228,7 +237,7 @@ module Sass
         elsif value.length == 3
           Operation.new(operationalize(value[0], constants), operationalize(value[2], constants), value[1])
         else
-          if SECOND_ORDER.include?(value[1]) && FIRST_ORDER.include?(value[3])
+          if ORDER[value[1]] && ORDER[value[3]] && ORDER[value[1]] > ORDER[value[3]]
             operationalize([value[0], value[1], operationalize(value[2..4], constants), *value[5..-1]], constants)
           else
             operationalize([operationalize(value[0..2], constants), *value[3..-1]], constants)
