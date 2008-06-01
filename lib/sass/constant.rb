@@ -20,6 +20,7 @@ module Sass
     SYMBOLS = {
       ?( => :open,
       ?) => :close,
+      ?, => :comma,
       ?+ => :plus,
       ?- => :minus,
       ?* => :times,

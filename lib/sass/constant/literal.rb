@@ -37,6 +37,10 @@ class Sass::Constant::Literal # :nodoc:
     Sass::Constant::String.from_value("#{self.to_s} #{other.to_s}")
   end
 
+  def comma(other)
+    Sass::Constant::String.from_value("#{self.to_s}, #{other.to_s}")
+  end
+
   attr_reader :value
 
   protected
