@@ -132,8 +132,8 @@ END
   end
 
   def test_default_function
-    assert_equal("foo {\n  bar: url(foo.png); }\n",
-                 render("foo\n  bar = url(foo.png)\n"));
+    assert_equal("foo {\n  bar: url(foo.png); }\n", render("foo\n  bar = url(foo.png)\n"));
+    assert_equal("foo {\n  bar: url(); }\n", render("foo\n  bar = url()\n"));
   end
 
   def test_basic_multiline_selector

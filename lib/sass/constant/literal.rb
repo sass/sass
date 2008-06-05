@@ -4,6 +4,7 @@ module Sass::Constant; class Literal; end; end; # :nodoc:
 require 'sass/constant/string'
 require 'sass/constant/number'
 require 'sass/constant/color'
+require 'sass/constant/nil'
 
 class Sass::Constant::Literal # :nodoc:
   # The regular expression matching numbers.
