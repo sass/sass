@@ -217,7 +217,10 @@ module Sass
       #++
       def operationalize(value, constants)
         value = [value] unless value.is_a?(Array)
-        if value.length == 1
+        case value.length
+        when 0
+          Sass::Constant::Nil.new
+        when 1
           value = value[0]
           if value.is_a? Array
             operationalize(value, constants)
@@ -226,7 +229,7 @@ module Sass
           else
             Literal.parse(value)
           end
-        elsif value.length == 2
+        when 2
           if value[0] == :neg
             Operation.new(Sass::Constant::Number.new('0'), operationalize(value[1], constants), :minus)
           elsif value[0] == :const
@@ -234,7 +237,7 @@ module Sass
           else
             raise SyntaxError.new("Constant arithmetic error")
           end
-        elsif value.length == 3
+        when 3
           Operation.new(operationalize(value[0], constants), operationalize(value[2], constants), value[1])
         else
           if ORDER[value[1]] && ORDER[value[3]] && ORDER[value[1]] > ORDER[value[3]]
