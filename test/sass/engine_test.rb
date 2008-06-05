@@ -272,6 +272,20 @@ END
                  render("foo\n  +\n    bar\n      a: b\n    baz\n      c: d"))
   end
 
+  def test_functions
+    assert_equal("a {\n  b: #80ff80; }\n", render("a\n  b = hsl(120, 100%, 75%)"))
+    assert_equal("a {\n  b: #81ff81; }\n", render("a\n  b = hsl(120, 100%, 75%) + #010001"))
+  end
+
+  def test_argument_error
+    assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
+  end
+
+  def test_inaccessible_functions
+    assert_equal("a {\n  b: send(to_s); }\n", render("a\n  b = send(to_s)"))
+    assert_equal("a {\n  b: public_instance_methods(); }\n", render("a\n  b = public_instance_methods()"))
+  end
+
   private
 
   def render(sass, options = {})

@@ -1,5 +1,7 @@
+# :stopdoc:
 # Let the subclasses see the superclass
-module Sass::Constant; class Literal; end; end; # :nodoc:
+module Sass::Constant; class Literal; end; end;
+# :startdoc:
 
 require 'sass/constant/string'
 require 'sass/constant/number'
@@ -27,7 +29,11 @@ class Sass::Constant::Literal # :nodoc:
   end
 
   def initialize(value = nil)
-    self.parse(value) if value
+    if value.is_a?(String)
+      self.parse(value)
+    else
+      @value = value
+    end
   end
 
   def perform
@@ -44,6 +50,10 @@ class Sass::Constant::Literal # :nodoc:
 
   def inspect
     value.inspect
+  end
+
+  def to_arglist
+    [self]
   end
 
   attr_reader :value

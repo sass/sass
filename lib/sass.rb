@@ -440,6 +440,21 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     #main h6 {
 #       font: italic small-caps bold 1.1em sans-serif; }
 #
+# === Functions
+#
+# Functions can be performed on Sass constants using the familiar CSS function syntax.
+# For example:
+#
+#   #main
+#     :color = hsl(0, 100%, 50%)
+#
+# is compiled to:
+#
+#   #main {
+#     color: #ff0000; }
+#
+# Available functions are defined in Sass::Constant::Functions.
+#
 # == Directives
 #
 # Directives allow the author to directly issue instructions to the Sass compiler.

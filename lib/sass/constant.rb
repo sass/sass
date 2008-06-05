@@ -2,7 +2,10 @@ require 'sass/constant/operation'
 require 'sass/constant/literal'
 
 module Sass
-  module Constant # :nodoc:
+  # This module contains various constant-script related functionality.
+  module Constant
+    # :stopdoc:
+
     # The character that begins a constant.
     CONSTANT_CHAR   = ?!
 
@@ -254,5 +257,6 @@ module Sass
         to_return
       end
     end
+    # :startdoc:
   end
 end
