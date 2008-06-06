@@ -941,7 +941,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # [<tt>:escape_html</tt>]   Sets whether or not to escape HTML-sensitive characters in script.
 #                           If this is true, = behaves like &=;
 #                           otherwise, it behaves like !=.
-#                           <b>Note that this escapes tag attributes.</b>
+#                           Note that if this is set, != should be used for yielding to subtemplates
+#                           and rendering partials.
 #                           Defaults to false.
 #
 # [<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
