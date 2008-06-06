@@ -265,14 +265,19 @@ module Haml
 
     #
     # call-seq:
-    #   haml_tag(name, attributes = {}) {...}
-    #   haml_tag(name, text, attributes = {}) {...}
+    #   haml_tag(name, *flags, attributes = {}) {...}
+    #   haml_tag(name, text, *flags, attributes = {}) {...}
     #
     # Creates an HTML tag with the given name and optionally text and attributes.
     # Can take a block that will be executed
     # between when the opening and closing tags are output.
     # If the block is a Haml block or outputs text using puts,
     # the text will be properly indented.
+    #
+    # <tt>flags</tt> is a list of symbol flags
+    # like those that can be put at the end of a Haml tag
+    # (<tt>:/</tt>, <tt>:<</tt>, and <tt>:></tt>).
+    # Currently, only <tt>:/</tt> and <tt>:<</tt> are supported.
     #
     # For example,
     #
@@ -304,34 +309,46 @@ module Haml
     #     </tr>
     #   </table>
     #
-    def haml_tag(name, attributes = {}, alt_atts = {}, &block)
+    def haml_tag(name, *rest, &block)
       name = name.to_s
+      text = rest.shift if rest.first.is_a? String
+      flags = []
+      flags << rest.shift while rest.first.is_a? Symbol
+      attributes = Haml::Precompiler.build_attributes(haml_buffer.html?,
+                                                      haml_buffer.options[:attr_wrapper],
+                                                      rest.shift || {})
 
-      text = nil
-      if attributes.is_a? String
-        text = attributes
-        attributes = alt_atts
-      end
-
-      attributes = Haml::Precompiler.build_attributes(
-        haml_buffer.html?, haml_buffer.options[:attr_wrapper], attributes)
-
-      if text.nil? && block.nil? && haml_buffer.options[:autoclose].include?(name)
+      if text.nil? && block.nil? && (haml_buffer.options[:autoclose].include?(name) || flags.include?(:/))
         puts "<#{name}#{attributes} />"
         return nil
       end
 
-      puts "<#{name}#{attributes}>"
-      unless text && text.empty?
-        tab_up
-        # Print out either the text (using push_text) or call the block and add an endline
-        if text
-          puts(text)
-        elsif block
-          block.call
-        end
-        tab_down
+      if flags.include?(:/)
+        raise Error.new("Self-closing tags can't have content.") if text
+        raise Error.new("Illegal nesting: nesting within a self-closing tag is illegal.") if block
       end
+
+      tag = "<#{name}#{attributes}>"
+      if block.nil?
+        tag << text.to_s << "</#{name}>"
+        puts tag
+        return
+      end
+
+      if text
+        raise Error.new("Illegal nesting: content can't be both given to haml_tag :#{name} and nested within it.")
+      end
+
+      if flags.include?(:<)
+        tag << capture_haml(&block).strip << "</#{name}>"
+        puts tag
+        return
+      end
+
+      puts tag
+      tab_up
+      block.call
+      tab_down
       puts "</#{name}>"
       nil
     end
