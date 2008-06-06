@@ -321,17 +321,21 @@ module Haml
         return nil
       end
 
-      puts "<#{name}#{attributes}>"
-      unless text && text.empty?
-        tab_up
-        # Print out either the text (using push_text) or call the block and add an endline
-        if text
-          puts(text)
-        elsif block
-          block.call
-        end
-        tab_down
+      tag = "<#{name}#{attributes}>"
+      if block.nil?
+        tag << text.to_s << "</#{name}>"
+        puts tag
+        return
       end
+
+      if text
+        raise Error.new("Illegal nesting: content can't be both given to haml_tag :#{name} and nested within it.")
+      end
+
+      puts tag
+      tab_up
+      block.call
+      tab_down
       puts "</#{name}>"
       nil
     end

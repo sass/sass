@@ -105,7 +105,15 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_haml_tag_non_autoclosed_tags_arent_closed
-    assert_equal("<p>\n</p>\n", render("- haml_tag :p"))
+    assert_equal("<p></p>\n", render("- haml_tag :p"))
+  end
+
+  def test_haml_tag_renders_text_on_a_single_line
+    assert_equal("<p>#{'a' * 100}</p>\n", render("- haml_tag :p, 'a' * 100"))
+  end
+
+  def test_haml_tag_raises_error_for_multiple_content
+    assert_raise(Haml::Error) { render("- haml_tag :p, 'foo' do\n  bar") }
   end
 
   def test_is_haml
