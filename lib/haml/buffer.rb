@@ -199,7 +199,7 @@ module Haml
     @@tab_cache = {}
     # Gets <tt>count</tt> tabs. Mostly for internal use.
     def tabs(count = 0)
-      tabs = count + @tabulation
+      tabs = [count + @tabulation, 0].max
       @@tab_cache[tabs] ||= '  ' * tabs
     end
 
