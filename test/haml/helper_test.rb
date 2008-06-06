@@ -116,6 +116,14 @@ class HelperTest < Test::Unit::TestCase
     assert_raise(Haml::Error) { render("- haml_tag :p, 'foo' do\n  bar") }
   end
 
+  def test_haml_tag_flags
+    assert_equal("<p />\n", render("- haml_tag :p, :/"))
+    assert_equal("<p>kumquat</p>\n", render("- haml_tag :p, :< do\n  kumquat"))
+
+    assert_raise(Haml::Error) { render("- haml_tag :p, 'foo', :/") }
+    assert_raise(Haml::Error) { render("- haml_tag :p, :/ do\n  foo") }
+  end
+
   def test_is_haml
     assert(!ActionView::Base.new.is_haml?)
     assert_equal("true\n", render("= is_haml?"))
