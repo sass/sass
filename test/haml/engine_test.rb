@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require File.dirname(__FILE__) + '/test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
 
 class EngineTest < Test::Unit::TestCase
   # A map of erroneous Sass documents to the error messages they should produce.

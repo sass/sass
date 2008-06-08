@@ -1,7 +1,7 @@
 # allows testing with edge Rails by creating a test/rails symlink
-linked_rails = File.dirname(__FILE__) + '/../rails'
+linked_rails = File.dirname(__FILE__) + '/rails'
 
-if File.exists? linked_rails
+if File.exists?(linked_rails) && !$:.include?(linked_rails + '/activesupport/lib')
   puts "[ using linked Rails ]"
   $:.unshift linked_rails + '/activesupport/lib'
   $:.unshift linked_rails + '/actionpack/lib'
@@ -12,4 +12,5 @@ require 'action_controller'
 require 'action_view'
 
 require 'test/unit'
-require File.dirname(__FILE__) + '/../../lib/haml'
+require File.dirname(__FILE__) + '/../lib/haml'
+require File.dirname(__FILE__) + '/../lib/sass'
