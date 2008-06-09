@@ -7,56 +7,79 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       end
       alias_method :render_without_haml, :render
       alias_method :render, :render_with_haml
+
+      # Rails >2.1
+      if instance_methods.include?('output_buffer')
+        def output_buffer_with_haml
+          return haml_buffer.buffer if is_haml?
+          output_buffer_without_haml
+        end
+        alias_method :output_buffer_without_haml, :output_buffer
+        alias_method :output_buffer, :output_buffer_with_haml
+
+        def set_output_buffer_with_haml(new)
+          if is_haml?
+            haml_buffer.buffer = new
+          else
+            set_output_buffer_without_haml new
+          end
+        end
+        alias_method :set_output_buffer_without_haml, :output_buffer=
+        alias_method :output_buffer=, :set_output_buffer_with_haml
+      end
     end
 
     # This overrides various helpers in ActionView
     # to make them work more effectively with Haml.
     module Helpers
       # :stopdoc:
-      module CaptureHelper
-        def capture_with_haml(*args, &block)
-          # Rails' #capture helper will just return the value of the block
-          # if it's not actually in the template context,
-          # as detected by the existance of an _erbout variable.
-          # We've got to do the same thing for compatibility.
-          block_is_haml =
-            begin
-              eval('_hamlout', block)
-              true
-            rescue
-              false
+      # Rails <=2.1
+      unless ActionView::Base.instance_methods.include?('output_buffer')
+        module CaptureHelper
+          def capture_with_haml(*args, &block)
+            # Rails' #capture helper will just return the value of the block
+            # if it's not actually in the template context,
+            # as detected by the existance of an _erbout variable.
+            # We've got to do the same thing for compatibility.
+            block_is_haml =
+              begin
+                eval('_hamlout', block)
+                true
+              rescue
+                false
+              end
+
+            if block_is_haml && is_haml?
+              capture_haml(*args, &block)
+            else
+              capture_without_haml(*args, &block)
             end
-
-          if block_is_haml && is_haml?
-            capture_haml(*args, &block)
-          else
-            capture_without_haml(*args, &block)
           end
-        end
-        alias_method :capture_without_haml, :capture
-        alias_method :capture, :capture_with_haml
+          alias_method :capture_without_haml, :capture
+          alias_method :capture, :capture_with_haml
 
-        def capture_erb_with_buffer_with_haml(*args, &block)
-          if is_haml?
-            capture_haml_with_buffer(*args, &block)
-          else
-            capture_erb_with_buffer_without_haml(*args, &block)
+          def capture_erb_with_buffer_with_haml(*args, &block)
+            if is_haml?
+              capture_haml_with_buffer(*args, &block)
+            else
+              capture_erb_with_buffer_without_haml(*args, &block)
+            end
           end
+          alias_method :capture_erb_with_buffer_without_haml, :capture_erb_with_buffer
+          alias_method :capture_erb_with_buffer, :capture_erb_with_buffer_with_haml
         end
-        alias_method :capture_erb_with_buffer_without_haml, :capture_erb_with_buffer
-        alias_method :capture_erb_with_buffer, :capture_erb_with_buffer_with_haml
-      end
 
-      module TextHelper
-        def concat_with_haml(string, binding = nil)
-          if is_haml?
-            haml_buffer.buffer.concat(string)
-          else
-            concat_without_haml(string, binding)
+        module TextHelper
+          def concat_with_haml(string, binding = nil)
+            if is_haml?
+              haml_buffer.buffer.concat(string)
+            else
+              concat_without_haml(string, binding)
+            end
           end
+          alias_method :concat_without_haml, :concat
+          alias_method :concat, :concat_with_haml
         end
-        alias_method :concat_without_haml, :concat
-        alias_method :concat, :concat_with_haml
       end
 
       module TagHelper
