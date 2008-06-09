@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
-
-require 'test/unit'
-require File.dirname(__FILE__) + '/../../lib/haml'
+require File.dirname(__FILE__) + '/../test_helper'
 require 'haml/html'
 
 class Html2HamlTest < Test::Unit::TestCase

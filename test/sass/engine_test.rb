@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
-
-require 'test/unit'
-require File.dirname(__FILE__) + '/../../lib/sass'
+require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
 class SassEngineTest < Test::Unit::TestCase

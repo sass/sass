@@ -3,13 +3,9 @@
 MERB_ENV = RAILS_ENV  = 'testing'
 RAILS_ROOT = '.'
 
-require 'test/unit'
-require 'fileutils'
-require File.dirname(__FILE__) + '/../../lib/sass'
-require 'rubygems'
-
-require 'action_controller'
+require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/plugin'
+require 'fileutils'
 
 class SassPluginTest < Test::Unit::TestCase
   @@templates = %w{
