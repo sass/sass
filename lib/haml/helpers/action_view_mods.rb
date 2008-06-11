@@ -33,7 +33,9 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
     # to make them work more effectively with Haml.
     module Helpers
       # :stopdoc:
-      # Rails <=2.1
+      # In Rails <=2.1, we've got to override considerable capturing infrastructure.
+      # In Rails >2.1, we can make do with only overriding #capture
+      # (which no longer behaves differently in helper contexts).
       unless ActionView::Base.instance_methods.include?('output_buffer')
         module CaptureHelper
           def capture_with_haml(*args, &block)
@@ -79,6 +81,18 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
           end
           alias_method :concat_without_haml, :concat
           alias_method :concat, :concat_with_haml
+        end
+      else
+        module CaptureHelper
+          def capture_with_haml(*args, &block)
+            if is_haml?
+              capture_haml(*args, &block)
+            else
+              capture_without_haml(*args, &block)
+            end
+          end
+          alias_method :capture_without_haml, :capture
+          alias_method :capture, :capture_with_haml
         end
       end
 
