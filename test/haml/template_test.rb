@@ -3,7 +3,6 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'haml/template'
 require File.dirname(__FILE__) + '/mocks/article'
 
-
 module Haml::Filters::Test
   include Haml::Filters::Base
 
@@ -12,14 +11,21 @@ module Haml::Filters::Test
   end
 end
 
+module Haml::Helpers
+  def test_partial(name, locals = {})
+    Haml::Engine.new(File.read(File.join(TemplateTest::TEMPLATE_PATH, "_#{name}.haml"))).render(self, locals)
+  end
+end
+
 class TemplateTest < Test::Unit::TestCase
+  TEMPLATE_PATH = File.join(File.dirname(__FILE__), "templates")
   @@templates = %w{       very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
     silent_script         tag_parsing       just_stuff  partials
     filters               nuke_outer_whitespace         nuke_inner_whitespace }
 
   def setup
-    @base = ActionView::Base.new(File.dirname(__FILE__) + "/templates/", {'article' => Article.new, 'foo' => 'value one'})
+    @base = ActionView::Base.new(TEMPLATE_PATH, 'article' => Article.new, 'foo' => 'value one')
     @base.send(:evaluate_assigns)
 
     # This is used by form_for.
