@@ -115,19 +115,6 @@ class TemplateTest < Test::Unit::TestCase
     assert_equal("2\n", render("= 1+1"))
   end
 
-  def test_rhtml_still_renders
-    # Make sure it renders normally
-    res = @base.render("../rhtml/standard")
-    assert !(res.nil? || res.empty?)
-
-    # Register Haml stuff in @base...
-    @base.render("standard") 
-
-    # Does it still render?
-    res = @base.render("../rhtml/standard")
-    assert !(res.nil? || res.empty?)
-  end
-
   def test_haml_options
     Haml::Template.options = { :suppress_eval => true }
     assert_equal({ :suppress_eval => true }, Haml::Template.options)
