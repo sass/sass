@@ -43,7 +43,7 @@ click
 - form_tag '' do
   %div= submit_tag 'save'
   - @foo = 'value one'
-  = render :partial => './partial'
+  = test_partial 'partial'
 - form_for :article, @article, :url => '' do |f|
   Title:
   = f.text_field :title
