@@ -114,7 +114,7 @@ module Haml
       result = html_escape(result) if escape_html
 
       has_newline = result.include?("\n")
-      if in_tag && (@options[:ugly] || !has_newline || preserve_tag)
+      if in_tag && !nuke_inner_whitespace && (@options[:ugly] || !has_newline || preserve_tag)
         @buffer << result
         @real_tabs -= 1
         return
