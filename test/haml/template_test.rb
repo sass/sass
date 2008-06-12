@@ -19,7 +19,7 @@ end
 
 class TemplateTest < Test::Unit::TestCase
   TEMPLATE_PATH = File.join(File.dirname(__FILE__), "templates")
-  @@templates = %w{       very_basic        standard    helpers
+  TEMPLATES = %w{         very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
     silent_script         tag_parsing       just_stuff  partials
     filters               nuke_outer_whitespace         nuke_inner_whitespace }
@@ -66,7 +66,7 @@ class TemplateTest < Test::Unit::TestCase
     assert_equal('', render(''))
   end
 
-  @@templates.each do |template|
+  TEMPLATES.each do |template|
     define_method "test_template_should_render_correctly [template: #{template}] " do
       assert_renders_correctly template
     end
