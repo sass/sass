@@ -70,21 +70,20 @@ class TemplateTest < Test::Unit::TestCase
     define_method "test_template_should_render_correctly [template: #{template}] " do
       assert_renders_correctly template
     end
+  end
 
-    define_method "test_templates_should_render_correctly_with_render_proc [template: #{template}] " do
-      assert_renders_correctly(template) do |name|
-        engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
-        engine.render_proc(@base).call
-      end
+  def test_templates_should_render_correctly_with_render_proc
+    assert_renders_correctly("standard") do |name|
+      engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
+      engine.render_proc(@base).call
     end
+  end
   
-    define_method "test_templates_should_render_correctly_with_def_method [template: #{template}] " do
-      assert_renders_correctly(template) do |name|
-        method = "render_haml_" + name.gsub(/[^a-zA-Z0-9]/, '_')
-        engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
-        engine.def_method(@base, method)
-        @base.send(method)
-      end
+  def test_templates_should_render_correctly_with_def_method
+    assert_renders_correctly("standard") do |name|
+      engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
+      engine.def_method(@base, "render_standard")
+      @base.render_standard
     end
   end
 
