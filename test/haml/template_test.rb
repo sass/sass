@@ -45,20 +45,16 @@ class TemplateTest < Test::Unit::TestCase
 
   def assert_renders_correctly(name, &render_method)
     render_method ||= proc { |name| @base.render(name) }
-    test = Proc.new do |rendered|
-      load_result(name).split("\n").zip(rendered.split("\n")).each_with_index do |pair, line|
-        message = "template: #{name}\nline:     #{line}"
-        assert_equal(pair.first, pair.last, message)
-      end
+
+    load_result(name).split("\n").zip(render_method[name].split("\n")).each_with_index do |pair, line|
+      message = "template: #{name}\nline:     #{line}"
+      assert_equal(pair.first, pair.last, message)
     end
-    begin
-      test.call(render_method[name])
-    rescue ActionView::TemplateError => e
-      if e.message =~ /Can't run [\w:]+ filter; required (one of|file) ((?:'\w+'(?: or )?)+)(, but none were found| not found)/
-        puts "\nCouldn't require #{$2}; skipping a test."
-      else
-        raise e
-      end
+  rescue ActionView::TemplateError => e
+    if e.message =~ /Can't run [\w:]+ filter; required (one of|file) ((?:'\w+'(?: or )?)+)(, but none were found| not found)/
+      puts "\nCouldn't require #{$2}; skipping a test."
+    else
+      raise e
     end
   end
 
