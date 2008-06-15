@@ -19,7 +19,7 @@ end
 
 class TemplateTest < Test::Unit::TestCase
   TEMPLATE_PATH = File.join(File.dirname(__FILE__), "templates")
-  @@templates = %w{       very_basic        standard    helpers
+  TEMPLATES = %w{         very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
     silent_script         tag_parsing       just_stuff  partials
     filters               nuke_outer_whitespace         nuke_inner_whitespace }
@@ -45,20 +45,16 @@ class TemplateTest < Test::Unit::TestCase
 
   def assert_renders_correctly(name, &render_method)
     render_method ||= proc { |name| @base.render(name) }
-    test = Proc.new do |rendered|
-      load_result(name).split("\n").zip(rendered.split("\n")).each_with_index do |pair, line|
-        message = "template: #{name}\nline:     #{line}"
-        assert_equal(pair.first, pair.last, message)
-      end
+
+    load_result(name).split("\n").zip(render_method[name].split("\n")).each_with_index do |pair, line|
+      message = "template: #{name}\nline:     #{line}"
+      assert_equal(pair.first, pair.last, message)
     end
-    begin
-      test.call(render_method[name])
-    rescue ActionView::TemplateError => e
-      if e.message =~ /Can't run [\w:]+ filter; required (one of|file) ((?:'\w+'(?: or )?)+)(, but none were found| not found)/
-        puts "\nCouldn't require #{$2}; skipping a test."
-      else
-        raise e
-      end
+  rescue ActionView::TemplateError => e
+    if e.message =~ /Can't run [\w:]+ filter; required (one of|file) ((?:'\w+'(?: or )?)+)(, but none were found| not found)/
+      puts "\nCouldn't require #{$2}; skipping a test."
+    else
+      raise e
     end
   end
 
@@ -66,30 +62,24 @@ class TemplateTest < Test::Unit::TestCase
     assert_equal('', render(''))
   end
 
-  def test_templates_should_render_correctly
-    @@templates.each do |template|
+  TEMPLATES.each do |template|
+    define_method "test_template_should_render_correctly [template: #{template}] " do
       assert_renders_correctly template
     end
   end
 
   def test_templates_should_render_correctly_with_render_proc
-    @@templates.each do |template|
-      assert_renders_correctly(template) do |name|
-        engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
-        engine.render_proc(@base).call
-      end
+    assert_renders_correctly("standard") do |name|
+      engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
+      engine.render_proc(@base).call
     end
   end
-
+  
   def test_templates_should_render_correctly_with_def_method
-    @@templates.each do |template|
-      assert_renders_correctly(template) do |name|
-        method = "render_haml_" + name.gsub(/[^a-zA-Z0-9]/, '_')
-
-        engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
-        engine.def_method(@base, method)
-        @base.send(method)
-      end
+    assert_renders_correctly("standard") do |name|
+      engine = Haml::Engine.new(File.read(File.dirname(__FILE__) + "/templates/#{name}.haml"))
+      engine.def_method(@base, "render_standard")
+      @base.render_standard
     end
   end
 
