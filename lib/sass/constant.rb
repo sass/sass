@@ -125,10 +125,10 @@ module Sass
                 to_return << :funcall
               end
 
-              # Time for a unary minus!
-              if beginning_of_token && symbol == :minus
+              # Time for a unary op!
+              if ![nil, :open, :close, :const].include?(symbol) && beginning_of_token
                 beginning_of_token = true
-                to_return << :neg
+                to_return << :unary << symbol
                 next
               end
 
@@ -161,10 +161,8 @@ module Sass
           case token
           when :open
             to_return << parenthesize(value)
-          when :neg
-            # This is never actually reached, but we'll leave it in just in case.
-            raise Sass::SyntaxError.new("Unterminated unary minus.") if value.first.nil?
-            to_return << [:neg, parenthesize(value, true)]
+          when :unary
+            to_return << [value.shift, parenthesize(value, true)]
           when :const
             raise Sass::SyntaxError.new("Unterminated constant.") if value.first.nil?
             raise Sass::SyntaxError.new("Invalid constant.") unless value.first.is_a?(::String)
@@ -199,10 +197,11 @@ module Sass
             Literal.parse(value)
           end
         when 2
-          if value[0] == :neg
-            Operation.new(Sass::Constant::Number.new('0'), operationalize(value[1], constants), :minus)
-          elsif value[0] == :const
+          case value[0]
+          when :const
             Literal.parse(get_constant(value[1], constants))
+          when ::Symbol
+            UnaryOperation.new(operationalize(value[1], constants), value[0])
           else
             raise SyntaxError.new("Constant arithmetic error")
           end

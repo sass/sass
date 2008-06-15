@@ -2,6 +2,7 @@ require 'sass/constant/string'
 require 'sass/constant/number'
 require 'sass/constant/color'
 require 'sass/constant/functions'
+require 'sass/constant/unary_operation'
 
 module Sass::Constant
   class Operation # :nodoc:
@@ -23,8 +24,6 @@ module Sass::Constant
       return [self] unless @operator == :comma
       @operand1.to_arglist + @operand2.to_arglist
     end
-
-    protected
 
     def perform
       literal1 = @operand1.perform

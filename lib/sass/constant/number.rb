@@ -29,6 +29,10 @@ module Sass::Constant
       end
     end
 
+    def unary_minus
+      Number.from_value(-value, unit)
+    end
+
     def times(other)
       if other.is_a? Number
         operate(other, :*)

@@ -23,6 +23,8 @@ class Sass::Constant::Literal # :nodoc:
       Sass::Constant::Number.new(value)
     when COLOR
       Sass::Constant::Color.new(value)
+    when ::Symbol
+      value
     else
       Sass::Constant::String.new(value)
     end
