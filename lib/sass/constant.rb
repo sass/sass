@@ -129,7 +129,7 @@ module Sass
               # Are we looking at an operator?
               if symbol && (symbol != :mod || str.empty?)
                 str = reset_str.call
-                beginning_of_token = true
+                beginning_of_token = symbol != :close
                 to_return << symbol
                 next
               end
