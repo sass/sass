@@ -12,3 +12,5 @@
 #mod { num-num: 2; col-col: #0f0e05; col-num: #020001; }
 
 #const { escaped-quote: !foo; escaped-slash: !foo; default: Hello! !important; }
+
+#regression { a: 4; }
