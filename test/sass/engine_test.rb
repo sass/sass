@@ -143,6 +143,14 @@ class SassEngineTest < Test::Unit::TestCase
     assert_equal("foo {\n  bar: url(); }\n", render("foo\n  bar = url()\n"));
   end
 
+  def test_string_minus
+    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render("foo\n  bar = baz-boom-bat"))
+  end
+
+  def test_string_div
+    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render("foo\n  bar = baz/boom/bat"))
+  end
+
   def test_basic_multiline_selector
     assert_equal("#foo #bar,\n#baz #boom {\n  foo: bar; }\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar"))
