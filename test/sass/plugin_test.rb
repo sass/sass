@@ -15,12 +15,14 @@ class SassPluginTest < Test::Unit::TestCase
 
   def setup
     FileUtils.mkdir File.dirname(__FILE__) + '/tmp'
+    FileUtils.mkdir File.dirname(__FILE__) + '/more_tmp'
     set_plugin_opts
     Sass::Plugin.update_stylesheets
   end
 
   def teardown
     FileUtils.rm_r File.dirname(__FILE__) + '/tmp'
+    FileUtils.rm_r File.dirname(__FILE__) + '/more_tmp'
   end
 
   def test_templates_should_render_correctly
@@ -69,6 +71,14 @@ class SassPluginTest < Test::Unit::TestCase
 
     Sass::Plugin.options[:full_exception] = true
   end
+  
+  def test_two_template_directories
+    templates = ['templates', 'more_templates'].map{ |t| File.dirname(__FILE__) + "/#{t}" }
+    csses = ['tmp', 'more_tmp'].map{ |c| File.dirname(__FILE__) + "/#{c}" }
+    set_plugin_opts :template_location => templates.zip(csses)
+    Sass::Plugin.update_stylesheets
+    ['more1', 'more_import'].each { |name| assert_renders_correctly(name, 'more_') }
+  end
 
   def test_rails_update    
     File.delete(tempfile_loc('basic'))
@@ -105,33 +115,33 @@ class SassPluginTest < Test::Unit::TestCase
 
  private
 
-  def assert_renders_correctly(name)
-    File.read(result_loc(name)).split("\n").zip(File.read(tempfile_loc(name)).split("\n")).each_with_index do |pair, line|
+  def assert_renders_correctly(name, prefix = nil)
+    File.read(result_loc(name,prefix)).split("\n").zip(File.read(tempfile_loc(name,prefix)).split("\n")).each_with_index do |pair, line|
       message = "template: #{name}\nline:     #{line + 1}"
       assert_equal(pair.first, pair.last, message)
     end
   end
 
-  def template_loc(name)
-    File.dirname(__FILE__) + "/templates/#{name}.sass"
+  def template_loc(name, prefix = nil)
+    File.dirname(__FILE__) + "/#{prefix}templates/#{name}.sass"
   end
 
-  def tempfile_loc(name)
-    File.dirname(__FILE__) + "/tmp/#{name}.css"
+  def tempfile_loc(name, prefix = nil)
+    File.dirname(__FILE__) + "/#{prefix}tmp/#{name}.css"
   end
 
-  def result_loc(name)
-    File.dirname(__FILE__) + "/results/#{name}.css"
+  def result_loc(name, prefix = nil)
+    File.dirname(__FILE__) + "/#{prefix}results/#{name}.css"
   end
 
-  def set_plugin_opts
+  def set_plugin_opts(overides = {})
     Sass::Plugin.options = {
       :template_location => File.dirname(__FILE__) + '/templates',
       :css_location => File.dirname(__FILE__) + '/tmp',
       :style => :compact,
       :load_paths => [File.dirname(__FILE__) + '/results'],
       :always_update => true,
-    }
+    }.merge(overides)
   end
 end
 

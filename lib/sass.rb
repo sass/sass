@@ -846,12 +846,18 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #                               Defaults to false in production mode, true otherwise.
 #                               Only has meaning within Ruby on Rails or Merb.
 #
-# [<tt>:template_location</tt>] The directory where Sass templates should be read from.
+# [<tt>:template_location</tt>] A path to the root sass template directory for you application.
+#                               If a hash, :css_location is ignored and this option designates
+#                               both a mapping between input and output directories.
+#                               May also be given a list of 2-element lists, instead of a hash.
 #                               Defaults to <tt>RAILS_ROOT + "/public/stylesheets/sass"</tt>
 #                               or <tt>MERB_ROOT + "/public/stylesheets/sass"</tt>.
 #                               Only has meaning within Ruby on Rails or Merb.
+#                               This will be derived from the :css_location path list if not provided 
+#                               by appending a folder of "sass" to each corresponding css location.
 #
-# [<tt>:css_location</tt>]      The directory where CSS output should be written to.
+# [<tt>:css_location</tt>]      The path where CSS output should be written to.
+#                               This option is ignored when :template_location is a Hash.
 #                               Defaults to <tt>RAILS_ROOT + "/public/stylesheets"</tt>
 #                               or <tt>MERB_ROOT + "/public/stylesheets"</tt>.
 #                               Only has meaning within Ruby on Rails or Merb.

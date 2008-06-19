@@ -8,7 +8,6 @@ module Sass
   module Plugin
     class << self
       @@options = {
-        :template_location  => './public/stylesheets/sass',
         :css_location       => './public/stylesheets',
         :always_update      => false,
         :always_check       => true,
@@ -35,44 +34,20 @@ module Sass
         @@options.merge!(value)
       end
 
-      # Checks each stylesheet in <tt>options[:css_location]</tt>
-      # to see if it needs updating,
-      # and updates it using the corresponding template
-      # from <tt>options[:templates]</tt>
-      # if it does.
+      # Checks each css stylesheet to see if it needs updating,
+      # and updates it using the corresponding sass template if it does.
       def update_stylesheets
         return if options[:never_update]
 
         @@checked_for_updates = true
-        Dir.glob(File.join(options[:template_location], "**", "*.sass")).entries.each do |file|
+        template_locations.zip(css_locations).each do |template_location, css_location|
 
-          # Get the relative path to the file with no extension
-          name = file.sub(options[:template_location] + "/", "")[0...-5]
+          Dir.glob(File.join(template_location, "**", "*.sass")).each do |file|
+            # Get the relative path to the file with no extension
+            name = file.sub(template_location + "/", "")[0...-5]
 
-          if !forbid_update?(name) && (options[:always_update] || stylesheet_needs_update?(name))
-            css = css_filename(name)
-            File.delete(css) if File.exists?(css)
-
-            filename = template_filename(name)
-            l_options = @@options.dup
-            l_options[:css_filename] = css
-            l_options[:filename] = filename
-            l_options[:load_paths] = load_paths
-            engine = Engine.new(File.read(filename), l_options)
-            result = begin
-                       engine.render
-                     rescue Exception => e
-                       exception_string(e)
-                     end
-
-            # Create any directories that might be necessary
-            dirs = [l_options[:css_location]]
-            name.split("/")[0...-1].each { |dir| dirs << "#{dirs[-1]}/#{dir}" }
-            dirs.each { |dir| Dir.mkdir(dir) unless File.exist?(dir) }
-
-            # Finally, write the file
-            File.open(css, 'w') do |file|
-              file.print(result)
+            if !forbid_update?(name) && (options[:always_update] || stylesheet_needs_update?(name, template_location, css_location))
+              update_stylesheet(name, template_location, css_location)
             end
           end
         end
@@ -80,8 +55,57 @@ module Sass
 
       private
 
+      def update_stylesheet(name, template_location, css_location)
+        css = css_filename(name, css_location)
+        File.delete(css) if File.exists?(css)
+
+        filename = template_filename(name, template_location)
+        l_options = @@options.dup
+        l_options[:css_filename] = css
+        l_options[:filename] = filename
+        l_options[:load_paths] = load_paths
+        engine = Engine.new(File.read(filename), l_options)
+        result = begin
+                   engine.render
+                 rescue Exception => e
+                   exception_string(e)
+                 end
+
+        # Create any directories that might be necessary
+        mkpath(css_location, name)
+
+        # Finally, write the file
+        File.open(css, 'w') do |file|
+          file.print(result)
+        end
+      end
+      
+      # Create any successive directories required to be able to write a file to: File.join(base,name)
+      def mkpath(base, name)
+        dirs = [base]
+        name.split('/')[0...-1].each { |dir| dirs << File.join(dirs[-1],dir) }
+        dirs.each { |dir| Dir.mkdir(dir) unless File.exist?(dir) }
+      end
+
       def load_paths
-        (options[:load_paths] || []) + [options[:template_location]]
+        (options[:load_paths] || []) + template_locations
+      end
+      
+      def template_locations
+        location = (options[:template_location] || File.join(options[:css_location],'sass'))
+        if location.is_a?(String)
+          [location]
+        else
+          location.to_a.map { |l| l.first }
+        end
+      end
+      
+      def css_locations
+        if options[:template_location] && !options[:template_location].is_a?(String)
+          options[:template_location].to_a.map { |l| l.last }
+        else
+          [options[:css_location]]
+        end
       end
 
       def exception_string(e)
@@ -127,25 +151,27 @@ END
         end
       end
 
-      def template_filename(name)
-        "#{options[:template_location]}/#{name}.sass"
+      def template_filename(name, path)
+        "#{path}/#{name}.sass"
       end
 
-      def css_filename(name)
-        "#{options[:css_location]}/#{name}.css"
+      def css_filename(name, path)
+        "#{path}/#{name}.css"
       end
 
       def forbid_update?(name)
         name.sub(/^.*\//, '')[0] == ?_
       end
 
-      def stylesheet_needs_update?(name)
-        if !File.exists?(css_filename(name))
+      def stylesheet_needs_update?(name, template_path, css_path)
+        css_file = css_filename(name, css_path)
+        template_file = template_filename(name, template_path)
+        if !File.exists?(css_file)
           return true
         else
-          css_mtime = File.mtime(css_filename(name))
-          File.mtime(template_filename(name)) > css_mtime ||
-            dependencies(template_filename(name)).any?(&dependency_updated?(css_mtime))
+          css_mtime = File.mtime(css_file)
+          File.mtime(template_file) > css_mtime ||
+            dependencies(template_file).any?(&dependency_updated?(css_mtime))
         end
       end
 
