@@ -25,7 +25,8 @@ class TemplateTest < Test::Unit::TestCase
     filters               nuke_outer_whitespace         nuke_inner_whitespace }
 
   def setup
-    @base = ActionView::Base.new(TEMPLATE_PATH, 'article' => Article.new, 'foo' => 'value one')
+    @base = ActionView::Base.new([], {'article' => Article.new, 'foo' => 'value one'})
+    @base.finder.append_view_path(TEMPLATE_PATH)
     @base.send(:evaluate_assigns)
 
     # This is used by form_for.
