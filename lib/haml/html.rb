@@ -169,7 +169,7 @@ module Haml
     end
 
     def self.haml_tag_loud(text)
-      "= #{text.gsub(/\n\s*/, '; ').strip}\n"
+      "= #{text.gsub(/\n\s*/, ' ').strip}\n"
     end
 
     def self.haml_tag_silent(text)
