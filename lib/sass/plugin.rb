@@ -98,10 +98,14 @@ module Sass
                 e_string << "\n\n"
 
                 min = [e.sass_line - 5, 0].max
-                File.read(e.sass_filename).rstrip.split("\n")[
-                  min .. e.sass_line + 5
-                ].each_with_index do |line, i|
-                  e_string << "#{min + i + 1}: #{line}\n"
+                begin
+                  File.read(e.sass_filename).rstrip.split("\n")[
+                    min .. e.sass_line + 5
+                  ].each_with_index do |line, i|
+                    e_string << "#{min + i + 1}: #{line}\n"
+                  end
+                rescue
+                  e_string << "Couldn't read sass file: #{e.sass_filename}"
                 end
               end
             end
