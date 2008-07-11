@@ -270,13 +270,9 @@ END
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
     def push_flat(line)
-      unless @options[:ugly]
-        text = line.full.dup
-        text = "" unless text.gsub!(/^#{@flat_spaces}/, '')
-        @filter_buffer << "#{text}\n"
-      else
-        @filter_buffer << "#{line.unstripped}\n"
-      end
+      text = line.full.dup
+      text = "" unless text.gsub!(/^#{@flat_spaces}/, '')
+      @filter_buffer << "#{text}\n"
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
