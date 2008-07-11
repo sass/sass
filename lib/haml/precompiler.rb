@@ -303,13 +303,9 @@ END
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
     def push_flat(line)
-      unless @options[:ugly]
-        tabulation = line.spaces - @flat_spaces
-        tabulation = tabulation > -1 ? tabulation : 0
-        @filter_buffer << "#{' ' * tabulation}#{line.unstripped}\n"
-      else
-        @filter_buffer << "#{line.unstripped}\n"
-      end
+      tabulation = line.spaces - @flat_spaces
+      tabulation = tabulation > -1 ? tabulation : 0
+      @filter_buffer << "#{' ' * tabulation}#{line.unstripped}\n"
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
