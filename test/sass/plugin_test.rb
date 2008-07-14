@@ -14,15 +14,15 @@ class SassPluginTest < Test::Unit::TestCase
   }
 
   def setup
-    FileUtils.mkdir File.dirname(__FILE__) + '/tmp'
-    FileUtils.mkdir File.dirname(__FILE__) + '/more_tmp'
+    FileUtils.mkdir tempfile_loc
+    FileUtils.mkdir tempfile_loc(nil,"more_")
     set_plugin_opts
     Sass::Plugin.update_stylesheets
   end
 
   def teardown
-    FileUtils.rm_r File.dirname(__FILE__) + '/tmp'
-    FileUtils.rm_r File.dirname(__FILE__) + '/more_tmp'
+    FileUtils.rm_r tempfile_loc
+    FileUtils.rm_r tempfile_loc(nil,"more_")
   end
 
   def test_templates_should_render_correctly
@@ -31,32 +31,32 @@ class SassPluginTest < Test::Unit::TestCase
 
   def test_no_update
     File.delete(tempfile_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic')
+    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('basic')
+    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
   end
 
   def test_update_needed_when_modified
     sleep(1)
     FileUtils.touch(template_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic')
+    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('basic')
+    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
   end
 
   def test_update_needed_when_dependency_modified
     sleep(1)
     FileUtils.touch(template_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('import')
+    assert Sass::Plugin.stylesheet_needs_update?('import', template_loc, tempfile_loc)
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('import')
+    assert !Sass::Plugin.stylesheet_needs_update?('import', template_loc, tempfile_loc)
   end
 
   def test_full_exception_handling
     File.delete(tempfile_loc('bork'))
     Sass::Plugin.update_stylesheets
     File.open(tempfile_loc('bork')) do |file|
-      assert_equal("/*\nSass::SyntaxError: Undefined constant: \"!bork\".\non line 2 of #{File.dirname(__FILE__) + '/templates/bork.sass'}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
+      assert_equal("/*\nSass::SyntaxError: Undefined constant: \"!bork\".\non line 2 of #{template_loc('bork')}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
     end
     File.delete(tempfile_loc('bork'))
   end
@@ -73,20 +73,21 @@ class SassPluginTest < Test::Unit::TestCase
   end
   
   def test_two_template_directories
-    templates = ['templates', 'more_templates'].map{ |t| File.dirname(__FILE__) + "/#{t}" }
-    csses = ['tmp', 'more_tmp'].map{ |c| File.dirname(__FILE__) + "/#{c}" }
-    set_plugin_opts :template_location => templates.zip(csses)
+    set_plugin_opts :template_location => {
+      template_loc => tempfile_loc,
+      template_loc(nil,'more_') => tempfile_loc(nil,'more_')
+    }
     Sass::Plugin.update_stylesheets
     ['more1', 'more_import'].each { |name| assert_renders_correctly(name, 'more_') }
   end
 
   def test_rails_update    
     File.delete(tempfile_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic')
+    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
 
     ActionController::Base.new.process
 
-    assert !Sass::Plugin.stylesheet_needs_update?('basic')
+    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
   end
 
   def test_merb_update
@@ -116,32 +117,50 @@ class SassPluginTest < Test::Unit::TestCase
  private
 
   def assert_renders_correctly(name, prefix = nil)
-    File.read(result_loc(name,prefix)).split("\n").zip(File.read(tempfile_loc(name,prefix)).split("\n")).each_with_index do |pair, line|
+    expected_lines = File.read(result_loc(name, prefix)).split("\n")
+    actual_lines = File.read(tempfile_loc(name, prefix)).split("\n")
+    expected_lines.zip(actual_lines).each_with_index do |pair, line|
       message = "template: #{name}\nline:     #{line + 1}"
       assert_equal(pair.first, pair.last, message)
     end
   end
 
-  def template_loc(name, prefix = nil)
-    File.dirname(__FILE__) + "/#{prefix}templates/#{name}.sass"
+  def template_loc(name = nil, prefix = nil)
+    if name
+      absolutize "#{prefix}templates/#{name}.sass"
+    else
+      absolutize "#{prefix}templates"
+    end
   end
 
-  def tempfile_loc(name, prefix = nil)
-    File.dirname(__FILE__) + "/#{prefix}tmp/#{name}.css"
+  def tempfile_loc(name = nil, prefix = nil)
+    if name
+      absolutize "#{prefix}tmp/#{name}.css"
+    else
+      absolutize "#{prefix}tmp"
+    end
   end
 
-  def result_loc(name, prefix = nil)
-    File.dirname(__FILE__) + "/#{prefix}results/#{name}.css"
+  def result_loc(name = nil, prefix = nil)
+    if name
+      absolutize "#{prefix}results/#{name}.css"
+    else
+      absolutize "#{prefix}results"
+    end
   end
 
-  def set_plugin_opts(overides = {})
+  def absolutize(file)
+    "#{File.dirname(__FILE__)}/#{file}"
+  end
+
+  def set_plugin_opts(overrides = {})
     Sass::Plugin.options = {
-      :template_location => File.dirname(__FILE__) + '/templates',
-      :css_location => File.dirname(__FILE__) + '/tmp',
+      :template_location => template_loc,
+      :css_location => tempfile_loc,
       :style => :compact,
-      :load_paths => [File.dirname(__FILE__) + '/results'],
+      :load_paths => [result_loc],
       :always_update => true,
-    }.merge(overides)
+    }.merge(overrides)
   end
 end
 
