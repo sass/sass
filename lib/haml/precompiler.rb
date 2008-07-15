@@ -199,6 +199,14 @@ END
       when SILENT_SCRIPT
         return start_haml_comment if text[1] == SILENT_COMMENT
 
+        raise SyntaxError.new(<<END.rstrip, index) if text[1..-1].strip == "end"
+You don't need to use "- end" in Haml. Use indentation instead:
+- if foo?
+  %strong Foo!
+- else
+  Not foo.
+END
+
         push_silent(text[1..-1], true)
         newline_now
         if (block_opened? && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"

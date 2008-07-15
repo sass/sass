@@ -34,6 +34,13 @@ class EngineTest < Test::Unit::TestCase
     "%p{:a => 'b',\n:c => 'd',\n:e => raise('foo')}" => ["foo", 3],
     " %p foo" => "Indenting at the beginning of the document is illegal.",
     "  %p foo" => "Indenting at the beginning of the document is illegal.",
+    "- end" => <<END.rstrip,
+You don't need to use "- end" in Haml. Use indentation instead:
+- if foo?
+  %strong Foo!
+- else
+  Not foo.
+END
     " \n\t\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
     "\n\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
     "%p\n  foo\n foo" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 3],
