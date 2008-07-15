@@ -34,6 +34,13 @@ END
     "%a/ b" => "Self-closing tags can't have content.",
     " %p foo" => "Indenting at the beginning of the document is illegal.",
     "  %p foo" => "Indenting at the beginning of the document is illegal.",
+    "- end" => <<END.rstrip,
+You don't need to use "- end" in Haml. Use indentation instead:
+- if foo?
+  %strong Foo!
+- else
+  Not foo.
+END
     " \n\t\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
 
     # Regression tests
