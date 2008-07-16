@@ -187,13 +187,13 @@ END
       def compile(precompiler, text)
         return if precompiler.options[:suppress_eval]
         precompiler.instance_eval do
-          push_silent <<-END.gsub("\n", ';')
+          push_silent <<-FIRST.gsub("\n", ';') + text + <<-LAST.gsub("\n", ';')
             _haml_old_stdout = $stdout
             $stdout = StringIO.new(_hamlout.buffer, 'a')
-            #{text}
+          FIRST
             _haml_old_stdout, $stdout = $stdout, _haml_old_stdout
             _haml_old_stdout.close
-          END
+          LAST
         end
       end
     end
