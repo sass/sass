@@ -56,6 +56,7 @@ END
 A tab character was used for indentation. Haml must be indented using two spaces.
 Are you sure you have soft tabs enabled in your editor?
 END
+    "foo\n:ruby\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
   }
 
   User = Struct.new('User', :id)
