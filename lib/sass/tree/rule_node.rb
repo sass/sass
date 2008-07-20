@@ -65,6 +65,10 @@ module Sass::Tree
       if !attributes.empty?
         old_spaces = '  ' * (tabs - 1)
         spaces = '  ' * tabs
+        if @options[:line_comments] && @style != :compressed
+          to_return << "/* line #{line} */\n"
+        end
+
         if @style == :compact
           attributes = attributes.map { |a| a.to_s(1) }.join(' ')
           to_return << "#{total_rule} { #{attributes} }\n"

@@ -254,6 +254,50 @@ END
     assert_equal("@a{b:c;#d{e:f}g:h}\n", render(to_render, :style => :compressed))
   end
 
+  def test_line_annotations
+    assert_equal(<<CSS, render(<<SASS, :line_comments => true, :style => :compact))
+/* line 2 */
+foo bar { foo: bar; }
+/* line 5 */
+foo baz { blip: blop; }
+
+/* line 9 */
+floodle { flop: blop; }
+
+/* line 18 */
+bup { mix: on; }
+/* line 15 */
+bup mixin { moop: mup; }
+
+/* line 22 */
+bip hop, skip hop { a: b; }
+CSS
+foo
+  bar
+    foo: bar
+
+  baz
+    blip: blop
+
+
+floodle
+
+  flop: blop
+
+=mxn
+  mix: on
+  mixin
+    moop: mup
+
+bup
+  +mxn
+
+bip, skip
+  hop
+    a: b
+SASS
+  end
+
   def test_empty_first_line
     assert_equal("#a {\n  b: c; }\n", render("#a\n\n  b: c"))
   end
