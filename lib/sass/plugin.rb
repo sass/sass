@@ -1,4 +1,5 @@
 require 'sass/engine'
+require 'pathname'
 
 module Sass
   # This module contains methods to aid in using Sass
@@ -54,6 +55,7 @@ module Sass
 
             filename = template_filename(name)
             l_options = @@options.dup
+            l_options[:css_filename] = css
             l_options[:filename] = filename
             l_options[:load_paths] = load_paths
             engine = Engine.new(File.read(filename), l_options)

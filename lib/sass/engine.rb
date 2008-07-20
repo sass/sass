@@ -215,6 +215,7 @@ END
       end
 
       node.line = @line
+      node.filename = @options[:filename]
 
       if node.is_a? Tree::CommentNode
         while has_children
@@ -410,7 +411,7 @@ END
           File.open(filename) do |file|
             new_options = @options.dup
             new_options[:filename] = filename
-            engine = Sass::Engine.new(file.read, @options)
+            engine = Sass::Engine.new(file.read, new_options)
           end
 
           engine.constants.merge! @constants
@@ -422,10 +423,7 @@ END
             err.add_backtrace_entry(filename)
             raise err
           end
-          root.children.each do |child|
-            child.filename = filename
-            nodes << child
-          end
+          nodes += root.children
           @constants = engine.constants
           @mixins = engine.mixins
         end

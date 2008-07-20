@@ -66,7 +66,14 @@ module Sass::Tree
         old_spaces = '  ' * (tabs - 1)
         spaces = '  ' * tabs
         if @options[:line_comments] && @style != :compressed
-          to_return << "/* line #{line} */\n"
+          to_return << "#{old_spaces}/* line #{line}"
+
+          if filename && @options[:css_filename]
+            relative_filename = Pathname.new(filename).relative_path_from(Pathname.new(File.dirname(@options[:css_filename]))).to_s
+            to_return << ", #{relative_filename}"
+          end
+
+          to_return << " */\n"
         end
 
         if @style == :compact

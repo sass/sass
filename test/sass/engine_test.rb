@@ -298,6 +298,10 @@ bip, skip
 SASS
   end
 
+  def test_line_annotations_with_filename
+    renders_correctly "line_numbers", :line_comments => true, :load_paths => [File.dirname(__FILE__) + "/templates"]
+  end
+
   def test_empty_first_line
     assert_equal("#a {\n  b: c; }\n", render("#a\n\n  b: c"))
   end
@@ -349,13 +353,19 @@ SASS
   def renders_correctly(name, options={})
     sass_file  = load_file(name, "sass")
     css_file   = load_file(name, "css")
+    options[:filename] ||= filename(name, "sass")
+    options[:css_filename] ||= filename(name, "css")
     css_result = Sass::Engine.new(sass_file, options).render
     assert_equal css_file, css_result
   end
 
   def load_file(name, type = "sass")
     @result = ''
-    File.new(File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}").each_line { |l| @result += l }
+    File.new(filename(name, type)).each_line { |l| @result += l }
     @result
+  end
+
+  def filename(name, type)
+    File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
   end
 end
