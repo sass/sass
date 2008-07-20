@@ -5,8 +5,9 @@ module Sass
       attr_accessor :line
       attr_accessor :filename
 
-      def initialize(style)
-        @style = style
+      def initialize(options)
+        @options = options
+        @style = options[:style]
         @children = []
       end
 

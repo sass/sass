@@ -110,7 +110,7 @@ module Sass
     def render_to_tree
       split_lines
 
-      root = Tree::Node.new(@options[:style])
+      root = Tree::Node.new(@options)
       index = 0
       while @lines[index]
         child, index = build_tree(index)
@@ -292,12 +292,12 @@ END
       when DIRECTIVE_CHAR
         parse_directive(line)
       when ESCAPE_CHAR
-        Tree::RuleNode.new(line[1..-1], @options[:style])
+        Tree::RuleNode.new(line[1..-1], @options)
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
         if line[1].nil? || line[1] == ?\s
-          Tree::RuleNode.new(line, @options[:style])
+          Tree::RuleNode.new(line, @options)
         else
           parse_mixin_include(line)
         end
@@ -305,7 +305,7 @@ END
         if line =~ ATTRIBUTE_ALTERNATE_MATCHER
           parse_attribute(line, ATTRIBUTE_ALTERNATE)
         else
-          Tree::RuleNode.new(line, @options[:style])
+          Tree::RuleNode.new(line, @options)
         end
       end
     end
@@ -329,7 +329,7 @@ END
         value = Sass::Constant.parse(value, @constants, @line).to_s
       end
 
-      Tree::AttrNode.new(name, value, @options[:style])
+      Tree::AttrNode.new(name, value, @options)
     end
 
     def parse_constant(line)
@@ -352,9 +352,9 @@ END
       if line[1] == SASS_COMMENT_CHAR
         :comment
       elsif line[1] == CSS_COMMENT_CHAR
-        Tree::CommentNode.new(line, @options[:style])
+        Tree::CommentNode.new(line, @options)
       else
-        Tree::RuleNode.new(line, @options[:style])
+        Tree::RuleNode.new(line, @options)
       end
     end
 
@@ -366,7 +366,7 @@ END
       if directive == "import" && value !~ /^(url\(|")/
         import(value)
       else
-        Tree::DirectiveNode.new(line, @options[:style])
+        Tree::DirectiveNode.new(line, @options)
       end
     end
 
@@ -404,7 +404,7 @@ END
         end
 
         if filename =~ /\.css$/
-          nodes << Tree::DirectiveNode.new("@import url(#{filename})", @options[:style])
+          nodes << Tree::DirectiveNode.new("@import url(#{filename})", @options)
         else
           File.open(filename) do |file|
             new_options = @options.dup
