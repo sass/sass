@@ -83,7 +83,7 @@ module Sass
       # Create any successive directories required to be able to write a file to: File.join(base,name)
       def mkpath(base, name)
         dirs = [base]
-        name.split('/')[0...-1].each { |dir| dirs << File.join(dirs[-1],dir) }
+        name.split(File::SEPARATOR)[0...-1].each { |dir| dirs << File.join(dirs[-1],dir) }
         dirs.each { |dir| Dir.mkdir(dir) unless File.exist?(dir) }
       end
 
