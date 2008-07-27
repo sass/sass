@@ -123,6 +123,9 @@ class SassPluginTest < Test::Unit::TestCase
       message = "template: #{name}\nline:     #{line + 1}"
       assert_equal(pair.first, pair.last, message)
     end
+    if expected_lines.size < actual_lines.size
+      assert(false, "#{actual_lines.size - expected_lines.size} Trailing lines found in #{name}.css: #{actual_lines[expected_lines.size..-1].join('\n')}")
+    end
   end
 
   def template_loc(name = nil, prefix = nil)
