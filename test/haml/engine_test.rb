@@ -208,12 +208,12 @@ SOURCE
   end
 
   def test_dynamic_attributes_should_be_escaped
-    assert_equal("<img alt='' src='/foo.png' />\n",
-                 render("%img{:width => nil, :src => '/foo.png', :alt => String.new}"))
-    assert_equal("<p alt='' src='/foo.png'>foo</p>\n",
-                 render("%p{:width => nil, :src => '/foo.png', :alt => String.new} foo"))
-    assert_equal("<div alt='' src='/foo.png'>foo</div>\n",
-                 render("%div{:width => nil, :src => '/foo.png', :alt => String.new}= 'foo'"))
+    assert_equal("<img alt='' src='&amp;foo.png' />\n",
+                 render("%img{:width => nil, :src => '&foo.png', :alt => String.new}"))
+    assert_equal("<p alt='' src='&amp;foo.png'>foo</p>\n",
+                 render("%p{:width => nil, :src => '&foo.png', :alt => String.new} foo"))
+    assert_equal("<div alt='' src='&amp;foo.png'>foo</div>\n",
+                 render("%div{:width => nil, :src => '&foo.png', :alt => String.new}= 'foo'"))
   end
   
   def test_string_interpolation_should_be_esaped
