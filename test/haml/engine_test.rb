@@ -200,20 +200,20 @@ SOURCE
   
   def test_static_attributes_should_be_escaped
     assert_equal("<img class='atlantis' style='ugly&amp;stupid' />\n",
-                 render("%img.atlantis{:style => 'ugly&stupid'}", :escape_html => true))
+                 render("%img.atlantis{:style => 'ugly&stupid'}"))
     assert_equal("<div class='atlantis' style='ugly&amp;stupid'>foo</div>\n",
-                 render(".atlantis{:style => 'ugly&stupid'} foo", :escape_html => true))
+                 render(".atlantis{:style => 'ugly&stupid'} foo"))
     assert_equal("<p class='atlantis' style='ugly&amp;stupid'>foo</p>\n",
-                render("%p.atlantis{:style => 'ugly&stupid'}= 'foo'", :escape_html => true))
+                render("%p.atlantis{:style => 'ugly&stupid'}= 'foo'"))
   end
 
   def test_dynamic_attributes_should_be_escaped
     assert_equal("<img alt='' src='/foo.png' />\n",
-                 render("%img{:width => nil, :src => '/foo.png', :alt => String.new}", :escape_html => true))
+                 render("%img{:width => nil, :src => '/foo.png', :alt => String.new}"))
     assert_equal("<p alt='' src='/foo.png'>foo</p>\n",
-                 render("%p{:width => nil, :src => '/foo.png', :alt => String.new} foo", :escape_html => true))
+                 render("%p{:width => nil, :src => '/foo.png', :alt => String.new} foo"))
     assert_equal("<div alt='' src='/foo.png'>foo</div>\n",
-                 render("%div{:width => nil, :src => '/foo.png', :alt => String.new}= 'foo'", :escape_html => true))
+                 render("%div{:width => nil, :src => '/foo.png', :alt => String.new}= 'foo'"))
   end
   
   def test_string_interpolation_should_be_esaped
