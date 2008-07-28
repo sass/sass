@@ -223,20 +223,24 @@ SOURCE
   
   def test_static_attributes_should_be_escaped
     assert_equal("<img class='atlantis' style='ugly&amp;stupid' />\n",
-                 render("%img.atlantis{:style => 'ugly&stupid'}", :escape_html => true))
+                 render("%img.atlantis{:style => 'ugly&stupid'}"))
     assert_equal("<div class='atlantis' style='ugly&amp;stupid'>foo</div>\n",
-                 render(".atlantis{:style => 'ugly&stupid'} foo", :escape_html => true))
+                 render(".atlantis{:style => 'ugly&stupid'} foo"))
     assert_equal("<p class='atlantis' style='ugly&amp;stupid'>foo</p>\n",
-                render("%p.atlantis{:style => 'ugly&stupid'}= 'foo'", :escape_html => true))
+                render("%p.atlantis{:style => 'ugly&stupid'}= 'foo'"))
+    assert_equal("<p class='atlantis' style='ugly&#x000A;stupid'></p>\n",
+                render("%p.atlantis{:style => \"ugly\\nstupid\"}"))
   end
 
   def test_dynamic_attributes_should_be_escaped
-    assert_equal("<img alt='' src='/foo.png' />\n",
-                 render("%img{:width => nil, :src => '/foo.png', :alt => String.new}", :escape_html => true))
-    assert_equal("<p alt='' src='/foo.png'>foo</p>\n",
-                 render("%p{:width => nil, :src => '/foo.png', :alt => String.new} foo", :escape_html => true))
-    assert_equal("<div alt='' src='/foo.png'>foo</div>\n",
-                 render("%div{:width => nil, :src => '/foo.png', :alt => String.new}= 'foo'", :escape_html => true))
+    assert_equal("<img alt='' src='&amp;foo.png' />\n",
+                 render("%img{:width => nil, :src => '&foo.png', :alt => String.new}"))
+    assert_equal("<p alt='' src='&amp;foo.png'>foo</p>\n",
+                 render("%p{:width => nil, :src => '&foo.png', :alt => String.new} foo"))
+    assert_equal("<div alt='' src='&amp;foo.png'>foo</div>\n",
+                 render("%div{:width => nil, :src => '&foo.png', :alt => String.new}= 'foo'"))
+    assert_equal("<img alt='' src='foo&#x000A;.png' />\n",
+                 render("%img{:width => nil, :src => \"foo\\n.png\", :alt => String.new}"))
   end
   
   def test_string_interpolation_should_be_esaped
@@ -316,7 +320,7 @@ SOURCE
   def test_attrs_parsed_correctly
     assert_equal("<p boom=>biddly='bar =&gt; baz'></p>\n", render("%p{'boom=>biddly' => 'bar => baz'}"))
     assert_equal("<p foo,bar='baz, qux'></p>\n", render("%p{'foo,bar' => 'baz, qux'}"))
-    assert_equal("<p escaped='quo\nte'></p>\n", render("%p{ :escaped => \"quo\\nte\"}"))
+    assert_equal("<p escaped='quo&#x000A;te'></p>\n", render("%p{ :escaped => \"quo\\nte\"}"))
     assert_equal("<p escaped='quo4te'></p>\n", render("%p{ :escaped => \"quo\#{2 + 2}te\"}"))
   end
   
