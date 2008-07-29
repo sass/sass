@@ -55,7 +55,8 @@ if the next line could be nested within this line.")
   `("^ *\\([%\\.#][^ \t]*\\)\\(\\[.*\\]\\)?\\({.*}\\)?\\(\\[.*\\]\\)?[ \t]*$"
     "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
     ,(concat "^ *-[ \t]*\\("
-             (regexp-opt '("else" "elsif" "rescue" "ensure" "when"))
+             (regexp-opt '("if" "unless" "while" "until" "else"
+                           "begin" "elsif" "rescue" "ensure" "when"))
              "\\)")
     "^ */\\(\\[.*\\]\\)?[ \t]*$"
     "^ *-#"
