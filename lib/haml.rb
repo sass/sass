@@ -1037,7 +1037,8 @@ module Haml
   # so we can change the initialization behavior
   # without modifying the file itself.
   def self.init_rails(binding)
-    %w[haml/template sass sass/plugin].each(&method(:require))
+    # No &method here for Rails 2.1 compatibility
+    %w[haml/template sass sass/plugin].each {|f| require f}
   end
 end
 
