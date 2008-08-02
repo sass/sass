@@ -461,7 +461,9 @@ END
 
     def self.find_full_path(filename, load_paths)
       load_paths.each do |path|
-        ["_#{filename}", filename].each do |name|
+        segments = filename.split(File::SEPARATOR)
+        segments.push "_#{segments.pop}"
+        [segments.join(File::SEPARATOR), filename].each do |name|
           full_path = File.join(path, name)
           if File.readable?(full_path)
             return full_path
