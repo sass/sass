@@ -68,8 +68,16 @@ module Sass::Tree
         if @options[:line_comments] && @style != :compressed
           to_return << "#{old_spaces}/* line #{line}"
 
-          if filename && @options[:css_filename]
-            relative_filename = Pathname.new(filename).relative_path_from(Pathname.new(File.dirname(@options[:css_filename]))).to_s
+          if filename
+            relative_filename = if @options[:css_filename]
+              begin
+                Pathname.new(filename).relative_path_from(  
+                  Pathname.new(File.dirname(@options[:css_filename]))).to_s
+              rescue ArgumentError
+                nil
+              end
+            end
+            relative_filename ||= filename
             to_return << ", #{relative_filename}"
           end
 
