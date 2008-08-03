@@ -1,6 +1,3 @@
-# This file contains redefinitions of and wrappers around various text
-# filters so they can be used as Haml filters.
-
 module Haml
   # The module containing the default filters,
   # as well as the base module,
