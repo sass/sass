@@ -917,16 +917,16 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # Options can be set by setting the <tt>Haml::Template.options</tt> hash
 # in <tt>environment.rb</tt> in Rails...
 #
-#   Haml::Template.options[:output] = :html5
+#   Haml::Template.options[:format] = :html5
 #
 # ...or by setting the <tt>Merb::Config[:haml]</tt> hash in <tt>init.rb</tt> in Merb...
 #
-#   Merb::Config[:haml][:output] = :html5
+#   Merb::Config[:haml][:format] = :html5
 # 
 # ...or by passing an options hash to Haml::Engine.new.
 # Available options are:
 #
-# [<tt>:output</tt>]        Determines the output format. The default is :xhtml.
+# [<tt>:format</tt>]        Determines the output format. The default is :xhtml.
 #                           Other options are :html4 and :html5, which are
 #                           identical to :xhtml except there are no self-closing tags,
 #                           XML prolog is ignored and correct DOCTYPEs are generated.
