@@ -6,7 +6,7 @@ unless defined?(Sass::MERB_LOADED)
     root = MERB_ROOT
     env  = MERB_ENV
   else
-    root = Merb.root
+    root = Merb.root.to_s
     env  = Merb.environment
   end
 
