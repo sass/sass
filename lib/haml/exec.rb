@@ -292,6 +292,10 @@ END
           @module_opts[:rhtml] = true
         end
 
+        opts.on('--no-rhtml', "Don't parse RHTML tags.") do
+          @options[:no_rhtml] = true
+        end
+
         opts.on('-x', '--xhtml', 'Parse the input using the more strict XHTML parser.') do
           @module_opts[:xhtml] = true
         end
@@ -304,6 +308,9 @@ END
 
         input = @options[:input]
         output = @options[:output]
+
+        @module_opts[:rhtml] ||= input.respond_to?(:path) && input.path =~ /\.(rhtml|erb)$/
+        @module_opts[:rhtml] &&= @options[:no_rhtml] != false
 
         output.write(::Haml::HTML.new(input, @module_opts).render)
       end
