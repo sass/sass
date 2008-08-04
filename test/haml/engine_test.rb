@@ -190,6 +190,10 @@ SOURCE
     assert_equal("<p>foo &amp; bar</p>\n", render("%p&= 'foo & bar'", :escape_html => false))
   end
 
+  def test_ampersand_equals_should_escape_before_preserve
+    assert_equal("<textarea>foo&#x000A;bar</textarea>\n", render('%textarea&= "foo\nbar"', :escape_html => false))
+  end
+
   def test_bang_equals_should_not_escape
     assert_equal("<p>\n  foo & bar\n</p>\n", render("%p\n  != 'foo & bar'", :escape_html => true))
   end
