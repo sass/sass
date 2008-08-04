@@ -1,3 +1,4 @@
+require 'enumerator'
 require 'sass/tree/node'
 require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
@@ -18,6 +19,8 @@ module Sass
   #   output = sass_engine.render
   #   puts output
   class Engine
+    Line = Struct.new(:text, :tabs, :index, :children)
+
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ?:
 
@@ -77,8 +80,7 @@ module Sass
         :style => :nested,
         :load_paths => ['.']
       }.merge! options
-      @template = template.split(/\r\n|\r|\n/)
-      @lines = []
+      @template = template
       @constants = {"important" => "!important"}
       @mixins = {}
     end
@@ -108,96 +110,67 @@ module Sass
     end
 
     def render_to_tree
-      split_lines
-
       root = Tree::Node.new(@options)
-      index = 0
-      while @lines[index]
-        old_index = index
-        child, index = build_tree(index)
-
-        if child.is_a? Tree::Node
-          child.line = old_index + 1
-          root << child
-        elsif child.is_a? Array
-          child.each do |c|
-            root << c
-          end
-        end
-      end
-      @lines.clear
-
+      append_children(root, tree(tabulate(@template)).first, true)
       root
     end
 
     private
 
-    # Readies each line in the template for parsing,
-    # and computes the tabulation of the line.
-    def split_lines
-      @line = 0
-      old_tabs = nil
-      @template.each_with_index do |line, index|
-        @line += 1
+    def tabulate(string)
+      tab_str = nil
+      first = true
+      string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/).enum_with_index.map do |line, index|
+        index += 1
+        next if line.strip.empty? || line =~ /^\/\//
 
-        tabs = count_tabs(line)
+        line_tab_str = line[/^\s*/]
+        unless line_tab_str.empty?
+          tab_str ||= line_tab_str
 
-        if line[0] == COMMENT_CHAR && line[1] == SASS_COMMENT_CHAR && tabs == 0
-          tabs = old_tabs
-        end
-
-        if tabs # if line isn't blank
-          raise SyntaxError.new("Indenting at the beginning of the document is illegal.", @line) if old_tabs.nil? && tabs > 0
-
-          if old_tabs && tabs - old_tabs > 1
-            raise SyntaxError.new("The line was indented #{tabs - old_tabs} levels deeper than the previous line.", @line)
+          raise SyntaxError.new("Indenting at the beginning of the document is illegal.", index) if first
+          if tab_str.include?(?\s) && tab_str.include?(?\t)
+            raise SyntaxError.new("Indentation can't use both tabs and spaces.", index)
           end
-          @lines << [line.strip, tabs]
-
-          old_tabs = tabs
-        else
-          @lines << ['//', old_tabs || 0]
         end
-      end
+        first &&= !tab_str.nil?
+        next Line.new(line.strip, 0, index, []) if tab_str.nil?
 
-      @line = nil
-    end
-
-    # Counts the tabulation of a line.
-    def count_tabs(line)
-      return nil if line.strip.empty?
-      return 0 unless whitespace = line[/^\s+/]
-
-      if @indentation.nil?
-        @indentation = whitespace
-        
-        if @indentation.include?(?\s) && @indentation.include?(?\t)
-          raise SyntaxError.new("Indentation can't use both tabs and spaces.", @line)
-        end
-
-        return 1
-      end
-
-      tabs = whitespace.length / @indentation.length
-      return tabs if whitespace == @indentation * tabs
-
-      raise SyntaxError.new(<<END.strip.gsub("\n", ' '), @line)
-Inconsistent indentation: #{Haml::Shared.human_indentation whitespace, true} used for indentation,
-but the rest of the document was indented using #{Haml::Shared.human_indentation @indentation}.
+        line_tabs = line_tab_str.scan(tab_str).size
+        raise SyntaxError.new(<<END.strip.gsub("\n", ' '), index) if tab_str * line_tabs != line_tab_str
+Inconsistent indentation: #{Haml::Shared.human_indentation line_tab_str, true} used for indentation,
+but the rest of the document was indented using #{Haml::Shared.human_indentation tab_str}.
 END
+
+        Line.new(line.strip, line_tabs, index, [])
+      end.compact
     end
 
-    def build_tree(index)
-      line, tabs = @lines[index]
-      index += 1
-      @line = index
-      node = parse_line(line)
+    def tree(arr, i = 0)
+      base = arr[i].tabs
+      nodes = []
+      while (line = arr[i]) && line.tabs >= base
+        if line.tabs > base
+          if line.tabs > base + 1
+            raise SyntaxError.new("The line was indented #{line.tabs - base} levels deeper than the previous line.", line.index)
+          end
 
-      has_children = has_children?(index, tabs)
+          nodes.last.children, i = tree(arr, i)
+        else
+          nodes << line
+          i += 1
+        end
+      end
+      return nodes, i
+    end
+
+    def build_tree(line)
+      @line = line.index
+      node = parse_line(line)
 
       # Node is a symbol if it's non-outputting, like a constant assignment
       unless node.is_a? Tree::Node
-        if has_children
+        unless line.children.empty?
           if node == :constant
             raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line + 1)
           elsif node.is_a? Array
@@ -209,105 +182,93 @@ END
             raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath #{directive_type} directives.", @line + 1)
           end
         end
-
-        index = @line if node == :mixin
-        return node, index
+        return node
       end
 
-      node.line = @line
+      node.line = line.index
       node.filename = @options[:filename]
 
-      if node.is_a? Tree::CommentNode
-        while has_children
-          line, index = raw_next_line(index)
-          node << line
-
-          has_children = has_children?(index, tabs)
-        end
-
-        return node, index
+      unless node.is_a?(Tree::CommentNode)
+        append_children(node, line.children, false)
+      else
+        node.children = line.children
       end
-
-      # Resolve multiline rules
-      if node.is_a?(Tree::RuleNode)
-        if node.continued?
-          child, index = build_tree(index) if @lines[old_index = index]
-          if @lines[old_index].nil? || has_children?(old_index, tabs) || !child.is_a?(Tree::RuleNode)
-            raise SyntaxError.new("Rules can't end in commas.", @line)
-          end
-
-          node.add_rules child
-        end
-        node.children = child.children if child
-      end
-
-      while has_children
-        child, index = build_tree(index)
-
-        validate_and_append_child(node, child)
-
-        has_children = has_children?(index, tabs)
-      end
-
-      return node, index
+      return node
     end
 
-    def validate_and_append_child(parent, child)
-      case child
-      when :constant
-        raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
-      when :mixin
-        raise SyntaxError.new("Mixins may only be defined at the root of a document.", @line)
-      when Array
-        child.each do |c|
-          if c.is_a?(Tree::DirectiveNode)
-            raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
+    def append_children(parent, children, root)
+      continued_rule = nil
+      children.each do |line|
+        child = build_tree(line)
+
+        if child.is_a?(Tree::RuleNode) && child.continued?
+          raise SyntaxError.new("Rules can't end in commas.", child.line) unless child.children.empty?
+          if continued_rule
+            continued_rule.add_rules child
+          else
+            continued_rule = child
           end
-          parent << c
+          next
         end
+
+        if continued_rule
+          raise SyntaxError.new("Rules can't end in commas.", continued_rule.line) unless child.is_a?(Tree::RuleNode)
+          continued_rule.add_rules child
+          continued_rule.children = child.children
+          continued_rule, child = nil, continued_rule
+        end
+
+        validate_and_append_child(parent, child, line, root)
+      end
+
+      raise SyntaxError.new("Rules can't end in commas.", continued_rule.line) if continued_rule
+    end
+
+    def validate_and_append_child(parent, child, line, root)
+      unless root
+        case child
+        when :constant
+          raise SyntaxError.new("Constants may only be declared at the root of a document.", line.index)
+        when :mixin
+          raise SyntaxError.new("Mixins may only be defined at the root of a document.", line.index)
+        when Tree::DirectiveNode
+          raise SyntaxError.new("Import directives may only be used at the root of a document.", line.index)
+        end
+      end
+
+      case child
+      when Array
+        child.each {|c| validate_and_append_child(parent, c, line, root)}
       when Tree::Node
         parent << child
       end
     end
 
-    def has_children?(index, tabs)
-      next_line = ['//', 0]
-      while !next_line.nil? && next_line[0] == '//' && next_line[1] = 0
-        next_line = @lines[index]
-        index += 1
-      end
-      next_line && next_line[1] > tabs
-    end
-
-    def raw_next_line(index)
-      [@lines[index][0], index + 1]
-    end
-
     def parse_line(line)
-      case line[0]
+      case line.text[0]
       when ATTRIBUTE_CHAR
-        parse_attribute(line, ATTRIBUTE)
+        parse_attribute(line.text, ATTRIBUTE)
       when Constant::CONSTANT_CHAR
-        parse_constant(line)
+        parse_constant(line.text)
       when COMMENT_CHAR
-        parse_comment(line)
+        parse_comment(line.text)
       when DIRECTIVE_CHAR
-        parse_directive(line)
+        parse_directive(line.text)
       when ESCAPE_CHAR
-        Tree::RuleNode.new(line[1..-1], @options)
+        Tree::RuleNode.new(line.text[1..-1], @options)
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
-        if line[1].nil? || line[1] == ?\s
-          Tree::RuleNode.new(line, @options)
+        if line.text[1].nil? || line.text[1] == ?\s
+          Tree::RuleNode.new(line.text, @options)
         else
-          parse_mixin_include(line)
+          parse_mixin_include(line.text)
         end
       else
-        if line =~ ATTRIBUTE_ALTERNATE_MATCHER
-          parse_attribute(line, ATTRIBUTE_ALTERNATE)
+        if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
+          parse_attribute(line.text, ATTRIBUTE_ALTERNATE)
         else
-          Tree::RuleNode.new(line, @options)
+          Tree::RuleNode.new(line.text, @options)
         end
       end
     end
@@ -373,15 +334,7 @@ END
     end
 
     def parse_mixin_definition(line)
-      mixin_name = line[1..-1]
-      @mixins[mixin_name] =  []
-      index = @line
-      line, tabs = @lines[index]
-      while !line.nil? && tabs > 0
-        child, index = build_tree(index)
-        validate_and_append_child(@mixins[mixin_name], child)
-        line, tabs = @lines[index]
-      end
+      append_children(@mixins[line.text[1..-1]] = [], line.children, false)
       :mixin
     end
 
