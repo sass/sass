@@ -62,18 +62,20 @@ module Sass
     SECOND_ORDER = [:plus, :minus]
 
     class << self
+      def resolve(*args)
+        parse(*args).to_s
+      end
+
       def parse(value, constants, line)
-        begin
-          operationalize(parenthesize(tokenize(value)), constants).to_s
-        rescue Sass::SyntaxError => e
-          if e.message == "Constant arithmetic error"
-            e.instance_eval do
-              @message += ": #{value.dump}."
-            end
+        operationalize(parenthesize(tokenize(value)), constants).perform
+      rescue Sass::SyntaxError => e
+        if e.message == "Constant arithmetic error"
+          e.instance_eval do
+            @message += ": #{value.dump}."
           end
-          e.sass_line = line
-          raise e
         end
+        e.sass_line = line
+        raise e
       end
 
       private

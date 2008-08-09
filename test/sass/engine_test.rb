@@ -423,6 +423,17 @@ SASS
     assert_equal("a {\n  b: #81ff81; }\n", render("a\n  b = hsl(120, 100%, 75%) + #010001"))
   end
 
+  def test_if_directive
+    assert_equal("a {\n  b: 1; }\n", render(<<SASS))
+!var = true
+a
+  @if !var
+    b: 1
+  @if ~!var
+    b: 2
+SASS
+  end
+
   def test_argument_error
     assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
   end

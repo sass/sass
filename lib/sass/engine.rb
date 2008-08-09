@@ -170,22 +170,9 @@ END
       @line = line.index
       node = parse_line(line, root)
 
-      # Node is a symbol if it's non-outputting, like a constant assignment
-      unless node.is_a? Tree::Node
-        unless line.children.empty?
-          if node == :constant
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", line.index + 1)
-          elsif node.is_a? Array
-            # arrays can either be full of import statements
-            # or attributes from mixin includes
-            # in either case they shouldn't have children.
-            # Need to peek into the array in order to give meaningful errors
-            directive_type = (node.first.is_a?(Tree::DirectiveNode) ? "import" : "mixin")
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath #{directive_type} directives.", line.index + 1)
-          end
-        end
-        return node
-      end
+      # Node is a symbol if it's non-outputting, like a constant assignment,
+      # or an array if it's a group of nodes to add
+      return node unless node.is_a? Tree::Node
 
       node.line = line.index
       node.filename = line.filename
@@ -224,6 +211,8 @@ END
       end
 
       raise SyntaxError.new("Rules can't end in commas.", continued_rule.line) if continued_rule
+
+      parent
     end
 
     def validate_and_append_child(parent, child, line, root)
@@ -251,11 +240,11 @@ END
       when ATTRIBUTE_CHAR
         parse_attribute(line.text, ATTRIBUTE)
       when Constant::CONSTANT_CHAR
-        parse_constant(line.text)
+        parse_constant(line)
       when COMMENT_CHAR
         parse_comment(line.text)
       when DIRECTIVE_CHAR
-        parse_directive(line.text)
+        parse_directive(line, root)
       when ESCAPE_CHAR
         Tree::RuleNode.new(line.text[1..-1], @options)
       when MIXIN_DEFINITION_CHAR
@@ -264,7 +253,7 @@ END
         if line.text[1].nil? || line.text[1] == ?\s
           Tree::RuleNode.new(line.text, @options)
         else
-          parse_mixin_include(line.text, root)
+          parse_mixin_include(line, root)
         end
       else
         if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
@@ -291,19 +280,18 @@ END
       end
 
       if eq.strip[0] == SCRIPT_CHAR
-        value = Sass::Constant.parse(value, @constants, @line)
+        value = Sass::Constant.resolve(value, @constants, @line)
       end
 
       Tree::AttrNode.new(interpolate(name), interpolate(value), @options)
     end
 
     def parse_constant(line)
-      name, op, value = line.scan(Sass::Constant::MATCH)[0]
-      unless name && value
-        raise SyntaxError.new("Invalid constant: \"#{line}\".", @line)
-      end
+      name, op, value = line.text.scan(Sass::Constant::MATCH)[0]
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line + 1) unless line.children.empty?
+      raise SyntaxError.new("Invalid constant: \"#{line.text}\".", @line) unless name && value
 
-      constant = Sass::Constant.parse(value, @constants, @line)
+      constant = Sass::Constant.resolve(value, @constants, @line)
       if op == '||='
         @constants[name] ||= constant
       else
@@ -323,15 +311,26 @@ END
       end
     end
 
-    def parse_directive(line)
-      directive, value = line[1..-1].split(/\s+/, 2)
+    def parse_directive(line, root)
+      directive, value = line.text[1..-1].split(/\s+/, 2)
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
       if directive == "import" && value !~ /^(url\(|")/
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.", @line + 1) unless line.children.empty?
         import(value)
+      elsif directive == "if"
+        parse_if(line, root, value)
       else
-        Tree::DirectiveNode.new(line, @options)
+        Tree::DirectiveNode.new(line.text, @options)
+      end
+    end
+
+    def parse_if(line, root, text)
+      if Sass::Constant.parse(text, @constants, line.index).to_bool
+        append_children([], line.children, root)
+      else
+        []
       end
     end
 
@@ -351,8 +350,9 @@ END
     end
 
     def parse_mixin_include(line, root)
-      name, args = line.scan(/^\+\s*([^(]+)(\([^)]*\))?$/).first
-      raise SyntaxError.new("Invalid mixin include \"#{line}\".", @line) if name.nil?
+      name, args = line.text.scan(/^\+\s*([^(]+)(\([^)]*\))?$/).first
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.", @line + 1) unless line.children.empty?
+      raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil?
       raise SyntaxError.new("Undefined mixin '#{name}'.", @line) unless mixin = @mixins[name]
 
       args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}
@@ -364,12 +364,11 @@ END
 
       old_constants = @constants.dup
       mixin.args.zip(args).inject(@constants) do |constants, (name, value)|
-        constants[name] = Sass::Constant.parse(value, old_constants, @line)
+        constants[name] = Sass::Constant.resolve(value, old_constants, @line)
         constants
       end
 
-      tree = []
-      append_children(tree, mixin.tree, root)
+      tree = append_children([], mixin.tree, root)
       @constants = old_constants
       tree
     end
@@ -384,12 +383,13 @@ END
         if escapes % 2 == 1
           str << '#{'
         else
-          str << Sass::Constant.parse(balance(scan, ?{, ?}, 1)[0][0...-1], @constants, @line)
+          str << Sass::Constant.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], @constants, @line)
         end
       end
 
       str + scan.rest
     end
+
     def balance(*args)
       res = Haml::Shared.balance *args
       return res if res
