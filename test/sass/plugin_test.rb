@@ -81,6 +81,17 @@ class SassPluginTest < Test::Unit::TestCase
     ['more1', 'more_import'].each { |name| assert_renders_correctly(name, :prefix => 'more_') }
   end
 
+  def test_two_template_directories_with_line_annotations
+    set_plugin_opts :line_comments => true,
+                    :style => :nested,
+                    :template_location => {
+                      template_loc => tempfile_loc,
+                      template_loc(nil,'more_') => tempfile_loc(nil,'more_')
+                    }
+    Sass::Plugin.update_stylesheets
+    assert_renders_correctly('more1_with_line_comments', 'more1', :prefix => 'more_')
+  end
+
   def test_rails_update    
     File.delete(tempfile_loc('basic'))
     assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
