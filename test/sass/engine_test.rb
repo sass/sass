@@ -60,6 +60,12 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  b: c\na\n    d: e" => ["The line was indented 2 levels deeper than the previous line.", 4],
     "a\n  b: c\n  a\n        d: e" => ["The line was indented 3 levels deeper than the previous line.", 4],
     "a\n \tb: c" => ["Indentation can't use both tabs and spaces.", 2],
+    "=a(" => 'Invalid mixin "a(".',
+    "=a(b)" => 'Mixin argument "b" must begin with an exclamation point (!).',
+    "=a(,)" => "Mixin arguments can't be empty.",
+    "=a(!)" => "Mixin arguments can't be empty.",
+    "=a(!foo bar)" => "Invalid constant \"!foo bar\".",
+    "=foo\n  bar: baz\n+foo" => ["Attributes aren't allowed at the root of a document.", 2],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -328,6 +334,29 @@ SASS
     assert_equal("foo + bar {\n  a: b; }\n", render("foo\n  + bar\n    a: b"))
     assert_equal("foo + bar {\n  a: b; }\nfoo + baz {\n  c: d; }\n",
                  render("foo\n  +\n    bar\n      a: b\n    baz\n      c: d"))
+  end
+
+  def test_mixin_args
+    assert_equal("blat {\n  baz: hi; }\n", render(<<SASS))
+=foo(!bar)
+  baz = !bar
+blat
+  +foo(\"hi\")
+SASS
+    assert_equal("blat {\n  baz: 3; }\n", render(<<SASS))
+=foo(!a, !b)
+  baz = !a + !b
+blat
+  +foo(1, 2)
+SASS
+    assert_equal("blat {\n  baz: 4;\n  bang: 3; }\n", render(<<SASS))
+=foo(!c)
+  baz = !c
+!c = 3
+blat
+  +foo(!c + 1)
+  bang = !c
+SASS
   end
 
   def test_functions

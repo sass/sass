@@ -19,7 +19,8 @@ module Sass
   #   output = sass_engine.render
   #   puts output
   class Engine
-    Line = Struct.new(:text, :tabs, :index, :children)
+    Line = Struct.new(:text, :tabs, :index, :filename, :children)
+    Mixin = Struct.new(:args, :tree)
 
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ?:
@@ -134,7 +135,7 @@ module Sass
           end
         end
         first &&= !tab_str.nil?
-        next Line.new(line.strip, 0, index, []) if tab_str.nil?
+        next Line.new(line.strip, 0, index, @options[:filename], []) if tab_str.nil?
 
         line_tabs = line_tab_str.scan(tab_str).size
         raise SyntaxError.new(<<END.strip.gsub("\n", ' '), index) if tab_str * line_tabs != line_tab_str
@@ -142,7 +143,7 @@ Inconsistent indentation: #{Haml::Shared.human_indentation line_tab_str, true} u
 but the rest of the document was indented using #{Haml::Shared.human_indentation tab_str}.
 END
 
-        Line.new(line.strip, line_tabs, index, [])
+        Line.new(line.strip, line_tabs, index, @options[:filename], [])
       end.compact
     end
 
@@ -164,29 +165,29 @@ END
       return nodes, i
     end
 
-    def build_tree(line)
+    def build_tree(line, root = false)
       @line = line.index
-      node = parse_line(line)
+      node = parse_line(line, root)
 
       # Node is a symbol if it's non-outputting, like a constant assignment
       unless node.is_a? Tree::Node
         unless line.children.empty?
           if node == :constant
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line + 1)
+            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", line.index + 1)
           elsif node.is_a? Array
             # arrays can either be full of import statements
             # or attributes from mixin includes
             # in either case they shouldn't have children.
             # Need to peek into the array in order to give meaningful errors
             directive_type = (node.first.is_a?(Tree::DirectiveNode) ? "import" : "mixin")
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath #{directive_type} directives.", @line + 1)
+            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath #{directive_type} directives.", line.index + 1)
           end
         end
         return node
       end
 
       node.line = line.index
-      node.filename = @options[:filename]
+      node.filename = line.filename
 
       unless node.is_a?(Tree::CommentNode)
         append_children(node, line.children, false)
@@ -199,7 +200,7 @@ END
     def append_children(parent, children, root)
       continued_rule = nil
       children.each do |line|
-        child = build_tree(line)
+        child = build_tree(line, root)
 
         if child.is_a?(Tree::RuleNode) && child.continued?
           raise SyntaxError.new("Rules can't end in commas.", child.line) unless child.children.empty?
@@ -244,7 +245,7 @@ END
       end
     end
 
-    def parse_line(line)
+    def parse_line(line, root)
       case line.text[0]
       when ATTRIBUTE_CHAR
         parse_attribute(line.text, ATTRIBUTE)
@@ -262,7 +263,7 @@ END
         if line.text[1].nil? || line.text[1] == ?\s
           Tree::RuleNode.new(line.text, @options)
         else
-          parse_mixin_include(line.text)
+          parse_mixin_include(line.text, root)
         end
       else
         if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
@@ -289,7 +290,7 @@ END
       end
 
       if eq.strip[0] == SCRIPT_CHAR
-        value = Sass::Constant.parse(value, @constants, @line).to_s
+        value = Sass::Constant.parse(value, @constants, @line)
       end
 
       Tree::AttrNode.new(name, value, @options)
@@ -334,16 +335,42 @@ END
     end
 
     def parse_mixin_definition(line)
-      append_children(@mixins[line.text[1..-1]] = [], line.children, false)
+      name, args = line.text.scan(/^=\s*([^(]+)(\([^)]*\))?$/).first
+      raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) if name.nil?
+      args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}.map do |arg|
+        raise SyntaxError.new("Mixin arguments can't be empty.", @line) if arg.empty? || arg == "!"
+        unless arg[0] == Constant::CONSTANT_CHAR
+          raise SyntaxError.new("Mixin argument \"#{arg}\" must begin with an exclamation point (!).", @line)
+        end
+        raise SyntaxError.new("Invalid constant \"#{arg}\".", @line) unless arg =~ Constant::VALIDATE
+        arg[1..-1]
+      end
+      mixin = @mixins[name] = Mixin.new(args, line.children)
       :mixin
     end
 
-    def parse_mixin_include(line)
-      mixin_name = line[1..-1]
-      unless @mixins.has_key?(mixin_name)
-        raise SyntaxError.new("Undefined mixin '#{mixin_name}'.", @line)
+    def parse_mixin_include(line, root)
+      name, args = line.scan(/^\+\s*([^(]+)(\([^)]*\))?$/).first
+      raise SyntaxError.new("Invalid mixin include \"#{line}\".", @line) if name.nil?
+      raise SyntaxError.new("Undefined mixin '#{name}'.", @line) unless mixin = @mixins[name]
+
+      args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}
+      args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
+      raise SyntaxError.new(<<END.gsub("\n", "")) unless args.size == mixin.args.size
+Mixin #{name} takes #{mixin.args.size} argument#{'s' if mixin.args != 1},
+but #{args.size} #{args.size == 1 ? 'was' : 'were'} passed.
+END
+
+      old_constants = @constants.dup
+      mixin.args.zip(args).inject(@constants) do |constants, (name, value)|
+        constants[name] = Sass::Constant.parse(value, old_constants, @line)
+        constants
       end
-      @mixins[mixin_name]
+
+      tree = []
+      append_children(tree, mixin.tree, root)
+      @constants = old_constants
+      tree
     end
 
     def import(files)

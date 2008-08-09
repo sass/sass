@@ -37,6 +37,9 @@ module Sass
     # The regular expression used to parse constants
     MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }.join}]+)\s*((?:\|\|)?=)\s*(.+)/
 
+    # The regular expression used to validate constants without matching
+    VALIDATE = /^#{Regexp.escape(CONSTANT_CHAR.chr)}[^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }.join}]+$/
+
     # Order of operations hash
     ORDER = {
       :times => 1,
