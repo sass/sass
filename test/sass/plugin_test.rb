@@ -78,7 +78,7 @@ class SassPluginTest < Test::Unit::TestCase
       template_loc(nil,'more_') => tempfile_loc(nil,'more_')
     }
     Sass::Plugin.update_stylesheets
-    ['more1', 'more_import'].each { |name| assert_renders_correctly(name, 'more_') }
+    ['more1', 'more_import'].each { |name| assert_renders_correctly(name, :prefix => 'more_') }
   end
 
   def test_rails_update    
@@ -116,15 +116,19 @@ class SassPluginTest < Test::Unit::TestCase
 
  private
 
-  def assert_renders_correctly(name, prefix = nil)
-    expected_lines = File.read(result_loc(name, prefix)).split("\n")
-    actual_lines = File.read(tempfile_loc(name, prefix)).split("\n")
+  def assert_renders_correctly(*arguments)
+    options = arguments.last.is_a?(Hash) ? arguments.pop : {}
+    prefix = options[:prefix]
+    result_name = arguments.shift
+    tempfile_name = arguments.shift || result_name
+    expected_lines = File.read(result_loc(result_name, prefix)).split("\n")
+    actual_lines = File.read(tempfile_loc(tempfile_name, prefix)).split("\n")
     expected_lines.zip(actual_lines).each_with_index do |pair, line|
-      message = "template: #{name}\nline:     #{line + 1}"
+      message = "template: #{result_name}\nline:     #{line + 1}"
       assert_equal(pair.first, pair.last, message)
     end
     if expected_lines.size < actual_lines.size
-      assert(false, "#{actual_lines.size - expected_lines.size} Trailing lines found in #{name}.css: #{actual_lines[expected_lines.size..-1].join('\n')}")
+      assert(false, "#{actual_lines.size - expected_lines.size} Trailing lines found in #{tempfile_name}.css: #{actual_lines[expected_lines.size..-1].join('\n')}")
     end
   end
 
