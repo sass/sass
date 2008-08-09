@@ -66,6 +66,7 @@ class SassEngineTest < Test::Unit::TestCase
     "=a(!)" => "Mixin arguments can't be empty.",
     "=a(!foo bar)" => "Invalid constant \"!foo bar\".",
     "=foo\n  bar: baz\n+foo" => ["Attributes aren't allowed at the root of a document.", 2],
+    "a-\#{!b\n  c: d" => ["Unbalanced brackets.", 1],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -356,6 +357,15 @@ SASS
 blat
   +foo(!c + 1)
   bang = !c
+SASS
+  end
+
+  def test_interpolation
+    assert_equal("a-1 {\n  b-2: c-3; }\n", render(<<SASS))
+!a = 1
+!b = 2
+a-\#{!a}
+  b-\#{!b}: c-\#{!a + !b}
 SASS
   end
 

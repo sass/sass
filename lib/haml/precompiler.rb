@@ -764,25 +764,16 @@ END
         if escapes % 2 == 1
           str << '#{'
         else
-          # Use eval to get rid of string escapes
-          str << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"
+          str << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"# Use eval to get rid of string escapes
         end
       end
 
       str + scan.rest
     end
 
-    def balance(scanner, start, finish, count = 0)
-      str = ''
-      scanner = StringScanner.new(scanner) unless scanner.is_a? StringScanner
-      regexp = Regexp.new("(.*?)[\\#{start.chr}\\#{finish.chr}]", Regexp::MULTILINE)
-      while scanner.scan(regexp)
-        str << scanner.matched
-        count += 1 if scanner.matched[-1] == start
-        count -= 1 if scanner.matched[-1] == finish
-        return [str.strip, scanner.rest] if count == 0
-      end
-
+    def balance(*args)
+      res = Haml::Shared.balance *args
+      return res if res
       raise SyntaxError.new("Unbalanced brackets.")
     end
 

@@ -1,4 +1,5 @@
 require 'enumerator'
+require 'strscan'
 require 'sass/tree/node'
 require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
@@ -269,7 +270,7 @@ END
         if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
           parse_attribute(line.text, ATTRIBUTE_ALTERNATE)
         else
-          Tree::RuleNode.new(line.text, @options)
+          Tree::RuleNode.new(interpolate(line.text), @options)
         end
       end
     end
@@ -293,7 +294,7 @@ END
         value = Sass::Constant.parse(value, @constants, @line)
       end
 
-      Tree::AttrNode.new(name, value, @options)
+      Tree::AttrNode.new(interpolate(name), interpolate(value), @options)
     end
 
     def parse_constant(line)
@@ -371,6 +372,28 @@ END
       append_children(tree, mixin.tree, root)
       @constants = old_constants
       tree
+    end
+
+    def interpolate(text)
+      scan = StringScanner.new(text)
+      str = ''
+
+      while scan.scan(/(.*?)(\\*)\#\{/)
+        escapes = scan[2].size
+        str << scan.matched[0...-2 - escapes]
+        if escapes % 2 == 1
+          str << '#{'
+        else
+          str << Sass::Constant.parse(balance(scan, ?{, ?}, 1)[0][0...-1], @constants, @line)
+        end
+      end
+
+      str + scan.rest
+    end
+    def balance(*args)
+      res = Haml::Shared.balance *args
+      return res if res
+      raise SyntaxError.new("Unbalanced brackets.", @line)
     end
 
     def import(files)
