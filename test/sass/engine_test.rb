@@ -67,6 +67,8 @@ class SassEngineTest < Test::Unit::TestCase
     "=a(!foo bar)" => "Invalid constant \"!foo bar\".",
     "=foo\n  bar: baz\n+foo" => ["Attributes aren't allowed at the root of a document.", 2],
     "a-\#{!b\n  c: d" => ["Unbalanced brackets.", 1],
+    "!a = 1 & 2" => "SassScript doesn't support a single-& operator.",
+    "!a = 1 | 2" => "SassScript doesn't support a single-| operator.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -366,6 +368,43 @@ SASS
 !b = 2
 a-\#{!a}
   b-\#{!b}: c-\#{!a + !b}
+SASS
+  end
+
+  def test_booleans
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: true;
+  c: false;
+  t1: true;
+  t2: true;
+  t3: true;
+  t4: true;
+  f1: false;
+  f2: false;
+  f3: false;
+  f4: false; }
+CSS
+a
+  b = true
+  c = false
+  t1 = true && true
+  t2 = false || true
+  t3 = true || false
+  t4 = true || true
+  f1 = false || false
+  f2 = false && true
+  f3 = true && false
+  f4 = false && false
+SASS
+  end
+
+  def test_boolean_ops
+    assert_equal("a {\n  b: 1;\n  c: 2;\n  d: 3; }\n", render(<<SASS))
+a
+  b = false || 1
+  c = 2 || 3
+  d = 2 && 3
 SASS
   end
 

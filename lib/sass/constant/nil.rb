@@ -9,5 +9,9 @@ module Sass::Constant
     def to_arglist
       []
     end
+
+    def to_bool
+      false
+    end
   end
 end

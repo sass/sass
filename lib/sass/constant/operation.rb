@@ -7,6 +7,9 @@ require 'sass/constant/unary_operation'
 module Sass::Constant
   class Operation # :nodoc:
     def initialize(operand1, operand2, operator)
+      raise Sass::SyntaxError.new("SassScript doesn't support a single-& operator.") if operator == :single_and
+      raise Sass::SyntaxError.new("SassScript doesn't support a single-| operator.") if operator == :single_or
+
       @operand1 = operand1
       @operand2 = operand2
       @operator = operator

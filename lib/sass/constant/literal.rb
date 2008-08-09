@@ -6,6 +6,7 @@ module Sass::Constant; class Literal; end; end;
 require 'sass/constant/string'
 require 'sass/constant/number'
 require 'sass/constant/color'
+require 'sass/constant/bool'
 require 'sass/constant/nil'
 
 class Sass::Constant::Literal # :nodoc:
@@ -23,6 +24,8 @@ class Sass::Constant::Literal # :nodoc:
       Sass::Constant::Number.new(value)
     when COLOR
       Sass::Constant::Color.new(value)
+    when "true", "false"
+      Sass::Constant::Bool.new(value)
     when ::Symbol
       value
     else
@@ -42,6 +45,14 @@ class Sass::Constant::Literal # :nodoc:
     self
   end
 
+  def and(other)
+    to_bool ? other : self
+  end
+
+  def or(other)
+    to_bool ? self : other
+  end
+
   def concat(other)
     Sass::Constant::String.from_value("#{self.to_s} #{other.to_s}")
   end
@@ -56,6 +67,10 @@ class Sass::Constant::Literal # :nodoc:
 
   def to_arglist
     [self]
+  end
+
+  def to_bool
+    true
   end
 
   attr_reader :value

@@ -1,3 +1,4 @@
+require 'strscan'
 require 'sass/constant/operation'
 require 'sass/constant/literal'
 
@@ -29,16 +30,20 @@ module Sass
       ?* => :times,
       ?/ => :div,
       ?% => :mod,
+      ?& => :single_and,
+      ?| => :single_or,
       CONSTANT_CHAR => :const,
       STRING_CHAR => :str,
       ESCAPE_CHAR => :esc
     }
 
+    CONSTANT_CHARS = (SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape(c.chr) }.join
+
     # The regular expression used to parse constants
-    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }.join}]+)\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{CONSTANT_CHARS}]+)\s*((?:\|\|)?=)\s*(.+)/
 
     # The regular expression used to validate constants without matching
-    VALIDATE = /^#{Regexp.escape(CONSTANT_CHAR.chr)}[^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }.join}]+$/
+    VALIDATE = /^#{Regexp.escape(CONSTANT_CHAR.chr)}[^\s#{CONSTANT_CHARS}]+$/
 
     # Order of operations hash
     ORDER = {
@@ -129,9 +134,14 @@ module Sass
               end
 
               # Time for a unary op!
-              if ![nil, :open, :close, :const].include?(symbol) && beginning_of_token
+              if ![nil, :open, :close, :const, :single_and, :single_or].include?(symbol) && beginning_of_token
                 beginning_of_token = true
                 to_return << :unary << symbol
+                next
+              end
+
+              if (symbol == :single_and || symbol == :single_or) && last == symbol
+                to_return[-1] = symbol.to_s.gsub(/^single_/, '').to_sym
                 next
               end
 
