@@ -397,6 +397,16 @@ a
   f3 = true && false
   f4 = false && false
 SASS
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: true;
+  c: false; }
+CSS
+!var = true
+a
+  b = ~~!var
+  c = ~!var
+SASS
   end
 
   def test_boolean_ops

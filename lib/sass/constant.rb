@@ -30,6 +30,7 @@ module Sass
       ?* => :times,
       ?/ => :div,
       ?% => :mod,
+      ?~ => :not,
       ?& => :single_and,
       ?| => :single_or,
       CONSTANT_CHAR => :const,

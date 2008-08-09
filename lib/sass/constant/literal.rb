@@ -53,6 +53,10 @@ class Sass::Constant::Literal # :nodoc:
     to_bool ? self : other
   end
 
+  def unary_not
+    Sass::Constant::Bool.from_value(!to_bool)
+  end
+
   def concat(other)
     Sass::Constant::String.from_value("#{self.to_s} #{other.to_s}")
   end
