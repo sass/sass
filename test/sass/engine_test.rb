@@ -454,6 +454,43 @@ a
 SASS
   end
 
+  def test_for
+    assert_equal(<<CSS, render(<<SASS))
+a-0 {
+  2i: 0; }
+
+a-1 {
+  2i: 2; }
+
+a-2 {
+  2i: 4; }
+
+a-3 {
+  2i: 6; }
+
+b-1 {
+  j-1: 0; }
+
+b-2 {
+  j-1: 1; }
+
+b-3 {
+  j-1: 2; }
+
+b-4 {
+  j-1: 3; }
+CSS
+!a = 3
+@for !i from 0 to !a + 1
+  a-\#{!i}
+    2i = 2 * !i
+
+@for !j from 1 through 4
+  b-\#{!j}
+    j-1 = !j - 1
+SASS
+  end
+
   def test_argument_error
     assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
   end

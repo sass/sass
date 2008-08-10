@@ -69,6 +69,11 @@ module Sass::Constant
       "#{value}#{@unit}"
     end
 
+    def to_i
+      super unless value % 1 == 0.0
+      return value
+    end
+
     protected
 
     def self.from_value(value, unit=nil)

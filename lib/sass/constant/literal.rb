@@ -85,6 +85,10 @@ class Sass::Constant::Literal # :nodoc:
     true
   end
 
+  def to_i
+    raise SyntaxError.new("#{value.dump} is not an integer.")
+  end
+
   attr_reader :value
 
   protected

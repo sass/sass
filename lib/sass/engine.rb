@@ -92,6 +92,7 @@ module Sass
       begin
         render_to_tree.to_s
       rescue SyntaxError => err
+        err.sass_line = @line unless err.sass_line
         unless err.sass_filename
           err.add_backtrace_entry(@options[:filename])
         end
@@ -321,6 +322,8 @@ END
         import(value)
       elsif directive == "if"
         parse_if(line, root, value)
+      elsif directive == "for"
+        parse_for(line, root, value)
       else
         Tree::DirectiveNode.new(line.text, @options)
       end
@@ -332,6 +335,35 @@ END
       else
         []
       end
+    end
+
+    def parse_for(line, root, text)
+      var, from_expr, to_name, to_expr = text.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
+
+      if var.nil? # scan failed, try to figure out why for error message
+        if text !~ /^[^\s]+/
+          expected = "constant name"
+        elsif text !~ /^[^\s]+\s+from\s+.+/
+          expected = "'from <expr>'"
+        else
+          expected = "'to <expr>' or 'through <expr>'"
+        end
+        raise SyntaxError.new("Invalid for directive '@for #{text}': expected #{expected}.", @line)
+      end
+      raise SyntaxError.new("Invalid constant \"#{var}\".", @line) unless var =~ Constant::VALIDATE
+
+      from = Sass::Constant.parse(from_expr, @constants, @line).to_i
+      to = Sass::Constant.parse(to_expr, @constants, @line).to_i
+      range = Range.new(from, to, to_name == 'to')
+
+      tree = []
+      old_constants = @constants.dup
+      for i in range
+        @constants[var[1..-1]] = i.to_s
+        append_children(tree, line.children, root)
+      end
+      @constants = old_constants
+      tree
     end
 
     def parse_mixin_definition(line)
