@@ -491,6 +491,31 @@ CSS
 SASS
   end
 
+  def test_while
+    assert_equal(<<CSS, render(<<SASS))
+a-5 {
+  blooble: gloop; }
+
+a-4 {
+  blooble: gloop; }
+
+a-3 {
+  blooble: gloop; }
+
+a-2 {
+  blooble: gloop; }
+
+a-1 {
+  blooble: gloop; }
+CSS
+!a = 5
+@while !a ~= 0
+  a-\#{!a}
+    blooble: gloop
+  !a = !a - 1
+SASS
+  end
+
   def test_argument_error
     assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
   end

@@ -324,6 +324,8 @@ END
         parse_if(line, root, value)
       elsif directive == "for"
         parse_for(line, root, value)
+      elsif directive == "while"
+        parse_while(line, root, value)
       else
         Tree::DirectiveNode.new(line.text, @options)
       end
@@ -363,6 +365,14 @@ END
         append_children(tree, line.children, root)
       end
       @constants = old_constants
+      tree
+    end
+
+    def parse_while(line, root, text)
+      tree = []
+      while Sass::Constant.parse(text, @constants, line.index).to_bool
+        append_children(tree, line.children, root)
+      end
       tree
     end
 
