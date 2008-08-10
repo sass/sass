@@ -68,6 +68,9 @@ class SassEngineTest < Test::Unit::TestCase
     "a-\#{!b\n  c: d" => ["Unbalanced brackets.", 1],
     "!a = 1 & 2" => "SassScript doesn't support a single-& operator.",
     "!a = 1 | 2" => "SassScript doesn't support a single-| operator.",
+    "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
+    "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
+    "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter #1 (b).",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -358,6 +361,45 @@ SASS
 blat
   +foo(!c + 1)
   bang = !c
+SASS
+  end
+
+  def test_default_values_for_mixin_arguments
+    assert_equal("white {\n  color: #ffffff; }\n\nblack {\n  color: #000000; }\n", render(<<SASS))
+=foo(!a = #FFF)
+  :color= !a
+white
+  +foo
+black
+  +foo(#000)
+SASS
+    assert_equal(<<CSS, render(<<SASS))
+one {
+  color: #ffffff;
+  padding: 1px;
+  margin: 8px; }
+
+two {
+  color: #ffffff;
+  padding: 2px;
+  margin: 8px; }
+
+three {
+  color: #ffffff;
+  padding: 2px;
+  margin: 3px; }
+CSS
+!a = 5px
+=foo(!a, !b = 1px, !c = 3px + !a)
+  :color= !a
+  :padding= !b
+  :margin= !c
+one
+  +foo(#fff)
+two
+  +foo(#fff, 2px)
+three
+  +foo(#fff, 2px, 3px)
 SASS
   end
 
