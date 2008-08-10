@@ -46,7 +46,6 @@ class SassEngineTest < Test::Unit::TestCase
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
     "!foo = bar baz !" => "Unterminated constant.",
-    "!foo = !(foo)" => "Invalid constant.",
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
@@ -404,8 +403,8 @@ a {
 CSS
 !var = true
 a
-  b = ~~!var
-  c = ~!var
+  b = !!!var
+  c = !!var
 SASS
   end
 
@@ -429,7 +428,7 @@ SASS
 a
   @if !var
     b: 1
-  @if ~!var
+  @if !!var
     b: 2
 SASS
   end
@@ -447,10 +446,10 @@ CSS
 a
   t1 = "foo" == foo
   t2 = 1 == 1.0
-  t3 = false ~= true
+  t3 = false != true
   f1 = foo == bar
   f2 = 1em == 1px
-  f3 = 12 ~= 12
+  f3 = 12 != 12
 SASS
   end
 
@@ -509,7 +508,7 @@ a-1 {
   blooble: gloop; }
 CSS
 !a = 5
-@while !a ~= 0
+@while !a != 0
   a-\#{!a}
     blooble: gloop
   !a = !a - 1

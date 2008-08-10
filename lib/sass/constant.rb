@@ -30,11 +30,10 @@ module Sass
       ?* => :times,
       ?/ => :div,
       ?% => :mod,
-      ?~ => :not,
       ?& => :single_and,
       ?| => :single_or,
       ?= => :single_equals,
-      CONSTANT_CHAR => :const,
+      CONSTANT_CHAR => :const_or_not,
       STRING_CHAR => :str,
       ESCAPE_CHAR => :esc
     }
@@ -126,7 +125,7 @@ module Sass
               symbol = SYMBOLS[byte]
 
               # Adjacent values without an operator should be concatenated
-              if (symbol.nil? || symbol == :open || symbol == :const) &&
+              if (symbol.nil? || symbol == :open || symbol == :const_or_not) &&
                   last && (!last.is_a?(Symbol) || last == :close)
                 to_return << :concat
               end
@@ -138,7 +137,7 @@ module Sass
               end
 
               # Time for a unary op!
-              if ![nil, :open, :close, :const, :single_and, :single_or, :single_equals].include?(symbol) && beginning_of_token
+              if ![nil, :open, :close, :const_or_not, :single_and, :single_or, :single_equals].include?(symbol) && beginning_of_token
                 beginning_of_token = true
                 to_return << :unary << symbol
                 next
@@ -149,8 +148,9 @@ module Sass
                 next
               end
 
-              if symbol == :single_equals && last == :not
+              if symbol == :single_equals && last == :const_or_not
                 to_return[-1] = :not_equals
+                to_return.slice!(-2) if to_return[-2] == :concat
                 next
               end
 
@@ -185,12 +185,10 @@ module Sass
             to_return << parenthesize(value)
           when :unary
             to_return << [value.shift, parenthesize(value, true)]
-          when :const
+          when :const_or_not
             raise Sass::SyntaxError.new("Unterminated constant.") if value.first.nil?
-            raise Sass::SyntaxError.new("Invalid constant.") unless value.first.is_a?(::String)
 
-            to_return << [:const, value.first]
-            value.shift
+            to_return << (value.first.is_a?(::String) ? [:const, value.shift] : [:not, parenthesize(value, true)])
           else
             to_return << token
           end
