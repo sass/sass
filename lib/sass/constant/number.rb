@@ -59,6 +59,10 @@ module Sass::Constant
       end
     end
 
+    def equals(other)
+      Sass::Constant::Bool.from_value(super.to_bool && self.unit == other.unit)
+    end
+
     def to_s
       value = @value
       value = value.to_i if value % 1 == 0.0

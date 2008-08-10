@@ -33,6 +33,7 @@ module Sass
       ?~ => :not,
       ?& => :single_and,
       ?| => :single_or,
+      ?= => :single_equals,
       CONSTANT_CHAR => :const,
       STRING_CHAR => :str,
       ESCAPE_CHAR => :esc
@@ -137,14 +138,19 @@ module Sass
               end
 
               # Time for a unary op!
-              if ![nil, :open, :close, :const, :single_and, :single_or].include?(symbol) && beginning_of_token
+              if ![nil, :open, :close, :const, :single_and, :single_or, :single_equals].include?(symbol) && beginning_of_token
                 beginning_of_token = true
                 to_return << :unary << symbol
                 next
               end
 
-              if (symbol == :single_and || symbol == :single_or) && last == symbol
+              if [:single_and, :single_or, :single_equals].include?(symbol) && last == symbol
                 to_return[-1] = symbol.to_s.gsub(/^single_/, '').to_sym
+                next
+              end
+
+              if symbol == :single_equals && last == :not
+                to_return[-1] = :not_equals
                 next
               end
 

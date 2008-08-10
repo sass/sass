@@ -53,6 +53,14 @@ class Sass::Constant::Literal # :nodoc:
     to_bool ? self : other
   end
 
+  def equals(other)
+    Sass::Constant::Bool.from_value(self.class == other.class && self.value == other.value)
+  end
+
+  def not_equals(other)
+    Sass::Constant::Bool.from_value(!equals(other).to_bool)
+  end
+
   def unary_not
     Sass::Constant::Bool.from_value(!to_bool)
   end

@@ -434,6 +434,26 @@ a
 SASS
   end
 
+  def test_equals
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  t1: true;
+  t2: true;
+  t3: true;
+  f1: false;
+  f2: false;
+  f3: false; }
+CSS
+a
+  t1 = "foo" == foo
+  t2 = 1 == 1.0
+  t3 = false ~= true
+  f1 = foo == bar
+  f2 = 1em == 1px
+  f3 = 12 ~= 12
+SASS
+  end
+
   def test_argument_error
     assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
   end

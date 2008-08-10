@@ -9,6 +9,7 @@ module Sass::Constant
     def initialize(operand1, operand2, operator)
       raise Sass::SyntaxError.new("SassScript doesn't support a single-& operator.") if operator == :single_and
       raise Sass::SyntaxError.new("SassScript doesn't support a single-| operator.") if operator == :single_or
+      raise Sass::SyntaxError.new("SassScript doesn't support a single-= operator.") if operator == :single_equals
 
       @operand1 = operand1
       @operand2 = operand2
