@@ -180,6 +180,10 @@ END
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
         end
+        opts.on('-l', '--line-comments',
+                'Line Comments. Emit comments in the generated CSS indicating the corresponding sass line.') do
+          @options[:for_engine][:line_comments] = true
+        end
       end
 
       def process_result

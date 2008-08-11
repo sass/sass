@@ -438,6 +438,12 @@ END
       raise SyntaxError.new("Unbalanced brackets.", @line)
     end
 
+    def import_paths
+      paths = @options[:load_paths] || []
+      paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
+      paths
+    end
+
     def import(files)
       nodes = []
 
@@ -445,7 +451,7 @@ END
         engine = nil
 
         begin
-          filename = self.class.find_file_to_import(filename, @options[:load_paths])
+          filename = self.class.find_file_to_import(filename, import_paths)
         rescue Exception => e
           raise SyntaxError.new(e.message, @line)
         end
@@ -503,7 +509,9 @@ END
 
     def self.find_full_path(filename, load_paths)
       load_paths.each do |path|
-        ["_#{filename}", filename].each do |name|
+        segments = filename.split(File::SEPARATOR)
+        segments.push "_#{segments.pop}"
+        [segments.join(File::SEPARATOR), filename].each do |name|
           full_path = File.join(path, name)
           if File.readable?(full_path)
             return full_path
