@@ -1009,7 +1009,8 @@ module Haml
 
     if rev
       @@version[:rev] = rev
-      @@version[:string] << "." << rev[0...7]
+      @@version[:string] << "."
+      @@version[:string] << rev[0...7] unless rev[0] == ?(
     end
 
     @@version
