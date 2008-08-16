@@ -379,13 +379,20 @@ END
     def parse_mixin_definition(line)
       name, args = line.text.scan(/^=\s*([^(]+)(\([^)]*\))?$/).first
       raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) if name.nil?
+      default_arg_found = false
+      required_arg_count = 0
       args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}.map do |arg|
         raise SyntaxError.new("Mixin arguments can't be empty.", @line) if arg.empty? || arg == "!"
         unless arg[0] == Constant::CONSTANT_CHAR
           raise SyntaxError.new("Mixin argument \"#{arg}\" must begin with an exclamation point (!).", @line)
         end
+        arg, default = arg.split(/\s*=\s*/, 2)
+        required_arg_count += 1 unless default
+        default_arg_found ||= default
         raise SyntaxError.new("Invalid constant \"#{arg}\".", @line) unless arg =~ Constant::VALIDATE
-        arg[1..-1]
+        raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
+        default = Sass::Constant.resolve(default, @constants, @line) if default
+        { :name => arg[1..-1], :default_value => default }
       end
       mixin = @mixins[name] = Mixin.new(args, line.children)
       :mixin
@@ -399,14 +406,19 @@ END
 
       args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}
       args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
-      raise SyntaxError.new(<<END.gsub("\n", "")) unless args.size == mixin.args.size
-Mixin #{name} takes #{mixin.args.size} argument#{'s' if mixin.args != 1},
-but #{args.size} #{args.size == 1 ? 'was' : 'were'} passed.
+      raise SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < args.size
+Mixin #{name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
+ but #{args.size} #{args.size == 1 ? 'was' : 'were'} passed.
 END
 
       old_constants = @constants.dup
-      mixin.args.zip(args).inject(@constants) do |constants, (name, value)|
-        constants[name] = Sass::Constant.resolve(value, old_constants, @line)
+      mixin.args.zip(args).inject(@constants) do |constants, (arg, value)|
+        constants[arg[:name]] = if value
+          Sass::Constant.resolve(value, old_constants, @line)
+        else
+          arg[:default_value]
+        end
+        raise SyntaxError.new("Mixin #{name} is missing parameter ##{mixin.args.index(arg)+1} (#{arg[:name]}).") unless constants[arg[:name]]
         constants
       end
 
