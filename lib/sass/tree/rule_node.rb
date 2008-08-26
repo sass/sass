@@ -65,6 +65,25 @@ module Sass::Tree
       if !attributes.empty?
         old_spaces = '  ' * (tabs - 1)
         spaces = '  ' * tabs
+        if @options[:line_comments] && @style != :compressed
+          to_return << "#{old_spaces}/* line #{line}"
+
+          if filename
+            relative_filename = if @options[:css_filename]
+              begin
+                Pathname.new(filename).relative_path_from(  
+                  Pathname.new(File.dirname(@options[:css_filename]))).to_s
+              rescue ArgumentError
+                nil
+              end
+            end
+            relative_filename ||= filename
+            to_return << ", #{relative_filename}"
+          end
+
+          to_return << " */\n"
+        end
+
         if @style == :compact
           attributes = attributes.map { |a| a.to_s(1) }.join(' ')
           to_return << "#{total_rule} { #{attributes} }\n"

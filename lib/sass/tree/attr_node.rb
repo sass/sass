@@ -4,9 +4,9 @@ module Sass::Tree
   class AttrNode < ValueNode
     attr_accessor :name
 
-    def initialize(name, value, style)
+    def initialize(name, value, options)
       @name = name
-      super(value, style)
+      super(value, options)
     end
 
     def to_s(tabs, parent_name = nil)

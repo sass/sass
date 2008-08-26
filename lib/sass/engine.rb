@@ -1,3 +1,5 @@
+require 'enumerator'
+require 'strscan'
 require 'sass/tree/node'
 require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
@@ -18,6 +20,9 @@ module Sass
   #   output = sass_engine.render
   #   puts output
   class Engine
+    Line = Struct.new(:text, :tabs, :index, :filename, :children)
+    Mixin = Struct.new(:args, :tree)
+
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ?:
 
@@ -77,8 +82,7 @@ module Sass
         :style => :nested,
         :load_paths => ['.']
       }.merge! options
-      @template = template.split(/\r\n|\r|\n/)
-      @lines = []
+      @template = template
       @constants = {"important" => "!important"}
       @mixins = {}
     end
@@ -88,6 +92,7 @@ module Sass
       begin
         render_to_tree.to_s
       rescue SyntaxError => err
+        err.sass_line = @line unless err.sass_line
         unless err.sass_filename
           err.add_backtrace_entry(@options[:filename])
         end
@@ -108,204 +113,154 @@ module Sass
     end
 
     def render_to_tree
-      split_lines
-
-      root = Tree::Node.new(@options[:style])
-      index = 0
-      while @lines[index]
-        child, index = build_tree(index)
-
-        if child.is_a? Tree::Node
-          child.line = index
-          root << child
-        elsif child.is_a? Array
-          child.each do |c|
-            root << c
-          end
-        end
-      end
-      @lines.clear
-
+      root = Tree::Node.new(@options)
+      append_children(root, tree(tabulate(@template)).first, true)
       root
     end
 
     private
 
-    # Readies each line in the template for parsing,
-    # and computes the tabulation of the line.
-    def split_lines
-      @line = 0
-      old_tabs = nil
-      @template.each_with_index do |line, index|
-        @line += 1
+    def tabulate(string)
+      tab_str = nil
+      first = true
+      string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/).enum_with_index.map do |line, index|
+        index += 1
+        next if line.strip.empty? || line =~ /^\/\//
 
-        tabs = count_tabs(line)
+        line_tab_str = line[/^\s*/]
+        unless line_tab_str.empty?
+          tab_str ||= line_tab_str
 
-        if line[0] == COMMENT_CHAR && line[1] == SASS_COMMENT_CHAR && tabs == 0
-          tabs = old_tabs
-        end
-
-        if tabs # if line isn't blank
-          raise SyntaxError.new("Indenting at the beginning of the document is illegal.", @line) if old_tabs.nil? && tabs > 0
-
-          if old_tabs && tabs - old_tabs > 1
-            raise SyntaxError.new("The line was indented #{tabs - old_tabs} levels deeper than the previous line.", @line)
+          raise SyntaxError.new("Indenting at the beginning of the document is illegal.", index) if first
+          if tab_str.include?(?\s) && tab_str.include?(?\t)
+            raise SyntaxError.new("Indentation can't use both tabs and spaces.", index)
           end
-          @lines << [line.strip, tabs]
-
-          old_tabs = tabs
-        else
-          @lines << ['//', old_tabs || 0]
         end
-      end
+        first &&= !tab_str.nil?
+        next Line.new(line.strip, 0, index, @options[:filename], []) if tab_str.nil?
 
-      @line = nil
-    end
-
-    # Counts the tabulation of a line.
-    def count_tabs(line)
-      return nil if line.strip.empty?
-      return 0 unless whitespace = line[/^\s+/]
-
-      if @indentation.nil?
-        @indentation = whitespace
-        
-        if @indentation.include?(?\s) && @indentation.include?(?\t)
-          raise SyntaxError.new("Indentation can't use both tabs and spaces.", @line)
-        end
-
-        return 1
-      end
-
-      tabs = whitespace.length / @indentation.length
-      return tabs if whitespace == @indentation * tabs
-
-      raise SyntaxError.new(<<END.strip.gsub("\n", ' '), @line)
-Inconsistent indentation: #{Haml::Shared.human_indentation whitespace, true} used for indentation,
-but the rest of the document was indented using #{Haml::Shared.human_indentation @indentation}.
+        line_tabs = line_tab_str.scan(tab_str).size
+        raise SyntaxError.new(<<END.strip.gsub("\n", ' '), index) if tab_str * line_tabs != line_tab_str
+Inconsistent indentation: #{Haml::Shared.human_indentation line_tab_str, true} used for indentation,
+but the rest of the document was indented using #{Haml::Shared.human_indentation tab_str}.
 END
+
+        Line.new(line.strip, line_tabs, index, @options[:filename], [])
+      end.compact
     end
 
-    def build_tree(index)
-      line, tabs = @lines[index]
-      index += 1
-      @line = index
-      node = parse_line(line)
-
-      has_children = has_children?(index, tabs)
-
-      # Node is a symbol if it's non-outputting, like a constant assignment
-      unless node.is_a? Tree::Node
-        if has_children
-          if node == :constant
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line + 1)
-          elsif node.is_a? Array
-            # arrays can either be full of import statements
-            # or attributes from mixin includes
-            # in either case they shouldn't have children.
-            # Need to peek into the array in order to give meaningful errors
-            directive_type = (node.first.is_a?(Tree::DirectiveNode) ? "import" : "mixin")
-            raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath #{directive_type} directives.", @line + 1)
-          end
-        end
-
-        index = @line if node == :mixin
-        return node, index
-      end
-
-      node.line = @line
-
-      if node.is_a? Tree::CommentNode
-        while has_children
-          line, index = raw_next_line(index)
-          node << line
-
-          has_children = has_children?(index, tabs)
-        end
-
-        return node, index
-      end
-
-      # Resolve multiline rules
-      if node.is_a?(Tree::RuleNode)
-        if node.continued?
-          child, index = build_tree(index) if @lines[old_index = index]
-          if @lines[old_index].nil? || has_children?(old_index, tabs) || !child.is_a?(Tree::RuleNode)
-            raise SyntaxError.new("Rules can't end in commas.", @line)
+    def tree(arr, i = 0)
+      base = arr[i].tabs
+      nodes = []
+      while (line = arr[i]) && line.tabs >= base
+        if line.tabs > base
+          if line.tabs > base + 1
+            raise SyntaxError.new("The line was indented #{line.tabs - base} levels deeper than the previous line.", line.index)
           end
 
-          node.add_rules child
+          nodes.last.children, i = tree(arr, i)
+        else
+          nodes << line
+          i += 1
         end
-        node.children = child.children if child
       end
-
-      while has_children
-        child, index = build_tree(index)
-
-        validate_and_append_child(node, child)
-
-        has_children = has_children?(index, tabs)
-      end
-
-      return node, index
+      return nodes, i
     end
 
-    def validate_and_append_child(parent, child)
+    def build_tree(line, root = false)
+      @line = line.index
+      node = parse_line(line, root)
+
+      # Node is a symbol if it's non-outputting, like a constant assignment,
+      # or an array if it's a group of nodes to add
+      return node unless node.is_a? Tree::Node
+
+      node.line = line.index
+      node.filename = line.filename
+
+      unless node.is_a?(Tree::CommentNode)
+        append_children(node, line.children, false)
+      else
+        node.children = line.children
+      end
+      return node
+    end
+
+    def append_children(parent, children, root)
+      continued_rule = nil
+      children.each do |line|
+        child = build_tree(line, root)
+
+        if child.is_a?(Tree::RuleNode) && child.continued?
+          raise SyntaxError.new("Rules can't end in commas.", child.line) unless child.children.empty?
+          if continued_rule
+            continued_rule.add_rules child
+          else
+            continued_rule = child
+          end
+          next
+        end
+
+        if continued_rule
+          raise SyntaxError.new("Rules can't end in commas.", continued_rule.line) unless child.is_a?(Tree::RuleNode)
+          continued_rule.add_rules child
+          continued_rule.children = child.children
+          continued_rule, child = nil, continued_rule
+        end
+
+        validate_and_append_child(parent, child, line, root)
+      end
+
+      raise SyntaxError.new("Rules can't end in commas.", continued_rule.line) if continued_rule
+
+      parent
+    end
+
+    def validate_and_append_child(parent, child, line, root)
+      unless root
+        case child
+        when :constant
+          raise SyntaxError.new("Constants may only be declared at the root of a document.", line.index)
+        when :mixin
+          raise SyntaxError.new("Mixins may only be defined at the root of a document.", line.index)
+        when Tree::DirectiveNode
+          raise SyntaxError.new("Import directives may only be used at the root of a document.", line.index)
+        end
+      end
+
       case child
-      when :constant
-        raise SyntaxError.new("Constants may only be declared at the root of a document.", @line)
-      when :mixin
-        raise SyntaxError.new("Mixins may only be defined at the root of a document.", @line)
       when Array
-        child.each do |c|
-          if c.is_a?(Tree::DirectiveNode)
-            raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
-          end
-          parent << c
-        end
+        child.each {|c| validate_and_append_child(parent, c, line, root)}
       when Tree::Node
         parent << child
       end
     end
 
-    def has_children?(index, tabs)
-      next_line = ['//', 0]
-      while !next_line.nil? && next_line[0] == '//' && next_line[1] = 0
-        next_line = @lines[index]
-        index += 1
-      end
-      next_line && next_line[1] > tabs
-    end
-
-    def raw_next_line(index)
-      [@lines[index][0], index + 1]
-    end
-
-    def parse_line(line)
-      case line[0]
+    def parse_line(line, root)
+      case line.text[0]
       when ATTRIBUTE_CHAR
-        parse_attribute(line, ATTRIBUTE)
+        parse_attribute(line.text, ATTRIBUTE)
       when Constant::CONSTANT_CHAR
         parse_constant(line)
       when COMMENT_CHAR
-        parse_comment(line)
+        parse_comment(line.text)
       when DIRECTIVE_CHAR
-        parse_directive(line)
+        parse_directive(line, root)
       when ESCAPE_CHAR
-        Tree::RuleNode.new(line[1..-1], @options[:style])
+        Tree::RuleNode.new(line.text[1..-1], @options)
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
-        if line[1].nil? || line[1] == ?\s
-          Tree::RuleNode.new(line, @options[:style])
+        if line.text[1].nil? || line.text[1] == ?\s
+          Tree::RuleNode.new(line.text, @options)
         else
-          parse_mixin_include(line)
+          parse_mixin_include(line, root)
         end
       else
-        if line =~ ATTRIBUTE_ALTERNATE_MATCHER
-          parse_attribute(line, ATTRIBUTE_ALTERNATE)
+        if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
+          parse_attribute(line.text, ATTRIBUTE_ALTERNATE)
         else
-          Tree::RuleNode.new(line, @options[:style])
+          Tree::RuleNode.new(interpolate(line.text), @options)
         end
       end
     end
@@ -326,19 +281,18 @@ END
       end
 
       if eq.strip[0] == SCRIPT_CHAR
-        value = Sass::Constant.parse(value, @constants, @line).to_s
+        value = Sass::Constant.resolve(value, @constants, @line)
       end
 
-      Tree::AttrNode.new(name, value, @options[:style])
+      Tree::AttrNode.new(interpolate(name), interpolate(value), @options)
     end
 
     def parse_constant(line)
-      name, op, value = line.scan(Sass::Constant::MATCH)[0]
-      unless name && value
-        raise SyntaxError.new("Invalid constant: \"#{line}\".", @line)
-      end
+      name, op, value = line.text.scan(Sass::Constant::MATCH)[0]
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line + 1) unless line.children.empty?
+      raise SyntaxError.new("Invalid constant: \"#{line.text}\".", @line) unless name && value
 
-      constant = Sass::Constant.parse(value, @constants, @line)
+      constant = Sass::Constant.resolve(value, @constants, @line)
       if op == '||='
         @constants[name] ||= constant
       else
@@ -352,43 +306,154 @@ END
       if line[1] == SASS_COMMENT_CHAR
         :comment
       elsif line[1] == CSS_COMMENT_CHAR
-        Tree::CommentNode.new(line, @options[:style])
+        Tree::CommentNode.new(line, @options)
       else
-        Tree::RuleNode.new(line, @options[:style])
+        Tree::RuleNode.new(line, @options)
       end
     end
 
-    def parse_directive(line)
-      directive, value = line[1..-1].split(/\s+/, 2)
+    def parse_directive(line, root)
+      directive, value = line.text[1..-1].split(/\s+/, 2)
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
       if directive == "import" && value !~ /^(url\(|")/
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.", @line + 1) unless line.children.empty?
         import(value)
+      elsif directive == "if"
+        parse_if(line, root, value)
+      elsif directive == "for"
+        parse_for(line, root, value)
+      elsif directive == "while"
+        parse_while(line, root, value)
       else
-        Tree::DirectiveNode.new(line, @options[:style])
+        Tree::DirectiveNode.new(line.text, @options)
       end
+    end
+
+    def parse_if(line, root, text)
+      if Sass::Constant.parse(text, @constants, line.index).to_bool
+        append_children([], line.children, root)
+      else
+        []
+      end
+    end
+
+    def parse_for(line, root, text)
+      var, from_expr, to_name, to_expr = text.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
+
+      if var.nil? # scan failed, try to figure out why for error message
+        if text !~ /^[^\s]+/
+          expected = "constant name"
+        elsif text !~ /^[^\s]+\s+from\s+.+/
+          expected = "'from <expr>'"
+        else
+          expected = "'to <expr>' or 'through <expr>'"
+        end
+        raise SyntaxError.new("Invalid for directive '@for #{text}': expected #{expected}.", @line)
+      end
+      raise SyntaxError.new("Invalid constant \"#{var}\".", @line) unless var =~ Constant::VALIDATE
+
+      from = Sass::Constant.parse(from_expr, @constants, @line).to_i
+      to = Sass::Constant.parse(to_expr, @constants, @line).to_i
+      range = Range.new(from, to, to_name == 'to')
+
+      tree = []
+      old_constants = @constants.dup
+      for i in range
+        @constants[var[1..-1]] = i.to_s
+        append_children(tree, line.children, root)
+      end
+      @constants = old_constants
+      tree
+    end
+
+    def parse_while(line, root, text)
+      tree = []
+      while Sass::Constant.parse(text, @constants, line.index).to_bool
+        append_children(tree, line.children, root)
+      end
+      tree
     end
 
     def parse_mixin_definition(line)
-      mixin_name = line[1..-1]
-      @mixins[mixin_name] =  []
-      index = @line
-      line, tabs = @lines[index]
-      while !line.nil? && tabs > 0
-        child, index = build_tree(index)
-        validate_and_append_child(@mixins[mixin_name], child)
-        line, tabs = @lines[index]
+      name, args = line.text.scan(/^=\s*([^(]+)(\([^)]*\))?$/).first
+      raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) if name.nil?
+      default_arg_found = false
+      required_arg_count = 0
+      args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}.map do |arg|
+        raise SyntaxError.new("Mixin arguments can't be empty.", @line) if arg.empty? || arg == "!"
+        unless arg[0] == Constant::CONSTANT_CHAR
+          raise SyntaxError.new("Mixin argument \"#{arg}\" must begin with an exclamation point (!).", @line)
+        end
+        arg, default = arg.split(/\s*=\s*/, 2)
+        required_arg_count += 1 unless default
+        default_arg_found ||= default
+        raise SyntaxError.new("Invalid constant \"#{arg}\".", @line) unless arg =~ Constant::VALIDATE
+        raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
+        default = Sass::Constant.resolve(default, @constants, @line) if default
+        { :name => arg[1..-1], :default_value => default }
       end
+      mixin = @mixins[name] = Mixin.new(args, line.children)
       :mixin
     end
 
-    def parse_mixin_include(line)
-      mixin_name = line[1..-1]
-      unless @mixins.has_key?(mixin_name)
-        raise SyntaxError.new("Undefined mixin '#{mixin_name}'.", @line)
+    def parse_mixin_include(line, root)
+      name, args = line.text.scan(/^\+\s*([^(]+)(\([^)]*\))?$/).first
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.", @line + 1) unless line.children.empty?
+      raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil?
+      raise SyntaxError.new("Undefined mixin '#{name}'.", @line) unless mixin = @mixins[name]
+
+      args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}
+      args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
+      raise SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < args.size
+Mixin #{name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
+ but #{args.size} #{args.size == 1 ? 'was' : 'were'} passed.
+END
+
+      old_constants = @constants.dup
+      mixin.args.zip(args).inject(@constants) do |constants, (arg, value)|
+        constants[arg[:name]] = if value
+          Sass::Constant.resolve(value, old_constants, @line)
+        else
+          arg[:default_value]
+        end
+        raise SyntaxError.new("Mixin #{name} is missing parameter ##{mixin.args.index(arg)+1} (#{arg[:name]}).") unless constants[arg[:name]]
+        constants
       end
-      @mixins[mixin_name]
+
+      tree = append_children([], mixin.tree, root)
+      @constants = old_constants
+      tree
+    end
+
+    def interpolate(text)
+      scan = StringScanner.new(text)
+      str = ''
+
+      while scan.scan(/(.*?)(\\*)\#\{/)
+        escapes = scan[2].size
+        str << scan.matched[0...-2 - escapes]
+        if escapes % 2 == 1
+          str << '#{'
+        else
+          str << Sass::Constant.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], @constants, @line)
+        end
+      end
+
+      str + scan.rest
+    end
+
+    def balance(*args)
+      res = Haml::Shared.balance *args
+      return res if res
+      raise SyntaxError.new("Unbalanced brackets.", @line)
+    end
+
+    def import_paths
+      paths = @options[:load_paths] || []
+      paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
+      paths
     end
 
     def import(files)
@@ -398,18 +463,18 @@ END
         engine = nil
 
         begin
-          filename = self.class.find_file_to_import(filename, @options[:load_paths])
+          filename = self.class.find_file_to_import(filename, import_paths)
         rescue Exception => e
           raise SyntaxError.new(e.message, @line)
         end
 
         if filename =~ /\.css$/
-          nodes << Tree::DirectiveNode.new("@import url(#{filename})", @options[:style])
+          nodes << Tree::DirectiveNode.new("@import url(#{filename})", @options)
         else
           File.open(filename) do |file|
             new_options = @options.dup
             new_options[:filename] = filename
-            engine = Sass::Engine.new(file.read, @options)
+            engine = Sass::Engine.new(file.read, new_options)
           end
 
           engine.constants.merge! @constants
@@ -421,10 +486,7 @@ END
             err.add_backtrace_entry(filename)
             raise err
           end
-          root.children.each do |child|
-            child.filename = filename
-            nodes << child
-          end
+          nodes += root.children
           @constants = engine.constants
           @mixins = engine.mixins
         end
@@ -459,7 +521,9 @@ END
 
     def self.find_full_path(filename, load_paths)
       load_paths.each do |path|
-        ["_#{filename}", filename].each do |name|
+        segments = filename.split(File::SEPARATOR)
+        segments.push "_#{segments.pop}"
+        [segments.join(File::SEPARATOR), filename].each do |name|
           full_path = File.join(path, name)
           if File.readable?(full_path)
             return full_path

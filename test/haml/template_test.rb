@@ -25,7 +25,16 @@ class TemplateTest < Test::Unit::TestCase
     filters               nuke_outer_whitespace         nuke_inner_whitespace }
 
   def setup
-    @base = ActionView::Base.new(TEMPLATE_PATH, 'article' => Article.new, 'foo' => 'value one')
+    vars = { 'article' => Article.new, 'foo' => 'value one' }
+    
+    unless ActionView::Base.instance_methods.include? 'finder'
+      @base = ActionView::Base.new(TEMPLATE_PATH, vars)
+    else
+      # Rails 2.1.0
+      @base = ActionView::Base.new([], vars)
+      @base.finder.append_view_path(TEMPLATE_PATH)
+    end
+    
     @base.send(:evaluate_assigns)
 
     # This is used by form_for.

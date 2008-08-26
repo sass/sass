@@ -34,6 +34,13 @@ class EngineTest < Test::Unit::TestCase
     "%p{:a => 'b',\n:c => 'd',\n:e => raise('foo')}" => ["foo", 3],
     " %p foo" => "Indenting at the beginning of the document is illegal.",
     "  %p foo" => "Indenting at the beginning of the document is illegal.",
+    "- end" => <<END.rstrip,
+You don't need to use "- end" in Haml. Use indentation instead:
+- if foo?
+  %strong Foo!
+- else
+  Not foo.
+END
     " \n\t\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
     "\n\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
     "%p\n  foo\n foo" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 3],
@@ -56,6 +63,7 @@ class EngineTest < Test::Unit::TestCase
     "%p foo\n\n  bar" => ["Illegal nesting: content can't be both given on the same line as %p and nested within it.", 3],
     "/ foo\n\n  bar" => ["Illegal nesting: nesting within a tag that already has content is illegal.", 3],
     "!!!\n\n  bar" => ["Illegal nesting: nesting within a header command is illegal.", 3],
+    "foo\n:ruby\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
   }
 
   User = Struct.new('User', :id)
@@ -205,6 +213,10 @@ SOURCE
     assert_equal("<p>foo &amp; bar</p>\n", render("%p&= 'foo & bar'", :escape_html => false))
   end
 
+  def test_ampersand_equals_should_escape_before_preserve
+    assert_equal("<textarea>foo&#x000A;bar</textarea>\n", render('%textarea&= "foo\nbar"', :escape_html => false))
+  end
+
   def test_bang_equals_should_not_escape
     assert_equal("<p>\n  foo & bar\n</p>\n", render("%p\n  != 'foo & bar'", :escape_html => true))
   end
@@ -215,20 +227,24 @@ SOURCE
   
   def test_static_attributes_should_be_escaped
     assert_equal("<img class='atlantis' style='ugly&amp;stupid' />\n",
-                 render("%img.atlantis{:style => 'ugly&stupid'}", :escape_html => true))
+                 render("%img.atlantis{:style => 'ugly&stupid'}"))
     assert_equal("<div class='atlantis' style='ugly&amp;stupid'>foo</div>\n",
-                 render(".atlantis{:style => 'ugly&stupid'} foo", :escape_html => true))
+                 render(".atlantis{:style => 'ugly&stupid'} foo"))
     assert_equal("<p class='atlantis' style='ugly&amp;stupid'>foo</p>\n",
-                render("%p.atlantis{:style => 'ugly&stupid'}= 'foo'", :escape_html => true))
+                render("%p.atlantis{:style => 'ugly&stupid'}= 'foo'"))
+    assert_equal("<p class='atlantis' style='ugly&#x000A;stupid'></p>\n",
+                render("%p.atlantis{:style => \"ugly\\nstupid\"}"))
   end
 
   def test_dynamic_attributes_should_be_escaped
-    assert_equal("<img alt='' src='/foo.png' />\n",
-                 render("%img{:width => nil, :src => '/foo.png', :alt => String.new}", :escape_html => true))
-    assert_equal("<p alt='' src='/foo.png'>foo</p>\n",
-                 render("%p{:width => nil, :src => '/foo.png', :alt => String.new} foo", :escape_html => true))
-    assert_equal("<div alt='' src='/foo.png'>foo</div>\n",
-                 render("%div{:width => nil, :src => '/foo.png', :alt => String.new}= 'foo'", :escape_html => true))
+    assert_equal("<img alt='' src='&amp;foo.png' />\n",
+                 render("%img{:width => nil, :src => '&foo.png', :alt => String.new}"))
+    assert_equal("<p alt='' src='&amp;foo.png'>foo</p>\n",
+                 render("%p{:width => nil, :src => '&foo.png', :alt => String.new} foo"))
+    assert_equal("<div alt='' src='&amp;foo.png'>foo</div>\n",
+                 render("%div{:width => nil, :src => '&foo.png', :alt => String.new}= 'foo'"))
+    assert_equal("<img alt='' src='foo&#x000A;.png' />\n",
+                 render("%img{:width => nil, :src => \"foo\\n.png\", :alt => String.new}"))
   end
   
   def test_string_interpolation_should_be_esaped
@@ -308,7 +324,7 @@ SOURCE
   def test_attrs_parsed_correctly
     assert_equal("<p boom=>biddly='bar =&gt; baz'></p>\n", render("%p{'boom=>biddly' => 'bar => baz'}"))
     assert_equal("<p foo,bar='baz, qux'></p>\n", render("%p{'foo,bar' => 'baz, qux'}"))
-    assert_equal("<p escaped='quo\nte'></p>\n", render("%p{ :escaped => \"quo\\nte\"}"))
+    assert_equal("<p escaped='quo&#x000A;te'></p>\n", render("%p{ :escaped => \"quo\\nte\"}"))
     assert_equal("<p escaped='quo4te'></p>\n", render("%p{ :escaped => \"quo\#{2 + 2}te\"}"))
   end
   
@@ -497,6 +513,13 @@ SOURCE
     
   //]]>
 </script>
+END
+  end
+
+  def test_ugly_filter
+    assert_equal(<<END, render(":sass\n  #foo\n    bar: baz", :ugly => true))
+#foo {
+  bar: baz; }
 END
   end
 

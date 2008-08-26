@@ -130,7 +130,7 @@ module Sass
     private
 
     def build_tree
-      root = Tree::Node.new(nil)
+      root = Tree::Node.new({})
       whitespace
       directives         root
       rules              root
@@ -154,7 +154,7 @@ module Sass
           value = $2
         end
 
-        root << Tree::ValueNode.new("@#{name} #{value};", nil)
+        root << Tree::ValueNode.new("@#{name} #{value};", {})
       end
     end
 
@@ -165,7 +165,7 @@ module Sass
         whitespace
 
         if @template.scan(/\{/)
-          result = Tree::RuleNode.new(rules.join(' '), nil)
+          result = Tree::RuleNode.new(rules.join(' '), {})
           root << result
           rules = []
 
@@ -188,7 +188,7 @@ module Sass
         end
 
         assert_match /(;|(?=\}))/
-        rule << Tree::AttrNode.new(name, value, nil)
+        rule << Tree::AttrNode.new(name, value, {})
       end
 
       assert_match /\}/
@@ -236,7 +236,7 @@ module Sass
       root.children.map! do |child|
         next child unless Tree::RuleNode === child && child.rule.include?(',')
         child.rule.split(',').map do |rule|
-          node = Tree::RuleNode.new(rule, nil)
+          node = Tree::RuleNode.new(rule, {})
           node.children = child.children
           node
         end
@@ -282,7 +282,7 @@ module Sass
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
         root.children.delete child
         first, rest = child.rule.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
-        rules[first] ||= Tree::RuleNode.new(first, nil)
+        rules[first] ||= Tree::RuleNode.new(first, {})
         if rest
           child.rule = "&" + rest
           rules[first] << child

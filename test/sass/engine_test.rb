@@ -36,19 +36,18 @@ class SassEngineTest < Test::Unit::TestCase
     "!a b" => 'Invalid constant: "!a b".',
     "a\n  :b c\n  !d = 3" => "Constants may only be declared at the root of a document.",
     "!a = 1b + 2c" => "Incompatible units: b and c.",
-    "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'.",
+    "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
-    "a,\n  :b c" => "Rules can\'t end in commas.",
+    "a,\n  :b c" => ["Rules can\'t end in commas.", 1],
     "a," => "Rules can\'t end in commas.",
-    "a,\n!b = c" => "Rules can\'t end in commas.",
+    "a,\n!b = c" => ["Rules can\'t end in commas.", 1],
     "!a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath constants.",
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
     "!foo = bar baz !" => "Unterminated constant.",
-    "!foo = !(foo)" => "Invalid constant.",
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
-    ".bar\n  =foo\n    :color red\n" => "Mixins may only be defined at the root of a document.",
+    ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
     "    a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 1],
     " \n   \n\t\n  a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 4],
@@ -60,9 +59,23 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  b: c\na\n    d: e" => ["The line was indented 2 levels deeper than the previous line.", 4],
     "a\n  b: c\n  a\n        d: e" => ["The line was indented 3 levels deeper than the previous line.", 4],
     "a\n \tb: c" => ["Indentation can't use both tabs and spaces.", 2],
+    "=a(" => 'Invalid mixin "a(".',
+    "=a(b)" => 'Mixin argument "b" must begin with an exclamation point (!).',
+    "=a(,)" => "Mixin arguments can't be empty.",
+    "=a(!)" => "Mixin arguments can't be empty.",
+    "=a(!foo bar)" => "Invalid constant \"!foo bar\".",
+    "=foo\n  bar: baz\n+foo" => ["Attributes aren't allowed at the root of a document.", 2],
+    "a-\#{!b\n  c: d" => ["Unbalanced brackets.", 1],
+    "!a = 1 & 2" => "SassScript doesn't support a single-& operator.",
+    "!a = 1 | 2" => "SassScript doesn't support a single-| operator.",
+    "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
+    "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
+    "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter #1 (b).",
 
     # Regression tests
-    "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3]
+    "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
+    "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
+    "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
   }
   
   def test_basic_render
@@ -252,6 +265,54 @@ END
     assert_equal("@a{b:c;#d{e:f}g:h}\n", render(to_render, :style => :compressed))
   end
 
+  def test_line_annotations
+    assert_equal(<<CSS, render(<<SASS, :line_comments => true, :style => :compact))
+/* line 2 */
+foo bar { foo: bar; }
+/* line 5 */
+foo baz { blip: blop; }
+
+/* line 9 */
+floodle { flop: blop; }
+
+/* line 18 */
+bup { mix: on; }
+/* line 15 */
+bup mixin { moop: mup; }
+
+/* line 22 */
+bip hop, skip hop { a: b; }
+CSS
+foo
+  bar
+    foo: bar
+
+  baz
+    blip: blop
+
+
+floodle
+
+  flop: blop
+
+=mxn
+  mix: on
+  mixin
+    moop: mup
+
+bup
+  +mxn
+
+bip, skip
+  hop
+    a: b
+SASS
+  end
+
+  def test_line_annotations_with_filename
+    renders_correctly "line_numbers", :line_comments => true, :load_paths => [File.dirname(__FILE__) + "/templates"]
+  end
+
   def test_empty_first_line
     assert_equal("#a {\n  b: c; }\n", render("#a\n\n  b: c"))
   end
@@ -280,9 +341,220 @@ END
                  render("foo\n  +\n    bar\n      a: b\n    baz\n      c: d"))
   end
 
+  def test_mixin_args
+    assert_equal("blat {\n  baz: hi; }\n", render(<<SASS))
+=foo(!bar)
+  baz = !bar
+blat
+  +foo(\"hi\")
+SASS
+    assert_equal("blat {\n  baz: 3; }\n", render(<<SASS))
+=foo(!a, !b)
+  baz = !a + !b
+blat
+  +foo(1, 2)
+SASS
+    assert_equal("blat {\n  baz: 4;\n  bang: 3; }\n", render(<<SASS))
+=foo(!c)
+  baz = !c
+!c = 3
+blat
+  +foo(!c + 1)
+  bang = !c
+SASS
+  end
+
+  def test_default_values_for_mixin_arguments
+    assert_equal("white {\n  color: #ffffff; }\n\nblack {\n  color: #000000; }\n", render(<<SASS))
+=foo(!a = #FFF)
+  :color= !a
+white
+  +foo
+black
+  +foo(#000)
+SASS
+    assert_equal(<<CSS, render(<<SASS))
+one {
+  color: #ffffff;
+  padding: 1px;
+  margin: 8px; }
+
+two {
+  color: #ffffff;
+  padding: 2px;
+  margin: 8px; }
+
+three {
+  color: #ffffff;
+  padding: 2px;
+  margin: 3px; }
+CSS
+!a = 5px
+=foo(!a, !b = 1px, !c = 3px + !a)
+  :color= !a
+  :padding= !b
+  :margin= !c
+one
+  +foo(#fff)
+two
+  +foo(#fff, 2px)
+three
+  +foo(#fff, 2px, 3px)
+SASS
+  end
+
+  def test_interpolation
+    assert_equal("a-1 {\n  b-2: c-3; }\n", render(<<SASS))
+!a = 1
+!b = 2
+a-\#{!a}
+  b-\#{!b}: c-\#{!a + !b}
+SASS
+  end
+
+  def test_booleans
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: true;
+  c: false;
+  t1: true;
+  t2: true;
+  t3: true;
+  t4: true;
+  f1: false;
+  f2: false;
+  f3: false;
+  f4: false; }
+CSS
+a
+  b = true
+  c = false
+  t1 = true && true
+  t2 = false || true
+  t3 = true || false
+  t4 = true || true
+  f1 = false || false
+  f2 = false && true
+  f3 = true && false
+  f4 = false && false
+SASS
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: true;
+  c: false; }
+CSS
+!var = true
+a
+  b = !!!var
+  c = !!var
+SASS
+  end
+
+  def test_boolean_ops
+    assert_equal("a {\n  b: 1;\n  c: 2;\n  d: 3; }\n", render(<<SASS))
+a
+  b = false || 1
+  c = 2 || 3
+  d = 2 && 3
+SASS
+  end
+
   def test_functions
     assert_equal("a {\n  b: #80ff80; }\n", render("a\n  b = hsl(120, 100%, 75%)"))
     assert_equal("a {\n  b: #81ff81; }\n", render("a\n  b = hsl(120, 100%, 75%) + #010001"))
+  end
+
+  def test_if_directive
+    assert_equal("a {\n  b: 1; }\n", render(<<SASS))
+!var = true
+a
+  @if !var
+    b: 1
+  @if !!var
+    b: 2
+SASS
+  end
+
+  def test_equals
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  t1: true;
+  t2: true;
+  t3: true;
+  f1: false;
+  f2: false;
+  f3: false; }
+CSS
+a
+  t1 = "foo" == foo
+  t2 = 1 == 1.0
+  t3 = false != true
+  f1 = foo == bar
+  f2 = 1em == 1px
+  f3 = 12 != 12
+SASS
+  end
+
+  def test_for
+    assert_equal(<<CSS, render(<<SASS))
+a-0 {
+  2i: 0; }
+
+a-1 {
+  2i: 2; }
+
+a-2 {
+  2i: 4; }
+
+a-3 {
+  2i: 6; }
+
+b-1 {
+  j-1: 0; }
+
+b-2 {
+  j-1: 1; }
+
+b-3 {
+  j-1: 2; }
+
+b-4 {
+  j-1: 3; }
+CSS
+!a = 3
+@for !i from 0 to !a + 1
+  a-\#{!i}
+    2i = 2 * !i
+
+@for !j from 1 through 4
+  b-\#{!j}
+    j-1 = !j - 1
+SASS
+  end
+
+  def test_while
+    assert_equal(<<CSS, render(<<SASS))
+a-5 {
+  blooble: gloop; }
+
+a-4 {
+  blooble: gloop; }
+
+a-3 {
+  blooble: gloop; }
+
+a-2 {
+  blooble: gloop; }
+
+a-1 {
+  blooble: gloop; }
+CSS
+!a = 5
+@while !a != 0
+  a-\#{!a}
+    blooble: gloop
+  !a = !a - 1
+SASS
   end
 
   def test_argument_error
@@ -303,13 +575,19 @@ END
   def renders_correctly(name, options={})
     sass_file  = load_file(name, "sass")
     css_file   = load_file(name, "css")
+    options[:filename] ||= filename(name, "sass")
+    options[:css_filename] ||= filename(name, "css")
     css_result = Sass::Engine.new(sass_file, options).render
     assert_equal css_file, css_result
   end
 
   def load_file(name, type = "sass")
     @result = ''
-    File.new(File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}").each_line { |l| @result += l }
+    File.new(filename(name, type)).each_line { |l| @result += l }
     @result
+  end
+
+  def filename(name, type)
+    File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
   end
 end

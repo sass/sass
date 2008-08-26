@@ -199,6 +199,14 @@ END
       when SILENT_SCRIPT
         return start_haml_comment if text[1] == SILENT_COMMENT
 
+        raise SyntaxError.new(<<END.rstrip, index) if text[1..-1].strip == "end"
+You don't need to use "- end" in Haml. Use indentation instead:
+- if foo?
+  %strong Foo!
+- else
+  Not foo.
+END
+
         push_silent(text[1..-1], true)
         newline_now
         if (block_opened? && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"
@@ -270,13 +278,9 @@ END
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
     def push_flat(line)
-      unless @options[:ugly]
-        text = line.full.dup
-        text = "" unless text.gsub!(/^#{@flat_spaces}/, '')
-        @filter_buffer << "#{text}\n"
-      else
-        @filter_buffer << "#{line.unstripped}\n"
-      end
+      text = line.full.dup
+      text = "" unless text.gsub!(/^#{@flat_spaces}/, '')
+      @filter_buffer << "#{text}\n"
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
@@ -445,7 +449,7 @@ END
           next
         end
 
-        value = Haml::Helpers.escape_once(value.to_s)
+        value = Haml::Helpers.preserve(Haml::Helpers.escape_once(value.to_s))
         # We want to decide whether or not to escape quotes
         value.gsub!('&quot;', '"')
         this_attr_wrapper = attr_wrapper
@@ -760,25 +764,16 @@ END
         if escapes % 2 == 1
           str << '#{'
         else
-          # Use eval to get rid of string escapes
-          str << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"
+          str << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"# Use eval to get rid of string escapes
         end
       end
 
       str + scan.rest
     end
 
-    def balance(scanner, start, finish, count = 0)
-      str = ''
-      scanner = StringScanner.new(scanner) unless scanner.is_a? StringScanner
-      regexp = Regexp.new("(.*?)[\\#{start.chr}\\#{finish.chr}]", Regexp::MULTILINE)
-      while scanner.scan(regexp)
-        str << scanner.matched
-        count += 1 if scanner.matched[-1] == start
-        count -= 1 if scanner.matched[-1] == finish
-        return [str.strip, scanner.rest] if count == 0
-      end
-
+    def balance(*args)
+      res = Haml::Shared.balance *args
+      return res if res
       raise SyntaxError.new("Unbalanced brackets.")
     end
 

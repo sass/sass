@@ -1,3 +1,4 @@
+require 'strscan'
 require 'sass/constant/operation'
 require 'sass/constant/literal'
 
@@ -29,13 +30,21 @@ module Sass
       ?* => :times,
       ?/ => :div,
       ?% => :mod,
-      CONSTANT_CHAR => :const,
+      ?& => :single_and,
+      ?| => :single_or,
+      ?= => :single_equals,
+      CONSTANT_CHAR => :const_or_not,
       STRING_CHAR => :str,
       ESCAPE_CHAR => :esc
     }
 
+    CONSTANT_CHARS = (SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape(c.chr) }.join
+
     # The regular expression used to parse constants
-    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{(SYMBOLS.keys + [ ?= ]).map {|c| Regexp.escape("#{c.chr}") }.join}]+)\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^#{Regexp.escape(CONSTANT_CHAR.chr)}([^\s#{CONSTANT_CHARS}]+)\s*((?:\|\|)?=)\s*(.+)/
+
+    # The regular expression used to validate constants without matching
+    VALIDATE = /^#{Regexp.escape(CONSTANT_CHAR.chr)}[^\s#{CONSTANT_CHARS}]+$/
 
     # Order of operations hash
     ORDER = {
@@ -53,18 +62,20 @@ module Sass
     SECOND_ORDER = [:plus, :minus]
 
     class << self
+      def resolve(*args)
+        parse(*args).to_s
+      end
+
       def parse(value, constants, line)
-        begin
-          operationalize(parenthesize(tokenize(value)), constants).to_s
-        rescue Sass::SyntaxError => e
-          if e.message == "Constant arithmetic error"
-            e.instance_eval do
-              @message += ": #{value.dump}."
-            end
+        operationalize(parenthesize(tokenize(value)), constants).perform
+      rescue Sass::SyntaxError => e
+        if e.message == "Constant arithmetic error"
+          e.instance_eval do
+            @message += ": #{value.dump}."
           end
-          e.sass_line = line
-          raise e
         end
+        e.sass_line = line
+        raise e
       end
 
       private
@@ -114,7 +125,7 @@ module Sass
               symbol = SYMBOLS[byte]
 
               # Adjacent values without an operator should be concatenated
-              if (symbol.nil? || symbol == :open || symbol == :const) &&
+              if (symbol.nil? || symbol == :open || symbol == :const_or_not) &&
                   last && (!last.is_a?(Symbol) || last == :close)
                 to_return << :concat
               end
@@ -126,9 +137,20 @@ module Sass
               end
 
               # Time for a unary op!
-              if ![nil, :open, :close, :const].include?(symbol) && beginning_of_token
+              if ![nil, :open, :close, :const_or_not, :single_and, :single_or, :single_equals].include?(symbol) && beginning_of_token
                 beginning_of_token = true
                 to_return << :unary << symbol
+                next
+              end
+
+              if [:single_and, :single_or, :single_equals].include?(symbol) && last == symbol
+                to_return[-1] = symbol.to_s.gsub(/^single_/, '').to_sym
+                next
+              end
+
+              if symbol == :single_equals && last == :const_or_not
+                to_return[-1] = :not_equals
+                to_return.slice!(-2) if to_return[-2] == :concat
                 next
               end
 
@@ -163,12 +185,10 @@ module Sass
             to_return << parenthesize(value)
           when :unary
             to_return << [value.shift, parenthesize(value, true)]
-          when :const
+          when :const_or_not
             raise Sass::SyntaxError.new("Unterminated constant.") if value.first.nil?
-            raise Sass::SyntaxError.new("Invalid constant.") unless value.first.is_a?(::String)
 
-            to_return << [:const, value.first]
-            value.shift
+            to_return << (value.first.is_a?(::String) ? [:const, value.shift] : [:not, parenthesize(value, true)])
           else
             to_return << token
           end

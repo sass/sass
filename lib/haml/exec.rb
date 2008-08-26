@@ -180,6 +180,10 @@ END
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
         end
+        opts.on('-l', '--line-comments',
+                'Line Comments. Emit comments in the generated CSS indicating the corresponding sass line.') do
+          @options[:for_engine][:line_comments] = true
+        end
       end
 
       def process_result
@@ -292,6 +296,10 @@ END
           @module_opts[:rhtml] = true
         end
 
+        opts.on('--no-rhtml', "Don't parse RHTML tags.") do
+          @options[:no_rhtml] = true
+        end
+
         opts.on('-x', '--xhtml', 'Parse the input using the more strict XHTML parser.') do
           @module_opts[:xhtml] = true
         end
@@ -304,6 +312,9 @@ END
 
         input = @options[:input]
         output = @options[:output]
+
+        @module_opts[:rhtml] ||= input.respond_to?(:path) && input.path =~ /\.(rhtml|erb)$/
+        @module_opts[:rhtml] &&= @options[:no_rhtml] != false
 
         output.write(::Haml::HTML.new(input, @module_opts).render)
       end

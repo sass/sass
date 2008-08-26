@@ -104,14 +104,14 @@ module Haml
                     escape_html = false, nuke_inner_whitespace = false)
       tabulation = @real_tabs
 
+      result = result.to_s.rstrip
+      result = html_escape(result) if escape_html
+
       if preserve_tag
         result = Haml::Helpers.preserve(result)
       elsif preserve_script
         result = Haml::Helpers.find_and_preserve(result, options[:preserve])
       end
-
-      result = result.to_s.rstrip
-      result = html_escape(result) if escape_html
 
       has_newline = result.include?("\n")
       if in_tag && !nuke_inner_whitespace && (@options[:ugly] || !has_newline || preserve_tag)

@@ -19,7 +19,9 @@ require 'rake/testtask'
 
 Rake::TestTask.new do |t|
   t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
+  test_files = FileList['test/**/*_test.rb']
+  test_files.exclude('test/rails/*')
+  t.test_files = test_files
   t.verbose = true
 end
 Rake::Task[:test].send(:add_comment, <<END)
@@ -55,11 +57,13 @@ Rake::Task[:package].prerequisites.insert(0, :revision_file)
 # We also need to get rid of this file after packaging.
 at_exit { File.delete('REVISION') rescue nil }
 
+desc "Install Haml as a gem."
 task :install => [:package] do
   sudo = RUBY_PLATFORM =~ /win32/ ? '' : 'sudo'
   sh %{#{sudo} gem install --no-ri pkg/haml-#{File.read('VERSION').strip}}
 end
 
+desc "Release a new Haml package to Rubyforge. Requires the NAME and VERSION flags."
 task :release => [:package] do
   name, version = ENV['NAME'], ENV['VERSION']
   raise "Must supply NAME and VERSION for release task." unless name && version

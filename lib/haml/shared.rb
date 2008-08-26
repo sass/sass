@@ -2,6 +2,18 @@
 module Haml
   # This module contains functionality that's shared across Haml and Sass.
   module Shared
+    def self.balance(scanner, start, finish, count = 0)
+      str = ''
+      scanner = StringScanner.new(scanner) unless scanner.is_a? StringScanner
+      regexp = Regexp.new("(.*?)[\\#{start.chr}\\#{finish.chr}]", Regexp::MULTILINE)
+      while scanner.scan(regexp)
+        str << scanner.matched
+        count += 1 if scanner.matched[-1] == start
+        count -= 1 if scanner.matched[-1] == finish
+        return [str.strip, scanner.rest] if count == 0
+      end
+    end
+
     def self.human_indentation(indentation, was = false)
       if !indentation.include?(?\t)
         noun = 'space'
