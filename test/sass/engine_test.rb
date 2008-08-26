@@ -42,7 +42,7 @@ END
     "a\n    :b c" => "4 spaces were used for indentation. Sass must be indented using two spaces.",
     "a\n  :b c\n  !d = 3" => "Constants may only be declared at the root of a document.",
     "!a = 1b + 2c" => "Incompatible units: b and c.",
-    "& a\n  :b c" => "Base-level rules cannot contain the parent-selector-referencing character '&'.",
+    "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
     "a,\n  :b c" => "Rules can\'t end in commas.",
     "a," => "Rules can\'t end in commas.",
@@ -60,7 +60,9 @@ END
     " \n   \n\t\n  a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 4],
 
     # Regression tests
-    "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3]
+    "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
+    "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
+    "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
   }
   
   def test_basic_render

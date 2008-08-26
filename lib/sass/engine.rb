@@ -112,10 +112,11 @@ module Sass
       root = Tree::Node.new(@options[:style])
       index = 0
       while @lines[index]
+        old_index = index
         child, index = build_tree(index)
 
         if child.is_a? Tree::Node
-          child.line = index
+          child.line = old_index + 1
           root << child
         elsif child.is_a? Array
           child.each do |c|

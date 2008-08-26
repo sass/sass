@@ -311,7 +311,7 @@ module Haml
     #
     def haml_tag(name, *rest, &block)
       name = name.to_s
-      text = rest.shift if rest.first.is_a? String
+      text = rest.shift.to_s unless [Symbol, Hash, NilClass].any? {|t| rest.first.is_a? t}
       flags = []
       flags << rest.shift while rest.first.is_a? Symbol
       attributes = Haml::Precompiler.build_attributes(haml_buffer.html?,

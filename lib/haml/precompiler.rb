@@ -197,6 +197,14 @@ END
       when SILENT_SCRIPT
         return start_haml_comment if text[1] == SILENT_COMMENT
 
+        raise SyntaxError.new(<<END.rstrip, index) if text[1..-1].strip == "end"
+You don't need to use "- end" in Haml. Use indentation instead:
+- if foo?
+  %strong Foo!
+- else
+  Not foo.
+END
+
         push_silent(text[1..-1], true)
         newline_now
         if (@block_opened && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"
@@ -303,13 +311,9 @@ END
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
     def push_flat(line)
-      unless @options[:ugly]
-        tabulation = line.spaces - @flat_spaces
-        tabulation = tabulation > -1 ? tabulation : 0
-        @filter_buffer << "#{' ' * tabulation}#{line.unstripped}\n"
-      else
-        @filter_buffer << "#{line.unstripped}\n"
-      end
+      tabulation = line.spaces - @flat_spaces
+      tabulation = tabulation > -1 ? tabulation : 0
+      @filter_buffer << "#{' ' * tabulation}#{line.unstripped}\n"
     end
 
     # Causes <tt>text</tt> to be evaluated in the context of
@@ -476,7 +480,7 @@ END
           next
         end
 
-        value = Haml::Helpers.escape_once(value.to_s)
+        value = Haml::Helpers.preserve(Haml::Helpers.escape_once(value.to_s))
         # We want to decide whether or not to escape quotes
         value.gsub!('&quot;', '"')
         this_attr_wrapper = attr_wrapper

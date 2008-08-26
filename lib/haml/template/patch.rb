@@ -35,7 +35,7 @@ module ActionView
       options[:filename] = file_name || 'compiled-template'
 
       begin
-        Haml::Engine.new(template, options).def_method(CompiledTemplates, render_symbol, *locals)
+        Haml::Engine.new(template, options).def_method(CompiledTemplates, render_symbol, *locals_keys)
       rescue Exception => e
         if logger
           logger.debug "ERROR: compiling #{render_symbol} RAISED #{e}"
