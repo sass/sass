@@ -422,17 +422,11 @@ SOURCE
       alias_method :gem_original_require_without_bluecloth, :gem_original_require
       alias_method :gem_original_require, :gem_original_require_with_bluecloth
     end
-
-    begin
-      assert_equal("<h1>Foo</h1>\t<p>- a\n- b</p>\n",
-                   Haml::Engine.new(":markdown\n  Foo\n  ===\n  - a\n  - b").to_html)
-    rescue Haml::Error => e
-      if e.message == "Can't run Markdown filter; required 'bluecloth' or 'redcloth', but none were found"
-        puts "\nCouldn't require 'bluecloth' or 'redcloth'; skipping a test."
-      else
-        raise e
-      end
-    end
+    
+    e = assert_raise(Haml::Error) {
+      Haml::Engine.new(":markdown\n  Foo").to_html
+    }
+    assert_equal "Can't run Markdown filter; required file 'bluecloth' not found", e.message
 
     Kernel.module_eval do
       alias_method :gem_original_require, :gem_original_require_without_bluecloth
@@ -449,38 +443,18 @@ SOURCE
       alias_method :gem_original_require, :gem_original_require_with_redcloth
     end
 
-    begin
+    e = assert_raise(Haml::Error) {
       Haml::Engine.new(":redcloth\n  _foo_").to_html
-    rescue Haml::Error
-    else
-      assert(false, "No exception raised!")
-    end
+    }
+    assert_equal "Can't run RedCloth filter; required file 'redcloth' not found", e.message
 
     Kernel.module_eval do
       alias_method :gem_original_require, :gem_original_require_without_redcloth
     end
   end
-
-  def test_no_redcloth_or_bluecloth
-    Kernel.module_eval do
-      def gem_original_require_with_redcloth_and_bluecloth(file)
-        raise LoadError if file == 'redcloth' || file == 'bluecloth'
-        gem_original_require_without_redcloth_and_bluecloth(file)
-      end
-      alias_method :gem_original_require_without_redcloth_and_bluecloth, :gem_original_require
-      alias_method :gem_original_require, :gem_original_require_with_redcloth_and_bluecloth
-    end
-
-    begin
-      Haml::Engine.new(":markdown\n  _foo_").to_html
-    rescue Haml::Error
-    else
-      assert(false, "No exception raised!")
-    end
-
-    Kernel.module_eval do
-      alias_method :gem_original_require, :gem_original_require_without_redcloth_and_bluecloth
-    end    
+  
+  def test_redcloth_gets_run
+    assert_equal "<p><em>foo</em></p>\n", Haml::Engine.new(":redcloth\n  _foo_").to_html
   end
 
   def test_empty_filter

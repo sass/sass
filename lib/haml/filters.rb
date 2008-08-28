@@ -120,7 +120,7 @@ RUBY
           @required = @lazy_requires[-1]
           require @required
         rescue LoadError => e
-          classname = self.class.to_s.gsub(/\w+::/, '')
+          classname = self.name.match(/\w+$/)[0]
 
           if @lazy_requires.size == 1
             raise Error.new("Can't run #{classname} filter; required file '#{@lazy_requires.first}' not found")
@@ -245,14 +245,10 @@ END
     # Uses BlueCloth or RedCloth to provide only Markdown (not Textile) parsing
     module Markdown
       include Base
-      lazy_require 'bluecloth', 'redcloth'
+      lazy_require 'bluecloth'
 
       def render(text)
-        if @required == 'bluecloth'
-          ::BlueCloth.new(text).to_html
-        else
-          ::RedCloth.new(text).to_html(:markdown)
-        end
+        ::BlueCloth.new(text).to_html
       end
     end
   end
