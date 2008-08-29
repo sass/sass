@@ -682,13 +682,7 @@ END
     # Starts a filtered block.
     def start_filtered(name)
       raise Error.new("Invalid filter name \":#{name}\".") unless name =~ /^\w+$/
-
-      unless filter = Filters.defined[name]
-        if filter == 'redcloth' || filter == 'markdown' || filter == 'textile'
-          raise Error.new("You must have the RedCloth gem installed to use \"#{name}\" filter")
-        end
-        raise Error.new("Filter \"#{name}\" is not defined.")
-      end
+      raise Error.new("Filter \"#{name}\" is not defined.") unless filter = Filters.defined[name]
 
       push_and_tabulate([:filtered, filter])
       @flat = true
