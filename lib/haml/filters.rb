@@ -94,7 +94,7 @@ RUBY
       # For example:
       #
       #   module Haml::Filters::Markdown
-      #     lazy_require 'bluecloth', 'redcloth'
+      #     lazy_require 'rdiscount', 'peg_markdown', 'maruku', 'bluecloth'
       #
       #     ...
       #   end
@@ -223,16 +223,6 @@ END
       end
     end
 
-    module RedCloth
-      include Base
-      lazy_require 'redcloth'
-
-      def render(text)
-        ::RedCloth.new(text).to_html
-      end
-    end
-
-    # Uses RedCloth to provide only Textile (not Markdown) parsing
     module Textile
       include Base
       lazy_require 'redcloth'
@@ -241,14 +231,34 @@ END
         ::RedCloth.new(text).to_html(:textile)
       end
     end
+    RedCloth = Textile
 
     # Uses BlueCloth or RedCloth to provide only Markdown (not Textile) parsing
     module Markdown
       include Base
-      lazy_require 'bluecloth'
+      lazy_require 'rdiscount', 'peg_markdown', 'maruku', 'bluecloth'
 
       def render(text)
-        ::BlueCloth.new(text).to_html
+        engine = case @required
+                 when 'rdiscount'
+                   RDiscount
+                 when 'peg_markdown'
+                   PEGMarkdown
+                 when 'maruku'
+                   Maruku
+                 when 'bluecloth'
+                   BlueCloth
+                 end
+        engine.new(text).to_html
+      end
+    end
+
+    module Maruku
+      include Base
+      lazy_require 'maruku'
+
+      def render(text)
+        Maruku.new(text).to_html
       end
     end
   end

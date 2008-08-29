@@ -676,17 +676,13 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # [sass]       Parses the filtered text with Sass to produce CSS output.
 #
-# [redcloth]   Parses the filtered text with RedCloth (http://whytheluckystiff.net/ruby/redcloth),
-#              which uses both Textile and Markdown syntax.
-#              Only works if RedCloth is installed.
-#
 # [textile]    Parses the filtered text with Textile (http://www.textism.com/tools/textile).
 #              Only works if RedCloth is installed.
 #
 # [markdown]   Parses the filtered text with Markdown (http://daringfireball.net/projects/markdown).
-#              Only works if RedCloth or BlueCloth (http://www.deveiate.org/projects/BlueCloth)
-#              is installed
-#              (BlueCloth takes precedence if both are installed).
+#              Only works if RDiscount, RPeg-Markdown, Maruku, or BlueCloth are installed.
+#
+# [maruku]     Parses the filtered text with Maruku, which has some non-standard extensions to Markdown.
 #
 # You can also define your own filters (see Haml::Filters).
 #

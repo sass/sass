@@ -413,50 +413,6 @@ SOURCE
                  render("/[if !(IE 6)|(IE 7)] Bracket: ]"))
   end
 
-  def test_no_bluecloth
-    Kernel.module_eval do
-      def gem_original_require_with_bluecloth(file)
-        raise LoadError if file == 'bluecloth'
-        gem_original_require_without_bluecloth(file)
-      end
-      alias_method :gem_original_require_without_bluecloth, :gem_original_require
-      alias_method :gem_original_require, :gem_original_require_with_bluecloth
-    end
-    
-    e = assert_raise(Haml::Error) {
-      Haml::Engine.new(":markdown\n  Foo").to_html
-    }
-    assert_equal "Can't run Markdown filter; required file 'bluecloth' not found", e.message
-
-    Kernel.module_eval do
-      alias_method :gem_original_require, :gem_original_require_without_bluecloth
-    end
-  end
-
-  def test_no_redcloth
-    Kernel.module_eval do
-      def gem_original_require_with_redcloth(file)
-        raise LoadError if file == 'redcloth'
-        gem_original_require_without_redcloth(file)
-      end
-      alias_method :gem_original_require_without_redcloth, :gem_original_require
-      alias_method :gem_original_require, :gem_original_require_with_redcloth
-    end
-
-    e = assert_raise(Haml::Error) {
-      Haml::Engine.new(":redcloth\n  _foo_").to_html
-    }
-    assert_equal "Can't run RedCloth filter; required file 'redcloth' not found", e.message
-
-    Kernel.module_eval do
-      alias_method :gem_original_require, :gem_original_require_without_redcloth
-    end
-  end
-  
-  def test_redcloth_gets_run
-    assert_equal "<p><em>foo</em></p>\n", Haml::Engine.new(":redcloth\n  _foo_").to_html
-  end
-
   def test_empty_filter
     assert_equal(<<END, render(':javascript'))
 <script type='text/javascript'>
