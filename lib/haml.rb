@@ -613,6 +613,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #     <hoo>
 #       I think this might get pretty long so I should probably make it multiline so it doesn't look awful.
 #     </hoo>
+#     <p>This is short</p>
 #   </whoo>
 #
 # ==== :
