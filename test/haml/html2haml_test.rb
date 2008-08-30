@@ -52,7 +52,8 @@ class Html2HamlTest < Test::Unit::TestCase
     end
 
     def assert_equal_attributes(expected, result)
-      assert_equal *[expected, result].map { |s| s.gsub!(/\{ (.+) \}/, ''); $1.split(', ').sort }
+      expected_attr, result_attr = [expected, result].map { |s| s.gsub!(/\{ (.+) \}/, ''); $1.split(', ').sort }
+      assert_equal expected_attr, result_attr
       assert_equal expected, result
     end
 end

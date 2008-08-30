@@ -8,7 +8,7 @@ module Sass::Constant  # :nodoc:
     def parse(value)
       first, second, unit = value.scan(Literal::NUMBER)[0]
       @value = first.empty? ? second.to_i : "#{first}#{second}".to_f
-      @unit = unit unless unit.empty?
+      @unit = unit.empty? ? nil : unit
     end
 
     def plus(other)

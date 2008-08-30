@@ -68,6 +68,7 @@ module Haml
         :escape_html => false
       }
       @options.merge! options
+      @index = 0
 
       unless [:xhtml, :html4, :html5].include?(@options[:format])
         raise Haml::Error, "Invalid format #{@options[:format].inspect}"
@@ -77,8 +78,8 @@ module Haml
       @to_close_stack = []
       @output_tabs = 0
       @template_tabs = 0
-      @index = 0
       @flat_spaces = -1
+      @flat = false
       @newlines = 0
       @precompiled = ''
       @merged_text = ''

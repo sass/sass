@@ -2,7 +2,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class EngineTest < Test::Unit::TestCase
-  # A map of erroneous Sass documents to the error messages they should produce.
+  # A map of erroneous Haml documents to the error messages they should produce.
   # The error messages may be arrays;
   # if so, the second element should be the line number that should be reported for the error.
   # If this isn't provided, the tests will assume the line number should be the last line of the document.
@@ -34,13 +34,7 @@ END
     "%a/ b" => "Self-closing tags can't have content.",
     " %p foo" => "Indenting at the beginning of the document is illegal.",
     "  %p foo" => "Indenting at the beginning of the document is illegal.",
-    "- end" => <<END.rstrip,
-You don't need to use "- end" in Haml. Use indentation instead:
-- if foo?
-  %strong Foo!
-- else
-  Not foo.
-END
+    "- end" => "You don't need to use \"- end\" in Haml. Use indentation instead:\n- if foo?\n  %strong Foo!\n- else\n  Not foo.",
     " \n\t\n %p foo" => ["Indenting at the beginning of the document is illegal.", 3],
 
     # Regression tests
@@ -64,9 +58,19 @@ END
   def render(text, options = {}, &block)
     scope  = options.delete(:scope)  || Object.new
     locals = options.delete(:locals) || {}
-    Haml::Engine.new(text, options).to_html(scope, locals, &block)
+    engine(text, options).to_html(scope, locals, &block)
   end
-
+  
+  def engine(text, options = {})
+    unless options[:filename]
+      # use caller method name as fake filename. useful for debugging
+      i = -1
+      caller[i+=1] =~ /`(.+?)'/ until $1 and $1.index('test_') == 0
+      options[:filename] = "(#{$1})"
+    end
+    Haml::Engine.new(text, options)
+  end
+  
   def test_empty_render_should_remain_empty
     assert_equal('', render(''))
   end
@@ -99,7 +103,7 @@ END
   end
 
   def test_multi_render
-    engine = Haml::Engine.new("%strong Hi there!")
+    engine = engine("%strong Hi there!")
     assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
     assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
     assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
@@ -270,14 +274,14 @@ SOURCE
       render("\n\n = abc", :filename => 'test', :line => 2)
     rescue Exception => e
       assert_kind_of Haml::SyntaxError, e
-      assert_match /test:4/, e.backtrace.first
+      assert_match(/test:4/, e.backtrace.first)
     end
 
     begin
       render("\n\n= 123\n\n= nil[]", :filename => 'test', :line => 2)
     rescue Exception => e
       assert_kind_of NoMethodError, e
-      assert_match /test:6/, e.backtrace.first
+      assert_match(/test:6/, e.backtrace.first)
     end
   end
 
@@ -364,12 +368,15 @@ SOURCE
   def test_exceptions
     EXCEPTION_MAP.each do |key, value|
       begin
-        render(key)
+        render(key, :filename => "(exception test for #{key.inspect})")
       rescue Exception => err
         value = [value] unless value.is_a?(Array)
+        expected_message, line_no = value
+        line_no ||= key.split("\n").length
+        line_reported = err.backtrace[0].gsub(/\(.+\):/, '').to_i
 
-        assert_equal(value.first, err.message, "Line: #{key}")
-        assert_equal(value[1] || key.split("\n").length, err.backtrace[0].gsub('(haml):', '').to_i, "Line: #{key}")
+        assert_equal(expected_message, err.message, "Line: #{key}")
+        assert_equal(line_no, line_reported, "Line: #{key}")
       else
         assert(false, "Exception not raised for\n#{key}")
       end
@@ -379,7 +386,7 @@ SOURCE
   def test_exception_line
     render("a\nb\n!!!\n  c\nd")
   rescue Haml::SyntaxError => e
-    assert_equal("(haml):4", e.backtrace[0])
+    assert_equal("(test_exception_line):4", e.backtrace[0])
   else
     assert(false, '"a\nb\n!!!\n  c\nd" doesn\'t produce an exception')
   end
@@ -387,7 +394,7 @@ SOURCE
   def test_exception
     render("%p\n  hi\n  %a= undefined\n= 12")
   rescue Exception => e
-    assert_match("(haml):3", e.backtrace[0])
+    assert_match("(test_exception):3", e.backtrace[0])
   else
     # Test failed... should have raised an exception
     assert(false)
@@ -396,7 +403,7 @@ SOURCE
   def test_compile_error
     render("a\nb\n- fee)\nc")
   rescue Exception => e
-    assert_match(/^compile error\n\(haml\):3: syntax error/i, e.message)
+    assert_match(/^compile error\n\(test_compile_error\):3: syntax error/i, e.message)
   else
     assert(false,
            '"a\nb\n- fee)\nc" doesn\'t produce an exception!')
@@ -471,28 +478,28 @@ END
 
   def test_yield_should_work_with_def_method
     s = "foo"
-    Haml::Engine.new("= yield\n= upcase").def_method(s, :render)
+    engine("= yield\n= upcase").def_method(s, :render)
     assert_equal("12\nFOO\n", s.render { 12 })
   end
 
   def test_def_method_with_module
-    Haml::Engine.new("= yield\n= upcase").def_method(String, :render_haml)
+    engine("= yield\n= upcase").def_method(String, :render_haml)
     assert_equal("12\nFOO\n", "foo".render_haml { 12 })
   end
 
   def test_def_method_locals
     obj = Object.new
-    Haml::Engine.new("%p= foo\n.bar{:baz => baz}= boom").def_method(obj, :render, :foo, :baz, :boom)
+    engine("%p= foo\n.bar{:baz => baz}= boom").def_method(obj, :render, :foo, :baz, :boom)
     assert_equal("<p>1</p>\n<div baz='2' class='bar'>3</div>\n", obj.render(:foo => 1, :baz => 2, :boom => 3))
   end
 
   def test_render_proc_locals
-    proc = Haml::Engine.new("%p= foo\n.bar{:baz => baz}= boom").render_proc(Object.new, :foo, :baz, :boom)
+    proc = engine("%p= foo\n.bar{:baz => baz}= boom").render_proc(Object.new, :foo, :baz, :boom)
     assert_equal("<p>1</p>\n<div baz='2' class='bar'>3</div>\n", proc[:foo => 1, :baz => 2, :boom => 3])
   end
 
   def test_render_proc_with_binding
-    assert_equal("FOO\n", Haml::Engine.new("= upcase").render_proc("foo".instance_eval{binding}).call)
+    assert_equal("FOO\n", engine("= upcase").render_proc("foo".instance_eval{binding}).call)
   end
 
   def test_ugly_true
@@ -519,7 +526,7 @@ END
   end
 
   def test_arbitrary_output_option
-    assert_raise(Haml::Error, "Invalid output format :html1") { Haml::Engine.new("%br", :format => :html1) }
+    assert_raise(Haml::Error, "Invalid output format :html1") { engine("%br", :format => :html1) }
   end
 
   # HTML 4.0
@@ -548,7 +555,7 @@ END
 
   # because anything before the doctype triggers quirks mode in IE
   def test_xml_prolog_and_doctype_dont_result_in_a_leading_whitespace_in_html
-    assert_no_match /^\s+/, render("!!! xml\n!!!", :format => :html4)
+    assert_no_match(/^\s+/, render("!!! xml\n!!!", :format => :html4))
   end
 
   # HTML5

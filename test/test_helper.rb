@@ -1,3 +1,4 @@
+lib_dir = File.dirname(__FILE__) + '/../lib'
 # allows testing with edge Rails by creating a test/rails symlink
 linked_rails = File.dirname(__FILE__) + '/rails'
 
@@ -12,5 +13,6 @@ require 'action_controller'
 require 'action_view'
 
 require 'test/unit'
-require File.dirname(__FILE__) + '/../lib/haml'
-require File.dirname(__FILE__) + '/../lib/sass'
+$:.unshift lib_dir unless $:.include?(lib_dir)
+require 'haml'
+require 'sass'

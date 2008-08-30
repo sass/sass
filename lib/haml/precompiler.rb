@@ -112,6 +112,8 @@ END
     Line = Struct.new(:text, :unstripped, :index, :spaces, :tabs)
 
     def precompile
+      @haml_comment = @dont_indent_next_line = @dont_tab_up_next_text = false
+      @indentation = nil
       old_line = Line.new
       @template.split(/\r\n|\r|\n/).each_with_index do |text, index|
         @next_line = line = Line.new(text.strip, text.lstrip.chomp, index)
