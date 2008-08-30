@@ -4,7 +4,7 @@ module Sass
   # and the Sass file that was being parsed (if applicable).
   # It also provides a handy way to rescue only exceptions raised
   # because of a faulty template.
-  class SyntaxError < Exception
+  class SyntaxError < StandardError
     # The line of the Sass template on which the exception was thrown.
     attr_accessor :sass_line
 
