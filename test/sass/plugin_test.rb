@@ -198,5 +198,6 @@ class Sass::Engine
 end
 
 class ActionController::Base
+  undef :sass_old_process
   def sass_old_process(*args); end
 end

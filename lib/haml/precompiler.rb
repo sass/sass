@@ -136,6 +136,8 @@ END
     end
 
     def precompile
+      @haml_comment = @dont_indent_next_line = @dont_tab_up_next_text = false
+      @indentation = nil
       @line = next_line
       resolve_newlines
       newline
@@ -727,7 +729,7 @@ END
 
     def handle_multiline(line)
       if is_multiline?(line.text)
-        line.text.slice! -1
+        line.text.slice!(-1)
         while new_line = raw_next_line.first
           newline and next if new_line.strip.empty?
           break unless is_multiline?(new_line.strip)
@@ -766,7 +768,7 @@ END
     end
 
     def balance(*args)
-      res = Haml::Shared.balance *args
+      res = Haml::Shared.balance(*args)
       return res if res
       raise SyntaxError.new("Unbalanced brackets.")
     end

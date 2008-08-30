@@ -445,7 +445,7 @@ END
     end
 
     def balance(*args)
-      res = Haml::Shared.balance *args
+      res = Haml::Shared.balance(*args)
       return res if res
       raise SyntaxError.new("Unbalanced brackets.", @line)
     end

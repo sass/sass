@@ -397,7 +397,7 @@ module Haml
     def capture_haml_with_buffer(local_buffer, *args, &block)
       position = local_buffer.length
 
-      block.call *args
+      block.call(*args)
 
       captured = local_buffer.slice!(position..-1)
 
