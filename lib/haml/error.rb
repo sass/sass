@@ -1,6 +1,6 @@
 module Haml
   # An exception raised by Haml code.
-  class Error < Exception
+  class Error < StandardError
     # :stopdoc:
 
     # By default, an error is taken to refer to the line of the template

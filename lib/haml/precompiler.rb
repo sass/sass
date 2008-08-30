@@ -710,7 +710,9 @@ END
 
       line = Line.new text.strip, text.lstrip.chomp, text, index, self
 
-      unless flat?
+      # `flat?' here is a little outdated,
+      # so we have to manually check if the previous line closes the flat block.
+      unless flat? && (@line.text.empty? || @line.tabs >= @template_tabs)
         if line.text.empty?
           newline
           return next_line
