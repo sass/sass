@@ -119,11 +119,6 @@ END
         @next_line = line = Line.new(text.strip, text.lstrip.chomp, index)
         line.spaces, line.tabs = count_soft_tabs(text)
 
-        if line.text.empty? && !flat?
-          newline
-          next
-        end
-
         suppress_render = handle_multiline(old_line) unless flat?
 
         if old_line.text.nil? || suppress_render
@@ -134,6 +129,11 @@ END
         end
 
         process_indent(old_line) unless old_line.text.empty?
+
+        if line.text.empty? && !flat?
+          newline
+          next
+        end
 
         if flat?
           push_flat(old_line)
