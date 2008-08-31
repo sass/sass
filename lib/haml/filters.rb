@@ -45,6 +45,12 @@ module Haml
         raise Error.new("#{self.inspect}#render not defined!")
       end
 
+      # Same as render, but takes the Haml options hash as well.
+      # It's only safe to rely on options made available in Haml::Engine#options_for_buffer.
+      def render_with_options(text, options)
+        render(text)
+      end
+
       def internal_compile(*args) # :nodoc:
         resolve_lazy_requires
         compile(*args)
@@ -69,12 +75,12 @@ module Haml
             return if options[:suppress_eval]
 
             push_script(<<RUBY, false)
-find_and_preserve(#{filter.inspect}.render(#{unescape_interpolation(text)}))
+find_and_preserve(#{filter.inspect}.render_with_options(#{unescape_interpolation(text)}, _hamlout.options))
 RUBY
             return
           end
 
-          rendered = Haml::Helpers::find_and_preserve(filter.render(text), precompiler.options[:preserve])
+          rendered = Haml::Helpers::find_and_preserve(filter.render_with_options(text, precompiler.options), precompiler.options[:preserve])
 
           if !options[:ugly]
             push_text(rendered.rstrip.gsub("\n", "\n#{'  ' * @output_tabs}"))
@@ -151,9 +157,9 @@ module Haml
     module Javascript
       include Base
 
-      def render(text)
+      def render_with_options(text, options)
         <<END
-<script type='text/javascript'>
+<script type=#{options[:attr_wrapper]}text/javascript#{options[:attr_wrapper]}>
   //<![CDATA[
     #{text.rstrip.gsub("\n", "\n    ")}
   //]]>
