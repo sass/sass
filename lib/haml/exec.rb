@@ -210,6 +210,8 @@ END
       def initialize(args)
         super
         @name = "Haml"
+        @options[:requires] = []
+        @options[:load_paths] = []
       end
 
       def set_opts(opts)
@@ -229,6 +231,14 @@ END
                 'Escape HTML characters (like ampersands and angle brackets) by default.') do
           @options[:for_engine][:escape_html] = true
         end
+
+        opts.on('-r', '--require FILE', "Same as 'ruby -r'.") do |file|
+          @options[:requires] << file
+        end
+
+        opts.on('-I', '--load-path PATH', "Same as 'ruby -I'.") do |path|
+          @options[:load_paths] << path
+        end
       end
 
       def process_result
@@ -245,6 +255,9 @@ END
             puts "Syntax OK"
             return
           end
+
+          @options[:load_paths].each {|p| $LOAD_PATH << p}
+          @options[:requires].each {|f| require f}
           result = engine.to_html
         rescue Exception => e
           raise e if @options[:trace]
