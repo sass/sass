@@ -23,13 +23,10 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # == Using Haml
 #
-# Haml can be used in two ways:
+# Haml can be used in three ways:
 # as a plugin for Ruby on Rails,
-# and as a standalone Ruby module.
-#
-# Sass can be used in several ways:
-# As a template engine for Ruby on Rails or Merb,
-# or as a standalone engine.
+# as a standalone Ruby module,
+# and as a command-line tool.
 # The first step for all of these is to install the Haml gem:
 #
 #   gem install haml
@@ -39,12 +36,14 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   haml --rails path/to/rails/app
 #
-# Haml is enabled in Merb by default,
-# so Merb users don't have to do anything more.
-#
-# Once it's installed, all view files with the ".haml" extension
-# (or ".html.haml" for Merb or edge Rails)
+# Once it's installed, all view files with the ".html.haml" extension
 # will be compiled using Haml.
+#
+# To run Haml from the commandline, just use
+#
+#   haml input.haml output.html
+#
+# Use <tt>haml --help</tt> for full documentation.
 #
 # You can access instance variables in Haml templates
 # the same way you do in ERb templates.
