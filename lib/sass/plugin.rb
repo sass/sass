@@ -34,6 +34,13 @@ module Sass
         @@options.merge!(value)
       end
 
+      # Get the options ready to be passed to the Sass::Engine
+      def engine_options(additional_options = {})
+        l_options = @@options.dup.merge(additional_options)
+        l_options[:load_paths] = load_paths(l_options)
+        l_options
+      end
+
       # Checks each stylesheet in <tt>options[:css_location]</tt>
       # to see if it needs updating,
       # and updates it using the corresponding template
@@ -53,9 +60,7 @@ module Sass
             File.delete(css) if File.exists?(css)
 
             filename = template_filename(name)
-            l_options = @@options.dup
-            l_options[:filename] = filename
-            l_options[:load_paths] = load_paths
+            l_options = engine_options(:filename => filename)
             engine = Engine.new(File.read(filename), l_options)
             result = begin
                        engine.render
@@ -78,8 +83,8 @@ module Sass
 
       private
 
-      def load_paths
-        (options[:load_paths] || []) + [options[:template_location]]
+      def load_paths(opts = options)
+        (opts[:load_paths] || []) + [options[:template_location]]
       end
 
       def exception_string(e)
