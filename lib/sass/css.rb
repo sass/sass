@@ -18,7 +18,7 @@ module Sass
     end
 
     class ValueNode
-      def to_sass(tabs)
+      def to_sass(tabs, opts = {})
         "#{value}\n"
       end
     end
@@ -38,6 +38,12 @@ module Sass
     class AttrNode
       def to_sass(tabs, opts = {})
         "#{'  ' * tabs}#{opts[:alternate] ? '' : ':'}#{name}#{opts[:alternate] ? ':' : ''} #{value}\n"
+      end
+    end
+
+    class DirectiveNode
+      def to_sass(tabs, opts = {})
+        "#{'  ' * tabs}#{value}#{children.map {|c| c.to_sass(tabs + 1, opts)}}\n"
       end
     end
   end
@@ -132,7 +138,6 @@ module Sass
     def build_tree
       root = Tree::Node.new({})
       whitespace
-      directives         root
       rules              root
       expand_commas      root
       parent_ref_rules   root
@@ -142,37 +147,33 @@ module Sass
       root
     end
 
-    def directives(root)
-      while @template.scan(/@/)
-        name = @template.scan /[^\s;]+/
+    def rules(root)
+      while r = rule
+        root << r
         whitespace
-        value = @template.scan /[^;]+/
-        assert_match /;/
-        whitespace
-
-        if name == "import" && value =~ /^(url\()?"?([^\s\(\)\"]+)\.css"?\)?$/
-          value = $2
-        end
-
-        root << Tree::ValueNode.new("@#{name} #{value};", {})
       end
     end
 
-    def rules(root)
-      rules = []
-      while @template.scan(/[^\{\s]+/)
-        rules << @template[0]
+    def rule
+      return unless rule = @template.scan(/[^\{\};]+/)
+      rule.strip!
+      directive = rule[0] == ?@
+
+      if directive
+        node = Tree::DirectiveNode.new(rule, {})
+        return node if @template.scan(/;/)
+
+        assert_match /\{/
         whitespace
 
-        if @template.scan(/\{/)
-          result = Tree::RuleNode.new(rules.join(' '), {})
-          root << result
-          rules = []
-
-          whitespace
-          attributes(result)
-        end
+        rules(node)
+        return node
       end
+
+      assert_match /\{/
+      node = Tree::RuleNode.new(rule, {})
+      attributes(node)
+      return node
     end
 
     def attributes(rule)
