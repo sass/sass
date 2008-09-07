@@ -993,7 +993,7 @@ module Haml
 
     if File.exists?(scope('REVISION'))
       rev = File.read(scope('REVISION')).strip
-      rev = nil if rev !~ /[a-f0-9]+/
+      rev = nil if rev !~ /^([a-f0-9]+|\(.*\))$/
     end
 
     if rev.nil? && File.exists?(scope('.git/HEAD'))
@@ -1005,8 +1005,10 @@ module Haml
 
     if rev
       @@version[:rev] = rev
-      @@version[:string] << "."
-      @@version[:string] << rev[0...7] unless rev[0] == ?(
+      unless rev[0] == ?(
+        @@version[:string] << "."
+        @@version[:string] << rev[0...7]
+      end
     end
 
     @@version
