@@ -36,9 +36,9 @@ module Sass
 
       # Get the options ready to be passed to the Sass::Engine
       def engine_options(additional_options = {})
-        l_options = @@options.dup.merge(additional_options)
-        l_options[:load_paths] = load_paths(l_options)
-        l_options
+        opts = options.dup.merge(additional_options)
+        opts[:load_paths] = load_paths(opts)
+        opts
       end
 
       # Checks each stylesheet in <tt>options[:css_location]</tt>
@@ -60,8 +60,7 @@ module Sass
             File.delete(css) if File.exists?(css)
 
             filename = template_filename(name)
-            l_options = engine_options(:filename => filename)
-            engine = Engine.new(File.read(filename), l_options)
+            engine = Engine.new(File.read(filename), engine_options(:filename => filename))
             result = begin
                        engine.render
                      rescue Exception => e
@@ -69,7 +68,7 @@ module Sass
                      end
 
             # Create any directories that might be necessary
-            dirs = [l_options[:css_location]]
+            dirs = [options[:css_location]]
             name.split("/")[0...-1].each { |dir| dirs << "#{dirs[-1]}/#{dir}" }
             dirs.each { |dir| Dir.mkdir(dir) unless File.exist?(dir) }
 
