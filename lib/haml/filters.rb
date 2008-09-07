@@ -215,7 +215,7 @@ END
       lazy_require 'sass/engine'
 
       def render(text)
-        ::Sass::Engine.new(text).render
+        ::Sass::Engine.new(text,::Sass::Plugin.engine_options).render
       end
     end
 
