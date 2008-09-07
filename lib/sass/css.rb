@@ -124,7 +124,7 @@ module Sass
     # containing the CSS template.
     def render
       begin
-        build_tree.to_sass(@options).lstrip
+        build_tree.to_sass(@options).strip + "\n"
       rescue Exception => err
         line = @template.string[0...@template.pos].split("\n").size
 
