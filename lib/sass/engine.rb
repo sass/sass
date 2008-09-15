@@ -365,7 +365,7 @@ END
     end
 
     def parse_mixin_definition(line)
-      mixin_name = line[1..-1]
+      mixin_name = line[1..-1].strip
       @mixins[mixin_name] =  []
       index = @line
       line, tabs = @lines[index]
