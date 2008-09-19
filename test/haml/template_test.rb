@@ -35,7 +35,12 @@ class TemplateTest < Test::Unit::TestCase
       @base.finder.append_view_path(TEMPLATE_PATH)
     end
     
-    @base.send(:evaluate_assigns)
+    if @base.private_methods.include?('evaluate_assigns')
+      @base.send(:evaluate_assigns)
+    else
+      # Rails 2.2
+      @base.send(:_evaluate_assigns_and_ivars)
+    end
 
     # This is used by form_for.
     # It's usually provided by ActionController::Base.
