@@ -18,11 +18,17 @@ module Haml::Helpers
   end
 end
 
+class DummyController
+  def self.controller_path
+    ''
+  end
+end
+
 class TemplateTest < Test::Unit::TestCase
   TEMPLATE_PATH = File.join(File.dirname(__FILE__), "templates")
   TEMPLATES = %w{         very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
-    silent_script         tag_parsing       just_stuff  partials
+    silent_script         tag_parsing       just_stuff  partials  partial_layout
     filters               nuke_outer_whitespace         nuke_inner_whitespace }
 
   def setup
@@ -49,6 +55,8 @@ class TemplateTest < Test::Unit::TestCase
     
     # filters template uses :sass
     Sass::Plugin.options.update(:line_comments => true, :style => :compact)
+    
+    @base.controller = DummyController.new
   end
 
   def render(text)
