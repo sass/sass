@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 require 'haml/template'
+require 'sass/plugin'
 require File.dirname(__FILE__) + '/mocks/article'
 
 module Haml::Filters::Test
@@ -45,6 +46,9 @@ class TemplateTest < Test::Unit::TestCase
     # This is used by form_for.
     # It's usually provided by ActionController::Base.
     def @base.protect_against_forgery?; false; end
+    
+    # filters template uses :sass
+    Sass::Plugin.options.update(:line_comments => true, :style => :compact)
   end
 
   def render(text)

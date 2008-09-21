@@ -16,3 +16,7 @@ require 'test/unit'
 $:.unshift lib_dir unless $:.include?(lib_dir)
 require 'haml'
 require 'sass'
+
+# required because of Sass::Plugin
+RAILS_ROOT = '.'
+MERB_ENV = RAILS_ENV  = 'testing'

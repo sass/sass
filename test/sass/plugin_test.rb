@@ -1,8 +1,4 @@
 #!/usr/bin/env ruby
-
-MERB_ENV = RAILS_ENV  = 'testing'
-RAILS_ROOT = '.'
-
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/plugin'
 require 'fileutils'
