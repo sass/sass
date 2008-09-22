@@ -18,5 +18,7 @@ require 'haml'
 require 'sass'
 
 # required because of Sass::Plugin
-RAILS_ROOT = '.'
-MERB_ENV = RAILS_ENV  = 'testing'
+unless defined? RAILS_ROOT
+  RAILS_ROOT = '.'
+  MERB_ENV = RAILS_ENV  = 'testing'
+end
