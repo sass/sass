@@ -138,7 +138,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # is compiled to:
 #
-#   <head name="doc_head">
+#   <head name='doc_head'>
 #     <script src='javascripts/script_9' type='text/javascript'>
 #     </script>
 #   </head>
@@ -159,7 +159,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # This is compiled to:
 #
-#   <html lang='fr-fr' xml:lang='fr=fr' xmlns='http://www.w3.org/1999/xhtml'>
+#   <html lang='fr-fr' xml:lang='fr-fr' xmlns='http://www.w3.org/1999/xhtml'>
 #   </html>
 #
 # You can use as many such attribute methods as you want
@@ -200,7 +200,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 # In XHTML, the only valid value for these attributes is the name of the attribute.
 # Thus this will render in XHTML as
 #
-#   <input selected="selected">
+#   <input selected='selected'>
 #
 # To set these attributes to false, simply assign them to a Ruby false value.
 # In both XHTML and HTML
@@ -238,8 +238,8 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # is compiled to:
 #
-#   <div class="greeting_crazy_user" id="greeting_crazy_user_15">
-#     <bar class="fixnum" id="fixnum_581" />
+#   <div class='greeting_crazy_user' id='greeting_crazy_user_15'>
+#     <bar class='fixnum' id='fixnum_581' />
 #     Hello!
 #   </div>
 #
@@ -306,11 +306,11 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # is compiled to:
 #
-#   <div id="content">
-#     <div class="articles">
-#       <div class="article title">Doogie Howser Comes Out</div>
-#       <div class="article date">2006-11-05</div>
-#       <div class="article entry">
+#   <div id='content'>
+#     <div class='articles'>
+#       <div class='article title'>Doogie Howser Comes Out</div>
+#       <div class='article date'>2006-11-05</div>
+#       <div class='article entry'>
 #         Neil Patrick Harris would like to dispel any rumors that he is straight
 #       </div>
 #     </div>
@@ -474,7 +474,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # is compiled to:
 #
-#   <?xml version="1.0" encoding="utf-8" ?>
+#   <?xml version='1.0' encoding='utf-8' ?>
 #   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 #   <html>
 #     <head>
@@ -514,7 +514,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # is compiled to:
 #
-#   <?xml version="1.0" encoding="iso-8859-1" ?>
+#   <?xml version='1.0' encoding='iso-8859-1' ?>
 #
 # ==== /
 #
