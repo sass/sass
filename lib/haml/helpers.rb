@@ -254,7 +254,26 @@ module Haml
     # the local variable <tt>foo</tt> would be assigned to "<p>13</p>\n".
     #
     def capture_haml(*args, &block)
-      capture_haml_with_buffer(haml_buffer.buffer, *args, &block)
+      buffer = eval('_hamlout', block) rescue haml_buffer
+      with_haml_buffer(buffer) do
+        position = haml_buffer.buffer.length
+
+        block.call(*args)
+
+        captured = haml_buffer.buffer.slice!(position..-1)
+
+        min_tabs = nil
+        captured.each do |line|
+          tabs = line.index(/[^ ]/)
+          min_tabs ||= tabs
+          min_tabs = min_tabs > tabs ? tabs : min_tabs
+        end
+
+        result = captured.map do |line|
+          line[min_tabs..-1]
+        end
+        result.to_s
+      end
     end
 
     # Outputs text directly to the Haml buffer, with the proper tabulation
@@ -379,6 +398,21 @@ module Haml
 
     private
 
+    # call-seq:
+    #   with_haml_buffer(buffer) {...}
+    #
+    # Runs the block with the given buffer as the currently active buffer.
+    def with_haml_buffer(buffer)
+      @haml_buffer, old_buffer = buffer, @haml_buffer
+      old_buffer.active, was_active = false, old_buffer.active? if old_buffer
+      @haml_buffer.active = true
+      yield
+    ensure
+      @haml_buffer.active = false
+      old_buffer.active = was_active if old_buffer
+      @haml_buffer = old_buffer
+    end
+
     # Gets a reference to the current Haml::Buffer object.
     def haml_buffer
       @haml_buffer
@@ -390,28 +424,6 @@ module Haml
       _hamlout = haml_buffer
       _erbout = _hamlout.buffer
       proc { |*args| proc.call(*args) }
-    end
-
-    # Performs the function of capture_haml, assuming <tt>local_buffer</tt>
-    # is where the output of block goes.
-    def capture_haml_with_buffer(local_buffer, *args, &block)
-      position = local_buffer.length
-
-      block.call(*args)
-
-      captured = local_buffer.slice!(position..-1)
-
-      min_tabs = nil
-      captured.each do |line|
-        tabs = line.index(/[^ ]/)
-        min_tabs ||= tabs
-        min_tabs = min_tabs > tabs ? tabs : min_tabs
-      end
-
-      result = captured.map do |line|
-        line[min_tabs..-1]
-      end
-      result.to_s
     end
 
     include ActionViewExtensions if self.const_defined? "ActionViewExtensions"
