@@ -104,7 +104,11 @@ module Sass::Constant
     end
 
     def operate(other, operation)
-      other.coerce!(operation, numerator_units, denominator_units)
+      if unitless?
+        self.coerce!(operation, other.numerator_units, other.denominator_units)
+      else
+        other.coerce!(operation, numerator_units, denominator_units)
+      end
       v = self.value.send(operation, other.value)
       Number.from_value(v, *compute_units(other, operation))
     rescue ArgumentError
@@ -113,8 +117,10 @@ module Sass::Constant
 
     def coerce!(operation, num_units, den_units)
       if [:+, :-].include?(operation)
-        @value *= coercion_factor(numerator_units, num_units)
-        @value /= coercion_factor(denominator_units, den_units)
+        unless unitless?
+          @value *= coercion_factor(numerator_units, num_units)
+          @value /= coercion_factor(denominator_units, den_units)
+        end
         @numerator_units = num_units.dup
         @denominator_units = den_units.dup
       end
