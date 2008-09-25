@@ -2,7 +2,15 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
   module ActionView
     class Base # :nodoc:
       def render_with_haml(*args, &block)
-        return non_haml { render_without_haml(*args, &block) } if is_haml?
+        options = args.first
+
+        # If render :layout is used with a block,
+        # it concats rather than returning a string
+        # so we need it to keep thinking it's Haml
+        # until it hits the sub-render
+        if is_haml? && !(options.is_a?(Hash) && options[:layout] && block_given?)
+          return non_haml { render_without_haml(*args, &block) }
+        end
         render_without_haml(*args, &block)
       end
       alias_method :render_without_haml, :render

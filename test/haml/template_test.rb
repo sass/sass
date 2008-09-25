@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 require 'haml/template'
+require 'sass/plugin'
 require File.dirname(__FILE__) + '/mocks/article'
 
 module Haml::Filters::Test
@@ -17,11 +18,17 @@ module Haml::Helpers
   end
 end
 
+class DummyController
+  def self.controller_path
+    ''
+  end
+end
+
 class TemplateTest < Test::Unit::TestCase
   TEMPLATE_PATH = File.join(File.dirname(__FILE__), "templates")
   TEMPLATES = %w{         very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
-    silent_script         tag_parsing       just_stuff  partials
+    silent_script         tag_parsing       just_stuff  partials  partial_layout
     filters               nuke_outer_whitespace         nuke_inner_whitespace }
 
   def setup
@@ -35,11 +42,21 @@ class TemplateTest < Test::Unit::TestCase
       @base.finder.append_view_path(TEMPLATE_PATH)
     end
     
-    @base.send(:evaluate_assigns)
+    if @base.private_methods.include?('evaluate_assigns')
+      @base.send(:evaluate_assigns)
+    else
+      # Rails 2.2
+      @base.send(:_evaluate_assigns_and_ivars)
+    end
 
     # This is used by form_for.
     # It's usually provided by ActionController::Base.
     def @base.protect_against_forgery?; false; end
+    
+    # filters template uses :sass
+    Sass::Plugin.options.update(:line_comments => true, :style => :compact)
+    
+    @base.controller = DummyController.new
   end
 
   def render(text)
