@@ -36,6 +36,10 @@ class SassEngineTest < Test::Unit::TestCase
     "!a b" => 'Invalid constant: "!a b".',
     "a\n  :b c\n  !d = 3" => "Constants may only be declared at the root of a document.",
     "!a = 1b + 2c" => "Incompatible units: b and c.",
+    "a\n  :b= 1b * 2c" => "Incompatible units: b and c.",
+    "a\n  :b= 1b % 2c" => "Cannot modulo by a number with units: 2c.",
+    "!a = 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
+    "!a = #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
     "a,\n  :b c" => ["Rules can\'t end in commas.", 1],
@@ -149,6 +153,10 @@ class SassEngineTest < Test::Unit::TestCase
 
   def test_sass_import
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
+  end
+
+  def test_units
+    renders_correctly "units"
   end
 
   def test_default_function

@@ -41,6 +41,14 @@ module Sass::Constant
                  hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round })
     end
 
+    def percentage(value)
+      value = value.perform if value.is_a?(Sass::Constant::Operation)
+      unless value.is_a?(Sass::Constant::Number) && value.unitless?
+        raise ArgumentError.new("Value is not a unitless number")
+      end
+      Sass::Constant::Number.from_value(value.value * 100, '%')
+    end
+
     private
 
     def hue_to_rgb(m1, m2, h)
