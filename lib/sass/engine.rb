@@ -376,12 +376,25 @@ END
       tree
     end
 
+    # parses out the arguments between the commas and cleans up the mixin arguments
+    # returns nil if it fails to parse, otherwise an array.
+    def parse_mixin_arguments(arg_string)
+      arg_string.rstrip!
+      unless arg_string.empty? || (arg_string[0] == 40 && arg_string[-1] == 41)
+        return nil
+      end
+      arg_string = arg_string[1...-1] unless arg_string.empty?
+      arg_string.split(",", -1).map {|a| a.strip}
+    end
+
     def parse_mixin_definition(line)
-      name, args = line.text.scan(/^=\s*([^(]+)(\([^)]*\))?$/).first
+      name, arg_string = line.text.scan(/^=\s*([^(]+)(.*)$/).first
       raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) if name.nil?
+      arguments = parse_mixin_arguments(arg_string)
+      raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) unless arguments
       default_arg_found = false
       required_arg_count = 0
-      args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}.map do |arg|
+      args = arguments.map do |arg|
         raise SyntaxError.new("Mixin arguments can't be empty.", @line) if arg.empty? || arg == "!"
         unless arg[0] == Constant::CONSTANT_CHAR
           raise SyntaxError.new("Mixin argument \"#{arg}\" must begin with an exclamation point (!).", @line)
@@ -399,12 +412,12 @@ END
     end
 
     def parse_mixin_include(line, root)
-      name, args = line.text.scan(/^\+\s*([^(]+)(\([^)]*\))?$/).first
+      name, arg_string = line.text.scan(/^\+\s*([^(]+)(.*)$/).first
+      args = parse_mixin_arguments(arg_string)
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.", @line + 1) unless line.children.empty?
-      raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil?
+      raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil? || args.nil?
       raise SyntaxError.new("Undefined mixin '#{name}'.", @line) unless mixin = @mixins[name]
 
-      args = (args || "()")[1...-1].split(",", -1).map {|a| a.strip}
       args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
       raise SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < args.size
 Mixin #{name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}

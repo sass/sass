@@ -361,12 +361,14 @@ SASS
 blat
   +foo(1, 2)
 SASS
-    assert_equal("blat {\n  baz: 4;\n  bang: 3; }\n", render(<<SASS))
-=foo(!c)
+    assert_equal("blat {\n  baz: 4;\n  baz: 3;\n  baz: 5;\n  bang: 3; }\n", render(<<SASS))
+=foo(!c = (6 + 4) / 2)
   baz = !c
 !c = 3
 blat
   +foo(!c + 1)
+  +foo((!c + 3)/2)
+  +foo
   bang = !c
 SASS
   end
