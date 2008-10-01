@@ -10,7 +10,7 @@ module Sass::Constant
     def parse(value)
       first, second, unit = value.scan(Literal::NUMBER)[0]
       @value = first.empty? ? second.to_i : "#{first}#{second}".to_f
-      @numerator_units = unit.empty? ? [] : [unit]
+      @numerator_units = Array(unit)
       @denominator_units = []
     end
 
@@ -57,7 +57,7 @@ module Sass::Constant
     def mod(other)
       if other.is_a?(Number)
         unless other.unitless?
-          raise Sass::SyntaxError.new("Cannot modulo by a number with units: #{other.value}#{other.unit_repr}.")
+          raise Sass::SyntaxError.new("Cannot modulo by a number with units: #{other.inspect}.")
         end
         operate(other, :%)
       else
@@ -66,136 +66,140 @@ module Sass::Constant
     end
 
     def equals(other)
-      Sass::Constant::Bool.from_value(super.to_bool && self.unit_str == other.unit_str)
+      Sass::Constant::Bool.from_value(super.to_bool &&
+        self.numerator_units.sort == other.numerator_units.sort &&
+        self.denominator_units.sort == other.denominator_units.sort)
     end
 
     def to_s
-      raise Sass::SyntaxError.new("Incompatible units: #{(numerator_units + denominator_units).join(" and ")}.") unless legal_units?
-      value = @value
-      value = if value % 1 == 0.0
-        value.to_i
-      else
-        (value * PRECISION).round / PRECISION
-      end
+      raise Sass::SyntaxError.new("#{inspect} isn't a valid CSS value.") unless legal_units?
+      inspect
+    end
+
+    def inspect
+      value = int? ? self.value.to_i : (self.value * PRECISION).round / PRECISION
       "#{value}#{unit_str}"
     end
 
     def to_i
-      super unless value % 1 == 0.0
+      super unless int?
       return value
     end
 
+    def int?
+      value % 1 == 0.0
+    end
+
     def unitless?
-      numerator_units.size == 0 && denominator_units.size == 0
+      numerator_units.empty? && denominator_units.empty?
     end
 
     def legal_units?
-      (numerator_units.size == 0 || numerator_units.size == 1) && denominator_units.size == 0
+      (numerator_units.empty? || numerator_units.size == 1) && denominator_units.empty?
     end
 
     protected
 
-    def self.from_value(value, numerator_units = nil, denominator_units = nil)
+    def self.from_value(value, numerator_units = [], denominator_units = [])
       instance = super(value)
-      instance.instance_variable_set('@numerator_units', Array(numerator_units))
-      instance.instance_variable_set('@denominator_units', Array(denominator_units))
-      instance.send(:normalize!)
+      instance.instance_variable_set('@numerator_units', numerator_units)
+      instance.instance_variable_set('@denominator_units', denominator_units)
+      instance.send :normalize!
       instance
     end
 
     def operate(other, operation)
-      if unitless?
-        self.coerce!(operation, other.numerator_units, other.denominator_units)
-      else
-        other.coerce!(operation, numerator_units, denominator_units)
+      this = self
+      if [:+, :-].include?(operation)
+        if unitless?
+          this = this.coerce(other.numerator_units, other.denominator_units)
+        else
+          other = other.coerce(numerator_units, denominator_units)
+        end
       end
-      v = self.value.send(operation, other.value)
-      Number.from_value(v, *compute_units(other, operation))
-    rescue ArgumentError
-      raise Sass::SyntaxError.new("Incompatible units: #{unit_repr} and #{other.unit_repr}.")      
+
+      Number.from_value(this.value.send(operation, other.value), *compute_units(this, other, operation))
     end
 
-    def coerce!(operation, num_units, den_units)
-      if [:+, :-].include?(operation)
-        unless unitless?
-          @value *= coercion_factor(numerator_units, num_units)
-          @value /= coercion_factor(denominator_units, den_units)
-        end
-        @numerator_units = num_units.dup
-        @denominator_units = den_units.dup
-      end
+    def coerce(num_units, den_units)
+      Number.from_value(if unitless?
+                          self.value
+                        else
+                          self.value * coercion_factor(self.numerator_units, num_units) /
+                            coercion_factor(self.denominator_units, den_units)
+                        end, num_units, den_units)
     end
     
     def coercion_factor(from_units, to_units)
       # get a list of unmatched units
-      from_units = from_units.dup
-      to_units = to_units.dup
-      from_units.each_with_index do |u, i|
-        if (j = to_units.index(u)) && to_units.delete_at(j)
-          from_units.delete_at(i)
-        end
+      from_units, to_units = sans_common_units(from_units, to_units)
+
+      if from_units.size != to_units.size || !convertable?(from_units | to_units)
+        raise Sass::SyntaxError.new("Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
       end
-      if from_units.size != to_units.size
-        raise ArgumentError.new
-      elsif (from_units + to_units).any?{|u| CONVERTABLE_UNITS[u].nil?}
-        raise ArgumentError.new
-      else
-        from_units.zip(to_units).inject(1) {|m,p| m * conversion_factor(p[0], p[1]) }
-      end
+
+      from_units.zip(to_units).inject(1) {|m,p| m * conversion_factor(p[0], p[1]) }
     end
 
-    def compute_units(other, operation)
+    def compute_units(this, other, operation)
       case operation
       when :*
-        [numerator_units + other.numerator_units, denominator_units + other.denominator_units]
+        [this.numerator_units + other.numerator_units, this.denominator_units + other.denominator_units]
       when :/
-        [numerator_units + other.denominator_units, denominator_units + other.numerator_units]
+        [this.numerator_units + other.denominator_units, this.denominator_units + other.numerator_units]
       else  
-        [numerator_units, denominator_units]
+        [this.numerator_units, this.denominator_units]
       end
     end
 
     def unit_str
-      rv = numerator_units.join(" * ")
+      rv = numerator_units.join("*")
       if denominator_units.any?
-        rv << " / "
-        rv << denominator_units.join(" * ")
+        rv << "/"
+        rv << denominator_units.join("*")
       end
       rv
     end
 
-    def unit_repr
-      if unitless?
-        "unitless"
-      else
-        unit_str
-      end
-    end
-
     def normalize!
       return if unitless?
-      common_units = numerator_units - (numerator_units - denominator_units)
-      @numerator_units -= common_units
-      @denominator_units -= common_units
+      @numerator_units, @denominator_units = sans_common_units(numerator_units, denominator_units)
+
       @denominator_units.each_with_index do |d, i|
-        if CONVERTABLE_UNITS[d] && (num = @numerator_units.detect{|n| CONVERTABLE_UNITS[n] })
-          @value /= conversion_factor(d, num)
+        if convertable?(d) && (u = @numerator_units.detect(&method(:convertable?)))
+          @value /= conversion_factor(d, u)
           @denominator_units.delete_at(i)
-          @numerator_units.delete_at(@numerator_units.index(num))
+          @numerator_units.delete_at(@numerator_units.index(u))
         end
       end
     end
 
-    CONVERTABLE_UNITS = {"mm" => 0,"cm" => 1,"in" => 2,"pt" => 3,"pc" => 4}
-    #                     mm           cm            in                 pt          pc
-    CONVERSION_TABLE = [[  1,           0.1,          0.0393700787,      2.83464567, 0.236220473  ], # mm
-                        [ 10,           1,            0.3937007870,     28.3464567,  2.36220473   ], # cm
-                        [ 25.4,         2.54,         1,                72,          6            ], # in
-                        [ 0.352777778,  0.0352777778, 0.01388888888889,  1,          0.0833333333 ], # pt
-                        [ 4.23333333,   0.423333333,  0.166666667,      12,          1            ]] # pc
+    # A hash of unit names to their index in the conversion table
+    CONVERTABLE_UNITS = {"in" => 0,        "cm" => 1,    "pc" => 2,    "mm" => 3,   "pt" => 4}
+    CONVERSION_TABLE = [[ 1,                2.54,         6,            25.4,        72        ], # in
+                        [ nil,              1,            2.36220473,   10,          28.3464567], # cm
+                        [ nil,              nil,          1,            4.23333333,  12        ], # pc
+                        [ nil,              nil,          nil,          1,           2.83464567], # mm
+                        [ nil,              nil,          nil,          nil,         1         ]] # pt
 
     def conversion_factor(from_unit, to_unit)
-      CONVERSION_TABLE[CONVERTABLE_UNITS[from_unit]][CONVERTABLE_UNITS[to_unit]]
+      res = CONVERSION_TABLE[CONVERTABLE_UNITS[from_unit]][CONVERTABLE_UNITS[to_unit]]
+      return 1.0 / conversion_factor(to_unit, from_unit) if res.nil?
+      res
+    end
+
+    def convertable?(units)
+      Array(units).all?(&CONVERTABLE_UNITS.method(:include?))
+    end
+
+    def sans_common_units(units1, units2)
+      units2 = units2.dup
+      # Can't just use -, because we want px*px to coerce properly to px*mm
+      return units1.map do |u|
+        next u unless j = units2.index(u)
+        units2.delete_at(j)
+        nil
+      end.compact, units2
     end
   end
 end

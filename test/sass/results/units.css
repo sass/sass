@@ -4,7 +4,8 @@ b {
   baz: 66.667%;
   many-units: 32em;
   mm: 15mm;
-  pc: 2.0pc;
+  pc: 2pc;
   pt: -72pt;
-  inches: 2.0in;
-  more-inches: 3.5in; }
+  inches: 2in;
+  more-inches: 3.5in;
+  mixed: 6px; }
