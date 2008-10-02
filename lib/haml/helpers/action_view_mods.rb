@@ -68,11 +68,11 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
           alias_method :capture_without_haml, :capture
           alias_method :capture, :capture_with_haml
 
-          def capture_erb_with_buffer_with_haml(*args, &block)
+          def capture_erb_with_buffer_with_haml(buffer, *args, &block)
             if is_haml?
-              capture_haml_with_buffer(*args, &block)
+              capture_haml(*args, &block)
             else
-              capture_erb_with_buffer_without_haml(*args, &block)
+              capture_erb_with_buffer_without_haml(buffer, *args, &block)
             end
           end
           alias_method :capture_erb_with_buffer_without_haml, :capture_erb_with_buffer
