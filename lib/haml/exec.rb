@@ -77,6 +77,7 @@ module Haml
         input_file, output_file = if input
                                     [nil, open_file(ARGV[0], 'w')]
                                   else
+                                    @options[:for_engine][:filename] = ARGV[0]
                                     [open_file(ARGV[0]), open_file(ARGV[1], 'w')]
                                   end
 

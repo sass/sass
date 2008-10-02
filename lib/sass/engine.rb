@@ -456,6 +456,13 @@ END
       paths
     end
 
+    def import_paths
+      paths = []
+      paths << File.dirname(@options[:filename]) if @options[:filename]
+      paths += @options[:load_paths] if @options[:load_paths]
+      paths
+    end
+
     def import(files)
       nodes = []
 
@@ -520,10 +527,11 @@ END
     end
 
     def self.find_full_path(filename, load_paths)
+      segments = filename.split(File::SEPARATOR)
+      segments.push "_#{segments.pop}"
+      partial_name = segments.join(File::SEPARATOR)
       load_paths.each do |path|
-        segments = filename.split(File::SEPARATOR)
-        segments.push "_#{segments.pop}"
-        [segments.join(File::SEPARATOR), filename].each do |name|
+        [partial_name, filename].each do |name|
           full_path = File.join(path, name)
           if File.readable?(full_path)
             return full_path
