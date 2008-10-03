@@ -135,6 +135,20 @@ END
     assert_equal("<img alt='' src='/foo.png' />\n", render("%img{:width => nil, :src => '/foo.png', :alt => String.new}"))
   end
 
+  def test_attr_hashes_not_modified
+    hash = {:color => 'red'}
+    assert_equal(<<HTML, render(<<HAML, :locals => {:hash => hash}))
+<div color='red'></div>
+<div class='special' color='red'></div>
+<div color='red'></div>
+HTML
+%div{hash}
+.special{hash}
+%div{hash}
+HAML
+    assert_equal(hash, {:color => 'red'})
+  end
+
   def test_end_of_file_multiline
     assert_equal("<p>0</p>\n<p>1</p>\n<p>2</p>\n", render("- for i in (0...3)\n  %p= |\n   i |"))
   end
