@@ -212,10 +212,10 @@ END
 
     module Sass
       include Base
-      lazy_require 'sass/engine'
+      lazy_require 'sass/plugin'
 
       def render(text)
-        ::Sass::Engine.new(text,::Sass::Plugin.engine_options).render
+        ::Sass::Engine.new(text, ::Sass::Plugin.engine_options).render
       end
     end
 
@@ -239,6 +239,7 @@ END
       end
     end
     RedCloth = Textile
+    Filters.defined['redcloth'] = RedCloth
 
     # Uses BlueCloth or RedCloth to provide only Markdown (not Textile) parsing
     module Markdown

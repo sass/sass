@@ -151,9 +151,8 @@ module Haml
       tabulation = @real_tabs
 
       attributes = class_id
-      attributes_hashes.each do |attributes_hash|
-        attributes_hash.keys.each { |key| attributes_hash[key.to_s] = attributes_hash.delete(key) }
-        self.class.merge_attrs(attributes, attributes_hash)
+      attributes_hashes.each do |old|
+        self.class.merge_attrs(attributes, old.inject({}) {|h, (key, val)| h[key.to_s] = val; h})
       end
       self.class.merge_attrs(attributes, parse_object_ref(obj_ref)) if obj_ref
 
