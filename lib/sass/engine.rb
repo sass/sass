@@ -83,7 +83,7 @@ module Sass
         :load_paths => ['.']
       }.merge! options
       @template = template
-      @constants = {"important" => "!important"}
+      @constants = {"important" => Constant::String.from_value("!important")}
       @mixins = {}
     end
 
@@ -292,7 +292,7 @@ END
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid constant: \"#{line.text}\".", @line) unless name && value
 
-      constant = Sass::Constant.resolve(value, @constants, @line)
+      constant = Sass::Constant.parse(value, @constants, @line)
       if op == '||='
         @constants[name] ||= constant
       else
@@ -361,7 +361,7 @@ END
       tree = []
       old_constants = @constants.dup
       for i in range
-        @constants[var[1..-1]] = i.to_s
+        @constants[var[1..-1]] = Constant::Number.from_value(i)
         append_children(tree, line.children, root)
       end
       @constants = old_constants
@@ -402,7 +402,7 @@ END
         default_arg_found ||= default
         raise SyntaxError.new("Invalid constant \"#{arg}\".", @line) unless arg =~ Constant::VALIDATE
         raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
-        default = Sass::Constant.resolve(default, @constants, @line) if default
+        default = Sass::Constant.parse(default, @constants, @line) if default
         { :name => arg[1..-1], :default_value => default }
       end
       mixin = @mixins[name] = Mixin.new(args, line.children)
@@ -425,10 +425,10 @@ END
       old_constants = @constants.dup
       mixin.args.zip(args).inject(@constants) do |constants, (arg, value)|
         constants[arg[:name]] = if value
-          Sass::Constant.resolve(value, old_constants, @line)
-        else
-          arg[:default_value]
-        end
+                                  Sass::Constant.parse(value, old_constants, @line)
+                                else
+                                  arg[:default_value]
+                                end
         raise SyntaxError.new("Mixin #{name} is missing parameter ##{mixin.args.index(arg)+1} (#{arg[:name]}).") unless constants[arg[:name]]
         constants
       end

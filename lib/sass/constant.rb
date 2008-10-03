@@ -219,7 +219,7 @@ module Sass
         when 2
           case value[0]
           when :const
-            Literal.parse(get_constant(value[1], constants))
+            get_constant(value[1], constants)
           when ::Symbol
             UnaryOperation.new(operationalize(value[1], constants), value[0])
           else
