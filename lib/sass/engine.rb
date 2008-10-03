@@ -379,22 +379,20 @@ END
     # parses out the arguments between the commas and cleans up the mixin arguments
     # returns nil if it fails to parse, otherwise an array.
     def parse_mixin_arguments(arg_string)
-      arg_string.rstrip!
-      unless arg_string.empty? || (arg_string[0] == 40 && arg_string[-1] == 41)
-        return nil
-      end
-      arg_string = arg_string[1...-1] unless arg_string.empty?
+      arg_string = arg_string.strip
+      return [] if arg_string.empty?
+      return nil unless (arg_string[0] == ?( && arg_string[-1] == ?))
+      arg_string = arg_string[1...-1]
       arg_string.split(",", -1).map {|a| a.strip}
     end
 
     def parse_mixin_definition(line)
       name, arg_string = line.text.scan(/^=\s*([^(]+)(.*)$/).first
-      raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) if name.nil?
-      arguments = parse_mixin_arguments(arg_string)
-      raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) unless arguments
+      args = parse_mixin_arguments(arg_string)
+      raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) if name.nil? || args.nil?
       default_arg_found = false
       required_arg_count = 0
-      args = arguments.map do |arg|
+      args.map! do |arg|
         raise SyntaxError.new("Mixin arguments can't be empty.", @line) if arg.empty? || arg == "!"
         unless arg[0] == Constant::CONSTANT_CHAR
           raise SyntaxError.new("Mixin argument \"#{arg}\" must begin with an exclamation point (!).", @line)
