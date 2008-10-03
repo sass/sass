@@ -184,6 +184,9 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 #   <sandwich bread='whole wheat' delicious='true' filling='peanut butter and jelly' />
 #
+# Note that the Haml attributes list has the same syntax as a Ruby method call.
+# This means that any attribute methods must come before the hash literal.
+#
 # ===== Boolean Attributes
 #
 # Some attributes, such as "checked" for <tt>input</tt> tags or "selected" for <tt>option</tt> tags,
