@@ -239,6 +239,7 @@ END
       end
     end
     RedCloth = Textile
+    Filters.defined['redcloth'] = RedCloth
 
     # Uses BlueCloth or RedCloth to provide only Markdown (not Textile) parsing
     module Markdown
