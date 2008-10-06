@@ -156,8 +156,10 @@ module Haml
       end
       self.class.merge_attrs(attributes, parse_object_ref(obj_ref)) if obj_ref
 
-      if self_closing
+      if self_closing && xhtml?
         str = " />" + (nuke_outer_whitespace ? "" : "\n")
+      elsif self_closing && html?
+        str = " >" + (nuke_outer_whitespace ? "" : "\n")        
       else
         str = ">" + (try_one_line || preserve_tag || nuke_inner_whitespace ? "" : "\n")
       end
