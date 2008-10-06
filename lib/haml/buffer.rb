@@ -156,10 +156,14 @@ module Haml
       end
       self.class.merge_attrs(attributes, parse_object_ref(obj_ref)) if obj_ref
 
-      if self_closing
+      if self_closing && xhtml?
         str = " />" + (nuke_outer_whitespace ? "" : "\n")
       else
-        str = ">" + (try_one_line || preserve_tag || nuke_inner_whitespace ? "" : "\n")
+        str = ">" + ((if self_closing && html?
+                        nuke_outer_whitespace
+                      else
+                        try_one_line || preserve_tag || nuke_inner_whitespace
+                      end) ? "" : "\n")
       end
 
       attributes = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)

@@ -527,7 +527,7 @@ END
       preserve_tag &&= !options[:ugly]
 
       case action
-      when '/'; self_closing = xhtml?
+      when '/'; self_closing = true
       when '~'; parse = preserve_script = true
       when '='
         parse = true
