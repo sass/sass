@@ -158,10 +158,12 @@ module Haml
 
       if self_closing && xhtml?
         str = " />" + (nuke_outer_whitespace ? "" : "\n")
-      elsif self_closing && html?
-        str = " >" + (nuke_outer_whitespace ? "" : "\n")        
       else
-        str = ">" + (try_one_line || preserve_tag || nuke_inner_whitespace ? "" : "\n")
+        str = ">" + ((if self_closing && html?
+                        nuke_outer_whitespace
+                      else
+                        try_one_line || preserve_tag || nuke_inner_whitespace
+                      end) ? "" : "\n")
       end
 
       attributes = Precompiler.build_attributes(html?, @options[:attr_wrapper], attributes)

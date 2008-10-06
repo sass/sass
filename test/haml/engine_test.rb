@@ -554,8 +554,11 @@ END
     assert_equal "<div class='foo'></div>\n", render(".foo", :format => :html4)
   end
 
-  def test_html_ignores_explicit_self_closing_declaration
-    assert_equal "<a></a>\n", render("%a/", :format => :html4)
+  def test_html_doesnt_add_slash_to_self_closing_tags
+    assert_equal "<a>\n", render("%a/", :format => :html4)
+    assert_equal "<a foo='2'>\n", render("%a{:foo => 1 + 1}/", :format => :html4)
+    assert_equal "<meta>\n", render("%meta", :format => :html4)
+    assert_equal "<meta foo='2'>\n", render("%meta{:foo => 1 + 1}", :format => :html4)
   end
 
   def test_html_ignores_xml_prolog_declaration
