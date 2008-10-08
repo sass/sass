@@ -4,4 +4,5 @@ rescue LoadError
   require 'haml' # From gem
 end
 
+# Load Haml and Sass
 Haml.init_rails(binding)
