@@ -77,7 +77,7 @@ module Haml
         input_file, output_file = if input
                                     [nil, open_file(ARGV[0], 'w')]
                                   else
-                                    @options[:for_engine][:filename] = ARGV[0]
+                                    @options[:filename] = ARGV[0]
                                     [open_file(ARGV[0]), open_file(ARGV[1], 'w')]
                                   end
 
@@ -161,6 +161,7 @@ END
 
       def process_result
         super
+        @options[:for_engine][:filename] = @options[:filename] if @options[:filename]
         require File.dirname(__FILE__) + "/../#{@name.downcase}"
       end
     end
