@@ -18,7 +18,7 @@ module Sass
 
       def perform
         unless Functions.public_instance_methods.include?(name) && name !~ /^__/
-          return Constant::String.from_value("#{name}(#{args.join(', ')})")
+          return Constant::String.new("#{name}(#{args.join(', ')})")
         end
 
         return Functions.send(name, *args)

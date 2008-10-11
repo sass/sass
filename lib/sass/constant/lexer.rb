@@ -81,7 +81,7 @@ module Sass
         return unless @scanner.scan(/(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/)
         value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
         value = -value if @scanner[1]
-        [:number, Constant::Number.from_value(value, Array(@scanner[4]))]
+        [:number, Constant::Number.new(value, Array(@scanner[4]))]
       end
 
       COLOR = /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})/

@@ -9,35 +9,10 @@ require 'sass/constant/color'
 require 'sass/constant/bool'
 
 class Sass::Constant::Literal # :nodoc:
-  # The regular expression matching numbers.
-  NUMBER  = /^(-?\d*?\.?)(\d+)([^\d\s]*)$/
-
-  html_color_matcher = Sass::Constant::Color::HTML4_COLORS.keys.map { |c| "^#{c}$" }.join '|'
-
-  # The regular expression matching colors.
-  COLOR = /^\# (?: [\da-f]{3} | [\da-f]{6} ) | #{html_color_matcher}/ix
-
-  def self.parse(value)
-    case value
-    when NUMBER
-      Sass::Constant::Number.new(value)
-    when COLOR
-      Sass::Constant::Color.new(value)
-    when "true", "false"
-      Sass::Constant::Bool.new(value)
-    when ::Symbol
-      value
-    else
-      Sass::Constant::String.new(value)
-    end
-  end
+  attr_reader :value
 
   def initialize(value = nil)
-    if value.is_a?(String)
-      self.parse(value)
-    else
-      @value = value
-    end
+    @value = value
   end
 
   def perform
@@ -53,23 +28,23 @@ class Sass::Constant::Literal # :nodoc:
   end
 
   def eq(other)
-    Sass::Constant::Bool.from_value(self.class == other.class && self.value == other.value)
+    Sass::Constant::Bool.new(self.class == other.class && self.value == other.value)
   end
 
   def neq(other)
-    Sass::Constant::Bool.from_value(!eq(other).to_bool)
+    Sass::Constant::Bool.new(!eq(other).to_bool)
   end
 
   def unary_not
-    Sass::Constant::Bool.from_value(!to_bool)
+    Sass::Constant::Bool.new(!to_bool)
   end
 
   def concat(other)
-    Sass::Constant::String.from_value("#{self.to_s} #{other.to_s}")
+    Sass::Constant::String.new("#{self.to_s} #{other.to_s}")
   end
 
   def comma(other)
-    Sass::Constant::String.from_value("#{self.to_s}, #{other.to_s}")
+    Sass::Constant::String.new("#{self.to_s}, #{other.to_s}")
   end
 
   def inspect
@@ -82,19 +57,5 @@ class Sass::Constant::Literal # :nodoc:
 
   def to_i
     raise SyntaxError.new("#{value.dump} is not an integer.")
-  end
-
-  attr_reader :value
-
-  protected
-
-  def self.filter_value(value)
-    value
-  end
-
-  def self.from_value(value)
-    instance = self.new
-    instance.instance_variable_set('@value', self.filter_value(value))
-    instance
   end
 end

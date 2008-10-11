@@ -46,7 +46,7 @@ module Sass::Constant
       unless value.is_a?(Sass::Constant::Number) && value.unitless?
         raise ArgumentError.new("Value is not a unitless number")
       end
-      Sass::Constant::Number.from_value(value.value * 100, '%')
+      Sass::Constant::Number.new(value.value * 100, '%')
     end
 
     private

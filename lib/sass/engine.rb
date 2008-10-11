@@ -83,7 +83,7 @@ module Sass
         :load_paths => ['.']
       }.merge! options
       @template = template
-      @constants = {"important" => Constant::String.from_value("!important")}
+      @constants = {"important" => Constant::String.new("!important")}
       @mixins = {}
     end
 
@@ -361,7 +361,7 @@ END
       tree = []
       old_constants = @constants.dup
       for i in range
-        @constants[var[1..-1]] = Constant::Number.from_value(i)
+        @constants[var[1..-1]] = Constant::Number.new(i)
         append_children(tree, line.children, root)
       end
       @constants = old_constants

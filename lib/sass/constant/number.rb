@@ -7,11 +7,11 @@ module Sass::Constant
 
     PRECISION = 1000.0
 
-    def parse(value)
-      first, second, unit = value.scan(Literal::NUMBER)[0]
-      @value = first.empty? ? second.to_i : "#{first}#{second}".to_f
-      @numerator_units = Array(unit)
-      @denominator_units = []
+    def initialize(value, numerator_units = [], denominator_units = [])
+      super(value)
+      @numerator_units = numerator_units
+      @denominator_units = denominator_units
+      normalize!
     end
 
     def plus(other)
@@ -20,7 +20,7 @@ module Sass::Constant
       elsif other.is_a?(Color)
         other.plus(self)
       else
-        Sass::Constant::String.from_value(self.to_s + other.to_s)
+        Sass::Constant::String.new(self.to_s + other.to_s)
       end
     end
 
@@ -33,7 +33,7 @@ module Sass::Constant
     end
 
     def unary_minus
-      Number.from_value(-value, numerator_units, denominator_units)
+      Number.new(-value, numerator_units, denominator_units)
     end
 
     def times(other)
@@ -66,7 +66,7 @@ module Sass::Constant
     end
 
     def eq(other)
-      Sass::Constant::Bool.from_value(super.to_bool &&
+      Sass::Constant::Bool.new(super.to_bool &&
         self.numerator_units.sort == other.numerator_units.sort &&
         self.denominator_units.sort == other.denominator_units.sort)
     end
@@ -120,14 +120,6 @@ module Sass::Constant
 
     protected
 
-    def self.from_value(value, numerator_units = [], denominator_units = [])
-      instance = super(value)
-      instance.instance_variable_set('@numerator_units', numerator_units)
-      instance.instance_variable_set('@denominator_units', denominator_units)
-      instance.send :normalize!
-      instance
-    end
-
     def operate(other, operation)
       this = self
       if [:+, :-].include?(operation)
@@ -140,14 +132,14 @@ module Sass::Constant
 
       result = this.value.send(operation, other.value)
       if result.is_a?(Numeric)
-        Number.from_value(result, *compute_units(this, other, operation))
+        Number.new(result, *compute_units(this, other, operation))
       else # Boolean op
-        Bool.from_value(result)
+        Bool.new(result)
       end
     end
 
     def coerce(num_units, den_units)
-      Number.from_value(if unitless?
+      Number.new(if unitless?
                           self.value
                         else
                           self.value * coercion_factor(self.numerator_units, num_units) /

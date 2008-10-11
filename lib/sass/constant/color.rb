@@ -22,20 +22,13 @@ module Sass::Constant
       'aqua'    => 0x00ffff
     }
 
-    REGEXP = /\##{"([0-9a-fA-F]{1,2})" * 3}/
-
-    def parse(value)
-      if (value =~ REGEXP)
-        @value = value.scan(REGEXP)[0].map { |num| num.ljust(2, num).to_i(16) }
-      else
-        color = HTML4_COLORS[value.downcase]
-        @value = (0..2).map{ |n| color >> (n << 3) & 0xff }.reverse
-      end
+    def initialize(rgb)
+      super(rgb.map {|c| c.to_i})
     end
 
     def plus(other)
       if other.is_a? Sass::Constant::String
-        Sass::Constant::String.from_value(self.to_s + other.to_s)
+        Sass::Constant::String.new(self.to_s + other.to_s)
       else
         piecewise(other, :+)
       end
@@ -79,12 +72,6 @@ module Sass::Constant
     end
     alias_method :inspect, :to_s
 
-    protected
-
-    def self.filter_value(value)
-      value.map { |num| num.to_i }
-    end
-
     private
 
     def piecewise(other, operation)
@@ -99,7 +86,7 @@ module Sass::Constant
         res = @value[i].send(operation, other_num ? other_val : other_val[i])
         rgb[i] = [ [res, 255].min, 0 ].max
       end
-      Color.from_value(rgb)
+      Color.new(rgb)
     end
   end
 end
