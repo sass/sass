@@ -467,6 +467,38 @@ a
 SASS
   end
 
+  def test_relational_ops
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  gt1: false;
+  gt2: false;
+  gt3: true;
+  gte1: false;
+  gte2: true;
+  gte3: true;
+  lt1: true;
+  lt2: false;
+  lt3: false;
+  lte1: true;
+  lte2: true;
+  lte3: false; }
+CSS
+a
+  gt1 = 1 > 2
+  gt2 = 2 > 2
+  gt3 = 3 > 2
+  gte1 = 1 >= 2
+  gte2 = 2 >= 2
+  gte3 = 3 >= 2
+  lt1 = 1 < 2
+  lt2 = 2 < 2
+  lt3 = 3 < 2
+  lte1 = 1 <= 2
+  lte2 = 2 <= 2
+  lte3 = 3 <= 2
+SASS
+  end
+
   def test_functions
     assert_equal("a {\n  b: #80ff80; }\n", render("a\n  b = hsl(120, 100%, 75%)"))
     assert_equal("a {\n  b: #81ff81; }\n", render("a\n  b = hsl(120, 100%, 75%) + #010001"))
@@ -572,14 +604,16 @@ a {
   p2: true;
   p3: true;
   p4: true;
-  p5: 11; }
+  p5: true;
+  p6: 11; }
 CSS
 a
   p1 = true and false false or true
-  p2 = 1 == 2 or 3 == 3
-  p3 = false and true or true and true
-  p4 = 1 + 1 == 4 - 2
-  p5 = 1 + 2 * 3 + 4
+  p2 = false and true or true and true
+  p3 = 1 == 2 or 3 == 3
+  p4 = 1 < 2 == 3 >= 3
+  p5 = 1 + 3 > 4 - 2
+  p6 = 1 + 2 * 3 + 4
 SASS
   end
 

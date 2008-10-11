@@ -71,6 +71,26 @@ module Sass::Constant
         self.denominator_units.sort == other.denominator_units.sort)
     end
 
+    def gt(other)
+      raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
+      operate(other, :>)
+    end
+
+    def gte(other)
+      raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
+      operate(other, :>=)
+    end
+
+    def lt(other)
+      raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
+      operate(other, :<)
+    end
+
+    def lte(other)
+      raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
+      operate(other, :<=)
+    end
+
     def to_s
       raise Sass::SyntaxError.new("#{inspect} isn't a valid CSS value.") unless legal_units?
       inspect
@@ -118,7 +138,12 @@ module Sass::Constant
         end
       end
 
-      Number.from_value(this.value.send(operation, other.value), *compute_units(this, other, operation))
+      result = this.value.send(operation, other.value)
+      if result.is_a?(Numeric)
+        Number.from_value(result, *compute_units(this, other, operation))
+      else # Boolean op
+        Bool.from_value(result)
+      end
     end
 
     def coerce(num_units, den_units)

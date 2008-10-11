@@ -16,8 +16,15 @@ module Sass
         'or' => :or,
         'not' => :not,
         '==' => :eq,
-        '!=' => :neq
+        '!=' => :neq,
+        '>=' => :gte,
+        '<=' => :lte,
+        '>' => :gt,
+        '<' => :lt,
       }
+      # We'll want to match longer names first
+      # so that > and < don't clobber >= and <=
+      OP_NAMES = OPERATORS.keys.sort_by {|o| -o.size}
 
       def initialize(str)
         @scanner = StringScanner.new(str)
@@ -95,7 +102,7 @@ module Sass
       end
 
       def op
-        return unless op = OPERATORS.keys.detect do |s|
+        return unless op = OP_NAMES.detect do |s|
           @scanner.scan(Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(\b|$)' : '')))
         end
         [OPERATORS[op]]

@@ -55,7 +55,8 @@ RUBY
 
       production :or_expr, :and_expr, :or
       production :and_expr, :eq_or_neq, :and
-      production :eq_or_neq, :plus_or_minus, :eq, :neq
+      production :eq_or_neq, :relational, :eq, :neq
+      production :relational, :plus_or_minus, :gt, :gte, :lt, :lte
       production :plus_or_minus, :times_div_or_mod, :plus, :minus
       production :times_div_or_mod, :unary_minus, :times, :div, :mod
 
