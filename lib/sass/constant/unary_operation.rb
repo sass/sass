@@ -13,10 +13,6 @@ module Sass::Constant
       "(#{@operator.inspect} #{@operand.inspect})"
     end
 
-    def to_arglist
-      [self]
-    end
-
     def perform
       operator = "unary_#{@operator}"
       literal = @operand.perform

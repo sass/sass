@@ -7,7 +7,6 @@ require 'sass/constant/string'
 require 'sass/constant/number'
 require 'sass/constant/color'
 require 'sass/constant/bool'
-require 'sass/constant/nil'
 
 class Sass::Constant::Literal # :nodoc:
   # The regular expression matching numbers.
@@ -53,12 +52,12 @@ class Sass::Constant::Literal # :nodoc:
     to_bool ? self : other
   end
 
-  def equals(other)
+  def eq(other)
     Sass::Constant::Bool.from_value(self.class == other.class && self.value == other.value)
   end
 
-  def not_equals(other)
-    Sass::Constant::Bool.from_value(!equals(other).to_bool)
+  def neq(other)
+    Sass::Constant::Bool.from_value(!eq(other).to_bool)
   end
 
   def unary_not
@@ -75,10 +74,6 @@ class Sass::Constant::Literal # :nodoc:
 
   def inspect
     value.inspect
-  end
-
-  def to_arglist
-    [self]
   end
 
   def to_bool

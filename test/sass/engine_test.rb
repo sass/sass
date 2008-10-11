@@ -8,9 +8,10 @@ class SassEngineTest < Test::Unit::TestCase
   # if so, the second element should be the line number that should be reported for the error.
   # If this isn't provided, the tests will assume the line number should be the last line of the document.
   EXCEPTION_MAP = {
-    "!a = 1 + " => 'Constant arithmetic error: "1 +".',
-    "!a = 1 + 2 +" => 'Constant arithmetic error: "1 + 2 +".',
-    "!a = \"b" => 'Unterminated string: "\\"b".',
+    "!a = 1 + " => 'Expected expression, was end of text.',
+    "!a = 1 + 2 +" => 'Expected expression, was end of text.',
+    "!a = 1 + 2 + %" => 'Expected expression, was mod token.',
+    "!a = foo(bar" => 'Expected rparen token, was end of text.',
     "!a = #aaa - a" => 'Undefined operation: "#aaaaaa minus a".',
     "!a = #aaa / a" => 'Undefined operation: "#aaaaaa div a".',
     "!a = #aaa * a" => 'Undefined operation: "#aaaaaa times a".',
@@ -49,7 +50,7 @@ class SassEngineTest < Test::Unit::TestCase
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
-    "!foo = bar baz !" => "Unterminated constant.",
+    "!foo = bar baz !" => "Syntax error in 'bar baz !' at '!'.",
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
@@ -70,8 +71,6 @@ class SassEngineTest < Test::Unit::TestCase
     "=a(!foo bar)" => "Invalid constant \"!foo bar\".",
     "=foo\n  bar: baz\n+foo" => ["Attributes aren't allowed at the root of a document.", 2],
     "a-\#{!b\n  c: d" => ["Unbalanced brackets.", 1],
-    "!a = 1 & 2" => "SassScript doesn't support a single-& operator.",
-    "!a = 1 | 2" => "SassScript doesn't support a single-| operator.",
     "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
     "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter #1 (b).",
@@ -438,14 +437,14 @@ CSS
 a
   b = true
   c = false
-  t1 = true && true
-  t2 = false || true
-  t3 = true || false
-  t4 = true || true
-  f1 = false || false
-  f2 = false && true
-  f3 = true && false
-  f4 = false && false
+  t1 = true and true
+  t2 = false or true
+  t3 = true or false
+  t4 = true or true
+  f1 = false or false
+  f2 = false and true
+  f3 = true and false
+  f4 = false and false
 SASS
     assert_equal(<<CSS, render(<<SASS))
 a {
@@ -454,17 +453,17 @@ a {
 CSS
 !var = true
 a
-  b = !!!var
-  c = !!var
+  b = not not !var
+  c = not !var
 SASS
   end
 
   def test_boolean_ops
     assert_equal("a {\n  b: 1;\n  c: 2;\n  d: 3; }\n", render(<<SASS))
 a
-  b = false || 1
-  c = 2 || 3
-  d = 2 && 3
+  b = false or 1
+  c = 2 or 3
+  d = 2 and 3
 SASS
   end
 
@@ -479,7 +478,7 @@ SASS
 a
   @if !var
     b: 1
-  @if !!var
+  @if not !var
     b: 2
 SASS
   end

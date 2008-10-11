@@ -65,7 +65,7 @@ module Sass::Constant
       end
     end
 
-    def equals(other)
+    def eq(other)
       Sass::Constant::Bool.from_value(super.to_bool &&
         self.numerator_units.sort == other.numerator_units.sort &&
         self.denominator_units.sort == other.denominator_units.sort)

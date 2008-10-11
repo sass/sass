@@ -1,0 +1,118 @@
+require 'sass/constant/lexer'
+
+module Sass
+  module Constant
+    class Parser
+      def initialize(str, constants = {})
+        @lexer = Lexer.new(str)
+        @constants = constants
+      end
+
+      def parse
+        assert_expr :expr
+      end
+
+      def self.parse(*args)
+        new(*args).parse
+      end
+
+      private
+
+      # Defines a simple left-associative production.
+      # name is the name of the production,
+      # sub is the name of the production beneath it,
+      # and ops is a list of operators for this precedence level
+      def self.production(name, sub, *ops)
+        class_eval <<RUBY
+          def #{name}
+            return unless e = #{sub}
+            while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
+              e = Operation.new(e, assert_expr(#{sub.inspect}), tok.first)
+            end
+            e
+          end
+RUBY
+      end
+
+      def self.unary(op, sub)
+        class_eval <<RUBY
+          def unary_#{op}
+            return #{sub} unless try_tok(:#{op})
+            UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
+          end
+RUBY
+      end
+
+      production :expr, :concat, :comma
+
+      def concat
+        return unless e = plus_or_minus
+        while sub = plus_or_minus
+          e = Operation.new(e, sub, :concat)
+        end
+        e
+      end
+
+      production :plus_or_minus, :times_div_or_mod, :plus, :minus
+      production :times_div_or_mod, :and_or_or, :times, :div, :mod
+      production :and_or_or, :eq_or_neq, :and, :or
+      production :eq_or_neq, :unary_minus, :eq, :neq
+
+      unary :minus, :unary_div
+      unary :div, :unary_not # For strings, so /foo/bar works
+      unary :not, :funcall
+
+      def funcall
+        return paren unless name = try_tok(:ident)
+        # An identifier without arguments is just a string
+        return Constant::String.new(name.last) unless try_tok(:lparen)
+        args = arglist || []
+        assert_tok(:rparen)
+        Constant::Funcall.new(name.last, args)
+      end
+
+      def arglist
+        return unless e = concat
+        return [e] unless try_tok(:comma)
+        [e, *arglist]
+      end
+
+      def paren
+        return constant unless try_tok(:lparen)
+        e = assert_expr(:expr)
+        assert_tok(:rparen)
+        return e
+      end
+
+      def constant
+        return literal unless c = try_tok(:const)
+        (val = @constants[c.last]) && (return val)
+
+        raise SyntaxError.new("Undefined constant: \"!#{c.last}\".")
+      end
+
+      def literal
+        (t = try_tok(:string, :number, :color, :bool)) && (return t.last)
+      end
+
+      # It would be possible to have unified #assert and #try methods,
+      # but detecting the method/token difference turns out to be quite expensive.
+
+      def assert_expr(name)
+        (e = send(name)) && (return e)
+        raise Sass::SyntaxError.new("Expected expression, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.first} token"}.")
+      end
+
+      def assert_tok(*names)
+        (t = try_tok(*names)) && (return t)
+        raise Sass::SyntaxError.new("Expected #{names.join(' or ')} token, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.first} token"}.")
+      end
+
+      def try_tok(*names)
+        return if @lexer.done?
+        names.each {|name| return @lexer.token if @lexer.peek.first == name}
+        nil
+      end
+    end
+  end
+end
