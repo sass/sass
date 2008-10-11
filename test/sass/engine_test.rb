@@ -565,6 +565,24 @@ CSS
 SASS
   end
 
+  def test_operation_precedence
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  p1: false true;
+  p2: true;
+  p3: true;
+  p4: true;
+  p5: 11; }
+CSS
+a
+  p1 = true and false false or true
+  p2 = 1 == 2 or 3 == 3
+  p3 = false and true or true and true
+  p4 = 1 + 1 == 4 - 2
+  p5 = 1 + 2 * 3 + 4
+SASS
+  end
+
   def test_argument_error
     assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
   end

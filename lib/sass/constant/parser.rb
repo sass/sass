@@ -46,17 +46,18 @@ RUBY
       production :expr, :concat, :comma
 
       def concat
-        return unless e = plus_or_minus
-        while sub = plus_or_minus
+        return unless e = or_expr
+        while sub = or_expr
           e = Operation.new(e, sub, :concat)
         end
         e
       end
 
+      production :or_expr, :and_expr, :or
+      production :and_expr, :eq_or_neq, :and
+      production :eq_or_neq, :plus_or_minus, :eq, :neq
       production :plus_or_minus, :times_div_or_mod, :plus, :minus
-      production :times_div_or_mod, :and_or_or, :times, :div, :mod
-      production :and_or_or, :eq_or_neq, :and, :or
-      production :eq_or_neq, :unary_minus, :eq, :neq
+      production :times_div_or_mod, :unary_minus, :times, :div, :mod
 
       unary :minus, :unary_div
       unary :div, :unary_not # For strings, so /foo/bar works
