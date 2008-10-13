@@ -10,7 +10,7 @@ class Sass::Script::Literal # :nodoc:
     @value = value
   end
 
-  def perform
+  def perform(environment)
     self
   end
 

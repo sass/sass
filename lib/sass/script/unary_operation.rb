@@ -5,17 +5,13 @@ module Sass::Script
       @operator = operator
     end
 
-    def to_s
-      self.perform.to_s
-    end
-
     def inspect
       "(#{@operator.inspect} #{@operand.inspect})"
     end
 
-    def perform
+    def perform(environment)
       operator = "unary_#{@operator}"
-      literal = @operand.perform
+      literal = @operand.perform(environment)
       literal.send(operator)
     rescue NoMethodError => e
       raise e unless e.name.to_s == operator.to_s

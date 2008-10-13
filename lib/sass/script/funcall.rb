@@ -8,18 +8,14 @@ module Sass
         @args = args
       end
 
-      def to_s
-        perform.to_s
-      end
-
       def inspect
         "#{name}(#{args.map {|a| a.inspect}.join(', ')})"
       end
 
-      def perform
-        args = self.args.map {|a| a.perform}
+      def perform(environment)
+        args = self.args.map {|a| a.perform(environment)}
         unless Functions.public_instance_methods.include?(name) && name !~ /^__/
-          return Script::String.new("#{name}(#{args.join(', ')})")
+          return Script::String.new("#{name}(#{args.map {|a| a.perform(environment)}.join(', ')})")
         end
 
         return Functions.send(name, *args)

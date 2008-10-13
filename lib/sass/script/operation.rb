@@ -12,17 +12,13 @@ module Sass::Script
       @operator = operator
     end
 
-    def to_s
-      self.perform.to_s
-    end
-
     def inspect
       "(#{@operator.inspect} #{@operand1.inspect} #{@operand2.inspect})"
     end
 
-    def perform
-      literal1 = @operand1.perform
-      literal2 = @operand2.perform
+    def perform(environment)
+      literal1 = @operand1.perform(environment)
+      literal2 = @operand2.perform(environment)
       begin
         literal1.send(@operator, literal2)
       rescue NoMethodError => e

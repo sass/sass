@@ -2,10 +2,9 @@ require 'sass/script/lexer'
 
 module Sass
   module Script
-    class Parser # :nodoc:
-      def initialize(str, environment = {})
+    class Parser
+      def initialize(str)
         @lexer = Lexer.new(str)
-        @environment = environment
       end
 
       def parse
@@ -88,9 +87,7 @@ RUBY
 
       def variable
         return literal unless c = try_tok(:const)
-        (val = @environment[c.last]) && (return val)
-
-        raise SyntaxError.new("Undefined variable: \"!#{c.last}\".")
+        Variable.new(c.last)
       end
 
       def literal

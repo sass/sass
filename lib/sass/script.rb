@@ -1,4 +1,5 @@
 require 'strscan'
+require 'sass/script/variable'
 require 'sass/script/funcall'
 require 'sass/script/operation'
 require 'sass/script/literal'
@@ -22,7 +23,7 @@ module Sass
     end
 
     def self.parse(value, environment, line)
-      Parser.parse(value, environment).perform
+      Parser.parse(value).perform(environment)
     rescue Sass::SyntaxError => e
       if e.message == "SassScript error"
         e.instance_eval do
