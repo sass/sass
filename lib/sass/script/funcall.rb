@@ -17,6 +17,7 @@ module Sass
       end
 
       def perform
+        args = self.args.map {|a| a.perform}
         unless Functions.public_instance_methods.include?(name) && name !~ /^__/
           return Script::String.new("#{name}(#{args.join(', ')})")
         end

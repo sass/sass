@@ -41,7 +41,6 @@ module Sass::Script
     end
 
     def percentage(value)
-      value = value.perform if value.is_a?(Sass::Script::Operation)
       unless value.is_a?(Sass::Script::Number) && value.unitless?
         raise ArgumentError.new("Value is not a unitless number")
       end
