@@ -24,9 +24,8 @@ module Sass::Constant
 
     # Creates a Sass::Constant::Color object from hue, saturation, and lightness.
     # As per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsl-color),
-    # the units of hue are taken to be degrees,
-    # and the units of saturation and lightness are taken to be percentages.
-    # THis is not validated, though.
+    # hue is in degrees,
+    # and saturation and lightness are percentages.
     def hsl(h, s, l)
       # This algorithm is from http://www.w3.org/TR/css3-color#hsl-color
       h, s, l = [h, s, l].map { |a| a.value }
