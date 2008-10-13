@@ -43,9 +43,23 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_rgb_hsl(purple, ['2820', '100%', '50%'])
   end
 
+  def test_percentage
+    assert_equal("50%", percentage(".5"))
+    assert_equal("100%", percentage("1"))
+    assert_equal("25%", percentage("25px / 100.0px"))
+    assert_raises(ArgumentError) {percentage("25px")}
+    assert_raises(ArgumentError) {percentage("#ccc")}
+    assert_raises(ArgumentError) {percentage("string")}
+  end
+
   private
 
   def assert_rgb_hsl(rgb, hsl)
     assert_equal(rgb, Sass::Script::Functions.hsl(*hsl.map(&Sass::Script::Parser.method(:parse))).value)
   end
+
+  def percentage(value)
+    Sass::Constant::Functions.percentage(Sass::Constant::Parser.parse(value)).to_s
+  end
+
 end

@@ -40,6 +40,9 @@ module Sass::Script
                  hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round })
     end
 
+    # Converts a unitless number into a percent and multiplies the number by 100.
+    # E.g. percentage(100px / 50px) => 200%
+    # Some may find this more natural than: 1% * 100px / 50px
     def percentage(value)
       unless value.is_a?(Sass::Script::Number) && value.unitless?
         raise ArgumentError.new("Value is not a unitless number")
