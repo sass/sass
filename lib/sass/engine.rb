@@ -6,6 +6,10 @@ require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/attr_node'
 require 'sass/tree/directive_node'
+require 'sass/tree/mixin_node'
+require 'sass/tree/if_node'
+require 'sass/tree/while_node'
+require 'sass/tree/for_node'
 require 'sass/script'
 require 'sass/error'
 require 'haml/shared'
@@ -21,7 +25,7 @@ module Sass
   #   puts output
   class Engine
     Line = Struct.new(:text, :tabs, :index, :filename, :children)
-    Mixin = Struct.new(:args, :tree)
+    Mixin = Struct.new(:name, :args, :tree)
 
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ?:
@@ -115,7 +119,7 @@ module Sass
     def render_to_tree
       root = Tree::Node.new(@options)
       append_children(root, tree(tabulate(@template)).first, true)
-      root
+      root.perform(@environment)
     end
 
     private
@@ -260,7 +264,7 @@ END
         if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
           parse_attribute(line.text, ATTRIBUTE_ALTERNATE)
         else
-          Tree::RuleNode.new(interpolate(line.text), @options)
+          Tree::RuleNode.new(line.text, @options)
         end
       end
     end
@@ -280,11 +284,8 @@ END
         raise SyntaxError.new("Invalid attribute: \"#{line}\".", @line)
       end
 
-      if eq.strip[0] == SCRIPT_CHAR
-        value = Script.resolve(value, @environment, @line)
-      end
-
-      Tree::AttrNode.new(interpolate(name), interpolate(value), @options)
+      expr = (eq.strip[0] == SCRIPT_CHAR) ? Script.parse(value, @line) : value
+      Tree::AttrNode.new(name, expr, @options)
     end
 
     def parse_variable(line)
@@ -292,7 +293,7 @@ END
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.", @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".", @line) unless name && value
 
-      var = Script.parse(value, @environment, @line)
+      var = Script.parse(value, @line).perform(@environment)
       if op == '||='
         @environment[name] ||= var
       else
@@ -320,22 +321,14 @@ END
       if directive == "import" && value !~ /^(url\(|")/
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.", @line + 1) unless line.children.empty?
         import(value)
-      elsif directive == "if"
-        parse_if(line, root, value)
       elsif directive == "for"
         parse_for(line, root, value)
       elsif directive == "while"
-        parse_while(line, root, value)
+        Tree::WhileNode.new(Script.parse(value, line.index), @options)
+      elsif directive == "if"
+        Tree::IfNode.new(Script.parse(value, line.index), @options)
       else
         Tree::DirectiveNode.new(line.text, @options)
-      end
-    end
-
-    def parse_if(line, root, text)
-      if Script.parse(text, @environment, line.index).to_bool
-        append_children([], line.children, root)
-      else
-        []
       end
     end
 
@@ -354,26 +347,8 @@ END
       end
       raise SyntaxError.new("Invalid variable \"#{var}\".", @line) unless var =~ Script::VALIDATE
 
-      from = Script.parse(from_expr, @environment, @line).to_i
-      to = Script.parse(to_expr, @environment, @line).to_i
-      range = Range.new(from, to, to_name == 'to')
-
-      tree = []
-      old_env = @environment.dup
-      for i in range
-        @environment[var[1..-1]] = Script::Number.new(i)
-        append_children(tree, line.children, root)
-      end
-      @environment = old_env
-      tree
-    end
-
-    def parse_while(line, root, text)
-      tree = []
-      while Script.parse(text, @environment, line.index).to_bool
-        append_children(tree, line.children, root)
-      end
-      tree
+      Tree::ForNode.new(var[1..-1], Script.parse(from_expr, @line), Script.parse(to_expr, @line),
+        to_name == 'to', @options)
     end
 
     # parses out the arguments between the commas and cleans up the mixin arguments
@@ -402,10 +377,11 @@ END
         default_arg_found ||= default
         raise SyntaxError.new("Invalid variable \"#{arg}\".", @line) unless arg =~ Script::VALIDATE
         raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
-        default = Script.parse(default, @environment, @line) if default
+        default = Script.parse(default, @line).perform(@environment) if default
         { :name => arg[1..-1], :default_value => default }
       end
-      mixin = @mixins[name] = Mixin.new(args, line.children)
+      mixin = @mixins[name] = Mixin.new(name, args, [])
+      append_children(mixin.tree, line.children, false)
       :mixin
     end
 
@@ -422,43 +398,7 @@ Mixin #{name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{args.size} #{args.size == 1 ? 'was' : 'were'} passed.
 END
 
-      old_env = @environment.dup
-      mixin.args.zip(args).inject(@environment) do |env, (arg, value)|
-        env[arg[:name]] = if value
-                            Script.parse(value, old_env, @line)
-                          else
-                            arg[:default_value]
-                          end
-        raise SyntaxError.new("Mixin #{name} is missing parameter ##{mixin.args.index(arg)+1} (#{arg[:name]}).") unless env[arg[:name]]
-        env
-      end
-
-      tree = append_children([], mixin.tree, root)
-      @environment = old_env
-      tree
-    end
-
-    def interpolate(text)
-      scan = StringScanner.new(text)
-      str = ''
-
-      while scan.scan(/(.*?)(\\*)\#\{/)
-        escapes = scan[2].size
-        str << scan.matched[0...-2 - escapes]
-        if escapes % 2 == 1
-          str << '#{'
-        else
-          str << Script.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], @environment, @line)
-        end
-      end
-
-      str + scan.rest
-    end
-
-    def balance(*args)
-      res = Haml::Shared.balance(*args)
-      return res if res
-      raise SyntaxError.new("Unbalanced brackets.", @line)
+      Tree::MixinNode.new(mixin, args.map {|s| Script.parse(s, @line)}, @options)
     end
 
     def import_paths

@@ -18,12 +18,12 @@ module Sass
     # The regular expression used to validate variables without matching
     VALIDATE = /^!\w+$/
 
-    def self.resolve(*args)
-      parse(*args).to_s
+    def self.resolve(value, line, environment)
+      parse(value, line).perform(environment).to_s
     end
 
-    def self.parse(value, environment, line)
-      Parser.parse(value).perform(environment)
+    def self.parse(value, line)
+      Parser.parse(value)
     rescue Sass::SyntaxError => e
       if e.message == "SassScript error"
         e.instance_eval do

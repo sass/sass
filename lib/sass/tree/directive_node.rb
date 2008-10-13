@@ -2,7 +2,14 @@ require 'sass/tree/node'
 require 'sass/tree/value_node'
 
 module Sass::Tree
-  class DirectiveNode < ValueNode
+  class DirectiveNode < Node
+    attr_accessor :value
+
+    def initialize(value, options)
+      @value = value
+      super(options)
+    end
+
     def to_s(tabs)
       if children.empty?
         value + ";"

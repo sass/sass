@@ -73,7 +73,7 @@ class SassEngineTest < Test::Unit::TestCase
     "a-\#{!b\n  c: d" => ["Unbalanced brackets.", 1],
     "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
     "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
-    "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter #1 (b).",
+    "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter !b.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -132,8 +132,7 @@ class SassEngineTest < Test::Unit::TestCase
   end
 
   def test_imported_exception
-    [1, 2].each do |i|
-      i = nil if i == 1
+    [nil, 2].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err

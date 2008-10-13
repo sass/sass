@@ -1,9 +1,12 @@
 require 'sass/tree/node'
 
 module Sass::Tree
-  class CommentNode < ValueNode
-    def initialize(value, style)
-      super(value[2..-1].strip, style)
+  class CommentNode < Node
+    attr_accessor :value
+
+    def initialize(value, options)
+      @value = value[2..-1].strip
+      super(options)
     end
 
     def to_s(tabs = 0, parent_name = nil)
@@ -12,6 +15,12 @@ module Sass::Tree
       spaces = '  ' * (tabs - 1)
       spaces + "/* " + ([value] + children.map {|c| c.text}).
         join(@style == :compact ? ' ' : "\n#{spaces} * ") + " */"
+    end
+
+    protected
+
+    def _perform(environment)
+      self
     end
   end
 end
