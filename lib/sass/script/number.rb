@@ -129,8 +129,10 @@ module Sass::Script
           other = other.coerce(numerator_units, denominator_units)
         end
       end
+      # avoid integer division
+      value = (:/ == operation) ? this.value.to_f : this.value
+      result = value.send(operation, other.value)
 
-      result = this.value.send(operation, other.value)
       if result.is_a?(Numeric)
         Number.new(result, *compute_units(this, other, operation))
       else # Boolean op
