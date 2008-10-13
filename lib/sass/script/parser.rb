@@ -2,7 +2,7 @@ require 'sass/script/lexer'
 
 module Sass
   module Script
-    class Parser
+    class Parser # :nodoc:
       def initialize(str, environment = {})
         @lexer = Lexer.new(str)
         @environment = environment

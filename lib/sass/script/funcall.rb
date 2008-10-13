@@ -1,6 +1,6 @@
 module Sass
   module Script
-    class Funcall
+    class Funcall # :nodoc:
       attr_reader :name, :args
 
       def initialize(name, args)

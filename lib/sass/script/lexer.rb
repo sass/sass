@@ -2,7 +2,7 @@ require 'strscan'
 
 module Sass
   module Script
-    class Lexer
+    class Lexer # :nodoc:
       OPERATORS = {
         '+' => :plus,
         '-' => :minus,
