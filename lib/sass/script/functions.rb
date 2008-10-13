@@ -1,14 +1,14 @@
-module Sass::Constant
-  # Methods in this module are accessible from the Sass constant context.
+module Sass::Script
+  # Methods in this module are accessible from the Sass script context.
   # For example, you can write
   #
   #   color = hsl(120, 100%, 50%)
   #
-  # and it will call Sass::Constant::Functions#hsl.
+  # and it will call Sass::Script::Functions#hsl.
   #
   # You can add your own functions to this module,
   # but there are a few things to keep in mind.
-  # First of all, the arguments passed are (currently undocumented) Sass::Constant::Literal objects,
+  # First of all, the arguments passed are (currently undocumented) Sass::Script::Literal objects,
   # Literal objects are also the expected return values.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
@@ -22,7 +22,7 @@ module Sass::Constant
     instance_methods.each { |m| undef_method m unless m =~ /^__/ }
     extend self
 
-    # Creates a Sass::Constant::Color object from hue, saturation, and lightness.
+    # Creates a Sass::Script::Color object from hue, saturation, and lightness.
     # As per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsl-color),
     # hue is in degrees,
     # and saturation and lightness are percentages.
@@ -41,11 +41,11 @@ module Sass::Constant
     end
 
     def percentage(value)
-      value = value.perform if value.is_a?(Sass::Constant::Operation)
-      unless value.is_a?(Sass::Constant::Number) && value.unitless?
+      value = value.perform if value.is_a?(Sass::Script::Operation)
+      unless value.is_a?(Sass::Script::Number) && value.unitless?
         raise ArgumentError.new("Value is not a unitless number")
       end
-      Sass::Constant::Number.new(value.value * 100, '%')
+      Sass::Script::Number.new(value.value * 100, '%')
     end
 
     private

@@ -1,6 +1,6 @@
 require 'test/unit'
 require File.dirname(__FILE__) + '/../../lib/sass'
-require 'sass/constant'
+require 'sass/script'
 
 class SassFunctionTest < Test::Unit::TestCase
   def test_hsl
@@ -46,6 +46,6 @@ class SassFunctionTest < Test::Unit::TestCase
   private
 
   def assert_rgb_hsl(rgb, hsl)
-    assert_equal(rgb, Sass::Constant::Functions.hsl(*hsl.map(&Sass::Constant::Parser.method(:parse))).value)
+    assert_equal(rgb, Sass::Script::Functions.hsl(*hsl.map(&Sass::Script::Parser.method(:parse))).value)
   end
 end

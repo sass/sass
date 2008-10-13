@@ -481,7 +481,7 @@ $LOAD_PATH << dir unless $LOAD_PATH.include?(dir)
 #
 # === Functions
 #
-# SassScript defines some useful functions (see Sass::Constant::Functions)
+# SassScript defines some useful functions (see Sass::Script::Functions)
 # that are called using the normal CSS function syntax:
 #
 #   p

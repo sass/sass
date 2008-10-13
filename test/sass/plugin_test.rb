@@ -5,7 +5,7 @@ require 'fileutils'
 
 class SassPluginTest < Test::Unit::TestCase
   @@templates = %w{
-    complex constants parent_ref import alt
+    complex script parent_ref import alt
     subdir/subdir subdir/nested_subdir/nested_subdir
   }
 
@@ -52,7 +52,7 @@ class SassPluginTest < Test::Unit::TestCase
     File.delete(tempfile_loc('bork'))
     Sass::Plugin.update_stylesheets
     File.open(tempfile_loc('bork')) do |file|
-      assert_equal("/*\nSass::SyntaxError: Undefined constant: \"!bork\".\non line 2 of #{template_loc('bork')}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
+      assert_equal("/*\nSass::SyntaxError: Undefined variable: \"!bork\".\non line 2 of #{template_loc('bork')}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
     end
     File.delete(tempfile_loc('bork'))
   end

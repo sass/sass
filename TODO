@@ -2,7 +2,7 @@ Testing:
   Test html2haml and css2sass
 
 Features:
-  Sass should throw generic errors for undefined constants, not syntax errors
+  Sass should throw generic errors for undefined variables, not syntax errors
   Sass::Plugin should log errors
   There should be a way to make Haml tags not insert whitespace
   "%li, %a"?

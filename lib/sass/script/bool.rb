@@ -1,6 +1,6 @@
-require 'sass/constant/literal'
+require 'sass/script/literal'
 
-module Sass::Constant
+module Sass::Script
   class Bool < Literal # :nodoc:
     def to_s
       @value.to_s

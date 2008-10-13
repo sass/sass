@@ -6,7 +6,7 @@ require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/attr_node'
 require 'sass/tree/directive_node'
-require 'sass/constant'
+require 'sass/script'
 require 'sass/error'
 require 'haml/shared'
 
@@ -27,7 +27,7 @@ module Sass
     ATTRIBUTE_CHAR  = ?:
 
     # The character that designates that
-    # an attribute should be assigned to the result of constant arithmetic.
+    # an attribute should be assigned to a SassScript expression.
     SCRIPT_CHAR     = ?=
 
     # The character that designates the beginning of a comment,
@@ -83,7 +83,7 @@ module Sass
         :load_paths => ['.']
       }.merge! options
       @template = template
-      @constants = {"important" => Constant::String.new("!important")}
+      @environment = {"important" => Script::String.new("!important")}
       @mixins = {}
     end
 
@@ -104,8 +104,8 @@ module Sass
 
     protected
 
-    def constants
-      @constants
+    def environment
+      @environment
     end
 
     def mixins
@@ -171,7 +171,7 @@ END
       @line = line.index
       node = parse_line(line, root)
 
-      # Node is a symbol if it's non-outputting, like a constant assignment,
+      # Node is a symbol if it's non-outputting, like a variable assignment,
       # or an array if it's a group of nodes to add
       return node unless node.is_a? Tree::Node
 
@@ -219,8 +219,8 @@ END
     def validate_and_append_child(parent, child, line, root)
       unless root
         case child
-        when :constant
-          raise SyntaxError.new("Constants may only be declared at the root of a document.", line.index)
+        when :variable
+          raise SyntaxError.new("Variables may only be declared at the root of a document.", line.index)
         when :mixin
           raise SyntaxError.new("Mixins may only be defined at the root of a document.", line.index)
         when Tree::DirectiveNode
@@ -240,8 +240,8 @@ END
       case line.text[0]
       when ATTRIBUTE_CHAR
         parse_attribute(line.text, ATTRIBUTE)
-      when Constant::CONSTANT_CHAR
-        parse_constant(line)
+      when Script::VARIABLE_CHAR
+        parse_variable(line)
       when COMMENT_CHAR
         parse_comment(line.text)
       when DIRECTIVE_CHAR
@@ -281,25 +281,25 @@ END
       end
 
       if eq.strip[0] == SCRIPT_CHAR
-        value = Sass::Constant.resolve(value, @constants, @line)
+        value = Script.resolve(value, @environment, @line)
       end
 
       Tree::AttrNode.new(interpolate(name), interpolate(value), @options)
     end
 
-    def parse_constant(line)
-      name, op, value = line.text.scan(Sass::Constant::MATCH)[0]
-      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath constants.", @line + 1) unless line.children.empty?
-      raise SyntaxError.new("Invalid constant: \"#{line.text}\".", @line) unless name && value
+    def parse_variable(line)
+      name, op, value = line.text.scan(Script::MATCH)[0]
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.", @line + 1) unless line.children.empty?
+      raise SyntaxError.new("Invalid variable: \"#{line.text}\".", @line) unless name && value
 
-      constant = Sass::Constant.parse(value, @constants, @line)
+      var = Script.parse(value, @environment, @line)
       if op == '||='
-        @constants[name] ||= constant
+        @environment[name] ||= var
       else
-        @constants[name] = constant
+        @environment[name] = var
       end
 
-      :constant
+      :variable
     end
 
     def parse_comment(line)
@@ -332,7 +332,7 @@ END
     end
 
     def parse_if(line, root, text)
-      if Sass::Constant.parse(text, @constants, line.index).to_bool
+      if Script.parse(text, @environment, line.index).to_bool
         append_children([], line.children, root)
       else
         []
@@ -344,7 +344,7 @@ END
 
       if var.nil? # scan failed, try to figure out why for error message
         if text !~ /^[^\s]+/
-          expected = "constant name"
+          expected = "variable name"
         elsif text !~ /^[^\s]+\s+from\s+.+/
           expected = "'from <expr>'"
         else
@@ -352,25 +352,25 @@ END
         end
         raise SyntaxError.new("Invalid for directive '@for #{text}': expected #{expected}.", @line)
       end
-      raise SyntaxError.new("Invalid constant \"#{var}\".", @line) unless var =~ Constant::VALIDATE
+      raise SyntaxError.new("Invalid variable \"#{var}\".", @line) unless var =~ Script::VALIDATE
 
-      from = Sass::Constant.parse(from_expr, @constants, @line).to_i
-      to = Sass::Constant.parse(to_expr, @constants, @line).to_i
+      from = Script.parse(from_expr, @environment, @line).to_i
+      to = Script.parse(to_expr, @environment, @line).to_i
       range = Range.new(from, to, to_name == 'to')
 
       tree = []
-      old_constants = @constants.dup
+      old_env = @environment.dup
       for i in range
-        @constants[var[1..-1]] = Constant::Number.new(i)
+        @environment[var[1..-1]] = Script::Number.new(i)
         append_children(tree, line.children, root)
       end
-      @constants = old_constants
+      @environment = old_env
       tree
     end
 
     def parse_while(line, root, text)
       tree = []
-      while Sass::Constant.parse(text, @constants, line.index).to_bool
+      while Script.parse(text, @environment, line.index).to_bool
         append_children(tree, line.children, root)
       end
       tree
@@ -394,15 +394,15 @@ END
       required_arg_count = 0
       args.map! do |arg|
         raise SyntaxError.new("Mixin arguments can't be empty.", @line) if arg.empty? || arg == "!"
-        unless arg[0] == Constant::CONSTANT_CHAR
+        unless arg[0] == Script::VARIABLE_CHAR
           raise SyntaxError.new("Mixin argument \"#{arg}\" must begin with an exclamation point (!).", @line)
         end
         arg, default = arg.split(/\s*=\s*/, 2)
         required_arg_count += 1 unless default
         default_arg_found ||= default
-        raise SyntaxError.new("Invalid constant \"#{arg}\".", @line) unless arg =~ Constant::VALIDATE
+        raise SyntaxError.new("Invalid variable \"#{arg}\".", @line) unless arg =~ Script::VALIDATE
         raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
-        default = Sass::Constant.parse(default, @constants, @line) if default
+        default = Script.parse(default, @environment, @line) if default
         { :name => arg[1..-1], :default_value => default }
       end
       mixin = @mixins[name] = Mixin.new(args, line.children)
@@ -422,19 +422,19 @@ Mixin #{name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{args.size} #{args.size == 1 ? 'was' : 'were'} passed.
 END
 
-      old_constants = @constants.dup
-      mixin.args.zip(args).inject(@constants) do |constants, (arg, value)|
-        constants[arg[:name]] = if value
-                                  Sass::Constant.parse(value, old_constants, @line)
-                                else
-                                  arg[:default_value]
-                                end
-        raise SyntaxError.new("Mixin #{name} is missing parameter ##{mixin.args.index(arg)+1} (#{arg[:name]}).") unless constants[arg[:name]]
-        constants
+      old_env = @environment.dup
+      mixin.args.zip(args).inject(@environment) do |env, (arg, value)|
+        env[arg[:name]] = if value
+                            Script.parse(value, old_env, @line)
+                          else
+                            arg[:default_value]
+                          end
+        raise SyntaxError.new("Mixin #{name} is missing parameter ##{mixin.args.index(arg)+1} (#{arg[:name]}).") unless env[arg[:name]]
+        env
       end
 
       tree = append_children([], mixin.tree, root)
-      @constants = old_constants
+      @environment = old_env
       tree
     end
 
@@ -448,7 +448,7 @@ END
         if escapes % 2 == 1
           str << '#{'
         else
-          str << Sass::Constant.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], @constants, @line)
+          str << Script.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], @environment, @line)
         end
       end
 
@@ -495,7 +495,7 @@ END
             engine = Sass::Engine.new(file.read, new_options)
           end
 
-          engine.constants.merge! @constants
+          engine.environment.merge! @environment
           engine.mixins.merge! @mixins
 
           begin
@@ -505,7 +505,7 @@ END
             raise err
           end
           nodes += root.children
-          @constants = engine.constants
+          @environment = engine.environment
           @mixins = engine.mixins
         end
       end

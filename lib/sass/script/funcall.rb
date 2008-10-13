@@ -1,5 +1,5 @@
 module Sass
-  module Constant
+  module Script
     class Funcall
       attr_reader :name, :args
 
@@ -18,7 +18,7 @@ module Sass
 
       def perform
         unless Functions.public_instance_methods.include?(name) && name !~ /^__/
-          return Constant::String.new("#{name}(#{args.join(', ')})")
+          return Script::String.new("#{name}(#{args.join(', ')})")
         end
 
         return Functions.send(name, *args)

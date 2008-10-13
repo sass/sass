@@ -1,10 +1,10 @@
-require 'sass/constant/string'
-require 'sass/constant/number'
-require 'sass/constant/color'
-require 'sass/constant/functions'
-require 'sass/constant/unary_operation'
+require 'sass/script/string'
+require 'sass/script/number'
+require 'sass/script/color'
+require 'sass/script/functions'
+require 'sass/script/unary_operation'
 
-module Sass::Constant
+module Sass::Script
   class Operation # :nodoc:
     def initialize(operand1, operand2, operator)
       @operand1 = operand1

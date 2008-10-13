@@ -1,7 +1,7 @@
 require 'strscan'
 
 module Sass
-  module Constant
+  module Script
     class Lexer
       OPERATORS = {
         '+' => :plus,
@@ -39,7 +39,7 @@ module Sass
         end
 
         whitespace
-        constant || string || number || color || bool || op || ident ||
+        variable || string || number || color || bool || op || ident ||
           (raise SyntaxError.new("Syntax error in '#{@scanner.string}' at '#{@scanner.rest}'."))
       end
 
@@ -62,7 +62,7 @@ module Sass
         @scanner.scan(/\s*/)
       end
 
-      def constant
+      def variable
         return unless @scanner.scan(/!(\w+)/)
         [:const, @scanner[1]]
       end
@@ -74,14 +74,14 @@ module Sass
 
       def string
         return unless @scanner.scan(/"((?:\\.|[^"\\])*)"/)
-        [:string, Constant::String.new(@scanner[1].gsub(/\\(.)/, '\1'))]
+        [:string, Script::String.new(@scanner[1].gsub(/\\(.)/, '\1'))]
       end
 
       def number
         return unless @scanner.scan(/(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/)
         value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
         value = -value if @scanner[1]
-        [:number, Constant::Number.new(value, Array(@scanner[4]))]
+        [:number, Script::Number.new(value, Array(@scanner[4]))]
       end
 
       COLOR = /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})/
@@ -93,12 +93,12 @@ module Sass
                 else
                   (1..3).map {|i| @scanner[i]}.map {|num| num.ljust(2, num).to_i(16)}
                 end
-        [:color, Constant::Color.new(value)]
+        [:color, Script::Color.new(value)]
       end
 
       def bool
         return unless s = @scanner.scan(/(true|false)\b/)
-        [:bool, Constant::Bool.new(s == 'true')]
+        [:bool, Script::Bool.new(s == 'true')]
       end
 
       def op

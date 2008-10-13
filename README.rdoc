@@ -175,14 +175,14 @@ becomes:
         :text-decoration underline
 
 Pretty nice, no? Well, it gets better.
-One of the main complaints against CSS is that it doesn't allow constants.
+One of the main complaints against CSS is that it doesn't allow variables.
 What if have a color or a width you re-use all the time?
 In CSS, you just have to re-type it each time,
 which is a nightmare when you decide to change it later.
 Not so for Sass!
-You can use the "!" character to set constants.
+You can use the "!" character to set variables.
 Then, if you put "=" after your attribute name,
-you can set it to a constant.
+you can set it to a variable.
 For example:
 
   !note_bg= #55aaff
@@ -205,7 +205,7 @@ becomes:
       width: 5em;
       background-color: #55aaff; }
 
-You can even do simple arithmetic operations with constants,
+You can even do simple arithmetic operations with variables,
 adding numbers and even colors together:
 
   !main_bg= #46ar12
@@ -227,7 +227,7 @@ becomes:
       background-color: #79d645;
       width: 15em; }
 
-Taking the idea of constants a bit further are mixins.
+Taking the idea of variables a bit further are mixins.
 These let you group whole swathes of CSS attributes into a single
 directive and then include those anywhere you want:
 

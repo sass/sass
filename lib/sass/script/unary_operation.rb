@@ -1,4 +1,4 @@
-module Sass::Constant
+module Sass::Script
   class UnaryOperation # :nodoc:
     def initialize(operand, operator)
       @operand = operand

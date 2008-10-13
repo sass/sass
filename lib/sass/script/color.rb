@@ -1,6 +1,6 @@
-require 'sass/constant/literal'
+require 'sass/script/literal'
 
-module Sass::Constant
+module Sass::Script
   class Color < Literal # :nodoc:
 
     HTML4_COLORS = {
@@ -27,15 +27,15 @@ module Sass::Constant
     end
 
     def plus(other)
-      if other.is_a? Sass::Constant::String
-        Sass::Constant::String.new(self.to_s + other.to_s)
+      if other.is_a? Sass::Script::String
+        Sass::Script::String.new(self.to_s + other.to_s)
       else
         piecewise(other, :+)
       end
     end
 
     def minus(other)
-      if other.is_a? Sass::Constant::String
+      if other.is_a? Sass::Script::String
         raise NoMethodError.new(nil, :minus)
       else
         piecewise(other, :-)
@@ -43,7 +43,7 @@ module Sass::Constant
     end
 
     def times(other)
-      if other.is_a? Sass::Constant::String
+      if other.is_a? Sass::Script::String
         raise NoMethodError.new(nil, :times)
       else
         piecewise(other, :*)
@@ -51,7 +51,7 @@ module Sass::Constant
     end
 
     def div(other)
-      if other.is_a? Sass::Constant::String
+      if other.is_a? Sass::Script::String
         raise NoMethodError.new(nil, :div)
       else
         piecewise(other, :/)
@@ -59,7 +59,7 @@ module Sass::Constant
     end
 
     def mod(other)
-      if other.is_a? Sass::Constant::String
+      if other.is_a? Sass::Script::String
         raise NoMethodError.new(nil, :mod)
       else
         piecewise(other, :%)

@@ -1,6 +1,6 @@
-require 'sass/constant/literal'
+require 'sass/script/literal'
 
-module Sass::Constant
+module Sass::Script
   class Number < Literal # :nodoc:
 
     attr_reader :numerator_units, :denominator_units
@@ -20,7 +20,7 @@ module Sass::Constant
       elsif other.is_a?(Color)
         other.plus(self)
       else
-        Sass::Constant::String.new(self.to_s + other.to_s)
+        Sass::Script::String.new(self.to_s + other.to_s)
       end
     end
 
@@ -66,7 +66,7 @@ module Sass::Constant
     end
 
     def eq(other)
-      Sass::Constant::Bool.new(super.to_bool &&
+      Sass::Script::Bool.new(super.to_bool &&
         self.numerator_units.sort == other.numerator_units.sort &&
         self.denominator_units.sort == other.denominator_units.sort)
     end

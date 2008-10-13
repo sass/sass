@@ -1,11 +1,11 @@
-require 'sass/constant/lexer'
+require 'sass/script/lexer'
 
 module Sass
-  module Constant
+  module Script
     class Parser
-      def initialize(str, constants = {})
+      def initialize(str, environment = {})
         @lexer = Lexer.new(str)
-        @constants = constants
+        @environment = environment
       end
 
       def parse
@@ -67,10 +67,10 @@ RUBY
       def funcall
         return paren unless name = try_tok(:ident)
         # An identifier without arguments is just a string
-        return Constant::String.new(name.last) unless try_tok(:lparen)
+        return Script::String.new(name.last) unless try_tok(:lparen)
         args = arglist || []
         assert_tok(:rparen)
-        Constant::Funcall.new(name.last, args)
+        Script::Funcall.new(name.last, args)
       end
 
       def arglist
@@ -80,17 +80,17 @@ RUBY
       end
 
       def paren
-        return constant unless try_tok(:lparen)
+        return variable unless try_tok(:lparen)
         e = assert_expr(:expr)
         assert_tok(:rparen)
         return e
       end
 
-      def constant
+      def variable
         return literal unless c = try_tok(:const)
-        (val = @constants[c.last]) && (return val)
+        (val = @environment[c.last]) && (return val)
 
-        raise SyntaxError.new("Undefined constant: \"!#{c.last}\".")
+        raise SyntaxError.new("Undefined variable: \"!#{c.last}\".")
       end
 
       def literal
