@@ -43,14 +43,13 @@ module Sass
       end
 
       def token
-        return if done?
-
         if @tok
           @tok, tok = nil, @tok
           return tok
         end
 
-        whitespace
+        return if done?
+
         variable || string || number || color || bool || op || ident ||
           (raise SyntaxError.new("Syntax error in '#{@scanner.string}' at '#{@scanner.rest}'."))
       end
