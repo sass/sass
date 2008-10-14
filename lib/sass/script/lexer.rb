@@ -22,9 +22,21 @@ module Sass
         '>' => :gt,
         '<' => :lt,
       }
+
       # We'll want to match longer names first
       # so that > and < don't clobber >= and <=
       OP_NAMES = OPERATORS.keys.sort_by {|o| -o.size}
+
+      REGULAR_EXPRESSIONS = {
+        :whitespace => /\s*/,
+        :variable => /!(\w+)/,
+        :ident => /(\\.|[^\s\\+\-*\/%(),=!])+/,
+        :string => /"((?:\\.|[^"\\])*)"/,
+        :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
+        :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})/,
+        :bool => /(true|false)\b/,
+        :op => %r{(#{Regexp.union(*OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(?:\b|$)' : ''))})})}
+      }
 
       def initialize(str)
         @scanner = StringScanner.new(str)
@@ -59,34 +71,33 @@ module Sass
       private
 
       def whitespace
-        @scanner.scan(/\s*/)
+        @scanner.scan(REGULAR_EXPRESSIONS[:whitespace])
       end
 
       def variable
-        return unless @scanner.scan(/!(\w+)/)
+        return unless @scanner.scan(REGULAR_EXPRESSIONS[:variable])
         [:const, @scanner[1]]
       end
 
       def ident
-        return unless s = @scanner.scan(/(\\.|[^\s\\+\-*\/%(),=!])+/)
+        return unless s = @scanner.scan(REGULAR_EXPRESSIONS[:ident])
         [:ident, s.gsub(/\\(.)/, '\1')]
       end
 
       def string
-        return unless @scanner.scan(/"((?:\\.|[^"\\])*)"/)
+        return unless @scanner.scan(REGULAR_EXPRESSIONS[:string])
         [:string, Script::String.new(@scanner[1].gsub(/\\(.)/, '\1'))]
       end
 
       def number
-        return unless @scanner.scan(/(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/)
+        return unless @scanner.scan(REGULAR_EXPRESSIONS[:number])
         value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
         value = -value if @scanner[1]
         [:number, Script::Number.new(value, Array(@scanner[4]))]
       end
 
-      COLOR = /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})/
       def color
-        return unless @scanner.scan(COLOR)
+        return unless @scanner.scan(REGULAR_EXPRESSIONS[:color])
         value = if @scanner[4]
                   color = Color::HTML4_COLORS[@scanner[4].downcase]
                   (0..2).map {|n| color >> (n << 3) & 0xff}.reverse
@@ -97,14 +108,12 @@ module Sass
       end
 
       def bool
-        return unless s = @scanner.scan(/(true|false)\b/)
+        return unless s = @scanner.scan(REGULAR_EXPRESSIONS[:bool])
         [:bool, Script::Bool.new(s == 'true')]
       end
 
       def op
-        return unless op = OP_NAMES.detect do |s|
-          @scanner.scan(Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(\b|$)' : '')))
-        end
+        return unless op = @scanner.scan(REGULAR_EXPRESSIONS[:op])
         [OPERATORS[op]]
       end
     end
