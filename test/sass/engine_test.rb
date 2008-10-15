@@ -35,7 +35,6 @@ class SassEngineTest < Test::Unit::TestCase
     "!a" => 'Invalid variable: "!a".',
     "! a" => 'Invalid variable: "! a".',
     "!a b" => 'Invalid variable: "!a b".',
-    "a\n  :b c\n  !d = 3" => "Variables may only be declared at the root of a document.",
     "!a = 1b + 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  :b= 1b * 2c" => "2b*c isn't a valid CSS value.",
     "a\n  :b= 1b % 2c" => "Cannot modulo by a number with units: 2c.",
@@ -656,6 +655,20 @@ a
   p4 = 1 < 2 == 3 >= 3
   p5 = 1 + 3 > 4 - 2
   p6 = 1 + 2 * 3 + 4
+SASS
+  end
+
+  def test_variable_reassignment
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: 1;
+  c: 2; }
+CSS
+!a = 1
+a
+  b = !a
+  !a = 2
+  c = !a
 SASS
   end
 

@@ -6,6 +6,7 @@ require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/attr_node'
 require 'sass/tree/directive_node'
+require 'sass/tree/variable_node'
 require 'sass/tree/mixin_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
@@ -94,7 +95,7 @@ module Sass
     # Processes the template and returns the result as a string.
     def render
       begin
-        render_to_tree.to_s
+        render_to_tree.perform(@environment).to_s
       rescue SyntaxError => err
         err.sass_line = @line unless err.sass_line
         unless err.sass_filename
@@ -119,7 +120,7 @@ module Sass
     def render_to_tree
       root = Tree::Node.new(@options)
       append_children(root, tree(tabulate(@template)).first, true)
-      root.perform(@environment)
+      root
     end
 
     private
@@ -223,8 +224,6 @@ END
     def validate_and_append_child(parent, child, line, root)
       unless root
         case child
-        when :variable
-          raise SyntaxError.new("Variables may only be declared at the root of a document.", line.index)
         when :mixin
           raise SyntaxError.new("Mixins may only be defined at the root of a document.", line.index)
         when Tree::DirectiveNode
@@ -293,14 +292,7 @@ END
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.", @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".", @line) unless name && value
 
-      var = Script.parse(value, @line).perform(@environment)
-      if op == '||='
-        @environment[name] ||= var
-      else
-        @environment[name] = var
-      end
-
-      :variable
+      Tree::VariableNode.new(name, Script.parse(value, @line), op == '||=', @options)
     end
 
     def parse_comment(line)
@@ -454,7 +446,6 @@ END
             engine = Sass::Engine.new(file.read, new_options)
           end
 
-          engine.environment.merge! @environment
           engine.mixins.merge! @mixins
 
           begin
@@ -464,7 +455,6 @@ END
             raise err
           end
           nodes += root.children
-          @environment = engine.environment
           @mixins = engine.mixins
         end
       end
