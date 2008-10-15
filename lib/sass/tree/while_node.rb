@@ -12,7 +12,7 @@ module Sass::Tree
     def _perform(environment)
       children = []
       while @expr.perform(environment).to_bool
-        children += perform_children
+        children += perform_children(environment)
       end
       children
     end
