@@ -74,6 +74,9 @@ class SassEngineTest < Test::Unit::TestCase
     "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
     "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter !b.",
+    "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
+    "@if false\n@else foo" => "Invalid @else directive '@else foo': expected 'if <expr>'.",
+    "@if false\n@else if " => "Invalid @else directive '@else if': expected 'if <expr>'.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -593,6 +596,46 @@ CSS
   a-\#{!a}
     blooble: gloop
   !a = !a - 1
+SASS
+  end
+
+  def test_else
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  t1: t;
+  t2: t;
+  t3: t;
+  t4: t; }
+CSS
+a
+  @if true
+    t1: t
+  @else
+    f1: f
+
+  @if false
+    f2: f
+  @else
+    t2: t
+
+  @if false
+    f3: f1
+  @else if 1 + 1 == 3
+    f3: f2
+  @else
+    t3: t
+
+  @if false
+    f4: f1
+  @else if 1 + 1 == 2
+    t4: t
+  @else
+    f4: f2
+
+  @if false
+    f5: f1
+  @else if false
+    f5: f2
 SASS
   end
 

@@ -18,6 +18,11 @@ module Sass
         @children << child
       end
 
+      # We need this because Node duck types as an Array in engine.rb
+      def last
+        children.last
+      end
+
       def to_s
         result = String.new
         children.each do |child|

@@ -171,9 +171,9 @@ END
       return nodes, i
     end
 
-    def build_tree(line, root = false)
+    def build_tree(parent, line, root = false)
       @line = line.index
-      node = parse_line(line, root)
+      node = parse_line(parent, line, root)
 
       # Node is a symbol if it's non-outputting, like a variable assignment,
       # or an array if it's a group of nodes to add
@@ -193,7 +193,7 @@ END
     def append_children(parent, children, root)
       continued_rule = nil
       children.each do |line|
-        child = build_tree(line, root)
+        child = build_tree(parent, line, root)
 
         if child.is_a?(Tree::RuleNode) && child.continued?
           raise SyntaxError.new("Rules can't end in commas.", child.line) unless child.children.empty?
@@ -240,7 +240,7 @@ END
       end
     end
 
-    def parse_line(line, root)
+    def parse_line(parent, line, root)
       case line.text[0]
       when ATTRIBUTE_CHAR
         parse_attribute(line.text, ATTRIBUTE)
@@ -249,7 +249,7 @@ END
       when COMMENT_CHAR
         parse_comment(line.text)
       when DIRECTIVE_CHAR
-        parse_directive(line, root)
+        parse_directive(parent, line, root)
       when ESCAPE_CHAR
         Tree::RuleNode.new(line.text[1..-1], @options)
       when MIXIN_DEFINITION_CHAR
@@ -313,7 +313,7 @@ END
       end
     end
 
-    def parse_directive(line, root)
+    def parse_directive(parent, line, root)
       directive, value = line.text[1..-1].split(/\s+/, 2)
 
       # If value begins with url( or ",
@@ -323,6 +323,8 @@ END
         import(value)
       elsif directive == "for"
         parse_for(line, root, value)
+      elsif directive == "else"
+        parse_else(parent, line, value)
       elsif directive == "while"
         Tree::WhileNode.new(Script.parse(value, line.index), @options)
       elsif directive == "if"
@@ -349,6 +351,23 @@ END
 
       Tree::ForNode.new(var[1..-1], Script.parse(from_expr, @line), Script.parse(to_expr, @line),
         to_name == 'to', @options)
+    end
+
+    def parse_else(parent, line, text)
+      previous = parent.last
+      raise SyntaxError.new("@else must come after @if.") unless previous.is_a?(Tree::IfNode)
+
+      if text
+        if text !~ /^if\s+(.+)/
+          raise SyntaxError.new("Invalid @else directive '@else #{text}': expected 'if <expr>'.", @line)
+        end
+        expr = Script.parse($1, @line)
+      end
+
+      node = Tree::IfNode.new(expr, @options)
+      append_children(node, line.children, false)
+      previous.add_else node
+      nil
     end
 
     # parses out the arguments between the commas and cleans up the mixin arguments

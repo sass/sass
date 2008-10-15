@@ -551,16 +551,38 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 # and prints the code nested beneath it if the expression returns
 # anything other than +false+:
 #
-#  p
-#    @if 1 + 1 == 2
-#      :border 1px solid
-#    @if 5 < 3
-#      :border 2px dotted
+#   p
+#     @if 1 + 1 == 2
+#       :border 1px solid
+#     @if 5 < 3
+#       :border 2px dotted
 #
 # is compiled to:
 #
-#  p {
-#    border: 1px solid; }
+#   p {
+#     border: 1px solid; }
+#
+# The "@if" statement can be followed by several "@else if" statements
+# and one "@else" statement.
+# If the "@if" statement fails,
+# the "@else if" statements are tried in order
+# until one succeeds or the "@else" is reached.
+# For example:
+#
+#   p
+#     @if !blue
+#       :color blue
+#     @else if !red
+#       :color red
+#     @else if !green
+#       :color green
+#     @else
+#       :color black
+#
+# might be compiled to:
+#
+#   p {
+#     color: green; }
 #
 # === for
 #
