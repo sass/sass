@@ -387,12 +387,12 @@ SASS
 one {
   color: #ffffff;
   padding: 1px;
-  margin: 8px; }
+  margin: 4px; }
 
 two {
   color: #ffffff;
   padding: 2px;
-  margin: 8px; }
+  margin: 5px; }
 
 three {
   color: #ffffff;
@@ -400,7 +400,7 @@ three {
   margin: 3px; }
 CSS
 !a = 5px
-=foo(!a, !b = 1px, !c = 3px + !a)
+=foo(!a, !b = 1px, !c = 3px + !b)
   :color= !a
   :padding= !b
   :margin= !c

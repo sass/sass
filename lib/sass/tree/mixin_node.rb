@@ -15,8 +15,8 @@ module Sass::Tree
       perform_children(@mixin.args.zip(@args).inject(environment.dup) do |env, (arg, value)|
           env[arg[:name]] = if value
                               value.perform(environment)
-                            else
-                              arg[:default_value]
+                            elsif arg[:default_value]
+                              arg[:default_value].perform(env)
                             end
           raise Sass::SyntaxError.new("Mixin #{@mixin.name} is missing parameter !#{arg[:name]}.") unless env[arg[:name]]
           env

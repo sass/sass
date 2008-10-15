@@ -396,7 +396,7 @@ END
         default_arg_found ||= default
         raise SyntaxError.new("Invalid variable \"#{arg}\".", @line) unless arg =~ Script::VALIDATE
         raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
-        default = Script.parse(default, @line).perform(@environment) if default
+        default = Script.parse(default, @line) if default
         { :name => arg[1..-1], :default_value => default }
       end
       mixin = @mixins[name] = Mixin.new(name, args, [])
