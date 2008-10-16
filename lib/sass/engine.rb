@@ -410,13 +410,6 @@ END
       paths
     end
 
-    def import_paths
-      paths = []
-      paths << File.dirname(@options[:filename]) if @options[:filename]
-      paths += @options[:load_paths] if @options[:load_paths]
-      paths
-    end
-
     def import(files)
       nodes = []
 
