@@ -519,15 +519,9 @@ END
 
       new_filename = find_full_path("#{filename}.sass", load_paths)
 
-      if new_filename.nil?
-        if was_sass
-          raise Exception.new("File to import not found or unreadable: #{original_filename}.")
-        else
-          return filename + '.css'
-        end
-      else
-        new_filename
-      end
+      return new_filename if new_filename
+      return filename + '.css' unless was_sass
+      raise SyntaxError.new("File to import not found or unreadable: #{original_filename}.", @line)
     end
 
     def self.find_full_path(filename, load_paths)
