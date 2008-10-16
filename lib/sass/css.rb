@@ -17,12 +17,6 @@ module Sass
       end
     end
 
-    class ValueNode
-      def to_sass(tabs, opts = {})
-        "#{value}\n"
-      end
-    end
-
     class RuleNode
       def to_sass(tabs, opts = {})
         str = "\n#{'  ' * tabs}#{rule}#{children.any? { |c| c.is_a? AttrNode } ? "\n" : ''}"

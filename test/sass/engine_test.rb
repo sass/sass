@@ -35,7 +35,6 @@ class SassEngineTest < Test::Unit::TestCase
     "!a" => 'Invalid variable: "!a".',
     "! a" => 'Invalid variable: "! a".',
     "!a b" => 'Invalid variable: "!a b".',
-    "a\n  :b c\n  !d = 3" => "Variables may only be declared at the root of a document.",
     "!a = 1b + 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  :b= 1b * 2c" => "2b*c isn't a valid CSS value.",
     "a\n  :b= 1b % 2c" => "Cannot modulo by a number with units: 2c.",
@@ -73,7 +72,12 @@ class SassEngineTest < Test::Unit::TestCase
     "a-\#{!b\n  c: d" => ["Unbalanced brackets.", 1],
     "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
     "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
-    "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter #1 (b).",
+    "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter !b.",
+    "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
+    "@if false\n@else foo" => "Invalid @else directive '@else foo': expected 'if <expr>'.",
+    "@if false\n@else if " => "Invalid @else directive '@else if': expected 'if <expr>'.",
+    "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "!b".',
+    "=foo\n  !b = 12\nc\n  +foo\n  d = !b" => 'Undefined variable: "!b".',
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -132,8 +136,7 @@ class SassEngineTest < Test::Unit::TestCase
   end
 
   def test_imported_exception
-    [1, 2].each do |i|
-      i = nil if i == 1
+    [nil, 2].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -385,12 +388,12 @@ SASS
 one {
   color: #ffffff;
   padding: 1px;
-  margin: 8px; }
+  margin: 4px; }
 
 two {
   color: #ffffff;
   padding: 2px;
-  margin: 8px; }
+  margin: 5px; }
 
 three {
   color: #ffffff;
@@ -398,7 +401,7 @@ three {
   margin: 3px; }
 CSS
 !a = 5px
-=foo(!a, !b = 1px, !c = 3px + !a)
+=foo(!a, !b = 1px, !c = 3px + !b)
   :color= !a
   :padding= !b
   :margin= !c
@@ -597,6 +600,46 @@ CSS
 SASS
   end
 
+  def test_else
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  t1: t;
+  t2: t;
+  t3: t;
+  t4: t; }
+CSS
+a
+  @if true
+    t1: t
+  @else
+    f1: f
+
+  @if false
+    f2: f
+  @else
+    t2: t
+
+  @if false
+    f3: f1
+  @else if 1 + 1 == 3
+    f3: f2
+  @else
+    t3: t
+
+  @if false
+    f4: f1
+  @else if 1 + 1 == 2
+    t4: t
+  @else
+    f4: f2
+
+  @if false
+    f5: f1
+  @else if false
+    f5: f2
+SASS
+  end
+
   def test_operation_precedence
     assert_equal(<<CSS, render(<<SASS))
 a {
@@ -614,6 +657,45 @@ a
   p4 = 1 < 2 == 3 >= 3
   p5 = 1 + 3 > 4 - 2
   p6 = 1 + 2 * 3 + 4
+SASS
+  end
+
+  def test_variable_reassignment
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: 1;
+  c: 2; }
+CSS
+!a = 1
+a
+  b = !a
+  !a = 2
+  c = !a
+SASS
+  end
+
+  def test_variable_scope
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b-1: c;
+  b-2: c;
+  d: 12; }
+
+b {
+  d: 17; }
+CSS
+!i = 12
+a
+  @for !i from 1 through 2
+    b-\#{!i}: c
+  d = !i
+
+=foo
+  !i = 17
+
+b
+  +foo
+  d = !i
 SASS
   end
 

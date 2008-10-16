@@ -18,16 +18,67 @@ module Sass
         @children << child
       end
 
+      # We need this because Node duck types as an Array in engine.rb
+      def last
+        children.last
+      end
+
       def to_s
         result = String.new
         children.each do |child|
           if child.is_a? AttrNode
-            raise SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
+            raise Sass::SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
           else
             result << "#{child.to_s(1)}" + (@style == :compressed ? '' : "\n")
           end
         end
         @style == :compressed ? result+"\n" : result[0...-1]
+      end
+
+      def perform(environment)
+        _perform(environment)
+      rescue Sass::SyntaxError => e
+        e.sass_line ||= line
+        raise e
+      end
+
+      protected
+
+      def _perform(environment)
+        node = dup
+        node.perform!(environment)
+        node
+      end
+
+      def perform!(environment)
+        self.children = perform_children(Environment.new(environment))
+      end
+
+      def perform_children(environment)
+        children.map {|c| c.perform(environment)}.flatten
+      end
+
+      def interpolate(text, environment)
+        scan = StringScanner.new(text)
+        str = ''
+        
+        while scan.scan(/(.*?)(\\*)\#\{/)
+          escapes = scan[2].size
+          str << scan.matched[0...-2 - escapes]
+          if escapes % 2 == 1
+            str << '#{'
+          else
+            str << Sass::Script.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], line, environment)
+          end
+        end
+        
+        str + scan.rest
+      end
+      
+      def balance(*args)
+        res = Haml::Shared.balance(*args)
+        return res if res
+        raise Sass::SyntaxError.new("Unbalanced brackets.", line)
       end
 
       private

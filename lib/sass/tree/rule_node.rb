@@ -1,13 +1,14 @@
-require 'sass/tree/node'
-require 'sass/tree/attr_node'
-
 module Sass::Tree
-  class RuleNode < ValueNode
+  class RuleNode < Node
     # The character used to include the parent selector
     PARENT = '&'
 
-    alias_method :rule, :value
-    alias_method :rule=, :value=
+    attr_accessor :rule
+
+    def initialize(rule, options)
+      @rule = rule
+      super(options)
+    end
 
     def rules
       Array(rule)
@@ -103,6 +104,13 @@ module Sass::Tree
       end
 
       to_return
+    end
+
+    protected
+
+    def perform!(environment)
+      self.rule = rules.map {|r| interpolate(r, environment)}
+      super
     end
   end
 end

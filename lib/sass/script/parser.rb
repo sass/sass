@@ -108,9 +108,8 @@ RUBY
       end
 
       def try_tok(*names)
-        return if @lexer.done?
-        names.each {|name| return @lexer.token if @lexer.peek.first == name}
-        nil
+        peeked =  @lexer.peek
+        peeked && names.include?(peeked.first) && @lexer.token
       end
     end
   end
