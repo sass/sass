@@ -43,9 +43,50 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_rgb_hsl(purple, ['2820', '100%', '50%'])
   end
 
+  def test_percentage
+    assert_equal("50%",  evaluate("percentage(.5)"))
+    assert_equal("100%", evaluate("percentage(1)"))
+    assert_equal("25%",  evaluate("percentage(25px / 100px)"))
+    assert_error_message("25px is not a unitless number for `percentage'", "percentage(25px)")
+    assert_error_message("#cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
+    assert_error_message("string is not a unitless number for `percentage'", "percentage(string)")
+  end
+
+  def test_numeric_transformations
+    assert_equal("5",   evaluate("round(4.8)"))
+    assert_equal("5px", evaluate("round(4.8px)"))
+    assert_equal("5px", evaluate("round(5.49px)"))
+    assert_equal("4",   evaluate("floor(4.8)"))
+    assert_equal("4px", evaluate("floor(4.8px)"))
+    assert_equal("5",   evaluate("ceil(4.1)"))
+    assert_equal("5px", evaluate("ceil(4.8px)"))
+    assert_equal("5",   evaluate("abs(-5)"))
+    assert_equal("5px", evaluate("abs(-5px)"))
+    assert_equal("5",   evaluate("abs(5)"))
+    assert_equal("5px", evaluate("abs(5px)"))
+    assert_error_message("#cccccc is not a number for `round'", "round(#ccc)")
+    assert_error_message("foo is not a number for `floor'", "floor(foo)")
+    assert_error_message("'a' is not a number for `ceil'", "ceil('a')")
+    assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
+  end
+
   private
 
   def assert_rgb_hsl(rgb, hsl)
     assert_equal(rgb, Sass::Script::Functions.hsl(*hsl.map(&Sass::Script::Parser.method(:parse))).value)
   end
+
+  def evaluate(value)
+    Sass::Script::Parser.parse(value).perform({}).to_s
+  end
+
+  def assert_error_message(message, value)
+    begin
+      evaluate(value)
+      flunk("Error message expected but not raised: #{message}")
+    rescue Sass::SyntaxError => e
+      assert_equal(message, e.message)
+    end
+  end
+
 end

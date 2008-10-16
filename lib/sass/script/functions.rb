@@ -40,14 +40,48 @@ module Sass::Script
                  hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round })
     end
 
+    # Converts a unitless number into a percent and multiplies the number by 100.
+    # E.g. percentage(100px / 50px) => 200%
+    # Some may find this more natural than: 1% * 100px / 50px
     def percentage(value)
       unless value.is_a?(Sass::Script::Number) && value.unitless?
-        raise ArgumentError.new("Value is not a unitless number")
+        raise ArgumentError.new("#{value} is not a unitless number")
       end
       Sass::Script::Number.new(value.value * 100, '%')
     end
 
+    # Rounds a number to the nearest whole number.
+    def round(value)
+      numeric_transformation(value) {|n| n.round}
+    end
+
+    # Rounds up to the nearest whole number.
+    def ceil(value)
+      numeric_transformation(value) {|n| n.ceil}
+    end
+
+    # Rounds down to the nearest whole number.
+    def floor(value)
+      numeric_transformation(value) {|n| n.floor}
+    end
+
+    # Returns the absolute value of a number.
+    def abs(value)
+      numeric_transformation(value) {|n| n.abs}
+    end
+
     private
+
+    # This method implements the pattern of transforming a numeric value into
+    # another numeric value with the same units.
+    # It yields a number to a block to perform the operation and return a number
+    def numeric_transformation(value)
+      unless value.is_a?(Sass::Script::Number)
+        calling_function = caller.first.scan(/`([^']+)'/).first.first
+        raise Sass::SyntaxError.new("#{value} is not a number for `#{calling_function}'")
+      end
+      Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
+    end
 
     def hue_to_rgb(m1, m2, h)
       h += 1 if h < 0
