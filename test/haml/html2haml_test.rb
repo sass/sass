@@ -70,6 +70,11 @@ class Html2HamlTest < Test::Unit::TestCase
     assert_equal %(%div{ :class => "\#{12} + \#{13}" }\n  Math is super),
       render_rhtml(%Q{<div class="<%= 12 %> + <%= 13 %>">Math is super</div>})
   end
+  
+  def test_whitespace_eating_erb_tags
+    assert_equal %(- form_for),
+      render_rhtml(%Q{<%- form_for -%>})
+  end
 
   protected
 

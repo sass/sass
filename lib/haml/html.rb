@@ -25,7 +25,7 @@ module Haml
 
         if @@options[:rhtml]
           match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
-          match_to_html(template, /<%(.*?)-?%>/m,  'silent')
+          match_to_html(template, /<%-?(.*?)-?%>/m,  'silent')
         end
 
         method = @@options[:xhtml] ? Hpricot.method(:XML) : method(:Hpricot)
