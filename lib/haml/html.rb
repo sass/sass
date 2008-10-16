@@ -165,11 +165,13 @@ module Haml
           attributes.inject({}) do |dynamic, pair|
             name, value = pair
             unless value.empty?
-              ruby_value = value.sub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do |str|
-                $'.empty? and $`.empty? ? $1: "\#{#{$1}}"
+              full_match = nil
+              ruby_value = value.sub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
+                full_match = $`.empty? and $'.empty?
+                full_match ? $1: "\#{#{$1}}"
               end
               unless ruby_value == value
-                dynamic[name] = ruby_value
+                dynamic[name] = full_match ? ruby_value : %("#{ruby_value}")
               end
             end
             dynamic
