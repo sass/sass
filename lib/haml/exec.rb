@@ -185,9 +185,20 @@ END
                 'Line Comments. Emit comments in the generated CSS indicating the corresponding sass line.') do
           @options[:for_engine][:line_comments] = true
         end
+        opts.on('-i', '--interactive',
+                'Run an interactive SassScript shell.') do
+          @options[:interactive] = true
+        end
       end
 
       def process_result
+        if @options[:interactive]
+          require 'sass'
+          require 'sass/repl'
+          ::Sass::Repl.run
+          return
+        end
+
         super
         input = @options[:input]
         output = @options[:output]
