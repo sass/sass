@@ -60,6 +60,11 @@ class Html2HamlTest < Test::Unit::TestCase
     assert_equal %(%div{ :id => "item_\#{i}" }\n  Ruby string interpolation FTW),
       render_rhtml(%Q{<div id="item_<%= i %>">Ruby string interpolation FTW</div>})
   end
+  
+  def test_rhtml_in_attribute_with_trailing_content
+    assert_equal %(%div{ :class => "\#{12}!" }\n  Bang!),
+      render_rhtml(%Q{<div class="<%= 12 %>!">Bang!</div>})
+  end
 
   protected
 
