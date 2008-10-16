@@ -166,7 +166,7 @@ module Haml
             name, value = pair
             unless value.empty?
               full_match = nil
-              ruby_value = value.sub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
+              ruby_value = value.gsub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
                 full_match = $`.empty? && $'.empty?
                 full_match ? $1: "\#{#{$1}}"
               end
