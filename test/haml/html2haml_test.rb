@@ -40,6 +40,11 @@ class Html2HamlTest < Test::Unit::TestCase
     assert_equal '= h @item.title', render_rhtml('<%=h @item.title %>')
     assert_equal '= h @item.title', render_rhtml('<%=h @item.title -%>')
   end
+  
+  def test_rhtml_with_html_special_chars
+    assert_equal '= 3 < 5 ? "OK" : "Your computer is b0rken"',
+      render_rhtml(%Q{<%= 3 < 5 ? "OK" : "Your computer is b0rken" %>})
+  end
 
   protected
 
