@@ -11,6 +11,7 @@ require 'sass/tree/mixin_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
+require 'sass/tree/file_node'
 require 'sass/environment'
 require 'sass/script'
 require 'sass/error'
@@ -411,9 +412,7 @@ END
     end
 
     def import(files)
-      nodes = []
-
-      files.split(/,\s*/).each do |filename|
+      files.split(/,\s*/).map do |filename|
         engine = nil
 
         begin
@@ -422,26 +421,22 @@ END
           raise SyntaxError.new(e.message, @line)
         end
 
-        if filename =~ /\.css$/
-          nodes << Tree::DirectiveNode.new("@import url(#{filename})", @options)
-        else
-          File.open(filename) do |file|
-            new_options = @options.dup
-            new_options[:filename] = filename
-            engine = Sass::Engine.new(file.read, new_options)
-          end
+        next Tree::DirectiveNode.new("@import url(#{filename})", @options) if filename =~ /\.css$/
 
-          begin
-            root = engine.render_to_tree
-          rescue Sass::SyntaxError => err
-            err.add_backtrace_entry(filename)
-            raise err
-          end
-          nodes += root.children
+        File.open(filename) do |file|
+          new_options = @options.dup
+          new_options[:filename] = filename
+          engine = Sass::Engine.new(file.read, new_options)
         end
-      end
 
-      nodes
+        begin
+          root = engine.render_to_tree
+        rescue Sass::SyntaxError => err
+          err.add_backtrace_entry(filename)
+          raise err
+        end
+        Tree::FileNode.new(filename, root.children, @options)
+      end.flatten
     end
 
     def self.find_file_to_import(filename, load_paths)
