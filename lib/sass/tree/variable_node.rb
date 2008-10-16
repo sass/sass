@@ -11,10 +11,10 @@ module Sass
       protected
 
       def _perform(environment)
-        if @guarded
-          environment[@name] ||= @expr.perform(environment)
-        else
-          environment[@name] = @expr.perform(environment)
+        if @guarded && environment.var(@name).nil?
+          environment.set_var(@name, @expr.perform(environment))
+        elsif !@guarded
+          environment.set_var(@name, @expr.perform(environment))
         end
 
         []

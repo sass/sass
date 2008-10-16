@@ -76,6 +76,8 @@ class SassEngineTest < Test::Unit::TestCase
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
     "@if false\n@else foo" => "Invalid @else directive '@else foo': expected 'if <expr>'.",
     "@if false\n@else if " => "Invalid @else directive '@else if': expected 'if <expr>'.",
+    "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "!b".',
+    "=foo\n  !b = 12\nc\n  +foo\n  d = !b" => 'Undefined variable: "!b".',
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -669,6 +671,31 @@ a
   b = !a
   !a = 2
   c = !a
+SASS
+  end
+
+  def test_variable_scope
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b-1: c;
+  b-2: c;
+  d: 12; }
+
+b {
+  d: 17; }
+CSS
+!i = 12
+a
+  @for !i from 1 through 2
+    b-\#{!i}: c
+  d = !i
+
+=foo
+  !i = 17
+
+b
+  +foo
+  d = !i
 SASS
   end
 

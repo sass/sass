@@ -12,7 +12,7 @@ module Sass
       end
 
       def perform(environment)
-        (val = environment[name]) && (return val)
+        (val = environment.var(name)) && (return val)
         raise SyntaxError.new("Undefined variable: \"!#{name}\".")
       end
     end

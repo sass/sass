@@ -1,6 +1,3 @@
-require 'sass/tree/node'
-require 'sass/tree/value_node'
-
 module Sass::Tree
   class DirectiveNode < Node
     attr_accessor :value

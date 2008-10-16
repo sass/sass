@@ -1,21 +1,26 @@
 require 'enumerator'
 require 'strscan'
 require 'sass/tree/node'
-require 'sass/tree/value_node'
 require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/attr_node'
 require 'sass/tree/directive_node'
 require 'sass/tree/variable_node'
+require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
+require 'sass/environment'
 require 'sass/script'
 require 'sass/error'
 require 'haml/shared'
 
 module Sass
+  # :stopdoc:
+  Mixin = Struct.new(:name, :args, :environment, :tree)
+  # :startdoc:
+
   # This is the class where all the parsing and processing of the Sass
   # template is done. It can be directly used by the user by creating a
   # new instance and calling <tt>render</tt> to render the template. For example:
@@ -26,7 +31,6 @@ module Sass
   #   puts output
   class Engine
     Line = Struct.new(:text, :tabs, :index, :filename, :children)
-    Mixin = Struct.new(:name, :args, :tree)
 
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ?:
@@ -88,8 +92,8 @@ module Sass
         :load_paths => ['.']
       }.merge! options
       @template = template
-      @environment = {"important" => Script::String.new("!important")}
-      @mixins = {}
+      @environment = Environment.new
+      @environment.set_var("important", Script::String.new("!important"))
     end
 
     # Processes the template and returns the result as a string.
@@ -111,10 +115,6 @@ module Sass
 
     def environment
       @environment
-    end
-
-    def mixins
-      @mixins
     end
 
     def render_to_tree
@@ -224,7 +224,7 @@ END
     def validate_and_append_child(parent, child, line, root)
       unless root
         case child
-        when :mixin
+        when Tree::MixinDefNode
           raise SyntaxError.new("Mixins may only be defined at the root of a document.", line.index)
         when Tree::DirectiveNode
           raise SyntaxError.new("Import directives may only be used at the root of a document.", line.index)
@@ -391,9 +391,7 @@ END
         default = Script.parse(default, @line) if default
         { :name => arg[1..-1], :default_value => default }
       end
-      mixin = @mixins[name] = Mixin.new(name, args, [])
-      append_children(mixin.tree, line.children, false)
-      :mixin
+      Tree::MixinDefNode.new(name, args, @options)
     end
 
     def parse_mixin_include(line, root)
@@ -401,15 +399,9 @@ END
       args = parse_mixin_arguments(arg_string)
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.", @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil? || args.nil?
-      raise SyntaxError.new("Undefined mixin '#{name}'.", @line) unless mixin = @mixins[name]
-
       args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
-      raise SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < args.size
-Mixin #{name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
- but #{args.size} #{args.size == 1 ? 'was' : 'were'} passed.
-END
 
-      Tree::MixinNode.new(mixin, args.map {|s| Script.parse(s, @line)}, @options)
+      Tree::MixinNode.new(name, args.map {|s| Script.parse(s, @line)}, @options)
     end
 
     def import_paths
@@ -446,8 +438,6 @@ END
             engine = Sass::Engine.new(file.read, new_options)
           end
 
-          engine.mixins.merge! @mixins
-
           begin
             root = engine.render_to_tree
           rescue Sass::SyntaxError => err
@@ -455,7 +445,6 @@ END
             raise err
           end
           nodes += root.children
-          @mixins = engine.mixins
         end
       end
 

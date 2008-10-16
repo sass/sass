@@ -18,6 +18,7 @@ module Sass::Tree
     protected
 
     def _perform(environment)
+      environment = Sass::Environment.new(environment)
       return perform_children(environment) if @expr.nil? || @expr.perform(environment).to_bool
       return @else.perform(environment) if @else
       []

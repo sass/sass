@@ -51,7 +51,7 @@ module Sass
       end
 
       def perform!(environment)
-        self.children = perform_children(environment)
+        self.children = perform_children(Environment.new(environment))
       end
 
       def perform_children(environment)

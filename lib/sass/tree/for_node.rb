@@ -18,8 +18,11 @@ module Sass::Tree
       range = Range.new(from, to, @exclusive)
 
       children = []
-      sub_env = environment.dup
-      range.each {|i| children += perform_children(sub_env.merge(@var => Sass::Script::Number.new(i)))}
+      range.each do |i|
+        environment = Sass::Environment.new(environment)
+        environment.set_local_var(@var, Sass::Script::Number.new(i))
+        children += perform_children(environment)
+      end
       children
     end
   end
