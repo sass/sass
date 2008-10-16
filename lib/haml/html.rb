@@ -131,17 +131,20 @@ module Haml
       def to_haml(tabs = 0)
         output = "#{tabulate(tabs)}"
         if HTML.options[:rhtml] && name[0...5] == 'haml:'
-          return output + HTML.send("haml_tag_#{name[5..-1]}",
-                                    CGI.unescapeHTML(self.innerHTML))
+          return output + HTML.send("haml_tag_#{name[5..-1]}", CGI.unescapeHTML(self.inner_text))
         end
 
-        output += "%#{name}" unless name == 'div' && (attributes.include?('id') || attributes.include?('class'))
+        output += "%#{name}" unless name == 'div' && (static_id? || static_classname?)
 
         if attributes
-          output += "##{attributes['id']}" if attributes['id']
-          attributes['class'].split(' ').each { |c| output += ".#{c}" } if attributes['class']
-          remove_attribute('id')
-          remove_attribute('class')
+          if static_id?
+            output += "##{attributes['id']}"
+            remove_attribute('id')
+          end
+          if static_classname?
+            attributes['class'].split(' ').each { |c| output += ".#{c}" }
+            remove_attribute('class')
+          end
           output += haml_attributes if attributes.length > 0
         end
 
@@ -156,13 +159,49 @@ module Haml
       end
 
       private
+      
+      def dynamic_attributes
+        @dynamic_attributes ||= begin
+          attributes.inject({}) do |dynamic, pair|
+            name, value = pair
+            unless value.empty?
+              full_match = nil
+              ruby_value = value.sub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
+                full_match = $`.empty? and $'.empty?
+                full_match ? $1: "\#{#{$1}}"
+              end
+              unless ruby_value == value
+                dynamic[name] = full_match ? ruby_value : %("#{ruby_value}")
+              end
+            end
+            dynamic
+          end
+        end
+      end
+      
+      def static_attribute?(name)
+        attributes[name] and !dynamic_attribute?(name)
+      end
+      
+      def dynamic_attribute?(name)
+        HTML.options[:rhtml] and dynamic_attributes.key?(name)
+      end
+      
+      def static_id?
+        static_attribute? 'id'
+      end
+      
+      def static_classname?
+        static_attribute? 'class'
+      end
 
       # Returns a string representation of an attributes hash
       # that's prettier than that produced by Hash#inspect
       def haml_attributes
         attrs = attributes.map do |name, value|
+          value = dynamic_attribute?(name) ? dynamic_attributes[name] : value.inspect
           name = name.index(/\W/) ? name.inspect : ":#{name}"
-          "#{name} => #{value.inspect}"
+          "#{name} => #{value}"
         end
         "{ #{attrs.join(', ')} }"
       end

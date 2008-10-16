@@ -40,6 +40,26 @@ class Html2HamlTest < Test::Unit::TestCase
     assert_equal '= h @item.title', render_rhtml('<%=h @item.title %>')
     assert_equal '= h @item.title', render_rhtml('<%=h @item.title -%>')
   end
+  
+  def test_rhtml_with_html_special_chars
+    assert_equal '= 3 < 5 ? "OK" : "Your computer is b0rken"',
+      render_rhtml(%Q{<%= 3 < 5 ? "OK" : "Your computer is b0rken" %>})
+  end
+  
+  def test_rhtml_in_class_attribute
+    assert_equal "%div{ :class => dyna_class }\n  I have a dynamic attribute",
+      render_rhtml(%Q{<div class="<%= dyna_class %>">I have a dynamic attribute</div>})
+  end
+  
+  def test_rhtml_in_id_attribute
+    assert_equal "%div{ :id => dyna_id }\n  I have a dynamic attribute",
+      render_rhtml(%Q{<div id="<%= dyna_id %>">I have a dynamic attribute</div>})
+  end
+  
+  def test_rhtml_in_attribute_results_in_string_interpolation
+    assert_equal %(%div{ :id => "item_\#{i}" }\n  Ruby string interpolation FTW),
+      render_rhtml(%Q{<div id="item_<%= i %>">Ruby string interpolation FTW</div>})
+  end
 
   protected
 
