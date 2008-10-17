@@ -24,13 +24,9 @@ module Haml
 
           @options
         rescue Exception => e
-          raise e if e.is_a? SystemExit
+          raise e if @options[:trace] || e.is_a?(SystemExit)
 
-          $stderr.print "#{e.class} on line #{get_line e}: " if @options[:trace]
           $stderr.puts e.message
-
-          e.backtrace[1..-1].each { |t| $stderr.puts "  #{t}" } if @options[:trace]
-
           exit 1
         end
         exit 0
