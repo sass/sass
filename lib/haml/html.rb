@@ -25,7 +25,7 @@ module Haml
 
         if @@options[:rhtml]
           match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
-          match_to_html(template, /<%(.*?)-?%>/m,  'silent')
+          match_to_html(template, /<%-?(.*?)-?%>/m,  'silent')
         end
 
         method = @@options[:xhtml] ? Hpricot.method(:XML) : method(:Hpricot)
@@ -166,8 +166,8 @@ module Haml
             name, value = pair
             unless value.empty?
               full_match = nil
-              ruby_value = value.sub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
-                full_match = $`.empty? and $'.empty?
+              ruby_value = value.gsub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
+                full_match = $`.empty? && $'.empty?
                 full_match ? $1: "\#{#{$1}}"
               end
               unless ruby_value == value
