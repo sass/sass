@@ -60,6 +60,21 @@ class Html2HamlTest < Test::Unit::TestCase
     assert_equal %(%div{ :id => "item_\#{i}" }\n  Ruby string interpolation FTW),
       render_rhtml(%Q{<div id="item_<%= i %>">Ruby string interpolation FTW</div>})
   end
+  
+  def test_rhtml_in_attribute_with_trailing_content
+    assert_equal %(%div{ :class => "\#{12}!" }\n  Bang!),
+      render_rhtml(%Q{<div class="<%= 12 %>!">Bang!</div>})
+  end
+  
+  def test_rhtml_in_attribute_to_multiple_interpolations
+    assert_equal %(%div{ :class => "\#{12} + \#{13}" }\n  Math is super),
+      render_rhtml(%Q{<div class="<%= 12 %> + <%= 13 %>">Math is super</div>})
+  end
+  
+  def test_whitespace_eating_erb_tags
+    assert_equal %(- form_for),
+      render_rhtml(%Q{<%- form_for -%>})
+  end
 
   protected
 
