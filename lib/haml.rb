@@ -918,9 +918,9 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 #
 #   Haml::Template.options[:format] = :html5
 #
-# ...or by setting the <tt>Merb::Config[:haml]</tt> hash in <tt>init.rb</tt> in Merb...
+# ...or by setting the <tt>Merb::Plugin.config[:haml]</tt> hash in <tt>init.rb</tt> in Merb...
 #
-#   Merb::Config[:haml][:format] = :html5
+#   Merb::Plugin.config[:haml][:format] = :html5
 # 
 # ...or by passing an options hash to Haml::Engine.new.
 # Available options are:
