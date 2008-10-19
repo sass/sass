@@ -569,7 +569,7 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 #     </a>
 #   <![endif]-->
 #
-# ==== \
+# ==== \ 
 #
 # The backslash character escapes the first character of a line,
 # allowing use of otherwise interpreted characters as plain text.
