@@ -168,6 +168,7 @@ END
       def initialize(args)
         super
         @name = "Sass"
+        @options[:for_engine][:load_paths] = ['.'] + (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
       end
 
       def set_opts(opts)
@@ -184,6 +185,9 @@ END
         opts.on('-i', '--interactive',
                 'Run an interactive SassScript shell.') do
           @options[:interactive] = true
+        end
+        opts.on('-I', '--load-path PATH', 'Add a sass import path.') do |path|
+          @options[:for_engine][:load_paths] << path
         end
       end
 
