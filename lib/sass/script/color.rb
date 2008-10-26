@@ -23,7 +23,9 @@ module Sass::Script
     }
 
     def initialize(rgb)
-      super(rgb.map {|c| c.to_i})
+      rgb = rgb.map {|c| c.to_i}
+      raise Sass::SyntaxError.new("Color values must be between 0 and 255") if rgb.any? {|c| c < 0 || c > 255}
+      super(rgb)
     end
 
     def plus(other)
