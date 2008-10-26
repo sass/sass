@@ -43,6 +43,11 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_rgb_hsl(purple, ['2820', '100%', '50%'])
   end
 
+  def test_hsl_checks_bounds
+    assert_error_message("Saturation -114 must be between 0% and 100% for `hsl'", "hsl(10, -114, 12)");
+    assert_error_message("Lightness 256 must be between 0% and 100% for `hsl'", "hsl(10, 10, 256%)");
+  end
+
   def test_percentage
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))
@@ -81,12 +86,10 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def assert_error_message(message, value)
-    begin
-      evaluate(value)
-      flunk("Error message expected but not raised: #{message}")
-    rescue Sass::SyntaxError => e
-      assert_equal(message, e.message)
-    end
+    evaluate(value)
+    flunk("Error message expected but not raised: #{message}")
+  rescue Sass::SyntaxError => e
+    assert_equal(message, e.message)
   end
 
 end

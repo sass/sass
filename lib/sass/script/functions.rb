@@ -27,8 +27,13 @@ module Sass::Script
     # hue is in degrees,
     # and saturation and lightness are percentages.
     def hsl(h, s, l)
+      original_s = s
+      original_l = l
       # This algorithm is from http://www.w3.org/TR/css3-color#hsl-color
       h, s, l = [h, s, l].map { |a| a.value }
+      raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") if s < 0 || s > 100
+      raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") if l < 0 || l > 100
+
       h = (h % 360) / 360.0
       s /= 100.0
       l /= 100.0
