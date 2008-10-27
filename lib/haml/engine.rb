@@ -92,7 +92,7 @@ module Haml
       if @options[:filters]
         warn <<END
 DEPRECATION WARNING:
-The Haml :filters option is deprecated and will be removed in version 2.1.
+The Haml :filters option is deprecated and will be removed in version 2.2.
 Filters are now automatically registered.
 END
       end

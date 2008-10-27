@@ -276,8 +276,17 @@ module Haml
       end
     end
 
+    def puts(*args) # :nodoc:
+      warn <<END
+DEPRECATION WARNING:
+The Haml #puts helper is deprecated and will be removed in version 2.2.
+Use the #haml_concat helper instead.
+END
+      concat_haml *args
+    end
+
     # Outputs text directly to the Haml buffer, with the proper tabulation
-    def puts(text = "")
+    def haml_concat(text = "")
       haml_buffer.buffer << ('  ' * haml_buffer.tabulation) << text.to_s << "\n"
       nil
     end
@@ -290,7 +299,7 @@ module Haml
     # Creates an HTML tag with the given name and optionally text and attributes.
     # Can take a block that will be executed
     # between when the opening and closing tags are output.
-    # If the block is a Haml block or outputs text using puts,
+    # If the block is a Haml block or outputs text using haml_concat,
     # the text will be properly indented.
     #
     # <tt>flags</tt> is a list of symbol flags
@@ -304,10 +313,10 @@ module Haml
     #     haml_tag :tr do
     #       haml_tag :td, {:class => 'cell'} do
     #         haml_tag :strong, "strong!"
-    #         puts "data"
+    #         haml_concat "data"
     #       end
     #       haml_tag :td do
-    #         puts "more_data"
+    #         haml_concat "more_data"
     #       end
     #     end
     #   end
@@ -338,7 +347,7 @@ module Haml
                                                       rest.shift || {})
 
       if text.nil? && block.nil? && (haml_buffer.options[:autoclose].include?(name) || flags.include?(:/))
-        puts "<#{name}#{attributes} />"
+        haml_concat "<#{name}#{attributes} />"
         return nil
       end
 
@@ -350,7 +359,7 @@ module Haml
       tag = "<#{name}#{attributes}>"
       if block.nil?
         tag << text.to_s << "</#{name}>"
-        puts tag
+        haml_concat tag
         return
       end
 
@@ -360,15 +369,15 @@ module Haml
 
       if flags.include?(:<)
         tag << capture_haml(&block).strip << "</#{name}>"
-        puts tag
+        haml_concat tag
         return
       end
 
-      puts tag
+      haml_concat tag
       tab_up
       block.call
       tab_down
-      puts "</#{name}>"
+      haml_concat "</#{name}>"
       nil
     end
 
