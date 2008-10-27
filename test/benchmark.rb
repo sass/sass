@@ -23,6 +23,17 @@ rescue LoadError
   raise "The Haml benchmarks require the benchwarmer gem, available from http://github.com/wycats/benchwarmer"
 end
 
+def view
+  unless ActionView::Base.instance_methods.include? 'finder'
+    return ActionView::Base.new(File.dirname(__FILE__), vars)
+  end
+
+  # Rails >=2.1.0
+  base = ActionView::Base.new
+  base.finder.append_view_path(File.dirname(__FILE__))
+  base
+end
+
 Benchmark.warmer(times) do
   columns :haml, :erb, :erubis, :mab
   titles :haml => "Haml", :erb => "ERB", :erubis => "Erubis", :mab => "Markaby"
@@ -53,7 +64,7 @@ Benchmark.warmer(times) do
   end
 
   report "ActionView" do
-    @base = ActionView::Base.new(File.dirname(__FILE__))
+    @base = view
 
     # To cache the template
     @base.render 'haml/templates/standard'
@@ -64,7 +75,7 @@ Benchmark.warmer(times) do
   end
 
   report "ActionView with deep partials" do
-    @base = ActionView::Base.new(File.dirname(__FILE__))
+    @base = view
 
     # To cache the template
     @base.render 'haml/templates/action_view'
