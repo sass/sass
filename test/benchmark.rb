@@ -12,6 +12,7 @@ END
 end
 
 require File.dirname(__FILE__) + '/../lib/haml'
+require File.dirname(__FILE__) + '/linked_rails'
 %w[sass rubygems erb erubis markaby active_support action_controller
    action_view haml/template].each(&method(:require))
 
