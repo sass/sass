@@ -12,6 +12,7 @@ END
 end
 
 require File.dirname(__FILE__) + '/../lib/haml'
+require File.dirname(__FILE__) + '/linked_rails'
 %w[sass rubygems erb erubis markaby active_support action_controller
    action_view haml/template].each(&method(:require))
 
@@ -21,6 +22,17 @@ rescue LoadError
   # Since it's not as simple as gem install at the time of writing,
   # we need to direct folks to the benchwarmer gem.
   raise "The Haml benchmarks require the benchwarmer gem, available from http://github.com/wycats/benchwarmer"
+end
+
+def view
+  unless ActionView::Base.instance_methods.include? 'finder'
+    return ActionView::Base.new(File.dirname(__FILE__), vars)
+  end
+
+  # Rails >=2.1.0
+  base = ActionView::Base.new
+  base.finder.append_view_path(File.dirname(__FILE__))
+  base
 end
 
 Benchmark.warmer(times) do
@@ -53,7 +65,7 @@ Benchmark.warmer(times) do
   end
 
   report "ActionView" do
-    @base = ActionView::Base.new(File.dirname(__FILE__))
+    @base = view
 
     # To cache the template
     @base.render 'haml/templates/standard'
@@ -64,7 +76,7 @@ Benchmark.warmer(times) do
   end
 
   report "ActionView with deep partials" do
-    @base = ActionView::Base.new(File.dirname(__FILE__))
+    @base = view
 
     # To cache the template
     @base.render 'haml/templates/action_view'
