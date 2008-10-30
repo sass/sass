@@ -278,7 +278,13 @@ END
     def parse_line(line)
       case line[0]
       when ATTRIBUTE_CHAR
-        parse_attribute(line, ATTRIBUTE)
+        if line[1] != ATTRIBUTE_CHAR
+          parse_attribute(line, ATTRIBUTE)
+        else
+          # Support CSS3-style pseudo-elements,
+          # which begin with ::
+          Tree::RuleNode.new(line, @options[:style])
+        end
       when Constant::CONSTANT_CHAR
         parse_constant(line)
       when COMMENT_CHAR
