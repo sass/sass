@@ -221,6 +221,33 @@ RESULT
 SOURCE
   end
 
+  # Mostly a regression test
+  def test_both_case_indentation_work_with_deeply_nested_code
+    result = <<RESULT
+<h2>
+  other
+</h2>
+RESULT
+    assert_equal(result, render(<<HAML))
+- case 'other'
+- when 'test'
+  %h2
+    hi
+- when 'other'
+  %h2
+    other
+HAML
+    assert_equal(result, render(<<HAML))
+- case 'other'
+  - when 'test'
+    %h2
+      hi
+  - when 'other'
+    %h2
+      other
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape
@@ -324,11 +351,11 @@ SOURCE
 
   def test_stop_eval
     assert_equal("", render("= 'Hello'", :suppress_eval => true))
-    assert_equal("", render("- puts 'foo'", :suppress_eval => true))
+    assert_equal("", render("- haml_concat 'foo'", :suppress_eval => true))
     assert_equal("<div id='foo' yes='no' />\n", render("#foo{:yes => 'no'}/", :suppress_eval => true))
     assert_equal("<div id='foo' />\n", render("#foo{:yes => 'no', :call => a_function() }/", :suppress_eval => true))
     assert_equal("<div />\n", render("%div[1]/", :suppress_eval => true))
-    assert_equal("", render(":ruby\n  puts 'hello'", :suppress_eval => true))
+    assert_equal("", render(":ruby\n  Kernel.puts 'hello'", :suppress_eval => true))
   end
 
   def test_attr_wrapper
