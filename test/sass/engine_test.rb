@@ -214,6 +214,16 @@ class SassEngineTest < Test::Unit::TestCase
     end
   end
 
+  def test_pseudo_elements
+    assert_equal(<<CSS, render(<<SASS))
+::first-line {
+  size: 10em; }
+CSS
+::first-line
+  size: 10em
+SASS
+  end
+
   def test_directive
     assert_equal("@a b;", render("@a b"))
 
