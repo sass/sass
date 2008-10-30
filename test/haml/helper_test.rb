@@ -148,7 +148,7 @@ class HelperTest < Test::Unit::TestCase
     Haml::Helpers.module_eval do 
       def trc(collection, &block)
         collection.each do |record|
-          puts capture_haml(record, &block)
+          haml_concat capture_haml(record, &block)
         end
       end
     end
@@ -175,7 +175,7 @@ class HelperTest < Test::Unit::TestCase
 
     result = context.capture_haml do
       context.haml_tag :p, :attr => "val" do
-        context.puts "Blah"
+        context.haml_concat "Blah"
       end
     end
 

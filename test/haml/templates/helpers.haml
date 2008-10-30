@@ -52,18 +52,18 @@ click
 = list_of({:google => 'http://www.google.com'}) do |name, link|
   %a{ :href => link }= name
 %p
-  - puts "foo"
+  - haml_concat "foo"
   %div
-    - puts "bar"
-  - puts "boom"
+    - haml_concat "bar"
+  - haml_concat "boom"
   baz
-  - puts "boom, again"
+  - haml_concat "boom, again"
 - haml_tag :table do
   - haml_tag :tr do
     - haml_tag :td, {:class => 'cell'} do
       - haml_tag :strong, "strong!"
-      - puts "data"
+      - haml_concat "data"
     - haml_tag :td do
-      - puts "more_data"
+      - haml_concat "more_data"
 - haml_tag :hr
 - haml_tag :div, ''
