@@ -209,9 +209,11 @@ END
 
         push_silent(text[1..-1], true)
         newline_now
-        if (@block_opened && !mid_block_keyword?(text)) || text[1..-1].split(' ', 2)[0] == "case"
-          push_and_tabulate([:script])
-        end
+
+        case_stmt = text[1..-1].split(' ', 2)[0] == "case"
+        block = @block_opened && !mid_block_keyword?(text)
+        push_and_tabulate([:script]) if block || case_stmt
+        push_and_tabulate(nil)       if block && case_stmt
       when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
@@ -371,6 +373,7 @@ END
       when :loud; close_loud value
       when :filtered; close_filtered value
       when :haml_comment; close_haml_comment
+      when nil; close_nil
       end
     end
 
@@ -417,6 +420,10 @@ END
 
     def close_haml_comment
       @haml_comment = false
+      @template_tabs -= 1
+    end
+
+    def close_nil
       @template_tabs -= 1
     end
 

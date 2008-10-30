@@ -198,6 +198,33 @@ RESULT
 SOURCE
   end
 
+  # Mostly a regression test
+  def test_both_case_indentation_work_with_deeply_nested_code
+    result = <<RESULT
+<h2>
+  other
+</h2>
+RESULT
+    assert_equal(result, render(<<HAML))
+- case 'other'
+- when 'test'
+  %h2
+    hi
+- when 'other'
+  %h2
+    other
+HAML
+    assert_equal(result, render(<<HAML))
+- case 'other'
+  - when 'test'
+    %h2
+      hi
+  - when 'other'
+    %h2
+      other
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape
