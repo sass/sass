@@ -279,7 +279,7 @@ module Haml
     def puts(*args) # :nodoc:
       warn <<END
 DEPRECATION WARNING:
-The Haml #puts helper is deprecated and will be removed in version 2.2.
+The Haml #puts helper is deprecated and will be removed in version 2.4.
 Use the #haml_concat helper instead.
 END
       haml_concat *args
