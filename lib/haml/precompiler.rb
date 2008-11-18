@@ -102,7 +102,10 @@ END
       names = names.keys if Hash == names
 
       names.map do |name|
-        "#{name} = _haml_locals[#{name.to_sym.inspect}] || _haml_locals[#{name.to_s.inspect}]"
+        # Can't use || because someone might explicitly pass in false with a symbol
+        sym_local = "_haml_locals[#{name.to_sym.inspect}]" 
+        str_local = "_haml_locals[#{name.to_s.inspect}]" 
+        "#{name} = #{sym_local}.nil? ? #{str_local} : #{sym_local}"
       end.join(';') + ';'
     end
 
