@@ -106,11 +106,11 @@ text nested beneath them.")
   (let ((map (make-sparse-keymap)))
     (define-key map [backspace] 'haml-electric-backspace)
     (define-key map "\C-?" 'haml-electric-backspace)
-    (define-key map "\C-\M-f" 'haml-forward-sexp)
-    (define-key map "\C-\M-b" 'haml-backward-sexp)
-    (define-key map "\C-\M-u" 'haml-up-list)
-    (define-key map "\C-\M-d" 'haml-down-list)
-    (define-key map "\C-C\C-k" 'haml-kill-line-and-indent)
+    (define-key map "\C-c\C-f" 'haml-forward-sexp)
+    (define-key map "\C-c\C-b" 'haml-backward-sexp)
+    (define-key map "\C-c\C-u" 'haml-up-list)
+    (define-key map "\C-c\C-d" 'haml-down-list)
+    (define-key map "\C-c\C-k" 'haml-kill-line-and-indent)
     map))
 
 ;;;###autoload
@@ -121,7 +121,6 @@ text nested beneath them.")
   (set-syntax-table haml-mode-syntax-table)
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
-  (set (make-local-variable 'forward-sexp-function) 'haml-forward-sexp)
   (setq indent-tabs-mode nil)
   (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
 
@@ -209,7 +208,8 @@ With ARG, do this that many times."
   "Marks the next Haml sexp, but puts the mark at the end of the
 last line of the sexp rather than the first non-whitespace
 character of the next line."
-  (mark-sexp)
+  (let ((forward-sexp-function 'haml-forward-sexp))
+    (mark-sexp))
   (set-mark
    (save-excursion
      (goto-char (mark))
@@ -310,14 +310,15 @@ the current line."
           (bolp)
           (looking-at "^[ \t]+$"))
       (backward-delete-char arg)
-    (let ((ci (current-column)))
-      (beginning-of-line)
-      (if haml-backspace-backdents-nesting
-          (haml-mark-sexp-but-not-next-line)
-        (set-mark (save-excursion (end-of-line) (point))))
-      (haml-reindent-region-by (* (- arg) haml-indent-offset))
-      (back-to-indentation)
-      (pop-mark))))
+    (save-excursion
+      (let ((ci (current-column)))
+        (beginning-of-line)
+        (if haml-backspace-backdents-nesting
+            (haml-mark-sexp-but-not-next-line)
+          (set-mark (save-excursion (end-of-line) (point))))
+        (haml-reindent-region-by (* (- arg) haml-indent-offset))
+        (back-to-indentation)
+        (pop-mark)))))
 
 (defun haml-kill-line-and-indent ()
   "Kill the current line, and re-indent all lines nested beneath it."
