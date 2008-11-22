@@ -237,7 +237,7 @@ module Sass
       root.children.map! do |child|
         next child unless Tree::RuleNode === child && child.rule.include?(',')
         child.rule.split(',').map do |rule|
-          node = Tree::RuleNode.new(rule.strip, nil)
+          node = Tree::RuleNode.new(rule.strip, {})
           node.children = child.children
           node
         end
