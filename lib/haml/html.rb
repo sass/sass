@@ -162,19 +162,15 @@ module Haml
       
       def dynamic_attributes
         @dynamic_attributes ||= begin
-          attributes.inject({}) do |dynamic, pair|
-            name, value = pair
-            unless value.empty?
-              full_match = nil
-              ruby_value = value.gsub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
-                full_match = $`.empty? && $'.empty?
-                full_match ? $1: "\#{#{$1}}"
-              end
-              unless ruby_value == value
-                dynamic[name] = full_match ? ruby_value : %("#{ruby_value}")
-              end
+          Haml::Util.map_hash(attributes) do |name, value|
+            next if value.empty?
+            full_match = nil
+            ruby_value = value.gsub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
+              full_match = $`.empty? && $'.empty?
+              full_match ? $1: "\#{#{$1}}"
             end
-            dynamic
+            next if ruby_value == value
+            [name, full_match ? ruby_value : %("#{ruby_value}")]
           end
         end
       end

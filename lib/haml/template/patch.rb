@@ -29,7 +29,7 @@ module ActionView
 
       @@template_args[render_symbol] ||= {}
       locals_keys = @@template_args[render_symbol].keys | locals
-      @@template_args[render_symbol] = locals_keys.inject({}) { |h, k| h[k] = true; h }
+      @@template_args[render_symbol] = to_hash(locals_keys.map {|k| [k, true]})
 
       options = Haml::Template.options.dup
       options[:filename] = file_name || 'compiled-template'

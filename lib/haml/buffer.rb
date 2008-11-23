@@ -5,6 +5,7 @@ module Haml
   # processing done within instance_eval'd code.
   class Buffer
     include Haml::Helpers
+    include Haml::Util
 
     # The string that holds the compiled XHTML. This is aliased as
     # _erbout for compatibility with ERB-specific code.
@@ -152,7 +153,7 @@ module Haml
 
       attributes = class_id
       attributes_hashes.each do |old|
-        self.class.merge_attrs(attributes, old.inject({}) {|h, (key, val)| h[key.to_s] = val; h})
+        self.class.merge_attrs(attributes, to_hash(old.map {|k, v| [k.to_s, v]}))
       end
       self.class.merge_attrs(attributes, parse_object_ref(obj_ref)) if obj_ref
 
