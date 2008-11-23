@@ -156,6 +156,8 @@ END
     end
 
     def tree(arr, i = 0)
+      return [], i if arr[i].nil?
+
       base = arr[i].tabs
       nodes = []
       while (line = arr[i]) && line.tabs >= base

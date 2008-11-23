@@ -89,6 +89,10 @@ class SassEngineTest < Test::Unit::TestCase
     renders_correctly "basic", { :style => :compact }
   end
 
+  def test_empty_render
+    assert_equal "", render("")
+  end
+
   def test_multiple_calls_to_render
     sass = Sass::Engine.new("a\n  b: c")
     assert_equal sass.render, sass.render

@@ -77,7 +77,11 @@ class EngineTest < Test::Unit::TestCase
     end
     Haml::Engine.new(text, options)
   end
-  
+
+  def test_empty_render
+    assert_equal "", render("")
+  end
+
   def test_flexible_tabulation
     assert_equal("<p>\n  foo\n</p>\n<q>\n  bar\n  <a>\n    baz\n  </a>\n</q>\n",
                  render("%p\n foo\n%q\n bar\n %a\n  baz"))
