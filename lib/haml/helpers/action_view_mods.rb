@@ -51,15 +51,8 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
             # if it's not actually in the template context,
             # as detected by the existance of an _erbout variable.
             # We've got to do the same thing for compatibility.
-            block_is_haml =
-              begin
-                eval('_hamlout', block)
-                true
-              rescue
-                false
-              end
 
-            if block_is_haml && is_haml?
+            if is_haml? && Haml::Helpers.block_is_haml?(block)
               capture_haml(*args, &block)
             else
               capture_without_haml(*args, &block)
@@ -105,15 +98,23 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       end
 
       module TagHelper
-        def content_tag_with_haml(name, *args, &block)
-          content = content_tag_without_haml(name, *args, &block)
 
-          if is_haml? && haml_buffer.options[:preserve].include?(name.to_s)
-            content = Haml::Helpers.preserve content
+        def content_tag_with_haml(name, content_or_options_with_block = nil, options = nil, escape = true, &block)
+
+          # handle preserve tags
+          if is_haml? && content_or_options_with_block.is_a?(String) && haml_buffer.options[:preserve].include?(name.to_s)
+            content_or_options_with_block = Haml::Helpers.preserve content_or_options_with_block
           end
 
-          content
+          if block_given? and is_haml?
+            options = content_or_options_with_block if content_or_options_with_block.is_a?(Hash)
+            content_tag_html = content_tag_string(name, capture(&block), options, escape)
+            return concat(content_tag_html)
+          end
+
+          content_tag_without_haml(name, content_or_options_with_block, options, &block)
         end
+
         alias_method :content_tag_without_haml, :content_tag
         alias_method :content_tag, :content_tag_with_haml
       end

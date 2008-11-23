@@ -405,6 +405,17 @@ END
       !@haml_buffer.nil? && @haml_buffer.active?
     end
 
+    # Checks to see if a block is defined in a view as haml
+    def block_is_haml?(block)
+      begin
+        eval('_hamlout', block)
+        true
+      rescue
+        false
+      end
+    end
+
+
     private
 
     # call-seq:
