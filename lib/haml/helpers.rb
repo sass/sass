@@ -54,9 +54,9 @@ module Haml
     def non_haml
       was_active = @haml_buffer.active?
       @haml_buffer.active = false
-      res = yield
+      yield
+    ensure
       @haml_buffer.active = was_active
-      res
     end
 
     # call-seq:
