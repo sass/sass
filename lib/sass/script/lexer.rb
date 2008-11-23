@@ -99,7 +99,6 @@ module Sass
         return unless @scanner.scan(REGULAR_EXPRESSIONS[:color])
         value = if @scanner[4]
                   color = Color::HTML4_COLORS[@scanner[4].downcase]
-                  (0..2).map {|n| color >> (n << 3) & 0xff}.reverse
                 else
                   (1..3).map {|i| @scanner[i]}.map {|num| num.ljust(2, num).to_i(16)}
                 end

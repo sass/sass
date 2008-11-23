@@ -19,4 +19,10 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "\\", eval("\"\\\\\"")
     assert_equal "\\02fa", eval("\"\\02fa\"")
   end
+
+  def test_color_names
+    assert_equal "white", eval("white")
+    assert_equal "white", eval("#ffffff")
+    assert_equal "#fffffe", eval("white - #000001")
+  end
 end

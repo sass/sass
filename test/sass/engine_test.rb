@@ -390,7 +390,7 @@ SASS
   end
 
   def test_default_values_for_mixin_arguments
-    assert_equal("white {\n  color: #ffffff; }\n\nblack {\n  color: #000000; }\n", render(<<SASS))
+    assert_equal("white {\n  color: white; }\n\nblack {\n  color: black; }\n", render(<<SASS))
 =foo(!a = #FFF)
   :color= !a
 white
@@ -400,17 +400,17 @@ black
 SASS
     assert_equal(<<CSS, render(<<SASS))
 one {
-  color: #ffffff;
+  color: white;
   padding: 1px;
   margin: 4px; }
 
 two {
-  color: #ffffff;
+  color: white;
   padding: 2px;
   margin: 5px; }
 
 three {
-  color: #ffffff;
+  color: white;
   padding: 2px;
   margin: 3px; }
 CSS

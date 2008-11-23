@@ -2,7 +2,9 @@ require 'sass/script/literal'
 
 module Sass::Script
   class Color < Literal # :nodoc:
-    HTML4_COLORS = {
+    class << self; include Haml::Util; end
+
+    HTML4_COLORS = map_vals({
         'black'   => 0x000000,
         'silver'  => 0xc0c0c0,
         'gray'    => 0x808080,
@@ -19,7 +21,8 @@ module Sass::Script
         'blue'    => 0x0000ff,
         'teal'    => 0x008080,
         'aqua'    => 0x00ffff
-      }
+      }) {|color| (0..2).map {|n| color >> (n << 3) & 0xff}.reverse}
+    HTML4_COLORS_REVERSE = map_hash(HTML4_COLORS) {|k, v| [v, k]}
 
     def initialize(rgb)
       rgb = rgb.map {|c| c.to_i}
@@ -68,6 +71,7 @@ module Sass::Script
     end
 
     def to_s
+      return HTML4_COLORS_REVERSE[@value] if HTML4_COLORS_REVERSE[@value]
       red, green, blue = @value.map { |num| num.to_s(16).rjust(2, '0') }
       "##{red}#{green}#{blue}"
     end
