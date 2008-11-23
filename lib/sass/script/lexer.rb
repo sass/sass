@@ -85,7 +85,7 @@ module Sass
 
       def string
         return unless @scanner.scan(REGULAR_EXPRESSIONS[:string])
-        [:string, Script::String.new(@scanner[1].gsub(/\\(.)/, '\1'))]
+        [:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1"))]
       end
 
       def number
