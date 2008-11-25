@@ -103,7 +103,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
 
           preserve = haml_buffer.options[:preserve].include?(name.to_s)
 
-          if block_given? && block_called_from_erb?(block) && preserve
+          if block_given? && block_is_haml?(block) && preserve
             return content_tag_without_haml(name, *args) {preserve(&block)}
           end
 

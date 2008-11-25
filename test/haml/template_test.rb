@@ -4,6 +4,8 @@ require 'haml/template'
 require 'sass/plugin'
 require File.dirname(__FILE__) + '/mocks/article'
 
+require 'action_pack/version'
+
 module Haml::Filters::Test
   include Haml::Filters::Base
 
@@ -28,8 +30,10 @@ class TemplateTest < Test::Unit::TestCase
   TEMPLATE_PATH = File.join(File.dirname(__FILE__), "templates")
   TEMPLATES = %w{         very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
-    silent_script         tag_parsing       just_stuff  partials  partial_layout
+    silent_script         tag_parsing       just_stuff  partials
     filters               nuke_outer_whitespace         nuke_inner_whitespace }
+  # partial layouts were introduced in 2.0.0
+  TEMPLATES << 'partial_layout' unless ActionPack::VERSION::MAJOR < 2
 
   def setup
     vars = { 'article' => Article.new, 'foo' => 'value one' }
@@ -70,7 +74,7 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name, &render_method)
-    render_method ||= proc { |name| @base.render(name) }
+    render_method ||= proc { |name| @base.render(:file => name) }
 
     load_result(name).split("\n").zip(render_method[name].split("\n")).each_with_index do |pair, line|
       message = "template: #{name}\nline:     #{line}"
