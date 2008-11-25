@@ -31,12 +31,12 @@ to corresponding CSS files in public/stylesheets when needed
 see the Sass module docs for details).
 
 For Merb, <tt>.html.haml</tt> views will work without any further modification.
-To enable Sass, you also need to add it add a dependency.
+To enable Sass, you also need to add a dependency.
 To do so, just add
 
-  dependency "haml"
+  dependency "merb-haml"
 
-to config/dependencies.rb.
+to config/dependencies.rb (or config/init.rb in a flat/very flat Merb application).
 Then it'll work just like it does in Rails.
 
 To use Haml and Sass programatically,
