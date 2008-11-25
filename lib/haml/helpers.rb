@@ -405,16 +405,13 @@ END
       !@haml_buffer.nil? && @haml_buffer.active?
     end
 
-    # Checks to see if a block is defined in a view as haml
+    # Returns whether or not +block+ is defined directly in a Haml template.
     def block_is_haml?(block)
-      begin
-        eval('_hamlout', block)
-        true
-      rescue
-        false
-      end
+      eval('_hamlout', block)
+      true
+    rescue
+      false
     end
-
 
     private
 
