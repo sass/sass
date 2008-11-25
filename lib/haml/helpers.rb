@@ -405,6 +405,14 @@ END
       !@haml_buffer.nil? && @haml_buffer.active?
     end
 
+    # Returns whether or not +block+ is defined directly in a Haml template.
+    def block_is_haml?(block)
+      eval('_hamlout', block)
+      true
+    rescue
+      false
+    end
+
     private
 
     # call-seq:

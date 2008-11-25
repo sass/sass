@@ -90,6 +90,7 @@ module Haml
 extend Haml::Helpers
 _hamlout = @haml_buffer = Haml::Buffer.new(@haml_buffer, #{options_for_buffer.inspect})
 _erbout = _hamlout.buffer
+__in_erb_template = true
 END
       postamble = <<END.gsub("\n", ";")
 @haml_buffer = @haml_buffer.upper

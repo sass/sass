@@ -51,15 +51,8 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
             # if it's not actually in the template context,
             # as detected by the existance of an _erbout variable.
             # We've got to do the same thing for compatibility.
-            block_is_haml =
-              begin
-                eval('_hamlout', block)
-                true
-              rescue
-                false
-              end
 
-            if block_is_haml && is_haml?
+            if is_haml? && block_is_haml?(block)
               capture_haml(*args, &block)
             else
               capture_without_haml(*args, &block)
@@ -106,14 +99,19 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
 
       module TagHelper
         def content_tag_with_haml(name, *args, &block)
-          content = content_tag_without_haml(name, *args, &block)
+          return content_tag_without_haml(name, *args, &block) unless is_haml?
 
-          if is_haml? && haml_buffer.options[:preserve].include?(name.to_s)
-            content = Haml::Helpers.preserve content
+          preserve = haml_buffer.options[:preserve].include?(name.to_s)
+
+          if block_given? && block_called_from_erb?(block) && preserve
+            return content_tag_without_haml(name, *args) {preserve(&block)}
           end
 
-          content
+          returning content_tag_without_haml(name, *args, &block) do |content|
+            return Haml::Helpers.preserve(content) if preserve && content
+          end
         end
+
         alias_method :content_tag_without_haml, :content_tag
         alias_method :content_tag, :content_tag_with_haml
       end
