@@ -31,7 +31,7 @@ to corresponding CSS files in public/stylesheets when needed
 see the Sass module docs for details).
 
 For Merb, <tt>.html.haml</tt> views will work without any further modification.
-To enable Sass, you also need to add it add a dependency.
+To enable Sass, you also need to add a dependency.
 To do so, just add
 
   dependency "merb-haml"
