@@ -35,20 +35,43 @@ click
 %p boom
 - concat "foo\n"
 - haml_buffer.tabulation = 0
-- def url_for(*stuff); stuff.join(' '); end
--# The form URLs must be empty
--# because of a weird bug that causes url_for to misbehave.
-%p
-  = form_tag ''
-- form_tag '' do
-  %div= submit_tag 'save'
-  - @foo = 'value one'
-  = test_partial 'partial'
-- form_for :article, @article, :url => '' do |f|
-  Title:
-  = f.text_field :title
-  Body:
-  = f.text_field :body
+-#
+-# ActionPack pre-2.0 has weird url_for issues here.
+- if ActionPack::VERSION::MAJOR < 2
+  :plain
+    <p>
+      <form action="" method="post">
+    </p>
+    <form action="" method="post">
+      <div><input name="commit" type="submit" value="save" /></div>
+      <p>
+        @foo =
+        value one
+      </p>
+      Toplevel? false
+      <p>
+        @foo =
+        value three
+      </p>
+    </form>
+    <form action="" method="post">
+      Title:
+      <input id="article_title" name="article[title]" size="30" type="text" value="Hello" />
+      Body:
+      <input id="article_body" name="article[body]" size="30" type="text" value="World" />
+    </form>
+- else
+  %p
+    = form_tag ''
+  - form_tag '' do
+    %div= submit_tag 'save'
+    - @foo = 'value one'
+    = test_partial 'partial'
+  - form_for :article, @article, :url => '' do |f|
+    Title:
+    = f.text_field :title
+    Body:
+    = f.text_field :body
 = list_of({:google => 'http://www.google.com'}) do |name, link|
   %a{ :href => link }= name
 %p
