@@ -148,7 +148,6 @@ module Haml
           output += haml_attributes if attributes.length > 0
         end
 
-        output += "/" if children.length == 0
         output += "\n"
 
         self.children.each do |child|

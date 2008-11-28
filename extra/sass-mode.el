@@ -69,6 +69,7 @@ text nested beneath them.")
 
 ;; Mode setup
 
+;;;###autoload
 (define-derived-mode sass-mode haml-mode "Sass"
   "Major mode for editing Sass files."
   (set (make-local-variable 'haml-indent-function) 'sass-indent-p)

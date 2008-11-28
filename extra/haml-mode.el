@@ -113,6 +113,7 @@ text nested beneath them.")
     (define-key map "\C-C\C-k" 'haml-kill-line-and-indent)
     map))
 
+;;;###autoload
 (define-derived-mode haml-mode fundamental-mode "Haml"
   "Major mode for editing Haml files.
 
