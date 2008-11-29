@@ -22,12 +22,10 @@ class Html2HamlTest < Test::Unit::TestCase
   end
 
   def test_should_have_pretty_attributes
-    assert_equal_attributes('%input{ :type => "text", :name => "login" }/',
-                            render('<input type="text" name="login" />'))
-    assert_equal_attributes('%meta{ "http-equiv" => "Content-Type", :content => "text/html" }/',
-                            render('<meta http-equiv="Content-Type" content="text/html" />'))
-    assert_equal_attributes('%div{ "xml:lang" => "hr" }/',
-                            render('<div xml:lang="hr" />'))
+    assert_equal_attributes('%input{ :type => "text", :name => "login" }',
+      render('<input type="text" name="login" />'))
+    assert_equal_attributes('%meta{ "http-equiv" => "Content-Type", :content => "text/html" }',
+      render('<meta http-equiv="Content-Type" content="text/html" />'))
   end
 
   def test_sqml_comment
