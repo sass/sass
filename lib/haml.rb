@@ -39,7 +39,7 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 # Once it's installed, all view files with the ".html.haml" extension
 # will be compiled using Haml.
 #
-# To run Haml from the commandline, just use
+# To run Haml from the command line, just use
 #
 #   haml input.haml output.html
 #

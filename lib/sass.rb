@@ -51,7 +51,7 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 # Then, whenever necessary, they're compiled into corresponding CSS files in public/stylesheets.
 # For instance, public/stylesheets/sass/main.sass would be compiled to public/stylesheets/main.css.
 #
-# To run Sass from the commandline, just use
+# To run Sass from the command line, just use
 #
 #   sass input.sass output.css
 #
