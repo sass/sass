@@ -78,17 +78,17 @@ class Html2HamlTest < Test::Unit::TestCase
 
   protected
 
-    def render(text, options = {})
-      Haml::HTML.new(text, options).render.rstrip
-    end
+  def render(text, options = {})
+    Haml::HTML.new(text, options).render.rstrip
+  end
 
-    def render_rhtml(text)
-      render(text, :rhtml => true)
-    end
+  def render_rhtml(text)
+    render(text, :rhtml => true)
+  end
 
-    def assert_equal_attributes(expected, result)
-      expected_attr, result_attr = [expected, result].map { |s| s.gsub!(/\{ (.+) \}/, ''); $1.split(', ').sort }
-      assert_equal expected_attr, result_attr
-      assert_equal expected, result
-    end
+  def assert_equal_attributes(expected, result)
+    expected_attr, result_attr = [expected, result].map { |s| s.gsub!(/\{ (.+) \}/, ''); $1.split(', ').sort }
+    assert_equal expected_attr, result_attr
+    assert_equal expected, result
+  end
 end
