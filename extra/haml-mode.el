@@ -66,12 +66,16 @@ text nested beneath them.")
 
 ;; Font lock
 
+(defun haml-nested-regexp (re)
+  (concat "^\\( *\\)" re "\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*"))
+
 (defconst haml-font-lock-keywords
-  '(("^ *\\(\t\\)"               1 'haml-tab-face)
+  `((,(haml-nested-regexp "-#.*")  0 font-lock-comment-face)
+    (,(haml-nested-regexp ":\\w+") 0 font-lock-string-face)
+    ("^ *\\(\t\\)"               1 'haml-tab-face)
     ("^!!!.*"                    0 font-lock-constant-face)
     ("\\('[^']*'\\)"             1 font-lock-string-face append)
     ("\\(\"[^\"]*\"\\)"          1 font-lock-string-face append)
-    ("&?:\\w+"                   0 font-lock-constant-face append)
     ("@[a-z0-9_]+"               0 font-lock-variable-name-face append)
     ("| *$"                      0 font-lock-string-face)
     ("^[ \t]*\\(/.*\\)$"         1 font-lock-comment-face append)
@@ -92,6 +96,27 @@ text nested beneath them.")
     ("^ *[\\.#%a-z0-9_]+\\([~=-] .*\\)"     1 font-lock-preprocessor-face prepend)
     ("^ *[\\.#%a-z0-9_]+\\({[^}]+}\\)"      1 font-lock-preprocessor-face prepend)
     ("^ *[\\.#%a-z0-9_]+\\(\\[[^]]+\\]\\)"  1 font-lock-preprocessor-face prepend)))
+
+(defconst haml-filter-re "^ *\\(:\\)\\w+")
+(defconst haml-comment-re "^ *\\(-\\)\\#")
+
+(defun* haml-extend-region ()
+  "Extend the font-lock region to encompass filters and comments."
+  (let ((old-beg font-lock-beg)
+        (old-end font-lock-end))
+    (save-excursion
+      (goto-char font-lock-beg)
+      (beginning-of-line)
+      (unless (or (looking-at haml-filter-re)
+                  (looking-at haml-comment-re))
+        (return-from haml-extend-region))
+      (setq font-lock-beg (point))
+      (haml-forward-sexp)
+      (beginning-of-line)
+      (setq font-lock-end (max font-lock-end (point))))
+    (or (/= old-beg font-lock-beg)
+        (/= old-end font-lock-end))))
+
 
 ;; Mode setup
 
@@ -119,8 +144,11 @@ text nested beneath them.")
 
 \\{haml-mode-map}"
   (set-syntax-table haml-mode-syntax-table)
+  (add-to-list 'font-lock-extend-region-functions 'haml-extend-region)
+  (set (make-local-variable 'font-lock-multiline) t)
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
+  (set (make-local-variable 'parse-sexp-lookup-properties) t)
   (setq indent-tabs-mode nil)
   (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
 
@@ -327,6 +355,10 @@ the current line."
   (haml-mark-sexp-but-not-next-line)
   (kill-line 1)
   (haml-reindent-region-by (* -1 haml-indent-offset)))
+
+(defun haml-indent-string ()
+  "Return the indentation string for `haml-indent-offset'."
+  (mapconcat 'identity (make-list haml-indent-offset " ") ""))
 
 ;; Setup/Activation
 
