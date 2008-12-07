@@ -2,6 +2,12 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'haml/template'
 
+class ActionView::Base
+  def nested_tag
+    content_tag(:span) {content_tag(:div) {"something"}}
+  end
+end
+
 class HelperTest < Test::Unit::TestCase
   include Haml::Helpers
   Post = Struct.new('Post', :body)
@@ -196,6 +202,10 @@ HAML
 
   def test_non_haml
     assert_equal("false\n", render("= non_haml { is_haml? }"))
+  end
+
+  def test_content_tag_nested
+    assert_equal "<span><div>something</div></span>", render("= nested_tag", :action_view).strip
   end
   
   class ActsLikeTag
