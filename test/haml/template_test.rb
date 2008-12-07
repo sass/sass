@@ -74,7 +74,11 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name, &render_method)
-    render_method ||= proc { |name| @base.render(:file => name) }
+    if ActionPack::VERSION::MAJOR < 2 || ActionPack::VERSION::MINOR < 2
+      render_method ||= proc { |name| @base.render(name) }
+    else
+      render_method ||= proc { |name| @base.render(:file => name) }
+    end
 
     load_result(name).split("\n").zip(render_method[name].split("\n")).each_with_index do |pair, line|
       message = "template: #{name}\nline:     #{line}"
