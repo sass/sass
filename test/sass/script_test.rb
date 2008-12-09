@@ -6,7 +6,7 @@ class SassScriptTest < Test::Unit::TestCase
   include Sass::Script
 
   def eval(str, environment = {})
-    Sass::Script.resolve(str, 0, environment)
+    Sass::Script.resolve(str, 0, 0, environment)
   end
 
   def test_color_checks_input

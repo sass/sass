@@ -3,8 +3,8 @@ require 'sass/script/lexer'
 module Sass
   module Script
     class Parser
-      def initialize(str)
-        @lexer = Lexer.new(str)
+      def initialize(str, line, offset)
+        @lexer = Lexer.new(str, line, offset)
       end
 
       def parse

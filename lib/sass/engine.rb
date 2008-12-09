@@ -413,9 +413,9 @@ END
       Tree::MixinNode.new(name, args.map {|s| parse_script(s)}, @options)
     end
 
-    def parse_script(script, line = nil)
+    def parse_script(script, line = nil, offset = 0)
       line ||= @line
-      Script.parse(script, line)
+      Script.parse(script, line, offset)
     end
     def import_paths
       paths = @options[:load_paths] || []

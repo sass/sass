@@ -38,8 +38,10 @@ module Sass
         :op => %r{(#{Regexp.union(*OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(?:\b|$)' : ''))})})}
       }
 
-      def initialize(str)
+      def initialize(str, line, offset)
         @scanner = StringScanner.new(str)
+        @line = line
+        @offset = offset
       end
 
       def token
