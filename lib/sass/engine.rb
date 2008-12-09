@@ -31,7 +31,7 @@ module Sass
   #   output = sass_engine.render
   #   puts output
   class Engine
-    Line = Struct.new(:text, :tabs, :index, :filename, :children)
+    Line = Struct.new(:text, :tabs, :index, :offset, :filename, :children)
 
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ?:
@@ -143,15 +143,14 @@ module Sass
           end
         end
         first &&= !tab_str.nil?
-        next Line.new(line.strip, 0, index, @options[:filename], []) if tab_str.nil?
+        next Line.new(line.strip, 0, index, 0, @options[:filename], []) if tab_str.nil?
 
         line_tabs = line_tab_str.scan(tab_str).size
         raise SyntaxError.new(<<END.strip.gsub("\n", ' '), index) if tab_str * line_tabs != line_tab_str
 Inconsistent indentation: #{Haml::Shared.human_indentation line_tab_str, true} used for indentation,
 but the rest of the document was indented using #{Haml::Shared.human_indentation tab_str}.
 END
-
-        Line.new(line.strip, line_tabs, index, @options[:filename], [])
+        Line.new(line.strip, line_tabs, index, tab_str.size, @options[:filename], [])
       end.compact
     end
 
@@ -246,7 +245,7 @@ END
       case line.text[0]
       when ATTRIBUTE_CHAR
         if line.text[1] != ATTRIBUTE_CHAR
-          parse_attribute(line.text, ATTRIBUTE)
+          parse_attribute(line, ATTRIBUTE)
         else
           # Support CSS3-style pseudo-elements,
           # which begin with ::
@@ -270,7 +269,7 @@ END
         end
       else
         if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
-          parse_attribute(line.text, ATTRIBUTE_ALTERNATE)
+          parse_attribute(line, ATTRIBUTE_ALTERNATE)
         else
           Tree::RuleNode.new(line.text, @options)
         end
@@ -286,13 +285,16 @@ END
         raise SyntaxError.new("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.")
       end
 
-      name, eq, value = line.scan(attribute_regx)[0]
+      name, eq, value = line.text.scan(attribute_regx)[0]
 
       if name.nil? || value.nil?
-        raise SyntaxError.new("Invalid attribute: \"#{line}\".", @line)
+        raise SyntaxError.new("Invalid attribute: \"#{line.text}\".", @line)
       end
-
-      expr = (eq.strip[0] == SCRIPT_CHAR) ? parse_script(value) : value
+      expr = if (eq.strip[0] == SCRIPT_CHAR)
+        parse_script(value, :offset => line.offset + line.text.index(value))
+      else
+        value
+      end
       Tree::AttrNode.new(name, expr, @options)
     end
 
@@ -327,9 +329,11 @@ END
       elsif directive == "else"
         parse_else(parent, line, value)
       elsif directive == "while"
-        Tree::WhileNode.new(parse_script(value, line.index), @options)
+        offset = line.offset + line.text.index(value).to_i
+        Tree::WhileNode.new(parse_script(value, :line => line.index, :offset => offset), @options)
       elsif directive == "if"
-        Tree::IfNode.new(parse_script(value, line.index), @options)
+        offset = line.offset + line.text.index(value).to_i
+        Tree::IfNode.new(parse_script(value, :line => line.index, :offset => offset), @options)
       else
         Tree::DirectiveNode.new(line.text, @options)
       end
@@ -350,8 +354,9 @@ END
       end
       raise SyntaxError.new("Invalid variable \"#{var}\".", @line) unless var =~ Script::VALIDATE
 
-      Tree::ForNode.new(var[1..-1], parse_script(from_expr), parse_script(to_expr),
-        to_name == 'to', @options)
+      parsed_from = parse_script(from_expr, :offset => line.offset + line.text.index(from_expr))
+      parsed_to = parse_script(to_expr, :offset => line.offset + line.text.index(to_expr))
+      Tree::ForNode.new(var[1..-1], parsed_from, parsed_to, to_name == 'to', @options)
     end
 
     def parse_else(parent, line, text)
@@ -362,7 +367,7 @@ END
         if text !~ /^if\s+(.+)/
           raise SyntaxError.new("Invalid @else directive '@else #{text}': expected 'if <expr>'.", @line)
         end
-        expr = parse_script($1)
+        expr = parse_script($1, :offset => line.offset + line.text.index($1))
       end
 
       node = Tree::IfNode.new(expr, @options)
@@ -397,7 +402,7 @@ END
         default_arg_found ||= default
         raise SyntaxError.new("Invalid variable \"#{arg}\".", @line) unless arg =~ Script::VALIDATE
         raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
-        default = parse_script(default) if default
+        default = parse_script(default, :offset => line.offset + line.text.index(default)) if default
         { :name => arg[1..-1], :default_value => default }
       end
       Tree::MixinDefNode.new(name, args, @options)
@@ -410,11 +415,12 @@ END
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil? || args.nil?
       args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
 
-      Tree::MixinNode.new(name, args.map {|s| parse_script(s)}, @options)
+      Tree::MixinNode.new(name, args.map {|s| parse_script(s, :offset => line.offset + line.text.index(s))}, @options)
     end
 
-    def parse_script(script, line = nil, offset = 0)
-      line ||= @line
+    def parse_script(script, options = {})
+      line = options[:line] || @line
+      offset = options[:offset] || 0
       Script.parse(script, line, offset)
     end
     def import_paths
