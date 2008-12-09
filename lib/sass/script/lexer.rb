@@ -56,7 +56,7 @@ module Sass
 
         value = variable || string || number || color || bool || op || ident
         unless value
-          raise SyntaxError.new("Syntax error in '#{@scanner.string}' at '#{@scanner.rest}'.")
+          raise SyntaxError.new("Syntax error in '#{@scanner.string}' at character #{current_position}.")
         end
         Token.new(value.first, value.last, @line, last_match_position)
       end
