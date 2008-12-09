@@ -67,7 +67,7 @@ RUBY
         return paren unless name = try_tok(:ident)
         # An identifier without arguments is just a string
         unless try_tok(:lparen)
-          warn %Q{WARNING: Implicit strings are deprecated. '#{name.value}' was not quoted. Please add double quotes. E.g. "#{name.value}".}
+          warn %Q{WARNING: Implicit strings are deprecated. '#{name.value}' found at line #{name.line}, character #{name.offset} was not quoted. Please add double quotes. E.g. "#{name.value}".}
           Script::String.new(name.value)
         else
           args = arglist || []
