@@ -719,7 +719,9 @@ SASS
   end
 
   def test_inaccessible_functions
-    assert_equal("a {\n  b: send(to_s); }\n", render("a\n  b = send(to_s)"))
+    assert_warning %Q{WARNING: Implicit strings are deprecated. 'to_s' was not quoted. Please add double quotes. E.g. \"to_s\".} do
+      assert_equal("a {\n  b: send(to_s); }\n", render("a\n  b = send(to_s)"))
+    end
     assert_equal("a {\n  b: public_instance_methods(); }\n", render("a\n  b = public_instance_methods()"))
   end
 

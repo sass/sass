@@ -66,10 +66,14 @@ RUBY
       def funcall
         return paren unless name = try_tok(:ident)
         # An identifier without arguments is just a string
-        return Script::String.new(name.last) unless try_tok(:lparen)
-        args = arglist || []
-        assert_tok(:rparen)
-        Script::Funcall.new(name.last, args)
+        unless try_tok(:lparen)
+          warn %Q{WARNING: Implicit strings are deprecated. '#{name.last}' was not quoted. Please add double quotes. E.g. "#{name.last}".}
+          Script::String.new(name.last)
+        else
+          args = arglist || []
+          assert_tok(:rparen)
+          Script::Funcall.new(name.last, args)
+        end
       end
 
       def arglist
