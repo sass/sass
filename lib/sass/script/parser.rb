@@ -26,7 +26,7 @@ module Sass
           def #{name}
             return unless e = #{sub}
             while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
-              e = Operation.new(e, assert_expr(#{sub.inspect}), tok.first)
+              e = Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
             end
             e
           end
@@ -67,12 +67,12 @@ RUBY
         return paren unless name = try_tok(:ident)
         # An identifier without arguments is just a string
         unless try_tok(:lparen)
-          warn %Q{WARNING: Implicit strings are deprecated. '#{name.last}' was not quoted. Please add double quotes. E.g. "#{name.last}".}
-          Script::String.new(name.last)
+          warn %Q{WARNING: Implicit strings are deprecated. '#{name.value}' was not quoted. Please add double quotes. E.g. "#{name.value}".}
+          Script::String.new(name.value)
         else
           args = arglist || []
           assert_tok(:rparen)
-          Script::Funcall.new(name.last, args)
+          Script::Funcall.new(name.value, args)
         end
       end
 
@@ -91,11 +91,11 @@ RUBY
 
       def variable
         return literal unless c = try_tok(:const)
-        Variable.new(c.last)
+        Variable.new(c.value)
       end
 
       def literal
-        (t = try_tok(:string, :number, :color, :bool)) && (return t.last)
+        (t = try_tok(:string, :number, :color, :bool)) && (return t.value)
       end
 
       # It would be possible to have unified #assert and #try methods,
@@ -103,17 +103,17 @@ RUBY
 
       def assert_expr(name)
         (e = send(name)) && (return e)
-        raise Sass::SyntaxError.new("Expected expression, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.first} token"}.")
+        raise Sass::SyntaxError.new("Expected expression, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.type} token"}.")
       end
 
       def assert_tok(*names)
         (t = try_tok(*names)) && (return t)
-        raise Sass::SyntaxError.new("Expected #{names.join(' or ')} token, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.first} token"}.")
+        raise Sass::SyntaxError.new("Expected #{names.join(' or ')} token, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.type} token"}.")
       end
 
       def try_tok(*names)
         peeked =  @lexer.peek
-        peeked && names.include?(peeked.first) && @lexer.token
+        peeked && names.include?(peeked.type) && @lexer.token
       end
     end
   end
