@@ -292,7 +292,7 @@ END
         raise SyntaxError.new("Invalid attribute: \"#{line}\".", @line)
       end
 
-      expr = (eq.strip[0] == SCRIPT_CHAR) ? Script.parse(value, @line) : value
+      expr = (eq.strip[0] == SCRIPT_CHAR) ? parse_script(value) : value
       Tree::AttrNode.new(name, expr, @options)
     end
 
@@ -301,7 +301,7 @@ END
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.", @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".", @line) unless name && value
 
-      Tree::VariableNode.new(name, Script.parse(value, @line), op == '||=', @options)
+      Tree::VariableNode.new(name, parse_script(value), op == '||=', @options)
     end
 
     def parse_comment(line)
@@ -327,9 +327,9 @@ END
       elsif directive == "else"
         parse_else(parent, line, value)
       elsif directive == "while"
-        Tree::WhileNode.new(Script.parse(value, line.index), @options)
+        Tree::WhileNode.new(parse_script(value, line.index), @options)
       elsif directive == "if"
-        Tree::IfNode.new(Script.parse(value, line.index), @options)
+        Tree::IfNode.new(parse_script(value, line.index), @options)
       else
         Tree::DirectiveNode.new(line.text, @options)
       end
@@ -350,7 +350,7 @@ END
       end
       raise SyntaxError.new("Invalid variable \"#{var}\".", @line) unless var =~ Script::VALIDATE
 
-      Tree::ForNode.new(var[1..-1], Script.parse(from_expr, @line), Script.parse(to_expr, @line),
+      Tree::ForNode.new(var[1..-1], parse_script(from_expr), parse_script(to_expr),
         to_name == 'to', @options)
     end
 
@@ -362,7 +362,7 @@ END
         if text !~ /^if\s+(.+)/
           raise SyntaxError.new("Invalid @else directive '@else #{text}': expected 'if <expr>'.", @line)
         end
-        expr = Script.parse($1, @line)
+        expr = parse_script($1)
       end
 
       node = Tree::IfNode.new(expr, @options)
@@ -397,7 +397,7 @@ END
         default_arg_found ||= default
         raise SyntaxError.new("Invalid variable \"#{arg}\".", @line) unless arg =~ Script::VALIDATE
         raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
-        default = Script.parse(default, @line) if default
+        default = parse_script(default) if default
         { :name => arg[1..-1], :default_value => default }
       end
       Tree::MixinDefNode.new(name, args, @options)
@@ -410,9 +410,13 @@ END
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil? || args.nil?
       args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
 
-      Tree::MixinNode.new(name, args.map {|s| Script.parse(s, @line)}, @options)
+      Tree::MixinNode.new(name, args.map {|s| parse_script(s)}, @options)
     end
 
+    def parse_script(script, line = nil)
+      line ||= @line
+      Script.parse(script, line)
+    end
     def import_paths
       paths = @options[:load_paths] || []
       paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
