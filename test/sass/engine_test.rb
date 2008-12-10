@@ -292,20 +292,20 @@ END
 
   def test_line_annotations
     assert_equal(<<CSS, render(<<SASS, :line_comments => true, :style => :compact))
-/* line 2 */
+/* line 2, test_line_annotations_inline.sass */
 foo bar { foo: bar; }
-/* line 5 */
+/* line 5, test_line_annotations_inline.sass */
 foo baz { blip: blop; }
 
-/* line 9 */
+/* line 9, test_line_annotations_inline.sass */
 floodle { flop: blop; }
 
-/* line 18 */
+/* line 18, test_line_annotations_inline.sass */
 bup { mix: on; }
-/* line 15 */
+/* line 15, test_line_annotations_inline.sass */
 bup mixin { moop: mup; }
 
-/* line 22 */
+/* line 22, test_line_annotations_inline.sass */
 bip hop, skip hop { a: b; }
 CSS
 foo
@@ -719,7 +719,7 @@ SASS
   end
 
   def test_inaccessible_functions
-    assert_warning %Q{WARNING: Implicit strings are deprecated. 'to_s' found at line 2, character 11 was not quoted. Please add double quotes. E.g. \"to_s\".} do
+    assert_warning %Q{WARNING: Implicit strings are deprecated. 'to_s' found at line 2, character 12 of 'test_inaccessible_functions_inline.sass' was not quoted. Please add double quotes. E.g. \"to_s\".} do
       assert_equal("a {\n  b: send(to_s); }\n", render("a\n  b = send(to_s)"))
     end
     assert_equal("a {\n  b: public_instance_methods(); }\n", render("a\n  b = public_instance_methods()"))
@@ -728,6 +728,10 @@ SASS
   private
 
   def render(sass, options = {})
+    unless options[:filename]
+      test_name = caller.first.gsub(/^.*`(.*)'.*$/, '\1')
+      options[:filename] = "#{test_name}_inline.sass"
+    end
     Sass::Engine.new(sass, options).render
   end
 
