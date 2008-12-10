@@ -761,4 +761,11 @@ SASS
   ensure
     $stderr = the_real_stderr
   end
+
+  def silence_warnings
+    the_real_stderr, $stderr = $stderr, StringIO.new
+    yield
+  ensure
+    $stderr = the_real_stderr
+  end
 end
