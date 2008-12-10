@@ -22,8 +22,8 @@ module Sass
       parse(value, line, offset).perform(environment).to_s
     end
 
-    def self.parse(value, line, offset)
-      Parser.parse(value, line, offset)
+    def self.parse(value, line, offset, filename = nil)
+      Parser.parse(value, line, offset, filename)
     rescue Sass::SyntaxError => e
       if e.message == "SassScript error"
         e.instance_eval do

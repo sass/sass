@@ -421,8 +421,9 @@ END
     def parse_script(script, options = {})
       line = options[:line] || @line
       offset = options[:offset] || 0
-      Script.parse(script, line, offset)
+      Script.parse(script, line, offset, @options[:filename])
     end
+
     def import_paths
       paths = @options[:load_paths] || []
       paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
