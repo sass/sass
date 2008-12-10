@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
+require 'stringio'
 
 class SassEngineTest < Test::Unit::TestCase
   # A map of erroneous Sass documents to the error messages they should produce.
@@ -745,5 +746,13 @@ SASS
 
   def filename(name, type)
     File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
+  end
+
+  def assert_warning(message)
+    the_real_stderr, $stderr = $stderr, StringIO.new
+    yield
+    assert_equal message.strip, $stderr.string.strip
+  ensure
+    $stderr = the_real_stderr
   end
 end
