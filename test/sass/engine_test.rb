@@ -50,7 +50,7 @@ class SassEngineTest < Test::Unit::TestCase
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
-    "!foo = bar baz !" => "Syntax error in 'bar baz !' at character 8.",
+    "!foo = bar baz !" => "Syntax error in 'bar baz !' at character 20.",
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",

@@ -125,7 +125,7 @@ module Sass
       protected
 
       def current_position
-        @offset + @scanner.pos
+        @offset + @scanner.pos + 1
       end
       def last_match_position
         current_position - @scanner.matchedsize

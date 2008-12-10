@@ -303,7 +303,7 @@ END
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.", @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".", @line) unless name && value
 
-      Tree::VariableNode.new(name, parse_script(value), op == '||=', @options)
+      Tree::VariableNode.new(name, parse_script(value, :offset => line.offset + line.text.index(value)), op == '||=', @options)
     end
 
     def parse_comment(line)
