@@ -54,7 +54,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("25%",  evaluate("percentage(25px / 100px)"))
     assert_error_message("25px is not a unitless number for `percentage'", "percentage(25px)")
     assert_error_message("#cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
-    assert_error_message("string is not a unitless number for `percentage'", "percentage(string)")
+    assert_error_message("string is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
   def test_numeric_transformations
@@ -70,8 +70,8 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
     assert_error_message("#cccccc is not a number for `round'", "round(#ccc)")
-    assert_error_message("foo is not a number for `floor'", "floor(foo)")
-    assert_error_message("'a' is not a number for `ceil'", "ceil('a')")
+    assert_error_message("foo is not a number for `floor'", "floor(\"foo\")")
+    assert_error_message("a is not a number for `ceil'", "ceil(\"a\")")
     assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
 

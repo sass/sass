@@ -12,15 +12,15 @@ class SassEngineTest < Test::Unit::TestCase
     "!a = 1 + " => 'Expected expression, was end of text.',
     "!a = 1 + 2 +" => 'Expected expression, was end of text.',
     "!a = 1 + 2 + %" => 'Expected expression, was mod token.',
-    "!a = foo(bar" => 'Expected rparen token, was end of text.',
-    "!a = #aaa - a" => 'Undefined operation: "#aaaaaa minus a".',
-    "!a = #aaa / a" => 'Undefined operation: "#aaaaaa div a".',
-    "!a = #aaa * a" => 'Undefined operation: "#aaaaaa times a".',
-    "!a = #aaa % a" => 'Undefined operation: "#aaaaaa mod a".',
-    "!a = 1 - a" => 'Undefined operation: "1 minus a".',
-    "!a = 1 * a" => 'Undefined operation: "1 times a".',
-    "!a = 1 / a" => 'Undefined operation: "1 div a".',
-    "!a = 1 % a" => 'Undefined operation: "1 mod a".',
+    "!a = foo(\"bar\"" => 'Expected rparen token, was end of text.',
+    "!a = #aaa - \"a\"" => 'Undefined operation: "#aaaaaa minus a".',
+    "!a = #aaa / \"a\"" => 'Undefined operation: "#aaaaaa div a".',
+    "!a = #aaa * \"a\"" => 'Undefined operation: "#aaaaaa times a".',
+    "!a = #aaa % \"a\"" => 'Undefined operation: "#aaaaaa mod a".',
+    "!a = 1 - \"a\"" => 'Undefined operation: "1 minus a".',
+    "!a = 1 * \"a\"" => 'Undefined operation: "1 times a".',
+    "!a = 1 / \"a\"" => 'Undefined operation: "1 div a".',
+    "!a = 1 % \"a\"" => 'Undefined operation: "1 mod a".',
     ":" => 'Invalid attribute: ":".',
     ": a" => 'Invalid attribute: ": a".',
     ":= a" => 'Invalid attribute: ":= a".',
@@ -45,12 +45,12 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
     "a,\n  :b c" => ["Rules can\'t end in commas.", 1],
     "a," => "Rules can\'t end in commas.",
-    "a,\n!b = c" => ["Rules can\'t end in commas.", 1],
+    "a,\n!b = 1" => ["Rules can\'t end in commas.", 1],
     "!a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
-    "!foo = bar baz !" => "Syntax error in 'bar baz !' at character 20.",
+    %Q{!foo = "bar" "baz" !} => %Q{Syntax error in '"bar" "baz" !' at character 20.},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
@@ -167,18 +167,18 @@ class SassEngineTest < Test::Unit::TestCase
   end
 
   def test_default_function
-    assert_equal("foo {\n  bar: url(foo.png); }\n", render("foo\n  bar = url(foo.png)\n"));
+    assert_equal("foo {\n  bar: url(foo.png); }\n", render(%Q{foo\n  bar = url("foo.png")\n}));
     assert_equal("foo {\n  bar: url(); }\n", render("foo\n  bar = url()\n"));
   end
 
   def test_string_minus
-    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render("foo\n  bar = baz-boom-bat"))
-    assert_equal("foo {\n  bar: -baz-boom; }\n", render("foo\n  bar = -baz-boom"))
+    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render(%Q{foo\n  bar = "baz"-"boom"-"bat"}))
+    assert_equal("foo {\n  bar: -baz-boom; }\n", render(%Q{foo\n  bar = -"baz"-"boom"}))
   end
 
   def test_string_div
-    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render("foo\n  bar = baz/boom/bat"))
-    assert_equal("foo {\n  bar: /baz/boom; }\n", render("foo\n  bar = /baz/boom"))
+    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render(%Q{foo\n  bar = "baz"/"boom"/"bat"}))
+    assert_equal("foo {\n  bar: /baz/boom; }\n", render(%Q{foo\n  bar = /"baz"/"boom"}))
   end
 
   def test_basic_multiline_selector
@@ -352,8 +352,8 @@ SASS
   end
 
   def test_or_eq
-    assert_equal("foo {\n  a: b; }\n", render("!foo = b\n!foo ||= c\nfoo\n  a = !foo"))
-    assert_equal("foo {\n  a: b; }\n", render("!foo ||= b\nfoo\n  a = !foo"))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{!foo = "b"\n!foo ||= "c"\nfoo\n  a = !foo}))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{!foo ||= "b"\nfoo\n  a = !foo}))
   end
   
   def test_mixins
@@ -540,16 +540,15 @@ a {
   t2: true;
   t3: true;
   f1: false;
-  f2: false;
-  f3: false; }
+  f2: false; }
 CSS
+!foo = "foo"
 a
-  t1 = "foo" == foo
+  t1 = "foo" == !foo
   t2 = 1 == 1.0
   t3 = false != true
-  f1 = foo == bar
-  f2 = 1em == 1px
-  f3 = 12 != 12
+  f1 = 1em == 1px
+  f2 = 12 != 12
 SASS
   end
 

@@ -5,11 +5,11 @@
 !dec = 10.2
 !dec_0 = 99.0
 !neg = -10
-!esc= 10\+12
+!esc= 10"+12"
 !str= "Hello!"
 !qstr= "Quo\"ted\"!"
 !hstr= "Hyph-en!"
-!concat = (5 + 4) hi there
+!concat = "#{5 + 4} hi there"
 !percent= 11%
 !complex = 1px/1em
 
@@ -22,8 +22,8 @@
   :color= !main_text
   :short-color= #123
   :named-color= olive
-  :con= foo bar (!concat boom)
-  :con2= noquo "quo"
+  :con= "foo" bar (!concat "boom")
+  :con2= "noquo" "quo"
   #sidebar
     :background-color= !color
     :num
@@ -34,7 +34,7 @@
     :esc= !esc
     :many= 1 + 2 + 3
     :order= 1 + 2 * 3
-    :complex= ((1 + 2) + 15)+#3a8b9f + (hi+(1 +1+ 2)*   4)
+    :complex= ((1 + 2) + 15)+#3a8b9f + ("hi"+(1 +1+ 2)*   4)
 
 #plus
   :num
@@ -42,14 +42,14 @@
     :num-un= 10em + 15em
     :num-un2= 10 + 13em
     :num-neg= 10 + -.13
-    :str= 100 + px
+    :str= 100 * 1px
     :col= 13 + #aaa
     :perc = !percent + 20%
   :str
-    :str= hi + \ there
-    :str2= hi + " there"
+    :str= "hi" + "\ there"
+    :str2= "hi" + " there"
     :col= "14em solid " + #123
-    :num= times:\  + 13
+    :num= "times: " + 13
   :col
     :num= #f02 + 123.5
     :col= #12A + #405162
@@ -95,7 +95,6 @@
 #const
   :escaped
     :quote = "!foo"
-    :slash = \!foo
   :default = !str !important
 
 #regression
