@@ -153,6 +153,20 @@ text nested beneath them.")
   (setq indent-tabs-mode nil)
   (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
 
+;; Useful functions
+
+(defun haml-comment-block ()
+  "Comment the current block of Haml code."
+  (interactive)
+  (save-excursion
+    (let ((indent (current-indentation)))
+      (back-to-indentation)
+      (insert "-#")
+      (newline)
+      (indent-to indent)
+      (haml-indent-region
+       (point) (save-excursion (haml-forward-sexp) (point))))))
+
 ;; Navigation
 
 (defun haml-forward-through-whitespace (&optional backward)
