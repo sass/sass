@@ -270,8 +270,8 @@ HAML
   end
   
   def test_string_interpolation_should_be_esaped
-    assert_equal("<p>4&amp;3</p>\n", render("%p== #{2+2}&#{2+1}", :escape_html => true))
-    assert_equal("<p>4&3</p>\n", render("%p== #{2+2}&#{2+1}", :escape_html => false))
+    assert_equal("<p>4&amp;3</p>\n", render("%p== \#{2+2}&\#{2+1}", :escape_html => true))
+    assert_equal("<p>4&3</p>\n", render("%p== \#{2+2}&\#{2+1}", :escape_html => false))
   end
 
   def test_escaped_inline_string_interpolation
