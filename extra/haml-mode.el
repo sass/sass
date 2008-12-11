@@ -149,6 +149,7 @@ text nested beneath them.")
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
   (set (make-local-variable 'parse-sexp-lookup-properties) t)
+  (setq comment-start "-#")
   (setq indent-tabs-mode nil)
   (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
 
