@@ -281,7 +281,11 @@ END
         raise SyntaxError.new("Illegal nesting: nesting within plain text is illegal.", @next_line.index)
       end
 
-      push_text text
+      if contains_interpolation?(text)
+        push_script unescape_interpolation(text)
+      else
+        push_text text
+      end
     end
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
@@ -545,7 +549,20 @@ END
       when '&', '!'
         if value[0] == ?=
           parse = true
-          value = (value[1] == ?= ? unescape_interpolation(value[2..-1].strip) : value[1..-1].strip)
+          value =
+            if value[1] == ?=
+              unescape_interpolation(value[2..-1].strip)
+            else
+              value[1..-1].strip
+            end
+        elsif contains_interpolation?(value)
+          parse = true
+          value = unescape_interpolation(value)
+        end
+      else
+        if contains_interpolation?(value)
+          parse = true
+          value = unescape_interpolation(value)
         end
       end
 

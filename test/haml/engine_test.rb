@@ -528,7 +528,7 @@ HAML
   end
 
   def test_unbalanced_brackets
-    render('#{1 + 5} foo #{6 + 7 bar #{8 + 9}')
+    render('foo #{1 + 5} foo #{6 + 7 bar #{8 + 9}')
   rescue Haml::SyntaxError => e
     assert_equal("Unbalanced brackets.", e.message)
   end
