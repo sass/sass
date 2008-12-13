@@ -256,6 +256,10 @@ END
         opts.on('-I', '--load-path PATH', "Same as 'ruby -I'.") do |path|
           @options[:load_paths] << path
         end
+
+        opts.on('--debug', "Print out the precompiled Ruby source.") do
+          @options[:debug] = true
+        end
       end
 
       def process_result
@@ -275,6 +279,12 @@ END
 
           @options[:load_paths].each {|p| $LOAD_PATH << p}
           @options[:requires].each {|f| require f}
+
+          if @options[:debug]
+            puts engine.precompiled
+            puts '=' * 100
+          end
+
           result = engine.to_html
         rescue Exception => e
           raise e if @options[:trace]
