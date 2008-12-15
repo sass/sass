@@ -3,6 +3,8 @@ require 'strscan'
 module Sass
   module Script
     class Lexer # :nodoc:
+      Token = Struct.new(:type, :value, :line, :offset)
+
       OPERATORS = {
         '+' => :plus,
         '-' => :minus,
@@ -38,8 +40,10 @@ module Sass
         :op => %r{(#{Regexp.union(*OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(?:\b|$)' : ''))})})}
       }
 
-      def initialize(str)
+      def initialize(str, line, offset)
         @scanner = StringScanner.new(str)
+        @line = line
+        @offset = offset
       end
 
       def token
@@ -50,8 +54,11 @@ module Sass
 
         return if done?
 
-        variable || string || number || color || bool || op || ident ||
-          (raise SyntaxError.new("Syntax error in '#{@scanner.string}' at '#{@scanner.rest}'."))
+        value = variable || string || number || color || bool || op || ident
+        unless value
+          raise SyntaxError.new("Syntax error in '#{@scanner.string}' at character #{current_position}.")
+        end
+        Token.new(value.first, value.last, @line, last_match_position)
       end
 
       def peek
@@ -113,6 +120,15 @@ module Sass
       def op
         return unless op = @scanner.scan(REGULAR_EXPRESSIONS[:op])
         [OPERATORS[op]]
+      end
+
+      protected
+
+      def current_position
+        @offset + @scanner.pos + 1
+      end
+      def last_match_position
+        current_position - @scanner.matchedsize
       end
     end
   end

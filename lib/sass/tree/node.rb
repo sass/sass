@@ -68,7 +68,7 @@ module Sass
           if escapes % 2 == 1
             str << '#{'
           else
-            str << Sass::Script.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], line, environment)
+            str << Sass::Script.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], line, scan.pos - scan.matchedsize, environment)
           end
         end
         

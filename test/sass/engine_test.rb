@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
+require 'stringio'
 
 class SassEngineTest < Test::Unit::TestCase
   # A map of erroneous Sass documents to the error messages they should produce.
@@ -11,15 +12,15 @@ class SassEngineTest < Test::Unit::TestCase
     "!a = 1 + " => 'Expected expression, was end of text.',
     "!a = 1 + 2 +" => 'Expected expression, was end of text.',
     "!a = 1 + 2 + %" => 'Expected expression, was mod token.',
-    "!a = foo(bar" => 'Expected rparen token, was end of text.',
-    "!a = #aaa - a" => 'Undefined operation: "#aaaaaa minus a".',
-    "!a = #aaa / a" => 'Undefined operation: "#aaaaaa div a".',
-    "!a = #aaa * a" => 'Undefined operation: "#aaaaaa times a".',
-    "!a = #aaa % a" => 'Undefined operation: "#aaaaaa mod a".',
-    "!a = 1 - a" => 'Undefined operation: "1 minus a".',
-    "!a = 1 * a" => 'Undefined operation: "1 times a".',
-    "!a = 1 / a" => 'Undefined operation: "1 div a".',
-    "!a = 1 % a" => 'Undefined operation: "1 mod a".',
+    "!a = foo(\"bar\"" => 'Expected rparen token, was end of text.',
+    "!a = #aaa - \"a\"" => 'Undefined operation: "#aaaaaa minus a".',
+    "!a = #aaa / \"a\"" => 'Undefined operation: "#aaaaaa div a".',
+    "!a = #aaa * \"a\"" => 'Undefined operation: "#aaaaaa times a".',
+    "!a = #aaa % \"a\"" => 'Undefined operation: "#aaaaaa mod a".',
+    "!a = 1 - \"a\"" => 'Undefined operation: "1 minus a".',
+    "!a = 1 * \"a\"" => 'Undefined operation: "1 times a".',
+    "!a = 1 / \"a\"" => 'Undefined operation: "1 div a".',
+    "!a = 1 % \"a\"" => 'Undefined operation: "1 mod a".',
     ":" => 'Invalid attribute: ":".',
     ": a" => 'Invalid attribute: ": a".',
     ":= a" => 'Invalid attribute: ":= a".',
@@ -44,12 +45,12 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
     "a,\n  :b c" => ["Rules can\'t end in commas.", 1],
     "a," => "Rules can\'t end in commas.",
-    "a,\n!b = c" => ["Rules can\'t end in commas.", 1],
+    "a,\n!b = 1" => ["Rules can\'t end in commas.", 1],
     "!a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
-    "!foo = bar baz !" => "Syntax error in 'bar baz !' at '!'.",
+    %Q{!foo = "bar" "baz" !} => %Q{Syntax error in '"bar" "baz" !' at character 20.},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
@@ -166,18 +167,18 @@ class SassEngineTest < Test::Unit::TestCase
   end
 
   def test_default_function
-    assert_equal("foo {\n  bar: url(foo.png); }\n", render("foo\n  bar = url(foo.png)\n"));
+    assert_equal("foo {\n  bar: url(foo.png); }\n", render(%Q{foo\n  bar = url("foo.png")\n}));
     assert_equal("foo {\n  bar: url(); }\n", render("foo\n  bar = url()\n"));
   end
 
   def test_string_minus
-    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render("foo\n  bar = baz-boom-bat"))
-    assert_equal("foo {\n  bar: -baz-boom; }\n", render("foo\n  bar = -baz-boom"))
+    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render(%Q{foo\n  bar = "baz"-"boom"-"bat"}))
+    assert_equal("foo {\n  bar: -baz-boom; }\n", render(%Q{foo\n  bar = -"baz"-"boom"}))
   end
 
   def test_string_div
-    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render("foo\n  bar = baz/boom/bat"))
-    assert_equal("foo {\n  bar: /baz/boom; }\n", render("foo\n  bar = /baz/boom"))
+    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render(%Q{foo\n  bar = "baz"/"boom"/"bat"}))
+    assert_equal("foo {\n  bar: /baz/boom; }\n", render(%Q{foo\n  bar = /"baz"/"boom"}))
   end
 
   def test_basic_multiline_selector
@@ -291,20 +292,20 @@ END
 
   def test_line_annotations
     assert_equal(<<CSS, render(<<SASS, :line_comments => true, :style => :compact))
-/* line 2 */
+/* line 2, test_line_annotations_inline.sass */
 foo bar { foo: bar; }
-/* line 5 */
+/* line 5, test_line_annotations_inline.sass */
 foo baz { blip: blop; }
 
-/* line 9 */
+/* line 9, test_line_annotations_inline.sass */
 floodle { flop: blop; }
 
-/* line 18 */
+/* line 18, test_line_annotations_inline.sass */
 bup { mix: on; }
-/* line 15 */
+/* line 15, test_line_annotations_inline.sass */
 bup mixin { moop: mup; }
 
-/* line 22 */
+/* line 22, test_line_annotations_inline.sass */
 bip hop, skip hop { a: b; }
 CSS
 foo
@@ -351,8 +352,8 @@ SASS
   end
 
   def test_or_eq
-    assert_equal("foo {\n  a: b; }\n", render("!foo = b\n!foo ||= c\nfoo\n  a = !foo"))
-    assert_equal("foo {\n  a: b; }\n", render("!foo ||= b\nfoo\n  a = !foo"))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{!foo = "b"\n!foo ||= "c"\nfoo\n  a = !foo}))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{!foo ||= "b"\nfoo\n  a = !foo}))
   end
   
   def test_mixins
@@ -539,16 +540,15 @@ a {
   t2: true;
   t3: true;
   f1: false;
-  f2: false;
-  f3: false; }
+  f2: false; }
 CSS
+!foo = "foo"
 a
-  t1 = "foo" == foo
+  t1 = "foo" == !foo
   t2 = 1 == 1.0
   t3 = false != true
-  f1 = foo == bar
-  f2 = 1em == 1px
-  f3 = 12 != 12
+  f1 = 1em == 1px
+  f2 = 12 != 12
 SASS
   end
 
@@ -718,13 +718,19 @@ SASS
   end
 
   def test_inaccessible_functions
-    assert_equal("a {\n  b: send(to_s); }\n", render("a\n  b = send(to_s)"))
+    assert_warning "DEPRECATION WARNING:\nOn line 2, character 12 of 'test_inaccessible_functions_inline.sass'\nImplicit strings have been deprecated and will be removed in version 2.4.\n'to_s' was not quoted. Please add double quotes (e.g. \"to_s\")." do
+      assert_equal("a {\n  b: send(to_s); }\n", render("a\n  b = send(to_s)"))
+    end
     assert_equal("a {\n  b: public_instance_methods(); }\n", render("a\n  b = public_instance_methods()"))
   end
 
   private
 
   def render(sass, options = {})
+    unless options[:filename]
+      test_name = caller.first.gsub(/^.*`(.*)'.*$/, '\1')
+      options[:filename] = "#{test_name}_inline.sass"
+    end
     Sass::Engine.new(sass, options).render
   end
 
@@ -745,5 +751,20 @@ SASS
 
   def filename(name, type)
     File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
+  end
+
+  def assert_warning(message)
+    the_real_stderr, $stderr = $stderr, StringIO.new
+    yield
+    assert_equal message.strip, $stderr.string.strip
+  ensure
+    $stderr = the_real_stderr
+  end
+
+  def silence_warnings
+    the_real_stderr, $stderr = $stderr, StringIO.new
+    yield
+  ensure
+    $stderr = the_real_stderr
   end
 end
