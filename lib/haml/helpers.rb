@@ -264,7 +264,7 @@ module Haml
 
         min_tabs = nil
         captured.each do |line|
-          tabs = line.index(/[^ ]/)
+          tabs = line.index(/[^ ]/) || line.length
           min_tabs ||= tabs
           min_tabs = min_tabs > tabs ? tabs : min_tabs
         end
@@ -287,8 +287,13 @@ END
 
     # Outputs text directly to the Haml buffer, with the proper tabulation
     def haml_concat(text = "")
-      haml_buffer.buffer << ('  ' * haml_buffer.tabulation) << text.to_s << "\n"
+      haml_buffer.buffer << haml_indent << text.to_s << "\n"
       nil
+    end
+
+    # Returns the string that should be used to indent the current line
+    def haml_indent
+      '  ' * haml_buffer.tabulation
     end
 
     #
