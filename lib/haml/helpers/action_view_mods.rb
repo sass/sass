@@ -141,10 +141,12 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
                 tab_up
                 oldproc.call(*args)
                 tab_down
+                concat haml_indent
               end
+              concat haml_indent
             end
             res = form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc) + "\n"
-            concat "\n" if block_given? && is_haml?
+            concat "\n" if block_given?
             res
           else
             form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc)
@@ -162,7 +164,9 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
               tab_up
               oldproc.call(*args)
               tab_down
+              concat haml_indent
             end
+            concat haml_indent
           end
           form_for_without_haml(object_name, *args, &proc)
           concat "\n" if block_given? && is_haml?
