@@ -318,7 +318,8 @@ END
     end
 
     def parse_directive(parent, line, root)
-      directive, value = line.text[1..-1].split(/\s+/, 2)
+      directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
+      offset = directive.size + whitespace.size + 1
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
@@ -330,10 +331,8 @@ END
       elsif directive == "else"
         parse_else(parent, line, value)
       elsif directive == "while"
-        offset = line.offset + line.text.index(value).to_i
         Tree::WhileNode.new(parse_script(value, :offset => offset), @options)
       elsif directive == "if"
-        offset = line.offset + line.text.index(value).to_i
         Tree::IfNode.new(parse_script(value, :offset => offset), @options)
       elsif directive == "debug"
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.", @line + 1) unless line.children.empty?
