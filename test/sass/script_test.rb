@@ -109,4 +109,14 @@ WARN
   ensure
     $stderr = the_real_stderr
   end
+
+  def test_number_printing
+    assert_equal "1", eval("1")
+    assert_equal "1", eval("1.0")
+    assert_equal "1.121", eval("1.1214")
+    assert_equal "1.122", eval("1.1215")
+    assert_equal "Infinity", eval("1.0/0.0")
+    assert_equal "-Infinity", eval("-1.0/0.0")
+    assert_equal "NaN", eval("0.0/0.0")
+  end
 end

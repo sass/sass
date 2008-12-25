@@ -97,7 +97,14 @@ module Sass::Script
     end
 
     def inspect
-      value = int? ? self.value.to_i : (self.value * PRECISION).round / PRECISION
+      value =
+        if self.value.is_a?(Float) && (self.value.infinite? || self.value.nan?)
+          self.value
+        elsif int?
+          self.value.to_i
+        else
+          (self.value * PRECISION).round / PRECISION
+        end
       "#{value}#{unit_str}"
     end
 
