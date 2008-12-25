@@ -5,15 +5,6 @@ require 'sass/engine'
 class SassScriptTest < Test::Unit::TestCase
   include Sass::Script
 
-  def resolve(str, opts = {}, environment = {})
-    eval(str, opts, environment).to_s
-  end
-
-  def eval(str, opts = {}, environment = {})
-    Sass::Script.parse(str, opts[:line] || 0,
-      opts[:offset] || 0, opts[:filename]).perform(environment)
-  end
-
   def test_color_checks_input
     assert_raise(Sass::SyntaxError, "Color values must be between 0 and 255") {Color.new([1, 2, -1])}
     assert_raise(Sass::SyntaxError, "Color values must be between 0 and 255") {Color.new([256, 2, 3])}
@@ -39,9 +30,43 @@ class SassScriptTest < Test::Unit::TestCase
     end
   end
 
+  def test_warning_reporting
+    assert_warning(<<WARN) {eval("foo")}
+DEPRECATION WARNING:
+On line 1, character 1 of 'test_warning_reporting_inline.sass'
+Implicit strings have been deprecated and will be removed in version 2.4.
+'foo' was not quoted. Please add double quotes (e.g. "foo").
+WARN
+    assert_warning(<<WARN) {eval("1 + foo")}
+DEPRECATION WARNING:
+On line 1, character 5 of 'test_warning_reporting_inline.sass'
+Implicit strings have been deprecated and will be removed in version 2.4.
+'foo' was not quoted. Please add double quotes (e.g. "foo").
+WARN
+    assert_warning(<<WARN) {render("@if 1 + foo")}
+DEPRECATION WARNING:
+On line 1, character 9 of 'test_warning_reporting_inline.sass'
+Implicit strings have been deprecated and will be removed in version 2.4.
+'foo' was not quoted. Please add double quotes (e.g. "foo").
+WARN
+
+    # Regression
+    assert_warning(<<WARN) {render("@if if")}
+DEPRECATION WARNING:
+On line 1, character 5 of 'test_warning_reporting_inline.sass'
+Implicit strings have been deprecated and will be removed in version 2.4.
+'if' was not quoted. Please add double quotes (e.g. "if").
+WARN
+  end
+
   def test_inaccessible_functions
-    assert_warning "DEPRECATION WARNING:\nOn line 2, character 6 of 'test_inaccessible_functions_inline.sass'\nImplicit strings have been deprecated and will be removed in version 2.4.\n'to_s' was not quoted. Please add double quotes (e.g. \"to_s\")." do
-      assert_equal "send(to_s)", resolve("send(to_s)", :line => 2, :filename => 'test_inaccessible_functions_inline.sass')
+    assert_warning <<WARN do
+DEPRECATION WARNING:
+On line 2, character 6 of 'test_inaccessible_functions_inline.sass'
+Implicit strings have been deprecated and will be removed in version 2.4.
+'to_s' was not quoted. Please add double quotes (e.g. "to_s").
+WARN
+      assert_equal "send(to_s)", resolve("send(to_s)", :line => 2)
     end
     assert_equal "public_instance_methods()", resolve("public_instance_methods()")
   end
@@ -53,6 +78,22 @@ class SassScriptTest < Test::Unit::TestCase
   end
 
   private
+
+  def resolve(str, opts = {}, environment = {})
+    munge_filename opts
+    eval(str, opts, environment).to_s
+  end
+
+  def eval(str, opts = {}, environment = {})
+    munge_filename opts
+    Sass::Script.parse(str, opts[:line] || 1,
+      opts[:offset] || 0, opts[:filename]).perform(environment)
+  end
+
+  def render(sass, options = {})
+    munge_filename options
+    Sass::Engine.new(sass, options).render
+  end
 
   def assert_warning(message)
     the_real_stderr, $stderr = $stderr, StringIO.new

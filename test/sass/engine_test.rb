@@ -718,12 +718,9 @@ SASS
   end
 
   private
-
+  
   def render(sass, options = {})
-    unless options[:filename]
-      test_name = caller.first.gsub(/^.*`(.*)'.*$/, '\1')
-      options[:filename] = "#{test_name}_inline.sass"
-    end
+    munge_filename options
     Sass::Engine.new(sass, options).render
   end
 
