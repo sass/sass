@@ -55,6 +55,6 @@ class Sass::Script::Literal # :nodoc:
   end
 
   def to_i
-    raise SyntaxError.new("#{value.dump} is not an integer.")
+    raise Sass::SyntaxError.new("#{self.inspect} is not an integer.")
   end
 end

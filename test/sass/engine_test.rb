@@ -79,6 +79,8 @@ class SassEngineTest < Test::Unit::TestCase
     "@if false\n@else if " => "Invalid @else directive '@else if': expected 'if <expr>'.",
     "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "!b".',
     "=foo\n  !b = 12\nc\n  +foo\n  d = !b" => 'Undefined variable: "!b".',
+    '@for !a from 1 to "foo"' => '"foo" is not an integer.',
+    '@for !a from 1 to 1.232323' => '1.232 is not an integer.',
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
