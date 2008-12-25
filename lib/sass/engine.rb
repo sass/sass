@@ -331,14 +331,14 @@ END
         parse_else(parent, line, value)
       elsif directive == "while"
         offset = line.offset + line.text.index(value).to_i
-        Tree::WhileNode.new(parse_script(value, :line => line.index, :offset => offset), @options)
+        Tree::WhileNode.new(parse_script(value, :offset => offset), @options)
       elsif directive == "if"
         offset = line.offset + line.text.index(value).to_i
-        Tree::IfNode.new(parse_script(value, :line => line.index, :offset => offset), @options)
+        Tree::IfNode.new(parse_script(value, :offset => offset), @options)
       elsif directive == "debug"
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.", @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
-        Tree::DebugNode.new(parse_script(value, :line => line.index, :offset => offset), @options)
+        Tree::DebugNode.new(parse_script(value, :offset => offset), @options)
       else
         Tree::DirectiveNode.new(line.text, @options)
       end
