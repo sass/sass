@@ -717,13 +717,6 @@ SASS
     assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
   end
 
-  def test_inaccessible_functions
-    assert_warning "DEPRECATION WARNING:\nOn line 2, character 12 of 'test_inaccessible_functions_inline.sass'\nImplicit strings have been deprecated and will be removed in version 2.4.\n'to_s' was not quoted. Please add double quotes (e.g. \"to_s\")." do
-      assert_equal("a {\n  b: send(to_s); }\n", render("a\n  b = send(to_s)"))
-    end
-    assert_equal("a {\n  b: public_instance_methods(); }\n", render("a\n  b = public_instance_methods()"))
-  end
-
   private
 
   def render(sass, options = {})
@@ -751,20 +744,5 @@ SASS
 
   def filename(name, type)
     File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
-  end
-
-  def assert_warning(message)
-    the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
-    assert_equal message.strip, $stderr.string.strip
-  ensure
-    $stderr = the_real_stderr
-  end
-
-  def silence_warnings
-    the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
-  ensure
-    $stderr = the_real_stderr
   end
 end
