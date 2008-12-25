@@ -11,6 +11,7 @@ require 'sass/tree/mixin_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
+require 'sass/tree/debug_node'
 require 'sass/tree/file_node'
 require 'sass/environment'
 require 'sass/script'
@@ -334,6 +335,10 @@ END
       elsif directive == "if"
         offset = line.offset + line.text.index(value).to_i
         Tree::IfNode.new(parse_script(value, :line => line.index, :offset => offset), @options)
+      elsif directive == "debug"
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.", @line + 1) unless line.children.empty?
+        offset = line.offset + line.text.index(value).to_i
+        Tree::DebugNode.new(parse_script(value, :line => line.index, :offset => offset), @options)
       else
         Tree::DirectiveNode.new(line.text, @options)
       end
