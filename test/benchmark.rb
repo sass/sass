@@ -14,7 +14,7 @@ end
 require File.dirname(__FILE__) + '/../lib/haml'
 require File.dirname(__FILE__) + '/linked_rails'
 %w[sass rubygems erb erubis markaby active_support action_controller
-   action_view haml/template].each(&method(:require))
+   action_view action_pack haml/template].each {|dep| require(dep)}
 
 begin
   require 'benchwarmer'
@@ -26,13 +26,23 @@ end
 
 def view
   unless ActionView::Base.instance_methods.include? 'finder'
-    return ActionView::Base.new(File.dirname(__FILE__), vars)
+    return ActionView::Base.new(File.dirname(__FILE__), {})
   end
 
   # Rails >=2.1.0
   base = ActionView::Base.new
   base.finder.append_view_path(File.dirname(__FILE__))
   base
+end
+
+if ActionPack::VERSION::MAJOR < 2 || ActionPack::VERSION::MINOR < 2
+  def render(view, file)
+    view.render file
+  end
+else
+  def render(view, file)
+    view.render :file => file
+  end
 end
 
 Benchmark.warmer(times) do
@@ -68,22 +78,22 @@ Benchmark.warmer(times) do
     @base = view
 
     # To cache the template
-    @base.render 'haml/templates/standard'
-    @base.render 'haml/rhtml/standard'
+    render @base, 'haml/templates/standard'
+    render @base, 'haml/rhtml/standard'
 
-    haml { @base.render 'haml/templates/standard' }
-    erb  { @base.render 'haml/rhtml/standard' }
+    haml { render @base, 'haml/templates/standard' }
+    erb  { render @base, 'haml/rhtml/standard' }
   end
 
   report "ActionView with deep partials" do
     @base = view
 
     # To cache the template
-    @base.render 'haml/templates/action_view'
-    @base.render 'haml/rhtml/action_view'
+    render @base, 'haml/templates/action_view'
+    render @base, 'haml/rhtml/action_view'
 
-    haml { @base.render 'haml/templates/action_view' }
-    erb  { @base.render 'haml/rhtml/action_view' }
+    haml { render @base, 'haml/templates/action_view' }
+    erb  { render @base, 'haml/rhtml/action_view' }
   end
 end
 
