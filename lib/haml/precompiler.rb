@@ -110,7 +110,9 @@ END
       end.join(';') + ';'
     end
 
-    class Line < Struct.new(:text, :unstripped, :full, :index, :precompiler)
+    class Line < Struct.new(:text, :unstripped, :full, :index, :precompiler, :eod)
+      alias_method :eod?, :eod
+
       def tabs
         line = self
         @tabs ||= precompiler.instance_eval do
@@ -721,7 +723,13 @@ END
       text, index = raw_next_line
       return unless text
 
-      line = Line.new text.strip, text.lstrip.chomp, text, index, self
+      # :eod is a special end-of-document marker
+      line = 
+        if text == :eod
+          Line.new '-#', '-#', '-#', index, self, true
+        else
+          Line.new text.strip, text.lstrip.chomp, text, index, self, false
+        end
 
       # `flat?' here is a little outdated,
       # so we have to manually check if the previous line closes the flat block.
@@ -746,6 +754,7 @@ END
       if is_multiline?(line.text)
         line.text.slice!(-1)
         while new_line = raw_next_line.first
+          break if new_line == :eod
           newline and next if new_line.strip.empty?
           break unless is_multiline?(new_line.strip)
           line.text << new_line.strip[0...-1]

@@ -79,7 +79,8 @@ module Haml
         raise Haml::Error, "Invalid format #{@options[:format].inspect}"
       end
 
-      @template = (template.rstrip + "\n-#\n-#").split(/\r\n|\r|\n/)
+      # :eod is a special end-of-document marker
+      @template = (template.rstrip).split(/\r\n|\r|\n/) + [:eod, :eod]
       @template_index = 0
       @to_close_stack = []
       @output_tabs = 0
