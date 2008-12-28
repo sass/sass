@@ -285,7 +285,7 @@ END
 
       @precompiled <<
         if @options[:ugly]
-          "_hamlout.buffer << #{unescape_interpolation(text)};"
+          "_erbout << #{unescape_interpolation(text)};"
         else
           "_hamlout.push_text(#{unescape_interpolation(text)}, #{tab_change}, #{@dont_tab_up_next_text.inspect});"
         end
@@ -338,7 +338,7 @@ END
 
       push_silent "haml_temp = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_hamlout.buffer << #{no_format ? 'haml_temp' : out}"])
+      push_and_tabulate([:loud, "_erbout << #{no_format ? 'haml_temp' : out}"])
     end
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
