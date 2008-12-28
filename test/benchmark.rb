@@ -70,8 +70,8 @@ RBench.run(times) do
     erb  { render @base, 'haml/rhtml/standard' }
 
     Haml::Template.options[:ugly] = true
-    render @base, 'haml/templates/standard_link'
-    haml_ugly { render @base, 'haml/templates/standard_link' }
+    render @base, 'haml/templates/standard_ugly'
+    haml_ugly { render @base, 'haml/templates/standard_ugly' }
   end
 
   report "ActionView with deep partials" do
@@ -87,8 +87,8 @@ RBench.run(times) do
     erb  { render @base, 'haml/rhtml/action_view' }
 
     Haml::Template.options[:ugly] = true
-    render @base, 'haml/templates/action_view_link'
-    haml_ugly { render @base, 'haml/templates/action_view_link' }
+    render @base, 'haml/templates/action_view_ugly'
+    haml_ugly { render @base, 'haml/templates/action_view_ugly' }
   end
 end
 
