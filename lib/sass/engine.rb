@@ -319,7 +319,7 @@ END
 
     def parse_directive(parent, line, root)
       directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
-      offset = directive.size + whitespace.size + 1
+      offset = directive.size + whitespace.size + 1 if whitespace
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
