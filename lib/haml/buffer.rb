@@ -125,8 +125,7 @@ module Haml
         result = Haml::Helpers.find_and_preserve(result, options[:preserve])
       end
 
-      has_newline = result.include?("\n")
-      if in_tag && !nuke_inner_whitespace && (@options[:ugly] || !has_newline || preserve_tag)
+      if in_tag && !nuke_inner_whitespace && (@options[:ugly] || preserve_tag || !(has_newline = result.include?("\n")))
         @real_tabs -= 1
         @tabulation = old_tabulation if !@options[:ugly] && interpolated
         return result
@@ -137,7 +136,7 @@ module Haml
         result = tabs + result
       end
 
-      if has_newline && !@options[:ugly]
+      if !@options[:ugly] && (has_newline ||= result.include?("\n"))
         result = result.gsub "\n", "\n" + tabs(tabulation)
 
         # Add tabulation if it wasn't precompiled
