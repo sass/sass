@@ -106,17 +106,21 @@ RUBY
     Haml::Util.def_static_method(self, :format_script, [:result],
                                  :preserve_script, :in_tag, :preserve_tag, :escape_html,
                                  :nuke_inner_whitespace, :interpolated, :ugly, <<RUBY)
-      # If we're interpolated,
-      # then the custom tabulation is handled in #push_text.
-      # The easiest way to avoid is is to reset @tabulation.
-      <% if !ugly && interpolated %>
-        old_tabulation = @tabulation
-        @tabulation = 0
+      <% unless ugly %>
+        # If we're interpolated,
+        # then the custom tabulation is handled in #push_text.
+        # The easiest way to avoid it here is to reset @tabulation.
+        <% if interpolated %>
+          old_tabulation = @tabulation
+          @tabulation = 0
+        <% end %>
+
+        tabulation = @real_tabs
+        result = result.to_s.rstrip
+      <% else %>
+        result = result.to_s
       <% end %>
 
-      tabulation = @real_tabs
-
-      result = result.to_s.rstrip
       <% if escape_html %> result = html_escape(result) <% end %>
 
       <% if preserve_tag %>
@@ -125,38 +129,41 @@ RUBY
         result = Haml::Helpers.find_and_preserve(result, options[:preserve])
       <% end %>
 
-      <% if in_tag && !nuke_inner_whitespace %>
-        <% unless ugly || preserve_tag %> if !(has_newline = result.include?("\\n")) <% end %>
-        @real_tabs -= 1
-        <% if !ugly && interpolated %> @tabulation = old_tabulation <% end %>
+      <% if ugly %>
         return result
-        <% unless ugly || preserve_tag %> end <% end %>
-      <% end %>
+      <% else %>
 
-      # Precompiled tabulation may be wrong
-      <% if !interpolated && !in_tag && !ugly %>
-        result = tabs + result if @tabulation > 0
-      <% end %>
+        has_newline = result.include?("\\n") 
+        <% if in_tag && !nuke_inner_whitespace %>
+          <% unless preserve_tag %> if !has_newline <% end %>
+          @real_tabs -= 1
+          <% if interpolated %> @tabulation = old_tabulation <% end %>
+          return result
+          <% unless preserve_tag %> end <% end %>
+        <% end %>
 
-      <% if !ugly %>
-        if has_newline ||= result.include?("\\n") 
+        # Precompiled tabulation may be wrong
+        <% if !interpolated && !in_tag %>
+          result = tabs + result if @tabulation > 0
+        <% end %>
+
+        if has_newline
           result = result.gsub "\\n", "\\n" + tabs(tabulation)
 
           # Add tabulation if it wasn't precompiled
           <% if in_tag && !nuke_inner_whitespace %> result = tabs(tabulation) + result <% end %>
         end
-      <% end %>
 
-      <% if in_tag && !nuke_inner_whitespace %> result = "\\n" + result <% end %>
-      <% unless nuke_inner_whitespace %> result << "\\n" <% end %>
+        <% if in_tag && !nuke_inner_whitespace %> result = "\\n" + result <% end %>
+        <% unless nuke_inner_whitespace %> result << "\\n" <% end %>
 
-      <% if in_tag && !nuke_inner_whitespace %>
-        # We never get here if ugly is true
-        result << tabs(tabulation-1)
-        @real_tabs -= 1
+        <% if in_tag && !nuke_inner_whitespace %>
+          result << tabs(tabulation-1)
+          @real_tabs -= 1
+        <% end %>
+        <% if interpolated %> @tabulation = old_tabulation <% end %>
+        result
       <% end %>
-      <% if !ugly && interpolated %> @tabulation = old_tabulation <% end %>
-      result
 RUBY
 
     # Takes the various information about the opening tag for an
