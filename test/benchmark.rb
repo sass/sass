@@ -69,10 +69,9 @@ RBench.run(times) do
     haml { render @base, 'haml/templates/standard' }
     erb  { render @base, 'haml/rhtml/standard' }
 
-    @base.unmemoize_all
     Haml::Template.options[:ugly] = true
-    render @base, 'haml/templates/standard'
-    haml_ugly { render @base, 'haml/templates/standard' }
+    render @base, 'haml/templates/standard_link'
+    haml_ugly { render @base, 'haml/templates/standard_link' }
   end
 
   report "ActionView with deep partials" do
@@ -87,10 +86,9 @@ RBench.run(times) do
     haml { render @base, 'haml/templates/action_view' }
     erb  { render @base, 'haml/rhtml/action_view' }
 
-    @base.unmemoize_all
     Haml::Template.options[:ugly] = true
-    render @base, 'haml/templates/action_view'
-    haml_ugly { render @base, 'haml/templates/action_view' }
+    render @base, 'haml/templates/action_view_link'
+    haml_ugly { render @base, 'haml/templates/action_view_link' }
   end
 end
 
