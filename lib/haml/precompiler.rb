@@ -166,9 +166,9 @@ END
           raise SyntaxError.new("The line was indented #{@next_line.tabs - @line.tabs} levels deeper than the previous line.", @next_line.index)
         end
 
-        resolve_newlines
+        resolve_newlines unless @next_line.eod?
         @line = @next_line
-        newline
+        newline unless @next_line.eod?
       end
 
       # Close all the open tags
@@ -250,14 +250,14 @@ END
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
     # without parsing it.
     def push_merged_text(text, tab_change = 0, indent = true)
-      @merged_text  << (!indent || @dont_indent_next_line || @options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}")
+      text = !indent || @dont_indent_next_line || @options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}"
+      @to_merge << [:text, text, tab_change]
       @dont_indent_next_line = false
-      @tab_change   += tab_change
     end
 
     # Concatenate <tt>text</tt> to <tt>@buffer</tt> without tabulation.
     def concat_merged_text(text)
-      @merged_text  << text
+      @to_merge << [:text, text, 0]
     end
 
     def push_text(text, tab_change = 0)
@@ -265,15 +265,28 @@ END
     end
 
     def flush_merged_text
-      return if @merged_text.empty?
+      return if @to_merge.empty?
 
-      @precompiled  << "_hamlout.push_text(#{@merged_text.dump}"
-      @precompiled  << ", #{@dont_tab_up_next_text.inspect}" if @dont_tab_up_next_text || @tab_change != 0
-      @precompiled  << ", #{@tab_change}" if @tab_change != 0
-      @precompiled  << ");"
-      @merged_text   = ''
+      text, tab_change = @to_merge.inject(["", 0]) do |(str, mtabs), (type, val, tabs)|
+        case type
+        when :text
+          [str << val.gsub('#{', "\\\#{"), mtabs + tabs]
+        when :script
+          if mtabs != 0
+            val = "_hamlout.adjust_tabs(#{mtabs}); " + val
+          end
+          [str << "\#{#{val}}", 0]
+        else
+          raise SyntaxError.new("[HAML BUG] Undefined entry in Haml::Precompiler@to_merge.")
+        end
+      end
+
+      @precompiled << "_hamlout.push_text(#{unescape_interpolation(text)}"
+      @precompiled << ", #{@dont_tab_up_next_text.inspect}" if @dont_tab_up_next_text || tab_change != 0
+      @precompiled << ", #{tab_change}" if tab_change != 0
+      @precompiled << ");"
+      @to_merge = []
       @dont_tab_up_next_text = false
-      @tab_change    = 0
     end
 
     # Renders a block of text as plain text.
@@ -300,24 +313,27 @@ END
     # the result before it is added to <tt>@buffer</tt>
     def push_script(text, preserve_script, in_tag = false, preserve_tag = false,
                     escape_html = false, nuke_inner_whitespace = false)
+      raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
+      return if options[:suppress_eval]
+
+      args = [preserve_script, in_tag, preserve_tag,
+              escape_html, nuke_inner_whitespace, !block_opened?].map { |a| a.inspect }.join(', ')
+      out = "_hamlout.format_script(haml_temp, #{args});"
+
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless in_tag
 
-      flush_merged_text
-      return if options[:suppress_eval]
+      unless block_opened?
+        @to_merge << [:script, "haml_temp = #{text}\n#{out}"]
+        @newlines -= 1
+        return
+      end
 
-      raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
+      flush_merged_text
 
       push_silent "haml_temp = #{text}"
       newline_now
-      args = [preserve_script, in_tag, preserve_tag,
-              escape_html, nuke_inner_whitespace].map { |a| a.inspect }.join(', ')
-      out = "haml_temp = _hamlout.push_script(haml_temp, #{args});"
-      if block_opened?
-        push_and_tabulate([:loud, out])
-      else
-        @precompiled << out
-      end
+      push_and_tabulate([:loud, "_hamlout.buffer << #{out}"])
     end
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
@@ -614,9 +630,7 @@ END
       end
 
       if parse
-        flush_merged_text
         push_script(value, preserve_script, true, preserve_tag, escape_html, nuke_inner_whitespace)
-        @dont_tab_up_next_text = true
         concat_merged_text("</#{tag_name}>" + (nuke_outer_whitespace ? "" : "\n"))
       end
     end
@@ -830,11 +844,24 @@ END
     # Get rid of and whitespace at the end of the buffer
     # or the merged text
     def rstrip_buffer!
-      unless @merged_text.empty?
-        @merged_text.rstrip!
-      else
+      if @to_merge.empty?
         push_silent("_erbout.rstrip!", false)
         @dont_tab_up_next_text = true
+        return
+      end
+
+      last = @to_merge.last
+      case last.first
+      when :text
+        last[1].rstrip!
+        if last[1].empty?
+          @to_merge.pop
+          rstrip_buffer!
+        end
+      when :script
+        last[1].gsub!(/\(haml_temp, (.*?)\);$/, '(haml_temp.rstrip, \1);')
+      else
+        raise SyntaxError.new("[HAML BUG] Undefined entry in Haml::Precompiler@to_merge.")
       end
     end
   end

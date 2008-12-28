@@ -88,7 +88,7 @@ module Haml
       @flat = false
       @newlines = 0
       @precompiled = ''
-      @merged_text = ''
+      @to_merge = []
       @tab_change  = 0
 
       if @options[:filters]

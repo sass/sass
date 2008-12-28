@@ -96,13 +96,24 @@ module Haml
 
       @buffer << text
       @real_tabs += tab_change
-      @dont_tab_up_next_line = false
+    end
+
+    def adjust_tabs(tab_change)
+      @real_tabs += tab_change
     end
 
     # Properly formats the output of a script that was run in the
     # instance_eval.
-    def push_script(result, preserve_script, in_tag = false, preserve_tag = false,
-                    escape_html = false, nuke_inner_whitespace = false)
+    def format_script(result, preserve_script, in_tag, preserve_tag, escape_html,
+                      nuke_inner_whitespace, interpolated)
+      # If we're interpolated,
+      # then the custom tabulation is handled in #push_text.
+      # The easiest way to avoid is is to reset @tabulation.
+      if !@options[:ugly] && interpolated
+        old_tabulation = @tabulation
+        @tabulation = 0
+      end
+
       tabulation = @real_tabs
 
       result = result.to_s.rstrip
@@ -116,15 +127,13 @@ module Haml
 
       has_newline = result.include?("\n")
       if in_tag && !nuke_inner_whitespace && (@options[:ugly] || !has_newline || preserve_tag)
-        @buffer << result
         @real_tabs -= 1
-        return
+        @tabulation = old_tabulation if !@options[:ugly] && interpolated
+        return result
       end
 
-      @buffer << "\n" if in_tag && !nuke_inner_whitespace
-
       # Precompiled tabulation may be wrong
-      if @tabulation > 0 && !in_tag
+      if !interpolated && @tabulation > 0 && !in_tag && !@options[:ugly]
         result = tabs + result
       end
 
@@ -134,15 +143,17 @@ module Haml
         # Add tabulation if it wasn't precompiled
         result = tabs(tabulation) + result if in_tag && !nuke_inner_whitespace
       end
-      @buffer << "#{result}"
-      @buffer << "\n" unless nuke_inner_whitespace
+
+      result = "\n" + result if in_tag && !nuke_inner_whitespace
+      result << "\n" unless nuke_inner_whitespace
 
       if in_tag && !nuke_inner_whitespace
         # We never get here if @options[:ugly] is true
-        @buffer << tabs(tabulation-1)
+        result << tabs(tabulation-1)
         @real_tabs -= 1
       end
-      nil
+      @tabulation = old_tabulation if !@options[:ugly] && interpolated
+      result
     end
 
     # Takes the various information about the opening tag for an
