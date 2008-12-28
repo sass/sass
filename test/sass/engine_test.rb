@@ -75,12 +75,15 @@ class SassEngineTest < Test::Unit::TestCase
     "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter !b.",
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
-    "@if false\n@else foo" => "Invalid @else directive '@else foo': expected 'if <expr>'.",
-    "@if false\n@else if " => "Invalid @else directive '@else if': expected 'if <expr>'.",
+    "@if false\n@else foo" => "Invalid else directive '@else foo': expected 'if <expr>'.",
+    "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
     "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "!b".',
     "=foo\n  !b = 12\nc\n  +foo\n  d = !b" => 'Undefined variable: "!b".',
     '@for !a from 1 to "foo"' => '"foo" is not an integer.',
     '@for !a from 1 to 1.232323' => '1.232 is not an integer.',
+    '@if' => "Invalid if directive '@if': expected expression.",
+    '@while' => "Invalid while directive '@while': expected expression.",
+    '@debug' => "Invalid debug directive '@debug': expected expression.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],

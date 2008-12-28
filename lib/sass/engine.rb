@@ -331,10 +331,13 @@ END
       elsif directive == "else"
         parse_else(parent, line, value)
       elsif directive == "while"
+        raise SyntaxError.new("Invalid while directive '@while': expected expression.") unless value
         Tree::WhileNode.new(parse_script(value, :offset => offset), @options)
       elsif directive == "if"
+        raise SyntaxError.new("Invalid if directive '@if': expected expression.") unless value
         Tree::IfNode.new(parse_script(value, :offset => offset), @options)
       elsif directive == "debug"
+        raise SyntaxError.new("Invalid debug directive '@debug': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.", @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::DebugNode.new(parse_script(value, :offset => offset), @options)
@@ -369,7 +372,7 @@ END
 
       if text
         if text !~ /^if\s+(.+)/
-          raise SyntaxError.new("Invalid @else directive '@else #{text}': expected 'if <expr>'.", @line)
+          raise SyntaxError.new("Invalid else directive '@else #{text}': expected 'if <expr>'.", @line)
         end
         expr = parse_script($1, :offset => line.offset + line.text.index($1))
       end
