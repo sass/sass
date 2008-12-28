@@ -83,21 +83,18 @@ module Haml
       @real_tabs = 0
     end
 
-    Haml::Util.def_static_method(self, :push_text, [:text, :tab_change],
-                                 :dont_tab_up, :ugly, <<RUBY)
-      <% if !ugly %>
-        if @tabulation > 0
-          # Have to push every line in by the extra user set tabulation.
-          # Don't push lines with just whitespace, though,
-          # because that screws up precompiled indentation.
-          text.gsub!(/^(?!\s+$)/m, tabs)
-          <% if dont_tab_up %> text.sub!(tabs, '') <% end %>
-        end
-      <% end %>
+    def push_text(text, tab_change, dont_tab_up)
+      if @tabulation > 0
+        # Have to push every line in by the extra user set tabulation.
+        # Don't push lines with just whitespace, though,
+        # because that screws up precompiled indentation.
+        text.gsub!(/^(?!\s+$)/m, tabs)
+        text.sub!(tabs, '') if dont_tab_up
+      end
 
       @buffer << text
       @real_tabs += tab_change
-RUBY
+    end
 
     def adjust_tabs(tab_change)
       @real_tabs += tab_change

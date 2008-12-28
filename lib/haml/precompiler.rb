@@ -274,7 +274,7 @@ END
         when :text
           [str << val.gsub('#{', "\\\#{"), mtabs + tabs]
         when :script
-          if mtabs != 0
+          if mtabs != 0 && !@options[:ugly]
             val = "_hamlout.adjust_tabs(#{mtabs}); " + val
           end
           [str << "\#{#{val}}", 0]
@@ -283,8 +283,12 @@ END
         end
       end
 
-      @precompiled << "_hamlout.#{static_method_name :push_text, @dont_tab_up_next_text, @options[:ugly]}"
-      @precompiled << "(#{unescape_interpolation(text)}, #{tab_change});"
+      @precompiled <<
+        if @options[:ugly]
+          "_hamlout.buffer << #{unescape_interpolation(text)};"
+        else
+          "_hamlout.push_text(#{unescape_interpolation(text)}, #{tab_change}, #{@dont_tab_up_next_text.inspect});"
+        end
       @to_merge = []
       @dont_tab_up_next_text = false
     end
@@ -318,13 +322,14 @@ END
 
       args = [preserve_script, in_tag, preserve_tag, escape_html,
               nuke_inner_whitespace, !block_opened?, @options[:ugly]]
+      no_format = @options[:ugly] && !(preserve_script || preserve_tag || escape_html)
       out = "_hamlout.#{static_method_name(:format_script, *args)}(haml_temp);"
 
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless in_tag
 
       unless block_opened?
-        @to_merge << [:script, "haml_temp = #{text}\n#{out}"]
+        @to_merge << [:script, no_format ? "#{text}\n" : "haml_temp = #{text}\n#{out}"]
         @newlines -= 1
         return
       end
@@ -333,7 +338,7 @@ END
 
       push_silent "haml_temp = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_hamlout.buffer << #{out}"])
+      push_and_tabulate([:loud, "_hamlout.buffer << #{no_format ? 'haml_temp' : out}"])
     end
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
