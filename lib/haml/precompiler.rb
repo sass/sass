@@ -3,6 +3,8 @@ require 'haml/shared'
 
 module Haml
   module Precompiler
+    include Haml::Util
+
     # Designates an XHTML/XML element.
     ELEMENT         = ?%
 
@@ -281,10 +283,8 @@ END
         end
       end
 
-      @precompiled << "_hamlout.push_text(#{unescape_interpolation(text)}"
-      @precompiled << ", #{@dont_tab_up_next_text.inspect}" if @dont_tab_up_next_text || tab_change != 0
-      @precompiled << ", #{tab_change}" if tab_change != 0
-      @precompiled << ");"
+      @precompiled << "_hamlout.#{static_method_name :push_text, @dont_tab_up_next_text, @options[:ugly]}"
+      @precompiled << "(#{unescape_interpolation(text)}, #{tab_change});"
       @to_merge = []
       @dont_tab_up_next_text = false
     end

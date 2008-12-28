@@ -83,20 +83,21 @@ module Haml
       @real_tabs = 0
     end
 
-    # Renders +text+ with the proper tabulation. This also deals with
-    # making a possible one-line tag one line or not.
-    def push_text(text, dont_tab_up = false, tab_change = 0)
-      if @tabulation > 0 && !@options[:ugly]
-        # Have to push every line in by the extra user set tabulation.
-        # Don't push lines with just whitespace, though,
-        # because that screws up precompiled indentation.
-        text.gsub!(/^(?!\s+$)/m, tabs)
-        text.sub!(tabs, '') if dont_tab_up
-      end
+    Haml::Util.def_static_method(self, :push_text, [:text, :tab_change],
+                                 :dont_tab_up, :ugly, <<RUBY)
+      <% if !ugly %>
+        if @tabulation > 0
+          # Have to push every line in by the extra user set tabulation.
+          # Don't push lines with just whitespace, though,
+          # because that screws up precompiled indentation.
+          text.gsub!(/^(?!\s+$)/m, tabs)
+          <% if dont_tab_up %> text.sub!(tabs, '') <% end %>
+        end
+      <% end %>
 
       @buffer << text
       @real_tabs += tab_change
-    end
+RUBY
 
     def adjust_tabs(tab_change)
       @real_tabs += tab_change
