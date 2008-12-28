@@ -316,9 +316,9 @@ END
       raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
       return if options[:suppress_eval]
 
-      args = [preserve_script, in_tag, preserve_tag,
-              escape_html, nuke_inner_whitespace, !block_opened?].map { |a| a.inspect }.join(', ')
-      out = "_hamlout.format_script(haml_temp, #{args});"
+      args = [preserve_script, in_tag, preserve_tag, escape_html,
+              nuke_inner_whitespace, !block_opened?, @options[:ugly]]
+      out = "_hamlout.#{static_method_name(:format_script, *args)}(haml_temp);"
 
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless in_tag
