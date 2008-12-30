@@ -181,12 +181,12 @@ text nested beneath them.")
     (haml-reindent-region-by (- haml-indent-offset))))
 
 (defun haml-replace-region (begin end)
-  "Replaces the current block of Haml code with the HTML equivalent"
+  "Replaces the current block of Haml code with the HTML equivalent."
   (interactive "r")
   (shell-command-on-region begin end "haml" "haml-output" t))
 
 (defun haml-output-region (begin end)
-  "Returns the HTML output for the current block of Haml code"
+  "Displays the HTML output for the current block of Haml code."
   (interactive "r")
   (shell-command-on-region begin end "haml" "haml-output" nil))
 
