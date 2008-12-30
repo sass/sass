@@ -180,15 +180,26 @@ text nested beneath them.")
     (kill-line 1)
     (haml-reindent-region-by (- haml-indent-offset))))
 
-(defun haml-replace-region (begin end)
+(defun haml-replace-region (start end)
   "Replaces the current block of Haml code with the HTML equivalent."
   (interactive "r")
-  (shell-command-on-region begin end "haml" "haml-output" t))
+  (save-excursion
+    (goto-char end)
+    (setq end (point-marker))
+    (goto-char start)
+    (let ((ci (current-indentation)))
+      (while (re-search-forward "^ +" end t)
+        (replace-match (make-string (- (current-indentation) ci) ? ))))
+    (shell-command-on-region start end "haml" "haml-output" t)))
 
-(defun haml-output-region (begin end)
+(defun haml-output-region (start end)
   "Displays the HTML output for the current block of Haml code."
   (interactive "r")
-  (shell-command-on-region begin end "haml" "haml-output" nil))
+  (kill-new (buffer-substring start end)) 
+  (with-temp-buffer
+    (yank)
+    (haml-indent-region (point-min) (point-max))
+    (shell-command-on-region (point-min) (point-max) "haml" "haml-output")))
 
 ;; Navigation
 
