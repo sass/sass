@@ -249,13 +249,13 @@ END
       def render(text)
         engine = case @required
                  when 'rdiscount'
-                   RDiscount
+                   ::RDiscount
                  when 'peg_markdown'
-                   PEGMarkdown
+                   ::PEGMarkdown
                  when 'maruku'
-                   Maruku
+                   ::Maruku
                  when 'bluecloth'
-                   BlueCloth
+                   ::BlueCloth
                  end
         engine.new(text).to_html
       end
@@ -266,7 +266,7 @@ END
       lazy_require 'maruku'
 
       def render(text)
-        Maruku.new(text).to_html
+        ::Maruku.new(text).to_html
       end
     end
   end
