@@ -323,22 +323,24 @@ END
       args = [preserve_script, in_tag, preserve_tag, escape_html,
               nuke_inner_whitespace, !block_opened?, @options[:ugly]]
       no_format = @options[:ugly] && !(preserve_script || preserve_tag || escape_html)
-      out = "_hamlout.#{static_method_name(:format_script, *args)}(haml_temp);"
+      temp = "haml_temp_#{@temp_count}"
+      @temp_count += 1
+      out = "_hamlout.#{static_method_name(:format_script, *args)}(#{temp});"
 
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless in_tag
 
       unless block_opened?
-        @to_merge << [:script, no_format ? "#{text}\n" : "haml_temp = #{text}\n#{out}"]
+        @to_merge << [:script, no_format ? "#{text}\n" : "#{temp} = #{text}\n#{out}"]
         @newlines -= 1
         return
       end
 
       flush_merged_text
 
-      push_silent "haml_temp = #{text}"
+      push_silent "#{temp} = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_erbout << #{no_format ? 'haml_temp.to_s' : out}"])
+      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{temp}.to_s" : out}"])
     end
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten

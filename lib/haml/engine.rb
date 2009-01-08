@@ -90,6 +90,7 @@ module Haml
       @precompiled = ''
       @to_merge = []
       @tab_change  = 0
+      @temp_count = 0
 
       if @options[:filters]
         warn <<END
