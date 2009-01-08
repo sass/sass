@@ -308,6 +308,16 @@ HAML
     assert_equal("foo&amp;bar\n", render("= 'foo&bar' #comment", :escape_html => true))
   end
 
+  def test_script_with_if_shouldnt_output
+    assert_equal(<<HTML, render(<<HAML))
+<p>foo</p>
+<p></p>
+HTML
+%p= "foo"
+%p= "bar" if false
+HAML
+  end
+
   # Options tests
 
   def test_filename_and_line
