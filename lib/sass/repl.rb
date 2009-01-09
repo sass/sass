@@ -26,7 +26,7 @@ module Sass
         when Script::MATCH
           name = $1
           guarded = $2 == '||='
-          val = Script::Parser.parse($3)
+          val = Script::Parser.parse($3, @line, text.size - $3.size)
 
           unless guarded && environment.var(name)
             environment.set_var(name, val.perform(environment))

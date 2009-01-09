@@ -23,6 +23,7 @@ module Sass
         '<=' => :lte,
         '>' => :gt,
         '<' => :lt,
+        '}' => :right_bracket,
       }
 
       # We'll want to match longer names first
@@ -33,7 +34,7 @@ module Sass
         :whitespace => /\s*/,
         :variable => /!(\w+)/,
         :ident => /(\\.|[^\s\\+\-*\/%(),=!])+/,
-        :string => /"((?:\\.|[^"\\])*)"/,
+        :string => /["}]((?:\\.|\#[^{]|[^"\\#])*)(?:"|#\{)/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})/,
         :bool => /(true|false)\b/,
@@ -41,9 +42,10 @@ module Sass
       }
 
       def initialize(str, line, offset)
-        @scanner = StringScanner.new(str)
+        @scanner = str.is_a?(StringScanner) ? str : StringScanner.new(str)
         @line = line
         @offset = offset
+        @to_emit = []
       end
 
       def token
@@ -54,7 +56,7 @@ module Sass
 
         return if done?
 
-        value = variable || string || number || color || bool || op || ident
+        value = @to_emit.shift || variable || string || number || color || bool || op || ident
         unless value
           raise SyntaxError.new("Syntax error in '#{@scanner.string}' at character #{current_position}.")
         end
@@ -67,7 +69,7 @@ module Sass
 
       def done?
         whitespace
-        @scanner.eos? && @tok.nil?
+        @scanner.eos? && @tok.nil? && @to_emit.empty?
       end
 
       def rest
@@ -75,6 +77,10 @@ module Sass
       end
 
       private
+
+      def emit(*value)
+        @to_emit.push value
+      end
 
       def whitespace
         @scanner.scan(REGULAR_EXPRESSIONS[:whitespace])
@@ -92,7 +98,10 @@ module Sass
 
       def string
         return unless @scanner.scan(REGULAR_EXPRESSIONS[:string])
-        [:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1"))]
+        emit(:right_bracket) if @scanner.matched[0] == ?}
+        emit(:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1")))
+        emit(:begin_interpolation) if @scanner.matched[-2..-1] == '#{'
+        @to_emit.shift
       end
 
       def number

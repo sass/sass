@@ -8,8 +8,16 @@ module Sass
         @lexer = Lexer.new(str, line, offset)
       end
 
+      def parse_interpolated
+        expr = assert_expr :expr
+        assert_tok :right_bracket
+        expr
+      end
+
       def parse
-        assert_expr :expr
+        expr = assert_expr :expr
+        raise Sass::SyntaxError.new("Unexpected #{@lexer.peek.type} token.") unless @lexer.done?
+        expr
       end
 
       def self.parse(*args)
@@ -96,12 +104,20 @@ END
       end
 
       def variable
-        return literal unless c = try_tok(:const)
+        return string unless c = try_tok(:const)
         Variable.new(c.value)
       end
 
+      def string
+        return literal unless first = try_tok(:string)
+        return first.value unless try_tok(:begin_interpolation)
+        mid = parse_interpolated
+        last = assert_tok(:string)
+        Operation.new(first.value, Operation.new(mid, last.value, :plus), :plus)
+      end
+
       def literal
-        (t = try_tok(:string, :number, :color, :bool)) && (return t.value)
+        (t = try_tok(:number, :color, :bool)) && (return t.value)
       end
 
       # It would be possible to have unified #assert and #try methods,

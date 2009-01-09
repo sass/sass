@@ -1,7 +1,15 @@
+require 'strscan'
+
 # :stopdoc:
 module Haml
   # This module contains functionality that's shared across Haml and Sass.
   module Shared
+    def self.handle_interpolation(str)
+      scan = StringScanner.new(str)
+      yield scan while scan.scan(/(.*?)(\\*)\#\{/)
+      scan.rest
+    end
+
     def self.balance(scanner, start, finish, count = 0)
       str = ''
       scanner = StringScanner.new(scanner) unless scanner.is_a? StringScanner

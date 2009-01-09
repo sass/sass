@@ -30,6 +30,36 @@ class SassScriptTest < Test::Unit::TestCase
     end
   end
 
+  def test_interpolation
+    assert_equal "foo bar baz bang", resolve('"foo #{"#{"ba" + "r"} baz"} bang"')
+    assert_equal 'foo #{bar baz} bang', resolve('"foo \#{#{"ba" + "r"} baz} bang"')
+    assert_equal 'foo #{baz bang', resolve('"foo #{"\#{" + "baz"} bang"')
+  end
+
+  def test_rule_interpolation
+    assert_equal(<<CSS, render(<<SASS))
+foo bar baz bang {
+  a: b; }
+CSS
+foo \#{"\#{"ba" + "r"} baz"} bang
+  a: b
+SASS
+    assert_equal(<<CSS, render(<<SASS))
+foo \#{bar baz} bang {
+  a: b; }
+CSS
+foo \\\#{\#{"ba" + "r"} baz} bang
+  a: b
+SASS
+    assert_equal(<<CSS, render(<<SASS))
+foo \#{baz bang {
+  a: b; }
+CSS
+foo \#{"\\\#{" + "baz"} bang
+  a: b
+SASS
+  end
+
   def test_warning_reporting
     assert_warning(<<WARN) {eval("foo")}
 DEPRECATION WARNING:

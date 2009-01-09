@@ -796,20 +796,17 @@ END
     end
 
     def unescape_interpolation(str)
-      scan = StringScanner.new(str.dump)
-      str = ''
-
-      while scan.scan(/(.*?)(\\+)\#\{/)
+      res = ''
+      rest = Haml::Shared.handle_interpolation str.dump do |scan|
         escapes = (scan[2].size - 1) / 2
-        str << scan.matched[0...-3 - escapes]
+        res << scan.matched[0...-3 - escapes]
         if escapes % 2 == 1
-          str << '#{'
+          res << '#{'
         else
-          str << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"# Use eval to get rid of string escapes
+          res << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"# Use eval to get rid of string escapes
         end
       end
-
-      str + scan.rest
+      res + rest
     end
 
     def balance(*args)
