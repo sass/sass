@@ -188,6 +188,19 @@ SOURCE
                  render("%p{:foo => 'bar', :bar => false, :baz => 'false'}", :format => :xhtml))
   end
 
+  def test_whitespace_nuke_with_both_newlines
+    # Regression test
+    assert_equal("<p>foo</p>\n", render('%p<= "\nfoo\n"'))
+    assert_equal(<<HTML, render(<<HAML))
+<p>
+  <p>foo</p>
+</p>
+HTML
+%p
+  %p<= "\\nfoo\\n"
+HAML
+  end
+
   def test_both_whitespace_nukes_work_together
     assert_equal(<<RESULT, render(<<SOURCE))
 <p><q>Foo
