@@ -105,6 +105,7 @@ module Haml
       tabulation = @real_tabs
 
       result = result.to_s.rstrip
+      result = result.lstrip if nuke_inner_whitespace
       result = html_escape(result) if escape_html
 
       if preserve_tag
