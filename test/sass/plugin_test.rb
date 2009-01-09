@@ -93,7 +93,7 @@ class SassPluginTest < Test::Unit::TestCase
     set_plugin_opts
 
     File.delete(tempfile_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert Sass::Plugin.stylesheet_needs_update?('basic')
     
     if defined?(MerbHandler)
       MerbHandler.new('.').process nil, nil
@@ -101,7 +101,7 @@ class SassPluginTest < Test::Unit::TestCase
       Merb::Rack::Application.new.call(::Rack::MockRequest.env_for('/'))
     end
 
-    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert !Sass::Plugin.stylesheet_needs_update?('basic')
   end
 
   def test_doesnt_render_partials
