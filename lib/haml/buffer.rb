@@ -113,9 +113,9 @@ module Haml
         <% end %>
 
         tabulation = @real_tabs
-        result = result.to_s.rstrip
+        result = result.to_s.<% if nuke_inner_whitespace %>strip<% else %>rstrip<% end %>
       <% else %>
-        result = result.to_s
+        result = result.to_s<% if nuke_inner_whitespace %>.strip<% end %>
       <% end %>
 
       <% if escape_html %> result = html_escape(result) <% end %>
