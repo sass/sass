@@ -142,6 +142,8 @@ text nested beneath them.")
     (define-key map "\C-c\C-u" 'haml-up-list)
     (define-key map "\C-c\C-d" 'haml-down-list)
     (define-key map "\C-c\C-k" 'haml-kill-line-and-indent)
+    (define-key map "\C-c\C-r" 'haml-output-region)
+    (define-key map "\C-c\C-l" 'haml-output-buffer)
     map))
 
 ;;;###autoload
@@ -206,6 +208,11 @@ text nested beneath them.")
     (yank)
     (haml-indent-region (point-min) (point-max))
     (shell-command-on-region (point-min) (point-max) "haml" "haml-output")))
+
+(defun haml-output-buffer ()
+  "Displays the HTML output for entire buffer."
+  (interactive)
+  (haml-output-region (point-min) (point-max)))
 
 ;; Navigation
 
