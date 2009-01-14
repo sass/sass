@@ -419,6 +419,9 @@ the current line."
   "Return the indentation string for `haml-indent-offset'."
   (mapconcat 'identity (make-list haml-indent-offset " ") ""))
 
-;; Setup/Activation
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
 
+;; Setup/Activation
 (provide 'haml-mode)
+;;; haml-mode.el ends here

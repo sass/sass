@@ -90,6 +90,9 @@ text nested beneath them.")
         unless (looking-at opener) return t
         return nil))
 
-;; Setup/Activation
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
 
+;; Setup/Activation
 (provide 'sass-mode)
+;;; sass-mode.el ends here
