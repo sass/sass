@@ -254,7 +254,7 @@ module Haml
     # the local variable <tt>foo</tt> would be assigned to "<p>13</p>\n".
     #
     def capture_haml(*args, &block)
-      buffer = eval('_hamlout', block) rescue haml_buffer
+      buffer = eval('_hamlout', block.binding) rescue haml_buffer
       with_haml_buffer(buffer) do
         position = haml_buffer.buffer.length
 
@@ -412,7 +412,7 @@ END
 
     # Returns whether or not +block+ is defined directly in a Haml template.
     def block_is_haml?(block)
-      eval('_hamlout', block)
+      eval('_hamlout', block.binding)
       true
     rescue
       false
