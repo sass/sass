@@ -1,5 +1,6 @@
 require 'erb'
 require 'set'
+require 'enumerator'
 
 module Haml
   module Util
@@ -40,6 +41,10 @@ module Haml
 
     def has?(attr, klass, method)
       klass.send("#{attr}s").include?(ruby1_8? ? method.to_s : method.to_sym)
+    end
+
+    def enum_with_index(enum)
+      ruby1_8? ? enum.enum_with_index : enum.each_with_index
     end
 
     class StaticConditionalContext

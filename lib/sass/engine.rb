@@ -1,4 +1,3 @@
-require 'enumerator'
 require 'strscan'
 require 'sass/tree/node'
 require 'sass/tree/rule_node'
@@ -32,6 +31,7 @@ module Sass
   #   output = sass_engine.render
   #   puts output
   class Engine
+    include Haml::Util
     Line = Struct.new(:text, :tabs, :index, :offset, :filename, :children)
 
     # The character that begins a CSS attribute.
@@ -130,7 +130,7 @@ module Sass
     def tabulate(string)
       tab_str = nil
       first = true
-      string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/).enum_with_index.map do |line, index|
+      enum_with_index(string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/)).map do |line, index|
         index += 1
         next if line.strip.empty? || line =~ /^\/\//
 
