@@ -260,7 +260,7 @@ module Haml
 
         block.call(*args)
 
-        captured = haml_buffer.buffer.slice!(position..-1)
+        captured = haml_buffer.buffer.slice!(position..-1).split(/^/)
 
         min_tabs = nil
         captured.each do |line|
