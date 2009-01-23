@@ -19,7 +19,7 @@ module Sass::Script
   # and then left as static CSS files.
   # Any dynamic CSS should be left in <style> tags in the HTML.
   module Functions
-    instance_methods.each { |m| undef_method m unless m =~ /^__/ }
+    instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
     extend self
 
     # Creates a Sass::Script::Color object from hue, saturation, and lightness.
