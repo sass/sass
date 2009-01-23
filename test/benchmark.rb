@@ -17,7 +17,7 @@ require File.dirname(__FILE__) + '/linked_rails'
    action_view action_pack haml/template rbench].each {|dep| require(dep)}
 
 def view
-  unless ActionView::Base.instance_methods.include? 'finder'
+  unless Haml::Util.has?(:instance_method, ActionView::Base, :finder)
     return ActionView::Base.new(File.dirname(__FILE__), {})
   end
 

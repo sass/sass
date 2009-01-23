@@ -38,7 +38,7 @@ class TemplateTest < Test::Unit::TestCase
   def setup
     vars = { 'article' => Article.new, 'foo' => 'value one' }
     
-    unless ActionView::Base.instance_methods.include? 'finder'
+    unless Haml::Util.has?(:instance_method, ActionView::Base, :finder)
       @base = ActionView::Base.new(TEMPLATE_PATH, vars)
     else
       # Rails 2.1.0
@@ -46,7 +46,7 @@ class TemplateTest < Test::Unit::TestCase
       @base.finder.append_view_path(TEMPLATE_PATH)
     end
     
-    if @base.private_methods.include?('evaluate_assigns')
+    if Haml::Util.has?(:private_method, @base, :evaluate_assigns)
       @base.send(:evaluate_assigns)
     else
       # Rails 2.2
