@@ -266,9 +266,16 @@ HAML
   end
 
   def test_equals_block_with_ugly
-    assert_equal("foo\n", render(<<HAML))
+    assert_equal("foo\n", render(<<HAML, :ugly => true))
 = capture_haml do
   foo
+HAML
+  end
+
+  def test_plain_equals_with_ugly
+    assert_equal("foo\nbar\n", render(<<HAML, :ugly => true))
+= "foo"
+bar
 HAML
   end
 

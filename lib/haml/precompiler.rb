@@ -332,6 +332,7 @@ END
 
       unless block_opened?
         @to_merge << [:script, no_format ? "#{text}\n" : "#{temp} = #{text}\n#{out}"]
+        concat_merged_text("\n") unless in_tag || nuke_inner_whitespace
         @newlines -= 1
         return
       end
@@ -340,7 +341,8 @@ END
 
       push_silent "#{temp} = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{temp}.to_s;" : out}"])
+      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{temp}.to_s;" : out}",
+        !(in_tag || nuke_inner_whitespace || @options[:ugly])])
     end
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
@@ -392,10 +394,11 @@ END
     end
 
     # Closes a loud Ruby block.
-    def close_loud(command)
+    def close_loud(command, add_newline)
       push_silent 'end', true
       @precompiled << command
       @template_tabs -= 1
+      concat_merged_text("\n") if add_newline
     end
 
     # Closes a filtered block.

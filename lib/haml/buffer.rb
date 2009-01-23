@@ -151,11 +151,8 @@ module Haml
           <% if in_tag && !nuke_inner_whitespace %> result = tabs(tabulation) + result <% end %>
         end
 
-        <% if in_tag && !nuke_inner_whitespace %> result = "\\n" + result <% end %>
-        <% unless nuke_inner_whitespace %> result << "\\n" <% end %>
-
         <% if in_tag && !nuke_inner_whitespace %>
-          result << tabs(tabulation-1)
+          result = "\\n\#{result}\\n\#{tabs(tabulation-1)}"
           @real_tabs -= 1
         <% end %>
         <% if interpolated %> @tabulation = old_tabulation <% end %>
