@@ -1053,4 +1053,5 @@ module Haml
   end
 end
 
+require 'haml/util'
 require 'haml/engine'
