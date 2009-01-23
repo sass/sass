@@ -223,7 +223,7 @@ END
         case_stmt = text[1..-1].split(' ', 2)[0] == "case"
         block = block_opened? && !mid_block_keyword?(text)
         push_and_tabulate([:script]) if block || case_stmt
-        push_and_tabulate(nil)       if block && case_stmt
+        push_and_tabulate(:nil)      if block && case_stmt
       when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
@@ -361,21 +361,13 @@ END
 
     # Closes the most recent item in <tt>@to_close_stack</tt>.
     def close
-      tag, value = @to_close_stack.pop
-      case tag
-      when :script; close_block
-      when :comment; close_comment value
-      when :element; close_tag value
-      when :loud; close_loud value
-      when :filtered; close_filtered value
-      when :haml_comment; close_haml_comment
-      when nil; close_nil
-      end
+      tag, *rest = @to_close_stack.pop
+      send("close_#{tag}", *rest)
     end
 
     # Puts a line in <tt>@precompiled</tt> that will add the closing tag of
     # the most recently opened tag.
-    def close_tag(value)
+    def close_element(value)
       tag, nuke_outer_whitespace, nuke_inner_whitespace = value
       @output_tabs -= 1 unless nuke_inner_whitespace
       @template_tabs -= 1
@@ -386,7 +378,7 @@ END
     end
 
     # Closes a Ruby block.
-    def close_block
+    def close_script
       push_silent "end", true
       @template_tabs -= 1
     end
