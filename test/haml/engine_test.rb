@@ -215,8 +215,19 @@ SOURCE
                  render("%p{:foo => 'bar', :bar => false, :baz => 'false'}", :format => :xhtml))
   end
 
+  def test_both_whitespace_nukes_work_together
+    assert_equal(<<RESULT, render(<<SOURCE))
+<p><q>Foo
+  Bar</q></p>
+RESULT
+%p
+  %q><= "Foo\\nBar"
+SOURCE
+  end
+
+  # Regression tests
+
   def test_whitespace_nuke_with_both_newlines
-    # Regression test
     assert_equal("<p>foo</p>\n", render('%p<= "\nfoo\n"'))
     assert_equal(<<HTML, render(<<HAML))
 <p>
@@ -228,17 +239,6 @@ HTML
 HAML
   end
 
-  def test_both_whitespace_nukes_work_together
-    assert_equal(<<RESULT, render(<<SOURCE))
-<p><q>Foo
-  Bar</q></p>
-RESULT
-%p
-  %q><= "Foo\\nBar"
-SOURCE
-  end
-
-  # Mostly a regression test
   def test_both_case_indentation_work_with_deeply_nested_code
     result = <<RESULT
 <h2>
@@ -262,6 +262,13 @@ HAML
   - when 'other'
     %h2
       other
+HAML
+  end
+
+  def test_equals_block_with_ugly
+    assert_equal("foo\n", render(<<HAML))
+= capture_haml do
+  foo
 HAML
   end
 

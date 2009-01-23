@@ -340,7 +340,7 @@ END
 
       push_silent "#{temp} = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{temp}.to_s" : out}"])
+      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{temp}.to_s;" : out}"])
     end
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
