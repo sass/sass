@@ -52,7 +52,7 @@ module Sass::Script
       unless value.is_a?(Sass::Script::Number) && value.unitless?
         raise ArgumentError.new("#{value} is not a unitless number")
       end
-      Sass::Script::Number.new(value.value * 100, '%')
+      Sass::Script::Number.new(value.value * 100, ['%'])
     end
 
     # Rounds a number to the nearest whole number.
