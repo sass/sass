@@ -375,7 +375,8 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 #
 # In addition to the declarative templating system,
 # Sass supports a simple language known as SassScript
-# for dynamically computing CSS values.
+# for dynamically computing CSS values and controlling
+# the styles and selectors that get emitted.
 #
 # === Interactive Shell
 #
