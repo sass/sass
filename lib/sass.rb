@@ -481,7 +481,7 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 #
 # === Functions
 #
-# SassScript defines some useful functions (see Sass::Script::Functions)
+# SassScript defines some useful functions
 # that are called using the normal CSS function syntax:
 #
 #   p
@@ -491,6 +491,11 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 #
 #   #main {
 #     color: #ff0000; }
+#
+# The following functions are provided: +hsl+, +hue+, +percentage+, +round+, +ceil+, +floor+, and +abs+.
+# You can define additional functions in ruby.
+#
+# See Sass::Script::Functions for more information.
 #
 # === Interpolation
 #
