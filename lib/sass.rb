@@ -377,6 +377,23 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 # Sass supports a simple language known as SassScript
 # for dynamically computing CSS values.
 #
+# === Interactive Shell
+#
+# You can easily experiment with SassScript using the interactive shell.
+# To launch the shell run sass command-line with the -i option. At the
+# prompt, enter any legal SassScript expression to have it evaluated
+# and the result printed out for you:
+#
+#   $ sass -i
+#   >> "Hello, Sassy World!"
+#   "Hello, Sassy World!"
+#   >> 1px + 1px + 1px
+#   3px
+#   >> #777 + #777
+#   #eeeeee
+#   >> #777 + #888
+#   white
+#
 # === Variables
 #
 # The most straightforward way to use SassScript
