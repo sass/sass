@@ -1,6 +1,8 @@
 dir = File.dirname(__FILE__)
 $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 
+require 'haml/version'
+
 # = Sass (Syntactically Awesome StyleSheets)
 #
 # Sass is a meta-language on top of CSS
@@ -857,7 +859,14 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 #                               This defaults to the working directory and, in Rails or Merb,
 #                               whatever <tt>:template_location</tt> is.
 #
-module Sass; end
+module Sass
+  extend Haml::Version
+
+  # A string representing the version of Sass.
+  # A more fine-grained representation is available from Sass.version.
+  VERSION = version[:string] unless defined?(Sass::VERSION)
+
+end
 
 require 'sass/engine'
 require 'sass/plugin' if defined?(Merb::Plugins)
