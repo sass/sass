@@ -383,7 +383,7 @@ require 'haml/version'
 # === Interactive Shell
 #
 # You can easily experiment with SassScript using the interactive shell.
-# To launch the shell run sass command-line with the -i option. At the
+# To launch the shell run the sass command-line with the -i option. At the
 # prompt, enter any legal SassScript expression to have it evaluated
 # and the result printed out for you:
 #
@@ -412,6 +412,9 @@ require 'haml/version'
 #   #main
 #     :width = !width
 #
+# Variables that are first defined in a scoped context are only
+# available in that context.
+#
 # === Data Types
 #
 # SassScript supports four data types:
@@ -421,16 +424,22 @@ require 'haml/version'
 # * booleans (e.g. +true+, +false+)
 #
 # Any text that doesn't fit into one of those types
-# automatically becomes a string,
-# so that your SassScript can look like your normal CSS values:
+# in a SassScript context will cause an error:
 #
 #   p
-#     :border = !width solid blue
+#     !width = 5em
+#     // This will cause an error
+#       :border = !width solid blue
+#     // Use one of the following forms instead:
+#     :border = "#{!width} solid blue"
+#     :border = !width "solid" "blue"
 #
 # is compiled to:
 #
 #   p {
-#     border: 5em 1px #0000ff; }
+#     border: 5em solid blue;
+#     border: 5em solid blue; }
+#
 #
 # === Operations
 #
@@ -484,7 +493,13 @@ require 'haml/version'
 #   p {
 #     cursor: e-resize; }
 #
-# Finally, SassScript supports @and@, @or@, and @not@ operators
+# Within a string of text, #{} style interpolation can be used to
+# place dynamic values within the string:
+#
+#   p
+#     :border = "#{5px + 10pt} solid #ccc"
+#
+# Finally, SassScript supports +and+, +or+, and +not+ operators
 # for boolean values.
 #
 # === Parentheses
@@ -512,7 +527,7 @@ require 'haml/version'
 #   #main {
 #     color: #ff0000; }
 #
-# The following functions are provided: +hsl+, +hue+, +percentage+, +round+, +ceil+, +floor+, and +abs+.
+# The following functions are provided: +hsl+, +percentage+, +round+, +ceil+, +floor+, and +abs+.
 # You can define additional functions in ruby.
 #
 # See Sass::Script::Functions for more information.
@@ -535,35 +550,25 @@ require 'haml/version'
 # === Optional Assignment
 #
 # You can assign to variables if they aren't already assigned
-# using the ||= assignment operator.
-# This means that if the variable has already been assigned to,
-# it won't be re-assigned,
-# but if it doesn't have a value yet,
-# it will be given one.
+# using the ||= assignment operator. This means that if the
+# variable has already been assigned to, it won't be re-assigned,
+# but if it doesn't have a value yet, it will be given one.
+#
 # For example:
 #
 #   !content = "First content"
 #   !content ||= "Second content?"
+#   !new_content ||= "First time reference"
 #
 #   #main
-#     content = content
+#     content = !content
+#     new-content = !new_content
 #
 # is compiled to:
 #
 #   #main {
-#     content: First content; }
-#
-# However,
-#
-#   !content ||= "Second content?"
-#
-#   #main
-#     content = content
-#
-# is compiled to:
-#
-#   #main {
-#     content: Second content?; }
+#     content: First content;
+#     new-content: First time reference; }
 #
 # == Control Structures
 #
@@ -594,17 +599,18 @@ require 'haml/version'
 # until one succeeds or the "@else" is reached.
 # For example:
 #
+#   !type = "monster"
 #   p
-#     @if !blue
+#     @if !type == "ocean"
 #       :color blue
-#     @else if !red
+#     @else if !type == "matador"
 #       :color red
-#     @else if !green
+#     @else if !type == "monster"
 #       :color green
 #     @else
 #       :color black
 #
-# might be compiled to:
+# is compiled to:
 #
 #   p {
 #     color: green; }
@@ -636,11 +642,37 @@ require 'haml/version'
 #   .item-3 {
 #     width: 6em; }
 #
+# === while
+#
+# The "@while" statement repeatedly loops over the nested
+# block until the statement evaluates to false. This can
+# be used to achieve more complex looping than the @for
+# statement is capable of.
+# For example:
+#   !i = 6
+#   @while !i > 0
+#     .item-#{!i}
+#       :width = 2em * !i
+#     !i = !i - 2
+#
+# is compiled to:
+#
+#   .item-6 {
+#     width: 12em; }
+#
+#   .item-4 {
+#     width: 8em; }
+#
+#   .item-2 {
+#     width: 4em; }
+#
 # == Mixins
 #
 # Mixins enable you to define groups of CSS attributes and
 # then include them inline in any number of selectors
-# throughout the document.
+# throughout the document. This allows you to keep your
+# stylesheets DRY and also avoid placing presentation
+# classes in your markup.
 #
 # === Defining a Mixin
 #
@@ -699,8 +731,12 @@ require 'haml/version'
 # Any number of mixins may be defined and there is no limit on
 # the number that can be included in a particular selector.
 #
-# Mixin definitions can also include references to other mixins defined earlier in the file.
+# Mixin definitions can also include references to other mixins.
 # E.g.
+#
+#   =compound
+#     +highlighted-background
+#     +header-text
 #
 #   =highlighted-background
 #     background:
@@ -709,9 +745,8 @@ require 'haml/version'
 #     font:
 #       size: 20px
 #
-#   =compound
-#     +highlighted-background
-#     +header-text
+# Mixins that only define descendent selectors, can be safely mixed
+# into the top most level of a document.
 #
 # === Arguments
 #
@@ -723,7 +758,7 @@ require 'haml/version'
 #       :width 1in
 #       :style dashed
 #   p
-#     +sexy-border(blue)
+#     +sexy-border("blue")
 #
 # is compiled to:
 #
@@ -740,7 +775,7 @@ require 'haml/version'
 #       :width = !width
 #       :style dashed
 #   p
-#     +sexy-border(blue)
+#     +sexy-border("blue")
 #
 # is compiled to:
 #
@@ -991,6 +1026,10 @@ require 'haml/version'
 #                               This defaults to the working directory and, in Rails or Merb,
 #                               whatever <tt>:template_location</tt> is.
 #
+# [<tt>:line_numbers</tt>]      When set to true, causes the line number and file
+#                               where a selector is defined to be emitted into the compiled CSS
+#                               as a comment. Useful for debugging especially when using imports
+#                               and mixins.
 module Sass
   extend Haml::Version
 
