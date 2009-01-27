@@ -22,7 +22,7 @@ module Sass::Script
   # The following functions are provided:
   # * +hsl+ - converts an <tt>hsl(hue, saturation, lightness)</tt> triplet into a color.
   #
-  #   The +hue+ value must be between 0 and 255 inclusive,
+  #   The +hue+ value should be between 0 and 360 inclusive,
   #   saturation and lightness must be between <tt>0%</tt> to <tt>100%</tt> inclusive.
   #   The percent sign is optional.
   # * +percentage+ - converts a unitless number to a css percentage.
