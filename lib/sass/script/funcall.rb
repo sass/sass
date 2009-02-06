@@ -20,7 +20,7 @@ module Sass
 
         return Functions.send(name, *args)
       rescue ArgumentError => e
-        raise e unless e.backtrace.first =~ /:in `#{name}'$/
+        raise e unless e.backtrace.first =~ /:in `(#{name}|perform)'$/
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
       end
     end
