@@ -269,10 +269,9 @@ module Haml
           min_tabs = min_tabs > tabs ? tabs : min_tabs
         end
 
-        result = captured.map do |line|
+        captured.map do |line|
           line[min_tabs..-1]
-        end
-        result.to_s
+        end.join
       end
     end
 

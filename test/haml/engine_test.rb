@@ -492,7 +492,7 @@ HAML
   def test_compile_error
     render("a\nb\n- fee)\nc")
   rescue Exception => e
-    assert_match(/^compile error\n\(test_compile_error\):3: syntax error/i, e.message)
+    assert_match(/\(test_compile_error\):3: syntax error/i, e.message)
   else
     assert(false,
            '"a\nb\n- fee)\nc" doesn\'t produce an exception!')

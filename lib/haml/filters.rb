@@ -225,7 +225,8 @@ END
 
       def compile(precompiler, text)
         return if precompiler.options[:suppress_eval]
-        src = ::ERB.new(text).src.sub(/^_erbout = '';/, "").gsub("\n", ';')
+        src = ::ERB.new(text).src.sub(/^#coding:.*?\n/, '').
+          sub(/^_erbout = '';/, "").gsub("\n", ';')
         precompiler.send(:push_silent, src)
       end
     end

@@ -79,7 +79,7 @@ module Haml
     class ::Hpricot::Doc
       def to_haml(tabs = 0)
         output = ''
-        children.each { |child| output += child.to_haml(0) }
+        children.each { |child| output += child.to_haml(0) } if children
         output
       end
     end
@@ -148,13 +148,9 @@ module Haml
           output += haml_attributes if attributes.length > 0
         end
 
-        output += "\n"
-
-        self.children.each do |child|
-          output += child.to_haml(tabs + 1)
+        (self.children || []).inject(output + "\n") do |output, child|
+          output + child.to_haml(tabs + 1)
         end
-
-        output
       end
 
       private

@@ -12,8 +12,8 @@
   %p~ "foo\nbar"
 .foo
   ~ 13
-  ~ ['a', 'b', 'c'].map do |a|
-    - "<textarea>\n#{a}\n</textarea>"
+  ~ "<textarea>\na\n</textarea>".each_line do |l|
+    - haml_concat l.strip
 #whitespace_test
   = test_partial "text_area", :value => "Oneline"
   = test_partial "text_area", :value => "Two\nlines"
