@@ -40,6 +40,8 @@ module Sass
     SECOND_ORDER = [:plus, :minus]
 
     class << self
+      include Haml::Util
+
       def parse(value, constants, line)
         begin
           operationalize(parenthesize(tokenize(value)), constants).to_s
@@ -68,7 +70,7 @@ module Sass
           ''
         end
 
-        value.each_byte do |byte|
+        each_char(value) do |byte|
           unless escaped
             if byte == ESCAPE_CHAR
               escaped = true

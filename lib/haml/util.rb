@@ -11,5 +11,13 @@ module Haml
     def has?(attr, klass, method)
       klass.send("#{attr}s").include?(ruby1_8? ? method.to_s : method.to_sym)
     end
+
+    def each_char(str, &block)
+      if ruby1_8?
+        str.each_byte(&block)
+      else
+        str.each_char(&block)
+      end
+    end
   end
 end
