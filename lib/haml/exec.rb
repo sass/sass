@@ -42,8 +42,8 @@ module Haml
         # SyntaxErrors have weird line reporting
         # when there's trailing whitespace,
         # which there is for Haml documents.
-        return exception.message.scan(/:(\d+)/)[0] if exception.is_a?(::SyntaxError)
-        exception.backtrace[0].scan(/:(\d+)/)[0]
+        return exception.message.scan(/:(\d+)/).first.first if exception.is_a?(::SyntaxError)
+        exception.backtrace[0].scan(/:(\d+)/).first.first
       end
 
       private

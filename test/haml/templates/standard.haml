@@ -19,7 +19,7 @@
         "multiline       " + |      
         "tags!           " + |
         "A pipe (|) even!"   |
-      = [1, 2, 3].collect { |n| "PipesIgnored|" }
+      = [1, 2, 3].collect { |n| "PipesIgnored|" }.join
       = [1, 2, 3].collect { |n|     |
           n.to_s                    |
         }.join("|")                 |
@@ -36,7 +36,7 @@
       - ('a'..'f').each do |a|
         %li= a
     #combo.of_divs_with_underscore= @should_eval = "with this text"
-    = [ 104, 101, 108, 108, 111 ].map do |byte|
-      - byte.chr
+    = "foo".each_line do |line|
+      - nil
     .footer
       %strong.shout= "This is a really long ruby quote. It should be loved and wrapped because its more than 50 characters. This value may change in the future and this test may look stupid. \nSo, I'm just making it *really* long. God, I hope this works"

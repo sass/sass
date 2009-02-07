@@ -23,7 +23,7 @@
           "multiline       " +
           "tags!           " +
           "A pipe (|) even!"  %>
-      <%= [1, 2, 3].collect { |n| "PipesIgnored|" } %>
+      <%= [1, 2, 3].collect { |n| "PipesIgnored|" }.join %>
       <%= [1, 2, 3].collect { |n|
           n.to_s
         }.join("|") %>
@@ -41,8 +41,8 @@
       <li><%= a %>
       <% end %>
     <div class='of_divs_with_underscore' id='combo'><%= @should_eval = "with this text" %></div>
-    <%= [ 104, 101, 108, 108, 111 ].map do |byte|
-      byte.chr
+    <%= "foo".each_line do |line|
+      nil
     end %>
     <div class='footer'>
       <strong class='shout'>
