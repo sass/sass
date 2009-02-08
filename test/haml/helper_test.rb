@@ -9,7 +9,6 @@ class ActionView::Base
 end
 
 class HelperTest < Test::Unit::TestCase
-  include Haml::Helpers
   Post = Struct.new('Post', :body)
   
   def setup
@@ -28,14 +27,14 @@ class HelperTest < Test::Unit::TestCase
   end
 
   def test_flatten
-    assert_equal("FooBar", flatten("FooBar"))
+    assert_equal("FooBar", Haml::Helpers.flatten("FooBar"))
 
-    assert_equal("FooBar", flatten("Foo\rBar"))
+    assert_equal("FooBar", Haml::Helpers.flatten("Foo\rBar"))
 
-    assert_equal("Foo&#x000A;Bar", flatten("Foo\nBar"))
+    assert_equal("Foo&#x000A;Bar", Haml::Helpers.flatten("Foo\nBar"))
 
     assert_equal("Hello&#x000A;World!&#x000A;YOU ARE FLAT?&#x000A;OMGZ!",
-                 flatten("Hello\nWorld!\nYOU ARE \rFLAT?\n\rOMGZ!"))
+      Haml::Helpers.flatten("Hello\nWorld!\nYOU ARE \rFLAT?\n\rOMGZ!"))
   end
 
   def test_list_of_should_render_correctly
