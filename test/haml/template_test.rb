@@ -20,7 +20,18 @@ module Haml::Helpers
   end
 end
 
+class Egocentic
+  def method_missing(*args)
+    self
+  end
+end
+
 class DummyController
+  attr_accessor :logger
+  def initialize
+    @logger = Egocentic.new
+  end
+    
   def self.controller_path
     ''
   end

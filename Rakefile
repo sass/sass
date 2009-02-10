@@ -13,7 +13,11 @@ end
 
 # ----- Default: Testing ------
 
-task :default => :test
+if ENV["RUN_CODE_RUN"] == "true"
+  task :default => :"test:rails_compatibility"
+else
+  task :default => :test
+end
 
 require 'rake/testtask'
 
@@ -148,3 +152,33 @@ END
     RubyProf.const_get("#{(ENV['OUTPUT'] || 'Flat').capitalize}Printer").new(result).print 
   end
 rescue LoadError; end
+
+# ----- Testing Multiple Rails Versions -----
+
+rails_versions = [
+  "v2.3.0",
+  "v2.2.2",
+  "v2.1.2",
+  "v2.0.5"
+]
+
+namespace :test do
+  desc "Test all supported versions of rails. This takes a while."
+  task :rails_compatibility do
+    `rm -rf test/rails`
+    puts "Checking out rails. Please wait."
+    `git clone git://github.com/rails/rails.git test/rails` rescue nil
+    begin
+      rails_versions.each do |version|
+        Dir.chdir "test/rails" do
+          `git checkout #{version}`
+        end
+        puts "Testing Rails #{version}"
+        Rake::Task['test'].reenable
+        Rake::Task['test'].execute
+      end
+    ensure
+      `rm -rf test/rails`
+    end
+  end
+end
