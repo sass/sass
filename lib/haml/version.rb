@@ -21,7 +21,7 @@ module Haml
         rev = nil if rev !~ /^([a-f0-9]+|\(.*\))$/
       end
 
-      if rev.nil? && File.exists?(scope('.git/HEAD'))
+      if (rev.nil? || rev == '(unknown)') && File.exists?(scope('.git/HEAD'))
         rev = File.read(scope('.git/HEAD')).strip
         if rev =~ /^ref: (.*)$/
           rev = File.read(scope(".git/#{$1}")).strip
