@@ -868,5 +868,6 @@ module Sass
 
 end
 
+require 'haml/util'
 require 'sass/engine'
 require 'sass/plugin' if defined?(Merb::Plugins)
