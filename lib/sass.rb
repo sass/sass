@@ -334,7 +334,7 @@ require 'haml/version'
 #
 # Finally,
 #
-#  @import foo
+#   @import foo
 #
 # might compile to either,
 # depending on whether a file called "foo.sass" existed.
