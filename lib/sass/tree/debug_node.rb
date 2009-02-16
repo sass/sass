@@ -11,9 +11,9 @@ module Sass
       def _perform(environment)
         res = @expr.perform(environment)
         if filename
-          puts "#{filename}:#{line} DEBUG: #{res}"
+          STDERR.puts "#{filename}:#{line} DEBUG: #{res}"
         else
-          puts "Line #{line} DEBUG: #{res}"
+          STDERR.puts "Line #{line} DEBUG: #{res}"
         end
         []
       end
