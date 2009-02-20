@@ -23,6 +23,10 @@ module Sass
         children.last
       end
 
+      def ==(other)
+        self.class == other.class && other.children == children
+      end
+
       def to_s
         result = String.new
         children.each do |child|

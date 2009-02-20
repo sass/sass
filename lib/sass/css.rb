@@ -371,7 +371,7 @@ module Sass
     def fold_commas(root)
       prev_rule = nil
       root.children.map! do |child|
-        next child unless Tree::RuleNode === child
+        next child unless child.is_a?(Tree::RuleNode)
 
         if prev_rule && prev_rule.children == child.children
           prev_rule.rule << ", #{child.rule}"
