@@ -9,6 +9,10 @@ module Sass::Tree
       super(style)
     end
 
+    def ==(other)
+      self.class == other.class && value == other.value && super
+    end
+
     def to_s(tabs = 0)
       value
     end

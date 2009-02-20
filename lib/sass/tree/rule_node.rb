@@ -9,6 +9,10 @@ module Sass::Tree
     alias_method :rule, :value
     alias_method :rule=, :value=
 
+    def ==(other)
+      self.class == other.class && rules == other.rules && super
+    end
+
     def rules
       Array(rule)
     end

@@ -17,6 +17,10 @@ module Sass
         @children << child
       end
 
+      def ==(other)
+        self.class == other.class && other.children == children
+      end
+
       def to_s
         result = String.new
         children.each do |child|
