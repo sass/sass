@@ -42,7 +42,8 @@ class TemplateTest < Test::Unit::TestCase
   TEMPLATES = %w{         very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
     silent_script         tag_parsing       just_stuff  partials
-    filters               nuke_outer_whitespace         nuke_inner_whitespace }
+    filters               nuke_outer_whitespace         nuke_inner_whitespace
+    render_layout }
   # partial layouts were introduced in 2.0.0
   TEMPLATES << 'partial_layout' unless ActionPack::VERSION::MAJOR < 2
 
