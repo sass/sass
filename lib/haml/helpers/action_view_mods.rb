@@ -86,7 +86,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       else
         module CaptureHelper
           def capture_with_haml(*args, &block)
-            if is_haml? && block_is_haml?(block)
+            if Haml::Helpers.block_is_haml?(block)
               capture_haml(*args, &block)
             else
               capture_without_haml(*args, &block)
