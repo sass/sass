@@ -42,8 +42,8 @@ module Haml
         # SyntaxErrors have weird line reporting
         # when there's trailing whitespace,
         # which there is for Haml documents.
-        return exception.message.scan(/:(\d+)/)[0] if exception.is_a?(::SyntaxError)
-        exception.backtrace[0].scan(/:(\d+)/)[0]
+        return exception.message.scan(/:(\d+)/).first.first if exception.is_a?(::SyntaxError)
+        exception.backtrace[0].scan(/:(\d+)/).first.first
       end
 
       private
@@ -256,6 +256,10 @@ END
         opts.on('-I', '--load-path PATH', "Same as 'ruby -I'.") do |path|
           @options[:load_paths] << path
         end
+
+        opts.on('--debug', "Print out the precompiled Ruby source.") do
+          @options[:debug] = true
+        end
       end
 
       def process_result
@@ -275,6 +279,12 @@ END
 
           @options[:load_paths].each {|p| $LOAD_PATH << p}
           @options[:requires].each {|f| require f}
+
+          if @options[:debug]
+            puts engine.precompiled
+            puts '=' * 100
+          end
+
           result = engine.to_html
         rescue Exception => e
           raise e if @options[:trace]

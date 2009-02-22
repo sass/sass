@@ -3,6 +3,8 @@ require 'haml/shared'
 
 module Haml
   module Precompiler
+    include Haml::Util
+
     # Designates an XHTML/XML element.
     ELEMENT         = ?%
 
@@ -110,7 +112,9 @@ END
       end.join(';') + ';'
     end
 
-    class Line < Struct.new(:text, :unstripped, :full, :index, :precompiler)
+    class Line < Struct.new(:text, :unstripped, :full, :index, :precompiler, :eod)
+      alias_method :eod?, :eod
+
       def tabs
         line = self
         @tabs ||= precompiler.instance_eval do
@@ -164,9 +168,9 @@ END
           raise SyntaxError.new("The line was indented #{@next_line.tabs - @line.tabs} levels deeper than the previous line.", @next_line.index)
         end
 
-        resolve_newlines
+        resolve_newlines unless @next_line.eod?
         @line = @next_line
-        newline
+        newline unless @next_line.eod?
       end
 
       # Close all the open tags
@@ -219,7 +223,7 @@ END
         case_stmt = text[1..-1].split(' ', 2)[0] == "case"
         block = block_opened? && !mid_block_keyword?(text)
         push_and_tabulate([:script]) if block || case_stmt
-        push_and_tabulate(nil)       if block && case_stmt
+        push_and_tabulate(:nil)      if block && case_stmt
       when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
@@ -248,14 +252,14 @@ END
     # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
     # without parsing it.
     def push_merged_text(text, tab_change = 0, indent = true)
-      @merged_text  << (!indent || @dont_indent_next_line || @options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}")
+      text = !indent || @dont_indent_next_line || @options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}"
+      @to_merge << [:text, text, tab_change]
       @dont_indent_next_line = false
-      @tab_change   += tab_change
     end
 
     # Concatenate <tt>text</tt> to <tt>@buffer</tt> without tabulation.
     def concat_merged_text(text)
-      @merged_text  << text
+      @to_merge << [:text, text, 0]
     end
 
     def push_text(text, tab_change = 0)
@@ -263,15 +267,30 @@ END
     end
 
     def flush_merged_text
-      return if @merged_text.empty?
+      return if @to_merge.empty?
 
-      @precompiled  << "_hamlout.push_text(#{@merged_text.dump}"
-      @precompiled  << ", #{@dont_tab_up_next_text.inspect}" if @dont_tab_up_next_text || @tab_change != 0
-      @precompiled  << ", #{@tab_change}" if @tab_change != 0
-      @precompiled  << ");"
-      @merged_text   = ''
+      text, tab_change = @to_merge.inject(["", 0]) do |(str, mtabs), (type, val, tabs)|
+        case type
+        when :text
+          [str << val.gsub('#{', "\\\#{"), mtabs + tabs]
+        when :script
+          if mtabs != 0 && !@options[:ugly]
+            val = "_hamlout.adjust_tabs(#{mtabs}); " + val
+          end
+          [str << "\#{#{val}}", 0]
+        else
+          raise SyntaxError.new("[HAML BUG] Undefined entry in Haml::Precompiler@to_merge.")
+        end
+      end
+
+      @precompiled <<
+        if @options[:ugly]
+          "_erbout << #{unescape_interpolation(text)};"
+        else
+          "_hamlout.push_text(#{unescape_interpolation(text)}, #{tab_change}, #{@dont_tab_up_next_text.inspect});"
+        end
+      @to_merge = []
       @dont_tab_up_next_text = false
-      @tab_change    = 0
     end
 
     # Renders a block of text as plain text.
@@ -301,24 +320,35 @@ END
     # If <tt>opts[:preserve_script]</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
     def push_script(text, opts = {})
+      raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
+      return if options[:suppress_eval]
+
+      args = %w[preserve_script in_tag preserve_tag escape_html nuke_inner_whitespace]
+      args.map! {|name| opts[name.to_sym]}
+      args << !block_opened? << @options[:ugly]
+
+      no_format = @options[:ugly] &&
+        !(opts[:preserve_script] || opts[:preserve_tag] || opts[:escape_html])
+      temp = "haml_temp_#{@temp_count}"
+      @temp_count += 1
+      out = "_hamlout.#{static_method_name(:format_script, *args)}(#{temp});"
+
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless opts[:in_tag]
 
-      flush_merged_text
-      return if options[:suppress_eval]
-
-      raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
-
-      push_silent "haml_temp = #{text}"
-      newline_now
-      args = %w[preserve_script in_tag preserve_tag escape_html nuke_inner_whitespace].
-        map {|name| opts[name.to_sym].inspect}.join(', ')
-      out = "haml_temp = _hamlout.push_script(haml_temp, #{args});"
-      if block_opened?
-        push_and_tabulate([:loud, out])
-      else
-        @precompiled << out
+      unless block_opened?
+        @to_merge << [:script, no_format ? "#{text}\n" : "#{temp} = #{text}\n#{out}"]
+        concat_merged_text("\n") unless opts[:in_tag] || opts[:nuke_inner_whitespace]
+        @newlines -= 1
+        return
       end
+
+      flush_merged_text
+
+      push_silent "#{temp} = #{text}"
+      newline_now
+      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{temp}.to_s;" : out}",
+        !(opts[:in_tag] || opts[:nuke_inner_whitespace] || @options[:ugly])])
     end
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
@@ -339,21 +369,13 @@ END
 
     # Closes the most recent item in <tt>@to_close_stack</tt>.
     def close
-      tag, value = @to_close_stack.pop
-      case tag
-      when :script; close_block
-      when :comment; close_comment value
-      when :element; close_tag value
-      when :loud; close_loud value
-      when :filtered; close_filtered value
-      when :haml_comment; close_haml_comment
-      when nil; close_nil
-      end
+      tag, *rest = @to_close_stack.pop
+      send("close_#{tag}", *rest)
     end
 
     # Puts a line in <tt>@precompiled</tt> that will add the closing tag of
     # the most recently opened tag.
-    def close_tag(value)
+    def close_element(value)
       tag, nuke_outer_whitespace, nuke_inner_whitespace = value
       @output_tabs -= 1 unless nuke_inner_whitespace
       @template_tabs -= 1
@@ -364,7 +386,7 @@ END
     end
 
     # Closes a Ruby block.
-    def close_block
+    def close_script
       push_silent "end", true
       @template_tabs -= 1
     end
@@ -378,10 +400,11 @@ END
     end
 
     # Closes a loud Ruby block.
-    def close_loud(command)
+    def close_loud(command, add_newline)
       push_silent 'end', true
       @precompiled << command
       @template_tabs -= 1
+      concat_merged_text("\n") if add_newline
     end
 
     # Closes a filtered block.
@@ -628,11 +651,9 @@ END
       end
 
       if parse
-        flush_merged_text
         push_script(value, :preserve_script => preserve_script, :in_tag => true,
           :preserve_tag => preserve_tag, :escape_html => escape_html,
           :nuke_inner_whitespace => nuke_inner_whitespace)
-        @dont_tab_up_next_text = true
         concat_merged_text("</#{tag_name}>" + (nuke_outer_whitespace ? "" : "\n"))
       end
     end
@@ -739,7 +760,13 @@ END
       text, index = raw_next_line
       return unless text
 
-      line = Line.new text.strip, text.lstrip.chomp, text, index, self
+      # :eod is a special end-of-document marker
+      line = 
+        if text == :eod
+          Line.new '-#', '-#', '-#', index, self, true
+        else
+          Line.new text.strip, text.lstrip.chomp, text, index, self, false
+        end
 
       # `flat?' here is a little outdated,
       # so we have to manually check if the previous line closes the flat block.
@@ -764,6 +791,7 @@ END
       if is_multiline?(line.text)
         line.text.slice!(-1)
         while new_line = raw_next_line.first
+          break if new_line == :eod
           newline and next if new_line.strip.empty?
           break unless is_multiline?(new_line.strip)
           line.text << new_line.strip[0...-1]
@@ -784,20 +812,17 @@ END
     end
 
     def unescape_interpolation(str)
-      scan = StringScanner.new(str.dump)
-      str = ''
-
-      while scan.scan(/(.*?)(\\+)\#\{/)
+      res = ''
+      rest = Haml::Shared.handle_interpolation str.dump do |scan|
         escapes = (scan[2].size - 1) / 2
-        str << scan.matched[0...-3 - escapes]
+        res << scan.matched[0...-3 - escapes]
         if escapes % 2 == 1
-          str << '#{'
+          res << '#{'
         else
-          str << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"# Use eval to get rid of string escapes
+          res << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"# Use eval to get rid of string escapes
         end
       end
-
-      str + scan.rest
+      res + rest
     end
 
     def balance(*args)
@@ -839,11 +864,24 @@ END
     # Get rid of and whitespace at the end of the buffer
     # or the merged text
     def rstrip_buffer!
-      unless @merged_text.empty?
-        @merged_text.rstrip!
-      else
+      if @to_merge.empty?
         push_silent("_erbout.rstrip!", false)
         @dont_tab_up_next_text = true
+        return
+      end
+
+      last = @to_merge.last
+      case last.first
+      when :text
+        last[1].rstrip!
+        if last[1].empty?
+          @to_merge.pop
+          rstrip_buffer!
+        end
+      when :script
+        last[1].gsub!(/\(haml_temp, (.*?)\);$/, '(haml_temp.rstrip, \1);')
+      else
+        raise SyntaxError.new("[HAML BUG] Undefined entry in Haml::Precompiler@to_merge.")
       end
     end
   end

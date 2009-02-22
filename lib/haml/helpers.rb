@@ -254,25 +254,24 @@ module Haml
     # the local variable <tt>foo</tt> would be assigned to "<p>13</p>\n".
     #
     def capture_haml(*args, &block)
-      buffer = eval('_hamlout', block) rescue haml_buffer
+      buffer = eval('_hamlout', block.binding) rescue haml_buffer
       with_haml_buffer(buffer) do
         position = haml_buffer.buffer.length
 
         block.call(*args)
 
-        captured = haml_buffer.buffer.slice!(position..-1)
+        captured = haml_buffer.buffer.slice!(position..-1).split(/^/)
 
         min_tabs = nil
         captured.each do |line|
-          tabs = line.index(/[^ ]/)
+          tabs = line.index(/[^ ]/) || line.length
           min_tabs ||= tabs
           min_tabs = min_tabs > tabs ? tabs : min_tabs
         end
 
-        result = captured.map do |line|
+        captured.map do |line|
           line[min_tabs..-1]
-        end
-        result.to_s
+        end.join
       end
     end
 
@@ -287,8 +286,13 @@ END
 
     # Outputs text directly to the Haml buffer, with the proper tabulation
     def haml_concat(text = "")
-      haml_buffer.buffer << ('  ' * haml_buffer.tabulation) << text.to_s << "\n"
+      haml_buffer.buffer << haml_indent << text.to_s << "\n"
       nil
+    end
+
+    # Returns the string that should be used to indent the current line
+    def haml_indent
+      '  ' * haml_buffer.tabulation
     end
 
     #
@@ -407,7 +411,7 @@ END
 
     # Returns whether or not +block+ is defined directly in a Haml template.
     def block_is_haml?(block)
-      eval('_hamlout', block)
+      eval('_hamlout', block.binding)
       true
     rescue
       false

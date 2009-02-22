@@ -18,8 +18,30 @@ module Sass::Script
   # at a somewhat indeterminate time
   # and then left as static CSS files.
   # Any dynamic CSS should be left in <style> tags in the HTML.
+  #
+  # The following functions are provided:
+  # * +hsl+ - converts an <tt>hsl(hue, saturation, lightness)</tt> triplet into a color.
+  #
+  #   The +hue+ value should be between 0 and 360 inclusive,
+  #   saturation and lightness must be between <tt>0%</tt> to <tt>100%</tt> inclusive.
+  #   The percent sign is optional.
+  # * +percentage+ - converts a unitless number to a css percentage.
+  #
+  #   Example: <tt>percentage(14px / 7px) => 200%</tt>
+  # * +round+ - Rounds a number to the nearest whole number.
+  #
+  #   Example: <tt>round(10.4px) => 10px</tt>
+  # * +ceil+ - Rounds a number up to the nearest whole number.
+  #
+  #   Example: <tt>ceil(10.4px) => 11px</tt>
+  # * +floor+ - Rounds a number down to the nearest whole number.
+  #
+  #   Example: <tt>floor(10.6px) => 10px</tt>
+  # * +abs+ - Returns the absolute value of a number.
+  #
+  #   Example: <tt>abs(-10px) => 10px</tt>
   module Functions
-    instance_methods.each { |m| undef_method m unless m =~ /^__/ }
+    instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
     extend self
 
     # Creates a Sass::Script::Color object from hue, saturation, and lightness.
@@ -47,12 +69,12 @@ module Sass::Script
 
     # Converts a unitless number into a percent and multiplies the number by 100.
     # E.g. percentage(100px / 50px) => 200%
-    # Some may find this more natural than: 1% * 100px / 50px
+    # Some may find this more natural than: 100% * 100px / 50px
     def percentage(value)
       unless value.is_a?(Sass::Script::Number) && value.unitless?
         raise ArgumentError.new("#{value} is not a unitless number")
       end
-      Sass::Script::Number.new(value.value * 100, '%')
+      Sass::Script::Number.new(value.value * 100, ['%'])
     end
 
     # Rounds a number to the nearest whole number.

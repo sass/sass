@@ -3,12 +3,21 @@ require 'sass/script/lexer'
 module Sass
   module Script
     class Parser
-      def initialize(str)
-        @lexer = Lexer.new(str)
+      def initialize(str, line, offset, filename = nil)
+        @filename = filename
+        @lexer = Lexer.new(str, line, offset)
+      end
+
+      def parse_interpolated
+        expr = assert_expr :expr
+        assert_tok :right_bracket
+        expr
       end
 
       def parse
-        assert_expr :expr
+        expr = assert_expr :expr
+        raise Sass::SyntaxError.new("Unexpected #{@lexer.peek.type} token.") unless @lexer.done?
+        expr
       end
 
       def self.parse(*args)
@@ -26,7 +35,7 @@ module Sass
           def #{name}
             return unless e = #{sub}
             while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
-              e = Operation.new(e, assert_expr(#{sub.inspect}), tok.first)
+              e = Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
             end
             e
           end
@@ -66,10 +75,19 @@ RUBY
       def funcall
         return paren unless name = try_tok(:ident)
         # An identifier without arguments is just a string
-        return Script::String.new(name.last) unless try_tok(:lparen)
-        args = arglist || []
-        assert_tok(:rparen)
-        Script::Funcall.new(name.last, args)
+        unless try_tok(:lparen)
+          warn(<<END)
+DEPRECATION WARNING:
+On line #{name.line}, character #{name.offset}#{" of '#{@filename}'" if @filename}
+Implicit strings have been deprecated and will be removed in version 2.4.
+'#{name.value}' was not quoted. Please add double quotes (e.g. "#{name.value}").
+END
+          Script::String.new(name.value)
+        else
+          args = arglist || []
+          assert_tok(:rparen)
+          Script::Funcall.new(name.value, args)
+        end
       end
 
       def arglist
@@ -86,12 +104,20 @@ RUBY
       end
 
       def variable
-        return literal unless c = try_tok(:const)
-        Variable.new(c.last)
+        return string unless c = try_tok(:const)
+        Variable.new(c.value)
+      end
+
+      def string
+        return literal unless first = try_tok(:string)
+        return first.value unless try_tok(:begin_interpolation)
+        mid = parse_interpolated
+        last = assert_tok(:string)
+        Operation.new(first.value, Operation.new(mid, last.value, :plus), :plus)
       end
 
       def literal
-        (t = try_tok(:string, :number, :color, :bool)) && (return t.last)
+        (t = try_tok(:number, :color, :bool)) && (return t.value)
       end
 
       # It would be possible to have unified #assert and #try methods,
@@ -99,17 +125,17 @@ RUBY
 
       def assert_expr(name)
         (e = send(name)) && (return e)
-        raise Sass::SyntaxError.new("Expected expression, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.first} token"}.")
+        raise Sass::SyntaxError.new("Expected expression, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.type} token"}.")
       end
 
       def assert_tok(*names)
         (t = try_tok(*names)) && (return t)
-        raise Sass::SyntaxError.new("Expected #{names.join(' or ')} token, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.first} token"}.")
+        raise Sass::SyntaxError.new("Expected #{names.join(' or ')} token, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.type} token"}.")
       end
 
       def try_tok(*names)
         peeked =  @lexer.peek
-        peeked && names.include?(peeked.first) && @lexer.token
+        peeked && names.include?(peeked.type) && @lexer.token
       end
     end
   end

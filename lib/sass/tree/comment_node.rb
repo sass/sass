@@ -9,6 +9,10 @@ module Sass::Tree
       super(options)
     end
 
+    def ==(other)
+      self.value == other.value && super
+    end
+
     def to_s(tabs = 0, parent_name = nil)
       return if @style == :compressed
 

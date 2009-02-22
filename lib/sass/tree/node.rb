@@ -23,6 +23,10 @@ module Sass
         children.last
       end
 
+      def ==(other)
+        self.class == other.class && other.children == children
+      end
+
       def to_s
         result = String.new
         children.each do |child|
@@ -59,22 +63,21 @@ module Sass
       end
 
       def interpolate(text, environment)
-        scan = StringScanner.new(text)
-        str = ''
-        
-        while scan.scan(/(.*?)(\\*)\#\{/)
+        res = ''
+        rest = Haml::Shared.handle_interpolation text do |scan|
           escapes = scan[2].size
-          str << scan.matched[0...-2 - escapes]
+          res << scan.matched[0...-2 - escapes]
           if escapes % 2 == 1
-            str << '#{'
+            res << "\\" * (escapes - 1) << '#{'
           else
-            str << Sass::Script.resolve(balance(scan, ?{, ?}, 1)[0][0...-1], line, environment)
+            res << "\\" * [0, escapes - 1].max
+            res << Script::Parser.new(scan, line, scan.pos - scan.matchedsize, filename).
+              parse_interpolated.perform(environment).to_s
           end
         end
-        
-        str + scan.rest
+        res + rest
       end
-      
+
       def balance(*args)
         res = Haml::Shared.balance(*args)
         return res if res

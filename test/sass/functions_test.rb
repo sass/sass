@@ -54,7 +54,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("25%",  evaluate("percentage(25px / 100px)"))
     assert_error_message("25px is not a unitless number for `percentage'", "percentage(25px)")
     assert_error_message("#cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
-    assert_error_message("string is not a unitless number for `percentage'", "percentage(string)")
+    assert_error_message("string is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
   def test_numeric_transformations
@@ -70,19 +70,20 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
     assert_error_message("#cccccc is not a number for `round'", "round(#ccc)")
-    assert_error_message("foo is not a number for `floor'", "floor(foo)")
-    assert_error_message("'a' is not a number for `ceil'", "ceil('a')")
+    assert_error_message("foo is not a number for `floor'", "floor(\"foo\")")
+    assert_error_message("a is not a number for `ceil'", "ceil(\"a\")")
     assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
 
   private
 
   def assert_rgb_hsl(rgb, hsl)
-    assert_equal(rgb, Sass::Script::Functions.hsl(*hsl.map(&Sass::Script::Parser.method(:parse))).value)
+    hsl = hsl.map {|v| Sass::Script::Parser.parse v, 0, 0 }
+    assert_equal(rgb, Sass::Script::Functions.hsl(*hsl).value)
   end
 
   def evaluate(value)
-    Sass::Script::Parser.parse(value).perform({}).to_s
+    Sass::Script::Parser.parse(value, 0, 0).perform({}).to_s
   end
 
   def assert_error_message(message, value)

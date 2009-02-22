@@ -106,15 +106,24 @@ class SassPluginTest < Test::Unit::TestCase
     end
     
     require 'sass/plugin/merb'
-    MerbHandler.send(:define_method, :process_without_sass) { |*args| }
+    if defined?(MerbHandler)
+      MerbHandler.send(:define_method, :process_without_sass) { |*args| }
+    else
+      Merb::Rack::Application.send(:define_method, :call_without_sass) { |*args| }
+    end
+
     set_plugin_opts
 
     File.delete(tempfile_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic')
+    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
     
-    MerbHandler.new('.').process nil, nil
+    if defined?(MerbHandler)
+      MerbHandler.new('.').process nil, nil
+    else
+      Merb::Rack::Application.new.call(::Rack::MockRequest.env_for('/'))
+    end
 
-    assert !Sass::Plugin.stylesheet_needs_update?('basic')
+    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
   end
 
   def test_doesnt_render_partials

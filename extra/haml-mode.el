@@ -1,16 +1,22 @@
-;;; haml-mode.el -- Major mode for editing Haml files
-;;; Written by Nathan Weizenbaum
+;;; haml-mode.el --- Major mode for editing Haml files
 
-;;; Because Haml's indentation schema is similar
-;;; to that of YAML and Python, many indentation-related
-;;; functions are similar to those in yaml-mode and python-mode.
+;; Copyright (c) 2007, 2008 Nathan Weizenbaum
 
-;;; To install, save this somewhere and add the following to your .emacs file:
-;;;
-;;; (add-to-list 'load-path "/path/to/haml-mode.el")
-;;; (require 'haml-mode nil 't)
-;;; (add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
-;;;
+;; Author: Nathan Weizenbaum
+;; URL: http://github.com/nex3/haml/tree/master
+;; Version: 1.0
+;; Keywords: markup, language
+
+;;; Commentary:
+
+;; Because Haml's indentation schema is similar
+;; to that of YAML and Python, many indentation-related
+;; functions are similar to those in yaml-mode and python-mode.
+
+;; To install, save this on your load path and add the following to
+;; your .emacs file:
+;;
+;; (require 'haml-mode)
 
 ;;; Code:
 
@@ -136,6 +142,8 @@ text nested beneath them.")
     (define-key map "\C-c\C-u" 'haml-up-list)
     (define-key map "\C-c\C-d" 'haml-down-list)
     (define-key map "\C-c\C-k" 'haml-kill-line-and-indent)
+    (define-key map "\C-c\C-r" 'haml-output-region)
+    (define-key map "\C-c\C-l" 'haml-output-buffer)
     map))
 
 ;;;###autoload
@@ -149,8 +157,62 @@ text nested beneath them.")
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
   (set (make-local-variable 'parse-sexp-lookup-properties) t)
+  (setq comment-start "-#")
   (setq indent-tabs-mode nil)
   (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
+
+;; Useful functions
+
+(defun haml-comment-block ()
+  "Comment the current block of Haml code."
+  (interactive)
+  (save-excursion
+    (let ((indent (current-indentation)))
+      (back-to-indentation)
+      (insert "-#")
+      (newline)
+      (indent-to indent)
+      (beginning-of-line)
+      (haml-mark-sexp)
+      (haml-reindent-region-by haml-indent-offset))))
+
+(defun haml-uncomment-block ()
+  "Uncomment the current block of Haml code."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (while (not (looking-at haml-comment-re))
+      (haml-up-list)
+      (beginning-of-line))
+    (haml-mark-sexp)
+    (kill-line 1)
+    (haml-reindent-region-by (- haml-indent-offset))))
+
+(defun haml-replace-region (start end)
+  "Replaces the current block of Haml code with the HTML equivalent."
+  (interactive "r")
+  (save-excursion
+    (goto-char end)
+    (setq end (point-marker))
+    (goto-char start)
+    (let ((ci (current-indentation)))
+      (while (re-search-forward "^ +" end t)
+        (replace-match (make-string (- (current-indentation) ci) ? ))))
+    (shell-command-on-region start end "haml" "haml-output" t)))
+
+(defun haml-output-region (start end)
+  "Displays the HTML output for the current block of Haml code."
+  (interactive "r")
+  (kill-new (buffer-substring start end)) 
+  (with-temp-buffer
+    (yank)
+    (haml-indent-region (point-min) (point-max))
+    (shell-command-on-region (point-min) (point-max) "haml" "haml-output")))
+
+(defun haml-output-buffer ()
+  "Displays the HTML output for entire buffer."
+  (interactive)
+  (haml-output-region (point-min) (point-max)))
 
 ;; Navigation
 
@@ -192,7 +254,7 @@ lines nested beneath it."
                          (not (bobp))
                          (> (current-indentation) indent)))
         (back-to-indentation)
-      (setq arg (+ arg (if (> arg 0) -1 1)))))))
+        (setq arg (+ arg (if (> arg 0) -1 1)))))))
 
 (defun haml-backward-sexp (&optional arg)
   "Move backward across one nested expression.
@@ -232,12 +294,16 @@ With ARG, do this that many times."
       (setq arg (- arg 1))))
   (back-to-indentation))
 
+(defun haml-mark-sexp ()
+  "Marks the next Haml block."
+  (let ((forward-sexp-function 'haml-forward-sexp))
+    (mark-sexp)))
+
 (defun haml-mark-sexp-but-not-next-line ()
-  "Marks the next Haml sexp, but puts the mark at the end of the
+  "Marks the next Haml block, but puts the mark at the end of the
 last line of the sexp rather than the first non-whitespace
 character of the next line."
-  (let ((forward-sexp-function 'haml-forward-sexp))
-    (mark-sexp))
+  (haml-mark-sexp)
   (set-mark
    (save-excursion
      (goto-char (mark))
@@ -360,6 +426,9 @@ the current line."
   "Return the indentation string for `haml-indent-offset'."
   (mapconcat 'identity (make-list haml-indent-offset " ") ""))
 
-;; Setup/Activation
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
 
+;; Setup/Activation
 (provide 'haml-mode)
+;;; haml-mode.el ends here

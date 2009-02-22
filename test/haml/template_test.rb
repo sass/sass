@@ -20,7 +20,18 @@ module Haml::Helpers
   end
 end
 
+class Egocentic
+  def method_missing(*args)
+    self
+  end
+end
+
 class DummyController
+  attr_accessor :logger
+  def initialize
+    @logger = Egocentic.new
+  end
+    
   def self.controller_path
     ''
   end
@@ -31,36 +42,42 @@ class TemplateTest < Test::Unit::TestCase
   TEMPLATES = %w{         very_basic        standard    helpers
     whitespace_handling   original_engine   list        helpful
     silent_script         tag_parsing       just_stuff  partials
-    filters               nuke_outer_whitespace         nuke_inner_whitespace }
+    filters               nuke_outer_whitespace         nuke_inner_whitespace
+    render_layout }
   # partial layouts were introduced in 2.0.0
   TEMPLATES << 'partial_layout' unless ActionPack::VERSION::MAJOR < 2
 
   def setup
+    @base = create_base
+
+    # filters template uses :sass
+    Sass::Plugin.options.update(:line_comments => true, :style => :compact)
+  end
+
+  def create_base
     vars = { 'article' => Article.new, 'foo' => 'value one' }
     
-    unless ActionView::Base.instance_methods.include? 'finder'
-      @base = ActionView::Base.new(TEMPLATE_PATH, vars)
+    unless Haml::Util.has?(:instance_method, ActionView::Base, :finder)
+      base = ActionView::Base.new(TEMPLATE_PATH, vars)
     else
       # Rails 2.1.0
-      @base = ActionView::Base.new([], vars)
-      @base.finder.append_view_path(TEMPLATE_PATH)
+      base = ActionView::Base.new([], vars)
+      base.finder.append_view_path(TEMPLATE_PATH)
     end
     
-    if @base.private_methods.include?('evaluate_assigns')
-      @base.send(:evaluate_assigns)
+    if Haml::Util.has?(:private_method, base, :evaluate_assigns)
+      base.send(:evaluate_assigns)
     else
       # Rails 2.2
-      @base.send(:_evaluate_assigns_and_ivars)
+      base.send(:_evaluate_assigns_and_ivars)
     end
 
     # This is used by form_for.
     # It's usually provided by ActionController::Base.
-    def @base.protect_against_forgery?; false; end
-    
-    # filters template uses :sass
-    Sass::Plugin.options.update(:line_comments => true, :style => :compact)
-    
-    @base.controller = DummyController.new
+    def base.protect_against_forgery?; false; end
+
+    base.controller = DummyController.new
+    base
   end
 
   def render(text)
@@ -148,7 +165,9 @@ class TemplateTest < Test::Unit::TestCase
   def test_haml_options
     Haml::Template.options = { :suppress_eval => true }
     assert_equal({ :suppress_eval => true }, Haml::Template.options)
+    old_base, @base = @base, create_base
     assert_renders_correctly("eval_suppressed")
+    @base = old_base
     Haml::Template.options = {}
   end
 

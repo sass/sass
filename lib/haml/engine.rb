@@ -79,7 +79,8 @@ module Haml
         raise Haml::Error, "Invalid format #{@options[:format].inspect}"
       end
 
-      @template = (template.rstrip + "\n-#\n-#").split(/\r\n|\r|\n/)
+      # :eod is a special end-of-document marker
+      @template = (template.rstrip).split(/\r\n|\r|\n/) + [:eod, :eod]
       @template_index = 0
       @to_close_stack = []
       @output_tabs = 0
@@ -87,8 +88,9 @@ module Haml
       @flat = false
       @newlines = 0
       @precompiled = ''
-      @merged_text = ''
+      @to_merge = []
       @tab_change  = 0
+      @temp_count = 0
 
       if @options[:filters]
         warn <<END

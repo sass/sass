@@ -10,6 +10,10 @@ module Sass::Tree
       super(options)
     end
 
+    def ==(other)
+      self.class == other.class && rules == other.rules && super
+    end
+
     def rules
       Array(rule)
     end

@@ -17,7 +17,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       alias_method :render, :render_with_haml
 
       # Rails >2.1
-      if instance_methods.include?('output_buffer')
+      if Haml::Util.has?(:instance_method, self, :output_buffer)
         def output_buffer_with_haml
           return haml_buffer.buffer if is_haml?
           output_buffer_without_haml
@@ -44,7 +44,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       # In Rails <=2.1, we've got to override considerable capturing infrastructure.
       # In Rails >2.1, we can make do with only overriding #capture
       # (which no longer behaves differently in helper contexts).
-      unless ActionView::Base.instance_methods.include?('output_buffer')
+      unless Haml::Util.has?(:instance_method, ActionView::Base, :output_buffer)
         module CaptureHelper
           def capture_with_haml(*args, &block)
             # Rails' #capture helper will just return the value of the block
@@ -86,7 +86,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       else
         module CaptureHelper
           def capture_with_haml(*args, &block)
-            if is_haml? && block_is_haml?(block)
+            if Haml::Helpers.block_is_haml?(block)
               capture_haml(*args, &block)
             else
               capture_without_haml(*args, &block)
@@ -141,10 +141,12 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
                 tab_up
                 oldproc.call(*args)
                 tab_down
+                concat haml_indent
               end
+              concat haml_indent
             end
             res = form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc) + "\n"
-            concat "\n" if block_given? && is_haml?
+            concat "\n" if block_given?
             res
           else
             form_tag_without_haml(url_for_options, options, *parameters_for_url, &proc)
@@ -162,7 +164,9 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
               tab_up
               oldproc.call(*args)
               tab_down
+              concat haml_indent
             end
+            concat haml_indent
           end
           form_for_without_haml(object_name, *args, &proc)
           concat "\n" if block_given? && is_haml?

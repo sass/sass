@@ -14,19 +14,11 @@ end
 require File.dirname(__FILE__) + '/../lib/haml'
 require File.dirname(__FILE__) + '/linked_rails'
 %w[sass rubygems erb erubis markaby active_support action_controller
-   action_view haml/template].each(&method(:require))
-
-begin
-  require 'benchwarmer'
-rescue LoadError
-  # Since it's not as simple as gem install at the time of writing,
-  # we need to direct folks to the benchwarmer gem.
-  raise "The Haml benchmarks require the benchwarmer gem, available from http://github.com/wycats/benchwarmer"
-end
+   action_view action_pack haml/template rbench].each {|dep| require(dep)}
 
 def view
-  unless ActionView::Base.instance_methods.include? 'finder'
-    return ActionView::Base.new(File.dirname(__FILE__), vars)
+  unless Haml::Util.has?(:instance_method, ActionView::Base, :finder)
+    return ActionView::Base.new(File.dirname(__FILE__), {})
   end
 
   # Rails >=2.1.0
@@ -35,9 +27,15 @@ def view
   base
 end
 
-Benchmark.warmer(times) do
-  columns :haml, :erb, :erubis, :mab
-  titles :haml => "Haml", :erb => "ERB", :erubis => "Erubis", :mab => "Markaby"
+def render(view, file)
+  view.render :file => file
+end
+
+RBench.run(times) do
+  column :haml, :title => "Haml"
+  column :haml_ugly, :title => "Haml :ugly"
+  column :erb, :title => "ERB"
+  column :erubis, :title => "Erubis"
 
   template_name = 'standard'
   directory = File.dirname(__FILE__) + '/haml'
@@ -45,49 +43,56 @@ Benchmark.warmer(times) do
   erb_template     = File.read("#{directory}/rhtml/#{template_name}.rhtml")
   markaby_template = File.read("#{directory}/markaby/#{template_name}.mab")
 
-  report "Uncached" do
-    haml   { Haml::Engine.new(haml_template).render }
-    erb    { ERB.new(erb_template, nil, '-').result }
-    erubis { Erubis::Eruby.new(erb_template).result }
-    mab    { Markaby::Template.new(markaby_template).render }
-  end
-
   report "Cached" do
     obj = Object.new
 
     Haml::Engine.new(haml_template).def_method(obj, :haml)
+    Haml::Engine.new(haml_template, :ugly => true).def_method(obj, :haml_ugly)
     Erubis::Eruby.new(erb_template).def_method(obj, :erubis)
     obj.instance_eval("def erb; #{ERB.new(erb_template, nil, '-').src}; end")
 
-    haml   { obj.haml }
-    erb    { obj.erb }
-    erubis { obj.erubis }
+    haml      { obj.haml }
+    haml_ugly { obj.haml_ugly }
+    erb       { obj.erb }
+    erubis    { obj.erubis }
   end
 
   report "ActionView" do
     @base = view
 
+    @base.unmemoize_all
+    Haml::Template.options[:ugly] = false
     # To cache the template
-    @base.render 'haml/templates/standard'
-    @base.render 'haml/rhtml/standard'
+    render @base, 'haml/templates/standard'
+    render @base, 'haml/rhtml/standard'
 
-    haml { @base.render 'haml/templates/standard' }
-    erb  { @base.render 'haml/rhtml/standard' }
+    haml { render @base, 'haml/templates/standard' }
+    erb  { render @base, 'haml/rhtml/standard' }
+
+    Haml::Template.options[:ugly] = true
+    render @base, 'haml/templates/standard_ugly'
+    haml_ugly { render @base, 'haml/templates/standard_ugly' }
   end
 
   report "ActionView with deep partials" do
     @base = view
 
+    @base.unmemoize_all
+    Haml::Template.options[:ugly] = false
     # To cache the template
-    @base.render 'haml/templates/action_view'
-    @base.render 'haml/rhtml/action_view'
+    render @base, 'haml/templates/action_view'
+    render @base, 'haml/rhtml/action_view'
 
-    haml { @base.render 'haml/templates/action_view' }
-    erb  { @base.render 'haml/rhtml/action_view' }
+    haml { render @base, 'haml/templates/action_view' }
+    erb  { render @base, 'haml/rhtml/action_view' }
+
+    Haml::Template.options[:ugly] = true
+    render @base, 'haml/templates/action_view_ugly'
+    haml_ugly { render @base, 'haml/templates/action_view_ugly' }
   end
 end
 
-Benchmark.warmer(times) do
+RBench.run(times) do
   sass_template = File.read("#{File.dirname(__FILE__)}/sass/templates/complex.sass")
 
   report("Sass") { Sass::Engine.new(sass_template).render }

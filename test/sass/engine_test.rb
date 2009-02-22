@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
+require 'stringio'
 
 class SassEngineTest < Test::Unit::TestCase
   # A map of erroneous Sass documents to the error messages they should produce.
@@ -11,15 +12,17 @@ class SassEngineTest < Test::Unit::TestCase
     "!a = 1 + " => 'Expected expression, was end of text.',
     "!a = 1 + 2 +" => 'Expected expression, was end of text.',
     "!a = 1 + 2 + %" => 'Expected expression, was mod token.',
-    "!a = foo(bar" => 'Expected rparen token, was end of text.',
-    "!a = #aaa - a" => 'Undefined operation: "#aaaaaa minus a".',
-    "!a = #aaa / a" => 'Undefined operation: "#aaaaaa div a".',
-    "!a = #aaa * a" => 'Undefined operation: "#aaaaaa times a".',
-    "!a = #aaa % a" => 'Undefined operation: "#aaaaaa mod a".',
-    "!a = 1 - a" => 'Undefined operation: "1 minus a".',
-    "!a = 1 * a" => 'Undefined operation: "1 times a".',
-    "!a = 1 / a" => 'Undefined operation: "1 div a".',
-    "!a = 1 % a" => 'Undefined operation: "1 mod a".',
+    "!a = foo(\"bar\"" => 'Expected rparen token, was end of text.',
+    "!a = 1 }" => 'Unexpected right_bracket token.',
+    "!a = 1 }foo\"" => 'Unexpected right_bracket token.',
+    "!a = #aaa - \"a\"" => 'Undefined operation: "#aaaaaa minus a".',
+    "!a = #aaa / \"a\"" => 'Undefined operation: "#aaaaaa div a".',
+    "!a = #aaa * \"a\"" => 'Undefined operation: "#aaaaaa times a".',
+    "!a = #aaa % \"a\"" => 'Undefined operation: "#aaaaaa mod a".',
+    "!a = 1 - \"a\"" => 'Undefined operation: "1 minus a".',
+    "!a = 1 * \"a\"" => 'Undefined operation: "1 times a".',
+    "!a = 1 / \"a\"" => 'Undefined operation: "1 div a".',
+    "!a = 1 % \"a\"" => 'Undefined operation: "1 mod a".',
     ":" => 'Invalid attribute: ":".',
     ": a" => 'Invalid attribute: ": a".',
     ":= a" => 'Invalid attribute: ":= a".',
@@ -44,12 +47,12 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
     "a,\n  :b c" => ["Rules can\'t end in commas.", 1],
     "a," => "Rules can\'t end in commas.",
-    "a,\n!b = c" => ["Rules can\'t end in commas.", 1],
+    "a,\n!b = 1" => ["Rules can\'t end in commas.", 1],
     "!a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
-    "!foo = bar baz !" => "Syntax error in 'bar baz !' at '!'.",
+    %Q{!foo = "bar" "baz" !} => %Q{Syntax error in '"bar" "baz" !' at character 20.},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
@@ -69,15 +72,20 @@ class SassEngineTest < Test::Unit::TestCase
     "=a(!)" => "Mixin arguments can't be empty.",
     "=a(!foo bar)" => "Invalid variable \"!foo bar\".",
     "=foo\n  bar: baz\n+foo" => ["Attributes aren't allowed at the root of a document.", 2],
-    "a-\#{!b\n  c: d" => ["Unbalanced brackets.", 1],
+    "a-\#{!b\n  c: d" => ["Expected right_bracket token, was end of text.", 1],
     "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
     "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter !b.",
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
-    "@if false\n@else foo" => "Invalid @else directive '@else foo': expected 'if <expr>'.",
-    "@if false\n@else if " => "Invalid @else directive '@else if': expected 'if <expr>'.",
+    "@if false\n@else foo" => "Invalid else directive '@else foo': expected 'if <expr>'.",
+    "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
     "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "!b".',
     "=foo\n  !b = 12\nc\n  +foo\n  d = !b" => 'Undefined variable: "!b".',
+    '@for !a from 1 to "foo"' => '"foo" is not an integer.',
+    '@for !a from 1 to 1.232323' => '1.232 is not an integer.',
+    '@if' => "Invalid if directive '@if': expected expression.",
+    '@while' => "Invalid while directive '@while': expected expression.",
+    '@debug' => "Invalid debug directive '@debug': expected expression.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
@@ -166,18 +174,18 @@ class SassEngineTest < Test::Unit::TestCase
   end
 
   def test_default_function
-    assert_equal("foo {\n  bar: url(foo.png); }\n", render("foo\n  bar = url(foo.png)\n"));
+    assert_equal("foo {\n  bar: url(foo.png); }\n", render(%Q{foo\n  bar = url("foo.png")\n}));
     assert_equal("foo {\n  bar: url(); }\n", render("foo\n  bar = url()\n"));
   end
 
   def test_string_minus
-    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render("foo\n  bar = baz-boom-bat"))
-    assert_equal("foo {\n  bar: -baz-boom; }\n", render("foo\n  bar = -baz-boom"))
+    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render(%Q{foo\n  bar = "baz"-"boom"-"bat"}))
+    assert_equal("foo {\n  bar: -baz-boom; }\n", render(%Q{foo\n  bar = -"baz"-"boom"}))
   end
 
   def test_string_div
-    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render("foo\n  bar = baz/boom/bat"))
-    assert_equal("foo {\n  bar: /baz/boom; }\n", render("foo\n  bar = /baz/boom"))
+    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render(%Q{foo\n  bar = "baz"/"boom"/"bat"}))
+    assert_equal("foo {\n  bar: /baz/boom; }\n", render(%Q{foo\n  bar = /"baz"/"boom"}))
   end
 
   def test_basic_multiline_selector
@@ -291,20 +299,20 @@ END
 
   def test_line_annotations
     assert_equal(<<CSS, render(<<SASS, :line_comments => true, :style => :compact))
-/* line 2 */
+/* line 2, test_line_annotations_inline.sass */
 foo bar { foo: bar; }
-/* line 5 */
+/* line 5, test_line_annotations_inline.sass */
 foo baz { blip: blop; }
 
-/* line 9 */
+/* line 9, test_line_annotations_inline.sass */
 floodle { flop: blop; }
 
-/* line 18 */
+/* line 18, test_line_annotations_inline.sass */
 bup { mix: on; }
-/* line 15 */
+/* line 15, test_line_annotations_inline.sass */
 bup mixin { moop: mup; }
 
-/* line 22 */
+/* line 22, test_line_annotations_inline.sass */
 bip hop, skip hop { a: b; }
 CSS
 foo
@@ -351,8 +359,8 @@ SASS
   end
 
   def test_or_eq
-    assert_equal("foo {\n  a: b; }\n", render("!foo = b\n!foo ||= c\nfoo\n  a = !foo"))
-    assert_equal("foo {\n  a: b; }\n", render("!foo ||= b\nfoo\n  a = !foo"))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{!foo = "b"\n!foo ||= "c"\nfoo\n  a = !foo}))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{!foo ||= "b"\nfoo\n  a = !foo}))
   end
   
   def test_mixins
@@ -539,16 +547,15 @@ a {
   t2: true;
   t3: true;
   f1: false;
-  f2: false;
-  f3: false; }
+  f2: false; }
 CSS
+!foo = "foo"
 a
-  t1 = "foo" == foo
+  t1 = "foo" == !foo
   t2 = 1 == 1.0
   t3 = false != true
-  f1 = foo == bar
-  f2 = 1em == 1px
-  f3 = 12 != 12
+  f1 = 1em == 1px
+  f2 = 12 != 12
 SASS
   end
 
@@ -717,14 +724,10 @@ SASS
     assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
   end
 
-  def test_inaccessible_functions
-    assert_equal("a {\n  b: send(to_s); }\n", render("a\n  b = send(to_s)"))
-    assert_equal("a {\n  b: public_instance_methods(); }\n", render("a\n  b = public_instance_methods()"))
-  end
-
   private
-
+  
   def render(sass, options = {})
+    munge_filename options
     Sass::Engine.new(sass, options).render
   end
 

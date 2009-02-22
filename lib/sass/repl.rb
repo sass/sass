@@ -6,7 +6,9 @@ module Sass
       def run
         environment = Environment.new
         environment.set_var('important', Script::String.new('!important'))
+        @line = 0
         loop do
+          @line += 1
           unless text = Readline.readline('>> ')
             puts
             return
@@ -24,7 +26,7 @@ module Sass
         when Script::MATCH
           name = $1
           guarded = $2 == '||='
-          val = Script::Parser.parse($3)
+          val = Script::Parser.parse($3, @line, text.size - $3.size)
 
           unless guarded && environment.var(name)
             environment.set_var(name, val.perform(environment))
@@ -32,7 +34,7 @@ module Sass
 
           p environment.var(name)
         else
-          p Script::Parser.parse(text).perform(environment)
+          p Script::Parser.parse(text, @line, 0).perform(environment)
         end
       rescue Sass::SyntaxError => e
         puts "SyntaxError: #{e.message}"

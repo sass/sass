@@ -83,10 +83,8 @@ module Haml
       @real_tabs = 0
     end
 
-    # Renders +text+ with the proper tabulation. This also deals with
-    # making a possible one-line tag one line or not.
-    def push_text(text, dont_tab_up = false, tab_change = 0)
-      if @tabulation > 0 && !@options[:ugly]
+    def push_text(text, tab_change, dont_tab_up)
+      if @tabulation > 0
         # Have to push every line in by the extra user set tabulation.
         # Don't push lines with just whitespace, though,
         # because that screws up precompiled indentation.
@@ -96,54 +94,71 @@ module Haml
 
       @buffer << text
       @real_tabs += tab_change
-      @dont_tab_up_next_line = false
     end
 
-    # Properly formats the output of a script that was run in the
-    # instance_eval.
-    def push_script(result, preserve_script, in_tag = false, preserve_tag = false,
-                    escape_html = false, nuke_inner_whitespace = false)
-      tabulation = @real_tabs
+    def adjust_tabs(tab_change)
+      @real_tabs += tab_change
+    end
 
-      result = result.to_s.rstrip
-      result = html_escape(result) if escape_html
+    Haml::Util.def_static_method(self, :format_script, [:result],
+                                 :preserve_script, :in_tag, :preserve_tag, :escape_html,
+                                 :nuke_inner_whitespace, :interpolated, :ugly, <<RUBY)
+      <% unless ugly %>
+        # If we're interpolated,
+        # then the custom tabulation is handled in #push_text.
+        # The easiest way to avoid it here is to reset @tabulation.
+        <% if interpolated %>
+          old_tabulation = @tabulation
+          @tabulation = 0
+        <% end %>
 
-      if preserve_tag
+        tabulation = @real_tabs
+        result = result.to_s.<% if nuke_inner_whitespace %>strip<% else %>rstrip<% end %>
+      <% else %>
+        result = result.to_s<% if nuke_inner_whitespace %>.strip<% end %>
+      <% end %>
+
+      <% if escape_html %> result = html_escape(result) <% end %>
+
+      <% if preserve_tag %>
         result = Haml::Helpers.preserve(result)
-      elsif preserve_script
+      <% elsif preserve_script %>
         result = Haml::Helpers.find_and_preserve(result, options[:preserve])
-      end
+      <% end %>
 
-      has_newline = result.include?("\n")
-      if in_tag && !nuke_inner_whitespace && (@options[:ugly] || !has_newline || preserve_tag)
-        @buffer << result
-        @real_tabs -= 1
-        return
-      end
+      <% if ugly %>
+        return result
+      <% else %>
 
-      @buffer << "\n" if in_tag && !nuke_inner_whitespace
+        has_newline = result.include?("\\n") 
+        <% if in_tag && !nuke_inner_whitespace %>
+          <% unless preserve_tag %> if !has_newline <% end %>
+          @real_tabs -= 1
+          <% if interpolated %> @tabulation = old_tabulation <% end %>
+          return result
+          <% unless preserve_tag %> end <% end %>
+        <% end %>
 
-      # Precompiled tabulation may be wrong
-      if @tabulation > 0 && !in_tag
-        result = tabs + result
-      end
+        # Precompiled tabulation may be wrong
+        <% if !interpolated && !in_tag %>
+          result = tabs + result if @tabulation > 0
+        <% end %>
 
-      if has_newline && !@options[:ugly]
-        result = result.gsub "\n", "\n" + tabs(tabulation)
+        if has_newline
+          result = result.gsub "\\n", "\\n" + tabs(tabulation)
 
-        # Add tabulation if it wasn't precompiled
-        result = tabs(tabulation) + result if in_tag && !nuke_inner_whitespace
-      end
-      @buffer << "#{result}"
-      @buffer << "\n" unless nuke_inner_whitespace
+          # Add tabulation if it wasn't precompiled
+          <% if in_tag && !nuke_inner_whitespace %> result = tabs(tabulation) + result <% end %>
+        end
 
-      if in_tag && !nuke_inner_whitespace
-        # We never get here if @options[:ugly] is true
-        @buffer << tabs(tabulation-1)
-        @real_tabs -= 1
-      end
-      nil
-    end
+        <% if in_tag && !nuke_inner_whitespace %>
+          result = "\\n\#{result}\\n\#{tabs(tabulation-1)}"
+          @real_tabs -= 1
+        <% end %>
+        <% if interpolated %> @tabulation = old_tabulation <% end %>
+        result
+      <% end %>
+RUBY
 
     # Takes the various information about the opening tag for an
     # element, formats it, and adds it to the buffer.

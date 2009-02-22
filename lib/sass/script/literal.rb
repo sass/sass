@@ -50,7 +50,11 @@ class Sass::Script::Literal # :nodoc:
     true
   end
 
+  def ==(other)
+    eq(other).to_bool
+  end
+
   def to_i
-    raise SyntaxError.new("#{value.dump} is not an integer.")
+    raise Sass::SyntaxError.new("#{self.inspect} is not an integer.")
   end
 end
