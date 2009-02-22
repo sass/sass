@@ -382,7 +382,10 @@ END
       block.call
       tab_down
       haml_concat "</#{name}>"
-      nil
+      <<MESSAGE
+<h1><code>haml_tag</code> outputs directly to the Haml template.
+Disregard its return value and use the <code>-</code> operator.</h1>
+MESSAGE
     end
 
     # Characters that need to be escaped to HTML entities from user input
