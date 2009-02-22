@@ -132,7 +132,7 @@ module Sass
       first = true
       enum_with_index(string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/)).map do |line, index|
         index += 1
-        next if line.strip.empty? || line =~ /^\/\//
+        next if line.strip.empty?
 
         line_tab_str = line[/^\s*/]
         unless line_tab_str.empty?
@@ -308,10 +308,8 @@ END
     end
 
     def parse_comment(line)
-      if line[1] == SASS_COMMENT_CHAR
-        :comment
-      elsif line[1] == CSS_COMMENT_CHAR
-        Tree::CommentNode.new(line, @options)
+      if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
+        Tree::CommentNode.new(line, @options.merge(:silent => (line[1] == SASS_COMMENT_CHAR)))
       else
         Tree::RuleNode.new(line, @options)
       end

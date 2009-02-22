@@ -13,8 +13,12 @@ module Sass::Tree
       self.value == other.value && super
     end
 
+    def silent?
+      !!@options[:silent]
+    end
+
     def to_s(tabs = 0, parent_name = nil)
-      return if @style == :compressed
+      return if (@style == :compressed || silent?)
 
       spaces = '  ' * (tabs - 1)
       spaces + "/* " + ([value] + children.map {|c| c.text}).

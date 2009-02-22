@@ -730,6 +730,16 @@ SASS
     assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
   end
 
+  def test_comments_at_the_top_of_a_document
+    render(<<SASS)
+//
+  This is a comment that
+  continues to the second line.
+foo
+  bar: baz
+SASS
+  end
+
   private
   
   def render(sass, options = {})

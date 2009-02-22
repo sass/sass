@@ -90,13 +90,13 @@ module Sass::Tree
         end
 
         if @style == :compact
-          attributes = attributes.map { |a| a.to_s(1) }.join(' ')
+          attributes = attributes.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
           to_return << "#{total_rule} { #{attributes} }\n"
         elsif @style == :compressed
-          attributes = attributes.map { |a| a.to_s(1) }.join(';')
+          attributes = attributes.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
           to_return << "#{total_rule}{#{attributes}}"
         else
-          attributes = attributes.map { |a| a.to_s(tabs + 1) }.join("\n")
+          attributes = attributes.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
           end_attrs = (@style == :expanded ? "\n" + old_spaces : ' ')
           to_return << "#{total_rule} {\n#{attributes}#{end_attrs}}\n"
         end

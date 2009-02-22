@@ -33,7 +33,9 @@ module Sass
           if child.is_a? AttrNode
             raise Sass::SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
           else
-            result << "#{child.to_s(1)}" + (@style == :compressed ? '' : "\n")
+            child_str = child.to_s(1)
+            next unless child_str && child_str.length > 0
+            result << child_str + (@style == :compressed ? '' : "\n")
           end
         end
         @style == :compressed ? result+"\n" : result[0...-1]

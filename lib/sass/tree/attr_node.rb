@@ -35,7 +35,7 @@ module Sass::Tree
       end
       
       children.each do |kid|
-        to_return << "#{kid.to_s(tabs, real_name)}" << join_string
+        to_return << kid.to_s(tabs, real_name) << join_string
       end
       
       (@style == :compressed && parent_name) ? to_return : to_return[0...-1]
