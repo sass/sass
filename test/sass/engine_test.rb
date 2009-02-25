@@ -98,7 +98,13 @@ END
   end
 
   def test_exception_line
-    to_render = "rule\n  :attr val\n// comment!\n\n  :broken\n"
+    to_render = <<SASS
+rule
+  :attr val
+  // comment!
+
+  :broken
+SASS
     begin
       Sass::Engine.new(to_render).render
     rescue Sass::SyntaxError => err
