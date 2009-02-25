@@ -74,7 +74,7 @@ module Haml
           if contains_interpolation?(text)
             return if options[:suppress_eval]
 
-            push_script(<<RUBY, false)
+            push_script <<RUBY
 find_and_preserve(#{filter.inspect}.render_with_options(#{unescape_interpolation(text)}, _hamlout.options))
 RUBY
             return

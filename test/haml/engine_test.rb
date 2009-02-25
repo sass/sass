@@ -322,30 +322,55 @@ HAML
     assert_equal("<img alt='' src='foo&#x000A;.png' />\n",
                  render("%img{:width => nil, :src => \"foo\\n.png\", :alt => String.new}"))
   end
-  
-  def test_string_interpolation_should_be_esaped
+
+  def test_string_double_equals_should_be_esaped
     assert_equal("<p>4&amp;3</p>\n", render("%p== \#{2+2}&\#{2+1}", :escape_html => true))
     assert_equal("<p>4&3</p>\n", render("%p== \#{2+2}&\#{2+1}", :escape_html => false))
   end
 
-  def test_escaped_inline_string_interpolation
+  def test_escaped_inline_string_double_equals
     assert_equal("<p>4&amp;3</p>\n", render("%p&== \#{2+2}&\#{2+1}", :escape_html => true))
     assert_equal("<p>4&amp;3</p>\n", render("%p&== \#{2+2}&\#{2+1}", :escape_html => false))
   end
 
-  def test_unescaped_inline_string_interpolation
+  def test_unescaped_inline_string_double_equals
     assert_equal("<p>4&3</p>\n", render("%p!== \#{2+2}&\#{2+1}", :escape_html => true))
     assert_equal("<p>4&3</p>\n", render("%p!== \#{2+2}&\#{2+1}", :escape_html => false))
   end
 
-  def test_escaped_string_interpolation
+  def test_escaped_string_double_equals
     assert_equal("<p>\n  4&amp;3\n</p>\n", render("%p\n  &== \#{2+2}&\#{2+1}", :escape_html => true))
     assert_equal("<p>\n  4&amp;3\n</p>\n", render("%p\n  &== \#{2+2}&\#{2+1}", :escape_html => false))
   end
 
-  def test_unescaped_string_interpolation
+  def test_unescaped_string_double_equals
     assert_equal("<p>\n  4&3\n</p>\n", render("%p\n  !== \#{2+2}&\#{2+1}", :escape_html => true))
     assert_equal("<p>\n  4&3\n</p>\n", render("%p\n  !== \#{2+2}&\#{2+1}", :escape_html => false))
+  end
+
+  def test_string_interpolation_should_be_esaped
+    assert_equal("<p>4&amp;3</p>\n", render("%p \#{2+2}&\#{2+1}", :escape_html => true))
+    assert_equal("<p>4&3</p>\n", render("%p \#{2+2}&\#{2+1}", :escape_html => false))
+  end
+
+  def test_escaped_inline_string_interpolation
+    assert_equal("<p>4&amp;3</p>\n", render("%p& \#{2+2}&\#{2+1}", :escape_html => true))
+    assert_equal("<p>4&amp;3</p>\n", render("%p& \#{2+2}&\#{2+1}", :escape_html => false))
+  end
+
+  def test_unescaped_inline_string_interpolation
+    assert_equal("<p>4&3</p>\n", render("%p! \#{2+2}&\#{2+1}", :escape_html => true))
+    assert_equal("<p>4&3</p>\n", render("%p! \#{2+2}&\#{2+1}", :escape_html => false))
+  end
+
+  def test_escaped_string_interpolation
+    assert_equal("<p>\n  4&amp;3\n</p>\n", render("%p\n  & \#{2+2}&\#{2+1}", :escape_html => true))
+    assert_equal("<p>\n  4&amp;3\n</p>\n", render("%p\n  & \#{2+2}&\#{2+1}", :escape_html => false))
+  end
+
+  def test_unescaped_string_interpolation
+    assert_equal("<p>\n  4&3\n</p>\n", render("%p\n  ! \#{2+2}&\#{2+1}", :escape_html => true))
+    assert_equal("<p>\n  4&3\n</p>\n", render("%p\n  ! \#{2+2}&\#{2+1}", :escape_html => false))
   end
 
   def test_scripts_should_respect_escape_html_option
@@ -540,7 +565,7 @@ HAML
   end
 
   def test_unbalanced_brackets
-    render('== #{1 + 5} foo #{6 + 7 bar #{8 + 9}')
+    render('foo #{1 + 5} foo #{6 + 7 bar #{8 + 9}')
   rescue Haml::SyntaxError => e
     assert_equal("Unbalanced brackets.", e.message)
   end

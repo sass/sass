@@ -198,13 +198,14 @@ END
       when ELEMENT; render_tag(text)
       when COMMENT; render_comment(text[1..-1].strip)
       when SANITIZE
-        return push_script(unescape_interpolation(text[3..-1].strip), false, false, false, true) if text[1..2] == "=="
-        return push_script(text[2..-1].strip, false, false, false, true) if text[1] == SCRIPT
+        return push_script(unescape_interpolation(text[3..-1].strip), :escape_html => true) if text[1..2] == "=="
+        return push_script(text[2..-1].strip, :escape_html => true) if text[1] == SCRIPT
+        return push_script(unescape_interpolation(text[1..-1].strip), :escape_html => true) if text[1] == ?\s
         push_plain text
       when SCRIPT
-        return push_script(unescape_interpolation(text[2..-1].strip), false) if text[1] == SCRIPT
-        return push_script(text[1..-1], false, false, false, true) if options[:escape_html]
-        push_script(text[1..-1], false)
+        return push_script(unescape_interpolation(text[2..-1].strip)) if text[1] == SCRIPT
+        return push_script(text[1..-1], :escape_html => true) if options[:escape_html]
+        push_script(text[1..-1])
       when FLAT_SCRIPT; push_flat_script(text[1..-1])
       when SILENT_SCRIPT
         return start_haml_comment if text[1] == SILENT_COMMENT
@@ -227,8 +228,9 @@ END
       when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
-        return push_script(unescape_interpolation(text[3..-1].strip), false) if text[1..2] == "=="
-        return push_script(text[2..-1].strip, false) if text[1] == SCRIPT
+        return push_script(unescape_interpolation(text[3..-1].strip)) if text[1..2] == "=="
+        return push_script(text[2..-1].strip) if text[1] == SCRIPT
+        return push_script(unescape_interpolation(text[1..-1].strip)) if text[1] == ?\s
         push_plain text
       when ESCAPE; push_plain text[1..-1]
       else push_plain text
@@ -300,7 +302,11 @@ END
         raise SyntaxError.new("Illegal nesting: nesting within plain text is illegal.", @next_line.index)
       end
 
-      push_text text
+      if contains_interpolation?(text)
+        push_script unescape_interpolation(text)
+      else
+        push_text text
+      end
     end
 
     # Adds +text+ to <tt>@buffer</tt> while flattening text.
@@ -313,26 +319,28 @@ END
     # Causes <tt>text</tt> to be evaluated in the context of
     # the scope object and the result to be added to <tt>@buffer</tt>.
     #
-    # If <tt>preserve_script</tt> is true, Haml::Helpers#find_and_flatten is run on
+    # If <tt>opts[:preserve_script]</tt> is true, Haml::Helpers#find_and_flatten is run on
     # the result before it is added to <tt>@buffer</tt>
-    def push_script(text, preserve_script, in_tag = false, preserve_tag = false,
-                    escape_html = false, nuke_inner_whitespace = false)
+    def push_script(text, opts = {})
       raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
       return if options[:suppress_eval]
 
-      args = [preserve_script, in_tag, preserve_tag, escape_html,
-              nuke_inner_whitespace, !block_opened?, @options[:ugly]]
-      no_format = @options[:ugly] && !(preserve_script || preserve_tag || escape_html)
+      args = %w[preserve_script in_tag preserve_tag escape_html nuke_inner_whitespace]
+      args.map! {|name| opts[name.to_sym]}
+      args << !block_opened? << @options[:ugly]
+
+      no_format = @options[:ugly] &&
+        !(opts[:preserve_script] || opts[:preserve_tag] || opts[:escape_html])
       temp = "haml_temp_#{@temp_count}"
       @temp_count += 1
       out = "_hamlout.#{static_method_name(:format_script, *args)}(#{temp});"
 
       # Prerender tabulation unless we're in a tag
-      push_merged_text '' unless in_tag
+      push_merged_text '' unless opts[:in_tag]
 
       unless block_opened?
         @to_merge << [:script, no_format ? "#{text}\n" : "#{temp} = #{text}\n#{out}"]
-        concat_merged_text("\n") unless in_tag || nuke_inner_whitespace
+        concat_merged_text("\n") unless opts[:in_tag] || opts[:nuke_inner_whitespace]
         @newlines -= 1
         return
       end
@@ -342,7 +350,7 @@ END
       push_silent "#{temp} = #{text}"
       newline_now
       push_and_tabulate([:loud, "_erbout << #{no_format ? "#{temp}.to_s;" : out}",
-        !(in_tag || nuke_inner_whitespace || @options[:ugly])])
+        !(opts[:in_tag] || opts[:nuke_inner_whitespace] || @options[:ugly])])
     end
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
@@ -351,7 +359,7 @@ END
       flush_merged_text
 
       raise SyntaxError.new("There's no Ruby code for ~ to evaluate.") if text.empty?
-      push_script(text, true)
+      push_script(text, :preserve_script => true)
     end
 
     def start_haml_comment
@@ -566,7 +574,20 @@ END
       when '&', '!'
         if value[0] == ?=
           parse = true
-          value = (value[1] == ?= ? unescape_interpolation(value[2..-1].strip) : value[1..-1].strip)
+          value =
+            if value[1] == ?=
+              unescape_interpolation(value[2..-1].strip)
+            else
+              value[1..-1].strip
+            end
+        elsif contains_interpolation?(value)
+          parse = true
+          value = unescape_interpolation(value)
+        end
+      else
+        if contains_interpolation?(value)
+          parse = true
+          value = unescape_interpolation(value)
         end
       end
 
@@ -632,7 +653,9 @@ END
       end
 
       if parse
-        push_script(value, preserve_script, true, preserve_tag, escape_html, nuke_inner_whitespace)
+        push_script(value, :preserve_script => preserve_script, :in_tag => true,
+          :preserve_tag => preserve_tag, :escape_html => escape_html,
+          :nuke_inner_whitespace => nuke_inner_whitespace)
         concat_merged_text("</#{tag_name}>" + (nuke_outer_whitespace ? "" : "\n"))
       end
     end
