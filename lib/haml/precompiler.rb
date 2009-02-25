@@ -200,6 +200,7 @@ END
       when SANITIZE
         return push_script(unescape_interpolation(text[3..-1].strip), :escape_html => true) if text[1..2] == "=="
         return push_script(text[2..-1].strip, :escape_html => true) if text[1] == SCRIPT
+        return push_script(unescape_interpolation(text[1..-1].strip), :escape_html => true) if text[1] == ?\s
         push_plain text
       when SCRIPT
         return push_script(unescape_interpolation(text[2..-1].strip)) if text[1] == SCRIPT
@@ -229,6 +230,7 @@ END
         return render_doctype(text) if text[0...3] == '!!!'
         return push_script(unescape_interpolation(text[3..-1].strip)) if text[1..2] == "=="
         return push_script(text[2..-1].strip) if text[1] == SCRIPT
+        return push_script(unescape_interpolation(text[1..-1].strip)) if text[1] == ?\s
         push_plain text
       when ESCAPE; push_plain text[1..-1]
       else push_plain text
