@@ -100,7 +100,6 @@ require 'haml/version'
 #
 # ==== %
 #
-#
 # The percent character is placed at the beginning of a line.
 # It's followed immediately by the name of an element,
 # then optionally by modifiers (see below), a space,
@@ -223,65 +222,6 @@ require 'haml/version'
 #
 #   <input>
 #
-# ==== []
-#
-# Square brackets follow a tag definition and contain a Ruby object
-# that is used to set the class and id of that tag.
-# The class is set to the object's class
-# (transformed to use underlines rather than camel case)
-# and the id is set to the object's class, followed by its id.
-# Because the id of an object is normally an obscure implementation detail,
-# this is most useful for elements that represent instances of Models.
-# Additionally, the second argument (if present) will be used as a prefix for
-# both the id and class attributes.
-# For example:
-#
-#   # file: app/controllers/users_controller.rb
-#
-#   def show
-#     @user = CrazyUser.find(15)
-#   end
-#
-#   -# file: app/views/users/show.haml
-#
-#   %div[@user, :greeting]
-#     %bar[290]/
-#     Hello!
-#
-# is compiled to:
-#
-#   <div class='greeting_crazy_user' id='greeting_crazy_user_15'>
-#     <bar class='fixnum' id='fixnum_581' />
-#     Hello!
-#   </div>
-#
-# ==== /
-#
-# The forward slash character, when placed at the end of a tag definition,
-# causes the tag to be self-closed.
-# For example:
-#
-#   %br/
-#   %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}/
-#
-# is compiled to:
-#
-#   <br />
-#   <meta http-equiv='Content-Type' content='text/html' />
-#
-# Some tags are automatically closed, as long as they have no content.
-# +meta+, +img+, +link+, +script+, +br+, and +hr+ tags are closed by default.
-# This list can be customized by setting the <tt>:autoclose</tt> option (see below).
-# For example:
-#
-#   %br
-#   %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}
-#
-# is also compiled to:
-#
-#   <br />
-#   <meta http-equiv='Content-Type' content='text/html' />
-#
 # ==== . and #
 #
 # The period and pound sign are borrowed from CSS.
@@ -351,6 +291,65 @@ require 'haml/version'
 #     <div class='item'>
 #       <div class='description'>What a cool item!</div>
 #     </div>
+#   </div>
+#
+# ==== /
+#
+# The forward slash character, when placed at the end of a tag definition,
+# causes the tag to be self-closed.
+# For example:
+#
+#   %br/
+#   %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}/
+#
+# is compiled to:
+#
+#   <br />
+#   <meta http-equiv='Content-Type' content='text/html' />
+#
+# Some tags are automatically closed, as long as they have no content.
+# +meta+, +img+, +link+, +script+, +br+, and +hr+ tags are closed by default.
+# This list can be customized by setting the <tt>:autoclose</tt> option (see below).
+# For example:
+#
+#   %br
+#   %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}
+#
+# is also compiled to:
+#
+#   <br />
+#   <meta http-equiv='Content-Type' content='text/html' />
+#
+# ==== []
+#
+# Square brackets follow a tag definition and contain a Ruby object
+# that is used to set the class and id of that tag.
+# The class is set to the object's class
+# (transformed to use underlines rather than camel case)
+# and the id is set to the object's class, followed by its id.
+# Because the id of an object is normally an obscure implementation detail,
+# this is most useful for elements that represent instances of Models.
+# Additionally, the second argument (if present) will be used as a prefix for
+# both the id and class attributes.
+# For example:
+#
+#   # file: app/controllers/users_controller.rb
+#
+#   def show
+#     @user = CrazyUser.find(15)
+#   end
+#
+#   -# file: app/views/users/show.haml
+#
+#   %div[@user, :greeting]
+#     %bar[290]/
+#     Hello!
+#
+# is compiled to:
+#
+#   <div class='greeting_crazy_user' id='greeting_crazy_user_15'>
+#     <bar class='fixnum' id='fixnum_581' />
+#     Hello!
 #   </div>
 #
 # ==== > and <
