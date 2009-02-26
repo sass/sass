@@ -10,7 +10,7 @@ module Sass
 
       def parse_interpolated
         expr = assert_expr :expr
-        assert_tok :right_bracket
+        assert_tok :end_interpolation
         expr
       end
 
@@ -112,8 +112,8 @@ END
         return literal unless first = try_tok(:string)
         return first.value unless try_tok(:begin_interpolation)
         mid = parse_interpolated
-        last = assert_tok(:string)
-        Operation.new(first.value, Operation.new(mid, last.value, :plus), :plus)
+        last = assert_expr(:string)
+        Operation.new(first.value, Operation.new(mid, last, :plus), :plus)
       end
 
       def literal
@@ -135,7 +135,7 @@ END
 
       def try_tok(*names)
         peeked =  @lexer.peek
-        peeked && names.include?(peeked.type) && @lexer.token
+        peeked && names.include?(peeked.type) && @lexer.next
       end
     end
   end

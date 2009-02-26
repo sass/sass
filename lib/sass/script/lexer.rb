@@ -23,7 +23,8 @@ module Sass
         '<=' => :lte,
         '>' => :gt,
         '<' => :lt,
-        '}' => :right_bracket,
+        '#{' => :begin_interpolation,
+        '}' => :end_interpolation,
       }
 
       # We'll want to match longer names first
@@ -33,8 +34,8 @@ module Sass
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s*/,
         :variable => /!(\w+)/,
-        :ident => /(\\.|[^\s\\+\-*\/%(),=!])+/,
-        :string => /["}]((?:\\.|\#[^{]|[^"\\#])*)(?:"|#\{)/,
+        :ident => /(\\.|\#\{|[^\s\\+\-*\/%(),=!])+/,
+        :string_end => /((?:\\.|\#[^{]|[^"\\#])*)(?:"|(?=#\{))/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})/,
         :bool => /(true|false)\b/,
@@ -45,31 +46,23 @@ module Sass
         @scanner = str.is_a?(StringScanner) ? str : StringScanner.new(str)
         @line = line
         @offset = offset
-        @to_emit = []
+        @prev = nil
       end
 
-      def token
-        if @tok
-          @tok, tok = nil, @tok
-          return tok
-        end
-
-        return if done?
-
-        value = @to_emit.shift || variable || string || number || color || bool || op || ident
-        unless value
-          raise SyntaxError.new("Syntax error in '#{@scanner.string}' at character #{current_position}.")
-        end
-        Token.new(value.first, value.last, @line, last_match_position)
+      def next
+        @tok ||= read_token
+        @tok, tok = nil, @tok
+        @prev = tok
+        return tok
       end
 
       def peek
-        @tok ||= token
+        @tok ||= read_token
       end
 
       def done?
-        whitespace
-        @scanner.eos? && @tok.nil? && @to_emit.empty?
+        whitespace unless after_interpolation?
+        @scanner.eos? && @tok.nil?
       end
 
       def rest
@@ -78,12 +71,23 @@ module Sass
 
       private
 
-      def emit(*value)
-        @to_emit.push value
+      def read_token
+        return if done?
+
+        value = token
+        unless value
+          raise SyntaxError.new("Syntax error in '#{@scanner.string}' at character #{current_position}.")
+        end
+        Token.new(value.first, value.last, @line, last_match_position)
       end
 
       def whitespace
         @scanner.scan(REGULAR_EXPRESSIONS[:whitespace])
+      end
+
+      def token
+        return string('') if after_interpolation?
+        variable || string || number || color || bool || op || ident
       end
 
       def variable
@@ -96,12 +100,13 @@ module Sass
         [:ident, s.gsub(/\\(.)/, '\1')]
       end
 
-      def string
-        return unless @scanner.scan(REGULAR_EXPRESSIONS[:string])
-        emit(:right_bracket) if @scanner.matched[0] == ?}
-        emit(:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1")))
-        emit(:begin_interpolation) if @scanner.matched[-2..-1] == '#{'
-        @to_emit.shift
+      def string(start_char = '"')
+        return unless @scanner.scan(/#{start_char}#{REGULAR_EXPRESSIONS[:string_end]}/)
+        [:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1"))]
+      end
+
+      def begin_interpolation
+        @scanner.scan
       end
 
       def number
@@ -131,13 +136,16 @@ module Sass
         [OPERATORS[op]]
       end
 
-      protected
-
       def current_position
         @offset + @scanner.pos + 1
       end
+
       def last_match_position
         current_position - @scanner.matchedsize
+      end
+
+      def after_interpolation?
+        @prev && @prev.type == :end_interpolation
       end
     end
   end

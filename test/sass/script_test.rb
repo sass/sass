@@ -31,6 +31,7 @@ class SassScriptTest < Test::Unit::TestCase
   end
 
   def test_interpolation
+    assert_equal "foo bar, baz bang", resolve('"foo #{"bar"}, #{"baz"} bang"')
     assert_equal "foo bar baz bang", resolve('"foo #{"#{"ba" + "r"} baz"} bang"')
     assert_equal 'foo #{bar baz} bang', resolve('"foo \#{#{"ba" + "r"} baz} bang"')
     assert_equal 'foo #{baz bang', resolve('"foo #{"\#{" + "baz"} bang"')
