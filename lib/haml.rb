@@ -429,6 +429,35 @@ require 'haml/version'
 #
 #   <p>hello</p>
 #
+# ==== #{}
+#
+# Ruby code can also be interpolated within plain text using <tt>#{}</tt>,
+# similarly to Ruby string interpolation.
+# For example,
+#
+#   %p This is #{h quality} cake!
+#
+# is the same as
+#
+#   %p= "This is the #{h quality} cake!"
+#
+# and might compile to
+#
+#   <p>This is scrumptious cake!</p>
+#
+# Backslashes can be used to escape "#{" strings,
+# but they don't act as escapes anywhere else in the string.
+# For example:
+#
+#   %p
+#     \\ Look at \\#{h word} lack of backslash: \#{foo}
+#
+# might compile to
+#
+#  <p>
+#    \\ Look at \yon lack of backslash: #{foo}
+#  </p>
+#
 # ==== ~
 #
 # ~ works just like =, except that it runs Haml::Helpers#find_and_preserve on its input.
@@ -763,35 +792,6 @@ require 'haml/version'
 #     hello there you!
 #   </p>
 #
-# ==== ==
-#
-# Two equals characters interpolates Ruby code into plain text,
-# similarly to Ruby string interpolation.
-# For example,
-#
-#   %p== This is #{h quality} cake!
-#
-# is the same as
-#
-#   %p= "This is #{h quality} cake!"
-#
-# and might compile to
-#
-#   <p>This is scrumptious cake!</p>
-#
-# Backslashes can be used to escape "#{" strings,
-# but they don't act as escapes anywhere else in the string.
-# For example:
-#
-#   %p
-#     == \\ Look at \\#{h word} lack of backslash: \#{foo}
-#
-# might compile to
-#
-#  <p>
-#    \\ Look at \yon lack of backslash: #{foo}
-#  </p>
-#
 # ==== &=
 #
 # An ampersand followed by one or two equals characters
@@ -807,6 +807,15 @@ require 'haml/version'
 #
 # If the <tt>:escape_html</tt> option is set,
 # &= behaves identically to =.
+#
+# & can also be used on its own so that <tt>#{}</tt> interpolation is escaped.
+# For example,
+#
+#   & I like #{"cheese & crackers"}
+#
+# compiles to
+#
+#   I like cheese &amp; crackers
 #
 # ==== !=
 #
@@ -824,6 +833,15 @@ require 'haml/version'
 # compiles to
 #
 #   I feel &lt;strong&gt;!
+#   I feel <strong>!
+#
+# ! can also be used on its own so that <tt>#{}</tt> interpolation is unescaped.
+# For example,
+#
+#   ! I feel #{"<strong>"}!
+#
+# compiles to
+#
 #   I feel <strong>!
 #
 # ===== Blocks
