@@ -136,6 +136,7 @@ module Sass
     def split_lines
       @line = 0
       old_tabs = nil
+      last_line_was_comment = false
       @template.each_with_index do |line, index|
         @line += 1
 
@@ -143,6 +144,19 @@ module Sass
 
         if line[0] == COMMENT_CHAR && line[1] == SASS_COMMENT_CHAR && tabs == 0
           tabs = old_tabs
+          last_line_was_comment = true
+        elsif last_line_was_comment && tabs
+          if tabs > 0
+            context = "On line #{@line}"
+            context << " of #{@options[:filename]}" if @options[:filename]
+            warn <<ENDENDEND
+DEPRECATION WARNING:
+#{context}
+Silent comments (//) in version 2.2 will comment out the lines indented beneath them.
+Please indent line #{@line - 1} to match the surrounding indentation level
+ENDENDEND
+          end
+          last_line_was_comment = false
         end
 
         if tabs # if line isn't blank
