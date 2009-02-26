@@ -279,6 +279,17 @@ bar
 HAML
   end
 
+  def test_inline_if
+    assert_equal(<<HTML, render(<<HAML))
+<p>One</p>
+<p></p>
+<p>Three</p>
+HTML
+- for name in ["One", "Two", "Three"]
+  %p= name unless name == "Two"
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

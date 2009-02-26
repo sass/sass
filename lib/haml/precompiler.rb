@@ -331,15 +331,14 @@ END
 
       no_format = @options[:ugly] &&
         !(opts[:preserve_script] || opts[:preserve_tag] || opts[:escape_html])
-      temp = "haml_temp_#{@temp_count}"
-      @temp_count += 1
-      out = "_hamlout.#{static_method_name(:format_script, *args)}(#{temp});"
+      output_temp = "(haml_very_temp = haml_temp; haml_temp = nil; haml_very_temp)"
+      out = "_hamlout.#{static_method_name(:format_script, *args)}(#{output_temp});"
 
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless opts[:in_tag]
 
       unless block_opened?
-        @to_merge << [:script, no_format ? "#{text}\n" : "#{temp} = #{text}\n#{out}"]
+        @to_merge << [:script, no_format ? "#{text}\n" : "haml_temp = #{text}\n#{out}"]
         concat_merged_text("\n") unless opts[:in_tag] || opts[:nuke_inner_whitespace]
         @newlines -= 1
         return
@@ -347,9 +346,9 @@ END
 
       flush_merged_text
 
-      push_silent "#{temp} = #{text}"
+      push_silent "haml_temp = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{temp}.to_s;" : out}",
+      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{output_temp}.to_s;" : out}",
         !(opts[:in_tag] || opts[:nuke_inner_whitespace] || @options[:ugly])])
     end
 
