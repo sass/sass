@@ -195,7 +195,7 @@ END
         if @options[:interactive]
           require 'sass'
           require 'sass/repl'
-          ::Sass::Repl.run
+          ::Sass::Repl.new(@options).run
           return
         end
 
