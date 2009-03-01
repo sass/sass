@@ -741,6 +741,23 @@ foo
 SASS
   end
 
+  def test_loud_comments_containing_a_comment_close
+    actual_css = render(<<SASS)
+/*
+  This is a comment that
+  continues to the second line. */
+foo
+  bar: baz
+SASS
+assert_equal(<<CSS, actual_css)
+/* 
+ * This is a comment that
+ * continues to the second line. */
+foo {
+  bar: baz; }
+CSS
+  end
+
   private
   
   def render(sass, options = {})

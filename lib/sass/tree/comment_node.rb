@@ -22,7 +22,7 @@ module Sass::Tree
 
       spaces = '  ' * (tabs - 1)
       spaces + "/* " + ([value] + children.map {|c| c.text}).
-        join(@style == :compact ? ' ' : "\n#{spaces} * ") + " */"
+        map{|l| l.sub(%r{ ?\*/ *$},'')}.join(@style == :compact ? ' ' : "\n#{spaces} * ") + " */"
     end
 
     protected
