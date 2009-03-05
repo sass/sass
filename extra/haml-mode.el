@@ -122,18 +122,20 @@ text nested beneath them.")
 (defun haml-highlight-ruby-tag (limit)
   "Highlight Ruby code within a Haml tag.
 
-This highlights both the tag attributes
-and the script expression (-, =, or ~) following the tag.
+This highlights the tag attributes and object refs of the tag,
+as well as the script expression (-, =, or ~) following the tag.
 
 For example, this will highlight all of the following:
   %p{:foo => 'bar'}
+  %p[@bar]
   %p= 'baz'
-  %p{:foo => 'bar'}= 'baz'"
+  %p{:foo => 'bar'}[@bar]= 'baz'"
   (when (re-search-forward "^ *\\(?:[%.#][a-z_-:.#]+\\)\\(\\)" limit t)
-    (when (eq (char-after) ?{)
-      (let (forward-sexp-function (beg (point)))
-        (forward-sexp)
-        (haml-fontify-region-as-ruby beg (point))))
+    (dolist (char '(?\{ ?\[))
+      (when (eq (char-after) char)
+        (let (forward-sexp-function (beg (point)))
+          (forward-sexp)
+          (haml-fontify-region-as-ruby beg (point)))))
     (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
     (when (looking-at "\\([=~]\\)\\(.*\\)$")
       (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2)))
