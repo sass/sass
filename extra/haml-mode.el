@@ -21,6 +21,7 @@
 ;;; Code:
 
 (eval-when-compile (require 'cl))
+(require 'ruby-mode)
 
 ;; User definable variables
 
@@ -78,11 +79,10 @@ text nested beneath them.")
 (defconst haml-font-lock-keywords
   `((,(haml-nested-regexp "-#.*")  0 font-lock-comment-face)
     (,(haml-nested-regexp ":\\w+") 0 font-lock-string-face)
+    (haml-highlight-ruby-tag     1 font-lock-preprocessor-face)
+    (haml-highlight-ruby-script  1 font-lock-preprocessor-face)
     ("^ *\\(\t\\)"               1 'haml-tab-face)
     ("^!!!.*"                    0 font-lock-constant-face)
-    ("\\('[^']*'\\)"             1 font-lock-string-face append)
-    ("\\(\"[^\"]*\"\\)"          1 font-lock-string-face append)
-    ("@[a-z0-9_]+"               0 font-lock-variable-name-face append)
     ("| *$"                      0 font-lock-string-face)
     ("^[ \t]*\\(/.*\\)$"         1 font-lock-comment-face append)
     ("^ *\\(#[a-z0-9_]+\/?\\)"   1 font-lock-keyword-face)
@@ -97,14 +97,47 @@ text nested beneath them.")
     ("^ *\\(%[a-z0-9_]+\/?\\)"   (1 font-lock-function-name-face)
      ("\\.[a-z0-9_]+" nil nil    (0 font-lock-type-face)))
     ("^ *\\(%[a-z0-9_]+\/?\\)"   (1 font-lock-function-name-face)
-     ("\\#[a-z0-9_]+" nil nil    (0 font-lock-keyword-face)))
-    ("^ *\\([~=-] .*\\)"         1 font-lock-preprocessor-face prepend)
-    ("^ *[\\.#%a-z0-9_]+\\([~=-] .*\\)"     1 font-lock-preprocessor-face prepend)
-    ("^ *[\\.#%a-z0-9_]+\\({[^}]+}\\)"      1 font-lock-preprocessor-face prepend)
-    ("^ *[\\.#%a-z0-9_]+\\(\\[[^]]+\\]\\)"  1 font-lock-preprocessor-face prepend)))
+     ("\\#[a-z0-9_]+" nil nil    (0 font-lock-keyword-face)))))
 
 (defconst haml-filter-re "^ *\\(:\\)\\w+")
 (defconst haml-comment-re "^ *\\(-\\)\\#")
+
+(defun haml-fontify-region-as-ruby (beg end)
+  "Use Ruby's font-lock variables to fontify the region between BEG and END."
+  (save-excursion
+    (save-match-data
+      (let ((font-lock-keywords ruby-font-lock-keywords)
+            (font-lock-syntactic-keywords ruby-font-lock-syntactic-keywords)
+            font-lock-extend-region-functions
+            font-lock-keywords-case-fold-search)
+        ;; font-lock-fontify-region apparently isn't inclusive,
+        ;; so we have to move the beginning back one char
+        (font-lock-fontify-region (- beg 1) end)))))
+
+(defun haml-highlight-ruby-script (limit)
+  "Highlight a Ruby script expression (-, =, or ~)."
+  (when (re-search-forward "^ *\\([-=~]\\) \\(.*\\)$" limit t)
+    (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))))
+
+(defun haml-highlight-ruby-tag (limit)
+  "Highlight Ruby code within a Haml tag.
+
+This highlights both the tag attributes
+and the script expression (-, =, or ~) following the tag.
+
+For example, this will highlight all of the following:
+  %p{:foo => 'bar'}
+  %p= 'baz'
+  %p{:foo => 'bar'}= 'baz'"
+  (when (re-search-forward "^ *\\(?:[%.#][a-z_-:.#]+\\)\\(\\)" limit t)
+    (when (eq (char-after) ?{)
+      (let (forward-sexp-function (beg (point)))
+        (forward-sexp)
+        (haml-fontify-region-as-ruby beg (point))))
+    (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
+    (when (looking-at "\\([=~]\\)\\(.*\\)$")
+      (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2)))
+    t))
 
 (defun* haml-extend-region ()
   "Extend the font-lock region to encompass filters and comments."
