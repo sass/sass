@@ -119,7 +119,7 @@ text nested beneath them.")
   (when (re-search-forward "^ *\\([-=~]\\) \\(.*\\)$" limit t)
     (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))))
 
-(defun haml-highlight-ruby-tag (limit)
+(defun* haml-highlight-ruby-tag (limit)
   "Highlight Ruby code within a Haml tag.
 
 This highlights the tag attributes and object refs of the tag,
@@ -131,15 +131,27 @@ For example, this will highlight all of the following:
   %p= 'baz'
   %p{:foo => 'bar'}[@bar]= 'baz'"
   (when (re-search-forward "^ *\\(?:[%.#][a-z_-:.#]+\\)\\(\\)" limit t)
-    (dolist (char '(?\{ ?\[))
-      (when (eq (char-after) char)
-        (let (forward-sexp-function (beg (point)))
-          (forward-sexp)
-          (haml-fontify-region-as-ruby beg (point)))))
-    (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
-    (when (looking-at "\\([=~]\\)\\(.*\\)$")
-      (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2)))
-    t))
+    (let ((eol (save-excursion (end-of-line) (point)))
+          beg forward-sexp-function)
+      (dolist (char '(?\{ ?\[))
+        (when (eq (char-after) char)
+          (setq beg (point))
+          (condition-case err
+              (save-restriction
+                (narrow-to-region (point) eol)
+                (forward-sexp))
+            ;; If the attr hash or object ref is unclosed,
+            ;; just highlight the whole line.
+            (scan-error
+             (unless (equal (nth 1 err) "Unbalanced parentheses")
+               (signal 'scan-error (cdr err)))
+             (haml-fontify-region-as-ruby (nth 2 err) eol)
+             (return t)))
+          (haml-fontify-region-as-ruby beg (point))))
+      (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
+      (when (looking-at "\\([=~]\\)\\(.*\\)$")
+        (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2)))
+      t)))
 
 (defun* haml-extend-region ()
   "Extend the font-lock region to encompass filters and comments."
