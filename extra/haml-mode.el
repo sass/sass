@@ -106,7 +106,7 @@ text nested beneath them.")
   (when (re-search-forward "^ *\\([-=~]\\) \\(.*\\)$" limit t)
     (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))))
 
-(defun* haml-highlight-ruby-tag (limit)
+(defun haml-highlight-ruby-tag (limit)
   "Highlight Ruby code within a Haml tag.
 
 This highlights the tag attributes and object refs of the tag,
@@ -133,21 +133,10 @@ For example, this will highlight all of the following:
         (goto-char (match-end 0)))
 
       ;; Highlight attr hashes and obj refs
-      (let (beg forward-sexp-function)
-        (dolist (char '(?\{ ?\[))
-          (when (eq (char-after) char)
-            (setq beg (point))
-            (condition-case err
-                (save-restriction
-                  (narrow-to-region (point) eol)
-                  (forward-sexp))
-              ;; If the attr hash or object ref is unclosed,
-              ;; just highlight the whole line.
-              (scan-error
-               (unless (equal (nth 1 err) "Unbalanced parentheses")
-                 (signal 'scan-error (cdr err)))
-               (haml-fontify-region-as-ruby (nth 2 err) eol)
-               (return t)))
+      (dolist (char '(?\{ ?\[))
+        (when (eq (char-after) char)
+          (let ((beg (point)))
+            (haml-limited-forward-sexp eol)
             (haml-fontify-region-as-ruby beg (point)))))
 
       ;; Move past end chars
@@ -158,6 +147,19 @@ For example, this will highlight all of the following:
         ;; Give font-lock something to highlight
         (looking-at "\\(\\)"))
       t)))
+
+(defun haml-limited-forward-sexp (limit &optional arg)
+  "Move forward using `forward-sexp' or to limit,
+whichever comes first."
+  (let (forward-sexp-function)
+    (condition-case err
+        (save-restriction
+          (narrow-to-region (point) limit)
+          (forward-sexp arg))
+      (scan-error
+       (unless (equal (nth 1 err) "Unbalanced parentheses")
+         (signal 'scan-error (cdr err)))
+       (goto-char limit)))))
 
 (defun* haml-extend-region ()
   "Extend the font-lock region to encompass filters and comments."
