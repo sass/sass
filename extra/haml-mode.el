@@ -84,20 +84,7 @@ text nested beneath them.")
     ("^ *\\(\t\\)"               1 'haml-tab-face)
     ("^!!!.*"                    0 font-lock-constant-face)
     ("| *$"                      0 font-lock-string-face)
-    ("^[ \t]*\\(/.*\\)$"         1 font-lock-comment-face append)
-    ("^ *\\(#[a-z0-9_]+\/?\\)"   1 font-lock-keyword-face)
-    ("^ *\\(\\.[a-z0-9_]+\/?\\)" 1 font-lock-type-face)
-    ("^ *\\(%[a-z0-9_]+\/?\\)"   1 font-lock-function-name-face)
-    ("^ *\\(#[a-z0-9_]+\/?\\)"   (1 font-lock-keyword-face)
-     ("\\.[a-z0-9_]+" nil nil    (0 font-lock-type-face)))
-    ("^ *\\(\\.[a-z0-9_]+\/?\\)" (1 font-lock-type-face)
-     ("\\.[a-z0-9_]+" nil nil    (0 font-lock-type-face)))
-    ("^ *\\(\\.[a-z0-9_]+\/?\\)" (1 font-lock-type-face)
-     ("\\#[a-z0-9_]+" nil nil    (0 font-lock-keyword-face)))
-    ("^ *\\(%[a-z0-9_]+\/?\\)"   (1 font-lock-function-name-face)
-     ("\\.[a-z0-9_]+" nil nil    (0 font-lock-type-face)))
-    ("^ *\\(%[a-z0-9_]+\/?\\)"   (1 font-lock-function-name-face)
-     ("\\#[a-z0-9_]+" nil nil    (0 font-lock-keyword-face)))))
+    ("^[ \t]*\\(/.*\\)$"         1 font-lock-comment-face append)))
 
 (defconst haml-filter-re "^ *\\(:\\)\\w+")
 (defconst haml-comment-re "^ *\\(-\\)\\#")
@@ -130,27 +117,46 @@ For example, this will highlight all of the following:
   %p[@bar]
   %p= 'baz'
   %p{:foo => 'bar'}[@bar]= 'baz'"
-  (when (re-search-forward "^ *\\(?:[%.#][a-z_-:.#]+\\)\\(\\)" limit t)
-    (let ((eol (save-excursion (end-of-line) (point)))
-          beg forward-sexp-function)
-      (dolist (char '(?\{ ?\[))
-        (when (eq (char-after) char)
-          (setq beg (point))
-          (condition-case err
-              (save-restriction
-                (narrow-to-region (point) eol)
-                (forward-sexp))
-            ;; If the attr hash or object ref is unclosed,
-            ;; just highlight the whole line.
-            (scan-error
-             (unless (equal (nth 1 err) "Unbalanced parentheses")
-               (signal 'scan-error (cdr err)))
-             (haml-fontify-region-as-ruby (nth 2 err) eol)
-             (return t)))
-          (haml-fontify-region-as-ruby beg (point))))
+  (when (re-search-forward "^ *[%.#]" limit t)
+    (let ((eol (save-excursion (end-of-line) (point))))
+      (forward-char -1)
+      ;; Clear any existing fontification
+      (put-text-property (point) eol 'font-lock-face nil)
+
+      ;; Highlight tag, classes, and ids
+      (while (looking-at "[.#%][a-z_:\\-]*")
+        (put-text-property (match-beginning 0) (match-end 0) 'font-lock-face
+                           (case (char-after)
+                             (?% font-lock-function-name-face)
+                             (?# font-lock-keyword-face)
+                             (?. font-lock-type-face)))
+        (goto-char (match-end 0)))
+
+      ;; Highlight attr hashes and obj refs
+      (let (beg forward-sexp-function)
+        (dolist (char '(?\{ ?\[))
+          (when (eq (char-after) char)
+            (setq beg (point))
+            (condition-case err
+                (save-restriction
+                  (narrow-to-region (point) eol)
+                  (forward-sexp))
+              ;; If the attr hash or object ref is unclosed,
+              ;; just highlight the whole line.
+              (scan-error
+               (unless (equal (nth 1 err) "Unbalanced parentheses")
+                 (signal 'scan-error (cdr err)))
+               (haml-fontify-region-as-ruby (nth 2 err) eol)
+               (return t)))
+            (haml-fontify-region-as-ruby beg (point)))))
+
+      ;; Move past end chars
       (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
-      (when (looking-at "\\([=~]\\)\\(.*\\)$")
-        (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2)))
+      ;; Highlight script
+      (if (looking-at "\\([=~]\\)\\(.*\\)$")
+          (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))
+        ;; Give font-lock something to highlight
+        (looking-at "\\(\\)"))
       t)))
 
 (defun* haml-extend-region ()
