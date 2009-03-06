@@ -153,7 +153,7 @@ For example, this will highlight all of the following:
       ;; Move past end chars
       (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
       ;; Highlight script
-      (if (looking-at "\\([=~]\\)\\(.*\\)$")
+      (if (looking-at "\\([=~]\\) \\(.*\\)$")
           (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))
         ;; Give font-lock something to highlight
         (looking-at "\\(\\)"))
