@@ -389,11 +389,40 @@ character of the next line."
 
 ;; Indentation and electric keys
 
-(defun haml-indent-p ()
+(defun* haml-indent-p ()
   "Returns t if the current line can have lines nested beneath it."
+  (destructuring-bind (line-indent attr-hash-indent) (haml-parse-multiline-attr-hash)
+    (when attr-hash-indent
+      (end-of-line)
+      (return-from haml-indent-p
+        (if (eq (char-before) ?,) attr-hash-indent
+          (beginning-of-line)
+          (+ line-indent haml-indent-offset)))))
   (loop for opener in haml-block-openers
         if (looking-at opener) return t
         finally return nil))
+
+(defun* haml-parse-multiline-attr-hash ()
+  "Parses a multiline attribute hash, and returns
+\(INDENTATION ATTR-HASH-INDENTATION).
+
+INDENTATION is the indentation of the line beginning the hash,
+and ATTR-HASH-INDENTATION is the indentation of the first character
+within the attribute hash."
+  (save-excursion
+    (while t
+      (beginning-of-line)
+      (if (looking-at "^ *\\(?:[.#%][a-z_:\\-]+\\)+{")
+          (progn
+            (goto-char (- (match-end 0) 1))
+            (haml-limited-forward-sexp (save-excursion (end-of-line) (point)))
+            (when (eq (char-before) ?,)
+              (return-from haml-parse-multiline-attr-hash
+                (list (current-indentation) (- (match-end 0) (match-beginning 0))))))
+        (forward-line -1)
+        (end-of-line)
+        (when (not (eq (char-before) ?,))
+          (return-from haml-parse-multiline-attr-hash '(nil nil)))))))
 
 (defun haml-compute-indentation ()
   "Calculate the maximum sensible indentation for the current line."
@@ -401,12 +430,11 @@ character of the next line."
     (beginning-of-line)
     (if (bobp) 0
       (haml-forward-through-whitespace t)
-      (+ (current-indentation)
-         (let ((indent (funcall haml-indent-function)))
-           (cond
-            ((integerp indent) indent)
-            (indent haml-indent-offset)
-            (t 0)))))))
+      (let ((indent (funcall haml-indent-function)))
+        (cond
+         ((integerp indent) indent)
+         (indent (+ (current-indentation) haml-indent-offset))
+         (t (current-indentation)))))))
 
 (defun haml-indent-region (start end)
   "Indent each nonblank line in the region.
@@ -457,8 +485,8 @@ back-dent the line by `haml-indent-offset' spaces.  On reaching column
       (if (and (equal last-command this-command) (/= ci 0))
           (indent-to (* (/ (- ci 1) haml-indent-offset) haml-indent-offset))
         (indent-to need)))
-      (if (< (current-column) (current-indentation))
-          (forward-to-indentation 0))))
+    (if (< (current-column) (current-indentation))
+        (forward-to-indentation 0))))
 
 (defun haml-reindent-region-by (n)
   "Add N spaces to the beginning of each line in the region.
