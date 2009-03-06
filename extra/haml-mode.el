@@ -55,8 +55,11 @@ line itself."
   :group 'haml)
 
 (defvar haml-indent-function 'haml-indent-p
-  "This function should look at the current line and return true
-if the next line could be nested within this line.")
+  "This function should look at the current line and return t
+if the next line could be nested within this line.
+
+The function can also return a positive integer to indicate
+a specific level to which the current line could be indented.")
 
 (defvar haml-block-openers
   `("^ *\\([%\\.#][^ \t]*\\)\\(\\[.*\\]\\)?\\({.*}\\)?\\(\\[.*\\]\\)?[ \t]*$"
@@ -387,7 +390,7 @@ character of the next line."
 ;; Indentation and electric keys
 
 (defun haml-indent-p ()
-  "Returns true if the current line can have lines nested beneath it."
+  "Returns t if the current line can have lines nested beneath it."
   (loop for opener in haml-block-openers
         if (looking-at opener) return t
         finally return nil))
@@ -399,8 +402,11 @@ character of the next line."
     (if (bobp) 0
       (haml-forward-through-whitespace t)
       (+ (current-indentation)
-         (if (funcall haml-indent-function) haml-indent-offset
-           0)))))
+         (let ((indent (funcall haml-indent-function)))
+           (cond
+            ((integerp indent) indent)
+            (indent haml-indent-offset)
+            (t 0)))))))
 
 (defun haml-indent-region (start end)
   "Indent each nonblank line in the region.

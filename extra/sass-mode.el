@@ -85,7 +85,7 @@ text nested beneath them.")
 ;; Indentation
 
 (defun sass-indent-p ()
-  "Returns true if the current line can have lines nested beneath it."
+  "Returns t if the current line can have lines nested beneath it."
   (loop for opener in sass-non-block-openers
         unless (looking-at opener) return t
         return nil))
