@@ -79,12 +79,13 @@ text nested beneath them.")
 (defconst haml-font-lock-keywords
   `((,(haml-nested-regexp "-#.*")  0 font-lock-comment-face)
     (,(haml-nested-regexp ":\\w+") 0 font-lock-string-face)
-    (haml-highlight-ruby-tag     1 font-lock-preprocessor-face)
-    (haml-highlight-ruby-script  1 font-lock-preprocessor-face)
-    ("^ *\\(\t\\)"               1 'haml-tab-face)
-    ("^!!!.*"                    0 font-lock-constant-face)
-    ("| *$"                      0 font-lock-string-face)
-    ("^[ \t]*\\(/.*\\)$"         1 font-lock-comment-face append)))
+    (haml-highlight-interpolation  1 font-lock-variable-name-face)
+    (haml-highlight-ruby-tag       1 font-lock-preprocessor-face)
+    (haml-highlight-ruby-script    1 font-lock-preprocessor-face)
+    ("^ *\\(\t\\)"                 1 'haml-tab-face)
+    ("^!!!.*"                      0 font-lock-constant-face)
+    ("| *$"                        0 font-lock-string-face)
+    ("^[ \t]*\\(/.*\\)$"           1 font-lock-comment-face append)))
 
 (defconst haml-filter-re "^ *\\(:\\)\\w+")
 (defconst haml-comment-re "^ *\\(-\\)\\#")
@@ -146,6 +147,23 @@ For example, this will highlight all of the following:
           (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))
         ;; Give font-lock something to highlight
         (looking-at "\\(\\)"))
+      t)))
+
+(defun haml-highlight-interpolation (limit)
+  "Highlight Ruby interpolation (#{foo})."
+  (when (re-search-forward "\\(#{\\)" limit t)
+    (save-match-data
+      (forward-char -1)
+      (let ((beg (point)))
+        (haml-limited-forward-sexp limit)
+        (haml-fontify-region-as-ruby (+ 1 beg) (point)))
+
+      ;; Highlight the end of the interpolation. 
+      ;; The font-lock-face property gets overwritten by `haml-highlight-rub-tag',
+      ;; so we just use face instead.
+      (when (eq (char-before) ?})
+        (put-text-property (- (point) 1) (point)
+                           'face font-lock-variable-name-face))
       t)))
 
 (defun haml-limited-forward-sexp (limit &optional arg)
