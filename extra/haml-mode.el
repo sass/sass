@@ -391,24 +391,28 @@ character of the next line."
 
 (defun* haml-indent-p ()
   "Returns t if the current line can have lines nested beneath it."
-  (destructuring-bind (line-indent attr-hash-indent) (haml-parse-multiline-attr-hash)
-    (when attr-hash-indent
+  (let ((attr-props (haml-parse-multiline-attr-hash)))
+    (when attr-props
       (end-of-line)
       (return-from haml-indent-p
-        (if (eq (char-before) ?,) attr-hash-indent
+        (if (eq (char-before) ?,) (cdr (assq 'hash-indent attr-props))
           (beginning-of-line)
-          (+ line-indent haml-indent-offset)))))
+          (+ (cdr (assq 'indent attr-props)) haml-indent-offset)))))
   (loop for opener in haml-block-openers
         if (looking-at opener) return t
         finally return nil))
 
 (defun* haml-parse-multiline-attr-hash ()
   "Parses a multiline attribute hash, and returns
-\(INDENTATION ATTR-HASH-INDENTATION).
+an alist with the following keys:
 
-INDENTATION is the indentation of the line beginning the hash,
-and ATTR-HASH-INDENTATION is the indentation of the first character
-within the attribute hash."
+INDENT is the indentation of the line beginning the hash.
+
+HASH-INDENT is the indentation of the first character
+within the attribute hash.
+
+POINT is the character position at the beginning of the line
+beginning the hash."
   (save-excursion
     (while t
       (beginning-of-line)
@@ -418,11 +422,13 @@ within the attribute hash."
             (haml-limited-forward-sexp (save-excursion (end-of-line) (point)))
             (when (eq (char-before) ?,)
               (return-from haml-parse-multiline-attr-hash
-                (list (current-indentation) (- (match-end 0) (match-beginning 0))))))
+                `((indent . ,(current-indentation))
+                  (hash-indent . ,(- (match-end 0) (match-beginning 0)))
+                  (point . ,(match-beginning 0))))))
         (forward-line -1)
         (end-of-line)
         (when (not (eq (char-before) ?,))
-          (return-from haml-parse-multiline-attr-hash '(nil nil)))))))
+          (return-from haml-parse-multiline-attr-hash nil))))))
 
 (defun haml-compute-indentation ()
   "Calculate the maximum sensible indentation for the current line."
