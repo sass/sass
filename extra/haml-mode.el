@@ -136,12 +136,31 @@ For example, this will highlight all of the following:
                              (?. font-lock-type-face)))
         (goto-char (match-end 0)))
 
-      ;; Highlight attr hashes and obj refs
-      (dolist (char '(?\{ ?\[))
-        (when (eq (char-after) char)
-          (let ((beg (point)))
-            (haml-limited-forward-sexp eol)
-            (haml-fontify-region-as-ruby beg (point)))))
+      ;; Highlight obj refs
+      (when (eq (char-after) ?\[)
+        (let ((beg (point)))
+          (haml-limited-forward-sexp eol)
+          (haml-fontify-region-as-ruby beg (point))))
+
+      ;; Highlight attr hashes
+      (when (eq (char-after) ?\{)
+        (let ((beg (point)))
+          (haml-limited-forward-sexp eol)
+
+          ;; Check for multiline
+          (while (and (eolp) (eq (char-before) ?,))
+            (forward-line)
+            (let ((eol (save-excursion (end-of-line) (point))))
+              ;; If no sexps are closed,
+              ;; we're still continuing a  multiline hash
+              (if (>= (car (parse-partial-sexp (point) eol)) 0)
+                  (end-of-line)
+                ;; If sexps have been closed,
+                ;; set the point at the end of the total sexp
+                (goto-char beg)
+                (haml-limited-forward-sexp eol))))
+
+          (haml-fontify-region-as-ruby beg (point))))
 
       ;; Move past end chars
       (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
@@ -182,7 +201,7 @@ whichever comes first."
          (signal 'scan-error (cdr err)))
        (goto-char limit)))))
 
-(defun* haml-extend-region ()
+(defun* haml-extend-region-filters-comments ()
   "Extend the font-lock region to encompass filters and comments."
   (let ((old-beg font-lock-beg)
         (old-end font-lock-end))
@@ -191,11 +210,43 @@ whichever comes first."
       (beginning-of-line)
       (unless (or (looking-at haml-filter-re)
                   (looking-at haml-comment-re))
-        (return-from haml-extend-region))
+        (return-from haml-extend-region-filters-comments))
       (setq font-lock-beg (point))
       (haml-forward-sexp)
       (beginning-of-line)
       (setq font-lock-end (max font-lock-end (point))))
+    (or (/= old-beg font-lock-beg)
+        (/= old-end font-lock-end))))
+
+(defun* haml-extend-region-multiline-hashes ()
+  "Extend the font-lock region to encompass multiline attribute hashes."
+  (let ((old-beg font-lock-beg)
+        (old-end font-lock-end))
+    (save-excursion
+      (goto-char font-lock-beg)
+      (let ((attr-props (haml-parse-multiline-attr-hash))
+            multiline-end)
+        (when attr-props
+          (setq font-lock-beg (cdr (assq 'point attr-props)))
+
+          (end-of-line)
+          ;; Move through multiline attrs
+          (when (eq (char-before) ?,)
+            (save-excursion
+              (while (progn (end-of-line) (eq (char-before) ?,))
+                (forward-line))
+
+              (forward-line -1)
+              (end-of-line)
+              (setq multiline-end (point))))
+
+          (goto-char (+ (cdr (assq 'point attr-props))
+                        (cdr (assq 'hash-indent attr-props))
+                        -1))
+          (haml-limited-forward-sexp
+           (or multiline-end
+               (save-excursion (end-of-line) (point))))
+          (setq font-lock-end (max font-lock-end (point))))))
     (or (/= old-beg font-lock-beg)
         (/= old-end font-lock-end))))
 
@@ -228,7 +279,8 @@ whichever comes first."
 
 \\{haml-mode-map}"
   (set-syntax-table haml-mode-syntax-table)
-  (add-to-list 'font-lock-extend-region-functions 'haml-extend-region)
+  (add-to-list 'font-lock-extend-region-functions 'haml-extend-region-filters-comments)
+  (add-to-list 'font-lock-extend-region-functions 'haml-extend-region-multiline-hashes)
   (set (make-local-variable 'font-lock-multiline) t)
   (set (make-local-variable 'indent-line-function) 'haml-indent-line)
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
