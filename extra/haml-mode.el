@@ -181,7 +181,7 @@ For example, this will highlight all of the following:
         (haml-fontify-region-as-ruby (+ 1 beg) (point)))
 
       ;; Highlight the end of the interpolation. 
-      ;; The font-lock-face property gets overwritten by `haml-highlight-rub-tag',
+      ;; The font-lock-face property gets overwritten by `haml-highlight-ruby-tag',
       ;; so we just use face instead.
       (when (eq (char-before) ?})
         (put-text-property (- (point) 1) (point)
