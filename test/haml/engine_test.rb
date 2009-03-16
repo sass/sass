@@ -290,6 +290,21 @@ HTML
 HAML
   end
 
+  def test_end_with_method_call
+    assert_equal(<<HTML, render(<<HAML))
+2|3|4
+b-a-r
+HTML
+= [1, 2, 3].map do |i|
+  - i + 1
+- end.join("|")
+= "bar".gsub(/./) do |s|
+  - s + "-"
+- end.gsub(/-$/) do |s|
+  - ''
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

@@ -64,9 +64,10 @@ module Haml
     # of a multiline string.
     MULTILINE_CHAR_VALUE = ?|
 
-    # Keywords that appear in the middle of a Ruby block with lowered
-    # indentation. If a block has been started using indentation,
-    # lowering the indentation  with one of these won't end the block.
+    # Regex to match keywords that appear in the middle of a Ruby block
+    # with lowered indentation.
+    # If a block has been started using indentation,
+    # lowering the indentation with one of these won't end the block.
     # For example:
     #
     #   - if foo
@@ -76,7 +77,7 @@ module Haml
     #
     # The block is ended after <tt>%p no!</tt>, because <tt>else</tt>
     # is a member of this array.
-    MID_BLOCK_KEYWORDS   = ['else', 'elsif', 'rescue', 'ensure', 'when']
+    MID_BLOCK_KEYWORD_REGEX = /-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
 
     # The Regex that matches a Doctype command.
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
@@ -221,7 +222,10 @@ END
         push_silent(text[1..-1], true)
         newline_now
 
-        case_stmt = text[1..-1].split(' ', 2)[0] == "case"
+        # Handle stuff like - end.join("|")
+        @to_close_stack.first << false if text =~ /-\s*end\b/ && !block_opened?
+
+        case_stmt = text =~ /-\s*case\b/
         block = block_opened? && !mid_block_keyword?(text)
         push_and_tabulate([:script]) if block || case_stmt
         push_and_tabulate(:nil)      if block && case_stmt
@@ -240,7 +244,7 @@ END
     # Returns whether or not the text is a silent script text with one
     # of Ruby's mid-block keywords.
     def mid_block_keyword?(text)
-      text.length > 2 && text[0] == SILENT_SCRIPT && MID_BLOCK_KEYWORDS.include?(text[1..-1].split[0])
+      MID_BLOCK_KEYWORD_REGEX =~ text
     end
 
     # Evaluates <tt>text</tt> in the context of the scope object, but
@@ -401,8 +405,8 @@ END
     end
 
     # Closes a loud Ruby block.
-    def close_loud(command, add_newline)
-      push_silent 'end', true
+    def close_loud(command, add_newline, push_end = true)
+      push_silent('end', true) if push_end
       @precompiled << command
       @template_tabs -= 1
       concat_merged_text("\n") if add_newline
