@@ -168,6 +168,7 @@ For example, this will highlight all of the following:
       (if (looking-at "\\([=~]\\) \\(.*\\)$")
           (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))
         ;; Give font-lock something to highlight
+        (forward-char -1)
         (looking-at "\\(\\)"))
       t)))
 
