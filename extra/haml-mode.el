@@ -99,6 +99,7 @@ text nested beneath them.")
     (save-match-data
       (let ((font-lock-keywords ruby-font-lock-keywords)
             (font-lock-syntactic-keywords ruby-font-lock-syntactic-keywords)
+            font-lock-keywords-only
             font-lock-extend-region-functions
             font-lock-keywords-case-fold-search)
         ;; font-lock-fontify-region apparently isn't inclusive,
@@ -283,7 +284,7 @@ whichever comes first."
   (set (make-local-variable 'parse-sexp-lookup-properties) t)
   (setq comment-start "-#")
   (setq indent-tabs-mode nil)
-  (setq font-lock-defaults '((haml-font-lock-keywords) nil t)))
+  (setq font-lock-defaults '((haml-font-lock-keywords) t t)))
 
 ;; Useful functions
 
