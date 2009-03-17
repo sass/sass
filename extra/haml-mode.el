@@ -62,7 +62,7 @@ The function can also return a positive integer to indicate
 a specific level to which the current line could be indented.")
 
 (defvar haml-block-openers
-  `("^ *\\([%\\.#][^ \t]*\\)\\(\\[.*\\]\\)?\\({.*}\\)?\\(\\[.*\\]\\)?[ \t]*$"
+  `("^ *\\([%\\.#][a-z_:\\-]*\\)+\\({.*}\\)?\\(\\[.*\\]\\)?[><]*[ \t]*$"
     "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
     ,(concat "^ *-[ \t]*\\("
              (regexp-opt '("if" "unless" "while" "until" "else"
