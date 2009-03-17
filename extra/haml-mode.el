@@ -473,11 +473,12 @@ beginning the hash."
           (progn
             (goto-char (- (match-end 0) 1))
             (haml-limited-forward-sexp (save-excursion (end-of-line) (point)))
-            (when (eq (char-before) ?,)
-              (return-from haml-parse-multiline-attr-hash
-                `((indent . ,(current-indentation))
-                  (hash-indent . ,(- (match-end 0) (match-beginning 0)))
-                  (point . ,(match-beginning 0))))))
+            (return-from haml-parse-multiline-attr-hash
+              (if (eq (char-before) ?,)
+                  `((indent . ,(current-indentation))
+                    (hash-indent . ,(- (match-end 0) (match-beginning 0)))
+                    (point . ,(match-beginning 0)))
+                nil)))
         (forward-line -1)
         (end-of-line)
         (when (not (eq (char-before) ?,))
