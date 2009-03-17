@@ -124,12 +124,10 @@ For example, this will highlight all of the following:
   (when (re-search-forward "^ *[%.#]" limit t)
     (let ((eol (save-excursion (end-of-line) (point))))
       (forward-char -1)
-      ;; Clear any existing fontification
-      (put-text-property (point) eol 'font-lock-face nil)
 
       ;; Highlight tag, classes, and ids
       (while (looking-at "[.#%][a-z_:\\-]*")
-        (put-text-property (match-beginning 0) (match-end 0) 'font-lock-face
+        (put-text-property (match-beginning 0) (match-end 0) 'face
                            (case (char-after)
                              (?% font-lock-function-name-face)
                              (?# font-lock-keyword-face)
@@ -144,7 +142,7 @@ For example, this will highlight all of the following:
 
       ;; Highlight attr hashes
       (when (eq (char-after) ?\{)
-        (let ((beg (point)))
+        (let ((beg (+ 1 (point))))
           (haml-limited-forward-sexp eol)
 
           ;; Check for multiline
@@ -181,9 +179,6 @@ For example, this will highlight all of the following:
         (haml-limited-forward-sexp limit)
         (haml-fontify-region-as-ruby (+ 1 beg) (point)))
 
-      ;; Highlight the end of the interpolation. 
-      ;; The font-lock-face property gets overwritten by `haml-highlight-ruby-tag',
-      ;; so we just use face instead.
       (when (eq (char-before) ?})
         (put-text-property (- (point) 1) (point)
                            'face font-lock-variable-name-face))
