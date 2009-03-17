@@ -77,7 +77,7 @@ text nested beneath them.")
 ;; Font lock
 
 (defun haml-nested-regexp (re)
-  (concat "^\\( *\\)" re "\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*"))
+  (concat "^\\( *\\)" re "\\(\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*\\(?:\\1 .*\\| *\\)?\\)?"))
 
 (defconst haml-font-lock-keywords
   `((,(haml-nested-regexp "\\(?:-#\\|/\\).*")  0 font-lock-comment-face)
