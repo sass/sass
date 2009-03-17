@@ -80,18 +80,17 @@ text nested beneath them.")
   (concat "^\\( *\\)" re "\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*"))
 
 (defconst haml-font-lock-keywords
-  `((,(haml-nested-regexp "-#.*")  0 font-lock-comment-face)
+  `((,(haml-nested-regexp "\\(?:-#\\|/\\).*")  0 font-lock-comment-face)
     (,(haml-nested-regexp ":\\w+") 0 font-lock-string-face)
     (haml-highlight-interpolation  1 font-lock-variable-name-face prepend)
     (haml-highlight-ruby-tag       1 font-lock-preprocessor-face)
     (haml-highlight-ruby-script    1 font-lock-preprocessor-face)
     ("^ *\\(\t\\)"                 1 'haml-tab-face)
     ("^!!!.*"                      0 font-lock-constant-face)
-    ("| *$"                        0 font-lock-string-face)
-    ("^[ \t]*\\(/.*\\)$"           1 font-lock-comment-face append)))
+    ("| *$"                        0 font-lock-string-face)))
 
-(defconst haml-filter-re "^ *\\(:\\)\\w+")
-(defconst haml-comment-re "^ *\\(-\\)\\#")
+(defconst haml-filter-re "^ *:\\w+")
+(defconst haml-comment-re "^ *\\(?:-\\#\\|/\\)")
 
 (defun haml-fontify-region-as-ruby (beg end)
   "Use Ruby's font-lock variables to fontify the region between BEG and END."
