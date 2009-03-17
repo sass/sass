@@ -63,8 +63,8 @@ a specific level to which the current line could be indented.")
 
 (defvar haml-block-openers
   `("^ *\\([%\\.#][a-z_:\\-]*\\)+\\({.*}\\)?\\(\\[.*\\]\\)?[><]*[ \t]*$"
-    "^ *[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
-    ,(concat "^ *-[ \t]*\\("
+    "^ *[&!]?[-=].*do[ \t]*\\(|.*|[ \t]*\\)?$"
+    ,(concat "^ *[&!][-=][ \t]*\\("
              (regexp-opt '("if" "unless" "while" "until" "else"
                            "begin" "elsif" "rescue" "ensure" "when"))
              "\\)")
@@ -107,7 +107,7 @@ text nested beneath them.")
 
 (defun haml-highlight-ruby-script (limit)
   "Highlight a Ruby script expression (-, =, or ~)."
-  (when (re-search-forward "^ *\\([-=~]\\) \\(.*\\)$" limit t)
+  (when (re-search-forward "^ *\\(-\\|[&!]?[=~]\\) \\(.*\\)$" limit t)
     (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))))
 
 (defun haml-highlight-ruby-tag (limit)
