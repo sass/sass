@@ -47,29 +47,63 @@ text nested beneath them.")
 
 ;; Font lock
 
+(defconst sass-selector-syntax-table
+  (let ((st (make-syntax-table)))
+    (modify-syntax-entry ?- "w" st)
+    st))
+
+(defconst sass-selector-font-lock-keywords
+  '(("&"       0 font-lock-constant-face)
+    ("\\.\\w+" 0 font-lock-type-face)
+    ("#\\w+"   0 font-lock-keyword-face)
+    ;; Pseudo-selectors, optionally with arguments (e.g. :first, :nth-child(12))
+    ("\\(::?\\w+\\)" (1 font-lock-function-name-face)
+     ("(\\([^)]+\\))" nil nil (1 font-lock-string-face)))
+    ;; Attribute selectors (e.g. p[foo=bar])
+    ("\\[\\([^]=]+\\)" (1 font-lock-variable-name-face)
+     ("[~|$^*]?=\\([^]=]+\\)" nil nil (1 font-lock-string-face)))))
+
 (defconst sass-font-lock-keywords
-  '(("^ *\\(\t\\)"                            1 'haml-tab-face)
-    ("^@.*"                                   0 font-lock-constant-face)
-    ("\\(\'[^']*'\\)"                         1 font-lock-string-face append)
-    ("\\(\"[^\"]*\"\\)"                       1 font-lock-string-face append)
-    ("\\(#[0-9a-fA-F]\\{3\\}\\{1,2\\}\\>\\)"  1 font-lock-string-face append)
-    ("\\(:[A-Za-z-]+\\|[A-Za-z-]+:\\)"        0 font-lock-constant-face append)
-    ("![a-z0-9_-]+"                           0 font-lock-variable-name-face append)
-    ("^ *\\(/[/*].*\\)$"                      1 font-lock-comment-face append)
-    ("\\(?:^\\|,\\) *\\(#[a-z0-9_-]+\/?\\)"   1 font-lock-keyword-face)
-    ("\\(?:^\\|,\\) *\\(\\.[a-z0-9_-]+\/?\\)" 1 font-lock-type-face)
-    ("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" 1 font-lock-function-name-face)
-    ("\\([=]\\)"                              0 font-lock-preprocessor-face prepend)
-    ("\\(?:^\\|,\\) *\\(#[a-z0-9_]+\/?\\)"    (1 font-lock-keyword-face)
-     ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
-    ("\\(?:^\\|,\\) *\\(\\.[a-z0-9_]+\/?\\)"  (1 font-lock-type-face)
-     ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
-    ("\\(?:^\\|,\\) *\\(\\.[a-z0-9_]+\/?\\)"  (1 font-lock-type-face)
-     ("\\#[a-z0-9_-]+" nil nil                (0 font-lock-keyword-face)))
-    ("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" (1 font-lock-function-name-face)
-     ("\\.[a-z0-9_-]+" nil nil                (0 font-lock-type-face)))
-    ("\\(?:^\\|,\\) *\\(&\\|[a-z0-9_]+\/?\\)" (1 font-lock-function-name-face)
-     ("\\#[a-z0-9_-]+" nil nil                (0 font-lock-keyword-face)))))
+  '((sass-highlight-line 1 nil nil t)))
+
+(defconst sass-line-keywords
+  '(("@.*"     0 font-lock-constant-face)
+    ("/[/*].*" 0 font-lock-comment-face)
+    (".*"      sass-highlight-selector))
+  "A list of full-line Sass syntax to highlight,
+used by `sass-highlight-line'.
+
+Each item is either of the form (REGEXP SUBEXP FACE) or (REGEXP FN).
+Each REGEXP is run successively on the beginning of non-whitespace
+on the current line until one matches. If it has SUBEXP and FACE,
+then SUBEXP is highlighted using FACE. Otherwise, FN is run.")
+
+(defun sass-highlight-line (limit)
+  "Highlight a single line using some Sass single-line syntax,
+taken from `sass-line-keywords'."
+  (save-match-data
+    (when (re-search-forward "^ *\\(.+\\)$" limit t)
+      (goto-char (match-beginning 1))
+      (dolist (keyword sass-line-keywords)
+        (destructuring-bind (keyword subexp-or-fn &optional face) keyword
+          (when (looking-at keyword)
+            (if (integerp subexp-or-fn)
+                (put-text-property (match-beginning subexp-or-fn)
+                                   (match-end subexp-or-fn)
+                                   'face face)
+              (funcall subexp-or-fn))
+            (end-of-line)
+            (return t)))))))
+
+(defun sass-highlight-selector ()
+  "Highlight a CSS selector starting at `point'
+and ending at `end-of-line'."
+  (end-of-line)
+  (let ((font-lock-keywords sass-selector-font-lock-keywords)
+        (font-lock-syntax-table sass-selector-syntax-table))
+    (font-lock-fontify-region
+     (point) (progn (end-of-line) (point))))
+  t)
 
 ;; Constants
 
