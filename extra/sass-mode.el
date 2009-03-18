@@ -78,6 +78,11 @@ text nested beneath them.")
 ;;;###autoload
 (define-derived-mode sass-mode haml-mode "Sass"
   "Major mode for editing Sass files."
+  (set-syntax-table (make-syntax-table))
+  (setq font-lock-extend-region-functions
+        '(font-lock-extend-region-wholelines font-lock-extend-region-multiline))
+  (setq font-lock-multiline nil)
+  (setq comment-start "/*")
   (set (make-local-variable 'haml-indent-function) 'sass-indent-p)
   (set (make-local-variable 'haml-indent-offset) sass-indent-offset)
   (setq font-lock-defaults '(sass-font-lock-keywords nil t)))
