@@ -13,10 +13,10 @@ module Sass
     VARIABLE_CHAR = ?!
 
     # The regular expression used to parse variables
-    MATCH = /^!(\w+)\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^!([a-zA-Z_]\w*)\s*((?:\|\|)?=)\s*(.+)/
 
     # The regular expression used to validate variables without matching
-    VALIDATE = /^!\w+$/
+    VALIDATE = /^![a-zA-Z_]\w*$/
 
     def self.resolve(value, line, offset, environment)
       parse(value, line, offset).perform(environment).to_s
