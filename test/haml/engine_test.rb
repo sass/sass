@@ -325,18 +325,6 @@ HTML
 HAML
   end
 
-  def test_multiline_with_colon_after_filter
-    assert_equal(<<HTML, render(<<HAML))
-Foo
-Bar
-HTML
-:plain
-  Foo
-= { :a => "Bar",      |
-    :b => "Baz" }[:a] |
-HAML
-  end
-
   def test_multiline_in_filter
     assert_equal(<<HTML, render(<<HAML))
 Foo |

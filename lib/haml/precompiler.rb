@@ -120,7 +120,7 @@ END
         line = self
         @tabs ||= precompiler.instance_eval do
           break 0 if line.text.empty? || !(whitespace = line.full[/^\s+/])
-          
+
           if @indentation.nil?
             @indentation = whitespace
 
@@ -766,7 +766,7 @@ END
       return unless text
 
       # :eod is a special end-of-document marker
-      line = 
+      line =
         if text == :eod
           Line.new '-#', '-#', '-#', index, self, true
         else
@@ -774,8 +774,12 @@ END
         end
 
       # `flat?' here is a little outdated,
-      # so we have to manually check if the previous line closes the flat block.
-      unless flat? && (@line.text.empty? || @line.tabs >= @template_tabs)
+      # so we have to manually check if either the previous or current line
+      # closes the flat block,
+      # as well as whether a new block is opened
+      @line.tabs if @line
+      unless (flat? && !closes_flat?(line) && !closes_flat?(@line)) ||
+          (@line && @line.text[0] == ?: && line.full =~ %r[^#{@line.full[/^\s+/]}\s])
         if line.text.empty?
           newline
           return next_line
@@ -785,6 +789,10 @@ END
       end
 
       @next_line = line
+    end
+
+    def closes_flat?(line)
+      line && !line.text.empty? && line.full !~ /^#{@flat_spaces}/
     end
 
     def un_next_line(line)
