@@ -42,6 +42,26 @@ class Sass::Script::Literal # :nodoc:
     Sass::Script::String.new("#{self.to_s}, #{other.to_s}")
   end
 
+  def plus(other)
+    Sass::Script::String.new(self.to_s + other.to_s)
+  end
+
+  def minus(other)
+    Sass::Script::String.new("#{self.to_s}-#{other.to_s}")
+  end
+
+  def div(other)
+    Sass::Script::String.new("#{self.to_s}/#{other.to_s}")
+  end
+
+  def unary_minus
+    Sass::Script::String.new("-#{self.to_s}")
+  end
+
+  def unary_div
+    Sass::Script::String.new("/#{self.to_s}")
+  end
+
   def inspect
     value.inspect
   end

@@ -28,7 +28,7 @@ module Sass::Script
       if other.is_a? Number
         operate(other, :-)
       else
-        raise NoMethodError.new(nil, :minus)
+        super
       end
     end
 
@@ -50,7 +50,7 @@ module Sass::Script
       if other.is_a? Number
         operate(other, :/)
       else
-        raise NoMethodError.new(nil, :div)
+        super
       end
     end
 

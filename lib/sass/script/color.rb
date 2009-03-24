@@ -31,42 +31,42 @@ module Sass::Script
     end
 
     def plus(other)
-      if other.is_a? Sass::Script::String
-        Sass::Script::String.new(self.to_s + other.to_s)
-      else
+      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
         piecewise(other, :+)
+      else
+        super
       end
     end
 
     def minus(other)
-      if other.is_a? Sass::Script::String
-        raise NoMethodError.new(nil, :minus)
-      else
+      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
         piecewise(other, :-)
+      else
+        super
       end
     end
 
     def times(other)
-      if other.is_a? Sass::Script::String
-        raise NoMethodError.new(nil, :times)
-      else
+      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
         piecewise(other, :*)
+      else
+        raise NoMethodError.new(nil, :times)
       end
     end
 
     def div(other)
-      if other.is_a? Sass::Script::String
-        raise NoMethodError.new(nil, :div)
-      else
+      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
         piecewise(other, :/)
+      else
+        super
       end
     end
 
     def mod(other)
-      if other.is_a? Sass::Script::String
-        raise NoMethodError.new(nil, :mod)
-      else
+      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
         piecewise(other, :%)
+      else
+        raise NoMethodError.new(nil, :mod)
       end
     end
 
