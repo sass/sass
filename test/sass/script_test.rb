@@ -111,6 +111,9 @@ WARN
   def test_booleans
     assert_equal "true", resolve("true")
     assert_equal "false", resolve("false")
+  end
+
+  def test_boolean_ops
     assert_equal "true", resolve("true and true")
     assert_equal "true", resolve("false or true")
     assert_equal "true", resolve("true or false")
@@ -123,9 +126,7 @@ WARN
     assert_equal "true", resolve("not false")
     assert_equal "false", resolve("not true")
     assert_equal "true", resolve("not not true")
-  end
 
-  def test_boolean_ops
     assert_equal "1", resolve("false or 1")
     assert_equal "false", resolve("false and 1")
     assert_equal "2", resolve("2 or 3")
