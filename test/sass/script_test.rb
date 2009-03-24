@@ -108,6 +108,68 @@ WARN
     assert_not_equal eval('1'), eval('"1"')
   end
 
+  def test_booleans
+    assert_equal "true", resolve("true")
+    assert_equal "false", resolve("false")
+    assert_equal "true", resolve("true and true")
+    assert_equal "true", resolve("false or true")
+    assert_equal "true", resolve("true or false")
+    assert_equal "true", resolve("true or true")
+    assert_equal "false", resolve("false or false")
+    assert_equal "false", resolve("false and true")
+    assert_equal "false", resolve("true and false")
+    assert_equal "false", resolve("false and false")
+
+    assert_equal "true", resolve("not false")
+    assert_equal "false", resolve("not true")
+    assert_equal "true", resolve("not not true")
+  end
+
+  def test_boolean_ops
+    assert_equal "1", resolve("false or 1")
+    assert_equal "false", resolve("false and 1")
+    assert_equal "2", resolve("2 or 3")
+    assert_equal "3", resolve("2 and 3")
+  end
+
+  def test_relational_ops
+    assert_equal "false", resolve("1 > 2")
+    assert_equal "false", resolve("2 > 2")
+    assert_equal "true", resolve("3 > 2")
+    assert_equal "false", resolve("1 >= 2")
+    assert_equal "true", resolve("2 >= 2")
+    assert_equal "true", resolve("3 >= 2")
+    assert_equal "true", resolve("1 < 2")
+    assert_equal "false", resolve("2 < 2")
+    assert_equal "false", resolve("3 < 2")
+    assert_equal "true", resolve("1 <= 2")
+    assert_equal "true", resolve("2 <= 2")
+    assert_equal "false", resolve("3 <= 2")
+  end
+
+  def test_equals
+    assert_equal("true", resolve('"foo" == !foo', {},
+        env("foo" => Sass::Script::String.new("foo"))))
+    assert_equal "true", resolve("1 == 1.0")
+    assert_equal "true", resolve("false != true")
+    assert_equal "false", resolve("1em == 1px")
+    assert_equal "false", resolve("12 != 12")
+  end
+
+  def test_operation_precedence
+    assert_equal "false true", resolve("true and false false or true")
+    assert_equal "true", resolve("false and true or true and true")
+    assert_equal "true", resolve("1 == 2 or 3 == 3")
+    assert_equal "true", resolve("1 < 2 == 3 >= 3")
+    assert_equal "true", resolve("1 + 3 > 4 - 2")
+    assert_equal "11", resolve("1 + 2 * 3 + 4")
+  end
+
+  def test_functions
+    assert_equal "#80ff80", resolve("hsl(120, 100%, 75%)")
+    assert_equal "#81ff81", resolve("hsl(120, 100%, 75%) + #010001")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)

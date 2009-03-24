@@ -452,90 +452,6 @@ a-\#{!a}
 SASS
   end
 
-  def test_booleans
-    assert_equal(<<CSS, render(<<SASS))
-a {
-  b: true;
-  c: false;
-  t1: true;
-  t2: true;
-  t3: true;
-  t4: true;
-  f1: false;
-  f2: false;
-  f3: false;
-  f4: false; }
-CSS
-a
-  b = true
-  c = false
-  t1 = true and true
-  t2 = false or true
-  t3 = true or false
-  t4 = true or true
-  f1 = false or false
-  f2 = false and true
-  f3 = true and false
-  f4 = false and false
-SASS
-    assert_equal(<<CSS, render(<<SASS))
-a {
-  b: true;
-  c: false; }
-CSS
-!var = true
-a
-  b = not not !var
-  c = not !var
-SASS
-  end
-
-  def test_boolean_ops
-    assert_equal("a {\n  b: 1;\n  c: 2;\n  d: 3; }\n", render(<<SASS))
-a
-  b = false or 1
-  c = 2 or 3
-  d = 2 and 3
-SASS
-  end
-
-  def test_relational_ops
-    assert_equal(<<CSS, render(<<SASS))
-a {
-  gt1: false;
-  gt2: false;
-  gt3: true;
-  gte1: false;
-  gte2: true;
-  gte3: true;
-  lt1: true;
-  lt2: false;
-  lt3: false;
-  lte1: true;
-  lte2: true;
-  lte3: false; }
-CSS
-a
-  gt1 = 1 > 2
-  gt2 = 2 > 2
-  gt3 = 3 > 2
-  gte1 = 1 >= 2
-  gte2 = 2 >= 2
-  gte3 = 3 >= 2
-  lt1 = 1 < 2
-  lt2 = 2 < 2
-  lt3 = 3 < 2
-  lte1 = 1 <= 2
-  lte2 = 2 <= 2
-  lte3 = 3 <= 2
-SASS
-  end
-
-  def test_functions
-    assert_equal("a {\n  b: #80ff80; }\n", render("a\n  b = hsl(120, 100%, 75%)"))
-    assert_equal("a {\n  b: #81ff81; }\n", render("a\n  b = hsl(120, 100%, 75%) + #010001"))
-  end
-
   def test_if_directive
     assert_equal("a {\n  b: 1; }\n", render(<<SASS))
 !var = true
@@ -544,25 +460,6 @@ a
     b: 1
   @if not !var
     b: 2
-SASS
-  end
-
-  def test_equals
-    assert_equal(<<CSS, render(<<SASS))
-a {
-  t1: true;
-  t2: true;
-  t3: true;
-  f1: false;
-  f2: false; }
-CSS
-!foo = "foo"
-a
-  t1 = "foo" == !foo
-  t2 = 1 == 1.0
-  t3 = false != true
-  f1 = 1em == 1px
-  f2 = 12 != 12
 SASS
   end
 
@@ -665,26 +562,6 @@ a
     f5: f1
   @else if false
     f5: f2
-SASS
-  end
-
-  def test_operation_precedence
-    assert_equal(<<CSS, render(<<SASS))
-a {
-  p1: false true;
-  p2: true;
-  p3: true;
-  p4: true;
-  p5: true;
-  p6: 11; }
-CSS
-a
-  p1 = true and false false or true
-  p2 = false and true or true and true
-  p3 = 1 == 2 or 3 == 3
-  p4 = 1 < 2 == 3 >= 3
-  p5 = 1 + 3 > 4 - 2
-  p6 = 1 + 2 * 3 + 4
 SASS
   end
 
