@@ -57,21 +57,34 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("string is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
-  def test_numeric_transformations
+  def test_round
     assert_equal("5",   evaluate("round(4.8)"))
     assert_equal("5px", evaluate("round(4.8px)"))
     assert_equal("5px", evaluate("round(5.49px)"))
+
+    assert_error_message("#cccccc is not a number for `round'", "round(#ccc)")
+  end
+
+  def test_floor
     assert_equal("4",   evaluate("floor(4.8)"))
     assert_equal("4px", evaluate("floor(4.8px)"))
+
+    assert_error_message("foo is not a number for `floor'", "floor(\"foo\")")
+  end
+
+  def test_ceil
     assert_equal("5",   evaluate("ceil(4.1)"))
     assert_equal("5px", evaluate("ceil(4.8px)"))
+
+    assert_error_message("a is not a number for `ceil'", "ceil(\"a\")")
+  end
+
+  def test_abs
     assert_equal("5",   evaluate("abs(-5)"))
     assert_equal("5px", evaluate("abs(-5px)"))
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
-    assert_error_message("#cccccc is not a number for `round'", "round(#ccc)")
-    assert_error_message("foo is not a number for `floor'", "floor(\"foo\")")
-    assert_error_message("a is not a number for `ceil'", "ceil(\"a\")")
+
     assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
 
