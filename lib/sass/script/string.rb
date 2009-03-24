@@ -31,10 +31,6 @@ module Sass::Script
       Sass::Script::String.new("/#{self.to_s}")
     end
 
-    def funcall(other)
-      Sass::Script::String.new("#{self.to_s}(#{other.to_s})")
-    end
-
     def to_s
       @value
     end
