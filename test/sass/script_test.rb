@@ -110,12 +110,12 @@ WARN
 
   private
 
-  def resolve(str, opts = {}, environment = {})
+  def resolve(str, opts = {}, environment = env)
     munge_filename opts
     eval(str, opts, environment).to_s
   end
 
-  def eval(str, opts = {}, environment = {})
+  def eval(str, opts = {}, environment = env)
     munge_filename opts
     Sass::Script.parse(str, opts[:line] || 1,
       opts[:offset] || 0, opts[:filename]).perform(environment)
@@ -139,6 +139,12 @@ WARN
     yield
   ensure
     $stderr = the_real_stderr
+  end
+
+  def env(hash = {})
+    env = Sass::Environment.new
+    hash.each {|k, v| env.set_var(k, v)}
+    env
   end
 
   def test_number_printing
