@@ -143,6 +143,24 @@ WARN
     assert_equal "-1", resolve("-1")
   end
 
+  def test_string_ops
+    assert_equal "foo bar", resolve('"foo" "bar"')
+    assert_equal "true 1", resolve('true 1')
+    assert_equal "foo, bar", resolve('"foo" , "bar"')
+    assert_equal "true, 1", resolve('true , 1')
+    assert_equal "foobar", resolve('"foo" + "bar"')
+    assert_equal "true1", resolve('true + 1')
+    assert_equal "foo-bar", resolve('"foo" - "bar"')
+    assert_equal "true-1", resolve('true - 1')
+    assert_equal "foo/bar", resolve('"foo" / "bar"')
+    assert_equal "true/1", resolve('true / 1')
+
+    assert_equal "-bar", resolve('- "bar"')
+    assert_equal "-true", resolve('- true')
+    assert_equal "/bar", resolve('/ "bar"')
+    assert_equal "/true", resolve('/ true')
+  end
+
   def test_relational_ops
     assert_equal "false", resolve("1 > 2")
     assert_equal "false", resolve("2 > 2")
