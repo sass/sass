@@ -62,7 +62,7 @@ The function can also return a positive integer to indicate
 a specific level to which the current line could be indented.")
 
 (defvar haml-block-openers
-  `("^ *\\([%\\.#][a-z_:\\-]*\\)+\\({.*}\\)?\\(\\[.*\\]\\)?[><]*[ \t]*$"
+  `("^ *\\([%\\.#][a-z0-9_:\\-]*\\)+\\({.*}\\)?\\(\\[.*\\]\\)?[><]*[ \t]*$"
     "^ *[&!]?[-=~].*do[ \t]*\\(|.*|[ \t]*\\)?$"
     ,(concat "^ *[&!][-=~][ \t]*\\("
              (regexp-opt '("if" "unless" "while" "until" "else"
@@ -126,7 +126,7 @@ For example, this will highlight all of the following:
       (forward-char -1)
 
       ;; Highlight tag, classes, and ids
-      (while (looking-at "[.#%][a-z_:\\-]*")
+      (while (looking-at "[.#%][a-z0-9_:\\-]*")
         (put-text-property (match-beginning 0) (match-end 0) 'face
                            (case (char-after)
                              (?% font-lock-function-name-face)
@@ -464,7 +464,7 @@ beginning the hash."
   (save-excursion
     (while t
       (beginning-of-line)
-      (if (looking-at "^ *\\(?:[.#%][a-z_:\\-]+\\)+{")
+      (if (looking-at "^ *\\(?:[.#%][a-z0-9_:\\-]+\\)+{")
           (progn
             (goto-char (- (match-end 0) 1))
             (haml-limited-forward-sexp (save-excursion (end-of-line) (point)))
