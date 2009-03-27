@@ -74,6 +74,22 @@ class Html2HamlTest < Test::Unit::TestCase
       render_rhtml(%Q{<%- form_for -%>})
   end
 
+  def test_cdata
+    assert_equal(<<HAML.strip, render(<<HTML))
+%p
+  :cdata
+    <a foo="bar" baz="bang">
+    <div id="foo">flop</div>
+    </a>
+HAML
+<p><![CDATA[
+  <a foo="bar" baz="bang">
+    <div id="foo">flop</div>
+  </a>
+]]></p>
+HTML
+  end
+
   protected
 
   def render(text, options = {})

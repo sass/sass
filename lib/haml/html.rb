@@ -78,15 +78,19 @@ module Haml
 
     class ::Hpricot::Doc
       def to_haml(tabs = 0)
-        output = ''
-        children.each { |child| output += child.to_haml(0) } if children
-        output
+        (children || []).inject('') {|s, c| s << c.to_haml(0)}
       end
     end
 
     class ::Hpricot::XMLDecl
       def to_haml(tabs = 0)
         "#{tabulate(tabs)}!!! XML\n"
+      end
+    end
+
+    class ::Hpricot::CData
+      def to_haml(tabs = 0)
+        "#{tabulate(tabs)}:cdata\n#{parse_text(self.content, tabs + 1)}"
       end
     end
 
