@@ -3,28 +3,31 @@ module Sass::Tree
     # The character used to include the parent selector
     PARENT = '&'
 
-    attr_accessor :rule
+    attr_accessor :rules
 
     def initialize(rule, options)
-      @rule = rule
+      @rules = [rule]
       super(options)
+    end
+
+    def rule
+      rules.first
+    end
+
+    def rule=(rule)
+      self.rules = [rule]
     end
 
     def ==(other)
       self.class == other.class && rules == other.rules && super
     end
 
-    def rules
-      Array(rule)
-    end
-
     def add_rules(node)
-      self.rule = rules
-      self.rule += node.rules
+      @rules += node.rules
     end
 
     def continued?
-      rule[-1] == ?,
+      @rules.last[-1] == ?,
     end
 
     def to_s(tabs, super_rules = nil)
@@ -38,7 +41,7 @@ module Sass::Tree
       total_rule = if super_rules
         super_rules.split(",\n").map do |super_line|
           super_line.strip.split(rule_split).map do |super_rule|
-            self.rules.map do |line|
+            @rules.map do |line|
               rule_indent + line.gsub(/,$/, '').split(rule_split).map do |rule|
                 if rule.include?(PARENT)
                   rule.gsub(PARENT, super_rule)
@@ -49,11 +52,11 @@ module Sass::Tree
             end.join(line_separator)
           end.join(rule_separator)
         end.join(line_separator)
-      elsif self.rules.any? { |r| r.include?(PARENT) }
+      elsif @rules.any? { |r| r.include?(PARENT) }
         raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'.", line)
       else
         per_rule_indent, total_indent = [:nested, :expanded].include?(@style) ? [rule_indent, ''] : ['', rule_indent]
-        total_indent + self.rules.map do |r|
+        total_indent + @rules.map do |r|
           per_rule_indent + r.gsub(/,$/, '').gsub(rule_split, rule_separator).rstrip
         end.join(line_separator)
       end
@@ -113,7 +116,7 @@ module Sass::Tree
     protected
 
     def perform!(environment)
-      self.rule = rules.map {|r| interpolate(r, environment)}
+      @rules = @rules.map {|r| interpolate(r, environment)}
       super
     end
   end
