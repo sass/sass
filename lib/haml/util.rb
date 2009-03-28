@@ -35,6 +35,17 @@ module Haml
       end
     end
 
+    def merge_adjacent_strings(enum)
+      e = enum.inject([]) do |a, e|
+        if e.is_a?(String) && a.last.is_a?(String)
+          a.last << e
+        else
+          a << e
+        end
+        a
+      end
+    end
+
     def ruby1_8?
       Haml::Util::RUBY_VERSION[0] == 1 && Haml::Util::RUBY_VERSION[1] < 9
     end
