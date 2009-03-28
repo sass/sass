@@ -78,10 +78,12 @@ text nested beneath them.")
 (defconst sass-line-keywords
   '(("@\\w+"    0 font-lock-constant-face sass-highlight-script-after-match)
     ("/[/*].*"  0 font-lock-comment-face)
-    ("[=+]\\w+" 0 font-lock-function-name-face)
-    ("!\\w+"    0 font-lock-variable-name-face)
+    ("[=+]\\w+" 0 font-lock-function-name-face sass-highlight-script-after-match)
+    ("!\\w+"    0 font-lock-variable-name-face sass-highlight-script-after-match)
     (":\\w+"    0 font-lock-variable-name-face)
-    ("\\(\\w+\\)\s*[:=]" 1 font-lock-variable-name-face)
+    ("\\w+\s*:" 0 font-lock-variable-name-face)
+    ("\\(\\w+\\)\s*="  1 font-lock-variable-name-face sass-highlight-script-after-match)
+    ("\\(:\\w+\\)\s*=" 1 font-lock-variable-name-face sass-highlight-script-after-match)
     (".*"      sass-highlight-selector))
   "A list of full-line Sass syntax to highlight,
 used by `sass-highlight-line'.
