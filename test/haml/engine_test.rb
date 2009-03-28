@@ -338,6 +338,14 @@ HTML
 HAML
   end
 
+  def test_curly_brace
+    assert_equal(<<HTML, render(<<HAML))
+Foo { Bar
+HTML
+== Foo { Bar
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

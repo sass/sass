@@ -278,7 +278,7 @@ END
       text, tab_change = @to_merge.inject(["", 0]) do |(str, mtabs), (type, val, tabs)|
         case type
         when :text
-          [str << val.gsub('#{', "\\\#{"), mtabs + tabs]
+          [str << val.gsub('#{', "\\\#{").inspect[1...-1], mtabs + tabs]
         when :script
           if mtabs != 0 && !@options[:ugly]
             val = "_hamlout.adjust_tabs(#{mtabs}); " + val
@@ -291,9 +291,9 @@ END
 
       @precompiled <<
         if @options[:ugly]
-          "_erbout << #{unescape_interpolation(text)};"
+          "_erbout << \"#{text}\";"
         else
-          "_hamlout.push_text(#{unescape_interpolation(text)}, #{tab_change}, #{@dont_tab_up_next_text.inspect});"
+          "_hamlout.push_text(\"#{text}\", #{tab_change}, #{@dont_tab_up_next_text.inspect});"
         end
       @to_merge = []
       @dont_tab_up_next_text = false
