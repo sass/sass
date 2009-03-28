@@ -69,6 +69,7 @@ text nested beneath them.")
 (defconst sass-line-keywords
   '(("@\\w+"   0 font-lock-constant-face)
     ("/[/*].*" 0 font-lock-comment-face)
+    ("!\\w+"   0 font-lock-variable-name-face)
     (":\\w+"   0 font-lock-variable-name-face)
     ("\\(\\w+\\)\s*[:=]" 1 font-lock-variable-name-face)
     (".*"      sass-highlight-selector))
