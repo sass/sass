@@ -47,11 +47,6 @@ text nested beneath them.")
 
 ;; Font lock
 
-(defconst sass-selector-syntax-table
-  (let ((st (make-syntax-table)))
-    (modify-syntax-entry ?- "w" st)
-    st))
-
 (defconst sass-selector-font-lock-keywords
   '(("&"       0 font-lock-constant-face)
     ("\\.\\w+" 0 font-lock-type-face)
@@ -62,6 +57,11 @@ text nested beneath them.")
     ;; Attribute selectors (e.g. p[foo=bar])
     ("\\[\\([^]=]+\\)" (1 font-lock-variable-name-face)
      ("[~|$^*]?=\\([^]=]+\\)" nil nil (1 font-lock-string-face)))))
+
+(defconst sass-syntax-table
+  (let ((st (make-syntax-table)))
+    (modify-syntax-entry ?- "w" st)
+    st))
 
 (defconst sass-font-lock-keywords
   '((sass-highlight-line 1 nil nil t)))
@@ -99,8 +99,7 @@ taken from `sass-line-keywords'."
   "Highlight a CSS selector starting at `point'
 and ending at `end-of-line'."
   (end-of-line)
-  (let ((font-lock-keywords sass-selector-font-lock-keywords)
-        (font-lock-syntax-table sass-selector-syntax-table))
+  (let ((font-lock-keywords sass-selector-font-lock-keywords))
     (font-lock-fontify-region
      (point) (progn (end-of-line) (point))))
   t)
@@ -112,7 +111,7 @@ and ending at `end-of-line'."
 ;;;###autoload
 (define-derived-mode sass-mode haml-mode "Sass"
   "Major mode for editing Sass files."
-  (set-syntax-table (make-syntax-table))
+  (set-syntax-table sass-syntax-table)
   (setq font-lock-extend-region-functions
         '(font-lock-extend-region-wholelines font-lock-extend-region-multiline))
   (setq font-lock-multiline nil)
