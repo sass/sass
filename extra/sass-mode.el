@@ -58,16 +58,25 @@ text nested beneath them.")
     ("\\(::?\\w+\\)" (1 font-lock-function-name-face)
      ("(\\([^)]+\\))" nil nil (1 font-lock-string-face)))))
 
+(defconst sass-script-font-lock-keywords
+  '(("\"\\([^\"\\\\]\\|\\\\.\\)*\"" 0 font-lock-string-face)
+    ("!\\w+" 0 font-lock-variable-name-face)))
+
 (defconst sass-syntax-table
   (let ((st (make-syntax-table)))
     (modify-syntax-entry ?- "w" st)
+    st))
+
+(defconst sass-script-syntax-table
+  (let ((st (make-syntax-table sass-syntax-table)))
+    (modify-syntax-entry ?- "." st)
     st))
 
 (defconst sass-font-lock-keywords
   '((sass-highlight-line 1 nil nil t)))
 
 (defconst sass-line-keywords
-  '(("@\\w+"    0 font-lock-constant-face)
+  '(("@\\w+"    0 font-lock-constant-face sass-highlight-script-after-match)
     ("/[/*].*"  0 font-lock-comment-face)
     ("[=+]\\w+" 0 font-lock-function-name-face)
     ("!\\w+"    0 font-lock-variable-name-face)
@@ -77,10 +86,11 @@ text nested beneath them.")
   "A list of full-line Sass syntax to highlight,
 used by `sass-highlight-line'.
 
-Each item is either of the form (REGEXP SUBEXP FACE) or (REGEXP FN).
-Each REGEXP is run successively on the beginning of non-whitespace
-on the current line until one matches. If it has SUBEXP and FACE,
-then SUBEXP is highlighted using FACE. Otherwise, FN is run.")
+Each item is either of the form (REGEXP SUBEXP FACE), (REGEXP FN),
+or (REGEXP SUBEXP FACE FN). Each REGEXP is run successively on the
+beginning of non-whitespace on the current line until one matches.
+If it has SUBEXP and FACE, then SUBEXP is highlighted using FACE.
+If it has FN, FN is run.")
 
 (defun sass-highlight-line (limit)
   "Highlight a single line using some Sass single-line syntax,
@@ -89,23 +99,37 @@ taken from `sass-line-keywords'."
     (when (re-search-forward "^ *\\(.+\\)$" limit t)
       (goto-char (match-beginning 1))
       (dolist (keyword sass-line-keywords)
-        (destructuring-bind (keyword subexp-or-fn &optional face) keyword
+        (destructuring-bind (keyword subexp-or-fn &optional face fn) keyword
           (when (looking-at keyword)
             (if (integerp subexp-or-fn)
                 (put-text-property (match-beginning subexp-or-fn)
                                    (match-end subexp-or-fn)
                                    'face face)
-              (funcall subexp-or-fn))
+              (setq fn subexp-or-fn))
+            (when fn (funcall fn))
             (end-of-line)
             (return t)))))))
 
 (defun sass-highlight-selector ()
   "Highlight a CSS selector starting at `point'
 and ending at `end-of-line'."
-  (end-of-line)
-  (let ((font-lock-keywords sass-selector-font-lock-keywords))
+  (let ((font-lock-keywords sass-selector-font-lock-keywords)
+        font-lock-multiline)
     (font-lock-fontify-region
      (point) (progn (end-of-line) (point))))
+  t)
+
+(defun sass-highlight-script (beg end)
+  "Highlight a section of SassScript between BEG and END."
+  (with-syntax-table sass-script-syntax-table
+    (let ((font-lock-keywords sass-script-font-lock-keywords)
+          font-lock-syntax-table
+          font-lock-extend-region-functions)
+      (font-lock-fontify-region beg end))))
+
+(defun sass-highlight-script-after-match ()
+  (end-of-line)
+  (sass-highlight-script (match-end 0) (point))
   t)
 
 ;; Constants
