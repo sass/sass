@@ -67,7 +67,7 @@ text nested beneath them.")
   '((sass-highlight-line 1 nil nil t)))
 
 (defconst sass-line-keywords
-  '(("@.*"     0 font-lock-constant-face)
+  '(("@\\w+"   0 font-lock-constant-face)
     ("/[/*].*" 0 font-lock-comment-face)
     (".*"      sass-highlight-selector))
   "A list of full-line Sass syntax to highlight,
