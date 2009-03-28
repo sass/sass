@@ -627,6 +627,39 @@ foo {
 CSS
   end
 
+  def test_quoted_colon
+    assert_equal(<<CSS, render(<<SASS))
+a b[foo="bar: baz"] {
+  c: d; }
+CSS
+a
+  b[foo="bar: baz"]
+    c: d
+SASS
+  end
+
+  def test_quoted_comma
+    assert_equal(<<CSS, render(<<SASS))
+a b[foo="bar, baz"] {
+  c: d; }
+CSS
+a
+  b[foo="bar, baz"]
+    c: d
+SASS
+  end
+
+  def test_quoted_ampersand
+    assert_equal(<<CSS, render(<<SASS))
+a b[foo="bar & baz"] {
+  c: d; }
+CSS
+a
+  b[foo="bar & baz"]
+    c: d
+SASS
+  end
+
   private
   
   def render(sass, options = {})
