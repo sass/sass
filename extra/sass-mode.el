@@ -69,6 +69,8 @@ text nested beneath them.")
 (defconst sass-line-keywords
   '(("@\\w+"   0 font-lock-constant-face)
     ("/[/*].*" 0 font-lock-comment-face)
+    (":\\w+"   0 font-lock-variable-name-face)
+    ("\\(\\w+\\)\s*[:=]" 1 font-lock-variable-name-face)
     (".*"      sass-highlight-selector))
   "A list of full-line Sass syntax to highlight,
 used by `sass-highlight-line'.
