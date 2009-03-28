@@ -48,15 +48,15 @@ text nested beneath them.")
 ;; Font lock
 
 (defconst sass-selector-font-lock-keywords
-  '(("&"       0 font-lock-constant-face)
+  '(;; Attribute selectors (e.g. p[foo=bar])
+    ("\\[\\([^]=]+\\)" (1 font-lock-variable-name-face)
+     ("[~|$^*]?=\\([^]=]+\\)" nil nil (1 font-lock-string-face)))
+    ("&"       0 font-lock-constant-face)
     ("\\.\\w+" 0 font-lock-type-face)
     ("#\\w+"   0 font-lock-keyword-face)
     ;; Pseudo-selectors, optionally with arguments (e.g. :first, :nth-child(12))
     ("\\(::?\\w+\\)" (1 font-lock-function-name-face)
-     ("(\\([^)]+\\))" nil nil (1 font-lock-string-face)))
-    ;; Attribute selectors (e.g. p[foo=bar])
-    ("\\[\\([^]=]+\\)" (1 font-lock-variable-name-face)
-     ("[~|$^*]?=\\([^]=]+\\)" nil nil (1 font-lock-string-face)))))
+     ("(\\([^)]+\\))" nil nil (1 font-lock-string-face)))))
 
 (defconst sass-syntax-table
   (let ((st (make-syntax-table)))
@@ -121,7 +121,7 @@ and ending at `end-of-line'."
   (setq comment-start "/*")
   (set (make-local-variable 'haml-indent-function) 'sass-indent-p)
   (set (make-local-variable 'haml-indent-offset) sass-indent-offset)
-  (setq font-lock-defaults '(sass-font-lock-keywords nil t)))
+  (setq font-lock-defaults '(sass-font-lock-keywords t t)))
 
 ;; Indentation
 
