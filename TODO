@@ -1,9 +1,23 @@
-Testing:
-  Test html2haml and css2sass
+* Documentation
+  Convert to YARD, Markdown
+  Redo tutorial?
+  Re-organize references?
+** Sass
+   Control structures
+   Partials
+   Mixin arguments
+   Interpolation
+   Bools
+   CSS Terminology (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
+   Convert to new property syntax
+     Stop calling it "alternate" - call it "new" instead
+** FAQ
+   Multiline vs. helpers
+   form_for needs -, not =
 
-Features:
-  Sass should throw generic errors for undefined variables, not syntax errors
-  Sass::Plugin should log errors
-  There should be a way to make Haml tags not insert whitespace
-  "%li, %a"?
-  Sass::Engine load_paths option should be set by executable
+* Code
+** Haml
+   Figure out alternate attribute syntax
+** Sass
+   CSS Terminology? (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
+   Sass::Engine load_paths option should be set by executable
