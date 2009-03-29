@@ -65,7 +65,7 @@ module Haml
     #
     # Uses preserve to convert any newlines inside whitespace-sensitive tags
     # into the HTML entities for endlines.
-    # @tags@ is an array of tags to preserve.
+    # +tags+ is an array of tags to preserve.
     # It defaults to the value of the <tt>:preserve</tt> option.
     def find_and_preserve(input = '', tags = haml_buffer.options[:preserve], &block)
       return find_and_preserve(capture_haml(&block)) if block
