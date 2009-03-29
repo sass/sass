@@ -83,7 +83,7 @@ text nested beneath them.")
   '((sass-highlight-line 1 nil nil t)))
 
 (defconst sass-line-keywords
-  '(("@\\w+"    0 font-lock-constant-face sass-highlight-script-after-match)
+  '(("@\\(\\w+\\)"    0 font-lock-keyword-face sass-highlight-directive)
     ("/[/*].*"  0 font-lock-comment-face)
     ("[=+]\\w+" 0 font-lock-function-name-face sass-highlight-script-after-match)
     ("!\\w+"    0 font-lock-variable-name-face sass-highlight-script-after-match)
@@ -130,16 +130,43 @@ and ending at `end-of-line'."
 
 (defun sass-highlight-script (beg end)
   "Highlight a section of SassScript between BEG and END."
-  (with-syntax-table sass-script-syntax-table
-    (let ((font-lock-keywords sass-script-font-lock-keywords)
-          font-lock-syntax-table
-          font-lock-extend-region-functions)
-      (font-lock-fontify-region beg end))))
+  (save-match-data
+    (with-syntax-table sass-script-syntax-table
+      (let ((font-lock-keywords sass-script-font-lock-keywords)
+            font-lock-syntax-table
+            font-lock-extend-region-functions)
+        (font-lock-fontify-region beg end)))))
 
 (defun sass-highlight-script-after-match ()
   (end-of-line)
-  (sass-highlight-script (match-end 0) (point))
-  t)
+  (sass-highlight-script (match-end 0) (point)))
+
+(defun sass-highlight-directive ()
+  (goto-char (match-end 0))
+  (block nil
+    (case (intern (match-string 1))
+      (for
+       (unless (looking-at " +!\\w+") (return))
+       (put-text-property (match-beginning 0) (match-end 0)
+                          'face font-lock-variable-name-face)
+       (goto-char (match-end 0))
+       (unless (looking-at " +from") (return))
+       (put-text-property (match-beginning 0) (match-end 0)
+                          'face font-lock-keyword-face)
+       (goto-char (match-end 0))
+       (when (looking-at " +\\(.+?\\) +\\(to\\|through\\)")
+         (sass-highlight-script (match-beginning 1) (match-end 1))
+         (put-text-property (match-beginning 2) (match-end 2)
+                            'face font-lock-keyword-face))
+       (sass-highlight-script-after-match))
+
+      (else
+       (unless (looking-at " +if") (return))
+       (put-text-property (match-beginning 0) (match-end 0)
+                          'face font-lock-keyword-face)
+       (sass-highlight-script-after-match))
+
+      ((if while debug) (sass-highlight-script-after-match)))))
 
 ;; Constants
 
