@@ -59,8 +59,11 @@ text nested beneath them.")
      ("(\\([^)]+\\))" nil nil (1 font-lock-string-face)))))
 
 (defconst sass-script-font-lock-keywords
-  '(("\"\\([^\"\\\\]\\|\\\\.\\)*\"" 0 font-lock-string-face)
-    ("!\\w+" 0 font-lock-variable-name-face)))
+  `(("\"\\([^\"\\\\]\\|\\\\.\\)*\"" 0 font-lock-string-face)
+    ("!\\w+" 0 font-lock-variable-name-face)
+    ("#[0-9a-fA-F]\\{0,6\\}" 0 font-lock-preprocessor-face)
+    (,(regexp-opt '("true" "false")) 0 font-lock-constant-face)
+    (,(regexp-opt '("and" "or" "not")) 0 font-lock-keyword-face)))
 
 (defconst sass-syntax-table
   (let ((st (make-syntax-table)))
