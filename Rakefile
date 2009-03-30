@@ -81,25 +81,32 @@ end
 
 # ----- Documentation -----
 
-begin
-  require 'hanna/rdoctask'
-rescue LoadError
-  require 'rake/rdoctask'
+task :rdoc do
+  puts '=' * 100, <<END, '=' * 100
+Haml uses the YARD documentation system (http://github.com/lsegal/yard).
+Install the yard gem and then run "rake doc".
+END
 end
 
-Rake::RDocTask.new do |rdoc|
-  rdoc.title    = 'Haml/Sass'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include(*FileList.new('*') do |list|
-                            list.exclude(/(^|[^.a-z])[a-z]+/)
-                            list.exclude('TODO')
-                          end.to_a)
-  rdoc.rdoc_files.include('lib/**/*.rb')
-  rdoc.rdoc_files.exclude('TODO')
-  rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
-  rdoc.rdoc_files.exclude('lib/sass/tree/*')
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.main = 'README.rdoc'
+begin
+  require '/home/nex3/code/yard/lib/yard'
+
+  YARD::Rake::YardocTask.new do |t|
+    files = FileList.new
+    files.include(*FileList.new('*') do |list|
+        list.exclude(/(^|[^.a-z])[a-z]+/)
+      end)
+    files.include('lib/**/*.rb')
+    files.exclude('TODO')
+    t.files = files.to_a
+
+    t.options << '-r' << 'README.rdoc'
+  end
+
+  task :doc => :yardoc
+rescue LoadError
+  task :doc => :rdoc
+  task :yardoc => :rdoc
 end
 
 # ----- Coverage -----
