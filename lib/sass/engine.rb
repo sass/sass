@@ -94,7 +94,7 @@ module Sass
         :load_paths => ['.']
       }.merge! options
       @template = template
-      @environment = Environment.new
+      @environment = Environment.new(nil, @options)
       @environment.set_var("important", Script::String.new("!important"))
     end
 
