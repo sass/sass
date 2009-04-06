@@ -130,6 +130,7 @@ module Sass
     def tabulate(string)
       tab_str = nil
       first = true
+      index_offset = (@options[:line] || 1) - 1
       enum_with_index(string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/)).map do |line, index|
         index += 1
         next if line.strip.empty?
@@ -144,14 +145,14 @@ module Sass
           end
         end
         first &&= !tab_str.nil?
-        next Line.new(line.strip, 0, index, 0, @options[:filename], []) if tab_str.nil?
+        next Line.new(line.strip, 0, index + index_offset, 0, @options[:filename], []) if tab_str.nil?
 
         line_tabs = line_tab_str.scan(tab_str).size
         raise SyntaxError.new(<<END.strip.gsub("\n", ' '), index) if tab_str * line_tabs != line_tab_str
 Inconsistent indentation: #{Haml::Shared.human_indentation line_tab_str, true} used for indentation,
 but the rest of the document was indented using #{Haml::Shared.human_indentation tab_str}.
 END
-        Line.new(line.strip, line_tabs, index, tab_str.size, @options[:filename], [])
+        Line.new(line.strip, line_tabs, index + index_offset, tab_str.size, @options[:filename], [])
       end.compact
     end
 

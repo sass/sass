@@ -145,6 +145,24 @@ SASS
     end
   end
 
+  def test_exception_location
+    to_render = <<SASS
+rule
+  :attr val
+  // comment!
+
+  :broken
+SASS
+    begin
+      Sass::Engine.new(to_render, :filename => __FILE__, :line => (__LINE__-7)).render
+    rescue Sass::SyntaxError => err
+      assert_equal(__FILE__, err.sass_filename)
+      assert_equal((__LINE__-6), err.sass_line)
+    else
+      assert(false, "Exception not raised for '#{to_render}'!")
+    end
+  end
+
   def test_imported_exception
     [nil, 2].each do |i|
       begin
