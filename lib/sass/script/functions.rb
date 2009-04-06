@@ -19,6 +19,9 @@ module Sass::Script
   # and then left as static CSS files.
   # Any dynamic CSS should be left in <style> tags in the HTML.
   #
+  # Within a sass function you can call the options method to gain access to the
+  # options hash that was used to create the Sass::Engine that is processing the function call.
+  #
   # The following functions are provided:
   # * +hsl+ - converts an <tt>hsl(hue, saturation, lightness)</tt> triplet into a color.
   #

@@ -2,10 +2,15 @@ module Sass
   class Environment
     attr_reader :parent
 
-    def initialize(parent = nil)
+    def initialize(parent = nil, options = nil)
       @vars = {}
       @mixins = {}
       @parent = parent
+      @options = options
+    end
+
+    def options
+      @options || (parent && parent.options) || {}
     end
 
     def self.inherited_hash(name)

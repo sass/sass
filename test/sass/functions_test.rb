@@ -96,7 +96,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def evaluate(value)
-    Sass::Script::Parser.parse(value, 0, 0).perform({}).to_s
+    Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new).to_s
   end
 
   def assert_error_message(message, value)
