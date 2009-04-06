@@ -115,14 +115,16 @@ class SassEngineTest < Test::Unit::TestCase
   
   def test_exceptions
     EXCEPTION_MAP.each do |key, value|
+      line = 10
       begin
-        Sass::Engine.new(key).render
+        Sass::Engine.new(key, :filename => __FILE__, :line => line).render
       rescue Sass::SyntaxError => err
         value = [value] unless value.is_a?(Array)
 
         assert_equal(value.first, err.message, "Line: #{key}")
-        assert_equal(value[1] || key.split("\n").length, err.sass_line, "Line: #{key}")
-        assert_match(/\(sass\):[0-9]+/, err.backtrace[0], "Line: #{key}")
+        assert_equal(__FILE__, err.sass_filename)
+        assert_equal((value[1] || key.split("\n").length) + line - 1, err.sass_line, "Line: #{key}")
+        assert_match(/#{Regexp.escape(__FILE__)}:[0-9]+/, err.backtrace[0], "Line: #{key}")
       else
         assert(false, "Exception not raised for\n#{key}")
       end
