@@ -113,7 +113,7 @@ module Sass
       index = 0
       while @lines[index]
         old_index = index
-        child, index = build_tree(index)
+        child, index = build_tree(index, true)
 
         if child.is_a? Tree::Node
           child.line = old_index + 1
@@ -194,7 +194,8 @@ END
       spaces / 2
     end
 
-    def build_tree(index)
+    def build_tree(index, root = false)
+      @root = root
       line, tabs = @lines[index]
       index += 1
       @line = index
@@ -265,12 +266,7 @@ END
       when :mixin
         raise SyntaxError.new("Mixins may only be defined at the root of a document.", @line)
       when Array
-        child.each do |c|
-          if c.is_a?(Tree::DirectiveNode)
-            raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
-          end
-          parent << c
-        end
+        child.each {|c| parent << c}
       when Tree::Node
         parent << child
       end
@@ -406,6 +402,10 @@ END
     end
 
     def import(files)
+      unless @root
+        raise SyntaxError.new("Import directives may only be used at the root of a document.", @line)
+      end
+
       nodes = []
 
       files.split(/,\s*/).each do |filename|
