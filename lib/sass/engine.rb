@@ -229,7 +229,7 @@ END
         case child
         when Tree::MixinDefNode
           raise SyntaxError.new("Mixins may only be defined at the root of a document.", line.index)
-        when Tree::DirectiveNode
+        when Tree::DirectiveNode, Tree::FileNode
           raise SyntaxError.new("Import directives may only be used at the root of a document.", line.index)
         end
       end
