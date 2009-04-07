@@ -100,7 +100,7 @@ begin
     files.exclude('TODO')
     t.files = files.to_a
 
-    t.options << '-r' << 'README.md'
+    t.options << '-r' << 'README.md' << '-m' << 'maruku'
   end
 
   task :doc => :yardoc
