@@ -141,7 +141,7 @@ module Sass
       end
 
       def last_match_position
-        current_position - @scanner.matchedsize
+        current_position - @scanner.matched_size
       end
 
       def after_interpolation?
