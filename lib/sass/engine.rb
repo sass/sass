@@ -430,7 +430,7 @@ END
     end
 
     def import_paths
-      paths = @options[:load_paths] || []
+      paths = (@options[:load_paths] || []).dup
       paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
       paths
     end
