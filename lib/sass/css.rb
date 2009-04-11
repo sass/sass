@@ -3,14 +3,18 @@ require 'sass/tree/node'
 require 'strscan'
 
 module Sass
-  # :stopdoc:
   module Tree
     class Node
-      def to_sass(opts = {})
+      # Converts a node to Sass code that will generate it.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
+      # @param opts [Hash] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the node
+      def to_sass(tabs = 0, opts = {})
         result = ''
 
         children.each do |child|
-          result << "#{child.to_sass(0, opts)}\n"
+          result << "#{'  ' * tabs}#{child.to_sass(0, opts)}\n"
         end
 
         result
@@ -18,6 +22,7 @@ module Sass
     end
 
     class RuleNode
+      # @see Node#to_sass
       def to_sass(tabs, opts = {})
         str = "\n#{'  ' * tabs}#{rule}#{children.any? { |c| c.is_a? AttrNode } ? "\n" : ''}"
 
@@ -30,12 +35,14 @@ module Sass
     end
 
     class AttrNode
+      # @see Node#to_sass
       def to_sass(tabs, opts = {})
         "#{'  ' * tabs}#{opts[:alternate] ? '' : ':'}#{name}#{opts[:alternate] ? ':' : ''} #{value}\n"
       end
     end
 
     class DirectiveNode
+      # @see Node#to_sass
       def to_sass(tabs, opts = {})
         "#{'  ' * tabs}#{value}#{children.map {|c| c.to_sass(tabs + 1, opts)}}\n"
       end
@@ -49,18 +56,33 @@ module Sass
     Node = Struct.new(:key, :value, :next, :prev)
     include Enumerable
 
+    # Initializes an empty {OrderedHash}. Equivalent to `{}`.
     def initialize
       @hash = {}
     end
 
+    # Replaces the contents of this hash with the context of `other`.
+    #
+    # @param [OrderedHash] other
+    # @return `self`
     def initialize_copy(other)
       @hash = other.instance_variable_get('@hash').clone
+      self
     end
 
+    # Returns the value corresponding to `key`, or `nil` if not found.
+    #
+    # @param key
+    # @return The value or `nil`
     def [](key)
       @hash[key] && @hash[key].value
     end
 
+    # Sets the value corresponding to `key` to `value`
+    #
+    # @param key
+    # @param value
+    # @return `value`
     def []=(key, value)
       node = Node.new(key, value)
 
@@ -84,6 +106,11 @@ module Sass
       value
     end
 
+    # Yields each key-value pair in the hash
+    # in the order in which they were inserted.
+    #
+    # @yield [key, value] The key-value pairs
+    # @return `self`
     def each
       return unless @first
       yield [@first.key, @first.value]
@@ -92,19 +119,30 @@ module Sass
       self
     end
 
+    # Returns an array of the values in the hash
+    # in the order in which they were inserted.
+    #
+    # @return [Object] The values
     def values
-      self.map { |k, v| v }
+      self.map {|k, v| v}
     end
   end
 
-  # :startdoc:
-
-  # This class contains the functionality used in the +css2sass+ utility,
-  # namely converting CSS documents to Sass templates.
+  # This class converts CSS documents into Sass templates.
+  # It works by parsing the CSS document into a {Sass::Tree} structure,
+  # and then applying various transformations to the structure
+  # to produce more concise and idiomatic Sass.
+  #
+  # Example usage:
+  #
+  #     Sass::CSS.new("p { color: blue }").render #=> "p\n  :color blue"
   class CSS
-
-    # Creates a new instance of Sass::CSS that will compile the given document
-    # to a Sass string when +render+ is called.
+    # Initializes an instance of {Sass::CSS} to convert `template` into Sass code.
+    #
+    # @param [String] template The CSS code
+    # @param [Hash] options An options hash.
+    #   `:alternate`: Whether or not to output alternate attribute syntax
+    #   (`color: blue` as opposed to `:color blue`).
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
@@ -114,11 +152,12 @@ module Sass
       @template = StringScanner.new(template)
     end
 
-    # Processes the document and returns the result as a string
-    # containing the CSS template.
+    # Converts the CSS template into Sass code.
+    #
+    # @return [String] The resulting Sass code
     def render
       begin
-        build_tree.to_sass(@options).strip + "\n"
+        build_tree.to_sass(0, @options).strip + "\n"
       rescue Exception => err
         line = @template.string[0...@template.pos].split("\n").size
 
@@ -129,6 +168,9 @@ module Sass
 
     private
 
+    # Parses the CSS template and applies various transformations
+    #
+    # @return [Tree::Node] The root node of the parsed tree
     def build_tree
       root = Tree::Node.new({})
       whitespace
@@ -141,6 +183,9 @@ module Sass
       root
     end
 
+    # Parses a set of CSS rules.
+    #
+    # @param [Tree::Node] The parent node of the rules
     def rules(root)
       while r = rule
         root << r
@@ -148,6 +193,9 @@ module Sass
       end
     end
 
+    # Parses a single CSS rule.
+    #
+    # @return [Tree::Node] The parsed rule
     def rule
       return unless rule = @template.scan(/[^\{\};]+/)
       rule.strip!
@@ -170,6 +218,9 @@ module Sass
       return node
     end
 
+    # Parses a set of CSS attributes within a rule.
+    #
+    # @param [Tree::RuleNode] rule The parent node of the attributes
     def attributes(rule)
       while @template.scan(/[^:\}\s]+/)
         name = @template[0]
@@ -189,6 +240,9 @@ module Sass
       assert_match /\}/
     end
 
+    # Moves the scanner over a section of whitespace or comments.
+    #
+    # @return [String] The ignored whitespace
     def whitespace
       space = @template.scan(/\s*/) || ''
 
@@ -201,6 +255,10 @@ module Sass
       return space
     end
 
+    # Moves the scanner over a regular expression,
+    # raising an exception if it doesn't match.
+    #
+    # @param [Regexp] The regular expression to assert
     def assert_match(re)
       if !@template.scan(re)
         line = @template.string[0..@template.pos].count "\n"
@@ -213,20 +271,19 @@ module Sass
 
     # Transform
     #
-    #   foo, bar, baz
-    #     color: blue
+    #     foo, bar, baz
+    #       color: blue
     #
     # into
     #
-    #   foo
-    #     color: blue
-    #   bar
-    #     color: blue
-    #   baz
-    #     color: blue
+    #     foo
+    #       color: blue
+    #     bar
+    #       color: blue
+    #     baz
+    #       color: blue
     #
-    # Yes, this expands the amount of code,
-    # but it's necessary to get nesting to work properly.
+    # @param [Tree::Node] root The parent node
     def expand_commas(root)
       root.children.map! do |child|
         next child unless Tree::RuleNode === child && child.rule.include?(',')
@@ -241,37 +298,38 @@ module Sass
 
     # Make rules use parent refs so that
     #
-    #   foo
-    #     color: green
-    #   foo.bar
-    #     color: blue
+    #     foo
+    #       color: green
+    #     foo.bar
+    #       color: blue
     #
     # becomes
     #
-    #   foo
-    #     color: green
-    #     &.bar
-    #       color: blue
+    #     foo
+    #       color: green
+    #       &.bar
+    #         color: blue
     #
     # This has the side effect of nesting rules,
     # so that
     #
-    #   foo
-    #     color: green
-    #   foo bar
-    #     color: red
-    #   foo baz
-    #     color: blue
+    #     foo
+    #       color: green
+    #     foo bar
+    #       color: red
+    #     foo baz
+    #       color: blue
     #
     # becomes
     #
-    #   foo
-    #     color: green
-    #     & bar
-    #       color: red
-    #     & baz
-    #       color: blue
+    #     foo
+    #       color: green
+    #       & bar
+    #         color: red
+    #       & baz
+    #         color: blue
     #
+    # @param [Tree::Node] root The parent node
     def parent_ref_rules(root)
       rules = OrderedHash.new
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
@@ -292,16 +350,17 @@ module Sass
 
     # Remove useless parent refs so that
     #
-    #   foo
-    #     & bar
-    #       color: blue
+    #     foo
+    #       & bar
+    #         color: blue
     #
     # becomes
     #
-    #   foo
-    #     bar
-    #       color: blue
+    #     foo
+    #       bar
+    #         color: blue
     #
+    # @param [Tree::Node] root The parent node
     def remove_parent_refs(root)
       root.children.each do |child|
         if child.is_a?(Tree::RuleNode)
@@ -313,31 +372,35 @@ module Sass
 
     # Flatten rules so that
     #
-    #   foo
-    #     bar
-    #       baz
-    #         color: red
+    #     foo
+    #       bar
+    #         :color red
     #
     # becomes
     #
-    #   foo bar baz
-    #     color: red
+    #     foo bar
+    #       :color red
     #
     # and
     #
-    #   foo
-    #     &.bar
-    #       color: blue
+    #     foo
+    #       &.bar
+    #         color: blue
     #
     # becomes
     #
-    #   foo.bar
-    #     color: blue
+    #     foo.bar
+    #       color: blue
     #
+    # @param [Tree::Node] root The parent node
     def flatten_rules(root)
       root.children.each { |child| flatten_rule(child) if child.is_a?(Tree::RuleNode) }
     end
 
+    # Flattens a single rule
+    #
+    # @param [Tree::RuleNode] rule The candidate for flattening
+    # @see #flatten_rules
     def flatten_rule(rule)
       while rule.children.size == 1 && rule.children.first.is_a?(Tree::RuleNode)
         child = rule.children.first
@@ -356,18 +419,19 @@ module Sass
 
     # Transform
     #
-    #   foo
-    #     bar
-    #       color: blue
-    #     baz
-    #       color: blue
+    #     foo
+    #       bar
+    #         color: blue
+    #       baz
+    #         color: blue
     #
     # into
     #
-    #   foo
-    #     bar, baz
-    #       color: blue
+    #     foo
+    #       bar, baz
+    #         color: blue
     #
+    # @param [Tree::RuleNode] rule The candidate for flattening
     def fold_commas(root)
       prev_rule = nil
       root.children.map! do |child|
