@@ -18,8 +18,8 @@ module Sass::Tree
       range = Range.new(from, to, @exclusive)
 
       children = []
+      environment = Sass::Environment.new(environment)
       range.each do |i|
-        environment = Sass::Environment.new(environment)
         environment.set_local_var(@var, Sass::Script::Number.new(i))
         children += perform_children(environment)
       end
