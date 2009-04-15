@@ -1,5 +1,4 @@
 require 'sass/engine'
-require 'pathname'
 
 module Sass
   # This module contains methods to aid in using Sass
