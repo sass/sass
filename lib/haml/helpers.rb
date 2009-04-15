@@ -7,6 +7,23 @@ module Haml
   # that a Haml template is parsed in, so all these methods are at your
   # disposal from within the template.
   module Helpers
+    # An object that raises an error when #to_s is called.
+    # It's used to raise an error when the return value of a helper is used
+    # when it shouldn't be.
+    class ErrorReturn
+      def initialize(message)
+        @message = message
+      end
+
+      def to_s
+        raise Haml::Error.new(@message)
+      end
+
+      def inspect
+        "Haml::Helpers::ErrorReturn(#{@message.inspect})"
+      end
+    end
+
     self.extend self
 
     @@action_view_defined = defined?(ActionView)
@@ -342,6 +359,11 @@ END
     #   </table>
     #
     def haml_tag(name, *rest, &block)
+      ret = ErrorReturn.new(<<MESSAGE)
+haml_tag outputs directly to the Haml template.
+Disregard its return value and use the - operator.
+MESSAGE
+
       name = name.to_s
       text = rest.shift.to_s unless [Symbol, Hash, NilClass].any? {|t| rest.first.is_a? t}
       flags = []
@@ -352,7 +374,7 @@ END
 
       if text.nil? && block.nil? && (haml_buffer.options[:autoclose].include?(name) || flags.include?(:/))
         haml_concat "<#{name}#{attributes} />"
-        return nil
+        return ret
       end
 
       if flags.include?(:/)
@@ -364,7 +386,7 @@ END
       if block.nil?
         tag << text.to_s << "</#{name}>"
         haml_concat tag
-        return
+        return ret
       end
 
       if text
@@ -374,7 +396,7 @@ END
       if flags.include?(:<)
         tag << capture_haml(&block).strip << "</#{name}>"
         haml_concat tag
-        return
+        return ret
       end
 
       haml_concat tag
@@ -382,10 +404,8 @@ END
       block.call
       tab_down
       haml_concat "</#{name}>"
-      <<MESSAGE
-<h1><code>haml_tag</code> outputs directly to the Haml template.
-Disregard its return value and use the <code>-</code> operator.</h1>
-MESSAGE
+
+      ret
     end
 
     # Characters that need to be escaped to HTML entities from user input
