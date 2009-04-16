@@ -2,9 +2,10 @@ module Sass::Tree
   class AttrNode < Node
     attr_accessor :name, :value
     
-    def initialize(name, value, options)
+    def initialize(name, value, attr_syntax, options)
       @name = name
       @value = value
+      @attr_syntax = attr_syntax
       super(options)
     end
 
@@ -13,6 +14,12 @@ module Sass::Tree
     end
 
     def to_s(tabs, parent_name = nil)
+      if @options[:attribute_syntax] == :normal && @attr_syntax == :new
+        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.")
+      elsif @options[:attribute_syntax] == :alternate && @attr_syntax == :old
+        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.")
+      end
+
       if value[-1] == ?;
         raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (This isn't CSS!).", @line)
       end

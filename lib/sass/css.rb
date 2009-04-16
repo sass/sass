@@ -183,7 +183,7 @@ module Sass
         end
 
         assert_match /(;|(?=\}))/
-        rule << Tree::AttrNode.new(name, value, {})
+        rule << Tree::AttrNode.new(name, value, nil, {})
       end
 
       assert_match /\}/
