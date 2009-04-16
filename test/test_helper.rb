@@ -18,4 +18,8 @@ class Test::Unit::TestCase
     test_name = caller[1].gsub(/^.*`(?:\w+ )*(\w+)'.*$/, '\1')
     opts[:filename] = "#{test_name}_inline.sass"
   end
+
+  def clean_up_sassc
+    Dir[File.dirname(__FILE__) + "/sass/*templates/**/*.sassc"].map {|f| File.delete(f)}
+  end
 end

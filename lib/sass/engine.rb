@@ -446,19 +446,29 @@ END
         end
 
         next Tree::DirectiveNode.new("@import url(#{filename})", @options) if filename =~ /\.css$/
+        compiled_filename = filename.gsub(/\.sass$/, ".sassc")
 
-        File.open(filename) do |file|
-          new_options = @options.dup
-          new_options[:filename] = filename
-          engine = Sass::Engine.new(file.read, new_options)
+        if File.readable?(compiled_filename)
+          root = Marshal.load(File.read(compiled_filename))
+        else
+          File.open(filename) do |file|
+            new_options = @options.dup
+            new_options[:filename] = filename
+            engine = Sass::Engine.new(file.read, new_options)
+          end
+
+          begin
+            root = engine.render_to_tree
+          rescue Sass::SyntaxError => err
+            err.add_backtrace_entry(filename)
+            raise err
+          end
+
+          if File.writable?(File.dirname(compiled_filename))
+            File.open(compiled_filename, "w") {|f| f.write(Marshal.dump(root))}
+          end
         end
 
-        begin
-          root = engine.render_to_tree
-        rescue Sass::SyntaxError => err
-          err.add_backtrace_entry(filename)
-          raise err
-        end
         Tree::FileNode.new(filename, root.children, @options)
       end.flatten
     end
