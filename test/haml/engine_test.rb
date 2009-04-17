@@ -139,6 +139,11 @@ class EngineTest < Test::Unit::TestCase
                  render("\"title '\#{\"Title\"}'. \""))
   end
 
+  def test_interpolation_at_the_beginning_of_a_line
+    assert_equal("<p>2</p>\n", render('%p #{1 + 1}'))
+    assert_equal("<p>\n  2\n</p>\n", render("%p\n  \#{1 + 1}"))
+  end
+
   def test_nil_tag_value_should_render_as_empty
     assert_equal("<p></p>\n", render("%p= nil"))
   end
