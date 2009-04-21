@@ -139,6 +139,11 @@ class SassPluginTest < Test::Unit::TestCase
     tempfile_name = arguments.shift || result_name
     expected_lines = File.read(result_loc(result_name, prefix)).split("\n")
     actual_lines = File.read(tempfile_loc(tempfile_name, prefix)).split("\n")
+
+    if actual_lines.first == "/*" && expected_lines.first != "/*"
+      assert(false, actual_lines[0..actual_lines.enum_with_index.find {|l, i| l == "*/"}.last].join("\n"))
+    end
+
     expected_lines.zip(actual_lines).each_with_index do |pair, line|
       message = "template: #{result_name}\nline:     #{line + 1}"
       assert_equal(pair.first, pair.last, message)
