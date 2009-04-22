@@ -4,7 +4,7 @@ require 'enumerator'
 
 module Haml
   module Util
-    class << self; include Haml::Util; end
+    extend self
 
     RUBY_VERSION = ::RUBY_VERSION.split(".").map {|s| s.to_i}
 

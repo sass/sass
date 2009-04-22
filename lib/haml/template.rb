@@ -1,20 +1,11 @@
 require 'haml/engine'
 
 module Haml
-  class Template
-    class << self
-      @@options = {}
+  module Template
+    extend self
 
-      # Gets various options for Haml. See README.rdoc for details.
-      def options
-        @@options
-      end
-
-      # Sets various options for Haml. See README.rdoc for details.
-      def options=(value)
-        @@options = value
-      end
-    end
+    @options = {}
+    attr_accessor :options
   end
 end
 
