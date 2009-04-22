@@ -302,7 +302,7 @@ END
 
     def parse_comment(line)
       if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
-        Tree::CommentNode.new(line, @options.merge(:silent => (line[1] == SASS_COMMENT_CHAR)))
+        Tree::CommentNode.new(line, line[1] == SASS_COMMENT_CHAR, @options)
       else
         Tree::RuleNode.new(line, @options)
       end
