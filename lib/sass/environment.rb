@@ -1,12 +1,12 @@
 module Sass
   class Environment
     attr_reader :parent
+    attr_writer :options
 
-    def initialize(parent = nil, options = nil)
+    def initialize(parent = nil)
       @vars = {}
       @mixins = {}
       @parent = parent
-      @options = options
 
       set_var("important", Script::String.new("!important")) unless @parent
     end

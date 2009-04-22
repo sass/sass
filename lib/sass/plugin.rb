@@ -69,9 +69,9 @@ module Sass
         File.delete(css) if File.exists?(css)
 
         filename = template_filename(name, template_location)
-        options = engine_options(:css_filename => css, :filename => filename)
         result = begin
-                   Engine.tree_for(filename, options).perform(Environment.new(nil, options)).to_s
+                   Engine.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).
+                     perform(Environment.new).to_s
                  rescue Exception => e
                    exception_string(e)
                  end

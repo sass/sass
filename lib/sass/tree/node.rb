@@ -51,6 +51,7 @@ module Sass
       end
 
       def perform(environment)
+        environment.options = @options if self.class == Tree::Node
         _perform(environment)
       rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
       end
