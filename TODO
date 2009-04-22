@@ -13,6 +13,7 @@
    CSS Terminology (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
    Convert to new property syntax
      Stop calling it "alternate" - call it "new" instead
+   Document sassc somewhere obvious
 ** FAQ
    Multiline vs. helpers
    form_for needs -, not =
@@ -23,7 +24,11 @@
 ** Sass
    CSS Terminology? (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
    Sass::Engine load_paths option should be set by executable
-   Figure out sassc stuff
+   Sassc
+     Make available to executable
+     Add option to disable
+     [2.4] Do all parsing in to_tree
+       Never call Node#interpolate
 
    [2.4] Allow semicolons for multiple props on one line
    [2.4] Pull in Compass watcher stuff
@@ -38,4 +43,4 @@
          No comma-folding
        2: Anything that keeps functionality identical to O2 (default)
        3: Assume order of rules doesn't matter
-         Comma-fold even if there are intervening rules that might interfere
+       Comma-fold even if there are intervening rules that might interfere
