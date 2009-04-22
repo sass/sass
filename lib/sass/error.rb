@@ -19,6 +19,13 @@ module Sass
       @sass_line = lineno
     end
 
+    # Add information about the filename and line on which the error was raised.
+    def add_metadata(filename, line)
+      self.sass_line ||= line
+      add_backtrace_entry(filename) unless sass_filename
+      raise self
+    end
+
     # Adds a properly formatted entry to the exception's backtrace.
     # +filename+ should be the file in which the error occurred,
     # if applicable (defaults to "(sass)").

@@ -3,7 +3,7 @@ module Sass
     class Node
       attr_accessor :children
       attr_accessor :line
-      attr_accessor :filename
+      attr_writer :filename
       attr_reader :options
 
       def initialize
@@ -13,6 +13,10 @@ module Sass
       def options=(options)
         children.each {|c| c.options = options}
         @options = options
+      end
+
+      def filename
+        @filename || @options[:filename]
       end
 
       def <<(child)
@@ -43,13 +47,12 @@ module Sass
           end
         end
         style == :compressed ? result+"\n" : result[0...-1]
+      rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
       end
 
       def perform(environment)
         _perform(environment)
-      rescue Sass::SyntaxError => e
-        e.sass_line ||= line
-        raise e
+      rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
       end
 
       def style

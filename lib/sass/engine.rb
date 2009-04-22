@@ -101,15 +101,7 @@ module Sass
 
     # Processes the template and returns the result as a string.
     def render
-      begin
-        render_to_tree.perform(@environment).to_s
-      rescue SyntaxError => err
-        err.sass_line = @line unless err.sass_line
-        unless err.sass_filename
-          err.add_backtrace_entry(@options[:filename])
-        end
-        raise err
-      end
+      render_to_tree.perform(@environment).to_s
     end
 
     alias_method :to_css, :render
@@ -125,6 +117,7 @@ module Sass
       append_children(root, tree(tabulate(@template)).first, true)
       root.options = @options
       root
+    rescue SyntaxError => e; e.add_metadata(@options[:filename], @line)
     end
 
     private
