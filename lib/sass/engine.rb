@@ -437,7 +437,7 @@ END
 
         next Tree::DirectiveNode.new("@import url(#{filename})") if filename =~ /\.css$/
 
-        Tree::FileNode.new(filename, Sass::Files.tree_for(filename, @options).children)
+        Tree::FileNode.new(filename)
       end.flatten
     end
   end
