@@ -4,12 +4,17 @@ module Sass
       attr_accessor :children
       attr_accessor :line
       attr_accessor :filename
-      attr_reader :style
+      attr_reader :options
 
       def initialize(options)
         @options = options
         @style = options[:style]
         @children = []
+      end
+
+      def options=(options)
+        children.each {|c| c.options = options}
+        @options = options
       end
 
       def <<(child)
@@ -47,6 +52,10 @@ module Sass
       rescue Sass::SyntaxError => e
         e.sass_line ||= line
         raise e
+      end
+
+      def style
+        @options[:style]
       end
 
       protected

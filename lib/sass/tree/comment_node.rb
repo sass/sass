@@ -9,6 +9,10 @@ module Sass::Tree
       super(options)
     end
 
+    def options=(options)
+      @options = options
+    end
+
     def ==(other)
       self.value == other.value && super
     end

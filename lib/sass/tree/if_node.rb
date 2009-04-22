@@ -15,6 +15,11 @@ module Sass::Tree
       @last_else = node
     end
 
+    def options=(options)
+      super
+      self.else.options = options if self.else
+    end
+
     protected
 
     def _perform(environment)

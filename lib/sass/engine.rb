@@ -122,6 +122,7 @@ module Sass
     def render_to_tree
       root = Tree::Node.new(@options)
       append_children(root, tree(tabulate(@template)).first, true)
+      root.options = @options
       root
     end
 
