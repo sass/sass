@@ -2,7 +2,7 @@ require 'digest/sha1'
 
 module Sass
   # This module contains various bits of functionality
-  # relatd to finding and precompiling Sass files.
+  # related to finding and caching Sass files.
   module Files
     extend self
 

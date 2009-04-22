@@ -1038,7 +1038,7 @@ require 'haml/version'
 #                               or <tt>MERB_ROOT + "/public/stylesheets"</tt>.
 #                               Only has meaning within Ruby on Rails or Merb.
 #
-# [<tt>:cache_location</tt>]    The path where the precompiled .sassc files should be written to.
+# [<tt>:cache_location</tt>]    The path where the cached <tt>sassc</tt> files should be written to.
 #                               Defaults to <tt>RAILS_ROOT + "/tmp/sass-cache"</tt>,
 #                               or <tt>MERB_ROOT + "/tmp/sass-cache"</tt>,
 #                               or just <tt>"./.sass-cache"</tt>.
