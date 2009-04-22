@@ -1,4 +1,5 @@
 require 'strscan'
+require 'digest/sha1'
 require 'sass/tree/node'
 require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
@@ -439,31 +440,53 @@ END
         end
 
         next Tree::DirectiveNode.new("@import url(#{filename})") if filename =~ /\.css$/
-        compiled_filename = filename.gsub(/\.sass$/, ".sassc")
 
-        if File.readable?(compiled_filename)
-          root = Marshal.load(File.read(compiled_filename))
-        else
-          File.open(filename) do |file|
-            new_options = @options.dup
-            new_options[:filename] = filename
-            engine = Sass::Engine.new(file.read, new_options)
-          end
-
-          begin
-            root = engine.render_to_tree
-          rescue Sass::SyntaxError => err
-            err.add_backtrace_entry(filename)
-            raise err
-          end
-
-          if File.writable?(File.dirname(compiled_filename))
-            File.open(compiled_filename, "w") {|f| f.write(Marshal.dump(root))}
-          end
-        end
-
-        Tree::FileNode.new(filename, root.children)
+        Tree::FileNode.new(filename, root_for(filename).children)
       end.flatten
+    end
+
+    def root_for(filename)
+      compiled_filename = filename.gsub(/\.sass$/, ".sassc")
+      text = File.read(filename)
+      sha = Digest::SHA1.hexdigest(text)
+
+      if dump = try_to_read_sassc(filename, compiled_filename, sha)
+        return Marshal.load(dump)
+      end
+
+      new_options = @options.dup
+      new_options[:filename] = filename
+      engine = Sass::Engine.new(text, new_options)
+
+      begin
+        root = engine.render_to_tree
+      rescue Sass::SyntaxError => err
+        err.add_backtrace_entry(filename)
+        raise err
+      end
+
+      try_to_write_sassc root, compiled_filename, sha
+
+      root
+    end
+
+    def try_to_read_sassc(filename, compiled_filename, sha)
+      return unless File.readable?(compiled_filename)
+
+      File.open(compiled_filename) do |f|
+        return unless f.readline("\n").strip == Sass::VERSION
+        return unless f.readline("\n").strip == sha
+        return f.read
+      end
+    end
+
+    def try_to_write_sassc(root, compiled_filename, sha)
+      return unless File.writable?(File.dirname(compiled_filename))
+      File.open(compiled_filename, "w") do |f|
+        f.puts(Sass::VERSION)
+        f.puts(sha)
+        f.write(Marshal.dump(root))
+      end
     end
 
     def self.find_file_to_import(filename, load_paths)
