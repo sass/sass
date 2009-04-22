@@ -4,10 +4,10 @@ module Sass::Tree
   class IfNode < Node
     attr_accessor :else
 
-    def initialize(expr, options)
+    def initialize(expr)
       @expr = expr
       @last_else = self
-      super(options)
+      super()
     end
 
     def add_else(node)

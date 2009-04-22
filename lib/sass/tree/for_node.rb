@@ -2,12 +2,12 @@ require 'sass/tree/node'
 
 module Sass::Tree
   class ForNode < Node
-    def initialize(var, from, to, exclusive, options)
+    def initialize(var, from, to, exclusive)
       @var = var
       @from = from
       @to = to
       @exclusive = exclusive
-      super(options)
+      super()
     end
 
     protected

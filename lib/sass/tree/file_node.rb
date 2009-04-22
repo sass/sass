@@ -1,9 +1,8 @@
 module Sass
   module Tree
     class FileNode < Node
-      def initialize(filename, children, options)
+      def initialize(filename, children)
         @filename = filename
-        super(options)
         self.children = children
       end
 

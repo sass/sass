@@ -6,9 +6,7 @@ module Sass
       attr_accessor :filename
       attr_reader :options
 
-      def initialize(options)
-        @options = options
-        @style = options[:style]
+      def initialize
         @children = []
       end
 

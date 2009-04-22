@@ -7,9 +7,9 @@ module Sass::Tree
 
     attr_accessor :rules
 
-    def initialize(rule, options)
+    def initialize(rule)
       @rules = [rule]
-      super(options)
+      super()
     end
 
     def rule

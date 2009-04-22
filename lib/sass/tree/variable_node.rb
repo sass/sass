@@ -1,11 +1,11 @@
 module Sass
   module Tree
     class VariableNode < Node
-      def initialize(name, expr, guarded, options)
+      def initialize(name, expr, guarded)
         @name = name
         @expr = expr
         @guarded = guarded
-        super(options)
+        super()
       end
 
       protected

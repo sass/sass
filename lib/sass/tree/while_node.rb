@@ -2,9 +2,9 @@ require 'sass/tree/node'
 
 module Sass::Tree
   class WhileNode < Node
-    def initialize(expr, options)
+    def initialize(expr)
       @expr = expr
-      super(options)
+      super()
     end
 
     private

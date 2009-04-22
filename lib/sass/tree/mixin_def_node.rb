@@ -1,10 +1,10 @@
 module Sass
   module Tree
     class MixinDefNode < Node
-      def initialize(name, args, options)
+      def initialize(name, args)
         @name = name
         @args = args
-        super(options)
+        super()
       end
 
       private

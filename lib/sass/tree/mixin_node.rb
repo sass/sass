@@ -2,10 +2,10 @@ require 'sass/tree/node'
 
 module Sass::Tree
   class MixinNode < Node
-    def initialize(name, args, options)
+    def initialize(name, args)
       @name = name
       @args = args
-      super(options)
+      super()
     end
 
     protected

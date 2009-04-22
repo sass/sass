@@ -4,10 +4,10 @@ module Sass::Tree
   class CommentNode < Node
     attr_accessor :value
 
-    def initialize(value, silent, options)
+    def initialize(value, silent)
       @value = value[2..-1].strip
       @silent = silent
-      super(options)
+      super()
     end
 
     def options=(options)

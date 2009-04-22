@@ -1,9 +1,9 @@
 module Sass
   module Tree
     class DebugNode < Node
-      def initialize(expr, options)
+      def initialize(expr)
         @expr = expr
-        super(options)
+        super()
       end
 
       protected

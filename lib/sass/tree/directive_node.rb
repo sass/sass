@@ -2,9 +2,9 @@ module Sass::Tree
   class DirectiveNode < Node
     attr_accessor :value
 
-    def initialize(value, options)
+    def initialize(value)
       @value = value
-      super(options)
+      super()
     end
 
     def to_s(tabs)

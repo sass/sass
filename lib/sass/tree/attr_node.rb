@@ -2,11 +2,11 @@ module Sass::Tree
   class AttrNode < Node
     attr_accessor :name, :value
     
-    def initialize(name, value, attr_syntax, options)
+    def initialize(name, value, attr_syntax)
       @name = name
       @value = value
       @attr_syntax = attr_syntax
-      super(options)
+      super()
     end
 
     def ==(other)

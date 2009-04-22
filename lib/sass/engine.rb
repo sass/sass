@@ -120,7 +120,7 @@ module Sass
     end
 
     def render_to_tree
-      root = Tree::Node.new(@options)
+      root = Tree::Node.new
       append_children(root, tree(tabulate(@template)).first, true)
       root.options = @options
       root
@@ -251,7 +251,7 @@ END
         else
           # Support CSS3-style pseudo-elements,
           # which begin with ::
-          Tree::RuleNode.new(line.text, @options)
+          Tree::RuleNode.new(line.text)
         end
       when Script::VARIABLE_CHAR
         parse_variable(line)
@@ -260,12 +260,12 @@ END
       when DIRECTIVE_CHAR
         parse_directive(parent, line, root)
       when ESCAPE_CHAR
-        Tree::RuleNode.new(line.text[1..-1], @options)
+        Tree::RuleNode.new(line.text[1..-1])
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
         if line.text[1].nil?
-          Tree::RuleNode.new(line.text, @options)
+          Tree::RuleNode.new(line.text)
         else
           parse_mixin_include(line, root)
         end
@@ -273,7 +273,7 @@ END
         if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
           parse_attribute(line, ATTRIBUTE_ALTERNATE)
         else
-          Tree::RuleNode.new(line.text, @options)
+          Tree::RuleNode.new(line.text)
         end
       end
     end
@@ -289,7 +289,7 @@ END
       else
         value
       end
-      Tree::AttrNode.new(name, expr, attribute_regx == ATTRIBUTE ? :old : :new, @options)
+      Tree::AttrNode.new(name, expr, attribute_regx == ATTRIBUTE ? :old : :new)
     end
 
     def parse_variable(line)
@@ -297,14 +297,14 @@ END
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.", @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".", @line) unless name && value
 
-      Tree::VariableNode.new(name, parse_script(value, :offset => line.offset + line.text.index(value)), op == '||=', @options)
+      Tree::VariableNode.new(name, parse_script(value, :offset => line.offset + line.text.index(value)), op == '||=')
     end
 
     def parse_comment(line)
       if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
-        Tree::CommentNode.new(line, line[1] == SASS_COMMENT_CHAR, @options)
+        Tree::CommentNode.new(line, line[1] == SASS_COMMENT_CHAR)
       else
-        Tree::RuleNode.new(line, @options)
+        Tree::RuleNode.new(line)
       end
     end
 
@@ -323,17 +323,17 @@ END
         parse_else(parent, line, value)
       elsif directive == "while"
         raise SyntaxError.new("Invalid while directive '@while': expected expression.") unless value
-        Tree::WhileNode.new(parse_script(value, :offset => offset), @options)
+        Tree::WhileNode.new(parse_script(value, :offset => offset))
       elsif directive == "if"
         raise SyntaxError.new("Invalid if directive '@if': expected expression.") unless value
-        Tree::IfNode.new(parse_script(value, :offset => offset), @options)
+        Tree::IfNode.new(parse_script(value, :offset => offset))
       elsif directive == "debug"
         raise SyntaxError.new("Invalid debug directive '@debug': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.", @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
-        Tree::DebugNode.new(parse_script(value, :offset => offset), @options)
+        Tree::DebugNode.new(parse_script(value, :offset => offset))
       else
-        Tree::DirectiveNode.new(line.text, @options)
+        Tree::DirectiveNode.new(line.text)
       end
     end
 
@@ -354,7 +354,7 @@ END
 
       parsed_from = parse_script(from_expr, :offset => line.offset + line.text.index(from_expr))
       parsed_to = parse_script(to_expr, :offset => line.offset + line.text.index(to_expr))
-      Tree::ForNode.new(var[1..-1], parsed_from, parsed_to, to_name == 'to', @options)
+      Tree::ForNode.new(var[1..-1], parsed_from, parsed_to, to_name == 'to')
     end
 
     def parse_else(parent, line, text)
@@ -368,7 +368,7 @@ END
         expr = parse_script($1, :offset => line.offset + line.text.index($1))
       end
 
-      node = Tree::IfNode.new(expr, @options)
+      node = Tree::IfNode.new(expr)
       append_children(node, line.children, false)
       previous.add_else node
       nil
@@ -403,7 +403,7 @@ END
         default = parse_script(default, :offset => line.offset + line.text.index(default)) if default
         { :name => arg[1..-1], :default_value => default }
       end
-      Tree::MixinDefNode.new(name, args, @options)
+      Tree::MixinDefNode.new(name, args)
     end
 
     def parse_mixin_include(line, root)
@@ -413,7 +413,7 @@ END
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil? || args.nil?
       args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
 
-      Tree::MixinNode.new(name, args.map {|s| parse_script(s, :offset => line.offset + line.text.index(s))}, @options)
+      Tree::MixinNode.new(name, args.map {|s| parse_script(s, :offset => line.offset + line.text.index(s))})
     end
 
     def parse_script(script, options = {})
@@ -438,7 +438,7 @@ END
           raise SyntaxError.new(e.message, @line)
         end
 
-        next Tree::DirectiveNode.new("@import url(#{filename})", @options) if filename =~ /\.css$/
+        next Tree::DirectiveNode.new("@import url(#{filename})") if filename =~ /\.css$/
         compiled_filename = filename.gsub(/\.sass$/, ".sassc")
 
         if File.readable?(compiled_filename)
@@ -462,7 +462,7 @@ END
           end
         end
 
-        Tree::FileNode.new(filename, root.children, @options)
+        Tree::FileNode.new(filename, root.children)
       end.flatten
     end
 
