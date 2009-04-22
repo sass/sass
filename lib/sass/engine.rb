@@ -77,6 +77,13 @@ module Sass
     # attributes of the form <tt>name: attr</tt>.
     ATTRIBUTE_ALTERNATE = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
 
+    # The default options for Sass::Engine.
+    DEFAULT_OPTIONS = {
+      :style => :nested,
+      :load_paths => ['.'],
+      :precompiled_location => './.sass-cache',
+    }.freeze
+
     # Creates a new instace of Sass::Engine that will compile the given
     # template string when <tt>render</tt> is called.
     # See README.rdoc for available options.
@@ -90,10 +97,7 @@ module Sass
     #++
     #
     def initialize(template, options={})
-      @options = {
-        :style => :nested,
-        :load_paths => ['.']
-      }.merge! options
+      @options = DEFAULT_OPTIONS.merge(options)
       @template = template
     end
 
@@ -437,7 +441,8 @@ END
     end
 
     def self.tree_for(filename, options)
-      compiled_filename = filename.gsub(/\.sass$/, ".sassc")
+      options = DEFAULT_OPTIONS.merge(options)
+      compiled_filename = sassc_filename(filename, options)
       text = File.read(filename)
       sha = Digest::SHA1.hexdigest(text)
 
@@ -445,9 +450,7 @@ END
         return Marshal.load(dump)
       end
 
-      new_options = options.dup
-      new_options[:filename] = filename
-      engine = Sass::Engine.new(text, new_options)
+      engine = Sass::Engine.new(text, options.merge(:filename => filename))
 
       begin
         root = engine.to_tree
@@ -456,9 +459,15 @@ END
         raise err
       end
 
-      try_to_write_sassc root, compiled_filename, sha
+      try_to_write_sassc root, compiled_filename, sha, options
 
       root
+    end
+
+    def self.sassc_filename(filename, options)
+      File.join(options[:precompiled_location],
+        Digest::SHA1.hexdigest(File.dirname(File.expand_path(filename))),
+        File.basename(filename) + 'c')
     end
 
     def self.try_to_read_sassc(filename, compiled_filename, sha)
@@ -471,8 +480,12 @@ END
       end
     end
 
-    def self.try_to_write_sassc(root, compiled_filename, sha)
-      return unless File.writable?(File.dirname(compiled_filename))
+    def self.try_to_write_sassc(root, compiled_filename, sha, options)
+      return unless File.writable?(File.dirname(options[:precompiled_location]))
+      return if File.exists?(options[:precompiled_location]) && !File.writable?(options[:precompiled_location])
+      return if File.exists?(File.dirname(compiled_filename)) && !File.writable?(File.dirname(compiled_filename))
+      return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
+      FileUtils.mkdir_p(File.dirname(compiled_filename))
       File.open(compiled_filename, "w") do |f|
         f.puts(Sass::VERSION)
         f.puts(sha)

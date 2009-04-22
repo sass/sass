@@ -2,6 +2,7 @@ lib_dir = File.dirname(__FILE__) + '/../lib'
 require File.dirname(__FILE__) + '/linked_rails'
 
 require 'test/unit'
+require 'fileutils'
 $:.unshift lib_dir unless $:.include?(lib_dir)
 require 'haml'
 require 'sass'
@@ -20,6 +21,7 @@ class Test::Unit::TestCase
   end
 
   def clean_up_sassc
-    Dir[File.dirname(__FILE__) + "/sass/*templates/**/*.sassc"].map {|f| File.delete(f)}
+    path = File.dirname(__FILE__) + "/../.sass-cache"
+    FileUtils.rm_r(path) if File.exist?(path)
   end
 end

@@ -189,9 +189,10 @@ SASS
   end
 
   def test_sass_import
-    assert !File.exists?(File.join(File.dirname(__FILE__) + "/templates/importee.sassc"))
+    sassc_path = Sass::Engine.sassc_filename(File.join(File.dirname(__FILE__) + "/templates/importee.sass"), Sass::Engine::DEFAULT_OPTIONS)
+    assert !File.exists?(sassc_path)
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
-    assert File.exists?(File.join(File.dirname(__FILE__) + "/templates/importee.sassc"))
+    assert File.exists?(sassc_path)
   end
 
   def test_units
