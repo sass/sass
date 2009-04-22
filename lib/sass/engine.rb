@@ -82,6 +82,7 @@ module Sass
     DEFAULT_OPTIONS = {
       :style => :nested,
       :load_paths => ['.'],
+      :cache => true,
       :cache_location => './.sass-cache',
     }.freeze
 

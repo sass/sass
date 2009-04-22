@@ -189,11 +189,18 @@ SASS
   end
 
   def test_sass_import
-    sassc_path = File.join(File.dirname(__FILE__) + "/templates/importee.sass")
-    sassc_path = Sass::Files.send(:sassc_filename, sassc_path, Sass::Engine::DEFAULT_OPTIONS)
-    assert !File.exists?(sassc_path)
+    assert !File.exists?(sassc_path("importee"))
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
-    assert File.exists?(sassc_path)
+    assert File.exists?(sassc_path("importee"))
+  end
+
+  def test_no_cache
+    assert !File.exists?(sassc_path("importee"))
+    renders_correctly("import", {
+        :style => :compact, :cache => false,
+        :load_paths => [File.dirname(__FILE__) + "/templates"],
+      })
+    assert !File.exists?(sassc_path("importee"))
   end
 
   def test_units
@@ -713,5 +720,10 @@ SASS
 
   def filename(name, type)
     File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
+  end
+
+  def sassc_path(template)
+    sassc_path = File.join(File.dirname(__FILE__) + "/templates/#{template}.sass")
+    Sass::Files.send(:sassc_filename, sassc_path, Sass::Engine::DEFAULT_OPTIONS)
   end
 end

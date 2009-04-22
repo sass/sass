@@ -8,12 +8,15 @@ module Sass
 
     def tree_for(filename, options)
       options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
-      compiled_filename = sassc_filename(filename, options)
       text = File.read(filename)
-      sha = Digest::SHA1.hexdigest(text)
 
-      if dump = try_to_read_sassc(filename, compiled_filename, sha)
-        return Marshal.load(dump)
+      if options[:cache]
+        compiled_filename = sassc_filename(filename, options)
+        sha = Digest::SHA1.hexdigest(text)
+
+        if dump = try_to_read_sassc(filename, compiled_filename, sha)
+          return Marshal.load(dump)
+        end
       end
 
       engine = Sass::Engine.new(text, options.merge(:filename => filename))
@@ -25,7 +28,7 @@ module Sass
         raise err
       end
 
-      try_to_write_sassc root, compiled_filename, sha, options
+      try_to_write_sassc(root, compiled_filename, sha, options) if options[:cache]
 
       root
     end

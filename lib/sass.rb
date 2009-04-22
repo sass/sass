@@ -991,6 +991,9 @@ require 'haml/version'
 #                               or <tt>width = !main_width</tt>.
 #                               By default, either syntax is valid.
 #
+# [<tt>:cache</tt>]             Whether parsed Sass files should be cached,
+#                               allowing greater speed. Defaults to true.
+#
 # [<tt>:never_update</tt>]      Whether the CSS files should never be updated,
 #                               even if the template file changes.
 #                               Setting this to true may give small performance gains.
