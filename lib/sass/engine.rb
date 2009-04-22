@@ -82,7 +82,7 @@ module Sass
     DEFAULT_OPTIONS = {
       :style => :nested,
       :load_paths => ['.'],
-      :precompiled_location => './.sass-cache',
+      :cache_location => './.sass-cache',
     }.freeze
 
     # Creates a new instace of Sass::Engine that will compile the given

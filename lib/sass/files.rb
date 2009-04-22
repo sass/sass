@@ -51,7 +51,7 @@ module Sass
     private
 
     def sassc_filename(filename, options)
-      File.join(options[:precompiled_location],
+      File.join(options[:cache_location],
         Digest::SHA1.hexdigest(File.dirname(File.expand_path(filename))),
         File.basename(filename) + 'c')
     end
@@ -67,8 +67,8 @@ module Sass
     end
 
     def try_to_write_sassc(root, compiled_filename, sha, options)
-      return unless File.writable?(File.dirname(options[:precompiled_location]))
-      return if File.exists?(options[:precompiled_location]) && !File.writable?(options[:precompiled_location])
+      return unless File.writable?(File.dirname(options[:cache_location]))
+      return if File.exists?(options[:cache_location]) && !File.writable?(options[:cache_location])
       return if File.exists?(File.dirname(compiled_filename)) && !File.writable?(File.dirname(compiled_filename))
       return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
       FileUtils.mkdir_p(File.dirname(compiled_filename))
