@@ -4,6 +4,7 @@ module Sass
       attr_accessor :children
       attr_accessor :line
       attr_accessor :filename
+      attr_reader :style
 
       def initialize(options)
         @options = options
@@ -35,10 +36,10 @@ module Sass
           else
             child_str = child.to_s(1)
             next unless child_str && child_str.length > 0
-            result << child_str + (@style == :compressed ? '' : "\n")
+            result << child_str + (style == :compressed ? '' : "\n")
           end
         end
-        @style == :compressed ? result+"\n" : result[0...-1]
+        style == :compressed ? result+"\n" : result[0...-1]
       end
 
       def perform(environment)

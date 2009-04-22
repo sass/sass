@@ -18,11 +18,11 @@ module Sass::Tree
     end
 
     def to_s(tabs = 0, parent_name = nil)
-      return if (@style == :compressed || silent?)
+      return if (style == :compressed || silent?)
 
       spaces = '  ' * (tabs - 1)
       spaces + "/* " + ([value] + children.map {|c| c.text}).
-        map{|l| l.sub(%r{ ?\*/ *$},'')}.join(@style == :compact ? ' ' : "\n#{spaces} * ") + " */"
+        map{|l| l.sub(%r{ ?\*/ *$},'')}.join(style == :compact ? ' ' : "\n#{spaces} * ") + " */"
     end
 
     protected

@@ -38,10 +38,10 @@ module Sass::Tree
       attributes = []
       sub_rules = []
 
-      rule_separator = @style == :compressed ? ',' : ', '
-      line_separator = [:nested, :expanded].include?(@style) ? ",\n" : rule_separator
+      rule_separator = style == :compressed ? ',' : ', '
+      line_separator = [:nested, :expanded].include?(style) ? ",\n" : rule_separator
       rule_indent = '  ' * (tabs - 1)
-      per_rule_indent, total_indent = [:nested, :expanded].include?(@style) ? [rule_indent, ''] : ['', rule_indent]
+      per_rule_indent, total_indent = [:nested, :expanded].include?(style) ? [rule_indent, ''] : ['', rule_indent]
 
       total_rule = total_indent + @rules.map do |line|
         per_rule_indent + line.join(rule_separator)
@@ -59,7 +59,7 @@ module Sass::Tree
       if !attributes.empty?
         old_spaces = '  ' * (tabs - 1)
         spaces = '  ' * tabs
-        if @options[:line_comments] && @style != :compressed
+        if @options[:line_comments] && style != :compressed
           to_return << "#{old_spaces}/* line #{line}"
 
           if filename
@@ -78,20 +78,20 @@ module Sass::Tree
           to_return << " */\n"
         end
 
-        if @style == :compact
+        if style == :compact
           attributes = attributes.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
           to_return << "#{total_rule} { #{attributes} }\n"
-        elsif @style == :compressed
+        elsif style == :compressed
           attributes = attributes.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
           to_return << "#{total_rule}{#{attributes}}"
         else
           attributes = attributes.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
-          end_attrs = (@style == :expanded ? "\n" + old_spaces : ' ')
+          end_attrs = (style == :expanded ? "\n" + old_spaces : ' ')
           to_return << "#{total_rule} {\n#{attributes}#{end_attrs}}\n"
         end
       end
 
-      tabs += 1 unless attributes.empty? || @style != :nested
+      tabs += 1 unless attributes.empty? || style != :nested
       sub_rules.each do |sub|
         to_return << sub.to_s(tabs, @rules)
       end

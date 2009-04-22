@@ -30,7 +30,7 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump}.", @line)
       end
       
-      join_string = case @style
+      join_string = case style
                     when :compact; ' '
                     when :compressed; ''
                     else "\n"
@@ -38,14 +38,14 @@ module Sass::Tree
       spaces = '  ' * (tabs - 1)
       to_return = ''
       if !value.empty?
-        to_return << "#{spaces}#{real_name}:#{@style == :compressed ? '' : ' '}#{value};#{join_string}"
+        to_return << "#{spaces}#{real_name}:#{style == :compressed ? '' : ' '}#{value};#{join_string}"
       end
       
       children.each do |kid|
         to_return << kid.to_s(tabs, real_name) << join_string
       end
       
-      (@style == :compressed && parent_name) ? to_return : to_return[0...-1]
+      (style == :compressed && parent_name) ? to_return : to_return[0...-1]
     end
 
     protected
