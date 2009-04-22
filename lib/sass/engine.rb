@@ -95,29 +95,27 @@ module Sass
         :load_paths => ['.']
       }.merge! options
       @template = template
-      @environment = Environment.new(nil, @options)
-      @environment.set_var("important", Script::String.new("!important"))
     end
 
     # Processes the template and returns the result as a string.
     def render
-      render_to_tree.perform(@environment).to_s
+      to_tree.perform(Environment.new(nil, @options)).to_s
     end
 
     alias_method :to_css, :render
 
-    protected
-
-    def environment
-      @environment
-    end
-
-    def render_to_tree
+    def to_tree
       root = Tree::Node.new
       append_children(root, tree(tabulate(@template)).first, true)
       root.options = @options
       root
     rescue SyntaxError => e; e.add_metadata(@options[:filename], @line)
+    end
+
+    protected
+
+    def environment
+      @environment
     end
 
     private
@@ -434,11 +432,11 @@ END
 
         next Tree::DirectiveNode.new("@import url(#{filename})") if filename =~ /\.css$/
 
-        Tree::FileNode.new(filename, root_for(filename).children)
+        Tree::FileNode.new(filename, self.class.tree_for(filename, @options).children)
       end.flatten
     end
 
-    def root_for(filename)
+    def self.tree_for(filename, options)
       compiled_filename = filename.gsub(/\.sass$/, ".sassc")
       text = File.read(filename)
       sha = Digest::SHA1.hexdigest(text)
@@ -447,12 +445,12 @@ END
         return Marshal.load(dump)
       end
 
-      new_options = @options.dup
+      new_options = options.dup
       new_options[:filename] = filename
       engine = Sass::Engine.new(text, new_options)
 
       begin
-        root = engine.render_to_tree
+        root = engine.to_tree
       rescue Sass::SyntaxError => err
         err.add_backtrace_entry(filename)
         raise err
@@ -463,7 +461,7 @@ END
       root
     end
 
-    def try_to_read_sassc(filename, compiled_filename, sha)
+    def self.try_to_read_sassc(filename, compiled_filename, sha)
       return unless File.readable?(compiled_filename)
 
       File.open(compiled_filename) do |f|
@@ -473,7 +471,7 @@ END
       end
     end
 
-    def try_to_write_sassc(root, compiled_filename, sha)
+    def self.try_to_write_sassc(root, compiled_filename, sha)
       return unless File.writable?(File.dirname(compiled_filename))
       File.open(compiled_filename, "w") do |f|
         f.puts(Sass::VERSION)

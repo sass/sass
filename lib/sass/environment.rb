@@ -7,6 +7,8 @@ module Sass
       @mixins = {}
       @parent = parent
       @options = options
+
+      set_var("important", Script::String.new("!important")) unless @parent
     end
 
     def options
