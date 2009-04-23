@@ -25,7 +25,6 @@
    CSS Terminology? (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
    Sass::Engine load_paths option should be set by executable
    Sassc
-     Make available to executable
      Add option to disable
      [2.4] Do all parsing in to_tree
        Never call Node#interpolate
