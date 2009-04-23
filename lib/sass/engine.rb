@@ -105,7 +105,7 @@ module Sass
 
     # Processes the template and returns the result as a string.
     def render
-      to_tree.perform(Environment.new).to_s
+      to_tree.render
     end
 
     alias_method :to_css, :render

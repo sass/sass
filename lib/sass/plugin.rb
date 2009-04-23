@@ -71,8 +71,7 @@ module Sass
 
       filename = template_filename(name, template_location)
       result = begin
-                 Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).
-                   perform(Environment.new).to_s
+                 Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
                  exception_string(e)
                end

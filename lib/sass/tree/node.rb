@@ -35,6 +35,10 @@ module Sass
         self.class == other.class && other.children == children
       end
 
+      def render
+        perform(Environment.new).to_s
+      end
+
       def to_s
         result = String.new
         children.each do |child|
