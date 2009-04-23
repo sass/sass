@@ -24,11 +24,9 @@
 ** Sass
    CSS Terminology? (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
    Sass::Engine load_paths option should be set by executable
-   Sassc
-     Add option to disable
-     [2.4] Do all parsing in to_tree
-       Never call Node#interpolate
 
+   [2.4] Pre-parse everything possible: never call Node#interpolate
+   [2.4] Do all parsing in to_tree
    [2.4] Allow semicolons for multiple props on one line
    [2.4] Pull in Compass watcher stuff
    [2.4] Internationalization
