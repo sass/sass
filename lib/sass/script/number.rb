@@ -77,17 +77,17 @@ module Sass::Script
     end
 
     def gte(other)
-      raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
+      raise NoMethodError.new(nil, :gte) unless other.is_a?(Number)
       operate(other, :>=)
     end
 
     def lt(other)
-      raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
+      raise NoMethodError.new(nil, :lt) unless other.is_a?(Number)
       operate(other, :<)
     end
 
     def lte(other)
-      raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
+      raise NoMethodError.new(nil, :lte) unless other.is_a?(Number)
       operate(other, :<=)
     end
 
