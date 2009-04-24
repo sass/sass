@@ -44,6 +44,7 @@ class SassEngineTest < Test::Unit::TestCase
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
+    "foo\n  @import #{File.dirname(__FILE__)}/templates/basic" => "Import directives may only be used at the root of a document.",
     %Q{!foo = "bar" "baz" !} => %Q{Syntax error in '"bar" "baz" !' at character 20.},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
@@ -114,14 +115,16 @@ class SassEngineTest < Test::Unit::TestCase
   
   def test_exceptions
     EXCEPTION_MAP.each do |key, value|
+      line = 10
       begin
-        Sass::Engine.new(key).render
+        Sass::Engine.new(key, :filename => __FILE__, :line => line).render
       rescue Sass::SyntaxError => err
         value = [value] unless value.is_a?(Array)
 
         assert_equal(value.first, err.message, "Line: #{key}")
-        assert_equal(value[1] || key.split("\n").length, err.sass_line, "Line: #{key}")
-        assert_match(/\(sass\):[0-9]+/, err.backtrace[0], "Line: #{key}")
+        assert_equal(__FILE__, err.sass_filename)
+        assert_equal((value[1] || key.split("\n").length) + line - 1, err.sass_line, "Line: #{key}")
+        assert_match(/#{Regexp.escape(__FILE__)}:[0-9]+/, err.backtrace[0], "Line: #{key}")
       else
         assert(false, "Exception not raised for\n#{key}")
       end
@@ -140,6 +143,24 @@ SASS
       Sass::Engine.new(to_render).render
     rescue Sass::SyntaxError => err
       assert_equal(5, err.sass_line)
+    else
+      assert(false, "Exception not raised for '#{to_render}'!")
+    end
+  end
+
+  def test_exception_location
+    to_render = <<SASS
+rule
+  :attr val
+  // comment!
+
+  :broken
+SASS
+    begin
+      Sass::Engine.new(to_render, :filename => __FILE__, :line => (__LINE__-7)).render
+    rescue Sass::SyntaxError => err
+      assert_equal(__FILE__, err.sass_filename)
+      assert_equal((__LINE__-6), err.sass_line)
     else
       assert(false, "Exception not raised for '#{to_render}'!")
     end

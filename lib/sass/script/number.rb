@@ -20,7 +20,7 @@ module Sass::Script
       elsif other.is_a?(Color)
         other.plus(self)
       else
-        Sass::Script::String.new(self.to_s + other.to_s)
+        super
       end
     end
 

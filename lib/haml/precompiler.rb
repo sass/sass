@@ -195,7 +195,10 @@ END
       @index = index + 1
 
       case text[0]
-      when DIV_CLASS, DIV_ID; render_div(text)
+      when DIV_CLASS; render_div(text)
+      when DIV_ID
+        return push_plain(text) if text[1] == ?{
+        render_div(text)
       when ELEMENT; render_tag(text)
       when COMMENT; render_comment(text[1..-1].strip)
       when SANITIZE

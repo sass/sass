@@ -1,5 +1,5 @@
 !!!
-%html{html_attrs}
+%html{:xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en-US", "lang" => "en-US"}
   %head
     %title Hampton Catlin Is Totally Awesome
     %meta{"http-equiv" => "Content-Type", :content => "text/html; charset=utf-8"}
@@ -12,7 +12,7 @@
       = 1 + 9 + 8 + 2 #numbers should work and this should be ignored
     #body= " Quotes should be loved! Just like people!"
     - 120.times do |number|
-      - number
+      = number
     Wow.|
     %p
       = "Holy cow        " + |

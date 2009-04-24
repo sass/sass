@@ -22,7 +22,6 @@
    Figure out alternate attribute syntax
 ** Sass
    CSS Terminology? (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
-   Sass::Engine load_paths option should be set by executable
 
    [2.4] Allow semicolons for multiple props on one line
    [2.4] Pull in Compass watcher stuff

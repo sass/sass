@@ -94,7 +94,7 @@ module Sass
         :load_paths => ['.']
       }.merge! options
       @template = template
-      @environment = Environment.new
+      @environment = Environment.new(nil, @options)
       @environment.set_var("important", Script::String.new("!important"))
     end
 
@@ -131,7 +131,7 @@ module Sass
       tab_str = nil
       first = true
       enum_with_index(string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/)).map do |line, index|
-        index += 1
+        index += (@options[:line] || 1)
         next if line.strip.empty?
 
         line_tab_str = line[/^\s*/]
@@ -229,7 +229,7 @@ END
         case child
         when Tree::MixinDefNode
           raise SyntaxError.new("Mixins may only be defined at the root of a document.", line.index)
-        when Tree::DirectiveNode
+        when Tree::DirectiveNode, Tree::FileNode
           raise SyntaxError.new("Import directives may only be used at the root of a document.", line.index)
         end
       end
@@ -430,7 +430,7 @@ END
     end
 
     def import_paths
-      paths = @options[:load_paths] || []
+      paths = (@options[:load_paths] || []).dup
       paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
       paths
     end

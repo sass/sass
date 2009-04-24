@@ -129,14 +129,19 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<strong>Hi there!</strong>\n", engine.to_html)
   end
 
-  def test_double_equals
-    assert_equal("<p>Hello World</p>\n", render('%p== Hello #{who}', :locals => {:who => 'World'}))
-    assert_equal("<p>\n  Hello World\n</p>\n", render("%p\n  == Hello \#{who}", :locals => {:who => 'World'}))
+  def test_interpolation
+    assert_equal("<p>Hello World</p>\n", render('%p Hello #{who}', :locals => {:who => 'World'}))
+    assert_equal("<p>\n  Hello World\n</p>\n", render("%p\n  Hello \#{who}", :locals => {:who => 'World'}))
   end
 
-  def test_double_equals_in_the_middle_of_a_string
+  def test_interpolation_in_the_middle_of_a_string
     assert_equal("\"title 'Title'. \"\n",
-                 render("== \"title '\#{\"Title\"}'. \""))
+                 render("\"title '\#{\"Title\"}'. \""))
+  end
+
+  def test_interpolation_at_the_beginning_of_a_line
+    assert_equal("<p>2</p>\n", render('%p #{1 + 1}'))
+    assert_equal("<p>\n  2\n</p>\n", render("%p\n  \#{1 + 1}"))
   end
 
   def test_nil_tag_value_should_render_as_empty

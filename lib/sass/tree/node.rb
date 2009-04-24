@@ -73,7 +73,7 @@ module Sass
             res << "\\" * (escapes - 1) << '#{'
           else
             res << "\\" * [0, escapes - 1].max
-            res << Script::Parser.new(scan, line, scan.pos - scan.matchedsize, filename).
+            res << Script::Parser.new(scan, line, scan.pos - scan.matched_size, filename).
               parse_interpolated.perform(environment).to_s
           end
         end

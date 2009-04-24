@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Sass::Tree
   class RuleNode < Node
     # The character used to include the parent selector

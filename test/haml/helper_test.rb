@@ -141,6 +141,10 @@ HAML
     assert_raise(Haml::Error) { render("- haml_tag :p, :/ do\n  foo") }
   end
 
+  def test_haml_tag_error_return
+    assert_raise(Haml::Error) { render("= haml_tag :p") }
+  end
+
   def test_is_haml
     assert(!ActionView::Base.new.is_haml?)
     assert_equal("true\n", render("= is_haml?"))
