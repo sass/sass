@@ -6,9 +6,7 @@
 ;; URL: http://github.com/nex3/haml/tree/master
 ;; Version: 1.1
 ;; Created: 2007-03-15
-;; Last-Updated: 2009-03-29
 ;; By: Nathan Weizenbaum
-;; RCS Version: 8c3698874a209776210019a54928f3dafc57f221
 ;; Keywords: markup, language, css
 
 ;;; Commentary:
