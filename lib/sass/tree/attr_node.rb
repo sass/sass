@@ -34,7 +34,7 @@ module Sass::Tree
       self.class == other.class && name == other.name && value == other.value && super
     end
 
-    # Computes the CSS for the Property.
+    # Computes the CSS for the property.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @param parent_name [String] The name of the parent property (e.g. `text`) or nil
