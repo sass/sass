@@ -8,7 +8,7 @@ module Sass
       # Converts a node to Sass code that will generate it.
       #
       # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
-      # @param opts [Hash] An options hash (see {Sass::CSS#initialize})
+      # @param opts [Hash<Symbol, Object>] An options hash (see {Sass::CSS#initialize})
       # @return [String] The Sass code corresponding to the node
       def to_sass(tabs = 0, opts = {})
         result = ''
@@ -56,7 +56,6 @@ module Sass
     Node = Struct.new(:key, :value, :next, :prev)
     include Enumerable
 
-    # Initializes an empty {OrderedHash}. Equivalent to `{}`.
     def initialize
       @hash = {}
     end
@@ -137,10 +136,8 @@ module Sass
   #
   #     Sass::CSS.new("p { color: blue }").render #=> "p\n  :color blue"
   class CSS
-    # Initializes an instance of {Sass::CSS} to convert `template` into Sass code.
-    #
     # @param [String] template The CSS code
-    # @param [Hash] options An options hash.
+    # @param [Hash<Symbol, Object>] options An options hash.
     #   `:alternate`: Whether or not to output alternate attribute syntax
     #   (`color: blue` as opposed to `:color blue`).
     def initialize(template, options = {})
