@@ -1,7 +1,14 @@
 require 'sass/tree/node'
 
 module Sass::Tree
+  # A dynamic node representing a mixin include.
+  #
+  # @see Sass::Tree
   class MixinNode < Node
+    # @param name [String] The name of the mixin
+    # @param args [Array<Script::Node>] The arguments to the mixin
+    # @param options [Hash<Symbol, Object>] An options hash;
+    #   see [the Sass options documentation](../../Sass.html#sass_options)
     def initialize(name, args, options)
       @name = name
       @args = args
@@ -10,6 +17,14 @@ module Sass::Tree
 
     protected
 
+    # Runs the mixin.
+    #
+    # @param environment [Sass::Environment] The lexical environment containing
+    #   variable and mixin values
+    # @return [Array<Tree::Node>] The resulting static nodes
+    # @raise [Sass::SyntaxError] if there is no mixin with the given name
+    # @raise [Sass::SyntaxError] if an incorrect number of arguments was passed
+    # @see Sass::Tree
     def _perform(environment)
       raise Sass::SyntaxError.new("Undefined mixin '#{@name}'.", @line) unless mixin = environment.mixin(@name)
 
