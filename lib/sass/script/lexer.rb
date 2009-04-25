@@ -65,10 +65,6 @@ module Sass
         @scanner.eos? && @tok.nil?
       end
 
-      def rest
-        @scanner.rest
-      end
-
       private
 
       def read_token
