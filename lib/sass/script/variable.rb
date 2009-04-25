@@ -1,6 +1,6 @@
 module Sass
   module Script
-    # A SassScript node representing a variable.
+    # A SassScript parse node representing a variable.
     class Variable
       # The name of the variable.
       #
