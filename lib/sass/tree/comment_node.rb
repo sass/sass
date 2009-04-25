@@ -12,7 +12,7 @@ module Sass::Tree
     end
 
     def ==(other)
-      self.value == other.value && super
+      self.class == other.class && value == other.value && lines == other.lines
     end
 
     def silent?
@@ -25,12 +25,6 @@ module Sass::Tree
       spaces = '  ' * (tabs - 1)
       spaces + "/* " + ([value] + lines.map {|l| l.text}).
         map{|l| l.sub(%r{ ?\*/ *$},'')}.join(@style == :compact ? ' ' : "\n#{spaces} * ") + " */"
-    end
-
-    protected
-
-    def _perform(environment)
-      self
     end
   end
 end
