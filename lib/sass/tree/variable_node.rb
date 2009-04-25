@@ -1,6 +1,14 @@
 module Sass
   module Tree
+    # A dynamic node representing a variable definition.
+    #
+    # @see Sass::Tree
     class VariableNode < Node
+      # @param name [String] The name of the variable
+      # @param expr [Script::Node] The parse tree for the initial variable value
+      # @param guarded [Boolean] Whether this is a guarded variable assignment (`||=`)
+      # @param options [Hash<Symbol, Object>] An options hash;
+      #   see [the Sass options documentation](../../Sass.html#sass_options)
       def initialize(name, expr, guarded, options)
         @name = name
         @expr = expr
@@ -10,6 +18,10 @@ module Sass
 
       protected
 
+      # Loads the new variable value into the environment.
+      #
+      # @param environment [Sass::Environment] The lexical environment containing
+      #   variable and mixin values
       def _perform(environment)
         if @guarded && environment.var(@name).nil?
           environment.set_var(@name, @expr.perform(environment))
