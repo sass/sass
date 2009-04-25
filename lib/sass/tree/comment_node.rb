@@ -2,15 +2,17 @@ require 'sass/tree/node'
 
 module Sass::Tree
   class CommentNode < Node
+    attr_accessor :lines
     attr_accessor :value
 
     def initialize(value, options)
+      @lines = []
       @value = value[2..-1].strip
       super(options)
     end
 
     def ==(other)
-      self.value == other.value && super
+      self.class == other.class && value == other.value && lines == other.lines
     end
 
     def silent?
@@ -21,14 +23,8 @@ module Sass::Tree
       return if (@style == :compressed || silent?)
 
       spaces = '  ' * (tabs - 1)
-      spaces + "/* " + ([value] + children.map {|c| c.text}).
+      spaces + "/* " + ([value] + lines.map {|l| l.text}).
         map{|l| l.sub(%r{ ?\*/ *$},'')}.join(@style == :compact ? ' ' : "\n#{spaces} * ") + " */"
-    end
-
-    protected
-
-    def _perform(environment)
-      self
     end
   end
 end
