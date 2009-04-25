@@ -10,7 +10,9 @@ module Sass::Script
   # Numbers can also have more complex units, such as `1px*em/in`.
   # These cannot be inputted directly in Sass code at the moment.
   class Number < Literal
-    # @returns [Numeric] The Ruby value of the number
+    # The Ruby value of the number.
+    #
+    # @returns [Numeric]
     attr_reader :value
 
     # A list of units in the numerator of the number.

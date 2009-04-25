@@ -13,7 +13,7 @@ module Sass::Script
     # Returns the Ruby value of the literal.
     # The type of this value varies based on the subclass.
     #
-    # @return [Object] The Ruby value of the literal
+    # @return [Object]
     attr_reader :value
 
     # Creates a new literal.
