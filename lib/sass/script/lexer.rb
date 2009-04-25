@@ -61,8 +61,10 @@ module Sass
       }
 
       # @param str [String, StringScanner] The source text to lex
-      # @param line [Fixnum] The line on which the SassScript appears
-      # @param offset [Fixnum] The number of characters in on which the SassScript appears
+      # @param line [Fixnum] The line on which the SassScript appears.
+      #   Used for error reporting
+      # @param offset [Fixnum] The number of characters in on which the SassScript appears.
+      #   Used for error reporting
       def initialize(str, line, offset)
         @scanner = str.is_a?(StringScanner) ? str : StringScanner.new(str)
         @line = line
