@@ -1023,7 +1023,7 @@ require 'haml/version'
 #   Defaults to false in production mode, true otherwise.
 #   Only has meaning within Ruby on Rails or Merb.
 #
-# `:template_location`
+# {#template-location} `:template_location`
 # : A path to the root sass template directory for you application.
 #   If a hash, `:css_location` is ignored and this option designates
 #   both a mapping between input and output directories.
@@ -1034,7 +1034,7 @@ require 'haml/version'
 #   This will be derived from the `:css_location` path list if not provided 
 #   by appending a folder of "sass" to each corresponding css location.
 #
-# `:css_location`
+# {#css-location} `:css_location`
 # : The path where CSS output should be written to.
 #   This option is ignored when `:template_location` is a Hash.
 #   Defaults to `RAILS_ROOT + "/public/stylesheets"`
