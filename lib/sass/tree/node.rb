@@ -85,9 +85,12 @@ module Sass
       # if the contents of the nodes and all the child nodes are equivalent,
       # then the nodes are as well.
       #
+      # Only static nodes need to override this.
+      #
       # @param other [Object] The object to compare with
       # @return [Boolean] Whether or not this node and the other object
       #   are the same
+      # @see Sass::Tree
       def ==(other)
         self.class == other.class && other.children == children
       end
