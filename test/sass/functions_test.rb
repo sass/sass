@@ -92,7 +92,7 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def assert_rgb_hsl(rgb, hsl)
     hsl = hsl.map {|v| Sass::Script::Parser.parse v, 0, 0 }
-    assert_equal(rgb, Sass::Script::Functions.hsl(*hsl).value)
+    assert_equal(rgb, Sass::Script::Functions::EvaluationContext.new({}).hsl(*hsl).value)
   end
 
   def evaluate(value)

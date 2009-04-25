@@ -60,7 +60,6 @@ module Sass::Script
     end
 
     instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
-    extend self
 
     # Creates a {Color} object from hue, saturation, and lightness
     # as per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsl-color).
