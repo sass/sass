@@ -1,4 +1,5 @@
 require 'strscan'
+require 'sass/script/node'
 require 'sass/script/variable'
 require 'sass/script/funcall'
 require 'sass/script/operation'
@@ -42,8 +43,7 @@ module Sass
     #   Used for error reporting
     # @param filename [String] The path to the file in which the SassScript appeared.
     #   Used for error reporting
-    # @return [#perform(Sass::Environment)] The root node of the parse tree,
-    #   for example {Operation}
+    # @return [Script::Node] The root node of the parse tree
     def self.parse(value, line, offset, filename = nil)
       Parser.parse(value, line, offset, filename)
     rescue Sass::SyntaxError => e

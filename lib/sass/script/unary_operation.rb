@@ -3,8 +3,8 @@ module Sass::Script
   # such as `-!b` or `not true`.
   #
   # Currently only `-`, `/`, and `not` are unary operators.
-  class UnaryOperation
-    # @param operand [#perform(Sass::Environment)] The parse-tree node
+  class UnaryOperation < Node
+    # @param operand [Script::Node] The parse-tree node
     #   for the object of the operator
     # @param operator [Symbol] The operator to perform
     def initialize(operand, operator)

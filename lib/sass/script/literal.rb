@@ -4,7 +4,7 @@ module Sass::Script
   # Many of these methods, especially the ones that correspond to SassScript operations,
   # are designed to be overridden by subclasses which may change the semantics somewhat.
   # The operations listed here are just the defaults.
-  class Literal
+  class Literal < Node
     require 'sass/script/string'
     require 'sass/script/number'
     require 'sass/script/color'

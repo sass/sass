@@ -6,7 +6,7 @@ module Sass
     # A function call either calls one of the functions in {Script::Functions},
     # or if no function with the given name exists
     # it returns a string representation of the function call.
-    class Funcall
+    class Funcall < Node
       # The name of the function.
       #
       # @return [String]
@@ -14,11 +14,11 @@ module Sass
 
       # The arguments to the function.
       #
-      # @return [Array<#perform(Sass::Environment)>]
+      # @return [Array<Script::Node>]
       attr_reader :args
 
       # @param name [String] See \{#name}
-      # @param name [Array<#perform(Sass::Environment)>] See \{#args}
+      # @param name [Array<Script::Node>] See \{#args}
       def initialize(name, args)
         @name = name
         @args = args

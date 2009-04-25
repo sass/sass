@@ -6,7 +6,7 @@ module Sass
   # and for loops and so forth,
   # in addition to nodes for CSS rules and properties.
   #
-  # However, {Node#perform} returns a different sort of tree.
+  # However, {Tree::Node#perform} returns a different sort of tree.
   # This tree maps more closely to the resulting CSS document
   # than it does to the original Sass document.
   # It still has nodes for CSS rules and properties,
@@ -20,7 +20,7 @@ module Sass
     class Node
       # The child nodes of this node.
       #
-      # @return [Array<Node>]
+      # @return [Array<Tree::Node>]
       attr_accessor :children
 
       # The line of the document on which this node appeared.
@@ -43,7 +43,7 @@ module Sass
 
       # Appends a child to the node.
       #
-      # @param child [Node] The child node
+      # @param child [Tree::Node] The child node
       # @raise [Sass::SyntaxError] if `child` is invalid
       # @see #invalid_child?
       def <<(child)
@@ -55,14 +55,14 @@ module Sass
 
       # Return the last child node.
       #
-      # We need this because {Node} duck types as an Array for {Sass::Engine}.
+      # We need this because {Tree::Node} duck types as an Array for {Sass::Engine}.
       #
-      # @return [Node] The last child node
+      # @return [Tree::Node] The last child node
       def last
         children.last
       end
 
-      # Compares this node and another object (only other {Node}s will be equal).
+      # Compares this node and another object (only other {Tree::Node}s will be equal).
       # This does a structural comparison;
       # if the contents of the nodes and all the child nodes are equivalent,
       # then the nodes are as well.
@@ -107,7 +107,7 @@ module Sass
       #
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
-      # @return [Node] The resulting tree of static nodes
+      # @return [Tree::Node] The resulting tree of static nodes
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def perform(environment)
@@ -124,7 +124,7 @@ module Sass
       #
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
-      # @return [Node, Array<Node>] The resulting static nodes
+      # @return [Tree::Node, Array<Tree::Node>] The resulting static nodes
       # @see #perform
       # @see Sass::Tree
       def _perform(environment)
@@ -148,7 +148,7 @@ module Sass
       #
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
-      # @return [Array<Node>] The resulting static nodes
+      # @return [Array<Tree::Node>] The resulting static nodes
       def perform_children(environment)
         children.map {|c| c.perform(environment)}.flatten
       end
@@ -191,7 +191,7 @@ module Sass
       # This is expected to be overriden by subclasses
       # for which some children are invalid.
       #
-      # @param child [Node] A potential child node
+      # @param child [Tree::Node] A potential child node
       # @return [Boolean, String] Whether or not the child node is valid,
       #   as well as the error message to display if it is invalid
       def invalid_child?(child)

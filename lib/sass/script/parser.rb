@@ -3,9 +3,7 @@ require 'sass/script/lexer'
 module Sass
   module Script
     # The parser for SassScript.
-    # It parses a string of code into a tree of nodes
-    # such as {Operation} that can then have #perform
-    # called to create the resulting {Literal}.
+    # It parses a string of code into a tree of {Script::Node}s.
     class Parser
       # @param str [String, StringScanner] The source text to parse
       # @param line [Fixnum] The line on which the SassScript appears.
@@ -24,8 +22,7 @@ module Sass
       # which signals the end of an interpolated segment,
       # it returns rather than throwing an error.
       #
-      # @return [#perform(Sass::Environment)] The root node of the parse tree,
-      #   for example {Operation}
+      # @return [Script::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse_interpolated
         expr = assert_expr :expr
@@ -35,8 +32,7 @@ module Sass
 
       # Parses a SassScript expression.
       #
-      # @return [#perform(Sass::Environment)] The root node of the parse tree,
-      #   for example {Operation}
+      # @return [Script::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse
         expr = assert_expr :expr
@@ -47,8 +43,7 @@ module Sass
       # Parses a SassScript expression.
       #
       # @call-seq parse(str, line, offset, filename = nil)
-      # @return [#perform(Sass::Environment)] The root node of the parse tree,
-      #   for example {Operation}
+      # @return [Script::Node] The root node of the parse tree
       # @see Parser#initialize
       # @see Parser#parse
       def self.parse(*args)
