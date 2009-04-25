@@ -9,8 +9,10 @@ module Sass::Script
   # A SassScript parse node representing a binary operation,
   # such as `!a + !b` or `"foo" + 1`.
   class Operation
-    # @param operand1 [#perform(Sass::Environment)] A parse-tree node
-    # @param operand2 [#perform(Sass::Environment)] A parse-tree node
+    # @param operand1 [#perform(Sass::Environment)] The parse-tree node
+    #   for the right-hand side of the operator
+    # @param operand2 [#perform(Sass::Environment)] The parse-tree node
+    #   for the left-hand side of the operator
     # @param operator [Symbol] The operator to perform.
     #   This should be one of the binary operator names in {Lexer::OPERATORS}
     def initialize(operand1, operand2, operator)
