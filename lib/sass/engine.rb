@@ -408,7 +408,7 @@ END
         raise SyntaxError.new("Invalid variable \"#{arg}\".", @line) unless arg =~ Script::VALIDATE
         raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
         default = parse_script(default, :offset => line.offset + line.text.index(default)) if default
-        { :name => arg[1..-1], :default_value => default }
+        [arg[1..-1], default]
       end
       Tree::MixinDefNode.new(name, args, @options)
     end
