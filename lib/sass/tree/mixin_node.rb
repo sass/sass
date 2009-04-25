@@ -7,12 +7,10 @@ module Sass::Tree
   class MixinNode < Node
     # @param name [String] The name of the mixin
     # @param args [Array<Script::Node>] The arguments to the mixin
-    # @param options [Hash<Symbol, Object>] An options hash;
-    #   see [the Sass options documentation](../../Sass.html#sass_options)
-    def initialize(name, args, options)
+    def initialize(name, args)
       @name = name
       @args = args
-      super(options)
+      super()
     end
 
     protected

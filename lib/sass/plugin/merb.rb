@@ -10,10 +10,11 @@ unless defined?(Sass::MERB_LOADED)
     env  = Merb.environment
   end
 
-  Sass::Plugin.options.merge!(:template_location  => root + '/public/stylesheets/sass',
-                              :css_location       => root + '/public/stylesheets',
-                              :always_check       => env != "production",
-                              :full_exception     => env != "production")
+  Sass::Plugin.options.merge!(:template_location => root + '/public/stylesheets/sass',
+                              :css_location      => root + '/public/stylesheets',
+                              :cache_location    => root + '/tmp/sass-cache',
+                              :always_check      => env != "production",
+                              :full_exception    => env != "production")
   config = Merb::Plugins.config[:sass] || Merb::Plugins.config["sass"] || {}
 
   if defined? config.symbolize_keys!

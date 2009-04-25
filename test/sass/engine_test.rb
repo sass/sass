@@ -85,7 +85,11 @@ class SassEngineTest < Test::Unit::TestCase
     "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
   }
-  
+
+  def teardown
+    clean_up_sassc
+  end
+
   def test_basic_render
     renders_correctly "basic", { :style => :compact }
   end
@@ -185,7 +189,18 @@ SASS
   end
 
   def test_sass_import
+    assert !File.exists?(sassc_path("importee"))
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
+    assert File.exists?(sassc_path("importee"))
+  end
+
+  def test_no_cache
+    assert !File.exists?(sassc_path("importee"))
+    renders_correctly("import", {
+        :style => :compact, :cache => false,
+        :load_paths => [File.dirname(__FILE__) + "/templates"],
+      })
+    assert !File.exists?(sassc_path("importee"))
   end
 
   def test_units
@@ -705,5 +720,10 @@ SASS
 
   def filename(name, type)
     File.dirname(__FILE__) + "/#{type == 'sass' ? 'templates' : 'results'}/#{name}.#{type}"
+  end
+
+  def sassc_path(template)
+    sassc_path = File.join(File.dirname(__FILE__) + "/templates/#{template}.sass")
+    Sass::Files.send(:sassc_filename, sassc_path, Sass::Engine::DEFAULT_OPTIONS)
   end
 end

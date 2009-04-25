@@ -16,12 +16,10 @@ module Sass::Tree
 
     # @param expr [Script::Expr] The conditional expression.
     #   If this is nil, this is an `@else` node, not an `@else if`
-    # @param options [Hash<Symbol, Object>] An options hash;
-    #   see [the Sass options documentation](../../Sass.html#sass_options)
-    def initialize(expr, options)
+    def initialize(expr)
       @expr = expr
       @last_else = self
-      super(options)
+      super()
     end
 
     # Append an `@else` node to the end of the list.
@@ -30,6 +28,11 @@ module Sass::Tree
     def add_else(node)
       @last_else.else = node
       @last_else = node
+    end
+
+    def options=(options)
+      super
+      self.else.options = options if self.else
     end
 
     protected

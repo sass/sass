@@ -189,6 +189,12 @@ END
         opts.on('-I', '--load-path PATH', 'Add a sass import path.') do |path|
           @options[:for_engine][:load_paths] << path
         end
+        opts.on('--cache-location', 'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
+          @options[:for_engine][:cache_location] = path
+        end
+        opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
+          @options[:for_engine][:cache] = false
+        end
       end
 
       def process_result
@@ -203,21 +209,23 @@ END
         input = @options[:input]
         output = @options[:output]
 
-        template = input.read()
-        input.close() if input.is_a? File
+        tree =
+          if input.is_a?(File) && !@options[:check_syntax]
+            ::Sass::Files.tree_for(input.path, @options[:for_engine])
+          else
+            # We don't need to do any special handling of @options[:check_syntax] here,
+            # because the Sass syntax checking happens alongside evaluation
+            # and evaluation doesn't actually evaluate any code anyway.
+            ::Sass::Engine.new(input.read(), @options[:for_engine]).to_tree
+          end
 
-        begin
-          # We don't need to do any special handling of @options[:check_syntax] here,
-          # because the Sass syntax checking happens alongside evaluation
-          # and evaluation doesn't actually evaluate any code anyway.
-          result = ::Sass::Engine.new(template, @options[:for_engine]).render
-        rescue ::Sass::SyntaxError => e
-          raise e if @options[:trace]
-          raise "Syntax error on line #{get_line e}: #{e.message}"
-        end
+        input.close() if input.is_a?(File)
 
-        output.write(result)
+        output.write(tree.render)
         output.close() if output.is_a? File
+      rescue ::Sass::SyntaxError => e
+        raise e if @options[:trace]
+        raise "Syntax error on line #{get_line e}: #{e.message}"
       end
     end
 

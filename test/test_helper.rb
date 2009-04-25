@@ -2,6 +2,7 @@ lib_dir = File.dirname(__FILE__) + '/../lib'
 require File.dirname(__FILE__) + '/linked_rails'
 
 require 'test/unit'
+require 'fileutils'
 $:.unshift lib_dir unless $:.include?(lib_dir)
 require 'haml'
 require 'sass'
@@ -17,5 +18,10 @@ class Test::Unit::TestCase
     return if opts[:filename]
     test_name = caller[1].gsub(/^.*`(?:\w+ )*(\w+)'.*$/, '\1')
     opts[:filename] = "#{test_name}_inline.sass"
+  end
+
+  def clean_up_sassc
+    path = File.dirname(__FILE__) + "/../.sass-cache"
+    FileUtils.rm_r(path) if File.exist?(path)
   end
 end

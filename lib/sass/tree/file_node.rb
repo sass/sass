@@ -5,14 +5,9 @@ module Sass
     # to the backtrace if an error occurs.
     class FileNode < Node
       # @param filename [String] The name of the imported file
-      # @param children [Array<Tree::Node>] The first-level child nodes
-      #   of the imported file's parse tree
-      # @param options [Hash<Symbol, Object>] An options hash;
-      #   see [the Sass options documentation](../../Sass.html#sass_options)
-      def initialize(filename, children, options)
+      def initialize(filename)
         @filename = filename
-        super(options)
-        self.children = children
+        super()
       end
 
       # Computes the CSS for the imported file.
@@ -27,11 +22,13 @@ module Sass
 
       protected
 
-      # Run the dynamic Sass for the imported file.
+      # Parses the imported file
+      # and runs the dynamic Sass for it.
       #
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def perform!(environment)
+        self.children = Sass::Files.tree_for(filename, @options).children
         self.children = perform_children(environment)
       rescue Sass::SyntaxError => e
         e.add_backtrace_entry(@filename)

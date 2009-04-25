@@ -991,6 +991,10 @@ require 'haml/version'
 #   or `width = !main_width`.
 #   By default, either syntax is valid.
 #
+# `cache`
+# : Whether parsed Sass files should be cached,
+#   allowing greater speed. Defaults to true.
+#
 # `:never_update`
 # : Whether the CSS files should never be updated,
 #   even if the template file changes.
@@ -1040,6 +1044,12 @@ require 'haml/version'
 #   Defaults to `RAILS_ROOT + "/public/stylesheets"`
 #   or `MERB_ROOT + "/public/stylesheets"`.
 #   Only has meaning within Ruby on Rails or Merb.
+#
+# `:cache_location`
+# : The path where the cached `sassc` files should be written to.
+#   Defaults to `RAILS_ROOT + "/tmp/sass-cache"`,
+#   or `MERB_ROOT + "/tmp/sass-cache"`,
+#   or just `"./.sass-cache"`.
 #
 # `:filename`
 # : The filename of the file being rendered.

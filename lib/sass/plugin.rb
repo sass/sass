@@ -70,9 +70,8 @@ module Sass
       File.delete(css) if File.exists?(css)
 
       filename = template_filename(name, template_location)
-      engine = Engine.new(File.read(filename), engine_options(:css_filename => css, :filename => filename))
       result = begin
-                 engine.render
+                 Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
                  exception_string(e)
                end
@@ -193,7 +192,7 @@ END
     def dependencies(filename)
       File.readlines(filename).grep(/^@import /).map do |line|
         line[8..-1].split(',').map do |inc|
-          Sass::Engine.find_file_to_import(inc.strip, [File.dirname(filename)] + load_paths)
+          Sass::Files.find_file_to_import(inc.strip, [File.dirname(filename)] + load_paths)
         end
       end.flatten.grep(/\.sass$/)
     end

@@ -15,13 +15,18 @@ module Sass::Tree
     # @return [String]
     attr_accessor :value
 
+    # Whether or not the comment is silent (that is, doesn't output to CSS).
+    #
+    # @return [Boolean]
+    attr_accessor :silent
+
     # @param value [String] See \{#value}
-    # @param options [Hash<Symbol, Object>] An options hash;
-    #   see [the Sass options documentation](../../Sass.html#sass_options)
-    def initialize(value, options)
+    # @param silent [Boolean] See \{#silent}
+    def initialize(value, silent)
       @lines = []
       @value = value[2..-1].strip
-      super(options)
+      @silent = silent
+      super()
     end
 
     # Compares the contents of two comments.
@@ -30,12 +35,7 @@ module Sass::Tree
     # @return [Boolean] Whether or not this node and the other object
     #   are the same
     def ==(other)
-      self.class == other.class && value == other.value && lines == other.lines
-    end
-
-    # @return [Boolean] Whether or not this is a silent comment
-    def silent?
-      !!@options[:silent]
+      self.class == other.class && value == other.value && silent == other.silent && lines == other.lines
     end
 
     # Computes the CSS for the comment.
@@ -43,12 +43,12 @@ module Sass::Tree
     # @call-seq to_s(tabs = 0)
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String] The resulting CSS
-    def to_s(tabs = 0, _ = nil)
-      return if (@style == :compressed || silent?)
+    def to_s(tabs = 0, parent_name = nil)
+      return if (style == :compressed || @silent)
 
       spaces = '  ' * (tabs - 1)
       spaces + "/* " + ([value] + lines.map {|l| l.text}).
-        map{|l| l.sub(%r{ ?\*/ *$},'')}.join(@style == :compact ? ' ' : "\n#{spaces} * ") + " */"
+        map{|l| l.sub(%r{ ?\*/ *$},'')}.join(style == :compact ? ' ' : "\n#{spaces} * ") + " */"
     end
   end
 end

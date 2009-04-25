@@ -5,11 +5,9 @@ module Sass
     # @see Sass::Tree
     class DebugNode < Node
       # @param expr [Script::Node] The expression to print
-      # @param options [Hash<Symbol, Object>] An options hash;
-      #   see [the Sass options documentation](../../Sass.html#sass_options)
-      def initialize(expr, options)
+      def initialize(expr)
         @expr = expr
-        super(options)
+        super()
       end
 
       protected

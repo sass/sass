@@ -23,6 +23,18 @@ module Sass
       @sass_line = lineno
     end
 
+    # Add information about the filename and line on which the error was raised,
+    # and re-raises the exception.
+    #
+    # @param filename [String] See \{#sass\_filename}
+    # @param line [Fixnum] See \{#sass\_line}
+    # @raise [Sass::SyntaxError] self
+    def add_metadata(filename, line)
+      self.sass_line ||= line
+      add_backtrace_entry(filename) unless sass_filename
+      raise self
+    end
+
     # Adds a properly formatted entry to the exception's backtrace.
     #
     # @param filename [String] The file in which the error occurred,

@@ -6,11 +6,9 @@ module Sass::Tree
   # @see Sass::Tree
   class WhileNode < Node
     # @param expr [Script::Node] The parse tree for the continue expression
-    # @param options [Hash<Symbol, Object>] An options hash;
-    #   see [the Sass options documentation](../../Sass.html#sass_options)
-    def initialize(expr, options)
+    def initialize(expr)
       @expr = expr
-      super(options)
+      super()
     end
 
     protected

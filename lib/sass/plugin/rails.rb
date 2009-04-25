@@ -1,10 +1,11 @@
 unless defined?(Sass::RAILS_LOADED)
   Sass::RAILS_LOADED = true
 
-  Sass::Plugin.options.merge!(:template_location  => RAILS_ROOT + '/public/stylesheets/sass',
-                              :css_location       => RAILS_ROOT + '/public/stylesheets',
-                              :always_check       => RAILS_ENV != "production",
-                              :full_exception     => RAILS_ENV != "production")
+  Sass::Plugin.options.merge!(:template_location => RAILS_ROOT + '/public/stylesheets/sass',
+                              :css_location      => RAILS_ROOT + '/public/stylesheets',
+                              :cache_location    => RAILS_ROOT + '/tmp/sass-cache',
+                              :always_check      => RAILS_ENV != "production",
+                              :full_exception    => RAILS_ENV != "production")
 
   # :stopdoc:
   module ActionController

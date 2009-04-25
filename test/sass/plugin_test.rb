@@ -17,6 +17,7 @@ class SassPluginTest < Test::Unit::TestCase
   end
 
   def teardown
+    clean_up_sassc
     FileUtils.rm_r tempfile_loc
     FileUtils.rm_r tempfile_loc(nil,"more_")
   end

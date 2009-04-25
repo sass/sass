@@ -2,10 +2,11 @@ module Sass::Tree
   class AttrNode < Node
     attr_accessor :name, :value
     
-    def initialize(name, value, options)
+    def initialize(name, value, attr_syntax)
       @name = name
       @value = value
-      super(options)
+      @attr_syntax = attr_syntax
+      super()
     end
 
     def ==(other)
@@ -13,6 +14,12 @@ module Sass::Tree
     end
 
     def to_s(tabs, parent_name = nil)
+      if @options[:attribute_syntax] == :normal && @attr_syntax == :new
+        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.")
+      elsif @options[:attribute_syntax] == :alternate && @attr_syntax == :old
+        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.")
+      end
+
       if value[-1] == ?;
         raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (This isn't CSS!).", @line)
       end
@@ -23,7 +30,7 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump}.", @line)
       end
       
-      join_string = case @style
+      join_string = case style
                     when :compact; ' '
                     when :compressed; ''
                     else "\n"
@@ -31,14 +38,14 @@ module Sass::Tree
       spaces = '  ' * (tabs - 1)
       to_return = ''
       if !value.empty?
-        to_return << "#{spaces}#{real_name}:#{@style == :compressed ? '' : ' '}#{value};#{join_string}"
+        to_return << "#{spaces}#{real_name}:#{style == :compressed ? '' : ' '}#{value};#{join_string}"
       end
       
       children.each do |kid|
         to_return << kid.to_s(tabs, real_name) << join_string
       end
       
-      (@style == :compressed && parent_name) ? to_return : to_return[0...-1]
+      (style == :compressed && parent_name) ? to_return : to_return[0...-1]
     end
 
     protected

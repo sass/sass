@@ -31,14 +31,32 @@ module Sass
       # The name of the document on which this node appeared.
       #
       # @return [String]
-      attr_accessor :filename
+      attr_writer :filename
 
-      # @param options [Hash<Symbol, Object>] An options hash;
-      #   see [the Sass options documentation](../../Sass.html#sass_options)
-      def initialize(options)
-        @options = options
-        @style = options[:style]
+      # The options hash for the node;
+      # see [the Sass options documentation](../../Sass.html#sass_options).
+      #
+      # @return [Hash<Symbol, Object>]
+      attr_reader :options
+
+      def initialize
         @children = []
+      end
+
+      # Sets the options hash for the node and all its children.
+      #
+      # @param options [Hash<Symbol, Object>] The options
+      # @see #options
+      def options=(options)
+        children.each {|c| c.options = options}
+        @options = options
+      end
+
+      # The name of the document on which this node appeared.
+      #
+      # @return [String]
+      def filename
+        @filename || @options[:filename]
       end
 
       # Appends a child to the node.
@@ -74,6 +92,14 @@ module Sass
         self.class == other.class && other.children == children
       end
 
+      # Runs the dynamic Sass code *and* computes the CSS for the tree.
+      #
+      # @see #perform
+      # @see #to_s
+      def render
+        perform(Environment.new).to_s
+      end
+
       # Computes the CSS corresponding to this Sass tree.
       #
       # Only static-node subclasses need to implement \{#to\_s}.
@@ -89,10 +115,11 @@ module Sass
           else
             child_str = child.to_s(1)
             next unless child_str && child_str.length > 0
-            result << child_str + (@style == :compressed ? '' : "\n")
+            result << child_str + (style == :compressed ? '' : "\n")
           end
         end
-        @style == :compressed ? result+"\n" : result[0...-1]
+        style == :compressed ? result+"\n" : result[0...-1]
+      rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
       end
 
       # Runs the dynamic Sass code:
@@ -111,10 +138,13 @@ module Sass
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def perform(environment)
+        environment.options = @options if self.class == Tree::Node
         _perform(environment)
-      rescue Sass::SyntaxError => e
-        e.sass_line ||= line
-        raise e
+      rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
+      end
+
+      def style
+        @options[:style]
       end
 
       protected

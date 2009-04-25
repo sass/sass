@@ -169,7 +169,7 @@ module Sass
     #
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
-      root = Tree::Node.new({})
+      root = Tree::Node.new
       whitespace
       rules              root
       expand_commas      root
@@ -199,7 +199,7 @@ module Sass
       directive = rule[0] == ?@
 
       if directive
-        node = Tree::DirectiveNode.new(rule, {})
+        node = Tree::DirectiveNode.new(rule)
         return node if @template.scan(/;/)
 
         assert_match /\{/
@@ -210,7 +210,7 @@ module Sass
       end
 
       assert_match /\{/
-      node = Tree::RuleNode.new(rule, {})
+      node = Tree::RuleNode.new(rule)
       attributes(node)
       return node
     end
@@ -231,7 +231,7 @@ module Sass
         end
 
         assert_match /(;|(?=\}))/
-        rule << Tree::AttrNode.new(name, value, {})
+        rule << Tree::AttrNode.new(name, value, nil)
       end
 
       assert_match /\}/
@@ -285,7 +285,7 @@ module Sass
       root.children.map! do |child|
         next child unless Tree::RuleNode === child && child.rule.include?(',')
         child.rule.split(',').map do |rule|
-          node = Tree::RuleNode.new(rule.strip, {})
+          node = Tree::RuleNode.new(rule.strip)
           node.children = child.children
           node
         end
@@ -332,7 +332,7 @@ module Sass
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
         root.children.delete child
         first, rest = child.rule.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
-        rules[first] ||= Tree::RuleNode.new(first, {})
+        rules[first] ||= Tree::RuleNode.new(first)
         if rest
           child.rule = "&" + rest
           rules[first] << child

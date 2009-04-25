@@ -8,10 +8,10 @@ module Sass
       # @param args [Array<(String, Script::Node)>] The arguments for the mixin.
       #   Each element is a tuple containing the name of the argument
       #   and the parse tree for the default value of the argument
-      def initialize(name, args, options)
+      def initialize(name, args)
         @name = name
         @args = args
-        super(options)
+        super()
       end
 
       protected

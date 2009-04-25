@@ -10,14 +10,12 @@ module Sass::Tree
     # @param to [Script::Node] The parse tree for the final expression
     # @param exclusive [Boolean] Whether to include `to` in the loop
     #   or stop just before
-    # @param options [Hash<Symbol, Object>] An options hash;
-    #   see [the Sass options documentation](../../Sass.html#sass_options)
-    def initialize(var, from, to, exclusive, options)
+    def initialize(var, from, to, exclusive)
       @var = var
       @from = from
       @to = to
       @exclusive = exclusive
-      super(options)
+      super()
     end
 
     protected
