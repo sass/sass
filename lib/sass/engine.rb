@@ -185,10 +185,10 @@ END
       node.line = line.index
       node.filename = line.filename
 
-      unless node.is_a?(Tree::CommentNode)
-        append_children(node, line.children, false)
+      if node.is_a?(Tree::CommentNode)
+        node.lines = line.children
       else
-        node.children = line.children
+        append_children(node, line.children, false)
       end
       return node
     end
