@@ -2,17 +2,6 @@ require File.join(File.dirname(__FILE__), 'functions')
 module Sass
   module Script
     class Funcall # :nodoc:
-      class EvaluationContext # :nodoc:
-
-        include Sass::Script::Functions
-
-        attr_reader :options
-
-        def initialize(options)
-          @options = options
-        end
-      end
-
       attr_reader :name, :args
 
       def initialize(name, args)
@@ -30,7 +19,7 @@ module Sass
           return Script::String.new("#{name}(#{args.map {|a| a.perform(environment)}.join(', ')})")
         end
 
-        return EvaluationContext.new(environment.options).send(name, *args)
+        return Functions::EvaluationContext.new(environment.options).send(name, *args)
       rescue ArgumentError => e
         raise e unless e.backtrace.first =~ /:in `(#{name}|perform)'$/
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")

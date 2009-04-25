@@ -44,6 +44,16 @@ module Sass::Script
   #
   #   Example: <tt>abs(-10px) => 10px</tt>
   module Functions
+    class EvaluationContext # :nodoc:
+      include Sass::Script::Functions
+
+      attr_reader :options
+
+      def initialize(options)
+        @options = options
+      end
+    end
+
     instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
     extend self
 
