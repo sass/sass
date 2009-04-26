@@ -12,7 +12,7 @@ module Sass::Script
   class Number < Literal
     # The Ruby value of the number.
     #
-    # @returns [Numeric]
+    # @return [Numeric]
     attr_reader :value
 
     # A list of units in the numerator of the number.
