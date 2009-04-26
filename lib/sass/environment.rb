@@ -20,10 +20,10 @@ module Sass
         end
 
         def set_#{name}(name, value)
-          if @parent && @parent.#{name}(name)
-            @parent.set_#{name}(name, value)
-          else
+          if @parent.nil? || @#{name}s.include?(name)
             @#{name}s[name] = value
+          else
+            @parent.set_#{name}(name, value)
           end
         end
 
