@@ -101,6 +101,7 @@ begin
     t.files = files.to_a
 
     t.options << '-r' << 'README.md' << '-m' << 'maruku' << '--protected'
+    t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
   end
 
   task :doc => :yardoc
