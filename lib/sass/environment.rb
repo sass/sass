@@ -20,12 +20,20 @@ module Sass
         end
 
         def set_#{name}(name, value)
-          if @parent.nil? || @#{name}s.include?(name)
+          @#{name}s[name] = value unless try_set_#{name}(name, value)
+        end
+
+        def try_set_#{name}(name, value)
+          if @#{name}s.include?(name)
             @#{name}s[name] = value
+            true
+          elsif @parent
+            @parent.try_set_#{name}(name, value)
           else
-            @parent.set_#{name}(name, value)
+            false
           end
         end
+        protected :try_set_#{name}
 
         def set_local_#{name}(name, value)
           @#{name}s[name] = value
