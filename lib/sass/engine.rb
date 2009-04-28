@@ -115,10 +115,6 @@ module Sass
 
     protected
 
-    def environment
-      @environment
-    end
-
     def render_to_tree
       root = Tree::Node.new(@options)
       append_children(root, tree(tabulate(@template)).first, true)
