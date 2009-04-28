@@ -18,20 +18,55 @@ require 'sass/error'
 require 'haml/shared'
 
 module Sass
-  # :stopdoc:
-  Mixin = Struct.new(:name, :args, :environment, :tree)
-  # :startdoc:
-
-  # This is the class where all the parsing and processing of the Sass
-  # template is done. It can be directly used by the user by creating a
-  # new instance and calling <tt>render</tt> to render the template. For example:
+  # A Sass mixin.
   #
-  #   template = File.load('stylesheets/sassy.sass')
-  #   sass_engine = Sass::Engine.new(template)
-  #   output = sass_engine.render
-  #   puts output
+  # `name`: [{String}]
+  # : The name of the mixin.
+  #
+  # `args`: [{Array}<({String}, {Script::Node})>]
+  # : The arguments for the mixin.
+  #   Each element is a tuple containing the name of the argument
+  #   and the parse tree for the default value of the argument.
+  #
+  # `environment`: [{Sass::Environment}]
+  # : The environment in which the mixin was defined.
+  #   This is captured so that the mixin can have access
+  #   to local variables defined in its scope.
+  #
+  # `tree`: [{Sass::Tree::Node}]
+  # : The parse tree for the mixin.
+  Mixin = Struct.new(:name, :args, :environment, :tree)
+
+  # This class handles the parsing and compilation of the Sass template.
+  # Example usage:
+  #
+  #     template = File.load('stylesheets/sassy.sass')
+  #     sass_engine = Sass::Engine.new(template)
+  #     output = sass_engine.render
+  #     puts output
   class Engine
     include Haml::Util
+
+    # A line of Sass code.
+    #
+    # `text`: [{String}]
+    # : The text in the line, without any whitespace at the beginning or end.
+    #
+    # `tabs`: [{Fixnum}]
+    # : The level of indentation of the line.
+    #
+    # `index`: [{Fixnum}]
+    # : The line number in the original document.
+    #
+    # `offset`: [{Fixnum}]
+    # : The number of bytes in on the line that the text begins.
+    #   This ends up being the number of bytes of leading whitespace.
+    #
+    # `filename`: [{String}]
+    # : The name of the file in which this line appeared.
+    #
+    # `children`: [{Array}<{Line}>]
+    # : The lines nested below this one.
     Line = Struct.new(:text, :tabs, :index, :offset, :filename, :children)
 
     # The character that begins a CSS attribute.
@@ -76,18 +111,9 @@ module Sass
     # attributes of the form <tt>name: attr</tt>.
     ATTRIBUTE_ALTERNATE = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
 
-    # Creates a new instace of Sass::Engine that will compile the given
-    # template string when <tt>render</tt> is called.
-    # See README.rdoc for available options.
-    #
-    #--
-    #
-    # TODO: Add current options to REFRENCE. Remember :filename!
-    #
-    # When adding options, remember to add information about them
-    # to README.rdoc!
-    #++
-    #
+    # @param template [String] The Sass template.
+    # @param options [Hash<Symbol, Object>] An options hash;
+    #   see [the Sass options documentation](../Sass.html#sass_options)
     def initialize(template, options={})
       @options = {
         :style => :nested,
@@ -98,7 +124,10 @@ module Sass
       @environment.set_var("important", Script::String.new("!important"))
     end
 
-    # Processes the template and returns the result as a string.
+    # Render the template to CSS.
+    #
+    # @return [String] The CSS
+    # @raise [Sass::SyntaxError] if there's an error in the document
     def render
       begin
         render_to_tree.perform(@environment).to_s
@@ -115,6 +144,10 @@ module Sass
 
     protected
 
+    # Parses the document into its parse tree.
+    #
+    # @return [Sass::Tree::Node] The root of the parse tree.
+    # @raise [Sass::SyntaxError] if there's an error in the document
     def render_to_tree
       root = Tree::Node.new(@options)
       append_children(root, tree(tabulate(@template)).first, true)
@@ -459,6 +492,26 @@ END
       end.flatten
     end
 
+    # Find the full filename of a Sass or CSS file to import.
+    # This follows Sass's import rules:
+    # if the filename given ends in `".sass"` or `".css"`,
+    # it will try to find that type of file;
+    # otherwise, it will try to find the corresponding Sass file
+    # and fall back on CSS if it's not available.
+    #
+    # Any Sass filename returned will correspond to
+    # an actual Sass file on the filesystem.
+    # CSS filenames, however, may not;
+    # they're expected to be put through directly to the stylesheet
+    # as CSS `@import` statements.
+    #
+    # @param filename [String] The filename to search for
+    # @param load_paths [Array<String>] The set of filesystem paths
+    #   to search for Sass files.
+    # @return [String] The filename of the imported file.
+    #   This is an absolute path if the file is a `".sass"` file.
+    # @raise [Sass::SyntaxError] if `filename` ends in ``".sass"``
+    #   and no corresponding Sass file could be found.
     def self.find_file_to_import(filename, load_paths)
       was_sass = false
       original_filename = filename
@@ -477,6 +530,18 @@ END
       raise SyntaxError.new("File to import not found or unreadable: #{original_filename}.", @line)
     end
 
+    # Checks each of the paths in `load_paths` for a file named `filename`.
+    #
+    # This will also find files with the same name as `filename`
+    # but with an underscore prefixing the basename.
+    # For example, if filename is `"foo/bar/baz.sass"`,
+    # this will look for `"foo/bar/baz.sass"` **and** `"foo/bar/_baz.sass"`.
+    #
+    # @param filename [String] The filename to search for
+    # @param load_paths [Array<String>] The set of filesystem paths
+    #   to search for Sass files
+    # @return [String] The absolute path of the matching file,
+    #   or nil if no matching file is found
     def self.find_full_path(filename, load_paths)
       segments = filename.split(File::SEPARATOR)
       segments.push "_#{segments.pop}"
@@ -484,9 +549,7 @@ END
       load_paths.each do |path|
         [partial_name, filename].each do |name|
           full_path = File.join(path, name)
-          if File.readable?(full_path)
-            return full_path
-          end
+          return full_path if File.readable?(full_path)
         end
       end
       nil
