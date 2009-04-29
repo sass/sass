@@ -25,7 +25,7 @@ unless defined?(Sass::MERB_LOADED)
 
   if version[0] > 0 || version[1] >= 9
 
-    class Merb::Rack::Application # :nodoc:
+    class Merb::Rack::Application
       def call_with_sass(env)
         if !Sass::Plugin.checked_for_updates ||
             Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
@@ -40,7 +40,7 @@ unless defined?(Sass::MERB_LOADED)
 
   else
 
-    class MerbHandler # :nodoc:
+    class MerbHandler
       def process_with_sass(request, response)
         if !Sass::Plugin.checked_for_updates ||
             Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
