@@ -183,7 +183,7 @@ module Haml
       def render(text); text; end
     end
 
-    # Surrounds the filtered text with <script> and CDATA tags.
+    # Surrounds the filtered text with `<script>` and CDATA tags.
     # Useful for including inline Javascript.
     module Javascript
       include Base
