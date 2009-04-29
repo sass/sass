@@ -118,12 +118,6 @@ module Sass
     rescue SyntaxError => e; e.add_metadata(@options[:filename], @line)
     end
 
-    protected
-
-    def environment
-      @environment
-    end
-
     private
 
     def tabulate(string)
