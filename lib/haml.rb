@@ -981,6 +981,9 @@ require 'haml/version'
 #                           and rendering partials.
 #                           Defaults to false.
 #
+#--
+#TODO: Make this an anchor when this becomes markdown
+#++
 # [<tt>:suppress_eval</tt>] Whether or not attribute hashes and Ruby scripts
 #                           designated by <tt>=</tt> or <tt>~</tt> should be
 #                           evaluated. If this is true, said scripts are
