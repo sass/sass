@@ -711,6 +711,8 @@ require 'haml/version'
 # [javascript] Surrounds the filtered text with <script> and CDATA tags.
 #              Useful for including inline Javascript.
 #
+# [cdata]      Surrounds the filtered text with CDATA tags.
+#
 # [escaped]    Works the same as plain, but HTML-escapes the text
 #              before placing it in the document.
 #
