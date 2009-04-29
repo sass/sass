@@ -32,7 +32,6 @@ module Haml
       def self.included(base) # :nodoc:
         Filters.defined[base.name.split("::").last.downcase] = base
         base.extend(base)
-        base.instance_variable_set "@lazy_requires", nil
       end
 
       # Takes a string, the source text that should be passed to the filter,
