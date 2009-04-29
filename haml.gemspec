@@ -2,7 +2,8 @@ require 'rubygems'
 require 'rake'
 
 HAML_GEMSPEC = Gem::Specification.new do |spec|
-  spec.rubyforge_project = spec.name = 'haml'
+  spec.rubyforge_project = 'haml'
+  spec.name = File.exist?('EDGE_GEM_VERSION') ? 'haml-edge' : 'haml'
   spec.summary = "An elegant, structured XHTML/XML templating engine.\nComes with Sass, a similar CSS templating engine."
   spec.version = File.read('VERSION').strip
   spec.authors = ['Nathan Weizenbaum', 'Hampton Catlin']
