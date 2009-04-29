@@ -18,14 +18,15 @@ Mixin #{@name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{@args.size} #{@args.size == 1 ? 'was' : 'were'} passed.
 END
 
-      environment = mixin.args.zip(@args).inject(Sass::Environment.new(mixin.environment)) do |env, (arg, value)|
-        env.set_local_var(arg[:name],
+      environment = mixin.args.zip(@args).
+        inject(Sass::Environment.new(mixin.environment)) do |env, ((name, default), value)|
+        env.set_local_var(name,
           if value
             value.perform(environment)
-          elsif arg[:default_value]
-            arg[:default_value].perform(env)
+          elsif default
+            default.perform(env)
           end)
-        raise Sass::SyntaxError.new("Mixin #{@name} is missing parameter !#{arg[:name]}.") unless env.var(arg[:name])
+        raise Sass::SyntaxError.new("Mixin #{@name} is missing parameter !#{name}.") unless env.var(name)
         env
       end
       mixin.tree.map {|c| c.perform(environment)}.flatten

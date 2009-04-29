@@ -1,4 +1,5 @@
 # -*- mode: org -*-
+#+STARTUP: nofold
 
 * Documentation
   Convert to YARD, Markdown

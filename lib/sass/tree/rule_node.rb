@@ -12,14 +12,6 @@ module Sass::Tree
       super()
     end
 
-    def rule
-      rules.first
-    end
-
-    def rule=(rule)
-      self.rules = [rule]
-    end
-
     def ==(other)
       self.class == other.class && rules == other.rules && super
     end
