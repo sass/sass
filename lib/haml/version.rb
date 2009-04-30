@@ -1,14 +1,26 @@
 require 'haml/util'
 
 module Haml
+  # Handles Haml version-reporting.
+  # Haml not only reports the standard three version numbers,
+  # but its Git revision hash as well,
+  # if it was installed from Git.
   module Version
     include Haml::Util
 
     # Returns a hash representing the version of Haml.
-    # The :major, :minor, and :teeny keys have their respective numbers.
-    # The :string key contains a human-readable string representation of the version.
-    # If Haml is checked out from Git,
-    # the :rev key will have the revision hash.
+    # The `:major`, `:minor`, and `:teeny` keys have their respective numbers as Fixnums.
+    # The `:string` key contains a human-readable string representation of the version.
+    # If Haml is checked out from Git, the `:rev` key will have the revision hash.
+    # For example:
+    #
+    #     {
+    #       :string=>"2.1.0.9616393",
+    #       :rev => "9616393b8924ef36639c7e82aa88a51a24d16949",
+    #       :major => 2, :minor => 1, :teeny => 0
+    #     }
+    #
+    # @return [Hash<Symbol, String/Symbol>] The version hash
     def version
       return @@version if defined?(@@version)
 
