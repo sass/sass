@@ -48,9 +48,10 @@ end
 task :revision_file do
   require 'lib/haml'
 
-  if Haml.version[:rev] && !Rake.application.top_level_tasks.include?('release')
+  release = Rake.application.top_level_tasks.include?('release') || File.exist?('EDGE_GEM_VERSION')
+  if Haml.version[:rev] && !release
     File.open('REVISION', 'w') { |f| f.puts Haml.version[:rev] }
-  elsif Rake.application.top_level_tasks.include?('release')
+  elsif release
     File.open('REVISION', 'w') { |f| f.puts "(release)" }
   else
     File.open('REVISION', 'w') { |f| f.puts "(unknown)" }
@@ -79,6 +80,46 @@ task :release => [:package] do
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.zip}
 end
 
+task :release_edge do
+  sh %{git checkout edge-gem}
+  sh %{git fetch origin}
+  sh %{git merge origin/edge-gem}
+  sh %{git merge origin/master}
+
+  # Get the current master branch version
+  version = File.read('VERSION').strip.split('.').map {|n| n.to_i}
+  unless version[1] % 2 == 1 && version[2] == 0
+    raise "#{version.join('.')} is not a development version" 
+  end
+
+  # Bump the edge gem version
+  edge_version = File.read('EDGE_GEM_VERSION').strip.split('.').map {|n| n.to_i}
+  if edge_version[0..1] != version[0..1]
+    # A new master branch version was released, reset the edge gem version
+    edge_version[0..1] = version[0..1]
+    edge_version[2] = 0
+  else
+    # Just bump the teeny version
+    edge_version[2] += 1
+  end
+  edge_version = edge_version.join('.')
+  File.open('EDGE_GEM_VERSION', 'w') {|f| f.puts(edge_version)}
+  sh %{git commit -m "Bump edge gem version." EDGE_GEM_VERSION}
+  sh %{git push origin edge-gem}
+
+  # Package the edge gem with the proper version
+  File.open('VERSION', 'w') {|f| f.puts(edge_version)}
+  sh %{rake package}
+  sh %{git checkout VERSION}
+
+  sh %{rubyforge login}
+  sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
+end
+
+task :watch_for_edge_update do
+  sh %{ruby extra/edge_gem_watch.rb}
+end
+
 # ----- Documentation -----
 
 task :rdoc do
@@ -98,6 +139,7 @@ begin
       end)
     files.include('lib/**/*.rb')
     files.exclude('TODO')
+    files.exclude('lib/haml/template/*.rb')
     t.files = files.to_a
 
     t.options << '-r' << 'README.md' << '-m' << 'markdown' << '--protected'
