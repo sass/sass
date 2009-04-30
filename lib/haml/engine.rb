@@ -17,16 +17,16 @@ module Haml
     include Precompiler
 
     # Allow reading and writing of the options hash
-    attr :options, true
+    attr_accessor :options
 
     # This string contains the source code that is evaluated
     # to produce the Haml document.
-    attr :precompiled, true
+    attr_accessor :precompiled
 
     # A string containing the indentation used for the Haml document.
     # nil if the indentation is ambiguous
     # (for example, for a single-level document).
-    attr :indentation, true
+    attr_accessor :indentation
 
     # True if the format is XHTML
     def xhtml?
