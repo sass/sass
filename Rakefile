@@ -117,7 +117,7 @@ task :release_edge do
 end
 
 task :watch_for_edge_update do
-  sh %{ruby edge_gem_watch.rb}
+  sh %{ruby extra/edge_gem_watch.rb}
 end
 
 # ----- Documentation -----
