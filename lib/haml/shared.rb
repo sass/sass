@@ -4,13 +4,15 @@ require 'strscan'
 module Haml
   # This module contains functionality that's shared across Haml and Sass.
   module Shared
-    def self.handle_interpolation(str)
+    extend self
+
+    def handle_interpolation(str)
       scan = StringScanner.new(str)
       yield scan while scan.scan(/(.*?)(\\*)\#\{/)
       scan.rest
     end
 
-    def self.balance(scanner, start, finish, count = 0)
+    def balance(scanner, start, finish, count = 0)
       str = ''
       scanner = StringScanner.new(scanner) unless scanner.is_a? StringScanner
       regexp = Regexp.new("(.*?)[\\#{start.chr}\\#{finish.chr}]", Regexp::MULTILINE)
@@ -22,7 +24,7 @@ module Haml
       end
     end
 
-    def self.human_indentation(indentation, was = false)
+    def human_indentation(indentation, was = false)
       if !indentation.include?(?\t)
         noun = 'space'
       elsif !indentation.include?(?\s)

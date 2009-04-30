@@ -1,8 +1,13 @@
 require 'rubygems'
 require 'rake'
 
+# Note that Haml's gem-compilation process requires access to the filesystem.
+# This means that it cannot be automatically run by e.g. GitHub's gem system.
+# However, a build server automatically packages the master branch
+# every time it's pushed to; this is made available as the haml-edge gem.
 HAML_GEMSPEC = Gem::Specification.new do |spec|
-  spec.rubyforge_project = spec.name = 'haml'
+  spec.rubyforge_project = 'haml'
+  spec.name = File.exist?('EDGE_GEM_VERSION') ? 'haml-edge' : 'haml'
   spec.summary = "An elegant, structured XHTML/XML templating engine.\nComes with Sass, a similar CSS templating engine."
   spec.version = File.read('VERSION').strip
   spec.authors = ['Nathan Weizenbaum', 'Hampton Catlin']
