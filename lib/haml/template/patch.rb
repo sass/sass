@@ -9,7 +9,7 @@
 # The documentation can be found
 # here[http://rubyonrails.org/api/classes/ActionView/Base.html].
 module ActionView
-  class Base # :nodoc:
+  class Base
     def delegate_template_exists_with_haml(template_path)
       template_exists?(template_path, :haml) && [:haml]
     end

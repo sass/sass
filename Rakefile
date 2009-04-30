@@ -98,6 +98,7 @@ begin
       end)
     files.include('lib/**/*.rb')
     files.exclude('TODO')
+    files.exclude('lib/haml/template/*.rb')
     t.files = files.to_a
 
     t.options << '-r' << 'README.md' << '-m' << 'markdown' << '--protected'
