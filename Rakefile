@@ -88,7 +88,9 @@ task :release_edge do
 
   # Get the current master branch version
   version = File.read('VERSION').strip.split('.').map {|n| n.to_i}
-  raise "#{version.join('.')} is not a development version" unless version[1].odd? && version[2] == 0
+  unless version[1] % 2 == 1 && version[2] == 0
+    raise "#{version.join('.')} is not a development version" 
+  end
 
   # Bump the edge gem version
   edge_version = File.read('EDGE_GEM_VERSION').strip.split('.').map {|n| n.to_i}
