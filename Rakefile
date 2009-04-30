@@ -116,6 +116,10 @@ task :release_edge do
   sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
 end
 
+task :watch_for_edge_update do
+  sh %{ruby edge_gem_watch.rb}
+end
+
 # ----- Documentation -----
 
 begin
