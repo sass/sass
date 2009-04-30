@@ -8,6 +8,11 @@ module Haml
 
     RUBY_VERSION = ::RUBY_VERSION.split(".").map {|s| s.to_i}
 
+    # Returns the path of file relative to the Haml root.
+    def scope(file)
+      File.expand_path File.join(File.dirname(__FILE__), '..', '..', file)
+    end
+
     def to_hash(arr)
       arr.compact.inject({}) {|h, (k, v)| h[k] = v; h}
     end

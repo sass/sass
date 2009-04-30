@@ -182,6 +182,11 @@ HAML
                  render("= find_and_preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
   end
 
+  def test_find_and_preserve_with_block_and_tags
+    assert_equal("<pre>Foo\nBar</pre>\nFoo\nBar\n",
+                 render("= find_and_preserve([]) do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))
+  end
+
   def test_preserve_with_block
     assert_equal("<pre>Foo&#x000A;Bar</pre>&#x000A;Foo&#x000A;Bar\n",
                  render("= preserve do\n  %pre\n    Foo\n    Bar\n  Foo\n  Bar"))

@@ -1,5 +1,9 @@
+require 'haml/util'
+
 module Haml
   module Version
+    include Haml::Util
+
     # Returns a hash representing the version of Haml.
     # The :major, :minor, and :teeny keys have their respective numbers.
     # The :string key contains a human-readable string representation of the version.
@@ -37,11 +41,6 @@ module Haml
       end
 
       @@version
-    end
-
-    # Returns the path of file relative to the Haml root.
-    def scope(file) # :nodoc:
-      File.expand_path File.join(File.dirname(__FILE__), '..', '..', file)
     end
   end
 end
