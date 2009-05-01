@@ -267,6 +267,8 @@ END
     # All of the values here are such that when `#inspect` is called on the hash,
     # it can be `Kernel#eval`ed to get the same result back.
     #
+    # See [the Haml options documentation](../Haml.html#haml_options).
+    #
     # @return [Hash<Symbol, Object>] The options hash
     def options_for_buffer
       {
