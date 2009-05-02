@@ -1,5 +1,7 @@
-require 'haml/helpers/action_view_mods'
-require 'haml/helpers/action_view_extensions'
+if defined?(ActionView)
+  require 'haml/helpers/action_view_mods'
+  require 'haml/helpers/action_view_extensions'
+end
 
 module Haml
   # This module contains various helpful methods to make it easier to do various tasks.
