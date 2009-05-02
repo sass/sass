@@ -140,6 +140,7 @@ begin
     files.include('lib/**/*.rb')
     files.exclude('TODO')
     files.exclude('lib/haml/template/*.rb')
+    files.exclude('lib/haml/helpers/action_view_mods.rb')
     t.files = files.to_a
 
     t.options << '-r' << 'README.md' << '-m' << 'markdown' << '--protected'

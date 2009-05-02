@@ -1,6 +1,6 @@
 if defined?(ActionView) and not defined?(Merb::Plugins)
   module ActionView
-    class Base # :nodoc:
+    class Base
       def render_with_haml(*args, &block)
         options = args.first
 
@@ -37,10 +37,7 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
       end
     end
 
-    # This overrides various helpers in ActionView
-    # to make them work more effectively with Haml.
     module Helpers
-      # :stopdoc:
       # In Rails <=2.1, we've got to override considerable capturing infrastructure.
       # In Rails >2.1, we can make do with only overriding #capture
       # (which no longer behaves differently in helper contexts).
@@ -174,7 +171,6 @@ if defined?(ActionView) and not defined?(Merb::Plugins)
         alias_method :form_for_without_haml, :form_for
         alias_method :form_for, :form_for_with_haml
       end
-      # :startdoc:
     end
   end
 end
