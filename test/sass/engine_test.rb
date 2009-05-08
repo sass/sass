@@ -681,6 +681,50 @@ a
 SASS
   end
 
+  # Regression tests
+
+  def test_comment_beneath_attr
+    assert_equal(<<RESULT, render(<<SOURCE))
+.box {
+  border-style: solid; }
+RESULT
+.box
+  :border
+    //:color black
+    :style solid
+SOURCE
+
+    assert_equal(<<RESULT, render(<<SOURCE))
+.box {
+  /* :color black */
+  border-style: solid; }
+RESULT
+.box
+  :border
+    /*:color black
+    :style solid
+SOURCE
+
+    assert_equal(<<RESULT, render(<<SOURCE, :style => :compressed))
+.box{border-style:solid}
+RESULT
+.box
+  :border
+    /*:color black
+    :style solid
+SOURCE
+  end
+
+  def test_compressed_comment_beneath_directive
+    assert_equal(<<RESULT, render(<<SOURCE, :style => :compressed))
+@foo{a:b}
+RESULT
+@foo
+  a: b
+  /*b: c
+SOURCE
+  end
+
   private
   
   def render(sass, options = {})
