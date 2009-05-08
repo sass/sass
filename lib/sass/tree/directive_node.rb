@@ -19,6 +19,7 @@ module Sass::Tree
         was_attr = false
         first = true
         children.each do |child|
+          next if child.invisible?
           if @style == :compact
             if child.is_a?(AttrNode)
               result << "#{child.to_s(first || was_attr ? 1 : tabs + 1)} "

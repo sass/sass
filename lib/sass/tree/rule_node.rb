@@ -40,6 +40,7 @@ module Sass::Tree
       end.join(line_separator)
 
       children.each do |child|
+        next if child.invisible?
         if child.is_a? RuleNode
           sub_rules << child
         else
