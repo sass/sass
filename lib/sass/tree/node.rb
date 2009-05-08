@@ -39,14 +39,16 @@ module Sass
         perform(Environment.new).to_s
       end
 
+      def invisible?; false; end
+
       def to_s
         result = String.new
         children.each do |child|
           if child.is_a? AttrNode
             raise Sass::SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
           else
+            next if child.invisible?
             child_str = child.to_s(1)
-            next unless child_str && child_str.length > 0
             result << child_str + (style == :compressed ? '' : "\n")
           end
         end

@@ -14,7 +14,7 @@ module Haml
     # which can either be a string containing HTML or an Hpricot node,
     # to a Haml string when +render+ is called.
     def initialize(template, options = {})
-      @@options = options
+      @options = options
 
       if template.is_a? Hpricot::Node
         @template = template
@@ -23,12 +23,12 @@ module Haml
           template = template.read
         end
 
-        if @@options[:rhtml]
+        if @options[:rhtml]
           match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
           match_to_html(template, /<%-?(.*?)-?%>/m,  'silent')
         end
 
-        method = @@options[:xhtml] ? Hpricot.method(:XML) : method(:Hpricot)
+        method = @options[:xhtml] ? Hpricot.method(:XML) : method(:Hpricot)
         @template = method.call(template.gsub('&', '&amp;'))
       end
     end
@@ -36,14 +36,14 @@ module Haml
     # Processes the document and returns the result as a string
     # containing the Haml template.
     def render
-      @template.to_haml(0)
+      @template.to_haml(0, @options)
     end
     alias_method :to_haml, :render
 
     module ::Hpricot::Node
       # Returns the Haml representation of the given node,
       # at the given tabulation.
-      def to_haml(tabs = 0)
+      def to_haml(tabs, options)
         parse_text(self.to_s, tabs)
       end
 
@@ -70,32 +70,28 @@ module Haml
 
     # :stopdoc:
 
-    def self.options
-      @@options
-    end
-
     TEXT_REGEXP = /^(\s*).*$/
 
     class ::Hpricot::Doc
-      def to_haml(tabs = 0)
-        (children || []).inject('') {|s, c| s << c.to_haml(0)}
+      def to_haml(tabs, options)
+        (children || []).inject('') {|s, c| s << c.to_haml(0, options)}
       end
     end
 
     class ::Hpricot::XMLDecl
-      def to_haml(tabs = 0)
+      def to_haml(tabs, options)
         "#{tabulate(tabs)}!!! XML\n"
       end
     end
 
     class ::Hpricot::CData
-      def to_haml(tabs = 0)
+      def to_haml(tabs, options)
         "#{tabulate(tabs)}:cdata\n#{parse_text(self.content, tabs + 1)}"
       end
     end
 
     class ::Hpricot::DocType
-      def to_haml(tabs = 0)
+      def to_haml(tabs, options)
         attrs = public_id.scan(/DTD\s+([^\s]+)\s*([^\s]*)\s*([^\s]*)\s*\/\//)[0]
         if attrs == nil
           raise Exception.new("Invalid doctype")
@@ -126,34 +122,35 @@ module Haml
     end
 
     class ::Hpricot::Comment
-      def to_haml(tabs = 0)
+      def to_haml(tabs, options)
         "#{tabulate(tabs)}/\n#{parse_text(self.content, tabs + 1)}"
       end
     end
 
     class ::Hpricot::Elem
-      def to_haml(tabs = 0)
+      def to_haml(tabs, options)
         output = "#{tabulate(tabs)}"
-        if HTML.options[:rhtml] && name[0...5] == 'haml:'
+        if options[:rhtml] && name[0...5] == 'haml:'
           return output + HTML.send("haml_tag_#{name[5..-1]}", CGI.unescapeHTML(self.inner_text))
         end
 
-        output += "%#{name}" unless name == 'div' && (static_id? || static_classname?)
+        output += "%#{name}" unless name == 'div' &&
+          (static_id?(options) || static_classname?(options))
 
         if attributes
-          if static_id?
+          if static_id?(options)
             output += "##{attributes['id']}"
             remove_attribute('id')
           end
-          if static_classname?
+          if static_classname?(options)
             attributes['class'].split(' ').each { |c| output += ".#{c}" }
             remove_attribute('class')
           end
-          output += haml_attributes if attributes.length > 0
+          output += haml_attributes(options) if attributes.length > 0
         end
 
         (self.children || []).inject(output + "\n") do |output, child|
-          output + child.to_haml(tabs + 1)
+          output + child.to_haml(tabs + 1, options)
         end
       end
 
@@ -174,27 +171,27 @@ module Haml
         end
       end
       
-      def static_attribute?(name)
-        attributes[name] and !dynamic_attribute?(name)
+      def static_attribute?(name, options)
+        attributes[name] and !dynamic_attribute?(name, options)
       end
       
-      def dynamic_attribute?(name)
-        HTML.options[:rhtml] and dynamic_attributes.key?(name)
+      def dynamic_attribute?(name, options)
+        options[:rhtml] and dynamic_attributes.key?(name)
       end
       
-      def static_id?
-        static_attribute? 'id'
+      def static_id?(options)
+        static_attribute?('id', options)
       end
       
-      def static_classname?
-        static_attribute? 'class'
+      def static_classname?(options)
+        static_attribute?('class', options)
       end
 
       # Returns a string representation of an attributes hash
       # that's prettier than that produced by Hash#inspect
-      def haml_attributes
+      def haml_attributes(options)
         attrs = attributes.map do |name, value|
-          value = dynamic_attribute?(name) ? dynamic_attributes[name] : value.inspect
+          value = dynamic_attribute?(name, options) ? dynamic_attributes[name] : value.inspect
           name = name.index(/\W/) ? name.inspect : ":#{name}"
           "#{name} => #{value}"
         end
