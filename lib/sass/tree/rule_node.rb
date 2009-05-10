@@ -6,11 +6,6 @@ module Sass::Tree
     PARENT = '&'
 
     # The CSS selectors for this rule.
-    # The type of this variable varies based on whether
-    # this node's tree has had \{Tree::Node#perform} called or not.
-    #
-    # Before \{Tree::Node#perform} has been called,
-    # it's an array of strings.
     # Each string is a selector line, and the lines are meant to be separated by commas.
     # For example,
     #
@@ -22,21 +17,30 @@ module Sass::Tree
     #     ["foo, bar, baz",
     #      "bip, bop, bup"]
     #
-    # After \{Tree::Node#perform},
-    # each selector line is parsed for individual comma-separation,
-    # so it's an array of arrays of strings.
+    # @return [Array<String>]
+    attr_accessor :rules
+
+    # The CSS selectors for this rule,
+    # parsed for commas and parent-references.
+    # It's only set once {Tree::Node#perform} has been called.
+    #
+    # It's an array of arrays of arrays.
+    # The first level of arrays represents distinct lines in the Sass file;
+    # the second level represents comma-separated selectors;
+    # the third represents structure within those selectors,
+    # currently only parent-refs (represented by `:parent`).
     # For example,
     #
-    #     foo, bar, baz,
-    #     bip, bop, bup
+    #     &.foo, bar, baz,
+    #     bip, &.bop, bup
     #
     # would be
     #
-    #     [["foo", "bar", "baz"],
-    #      ["bip", "bop", "bup"]]
+    #     [[[:parent, "foo"], ["bar"], ["baz"]],
+    #      [["bip"], [:parent, "bop"], ["bup"]]]
     #
-    # @return [Array<String>, Array<Array<String>>]
-    attr_accessor :rules, :parsed_rules
+    # @return [Array<Array<Array<String|Symbol>>>]
+    attr_accessor :parsed_rules
 
     # @param rule [String] The first CSS rule. See \{#rules}
     def initialize(rule)
