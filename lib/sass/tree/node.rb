@@ -103,13 +103,20 @@ module Sass
         perform(Environment.new).to_s
       end
 
+      # True if \{#to\_s} will return `nil`;
+      # that is, if the node shouldn't be rendered.
+      # Should only be called in a static tree.
+      #
+      # @return [Boolean]
       def invisible?; false; end
 
       # Computes the CSS corresponding to this Sass tree.
       #
       # Only static-node subclasses need to implement \{#to\_s}.
       #
-      # @return [String] The resulting CSS
+      # This may return `nil`, but it will only do so if \{#invisible?} is true.
+      #
+      # @return [String, nil] The resulting CSS
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def to_s

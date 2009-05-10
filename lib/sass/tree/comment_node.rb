@@ -40,10 +40,14 @@ module Sass::Tree
 
     # Computes the CSS for the comment.
     #
+    # Returns `nil` if this is a silent comment
+    # or the current style doesn't render comments.
+    #
     # @call-seq to_s(tabs = 0)
     # @param tabs [Fixnum] The level of indentation for the CSS
-    # @return [String] The resulting CSS
-    def to_s(tabs = 0, parent_name = nil)
+    # @return [String, nil] The resulting CSS
+    # @see #invisible?
+    def to_s(tabs = 0, _ = nil)
       return if invisible?
 
       spaces = '  ' * (tabs - 1)
@@ -51,12 +55,22 @@ module Sass::Tree
         map{|l| l.sub(%r{ ?\*/ *$},'')}.join(style == :compact ? ' ' : "\n#{spaces} * ") + " */"
     end
 
+    # Returns `true` if this is a silent comment
+    # or the current style doesn't render comments.
+    #
+    # @return [Boolean]
     def invisible?
       style == :compressed || @silent
     end
 
     protected
 
+    # Removes this node from the tree if it's a silent comment.
+    #
+    # @param environment [Sass::Environment] The lexical environment containing
+    #   variable and mixin values
+    # @return [Tree::Node, Array<Tree::Node>] The resulting static nodes
+    # @see Sass::Tree
     def _perform(environment)
       return [] if @silent
       self
