@@ -991,7 +991,7 @@ require 'haml/version'
 #   or `width = !main_width`.
 #   By default, either syntax is valid.
 #
-# `cache`
+# {#cache} `cache`
 # : Whether parsed Sass files should be cached,
 #   allowing greater speed. Defaults to true.
 #
