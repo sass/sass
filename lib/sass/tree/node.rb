@@ -103,6 +103,8 @@ module Sass
         perform(Environment.new).to_s
       end
 
+      def invisible?; false; end
+
       # Computes the CSS corresponding to this Sass tree.
       #
       # Only static-node subclasses need to implement \{#to\_s}.
@@ -116,8 +118,8 @@ module Sass
           if child.is_a? AttrNode
             raise Sass::SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
           else
+            next if child.invisible?
             child_str = child.to_s(1)
-            next unless child_str && child_str.length > 0
             result << child_str + (style == :compressed ? '' : "\n")
           end
         end

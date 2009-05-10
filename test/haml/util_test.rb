@@ -1,8 +1,13 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
+require 'pathname'
 
 class UtilTest < Test::Unit::TestCase
   include Haml::Util
+
+  def test_scope
+    assert(File.exist?(scope("Rakefile")))
+  end
 
   def test_to_hash
     assert_equal({

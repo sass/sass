@@ -69,6 +69,7 @@ module Sass::Tree
       end
       
       children.each do |kid|
+        next if kid.invisible?
         to_return << kid.to_s(tabs, real_name) << join_string
       end
       

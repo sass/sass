@@ -44,11 +44,22 @@ module Sass::Tree
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String] The resulting CSS
     def to_s(tabs = 0, parent_name = nil)
-      return if (style == :compressed || @silent)
+      return if invisible?
 
       spaces = '  ' * (tabs - 1)
       spaces + "/* " + ([value] + lines.map {|l| l.text}).
         map{|l| l.sub(%r{ ?\*/ *$},'')}.join(style == :compact ? ' ' : "\n#{spaces} * ") + " */"
+    end
+
+    def invisible?
+      style == :compressed || @silent
+    end
+
+    protected
+
+    def _perform(environment)
+      return [] if @silent
+      self
     end
   end
 end
