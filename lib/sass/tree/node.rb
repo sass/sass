@@ -155,6 +155,9 @@ module Sass
       rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
       end
 
+      # The output style. See (the Sass options documentation)[../../Sass.html#output_style].
+      #
+      # @return [Symbol]
       def style
         @options[:style]
       end
