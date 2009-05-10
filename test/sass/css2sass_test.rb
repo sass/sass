@@ -51,6 +51,28 @@ li a:hover {
 CSS
   end
 
+  def test_no_nesting_around_rules
+    assert_equal(<<SASS, css2sass(<<CSS))
+div .warning
+  :color #d21a19
+
+
+span .debug
+  :cursor crosshair
+
+
+div .debug
+  :cursor default
+SASS
+div .warning {
+  color: #d21a19; }
+span .debug { 
+  cursor: crosshair;}
+div .debug {
+  cursor: default; }
+CSS
+  end
+
   def test_comments_multiline
     css = <<CSS
 /* comment */

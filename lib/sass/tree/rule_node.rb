@@ -36,7 +36,7 @@ module Sass::Tree
     #      ["bip", "bop", "bup"]]
     #
     # @return [Array<String>, Array<Array<String>>]
-    attr_accessor :rules
+    attr_accessor :rules, :parsed_rules
 
     # @param rule [String] The first CSS rule. See \{#rules}
     def initialize(rule)
@@ -73,7 +73,7 @@ module Sass::Tree
     # @return [String] The resulting CSS
     # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
     def to_s(tabs, super_rules = nil)
-      resolve_parent_refs!(super_rules)
+      resolved_rules = resolve_parent_refs(super_rules)
 
       attributes = []
       sub_rules = []
@@ -83,7 +83,7 @@ module Sass::Tree
       rule_indent = '  ' * (tabs - 1)
       per_rule_indent, total_indent = [:nested, :expanded].include?(style) ? [rule_indent, ''] : ['', rule_indent]
 
-      total_rule = total_indent + @rules.map do |line|
+      total_rule = total_indent + resolved_rules.map do |line|
         per_rule_indent + line.join(rule_separator)
       end.join(line_separator)
 
@@ -134,7 +134,7 @@ module Sass::Tree
 
       tabs += 1 unless attributes.empty? || style != :nested
       sub_rules.each do |sub|
-        to_return << sub.to_s(tabs, @rules)
+        to_return << sub.to_s(tabs, resolved_rules)
       end
 
       to_return
@@ -148,34 +148,33 @@ module Sass::Tree
     # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
     def perform!(environment)
-      @rules = @rules.map {|r| parse_selector(interpolate(r, environment))}
+      @parsed_rules = @rules.map {|r| parse_selector(interpolate(r, environment))}
       super
     end
 
     private
 
-    def resolve_parent_refs!(super_rules)
+    def resolve_parent_refs(super_rules)
       if super_rules.nil?
-        @rules.each do |line|
-          line.map! do |rule|
+        return @parsed_rules.map do |line|
+          line.map do |rule|
             if rule.include?(:parent)
               raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'.", self.line)
             end
 
             rule.join
-          end.compact!
+          end.compact
         end
-        return
       end
 
       new_rules = []
       super_rules.each do |super_line|
-        @rules.each do |line|
+        @parsed_rules.each do |line|
           new_rules << []
 
           super_line.each do |super_rule|
             line.each do |rule|
-              rule.unshift(:parent, " ") unless rule.include?(:parent)
+              rule = [:parent, " ", *rule] unless rule.include?(:parent)
 
               new_rules.last << rule.map do |segment|
                 next segment unless segment == :parent
@@ -185,7 +184,7 @@ module Sass::Tree
           end
         end
       end
-      @rules = new_rules
+      new_rules
     end
 
     def parse_selector(text)
