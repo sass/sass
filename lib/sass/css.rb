@@ -273,21 +273,25 @@ module Sass
     #       color: blue
     #
     def parent_ref_rules(root)
-      rules = OrderedHash.new
+      current_rule = nil
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
         root.children.delete child
         first, rest = child.rules.first.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
-        rules[first] ||= Tree::RuleNode.new(first, {})
+
+        if current_rule.nil? || current_rule.rules.first != first
+          current_rule = Tree::RuleNode.new(first, {})
+          root << current_rule
+        end
+
         if rest
           child.rules = ["&" + rest]
-          rules[first] << child
+          current_rule << child
         else
-          rules[first].children += child.children
+          current_rule.children += child.children
         end
       end
 
-      rules.values.each { |v| parent_ref_rules(v) }
-      root.children += rules.values
+      root.children.each { |v| parent_ref_rules(v) }
     end
 
     # Remove useless parent refs so that
