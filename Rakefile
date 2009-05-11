@@ -143,7 +143,7 @@ begin
     files.exclude('lib/haml/helpers/action_view_mods.rb')
     t.files = files.to_a
 
-    t.options << '-r' << 'README.md' << '-m' << 'markdown' << '--protected'
+    t.options << '-r' << 'README.md' << '-m' << 'markdown' << '--protected' << '--no-highlight'
     t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
   end
 
