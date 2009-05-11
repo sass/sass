@@ -9,7 +9,7 @@ module Sass
   # but new variables are defined locally.
   #
   # Environment also keeps track of the {Engine} options
-  # so that they can be made available to {Sass::Functions}.
+  # so that they can be made available to {Sass::Script::Functions}.
   class Environment
     # The enclosing environment,
     # or nil if this is the global environment.
