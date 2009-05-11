@@ -33,8 +33,8 @@ module Sass
       # @return [String]
       attr_writer :filename
 
-      # The options hash for the node;
-      # see [the Sass options documentation](../../Sass.html#sass_options).
+      # The options hash for the node.
+      # See [the Sass options documentation](../../Sass.html#sass_options).
       #
       # @return [Hash<Symbol, Object>]
       attr_reader :options
@@ -155,7 +155,7 @@ module Sass
       rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
       end
 
-      # The output style. See (the Sass options documentation)[../../Sass.html#output_style].
+      # The output style. See [the Sass options documentation](../../Sass.html#output_style).
       #
       # @return [Symbol]
       def style
