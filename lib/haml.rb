@@ -981,7 +981,7 @@ require 'haml/version'
 #
 #     Merb::Plugin.config[:haml][:format] = :html5
 # 
-# ...or by passing an options hash to {Haml::Engine.new}.
+# ...or by passing an options hash to {Haml::Engine#initialize}.
 # Available options are:
 #
 # {#format-option} `:format`
