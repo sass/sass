@@ -15,7 +15,9 @@ module Sass
         sha = Digest::SHA1.hexdigest(text)
 
         if dump = try_to_read_sassc(filename, compiled_filename, sha)
-          return Marshal.load(dump)
+          root = Marshal.load(dump)
+          root.options = options.merge(:filename => filename)
+          return root
         end
       end
 
