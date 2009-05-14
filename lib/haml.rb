@@ -642,7 +642,7 @@ require 'haml/version'
 # ==== |
 #
 # The pipe character designates a multiline string.
-# It's placed at the end of a line
+# It's placed at the end of a line (after some whitespace)
 # and means that all following lines that end with <tt>|</tt>
 # will be evaluated as though they were on the same line.
 # For example:
