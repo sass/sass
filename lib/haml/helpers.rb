@@ -82,11 +82,16 @@ module Haml
     # Uses \{#preserve} to convert any newlines inside whitespace-sensitive tags
     # into the HTML entities for endlines.
     #
-    # @call-seq find_and_preserve(input, tags = haml_buffer.options[:preserve])
-    # @call-seq find_and_preserve(tags = haml_buffer.options[:preserve]) {...}
-    # @param input [String] The string within which to escape newlines
     # @param tags [Array<String>] Tags that should have newlines escaped
-    # @yield A block within which to escape newlines
+    #
+    # @overload find_and_preserve(input, tags = haml_buffer.options[:preserve])
+    #   Escapes newlines within a string.
+    #
+    #   @param input [String] The string within which to escape newlines
+    # @overload find_and_preserve(tags = haml_buffer.options[:preserve])
+    #   Escapes newlines within a block of Haml code.
+    #
+    #   @yield The block within which to escape newlines
     def find_and_preserve(input = nil, tags = haml_buffer.options[:preserve], &block)
       return find_and_preserve(capture_haml(&block), input || tags) if block
 
@@ -100,10 +105,14 @@ module Haml
     # HTML entities so they'll render correctly in
     # whitespace-sensitive tags without screwing up the indentation.
     #
-    # @call-seq perserve(input)
-    # @call-seq perserve {...}
-    # @param input [String] The string within which to escape all newlines
-    # @yield A block within which to escape newlines
+    # @overload perserve(input)
+    #   Escapes newlines within a string.
+    #
+    #   @param input [String] The string within which to escape all newlines
+    # @overload perserve
+    #   Escapes newlines within a block of Haml code.
+    #
+    #   @yield The block within which to escape newlines
     def preserve(input = '', &block)
       return preserve(capture_haml(&block)) if block
 
@@ -374,12 +383,13 @@ END
     #       </tr>
     #     </table>
     #
-    # @call-seq haml_tag(name, *flags, attributes = {}) {...}
-    # @call-seq haml_tag(name, text, *flags, attributes = {})
     # @param name [#to_s] The name of the tag
-    # @param text [#to_s] The text within the tag
     # @param flags [Array<Symbol>] Haml end-of-tag flags
-    # @yield The block of Haml code within the tag
+    #
+    # @overload haml_tag(name, *flags, attributes = {})
+    #   @yield The block of Haml code within the tag
+    # @overload haml_tag(name, text, *flags, attributes = {})
+    #   @param text [#to_s] The text within the tag
     def haml_tag(name, *rest, &block)
       ret = ErrorReturn.new(<<MESSAGE)
 haml_tag outputs directly to the Haml template.

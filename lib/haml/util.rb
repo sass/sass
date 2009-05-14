@@ -196,7 +196,7 @@ module Haml
     #
     # \{#static\_method\_name} can be used to call static methods.
     #
-    # @call-seq def_static_method(klass, name, args, *vars, erb)
+    # @overload def_static_method(klass, name, args, *vars, erb)
     # @param klass [Module] The class on which to define the static method
     # @param name [#to_s] The (base) name of the static method
     # @param args [Array<Symbol>] The names of the arguments to the defined methods

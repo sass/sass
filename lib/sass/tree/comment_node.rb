@@ -43,7 +43,7 @@ module Sass::Tree
     # Returns `nil` if this is a silent comment
     # or the current style doesn't render comments.
     #
-    # @call-seq to_s(tabs = 0)
+    # @overload to_s(tabs = 0)
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String, nil] The resulting CSS
     # @see #invisible?

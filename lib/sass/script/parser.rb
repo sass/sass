@@ -42,7 +42,7 @@ module Sass
 
       # Parses a SassScript expression.
       #
-      # @call-seq parse(str, line, offset, filename = nil)
+      # @overload parse(str, line, offset, filename = nil)
       # @return [Script::Node] The root node of the parse tree
       # @see Parser#initialize
       # @see Parser#parse
