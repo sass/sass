@@ -51,9 +51,9 @@ module Sass
 
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass file in [`:template_location`](../Sass.html#template-location)
+    # Checks each Sass file in [`:template_location`](../Sass.html#template_location-option)
     # to see if it's been modified more recently than the corresponding CSS file
-    # in [`:css_location`](../Sass.html#css-location).
+    # in [`:css_location`](../Sass.html#css_location-option).
     # If it has, it updates the CSS file.
     def update_stylesheets
       return if options[:never_update]

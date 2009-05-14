@@ -974,11 +974,11 @@ require 'haml/version'
 # ...or by passing an options hash to {Sass::Engine#initialize}.
 # Available options are:
 #
-# `:style`
+# {#style-option} `:style`
 # : Sets the style of the CSS output.
 #   See the section on Output Style, above.
 #
-# `:attribute_syntax`
+# {#attribute_syntax-option} `:attribute_syntax`
 # : Forces the document to use one syntax for attributes.
 #   If the correct syntax isn't used, an error is thrown.
 #   `:normal` forces the use of a colon
@@ -991,25 +991,25 @@ require 'haml/version'
 #   or `width = !main_width`.
 #   By default, either syntax is valid.
 #
-# {#cache} `cache`
+# {#cache-option} `cache`
 # : Whether parsed Sass files should be cached,
 #   allowing greater speed. Defaults to true.
 #
-# `:never_update`
+# {#never_update-option} `:never_update`
 # : Whether the CSS files should never be updated,
 #   even if the template file changes.
 #   Setting this to true may give small performance gains.
 #   It always defaults to false.
 #   Only has meaning within Ruby on Rails or Merb.
 #
-# `:always_update`
+# {#always_update-option} `:always_update`
 # : Whether the CSS files should be updated every
 #   time a controller is accessed,
 #   as opposed to only when the template has been modified.
 #   Defaults to false.
 #   Only has meaning within Ruby on Rails or Merb.
 #
-# `:always_check`
+# {#always_check-option} `:always_check`
 # : Whether a Sass template should be checked for updates every
 #   time a controller is accessed,
 #   as opposed to only when the Rails server starts.
@@ -1018,7 +1018,7 @@ require 'haml/version'
 #   Defaults to false in production mode, true otherwise.
 #   Only has meaning within Ruby on Rails or Merb.
 #
-# `:full_exception`
+# {#full_exception-option} `:full_exception`
 # : Whether an error in the Sass code
 #   should cause Sass to provide a detailed description.
 #   If set to true, the specific error will be displayed
@@ -1027,7 +1027,7 @@ require 'haml/version'
 #   Defaults to false in production mode, true otherwise.
 #   Only has meaning within Ruby on Rails or Merb.
 #
-# {#template-location} `:template_location`
+# {#template-location-option} `:template_location`
 # : A path to the root sass template directory for you application.
 #   If a hash, `:css_location` is ignored and this option designates
 #   both a mapping between input and output directories.
@@ -1038,31 +1038,31 @@ require 'haml/version'
 #   This will be derived from the `:css_location` path list if not provided 
 #   by appending a folder of "sass" to each corresponding css location.
 #
-# {#css-location} `:css_location`
+# {#css-location-option} `:css_location`
 # : The path where CSS output should be written to.
 #   This option is ignored when `:template_location` is a Hash.
 #   Defaults to `RAILS_ROOT + "/public/stylesheets"`
 #   or `MERB_ROOT + "/public/stylesheets"`.
 #   Only has meaning within Ruby on Rails or Merb.
 #
-# `:cache_location`
+# {#cache_location-option} `:cache_location`
 # : The path where the cached `sassc` files should be written to.
 #   Defaults to `RAILS_ROOT + "/tmp/sass-cache"`,
 #   or `MERB_ROOT + "/tmp/sass-cache"`,
 #   or just `"./.sass-cache"`.
 #
-# `:filename`
+# {#filename-option} `:filename`
 # : The filename of the file being rendered.
 #   This is used solely for reporting errors,
 #   and is automatically set when using Rails or Merb.
 #
-# `:load_paths`
+# {#load_paths-option} `:load_paths`
 # : An array of filesystem paths which should be searched
 #   for Sass templates imported with the "@import" directive.
 #   This defaults to the working directory and, in Rails or Merb,
 #   whatever `:template_location` is.
 #
-# `:line_numbers`
+# {#line_numbers-option} `:line_numbers`
 # : When set to true, causes the line number and file
 #   where a selector is defined to be emitted into the compiled CSS
 #   as a comment. Useful for debugging especially when using imports
