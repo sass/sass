@@ -58,10 +58,10 @@ module Sass
   #
   #     Sass::CSS.new("p { color: blue }").render #=> "p\n  :color blue"
   class CSS
-    # @param [String] template The CSS code
-    # @param [Hash<Symbol, Object>] options An options hash.
-    #   `:alternate`: Whether or not to output alternate attribute syntax
-    #   (`color: blue` as opposed to `:color blue`).
+    # @param template [String] The CSS code
+    # @option options :alternate [Boolean] (false)
+    #     Whether or not to output alternate attribute syntax
+    #     (`color: blue` as opposed to `:color blue`).
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
@@ -104,7 +104,7 @@ module Sass
 
     # Parses a set of CSS rules.
     #
-    # @param [Tree::Node] The parent node of the rules
+    # @param root [Tree::Node] The parent node of the rules
     def rules(root)
       while r = rule
         root << r
@@ -139,7 +139,7 @@ module Sass
 
     # Parses a set of CSS attributes within a rule.
     #
-    # @param [Tree::RuleNode] rule The parent node of the attributes
+    # @param rule [Tree::RuleNode] The parent node of the attributes
     def attributes(rule)
       while @template.scan(/[^:\}\s]+/)
         name = @template[0]
@@ -177,7 +177,7 @@ module Sass
     # Moves the scanner over a regular expression,
     # raising an exception if it doesn't match.
     #
-    # @param [Regexp] The regular expression to assert
+    # @param re [Regexp] The regular expression to assert
     def assert_match(re)
       if !@template.scan(re)
         line = @template.string[0..@template.pos].count "\n"
@@ -202,7 +202,7 @@ module Sass
     #     baz
     #       color: blue
     #
-    # @param [Tree::Node] root The parent node
+    # @param root [Tree::Node] The parent node
     def expand_commas(root)
       root.children.map! do |child|
         next child unless Tree::RuleNode === child && child.rules.first.include?(',')
@@ -248,7 +248,7 @@ module Sass
     #       & baz
     #         color: blue
     #
-    # @param [Tree::Node] root The parent node
+    # @param root [Tree::Node] The parent node
     def parent_ref_rules(root)
       current_rule = nil
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
@@ -283,7 +283,7 @@ module Sass
     #       bar
     #         color: blue
     #
-    # @param [Tree::Node] root The parent node
+    # @param root [Tree::Node] The parent node
     def remove_parent_refs(root)
       root.children.each do |child|
         if child.is_a?(Tree::RuleNode)
@@ -315,14 +315,14 @@ module Sass
     #     foo.bar
     #       color: blue
     #
-    # @param [Tree::Node] root The parent node
+    # @param root [Tree::Node] The parent node
     def flatten_rules(root)
       root.children.each { |child| flatten_rule(child) if child.is_a?(Tree::RuleNode) }
     end
 
     # Flattens a single rule
     #
-    # @param [Tree::RuleNode] rule The candidate for flattening
+    # @param rule [Tree::RuleNode] The candidate for flattening
     # @see #flatten_rules
     def flatten_rule(rule)
       while rule.children.size == 1 && rule.children.first.is_a?(Tree::RuleNode)
@@ -354,7 +354,7 @@ module Sass
     #       bar, baz
     #         color: blue
     #
-    # @param [Tree::RuleNode] rule The candidate for flattening
+    # @param rule [Tree::RuleNode] The candidate for flattening
     def fold_commas(root)
       prev_rule = nil
       root.children.map! do |child|
