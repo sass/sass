@@ -22,6 +22,7 @@ class EngineTest < Test::Unit::TestCase
     "." => "Illegal element: classes and ids must have values.",
     ".#" => "Illegal element: classes and ids must have values.",
     ".{} a" => "Illegal element: classes and ids must have values.",
+    ".() a" => "Illegal element: classes and ids must have values.",
     ".= a" => "Illegal element: classes and ids must have values.",
     "%p..a" => "Illegal element: classes and ids must have values.",
     "%a/ b" => "Self-closing tags can't have content.",
@@ -46,6 +47,12 @@ class EngineTest < Test::Unit::TestCase
     "%p\n  foo\n%p\n    bar" => ["The line was indented 2 levels deeper than the previous line.", 4],
     "%p\n  foo\n  %p\n        bar" => ["The line was indented 3 levels deeper than the previous line.", 4],
     "%p\n \tfoo" => ["Indentation can't use both tabs and spaces.", 2],
+    "%p(" => "Invalid attribute list: \"(\".",
+    "%p(foo=\nbar)" => ["Invalid attribute list: \"(foo=\".", 1],
+    "%p(foo=)" => "Invalid attribute list: \"(foo=)\".",
+    "%p(foo 'bar')" => "Invalid attribute list: \"(foo 'bar')\".",
+    "%p(foo 'bar'\nbaz='bang')" => ["Invalid attribute list: \"(foo 'bar'\".", 1],
+    "%p(foo='bar'\nbaz 'bang'\nbip='bop')" => ["Invalid attribute list: \"(foo='bar' baz 'bang'\".", 2],
 
     # Regression tests
     "- raise 'foo'\n\n\n\nbar" => ["foo", 1],
@@ -791,5 +798,103 @@ END
   # HTML5
   def test_html5_doctype
     assert_equal %{<!DOCTYPE html>\n}, render('!!!', :format => :html5)
+  end
+
+  # New attributes
+
+  def test_basic_new_attributes
+    assert_equal("<a>bar</a>\n", render("%a() bar"))
+    assert_equal("<a href='foo'>bar</a>\n", render("%a(href='foo') bar"))
+    assert_equal("<a b='c' c='d' d='e'>baz</a>\n", render(%q{%a(b="c" c='d' d="e") baz}))
+  end
+
+  def test_new_attribute_ids
+    assert_equal("<div id='foo_bar'></div>\n", render("#foo(id='bar')"))
+    assert_equal("<div id='foo_bar_baz'></div>\n", render("#foo{:id => 'bar'}(id='baz')"))
+    assert_equal("<div id='foo_baz_bar'></div>\n", render("#foo(id='baz'){:id => 'bar'}"))
+    foo = User.new(42)
+    assert_equal("<div class='struct_user' id='foo_baz_bar_struct_user_42'></div>\n",
+      render("#foo(id='baz'){:id => 'bar'}[foo]", :locals => {:foo => foo}))
+    assert_equal("<div class='struct_user' id='foo_baz_bar_struct_user_42'></div>\n",
+      render("#foo(id='baz')[foo]{:id => 'bar'}", :locals => {:foo => foo}))
+    assert_equal("<div class='struct_user' id='foo_baz_bar_struct_user_42'></div>\n",
+      render("#foo[foo](id='baz'){:id => 'bar'}", :locals => {:foo => foo}))
+    assert_equal("<div class='struct_user' id='foo_bar_baz_struct_user_42'></div>\n",
+      render("#foo[foo]{:id => 'bar'}(id='baz')", :locals => {:foo => foo}))
+  end
+
+  def test_new_attribute_classes
+    assert_equal("<div class='bar foo'></div>\n", render(".foo(class='bar')"))
+    assert_equal("<div class='bar baz foo'></div>\n", render(".foo{:class => 'bar'}(class='baz')"))
+    assert_equal("<div class='bar baz foo'></div>\n", render(".foo(class='baz'){:class => 'bar'}"))
+    foo = User.new(42)
+    assert_equal("<div class='bar baz foo struct_user' id='struct_user_42'></div>\n",
+      render(".foo(class='baz'){:class => 'bar'}[foo]", :locals => {:foo => foo}))
+    assert_equal("<div class='bar baz foo struct_user' id='struct_user_42'></div>\n",
+      render(".foo[foo](class='baz'){:class => 'bar'}", :locals => {:foo => foo}))
+    assert_equal("<div class='bar baz foo struct_user' id='struct_user_42'></div>\n",
+      render(".foo[foo]{:class => 'bar'}(class='baz')", :locals => {:foo => foo}))
+  end
+
+  def test_dynamic_new_attributes
+    assert_equal("<a href='12'>bar</a>\n", render("%a(href=foo) bar", :locals => {:foo => 12}))
+    assert_equal("<a b='12' c='13' d='14'>bar</a>\n", render("%a(b=b c='13' d=d) bar", :locals => {:b => 12, :d => 14}))
+  end
+
+  def test_new_attribute_interpolation
+    assert_equal("<a href='12'>bar</a>\n", render('%a(href="1#{1 + 1}") bar'))
+    assert_equal("<a href='2: 2, 3: 3'>bar</a>\n", render(%q{%a(href='2: #{1 + 1}, 3: #{foo}') bar}, :locals => {:foo => 3}))
+    assert_equal(%Q{<a href='1\#{1 + 1}'>bar</a>\n}, render('%a(href="1\#{1 + 1}") bar'))
+  end
+
+  def test_truthy_new_attributes
+    assert_equal("<a href='href'>bar</a>\n", render("%a(href) bar"))
+    assert_equal("<a bar='baz' href>bar</a>\n", render("%a(href bar='baz') bar", :format => :html5))
+    assert_equal("<a href='href'>bar</a>\n", render("%a(href=true) bar"))
+    assert_equal("<a>bar</a>\n", render("%a(href=false) bar"))
+  end
+
+  def test_new_attribute_parsing
+    assert_equal("<a a2='b2'>bar</a>\n", render("%a(a2=b2) bar", :locals => {:b2 => 'b2'}))
+    assert_equal(%Q{<a a='foo"bar'>bar</a>\n}, render(%q{%a(a="#{'foo"bar'}") bar})) #'
+    assert_equal(%Q{<a a="foo'bar">bar</a>\n}, render(%q{%a(a="#{"foo'bar"}") bar})) #'
+    assert_equal(%Q{<a a='foo"bar'>bar</a>\n}, render(%q{%a(a='foo"bar') bar}))
+    assert_equal(%Q{<a a="foo'bar">bar</a>\n}, render(%q{%a(a="foo'bar") bar}))
+    assert_equal("<a a:b='foo'>bar</a>\n", render("%a(a:b='foo') bar"))
+    assert_equal("<a a='foo' b='bar'>bar</a>\n", render("%a(a = 'foo' b = 'bar') bar"))
+    assert_equal("<a a='foo' b='bar'>bar</a>\n", render("%a(a = foo b = bar) bar", :locals => {:foo => 'foo', :bar => 'bar'}))
+    assert_equal("<a a='foo'>(b='bar')</a>\n", render("%a(a='foo')(b='bar')"))
+    assert_equal("<a a='foo)bar'>baz</a>\n", render("%a(a='foo)bar') baz"))
+    assert_equal("<a a='foo'>baz</a>\n", render("%a( a = 'foo' ) baz"))
+  end
+
+  def test_new_attribute_escaping
+    assert_equal(%Q{<a a='foo " bar'>bar</a>\n}, render(%q{%a(a="foo \" bar") bar}))
+    assert_equal(%Q{<a a='foo \\" bar'>bar</a>\n}, render(%q{%a(a="foo \\\\\" bar") bar}))
+
+    assert_equal(%Q{<a a="foo ' bar">bar</a>\n}, render(%q{%a(a='foo \' bar') bar}))
+    assert_equal(%Q{<a a="foo \\' bar">bar</a>\n}, render(%q{%a(a='foo \\\\\' bar') bar}))
+
+    assert_equal(%Q{<a a='foo \\ bar'>bar</a>\n}, render(%q{%a(a="foo \\\\ bar") bar}))
+    assert_equal(%Q{<a a='foo \#{1 + 1} bar'>bar</a>\n}, render(%q{%a(a="foo \#{1 + 1} bar") bar}))
+  end
+
+  def test_multiline_new_attribute
+    assert_equal("<a a='b' c='d'>bar</a>\n", render("%a(a='b'\n  c='d') bar"))
+    assert_equal("<a a='b' b='c' c='d' d='e' e='f' f='j'>bar</a>\n",
+      render("%a(a='b' b='c'\n  c='d' d=e\n  e='f' f='j') bar", :locals => {:e => 'e'}))
+  end
+
+  def test_new_and_old_attributes
+    assert_equal("<a a='b' c='d'>bar</a>\n", render("%a(a='b'){:c => 'd'} bar"))
+    assert_equal("<a a='b' c='d'>bar</a>\n", render("%a{:c => 'd'}(a='b') bar"))
+    assert_equal("<a a='b' c='d'>bar</a>\n", render("%a(c='d'){:a => 'b'} bar"))
+    assert_equal("<a a='b' c='d'>bar</a>\n", render("%a{:a => 'b'}(c='d') bar"))
+
+    assert_equal("<a a='d'>bar</a>\n", render("%a{:a => 'b'}(a='d') bar"))
+    assert_equal("<a a='b'>bar</a>\n", render("%a(a='d'){:a => 'b'} bar"))
+
+    assert_equal("<a a='b' b='c' c='d' d='e'>bar</a>\n",
+      render("%a{:a => 'b',\n:b => 'c'}(c='d'\nd='e') bar"))
   end
 end
