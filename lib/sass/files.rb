@@ -79,8 +79,10 @@ module Sass
       return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
       FileUtils.mkdir_p(File.dirname(compiled_filename))
       File.open(compiled_filename, "w") do |f|
-        f.puts(Sass::VERSION)
-        f.puts(sha)
+        f.write(Sass::VERSION)
+        f.write("\n")
+        f.write(sha)
+        f.write("\n")
         f.write(Marshal.dump(root))
       end
     end
