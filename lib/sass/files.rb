@@ -21,8 +21,7 @@ module Sass
         compiled_filename = sassc_filename(filename, options)
         sha = Digest::SHA1.hexdigest(text)
 
-        if dump = try_to_read_sassc(filename, compiled_filename, sha)
-          root = Marshal.load(dump)
+        if root = try_to_read_sassc(filename, compiled_filename, sha)
           root.options = options.merge(:filename => filename)
           return root
         end
@@ -94,8 +93,10 @@ module Sass
       File.open(compiled_filename) do |f|
         return unless f.readline("\n").strip == Sass::VERSION
         return unless f.readline("\n").strip == sha
-        return f.read
+        return Marshal.load(f.read)
       end
+    rescue TypeError => e, ArgumentError => e
+      warn "Warning. Error encountered while reading cache #{compiled_filename}: #{e}"
     end
 
     def try_to_write_sassc(root, compiled_filename, sha, options)
