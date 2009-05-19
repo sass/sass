@@ -68,7 +68,7 @@ module Sass
         return unless f.readline("\n").strip == sha
         return Marshal.load(f.read)
       end
-    rescue TypeError => e, ArgumentError => e
+    rescue TypeError, ArgumentError => e
       warn "Warning. Error encountered while reading cache #{compiled_filename}: #{e}"
     end
 
