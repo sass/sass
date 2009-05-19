@@ -5,6 +5,8 @@
   Convert to YARD, Markdown
   Redo tutorial?
   Re-organize references?
+** Haml
+   Document new attribute syntax
 ** Sass
    Control structures
    Partials
@@ -20,8 +22,6 @@
    form_for needs -, not =
 
 * Code
-** Haml
-   Figure out alternate attribute syntax
 ** Sass
    CSS Terminology? (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
 

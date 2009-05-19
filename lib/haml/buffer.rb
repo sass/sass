@@ -202,7 +202,7 @@ RUBY
 
       if to['class'] && from['class']
         # Make sure we don't duplicate class names
-        from['class'] = (from['class'].split(' ') | to['class'].split(' ')).join(' ')
+        from['class'] = (from['class'].split(' ') | to['class'].split(' ')).sort.join(' ')
       elsif to['class'] || from['class']
         from['class'] ||= to['class']
       end

@@ -281,7 +281,7 @@ END
       text, tab_change = @to_merge.inject(["", 0]) do |(str, mtabs), (type, val, tabs)|
         case type
         when :text
-          [str << val.gsub('#{', "\\\#{").inspect[1...-1], mtabs + tabs]
+          [str << val.inspect[1...-1], mtabs + tabs]
         when :script
           if mtabs != 0 && !@options[:ugly]
             val = "_hamlout.adjust_tabs(#{mtabs}); " + val
@@ -463,8 +463,6 @@ END
     end
 
     def parse_static_hash(text)
-      return {} unless text
-
       attributes = {}
       text.split(',').each do |attrib|
         key, value, more = attrib.split('=>')
@@ -521,21 +519,38 @@ END
     def parse_tag(line)
       raise SyntaxError.new("Invalid tag: \"#{line}\".") unless match = line.scan(/%([-:\w]+)([-\w\.\#]*)(.*)/)[0]
       tag_name, attributes, rest = match
-      attributes_hash, rest, last_line = parse_attributes(rest) if rest[0] == ?{
+      new_attributes_hash = old_attributes_hash = last_line = object_ref = nil
+      attributes_hashes = []
+      while rest
+        case rest[0]
+        when ?{
+          break if old_attributes_hash
+          old_attributes_hash, rest, last_line = parse_old_attributes(rest)
+          attributes_hashes << [:old, old_attributes_hash]
+        when ?(
+          break if new_attributes_hash
+          new_attributes_hash, rest, last_line = parse_new_attributes(rest)
+          attributes_hashes << [:new, new_attributes_hash]
+        when ?[
+          break if object_ref
+          object_ref, rest = balance(rest, ?[, ?])
+        else; break
+        end
+      end
+
       if rest
-        object_ref, rest = balance(rest, ?[, ?]) if rest[0] == ?[
-        attributes_hash, rest, last_line = parse_attributes(rest) if rest[0] == ?{ && attributes_hash.nil?
         nuke_whitespace, action, value = rest.scan(/(<>|><|[><])?([=\/\~&!])?(.*)?/)[0]
         nuke_whitespace ||= ''
         nuke_outer_whitespace = nuke_whitespace.include? '>'
         nuke_inner_whitespace = nuke_whitespace.include? '<'
       end
+
       value = value.to_s.strip
-      [tag_name, attributes, attributes_hash, object_ref, nuke_outer_whitespace,
+      [tag_name, attributes, attributes_hashes, object_ref, nuke_outer_whitespace,
        nuke_inner_whitespace, action, value, last_line || @index]
     end
 
-    def parse_attributes(line)
+    def parse_old_attributes(line)
       line = line.dup
       last_line = @index
 
@@ -556,10 +571,77 @@ END
       return attributes_hash, rest, last_line
     end
 
+    def parse_new_attributes(line)
+      line = line.dup
+      scanner = StringScanner.new(line)
+      last_line = @index
+      attributes = {}
+
+      scanner.scan(/\(\s*/)
+      until (name, value = parse_new_attribute(scanner)).first.nil?
+        if name == false
+          text = (Haml::Shared.balance(line, ?(, ?)) || [line]).first
+          raise Haml::SyntaxError.new("Invalid attribute list: #{text.inspect}.", last_line - 1)
+        end
+        attributes[name] = value
+        scanner.scan(/\s*/)
+
+        if scanner.eos?
+          line << " " << @next_line.text
+          last_line += 1
+          next_line
+          scanner.scan(/\s*/)
+        end
+      end
+
+      static_attributes = {}
+      dynamic_attributes = "{"
+      attributes.each do |name, (type, val)|
+        if type == :static
+          static_attributes[name] = val
+        else
+          dynamic_attributes << name.inspect << " => " << val << ","
+        end
+      end
+      dynamic_attributes << "}"
+      dynamic_attributes = nil if dynamic_attributes == "{}"
+
+      return [static_attributes, dynamic_attributes], scanner.rest, last_line
+    end
+
+    def parse_new_attribute(scanner)
+      unless name = scanner.scan(/[-:\w]+/)
+        return if scanner.scan(/\)/)
+        return false
+      end
+
+      scanner.scan(/\s*/)
+      return name, [:static, true] unless scanner.scan(/=/) #/end
+
+      scanner.scan(/\s*/)
+      unless quote = scanner.scan(/["']/)
+        return false unless var = scanner.scan(/(@@?|\$)?\w+/)
+        return name, [:dynamic, var]
+      end
+
+      re = /((?:\\.|\#[^{]|[^#{quote}\\#])*)(#{quote}|#\{)/
+      content = []
+      loop do
+        return false unless scanner.scan(re)
+        content << [:str, scanner[1].gsub(/\\(.)/, '\1')]
+        break if scanner[2] == quote
+        content << [:ruby, balance(scanner, ?{, ?}, 1).first[0...-1]]
+      end
+
+      return name, [:static, content.first[1]] if content.size == 1
+      return name, [:dynamic,
+        '"' + content.map {|(t, v)| t == :str ? v.inspect[1...-1] : "\#{#{v}}"}.join + '"']
+    end
+
     # Parses a line that will render as an XHTML tag, and adds the code that will
     # render that tag to <tt>@precompiled</tt>.
     def render_tag(line)
-      tag_name, attributes, attributes_hash, object_ref, nuke_outer_whitespace,
+      tag_name, attributes, attributes_hashes, object_ref, nuke_outer_whitespace,
         nuke_inner_whitespace, action, value, last_line = parse_tag(line)
 
       raise SyntaxError.new("Illegal element: classes and ids must have values.") if attributes =~ /[\.#](\.|#|\z)/
@@ -606,10 +688,17 @@ END
 
       object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
-      static_attributes = parse_static_hash(attributes_hash) # Try pre-compiling a static attributes hash
-      attributes_hash = nil if static_attributes || @options[:suppress_eval]
       attributes = parse_class_and_id(attributes)
-      Buffer.merge_attrs(attributes, static_attributes) if static_attributes
+      attributes_hashes.map! do |syntax, attributes_hash|
+        if syntax == :old
+          static_attributes = parse_static_hash(attributes_hash)
+          attributes_hash = nil if static_attributes || @options[:suppress_eval]
+        else
+          static_attributes, attributes_hash = attributes_hash
+        end
+        Buffer.merge_attrs(attributes, static_attributes) if static_attributes
+        attributes_hash
+      end.compact!
 
       raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", @next_line.index) if block_opened? && self_closing
       raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", @next_line.index) if block_opened? && !value.empty?
@@ -623,7 +712,7 @@ END
         (nuke_inner_whitespace && block_opened?)
 
       # Check if we can render the tag directly to text and not process it in the buffer
-      if object_ref == "nil" && attributes_hash.nil? && !preserve_script
+      if object_ref == "nil" && attributes_hashes.empty? && !preserve_script
         tag_closed = !block_opened? && !self_closing && !parse
 
         open_tag  = prerender_tag(tag_name, self_closing, attributes)
@@ -642,11 +731,18 @@ END
       else
         flush_merged_text
         content = value.empty? || parse ? 'nil' : value.dump
-        attributes_hash = ', ' + attributes_hash if attributes_hash
+        if attributes_hashes.empty?
+          attributes_hashes = ''
+        elsif attributes_hashes.size == 1
+          attributes_hashes = ", #{attributes_hashes.first}"
+        else
+          attributes_hashes = ", (#{attributes_hashes.join(").merge(")})"
+        end
+
         args = [tag_name, self_closing, !block_opened?, preserve_tag, escape_html,
                 attributes, nuke_outer_whitespace, nuke_inner_whitespace
                ].map { |v| v.inspect }.join(', ')
-        push_silent "_hamlout.open_tag(#{args}, #{object_ref}, #{content}#{attributes_hash})"
+        push_silent "_hamlout.open_tag(#{args}, #{object_ref}, #{content}#{attributes_hashes})"
         @dont_tab_up_next_text = @dont_indent_next_line = dont_indent_next_line
       end
 
