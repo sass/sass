@@ -64,7 +64,7 @@ a specific level to which the current line could be indented.")
 (defvar haml-block-openers
   `("^ *\\([%\\.#][a-z0-9_:\\-]*\\)+\\({.*}\\)?\\(\\[.*\\]\\)?[><]*[ \t]*$"
     "^ *[&!]?[-=~].*do[ \t]*\\(|.*|[ \t]*\\)?$"
-    ,(concat "^ *[&!][-=~][ \t]*\\("
+    ,(concat "^ *[&!]?[-=~][ \t]*\\("
              (regexp-opt '("if" "unless" "while" "until" "else"
                            "begin" "elsif" "rescue" "ensure" "when"))
              "\\)")
