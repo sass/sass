@@ -146,7 +146,7 @@ For example, this will highlight all of the following:
           (haml-limited-forward-sexp eol)
 
           ;; Check for multiline
-          (while (and (eolp) (eq (char-before) ?,))
+          (while (and (eolp) (eq (char-before) ?,) (not (eobp)))
             (forward-line)
             (let ((eol (save-excursion (end-of-line) (point))))
               ;; If no sexps are closed,
@@ -229,7 +229,7 @@ whichever comes first."
           ;; Move through multiline attrs
           (when (eq (char-before) ?,)
             (save-excursion
-              (while (progn (end-of-line) (eq (char-before) ?,))
+              (while (progn (end-of-line) (eq (char-before) ?,) (not (eobp)))
                 (forward-line))
 
               (forward-line -1)
