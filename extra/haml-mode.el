@@ -142,7 +142,7 @@ For example, this will highlight all of the following:
 
       ;; Highlight attr hashes
       (when (eq (char-after) ?\{)
-        (let ((beg (+ 1 (point))))
+        (let ((beg (point)))
           (haml-limited-forward-sexp eol)
 
           ;; Check for multiline
@@ -158,7 +158,7 @@ For example, this will highlight all of the following:
                 (goto-char beg)
                 (haml-limited-forward-sexp eol))))
 
-          (haml-fontify-region-as-ruby beg (point))))
+          (haml-fontify-region-as-ruby (+ 1 beg) (point))))
 
       ;; Move past end chars
       (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
