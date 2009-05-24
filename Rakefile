@@ -142,9 +142,13 @@ begin
     files.exclude('lib/haml/template/*.rb')
     files.exclude('lib/haml/helpers/action_view_mods.rb')
     t.files = files.to_a
-
-    t.options << '-r' << 'README.md' << '-m' << 'markdown' << '--protected' << '--no-highlight'
     t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
+    t.options << '--files' << FileList.new('*') do |list|
+      list.exclude(/(^|[^.a-z])[a-z]+/)
+      list.exclude('README.md')
+      list.exclude('REVISION')
+      list.exclude('TODO')
+    end.to_a.join(',')
   end
 
   task :doc => :yardoc
