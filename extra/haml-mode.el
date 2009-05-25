@@ -61,8 +61,12 @@ if the next line could be nested within this line.
 The function can also return a positive integer to indicate
 a specific level to which the current line could be indented.")
 
+(defconst haml-tag-beg-re
+  "^ *\\(?:[%\\.#][a-z0-9_:\\-]*\\)+\\(?:(.*)\\|{.*}\\|\\[.*\\]\\)*"
+  "A regexp matching the beginning of a Haml tag, through (), {}, and [].")
+
 (defvar haml-block-openers
-  `("^ *\\([%\\.#][a-z0-9_:\\-]*\\)+\\({.*}\\)?\\(\\[.*\\]\\)?[><]*[ \t]*$"
+  `(,(concat haml-tag-beg-re "[><]*[ \t]*$")
     "^ *[&!]?[-=~].*do[ \t]*\\(|.*|[ \t]*\\)?$"
     ,(concat "^ *[&!]?[-=~][ \t]*\\("
              (regexp-opt '("if" "unless" "while" "until" "else"
@@ -126,39 +130,53 @@ For example, this will highlight all of the following:
       (forward-char -1)
 
       ;; Highlight tag, classes, and ids
-      (while (looking-at "[.#%][a-z0-9_:\\-]*")
+      (while (haml-move "\\([.#%]\\)[a-z0-9_:\\-]*")
         (put-text-property (match-beginning 0) (match-end 0) 'face
-                           (case (char-after)
+                           (case (char-after (match-beginning 1))
                              (?% font-lock-function-name-face)
                              (?# font-lock-keyword-face)
-                             (?. font-lock-type-face)))
-        (goto-char (match-end 0)))
+                             (?. font-lock-type-face))))
 
-      ;; Highlight obj refs
-      (when (eq (char-after) ?\[)
-        (let ((beg (point)))
-          (haml-limited-forward-sexp eol)
-          (haml-fontify-region-as-ruby beg (point))))
+      (block loop
+        (while t
+          (case (char-after)
+            ;; Highlight obj refs
+            (?\[
+             (let ((beg (point)))
+               (haml-limited-forward-sexp eol)
+               (haml-fontify-region-as-ruby beg (point))))
+            ;; Highlight new attr hashes
+            (?\(
+             (forward-char 1)
+             (while (haml-parse-new-attr-hash
+                     (lambda (type beg end)
+                       (case type
+                         (name (put-text-property beg end 'face font-lock-constant-face))
+                         (value (haml-fontify-region-as-ruby beg end)))))
+               (end-of-line)
+               (when (eobp) (return-from loop))
+               (forward-line 1)
+               (beginning-of-line)))
+            ;; Highlight old attr hashes
+            (?\{
+             (let ((beg (point)))
+               (haml-limited-forward-sexp eol)
 
-      ;; Highlight attr hashes
-      (when (eq (char-after) ?\{)
-        (let ((beg (point)))
-          (haml-limited-forward-sexp eol)
+               ;; Check for multiline
+               (while (and (eolp) (eq (char-before) ?,) (not (eobp)))
+                 (forward-line)
+                 (let ((eol (save-excursion (end-of-line) (point))))
+                   ;; If no sexps are closed,
+                   ;; we're still continuing a  multiline hash
+                   (if (>= (car (parse-partial-sexp (point) eol)) 0)
+                       (end-of-line)
+                     ;; If sexps have been closed,
+                     ;; set the point at the end of the total sexp
+                     (goto-char beg)
+                     (haml-limited-forward-sexp eol))))
 
-          ;; Check for multiline
-          (while (and (eolp) (eq (char-before) ?,) (not (eobp)))
-            (forward-line)
-            (let ((eol (save-excursion (end-of-line) (point))))
-              ;; If no sexps are closed,
-              ;; we're still continuing a  multiline hash
-              (if (>= (car (parse-partial-sexp (point) eol)) 0)
-                  (end-of-line)
-                ;; If sexps have been closed,
-                ;; set the point at the end of the total sexp
-                (goto-char beg)
-                (haml-limited-forward-sexp eol))))
-
-          (haml-fontify-region-as-ruby (+ 1 beg) (point))))
+               (haml-fontify-region-as-ruby (+ 1 beg) (point))))
+            (t (return-from loop)))))
 
       ;; Move past end chars
       (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
@@ -169,6 +187,12 @@ For example, this will highlight all of the following:
         (forward-char -1)
         (looking-at "\\(\\)"))
       t)))
+
+(defun haml-move (re)
+  "Try matching and moving to the end of a regular expression."
+  (when (looking-at re)
+    (goto-char (match-end 0))
+    t))
 
 (defun haml-highlight-interpolation (limit)
   "Highlight Ruby interpolation (#{foo})."
@@ -441,10 +465,8 @@ character of the next line."
   "Returns t if the current line can have lines nested beneath it."
   (let ((attr-props (haml-parse-multiline-attr-hash)))
     (when attr-props
-      (end-of-line)
       (return-from haml-indent-p
-        (if (eq (char-before) ?,) (cdr (assq 'hash-indent attr-props))
-          (beginning-of-line)
+        (if (haml-unclosed-attr-hash-p) (cdr (assq 'hash-indent attr-props))
           (list (+ (cdr (assq 'indent attr-props)) haml-indent-offset) nil)))))
   (loop for opener in haml-block-openers
         if (looking-at opener) return t
@@ -464,20 +486,52 @@ beginning the hash."
   (save-excursion
     (while t
       (beginning-of-line)
-      (if (looking-at "^ *\\(?:[.#%][a-z0-9_:\\-]+\\)+{")
+      (if (looking-at (eval-when-compile (concat haml-tag-beg-re "\\([{(]\\)")))
           (progn
             (goto-char (- (match-end 0) 1))
             (haml-limited-forward-sexp (save-excursion (end-of-line) (point)))
             (return-from haml-parse-multiline-attr-hash
-              (if (eq (char-before) ?,)
-                  `((indent . ,(current-indentation))
-                    (hash-indent . ,(- (match-end 0) (match-beginning 0)))
-                    (point . ,(match-beginning 0)))
-                nil)))
+              (when (or (string-equal (match-string 1) "(") (eq (char-before) ?,))
+                `((indent . ,(current-indentation))
+                  (hash-indent . ,(- (match-end 0) (match-beginning 0)))
+                  (point . ,(match-beginning 0))))))
+        (when (bobp) (return-from haml-parse-multiline-attr-hash))
         (forward-line -1)
-        (end-of-line)
-        (when (not (eq (char-before) ?,))
-          (return-from haml-parse-multiline-attr-hash nil))))))
+        (unless (haml-unclosed-attr-hash-p)
+          (return-from haml-parse-multiline-attr-hash))))))
+
+(defun* haml-unclosed-attr-hash-p ()
+  "Return t if this line has an unclosed attribute hash, new or old."
+  (save-excursion
+    (end-of-line)
+    (when (eq (char-before) ?,) (return-from haml-unclosed-attr-hash-p t))
+    (re-search-backward "(\\|^")
+    (haml-move "(")
+    (haml-parse-new-attr-hash)))  
+
+(defun* haml-parse-new-attr-hash (&optional (fn (lambda (type beg end) ())))
+  "Parse a new-style attribute hash on this line, and returns
+t if it's not finished on the current line.
+
+FN should take three parameters: TYPE, BEG, and END.
+TYPE is the type of text parsed ('name or 'value)
+and BEG and END delimit that text in the buffer."
+  (let ((eol (save-excursion (end-of-line) (point))))
+    (save-excursion
+      (while (not (haml-move ")"))
+        (haml-move " *")
+        (unless (haml-move "[a-z0-9_:\\-]+")
+          (return-from haml-parse-new-attr-hash (haml-move " *$")))
+        (funcall fn 'name (match-beginning 0) (match-end 0))
+        (haml-move " *")
+        (when (haml-move "=")
+          (haml-move " *")
+          (unless (looking-at "[\"'@a-z]") (return-from haml-parse-new-attr-hash))
+          (let ((beg (point)))
+            (haml-limited-forward-sexp eol)
+            (funcall fn 'value beg (point)))
+          (haml-move " *")))
+      nil)))
 
 (defun haml-compute-indentation ()
   "Calculate the maximum sensible indentation for the current line."
