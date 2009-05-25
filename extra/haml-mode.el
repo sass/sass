@@ -126,19 +126,19 @@ For example, this will highlight all of the following:
   %p= 'baz'
   %p{:foo => 'bar'}[@bar]= 'baz'"
   (when (re-search-forward "^ *[%.#]" limit t)
-    (let ((eol (save-excursion (end-of-line) (point))))
-      (forward-char -1)
+    (forward-char -1)
 
-      ;; Highlight tag, classes, and ids
-      (while (haml-move "\\([.#%]\\)[a-z0-9_:\\-]*")
-        (put-text-property (match-beginning 0) (match-end 0) 'face
-                           (case (char-after (match-beginning 1))
-                             (?% font-lock-function-name-face)
-                             (?# font-lock-keyword-face)
-                             (?. font-lock-type-face))))
+    ;; Highlight tag, classes, and ids
+    (while (haml-move "\\([.#%]\\)[a-z0-9_:\\-]*")
+      (put-text-property (match-beginning 0) (match-end 0) 'face
+                         (case (char-after (match-beginning 1))
+                           (?% font-lock-function-name-face)
+                           (?# font-lock-keyword-face)
+                           (?. font-lock-type-face))))
 
-      (block loop
-        (while t
+    (block loop
+      (while t
+        (let ((eol (save-excursion (end-of-line) (point))))
           (case (char-after)
             ;; Highlight obj refs
             (?\[
@@ -148,13 +148,13 @@ For example, this will highlight all of the following:
             ;; Highlight new attr hashes
             (?\(
              (forward-char 1)
-             (while (haml-parse-new-attr-hash
-                     (lambda (type beg end)
-                       (case type
-                         (name (put-text-property beg end 'face font-lock-constant-face))
-                         (value (haml-fontify-region-as-ruby beg end)))))
-               (end-of-line)
-               (when (eobp) (return-from loop))
+             (while
+                 (and (haml-parse-new-attr-hash
+                       (lambda (type beg end)
+                         (case type
+                           (name (put-text-property beg end 'face font-lock-constant-face))
+                           (value (haml-fontify-region-as-ruby beg end)))))
+                      (not (eobp)))
                (forward-line 1)
                (beginning-of-line)))
             ;; Highlight old attr hashes
@@ -176,17 +176,17 @@ For example, this will highlight all of the following:
                      (haml-limited-forward-sexp eol))))
 
                (haml-fontify-region-as-ruby (+ 1 beg) (point))))
-            (t (return-from loop)))))
+            (t (return-from loop))))))
 
-      ;; Move past end chars
-      (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
-      ;; Highlight script
-      (if (looking-at "\\([=~]\\) \\(.*\\)$")
-          (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))
-        ;; Give font-lock something to highlight
-        (forward-char -1)
-        (looking-at "\\(\\)"))
-      t)))
+    ;; Move past end chars
+    (when (looking-at "[<>&!]+") (goto-char (match-end 0)))
+    ;; Highlight script
+    (if (looking-at "\\([=~]\\) \\(.*\\)$")
+        (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))
+      ;; Give font-lock something to highlight
+      (forward-char -1)
+      (looking-at "\\(\\)"))
+    t))
 
 (defun haml-move (re)
   "Try matching and moving to the end of a regular expression."
@@ -517,21 +517,20 @@ FN should take three parameters: TYPE, BEG, and END.
 TYPE is the type of text parsed ('name or 'value)
 and BEG and END delimit that text in the buffer."
   (let ((eol (save-excursion (end-of-line) (point))))
-    (save-excursion
-      (while (not (haml-move ")"))
+    (while (not (haml-move ")"))
+      (haml-move " *")
+      (unless (haml-move "[a-z0-9_:\\-]+")
+        (return-from haml-parse-new-attr-hash (haml-move " *$")))
+      (funcall fn 'name (match-beginning 0) (match-end 0))
+      (haml-move " *")
+      (when (haml-move "=")
         (haml-move " *")
-        (unless (haml-move "[a-z0-9_:\\-]+")
-          (return-from haml-parse-new-attr-hash (haml-move " *$")))
-        (funcall fn 'name (match-beginning 0) (match-end 0))
-        (haml-move " *")
-        (when (haml-move "=")
-          (haml-move " *")
-          (unless (looking-at "[\"'@a-z]") (return-from haml-parse-new-attr-hash))
-          (let ((beg (point)))
-            (haml-limited-forward-sexp eol)
-            (funcall fn 'value beg (point)))
-          (haml-move " *")))
-      nil)))
+        (unless (looking-at "[\"'@a-z]") (return-from haml-parse-new-attr-hash))
+        (let ((beg (point)))
+          (haml-limited-forward-sexp eol)
+          (funcall fn 'value beg (point)))
+        (haml-move " *")))
+    nil))
 
 (defun haml-compute-indentation ()
   "Calculate the maximum sensible indentation for the current line."
