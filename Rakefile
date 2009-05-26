@@ -104,7 +104,7 @@ task :release_edge do
   end
   edge_version = edge_version.join('.')
   File.open('EDGE_GEM_VERSION', 'w') {|f| f.puts(edge_version)}
-  sh %{git commit -m "Bump edge gem version." EDGE_GEM_VERSION}
+  sh %{git commit -m "Bump edge gem version to #{edge_version}." EDGE_GEM_VERSION}
   sh %{git push origin edge-gem}
 
   # Package the edge gem with the proper version
