@@ -72,6 +72,7 @@ text nested beneath them.")
 (defconst sass-syntax-table
   (let ((st (make-syntax-table)))
     (modify-syntax-entry ?- "w" st)
+    (modify-syntax-entry ?_ "w" st)
     st))
 
 (defconst sass-script-syntax-table
