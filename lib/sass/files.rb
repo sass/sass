@@ -1,4 +1,5 @@
 require 'digest/sha1'
+require 'pathname'
 
 module Sass
   # This module contains various bits of functionality
@@ -88,9 +89,15 @@ module Sass
     end
 
     def find_full_path(filename, load_paths)
-      segments = filename.split(File::SEPARATOR)
-      segments.push "_#{segments.pop}"
-      partial_name = segments.join(File::SEPARATOR)
+      partial_name = File.join(File.dirname(filename), "_#{File.basename(filename)}")
+
+      if Pathname.new(filename).absolute?
+        [partial_name, filename].each do |name|
+          return name if File.readable?(name)
+        end
+        return nil
+      end
+
       load_paths.each do |path|
         [partial_name, filename].each do |name|
           full_path = File.join(path, name)
