@@ -7,7 +7,7 @@ module Sass
       end
 
       def to_s(*args)
-        @to_s ||= super()
+        @to_s ||= (style == :compressed ? super().strip : super())
       rescue Sass::SyntaxError => e
         e.add_backtrace_entry(@filename)
         raise e
