@@ -21,13 +21,13 @@ module Sass::Tree
       end
 
       if value[-1] == ?;
-        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (This isn't CSS!).", @line)
+        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (no \";\" required at end-of-line).", @line)
       end
       real_name = name
       real_name = "#{parent_name}-#{real_name}" if parent_name
       
       if value.empty? && children.empty?
-        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump}.", @line)
+        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (no value).", @line)
       end
       
       join_string = case style
@@ -60,7 +60,7 @@ module Sass::Tree
     private
 
     def declaration
-      ":#{name} #{value}"
+      @attr_syntax == :new ? "#{name}: #{value}" : ":#{name} #{value}"
     end
 
     def invalid_child?(child)
