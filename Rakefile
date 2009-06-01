@@ -133,15 +133,10 @@ begin
   require '/home/nex3/code/yard/lib/yard'
 
   YARD::Rake::YardocTask.new do |t|
-    files = FileList.new
-    files.include(*FileList.new('*') do |list|
-        list.exclude(/(^|[^.a-z])[a-z]+/)
-      end)
-    files.include('lib/**/*.rb')
-    files.exclude('TODO')
-    files.exclude('lib/haml/template/*.rb')
-    files.exclude('lib/haml/helpers/action_view_mods.rb')
-    t.files = files.to_a
+    t.files = FileList.new('lib/**/*.rb') do |list|
+      list.exclude('lib/haml/template/*.rb')
+      list.exclude('lib/haml/helpers/action_view_mods.rb')
+    end.to_a
     t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
     t.options << '--files' << FileList.new('*') do |list|
       list.exclude(/(^|[^.a-z])[a-z]+/)
