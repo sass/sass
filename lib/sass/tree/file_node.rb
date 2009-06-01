@@ -14,11 +14,13 @@ module Sass
       #
       # @param args [Array] Ignored
       def to_s(*args)
-        super()
+        @to_s ||= (style == :compressed ? super().strip : super())
       rescue Sass::SyntaxError => e
         e.add_backtrace_entry(@filename)
         raise e
       end
+
+      def invisible?; to_s.empty?; end
 
       protected
 
