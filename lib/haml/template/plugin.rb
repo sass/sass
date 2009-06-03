@@ -12,7 +12,8 @@ module Haml
       # template is a template object in Rails >=2.1.0,
       # a source string previously
       if template.respond_to? :source
-        options[:filename] = template.filename
+        # Template has a generic identifier in Rails >=3.0.0
+        options[:filename] = template.respond_to?(:identifier) ? template.identifier : template.filename
         source = template.source
       else
         source = template

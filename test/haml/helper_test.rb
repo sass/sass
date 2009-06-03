@@ -14,6 +14,12 @@ class HelperTest < Test::Unit::TestCase
   def setup
     @base = ActionView::Base.new
     @base.controller = ActionController::Base.new
+
+    if defined?(ActionController::Response)
+      # This is needed for >=3.0.0
+      @base.controller.response = ActionController::Response.new
+    end
+
     @base.instance_variable_set('@post', Post.new("Foo bar\nbaz"))
   end
 
@@ -61,7 +67,7 @@ class HelperTest < Test::Unit::TestCase
 
     begin
       ActionView::Base.new.render(:inline => "<%= flatten('Foo\\nBar') %>")
-    rescue NoMethodError
+    rescue NoMethodError, ActionView::TemplateError
       proper_behavior = true
     end
     assert(proper_behavior)
@@ -228,6 +234,21 @@ HAML
 
   def test_random_class_includes_tag_helper
     assert_equal "<p>some tag content</p>", ActsLikeTag.new.to_s
+  end
+
+  def test_capture_with_nuke_outer
+    assert_equal "<div></div>\n*<div>hi there!</div>\n", render(<<HAML)
+%div
+= precede("*") do
+  %div> hi there!
+HAML
+
+    assert_equal "<div></div>\n*<div>hi there!</div>\n", render(<<HAML)
+%div
+= precede("*") do
+  = "  "
+  %div> hi there!
+HAML
   end
 end
 

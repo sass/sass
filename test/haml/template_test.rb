@@ -35,6 +35,10 @@ class DummyController
   def self.controller_path
     ''
   end
+
+  def controller_path
+    ''
+  end
 end
 
 class TemplateTest < Test::Unit::TestCase
