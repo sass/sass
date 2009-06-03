@@ -26,6 +26,12 @@ module Haml
     # @return [Buffer]
     attr_accessor :upper
 
+    # nil if there's no capture_haml block running,
+    # and the position at which it's beginning the capture if there is one.
+    #
+    # @return [Fixnum, nil]
+    attr_accessor :capture_position
+
     # @return [Boolean]
     # @see #active?
     attr_writer :active
@@ -216,6 +222,17 @@ RUBY
       end
 
       @real_tabs += 1 unless self_closing || nuke_inner_whitespace
+    end
+
+    # Remove the whitespace from the right side of the buffer string.
+    # Doesn't do anything if we're at the beginning of a capture_haml block.
+    def rstrip!
+      if capture_position.nil?
+        buffer.rstrip!
+        return
+      end
+
+      buffer << buffer.slice!(capture_position..-1).rstrip
     end
 
     # Merges two attribute hashes.
