@@ -14,6 +14,12 @@ class HelperTest < Test::Unit::TestCase
   def setup
     @base = ActionView::Base.new
     @base.controller = ActionController::Base.new
+
+    if defined?(ActionController::Response)
+      # This is needed for >=3.0.0
+      @base.controller.response = ActionController::Response.new
+    end
+
     @base.instance_variable_set('@post', Post.new("Foo bar\nbaz"))
   end
 
@@ -61,7 +67,7 @@ class HelperTest < Test::Unit::TestCase
 
     begin
       ActionView::Base.new.render(:inline => "<%= flatten('Foo\\nBar') %>")
-    rescue NoMethodError
+    rescue NoMethodError, ActionView::TemplateError
       proper_behavior = true
     end
     assert(proper_behavior)
