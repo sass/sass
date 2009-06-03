@@ -281,7 +281,7 @@ END
       text, tab_change = @to_merge.inject(["", 0]) do |(str, mtabs), (type, val, tabs)|
         case type
         when :text
-          [str << val.gsub('#{', "\\\#{").inspect[1...-1], mtabs + tabs]
+          [str << val.inspect[1...-1], mtabs + tabs]
         when :script
           if mtabs != 0 && !@options[:ugly]
             val = "_hamlout.adjust_tabs(#{mtabs}); " + val
