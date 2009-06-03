@@ -224,5 +224,20 @@ HAML
   def test_random_class_includes_tag_helper
     assert_equal "<p>some tag content</p>", ActsLikeTag.new.to_s
   end
+
+  def test_capture_with_nuke_outer
+    assert_equal "<div></div>\n*<div>hi there!</div>\n", render(<<HAML)
+%div
+= precede("*") do
+  %div> hi there!
+HAML
+
+    assert_equal "<div></div>\n*<div>hi there!</div>\n", render(<<HAML)
+%div
+= precede("*") do
+  = "  "
+  %div> hi there!
+HAML
+  end
 end
 

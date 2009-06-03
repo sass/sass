@@ -803,7 +803,7 @@ END
       unless @merged_text.empty?
         @merged_text.rstrip!
       else
-        push_silent("_erbout.rstrip!", false)
+        push_silent("_hamlout.rstrip!", false)
         @dont_tab_up_next_text = true
       end
     end

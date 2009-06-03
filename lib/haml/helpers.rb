@@ -275,6 +275,7 @@ module Haml
       with_haml_buffer(buffer) do
         position = haml_buffer.buffer.length
 
+        haml_buffer.capture_position = position
         block.call(*args)
 
         captured = haml_buffer.buffer.slice!(position..-1).split(/^/)
@@ -290,6 +291,8 @@ module Haml
           line[min_tabs..-1]
         end.join
       end
+    ensure
+      haml_buffer.capture_position = nil
     end
 
     def puts(*args) # :nodoc:
