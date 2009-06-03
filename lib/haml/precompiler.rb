@@ -83,7 +83,7 @@ module Haml
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
 
     # The Regex that matches a literal string or symbol value
-    LITERAL_VALUE_REGEX = /^\s*(:(\w*)|(('|")([^\\\#'"]*?)\4))\s*$/
+    LITERAL_VALUE_REGEX = /:(\w*)|(["'])([^\\#'"]|\\.)*\2/
 
     private
 
@@ -453,29 +453,18 @@ END
       attributes
     end
 
-    def parse_literal_value(text)
-      return nil unless text
-      text.match(LITERAL_VALUE_REGEX)
-
-      # $2 holds the value matched by a symbol, but is nil for a string match
-      # $5 holds the value matched by a string
-      $2 || $5
-    end
-
     def parse_static_hash(text)
       return {} unless text
 
       attributes = {}
-      text.split(',').each do |attrib|
-        key, value, more = attrib.split('=>')
-
-        # Make sure the key and value and only the key and value exist
-        # Otherwise, it's too complicated or dynamic and we'll defer it to the actual Ruby parser
-        key = parse_literal_value key
-        value = parse_literal_value value
-        return nil if more || key.nil? || value.nil?
-
-        attributes[key] = value
+      scanner = StringScanner.new(text)
+      scanner.scan(/\s+/)
+      until scanner.eos?
+        return unless key = scanner.scan(LITERAL_VALUE_REGEX)
+        return unless scanner.scan(/\s*=>\s*/)
+        return unless value = scanner.scan(LITERAL_VALUE_REGEX)
+        attributes[eval(key).to_s] = eval(value).to_s
+        scanner.scan(/[,\s]*/)
       end
       text.count("\n").times { newline }
       attributes
