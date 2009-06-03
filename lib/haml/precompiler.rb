@@ -881,7 +881,7 @@ END
     # or the merged text
     def rstrip_buffer!
       if @to_merge.empty?
-        push_silent("_erbout.rstrip!", false)
+        push_silent("_hamlout.rstrip!", false)
         @dont_tab_up_next_text = true
         return
       end
