@@ -59,7 +59,7 @@ module Haml
     #
     # @param template [String] The Haml template
     # @param options [Hash<Symbol, Object>] An options hash;
-    #   wee [the Haml options documentation](../Haml.html#haml_options)
+    #   see [the Haml options documentation](../Haml.html#haml_options)
     # @raise [Haml::Error] if there's a Haml syntax error in the template
     def initialize(template, options = {})
       @options = {
