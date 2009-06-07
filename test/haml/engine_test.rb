@@ -763,6 +763,10 @@ END
     assert_equal("<a b='a\#{foo}b'></a>\n", render('%a{:b => "a\\#{foo}b"}', :suppress_eval => true))
   end
 
+  def test_dynamic_hashes_with_suppress_eval
+    assert_equal("<a></a>\n", render('%a{:b => "a #{1 + 1} b", :c => "d"}', :suppress_eval => true))
+  end
+
   # HTML 4.0
 
   def test_html_has_no_self_closing_tags
