@@ -145,9 +145,12 @@ begin
       list.exclude('TODO')
     end.to_a.join(',')
   end
+  Rake::Task['yardoc'].instance_variable_set('@comment', nil)
 
+  desc "Generate Documentation"
   task :doc => :yardoc
 rescue LoadError
+  desc "Generate Documentation"
   task :doc => :rdoc
   task :yardoc => :rdoc
 end
