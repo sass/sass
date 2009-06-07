@@ -356,6 +356,11 @@ END
     # (`:/`, `:<`, and `:>`).
     # Currently, only `:/` and `:<` are supported.
     #
+    # `haml_tag` outputs directly to the buffer;
+    # its return value should not be used.
+    # If you need to get the results as a string,
+    # use \{#capture\_haml\}.
+    #
     # For example,
     #
     #     haml_tag :table do
@@ -396,7 +401,8 @@ END
     def haml_tag(name, *rest, &block)
       ret = ErrorReturn.new(<<MESSAGE)
 haml_tag outputs directly to the Haml template.
-Disregard its return value and use the - operator.
+Disregard its return value and use the - operator,
+or use capture_haml to get the value as a String.
 MESSAGE
 
       name = name.to_s
