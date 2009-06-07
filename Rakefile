@@ -130,7 +130,7 @@ END
 end
 
 begin
-  require '/home/nex3/code/yard/lib/yard'
+  require 'yard'
 
   YARD::Rake::YardocTask.new do |t|
     t.files = FileList.new('lib/**/*.rb') do |list|
