@@ -2,9 +2,9 @@
 #+STARTUP: nofold
 
 * Documentation
-  Convert to YARD, Markdown
   Redo tutorial?
   Re-organize references?
+  Syntax highlighting?
 ** Sass
    Control structures
    Partials
@@ -16,7 +16,6 @@
      Stop calling it "alternate" - call it "new" instead
    Document sassc somewhere obvious
 ** FAQ
-   Multiline vs. helpers
    form_for needs -, not =
 
 * Code
