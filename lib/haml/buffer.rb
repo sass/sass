@@ -1,76 +1,92 @@
 module Haml
-  # This class is used only internally. It holds the buffer of XHTML that
-  # is eventually output by Haml::Engine's to_html method. It's called
-  # from within the precompiled code, and helps reduce the amount of
-  # processing done within instance_eval'd code.
+  # This class is used only internally. It holds the buffer of HTML that
+  # is eventually output as the resulting document.
+  # It's called from within the precompiled code,
+  # and helps reduce the amount of processing done within `instance_eval`ed code.
   class Buffer
     include Haml::Helpers
     include Haml::Util
 
-    # The string that holds the compiled XHTML. This is aliased as
-    # _erbout for compatibility with ERB-specific code.
+    # The string that holds the compiled HTML. This is aliased as
+    # `_erbout` for compatibility with ERB-specific code.
+    #
+    # @return [String]
     attr_accessor :buffer
 
-    # The options hash passed in from Haml::Engine.
+    # The options hash passed in from {Haml::Engine}.
+    #
+    # @return [Hash<String, Object>]
+    # @see Haml::Engine#options_for_buffer
     attr_accessor :options
 
-    # The Buffer for the enclosing Haml document.
+    # The {Buffer} for the enclosing Haml document.
     # This is set for partials and similar sorts of nested templates.
-    # It's nil at the top level (see #toplevel?).
+    # It's `nil` at the top level (see \{#toplevel?}).
+    #
+    # @return [Buffer]
     attr_accessor :upper
 
     # nil if there's no capture_haml block running,
     # and the position at which it's beginning the capture if there is one.
+    #
+    # @return [Fixnum, nil]
     attr_accessor :capture_position
 
-    # See #active?
+    # @return [Boolean]
+    # @see #active?
     attr_writer :active
 
-    # True if the format is XHTML
+    # @return [Boolean] Whether or not the format is XHTML
     def xhtml?
       not html?
     end
 
-    # True if the format is any flavor of HTML
+    # @return [Boolean] Whether or not the format is any flavor of HTML
     def html?
       html4? or html5?
     end
 
-    # True if the format is HTML4
+    # @return [Boolean] Whether or not the format is HTML4
     def html4?
       @options[:format] == :html4
     end
 
-    # True if the format is HTML5
+    # @return [Boolean] Whether or not the format is HTML5.
     def html5?
       @options[:format] == :html5
     end
 
-    # True if this buffer is a top-level template,
-    # as opposed to a nested partial.
+    # @return [Boolean] Whether or not this buffer is a top-level template,
+    #   as opposed to a nested partial
     def toplevel?
       upper.nil?
     end
 
-    # True if this buffer is currently being used to render a Haml template.
-    # However, this returns false if a subtemplate is being rendered,
+    # Whether or not this buffer is currently being used to render a Haml template.
+    # Returns `false` if a subtemplate is being rendered,
     # even if it's a subtemplate of this buffer's template.
+    #
+    # @return [Boolean]
     def active?
       @active
     end
 
-    # Gets the current tabulation of the document.
+    # @return [Fixnum] The current indentation level of the document
     def tabulation
       @real_tabs + @tabulation
     end
 
     # Sets the current tabulation of the document.
+    #
+    # @param val [Fixnum] The new tabulation
     def tabulation=(val)
       val = val - @real_tabs
       @tabulation = val > -1 ? val : 0
     end
 
-    # Creates a new buffer.
+    # @param upper [Buffer] The parent buffer
+    # @param options [Hash<Symbol, Object>] An options hash.
+    #   See {Haml::Engine#options\_for\_buffer}
     def initialize(upper = nil, options = {})
       @active = true
       @upper = upper
@@ -87,6 +103,13 @@ module Haml
       @real_tabs = 0
     end
 
+    # Appends text to the buffer, properly tabulated.
+    # Also modifies the document's indentation.
+    #
+    # @param text [String] The text to append
+    # @param tab_change [Fixnum] The number of tabs by which to increase
+    #   or decrease the document's indentation
+    # @param dont_tab_up [Boolean] If true, don't indent the first line of `text`
     def push_text(text, tab_change, dont_tab_up)
       if @tabulation > 0
         # Have to push every line in by the extra user set tabulation.
@@ -100,6 +123,10 @@ module Haml
       @real_tabs += tab_change
     end
 
+    # Modifies the indentation of the document.
+    #
+    # @param tab_change [Fixnum] The number of tabs by which to increase
+    #   or decrease the document's indentation
     def adjust_tabs(tab_change)
       @real_tabs += tab_change
     end
@@ -164,8 +191,8 @@ module Haml
       <% end %>
 RUBY
 
-    # Takes the various information about the opening tag for an
-    # element, formats it, and adds it to the buffer.
+    # Takes the various information about the opening tag for an element,
+    # formats it, and appends it to the buffer.
     def open_tag(name, self_closing, try_one_line, preserve_tag, escape_html, class_id,
                  nuke_outer_whitespace, nuke_inner_whitespace, obj_ref, content, *attributes_hashes)
       tabulation = @real_tabs
@@ -208,6 +235,18 @@ RUBY
       buffer << buffer.slice!(capture_position..-1).rstrip
     end
 
+    # Merges two attribute hashes.
+    # This is the same as `to.merge!(from)`,
+    # except that it merges id and class attributes.
+    #
+    # ids are concatenated with `"_"`,
+    # and classes are concatenated with `" "`.
+    #
+    # Destructively modifies both `to` and `from`.
+    #
+    # @param to [Hash<String, String>] The attribute hash to merge into
+    # @param from [Hash<String, String>] The attribute hash to merge from
+    # @return [Hash<String, String>] `to`, after being merged
     def self.merge_attrs(to, from)
       if to['id'] && from['id']
         to['id'] << '_' << from.delete('id')
@@ -227,11 +266,8 @@ RUBY
 
     private
 
-    # Some of these methods are exposed as public class methods
-    # so they can be re-used in helpers.
-
     @@tab_cache = {}
-    # Gets <tt>count</tt> tabs. Mostly for internal use.
+    # Gets `count` tabs. Mostly for internal use.
     def tabs(count = 0)
       tabs = [count + @tabulation, 0].max
       @@tab_cache[tabs] ||= '  ' * tabs
@@ -240,7 +276,7 @@ RUBY
     # Takes an array of objects and uses the class and id of the first
     # one to create an attributes hash.
     # The second object, if present, is used as a prefix,
-    # just like you can do with dom_id() and dom_class() in Rails
+    # just like you can do with `dom_id()` and `dom_class()` in Rails
     def parse_object_ref(ref)
       prefix = ref[1]
       ref = ref[0]

@@ -1,4 +1,5 @@
+/.yardoc
 /coverage
-/rdoc
+/doc
 /pkg
 /test/rails

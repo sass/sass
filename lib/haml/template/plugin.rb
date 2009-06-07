@@ -1,4 +1,3 @@
-# :stopdoc:
 # This file makes Haml work with Rails
 # using the > 2.0.1 template handler API.
 
@@ -70,4 +69,3 @@ if ActionView::TemplateError.instance_method(:initialize).arity == 5
     end
   end
 end
-# :startdoc:

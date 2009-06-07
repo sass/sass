@@ -1,25 +1,34 @@
 module Sass
-  # Sass::SyntaxError encapsulates information about the exception,
-  # such as the line of the Sass template it was raised on
+  # An exception class that keeps track of
+  # the line of the Sass template it was raised on
   # and the Sass file that was being parsed (if applicable).
-  # It also provides a handy way to rescue only exceptions raised
-  # because of a faulty template.
+  #
+  # All Sass errors are raised as {Sass::SyntaxError}s.
   class SyntaxError < StandardError
-    # The line of the Sass template on which the exception was thrown.
+    # The line of the Sass template on which the error occurred.
+    #
+    # @return [Fixnum]
     attr_accessor :sass_line
 
     # The name of the file that was being parsed when the exception was raised.
-    # This will be nil unless Sass is being used as an ActionView plugin.
+    # This could be `nil` if no filename is available.
+    #
+    # @return [String]
     attr_reader :sass_filename
 
-    # Creates a new SyntaxError.
-    # +lineno+ should be the line of the Sass template on which the error occurred.
+    # @param msg [String] The error message
+    # @param lineno [Fixnum] See \{#sass\_line}
     def initialize(msg, lineno = nil)
       @message = msg
       @sass_line = lineno
     end
 
-    # Add information about the filename and line on which the error was raised.
+    # Add information about the filename and line on which the error was raised,
+    # and re-raises the exception.
+    #
+    # @param filename [String] See \{#sass\_filename}
+    # @param line [Fixnum] See \{#sass\_line}
+    # @raise [Sass::SyntaxError] self
     def add_metadata(filename, line)
       self.sass_line ||= line
       add_backtrace_entry(filename) unless sass_filename
@@ -27,15 +36,17 @@ module Sass
     end
 
     # Adds a properly formatted entry to the exception's backtrace.
-    # +filename+ should be the file in which the error occurred,
-    # if applicable (defaults to "(sass)").
+    #
+    # @param filename [String] The file in which the error occurred,
+    #   if applicable (defaults to "(sass)")
     def add_backtrace_entry(filename) # :nodoc:
       @sass_filename ||= filename
       self.backtrace ||= []
       self.backtrace.unshift "#{@sass_filename || '(sass)'}:#{@sass_line}"
     end
 
-    def to_s # :nodoc:
+    # @return [String] The error message
+    def to_s
       @message
     end
   end

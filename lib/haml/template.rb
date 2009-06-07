@@ -1,10 +1,15 @@
 require 'haml/engine'
 
 module Haml
+  # The class that keeps track of the global options for Haml within Rails.
   module Template
     extend self
 
     @options = {}
+    # The options hash for Haml when used within Rails.
+    # See [the Haml options documentation](../Haml.html#haml_options).
+    #
+    # @return [Hash<Symbol, Object>]
     attr_accessor :options
   end
 end

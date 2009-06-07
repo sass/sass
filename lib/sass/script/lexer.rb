@@ -2,9 +2,26 @@ require 'strscan'
 
 module Sass
   module Script
-    class Lexer # :nodoc:
+    # The lexical analyzer for SassScript.
+    # It takes a raw string and converts it to individual tokens
+    # that are easier to parse.
+    class Lexer
+      # A struct containing information about an individual token.
+      #
+      # `type`: [{Symbol}]
+      # : The type of token.
+      #
+      # `value`: [{Object}]
+      # : The Ruby object corresponding to the value of the token.
+      #
+      # `line`: [{Fixnum}]
+      # : The line of the source file on which the token appears.
+      #
+      # `offset`: [{Fixnum}]
+      # : The number of bytes into the line the SassScript token appeared.
       Token = Struct.new(:type, :value, :line, :offset)
 
+      # A hash from operator strings to the corresponding token types.
       OPERATORS = {
         '+' => :plus,
         '-' => :minus,
@@ -27,10 +44,11 @@ module Sass
         '}' => :end_interpolation,
       }
 
-      # We'll want to match longer names first
-      # so that > and < don't clobber >= and <=
+      # A list of operator strings ordered with longer names first
+      # so that `>` and `<` don't clobber `>=` and `<=`.
       OP_NAMES = OPERATORS.keys.sort_by {|o| -o.size}
 
+      # A hash of regular expressions that are used for tokenizing.
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s*/,
         :variable => /!(\w+)/,
@@ -42,6 +60,11 @@ module Sass
         :op => %r{(#{Regexp.union(*OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(?:\b|$)' : ''))})})}
       }
 
+      # @param str [String, StringScanner] The source text to lex
+      # @param line [Fixnum] The line on which the SassScript appears.
+      #   Used for error reporting
+      # @param offset [Fixnum] The number of characters in on which the SassScript appears.
+      #   Used for error reporting
       def initialize(str, line, offset)
         @scanner = str.is_a?(StringScanner) ? str : StringScanner.new(str)
         @line = line
@@ -49,6 +72,9 @@ module Sass
         @prev = nil
       end
 
+      # Moves the lexer forward one token.
+      #
+      # @return [Token] The token that was moved past
       def next
         @tok ||= read_token
         @tok, tok = nil, @tok
@@ -56,10 +82,14 @@ module Sass
         return tok
       end
 
+      # Returns the next token without moving the lexer forward.
+      #
+      # @return [Token] The next token
       def peek
         @tok ||= read_token
       end
 
+      # @return [Boolean] Whether or not there's more source text to lex.
       def done?
         whitespace unless after_interpolation?
         @scanner.eos? && @tok.nil?

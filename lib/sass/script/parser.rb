@@ -2,54 +2,84 @@ require 'sass/script/lexer'
 
 module Sass
   module Script
+    # The parser for SassScript.
+    # It parses a string of code into a tree of {Script::Node}s.
     class Parser
+      # @param str [String, StringScanner] The source text to parse
+      # @param line [Fixnum] The line on which the SassScript appears.
+      #   Used for error reporting
+      # @param offset [Fixnum] The number of characters in on which the SassScript appears.
+      #   Used for error reporting
+      # @param filename [String] The name of the file in which the SassScript appears.
+      #   Used for error reporting
       def initialize(str, line, offset, filename = nil)
         @filename = filename
         @lexer = Lexer.new(str, line, offset)
       end
 
+      # Parses a SassScript expression within an interpolated segment (`#{}`).
+      # This means that it stops when it comes across an unmatched `}`,
+      # which signals the end of an interpolated segment,
+      # it returns rather than throwing an error.
+      #
+      # @return [Script::Node] The root node of the parse tree
+      # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse_interpolated
         expr = assert_expr :expr
         assert_tok :end_interpolation
         expr
       end
 
+      # Parses a SassScript expression.
+      #
+      # @return [Script::Node] The root node of the parse tree
+      # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse
         expr = assert_expr :expr
         raise Sass::SyntaxError.new("Unexpected #{@lexer.peek.type} token.") unless @lexer.done?
         expr
       end
 
+      # Parses a SassScript expression.
+      #
+      # @overload parse(str, line, offset, filename = nil)
+      # @return [Script::Node] The root node of the parse tree
+      # @see Parser#initialize
+      # @see Parser#parse
       def self.parse(*args)
         new(*args).parse
       end
 
-      private
+      class << self
+        private
 
-      # Defines a simple left-associative production.
-      # name is the name of the production,
-      # sub is the name of the production beneath it,
-      # and ops is a list of operators for this precedence level
-      def self.production(name, sub, *ops)
-        class_eval <<RUBY
-          def #{name}
-            return unless e = #{sub}
-            while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
-              e = Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
+        # Defines a simple left-associative production.
+        # name is the name of the production,
+        # sub is the name of the production beneath it,
+        # and ops is a list of operators for this precedence level
+        def production(name, sub, *ops)
+          class_eval <<RUBY
+            def #{name}
+              return unless e = #{sub}
+              while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
+                e = Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
+              end
+              e
             end
-            e
-          end
 RUBY
+        end
+
+        def unary(op, sub)
+          class_eval <<RUBY
+            def unary_#{op}
+              return #{sub} unless try_tok(:#{op})
+              UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
+            end
+RUBY
+        end
       end
 
-      def self.unary(op, sub)
-        class_eval <<RUBY
-          def unary_#{op}
-            return #{sub} unless try_tok(:#{op})
-            UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
-          end
-RUBY
-      end
+      private
 
       production :expr, :concat, :comma
 

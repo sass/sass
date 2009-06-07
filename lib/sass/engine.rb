@@ -20,20 +20,55 @@ require 'sass/files'
 require 'haml/shared'
 
 module Sass
-  # :stopdoc:
-  Mixin = Struct.new(:name, :args, :environment, :tree)
-  # :startdoc:
-
-  # This is the class where all the parsing and processing of the Sass
-  # template is done. It can be directly used by the user by creating a
-  # new instance and calling <tt>render</tt> to render the template. For example:
+  # A Sass mixin.
   #
-  #   template = File.load('stylesheets/sassy.sass')
-  #   sass_engine = Sass::Engine.new(template)
-  #   output = sass_engine.render
-  #   puts output
+  # `name`: [{String}]
+  # : The name of the mixin.
+  #
+  # `args`: [{Array}<({String}, {Script::Node})>]
+  # : The arguments for the mixin.
+  #   Each element is a tuple containing the name of the argument
+  #   and the parse tree for the default value of the argument.
+  #
+  # `environment`: [{Sass::Environment}]
+  # : The environment in which the mixin was defined.
+  #   This is captured so that the mixin can have access
+  #   to local variables defined in its scope.
+  #
+  # `tree`: [{Sass::Tree::Node}]
+  # : The parse tree for the mixin.
+  Mixin = Struct.new(:name, :args, :environment, :tree)
+
+  # This class handles the parsing and compilation of the Sass template.
+  # Example usage:
+  #
+  #     template = File.load('stylesheets/sassy.sass')
+  #     sass_engine = Sass::Engine.new(template)
+  #     output = sass_engine.render
+  #     puts output
   class Engine
     include Haml::Util
+
+    # A line of Sass code.
+    #
+    # `text`: [{String}]
+    # : The text in the line, without any whitespace at the beginning or end.
+    #
+    # `tabs`: [{Fixnum}]
+    # : The level of indentation of the line.
+    #
+    # `index`: [{Fixnum}]
+    # : The line number in the original document.
+    #
+    # `offset`: [{Fixnum}]
+    # : The number of bytes in on the line that the text begins.
+    #   This ends up being the number of bytes of leading whitespace.
+    #
+    # `filename`: [{String}]
+    # : The name of the file in which this line appeared.
+    #
+    # `children`: [{Array}<{Line}>]
+    # : The lines nested below this one.
     Line = Struct.new(:text, :tabs, :index, :offset, :filename, :children)
 
     # The character that begins a CSS attribute.
@@ -86,30 +121,28 @@ module Sass
       :cache_location => './.sass-cache',
     }.freeze
 
-    # Creates a new instace of Sass::Engine that will compile the given
-    # template string when <tt>render</tt> is called.
-    # See README.rdoc for available options.
-    #
-    #--
-    #
-    # TODO: Add current options to REFRENCE. Remember :filename!
-    #
-    # When adding options, remember to add information about them
-    # to README.rdoc!
-    #++
-    #
+    # @param template [String] The Sass template.
+    # @param options [Hash<Symbol, Object>] An options hash;
+    #   see [the Sass options documentation](../Sass.html#sass_options)
     def initialize(template, options={})
       @options = DEFAULT_OPTIONS.merge(options)
       @template = template
     end
 
-    # Processes the template and returns the result as a string.
+    # Render the template to CSS.
+    #
+    # @return [String] The CSS
+    # @raise [Sass::SyntaxError] if there's an error in the document
     def render
       to_tree.render
     end
 
     alias_method :to_css, :render
 
+    # Parses the document into its parse tree.
+    #
+    # @return [Sass::Tree::Node] The root of the parse tree.
+    # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
       root = Tree::Node.new
       append_children(root, tree(tabulate(@template)).first, true)

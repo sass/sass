@@ -1,15 +1,35 @@
 module Sass::Script
-  # Methods in this module are accessible from the Sass script context.
+  # Methods in this module are accessible from the SassScript context.
   # For example, you can write
   #
-  #   color = hsl(120, 100%, 50%)
+  #     !color = hsl(120, 100%, 50%)
   #
-  # and it will call Sass::Script::Functions#hsl.
+  # and it will call {Sass::Script::Functions#hsl}.
+  #
+  # The following functions are provided:
+  #
+  # \{#hsl}
+  # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
+  #
+  # \{#percentage}
+  # : Converts a unitless number to a percentage.
+  #
+  # \{#round}
+  # : Rounds a number to the nearest whole number.
+  #
+  # \{#ceil}
+  # : Rounds a number up to the nearest whole number.
+  #
+  # \{#floor}
+  # : Rounds a number down to the nearest whole number.
+  #
+  # \{#abs}
+  # : Returns the absolute value of a number.
   #
   # You can add your own functions to this module,
   # but there are a few things to keep in mind.
-  # First of all, the arguments passed are (currently undocumented) Sass::Script::Literal objects,
-  # Literal objects are also the expected return values.
+  # First of all, the arguments passed are {Sass::Script::Literal} objects.
+  # Literal objects are also expected to be returned.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
@@ -17,38 +37,23 @@ module Sass::Script
   # Keep in mind that Sass stylesheets are only compiled once
   # at a somewhat indeterminate time
   # and then left as static CSS files.
-  # Any dynamic CSS should be left in <style> tags in the HTML.
+  # Any dynamic CSS should be left in `<style>` tags in the HTML.
   #
-  # Within a sass function you can call the options method to gain access to the
-  # options hash that was used to create the Sass::Engine that is processing the function call.
-  #
-  # The following functions are provided:
-  # * +hsl+ - converts an <tt>hsl(hue, saturation, lightness)</tt> triplet into a color.
-  #
-  #   The +hue+ value should be between 0 and 360 inclusive,
-  #   saturation and lightness must be between <tt>0%</tt> to <tt>100%</tt> inclusive.
-  #   The percent sign is optional.
-  # * +percentage+ - converts a unitless number to a css percentage.
-  #
-  #   Example: <tt>percentage(14px / 7px) => 200%</tt>
-  # * +round+ - Rounds a number to the nearest whole number.
-  #
-  #   Example: <tt>round(10.4px) => 10px</tt>
-  # * +ceil+ - Rounds a number up to the nearest whole number.
-  #
-  #   Example: <tt>ceil(10.4px) => 11px</tt>
-  # * +floor+ - Rounds a number down to the nearest whole number.
-  #
-  #   Example: <tt>floor(10.6px) => 10px</tt>
-  # * +abs+ - Returns the absolute value of a number.
-  #
-  #   Example: <tt>abs(-10px) => 10px</tt>
+  # Within one of the functions in this module,
+  # methods of {EvaluationContext} can be used.
   module Functions
-    class EvaluationContext # :nodoc:
+    # The context in which methods in {Script::Functions} are evaluated.
+    # That means that all instance methods of {EvaluationContext}
+    # are available to use in functions.
+    class EvaluationContext
       include Sass::Script::Functions
 
+      # The options hash for the {Sass::Engine} that is processing the function call
+      #
+      # @return [Hash<Symbol, Object>]
       attr_reader :options
 
+      # @param options [Hash<Symbol, Object>] See \{#options}
       def initialize(options)
         @options = options
       end
@@ -56,15 +61,22 @@ module Sass::Script
 
     instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
 
-    # Creates a Sass::Script::Color object from hue, saturation, and lightness.
-    # As per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsl-color),
-    # hue is in degrees,
-    # and saturation and lightness are percentages.
-    def hsl(h, s, l)
-      original_s = s
-      original_l = l
+    # Creates a {Color} object from hue, saturation, and lightness
+    # as per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsl-color).
+    #
+    # @param hue [Number] The hue of the color.
+    #   Should be between 0 and 360 degrees, inclusive
+    # @param saturation [Number] The saturation of the color.
+    #   Must be between `0%` and `100%`, inclusive
+    # @param lightness [Number] The lightness of the color.
+    #   Must be between `0%` and `100%`, inclusive
+    # @return [Color] The resulting color
+    # @raise [ArgumentError] if `saturation` or `lightness` are out of bounds
+    def hsl(hue, saturation, lightness)
+      original_s = saturation
+      original_l = lightness
       # This algorithm is from http://www.w3.org/TR/css3-color#hsl-color
-      h, s, l = [h, s, l].map { |a| a.value }
+      h, s, l = [hue, saturation, lightness].map { |a| a.value }
       raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") if s < 0 || s > 100
       raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") if l < 0 || l > 100
 
@@ -79,9 +91,14 @@ module Sass::Script
                  hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round })
     end
 
-    # Converts a unitless number into a percent and multiplies the number by 100.
-    # E.g. percentage(100px / 50px) => 200%
-    # Some may find this more natural than: 100% * 100px / 50px
+    # Converts a decimal number to a percentage.
+    # For example:
+    #
+    #     percentage(100px / 50px) => 200%
+    #
+    # @param value [Number] The decimal number to convert to a percentage
+    # @return [Number] The percentage
+    # @raise [ArgumentError] If `value` isn't a unitless number
     def percentage(value)
       unless value.is_a?(Sass::Script::Number) && value.unitless?
         raise ArgumentError.new("#{value} is not a unitless number")
@@ -90,21 +107,53 @@ module Sass::Script
     end
 
     # Rounds a number to the nearest whole number.
+    # For example:
+    #
+    #     round(10.4px) => 10px
+    #     round(10.6px) => 11px
+    #
+    # @param value [Number] The number
+    # @return [Number] The rounded number
+    # @raise [Sass::SyntaxError] if `value` isn't a number
     def round(value)
       numeric_transformation(value) {|n| n.round}
     end
 
-    # Rounds up to the nearest whole number.
+    # Rounds a number up to the nearest whole number.
+    # For example:
+    #
+    #     ciel(10.4px) => 11px
+    #     ciel(10.6px) => 11px
+    #
+    # @param value [Number] The number
+    # @return [Number] The rounded number
+    # @raise [Sass::SyntaxError] if `value` isn't a number
     def ceil(value)
       numeric_transformation(value) {|n| n.ceil}
     end
 
     # Rounds down to the nearest whole number.
+    # For example:
+    #
+    #     floor(10.4px) => 10px
+    #     floor(10.6px) => 10px
+    #
+    # @param value [Number] The number
+    # @return [Number] The rounded number
+    # @raise [Sass::SyntaxError] if `value` isn't a number
     def floor(value)
       numeric_transformation(value) {|n| n.floor}
     end
 
-    # Returns the absolute value of a number.
+    # Finds the absolute value of a number.
+    # For example:
+    #
+    #     abs(10px) => 10px
+    #     abs(-10px) => 10px
+    #
+    # @param value [Number] The number
+    # @return [Number] The absolute value
+    # @raise [Sass::SyntaxError] if `value` isn't a number
     def abs(value)
       numeric_transformation(value) {|n| n.abs}
     end

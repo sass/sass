@@ -7,6 +7,13 @@ module Sass
   module Files
     extend self
 
+    # Returns the {Sass::Tree} for the given file,
+    # reading it from the Sass cache if possible.
+    #
+    # @param filename [String] The path to the Sass file
+    # @param options [Hash<Symbol, Object>] The options hash.
+    #   Only the [`:cache_location`](../Sass.html#cache-option) option is used
+    # @raise [Sass::SyntaxError] if there's an error in the document
     def tree_for(filename, options)
       options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
       text = File.read(filename)
@@ -35,6 +42,26 @@ module Sass
       root
     end
 
+    # Find the full filename of a Sass or CSS file to import.
+    # This follows Sass's import rules:
+    # if the filename given ends in `".sass"` or `".css"`,
+    # it will try to find that type of file;
+    # otherwise, it will try to find the corresponding Sass file
+    # and fall back on CSS if it's not available.
+    #
+    # Any Sass filename returned will correspond to
+    # an actual Sass file on the filesystem.
+    # CSS filenames, however, may not;
+    # they're expected to be put through directly to the stylesheet
+    # as CSS `@import` statements.
+    #
+    # @param filename [String] The filename to search for
+    # @param load_paths [Array<String>] The set of filesystem paths
+    #   to search for Sass files.
+    # @return [String] The filename of the imported file.
+    #   This is an absolute path if the file is a `".sass"` file.
+    # @raise [Sass::SyntaxError] if `filename` ends in ``".sass"``
+    #   and no corresponding Sass file could be found.
     def find_file_to_import(filename, load_paths)
       was_sass = false
       original_filename = filename

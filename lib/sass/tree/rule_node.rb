@@ -5,25 +5,77 @@ module Sass::Tree
     # The character used to include the parent selector
     PARENT = '&'
 
-    attr_accessor :rules, :parsed_rules
+    # The CSS selectors for this rule.
+    # Each string is a selector line, and the lines are meant to be separated by commas.
+    # For example,
+    #
+    #     foo, bar, baz,
+    #     bip, bop, bup
+    #
+    # would be
+    #
+    #     ["foo, bar, baz",
+    #      "bip, bop, bup"]
+    #
+    # @return [Array<String>]
+    attr_accessor :rules
 
+    # The CSS selectors for this rule,
+    # parsed for commas and parent-references.
+    # It's only set once {Tree::Node#perform} has been called.
+    #
+    # It's an array of arrays of arrays.
+    # The first level of arrays represents distinct lines in the Sass file;
+    # the second level represents comma-separated selectors;
+    # the third represents structure within those selectors,
+    # currently only parent-refs (represented by `:parent`).
+    # For example,
+    #
+    #     &.foo, bar, baz,
+    #     bip, &.bop, bup
+    #
+    # would be
+    #
+    #     [[[:parent, "foo"], ["bar"], ["baz"]],
+    #      [["bip"], [:parent, "bop"], ["bup"]]]
+    #
+    # @return [Array<Array<Array<String|Symbol>>>]
+    attr_accessor :parsed_rules
+
+    # @param rule [String] The first CSS rule. See \{#rules}
     def initialize(rule)
       @rules = [rule]
       super()
     end
 
+    # Compares the contents of two rules.
+    #
+    # @param other [Object] The object to compare with
+    # @return [Boolean] Whether or not this node and the other object
+    #   are the same
     def ==(other)
       self.class == other.class && rules == other.rules && super
     end
 
+    # Adds another {RuleNode}'s rules to this one's.
+    #
+    # @param node [RuleNode] The other node
     def add_rules(node)
       @rules += node.rules
     end
 
+    # @return [Boolean] Whether or not this rule is continued on the next line
     def continued?
       @rules.last[-1] == ?,
     end
 
+    # Computes the CSS for the rule.
+    #
+    # @param tabs [Fixnum] The level of indentation for the CSS
+    # @param super_rules [Array<Array<String>>] The rules for the parent node
+    #   (see \{#rules}), or `nil` if there are no parents
+    # @return [String] The resulting CSS
+    # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
     def to_s(tabs, super_rules = nil)
       resolved_rules = resolve_parent_refs(super_rules)
 
@@ -94,6 +146,18 @@ module Sass::Tree
 
     protected
 
+    # Runs any SassScript that may be embedded in the rule,
+    # and parses the selectors for commas.
+    #
+    # @param environment [Sass::Environment] The lexical environment containing
+    #   variable and mixin values
+    def perform!(environment)
+      @parsed_rules = @rules.map {|r| parse_selector(interpolate(r, environment))}
+      super
+    end
+
+    private
+
     def resolve_parent_refs(super_rules)
       if super_rules.nil?
         return @parsed_rules.map do |line|
@@ -125,11 +189,6 @@ module Sass::Tree
         end
       end
       new_rules
-    end
-
-    def perform!(environment)
-      @parsed_rules = @rules.map {|r| parse_selector(interpolate(r, environment))}
-      super
     end
 
     def parse_selector(text)

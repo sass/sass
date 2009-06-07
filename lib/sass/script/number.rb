@@ -1,12 +1,38 @@
 require 'sass/script/literal'
 
 module Sass::Script
-  class Number < Literal # :nodoc:
+  # A SassScript object representing a number.
+  # SassScript numbers can have decimal values,
+  # and can also have units.
+  # For example, `12`, `1px`, and `10.45em`
+  # are all valid values.
+  #
+  # Numbers can also have more complex units, such as `1px*em/in`.
+  # These cannot be inputted directly in Sass code at the moment.
+  class Number < Literal
+    # The Ruby value of the number.
+    #
+    # @return [Numeric]
+    attr_reader :value
 
-    attr_reader :numerator_units, :denominator_units
+    # A list of units in the numerator of the number.
+    # For example, `1px*em/in*cm` would return `["px", "em"]`
+    # @return [Array<String>] 
+    attr_reader :numerator_units
 
+    # A list of units in the denominator of the number.
+    # For example, `1px*em/in*cm` would return `["in", "cm"]`
+    # @return [Array<String>]
+    attr_reader :denominator_units
+
+    # The precision with which numbers will be printed to CSS files.
+    # For example, if this is `1000.0`,
+    # `3.1415926` will be printed as `3.142`.
     PRECISION = 1000.0
 
+    # @param value [Numeric] The value of the number
+    # @param numerator_units [Array<String>] See \{#numerator\_units}
+    # @param denominator_units [Array<String>] See \{#denominator\_units}
     def initialize(value, numerator_units = [], denominator_units = [])
       super(value)
       @numerator_units = numerator_units
@@ -14,6 +40,21 @@ module Sass::Script
       normalize!
     end
 
+    # The SassScript `+` operation.
+    # Its functionality depends on the type of its argument:
+    #
+    # {Number}
+    # : Adds the two numbers together, converting units if possible.
+    #
+    # {Color}
+    # : Adds this number to each of the RGB color channels.
+    #
+    # {Literal}
+    # : See {Literal#plus}.
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Literal] The result of the operation
+    # @raise [Sass::SyntaxError] if `other` is a number with incompatible units
     def plus(other)
       if other.is_a? Number
         operate(other, :+)
@@ -24,6 +65,18 @@ module Sass::Script
       end
     end
 
+    # The SassScript binary `-` operation (e.g. `!a - !b`).
+    # Its functionality depends on the type of its argument:
+    #
+    # {Number}
+    # : Subtracts this number from the other, converting units if possible.
+    #
+    # {Literal}
+    # : See {Literal#minus}.
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Literal] The result of the operation
+    # @raise [Sass::SyntaxError] if `other` is a number with incompatible units
     def minus(other)
       if other.is_a? Number
         operate(other, :-)
@@ -32,10 +85,25 @@ module Sass::Script
       end
     end
 
+    # The SassScript unary `-` operation (e.g. `-!a`).
+    #
+    # @return [Number] The negative value of this number
     def unary_minus
       Number.new(-value, numerator_units, denominator_units)
     end
 
+    # The SassScript `*` operation.
+    # Its functionality depends on the type of its argument:
+    #
+    # {Number}
+    # : Multiplies the two numbers together, converting units appropriately.
+    #
+    # {Color}
+    # : Multiplies each of the RGB color channels by this number.
+    #
+    # @param other [Number, Color] The right-hand side of the operator
+    # @return [Number, Color] The result of the operation
+    # @raise [NoMethodError] if `other` is an invalid type
     def times(other)
       if other.is_a? Number
         self.operate(other, :*)
@@ -46,6 +114,17 @@ module Sass::Script
       end
     end
 
+    # The SassScript `/` operation.
+    # Its functionality depends on the type of its argument:
+    #
+    # {Number}
+    # : Divides this number by the other, converting units appropriately.
+    #
+    # {Literal}
+    # : See {Literal#div}.
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Literal] The result of the operation
     def div(other)
       if other.is_a? Number
         operate(other, :/)
@@ -54,6 +133,12 @@ module Sass::Script
       end
     end
 
+    # The SassScript `%` operation.
+    #
+    # @param other [Number] The right-hand side of the operator
+    # @return [Number] This number modulo the other
+    # @raise [NoMethodError] if `other` is an invalid type
+    # @raise [Sass::SyntaxError] if `other` has any units
     def mod(other)
       if other.is_a?(Number)
         unless other.unitless?
@@ -65,37 +150,70 @@ module Sass::Script
       end
     end
 
+    # The SassScript `==` operation.
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Boolean] Whether this number is equal to the other object
     def eq(other)
       Sass::Script::Bool.new(super.to_bool &&
         self.numerator_units.sort == other.numerator_units.sort &&
         self.denominator_units.sort == other.denominator_units.sort)
     end
 
+    # The SassScript `>` operation.
+    #
+    # @param other [Number] The right-hand side of the operator
+    # @return [Boolean] Whether this number is greater than the other
+    # @raise [NoMethodError] if `other` is an invalid type
     def gt(other)
       raise NoMethodError.new(nil, :gt) unless other.is_a?(Number)
       operate(other, :>)
     end
 
+    # The SassScript `>=` operation.
+    #
+    # @param other [Number] The right-hand side of the operator
+    # @return [Boolean] Whether this number is greater than or equal to the other
+    # @raise [NoMethodError] if `other` is an invalid type
     def gte(other)
       raise NoMethodError.new(nil, :gte) unless other.is_a?(Number)
       operate(other, :>=)
     end
 
+    # The SassScript `<` operation.
+    #
+    # @param other [Number] The right-hand side of the operator
+    # @return [Boolean] Whether this number is less than the other
+    # @raise [NoMethodError] if `other` is an invalid type
     def lt(other)
       raise NoMethodError.new(nil, :lt) unless other.is_a?(Number)
       operate(other, :<)
     end
 
+    # The SassScript `<=` operation.
+    #
+    # @param other [Number] The right-hand side of the operator
+    # @return [Boolean] Whether this number is less than or equal to the other
+    # @raise [NoMethodError] if `other` is an invalid type
     def lte(other)
       raise NoMethodError.new(nil, :lte) unless other.is_a?(Number)
       operate(other, :<=)
     end
 
+    # @return [String] The CSS representation of this number
+    # @raise [Sass::SyntaxError] if this number has units that can't be used in CSS
+    #   (e.g. `px*in`)
     def to_s
       raise Sass::SyntaxError.new("#{inspect} isn't a valid CSS value.") unless legal_units?
       inspect
     end
 
+    # Returns a readable representation of this number.
+    #
+    # This representation is valid CSS (and valid SassScript)
+    # as long as there is only one unit.
+    #
+    # @return [String] The representation
     def inspect
       value =
         if self.value.is_a?(Float) && (self.value.infinite? || self.value.nan?)
@@ -108,19 +226,25 @@ module Sass::Script
       "#{value}#{unit_str}"
     end
 
+    # @return [Fixnum] The integer value of the number
+    # @raise [Sass::SyntaxError] if the number isn't an integer
     def to_i
       super unless int?
       return value
     end
 
+    # @return [Boolean] Whether or not this number is an integer.
     def int?
       value % 1 == 0.0
     end
 
+    # @return [Boolean] Whether or not this number has no units.
     def unitless?
       numerator_units.empty? && denominator_units.empty?
     end
 
+    # @return [Boolean] Whether or not this number has units that can be represented in CSS
+    #   (that is, zero or one \{#numerator\_units}).
     def legal_units?
       (numerator_units.empty? || numerator_units.size == 1) && denominator_units.empty?
     end

@@ -7,7 +7,6 @@ unless defined?(Sass::RAILS_LOADED)
                               :always_check      => RAILS_ENV != "production",
                               :full_exception    => RAILS_ENV != "production")
 
-  # :stopdoc:
   module ActionController
     class Base
       alias_method :sass_old_process, :process
@@ -21,5 +20,4 @@ unless defined?(Sass::RAILS_LOADED)
       end
     end
   end
-  # :startdoc:
 end

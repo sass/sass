@@ -1,11 +1,18 @@
 require 'readline'
 
 module Sass
+  # Runs a SassScript read-eval-print loop.
+  # It presents a prompt on the terminal,
+  # reads in SassScript expressions,
+  # evaluates them,
+  # and prints the result.
   class Repl
+    # @param options [Hash<Symbol, Object>] An options hash.
     def initialize(options = {})
       @options = options
     end
 
+    # Starts the read-eval-print loop.
     def run
       environment = Environment.new
       environment.set_var('important', Script::String.new('!important'))

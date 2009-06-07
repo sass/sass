@@ -1,9 +1,13 @@
 require 'sass/engine'
 
 module Sass
-  # This module contains methods to aid in using Sass
-  # as a stylesheet-rendering plugin for various systems.
-  # Currently Rails/ActionController and Merb are supported out of the box.
+  # This module handles the compilation of Sass files.
+  # It provides global options and checks whether CSS files
+  # need to be updated.
+  #
+  # This module is used as the primary interface with Sass
+  # when it's used as a plugin for various frameworks.
+  # Currently Rails and Merb are supported out of the box.
   module Plugin
     extend self
 
@@ -15,37 +19,42 @@ module Sass
     }
     @checked_for_updates = false
 
-    # Whether or not Sass has *ever* checked if the stylesheets need updates
+    # Whether or not Sass has **ever** checked if the stylesheets need to be updated
     # (in this Ruby instance).
-    def checked_for_updates
-      @checked_for_updates
-    end
+    #
+    # @return [Boolean]
+    attr_reader :checked_for_updates
 
-    # Gets various options for Sass. See README.rdoc for details.
-    #--
-    # TODO: *DOCUMENT OPTIONS*
-    #++
-    def options
-      @options
-    end
+    # An options hash.
+    # See [the Sass options documentation](../Sass.html#sass_options).
+    #
+    # @return [Hash<Symbol, Object>]
+    attr_reader :options
 
-    # Sets various options for Sass.
+    # Sets the options hash.
+    # See [the Sass options documentation](../Sass.html#sass_options).
+    #
+    # @param value [Hash<Symbol, Object>] The options hash
     def options=(value)
       @options.merge!(value)
     end
 
-    # Get the options ready to be passed to the Sass::Engine
+    # Non-destructively modifies \{#options} so that default values are properly set.
+    #
+    # @param additional_options [Hash<Symbol, Object>] An options hash with which to merge \{#options}
+    # @return [Hash<Symbol, Object>] The modified options hash
     def engine_options(additional_options = {})
       opts = options.dup.merge(additional_options)
       opts[:load_paths] = load_paths(opts)
       opts
     end
 
-    # Checks each stylesheet in <tt>options[:css_location]</tt>
-    # to see if it needs updating,
-    # and updates it using the corresponding template
-    # from <tt>options[:templates]</tt>
-    # if it does.
+    # Updates out-of-date stylesheets.
+    #
+    # Checks each Sass file in [`:template_location`](../Sass.html#template_location-option)
+    # to see if it's been modified more recently than the corresponding CSS file
+    # in [`:css_location`](../Sass.html#css_location-option).
+    # If it has, it updates the CSS file.
     def update_stylesheets
       return if options[:never_update]
 

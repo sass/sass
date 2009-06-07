@@ -122,25 +122,37 @@ end
 
 # ----- Documentation -----
 
-begin
-  require 'hanna/rdoctask'
-rescue LoadError
-  require 'rake/rdoctask'
+task :rdoc do
+  puts '=' * 100, <<END, '=' * 100
+Haml uses the YARD documentation system (http://github.com/lsegal/yard).
+Install the yard gem and then run "rake doc".
+END
 end
 
-Rake::RDocTask.new do |rdoc|
-  rdoc.title    = 'Haml/Sass'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include(*FileList.new('*') do |list|
-                            list.exclude(/(^|[^.a-z])[a-z]+/)
-                            list.exclude('TODO')
-                          end.to_a)
-  rdoc.rdoc_files.include('lib/**/*.rb')
-  rdoc.rdoc_files.exclude('TODO')
-  rdoc.rdoc_files.exclude('lib/haml/buffer.rb')
-  rdoc.rdoc_files.exclude('lib/sass/tree/*')
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.main = 'README.rdoc'
+begin
+  require 'yard'
+
+  YARD::Rake::YardocTask.new do |t|
+    t.files = FileList.new('lib/**/*.rb') do |list|
+      list.exclude('lib/haml/template/*.rb')
+      list.exclude('lib/haml/helpers/action_view_mods.rb')
+    end.to_a
+    t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
+    t.options << '--files' << FileList.new('*') do |list|
+      list.exclude(/(^|[^.a-z])[a-z]+/)
+      list.exclude('README.md')
+      list.exclude('REVISION')
+      list.exclude('TODO')
+    end.to_a.join(',')
+  end
+  Rake::Task['yardoc'].instance_variable_set('@comment', nil)
+
+  desc "Generate Documentation"
+  task :doc => :yardoc
+rescue LoadError
+  desc "Generate Documentation"
+  task :doc => :rdoc
+  task :yardoc => :rdoc
 end
 
 # ----- Coverage -----

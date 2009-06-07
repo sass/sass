@@ -1,12 +1,32 @@
 module Sass::Tree
+  # A static node representing an unproccessed Sass `@`-directive.
+  # Directives known to Sass, like `@for` and `@debug`,
+  # are handled by their own nodes;
+  # only CSS directives like `@media` and `@font-face` become {DirectiveNode}s.
+  #
+  # `@import` is a bit of a weird case;
+  # if it's importing a Sass file,
+  # it becomes a {FileNode},
+  # but if it's importing a plain CSS file,
+  # it becomes a {DirectiveNode}.
+  #
+  # @see Sass::Tree
   class DirectiveNode < Node
+    # The text of the directive, `@` and all.
+    #
+    # @return [String]
     attr_accessor :value
 
+    # @param value [String] See \{#value}
     def initialize(value)
       @value = value
       super()
     end
 
+    # Computes the CSS for the directive.
+    #
+    # @param tabs [Fixnum] The level of indentation for the CSS
+    # @return [String] The resulting CSS
     def to_s(tabs)
       if children.empty?
         value + ";"

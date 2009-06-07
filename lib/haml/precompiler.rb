@@ -2,6 +2,8 @@ require 'strscan'
 require 'haml/shared'
 
 module Haml
+  # Handles the internal pre-compilation from Haml into Ruby code,
+  # which then runs the final creation of the HTML string.
   module Precompiler
     include Haml::Util
 
