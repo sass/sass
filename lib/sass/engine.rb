@@ -69,7 +69,11 @@ module Sass
     #
     # `children`: [{Array}<{Line}>]
     # : The lines nested below this one.
-    Line = Struct.new(:text, :tabs, :index, :offset, :filename, :children)
+    class Line < Struct.new(:text, :tabs, :index, :offset, :filename, :children)
+      def comment?
+        text[0] == COMMENT_CHAR && (text[1] == SASS_COMMENT_CHAR || text[1] == CSS_COMMENT_CHAR)
+      end
+    end
 
     # The character that begins a CSS attribute.
     ATTRIBUTE_CHAR  = ?:
@@ -156,7 +160,8 @@ module Sass
     def tabulate(string)
       tab_str = nil
       first = true
-      enum_with_index(string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/)).map do |line, index|
+      lines = []
+      string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/).each_with_index do |line, index|
         index += (@options[:line] || 1)
         next if line.strip.empty?
 
@@ -170,15 +175,24 @@ module Sass
           end
         end
         first &&= !tab_str.nil?
-        next Line.new(line.strip, 0, index, 0, @options[:filename], []) if tab_str.nil?
+        if tab_str.nil?
+          lines << Line.new(line.strip, 0, index, 0, @options[:filename], [])
+          next
+        end
+
+        if lines.last && lines.last.comment? && line =~ /^(?:#{tab_str}){#{lines.last.tabs + 1}}(.*)$/
+          lines.last.text << "\n" << $1
+          next
+        end
 
         line_tabs = line_tab_str.scan(tab_str).size
         raise SyntaxError.new(<<END.strip.gsub("\n", ' '), index) if tab_str * line_tabs != line_tab_str
 Inconsistent indentation: #{Haml::Shared.human_indentation line_tab_str, true} used for indentation,
 but the rest of the document was indented using #{Haml::Shared.human_indentation tab_str}.
 END
-        Line.new(line.strip, line_tabs, index, tab_str.size, @options[:filename], [])
-      end.compact
+        lines << Line.new(line.strip, line_tabs, index, tab_str.size, @options[:filename], [])
+      end
+      lines
     end
 
     def tree(arr, i = 0)

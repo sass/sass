@@ -51,7 +51,7 @@ module Sass::Tree
       return if invisible?
 
       spaces = '  ' * (tabs - 1)
-      spaces + "/* " + ([value] + lines.map {|l| l.text}).
+      spaces + "/* " + (value.split("\n") + lines.map {|l| l.text}).
         map{|l| l.sub(%r{ ?\*/ *$},'')}.join(style == :compact ? ' ' : "\n#{spaces} * ") + " */"
     end
 
