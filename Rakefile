@@ -252,6 +252,9 @@ end
 # ----- Handling Updates -----
 
 task :handle_update do
+  sh %{git checkout master}
+  sh %{git pull origin master}
+
   if ENV["REF"] == "refs/heads/master"
     sh %{rake release_edge &> edge-gem-output.log}
   elsif ENV["REF"] =~ %r{^refs/heads/(haml|sass)-pages$}
