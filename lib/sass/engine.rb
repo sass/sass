@@ -22,20 +22,20 @@ require 'haml/shared'
 module Sass
   # A Sass mixin.
   #
-  # `name`: [{String}]
+  # `name`: `String`
   # : The name of the mixin.
   #
-  # `args`: [{Array}<({String}, {Script::Node})>]
+  # `args`: `Array<(String, Script::Node)>`
   # : The arguments for the mixin.
   #   Each element is a tuple containing the name of the argument
   #   and the parse tree for the default value of the argument.
   #
-  # `environment`: [{Sass::Environment}]
+  # `environment`: {Sass::Environment}
   # : The environment in which the mixin was defined.
   #   This is captured so that the mixin can have access
   #   to local variables defined in its scope.
   #
-  # `tree`: [{Sass::Tree::Node}]
+  # `tree`: {Sass::Tree::Node}
   # : The parse tree for the mixin.
   Mixin = Struct.new(:name, :args, :environment, :tree)
 
@@ -51,23 +51,23 @@ module Sass
 
     # A line of Sass code.
     #
-    # `text`: [{String}]
+    # `text`: `String`
     # : The text in the line, without any whitespace at the beginning or end.
     #
-    # `tabs`: [{Fixnum}]
+    # `tabs`: `Fixnum`
     # : The level of indentation of the line.
     #
-    # `index`: [{Fixnum}]
+    # `index`: `Fixnum`
     # : The line number in the original document.
     #
-    # `offset`: [{Fixnum}]
+    # `offset`: `Fixnum`
     # : The number of bytes in on the line that the text begins.
     #   This ends up being the number of bytes of leading whitespace.
     #
-    # `filename`: [{String}]
+    # `filename`: `String`
     # : The name of the file in which this line appeared.
     #
-    # `children`: [{Array}<{Line}>]
+    # `children`: `Array<Line>`
     # : The lines nested below this one.
     class Line < Struct.new(:text, :tabs, :index, :offset, :filename, :children)
       def comment?
