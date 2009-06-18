@@ -163,8 +163,6 @@ task :pages do
 
   sh %{staticmatic build .}
   FileUtils.mv("site", "/var/www/#{proj}-pages")
-  sh %{git reset --hard HEAD}
-  sh %{git clean -xdf}
 end
 
 # ----- Coverage -----
@@ -256,8 +254,12 @@ task :handle_update do
   sh %{git pull origin master}
 
   if ENV["REF"] == "refs/heads/master"
-    sh %{rake release_edge &> edge-gem-output.log}
+    sh %{rake release_edge}
   elsif ENV["REF"] =~ %r{^refs/heads/(haml|sass)-pages$}
     sh %{rake pages PROJ=#{$1}}
   end
+
+  sh %{git reset --hard HEAD}
+  sh %{git clean -xdf}
+  sh %{git checkout master}
 end
