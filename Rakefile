@@ -82,8 +82,7 @@ end
 
 task :release_edge do
   sh %{git checkout edge-gem}
-  sh %{git fetch origin}
-  sh %{git merge origin/edge-gem}
+  sh %{git reset --hard origin/edge-gem}
   sh %{git merge origin/master}
 
   # Get the current master branch version
@@ -159,7 +158,7 @@ task :pages do
   require 'fileutils'
   raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
   sh %{git checkout #{proj}-pages}
-  sh %{git pull origin #{proj}-pages}
+  sh %{git reset --hard #{proj}-pages}
 
   sh %{staticmatic build .}
   FileUtils.mv("site", "/var/www/#{proj}-pages")
@@ -251,7 +250,8 @@ end
 
 task :handle_update do
   sh %{git checkout master}
-  sh %{git pull origin master}
+  sh %{git fetch origin}
+  sh %{git reset --hard origin/master}
 
   begin
     if ENV["REF"] == "refs/heads/master"
