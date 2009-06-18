@@ -1,5 +1,8 @@
 # Sass (Syntactically Awesome StyleSheets)
 
+* Table of contents
+{:toc}
+
 Sass is a meta-language on top of CSS
 that's used to describe the style of a document
 cleanly and structurally,

@@ -1,5 +1,8 @@
 # Frequently Asked Questions
 
+* Table of contents
+{:toc}
+
 ## Haml
 
 ### How do I put a punctuation mark after an element, like "`I like <strong>cake</strong>!`"?

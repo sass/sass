@@ -1,5 +1,8 @@
 # Haml (XHTML Abstraction Markup Language)
 
+* Table of contents
+{:toc}
+
 Haml is a markup language
 that's used to cleanly and simply describe the XHTML of any web document,
 without the use of inline code.
@@ -117,7 +120,7 @@ is compiled to:
 Any string is a valid element name;
 Haml will automatically generate opening and closing tags for any element.
 
-#### {}
+#### `{}`
 
 Brackets represent a Ruby hash
 that is used for specifying the attributes of an element.
@@ -905,7 +908,7 @@ is compiled to:
       2?
     </p>
 
-#### -#
+#### `-#`
 
 The hyphen followed immediately by the pound sign
 signifies a silent comment.

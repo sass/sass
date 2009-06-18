@@ -1,0 +1,15 @@
+.maruku_toc {
+    background: #ddd;
+    border: 1px solid #ccc;
+    margin-right: 2em;
+    float: left;
+}
+
+.maruku_toc ul {
+    padding: 0 1em;
+}
+
+#frequently_asked_questions + .maruku_toc {
+    float: none;
+    margin: 0 2em;
+}
