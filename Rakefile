@@ -248,3 +248,13 @@ namespace :test do
     end
   end
 end
+
+# ----- Handling Updates -----
+
+task :handle_update do
+  if ENV["REF"] == "refs/heads/master"
+    sh %{rake release_edge &> edge-gem-output.log}
+  elsif ENV["REF"] =~ %r{^refs/heads/(haml|sass)-pages$}
+    sh %{rake pages PROJ=#{$1}}
+  end
+end
