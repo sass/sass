@@ -158,7 +158,7 @@ task :pages do
   require 'fileutils'
   raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
   sh %{git checkout #{proj}-pages}
-  sh %{git reset --hard #{proj}-pages}
+  sh %{git reset --hard origin/#{proj}-pages}
 
   sh %{staticmatic build .}
   FileUtils.mv("site", "/var/www/#{proj}-pages")
