@@ -127,7 +127,7 @@ module Sass
 
     # @param template [String] The Sass template.
     # @param options [Hash<Symbol, Object>] An options hash;
-    #   see [the Sass options documentation](../Sass.html#sass_options)
+    #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
     def initialize(template, options={})
       @options = DEFAULT_OPTIONS.merge(options)
       @template = template

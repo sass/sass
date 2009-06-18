@@ -43,7 +43,7 @@ which Haml does using the {Haml::Helpers#preserve} and {Haml::Helpers#find_and_p
 
 Normally, Haml will do this for you automatically
 when you're using a tag that needs it
-(this can be customized using the [`:preserve`](Haml.html#preserve-option) option.
+(this can be customized using the {file:HAML_REFERENCE.md#preserve-option `:preserve`} option.
 For example,
 
     %p

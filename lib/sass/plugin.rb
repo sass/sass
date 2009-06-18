@@ -26,13 +26,13 @@ module Sass
     attr_reader :checked_for_updates
 
     # An options hash.
-    # See [the Sass options documentation](../Sass.html#sass_options).
+    # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
     # @return [Hash<Symbol, Object>]
     attr_reader :options
 
     # Sets the options hash.
-    # See [the Sass options documentation](../Sass.html#sass_options).
+    # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
     # @param value [Hash<Symbol, Object>] The options hash
     def options=(value)
@@ -51,9 +51,9 @@ module Sass
 
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass file in [`:template_location`](../Sass.html#template_location-option)
+    # Checks each Sass file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
-    # in [`:css_location`](../Sass.html#css_location-option).
+    # in {file:SASS_REFERENCE.md#css_location-option} `:css_location`}.
     # If it has, it updates the CSS file.
     def update_stylesheets
       return if options[:never_update]
