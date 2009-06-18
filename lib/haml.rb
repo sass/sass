@@ -972,7 +972,7 @@ require 'haml/version'
 #
 # ### Haml Options
 #
-# Options can be set by setting the {Haml::Template.options} hash
+# Options can be set by setting the {Haml::Template#options Haml::Template.options} hash
 # in `environment.rb` in Rails...
 #
 #     Haml::Template.options[:format] = :html5

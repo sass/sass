@@ -657,8 +657,7 @@ foo
   bar: baz
 SASS
 assert_equal(<<CSS, actual_css)
-/* 
- * This is a comment that
+/* This is a comment that
  * continues to the second line. */
 foo {
   bar: baz; }
@@ -740,6 +739,24 @@ RESULT
   a: b
   /*b: c
 SOURCE
+  end
+
+  def test_comment_with_crazy_indentation
+    assert_equal(<<CSS, render(<<SASS))
+/* This is a loud comment:
+ *          Where the indentation is wonky. */
+.comment {
+  width: 1px; }
+CSS
+/*
+  This is a loud comment:
+           Where the indentation is wonky.
+//
+  This is a silent comment:
+           Where the indentation is wonky.
+.comment
+  width: 1px
+SASS
   end
 
   private

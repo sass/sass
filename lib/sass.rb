@@ -962,7 +962,7 @@ require 'haml/version'
 #
 # ## Sass Options
 #
-# Options can be set by setting the {Sass::Plugin.options} hash
+# Options can be set by setting the {Sass::Plugin#options Sass::Plugin.options} hash
 # in `environment.rb` in Rails...
 #
 #     Sass::Plugin.options[:style] = :compact

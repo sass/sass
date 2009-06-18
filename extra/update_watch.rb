@@ -6,8 +6,5 @@ set :environment, :production
 Dir.chdir(File.dirname(__FILE__) + "/..")
 
 post "/" do
-  payload = JSON.parse(params["payload"])
-
-  break unless payload["ref"] == "refs/heads/master"
-  system("rake release_edge &> edge-gem-output.log")
+  system %{rake handle_update REF=#{JSON.parse(params["payload"])["ref"].inspect}}
 end

@@ -82,8 +82,7 @@ end
 
 task :release_edge do
   sh %{git checkout edge-gem}
-  sh %{git fetch origin}
-  sh %{git merge origin/edge-gem}
+  sh %{git reset --hard origin/edge-gem}
   sh %{git merge origin/master}
 
   # Get the current master branch version
@@ -116,8 +115,8 @@ task :release_edge do
   sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
 end
 
-task :watch_for_edge_update do
-  sh %{ruby extra/edge_gem_watch.rb}
+task :watch_for_update do
+  sh %{ruby extra/update_watch.rb}
 end
 
 # ----- Documentation -----
@@ -153,6 +152,15 @@ rescue LoadError
   desc "Generate Documentation"
   task :doc => :rdoc
   task :yardoc => :rdoc
+end
+
+task :pages do
+  raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
+  sh %{git checkout #{proj}-pages}
+  sh %{git reset --hard origin/#{proj}-pages}
+
+  sh %{staticmatic build .}
+  sh %{rsync -av --delete site/ /var/www/#{proj}-pages}
 end
 
 # ----- Coverage -----
@@ -234,5 +242,25 @@ namespace :test do
     ensure
       `rm -rf test/rails`
     end
+  end
+end
+
+# ----- Handling Updates -----
+
+task :handle_update do
+  sh %{git checkout master}
+  sh %{git fetch origin}
+  sh %{git reset --hard origin/master}
+
+  begin
+    if ENV["REF"] == "refs/heads/master"
+      sh %{rake release_edge}
+    elsif ENV["REF"] =~ %r{^refs/heads/(haml|sass)-pages$}
+      sh %{rake pages PROJ=#{$1}}
+    end
+  ensure
+    sh %{git reset --hard HEAD}
+    sh %{git clean -xdf}
+    sh %{git checkout master}
   end
 end
