@@ -137,12 +137,8 @@ begin
       list.exclude('lib/haml/helpers/action_view_mods.rb')
     end.to_a
     t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
-    t.options << '--files' << FileList.new('*') do |list|
-      list.exclude(/(^|[^.a-z])[a-z]+/)
-      list.exclude('README.md')
-      list.exclude('REVISION')
-      list.exclude('TODO')
-    end.to_a.join(',')
+    files = FileList.new('doc-src/*').to_a + %w[MIT-LICENSE VERSION]
+    t.options << '--files' << files.join(',')
   end
   Rake::Task['yardoc'].instance_variable_set('@comment', nil)
 
