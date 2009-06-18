@@ -92,7 +92,7 @@ and using {Haml::Engine} like so:
 Various characters, when placed at a certain point in a line,
 instruct Haml to render different types of things.
 
-### XHTML Tags
+### HTML Tags
 
 These characters render XHTML tags.
 
@@ -859,7 +859,40 @@ compiles to
 
     I feel <strong>!
 
-##### Blocks
+#### `-#`
+
+The hyphen followed immediately by the pound sign
+signifies a silent comment.
+Any text following this isn't rendered in the resulting document
+at all.
+
+For example:
+
+    %p foo
+    -# This is a comment
+    %p bar
+
+is compiled to:
+
+    <p>foo</p>
+    <p>bar</p>
+
+You can also nest text beneath a silent comment.
+None of this text will be rendered.
+For example:
+
+    %p foo
+    -#
+      This won't be displayed
+        Nor will this
+    %p bar
+
+is compiled to:
+
+    <p>foo</p>
+    <p>bar</p>
+
+#### Ruby Blocks
 
 Ruby blocks, like XHTML tags, don't need to be explicitly closed in Haml.
 Rather, they're automatically closed, based on indentation.
@@ -907,39 +940,6 @@ is compiled to:
     <p>
       2?
     </p>
-
-#### `-#`
-
-The hyphen followed immediately by the pound sign
-signifies a silent comment.
-Any text following this isn't rendered in the resulting document
-at all.
-
-For example:
-
-    %p foo
-    -# This is a comment
-    %p bar
-
-is compiled to:
-
-    <p>foo</p>
-    <p>bar</p>
-
-You can also nest text beneath a silent comment.
-None of this text will be rendered.
-For example:
-
-    %p foo
-    -#
-      This won't be displayed
-        Nor will this
-    %p bar
-
-is compiled to:
-
-    <p>foo</p>
-    <p>bar</p>
 
 ## Other Useful Things
 
