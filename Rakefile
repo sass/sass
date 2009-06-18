@@ -116,8 +116,8 @@ task :release_edge do
   sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
 end
 
-task :watch_for_edge_update do
-  sh %{ruby extra/edge_gem_watch.rb}
+task :watch_for_update do
+  sh %{ruby extra/update_watch.rb}
 end
 
 # ----- Documentation -----
@@ -153,6 +153,18 @@ rescue LoadError
   desc "Generate Documentation"
   task :doc => :rdoc
   task :yardoc => :rdoc
+end
+
+task :pages do
+  require 'fileutils'
+  raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
+  sh %{git checkout #{proj}-pages}
+  sh %{git pull origin #{proj}-pages}
+
+  sh %{staticmatic build .}
+  FileUtils.mv("site", "/var/www/#{proj}-pages")
+  sh %{git reset --hard HEAD}
+  sh %{git clean -xdf}
 end
 
 # ----- Coverage -----
