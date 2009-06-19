@@ -11,11 +11,11 @@
 
 * Code
 ** Sass
-   CSS Terminology? (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
-
+   [2.4] CSS superset
+   [2.4] Classes are mixins
+     Can refer to specific property values? Syntax?
    [2.4] Pre-parse everything possible: never call Node#interpolate
    [2.4] Do all parsing in to_tree
-   [2.4] Allow semicolons for multiple props on one line
    [2.4] Pull in Compass watcher stuff
    [2.4] Internationalization
      Particularly word constituents in Regexps
