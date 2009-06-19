@@ -122,7 +122,7 @@ module Sass
       def to_s
         result = String.new
         children.each do |child|
-          if child.is_a? AttrNode
+          if child.is_a? PropNode
             raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.', child.line)
           else
             next if child.invisible?

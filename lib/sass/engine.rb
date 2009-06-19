@@ -3,7 +3,7 @@ require 'digest/sha1'
 require 'sass/tree/node'
 require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
-require 'sass/tree/attr_node'
+require 'sass/tree/prop_node'
 require 'sass/tree/directive_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
@@ -335,7 +335,7 @@ END
       else
         value
       end
-      Tree::AttrNode.new(name, expr, property_regx == PROPERTY_OLD ? :old : :new)
+      Tree::PropNode.new(name, expr, property_regx == PROPERTY_OLD ? :old : :new)
     end
 
     def parse_variable(line)

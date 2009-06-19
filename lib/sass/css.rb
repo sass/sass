@@ -24,7 +24,7 @@ module Sass
     class RuleNode
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
-        str = "\n#{'  ' * tabs}#{rules.first}#{children.any? { |c| c.is_a? AttrNode } ? "\n" : ''}"
+        str = "\n#{'  ' * tabs}#{rules.first}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
 
         children.each do |child|
           str << "#{child.to_sass(tabs + 1, opts)}"
@@ -34,7 +34,7 @@ module Sass
       end
     end
 
-    class AttrNode
+    class PropNode
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
         "#{'  ' * tabs}#{opts[:old] ? ':' : ''}#{name}#{opts[:old] ? '' : ':'} #{value}\n"
@@ -155,7 +155,7 @@ module Sass
         end
 
         assert_match /(;|(?=\}))/
-        rule << Tree::AttrNode.new(name, value, nil)
+        rule << Tree::PropNode.new(name, value, nil)
       end
 
       assert_match /\}/

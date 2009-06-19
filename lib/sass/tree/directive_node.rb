@@ -41,7 +41,7 @@ module Sass::Tree
         children.each do |child|
           next if child.invisible?
           if style == :compact
-            if child.is_a?(AttrNode)
+            if child.is_a?(PropNode)
               result << "#{child.to_s(first || was_prop ? 1 : tabs + 1)} "
             else
               if was_prop
@@ -51,11 +51,11 @@ module Sass::Tree
               rendered.lstrip! if first
               result << rendered
             end
-            was_prop = child.is_a?(AttrNode)
+            was_prop = child.is_a?(PropNode)
             first = false
           elsif style == :compressed
             result << (was_prop ? ";#{child.to_s(1)}" : child.to_s(1))
-            was_prop = child.is_a?(AttrNode)
+            was_prop = child.is_a?(PropNode)
           else
             result << child.to_s(tabs + 1) + "\n"
           end

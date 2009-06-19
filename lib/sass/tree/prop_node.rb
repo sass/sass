@@ -2,7 +2,7 @@ module Sass::Tree
   # A static node reprenting a CSS property.
   #
   # @see Sass::Tree
-  class AttrNode < Node
+  class PropNode < Node
     # The name of the property.
     #
     # @return [String]
@@ -91,11 +91,11 @@ module Sass::Tree
     # Returns an error message if the given child node is invalid,
     # and false otherwise.
     #
-    # {AttrNode} only allows other {AttrNode}s and {CommentNode}s as children.
+    # {PropNode} only allows other {PropNode}s and {CommentNode}s as children.
     # @param child [Tree::Node] A potential child node
     # @return [String] An error message if the child is invalid, or nil otherwise
     def invalid_child?(child)
-      if !child.is_a?(AttrNode) && !child.is_a?(CommentNode)
+      if !child.is_a?(PropNode) && !child.is_a?(CommentNode)
         "Illegal nesting: Only properties may be nested beneath properties."
       end
     end
