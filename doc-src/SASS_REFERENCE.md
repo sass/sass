@@ -212,7 +212,7 @@ For example:
       <property>
       ...
 
-Like CSS, you can stretch rules over multiple lines.
+Like CSS, you can stretch selectors over multiple lines.
 However, unlike CSS, you can only do this if each line but the last
 ends with a comma.
 For example:
@@ -307,7 +307,7 @@ is compiled to:
       #main pre {
         font-size: 3em; }
 
-### Referencing Parent Rules: `&`
+### Referencing Parent Selectors: `&`
 
 In addition to the default behavior of inserting the parent selector
 as a CSS parent of the current selector
@@ -383,9 +383,9 @@ is compiled to:
       font-size: 30em;
       font-weight: bold; }
 
-### Rule Escaping: `\`
+### Selector Escaping: `\`
 
-In case, for whatever reason, you need to write a rule
+In case, for whatever reason, you need to write a selector
 that begins with a Sass-meaningful character,
 you can escape it with a backslash (`\`).
 For example:
