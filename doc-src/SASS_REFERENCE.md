@@ -226,7 +226,7 @@ For example:
 
 ### Attributes
 
-There are two different ways to write CSS attrbibutes.
+There are two different ways to write CSS attributes.
 The first is very similar to the how you're used to writing them:
 with a colon between the name and the value.
 However, Sass attributes don't have semicolons at the end;
