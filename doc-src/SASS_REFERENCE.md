@@ -184,7 +184,7 @@ is compiled to:
       #main pre {
         font-size: 3em; }
 
-### Referencing Parent Rules
+### Referencing Parent Rules: `&`
 
 In addition to the default behavior of inserting the parent selector
 as a CSS parent of the current selector
@@ -260,7 +260,7 @@ is compiled to:
       font-size: 30em;
       font-weight: bold; }
 
-### Rule Escaping
+### Rule Escaping: `\`
 
 In case, for whatever reason, you need to write a rule
 that begins with a Sass-meaningful character,
@@ -388,6 +388,103 @@ compiles to:
       #main {
         background-color: white; } }
 
+## Control Structures
+
+SassScript supports basic control structures for looping and conditionals
+using the same syntax as directives.
+
+### `@if`
+
+The `@if` statement takes a SassScript expression
+and prints the code nested beneath it if the expression returns
+anything other than `false`:
+
+    p
+      @if 1 + 1 == 2
+        :border 1px solid
+      @if 5 < 3
+        :border 2px dotted
+
+is compiled to:
+
+    p {
+      border: 1px solid; }
+
+The `@if` statement can be followed by several `@else if` statements
+and one `@else` statement.
+If the `@if` statement fails,
+the `@else if` statements are tried in order
+until one succeeds or the `@else` is reached.
+For example:
+
+    !type = "monster"
+    p
+      @if !type == "ocean"
+        :color blue
+      @else if !type == "matador"
+        :color red
+      @else if !type == "monster"
+        :color green
+      @else
+        :color black
+
+is compiled to:
+
+    p {
+      color: green; }
+
+### `@for`
+
+The `@for` statement has two forms:
+`@for <var> from <start> to <end>` or
+`@for <var> from <start> through <end>`.
+`<var>` is a variable name, like `!i`,
+and `<start>` and `<end>` are SassScript expressions
+that should return integers.
+
+The `@for` statement sets `<var>` to each number
+from `<start>` to `<end>`,
+including `<end>` if `through` is used.
+For example:
+
+    @for !i from 1 through 3
+      .item-#{!i}
+        :width = 2em * !i
+
+is compiled to:
+
+    .item-1 {
+      width: 2em; }
+    .item-2 {
+      width: 4em; }
+    .item-3 {
+      width: 6em; }
+
+### `@while`
+
+The `@while` statement repeatedly loops over the nested
+block until the statement evaluates to `false`. This can
+be used to achieve more complex looping than the `@for`
+statement is capable of.
+For example:
+
+    !i = 6
+    @while !i > 0
+      .item-#{!i}
+        :width = 2em * !i
+      !i = !i - 2
+
+is compiled to:
+
+    .item-6 {
+      width: 12em; }
+
+    .item-4 {
+      width: 8em; }
+
+    .item-2 {
+      width: 4em; }
+
 ## SassScript
 
 In addition to the declarative templating system,
@@ -412,7 +509,7 @@ and the result printed out for you:
     >> #777 + #888
     white
 
-### Variables
+### Variables: `!`
 
 The most straightforward way to use SassScript
 is to set and reference variables.
@@ -547,7 +644,7 @@ You can define additional functions in ruby.
 
 See {Sass::Script::Functions} for more information.
 
-### Interpolation
+### Interpolation: `#{}`
 
 You can also use SassScript variables in selectors
 and attribute names using #{} interpolation syntax:
@@ -562,7 +659,7 @@ is compiled to:
     p.foo {
       border-color: blue; }
 
-### Optional Assignment
+### Optional Assignment: `||=`
 
 You can assign to variables if they aren't already assigned
 using the `||=` assignment operator. This means that if the
@@ -585,103 +682,6 @@ is compiled to:
       content: First content;
       new-content: First time reference; }
 
-## Control Structures
-
-SassScript supports basic control structures for looping and conditionals
-using the same syntax as directives.
-
-### `@if`
-
-The `@if` statement takes a SassScript expression
-and prints the code nested beneath it if the expression returns
-anything other than `false`:
-
-    p
-      @if 1 + 1 == 2
-        :border 1px solid
-      @if 5 < 3
-        :border 2px dotted
-
-is compiled to:
-
-    p {
-      border: 1px solid; }
-
-The `@if` statement can be followed by several `@else if` statements
-and one `@else` statement.
-If the `@if` statement fails,
-the `@else if` statements are tried in order
-until one succeeds or the `@else` is reached.
-For example:
-
-    !type = "monster"
-    p
-      @if !type == "ocean"
-        :color blue
-      @else if !type == "matador"
-        :color red
-      @else if !type == "monster"
-        :color green
-      @else
-        :color black
-
-is compiled to:
-
-    p {
-      color: green; }
-
-### `@for`
-
-The `@for` statement has two forms:
-`@for <var> from <start> to <end>` or
-`@for <var> from <start> through <end>`.
-`<var>` is a variable name, like `!i`,
-and `<start>` and `<end>` are SassScript expressions
-that should return integers.
-
-The `@for` statement sets `<var>` to each number
-from `<start>` to `<end>`,
-including `<end>` if `through` is used.
-For example:
-
-    @for !i from 1 through 3
-      .item-#{!i}
-        :width = 2em * !i
-
-is compiled to:
-
-    .item-1 {
-      width: 2em; }
-    .item-2 {
-      width: 4em; }
-    .item-3 {
-      width: 6em; }
-
-### `@while`
-
-The `@while` statement repeatedly loops over the nested
-block until the statement evaluates to `false`. This can
-be used to achieve more complex looping than the `@for`
-statement is capable of.
-For example:
-
-    !i = 6
-    @while !i > 0
-      .item-#{!i}
-        :width = 2em * !i
-      !i = !i - 2
-
-is compiled to:
-
-    .item-6 {
-      width: 12em; }
-
-    .item-4 {
-      width: 8em; }
-
-    .item-2 {
-      width: 4em; }
-
 ## Mixins
 
 Mixins enable you to define groups of CSS attributes and
@@ -690,7 +690,7 @@ throughout the document. This allows you to keep your
 stylesheets DRY and also avoid placing presentation
 classes in your markup.
 
-### Defining a Mixin
+### Defining a Mixin: `=`
 
 To define a mixin you use a slightly modified form of selector syntax.
 For example the `large-text` mixin is defined as follows:
@@ -719,7 +719,7 @@ For example:
       * html &
         height: 1px
 
-### Mixing it in
+### Mixing It In: `+`
 
 Inlining a defined mixin is simple,
 just prepend a `+` symbol to the name of a mixin defined earlier in the document.
@@ -800,41 +800,11 @@ is compiled to:
 
 ## Comments
 
-### Silent Comments
+Sass supports two sorts of comments:
+those that show up in the CSS output
+and those that don't.
 
-It's simple to add "silent" comments,
-which don't output anything to the CSS document,
-to a Sass document.
-Simply use the familiar C-style notation for a one-line comment, `//`,
-at the normal indentation level and all text following it won't be output.
-For example:
-
-    // A very awesome rule.
-    #awesome.rule
-      // An equally awesome attribute.
-      :awesomeness very
-
-becomes
-
-    #awesome.rule {
-      awesomeness: very; }
-
-You can also nest text beneath a comment to comment out a whole block.
-For example:
-
-    // A very awesome rule
-    #awesome.rule
-      // Don't use these attributes
-        color: green
-        font-size: 10em
-      color: red
-
-becomes
-
-    #awesome.rule {
-      color: red; }
-
-### Loud Comments
+### CSS Comments: `/*`
 
 "Loud" comments are just as easy as silent ones.
 These comments output to the document as CSS comments,
@@ -871,6 +841,40 @@ becomes
        * that represents
        * a peanut butter and jelly sandwich. */
       background-image: url(/images/pbj.png);
+      color: red; }
+
+### Sass Comments: `//`
+
+It's simple to add "silent" comments,
+which don't output anything to the CSS document,
+to a Sass document.
+Simply use the familiar C-style notation for a one-line comment, `//`,
+at the normal indentation level and all text following it won't be output.
+For example:
+
+    // A very awesome rule.
+    #awesome.rule
+      // An equally awesome attribute.
+      :awesomeness very
+
+becomes
+
+    #awesome.rule {
+      awesomeness: very; }
+
+You can also nest text beneath a comment to comment out a whole block.
+For example:
+
+    // A very awesome rule
+    #awesome.rule
+      // Don't use these attributes
+        color: green
+        font-size: 10em
+      color: red
+
+becomes
+
+    #awesome.rule {
       color: red; }
 
 ## Output Style
