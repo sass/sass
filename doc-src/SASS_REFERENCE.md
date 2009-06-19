@@ -65,6 +65,114 @@ and using Sass::Engine like so:
     engine = Sass::Engine.new("#main\n  :background-color #0000ff")
     engine.render #=> "#main { background-color: #0000ff; }\n"
 
+### Options
+
+Options can be set by setting the {Sass::Plugin#options Sass::Plugin.options} hash
+in `environment.rb` in Rails...
+
+    Sass::Plugin.options[:style] = :compact
+
+...or by setting the `Merb::Plugin.config[:sass]` hash in `init.rb` in Merb...
+
+    Merb::Plugin.config[:sass][:style] = :compact
+
+...or by passing an options hash to {Sass::Engine#initialize}.
+Available options are:
+
+{#style-option} `:style`
+: Sets the style of the CSS output.
+  See the section on Output Style, above.
+
+{#attribute_syntax-option} `:attribute_syntax`
+: Forces the document to use one syntax for attributes.
+  If the correct syntax isn't used, an error is thrown.
+  `:normal` forces the use of a colon
+  before the attribute name.
+  For example: `:color #0f3`
+  or `:width = !main_width`.
+  `:alternate` forces the use of a colon or equals sign
+  after the attribute name.
+  For example: `color: #0f3`
+  or `width = !main_width`.
+  By default, either syntax is valid.
+
+{#cache-option} `cache`
+: Whether parsed Sass files should be cached,
+  allowing greater speed. Defaults to true.
+
+{#never_update-option} `:never_update`
+: Whether the CSS files should never be updated,
+  even if the template file changes.
+  Setting this to true may give small performance gains.
+  It always defaults to false.
+  Only has meaning within Ruby on Rails or Merb.
+
+{#always_update-option} `:always_update`
+: Whether the CSS files should be updated every
+  time a controller is accessed,
+  as opposed to only when the template has been modified.
+  Defaults to false.
+  Only has meaning within Ruby on Rails or Merb.
+
+{#always_check-option} `:always_check`
+: Whether a Sass template should be checked for updates every
+  time a controller is accessed,
+  as opposed to only when the Rails server starts.
+  If a Sass template has been updated,
+  it will be recompiled and will overwrite the corresponding CSS file.
+  Defaults to false in production mode, true otherwise.
+  Only has meaning within Ruby on Rails or Merb.
+
+{#full_exception-option} `:full_exception`
+: Whether an error in the Sass code
+  should cause Sass to provide a detailed description.
+  If set to true, the specific error will be displayed
+  along with a line number and source snippet.
+  Otherwise, a simple uninformative error message will be displayed.
+  Defaults to false in production mode, true otherwise.
+  Only has meaning within Ruby on Rails or Merb.
+
+{#template-location-option} `:template_location`
+: A path to the root sass template directory for you application.
+  If a hash, `:css_location` is ignored and this option designates
+  both a mapping between input and output directories.
+  May also be given a list of 2-element lists, instead of a hash.
+  Defaults to `RAILS_ROOT + "/public/stylesheets/sass"`
+  or `MERB_ROOT + "/public/stylesheets/sass"`.
+  Only has meaning within Ruby on Rails or Merb.
+  This will be derived from the `:css_location` path list if not provided 
+  by appending a folder of "sass" to each corresponding css location.
+
+{#css-location-option} `:css_location`
+: The path where CSS output should be written to.
+  This option is ignored when `:template_location` is a Hash.
+  Defaults to `RAILS_ROOT + "/public/stylesheets"`
+  or `MERB_ROOT + "/public/stylesheets"`.
+  Only has meaning within Ruby on Rails or Merb.
+
+{#cache_location-option} `:cache_location`
+: The path where the cached `sassc` files should be written to.
+  Defaults to `RAILS_ROOT + "/tmp/sass-cache"`,
+  or `MERB_ROOT + "/tmp/sass-cache"`,
+  or just `"./.sass-cache"`.
+
+{#filename-option} `:filename`
+: The filename of the file being rendered.
+  This is used solely for reporting errors,
+  and is automatically set when using Rails or Merb.
+
+{#load_paths-option} `:load_paths`
+: An array of filesystem paths which should be searched
+  for Sass templates imported with the "@import" directive.
+  This defaults to the working directory and, in Rails or Merb,
+  whatever `:template_location` is.
+
+{#line_numbers-option} `:line_numbers`
+: When set to true, causes the line number and file
+  where a selector is defined to be emitted into the compiled CSS
+  as a comment. Useful for debugging especially when using imports
+  and mixins.
+
 ## CSS Rules
 
 Rules in flat CSS have two elements:
@@ -968,111 +1076,3 @@ It's not meant to be human-readable.
 For example:
 
     #main{color:#fff;background-color:#000}#main p{width:10em}.huge{font-size:10em;font-weight:bold;text-decoration:underline}
-
-## Sass Options
-
-Options can be set by setting the {Sass::Plugin#options Sass::Plugin.options} hash
-in `environment.rb` in Rails...
-
-    Sass::Plugin.options[:style] = :compact
-
-...or by setting the `Merb::Plugin.config[:sass]` hash in `init.rb` in Merb...
-
-    Merb::Plugin.config[:sass][:style] = :compact
-
-...or by passing an options hash to {Sass::Engine#initialize}.
-Available options are:
-
-{#style-option} `:style`
-: Sets the style of the CSS output.
-  See the section on Output Style, above.
-
-{#attribute_syntax-option} `:attribute_syntax`
-: Forces the document to use one syntax for attributes.
-  If the correct syntax isn't used, an error is thrown.
-  `:normal` forces the use of a colon
-  before the attribute name.
-  For example: `:color #0f3`
-  or `:width = !main_width`.
-  `:alternate` forces the use of a colon or equals sign
-  after the attribute name.
-  For example: `color: #0f3`
-  or `width = !main_width`.
-  By default, either syntax is valid.
-
-{#cache-option} `cache`
-: Whether parsed Sass files should be cached,
-  allowing greater speed. Defaults to true.
-
-{#never_update-option} `:never_update`
-: Whether the CSS files should never be updated,
-  even if the template file changes.
-  Setting this to true may give small performance gains.
-  It always defaults to false.
-  Only has meaning within Ruby on Rails or Merb.
-
-{#always_update-option} `:always_update`
-: Whether the CSS files should be updated every
-  time a controller is accessed,
-  as opposed to only when the template has been modified.
-  Defaults to false.
-  Only has meaning within Ruby on Rails or Merb.
-
-{#always_check-option} `:always_check`
-: Whether a Sass template should be checked for updates every
-  time a controller is accessed,
-  as opposed to only when the Rails server starts.
-  If a Sass template has been updated,
-  it will be recompiled and will overwrite the corresponding CSS file.
-  Defaults to false in production mode, true otherwise.
-  Only has meaning within Ruby on Rails or Merb.
-
-{#full_exception-option} `:full_exception`
-: Whether an error in the Sass code
-  should cause Sass to provide a detailed description.
-  If set to true, the specific error will be displayed
-  along with a line number and source snippet.
-  Otherwise, a simple uninformative error message will be displayed.
-  Defaults to false in production mode, true otherwise.
-  Only has meaning within Ruby on Rails or Merb.
-
-{#template-location-option} `:template_location`
-: A path to the root sass template directory for you application.
-  If a hash, `:css_location` is ignored and this option designates
-  both a mapping between input and output directories.
-  May also be given a list of 2-element lists, instead of a hash.
-  Defaults to `RAILS_ROOT + "/public/stylesheets/sass"`
-  or `MERB_ROOT + "/public/stylesheets/sass"`.
-  Only has meaning within Ruby on Rails or Merb.
-  This will be derived from the `:css_location` path list if not provided 
-  by appending a folder of "sass" to each corresponding css location.
-
-{#css-location-option} `:css_location`
-: The path where CSS output should be written to.
-  This option is ignored when `:template_location` is a Hash.
-  Defaults to `RAILS_ROOT + "/public/stylesheets"`
-  or `MERB_ROOT + "/public/stylesheets"`.
-  Only has meaning within Ruby on Rails or Merb.
-
-{#cache_location-option} `:cache_location`
-: The path where the cached `sassc` files should be written to.
-  Defaults to `RAILS_ROOT + "/tmp/sass-cache"`,
-  or `MERB_ROOT + "/tmp/sass-cache"`,
-  or just `"./.sass-cache"`.
-
-{#filename-option} `:filename`
-: The filename of the file being rendered.
-  This is used solely for reporting errors,
-  and is automatically set when using Rails or Merb.
-
-{#load_paths-option} `:load_paths`
-: An array of filesystem paths which should be searched
-  for Sass templates imported with the "@import" directive.
-  This defaults to the working directory and, in Rails or Merb,
-  whatever `:template_location` is.
-
-{#line_numbers-option} `:line_numbers`
-: When set to true, causes the line number and file
-  where a selector is defined to be emitted into the compiled CSS
-  as a comment. Useful for debugging especially when using imports
-  and mixins.

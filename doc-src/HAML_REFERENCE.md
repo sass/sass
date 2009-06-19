@@ -87,6 +87,72 @@ and using {Haml::Engine} like so:
     engine = Haml::Engine.new("%p Haml code!")
     engine.render #=> "<p>Haml code!</p>\n"
 
+### Options
+
+Options can be set by setting the {Haml::Template#options Haml::Template.options} hash
+in `environment.rb` in Rails...
+
+    Haml::Template.options[:format] = :html5
+
+...or by setting the `Merb::Plugin.config[:haml]` hash in `init.rb` in Merb...
+
+    Merb::Plugin.config[:haml][:format] = :html5
+
+...or by passing an options hash to {Haml::Engine#initialize}.
+Available options are:
+
+{#format-option} `:format`
+: Determines the output format. The default is `:xhtml`.
+  Other options are `:html4` and `:html5`, which are
+  identical to `:xhtml` except there are no self-closing tags,
+  the XML prolog is ignored and correct DOCTYPEs are generated.
+
+{#escape_html-option} `:escape_html`
+: Sets whether or not to escape HTML-sensitive characters in script.
+  If this is true, `=` behaves like `&=`;
+  otherwise, it behaves like `!=`.
+  Note that if this is set, `!=` should be used for yielding to subtemplates
+  and rendering partials.
+  Defaults to false.
+
+{#suppress_eval-option} `:suppress_eval`
+: Whether or not attribute hashes and Ruby scripts
+  designated by `=` or `~` should be
+  evaluated. If this is `true`, said scripts are
+  rendered as empty strings. Defaults to `false`.
+
+{#attr_wrapper-option} `:attr_wrapper`
+: The character that should wrap element attributes.
+  This defaults to `'` (an apostrophe). Characters
+  of this type within the attributes will be escaped
+  (e.g. by replacing them with `&apos;`) if
+  the character is an apostrophe or a quotation mark.
+
+{#filename-option} `:filename`
+: The name of the Haml file being parsed.
+  This is only used as information when exceptions are raised.
+  This is automatically assigned when working through ActionView,
+  so it's really only useful for the user to assign
+  when dealing with Haml programatically.
+
+{#line-option} `:line`
+: The line offset of the Haml template being parsed.
+  This is useful for inline templates,
+  similar to the last argument to `Kernel#eval`.
+
+{#autoclose-option} `:autoclose`
+: A list of tag names that should be automatically self-closed
+  if they have no content.
+  Defaults to `['meta', 'img', 'link', 'br', 'hr', 'input', 'area', 'param', 'col', 'base']`.
+
+{#preserve-option} `:preserve`
+: A list of tag names that should automatically have their newlines preserved
+  using the {Haml::Helpers#preserve} helper.
+  This means that any content given on the same line as the tag will be preserved.
+  For example, `%textarea= "Foo\nBar"` compiles to `<textarea>Foo&#x000A;Bar</textarea>`.
+  Defaults to `['textarea', 'pre']`.
+  See also [Whitespace Preservation](#whitespace_preservation).
+
 ## Plain Text
 
 A substantial portion of any HTML document is its content,
@@ -988,69 +1054,3 @@ for doing stuff like preserving whitespace,
 creating nicely indented output for user-defined helpers,
 and other useful things.
 The helpers are all documented in the {Haml::Helpers} and {Haml::Helpers::ActionViewExtensions} modules.
-
-## Haml Options
-
-Options can be set by setting the {Haml::Template#options Haml::Template.options} hash
-in `environment.rb` in Rails...
-
-    Haml::Template.options[:format] = :html5
-
-...or by setting the `Merb::Plugin.config[:haml]` hash in `init.rb` in Merb...
-
-    Merb::Plugin.config[:haml][:format] = :html5
-
-...or by passing an options hash to {Haml::Engine#initialize}.
-Available options are:
-
-{#format-option} `:format`
-: Determines the output format. The default is `:xhtml`.
-  Other options are `:html4` and `:html5`, which are
-  identical to `:xhtml` except there are no self-closing tags,
-  the XML prolog is ignored and correct DOCTYPEs are generated.
-
-{#escape_html-option} `:escape_html`
-: Sets whether or not to escape HTML-sensitive characters in script.
-  If this is true, `=` behaves like `&=`;
-  otherwise, it behaves like `!=`.
-  Note that if this is set, `!=` should be used for yielding to subtemplates
-  and rendering partials.
-  Defaults to false.
-
-{#suppress_eval-option} `:suppress_eval`
-: Whether or not attribute hashes and Ruby scripts
-  designated by `=` or `~` should be
-  evaluated. If this is `true`, said scripts are
-  rendered as empty strings. Defaults to `false`.
-
-{#attr_wrapper-option} `:attr_wrapper`
-: The character that should wrap element attributes.
-  This defaults to `'` (an apostrophe). Characters
-  of this type within the attributes will be escaped
-  (e.g. by replacing them with `&apos;`) if
-  the character is an apostrophe or a quotation mark.
-
-{#filename-option} `:filename`
-: The name of the Haml file being parsed.
-  This is only used as information when exceptions are raised.
-  This is automatically assigned when working through ActionView,
-  so it's really only useful for the user to assign
-  when dealing with Haml programatically.
-
-{#line-option} `:line`
-: The line offset of the Haml template being parsed.
-  This is useful for inline templates,
-  similar to the last argument to `Kernel#eval`.
-
-{#autoclose-option} `:autoclose`
-: A list of tag names that should be automatically self-closed
-  if they have no content.
-  Defaults to `['meta', 'img', 'link', 'br', 'hr', 'input', 'area', 'param', 'col', 'base']`.
-
-{#preserve-option} `:preserve`
-: A list of tag names that should automatically have their newlines preserved
-  using the {Haml::Helpers#preserve} helper.
-  This means that any content given on the same line as the tag will be preserved.
-  For example, `%textarea= "Foo\nBar"` compiles to `<textarea>Foo&#x000A;Bar</textarea>`.
-  Defaults to `['textarea', 'pre']`.
-  See also [Whitespace Preservation](#whitespace_preservation).
