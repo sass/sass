@@ -181,13 +181,26 @@ module Sass
     #
     # @param re [Regexp] The regular expression to assert
     def assert_match(re)
-      if !@template.scan(re)
-        line = @template.string[0..@template.pos].count "\n"
-        # Display basic regexps as plain old strings
-        expected = re.source == Regexp.escape(re.source) ? "\"#{re.source}\"" : re.inspect
-        raise Exception.new("Invalid CSS on line #{line}: expected #{expected}")
+      if @template.scan(re)
+        whitespace
+        return
       end
-      whitespace
+
+      line = @template.string[0..@template.pos].count "\n"
+      pos = @template.pos
+
+      after = @template.string[pos - 15...pos]
+      after = "..." + after if pos >= 15
+
+      # Display basic regexps as plain old strings
+      expected = re.source == Regexp.escape(re.source) ? "\"#{re.source}\"" : re.inspect
+
+      was = @template.rest[0...15]
+      was += "..." if @template.rest.size >= 15
+      raise Exception.new(<<MESSAGE)
+Invalid CSS on line #{line + 1} after #{after.inspect}:
+  expected #{expected}, was #{was.inspect}
+MESSAGE
     end
 
     # Transform
