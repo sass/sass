@@ -65,6 +65,19 @@ and using Sass::Engine like so:
     engine = Sass::Engine.new("#main\n  :background-color #0000ff")
     engine.render #=> "#main { background-color: #0000ff; }\n"
 
+### Caching
+
+By default, Sass caches compiled templates and [partials](#partials).
+This dramatically speeds up re-compilation of large collections of Sass files,
+and works best if the Sass templates are split up into separate files
+that are all [`@import`](#import)ed into one large file.
+
+Without a framework, Sass puts the cached templates in the `.sass-cache` directory.
+In Rails and Merb, they go in `tmp/sass-cache`.
+The directory can be customized with the [`:cache_location`](#cache_location-option) option.
+If you don't want Sass to use caching at all,
+set the [`:cache`](#cache-option) option to `false`.
+
 ### Options
 
 Options can be set by setting the {Sass::Plugin#options Sass::Plugin.options} hash
@@ -163,7 +176,7 @@ Available options are:
 
 {#load_paths-option} `:load_paths`
 : An array of filesystem paths which should be searched
-  for Sass templates imported with the "@import" directive.
+  for Sass templates imported with the [`@import`](#import) directive.
   This defaults to the working directory and, in Rails or Merb,
   whatever `:template_location` is.
 
@@ -399,7 +412,7 @@ Some directives can also control whether or how many times
 a chunk of Sass is output.
 Those are documented under Control Structures.
 
-### `@import`
+### `@import` {#import}
 
 The `@import` directive works in a very similar way to the CSS import directive.
 It can either compile to a literal CSS `@import` directive for a CSS file,
@@ -442,7 +455,7 @@ Finally,
 might compile to either,
 depending on whether or not a file called "foo.sass" existed.
 
-#### Partials
+#### Partials {#partials}
 
 If you have a Sass file that you want to import
 but don't want to compile to a CSS file,
