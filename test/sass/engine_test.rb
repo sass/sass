@@ -244,21 +244,21 @@ SASS
 
   def test_colon_only
     begin
-      render("a\n  b: c", :attribute_syntax => :normal)
+      render("a\n  b: c", :attribute_syntax => :old)
     rescue Sass::SyntaxError => e
-      assert_equal("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.",
+      assert_equal("Illegal attribute syntax: can't use new syntax when :attribute_syntax => :old is set.",
                    e.message)
     else
-      assert(false, "SyntaxError not raised for :attribute_syntax => :normal")
+      assert(false, "SyntaxError not raised for :attribute_syntax => :old")
     end
 
     begin
-      render("a\n  :b c", :attribute_syntax => :alternate)
+      render("a\n  :b c", :attribute_syntax => :new)
     rescue Sass::SyntaxError => e
-      assert_equal("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.",
+      assert_equal("Illegal attribute syntax: can't use old syntax when :attribute_syntax => :new is set.",
                    e.message)
     else
-      assert(false, "SyntaxError not raised for :attribute_syntax => :alternate")
+      assert(false, "SyntaxError not raised for :attribute_syntax => :new")
     end
   end
 

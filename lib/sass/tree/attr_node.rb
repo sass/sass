@@ -41,10 +41,10 @@ module Sass::Tree
     # @return [String] The resulting CSS
     # @raise [Sass::SyntaxError] if the attribute uses invalid syntax
     def to_s(tabs, parent_name = nil)
-      if @options[:attribute_syntax] == :normal && @attr_syntax == :new
-        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.")
-      elsif @options[:attribute_syntax] == :alternate && @attr_syntax == :old
-        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.")
+      if @options[:attribute_syntax] == :old && @attr_syntax == :new
+        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use new syntax when :attribute_syntax => :old is set.")
+      elsif @options[:attribute_syntax] == :new && @attr_syntax == :old
+        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use old syntax when :attribute_syntax => :new is set.")
       end
 
       if value[-1] == ?;

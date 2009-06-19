@@ -104,14 +104,14 @@ Available options are:
 {#attribute_syntax-option} `:attribute_syntax`
 : Forces the document to use one syntax for attributes.
   If the correct syntax isn't used, an error is thrown.
-  `:normal` forces the use of a colon
-  before the attribute name.
-  For example: `:color #0f3`
-  or `:width = !main_width`.
-  `:alternate` forces the use of a colon or equals sign
+  `:new` forces the use of a colon or equals sign
   after the attribute name.
   For example: `color: #0f3`
   or `width = !main_width`.
+  `:old` forces the use of a colon
+  before the attribute name.
+  For example: `:color #0f3`
+  or `:width = !main_width`.
   By default, either syntax is valid.
 
 {#cache-option} `cache`

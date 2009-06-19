@@ -106,16 +106,16 @@ module Sass
     # Includes named mixin declared using MIXIN_DEFINITION_CHAR
     MIXIN_INCLUDE_CHAR    = ?+
 
-    # The regex that matches and extracts data from
-    # attributes of the form <tt>:name attr</tt>.
-    ATTRIBUTE = /^:([^\s=:"]+)\s*(=?)(?:\s+|$)(.*)/
-
     # The regex that matches attributes of the form <tt>name: attr</tt>.
-    ATTRIBUTE_ALTERNATE_MATCHER = /^[^\s:"]+\s*[=:](\s|$)/
+    ATTRIBUTE_NEW_MATCHER = /^[^\s:"]+\s*[=:](\s|$)/
 
     # The regex that matches and extracts data from
     # attributes of the form <tt>name: attr</tt>.
-    ATTRIBUTE_ALTERNATE = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
+    ATTRIBUTE_NEW = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
+
+    # The regex that matches and extracts data from
+    # attributes of the form <tt>:name attr</tt>.
+    ATTRIBUTE_OLD = /^:([^\s=:"]+)\s*(=?)(?:\s+|$)(.*)/
 
     # The default options for Sass::Engine.
     DEFAULT_OPTIONS = {
@@ -131,6 +131,12 @@ module Sass
     def initialize(template, options={})
       @options = DEFAULT_OPTIONS.merge(options)
       @template = template
+
+      # Backwards compatibility
+      case @options[:attribute_syntax]
+      when :alternate; @options[:attribute_syntax] = :new
+      when :normal; @options[:attribute_syntax] = :old
+      end
     end
 
     # Render the template to CSS.
@@ -286,7 +292,7 @@ END
       case line.text[0]
       when ATTRIBUTE_CHAR
         if line.text[1] != ATTRIBUTE_CHAR
-          parse_attribute(line, ATTRIBUTE)
+          parse_attribute(line, ATTRIBUTE_OLD)
         else
           # Support CSS3-style pseudo-elements,
           # which begin with ::
@@ -309,8 +315,8 @@ END
           parse_mixin_include(line, root)
         end
       else
-        if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
-          parse_attribute(line, ATTRIBUTE_ALTERNATE)
+        if line.text =~ ATTRIBUTE_NEW_MATCHER
+          parse_attribute(line, ATTRIBUTE_NEW)
         else
           Tree::RuleNode.new(line.text)
         end
@@ -328,7 +334,7 @@ END
       else
         value
       end
-      Tree::AttrNode.new(name, expr, attribute_regx == ATTRIBUTE ? :old : :new)
+      Tree::AttrNode.new(name, expr, attribute_regx == ATTRIBUTE_OLD ? :old : :new)
     end
 
     def parse_variable(line)
