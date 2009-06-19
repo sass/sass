@@ -417,7 +417,7 @@ is compiled to:
 
 Some tags are automatically closed, as long as they have no content.
 `meta`, `img`, `link`, `script`, `br`, and `hr` tags are closed by default.
-This list can be customized by setting the [`:autoclose`](#autoclose-option) option (see below).
+This list can be customized by setting the [`:autoclose`](#autoclose-option) option.
 For example:
 
     %br

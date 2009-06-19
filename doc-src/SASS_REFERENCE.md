@@ -65,8 +65,8 @@ to config/dependencies.rb.
 Sass templates in Rails don't quite function in the same way as views,
 because they don't contain dynamic content,
 and so only need to be compiled when the template file has been updated.
-By default (see options, below),
-".sass" files are placed in public/stylesheets/sass.
+By default, ".sass" files are placed in public/stylesheets/sass
+(this can be customized with the [`:template_location`](#template_location-option) option).
 Then, whenever necessary, they're compiled into corresponding CSS files in public/stylesheets.
 For instance, public/stylesheets/sass/main.sass would be compiled to public/stylesheets/main.css.
 
@@ -261,7 +261,7 @@ is compiled to:
 
 By default, either attribute syntax may be used.
 If you want to force one or the other,
-see the `:attribute_syntax` option below.
+see the [`:attribute_syntax`](#attribute_syntax-option) option.
 
 ### Nested Rules
 
