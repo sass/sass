@@ -293,10 +293,9 @@ Those are documented under Control Structures.
 
 ### `@import`
 
-The `@import` directive works in a very similar way to the CSS import directive,
-and sometimes compiles to a literal CSS `@import`.
-
-Sass can import either other Sass files or plain CSS files.
+The `@import` directive works in a very similar way to the CSS import directive.
+It can either compile to a literal CSS `@import` directive for a CSS file,
+or it can import a Sass file.
 If it imports a Sass file,
 not only are the rules from that file included,
 but all variables in that file are made available in the current file.
@@ -304,15 +303,9 @@ but all variables in that file are made available in the current file.
 Sass looks for other Sass files in the working directory,
 and the Sass file directory under Rails or Merb.
 Additional search directories may be specified
-using the `:load_paths` option (see below).
+using the [`:load_paths`](#load_paths-option) option.
 
-Sass can also import plain CSS files.
-In this case, it doesn't literally include the content of the files;
-rather, it uses the built-in CSS `@import` directive to tell the client program
-to import the files.
-
-The import directive can take either a full filename
-or a filename without an extension.
+`@import` takes a filename with or without an extension.
 If an extension isn't provided,
 Sass will try to find a Sass file with the given basename in the load paths,
 and, failing that, will assume a relevant CSS file will be available.
@@ -339,7 +332,21 @@ Finally,
     @import foo
 
 might compile to either,
-depending on whether a file called "foo.sass" existed.
+depending on whether or not a file called "foo.sass" existed.
+
+#### Partials
+
+If you have a Sass file that you want to import
+but don't want to compile to a CSS file,
+you can add an underscore to the beginning of the filename.
+This will tell Sass not to compile it to a normal CSS file.
+You can then refer to these files without using the underscore.
+
+For example, you might have `_colors.sass`.
+Then no `_colors.css` file would be created,
+and you can do
+
+    @import colors.sass
 
 ### `@debug`
 
