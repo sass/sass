@@ -13,3 +13,22 @@
     float: none;
     margin: 0 2em;
 }
+
+.section.readme :target,
+.section.readme dt:target + dd {
+    background-color: #ccf;
+    border: 1px solid #88b;
+}
+
+.section.readme dd {
+    margin-left: 0;
+    padding-left: 3em;
+}
+
+.section.readme dt:target + dd {
+    border-top-style: none;
+}
+
+.section.readme dt:target {
+    border-bottom-style: none;
+}
