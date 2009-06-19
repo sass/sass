@@ -16,12 +16,12 @@ module Sass::Tree
 
     # @param name [String] See \{#name}
     # @param value [String] See \{#value}
-    # @param attr_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
+    # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
     #   `:old` if it uses `:a b`-style syntax
-    def initialize(name, value, attr_syntax)
+    def initialize(name, value, prop_syntax)
       @name = name
       @value = value
-      @attr_syntax = attr_syntax
+      @prop_syntax = prop_syntax
       super()
     end
 
@@ -39,22 +39,22 @@ module Sass::Tree
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @param parent_name [String] The name of the parent property (e.g. `text`) or nil
     # @return [String] The resulting CSS
-    # @raise [Sass::SyntaxError] if the attribute uses invalid syntax
+    # @raise [Sass::SyntaxError] if the property uses invalid syntax
     def to_s(tabs, parent_name = nil)
-      if @options[:attribute_syntax] == :old && @attr_syntax == :new
-        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use new syntax when :attribute_syntax => :old is set.")
-      elsif @options[:attribute_syntax] == :new && @attr_syntax == :old
-        raise Sass::SyntaxError.new("Illegal attribute syntax: can't use old syntax when :attribute_syntax => :new is set.")
+      if @options[:property_syntax] == :old && @prop_syntax == :new
+        raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.")
+      elsif @options[:property_syntax] == :new && @prop_syntax == :old
+        raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.")
       end
 
       if value[-1] == ?;
-        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (no \";\" required at end-of-line).", @line)
+        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).", @line)
       end
       real_name = name
       real_name = "#{parent_name}-#{real_name}" if parent_name
       
       if value.empty? && children.empty?
-        raise Sass::SyntaxError.new("Invalid attribute: #{declaration.dump} (no value).", @line)
+        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value).", @line)
       end
       
       join_string = case style
@@ -96,14 +96,14 @@ module Sass::Tree
     # @return [String] An error message if the child is invalid, or nil otherwise
     def invalid_child?(child)
       if !child.is_a?(AttrNode) && !child.is_a?(CommentNode)
-        "Illegal nesting: Only attributes may be nested beneath attributes."
+        "Illegal nesting: Only properties may be nested beneath properties."
       end
     end
 
     private
 
     def declaration
-      @attr_syntax == :new ? "#{name}: #{value}" : ":#{name} #{value}"
+      @prop_syntax == :new ? "#{name}: #{value}" : ":#{name} #{value}"
     end
   end
 end

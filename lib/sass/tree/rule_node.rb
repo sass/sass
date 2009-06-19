@@ -79,7 +79,7 @@ module Sass::Tree
     def to_s(tabs, super_rules = nil)
       resolved_rules = resolve_parent_refs(super_rules)
 
-      attributes = []
+      properties = []
       sub_rules = []
 
       rule_separator = style == :compressed ? ',' : ', '
@@ -96,12 +96,12 @@ module Sass::Tree
         if child.is_a? RuleNode
           sub_rules << child
         else
-          attributes << child
+          properties << child
         end
       end
 
       to_return = ''
-      if !attributes.empty?
+      if !properties.empty?
         old_spaces = '  ' * (tabs - 1)
         spaces = '  ' * tabs
         if @options[:line_comments] && style != :compressed
@@ -124,19 +124,19 @@ module Sass::Tree
         end
 
         if style == :compact
-          attributes = attributes.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
-          to_return << "#{total_rule} { #{attributes} }\n"
+          properties = properties.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
+          to_return << "#{total_rule} { #{properties} }\n"
         elsif style == :compressed
-          attributes = attributes.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
-          to_return << "#{total_rule}{#{attributes}}"
+          properties = properties.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
+          to_return << "#{total_rule}{#{properties}}"
         else
-          attributes = attributes.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
-          end_attrs = (style == :expanded ? "\n" + old_spaces : ' ')
-          to_return << "#{total_rule} {\n#{attributes}#{end_attrs}}\n"
+          properties = properties.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
+          end_props = (style == :expanded ? "\n" + old_spaces : ' ')
+          to_return << "#{total_rule} {\n#{properties}#{end_props}}\n"
         end
       end
 
-      tabs += 1 unless attributes.empty? || style != :nested
+      tabs += 1 unless properties.empty? || style != :nested
       sub_rules.each do |sub|
         to_return << sub.to_s(tabs, resolved_rules)
       end

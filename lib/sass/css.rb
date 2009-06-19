@@ -60,7 +60,7 @@ module Sass
   class CSS
     # @param template [String] The CSS code
     # @option options :old [Boolean] (false)
-    #     Whether or not to output old attribute syntax
+    #     Whether or not to output old property syntax
     #     (`:color blue` as opposed to `color: blue`).
     def initialize(template, options = {})
       if template.is_a? IO
@@ -135,14 +135,14 @@ module Sass
 
       assert_match /\{/
       node = Tree::RuleNode.new(rule)
-      attributes(node)
+      properties(node)
       return node
     end
 
-    # Parses a set of CSS attributes within a rule.
+    # Parses a set of CSS properties within a rule.
     #
-    # @param rule [Tree::RuleNode] The parent node of the attributes
-    def attributes(rule)
+    # @param rule [Tree::RuleNode] The parent node of the properties
+    def properties(rule)
       while @template.scan(/[^:\}\s]+/)
         name = @template[0]
         whitespace

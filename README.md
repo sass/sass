@@ -113,9 +113,9 @@ At its most basic,
 Sass is just another way of writing CSS.
 Although it's very much like normal CSS,
 the basic syntax offers a few helpful features:
-tabulation indicates the attributes in a rule,
+indentation indicates the properties in a rule,
 rather than non-DRY brackets;
-and newlines indicate the end of an attribute,
+and newlines indicate the end of a properties,
 rather than a semicolon.
 For example:
 
@@ -181,7 +181,7 @@ In CSS, you just have to re-type it each time,
 which is a nightmare when you decide to change it later.
 Not so for Sass!
 You can use the `!` character to set variables.
-Then, if you put `=` after your attribute name,
+Then, if you put `=` after your property name,
 you can set it to a variable.
 For example:
 
@@ -228,7 +228,7 @@ becomes:
         width: 15em; }
 
 Taking the idea of variables a bit further are mixins.
-These let you group whole swathes of CSS attributes into a single
+These let you group whole bunches of CSS properties into a single
 directive and then include those anywhere you want:
 
     =blue-border

@@ -101,15 +101,15 @@ Available options are:
 : Sets the style of the CSS output.
   See the section on Output Style, above.
 
-{#attribute_syntax-option} `:attribute_syntax`
-: Forces the document to use one syntax for attributes.
+{#property_syntax-option} `:property_syntax`
+: Forces the document to use one syntax for properties.
   If the correct syntax isn't used, an error is thrown.
   `:new` forces the use of a colon or equals sign
-  after the attribute name.
+  after the property name.
   For example: `color: #0f3`
   or `width = !main_width`.
   `:old` forces the use of a colon
-  before the attribute name.
+  before the property name.
   For example: `:color #0f3`
   or `:width = !main_width`.
   By default, either syntax is valid.
@@ -194,11 +194,8 @@ Available options are:
 ## CSS Rules
 
 Rules in flat CSS have two elements:
-the selector
-(e.g. `#main`, `div p`, `li a:hover`)
-and the attributes
-(e.g. `color: #00ff00;`, `width: 5em;`).
-
+the selector (e.g. `#main`, `div p`, `li a:hover`)
+and the properties (e.g. `color: #00ff00;`, `width: 5em;`).
 Sass has both of these,
 as well as one additional element: nested rules.
 
@@ -206,13 +203,13 @@ as well as one additional element: nested rules.
 
 However, some of the syntax is a little different.
 The syntax for selectors is the same,
-but instead of using brackets to delineate the attributes that belong to a particular rule,
+but instead of using brackets to delineate the properties that belong to a particular rule,
 Sass uses indentation.
 For example:
 
     #main p
-      <attribute>
-      <attribute>
+      <property>
+      <property>
       ...
 
 Like CSS, you can stretch rules over multiple lines.
@@ -222,15 +219,15 @@ For example:
 
     .users #userTab,
     .posts #postsTab
-      <attributes>
+      <property>
 
-### Attributes
+### Properties
 
-There are two different ways to write CSS attributes.
+There are two different ways to write CSS properties.
 The first is very similar to the how you're used to writing them:
 with a colon between the name and the value.
-However, Sass attributes don't have semicolons at the end;
-each attribute is on its own line, so they aren't necessary.
+However, Sass properties don't have semicolons at the end;
+each property is on its own line, so they aren't necessary.
 For example:
 
     #main p
@@ -243,10 +240,10 @@ is compiled to:
       color: #00ff00;
       width: 97% }
 
-The second syntax for attributes is slightly different.
-The colon is at the beginning of the attribute,
+The second syntax for properties is slightly different.
+The colon is at the beginning of the property,
 rather than between the name and the value,
-so it's easier to tell what elements are attributes just by glancing at them.
+so it's easier to tell what elements are properties just by glancing at them.
 For example:
 
     #main p
@@ -259,9 +256,9 @@ is compiled to:
       color: #00ff00;
       width: 97% }
 
-By default, either attribute syntax may be used.
+By default, either property syntax may be used.
 If you want to force one or the other,
-see the [`:attribute_syntax`](#attribute_syntax-option) option.
+see the [`:property_syntax`](#property_syntax-option) option.
 
 ### Nested Rules
 
@@ -320,7 +317,7 @@ by using the ampersand character `&` in your selectors.
 
 The ampersand is automatically replaced by the parent selector,
 instead of having it prepended.
-This allows you to cleanly create pseudo-attributes:
+This allows you to cleanly create pseudo-classes:
 
     a
       font-weight: bold
@@ -361,16 +358,16 @@ Which would become:
         .ie6 #main #sidebar {
           margin-left: 40%; }
 
-### Attribute Namespaces
+### Property Namespaces
 
-CSS has quite a few attributes that are in "namespaces;"
+CSS has quite a few properties that are in "namespaces;"
 for instance, `font-family`, `font-size`, and `font-weight`
 are all in the `font` namespace.
-In CSS, if you want to set a bunch of attributes in the same namespace,
+In CSS, if you want to set a bunch of properties in the same namespace,
 you have to type it out each time.
 Sass offers a shortcut for this:
 just write the namespace one,
-then indent each of the sub-attributes within it.
+then indent each of the sub-properties within it.
 For example:
 
     .funky
@@ -635,7 +632,7 @@ is compiled to:
 
     color: #357;
 
-For old-style attributes, the `=` is added but the `:` is retained.
+For old-style properties, the `=` is added but the `:` is retained.
 For example:
 
     :color = #123 + #234
@@ -671,7 +668,7 @@ and are set like so:
     !width = 5em
 
 You can then refer to them by putting an equals sign
-after your attributes:
+after your properties:
 
     #main
       width = !width
@@ -799,7 +796,7 @@ See {Sass::Script::Functions} for more information.
 ### Interpolation: `#{}`
 
 You can also use SassScript variables in selectors
-and attribute names using #{} interpolation syntax:
+and property names using #{} interpolation syntax:
 
     !name = foo
     !attr = border
@@ -836,7 +833,7 @@ is compiled to:
 
 ## Mixins
 
-Mixins enable you to define groups of CSS attributes and
+Mixins enable you to define groups of CSS properties and
 then include them inline in any number of selectors
 throughout the document. This allows you to keep your
 stylesheets DRY and also avoid placing presentation
@@ -965,14 +962,14 @@ For example:
 
     /* A very awesome rule.
     #awesome.rule
-      /* An equally awesome attribute.
+      /* An equally awesome property.
       awesomeness: very
 
 becomes
 
     /* A very awesome rule. */
     #awesome.rule {
-      /* An equally awesome attribute. */
+      /* An equally awesome property. */
       awesomeness: very; }
 
 You can also nest content beneath loud comments. For example:
@@ -1006,7 +1003,7 @@ For example:
 
     // A very awesome rule.
     #awesome.rule
-      // An equally awesome attribute.
+      // An equally awesome property.
       awesomeness: very
 
 becomes
@@ -1019,7 +1016,7 @@ For example:
 
     // A very awesome rule
     #awesome.rule
-      // Don't use these attributes
+      // Don't use these properties
         color: green
         font-size: 10em
       color: red
@@ -1045,7 +1042,7 @@ outside Rails, it's done by passing an options hash with `:style` set.
 Nested style is the default Sass style,
 because it reflects the structure of the document
 in much the same way Sass does.
-Each attribute has its own line,
+Each property has its own line,
 but the indentation isn't constant.
 Each rule is indented based on how deeply it's nested.
 For example:
@@ -1069,8 +1066,8 @@ without actually reading anything.
 ### `:expanded`
 
 Expanded is the typical human-made CSS style,
-with each attribute and rule taking up one line.
-Attributes are indented within the rules,
+with each property and rule taking up one line.
+Properties are indented within the rules,
 but the rules aren't indented in any special way.
 For example:
 
@@ -1094,7 +1091,7 @@ Compact style, as the name would imply,
 takes up less space than Nested or Expanded.
 However, it's also harder to read.
 Each CSS rule takes up only one line,
-with every attribute defined on that line.
+with every property defined on that line.
 Nested rules are placed next to each other with no newline,
 while groups of rules have newlines between them.
 For example:
