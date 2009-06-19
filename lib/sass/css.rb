@@ -185,7 +185,7 @@ module Sass
         line = @template.string[0..@template.pos].count "\n"
         # Display basic regexps as plain old strings
         expected = re.source == Regexp.escape(re.source) ? "\"#{re.source}\"" : re.inspect
-        raise Exception.new("Invalid CSS on line #{line}: expected #{expected}")
+        raise Exception.new("Invalid CSS on line #{line + 1}: expected #{expected}")
       end
       whitespace
     end
