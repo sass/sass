@@ -120,8 +120,8 @@ rather than a semicolon.
 For example:
 
     #main
-      :background-color #f00
-      :width 98%
+      background-color: #f00
+      width: 98%
 
 becomes:
 
@@ -163,16 +163,16 @@ So, what was:
 becomes:
 
     #main
-      :width 90%
+      width: 90%
       p
-        :border-style solid
-        :border-width 1px
-        :border-color #00f
+        border-style: solid
+        border-width: 1px
+        border-color: #00f
         a
-          :text-decoration none
-          :font-weight bold
+          text-decoration: none
+          font-weight: bold
         a:hover
-          :text-decoration underline
+          text-decoration: underline
 
 Pretty nice, no? Well, it gets better.
 One of the main complaints against CSS is that it doesn't allow variables.
@@ -188,12 +188,12 @@ For example:
     !note_bg= #55aaff
 
     #main
-      :width 70%
+      width: 70%
       .note
-        :background-color= !note_bg
+        background-color = !note_bg
       p
-        :width 5em
-        :background-color= !note_bg
+        width: 5em
+        background-color = !note_bg
 
 becomes:
 
@@ -212,11 +212,11 @@ adding numbers and even colors together:
     !main_width= 40em
 
     #main
-      :background-color= !main_bg
-      :width= !main_width
+      background-color = !main_bg
+      width = !main_width
       .sidebar
-        :background-color= !main_bg + #333333
-        :width= !main_width - 25em
+        background-color = !main_bg + #333333
+        width = !main_width - 25em
 
 becomes:
 
@@ -232,15 +232,15 @@ These let you group whole swathes of CSS attributes into a single
 directive and then include those anywhere you want:
 
     =blue-border
-      :border
-        :color blue
-        :width 2px
-        :style dotted
+      border:
+        color: blue
+        width: 2px
+        style: dotted
 
     .comment
       +blue-border
-      :padding 2px
-      :margin 10px 0
+      padding: 2px
+      margin: 10px 0
 
     .reply
       +blue-border

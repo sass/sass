@@ -56,7 +56,7 @@ module Sass
   #
   # Example usage:
   #
-  #     Sass::CSS.new("p { color: blue }").render #=> "p\n  :color blue"
+  #     Sass::CSS.new("p { color: blue }").render #=> "p\n  color: blue"
   class CSS
     # @param template [String] The CSS code
     # @option options :old [Boolean] (false)
@@ -299,12 +299,12 @@ module Sass
     #
     #     foo
     #       bar
-    #         :color red
+    #         color: red
     #
     # becomes
     #
     #     foo bar
-    #       :color red
+    #       color: red
     #
     # and
     #

@@ -46,7 +46,7 @@ After installing the Haml gem,
 you can use it by running `require "sass"`
 and using Sass::Engine like so:
 
-    engine = Sass::Engine.new("#main\n  :background-color #0000ff")
+    engine = Sass::Engine.new("#main\n  background-color: #0000ff")
     engine.render #=> "#main { background-color: #0000ff; }\n"
 
 ### Rails/Merb Plugin
@@ -270,12 +270,12 @@ This signifies that the inner rule's selector is a child of the outer selector.
 For example:
 
     #main p
-      :color #00ff00
-      :width 97%
+      color: #00ff00
+      width: 97%
 
       .redbox
-        :background-color #ff0000
-        :color #000000
+        background-color: #ff0000
+        color: #000000
 
 is compiled to:
 
@@ -289,15 +289,15 @@ is compiled to:
 This makes insanely complicated CSS layouts with lots of nested selectors very simple:
 
     #main
-      :width 97%
+      width: 97%
 
       p, div
-        :font-size 2em
+        font-size: 2em
         a
-          :font-weight bold
+          font-weight: bold
 
       pre
-        :font-size 3em
+        font-size: 3em
 
 is compiled to:
 
@@ -323,12 +323,12 @@ instead of having it prepended.
 This allows you to cleanly create pseudo-attributes:
 
     a
-      :font-weight bold
-      :text-decoration none
+      font-weight: bold
+      text-decoration: none
       &:hover
-        :text-decoration underline
+        text-decoration: underline
       &:visited
-        :font-weight normal
+        font-weight: normal
 
 Which would become:
 
@@ -344,12 +344,12 @@ It also allows you to add selectors at the base of the hierarchy,
 which can be useuful for targeting certain styles to certain browsers:
 
     #main
-      :width 90%
+      width: 90%
       #sidebar
-        :float left
-        :margin-left 20%
+        float: left
+        margin-left: 20%
         .ie6 &
-          :margin-left 40%
+          margin-left: 40%
 
 Which would become:
 
@@ -374,10 +374,10 @@ then indent each of the sub-attributes within it.
 For example:
 
     .funky
-      :font
-        :family fantasy
-        :size 30em
-        :weight bold
+      font:
+        family: fantasy
+        size: 30em
+        weight: bold
 
 is compiled to:
 
@@ -443,7 +443,7 @@ For example,
 would compile to
 
     .foo
-      :color #f00
+      color: #f00
 
 whereas
 
@@ -534,9 +534,9 @@ anything other than `false`:
 
     p
       @if 1 + 1 == 2
-        :border 1px solid
+        border: 1px solid
       @if 5 < 3
-        :border 2px dotted
+        border: 2px dotted
 
 is compiled to:
 
@@ -553,13 +553,13 @@ For example:
     !type = "monster"
     p
       @if !type == "ocean"
-        :color blue
+        color: blue
       @else if !type == "matador"
-        :color red
+        color: red
       @else if !type == "monster"
-        :color green
+        color: green
       @else
-        :color black
+        color: black
 
 is compiled to:
 
@@ -582,7 +582,7 @@ For example:
 
     @for !i from 1 through 3
       .item-#{!i}
-        :width = 2em * !i
+        width = 2em * !i
 
 is compiled to:
 
@@ -604,7 +604,7 @@ For example:
     !i = 6
     @while !i > 0
       .item-#{!i}
-        :width = 2em * !i
+        width = 2em * !i
       !i = !i - 2
 
 is compiled to:
@@ -624,6 +624,25 @@ In addition to the declarative templating system,
 Sass supports a simple language known as SassScript
 for dynamically computing CSS values and controlling
 the styles and selectors that get emitted.
+
+SassScript can be used as the value for a property
+by using `=` instead of `:`.
+For example:
+
+    color = #123 + #234
+
+is compiled to:
+
+    color: #357;
+
+For old-style attributes, the `=` is added but the `:` is retained.
+For example:
+
+    :color = #123 + #234
+
+is compiled to:
+
+    color: #357;
 
 ### Interactive Shell
 
@@ -655,7 +674,7 @@ You can then refer to them by putting an equals sign
 after your attributes:
 
     #main
-      :width = !width
+      width = !width
 
 Variables that are first defined in a scoped context are only
 available in that context.
@@ -674,10 +693,10 @@ in a SassScript context will cause an error:
     p
       !width = 5em
       // This will cause an error
-        :border = !width solid blue
+        border = !width solid blue
       // Use one of the following forms instead:
-      :border = "#{!width} solid blue"
-      :border = !width "solid" "blue"
+      border = "#{!width} solid blue"
+      border = !width "solid" "blue"
 
 is compiled to:
 
@@ -693,7 +712,7 @@ SassScript supports the standard arithmetic operations on numbers
 and will automatically convert between units if it can:
 
     p
-      :width = 1in + 8pt
+      width = 1in + 8pt
 
 is compiled to:
 
@@ -711,7 +730,7 @@ Most arithmetic operations are supported for color values,
 where they work piecewise:
 
     p
-      :color = #010203 + #040506
+      color = #010203 + #040506
 
 is compiled to:
 
@@ -721,7 +740,7 @@ is compiled to:
 Some arithmetic operations even work between numbers and colors:
 
     p
-      :color = #010203 * 2
+      color = #010203 * 2
 
 is compiled to:
 
@@ -731,7 +750,7 @@ is compiled to:
 The `+` operation can be used to concatenate strings:
 
     p
-      :cursor = "e" + "-resize"
+      cursor = "e" + "-resize"
 
 is compiled to:
 
@@ -742,7 +761,7 @@ Within a string of text, #{} style interpolation can be used to
 place dynamic values within the string:
 
     p
-      :border = "#{5px + 10pt} solid #ccc"
+      border = "#{5px + 10pt} solid #ccc"
 
 Finally, SassScript supports `and`, `or`, and `not` operators
 for boolean values.
@@ -752,7 +771,7 @@ for boolean values.
 Parentheses can be used to affect the order of operations:
 
     p
-      :width = 1em + (2em * 3)
+      width = 1em + (2em * 3)
 
 is compiled to:
 
@@ -765,7 +784,7 @@ SassScript defines some useful functions
 that are called using the normal CSS function syntax:
 
     p
-      :color = hsl(0, 100%, 50%)
+      color = hsl(0, 100%, 50%)
 
 is compiled to:
 
@@ -829,11 +848,11 @@ To define a mixin you use a slightly modified form of selector syntax.
 For example the `large-text` mixin is defined as follows:
 
     =large-text
-      :font
-        :family Arial
-        :size 20px
-        :weight bold
-      :color #ff0000
+      font:
+        family: Arial
+        size: 20px
+        weight: bold
+      color: #ff0000
 
 The initial `=` marks this as a mixin rather than a standard selector.
 The CSS rules that follow won't be included until the mixin is referenced later on.
@@ -861,9 +880,9 @@ we include the statment `+large-text` in our selector definition thus:
 
     .page-title
       +large-text
-      :padding 4px
-      :margin
-        :top 10px
+      padding: 4px
+      margin:
+        top: 10px
 
 This will produce the following CSS output:
 
@@ -900,10 +919,10 @@ into the top most level of a document.
 Mixins can take arguments which can be used with SassScript:
 
     =sexy-border(!color)
-      :border
-        :color = !color
-        :width 1in
-        :style dashed
+      border:
+        color = !color
+        width: 1in
+        style: dashed
     p
       +sexy-border("blue")
 
@@ -917,10 +936,10 @@ is compiled to:
 Mixins can also specify default values for their arguments:
 
     =sexy-border(!color, !width = 1in)
-      :border
-        :color = !color
-        :width = !width
-        :style dashed
+      border:
+        color = !color
+        width = !width
+        style: dashed
     p
       +sexy-border("blue")
 
@@ -947,7 +966,7 @@ For example:
     /* A very awesome rule.
     #awesome.rule
       /* An equally awesome attribute.
-      :awesomeness very
+      awesomeness: very
 
 becomes
 
@@ -963,8 +982,8 @@ You can also nest content beneath loud comments. For example:
         the styling of the element
         that represents
         a peanut butter and jelly sandwich.
-      :background-image url(/images/pbj.png)
-      :color red
+      background-image: url(/images/pbj.png)
+      color: red
 
 becomes
 
@@ -988,7 +1007,7 @@ For example:
     // A very awesome rule.
     #awesome.rule
       // An equally awesome attribute.
-      :awesomeness very
+      awesomeness: very
 
 becomes
 
