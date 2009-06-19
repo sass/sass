@@ -1,3 +1,5 @@
+require File.dirname(__FILE__) + "/../lib/sass"
+
 class YARD::Generators::FullDocGenerator
   protected
 
@@ -6,8 +8,9 @@ class YARD::Generators::FullDocGenerator
 
     if format == :html && serializer
       template_file = find_template template_path(css_file)
-      serializer.serialize(css_file,
-        File.read(template_file) + File.read(File.dirname(__FILE__) + "/haml-style.css"))
+      haml_style = Sass::Engine.new(File.read(
+          File.dirname(__FILE__) + "/haml-style.sass")).render
+      serializer.serialize(css_file, File.read(template_file) + haml_style)
     end
 
     true

@@ -1,0 +1,22 @@
+.maruku_toc
+  background: #ddd
+  border: 1px solid #ccc
+  margin-right: 2em
+  float: left
+  ul
+    padding: 0 1em
+  #frequently_asked_questions + &
+    float: none
+    margin: 0 2em
+
+.section.readme
+  *:target, dt:target + dd
+    background-color: #ccf
+    border: 1px solid #88b
+  dd
+    margin-left: 0
+    padding-left: 3em
+  dt:target
+    border-bottom-style: none
+    & + dd
+      border-top-style: none
