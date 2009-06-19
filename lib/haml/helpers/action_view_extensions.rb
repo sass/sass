@@ -23,12 +23,12 @@ module Haml
       # you could refer to this specific action:
       #
       #     .entry.show
-      #       :font-weight bold
+      #       font-weight: bold
       #
       # or to all actions in the entry controller:
       #
       #     .entry
-      #       :color #00f
+      #       color: #00f
       #
       # @return [String] The class name for the current page
       def page_class

@@ -136,18 +136,16 @@ begin
       list.exclude('lib/haml/template/*.rb')
       list.exclude('lib/haml/helpers/action_view_mods.rb')
     end.to_a
+    t.options << '--use-cache' if Rake.application.top_level_tasks.include?('redoc')
     t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
-    t.options << '--files' << FileList.new('*') do |list|
-      list.exclude(/(^|[^.a-z])[a-z]+/)
-      list.exclude('README.md')
-      list.exclude('REVISION')
-      list.exclude('TODO')
-    end.to_a.join(',')
+    files = FileList.new('doc-src/*').to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
+    t.options << '--files' << files.join(',')
   end
   Rake::Task['yardoc'].instance_variable_set('@comment', nil)
 
   desc "Generate Documentation"
   task :doc => :yardoc
+  task :redoc => :yardoc
 rescue LoadError
   desc "Generate Documentation"
   task :doc => :rdoc

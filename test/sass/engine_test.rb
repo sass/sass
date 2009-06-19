@@ -15,19 +15,19 @@ class SassEngineTest < Test::Unit::TestCase
     "!a = foo(\"bar\"" => 'Expected rparen token, was end of text.',
     "!a = 1 }" => 'Unexpected end_interpolation token.',
     "!a = 1 }foo\"" => 'Unexpected end_interpolation token.',
-    ":" => 'Invalid attribute: ":".',
-    ": a" => 'Invalid attribute: ": a".',
-    ":= a" => 'Invalid attribute: ":= a".',
-    "a\n  :b" => 'Invalid attribute: ":b " (no value).',
-    "a\n  b:" => 'Invalid attribute: "b: " (no value).',
-    "a\n  :b: c" => 'Invalid attribute: ":b: c".',
-    "a\n  :b:c d" => 'Invalid attribute: ":b:c d".',
-    "a\n  :b=c d" => 'Invalid attribute: ":b=c d".',
-    "a\n  :b c;" => 'Invalid attribute: ":b c;" (no ";" required at end-of-line).',
-    "a\n  b: c;" => 'Invalid attribute: "b: c;" (no ";" required at end-of-line).',
-    "a\n  b : c" => 'Invalid attribute: "b : c".',
-    "a\n  b=c: d" => 'Invalid attribute: "b=c: d".',
-    ":a" => 'Attributes aren\'t allowed at the root of a document.',
+    ":" => 'Invalid property: ":".',
+    ": a" => 'Invalid property: ": a".',
+    ":= a" => 'Invalid property: ":= a".',
+    "a\n  :b" => 'Invalid property: ":b " (no value).',
+    "a\n  b:" => 'Invalid property: "b: " (no value).',
+    "a\n  :b: c" => 'Invalid property: ":b: c".',
+    "a\n  :b:c d" => 'Invalid property: ":b:c d".',
+    "a\n  :b=c d" => 'Invalid property: ":b=c d".',
+    "a\n  :b c;" => 'Invalid property: ":b c;" (no ";" required at end-of-line).',
+    "a\n  b: c;" => 'Invalid property: "b: c;" (no ";" required at end-of-line).',
+    "a\n  b : c" => 'Invalid property: "b : c".',
+    "a\n  b=c: d" => 'Invalid property: "b=c: d".',
+    ":a" => 'Properties aren\'t allowed at the root of a document.',
     "!" => 'Invalid variable: "!".',
     "!a" => 'Invalid variable: "!a".',
     "! a" => 'Invalid variable: "! a".',
@@ -38,7 +38,7 @@ class SassEngineTest < Test::Unit::TestCase
     "!a = 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "!a = #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
-    "a\n  :b\n    c" => "Illegal nesting: Only attributes may be nested beneath attributes.",
+    "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "a,\n  :b c" => ["Rules can\'t end in commas.", 1],
     "a," => "Rules can\'t end in commas.",
     "a,\n!b = 1" => ["Rules can\'t end in commas.", 1],
@@ -66,7 +66,7 @@ class SassEngineTest < Test::Unit::TestCase
     "=a(,)" => "Mixin arguments can't be empty.",
     "=a(!)" => "Mixin arguments can't be empty.",
     "=a(!foo bar)" => "Invalid variable \"!foo bar\".",
-    "=foo\n  bar: baz\n+foo" => ["Attributes aren't allowed at the root of a document.", 2],
+    "=foo\n  bar: baz\n+foo" => ["Properties aren't allowed at the root of a document.", 2],
     "a-\#{!b\n  c: d" => ["Expected end_interpolation token, was end of text.", 1],
     "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
     "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
@@ -83,7 +83,7 @@ class SassEngineTest < Test::Unit::TestCase
     '@debug' => "Invalid debug directive '@debug': expected expression.",
 
     # Regression tests
-    "a\n  b:\n    c\n    d" => ["Illegal nesting: Only attributes may be nested beneath attributes.", 3],
+    "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
     "& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  b: c\n& foo\n  bar: baz\n  blat: bang" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 3],
   }
@@ -140,7 +140,7 @@ class SassEngineTest < Test::Unit::TestCase
   def test_exception_line
     to_render = <<SASS
 rule
-  :attr val
+  :prop val
   // comment!
 
   :broken
@@ -157,7 +157,7 @@ SASS
   def test_exception_location
     to_render = <<SASS
 rule
-  :attr val
+  :prop val
   // comment!
 
   :broken
@@ -244,21 +244,21 @@ SASS
 
   def test_colon_only
     begin
-      render("a\n  b: c", :attribute_syntax => :normal)
+      render("a\n  b: c", :property_syntax => :old)
     rescue Sass::SyntaxError => e
-      assert_equal("Illegal attribute syntax: can't use alternate syntax when :attribute_syntax => :normal is set.",
+      assert_equal("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.",
                    e.message)
     else
-      assert(false, "SyntaxError not raised for :attribute_syntax => :normal")
+      assert(false, "SyntaxError not raised for :property_syntax => :old")
     end
 
     begin
-      render("a\n  :b c", :attribute_syntax => :alternate)
+      render("a\n  :b c", :property_syntax => :new)
     rescue Sass::SyntaxError => e
-      assert_equal("Illegal attribute syntax: can't use normal syntax when :attribute_syntax => :alternate is set.",
+      assert_equal("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.",
                    e.message)
     else
-      assert(false, "SyntaxError not raised for :attribute_syntax => :alternate")
+      assert(false, "SyntaxError not raised for :property_syntax => :new")
     end
   end
 
@@ -699,7 +699,7 @@ SASS
 
   # Regression tests
 
-  def test_comment_beneath_attr
+  def test_comment_beneath_prop
     assert_equal(<<RESULT, render(<<SOURCE))
 .box {
   border-style: solid; }

@@ -36,26 +36,26 @@ module Sass::Tree
                  else
                    "#{'  ' * (tabs - 1)}#{value} {" + (style == :compact ? ' ' : "\n")
                  end
-        was_attr = false
+        was_prop = false
         first = true
         children.each do |child|
           next if child.invisible?
           if style == :compact
-            if child.is_a?(AttrNode)
-              result << "#{child.to_s(first || was_attr ? 1 : tabs + 1)} "
+            if child.is_a?(PropNode)
+              result << "#{child.to_s(first || was_prop ? 1 : tabs + 1)} "
             else
-              if was_attr
+              if was_prop
                 result[-1] = "\n"
               end
               rendered = child.to_s(tabs + 1)
               rendered.lstrip! if first
               result << rendered
             end
-            was_attr = child.is_a?(AttrNode)
+            was_prop = child.is_a?(PropNode)
             first = false
           elsif style == :compressed
-            result << (was_attr ? ";#{child.to_s(1)}" : child.to_s(1))
-            was_attr = child.is_a?(AttrNode)
+            result << (was_prop ? ";#{child.to_s(1)}" : child.to_s(1))
+            was_prop = child.is_a?(PropNode)
           else
             result << child.to_s(tabs + 1) + "\n"
           end

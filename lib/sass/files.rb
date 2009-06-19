@@ -12,7 +12,7 @@ module Sass
     #
     # @param filename [String] The path to the Sass file
     # @param options [Hash<Symbol, Object>] The options hash.
-    #   Only the [`:cache_location`](../Sass.html#cache-option) option is used
+    #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
     # @raise [Sass::SyntaxError] if there's an error in the document
     def tree_for(filename, options)
       options = Sass::Engine::DEFAULT_OPTIONS.merge(options)

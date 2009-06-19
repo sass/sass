@@ -24,7 +24,7 @@ module Sass
     class RuleNode
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
-        str = "\n#{'  ' * tabs}#{rules.first}#{children.any? { |c| c.is_a? AttrNode } ? "\n" : ''}"
+        str = "\n#{'  ' * tabs}#{rules.first}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
 
         children.each do |child|
           str << "#{child.to_sass(tabs + 1, opts)}"
@@ -34,10 +34,10 @@ module Sass
       end
     end
 
-    class AttrNode
+    class PropNode
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
-        "#{'  ' * tabs}#{opts[:alternate] ? '' : ':'}#{name}#{opts[:alternate] ? ':' : ''} #{value}\n"
+        "#{'  ' * tabs}#{opts[:old] ? ':' : ''}#{name}#{opts[:old] ? '' : ':'} #{value}\n"
       end
     end
 
@@ -56,18 +56,20 @@ module Sass
   #
   # Example usage:
   #
-  #     Sass::CSS.new("p { color: blue }").render #=> "p\n  :color blue"
+  #     Sass::CSS.new("p { color: blue }").render #=> "p\n  color: blue"
   class CSS
     # @param template [String] The CSS code
-    # @option options :alternate [Boolean] (false)
-    #     Whether or not to output alternate attribute syntax
-    #     (`color: blue` as opposed to `:color blue`).
+    # @option options :old [Boolean] (false)
+    #     Whether or not to output old property syntax
+    #     (`:color blue` as opposed to `color: blue`).
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
       end
 
-      @options = options
+      @options = options.dup
+      # Backwards compatibility
+      @options[:old] = true if @options[:alternate] == false
       @template = StringScanner.new(template)
     end
 
@@ -133,14 +135,14 @@ module Sass
 
       assert_match /\{/
       node = Tree::RuleNode.new(rule)
-      attributes(node)
+      properties(node)
       return node
     end
 
-    # Parses a set of CSS attributes within a rule.
+    # Parses a set of CSS properties within a rule.
     #
-    # @param rule [Tree::RuleNode] The parent node of the attributes
-    def attributes(rule)
+    # @param rule [Tree::RuleNode] The parent node of the properties
+    def properties(rule)
       while @template.scan(/[^:\}\s]+/)
         name = @template[0]
         whitespace
@@ -153,7 +155,7 @@ module Sass
         end
 
         assert_match /(;|(?=\}))/
-        rule << Tree::AttrNode.new(name, value, nil)
+        rule << Tree::PropNode.new(name, value, nil)
       end
 
       assert_match /\}/
@@ -297,12 +299,12 @@ module Sass
     #
     #     foo
     #       bar
-    #         :color red
+    #         color: red
     #
     # becomes
     #
     #     foo bar
-    #       :color red
+    #       color: red
     #
     # and
     #

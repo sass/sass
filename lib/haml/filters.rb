@@ -224,7 +224,7 @@ END
     # Parses the filtered text with the normal Ruby interpreter.
     # All output sent to `$stdout`, such as with `puts`,
     # is output into the Haml document.
-    # Not available if the [`:suppress_eval`](../Haml.html#suppress-eval-option) option is set to true.
+    # Not available if the {file:HAML_REFERENCE.md#suppress_eval-option `:suppress_eval`} option is set to true.
     # The Ruby code is evaluated in the same context as the Haml template.
     module Ruby
       include Base
@@ -272,7 +272,7 @@ END
     end
 
     # Parses the filtered text with ERB, like an RHTML template.
-    # Not available if the [`:suppress_eval`](../Haml.html#suppress-eval-option) option is set to true.
+    # Not available if the {file:HAML_REFERENCE.md#suppress_eval-option `:suppress_eval`} option is set to true.
     # Embedded Ruby code is evaluated in the same context as the Haml template.
     module ERB
       include Base

@@ -3,7 +3,7 @@ require 'digest/sha1'
 require 'sass/tree/node'
 require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
-require 'sass/tree/attr_node'
+require 'sass/tree/prop_node'
 require 'sass/tree/directive_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
@@ -75,11 +75,11 @@ module Sass
       end
     end
 
-    # The character that begins a CSS attribute.
-    ATTRIBUTE_CHAR  = ?:
+    # The character that begins a CSS property.
+    PROPERTY_CHAR  = ?:
 
     # The character that designates that
-    # an attribute should be assigned to a SassScript expression.
+    # a property should be assigned to a SassScript expression.
     SCRIPT_CHAR     = ?=
 
     # The character that designates the beginning of a comment,
@@ -106,16 +106,16 @@ module Sass
     # Includes named mixin declared using MIXIN_DEFINITION_CHAR
     MIXIN_INCLUDE_CHAR    = ?+
 
-    # The regex that matches and extracts data from
-    # attributes of the form <tt>:name attr</tt>.
-    ATTRIBUTE = /^:([^\s=:"]+)\s*(=?)(?:\s+|$)(.*)/
-
-    # The regex that matches attributes of the form <tt>name: attr</tt>.
-    ATTRIBUTE_ALTERNATE_MATCHER = /^[^\s:"]+\s*[=:](\s|$)/
+    # The regex that matches properties of the form <tt>name: prop</tt>.
+    PROPERTY_NEW_MATCHER = /^[^\s:"]+\s*[=:](\s|$)/
 
     # The regex that matches and extracts data from
-    # attributes of the form <tt>name: attr</tt>.
-    ATTRIBUTE_ALTERNATE = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
+    # properties of the form <tt>name: prop</tt>.
+    PROPERTY_NEW = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
+
+    # The regex that matches and extracts data from
+    # properties of the form <tt>:name prop</tt>.
+    PROPERTY_OLD = /^:([^\s=:"]+)\s*(=?)(?:\s+|$)(.*)/
 
     # The default options for Sass::Engine.
     DEFAULT_OPTIONS = {
@@ -127,10 +127,17 @@ module Sass
 
     # @param template [String] The Sass template.
     # @param options [Hash<Symbol, Object>] An options hash;
-    #   see [the Sass options documentation](../Sass.html#sass_options)
+    #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
     def initialize(template, options={})
       @options = DEFAULT_OPTIONS.merge(options)
       @template = template
+
+      # Backwards compatibility
+      @options[:property_syntax] ||= @options[:attribute_syntax]
+      case @options[:property_syntax]
+      when :alternate; @options[:property_syntax] = :new
+      when :normal; @options[:property_syntax] = :old
+      end
     end
 
     # Render the template to CSS.
@@ -284,9 +291,9 @@ END
 
     def parse_line(parent, line, root)
       case line.text[0]
-      when ATTRIBUTE_CHAR
-        if line.text[1] != ATTRIBUTE_CHAR
-          parse_attribute(line, ATTRIBUTE)
+      when PROPERTY_CHAR
+        if line.text[1] != PROPERTY_CHAR
+          parse_property(line, PROPERTY_OLD)
         else
           # Support CSS3-style pseudo-elements,
           # which begin with ::
@@ -309,26 +316,26 @@ END
           parse_mixin_include(line, root)
         end
       else
-        if line.text =~ ATTRIBUTE_ALTERNATE_MATCHER
-          parse_attribute(line, ATTRIBUTE_ALTERNATE)
+        if line.text =~ PROPERTY_NEW_MATCHER
+          parse_property(line, PROPERTY_NEW)
         else
           Tree::RuleNode.new(line.text)
         end
       end
     end
 
-    def parse_attribute(line, attribute_regx)
-      name, eq, value = line.text.scan(attribute_regx)[0]
+    def parse_property(line, property_regx)
+      name, eq, value = line.text.scan(property_regx)[0]
 
       if name.nil? || value.nil?
-        raise SyntaxError.new("Invalid attribute: \"#{line.text}\".", @line)
+        raise SyntaxError.new("Invalid property: \"#{line.text}\".", @line)
       end
       expr = if (eq.strip[0] == SCRIPT_CHAR)
         parse_script(value, :offset => line.offset + line.text.index(value))
       else
         value
       end
-      Tree::AttrNode.new(name, expr, attribute_regx == ATTRIBUTE ? :old : :new)
+      Tree::PropNode.new(name, expr, property_regx == PROPERTY_OLD ? :old : :new)
     end
 
     def parse_variable(line)

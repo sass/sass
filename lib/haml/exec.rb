@@ -435,9 +435,11 @@ Description: Transforms a CSS file into corresponding Sass code.
 Options:
 END
 
-        opts.on('-a', '--alternate', 'Output using alternative Sass syntax (margin: 1px)') do
-          @module_opts[:alternate] = true
+        opts.on('--old', 'Output the old-style ":prop val" property syntax') do
+          @module_opts[:old] = true
         end
+
+        opts.on_tail('-a', '--alternate', 'Ignored') {}
 
         super
       end

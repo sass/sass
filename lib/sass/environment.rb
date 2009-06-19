@@ -28,7 +28,7 @@ module Sass
     end
 
     # The options hash.
-    # See [the Sass options documentation](../Sass.html#sass_options).
+    # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
     # @return [Hash<Symbol, Object>]
     def options

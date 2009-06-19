@@ -34,7 +34,7 @@ module Sass
       attr_writer :filename
 
       # The options hash for the node.
-      # See [the Sass options documentation](../../Sass.html#sass_options).
+      # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
       #
       # @return [Hash<Symbol, Object>]
       attr_reader :options
@@ -122,8 +122,8 @@ module Sass
       def to_s
         result = String.new
         children.each do |child|
-          if child.is_a? AttrNode
-            raise Sass::SyntaxError.new('Attributes aren\'t allowed at the root of a document.', child.line)
+          if child.is_a? PropNode
+            raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.', child.line)
           else
             next if child.invisible?
             child_str = child.to_s(1)
@@ -155,7 +155,7 @@ module Sass
       rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
       end
 
-      # The output style. See [the Sass options documentation](../../Sass.html#output_style).
+      # The output style. See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
       #
       # @return [Symbol]
       def style

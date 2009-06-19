@@ -113,15 +113,15 @@ At its most basic,
 Sass is just another way of writing CSS.
 Although it's very much like normal CSS,
 the basic syntax offers a few helpful features:
-tabulation indicates the attributes in a rule,
+indentation indicates the properties in a rule,
 rather than non-DRY brackets;
-and newlines indicate the end of an attribute,
+and newlines indicate the end of a properties,
 rather than a semicolon.
 For example:
 
     #main
-      :background-color #f00
-      :width 98%
+      background-color: #f00
+      width: 98%
 
 becomes:
 
@@ -163,16 +163,16 @@ So, what was:
 becomes:
 
     #main
-      :width 90%
+      width: 90%
       p
-        :border-style solid
-        :border-width 1px
-        :border-color #00f
+        border-style: solid
+        border-width: 1px
+        border-color: #00f
         a
-          :text-decoration none
-          :font-weight bold
+          text-decoration: none
+          font-weight: bold
         a:hover
-          :text-decoration underline
+          text-decoration: underline
 
 Pretty nice, no? Well, it gets better.
 One of the main complaints against CSS is that it doesn't allow variables.
@@ -181,19 +181,19 @@ In CSS, you just have to re-type it each time,
 which is a nightmare when you decide to change it later.
 Not so for Sass!
 You can use the `!` character to set variables.
-Then, if you put `=` after your attribute name,
+Then, if you put `=` after your property name,
 you can set it to a variable.
 For example:
 
     !note_bg= #55aaff
 
     #main
-      :width 70%
+      width: 70%
       .note
-        :background-color= !note_bg
+        background-color = !note_bg
       p
-        :width 5em
-        :background-color= !note_bg
+        width: 5em
+        background-color = !note_bg
 
 becomes:
 
@@ -212,11 +212,11 @@ adding numbers and even colors together:
     !main_width= 40em
 
     #main
-      :background-color= !main_bg
-      :width= !main_width
+      background-color = !main_bg
+      width = !main_width
       .sidebar
-        :background-color= !main_bg + #333333
-        :width= !main_width - 25em
+        background-color = !main_bg + #333333
+        width = !main_width - 25em
 
 becomes:
 
@@ -228,19 +228,19 @@ becomes:
         width: 15em; }
 
 Taking the idea of variables a bit further are mixins.
-These let you group whole swathes of CSS attributes into a single
+These let you group whole bunches of CSS properties into a single
 directive and then include those anywhere you want:
 
     =blue-border
-      :border
-        :color blue
-        :width 2px
-        :style dotted
+      border:
+        color: blue
+        width: 2px
+        style: dotted
 
     .comment
       +blue-border
-      :padding 2px
-      :margin 10px 0
+      padding: 2px
+      margin: 10px 0
 
     .reply
       +blue-border
