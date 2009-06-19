@@ -37,7 +37,7 @@ module Sass
     class AttrNode
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
-        "#{'  ' * tabs}#{opts[:alternate] ? '' : ':'}#{name}#{opts[:alternate] ? ':' : ''} #{value}\n"
+        "#{'  ' * tabs}#{opts[:old] ? ':' : ''}#{name}#{opts[:old] ? '' : ':'} #{value}\n"
       end
     end
 
@@ -59,15 +59,17 @@ module Sass
   #     Sass::CSS.new("p { color: blue }").render #=> "p\n  :color blue"
   class CSS
     # @param template [String] The CSS code
-    # @option options :alternate [Boolean] (false)
-    #     Whether or not to output alternate attribute syntax
-    #     (`color: blue` as opposed to `:color blue`).
+    # @option options :old [Boolean] (false)
+    #     Whether or not to output old attribute syntax
+    #     (`:color blue` as opposed to `color: blue`).
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
       end
 
-      @options = options
+      @options = options.dup
+      # Backwards compatibility
+      @options[:old] = true if @options[:alternate] == false
       @template = StringScanner.new(template)
     end
 
