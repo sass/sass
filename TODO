@@ -3,13 +3,9 @@
 
 * Documentation
   Redo tutorial?
-  Syntax highlighting?
+  [2.4] Syntax highlighting?
 ** Sass
-   Control structures
    Partials
-   Mixin arguments
-   Interpolation
-   Bools
    CSS Terminology (https://mail.google.com/mail/#label/Haml/1202d75234b3ce6b)
    Convert to new property syntax
      Stop calling it "alternate" - call it "new" instead
