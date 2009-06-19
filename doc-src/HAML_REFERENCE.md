@@ -87,16 +87,62 @@ and using {Haml::Engine} like so:
     engine = Haml::Engine.new("%p Haml code!")
     engine.render #=> "<p>Haml code!</p>\n"
 
-## Characters with meaning to Haml
+## Plain Text
 
-Various characters, when placed at a certain point in a line,
-instruct Haml to render different types of things.
+A substantial portion of any HTML document is its content,
+which is plain old text.
+Any Haml line that's not interpreted as something else
+is taken to be plain text, and passed through unmodified.
+For example:
 
-### HTML Tags
+    %gee
+      %whiz
+        Wow this is cool!
 
-These characters render XHTML tags.
+is compiled to:
 
-#### %
+    <gee>
+      <whiz>
+        Wow this is cool!
+      </whiz>
+    </gee>
+
+Note that HTML tags are passed through unmodified as well.
+If you have some HTML you don't want to convert to Haml,
+or you're converting a file line-by-line,
+you can just include it as-is.
+For example:
+
+    %p
+      <div id="blah">Blah!</div>
+
+is compiled to:
+
+    <p>
+      <div id="blah">Blah!</div>
+    </p>
+
+### Escaping: `\`
+
+The backslash character escapes the first character of a line,
+allowing use of otherwise interpreted characters as plain text.
+For example:
+
+    %title
+      = @title
+      \= @title
+
+is compiled to:
+
+    <title>
+      MyPage
+      = @title
+    </title>
+
+## HTML Elements
+
+
+### Element Name: `%`
 
 The percent character is placed at the beginning of a line.
 It's followed immediately by the name of an element,
@@ -120,7 +166,7 @@ is compiled to:
 Any string is a valid element name;
 Haml will automatically generate opening and closing tags for any element.
 
-#### `{}`
+### Attributes: `{}`
 
 Brackets represent a Ruby hash
 that is used for specifying the attributes of an element.
@@ -149,7 +195,7 @@ is compiled to:
 
     <script src='javascripts/script_9' type='text/javascript'></script>
 
-##### Attribute Methods
+#### Attribute Methods
 
 A Ruby method call that returns a hash
 can be substituted for the hash contents.
@@ -193,7 +239,7 @@ would compile to:
 Note that the Haml attributes list has the same syntax as a Ruby method call.
 This means that any attribute methods must come before the hash literal.
 
-##### Boolean Attributes
+#### Boolean Attributes
 
 Some attributes, such as "checked" for `input` tags or "selected" for `option` tags,
 are "boolean" in the sense that their values don't matter -
@@ -220,7 +266,7 @@ will just render as
 
     <input>
 
-#### . and `#`
+### Class and ID: `.` and `#`
 
 The period and pound sign are borrowed from CSS.
 They are used as shortcuts to specify the `class`
@@ -266,9 +312,9 @@ is compiled to:
 
 #### Implicit Div Elements
 
-Because the div element is used so often, it is the default element.
-If you only define a class and/or id using the `.` or `#` syntax,
-a div element is automatically used.
+Because divs are used so often, they're the default elements.
+If you only define a class and/or id using `.` or `#`,
+a div is automatically used.
 For example:
 
     #collection
@@ -277,9 +323,9 @@ For example:
 
 is the same as:
 
-    %div{:id => collection}
-      %div{:class => 'item'}
-        %div{:class => 'description'} What a cool item!
+    %div#collection
+      %div.item
+        %div.description What a cool item!
 
 and is compiled to:
 
@@ -289,7 +335,7 @@ and is compiled to:
       </div>
     </div>
 
-#### /
+### Self-Closing Tags: `/`
 
 The forward slash character, when placed at the end of a tag definition,
 causes the tag to be self-closed.
@@ -316,39 +362,7 @@ is also compiled to:
     <br />
     <meta http-equiv='Content-Type' content='text/html' />
 
-#### \[]
-
-Square brackets follow a tag definition and contain a Ruby object
-that is used to set the class and id of that tag.
-The class is set to the object's class
-(transformed to use underlines rather than camel case)
-and the id is set to the object's class, followed by its id.
-Because the id of an object is normally an obscure implementation detail,
-this is most useful for elements that represent instances of Models.
-Additionally, the second argument (if present) will be used as a prefix for
-both the id and class attributes.
-For example:
-
-    # file: app/controllers/users_controller.rb
-
-    def show
-      @user = CrazyUser.find(15)
-    end
-
-    -# file: app/views/users/show.haml
-
-    %div[@user, :greeting]
-      %bar[290]/
-      Hello!
-
-is compiled to:
-
-    <div class='greeting_crazy_user' id='greeting_crazy_user_15'>
-      <bar class='fixnum' id='fixnum_581' />
-      Hello!
-    </div>
-
-#### > and <
+### Whitespace Removal: `>` and `<`
 
 `>` and `<` give you more control over the whitespace near a tag.
 `>` will remove all whitespace surrounding a tag,
@@ -403,101 +417,41 @@ is compiled to:
     <img /><pre>foo
     bar</pre><img />
 
-#### =
+### Object Reference: `[]`
 
-`=` is placed at the end of a tag definition,
-after class, id, and attribute declarations.
-It's just a shortcut for inserting Ruby code into an element.
-It works the same as `=` without a tag:
-it inserts the result of the Ruby code into the template.
-However, if the result is short enough,
-it is displayed entirely on one line.
+Square brackets follow a tag definition and contain a Ruby object
+that is used to set the class and id of that tag.
+The class is set to the object's class
+(transformed to use underlines rather than camel case)
+and the id is set to the object's class, followed by its id.
+Because the id of an object is normally an obscure implementation detail,
+this is most useful for elements that represent instances of Models.
+Additionally, the second argument (if present) will be used as a prefix for
+both the id and class attributes.
 For example:
 
-    %p= "hello"
+    # file: app/controllers/users_controller.rb
 
-is not quite the same as:
+    def show
+      @user = CrazyUser.find(15)
+    end
 
-    %p
-      = "hello"
+    -# file: app/views/users/show.haml
 
-It's compiled to:
-
-    <p>hello</p>
-
-#### `#{}`
-
-Ruby code can also be interpolated within plain text using `#{}`,
-similarly to Ruby string interpolation.
-For example,
-
-    %p This is #{h quality} cake!
-
-is the same as
-
-    %p= "This is the #{h quality} cake!"
-
-and might compile to
-
-    <p>This is scrumptious cake!</p>
-
-Backslashes can be used to escape `#{` strings,
-but they don't act as escapes anywhere else in the string.
-For example:
-
-    %p
-      Look at \\#{h word} lack of backslash: \#{foo}
-      And yon presence thereof: \{foo}
-
-might compile to
-
-    <p>
-      Look at \yon lack of backslash: #{foo}
-      And yon presence thereof: \{foo}
-    </p>
-
-{#tilde}
-#### ~ 
-
-`~` works just like `=`, except that it runs {Haml::Helpers#find\_and\_preserve} on its input.
-For example,
-
-    ~ "Foo\n<pre>Bar\nBaz</pre>"
-
-is the same as:
-
-    = find_and_preserve("Foo\n<pre>Bar\nBaz</pre>")
-
-and is compiled to:
-
-    Foo
-    <pre>Bar&#x000A;Baz</pre>
-
-See also [Whitespace Preservation](#whitespace_preservation).
-
-### XHTML Helpers
-
-#### No Special Character
-
-If no special character appears at the beginning of a line,
-the line is rendered as plain text.
-For example:
-
-    %gee
-      %whiz
-        Wow this is cool!
+    %div[@user, :greeting]
+      %bar[290]/
+      Hello!
 
 is compiled to:
 
-    <gee>
-      <whiz>
-        Wow this is cool!
-      </whiz>
-    </gee>
+    <div class='greeting_crazy_user' id='greeting_crazy_user_15'>
+      <bar class='fixnum' id='fixnum_581' />
+      Hello!
+    </div>
 
-#### !!!
+## Doctype: `!!!`
 
-When describing XHTML documents with Haml,
+When describing HTML documents with Haml,
 you can have a document type or XML prolog generated automatically
 by including the characters `!!!`.
 For example:
@@ -571,7 +525,13 @@ is compiled to:
 
     <?xml version='1.0' encoding='iso-8859-1' ?>
 
-#### /
+## Comments
+
+Haml supports two sorts of comments:
+those that show up in the HTML output
+and those that don't.
+
+### HTML Comments: `/`
 
 The forward slash character, when placed at the beginning of a line,
 wraps all text after it in an HTML comment.
@@ -604,6 +564,8 @@ is compiled to:
       </div>
     -->
 
+#### Conditional Comments: `/[]`
+
 You can also use [Internet Explorer conditional comments](http://www.quirksmode.org/css/condcom.html)
 by enclosing the condition in square brackets after the `/`.
 For example:
@@ -620,49 +582,270 @@ is compiled to:
       </a>
     <![endif]-->
 
-#### \ 
+### Haml Comments: `-#`
 
-The backslash character escapes the first character of a line,
-allowing use of otherwise interpreted characters as plain text.
+The hyphen followed immediately by the pound sign
+signifies a silent comment.
+Any text following this isn't rendered in the resulting document
+at all.
+
 For example:
 
-    %title
-      = @title
-      \- MySite
+    %p foo
+    -# This is a comment
+    %p bar
 
 is compiled to:
 
-    <title>
-      MyPage
-      - MySite
-    </title>
+    <p>foo</p>
+    <p>bar</p>
 
-#### |
-
-The pipe character designates a multiline string.
-It's placed at the end of a line (after some whitespace)
-and means that all following lines that end with `|`
-will be evaluated as though they were on the same line.
+You can also nest text beneath a silent comment.
+None of this text will be rendered.
 For example:
 
-    %whoo
-      %hoo I think this might get |
-        pretty long so I should |
-        probably make it |
-        multiline so it doesn't |
-        look awful. |
-      %p This is short.
+    %p foo
+    -#
+      This won't be displayed
+        Nor will this
+    %p bar
 
 is compiled to:
 
-    <whoo>
-      <hoo>
-        I think this might get pretty long so I should probably make it multiline so it doesn't look awful.
-      </hoo>
-      <p>This is short</p>
-    </whoo>
+    <p>foo</p>
+    <p>bar</p>
 
-#### :
+## Ruby Evaluation
+
+### Inserting Ruby: `=`
+
+The equals character is followed by Ruby code.
+This code is evaluated and the output is inserted into the document.
+For example:
+
+    %p
+      = ['hi', 'there', 'reader!'].join " "
+      = "yo"
+
+is compiled to:
+
+    <p>
+      hi there reader!
+      yo
+    </p>
+
+If the [`:escape_html`](#escape_html-option) option is set, `=` will sanitize any
+HTML-sensitive characters generated by the script. For example:
+
+    = '<script>alert("I\'m evil!");</script>'
+
+would be compiled to
+
+    &lt;script&gt;alert(&quot;I'm evil!&quot;);&lt;/script&gt;
+
+`=` can also be used at the end of a tag to insert Ruby code within that tag.
+For example:
+
+    %p= "hello"
+
+would be compiled to
+
+    <p>hello</p>
+
+Note that it's illegal to nest code within a tag that ends with `=`.
+
+### Running Ruby: `-`
+
+The hyphen character is also followed by Ruby code.
+This code is evaluated but *not* inserted into the document.
+
+**It is not recommended that you use this widely;
+almost all processing code and logic should be restricted
+to the Controller, the Helper, or partials.**
+
+For example:
+
+    - foo = "hello"
+    - foo << " there"
+    - foo << " you!"
+    %p= foo
+
+is compiled to:
+
+    <p>
+      hello there you!
+    </p>
+
+#### Ruby Blocks
+
+Ruby blocks, like XHTML tags, don't need to be explicitly closed in Haml.
+Rather, they're automatically closed, based on indentation.
+A block begins whenever the indentation is increased
+after a Ruby evaluation command.
+It ends when the indentation decreases
+(as long as it's not an `else` clause or something similar).
+For example:
+
+    - (42...47).each do |i|
+      %p= i
+    %p See, I can count!
+
+is compiled to:
+
+    <p>
+      42
+    </p>
+    <p>
+      43
+    </p>
+    <p>
+      44
+    </p>
+    <p>
+      45
+    </p>
+    <p>
+      46
+    </p>
+
+Another example:
+
+    %p
+      - case 2
+      - when 1
+        = "1!"
+      - when 2
+        = "2?"
+      - when 3
+        = "3."
+
+is compiled to:
+
+    <p>
+      2?
+    </p>
+
+### Whitespace Preservation: `~` {#tilde}
+
+`~` works just like `=`, except that it runs {Haml::Helpers#find\_and\_preserve} on its input.
+For example,
+
+    ~ "Foo\n<pre>Bar\nBaz</pre>"
+
+is the same as:
+
+    = find_and_preserve("Foo\n<pre>Bar\nBaz</pre>")
+
+and is compiled to:
+
+    Foo
+    <pre>Bar&#x000A;Baz</pre>
+
+See also [Whitespace Preservation](#whitespace_preservation).
+
+### Ruby Interpolation: `#{}`
+
+Ruby code can also be interpolated within plain text using `#{}`,
+similarly to Ruby string interpolation.
+For example,
+
+    %p This is #{h quality} cake!
+
+is the same as
+
+    %p= "This is the #{h quality} cake!"
+
+and might compile to
+
+    <p>This is scrumptious cake!</p>
+
+Backslashes can be used to escape `#{` strings,
+but they don't act as escapes anywhere else in the string.
+For example:
+
+    %p
+      Look at \\#{h word} lack of backslash: \#{foo}
+      And yon presence thereof: \{foo}
+
+might compile to
+
+    <p>
+      Look at \yon lack of backslash: #{foo}
+      And yon presence thereof: \{foo}
+    </p>
+
+Interpolation can also be used within [filters](#filters).
+For example:
+
+    :javascript
+      $(document).ready(function() {
+        alert(#{@message.to_json});
+      });
+
+might compile to
+
+    <script type='text/javascript'>
+      //<![CDATA[
+        $(document).ready(function() {
+          alert("Hi there!");
+        });
+      //]]>
+    </script>
+
+### Escaping HTML: `&=`
+
+An ampersand followed by one or two equals characters
+evaluates Ruby code just like the equals without the ampersand,
+but sanitizes any HTML-sensitive characters in the result of the code.
+For example:
+
+    &= "I like cheese & crackers"
+
+compiles to
+
+    I like cheese &amp; crackers
+
+If the [`:escape_html`](#escape_html-option) option is set,
+`&=` behaves identically to `=`.
+
+`&` can also be used on its own so that `#{}` interpolation is escaped.
+For example,
+
+    & I like #{"cheese & crackers"}
+
+compiles to
+
+    I like cheese &amp; crackers
+
+### Unescpaing HTML: `!=`
+
+An exclamation mark followed by one or two equals characters
+evaluates Ruby code just like the equals would,
+but never sanitizes the HTML.
+
+By default, the single equals doesn't sanitize HTML either.
+However, if the [`:escape_html`](#escape_html-option) option is set,
+`=` will sanitize the HTML, but `!=` still won't.
+For example, if `:escape_html` is set:
+
+    = "I feel <strong>!"
+    != "I feel <strong>!"
+
+compiles to
+
+    I feel &lt;strong&gt;!
+    I feel <strong>!
+
+`!` can also be used on its own so that `#{}` interpolation is unescaped.
+For example,
+
+    ! I feel #{"<strong>"}!
+
+compiles to
+
+    I feel <strong>!
+
+## Filters: `:` {#filters}
 
 The colon character designates a filter.
 This allows you to pass an indented block of text as input
@@ -756,194 +939,32 @@ Haml has the following filters defined:
 
 You can also define your own filters (see {Haml::Filters}).
 
-### Ruby evaluators
+## Multiline: `|`
 
-#### =
-
-The equals character is followed by Ruby code,
-which is evaluated and the output inserted into the document as plain text.
+The pipe character designates a multiline string.
+It's placed at the end of a line (after some whitespace)
+and means that all following lines that end with `|`
+will be evaluated as though they were on the same line.
 For example:
 
-    %p
-      = ['hi', 'there', 'reader!'].join " "
-      = "yo"
+    %whoo
+      %hoo I think this might get |
+        pretty long so I should |
+        probably make it |
+        multiline so it doesn't |
+        look awful. |
+      %p This is short.
 
 is compiled to:
 
-    <p>
-      hi there reader!
-      yo
-    </p>
+    <whoo>
+      <hoo>
+        I think this might get pretty long so I should probably make it multiline so it doesn't look awful.
+      </hoo>
+      <p>This is short</p>
+    </whoo>
 
-If the [`:escape_html`](#escape_html-option) option is set, `=` will sanitize any
-HTML-sensitive characters generated by the script. For example:
-
-    = '<script>alert("I\'m evil!");</script>'
-
-would be compiled to
-
-    &lt;script&gt;alert(&quot;I'm evil!&quot;);&lt;/script&gt;
-
-#### -
-
-The hyphen character makes the text following it into "silent script":
-Ruby script that is evaluated, but not output.
-
-**It is not recommended that you use this widely;
-almost all processing code and logic should be restricted
-to the Controller, the Helper, or partials.**
-
-For example:
-
-    - foo = "hello"
-    - foo << " there"
-    - foo << " you!"
-    %p= foo
-
-is compiled to:
-
-    <p>
-      hello there you!
-    </p>
-
-#### &=
-
-An ampersand followed by one or two equals characters
-evaluates Ruby code just like the equals without the ampersand,
-but sanitizes any HTML-sensitive characters in the result of the code.
-For example:
-
-    &= "I like cheese & crackers"
-
-compiles to
-
-    I like cheese &amp; crackers
-
-If the [`:escape_html`](#escape_html-option) option is set,
-`&=` behaves identically to `=`.
-
-`&` can also be used on its own so that `#{}` interpolation is escaped.
-For example,
-
-    & I like #{"cheese & crackers"}
-
-compiles to
-
-    I like cheese &amp; crackers
-
-#### !=
-
-An exclamation mark followed by one or two equals characters
-evaluates Ruby code just like the equals would,
-but never sanitizes the HTML.
-
-By default, the single equals doesn't sanitize HTML either.
-However, if the [`:escape_html`](#escape_html-option) option is set,
-`=` will sanitize the HTML, but `!=` still won't.
-For example, if `:escape_html` is set:
-
-    = "I feel <strong>!"
-    != "I feel <strong>!"
-
-compiles to
-
-    I feel &lt;strong&gt;!
-    I feel <strong>!
-
-`!` can also be used on its own so that `#{}` interpolation is unescaped.
-For example,
-
-    ! I feel #{"<strong>"}!
-
-compiles to
-
-    I feel <strong>!
-
-#### `-#`
-
-The hyphen followed immediately by the pound sign
-signifies a silent comment.
-Any text following this isn't rendered in the resulting document
-at all.
-
-For example:
-
-    %p foo
-    -# This is a comment
-    %p bar
-
-is compiled to:
-
-    <p>foo</p>
-    <p>bar</p>
-
-You can also nest text beneath a silent comment.
-None of this text will be rendered.
-For example:
-
-    %p foo
-    -#
-      This won't be displayed
-        Nor will this
-    %p bar
-
-is compiled to:
-
-    <p>foo</p>
-    <p>bar</p>
-
-#### Ruby Blocks
-
-Ruby blocks, like XHTML tags, don't need to be explicitly closed in Haml.
-Rather, they're automatically closed, based on indentation.
-A block begins whenever the indentation is increased
-after a silent script command.
-It ends when the indentation decreases
-(as long as it's not an `else` clause or something similar).
-For example:
-
-    - (42...47).each do |i|
-      %p= i
-    %p See, I can count!
-
-is compiled to:
-
-    <p>
-      42
-    </p>
-    <p>
-      43
-    </p>
-    <p>
-      44
-    </p>
-    <p>
-      45
-    </p>
-    <p>
-      46
-    </p>
-
-Another example:
-
-    %p
-      - case 2
-      - when 1
-        = "1!"
-      - when 2
-        = "2?"
-      - when 3
-        = "3."
-
-is compiled to:
-
-    <p>
-      2?
-    </p>
-
-## Other Useful Things
-
-### Whitespace Preservation
+## Whitespace Preservation
 
 Sometimes you don't want Haml to indent all your text.
 For example, tags like `pre` and `textarea` are whitespace-sensitive;
@@ -960,7 +981,7 @@ which has the same effect.
 
 Blocks of literal text can be preserved using the [`:preserve` filter](#preserve-filter).
 
-### Helpers
+## Helpers
 
 Haml offers a bunch of helpers that are useful
 for doing stuff like preserving whitespace,
@@ -968,7 +989,7 @@ creating nicely indented output for user-defined helpers,
 and other useful things.
 The helpers are all documented in the {Haml::Helpers} and {Haml::Helpers::ActionViewExtensions} modules.
 
-### Haml Options
+## Haml Options
 
 Options can be set by setting the {Haml::Template#options Haml::Template.options} hash
 in `environment.rb` in Rails...
