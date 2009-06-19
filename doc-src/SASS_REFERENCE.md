@@ -659,7 +659,7 @@ and attribute names using #{} interpolation syntax:
     !name = foo
     !attr = border
     p.#{!name}
-      #{attr}-color: blue
+      #{!attr}-color: blue
 
 is compiled to:
 
