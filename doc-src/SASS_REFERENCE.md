@@ -21,9 +21,9 @@ for creating manageable stylesheets.
 ## Using Sass
 
 Sass can be used in three ways:
-as a plugin for Ruby on Rails,
+as a command-line tool,
 as a standalone Ruby module,
-and as a command-line tool.
+and as a plugin for Ruby on Rails or Merb.
 Sass is bundled with Haml,
 so if the Haml plugin or RubyGem is installed,
 Sass will already be installed as a plugin or gem, respectively.
@@ -31,8 +31,27 @@ The first step for all of these is to install the Haml gem:
 
     gem install haml
 
-To enable it as a Rails plugin,
-then run
+To run Sass from the command line, just use
+
+    sass input.sass output.css
+
+Use `sass --help` for full documentation.
+At the moment, the command-line tool doesn't support
+updating everything in a directory
+or automatically updating the CSS file when the Sass file changes.
+To do that, check out the [Compass](http://compass-style.org/) Sass framework.
+
+Using Sass in Ruby code is very simple.
+After installing the Haml gem,
+you can use it by running `require "sass"`
+and using Sass::Engine like so:
+
+    engine = Sass::Engine.new("#main\n  :background-color #0000ff")
+    engine.render #=> "#main { background-color: #0000ff; }\n"
+
+### Rails/Merb Plugin
+
+To enable Sass as a Rails plugin, run
 
     haml --rails path/to/rails/app
 
@@ -50,20 +69,6 @@ By default (see options, below),
 ".sass" files are placed in public/stylesheets/sass.
 Then, whenever necessary, they're compiled into corresponding CSS files in public/stylesheets.
 For instance, public/stylesheets/sass/main.sass would be compiled to public/stylesheets/main.css.
-
-To run Sass from the command line, just use
-
-    sass input.sass output.css
-
-Use `sass --help` for full documentation.
-
-Using Sass in Ruby code is very simple.
-After installing the Haml gem,
-you can use it by running `require "sass"`
-and using Sass::Engine like so:
-
-    engine = Sass::Engine.new("#main\n  :background-color #0000ff")
-    engine.render #=> "#main { background-color: #0000ff; }\n"
 
 ### Caching
 
