@@ -109,3 +109,43 @@
         margin-right: 8px;
         border-right: 1px solid #3bbfce;
       }
+
+.feature#mixins
+  %h2 Mixins
+  %p
+    Even more powerful than variables,
+    mixins allow you to re-use whole chunks of CSS,
+    properties or selectors.
+    You can even give them arguments.
+
+  %pre.sass
+    :preserve
+      =table-scaffolding
+        th
+          :text-align center
+          :font-weight bold
+        td, th
+          :padding 2px
+
+      =background(!img)
+        background:
+          image = image_url(!img)
+          repeat: no-repeat
+
+      table#data
+        +background("/images/table.png")
+        +table-scaffolding
+
+  %pre.css
+    :preserve
+      table#data {
+        background-image: image_url(/images/table.png);
+        background-repeat: no-repeat;
+      }
+      table#data th {
+        text-align: center;
+        font-weight: bold;
+      }
+      table#data td, table#data th {
+        padding: 2px;
+      }
