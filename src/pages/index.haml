@@ -75,3 +75,37 @@
         background-position: left center;
         background-image: url(/images/icons/download.png);
       }
+
+.feature#variables
+  %h2 Variables
+  %p
+    Use the same color all over the place?
+    Need to do some math with height and width and text size?
+    Sass supports variables as well as basic math operations.
+
+  %pre.sass
+    :preserve
+      !blue = #3bbfce
+      !margin = 16px
+
+      .content_navigation
+        background-color = !blue
+        color = !blue - #101010
+
+      .border
+        padding-right = !margin / 2 - 1
+        margin-right = !margin / 2
+        border-right = 1px "solid" !blue
+
+  %pre.css
+    :preserve
+      .content_navigation {
+        background-color: #3bbfce;
+        color: #2bafbe;
+      }
+
+      .border {
+        padding-right: 7px;
+        margin-right: 8px;
+        border-right: 1px solid #3bbfce;
+      }
