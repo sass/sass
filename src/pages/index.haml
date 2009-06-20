@@ -5,3 +5,37 @@
     [variables](#variables), [mixins](#mixins),
     and [more](/docs/yardoc/SASS_REFERENCE.md.html),
     all in a concise, readable syntax.
+
+-# It would be cool if we could have an arrow or something for these
+  signifying the transition from CSS to Sass.
+
+  Also, if possible, it would be awesome to use Sass from this site
+  for these examples.
+.feature
+  %h2 Beauty
+  %p
+    Sass does away with the unnecessary brackets and semicolons of CSS.
+    Properties are nested beneath selectors,
+    and each property gets its own line.
+
+  %pre.sass
+    :preserve
+      h1
+        height: 118px
+        margin-top: 1em
+
+      .tagline
+        font-size: 26px
+        text-align: right
+
+  %pre.css
+    :preserve
+      h1 {
+        height: 118px;
+        margin-top: 1em;
+      }
+
+      .tagline {
+        font-size: 26px;
+        text-align: right;
+      }
