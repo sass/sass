@@ -1,3 +1,4 @@
 /site/*
 !/site/images
 !/site/javascripts
+/haml
