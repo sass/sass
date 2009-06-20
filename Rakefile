@@ -157,7 +157,7 @@ task :pages do
   sh %{git checkout #{proj}-pages}
   sh %{git reset --hard origin/#{proj}-pages}
 
-  sh %{staticmatic build .}
+  sh %{rake build}
   sh %{rsync -av --delete site/ /var/www/#{proj}-pages}
 end
 
