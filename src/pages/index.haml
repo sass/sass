@@ -39,3 +39,37 @@
         font-size: 26px;
         text-align: right;
       }
+
+.feature
+  %h2 Nesting
+  %p
+    Sass avoids repetition by nesting selectors within one another.
+    The same thing works with properties.
+
+  %pre.sass
+    :preserve
+      table.highlighttable
+        margin: 2em 0
+        td.linenos
+          text-align: right
+
+      li
+        background:
+          repeat: no-repeat
+          position: left center
+          image: url(/images/icons/download.png)
+
+  %pre.css
+    :preserve
+      table.highlighttable {
+        margin: 2em 0;
+      }
+      table.highlighttable td.linenos {
+        text-align: right;
+      }
+
+      li {
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-image: url(/images/icons/download.png);
+      }
