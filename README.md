@@ -6,10 +6,11 @@ to [github.com/nex3/haml](http://github.com/nex3/haml).
 
 These pages are compiled with [StaticMatic](http://staticmatic.rubyforge.org),
 and use the [Compass](http://compass-style.org/) Sass framework.
-To compile, run
+The Haml and Sass documentation uses [YARD](http://yard.soen.ca/).
+To compile everything, run
 
-    staticmatic build .
+    rake build
 
-To set up a local server for viewing updates, run
+To set up a local server for viewing updates for the site, run
 
-    staticmatic preview .
+    rake preview
