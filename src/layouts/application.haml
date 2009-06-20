@@ -1,7 +1,25 @@
 !!!
 %html
   %head
-    %title Sass
+    %title&= @title || "Sass - Syntactically Awesome Stylesheets"
     = stylesheets
   %body
-    = yield
+    #header
+      -# Sass logo goes here, somehow
+      %h1 Sass!
+      #get_started
+        %h1 Get Started
+        %pre
+          %code sudo gem install haml
+        %pre
+          %code css2sass style.css
+        %pre
+          %code sass style.sass
+      #latest
+        %h2 Latest Release:
+        %p Friendly Fred (<span class="version">2.0.9</span>)
+        %p= link "What's New", "/whats_new"
+    #content= yield
+    #footer
+      :markdown
+        Copyright &copy; 2009 [Nathan Weizenbaum](http://nex-3.com)
