@@ -11,24 +11,34 @@ and providing elegant, easily understandable, and powerful syntax.
 
 ## Using
 
-There are several ways to use Haml and Sass.
-They can be used as a plugin for Rails or Merb,
-or embedded on their own in other applications.
-The first step of all of these is to install the Haml gem:
+Haml and Sass can be used from the command line
+or as part of a Ruby web framework.
+The first step is to install the gem:
 
     gem install haml
+
+After you convert some HTML to Haml or some CSS to Sass,
+you can run
+
+    haml document.haml
+    sass style.sass
+
+to compile them.
+For more information on these commands, check out
+
+    haml --help
+    sass --help
 
 To install Haml and Sass as a Rails plugin,
 just run `haml --rails path/to/rails/app`
 and both Haml and Sass will be installed.
-Views with the `.haml` (or `.html.haml` for edge)
-extension will automatically use Haml.
+Views with the `.html.haml` extension will automatically use Haml.
 Sass is a little more complicated;
-`.sass` files should be placed in public/stylesheets/sass,
+`.sass` files should be placed in `public/stylesheets/sass`,
 where they'll be automatically compiled
-to corresponding CSS files in public/stylesheets when needed
+to corresponding CSS files in `public/stylesheets` when needed
 (the Sass template directory is customizable...
-see the Sass module docs for details).
+see [the Sass reference](http://sass-lang.com/docs/yardoc/SASS_REFERENCE.md.html#template_location-option) for details).
 
 For Merb, `.html.haml` views will work without any further modification.
 To enable Sass, you also need to add a dependency.
@@ -36,11 +46,11 @@ To do so, just add
 
     dependency "merb-haml"
 
-to config/dependencies.rb (or config/init.rb in a flat/very flat Merb application).
+to `config/dependencies.rb` (or `config/init.rb` in a flat/very flat Merb application).
 Then it'll work just like it does in Rails.
 
 To use Haml and Sass programatically,
-check out the RDocs for the Haml and Sass modules.
+check out the [YARD documentation](http://haml-lang.com/docs/yardoc).
 
 ## Formatting
 
