@@ -310,7 +310,7 @@ END
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
-        if line.text[1].nil?
+        if line.text[1].nil? || line.text[1] == ?\s
           Tree::RuleNode.new(line.text)
         else
           parse_mixin_include(line, root)

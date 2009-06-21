@@ -759,6 +759,17 @@ CSS
 SASS
   end
 
+  def test_plus_with_space
+    assert_equal(<<CSS, render(<<SASS))
+a + b {
+  color: green; }
+CSS
+a
+  + b
+    color: green
+SASS
+  end
+
   private
   
   def render(sass, options = {})
