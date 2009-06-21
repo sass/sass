@@ -150,7 +150,7 @@ Available options are:
   Defaults to false in production mode, true otherwise.
   Only has meaning within Ruby on Rails or Merb.
 
-{#template-location-option} `:template_location`
+{#template_location-option} `:template_location`
 : A path to the root sass template directory for you application.
   If a hash, `:css_location` is ignored and this option designates
   both a mapping between input and output directories.
@@ -161,7 +161,7 @@ Available options are:
   This will be derived from the `:css_location` path list if not provided 
   by appending a folder of "sass" to each corresponding css location.
 
-{#css-location-option} `:css_location`
+{#css_location-option} `:css_location`
 : The path where CSS output should be written to.
   This option is ignored when `:template_location` is a Hash.
   Defaults to `RAILS_ROOT + "/public/stylesheets"`
