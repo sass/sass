@@ -302,26 +302,27 @@ See `css2sass --help` for further information and options.
 
 ## Authors
 
-Haml and Sass are designed by Hampton Catlin (hcatlin) and he is the author
-of the original implementation. However, Hampton doesn't even know his way
-around the code anymore and mostly just concentrates on the language issues.
-Hampton lives in Toronto, Ontario (though he's an American by birth) and
-is a partner at Unspace Interactive.
+Haml and Sass were created by [Hampton Catlin](http://hamptoncatlin.com)
+(hcatlin) and he is the author of the original implementation. However, Hampton
+doesn't even know his way around the code anymore and now occasionally consults
+on the language issues.  Hampton lives in Jacksonville, Florida and is the lead
+mobile developer for Wikimedia.
 
-Nathan Weizenbaum is the primary maintainer and architect of the "modern" Ruby
-implementation of Haml. His hard work has kept the project alive by endlessly
-answering forum posts, fixing bugs, refactoring, finding speed improvements,
-writing documentation, implementing new features, and getting Hampton
-coffee (a fitting task for a boy-genius). Nathan lives in Seattle, Washington and
-while not being a student at University of Washington he consults for
-Unspace Interactive and Microsoft.
+[Nathan Weizenbaum](http://nex-3.com) is the primary developer and architect of
+the "modern" Ruby implementation of Haml. His hard work has kept the project
+alive by endlessly answering forum posts, fixing bugs, refactoring, finding
+speed improvements, writing documentation, implementing new features, and
+getting Hampton coffee (a fitting task for a boy-genius). Nathan lives in
+Seattle, Washington and while not being a student at the University of
+Washington or working at an internship, he consults for Unspace Interactive.
 
-Chris Eppstein is a core contributor to Sass and the creator of Compass, the first
-Sass-based framework. Chris focuses on making Sass more powerful, easy to use, and
-on ways to speed its adoption through the web development community. Chris lives in
-San Jose, CA with his wife and daughter. He is the Software Architect for Caring.com,
-a website devoted to the 34 Million caregivers whose parents are sick or elderly,
-that uses Haml and Sass.
+[Chris Eppstein](http://acts-as-architect.blogspot.com) is a core contributor to
+Sass and the creator of Compass, the first Sass-based framework. Chris focuses
+on making Sass more powerful, easy to use, and on ways to speed its adoption
+through the web development community. Chris lives in San Jose, California with
+his wife and daughter. He is the Software Architect for
+[Caring.com](http://caring.com), a website devoted to the 34 Million caregivers
+whose parents are sick or elderly, that uses Haml and Sass.
 
 If you use this software, you must pay Hampton a compliment. And
 buy Nathan some jelly beans. Maybe pet a kitten. Yeah. Pet that kitty.
