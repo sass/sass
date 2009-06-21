@@ -770,6 +770,19 @@ a
 SASS
   end
 
+  def test_empty_line_comment
+    assert_equal(<<CSS, render(<<SASS))
+/* Foo
+ *
+ * Bar */
+CSS
+/*
+  Foo
+
+  Bar
+SASS
+  end
+
   private
   
   def render(sass, options = {})
