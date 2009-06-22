@@ -10,3 +10,13 @@ end
 
 # sass_engine_options returns a hash, you can merge it with other options.
 configuration.sass_options = Compass.sass_engine_options
+
+module StaticMatic::Helpers
+  def local_page
+    current_page.gsub(/\.html$/, '').gsub(/\/index$/, '').gsub(/^\//, '')
+  end
+
+  def css
+    (["#haml"] + local_page.split(File::SEPARATOR)).join(".")
+  end
+end

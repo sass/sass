@@ -1,4 +1,142 @@
-body
-  :font
-    :family Verdana
-    :size 10pt
+/* Haml
+  Design & CSS - Lukas Dryja
+  http://www.lukasdryja.com
+  --------------------
+
+@import header.sass
+@import sidebar.sass
+
+*
+  margin: 0
+  padding: 0
+
+
+html, body
+  padding: 0
+  background: #FFFFFF
+  color: #090909
+  height: 100%
+  font: 13px/21px Georgia, Garamond, Times, "Times New Roman", serif
+  border-top: 2px solid #ff3836
+
+
+a
+  text-decoration: underline
+  outline: none
+  color: #ff3836
+
+  &:hover
+    color: #ff9e9d
+
+
+p
+  margin-bottom: 18px
+
+
+#page
+  margin: 0 auto
+  padding: 0 30px
+  width: 795px
+  border-right: 1px dashed #b1ad9b
+
+
+a img
+  border: none
+
+
+.clear
+  clear: both
+
+
+h2
+  padding-top: 15px
+  font-size: 24px
+  font-weight: normal
+  padding-bottom: 10px
+
+
+h3
+  padding-top: 15px
+  font-size: 17px
+  font-weight: bold
+
+
+ul
+  padding-left: 20px
+
+/* Intro paragraph
+  --------------------
+p
+  &.mainintro
+    float: left
+    text-indent: -9999px
+    margin-left: -29px
+    margin-right: 200px
+    height: 270px
+    width: 532px
+    margin-top: 40px
+    margin-bottom: 60px
+    background: url(/images/maindescription.gif) no-repeat top left
+
+  &.intro
+    margin-top: 20px
+    margin-right: 50px
+    line-height: 25px
+    font-size: 14px
+
+  &.quote
+    width: 500px
+    font-style: italic
+    color: #757575
+
+
+/* Main
+  --------------------
+#main
+  margin: 0 auto
+  position: relative
+  clear: both
+
+  &:after
+    clear: both
+    display: block
+    content: ''
+
+
+/* Main Page Showdown
+  --------------------
+#showdown
+  text-align: center
+  margin-top: 1em
+
+  img
+    display: block
+    margin-left: auto
+    margin-right: auto
+    margin-top: 1em
+
+
+/* Footer
+  --------------------
+#footer
+  padding-top: 10px
+  font-style: italic
+  font-size: 9px
+  clear: both
+
+
+/* Misc
+  --------------------
+dt
+  padding-top: 10px
+  padding-left: 10px
+  font-size: 14px
+  font-weight: bold
+
+
+dd
+  padding-left: 20px
+
+
+pre, ul
+  margin-bottom: 1em

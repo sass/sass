@@ -1,0 +1,66 @@
+%p
+  First of all, you need to install the Haml gem.
+  Most people will just want to use the most recent stable release.
+  To get it, just run
+
+%pre gem install --no-ri haml
+
+%p
+  If you want to use the latest and greatest stuff in Haml, though,
+  you'll need to install it from
+  = succeed '.' do
+    %a{:href => "http://git.or.cz"} Git
+  To do so, run
+
+%pre<
+  :preserve
+    git clone git://github.com/nex3/haml.git
+    cd haml
+    rake install
+
+%h2 Rails
+%p
+  Once you've installed the gem,
+  all you have to do to enable Haml for a Ruby on Rails app is run
+
+%pre haml --rails path/to/app
+
+%p
+  This will add a tiny plugin to your Rails app
+  that loads the latest Haml gem and sets it up as a template handler.
+  Then all .haml views (or .html.haml for edge) will be rendered as Haml.
+%p
+  This also sets up Sass for the Rails app.
+  Sass files aren't views;
+  instead, they go in public/stylesheets/sass.
+  They're compiled to corresponding CSS files in public/stylesheets
+  whenever a Rails page is loaded.
+  For example, public/stylesheets/sass/main.sass would be compiled to public/stylesheets/main.css.
+
+%h2 Merb
+
+%p
+  As long as you have the gem installed,
+  Haml works in Merb without any extra tinkering.
+  All views ending in .html.haml are automatically handled by Haml.
+
+%p
+  Sass isn't quite as automatic.
+  If you want to use Sass stylesheets,
+  you have to add
+%pre dependency "haml"
+%p
+  to config/dependencies.rb.
+  Then it works just like Rails -
+  all .sass files in public/stylesheets/sass are compiled to .css files in public/stylesheets.
+
+%h2 Standalone
+%p
+  If you're interested in using Haml without Rails or Merb,
+  just require "haml" and you're good to go.
+
+%h3 Downloadable Archives
+%p
+  Available from
+  = succeed '.' do
+    %a{:href => "http://rubyforge.org/frs/?group_id=2760"} Rubyforge

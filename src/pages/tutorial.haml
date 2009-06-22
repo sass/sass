@@ -1,0 +1,128 @@
+:textile
+  Before we start this tutorial, I want to make one thing clear. After you look at this, go and convert one of your RHTML files to Haml. Just try it. Like, just take the file and start hitting delete. Do it. You don't have to keep the file if you don't like it. But after you are done with this tutorial just try one file.
+
+  Haml feels odd for the first 20 minutes, but then after that **YOU WILL BE FASTER**.
+
+  h2. Getting Started
+
+  First off, install the plugin via the instructions on the download page. 
+
+  Haml is a drop-in replacement for Rhtml. So, that means any file in your app/view/* folder can be switched over to the Haml interpreter by simply changing the extension of the file.
+
+  /app/view/account/login.rhtml &rarr; /app/view/account/login.haml
+
+  Now, when you view that page, instead of Erb getting its hands on the template, it's handled by Haml instead. Since it's integrated with ActionView, that means you can mix up Erb and Haml and everything else on-the-fly throughout your site.
+
+  h2. How to Convert
+
+  Let's start off with some basic Rhtml that we want to convert.
+
+  RHTML:
+
+  <pre><strong><%= item.title %></strong></pre>
+
+  Haml:
+
+    %strong= item.title
+
+  In Haml, we see that we can define a tag by using the percent sign
+  and then the name of the tag. This might work for %strong, %div,
+  %body, %html, anything. Then, after the name of the tag is '=',
+  which tells Haml to evaluate anything to the right
+  and then print out the return value as the contents of the tag.
+  Unlike the RHTML above, Haml will automatically notice how long the
+  body of the time is and either keep the tags on one line, or break
+  it up into two lines.
+
+  For instance...
+
+  XHTML:
+
+  <pre># One line: same for Haml and RHTML
+  <strong>Short words</strong>
+
+  # Haml will print multiple lines of text this way:
+  <strong>
+    Long paragraph about lots of interesting things that I'm sure
+    lots of people are extremely interested in.
+  </strong>
+
+  # RHTML would have displayed as such:
+  <strong>Long paragraph about lots of interesting things that I'm sure
+  lots of people are extremely interested in.</strong></pre>
+
+  Simple tags are all well and good, but what about adding attributes to tags? Well duh! That's easy in Haml.
+
+  XHTML:
+
+  <pre><strong class="code" id="message">Hello, World!</strong></pre>
+
+  Haml:
+
+    %strong{:class => "code", :id => "message"} Hello, World!
+
+  The attributes are described via a hash of values. We have specified the class directly by referring to it as "code". Notice in this example, we did not specify the '=' action on the text, so therefore Haml assumes that if there is anything to the right, it is a regular string and should be displayed thusly.
+
+  There is a simpler way to define this tag in Haml, since class and ID are such common attributes and since most coders (and designers) are familiar with CSS, we can use similar notation to describe this tag.
+
+  Haml:
+
+    %strong.code#message Hello, World!
+
+  Even a designer can understand that!
+
+  What if you leave off the tag name though? Well, we all use div tags all the time, so they simply form the basic default.
+
+  Haml:
+
+    .content Hello, World!
+
+  XHTML:
+
+  <pre><div class='content'>Hello, World!</div></pre>
+
+  The div is assumed since it is so common. How about that!
+
+  Now what about something that we might find in a partial?
+
+  RHTML:
+
+  <pre><div class='item' id='item<%= item.id %>'>
+    <%= item.body %>
+  </div></pre>
+
+  Pretty basic. We can assume this might be part of a partial or something. Let me convert this to Haml then show you what I did.
+
+  Haml:
+
+    .item{:id => "item\#{item.id}"}= item.body
+
+  This stuff is fun!
+
+  Now, nesting is taken care of in Haml via whitespace.
+
+  Look at this ugly Rhtml...
+
+  <pre><div id='content'>
+    <div class='left column'>
+      <h2>Welcome to our site!</h2>
+      <p>
+        <%= print_information %>
+      </p>
+    </div>
+    <div class="right column">
+      <%= render :partial => "sidebar" %>
+    </div>
+  </div></pre>
+
+  Let's take that code and make it a Haml haiku!
+
+  <pre>#content
+    .left.column
+      %h2 Welcome to our site!
+      %p= print_information
+    .right.column= render :partial => "sidebar"</pre>
+
+  Look at that. Doesn't that just make you smile? Every character means something. And it means things that you *already* know!
+
+  There is a lot more to learn, so I'd highly recommend checking out the "Reference":/docs/yardoc/HAML_REFERENCE.md.html page. Its filled with awesome little tricks that we've added to Haml to make building sites even more fun.
