@@ -2,3 +2,4 @@
 !/site/images
 !/site/javascripts
 /haml
+/.sass-cache
