@@ -81,6 +81,8 @@ task :release => [:package] do
 end
 
 task :release_edge do
+  puts "#{'=' * 50} Running rake release_edge"
+
   sh %{git checkout edge-gem}
   sh %{git reset --hard origin/edge-gem}
   sh %{git merge origin/master}
@@ -153,11 +155,12 @@ rescue LoadError
 end
 
 task :pages do
+  puts "#{'=' * 50} Running rake proj PROJ=#{ENV["PROJ"].inspect}"
   raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
   sh %{git checkout #{proj}-pages}
   sh %{git reset --hard origin/#{proj}-pages}
 
-  sh %{rake build}
+  sh %{rake build --trace}
   sh %{rsync -av --delete site/ /var/www/#{proj}-pages}
 end
 
@@ -246,15 +249,20 @@ end
 # ----- Handling Updates -----
 
 task :handle_update do
+  puts
+  puts
+  puts '=' * 150
+  puts "Running rake REF=#{ENV["REF"].inspect}"
+
   sh %{git checkout master}
   sh %{git fetch origin}
   sh %{git reset --hard origin/master}
 
   begin
     if ENV["REF"] == "refs/heads/master"
-      sh %{rake release_edge}
+      sh %{rake release_edge --trace}
     elsif ENV["REF"] =~ %r{^refs/heads/(haml|sass)-pages$}
-      sh %{rake pages PROJ=#{$1}}
+      sh %{rake pages --trace PROJ=#{$1}}
     end
   ensure
     sh %{git reset --hard HEAD}
