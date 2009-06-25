@@ -252,7 +252,7 @@ task :handle_update do
   puts
   puts
   puts '=' * 150
-  puts "Running rake REF=#{ENV["REF"].inspect}"
+  puts "Running rake handle_update REF=#{ENV["REF"].inspect}"
 
   sh %{git checkout master}
   sh %{git fetch origin}
