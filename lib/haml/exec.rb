@@ -87,10 +87,10 @@ module Haml
       def process_result
         input, output = @options[:input], @options[:output]
         input_file, output_file = if input
-                                    [nil, open_file(ARGV[0], 'w')]
+                                    [nil, open_file(@args[0], 'w')]
                                   else
-                                    @options[:filename] = ARGV[0]
-                                    [open_file(ARGV[0]), open_file(ARGV[1], 'w')]
+                                    @options[:filename] = @args[0]
+                                    [open_file(@args[0]), open_file(@args[1], 'w')]
                                   end
 
         input  ||= input_file
