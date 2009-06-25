@@ -155,7 +155,7 @@ rescue LoadError
 end
 
 task :pages do
-  puts "#{'=' * 50} Running rake proj PROJ=#{ENV["PROJ"].inspect}"
+  puts "#{'=' * 50} Running rake pages PROJ=#{ENV["PROJ"].inspect}"
   raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
   sh %{git checkout #{proj}-pages}
   sh %{git reset --hard origin/#{proj}-pages}
