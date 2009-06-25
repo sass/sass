@@ -24,26 +24,28 @@ with some code to generate dynamic content.
 ## Using Haml
 
 Haml can be used in three ways:
+as a command-line tool,
 as a plugin for Ruby on Rails,
-as a standalone Ruby module,
-and as a command-line tool.
+and as a standalone Ruby module.
 The first step for all of these is to install the Haml gem:
 
     gem install haml
-
-To enable it as a Rails plugin,
-then run
-
-    haml --rails path/to/rails/app
-
-Once it's installed, all view files with the `".html.haml"` extension
-will be compiled using Haml.
 
 To run Haml from the command line, just use
 
     haml input.haml output.html
 
 Use `haml --help` for full documentation.
+
+### Rails/Merb Plugin {#plugin}
+
+To enable Haml as a Rails plugin, run
+
+    haml --rails path/to/rails/app
+
+Once it's installed, all view files with the `".html.haml"` extension
+will be compiled using Haml.
+Haml is enabled by default in Merb.
 
 You can access instance variables in Haml templates
 the same way you do in ERB templates.
