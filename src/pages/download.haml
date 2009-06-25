@@ -1,25 +1,33 @@
-%p
-  First of all, you need to install the Haml gem.
-  Most people will just want to use the most recent stable release.
-  To get it, just run
+:markdown
+  ## Standard Gem
 
-%pre gem install --no-ri haml
+  Most people will just want the standard stable Haml gem.
+  To install this:
 
-%p
-  If you want to use the latest and greatest stuff in Haml, though,
-  you'll need to install it from
-  = succeed '.' do
-    %a{:href => "http://git.or.cz"} Git
-  To do so, run
+      sudo gem install haml
 
-%pre<
-  :preserve
-    git clone git://github.com/nex3/haml.git
-    cd haml
-    rake install
+  ## `haml-edge` Gem
 
-%h3 Downloadable Archives
-%p
-  Available from
-  = succeed '.' do
-    %a{:href => "http://rubyforge.org/frs/?group_id=2760"} Rubyforge
+  To get the latest and greatest Haml goodness, though,
+  you'll need something else.
+  A `haml-edge` gem is created automatically every time changes are made
+  to the master branch.
+  To install it:
+
+      sudo gem install haml-edge
+
+  Note that `gem "haml-edge"` must be used before `require 'haml'`
+  if `haml-edge` is to be used.
+
+  ## Installation from Git
+
+  Haml can also be installed directly from the [Git repository](http://github.com/nex3/haml):
+
+      git clone git://github.com/nex3/haml.git
+      cd haml
+      rake install
+
+  ## Downloadable Archives
+
+  Finally, archives of current and old releases
+  are available on [Rubyforge](http://rubyforge.org/frs/?group_id=2760).
