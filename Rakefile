@@ -261,6 +261,8 @@ task :handle_update do
   begin
     if ENV["REF"] == "refs/heads/master"
       sh %{rake release_edge --trace}
+      sh %{rake pages --trace PROJ=haml}
+      sh %{rake pages --trace PROJ=sass}
     elsif ENV["REF"] =~ %r{^refs/heads/(haml|sass)-pages$}
       sh %{rake pages --trace PROJ=#{$1}}
     end

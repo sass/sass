@@ -207,6 +207,29 @@ down_here { yeah: true; }
 CSS
   end
 
+  def test_comments_in_selectors
+    assert_equal(<<SASS, css2sass(<<CSS))
+.js
+  #location-navigation-form .form-submit, #business-listing-form .form-submit, #detailTabs ul, #detailsEnhanced #addTags, #locationSearchList, #moreHoods
+    display: none
+
+
+#navListLeft
+  display: none
+SASS
+.js #location-navigation-form .form-submit,
+.js #business-listing-form .form-submit,
+.js #detailTabs ul,
+/* .js #addReview, */
+/* .js #addTags, */
+.js #detailsEnhanced #addTags,
+.js #locationSearchList,
+.js #moreHoods,
+#navListLeft
+  { display: none; }
+CSS
+  end
+
   private
 
   def css2sass(string, opts={})
