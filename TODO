@@ -17,6 +17,8 @@
        http://code.google.com/speed/articles/optimizing-html.html
        Requires Haml parsing refactor
      Don't quote attributes that don't require it
+       http://www.w3.org/TR/REC-html40/intro/sgmltut.html#h-3.2.2
+       http://www.w3.org/TR/html5/syntax.html#attributes
 ** Sass
    [2.4] CSS superset
    [2.4] Classes are mixins
