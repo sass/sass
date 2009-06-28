@@ -118,7 +118,19 @@ module Sass
     #
     # @return [Tree::Node] The parsed rule
     def rule
-      return unless rule = @template.scan(/[^\{\};]+/)
+      rule = ""
+      loop do
+        token = @template.scan(/(?:[^\{\};\/\s]|\/[^*])+/)
+        if token.nil?
+          return if rule.empty?
+          break
+        end
+        rule << token
+        break unless @template.match?(/\s|\/\*/)
+        whitespace
+        rule << " "
+      end
+
       rule.strip!
       directive = rule[0] == ?@
 
