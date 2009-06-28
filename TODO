@@ -11,6 +11,12 @@
 ** Haml
    Figure out alternate attribute syntax
    [2.4] Allow "!!! HTML5" to set :format => :html5 ?
+     How do we deal with partials?
+   [2.4] :ugly + :html improvements
+     Ignore closing tags where we can
+       http://code.google.com/speed/articles/optimizing-html.html
+       Requires Haml parsing refactor
+     Don't quote attributes that don't require it
 ** Sass
    [2.4] CSS superset
    [2.4] Classes are mixins
