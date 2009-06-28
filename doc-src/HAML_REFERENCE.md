@@ -234,7 +234,7 @@ is compiled to:
 Any string is a valid element name;
 Haml will automatically generate opening and closing tags for any element.
 
-### Attributes: `{}`
+### Attributes: `{}` {#attributes}
 
 Brackets represent a Ruby hash
 that is used for specifying the attributes of an element.
@@ -1013,14 +1013,16 @@ The pipe character designates a multiline string.
 It's placed at the end of a line (after some whitespace)
 and means that all following lines that end with `|`
 will be evaluated as though they were on the same line.
+**Note that even the last line in the multiline block
+should end wit `|`.**
 For example:
 
     %whoo
       %hoo I think this might get |
-        pretty long so I should |
-        probably make it |
-        multiline so it doesn't |
-        look awful. |
+        pretty long so I should   |
+        probably make it          |
+        multiline so it doesn't   |
+        look awful.               |
       %p This is short.
 
 is compiled to:
@@ -1031,6 +1033,17 @@ is compiled to:
       </hoo>
       <p>This is short</p>
     </whoo>
+
+Using multiline declarations in Haml is intentionally awkward.
+This is designed to discourage people from putting lots and lots of Ruby code
+in their Haml templates.
+If you find yourself using multiline declarations, stop and think:
+could I do this better with a helper?
+
+Note that there is one case where it's useful to allow
+something to flow over onto multiple lines in a non-awkward manner: attributes.
+Some elements just have lots of attributes,
+so you can wrap attributes without using `|` (see [Attributes](#attributes)).
 
 ## Whitespace Preservation
 
