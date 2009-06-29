@@ -33,7 +33,7 @@ module Sass::Tree
       from.assert_int!
       to.assert_int!
 
-      to = to.send(:coerce, from.numerator_units, from.denominator_units)
+      to = to.coerce(from.numerator_units, from.denominator_units)
       range = Range.new(from.to_i, to.to_i, @exclusive)
 
       children = []

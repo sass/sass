@@ -260,6 +260,31 @@ module Sass::Script
       (numerator_units.empty? || numerator_units.size == 1) && denominator_units.empty?
     end
 
+    # Returns this number converted to other units.
+    # The conversion takes into account the relationship between e.g. mm and cm,
+    # as well as between e.g. in and cm.
+    #
+    # If this number has no units, it will simply return itself
+    # with the given units.
+    #
+    # An incompatible coercion, e.g. between px and cm, will raise an error.
+    #
+    # @param num_units [Array<String>] The numerator units to coerce this number into.
+    #   See {#numerator\_units}
+    # @param den_units [Array<String>] The denominator units to coerce this number into.
+    #   See {#denominator\_units}
+    # @return [Number] The number with the new units
+    # @raise [Sass::SyntaxError] if the given units are incompatible with the number's
+    #   current units
+    def coerce(num_units, den_units)
+      Number.new(if unitless?
+                   self.value
+                 else
+                   self.value * coercion_factor(self.numerator_units, num_units) /
+                     coercion_factor(self.denominator_units, den_units)
+                 end, num_units, den_units)
+    end
+
     protected
 
     def operate(other, operation)
@@ -282,15 +307,6 @@ module Sass::Script
       end
     end
 
-    def coerce(num_units, den_units)
-      Number.new(if unitless?
-                   self.value
-                 else
-                   self.value * coercion_factor(self.numerator_units, num_units) /
-                     coercion_factor(self.denominator_units, den_units)
-                 end, num_units, den_units)
-    end
-    
     def coercion_factor(from_units, to_units)
       # get a list of unmatched units
       from_units, to_units = sans_common_units(from_units, to_units)
