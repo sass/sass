@@ -163,7 +163,8 @@ module Sass::Script
         else
           other = other.coerce(numerator_units, denominator_units)
         end
-      rescue Sass::SyntaxError
+      rescue Sass::SyntaxError => e
+        raise e unless e.message =~ /^Incompatible units: /
         return Sass::Script::Bool.new(false)
       end
 
