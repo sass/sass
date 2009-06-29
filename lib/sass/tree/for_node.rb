@@ -28,14 +28,17 @@ module Sass::Tree
     # @return [Array<Tree::Node>] The resulting static nodes
     # @see Sass::Tree
     def _perform(environment)
-      from = @from.perform(environment).to_i
-      to = @to.perform(environment).to_i
-      range = Range.new(from, to, @exclusive)
+      from = @from.perform(environment)
+      to = @to.perform(environment)
+      if to.respond_to?(:coerce)
+        to = to.send(:coerce, from.numerator_units, from.denominator_units)
+      end
+      range = Range.new(from.to_i, to.to_i, @exclusive)
 
       children = []
       environment = Sass::Environment.new(environment)
       range.each do |i|
-        environment.set_local_var(@var, Sass::Script::Number.new(i))
+        environment.set_local_var(@var, Sass::Script::Number.new(i, from.numerator_units, from.denominator_units))
         children += perform_children(environment)
       end
       children
