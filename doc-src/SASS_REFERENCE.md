@@ -114,7 +114,7 @@ Available options are:
   or `:width = !main_width`.
   By default, either syntax is valid.
 
-{#cache-option} `cache`
+{#cache-option} `:cache`
 : Whether parsed Sass files should be cached,
   allowing greater speed. Defaults to true.
 
@@ -1032,7 +1032,7 @@ Although the default CSS style that Sass outputs is very nice,
 and reflects the structure of the document in a similar way that Sass does,
 sometimes it's good to have other formats available.
 
-Sass allows you to choose between three different output styles
+Sass allows you to choose between four different output styles
 by setting the `:style` option.
 In Rails, this is done by setting `Sass::Plugin.options[:style]`;
 outside Rails, it's done by passing an options hash with `:style` set.

@@ -155,9 +155,19 @@ module Sass::Script
     # @param other [Literal] The right-hand side of the operator
     # @return [Boolean] Whether this number is equal to the other object
     def eq(other)
-      Sass::Script::Bool.new(super.to_bool &&
-        self.numerator_units.sort == other.numerator_units.sort &&
-        self.denominator_units.sort == other.denominator_units.sort)
+      return Sass::Script::Bool.new(false) unless other.is_a?(Sass::Script::Number)
+      this = self
+      begin
+        if unitless?
+          this = this.coerce(other.numerator_units, other.denominator_units)
+        else
+          other = other.coerce(numerator_units, denominator_units)
+        end
+      rescue Sass::SyntaxError
+        return Sass::Script::Bool.new(false)
+      end
+
+      Sass::Script::Bool.new(this.value == other.value)
     end
 
     # The SassScript `>` operation.
@@ -253,7 +263,7 @@ module Sass::Script
 
     def operate(other, operation)
       this = self
-      if [:+, :-].include?(operation)
+      if [:+, :-, :<=, :<, :>, :>=].include?(operation)
         if unitless?
           this = this.coerce(other.numerator_units, other.denominator_units)
         else
