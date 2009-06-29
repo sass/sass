@@ -170,5 +170,8 @@ module Sass::Script
     def to_i
       raise Sass::SyntaxError.new("#{self.inspect} is not an integer.")
     end
+
+    # @raise [Sass::SyntaxError] if this literal isn't an integer
+    def assert_int!; to_i; end
   end
 end
