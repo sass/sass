@@ -54,7 +54,32 @@
   Feel the power of the Delete key. Simplify. Enjoy. Laugh.
   20 minutes later, you will never go back.
 
-  <div id="showdown" markdown="1">
-    ![The Showdown](/images/main_showdowntitle.gif)
-    ![Haml vs. ERB](/images/main_showdownill.gif)
-  </div>
+#showdown
+  %h2
+    %span The Showdown
+  .haml.lang
+    %h3 Haml
+    %pre
+      :preserve
+        #profile
+          .left.column
+            #date= print_date
+            #address= current_user.address
+          .right.column
+            #email= current_user.email
+            #bio= current_user.bio
+
+  .erb.lang
+    %h3 ERB
+    :markdown
+          <div id="profile">
+            <div class="left_column">
+              <div id="date"><%= print_date %></div>
+              <div id="address"><%= current_user.address %></div>
+            </div>
+            <div class="right column">
+              <div id="email"><%= current_user.email %></div>
+              <div id="bio"><%= current_user.bio %></div>
+            </div>
+          </div>
+  .clear
