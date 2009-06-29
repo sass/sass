@@ -273,11 +273,11 @@ module Sass::Script
 
     def coerce(num_units, den_units)
       Number.new(if unitless?
-                          self.value
-                        else
-                          self.value * coercion_factor(self.numerator_units, num_units) /
-                            coercion_factor(self.denominator_units, den_units)
-                        end, num_units, den_units)
+                   self.value
+                 else
+                   self.value * coercion_factor(self.numerator_units, num_units) /
+                     coercion_factor(self.denominator_units, den_units)
+                 end, num_units, den_units)
     end
     
     def coercion_factor(from_units, to_units)
