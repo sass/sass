@@ -1,4 +1,7 @@
+@import compass/utilities/general/inline_block.sass
+
 #header
+  !nav_top = 145px
   height: 250px
   width: 795px
   margin: 0 auto
@@ -16,7 +19,7 @@
 
   #nav
     position: relative
-    top: 155px
+    top = !nav_top
     margin: 0 0 0 250px
     height: 23px
     padding: 11px 0
@@ -47,6 +50,23 @@
           &:hover
             color: #ff3836
 
+  #latest
+    position: relative
+    text-align: center
+    top = !nav_top + 25px
+    color: #888
+
+    h2
+      color: #555
+      font:
+        size: 1.4em
+        weight: bold
+      display: inline
+
+    .version
+      font:
+        size: 1.2em
+        weight: bold
 
 #main
   padding-top: 20px
