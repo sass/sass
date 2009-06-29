@@ -10,6 +10,7 @@
 * Code
 ** Haml
    Figure out alternate attribute syntax
+   Write HAML_CHANGELOG
    [2.4] Allow "!!! HTML5" to set :format => :html5 ?
      How do we deal with partials?
    [2.4] :ugly + :html improvements
@@ -20,6 +21,7 @@
        http://www.w3.org/TR/REC-html40/intro/sgmltut.html#h-3.2.2
        http://www.w3.org/TR/html5/syntax.html#attributes
 ** Sass
+   Add tests for ae4f319 and 4a901ed
    [2.4] CSS superset
    [2.4] Classes are mixins
      Can refer to specific property values? Syntax?
