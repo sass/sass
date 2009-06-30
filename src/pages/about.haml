@@ -1,10 +1,10 @@
 :maruku
-  Haml is a markup language that’s used to cleanly and simply describe
-  the XHTML of any web document without the use of inline code. Haml
+  Haml is a markup language that's used to cleanly and simply describe
+  the HTML of any web document without the use of inline code. Haml
   functions as a replacement for inline page templating systems such as PHP,
   ASP, and ERB, the templating language used in most Ruby on Rails
   applications. However, Haml avoids the need for explicitly coding
-  XHTML into the template, because it itself is a description of the XHTML,
+  HTML into the template, because it itself is a description of the HTML,
   with some code to generate dynamic content.
 
   ## Core Principles
@@ -21,7 +21,7 @@
     and pleasant as the rendered result.
 
   Markup should be <acronym title="Don't Repeat Yourself">DRY</acronym>
-  : XHTML involves major repetition. Every element is named twice: once
+  : HTML involves major repetition. Every element is named twice: once
     before its content and once after. ERB adds even more repetition
     and unnecessary characters. HAML avoids all of this by relying on
     indentation, not text, to determine where elements and blocks of
@@ -31,13 +31,13 @@
   Markup should be well-indented
   : One of the major problems with ERB is that not only does it not
     encourage well-indented code, it actively makes it challenging, or
-    even impossible, to write. This leads to confusing, unreadable XHTML,
+    even impossible, to write. This leads to confusing, unreadable HTML,
     when it should be well indented and reflecting the underlying
     structure of the document. Haml automatically properly formats all
     tags to that it does.
 
-  XHTML structure should be clear
-  : XML and XHTML are formats built upon the idea of a structured document.
+  HTML structure should be clear
+  : XML and HTML are formats built upon the idea of a structured document.
     That structure is reflected in their markup, and it should likewise
     be reflected in meta-markup such as Haml Because Haml's logic is based
     on indentation of child elements, this structure is naturally preserved,
