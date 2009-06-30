@@ -71,8 +71,9 @@ end
 
 desc "Release a new Haml package to Rubyforge. Requires the NAME and VERSION flags."
 task :release => [:package] do
-  name, version = ENV['NAME'], ENV['VERSION']
-  raise "Must supply NAME and VERSION for release task." unless name && version
+  name = File.read("VERSION_NAME").strip
+  version = File.read("VERSION").strip
+  raise "VERSION_NAME must not be 'Bleeding Edge'" if name == "Bleeding Edge"
   sh %{rubyforge login}
   sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
