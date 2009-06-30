@@ -10,6 +10,6 @@
 
   #latest
     %h2 Latest Release:
-    Friendly Fred (<span class="version">2.0.9</span>)
+    #{CGI.escapeHTML Haml.version[:name]} (<span class="version">#{Haml.version[:number]}</span>)
     %p= link "What's New?", "/docs/yardoc/HAML_CHANGELOG.md.html"
 
