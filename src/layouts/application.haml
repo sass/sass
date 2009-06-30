@@ -1,5 +1,5 @@
 !!!
-%html
+%htmlr
   %head
     %title&= @title || "Sass - Syntactically Awesome Stylesheets"
     = stylesheets
@@ -17,7 +17,7 @@
           %code sass style.sass
       #latest
         %h2 Latest Release:
-        %p Friendly Fred (<span class="version">2.0.9</span>)
+        %p #{CGI.escapeHTML Haml.version[:name]} (<span class="version">#{Haml.version[:number]}</span>)
         %p= link "What's New", "/whats_new"
     %ul#navigation
       %li= link "About", "/about"
