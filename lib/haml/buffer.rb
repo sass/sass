@@ -90,11 +90,7 @@ module Haml
     def initialize(upper = nil, options = {})
       @active = true
       @upper = upper
-      @options = {
-        :attr_wrapper => "'",
-        :ugly => false,
-        :format => :xhtml
-      }.merge options
+      @options = options
       @buffer = ""
       @tabulation = 0
 
