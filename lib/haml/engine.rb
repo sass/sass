@@ -23,11 +23,6 @@ module Haml
     # @return [Hash<Symbol, Object>]
     attr_accessor :options
 
-    # The source code that is evaluated to produce the Haml document.
-    #
-    # @return [String]
-    attr_accessor :precompiled
-
     # The indentation used in the Haml document,
     # or `nil` if the indentation is ambiguous
     # (for example, for a single-level document).
@@ -55,6 +50,17 @@ module Haml
       @options[:format] == :html5
     end
 
+    # The source code that is evaluated to produce the Haml document.
+    #
+    # In Ruby 1.9, this is automatically converted to the correct encoding
+    # (see {file:HAML_REFERENCE.md#encoding-option the `:encoding` option}).
+    #
+    # @return [String]
+    def precompiled
+      return @precompiled if ruby1_8?
+      return @precompiled.encode(Encoding.find(@options[:encoding]))
+    end
+
     # Precompiles the Haml template.
     #
     # @param template [String] The Haml template
@@ -74,13 +80,20 @@ module Haml
         :line => 1,
         :ugly => false,
         :format => :xhtml,
-        :escape_html => false
+        :escape_html => false,
       }
+      unless ruby1_8?
+        @options[:encoding] = Encoding.default_internal || "utf-8"
+      end
       @options.merge! options
       @index = 0
 
       unless [:xhtml, :html4, :html5].include?(@options[:format])
         raise Haml::Error, "Invalid format #{@options[:format].inspect}"
+      end
+
+      if @options[:encoding] && @options[:encoding].is_a?(Encoding)
+        @options[:encoding] = @options[:encoding].name
       end
 
       # :eod is a special end-of-document marker
@@ -169,7 +182,7 @@ END
         @haml_buffer = buffer
       end
 
-      eval(@precompiled, scope, @options[:filename], @options[:line])
+      eval(precompiled, scope, @options[:filename], @options[:line])
 
       # Get rid of the current buffer
       scope_object.instance_eval do
@@ -276,7 +289,8 @@ END
         :preserve => @options[:preserve],
         :attr_wrapper => @options[:attr_wrapper],
         :ugly => @options[:ugly],
-        :format => @options[:format]
+        :format => @options[:format],
+        :encoding => @options[:encoding],
       }
     end
 

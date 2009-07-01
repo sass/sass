@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../test_helper'
 
 class EngineTest < Test::Unit::TestCase
@@ -802,5 +803,56 @@ END
   # HTML5
   def test_html5_doctype
     assert_equal %{<!DOCTYPE html>\n}, render('!!!', :format => :html5)
+  end
+
+  # Encodings
+
+  unless Haml::Util.ruby1_8?
+    def test_default_encoding
+      assert_equal(Encoding.find("utf-8"), render(<<HAML.encode("us-ascii")).encoding)
+HTML
+%p bar
+%p foo
+HAML
+    end
+
+    def test_convert_template_render
+      assert_equal(<<HTML, render(<<HAML.encode("iso-8859-1"), :encoding => "utf-8"))
+<p>bâr</p>
+<p>föö</p>
+HTML
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_convert_template_render_proc
+      assert_converts_template_properly {|e| e.render_proc.call}
+    end
+
+    def test_convert_template_render
+      assert_converts_template_properly {|e| e.render}
+    end
+
+    def test_convert_template_def_method
+      assert_converts_template_properly do |e|
+        o = Object.new
+        e.def_method(o, :render)
+        o.render
+      end
+    end
+  end
+
+  private
+
+  def assert_converts_template_properly
+    engine = Haml::Engine.new(<<HAML.encode("iso-8859-1"), :encoding => "utf-8")
+%p bâr
+%p föö
+HAML
+    assert_equal(<<HTML, yield(engine))
+<p>bâr</p>
+<p>föö</p>
+HTML
   end
 end

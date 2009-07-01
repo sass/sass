@@ -91,7 +91,7 @@ module Haml
       @active = true
       @upper = upper
       @options = options
-      @buffer = ""
+      @buffer = ruby1_8? ? "" : "".encode(Encoding.find(options[:encoding]))
       @tabulation = 0
 
       # The number of tabs that Engine thinks we should have
