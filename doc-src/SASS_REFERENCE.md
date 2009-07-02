@@ -114,7 +114,7 @@ Available options are:
   or `:width = !main_width`.
   By default, either syntax is valid.
 
-{#cache-option} `cache`
+{#cache-option} `:cache`
 : Whether parsed Sass files should be cached,
   allowing greater speed. Defaults to true.
 
@@ -150,7 +150,7 @@ Available options are:
   Defaults to false in production mode, true otherwise.
   Only has meaning within Ruby on Rails or Merb.
 
-{#template-location-option} `:template_location`
+{#template_location-option} `:template_location`
 : A path to the root sass template directory for you application.
   If a hash, `:css_location` is ignored and this option designates
   both a mapping between input and output directories.
@@ -161,7 +161,7 @@ Available options are:
   This will be derived from the `:css_location` path list if not provided 
   by appending a folder of "sass" to each corresponding css location.
 
-{#css-location-option} `:css_location`
+{#css_location-option} `:css_location`
 : The path where CSS output should be written to.
   This option is ignored when `:template_location` is a Hash.
   Defaults to `RAILS_ROOT + "/public/stylesheets"`
@@ -1032,7 +1032,7 @@ Although the default CSS style that Sass outputs is very nice,
 and reflects the structure of the document in a similar way that Sass does,
 sometimes it's good to have other formats available.
 
-Sass allows you to choose between three different output styles
+Sass allows you to choose between four different output styles
 by setting the `:style` option.
 In Rails, this is done by setting `Sass::Plugin.options[:style]`;
 outside Rails, it's done by passing an options hash with `:style` set.

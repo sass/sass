@@ -170,7 +170,10 @@ module Sass
       lines = []
       string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/).each_with_index do |line, index|
         index += (@options[:line] || 1)
-        next if line.strip.empty?
+        if line.strip.empty?
+          lines.last.text << "\n" if lines.last && lines.last.comment?
+          next
+        end
 
         line_tab_str = line[/^\s*/]
         unless line_tab_str.empty?
@@ -310,7 +313,7 @@ END
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
-        if line.text[1].nil?
+        if line.text[1].nil? || line.text[1] == ?\s
           Tree::RuleNode.new(line.text)
         else
           parse_mixin_include(line, root)

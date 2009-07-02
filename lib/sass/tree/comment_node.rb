@@ -50,9 +50,13 @@ module Sass::Tree
     def to_s(tabs = 0, _ = nil)
       return if invisible?
 
+      content = (value.split("\n") + lines.map {|l| l.text})
+      content.map! {|l| (l.empty? ? "" : " ") + l}
+      content.first.gsub!(/^ /, '')
+      content.last.gsub!(%r{ ?\*/ *$}, '')
+
       spaces = '  ' * (tabs - 1)
-      spaces + "/* " + (value.split("\n") + lines.map {|l| l.text}).
-        map{|l| l.sub(%r{ ?\*/ *$},'')}.join(style == :compact ? ' ' : "\n#{spaces} * ") + " */"
+      spaces + "/* " + content.join(style == :compact ? '' : "\n#{spaces} *") + " */"
     end
 
     # Returns `true` if this is a silent comment

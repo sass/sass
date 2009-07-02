@@ -130,7 +130,9 @@ module Sass
             result << child_str + (style == :compressed ? '' : "\n")
           end
         end
-        style == :compressed ? result+"\n" : result[0...-1]
+        result.rstrip!
+        return "" if result.empty?
+        return result + "\n"
       rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
       end
 

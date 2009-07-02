@@ -101,7 +101,7 @@ END
 @haml_buffer = @haml_buffer.upper
 _erbout
 END
-      preamble + locals_code(local_names) + @precompiled + postamble
+      preamble + locals_code(local_names) + precompiled + postamble
     end
 
     def locals_code(names)

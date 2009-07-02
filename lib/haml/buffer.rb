@@ -90,12 +90,8 @@ module Haml
     def initialize(upper = nil, options = {})
       @active = true
       @upper = upper
-      @options = {
-        :attr_wrapper => "'",
-        :ugly => false,
-        :format => :xhtml
-      }.merge options
-      @buffer = ""
+      @options = options
+      @buffer = ruby1_8? ? "" : "".encode(Encoding.find(options[:encoding]))
       @tabulation = 0
 
       # The number of tabs that Engine thinks we should have

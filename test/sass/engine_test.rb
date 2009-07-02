@@ -76,8 +76,11 @@ class SassEngineTest < Test::Unit::TestCase
     "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
     "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "!b".',
     "=foo\n  !b = 12\nc\n  +foo\n  d = !b" => 'Undefined variable: "!b".',
+    '@for !a from "foo" to 1' => '"foo" is not an integer.',
+    '@for !a from 1 to "2"' => '"2" is not an integer.',
     '@for !a from 1 to "foo"' => '"foo" is not an integer.',
     '@for !a from 1 to 1.232323' => '1.232 is not an integer.',
+    '@for !a from 1px to 3em' => "Incompatible units: 'em' and 'px'.",
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
     '@debug' => "Invalid debug directive '@debug': expected expression.",
@@ -186,8 +189,8 @@ SASS
   end
 
   def test_css_import
-    assert_equal("@import url(./fonts.css) screen;", render("@import url(./fonts.css) screen"))
-    assert_equal("@import \"./fonts.css\" screen;", render("@import \"./fonts.css\" screen"))
+    assert_equal("@import url(./fonts.css) screen;\n", render("@import url(./fonts.css) screen"))
+    assert_equal("@import \"./fonts.css\" screen;\n", render("@import \"./fonts.css\" screen"))
   end
 
   def test_sass_import
@@ -273,7 +276,7 @@ SASS
   end
 
   def test_directive
-    assert_equal("@a b;", render("@a b"))
+    assert_equal("@a b;\n", render("@a b"))
 
     assert_equal("@a {\n  b: c; }\n", render("@a\n  :b c"))
     assert_equal("@a { b: c; }\n", render("@a\n  :b c", :style => :compact))
@@ -756,6 +759,30 @@ CSS
            Where the indentation is wonky.
 .comment
   width: 1px
+SASS
+  end
+
+  def test_plus_with_space
+    assert_equal(<<CSS, render(<<SASS))
+a + b {
+  color: green; }
+CSS
+a
+  + b
+    color: green
+SASS
+  end
+
+  def test_empty_line_comment
+    assert_equal(<<CSS, render(<<SASS))
+/* Foo
+ *
+ * Bar */
+CSS
+/*
+  Foo
+
+  Bar
 SASS
   end
 

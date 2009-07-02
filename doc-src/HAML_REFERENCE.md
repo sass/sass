@@ -24,26 +24,28 @@ with some code to generate dynamic content.
 ## Using Haml
 
 Haml can be used in three ways:
+as a command-line tool,
 as a plugin for Ruby on Rails,
-as a standalone Ruby module,
-and as a command-line tool.
+and as a standalone Ruby module.
 The first step for all of these is to install the Haml gem:
 
     gem install haml
-
-To enable it as a Rails plugin,
-then run
-
-    haml --rails path/to/rails/app
-
-Once it's installed, all view files with the `".html.haml"` extension
-will be compiled using Haml.
 
 To run Haml from the command line, just use
 
     haml input.haml output.html
 
 Use `haml --help` for full documentation.
+
+### Rails/Merb Plugin {#plugin}
+
+To enable Haml as a Rails plugin, run
+
+    haml --rails path/to/rails/app
+
+Once it's installed, all view files with the `".html.haml"` extension
+will be compiled using Haml.
+Haml is enabled by default in Merb.
 
 You can access instance variables in Haml templates
 the same way you do in ERB templates.
@@ -153,6 +155,15 @@ Available options are:
   Defaults to `['textarea', 'pre']`.
   See also [Whitespace Preservation](#whitespace_preservation).
 
+{#encoding-option} `:encoding`
+: The encoding to use for the HTML output.
+  Only available in Ruby 1.9 or higher.
+  This can be a string or an `Encoding` Object.
+  Note that Haml **does not** automatically re-encode Ruby values;
+  any strings coming from outside the application should be converted
+  before being passed into the Haml template.
+  Defaults to `Encoding.default_internal` or, if that's not set, `"utf-8"`.
+
 ## Plain Text
 
 A substantial portion of any HTML document is its content,
@@ -232,7 +243,7 @@ is compiled to:
 Any string is a valid element name;
 Haml will automatically generate opening and closing tags for any element.
 
-### Attributes: `{}`
+### Attributes: `{}` {#attributes}
 
 Brackets represent a Ruby hash
 that is used for specifying the attributes of an element.
@@ -1011,14 +1022,16 @@ The pipe character designates a multiline string.
 It's placed at the end of a line (after some whitespace)
 and means that all following lines that end with `|`
 will be evaluated as though they were on the same line.
+**Note that even the last line in the multiline block
+should end wit `|`.**
 For example:
 
     %whoo
       %hoo I think this might get |
-        pretty long so I should |
-        probably make it |
-        multiline so it doesn't |
-        look awful. |
+        pretty long so I should   |
+        probably make it          |
+        multiline so it doesn't   |
+        look awful.               |
       %p This is short.
 
 is compiled to:
@@ -1029,6 +1042,17 @@ is compiled to:
       </hoo>
       <p>This is short</p>
     </whoo>
+
+Using multiline declarations in Haml is intentionally awkward.
+This is designed to discourage people from putting lots and lots of Ruby code
+in their Haml templates.
+If you find yourself using multiline declarations, stop and think:
+could I do this better with a helper?
+
+Note that there is one case where it's useful to allow
+something to flow over onto multiple lines in a non-awkward manner: attributes.
+Some elements just have lots of attributes,
+so you can wrap attributes without using `|` (see [Attributes](#attributes)).
 
 ## Whitespace Preservation
 

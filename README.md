@@ -11,24 +11,34 @@ and providing elegant, easily understandable, and powerful syntax.
 
 ## Using
 
-There are several ways to use Haml and Sass.
-They can be used as a plugin for Rails or Merb,
-or embedded on their own in other applications.
-The first step of all of these is to install the Haml gem:
+Haml and Sass can be used from the command line
+or as part of a Ruby web framework.
+The first step is to install the gem:
 
     gem install haml
+
+After you convert some HTML to Haml or some CSS to Sass,
+you can run
+
+    haml document.haml
+    sass style.sass
+
+to compile them.
+For more information on these commands, check out
+
+    haml --help
+    sass --help
 
 To install Haml and Sass as a Rails plugin,
 just run `haml --rails path/to/rails/app`
 and both Haml and Sass will be installed.
-Views with the `.haml` (or `.html.haml` for edge)
-extension will automatically use Haml.
+Views with the `.html.haml` extension will automatically use Haml.
 Sass is a little more complicated;
-`.sass` files should be placed in public/stylesheets/sass,
+`.sass` files should be placed in `public/stylesheets/sass`,
 where they'll be automatically compiled
-to corresponding CSS files in public/stylesheets when needed
+to corresponding CSS files in `public/stylesheets` when needed
 (the Sass template directory is customizable...
-see the Sass module docs for details).
+see [the Sass reference](http://sass-lang.com/docs/yardoc/SASS_REFERENCE.md.html#template_location-option) for details).
 
 For Merb, `.html.haml` views will work without any further modification.
 To enable Sass, you also need to add a dependency.
@@ -36,11 +46,11 @@ To do so, just add
 
     dependency "merb-haml"
 
-to config/dependencies.rb (or config/init.rb in a flat/very flat Merb application).
+to `config/dependencies.rb` (or `config/init.rb` in a flat/very flat Merb application).
 Then it'll work just like it does in Rails.
 
 To use Haml and Sass programatically,
-check out the RDocs for the Haml and Sass modules.
+check out the [YARD documentation](http://haml-lang.com/docs/yardoc).
 
 ## Formatting
 
@@ -302,26 +312,27 @@ See `css2sass --help` for further information and options.
 
 ## Authors
 
-Haml and Sass are designed by Hampton Catlin (hcatlin) and he is the author
-of the original implementation. However, Hampton doesn't even know his way
-around the code anymore and mostly just concentrates on the language issues.
-Hampton lives in Toronto, Ontario (though he's an American by birth) and
-is a partner at Unspace Interactive.
+Haml and Sass were created by [Hampton Catlin](http://hamptoncatlin.com)
+(hcatlin) and he is the author of the original implementation. However, Hampton
+doesn't even know his way around the code anymore and now occasionally consults
+on the language issues.  Hampton lives in Jacksonville, Florida and is the lead
+mobile developer for Wikimedia.
 
-Nathan Weizenbaum is the primary maintainer and architect of the "modern" Ruby
-implementation of Haml. His hard work has kept the project alive by endlessly
-answering forum posts, fixing bugs, refactoring, finding speed improvements,
-writing documentation, implementing new features, and getting Hampton
-coffee (a fitting task for a boy-genius). Nathan lives in Seattle, Washington and
-while not being a student at University of Washington he consults for
-Unspace Interactive and Microsoft.
+[Nathan Weizenbaum](http://nex-3.com) is the primary developer and architect of
+the "modern" Ruby implementation of Haml. His hard work has kept the project
+alive by endlessly answering forum posts, fixing bugs, refactoring, finding
+speed improvements, writing documentation, implementing new features, and
+getting Hampton coffee (a fitting task for a boy-genius). Nathan lives in
+Seattle, Washington and while not being a student at the University of
+Washington or working at an internship, he consults for Unspace Interactive.
 
-Chris Eppstein is a core contributor to Sass and the creator of Compass, the first
-Sass-based framework. Chris focuses on making Sass more powerful, easy to use, and
-on ways to speed its adoption through the web development community. Chris lives in
-San Jose, CA with his wife and daughter. He is the Software Architect for Caring.com,
-a website devoted to the 34 Million caregivers whose parents are sick or elderly,
-that uses Haml and Sass.
+[Chris Eppstein](http://acts-as-architect.blogspot.com) is a core contributor to
+Sass and the creator of Compass, the first Sass-based framework. Chris focuses
+on making Sass more powerful, easy to use, and on ways to speed its adoption
+through the web development community. Chris lives in San Jose, California with
+his wife and daughter. He is the Software Architect for
+[Caring.com](http://caring.com), a website devoted to the 34 Million caregivers
+whose parents are sick or elderly, that uses Haml and Sass.
 
 If you use this software, you must pay Hampton a compliment. And
 buy Nathan some jelly beans. Maybe pet a kitten. Yeah. Pet that kitty.

@@ -71,8 +71,9 @@ end
 
 desc "Release a new Haml package to Rubyforge. Requires the NAME and VERSION flags."
 task :release => [:package] do
-  name, version = ENV['NAME'], ENV['VERSION']
-  raise "Must supply NAME and VERSION for release task." unless name && version
+  name = File.read("VERSION_NAME").strip
+  version = File.read("VERSION").strip
+  raise "VERSION_NAME must not be 'Bleeding Edge'" if name == "Bleeding Edge"
   sh %{rubyforge login}
   sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
@@ -81,6 +82,8 @@ task :release => [:package] do
 end
 
 task :release_edge do
+  puts "#{'=' * 50} Running rake release_edge"
+
   sh %{git checkout edge-gem}
   sh %{git reset --hard origin/edge-gem}
   sh %{git merge origin/master}
@@ -153,11 +156,12 @@ rescue LoadError
 end
 
 task :pages do
+  puts "#{'=' * 50} Running rake pages PROJ=#{ENV["PROJ"].inspect}"
   raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
   sh %{git checkout #{proj}-pages}
   sh %{git reset --hard origin/#{proj}-pages}
 
-  sh %{staticmatic build .}
+  sh %{rake build --trace}
   sh %{rsync -av --delete site/ /var/www/#{proj}-pages}
 end
 
@@ -246,15 +250,22 @@ end
 # ----- Handling Updates -----
 
 task :handle_update do
+  puts
+  puts
+  puts '=' * 150
+  puts "Running rake handle_update REF=#{ENV["REF"].inspect}"
+
   sh %{git checkout master}
   sh %{git fetch origin}
   sh %{git reset --hard origin/master}
 
   begin
     if ENV["REF"] == "refs/heads/master"
-      sh %{rake release_edge}
+      sh %{rake release_edge --trace}
+      sh %{rake pages --trace PROJ=haml}
+      sh %{rake pages --trace PROJ=sass}
     elsif ENV["REF"] =~ %r{^refs/heads/(haml|sass)-pages$}
-      sh %{rake pages PROJ=#{$1}}
+      sh %{rake pages --trace PROJ=#{$1}}
     end
   ensure
     sh %{git reset --hard HEAD}
