@@ -3,6 +3,10 @@
 
 * Documentation
   Redo tutorial?
+  Contribution information
+    Will be code reviewed
+    [Haml]/[Sass], punctuation
+    Don't forget docs
   [2.4] Syntax highlighting?
 ** FAQ
    form_for needs -, not =
