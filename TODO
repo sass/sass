@@ -8,8 +8,6 @@
     [Haml]/[Sass], punctuation
     Don't forget docs
   [2.4] Syntax highlighting?
-** Haml
-   Document new attribute syntax
 ** FAQ
    form_for needs -, not =
 
