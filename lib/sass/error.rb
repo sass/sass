@@ -50,4 +50,6 @@ module Sass
       @message
     end
   end
+
+  UnitConversionError = Class.new(SyntaxError)
 end

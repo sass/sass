@@ -54,7 +54,7 @@ module Sass::Script
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Literal] The result of the operation
-    # @raise [Sass::SyntaxError] if `other` is a number with incompatible units
+    # @raise [Sass::UnitConversionError] if `other` is a number with incompatible units
     def plus(other)
       if other.is_a? Number
         operate(other, :+)
@@ -76,7 +76,7 @@ module Sass::Script
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Literal] The result of the operation
-    # @raise [Sass::SyntaxError] if `other` is a number with incompatible units
+    # @raise [Sass::UnitConversionError] if `other` is a number with incompatible units
     def minus(other)
       if other.is_a? Number
         operate(other, :-)
@@ -138,11 +138,11 @@ module Sass::Script
     # @param other [Number] The right-hand side of the operator
     # @return [Number] This number modulo the other
     # @raise [NoMethodError] if `other` is an invalid type
-    # @raise [Sass::SyntaxError] if `other` has any units
+    # @raise [Sass::UnitConversionError] if `other` has any units
     def mod(other)
       if other.is_a?(Number)
         unless other.unitless?
-          raise Sass::SyntaxError.new("Cannot modulo by a number with units: #{other.inspect}.")
+          raise Sass::UnitConversionError.new("Cannot modulo by a number with units: #{other.inspect}.")
         end
         operate(other, :%)
       else
@@ -163,8 +163,7 @@ module Sass::Script
         else
           other = other.coerce(numerator_units, denominator_units)
         end
-      rescue Sass::SyntaxError => e
-        raise e unless e.message =~ /^Incompatible units: /
+      rescue Sass::UnitConversionError
         return Sass::Script::Bool.new(false)
       end
 
@@ -274,7 +273,7 @@ module Sass::Script
     # @param den_units [Array<String>] The denominator units to coerce this number into.
     #   See {#denominator\_units}
     # @return [Number] The number with the new units
-    # @raise [Sass::SyntaxError] if the given units are incompatible with the number's
+    # @raise [Sass::UnitConversionError] if the given units are incompatible with the number's
     #   current units
     def coerce(num_units, den_units)
       Number.new(if unitless?
@@ -312,7 +311,7 @@ module Sass::Script
       from_units, to_units = sans_common_units(from_units, to_units)
 
       if from_units.size != to_units.size || !convertable?(from_units | to_units)
-        raise Sass::SyntaxError.new("Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
+        raise Sass::UnitConversionError.new("Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
       end
 
       from_units.zip(to_units).inject(1) {|m,p| m * conversion_factor(p[0], p[1]) }
