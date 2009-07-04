@@ -243,7 +243,7 @@ is compiled to:
 Any string is a valid element name;
 Haml will automatically generate opening and closing tags for any element.
 
-### Attributes: `{}` {#attributes}
+### Attributes: `{}` or `()` {#attributes}
 
 Brackets represent a Ruby hash
 that is used for specifying the attributes of an element.
@@ -271,6 +271,28 @@ For example:
 is compiled to:
 
     <script src='javascripts/script_9' type='text/javascript'></script>
+
+#### HTML-style Attributes: `()`
+
+Haml also supports a terser, less Ruby-specific attribute syntax
+based on HTML's attributes.
+These are used with parentheses instead of brackets, like so:
+
+    %html(xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en")
+
+Ruby variables can be used by omitting the quotes. For example:
+
+    %a(title=@title href=href) Stuff
+
+This is the same as:
+
+    %a{:title => @title, :href => href} Stuff
+
+More complicated expressions aren't allowed, though.
+For those you'll have to use the `{}` syntax.
+You can, however, use both syntaxes together:
+
+    %a(title=@title){:href => @link.href} Stuff
 
 #### Attribute Methods
 
@@ -316,6 +338,8 @@ would compile to:
 Note that the Haml attributes list has the same syntax as a Ruby method call.
 This means that any attribute methods must come before the hash literal.
 
+Attribute methods aren't supported for HTML-style attributes.
+
 #### Boolean Attributes
 
 Some attributes, such as "checked" for `input` tags or "selected" for `option` tags,
@@ -325,12 +349,13 @@ In HTML (but not XHTML), these attributes can be written as
 
     <input selected>
 
-To do this in Haml, just assign a Ruby true value to the attribute:
+To do this in Haml using hash-style attributes, just assign a Ruby
+`true` value to the attribute:
 
     %input{:selected => true}
 
-In XHTML, the only valid value for these attributes is the name of the attribute.
-Thus this will render in XHTML as
+In XHTML, the only valid value for these attributes is the name of the
+attribute.  Thus this will render in XHTML as
 
     <input selected='selected'>
 
@@ -342,6 +367,14 @@ In both XHTML and HTML
 will just render as
 
     <input>
+
+HTML-style boolean attributes can be written just like HTML:
+
+    %input(selected)
+
+or using `true` and `false`:
+
+    %input(selected=true)
 
 ### Class and ID: `.` and `#`
 
