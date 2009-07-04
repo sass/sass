@@ -57,11 +57,15 @@ check out the [YARD documentation](http://haml-lang.com/docs/yardoc).
 ### Haml
 
 The most basic element of Haml
-is a shorthand for creating HTML
+is a shorthand for creating HTML:
 
     %tagname{:attr1 => 'value1', :attr2 => 'value2'} Contents
 
 No end-tag is needed; Haml handles that automatically.
+If you prefer HTML-style attributes, you can also use:
+
+    %tagname(attr1='value1' attr2='value2') Contents
+
 Adding `class` and `id` attributes is even easier.
 Haml uses the same syntax as the CSS that styles the document:
 
