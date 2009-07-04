@@ -199,6 +199,14 @@ WARN
     assert_equal "#81ff81", resolve("hsl(120, 100%, 75%) + #010001")
   end
 
+  def test_operator_unit_conversion
+    assert_equal "1.1cm", resolve("1cm + 1mm")
+    assert_equal "true", resolve("2mm < 1cm")
+    assert_equal "true", resolve("10mm == 1cm")
+    assert_equal "true", resolve("1 == 1cm")
+    assert_equal "true", resolve("1.1cm == 11mm")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)

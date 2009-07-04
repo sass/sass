@@ -88,6 +88,22 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
 
+  def test_rgb
+    assert_equal("#123456", evaluate("rgb(18, 52, 86)"))
+    assert_equal("#beaded", evaluate("rgb(190, 173, 237)"))
+
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
+      "rgb(256, 1, 1)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
+      "rgb(1, 256, 1)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
+      "rgb(1, 1, 256)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
+      "rgb(1, 256, 257)")
+    assert_error_message("Color value -1 must be between 0 and 255 inclusive for `rgb'",
+      "rgb(-1, 1, 1)")
+  end
+
   private
 
   def assert_rgb_hsl(rgb, hsl)
