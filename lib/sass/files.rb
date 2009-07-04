@@ -91,7 +91,7 @@ module Sass
     def try_to_read_sassc(filename, compiled_filename, sha)
       return unless File.readable?(compiled_filename)
 
-      File.open(compiled_filename) do |f|
+      File.open(compiled_filename, "rb") do |f|
         return unless f.readline("\n").strip == Sass::VERSION
         return unless f.readline("\n").strip == sha
         return Marshal.load(f.read)
@@ -106,7 +106,7 @@ module Sass
       return if File.exists?(File.dirname(compiled_filename)) && !File.writable?(File.dirname(compiled_filename))
       return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
       FileUtils.mkdir_p(File.dirname(compiled_filename))
-      File.open(compiled_filename, "w") do |f|
+      File.open(compiled_filename, "wb") do |f|
         f.write(Sass::VERSION)
         f.write("\n")
         f.write(sha)

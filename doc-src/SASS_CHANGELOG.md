@@ -1,0 +1,443 @@
+# Sass Changelog
+
+* Table of contents
+{:toc}
+
+## 2.2.0
+
+The 2.2 release marks a significant step in the evolution of the Sass
+language. The focus has been to increase the power of Sass to keep
+your stylesheets maintainable by allowing new forms of abstraction to
+be created within your stylesheets and the stylesheets provided by
+others that you can download and import into your own. The fundamental
+units of abstraction in Sass are variables and mixins. Please read
+below for a list of changes:
+
+### Sass Syntax Changes
+
+#### Indentation
+
+The indentation of Sass documents is now flexible. The first indent
+that is detected will determine the indentation style for that
+document. Tabs and spaces may never be mixed, but within a document,
+you may choose to use tabs or a flexible number of spaces.
+
+#### Multiline Sass Comments
+
+Sass Comments (//) will now comment out whatever is indented beneath
+them. Previously they were single line when used at the top level of a
+document. Upgrading to the latest stable version will give you
+deprecation warnings if you have silent comments with indentation
+underneath them.
+
+#### Mixin Arguments
+
+Sass Mixins now accept any number of arguments. To define a mixin with
+arguments, specify the arguments as a comma-delimited list of
+variables like so:
+
+    =my-mixin(!arg1, !arg2, !arg3)
+
+As before, the definition of the mixin is indented below the mixin
+declaration. The variables declared in the argument list may be used
+and will be bound to the values passed to the mixin when it is
+invoked.  Trailing arguments may have default values as part of the
+declaration:
+
+    =my-mixin(!arg1, !arg2 = 1px, !arg3 = blue)
+
+In the example above, the mixin may be invoked by passing 1, 2 or 3
+arguments to it. A similar syntax is used to invoke a mixin that
+accepts arguments:
+
+    div.foo
+      +my-mixin(1em, 3px)
+
+When a mixin has no required arguments, the parenthesis are optional.
+
+The default values for mixin arguments are evaluated in the global
+context at the time when the mixin is invoked, they may also reference
+the previous arguments in the declaration. For example:
+
+    !default_width = 30px
+    =my-fancy-mixin(!width = !default_width, !height = !width)
+      width= !width
+      height= !height
+
+    .default-box
+      +my-fancy-mixin
+
+    .square-box
+      +my-fancy-mixin(50px)
+
+    .rectangle-box
+      +my-fancy-mixin(25px, 75px)
+
+    !default_width = 10px
+    .small-default-box
+      +my-fancy-mixin
+    
+
+compiles to:
+
+    .default-box {
+      width: 30px;
+      height: 30px; }
+
+    .square-box {
+      width: 50px;
+      height: 50px; }
+
+    .rectangle-box {
+      width: 25px;
+      height: 75px; }
+
+    .small-default-box {
+      width: 10px;
+      height: 10px; }
+    
+
+### Sass, Interactive
+
+The sass command line option -i now allows you to quickly and
+interactively experiment with SassScript expressions. The value of the
+expression you enter will be printed out after each line. Example:
+
+    $ sass -i
+    >> 5px
+    5px
+    >> 5px + 10px
+    15px
+    >> !five_pixels = 5px
+    5px
+    >> !five_pixels + 10px
+    15px
+
+### SassScript
+
+The features of SassScript have been greatly enhanced with new control
+directives, new fundamental data types, and variable scoping.
+
+#### New Data Types
+
+SassScript now has four fundamental data types:
+
+1. Number
+2. String
+3. Boolean (New in 2.2)
+4. Colors
+
+#### More Flexible Numbers
+
+Like JavaScript, SassScript numbers can now change between floating
+point and integers. No explicit casting or decimal syntax is
+required. When a number is emitted into a CSS file it will be rounded
+to the nearest thousandth, however the internal representation
+maintains much higher precision.
+
+#### Improved Handling of Units
+
+While Sass has long supported numbers with units, it now has a much
+deeper understanding of them. The following are examples of legal
+numbers in SassScript:
+
+    0, 1000, 6%, -2px, 5pc, 20em, or 2foo.
+
+Numbers of the same unit may always be added and subtracted. Numbers
+that have units that Sass understands and finds comparable, can be
+combined, taking the unit of the first number. Numbers that have
+non-comparable units may not be added nor subtracted -- any attempt to
+do so will cause an error. However, a unitless number takes on the
+unit of the other number during a mathematical operation. For example:
+
+    >> 3mm + 4cm
+    43mm
+    >> 4cm + 3mm
+    4.3cm
+    >> 3cm + 2in
+    8.08cm
+    >> 5foo + 6foo
+    11foo
+    >> 4% + 5px
+    SyntaxError: Incompatible units: 'px' and '%'.
+    >> 5 + 10px
+    15px
+
+Sass allows compound units to be stored in any intermediate form, but
+will raise an error if you try to emit a compound unit into your css
+file.
+
+    >> !em_ratio = 1em / 16px
+    0.063em/px
+    >> !em_ratio * 32px
+    2em
+    >> !em_ratio * 40px
+    2.5em
+
+#### Colors
+
+A color value can be declared using a color name, hexadecimal,
+shorthand hexadecimal, the rgb function, or the hsl function. When
+outputting a color into css, the color name is used, if any, otherwise
+it is emitted as hexadecimal value. Examples:
+
+    > #fff
+    white
+    >> white
+    white
+    >> #FFFFFF
+    white
+    >> hsl(180, 100, 100)
+    white
+    >> rgb(255, 255, 255)
+    white
+    >> #AAA
+    #aaaaaa
+
+Math on color objects is performed piecewise on the rgb
+components. However, these operations rarely have meaning in the
+design domain (mostly they make sense for gray-scale colors).
+
+    >> #aaa + #123
+    #bbccdd
+    >> #333 * 2
+    #666666
+
+#### Booleans
+
+Boolean objects can be created by comparison operators or via the
+`true` and `false` keywords.  Booleans can be combined using the
+`and`, `or`, and `not` keywords.
+
+    >> true
+    true
+    >> true and false
+    false
+    >> 5 < 10
+    true
+    >> not (5 < 10)
+    false
+    >> not (5 < 10) or not (10 < 5)
+    true
+    >> 30mm == 3cm
+    true
+    >> 1px == 1em
+    false
+
+#### Strings
+
+Unicode escapes are now allowed within SassScript strings.
+
+### Control Directives
+
+New directives provide branching and looping within a sass stylesheet
+based on SassScript expressions. See the [Sass
+Reference](SASS_REFERENCE.md.html#control_directives) for complete
+details.
+
+#### @for
+
+The `@for` directive loops over a set of numbers in sequence, defining
+the current number into the variable specified for each loop. The
+`through` keyword means that the last iteration will include the
+number, the `to` keyword means that it will stop just before that
+number.
+
+    @for !x from 1px through 5px
+      .border-#{!x}
+        border-width= !x
+
+compiles to:
+
+    .border-1px {
+      border-width: 1px; }
+
+    .border-2px {
+      border-width: 2px; }
+
+    .border-3px {
+      border-width: 3px; }
+
+    .border-4px {
+      border-width: 4px; }
+
+    .border-5px {
+      border-width: 5px; }
+
+#### @if / @else if / @else
+
+The branching directives `@if`, `@else if`, and `@else` let you select
+between several branches of sass to be emitted, based on the result of
+a SassScript expression. Example:
+
+    !type = "monster"
+    p
+      @if !type == "ocean"
+        color: blue
+      @else if !type == "matador"
+        color: red
+      @else if !type == "monster"
+        color: green
+      @else
+        color: black
+
+is compiled to:
+
+    p {
+      color: green; }
+
+#### @while
+
+The `@while` directive lets you iterate until a condition is
+met. Example:
+
+    !i = 6
+    @while !i > 0
+      .item-#{!i}
+        width = 2em * !i
+      !i = !i - 2
+
+is compiled to:
+
+    .item-6 {
+      width: 12em; }
+
+    .item-4 {
+      width: 8em; }
+
+    .item-2 {
+      width: 4em; }
+
+### Variable Scoping
+
+The term "constant" has been renamed to "variable." Variables can be
+declared at any scope (a.k.a. nesting level) and they will only be
+visible to the code until the next outdent. However, if a variable is
+already defined in a higher level scope, setting it will overwrite the
+value stored previously.
+
+In this code, the `!local_var` variable is scoped and hidden from
+other higher level scopes or sibling scopes:
+
+    .foo
+      .bar
+        !local_var = 1px
+        width= !local_var
+      .baz
+        // this will raise an undefined variable error.
+        width= !local_var
+      // as will this
+      width= !local_var
+
+In this example, since the `!global_var` variable is first declared at
+a higher scope, it is shared among all lower scopes:
+
+    !global_var = 1px
+    .foo
+      .bar
+        !global_var = 2px
+        width= !global_var
+      .baz
+        width= !global_var
+      width= !global_var
+
+compiles to:
+
+    .foo {
+      width: 2px; }
+      .foo .bar {
+        width: 2px; }
+      .foo .baz {
+        width: 2px; }
+
+
+### Interpolation
+
+Interpolation has been added. This allows SassScript to be used to
+create dynamic properties and selectors.  It also cleans up some uses
+of dynamic values when dealing with compound properties. Using
+interpolation, the result of a SassScript expression can be placed
+anywhere:
+
+    !x = 1
+    !d = 3
+    !property = "border"
+    div.#{!property}
+      #{!property}: #{!x + !d}px solid
+      #{!property}-color: blue
+
+is compiled to:
+
+    div.border {
+      border: 4px solid;
+      border-color: blue; }
+
+### Sass Functions
+
+SassScript defines some useful functions that are called using the
+normal CSS function syntax:
+
+    p
+      color = hsl(0, 100%, 50%)
+
+is compiled to:
+
+    #main {
+      color: #ff0000; }
+
+The following functions are provided: `hsl`, `percentage`, `round`,
+`ceil`, `floor`, and `abs`.  You can define additional functions in
+ruby.
+
+See {Sass::Script::Functions} for more information.
+
+
+### New Options
+
+#### `:line_comments`
+
+To aid in debugging, You may set the `:line_comments` option to
+`true`. This will cause the sass engine to insert a comment before
+each selector saying where that selector was defined in your sass
+code.
+
+#### `:template_location`
+
+The {Sass::Plugin} `:template_location` option now accepts a hash of
+sass paths to corresponding css paths. Please be aware that it is
+possible to import sass files between these separate locations -- they
+are not isolated from each other.
+
+### Miscellaneous Features
+
+#### `@debug` Directive
+
+The `@debug` directive accepts a SassScript expression and emits the
+value of that expression to the terminal (stderr).
+
+Example:
+
+    @debug 1px + 2px
+
+During compilation the following will be printed:
+
+    Line 1 DEBUG: 3px
+
+#### Ruby 1.9 Support
+
+Sass now fully supports Ruby 1.9.1. 
+
+#### Sass Cache
+
+By default, Sass caches compiled templates and
+[partials](SASS_REFERENCE.md.html#partials).  This dramatically speeds
+up re-compilation of large collections of Sass files, and works best
+if the Sass templates are split up into separate files that are all
+[`@import`](SASS_REFERENCE.md.html#import)ed into one large file.
+
+Without a framework, Sass puts the cached templates in the
+`.sass-cache` directory.  In Rails and Merb, they go in
+`tmp/sass-cache`.  The directory can be customized with the
+[`:cache_location`](#cache_location-option) option.  If you don't want
+Sass to use caching at all, set the [`:cache`](#cache-option) option
+to `false`.

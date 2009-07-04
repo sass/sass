@@ -50,4 +50,8 @@ module Sass
       @message
     end
   end
+
+  # The class for Sass errors that are raised due to invalid unit conversions
+  # in SassScript.
+  class UnitConversionError < SyntaxError; end
 end
