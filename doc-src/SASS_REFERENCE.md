@@ -153,13 +153,16 @@ Available options are:
 {#template_location-option} `:template_location`
 : A path to the root sass template directory for you application.
   If a hash, `:css_location` is ignored and this option designates
-  both a mapping between input and output directories.
+  a mapping between input and output directories.
   May also be given a list of 2-element lists, instead of a hash.
   Defaults to `RAILS_ROOT + "/public/stylesheets/sass"`
   or `MERB_ROOT + "/public/stylesheets/sass"`.
   Only has meaning within Ruby on Rails or Merb.
   This will be derived from the `:css_location` path list if not provided 
   by appending a folder of "sass" to each corresponding css location.
+  Please note: When multiple template locations are specified, all
+  of them are placed in the import path, allowing you to import
+  between them.
 
 {#css_location-option} `:css_location`
 : The path where CSS output should be written to.
@@ -412,7 +415,7 @@ For example:
 
 Some directives can also control whether or how many times
 a chunk of Sass is output.
-Those are documented under Control Structures.
+Those are documented under Control Directives.
 
 ### `@import` {#import}
 
@@ -518,10 +521,9 @@ compiles to:
       #main {
         background-color: white; } }
 
-## Control Structures
+## Control Directives
 
-SassScript supports basic control structures for looping and conditionals
-using the same syntax as directives.
+SassScript supports basic control directives for looping and conditional evaluation.
 
 ### `@if`
 

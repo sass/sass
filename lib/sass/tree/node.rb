@@ -137,7 +137,7 @@ module Sass
       end
 
       # Runs the dynamic Sass code:
-      # mixins, variables, control structures, and so forth.
+      # mixins, variables, control directives, and so forth.
       # This doesn't modify this node or any of its children.
       #
       # \{#perform} shouldn't be overridden directly;
