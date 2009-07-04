@@ -82,40 +82,42 @@ task :release => [:package] do
 end
 
 task :release_edge do
-  puts "#{'=' * 50} Running rake release_edge"
+  ensure_git_cleanup do
+    puts "#{'=' * 50} Running rake release_edge"
 
-  sh %{git checkout edge-gem}
-  sh %{git reset --hard origin/edge-gem}
-  sh %{git merge origin/master}
+    sh %{git checkout edge-gem}
+    sh %{git reset --hard origin/edge-gem}
+    sh %{git merge origin/master}
 
-  # Get the current master branch version
-  version = File.read('VERSION').strip.split('.').map {|n| n.to_i}
-  unless version[1] % 2 == 1 && version[2] == 0
-    raise "#{version.join('.')} is not a development version" 
+    # Get the current master branch version
+    version = File.read('VERSION').strip.split('.').map {|n| n.to_i}
+    unless version[1] % 2 == 1 && version[2] == 0
+      raise "#{version.join('.')} is not a development version" 
+    end
+
+    # Bump the edge gem version
+    edge_version = File.read('EDGE_GEM_VERSION').strip.split('.').map {|n| n.to_i}
+    if edge_version[0..1] != version[0..1]
+      # A new master branch version was released, reset the edge gem version
+      edge_version[0..1] = version[0..1]
+      edge_version[2] = 0
+    else
+      # Just bump the teeny version
+      edge_version[2] += 1
+    end
+    edge_version = edge_version.join('.')
+    File.open('EDGE_GEM_VERSION', 'w') {|f| f.puts(edge_version)}
+    sh %{git commit -m "Bump edge gem version to #{edge_version}." EDGE_GEM_VERSION}
+    sh %{git push origin edge-gem}
+
+    # Package the edge gem with the proper version
+    File.open('VERSION', 'w') {|f| f.puts(edge_version)}
+    sh %{rake package}
+    sh %{git checkout VERSION}
+
+    sh %{rubyforge login}
+    sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
   end
-
-  # Bump the edge gem version
-  edge_version = File.read('EDGE_GEM_VERSION').strip.split('.').map {|n| n.to_i}
-  if edge_version[0..1] != version[0..1]
-    # A new master branch version was released, reset the edge gem version
-    edge_version[0..1] = version[0..1]
-    edge_version[2] = 0
-  else
-    # Just bump the teeny version
-    edge_version[2] += 1
-  end
-  edge_version = edge_version.join('.')
-  File.open('EDGE_GEM_VERSION', 'w') {|f| f.puts(edge_version)}
-  sh %{git commit -m "Bump edge gem version to #{edge_version}." EDGE_GEM_VERSION}
-  sh %{git push origin edge-gem}
-
-  # Package the edge gem with the proper version
-  File.open('VERSION', 'w') {|f| f.puts(edge_version)}
-  sh %{rake package}
-  sh %{git checkout VERSION}
-
-  sh %{rubyforge login}
-  sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
 end
 
 task :watch_for_update do
@@ -156,13 +158,15 @@ rescue LoadError
 end
 
 task :pages do
-  puts "#{'=' * 50} Running rake pages PROJ=#{ENV["PROJ"].inspect}"
-  raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
-  sh %{git checkout #{proj}-pages}
-  sh %{git reset --hard origin/#{proj}-pages}
+  ensure_git_cleanup do
+    puts "#{'=' * 50} Running rake pages PROJ=#{ENV["PROJ"].inspect}"
+    raise 'No ENV["PROJ"]!' unless proj = ENV["PROJ"]
+    sh %{git checkout #{proj}-pages}
+    sh %{git reset --hard origin/#{proj}-pages}
 
-  sh %{rake build --trace}
-  sh %{rsync -av --delete site/ /var/www/#{proj}-pages}
+    sh %{rake build --trace}
+    sh %{rsync -av --delete site/ /var/www/#{proj}-pages}
+  end
 end
 
 # ----- Coverage -----
@@ -249,6 +253,14 @@ end
 
 # ----- Handling Updates -----
 
+def ensure_git_cleanup
+  yield
+ensure
+  sh %{git reset --hard HEAD}
+  sh %{git clean -xdf}
+  sh %{git checkout master}
+end
+
 task :handle_update do
   unless ENV["REF"] =~ %r{^refs/heads/(master|(?:haml|sass)-pages)$}
     puts "#{'=' * 20} Ignoring rake handle_update REF=#{ENV["REF"].inspect}"
@@ -265,18 +277,12 @@ task :handle_update do
   sh %{git fetch origin}
   sh %{git reset --hard origin/master}
 
-  begin
-    if branch == "master"
-      sh %{rake release_edge --trace}
-      sh %{rake pages --trace PROJ=haml}
-      sh %{rake pages --trace PROJ=sass}
-    elsif branch =~ /^(haml|sass)-pages$/
-      sh %{rake pages --trace PROJ=#{$1}}
-    end
-  ensure
-    sh %{git reset --hard HEAD}
-    sh %{git clean -xdf}
-    sh %{git checkout master}
+  if branch == "master"
+    sh %{rake release_edge --trace}
+    sh %{rake pages --trace PROJ=haml}
+    sh %{rake pages --trace PROJ=sass}
+  elsif branch =~ /^(haml|sass)-pages$/
+    sh %{rake pages --trace PROJ=#{$1}}
   end
 
   puts 'Done running handle_update'
