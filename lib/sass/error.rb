@@ -51,5 +51,7 @@ module Sass
     end
   end
 
-  UnitConversionError = Class.new(SyntaxError)
+  # The class for Sass errors that are raised due to invalid unit conversions
+  # in SassScript.
+  class UnitConversionError < SyntaxError; end
 end
