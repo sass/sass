@@ -269,9 +269,9 @@ module Sass::Script
     # An incompatible coercion, e.g. between px and cm, will raise an error.
     #
     # @param num_units [Array<String>] The numerator units to coerce this number into.
-    #   See {#numerator\_units}
+    #   See {\#numerator\_units}
     # @param den_units [Array<String>] The denominator units to coerce this number into.
-    #   See {#denominator\_units}
+    #   See {\#denominator\_units}
     # @return [Number] The number with the new units
     # @raise [Sass::UnitConversionError] if the given units are incompatible with the number's
     #   current units
