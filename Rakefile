@@ -250,6 +250,12 @@ end
 # ----- Handling Updates -----
 
 task :handle_update do
+  unless ENV["REF"] =~ %r{^refs/heads/(master|(?:haml|sass)-pages)$}
+    puts "#{'=' * 20} Ignoring rake handle_update REF=#{ENV["REF"].inspect}"
+    next
+  end
+  branch = $1
+
   puts
   puts
   puts '=' * 150
@@ -260,11 +266,11 @@ task :handle_update do
   sh %{git reset --hard origin/master}
 
   begin
-    if ENV["REF"] == "refs/heads/master"
+    if branch == "master"
       sh %{rake release_edge --trace}
       sh %{rake pages --trace PROJ=haml}
       sh %{rake pages --trace PROJ=sass}
-    elsif ENV["REF"] =~ %r{^refs/heads/(haml|sass)-pages$}
+    elsif branch =~ /^(haml|sass)-pages$/
       sh %{rake pages --trace PROJ=#{$1}}
     end
   ensure
@@ -272,4 +278,7 @@ task :handle_update do
     sh %{git clean -xdf}
     sh %{git checkout master}
   end
+
+  puts 'Done running handle_update'
+  puts '=' * 150
 end
