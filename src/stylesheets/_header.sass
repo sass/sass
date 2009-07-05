@@ -1,0 +1,77 @@
+@import compass/utilities/general/inline_block.sass
+
+#header
+  !nav_top = 145px
+  height: 250px
+  width: 795px
+  margin: 0 auto
+
+  h1
+    float: left
+    margin: 40px 0 0 -50px
+    text-indent: -9999px
+
+    a
+      display: block
+      width: 217px
+      height: 238px
+      background: url(/images/sass.gif) no-repeat
+
+  #nav
+    position: relative
+    top = !nav_top
+    margin: 0 0 0 250px
+    height: 23px
+    padding: 11px 0
+    border-bottom: 1px dashed #b1ad9b
+
+    ul
+      margin: 0
+      padding: 5px 0
+      height: 13px
+      list-style-type: none
+
+      li
+        float: left
+        padding-left: 15px
+        padding-right: 15px
+        padding-top: 6px
+        margin-right: 25px
+        height: 20px
+        font: 14px  Georgia, Garamond, Times, "Times New Roman", serif
+        letter-spacing: 0px
+        border: 1px solid #cacaca
+        border-bottom: 3px solid #ff3836
+
+        a
+          text-decoration: none
+          color: #3c2811
+
+          &:hover
+            color: #ff3836
+
+  #latest
+    position: relative
+    text-align: center
+    top = !nav_top + 25px
+    color: #888
+
+    h2
+      color: #555
+      font:
+        size: 1.4em
+        weight: bold
+      display: inline
+
+    .version
+      font:
+        size: 1.2em
+        weight: bold
+
+#main
+  padding-top: 20px
+  padding-right: 40px
+
+  h1
+    margin-left: 0
+    line-height: 29px

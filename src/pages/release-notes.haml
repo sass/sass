@@ -1,0 +1,167 @@
+:maruku
+  Haml 2.0, **Friendly Fred**, is the most recent version of Haml.
+
+  So what's new?
+
+  ## Friendliness
+
+  We named this release "Friendly Fred"
+  because it's much more friendly to users than previous versions.
+  Haml 1.8 had [all sorts of bugs](/posts/74-haml-errors-suck) with handling and displaying errors;
+  error messages weren't useful,
+  line numbers would be reported incorrectly,
+  and sometimes the error message wouldn't display at all.
+
+  That's all been fixed.
+  No more white screen of death.
+  Nathan personally tested error handling,
+  both compile-time and runtime,
+  in Rails versions back to 1.2.6.
+  He added line-number tests for every error he could think up.
+
+  Sass errors didn't have nearly as many problems as Haml errors,
+  but there were a few line-number-reporting bugs that are now fixed.
+  In addition, it was always kind of annoying to have to check the generated CSS file
+  for the actual error report.
+  Now when there's a Sass error, in addition to reporting the error in the CSS file,
+  Sass will add the information to the `content` property of `body:before`,
+  so it'll show up in the actual HTML page.
+
+  Error-handling wasn't the only target of the bugfixes that went into 2.0.
+  Among sundry boring fixes,
+  we finally fixed the long-standing parser bug
+  that confused attribute hashes with brackets within text content.
+  This means that Haml 2.0 is actually the first version released with no known bugs.
+
+  Finally, we're attempting to eliminate whitespace-preservation headaches as much as possible
+  by having literal `pre` and `textarea` tags -- and Rails' textarea-generating helpers --
+  properly deal with their contents.
+  You'll still need to use `~` occasionally,
+  but no longer will you be subjected to the tyranny of
+
+      ~ "<pre>\#{h content}</pre>"
+
+  Now you can just do
+
+      %pre= h content
+
+  or even
+
+      %pre&= content
+
+  [(see below)](#html_escaping).
+
+  ## Ugly
+
+  Haml now has an `:ugly` option,
+  thanks to [Wincent Colaiuta](http://colaiuta.net).
+  This option forgoes pretty output formatting
+  in favor of speed increases,
+  which show up in particular when rendering deeply nested partials.
+
+  ## Dynamic Filters
+
+  Now, time for some real features!
+  One of the most useful additions to 2.0
+  is the ability of filters to access the runtime template context.
+  For most filters, this means you can do variable interpolation, like so:
+
+      :textile
+        You should all go to *\#{h @place.name}*!
+
+  For the filters that have Ruby code in them already, though,
+  such as `:ruby` and `:erb`,
+  this code is just run in the context of the template.
+
+  ## HTML Escaping {#html_escaping}
+
+  Haml 2.0 has very robust support for HTML escaping,
+  thanks to [Andre Arko](http://arko.net).
+  This includes both an option for escaping all dynamic input by default
+  and syntactic support for escaping input
+  even when it's not the default.
+
+  To turn on HTML-escaping by default,
+  set the `:escape_html` option to `true` in whatever way your framework provides.
+  Then `=`, `==`, and so forth will automatically escape any input they're given.
+  In order to put in unescaped input,
+  you use `!=` or `!==` instead.
+
+  If you don't have `:escape_html` set,
+  then `=` and friends will work just like they always did.
+  But a new set of commands will be available:
+  `&=`, `&==`, and so on.
+  These work like `=` and friends
+  except they *do* escape their inputs.
+
+  ## Whitespace Munching
+
+  Getting rid of whitespace has traditionally been tricky with Haml.
+  But thanks to much brainstorming by [Evgeny Zislis](http://blog.kesor.net) and [Sunny Ripert](http://sunfox.org)
+  on the [blog post about the subject](/posts/75-haml-whitespace-handling-sucks-too);
+  [Nathan Sutton](http://saynotomilk.com) and [Dustin Sallings](http://bleu.west.spy.net/~dustin) on #haml on freenode;
+  and various other people on the [mailing list](http://groups.google.com/group/haml),
+  we came up with a very nice syntax for it.
+
+  You can think of the syntax as alligators figuratively munching away at whitespace.
+  To get rid of all whitespace outside of a tag,
+  you add `>` to the end,
+  to munch away all the outer whitespace.
+  To get rid of whitespace within,
+  you add `<` instead.
+  Thus
+
+      %img
+      %img>
+      %img
+      %a{:href => "http://nex-3.com"}<
+        %p Foo!
+
+  compiles to
+
+      <img /><img /><img />
+      <a href='http://nex-3.com'><p>Foo!</p></a>
+
+  ## Sass Mixins
+
+  The only major addition to Sass for 2.0[^1]
+  is the addition of support for mixins in Sass,
+  thanks to Garry Hill.
+  This allows you to define a collection of attributes or even sub-rules
+  and include those in any rules you might want.
+  To define a mixin named `clearfix`,
+  you would write
+
+      =clearfix
+        display: inline-block
+        &:after
+          content: "."
+          height: 0
+          clear: both
+          visibility: hidden
+        * html &
+          height: 1px
+
+  and to include it in a rule, you would write
+
+      #sidebar
+        +clearfix
+        border: 1px solid black
+
+  ## Little Things
+
+  * There are three new predefined filters:
+    `:javascript`, which wraps the content in `<script>` and `CDATA` tags;
+    `:cdata`, which wraps the content in `CDATA` (thanks to [Yehuda Katz](http://yehudakatz.com));
+    and `:escaped`, which HTML-escapes the content.
+  * Haml can output HTML4 or HTML5, thanks to [Mislav Marhonić](http://mislav.caboo.se).
+    This is set by setting the `:format` option to `:html4` or `:html5`, respectively.
+  * Boolean attributes conform to standards.
+    For XHTML, `%input{:selected => true}` generates `<input selected='selected' />`.
+    For HTML, it generates `<input selected>`.
+  * Sass has a guarded-assignment `||=` operator for constants
+    that works just like the same operator in Ruby.
+  * `css2sass` tries to resolve parent-references (like `&:hover`),
+    and can generate the alternate attribute syntax when the `--alternate` flag is passed.
+
+  [^1]: There are more on the way for 2.1, though, don't worry.

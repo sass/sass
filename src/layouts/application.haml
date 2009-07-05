@@ -1,34 +1,19 @@
 !!!
-%htmlr
+%html{:xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en"}
   %head
+    %link{:rel => "shortcut icon", :href => "/images/sass_icon.ico", :type => "image/vnd.microsoft.icon"}/
+    %meta{"http-equiv" => "Content-Type", :content => "text/html; charset=utf-8"}/
+    %meta{:name => "description", :content => "Syntactically Awesome Stylesheets"}/
+    %meta{:name => "keywords", :content => "Sass, SASS, sass, CSS, stylesheet, stylesheets, variables, mixins, abstraction, Syntactically Awesome Stylesheets, Ruby, Rails"}/
     %title&= @title || "Sass - Syntactically Awesome Stylesheets"
-    = stylesheets
+    = stylesheets :application
   %body
-    #header
-      -# Sass logo goes here, somehow
-      %h1 Sass!
-      #get_started
-        %h1 Get Started
-        %pre
-          %code sudo gem install haml
-        %pre
-          %code css2sass style.css
-        %pre
-          %code sass style.sass
-      #latest
-        %h2 Latest Release:
-        %p #{CGI.escapeHTML Haml.version[:name]} (<span class="version">#{Haml.version[:number]}</span>)
-        %p= link "What's New", "/whats_new"
-    %ul#navigation
-      %li= link "About", "/about"
-      %li= link "Get Started", "/docs/start"
-      %li= link "Docs", "/docs"
-      %li= link "Get Help", "/help"
-      %li= link "Source", "http://github.com/nex3/haml"
-    #content= yield
-    #footer
-      :markdown
-        Copyright &copy; 2009 [Nathan Weizenbaum](http://nex-3.com)
+    #page
+      = partial "header"
+      #main
+        = partial "sidebar"
+        = yield
+      = partial "footer"
     :plain
       <script type="text/javascript">
       var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

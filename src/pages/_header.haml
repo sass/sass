@@ -1,0 +1,15 @@
+#header
+  %h1= link "Sass", "/"
+
+  #nav
+    %ul
+      %li= link "About", "/about.html"
+      %li= link "Get Help", "/help.html"
+      %li= link "Source", "http://github.com/nex3/haml"
+      %li= link "Try Online", "http://lab.hamptoncatlin.com"
+
+  #latest
+    %h2 Latest Release:
+    #{CGI.escapeHTML Haml.version[:name]} (<span class="version">#{Haml.version[:number]}</span>)
+    %p= link "What's New?", "/docs/yardoc/HAML_CHANGELOG.md.html"
+

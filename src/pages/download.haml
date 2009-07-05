@@ -1,0 +1,33 @@
+:markdown
+  ## Standard Gem
+
+  Most people will just want the standard stable Haml gem.
+  To install this:
+
+      sudo gem install haml
+
+  ## `haml-edge` Gem
+
+  To get the latest and greatest Haml goodness, though,
+  you'll need something else.
+  A `haml-edge` gem is created automatically every time changes are made
+  to the master branch.
+  To install it:
+
+      sudo gem install haml-edge
+
+  Note that `gem "haml-edge"` must be used before `require 'haml'`
+  if `haml-edge` is to be used.
+
+  ## Installation from Git
+
+  Haml can also be installed directly from the [Git repository](http://github.com/nex3/haml):
+
+      git clone git://github.com/nex3/haml.git
+      cd haml
+      rake install
+
+  ## Downloadable Archives
+
+  Finally, archives of current and old releases
+  are available on [Rubyforge](http://rubyforge.org/frs/?group_id=2760).
