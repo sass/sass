@@ -1063,7 +1063,7 @@ Haml has the following filters defined:
 
 You can also define your own filters (see {Haml::Filters}).
 
-## Multiline: `|`
+## Multiline: `|` {#multiline}
 
 The pipe character designates a multiline string.
 It's placed at the end of a line (after some whitespace)
