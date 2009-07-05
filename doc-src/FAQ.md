@@ -96,6 +96,20 @@ For example:
         really_move.it.into(    |
           :a => @helper)        |
 
+### `form_for` is printing the form tag twice!
+
+Make sure you're calling it with `-`, not `=`.
+Just like in ERB, you have to do
+
+    <% form_for stuff do %>
+      ...
+    <% end %>
+
+in Haml, you have to do
+
+    - form_for stuff do
+      ...
+
 ### I have Haml installed. Why is Rails (only looking for `.html.erb` files | rendering Haml files as plain text | rendering Haml files as blank pages)?
 {#q-blank-page}
 
