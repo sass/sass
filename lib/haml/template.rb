@@ -14,6 +14,10 @@ module Haml
   end
 end
 
+if defined?(RAILS_ENV) && RAILS_ENV == "production"
+  Haml::Template.options[:ugly] = true
+end
+
 # Decide how we want to load Haml into Rails.
 # Patching was necessary for versions <= 2.0.1,
 # but we can make it a normal handler for higher versions.
