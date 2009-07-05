@@ -60,7 +60,7 @@ text nested beneath them.")
 
 (defconst sass-script-font-lock-keywords
   `(("\"\\([^\"\\\\]\\|\\\\.\\)*\"" 0 font-lock-string-face)
-    ("!\\w+" 0 font-lock-variable-name-face)
+    ("!\\(\\w\\|_\\)+" 0 font-lock-variable-name-face)
     ("#[0-9a-fA-F]\\{0,6\\}" 0 font-lock-preprocessor-face)
     (,(regexp-opt
        '("true" "false" "black" "silver" "gray" "white" "maroon" "red"
