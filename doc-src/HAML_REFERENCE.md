@@ -302,6 +302,12 @@ You can, however, use both syntaxes together:
 
     %a(title=@title){:href => @link.href} Stuff
 
+HTML-style attributes can be stretched across multiple lines
+just like hash-style attributes:
+
+    %script(type="text/javascript"
+            src="javascripts/script_#{2 + 7}")
+
 #### Attribute Methods
 
 A Ruby method call that returns a hash
