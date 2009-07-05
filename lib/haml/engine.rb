@@ -109,14 +109,6 @@ module Haml
       @tab_change  = 0
       @temp_count = 0
 
-      if @options[:filters]
-        warn <<END
-DEPRECATION WARNING:
-The Haml :filters option is deprecated and will be removed in version 2.2.
-Filters are now automatically registered.
-END
-      end
-
       precompile
     rescue Haml::Error => e
       e.backtrace.unshift "#{@options[:filename]}:#{(e.line ? e.line + 1 : @index) + @options[:line] - 1}" if @index
