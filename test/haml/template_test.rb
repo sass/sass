@@ -95,7 +95,8 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name, &render_method)
-    if ActionPack::VERSION::MAJOR < 2 || ActionPack::VERSION::MINOR < 2
+    if ActionPack::VERSION::MAJOR < 2 ||
+        (ActionPack::VERSION::MAJOR == 2 && ActionPack::VERSION::MINOR < 2)
       render_method ||= proc { |name| @base.render(name) }
     else
       render_method ||= proc { |name| @base.render(:file => name) }
