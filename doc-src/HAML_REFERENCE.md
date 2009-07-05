@@ -288,7 +288,9 @@ These are used with parentheses instead of brackets, like so:
 
     %html(xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en")
 
-Ruby variables can be used by omitting the quotes. For example:
+Ruby variables can be used by omitting the quotes.
+Local variables or instance variables can be used.
+For example:
 
     %a(title=@title href=href) Stuff
 
@@ -296,11 +298,17 @@ This is the same as:
 
     %a{:title => @title, :href => href} Stuff
 
-More complicated expressions aren't allowed, though.
+Because there are no commas separating attributes, though,
+more complicated expressions aren't allowed.
 For those you'll have to use the `{}` syntax.
 You can, however, use both syntaxes together:
 
     %a(title=@title){:href => @link.href} Stuff
+
+You can also use `#{}` interpolation to insert complicated expressions
+in a HTML-style attribute:
+
+    %span(class="widget_#{@widget.number}")
 
 HTML-style attributes can be stretched across multiple lines
 just like hash-style attributes:
@@ -916,7 +924,7 @@ might compile to
       //]]>
     </script>
 
-### Escaping HTML: `&=`
+### Escaping HTML: `&=` {#escaping_html}
 
 An ampersand followed by one or two equals characters
 evaluates Ruby code just like the equals without the ampersand,
@@ -941,7 +949,7 @@ compiles to
 
     I like cheese &amp; crackers
 
-### Unescpaing HTML: `!=`
+### Unescaping HTML: `!=` {#unescaping_html}
 
 An exclamation mark followed by one or two equals characters
 evaluates Ruby code just like the equals would,
