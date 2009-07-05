@@ -3,7 +3,6 @@
   -moz-border-#{!side}-colors: #ccc white white #e5e5e5
 
 #showdown
-  !color = #ff3836
   margin-top: 1em
   background:
     image: url(/images/showdown.gif)
@@ -21,10 +20,10 @@
     border:
       width: 1px
       style: solid
-      color = !color
+      color = !main_color
     span
       display: block
-      background-color = !color
+      background-color = !main_color
       color: white
       padding: 5px 0
       border:
@@ -67,7 +66,7 @@
   .haml
     float: left
     h3
-      color = !color
+      color = !main_color
   .erb
     position: relative
     right: -65px
