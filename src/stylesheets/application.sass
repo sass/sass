@@ -3,6 +3,7 @@
   http://www.lukasdryja.com
   --------------------
 
+@import vars.sass
 @import header.sass
 @import sidebar.sass
 @import showdown.sass
@@ -18,16 +19,16 @@ html, body
   color: #090909
   height: 100%
   font: 13px/21px Georgia, Garamond, Times, "Times New Roman", serif
-  border-top: 2px solid #ff3836
+  border-top: 2px solid #{!main_color}
 
 
 a
   text-decoration: underline
   outline: none
-  color: #ff3836
+  color = !main_color
 
   &:hover
-    color: #ff9e9d
+    color = !main_color + #666
 
 
 p
@@ -38,7 +39,7 @@ p
   margin: 0 auto
   padding: 0 30px
   width: 795px
-  border-right: 1px dashed #b1ad9b
+  border-right: 1px dashed #{!border_color}
 
 
 a img
