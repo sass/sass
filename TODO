@@ -8,6 +8,9 @@
     [Haml]/[Sass], punctuation
     Don't forget docs
   [2.4] Syntax highlighting?
+** Sass
+   Mention deprecations in CHANGELOG
+     variable syntax
 
 * Code
 ** Haml
