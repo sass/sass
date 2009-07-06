@@ -36,11 +36,6 @@
     - [Michael Bleigh, Intridea](http://www.intridea.com/2009/2/4/sass-the-better-more-powerful-css)
   </p>
 
--# It would be cool if we could have an arrow or something for these
-  signifying the transition from CSS to Sass.
-
-  Also, if possible, it would be awesome to use Sass from this site
-  for these examples.
 .feature#beauty
   %h2 Beauty
   %p
@@ -50,6 +45,8 @@
 
   %pre.sass
     :preserve
+      // Sass
+
       h1
         height: 118px
         margin-top: 1em
@@ -60,6 +57,8 @@
 
   %pre.css
     :preserve
+      /* CSS */
+
       h1 {
         height: 118px;
         margin-top: 1em;
@@ -78,30 +77,34 @@
 
   %pre.sass
     :preserve
-      table.highlighttable
+      // Sass
+
+      table.hl
         margin: 2em 0
-        td.linenos
+        td.ln
           text-align: right
 
       li
-        background:
-          repeat: no-repeat
-          position: left center
-          color: #f8f8f8
+        font:
+          family: serif
+          weight: bold
+          size: 1.2em
 
   %pre.css
     :preserve
-      table.highlighttable {
+      /* CSS */
+
+      table.hl {
         margin: 2em 0;
       }
-      table.highlighttable td.linenos {
+      table.hl td.ln {
         text-align: right;
       }
 
       li {
-        background-repeat: no-repeat;
-        background-position: left center;
-        background-image: #f8f8f8;
+        font-family: serif;
+        font-weight: bold;
+        font-size: 1.2em;
       }
 
 .feature#variables
@@ -113,29 +116,33 @@
 
   %pre.sass
     :preserve
+      // Sass
+
       !blue = #3bbfce
       !margin = 16px
 
       .content_navigation
-        background-color = !blue
-        color = !blue - #101010
+        border-color = !blue
+        color = !blue - #111
 
       .border
-        padding-right = !margin / 2 - 1
-        margin-right = !margin / 2
-        border-right = 1px "solid" !blue
+        padding = !margin / 2
+        margin = !margin / 2
+        border-color = !blue
 
   %pre.css
     :preserve
+      /* CSS */
+
       .content_navigation {
-        background-color: #3bbfce;
+        border-color: #3bbfce;
         color: #2bafbe;
       }
 
       .border {
-        padding-right: 7px;
-        margin-right: 8px;
-        border-right: 1px solid #3bbfce;
+        padding: 7px;
+        margin: 8px;
+        border-color: #3bbfce;
       }
 
 .feature#mixins
@@ -148,6 +155,8 @@
 
   %pre.sass
     :preserve
+      // Sass
+
       =table-scaffolding
         th
           :text-align center
@@ -155,26 +164,26 @@
         td, th
           :padding 2px
 
-      =background(!img)
-        background:
-          image = image_url(!img)
-          repeat: no-repeat
+      =left(!dist)
+        float: left
+        margin-left = !dist
 
-      table#data
-        +background("table.png")
+      #data
+        +left(10px)
         +table-scaffolding
 
   %pre.css
     :preserve
-      table#data {
-        background-image:
-          url(/images/table.png);
-        background-repeat: no-repeat;
+      /* CSS */
+
+      #data {
+        float: left;
+        margin-left: 10px;
       }
-      table#data th {
+      #data th {
         text-align: center;
         font-weight: bold;
       }
-      table#data td, table#data th {
+      #data td, #data th {
         padding: 2px;
       }
