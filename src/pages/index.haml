@@ -61,7 +61,7 @@
         background:
           repeat: no-repeat
           position: left center
-          image: url(/images/icons/download.png)
+          color: #f8f8f8
 
   %pre.css
     :preserve
@@ -75,7 +75,7 @@
       li {
         background-repeat: no-repeat;
         background-position: left center;
-        background-image: url(/images/icons/download.png);
+        background-image: #f8f8f8;
       }
 
 .feature#variables
@@ -135,13 +135,14 @@
           repeat: no-repeat
 
       table#data
-        +background("/images/table.png")
+        +background("table.png")
         +table-scaffolding
 
   %pre.css
     :preserve
       table#data {
-        background-image: image_url(/images/table.png);
+        background-image:
+          url(/images/table.png);
         background-repeat: no-repeat;
       }
       table#data th {
