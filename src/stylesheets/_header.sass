@@ -3,6 +3,7 @@
   height: 250px
   width: 795px
   margin: 0 auto
+  position: relative
 
   h1
     float: left
@@ -14,6 +15,31 @@
       width: 217px
       height: 238px
       background: url(/images/sass.gif) no-repeat
+
+  #start
+    left: 300px
+    position: absolute
+    background-color: #f8f8ff
+    padding: 5px
+    border-bottom-right-radius: 5px
+    border-bottom-left-radius: 5px
+    -moz-border-radius-bottomleft: 5px
+    -moz-border-radius-bottomright: 5px
+    -webkit-border-bottom-left-radius: 5px
+    -webkit-border-bottom-right-radius: 5px
+    border:
+      width: 1px
+      style: solid
+      color = !border_color
+      top:
+        style: none
+      bottom:
+        width: 5px
+        color = !main_color
+
+    code:before
+      content: "$ "
+      font-weight: bold
 
   #nav
     position: relative
