@@ -262,7 +262,7 @@ ensure
 end
 
 task :handle_update do
-  unless ENV["REF"] =~ %r{^refs/heads/(master|(?:haml|sass)-pages)$}
+  unless ENV["REF"] =~ %r{^refs/heads/(master|stable|(?:haml|sass)-pages)$}
     puts "#{'=' * 20} Ignoring rake handle_update REF=#{ENV["REF"].inspect}"
     next
   end
@@ -279,6 +279,7 @@ task :handle_update do
 
   if branch == "master"
     sh %{rake release_edge --trace}
+  elsif branch == "stable"
     sh %{rake pages --trace PROJ=haml}
     sh %{rake pages --trace PROJ=sass}
   elsif branch =~ /^(haml|sass)-pages$/
