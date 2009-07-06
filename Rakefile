@@ -30,11 +30,11 @@ end
 task :haml => ".haml" do
   Dir.chdir(".haml") do
     sh %{git fetch}
-    sh %{git checkout origin/master}
+    sh %{git checkout origin/stable}
   end
 end
 
 file ".haml" do
   sh %{git clone -l -s . .haml}
-  Dir.chdir(".haml") {sh %{git checkout origin/master}}
+  Dir.chdir(".haml") {sh %{git checkout origin/stable}}
 end
