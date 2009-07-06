@@ -273,8 +273,10 @@ task :handle_update do
   puts '=' * 150
   puts "Running rake handle_update REF=#{ENV["REF"].inspect}"
 
-  sh %{git checkout master}
   sh %{git fetch origin}
+  sh %{git checkout stable}
+  sh %{git reset --hard origin/stable}
+  sh %{git checkout master}
   sh %{git reset --hard origin/master}
 
   if branch == "master"
