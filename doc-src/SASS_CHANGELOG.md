@@ -13,9 +13,22 @@ others that you can download and import into your own. The fundamental
 units of abstraction in Sass are variables and mixins. Please read
 below for a list of changes:
 
+### Must Read!
+
+* Sass Comments (//) used to only comment out a single line. This was deprecated
+  in 2.0.10 and starting in 2.2, Sass comments will comment out any lines indented
+  under them. Upgrade to 2.0.10 in order to see deprecation warnings where this change
+  affects you.
+
+* Implicit Strings within SassScript are now deprecated and will be removed in 2.4.
+  For example: `border= !width solid #00F` should now be written as `border: #{!width} solid #00F`
+  or as `border= !width "solid" #00F`. After upgrading to 2.2, you will see deprecation warnings
+  if you have sass files that use implicit strings.
+
+
 ### Sass Syntax Changes
 
-#### Indentation
+#### Flexible Indentation
 
 The indentation of Sass documents is now flexible. The first indent
 that is detected will determine the indentation style for that
