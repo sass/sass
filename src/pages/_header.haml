@@ -4,9 +4,13 @@
   #start
     %code sudo gem install haml
     %br/
-    %code css2sass style.css style.sass
+    %code
+      %span.executable css2sass
+      style.css style.sass
     %br/
-    %code sass style.sass style.css
+    %code
+      %span.executable sass
+      style.sass style.css
 
   #nav
     %ul
