@@ -99,7 +99,7 @@ Available options are:
 
 {#style-option} `:style`
 : Sets the style of the CSS output.
-  See the section on Output Style, above.
+  See [Output Style](#output_style).
 
 {#property_syntax-option} `:property_syntax`
 : Forces the document to use one syntax for properties.
