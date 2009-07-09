@@ -99,7 +99,7 @@ Available options are:
 
 {#style-option} `:style`
 : Sets the style of the CSS output.
-  See the section on Output Style, above.
+  See [Output Style](#output_style).
 
 {#property_syntax-option} `:property_syntax`
 : Forces the document to use one syntax for properties.
@@ -725,23 +725,30 @@ and equality operators
 (`==`, `!=`)
 are supported for all types.
 
-Most arithmetic operations are supported for color values,
-where they work piecewise:
+All arithmetic operations are supported for color values,
+where they work piecewise.
+This means that the operation is performed
+on the red, green, and blue components in turn.
+For example:
 
     p
       color = #010203 + #040506
 
-is compiled to:
+computes `01 + 04 = 05`, `02 + 05 = 07`, and `03 + 06 = 09`,
+and is compiled to:
 
     p {
       color: #050709; }
 
-Some arithmetic operations even work between numbers and colors:
+Arithmetic operations even work between numbers and colors,
+also piecewise.
+For example:
 
     p
       color = #010203 * 2
 
-is compiled to:
+computes `01 * 2 = 02`, `02 * 2 = 04`, and `03 * 2 = 06`,
+and is compiled to:
 
     p {
       color: #020406; }
@@ -756,11 +763,22 @@ is compiled to:
     p {
       cursor: e-resize; }
 
+By default, if two values are placed next to one another,
+they are concatenated with a space:
+
+    p
+      margin = 3px + 4px "auto"
+
+is compiled to:
+
+    p {
+      margin: 7px auto; }
+
 Within a string of text, #{} style interpolation can be used to
 place dynamic values within the string:
 
     p
-      border = "#{5px + 10pt} solid #ccc"
+      border = "#{5px + 10px} solid #ccc"
 
 Finally, SassScript supports `and`, `or`, and `not` operators
 for boolean values.
