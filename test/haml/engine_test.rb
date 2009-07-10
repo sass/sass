@@ -359,6 +359,68 @@ HTML
 HAML
   end
 
+  def test_escape_html
+    html = <<HTML
+&amp;
+&
+&amp;
+HTML
+
+    assert_equal(html, render(<<HAML, :escape_html => true))
+&= "&"
+!= "&"
+= "&"
+HAML
+
+    assert_equal(html, render(<<HAML, :escape_html => true))
+&~ "&"
+!~ "&"
+~ "&"
+HAML
+
+    assert_equal(html, render(<<HAML, :escape_html => true))
+& \#{"&"}
+! \#{"&"}
+\#{"&"}
+HAML
+
+    assert_equal(html, render(<<HAML, :escape_html => true))
+&== \#{"&"}
+!== \#{"&"}
+== \#{"&"}
+HAML
+
+    tag_html = <<HTML
+<p>&amp;</p>
+<p>&</p>
+<p>&amp;</p>
+HTML
+
+    assert_equal(tag_html, render(<<HAML, :escape_html => true))
+%p&= "&"
+%p!= "&"
+%p= "&"
+HAML
+
+    assert_equal(tag_html, render(<<HAML, :escape_html => true))
+%p&~ "&"
+%p!~ "&"
+%p~ "&"
+HAML
+
+    assert_equal(tag_html, render(<<HAML, :escape_html => true))
+%p& \#{"&"}
+%p! \#{"&"}
+%p \#{"&"}
+HAML
+
+    assert_equal(tag_html, render(<<HAML, :escape_html => true))
+%p&== \#{"&"}
+%p!== \#{"&"}
+%p== \#{"&"}
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

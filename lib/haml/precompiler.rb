@@ -204,13 +204,13 @@ END
       when ELEMENT; render_tag(text)
       when COMMENT; render_comment(text[1..-1].strip)
       when SANITIZE
-        return push_script(unescape_interpolation(text[3..-1].strip), :escape_html => true) if text[1..2] == "=="
+        return push_plain(text[3..-1].strip, :escape_html => true) if text[1..2] == "=="
         return push_script(text[2..-1].strip, :escape_html => true) if text[1] == SCRIPT
-        return push_script(unescape_interpolation(text[1..-1].strip), :escape_html => true) if text[1] == ?\s
+        return push_flat_script(text[2..-1].strip, :escape_html => true) if text[1] == FLAT_SCRIPT
+        return push_plain(text[1..-1].strip, :escape_html => true) if text[1] == ?\s
         push_plain text
       when SCRIPT
-        return push_script(unescape_interpolation(text[2..-1].strip)) if text[1] == SCRIPT
-        return push_script(text[1..-1], :escape_html => true) if options[:escape_html]
+        return push_plain(text[2..-1].strip) if text[1] == SCRIPT
         push_script(text[1..-1])
       when FLAT_SCRIPT; push_flat_script(text[1..-1])
       when SILENT_SCRIPT
@@ -237,9 +237,10 @@ END
       when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
-        return push_script(unescape_interpolation(text[3..-1].strip)) if text[1..2] == "=="
-        return push_script(text[2..-1].strip) if text[1] == SCRIPT
-        return push_script(unescape_interpolation(text[1..-1].strip)) if text[1] == ?\s
+        return push_plain(text[3..-1].strip, :escape_html => false) if text[1..2] == "=="
+        return push_script(text[2..-1].strip, :escape_html => false) if text[1] == SCRIPT
+        return push_flat_script(text[2..-1].strip, :escape_html => false) if text[1] == FLAT_SCRIPT
+        return push_plain(text[1..-1].strip, :escape_html => false) if text[1] == ?\s
         push_plain text
       when ESCAPE; push_plain text[1..-1]
       else push_plain text
@@ -306,13 +307,13 @@ END
 
     # Renders a block of text as plain text.
     # Also checks for an illegally opened block.
-    def push_plain(text)
+    def push_plain(text, options = {})
       if block_opened?
         raise SyntaxError.new("Illegal nesting: nesting within plain text is illegal.", @next_line.index)
       end
 
       if contains_interpolation?(text)
-        push_script unescape_interpolation(text)
+        push_script unescape_interpolation(text), :escape_html => options[:escape_html]
       else
         push_text text
       end
@@ -333,6 +334,7 @@ END
     def push_script(text, opts = {})
       raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
       return if options[:suppress_eval]
+      opts[:escape_html] = options[:escape_html] if opts[:escape_html].nil?
 
       args = %w[preserve_script in_tag preserve_tag escape_html nuke_inner_whitespace]
       args.map! {|name| opts[name.to_sym]}
@@ -363,11 +365,11 @@ END
 
     # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
-    def push_flat_script(text)
+    def push_flat_script(text, options = {})
       flush_merged_text
 
       raise SyntaxError.new("There's no Ruby code for ~ to evaluate.") if text.empty?
-      push_script(text, :preserve_script => true)
+      push_script(text, options.merge(:preserve_script => true))
     end
 
     def start_haml_comment
@@ -651,8 +653,9 @@ END
         parse = true
         value = unescape_interpolation(value[1..-1].strip) if value[0] == ?=
       when '&', '!'
-        if value[0] == ?=
+        if value[0] == ?= || value[0] == ?~
           parse = true
+          preserve_script = (value[0] == ?~)
           value =
             if value[1] == ?=
               unescape_interpolation(value[2..-1].strip)
