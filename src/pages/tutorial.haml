@@ -1,126 +1,364 @@
 :markdown
-  Before we start this tutorial, I want to make one thing clear.
-  After you look at this, go and convert one of your ERB files to Haml.
-  Just try it. Just take the file and start hitting delete. Do it.
-  You don't have to keep the file if you don't like it.
-  But after you're done with this tutorial, just try one file.
+  First of all, let's get Sass up and running.
+  To get it, run
 
-  Haml feels odd for the first 20 minutes, but then after that **you will be faster**.
+      sudo gem install haml
 
-  ## Getting Started
+  To compile a Sass file into CSS, run
 
-  First, [get Haml](/download.html) and [install the plugin](/docs/yardoc/HAML_REFERENCE.md.html#plugin)
-  (this tutorial assumes you're using Rails...
-  it should apply to other frameworks and standalone Haml just as well, though).
-  Haml is a drop-in replacement for ERB.
-  That means any file in your `app/views` folder can be switched over
-  to Haml by simply changing the extension of the file.
+      sass style.sass style.css
 
-  `app/views/account/login.html.erb` &rarr; `app/views/account/login.html.haml`
+  If you're using a Ruby framework like Rails or Merb,
+  [you can set Sass up](/docs/yardoc/SASS_REFERENCE.md.html#plugin)
+  to compile automatically.
+  If you aren't, you can use the [Compass Sass framework](http://compass-style.org)
+  to do the same thing.
 
-  Now, when you view that page, instead of ERB getting its hands on the template,
-  it's handled by Haml instead. You can mix up ERB and Haml and on the fly
-  throughout your site.
+  You can convert your existing CSS files to Sass
+  using the `css2sass` utility:
 
-  ## How to Convert
+      css2sass style.css style.sass
 
-  Let's start off with some basic ERB that we want to convert.
+  `css2sass` knows about several neat Sass tricks,
+  so it's usually a good idea to start off your conversion using it.
+  For this tutorial, though, open up a brand new Sass file
+  so you can follow along.
 
-  #### ERB
+  ## Syntax
 
-      <strong><%= item.title %></strong>
+  The first thing to learn about Sass is the syntax.
+  Sass uses indentation and line breaks
+  rather than curly braces and semicolons
+  to define rules and divide up properties.
+  This may take a little getting used to at first,
+  but give it a try; you might find that you end up liking it
+  (if you really hate it, Sass 2.4 will support braces and semicolons as well).
 
-  #### Haml
+  #### Sass
 
-      %strong= item.title
+      .important
+        color: red
+        font-weight: bold
 
-  In Haml, we write a tag by using the percent sign and then the name
-  of the tag. This works for `%strong`, `%div`, `%body`, `%html`; any
-  tag you want. Then, after the name of the tag is `=`, which tells
-  Haml to evaluate Ruby code to the right and then print out the
-  return value as the contents of the tag. Unlike the ERB above, Haml
-  will automatically detect newlines in the return value
-  and format the tag properly.
+  #### CSS
 
-  Simple tags are all well and good, but what about adding attributes
-  to tags? 
+      .important {
+        color: red;
+        font-weight: bold; }
 
-  #### HTML
+  ## Nesting
 
-      <strong class="code" id="message">Hello, World!</strong>
+  Often when writing CSS, you'll have several selectors
+  that all begin with the same thing.
+  For example, you might have "#main p", "#main .notice",
+  and "#main .notice h2".
+  It's a pain to repeat the beginning over and over again,
+  especially when it's long.
 
-  #### Haml
+  Sass allows you to avoid this by nesting the child selectors
+  within the parent selector.
 
-      %strong{:class => "code", :id => "message"} Hello, World!
+  #### Sass
 
-  The attributes are just a standard Ruby hash. The `class` attribute
-  is "code", the `id` attribute is "message".  Notice that in this
-  example, we didn't use `=`, so "Hello, World!" is interpreted as a
-  normal string, not Ruby code.
+      #main
+        p
+          padding-left: 1.5em
+          margin: 0.5em 0
 
-  There is a simpler way to define this tag in Haml, since `class` and
-  `id` are such common attributes and since most designers (and
-  coders) are familiar with CSS, we can use similar notation to
-  describe this tag.
+        .notice
+          font-size: 1.2em
+          background-color: #fff
 
-  #### Haml
+          h2
+            font-size: 0.8em    
 
-      %strong.code#message Hello, World!
+  #### CSS
 
-  Not only that, but since `div` tags are so common, you can leave off
-  the tag definition and have it default to `%div`.
+      #main p {
+        padding-left: 1.5em;
+        margin: 0.5em 0; }
+      #main .notice {
+        font-size: 1.2em;
+        background-color: #fff;
+        #main .notice h2 {
+          font-size: 0.8em; }
 
-  #### Haml
+  Notice how the output is formatted as much like the Sass code as possible.
+  This is the default output mode,
+  but there are [other modes](/docs/yardoc/SASS_REFERENCE.md.html#output_style)
+  for all sorts of CSS formatting styles.
+  There's even one for compressing the CSS as much as possible!
 
-      .content Hello, World!
+  You can also nest properties,
+  so you don't have to repeat stuff like `border-left-` all the time.
 
-  #### HTML
+  #### Sass
 
-      <div class='content'>Hello, World!</div>
+      .fakeshadow
+        border:
+          style: solid
+          left:
+            width: 4px
+            color: #888
+          right:
+            width: 2px
+            color: #ccc
 
-  Now what about something a little more complicated?
+  #### CSS
 
-  #### ERB
+      .fakeshadow {
+        border-style: solid;
+        border-left-width: 4px;
+        border-left-color: #888;
+        border-right-width: 2px;
+        border-right-width: #ccc; }
 
-      <div class='item' id='item<%= item.id %>'>
-        <%= item.body %>
-      </div>
+  ### Parent Reference
 
-  Pretty basic. This might be part of a partial or something.
-  Let's convert it to Haml.
+  What about pseudo-selectors, like `:hover`?
+  There isn't a space between them and their parent selector,
+  but it's still possible to nest them.
+  You just need to use the Sass special character `&`.
+  In a selector, `&` will be replaced verbatim with the parent selector.
 
-  #### Haml
+  #### Sass
 
-      .item{:id => "item\#{item.id}"}= item.body
+      #main
+        width: 97%
 
-  This stuff is fun!
+        a
+          color: #0000ff
 
-  Now, nesting is taken care of in Haml via whitespace.
+          &:hover
+            color: #ff0000
 
-  #### ERB
+          &:visited
+            color: #00ff00
 
-      <div id='content'>
-        <div class='left column'>
-          <h2>Welcome to our site!</h2>
-          <p><%= print_information %></p>
-        </div>
-        <div class="right column">
-          <%= render :partial => "sidebar" %>
-        </div>
-      </div>
+  #### CSS
 
-  #### Haml
+      #main {
+        width: 97%; }
+        #main a {
+          color: #0000ff; }
+          #main a:hover {
+            color: #ff0000; }
+          #main a:visited {
+            color: #00ff00; }
 
-      #content
-        .left.column
-          %h2 Welcome to our site!
-          %p= print_information
-        .right.column
-          = render :partial => "sidebar"
+  ## Variables
 
-  Look at that. Doesn't that just make you smile?
+  Sass allows you to declare variables
+  that can be used throughout your stylesheet.
+  Variables begin with `!` and can be
+  colors, strings of text, true/false, or numbers (with units!).
+  To use a variable in a property,
+  just use `=` instead of `:`.
 
-  There is a lot more to learn, so I'd highly recommend checking out
-  the [Reference](/docs/yardoc/HAML_REFERENCE.md.html). It's filled
-  with awesome little tricks that we've added to Haml to make building
-  sites even more fun.
+  #### Sass
+
+      !main_color = #ce4dd6
+      !style = "solid"
+
+      #header
+        border-bottom:
+          color = !main_color
+          style = !style
+
+      a
+        color = !main_color
+
+  #### CSS
+
+      #header {
+        border-bottom-color: #ce4dd6;
+        border-bottom-style: solid; }
+
+      a {
+        color: #ce4dd6; }
+
+  Variables allow you to re-use colors, sizes, and other values
+  without repeating yourself.
+  This means that changes that should be small -
+  tweaking the coloring or the sizing -
+  can be done in one place, not all over the stylesheet.
+
+  ### Operations
+
+  In addition to just using variable values as they're defined,
+  you can also use operations on them.
+  This allows you to compute element sizing
+  and even coloration dynamically.
+
+  The standard math operations (`+`, `-`, `*`, `/`, and `%`)
+  are supported for numbers, and units will be converted if possible.
+  The same operations work for colors,
+  where the operation is performed
+  on the red, green, and blue components in turn.
+
+  #### Sass
+
+      !sidebar_width = 150px
+      !main_color = #ce4dd6
+
+      #main
+        border:
+          color = !main_color
+          style: solid
+        background-color = !main_color * 1.1
+        padding-right = !sidebar_width + 20px
+
+        #sidebar
+          width = !sidebar_width
+
+  #### CSS
+
+      #main {
+        border-color: #ce4dd6;
+        border-style: solid;
+        background-color: #e254eb;
+        padding-right: 170px; }
+        #sidebar {
+          width: 150px; }
+
+  ### Interpolation
+
+  Variables can be used for more than just property values.
+  You can use `\#{}` to insert them into property names or even selectors.
+
+  #### Sass
+
+      !border_side = "left"
+      !border_class = "nifty"
+
+      .\#{!border_class}
+        border-\#{!border_side}:
+          style: solid
+          color: blue
+
+  #### CSS
+
+      .nifty {
+        border-left-style: solid;
+        border-left-color: blue; }
+
+  ## Mixins
+
+  Mixins are one of the most powerful aspects of Sass.
+  They allow re-use of styling - properties or even entire rules -
+  without having to re-write them or move them into a non-semantic class.
+
+  To define a mixin, just write `=mixin-name`
+  with some Sass nested underneath.
+  To use it, write `+mixin-name` where you want it to be expanded.
+
+  #### Sass
+
+      =float-left
+        display: inline
+        float: left
+
+      #sidebar
+        +float-left
+
+      #content img
+        +float-left
+
+  #### CSS
+
+      #sidebar {
+        display: inline;
+        float: left; }
+
+      #content img {
+        display: inline;
+        float: left; }
+
+
+  ### Arguments
+
+  The real power of mixins comes when you pass them arguments.
+  Arguments are declared as a parenthesized, comma-separated list of variables.
+  Each of those variables is assigned a value each time the mixin is used.
+
+  Mixin arguments can also be given default values
+  by following them with `=` and the value.
+  Then the user of the mixin can choose not to pass that argument
+  and it will be assigned the default value.
+
+  #### Sass
+
+      =replace-text(!img, !x = 50%, !y = 50%)
+        text-indent: -9999em
+        overflow: hidden
+        background:
+          image = image_url(!img)
+          repeat: no-repeat
+          position = !x !y
+
+      #header h1
+        +replace-text("/images/logo.png")
+
+      li#overview
+        +replace-text("/images/overview.png", 20%, 10%)
+
+  #### CSS
+
+      #header h1 {
+        text-indent: -9999em;
+        overflow: hidden;
+        background-image: image_url(/images/logo.png);
+        background-repeat: no-repeat;
+        background-position: 50% 50%; }
+
+      li#overview {
+        text-indent: -9999em;
+        overflow: hidden;
+        background-image: image_url(/images/overview.png);
+        background-repeat: no-repeat;
+        background-position: 20% 10%; }
+
+  ## `@import`
+
+  Stylesheets can get pretty big.
+  CSS has an `@import` statement
+  that allows you to break your styles up into multiple stylesheets,
+  but each stylesheet is a separate (expensive) HTTP request.
+  That's why Sass's `@import` statement pulls in Sass files directly.
+  Not only that, but any variables or mixins defined in `@import`ed files
+  are available in the file that imported them.
+
+  Sass has a naming convention for Sass files that are meant to be imported:
+  they begin with an underscore.
+  You can import these files without using the underscore,
+  and they won't get rendered as CSS.
+
+  #### Sass
+
+      // _defines.sass
+
+      !main_color = #ce4dd6
+
+      =float(!side)
+        display: inline
+        float = !side
+
+      // style.sass
+
+      @import defines.sass
+
+      #main
+        color = !main_color
+
+        #sidebar
+          +float("right")
+
+  #### CSS
+
+      /* style.css */
+
+      #main {
+        color: #ce4dd6; }
+        #sidebar {
+          display: inline;
+          float: right; }
