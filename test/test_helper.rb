@@ -7,6 +7,8 @@ $:.unshift lib_dir unless $:.include?(lib_dir)
 require 'haml'
 require 'sass'
 
+Sass::RAILS_LOADED = true
+
 # required because of Sass::Plugin
 unless defined? RAILS_ROOT
   RAILS_ROOT = '.'

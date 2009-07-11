@@ -51,6 +51,7 @@ module Sass::Tree
       return if invisible?
 
       content = (value.split("\n") + lines.map {|l| l.text})
+      return "/* */" if content.empty?
       content.map! {|l| (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '')
       content.last.gsub!(%r{ ?\*/ *$}, '')

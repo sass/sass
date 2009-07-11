@@ -89,15 +89,6 @@ class SassPluginTest < Test::Unit::TestCase
     assert_renders_correctly('more1_with_line_comments', 'more1', :prefix => 'more_')
   end
 
-  def test_rails_update    
-    File.delete(tempfile_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
-
-    ActionController::Base.new.process
-
-    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
-  end
-
   def test_merb_update
     begin
       require 'merb'
@@ -206,9 +197,4 @@ class Sass::Engine
     raise "bork bork bork!" if @template[0] == "{bork now!}"
     old_render
   end
-end
-
-class ActionController::Base
-  undef :sass_old_process
-  def sass_old_process(*args); end
 end
