@@ -49,14 +49,14 @@ module Sass::Tree
     # @see #invisible?
     def to_s(tabs = 0, _ = nil)
       return if invisible?
+      spaces = '  ' * (tabs - 1)
 
       content = (value.split("\n") + lines.map {|l| l.text})
-      return "/* */" if content.empty?
+      return spaces + "/* */" if content.empty?
       content.map! {|l| (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '')
       content.last.gsub!(%r{ ?\*/ *$}, '')
 
-      spaces = '  ' * (tabs - 1)
       spaces + "/* " + content.join(style == :compact ? '' : "\n#{spaces} *") + " */"
     end
 
