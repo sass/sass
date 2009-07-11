@@ -793,8 +793,14 @@ SASS
   def test_empty_comment
     assert_equal(<<CSS, render(<<SASS))
 /* */
+a {
+  /* */
+  b: c; }
 CSS
 /*
+a
+  /*
+  b: c
 SASS
   end
 
