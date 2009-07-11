@@ -61,22 +61,22 @@ foo \#{"\\\#{" + "baz"} bang
 SASS
   end
 
-  def test_warning_reporting
+  def test_implicit_string_warning
     assert_warning(<<WARN) {eval("foo")}
 DEPRECATION WARNING:
-On line 1, character 1 of 'test_warning_reporting_inline.sass'
+On line 1, character 1 of 'test_implicit_string_warning_inline.sass'
 Implicit strings have been deprecated and will be removed in version 2.4.
 'foo' was not quoted. Please add double quotes (e.g. "foo").
 WARN
     assert_warning(<<WARN) {eval("1 + foo")}
 DEPRECATION WARNING:
-On line 1, character 5 of 'test_warning_reporting_inline.sass'
+On line 1, character 5 of 'test_implicit_string_warning_inline.sass'
 Implicit strings have been deprecated and will be removed in version 2.4.
 'foo' was not quoted. Please add double quotes (e.g. "foo").
 WARN
     assert_warning(<<WARN) {render("@if 1 + foo")}
 DEPRECATION WARNING:
-On line 1, character 9 of 'test_warning_reporting_inline.sass'
+On line 1, character 9 of 'test_implicit_string_warning_inline.sass'
 Implicit strings have been deprecated and will be removed in version 2.4.
 'foo' was not quoted. Please add double quotes (e.g. "foo").
 WARN
@@ -84,7 +84,7 @@ WARN
     # Regression
     assert_warning(<<WARN) {render("@if if")}
 DEPRECATION WARNING:
-On line 1, character 5 of 'test_warning_reporting_inline.sass'
+On line 1, character 5 of 'test_implicit_string_warning_inline.sass'
 Implicit strings have been deprecated and will be removed in version 2.4.
 'if' was not quoted. Please add double quotes (e.g. "if").
 WARN
@@ -100,6 +100,24 @@ WARN
       assert_equal "send(to_s)", resolve("send(to_s)", :line => 2)
     end
     assert_equal "public_instance_methods()", resolve("public_instance_methods()")
+  end
+
+  def test_hyphen_warning
+    a = Sass::Script::String.new("a")
+    b = Sass::Script::String.new("b")
+    assert_warning(<<WARN) {eval("!a-!b", {}, env("a" => a, "b" => b))}
+DEPRECATION WARNING:
+On line 1, character 3 of 'test_hyphen_warning_inline.sass'
+- will be allowed as part of variable names in version 2.4.
+Please add whitespace to separate it from the previous token.
+WARN
+
+    assert_warning(<<WARN) {eval("true-false")}
+DEPRECATION WARNING:
+On line 1, character 5 of 'test_hyphen_warning_inline.sass'
+- will be allowed as part of variable names in version 2.4.
+Please add whitespace to separate it from the previous token.
+WARN
   end
 
   def test_ruby_equality

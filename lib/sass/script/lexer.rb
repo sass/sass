@@ -65,10 +65,11 @@ module Sass
       #   Used for error reporting
       # @param offset [Fixnum] The number of characters in on which the SassScript appears.
       #   Used for error reporting
-      def initialize(str, line, offset)
+      def initialize(str, line, offset, filename)
         @scanner = str.is_a?(StringScanner) ? str : StringScanner.new(str)
         @line = line
         @offset = offset
+        @filename = filename
         @prev = nil
       end
 
@@ -158,7 +159,18 @@ module Sass
       end
 
       def op
+        prev_chr = @scanner.string[@scanner.pos - 1].chr
         return unless op = @scanner.scan(REGULAR_EXPRESSIONS[:op])
+        if @prev && op == '-' && prev_chr !~ /\s/ &&
+            [:bool, :ident, :const].include?(@prev.type)
+          warn(<<END)
+DEPRECATION WARNING:
+On line #{@line}, character #{last_match_position}#{" of '#{@filename}'" if @filename}
+- will be allowed as part of variable names in version 2.4.
+Please add whitespace to separate it from the previous token.
+END
+        end
+
         [OPERATORS[op]]
       end
 

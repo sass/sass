@@ -14,7 +14,7 @@ module Sass
       #   Used for error reporting
       def initialize(str, line, offset, filename = nil)
         @filename = filename
-        @lexer = Lexer.new(str, line, offset)
+        @lexer = Lexer.new(str, line, offset, filename)
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).
