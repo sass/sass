@@ -12,7 +12,7 @@ require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
 require 'sass/tree/debug_node'
-require 'sass/tree/file_node'
+require 'sass/tree/import_node'
 require 'sass/environment'
 require 'sass/script'
 require 'sass/error'
@@ -227,21 +227,23 @@ END
 
     def build_tree(parent, line, root = false)
       @line = line.index
-      node = parse_line(parent, line, root)
+      node_or_nodes = parse_line(parent, line, root)
 
-      # Node is a symbol if it's non-outputting, like a variable assignment,
-      # or an array if it's a group of nodes to add
-      return node unless node.is_a? Tree::Node
+      Array(node_or_nodes).each do |node|
+        # Node is a symbol if it's non-outputting, like a variable assignment
+        next unless node.is_a? Tree::Node
 
-      node.line = line.index
-      node.filename = line.filename
+        node.line = line.index
+        node.filename = line.filename
 
-      if node.is_a?(Tree::CommentNode)
-        node.lines = line.children
-      else
-        append_children(node, line.children, false)
+        if node.is_a?(Tree::CommentNode)
+          node.lines = line.children
+        else
+          append_children(node, line.children, false)
+        end
       end
-      return node
+
+      node_or_nodes
     end
 
     def append_children(parent, children, root)
@@ -279,7 +281,7 @@ END
         case child
         when Tree::MixinDefNode
           raise SyntaxError.new("Mixins may only be defined at the root of a document.", line.index)
-        when Tree::DirectiveNode, Tree::FileNode
+        when Tree::ImportNode
           raise SyntaxError.new("Import directives may only be used at the root of a document.", line.index)
         end
       end
@@ -365,7 +367,7 @@ END
       # it's a CSS @import rule and we don't want to touch it.
       if directive == "import" && value !~ /^(url\(|")/
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.", @line + 1) unless line.children.empty?
-        import(value)
+        value.split(/,\s*/).map {|f| Tree::ImportNode.new(f)}
       elsif directive == "for"
         parse_for(line, root, value)
       elsif directive == "else"
@@ -469,28 +471,6 @@ END
       line = options[:line] || @line
       offset = options[:offset] || 0
       Script.parse(script, line, offset, @options[:filename])
-    end
-
-    def import_paths
-      paths = (@options[:load_paths] || []).dup
-      paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
-      paths
-    end
-
-    def import(files)
-      files.split(/,\s*/).map do |filename|
-        engine = nil
-
-        begin
-          filename = Sass::Files.find_file_to_import(filename, import_paths)
-        rescue Exception => e
-          raise SyntaxError.new(e.message, @line)
-        end
-
-        next Tree::DirectiveNode.new("@import url(#{filename})") if filename =~ /\.css$/
-
-        Tree::FileNode.new(filename)
-      end.flatten
     end
   end
 end
