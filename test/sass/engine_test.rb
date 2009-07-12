@@ -126,8 +126,8 @@ class SassEngineTest < Test::Unit::TestCase
                  render("p\n\ta: b\n\tq\n\t\tc: d\n"))
   end
   
-  def test_exceptions
-    EXCEPTION_MAP.each do |key, value|
+  EXCEPTION_MAP.each do |key, value|
+    define_method("test_exception (#{key.inspect})") do
       line = 10
       begin
         Sass::Engine.new(key, :filename => __FILE__, :line => line).render
