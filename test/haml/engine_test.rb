@@ -421,6 +421,10 @@ HAML
 HAML
   end
 
+  def test_new_attrs_with_hash
+    assert_equal("<a href='#'></a>\n", render('%a(href="#")'))
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape
