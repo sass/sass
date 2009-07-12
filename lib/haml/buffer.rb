@@ -278,7 +278,12 @@ RUBY
       ref = ref[0]
       # Let's make sure the value isn't nil. If it is, return the default Hash.
       return {} if ref.nil?
-      class_name = underscore(ref.class)
+      class_name =
+        if ref.respond_to?(:haml_object_ref)
+          ref.haml_object_ref
+        else
+          underscore(ref.class)
+        end
       id = "#{class_name}_#{ref.id || 'new'}"
       if prefix
         class_name = "#{ prefix }_#{ class_name}"

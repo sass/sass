@@ -581,6 +581,29 @@ is compiled to:
       Hello!
     </div>
 
+If you require that the class be something other than the underscored
+object's class, you can implement the `haml_object_ref` method on the object.
+
+    # file: app/models/crazy_user.rb
+
+    class CrazyUser < ActiveRecord::Base
+      def haml_object_ref
+        "a_crazy_user"
+      end
+    end
+
+    -# file: app/views/users/show.haml
+
+    %div[@user]
+      Hello!
+
+is compiled to:
+
+    <div class='a_crazy_user' id='a_crazy_user_15'>
+      Hello!
+    </div>
+
+
 ## Doctype: `!!!`
 
 When describing HTML documents with Haml,

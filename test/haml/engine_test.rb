@@ -69,6 +69,11 @@ class EngineTest < Test::Unit::TestCase
   }
 
   User = Struct.new('User', :id)
+  class CustomHamlClass < Struct.new(:id)
+    def haml_object_ref
+      "my_thing"
+    end
+  end
 
   def render(text, options = {}, &block)
     scope  = options.delete(:scope)  || Object.new
@@ -753,6 +758,12 @@ END
     user = User.new 42
     assert_equal("<p class='struct_user' id='struct_user_42' style='width: 100px;'>New User</p>\n",
                  render("%p[user]{:style => 'width: 100px;'} New User", :locals => {:user => user}))
+  end
+
+  def test_object_ref_with_custom_haml_class
+    custom = CustomHamlClass.new 42
+    assert_equal("<p class='my_thing' id='my_thing_42' style='width: 100px;'>My Thing</p>\n",
+                 render("%p[custom]{:style => 'width: 100px;'} My Thing", :locals => {:custom => custom}))
   end
 
   def test_non_literal_attributes
