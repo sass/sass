@@ -5,10 +5,7 @@ module Sass::Tree
   # only CSS directives like `@media` and `@font-face` become {DirectiveNode}s.
   #
   # `@import` is a bit of a weird case;
-  # if it's importing a Sass file,
-  # it becomes a {FileNode},
-  # but if it's importing a plain CSS file,
-  # it becomes a {DirectiveNode}.
+  # it becomes an {ImportNode}.
   #
   # @see Sass::Tree
   class DirectiveNode < Node
