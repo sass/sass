@@ -3,6 +3,15 @@
 * Table of contents
 {:toc}
 
+## 2.4.0
+
+### Object Reference Customization
+
+It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}
+for a given object by implementing the `haml_object_ref` method on that object.
+This method should return a string that will be used in place of the class name of the object
+in the generated class and id.
+
 ## 2.2.1
 
 Haml 2.2.1 is a minor bug-fix release.
