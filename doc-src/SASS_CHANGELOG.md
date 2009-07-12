@@ -3,6 +3,17 @@
 * Table of contents
 {:toc}
 
+## 2.2.1
+
+Sass 2.2.1 is a minor bug-fix release.
+
+### Must Read!
+
+* It used to be acceptable to use `-` immediately following variable names,
+  without any whitespace in between (for example, `!foo-!bar`).
+  This is now deprecated, so that in the future variables with hyphens
+  can be supported. Surround `-` with spaces.
+
 ## 2.2.0
 
 The 2.2 release marks a significant step in the evolution of the Sass

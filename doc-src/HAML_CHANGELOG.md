@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 2.2.1
+
+Haml 2.2.1 is a minor bug-fix release.
+
 ## 2.2.0
 
 Haml 2.2 adds several new features to the language,
