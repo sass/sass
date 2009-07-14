@@ -140,8 +140,10 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_action_view_templates_render_correctly
-    @base.content_for(:layout) {'Lorem ipsum dolor sit amet'}
-    assert_renders_correctly 'content_for_layout'
+    @base.with_output_buffer("") do
+      @base.content_for(:layout) {'Lorem ipsum dolor sit amet'}
+      assert_renders_correctly 'content_for_layout'
+    end
   end
 
   def test_instance_variables_should_work_inside_templates

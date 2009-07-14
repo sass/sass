@@ -42,7 +42,7 @@ module Sass
 
         return Functions::EvaluationContext.new(environment.options).send(name, *args)
       rescue ArgumentError => e
-        raise e unless e.backtrace.first =~ /:in `(#{name}|perform)'$/
+        raise e unless e.backtrace.first =~ /:in `(block in )?(#{name}|perform)'$/
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
       end
     end

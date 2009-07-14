@@ -571,7 +571,10 @@ END
       attributes = {}
 
       scanner.scan(/\(\s*/)
-      until (name, value = parse_new_attribute(scanner)).first.nil?
+      loop do
+        name, value = parse_new_attribute(scanner)
+        break if name.nil?
+
         if name == false
           text = (Haml::Shared.balance(line, ?(, ?)) || [line]).first
           raise Haml::SyntaxError.new("Invalid attribute list: #{text.inspect}.", last_line - 1)
