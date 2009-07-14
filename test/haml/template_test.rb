@@ -140,9 +140,15 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_action_view_templates_render_correctly
-    @base.with_output_buffer("") do
+    proc = lambda do
       @base.content_for(:layout) {'Lorem ipsum dolor sit amet'}
       assert_renders_correctly 'content_for_layout'
+    end
+
+    if @base.respond_to?(:with_output_buffer)
+      @base.with_output_buffer("", &proc)
+    else
+      proc.call
     end
   end
 
