@@ -2,8 +2,59 @@ require File.dirname(__FILE__) + '/../haml'
 
 require 'haml/engine'
 require 'rubygems'
-require 'hpricot'
 require 'cgi'
+
+module Haml
+  class HTML
+    # A module containing utility methods that every Hpricot node
+    # should have.
+    module Node
+      # Returns the Haml representation of the given node.
+      #
+      # @param tabs [Fixnum] The indentation level of the resulting Haml.
+      # @option options (see Haml::HTML#initialize)
+      def to_haml(tabs, options)
+        parse_text(self.to_s, tabs)
+      end
+
+      private
+
+      def tabulate(tabs)
+        '  ' * tabs
+      end
+
+      def parse_text(text, tabs)
+        text.strip!
+        if text.empty?
+          String.new
+        else
+          lines = text.split("\n")
+
+          lines.map do |line|
+            line.strip!
+            "#{tabulate(tabs)}#{'\\' if Haml::Engine::SPECIAL_CHARACTERS.include?(line[0])}#{line}\n"
+          end.join
+        end
+      end
+    end
+  end
+end
+
+# Haml monkeypatches various Hpricot classes
+# to add methods for conversion to Haml.
+module Hpricot
+  # @see Hpricot
+  module Node
+    include Haml::HTML::Node
+  end
+
+  # @see Hpricot
+  class BaseEle
+    include Haml::HTML::Node
+  end
+end
+
+require 'hpricot'
 
 module Haml
   # Converts HTML documents into Haml templates.
@@ -46,67 +97,35 @@ module Haml
     end
     alias_method :to_haml, :render
 
-    # Haml monkeypatches various Hpricot classes
-    # to add methods for conversion to Haml.
-    module ::Hpricot::Node
-      # Returns the Haml representation of the given node.
-      #
-      # @param tabs [Fixnum] The indentation level of the resulting Haml.
-      # @option options (see Haml::HTML#initialize)
-      def to_haml(tabs, options)
-        parse_text(self.to_s, tabs)
-      end
-
-      private
-
-      def tabulate(tabs)
-        '  ' * tabs
-      end
-
-      def parse_text(text, tabs)
-        text.strip!
-        if text.empty?
-          String.new
-        else
-          lines = text.split("\n")
-
-          lines.map do |line|
-            line.strip!
-            "#{tabulate(tabs)}#{'\\' if Haml::Engine::SPECIAL_CHARACTERS.include?(line[0])}#{line}\n"
-          end.join
-        end
-      end
-    end
-
     TEXT_REGEXP = /^(\s*).*$/
 
-    # @see Hpricot::Node
+    # @see Hpricot
     class ::Hpricot::Doc
-      # @see Hpricot::Node#to_haml
+      # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         (children || []).inject('') {|s, c| s << c.to_haml(0, options)}
       end
     end
 
-    # @see Hpricot::Node
+    # @see Hpricot
     class ::Hpricot::XMLDecl
-      # @see Hpricot::Node#to_haml
+      # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         "#{tabulate(tabs)}!!! XML\n"
       end
     end
 
-    # @see Hpricot::Node
+    # @see Hpricot
     class ::Hpricot::CData
-      # @see Hpricot::Node#to_haml
+      # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         "#{tabulate(tabs)}:cdata\n#{parse_text(self.content, tabs + 1)}"
       end
     end
 
-    # @see Hpricot::Node
+    # @see Hpricot
     class ::Hpricot::DocType
-      # @see Hpricot::Node#to_haml
+      # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         attrs = public_id.scan(/DTD\s+([^\s]+)\s*([^\s]*)\s*([^\s]*)\s*\/\//)[0]
         if attrs == nil
@@ -137,17 +156,17 @@ module Haml
       end
     end
 
-    # @see Hpricot::Node
+    # @see Hpricot
     class ::Hpricot::Comment
-      # @see Hpricot::Node#to_haml
+      # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         "#{tabulate(tabs)}/\n#{parse_text(self.content, tabs + 1)}"
       end
     end
 
-    # @see Hpricot::Node
+    # @see Hpricot
     class ::Hpricot::Elem
-      # @see Hpricot::Node#to_haml
+      # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         output = "#{tabulate(tabs)}"
         if options[:rhtml] && name[0...5] == 'haml:'
