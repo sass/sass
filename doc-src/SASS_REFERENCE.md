@@ -158,9 +158,10 @@ Available options are:
   Defaults to `RAILS_ROOT + "/public/stylesheets/sass"`
   or `MERB_ROOT + "/public/stylesheets/sass"`.
   Only has meaning within Ruby on Rails or Merb.
+
   This will be derived from the `:css_location` path list if not provided 
   by appending a folder of "sass" to each corresponding css location.
-  Please note: When multiple template locations are specified, all
+  Please note: when multiple template locations are specified, all
   of them are placed in the import path, allowing you to import
   between them.
 
@@ -170,6 +171,9 @@ Available options are:
   Defaults to `RAILS_ROOT + "/public/stylesheets"`
   or `MERB_ROOT + "/public/stylesheets"`.
   Only has meaning within Ruby on Rails or Merb.
+
+  Note that if this is set and `:template_location` is not,
+  `:template_location` will default to `"#{css_location}/sass`.
 
 {#cache_location-option} `:cache_location`
 : The path where the cached `sassc` files should be written to.
