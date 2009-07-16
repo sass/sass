@@ -12,11 +12,11 @@ for a given object by implementing the `haml_object_ref` method on that object.
 This method should return a string that will be used in place of the class name of the object
 in the generated class and id.
 
-## 2.2.1
+## [2.2.1](http://github.com/nex3/haml/commit/2.2.1)
 
 Haml 2.2.1 is a minor bug-fix release.
 
-## 2.2.0
+## [2.2.0](http://github.com/nex3/haml/commit/2.2.0)
 
 Haml 2.2 adds several new features to the language,
 fixes several bugs, and dramatically improves performance
