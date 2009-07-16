@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.1
+## [2.2.1](http://github.com/nex3/haml/commit/2.2.1)
 
 Sass 2.2.1 is a minor bug-fix release.
 
@@ -14,7 +14,7 @@ Sass 2.2.1 is a minor bug-fix release.
   This is now deprecated, so that in the future variables with hyphens
   can be supported. Surround `-` with spaces.
 
-## 2.2.0
+## [2.2.0](http://github.com/nex3/haml/commit/2.2.0)
 
 The 2.2 release marks a significant step in the evolution of the Sass
 language. The focus has been to increase the power of Sass to keep

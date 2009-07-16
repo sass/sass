@@ -3,11 +3,11 @@
 * Table of contents
 {:toc}
 
-## 2.2.1
+## [2.2.1](http://github.com/nex3/haml/commit/2.2.1)
 
 Haml 2.2.1 is a minor bug-fix release.
 
-## 2.2.0
+## [2.2.0](http://github.com/nex3/haml/commit/2.2.0)
 
 Haml 2.2 adds several new features to the language,
 fixes several bugs, and dramatically improves performance
