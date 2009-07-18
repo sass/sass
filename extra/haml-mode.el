@@ -603,9 +603,8 @@ If N is negative, will remove the spaces instead.  Assumes all
 lines in the region have indentation >= that of the first line."
   (let ((ci (current-indentation)))
     (save-excursion
-      (replace-regexp (concat "^" (make-string ci ? ))
-                      (make-string (max 0 (+ ci n)) ? )
-                      nil (point) (mark)))))
+      (while (re-search-forward (concat "^" (make-string ci ?\s)) (mark) t)
+        (replace-match (make-string (max 0 (+ ci n)) ?\s))))))
 
 (defun haml-electric-backspace (arg)
   "Delete characters or back-dent the current line.
