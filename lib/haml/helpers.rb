@@ -338,7 +338,7 @@ END
     # @param text [#to_s] The text to output
     def haml_concat(text = "")
       haml_buffer.buffer << haml_indent << text.to_s << "\n"
-      nil
+      haml_concat_error "haml_concat"
     end
 
     # @return [String] The indentation string for the current line
@@ -399,11 +399,7 @@ END
     # @overload haml_tag(name, text, *flags, attributes = {})
     #   @param text [#to_s] The text within the tag
     def haml_tag(name, *rest, &block)
-      ret = ErrorReturn.new(<<MESSAGE)
-haml_tag outputs directly to the Haml template.
-Disregard its return value and use the - operator,
-or use capture_haml to get the value as a String.
-MESSAGE
+      ret = haml_concat_error "haml_tag"
 
       name = name.to_s
       text = rest.shift.to_s unless [Symbol, Hash, NilClass].any? {|t| rest.first.is_a? t}
@@ -525,6 +521,14 @@ MESSAGE
       _hamlout = haml_buffer
       _erbout = _hamlout.buffer
       proc { |*args| proc.call(*args) }
+    end
+
+    def haml_concat_error(method)
+      ErrorReturn.new(<<MESSAGE)
+#{method} outputs directly to the Haml template.
+Disregard its return value and use the - operator,
+or use capture_haml to get the value as a String.
+MESSAGE
     end
 
     include ActionViewExtensions if self.const_defined? "ActionViewExtensions"
