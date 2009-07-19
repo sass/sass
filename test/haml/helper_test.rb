@@ -8,6 +8,12 @@ class ActionView::Base
   end
 end
 
+module Haml::Helpers
+  def something_that_uses_haml_concat
+    haml_concat('foo').to_s
+  end
+end
+
 class HelperTest < Test::Unit::TestCase
   Post = Struct.new('Post', :body)
   
@@ -221,7 +227,29 @@ HAML
   def test_content_tag_nested
     assert_equal "<span><div>something</div></span>", render("= nested_tag", :action_view).strip
   end
-  
+
+  def test_error_return
+    assert_raise(Haml::Error, <<MESSAGE) {render("= haml_concat 'foo'")}
+haml_concat outputs directly to the Haml template.
+Disregard its return value and use the - operator,
+or use capture_haml to get the value as a String.
+MESSAGE
+  end
+
+  def test_error_return_line
+    render("%p foo\n= haml_concat 'foo'\n%p bar")
+    assert false, "Expected Haml::Error"
+  rescue Haml::Error => e
+    assert_equal 2, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
+  end
+
+  def test_error_return_line_in_helper
+    render("- something_that_uses_haml_concat")
+    assert false, "Expected Haml::Error"
+  rescue Haml::Error => e
+    assert_equal 13, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
+  end
+
   class ActsLikeTag
     # We want to be able to have people include monkeypatched ActionView helpers
     # without redefining is_haml?.
