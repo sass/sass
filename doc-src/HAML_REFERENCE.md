@@ -1037,6 +1037,9 @@ is compiled to
       <p>I <strong>really</strong> prefer <em>raspberry</em> jam.</p>
     </div>
 
+Currently, filters ignore the [`:escape_html`](#escape_html-option) option.
+This means that `#{}` interpolation within filters is never HTML-escaped.
+
 Haml has the following filters defined:
 
 {#plain-filter} plain

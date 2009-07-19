@@ -430,6 +430,19 @@ HAML
     assert_equal("<a href='#'></a>\n", render('%a(href="#")'))
   end
 
+  def test_javascript_filter_with_dynamic_interp_and_escape_html
+    assert_equal(<<HTML, render(<<HAML, :escape_html => true))
+<script type='text/javascript'>
+  //<![CDATA[
+    & < > &
+  //]]>
+</script>
+HTML
+:javascript
+ & < > \#{"&"}
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape
