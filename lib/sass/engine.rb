@@ -268,6 +268,7 @@ END
           continued_rule, child = nil, continued_rule
         end
 
+        check_for_no_children(child)
         validate_and_append_child(parent, child, line, root)
       end
 
@@ -292,6 +293,22 @@ END
       when Tree::Node
         parent << child
       end
+    end
+
+    def check_for_no_children(node)
+      return unless node.is_a?(Tree::RuleNode) && node.children.empty?
+      warning = (node.rules.size == 1) ? <<SHORT : <<LONG
+WARNING:
+Selector #{node.rules.first.inspect} doesn't have any properties and will not be rendered.
+SHORT
+
+WARNING:
+Selector
+  #{node.rules.join("\n  ")}
+doesn't have any properties and will not be rendered.
+LONG
+
+      warn(warning.strip)
     end
 
     def parse_line(parent, line, root)
