@@ -36,8 +36,40 @@ module Sass
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse
         expr = assert_expr :expr
-        raise Sass::SyntaxError.new("Unexpected #{@lexer.peek.type} token.") unless @lexer.done?
+        assert_done
         expr
+      end
+
+      # Parses the argument list for a mixin include.
+      #
+      # @return [Array<Script::Node>] The root nodes of the arguments.
+      # @raise [Sass::SyntaxError] if the argument list isn't valid SassScript
+      def parse_mixin_include_arglist
+        args = []
+
+        if try_tok(:lparen)
+          args = arglist || args
+          assert_tok(:rparen)
+        end
+        assert_done
+
+        args
+      end
+
+      # Parses the argument list for a mixin definition.
+      #
+      # @return [Array<Script::Node>] The root nodes of the arguments.
+      # @raise [Sass::SyntaxError] if the argument list isn't valid SassScript
+      def parse_mixin_definition_arglist
+        args = []
+
+        if try_tok(:lparen)
+          args = defn_arglist(false) || args
+          assert_tok(:rparen)
+        end
+        assert_done
+
+        args
       end
 
       # Parses a SassScript expression.
@@ -120,6 +152,19 @@ END
         end
       end
 
+      def defn_arglist(must_have_default)
+        return unless c = try_tok(:const)
+        var = Script::Variable.new(c.value)
+        if try_tok(:single_eq)
+          val = assert_expr(:concat)
+        elsif must_have_default
+          raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.", @line)
+        end
+
+        return [[var, val]] unless try_tok(:comma)
+        [[var, val], *defn_arglist(val)]
+      end
+
       def arglist
         return unless e = concat
         return [e] unless try_tok(:comma)
@@ -166,6 +211,11 @@ END
       def try_tok(*names)
         peeked =  @lexer.peek
         peeked && names.include?(peeked.type) && @lexer.next
+      end
+
+      def assert_done
+        return if @lexer.done?
+        raise Sass::SyntaxError.new("Unexpected #{@lexer.peek.type} token.")
       end
     end
   end

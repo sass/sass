@@ -65,14 +65,14 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  b: c\na\n    d: e" => ["The line was indented 2 levels deeper than the previous line.", 4],
     "a\n  b: c\n  a\n        d: e" => ["The line was indented 3 levels deeper than the previous line.", 4],
     "a\n \tb: c" => ["Indentation can't use both tabs and spaces.", 2],
-    "=a(" => 'Invalid mixin "a(".',
-    "=a(b)" => 'Mixin argument "b" must begin with an exclamation point (!).',
-    "=a(,)" => "Mixin arguments can't be empty.",
-    "=a(!)" => "Mixin arguments can't be empty.",
-    "=a(!foo bar)" => "Invalid variable \"!foo bar\".",
+    "=a(" => 'Expected rparen token, was end of text.',
+    "=a(b)" => 'Expected rparen token, was ident token.',
+    "=a(,)" => "Expected rparen token, was comma token.",
+    "=a(!)" => "Syntax error in '(!)' at character 4.",
+    "=a(!foo bar)" => "Expected rparen token, was ident token.",
     "=foo\n  bar: baz\n+foo" => ["Properties aren't allowed at the root of a document.", 2],
     "a-\#{!b\n  c: d" => ["Expected end_interpolation token, was end of text.", 1],
-    "=a(!b = 1, !c)" => "Required arguments must not follow optional arguments \"!c\".",
+    "=a(!b = 1, !c)" => "Required argument !c must come before any optional arguments.",
     "=a(!b = 1)\n  :a= !b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a(!b)\n  :a= !b\ndiv\n  +a" => "Mixin a is missing parameter !b.",
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
@@ -705,6 +705,21 @@ SASS
   end
 
   # Regression tests
+
+  def test_parens_in_mixins
+    assert_equal(<<CSS, render(<<SASS))
+.foo {
+  color: #01ff7f;
+  background-color: #000102; }
+CSS
+=foo(!c1, !c2 = rgb(0, 1, 2))
+  color = !c1
+  background-color = !c2
+
+.foo
+  +foo(rgb(1,255,127))
+SASS
+  end
 
   def test_comment_beneath_prop
     assert_equal(<<RESULT, render(<<SOURCE))

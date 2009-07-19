@@ -425,46 +425,24 @@ END
       nil
     end
 
-    # parses out the arguments between the commas and cleans up the mixin arguments
-    # returns nil if it fails to parse, otherwise an array.
-    def parse_mixin_arguments(arg_string)
-      arg_string = arg_string.strip
-      return [] if arg_string.empty?
-      return nil unless (arg_string[0] == ?( && arg_string[-1] == ?))
-      arg_string = arg_string[1...-1]
-      arg_string.split(",", -1).map {|a| a.strip}
-    end
-
     def parse_mixin_definition(line)
       name, arg_string = line.text.scan(/^=\s*([^(]+)(.*)$/).first
-      args = parse_mixin_arguments(arg_string)
-      raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) if name.nil? || args.nil?
+      raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".", @line) if name.nil?
+
+      offset = line.offset + line.text.size - arg_string.size
+      args = Script::Parser.new(arg_string.strip, @line, offset).parse_mixin_definition_arglist
       default_arg_found = false
-      required_arg_count = 0
-      args.map! do |arg|
-        raise SyntaxError.new("Mixin arguments can't be empty.", @line) if arg.empty? || arg == "!"
-        unless arg[0] == Script::VARIABLE_CHAR
-          raise SyntaxError.new("Mixin argument \"#{arg}\" must begin with an exclamation point (!).", @line)
-        end
-        arg, default = arg.split(/\s*=\s*/, 2)
-        required_arg_count += 1 unless default
-        default_arg_found ||= default
-        raise SyntaxError.new("Invalid variable \"#{arg}\".", @line) unless arg =~ Script::VALIDATE
-        raise SyntaxError.new("Required arguments must not follow optional arguments \"#{arg}\".", @line) if default_arg_found && !default
-        default = parse_script(default, :offset => line.offset + line.text.index(default)) if default
-        [arg[1..-1], default]
-      end
       Tree::MixinDefNode.new(name, args)
     end
 
     def parse_mixin_include(line, root)
       name, arg_string = line.text.scan(/^\+\s*([^(]+)(.*)$/).first
-      args = parse_mixin_arguments(arg_string)
-      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.", @line + 1) unless line.children.empty?
-      raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil? || args.nil?
-      args.each {|a| raise SyntaxError.new("Mixin arguments can't be empty.", @line) if a.empty?}
+      raise SyntaxError.new("Invalid mixin include \"#{line.text}\".", @line) if name.nil?
 
-      Tree::MixinNode.new(name, args.map {|s| parse_script(s, :offset => line.offset + line.text.index(s))})
+      offset = line.offset + line.text.size - arg_string.size
+      args = Script::Parser.new(arg_string.strip, @line, offset).parse_mixin_include_arglist
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.", @line + 1) unless line.children.empty?
+      Tree::MixinNode.new(name, args)
     end
 
     def parse_script(script, options = {})

@@ -71,7 +71,8 @@ module Sass::Script
     #   A number between 0 and 255 inclusive
     def rgb(red, green, blue)
       [red.value, green.value, blue.value].each do |v|
-        raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive") if v <= 0 || v >= 255
+        next unless v < 0 || v > 255
+        raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
       end
       Color.new([red.value, green.value, blue.value])
     end

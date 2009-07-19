@@ -28,6 +28,7 @@ module Sass
         '*' => :times,
         '/' => :div,
         '%' => :mod,
+        '=' => :single_eq,
         '(' => :lparen,
         ')' => :rparen,
         ',' => :comma,
