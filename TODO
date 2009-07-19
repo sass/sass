@@ -10,6 +10,11 @@
   [2.4] Syntax highlighting?
 
 * Code
+  [2.4] Keep track of error offsets everywhere
+    Use this to show error location in messages
+    Just clean up SassScript syntax errors in general
+    Lexer errors in particular are icky
+    See in particular error changes made in c07b5c8
 ** Haml
    [2.4] Allow "!!! HTML5" to set :format => :html5 ?
      How do we deal with partials?
