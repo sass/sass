@@ -14,8 +14,12 @@ module Haml
     # when it shouldn't be.
     class ErrorReturn
       # @param message [String] The error message to raise when \{#to\_s} is called
-      def initialize(message)
-        @message = message
+      def initialize(method)
+        @message = <<MESSAGE
+#{method} outputs directly to the Haml template.
+Disregard its return value and use the - operator,
+or use capture_haml to get the value as a String.
+MESSAGE
       end
 
       # Raises an error.
@@ -23,6 +27,21 @@ module Haml
       # @raise [Haml::Error] The error
       def to_s
         raise Haml::Error.new(@message)
+      rescue Haml::Error => e
+        e.backtrace.shift
+
+        # If the ErrorReturn is used directly in the template,
+        # we don't want Haml's stuff to get into the backtrace,
+        # so we get rid of the format_script line.
+        #
+        # We also have to subtract one from the Haml line number
+        # since the value is passed to format_script the line after
+        # it's actually used.
+        if e.backtrace.first =~ /^\(eval\):\d+:in `format_script/
+          e.backtrace.shift
+          e.backtrace.first.gsub!(/^\(haml\):(\d+)/) {|s| "(haml):#{$1.to_i - 1}"}
+        end
+        raise e
       end
 
       # @return [String] A human-readable string representation
@@ -338,7 +357,7 @@ END
     # @param text [#to_s] The text to output
     def haml_concat(text = "")
       haml_buffer.buffer << haml_indent << text.to_s << "\n"
-      nil
+      ErrorReturn.new("haml_concat")
     end
 
     # @return [String] The indentation string for the current line
@@ -399,11 +418,7 @@ END
     # @overload haml_tag(name, text, *flags, attributes = {})
     #   @param text [#to_s] The text within the tag
     def haml_tag(name, *rest, &block)
-      ret = ErrorReturn.new(<<MESSAGE)
-haml_tag outputs directly to the Haml template.
-Disregard its return value and use the - operator,
-or use capture_haml to get the value as a String.
-MESSAGE
+      ret = ErrorReturn.new("haml_tag")
 
       name = name.to_s
       text = rest.shift.to_s unless [Symbol, Hash, NilClass].any? {|t| rest.first.is_a? t}
