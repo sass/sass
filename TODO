@@ -18,6 +18,7 @@
     Lexer errors in particular are icky
     See in particular error changes made in c07b5c8
 ** Haml
+   [2.4] Support finer-grained HTML-escaping in filters
    [2.4] Allow "!!! HTML5" to set :format => :html5 ?
      How do we deal with partials?
    [2.4] :ugly + :html improvements
