@@ -22,8 +22,10 @@ class SassPluginTest < Test::Unit::TestCase
     FileUtils.rm_r tempfile_loc(nil,"more_")
   end
 
-  def test_templates_should_render_correctly
-    @@templates.each { |name| assert_renders_correctly(name) }
+  @@templates.each do |name|
+    define_method("test_template_renders_correctly (#{name})") do
+      assert_renders_correctly(name)
+    end
   end
 
   def test_no_update
