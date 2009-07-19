@@ -7,6 +7,8 @@
     Will be code reviewed
     [Haml]/[Sass], punctuation
     Don't forget docs
+  Using helpers
+    haml_concat and haml_tag in particular
   [2.4] Syntax highlighting?
 
 * Code
