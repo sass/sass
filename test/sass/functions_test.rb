@@ -91,6 +91,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_rgb
     assert_equal("#123456", evaluate("rgb(18, 52, 86)"))
     assert_equal("#beaded", evaluate("rgb(190, 173, 237)"))
+    assert_equal("#00ff7f", evaluate("rgb(0, 255, 127)"))
 
     assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
       "rgb(256, 1, 1)")
