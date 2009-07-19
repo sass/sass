@@ -243,21 +243,6 @@ WARN
     Sass::Engine.new(sass, options).render
   end
 
-  def assert_warning(message)
-    the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
-    assert_equal message.strip, $stderr.string.strip
-  ensure
-    $stderr = the_real_stderr
-  end
-
-  def silence_warnings
-    the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
-  ensure
-    $stderr = the_real_stderr
-  end
-
   def env(hash = {})
     env = Sass::Environment.new
     hash.each {|k, v| env.set_var(k, v)}

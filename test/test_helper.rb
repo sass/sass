@@ -26,4 +26,19 @@ class Test::Unit::TestCase
     path = File.dirname(__FILE__) + "/../.sass-cache"
     FileUtils.rm_r(path) if File.exist?(path)
   end
+
+  def assert_warning(message)
+    the_real_stderr, $stderr = $stderr, StringIO.new
+    yield
+    assert_equal message.strip, $stderr.string.strip
+  ensure
+    $stderr = the_real_stderr
+  end
+
+  def silence_warnings
+    the_real_stderr, $stderr = $stderr, StringIO.new
+    yield
+  ensure
+    $stderr = the_real_stderr
+  end
 end
