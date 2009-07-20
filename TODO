@@ -13,6 +13,10 @@
 
 * Code
 ** Haml
+   Interpolation shouldn't make non-interpolated strings escaped under :escape_html
+     I think we can just wrap interpolated code with (),
+     since it's already interpolated.
+   Can also use () to wrap contents of _haml_temp so that commas throw errors when not in :ugly
    [2.4] Allow "!!! HTML5" to set :format => :html5 ?
      How do we deal with partials?
    [2.4] :ugly + :html improvements
