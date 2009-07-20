@@ -12,6 +12,19 @@ for a given object by implementing the `haml_object_ref` method on that object.
 This method should return a string that will be used in place of the class name of the object
 in the generated class and id.
 
+## [2.2.2](http://github.com/nex3/haml/commit/2.2.2)
+
+Haml 2.2.2 is a minor bugfix release, with several notable changes.
+First, {file:Haml/Helpers.html#haml_concat-instance_method `haml_concat`}
+will now raise an error when used with `=`.
+This has always been incorrect behavior,
+and in fact has never actually worked.
+The only difference is that now it will fail loudly.
+Second, Ruby 1.9 is now more fully supported,
+especially with the {file:HAML_REFERENCE#htmlstyle_attributes_ new attribute syntax}.
+Third, filters are no longer escaped when the {file:HAML_REFERENCE#escape_html-option `:escape_html` option}
+is enabled and `#{}` interpolation is used.
+
 ## [2.2.1](http://github.com/nex3/haml/commit/2.2.1)
 
 Haml 2.2.1 is a minor bug-fix release.

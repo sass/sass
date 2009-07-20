@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## [2.2.2](http://github.com/nex3/haml/commit/2.2.2)
+
+Sass 2.2.2 is a minor bug-fix release.
+Notable changes include better parsing of mixin definitions and inclusions
+and better support for Ruby 1.9.
+
 ## [2.2.1](http://github.com/nex3/haml/commit/2.2.1)
 
 Sass 2.2.1 is a minor bug-fix release.
