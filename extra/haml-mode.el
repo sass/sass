@@ -486,7 +486,7 @@ beginning the hash."
   (save-excursion
     (while t
       (beginning-of-line)
-      (if (looking-at (eval-when-compile (concat haml-tag-beg-re "\\([{(]\\)")))
+      (if (looking-at (concat haml-tag-beg-re "\\([{(]\\)"))
           (progn
             (goto-char (- (match-end 0) 1))
             (haml-limited-forward-sexp (save-excursion (end-of-line) (point)))
