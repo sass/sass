@@ -299,6 +299,11 @@ END
           @options[:for_engine][:escape_html] = true
         end
 
+        opts.on('-q', '--double-quote-attributes',
+                'Set attribute wrapper to double-quotes (default is single).') do
+          @options[:for_engine][:attr_wrapper] = '"'
+        end
+
         opts.on('-r', '--require FILE', "Same as 'ruby -r'.") do |file|
           @options[:requires] << file
         end
