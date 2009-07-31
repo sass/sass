@@ -12,6 +12,11 @@ for a given object by implementing the `haml_object_ref` method on that object.
 This method should return a string that will be used in place of the class name of the object
 in the generated class and id.
 
+### `--double-quote-attributes` Option
+
+The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
+that causes attributes to use a double-quote mark rather than single-quote.
+
 ## [2.2.2](http://github.com/nex3/haml/commit/2.2.2)
 
 Haml 2.2.2 is a minor bugfix release, with several notable changes.
