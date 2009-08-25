@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.3
+## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
 
 Haml 2.2.3 adds support for the JRuby bundling tools
 for Google AppEngine, thanks to [Jan Ulbrich](http://github.com/ulbrich).

@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.3
+## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
 
 Sass 2.2.3 prints line numbers for warnings about selectors
 with no properties.
