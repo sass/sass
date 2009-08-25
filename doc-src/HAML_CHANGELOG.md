@@ -17,7 +17,7 @@ in the generated class and id.
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
 that causes attributes to use a double-quote mark rather than single-quote.
 
-## 2.2.3
+## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
 
 Haml 2.2.3 adds support for the JRuby bundling tools
 for Google AppEngine, thanks to [Jan Ulbrich](http://github.com/ulbrich).
