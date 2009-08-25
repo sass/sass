@@ -706,17 +706,19 @@ SASS
 
   def test_empty_selector_warning
     assert_warning(<<END) {render("foo bar")}
-WARNING:
+WARNING on line 1:
 Selector "foo bar" doesn't have any properties and will not be rendered.
 END
 
     assert_warning(<<END) {render(<<SASS)}
-WARNING:
+WARNING on line 3:
 Selector
   foo, bar, baz,
   bang, bip, bop
 doesn't have any properties and will not be rendered.
 END
+
+
 foo, bar, baz,
 bang, bip, bop
 SASS
