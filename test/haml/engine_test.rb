@@ -318,6 +318,31 @@ HTML
 HAML
   end
 
+  def test_silent_end_with_stuff
+    assert_equal(<<HTML, render(<<HAML))
+e
+d
+c
+b
+a
+HTML
+- str = "abcde"
+- if true
+  = str.slice!(-1).chr
+- end until str.empty?
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+<p>hi!</p>
+HTML
+- if true
+  %p hi!
+- end if "foo".gsub(/f/) do
+  - "z"
+- end + "bar"
+HAML
+  end
+
   def test_multiline_with_colon_after_filter
     assert_equal(<<HTML, render(<<HAML))
 Foo

@@ -398,8 +398,8 @@ END
     end
 
     # Closes a Ruby block.
-    def close_script
-      push_silent "end", true
+    def close_script(push_end = true)
+      push_silent("end", true) if push_end
       @template_tabs -= 1
     end
 
