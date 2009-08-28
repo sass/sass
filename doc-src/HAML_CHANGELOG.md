@@ -17,6 +17,17 @@ in the generated class and id.
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
 that causes attributes to use a double-quote mark rather than single-quote.
 
+## 2.2.4
+
+Allow `end` to be used for silent script when it's followed by code.
+For example:
+
+    - form_for do
+      ...
+    - end if @show_form
+
+This isn't very good style, but we're supporting it for consistency's sake.
+
 ## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
 
 Haml 2.2.3 adds support for the JRuby bundling tools
