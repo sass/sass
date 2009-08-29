@@ -1,4 +1,4 @@
-:markdown
+:maruku
   First of all, let's get Sass up and running.
   To get it, run
 
@@ -35,18 +35,24 @@
   but give it a try; you might find that you end up liking it
   (if you really hate it, Sass 2.4 will support braces and semicolons as well).
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       .important
         color: red
         font-weight: bold
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       .important {
         color: red;
         font-weight: bold; }
 
+:markdown
   ## Nesting
 
   Often when writing CSS, you'll have several selectors
@@ -59,7 +65,10 @@
   Sass allows you to avoid this by nesting the child selectors
   within the parent selector.
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       #main
         p
@@ -73,7 +82,9 @@
           h2
             font-size: 0.8em    
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       #main p {
         padding-left: 1.5em;
@@ -84,6 +95,7 @@
         #main .notice h2 {
           font-size: 0.8em; }
 
+:markdown
   Notice how the output is formatted as much like the Sass code as possible.
   This is the default output mode,
   but there are [other modes](/docs/yardoc/SASS_REFERENCE.md.html#output_style)
@@ -93,7 +105,10 @@
   You can also nest properties,
   so you don't have to repeat stuff like `border-left-` all the time.
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       .fakeshadow
         border:
@@ -105,7 +120,9 @@
             width: 2px
             color: #ccc
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       .fakeshadow {
         border-style: solid;
@@ -114,6 +131,7 @@
         border-right-width: 2px;
         border-right-width: #ccc; }
 
+:maruku
   ### Parent Reference
 
   What about pseudo-selectors, like `:hover`?
@@ -122,7 +140,10 @@
   You just need to use the Sass special character `&`.
   In a selector, `&` will be replaced verbatim with the parent selector.
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       #main
         width: 97%
@@ -136,7 +157,9 @@
           &:visited
             color: #00ff00
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       #main {
         width: 97%; }
@@ -147,6 +170,7 @@
           #main a:visited {
             color: #00ff00; }
 
+:maruku
   ## Variables
 
   Sass allows you to declare variables
@@ -156,7 +180,10 @@
   To use a variable in a property,
   just use `=` instead of `:`.
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       !main_color = #ce4dd6
       !style = "solid"
@@ -169,7 +196,9 @@
       a
         color = !main_color
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       #header {
         border-bottom-color: #ce4dd6;
@@ -178,6 +207,7 @@
       a {
         color: #ce4dd6; }
 
+:maruku
   Variables allow you to re-use colors, sizes, and other values
   without repeating yourself.
   This means that changes that should be small -
@@ -197,7 +227,10 @@
   where the operation is performed
   on the red, green, and blue components in turn.
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       !sidebar_width = 150px
       !main_color = #ce4dd6
@@ -212,7 +245,9 @@
         #sidebar
           width = !sidebar_width
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       #main {
         border-color: #ce4dd6;
@@ -222,12 +257,16 @@
         #sidebar {
           width: 150px; }
 
+:maruku
   ### Interpolation
 
   Variables can be used for more than just property values.
   You can use `\#{}` to insert them into property names or even selectors.
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       !border_side = "left"
       !border_class = "nifty"
@@ -237,12 +276,15 @@
           style: solid
           color: blue
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       .nifty {
         border-left-style: solid;
         border-left-color: blue; }
 
+:maruku
   ## Mixins
 
   Mixins are one of the most powerful aspects of Sass.
@@ -253,7 +295,10 @@
   with some Sass nested underneath.
   To use it, write `+mixin-name` where you want it to be expanded.
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       =float-left
         display: inline
@@ -265,7 +310,9 @@
       #content img
         +float-left
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       #sidebar {
         display: inline;
@@ -276,6 +323,7 @@
         float: left; }
 
 
+:maruku
   ### Arguments
 
   The real power of mixins comes when you pass them arguments.
@@ -287,7 +335,10 @@
   Then the user of the mixin can choose not to pass that argument
   and it will be assigned the default value.
 
-  #### Sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass
 
       =replace-text(!img, !x = 50%, !y = 50%)
         text-indent: -9999em
@@ -301,9 +352,11 @@
         +replace-text("/images/logo.png")
 
       li#overview
-        +replace-text("/images/overview.png", 20%, 10%)
+        +replace-text("/images/overview.png", 20%)
 
-  #### CSS
+  %pre.css
+    :preserve
+      /* CSS */
 
       #header h1 {
         text-indent: -9999em;
@@ -319,6 +372,7 @@
         background-repeat: no-repeat;
         background-position: 20% 10%; }
 
+:maruku
   ## `@import`
 
   Stylesheets can get pretty big.
@@ -334,9 +388,10 @@
   You can import these files without using the underscore,
   and they won't get rendered as CSS.
 
-  #### Sass
-
-      // _defines.sass
+.compare
+  %pre.sass
+    :preserve
+      // Sass: _defines.sass
 
       !main_color = #ce4dd6
 
@@ -354,9 +409,9 @@
         #sidebar
           +float("right")
 
-  #### CSS
-
-      /* style.css */
+  %pre.css
+    :preserve
+      /* CSS : style.css */
 
       #main {
         color: #ce4dd6; }

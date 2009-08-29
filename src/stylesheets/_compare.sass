@@ -1,0 +1,30 @@
+@import compass/utilities/general/clearfix
+
+=compare
+  +clearfix
+  position: relative
+
+  .sass, .css
+    width: 40%
+    !radius = 10px
+    -webkit-border-radius = !radius
+    -moz-border-radius = !radius
+    border-radius = !radius
+    padding: 0.7em
+    font-size: 0.9em
+    line-height: 1.2em
+    overflow: auto
+    border:
+      style: solid
+      width: 1px
+  .sass
+    background-color = #ffeeff
+    border-color = !main_color
+    float: left
+  .css
+    background-color = #e0e0e0
+    border-color = #777
+    float: right
+
+.compare
+  +compare
