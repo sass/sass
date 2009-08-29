@@ -1,5 +1,12 @@
+/.yardoc
+/coverage
+/doc
+/pkg
+/test/rails
+/.sass-cache
+/.haml
+/.sass-cache
+
 /site/*
 !/site/images
 !/site/javascripts
-/.haml
-/.sass-cache
