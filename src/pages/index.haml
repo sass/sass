@@ -67,7 +67,9 @@
 
   .erb.lang
     %h3 ERB
-    :markdown
+    %pre
+      = h_and_preserve do
+        :plain
           <div id="profile">
             <div class="left column">
               <div id="date"><%= print_date %></div>
