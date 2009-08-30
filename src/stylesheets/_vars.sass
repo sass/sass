@@ -2,10 +2,18 @@
 !border_color = #b1ad9b
 !border = 1px "dashed" !border_color
 
-=border-bottom-radius(!radius)
-  border-bottom-right-radius = !radius
-  border-bottom-left-radius = !radius
-  -moz-border-radius-bottomleft = !radius
-  -moz-border-radius-bottomright = !radius
-  -webkit-border-bottom-left-radius = !radius
-  -webkit-border-bottom-right-radius = !radius
+=border-radius(!radius, !mod1 = "", !mod2 = "")
+  @if !mod1 != "" and !mod2 != ""
+    border-#{!mod1}-#{!mod2}-radius = !radius
+    -webkit-border-#{!mod1}-#{!mod2}-radius = !radius
+    -moz-border-radius-#{!mod1}#{!mod2} = !radius
+  @else if !mod1 == "bottom" or !mod1 == "top"
+    +border-radius(!radius, !mod1, "left")
+    +border-radius(!radius, !mod1, "right")
+  @else if !mod1 == "left" or !mod1 == "right"
+    +border-radius(!radius, "top", !mod1)
+    +border-radius(!radius, "bottom", !mod1)
+  @else
+    border-radius = !radius
+    -webkit-border-radius = !radius
+    -moz-border-radius = !radius
