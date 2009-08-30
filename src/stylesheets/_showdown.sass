@@ -21,6 +21,10 @@
       width: 1px
       style: solid
       color = !main_color
+
+    &, & span
+      +border-radius(8px)
+
     span
       display: block
       background-color = !main_color
@@ -48,7 +52,9 @@
       +showdown-lang-border("top")
       +showdown-lang-border("left")
       +showdown-lang-border("right")
+      +border-radius(8px, "top")
     pre
+      +border-radius(8px, "top")
       color: #747474
       height: 16em
       margin: 0
