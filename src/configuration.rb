@@ -1,4 +1,5 @@
 require 'compass'
+require 'cgi'
 
 Compass.configuration do |config|
   # project_path should be the the directory to which the sass directory is relative.
@@ -18,5 +19,10 @@ module StaticMatic::Helpers
 
   def css
     (["#haml"] + local_page.split(File::SEPARATOR)).join(".")
+  end
+
+  def h_and_preserve(content = nil, &block)
+    return preserve(CGI.escapeHTML(content)) if content
+    return h_and_preserve(capture_haml(&block).strip)
   end
 end

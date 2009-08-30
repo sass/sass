@@ -134,15 +134,22 @@ pre, ul
 
 pre
   margin-left: 2em
-  code
+  & code, &.haml, &.erb, &.html
     +inline-block
-    background-color: #fff8f8
     padding: 3px 5px
     +border-radius(4px)
     border:
       style: solid
       width: 1px
-      color = !border_color
+  code
+    border-color = !border_color
+    background-color: #fff8f8
+  &.haml
+    border-color = !main_color
+    background-color: #ffeee0
+  &.erb, &.html
+    background-color: #e5e5e5
+    border-color: #777
 
 h4
   margin:
