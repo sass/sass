@@ -164,7 +164,6 @@ END
           end
 
           File.open(File.join(dir, 'init.rb'), 'w') do |file|
-            file.puts "require 'rubygems'"
             file << File.read(File.dirname(__FILE__) + "/../../init.rb")
           end
 
