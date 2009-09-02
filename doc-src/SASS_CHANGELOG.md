@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 2.2.4
+
+Don't add `require 'rubygems'` to the top of init.rb when installed
+via `sass --rails`. This isn't necessary, and actually gets
+clobbered as soon as haml/template is loaded.
+
 ## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
 
 Sass 2.2.3 prints line numbers for warnings about selectors
