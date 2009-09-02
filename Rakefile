@@ -1,6 +1,3 @@
-require 'rubygems'
-require 'rake'
-
 # ----- Benchmarking -----
 
 desc <<END
