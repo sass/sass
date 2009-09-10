@@ -16,7 +16,7 @@
   That means any file in your `app/views` folder can be switched over
   to Haml by simply changing the extension of the file.
 
-  `app/views/account/login.html.erb` &rarr; `app/views/account/login.html.haml`
+  <pre><code>app/views/account/login.html.erb &rarr; app/views/account/login.html.haml</code></pre>
 
   Now, when you view that page, instead of ERB getting its hands on the template,
   it's handled by Haml instead. You can mix up ERB and Haml and on the fly
@@ -26,14 +26,19 @@
 
   Let's start off with some basic ERB that we want to convert.
 
-  #### ERB
-
+%h4 ERB
+%pre.erb
+  = h_and_preserve do
+    :plain
       <strong><%= item.title %></strong>
 
-  #### Haml
-
+%h4 Haml
+%pre.haml
+  = h_and_preserve do
+    :plain
       %strong= item.title
 
+:markdown
   In Haml, we write a tag by using the percent sign and then the name
   of the tag. This works for `%strong`, `%div`, `%body`, `%html`; any
   tag you want. Then, after the name of the tag is `=`, which tells
@@ -45,14 +50,19 @@
   Simple tags are all well and good, but what about adding attributes
   to tags? 
 
-  #### HTML
-
+%h4 HTML
+%pre.html
+  = h_and_preserve do
+    :plain
       <strong class="code" id="message">Hello, World!</strong>
 
-  #### Haml
-
+%h4 Haml
+%pre.haml
+  = h_and_preserve do
+    :plain
       %strong{:class => "code", :id => "message"} Hello, World!
 
+:markdown
   The attributes are just a standard Ruby hash. The `class` attribute
   is "code", the `id` attribute is "message".  Notice that in this
   example, we didn't use `=`, so "Hello, World!" is interpreted as a
@@ -63,42 +73,58 @@
   coders) are familiar with CSS, we can use similar notation to
   describe this tag.
 
-  #### Haml
-
+%h4 Haml
+%pre.haml
+  = h_and_preserve do
+    :plain
       %strong.code#message Hello, World!
 
+:markdown
   Not only that, but since `div` tags are so common, you can leave off
   the tag definition and have it default to `%div`.
 
-  #### Haml
-
+%h4 Haml
+%pre.haml
+  = h_and_preserve do
+    :plain
       .content Hello, World!
 
-  #### HTML
-
+%h4 HTML
+%pre.html
+  = h_and_preserve do
+    :plain
       <div class='content'>Hello, World!</div>
 
+:markdown
   Now what about something a little more complicated?
 
-  #### ERB
-
+%h4 ERB
+%pre.erb
+  = h_and_preserve do
+    :plain
       <div class='item' id='item<%= item.id %>'>
         <%= item.body %>
       </div>
 
+:markdown
   Pretty basic. This might be part of a partial or something.
   Let's convert it to Haml.
 
-  #### Haml
-
+%h4 Haml
+%pre.haml
+  = h_and_preserve do
+    :plain
       .item{:id => "item\#{item.id}"}= item.body
 
+:markdown
   This stuff is fun!
 
   Now, nesting is taken care of in Haml via whitespace.
 
-  #### ERB
-
+%h4 ERB
+%pre.erb
+  = h_and_preserve do
+    :plain
       <div id='content'>
         <div class='left column'>
           <h2>Welcome to our site!</h2>
@@ -109,8 +135,10 @@
         </div>
       </div>
 
-  #### Haml
-
+%h4 Haml
+%pre.haml
+  = h_and_preserve do
+    :plain
       #content
         .left.column
           %h2 Welcome to our site!
@@ -118,6 +146,7 @@
         .right.column
           = render :partial => "sidebar"
 
+:markdown
   Look at that. Doesn't that just make you smile?
 
   There is a lot more to learn, so I'd highly recommend checking out

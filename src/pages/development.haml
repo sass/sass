@@ -1,0 +1,46 @@
+:maruku
+  Haml is maintained by me, [Nathan Weizenbaum](http://nex-3.com),
+  and I greatly appreciate any help I can get.
+  The official repository is at [github.com/nex3/haml](http://github.com/nex3/haml)
+  and most development discussion happens on the [mailing list](http://groups.google.com/group/haml).
+
+  ## Bugs and Features
+
+  If you've found a Haml bug, or you have something you'd like to see in the language,
+  by all means speak up!
+  Report it on the [issue tracker](http://github.com/nex3/haml/issues)
+  and I'll try to follow up with you as soon as I can.
+  Please include the following information in your report:
+
+  * What version of Haml you're using (run `haml --version` on the command line)
+  * If the issue has to do with Rails, what version of Rails you're using (`rails --version`)
+  * If possible, a simple Haml template that displays the bug -
+    preferably one that can be run with the command-line `haml` tool
+
+  The more information you can provide, the faster it'll be to fix your bug!
+
+  ## Contributing
+
+  While bug reports and feature requests are great,
+  actual code fixing the bugs or implementing the features is even better.
+  If you've got some code to contribute, first read the information below,
+  then fork the [Haml repository](http://github.com/nex3/haml) and send a pull request.
+  I'll do a code review of your patch, and then chances are good I'll merge it right in.
+
+  Haml has two primary branches.
+  [stable](http://github.com/nex3/haml/tree/stable) is where the development
+  of the released version (currently #{Haml.version[:number]}) takes place.
+  This is where most bug fixes should go.
+  [master](http://github.com/nex3/haml/tree/master), on the other hand,
+  is where the next version of Haml is being developed.
+  This is the place for new features.
+  Please submit your changes to the appropriate branch.
+
+  When making a patch, please:
+
+  * Make sure your commit message is properly capitalized and punctuated
+  * Put "[Haml]" at the beginning of the commit message
+    if you're making a change that only affects Haml
+  * Add unit tests
+  * Add a note to the changelog (`doc-src/HAML_CHANGELOG.md`) describing your change
+  * If you're implementing a user-visible change, add it to the reference (`doc-src/HAML_REFERENCE.md`)

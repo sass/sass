@@ -3,6 +3,8 @@
   http://www.lukasdryja.com
   --------------------
 
+@import compass/utilities/general/inline_block.sass
+
 @import vars.sass
 @import header.sass
 @import sidebar.sass
@@ -129,3 +131,31 @@ dd
 
 pre, ul
   margin-bottom: 1em
+
+pre
+  margin-left: 2em
+  & code, &.haml, &.erb, &.html
+    +inline-block
+    padding: 3px 5px
+    +border-radius(4px)
+    border:
+      style: solid
+      width: 1px
+  code
+    border-color = !border_color
+    background-color: #fff8f8
+  &.haml
+    border-color = !main_color
+    background-color: #ffeee0
+  &.erb, &.html
+    background-color: #e5e5e5
+    border-color: #777
+
+h4
+  margin:
+    left: 3em
+    bottom: -0.3em
+  font:
+    weight: normal
+    family: monospace
+    size: 0.8em
