@@ -77,7 +77,7 @@ module Sass
 
       return new_filename if new_filename
       return filename + '.css' unless was_sass
-      raise SyntaxError.new("File to import not found or unreadable: #{original_filename}.", @line)
+      raise SyntaxError.new("File to import not found or unreadable: #{original_filename}.")
     end
 
     private
