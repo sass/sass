@@ -12,6 +12,10 @@ especially when importing files.
 All imports will now show up in the Ruby backtrace,
 with the proper filename and line number.
 
+In addition, when the `sass` executable encounters an error,
+it now prints the filename where the error occurs,
+as well as a backtrace of Sass imports.
+
 ## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
 
 Sass 2.2.3 prints line numbers for warnings about selectors

@@ -96,6 +96,22 @@ module Sass
       return nil if super.nil?
       sass_backtrace.map {|h| "#{h[:filename] || "(sass)"}:#{h[:line]}"} + super
     end
+
+    # Returns a string representation of the Sass backtrace.
+    #
+    # @param default_filename [String] The filename to use for unknown files
+    # @see #sass_backtrace
+    # @return [String]
+    def sass_backtrace_str(default_filename = "an unknown file")
+      msg = "Syntax error on line #{sass_line}" +
+        " of #{sass_filename || default_filename}" +
+        ": #{message}"
+      sass_backtrace[1..-1].each do |entry|
+        msg << "\n        from line #{entry[:line]}" +
+          " of #{entry[:filename] || default_filename}"
+      end
+      msg
+    end
   end
 
   # The class for Sass errors that are raised due to invalid unit conversions

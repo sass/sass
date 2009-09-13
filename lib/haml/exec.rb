@@ -264,7 +264,7 @@ END
         output.close() if output.is_a? File
       rescue ::Sass::SyntaxError => e
         raise e if @options[:trace]
-        raise "Syntax error on line #{get_line e}: #{e.message}"
+        raise e.sass_backtrace_str("standard input")
       end
     end
 
