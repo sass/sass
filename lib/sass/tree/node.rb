@@ -66,7 +66,7 @@ module Sass
       # @see #invalid_child?
       def <<(child)
         if msg = invalid_child?(child)
-          raise Sass::SyntaxError.new(msg, child.line)
+          raise Sass::SyntaxError.new(msg, :line => child.line)
         end
         @children << child
       end
@@ -122,18 +122,19 @@ module Sass
       def to_s
         result = String.new
         children.each do |child|
-          if child.is_a? PropNode
-            raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.', child.line)
-          else
-            next if child.invisible?
-            child_str = child.to_s(1)
-            result << child_str + (style == :compressed ? '' : "\n")
-          end
+          raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.',
+            :line => child.line) if child.is_a? PropNode
+
+          next if child.invisible?
+          child_str = child.to_s(1)
+          result << child_str + (style == :compressed ? '' : "\n")
         end
         result.rstrip!
         return "" if result.empty?
         return result + "\n"
-      rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace(:filename => filename)
+        raise e
       end
 
       # Runs the dynamic Sass code:
@@ -154,7 +155,9 @@ module Sass
       def perform(environment)
         environment.options = @options if self.class == Tree::Node
         _perform(environment)
-      rescue Sass::SyntaxError => e; e.add_metadata(filename, line)
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace(:filename => filename, :line => line)
+        raise e
       end
 
       # The output style. See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
@@ -228,7 +231,7 @@ module Sass
       def balance(*args)
         res = Haml::Shared.balance(*args)
         return res if res
-        raise Sass::SyntaxError.new("Unbalanced brackets.", line)
+        raise Sass::SyntaxError.new("Unbalanced brackets.", :line => line)
       end
 
       # Returns an error message if the given child node is invalid,

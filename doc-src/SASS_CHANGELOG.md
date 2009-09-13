@@ -3,6 +3,15 @@
 * Table of contents
 {:toc}
 
+## 2.4.0
+
+### Error Backtraces
+
+Numerous bugs were fixed with the backtraces given for Sass errors,
+especially when importing files.
+All imports will now show up in the Ruby backtrace,
+with the proper filename and line number.
+
 ## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
 
 Sass 2.2.3 prints line numbers for warnings about selectors

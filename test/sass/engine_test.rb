@@ -186,6 +186,15 @@ SASS
       rescue Sass::SyntaxError => err
         assert_equal(2, err.sass_line)
         assert_match(/bork#{i}\.sass$/, err.sass_filename)
+
+        assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
+        assert_equal(err.sass_line, err.sass_backtrace.first[:line])
+
+        assert_nil(err.sass_backtrace[1][:filename])
+        assert_equal(1, err.sass_backtrace[1][:line])
+
+        assert_match(/bork#{i}\.sass:2$/, err.backtrace.first)
+        assert_equal("(sass):1", err.backtrace[1])
       else
         assert(false, "Exception not raised for imported template: bork#{i}")
       end

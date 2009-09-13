@@ -16,7 +16,8 @@ module Sass
       def to_s(*args)
         @to_s ||= (style == :compressed ? super().strip : super())
       rescue Sass::SyntaxError => e
-        e.add_backtrace_entry(@filename)
+        e.modify_backtrace(:filename => @imported_filename)
+        e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       end
 
@@ -34,7 +35,8 @@ module Sass
         self.children = Sass::Files.tree_for(full_filename, @options).children
         self.children = perform_children(environment)
       rescue Sass::SyntaxError => e
-        e.add_backtrace_entry(@filename)
+        e.modify_backtrace(:filename => @imported_filename)
+        e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       end
 
@@ -50,7 +52,7 @@ module Sass
         begin
           full_filename = Sass::Files.find_file_to_import(@imported_filename, import_paths)
         rescue Exception => e
-          raise SyntaxError.new(e.message, self.line)
+          raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
         end
 
         if full_filename =~ /\.css$/

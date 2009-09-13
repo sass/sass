@@ -41,22 +41,18 @@ module Sass::Tree
     # @return [String] The resulting CSS
     # @raise [Sass::SyntaxError] if the property uses invalid syntax
     def to_s(tabs, parent_name = nil)
-      if @options[:property_syntax] == :old && @prop_syntax == :new
-        raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.", @line)
-      elsif @options[:property_syntax] == :new && @prop_syntax == :old
-        raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.", @line)
-      end
+      raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.",
+        :line => @line) if @options[:property_syntax] == :old && @prop_syntax == :new
+      raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.",
+        :line => @line) if @options[:property_syntax] == :new && @prop_syntax == :old
+      raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).",
+        :line => @line) if value[-1] == ?;
+      raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value).",
+        :line => @line) if value.empty? && children.empty?
 
-      if value[-1] == ?;
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).", @line)
-      end
       real_name = name
       real_name = "#{parent_name}-#{real_name}" if parent_name
-      
-      if value.empty? && children.empty?
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value).", @line)
-      end
-      
+
       join_string = case style
                     when :compact; ' '
                     when :compressed; ''
