@@ -40,6 +40,11 @@ module Sass
     # @return [Aray<Hash<Symbol, Object>>]
     attr_accessor :sass_backtrace
 
+    # The text of the template where this error was raised.
+    #
+    # @return [String]
+    attr_accessor :sass_template
+
     # @param msg [String] The error message
     # @param attrs [Hash<Symbol, Object>] The information in the backtrace entry.
     #   See \{#sass\_backtrace}

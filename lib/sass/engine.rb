@@ -156,12 +156,13 @@ module Sass
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
-      root = Tree::RootNode.new
+      root = Tree::RootNode.new(@template)
       append_children(root, tree(tabulate(@template)).first, true)
       root.options = @options
       root
     rescue SyntaxError => e
       e.modify_backtrace(:filename => @options[:filename], :line => @line)
+      e.sass_template = @template
       raise e
     end
 

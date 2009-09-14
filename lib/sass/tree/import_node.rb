@@ -7,7 +7,7 @@ module Sass
       # @param imported_filename [String] The name of the imported file
       def initialize(imported_filename)
         @imported_filename = imported_filename
-        super()
+        super(nil)
       end
 
       def invisible?; to_s.empty?; end
@@ -32,7 +32,9 @@ module Sass
       #   variable and mixin values
       def perform!(environment)
         return unless full_filename = import
-        self.children = Sass::Files.tree_for(full_filename, @options).children
+        root = Sass::Files.tree_for(full_filename, @options)
+        @template = root.template
+        self.children = root.children
         self.children = perform_children(environment)
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => full_filename)

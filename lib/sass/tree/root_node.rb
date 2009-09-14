@@ -2,6 +2,33 @@ module Sass
   module Tree
     # A static node that is the root node of the Sass document.
     class RootNode < Node
+      # The Sass template from which this node was created
+      #
+      # @param template [String]
+      attr_reader :template
+
+      # @param template [String] The Sass template from which this node was created
+      def initialize(template)
+        super()
+        @template = template
+      end
+
+      # @see \{Node#to\_s}
+      def to_s(*args)
+        super
+      rescue Sass::SyntaxError => e
+        e.sass_template = @template
+        raise e
+      end
+
+      # @see \{Node#perform}
+      def perform(*args)
+        super
+      rescue Sass::SyntaxError => e
+        e.sass_template = @template
+        raise e
+      end
+
       protected
 
       # Computes the CSS corresponding to this Sass tree.
