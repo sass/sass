@@ -158,7 +158,7 @@ END
         if try_tok(:single_eq)
           val = assert_expr(:concat)
         elsif must_have_default
-          raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.", @line)
+          raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")
         end
 
         return [[var, val]] unless try_tok(:comma)

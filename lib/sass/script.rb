@@ -47,12 +47,8 @@ module Sass
     def self.parse(value, line, offset, filename = nil)
       Parser.parse(value, line, offset, filename)
     rescue Sass::SyntaxError => e
-      if e.message == "SassScript error"
-        e.instance_eval do
-          @message += ": #{value.dump}."
-        end
-      end
-      e.sass_line = line
+      e.message << ": #{value.inspect}." if e.message == "SassScript error"
+      e.modify_backtrace(:line => line, :filename => filename)
       raise e
     end
   end

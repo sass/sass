@@ -24,7 +24,7 @@ module Sass::Tree
     # @raise [Sass::SyntaxError] if an incorrect number of arguments was passed
     # @see Sass::Tree
     def _perform(environment)
-      raise Sass::SyntaxError.new("Undefined mixin '#{@name}'.", @line) unless mixin = environment.mixin(@name)
+      raise Sass::SyntaxError.new("Undefined mixin '#{@name}'.") unless mixin = environment.mixin(@name)
 
       raise Sass::SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < @args.size
 Mixin #{@name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}

@@ -9,6 +9,7 @@ module Sass
   # when it's used as a plugin for various frameworks.
   # Currently Rails and Merb are supported out of the box.
   module Plugin
+    include Haml::Util
     extend self
 
     @options = {
@@ -82,7 +83,7 @@ module Sass
       result = begin
                  Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
-                 exception_string(e)
+                 Sass::SyntaxError.exception_to_css(e, options)
                end
 
       # Create any directories that might be necessary
@@ -119,49 +120,6 @@ module Sass
         options[:template_location].to_a.map { |l| l.last }
       else
         [options[:css_location]]
-      end
-    end
-
-    def exception_string(e)
-      if options[:full_exception]
-        e_string = "#{e.class}: #{e.message}"
-
-        if e.is_a? Sass::SyntaxError
-          e_string << "\non line #{e.sass_line}"
-
-          if e.sass_filename
-            e_string << " of #{e.sass_filename}"
-
-            if File.exists?(e.sass_filename)
-              e_string << "\n\n"
-
-              min = [e.sass_line - 5, 0].max
-              begin
-                File.read(e.sass_filename).rstrip.split("\n")[
-                  min .. e.sass_line + 5
-                ].each_with_index do |line, i|
-                  e_string << "#{min + i + 1}: #{line}\n"
-                end
-              rescue
-                e_string << "Couldn't read sass file: #{e.sass_filename}"
-              end
-            end
-          end
-        end
-        <<END
-/*
-#{e_string}
-
-Backtrace:\n#{e.backtrace.join("\n")}
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "#{e_string.gsub('"', '\"').gsub("\n", '\\A ')}"; }
-END
-        # Fix an emacs syntax-highlighting hiccup: '
-      else
-        "/* Internal stylesheet error */"
       end
     end
 

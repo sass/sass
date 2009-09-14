@@ -33,6 +33,9 @@
        http://www.w3.org/TR/REC-html40/intro/sgmltut.html#h-3.2.2
        http://www.w3.org/TR/html5/syntax.html#attributes
 ** Sass
+   Benchmark the effects of storing the raw template in sassc
+     If it's expensive, overload RootNode dumping/loading to dup and set @template to nil
+     Then fall back on reading from actual file
    [2.4] CSS superset
    [2.4] Classes are mixins
      Can refer to specific property values? Syntax?

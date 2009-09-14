@@ -3,6 +3,19 @@
 * Table of contents
 {:toc}
 
+## 2.4.0
+
+### Error Backtraces
+
+Numerous bugs were fixed with the backtraces given for Sass errors,
+especially when importing files.
+All imports will now show up in the Ruby backtrace,
+with the proper filename and line number.
+
+In addition, when the `sass` executable encounters an error,
+it now prints the filename where the error occurs,
+as well as a backtrace of Sass imports.
+
 ## 2.2.4
 
 * Don't add `require 'rubygems'` to the top of init.rb when installed

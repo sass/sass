@@ -20,11 +20,13 @@ module Sass::Tree
       super()
     end
 
+    protected
+
     # Computes the CSS for the directive.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String] The resulting CSS
-    def to_s(tabs)
+    def _to_s(tabs)
       if children.empty?
         value + ";"
       else

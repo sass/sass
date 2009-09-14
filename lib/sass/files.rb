@@ -13,7 +13,8 @@ module Sass
     # @param filename [String] The path to the Sass file
     # @param options [Hash<Symbol, Object>] The options hash.
     #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
-    # @raise [Sass::SyntaxError] if there's an error in the document
+    # @raise [Sass::SyntaxError] if there's an error in the document.
+    #   The caller has responsibility for setting backtrace information, if necessary
     def tree_for(filename, options)
       options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
       text = File.read(filename)
@@ -30,15 +31,8 @@ module Sass
 
       engine = Sass::Engine.new(text, options.merge(:filename => filename))
 
-      begin
-        root = engine.to_tree
-      rescue Sass::SyntaxError => err
-        err.add_backtrace_entry(filename)
-        raise err
-      end
-
+      root = engine.to_tree
       try_to_write_sassc(root, compiled_filename, sha, options) if options[:cache]
-
       root
     end
 
@@ -77,7 +71,7 @@ module Sass
 
       return new_filename if new_filename
       return filename + '.css' unless was_sass
-      raise SyntaxError.new("File to import not found or unreadable: #{original_filename}.", @line)
+      raise SyntaxError.new("File to import not found or unreadable: #{original_filename}.")
     end
 
     private

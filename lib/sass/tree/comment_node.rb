@@ -38,6 +38,16 @@ module Sass::Tree
       self.class == other.class && value == other.value && silent == other.silent && lines == other.lines
     end
 
+    # Returns `true` if this is a silent comment
+    # or the current style doesn't render comments.
+    #
+    # @return [Boolean]
+    def invisible?
+      style == :compressed || @silent
+    end
+
+    protected
+
     # Computes the CSS for the comment.
     #
     # Returns `nil` if this is a silent comment
@@ -47,7 +57,7 @@ module Sass::Tree
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String, nil] The resulting CSS
     # @see #invisible?
-    def to_s(tabs = 0, _ = nil)
+    def _to_s(tabs = 0, _ = nil)
       return if invisible?
       spaces = '  ' * (tabs - 1)
 
@@ -59,16 +69,6 @@ module Sass::Tree
 
       spaces + "/* " + content.join(style == :compact ? '' : "\n#{spaces} *") + " */"
     end
-
-    # Returns `true` if this is a silent comment
-    # or the current style doesn't render comments.
-    #
-    # @return [Boolean]
-    def invisible?
-      style == :compressed || @silent
-    end
-
-    protected
 
     # Removes this node from the tree if it's a silent comment.
     #

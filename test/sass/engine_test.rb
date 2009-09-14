@@ -180,16 +180,76 @@ SASS
   end
 
   def test_imported_exception
-    [nil, 2].each do |i|
+    [1, 2, 3].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
         assert_equal(2, err.sass_line)
-        assert_match(/bork#{i}\.sass$/, err.sass_filename)
+        assert_match(/(\/|^)bork#{i}\.sass$/, err.sass_filename)
+
+        assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
+        assert_equal(err.sass_line, err.sass_backtrace.first[:line])
+
+        assert_nil(err.sass_backtrace[1][:filename])
+        assert_equal(1, err.sass_backtrace[1][:line])
+
+        assert_match(/(\/|^)bork#{i}\.sass:2$/, err.backtrace.first)
+        assert_equal("(sass):1", err.backtrace[1])
       else
         assert(false, "Exception not raised for imported template: bork#{i}")
       end
     end
+  end
+
+  def test_double_imported_exception
+    [1, 2, 3].each do |i|
+      begin
+        Sass::Engine.new("@import nested_bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
+      rescue Sass::SyntaxError => err
+        assert_equal(2, err.sass_line)
+        assert_match(/(\/|^)bork#{i}\.sass$/, err.sass_filename)
+
+        assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
+        assert_equal(err.sass_line, err.sass_backtrace.first[:line])
+
+        assert_match(/(\/|^)nested_bork#{i}\.sass$/, err.sass_backtrace[1][:filename])
+        assert_equal(2, err.sass_backtrace[1][:line])
+
+        assert_nil(err.sass_backtrace[2][:filename])
+        assert_equal(1, err.sass_backtrace[2][:line])
+
+        assert_match(/(\/|^)bork#{i}\.sass:2$/, err.backtrace.first)
+        assert_match(/(\/|^)nested_bork#{i}\.sass:2$/, err.backtrace[1])
+        assert_equal("(sass):1", err.backtrace[2])
+      else
+        assert(false, "Exception not raised for imported template: bork#{i}")
+      end
+    end
+  end
+
+  def test_exception_css_with_offset
+    opts = {:full_exception => true, :line => 362}
+    render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
+  rescue Sass::SyntaxError => e
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..15].join("\n"))
+/*
+Syntax error: Invalid property: "e: " (no value).
+        on line 383 of test_exception_css_with_offset_inline.sass
+
+378: a
+379:   b: c
+380: a
+381:   b: c
+382: d
+383:   e:
+384: f
+385:   g: h
+386: f
+387:   g: h
+388: f
+CSS
+  else
+    assert(false, "Exception not raised for test_exception_css_with_offset")
   end
 
   def test_css_import
