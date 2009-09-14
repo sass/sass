@@ -162,8 +162,9 @@ module Sass::Tree
       if super_rules.nil?
         return @parsed_rules.map do |line|
           line.map do |rule|
-            raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'.",
-              :line => @line) if rule.include?(:parent)
+            if rule.include?(:parent)
+              raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'.")
+            end
 
             rule.join
           end.compact
