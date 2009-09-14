@@ -16,6 +16,11 @@ In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
 as well as a backtrace of Sass imports.
 
+## 2.2.4
+
+Document the previously-undocumented {file:SASS_REFERENCE.md#line-option `:line` option},
+which allows the number of the first line of a Sass file to be set for error reporting.
+
 ## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
 
 Sass 2.2.3 prints line numbers for warnings about selectors

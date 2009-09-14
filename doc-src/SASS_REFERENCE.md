@@ -186,6 +186,11 @@ Available options are:
   This is used solely for reporting errors,
   and is automatically set when using Rails or Merb.
 
+{#line-option} `:line`
+: The number of the first line of the Sass template.
+  Used for reporting line numbers for errors.
+  This is useful to set if the Sass template is embedded in a Ruby file.
+
 {#load_paths-option} `:load_paths`
 : An array of filesystem paths which should be searched
   for Sass templates imported with the [`@import`](#import) directive.
