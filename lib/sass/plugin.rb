@@ -83,7 +83,7 @@ module Sass
       result = begin
                  Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
-                 exception_string(e)
+                 Sass::SyntaxError.exception_to_css(e, options)
                end
 
       # Create any directories that might be necessary
@@ -121,33 +121,6 @@ module Sass
       else
         [options[:css_location]]
       end
-    end
-
-    def exception_string(e)
-      return "/* Internal stylesheet error */" unless options[:full_exception]
-
-      header = header_string(e)
-
-      <<END
-/*
-#{header}
-
-Backtrace:\n#{e.backtrace.join("\n")}
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "#{header.gsub('"', '\"').gsub("\n", '\\A ')}"; }
-END
-    end
-
-    def header_string(e)
-      return "#{e.class}: #{e.message}" unless e.is_a? Sass::SyntaxError
-
-      min = [e.sass_line - 5, 0].max
-      e.sass_backtrace_str + "\n\n" +
-        enum_with_index(e.sass_template.rstrip.split("\n")[min .. e.sass_line + 5]).
-        map {|line, i| "#{min + i + 1}: #{line}"}.join("\n")
     end
 
     def template_filename(name, path)

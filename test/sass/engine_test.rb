@@ -227,6 +227,31 @@ SASS
     end
   end
 
+  def test_exception_css_with_offset
+    opts = {:full_exception => true, :line => 362}
+    render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
+  rescue Sass::SyntaxError => e
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..15].join("\n"))
+/*
+Syntax error: Invalid property: "e: " (no value).
+        on line 383 of test_exception_css_with_offset_inline.sass
+
+378: a
+379:   b: c
+380: a
+381:   b: c
+382: d
+383:   e:
+384: f
+385:   g: h
+386: f
+387:   g: h
+388: f
+CSS
+  else
+    assert(false, "Exception not raised for test_exception_css_with_offset")
+  end
+
   def test_css_import
     assert_equal("@import url(./fonts.css) screen;\n", render("@import url(./fonts.css) screen"))
     assert_equal("@import \"./fonts.css\" screen;\n", render("@import \"./fonts.css\" screen"))

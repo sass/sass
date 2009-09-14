@@ -114,6 +114,46 @@ module Sass
           " of #{entry[:filename] || default_filename}"
       end.join
     end
+
+    class << self
+      # Returns an error report for an exception in CSS format.
+      #
+      # @param e [Exception]
+      # @param full_exception [Boolean] The value of
+      #   \{file:SASS\_REFERENCE.md#full_exception-option `options[:full_exception]`}
+      def exception_to_css(e, options)
+        return "/* Internal stylesheet error */" unless options[:full_exception]
+
+        header = header_string(e, options)
+
+        <<END
+/*
+#{header}
+
+Backtrace:\n#{e.backtrace.join("\n")}
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "#{header.gsub('"', '\"').gsub("\n", '\\A ')}"; }
+END
+      end
+
+      private
+
+      def header_string(e, options)
+        return "#{e.class}: #{e.message}" unless e.is_a? Sass::SyntaxError
+
+        line_offset = options[:line] || 1
+        line_num = e.sass_line + 1 - line_offset
+        min = [line_num - 6, 0].max
+        section = e.sass_template.rstrip.split("\n")[min ... line_num + 5]
+        return e.sass_backtrace_str if section.nil? || section.empty?
+
+        e.sass_backtrace_str + "\n\n" + Haml::Util.enum_with_index(section).
+          map {|line, i| "#{line_offset + min + i}: #{line}"}.join("\n")
+      end
+    end
   end
 
   # The class for Sass errors that are raised due to invalid unit conversions
