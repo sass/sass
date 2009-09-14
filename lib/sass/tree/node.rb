@@ -15,8 +15,7 @@ module Sass
   # Nodes that only appear in the pre-perform state are called **dynamic nodes**;
   # those that appear in both states are called **static nodes**.
   module Tree
-    # This class doubles as the root node of the parse tree
-    # and the superclass of all other parse-tree nodes.
+    # The abstract superclass of all parse-tree nodes.
     class Node
       # The child nodes of this node.
       #
@@ -110,19 +109,27 @@ module Sass
       # @return [Boolean]
       def invisible?; false; end
 
+      # The output style. See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+      #
+      # @return [Symbol]
+      def style
+        @options[:style]
+      end
+
       # Computes the CSS corresponding to this Sass tree.
       #
       # Only static-node subclasses need to implement \{#to\_s}.
       #
       # This may return `nil`, but it will only do so if \{#invisible?} is true.
       #
+      # @param args [Array] Passed on to \{#\_to\_s}
       # @return [String, nil] The resulting CSS
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
-      def to_s
-        _to_s
+      def to_s(*args)
+        _to_s(*args)
       rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => filename)
+        e.modify_backtrace(:filename => filename, :line => line)
         raise e
       end
 
@@ -149,32 +156,17 @@ module Sass
         raise e
       end
 
-      # The output style. See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
-      #
-      # @return [Symbol]
-      def style
-        @options[:style]
-      end
-
       protected
 
-      # The same as \{#to\_s}, except that it doesn't add backtrace information
-      # to exceptions raised by the child nodes.
+      # Computes the CSS corresponding to this particular Sass node.
       #
+      # @param args [Array] ignored
+      # @return [String, nil] The resulting CSS
+      # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see #to_s
+      # @see Sass::Tree
       def _to_s
-        result = String.new
-        children.each do |child|
-          raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.',
-            :line => child.line) if child.is_a? PropNode
-
-          next if child.invisible?
-          child_str = child.to_s(1)
-          result << child_str + (style == :compressed ? '' : "\n")
-        end
-        result.rstrip!
-        return "" if result.empty?
-        return result + "\n"
+        raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #_to_s or #to_s.")
       end
 
       # Runs any dynamic Sass code in this particular node.

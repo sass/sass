@@ -69,6 +69,8 @@ module Sass::Tree
       @rules.last[-1] == ?,
     end
 
+    protected
+
     # Computes the CSS for the rule.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS
@@ -76,7 +78,7 @@ module Sass::Tree
     #   (see \{#rules}), or `nil` if there are no parents
     # @return [String] The resulting CSS
     # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
-    def to_s(tabs, super_rules = nil)
+    def _to_s(tabs, super_rules = nil)
       resolved_rules = resolve_parent_refs(super_rules)
 
       properties = []
@@ -143,8 +145,6 @@ module Sass::Tree
 
       to_return
     end
-
-    protected
 
     # Runs any SassScript that may be embedded in the rule,
     # and parses the selectors for commas.

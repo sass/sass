@@ -1,6 +1,7 @@
 require 'strscan'
 require 'digest/sha1'
 require 'sass/tree/node'
+require 'sass/tree/root_node'
 require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/prop_node'
@@ -155,7 +156,7 @@ module Sass
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
-      root = Tree::Node.new
+      root = Tree::RootNode.new
       append_children(root, tree(tabulate(@template)).first, true)
       root.options = @options
       root

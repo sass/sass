@@ -3,27 +3,27 @@ module Sass
     # A static node that wraps the {Sass::Tree} for an `@import`ed file.
     # It doesn't have a functional purpose other than to add the `@import`ed file
     # to the backtrace if an error occurs.
-    class ImportNode < Node
+    class ImportNode < RootNode
       # @param imported_filename [String] The name of the imported file
       def initialize(imported_filename)
         @imported_filename = imported_filename
         super()
       end
 
+      def invisible?; to_s.empty?; end
+
+      protected
+
       # Computes the CSS for the imported file.
       #
       # @param args [Array] Ignored
-      def to_s(*args)
-        @to_s ||= (style == :compressed ? _to_s.strip : _to_s)
+      def _to_s(*args)
+        @to_s ||= (style == :compressed ? super.strip : super)
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => children.first.filename)
         e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       end
-
-      def invisible?; to_s.empty?; end
-
-      protected
 
       # Parses the imported file
       # and runs the dynamic Sass for it.

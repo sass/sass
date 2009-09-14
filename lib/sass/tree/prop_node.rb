@@ -34,13 +34,15 @@ module Sass::Tree
       self.class == other.class && name == other.name && value == other.value && super
     end
 
+    protected
+
     # Computes the CSS for the property.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @param parent_name [String] The name of the parent property (e.g. `text`) or nil
     # @return [String] The resulting CSS
     # @raise [Sass::SyntaxError] if the property uses invalid syntax
-    def to_s(tabs, parent_name = nil)
+    def _to_s(tabs, parent_name = nil)
       raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.",
         :line => @line) if @options[:property_syntax] == :old && @prop_syntax == :new
       raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.",
@@ -71,8 +73,6 @@ module Sass::Tree
       
       (style == :compressed && parent_name) ? to_return : to_return[0...-1]
     end
-
-    protected
 
     # Runs any SassScript that may be embedded in the property.
     #
