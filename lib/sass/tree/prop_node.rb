@@ -42,9 +42,9 @@ module Sass::Tree
     # @raise [Sass::SyntaxError] if the property uses invalid syntax
     def to_s(tabs, parent_name = nil)
       if @options[:property_syntax] == :old && @prop_syntax == :new
-        raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.")
+        raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.", @line)
       elsif @options[:property_syntax] == :new && @prop_syntax == :old
-        raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.")
+        raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.", @line)
       end
 
       if value[-1] == ?;
