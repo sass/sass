@@ -180,12 +180,12 @@ SASS
   end
 
   def test_imported_exception
-    [nil, 2].each do |i|
+    [1, 2, 3].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
         assert_equal(2, err.sass_line)
-        assert_match(/bork#{i}\.sass$/, err.sass_filename)
+        assert_match(/(\/|^)bork#{i}\.sass$/, err.sass_filename)
 
         assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
         assert_equal(err.sass_line, err.sass_backtrace.first[:line])
@@ -193,8 +193,34 @@ SASS
         assert_nil(err.sass_backtrace[1][:filename])
         assert_equal(1, err.sass_backtrace[1][:line])
 
-        assert_match(/bork#{i}\.sass:2$/, err.backtrace.first)
+        assert_match(/(\/|^)bork#{i}\.sass:2$/, err.backtrace.first)
         assert_equal("(sass):1", err.backtrace[1])
+      else
+        assert(false, "Exception not raised for imported template: bork#{i}")
+      end
+    end
+  end
+
+  def test_double_imported_exception
+    [1, 2, 3].each do |i|
+      begin
+        Sass::Engine.new("@import nested_bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
+      rescue Sass::SyntaxError => err
+        assert_equal(2, err.sass_line)
+        assert_match(/(\/|^)bork#{i}\.sass$/, err.sass_filename)
+
+        assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
+        assert_equal(err.sass_line, err.sass_backtrace.first[:line])
+
+        assert_match(/(\/|^)nested_bork#{i}\.sass$/, err.sass_backtrace[1][:filename])
+        assert_equal(2, err.sass_backtrace[1][:line])
+
+        assert_nil(err.sass_backtrace[2][:filename])
+        assert_equal(1, err.sass_backtrace[2][:line])
+
+        assert_match(/(\/|^)bork#{i}\.sass:2$/, err.backtrace.first)
+        assert_match(/(\/|^)nested_bork#{i}\.sass:2$/, err.backtrace[1])
+        assert_equal("(sass):1", err.backtrace[2])
       else
         assert(false, "Exception not raised for imported template: bork#{i}")
       end

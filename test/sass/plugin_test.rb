@@ -52,21 +52,21 @@ class SassPluginTest < Test::Unit::TestCase
   end
 
   def test_full_exception_handling
-    File.delete(tempfile_loc('bork'))
+    File.delete(tempfile_loc('bork1'))
     Sass::Plugin.update_stylesheets
-    File.open(tempfile_loc('bork')) do |file|
-      assert_equal("/*\nSass::SyntaxError: Undefined variable: \"!bork\".\non line 2 of #{template_loc('bork')}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
+    File.open(tempfile_loc('bork1')) do |file|
+      assert_equal("/*\nSass::SyntaxError: Undefined variable: \"!bork\".\non line 2 of #{template_loc('bork1')}\n\n1: bork\n2:   :bork= !bork", file.read.split("\n")[0...6].join("\n"))
     end
-    File.delete(tempfile_loc('bork'))
+    File.delete(tempfile_loc('bork1'))
   end
 
   def test_nonfull_exception_handling
     Sass::Plugin.options[:full_exception] = false
 
-    File.delete(tempfile_loc('bork'))
+    File.delete(tempfile_loc('bork1'))
     Sass::Plugin.update_stylesheets
-    assert_equal("/* Internal stylesheet error */", File.read(tempfile_loc('bork')))
-    File.delete(tempfile_loc('bork'))
+    assert_equal("/* Internal stylesheet error */", File.read(tempfile_loc('bork1')))
+    File.delete(tempfile_loc('bork1'))
 
     Sass::Plugin.options[:full_exception] = true
   end
