@@ -14,9 +14,9 @@ module Sass
       #
       # @param args [Array] Ignored
       def to_s(*args)
-        @to_s ||= (style == :compressed ? super().strip : super())
+        @to_s ||= (style == :compressed ? _to_s.strip : _to_s)
       rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => @imported_filename)
+        e.modify_backtrace(:filename => children.first.filename)
         e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       end
@@ -35,7 +35,7 @@ module Sass
         self.children = Sass::Files.tree_for(full_filename, @options).children
         self.children = perform_children(environment)
       rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => @imported_filename)
+        e.modify_backtrace(:filename => full_filename)
         e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       end

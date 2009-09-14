@@ -120,18 +120,7 @@ module Sass
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def to_s
-        result = String.new
-        children.each do |child|
-          raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.',
-            :line => child.line) if child.is_a? PropNode
-
-          next if child.invisible?
-          child_str = child.to_s(1)
-          result << child_str + (style == :compressed ? '' : "\n")
-        end
-        result.rstrip!
-        return "" if result.empty?
-        return result + "\n"
+        _to_s
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename)
         raise e
@@ -168,6 +157,25 @@ module Sass
       end
 
       protected
+
+      # The same as \{#to\_s}, except that it doesn't add backtrace information
+      # to exceptions raised by the child nodes.
+      #
+      # @see #to_s
+      def _to_s
+        result = String.new
+        children.each do |child|
+          raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.',
+            :line => child.line) if child.is_a? PropNode
+
+          next if child.invisible?
+          child_str = child.to_s(1)
+          result << child_str + (style == :compressed ? '' : "\n")
+        end
+        result.rstrip!
+        return "" if result.empty?
+        return result + "\n"
+      end
 
       # Runs any dynamic Sass code in this particular node.
       # This doesn't modify this node or any of its children.
