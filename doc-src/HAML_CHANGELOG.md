@@ -46,8 +46,8 @@ This has always been incorrect behavior,
 and in fact has never actually worked.
 The only difference is that now it will fail loudly.
 Second, Ruby 1.9 is now more fully supported,
-especially with the {file:HAML_REFERENCE#htmlstyle_attributes_ new attribute syntax}.
-Third, filters are no longer escaped when the {file:HAML_REFERENCE#escape_html-option `:escape_html` option}
+especially with the {file:HAML_REFERENCE.md#htmlstyle_attributes_ new attribute syntax}.
+Third, filters are no longer escaped when the {file:HAML_REFERENCE.md#escape_html-option `:escape_html` option}
 is enabled and `#{}` interpolation is used.
 
 ## [2.2.1](http://github.com/nex3/haml/commit/2.2.1)
