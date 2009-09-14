@@ -123,46 +123,43 @@ module Sass
     end
 
     def exception_string(e)
-      if options[:full_exception]
-        e_string = "#{e.class}: #{e.message}"
+      return "/* Internal stylesheet error */" unless options[:full_exception]
 
-        if e.is_a? Sass::SyntaxError
-          e_string << "\non line #{e.sass_line}"
+      header = header_string(e)
 
-          if e.sass_filename
-            e_string << " of #{e.sass_filename}"
-
-            if File.exists?(e.sass_filename)
-              e_string << "\n\n"
-
-              min = [e.sass_line - 5, 0].max
-              begin
-                File.read(e.sass_filename).rstrip.split("\n")[
-                  min .. e.sass_line + 5
-                ].each_with_index do |line, i|
-                  e_string << "#{min + i + 1}: #{line}\n"
-                end
-              rescue
-                e_string << "Couldn't read sass file: #{e.sass_filename}"
-              end
-            end
-          end
-        end
-        <<END
+      <<END
 /*
-#{e_string}
+#{header}
 
 Backtrace:\n#{e.backtrace.join("\n")}
 */
 body:before {
   white-space: pre;
   font-family: monospace;
-  content: "#{e_string.gsub('"', '\"').gsub("\n", '\\A ')}"; }
+  content: "#{header.gsub('"', '\"').gsub("\n", '\\A ')}"; }
 END
-        # Fix an emacs syntax-highlighting hiccup: '
-      else
-        "/* Internal stylesheet error */"
+    end
+
+    def header_string(e)
+      return "#{e.class}: #{e.message}" unless e.is_a? Sass::SyntaxError
+
+      string = e.sass_backtrace_str
+      return string unless e.sass_filename && File.exists?(e.sass_filename)
+
+      string << "\n\n"
+
+      min = [e.sass_line - 5, 0].max
+      begin
+        File.read(e.sass_filename).rstrip.split("\n")[
+          min .. e.sass_line + 5
+        ].each_with_index do |line, i|
+          string << "#{min + i + 1}: #{line}\n"
+        end
+      rescue
+        string << "Couldn't read Sass file: #{e.sass_filename}"
       end
+
+      string
     end
 
     def template_filename(name, path)
