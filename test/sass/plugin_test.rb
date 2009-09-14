@@ -55,9 +55,10 @@ class SassPluginTest < Test::Unit::TestCase
     File.delete(tempfile_loc('bork1'))
     Sass::Plugin.update_stylesheets
     File.open(tempfile_loc('bork1')) do |file|
-      assert_equal(<<CSS, file.read.split("\n")[0...6].join("\n"))
+      assert_equal(<<CSS.strip, file.read.split("\n")[0...6].join("\n"))
 /*
-Syntax error on line 2 of #{template_loc('bork1')}: Undefined variable: "!bork".
+Syntax error: Undefined variable: "!bork".
+        on line 2 of #{template_loc('bork1')}
 
 1: bork
 2:   :bork= !bork

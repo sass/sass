@@ -103,14 +103,11 @@ module Sass
     # @see #sass_backtrace
     # @return [String]
     def sass_backtrace_str(default_filename = "an unknown file")
-      msg = "Syntax error on line #{sass_line}" +
-        " of #{sass_filename || default_filename}" +
-        ": #{message}"
-      sass_backtrace[1..-1].each do |entry|
-        msg << "\n        from line #{entry[:line]}" +
+      "Syntax error: #{message}" +
+        Haml::Util.enum_with_index(sass_backtrace).map do |entry, i|
+        "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
           " of #{entry[:filename] || default_filename}"
-      end
-      msg
+      end.join
     end
   end
 
