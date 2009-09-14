@@ -253,7 +253,8 @@ whichever comes first."
           ;; Move through multiline attrs
           (when (eq (char-before) ?,)
             (save-excursion
-              (while (progn (end-of-line) (eq (char-before) ?,) (not (eobp)))
+              (while (progn (end-of-line)
+                            (and (eq (char-before) ?,) (not (eobp))))
                 (forward-line))
 
               (forward-line -1)
