@@ -16,7 +16,7 @@ In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
 as well as a backtrace of Sass imports.
 
-## 2.2.4
+## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
 
 * Don't add `require 'rubygems'` to the top of init.rb when installed
   via `sass --rails`. This isn't necessary, and actually gets
