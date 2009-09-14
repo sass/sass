@@ -9,6 +9,7 @@ module Sass
   # when it's used as a plugin for various frameworks.
   # Currently Rails and Merb are supported out of the box.
   module Plugin
+    include Haml::Util
     extend self
 
     @options = {
@@ -143,23 +144,10 @@ END
     def header_string(e)
       return "#{e.class}: #{e.message}" unless e.is_a? Sass::SyntaxError
 
-      string = e.sass_backtrace_str
-      return string unless e.sass_filename && File.exists?(e.sass_filename)
-
-      string << "\n\n"
-
       min = [e.sass_line - 5, 0].max
-      begin
-        File.read(e.sass_filename).rstrip.split("\n")[
-          min .. e.sass_line + 5
-        ].each_with_index do |line, i|
-          string << "#{min + i + 1}: #{line}\n"
-        end
-      rescue
-        string << "Couldn't read Sass file: #{e.sass_filename}"
-      end
-
-      string
+      e.sass_backtrace_str + "\n\n" +
+        enum_with_index(e.sass_template.rstrip.split("\n")[min .. e.sass_line + 5]).
+        map {|line, i| "#{min + i + 1}: #{line}"}.join("\n")
     end
 
     def template_filename(name, path)
