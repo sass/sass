@@ -17,6 +17,12 @@ in the generated class and id.
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
 that causes attributes to use a double-quote mark rather than single-quote.
 
+### `haml-spec` Integration
+
+We've added the cross-implementation tests from the [haml-spec](http://github.com/norman/haml-spec) project
+to the standard Haml test suite, to be sure we remain compatible with the base functionality
+of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#Implementations).
+
 ## 2.2.5
 
 * Got rid of trailing whitespace produced when opening a conditional comment
