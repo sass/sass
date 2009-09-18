@@ -473,6 +473,24 @@ HTML
 HAML
   end
 
+  def test_silent_script_with_hyphen_case
+    assert_equal("", render("- 'foo-case-bar-case'"))
+  end
+
+  def test_silent_script_with_hyphen_end
+    assert_equal("", render("- 'foo-end-bar-end'"))
+  end
+
+  def test_silent_script_with_hyphen_end_and_block
+    assert_equal(<<HTML, render(<<HAML))
+<p>foo-end</p>
+<p>bar-end</p>
+HTML
+- "foo-end-bar-end".gsub(/\\w+-end/) do |s|
+  %p= s
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

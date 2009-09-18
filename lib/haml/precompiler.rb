@@ -79,7 +79,7 @@ module Haml
     #
     # The block is ended after <tt>%p no!</tt>, because <tt>else</tt>
     # is a member of this array.
-    MID_BLOCK_KEYWORD_REGEX = /-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
+    MID_BLOCK_KEYWORD_REGEX = /^-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
 
     # The Regex that matches a Doctype command.
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
@@ -228,9 +228,9 @@ END
         newline_now
 
         # Handle stuff like - end.join("|")
-        @to_close_stack.first << false if text =~ /-\s*end\b/ && !block_opened?
+        @to_close_stack.first << false if text =~ /^-\s*end\b/ && !block_opened?
 
-        case_stmt = text =~ /-\s*case\b/
+        case_stmt = text =~ /^-\s*case\b/
         block = block_opened? && !mid_block_keyword?(text)
         push_and_tabulate([:script]) if block || case_stmt
         push_and_tabulate(:nil)      if block && case_stmt

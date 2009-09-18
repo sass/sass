@@ -24,6 +24,8 @@ that causes attributes to use a double-quote mark rather than single-quote.
 
 * Fixed CSS id concatenation when a numeric id is given as an attribute.
   (thanks to [Norman Clarke](http://blog.njclarke.com/)).
+  
+* Fixed a couple bugs with using "-end" in strings.
 
 ## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
 
