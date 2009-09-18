@@ -245,7 +245,7 @@ RUBY
     # @return [Hash<String, String>] `to`, after being merged
     def self.merge_attrs(to, from)
       if to['id'] && from['id']
-        to['id'] << '_' << from.delete('id')
+        to['id'] << '_' << from.delete('id').to_s
       elsif to['id'] || from['id']
         from['id'] ||= to['id']
       end

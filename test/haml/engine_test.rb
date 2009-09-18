@@ -112,6 +112,11 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<div class='atlantis' style='ugly'></div>", render(".atlantis{:style => 'ugly'}").chomp)
   end
 
+  def test_css_id_as_attribute_should_be_appended_with_underscore
+    assert_equal("<div id='my_id_1'></div>", render("#my_id{:id => '1'}").chomp)
+    assert_equal("<div id='my_id_1'></div>", render("#my_id{:id => 1}").chomp)
+  end
+
   def test_ruby_code_should_work_inside_attributes
     author = 'hcatlin'
     assert_equal("<p class='3'>foo</p>", render("%p{:class => 1+2} foo").chomp)
