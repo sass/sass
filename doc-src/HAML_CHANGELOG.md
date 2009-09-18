@@ -8,6 +8,9 @@
 * Got rid of trailing whitespace produced when opening a conditional comment
   (thanks to [Norman Clarke](http://blog.njclarke.com/)).
 
+* Fixed CSS id concatenation when a numeric id is given as an attribute.
+  (thanks to [Norman Clarke](http://blog.njclarke.com/)).
+
 ## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
 
 * Allow `end` to be used for silent script when it's followed by code.
