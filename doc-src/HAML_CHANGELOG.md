@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.5
+## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
 
 * Got rid of trailing whitespace produced when opening a conditional comment
   (thanks to [Norman Clarke](http://blog.njclarke.com/)).
