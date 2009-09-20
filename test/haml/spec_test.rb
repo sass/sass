@@ -9,12 +9,16 @@ end
 class SpecTest < Test::Unit::TestCase
   spec_file = File.dirname(__FILE__) + '/spec/tests.json'
   if !File.exists?(spec_file)
-    warn <<MSG
+    error = <<MSG.rstrip
 Couldn't load haml-spec, skipping some tests.
 To use haml-spec, run `git submodule update --init`
 MSG
   elsif !defined?(JSON)
-    warn "Couldn't load json, skipping some tests."
+    error = "Couldn't load json, skipping some tests."
+  end
+
+  if error
+    define_method(:test_fake_couldnt_load_spec) {warn("\n" + error)}
   else
     JSON.parse(File.read(spec_file)).each do |name, tests|
       tests.each do |subname, test|
