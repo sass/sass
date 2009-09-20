@@ -8,5 +8,6 @@
 /.sass-cache
 
 /site/*
+/test
 !/site/images
 !/site/javascripts
