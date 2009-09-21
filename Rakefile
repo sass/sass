@@ -95,7 +95,7 @@ task :release_elpa do
     rev = File.read(".git/#{$1}").strip
   end
 
-  from = `git config user.email`
+  from = `git config user.email`.strip
   raise "Don't know how to send emails except via Gmail" unless from =~ /@gmail.com$/
 
   to = "elpa@tromey.com"
