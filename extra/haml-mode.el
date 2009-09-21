@@ -4,8 +4,10 @@
 
 ;; Author: Nathan Weizenbaum
 ;; URL: http://github.com/nex3/haml/tree/master
-;; Version: 1.0
-;; Keywords: markup, language
+;; Version: 2.2.5
+;; Created: 2007-03-08
+;; By: Nathan Weizenbaum
+;; Keywords: markup, language, html
 
 ;;; Commentary:
 
@@ -41,9 +43,9 @@
   :group 'haml)
 
 (defcustom haml-backspace-backdents-nesting t
-  "Non-nil to have `haml-electric-backspace' re-indent all code
-nested beneath the backspaced line be re-indented along with the
-line itself."
+  "Non-nil to have `haml-electric-backspace' re-indent blocks of code.
+This means that all code nested beneath the backspaced line is
+re-indented along with the line itself."
   :type 'boolean
   :group 'haml)
 
@@ -55,7 +57,8 @@ line itself."
   :group 'haml)
 
 (defvar haml-indent-function 'haml-indent-p
-  "This function should look at the current line and return t
+  "A function for checking if nesting is allowed.
+This function should look at the current line and return t
 if the next line could be nested within this line.
 
 The function can also return a positive integer to indicate
@@ -75,12 +78,15 @@ a specific level to which the current line could be indented.")
     "^ */\\(\\[.*\\]\\)?[ \t]*$"
     "^ *-#"
     "^ *:")
-  "A list of regexps that match lines of Haml that could have
-text nested beneath them.")
+  "A list of regexps that match lines of Haml that open blocks.
+That is, a Haml line that can have text nested beneath it should
+be matched by a regexp in this list.")
 
 ;; Font lock
 
 (defun haml-nested-regexp (re)
+  "Create a regexp to match a block starting with RE.
+The line containing RE is matched, as well as all lines indented beneath it."
   (concat "^\\( *\\)" re "\\(\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*\\(?:\\1 .*\\| *\\)?\\)?"))
 
 (defconst haml-font-lock-keywords
@@ -110,12 +116,14 @@ text nested beneath them.")
         (font-lock-fontify-region (- beg 1) end)))))
 
 (defun haml-highlight-ruby-script (limit)
-  "Highlight a Ruby script expression (-, =, or ~)."
+  "Highlight a Ruby script expression (-, =, or ~).
+LIMIT works as it does in `re-search-forward'."
   (when (re-search-forward "^ *\\(-\\|[&!]?[=~]\\) \\(.*\\)$" limit t)
     (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))))
 
 (defun haml-highlight-ruby-tag (limit)
   "Highlight Ruby code within a Haml tag.
+LIMIT works as it does in `re-search-forward'.
 
 This highlights the tag attributes and object refs of the tag,
 as well as the script expression (-, =, or ~) following the tag.
@@ -189,13 +197,15 @@ For example, this will highlight all of the following:
     t))
 
 (defun haml-move (re)
-  "Try matching and moving to the end of a regular expression."
+  "Try matching and moving to the end of regular expression RE.
+Returns non-nil if the expression was sucessfully matched."
   (when (looking-at re)
     (goto-char (match-end 0))
     t))
 
 (defun haml-highlight-interpolation (limit)
-  "Highlight Ruby interpolation (#{foo})."
+  "Highlight Ruby interpolation (#{foo}).
+LIMIT works as it does in `re-search-forward'."
   (when (re-search-forward "\\(#{\\)" limit t)
     (save-match-data
       (forward-char -1)
@@ -209,8 +219,8 @@ For example, this will highlight all of the following:
       t)))
 
 (defun haml-limited-forward-sexp (limit &optional arg)
-  "Move forward using `forward-sexp' or to limit,
-whichever comes first."
+  "Move forward using `forward-sexp' or to LIMIT, whichever comes first.
+With ARG, do it that many times."
   (let (forward-sexp-function)
     (condition-case err
         (save-restriction
@@ -279,7 +289,7 @@ whichever comes first."
     (modify-syntax-entry ?: "." table)
     (modify-syntax-entry ?_ "w" table)
     table)
-  "Syntax table in use in haml-mode buffers.")
+  "Syntax table in use in `haml-mode' buffers.")
 
 (defvar haml-mode-map
   (let ((map (make-sparse-keymap)))
@@ -338,7 +348,8 @@ whichever comes first."
     (haml-reindent-region-by (- haml-indent-offset))))
 
 (defun haml-replace-region (start end)
-  "Replaces the current block of Haml code with the HTML equivalent."
+  "Replace the current block of Haml code with the HTML equivalent.
+Called from a program, START and END specify the region to indent."
   (interactive "r")
   (save-excursion
     (goto-char end)
@@ -350,9 +361,10 @@ whichever comes first."
     (shell-command-on-region start end "haml" "haml-output" t)))
 
 (defun haml-output-region (start end)
-  "Displays the HTML output for the current block of Haml code."
+  "Displays the HTML output for the current block of Haml code.
+Called from a program, START and END specify the region to indent."
   (interactive "r")
-  (kill-new (buffer-substring start end)) 
+  (kill-new (buffer-substring start end))
   (with-temp-buffer
     (yank)
     (haml-indent-region (point-min) (point-max))
@@ -366,10 +378,11 @@ whichever comes first."
 ;; Navigation
 
 (defun haml-forward-through-whitespace (&optional backward)
-  "Move the point forward at least one line, until it reaches
+  "Move the point forward through any whitespace.
+The point will move forward at least one line, until it reaches
 either the end of the buffer or a line with no whitespace.
 
-If `backward' is non-nil, move the point backward instead."
+If BACKWARD is non-nil, move the point backward instead."
   (let ((arg (if backward -1 1))
         (endp (if backward 'bobp 'eobp)))
     (loop do (forward-line arg)
@@ -377,9 +390,7 @@ If `backward' is non-nil, move the point backward instead."
                      (looking-at "^[ \t]*$")))))
 
 (defun haml-at-indent-p ()
-  "Returns whether or not the point is at the first
-non-whitespace character in a line or whitespace preceding that
-character."
+  "Return non-nil if the point is before any text on the line."
   (let ((opoint (point)))
     (save-excursion
       (back-to-indentation)
@@ -387,7 +398,7 @@ character."
 
 (defun haml-forward-sexp (&optional arg)
   "Move forward across one nested expression.
-With `arg', do it that many times.  Negative arg -N means move
+With ARG, do it that many times.  Negative arg -N means move
 backward across N balanced expressions.
 
 A sexp in Haml is defined as a line of Haml code as well as any
@@ -444,14 +455,14 @@ With ARG, do this that many times."
   (back-to-indentation))
 
 (defun haml-mark-sexp ()
-  "Marks the next Haml block."
+  "Mark the next Haml block."
   (let ((forward-sexp-function 'haml-forward-sexp))
     (mark-sexp)))
 
 (defun haml-mark-sexp-but-not-next-line ()
-  "Marks the next Haml block, but puts the mark at the end of the
-last line of the sexp rather than the first non-whitespace
-character of the next line."
+  "Mark the next Haml block, but not the next line.
+Put the mark at the end of the last line of the sexp rather than
+the first non-whitespace character of the next line."
   (haml-mark-sexp)
   (set-mark
    (save-excursion
@@ -508,7 +519,7 @@ beginning the hash."
     (when (eq (char-before) ?,) (return-from haml-unclosed-attr-hash-p t))
     (re-search-backward "(\\|^")
     (haml-move "(")
-    (haml-parse-new-attr-hash)))  
+    (haml-parse-new-attr-hash)))
 
 (defun* haml-parse-new-attr-hash (&optional (fn (lambda (type beg end) ())))
   "Parse a new-style attribute hash on this line, and returns
@@ -550,7 +561,8 @@ and BEG and END delimit that text in the buffer."
   "Indent each nonblank line in the region.
 This is done by indenting the first line based on
 `haml-compute-indentation' and preserving the relative
-indentation of the rest of the region.
+indentation of the rest of the region.  START and END specify the
+region to indent.
 
 If this command is used multiple times in a row, it will cycle
 between possible indentations."
@@ -611,7 +623,8 @@ lines in the region have indentation >= that of the first line."
   "Delete characters or back-dent the current line.
 If invoked following only whitespace on a line, will back-dent
 the line and all nested lines to the immediately previous
-multiple of `haml-indent-offset' spaces.
+multiple of `haml-indent-offset' spaces.  With ARG, do it that
+many times.
 
 Set `haml-backspace-backdents-nesting' to nil to just back-dent
 the current line."

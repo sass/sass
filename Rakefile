@@ -67,16 +67,96 @@ task :install => [:package] do
   sh %{#{sudo} #{gem} install --no-ri pkg/haml-#{File.read('VERSION').strip}}
 end
 
-desc "Release a new Haml package to Rubyforge. Requires the NAME and VERSION flags."
-task :release => [:package] do
+desc "Release a new Haml package to Rubyforge."
+task :release => [:check_release, :release_elpa, :package] do
   name = File.read("VERSION_NAME").strip
   version = File.read("VERSION").strip
-  raise "VERSION_NAME must not be 'Bleeding Edge'" if name == "Bleeding Edge"
   sh %{rubyforge login}
   sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.bz2}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.zip}
+end
+
+# Releases haml-mode.el and sass-mode.el to ELPA.
+task :release_elpa do
+  require 'tlsmail'
+  require 'time'
+
+  version = File.read("VERSION").strip
+
+  haml_unchanged = mode_unchanged?(:haml, version)
+  sass_unchanged = mode_unchanged?(:sass, version)
+  next if haml_unchanged && sass_unchanged
+  raise "haml-mode.el and sass-mode.el are out of sync." if haml_unchanged ^ sass_unchanged
+
+  rev = File.read('.git/HEAD').strip
+  if rev =~ /^ref: (.*)$/
+    rev = File.read(".git/#{$1}").strip
+  end
+
+  from = `git config user.email`
+  raise "Don't know how to send emails except via Gmail" unless from =~ /@gmail.com$/
+
+  to = "elpa@tromey.com"
+  Net::SMTP.enable_tls(OpenSSL::SSL::VERIFY_NONE)
+  Net::SMTP.start('smtp.gmail.com', 587, 'gmail.com', from, read_password("GMail Password"), :login) do |smtp|
+    smtp.send_message(<<CONTENT, from, to)
+From: Nathan Weizenbaum <#{from}>
+To: #{to}
+Subject: Submitting haml-mode and sass-mode #{version}
+Date: #{Time.now.rfc2822}
+
+haml-mode and sass-mode #{version} are packaged and ready to be included in ELPA.
+They can be downloaded from:
+
+  http://github.com/nex3/haml/raw/#{rev}/extra/haml-mode.el
+  http://github.com/nex3/haml/raw/#{rev}/extra/sass-mode.el
+CONTENT
+  end
+end
+
+# Ensures that the version have been updated for a new release.
+task :check_release do
+  version = File.read("VERSION").strip
+  raise "There have been changes since current version (#{version})" if changed_since?(version)
+  raise "VERSION_NAME must not be 'Bleeding Edge'" if File.read("VERSION_NAME") == "Bleeding Edge"
+end
+
+# Reads a password from the command line.
+#
+# @param name [String] The prompt to use to read the password
+def read_password(prompt)
+  require 'readline'
+  system "stty -echo"
+  Readline.readline("#{prompt}: ").strip
+ensure
+  system "stty echo"
+  puts
+end
+
+# Returns whether or not the repository, or specific files,
+# has/have changed since a given revision.
+#
+# @param rev [String] The revision to check against
+# @param files [Array<String>] The files to check.
+#   If this is empty, checks the entire repository
+def changed_since?(rev, *files)
+  IO.popen("git diff --exit-code #{rev} #{files.join(' ')}") {}
+  return !$?.success?
+end
+
+# Returns whether or not the given Emacs mode file (haml or sass)
+# has changed since the given version.
+#
+# @param mode [String, Symbol] The name of the mode
+# @param version [String] The version number
+def mode_unchanged?(mode, version)
+  mode_version = File.read("extra/#{mode}-mode.el").scan(/^;; Version: (.*)$/).first.first
+  return false if mode_version == version
+  return true unless changed_since?(mode_version, "extra/#{mode}-mode.el")
+  raise "#{mode}-mode.el version is #{haml_mode_version.inspect}, but it has changed as of #{version.inspect}"
+  return false
 end
 
 task :release_edge do

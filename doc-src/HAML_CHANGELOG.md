@@ -23,6 +23,11 @@ We've added the cross-implementation tests from the [haml-spec](http://github.co
 to the standard Haml test suite, to be sure we remain compatible with the base functionality
 of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#Implementations).
 
+## 2.2.6 (Unreleased)
+
+* Made the error message when unable to load a dependency for html2haml
+  respect the `--trace` option.
+
 ## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
 
 * Got rid of trailing whitespace produced when opening a conditional comment
