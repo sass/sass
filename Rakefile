@@ -97,7 +97,9 @@ task :release_elpa do
     rev = File.read(".git/#{$1}").strip
   end
 
-  from = "nex342@gmail.com"
+  from = `git config user.email`
+  raise "Don't know how to send emails except via Gmail" unless from =~ /@gmail.com$/
+
   to = "elpa@tromey.com"
   Net::SMTP.enable_tls(OpenSSL::SSL::VERIFY_NONE)
   Net::SMTP.start('smtp.gmail.com', 587, 'gmail.com', from, read_password("GMail Password"), :login) do |smtp|
