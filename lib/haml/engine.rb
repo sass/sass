@@ -96,6 +96,8 @@ module Haml
         @options[:encoding] = @options[:encoding].name
       end
 
+      check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
+
       # :eod is a special end-of-document marker
       @template = (template.rstrip).split(/\r\n|\r|\n/) + [:eod, :eod]
       @template_index = 0
@@ -111,7 +113,9 @@ module Haml
 
       precompile
     rescue Haml::Error => e
-      e.backtrace.unshift "#{@options[:filename]}:#{(e.line ? e.line + 1 : @index) + @options[:line] - 1}" if @index
+      if @index || e.line
+        e.backtrace.unshift "#{@options[:filename]}:#{(e.line ? e.line + 1 : @index) + @options[:line] - 1}"
+      end
       raise
     end
 

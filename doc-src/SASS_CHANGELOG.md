@@ -16,6 +16,12 @@ In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
 as well as a backtrace of Sass imports.
 
+### Ruby 1.9 Support
+
+Sass now produces more descriptive errors when given a template
+with invalid byte sequences for that template's encoding,
+including the line number and the offending character.
+
 ### `css2sass` Error Handling
 
 Several bug fixes and minor improvements have been made, including:

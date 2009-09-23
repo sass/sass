@@ -129,6 +129,22 @@ module Haml
       Haml::Util::RUBY_VERSION[0] == 1 && Haml::Util::RUBY_VERSION[1] < 9
     end
 
+    def check_encoding(str)
+      return if ruby1_8?
+      return if str.valid_encoding?
+      encoding = str.encoding
+      newlines = Regexp.new("\r\n|\r|\n".encode(encoding).force_encoding("binary"))
+      str.force_encoding("binary").split(newlines).each_with_index do |line, i|
+        begin
+          line.encode(encoding)
+        rescue Encoding::UndefinedConversionError => e
+          yield <<MSG.rstrip, i + 1
+Invalid #{encoding.name} character #{e.error_char.dump}
+MSG
+        end
+      end
+    end
+
     # Checks to see if a class has a given method.
     # For example:
     #
