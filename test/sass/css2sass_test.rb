@@ -230,6 +230,22 @@ SASS
 CSS
   end
 
+  def test_error_reporting
+    css2sass("foo")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(1, err.sass_line)
+    assert_equal('Invalid CSS after nil: expected /\{/, was ""', err.message)
+  end
+
+  def test_error_reporting_in_line
+    css2sass("foo\nbar }")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(2, err.sass_line)
+    assert_equal('Invalid CSS after "o\nbar ": expected /\{/, was "}"', err.message)
+  end
+
   private
 
   def css2sass(string, opts={})

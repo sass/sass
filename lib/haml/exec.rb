@@ -457,6 +457,9 @@ END
         output = @options[:output]
 
         output.write(::Sass::CSS.new(input, @module_opts).render)
+      rescue ::Sass::SyntaxError => e
+        raise e if @options[:trace]
+        raise "Syntax error on line #{get_line e}: #{e.message}\n  Use --trace for backtrace"
       end
     end
   end

@@ -16,6 +16,11 @@ In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
 as well as a backtrace of Sass imports.
 
+### Minor Changes
+
+* `css2sass` error handling and reporting has been improved,
+  including fixing line-number reporting for templates without trailing newlines.
+
 ## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
 
 * Don't add `require 'rubygems'` to the top of init.rb when installed
