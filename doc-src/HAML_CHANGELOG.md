@@ -28,6 +28,10 @@ of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#
 * Made the error message when unable to load a dependency for html2haml
   respect the `--trace` option.
 
+* Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
+  as apparently happens sometimes in TextMate
+  (thanks to [Karl Varga](http://github.com/kjvarga).
+
 ## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
 
 * Got rid of trailing whitespace produced when opening a conditional comment
