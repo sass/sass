@@ -230,12 +230,14 @@ SASS
 CSS
   end
 
+  # Error reporting
+
   def test_error_reporting
     css2sass("foo")
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => err
     assert_equal(1, err.sass_line)
-    assert_equal('Invalid CSS after "foo": expected /\{/, was ""', err.message)
+    assert_equal('Invalid CSS after "foo": expected "{", was ""', err.message)
   end
 
   def test_error_reporting_in_line
@@ -243,7 +245,7 @@ CSS
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => err
     assert_equal(2, err.sass_line)
-    assert_equal('Invalid CSS after "bar ": expected /\{/, was "}"', err.message)
+    assert_equal('Invalid CSS after "bar ": expected "{", was "}"', err.message)
   end
 
   def test_error_truncate_after
@@ -251,7 +253,7 @@ CSS
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => err
     assert_equal(1, err.sass_line)
-    assert_equal('Invalid CSS after "...aaaaaaaaaaaafoo": expected /\{/, was ""', err.message)
+    assert_equal('Invalid CSS after "...aaaaaaaaaaaafoo": expected "{", was ""', err.message)
   end
 
   def test_error_truncate_was
@@ -259,7 +261,7 @@ CSS
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => err
     assert_equal(1, err.sass_line)
-    assert_equal('Invalid CSS after "foo ": expected /\{/, was "}aaaaaaaaaaaaaa..."', err.message)
+    assert_equal('Invalid CSS after "foo ": expected "{", was "}aaaaaaaaaaaaaa..."', err.message)
   end
 
   private

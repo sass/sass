@@ -25,6 +25,9 @@ Several bug fixes and minor improvements have been made, including:
 
 * Only displaying the text for the current line when reporting CSS parsing errors.
 
+* Displaying the expected strings as strings rather than regular expressions
+  whenever possible.
+
 ## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
 
 * Don't add `require 'rubygems'` to the top of init.rb when installed
