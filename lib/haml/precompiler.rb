@@ -79,7 +79,7 @@ module Haml
     #
     # The block is ended after <tt>%p no!</tt>, because <tt>else</tt>
     # is a member of this array.
-    MID_BLOCK_KEYWORD_REGEX = /-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
+    MID_BLOCK_KEYWORD_REGEX = /^-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
 
     # The Regex that matches a Doctype command.
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
@@ -109,8 +109,8 @@ END
 
       names.map do |name|
         # Can't use || because someone might explicitly pass in false with a symbol
-        sym_local = "_haml_locals[#{name.to_sym.inspect}]" 
-        str_local = "_haml_locals[#{name.to_s.inspect}]" 
+        sym_local = "_haml_locals[#{name.to_sym.inspect}]"
+        str_local = "_haml_locals[#{name.to_s.inspect}]"
         "#{name} = #{sym_local}.nil? ? #{str_local} : #{sym_local}"
       end.join(';') + ';'
     end
@@ -228,9 +228,9 @@ END
         newline_now
 
         # Handle stuff like - end.join("|")
-        @to_close_stack.first << false if text =~ /-\s*end\b/ && !block_opened?
+        @to_close_stack.first << false if text =~ /^-\s*end\b/ && !block_opened?
 
-        case_stmt = text =~ /-\s*case\b/
+        case_stmt = text =~ /^-\s*case\b/
         block = block_opened? && !mid_block_keyword?(text)
         push_and_tabulate([:script]) if block || case_stmt
         push_and_tabulate(:nil)      if block && case_stmt
@@ -719,7 +719,7 @@ END
         else
           open_tag << "\n" unless parse || nuke_inner_whitespace || (self_closing && nuke_outer_whitespace)
         end
-        
+
         push_merged_text(open_tag, tag_closed || self_closing || nuke_inner_whitespace ? 0 : 1,
                          !nuke_outer_whitespace)
 
@@ -775,11 +775,11 @@ END
         raise SyntaxError.new('Illegal nesting: nesting within a tag that already has content is illegal.', @next_line.index)
       end
 
-      open = "<!--#{conditional} "
+      open = "<!--#{conditional}"
 
       # Render it statically if possible
       unless line.empty?
-        return push_text("#{open}#{line} #{conditional ? "<![endif]-->" : "-->"}")
+        return push_text("#{open} #{line} #{conditional ? "<![endif]-->" : "-->"}")
       end
 
       push_text(open, 1)
