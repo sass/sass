@@ -90,6 +90,28 @@ HAML
 HTML
   end
 
+  # Encodings
+
+  unless Haml::Util.ruby1_8?
+    def test_encoding_error
+      render("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
+      assert(false, "Expected exception")
+    rescue Haml::Error => e
+      assert_equal(3, e.line)
+      assert_equal('Invalid UTF-8 character "\xFE"', e.message)
+    end
+
+    def test_ascii_incompatible_encoding_error
+      template = "foo\nbar\nb_z".encode("utf-16le")
+      template[9] = "\xFE".force_encoding("utf-16le")
+      render(template)
+      assert(false, "Expected exception")
+    rescue Haml::Error => e
+      assert_equal(3, e.line)
+      assert_equal('Invalid UTF-16LE character "\xFE"', e.message)
+    end
+  end
+
   protected
 
   def render(text, options = {})

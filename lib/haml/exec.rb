@@ -413,6 +413,9 @@ END
         @module_opts[:rhtml] &&= @options[:no_rhtml] != false
 
         output.write(::Haml::HTML.new(input, @module_opts).render)
+      rescue ::Haml::Error => e
+        raise "#{e.is_a?(::Haml::SyntaxError) ? "Syntax error" : "Error"} on line " +
+          "#{get_line e}: #{e.message}"
       end
     end
 

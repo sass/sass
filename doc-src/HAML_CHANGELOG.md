@@ -19,8 +19,8 @@ that causes attributes to use a double-quote mark rather than single-quote.
 
 ### Ruby 1.9 Support
 
-Haml now produces more descriptive errors when given a template
-with invalid byte sequences for that template's encoding,
+Haml and `html2haml` now produce more descriptive errors
+when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
 ## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)

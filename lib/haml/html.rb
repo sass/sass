@@ -80,6 +80,8 @@ module Haml
           template = template.read
         end
 
+        Haml::Util.check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
+
         if @options[:rhtml]
           match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
           match_to_html(template, /<%-?(.*?)-?%>/m,  'silent')
@@ -128,9 +130,7 @@ module Haml
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         attrs = public_id.scan(/DTD\s+([^\s]+)\s*([^\s]*)\s*([^\s]*)\s*\/\//)[0]
-        if attrs == nil
-          raise Exception.new("Invalid doctype")
-        end
+        raise Haml::SyntaxError.new("Invalid doctype") if attrs == nil
 
         type, version, strictness = attrs.map { |a| a.downcase }
         if type == "html"

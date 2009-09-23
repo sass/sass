@@ -18,8 +18,8 @@ as well as a backtrace of Sass imports.
 
 ### Ruby 1.9 Support
 
-Sass now produces more descriptive errors when given a template
-with invalid byte sequences for that template's encoding,
+Sass and `css2sass` now produce more descriptive errors
+when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
 ### `css2sass` Error Handling
