@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.4.0
+## 2.4.0 (Unreleased)
 
 ### Object Reference Customization
 
@@ -17,11 +17,36 @@ in the generated class and id.
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
 that causes attributes to use a double-quote mark rather than single-quote.
 
+### `haml-spec` Integration
+
+We've added the cross-implementation tests from the [haml-spec](http://github.com/norman/haml-spec) project
+to the standard Haml test suite, to be sure we remain compatible with the base functionality
+of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#Implementations).
+
 ### Ruby 1.9 Support
 
 Haml and `html2haml` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
+
+## 2.2.6 (Unreleased)
+
+* Made the error message when unable to load a dependency for html2haml
+  respect the `--trace` option.
+
+* Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
+  as apparently happens sometimes in TextMate
+  (thanks to [Karl Varga](http://github.com/kjvarga).
+
+## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
+
+* Got rid of trailing whitespace produced when opening a conditional comment
+  (thanks to [Norman Clarke](http://blog.njclarke.com/)).
+
+* Fixed CSS id concatenation when a numeric id is given as an attribute.
+  (thanks to [Norman Clarke](http://blog.njclarke.com/)).
+  
+* Fixed a couple bugs with using "-end" in strings.
 
 ## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
 

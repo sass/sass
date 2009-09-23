@@ -369,7 +369,8 @@ END
           require 'haml/html'
         rescue LoadError => err
           dep = err.message.scan(/^no such file to load -- (.*)/)[0]
-          puts "Required dependency #{dep} not found!"
+          raise err if @options[:trace] || dep.nil? || dep.empty?
+          $stderr.puts "Required dependency #{dep} not found!\n  Use --trace for backtrace."
           exit 1
         end
       end
