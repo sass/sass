@@ -40,6 +40,8 @@ Several bug fixes and minor improvements have been made, including:
   as apparently happens sometimes in TextMate
   (thanks to [Karl Varga](http://github.com/kjvarga).
 
+* Add "Sass" to the `--version` string for the executables.
+
 ## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
 
 There were no changes made to Sass between versions 2.2.4 and 2.2.5.
