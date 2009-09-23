@@ -16,10 +16,14 @@ In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
 as well as a backtrace of Sass imports.
 
-### Minor Changes
+### `css2sass` Error Handling
 
-* `css2sass` error handling and reporting has been improved,
-  including fixing line-number reporting for templates without trailing newlines.
+Several bug fixes and minor improvements have been made, including:
+
+* Fixing line-number reporting for errors on the last line of templates
+  that didn't have trailing newlines.
+
+* Only displaying the text for the current line when reporting CSS parsing errors.
 
 ## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
 

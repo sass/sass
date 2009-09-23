@@ -201,13 +201,13 @@ module Sass
 
       pos = @template.pos
 
-      after = @template.string[pos - 15...pos]
+      after = @template.string[[pos - 15, 0].max...pos].gsub(/.*\n/m, '')
       after = "..." + after if pos >= 15
 
       # Display basic regexps as plain old strings
       expected = re.source == Regexp.escape(re.source) ? "\"#{re.source}\"" : re.inspect
 
-      was = @template.rest[0...15]
+      was = @template.rest[0...15].gsub(/\n.*/m, '')
       was += "..." if @template.rest.size >= 15
       raise Sass::SyntaxError.new(
         "Invalid CSS after #{after.inspect}: expected #{expected}, was #{was.inspect}")
