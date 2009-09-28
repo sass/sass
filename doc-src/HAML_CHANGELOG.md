@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.6 (Unreleased)
+## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 
 * Made the error message when unable to load a dependency for html2haml
   respect the `--trace` option.
