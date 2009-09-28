@@ -46,6 +46,7 @@
      Particularly word constituents in Regexps
    [2.4] Optimization
      http://csstidy.sourceforge.net/
+     http://developer.yahoo.com/yui/compressor/
      Also comma-folding identical rules where possible
      Multiple levels
        0: No optimization
