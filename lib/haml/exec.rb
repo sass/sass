@@ -73,7 +73,7 @@ module Haml
         end
 
         opts.on_tail("-v", "--version", "Print version") do
-          puts("Haml #{::Haml.version[:string]}")
+          puts("Haml/Sass #{::Haml.version[:string]}")
           exit
         end
       end
