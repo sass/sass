@@ -40,6 +40,9 @@ including the line number and the offending character.
   
 * Add "Sass" to the `--version` string for the executables.
 
+* Raise an exception when commas are omitted in static attributes
+  (e.g. `%p{:foo => "bar" :baz => "bang"}`).
+
 ## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
 
 * Got rid of trailing whitespace produced when opening a conditional comment

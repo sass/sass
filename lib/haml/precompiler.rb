@@ -465,8 +465,8 @@ END
         return unless key = scanner.scan(LITERAL_VALUE_REGEX)
         return unless scanner.scan(/\s*=>\s*/)
         return unless value = scanner.scan(LITERAL_VALUE_REGEX)
+        return unless scanner.scan(/\s*(?:,|$)\s*/)
         attributes[eval(key).to_s] = eval(value).to_s
-        scanner.scan(/[,\s]*/)
       end
       text.count("\n").times { newline }
       attributes
