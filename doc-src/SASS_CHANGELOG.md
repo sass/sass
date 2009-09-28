@@ -34,7 +34,7 @@ Several bug fixes and minor improvements have been made, including:
 * Displaying the expected strings as strings rather than regular expressions
   whenever possible.
 
-## 2.2.6 (Unreleased)
+## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 
 * Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
   as apparently happens sometimes in TextMate
@@ -45,7 +45,6 @@ Several bug fixes and minor improvements have been made, including:
 ## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
 
 There were no changes made to Sass between versions 2.2.4 and 2.2.5.
->>>>>>> 6e5bc03012c7ea80eda713d6fdc033a47d25cc57:doc-src/SASS_CHANGELOG.md
 
 ## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
 

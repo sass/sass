@@ -155,7 +155,7 @@ def mode_unchanged?(mode, version)
   mode_version = File.read("extra/#{mode}-mode.el").scan(/^;; Version: (.*)$/).first.first
   return false if mode_version == version
   return true unless changed_since?(mode_version, "extra/#{mode}-mode.el")
-  raise "#{mode}-mode.el version is #{haml_mode_version.inspect}, but it has changed as of #{version.inspect}"
+  raise "#{mode}-mode.el version is #{version.inspect}, but it has changed as of #{version.inspect}"
   return false
 end
 

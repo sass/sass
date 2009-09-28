@@ -29,7 +29,7 @@ Haml and `html2haml` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
-## 2.2.6 (Unreleased)
+## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 
 * Made the error message when unable to load a dependency for html2haml
   respect the `--trace` option.
