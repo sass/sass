@@ -54,6 +54,7 @@ class EngineTest < Test::Unit::TestCase
     "%p(foo 'bar')" => "Invalid attribute list: \"(foo 'bar')\".",
     "%p(foo 'bar'\nbaz='bang')" => ["Invalid attribute list: \"(foo 'bar'\".", 1],
     "%p(foo='bar'\nbaz 'bang'\nbip='bop')" => ["Invalid attribute list: \"(foo='bar' baz 'bang'\".", 2],
+    "%p{:foo => 'bar' :bar => 'baz'}" => :compile,
 
     # Regression tests
     "- raise 'foo'\n\n\n\nbar" => ["foo", 1],
@@ -737,7 +738,12 @@ HAML
         line_no ||= key.split("\n").length
         line_reported = err.backtrace[0].gsub(/\(.+\):/, '').to_i
 
-        assert_equal(expected_message, err.message, "Line: #{key}")
+        if expected_message == :compile
+          assert_match(/^compile error\n/, err.message, "Line: #{key}")
+        else
+          assert_equal(expected_message, err.message, "Line: #{key}")
+        end
+
         assert_equal(line_no, line_reported, "Line: #{key}")
       else
         assert(false, "Exception not raised for\n#{key}")

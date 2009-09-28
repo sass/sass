@@ -11,6 +11,9 @@
 * Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
   as apparently happens sometimes in TextMate
   (thanks to [Karl Varga](http://github.com/kjvarga).
+  
+* Raise an exception when commas are omitted in static attributes
+  (e.g. `%p{:foo => "bar" :baz => "bang"}`).
 
 ## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
 
