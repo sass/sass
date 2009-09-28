@@ -738,15 +738,14 @@ HAML
     assert_equal("<a b='2' />\nc\n", render("%a{'b' => 1 + 1}/\n= 'c'\n"))
   end
 
-  def test_exceptions
-    EXCEPTION_MAP.each do |key, value|
+  EXCEPTION_MAP.each do |key, value|
+    define_method("test_exception (#{key.inspect})") do
       begin
-        render(key, :filename => "(exception test for #{key.inspect})")
+        render(key, :filename => __FILE__)
       rescue Exception => err
         value = [value] unless value.is_a?(Array)
         expected_message, line_no = value
         line_no ||= key.split("\n").length
-        line_reported = err.backtrace[0].gsub(/\(.+\):/, '').to_i
 
         if expected_message == :compile
           assert_match(/^compile error\n/, err.message, "Line: #{key}")
@@ -754,7 +753,7 @@ HAML
           assert_equal(expected_message, err.message, "Line: #{key}")
         end
 
-        assert_equal(line_no, line_reported, "Line: #{key}")
+        assert_match(/^#{Regexp.escape(__FILE__)}:#{line_no}/, err.backtrace[0], "Line: #{key}")
       else
         assert(false, "Exception not raised for\n#{key}")
       end
