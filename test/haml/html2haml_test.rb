@@ -93,6 +93,35 @@ HTML
     assert_equal '= h @item.title', render_erb('<%=h @item.title -%>')
   end
 
+  def test_inline_erb
+    assert_equal("%p= foo", render_erb("<p><%= foo %></p>"))
+  end
+
+  def test_non_inline_erb
+    assert_equal(<<HAML.rstrip, render_erb(<<HTML))
+%p
+  = foo
+HAML
+<p>
+  <%= foo %>
+</p>
+HTML
+    assert_equal(<<HAML.rstrip, render_erb(<<HTML))
+%p
+  = foo
+HAML
+<p>
+  <%= foo %></p>
+HTML
+    assert_equal(<<HAML.rstrip, render_erb(<<HTML))
+%p
+  = foo
+HAML
+<p><%= foo %>
+</p>
+HTML
+  end
+
   def test_erb_with_html_special_chars
     assert_equal '= 3 < 5 ? "OK" : "Your computer is b0rken"',
       render_erb('<%= 3 < 5 ? "OK" : "Your computer is b0rken" %>')
