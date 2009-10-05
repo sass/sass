@@ -32,6 +32,14 @@ class Html2HamlTest < Test::Unit::TestCase
     assert_equal "/\n  IE sucks", render('<!-- IE sucks -->')
   end
 
+  def test_interpolation
+    assert_equal('Foo \#{bar} baz', render('Foo #{bar} baz'))
+  end
+
+  def test_interpolation_in_attrs
+    assert_equal('%p{ :foo => "\#{bar} baz" }', render('<p foo="#{bar} baz"></p>'))
+  end
+
   def test_rhtml
     assert_equal '- foo = bar', render_rhtml('<% foo = bar %>')
     assert_equal '- foo = bar', render_rhtml('<% foo = bar -%>')
@@ -64,6 +72,11 @@ class Html2HamlTest < Test::Unit::TestCase
       render_rhtml(%Q{<div class="<%= 12 %>!">Bang!</div>})
   end
   
+  def test_rhtml_in_html_escaped_attribute
+    assert_equal %(%div{ :class => "foo" }\n  Bang!),
+      render_rhtml(%Q{<div class="<%= "foo" %>">Bang!</div>})
+  end
+  
   def test_rhtml_in_attribute_to_multiple_interpolations
     assert_equal %(%div{ :class => "\#{12} + \#{13}" }\n  Math is super),
       render_rhtml(%Q{<div class="<%= 12 %> + <%= 13 %>">Math is super</div>})
@@ -88,6 +101,15 @@ HAML
   </a>
 ]]></p>
 HTML
+  end
+
+  def test_interpolation_in_rhtml
+    assert_equal('= "Foo #{bar} baz"', render_rhtml('<%= "Foo #{bar} baz" %>'))
+  end
+
+  def test_interpolation_in_rhtml_attrs
+    assert_equal('%p{ :foo => "#{bar} baz" }',
+      render_rhtml('<p foo="<%= "#{bar} baz" %>"></p>'))
   end
 
   # Encodings

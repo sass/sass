@@ -29,6 +29,14 @@ Haml and `html2haml` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
+## 2.2.7 (Unreleased)
+
+* Fixed an `html2haml` issue where ERB attribute values
+  weren't HTML-unescaped before being transformed into Haml.
+
+* Fixed an `html2haml` issue where `#{}` wasn't escaped
+  before being transformed into Haml.
+
 ## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 
 * Made the error message when unable to load a dependency for html2haml
@@ -36,7 +44,7 @@ including the line number and the offending character.
 
 * Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
   as apparently happens sometimes in TextMate
-  (thanks to [Karl Varga](http://github.com/kjvarga).
+  (thanks to [Karl Varga](http://github.com/kjvarga)).
 
 * Add "Sass" to the `--version` string for the executables.
 
