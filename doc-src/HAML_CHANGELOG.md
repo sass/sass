@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.6 (Unreleased)
+## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 
 * Made the error message when unable to load a dependency for html2haml
   respect the `--trace` option.
@@ -13,6 +13,9 @@
   (thanks to [Karl Varga](http://github.com/kjvarga).
 
 * Add "Sass" to the `--version` string for the executables.
+
+* Raise an exception when commas are omitted in static attributes
+  (e.g. `%p{:foo => "bar" :baz => "bang"}`).
 
 ## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
 

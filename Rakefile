@@ -25,6 +25,7 @@ Rake::TestTask.new do |t|
   t.libs << 'lib'
   test_files = FileList['test/**/*_test.rb']
   test_files.exclude('test/rails/*')
+  test_files.exclude('test/haml/spec/*')
   t.test_files = test_files
   t.verbose = true
 end
@@ -163,7 +164,7 @@ def mode_unchanged?(mode, version)
   mode_version = File.read("extra/#{mode}-mode.el").scan(/^;; Version: (.*)$/).first.first
   return false if mode_version == version
   return mode_version unless changed_since?(mode_version, "extra/#{mode}-mode.el")
-  raise "#{mode}-mode.el version is #{haml_mode_version.inspect}, but it has changed as of #{version.inspect}"
+  raise "#{mode}-mode.el version is #{version.inspect}, but it has changed as of #{version.inspect}"
   return false
 end
 
