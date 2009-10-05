@@ -25,6 +25,7 @@ module Haml
 
       def parse_text(text, tabs)
         text.strip!
+        text.gsub!('#{', '\#{') #'
         if text.empty?
           String.new
         else

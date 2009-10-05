@@ -32,6 +32,14 @@ class Html2HamlTest < Test::Unit::TestCase
     assert_equal "/\n  IE sucks", render('<!-- IE sucks -->')
   end
 
+  def test_interpolation
+    assert_equal('Foo \#{bar} baz', render('Foo #{bar} baz'))
+  end
+
+  def test_interpolation_in_attrs
+    assert_equal('%p{ :foo => "\#{bar} baz" }', render('<p foo="#{bar} baz"></p>'))
+  end
+
   def test_rhtml
     assert_equal '- foo = bar', render_rhtml('<% foo = bar %>')
     assert_equal '- foo = bar', render_rhtml('<% foo = bar -%>')
@@ -93,6 +101,15 @@ HAML
   </a>
 ]]></p>
 HTML
+  end
+
+  def test_interpolation_in_rhtml
+    assert_equal('= "Foo #{bar} baz"', render_rhtml('<%= "Foo #{bar} baz" %>'))
+  end
+
+  def test_interpolation_in_rhtml_attrs
+    assert_equal('%p{ :foo => "#{bar} baz" }',
+      render_rhtml('<p foo="<%= "#{bar} baz" %>"></p>'))
   end
 
   protected
