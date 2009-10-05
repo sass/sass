@@ -250,7 +250,7 @@ module Haml
           name = name.index(/\W/) ? name.inspect : ":#{name}"
           "#{name} => #{value}"
         end
-        "{ #{attrs.join(', ')} }"
+        "{#{attrs.join(', ')}}"
       end
     end
 

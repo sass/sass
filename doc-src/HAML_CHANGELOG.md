@@ -31,14 +31,18 @@ including the line number and the offending character.
 
 ### `html2haml` Improvements
 
-`html2haml` now transforms inline HTML text nodes into inline Haml text.
-For example, `<p>foo</p>` now becomes `%p foo`, whereas before it became:
+* Inline HTML text nodes are now transformed into inline Haml text.
+  For example, `<p>foo</p>` now becomes `%p foo`, whereas before it became:
 
-    %p
-      foo
+      %p
+        foo
 
-The same is true for inline ERB when running in ERB mode.
-`<p><%= foo %></p>` will now become `%p= foo`.
+  The same is true for inline ERB when running in ERB mode.
+  `<p><%= foo %></p>` will now become `%p= foo`.
+
+* Attributes are now output in a more-standard format,
+  without spaces within the curly braces
+  (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).
 
 ## 2.2.7 (Unreleased)
 

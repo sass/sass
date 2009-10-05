@@ -21,9 +21,9 @@ class Html2HamlTest < Test::Unit::TestCase
   end
 
   def test_should_have_pretty_attributes
-    assert_equal_attributes('%input{ :type => "text", :name => "login" }',
+    assert_equal_attributes('%input{:type => "text", :name => "login"}',
       render('<input type="text" name="login" />'))
-    assert_equal_attributes('%meta{ "http-equiv" => "Content-Type", :content => "text/html" }',
+    assert_equal_attributes('%meta{"http-equiv" => "Content-Type", :content => "text/html"}',
       render('<meta http-equiv="Content-Type" content="text/html" />'))
   end
 
@@ -36,7 +36,7 @@ class Html2HamlTest < Test::Unit::TestCase
   end
 
   def test_interpolation_in_attrs
-    assert_equal('%p{ :foo => "\#{bar} baz" }', render('<p foo="#{bar} baz"></p>'))
+    assert_equal('%p{:foo => "\#{bar} baz"}', render('<p foo="#{bar} baz"></p>'))
   end
 
   def test_cdata
@@ -128,32 +128,32 @@ HTML
   end
 
   def test_erb_in_class_attribute
-    assert_equal "%div{ :class => dyna_class } I have a dynamic attribute",
+    assert_equal "%div{:class => dyna_class} I have a dynamic attribute",
       render_erb('<div class="<%= dyna_class %>">I have a dynamic attribute</div>')
   end
 
   def test_erb_in_id_attribute
-    assert_equal "%div{ :id => dyna_id } I have a dynamic attribute",
+    assert_equal "%div{:id => dyna_id} I have a dynamic attribute",
       render_erb('<div id="<%= dyna_id %>">I have a dynamic attribute</div>')
   end
 
   def test_erb_in_attribute_results_in_string_interpolation
-    assert_equal('%div{ :id => "item_#{i}" } Ruby string interpolation FTW',
+    assert_equal('%div{:id => "item_#{i}"} Ruby string interpolation FTW',
       render_erb('<div id="item_<%= i %>">Ruby string interpolation FTW</div>'))
   end
 
   def test_erb_in_attribute_with_trailing_content
-    assert_equal('%div{ :class => "#{12}!" } Bang!',
+    assert_equal('%div{:class => "#{12}!"} Bang!',
       render_erb('<div class="<%= 12 %>!">Bang!</div>'))
   end
 
   def test_erb_in_html_escaped_attribute
-    assert_equal '%div{ :class => "foo" } Bang!',
+    assert_equal '%div{:class => "foo"} Bang!',
       render_erb('<div class="<%= "foo" %>">Bang!</div>')
   end
 
   def test_erb_in_attribute_to_multiple_interpolations
-    assert_equal('%div{ :class => "#{12} + #{13}" } Math is super',
+    assert_equal('%div{:class => "#{12} + #{13}"} Math is super',
       render_erb('<div class="<%= 12 %> + <%= 13 %>">Math is super</div>'))
   end
 
@@ -166,7 +166,7 @@ HTML
   end
 
   def test_interpolation_in_erb_attrs
-    assert_equal('%p{ :foo => "#{bar} baz" }',
+    assert_equal('%p{:foo => "#{bar} baz"}',
       render_erb('<p foo="<%= "#{bar} baz" %>"></p>'))
   end
 
@@ -203,7 +203,7 @@ HTML
   end
 
   def assert_equal_attributes(expected, result)
-    expected_attr, result_attr = [expected, result].map { |s| s.gsub!(/\{ (.+) \}/, ''); $1.split(', ').sort }
+    expected_attr, result_attr = [expected, result].map { |s| s.gsub!(/\{(.+)\}/, ''); $1.split(', ').sort }
     assert_equal expected_attr, result_attr
     assert_equal expected, result
   end
