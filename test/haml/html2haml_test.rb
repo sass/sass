@@ -55,6 +55,8 @@ HAML
 HTML
   end
 
+  ## ERB
+
   def test_erb
     assert_equal '- foo = bar', render_erb('<% foo = bar %>')
     assert_equal '- foo = bar', render_erb('<% foo = bar -%>')
