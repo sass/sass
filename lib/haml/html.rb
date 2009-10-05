@@ -202,7 +202,7 @@ module Haml
             full_match = nil
             ruby_value = value.gsub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
               full_match = $`.empty? && $'.empty?
-              full_match ? $1: "\#{#{$1}}"
+              CGI.unescapeHTML(full_match ? $1: "\#{#{$1}}")
             end
             next if ruby_value == value
             [name, full_match ? ruby_value : %("#{ruby_value}")]

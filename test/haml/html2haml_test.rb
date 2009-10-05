@@ -64,6 +64,11 @@ class Html2HamlTest < Test::Unit::TestCase
       render_rhtml(%Q{<div class="<%= 12 %>!">Bang!</div>})
   end
   
+  def test_rhtml_in_html_escaped_attribute
+    assert_equal %(%div{ :class => "foo" }\n  Bang!),
+      render_rhtml(%Q{<div class="<%= "foo" %>">Bang!</div>})
+  end
+  
   def test_rhtml_in_attribute_to_multiple_interpolations
     assert_equal %(%div{ :class => "\#{12} + \#{13}" }\n  Math is super),
       render_rhtml(%Q{<div class="<%= 12 %> + <%= 13 %>">Math is super</div>})

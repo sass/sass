@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 2.2.7 (Unreleased)
+
+* Fixed an `html2haml` issue where ERB attribute values
+  weren't HTML-unescaped before being transformed into Haml.
+
 ## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 
 * Made the error message when unable to load a dependency for html2haml
