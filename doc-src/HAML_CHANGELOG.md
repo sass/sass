@@ -40,6 +40,20 @@ including the line number and the offending character.
   The same is true for inline ERB when running in ERB mode.
   `<p><%= foo %></p>` will now become `%p= foo`.
 
+* ERB included within text is now transformed into Ruby interpolation.
+  For example:
+
+      <p>
+        Foo <%= bar %> baz!
+        Flip <%= bang %>.
+      </p>
+
+  is now transformed into:
+
+      %p
+        Foo #{bar} baz!
+        Flip #{bang}.
+
 * Attributes are now output in a more-standard format,
   without spaces within the curly braces
   (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).

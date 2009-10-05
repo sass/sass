@@ -9,12 +9,34 @@ module Haml
     # A module containing utility methods that every Hpricot node
     # should have.
     module Node
+      # Whether this node has already been converted to Haml.
+      # Only used for text nodes and elements.
+      #
+      # @return [Boolean]
+      attr_accessor :converted_to_haml
+
       # Returns the Haml representation of the given node.
       #
       # @param tabs [Fixnum] The indentation level of the resulting Haml.
       # @option options (see Haml::HTML#initialize)
       def to_haml(tabs, options)
-        parse_text(self.to_s, tabs)
+        return "" if converted_to_haml || to_s.strip.empty?
+        text = uninterp(self.to_s)
+        node = next_node
+        while node.is_a?(::Hpricot::Elem) && node.name == "haml:loud"
+          node.converted_to_haml = true
+          text << '#{' <<
+            CGI.unescapeHTML(node.inner_text).gsub(/\n\s*/, ' ').strip << '}'
+
+          if node.next_node.is_a?(::Hpricot::Text)
+            node = node.next_node
+            text << uninterp(node.to_s)
+            node.converted_to_haml = true
+          end
+
+          node = node.next_node
+        end
+        return parse_text_with_interpolation(text, tabs)
       end
 
       private
@@ -23,9 +45,16 @@ module Haml
         '  ' * tabs
       end
 
+      def uninterp(text)
+        text.gsub('#{', '\#{') #'
+      end
+
       def parse_text(text, tabs)
+        parse_text_with_interpolation(uninterp(text), tabs)
+      end
+
+      def parse_text_with_interpolation(text, tabs)
         text.strip!
-        text.gsub!('#{', '\#{') #'
         return "" if text.empty?
 
         text.split("\n").map do |line|
@@ -165,6 +194,8 @@ module Haml
     class ::Hpricot::Elem
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
+        return "" if converted_to_haml
+
         output = "#{tabulate(tabs)}"
         if options[:erb] && name[0...5] == 'haml:'
           return output + send("haml_tag_#{name[5..-1]}", CGI.unescapeHTML(self.inner_text))

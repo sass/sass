@@ -122,6 +122,18 @@ HAML
 HTML
   end
 
+  def test_erb_in_line
+    assert_equal 'foo bar #{baz}', render_erb('foo bar <%= baz %>')
+    assert_equal 'foo bar #{baz}! Bang.', render_erb('foo bar <%= baz %>! Bang.')
+  end
+
+  def test_erb_multi_in_line
+    assert_equal('foo bar #{baz}! Bang #{bop}.',
+      render_erb('foo bar <%= baz %>! Bang <%= bop %>.'))
+    assert_equal('foo bar #{baz}#{bop}!',
+      render_erb('foo bar <%= baz %><%= bop %>!'))
+  end
+
   def test_erb_with_html_special_chars
     assert_equal '= 3 < 5 ? "OK" : "Your computer is b0rken"',
       render_erb('<%= 3 < 5 ? "OK" : "Your computer is b0rken" %>')
