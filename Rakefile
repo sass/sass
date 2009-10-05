@@ -93,8 +93,8 @@ task :release_elpa do
   next if haml_unchanged && sass_unchanged
   raise "haml-mode.el and sass-mode.el are out of sync." if haml_unchanged ^ sass_unchanged
 
-  if sass_unchanged && File.read("extra/sass-mode.el")
-      .include?(";; Package-Requires: ((haml-mode #{sass_unchanged.inspect}))")
+  if sass_unchanged && File.read("extra/sass-mode.el").
+      include?(";; Package-Requires: ((haml-mode #{sass_unchanged.inspect}))")
     raise "sass-mode.el doesn't require the same version of haml-mode."
   end
 
