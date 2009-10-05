@@ -67,7 +67,7 @@ module Haml
   #       #=> "%a{:href => 'http://google.com'} Blat"
   class HTML
     # @param template [String, Hpricot::Node] The HTML template to convert
-    # @option options :rhtml [Boolean] (false) Whether or not to parse
+    # @option options :erb [Boolean] (false) Whether or not to parse
     #   ERB's `<%= %>` and `<% %>` into Haml's `=` and `-`
     # @option options :xhtml [Boolean] (false) Whether or not to parse
     #   the HTML strictly as XHTML
@@ -83,7 +83,7 @@ module Haml
 
         Haml::Util.check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
 
-        if @options[:rhtml]
+        if @options[:erb]
           match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
           match_to_html(template, /<%-?(.*?)-?%>/m,  'silent')
         end
@@ -170,7 +170,7 @@ module Haml
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         output = "#{tabulate(tabs)}"
-        if options[:rhtml] && name[0...5] == 'haml:'
+        if options[:erb] && name[0...5] == 'haml:'
           return output + send("haml_tag_#{name[5..-1]}", CGI.unescapeHTML(self.inner_text))
         end
 
@@ -224,7 +224,7 @@ module Haml
       end
       
       def dynamic_attribute?(name, options)
-        options[:rhtml] and dynamic_attributes.key?(name)
+        options[:erb] and dynamic_attributes.key?(name)
       end
       
       def static_id?(options)

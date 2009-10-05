@@ -1073,7 +1073,7 @@ Haml has the following filters defined:
   See also [Whitespace Preservation](#whitespace_preservation).
 
 {#erb-filter} erb
-: Parses the filtered text with ERB, like an RHTML template.
+: Parses the filtered text with ERb.
   Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
   Embedded Ruby code is evaluated in the same context as the Haml template.
 

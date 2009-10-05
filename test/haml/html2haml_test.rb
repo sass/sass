@@ -55,30 +55,30 @@ HAML
 HTML
   end
 
-  def test_rhtml
-    assert_equal '- foo = bar', render_rhtml('<% foo = bar %>')
-    assert_equal '- foo = bar', render_rhtml('<% foo = bar -%>')
-    assert_equal '= h @item.title', render_rhtml('<%=h @item.title %>')
-    assert_equal '= h @item.title', render_rhtml('<%=h @item.title -%>')
+  def test_erb
+    assert_equal '- foo = bar', render_erb('<% foo = bar %>')
+    assert_equal '- foo = bar', render_erb('<% foo = bar -%>')
+    assert_equal '= h @item.title', render_erb('<%=h @item.title %>')
+    assert_equal '= h @item.title', render_erb('<%=h @item.title -%>')
   end
 
-  def test_rhtml_with_html_special_chars
+  def test_erb_with_html_special_chars
     assert_equal '= 3 < 5 ? "OK" : "Your computer is b0rken"',
-      render_rhtml('<%= 3 < 5 ? "OK" : "Your computer is b0rken" %>')
+      render_erb('<%= 3 < 5 ? "OK" : "Your computer is b0rken" %>')
   end
 
-  def test_rhtml_in_class_attribute
+  def test_erb_in_class_attribute
     assert_equal "%div{ :class => dyna_class }\n  I have a dynamic attribute",
-      render_rhtml('<div class="<%= dyna_class %>">I have a dynamic attribute</div>')
+      render_erb('<div class="<%= dyna_class %>">I have a dynamic attribute</div>')
   end
 
-  def test_rhtml_in_id_attribute
+  def test_erb_in_id_attribute
     assert_equal "%div{ :id => dyna_id }\n  I have a dynamic attribute",
-      render_rhtml('<div id="<%= dyna_id %>">I have a dynamic attribute</div>')
+      render_erb('<div id="<%= dyna_id %>">I have a dynamic attribute</div>')
   end
 
-  def test_rhtml_in_attribute_results_in_string_interpolation
-    assert_equal(<<HAML.rstrip, render_rhtml(<<ERB))
+  def test_erb_in_attribute_results_in_string_interpolation
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
 %div{ :id => "item_\#{i}" }
   Ruby string interpolation FTW
 HAML
@@ -86,8 +86,8 @@ HAML
 ERB
   end
 
-  def test_rhtml_in_attribute_with_trailing_content
-    assert_equal(<<HAML.rstrip, render_rhtml(<<ERB))
+  def test_erb_in_attribute_with_trailing_content
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
 %div{ :class => "\#{12}!" }
   Bang!
 HAML
@@ -95,13 +95,13 @@ HAML
 ERB
   end
 
-  def test_rhtml_in_html_escaped_attribute
+  def test_erb_in_html_escaped_attribute
     assert_equal %(%div{ :class => "foo" }\n  Bang!),
-      render_rhtml(%Q{<div class="<%= "foo" %>">Bang!</div>})
+      render_erb(%Q{<div class="<%= "foo" %>">Bang!</div>})
   end
 
-  def test_rhtml_in_attribute_to_multiple_interpolations
-    assert_equal(<<HAML.rstrip, render_rhtml(<<ERB))
+  def test_erb_in_attribute_to_multiple_interpolations
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
 %div{ :class => "\#{12} + \#{13}" }
   Math is super
 HAML
@@ -110,16 +110,16 @@ ERB
   end
 
   def test_whitespace_eating_erb_tags
-    assert_equal '- form_for', render_rhtml('<%- form_for -%>')
+    assert_equal '- form_for', render_erb('<%- form_for -%>')
   end
 
-  def test_interpolation_in_rhtml
-    assert_equal('= "Foo #{bar} baz"', render_rhtml('<%= "Foo #{bar} baz" %>'))
+  def test_interpolation_in_erb
+    assert_equal('= "Foo #{bar} baz"', render_erb('<%= "Foo #{bar} baz" %>'))
   end
 
-  def test_interpolation_in_rhtml_attrs
+  def test_interpolation_in_erb_attrs
     assert_equal('%p{ :foo => "#{bar} baz" }',
-      render_rhtml('<p foo="<%= "#{bar} baz" %>"></p>'))
+      render_erb('<p foo="<%= "#{bar} baz" %>"></p>'))
   end
 
   # Encodings
@@ -150,8 +150,8 @@ ERB
     Haml::HTML.new(text, options).render.rstrip
   end
 
-  def render_rhtml(text)
-    render(text, :rhtml => true)
+  def render_erb(text)
+    render(text, :erb => true)
   end
 
   def assert_equal_attributes(expected, result)
