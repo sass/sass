@@ -29,6 +29,17 @@ Haml and `html2haml` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
+### `html2haml` Improvements
+
+`html2haml` now transforms inline HTML text nodes into inline Haml text.
+For example, `<p>foo</p>` now becomes `%p foo`, whereas before it became:
+
+    %p
+      foo
+
+The same is true for inline ERB when running in ERB mode.
+`<p><%= foo %></p>` will now become `%p= foo`.
+
 ## 2.2.7 (Unreleased)
 
 * Fixed an `html2haml` issue where ERB attribute values
