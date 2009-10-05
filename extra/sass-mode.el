@@ -8,6 +8,7 @@
 ;; Created: 2007-03-15
 ;; By: Nathan Weizenbaum
 ;; Keywords: markup, language, css
+;; Package-Requires: ((haml-mode "2.2.5"))
 
 ;;; Commentary:
 
