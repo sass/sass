@@ -92,6 +92,11 @@ task :release_elpa do
   next if haml_unchanged && sass_unchanged
   raise "haml-mode.el and sass-mode.el are out of sync." if haml_unchanged ^ sass_unchanged
 
+  if sass_unchanged && File.read("extra/sass-mode.el")
+      .include?(";; Package-Requires: ((haml-mode #{sass_unchanged.inspect}))")
+    raise "sass-mode.el doesn't require the same version of haml-mode."
+  end
+
   rev = File.read('.git/HEAD').strip
   if rev =~ /^ref: (.*)$/
     rev = File.read(".git/#{$1}").strip
@@ -153,10 +158,11 @@ end
 #
 # @param mode [String, Symbol] The name of the mode
 # @param version [String] The version number
+# @return [String, nil] The version number if the version has changed
 def mode_unchanged?(mode, version)
   mode_version = File.read("extra/#{mode}-mode.el").scan(/^;; Version: (.*)$/).first.first
   return false if mode_version == version
-  return true unless changed_since?(mode_version, "extra/#{mode}-mode.el")
+  return mode_version unless changed_since?(mode_version, "extra/#{mode}-mode.el")
   raise "#{mode}-mode.el version is #{haml_mode_version.inspect}, but it has changed as of #{version.inspect}"
   return false
 end
