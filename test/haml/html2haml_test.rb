@@ -55,6 +55,35 @@ HAML
 HTML
   end
 
+  def test_inline_text
+    assert_equal("%p foo", render("<p>foo</p>"))
+  end
+
+  def test_non_inline_text
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+%p
+  foo
+HAML
+<p>
+  foo
+</p>
+HTML
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+%p
+  foo
+HAML
+<p>
+  foo</p>
+HTML
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+%p
+  foo
+HAML
+<p>foo
+</p>
+HTML
+  end
+
   ## ERB
 
   def test_erb
@@ -70,45 +99,33 @@ HTML
   end
 
   def test_erb_in_class_attribute
-    assert_equal "%div{ :class => dyna_class }\n  I have a dynamic attribute",
+    assert_equal "%div{ :class => dyna_class } I have a dynamic attribute",
       render_erb('<div class="<%= dyna_class %>">I have a dynamic attribute</div>')
   end
 
   def test_erb_in_id_attribute
-    assert_equal "%div{ :id => dyna_id }\n  I have a dynamic attribute",
+    assert_equal "%div{ :id => dyna_id } I have a dynamic attribute",
       render_erb('<div id="<%= dyna_id %>">I have a dynamic attribute</div>')
   end
 
   def test_erb_in_attribute_results_in_string_interpolation
-    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
-%div{ :id => "item_\#{i}" }
-  Ruby string interpolation FTW
-HAML
-<div id="item_<%= i %>">Ruby string interpolation FTW</div>
-ERB
+    assert_equal('%div{ :id => "item_#{i}" } Ruby string interpolation FTW',
+      render_erb('<div id="item_<%= i %>">Ruby string interpolation FTW</div>'))
   end
 
   def test_erb_in_attribute_with_trailing_content
-    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
-%div{ :class => "\#{12}!" }
-  Bang!
-HAML
-<div class="<%= 12 %>!">Bang!</div>
-ERB
+    assert_equal('%div{ :class => "#{12}!" } Bang!',
+      render_erb('<div class="<%= 12 %>!">Bang!</div>'))
   end
 
   def test_erb_in_html_escaped_attribute
-    assert_equal %(%div{ :class => "foo" }\n  Bang!),
-      render_erb(%Q{<div class="<%= "foo" %>">Bang!</div>})
+    assert_equal '%div{ :class => "foo" } Bang!',
+      render_erb('<div class="<%= "foo" %>">Bang!</div>')
   end
 
   def test_erb_in_attribute_to_multiple_interpolations
-    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
-%div{ :class => "\#{12} + \#{13}" }
-  Math is super
-HAML
-<div class="<%= 12 %> + <%= 13 %>">Math is super</div>
-ERB
+    assert_equal('%div{ :class => "#{12} + #{13}" } Math is super',
+      render_erb('<div class="<%= 12 %> + <%= 13 %>">Math is super</div>'))
   end
 
   def test_whitespace_eating_erb_tags

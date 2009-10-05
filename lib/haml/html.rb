@@ -26,16 +26,12 @@ module Haml
       def parse_text(text, tabs)
         text.strip!
         text.gsub!('#{', '\#{') #'
-        if text.empty?
-          String.new
-        else
-          lines = text.split("\n")
+        return "" if text.empty?
 
-          lines.map do |line|
-            line.strip!
-            "#{tabulate(tabs)}#{'\\' if Haml::Engine::SPECIAL_CHARACTERS.include?(line[0])}#{line}\n"
-          end.join
-        end
+        text.split("\n").map do |line|
+          line.strip!
+          "#{tabulate(tabs)}#{'\\' if Haml::Engine::SPECIAL_CHARACTERS.include?(line[0])}#{line}\n"
+        end.join
       end
     end
   end
@@ -187,6 +183,13 @@ module Haml
             remove_attribute('class')
           end
           output += haml_attributes(options) if attributes.length > 0
+        end
+
+        if children && children.size == 1 && children.first.is_a?(::Hpricot::Text) &&
+            !children.first.to_s.include?("\n")
+          text = children.first.to_haml(tabs + 1, options)
+          return output + " " + text.lstrip unless text.chomp.include?("\n")
+          return output + "\n" + text
         end
 
         (self.children || []).inject(output + "\n") do |output, child|
