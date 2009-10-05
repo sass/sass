@@ -245,7 +245,7 @@ module Haml
       # Returns a string representation of an attributes hash
       # that's prettier than that produced by Hash#inspect
       def haml_attributes(options)
-        attrs = attributes.map do |name, value|
+        attrs = attributes.sort.map do |name, value|
           value = dynamic_attribute?(name, options) ? dynamic_attributes[name] : value.inspect
           name = name.index(/\W/) ? name.inspect : ":#{name}"
           "#{name} => #{value}"

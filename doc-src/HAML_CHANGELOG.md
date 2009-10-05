@@ -44,6 +44,8 @@ including the line number and the offending character.
   without spaces within the curly braces
   (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).
 
+* Attributes are now sorted, to maintain a deterministic order.
+
 ## 2.2.7 (Unreleased)
 
 * Fixed an `html2haml` issue where ERB attribute values

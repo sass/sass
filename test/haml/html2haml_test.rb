@@ -21,9 +21,9 @@ class Html2HamlTest < Test::Unit::TestCase
   end
 
   def test_should_have_pretty_attributes
-    assert_equal_attributes('%input{:type => "text", :name => "login"}',
+    assert_equal('%input{:name => "login", :type => "text"}',
       render('<input type="text" name="login" />'))
-    assert_equal_attributes('%meta{"http-equiv" => "Content-Type", :content => "text/html"}',
+    assert_equal('%meta{:content => "text/html", "http-equiv" => "Content-Type"}',
       render('<meta http-equiv="Content-Type" content="text/html" />'))
   end
 
@@ -200,11 +200,5 @@ HTML
 
   def render_erb(text)
     render(text, :erb => true)
-  end
-
-  def assert_equal_attributes(expected, result)
-    expected_attr, result_attr = [expected, result].map { |s| s.gsub!(/\{(.+)\}/, ''); $1.split(', ').sort }
-    assert_equal expected_attr, result_attr
-    assert_equal expected, result
   end
 end
