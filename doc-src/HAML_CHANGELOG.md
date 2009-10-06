@@ -87,6 +87,9 @@ including the line number and the offending character.
             bar
               baz
 
+* Self-closing tags (such as `<br />`) are now transformed into
+  self-closing Haml tags (like `%br/`).
+
 * Attributes are now output in a more-standard format,
   without spaces within the curly braces
   (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).

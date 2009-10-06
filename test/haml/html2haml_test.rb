@@ -21,9 +21,9 @@ class Html2HamlTest < Test::Unit::TestCase
   end
 
   def test_should_have_pretty_attributes
-    assert_equal('%input{:name => "login", :type => "text"}',
+    assert_equal('%input{:name => "login", :type => "text"}/',
       render('<input type="text" name="login" />'))
-    assert_equal('%meta{:content => "text/html", "http-equiv" => "Content-Type"}',
+    assert_equal('%meta{:content => "text/html", "http-equiv" => "Content-Type"}/',
       render('<meta http-equiv="Content-Type" content="text/html" />'))
   end
 
@@ -49,6 +49,10 @@ HAML
   </a>
 ]]></p>
 HTML
+  end
+
+  def test_self_closing_tag
+    assert_equal("%foo/", render("<foo />"))
   end
 
   def test_inline_text

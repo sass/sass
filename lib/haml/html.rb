@@ -223,25 +223,27 @@ module Haml
           return script_to_haml(tabs, options)
         end
 
-        output = "#{tabulate(tabs)}"
+        output = tabulate(tabs)
         if options[:erb] && name[0...5] == 'haml:'
           return output + send("haml_tag_#{name[5..-1]}", CGI.unescapeHTML(self.inner_text))
         end
 
-        output += "%#{name}" unless name == 'div' &&
+        output << "%#{name}" unless name == 'div' &&
           (static_id?(options) || static_classname?(options))
 
         if attributes
           if static_id?(options)
-            output += "##{attributes['id']}"
+            output << "##{attributes['id']}"
             remove_attribute('id')
           end
           if static_classname?(options)
             attributes['class'].split(' ').each { |c| output += ".#{c}" }
             remove_attribute('class')
           end
-          output += haml_attributes(options) if attributes.length > 0
+          output << haml_attributes(options) if attributes.length > 0
         end
+
+        output << "/" if empty? && !etag
 
         if children && children.size == 1
           child = children.first
