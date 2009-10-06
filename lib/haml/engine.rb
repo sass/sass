@@ -72,9 +72,10 @@ module Haml
         :suppress_eval => false,
         :attr_wrapper => "'",
 
-        # Don't forget to update the docs in lib/haml.rb if you update these
+        # Don't forget to update the docs in doc-src/HAML_REFERENCE.md
+        # if you update these
         :autoclose => %w[meta img link br hr input area param col base],
-        :preserve => %w[textarea pre],
+        :preserve => %w[textarea pre code],
 
         :filename => '(haml)',
         :line => 1,

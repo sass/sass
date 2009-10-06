@@ -227,6 +227,19 @@ HAML
 SOURCE
   end
 
+  def test_pre_code
+    assert_equal(<<HTML, render(<<HAML))
+<pre><code>Foo&#x000A;  bar&#x000A;    baz</code></pre>
+HTML
+%pre
+  %code
+    :preserve
+      Foo
+        bar
+          baz
+HAML
+  end
+
   def test_boolean_attributes
     assert_equal("<p bar baz='true' foo='bar'></p>\n",
                  render("%p{:foo => 'bar', :bar => true, :baz => 'true'}", :format => :html4))

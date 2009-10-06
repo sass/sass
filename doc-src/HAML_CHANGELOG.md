@@ -11,6 +11,9 @@
 * Fixed an `html2haml` issue where `#{}` wasn't escaped
   before being transformed into Haml.
 
+* Add `<code>` to the list of tags that's
+  {file:HAML_REFERENCE.md#preserve-option automatically whitespace-preserved}.
+
 ## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 
 * Made the error message when unable to load a dependency for html2haml
