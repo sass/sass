@@ -54,6 +54,23 @@ including the line number and the offending character.
         Foo #{bar} baz!
         Flip #{bang}.
 
+* `<script>` tags are now transformed into `:javascript` filters,
+  and indentation is preserved.
+  For example:
+
+      <script type="text/javascript">
+        function foo() {
+          return 12;
+        }
+      </script>
+
+  is now transformed into:
+
+      :javascript
+        function foo() {
+          return 12;
+        }
+
 * Attributes are now output in a more-standard format,
   without spaces within the curly braces
   (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).

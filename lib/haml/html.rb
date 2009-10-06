@@ -66,6 +66,9 @@ module Haml
         parse_text_with_interpolation(uninterp(text), tabs)
       end
 
+      def parse_text_with_erb(text, tabs, options)
+      end
+
       def parse_text_with_interpolation(text, tabs)
         text.strip!
         return "" if text.empty?
@@ -210,6 +213,11 @@ module Haml
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
         return "" if converted_to_haml
+        if name == "script" &&
+            (attributes['type'].nil? || attributes['type'] == "text/javascript") &&
+            (attributes.keys - ['type']).empty?
+          return script_to_haml(tabs, options)
+        end
 
         output = "#{tabulate(tabs)}"
         if options[:erb] && name[0...5] == 'haml:'
@@ -262,6 +270,24 @@ module Haml
             [name, full_match ? ruby_value : %("#{ruby_value}")]
           end
         end
+      end
+
+      def script_to_haml(tabs, options)
+        content =
+          if children.first.is_a?(::Hpricot::CData)
+            children.first.content
+          else
+            CGI.unescapeHTML(self.innerText)
+          end
+          
+        content = erb_to_interpolation(content, options)
+        content.gsub!(/\A\s*\n(\s*)/, '\1')
+        original_indent = content[/\A(\s*)/, 1]
+        if content.split("\n").all? {|l| l.strip.empty? || l =~ /^#{original_indent}/}
+          content.gsub!(/^#{original_indent}/, tabulate(tabs + 1))
+        end
+
+        "#{tabulate(tabs)}:javascript\n#{content}"
       end
 
       def haml_tag_loud(text)

@@ -84,6 +84,38 @@ HAML
 HTML
   end
 
+  def test_script_tag
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+:javascript
+  function foo() {
+      return "12" & "13";
+  }
+HAML
+<script type="text/javascript">
+    function foo() {
+        return "12" &amp; "13";
+    }
+</script>
+HTML
+  end
+
+  def test_script_tag_with_cdata
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+:javascript
+  function foo() {
+    return "&amp;";
+  }
+HAML
+<script type="text/javascript">
+  <![CDATA[
+    function foo() {
+      return "&amp;";
+    }
+  ]]>
+</script>
+HTML
+  end
+
   ## ERB
 
   def test_erb
@@ -128,6 +160,21 @@ HTML
   Foo \#{bar} baz
 HAML
 <![CDATA[Foo <%= bar %> baz]]>
+HTML
+  end
+
+  def test_erb_in_script
+    assert_equal(<<HAML.rstrip, render_erb(<<HTML))
+:javascript
+  function foo() {
+    return \#{foo.to_json};
+  }
+HAML
+<script type="text/javascript">
+  function foo() {
+    return <%= foo.to_json %>;
+  }
+</script>
 HTML
   end
 
