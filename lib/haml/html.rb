@@ -41,6 +41,19 @@ module Haml
 
       private
 
+      def erb_to_interpolation(text, options)
+        return text unless options[:erb]
+        text = CGI.escapeHTML(uninterp(text))
+        %w[<haml:loud> </haml:loud>].each {|str| text.gsub!(CGI.escapeHTML(str), str)}
+        ::Hpricot::XML(text).children.inject("") do |str, elem|
+          if elem.is_a?(::Hpricot::Text)
+            str + CGI.unescapeHTML(elem.to_s)
+          else # <haml:loud> element
+            str + '#{' + CGI.unescapeHTML(elem.innerText.strip) + '}'
+          end
+        end
+      end
+
       def tabulate(tabs)
         '  ' * tabs
       end
@@ -147,7 +160,9 @@ module Haml
     class ::Hpricot::CData
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
-        "#{tabulate(tabs)}:cdata\n#{parse_text(self.content, tabs + 1)}"
+        content = parse_text_with_interpolation(
+          erb_to_interpolation(self.content, options), tabs + 1)
+        "#{tabulate(tabs)}:cdata\n#{content}"
       end
     end
 

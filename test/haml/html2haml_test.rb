@@ -122,6 +122,15 @@ HAML
 HTML
   end
 
+  def test_erb_in_cdata
+    assert_equal(<<HAML.rstrip, render_erb(<<HTML))
+:cdata
+  Foo \#{bar} baz
+HAML
+<![CDATA[Foo <%= bar %> baz]]>
+HTML
+  end
+
   def test_erb_in_line
     assert_equal 'foo bar #{baz}', render_erb('foo bar <%= baz %>')
     assert_equal 'foo bar #{baz}! Bang.', render_erb('foo bar <%= baz %>! Bang.')
