@@ -27,10 +27,6 @@ class Html2HamlTest < Test::Unit::TestCase
       render('<meta http-equiv="Content-Type" content="text/html" />'))
   end
 
-  def test_sqml_comment
-    assert_equal "/\n  IE sucks", render('<!-- IE sucks -->')
-  end
-
   def test_interpolation
     assert_equal('Foo \#{bar} baz', render('Foo #{bar} baz'))
   end
@@ -57,6 +53,21 @@ HTML
 
   def test_inline_text
     assert_equal("%p foo", render("<p>foo</p>"))
+  end
+
+  def test_inline_comment
+    assert_equal("/ foo", render("<!-- foo -->"))
+  end
+
+  def test_non_inline_comment
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+/
+  Foo
+  Bar
+HAML
+<!-- Foo
+Bar -->
+HTML
   end
 
   def test_non_inline_text

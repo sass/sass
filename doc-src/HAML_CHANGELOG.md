@@ -37,7 +37,8 @@ including the line number and the offending character.
       %p
         foo
 
-  The same is true for inline ERB when running in ERB mode.
+  The same is true for inline comments,
+  and inline ERB when running in ERB mode:
   `<p><%= foo %></p>` will now become `%p= foo`.
 
 * ERB included within text is now transformed into Ruby interpolation.
