@@ -216,7 +216,11 @@ module Haml
         if name == "script" &&
             (attributes['type'].nil? || attributes['type'] == "text/javascript") &&
             (attributes.keys - ['type']).empty?
-          return script_to_haml(tabs, options)
+          return to_haml_filter(:javascript, tabs, options)
+        elsif name == "style" &&
+            (attributes['type'].nil? || attributes['type'] == "text/css") &&
+            (attributes.keys - ['type']).empty?
+          return to_haml_filter(:css, tabs, options)
         end
 
         output = "#{tabulate(tabs)}"
@@ -272,7 +276,7 @@ module Haml
         end
       end
 
-      def script_to_haml(tabs, options)
+      def to_haml_filter(filter, tabs, options)
         content =
           if children.first.is_a?(::Hpricot::CData)
             children.first.content
@@ -287,7 +291,7 @@ module Haml
           content.gsub!(/^#{original_indent}/, tabulate(tabs + 1))
         end
 
-        "#{tabulate(tabs)}:javascript\n#{content}"
+        "#{tabulate(tabs)}:#{filter}\n#{content}"
       end
 
       def haml_tag_loud(text)

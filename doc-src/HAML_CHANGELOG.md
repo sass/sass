@@ -55,6 +55,7 @@ including the line number and the offending character.
         Flip #{bang}.
 
 * `<script>` tags are now transformed into `:javascript` filters,
+  and `<style>` tags into `:css` filters.
   and indentation is preserved.
   For example:
 
