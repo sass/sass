@@ -241,10 +241,16 @@ module Haml
 
         if children && children.size == 1
           child = children.first
-          if child.is_a?(::Hpricot::Text) && !child.to_s.include?("\n")
-            text = child.to_haml(tabs + 1, options)
-            return output + " " + text.lstrip unless text.chomp.include?("\n")
-            return output + "\n" + text
+          if child.is_a?(::Hpricot::Text)
+            if !child.to_s.include?("\n")
+              text = child.to_haml(tabs + 1, options)
+              return output + " " + text.lstrip unless text.chomp.include?("\n")
+              return output + "\n" + text
+            elsif ["pre", "textarea"].include?(name) ||
+                (name == "code" && parent.is_a?(::Hpricot::Elem) && parent.name == "pre")
+              return output + "\n#{tabulate(tabs + 1)}:preserve\n" +
+                innerText.gsub(/^/, tabulate(tabs + 2))
+            end
           elsif child.is_a?(::Hpricot::Elem) && child.name == "haml:loud"
             return output + child.to_haml(tabs + 1, options).lstrip
           end

@@ -71,6 +71,21 @@ including the line number and the offending character.
           return 12;
         }
 
+* `<pre>` and `<textarea>` tags are now transformed into the `:preserve` filter.
+  For example:
+
+      <pre>Foo
+        bar
+          baz</pre>
+
+  is now transformed into:
+
+      %pre
+        :preserve
+          Foo
+            bar
+              baz
+
 * Attributes are now output in a more-standard format,
   without spaces within the curly braces
   (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).

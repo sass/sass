@@ -116,6 +116,48 @@ HAML
 HTML
   end
 
+  def test_pre
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+%pre
+  :preserve
+    foo
+      bar
+    baz
+HAML
+<pre>foo
+  bar
+baz</pre>
+HTML
+  end
+
+  def test_pre_code
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+%pre
+  %code
+    :preserve
+      foo
+        bar
+      baz
+HAML
+<pre><code>foo
+  bar
+baz</code></pre>
+HTML
+  end
+
+  def test_code_without_pre
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+%code
+  foo
+  bar
+  baz
+HAML
+<code>foo
+  bar
+baz</code>
+HTML
+  end
+
   ## ERB
 
   def test_erb
