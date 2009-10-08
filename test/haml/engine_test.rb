@@ -342,6 +342,24 @@ HTML
 HAML
   end
 
+  def test_nested_end_with_method_call
+    assert_equal(<<HTML, render(<<HAML))
+<p>
+  2|3|4
+  b-a-r
+</p>
+HTML
+%p
+  = [1, 2, 3].map do |i|
+    - i + 1
+  - end.join("|")
+  = "bar".gsub(/./) do |s|
+    - s + "-"
+  - end.gsub(/-$/) do |s|
+    - ''
+HAML
+  end
+
   def test_silent_end_with_stuff
     assert_equal(<<HTML, render(<<HAML))
 e

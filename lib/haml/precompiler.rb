@@ -228,7 +228,7 @@ END
         newline_now
 
         # Handle stuff like - end.join("|")
-        @to_close_stack.first << false if text =~ /^-\s*end\b/ && !block_opened?
+        @to_close_stack.last << false if text =~ /^-\s*end\b/ && !block_opened?
 
         case_stmt = text =~ /^-\s*case\b/
         block = block_opened? && !mid_block_keyword?(text)
