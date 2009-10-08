@@ -276,6 +276,36 @@ HTML
 HAML
   end
 
+  def test_whitespace_nuke_with_tags_and_else
+    assert_equal(<<HTML, render(<<HAML))
+<a>
+  <b>foo</b>
+</a>
+HTML
+%a
+  %b<
+    - if false
+      = "foo"
+    - else
+      foo
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+<a>
+  <b>
+    foo
+  </b>
+</a>
+HTML
+%a
+  %b
+    - if false
+      = "foo"
+    - else
+      foo
+HAML
+  end
+
   def test_both_case_indentation_work_with_deeply_nested_code
     result = <<RESULT
 <h2>
