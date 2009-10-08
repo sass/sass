@@ -186,7 +186,7 @@ END
       return unless line.tabs <= @template_tabs && @template_tabs > 0
 
       to_close = @template_tabs - line.tabs
-      to_close.times { |i| close unless to_close - 1 - i == 0 && mid_block_keyword?(line.text) }
+      to_close.times {|i| close unless to_close - 1 - i == 0 && mid_block_keyword?(line.text)}
     end
 
     # Processes a single line of Haml.
@@ -228,12 +228,27 @@ END
         newline_now
 
         # Handle stuff like - end.join("|")
-        @to_close_stack.first << false if text =~ /^-\s*end\b/ && !block_opened?
+        @to_close_stack.last << false if text =~ /^-\s*end\b/ && !block_opened?
 
         case_stmt = text =~ /^-\s*case\b/
-        block = block_opened? && !mid_block_keyword?(text)
-        push_and_tabulate([:script]) if block || case_stmt
-        push_and_tabulate(:nil)      if block && case_stmt
+        keyword = mid_block_keyword?(text)
+        block = block_opened? && !keyword
+
+        # It's important to preserve tabulation modification for keywords
+        # that involve choosing between posible blocks of code.
+        if %w[else elsif when].include?(keyword)
+          @dont_indent_next_line, @dont_tab_up_next_text = @to_close_stack.last[1..2]
+
+          # when is unusual in that either it will be indented twice,
+          # or the case won't have created its own indentation
+          if keyword == "when"
+            push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text, false])
+          end
+        elsif block || case_stmt
+          push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text])
+        elsif block && case_stmt
+          push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text])
+        end
       when FILTER; start_filtered(text[1..-1].downcase)
       when DOCTYPE
         return render_doctype(text) if text[0...3] == '!!!'
@@ -247,10 +262,11 @@ END
       end
     end
 
-    # Returns whether or not the text is a silent script text with one
-    # of Ruby's mid-block keywords.
+    # If the text is a silent script text with one of Ruby's mid-block keywords,
+    # returns the name of that keyword.
+    # Otherwise, returns nil.
     def mid_block_keyword?(text)
-      MID_BLOCK_KEYWORD_REGEX =~ text
+      text[MID_BLOCK_KEYWORD_REGEX, 1]
     end
 
     # Evaluates <tt>text</tt> in the context of the scope object, but
@@ -398,7 +414,7 @@ END
     end
 
     # Closes a Ruby block.
-    def close_script(push_end = true)
+    def close_script(_1, _2, push_end = true)
       push_silent("end", true) if push_end
       @template_tabs -= 1
     end
@@ -433,7 +449,7 @@ END
       @template_tabs -= 1
     end
 
-    def close_nil
+    def close_nil(*args)
       @template_tabs -= 1
     end
 
