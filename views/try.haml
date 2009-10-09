@@ -1,9 +1,7 @@
 :maruku
-  Give Haml a try online!
-  Just type in some Haml code below, press **Render**,
-  and see the beautiful HTML output.
-  You can't use any real Ruby code here,
-  but feel free to use Ruby hash attributes.
+  Give Sass a try online!
+  Just type in some Sass code below, press **Render**,
+  and see the beautiful CSS output.
 
 %form#try{:method => "post"}
   %textarea{:name => "input"}
@@ -11,40 +9,34 @@
       = preserve(CGI.escapeHTML(params[:input]))
     - else
       :preserve
-        !!!
-        #main
-          .note
-            %h2 Quick Notes
-            %ul
-              %li
-                Haml is usually indented with two spaces,
-                although more than two is allowed.
-                You have to be consistent, though.
-              %li
-                The first character of any line is called 
-                the "control character" - it says "make a tag"
-                or "run Ruby code" or all sorts of things.
-              %li
-                Haml takes care of nicely indenting your HTML.
-              %li 
-                Haml allows Ruby code and blocks.
-                But not in this example.
-                We turned it off for security.
+        // Constant Definitions
 
-          .note
-            You can get more information by reading the
-            %a{:href => "/docs/yardoc/HAML_REFERENCE.md.html"}
-              Official Haml Reference
+        !page_width    = 800px
+        !sidebar_width = 200px
+        !primary_color = #eeeeee
 
-          .note
-            %p
-              This example doesn't allow Ruby to be executed,
-              but real Haml does.
-            %p
-              Ruby code is included by using = at the
-              beginning of a line.
-            %p
-              Read the tutorial for more information.
+        // Global Attributes
+
+        body
+          font:
+            family: sans-serif
+            size: 30em
+            weight: bold
+
+        // Scoped Styles
+
+        #contents
+          width = !page_width
+          #sidebar
+            float: right
+            width = !sidebar_width
+          #main
+            width = !page_width - !sidebar_width
+            background = !primary_color
+            h2
+              color: blue
+        #footer
+          height: 200px
 
   %input{:type => "submit", :value => "Render"}
 

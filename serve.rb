@@ -10,10 +10,10 @@ get('/try.html') {haml :try}
 post('/try.html') do
   begin
     Timeout.timeout(5) do
-      @result = Haml::Engine.new(params[:input], :suppress_eval => true).render
+      @result = Sass::Engine.new(params[:input]).render
     end
-  rescue Haml::SyntaxError => e
-    @result = "Haml Error: " + e
+  rescue Sass::SyntaxError => e
+    @result = "Sass Error: " + e
   rescue Timeout::Error
     @result = "Timed out!"
   end
