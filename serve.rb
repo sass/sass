@@ -12,7 +12,7 @@ post('/try.html') do
     Timeout.timeout(5) do
       @result = Haml::Engine.new(params[:input], :suppress_eval => true).render
     end
-  rescue Haml::SyntaxError => e
+  rescue Haml::Error => e
     @result = "Haml Error: " + e
   rescue Timeout::Error
     @result = "Timed out!"
