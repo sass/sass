@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
+
+There were no changes made to Sass between versions 2.2.6 and 2.2.7.
+
 ## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 
 * Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
