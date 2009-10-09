@@ -248,11 +248,9 @@ task :pages do
     sh %{git checkout #{proj}-pages}
     sh %{git reset --hard origin/#{proj}-pages}
 
-    old_path = File.expand_path(".")
-
     Dir.chdir("/var/www/#{proj}-pages")
-    sh %{git fetch #{old_path}}
-    sh %{git reset --hard FETCH_HEAD}
+    sh %{git fetch origin}
+    sh %{git reset --hard origin/#{proj}-pages}
     sh %{rake build --trace}
     sh %{mkdir -p tmp}
     sh %{touch tmp/restart.txt}
