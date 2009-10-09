@@ -29,7 +29,7 @@ Haml and `html2haml` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
-## 2.2.7 (Unreleased)
+## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
 
 * Fixed an `html2haml` issue where ERB attribute values
   weren't HTML-unescaped before being transformed into Haml.
