@@ -250,6 +250,11 @@ task :pages do
 
     Dir.chdir("/var/www/#{proj}-pages")
     sh %{git fetch origin}
+
+    sh %{git checkout stable}
+    sh %{git reset --hard origin/stable}
+
+    sh %{git checkout #{proj}-pages}
     sh %{git reset --hard origin/#{proj}-pages}
     sh %{rake build --trace}
     sh %{mkdir -p tmp}
