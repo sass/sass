@@ -3,10 +3,6 @@
 
 * Documentation
   Redo tutorial?
-  Contribution information
-    Will be code reviewed
-    [Haml]/[Sass], punctuation
-    Don't forget docs
   Using helpers
     haml_concat and haml_tag in particular
   Syntax highlighting?

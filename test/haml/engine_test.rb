@@ -232,6 +232,19 @@ HAML
 SOURCE
   end
 
+  def test_pre_code
+    assert_equal(<<HTML, render(<<HAML))
+<pre><code>Foo&#x000A;  bar&#x000A;    baz</code></pre>
+HTML
+%pre
+  %code
+    :preserve
+      Foo
+        bar
+          baz
+HAML
+  end
+
   def test_boolean_attributes
     assert_equal("<p bar baz='true' foo='bar'></p>\n",
                  render("%p{:foo => 'bar', :bar => true, :baz => 'true'}", :format => :html4))
@@ -265,6 +278,36 @@ SOURCE
 HTML
 %p
   %p<= "\\nfoo\\n"
+HAML
+  end
+
+  def test_whitespace_nuke_with_tags_and_else
+    assert_equal(<<HTML, render(<<HAML))
+<a>
+  <b>foo</b>
+</a>
+HTML
+%a
+  %b<
+    - if false
+      = "foo"
+    - else
+      foo
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+<a>
+  <b>
+    foo
+  </b>
+</a>
+HTML
+%a
+  %b
+    - if false
+      = "foo"
+    - else
+      foo
 HAML
   end
 
@@ -331,6 +374,24 @@ HTML
   - s + "-"
 - end.gsub(/-$/) do |s|
   - ''
+HAML
+  end
+
+  def test_nested_end_with_method_call
+    assert_equal(<<HTML, render(<<HAML))
+<p>
+  2|3|4
+  b-a-r
+</p>
+HTML
+%p
+  = [1, 2, 3].map do |i|
+    - i + 1
+  - end.join("|")
+  = "bar".gsub(/./) do |s|
+    - s + "-"
+  - end.gsub(/-$/) do |s|
+    - ''
 HAML
   end
 

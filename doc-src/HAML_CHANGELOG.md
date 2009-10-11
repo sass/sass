@@ -98,13 +98,23 @@ including the line number and the offending character.
 
 * Attributes are now sorted, to maintain a deterministic order.
 
-## 2.2.7 (Unreleased)
+## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
 
 * Fixed an `html2haml` issue where ERB attribute values
   weren't HTML-unescaped before being transformed into Haml.
 
 * Fixed an `html2haml` issue where `#{}` wasn't escaped
   before being transformed into Haml.
+
+* Add `<code>` to the list of tags that's
+  {file:HAML_REFERENCE.md#preserve-option automatically whitespace-preserved}.
+
+* Fixed a bug with `end` being followed by code in silent scripts -
+  it no longer throws an error when it's nested beneath tags.
+
+* Fixed a bug with inner whitespace-nuking and conditionals.
+  The `else` et al. clauses of conditionals are now properly
+  whitespace-nuked.
 
 ## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
 

@@ -248,8 +248,18 @@ task :pages do
     sh %{git checkout #{proj}-pages}
     sh %{git reset --hard origin/#{proj}-pages}
 
-    sh %{rake build --trace}
-    sh %{rsync -av --delete site/ /var/www/#{proj}-pages}
+    Dir.chdir("/var/www/#{proj}-pages") do
+      sh %{git fetch origin}
+
+      sh %{git checkout stable}
+      sh %{git reset --hard origin/stable}
+
+      sh %{git checkout #{proj}-pages}
+      sh %{git reset --hard origin/#{proj}-pages}
+      sh %{rake build --trace}
+      sh %{mkdir -p tmp}
+      sh %{touch tmp/restart.txt}
+    end
   end
 end
 
