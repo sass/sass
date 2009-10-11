@@ -204,10 +204,16 @@ module Haml
     class ::Hpricot::Comment
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
-        if self.content.include?("\n")
-          "#{tabulate(tabs)}/\n#{parse_text(self.content, tabs + 1)}"
+        content = self.content
+        if content =~ /\A(\[[^\]]+\])>(.*)<!\[endif\]\z/m
+          condition = $1
+          content = $2
+        end
+
+        if content.include?("\n")
+          "#{tabulate(tabs)}/#{condition}\n#{parse_text(content, tabs + 1)}"
         else
-          "#{tabulate(tabs)}/ #{self.content.strip}"
+          "#{tabulate(tabs)}/#{condition} #{content.strip}"
         end
       end
     end

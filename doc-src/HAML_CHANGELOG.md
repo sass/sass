@@ -90,6 +90,8 @@ including the line number and the offending character.
 * Self-closing tags (such as `<br />`) are now transformed into
   self-closing Haml tags (like `%br/`).
 
+* IE conditional comments are now properly parsed.
+
 * Attributes are now output in a more-standard format,
   without spaces within the curly braces
   (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).

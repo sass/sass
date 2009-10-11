@@ -173,6 +173,27 @@ baz</code>
 HTML
   end
 
+  def test_conditional_comment
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+/[if foo]
+  bar
+  baz
+HAML
+<!--[if foo]>
+  bar
+  baz
+<![endif]-->
+HTML
+  end
+
+  def test_inline_conditional_comment
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+/[if foo] bar baz
+HAML
+<!--[if foo]> bar baz <![endif]-->
+HTML
+  end
+
   ## ERB
 
   def test_erb
