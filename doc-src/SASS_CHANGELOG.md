@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
+
+There were no changes made to Sass between versions 2.2.7 and 2.2.8.
+
 ## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
 
 There were no changes made to Sass between versions 2.2.6 and 2.2.7.

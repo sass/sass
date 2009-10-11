@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.8 (Unreleased)
+## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
 
 * Fixed a potential XSS issue with HTML escaping and wacky Unicode nonsense.
   This is the same as [the issue fixed in Rails](http://groups.google.com/group/rubyonrails-security/browse_thread/thread/48ab3f4a2c16190f) a bit ago.
