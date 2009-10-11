@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 2.2.8 (Unreleased)
+
+* Fixed a potential XSS issue with HTML escaping and wacky Unicode nonsense.
+  This is the same as [the issue fixed in Rails](http://groups.google.com/group/rubyonrails-security/browse_thread/thread/48ab3f4a2c16190f) a bit ago.
+
 ## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
 
 * Fixed an `html2haml` issue where ERB attribute values

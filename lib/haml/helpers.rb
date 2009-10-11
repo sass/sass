@@ -473,7 +473,7 @@ END
     # @param text [String] The string to sanitize
     # @return [String] The sanitized string
     def html_escape(text)
-      text.to_s.gsub(/[\"><&]/) { |s| HTML_ESCAPE[s] }
+      text.to_s.gsub(/[\"><&]/n) {|s| HTML_ESCAPE[s]}
     end
 
     # Escapes HTML entities in `text`, but without escaping an ampersand
@@ -482,7 +482,7 @@ END
     # @param text [String] The string to sanitize
     # @return [String] The sanitized string
     def escape_once(text)
-      text.to_s.gsub(/[\"><]|&(?!([a-zA-Z]+|(#\d+));)/) { |s| HTML_ESCAPE[s] }
+      text.to_s.gsub(/[\"><]|&(?!(?:[a-zA-Z]+|(#\d+));)/n) {|s| HTML_ESCAPE[s]}
     end
 
     # Returns whether or not the current template is a Haml template.
