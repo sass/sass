@@ -39,50 +39,47 @@ module Sass::Tree
     # Computes the CSS for the property.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS
-    # @param parent_name [String] The name of the parent property (e.g. `text`) or nil
     # @return [String] The resulting CSS
     # @raise [Sass::SyntaxError] if the property uses invalid syntax
-    def _to_s(tabs, parent_name = nil)
+    def _to_s(tabs)
       if @options[:property_syntax] == :old && @prop_syntax == :new
         raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.")
       elsif @options[:property_syntax] == :new && @prop_syntax == :old
         raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.")
       elsif value[-1] == ?;
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).")
-      elsif value.empty? && children.empty?
+      elsif value.empty?
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value).")
       end
 
-      real_name = name
-      real_name = "#{parent_name}-#{real_name}" if parent_name
-
-      join_string = case style
-                    when :compact; ' '
-                    when :compressed; ''
-                    else "\n"
-                    end
-      spaces = '  ' * (tabs - 1)
-      to_return = ''
-      if !value.empty?
-        to_return << "#{spaces}#{real_name}:#{style == :compressed ? '' : ' '}#{value};#{join_string}"
-      end
-      
-      children.each do |kid|
-        next if kid.invisible?
-        to_return << kid.to_s(tabs, real_name) << join_string
-      end
-      
-      (style == :compressed && parent_name) ? to_return : to_return[0...-1]
+      to_return = '  ' * (tabs - 1) + name + ":" + (style == :compressed ? '' : ' ') +
+        value + (style == :compressed ? "" : ";")
     end
 
-    # Runs any SassScript that may be embedded in the property.
+    # Returns this node's fully-resolved child properties,
+    # or this node if there are none.
     #
     # @param environment [Sass::Environment] The lexical environment containing
+    #   variable and mixin values
+    def _perform(environment)
+      node = super
+      result = node.children.dup
+      result.unshift(node) if !node.value.empty? || node.children.empty?
+      result
+    end
+
+    # Runs any SassScript that may be embedded in the property,
+    # and invludes the parent property, if any.
+    #
+    # @param environment [Sass::Environment] The lunlessexical environment containing
     #   variable and mixin values
     def perform!(environment)
       @name = interpolate(@name, environment)
       @value = @value.is_a?(String) ? interpolate(@value, environment) : @value.perform(environment).to_s
       super
+      # Once we've called super, the child nodes have been dup'ed
+      # so we can destructively modify them
+      children.select {|c| c.is_a?(PropNode)}.each {|c| c.name = "#{name}-#{c.name}"}
     end
 
     # Returns an error message if the given child node is invalid,
