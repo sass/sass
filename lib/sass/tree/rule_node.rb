@@ -1,6 +1,9 @@
 require 'pathname'
 
 module Sass::Tree
+  # A static node reprenting a CSS rule.
+  #
+  # @see Sass::Tree
   class RuleNode < Node
     # The character used to include the parent selector
     PARENT = '&'
