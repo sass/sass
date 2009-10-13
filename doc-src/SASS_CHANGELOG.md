@@ -16,6 +16,23 @@ In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
 as well as a backtrace of Sass imports.
 
+### Formatting
+
+Properties of the form
+
+    margin: auto
+      top: 10px
+      bottom: 20px
+
+That is, properties with a value and *also* nested properties,
+are now rendered as such in nested output mode:
+
+    margin: auto;
+      margin-top: 10px;
+      margin-bottom: 20px;
+
+That is, with the nested properties indented in the source.
+
 ### Ruby 1.9 Support
 
 Sass and `css2sass` now produce more descriptive errors

@@ -467,11 +467,24 @@ SASS
     assert_equal(<<CSS, render(<<SASS))
 foo {
   a: b;
-  a-c: d; }
+    a-c: d;
+      a-c-e: f; }
 CSS
 foo
   a: b
     c: d
+      e: f
+SASS
+
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: b;
+    a-c-e: f; }
+CSS
+foo
+  a: b
+    c:
+      e: f
 SASS
   end
 

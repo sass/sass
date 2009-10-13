@@ -14,6 +14,18 @@ module Sass::Tree
     # @return [String, Script::Node]
     attr_accessor :value
 
+    # How deep this property is indented
+    # relative to a normal property.
+    # This is only greater than 0 in the case that:
+    #
+    # * This node is in a static tree
+    # * The style is :nested
+    # * This is a child property of another property
+    # * The parent property has a value, and thus will be rendered
+    #
+    # @return [Fixnum]
+    attr_accessor :indentation
+
     # @param name [String] See \{#name}
     # @param value [String] See \{#value}
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
@@ -21,6 +33,7 @@ module Sass::Tree
     def initialize(name, value, prop_syntax)
       @name = name
       @value = value
+      @indentation = 0
       @prop_syntax = prop_syntax
       super()
     end
@@ -52,8 +65,8 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value).")
       end
 
-      to_return = '  ' * (tabs - 1) + name + ":" + (style == :compressed ? '' : ' ') +
-        value + (style == :compressed ? "" : ";")
+      to_return = '  ' * (tabs - 1 + indentation) + name + ":" +
+        (style == :compressed ? '' : ' ') + value + (style == :compressed ? "" : ";")
     end
 
     # Returns this node's fully-resolved child properties,
@@ -79,7 +92,10 @@ module Sass::Tree
       super
       # Once we've called super, the child nodes have been dup'ed
       # so we can destructively modify them
-      children.select {|c| c.is_a?(PropNode)}.each {|c| c.name = "#{name}-#{c.name}"}
+      children.select {|c| c.is_a?(PropNode)}.each do |c|
+        c.name = "#{name}-#{c.name}"
+        c.indentation += 1 if style == :nested && !@value.empty?
+      end
     end
 
     # Returns an error message if the given child node is invalid,
