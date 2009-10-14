@@ -69,8 +69,7 @@ module Sass::Tree
         (style == :compressed ? '' : ' ') + value + (style == :compressed ? "" : ";")
     end
 
-    # Returns this node's fully-resolved child properties,
-    # or this node if there are none.
+    # Returns this node's fully-resolved child properties, and/or this node.
     #
     # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
@@ -84,7 +83,7 @@ module Sass::Tree
     # Runs any SassScript that may be embedded in the property,
     # and invludes the parent property, if any.
     #
-    # @param environment [Sass::Environment] The lunlessexical environment containing
+    # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
     def perform!(environment)
       @name = interpolate(@name, environment)
