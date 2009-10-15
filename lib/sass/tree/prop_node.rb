@@ -69,15 +69,28 @@ module Sass::Tree
         (style == :compressed ? '' : ' ') + value + (style == :compressed ? "" : ";")
     end
 
-    # Returns this node's fully-resolved child properties, and/or this node.
+    # Converts nested properties into flat properties.
     #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    def _perform(environment)
+    # @param parent_name [String, nil] The name of the parent property,
+    #   or nil if there is none
+    # @param tabs [Fixnum] How deeply this property is nested.
+    #   See \{#indentation}
+    def _cssize(parent)
       node = super
       result = node.children.dup
       result.unshift(node) if !node.value.empty? || node.children.empty?
       result
+    end
+
+    # Updates the name and indentation of this node based on the parent name
+    # and nesting level.
+    #
+    # @param parent_name [String, nil] The name of the parent property, if one exists
+    # @param tabs [Fixnum] The extra indentation to use for this property
+    def cssize!(parent)
+      self.name = "#{parent.name}-#{name}" if parent
+      self.indentation = parent.indentation + (parent.value.empty? 0 ? 1) if parent && style == :nested
+      super
     end
 
     # Runs any SassScript that may be embedded in the property,
@@ -89,12 +102,6 @@ module Sass::Tree
       @name = interpolate(@name, environment)
       @value = @value.is_a?(String) ? interpolate(@value, environment) : @value.perform(environment).to_s
       super
-      # Once we've called super, the child nodes have been dup'ed
-      # so we can destructively modify them
-      children.select {|c| c.is_a?(PropNode)}.each do |c|
-        c.name = "#{name}-#{c.name}"
-        c.indentation += 1 if style == :nested && !@value.empty?
-      end
     end
 
     # Returns an error message if the given child node is invalid,
