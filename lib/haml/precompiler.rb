@@ -313,7 +313,7 @@ END
 
       @precompiled <<
         if @options[:ugly]
-          "_erbout << \"#{text}\";"
+          "_hamlout.buffer << \"#{text}\";"
         else
           "_hamlout.push_text(\"#{text}\", #{tab_change}, #{@dont_tab_up_next_text.inspect});"
         end
@@ -375,7 +375,7 @@ END
 
       push_silent "haml_temp = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_erbout << #{no_format ? "#{output_temp}.to_s;" : out}",
+      push_and_tabulate([:loud, "_hamlout.buffer << #{no_format ? "#{output_temp}.to_s;" : out}",
         !(opts[:in_tag] || opts[:nuke_inner_whitespace] || @options[:ugly])])
     end
 

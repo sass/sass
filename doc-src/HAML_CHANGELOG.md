@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 2.2.9 (Unreleased)
+
+* Fixed a bug where Haml's text was concatenated to the wrong buffer
+  under certain circumstances.
+  This was mostly an issue under Rails when using methods like `capture`.
+
 ## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
 
 * Fixed a potential XSS issue with HTML escaping and wacky Unicode nonsense.
