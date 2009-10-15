@@ -84,8 +84,8 @@ class TemplateTest < Test::Unit::TestCase
     base
   end
 
-  def render(text)
-    Haml::Engine.new(text).to_html(@base)
+  def render(text, opts = {})
+    Haml::Engine.new(text, opts).to_html(@base)
   end
 
   def load_result(name)
@@ -182,6 +182,24 @@ class TemplateTest < Test::Unit::TestCase
     assert_renders_correctly("eval_suppressed")
     @base = old_base
     Haml::Template.options = {}
+  end
+
+  def test_with_output_buffer_with_ugly
+    return unless Haml::Util.has?(:instance_method, ActionView::Base, :with_output_buffer)
+    assert_equal(<<HTML, render(<<HAML, :ugly => true))
+<p>
+foo
+baz
+</p>
+HTML
+%p
+  foo
+  - with_output_buffer do
+    bar
+    = "foo".gsub(/./) do |s|
+      - s.ord
+  baz
+HAML
   end
 
   def test_exceptions_should_work_correctly
