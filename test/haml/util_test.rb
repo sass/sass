@@ -54,6 +54,11 @@ class UtilTest < Test::Unit::TestCase
       powerset([1, 2, 3]))
   end
 
+  def test_merge_adjacent_strings
+    assert_equal(["foo bar baz", :bang, "biz bop", 12],
+      merge_adjacent_strings(["foo ", "bar ", "baz", :bang, "biz", " bop", 12]))
+  end
+
   def test_has
     assert(has?(:instance_method, String, :chomp!))
     assert(has?(:private_instance_method, Haml::Engine, :set_locals))
