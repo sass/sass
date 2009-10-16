@@ -122,6 +122,8 @@ module Haml
       end
     end
 
+    ## Cross-Ruby-Version Compatibility
+
     # Whether or not this is running under Ruby 1.8 or lower.
     #
     # @return [Boolean]
@@ -154,6 +156,8 @@ module Haml
     def enum_with_index(enum)
       ruby1_8? ? enum.enum_with_index : enum.each_with_index
     end
+
+    ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.
     class StaticConditionalContext
