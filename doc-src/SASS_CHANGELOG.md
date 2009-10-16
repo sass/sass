@@ -63,7 +63,7 @@ There were no changes made to Sass between versions 2.2.6 and 2.2.7.
 
 * Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
   as apparently happens sometimes in TextMate
-  (thanks to [Karl Varga](http://github.com/kjvarga).
+  (thanks to [Karl Varga](http://github.com/kjvarga)).
 
 * Add "Sass" to the `--version` string for the executables.
 
