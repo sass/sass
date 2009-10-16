@@ -24,7 +24,7 @@ module Sass::Tree
     # * The parent property has a value, and thus will be rendered
     #
     # @return [Fixnum]
-    attr_accessor :indentation
+    attr_accessor :tabs
 
     # @param name [String] See \{#name}
     # @param value [String] See \{#value}
@@ -33,7 +33,7 @@ module Sass::Tree
     def initialize(name, value, prop_syntax)
       @name = name
       @value = value
-      @indentation = 0
+      @tabs = 0
       @prop_syntax = prop_syntax
       super()
     end
@@ -65,7 +65,7 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value).")
       end
 
-      to_return = '  ' * (tabs - 1 + indentation) + name + ":" +
+      to_return = '  ' * (tabs - 1 + self.tabs) + name + ":" +
         (style == :compressed ? '' : ' ') + value + (style == :compressed ? "" : ";")
     end
 
@@ -74,7 +74,7 @@ module Sass::Tree
     # @param parent_name [String, nil] The name of the parent property,
     #   or nil if there is none
     # @param tabs [Fixnum] How deeply this property is nested.
-    #   See \{#indentation}
+    #   See \{#tabs}
     def _cssize(parent)
       node = super
       result = node.children.dup
@@ -89,7 +89,7 @@ module Sass::Tree
     # @param tabs [Fixnum] The extra indentation to use for this property
     def cssize!(parent)
       self.name = "#{parent.name}-#{name}" if parent
-      self.indentation = parent.indentation + (parent.value.empty? 0 ? 1) if parent && style == :nested
+      self.tabs = parent.tabs + (parent.value.empty? ? 0 : 1) if parent && style == :nested
       super
     end
 
