@@ -467,6 +467,10 @@ END
     # Returns a copy of `text` with ampersands, angle brackets and quotes
     # escaped into HTML entities.
     #
+    # Note that if ActionView is loaded and XSS protection is enabled
+    # (as is the default for Rails 3.0+, and optional for version 2.3.5+),
+    # this won't escape text declared as "safe".
+    #
     # @param text [String] The string to sanitize
     # @return [String] The sanitized string
     def html_escape(text)

@@ -122,6 +122,26 @@ module Haml
       end
     end
 
+    ## Rails XSS Safety
+
+    # Whether or not ActionView's XSS protection is available and enabled,
+    # as is the default for Rails 3.0+, and optional for version 2.3.5+.
+    # Overridden in haml/template.rb if this is the case.
+    #
+    # @return [Boolean]
+    def rails_xss_safe?
+      false
+    end
+
+    # Assert that a given object (usually a String) is HTML safe
+    # according to Rails' XSS handling, if it's loaded.
+    #
+    # @param text [Object]
+    def assert_html_safe!(text)
+      return unless rails_xss_safe? && text && !text.to_s.html_safe?
+      raise Haml::Error.new("Expected #{text.inspect} to be HTML-safe.")
+    end
+
     ## Cross-Ruby-Version Compatibility
 
     # Whether or not this is running under Ruby 1.8 or lower.

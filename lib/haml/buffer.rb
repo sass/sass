@@ -130,6 +130,8 @@ module Haml
     Haml::Util.def_static_method(self, :format_script, [:result],
                                  :preserve_script, :in_tag, :preserve_tag, :escape_html,
                                  :nuke_inner_whitespace, :interpolated, :ugly, <<RUBY)
+      <% # Escape HTML here so that the safety of the string is preserved in Rails
+         result_name = escape_html ? "html_escape(result.to_s)" : "result.to_s" %>
       <% unless ugly %>
         # If we're interpolated,
         # then the custom tabulation is handled in #push_text.
@@ -140,12 +142,10 @@ module Haml
         <% end %>
 
         tabulation = @real_tabs
-        result = result.to_s.<% if nuke_inner_whitespace %>strip<% else %>rstrip<% end %>
+        result = <%= result_name %>.<% if nuke_inner_whitespace %>strip<% else %>rstrip<% end %>
       <% else %>
-        result = result.to_s<% if nuke_inner_whitespace %>.strip<% end %>
+        result = <%= result_name %><% if nuke_inner_whitespace %>.strip<% end %>
       <% end %>
-
-      <% if escape_html %> result = html_escape(result) <% end %>
 
       <% if preserve_tag %>
         result = Haml::Helpers.preserve(result)

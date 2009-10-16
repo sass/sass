@@ -27,6 +27,21 @@ else
   require 'haml/template/patch'
 end
 
+if ActionView::Base.respond_to?(:xss_safe?) && ActionView::Base.xss_safe?
+  Haml::Template.options[:escape_html] = true
+
+  module Haml::Util
+    def rails_xss_safe?
+      true
+    end
+  end
+
+  require 'haml/helpers/xss_mods'
+  module Haml::Helpers
+    include XssMods
+  end
+end
+
 if defined?(RAILS_ROOT)
   # Update init.rb to the current version
   # if it's out of date.
