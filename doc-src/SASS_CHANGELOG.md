@@ -51,6 +51,10 @@ Several bug fixes and minor improvements have been made, including:
 * Displaying the expected strings as strings rather than regular expressions
   whenever possible.
 
+## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
+
+There were no changes made to Sass between versions 2.2.8 and 2.2.9.
+
 ## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
 
 There were no changes made to Sass between versions 2.2.7 and 2.2.8.

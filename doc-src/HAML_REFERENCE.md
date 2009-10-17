@@ -130,10 +130,11 @@ Available options are:
 
 {#escape_html-option} `:escape_html`
 : Sets whether or not to escape HTML-sensitive characters in script.
-  If this is true, `=` behaves like `&=`;
-  otherwise, it behaves like `!=`.
+  If this is true, `=` behaves like [`&=`](#escaping_html);
+  otherwise, it behaves like [`!=`](#unescaping_html).
   Note that if this is set, `!=` should be used for yielding to subtemplates
   and rendering partials.
+  See also [Escaping HTML](#escaping_html) and [Unescaping HTML](#unescaping_html)
   Defaults to false.
 
 {#ugly-option} `:ugly`
