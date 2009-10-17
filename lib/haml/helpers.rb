@@ -113,9 +113,7 @@ MESSAGE
     #   @yield The block within which to escape newlines
     def find_and_preserve(input = nil, tags = haml_buffer.options[:preserve], &block)
       return find_and_preserve(capture_haml(&block), input || tags) if block
-
-      input = input.to_s
-      input.gsub(/<(#{tags.map(&Regexp.method(:escape)).join('|')})([^>]*)>(.*?)(<\/\1>)/im) do
+      input.to_s.gsub(/<(#{tags.map(&Regexp.method(:escape)).join('|')})([^>]*)>(.*?)(<\/\1>)/im) do
         "<#{$1}#{$2}>#{preserve($3)}</#{$1}>"
       end
     end
@@ -132,10 +130,9 @@ MESSAGE
     #   Escapes newlines within a block of Haml code.
     #
     #   @yield The block within which to escape newlines
-    def preserve(input = '', &block)
+    def preserve(input = nil, &block)
       return preserve(capture_haml(&block)) if block
-
-      input.chomp("\n").gsub(/\n/, '&#x000A;').gsub(/\r/, '')
+      input.to_s.chomp("\n").gsub(/\n/, '&#x000A;').gsub(/\r/, '')
     end
     alias_method :flatten, :preserve
 

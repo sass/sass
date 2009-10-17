@@ -35,6 +35,19 @@ including the line number and the offending character.
   under certain circumstances.
   This was mostly an issue under Rails when using methods like `capture`.
 
+* Fixed a bug where template text was escaped when there was interpolation in a line
+  and the `:escape_html` option was enabled. For example:
+
+      Foo &lt; Bar #{"<"} Baz
+
+  with `:escape_html` used to render as
+
+      Foo &amp;lt; Bar &lt; Baz
+
+  but now renders as
+
+      Foo &lt; Bar &lt; Baz
+
 ## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
 
 * Fixed a potential XSS issue with HTML escaping and wacky Unicode nonsense.

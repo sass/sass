@@ -329,7 +329,10 @@ END
       end
 
       if contains_interpolation?(text)
-        push_script unescape_interpolation(text), :escape_html => options[:escape_html]
+        options[:escape_html] = self.options[:escape_html] if options[:escape_html].nil?
+        push_script(
+          unescape_interpolation(text, :escape_html => options[:escape_html]),
+          :escape_html => false)
       else
         push_text text
       end
@@ -665,30 +668,37 @@ END
       nuke_inner_whitespace ||= preserve_tag
       preserve_tag &&= !options[:ugly]
 
+      escape_html = (action == '&' || (action != '!' && @options[:escape_html]))
+
       case action
       when '/'; self_closing = true
       when '~'; parse = preserve_script = true
       when '='
         parse = true
-        value = unescape_interpolation(value[1..-1].strip) if value[0] == ?=
+        if value[0] == ?=
+          value = unescape_interpolation(value[1..-1].strip, :escape_html => escape_html)
+          escape_html = false
+        end
       when '&', '!'
         if value[0] == ?= || value[0] == ?~
           parse = true
           preserve_script = (value[0] == ?~)
-          value =
-            if value[1] == ?=
-              unescape_interpolation(value[2..-1].strip)
-            else
-              value[1..-1].strip
-            end
+          if value[1] == ?=
+            value = unescape_interpolation(value[2..-1].strip, :escape_html => escape_html)
+            escape_html = false
+          else
+            value = value[1..-1].strip
+          end
         elsif contains_interpolation?(value)
+          value = unescape_interpolation(value, :escape_html => escape_html)
           parse = true
-          value = unescape_interpolation(value)
+          escape_html = false
         end
       else
         if contains_interpolation?(value)
+          value = unescape_interpolation(value, :escape_html => escape_html)
           parse = true
-          value = unescape_interpolation(value)
+          escape_html = false
         end
       end
 
@@ -696,8 +706,6 @@ END
         parse = false
         value = ''
       end
-
-      escape_html = (action == '&' || (action != '!' && @options[:escape_html]))
 
       object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
@@ -936,7 +944,7 @@ END
       str.include?('#{')
     end
 
-    def unescape_interpolation(str)
+    def unescape_interpolation(str, opts = {})
       res = ''
       rest = Haml::Shared.handle_interpolation str.dump do |scan|
         escapes = (scan[2].size - 1) / 2
@@ -944,7 +952,9 @@ END
         if escapes % 2 == 1
           res << '#{'
         else
-          res << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"# Use eval to get rid of string escapes
+          content = eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"')
+          content = "Haml::Helpers.html_escape(#{content})" if opts[:escape_html]
+          res << '#{' + content + "}"# Use eval to get rid of string escapes
         end
       end
       res + rest
