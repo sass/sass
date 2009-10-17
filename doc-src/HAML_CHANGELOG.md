@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.9 (Unreleased)
+## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
 
 * Fixed a bug where Haml's text was concatenated to the wrong buffer
   under certain circumstances.
