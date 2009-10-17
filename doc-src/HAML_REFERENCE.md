@@ -76,6 +76,25 @@ may be compiled to:
       </div>
     </div>
 
+#### Rails XSS Protection
+
+Haml supports Rails' XSS protection scheme,
+which was introduced in Rails 2.3.5+ and is enabled by default in 3.0.0+.
+If it's enabled, Haml's [`:escape_html`](#escape_html-option)
+option is set to `true` by default -
+like in ERB, all strings printed to a Haml template are escaped by default.
+Also like ERB, strings marked as HTML safe are not escaped.
+Haml also has [its own syntax for printing a raw string to the template](#unescaping_html).
+
+If the `:escape_html` option is set to false when XSS protection is enabled,
+Haml doesn't escape Ruby strings by default.
+However, if a string marked HTML-safe is passed to [Haml's escaping syntax](#escaping_html),
+it won't be escaped.
+
+Finally, all the {file:Haml/Helpers.html Haml helpers} that return strings
+that are known to be HTML safe are marked as such.
+In addition, string input is escaped unless it's HTML safe.
+
 ### Ruby Module
 
 Haml can also be used completely separately from Rails and ActionView.

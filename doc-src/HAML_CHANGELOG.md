@@ -48,6 +48,21 @@ including the line number and the offending character.
 
       Foo &lt; Bar &lt; Baz
 
+### Rails XSS Protection
+
+Haml 2.2.9 supports the XSS protection in Rails versions 2.3.5+.
+There are several components to this:
+
+* If XSS protection is enabled, Haml's {file:HAML_REFERENCE.md#escape_html-option `:escape_html`}
+  option is set to `true` by default.
+
+* Strings declared as HTML safe won't be escaped by Haml,
+  including the {file:Haml/Helpers.html#html_escape-instance_method `#html_escape`} helper
+  and `&=` if `:escape_html` has been disabled.
+
+* Haml helpers that generate HTML are marked as HTML safe,
+  and will escape their input if it's not HTML safe.
+
 ## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
 
 * Fixed a potential XSS issue with HTML escaping and wacky Unicode nonsense.
