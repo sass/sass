@@ -27,6 +27,10 @@ class Html2HamlTest < Test::Unit::TestCase
       render('<meta http-equiv="Content-Type" content="text/html" />'))
   end
 
+  def test_class_with_dot
+    assert_equal('%div{:class => "foo.bar"}', render("<div class='foo.bar'></div>"))
+  end
+
   def test_interpolation
     assert_equal('Foo \#{bar} baz', render('Foo #{bar} baz'))
   end

@@ -317,7 +317,7 @@ module Haml
       end
 
       def static_attribute?(name, options)
-        attributes[name] and !dynamic_attribute?(name, options)
+        attributes[name] && attributes[name] =~ /^[-:\w]+$/ && !dynamic_attribute?(name, options)
       end
       
       def dynamic_attribute?(name, options)

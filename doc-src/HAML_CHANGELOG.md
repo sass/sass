@@ -96,6 +96,9 @@ including the line number and the offending character.
   without spaces within the curly braces
   (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).
 
+* IDs and classes containing `#` and `.` are now output as string attributes
+  (e.g. `%p{:class => "foo.bar"}`).
+
 * Attributes are now sorted, to maintain a deterministic order.
 
 ## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
