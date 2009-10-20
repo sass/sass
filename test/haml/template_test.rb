@@ -84,8 +84,9 @@ class TemplateTest < Test::Unit::TestCase
     base
   end
 
-  def render(text)
-    Haml::Engine.new(text).to_html(@base)
+  def render(text, opts = {})
+    return @base.render(:inline => text, :type => :haml) if opts == :action_view
+    Haml::Engine.new(text, opts).to_html(@base)
   end
 
   def load_result(name)
@@ -95,6 +96,8 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name, &render_method)
+    old_options = Haml::Template.options.dup
+    Haml::Template.options[:escape_html] = false
     if ActionPack::VERSION::MAJOR < 2 ||
         (ActionPack::VERSION::MAJOR == 2 && ActionPack::VERSION::MINOR < 2)
       render_method ||= proc { |name| @base.render(name) }
@@ -112,6 +115,8 @@ class TemplateTest < Test::Unit::TestCase
     else
       raise e
     end
+  ensure
+    Haml::Template.options = old_options
   end
 
   def test_empty_render_should_remain_empty
@@ -176,12 +181,31 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_haml_options
-    Haml::Template.options = { :suppress_eval => true }
-    assert_equal({ :suppress_eval => true }, Haml::Template.options)
+    old_options = Haml::Template.options.dup
+    Haml::Template.options[:suppress_eval] = true
     old_base, @base = @base, create_base
     assert_renders_correctly("eval_suppressed")
+  ensure
     @base = old_base
-    Haml::Template.options = {}
+    Haml::Template.options = old_options
+  end
+
+  def test_with_output_buffer_with_ugly
+    return unless Haml::Util.has?(:instance_method, ActionView::Base, :with_output_buffer)
+    assert_equal(<<HTML, render(<<HAML, :ugly => true))
+<p>
+foo
+baz
+</p>
+HTML
+%p
+  foo
+  - with_output_buffer do
+    bar
+    = "foo".gsub(/./) do |s|
+      - s.ord
+  baz
+HAML
   end
 
   def test_exceptions_should_work_correctly
@@ -213,5 +237,41 @@ END
     else
       assert false
     end
-  end  
+  end
+
+  ## XSS Protection Tests
+
+  if Haml::Util.rails_xss_safe?
+    def test_escape_html_option_set
+      assert Haml::Template.options[:escape_html]
+    end
+
+    def test_xss_protection
+      assert_equal("Foo &amp; Bar\n", render('= "Foo & Bar"', :action_view))
+    end
+
+    def test_xss_protection_with_safe_strings
+      assert_equal("Foo & Bar\n", render('= "Foo & Bar".html_safe!', :action_view))
+    end
+
+    def test_xss_protection_with_bang
+      assert_equal("Foo & Bar\n", render('!= "Foo & Bar"', :action_view))
+    end
+
+    def test_xss_protection_in_interpolation
+      assert_equal("Foo &amp; Bar\n", render('Foo #{"&"} Bar', :action_view))
+    end
+
+    def test_xss_protection_with_bang_in_interpolation
+      assert_equal("Foo & Bar\n", render('! Foo #{"&"} Bar', :action_view))
+    end
+
+    def test_xss_protection_with_safe_strings_in_interpolation
+      assert_equal("Foo & Bar\n", render('Foo #{"&".html_safe!} Bar', :action_view))
+    end
+
+    def test_xss_protection_with_mixed_strings_in_interpolation
+      assert_equal("Foo & Bar &amp; Baz\n", render('Foo #{"&".html_safe!} Bar #{"&"} Baz', :action_view))
+    end
+  end
 end

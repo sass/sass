@@ -19,6 +19,9 @@
      since it's already interpolated.
    Can also use () to wrap contents of _haml_temp so that commas throw errors when not in :ugly
    Support finer-grained HTML-escaping in filters
+   Speed
+     Make tags with dynamic attributes pre-render as much as possible
+     Including the attribute name where doable
    :ugly + :html improvements
      Ignore closing tags where we can
        http://code.google.com/speed/articles/optimizing-html.html
