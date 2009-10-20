@@ -235,7 +235,9 @@ module Haml
         end
 
         output << "%#{name}" unless name == 'div' &&
-          (static_id?(options) || static_classname?(options))
+          (static_id?(options) ||
+           static_classname?(options) &&
+           attributes['class'].split(' ').any?(&method(:haml_css_attr?)))
 
         if attributes
           if static_id?(options)
@@ -243,8 +245,12 @@ module Haml
             remove_attribute('id')
           end
           if static_classname?(options)
-            attributes['class'].split(' ').each { |c| output += ".#{c}" }
+            leftover = attributes['class'].split(' ').reject do |c|
+              next unless haml_css_attr?(c)
+              output << ".#{c}"
+            end
             remove_attribute('class')
+            set_attribute('class', leftover.join(' ')) unless leftover.empty?
           end
           output << haml_attributes(options) if attributes.length > 0
         end
@@ -317,7 +323,7 @@ module Haml
       end
 
       def static_attribute?(name, options)
-        attributes[name] && attributes[name] =~ /^[-:\w]+$/ && !dynamic_attribute?(name, options)
+        attributes[name] && !dynamic_attribute?(name, options)
       end
       
       def dynamic_attribute?(name, options)
@@ -325,11 +331,15 @@ module Haml
       end
       
       def static_id?(options)
-        static_attribute?('id', options)
+        static_attribute?('id', options) && haml_css_attr?(attributes['id'])
       end
       
       def static_classname?(options)
         static_attribute?('class', options)
+      end
+
+      def haml_css_attr?(attr)
+        attr =~ /^[-:\w]+$/
       end
 
       # Returns a string representation of an attributes hash
