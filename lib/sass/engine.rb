@@ -108,7 +108,7 @@ module Sass
     MIXIN_INCLUDE_CHAR    = ?+
 
     # The regex that matches properties of the form <tt>name: prop</tt>.
-    PROPERTY_NEW_MATCHER = /^[^\s:"]+\s*[=:](\s|$)/
+    PROPERTY_NEW_MATCHER = /^[^\s:"\[]+\s*[=:](\s|$)/
 
     # The regex that matches and extracts data from
     # properties of the form <tt>name: prop</tt>.

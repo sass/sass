@@ -758,6 +758,17 @@ foo {
 CSS
   end
 
+  def test_attribute_selector_with_spaces
+    assert_equal(<<CSS, render(<<SASS))
+a b[foo = bar] {
+  c: d; }
+CSS
+a
+  b[foo = bar]
+    c: d
+SASS
+  end
+
   def test_quoted_colon
     assert_equal(<<CSS, render(<<SASS))
 a b[foo="bar: baz"] {
