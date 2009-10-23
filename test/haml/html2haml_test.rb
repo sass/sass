@@ -316,6 +316,25 @@ HTML
       render_erb('<p foo="<%= "#{bar} baz" %>"></p>'))
   end
 
+  def test_multiline_erb_silent_script
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+.blah
+  - foo
+  - bar
+  - baz
+  %p foo
+HAML
+<div class="blah">
+  <%
+    foo
+    bar
+    baz
+  %>
+  <p>foo</p>
+</div>
+ERB
+  end
+
   ### Block Parsing
 
   def test_block_parsing

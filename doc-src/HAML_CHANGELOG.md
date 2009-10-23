@@ -113,6 +113,9 @@ including the line number and the offending character.
 
 * Attributes are now sorted, to maintain a deterministic order.
 
+* Multi-line ERB statements are now properly indented,
+  and those without any content are removed.
+
 ## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
 
 * Fixed an `html2haml` issue where ERB attribute values

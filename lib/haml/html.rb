@@ -232,8 +232,10 @@ module Haml
           when "loud"
             return output + "= #{CGI.unescapeHTML(inner_text).gsub(/\n\s*/, ' ').strip}\n"
           when "silent"
-            return output + CGI.unescapeHTML(inner_text).split("\n").
-              map {|line| "- #{line.strip}\n"}.join
+            return CGI.unescapeHTML(inner_text).split("\n").map do |line|
+              next "" if line.strip.empty?
+              "#{output}- #{line.strip}\n"
+            end.join
           when "block"
             return render_children("", tabs, options)
           end
