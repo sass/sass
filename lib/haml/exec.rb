@@ -362,17 +362,7 @@ END
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
-
         @module_opts = {}
-
-        begin
-          require 'haml/html'
-        rescue LoadError => err
-          dep = err.message.scan(/^no such file to load -- (.*)/)[0]
-          raise err if @options[:trace] || dep.nil? || dep.empty?
-          $stderr.puts "Required dependency #{dep} not found!\n  Use --trace for backtrace."
-          exit 1
-        end
       end
 
       # Tells optparse how to parse the arguments.
@@ -415,6 +405,8 @@ END
       def process_result
         super
 
+        require 'haml/html'
+
         input = @options[:input]
         output = @options[:output]
 
@@ -425,6 +417,11 @@ END
       rescue ::Haml::Error => e
         raise "#{e.is_a?(::Haml::SyntaxError) ? "Syntax error" : "Error"} on line " +
           "#{get_line e}: #{e.message}"
+      rescue LoadError => err
+        dep = err.message.scan(/^no such file to load -- (.*)/)[0]
+        raise err if @options[:trace] || dep.nil? || dep.empty?
+        $stderr.puts "Required dependency #{dep} not found!\n  Use --trace for backtrace."
+        exit 1
       end
     end
 
@@ -433,10 +430,7 @@ END
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
-
         @module_opts = {}
-
-        require 'sass/css'
       end
 
       # Tells optparse how to parse the arguments.
@@ -464,6 +458,8 @@ END
       # and runs the CSS compiler appropriately.
       def process_result
         super
+
+        require 'sass/css'
 
         input = @options[:input]
         output = @options[:output]
