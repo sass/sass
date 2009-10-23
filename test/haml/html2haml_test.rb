@@ -316,6 +316,161 @@ HTML
       render_erb('<p foo="<%= "#{bar} baz" %>"></p>'))
   end
 
+  ### Block Parsing
+
+  def test_block_parsing
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- foo do
+  %p bar
+HAML
+<% foo do %>
+  <p>bar</p>
+<% end %>
+ERB
+  end
+
+  def test_block_parsing_with_args
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- foo do |a, b, c|
+  %p bar
+HAML
+<% foo do |a, b, c| %>
+  <p>bar</p>
+<% end %>
+ERB
+  end
+
+  def test_block_parsing_with_equals
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+= foo do
+  %p bar
+HAML
+<%= foo do %>
+  <p>bar</p>
+<% end %>
+ERB
+  end
+
+  def test_block_parsing_with_modified_end
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- foo do
+  blah
+- end.bip
+HAML
+<% foo do %>
+  blah
+<% end.bip %>
+ERB
+  end
+
+  def test_block_parsing_with_modified_end_with_block
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- foo do
+  blah
+- end.bip do
+  brang
+HAML
+<% foo do %>
+  blah
+<% end.bip do %>
+  brang
+<% end %>
+ERB
+  end
+
+  def test_multiline_block_opener
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- foo bar
+- baz bang
+- biddle do
+  foo
+HAML
+<% foo bar
+  baz bang
+  biddle do %>
+    foo
+<% end %>
+ERB
+  end
+
+  def test_if_elsif_else_parsing
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- if foo
+  %p bar
+- elsif bar.foo("zip")
+  #bang baz
+- else
+  %strong bibble
+HAML
+<% if foo %>
+  <p>bar</p>
+<% elsif bar.foo("zip") %>
+  <div id="bang">baz</div>
+<% else %>
+  <strong>bibble</strong>
+<% end %>
+ERB
+  end
+
+  def test_case_when_parsing
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- case foo.bar
+- when "bip"
+  %p bip
+- when "bop"
+  %p BOP
+- when bizzle.bang.boop.blip
+  %em BIZZLE BANG BOOP BLIP
+HAML
+<% case foo.bar %>
+<% when "bip" %>
+  <p>bip</p>
+<% when "bop" %>
+  <p>BOP</p>
+<% when bizzle.bang.boop.blip %>
+  <em>BIZZLE BANG BOOP BLIP</em>
+<% end %>
+ERB
+
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- case foo.bar
+- when "bip"
+  %p bip
+- when "bop"
+  %p BOP
+- when bizzle.bang.boop.blip
+  %em BIZZLE BANG BOOP BLIP
+HAML
+<% case foo.bar
+   when "bip" %>
+  <p>bip</p>
+<% when "bop" %>
+  <p>BOP</p>
+<% when bizzle.bang.boop.blip %>
+  <em>BIZZLE BANG BOOP BLIP</em>
+<% end %>
+ERB
+  end
+
+  def test_begin_rescue_ensure
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+- begin
+  %p a
+- rescue FooException => e
+  %p b
+- ensure
+  %p c
+HAML
+<% begin %>
+  <p>a</p>
+<% rescue FooException => e %>
+  <p>b</p>
+<% ensure %>
+  <p>c</p>
+<% end %>
+ERB
+  end
+
   # Encodings
 
   unless Haml::Util.ruby1_8?
