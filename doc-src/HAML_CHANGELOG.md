@@ -29,6 +29,96 @@ Haml and `html2haml` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
+### `html2haml` Improvements
+
+* Ruby blocks within ERB are now supported.
+  The Haml code is properly indented and the `end`s are removed.
+  This includes methods with blocks and all language constructs
+  such as `if`, `begin`, and `case`.
+  For example:
+
+      <% content_for :footer do %>
+        <p>Hi there!</p>
+      <% end %>
+
+  is now transformed into:
+
+      - content_for :footer do
+        %p Hi there!
+
+* Inline HTML text nodes are now transformed into inline Haml text.
+  For example, `<p>foo</p>` now becomes `%p foo`, whereas before it became:
+
+      %p
+        foo
+
+  The same is true for inline comments,
+  and inline ERB when running in ERB mode:
+  `<p><%= foo %></p>` will now become `%p= foo`.
+
+* ERB included within text is now transformed into Ruby interpolation.
+  For example:
+
+      <p>
+        Foo <%= bar %> baz!
+        Flip <%= bang %>.
+      </p>
+
+  is now transformed into:
+
+      %p
+        Foo #{bar} baz!
+        Flip #{bang}.
+
+* `<script>` tags are now transformed into `:javascript` filters,
+  and indentation is preserved.
+  For example:
+
+      <script type="text/javascript">
+        function foo() {
+          return 12;
+        }
+      </script>
+
+  is now transformed into:
+
+      :javascript
+        function foo() {
+          return 12;
+        }
+
+* `<pre>` and `<textarea>` tags are now transformed into the `:preserve` filter.
+  For example:
+
+      <pre>Foo
+        bar
+          baz</pre>
+
+  is now transformed into:
+
+      %pre
+        :preserve
+          Foo
+            bar
+              baz
+
+* Self-closing tags (such as `<br />`) are now transformed into
+  self-closing Haml tags (like `%br/`).
+
+* IE conditional comments are now properly parsed.
+
+* Attributes are now output in a more-standard format,
+  without spaces within the curly braces
+  (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).
+
+* IDs and classes containing `#` and `.` are now output as string attributes
+  (e.g. `%p{:class => "foo.bar"}`).
+
+* Attributes are now sorted, to maintain a deterministic order.
+
+* Multi-line ERB statements are now properly indented,
+  and those without any content are removed.
+
 ## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
 
 * Fixed a bug where Haml's text was concatenated to the wrong buffer

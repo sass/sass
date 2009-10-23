@@ -271,7 +271,7 @@ END
       end
     end
 
-    # Parses the filtered text with ERB, like an RHTML template.
+    # Parses the filtered text with ERB.
     # Not available if the {file:HAML_REFERENCE.md#suppress_eval-option `:suppress_eval`} option is set to true.
     # Embedded Ruby code is evaluated in the same context as the Haml template.
     module ERB

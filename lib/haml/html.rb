@@ -9,33 +9,71 @@ module Haml
     # A module containing utility methods that every Hpricot node
     # should have.
     module Node
+      # Whether this node has already been converted to Haml.
+      # Only used for text nodes and elements.
+      #
+      # @return [Boolean]
+      attr_accessor :converted_to_haml
+
       # Returns the Haml representation of the given node.
       #
       # @param tabs [Fixnum] The indentation level of the resulting Haml.
       # @option options (see Haml::HTML#initialize)
       def to_haml(tabs, options)
-        parse_text(self.to_s, tabs)
+        return "" if converted_to_haml || to_s.strip.empty?
+        text = uninterp(self.to_s)
+        node = next_node
+        while node.is_a?(::Hpricot::Elem) && node.name == "haml:loud"
+          node.converted_to_haml = true
+          text << '#{' <<
+            CGI.unescapeHTML(node.inner_text).gsub(/\n\s*/, ' ').strip << '}'
+
+          if node.next_node.is_a?(::Hpricot::Text)
+            node = node.next_node
+            text << uninterp(node.to_s)
+            node.converted_to_haml = true
+          end
+
+          node = node.next_node
+        end
+        return parse_text_with_interpolation(text, tabs)
       end
 
       private
+
+      def erb_to_interpolation(text, options)
+        return text unless options[:erb]
+        text = CGI.escapeHTML(uninterp(text))
+        %w[<haml:loud> </haml:loud>].each {|str| text.gsub!(CGI.escapeHTML(str), str)}
+        ::Hpricot::XML(text).children.inject("") do |str, elem|
+          if elem.is_a?(::Hpricot::Text)
+            str + CGI.unescapeHTML(elem.to_s)
+          else # <haml:loud> element
+            str + '#{' + CGI.unescapeHTML(elem.innerText.strip) + '}'
+          end
+        end
+      end
 
       def tabulate(tabs)
         '  ' * tabs
       end
 
-      def parse_text(text, tabs)
-        text.strip!
-        text.gsub!('#{', '\#{') #'
-        if text.empty?
-          String.new
-        else
-          lines = text.split("\n")
+      def uninterp(text)
+        text.gsub('#{', '\#{') #'
+      end
 
-          lines.map do |line|
-            line.strip!
-            "#{tabulate(tabs)}#{'\\' if Haml::Engine::SPECIAL_CHARACTERS.include?(line[0])}#{line}\n"
-          end.join
-        end
+      def parse_text(text, tabs)
+        parse_text_with_interpolation(uninterp(text), tabs)
+      end
+
+      def parse_text_with_interpolation(text, tabs)
+        text.strip!
+        return "" if text.empty?
+
+        text.split("\n").map do |line|
+          line.strip!
+          "#{tabulate(tabs)}#{'\\' if Haml::Engine::SPECIAL_CHARACTERS.include?(line[0])}#{line}\n"
+        end.join
       end
     end
   end
@@ -67,7 +105,7 @@ module Haml
   #       #=> "%a{:href => 'http://google.com'} Blat"
   class HTML
     # @param template [String, Hpricot::Node] The HTML template to convert
-    # @option options :rhtml [Boolean] (false) Whether or not to parse
+    # @option options :erb [Boolean] (false) Whether or not to parse
     #   ERB's `<%= %>` and `<% %>` into Haml's `=` and `-`
     # @option options :xhtml [Boolean] (false) Whether or not to parse
     #   the HTML strictly as XHTML
@@ -83,9 +121,9 @@ module Haml
 
         Haml::Util.check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
 
-        if @options[:rhtml]
-          match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
-          match_to_html(template, /<%-?(.*?)-?%>/m,  'silent')
+        if @options[:erb]
+          require 'haml/html/erb'
+          template = ERB.compile(template)
         end
 
         method = @options[:xhtml] ? Hpricot.method(:XML) : method(:Hpricot)
@@ -122,7 +160,9 @@ module Haml
     class ::Hpricot::CData
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
-        "#{tabulate(tabs)}:cdata\n#{parse_text(self.content, tabs + 1)}"
+        content = parse_text_with_interpolation(
+          erb_to_interpolation(self.content, options), tabs + 1)
+        "#{tabulate(tabs)}:cdata\n#{content}"
       end
     end
 
@@ -161,7 +201,17 @@ module Haml
     class ::Hpricot::Comment
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
-        "#{tabulate(tabs)}/\n#{parse_text(self.content, tabs + 1)}"
+        content = self.content
+        if content =~ /\A(\[[^\]]+\])>(.*)<!\[endif\]\z/m
+          condition = $1
+          content = $2
+        end
+
+        if content.include?("\n")
+          "#{tabulate(tabs)}/#{condition}\n#{parse_text(content, tabs + 1)}"
+        else
+          "#{tabulate(tabs)}/#{condition} #{content.strip}"
+        end
       end
     end
 
@@ -169,32 +219,78 @@ module Haml
     class ::Hpricot::Elem
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
-        output = "#{tabulate(tabs)}"
-        if options[:rhtml] && name[0...5] == 'haml:'
-          return output + send("haml_tag_#{name[5..-1]}", CGI.unescapeHTML(self.inner_text))
+        return "" if converted_to_haml
+        if name == "script" &&
+            (attributes['type'].nil? || attributes['type'] == "text/javascript") &&
+            (attributes.keys - ['type']).empty?
+          return script_to_haml(tabs, options)
         end
 
-        output += "%#{name}" unless name == 'div' &&
-          (static_id?(options) || static_classname?(options))
+        output = tabulate(tabs)
+        if options[:erb] && name[0...5] == 'haml:'
+          case name[5..-1]
+          when "loud"
+            return output + "= #{CGI.unescapeHTML(inner_text).gsub(/\n\s*/, ' ').strip}\n"
+          when "silent"
+            return CGI.unescapeHTML(inner_text).split("\n").map do |line|
+              next "" if line.strip.empty?
+              "#{output}- #{line.strip}\n"
+            end.join
+          when "block"
+            return render_children("", tabs, options)
+          end
+        end
+
+        output << "%#{name}" unless name == 'div' &&
+          (static_id?(options) ||
+           static_classname?(options) &&
+           attributes['class'].split(' ').any?(&method(:haml_css_attr?)))
 
         if attributes
           if static_id?(options)
-            output += "##{attributes['id']}"
+            output << "##{attributes['id']}"
             remove_attribute('id')
           end
           if static_classname?(options)
-            attributes['class'].split(' ').each { |c| output += ".#{c}" }
+            leftover = attributes['class'].split(' ').reject do |c|
+              next unless haml_css_attr?(c)
+              output << ".#{c}"
+            end
             remove_attribute('class')
+            set_attribute('class', leftover.join(' ')) unless leftover.empty?
           end
-          output += haml_attributes(options) if attributes.length > 0
+          output << haml_attributes(options) if attributes.length > 0
         end
 
-        (self.children || []).inject(output + "\n") do |output, child|
-          output + child.to_haml(tabs + 1, options)
+        output << "/" if empty? && !etag
+
+        if children && children.size == 1
+          child = children.first
+          if child.is_a?(::Hpricot::Text)
+            if !child.to_s.include?("\n")
+              text = child.to_haml(tabs + 1, options)
+              return output + " " + text.lstrip unless text.chomp.include?("\n")
+              return output + "\n" + text
+            elsif ["pre", "textarea"].include?(name) ||
+                (name == "code" && parent.is_a?(::Hpricot::Elem) && parent.name == "pre")
+              return output + "\n#{tabulate(tabs + 1)}:preserve\n" +
+                innerText.gsub(/^/, tabulate(tabs + 2))
+            end
+          elsif child.is_a?(::Hpricot::Elem) && child.name == "haml:loud"
+            return output + child.to_haml(tabs + 1, options).lstrip
+          end
         end
+
+        render_children(output + "\n", tabs, options)
       end
 
       private
+
+      def render_children(so_far, tabs, options)
+        (self.children || []).inject(so_far) do |output, child|
+          output + child.to_haml(tabs + 1, options)
+        end
+      end
       
       def dynamic_attributes
         @dynamic_attributes ||= begin
@@ -211,47 +307,53 @@ module Haml
         end
       end
 
-      def haml_tag_loud(text)
-        "= #{text.gsub(/\n\s*/, ' ').strip}\n"
-      end
+      def script_to_haml(tabs, options)
+        content =
+          if children.first.is_a?(::Hpricot::CData)
+            children.first.content
+          else
+            CGI.unescapeHTML(self.innerText)
+          end
+          
+        content = erb_to_interpolation(content, options)
+        content.gsub!(/\A\s*\n(\s*)/, '\1')
+        original_indent = content[/\A(\s*)/, 1]
+        if content.split("\n").all? {|l| l.strip.empty? || l =~ /^#{original_indent}/}
+          content.gsub!(/^#{original_indent}/, tabulate(tabs + 1))
+        end
 
-      def haml_tag_silent(text)
-        text.split("\n").map { |line| "- #{line.strip}\n" }.join
+        "#{tabulate(tabs)}:javascript\n#{content}"
       end
 
       def static_attribute?(name, options)
-        attributes[name] and !dynamic_attribute?(name, options)
+        attributes[name] && !dynamic_attribute?(name, options)
       end
       
       def dynamic_attribute?(name, options)
-        options[:rhtml] and dynamic_attributes.key?(name)
+        options[:erb] and dynamic_attributes.key?(name)
       end
       
       def static_id?(options)
-        static_attribute?('id', options)
+        static_attribute?('id', options) && haml_css_attr?(attributes['id'])
       end
       
       def static_classname?(options)
         static_attribute?('class', options)
       end
 
+      def haml_css_attr?(attr)
+        attr =~ /^[-:\w]+$/
+      end
+
       # Returns a string representation of an attributes hash
       # that's prettier than that produced by Hash#inspect
       def haml_attributes(options)
-        attrs = attributes.map do |name, value|
+        attrs = attributes.sort.map do |name, value|
           value = dynamic_attribute?(name, options) ? dynamic_attributes[name] : value.inspect
           name = name.index(/\W/) ? name.inspect : ":#{name}"
           "#{name} => #{value}"
         end
-        "{ #{attrs.join(', ')} }"
-      end
-    end
-
-    private
-
-    def match_to_html(string, regex, tag)
-      string.gsub!(regex) do
-        "<haml:#{tag}>#{CGI.escapeHTML($1)}</haml:#{tag}>"
+        "{#{attrs.join(', ')}}"
       end
     end
   end

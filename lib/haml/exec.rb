@@ -387,12 +387,20 @@ Description: Transforms an HTML file into corresponding Haml code.
 Options:
 END
 
-        opts.on('-r', '--rhtml', 'Parse RHTML tags.') do
-          @module_opts[:rhtml] = true
+        opts.on('-e', '--erb', 'Parse ERb tags.') do
+          @module_opts[:erb] = true
         end
 
-        opts.on('--no-rhtml', "Don't parse RHTML tags.") do
-          @options[:no_rhtml] = true
+        opts.on('--no-erb', "Don't parse ERb tags.") do
+          @options[:no_erb] = true
+        end
+
+        opts.on('-r', '--rhtml', 'Deprecated; same as --erb.') do
+          @module_opts[:erb] = true
+        end
+
+        opts.on('--no-rhtml', "Deprecated; same as --no-erb.") do
+          @options[:no_erb] = true
         end
 
         opts.on('-x', '--xhtml', 'Parse the input using the more strict XHTML parser.') do
@@ -410,8 +418,8 @@ END
         input = @options[:input]
         output = @options[:output]
 
-        @module_opts[:rhtml] ||= input.respond_to?(:path) && input.path =~ /\.(rhtml|erb)$/
-        @module_opts[:rhtml] &&= @options[:no_rhtml] != false
+        @module_opts[:erb] ||= input.respond_to?(:path) && input.path =~ /\.(rhtml|erb)$/
+        @module_opts[:erb] &&= @options[:no_erb] != false
 
         output.write(::Haml::HTML.new(input, @module_opts).render)
       rescue ::Haml::Error => e
