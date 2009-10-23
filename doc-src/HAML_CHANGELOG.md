@@ -46,6 +46,9 @@ including the line number and the offending character.
       - content_for :footer do
         %p Hi there!
 
+  Thanks to [Jack Chen](http://chendo.net) and [Dr. Nic Williams](http://drnicwilliams)
+  for inspiring this and creating the first draft of the code.
+
 * Inline HTML text nodes are now transformed into inline Haml text.
   For example, `<p>foo</p>` now becomes `%p foo`, whereas before it became:
 
