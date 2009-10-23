@@ -1020,7 +1020,7 @@ compiles to
 
     I feel <strong>!
 
-## Filters: `:` {#filters}
+## Filters {#filters}
 
 The colon character designates a filter.
 This allows you to pass an indented block of text as input
@@ -1062,60 +1062,73 @@ This means that `#{}` interpolation within filters is never HTML-escaped.
 
 Haml has the following filters defined:
 
-{#plain-filter} plain
-: Does not parse the filtered text.
-  This is useful for large blocks of text without HTML tags,
-  when you don't want lines starting with `.` or `-` to be parsed.
+{#plain-filter}
+### `:plain`
+Does not parse the filtered text.
+This is useful for large blocks of text without HTML tags,
+when you don't want lines starting with `.` or `-` to be parsed.
 
-{#javascript-filter} javascript
-: Surrounds the filtered text with `<script>` and CDATA tags.
-  Useful for including inline Javascript.
+{#javascript-filter}
+### `:javascript`
+Surrounds the filtered text with `<script>` and CDATA tags.
+Useful for including inline Javascript.
 
-{#cdata-filter} cdata
-: Surrounds the filtered text with CDATA tags.
+{#cdata-filter}
+### `:cdata`
+Surrounds the filtered text with CDATA tags.
 
-{#escaped-filter} escaped
-: Works the same as plain, but HTML-escapes the text
-  before placing it in the document.
+{#escaped-filter}
+### `:escaped`
+Works the same as plain, but HTML-escapes the text
+before placing it in the document.
 
-{#ruby-filter} ruby
-: Parses the filtered text with the normal Ruby interpreter.
-  All output sent to `$stdout`, like with `puts`,
-  is output into the Haml document.
-  Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
-  The Ruby code is evaluated in the same context as the Haml template.
+{#ruby-filter}
+### `:ruby`
+Parses the filtered text with the normal Ruby interpreter.
+All output sent to `$stdout`, like with `puts`,
+is output into the Haml document.
+Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
+The Ruby code is evaluated in the same context as the Haml template.
 
-{#preserve-filter} preserve
-: Inserts the filtered text into the template with whitespace preserved.
-  `preserve`d blocks of text aren't indented,
-  and newlines are replaced with the HTML escape code for newlines,
-  to preserve nice-looking output.
-  See also [Whitespace Preservation](#whitespace_preservation).
+{#preserve-filter}
+### `:preserve`
+Inserts the filtered text into the template with whitespace preserved.
+`preserve`d blocks of text aren't indented,
+and newlines are replaced with the HTML escape code for newlines,
+to preserve nice-looking output.
+See also [Whitespace Preservation](#whitespace_preservation).
 
-{#erb-filter} erb
-: Parses the filtered text with ERB, like an RHTML template.
-  Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
-  Embedded Ruby code is evaluated in the same context as the Haml template.
+{#erb-filter}
+### `:erb`
+Parses the filtered text with ERB, like an RHTML template.
+Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
+Embedded Ruby code is evaluated in the same context as the Haml template.
 
-{#sass-filter} sass
-: Parses the filtered text with Sass to produce CSS output.
+{#sass-filter}
+### `:sass`
+Parses the filtered text with Sass to produce CSS output.
 
-{#textile-filter} textile
-: Parses the filtered text with [Textile](http://www.textism.com/tools/textile).
-  Only works if [RedCloth](http://redcloth.org) is installed.
+{#textile-filter}
+### `:textile`
+Parses the filtered text with [Textile](http://www.textism.com/tools/textile).
+Only works if [RedCloth](http://redcloth.org) is installed.
 
-{#markdown-filter} markdown
-: Parses the filtered text with [Markdown](http://daringfireball.net/projects/markdown).
-  Only works if [RDiscount](http://github.com/rtomayko/rdiscount),
-  [RPeg-Markdown](http://github.com/rtomayko/rpeg-markdown),
-  [Maruku](http://maruku.rubyforge.org),
-  or [BlueCloth](www.deveiate.org/projects/BlueCloth) are installed.
+{#markdown-filter}
+### `:markdown`
+Parses the filtered text with [Markdown](http://daringfireball.net/projects/markdown).
+Only works if [RDiscount](http://github.com/rtomayko/rdiscount),
+[RPeg-Markdown](http://github.com/rtomayko/rpeg-markdown),
+[Maruku](http://maruku.rubyforge.org),
+or [BlueCloth](www.deveiate.org/projects/BlueCloth) are installed.
 
-{#maruku-filter} maruku
-: Parses the filtered text with [Maruku](http://maruku.rubyforge.org),
-  which has some non-standard extensions to Markdown.
+{#maruku-filter}
+### `:maruku`
+Parses the filtered text with [Maruku](http://maruku.rubyforge.org),
+which has some non-standard extensions to Markdown.
 
-You can also define your own filters (see {Haml::Filters}).
+### Custom Filters
+
+You can also define your own filters. See {Haml::Filters} for details.
 
 ## Multiline: `|` {#multiline}
 

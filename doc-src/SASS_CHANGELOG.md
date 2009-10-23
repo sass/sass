@@ -56,8 +56,8 @@ Several bug fixes and minor improvements have been made, including:
 * Add support for attribute selectors with spaces around the `=`.
   For example:
 
-    a[href = http://google.com]
-      color: blue
+      a[href = http://google.com]
+        color: blue
 
 ## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
 
