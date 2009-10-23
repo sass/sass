@@ -30,7 +30,7 @@ module Haml
 
       # `html2haml` doesn't support HTML-escaped expressions.
       def escaped_expr(code)
-        raise "html2haml doesn't support escaped expressions."
+        raise Haml::Error.new("html2haml doesn't support escaped expressions.")
       end
 
       # The ERB-to-Hamlized-HTML conversion has no preamble.
@@ -79,7 +79,7 @@ module Haml
 
       # `html2haml` doesn't support debugging expressions.
       def add_expr_debug(src, code)
-        raise "html2haml doesn't support debugging expressions."
+        raise Haml::Error.new("html2haml doesn't support debugging expressions.")
       end
 
       private
