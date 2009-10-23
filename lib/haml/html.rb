@@ -122,8 +122,8 @@ module Haml
         Haml::Util.check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
 
         if @options[:erb]
-          match_to_html(template, /<%=(.*?)-?%>/m, 'loud')
-          match_to_html(template, /<%-?(.*?)-?%>/m,  'silent')
+          require 'haml/html/erb'
+          template = ERB.compile(template)
         end
 
         method = @options[:xhtml] ? Hpricot.method(:XML) : method(:Hpricot)
@@ -228,7 +228,15 @@ module Haml
 
         output = tabulate(tabs)
         if options[:erb] && name[0...5] == 'haml:'
-          return output + send("haml_tag_#{name[5..-1]}", CGI.unescapeHTML(self.inner_text))
+          case name[5..-1]
+          when "loud"
+            return output + "= #{CGI.unescapeHTML(inner_text).gsub(/\n\s*/, ' ').strip}\n"
+          when "silent"
+            return output + CGI.unescapeHTML(inner_text).split("\n").
+              map {|line| "- #{line.strip}\n"}.join
+          when "block"
+            return render_children("", tabs, options)
+          end
         end
 
         output << "%#{name}" unless name == 'div' &&
@@ -265,12 +273,16 @@ module Haml
           end
         end
 
-        (self.children || []).inject(output + "\n") do |output, child|
-          output + child.to_haml(tabs + 1, options)
-        end
+        render_children(output + "\n", tabs, options)
       end
 
       private
+
+      def render_children(so_far, tabs, options)
+        (self.children || []).inject(so_far) do |output, child|
+          output + child.to_haml(tabs + 1, options)
+        end
+      end
       
       def dynamic_attributes
         @dynamic_attributes ||= begin
@@ -305,14 +317,6 @@ module Haml
         "#{tabulate(tabs)}:javascript\n#{content}"
       end
 
-      def haml_tag_loud(text)
-        "= #{text.gsub(/\n\s*/, ' ').strip}\n"
-      end
-
-      def haml_tag_silent(text)
-        text.split("\n").map { |line| "- #{line.strip}\n" }.join
-      end
-
       def static_attribute?(name, options)
         attributes[name] and !dynamic_attribute?(name, options)
       end
@@ -338,14 +342,6 @@ module Haml
           "#{name} => #{value}"
         end
         "{#{attrs.join(', ')}}"
-      end
-    end
-
-    private
-
-    def match_to_html(string, regex, tag)
-      string.gsub!(regex) do
-        "<haml:#{tag}>#{CGI.escapeHTML($1)}</haml:#{tag}>"
       end
     end
   end
