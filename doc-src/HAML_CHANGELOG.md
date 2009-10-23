@@ -31,6 +31,21 @@ including the line number and the offending character.
 
 ### `html2haml` Improvements
 
+* Ruby blocks within ERB are now supported.
+  The Haml code is properly indented and the `end`s are removed.
+  This includes methods with blocks and all language constructs
+  such as `if`, `begin`, and `case`.
+  For example:
+
+      <% content_for :footer do %>
+        <p>Hi there!</p>
+      <% end %>
+
+  is now transformed into:
+
+      - content_for :footer do
+        %p Hi there!
+
 * Inline HTML text nodes are now transformed into inline Haml text.
   For example, `<p>foo</p>` now becomes `%p foo`, whereas before it became:
 
