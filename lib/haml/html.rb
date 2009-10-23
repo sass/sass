@@ -98,6 +98,9 @@ require 'hpricot'
 module Haml
   # Converts HTML documents into Haml templates.
   # Depends on [Hpricot](http://code.whytheluckystiff.net/hpricot/) for HTML parsing.
+  # If ERB conversion is being used, also depends on 
+  # [Erubis](http://www.kuwata-lab.com/erubis) to parse the ERB
+  # and [ruby_parser](http://parsetree.rubyforge.org/) to parse the Ruby code.
   #
   # Example usage:
   #
