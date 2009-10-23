@@ -206,6 +206,18 @@ HAML
 HTML
   end
 
+  def test_minus_in_tag
+    assert_equal("%p - foo bar -", render("<p>- foo bar -</p>"))
+  end
+
+  def test_equals_in_tag
+    assert_equal("%p = foo bar =", render("<p>= foo bar =</p>"))
+  end
+
+  def test_hash_in_tag
+    assert_equal("%p # foo bar #", render("<p># foo bar #</p>"))
+  end
+
   begin
     require 'haml/html/erb'
     include ErbTests

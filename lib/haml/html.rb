@@ -272,7 +272,7 @@ module Haml
           if child.is_a?(::Hpricot::Text)
             if !child.to_s.include?("\n")
               text = child.to_haml(tabs + 1, options)
-              return output + " " + text.lstrip unless text.chomp.include?("\n")
+              return output + " " + text.lstrip.gsub(/^\\/, '') unless text.chomp.include?("\n")
               return output + "\n" + text
             elsif ["pre", "textarea"].include?(name) ||
                 (name == "code" && parent.is_a?(::Hpricot::Elem) && parent.name == "pre")
