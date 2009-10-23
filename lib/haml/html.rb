@@ -59,7 +59,7 @@ require 'hpricot'
 
 module Haml
   # Converts HTML documents into Haml templates.
-  # Depends on [Hpricot](http://code.whytheluckystiff.net/hpricot/) for HTML parsing.
+  # Depends on [Hpricot](http://github.com/whymirror/hpricot) for HTML parsing.
   #
   # Example usage:
   #
