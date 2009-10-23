@@ -66,9 +66,6 @@ module Haml
         parse_text_with_interpolation(uninterp(text), tabs)
       end
 
-      def parse_text_with_erb(text, tabs, options)
-      end
-
       def parse_text_with_interpolation(text, tabs)
         text.strip!
         return "" if text.empty?
