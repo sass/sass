@@ -288,6 +288,7 @@ module Haml
         :ugly => @options[:ugly],
         :format => @options[:format],
         :encoding => @options[:encoding],
+        :escape_html => @options[:escape_html],
       }
     end
 

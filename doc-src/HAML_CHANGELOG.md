@@ -111,10 +111,52 @@ including the line number and the offending character.
   without spaces within the curly braces
   (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).
 
+* IDs and classes containing `#` and `.` are now output as string attributes
+  (e.g. `%p{:class => "foo.bar"}`).
+
 * Attributes are now sorted, to maintain a deterministic order.
 
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
+
+## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
+
+* Fixed a bug where Haml's text was concatenated to the wrong buffer
+  under certain circumstances.
+  This was mostly an issue under Rails when using methods like `capture`.
+
+* Fixed a bug where template text was escaped when there was interpolation in a line
+  and the `:escape_html` option was enabled. For example:
+
+      Foo &lt; Bar #{"<"} Baz
+
+  with `:escape_html` used to render as
+
+      Foo &amp;lt; Bar &lt; Baz
+
+  but now renders as
+
+      Foo &lt; Bar &lt; Baz
+
+### Rails XSS Protection
+
+Haml 2.2.9 supports the XSS protection in Rails versions 2.3.5+.
+There are several components to this:
+
+* If XSS protection is enabled, Haml's {file:HAML_REFERENCE.md#escape_html-option `:escape_html`}
+  option is set to `true` by default.
+
+* Strings declared as HTML safe won't be escaped by Haml,
+  including the {file:Haml/Helpers.html#html_escape-instance_method `#html_escape`} helper
+  and `&=` if `:escape_html` has been disabled.
+
+* Haml helpers that generate HTML are marked as HTML safe,
+  and will escape their input if it's not HTML safe.
+
+## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
+
+* Fixed a potential XSS issue with HTML escaping and wacky Unicode nonsense.
+  This is the same as [the issue fixed in Rails](http://groups.google.com/group/rubyonrails-security/browse_thread/thread/48ab3f4a2c16190f) a bit ago.
 
 ## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
 

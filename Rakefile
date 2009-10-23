@@ -22,6 +22,7 @@ Rake::TestTask.new do |t|
   t.libs << 'lib'
   test_files = FileList['test/**/*_test.rb']
   test_files.exclude('test/rails/*')
+  test_files.exclude('test/plugins/*')
   test_files.exclude('test/haml/spec/*')
   t.test_files = test_files
   t.verbose = true

@@ -27,7 +27,7 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  b: c;" => 'Invalid property: "b: c;" (no ";" required at end-of-line).',
     "a\n  b : c" => 'Invalid property: "b : c".',
     "a\n  b=c: d" => 'Invalid property: "b=c: d".',
-    ":a" => 'Properties aren\'t allowed at the root of a document.',
+    "a: b" => 'Properties aren\'t allowed at the root of a document.',
     "!" => 'Invalid variable: "!".',
     "!a" => 'Invalid variable: "!a".',
     "! a" => 'Invalid variable: "! a".',
@@ -461,6 +461,31 @@ SASS
 
   def test_cr_newline
     assert_equal("foo {\n  a: b;\n  c: d;\n  e: f; }\n", render("foo\r  a: b\r\n  c: d\n\r  e: f"))
+  end
+
+  def test_property_with_content_and_nested_props
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: b;
+    a-c: d;
+      a-c-e: f; }
+CSS
+foo
+  a: b
+    c: d
+      e: f
+SASS
+
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: b;
+    a-c-e: f; }
+CSS
+foo
+  a: b
+    c:
+      e: f
+SASS
   end
 
   def test_or_eq
