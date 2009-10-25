@@ -85,7 +85,7 @@ module Haml
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
 
     # The Regex that matches a literal string or symbol value
-    LITERAL_VALUE_REGEX = /:(\w*)|(["'])([^\\#'"]|\\.)*\2/
+    LITERAL_VALUE_REGEX = /:(\w*)|(["'])((?![\\#]|\2).|\\.)*\2/
 
     private
 
