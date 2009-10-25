@@ -128,6 +128,17 @@ class EngineTest < Test::Unit::TestCase
     assert_equal("<p class='3'>foo</p>", render("%p{:class => 1+2} foo").chomp)
   end
 
+  def test_dynamic_attributes_with_no_content
+    assert_equal(<<HTML, render(<<HAML))
+<p>
+  <a href='http://haml-lang.com'></a>
+</p>
+HTML
+%p
+  %a{:href => "http://" + "haml-lang.com"}
+HAML
+  end
+
   def test_nil_should_render_empty_tag
     assert_equal("<div class='no_attributes'></div>",
                  render(".no_attributes{:nil => nil}").chomp)

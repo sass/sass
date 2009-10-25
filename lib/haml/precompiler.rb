@@ -85,7 +85,7 @@ module Haml
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
 
     # The Regex that matches a literal string or symbol value
-    LITERAL_VALUE_REGEX = /:(\w*)|(["'])([^\\#'"]|\\.)*\2/
+    LITERAL_VALUE_REGEX = /:(\w*)|(["'])((?![\\#]|\2).|\\.)*\2/
 
     private
 
@@ -727,6 +727,7 @@ END
       raise SyntaxError.new("Self-closing tags can't have content.", last_line - 1) if self_closing && !value.empty?
 
       self_closing ||= !!( !block_opened? && value.empty? && @options[:autoclose].include?(tag_name) )
+      value = nil if value.empty? && (block_opened? || self_closing)
 
       dont_indent_next_line =
         (nuke_outer_whitespace && !block_opened?) ||
@@ -751,7 +752,7 @@ END
         return if tag_closed
       else
         flush_merged_text
-        content = value.empty? || parse ? 'nil' : value.dump
+        content = parse ? 'nil' : value.inspect
         if attributes_hashes.empty?
           attributes_hashes = ''
         elsif attributes_hashes.size == 1
@@ -769,7 +770,7 @@ END
 
       return if self_closing
 
-      if value.empty?
+      if value.nil?
         push_and_tabulate([:element, [tag_name, nuke_outer_whitespace, nuke_inner_whitespace]])
         @output_tabs += 1 unless nuke_inner_whitespace
         return
