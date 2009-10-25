@@ -181,7 +181,7 @@ module Sass::Script
     # It yields a number to a block to perform the operation and return a number
     def numeric_transformation(value)
       unless value.is_a?(Sass::Script::Number)
-        calling_function = caller.first.scan(/`([^']+)'/).first.first
+        calling_function = Haml::Util.caller_info[2]
         raise Sass::SyntaxError.new("#{value} is not a number for `#{calling_function}'")
       end
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
