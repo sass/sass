@@ -122,6 +122,17 @@ module Haml
       end
     end
 
+    # Returns information about the caller of the previous method.
+    #
+    # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
+    # @return [[String, Fixnum, (String, nil)]] An array containing the filename, line, and method name of the caller.
+    #   The method name may be nil
+    def caller_info(entry = caller[1])
+      info = entry.scan(/^(.*?):(-?.*?)(?::.*`(.+)')?$/).first
+      info[1] = info[1].to_i
+      info
+    end
+
     ## Rails XSS Safety
 
     # Whether or not ActionView's XSS protection is available and enabled,
