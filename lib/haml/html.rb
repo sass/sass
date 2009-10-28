@@ -233,7 +233,29 @@ module Haml
         if options[:erb] && name[0...5] == 'haml:'
           case name[5..-1]
           when "loud"
-            return output + "= #{CGI.unescapeHTML(inner_text).gsub(/\n\s*/, ' ').strip}\n"
+            lines = CGI.unescapeHTML(inner_text).split("\n").
+              map {|s| s.rstrip}.reject {|s| s.strip.empty?}
+            lines.first.gsub!(/^[ \t]*/, "= ")
+
+            if lines.size > 1 # Multiline script block
+              # Normalize the indentation so that the last line is the base
+              indent_str = lines.last[/^[ \t]*/]
+              indent_re = /^[ \t]{0,#{indent_str.count(" ") + 8 * indent_str.count("\t")}}/
+              lines.map! {|s| s.gsub!(indent_re, '')}
+
+              # Add an extra "  " to make it indented relative to "= "
+              lines[1..-1].each {|s| s.gsub!(/^/, "  ")}
+
+              # Add | at the end, properly aligned
+              length = lines.map {|s| s.size}.max + 1
+              lines.map! {|s| "%#{-length}s|" % s}
+
+              if next_sibling && next_sibling.is_a?(Hpricot::Elem) && next_sibling.name == "haml:loud" &&
+                  next_sibling.inner_text.split("\n").reject {|s| s.strip.empty?}.size > 1
+                lines << "-#"
+              end
+            end
+            return lines.map {|s| output + s + "\n"}.join
           when "silent"
             return CGI.unescapeHTML(inner_text).split("\n").map do |line|
               next "" if line.strip.empty?
