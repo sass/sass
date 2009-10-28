@@ -122,6 +122,11 @@ including the line number and the offending character.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
+## 2.2.10 (Unreleased)
+
+* Fixed a bug where elements with dynamic attributes and no content
+  would have too much whitespace between the opening and closing tag.
+
 ## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
 
 * Fixed a bug where Haml's text was concatenated to the wrong buffer

@@ -85,7 +85,7 @@ module Haml
     DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
 
     # The Regex that matches a literal string or symbol value
-    LITERAL_VALUE_REGEX = /:(\w*)|(["'])([^\\#'"]|\\.)*\2/
+    LITERAL_VALUE_REGEX = /:(\w*)|(["'])((?![\\#]|\2).|\\.)*\2/
 
     private
 
@@ -361,14 +361,14 @@ END
 
       no_format = @options[:ugly] &&
         !(opts[:preserve_script] || opts[:preserve_tag] || opts[:escape_html])
-      output_temp = "(haml_very_temp = haml_temp; haml_temp = nil; haml_very_temp)"
-      out = "_hamlout.#{static_method_name(:format_script, *args)}(#{output_temp});"
+      output_expr = "(#{text}\n)"
+      static_method = "_hamlout.#{static_method_name(:format_script, *args)}"
 
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless opts[:in_tag]
 
       unless block_opened?
-        @to_merge << [:script, no_format ? "#{text}\n" : "haml_temp = #{text}\n#{out}"]
+        @to_merge << [:script, no_format ? "#{text}\n" : "#{static_method}(#{output_expr});"]
         concat_merged_text("\n") unless opts[:in_tag] || opts[:nuke_inner_whitespace]
         @newlines -= 1
         return
@@ -378,7 +378,7 @@ END
 
       push_silent "haml_temp = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_hamlout.buffer << #{no_format ? "#{output_temp}.to_s;" : out}",
+      push_and_tabulate([:loud, "_hamlout.buffer << #{no_format ? "haml_temp.to_s;" : "#{static_method}(haml_temp);"}",
         !(opts[:in_tag] || opts[:nuke_inner_whitespace] || @options[:ugly])])
     end
 
@@ -727,6 +727,7 @@ END
       raise SyntaxError.new("Self-closing tags can't have content.", last_line - 1) if self_closing && !value.empty?
 
       self_closing ||= !!( !block_opened? && value.empty? && @options[:autoclose].include?(tag_name) )
+      value = nil if value.empty? && (block_opened? || self_closing)
 
       dont_indent_next_line =
         (nuke_outer_whitespace && !block_opened?) ||
@@ -751,7 +752,7 @@ END
         return if tag_closed
       else
         flush_merged_text
-        content = value.empty? || parse ? 'nil' : value.dump
+        content = parse ? 'nil' : value.inspect
         if attributes_hashes.empty?
           attributes_hashes = ''
         elsif attributes_hashes.size == 1
@@ -769,7 +770,7 @@ END
 
       return if self_closing
 
-      if value.empty?
+      if value.nil?
         push_and_tabulate([:element, [tag_name, nuke_outer_whitespace, nuke_inner_whitespace]])
         @output_tabs += 1 unless nuke_inner_whitespace
         return

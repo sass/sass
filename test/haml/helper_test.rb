@@ -240,7 +240,7 @@ MESSAGE
     render("%p foo\n= haml_concat 'foo'\n%p bar")
     assert false, "Expected Haml::Error"
   rescue Haml::Error => e
-    assert_equal 2, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
+    assert_equal 2, e.backtrace[1].scan(/:(\d+)/).first.first.to_i
   end
 
   def test_error_return_line_in_helper

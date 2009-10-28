@@ -122,6 +122,17 @@ module Haml
       end
     end
 
+    # Returns information about the caller of the previous method.
+    #
+    # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
+    # @return [[String, Fixnum, (String, nil)]] An array containing the filename, line, and method name of the caller.
+    #   The method name may be nil
+    def caller_info(entry = caller[1])
+      info = entry.scan(/^(.*?):(-?.*?)(?::.*`(.+)')?$/).first
+      info[1] = info[1].to_i
+      info
+    end
+
     ## Rails XSS Safety
 
     # Whether or not ActionView's XSS protection is available and enabled,
@@ -246,9 +257,10 @@ MSG
     # @param erb [String] The template for the method code
     def def_static_method(klass, name, args, *vars)
       erb = vars.pop
+      info = caller_info
       powerset(vars).each do |set|
         context = StaticConditionalContext.new(set).instance_eval {binding}
-        klass.class_eval(<<METHOD)
+        klass.class_eval(<<METHOD, info[0], info[1])
 def #{static_method_name(name, *vars.map {|v| set.include?(v)})}(#{args.join(', ')})
   #{ERB.new(erb).result(context)}
 end

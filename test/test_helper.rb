@@ -18,7 +18,7 @@ end
 class Test::Unit::TestCase
   def munge_filename(opts)
     return if opts[:filename]
-    test_name = caller[1].gsub(/^.*`(?:\w+ )*(\w+)'.*$/, '\1')
+    test_name = Haml::Util.caller_info(caller[1])[2]
     opts[:filename] = "#{test_name}_inline.sass"
   end
 
