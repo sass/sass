@@ -138,6 +138,106 @@ HAML
 ERB
   end
 
+  def test_multiline_erb_loud_script
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+.blah
+  = foo +            |
+      bar.baz.bang + |
+    baz              |
+  %p foo
+HAML
+<div class="blah">
+  <%=
+    foo +
+      bar.baz.bang +
+    baz
+  %>
+  <p>foo</p>
+</div>
+ERB
+  end
+
+  def test_weirdly_indented_multiline_erb_loud_script
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+.blah
+  = foo +          |
+    bar.baz.bang + |
+    baz            |
+  %p foo
+HAML
+<div class="blah">
+  <%=
+    foo +
+  bar.baz.bang +
+    baz
+  %>
+  <p>foo</p>
+</div>
+ERB
+  end
+
+  def test_two_multiline_erb_loud_scripts
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+.blah
+  = foo +          |
+    bar.baz.bang + |
+    baz            |
+  -#
+  = foo.bar do |
+      bang     |
+    end        |
+  %p foo
+HAML
+<div class="blah">
+  <%=
+    foo +
+    bar.baz.bang +
+    baz
+  %>
+  <%= foo.bar do
+        bang
+      end %>
+  <p>foo</p>
+</div>
+ERB
+  end
+
+  def test_multiline_then_single_line_erb_loud_scripts
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+.blah
+  = foo +          |
+    bar.baz.bang + |
+    baz            |
+  = foo.bar
+  %p foo
+HAML
+<div class="blah">
+  <%=
+    foo +
+    bar.baz.bang +
+    baz
+  %>
+  <%= foo.bar %>
+  <p>foo</p>
+</div>
+ERB
+  end
+
+  def test_multiline_erb_but_really_single_line
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+.blah
+  = foo
+  %p foo
+HAML
+<div class="blah">
+  <%=
+    foo
+  %>
+  <p>foo</p>
+</div>
+ERB
+  end
+
   ### Block Parsing
 
   def test_block_parsing
