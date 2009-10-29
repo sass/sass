@@ -17,6 +17,9 @@
   This allows it to work properly when Haml is a gem
   and the `rails_xss` plugin is being used.
 
+* Mark the return value of Haml templates as HTML safe.
+  This makes Haml partials work with Rails' XSS protection.
+
 ## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
 
 * Fixed a bug where Haml's text was concatenated to the wrong buffer
