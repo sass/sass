@@ -11,6 +11,31 @@ module Haml
     #
     # @return [Hash<Symbol, Object>]
     attr_accessor :options
+
+    # Enables integration with the Rails 2.2.5+ XSS protection,
+    # if it's available and enabled.
+    #
+    # @return [Boolean] Whether the XSS integration was enabled.
+    def try_enabling_xss_integration
+      return false unless ActionView::Base.respond_to?(:xss_safe?) && ActionView::Base.xss_safe?
+
+      Haml::Template.options[:escape_html] = true
+
+      Haml::Util.module_eval {def rails_xss_safe?; true; end}
+
+      require 'haml/helpers/xss_mods'
+      Haml::Helpers.send(:include, Haml::Helpers::XssMods)
+
+      Haml::Precompiler.module_eval do
+        def precompiled_method_return_value_with_haml_xss
+          "(#{precompiled_method_return_value_without_haml_xss}).html_safe!"
+        end
+        alias_method :precompiled_method_return_value_without_haml_xss, :precompiled_method_return_value
+        alias_method :precompiled_method_return_value, :precompiled_method_return_value_with_haml_xss
+      end
+
+      true
+    end
   end
 end
 
@@ -27,19 +52,13 @@ else
   require 'haml/template/patch'
 end
 
-if ActionView::Base.respond_to?(:xss_safe?) && ActionView::Base.xss_safe?
-  Haml::Template.options[:escape_html] = true
-
-  module Haml::Util
-    def rails_xss_safe?
-      true
-    end
-  end
-
-  require 'haml/helpers/xss_mods'
-  module Haml::Helpers
-    include XssMods
-  end
+# Enable XSS integration. Use Rails' after_initialize method if possible
+# so that integration will be checked after the rails_xss plugin is loaded
+# (for Rails 2.3.* where it's not enabled by default).
+if defined?(Rails.configuration.after_initialize)
+  Rails.configuration.after_initialize {Haml::Template.try_enabling_xss_integration}
+else
+  Haml::Template.try_enabling_xss_integration
 end
 
 if defined?(RAILS_ROOT)

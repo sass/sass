@@ -127,6 +127,18 @@ including the line number and the offending character.
 * Fixed a bug where elements with dynamic attributes and no content
   would have too much whitespace between the opening and closing tag.
 
+* Changed `rails/init.rb` away from loading `init.rb` and instead
+  have it basically copy the content.
+  This allows us to transfer the proper binding to `Haml.init_rails`.
+
+* Make sure Haml only tries to enable XSS protection integration
+  once all other plugins are loaded.
+  This allows it to work properly when Haml is a gem
+  and the `rails_xss` plugin is being used.
+
+* Mark the return value of Haml templates as HTML safe.
+  This makes Haml partials work with Rails' XSS protection.
+
 ## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
 
 * Fixed a bug where Haml's text was concatenated to the wrong buffer

@@ -179,7 +179,8 @@ module Haml
         @haml_buffer = buffer
       end
 
-      eval(precompiled, scope, @options[:filename], @options[:line])
+      eval(precompiled + "\n" + precompiled_method_return_value,
+        scope, @options[:filename], @options[:line])
 
       # Get rid of the current buffer
       scope_object.instance_eval do

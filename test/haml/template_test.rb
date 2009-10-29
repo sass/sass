@@ -241,6 +241,9 @@ END
 
   ## XSS Protection Tests
 
+  # In order to enable these, either test against Rails 3.0
+  # or test against Rails 2.2.5+ with the rails_xss plugin
+  # (http://github.com/NZKoz/rails_xss) in test/plugins.
   if Haml::Util.rails_xss_safe?
     def test_escape_html_option_set
       assert Haml::Template.options[:escape_html]
@@ -272,6 +275,14 @@ END
 
     def test_xss_protection_with_mixed_strings_in_interpolation
       assert_equal("Foo & Bar &amp; Baz\n", render('Foo #{"&".html_safe!} Bar #{"&"} Baz', :action_view))
+    end
+
+    def test_rendered_string_is_html_safe
+      assert(render("Foo").html_safe?)
+    end
+
+    def test_rendered_string_is_html_safe_with_action_view
+      assert(render("Foo", :action_view).html_safe?)
     end
   end
 end
