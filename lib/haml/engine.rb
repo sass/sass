@@ -175,7 +175,7 @@ module Haml
         @haml_buffer = buffer
       end
 
-      eval(precompiled + "\n" + precompiled_method_return_value,
+      str = eval(precompiled + ";" + precompiled_method_return_value,
         scope, @options[:filename], @options[:line])
 
       # Get rid of the current buffer
@@ -183,7 +183,7 @@ module Haml
         @haml_buffer = buffer.upper
       end
 
-      buffer.buffer
+      str
     end
     alias_method :to_html, :render
 
