@@ -1178,8 +1178,8 @@ Haml deals with this by "preserving" newlines before they're put into the docume
 converting them to the XHTML whitespace escape code, `&#x000A;`.
 Then Haml won't try to re-format the indentation.
 
-Literal `textarea` and `pre` tags automatically preserve their content.
-Dynamically can't be caught automatically,
+Literal `textarea` and `pre` tags automatically preserve content given through `=`.
+Dynamically-generated `textarea`s and `pre`s can't be preserved automatically,
 and so should be passed through {Haml::Helpers#find\_and\_preserve} or the [`~` command](#tilde),
 which has the same effect.
 
