@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.10 (Unreleased)
+## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Fixed a bug where elements with dynamic attributes and no content
   would have too much whitespace between the opening and closing tag.

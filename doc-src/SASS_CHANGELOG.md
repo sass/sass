@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.10 (Unreleased)
+## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Add support for attribute selectors with spaces around the `=`.
   For example:
