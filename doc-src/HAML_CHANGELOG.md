@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 2.2.11 (Unreleased)
+
+* Fixed a bug with XSS protection where HTML escaping would raise an error
+  if passed a non-string value.
+  Note that this doesn't affect any HTML escaping when XSS protection is disabled.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Fixed a bug where elements with dynamic attributes and no content
