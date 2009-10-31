@@ -745,6 +745,27 @@ bang, bip, bop
 SASS
   end
 
+  def test_root_level_pseudo_class_with_new_properties
+    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+:focus {
+  outline: 0; }
+CSS
+:focus
+  outline: 0
+SASS
+  end
+
+  def test_pseudo_class_with_new_properties
+    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+p :focus {
+  outline: 0; }
+CSS
+p
+  :focus
+    outline: 0
+SASS
+  end
+
   # Regression tests
 
   def test_parens_in_mixins
