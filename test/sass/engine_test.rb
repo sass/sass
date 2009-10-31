@@ -18,8 +18,11 @@ class SassEngineTest < Test::Unit::TestCase
     ":" => 'Invalid property: ":".',
     ": a" => 'Invalid property: ": a".',
     ":= a" => 'Invalid property: ":= a".',
-    "a\n  :b" => 'Invalid property: ":b " (no value).',
-    "a\n  b:" => 'Invalid property: "b: " (no value).',
+    "a\n  :b" => <<MSG,
+Invalid property: ":b" (no value).
+If ":b" should be a selector, use "\\:b" instead.
+MSG
+    "a\n  b:" => 'Invalid property: "b:" (no value).',
     "a\n  :b: c" => 'Invalid property: ":b: c".',
     "a\n  :b:c d" => 'Invalid property: ":b:c d".',
     "a\n  :b=c d" => 'Invalid property: ":b=c d".',
@@ -28,6 +31,12 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  b : c" => 'Invalid property: "b : c".',
     "a\n  b=c: d" => 'Invalid property: "b=c: d".',
     "a: b" => 'Properties aren\'t allowed at the root of a document.',
+    ":a b" => 'Properties aren\'t allowed at the root of a document.',
+    "a:" => 'Properties aren\'t allowed at the root of a document.',
+    ":a" => <<MSG,
+Properties aren't allowed at the root of a document.
+If ":a" should be a selector, use "\\:a" instead.
+MSG
     "!" => 'Invalid variable: "!".',
     "!a" => 'Invalid variable: "!a".',
     "! a" => 'Invalid variable: "! a".',
@@ -134,7 +143,7 @@ class SassEngineTest < Test::Unit::TestCase
       rescue Sass::SyntaxError => err
         value = [value] unless value.is_a?(Array)
 
-        assert_equal(value.first, err.message, "Line: #{key}")
+        assert_equal(value.first.rstrip, err.message, "Line: #{key}")
         assert_equal(__FILE__, err.sass_filename)
         assert_equal((value[1] || key.split("\n").length) + line - 1, err.sass_line, "Line: #{key}")
         assert_match(/#{Regexp.escape(__FILE__)}:[0-9]+/, err.backtrace[0], "Line: #{key}")
@@ -233,7 +242,7 @@ SASS
   rescue Sass::SyntaxError => e
     assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..15].join("\n"))
 /*
-Syntax error: Invalid property: "e: " (no value).
+Syntax error: Invalid property: "e:" (no value).
         on line 383 of test_exception_css_with_offset_inline.sass
 
 378: a
@@ -819,6 +828,27 @@ END
 
 foo, bar, baz,
 bang, bip, bop
+SASS
+  end
+
+  def test_root_level_pseudo_class_with_new_properties
+    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+:focus {
+  outline: 0; }
+CSS
+:focus
+  outline: 0
+SASS
+  end
+
+  def test_pseudo_class_with_new_properties
+    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+p :focus {
+  outline: 0; }
+CSS
+p
+  :focus
+    outline: 0
 SASS
   end
 

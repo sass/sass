@@ -40,8 +40,11 @@ module Sass
       def _to_s(*args)
         result = String.new
         children.each do |child|
-          raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.',
-            :line => child.line) if child.is_a? PropNode
+          if child.is_a? PropNode
+            message = "Properties aren't allowed at the root of a document." +
+              child.pseudo_class_selector_message
+            raise Sass::SyntaxError.new(message, :line => child.line)
+          end
 
           next if child.invisible?
           child_str = child.to_s(1)

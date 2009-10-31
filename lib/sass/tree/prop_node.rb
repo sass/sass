@@ -47,6 +47,16 @@ module Sass::Tree
       self.class == other.class && name == other.name && value == other.value && super
     end
 
+    # Returns a appropriate message indicating how to escape pseudo-class selectors.
+    # This only applies for old-style properties with no value,
+    # so returns the empty string if this is new-style.
+    #
+    # @return [String] The message
+    def pseudo_class_selector_message
+      return "" if @prop_syntax == :new || !value.empty?
+      "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
+    end
+
     protected
 
     # Computes the CSS for the property.
@@ -62,7 +72,8 @@ module Sass::Tree
       elsif value[-1] == ?;
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).")
       elsif value.empty?
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value).")
+        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
+          pseudo_class_selector_message)
       end
 
       to_return = '  ' * (tabs - 1 + indentation) + name + ":" +
@@ -112,7 +123,7 @@ module Sass::Tree
     private
 
     def declaration
-      @prop_syntax == :new ? "#{name}: #{value}" : ":#{name} #{value}"
+      (@prop_syntax == :new ? "#{name}: #{value}" : ":#{name} #{value}").strip
     end
   end
 end

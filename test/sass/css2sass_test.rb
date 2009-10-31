@@ -230,6 +230,19 @@ SASS
 CSS
   end
 
+  def test_pseudo_classes_are_escaped
+    assert_equal(<<SASS, css2sass(<<CSS))
+\\:focus
+  a: b
+
+  \\:foo
+    bar: baz
+SASS
+:focus {a: b;}
+:focus :foo {bar: baz;}
+CSS
+  end
+
   # Error reporting
 
   def test_error_reporting
