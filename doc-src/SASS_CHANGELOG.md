@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 2.2.11 (Unreleased)
+
+* Added a note to errors on properties that could be pseudo-classes (e.g. `:focus`)
+  indicating that they should be backslash-escaped.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Add support for attribute selectors with spaces around the `=`.

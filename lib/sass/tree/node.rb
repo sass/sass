@@ -123,7 +123,9 @@ module Sass
         result = String.new
         children.each do |child|
           if child.is_a? PropNode
-            raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.', child.line)
+            message = "Properties aren't allowed at the root of a document." +
+              child.pseudo_class_selector_message
+            raise Sass::SyntaxError.new(message, child.line)
           else
             next if child.invisible?
             child_str = child.to_s(1)
