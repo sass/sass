@@ -24,7 +24,9 @@ module Sass
     class RuleNode
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
-        str = "\n#{'  ' * tabs}#{rules.first}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
+        name = rules.first
+        name = "\\" + name if name[0] == ?:
+        str = "\n#{'  ' * tabs}#{name}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
 
         children.each do |child|
           str << "#{child.to_sass(tabs + 1, opts)}"

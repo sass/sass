@@ -12,6 +12,8 @@
   if {file:SASS_REFERENCE.md.html#property_syntax-option `:property_syntax`}
   is set to `:new`.
 
+* Fixed `css2sass`'s generation of pseudo-classes so that they're backslash-escaped.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Add support for attribute selectors with spaces around the `=`.
