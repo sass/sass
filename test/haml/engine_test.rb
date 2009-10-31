@@ -282,6 +282,18 @@ RESULT
 SOURCE
   end
 
+  def test_multiple_ids
+    assert_equal("<p id='bc_ab'></p>\n", render("%p#bc#ab"))
+    assert_equal("<p id='ab_bc'></p>\n", render("%p#ab#bc"))
+    assert_equal("<p id='ab'></p>\n", render("%p(id='bc' id='ab')"))
+    assert_equal("<p id='bc'></p>\n", render("%p(id='ab' id='bc')"))
+    assert_equal("<p id='bc_ab'></p>\n", render("%p#bc(id='ab')"))
+    assert_equal("<p id='ab_bc'></p>\n", render("%p#ab(id='bc')"))
+    assert_equal("<p id='bc_ab'></p>\n", render("%p#bc{:id => 'ab'}"))
+    assert_equal("<p id='ab_bc'></p>\n", render("%p#ab{:id => 'bc'}"))
+    assert_equal("<p id='ab_bc_cd'></p>\n", render("%p#ab{:id => 'bc'}(id='cd')"))
+  end
+
   # Regression tests
 
   def test_whitespace_nuke_with_both_newlines
