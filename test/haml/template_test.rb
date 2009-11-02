@@ -284,5 +284,9 @@ END
     def test_rendered_string_is_html_safe_with_action_view
       assert(render("Foo", :action_view).html_safe?)
     end
+
+    def test_xss_html_escaping_with_non_strings
+      assert_equal("4\n", render("= html_escape(4)"))
+    end
   end
 end

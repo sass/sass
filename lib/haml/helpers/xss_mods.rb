@@ -17,8 +17,9 @@ module Haml
       # Don't escape text that's already safe,
       # output is always HTML safe
       def html_escape_with_haml_xss(text)
-        return text if text.html_safe?
-        html_escape_without_haml_xss(text).html_safe!
+        str = text.to_s
+        return text if str.html_safe?
+        html_escape_without_haml_xss(str).html_safe!
       end
 
       # Output is always HTML safe

@@ -110,7 +110,6 @@ module Haml
       @precompiled = ''
       @to_merge = []
       @tab_change  = 0
-      @temp_count = 0
 
       precompile
     rescue Haml::Error => e
