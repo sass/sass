@@ -1005,23 +1005,24 @@ END
 
     # Get rid of and whitespace at the end of the buffer
     # or the merged text
-    def rstrip_buffer!
-      if @to_merge.empty?
+    def rstrip_buffer!(index = -1)
+      last = @to_merge[index]
+      if last.nil?
         push_silent("_hamlout.rstrip!", false)
         @dont_tab_up_next_text = true
         return
       end
 
-      last = @to_merge.last
       case last.first
       when :text
         last[1].rstrip!
         if last[1].empty?
-          @to_merge.pop
-          rstrip_buffer!
+          @to_merge.slice! index
+          rstrip_buffer! index
         end
       when :script
         last[1].gsub!(/\(haml_temp, (.*?)\);$/, '(haml_temp.rstrip, \1);')
+        rstrip_buffer! index - 1
       else
         raise SyntaxError.new("[HAML BUG] Undefined entry in Haml::Precompiler@to_merge.")
       end

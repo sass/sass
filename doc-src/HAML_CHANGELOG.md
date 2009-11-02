@@ -9,6 +9,9 @@
   if passed a non-string value.
   Note that this doesn't affect any HTML escaping when XSS protection is disabled.
 
+* Fixed a bug in outer-whitespace nuking where whitespace-only Ruby strings
+  blocked whitespace nuking beyond them.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Fixed a bug where elements with dynamic attributes and no content
