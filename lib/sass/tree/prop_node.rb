@@ -54,7 +54,9 @@ module Sass::Tree
       real_name = "#{parent_name}-#{real_name}" if parent_name
       
       if value.empty? && children.empty?
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value).", @line)
+        message = "Invalid property: #{declaration.dump} (no value)." +
+          pseudo_class_selector_message
+        raise Sass::SyntaxError.new(message, @line)
       end
       
       join_string = case style
@@ -74,6 +76,16 @@ module Sass::Tree
       end
       
       (style == :compressed && parent_name) ? to_return : to_return[0...-1]
+    end
+
+    # Returns a appropriate message indicating how to escape pseudo-class selectors.
+    # This only applies for old-style properties with no value,
+    # so returns the empty string if this is new-style.
+    #
+    # @return [String] The message
+    def pseudo_class_selector_message
+      return "" if @prop_syntax == :new || !value.empty?
+      "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
     protected
@@ -103,7 +115,7 @@ module Sass::Tree
     private
 
     def declaration
-      @prop_syntax == :new ? "#{name}: #{value}" : ":#{name} #{value}"
+      (@prop_syntax == :new ? "#{name}: #{value}" : ":#{name} #{value}").strip
     end
   end
 end
