@@ -131,6 +131,15 @@ including the line number and the offending character.
 * Fixed a bug in outer-whitespace nuking where whitespace-only Ruby strings
   blocked whitespace nuking beyond them.
 
+* Use `ensure` to protect the resetting of the Haml output buffer
+  against exceptions that are raised within the compiled Haml code.
+
+* Fix an error line-numbering bug that appeared if an error was thrown
+  within loud script (`=`).
+  This is not the best solution, as it disables a few optimizations,
+  but it shouldn't have too much effect and the optimizations
+  will hopefully be re-enabled in version 2.4.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Fixed a bug where elements with dynamic attributes and no content

@@ -72,6 +72,7 @@ class EngineTest < Test::Unit::TestCase
     "/ foo\n\n  bar" => ["Illegal nesting: nesting within a tag that already has content is illegal.", 3],
     "!!!\n\n  bar" => ["Illegal nesting: nesting within a header command is illegal.", 3],
     "foo\n:ruby\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
+    "= raise 'foo'\nfoo\nbar\nbaz\nbang" => ["foo", 1],
   }
 
   User = Struct.new('User', :id)
@@ -971,6 +972,32 @@ END
 
   def test_render_proc_with_binding
     assert_equal("FOO\n", engine("= upcase").render_proc("foo".instance_eval{binding}).call)
+  end
+
+  def test_haml_buffer_gets_reset_even_with_exception
+    scope = Object.new
+    render("- raise Haml::Error", :scope => scope)
+    assert(false, "Expected exception")
+  rescue Exception
+    assert_nil(scope.send(:haml_buffer))
+  end
+
+  def test_def_method_haml_buffer_gets_reset_even_with_exception
+    scope = Object.new
+    engine("- raise Haml::Error").def_method(scope, :render)
+    scope.render
+    assert(false, "Expected exception")
+  rescue Exception
+    assert_nil(scope.send(:haml_buffer))
+  end
+
+  def test_render_proc_haml_buffer_gets_reset_even_with_exception
+    scope = Object.new
+    proc = engine("- raise Haml::Error").render_proc(scope)
+    proc.call
+    assert(false, "Expected exception")
+  rescue Exception
+    assert_nil(scope.send(:haml_buffer))
   end
 
   def test_ugly_true
