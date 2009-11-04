@@ -14,9 +14,6 @@
     Lexer errors in particular are icky
     See in particular error changes made in c07b5c8
 ** Haml
-   Fix problem added in 408da5f
-     Might be able to do this by fiddling with when we resolve_newlines
-     Might take larger-scale refactoring
    Support finer-grained HTML-escaping in filters
    Speed
      Make tags with dynamic attributes pre-render as much as possible
