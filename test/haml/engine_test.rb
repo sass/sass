@@ -962,6 +962,32 @@ END
     assert_equal("FOO\n", engine("= upcase").render_proc("foo".instance_eval{binding}).call)
   end
 
+  def test_haml_buffer_gets_reset_even_with_exception
+    scope = Object.new
+    render("- raise Haml::Error", :scope => scope)
+    assert(false, "Expected exception")
+  rescue Exception
+    assert_nil(scope.send(:haml_buffer))
+  end
+
+  def test_def_method_haml_buffer_gets_reset_even_with_exception
+    scope = Object.new
+    engine("- raise Haml::Error").def_method(scope, :render)
+    scope.render
+    assert(false, "Expected exception")
+  rescue Exception
+    assert_nil(scope.send(:haml_buffer))
+  end
+
+  def test_render_proc_haml_buffer_gets_reset_even_with_exception
+    scope = Object.new
+    proc = engine("- raise Haml::Error").render_proc(scope)
+    proc.call
+    assert(false, "Expected exception")
+  rescue Exception
+    assert_nil(scope.send(:haml_buffer))
+  end
+
   def test_ugly_true
     assert_equal("<div id='outer'>\n<div id='inner'>\n<p>hello world</p>\n</div>\n</div>\n",
                  render("#outer\n  #inner\n    %p hello world", :ugly => true))

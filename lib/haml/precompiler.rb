@@ -92,14 +92,17 @@ module Haml
     # Returns the precompiled string with the preamble and postamble
     def precompiled_with_ambles(local_names)
       preamble = <<END.gsub("\n", ";")
+begin
 extend Haml::Helpers
 _hamlout = @haml_buffer = Haml::Buffer.new(@haml_buffer, #{options_for_buffer.inspect})
 _erbout = _hamlout.buffer
 __in_erb_template = true
 END
       postamble = <<END.gsub("\n", ";")
-@haml_buffer = @haml_buffer.upper
 #{precompiled_method_return_value}
+ensure
+@haml_buffer = @haml_buffer.upper
+end
 END
       preamble + locals_code(local_names) + precompiled + postamble
     end

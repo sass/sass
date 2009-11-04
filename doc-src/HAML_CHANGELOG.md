@@ -12,6 +12,9 @@
 * Fixed a bug in outer-whitespace nuking where whitespace-only Ruby strings
   blocked whitespace nuking beyond them.
 
+* Use `ensure` to protect the resetting of the Haml output buffer
+  against exceptions that are raised within the compiled Haml code.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Fixed a bug where elements with dynamic attributes and no content
