@@ -18,6 +18,9 @@
      I think we can just wrap interpolated code with (),
      since it's already interpolated.
    Can also use () to wrap contents of _haml_temp so that commas throw errors when not in :ugly
+   Fix problem added in 408da5f
+     Might be able to do this by fiddling with when we resolve_newlines
+     Might take larger-scale refactoring
    Support finer-grained HTML-escaping in filters
    Speed
      Make tags with dynamic attributes pre-render as much as possible
