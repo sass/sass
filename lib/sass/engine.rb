@@ -329,12 +329,16 @@ LONG
     def parse_line(parent, line, root)
       case line.text[0]
       when PROPERTY_CHAR
-        if line.text[1] != PROPERTY_CHAR
-          parse_property(line, PROPERTY_OLD)
-        else
+        if line.text[1] == PROPERTY_CHAR ||
+            (@options[:property_syntax] == :new &&
+             line.text =~ PROPERTY_OLD && $3.empty?)
           # Support CSS3-style pseudo-elements,
-          # which begin with ::
+          # which begin with ::,
+          # as well as pseudo-classes
+          # if we're using the new property syntax
           Tree::RuleNode.new(line.text)
+        else
+          parse_property(line, PROPERTY_OLD)
         end
       when Script::VARIABLE_CHAR
         parse_variable(line)
