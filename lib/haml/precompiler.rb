@@ -1002,6 +1002,7 @@ END
 
     def resolve_newlines
       return unless @newlines > 0
+      flush_merged_text unless @to_merge.all? {|type, *_| type == :text}
       @precompiled << "\n" * @newlines
       @newlines = 0
     end
