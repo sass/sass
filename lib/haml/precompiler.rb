@@ -306,15 +306,19 @@ END
     def flush_merged_text
       return if @to_merge.empty?
 
-      text, tab_change = @to_merge.inject(["", 0]) do |(str, mtabs), (type, val, tabs)|
+      str = ""
+      mtabs = 0
+      @to_merge.each do |type, val, tabs|
         case type
         when :text
-          [str << val.inspect[1...-1], mtabs + tabs]
+          str << val.inspect[1...-1]
+          mtabs += tabs
         when :script
           if mtabs != 0 && !@options[:ugly]
             val = "_hamlout.adjust_tabs(#{mtabs}); " + val
           end
-          [str << "\#{#{val}}", 0]
+          str << "\#{#{val}}"
+          mtabs = 0
         else
           raise SyntaxError.new("[HAML BUG] Undefined entry in Haml::Precompiler@to_merge.")
         end
@@ -322,9 +326,9 @@ END
 
       @precompiled <<
         if @options[:ugly]
-          "_hamlout.buffer << \"#{text}\";"
+          "_hamlout.buffer << \"#{str}\";"
         else
-          "_hamlout.push_text(\"#{text}\", #{tab_change}, #{@dont_tab_up_next_text.inspect});"
+          "_hamlout.push_text(\"#{str}\", #{mtabs}, #{@dont_tab_up_next_text.inspect});"
         end
       @to_merge = []
       @dont_tab_up_next_text = false
