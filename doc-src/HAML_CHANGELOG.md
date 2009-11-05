@@ -27,6 +27,12 @@
   This is consistent with the behavior of multiple ids
   when one is specified as a standard attribute.
 
+### Edge Rails Compatibility
+
+* Don't use `RAILS_ROOT` directly.
+  This no longer exists in Rails 3.0.
+  Instead abstract this out as `Haml::Util.rails_root`.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Fixed a bug where elements with dynamic attributes and no content

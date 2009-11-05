@@ -9,12 +9,6 @@ require 'sass'
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
-# required because of Sass::Plugin
-unless defined? RAILS_ROOT
-  RAILS_ROOT = '.'
-  MERB_ENV = RAILS_ENV  = 'testing'
-end
-
 class Test::Unit::TestCase
   def munge_filename(opts)
     return if opts[:filename]
