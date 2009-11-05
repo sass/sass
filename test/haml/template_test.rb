@@ -203,7 +203,7 @@ HTML
   - with_output_buffer do
     bar
     = "foo".gsub(/./) do |s|
-      - s.ord
+      - "flup"
   baz
 HAML
   end
