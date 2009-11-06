@@ -51,7 +51,7 @@ Several bug fixes and minor improvements have been made, including:
 * Displaying the expected strings as strings rather than regular expressions
   whenever possible.
 
-## 2.2.11 (Unreleased)
+## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
 
 * Added a note to errors on properties that could be pseudo-classes (e.g. `:focus`)
   indicating that they should be backslash-escaped.
