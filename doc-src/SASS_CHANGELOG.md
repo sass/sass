@@ -21,6 +21,9 @@
   Instead abstract this out as `Haml::Util.rails_root`.
   This changes makes Haml fully compatible with edge Rails as of this writing.
 
+* Make use of a Rails callback rather than a monkeypatch to check for stylesheet updates
+  in Rails 3.0+.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Add support for attribute selectors with spaces around the `=`.
