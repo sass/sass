@@ -140,12 +140,6 @@ including the line number and the offending character.
   but it shouldn't have too much effect and the optimizations
   will hopefully be re-enabled in version 2.4.
 
-* Allow multiple ids to be used on the same element.
-  They will be concatenated together with an underscore.
-  For example, `%p#foo#bar` will become `<p id="foo_bar">`.
-  This is consistent with the behavior of multiple ids
-  when one is specified as a standard attribute.
-
 * Don't crash if the plugin skeleton is installed and `rake gems:install` is run.
 
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)

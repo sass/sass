@@ -488,13 +488,7 @@ END
             attributes['class'] = ""
           end
           attributes['class'] += property
-        when '#'
-          if attributes['id']
-            attributes['id'] += "_"
-          else
-            attributes['id'] = ""
-          end
-          attributes['id'] += property
+        when '#'; attributes['id'] = property
         end
       end
       attributes
