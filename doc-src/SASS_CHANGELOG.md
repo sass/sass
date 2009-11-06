@@ -14,6 +14,8 @@
 
 * Fixed `css2sass`'s generation of pseudo-classes so that they're backslash-escaped.
 
+* Don't crash if the Haml plugin skeleton is installed and `rake gems:install` is run.
+
 ### Edge Rails Compatibility
 
 * Don't use `RAILS_ROOT` directly.
