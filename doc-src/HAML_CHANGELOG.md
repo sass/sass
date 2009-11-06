@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
+
+There were no changes made to Sass between versions 2.2.11 and 2.2.12.
+
 ## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
 
 * Fixed a bug with XSS protection where HTML escaping would raise an error
