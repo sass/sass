@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.11 (Unreleased)
+## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
 
 * Fixed a bug with XSS protection where HTML escaping would raise an error
   if passed a non-string value.
