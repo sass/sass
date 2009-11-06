@@ -50,6 +50,17 @@ module Sass
       opts
     end
 
+    # Same as \{#update\_stylesheets}, but respects \{#checked\_for\_updates}
+    # and the {file:SASS_REFERENCE.md#always_update-option `:always_update`}
+    # and {file:SASS_REFERENCE.md#always_check-option `:always_check`} options.
+    #
+    # @see #update_stylesheets
+    def check_for_updates
+      return unless !Sass::Plugin.checked_for_updates ||
+          Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
+      update_stylesheets
+    end
+
     # Updates out-of-date stylesheets.
     #
     # Checks each Sass file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}

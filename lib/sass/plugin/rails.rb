@@ -7,22 +7,15 @@ unless defined?(Sass::RAILS_LOADED)
                               :always_check      => RAILS_ENV != "production",
                               :full_exception    => RAILS_ENV != "production")
 
-  check = lambda do
-    if !Sass::Plugin.checked_for_updates ||
-        Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
-      Sass::Plugin.update_stylesheets
-    end
-  end
-
   if defined?(ActionDispatch::Callbacks.to_prepare)
     # Rails >= 3.0.0
-    ActionDispatch::Callbacks.to_prepare(&check)
+    ActionDispatch::Callbacks.to_prepare {Sass::Plugin.check_for_updates}
   else
     module ActionController
       class Base
         alias_method :sass_old_process, :process
         def process(*args)
-          check.call
+          Sass::Plugin.check_for_updates
           sass_old_process(*args)
         end
       end

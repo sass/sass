@@ -51,6 +51,10 @@ Several bug fixes and minor improvements have been made, including:
 * Displaying the expected strings as strings rather than regular expressions
   whenever possible.
 
+## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
+
+* Fix a stupid bug introduced in 2.2.11 that broke the Sass Rails plugin.
+
 ## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
 
 * Added a note to errors on properties that could be pseudo-classes (e.g. `:focus`)
