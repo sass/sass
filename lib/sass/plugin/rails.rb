@@ -1,9 +1,9 @@
 unless defined?(Sass::RAILS_LOADED)
   Sass::RAILS_LOADED = true
 
-  Sass::Plugin.options.merge!(:template_location => RAILS_ROOT + '/public/stylesheets/sass',
-                              :css_location      => RAILS_ROOT + '/public/stylesheets',
-                              :cache_location    => RAILS_ROOT + '/tmp/sass-cache',
+  Sass::Plugin.options.merge!(:template_location => Haml::Util.rails_root + '/public/stylesheets/sass',
+                              :css_location      => Haml::Util.rails_root + '/public/stylesheets',
+                              :cache_location    => Haml::Util.rails_root + '/tmp/sass-cache',
                               :always_check      => RAILS_ENV != "production",
                               :full_exception    => RAILS_ENV != "production")
 

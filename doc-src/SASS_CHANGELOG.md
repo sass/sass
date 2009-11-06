@@ -64,6 +64,12 @@ Several bug fixes and minor improvements have been made, including:
 
 * Don't crash if the Haml plugin skeleton is installed and `rake gems:install` is run.
 
+### Edge Rails Compatibility
+
+* Don't use `RAILS_ROOT` directly.
+  This no longer exists in Rails 3.0.
+  Instead abstract this out as `Haml::Util.rails_root`.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Add support for attribute selectors with spaces around the `=`.

@@ -133,6 +133,19 @@ module Haml
       info
     end
 
+    ## Cross Rails Version Compatibility
+
+    # Returns the root of the Rails application,
+    # if this is running in a Rails context.
+    # Returns `nil` if no such root is defined.
+    #
+    # @return [String, nil]
+    def rails_root
+      return Rails.root if defined?(Rails.root)
+      return RAILS_ROOT if defined?(RAILS_ROOT)
+      return nil
+    end
+
     ## Rails XSS Safety
 
     # Whether or not ActionView's XSS protection is available and enabled,
