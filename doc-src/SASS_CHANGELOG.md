@@ -62,6 +62,8 @@ Several bug fixes and minor improvements have been made, including:
 
 * Fixed `css2sass`'s generation of pseudo-classes so that they're backslash-escaped.
 
+* Don't crash if the Haml plugin skeleton is installed and `rake gems:install` is run.
+
 ## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
 
 * Add support for attribute selectors with spaces around the `=`.
