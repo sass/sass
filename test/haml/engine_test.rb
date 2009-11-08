@@ -1189,6 +1189,16 @@ HTML
 HAML
     end
 
+    def test_fake_ascii_encoding
+      assert_equal(<<HTML.force_encoding("ascii-8bit"), render(<<HAML, :encoding => "ascii-8bit"))
+<p>bâr</p>
+<p>föö</p>
+HTML
+%p bâr
+%p föö
+HAML
+    end
+
     def test_convert_template_render_proc
       assert_converts_template_properly {|e| e.render_proc.call}
     end

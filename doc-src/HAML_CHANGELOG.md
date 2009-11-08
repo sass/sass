@@ -3,6 +3,13 @@
 * Table of contents
 {:toc}
 
+## 2.2.13 (Unreleased)
+
+* Allow users to specify {file:HAML_REFERENCE.md#encoding_option `:encoding => "ascii-8bit"`}
+  even for templates that include non-ASCII byte sequences.
+  This makes Haml templates not crash when given non-ASCII input
+  that's marked as having an ASCII encoding.
+
 ## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
 
 There were no changes made to Sass between versions 2.2.11 and 2.2.12.
