@@ -315,8 +315,8 @@ rails_versions = [
   "v2.3.4",
   "v2.2.2",
   "v2.1.2",
-  "v2.0.5"
 ]
+rails_versions << "v2.0.5" if RUBY_VERSION =~ /^1\.8/
 
 namespace :test do
   desc "Test all supported versions of rails. This takes a while."
