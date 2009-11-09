@@ -58,7 +58,9 @@ module Haml
     # @return [String]
     def precompiled
       return @precompiled if ruby1_8?
-      return @precompiled.encode(Encoding.find(@options[:encoding]))
+      encoding = Encoding.find(@options[:encoding])
+      return @precompiled.force_encoding(encoding) if encoding == Encoding::BINARY
+      return @precompiled.encode(encoding)
     end
 
     # Precompiles the Haml template.

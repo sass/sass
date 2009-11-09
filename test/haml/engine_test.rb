@@ -837,12 +837,18 @@ HAML
         line_no ||= key.split("\n").length
 
         if expected_message == :compile
-          assert_match(/^compile error\n/, err.message, "Line: #{key}")
+          if Haml::Util.ruby1_8?
+            assert_match(/^compile error\n/, err.message, "Line: #{key}")
+          else
+            assert_match(/^#{Regexp.quote __FILE__}:#{line_no}: syntax error,/, err.message, "Line: #{key}")
+          end
         else
           assert_equal(expected_message, err.message, "Line: #{key}")
         end
 
-        assert_match(/^#{Regexp.escape(__FILE__)}:#{line_no}/, err.backtrace[0], "Line: #{key}")
+        if Haml::Util.ruby1_8?
+          assert_match(/^#{Regexp.escape(__FILE__)}:#{line_no}/, err.backtrace[0], "Line: #{key}")
+        end
       else
         assert(false, "Exception not raised for\n#{key}")
       end
@@ -1186,6 +1192,16 @@ HAML
 
     def test_convert_template_render
       assert_equal(<<HTML, render(<<HAML.encode("iso-8859-1"), :encoding => "utf-8"))
+<p>bâr</p>
+<p>föö</p>
+HTML
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_fake_ascii_encoding
+      assert_equal(<<HTML.force_encoding("ascii-8bit"), render(<<HAML, :encoding => "ascii-8bit"))
 <p>bâr</p>
 <p>föö</p>
 HTML

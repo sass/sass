@@ -192,6 +192,14 @@ Available options are:
   before being passed into the Haml template.
   Defaults to `Encoding.default_internal` or, if that's not set, `"utf-8"`.
 
+  Many Ruby database drivers are not yet Ruby 1.9 compatible;
+  in particular, they return strings marked as ASCII-encoded
+  even when those strings contain non-ASCII characters (such as UTF-8).
+  **This will cause encoding errors** if the Haml encoding isn't set to `"ascii-8bit"`.
+  To solve this, either call `#force_encoding` on all the strings returned from the database,
+  set `:encoding` to `"ascii-8bit"`, or try to get the authors of the database drivers
+  to make them Ruby 1.9 compatible.
+
 ## Plain Text
 
 A substantial portion of any HTML document is its content,
