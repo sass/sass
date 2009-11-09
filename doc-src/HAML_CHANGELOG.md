@@ -122,7 +122,7 @@ including the line number and the offending character.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
-## 2.2.13 (Unreleased)
+## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
 
 * Allow users to specify {file:HAML_REFERENCE.md#encoding_option `:encoding => "ascii-8bit"`}
   even for templates that include non-ASCII byte sequences.
