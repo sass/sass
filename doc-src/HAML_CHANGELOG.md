@@ -129,6 +129,8 @@ including the line number and the offending character.
   This makes Haml templates not crash when given non-ASCII input
   that's marked as having an ASCII encoding.
 
+* Fixed an incompatibility with Hpricot 0.8.2, which is used for `html2haml`.
+
 ## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
 
 There were no changes made to Sass between versions 2.2.11 and 2.2.12.

@@ -62,6 +62,10 @@ module Haml
         text.gsub('#{', '\#{') #'
       end
 
+      def attr_hash
+        attributes.to_hash
+      end
+
       def parse_text(text, tabs)
         parse_text_with_interpolation(uninterp(text), tabs)
       end
@@ -224,8 +228,8 @@ module Haml
       def to_haml(tabs, options)
         return "" if converted_to_haml
         if name == "script" &&
-            (attributes['type'].nil? || attributes['type'] == "text/javascript") &&
-            (attributes.keys - ['type']).empty?
+            (attr_hash['type'].nil? || attr_hash['type'] == "text/javascript") &&
+            (attr_hash.keys - ['type']).empty?
           return script_to_haml(tabs, options)
         end
 
@@ -269,22 +273,22 @@ module Haml
         output << "%#{name}" unless name == 'div' &&
           (static_id?(options) ||
            static_classname?(options) &&
-           attributes['class'].split(' ').any?(&method(:haml_css_attr?)))
+           attr_hash['class'].split(' ').any?(&method(:haml_css_attr?)))
 
-        if attributes
+        if attr_hash
           if static_id?(options)
-            output << "##{attributes['id']}"
+            output << "##{attr_hash['id']}"
             remove_attribute('id')
           end
           if static_classname?(options)
-            leftover = attributes['class'].split(' ').reject do |c|
+            leftover = attr_hash['class'].split(' ').reject do |c|
               next unless haml_css_attr?(c)
               output << ".#{c}"
             end
             remove_attribute('class')
             set_attribute('class', leftover.join(' ')) unless leftover.empty?
           end
-          output << haml_attributes(options) if attributes.length > 0
+          output << haml_attributes(options) if attr_hash.length > 0
         end
 
         output << "/" if empty? && !etag
@@ -319,7 +323,7 @@ module Haml
       
       def dynamic_attributes
         @dynamic_attributes ||= begin
-          Haml::Util.map_hash(attributes) do |name, value|
+          Haml::Util.map_hash(attr_hash) do |name, value|
             next if value.empty?
             full_match = nil
             ruby_value = value.gsub(%r{<haml:loud>\s*(.+?)\s*</haml:loud>}) do
@@ -351,7 +355,7 @@ module Haml
       end
 
       def static_attribute?(name, options)
-        attributes[name] && !dynamic_attribute?(name, options)
+        attr_hash[name] && !dynamic_attribute?(name, options)
       end
       
       def dynamic_attribute?(name, options)
@@ -359,7 +363,7 @@ module Haml
       end
       
       def static_id?(options)
-        static_attribute?('id', options) && haml_css_attr?(attributes['id'])
+        static_attribute?('id', options) && haml_css_attr?(attr_hash['id'])
       end
       
       def static_classname?(options)
@@ -373,7 +377,7 @@ module Haml
       # Returns a string representation of an attributes hash
       # that's prettier than that produced by Hash#inspect
       def haml_attributes(options)
-        attrs = attributes.sort.map do |name, value|
+        attrs = attr_hash.sort.map do |name, value|
           value = dynamic_attribute?(name, options) ? dynamic_attributes[name] : value.inspect
           name = name.index(/\W/) ? name.inspect : ":#{name}"
           "#{name} => #{value}"
