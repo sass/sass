@@ -191,7 +191,7 @@ Available options are:
   any strings coming from outside the application should be converted
   before being passed into the Haml template.
   Defaults to `Encoding.default_internal` or, if that's not set, `"utf-8"`.
-
+  <br/><br/> <!-- There's no better way to do a paragraph break in a dl in Maruku -->
   Many Ruby database drivers are not yet Ruby 1.9 compatible;
   in particular, they return strings marked as ASCII-encoded
   even when those strings contain non-ASCII characters (such as UTF-8).
