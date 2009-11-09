@@ -312,7 +312,7 @@ rescue LoadError; end
 # ----- Testing Multiple Rails Versions -----
 
 rails_versions = [
-  "v2.3.0",
+  "v2.3.4",
   "v2.2.2",
   "v2.1.2",
   "v2.0.5"
