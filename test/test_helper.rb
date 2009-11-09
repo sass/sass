@@ -13,6 +13,7 @@ class Test::Unit::TestCase
   def munge_filename(opts)
     return if opts[:filename]
     test_name = Haml::Util.caller_info(caller[1])[2]
+    test_name.sub!(/^block in /, '')
     opts[:filename] = "#{test_name}_inline.sass"
   end
 
