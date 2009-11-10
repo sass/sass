@@ -9,7 +9,7 @@ unless defined?(Sass::RAILS_LOADED)
 
   if defined?(ActionDispatch::Callbacks.to_prepare)
     # Rails >= 3.0.0
-    ActionDispatch::Callbacks.to_prepare {Sass::Plugin.check_for_updates}
+    ActionDispatch::Callbacks.to_prepare(:sass_process) {Sass::Plugin.check_for_updates}
   else
     module ActionController
       class Base
