@@ -27,11 +27,7 @@ unless defined?(Sass::MERB_LOADED)
 
     class Merb::Rack::Application
       def call_with_sass(env)
-        if !Sass::Plugin.checked_for_updates ||
-            Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
-          Sass::Plugin.update_stylesheets
-        end
-
+        Sass::Plugin.check_for_updates
         call_without_sass(env)
       end
       alias_method :call_without_sass, :call
@@ -42,11 +38,7 @@ unless defined?(Sass::MERB_LOADED)
 
     class MerbHandler
       def process_with_sass(request, response)
-        if !Sass::Plugin.checked_for_updates ||
-            Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
-          Sass::Plugin.update_stylesheets
-        end
-
+        Sass::Plugin.check_for_updates
         process_without_sass(request, response)
       end
       alias_method :process_without_sass, :process
