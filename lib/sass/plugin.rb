@@ -1,4 +1,4 @@
-require 'sass/engine'
+require 'sass'
 
 module Sass
   # This module handles the compilation of Sass files.
