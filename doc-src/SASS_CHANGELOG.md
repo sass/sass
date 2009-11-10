@@ -51,6 +51,20 @@ Several bug fixes and minor improvements have been made, including:
 * Displaying the expected strings as strings rather than regular expressions
   whenever possible.
 
+## 2.2.14 (Unreleased)
+
+### Rack Support
+
+Sass 2.2.14 includes Rack middleware for running Sass,
+meaning that all Rack-enabled frameworks can now use Sass.
+To activate this, just add
+
+    require 'sass/plugin/rack'
+    use Sass::Plugin::Rack
+
+to your `config.ru`.
+See the {Sass::Plugin::Rack} documentation for more details.
+
 ## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
 
 There were no changes made to Sass between versions 2.2.12 and 2.2.13.
