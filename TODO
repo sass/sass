@@ -29,7 +29,7 @@
    Benchmark the effects of storing the raw template in sassc
      If it's expensive, overload RootNode dumping/loading to dup and set @template to nil
      Then fall back on reading from actual file
-   Add a Rack middleware option for sass/plugin
+   Make Rack middleware the default for Rails and Merb versions that support it
    CSS superset
    Classes are mixins
      Can refer to specific property values? Syntax?
