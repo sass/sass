@@ -49,6 +49,16 @@ To do so, just add
 to `config/dependencies.rb` (or `config/init.rb` in a flat/very flat Merb application).
 Then it'll work just like it does in Rails.
 
+Sass can also be used with any Rack-enabled web framework.
+To do so, just add
+
+    require 'sass/plugin/rack'
+    use Sass::Plugin::Rack
+
+to `config.ru`.
+Then any Sass files in `public/stylesheets/sass`
+will be compiled CSS files in `public/stylesheets` on every request.
+
 To use Haml and Sass programatically,
 check out the [YARD documentation](http://haml-lang.com/docs/yardoc).
 

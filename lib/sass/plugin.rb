@@ -7,7 +7,9 @@ module Sass
   #
   # This module is used as the primary interface with Sass
   # when it's used as a plugin for various frameworks.
-  # Currently Rails and Merb are supported out of the box.
+  # All Rack-enabled frameworks are supported out of the box.
+  # The plugin is {file:SASS_REFERENCE.md#rails_merb_plugin automatically activated for Rails and Merb}.
+  # Other frameworks must enable it explicitly; see {Sass::Plugin::Rack}.
   module Plugin
     extend self
 

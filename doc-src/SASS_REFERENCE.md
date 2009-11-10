@@ -23,7 +23,8 @@ for creating manageable stylesheets.
 Sass can be used in three ways:
 as a command-line tool,
 as a standalone Ruby module,
-and as a plugin for Ruby on Rails or Merb.
+and as a plugin for any Rack-enabled framework,
+including Ruby on Rails and Merb.
 Sass is bundled with Haml,
 so if the Haml plugin or RubyGem is installed,
 Sass will already be installed as a plugin or gem, respectively.
@@ -49,7 +50,7 @@ and using Sass::Engine like so:
     engine = Sass::Engine.new("#main\n  background-color: #0000ff")
     engine.render #=> "#main { background-color: #0000ff; }\n"
 
-### Rails/Merb Plugin
+### Rack/Rails/Merb Plugin
 
 To enable Sass as a Rails plugin, run
 
@@ -60,11 +61,19 @@ add
 
     dependency "merb-haml"
 
-to config/dependencies.rb.
+to `config/dependencies.rb`.
 
-Sass templates in Rails don't quite function in the same way as views,
-because they don't contain dynamic content,
-and so only need to be compiled when the template file has been updated.
+To enable Sass in a Rack application,
+add
+
+    require 'sass/plugin/rack'
+    use Sass::Plugin::Rack
+
+to `config.ru`.
+
+Sass stylesheets don't work the same as views.
+They don't contain dynamic content,
+so the CSS only needs to be generated when the Sass file has been updated.
 By default, ".sass" files are placed in public/stylesheets/sass
 (this can be customized with the [`:template_location`](#template_location-option) option).
 Then, whenever necessary, they're compiled into corresponding CSS files in public/stylesheets.
@@ -86,7 +95,7 @@ set the [`:cache`](#cache-option) option to `false`.
 ### Options
 
 Options can be set by setting the {Sass::Plugin#options Sass::Plugin.options} hash
-in `environment.rb` in Rails...
+in `environment.rb` in Rails or `config.ru` in Rack...
 
     Sass::Plugin.options[:style] = :compact
 
@@ -123,23 +132,23 @@ Available options are:
   even if the template file changes.
   Setting this to true may give small performance gains.
   It always defaults to false.
-  Only has meaning within Ruby on Rails or Merb.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#always_update-option} `:always_update`
 : Whether the CSS files should be updated every
   time a controller is accessed,
   as opposed to only when the template has been modified.
   Defaults to false.
-  Only has meaning within Ruby on Rails or Merb.
+  Only has meaning within Rack, Ruby on Rails,x or Merb.
 
 {#always_check-option} `:always_check`
 : Whether a Sass template should be checked for updates every
   time a controller is accessed,
-  as opposed to only when the Rails server starts.
+  as opposed to only when the server starts.
   If a Sass template has been updated,
   it will be recompiled and will overwrite the corresponding CSS file.
   Defaults to false in production mode, true otherwise.
-  Only has meaning within Ruby on Rails or Merb.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#full_exception-option} `:full_exception`
 : Whether an error in the Sass code
@@ -148,43 +157,34 @@ Available options are:
   along with a line number and source snippet.
   Otherwise, a simple uninformative error message will be displayed.
   Defaults to false in production mode, true otherwise.
-  Only has meaning within Ruby on Rails or Merb.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#template_location-option} `:template_location`
 : A path to the root sass template directory for you application.
   If a hash, `:css_location` is ignored and this option designates
   a mapping between input and output directories.
   May also be given a list of 2-element lists, instead of a hash.
-  Defaults to `RAILS_ROOT + "/public/stylesheets/sass"`
-  or `MERB_ROOT + "/public/stylesheets/sass"`.
-  Only has meaning within Ruby on Rails or Merb.
-
-  This will be derived from the `:css_location` path list if not provided 
-  by appending a folder of "sass" to each corresponding css location.
-  Please note: when multiple template locations are specified, all
+  Defaults to `css_location + "/sass"`.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
+  Note that if multiple template locations are specified, all
   of them are placed in the import path, allowing you to import
   between them.
 
 {#css_location-option} `:css_location`
 : The path where CSS output should be written to.
   This option is ignored when `:template_location` is a Hash.
-  Defaults to `RAILS_ROOT + "/public/stylesheets"`
-  or `MERB_ROOT + "/public/stylesheets"`.
-  Only has meaning within Ruby on Rails or Merb.
-
-  Note that if this is set and `:template_location` is not,
-  `:template_location` will default to `"#{css_location}/sass`.
+  Defaults to `"./public/stylesheets"`.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#cache_location-option} `:cache_location`
 : The path where the cached `sassc` files should be written to.
-  Defaults to `RAILS_ROOT + "/tmp/sass-cache"`,
-  or `MERB_ROOT + "/tmp/sass-cache"`,
-  or just `"./.sass-cache"`.
+  Defaults to `"./tmp/sass-cache"` in Rails and Merb,
+  or `"./.sass-cache"` otherwise.
 
 {#filename-option} `:filename`
 : The filename of the file being rendered.
   This is used solely for reporting errors,
-  and is automatically set when using Rails or Merb.
+  and is automatically set when using Rack, Rails, or Merb.
 
 {#line-option} `:line`
 : The number of the first line of the Sass template.
@@ -194,7 +194,7 @@ Available options are:
 {#load_paths-option} `:load_paths`
 : An array of filesystem paths which should be searched
   for Sass templates imported with the [`@import`](#import) directive.
-  This defaults to the working directory and, in Rails or Merb,
+  This defaults to the working directory and, in Rack, Rails, or Merb,
   whatever `:template_location` is.
 
 {#line_numbers-option} `:line_numbers`
@@ -436,7 +436,7 @@ not only are the rules from that file included,
 but all variables in that file are made available in the current file.
 
 Sass looks for other Sass files in the working directory,
-and the Sass file directory under Rails or Merb.
+and the Sass file directory under Rack, Rails, or Merb.
 Additional search directories may be specified
 using the [`:load_paths`](#load_paths-option) option.
 
@@ -1063,8 +1063,8 @@ sometimes it's good to have other formats available.
 
 Sass allows you to choose between four different output styles
 by setting the `:style` option.
-In Rails, this is done by setting `Sass::Plugin.options[:style]`;
-outside Rails, it's done by passing an options hash with `:style` set.
+In Rack, Rails, and Merb, this is done by setting `Sass::Plugin.options[:style]`;
+otherwise, it's done by passing an options hash with `:style` set.
 
 ### `:nested`
 
