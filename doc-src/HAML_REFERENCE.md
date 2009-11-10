@@ -1081,6 +1081,11 @@ when you don't want lines starting with `.` or `-` to be parsed.
 Surrounds the filtered text with `<script>` and CDATA tags.
 Useful for including inline Javascript.
 
+{#css-filter}
+### `:css`
+Surrounds the filtered text with `<style>` and CDATA tags.
+Useful for including inline CSS.
+
 {#cdata-filter}
 ### `:cdata`
 Surrounds the filtered text with CDATA tags.

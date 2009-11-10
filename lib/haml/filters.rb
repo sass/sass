@@ -200,6 +200,23 @@ END
       end
     end
 
+    # Surrounds the filtered text with `<style>` and CDATA tags.
+    # Useful for including inline CSS.
+    module Css
+      include Base
+
+      # @see Base#render_with_options
+      def render_with_options(text, options)
+        <<END
+<style type=#{options[:attr_wrapper]}text/css#{options[:attr_wrapper]}>
+  /*<![CDATA[*/
+    #{text.rstrip.gsub("\n", "\n    ")}
+  /*]]>*/
+</style>
+END
+      end
+    end
+
     # Surrounds the filtered text with CDATA tags.
     module Cdata
       include Base

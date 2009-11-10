@@ -909,6 +909,21 @@ END
 END
   end
 
+  def test_css_filter
+    assert_equal(<<CSS, render(<<SASS))
+<style type='text/css'>
+  /*<![CDATA[*/
+    #foo {
+      bar: baz; }
+  /*]]>*/
+</style>
+CSS
+:css
+  #foo {
+    bar: baz; }
+SASS
+  end
+
   def test_local_assigns_dont_modify_class
     assert_equal("bar\n", render("= foo", :locals => {:foo => 'bar'}))
     assert_equal(nil, defined?(foo))
