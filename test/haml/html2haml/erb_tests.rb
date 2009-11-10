@@ -59,6 +59,21 @@ HAML
 HTML
   end
 
+  def test_erb_in_style
+    assert_equal(<<HAML.rstrip, render_erb(<<HTML))
+:css
+  foo {
+      bar: \#{"baz"};
+  }
+HAML
+<style type="text/css">
+    foo {
+        bar: <%= "baz" %>;
+    }
+</style>
+HTML
+  end
+
   def test_erb_in_line
     assert_equal 'foo bar #{baz}', render_erb('foo bar <%= baz %>')
     assert_equal 'foo bar #{baz}! Bang.', render_erb('foo bar <%= baz %>! Bang.')

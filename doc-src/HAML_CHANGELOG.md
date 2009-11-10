@@ -79,6 +79,7 @@ that surrounds the filtered text with `<style>` and CDATA tags.
         Flip #{bang}.
 
 * `<script>` tags are now transformed into `:javascript` filters,
+  and `<style>` tags into `:css` filters.
   and indentation is preserved.
   For example:
 
