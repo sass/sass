@@ -10,6 +10,9 @@
   This only affects people defining their own Sass functions
   in Ruby.
 
+* All Sass functions now raise explicit errors if their inputs
+  are of the incorrect type.
+
 ### Rack Support
 
 Sass 2.2.14 includes Rack middleware for running Sass,
