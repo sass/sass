@@ -38,10 +38,9 @@ module Sass::Script
     # @raise [Sass::SyntaxError] if any color value isn't between 0 and 255,
     #   or the alpha value is negative
     def initialize(rgba)
-      rgba = rgba.dup
-      rgba[0...3] = rgba[0...3].map {|c| c.to_i}
-      rgba[3] = rgba[3].nil? ? 1 : rgba[3].to_f
-      super(rgba)
+      @red, @green, @blue = rgba[0...3].map {|c| c.to_i}
+      @alpha = rgba[3] ? rgba[3].to_f : 1
+      super(nil)
 
       unless rgb.all? {|c| (0..255).include?(c)}
         raise Sass::SyntaxError.new("Color values must be between 0 and 255")
@@ -50,6 +49,66 @@ module Sass::Script
       unless (0..1).include?(alpha)
         raise Sass::SyntaxError.new("Color opacity value must between 0 and 1")
       end
+    end
+
+    # The red component of the color.
+    #
+    # @return [Fixnum]
+    attr_reader :red
+
+    # The green component of the color.
+    #
+    # @return [Fixnum]
+    attr_reader :green
+
+    # The blue component of the color.
+    #
+    # @return [Fixnum]
+    attr_reader :blue
+
+    # The alpha channel (opacity) of the color.
+    # This is 1 unless otherwise defined.
+    #
+    # @return [Fixnum]
+    attr_reader :alpha
+
+    # Returns whether this color object is translucent;
+    # that is, whether the alpha channel is non-1.
+    #
+    # @return [Boolean]
+    def alpha?
+      alpha < 1
+    end
+
+    # @deprecated This will be removed in version 2.6.
+    # @see #rgb
+    def value
+      warn <<END
+DEPRECATION WARNING:
+The Sass::Script::Color #value attribute is deprecated and will be
+removed in version 2.6. Use the #rgb attribute instead.
+END
+      rgb
+    end
+
+    # Returns the red, green, and blue components of the color.
+    #
+    # @return [Array<Fixnum>] A three-element array of the red, green, and blue
+    #   values (respectively) of the color
+    def rgb
+      [red, green, blue]
+    end
+
+    # The SassScript `==` operation.
+    # **Note that this returns a {Sass::Script::Bool} object,
+    # not a Ruby boolean**.
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Bool] True if this literal is the same as the other,
+    #   false otherwise
+    def eq(other)
+      Sass::Script::Bool.new(
+        other.is_a?(Color) && rgb == other.rgb && alpha == other.alpha)
     end
 
     # The SassScript `+` operation.
@@ -179,31 +238,6 @@ module Sass::Script
       "##{red}#{green}#{blue}"
     end
     alias_method :inspect, :to_s
-
-    # Returns whether or not the alpha channel is defined (and not 1)
-    # for this color object.
-    #
-    # @return [Boolean]
-    def alpha?
-      alpha < 1
-    end
-
-    # Returns the red, green, and blue components of the color.
-    #
-    # @return [Array<Fixnum>] A three-element array of the red, green, and blue
-    #   values (respectively) of the color
-    def rgb
-      @value[0...3]
-    end
-
-    # Returns the alpha channel of the color.
-    # This is 1 unless otherwise defined.
-    # This is never negative, but it may be greater than 1.
-    #
-    # @return [Numeric] The alpha channel
-    def alpha
-      @value[3] || 1
-    end
 
     private
 

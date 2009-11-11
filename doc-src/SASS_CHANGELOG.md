@@ -53,6 +53,11 @@ Several bug fixes and minor improvements have been made, including:
 
 ## 2.2.14 (Unreleased)
 
+* {Sass::Script::Color#value} attribute is deprecated.
+  Use {Sass::Script::Color#rgb} instead.
+  This only affects people defining their own Sass functions
+  in Ruby.
+
 ### Rack Support
 
 Sass 2.2.14 includes Rack middleware for running Sass,
