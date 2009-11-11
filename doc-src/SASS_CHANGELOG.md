@@ -51,6 +51,13 @@ Several bug fixes and minor improvements have been made, including:
 * Displaying the expected strings as strings rather than regular expressions
   whenever possible.
 
+### Minor Changes
+
+* If a CSS or Sass function is used that has the name of a color,
+  it will now be parsed as a function rather than as a color.
+  For example, `fuchsia(12)` now renders as `fuchsia(12)`
+  rather than `fuchsia 12`.
+
 ## 2.2.14 (Unreleased)
 
 * {Sass::Script::Color#value} attribute is deprecated.

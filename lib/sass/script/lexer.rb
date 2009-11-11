@@ -56,7 +56,7 @@ module Sass
         :ident => /(\\.|\#\{|[^\s\\+\-*\/%(),=!])+/,
         :string_end => /((?:\\.|\#[^{]|[^"\\#])*)(?:"|(?=#\{))/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
-        :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})/,
+        :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})(?!\()/,
         :bool => /(true|false)\b/,
         :op => %r{(#{Regexp.union(*OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(?:\b|$)' : ''))})})}
       }
