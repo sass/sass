@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 2.2.14
+
+* Don't print warnings when escaping attributes containing non-ASCII characters
+  in Ruby 1.9.
+
 ## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
 
 * Allow users to specify {file:HAML_REFERENCE.md#encoding_option `:encoding => "ascii-8bit"`}
