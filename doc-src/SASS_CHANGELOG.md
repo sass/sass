@@ -5,6 +5,14 @@
 
 ## 2.4.0 (Unreleased)
 
+### Colors
+
+Sass now supports functions that return the values of the
+{Sass::Script::Functions#red red},
+{Sass::Script::Functions#blue blue},
+and {Sass::Script::Functions#green green}
+components of colors.
+
 ### Error Backtraces
 
 Numerous bugs were fixed with the backtraces given for Sass errors,

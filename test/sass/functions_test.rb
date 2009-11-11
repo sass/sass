@@ -78,6 +78,30 @@ class SassFunctionTest < Test::Unit::TestCase
       "rgb(-1, 1, 1)")
   end
 
+  def test_red
+    assert_equal("18", evaluate("red(#123456)"))
+  end
+
+  def test_red_exception
+    assert_error_message("12 is not a color for `red'", "red(12)")
+  end
+
+  def test_green
+    assert_equal("52", evaluate("green(#123456)"))
+  end
+
+  def test_green_exception
+    assert_error_message("12 is not a color for `green'", "green(12)")
+  end
+
+  def test_blue
+    assert_equal("86", evaluate("blue(#123456)"))
+  end
+
+  def test_blue_exception
+    assert_error_message("12 is not a color for `blue'", "blue(12)")
+  end
+
   private
 
   def evaluate(value)

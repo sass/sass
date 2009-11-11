@@ -107,6 +107,36 @@ module Sass::Script
                  hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round })
     end
 
+    # Returns the red component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def red(color)
+      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      Sass::Script::Number.new(color.red)
+    end
+
+    # Returns the green component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def green(color)
+      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      Sass::Script::Number.new(color.green)
+    end
+
+    # Returns the blue component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def blue(color)
+      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      Sass::Script::Number.new(color.blue)
+    end
+
     # Converts a decimal number to a percentage.
     # For example:
     #
