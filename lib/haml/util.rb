@@ -1,6 +1,7 @@
 require 'erb'
 require 'set'
 require 'enumerator'
+require 'stringio'
 
 module Haml
   # A module containing various useful functions.
@@ -131,6 +132,16 @@ module Haml
       info = entry.scan(/^(.*?):(-?.*?)(?::.*`(.+)')?$/).first
       info[1] = info[1].to_i
       info
+    end
+
+    # Silence all output to STDERR within a block.
+    #
+    # @yield A block in which no output will be printed to STDERR
+    def silence_warnings
+      the_real_stderr, $stderr = $stderr, StringIO.new
+      yield
+    ensure
+      $stderr = the_real_stderr
     end
 
     ## Cross Rails Version Compatibility

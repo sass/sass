@@ -483,7 +483,9 @@ END
     # @param text [String] The string to sanitize
     # @return [String] The sanitized string
     def escape_once(text)
-      text.to_s.gsub(/[\"><]|&(?!(?:[a-zA-Z]+|(#\d+));)/n) {|s| HTML_ESCAPE[s]}
+      Haml::Util.silence_warnings do
+        text.to_s.gsub(/[\"><]|&(?!(?:[a-zA-Z]+|(#\d+));)/n) {|s| HTML_ESCAPE[s]}
+      end
     end
 
     # Returns whether or not the current template is a Haml template.

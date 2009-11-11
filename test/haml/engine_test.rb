@@ -1044,6 +1044,11 @@ END
     assert_equal("<a></a>\n", render('%a{:b => "a #{1 + 1} b", :c => "d"}', :suppress_eval => true))
   end
 
+  def test_utf8_attrs
+    assert_equal("<a href='héllo'></a>\n", render("%a{:href => 'héllo'}"))
+    assert_equal("<a href='héllo'></a>\n", render("%a(href='héllo')"))
+  end
+
   # HTML 4.0
 
   def test_html_has_no_self_closing_tags
