@@ -247,6 +247,15 @@ HTML
     end
   end
 
+  # Regression Tests
+
+  def test_xhtml_strict_doctype
+    assert_equal('!!! Strict', render(<<HTML))
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+HTML
+  end
+
   protected
 
   def render(text, options = {})

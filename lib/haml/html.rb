@@ -195,10 +195,7 @@ module Haml
         end
 
         version = " #{version}" if version
-        if strictness
-          strictness[0] = strictness[0] - 32
-          strictness = " #{strictness}"
-        end
+        strictness = " #{strictness.capitalize}" if strictness
 
         "#{tabulate(tabs)}!!!#{version}#{strictness}\n"
       end
