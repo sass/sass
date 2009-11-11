@@ -36,6 +36,25 @@ module Sass::Script
       super(rgb)
     end
 
+    # @deprecated This will be removed in version 2.6.
+    # @see #rgb
+    def value
+      warn <<END
+DEPRECATION WARNING:
+The Sass::Script::Color #value attribute is deprecated and will be
+removed in version 2.6. Use the #rgb attribute instead.
+END
+      rgb
+    end
+
+    # Returns the red, green, and blue components of the color.
+    #
+    # @return [Array<Fixnum>] A three-element array of the red, green, and blue
+    #   values (respectively) of the color
+    def rgb
+      @value
+    end
+
     # The SassScript `+` operation.
     # Its functionality depends on the type of its argument:
     #
@@ -157,8 +176,8 @@ module Sass::Script
     #
     # @return [String] The string representation
     def to_s
-      return HTML4_COLORS_REVERSE[@value] if HTML4_COLORS_REVERSE[@value]
-      red, green, blue = @value.map { |num| num.to_s(16).rjust(2, '0') }
+      return HTML4_COLORS_REVERSE[rgb] if HTML4_COLORS_REVERSE[rgb]
+      red, green, blue = rgb.map { |num| num.to_s(16).rjust(2, '0') }
       "##{red}#{green}#{blue}"
     end
     alias_method :inspect, :to_s
@@ -167,17 +186,16 @@ module Sass::Script
 
     def piecewise(other, operation)
       other_num = other.is_a? Number
-      other_val = other.value
       if other_num && !other.unitless?
         raise Sass::SyntaxError.new("Cannot add a number with units (#{other}) to a color (#{self}).") 
       end
 
-      rgb = []
+      result = []
       for i in (0...3)
-        res = @value[i].send(operation, other_num ? other_val : other_val[i])
-        rgb[i] = [ [res, 255].min, 0 ].max
+        res = rgb[i].send(operation, other_num ? other.value : other.rgb[i])
+        result[i] = [ [res, 255].min, 0 ].max
       end
-      Color.new(rgb)
+      Color.new(result)
     end
   end
 end
