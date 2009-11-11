@@ -180,6 +180,18 @@ module Sass::Script
       Sass::Script::Number.new(color.blue)
     end
 
+    # Returns the alpha component (opacity) of a color.
+    # This is 1 unless otherwise specified.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def alpha(color)
+      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      Sass::Script::Number.new(color.alpha)
+    end
+    alias_method :opacity, :alpha
+
     # Converts a decimal number to a percentage.
     # For example:
     #

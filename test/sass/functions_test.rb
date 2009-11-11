@@ -136,6 +136,16 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("12 is not a color for `blue'", "blue(12)")
   end
 
+  def test_alpha
+    assert_equal("1", evaluate("alpha(#123456)"))
+    assert_equal("0.34", evaluate("alpha(rgba(0, 1, 2, 0.34))"))
+    assert_equal("0", evaluate("alpha(hsla(0, 1, 2, 0))"))
+  end
+
+  def test_alpha_exception
+    assert_error_message("12 is not a color for `alpha'", "alpha(12)")
+  end
+
   private
 
   def evaluate(value)
