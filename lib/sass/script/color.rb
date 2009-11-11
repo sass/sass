@@ -70,7 +70,7 @@ module Sass::Script
     # This is 1 unless otherwise defined.
     #
     # @return [Fixnum]
-    attr_reader :alpha
+    attr_accessor :alpha
 
     # Returns whether this color object is translucent;
     # that is, whether the alpha channel is non-1.

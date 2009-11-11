@@ -179,6 +179,26 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("12 is not a color for `alpha'", "alpha(12)")
   end
 
+  def test_opacify
+    assert_equal("rgba(0, 0, 0, 0.75)", evaluate("opacify(rgba(0, 0, 0, 0.5), 50%)"))
+    assert_equal("rgba(0, 0, 0, 0.8)", evaluate("opacify(rgba(0, 0, 0, 0.2), 75)"))
+    assert_equal("rgba(0, 0, 0, 0.28)", evaluate("opacify(rgba(0, 0, 0, 0.2), 10px)"))
+    assert_equal("black", evaluate("opacify(rgba(0, 0, 0, 0.2), 100%)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("opacify(rgba(0, 0, 0, 0.2), 0%)"))
+  end
+
+  def test_opacify_tests_bounds
+    assert_error_message("Amount -3012% must be between 0% and 100% for `opacify'",
+      "opacify(rgba(0, 0, 0, 0.2), -3012%)")
+    assert_error_message("Amount 101 must be between 0% and 100% for `opacify'",
+      "opacify(rgba(0, 0, 0, 0.2), 101)")
+  end
+
+  def test_opacify_tests_types
+    assert_error_message("\"foo\" is not a color for `opacify'", "opacify(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `opacify'", "opacify(#fff, \"foo\")")
+  end
+
   private
 
   def evaluate(value)
