@@ -52,8 +52,8 @@ module Sass
       # A hash of regular expressions that are used for tokenizing.
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s*/,
-        :variable => /!(\w+)/,
-        :ident => /(\\.|\#\{|[^\s\\+\-*\/%(),=!])+/,
+        :variable => /!([\w-]+)/,
+        :ident => /(\\.|\#\{|[^\s\\+*\/%(),=!])+/,
         :string_end => /((?:\\.|\#[^{]|[^"\\#])*)(?:"|(?=#\{))/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})(?!\()/,
@@ -162,16 +162,6 @@ module Sass
       def op
         prev_chr = @scanner.string[@scanner.pos - 1].chr
         return unless op = @scanner.scan(REGULAR_EXPRESSIONS[:op])
-        if @prev && op == '-' && prev_chr !~ /\s/ &&
-            [:bool, :ident, :const].include?(@prev.type)
-          warn(<<END)
-DEPRECATION WARNING:
-On line #{@line}, character #{last_match_position}#{" of '#{@filename}'" if @filename}
-- will be allowed as part of variable names in version 2.4.
-Please add whitespace to separate it from the previous token.
-END
-        end
-
         [OPERATORS[op]]
       end
 
