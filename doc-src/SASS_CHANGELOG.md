@@ -13,6 +13,13 @@ Sass now supports functions that return the values of the
 and {Sass::Script::Functions#green green}
 components of colors.
 
+### Variable Names
+
+SassScript variable names may now contain hyphens.
+For example:
+
+    !prettiest-color = #542FA9
+
 ### Error Backtraces
 
 Numerous bugs were fixed with the backtraces given for Sass errors,

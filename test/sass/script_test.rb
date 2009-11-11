@@ -140,22 +140,8 @@ WARN
     assert_equal "public_instance_methods()", resolve("public_instance_methods()")
   end
 
-  def test_hyphen_warning
-    a = Sass::Script::String.new("a")
-    b = Sass::Script::String.new("b")
-    assert_warning(<<WARN) {eval("!a-!b", {}, env("a" => a, "b" => b))}
-DEPRECATION WARNING:
-On line 1, character 3 of 'test_hyphen_warning_inline.sass'
-- will be allowed as part of variable names in version 2.4.
-Please add whitespace to separate it from the previous token.
-WARN
-
-    assert_warning(<<WARN) {eval("true-false")}
-DEPRECATION WARNING:
-On line 1, character 5 of 'test_hyphen_warning_inline.sass'
-- will be allowed as part of variable names in version 2.4.
-Please add whitespace to separate it from the previous token.
-WARN
+  def test_hyphenated_variables
+    assert_equal("a-b", resolve("!a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
   end
 
   def test_ruby_equality
