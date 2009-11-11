@@ -70,6 +70,10 @@ module Sass::Script
     # @param blue
     #   A number between 0 and 255 inclusive
     def rgb(red, green, blue)
+      assert_type red, :Number
+      assert_type green, :Number
+      assert_type blue, :Number
+
       [red.value, green.value, blue.value].each do |v|
         next unless v < 0 || v > 255
         raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
@@ -89,6 +93,10 @@ module Sass::Script
     # @return [Color] The resulting color
     # @raise [ArgumentError] if `saturation` or `lightness` are out of bounds
     def hsl(hue, saturation, lightness)
+      assert_type hue, :Number
+      assert_type saturation, :Number
+      assert_type lightness, :Number
+
       original_s = saturation
       original_l = lightness
       # This algorithm is from http://www.w3.org/TR/css3-color#hsl-color
@@ -113,7 +121,7 @@ module Sass::Script
     # @return [Number]
     # @raise [ArgumentError] If `color` isn't a color
     def red(color)
-      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      assert_type color, :Color
       Sass::Script::Number.new(color.red)
     end
 
@@ -123,7 +131,7 @@ module Sass::Script
     # @return [Number]
     # @raise [ArgumentError] If `color` isn't a color
     def green(color)
-      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      assert_type color, :Color
       Sass::Script::Number.new(color.green)
     end
 
@@ -133,7 +141,7 @@ module Sass::Script
     # @return [Number]
     # @raise [ArgumentError] If `color` isn't a color
     def blue(color)
-      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      assert_type color, :Color
       Sass::Script::Number.new(color.blue)
     end
 
@@ -147,7 +155,7 @@ module Sass::Script
     # @raise [ArgumentError] If `value` isn't a unitless number
     def percentage(value)
       unless value.is_a?(Sass::Script::Number) && value.unitless?
-        raise ArgumentError.new("#{value} is not a unitless number")
+        raise ArgumentError.new("#{value.inspect} is not a unitless number")
       end
       Sass::Script::Number.new(value.value * 100, ['%'])
     end
@@ -210,11 +218,13 @@ module Sass::Script
     # another numeric value with the same units.
     # It yields a number to a block to perform the operation and return a number
     def numeric_transformation(value)
-      unless value.is_a?(Sass::Script::Number)
-        calling_function = Haml::Util.caller_info[2]
-        raise Sass::SyntaxError.new("#{value} is not a number for `#{calling_function}'")
-      end
+      assert_type value, :Number
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
+    end
+
+    def assert_type(value, type)
+      return if value.is_a?(Sass::Script.const_get(type))
+      raise ArgumentError.new("#{value.inspect} is not a #{type.to_s.downcase}")
     end
 
     def hue_to_rgb(m1, m2, h)
