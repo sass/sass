@@ -150,6 +150,36 @@ module Sass::Script
         [alpha.value])
     end
 
+    # Returns the red component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def red(color)
+      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      Sass::Script::Number.new(color.red)
+    end
+
+    # Returns the green component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def green(color)
+      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      Sass::Script::Number.new(color.green)
+    end
+
+    # Returns the blue component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def blue(color)
+      raise ArgumentError.new("#{color} is not a color") unless color.is_a?(Sass::Script::Color)
+      Sass::Script::Number.new(color.blue)
+    end
+
     # Converts a decimal number to a percentage.
     # For example:
     #

@@ -263,6 +263,12 @@ WARN
     assert_equal "true", resolve("1.1cm == 11mm")
   end
 
+  # Regression Tests
+
+  def test_funcall_has_higher_precedence_than_color_name
+    assert_equal "teal(12)", resolve("teal(12)")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)
