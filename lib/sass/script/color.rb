@@ -27,13 +27,31 @@ module Sass::Script
     # A hash from [red, green, blue] value arrays to color names.
     HTML4_COLORS_REVERSE = map_hash(HTML4_COLORS) {|k, v| [v, k]}
 
+    # The red component of the color.
+    #
+    # @return [Fixnum]
+    attr_reader :red
+
+    # The green component of the color.
+    #
+    # @return [Fixnum]
+    attr_reader :green
+
+    # The blue component of the color.
+    #
+    # @return [Fixnum]
+    attr_reader :blue
+
     # @param rgb [Array<Fixnum>] A three-element array of the red, green, and blue values (respectively)
     #   of the color
     # @raise [Sass::SyntaxError] if any color value isn't between 0 and 255
     def initialize(rgb)
       rgb = rgb.map {|c| c.to_i}
       raise Sass::SyntaxError.new("Color values must be between 0 and 255") if rgb.any? {|c| c < 0 || c > 255}
-      super(rgb)
+      @red = rgb[0]
+      @green = rgb[1]
+      @blue = rgb[2]
+      super(nil)
     end
 
     # @deprecated This will be removed in version 2.6.
@@ -52,7 +70,18 @@ END
     # @return [Array<Fixnum>] A three-element array of the red, green, and blue
     #   values (respectively) of the color
     def rgb
-      @value
+      [red, green, blue]
+    end
+
+    # The SassScript `==` operation.
+    # **Note that this returns a {Sass::Script::Bool} object,
+    # not a Ruby boolean**.
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Bool] True if this literal is the same as the other,
+    #   false otherwise
+    def eq(other)
+      Sass::Script::Bool.new(other.is_a?(Color) && rgb == other.rgb)
     end
 
     # The SassScript `+` operation.
