@@ -105,11 +105,32 @@ class SassFunctionTest < Test::Unit::TestCase
       "rgb(-1, 1, 1)")
   end
 
+  def test_rgba
+    assert_equal("rgba(18, 52, 86, 0.5)", evaluate("rgba(18, 52, 86, 0.5)"))
+    assert_equal("#beaded", evaluate("rgba(190, 173, 237, 1)"))
+    assert_equal("rgba(0, 255, 127, 0)", evaluate("rgba(0, 255, 127, 0)"))
+
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(256, 1, 1, 0.3)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(1, 256, 1, 0.3)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(1, 1, 256, 0.3)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(1, 256, 257, 0.3)")
+    assert_error_message("Color value -1 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(-1, 1, 1, 0.3)")
+    assert_error_message("Alpha channel -0.2 must be between 0 and 1 inclusive for `rgba'",
+      "rgba(1, 1, 1, -0.2)")
+    assert_error_message("Alpha channel 1.2 must be between 0 and 1 inclusive for `rgba'",
+      "rgba(1, 1, 1, 1.2)")
+  end
+
   private
 
   def assert_rgb_hsl(rgb, hsl)
-    hsl = hsl.map {|v| Sass::Script::Parser.parse v, 0, 0 }
-    assert_equal(rgb, Sass::Script::Functions::EvaluationContext.new({}).hsl(*hsl).value)
+    hsl = hsl.map {|v| Sass::Script::Parser.parse v, 0, 0}
+    assert_equal(rgb, Sass::Script::Functions::EvaluationContext.new({}).hsl(*hsl).rgb)
   end
 
   def evaluate(value)

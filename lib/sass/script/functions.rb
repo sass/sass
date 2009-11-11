@@ -70,11 +70,31 @@ module Sass::Script
     # @param blue
     #   A number between 0 and 255 inclusive
     def rgb(red, green, blue)
+      rgba(red, green, blue, Number.new(1))
+    end
+
+    # Creates a {Color} object from red, green, and blue values,
+    # as well as an alpha channel indicating opacity.
+    #
+    # @param red
+    #   A number between 0 and 255 inclusive
+    # @param green
+    #   A number between 0 and 255 inclusive
+    # @param blue
+    #   A number between 0 and 255 inclusive
+    # @param alpha
+    #   A number between 0 and 1
+    def rgba(red, green, blue, alpha)
       [red.value, green.value, blue.value].each do |v|
-        next unless v < 0 || v > 255
+        next if (0..255).include?(v)
         raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
       end
-      Color.new([red.value, green.value, blue.value])
+
+      unless (0..1).include?(alpha.value)
+        raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1 inclusive")
+      end
+
+      Color.new([red.value, green.value, blue.value, alpha.value])
     end
 
     # Creates a {Color} object from hue, saturation, and lightness
