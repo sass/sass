@@ -48,6 +48,19 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("Lightness 256 must be between 0% and 100% for `hsl'", "hsl(10, 10, 256%)");
   end
 
+  def test_hsla
+    assert_equal "rgba(51, 204, 204, 0.4)", evaluate("hsla(180, 60%, 50%, 0.4)")
+    assert_equal "#33cccc", evaluate("hsla(180, 60%, 50%, 1)")
+    assert_equal "rgba(51, 204, 204, 0)", evaluate("hsla(180, 60%, 50%, 0)")
+  end
+
+  def test_hsla_checks_bounds
+    assert_error_message("Saturation -114 must be between 0% and 100% for `hsla'", "hsla(10, -114, 12, 1)");
+    assert_error_message("Lightness 256 must be between 0% and 100% for `hsla'", "hsla(10, 10, 256%, 0)");
+    assert_error_message("Alpha channel -0.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, -0.1)");
+    assert_error_message("Alpha channel 1.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, 1.1)");
+  end
+
   def test_percentage
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))

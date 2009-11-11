@@ -109,12 +109,33 @@ module Sass::Script
     # @return [Color] The resulting color
     # @raise [ArgumentError] if `saturation` or `lightness` are out of bounds
     def hsl(hue, saturation, lightness)
+      hsla(hue, saturation, lightness, Number.new(1))
+    end
+
+    # Creates a {Color} object from hue, saturation, and lightness,
+    # as well as an alpha channel indicating opacity,
+    # as per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsla-color).
+    #
+    # @param hue [Number] The hue of the color.
+    #   Should be between 0 and 360 degrees, inclusive
+    # @param saturation [Number] The saturation of the color.
+    #   Must be between `0%` and `100%`, inclusive
+    # @param lightness [Number] The lightness of the color.
+    #   Must be between `0%` and `100%`, inclusive
+    # @param alpha [Number] The opacity of the color.
+    #   Must be between 0 and 1, inclusive
+    # @return [Color] The resulting color
+    # @raise [ArgumentError] if `saturation`, `lightness`, or `alpha` are out of bounds
+    def hsla(hue, saturation, lightness, alpha)
+      unless (0..1).include?(alpha.value)
+        raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1")
+      end
       original_s = saturation
       original_l = lightness
       # This algorithm is from http://www.w3.org/TR/css3-color#hsl-color
       h, s, l = [hue, saturation, lightness].map { |a| a.value }
-      raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") if s < 0 || s > 100
-      raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") if l < 0 || l > 100
+      raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") unless (0..100).include?(s)
+      raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") unless (0..100).include?(l)
 
       h = (h % 360) / 360.0
       s /= 100.0
@@ -122,9 +143,11 @@ module Sass::Script
 
       m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
       m1 = l * 2 - m2
-      Color.new([hue_to_rgb(m1, m2, h + 1.0/3),
-                 hue_to_rgb(m1, m2, h),
-                 hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round })
+      Color.new(
+        [hue_to_rgb(m1, m2, h + 1.0/3),
+          hue_to_rgb(m1, m2, h),
+          hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round } +
+        [alpha.value])
     end
 
     # Converts a decimal number to a percentage.
