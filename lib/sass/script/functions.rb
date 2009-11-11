@@ -180,10 +180,7 @@ module Sass::Script
     # another numeric value with the same units.
     # It yields a number to a block to perform the operation and return a number
     def numeric_transformation(value)
-      unless value.is_a?(Sass::Script::Number)
-        calling_function = caller.first.scan(/`([^']+)'/).first.first
-        raise Sass::SyntaxError.new("#{value} is not a number for `#{calling_function}'")
-      end
+      raise ArgumentError.new("#{value} is not a number") unless value.is_a?(Sass::Script::Number)
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
     end
 
