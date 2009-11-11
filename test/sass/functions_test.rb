@@ -199,6 +199,26 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `opacify'", "opacify(#fff, \"foo\")")
   end
 
+  def test_transparentize
+    assert_equal("rgba(0, 0, 0, 0.25)", evaluate("transparentize(rgba(0, 0, 0, 0.5), 50%)"))
+    assert_equal("rgba(0, 0, 0, 0.05)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 75)"))
+    assert_equal("rgba(0, 0, 0, 0.18)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 10px)"))
+    assert_equal("rgba(0, 0, 0, 0)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 100%)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0%)"))
+  end
+
+  def test_transparentize_tests_bounds
+    assert_error_message("Amount -3012% must be between 0% and 100% for `transparentize'",
+      "transparentize(rgba(0, 0, 0, 0.2), -3012%)")
+    assert_error_message("Amount 101 must be between 0% and 100% for `transparentize'",
+      "transparentize(rgba(0, 0, 0, 0.2), 101)")
+  end
+
+  def test_transparentize_tests_types
+    assert_error_message("\"foo\" is not a color for `transparentize'", "transparentize(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `transparentize'", "transparentize(#fff, \"foo\")")
+  end
+
   private
 
   def evaluate(value)
