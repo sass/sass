@@ -182,8 +182,8 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_opacify
     assert_equal("rgba(0, 0, 0, 0.75)", evaluate("opacify(rgba(0, 0, 0, 0.5), 50%)"))
     assert_equal("rgba(0, 0, 0, 0.8)", evaluate("opacify(rgba(0, 0, 0, 0.2), 75)"))
-    assert_equal("rgba(0, 0, 0, 0.28)", evaluate("opacify(rgba(0, 0, 0, 0.2), 10px)"))
-    assert_equal("black", evaluate("opacify(rgba(0, 0, 0, 0.2), 100%)"))
+    assert_equal("rgba(0, 0, 0, 0.28)", evaluate("fade-in(rgba(0, 0, 0, 0.2), 10px)"))
+    assert_equal("black", evaluate("fade_in(rgba(0, 0, 0, 0.2), 100%)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("opacify(rgba(0, 0, 0, 0.2), 0%)"))
   end
 
@@ -202,8 +202,8 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_transparentize
     assert_equal("rgba(0, 0, 0, 0.25)", evaluate("transparentize(rgba(0, 0, 0, 0.5), 50%)"))
     assert_equal("rgba(0, 0, 0, 0.05)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 75)"))
-    assert_equal("rgba(0, 0, 0, 0.18)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 10px)"))
-    assert_equal("rgba(0, 0, 0, 0)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 100%)"))
+    assert_equal("rgba(0, 0, 0, 0.18)", evaluate("fade-out(rgba(0, 0, 0, 0.2), 10px)"))
+    assert_equal("rgba(0, 0, 0, 0)", evaluate("fade_out(rgba(0, 0, 0, 0.2), 100%)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0%)"))
   end
 

@@ -226,6 +226,7 @@ module Sass::Script
       color.alpha += (1 - color.alpha) * (amount.value / 100.0)
       color
     end
+    alias_method :fade_in, :opacify
 
     # Makes a color more transparent.
     # Takes a color and an amount between `0%` and `100%`
@@ -250,6 +251,7 @@ module Sass::Script
       color.alpha *= 1 - (amount.value / 100.0)
       color
     end
+    alias_method :fade_out, :transparentize
 
     # Converts a decimal number to a percentage.
     # For example:
