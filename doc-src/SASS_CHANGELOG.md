@@ -7,10 +7,19 @@
 
 ### Colors
 
-Sass now supports functions that return the values of the
+Sass now supports colors with alpha channels,
+constructed via the {Sass::Script::Functions#rgba rgba}
+and {Sass::Script::Functions#hsla hsla} functions.
+Alpha channels are unaffected by color arithmetic.
+However, the {Sass::Script::Functions#opacify opacify}
+and {Sass::Script::Functions#transparentize transparentize} functions
+allow colors to be made more and less opaque, respectively.
+
+Sass now also supports functions that return the values of the
 {Sass::Script::Functions#red red},
 {Sass::Script::Functions#blue blue},
-and {Sass::Script::Functions#green green}
+{Sass::Script::Functions#green green},
+and {Sass::Script::Functions#alpha alpha}
 components of colors.
 
 ### Variable Names
