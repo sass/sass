@@ -128,6 +128,13 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
+## 2.2.14
+
+* Don't print warnings when escaping attributes containing non-ASCII characters
+  in Ruby 1.9.
+
+* Don't crash when parsing an XHTML Strict doctype in `html2haml`.
+
 ## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
 
 * Allow users to specify {file:HAML_REFERENCE.md#encoding_option `:encoding => "ascii-8bit"`}
