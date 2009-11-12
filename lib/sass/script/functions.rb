@@ -26,10 +26,29 @@ module Sass::Script
   # \{#abs}
   # : Returns the absolute value of a number.
   #
-  # You can add your own functions to this module,
-  # but there are a few things to keep in mind.
+  # These functions are described in more detail below.
+  #
+  # ## Adding Custom Functions
+  #
+  # New Sass functions can be added by adding Ruby methods to this module.
+  # For example:
+  #
+  #     module Sass::Script::Functions
+  #       def reverse(string)
+  #         assert_type string, :String
+  #         Sass::Script::String.new(string.value.reverse)
+  #       end
+  #     end
+  #
+  # There are a few things to keep in mind when modifying this module.
   # First of all, the arguments passed are {Sass::Script::Literal} objects.
   # Literal objects are also expected to be returned.
+  # This means that Ruby values must be unwrapped and wrapped.
+  #
+  # Most Literal objects support the {Sass::Script::Literal#value value} accessor
+  # for getting their Ruby values.
+  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb},
+  # {Sass::Script::Color#red red}, {Sass::Script::Color#blue green}, or {Sass::Script::Color#blue blue}.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
@@ -98,7 +117,7 @@ module Sass::Script
     end
 
     # Creates a {Color} object from hue, saturation, and lightness
-    # as per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsl-color).
+    # as per the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
     #
     # @param hue [Number] The hue of the color.
     #   Should be between 0 and 360 degrees, inclusive
