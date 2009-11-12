@@ -14,6 +14,15 @@ module Sass::Script
   # \{#percentage}
   # : Converts a unitless number to a percentage.
   #
+  # \{#red}
+  # : Gets the red component of a color.
+  #
+  # \{#green}
+  # : Gets the green component of a color.
+  #
+  # \{#blue}
+  # : Gets the blue component of a color.
+  #
   # \{#round}
   # : Rounds a number to the nearest whole number.
   #
