@@ -50,8 +50,7 @@ module Sass::Script
   #
   # Most Literal objects support the {Sass::Script::Literal#value value} accessor
   # for getting their Ruby values.
-  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb},
-  # {Sass::Script::Color#red red}, {Sass::Script::Color#blue green}, or {Sass::Script::Color#blue blue}.
+  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb}.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
@@ -119,8 +118,8 @@ module Sass::Script
       Color.new([red.value, green.value, blue.value])
     end
 
-    # Creates a {Color} object from hue, saturation, and lightness
-    # as per the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
+    # Creates a {Color} object from hue, saturation, and lightness.
+    # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
     #
     # @param hue [Number] The hue of the color.
     #   Should be between 0 and 360 degrees, inclusive
