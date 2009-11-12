@@ -32,10 +32,10 @@ module Sass::Script
   # \{#alpha} / \{#opacity}
   # : Gets the alpha component (opacity) of a color.
   #
-  # \{#opacify} / \{#fade-in}
+  # \{#opacify} / \{#fade_in #fade-in}
   # : Makes a color more opaque.
   #
-  # \{#transparentize} / \{#fade-out}
+  # \{#transparentize} / \{#fade_out #fade-out}
   # : Makes a color more transparent.
   #
   # \{#percentage}
@@ -180,8 +180,8 @@ module Sass::Script
     end
 
     # Creates a {Color} object from hue, saturation, and lightness,
-    # as well as an alpha channel indicating opacity,
-    # as per the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsla-color).
+    # as well as an alpha channel indicating opacity.
+    # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
     #
     # @param hue [Number] The hue of the color.
     #   Should be between 0 and 360 degrees, inclusive
