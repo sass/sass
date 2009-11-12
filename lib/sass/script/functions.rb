@@ -26,10 +26,29 @@ module Sass::Script
   # \{#abs}
   # : Returns the absolute value of a number.
   #
-  # You can add your own functions to this module,
-  # but there are a few things to keep in mind.
+  # These functions are described in more detail below.
+  #
+  # ## Adding Custom Functions
+  #
+  # New Sass functions can be added by adding Ruby methods to this module.
+  # For example:
+  #
+  #     module Sass::Script::Functions
+  #       def reverse(string)
+  #         assert_type string, :String
+  #         Sass::Script::String.new(string.value.reverse)
+  #       end
+  #     end
+  #
+  # There are a few things to keep in mind when modifying this module.
   # First of all, the arguments passed are {Sass::Script::Literal} objects.
   # Literal objects are also expected to be returned.
+  # This means that Ruby values must be unwrapped and wrapped.
+  #
+  # Most Literal objects support the {Sass::Script::Literal#value value} accessor
+  # for getting their Ruby values.
+  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb},
+  # {Sass::Script::Color#red red}, {Sass::Script::Color#blue green}, or {Sass::Script::Color#blue blue}.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
@@ -57,6 +76,22 @@ module Sass::Script
       def initialize(options)
         @options = options
       end
+
+      # Asserts that the type of a given SassScript value
+      # is the expected type (designated by a symbol).
+      # For example:
+      #
+      #     assert_type value, :String
+      #     assert_type value, :Number
+      #
+      # Valid types are `:Bool`, `:Color`, `:Number`, and `:String`.
+      #
+      # @param value [Sass::Script::Literal] A SassScript value
+      # @param type [Symbol] The name of the type the value is expected to be
+      def assert_type(value, type)
+        return if value.is_a?(Sass::Script.const_get(type))
+        raise ArgumentError.new("#{value.inspect} is not a #{type.to_s.downcase}")
+      end
     end
 
     instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
@@ -82,7 +117,7 @@ module Sass::Script
     end
 
     # Creates a {Color} object from hue, saturation, and lightness
-    # as per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsl-color).
+    # as per the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
     #
     # @param hue [Number] The hue of the color.
     #   Should be between 0 and 360 degrees, inclusive
@@ -220,11 +255,6 @@ module Sass::Script
     def numeric_transformation(value)
       assert_type value, :Number
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
-    end
-
-    def assert_type(value, type)
-      return if value.is_a?(Sass::Script.const_get(type))
-      raise ArgumentError.new("#{value.inspect} is not a #{type.to_s.downcase}")
     end
 
     def hue_to_rgb(m1, m2, h)
