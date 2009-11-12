@@ -59,6 +59,16 @@ class UtilTest < Test::Unit::TestCase
       merge_adjacent_strings(["foo ", "bar ", "baz", :bang, "biz", " bop", 12]))
   end
 
+  def test_silence_warnings
+    old_stderr, $stderr = $stderr, StringIO.new
+    warn "Out"
+    assert_equal("Out\n", $stderr.string)
+    silence_warnings {warn "In"}
+    assert_equal("Out\n", $stderr.string)
+  ensure
+    $stderr = old_stderr
+  end
+
   def test_has
     assert(has?(:instance_method, String, :chomp!))
     assert(has?(:private_instance_method, Haml::Engine, :set_locals))
