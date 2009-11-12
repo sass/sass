@@ -11,8 +11,20 @@ module Sass::Script
   # \{#hsl}
   # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
   #
+  # \{#rgb}
+  # : Converts an `rgb(red, green, blue)` triplet into a color.
+  #
   # \{#percentage}
   # : Converts a unitless number to a percentage.
+  #
+  # \{#red}
+  # : Gets the red component of a color.
+  #
+  # \{#green}
+  # : Gets the green component of a color.
+  #
+  # \{#blue}
+  # : Gets the blue component of a color.
   #
   # \{#round}
   # : Rounds a number to the nearest whole number.

@@ -817,10 +817,8 @@ is compiled to:
     #main {
       color: #ff0000; }
 
-The following functions are provided: `hsl`, `percentage`, `round`, `ceil`, `floor`, and `abs`.
-You can define additional functions in ruby.
-
-See {Sass::Script::Functions} for more information.
+See {Sass::Script::Functions} for a full listing of Sass functions,
+as well as instructions on defining your own in Ruby.
 
 ### Interpolation: `#{}`
 
