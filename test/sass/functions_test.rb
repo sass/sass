@@ -27,6 +27,26 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `hsl'", "hsl(10, 10, \"foo\")");
   end
 
+  def test_hsla
+    assert_equal "rgba(51, 204, 204, 0.4)", evaluate("hsla(180, 60%, 50%, 0.4)")
+    assert_equal "#33cccc", evaluate("hsla(180, 60%, 50%, 1)")
+    assert_equal "rgba(51, 204, 204, 0)", evaluate("hsla(180, 60%, 50%, 0)")
+  end
+
+  def test_hsla_checks_bounds
+    assert_error_message("Saturation -114 must be between 0% and 100% for `hsla'", "hsla(10, -114, 12, 1)");
+    assert_error_message("Lightness 256 must be between 0% and 100% for `hsla'", "hsla(10, 10, 256%, 0)");
+    assert_error_message("Alpha channel -0.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, -0.1)");
+    assert_error_message("Alpha channel 1.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, 1.1)");
+  end
+
+  def test_hsla_checks_types
+    assert_error_message("\"foo\" is not a number for `hsla'", "hsla(\"foo\", 10, 12, 0.3)");
+    assert_error_message("\"foo\" is not a number for `hsla'", "hsla(10, \"foo\", 12, 0)");
+    assert_error_message("\"foo\" is not a number for `hsla'", "hsla(10, 10, \"foo\", 1)");
+    assert_error_message("\"foo\" is not a number for `hsla'", "hsla(10, 10, 10, \"foo\")");
+  end
+
   def test_percentage
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))
@@ -95,6 +115,36 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `rgb'", "rgb(10, 10, \"foo\")");
   end
 
+  def test_rgba
+    assert_equal("rgba(18, 52, 86, 0.5)", evaluate("rgba(18, 52, 86, 0.5)"))
+    assert_equal("#beaded", evaluate("rgba(190, 173, 237, 1)"))
+    assert_equal("rgba(0, 255, 127, 0)", evaluate("rgba(0, 255, 127, 0)"))
+  end
+
+  def test_rgb_tests_bounds
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(256, 1, 1, 0.3)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(1, 256, 1, 0.3)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(1, 1, 256, 0.3)")
+    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(1, 256, 257, 0.3)")
+    assert_error_message("Color value -1 must be between 0 and 255 inclusive for `rgba'",
+      "rgba(-1, 1, 1, 0.3)")
+    assert_error_message("Alpha channel -0.2 must be between 0 and 1 inclusive for `rgba'",
+      "rgba(1, 1, 1, -0.2)")
+    assert_error_message("Alpha channel 1.2 must be between 0 and 1 inclusive for `rgba'",
+      "rgba(1, 1, 1, 1.2)")
+  end
+
+  def test_rgba_tests_types
+    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(\"foo\", 10, 12, 0.2)");
+    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, \"foo\", 12, 0.1)");
+    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, 10, \"foo\", 0)");
+    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, 10, 10, \"foo\")");
+  end
+
   def test_red
     assert_equal("18", evaluate("red(#123456)"))
   end
@@ -117,6 +167,56 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_blue_exception
     assert_error_message("12 is not a color for `blue'", "blue(12)")
+  end
+
+  def test_alpha
+    assert_equal("1", evaluate("alpha(#123456)"))
+    assert_equal("0.34", evaluate("alpha(rgba(0, 1, 2, 0.34))"))
+    assert_equal("0", evaluate("alpha(hsla(0, 1, 2, 0))"))
+  end
+
+  def test_alpha_exception
+    assert_error_message("12 is not a color for `alpha'", "alpha(12)")
+  end
+
+  def test_opacify
+    assert_equal("rgba(0, 0, 0, 0.75)", evaluate("opacify(rgba(0, 0, 0, 0.5), 50%)"))
+    assert_equal("rgba(0, 0, 0, 0.8)", evaluate("opacify(rgba(0, 0, 0, 0.2), 75)"))
+    assert_equal("rgba(0, 0, 0, 0.28)", evaluate("fade-in(rgba(0, 0, 0, 0.2), 10px)"))
+    assert_equal("black", evaluate("fade_in(rgba(0, 0, 0, 0.2), 100%)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("opacify(rgba(0, 0, 0, 0.2), 0%)"))
+  end
+
+  def test_opacify_tests_bounds
+    assert_error_message("Amount -3012% must be between 0% and 100% for `opacify'",
+      "opacify(rgba(0, 0, 0, 0.2), -3012%)")
+    assert_error_message("Amount 101 must be between 0% and 100% for `opacify'",
+      "opacify(rgba(0, 0, 0, 0.2), 101)")
+  end
+
+  def test_opacify_tests_types
+    assert_error_message("\"foo\" is not a color for `opacify'", "opacify(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `opacify'", "opacify(#fff, \"foo\")")
+  end
+
+  def test_transparentize
+    assert_equal("rgba(0, 0, 0, 0.25)", evaluate("transparentize(rgba(0, 0, 0, 0.5), 50%)"))
+    assert_equal("rgba(0, 0, 0, 0.05)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 75)"))
+    assert_equal("rgba(0, 0, 0, 0.18)", evaluate("fade-out(rgba(0, 0, 0, 0.2), 10px)"))
+    assert_equal("rgba(0, 0, 0, 0)", evaluate("fade_out(rgba(0, 0, 0, 0.2), 100%)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0%)"))
+  end
+
+  def test_transparentize_tests_bounds
+    assert_error_message("Amount -3012% must be between 0% and 100% for `transparentize'",
+      "transparentize(rgba(0, 0, 0, 0.2), -3012%)")
+    assert_error_message("Amount 101 must be between 0% and 100% for `transparentize'",
+      "transparentize(rgba(0, 0, 0, 0.2), 101)")
+  end
+
+  def test_transparentize_tests_types
+    assert_error_message("\"foo\" is not a color for `transparentize'", "transparentize(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `transparentize'", "transparentize(#fff, \"foo\")")
   end
 
   private

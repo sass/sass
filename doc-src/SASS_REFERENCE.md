@@ -692,7 +692,7 @@ available in that context.
 SassScript supports four data types:
 * numbers (e.g. `1.2`, `13`, `10px`)
 * strings of text (e.g. `"foo"`, `"bar"`)
-* colors (e.g. `blue`, `#04a3f9`)
+* colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
 
 Any text that doesn't fit into one of those types
@@ -715,6 +715,8 @@ is compiled to:
 
 ### Operations
 
+#### Number Operations
+
 SassScript supports the standard arithmetic operations on numbers
 (`+`, `-`, `*`, `/`, `%`),
 and will automatically convert between units if it can:
@@ -733,6 +735,8 @@ are also supported for numbers,
 and equality operators
 (`==`, `!=`)
 are supported for all types.
+
+#### Color Operations
 
 All arithmetic operations are supported for color values,
 where they work piecewise.
@@ -761,6 +765,40 @@ and is compiled to:
 
     p {
       color: #020406; }
+
+Note that colors with an alpha channel
+(those created with the {Sass::Script::Functions#rgba rgba}
+or {Sass::Script::Functions#hsla hsla} functions)
+must have the same alpha value in order for color arithmetic
+to be done with them.
+The arithmetic doesn't affect the alpha value.
+For example:
+
+    p
+      color = rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75)
+
+is compiled to:
+
+    p {
+      color: rgba(255, 255, 0, 0.75)
+
+The alpha channel of a color can be adjusted using the
+{Sass::Script::Functions#opacify opacify} and
+{Sass::Script::Functions#transparentize transparentize} functions.
+For example:
+
+    !translucent-red = rgba(255, 0, 0, 0.5)
+    p
+      color = opacify(!translucent-red, 80%)
+      background-color = transparentize(!translucent-red, 50%)
+
+is compiled to:
+
+    p {
+      color: rgba(255, 0, 0, 0.9)
+      background-color: rgba(255, 0, 0, 0.25) }
+
+#### String Operations
 
 The `+` operation can be used to concatenate strings:
 

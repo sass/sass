@@ -10,6 +10,11 @@ class SassScriptTest < Test::Unit::TestCase
     assert_raise(Sass::SyntaxError, "Color values must be between 0 and 255") {Color.new([256, 2, 3])}
   end
 
+  def test_color_checks_rgba_input
+    assert_raise(Sass::SyntaxError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, 1.1])}
+    assert_raise(Sass::SyntaxError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, -0.1])}
+  end
+
   def test_string_escapes
     assert_equal '"', resolve("\"\\\"\"")
     assert_equal "\\", resolve("\"\\\\\"")
@@ -20,6 +25,39 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "white", resolve("white")
     assert_equal "white", resolve("#ffffff")
     assert_equal "#fffffe", resolve("white - #000001")
+  end
+
+  def test_rgba_color_literals
+    assert_equal Sass::Script::Color.new([1, 2, 3, 0.75]), eval("rgba(1, 2, 3, 0.75)")
+    assert_equal "rgba(1, 2, 3, 0.75)", resolve("rgba(1, 2, 3, 0.75)")
+
+    assert_equal Sass::Script::Color.new([1, 2, 3, 0]), eval("rgba(1, 2, 3, 0)")
+    assert_equal "rgba(1, 2, 3, 0)", resolve("rgba(1, 2, 3, 0)")
+
+    assert_equal Sass::Script::Color.new([1, 2, 3]), eval("rgba(1, 2, 3, 1)")
+    assert_equal Sass::Script::Color.new([1, 2, 3, 1]), eval("rgba(1, 2, 3, 1)")
+    assert_equal "#010203", resolve("rgba(1, 2, 3, 1)")
+    assert_equal "white", resolve("rgba(255, 255, 255, 1)")
+  end
+
+  def test_rgba_color_math
+    assert_equal "rgba(50, 50, 100, 0.35)", resolve("rgba(1, 1, 2, 0.35) * rgba(50, 50, 50, 0.35)")
+    assert_equal "rgba(52, 52, 52, 0.25)", resolve("rgba(2, 2, 2, 0.25) + rgba(50, 50, 50, 0.25)")
+
+    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)") do
+      resolve("rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)")
+    end
+    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: #123456 * rgba(50, 50, 50, 0.75)") do
+      resolve("#123456 * rgba(50, 50, 50, 0.75)")
+    end
+    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: #123456 / #123456") do
+      resolve("rgba(50, 50, 50, 0.75) / #123456")
+    end
+  end
+
+  def test_rgba_number_math
+    assert_equal "rgba(49, 49, 49, 0.75)", resolve("rgba(50, 50, 50, 0.75) - 1")
+    assert_equal "rgba(100, 100, 100, 0.75)", resolve("rgba(50, 50, 50, 0.75) * 2")
   end
 
   def test_implicit_strings

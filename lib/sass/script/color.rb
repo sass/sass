@@ -27,6 +27,30 @@ module Sass::Script
     # A hash from [red, green, blue] value arrays to color names.
     HTML4_COLORS_REVERSE = map_hash(HTML4_COLORS) {|k, v| [v, k]}
 
+    # Constructs an RGB or RGBA color object.
+    # The RGB values must be between 0 and 255,
+    # and the alpha value is generally expected to be between 0 and 1.
+    # However, the alpha value can be greater than 1
+    # in order to allow it to be used for color multiplication.
+    #
+    # @param rgba [Array<Numeric>] A three-element array of the red, green, blue,
+    #   and optionally alpha values (respectively) of the color
+    # @raise [Sass::SyntaxError] if any color value isn't between 0 and 255,
+    #   or the alpha value is negative
+    def initialize(rgba)
+      @red, @green, @blue = rgba[0...3].map {|c| c.to_i}
+      @alpha = rgba[3] ? rgba[3].to_f : 1
+      super(nil)
+
+      unless rgb.all? {|c| (0..255).include?(c)}
+        raise Sass::SyntaxError.new("Color values must be between 0 and 255")
+      end
+
+      unless (0..1).include?(alpha)
+        raise Sass::SyntaxError.new("Color opacity value must between 0 and 1")
+      end
+    end
+
     # The red component of the color.
     #
     # @return [Fixnum]
@@ -42,16 +66,18 @@ module Sass::Script
     # @return [Fixnum]
     attr_reader :blue
 
-    # @param rgb [Array<Fixnum>] A three-element array of the red, green, and blue values (respectively)
-    #   of the color
-    # @raise [Sass::SyntaxError] if any color value isn't between 0 and 255
-    def initialize(rgb)
-      rgb = rgb.map {|c| c.to_i}
-      raise Sass::SyntaxError.new("Color values must be between 0 and 255") if rgb.any? {|c| c < 0 || c > 255}
-      @red = rgb[0]
-      @green = rgb[1]
-      @blue = rgb[2]
-      super(nil)
+    # The alpha channel (opacity) of the color.
+    # This is 1 unless otherwise defined.
+    #
+    # @return [Fixnum]
+    attr_accessor :alpha
+
+    # Returns whether this color object is translucent;
+    # that is, whether the alpha channel is non-1.
+    #
+    # @return [Boolean]
+    def alpha?
+      alpha < 1
     end
 
     # @deprecated This will be removed in version 2.6.
@@ -81,7 +107,8 @@ END
     # @return [Bool] True if this literal is the same as the other,
     #   false otherwise
     def eq(other)
-      Sass::Script::Bool.new(other.is_a?(Color) && rgb == other.rgb)
+      Sass::Script::Bool.new(
+        other.is_a?(Color) && rgb == other.rgb && alpha == other.alpha)
     end
 
     # The SassScript `+` operation.
@@ -205,6 +232,7 @@ END
     #
     # @return [String] The string representation
     def to_s
+      return "rgba(#{rgb.join(', ')}, #{alpha % 1 == 0.0 ? alpha.to_i : alpha})" if alpha?
       return HTML4_COLORS_REVERSE[rgb] if HTML4_COLORS_REVERSE[rgb]
       red, green, blue = rgb.map { |num| num.to_s(16).rjust(2, '0') }
       "##{red}#{green}#{blue}"
@@ -224,6 +252,12 @@ END
         res = rgb[i].send(operation, other_num ? other.value : other.rgb[i])
         result[i] = [ [res, 255].min, 0 ].max
       end
+
+      if !other_num && other.alpha != alpha
+        raise Sass::SyntaxError.new("Alpha channels must be equal: #{self} #{operation} #{other}")
+      end
+      result[3] = alpha
+
       Color.new(result)
     end
   end
