@@ -59,7 +59,8 @@ module Sass::Script
   #
   # Most Literal objects support the {Sass::Script::Literal#value value} accessor
   # for getting their Ruby values.
-  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb}.
+  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb},
+  # {Sass::Script::Color#red red}, {Sass::Script::Color#blue green}, or {Sass::Script::Color#blue blue}.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
