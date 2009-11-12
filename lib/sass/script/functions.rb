@@ -11,6 +11,9 @@ module Sass::Script
   # \{#hsl}
   # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
   #
+  # \{#rgb}
+  # : Converts an `rgb(red, green, blue)` triplet into a color.
+  #
   # \{#percentage}
   # : Converts a unitless number to a percentage.
   #
