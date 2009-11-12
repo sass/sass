@@ -11,11 +11,14 @@ module Sass::Script
   # \{#hsl}
   # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
   #
+  # \{#hsla}
+  # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
+  #
   # \{#rgb}
   # : Converts an `rgb(red, green, blue)` triplet into a color.
   #
-  # \{#percentage}
-  # : Converts a unitless number to a percentage.
+  # \{#rgba}
+  # : Converts an `rgb(red, green, blue, alpha)` triplet into a color.
   #
   # \{#red}
   # : Gets the red component of a color.
@@ -25,6 +28,18 @@ module Sass::Script
   #
   # \{#blue}
   # : Gets the blue component of a color.
+  #
+  # \{#alpha} / \{#opacity}
+  # : Gets the alpha component (opacity) of a color.
+  #
+  # \{#opacify} / \{#fade-in}
+  # : Makes a color more opaque.
+  #
+  # \{#transparentize} / \{#fade-out}
+  # : Makes a color more transparent.
+  #
+  # \{#percentage}
+  # : Converts a unitless number to a percentage.
   #
   # \{#round}
   # : Rounds a number to the nearest whole number.
@@ -166,7 +181,7 @@ module Sass::Script
 
     # Creates a {Color} object from hue, saturation, and lightness,
     # as well as an alpha channel indicating opacity,
-    # as per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsla-color).
+    # as per the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsla-color).
     #
     # @param hue [Number] The hue of the color.
     #   Should be between 0 and 360 degrees, inclusive
