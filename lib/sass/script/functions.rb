@@ -164,8 +164,8 @@ module Sass::Script
       Color.new([red.value, green.value, blue.value, alpha.value])
     end
 
-    # Creates a {Color} object from hue, saturation, and lightness
-    # as per the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
+    # Creates a {Color} object from hue, saturation, and lightness.
+    # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
     #
     # @param hue [Number] The hue of the color.
     #   Should be between 0 and 360 degrees, inclusive
