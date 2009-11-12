@@ -13,6 +13,9 @@
 * All Sass functions now raise explicit errors if their inputs
   are of the incorrect type.
 
+* Add an `assert_type` function that's available to {Sass::Script::Functions}.
+  This is useful for typechecking the inputs to functions.
+
 ### Rack Support
 
 Sass 2.2.14 includes Rack middleware for running Sass,

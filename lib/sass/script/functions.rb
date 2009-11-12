@@ -57,6 +57,22 @@ module Sass::Script
       def initialize(options)
         @options = options
       end
+
+      # Asserts that the type of a given SassScript value
+      # is the expected type (designated by a symbol).
+      # For example:
+      #
+      #     assert_type value, :String
+      #     assert_type value, :Number
+      #
+      # Valid types are `:Bool`, `:Color`, `:Number`, and `:String`.
+      #
+      # @param value [Sass::Script::Literal] A SassScript value
+      # @param type [Symbol] The name of the type the value is expected to be
+      def assert_type(value, type)
+        return if value.is_a?(Sass::Script.const_get(type))
+        raise ArgumentError.new("#{value.inspect} is not a #{type.to_s.downcase}")
+      end
     end
 
     instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
@@ -190,11 +206,6 @@ module Sass::Script
     def numeric_transformation(value)
       assert_type value, :Number
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
-    end
-
-    def assert_type(value, type)
-      return if value.is_a?(Sass::Script.const_get(type))
-      raise ArgumentError.new("#{value.inspect} is not a #{type.to_s.downcase}")
     end
 
     def hue_to_rgb(m1, m2, h)
