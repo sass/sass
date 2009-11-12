@@ -54,7 +54,7 @@ module Sass
         end
 
         if defined?(ActionDispatch::Callbacks.to_prepare)
-          ActionDispatch::Callbacks.instance_eval {undef :__sass_process}
+          ActionDispatch::Callbacks.skip_callback(:prepare, :__sass_process)
         elsif defined?(ActionController::Base) &&
             Haml::Util.has?(:instance_method, ActionController::Base, :sass_old_process)
           ActionController::Base.instance_eval {alias_method :process, :sass_old_process}
