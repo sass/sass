@@ -173,6 +173,8 @@ Available options are:
 {#autoclose-option} `:autoclose`
 : A list of tag names that should be automatically self-closed
   if they have no content.
+  This can also contain regular expressions that match tag names
+  (or any object which responds to `#===`).
   Defaults to `['meta', 'img', 'link', 'br', 'hr', 'input', 'area', 'param', 'col', 'base']`.
 
 {#preserve-option} `:preserve`

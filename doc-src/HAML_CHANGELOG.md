@@ -12,6 +12,11 @@ for a given object by implementing the `haml_object_ref` method on that object.
 This method should return a string that will be used in place of the class name of the object
 in the generated class and id.
 
+### More Powerful `:autoclose` Option
+
+The {file:HAML_REFERENCE.md#attributes_option `:attributes`} option
+can now take regular expressions that specify which tags to make self-closing.
+
 ### `--double-quote-attributes` Option
 
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
