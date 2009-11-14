@@ -63,6 +63,11 @@ Sass and `css2sass` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
+### Rack Support
+
+The Sass Rails plugin now works using Rack middleware by default
+in versions of Rails that support it (2.3 and onwards).
+
 ### `css2sass` Error Handling
 
 Several bug fixes and minor improvements have been made, including:
