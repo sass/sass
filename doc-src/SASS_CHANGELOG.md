@@ -13,6 +13,9 @@
 * All Sass functions now raise explicit errors if their inputs
   are of the incorrect type.
 
+* Allow the SassScript `rgb()` function to take percentages
+  in addition to numerical values.
+
 * Add an `assert_type` function that's available to {Sass::Script::Functions}.
   This is useful for typechecking the inputs to functions.
 

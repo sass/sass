@@ -101,21 +101,30 @@ module Sass::Script
 
     # Creates a {Color} object from red, green, and blue values.
     # @param red
-    #   A number between 0 and 255 inclusive
+    #   A number between 0 and 255 inclusive,
+    #   or between 0% and 100% inclusive
     # @param green
-    #   A number between 0 and 255 inclusive
+    #   A number between 0 and 255 inclusive,
+    #   or between 0% and 100% inclusive
     # @param blue
-    #   A number between 0 and 255 inclusive
+    #   A number between 0 and 255 inclusive,
+    #   or between 0% and 100% inclusive
     def rgb(red, green, blue)
       assert_type red, :Number
       assert_type green, :Number
       assert_type blue, :Number
 
-      [red.value, green.value, blue.value].each do |v|
-        next unless v < 0 || v > 255
-        raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
+      rgb = [red, green, blue].map do |c|
+        v = c.value
+        if c.numerator_units == ["%"] && c.denominator_units.empty?
+          next v * 255 / 100.0 if (0..100).include?(v)
+          raise ArgumentError.new("Color value #{c} must be between 0% and 100% inclusive")
+        else
+          next v if (0..255).include?(v)
+          raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
+        end
       end
-      Color.new([red.value, green.value, blue.value])
+      Color.new(rgb)
     end
 
     # Creates a {Color} object from hue, saturation, and lightness.
