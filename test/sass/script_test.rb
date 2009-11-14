@@ -225,6 +225,12 @@ WARN
     assert_equal "true", resolve("1.1cm == 11mm")
   end
 
+  # Regression tests
+
+  def test_interpolation_after_hash
+    assert_equal "#2", resolve('"##{1 + 1}"')
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)
