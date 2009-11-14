@@ -95,6 +95,9 @@ Several bug fixes and minor improvements have been made, including:
 * Add an `assert_type` function that's available to {Sass::Script::Functions}.
   This is useful for typechecking the inputs to functions.
 
+* Fixed a bug where SassScript strings with `#` followed by `#{}` interpolation
+  didn't evaluate the interpolation.
+
 ### Rack Support
 
 Sass 2.2.14 includes Rack middleware for running Sass,

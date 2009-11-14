@@ -53,8 +53,8 @@ module Sass
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s*/,
         :variable => /!([\w-]+)/,
-        :ident => /(\\.|\#\{|[^\s\\+*\/%(),=!])+/,
-        :string_end => /((?:\\.|\#[^{]|[^"\\#])*)(?:"|(?=#\{))/,
+        :ident => /(\\.|[^\s\\+*\/%(),=!])+/,
+        :string_end => /((?:\\.|\#(?!\{)|[^"\\#])*)(?:"|(?=#\{))/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})(?!\()/,
         :bool => /(true|false)\b/,
