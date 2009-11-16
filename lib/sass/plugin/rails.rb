@@ -7,9 +7,14 @@ unless defined?(Sass::RAILS_LOADED)
                               :always_check      => RAILS_ENV != "production",
                               :full_exception    => RAILS_ENV != "production")
 
-  if defined?(ActionDispatch::Callbacks.to_prepare)
-    # Rails >= 3.0.0
-    ActionDispatch::Callbacks.to_prepare(:sass_process) {Sass::Plugin.check_for_updates}
+  if defined?(Rails.configuration.middleware)
+    # Rails >= 3.0
+    require 'sass/plugin/rack'
+    Rails.configuration.middleware.use(Sass::Plugin::Rack)
+  elsif defined?(ActionController::Dispatcher.middleware)
+    # Rails >= 2.3
+    require 'sass/plugin/rack'
+    ActionController::Dispatcher.middleware.use(Sass::Plugin::Rack)
   else
     module ActionController
       class Base

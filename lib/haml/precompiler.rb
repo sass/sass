@@ -744,7 +744,7 @@ END
       raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.", last_line - 1) if parse && value.empty?
       raise SyntaxError.new("Self-closing tags can't have content.", last_line - 1) if self_closing && !value.empty?
 
-      self_closing ||= !!( !block_opened? && value.empty? && @options[:autoclose].include?(tag_name) )
+      self_closing ||= !!(!block_opened? && value.empty? && @options[:autoclose].any? {|t| t === tag_name})
       value = nil if value.empty? && (block_opened? || self_closing)
 
       dont_indent_next_line =

@@ -96,6 +96,13 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("#00ff7f", evaluate("rgb(0, 255, 127)"))
   end
 
+  def test_rgb_percent
+    assert_equal("#123456", evaluate("rgb(7.1%, 20.4%, 34%)"))
+    assert_equal("#beaded", evaluate("rgb(74.7%, 173, 93%)"))
+    assert_equal("#beaded", evaluate("rgb(190, 68%, 237)"))
+    assert_equal("#00ff7f", evaluate("rgb(0%, 100%, 50%)"))
+  end
+
   def test_rgb_tests_bounds
     assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
       "rgb(256, 1, 1)")
@@ -107,6 +114,15 @@ class SassFunctionTest < Test::Unit::TestCase
       "rgb(1, 256, 257)")
     assert_error_message("Color value -1 must be between 0 and 255 inclusive for `rgb'",
       "rgb(-1, 1, 1)")
+  end
+
+  def test_rgb_test_percent_bounds
+    assert_error_message("Color value 100.1% must be between 0% and 100% inclusive for `rgb'",
+      "rgb(100.1%, 0, 0)")
+    assert_error_message("Color value -0.1% must be between 0% and 100% inclusive for `rgb'",
+      "rgb(0, -0.1%, 0)")
+    assert_error_message("Color value 101% must be between 0% and 100% inclusive for `rgb'",
+      "rgb(0, 0, 101%)")
   end
 
   def test_rgb_tests_types

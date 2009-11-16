@@ -63,6 +63,11 @@ Sass and `css2sass` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
+### Rack Support
+
+The Sass Rails plugin now works using Rack middleware by default
+in versions of Rails that support it (2.3 and onwards).
+
 ### `css2sass` Error Handling
 
 Several bug fixes and minor improvements have been made, including:
@@ -92,8 +97,14 @@ Several bug fixes and minor improvements have been made, including:
 * All Sass functions now raise explicit errors if their inputs
   are of the incorrect type.
 
+* Allow the SassScript `rgb()` function to take percentages
+  in addition to numerical values.
+
 * Add an `assert_type` function that's available to {Sass::Script::Functions}.
   This is useful for typechecking the inputs to functions.
+
+* Fixed a bug where SassScript strings with `#` followed by `#{}` interpolation
+  didn't evaluate the interpolation.
 
 ### Rack Support
 
