@@ -27,13 +27,18 @@ module Sass::Script
     # A hash from [red, green, blue] value arrays to color names.
     HTML4_COLORS_REVERSE = map_hash(HTML4_COLORS) {|k, v| [v, k]}
 
+    # Creates a new color from RGB components.
+    # *Note*: when modifying the components of an existing color,
+    # use \{#with} rather than creating a new color object.
+    # This preserves forwards-compatiblity for alpha channels and such.
+    #
     # @param rgb [Array<Fixnum>] A three-element array of the red, green, and blue values (respectively)
     #   of the color
     # @raise [Sass::SyntaxError] if any color value isn't between 0 and 255
     def initialize(rgb)
       rgb = rgb.map {|c| c.to_i}
       raise Sass::SyntaxError.new("Color values must be between 0 and 255") if rgb.any? {|c| c < 0 || c > 255}
-      super(rgb)
+      super(rgb.freeze)
     end
 
     # @deprecated This will be removed in version 2.6.
@@ -49,10 +54,30 @@ END
 
     # Returns the red, green, and blue components of the color.
     #
-    # @return [Array<Fixnum>] A three-element array of the red, green, and blue
+    # @return [Array<Fixnum>] A frozen three-element array of the red, green, and blue
     #   values (respectively) of the color
     def rgb
-      @value.freeze
+      @value
+    end
+
+    # Returns a copy of this color with one or more channels changed.
+    #
+    # For example:
+    #
+    #     Color.new([10, 20, 30].with(:blue => 40)
+    #       #=> rgb(10, 40, 30)
+    #     Color.new([126, 126, 126]).with(:red => 0, :green => 255)
+    #       #=> rgb(0, 255, 126)
+    #
+    # @param attrs [Hash<Symbol, Fixnum>]
+    #   A map of channel names (`:red`, `:green`, or `:blue`) to values
+    # @return [Color] The new Color object
+    def with(attrs)
+      Color.new([
+          attrs[:red] || rgb[0],
+          attrs[:green] || rgb[1],
+          attrs[:blue] || rgb[2],
+        ])
     end
 
     # The SassScript `+` operation.
@@ -195,7 +220,7 @@ END
         res = rgb[i].send(operation, other_num ? other.value : other.rgb[i])
         result[i] = [ [res, 255].min, 0 ].max
       end
-      Color.new(result)
+      with(:red => result[0], :green => result[1], :blue => result[2])
     end
   end
 end

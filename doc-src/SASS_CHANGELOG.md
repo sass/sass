@@ -5,23 +5,31 @@
 
 ## 2.2.14 (Unreleased)
 
-* {Sass::Script::Color#value} attribute is deprecated.
-  Use {Sass::Script::Color#rgb} instead.
-  The returned array is now frozen as well.
-  This only affects people defining their own Sass functions
-  in Ruby.
-
 * All Sass functions now raise explicit errors if their inputs
   are of the incorrect type.
 
 * Allow the SassScript `rgb()` function to take percentages
   in addition to numerical values.
 
-* Add an `assert_type` function that's available to {Sass::Script::Functions}.
-  This is useful for typechecking the inputs to functions.
-
 * Fixed a bug where SassScript strings with `#` followed by `#{}` interpolation
   didn't evaluate the interpolation.
+
+### SassScript Ruby API
+
+These changes only affect people defining their own Sass functions
+using {Sass::Script::Functions}.
+
+* {Sass::Script::Color#value} attribute is deprecated.
+  Use {Sass::Script::Color#rgb} instead.
+  The returned array is now frozen as well.
+
+* Added {Sass::Script::Color#with} for a way of setting color channels
+  that's easier than manually constructing a new color
+  and is forwards-compatible with alpha-channel colors
+  (to be introduced in Sass 2.4).
+
+* Add an `assert_type` function that's available to {Sass::Script::Functions}.
+  This is useful for typechecking the inputs to functions.
 
 ### Rack Support
 
