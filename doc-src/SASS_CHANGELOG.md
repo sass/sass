@@ -7,6 +7,7 @@
 
 * {Sass::Script::Color#value} attribute is deprecated.
   Use {Sass::Script::Color#rgb} instead.
+  The returned array is now frozen as well.
   This only affects people defining their own Sass functions
   in Ruby.
 

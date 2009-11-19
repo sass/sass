@@ -52,7 +52,7 @@ END
     # @return [Array<Fixnum>] A three-element array of the red, green, and blue
     #   values (respectively) of the color
     def rgb
-      @value
+      @value.freeze
     end
 
     # The SassScript `+` operation.
