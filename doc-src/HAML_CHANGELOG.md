@@ -140,6 +140,9 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 
 * Don't crash when parsing an XHTML Strict doctype in `html2haml`.
 
+* Support the  HTML5 doctype in an XHTML document
+  by using `!!! 5` as the doctype declaration.
+
 ## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
 
 * Allow users to specify {file:HAML_REFERENCE.md#encoding_option `:encoding => "ascii-8bit"`}

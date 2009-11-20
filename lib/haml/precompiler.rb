@@ -82,7 +82,7 @@ module Haml
     MID_BLOCK_KEYWORD_REGEX = /^-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
 
     # The Regex that matches a Doctype command.
-    DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
+    DOCTYPE_REGEX = /(\d(?:\.\d)?)?[\s]*([a-z]*)/i
 
     # The Regex that matches a literal string or symbol value
     LITERAL_VALUE_REGEX = /:(\w*)|(["'])((?![\\#]|\2).|\\.)*\2/
@@ -857,6 +857,8 @@ END
         if xhtml?
           if version == "1.1"
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+          elsif version == "5"
+            '<!DOCTYPE html>'
           else
             case type
             when "strict";   '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
