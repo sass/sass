@@ -133,10 +133,6 @@ module Sass
         [:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1"))]
       end
 
-      def begin_interpolation
-        @scanner.scan
-      end
-
       def number
         return unless @scanner.scan(REGULAR_EXPRESSIONS[:number])
         value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
