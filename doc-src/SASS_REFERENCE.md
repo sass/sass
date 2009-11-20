@@ -691,7 +691,7 @@ available in that context.
 
 SassScript supports four data types:
 * numbers (e.g. `1.2`, `13`, `10px`)
-* strings of text (e.g. `"foo"`, `"bar"`)
+* strings of text (e.g. `"foo"`, `"bar"`, `'baz'`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
 

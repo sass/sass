@@ -29,6 +29,13 @@ For example:
 
     !prettiest-color = #542FA9
 
+### Single-Quoted Strings
+
+SassScript now supports single-quoted strings.
+They behave identically to double-quoted strings,
+except that single quotes need to be backslash-escaped
+and double quotes do not.
+
 ### Error Backtraces
 
 Numerous bugs were fixed with the backtraces given for Sass errors,

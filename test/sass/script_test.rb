@@ -16,9 +16,21 @@ class SassScriptTest < Test::Unit::TestCase
   end
 
   def test_string_escapes
+    assert_equal "'", resolve("\"'\"")
     assert_equal '"', resolve("\"\\\"\"")
     assert_equal "\\", resolve("\"\\\\\"")
     assert_equal "\\02fa", resolve("\"\\02fa\"")
+
+    assert_equal "'", resolve("'\\''")
+    assert_equal '"', resolve("'\"'")
+    assert_equal "\\", resolve("'\\\\'")
+    assert_equal "\\02fa", resolve("'\\02fa'")
+  end
+
+  def test_string_interpolation
+    assert_equal "foo2bar", resolve('\'foo#{1 + 1}bar\'')
+    assert_equal "foo2bar", resolve('"foo#{1 + 1}bar"')
+    assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
   end
 
   def test_color_names
@@ -188,16 +200,16 @@ WARN
   def test_string_ops
     assert_equal "foo bar", resolve('"foo" "bar"')
     assert_equal "true 1", resolve('true 1')
-    assert_equal "foo, bar", resolve('"foo" , "bar"')
+    assert_equal "foo, bar", resolve("'foo' , 'bar'")
     assert_equal "true, 1", resolve('true , 1')
     assert_equal "foobar", resolve('"foo" + "bar"')
     assert_equal "true1", resolve('true + 1')
-    assert_equal "foo-bar", resolve('"foo" - "bar"')
+    assert_equal "foo-bar", resolve("'foo' - 'bar'")
     assert_equal "true-1", resolve('true - 1')
     assert_equal "foo/bar", resolve('"foo" / "bar"')
     assert_equal "true/1", resolve('true / 1')
 
-    assert_equal "-bar", resolve('- "bar"')
+    assert_equal "-bar", resolve("- 'bar'")
     assert_equal "-true", resolve('- true')
     assert_equal "/bar", resolve('/ "bar"')
     assert_equal "/true", resolve('/ true')
