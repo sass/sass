@@ -655,6 +655,10 @@ the following doctypes are supported:
 : XHTML 1.0 Frameset<br/>
  `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">`
 
+`!!! 5`
+: XHTML 5<br/>
+ `<!DOCTYPE html>`<br/>
+
 `!!! 1.1`
 : XHTML 1.1<br/>
  `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">`
