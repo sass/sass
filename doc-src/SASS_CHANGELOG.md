@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.14 (Unreleased)
+## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * {Sass::Script::Color#value} attribute is deprecated.
   Use {Sass::Script::Color#rgb} instead.

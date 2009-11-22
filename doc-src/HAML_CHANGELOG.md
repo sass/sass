@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.14
+## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * Don't print warnings when escaping attributes containing non-ASCII characters
   in Ruby 1.9.
