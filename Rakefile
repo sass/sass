@@ -77,6 +77,7 @@ task :release => [:check_release, :release_elpa, :package] do
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.bz2}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.zip}
+  sh %{gem push pkg/haml-#{version}.gem}
 end
 
 # Releases haml-mode.el and sass-mode.el to ELPA.
