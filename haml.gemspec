@@ -22,7 +22,7 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
       but it can function as a stand-alone templating engine.
     END
 
-  spec.add_development_dependency 'yard', '>= 0.2.3'
+  spec.add_development_dependency 'yard', '>= 0.4.0'
   spec.add_development_dependency 'maruku', '>= 0.5.9'
 
   # We need the revision file to exist,

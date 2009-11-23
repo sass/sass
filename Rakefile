@@ -235,11 +235,11 @@ begin
     files = FileList.new('doc-src/*').to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
     t.options << '--files' << files.join(',')
   end
-  Rake::Task['yardoc'].instance_variable_set('@comment', nil)
+  Rake::Task['yard'].instance_variable_set('@comment', nil)
 
   desc "Generate Documentation"
-  task :doc => :yardoc
-  task :redoc => :yardoc
+  task :doc => :yard
+  task :redoc => :yard
 rescue LoadError
   desc "Generate Documentation"
   task :doc => :rdoc
