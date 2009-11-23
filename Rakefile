@@ -225,6 +225,17 @@ end
 begin
   require 'yard'
 
+  namespace :yard do
+    task :sass do
+      require File.dirname(__FILE__) + '/lib/sass'
+      Dir[File.dirname(__FILE__) + "/yard/default/**/*.sass"].each do |sass|
+        File.open(sass.gsub(/sass$/, 'css'), 'w') do |f|
+          f.write(Sass::Engine.new(File.read(sass)).render)
+        end
+      end
+    end
+  end
+
   YARD::Rake::YardocTask.new do |t|
     t.files = FileList.new('lib/**/*.rb') do |list|
       list.exclude('lib/haml/template/*.rb')
@@ -234,7 +245,9 @@ begin
     t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
     files = FileList.new('doc-src/*').to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
     t.options << '--files' << files.join(',')
+    t.options << '--template-path' << File.dirname(__FILE__) + '/yard'
   end
+  Rake::Task['yard'].prerequisites.insert(0, 'yard:sass')
   Rake::Task['yard'].instance_variable_set('@comment', nil)
 
   desc "Generate Documentation"
