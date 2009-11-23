@@ -60,7 +60,7 @@ Then any Sass files in `public/stylesheets/sass`
 will be compiled CSS files in `public/stylesheets` on every request.
 
 To use Haml and Sass programatically,
-check out the [YARD documentation](http://haml-lang.com/docs/yardoc).
+check out the [YARD documentation](http://haml-lang.com/docs/yardoc/).
 
 ## Formatting
 
