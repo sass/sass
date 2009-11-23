@@ -3,7 +3,6 @@
 * Table of contents
 {:toc}
 
-<<<<<<< HEAD:doc-src/SASS_CHANGELOG.md
 ## 2.4.0 (Unreleased)
 
 ### Colors
@@ -95,7 +94,7 @@ Several bug fixes and minor improvements have been made, including:
   For example, `fuchsia(12)` now renders as `fuchsia(12)`
   rather than `fuchsia 12`.
 
-## [2.2.15](http://github.com/nex3/haml/commit/2.2.14)
+## 2.2.15 (Unreleased)
 
 * Added {Sass::Script::Color#with} for a way of setting color channels
   that's easier than manually constructing a new color
