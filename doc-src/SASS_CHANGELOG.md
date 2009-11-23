@@ -3,6 +3,7 @@
 * Table of contents
 {:toc}
 
+<<<<<<< HEAD:doc-src/SASS_CHANGELOG.md
 ## 2.4.0 (Unreleased)
 
 ### Colors
@@ -94,6 +95,13 @@ Several bug fixes and minor improvements have been made, including:
   For example, `fuchsia(12)` now renders as `fuchsia(12)`
   rather than `fuchsia 12`.
 
+## [2.2.15](http://github.com/nex3/haml/commit/2.2.14)
+
+* Added {Sass::Script::Color#with} for a way of setting color channels
+  that's easier than manually constructing a new color
+  and is forwards-compatible with alpha-channel colors
+  (to be introduced in Sass 2.4).
+
 ## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * All Sass functions now raise explicit errors if their inputs
@@ -113,11 +121,6 @@ using {Sass::Script::Functions}.
 * {Sass::Script::Color#value} attribute is deprecated.
   Use {Sass::Script::Color#rgb} instead.
   The returned array is now frozen as well.
-
-* Added {Sass::Script::Color#with} for a way of setting color channels
-  that's easier than manually constructing a new color
-  and is forwards-compatible with alpha-channel colors
-  (to be introduced in Sass 2.4).
 
 * Add an `assert_type` function that's available to {Sass::Script::Functions}.
   This is useful for typechecking the inputs to functions.
