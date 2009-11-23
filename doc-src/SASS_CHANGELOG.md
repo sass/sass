@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## [2.2.15](http://github.com/nex3/haml/commit/2.2.14)
+## 2.2.15 (Unreleased)
 
 * Added {Sass::Script::Color#with} for a way of setting color channels
   that's easier than manually constructing a new color
