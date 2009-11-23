@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.14 (Unreleased)
+## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * All Sass functions now raise explicit errors if their inputs
   are of the incorrect type.
