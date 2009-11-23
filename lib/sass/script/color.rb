@@ -93,10 +93,10 @@ END
 
     # Returns the red, green, and blue components of the color.
     #
-    # @return [Array<Fixnum>] A three-element array of the red, green, and blue
+    # @return [Array<Fixnum>] A frozen three-element array of the red, green, and blue
     #   values (respectively) of the color
     def rgb
-      [red, green, blue]
+      [red, green, blue].freeze
     end
 
     # The SassScript `==` operation.
@@ -109,6 +109,29 @@ END
     def eq(other)
       Sass::Script::Bool.new(
         other.is_a?(Color) && rgb == other.rgb && alpha == other.alpha)
+    end
+
+    # Returns a copy of this color with one or more channels changed.
+    #
+    # For example:
+    #
+    #     Color.new([10, 20, 30].with(:blue => 40)
+    #       #=> rgb(10, 40, 30)
+    #     Color.new([126, 126, 126]).with(:red => 0, :green => 255)
+    #       #=> rgb(0, 255, 126)
+    #     Color.new([1, 2, 3]).with(:alpha => 0.4)
+    #       #=> rgba(1, 2, 3, 0.4)
+    #
+    # @param attrs [Hash<Symbol, Numeric>]
+    #   A map of channel names (`:red`, `:green`, `:blue`, or `:alpha`) to values
+    # @return [Color] The new Color object
+    def with(attrs)
+      Color.new([
+          attrs[:red] || red,
+          attrs[:green] || green,
+          attrs[:blue] || blue,
+          attrs[:alpha] || alpha,
+        ])
     end
 
     # The SassScript `+` operation.
@@ -256,9 +279,8 @@ END
       if !other_num && other.alpha != alpha
         raise Sass::SyntaxError.new("Alpha channels must be equal: #{self} #{operation} #{other}")
       end
-      result[3] = alpha
 
-      Color.new(result)
+      with(:red => result[0], :green => result[1], :blue => result[2])
     end
   end
 end
