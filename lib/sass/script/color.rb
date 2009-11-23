@@ -5,7 +5,7 @@ module Sass::Script
   class Color < Literal
     class << self; include Haml::Util; end
 
-    # A hash from color names to [red, green, blue] value arrays.
+    # A hash from color names to `[red, green, blue]` value arrays.
     HTML4_COLORS = map_vals({
         'black'   => 0x000000,
         'silver'  => 0xc0c0c0,
@@ -24,7 +24,7 @@ module Sass::Script
         'teal'    => 0x008080,
         'aqua'    => 0x00ffff
       }) {|color| (0..2).map {|n| color >> (n << 3) & 0xff}.reverse}
-    # A hash from [red, green, blue] value arrays to color names.
+    # A hash from `[red, green, blue]` value arrays to color names.
     HTML4_COLORS_REVERSE = map_hash(HTML4_COLORS) {|k, v| [v, k]}
 
     # Constructs an RGB or RGBA color object.
@@ -189,10 +189,7 @@ END
     # {Color}
     # : Multiplies each of the RGB color channels together.
     #
-    # {Literal}
-    # : See {Literal#times}.
-    #
-    # @param other [Literal] The right-hand side of the operator
+    # @param other [Number, Color] The right-hand side of the operator
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def times(other)
@@ -235,10 +232,7 @@ END
     # {Color}
     # : Takes each of this color's RGB color channels modulo the other color's.
     #
-    # {Literal}
-    # : See {Literal#mod}.
-    #
-    # @param other [Literal] The right-hand side of the operator
+    # @param other [Number, Color] The right-hand side of the operator
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def mod(other)

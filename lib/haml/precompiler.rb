@@ -10,10 +10,10 @@ module Haml
     # Designates an XHTML/XML element.
     ELEMENT         = ?%
 
-    # Designates a <tt><div></tt> element with the given class.
+    # Designates a `<div>` element with the given class.
     DIV_CLASS       = ?.
 
-    # Designates a <tt><div></tt> element with the given id.
+    # Designates a `<div>` element with the given id.
     DIV_ID          = ?#
 
     # Designates an XHTML/XML comment.
@@ -77,7 +77,7 @@ module Haml
     #   - else
     #     %p no!
     #
-    # The block is ended after <tt>%p no!</tt>, because <tt>else</tt>
+    # The block is ended after `%p no!`, because `else`
     # is a member of this array.
     MID_BLOCK_KEYWORD_REGEX = /^-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
 
@@ -201,7 +201,7 @@ END
     # Processes a single line of Haml.
     #
     # This method doesn't return anything; it simply processes the line and
-    # adds the appropriate code to <tt>@precompiled</tt>.
+    # adds the appropriate code to `@precompiled`.
     def process_line(text, index)
       @index = index + 1
 
@@ -278,7 +278,7 @@ END
       text[MID_BLOCK_KEYWORD_REGEX, 1]
     end
 
-    # Evaluates <tt>text</tt> in the context of the scope object, but
+    # Evaluates `text` in the context of the scope object, but
     # does not output the result.
     def push_silent(text, can_suppress = false)
       flush_merged_text
@@ -286,7 +286,7 @@ END
       @precompiled << "#{text};"
     end
 
-    # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
+    # Adds `text` to `@buffer` with appropriate tabulation
     # without parsing it.
     def push_merged_text(text, tab_change = 0, indent = true)
       text = !indent || @dont_indent_next_line || @options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}"
@@ -294,7 +294,7 @@ END
       @dont_indent_next_line = false
     end
 
-    # Concatenate <tt>text</tt> to <tt>@buffer</tt> without tabulation.
+    # Concatenate `text` to `@buffer` without tabulation.
     def concat_merged_text(text)
       @to_merge << [:text, text, 0]
     end
@@ -356,18 +356,18 @@ END
       end
     end
 
-    # Adds +text+ to <tt>@buffer</tt> while flattening text.
+    # Adds +text+ to `@buffer` while flattening text.
     def push_flat(line)
       text = line.full.dup
       text = "" unless text.gsub!(/^#{@flat_spaces}/, '')
       @filter_buffer << "#{text}\n"
     end
 
-    # Causes <tt>text</tt> to be evaluated in the context of
-    # the scope object and the result to be added to <tt>@buffer</tt>.
+    # Causes `text` to be evaluated in the context of
+    # the scope object and the result to be added to `@buffer`.
     #
-    # If <tt>opts[:preserve_script]</tt> is true, Haml::Helpers#find_and_flatten is run on
-    # the result before it is added to <tt>@buffer</tt>
+    # If `opts[:preserve_script]` is true, Haml::Helpers#find_and_flatten is run on
+    # the result before it is added to `@buffer`
     def push_script(text, opts = {})
       raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
       return if options[:suppress_eval]
@@ -400,7 +400,7 @@ END
         !(opts[:in_tag] || opts[:nuke_inner_whitespace] || @options[:ugly])])
     end
 
-    # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
+    # Causes `text` to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
     def push_flat_script(text, options = {})
       flush_merged_text
@@ -416,13 +416,13 @@ END
       push_and_tabulate([:haml_comment])
     end
 
-    # Closes the most recent item in <tt>@to_close_stack</tt>.
+    # Closes the most recent item in `@to_close_stack`.
     def close
       tag, *rest = @to_close_stack.pop
       send("close_#{tag}", *rest)
     end
 
-    # Puts a line in <tt>@precompiled</tt> that will add the closing tag of
+    # Puts a line in `@precompiled` that will add the closing tag of
     # the most recently opened tag.
     def close_element(value)
       tag, nuke_outer_whitespace, nuke_inner_whitespace = value
@@ -474,8 +474,8 @@ END
       @template_tabs -= 1
     end
 
-    # Iterates through the classes and ids supplied through <tt>.</tt>
-    # and <tt>#</tt> syntax, and returns a hash with them as attributes,
+    # Iterates through the classes and ids supplied through `.`
+    # and `#` syntax, and returns a hash with them as attributes,
     # that can then be merged with another attributes hash.
     def parse_class_and_id(list)
       attributes = {}
@@ -672,7 +672,7 @@ END
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
-    # render that tag to <tt>@precompiled</tt>.
+    # render that tag to `@precompiled`.
     def render_tag(line)
       tag_name, attributes, attributes_hashes, object_ref, nuke_outer_whitespace,
         nuke_inner_whitespace, action, value, last_line = parse_tag(line)
@@ -803,7 +803,7 @@ END
     end
 
     # Renders a line that creates an XHTML tag and has an implicit div because of
-    # <tt>.</tt> or <tt>#</tt>.
+    # `.` or `#`.
     def render_div(line)
       render_tag('%div' + line)
     end
@@ -991,8 +991,8 @@ END
       !flat? && @next_line.tabs > @line.tabs
     end
 
-    # Pushes value onto <tt>@to_close_stack</tt> and increases
-    # <tt>@template_tabs</tt>.
+    # Pushes value onto `@to_close_stack` and increases
+    # `@template_tabs`.
     def push_and_tabulate(value)
       @to_close_stack.push(value)
       @template_tabs += 1

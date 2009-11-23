@@ -8,16 +8,16 @@ module Sass
     class Lexer
       # A struct containing information about an individual token.
       #
-      # `type`: [{Symbol}]
+      # `type`: \[{Symbol}\]
       # : The type of token.
       #
-      # `value`: [{Object}]
+      # `value`: \[{Object}\]
       # : The Ruby object corresponding to the value of the token.
       #
-      # `line`: [{Fixnum}]
+      # `line`: \[{Fixnum}\]
       # : The line of the source file on which the token appears.
       #
-      # `offset`: [{Fixnum}]
+      # `offset`: \[{Fixnum}\]
       # : The number of bytes into the line the SassScript token appeared.
       Token = Struct.new(:type, :value, :line, :offset)
 

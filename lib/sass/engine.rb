@@ -107,15 +107,15 @@ module Sass
     # Includes named mixin declared using MIXIN_DEFINITION_CHAR
     MIXIN_INCLUDE_CHAR    = ?+
 
-    # The regex that matches properties of the form <tt>name: prop</tt>.
+    # The regex that matches properties of the form `name: prop`.
     PROPERTY_NEW_MATCHER = /^[^\s:"\[]+\s*[=:](\s|$)/
 
     # The regex that matches and extracts data from
-    # properties of the form <tt>name: prop</tt>.
+    # properties of the form `name: prop`.
     PROPERTY_NEW = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
 
     # The regex that matches and extracts data from
-    # properties of the form <tt>:name prop</tt>.
+    # properties of the form `:name prop`.
     PROPERTY_OLD = /^:([^\s=:"]+)\s*(=?)(?:\s+|$)(.*)/
 
     # The default options for Sass::Engine.
