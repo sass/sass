@@ -9,6 +9,12 @@ require 'sass'
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
+module Sass::Script::Functions
+  def option(name)
+    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+  end
+end
+
 class Test::Unit::TestCase
   def munge_filename(opts)
     return if opts[:filename]

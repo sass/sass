@@ -22,7 +22,8 @@ module Sass
       end
 
       # @see \{Node#perform}
-      def perform(*args)
+      def perform(environment)
+        environment.options = @options if environment.options.nil? || environment.options.empty?
         super
       rescue Sass::SyntaxError => e
         e.sass_template = @template

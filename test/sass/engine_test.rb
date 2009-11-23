@@ -967,6 +967,16 @@ a
 SASS
   end
 
+  def test_options_available_in_environment
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: nested; }
+CSS
+a
+  b= option("style")
+SASS
+  end
+
   # Encodings
 
   unless Haml::Util.ruby1_8?

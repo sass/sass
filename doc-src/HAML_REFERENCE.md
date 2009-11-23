@@ -664,40 +664,55 @@ is compiled to:
       </body>
     </html>
 
-You can also specify the version and type of XHTML after the `!!!`.
-XHTML 1.0 Strict, Transitional, and Frameset and XHTML 1.1 are supported.
-The default version is 1.0 and the default type is Transitional.
-For example:
+You can also specify the specific doctype after the `!!!`
+When the [`:format`](#format) is set to `:xhtml` (the default),
+the following doctypes are supported:
 
-    !!! 1.1
+`!!!`
+: XHTML 1.0 Transitional<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">`
 
-is compiled to:
+`!!! Strict`
+: XHTML 1.0 Strict<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">`
 
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+`!!! Frameset`
+: XHTML 1.0 Frameset<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">`
 
-and
+`!!! 5`
+: XHTML 5<br/>
+ `<!DOCTYPE html>`<br/>
 
-    !!! Strict
+`!!! 1.1`
+: XHTML 1.1<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">`
 
-is compiled to:
+`!!! Basic`
+: XHTML Basic 1.1<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"> `
 
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+`!!! Mobile`
+: XHTML Mobile 1.2<br/>
+ `<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">`
 
-while 
+When the [`:format`](#format) option is set to `:html4`,
+the following doctypes are supported:
 
-    !!! Basic
+`!!!`
+: HTML 4.01 Transitional<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">`
 
-is compiled to:
+`!!! Strict`
+: HTML 4.01 Strict<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">`
 
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"> 
+`!!! Frameset`
+: HTML 4.01 Frameset<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">`
 
-and
-  
-    !!! Mobile
-
-is compiled to: 
-
-    <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
+When the [`:format`](#format) option is set to `:html5`,
+`!!!` is always `<!DOCTYPE html>`.
 
 If you're not using the UTF-8 character set for your document,
 you can specify which encoding should appear

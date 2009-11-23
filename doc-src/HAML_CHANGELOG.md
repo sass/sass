@@ -133,12 +133,15 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
-## 2.2.14
+## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * Don't print warnings when escaping attributes containing non-ASCII characters
   in Ruby 1.9.
 
 * Don't crash when parsing an XHTML Strict doctype in `html2haml`.
+
+* Support the  HTML5 doctype in an XHTML document
+  by using `!!! 5` as the doctype declaration.
 
 ## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
 
@@ -151,7 +154,7 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 
 ## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
 
-There were no changes made to Sass between versions 2.2.11 and 2.2.12.
+There were no changes made to Haml between versions 2.2.11 and 2.2.12.
 
 ## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
 

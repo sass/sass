@@ -149,7 +149,6 @@ module Sass
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def perform(environment)
-        environment.options = @options if self.class == Tree::Node
         _perform(environment)
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename, :line => line)

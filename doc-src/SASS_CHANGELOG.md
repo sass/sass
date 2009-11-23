@@ -29,6 +29,13 @@ For example:
 
     !prettiest-color = #542FA9
 
+### Single-Quoted Strings
+
+SassScript now supports single-quoted strings.
+They behave identically to double-quoted strings,
+except that single quotes need to be backslash-escaped
+and double quotes do not.
+
 ### Error Backtraces
 
 Numerous bugs were fixed with the backtraces given for Sass errors,
@@ -87,7 +94,7 @@ Several bug fixes and minor improvements have been made, including:
   For example, `fuchsia(12)` now renders as `fuchsia(12)`
   rather than `fuchsia 12`.
 
-## 2.2.14 (Unreleased)
+## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * All Sass functions now raise explicit errors if their inputs
   are of the incorrect type.

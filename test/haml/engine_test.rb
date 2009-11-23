@@ -734,6 +734,7 @@ HAML
   def test_doctypes
     assert_equal('<!DOCTYPE html>',
       render('!!!', :format => :html5).strip)
+    assert_equal('<!DOCTYPE html>', render('!!! 5').strip)
     assert_equal('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
       render('!!! strict').strip)
     assert_equal('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
