@@ -23,7 +23,7 @@ module Haml
       #
       # @param template [String] The ERB template
       # @return [String] The output document
-      # @see {Haml::HTML::ERB}
+      # @see Haml::HTML::ERB
       def self.compile(template)
         new(template).src
       end
