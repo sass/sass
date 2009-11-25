@@ -43,7 +43,9 @@ module Sass
       # Destructively converts this static Sass node into a static CSS node,
       # and checks that there are no properties at root level.
       #
-      # @param parent [Node] ignored
+      # @param parent [Node, nil] The parent node of this node.
+      #   This should only be non-nil if the parent is the same class as this node
+      # @see Node#cssize!
       def cssize!(parent)
         super
         return unless child = children.find {|c| c.is_a?(PropNode)}

@@ -149,7 +149,8 @@ module Sass
       # \{#cssize} shouldn't be overridden directly;
       # instead, override \{#\_cssize} or \{#cssize!}.
       #
-      # @param args [Array] Passed on to \{#\_cssize}
+      # @param parent [Node, nil] The parent node of this node.
+      #   This should only be non-nil if the parent is the same class as this node
       # @return [Tree::Node] The resulting tree of static nodes
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
@@ -197,7 +198,8 @@ module Sass
       # returning the new node.
       # This doesn't modify this node or any of its children.
       #
-      # @param args [Array] ignored
+      # @param parent [Node, nil] The parent node of this node.
+      #   This should only be non-nil if the parent is the same class as this node
       # @return [Tree::Node, Array<Tree::Node>] The resulting static CSS nodes
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see #cssize
@@ -212,8 +214,9 @@ module Sass
       # This *does* modify this node,
       # but will be run non-destructively by \{#\_cssize\}.
       #
-      # @param args [Array] ignored
-      # @cssize
+      # @param parent [Node, nil] The parent node of this node.
+      #   This should only be non-nil if the parent is the same class as this node
+      # @see #cssize
       def cssize!(parent)
         self.children = children.map {|c| c.cssize(self)}.flatten
       end
