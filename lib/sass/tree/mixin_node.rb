@@ -43,6 +43,10 @@ END
         env
       end
       mixin.tree.map {|c| c.perform(environment)}.flatten
+    rescue Sass::SyntaxError => e
+      e.modify_backtrace(:mixin => @name, :line => @line)
+      e.add_backtrace(:line => @line)
+      raise e
     end
   end
 end

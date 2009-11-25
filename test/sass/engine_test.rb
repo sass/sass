@@ -196,8 +196,8 @@ SASS
         assert_equal(2, err.sass_line)
         assert_match(/(\/|^)bork#{i}\.sass$/, err.sass_filename)
 
-        assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
-        assert_equal(err.sass_line, err.sass_backtrace.first[:line])
+        assert_hash_has(err.sass_backtrace.first,
+          :filename => err.sass_filename, :line => err.sass_line)
 
         assert_nil(err.sass_backtrace[1][:filename])
         assert_equal(1, err.sass_backtrace[1][:line])
@@ -218,8 +218,8 @@ SASS
         assert_equal(2, err.sass_line)
         assert_match(/(\/|^)bork#{i}\.sass$/, err.sass_filename)
 
-        assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
-        assert_equal(err.sass_line, err.sass_backtrace.first[:line])
+        assert_hash_has(err.sass_backtrace.first,
+          :filename => err.sass_filename, :line => err.sass_line)
 
         assert_match(/(\/|^)nested_bork#{i}\.sass$/, err.sass_backtrace[1][:filename])
         assert_equal(2, err.sass_backtrace[1][:line])
@@ -234,6 +234,56 @@ SASS
         assert(false, "Exception not raised for imported template: bork#{i}")
       end
     end
+  end
+
+  def test_mixin_exception
+    render(<<SASS)
+=error-mixin(!a)
+  color = !a * 1em * 1px
+
+=outer-mixin(!a)
+  +error-mixin(!a)
+
+.error
+  +outer-mixin(12)
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal(2, err.sass_line)
+    assert_equal(test_filename, err.sass_filename)
+    assert_equal("error-mixin", err.sass_mixin)
+
+    assert_hash_has(err.sass_backtrace.first, :line => err.sass_line,
+      :filename => err.sass_filename, :mixin => err.sass_mixin)
+    assert_hash_has(err.sass_backtrace[1], :line => 5,
+      :filename => test_filename, :mixin => "outer-mixin")
+    assert_hash_has(err.sass_backtrace[2], :line => 8,
+      :filename => test_filename, :mixin => nil)
+
+    assert_equal("#{test_filename}:2:in `error-mixin'", err.backtrace.first)
+    assert_equal("#{test_filename}:5:in `outer-mixin'", err.backtrace[1])
+    assert_equal("#{test_filename}:8", err.backtrace[2])
+  end
+
+  def test_mixin_callsite_exception
+    render(<<SASS)
+=one-arg-mixin(!a)
+  color = !a
+
+=outer-mixin(!a)
+  +one-arg-mixin(!a, 12)
+
+.error
+  +outer-mixin(12)
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_hash_has(err.sass_backtrace.first, :line => 5,
+      :filename => test_filename, :mixin => "one-arg-mixin")
+    assert_hash_has(err.sass_backtrace[1], :line => 5,
+      :filename => test_filename, :mixin => "outer-mixin")
+    assert_hash_has(err.sass_backtrace[2], :line => 8,
+      :filename => test_filename, :mixin => nil)
   end
 
   def test_exception_css_with_offset
@@ -1000,7 +1050,11 @@ SASS
   end
 
   private
-  
+
+  def assert_hash_has(hash, expected)
+    expected.each {|k, v| assert_equal(v, hash[k])}
+  end
+
   def render(sass, options = {})
     munge_filename options
     Sass::Engine.new(sass, options).render
