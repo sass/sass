@@ -30,7 +30,7 @@ module Sass
         raise e
       end
 
-      # @see \{Node#cssize}
+      # @see Node#cssize
       def cssize(*args)
         super
       rescue Sass::SyntaxError => e
