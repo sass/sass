@@ -23,7 +23,7 @@ class Test::Unit::TestCase
 
   def test_filename(entry = caller.first)
     test_name = Haml::Util.caller_info(entry)[2]
-    test_name.sub!(/^block in /, '')
+    test_name.sub!(/^(block|rescue) in /, '')
     "#{test_name}_inline.sass"
   end
 
