@@ -39,11 +39,30 @@ module Sass::Tree
     #
     # would be
     #
-    #     [[[:parent, "foo"], ["bar"], ["baz"]],
-    #      [["bip"], [:parent, "bop"], ["bup"]]]
+    #     [[[:parent, ".foo"], ["bar"], ["baz"]],
+    #      [["bip"], [:parent, ".bop"], ["bup"]]]
     #
     # @return [Array<Array<Array<String|Symbol>>>]
     attr_accessor :parsed_rules
+
+    # The CSS selectors for this rule,
+    # with all nesting and parent references resolved.
+    # It's only set once {Tree::Node#cssize} has been called.
+    #
+    # The first level of arrays represents distinct lines in the Sass file;
+    # the second level represents comma-separated selectors.
+    # For example,
+    #
+    #     foo bar, baz,
+    #     bang, bip bop, blip
+    #
+    # would be
+    #
+    #     [["foo bar", "baz"],
+    #      ["bang", "bip bop", "blip"]]
+    #
+    # @return [Array<Array<String>>]
+    attr_accessor :resolved_rules
 
     # @param rule [String] The first CSS rule. See \{#rules}
     def initialize(rule)
@@ -80,10 +99,7 @@ module Sass::Tree
     # @param super_rules [Array<Array<String>>] The rules for the parent node
     #   (see \{#rules}), or `nil` if there are no parents
     # @return [String] The resulting CSS
-    # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
-    def _to_s(tabs, super_rules = nil)
-      resolved_rules = resolve_parent_refs(super_rules)
-
+    def _to_s(tabs)
       properties = []
       sub_rules = []
 
@@ -143,7 +159,7 @@ module Sass::Tree
 
       tabs += 1 unless properties.empty? || style != :nested
       sub_rules.each do |sub|
-        to_return << sub.to_s(tabs, resolved_rules)
+        to_return << sub.to_s(tabs)
       end
 
       to_return
@@ -156,6 +172,16 @@ module Sass::Tree
     #   variable and mixin values
     def perform!(environment)
       @parsed_rules = @rules.map {|r| parse_selector(interpolate(r, environment))}
+      super
+    end
+
+    # Resolves parent references and nested selectors.
+    #
+    # @param parent [RuleNode, nil] The parent node of this node,
+    #   or nil if the parent isn't a {RuleNode}
+    # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
+    def cssize!(parent)
+      @resolved_rules = resolve_parent_refs(parent && parent.resolved_rules)
       super
     end
 
