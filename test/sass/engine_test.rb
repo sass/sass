@@ -286,6 +286,27 @@ SASS
       :filename => test_filename, :mixin => nil)
   end
 
+  def test_mixin_to_s_exception
+    render(<<SASS)
+=parent-ref-mixin
+  & foo
+    a: b
+
+=outer-mixin
+  +parent-ref-mixin
+
++outer-mixin
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_hash_has(err.sass_backtrace.first, :line => 2,
+      :filename => test_filename, :mixin => "parent-ref-mixin")
+    assert_hash_has(err.sass_backtrace[1], :line => 6,
+      :filename => test_filename, :mixin => "outer-mixin")
+    assert_hash_has(err.sass_backtrace[2], :line => 8,
+      :filename => test_filename, :mixin => nil)
+  end
+
   def test_exception_css_with_offset
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
