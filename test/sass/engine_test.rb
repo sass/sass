@@ -362,6 +362,35 @@ CSS
     assert(false, "Exception not raised")
   end
 
+  def test_cssize_exception_css
+    opts = {:full_exception => true}
+    render(<<SASS, opts)
+.filler
+  stuff: stuff!
+
+a: b
+
+.more.filler
+  a: b
+SASS
+  rescue Sass::SyntaxError => e
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..11].join("\n"))
+/*
+Syntax error: Properties aren't allowed at the root of a document.
+        on line 4 of test_cssize_exception_css_inline.sass
+
+1: .filler
+2:   stuff: stuff!
+3: 
+4: a: b
+5: 
+6: .more.filler
+7:   a: b
+CSS
+  else
+    assert(false, "Exception not raised")
+  end
+
   def test_css_import
     assert_equal("@import url(./fonts.css) screen;\n", render("@import url(./fonts.css) screen"))
     assert_equal("@import \"./fonts.css\" screen;\n", render("@import \"./fonts.css\" screen"))

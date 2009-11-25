@@ -30,6 +30,14 @@ module Sass
         raise e
       end
 
+      # @see \{Node#cssize}
+      def cssize(*args)
+        super
+      rescue Sass::SyntaxError => e
+        e.sass_template = @template
+        raise e
+      end
+
       protected
 
       def cssize!(*args)
