@@ -18,7 +18,7 @@ module Sass::Tree
     # relative to a normal property.
     # This is only greater than 0 in the case that:
     #
-    # * This node is in a static tree
+    # * This node is in a CSS tree
     # * The style is :nested
     # * This is a child property of another property
     # * The parent property has a value, and thus will be rendered
