@@ -10,16 +10,66 @@ class SassScriptTest < Test::Unit::TestCase
     assert_raise(Sass::SyntaxError, "Color values must be between 0 and 255") {Color.new([256, 2, 3])}
   end
 
+  def test_color_checks_rgba_input
+    assert_raise(Sass::SyntaxError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, 1.1])}
+    assert_raise(Sass::SyntaxError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, -0.1])}
+  end
+
   def test_string_escapes
+    assert_equal "'", resolve("\"'\"")
     assert_equal '"', resolve("\"\\\"\"")
     assert_equal "\\", resolve("\"\\\\\"")
     assert_equal "\\02fa", resolve("\"\\02fa\"")
+
+    assert_equal "'", resolve("'\\''")
+    assert_equal '"', resolve("'\"'")
+    assert_equal "\\", resolve("'\\\\'")
+    assert_equal "\\02fa", resolve("'\\02fa'")
+  end
+
+  def test_string_interpolation
+    assert_equal "foo2bar", resolve('\'foo#{1 + 1}bar\'')
+    assert_equal "foo2bar", resolve('"foo#{1 + 1}bar"')
+    assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
   end
 
   def test_color_names
     assert_equal "white", resolve("white")
     assert_equal "white", resolve("#ffffff")
     assert_equal "#fffffe", resolve("white - #000001")
+  end
+
+  def test_rgba_color_literals
+    assert_equal Sass::Script::Color.new([1, 2, 3, 0.75]), eval("rgba(1, 2, 3, 0.75)")
+    assert_equal "rgba(1, 2, 3, 0.75)", resolve("rgba(1, 2, 3, 0.75)")
+
+    assert_equal Sass::Script::Color.new([1, 2, 3, 0]), eval("rgba(1, 2, 3, 0)")
+    assert_equal "rgba(1, 2, 3, 0)", resolve("rgba(1, 2, 3, 0)")
+
+    assert_equal Sass::Script::Color.new([1, 2, 3]), eval("rgba(1, 2, 3, 1)")
+    assert_equal Sass::Script::Color.new([1, 2, 3, 1]), eval("rgba(1, 2, 3, 1)")
+    assert_equal "#010203", resolve("rgba(1, 2, 3, 1)")
+    assert_equal "white", resolve("rgba(255, 255, 255, 1)")
+  end
+
+  def test_rgba_color_math
+    assert_equal "rgba(50, 50, 100, 0.35)", resolve("rgba(1, 1, 2, 0.35) * rgba(50, 50, 50, 0.35)")
+    assert_equal "rgba(52, 52, 52, 0.25)", resolve("rgba(2, 2, 2, 0.25) + rgba(50, 50, 50, 0.25)")
+
+    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)") do
+      resolve("rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)")
+    end
+    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: #123456 * rgba(50, 50, 50, 0.75)") do
+      resolve("#123456 * rgba(50, 50, 50, 0.75)")
+    end
+    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: #123456 / #123456") do
+      resolve("rgba(50, 50, 50, 0.75) / #123456")
+    end
+  end
+
+  def test_rgba_number_math
+    assert_equal "rgba(49, 49, 49, 0.75)", resolve("rgba(50, 50, 50, 0.75) - 1")
+    assert_equal "rgba(100, 100, 100, 0.75)", resolve("rgba(50, 50, 50, 0.75) * 2")
   end
 
   def test_implicit_strings
@@ -102,22 +152,8 @@ WARN
     assert_equal "public_instance_methods()", resolve("public_instance_methods()")
   end
 
-  def test_hyphen_warning
-    a = Sass::Script::String.new("a")
-    b = Sass::Script::String.new("b")
-    assert_warning(<<WARN) {eval("!a-!b", {}, env("a" => a, "b" => b))}
-DEPRECATION WARNING:
-On line 1, character 3 of 'test_hyphen_warning_inline.sass'
-- will be allowed as part of variable names in version 2.4.
-Please add whitespace to separate it from the previous token.
-WARN
-
-    assert_warning(<<WARN) {eval("true-false")}
-DEPRECATION WARNING:
-On line 1, character 5 of 'test_hyphen_warning_inline.sass'
-- will be allowed as part of variable names in version 2.4.
-Please add whitespace to separate it from the previous token.
-WARN
+  def test_hyphenated_variables
+    assert_equal("a-b", resolve("!a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
   end
 
   def test_ruby_equality
@@ -164,16 +200,16 @@ WARN
   def test_string_ops
     assert_equal "foo bar", resolve('"foo" "bar"')
     assert_equal "true 1", resolve('true 1')
-    assert_equal "foo, bar", resolve('"foo" , "bar"')
+    assert_equal "foo, bar", resolve("'foo' , 'bar'")
     assert_equal "true, 1", resolve('true , 1')
     assert_equal "foobar", resolve('"foo" + "bar"')
     assert_equal "true1", resolve('true + 1')
-    assert_equal "foo-bar", resolve('"foo" - "bar"')
+    assert_equal "foo-bar", resolve("'foo' - 'bar'")
     assert_equal "true-1", resolve('true - 1')
     assert_equal "foo/bar", resolve('"foo" / "bar"')
     assert_equal "true/1", resolve('true / 1')
 
-    assert_equal "-bar", resolve('- "bar"')
+    assert_equal "-bar", resolve("- 'bar'")
     assert_equal "-true", resolve('- true')
     assert_equal "/bar", resolve('/ "bar"')
     assert_equal "/true", resolve('/ true')
@@ -223,6 +259,16 @@ WARN
     assert_equal "true", resolve("10mm == 1cm")
     assert_equal "true", resolve("1 == 1cm")
     assert_equal "true", resolve("1.1cm == 11mm")
+  end
+
+  # Regression Tests
+
+  def test_funcall_has_higher_precedence_than_color_name
+    assert_equal "teal(12)", resolve("teal(12)")
+  end
+
+  def test_interpolation_after_hash
+    assert_equal "#2", resolve('"##{1 + 1}"')
   end
 
   private

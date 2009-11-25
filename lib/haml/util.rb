@@ -1,6 +1,7 @@
 require 'erb'
 require 'set'
 require 'enumerator'
+require 'stringio'
 
 module Haml
   # A module containing various useful functions.
@@ -122,6 +123,62 @@ module Haml
       end
     end
 
+    # Returns information about the caller of the previous method.
+    #
+    # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
+    # @return [[String, Fixnum, (String, nil)]] An array containing the filename, line, and method name of the caller.
+    #   The method name may be nil
+    def caller_info(entry = caller[1])
+      info = entry.scan(/^(.*?):(-?.*?)(?::.*`(.+)')?$/).first
+      info[1] = info[1].to_i
+      info
+    end
+
+    # Silence all output to STDERR within a block.
+    #
+    # @yield A block in which no output will be printed to STDERR
+    def silence_warnings
+      the_real_stderr, $stderr = $stderr, StringIO.new
+      yield
+    ensure
+      $stderr = the_real_stderr
+    end
+
+    ## Cross Rails Version Compatibility
+
+    # Returns the root of the Rails application,
+    # if this is running in a Rails context.
+    # Returns `nil` if no such root is defined.
+    #
+    # @return [String, nil]
+    def rails_root
+      return Rails.root.to_s if defined?(Rails.root)
+      return RAILS_ROOT.to_s if defined?(RAILS_ROOT)
+      return nil
+    end
+
+    ## Rails XSS Safety
+
+    # Whether or not ActionView's XSS protection is available and enabled,
+    # as is the default for Rails 3.0+, and optional for version 2.3.5+.
+    # Overridden in haml/template.rb if this is the case.
+    #
+    # @return [Boolean]
+    def rails_xss_safe?
+      false
+    end
+
+    # Assert that a given object (usually a String) is HTML safe
+    # according to Rails' XSS handling, if it's loaded.
+    #
+    # @param text [Object]
+    def assert_html_safe!(text)
+      return unless rails_xss_safe? && text && !text.to_s.html_safe?
+      raise Haml::Error.new("Expected #{text.inspect} to be HTML-safe.")
+    end
+
+    ## Cross-Ruby-Version Compatibility
+
     # Whether or not this is running under Ruby 1.8 or lower.
     #
     # @return [Boolean]
@@ -170,6 +227,8 @@ MSG
     def enum_with_index(enum)
       ruby1_8? ? enum.enum_with_index : enum.each_with_index
     end
+
+    ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.
     class StaticConditionalContext
@@ -222,9 +281,10 @@ MSG
     # @param erb [String] The template for the method code
     def def_static_method(klass, name, args, *vars)
       erb = vars.pop
+      info = caller_info
       powerset(vars).each do |set|
         context = StaticConditionalContext.new(set).instance_eval {binding}
-        klass.class_eval(<<METHOD)
+        klass.class_eval(<<METHOD, info[0], info[1])
 def #{static_method_name(name, *vars.map {|v| set.include?(v)})}(#{args.join(', ')})
   #{ERB.new(erb).result(context)}
 end

@@ -85,6 +85,7 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def render(text, opts = {})
+    return @base.render(:inline => text, :type => :haml) if opts == :action_view
     Haml::Engine.new(text, opts).to_html(@base)
   end
 
@@ -95,6 +96,8 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def assert_renders_correctly(name, &render_method)
+    old_options = Haml::Template.options.dup
+    Haml::Template.options[:escape_html] = false
     if ActionPack::VERSION::MAJOR < 2 ||
         (ActionPack::VERSION::MAJOR == 2 && ActionPack::VERSION::MINOR < 2)
       render_method ||= proc { |name| @base.render(name) }
@@ -112,6 +115,8 @@ class TemplateTest < Test::Unit::TestCase
     else
       raise e
     end
+  ensure
+    Haml::Template.options = old_options
   end
 
   def test_empty_render_should_remain_empty
@@ -139,16 +144,20 @@ class TemplateTest < Test::Unit::TestCase
     end
   end
 
-  def test_action_view_templates_render_correctly
-    proc = lambda do
-      @base.content_for(:layout) {'Lorem ipsum dolor sit amet'}
-      assert_renders_correctly 'content_for_layout'
-    end
+  if ActionPack::VERSION::MAJOR < 3
+    # Rails 3.0.0 deprecates the use of yield with a layout
+    # for calls to render :file
+    def test_action_view_templates_render_correctly
+      proc = lambda do
+        @base.content_for(:layout) {'Lorem ipsum dolor sit amet'}
+        assert_renders_correctly 'content_for_layout'
+      end
 
-    if @base.respond_to?(:with_output_buffer)
-      @base.with_output_buffer("", &proc)
-    else
-      proc.call
+      if @base.respond_to?(:with_output_buffer)
+        @base.with_output_buffer("", &proc)
+      else
+        proc.call
+      end
     end
   end
 
@@ -176,12 +185,13 @@ class TemplateTest < Test::Unit::TestCase
   end
 
   def test_haml_options
-    Haml::Template.options = { :suppress_eval => true }
-    assert_equal({ :suppress_eval => true }, Haml::Template.options)
+    old_options = Haml::Template.options.dup
+    Haml::Template.options[:suppress_eval] = true
     old_base, @base = @base, create_base
     assert_renders_correctly("eval_suppressed")
+  ensure
     @base = old_base
-    Haml::Template.options = {}
+    Haml::Template.options = old_options
   end
 
   def test_with_output_buffer_with_ugly
@@ -197,7 +207,7 @@ HTML
   - with_output_buffer do
     bar
     = "foo".gsub(/./) do |s|
-      - s.ord
+      - "flup"
   baz
 HAML
   end
@@ -231,5 +241,56 @@ END
     else
       assert false
     end
-  end  
+  end
+
+  ## XSS Protection Tests
+
+  # In order to enable these, either test against Rails 3.0
+  # or test against Rails 2.2.5+ with the rails_xss plugin
+  # (http://github.com/NZKoz/rails_xss) in test/plugins.
+  if Haml::Util.rails_xss_safe?
+    def test_escape_html_option_set
+      assert Haml::Template.options[:escape_html]
+    end
+
+    def test_xss_protection
+      assert_equal("Foo &amp; Bar\n", render('= "Foo & Bar"', :action_view))
+    end
+
+    def test_xss_protection_with_safe_strings
+      assert_equal("Foo & Bar\n", render('= "Foo & Bar".html_safe!', :action_view))
+    end
+
+    def test_xss_protection_with_bang
+      assert_equal("Foo & Bar\n", render('!= "Foo & Bar"', :action_view))
+    end
+
+    def test_xss_protection_in_interpolation
+      assert_equal("Foo &amp; Bar\n", render('Foo #{"&"} Bar', :action_view))
+    end
+
+    def test_xss_protection_with_bang_in_interpolation
+      assert_equal("Foo & Bar\n", render('! Foo #{"&"} Bar', :action_view))
+    end
+
+    def test_xss_protection_with_safe_strings_in_interpolation
+      assert_equal("Foo & Bar\n", render('Foo #{"&".html_safe!} Bar', :action_view))
+    end
+
+    def test_xss_protection_with_mixed_strings_in_interpolation
+      assert_equal("Foo & Bar &amp; Baz\n", render('Foo #{"&".html_safe!} Bar #{"&"} Baz', :action_view))
+    end
+
+    def test_rendered_string_is_html_safe
+      assert(render("Foo").html_safe?)
+    end
+
+    def test_rendered_string_is_html_safe_with_action_view
+      assert(render("Foo", :action_view).html_safe?)
+    end
+
+    def test_xss_html_escaping_with_non_strings
+      assert_equal("4\n", render("= html_escape(4)"))
+    end
+  end
 end

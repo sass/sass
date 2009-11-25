@@ -14,10 +14,6 @@
     Lexer errors in particular are icky
     See in particular error changes made in c07b5c8
 ** Haml
-   Interpolation shouldn't make non-interpolated strings escaped under :escape_html
-     I think we can just wrap interpolated code with (),
-     since it's already interpolated.
-   Can also use () to wrap contents of _haml_temp so that commas throw errors when not in :ugly
    Support finer-grained HTML-escaping in filters
    Speed
      Make tags with dynamic attributes pre-render as much as possible
@@ -33,7 +29,7 @@
    Benchmark the effects of storing the raw template in sassc
      If it's expensive, overload RootNode dumping/loading to dup and set @template to nil
      Then fall back on reading from actual file
-   Add a Rack middleware option for sass/plugin
+   Make Rack middleware the default for Rails and Merb versions that support it
    CSS superset
    Classes are mixins
      Can refer to specific property values? Syntax?
@@ -42,6 +38,10 @@
    Pull in Compass watcher stuff
    Internationalization
      Particularly word constituents in Regexps
+   Add mixins to exception backtraces even for exceptions raised in Node#_to_s
+     See 41cb3d4 (full-mixin-backtraces branch), cdab12f, and 4f7988e
+     Likely requires an extra step to move from Sass tree to CSS tree
+       See cssize branch
    Optimization
      http://csstidy.sourceforge.net/
      http://developer.yahoo.com/yui/compressor/

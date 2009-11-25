@@ -31,6 +31,10 @@ module Sass
     # : The name of the file in which the exception was raised,
     #   or `nil` if no filename is available.
     #
+    # `:mixin`
+    # : The name of the mixin in which the exception was raised,
+    #   or `nil` if it wasn't raised in a mixin.
+    #
     # `:line`
     # : The line of the file on which the error occurred. Never nil.
     #
@@ -57,9 +61,17 @@ module Sass
     # The name of the file in which the exception was raised.
     # This could be `nil` if no filename is available.
     #
-    # @return [String]
+    # @return [String, nil]
     def sass_filename
       sass_backtrace.first[:filename]
+    end
+
+    # The name of the mixin in which the error occurred.
+    # This could be `nil` if the error occurred outside a mixin.
+    #
+    # @return [Fixnum]
+    def sass_mixin
+      sass_backtrace.first[:mixin]
     end
 
     # The line of the Sass template on which the error occurred.
@@ -77,15 +89,29 @@ module Sass
       sass_backtrace << attrs.reject {|k, v| v.nil?}
     end
 
-    # Modify the top Sass backtrace entry (that is, the last one)
+    # Modify the top Sass backtrace entries
+    # (that is, the most deeply nested ones)
     # to have the given attributes.
-    # If that entry already has one of the given attributes set,
-    # that takes precendence.
+    #
+    # Specifically, this goes through the backtrace entries
+    # from most deeply nested to least,
+    # setting the given attributes for each entry.
+    # If an entry already has one of the given attributes set,
+    # the pre-existing attribute takes precedence
+    # and is not used for less deeply-nested entries
+    # (even if they don't have that attribute set).
     #
     # @param attrs [Hash<Symbol, Object>] The information to add to the backtrace entry.
     #   See \{#sass\_backtrace}
     def modify_backtrace(attrs)
-      sass_backtrace[-1] = attrs.reject {|k, v| v.nil?}.merge(sass_backtrace.last)
+      attrs = attrs.reject {|k, v| v.nil?}
+      # Move backwards through the backtrace
+      (0...sass_backtrace.size).to_a.reverse.each do |i|
+        entry = sass_backtrace[i]
+        sass_backtrace[i] = attrs.merge(entry)
+        attrs.reject! {|k, v| entry.include?(k)}
+        break if attrs.empty?
+      end
     end
 
     # @return [String] The error message
@@ -99,7 +125,10 @@ module Sass
     # @return [Array<String>]
     def backtrace
       return nil if super.nil?
-      sass_backtrace.map {|h| "#{h[:filename] || "(sass)"}:#{h[:line]}"} + super
+      sass_backtrace.map do |h|
+        "#{h[:filename] || "(sass)"}:#{h[:line]}" +
+          (h[:mixin] ? ":in `#{h[:mixin]}'" : "")
+      end + super
     end
 
     # Returns a string representation of the Sass backtrace.
@@ -111,7 +140,8 @@ module Sass
       "Syntax error: #{message}" +
         Haml::Util.enum_with_index(sass_backtrace).map do |entry, i|
         "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
-          " of #{entry[:filename] || default_filename}"
+          " of #{entry[:filename] || default_filename}" +
+          (entry[:mixin] ? ", in `#{entry[:mixin]}'" : "")
       end.join
     end
 

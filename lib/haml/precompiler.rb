@@ -10,10 +10,10 @@ module Haml
     # Designates an XHTML/XML element.
     ELEMENT         = ?%
 
-    # Designates a <tt><div></tt> element with the given class.
+    # Designates a `<div>` element with the given class.
     DIV_CLASS       = ?.
 
-    # Designates a <tt><div></tt> element with the given id.
+    # Designates a `<div>` element with the given id.
     DIV_ID          = ?#
 
     # Designates an XHTML/XML comment.
@@ -77,31 +77,40 @@ module Haml
     #   - else
     #     %p no!
     #
-    # The block is ended after <tt>%p no!</tt>, because <tt>else</tt>
+    # The block is ended after `%p no!`, because `else`
     # is a member of this array.
     MID_BLOCK_KEYWORD_REGEX = /^-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
 
     # The Regex that matches a Doctype command.
-    DOCTYPE_REGEX = /(\d\.\d)?[\s]*([a-z]*)/i
+    DOCTYPE_REGEX = /(\d(?:\.\d)?)?[\s]*([a-z]*)/i
 
     # The Regex that matches a literal string or symbol value
-    LITERAL_VALUE_REGEX = /:(\w*)|(["'])([^\\#'"]|\\.)*\2/
+    LITERAL_VALUE_REGEX = /:(\w*)|(["'])((?![\\#]|\2).|\\.)*\2/
 
     private
 
     # Returns the precompiled string with the preamble and postamble
     def precompiled_with_ambles(local_names)
       preamble = <<END.gsub("\n", ";")
+begin
 extend Haml::Helpers
 _hamlout = @haml_buffer = Haml::Buffer.new(@haml_buffer, #{options_for_buffer.inspect})
 _erbout = _hamlout.buffer
 __in_erb_template = true
 END
       postamble = <<END.gsub("\n", ";")
+#{precompiled_method_return_value}
+ensure
 @haml_buffer = @haml_buffer.upper
-_erbout
+end
 END
       preamble + locals_code(local_names) + precompiled + postamble
+    end
+
+    # Returns the string used as the return value of the precompiled method.
+    # This method exists so it can be monkeypatched to return modified values.
+    def precompiled_method_return_value
+      "_erbout"
     end
 
     def locals_code(names)
@@ -192,7 +201,7 @@ END
     # Processes a single line of Haml.
     #
     # This method doesn't return anything; it simply processes the line and
-    # adds the appropriate code to <tt>@precompiled</tt>.
+    # adds the appropriate code to `@precompiled`.
     def process_line(text, index)
       @index = index + 1
 
@@ -269,7 +278,7 @@ END
       text[MID_BLOCK_KEYWORD_REGEX, 1]
     end
 
-    # Evaluates <tt>text</tt> in the context of the scope object, but
+    # Evaluates `text` in the context of the scope object, but
     # does not output the result.
     def push_silent(text, can_suppress = false)
       flush_merged_text
@@ -277,7 +286,7 @@ END
       @precompiled << "#{text};"
     end
 
-    # Adds <tt>text</tt> to <tt>@buffer</tt> with appropriate tabulation
+    # Adds `text` to `@buffer` with appropriate tabulation
     # without parsing it.
     def push_merged_text(text, tab_change = 0, indent = true)
       text = !indent || @dont_indent_next_line || @options[:ugly] ? text : "#{'  ' * @output_tabs}#{text}"
@@ -285,7 +294,7 @@ END
       @dont_indent_next_line = false
     end
 
-    # Concatenate <tt>text</tt> to <tt>@buffer</tt> without tabulation.
+    # Concatenate `text` to `@buffer` without tabulation.
     def concat_merged_text(text)
       @to_merge << [:text, text, 0]
     end
@@ -297,15 +306,23 @@ END
     def flush_merged_text
       return if @to_merge.empty?
 
-      text, tab_change = @to_merge.inject(["", 0]) do |(str, mtabs), (type, val, tabs)|
+      str = ""
+      mtabs = 0
+      newlines = 0
+      @to_merge.each do |type, val, tabs|
         case type
         when :text
-          [str << val.inspect[1...-1], mtabs + tabs]
+          str << val.inspect[1...-1]
+          mtabs += tabs
         when :script
           if mtabs != 0 && !@options[:ugly]
             val = "_hamlout.adjust_tabs(#{mtabs}); " + val
           end
-          [str << "\#{#{val}}", 0]
+          str << "\#{#{"\n" * newlines}#{val}}"
+          mtabs = 0
+          newlines = 0
+        when :newlines
+          newlines += val
         else
           raise SyntaxError.new("[HAML BUG] Undefined entry in Haml::Precompiler@to_merge.")
         end
@@ -313,10 +330,11 @@ END
 
       @precompiled <<
         if @options[:ugly]
-          "_hamlout.buffer << \"#{text}\";"
+          "_hamlout.buffer << \"#{str}\";"
         else
-          "_hamlout.push_text(\"#{text}\", #{tab_change}, #{@dont_tab_up_next_text.inspect});"
+          "_hamlout.push_text(\"#{str}\", #{mtabs}, #{@dont_tab_up_next_text.inspect});"
         end
+      @precompiled << "\n" * newlines
       @to_merge = []
       @dont_tab_up_next_text = false
     end
@@ -329,24 +347,27 @@ END
       end
 
       if contains_interpolation?(text)
-        push_script unescape_interpolation(text), :escape_html => options[:escape_html]
+        options[:escape_html] = self.options[:escape_html] if options[:escape_html].nil?
+        push_script(
+          unescape_interpolation(text, :escape_html => options[:escape_html]),
+          :escape_html => false)
       else
         push_text text
       end
     end
 
-    # Adds +text+ to <tt>@buffer</tt> while flattening text.
+    # Adds +text+ to `@buffer` while flattening text.
     def push_flat(line)
       text = line.full.dup
       text = "" unless text.gsub!(/^#{@flat_spaces}/, '')
       @filter_buffer << "#{text}\n"
     end
 
-    # Causes <tt>text</tt> to be evaluated in the context of
-    # the scope object and the result to be added to <tt>@buffer</tt>.
+    # Causes `text` to be evaluated in the context of
+    # the scope object and the result to be added to `@buffer`.
     #
-    # If <tt>opts[:preserve_script]</tt> is true, Haml::Helpers#find_and_flatten is run on
-    # the result before it is added to <tt>@buffer</tt>
+    # If `opts[:preserve_script]` is true, Haml::Helpers#find_and_flatten is run on
+    # the result before it is added to `@buffer`
     def push_script(text, opts = {})
       raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
       return if options[:suppress_eval]
@@ -358,14 +379,14 @@ END
 
       no_format = @options[:ugly] &&
         !(opts[:preserve_script] || opts[:preserve_tag] || opts[:escape_html])
-      output_temp = "(haml_very_temp = haml_temp; haml_temp = nil; haml_very_temp)"
-      out = "_hamlout.#{static_method_name(:format_script, *args)}(#{output_temp});"
+      output_expr = "(#{text}\n)"
+      static_method = "_hamlout.#{static_method_name(:format_script, *args)}"
 
       # Prerender tabulation unless we're in a tag
       push_merged_text '' unless opts[:in_tag]
 
       unless block_opened?
-        @to_merge << [:script, no_format ? "#{text}\n" : "haml_temp = #{text}\n#{out}"]
+        @to_merge << [:script, no_format ? "#{text}\n" : "#{static_method}(#{output_expr});"]
         concat_merged_text("\n") unless opts[:in_tag] || opts[:nuke_inner_whitespace]
         @newlines -= 1
         return
@@ -375,11 +396,11 @@ END
 
       push_silent "haml_temp = #{text}"
       newline_now
-      push_and_tabulate([:loud, "_hamlout.buffer << #{no_format ? "#{output_temp}.to_s;" : out}",
+      push_and_tabulate([:loud, "_hamlout.buffer << #{no_format ? "haml_temp.to_s;" : "#{static_method}(haml_temp);"}",
         !(opts[:in_tag] || opts[:nuke_inner_whitespace] || @options[:ugly])])
     end
 
-    # Causes <tt>text</tt> to be evaluated, and Haml::Helpers#find_and_flatten
+    # Causes `text` to be evaluated, and Haml::Helpers#find_and_flatten
     # to be run on it afterwards.
     def push_flat_script(text, options = {})
       flush_merged_text
@@ -395,13 +416,13 @@ END
       push_and_tabulate([:haml_comment])
     end
 
-    # Closes the most recent item in <tt>@to_close_stack</tt>.
+    # Closes the most recent item in `@to_close_stack`.
     def close
       tag, *rest = @to_close_stack.pop
       send("close_#{tag}", *rest)
     end
 
-    # Puts a line in <tt>@precompiled</tt> that will add the closing tag of
+    # Puts a line in `@precompiled` that will add the closing tag of
     # the most recently opened tag.
     def close_element(value)
       tag, nuke_outer_whitespace, nuke_inner_whitespace = value
@@ -453,8 +474,8 @@ END
       @template_tabs -= 1
     end
 
-    # Iterates through the classes and ids supplied through <tt>.</tt>
-    # and <tt>#</tt> syntax, and returns a hash with them as attributes,
+    # Iterates through the classes and ids supplied through `.`
+    # and `#` syntax, and returns a hash with them as attributes,
     # that can then be merged with another attributes hash.
     def parse_class_and_id(list)
       attributes = {}
@@ -651,7 +672,7 @@ END
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
-    # render that tag to <tt>@precompiled</tt>.
+    # render that tag to `@precompiled`.
     def render_tag(line)
       tag_name, attributes, attributes_hashes, object_ref, nuke_outer_whitespace,
         nuke_inner_whitespace, action, value, last_line = parse_tag(line)
@@ -665,30 +686,37 @@ END
       nuke_inner_whitespace ||= preserve_tag
       preserve_tag &&= !options[:ugly]
 
+      escape_html = (action == '&' || (action != '!' && @options[:escape_html]))
+
       case action
       when '/'; self_closing = true
       when '~'; parse = preserve_script = true
       when '='
         parse = true
-        value = unescape_interpolation(value[1..-1].strip) if value[0] == ?=
+        if value[0] == ?=
+          value = unescape_interpolation(value[1..-1].strip, :escape_html => escape_html)
+          escape_html = false
+        end
       when '&', '!'
         if value[0] == ?= || value[0] == ?~
           parse = true
           preserve_script = (value[0] == ?~)
-          value =
-            if value[1] == ?=
-              unescape_interpolation(value[2..-1].strip)
-            else
-              value[1..-1].strip
-            end
+          if value[1] == ?=
+            value = unescape_interpolation(value[2..-1].strip, :escape_html => escape_html)
+            escape_html = false
+          else
+            value = value[1..-1].strip
+          end
         elsif contains_interpolation?(value)
+          value = unescape_interpolation(value, :escape_html => escape_html)
           parse = true
-          value = unescape_interpolation(value)
+          escape_html = false
         end
       else
         if contains_interpolation?(value)
+          value = unescape_interpolation(value, :escape_html => escape_html)
           parse = true
-          value = unescape_interpolation(value)
+          escape_html = false
         end
       end
 
@@ -696,8 +724,6 @@ END
         parse = false
         value = ''
       end
-
-      escape_html = (action == '&' || (action != '!' && @options[:escape_html]))
 
       object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
@@ -718,7 +744,8 @@ END
       raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.", last_line - 1) if parse && value.empty?
       raise SyntaxError.new("Self-closing tags can't have content.", last_line - 1) if self_closing && !value.empty?
 
-      self_closing ||= !!( !block_opened? && value.empty? && @options[:autoclose].include?(tag_name) )
+      self_closing ||= !!(!block_opened? && value.empty? && @options[:autoclose].any? {|t| t === tag_name})
+      value = nil if value.empty? && (block_opened? || self_closing)
 
       dont_indent_next_line =
         (nuke_outer_whitespace && !block_opened?) ||
@@ -743,7 +770,7 @@ END
         return if tag_closed
       else
         flush_merged_text
-        content = value.empty? || parse ? 'nil' : value.dump
+        content = parse ? 'nil' : value.inspect
         if attributes_hashes.empty?
           attributes_hashes = ''
         elsif attributes_hashes.size == 1
@@ -761,7 +788,7 @@ END
 
       return if self_closing
 
-      if value.empty?
+      if value.nil?
         push_and_tabulate([:element, [tag_name, nuke_outer_whitespace, nuke_inner_whitespace]])
         @output_tabs += 1 unless nuke_inner_whitespace
         return
@@ -776,7 +803,7 @@ END
     end
 
     # Renders a line that creates an XHTML tag and has an implicit div because of
-    # <tt>.</tt> or <tt>#</tt>.
+    # `.` or `#`.
     def render_div(line)
       render_tag('%div' + line)
     end
@@ -830,6 +857,8 @@ END
         if xhtml?
           if version == "1.1"
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+          elsif version == "5"
+            '<!DOCTYPE html>'
           else
             case type
             when "strict";   '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
@@ -936,7 +965,7 @@ END
       str.include?('#{')
     end
 
-    def unescape_interpolation(str)
+    def unescape_interpolation(str, opts = {})
       res = ''
       rest = Haml::Shared.handle_interpolation str.dump do |scan|
         escapes = (scan[2].size - 1) / 2
@@ -944,7 +973,9 @@ END
         if escapes % 2 == 1
           res << '#{'
         else
-          res << '#{' + eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"') + "}"# Use eval to get rid of string escapes
+          content = eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"')
+          content = "Haml::Helpers.html_escape(#{content})" if opts[:escape_html]
+          res << '#{' + content + "}"# Use eval to get rid of string escapes
         end
       end
       res + rest
@@ -960,8 +991,8 @@ END
       !flat? && @next_line.tabs > @line.tabs
     end
 
-    # Pushes value onto <tt>@to_close_stack</tt> and increases
-    # <tt>@template_tabs</tt>.
+    # Pushes value onto `@to_close_stack` and increases
+    # `@template_tabs`.
     def push_and_tabulate(value)
       @to_close_stack.push(value)
       @template_tabs += 1
@@ -982,29 +1013,32 @@ END
 
     def resolve_newlines
       return unless @newlines > 0
-      @precompiled << "\n" * @newlines
+      @to_merge << [:newlines, @newlines]
       @newlines = 0
     end
 
     # Get rid of and whitespace at the end of the buffer
     # or the merged text
-    def rstrip_buffer!
-      if @to_merge.empty?
+    def rstrip_buffer!(index = -1)
+      last = @to_merge[index]
+      if last.nil?
         push_silent("_hamlout.rstrip!", false)
         @dont_tab_up_next_text = true
         return
       end
 
-      last = @to_merge.last
       case last.first
       when :text
         last[1].rstrip!
         if last[1].empty?
-          @to_merge.pop
-          rstrip_buffer!
+          @to_merge.slice! index
+          rstrip_buffer! index
         end
       when :script
         last[1].gsub!(/\(haml_temp, (.*?)\);$/, '(haml_temp.rstrip, \1);')
+        rstrip_buffer! index - 1
+      when :newlines
+        rstrip_buffer! index - 1
       else
         raise SyntaxError.new("[HAML BUG] Undefined entry in Haml::Precompiler@to_merge.")
       end

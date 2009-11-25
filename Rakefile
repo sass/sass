@@ -22,6 +22,7 @@ Rake::TestTask.new do |t|
   t.libs << 'lib'
   test_files = FileList['test/**/*_test.rb']
   test_files.exclude('test/rails/*')
+  test_files.exclude('test/plugins/*')
   test_files.exclude('test/haml/spec/*')
   t.test_files = test_files
   t.verbose = true
@@ -76,6 +77,7 @@ task :release => [:check_release, :release_elpa, :package] do
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.bz2}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.zip}
+  sh %{gem push pkg/haml-#{version}.gem}
 end
 
 # Releases haml-mode.el and sass-mode.el to ELPA.
@@ -220,6 +222,17 @@ end
 begin
   require 'yard'
 
+  namespace :yard do
+    task :sass do
+      require File.dirname(__FILE__) + '/lib/sass'
+      Dir[File.dirname(__FILE__) + "/yard/default/**/*.sass"].each do |sass|
+        File.open(sass.gsub(/sass$/, 'css'), 'w') do |f|
+          f.write(Sass::Engine.new(File.read(sass)).render)
+        end
+      end
+    end
+  end
+
   YARD::Rake::YardocTask.new do |t|
     t.files = FileList.new('lib/**/*.rb') do |list|
       list.exclude('lib/haml/template/*.rb')
@@ -229,12 +242,14 @@ begin
     t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
     files = FileList.new('doc-src/*').to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
     t.options << '--files' << files.join(',')
+    t.options << '--template-path' << File.dirname(__FILE__) + '/yard'
   end
-  Rake::Task['yardoc'].instance_variable_set('@comment', nil)
+  Rake::Task['yard'].prerequisites.insert(0, 'yard:sass')
+  Rake::Task['yard'].instance_variable_set('@comment', nil)
 
   desc "Generate Documentation"
-  task :doc => :yardoc
-  task :redoc => :yardoc
+  task :doc => :yard
+  task :redoc => :yard
 rescue LoadError
   desc "Generate Documentation"
   task :doc => :rdoc
@@ -318,11 +333,11 @@ rescue LoadError; end
 # ----- Testing Multiple Rails Versions -----
 
 rails_versions = [
-  "v2.3.0",
+  "v2.3.4",
   "v2.2.2",
   "v2.1.2",
-  "v2.0.5"
 ]
+rails_versions << "v2.0.5" if RUBY_VERSION =~ /^1\.8/
 
 namespace :test do
   desc "Test all supported versions of rails. This takes a while."

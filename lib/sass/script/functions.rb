@@ -11,6 +11,33 @@ module Sass::Script
   # \{#hsl}
   # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
   #
+  # \{#hsla}
+  # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
+  #
+  # \{#rgb}
+  # : Converts an `rgb(red, green, blue)` triplet into a color.
+  #
+  # \{#rgba}
+  # : Converts an `rgb(red, green, blue, alpha)` triplet into a color.
+  #
+  # \{#red}
+  # : Gets the red component of a color.
+  #
+  # \{#green}
+  # : Gets the green component of a color.
+  #
+  # \{#blue}
+  # : Gets the blue component of a color.
+  #
+  # \{#alpha} / \{#opacity}
+  # : Gets the alpha component (opacity) of a color.
+  #
+  # \{#opacify} / \{#fade_in #fade-in}
+  # : Makes a color more opaque.
+  #
+  # \{#transparentize} / \{#fade_out #fade-out}
+  # : Makes a color more transparent.
+  #
   # \{#percentage}
   # : Converts a unitless number to a percentage.
   #
@@ -26,10 +53,29 @@ module Sass::Script
   # \{#abs}
   # : Returns the absolute value of a number.
   #
-  # You can add your own functions to this module,
-  # but there are a few things to keep in mind.
+  # These functions are described in more detail below.
+  #
+  # ## Adding Custom Functions
+  #
+  # New Sass functions can be added by adding Ruby methods to this module.
+  # For example:
+  #
+  #     module Sass::Script::Functions
+  #       def reverse(string)
+  #         assert_type string, :String
+  #         Sass::Script::String.new(string.value.reverse)
+  #       end
+  #     end
+  #
+  # There are a few things to keep in mind when modifying this module.
   # First of all, the arguments passed are {Sass::Script::Literal} objects.
   # Literal objects are also expected to be returned.
+  # This means that Ruby values must be unwrapped and wrapped.
+  #
+  # Most Literal objects support the {Sass::Script::Literal#value value} accessor
+  # for getting their Ruby values.
+  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb},
+  # {Sass::Script::Color#red red}, {Sass::Script::Color#blue green}, or {Sass::Script::Color#blue blue}.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
@@ -57,6 +103,22 @@ module Sass::Script
       def initialize(options)
         @options = options
       end
+
+      # Asserts that the type of a given SassScript value
+      # is the expected type (designated by a symbol).
+      # For example:
+      #
+      #     assert_type value, :String
+      #     assert_type value, :Number
+      #
+      # Valid types are `:Bool`, `:Color`, `:Number`, and `:String`.
+      #
+      # @param value [Sass::Script::Literal] A SassScript value
+      # @param type [Symbol] The name of the type the value is expected to be
+      def assert_type(value, type)
+        return if value.is_a?(Sass::Script.const_get(type))
+        raise ArgumentError.new("#{value.inspect} is not a #{type.to_s.downcase}")
+      end
     end
 
     instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
@@ -64,21 +126,55 @@ module Sass::Script
 
     # Creates a {Color} object from red, green, and blue values.
     # @param red
+    #   A number between 0 and 255 inclusive,
+    #   or between 0% and 100% inclusive
+    # @param green
+    #   A number between 0 and 255 inclusive,
+    #   or between 0% and 100% inclusive
+    # @param blue
+    #   A number between 0 and 255 inclusive,
+    #   or between 0% and 100% inclusive
+    def rgb(red, green, blue)
+      rgba(red, green, blue, Number.new(1))
+    end
+
+    # Creates a {Color} object from red, green, and blue values,
+    # as well as an alpha channel indicating opacity.
+    #
+    # @param red
     #   A number between 0 and 255 inclusive
     # @param green
     #   A number between 0 and 255 inclusive
     # @param blue
     #   A number between 0 and 255 inclusive
-    def rgb(red, green, blue)
-      [red.value, green.value, blue.value].each do |v|
-        next unless v < 0 || v > 255
-        raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
+    # @param alpha
+    #   A number between 0 and 1
+    def rgba(red, green, blue, alpha)
+      assert_type red, :Number
+      assert_type green, :Number
+      assert_type blue, :Number
+      assert_type alpha, :Number
+
+      rgb = [red, green, blue].map do |c|
+        v = c.value
+        if c.numerator_units == ["%"] && c.denominator_units.empty?
+          next v * 255 / 100.0 if (0..100).include?(v)
+          raise ArgumentError.new("Color value #{c} must be between 0% and 100% inclusive")
+        else
+          next v if (0..255).include?(v)
+          raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
+        end
       end
-      Color.new([red.value, green.value, blue.value])
+
+      unless (0..1).include?(alpha.value)
+        raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1 inclusive")
+      end
+
+      Color.new(rgb + [alpha.value])
     end
 
-    # Creates a {Color} object from hue, saturation, and lightness
-    # as per the CSS3 spec (http://www.w3.org/TR/css3-color/#hsl-color).
+    # Creates a {Color} object from hue, saturation, and lightness.
+    # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
     #
     # @param hue [Number] The hue of the color.
     #   Should be between 0 and 360 degrees, inclusive
@@ -89,12 +185,39 @@ module Sass::Script
     # @return [Color] The resulting color
     # @raise [ArgumentError] if `saturation` or `lightness` are out of bounds
     def hsl(hue, saturation, lightness)
+      hsla(hue, saturation, lightness, Number.new(1))
+    end
+
+    # Creates a {Color} object from hue, saturation, and lightness,
+    # as well as an alpha channel indicating opacity.
+    # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
+    #
+    # @param hue [Number] The hue of the color.
+    #   Should be between 0 and 360 degrees, inclusive
+    # @param saturation [Number] The saturation of the color.
+    #   Must be between `0%` and `100%`, inclusive
+    # @param lightness [Number] The lightness of the color.
+    #   Must be between `0%` and `100%`, inclusive
+    # @param alpha [Number] The opacity of the color.
+    #   Must be between 0 and 1, inclusive
+    # @return [Color] The resulting color
+    # @raise [ArgumentError] if `saturation`, `lightness`, or `alpha` are out of bounds
+    def hsla(hue, saturation, lightness, alpha)
+      assert_type hue, :Number
+      assert_type saturation, :Number
+      assert_type lightness, :Number
+      assert_type alpha, :Number
+
+      unless (0..1).include?(alpha.value)
+        raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1")
+      end
+
       original_s = saturation
       original_l = lightness
       # This algorithm is from http://www.w3.org/TR/css3-color#hsl-color
       h, s, l = [hue, saturation, lightness].map { |a| a.value }
-      raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") if s < 0 || s > 100
-      raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") if l < 0 || l > 100
+      raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") unless (0..100).include?(s)
+      raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") unless (0..100).include?(l)
 
       h = (h % 360) / 360.0
       s /= 100.0
@@ -102,10 +225,104 @@ module Sass::Script
 
       m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
       m1 = l * 2 - m2
-      Color.new([hue_to_rgb(m1, m2, h + 1.0/3),
-                 hue_to_rgb(m1, m2, h),
-                 hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round })
+      Color.new(
+        [hue_to_rgb(m1, m2, h + 1.0/3),
+          hue_to_rgb(m1, m2, h),
+          hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round } +
+        [alpha.value])
     end
+
+    # Returns the red component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def red(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.red)
+    end
+
+    # Returns the green component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def green(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.green)
+    end
+
+    # Returns the blue component of a color.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def blue(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.blue)
+    end
+
+    # Returns the alpha component (opacity) of a color.
+    # This is 1 unless otherwise specified.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def alpha(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.alpha)
+    end
+    alias_method :opacity, :alpha
+
+    # Makes a color more opaque.
+    # Takes a color and an amount between `0%` and `100%`
+    # and returns a color that's that much closer to opaque.
+    #
+    # For example, `50%` will make the color twice as opaque:
+    #
+    #     opacify(rgba(0, 0, 0, 0.5), 50%) => rgba(0, 0, 0, 0.75)
+    #     opacify(rgba(0, 0, 0, 0.8), 50%) => rgba(0, 0, 0, 0.9)
+    #     opacify(rgba(0, 0, 0, 0.2), 50%) => rgba(0, 0, 0, 0.8)
+    #
+    # Specifically, `opacify(color, n%)` will make the color
+    # `n%` closer to fully opaque.
+    def opacify(color, amount)
+      assert_type color, :Color
+      assert_type amount, :Number
+      unless (0..100).include?(amount.value)
+        raise ArgumentError.new("Amount #{amount} must be between 0% and 100%")
+      end
+
+      color = color.dup
+      color.alpha += (1 - color.alpha) * (amount.value / 100.0)
+      color
+    end
+    alias_method :fade_in, :opacify
+
+    # Makes a color more transparent.
+    # Takes a color and an amount between `0%` and `100%`
+    # and returns a color that's that much closer to transparent.
+    #
+    # For example, `50%` will make the color twice as transparent:
+    #
+    #     opacify(rgba(0, 0, 0, 0.5), 50%) => rgba(0, 0, 0, 0.25)
+    #     opacify(rgba(0, 0, 0, 0.8), 50%) => rgba(0, 0, 0, 0.4)
+    #     opacify(rgba(0, 0, 0, 0.2), 50%) => rgba(0, 0, 0, 0.1)
+    #
+    # Specifically, `transparentize(color, n%)` will make the color
+    # `n%` closer to fully transparent.
+    def transparentize(color, amount)
+      assert_type color, :Color
+      assert_type amount, :Number
+      unless (0..100).include?(amount.value)
+        raise ArgumentError.new("Amount #{amount} must be between 0% and 100%")
+      end
+
+      color = color.dup
+      color.alpha *= 1 - (amount.value / 100.0)
+      color
+    end
+    alias_method :fade_out, :transparentize
 
     # Converts a decimal number to a percentage.
     # For example:
@@ -117,7 +334,7 @@ module Sass::Script
     # @raise [ArgumentError] If `value` isn't a unitless number
     def percentage(value)
       unless value.is_a?(Sass::Script::Number) && value.unitless?
-        raise ArgumentError.new("#{value} is not a unitless number")
+        raise ArgumentError.new("#{value.inspect} is not a unitless number")
       end
       Sass::Script::Number.new(value.value * 100, ['%'])
     end
@@ -180,10 +397,7 @@ module Sass::Script
     # another numeric value with the same units.
     # It yields a number to a block to perform the operation and return a number
     def numeric_transformation(value)
-      unless value.is_a?(Sass::Script::Number)
-        calling_function = caller.first.scan(/`([^']+)'/).first.first
-        raise Sass::SyntaxError.new("#{value} is not a number for `#{calling_function}'")
-      end
+      assert_type value, :Number
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
     end
 

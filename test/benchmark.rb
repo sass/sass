@@ -40,7 +40,7 @@ RBench.run(times) do
   template_name = 'standard'
   directory = File.dirname(__FILE__) + '/haml'
   haml_template    = File.read("#{directory}/templates/#{template_name}.haml")
-  erb_template     = File.read("#{directory}/rhtml/#{template_name}.rhtml")
+  erb_template     = File.read("#{directory}/erb/#{template_name}.erb")
   markaby_template = File.read("#{directory}/markaby/#{template_name}.mab")
 
   report "Cached" do
@@ -64,10 +64,10 @@ RBench.run(times) do
     Haml::Template.options[:ugly] = false
     # To cache the template
     render @base, 'haml/templates/standard'
-    render @base, 'haml/rhtml/standard'
+    render @base, 'haml/erb/standard'
 
     haml { render @base, 'haml/templates/standard' }
-    erb  { render @base, 'haml/rhtml/standard' }
+    erb  { render @base, 'haml/erb/standard' }
 
     Haml::Template.options[:ugly] = true
     render @base, 'haml/templates/standard_ugly'
@@ -81,10 +81,10 @@ RBench.run(times) do
     Haml::Template.options[:ugly] = false
     # To cache the template
     render @base, 'haml/templates/action_view'
-    render @base, 'haml/rhtml/action_view'
+    render @base, 'haml/erb/action_view'
 
     haml { render @base, 'haml/templates/action_view' }
-    erb  { render @base, 'haml/rhtml/action_view' }
+    erb  { render @base, 'haml/erb/action_view' }
 
     Haml::Template.options[:ugly] = true
     render @base, 'haml/templates/action_view_ugly'

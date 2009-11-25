@@ -362,17 +362,7 @@ END
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
-
         @module_opts = {}
-
-        begin
-          require 'haml/html'
-        rescue LoadError => err
-          dep = err.message.scan(/^no such file to load -- (.*)/)[0]
-          raise err if @options[:trace] || dep.nil? || dep.empty?
-          $stderr.puts "Required dependency #{dep} not found!\n  Use --trace for backtrace."
-          exit 1
-        end
       end
 
       # Tells optparse how to parse the arguments.
@@ -387,12 +377,20 @@ Description: Transforms an HTML file into corresponding Haml code.
 Options:
 END
 
-        opts.on('-r', '--rhtml', 'Parse RHTML tags.') do
-          @module_opts[:rhtml] = true
+        opts.on('-e', '--erb', 'Parse ERb tags.') do
+          @module_opts[:erb] = true
         end
 
-        opts.on('--no-rhtml', "Don't parse RHTML tags.") do
-          @options[:no_rhtml] = true
+        opts.on('--no-erb', "Don't parse ERb tags.") do
+          @options[:no_erb] = true
+        end
+
+        opts.on('-r', '--rhtml', 'Deprecated; same as --erb.') do
+          @module_opts[:erb] = true
+        end
+
+        opts.on('--no-rhtml', "Deprecated; same as --no-erb.") do
+          @options[:no_erb] = true
         end
 
         opts.on('-x', '--xhtml', 'Parse the input using the more strict XHTML parser.') do
@@ -407,16 +405,23 @@ END
       def process_result
         super
 
+        require 'haml/html'
+
         input = @options[:input]
         output = @options[:output]
 
-        @module_opts[:rhtml] ||= input.respond_to?(:path) && input.path =~ /\.(rhtml|erb)$/
-        @module_opts[:rhtml] &&= @options[:no_rhtml] != false
+        @module_opts[:erb] ||= input.respond_to?(:path) && input.path =~ /\.(rhtml|erb)$/
+        @module_opts[:erb] &&= @options[:no_erb] != false
 
         output.write(::Haml::HTML.new(input, @module_opts).render)
       rescue ::Haml::Error => e
         raise "#{e.is_a?(::Haml::SyntaxError) ? "Syntax error" : "Error"} on line " +
           "#{get_line e}: #{e.message}"
+      rescue LoadError => err
+        dep = err.message.scan(/^no such file to load -- (.*)/)[0]
+        raise err if @options[:trace] || dep.nil? || dep.empty?
+        $stderr.puts "Required dependency #{dep} not found!\n  Use --trace for backtrace."
+        exit 1
       end
     end
 
@@ -425,10 +430,7 @@ END
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
-
         @module_opts = {}
-
-        require 'sass/css'
       end
 
       # Tells optparse how to parse the arguments.
@@ -456,6 +458,8 @@ END
       # and runs the CSS compiler appropriately.
       def process_result
         super
+
+        require 'sass/css'
 
         input = @options[:input]
         output = @options[:output]

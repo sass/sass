@@ -58,7 +58,9 @@ module Haml
     # @return [String]
     def precompiled
       return @precompiled if ruby1_8?
-      return @precompiled.encode(Encoding.find(@options[:encoding]))
+      encoding = Encoding.find(@options[:encoding])
+      return @precompiled.force_encoding(encoding) if encoding == Encoding::BINARY
+      return @precompiled.encode(encoding)
     end
 
     # Precompiles the Haml template.
@@ -110,7 +112,6 @@ module Haml
       @precompiled = ''
       @to_merge = []
       @tab_change  = 0
-      @temp_count = 0
 
       precompile
     rescue Haml::Error => e
@@ -179,14 +180,13 @@ module Haml
         @haml_buffer = buffer
       end
 
-      eval(precompiled, scope, @options[:filename], @options[:line])
-
+      eval(precompiled + ";" + precompiled_method_return_value,
+        scope, @options[:filename], @options[:line])
+    ensure
       # Get rid of the current buffer
       scope_object.instance_eval do
         @haml_buffer = buffer.upper
       end
-
-      buffer.buffer
     end
     alias_method :to_html, :render
 
@@ -288,6 +288,7 @@ module Haml
         :ugly => @options[:ugly],
         :format => @options[:format],
         :encoding => @options[:encoding],
+        :escape_html => @options[:escape_html],
       }
     end
 

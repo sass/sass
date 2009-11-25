@@ -8,16 +8,16 @@ module Sass
     class Lexer
       # A struct containing information about an individual token.
       #
-      # `type`: [{Symbol}]
+      # `type`: \[{Symbol}\]
       # : The type of token.
       #
-      # `value`: [{Object}]
+      # `value`: \[{Object}\]
       # : The Ruby object corresponding to the value of the token.
       #
-      # `line`: [{Fixnum}]
+      # `line`: \[{Fixnum}\]
       # : The line of the source file on which the token appears.
       #
-      # `offset`: [{Fixnum}]
+      # `offset`: \[{Fixnum}\]
       # : The number of bytes into the line the SassScript token appeared.
       Token = Struct.new(:type, :value, :line, :offset)
 
@@ -52,13 +52,32 @@ module Sass
       # A hash of regular expressions that are used for tokenizing.
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s*/,
-        :variable => /!(\w+)/,
-        :ident => /(\\.|\#\{|[^\s\\+\-*\/%(),=!])+/,
-        :string_end => /((?:\\.|\#[^{]|[^"\\#])*)(?:"|(?=#\{))/,
+        :variable => /!([\w-]+)/,
+        :ident => /(\\.|[^\s\\+*\/%(),=!])+/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
-        :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})/,
+        :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})(?!\()/,
         :bool => /(true|false)\b/,
         :op => %r{(#{Regexp.union(*OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(?:\b|$)' : ''))})})}
+      }
+
+      class << self
+        private
+        def string_re(open, close)
+          /#{open}((?:\\.|\#(?!\{)|[^#{close}\\#])*)(#{close}|(?=#\{))/
+        end
+      end
+
+      # A hash of regular expressions that are used for tokenizing strings.
+      #
+      # The key is a [Symbol, Boolean] pair.
+      # The symbol represents which style of quotation to use,
+      # while the boolean represents whether or not the string
+      # is following an interpolated segment.
+      STRING_REGULAR_EXPRESSIONS = {
+        [:double, false] => string_re('"', '"'),
+        [:single, false] => string_re("'", "'"),
+        [:double, true] => string_re('', '"'),
+        [:single, true] => string_re('', "'"),
       }
 
       # @param str [String, StringScanner] The source text to lex
@@ -71,6 +90,7 @@ module Sass
         @line = line
         @offset = offset
         @filename = filename
+        @interpolation_stack = []
         @prev = nil
       end
 
@@ -114,8 +134,8 @@ module Sass
       end
 
       def token
-        return string('') if after_interpolation?
-        variable || string || number || color || bool || op || ident
+        return string(@interpolation_stack.pop, true) if after_interpolation?
+        variable || string(:double, false) || string(:single, false) || number || color || bool || op || ident
       end
 
       def variable
@@ -128,13 +148,10 @@ module Sass
         [:ident, s.gsub(/\\(.)/, '\1')]
       end
 
-      def string(start_char = '"')
-        return unless @scanner.scan(/#{start_char}#{REGULAR_EXPRESSIONS[:string_end]}/)
+      def string(re, open)
+        return unless @scanner.scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
+        @interpolation_stack << re if @scanner[2].empty? # Started an interpolated section
         [:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1"))]
-      end
-
-      def begin_interpolation
-        @scanner.scan
       end
 
       def number
@@ -162,16 +179,6 @@ module Sass
       def op
         prev_chr = @scanner.string[@scanner.pos - 1].chr
         return unless op = @scanner.scan(REGULAR_EXPRESSIONS[:op])
-        if @prev && op == '-' && prev_chr !~ /\s/ &&
-            [:bool, :ident, :const].include?(@prev.type)
-          warn(<<END)
-DEPRECATION WARNING:
-On line #{@line}, character #{last_match_position}#{" of '#{@filename}'" if @filename}
-- will be allowed as part of variable names in version 2.4.
-Please add whitespace to separate it from the previous token.
-END
-        end
-
         [OPERATORS[op]]
       end
 

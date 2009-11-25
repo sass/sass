@@ -9,17 +9,22 @@ require 'sass'
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
-# required because of Sass::Plugin
-unless defined? RAILS_ROOT
-  RAILS_ROOT = '.'
-  MERB_ENV = RAILS_ENV  = 'testing'
+module Sass::Script::Functions
+  def option(name)
+    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+  end
 end
 
 class Test::Unit::TestCase
   def munge_filename(opts)
     return if opts[:filename]
-    test_name = caller[1].gsub(/^.*`(?:\w+ )*(\w+)'.*$/, '\1')
-    opts[:filename] = "#{test_name}_inline.sass"
+    opts[:filename] = test_filename(caller[1])
+  end
+
+  def test_filename(entry = caller.first)
+    test_name = Haml::Util.caller_info(entry)[2]
+    test_name.sub!(/^block in /, '')
+    "#{test_name}_inline.sass"
   end
 
   def clean_up_sassc
@@ -35,10 +40,7 @@ class Test::Unit::TestCase
     $stderr = the_real_stderr
   end
 
-  def silence_warnings
-    the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
-  ensure
-    $stderr = the_real_stderr
+  def silence_warnings(&block)
+    Haml::Util.silence_warnings(&block)
   end
 end

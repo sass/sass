@@ -22,7 +22,8 @@ module Sass
       end
 
       # @see \{Node#perform}
-      def perform(*args)
+      def perform(environment)
+        environment.options = @options if environment.options.nil? || environment.options.empty?
         super
       rescue Sass::SyntaxError => e
         e.sass_template = @template
@@ -40,8 +41,11 @@ module Sass
       def _to_s(*args)
         result = String.new
         children.each do |child|
-          raise Sass::SyntaxError.new('Properties aren\'t allowed at the root of a document.',
-            :line => child.line) if child.is_a? PropNode
+          if child.is_a? PropNode
+            message = "Properties aren't allowed at the root of a document." +
+              child.pseudo_class_selector_message
+            raise Sass::SyntaxError.new(message, :line => child.line)
+          end
 
           next if child.invisible?
           child_str = child.to_s(1)

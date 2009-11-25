@@ -76,6 +76,25 @@ may be compiled to:
       </div>
     </div>
 
+#### Rails XSS Protection
+
+Haml supports Rails' XSS protection scheme,
+which was introduced in Rails 2.3.5+ and is enabled by default in 3.0.0+.
+If it's enabled, Haml's [`:escape_html`](#escape_html-option)
+option is set to `true` by default -
+like in ERB, all strings printed to a Haml template are escaped by default.
+Also like ERB, strings marked as HTML safe are not escaped.
+Haml also has [its own syntax for printing a raw string to the template](#unescaping_html).
+
+If the `:escape_html` option is set to false when XSS protection is enabled,
+Haml doesn't escape Ruby strings by default.
+However, if a string marked HTML-safe is passed to [Haml's escaping syntax](#escaping_html),
+it won't be escaped.
+
+Finally, all the {file:Haml/Helpers.html Haml helpers} that return strings
+that are known to be HTML safe are marked as such.
+In addition, string input is escaped unless it's HTML safe.
+
 ### Ruby Module
 
 Haml can also be used completely separately from Rails and ActionView.
@@ -111,10 +130,11 @@ Available options are:
 
 {#escape_html-option} `:escape_html`
 : Sets whether or not to escape HTML-sensitive characters in script.
-  If this is true, `=` behaves like `&=`;
-  otherwise, it behaves like `!=`.
+  If this is true, `=` behaves like [`&=`](#escaping_html);
+  otherwise, it behaves like [`!=`](#unescaping_html).
   Note that if this is set, `!=` should be used for yielding to subtemplates
   and rendering partials.
+  See also [Escaping HTML](#escaping_html) and [Unescaping HTML](#unescaping_html)
   Defaults to false.
 
 {#ugly-option} `:ugly`
@@ -153,6 +173,8 @@ Available options are:
 {#autoclose-option} `:autoclose`
 : A list of tag names that should be automatically self-closed
   if they have no content.
+  This can also contain regular expressions that match tag names
+  (or any object which responds to `#===`).
   Defaults to `['meta', 'img', 'link', 'br', 'hr', 'input', 'area', 'param', 'col', 'base']`.
 
 {#preserve-option} `:preserve`
@@ -171,6 +193,14 @@ Available options are:
   any strings coming from outside the application should be converted
   before being passed into the Haml template.
   Defaults to `Encoding.default_internal` or, if that's not set, `"utf-8"`.
+  <br/><br/> <!-- There's no better way to do a paragraph break in a dl in Maruku -->
+  Many Ruby database drivers are not yet Ruby 1.9 compatible;
+  in particular, they return strings marked as ASCII-encoded
+  even when those strings contain non-ASCII characters (such as UTF-8).
+  **This will cause encoding errors** if the Haml encoding isn't set to `"ascii-8bit"`.
+  To solve this, either call `#force_encoding` on all the strings returned from the database,
+  set `:encoding` to `"ascii-8bit"`, or try to get the authors of the database drivers
+  to make them Ruby 1.9 compatible.
 
 ## Plain Text
 
@@ -634,40 +664,55 @@ is compiled to:
       </body>
     </html>
 
-You can also specify the version and type of XHTML after the `!!!`.
-XHTML 1.0 Strict, Transitional, and Frameset and XHTML 1.1 are supported.
-The default version is 1.0 and the default type is Transitional.
-For example:
+You can also specify the specific doctype after the `!!!`
+When the [`:format`](#format) is set to `:xhtml` (the default),
+the following doctypes are supported:
 
-    !!! 1.1
+`!!!`
+: XHTML 1.0 Transitional<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">`
 
-is compiled to:
+`!!! Strict`
+: XHTML 1.0 Strict<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">`
 
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+`!!! Frameset`
+: XHTML 1.0 Frameset<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">`
 
-and
+`!!! 5`
+: XHTML 5<br/>
+ `<!DOCTYPE html>`<br/>
 
-    !!! Strict
+`!!! 1.1`
+: XHTML 1.1<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">`
 
-is compiled to:
+`!!! Basic`
+: XHTML Basic 1.1<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"> `
 
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+`!!! Mobile`
+: XHTML Mobile 1.2<br/>
+ `<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">`
 
-while 
+When the [`:format`](#format) option is set to `:html4`,
+the following doctypes are supported:
 
-    !!! Basic
+`!!!`
+: HTML 4.01 Transitional<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">`
 
-is compiled to:
+`!!! Strict`
+: HTML 4.01 Strict<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">`
 
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"> 
+`!!! Frameset`
+: HTML 4.01 Frameset<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">`
 
-and
-  
-    !!! Mobile
-
-is compiled to: 
-
-    <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
+When the [`:format`](#format) option is set to `:html5`,
+`!!!` is always `<!DOCTYPE html>`.
 
 If you're not using the UTF-8 character set for your document,
 you can specify which encoding should appear
@@ -1000,7 +1045,7 @@ compiles to
 
     I feel <strong>!
 
-## Filters: `:` {#filters}
+## Filters {#filters}
 
 The colon character designates a filter.
 This allows you to pass an indented block of text as input
@@ -1042,60 +1087,78 @@ This means that `#{}` interpolation within filters is never HTML-escaped.
 
 Haml has the following filters defined:
 
-{#plain-filter} plain
-: Does not parse the filtered text.
-  This is useful for large blocks of text without HTML tags,
-  when you don't want lines starting with `.` or `-` to be parsed.
+{#plain-filter}
+### `:plain`
+Does not parse the filtered text.
+This is useful for large blocks of text without HTML tags,
+when you don't want lines starting with `.` or `-` to be parsed.
 
-{#javascript-filter} javascript
-: Surrounds the filtered text with `<script>` and CDATA tags.
-  Useful for including inline Javascript.
+{#javascript-filter}
+### `:javascript`
+Surrounds the filtered text with `<script>` and CDATA tags.
+Useful for including inline Javascript.
 
-{#cdata-filter} cdata
-: Surrounds the filtered text with CDATA tags.
+{#css-filter}
+### `:css`
+Surrounds the filtered text with `<style>` and CDATA tags.
+Useful for including inline CSS.
 
-{#escaped-filter} escaped
-: Works the same as plain, but HTML-escapes the text
-  before placing it in the document.
+{#cdata-filter}
+### `:cdata`
+Surrounds the filtered text with CDATA tags.
 
-{#ruby-filter} ruby
-: Parses the filtered text with the normal Ruby interpreter.
-  All output sent to `$stdout`, like with `puts`,
-  is output into the Haml document.
-  Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
-  The Ruby code is evaluated in the same context as the Haml template.
+{#escaped-filter}
+### `:escaped`
+Works the same as plain, but HTML-escapes the text
+before placing it in the document.
 
-{#preserve-filter} preserve
-: Inserts the filtered text into the template with whitespace preserved.
-  `preserve`d blocks of text aren't indented,
-  and newlines are replaced with the HTML escape code for newlines,
-  to preserve nice-looking output.
-  See also [Whitespace Preservation](#whitespace_preservation).
+{#ruby-filter}
+### `:ruby`
+Parses the filtered text with the normal Ruby interpreter.
+All output sent to `$stdout`, like with `puts`,
+is output into the Haml document.
+Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
+The Ruby code is evaluated in the same context as the Haml template.
 
-{#erb-filter} erb
-: Parses the filtered text with ERB, like an RHTML template.
-  Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
-  Embedded Ruby code is evaluated in the same context as the Haml template.
+{#preserve-filter}
+### `:preserve`
+Inserts the filtered text into the template with whitespace preserved.
+`preserve`d blocks of text aren't indented,
+and newlines are replaced with the HTML escape code for newlines,
+to preserve nice-looking output.
+See also [Whitespace Preservation](#whitespace_preservation).
 
-{#sass-filter} sass
-: Parses the filtered text with Sass to produce CSS output.
+{#erb-filter}
+### `:erb`
+Parses the filtered text with ERb, like an RHTML template.
+Not available if the [`:suppress_eval`](#suppress_eval-option) option is set to true.
+Embedded Ruby code is evaluated in the same context as the Haml template.
 
-{#textile-filter} textile
-: Parses the filtered text with [Textile](http://www.textism.com/tools/textile).
-  Only works if [RedCloth](http://redcloth.org) is installed.
+{#sass-filter}
+### `:sass`
+Parses the filtered text with Sass to produce CSS output.
 
-{#markdown-filter} markdown
-: Parses the filtered text with [Markdown](http://daringfireball.net/projects/markdown).
-  Only works if [RDiscount](http://github.com/rtomayko/rdiscount),
-  [RPeg-Markdown](http://github.com/rtomayko/rpeg-markdown),
-  [Maruku](http://maruku.rubyforge.org),
-  or [BlueCloth](www.deveiate.org/projects/BlueCloth) are installed.
+{#textile-filter}
+### `:textile`
+Parses the filtered text with [Textile](http://www.textism.com/tools/textile).
+Only works if [RedCloth](http://redcloth.org) is installed.
 
-{#maruku-filter} maruku
-: Parses the filtered text with [Maruku](http://maruku.rubyforge.org),
-  which has some non-standard extensions to Markdown.
+{#markdown-filter}
+### `:markdown`
+Parses the filtered text with [Markdown](http://daringfireball.net/projects/markdown).
+Only works if [RDiscount](http://github.com/rtomayko/rdiscount),
+[RPeg-Markdown](http://github.com/rtomayko/rpeg-markdown),
+[Maruku](http://maruku.rubyforge.org),
+or [BlueCloth](www.deveiate.org/projects/BlueCloth) are installed.
 
-You can also define your own filters (see {Haml::Filters}).
+{#maruku-filter}
+### `:maruku`
+Parses the filtered text with [Maruku](http://maruku.rubyforge.org),
+which has some non-standard extensions to Markdown.
+
+### Custom Filters
+
+You can also define your own filters. See {Haml::Filters} for details.
 
 ## Multiline: `|` {#multiline}
 
@@ -1145,8 +1208,8 @@ Haml deals with this by "preserving" newlines before they're put into the docume
 converting them to the XHTML whitespace escape code, `&#x000A;`.
 Then Haml won't try to re-format the indentation.
 
-Literal `textarea` and `pre` tags automatically preserve their content.
-Dynamically can't be caught automatically,
+Literal `textarea` and `pre` tags automatically preserve content given through `=`.
+Dynamically-generated `textarea`s and `pre`s can't be preserved automatically,
 and so should be passed through {Haml::Helpers#find\_and\_preserve} or the [`~` command](#tilde),
 which has the same effect.
 

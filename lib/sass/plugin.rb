@@ -1,4 +1,4 @@
-require 'sass/engine'
+require 'sass'
 
 module Sass
   # This module handles the compilation of Sass files.
@@ -7,7 +7,9 @@ module Sass
   #
   # This module is used as the primary interface with Sass
   # when it's used as a plugin for various frameworks.
-  # Currently Rails and Merb are supported out of the box.
+  # All Rack-enabled frameworks are supported out of the box.
+  # The plugin is {file:SASS_REFERENCE.md#rails_merb_plugin automatically activated for Rails and Merb}.
+  # Other frameworks must enable it explicitly; see {Sass::Plugin::Rack}.
   module Plugin
     include Haml::Util
     extend self
@@ -48,6 +50,17 @@ module Sass
       opts = options.dup.merge(additional_options)
       opts[:load_paths] = load_paths(opts)
       opts
+    end
+
+    # Same as \{#update\_stylesheets}, but respects \{#checked\_for\_updates}
+    # and the {file:SASS_REFERENCE.md#always_update-option `:always_update`}
+    # and {file:SASS_REFERENCE.md#always_check-option `:always_check`} options.
+    #
+    # @see #update_stylesheets
+    def check_for_updates
+      return unless !Sass::Plugin.checked_for_updates ||
+          Sass::Plugin.options[:always_update] || Sass::Plugin.options[:always_check]
+      update_stylesheets
     end
 
     # Updates out-of-date stylesheets.

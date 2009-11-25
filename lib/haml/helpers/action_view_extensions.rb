@@ -35,6 +35,21 @@ module Haml
         controller.controller_name + " " + controller.action_name
       end
       alias_method :generate_content_class_names, :page_class
+
+      # Treats all input to \{Haml::Helpers#haml\_concat} within the block
+      # as being HTML safe for Rails' XSS protection.
+      # This is useful for wrapping blocks of code that concatenate HTML en masse.
+      #
+      # This has no effect if Rails' XSS protection isn't enabled.
+      #
+      # @yield A block in which all input to `#haml_concat` is treated as raw.
+      # @see Haml::Util#rails_xss_safe?
+      def with_raw_haml_concat
+        @_haml_concat_raw = true
+        yield
+      ensure
+        @_haml_concat_raw = false
+      end
     end
   end
 end

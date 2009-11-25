@@ -107,15 +107,15 @@ module Sass
     # Includes named mixin declared using MIXIN_DEFINITION_CHAR
     MIXIN_INCLUDE_CHAR    = ?+
 
-    # The regex that matches properties of the form <tt>name: prop</tt>.
-    PROPERTY_NEW_MATCHER = /^[^\s:"]+\s*[=:](\s|$)/
+    # The regex that matches properties of the form `name: prop`.
+    PROPERTY_NEW_MATCHER = /^[^\s:"\[]+\s*[=:](\s|$)/
 
     # The regex that matches and extracts data from
-    # properties of the form <tt>name: prop</tt>.
+    # properties of the form `name: prop`.
     PROPERTY_NEW = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
 
     # The regex that matches and extracts data from
-    # properties of the form <tt>:name prop</tt>.
+    # properties of the form `:name prop`.
     PROPERTY_OLD = /^:([^\s=:"]+)\s*(=?)(?:\s+|$)(.*)/
 
     # The default options for Sass::Engine.
@@ -329,12 +329,16 @@ LONG
     def parse_line(parent, line, root)
       case line.text[0]
       when PROPERTY_CHAR
-        if line.text[1] != PROPERTY_CHAR
-          parse_property(line, PROPERTY_OLD)
-        else
+        if line.text[1] == PROPERTY_CHAR ||
+            (@options[:property_syntax] == :new &&
+             line.text =~ PROPERTY_OLD && $3.empty?)
           # Support CSS3-style pseudo-elements,
-          # which begin with ::
+          # which begin with ::,
+          # as well as pseudo-classes
+          # if we're using the new property syntax
           Tree::RuleNode.new(line.text)
+        else
+          parse_property(line, PROPERTY_OLD)
         end
       when Script::VARIABLE_CHAR
         parse_variable(line)

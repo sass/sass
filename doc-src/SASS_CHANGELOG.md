@@ -5,16 +5,47 @@
 
 ## 2.4.0 (Unreleased)
 
+### Colors
+
+Sass now supports colors with alpha channels,
+constructed via the {Sass::Script::Functions#rgba rgba}
+and {Sass::Script::Functions#hsla hsla} functions.
+Alpha channels are unaffected by color arithmetic.
+However, the {Sass::Script::Functions#opacify opacify}
+and {Sass::Script::Functions#transparentize transparentize} functions
+allow colors to be made more and less opaque, respectively.
+
+Sass now also supports functions that return the values of the
+{Sass::Script::Functions#red red},
+{Sass::Script::Functions#blue blue},
+{Sass::Script::Functions#green green},
+and {Sass::Script::Functions#alpha alpha}
+components of colors.
+
+### Variable Names
+
+SassScript variable names may now contain hyphens.
+For example:
+
+    !prettiest-color = #542FA9
+
+### Single-Quoted Strings
+
+SassScript now supports single-quoted strings.
+They behave identically to double-quoted strings,
+except that single quotes need to be backslash-escaped
+and double quotes do not.
+
 ### Error Backtraces
 
 Numerous bugs were fixed with the backtraces given for Sass errors,
-especially when importing files.
-All imports will now show up in the Ruby backtrace,
+especially when importing files and using mixins.
+All imports and mixins will now show up in the Ruby backtrace,
 with the proper filename and line number.
 
 In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
-as well as a backtrace of Sass imports.
+as well as a backtrace of Sass imports and mixins.
 
 ### Formatting
 
@@ -39,6 +70,11 @@ Sass and `css2sass` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
+### Rack Support
+
+The Sass Rails plugin now works using Rack middleware by default
+in versions of Rails that support it (2.3 and onwards).
+
 ### `css2sass` Error Handling
 
 Several bug fixes and minor improvements have been made, including:
@@ -50,6 +86,96 @@ Several bug fixes and minor improvements have been made, including:
 
 * Displaying the expected strings as strings rather than regular expressions
   whenever possible.
+
+### Minor Changes
+
+* If a CSS or Sass function is used that has the name of a color,
+  it will now be parsed as a function rather than as a color.
+  For example, `fuchsia(12)` now renders as `fuchsia(12)`
+  rather than `fuchsia 12`.
+
+## 2.2.15 (Unreleased)
+
+* Added {Sass::Script::Color#with} for a way of setting color channels
+  that's easier than manually constructing a new color
+  and is forwards-compatible with alpha-channel colors
+  (to be introduced in Sass 2.4).
+
+## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
+
+* All Sass functions now raise explicit errors if their inputs
+  are of the incorrect type.
+
+* Allow the SassScript `rgb()` function to take percentages
+  in addition to numerical values.
+
+* Fixed a bug where SassScript strings with `#` followed by `#{}` interpolation
+  didn't evaluate the interpolation.
+
+### SassScript Ruby API
+
+These changes only affect people defining their own Sass functions
+using {Sass::Script::Functions}.
+
+* {Sass::Script::Color#value} attribute is deprecated.
+  Use {Sass::Script::Color#rgb} instead.
+  The returned array is now frozen as well.
+
+* Add an `assert_type` function that's available to {Sass::Script::Functions}.
+  This is useful for typechecking the inputs to functions.
+
+### Rack Support
+
+Sass 2.2.14 includes Rack middleware for running Sass,
+meaning that all Rack-enabled frameworks can now use Sass.
+To activate this, just add
+
+    require 'sass/plugin/rack'
+    use Sass::Plugin::Rack
+
+to your `config.ru`.
+See the {Sass::Plugin::Rack} documentation for more details.
+
+## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
+
+There were no changes made to Sass between versions 2.2.12 and 2.2.13.
+
+## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
+
+* Fix a stupid bug introduced in 2.2.11 that broke the Sass Rails plugin.
+
+## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
+
+* Added a note to errors on properties that could be pseudo-classes (e.g. `:focus`)
+  indicating that they should be backslash-escaped.
+
+* Automatically interpret properties that could be pseudo-classes as such
+  if {file:SASS_REFERENCE.md.html#property_syntax-option `:property_syntax`}
+  is set to `:new`.
+
+* Fixed `css2sass`'s generation of pseudo-classes so that they're backslash-escaped.
+
+* Don't crash if the Haml plugin skeleton is installed and `rake gems:install` is run.
+
+* Don't use `RAILS_ROOT` directly.
+  This no longer exists in Rails 3.0.
+  Instead abstract this out as `Haml::Util.rails_root`.
+  This changes makes Haml fully compatible with edge Rails as of this writing.
+
+* Make use of a Rails callback rather than a monkeypatch to check for stylesheet updates
+  in Rails 3.0+.
+
+## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
+
+* Add support for attribute selectors with spaces around the `=`.
+  For example:
+
+      a[href = http://google.com]
+        color: blue
+
+## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
+
+There were no changes made to Sass between versions 2.2.8 and 2.2.9.
 
 ## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
 
@@ -63,7 +189,7 @@ There were no changes made to Sass between versions 2.2.6 and 2.2.7.
 
 * Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
   as apparently happens sometimes in TextMate
-  (thanks to [Karl Varga](http://github.com/kjvarga).
+  (thanks to [Karl Varga](http://github.com/kjvarga)).
 
 * Add "Sass" to the `--version` string for the executables.
 

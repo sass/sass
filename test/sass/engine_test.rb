@@ -18,8 +18,11 @@ class SassEngineTest < Test::Unit::TestCase
     ":" => 'Invalid property: ":".',
     ": a" => 'Invalid property: ": a".',
     ":= a" => 'Invalid property: ":= a".',
-    "a\n  :b" => 'Invalid property: ":b " (no value).',
-    "a\n  b:" => 'Invalid property: "b: " (no value).',
+    "a\n  :b" => <<MSG,
+Invalid property: ":b" (no value).
+If ":b" should be a selector, use "\\:b" instead.
+MSG
+    "a\n  b:" => 'Invalid property: "b:" (no value).',
     "a\n  :b: c" => 'Invalid property: ":b: c".',
     "a\n  :b:c d" => 'Invalid property: ":b:c d".',
     "a\n  :b=c d" => 'Invalid property: ":b=c d".',
@@ -28,6 +31,12 @@ class SassEngineTest < Test::Unit::TestCase
     "a\n  b : c" => 'Invalid property: "b : c".',
     "a\n  b=c: d" => 'Invalid property: "b=c: d".',
     "a: b" => 'Properties aren\'t allowed at the root of a document.',
+    ":a b" => 'Properties aren\'t allowed at the root of a document.',
+    "a:" => 'Properties aren\'t allowed at the root of a document.',
+    ":a" => <<MSG,
+Properties aren't allowed at the root of a document.
+If ":a" should be a selector, use "\\:a" instead.
+MSG
     "!" => 'Invalid variable: "!".',
     "!a" => 'Invalid variable: "!a".',
     "! a" => 'Invalid variable: "! a".',
@@ -134,7 +143,7 @@ class SassEngineTest < Test::Unit::TestCase
       rescue Sass::SyntaxError => err
         value = [value] unless value.is_a?(Array)
 
-        assert_equal(value.first, err.message, "Line: #{key}")
+        assert_equal(value.first.rstrip, err.message, "Line: #{key}")
         assert_equal(__FILE__, err.sass_filename)
         assert_equal((value[1] || key.split("\n").length) + line - 1, err.sass_line, "Line: #{key}")
         assert_match(/#{Regexp.escape(__FILE__)}:[0-9]+/, err.backtrace[0], "Line: #{key}")
@@ -187,8 +196,8 @@ SASS
         assert_equal(2, err.sass_line)
         assert_match(/(\/|^)bork#{i}\.sass$/, err.sass_filename)
 
-        assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
-        assert_equal(err.sass_line, err.sass_backtrace.first[:line])
+        assert_hash_has(err.sass_backtrace.first,
+          :filename => err.sass_filename, :line => err.sass_line)
 
         assert_nil(err.sass_backtrace[1][:filename])
         assert_equal(1, err.sass_backtrace[1][:line])
@@ -209,8 +218,8 @@ SASS
         assert_equal(2, err.sass_line)
         assert_match(/(\/|^)bork#{i}\.sass$/, err.sass_filename)
 
-        assert_equal(err.sass_filename, err.sass_backtrace.first[:filename])
-        assert_equal(err.sass_line, err.sass_backtrace.first[:line])
+        assert_hash_has(err.sass_backtrace.first,
+          :filename => err.sass_filename, :line => err.sass_line)
 
         assert_match(/(\/|^)nested_bork#{i}\.sass$/, err.sass_backtrace[1][:filename])
         assert_equal(2, err.sass_backtrace[1][:line])
@@ -227,13 +236,82 @@ SASS
     end
   end
 
+  def test_mixin_exception
+    render(<<SASS)
+=error-mixin(!a)
+  color = !a * 1em * 1px
+
+=outer-mixin(!a)
+  +error-mixin(!a)
+
+.error
+  +outer-mixin(12)
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal(2, err.sass_line)
+    assert_equal(test_filename, err.sass_filename)
+    assert_equal("error-mixin", err.sass_mixin)
+
+    assert_hash_has(err.sass_backtrace.first, :line => err.sass_line,
+      :filename => err.sass_filename, :mixin => err.sass_mixin)
+    assert_hash_has(err.sass_backtrace[1], :line => 5,
+      :filename => test_filename, :mixin => "outer-mixin")
+    assert_hash_has(err.sass_backtrace[2], :line => 8,
+      :filename => test_filename, :mixin => nil)
+
+    assert_equal("#{test_filename}:2:in `error-mixin'", err.backtrace.first)
+    assert_equal("#{test_filename}:5:in `outer-mixin'", err.backtrace[1])
+    assert_equal("#{test_filename}:8", err.backtrace[2])
+  end
+
+  def test_mixin_callsite_exception
+    render(<<SASS)
+=one-arg-mixin(!a)
+  color = !a
+
+=outer-mixin(!a)
+  +one-arg-mixin(!a, 12)
+
+.error
+  +outer-mixin(12)
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_hash_has(err.sass_backtrace.first, :line => 5,
+      :filename => test_filename, :mixin => "one-arg-mixin")
+    assert_hash_has(err.sass_backtrace[1], :line => 5,
+      :filename => test_filename, :mixin => "outer-mixin")
+    assert_hash_has(err.sass_backtrace[2], :line => 8,
+      :filename => test_filename, :mixin => nil)
+  end
+
+  def test_mixin_and_import_exception
+    Sass::Engine.new("@import nested_mixin_bork", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_match(/(\/|^)nested_mixin_bork\.sass$/, err.sass_backtrace.first[:filename])
+    assert_hash_has(err.sass_backtrace.first, :mixin => "error-mixin", :line => 4)
+
+    assert_match(/(\/|^)mixin_bork\.sass$/, err.sass_backtrace[1][:filename])
+    assert_hash_has(err.sass_backtrace[1], :mixin => "outer-mixin", :line => 2)
+
+    assert_match(/(\/|^)mixin_bork\.sass$/, err.sass_backtrace[2][:filename])
+    assert_hash_has(err.sass_backtrace[2], :mixin => nil, :line => 5)
+
+    assert_match(/(\/|^)nested_mixin_bork\.sass$/, err.sass_backtrace[3][:filename])
+    assert_hash_has(err.sass_backtrace[3], :mixin => nil, :line => 6)
+
+    assert_hash_has(err.sass_backtrace[4], :filename => nil, :mixin => nil, :line => 1)
+  end
+
   def test_exception_css_with_offset
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
   rescue Sass::SyntaxError => e
     assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..15].join("\n"))
 /*
-Syntax error: Invalid property: "e: " (no value).
+Syntax error: Invalid property: "e:" (no value).
         on line 383 of test_exception_css_with_offset_inline.sass
 
 378: a
@@ -250,6 +328,38 @@ Syntax error: Invalid property: "e: " (no value).
 CSS
   else
     assert(false, "Exception not raised for test_exception_css_with_offset")
+  end
+
+  def test_exception_css_with_mixins
+    opts = {:full_exception => true}
+    render(<<SASS, opts)
+=error-mixin(!a)
+  color = !a * 1em * 1px
+
+=outer-mixin(!a)
+  +error-mixin(!a)
+
+.error
+  +outer-mixin(12)
+SASS
+  rescue Sass::SyntaxError => e
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..13].join("\n"))
+/*
+Syntax error: 12em*px isn't a valid CSS value.
+        on line 2 of test_exception_css_with_mixins_inline.sass, in `error-mixin'
+        from line 5 of test_exception_css_with_mixins_inline.sass, in `outer-mixin'
+        from line 8 of test_exception_css_with_mixins_inline.sass
+
+1: =error-mixin(!a)
+2:   color = !a * 1em * 1px
+3: 
+4: =outer-mixin(!a)
+5:   +error-mixin(!a)
+6: 
+7: .error
+CSS
+  else
+    assert(false, "Exception not raised")
   end
 
   def test_css_import
@@ -758,6 +868,17 @@ foo {
 CSS
   end
 
+  def test_attribute_selector_with_spaces
+    assert_equal(<<CSS, render(<<SASS))
+a b[foo = bar] {
+  c: d; }
+CSS
+a
+  b[foo = bar]
+    c: d
+SASS
+  end
+
   def test_quoted_colon
     assert_equal(<<CSS, render(<<SASS))
 a b[foo="bar: baz"] {
@@ -808,6 +929,27 @@ END
 
 foo, bar, baz,
 bang, bip, bop
+SASS
+  end
+
+  def test_root_level_pseudo_class_with_new_properties
+    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+:focus {
+  outline: 0; }
+CSS
+:focus
+  outline: 0
+SASS
+  end
+
+  def test_pseudo_class_with_new_properties
+    assert_equal(<<CSS, render(<<SASS, :property_syntax => :new))
+p :focus {
+  outline: 0; }
+CSS
+p
+  :focus
+    outline: 0
 SASS
   end
 
@@ -926,6 +1068,16 @@ a
 SASS
   end
 
+  def test_options_available_in_environment
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: nested; }
+CSS
+a
+  b= option("style")
+SASS
+  end
+
   # Encodings
 
   unless Haml::Util.ruby1_8?
@@ -949,7 +1101,11 @@ SASS
   end
 
   private
-  
+
+  def assert_hash_has(hash, expected)
+    expected.each {|k, v| assert_equal(v, hash[k])}
+  end
+
   def render(sass, options = {})
     munge_filename options
     Sass::Engine.new(sass, options).render

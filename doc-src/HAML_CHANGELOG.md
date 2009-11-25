@@ -12,6 +12,11 @@ for a given object by implementing the `haml_object_ref` method on that object.
 This method should return a string that will be used in place of the class name of the object
 in the generated class and id.
 
+### More Powerful `:autoclose` Option
+
+The {file:HAML_REFERENCE.md#attributes_option `:attributes`} option
+can now take regular expressions that specify which tags to make self-closing.
+
 ### `--double-quote-attributes` Option
 
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
@@ -29,11 +34,203 @@ Haml and `html2haml` now produce more descriptive errors
 when given a template with invalid byte sequences for that template's encoding,
 including the line number and the offending character.
 
-## 2.2.9 (Unreleased)
+### `:css` Filter
+
+Haml now supports a {file:HAML_REFERENCE.md#css-filter `:css` filter}
+that surrounds the filtered text with `<style>` and CDATA tags.
+
+### `html2haml` Improvements
+
+* Ruby blocks within ERB are now supported.
+  The Haml code is properly indented and the `end`s are removed.
+  This includes methods with blocks and all language constructs
+  such as `if`, `begin`, and `case`.
+  For example:
+
+      <% content_for :footer do %>
+        <p>Hi there!</p>
+      <% end %>
+
+  is now transformed into:
+
+      - content_for :footer do
+        %p Hi there!
+
+  Thanks to [Jack Chen](http://chendo.net) and [Dr. Nic Williams](http://drnicwilliams)
+  for inspiring this and creating the first draft of the code.
+
+* Inline HTML text nodes are now transformed into inline Haml text.
+  For example, `<p>foo</p>` now becomes `%p foo`, whereas before it became:
+
+      %p
+        foo
+
+  The same is true for inline comments,
+  and inline ERB when running in ERB mode:
+  `<p><%= foo %></p>` will now become `%p= foo`.
+
+* ERB included within text is now transformed into Ruby interpolation.
+  For example:
+
+      <p>
+        Foo <%= bar %> baz!
+        Flip <%= bang %>.
+      </p>
+
+  is now transformed into:
+
+      %p
+        Foo #{bar} baz!
+        Flip #{bang}.
+
+* `<script>` tags are now transformed into `:javascript` filters,
+  and `<style>` tags into `:css` filters.
+  and indentation is preserved.
+  For example:
+
+      <script type="text/javascript">
+        function foo() {
+          return 12;
+        }
+      </script>
+
+  is now transformed into:
+
+      :javascript
+        function foo() {
+          return 12;
+        }
+
+* `<pre>` and `<textarea>` tags are now transformed into the `:preserve` filter.
+  For example:
+
+      <pre>Foo
+        bar
+          baz</pre>
+
+  is now transformed into:
+
+      %pre
+        :preserve
+          Foo
+            bar
+              baz
+
+* Self-closing tags (such as `<br />`) are now transformed into
+  self-closing Haml tags (like `%br/`).
+
+* IE conditional comments are now properly parsed.
+
+* Attributes are now output in a more-standard format,
+  without spaces within the curly braces
+  (e.g. `%p{:foo => "bar"}` as opposed to `%p{ :foo => "bar" }`).
+
+* IDs and classes containing `#` and `.` are now output as string attributes
+  (e.g. `%p{:class => "foo.bar"}`).
+
+* Attributes are now sorted, to maintain a deterministic order.
+
+* Multi-line ERB statements are now properly indented,
+  and those without any content are removed.
+
+## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
+
+* Don't print warnings when escaping attributes containing non-ASCII characters
+  in Ruby 1.9.
+
+* Don't crash when parsing an XHTML Strict doctype in `html2haml`.
+
+* Support the  HTML5 doctype in an XHTML document
+  by using `!!! 5` as the doctype declaration.
+
+## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
+
+* Allow users to specify {file:HAML_REFERENCE.md#encoding_option `:encoding => "ascii-8bit"`}
+  even for templates that include non-ASCII byte sequences.
+  This makes Haml templates not crash when given non-ASCII input
+  that's marked as having an ASCII encoding.
+
+* Fixed an incompatibility with Hpricot 0.8.2, which is used for `html2haml`.
+
+## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
+
+There were no changes made to Haml between versions 2.2.11 and 2.2.12.
+
+## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
+
+* Fixed a bug with XSS protection where HTML escaping would raise an error
+  if passed a non-string value.
+  Note that this doesn't affect any HTML escaping when XSS protection is disabled.
+
+* Fixed a bug in outer-whitespace nuking where whitespace-only Ruby strings
+  blocked whitespace nuking beyond them.
+
+* Use `ensure` to protect the resetting of the Haml output buffer
+  against exceptions that are raised within the compiled Haml code.
+
+* Fix an error line-numbering bug that appeared if an error was thrown
+  within loud script (`=`).
+  This is not the best solution, as it disables a few optimizations,
+  but it shouldn't have too much effect and the optimizations
+  will hopefully be re-enabled in version 2.4.
+
+* Don't crash if the plugin skeleton is installed and `rake gems:install` is run.
+
+* Don't use `RAILS_ROOT` directly.
+  This no longer exists in Rails 3.0.
+  Instead abstract this out as `Haml::Util.rails_root`.
+  This changes makes Haml fully compatible with edge Rails as of this writing.
+
+## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
+
+* Fixed a bug where elements with dynamic attributes and no content
+  would have too much whitespace between the opening and closing tag.
+
+* Changed `rails/init.rb` away from loading `init.rb` and instead
+  have it basically copy the content.
+  This allows us to transfer the proper binding to `Haml.init_rails`.
+
+* Make sure Haml only tries to enable XSS protection integration
+  once all other plugins are loaded.
+  This allows it to work properly when Haml is a gem
+  and the `rails_xss` plugin is being used.
+
+* Mark the return value of Haml templates as HTML safe.
+  This makes Haml partials work with Rails' XSS protection.
+
+## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
 
 * Fixed a bug where Haml's text was concatenated to the wrong buffer
   under certain circumstances.
   This was mostly an issue under Rails when using methods like `capture`.
+
+* Fixed a bug where template text was escaped when there was interpolation in a line
+  and the `:escape_html` option was enabled. For example:
+
+      Foo &lt; Bar #{"<"} Baz
+
+  with `:escape_html` used to render as
+
+      Foo &amp;lt; Bar &lt; Baz
+
+  but now renders as
+
+      Foo &lt; Bar &lt; Baz
+
+### Rails XSS Protection
+
+Haml 2.2.9 supports the XSS protection in Rails versions 2.3.5+.
+There are several components to this:
+
+* If XSS protection is enabled, Haml's {file:HAML_REFERENCE.md#escape_html-option `:escape_html`}
+  option is set to `true` by default.
+
+* Strings declared as HTML safe won't be escaped by Haml,
+  including the {file:Haml/Helpers.html#html_escape-instance_method `#html_escape`} helper
+  and `&=` if `:escape_html` has been disabled.
+
+* Haml helpers that generate HTML are marked as HTML safe,
+  and will escape their input if it's not HTML safe.
 
 ## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
 

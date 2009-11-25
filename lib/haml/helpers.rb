@@ -113,9 +113,7 @@ MESSAGE
     #   @yield The block within which to escape newlines
     def find_and_preserve(input = nil, tags = haml_buffer.options[:preserve], &block)
       return find_and_preserve(capture_haml(&block), input || tags) if block
-
-      input = input.to_s
-      input.gsub(/<(#{tags.map(&Regexp.method(:escape)).join('|')})([^>]*)>(.*?)(<\/\1>)/im) do
+      input.to_s.gsub(/<(#{tags.map(&Regexp.method(:escape)).join('|')})([^>]*)>(.*?)(<\/\1>)/im) do
         "<#{$1}#{$2}>#{preserve($3)}</#{$1}>"
       end
     end
@@ -132,10 +130,9 @@ MESSAGE
     #   Escapes newlines within a block of Haml code.
     #
     #   @yield The block within which to escape newlines
-    def preserve(input = '', &block)
+    def preserve(input = nil, &block)
       return preserve(capture_haml(&block)) if block
-
-      input.chomp("\n").gsub(/\n/, '&#x000A;').gsub(/\r/, '')
+      input.to_s.chomp("\n").gsub(/\n/, '&#x000A;').gsub(/\r/, '')
     end
     alias_method :flatten, :preserve
 
@@ -470,6 +467,10 @@ END
     # Returns a copy of `text` with ampersands, angle brackets and quotes
     # escaped into HTML entities.
     #
+    # Note that if ActionView is loaded and XSS protection is enabled
+    # (as is the default for Rails 3.0+, and optional for version 2.3.5+),
+    # this won't escape text declared as "safe".
+    #
     # @param text [String] The string to sanitize
     # @return [String] The sanitized string
     def html_escape(text)
@@ -482,7 +483,9 @@ END
     # @param text [String] The string to sanitize
     # @return [String] The sanitized string
     def escape_once(text)
-      text.to_s.gsub(/[\"><]|&(?!(?:[a-zA-Z]+|(#\d+));)/n) {|s| HTML_ESCAPE[s]}
+      Haml::Util.silence_warnings do
+        text.to_s.gsub(/[\"><]|&(?!(?:[a-zA-Z]+|(#\d+));)/n) {|s| HTML_ESCAPE[s]}
+      end
     end
 
     # Returns whether or not the current template is a Haml template.
