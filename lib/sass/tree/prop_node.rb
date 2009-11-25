@@ -82,10 +82,8 @@ module Sass::Tree
 
     # Converts nested properties into flat properties.
     #
-    # @param parent_name [String, nil] The name of the parent property,
-    #   or nil if there is none
-    # @param tabs [Fixnum] How deeply this property is nested.
-    #   See \{#tabs}
+    # @param parent [PropNode, nil] The parent node of this node,
+    #   or nil if the parent isn't a {PropNode}
     def _cssize(parent)
       node = super
       result = node.children.dup
@@ -96,8 +94,8 @@ module Sass::Tree
     # Updates the name and indentation of this node based on the parent name
     # and nesting level.
     #
-    # @param parent_name [String, nil] The name of the parent property, if one exists
-    # @param tabs [Fixnum] The extra indentation to use for this property
+    # @param parent [PropNode, nil] The parent node of this node,
+    #   or nil if the parent isn't a {PropNode}
     def cssize!(parent)
       self.name = "#{parent.name}-#{name}" if parent
       self.tabs = parent.tabs + (parent.value.empty? ? 0 : 1) if parent && style == :nested
