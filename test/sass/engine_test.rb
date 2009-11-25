@@ -286,6 +286,25 @@ SASS
       :filename => test_filename, :mixin => nil)
   end
 
+  def test_mixin_and_import_exception
+    Sass::Engine.new("@import nested_mixin_bork", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_match(/(\/|^)nested_mixin_bork\.sass$/, err.sass_backtrace.first[:filename])
+    assert_hash_has(err.sass_backtrace.first, :mixin => "error-mixin", :line => 4)
+
+    assert_match(/(\/|^)mixin_bork\.sass$/, err.sass_backtrace[1][:filename])
+    assert_hash_has(err.sass_backtrace[1], :mixin => "outer-mixin", :line => 2)
+
+    assert_match(/(\/|^)mixin_bork\.sass$/, err.sass_backtrace[2][:filename])
+    assert_hash_has(err.sass_backtrace[2], :mixin => nil, :line => 5)
+
+    assert_match(/(\/|^)nested_mixin_bork\.sass$/, err.sass_backtrace[3][:filename])
+    assert_hash_has(err.sass_backtrace[3], :mixin => nil, :line => 6)
+
+    assert_hash_has(err.sass_backtrace[4], :filename => nil, :mixin => nil, :line => 1)
+  end
+
   def test_exception_css_with_offset
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
