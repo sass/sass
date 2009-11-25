@@ -64,9 +64,28 @@ module Sass::Tree
     # @return [Array<Array<String>>]
     attr_accessor :resolved_rules
 
+    # How deep this rule is indented
+    # relative to a base-level rule.
+    # This is only greater than 0 in the case that:
+    #
+    # * This node is in a CSS tree
+    # * The style is :nested
+    # * This is a child rule of another rule
+    # * The parent rule has properties, and thus will be rendered
+    #
+    # @return [Fixnum]
+    attr_accessor :tabs
+
+    # Whether or not this rule is the last rule in a nested group.
+    # This is only set in a CSS tree.
+    #
+    # @return [Boolean]
+    attr_accessor :group_end
+
     # @param rule [String] The first CSS rule. See \{#rules}
     def initialize(rule)
       @rules = [rule]
+      @tabs = 0
       super()
     end
 
@@ -100,8 +119,7 @@ module Sass::Tree
     #   (see \{#rules}), or `nil` if there are no parents
     # @return [String] The resulting CSS
     def _to_s(tabs)
-      properties = []
-      sub_rules = []
+      tabs = tabs + self.tabs
 
       rule_separator = style == :compressed ? ',' : ', '
       line_separator = [:nested, :expanded].include?(style) ? ",\n" : rule_separator
@@ -112,54 +130,38 @@ module Sass::Tree
         per_rule_indent + line.join(rule_separator)
       end.join(line_separator)
 
-      children.each do |child|
-        next if child.invisible?
-        if child.is_a? RuleNode
-          sub_rules << child
-        else
-          properties << child
-        end
-      end
-
       to_return = ''
-      if !properties.empty?
-        old_spaces = '  ' * (tabs - 1)
-        spaces = '  ' * tabs
-        if @options[:line_comments] && style != :compressed
-          to_return << "#{old_spaces}/* line #{line}"
+      old_spaces = '  ' * (tabs - 1)
+      spaces = '  ' * tabs
+      if @options[:line_comments] && style != :compressed
+        to_return << "#{old_spaces}/* line #{line}"
 
-          if filename
-            relative_filename = if @options[:css_filename]
-              begin
-                Pathname.new(filename).relative_path_from(  
-                  Pathname.new(File.dirname(@options[:css_filename]))).to_s
-              rescue ArgumentError
-                nil
-              end
+        if filename
+          relative_filename = if @options[:css_filename]
+            begin
+              Pathname.new(filename).relative_path_from(
+                Pathname.new(File.dirname(@options[:css_filename]))).to_s
+            rescue ArgumentError
+              nil
             end
-            relative_filename ||= filename
-            to_return << ", #{relative_filename}"
           end
-
-          to_return << " */\n"
+          relative_filename ||= filename
+          to_return << ", #{relative_filename}"
         end
 
-        if style == :compact
-          properties = properties.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
-          to_return << "#{total_rule} { #{properties} }\n"
-        elsif style == :compressed
-          properties = properties.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
-          to_return << "#{total_rule}{#{properties}}"
-        else
-          properties = properties.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
-          end_props = (style == :expanded ? "\n" + old_spaces : ' ')
-          to_return << "#{total_rule} {\n#{properties}#{end_props}}\n"
-        end
+        to_return << " */\n"
       end
 
-      tabs += 1 unless properties.empty? || style != :nested
-      sub_rules.each do |sub|
-        to_return << sub.to_s(tabs)
+      if style == :compact
+        properties = children.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
+        to_return << "#{total_rule} { #{properties} }#{"\n" if group_end}"
+      elsif style == :compressed
+        properties = children.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
+        to_return << "#{total_rule}{#{properties}}"
+      else
+        properties = children.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
+        end_props = (style == :expanded ? "\n" + old_spaces : ' ')
+        to_return << "#{total_rule} {\n#{properties}#{end_props}}#{"\n" if group_end}"
       end
 
       to_return
@@ -175,13 +177,37 @@ module Sass::Tree
       super
     end
 
-    # Resolves parent references and nested selectors.
+    # Converts nested rules into a flat list of rules.
+    #
+    # @param parent [RuleNode, nil] The parent node of this node,
+    #   or nil if the parent isn't a {RuleNode}
+    def _cssize(parent)
+      node = super
+      rules = node.children.select {|c| c.is_a?(RuleNode)}
+      props = node.children.reject {|c| c.is_a?(RuleNode) || c.invisible?}
+
+      unless props.empty?
+        node.children = props
+        rules.unshift(node)
+      end
+
+      rules.last.group_end = true unless parent || rules.empty?
+
+      rules
+    end
+
+    # Resolves parent references and nested selectors,
+    # and updates the indentation based on the parent's indentation.
     #
     # @param parent [RuleNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {RuleNode}
     # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
     def cssize!(parent)
-      @resolved_rules = resolve_parent_refs(parent && parent.resolved_rules)
+      self.resolved_rules = resolve_parent_refs(parent && parent.resolved_rules)
+      if parent && style == :nested
+        self.tabs = parent.tabs
+        self.tabs += 1 unless parent.children.all? {|c| c.is_a?(RuleNode) || c.invisible?}
+      end
       super
     end
 

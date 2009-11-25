@@ -46,9 +46,9 @@ module Sass::Tree
               if was_prop
                 result[-1] = "\n"
               end
-              rendered = child.to_s(tabs + 1)
-              rendered.lstrip! if first
-              result << rendered
+              rendered = child.to_s(tabs + 1).dup
+              rendered = rendered.lstrip if first
+              result << rendered.rstrip + "\n"
             end
             was_prop = child.is_a?(PropNode)
             first = false
