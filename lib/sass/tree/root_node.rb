@@ -40,7 +40,11 @@ module Sass
 
       protected
 
-      def cssize!(*args)
+      # Destructively converts this static Sass node into a static CSS node,
+      # and checks that there are no properties at root level.
+      #
+      # @param parent [Node] ignored
+      def cssize!(parent)
         super
         return unless child = children.find {|c| c.is_a?(PropNode)}
         message = "Properties aren't allowed at the root of a document." +
