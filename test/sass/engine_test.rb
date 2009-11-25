@@ -330,6 +330,38 @@ CSS
     assert(false, "Exception not raised for test_exception_css_with_offset")
   end
 
+  def test_exception_css_with_mixins
+    opts = {:full_exception => true}
+    render(<<SASS, opts)
+=error-mixin(!a)
+  color = !a * 1em * 1px
+
+=outer-mixin(!a)
+  +error-mixin(!a)
+
+.error
+  +outer-mixin(12)
+SASS
+  rescue Sass::SyntaxError => e
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..13].join("\n"))
+/*
+Syntax error: 12em*px isn't a valid CSS value.
+        on line 2 of test_exception_css_with_mixins_inline.sass, in `error-mixin'
+        from line 5 of test_exception_css_with_mixins_inline.sass, in `outer-mixin'
+        from line 8 of test_exception_css_with_mixins_inline.sass
+
+1: =error-mixin(!a)
+2:   color = !a * 1em * 1px
+3: 
+4: =outer-mixin(!a)
+5:   +error-mixin(!a)
+6: 
+7: .error
+CSS
+  else
+    assert(false, "Exception not raised")
+  end
+
   def test_css_import
     assert_equal("@import url(./fonts.css) screen;\n", render("@import url(./fonts.css) screen"))
     assert_equal("@import \"./fonts.css\" screen;\n", render("@import \"./fonts.css\" screen"))
