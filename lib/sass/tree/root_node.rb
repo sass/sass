@@ -13,7 +13,7 @@ module Sass
         @template = template
       end
 
-      # @see \{Node#to\_s}
+      # @see Node#to_s
       def to_s(*args)
         super
       rescue Sass::SyntaxError => e
@@ -21,7 +21,7 @@ module Sass
         raise e
       end
 
-      # @see \{Node#perform}
+      # @see Node#perform
       def perform(environment)
         environment.options = @options if environment.options.nil? || environment.options.empty?
         super
