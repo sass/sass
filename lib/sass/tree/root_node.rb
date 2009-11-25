@@ -32,6 +32,14 @@ module Sass
 
       protected
 
+      def cssize!(*args)
+        super
+        return unless child = children.find {|c| c.is_a?(PropNode)}
+        message = "Properties aren't allowed at the root of a document." +
+          child.pseudo_class_selector_message
+        raise Sass::SyntaxError.new(message, :line => child.line)
+      end
+
       # Computes the CSS corresponding to this Sass tree.
       #
       # @param args [Array] ignored
@@ -41,12 +49,6 @@ module Sass
       def _to_s(*args)
         result = String.new
         children.each do |child|
-          if child.is_a? PropNode
-            message = "Properties aren't allowed at the root of a document." +
-              child.pseudo_class_selector_message
-            raise Sass::SyntaxError.new(message, :line => child.line)
-          end
-
           next if child.invisible?
           child_str = child.to_s(1)
           result << child_str + (style == :compressed ? '' : "\n")
