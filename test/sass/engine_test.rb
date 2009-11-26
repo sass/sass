@@ -32,11 +32,6 @@ MSG
     "a\n  b=c: d" => 'Invalid property: "b=c: d".',
     "a: b" => 'Properties aren\'t allowed at the root of a document.',
     ":a b" => 'Properties aren\'t allowed at the root of a document.',
-    "a:" => 'Properties aren\'t allowed at the root of a document.',
-    ":a" => <<MSG,
-Properties aren't allowed at the root of a document.
-If ":a" should be a selector, use "\\:a" instead.
-MSG
     "!" => 'Invalid variable: "!".',
     "!a" => 'Invalid variable: "!a".',
     "! a" => 'Invalid variable: "! a".',
