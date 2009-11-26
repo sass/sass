@@ -1,5 +1,6 @@
 require 'digest/sha1'
 require 'pathname'
+require 'fileutils'
 
 module Sass
   # This module contains various bits of functionality
