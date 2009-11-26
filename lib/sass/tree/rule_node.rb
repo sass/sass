@@ -115,8 +115,6 @@ module Sass::Tree
     # Computes the CSS for the rule.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS
-    # @param super_rules [Array<Array<String>>] The rules for the parent node
-    #   (see \{#rules}), or `nil` if there are no parents
     # @return [String] The resulting CSS
     def _to_s(tabs)
       tabs = tabs + self.tabs
