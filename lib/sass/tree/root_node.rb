@@ -13,7 +13,7 @@ module Sass
         @template = template
       end
 
-      # @see \{Node#to\_s}
+      # @see Node#to_s
       def to_s(*args)
         super
       rescue Sass::SyntaxError => e
@@ -21,7 +21,7 @@ module Sass
         raise e
       end
 
-      # @see \{Node#perform}
+      # @see Node#perform
       def perform(environment)
         environment.options = @options if environment.options.nil? || environment.options.empty?
         super
@@ -30,23 +30,38 @@ module Sass
         raise e
       end
 
+      # @see Node#cssize
+      def cssize(*args)
+        super
+      rescue Sass::SyntaxError => e
+        e.sass_template = @template
+        raise e
+      end
+
       protected
+
+      # Destructively converts this static Sass node into a static CSS node,
+      # and checks that there are no properties at root level.
+      #
+      # @param parent [Node, nil] The parent node of this node.
+      #   This should only be non-nil if the parent is the same class as this node
+      # @see Node#cssize!
+      def cssize!(parent)
+        super
+        return unless child = children.find {|c| c.is_a?(PropNode)}
+        message = "Properties aren't allowed at the root of a document." +
+          child.pseudo_class_selector_message
+        raise Sass::SyntaxError.new(message, :line => child.line)
+      end
 
       # Computes the CSS corresponding to this Sass tree.
       #
       # @param args [Array] ignored
       # @return [String] The resulting CSS
-      # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def _to_s(*args)
         result = String.new
         children.each do |child|
-          if child.is_a? PropNode
-            message = "Properties aren't allowed at the root of a document." +
-              child.pseudo_class_selector_message
-            raise Sass::SyntaxError.new(message, :line => child.line)
-          end
-
           next if child.invisible?
           child_str = child.to_s(1)
           result << child_str + (style == :compressed ? '' : "\n")

@@ -18,13 +18,13 @@ module Sass::Tree
     # relative to a normal property.
     # This is only greater than 0 in the case that:
     #
-    # * This node is in a static tree
+    # * This node is in a CSS tree
     # * The style is :nested
     # * This is a child property of another property
     # * The parent property has a value, and thus will be rendered
     #
     # @return [Fixnum]
-    attr_accessor :indentation
+    attr_accessor :tabs
 
     # @param name [String] See \{#name}
     # @param value [String] See \{#value}
@@ -33,7 +33,7 @@ module Sass::Tree
     def initialize(name, value, prop_syntax)
       @name = name
       @value = value
-      @indentation = 0
+      @tabs = 0
       @prop_syntax = prop_syntax
       super()
     end
@@ -63,32 +63,35 @@ module Sass::Tree
     #
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String] The resulting CSS
-    # @raise [Sass::SyntaxError] if the property uses invalid syntax
     def _to_s(tabs)
-      if @options[:property_syntax] == :old && @prop_syntax == :new
-        raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.")
-      elsif @options[:property_syntax] == :new && @prop_syntax == :old
-        raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.")
-      elsif value[-1] == ?;
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).")
-      elsif value.empty?
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
-          pseudo_class_selector_message)
-      end
-
-      to_return = '  ' * (tabs - 1 + indentation) + name + ":" +
+      to_return = '  ' * (tabs - 1 + self.tabs) + name + ":" +
         (style == :compressed ? '' : ' ') + value + (style == :compressed ? "" : ";")
     end
 
-    # Returns this node's fully-resolved child properties, and/or this node.
+    # Converts nested properties into flat properties.
     #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    def _perform(environment)
+    # @param parent [PropNode, nil] The parent node of this node,
+    #   or nil if the parent isn't a {PropNode}
+    # @raise [Sass::SyntaxError] if the property uses invalid syntax
+    def _cssize(parent)
       node = super
       result = node.children.dup
-      result.unshift(node) if !node.value.empty? || node.children.empty?
+      if !node.value.empty? || node.children.empty?
+        node.send(:check!)
+        result.unshift(node)
+      end
       result
+    end
+
+    # Updates the name and indentation of this node based on the parent name
+    # and nesting level.
+    #
+    # @param parent [PropNode, nil] The parent node of this node,
+    #   or nil if the parent isn't a {PropNode}
+    def cssize!(parent)
+      self.name = "#{parent.name}-#{name}" if parent
+      self.tabs = parent.tabs + (parent.value.empty? ? 0 : 1) if parent && style == :nested
+      super
     end
 
     # Runs any SassScript that may be embedded in the property,
@@ -100,12 +103,6 @@ module Sass::Tree
       @name = interpolate(@name, environment)
       @value = @value.is_a?(String) ? interpolate(@value, environment) : @value.perform(environment).to_s
       super
-      # Once we've called super, the child nodes have been dup'ed
-      # so we can destructively modify them
-      children.select {|c| c.is_a?(PropNode)}.each do |c|
-        c.name = "#{name}-#{c.name}"
-        c.indentation += 1 if style == :nested && !@value.empty?
-      end
     end
 
     # Returns an error message if the given child node is invalid,
@@ -121,6 +118,19 @@ module Sass::Tree
     end
 
     private
+
+    def check!
+      if @options[:property_syntax] == :old && @prop_syntax == :new
+        raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.")
+      elsif @options[:property_syntax] == :new && @prop_syntax == :old
+        raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.")
+      elsif value[-1] == ?;
+        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).")
+      elsif value.empty?
+        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
+          pseudo_class_selector_message)
+      end
+    end
 
     def declaration
       (@prop_syntax == :new ? "#{name}: #{value}" : ":#{name} #{value}").strip

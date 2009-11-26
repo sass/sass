@@ -32,11 +32,6 @@ MSG
     "a\n  b=c: d" => 'Invalid property: "b=c: d".',
     "a: b" => 'Properties aren\'t allowed at the root of a document.',
     ":a b" => 'Properties aren\'t allowed at the root of a document.',
-    "a:" => 'Properties aren\'t allowed at the root of a document.',
-    ":a" => <<MSG,
-Properties aren't allowed at the root of a document.
-If ":a" should be a selector, use "\\:a" instead.
-MSG
     "!" => 'Invalid variable: "!".',
     "!a" => 'Invalid variable: "!a".',
     "! a" => 'Invalid variable: "! a".',
@@ -189,7 +184,7 @@ SASS
   end
 
   def test_imported_exception
-    [1, 2, 3].each do |i|
+    [1, 2, 3, 4].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -211,7 +206,7 @@ SASS
   end
 
   def test_double_imported_exception
-    [1, 2, 3].each do |i|
+    [1, 2, 3, 4].each do |i|
       begin
         Sass::Engine.new("@import nested_bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -307,6 +302,25 @@ SASS
       :filename => test_filename, :mixin => nil)
   end
 
+  def test_mixin_and_import_exception
+    Sass::Engine.new("@import nested_mixin_bork", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_match(/(\/|^)nested_mixin_bork\.sass$/, err.sass_backtrace.first[:filename])
+    assert_hash_has(err.sass_backtrace.first, :mixin => "error-mixin", :line => 4)
+
+    assert_match(/(\/|^)mixin_bork\.sass$/, err.sass_backtrace[1][:filename])
+    assert_hash_has(err.sass_backtrace[1], :mixin => "outer-mixin", :line => 2)
+
+    assert_match(/(\/|^)mixin_bork\.sass$/, err.sass_backtrace[2][:filename])
+    assert_hash_has(err.sass_backtrace[2], :mixin => nil, :line => 5)
+
+    assert_match(/(\/|^)nested_mixin_bork\.sass$/, err.sass_backtrace[3][:filename])
+    assert_hash_has(err.sass_backtrace[3], :mixin => nil, :line => 6)
+
+    assert_hash_has(err.sass_backtrace[4], :filename => nil, :mixin => nil, :line => 1)
+  end
+
   def test_exception_css_with_offset
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
@@ -330,6 +344,67 @@ Syntax error: Invalid property: "e:" (no value).
 CSS
   else
     assert(false, "Exception not raised for test_exception_css_with_offset")
+  end
+
+  def test_exception_css_with_mixins
+    opts = {:full_exception => true}
+    render(<<SASS, opts)
+=error-mixin(!a)
+  color = !a * 1em * 1px
+
+=outer-mixin(!a)
+  +error-mixin(!a)
+
+.error
+  +outer-mixin(12)
+SASS
+  rescue Sass::SyntaxError => e
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..13].join("\n"))
+/*
+Syntax error: 12em*px isn't a valid CSS value.
+        on line 2 of test_exception_css_with_mixins_inline.sass, in `error-mixin'
+        from line 5 of test_exception_css_with_mixins_inline.sass, in `outer-mixin'
+        from line 8 of test_exception_css_with_mixins_inline.sass
+
+1: =error-mixin(!a)
+2:   color = !a * 1em * 1px
+3: 
+4: =outer-mixin(!a)
+5:   +error-mixin(!a)
+6: 
+7: .error
+CSS
+  else
+    assert(false, "Exception not raised")
+  end
+
+  def test_cssize_exception_css
+    opts = {:full_exception => true}
+    render(<<SASS, opts)
+.filler
+  stuff: stuff!
+
+a: b
+
+.more.filler
+  a: b
+SASS
+  rescue Sass::SyntaxError => e
+    assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..11].join("\n"))
+/*
+Syntax error: Properties aren't allowed at the root of a document.
+        on line 4 of test_cssize_exception_css_inline.sass
+
+1: .filler
+2:   stuff: stuff!
+3: 
+4: a: b
+5: 
+6: .more.filler
+7:   a: b
+CSS
+  else
+    assert(false, "Exception not raised")
   end
 
   def test_css_import

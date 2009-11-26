@@ -39,13 +39,13 @@ and double quotes do not.
 ### Error Backtraces
 
 Numerous bugs were fixed with the backtraces given for Sass errors,
-especially when importing files.
-All imports will now show up in the Ruby backtrace,
+especially when importing files and using mixins.
+All imports and mixins will now show up in the Ruby backtrace,
 with the proper filename and line number.
 
 In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
-as well as a backtrace of Sass imports.
+as well as a backtrace of Sass imports and mixins.
 
 ### Formatting
 

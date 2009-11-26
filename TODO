@@ -38,6 +38,10 @@
    Pull in Compass watcher stuff
    Internationalization
      Particularly word constituents in Regexps
+   Add mixins to exception backtraces even for exceptions raised in Node#_to_s
+     See 41cb3d4 (full-mixin-backtraces branch), cdab12f, and 4f7988e
+     Likely requires an extra step to move from Sass tree to CSS tree
+       See cssize branch
    Optimization
      http://csstidy.sourceforge.net/
      http://developer.yahoo.com/yui/compressor/

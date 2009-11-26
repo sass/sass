@@ -246,7 +246,13 @@ END
         # It's important to preserve tabulation modification for keywords
         # that involve choosing between posible blocks of code.
         if %w[else elsif when].include?(keyword)
-          @dont_indent_next_line, @dont_tab_up_next_text = @to_close_stack.last[1..2]
+          # @to_close_stack may not have a :script on top
+          # when the preceding "- if" has nothing nested
+          if @to_close_stack.last && @to_close_stack.last.first == :script
+            @dont_indent_next_line, @dont_tab_up_next_text = @to_close_stack.last[1..2]
+          else
+            push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text])
+          end
 
           # when is unusual in that either it will be indented twice,
           # or the case won't have created its own indentation

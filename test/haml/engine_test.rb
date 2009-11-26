@@ -586,6 +586,16 @@ HTML
 HAML
   end
 
+  def test_if_without_content_and_else
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- if false
+- else
+  foo
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

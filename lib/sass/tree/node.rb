@@ -1,19 +1,28 @@
 module Sass
   # A namespace for nodes in the Sass parse tree.
   #
-  # The Sass parse tree has two states.
-  # When it's first parsed, it has nodes for mixin definitions
-  # and for loops and so forth,
+  # The Sass parse tree has three states: dynamic, static Sass, and static CSS.
+  #
+  # When it's first parsed, a Sass document is in the dynamic state.
+  # It has nodes for mixin definitions and `@for` loops and so forth,
   # in addition to nodes for CSS rules and properties.
+  # Nodes that only appear in this state are called **dynamic nodes**.
   #
-  # However, {Tree::Node#perform} returns a different sort of tree.
-  # This tree maps more closely to the resulting CSS document
-  # than it does to the original Sass document.
-  # It still has nodes for CSS rules and properties,
+  # {Tree::Node#perform} returns a static Sass tree, which is different.
+  # It still has nodes for CSS rules and properties
   # but it doesn't have any dynamic-generation-related nodes.
+  # The nodes in this state are in the same structure as the Sass document:
+  # rules and properties are nested beneath one another.
+  # Nodes that can be in this state or in the dynamic state
+  # are called **static nodes**.
   #
-  # Nodes that only appear in the pre-perform state are called **dynamic nodes**;
-  # those that appear in both states are called **static nodes**.
+  # {Tree::Node#cssize} then returns a static CSS tree.
+  # This is like a static Sass tree,
+  # but the structure exactly mirrors that of the generated CSS.
+  # Rules and properties can't be nested beneath one another in this state.
+  #
+  # Finally, {Tree::Node#to_s} can be called on a static CSS tree
+  # to get the actual CSS code as a string.
   module Tree
     # The abstract superclass of all parse-tree nodes.
     class Node
@@ -99,7 +108,7 @@ module Sass
       # @see #perform
       # @see #to_s
       def render
-        perform(Environment.new).to_s
+        perform(Environment.new).cssize.to_s
       end
 
       # True if \{#to\_s} will return `nil`;
@@ -116,15 +125,15 @@ module Sass
         @options[:style]
       end
 
-      # Computes the CSS corresponding to this Sass tree.
+      # Computes the CSS corresponding to this static CSS tree.
       #
+      # \{#to_s} shouldn't be overridden directly; instead, override \{#\_to\_s}.
       # Only static-node subclasses need to implement \{#to\_s}.
       #
       # This may return `nil`, but it will only do so if \{#invisible?} is true.
       #
       # @param args [Array] Passed on to \{#\_to\_s}
       # @return [String, nil] The resulting CSS
-      # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def to_s(*args)
         _to_s(*args)
@@ -133,15 +142,31 @@ module Sass
         raise e
       end
 
-      # Runs the dynamic Sass code:
+      # Converts a static Sass tree (e.g. the output of \{#perform})
+      # into a static CSS tree.
+      #
+      # \{#cssize} shouldn't be overridden directly;
+      # instead, override \{#\_cssize} or \{#cssize!}.
+      #
+      # @param parent [Node, nil] The parent node of this node.
+      #   This should only be non-nil if the parent is the same class as this node
+      # @return [Tree::Node] The resulting tree of static nodes
+      # @raise [Sass::SyntaxError] if some element of the tree is invalid
+      # @see Sass::Tree
+      def cssize(parent = nil)
+        _cssize((parent if parent.class == self.class))
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace(:filename => filename, :line => line)
+        raise e
+      end
+
+      # Converts a dynamic tree into a static Sass tree.
+      # That is, runs the dynamic Sass code:
       # mixins, variables, control directives, and so forth.
       # This doesn't modify this node or any of its children.
       #
       # \{#perform} shouldn't be overridden directly;
-      # if you want to return a new node (or list of nodes),
-      # override \{#\_perform};
-      # if you want to destructively modify this node,
-      # override \{#perform!}.
+      # instead, override \{#\_perform} or \{#perform!}.
       #
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
@@ -159,13 +184,44 @@ module Sass
 
       # Computes the CSS corresponding to this particular Sass node.
       #
+      # This method should never raise {Sass::SyntaxError}s.
+      # Such errors will not be properly annotated with Sass backtrace information.
+      # All error conditions should be checked in earlier transformations,
+      # such as \{#cssize} and \{#perform}.
+      #
       # @param args [Array] ignored
       # @return [String, nil] The resulting CSS
-      # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see #to_s
       # @see Sass::Tree
       def _to_s
         raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #_to_s or #to_s.")
+      end
+
+      # Converts this static Sass node into a static CSS node,
+      # returning the new node.
+      # This doesn't modify this node or any of its children.
+      #
+      # @param parent [Node, nil] The parent node of this node.
+      #   This should only be non-nil if the parent is the same class as this node
+      # @return [Tree::Node, Array<Tree::Node>] The resulting static CSS nodes
+      # @raise [Sass::SyntaxError] if some element of the tree is invalid
+      # @see #cssize
+      # @see Sass::Tree
+      def _cssize(parent)
+        node = dup
+        node.cssize!(parent)
+        node
+      end
+
+      # Destructively converts this static Sass node into a static CSS node.
+      # This *does* modify this node,
+      # but will be run non-destructively by \{#\_cssize\}.
+      #
+      # @param parent [Node, nil] The parent node of this node.
+      #   This should only be non-nil if the parent is the same class as this node
+      # @see #cssize
+      def cssize!(parent)
+        self.children = children.map {|c| c.cssize(self)}.flatten
       end
 
       # Runs any dynamic Sass code in this particular node.

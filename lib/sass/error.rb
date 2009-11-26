@@ -140,7 +140,8 @@ module Sass
       "Syntax error: #{message}" +
         Haml::Util.enum_with_index(sass_backtrace).map do |entry, i|
         "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
-          " of #{entry[:filename] || default_filename}"
+          " of #{entry[:filename] || default_filename}" +
+          (entry[:mixin] ? ", in `#{entry[:mixin]}'" : "")
       end.join
     end
 

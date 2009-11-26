@@ -39,15 +39,53 @@ module Sass::Tree
     #
     # would be
     #
-    #     [[[:parent, "foo"], ["bar"], ["baz"]],
-    #      [["bip"], [:parent, "bop"], ["bup"]]]
+    #     [[[:parent, ".foo"], ["bar"], ["baz"]],
+    #      [["bip"], [:parent, ".bop"], ["bup"]]]
     #
     # @return [Array<Array<Array<String|Symbol>>>]
     attr_accessor :parsed_rules
 
+    # The CSS selectors for this rule,
+    # with all nesting and parent references resolved.
+    # It's only set once {Tree::Node#cssize} has been called.
+    #
+    # The first level of arrays represents distinct lines in the Sass file;
+    # the second level represents comma-separated selectors.
+    # For example,
+    #
+    #     foo bar, baz,
+    #     bang, bip bop, blip
+    #
+    # would be
+    #
+    #     [["foo bar", "baz"],
+    #      ["bang", "bip bop", "blip"]]
+    #
+    # @return [Array<Array<String>>]
+    attr_accessor :resolved_rules
+
+    # How deep this rule is indented
+    # relative to a base-level rule.
+    # This is only greater than 0 in the case that:
+    #
+    # * This node is in a CSS tree
+    # * The style is :nested
+    # * This is a child rule of another rule
+    # * The parent rule has properties, and thus will be rendered
+    #
+    # @return [Fixnum]
+    attr_accessor :tabs
+
+    # Whether or not this rule is the last rule in a nested group.
+    # This is only set in a CSS tree.
+    #
+    # @return [Boolean]
+    attr_accessor :group_end
+
     # @param rule [String] The first CSS rule. See \{#rules}
     def initialize(rule)
       @rules = [rule]
+      @tabs = 0
       super()
     end
 
@@ -77,15 +115,9 @@ module Sass::Tree
     # Computes the CSS for the rule.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS
-    # @param super_rules [Array<Array<String>>] The rules for the parent node
-    #   (see \{#rules}), or `nil` if there are no parents
     # @return [String] The resulting CSS
-    # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
-    def _to_s(tabs, super_rules = nil)
-      resolved_rules = resolve_parent_refs(super_rules)
-
-      properties = []
-      sub_rules = []
+    def _to_s(tabs)
+      tabs = tabs + self.tabs
 
       rule_separator = style == :compressed ? ',' : ', '
       line_separator = [:nested, :expanded].include?(style) ? ",\n" : rule_separator
@@ -96,54 +128,38 @@ module Sass::Tree
         per_rule_indent + line.join(rule_separator)
       end.join(line_separator)
 
-      children.each do |child|
-        next if child.invisible?
-        if child.is_a? RuleNode
-          sub_rules << child
-        else
-          properties << child
-        end
-      end
-
       to_return = ''
-      if !properties.empty?
-        old_spaces = '  ' * (tabs - 1)
-        spaces = '  ' * tabs
-        if @options[:line_comments] && style != :compressed
-          to_return << "#{old_spaces}/* line #{line}"
+      old_spaces = '  ' * (tabs - 1)
+      spaces = '  ' * tabs
+      if @options[:line_comments] && style != :compressed
+        to_return << "#{old_spaces}/* line #{line}"
 
-          if filename
-            relative_filename = if @options[:css_filename]
-              begin
-                Pathname.new(filename).relative_path_from(  
-                  Pathname.new(File.dirname(@options[:css_filename]))).to_s
-              rescue ArgumentError
-                nil
-              end
+        if filename
+          relative_filename = if @options[:css_filename]
+            begin
+              Pathname.new(filename).relative_path_from(
+                Pathname.new(File.dirname(@options[:css_filename]))).to_s
+            rescue ArgumentError
+              nil
             end
-            relative_filename ||= filename
-            to_return << ", #{relative_filename}"
           end
-
-          to_return << " */\n"
+          relative_filename ||= filename
+          to_return << ", #{relative_filename}"
         end
 
-        if style == :compact
-          properties = properties.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
-          to_return << "#{total_rule} { #{properties} }\n"
-        elsif style == :compressed
-          properties = properties.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
-          to_return << "#{total_rule}{#{properties}}"
-        else
-          properties = properties.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
-          end_props = (style == :expanded ? "\n" + old_spaces : ' ')
-          to_return << "#{total_rule} {\n#{properties}#{end_props}}\n"
-        end
+        to_return << " */\n"
       end
 
-      tabs += 1 unless properties.empty? || style != :nested
-      sub_rules.each do |sub|
-        to_return << sub.to_s(tabs, resolved_rules)
+      if style == :compact
+        properties = children.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
+        to_return << "#{total_rule} { #{properties} }#{"\n" if group_end}"
+      elsif style == :compressed
+        properties = children.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
+        to_return << "#{total_rule}{#{properties}}"
+      else
+        properties = children.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
+        end_props = (style == :expanded ? "\n" + old_spaces : ' ')
+        to_return << "#{total_rule} {\n#{properties}#{end_props}}#{"\n" if group_end}"
       end
 
       to_return
@@ -156,6 +172,37 @@ module Sass::Tree
     #   variable and mixin values
     def perform!(environment)
       @parsed_rules = @rules.map {|r| parse_selector(interpolate(r, environment))}
+      super
+    end
+
+    # Converts nested rules into a flat list of rules.
+    #
+    # @param parent [RuleNode, nil] The parent node of this node,
+    #   or nil if the parent isn't a {RuleNode}
+    def _cssize(parent)
+      node = super
+      rules = node.children.select {|c| c.is_a?(RuleNode)}
+      props = node.children.reject {|c| c.is_a?(RuleNode) || c.invisible?}
+
+      unless props.empty?
+        node.children = props
+        rules.each {|r| r.tabs += 1} if style == :nested
+        rules.unshift(node)
+      end
+
+      rules.last.group_end = true unless parent || rules.empty?
+
+      rules
+    end
+
+    # Resolves parent references and nested selectors,
+    # and updates the indentation based on the parent's indentation.
+    #
+    # @param parent [RuleNode, nil] The parent node of this node,
+    #   or nil if the parent isn't a {RuleNode}
+    # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
+    def cssize!(parent)
+      self.resolved_rules = resolve_parent_refs(parent && parent.resolved_rules)
       super
     end
 
