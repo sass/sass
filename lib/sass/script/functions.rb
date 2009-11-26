@@ -275,52 +275,50 @@ module Sass::Script
     alias_method :opacity, :alpha
 
     # Makes a color more opaque.
-    # Takes a color and an amount between `0%` and `100%`
-    # and returns a color that's that much closer to opaque.
+    # Takes a color and an amount between 0 and 1,
+    # and returns a color with the opacity increased by that value.
     #
-    # For example, `50%` will make the color twice as opaque:
+    # For example:
     #
-    #     opacify(rgba(0, 0, 0, 0.5), 50%) => rgba(0, 0, 0, 0.75)
-    #     opacify(rgba(0, 0, 0, 0.8), 50%) => rgba(0, 0, 0, 0.9)
-    #     opacify(rgba(0, 0, 0, 0.2), 50%) => rgba(0, 0, 0, 0.8)
+    #     opacify(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.6)
+    #     opacify(rgba(0, 0, 17, 0.8), 0.2) => #001
     #
-    # Specifically, `opacify(color, n%)` will make the color
-    # `n%` closer to fully opaque.
+    # @param color [Color]
+    # @param amount [Number]
+    # @raise [ArgumentError] If `color` isn't a color between 0 and 1,
+    #   or `number` isn't a number
     def opacify(color, amount)
       assert_type color, :Color
       assert_type amount, :Number
-      unless (0..100).include?(amount.value)
-        raise ArgumentError.new("Amount #{amount} must be between 0% and 100%")
+      unless (0..1).include?(amount.value)
+        raise ArgumentError.new("Amount #{amount} must be between 0 and 1")
       end
 
-      color = color.dup
-      color.alpha += (1 - color.alpha) * (amount.value / 100.0)
-      color
+      color.with(:alpha => Haml::Util.restrict(color.alpha + amount.value, 0..1))
     end
     alias_method :fade_in, :opacify
 
     # Makes a color more transparent.
-    # Takes a color and an amount between `0%` and `100%`
-    # and returns a color that's that much closer to transparent.
+    # Takes a color and an amount between 0 and 1,
+    # and returns a color with the opacity decreased by that value.
     #
-    # For example, `50%` will make the color twice as transparent:
+    # For example:
     #
-    #     opacify(rgba(0, 0, 0, 0.5), 50%) => rgba(0, 0, 0, 0.25)
-    #     opacify(rgba(0, 0, 0, 0.8), 50%) => rgba(0, 0, 0, 0.4)
-    #     opacify(rgba(0, 0, 0, 0.2), 50%) => rgba(0, 0, 0, 0.1)
+    #     transparentize(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.4)
+    #     transparentize(rgba(0, 0, 0, 0.8), 0.2) => rgba(0, 0, 0, 0.6)
     #
-    # Specifically, `transparentize(color, n%)` will make the color
-    # `n%` closer to fully transparent.
+    # @param color [Color]
+    # @param amount [Number]
+    # @raise [ArgumentError] If `color` isn't a color between 0 and 1,
+    #   or `number` isn't a number
     def transparentize(color, amount)
       assert_type color, :Color
       assert_type amount, :Number
-      unless (0..100).include?(amount.value)
-        raise ArgumentError.new("Amount #{amount} must be between 0% and 100%")
+      unless (0..1).include?(amount.value)
+        raise ArgumentError.new("Amount #{amount} must be between 0 and 1")
       end
 
-      color = color.dup
-      color.alpha *= 1 - (amount.value / 100.0)
-      color
+      color.with(:alpha => Haml::Util.restrict(color.alpha - amount.value, 0..1))
     end
     alias_method :fade_out, :transparentize
 

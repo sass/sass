@@ -103,6 +103,17 @@ module Haml
       end
     end
 
+    # Restricts a number to falling within a given range.
+    # Returns the number if it falls within the range,
+    # or the closest value in the range if it doesn't.
+    #
+    # @param value [Numeric]
+    # @param range [Range<Numeric>]
+    # @return [Numeric]
+    def restrict(value, range)
+      [[value, range.first].max, range.last].min
+    end
+
     # Concatenates all strings that are adjacent in an array,
     # while leaving other elements as they are.
     # For example:

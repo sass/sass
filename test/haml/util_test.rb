@@ -54,6 +54,13 @@ class UtilTest < Test::Unit::TestCase
       powerset([1, 2, 3]))
   end
 
+  def test_restrict
+    assert_equal(0.5, restrict(0.5, 0..1))
+    assert_equal(1, restrict(2, 0..1))
+    assert_equal(1.3, restrict(2, 0..1.3))
+    assert_equal(0, restrict(-1, 0..1))
+  end
+
   def test_merge_adjacent_strings
     assert_equal(["foo bar baz", :bang, "biz bop", 12],
       merge_adjacent_strings(["foo ", "bar ", "baz", :bang, "biz", " bop", 12]))

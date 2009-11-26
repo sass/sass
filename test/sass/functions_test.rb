@@ -196,18 +196,19 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_opacify
-    assert_equal("rgba(0, 0, 0, 0.75)", evaluate("opacify(rgba(0, 0, 0, 0.5), 50%)"))
-    assert_equal("rgba(0, 0, 0, 0.8)", evaluate("opacify(rgba(0, 0, 0, 0.2), 75)"))
-    assert_equal("rgba(0, 0, 0, 0.28)", evaluate("fade-in(rgba(0, 0, 0, 0.2), 10px)"))
-    assert_equal("black", evaluate("fade_in(rgba(0, 0, 0, 0.2), 100%)"))
+    assert_equal("rgba(0, 0, 0, 0.75)", evaluate("opacify(rgba(0, 0, 0, 0.5), 0.25)"))
+    assert_equal("rgba(0, 0, 0, 0.3)", evaluate("opacify(rgba(0, 0, 0, 0.2), 0.1)"))
+    assert_equal("rgba(0, 0, 0, 0.7)", evaluate("fade-in(rgba(0, 0, 0, 0.2), 0.5px)"))
+    assert_equal("black", evaluate("fade_in(rgba(0, 0, 0, 0.2), 0.8)"))
+    assert_equal("black", evaluate("opacify(rgba(0, 0, 0, 0.2), 1)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("opacify(rgba(0, 0, 0, 0.2), 0%)"))
   end
 
   def test_opacify_tests_bounds
-    assert_error_message("Amount -3012% must be between 0% and 100% for `opacify'",
-      "opacify(rgba(0, 0, 0, 0.2), -3012%)")
-    assert_error_message("Amount 101 must be between 0% and 100% for `opacify'",
-      "opacify(rgba(0, 0, 0, 0.2), 101)")
+    assert_error_message("Amount -0.001 must be between 0 and 1 for `opacify'",
+      "opacify(rgba(0, 0, 0, 0.2), -0.001)")
+    assert_error_message("Amount 1.001 must be between 0 and 1 for `opacify'",
+      "opacify(rgba(0, 0, 0, 0.2), 1.001)")
   end
 
   def test_opacify_tests_types
@@ -216,18 +217,19 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_transparentize
-    assert_equal("rgba(0, 0, 0, 0.25)", evaluate("transparentize(rgba(0, 0, 0, 0.5), 50%)"))
-    assert_equal("rgba(0, 0, 0, 0.05)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 75)"))
-    assert_equal("rgba(0, 0, 0, 0.18)", evaluate("fade-out(rgba(0, 0, 0, 0.2), 10px)"))
-    assert_equal("rgba(0, 0, 0, 0)", evaluate("fade_out(rgba(0, 0, 0, 0.2), 100%)"))
-    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0%)"))
+    assert_equal("rgba(0, 0, 0, 0.3)", evaluate("transparentize(rgba(0, 0, 0, 0.5), 0.2)"))
+    assert_equal("rgba(0, 0, 0, 0.1)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0.1)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("fade-out(rgba(0, 0, 0, 0.5), 0.3px)"))
+    assert_equal("rgba(0, 0, 0, 0)", evaluate("fade_out(rgba(0, 0, 0, 0.2), 0.2)"))
+    assert_equal("rgba(0, 0, 0, 0)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 1)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0)"))
   end
 
   def test_transparentize_tests_bounds
-    assert_error_message("Amount -3012% must be between 0% and 100% for `transparentize'",
-      "transparentize(rgba(0, 0, 0, 0.2), -3012%)")
-    assert_error_message("Amount 101 must be between 0% and 100% for `transparentize'",
-      "transparentize(rgba(0, 0, 0, 0.2), 101)")
+    assert_error_message("Amount -0.001 must be between 0 and 1 for `transparentize'",
+      "transparentize(rgba(0, 0, 0, 0.2), -0.001)")
+    assert_error_message("Amount 1.001 must be between 0 and 1 for `transparentize'",
+      "transparentize(rgba(0, 0, 0, 0.2), 1.001)")
   end
 
   def test_transparentize_tests_types
