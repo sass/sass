@@ -101,6 +101,9 @@ Several bug fixes and minor improvements have been made, including:
   and is forwards-compatible with alpha-channel colors
   (to be introduced in Sass 2.4).
 
+* Added a missing require in Sass that caused crashes
+  when it was being run standalone.
+
 ## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * All Sass functions now raise explicit errors if their inputs
