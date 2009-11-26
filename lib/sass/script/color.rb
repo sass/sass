@@ -27,50 +27,105 @@ module Sass::Script
     # A hash from `[red, green, blue]` value arrays to color names.
     HTML4_COLORS_REVERSE = map_hash(HTML4_COLORS) {|k, v| [v, k]}
 
-    # Constructs an RGB or RGBA color object.
-    # The RGB values must be between 0 and 255,
-    # and the alpha value is generally expected to be between 0 and 1.
-    # However, the alpha value can be greater than 1
-    # in order to allow it to be used for color multiplication.
+    # Constructs an RGB or HSL color object,
+    # optionally with an alpha channel.
+    # 
+    # The RGB values must be between 0 and 255.
+    # The saturation and lightness values must be between 0 and 100.
+    # The alpha value must be between 0 and 1.
     #
-    # @param rgba [Array<Numeric>] A three-element array of the red, green, blue,
-    #   and optionally alpha values (respectively) of the color
-    # @raise [Sass::SyntaxError] if any color value isn't between 0 and 255,
-    #   or the alpha value is negative
-    def initialize(rgba)
-      @red, @green, @blue = rgba[0...3].map {|c| c.to_i}
-      @alpha = rgba[3] ? rgba[3].to_f : 1
+    # @raise [Sass::SyntaxError] if any color value isn't in the specified range
+    #
+    # @overload initialize(attrs)
+    #   The attributes are specified as a hash.
+    #   This hash must contain either `:hue`, `:saturation`, and `:value` keys,
+    #   or `:red`, `:green`, and `:blue` keys.
+    #   It cannot contain both HSL and RGB keys.
+    #   It may also optionally contain an `:alpha` key.
+    #
+    #   @param attrs [{Symbol => Numeric}] A hash of color attributes to values
+    #   @raise [ArgumentError] if not enough attributes are specified,
+    #     or both RGB and HSL attributes are specified
+    #
+    # @overload initialize(rgba)
+    #   The attributes are specified as an array.
+    #   This overload only supports RGB or RGBA colors.
+    #
+    #   @param rgba [Array<Numeric>] A three-element array of the red, green, blue,
+    #     and optionally alpha values (respectively) of the color
+    #   @raise [ArgumentError] if not enough attributes are specified
+    def initialize(attrs)
       super(nil)
 
-      unless rgb.all? {|c| (0..255).include?(c)}
-        raise Sass::SyntaxError.new("Color values must be between 0 and 255")
+      if attrs.is_a?(Array)
+        unless (3..4).include?(attrs.size)
+          raise ArgumentError.new("Color.new(array) expects a three- or four-element array")
+        end
+
+        red, green, blue = attrs[0...3].map {|c| c.to_i}
+        @attrs = {:red => red, :green => green, :blue => blue}
+        @attrs[:alpha] = attrs[3] ? attrs[3].to_f : 1
+      else
+        attrs = attrs.reject {|k, v| v.nil?}
+        hsl = [:hue, :saturation, :lightness] & attrs.keys
+        rgb = [:red, :green, :blue] & attrs.keys
+        if !hsl.empty? && !rgb.empty?
+          raise ArgumentError.new("Color.new(hash) may not have both HSL and RGB keys specified")
+        elsif hsl.empty? && rgb.empty?
+          raise ArgumentError.new("Color.new(hash) must have either HSL or RGB keys specified")
+        elsif !hsl.empty? && hsl.size != 3
+          raise ArgumentError.new("Color.new(hash) must have all three HSL values specified")
+        elsif !rgb.empty? && rgb.size != 3
+          raise ArgumentError.new("Color.new(hash) must have all three RGB values specified")
+        end
+
+        @attrs = attrs
+        @attrs[:alpha] ||= 1
       end
 
-      unless (0..1).include?(alpha)
-        raise Sass::SyntaxError.new("Color opacity value must between 0 and 1")
+      [:red, :green, :blue].each do |k|
+        next if @attrs[k].nil? || (0..255).include?(@attrs[k])
+        raise Sass::SyntaxError.new("#{k.to_s.capitalize} value must be between 0 and 255")
+      end
+
+      [:saturation, :lightness].each do |k|
+        next if @attrs[k].nil? || (0..100).include?(@attrs[k])
+        raise Sass::SyntaxError.new("#{k.to_s.capitalize} must be between 0 and 255")
+      end
+
+      unless (0..1).include?(@attrs[:alpha])
+        raise Sass::SyntaxError.new("Alpha channel must between 0 and 1")
       end
     end
 
     # The red component of the color.
     #
     # @return [Fixnum]
-    attr_reader :red
+    def red
+      @attrs[:red]
+    end
 
     # The green component of the color.
     #
     # @return [Fixnum]
-    attr_reader :green
+    def green
+      @attrs[:green]
+    end
 
     # The blue component of the color.
     #
     # @return [Fixnum]
-    attr_reader :blue
+    def blue
+      @attrs[:blue]
+    end
 
     # The alpha channel (opacity) of the color.
     # This is 1 unless otherwise defined.
     #
     # @return [Fixnum]
-    attr_reader :alpha
+    def alpha
+      @attrs[:alpha]
+    end
 
     # Returns whether this color object is translucent;
     # that is, whether the alpha channel is non-1.
