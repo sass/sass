@@ -3,6 +3,15 @@
 * Table of contents
 {:toc}
 
+## 2.2.15 (Unreleased)
+
+* Allow `if` statements with no content followed by `else` clauses.
+  For example:
+
+    - if foo
+    - else
+      bar
+
 ## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * Don't print warnings when escaping attributes containing non-ASCII characters
