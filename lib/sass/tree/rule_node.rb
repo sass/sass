@@ -188,6 +188,7 @@ module Sass::Tree
 
       unless props.empty?
         node.children = props
+        rules.each {|r| r.tabs += 1} if style == :nested
         rules.unshift(node)
       end
 
@@ -204,10 +205,6 @@ module Sass::Tree
     # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
     def cssize!(parent)
       self.resolved_rules = resolve_parent_refs(parent && parent.resolved_rules)
-      if parent && style == :nested
-        self.tabs = parent.tabs
-        self.tabs += 1 unless parent.children.all? {|c| c.is_a?(RuleNode) || c.invisible?}
-      end
       super
     end
 
