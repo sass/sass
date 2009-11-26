@@ -58,7 +58,6 @@ module Sass
       #
       # @param args [Array] ignored
       # @return [String] The resulting CSS
-      # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def _to_s(*args)
         result = String.new

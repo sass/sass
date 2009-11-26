@@ -134,7 +134,6 @@ module Sass
       #
       # @param args [Array] Passed on to \{#\_to\_s}
       # @return [String, nil] The resulting CSS
-      # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
       def to_s(*args)
         _to_s(*args)
@@ -185,9 +184,13 @@ module Sass
 
       # Computes the CSS corresponding to this particular Sass node.
       #
+      # This method should never raise {Sass::SyntaxError}s.
+      # Such errors will not be properly annotated with Sass backtrace information.
+      # All error conditions should be checked in earlier transformations,
+      # such as \{#cssize} and \{#perform}.
+      #
       # @param args [Array] ignored
       # @return [String, nil] The resulting CSS
-      # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see #to_s
       # @see Sass::Tree
       def _to_s
