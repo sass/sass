@@ -281,7 +281,7 @@ SASS
       :filename => test_filename, :mixin => nil)
   end
 
-  def test_mixin_to_s_exception
+  def test_mixin_exception_cssize
     render(<<SASS)
 =parent-ref-mixin
   & foo
