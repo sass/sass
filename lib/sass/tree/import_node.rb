@@ -14,6 +14,15 @@ module Sass
 
       protected
 
+      # @see \{Node#_cssize}
+      def _cssize(*args)
+        super
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace(:filename => children.first.filename)
+        e.add_backtrace(:filename => @filename, :line => @line)
+        raise e
+      end
+
       # Computes the CSS for the imported file.
       #
       # @param args [Array] Ignored
