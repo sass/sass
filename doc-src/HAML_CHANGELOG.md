@@ -133,6 +133,15 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
+## 2.2.15 (Unreleased)
+
+* Allow `if` statements with no content followed by `else` clauses.
+  For example:
+
+    - if foo
+    - else
+      bar
+
 ## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
 
 * Don't print warnings when escaping attributes containing non-ASCII characters
