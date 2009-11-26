@@ -14,7 +14,7 @@ module Sass
 
       protected
 
-      # @see \{Node#_cssize}
+      # @see Node#_cssize
       def _cssize(*args)
         super
       rescue Sass::SyntaxError => e
