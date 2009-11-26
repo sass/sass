@@ -102,6 +102,7 @@ module Sass::Script
     #
     # @return [Fixnum]
     def red
+      hsl_to_rgb!
       @attrs[:red]
     end
 
@@ -109,6 +110,7 @@ module Sass::Script
     #
     # @return [Fixnum]
     def green
+      hsl_to_rgb!
       @attrs[:green]
     end
 
@@ -116,6 +118,7 @@ module Sass::Script
     #
     # @return [Fixnum]
     def blue
+      hsl_to_rgb!
       @attrs[:blue]
     end
 
@@ -313,6 +316,23 @@ END
 
     private
 
+    def hsl_to_rgb!
+      return if @attrs[:red] && @attrs[:blue] && @attrs[:green]
+
+      h = (@attrs[:hue] % 360) / 360.0
+      s = @attrs[:saturation] / 100.0
+      l = @attrs[:lightness] / 100.0
+
+      # Algorithm from the CSS3 spec: http://www.w3.org/TR/css3-color/#hsl-color.
+      m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
+      m1 = l * 2 - m2
+      @attrs[:red], @attrs[:green], @attrs[:blue] = [
+        hue_to_rgb(m1, m2, h + 1.0/3),
+        hue_to_rgb(m1, m2, h),
+        hue_to_rgb(m1, m2, h - 1.0/3)
+      ].map {|c| (c * 0xff).round}
+    end
+
     def piecewise(other, operation)
       other_num = other.is_a? Number
       if other_num && !other.unitless?
@@ -330,6 +350,15 @@ END
       end
 
       with(:red => result[0], :green => result[1], :blue => result[2])
+    end
+
+    def hue_to_rgb(m1, m2, h)
+      h += 1 if h < 0
+      h -= 1 if h > 1
+      return m1 + (m2 - m1) * h * 6 if h * 6 < 1
+      return m2 if h * 2 < 1
+      return m1 + (m2 - m1) * (2.0/3 - h) * 6 if h * 3 < 2
+      return m1
     end
   end
 end

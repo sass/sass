@@ -219,17 +219,7 @@ module Sass::Script
       raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") unless (0..100).include?(s)
       raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") unless (0..100).include?(l)
 
-      h = (h % 360) / 360.0
-      s /= 100.0
-      l /= 100.0
-
-      m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
-      m1 = l * 2 - m2
-      Color.new(
-        [hue_to_rgb(m1, m2, h + 1.0/3),
-          hue_to_rgb(m1, m2, h),
-          hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round } +
-        [alpha.value])
+      Color.new(:hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
 
     # Returns the red component of a color.
@@ -397,15 +387,6 @@ module Sass::Script
     def numeric_transformation(value)
       assert_type value, :Number
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
-    end
-
-    def hue_to_rgb(m1, m2, h)
-      h += 1 if h < 0
-      h -= 1 if h > 1
-      return m1 + (m2 - m1) * h * 6 if h * 6 < 1
-      return m2 if h * 2 < 1
-      return m1 + (m2 - m1) * (2.0/3 - h) * 6 if h * 3 < 2
-      return m1
     end
   end
 end
