@@ -285,8 +285,8 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
-    # @raise [ArgumentError] If `color` isn't a color between 0 and 1,
-    #   or `number` isn't a number
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0 and 1
     def opacify(color, amount)
       assert_type color, :Color
       assert_type amount, :Number
@@ -309,8 +309,8 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
-    # @raise [ArgumentError] If `color` isn't a color between 0 and 1,
-    #   or `number` isn't a number
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0 and 1
     def transparentize(color, amount)
       assert_type color, :Color
       assert_type amount, :Number
