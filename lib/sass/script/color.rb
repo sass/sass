@@ -54,7 +54,7 @@ module Sass::Script
     #   @param rgba [Array<Numeric>] A three-element array of the red, green, blue,
     #     and optionally alpha values (respectively) of the color
     #   @raise [ArgumentError] if not enough attributes are specified
-    def initialize(attrs)
+    def initialize(attrs, allow_both_rgb_and_hsl = false)
       super(nil)
 
       if attrs.is_a?(Array)
@@ -69,7 +69,7 @@ module Sass::Script
         attrs = attrs.reject {|k, v| v.nil?}
         hsl = [:hue, :saturation, :lightness] & attrs.keys
         rgb = [:red, :green, :blue] & attrs.keys
-        if !hsl.empty? && !rgb.empty?
+        if !allow_both_rgb_and_hsl && !hsl.empty? && !rgb.empty?
           raise ArgumentError.new("Color.new(hash) may not have both HSL and RGB keys specified")
         elsif hsl.empty? && rgb.empty?
           raise ArgumentError.new("Color.new(hash) must have either HSL or RGB keys specified")
@@ -197,6 +197,7 @@ END
     end
 
     # Returns a copy of this color with one or more channels changed.
+    # RGB or HSL colors may be changed, but not both at once.
     #
     # For example:
     #
@@ -204,19 +205,36 @@ END
     #       #=> rgb(10, 40, 30)
     #     Color.new([126, 126, 126]).with(:red => 0, :green => 255)
     #       #=> rgb(0, 255, 126)
+    #     Color.new([255, 0, 127]).with(:saturation => 60)
+    #       #=> rgb(204, 51, 127)
     #     Color.new([1, 2, 3]).with(:alpha => 0.4)
     #       #=> rgba(1, 2, 3, 0.4)
     #
     # @param attrs [Hash<Symbol, Numeric>]
-    #   A map of channel names (`:red`, `:green`, `:blue`, or `:alpha`) to values
+    #   A map of channel names (`:red`, `:green`, `:blue`,
+    #   `:hue`, `:saturation`, `:lightness`, or `:alpha`) to values
     # @return [Color] The new Color object
+    # @raise [ArgumentError] if both RGB and HSL keys are specified
     def with(attrs)
-      Color.new([
-          attrs[:red] || red,
-          attrs[:green] || green,
-          attrs[:blue] || blue,
-          attrs[:alpha] || alpha,
-        ])
+      attrs = attrs.reject {|k, v| v.nil?}
+      hsl = !([:hue, :saturation, :lightness] & attrs.keys).empty?
+      rgb = !([:red, :green, :blue] & attrs.keys).empty?
+      if hsl && rgb
+        raise ArgumentError.new("Color#with may not have both HSL and RGB keys specified")
+      end
+
+      if hsl
+        [:hue, :saturation, :lightness].each {|k| attrs[k] ||= send(k)}
+      elsif rgb
+        [:red, :green, :blue].each {|k| attrs[k] ||= send(k)}
+      else
+        # If we're just changing the alpha channel,
+        # keep all the HSL/RGB stuff we've calculated
+        attrs = @attrs.merge(attrs)
+      end
+      attrs[:alpha] ||= alpha
+
+      Color.new(attrs, :allow_both_rgb_and_hsl)
     end
 
     # The SassScript `+` operation.
