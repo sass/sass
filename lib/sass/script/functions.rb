@@ -33,6 +33,30 @@ module Sass::Script
   # \{#hsla}
   # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
   #
+  # \{#hue}
+  # : Gets the hue component of a color.
+  #
+  # \{#saturation}
+  # : Gets the saturation component of a color.
+  #
+  # \{#lightness}
+  # : Gets the lightness component of a color.
+  #
+  # \{#adjust_hue #adjust-hue}
+  # : Changes the hue of a color.
+  #
+  # \{#lighten}
+  # : Makes a color lighter.
+  #
+  # \{#darken}
+  # : Makes a color darker.
+  #
+  # \{#saturate}
+  # : Makes a color more saturated.
+  #
+  # \{#desaturate}
+  # : Makes a color less saturated.
+  #
   # ## Opacity Functions
   #
   # \{#alpha} / \{#opacity}
