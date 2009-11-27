@@ -80,6 +80,7 @@ module Sass::Script
         end
 
         @attrs = attrs
+        @attrs[:hue] %= 360 if @attrs[:hue]
         @attrs[:alpha] ||= 1
       end
 
@@ -120,6 +121,30 @@ module Sass::Script
     def blue
       hsl_to_rgb!
       @attrs[:blue]
+    end
+
+    # The hue component of the color.
+    #
+    # @return [Numeric]
+    def hue
+      rgb_to_hsl!
+      @attrs[:hue]
+    end
+
+    # The saturation component of the color.
+    #
+    # @return [Numeric]
+    def saturation
+      rgb_to_hsl!
+      @attrs[:saturation]
+    end
+
+    # The lightness component of the color.
+    #
+    # @return [Numeric]
+    def lightness
+      rgb_to_hsl!
+      @attrs[:lightness]
     end
 
     # The alpha channel (opacity) of the color.
@@ -316,23 +341,6 @@ END
 
     private
 
-    def hsl_to_rgb!
-      return if @attrs[:red] && @attrs[:blue] && @attrs[:green]
-
-      h = (@attrs[:hue] % 360) / 360.0
-      s = @attrs[:saturation] / 100.0
-      l = @attrs[:lightness] / 100.0
-
-      # Algorithm from the CSS3 spec: http://www.w3.org/TR/css3-color/#hsl-color.
-      m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
-      m1 = l * 2 - m2
-      @attrs[:red], @attrs[:green], @attrs[:blue] = [
-        hue_to_rgb(m1, m2, h + 1.0/3),
-        hue_to_rgb(m1, m2, h),
-        hue_to_rgb(m1, m2, h - 1.0/3)
-      ].map {|c| (c * 0xff).round}
-    end
-
     def piecewise(other, operation)
       other_num = other.is_a? Number
       if other_num && !other.unitless?
@@ -352,6 +360,23 @@ END
       with(:red => result[0], :green => result[1], :blue => result[2])
     end
 
+    def hsl_to_rgb!
+      return if @attrs[:red] && @attrs[:blue] && @attrs[:green]
+
+      h = @attrs[:hue] / 360.0
+      s = @attrs[:saturation] / 100.0
+      l = @attrs[:lightness] / 100.0
+
+      # Algorithm from the CSS3 spec: http://www.w3.org/TR/css3-color/#hsl-color.
+      m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
+      m1 = l * 2 - m2
+      @attrs[:red], @attrs[:green], @attrs[:blue] = [
+        hue_to_rgb(m1, m2, h + 1.0/3),
+        hue_to_rgb(m1, m2, h),
+        hue_to_rgb(m1, m2, h - 1.0/3)
+      ].map {|c| (c * 0xff).round}
+    end
+
     def hue_to_rgb(m1, m2, h)
       h += 1 if h < 0
       h -= 1 if h > 1
@@ -359,6 +384,39 @@ END
       return m2 if h * 2 < 1
       return m1 + (m2 - m1) * (2.0/3 - h) * 6 if h * 3 < 2
       return m1
+    end
+
+    def rgb_to_hsl!
+      return if @attrs[:hue] && @attrs[:saturation] && @attrs[:lightness]
+      r, g, b = [:red, :green, :blue].map {|k| @attrs[k] / 255.0}
+
+      # Algorithm from http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
+      max = [r, g, b].max
+      min = [r, g, b].min
+      d = max - min
+
+      h =
+        case max
+        when min; 0
+        when r; 60 * (g-b)/d
+        when g; 60 * (b-r)/d + 120
+        when b; 60 * (r-g)/d + 240
+        end
+
+      l = (max + min)/2.0
+
+      s =
+        if max == min
+          0
+        elsif l < 0.5
+          d/(2*l)
+        else
+          d/(2 - 2*l)
+        end
+
+      @attrs[:hue] = h % 360
+      @attrs[:saturation] = s * 100
+      @attrs[:lightness] = l * 100
     end
   end
 end

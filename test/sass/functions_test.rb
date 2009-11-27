@@ -9,9 +9,26 @@ class SassFunctionTest < Test::Unit::TestCase
   File.read(File.dirname(__FILE__) + "/data/hsl-rgb.txt").split("\n\n").each do |chunk|
     hsls, rgbs = chunk.strip.split("====")
     hsls.strip.split("\n").zip(rgbs.strip.split("\n")) do |hsl, rgb|
-      method = "test_hsl: #{hsl} = #{rgb}"
-      define_method(method) do
+      hsl_method = "test_hsl: #{hsl} = #{rgb}"
+      define_method(hsl_method) do
         assert_equal(evaluate(rgb), evaluate(hsl))
+      end
+
+      rgb_to_hsl_method = "test_rgb_to_hsl: #{rgb} = #{hsl}"
+      define_method(rgb_to_hsl_method) do
+        rgb_color = perform(rgb)
+        hsl_color = perform(hsl)
+
+        white = hsl_color.lightness == 100
+        black = hsl_color.lightness == 0
+        grayscale = white || black || hsl_color.saturation == 0
+
+        assert_in_delta(hsl_color.hue, rgb_color.hue, 0.0001,
+          "Hues should be equal") unless grayscale
+        assert_in_delta(hsl_color.saturation, rgb_color.saturation, 0.0001,
+          "Saturations should be equal") unless white || black
+        assert_in_delta(hsl_color.lightness, rgb_color.lightness, 0.0001,
+          "Lightnesses should be equal")
       end
     end
   end
@@ -241,6 +258,10 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def evaluate(value)
     Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new).to_s
+  end
+
+  def perform(value)
+    Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new)
   end
 
   def assert_error_message(message, value)
