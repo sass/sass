@@ -198,7 +198,7 @@ END
     #
     # For example:
     #
-    #     Color.new([10, 20, 30].with(:blue => 40)
+    #     Color.new([10, 20, 30]).with(:blue => 40)
     #       #=> rgb(10, 40, 30)
     #     Color.new([126, 126, 126]).with(:red => 0, :green => 255)
     #       #=> rgb(0, 255, 126)
