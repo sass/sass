@@ -280,6 +280,92 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `transparentize'", "transparentize(#fff, \"foo\")")
   end
 
+  def test_lighten
+    assert_equal("#4d4d4d", evaluate("lighten(hsl(0, 0, 0), 30%)"))
+    assert_equal("#ee0000", evaluate("lighten(#800, 20%)"))
+    assert_equal("white", evaluate("lighten(#fff, 20%)"))
+    assert_equal("white", evaluate("lighten(#800, 100%)"))
+    assert_equal("#880000", evaluate("lighten(#800, 0%)"))
+    assert_equal("rgba(238, 0, 0, 0.5)", evaluate("lighten(rgba(136, 0, 0, 0.5), 20%)"))
+  end
+
+  def test_lighten_tests_bounds
+    assert_error_message("Amount -0.001 must be between 0% and 100% for `lighten'",
+      "lighten(#123, -0.001)")
+    assert_error_message("Amount 100.001 must be between 0% and 100% for `lighten'",
+      "lighten(#123, 100.001)")
+  end
+
+  def test_lighten_tests_types
+    assert_error_message("\"foo\" is not a color for `lighten'", "lighten(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `lighten'", "lighten(#fff, \"foo\")")
+  end
+
+  def test_darken
+    assert_equal("#ff6a00", evaluate("darken(hsl(25, 100, 80), 30%)"))
+    assert_equal("#220000", evaluate("darken(#800, 20%)"))
+    assert_equal("black", evaluate("darken(#000, 20%)"))
+    assert_equal("black", evaluate("darken(#800, 100%)"))
+    assert_equal("#880000", evaluate("darken(#800, 0%)"))
+    assert_equal("rgba(34, 0, 0, 0.5)", evaluate("darken(rgba(136, 0, 0, 0.5), 20%)"))
+  end
+
+  def test_darken_tests_bounds
+    assert_error_message("Amount -0.001 must be between 0% and 100% for `darken'",
+      "darken(#123, -0.001)")
+    assert_error_message("Amount 100.001 must be between 0% and 100% for `darken'",
+      "darken(#123, 100.001)")
+  end
+
+  def test_darken_tests_types
+    assert_error_message("\"foo\" is not a color for `darken'", "darken(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `darken'", "darken(#fff, \"foo\")")
+  end
+
+  def test_saturate
+    assert_equal("#d9f2d9", evaluate("saturate(hsl(120, 30, 90), 20%)"))
+    assert_equal("#9e3f3f", evaluate("saturate(#855, 20%)"))
+    assert_equal("black", evaluate("saturate(#000, 20%)"))
+    assert_equal("white", evaluate("saturate(#fff, 20%)"))
+    assert_equal("#33ff33", evaluate("saturate(#8a8, 100%)"))
+    assert_equal("#88aa88", evaluate("saturate(#8a8, 0%)"))
+    assert_equal("rgba(158, 63, 63, 0.5)", evaluate("saturate(rgba(136, 85, 85, 0.5), 20%)"))
+  end
+
+  def test_saturate_tests_bounds
+    assert_error_message("Amount -0.001 must be between 0% and 100% for `saturate'",
+      "saturate(#123, -0.001)")
+    assert_error_message("Amount 100.001 must be between 0% and 100% for `saturate'",
+      "saturate(#123, 100.001)")
+  end
+
+  def test_saturate_tests_types
+    assert_error_message("\"foo\" is not a color for `saturate'", "saturate(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `saturate'", "saturate(#fff, \"foo\")")
+  end
+
+  def test_desaturate
+    assert_equal("#e3e8e3", evaluate("desaturate(hsl(120, 30, 90), 20%)"))
+    assert_equal("#726b6b", evaluate("desaturate(#855, 20%)"))
+    assert_equal("black", evaluate("desaturate(#000, 20%)"))
+    assert_equal("white", evaluate("desaturate(#fff, 20%)"))
+    assert_equal("#999999", evaluate("desaturate(#8a8, 100%)"))
+    assert_equal("#88aa88", evaluate("desaturate(#8a8, 0%)"))
+    assert_equal("rgba(114, 107, 107, 0.5)", evaluate("desaturate(rgba(136, 85, 85, 0.5), 20%)"))
+  end
+
+  def test_desaturate_tests_bounds
+    assert_error_message("Amount -0.001 must be between 0% and 100% for `desaturate'",
+      "desaturate(#123, -0.001)")
+    assert_error_message("Amount 100.001 must be between 0% and 100% for `desaturate'",
+      "desaturate(#123, 100.001)")
+  end
+
+  def test_desaturate_tests_types
+    assert_error_message("\"foo\" is not a color for `desaturate'", "desaturate(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `desaturate'", "desaturate(#fff, \"foo\")")
+  end
+
   private
 
   def evaluate(value)

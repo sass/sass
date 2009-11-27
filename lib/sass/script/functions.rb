@@ -320,13 +320,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def opacify(color, amount)
-      assert_type color, :Color
-      assert_type amount, :Number
-      unless (0..1).include?(amount.value)
-        raise ArgumentError.new("Amount #{amount} must be between 0 and 1")
-      end
-
-      color.with(:alpha => Haml::Util.restrict(color.alpha + amount.value, 0..1))
+      adjust(color, amount, :alpha, 0..1, :+)
     end
     alias_method :fade_in, :opacify
 
@@ -344,15 +338,77 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def transparentize(color, amount)
-      assert_type color, :Color
-      assert_type amount, :Number
-      unless (0..1).include?(amount.value)
-        raise ArgumentError.new("Amount #{amount} must be between 0 and 1")
-      end
-
-      color.with(:alpha => Haml::Util.restrict(color.alpha - amount.value, 0..1))
+      adjust(color, amount, :alpha, 0..1, :-)
     end
     alias_method :fade_out, :transparentize
+
+    # Makes a color lighter.
+    # Takes a color and an amount between 0% and 100%,
+    # and returns a color with the lightness increased by that value.
+    #
+    # For example:
+    #
+    #     lighten(hsl(0, 0%, 0%), 30%) => hsl(0, 0, 30)
+    #     lighten(#800, 20%) => #e00
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0% and 100%
+    def lighten(color, amount)
+      adjust(color, amount, :lightness, 0..100, :+, "%")
+    end
+
+    # Makes a color darker.
+    # Takes a color and an amount between 0% and 100%,
+    # and returns a color with the lightness decreased by that value.
+    #
+    # For example:
+    #
+    #     darken(hsl(25, 100%, 80%), 30%) => hsl(25, 100%, 50%)
+    #     darken(#800, 20%) => #200
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0% and 100%
+    def darken(color, amount)
+      adjust(color, amount, :lightness, 0..100, :-, "%")
+    end
+
+    # Makes a color more saturated.
+    # Takes a color and an amount between 0% and 100%,
+    # and returns a color with the saturation increased by that value.
+    #
+    # For example:
+    #
+    #     saturate(hsl(120, 30%, 90%), 20%) => hsl(120, 50%, 90%)
+    #     saturate(#855, 20%) => #9e3f3f
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0% and 100%
+    def saturate(color, amount)
+      adjust(color, amount, :saturation, 0..100, :+, "%")
+    end
+
+    # Makes a color less saturated.
+    # Takes a color and an amount between 0% and 100%,
+    # and returns a color with the saturation decreased by that value.
+    #
+    # For example:
+    #
+    #     desaturate(hsl(120, 30%, 90%), 20%) => hsl(120, 10%, 90%)
+    #     desaturate(#855, 20%) => #726b6b
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0% and 100%
+    def desaturate(color, amount)
+      adjust(color, amount, :saturation, 0..100, :-, "%")
+    end
 
     # Converts a decimal number to a percentage.
     # For example:
@@ -429,6 +485,20 @@ module Sass::Script
     def numeric_transformation(value)
       assert_type value, :Number
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
+    end
+
+    def adjust(color, amount, attr, range, op, units = "")
+      assert_type color, :Color
+      assert_type amount, :Number
+      unless range.include?(amount.value)
+        raise ArgumentError.new("Amount #{amount} must be between #{range.first}#{units} and #{range.last}#{units}")
+      end
+
+      # TODO: is it worth restricting here,
+      # or should we do so in the Color constructor itself,
+      # and allow clipping in rgb() et al?
+      color.with(attr => Haml::Util.restrict(
+          color.send(attr).send(op, amount.value), range))
     end
   end
 end
