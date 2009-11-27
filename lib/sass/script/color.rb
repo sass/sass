@@ -13,7 +13,7 @@ module Sass::Script
   #
   # The alpha channel of a color is independent of its RGB or HSL representation.
   # It's always stored, as 1 if nothing else is specified.
-  # If only the alpha channel is modified using {#with},
+  # If only the alpha channel is modified using \{#with},
   # the cached RGB and HSL values are retained.
   class Color < Literal
     class << self; include Haml::Util; end
