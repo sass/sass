@@ -31,18 +31,23 @@ components of colors.
 
 #### HSL Colors
 
-Sass now has functions for adjusting the HSL values of colors.
-Colors can be made {Sass::Script::Functions#lighten lighter}
-and {Sass::Script::Functions#darken darker},
-{Sass::Script::Functions#saturate more saturated}
-and {Sass::Script::Functions#desaturate less saturated}.
+Sass has many new functions for using the HSL values of colors.
+For an overview of HSL colors, check out [the CSS3 Spec](http://www.w3.org/TR/css3-color/#hsl-color).
+All these functions work just as well on RGB colors
+as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
 
-Sass supports functions that return the values of the
-{Sass::Script::Functions#hue hue},
-{Sass::Script::Functions#saturation saturation},
-and {Sass::Script::Functions#lightness lightness}
-components of colors.
-These work on RGB colors as well as HSL colors.
+* The {Sass::Script::Functions#lighten lighten}
+  and {Sass::Script::Functions#darken darken}
+  functions adjust the lightness of a color.
+
+* The {Sass::Script::Functions#saturate saturate}
+  and {Sass::Script::Functions#desaturate desaturate}
+  functions adjust the saturation of a color.
+
+* The {Sass::Script::Functions#hue hue},
+  {Sass::Script::Functions#saturation saturation},
+  and {Sass::Script::Functions#lightness lightness}
+  functions return the corresponding HSL values of the color.
 
 ### Variable Names
 
