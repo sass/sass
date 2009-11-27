@@ -184,6 +184,14 @@ END
       [red, green, blue].freeze
     end
 
+    # Returns the hue, saturation, and lightness components of the color.
+    #
+    # @return [Array<Fixnum>] A frozen three-element array of the
+    #   hue, saturation, and lightness values (respectively) of the color
+    def hsl
+      [hue, saturation, lightness].freeze
+    end
+
     # The SassScript `==` operation.
     # **Note that this returns a {Sass::Script::Bool} object,
     # not a Ruby boolean**.
