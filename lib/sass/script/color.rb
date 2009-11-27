@@ -85,7 +85,9 @@ module Sass::Script
       end
 
       [:red, :green, :blue].each do |k|
-        next if @attrs[k].nil? || (0..255).include?(@attrs[k])
+        next if @attrs[k].nil?
+        @attrs[k] = @attrs[k].to_i
+        next if (0..255).include?(@attrs[k])
         raise Sass::SyntaxError.new("#{k.to_s.capitalize} value must be between 0 and 255")
       end
 
