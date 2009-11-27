@@ -2,6 +2,19 @@ require 'sass/script/literal'
 
 module Sass::Script
   # A SassScript object representing a CSS color.
+  #
+  # A color may be represented internally as RGBA, HSLA, or both.
+  # It's originally represented as whatever its input is;
+  # if it's created with RGB values, it's represented as RGBA,
+  # and if it's created with HSL values, it's represented as HSLA.
+  # Once a property is accessed that requires the other representation --
+  # for example, \{#red} for an HSL color --
+  # that component is calculated and cached.
+  #
+  # The alpha channel of a color is independent of its RGB or HSL representation.
+  # It's always stored, as 1 if nothing else is specified.
+  # If only the alpha channel is modified using {#with},
+  # the cached RGB and HSL values are retained.
   class Color < Literal
     class << self; include Haml::Util; end
 
