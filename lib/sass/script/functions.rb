@@ -410,6 +410,25 @@ module Sass::Script
       adjust(color, amount, :saturation, 0..100, :-, "%")
     end
 
+    # Changes the hue of a color while retaining the lightness and saturation.
+    # Takes a color and a number of degrees (usually between -360 and 360),
+    # and returns a color with the hue rotated by that value.
+    #
+    # For example:
+    #
+    #     adjust-hue(hsl(120, 30%, 90%), 60deg) => hsl(180, 30%, 90%)
+    #     adjust-hue(hsl(120, 30%, 90%), 060deg) => hsl(60, 30%, 90%)
+    #     adjust-hue(#811, 45deg) => #886a11
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @raise [ArgumentError] If `color` isn't a color, or `number` isn't a number
+    def adjust_hue(color, degrees)
+      assert_type color, :Color
+      assert_type degrees, :Number
+      color.with(:hue => color.hue + degrees.value)
+    end
+
     # Converts a decimal number to a percentage.
     # For example:
     #

@@ -44,6 +44,9 @@ as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
   and {Sass::Script::Functions#desaturate desaturate}
   functions adjust the saturation of a color.
 
+* The {Sass::Script::Functions#adjust_hue adjust-hue}
+  function adjusts the hue of a color.
+
 * The {Sass::Script::Functions#hue hue},
   {Sass::Script::Functions#saturation saturation},
   and {Sass::Script::Functions#lightness lightness}

@@ -366,6 +366,22 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `desaturate'", "desaturate(#fff, \"foo\")")
   end
 
+  def test_adjust_hue
+    assert_equal("#deeded", evaluate("adjust-hue(hsl(120, 30, 90), 60deg)"))
+    assert_equal("#ededde", evaluate("adjust-hue(hsl(120, 30, 90), -60deg)"))
+    assert_equal("#886a11", evaluate("adjust-hue(#811, 45deg)"))
+    assert_equal("black", evaluate("adjust-hue(#000, 45deg)"))
+    assert_equal("white", evaluate("adjust-hue(#fff, 45deg)"))
+    assert_equal("#88aa88", evaluate("adjust-hue(#8a8, 360deg)"))
+    assert_equal("#88aa88", evaluate("adjust-hue(#8a8, 0deg)"))
+    assert_equal("rgba(136, 106, 17, 0.5)", evaluate("adjust-hue(rgba(136, 17, 17, 0.5), 45deg)"))
+  end
+
+  def test_adjust_hue_tests_types
+    assert_error_message("\"foo\" is not a color for `adjust-hue'", "adjust-hue(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `adjust-hue'", "adjust-hue(#fff, \"foo\")")
+  end
+
   private
 
   def evaluate(value)
