@@ -202,6 +202,32 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("12 is not a color for `blue'", "blue(12)")
   end
 
+  def test_hue
+    assert_equal("18", evaluate("hue(hsl(18, 50%, 20%))"))
+  end
+
+  def test_hue_exception
+    assert_error_message("12 is not a color for `hue'", "hue(12)")
+  end
+
+  def test_saturation
+    assert_equal("52%", evaluate("saturation(hsl(20, 52%, 20%))"))
+    assert_equal("52%", evaluate("saturation(hsl(20, 52, 20%))"))
+  end
+
+  def test_saturation_exception
+    assert_error_message("12 is not a color for `saturation'", "saturation(12)")
+  end
+
+  def test_lightness
+    assert_equal("86%", evaluate("lightness(hsl(120, 50%, 86%))"))
+    assert_equal("86%", evaluate("lightness(hsl(120, 50%, 86))"))
+  end
+
+  def test_lightness_exception
+    assert_error_message("12 is not a color for `lightness'", "lightness(12)")
+  end
+
   def test_alpha
     assert_equal("1", evaluate("alpha(#123456)"))
     assert_equal("0.34", evaluate("alpha(rgba(0, 1, 2, 0.34))"))

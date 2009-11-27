@@ -252,6 +252,48 @@ module Sass::Script
       Sass::Script::Number.new(color.blue)
     end
 
+    # Returns the hue component of a color.
+    #
+    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # @param color [Color]
+    # @return [Number] between 0 and 360
+    # @raise [ArgumentError] if `color` isn't a color
+    def hue(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.hue)
+    end
+
+    # Returns the saturation component of a color.
+    #
+    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # @param color [Color]
+    # @return [Number] between 0% and 100%
+    # @raise [ArgumentError] if `color` isn't a color
+    def saturation(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.saturation, ["%"])
+    end
+
+    # Returns the hue component of a color.
+    #
+    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # @param color [Color]
+    # @return [Number] between 0% and 100%
+    # @raise [ArgumentError] if `color` isn't a color
+    def lightness(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.lightness, ["%"])
+    end
+
     # Returns the alpha component (opacity) of a color.
     # This is 1 unless otherwise specified.
     #

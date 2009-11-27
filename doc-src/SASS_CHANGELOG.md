@@ -7,6 +7,13 @@
 
 ### Colors
 
+SassScript color values are much more powerful than they were before.
+Support was added for alpha channels,
+and most of Chris Eppstein's [compass-colors](http://chriseppstein.github.com/compass-colors) plugin
+was merged in, providing color-theoretic functions for modifying colors.
+
+#### Alpha Channels
+
 Sass now supports colors with alpha channels,
 constructed via the {Sass::Script::Functions#rgba rgba}
 and {Sass::Script::Functions#hsla hsla} functions.
@@ -21,6 +28,15 @@ Sass now also supports functions that return the values of the
 {Sass::Script::Functions#green green},
 and {Sass::Script::Functions#alpha alpha}
 components of colors.
+
+#### HSL Colors
+
+Sass supports functions that return the values of the
+{Sass::Script::Functions#hue hue},
+{Sass::Script::Functions#saturation saturation},
+and {Sass::Script::Functions#lightness lightness}
+components of colors.
+These work on RGB colors as well as HSL colors.
 
 ### Variable Names
 
