@@ -8,11 +8,7 @@ module Sass::Script
   #
   # The following functions are provided:
   #
-  # \{#hsl}
-  # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
-  #
-  # \{#hsla}
-  # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
+  # ## RGB Functions
   #
   # \{#rgb}
   # : Converts an `rgb(red, green, blue)` triplet into a color.
@@ -29,6 +25,16 @@ module Sass::Script
   # \{#blue}
   # : Gets the blue component of a color.
   #
+  # ## HSL Functions
+  #
+  # \{#hsl}
+  # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
+  #
+  # \{#hsla}
+  # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
+  #
+  # ## Opacity Functions
+  #
   # \{#alpha} / \{#opacity}
   # : Gets the alpha component (opacity) of a color.
   #
@@ -37,6 +43,8 @@ module Sass::Script
   #
   # \{#transparentize} / \{#fade_out #fade-out}
   # : Makes a color more transparent.
+  #
+  # ## Number Functions
   #
   # \{#percentage}
   # : Converts a unitless number to a percentage.
