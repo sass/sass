@@ -382,6 +382,35 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `adjust-hue'", "adjust-hue(#fff, \"foo\")")
   end
 
+  def test_mix
+    assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
+    assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
+    assert_equal("#7f9055", evaluate("mix(#f70, #0aa)"))
+    assert_equal("#3f00bf", evaluate("mix(#f00, #00f, 25%)"))
+    assert_equal("rgba(63, 0, 191, 0.75)", evaluate("mix(rgba(255, 0, 0, 0.5), #00f)"))
+    assert_equal("red", evaluate("mix(#f00, #00f, 100%)"))
+    assert_equal("blue", evaluate("mix(#f00, #00f, 0%)"))
+    assert_equal("rgba(255, 0, 0, 0.5)", evaluate("mix(#f00, transparentize(#00f, 1))"))
+    assert_equal("rgba(0, 0, 255, 0.5)", evaluate("mix(transparentize(#f00, 1), #00f)"))
+    assert_equal("red", evaluate("mix(#f00, transparentize(#00f, 1), 100%)"))
+    assert_equal("blue", evaluate("mix(transparentize(#f00, 1), #00f, 0%)"))
+    assert_equal("rgba(0, 0, 255, 0)", evaluate("mix(#f00, transparentize(#00f, 1), 0%)"))
+    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix(transparentize(#f00, 1), #00f, 100%)"))
+  end
+
+  def test_mix_tests_types
+    assert_error_message("\"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
+    assert_error_message("\"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `mix'", "mix(#f00, #baf, \"foo\")")
+  end
+
+  def test_mix_tests_bounds
+    assert_error_message("Weight -0.001 must be between 0% and 100% for `mix'",
+      "mix(#123, #456, -0.001)")
+    assert_error_message("Weight 100.001 must be between 0% and 100% for `mix'",
+      "mix(#123, #456, 100.001)")
+  end
+
   private
 
   def evaluate(value)

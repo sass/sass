@@ -12,6 +12,11 @@ Support was added for alpha channels,
 and most of Chris Eppstein's [compass-colors](http://chriseppstein.github.com/compass-colors) plugin
 was merged in, providing color-theoretic functions for modifying colors.
 
+One of the most interesting of these functions is {Sass::Script::Functions#mix mix},
+which mixes two colors together.
+This provides a much better way of combining colors and creating themes
+than standard color arithmetic.
+
 #### Alpha Channels
 
 Sass now supports colors with alpha channels,

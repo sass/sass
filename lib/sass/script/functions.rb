@@ -25,6 +25,9 @@ module Sass::Script
   # \{#blue}
   # : Gets the blue component of a color.
   #
+  # \{#mix}
+  # : Mixes two colors together.
+  #
   # ## HSL Functions
   #
   # \{#hsl}
@@ -459,6 +462,72 @@ module Sass::Script
       assert_type color, :Color
       assert_type degrees, :Number
       color.with(:hue => color.hue + degrees.value)
+    end
+
+    # Mixes together two colors.
+    # Specifically, takes the average of each of the RGB components,
+    # optionally weighted by the given percentage.
+    # The opacity of the colors is also considered when weighting the components.
+    #
+    # The weight specifies the amount of the first color that should be included
+    # in the returned color.
+    # The default, 50%, means that half the first color
+    # and half the second color should be used.
+    # 25% means that a quarter of the first color
+    # and three quarters of the second color should be used.
+    #
+    # For example:
+    #
+    #     mix(#f00, #00f) => #7f007f
+    #     mix(#f00, #00f, 25%) => #3f00bf
+    #     mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
+    #
+    # @overload mix(color1, color2, weight = 50%)
+    #   @param color1 [Color]
+    #   @param color2 [Color]
+    #   @param weight [Number] between 0% and 100%
+    #   @return [Color]
+    #   @raise [ArgumentError] if `color1` or `color2` aren't colors,
+    #     or `weight` isn't a number between 0% and 100%
+    def mix(color1, color2, weight = Number.new(50))
+      assert_type color1, :Color
+      assert_type color2, :Color
+      assert_type weight, :Number
+
+      unless (0..100).include?(weight.value)
+        raise ArgumentError.new("Weight #{weight} must be between 0% and 100%")
+      end
+
+      # This algorithm factors in both the user-provided weight
+      # and the difference between the alpha values of the two colors
+      # to decide how to perform the weighted average of the two RGB values.
+      #
+      # It works by first normalizing both parameters to be within [-1, 1],
+      # where 1 indicates "only use color1", -1 indicates "only use color 0",
+      # and all values in between indicated a proportionately weighted average.
+      #
+      # Once we have the normalized variables w and a,
+      # we apply the formula (w + a)/(1 + w*a)
+      # to get the combined weight (in [-1, 1]) of color1.
+      # This formula has two especially nice properties:
+      #
+      #   * When either w or a are -1 or 1, the combined weight is also that number
+      #     (cases where w * a == -1 are undefined, and handled as a special case).
+      #
+      #   * When a is 0, the combined weight is w, and vice versa
+      #
+      # Finally, the weight of color1 is renormalized to be within [0, 1]
+      # and the weight of color2 is given by 1 minus the weight of color1.
+      p = weight.value/100.0
+      w = p*2 - 1
+      a = color1.alpha - color2.alpha
+
+      w1 = (((w * a == -1) ? w : (w + a)/(1 + w*a)) + 1)/2.0
+      w2 = 1 - w1
+
+      rgb = color1.rgb.zip(color2.rgb).map {|v1, v2| v1*w1 + v2*w2}
+      alpha = color1.alpha*p + color2.alpha*(1-p)
+      Color.new(rgb + [alpha])
     end
 
     # Converts a decimal number to a percentage.
