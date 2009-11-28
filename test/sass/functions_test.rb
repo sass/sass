@@ -411,6 +411,30 @@ class SassFunctionTest < Test::Unit::TestCase
       "mix(#123, #456, 100.001)")
   end
 
+  def test_grayscale
+    assert_equal("#bbbbbb", evaluate("grayscale(#abc)"))
+    assert_equal("gray", evaluate("grayscale(#f00)"))
+    assert_equal("gray", evaluate("grayscale(#00f)"))
+    assert_equal("white", evaluate("grayscale(white)"))
+    assert_equal("black", evaluate("grayscale(black)"))
+  end
+
+  def tets_grayscale_tests_types
+    assert_error_message("\"foo\" is not a color for `grayscale'", "grayscale(\"foo\")")
+  end
+
+  def test_complement
+    assert_equal("#ccbbaa", evaluate("complement(#abc)"))
+    assert_equal("aqua", evaluate("complement(red)"))
+    assert_equal("red", evaluate("complement(aqua)"))
+    assert_equal("white", evaluate("complement(white)"))
+    assert_equal("black", evaluate("complement(black)"))
+  end
+
+  def tets_complement_tests_types
+    assert_error_message("\"foo\" is not a color for `complement'", "complement(\"foo\")")
+  end
+
   private
 
   def evaluate(value)

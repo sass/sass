@@ -60,6 +60,12 @@ module Sass::Script
   # \{#desaturate}
   # : Makes a color less saturated.
   #
+  # \{#grayscale}
+  # : Converts a color to grayscale.
+  #
+  # \{#complement}
+  # : Returns the complement of a color.
+  #
   # ## Opacity Functions
   #
   # \{#alpha} / \{#opacity}
@@ -528,6 +534,28 @@ module Sass::Script
       rgb = color1.rgb.zip(color2.rgb).map {|v1, v2| v1*w1 + v2*w2}
       alpha = color1.alpha*p + color2.alpha*(1-p)
       Color.new(rgb + [alpha])
+    end
+
+    # Converts a color to grayscale.
+    # This is identical to `desaturate(color, 100%)`.
+    #
+    # @param color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` isn't a color
+    # @see #desaturate
+    def grayscale(color)
+      desaturate color, Number.new(100)
+    end
+
+    # Returns the complement of a color.
+    # This is identical to `adjust-hue(color, 180deg)`.
+    #
+    # @param color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` isn't a color
+    # @see #adjust_hue #adjust-hue
+    def complement(color)
+      adjust_hue color, Number.new(180)
     end
 
     # Converts a decimal number to a percentage.

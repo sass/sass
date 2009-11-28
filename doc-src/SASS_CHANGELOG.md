@@ -57,6 +57,12 @@ as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
   and {Sass::Script::Functions#lightness lightness}
   functions return the corresponding HSL values of the color.
 
+* The {Sass::Script::Functions#grayscale grayscale}
+  function converts a color to grayscale.
+
+* The {Sass::Script::Functions#complement complement}
+  function returns the complement of a color.
+
 ### Variable Names
 
 SassScript variable names may now contain hyphens.
