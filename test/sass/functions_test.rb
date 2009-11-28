@@ -203,7 +203,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_hue
-    assert_equal("18", evaluate("hue(hsl(18, 50%, 20%))"))
+    assert_equal("18deg", evaluate("hue(hsl(18, 50%, 20%))"))
   end
 
   def test_hue_exception
