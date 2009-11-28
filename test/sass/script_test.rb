@@ -152,6 +152,11 @@ WARN
     assert_equal "public_instance_methods()", resolve("public_instance_methods()")
   end
 
+  def test_default_functions
+    assert_equal "url(12)", resolve("url(12)")
+    assert_equal 'blam(foo)', resolve('blam("foo")')
+  end
+
   def test_hyphenated_variables
     assert_equal("a-b", resolve("!a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
   end
@@ -265,6 +270,9 @@ WARN
 
   def test_funcall_has_higher_precedence_than_color_name
     assert_equal "teal(12)", resolve("teal(12)")
+    assert_equal "tealbang(12)", resolve("tealbang(12)")
+    assert_equal "teal-bang(12)", resolve("teal-bang(12)")
+    assert_equal "teal+bang(12)", resolve("teal\\+bang(12)")
   end
 
   def test_interpolation_after_hash

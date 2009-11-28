@@ -92,7 +92,9 @@ Several bug fixes and minor improvements have been made, including:
 * If a CSS or Sass function is used that has the name of a color,
   it will now be parsed as a function rather than as a color.
   For example, `fuchsia(12)` now renders as `fuchsia(12)`
-  rather than `fuchsia 12`.
+  rather than `fuchsia 12`,
+  and `tealbang(12)` now renders as `tealbang(12)`
+  rather than `teal bang(12)`.
 
 ## 2.2.15 (Unreleased)
 
