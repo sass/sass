@@ -14,7 +14,7 @@ module Sass::Script
   # : Converts an `rgb(red, green, blue)` triplet into a color.
   #
   # \{#rgba}
-  # : Converts an `rgb(red, green, blue, alpha)` triplet into a color.
+  # : Converts an `rgba(red, green, blue, alpha)` quadruplet into a color.
   #
   # \{#red}
   # : Gets the red component of a color.
