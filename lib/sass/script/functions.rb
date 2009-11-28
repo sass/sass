@@ -2,7 +2,7 @@ module Sass::Script
   # Methods in this module are accessible from the SassScript context.
   # For example, you can write
   #
-  #     !color = hsl(120, 100%, 50%)
+  #     !color = hsl(120deg, 100%, 50%)
   #
   # and it will call {Sass::Script::Functions#hsl}.
   #
@@ -300,11 +300,11 @@ module Sass::Script
     # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
     #
     # @param color [Color]
-    # @return [Number] between 0 and 360
+    # @return [Number] between 0deg and 360deg
     # @raise [ArgumentError] if `color` isn't a color
     def hue(color)
       assert_type color, :Color
-      Sass::Script::Number.new(color.hue)
+      Sass::Script::Number.new(color.hue, ["deg"])
     end
 
     # Returns the saturation component of a color.
@@ -452,7 +452,7 @@ module Sass::Script
     end
 
     # Changes the hue of a color while retaining the lightness and saturation.
-    # Takes a color and a number of degrees (usually between -360 and 360),
+    # Takes a color and a number of degrees (usually between -360deg and 360deg),
     # and returns a color with the hue rotated by that value.
     #
     # For example:
