@@ -256,7 +256,7 @@ begin
 rescue LoadError
   desc "Generate Documentation"
   task :doc => :rdoc
-  task :yardoc => :rdoc
+  task :yard => :rdoc
 end
 
 task :pages do
