@@ -203,6 +203,7 @@ task :release_edge do
 
     sh %{rubyforge login}
     sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
+    sh %{gem push pkg/haml-edge-#{edge_version}.gem}
   end
 end
 
@@ -253,7 +254,7 @@ begin
 rescue LoadError
   desc "Generate Documentation"
   task :doc => :rdoc
-  task :yardoc => :rdoc
+  task :yard => :rdoc
 end
 
 task :pages do
