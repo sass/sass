@@ -339,7 +339,7 @@ MESSAGE
     end
 
     # @deprecated This will be removed in version 2.4.
-    # @see \{#haml\_concat}
+    # @see #haml_concat
     def puts(*args)
       warn <<END
 DEPRECATION WARNING:
