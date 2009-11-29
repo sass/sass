@@ -166,15 +166,17 @@ module Sass::Script
 
 
     # Creates a {Color} object from red, green, and blue values.
-    # @param red
+    #
+    # @param red [Number]
     #   A number between 0 and 255 inclusive,
     #   or between 0% and 100% inclusive
-    # @param green
+    # @param green [Number]
     #   A number between 0 and 255 inclusive,
     #   or between 0% and 100% inclusive
-    # @param blue
+    # @param blue [Number]
     #   A number between 0 and 255 inclusive,
     #   or between 0% and 100% inclusive
+    # @return [Color]
     def rgb(red, green, blue)
       rgba(red, green, blue, Number.new(1))
     end
@@ -182,14 +184,15 @@ module Sass::Script
     # Creates a {Color} object from red, green, and blue values,
     # as well as an alpha channel indicating opacity.
     #
-    # @param red
+    # @param red [Number]
     #   A number between 0 and 255 inclusive
-    # @param green
+    # @param green [Number]
     #   A number between 0 and 255 inclusive
-    # @param blue
+    # @param blue [Number]
     #   A number between 0 and 255 inclusive
-    # @param alpha
+    # @param alpha [Number]
     #   A number between 0 and 1
+    # @return [Color]
     def rgba(red, green, blue, alpha)
       assert_type red, :Number
       assert_type green, :Number
@@ -358,6 +361,7 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def opacify(color, amount)
@@ -376,6 +380,7 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def transparentize(color, amount)
@@ -394,6 +399,7 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def lighten(color, amount)
@@ -411,6 +417,7 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def darken(color, amount)
@@ -428,6 +435,7 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def saturate(color, amount)
@@ -445,6 +453,7 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def desaturate(color, amount)
@@ -463,6 +472,7 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color, or `number` isn't a number
     def adjust_hue(color, degrees)
       assert_type color, :Color
