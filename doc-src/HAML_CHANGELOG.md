@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.15 (Unreleased)
+## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
 
 * Allow `if` statements with no content followed by `else` clauses.
   For example:
