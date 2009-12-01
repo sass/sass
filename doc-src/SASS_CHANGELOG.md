@@ -96,7 +96,7 @@ Several bug fixes and minor improvements have been made, including:
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
-## 2.2.15 (Unreleased)
+## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
 
 * Added {Sass::Script::Color#with} for a way of setting color channels
   that's easier than manually constructing a new color
