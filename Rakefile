@@ -40,3 +40,5 @@ file ".haml" do
   sh %{git clone -l -s . .haml}
   Dir.chdir(".haml") {sh %{git checkout origin/stable}}
 end
+
+task(:test) {puts "Dummy :test task for RunCodeRun"}
