@@ -96,10 +96,10 @@ module Sass::Script
 
       # The options hash for the {Sass::Engine} that is processing the function call
       #
-      # @return [Hash<Symbol, Object>]
+      # @return [{Symbol => Object}]
       attr_reader :options
 
-      # @param options [Hash<Symbol, Object>] See \{#options}
+      # @param options [{Symbol => Object}] See \{#options}
       def initialize(options)
         @options = options
       end

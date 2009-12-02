@@ -127,7 +127,7 @@ module Sass
     }.freeze
 
     # @param template [String] The Sass template.
-    # @param options [Hash<Symbol, Object>] An options hash;
+    # @param options [{Symbol => Object}] An options hash;
     #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
     def initialize(template, options={})
       @options = DEFAULT_OPTIONS.merge(options)

@@ -31,21 +31,21 @@ module Sass
     # An options hash.
     # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
-    # @return [Hash<Symbol, Object>]
+    # @return [{Symbol => Object}]
     attr_reader :options
 
     # Sets the options hash.
     # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
-    # @param value [Hash<Symbol, Object>] The options hash
+    # @param value [{Symbol => Object}] The options hash
     def options=(value)
       @options.merge!(value)
     end
 
     # Non-destructively modifies \{#options} so that default values are properly set.
     #
-    # @param additional_options [Hash<Symbol, Object>] An options hash with which to merge \{#options}
-    # @return [Hash<Symbol, Object>] The modified options hash
+    # @param additional_options [{Symbol => Object}] An options hash with which to merge \{#options}
+    # @return [{Symbol => Object}] The modified options hash
     def engine_options(additional_options = {})
       opts = options.dup.merge(additional_options)
       opts[:load_paths] = load_paths(opts)

@@ -122,7 +122,7 @@ END
     #     Color.new([1, 2, 3]).with(:alpha => 0.4)
     #       #=> rgba(1, 2, 3, 0.4)
     #
-    # @param attrs [Hash<Symbol, Numeric>]
+    # @param attrs [{Symbol => Numeric}]
     #   A map of channel names (`:red`, `:green`, `:blue`, or `:alpha`) to values
     # @return [Color] The new Color object
     def with(attrs)

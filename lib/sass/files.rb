@@ -12,7 +12,7 @@ module Sass
     # reading it from the Sass cache if possible.
     #
     # @param filename [String] The path to the Sass file
-    # @param options [Hash<Symbol, Object>] The options hash.
+    # @param options [{Symbol => Object}] The options hash.
     #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
     # @raise [Sass::SyntaxError] if there's an error in the document.
     #   The caller has responsibility for setting backtrace information, if necessary
