@@ -69,7 +69,7 @@ END
     #     Color.new([126, 126, 126]).with(:red => 0, :green => 255)
     #       #=> rgb(0, 255, 126)
     #
-    # @param attrs [Hash<Symbol, Fixnum>]
+    # @param attrs [{Symbol => Fixnum}]
     #   A map of channel names (`:red`, `:green`, or `:blue`) to values
     # @return [Color] The new Color object
     def with(attrs)

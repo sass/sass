@@ -9,7 +9,7 @@ module Haml
     # The options hash for Haml when used within Rails.
     # See {file:HAML_REFERENCE.md#haml_options the Haml options documentation}.
     #
-    # @return [Hash<Symbol, Object>]
+    # @return [{Symbol => Object}]
     attr_accessor :options
 
     # Enables integration with the Rails 2.2.5+ XSS protection,

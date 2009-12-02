@@ -23,7 +23,7 @@ module Haml
     #       :major  => 2, :minor => 1, :teeny => 0
     #     }
     #
-    # @return [Hash<Symbol, String/Fixnum>] The version hash
+    # @return [{Symbol => String/Fixnum}] The version hash
     def version
       return @@version if defined?(@@version)
 
