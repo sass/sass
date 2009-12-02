@@ -28,14 +28,14 @@ module Sass
     #   Used for error reporting
     # @param offset [Fixnum] The number of characters in on `line` that the SassScript started.
     #   Used for error reporting
-    # @param filename [String] The path to the file in which the SassScript appeared.
-    #   Used for error reporting
+    # @param options [{Symbol => Object}] An options hash;
+    #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
     # @return [Script::Node] The root node of the parse tree
-    def self.parse(value, line, offset, filename = nil)
-      Parser.parse(value, line, offset, filename)
+    def self.parse(value, line, offset, options = {})
+      Parser.parse(value, line, offset, options)
     rescue Sass::SyntaxError => e
       e.message << ": #{value.inspect}." if e.message == "SassScript error"
-      e.modify_backtrace(:line => line, :filename => filename)
+      e.modify_backtrace(:line => line, :filename => options[:filename])
       raise e
     end
   end

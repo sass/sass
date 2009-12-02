@@ -288,8 +288,8 @@ WARN
 
   def eval(str, opts = {}, environment = env)
     munge_filename opts
-    Sass::Script.parse(str, opts[:line] || 1,
-      opts[:offset] || 0, opts[:filename]).perform(environment)
+    Sass::Script.parse(str, opts.delete(:line) || 1,
+      opts.delete(:offset) || 0, opts).perform(environment)
   end
 
   def render(sass, options = {})
