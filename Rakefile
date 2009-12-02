@@ -41,4 +41,4 @@ file ".haml" do
   Dir.chdir(".haml") {sh %{git checkout origin/stable}}
 end
 
-task(:test) {puts "Dummy :test task for RunCodeRun"}
+task(:default) {puts "Dummy default task for RunCodeRun"}
