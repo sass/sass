@@ -2,14 +2,16 @@ require 'test/unit'
 require File.dirname(__FILE__) + '/../../lib/sass'
 require 'sass/script'
 
-module UserFunctions
+module Sass::Script::Functions::UserFunctions
+  def call_options_on_new_literal
+    str = Sass::Script::String.new("foo")
+    str.options[:foo]
+    str
+  end
+
   def user_defined
     Sass::Script::String.new("I'm a user-defined string!")
   end
-end
-
-module Sass::Script::Functions
-  include UserFunctions
 end
 
 class SassFunctionTest < Test::Unit::TestCase
@@ -249,6 +251,15 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
+  end
+
+  def test_options_on_new_literals_fails
+    assert_error_message(<<MSG, "call-options-on-new-literal()")
+The #options attribute is not set on this Sass::Script::String.
+  This error is probably occurring because #to_s was called
+  on this literal within a custom Sass function without first
+  setting the #option attribute.
+MSG
   end
 
   private

@@ -39,6 +39,23 @@ module Sass::Script
       []
     end
 
+    # Returns the options hash for this node.
+    #
+    # @return [{Symbol => Object}]
+    # @raise [Sass::SyntaxError] if the options hash hasn't been set.
+    #   This should only happen when the literal was created
+    #   outside of the parser and \{#to\_s} was called on it
+    def options
+      opts = super
+      return opts if opts
+      raise Sass::SyntaxError.new(<<MSG)
+The #options attribute is not set on this #{self.class}.
+  This error is probably occurring because #to_s was called
+  on this literal within a custom Sass function without first
+  setting the #option attribute.
+MSG
+    end
+
     # The SassScript `and` operation.
     #
     # @param other [Literal] The right-hand side of the operator
@@ -181,5 +198,13 @@ module Sass::Script
 
     # @raise [Sass::SyntaxError] if this literal isn't an integer
     def assert_int!; to_i; end
+
+    # Returns the string representation of this literal
+    # as it would be output to the CSS document.
+    #
+    # @return [String]
+    def to_s
+      raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Literal must implement #to_s.")
+    end
   end
 end

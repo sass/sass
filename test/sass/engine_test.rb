@@ -3,6 +3,12 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 require 'stringio'
 
+module Sass::Script::Functions::UserFunctions
+  def option(name)
+    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+  end
+end
+
 class SassEngineTest < Test::Unit::TestCase
   # A map of erroneous Sass documents to the error messages they should produce.
   # The error messages may be arrays;

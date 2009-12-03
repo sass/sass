@@ -2,6 +2,13 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
+module Sass::Script::Functions::UserFunctions
+  def assert_options(val)
+    val.options[:foo]
+    Sass::Script::String.new("Options defined!")
+  end
+end
+
 class SassScriptTest < Test::Unit::TestCase
   include Sass::Script
 
@@ -157,6 +164,11 @@ WARN
     assert_equal 'blam(foo)', resolve('blam("foo")')
   end
 
+  def test_function_results_have_options
+    assert_equal "Options defined!", resolve("assert_options(abs(1))")
+    assert_equal "Options defined!", resolve("assert_options(round(1.2))")
+  end
+
   def test_hyphenated_variables
     assert_equal("a-b", resolve("!a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
   end
@@ -264,6 +276,11 @@ WARN
     assert_equal "true", resolve("10mm == 1cm")
     assert_equal "true", resolve("1 == 1cm")
     assert_equal "true", resolve("1.1cm == 11mm")
+  end
+
+  def test_operations_have_options
+    assert_equal "Options defined!", resolve("assert_options(1 + 1)")
+    assert_equal "Options defined!", resolve("assert_options('bar' + 'baz')")
   end
 
   # Regression Tests
