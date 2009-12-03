@@ -249,14 +249,37 @@ END
     #
     # @return [String] The string representation
     def to_s
-      return "rgba(#{rgb.join(', ')}, #{alpha % 1 == 0.0 ? alpha.to_i : alpha})" if alpha?
+      return rgba_str if alpha?
+      return smallest if options[:style] == :compressed
       return HTML4_COLORS_REVERSE[rgb] if HTML4_COLORS_REVERSE[rgb]
-      red, green, blue = rgb.map { |num| num.to_s(16).rjust(2, '0') }
-      "##{red}#{green}#{blue}"
+      hex_str
     end
     alias_method :inspect, :to_s
 
+    # Returns a string representation of the color.
+    #
+    # @return [String] The hex value
+    def inspect
+      alpha? ? rgba_str : hex_str
+    end
+
     private
+
+    def smallest
+      small_hex_str = hex_str.gsub(/^#(.)\1(.)\2(.)\3$/, '#\1\2\3')
+      return small_hex_str unless (color = HTML4_COLORS_REVERSE[rgb]) &&
+        color.size <= small_hex_str.size
+      return color
+    end
+
+    def rgba_str
+      "rgba(#{rgb.join(', ')}, #{alpha % 1 == 0.0 ? alpha.to_i : alpha})"
+    end
+
+    def hex_str
+      red, green, blue = rgb.map { |num| num.to_s(16).rjust(2, '0') }
+      "##{red}#{green}#{blue}"
+    end
 
     def piecewise(other, operation)
       other_num = other.is_a? Number

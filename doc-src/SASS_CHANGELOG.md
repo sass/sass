@@ -75,6 +75,13 @@ including the line number and the offending character.
 The Sass Rails plugin now works using Rack middleware by default
 in versions of Rails that support it (2.3 and onwards).
 
+### `:compressed` Style
+
+When the `:compressed` style is used,
+colors will be output as the minimal possible representation.
+This means whichever is smallest of the HTML4 color name
+and the hex representation (shortened to the three-letter version if possible).
+
 ### `css2sass` Error Handling
 
 Several bug fixes and minor improvements have been made, including:
