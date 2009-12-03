@@ -67,8 +67,6 @@ module Sass::Script
     # That means that all instance methods of {EvaluationContext}
     # are available to use in functions.
     class EvaluationContext
-      include Sass::Script::Functions
-
       # The options hash for the {Sass::Engine} that is processing the function call
       #
       # @return [{Symbol => Object}]
@@ -77,6 +75,10 @@ module Sass::Script
       # @param options [{Symbol => Object}] See \{#options}
       def initialize(options)
         @options = options
+
+        # We need to include this individually in each instance
+        # because of an icky Ruby restriction
+        class << self; include Sass::Script::Functions; end
       end
 
       # Asserts that the type of a given SassScript value

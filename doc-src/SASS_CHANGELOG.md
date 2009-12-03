@@ -3,6 +3,14 @@
 * Table of contents
 {:toc}
 
+## 2.2.16
+
+* Fixed a bug where modules containing user-defined Sass functions
+  weren't made available when simply included in {Sass::Script::Functions}
+  ({Sass::Script::Functions Functions} needed to be re-included in
+  {Sass::Script::Functions::EvaluationContext Functions::EvaluationContext}).
+  Now the module simply needs to be included in {Sass::Script::Functions}.
+
 ## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
 
 * Added {Sass::Script::Color#with} for a way of setting color channels
