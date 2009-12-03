@@ -27,6 +27,7 @@ module Sass
       def parse_interpolated
         expr = assert_expr :expr
         assert_tok :end_interpolation
+        expr.options = @options
         expr
       end
 
@@ -37,6 +38,7 @@ module Sass
       def parse
         expr = assert_expr :expr
         assert_done
+        expr.options = @options
         expr
       end
 
@@ -53,6 +55,7 @@ module Sass
         end
         assert_done
 
+        args.each {|a| a.options = @options}
         args
       end
 
@@ -69,6 +72,7 @@ module Sass
         end
         assert_done
 
+        args.each {|a| a.first.options = @options}
         args
       end
 
