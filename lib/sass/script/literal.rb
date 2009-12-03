@@ -31,6 +31,14 @@ module Sass::Script
       self
     end
 
+    # Returns an empty array.
+    #
+    # @return [Array<Node>] empty
+    # @see Node#children
+    def children
+      []
+    end
+
     # The SassScript `and` operation.
     #
     # @param other [Literal] The right-hand side of the operator

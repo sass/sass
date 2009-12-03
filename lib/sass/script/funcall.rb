@@ -46,6 +46,14 @@ module Sass
         raise e unless e.backtrace.any? {|t| t =~ /:in `(block in )?(#{name}|perform)'$/}
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
       end
+
+      # Returns the arguments to the function.
+      #
+      # @return [Array<Node>]
+      # @see Node#children
+      def children
+        @args
+      end
     end
   end
 end

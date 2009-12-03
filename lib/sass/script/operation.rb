@@ -41,5 +41,13 @@ module Sass::Script
         raise Sass::SyntaxError.new("Undefined operation: \"#{literal1} #{@operator} #{literal2}\".")
       end
     end
+
+    # Returns the operands for this operation.
+    #
+    # @return [Array<Node>]
+    # @see Node#children
+    def children
+      [@operand1, @operand2]
+    end
   end
 end
