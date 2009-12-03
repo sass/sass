@@ -72,7 +72,10 @@ module Sass
         end
         assert_done
 
-        args.each {|a| a.first.options = @options}
+        args.each do |k, v|
+          k.options = @options
+          v.options = @options if v
+        end
         args
       end
 
