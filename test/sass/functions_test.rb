@@ -2,6 +2,16 @@ require 'test/unit'
 require File.dirname(__FILE__) + '/../../lib/sass'
 require 'sass/script'
 
+module UserFunctions
+  def user_defined
+    Sass::Script::String.new("I'm a user-defined string!")
+  end
+end
+
+module Sass::Script::Functions
+  include UserFunctions
+end
+
 class SassFunctionTest < Test::Unit::TestCase
   # Tests taken from:
   #   http://www.w3.org/Style/CSS/Test/CSS3/Color/20070927/html4/t040204-hsl-h-rotating-b.htm
@@ -235,6 +245,10 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_transparentize_tests_types
     assert_error_message("\"foo\" is not a color for `transparentize'", "transparentize(\"foo\", 10%)")
     assert_error_message("\"foo\" is not a number for `transparentize'", "transparentize(#fff, \"foo\")")
+  end
+
+  def test_user_defined_function
+    assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
 
   private
