@@ -2,8 +2,11 @@
 # using the > 2.0.1 template handler API.
 
 module Haml
-  class Plugin < ActionView::TemplateHandler
-    include ActionView::TemplateHandlers::Compilable if defined?(ActionView::TemplateHandlers::Compilable)
+  class Plugin < Haml::Util.av_template_class(:Handler)
+    if defined?(ActionView::TemplateHandlers::Compilable) ||
+        defined?(ActionView::Template::Handlers::Compilable)
+      include Haml::Util.av_template_class(:Handlers)::Compilable
+    end
 
     def compile(template)
       options = Haml::Template.options.dup
@@ -38,7 +41,8 @@ end.register_template_handler(:haml, Haml::Plugin)
 # In Rails 2.0.2, ActionView::TemplateError took arguments
 # that we can't fill in from the Haml::Plugin context.
 # Thus, we've got to monkeypatch ActionView::Base to catch the error.
-if ActionView::TemplateError.instance_method(:initialize).arity == 5
+if defined?(ActionView::TemplateError) &&
+    ActionView::TemplateError.instance_method(:initialize).arity == 5
   class ActionView::Base
     def compile_template(handler, template, file_name, local_assigns)
       render_symbol = assign_method_name(handler, template, file_name)
