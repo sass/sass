@@ -5,6 +5,22 @@
 
 ## 2.4.0 (Unreleased)
 
+### haml_tag improvement
+
+The {Haml::Helpers#haml_tag haml\_tag} helper can now take a string
+using the same class/id shorthand as in standard Haml code.
+Manually-specified class and id attributes are merged,
+again as in standard Haml code.
+For example:
+
+    haml_tag('#foo') #=> <div id='foo' />
+    haml_tag('.bar) #=> <div class='bar' />
+    haml_tag('span#foo.bar') #=> <span class='bar' id='foo' />
+    haml_tag('span#foo.bar', :class => 'abc') #=> <span class='abc bar' id='foo' />
+    haml_tag('span#foo.bar', :id => 'abc') #=> <span class='bar' id='abc_foo' />
+
+Cheers, [S. Burkhard](http://github.com/hasclass/).
+
 ### Object Reference Customization
 
 It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}

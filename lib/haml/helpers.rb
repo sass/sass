@@ -367,6 +367,11 @@ END
     # If the block is a Haml block or outputs text using \{#haml\_concat},
     # the text will be properly indented.
     #
+    # `name` can be a string using the standard Haml class/id shorthand
+    # (e.g. "span#foo.bar", "#foo").
+    # Just like standard Haml tags, these class and id values
+    # will be merged with manually-specified attributes.
+    #
     # `flags` is a list of symbol flags
     # like those that can be put at the end of a Haml tag
     # (`:/`, `:<`, and `:>`).
@@ -381,7 +386,7 @@ END
     #
     #     haml_tag :table do
     #       haml_tag :tr do
-    #         haml_tag :td, {:class => 'cell'} do
+    #         haml_tag 'td.cell' do
     #           haml_tag :strong, "strong!"
     #           haml_concat "data"
     #         end
@@ -417,13 +422,14 @@ END
     def haml_tag(name, *rest, &block)
       ret = ErrorReturn.new("haml_tag")
 
-      name = name.to_s
       text = rest.shift.to_s unless [Symbol, Hash, NilClass].any? {|t| rest.first.is_a? t}
       flags = []
       flags << rest.shift while rest.first.is_a? Symbol
+      name, attrs = merge_name_and_attributes(name.to_s, rest.shift || {})
+
       attributes = Haml::Precompiler.build_attributes(haml_buffer.html?,
                                                       haml_buffer.options[:attr_wrapper],
-                                                      rest.shift || {})
+                                                      attrs)
 
       if text.nil? && block.nil? && (haml_buffer.options[:autoclose].include?(name) || flags.include?(:/))
         haml_concat "<#{name}#{attributes} />"
@@ -511,6 +517,17 @@ END
     end
 
     private
+
+    # Parses the tag name used for \{#haml\_tag}
+    # and merges it with the Ruby attributes hash.
+    def merge_name_and_attributes(name, attributes_hash = {})
+      # skip merging if no ids or classes found in name
+      return name, attributes_hash unless name =~ /^(.+?)?([\.#].*)$/
+
+      return $1 || "div", Buffer.merge_attrs(
+        Precompiler.parse_class_and_id($2),
+        Haml::Util.map_keys(attributes_hash) {|key| key.to_s})
+    end
 
     # Runs a block of code with the given buffer as the currently active buffer.
     #
