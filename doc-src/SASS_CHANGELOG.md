@@ -75,6 +75,13 @@ including the line number and the offending character.
 The Sass Rails plugin now works using Rack middleware by default
 in versions of Rails that support it (2.3 and onwards).
 
+### `:compressed` Style
+
+When the `:compressed` style is used,
+colors will be output as the minimal possible representation.
+This means whichever is smallest of the HTML4 color name
+and the hex representation (shortened to the three-letter version if possible).
+
 ### `css2sass` Error Handling
 
 Several bug fixes and minor improvements have been made, including:
@@ -95,6 +102,14 @@ Several bug fixes and minor improvements have been made, including:
   rather than `fuchsia 12`,
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
+
+## 2.2.16
+
+* Fixed a bug where modules containing user-defined Sass functions
+  weren't made available when simply included in {Sass::Script::Functions}
+  ({Sass::Script::Functions Functions} needed to be re-included in
+  {Sass::Script::Functions::EvaluationContext Functions::EvaluationContext}).
+  Now the module simply needs to be included in {Sass::Script::Functions}.
 
 ## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
 

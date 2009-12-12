@@ -41,10 +41,20 @@ module Sass
           return Script::String.new("#{name}(#{args.map {|a| a.perform(environment)}.join(', ')})")
         end
 
-        return Functions::EvaluationContext.new(environment.options).send(ruby_name, *args)
+        result = Functions::EvaluationContext.new(environment.options).send(ruby_name, *args)
+        result.options = environment.options
+        return result
       rescue ArgumentError => e
         raise e unless e.backtrace.any? {|t| t =~ /:in `(block in )?(#{name}|perform)'$/}
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
+      end
+
+      # Returns the arguments to the function.
+      #
+      # @return [Array<Node>]
+      # @see Node#children
+      def children
+        @args
       end
     end
   end

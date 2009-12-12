@@ -85,11 +85,13 @@ module Sass
       #   Used for error reporting
       # @param offset [Fixnum] The number of characters in on which the SassScript appears.
       #   Used for error reporting
-      def initialize(str, line, offset, filename)
+      # @param options [{Symbol => Object}] An options hash;
+      #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+      def initialize(str, line, offset, options)
         @scanner = str.is_a?(StringScanner) ? str : StringScanner.new(str)
         @line = line
         @offset = offset
-        @filename = filename
+        @options = options
         @interpolation_stack = []
         @prev = nil
       end

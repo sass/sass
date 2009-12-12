@@ -198,7 +198,7 @@ MESSAGE
     #     <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en-US' lang='en-US'>
     #
     # @param lang [String] The value of `xml:lang` and `lang`
-    # @return [Hash<#to_s, String>] The attribute hash
+    # @return [{#to_s => String}] The attribute hash
     def html_attrs(lang = 'en-US')
       {:xmlns => "http://www.w3.org/1999/xhtml", 'xml:lang' => lang, :lang => lang}
     end

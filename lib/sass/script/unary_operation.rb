@@ -30,5 +30,13 @@ module Sass::Script
       raise e unless e.name.to_s == operator.to_s
       raise Sass::SyntaxError.new("Undefined unary operation: \"#{@operator} #{literal}\".")
     end
+
+    # Returns the operand of the operation.
+    #
+    # @return [Array<Node>]
+    # @see Node#children
+    def children
+      [@operand]
+    end
   end
 end

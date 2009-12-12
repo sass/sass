@@ -168,6 +168,19 @@ module Haml
       return nil
     end
 
+    # Returns an ActionView::Template* class.
+    # In pre-3.0 versions of Rails, most of these classes
+    # were of the form `ActionView::TemplateFoo`,
+    # while afterwards they were of the form `ActionView;:Template::Foo`.
+    #
+    # @param name [#to_s] The name of the class to get.
+    #   For example, `:Error` will return `ActionView::TemplateError`
+    #   or `ActionView::Template::Error`.
+    def av_template_class(name)
+      return ActionView.const_get("Template#{name}") if ActionView.const_defined?("Template#{name}")
+      return ActionView::Template.const_get(name.to_s)
+    end
+
     ## Rails XSS Safety
 
     # Whether or not ActionView's XSS protection is available and enabled,

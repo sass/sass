@@ -26,6 +26,14 @@ module Sass
         (val = environment.var(name)) && (return val)
         raise SyntaxError.new("Undefined variable: \"!#{name}\".")
       end
+
+      # Returns an empty array.
+      #
+      # @return [Array<Node>] empty
+      # @see Node#children
+      def children
+        []
+      end
     end
   end
 end

@@ -2,6 +2,13 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
+module Sass::Script::Functions::UserFunctions
+  def assert_options(val)
+    val.options[:foo]
+    Sass::Script::String.new("Options defined!")
+  end
+end
+
 class SassScriptTest < Test::Unit::TestCase
   include Sass::Script
 
@@ -70,6 +77,18 @@ class SassScriptTest < Test::Unit::TestCase
   def test_rgba_number_math
     assert_equal "rgba(49, 49, 49, 0.75)", resolve("rgba(50, 50, 50, 0.75) - 1")
     assert_equal "rgba(100, 100, 100, 0.75)", resolve("rgba(50, 50, 50, 0.75) * 2")
+  end
+
+  def test_compressed_colors
+    assert_equal "#123456", resolve("#123456", :style => :compressed)
+    assert_equal "rgba(1, 2, 3, 0.5)", resolve("rgba(1, 2, 3, 0.5)", :style => :compressed)
+    assert_equal "#123", resolve("#112233", :style => :compressed)
+    assert_equal "#000", resolve("black", :style => :compressed)
+    assert_equal "red", resolve("#f00", :style => :compressed)
+    assert_equal "blue", resolve("#00f", :style => :compressed)
+    assert_equal "navy", resolve("#000080", :style => :compressed)
+    assert_equal "navy #fff", resolve("#000080 white", :style => :compressed)
+    assert_equal "This color is #fff", resolve('"This color is #{ white }"', :style => :compressed)
   end
 
   def test_implicit_strings
@@ -155,6 +174,11 @@ WARN
   def test_default_functions
     assert_equal "url(12)", resolve("url(12)")
     assert_equal 'blam(foo)', resolve('blam("foo")')
+  end
+
+  def test_function_results_have_options
+    assert_equal "Options defined!", resolve("assert_options(abs(1))")
+    assert_equal "Options defined!", resolve("assert_options(round(1.2))")
   end
 
   def test_hyphenated_variables
@@ -266,6 +290,11 @@ WARN
     assert_equal "true", resolve("1.1cm == 11mm")
   end
 
+  def test_operations_have_options
+    assert_equal "Options defined!", resolve("assert_options(1 + 1)")
+    assert_equal "Options defined!", resolve("assert_options('bar' + 'baz')")
+  end
+
   # Regression Tests
 
   def test_funcall_has_higher_precedence_than_color_name
@@ -288,8 +317,8 @@ WARN
 
   def eval(str, opts = {}, environment = env)
     munge_filename opts
-    Sass::Script.parse(str, opts[:line] || 1,
-      opts[:offset] || 0, opts[:filename]).perform(environment)
+    Sass::Script.parse(str, opts.delete(:line) || 1,
+      opts.delete(:offset) || 0, opts).perform(environment)
   end
 
   def render(sass, options = {})

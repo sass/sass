@@ -133,6 +133,13 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
+## 2.2.16 (Unreleased)
+
+* Abstract out references to `ActionView::TemplateError`,
+  `ActionView::TemplateHandler`, etc.
+  These have all been renamed to `ActionView::Template::*`
+  in Rails 3.0.
+
 ## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
 
 * Allow `if` statements with no content followed by `else` clauses.

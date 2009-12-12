@@ -20,7 +20,7 @@ module Haml
     # The options hash.
     # See {file:HAML_REFERENCE.md#haml_options the Haml options documentation}.
     #
-    # @return [Hash<Symbol, Object>]
+    # @return [{Symbol => Object}]
     attr_accessor :options
 
     # The indentation used in the Haml document,
@@ -66,7 +66,7 @@ module Haml
     # Precompiles the Haml template.
     #
     # @param template [String] The Haml template
-    # @param options [Hash<Symbol, Object>] An options hash;
+    # @param options [{Symbol => Object}] An options hash;
     #   see {file:HAML_REFERENCE.md#haml_options the Haml options documentation}
     # @raise [Haml::Error] if there's a Haml syntax error in the template
     def initialize(template, options = {})
@@ -158,7 +158,7 @@ module Haml
     # they won't work.
     #
     # @param scope [Binding, Proc, Object] The context in which the template is evaluated
-    # @param locals [Hash<Symbol, Object>] Local variables that will be made available
+    # @param locals [{Symbol => Object}] Local variables that will be made available
     #   to the template
     # @param block [#to_proc] A block that can be yielded to within the template
     # @return [String] The rendered template
@@ -279,7 +279,7 @@ module Haml
     #
     # See {file:HAML_REFERENCE.md#haml_options the Haml options documentation}.
     #
-    # @return [Hash<Symbol, Object>] The options hash
+    # @return [{Symbol => Object}] The options hash
     def options_for_buffer
       {
         :autoclose => @options[:autoclose],

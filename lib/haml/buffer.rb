@@ -15,7 +15,7 @@ module Haml
 
     # The options hash passed in from {Haml::Engine}.
     #
-    # @return [Hash<String, Object>]
+    # @return [{String => Object}]
     # @see Haml::Engine#options_for_buffer
     attr_accessor :options
 
@@ -85,7 +85,7 @@ module Haml
     end
 
     # @param upper [Buffer] The parent buffer
-    # @param options [Hash<Symbol, Object>] An options hash.
+    # @param options [{Symbol => Object}] An options hash.
     #   See {Haml::Engine#options\_for\_buffer}
     def initialize(upper = nil, options = {})
       @active = true
@@ -240,9 +240,9 @@ RUBY
     #
     # Destructively modifies both `to` and `from`.
     #
-    # @param to [Hash<String, String>] The attribute hash to merge into
-    # @param from [Hash<String, String>] The attribute hash to merge from
-    # @return [Hash<String, String>] `to`, after being merged
+    # @param to [{String => String}] The attribute hash to merge into
+    # @param from [{String => String}] The attribute hash to merge from
+    # @return [{String => String}] `to`, after being merged
     def self.merge_attrs(to, from)
       if to['id'] && from['id']
         to['id'] << '_' << from.delete('id').to_s

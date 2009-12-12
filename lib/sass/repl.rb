@@ -7,7 +7,7 @@ module Sass
   # evaluates them,
   # and prints the result.
   class Repl
-    # @param options [Hash<Symbol, Object>] An options hash.
+    # @param options [{Symbol => Object}] An options hash.
     def initialize(options = {})
       @options = options
     end

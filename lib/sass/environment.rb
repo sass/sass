@@ -30,7 +30,7 @@ module Sass
     # The options hash.
     # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
-    # @return [Hash<Symbol, Object>]
+    # @return [{Symbol => Object}]
     def options
       @options || (parent && parent.options) || {}
     end

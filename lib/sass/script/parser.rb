@@ -10,11 +10,11 @@ module Sass
       #   Used for error reporting
       # @param offset [Fixnum] The number of characters in on which the SassScript appears.
       #   Used for error reporting
-      # @param filename [String] The name of the file in which the SassScript appears.
-      #   Used for error reporting
-      def initialize(str, line, offset, filename = nil)
-        @filename = filename
-        @lexer = Lexer.new(str, line, offset, filename)
+      # @param options [{Symbol => Object}] An options hash;
+      #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+      def initialize(str, line, offset, options = {})
+        @options = options
+        @lexer = Lexer.new(str, line, offset, options)
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).
@@ -27,6 +27,7 @@ module Sass
       def parse_interpolated
         expr = assert_expr :expr
         assert_tok :end_interpolation
+        expr.options = @options
         expr
       end
 
@@ -37,6 +38,7 @@ module Sass
       def parse
         expr = assert_expr :expr
         assert_done
+        expr.options = @options
         expr
       end
 
@@ -53,6 +55,7 @@ module Sass
         end
         assert_done
 
+        args.each {|a| a.options = @options}
         args
       end
 
@@ -69,6 +72,10 @@ module Sass
         end
         assert_done
 
+        args.each do |k, v|
+          k.options = @options
+          v.options = @options if v
+        end
         args
       end
 
@@ -138,9 +145,10 @@ RUBY
         return paren unless name = try_tok(:ident)
         # An identifier without arguments is just a string
         unless try_tok(:lparen)
+          filename = @options[:filename]
           warn(<<END)
 DEPRECATION WARNING:
-On line #{name.line}, character #{name.offset}#{" of '#{@filename}'" if @filename}
+On line #{name.line}, character #{name.offset}#{" of '#{filename}'" if filename}
 Implicit strings have been deprecated and will be removed in version 2.4.
 '#{name.value}' was not quoted. Please add double quotes (e.g. "#{name.value}").
 END

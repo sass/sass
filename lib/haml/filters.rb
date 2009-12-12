@@ -4,7 +4,7 @@ module Haml
   #
   # @see Haml::Filters::Base
   module Filters
-    # @return [Hash<String, Haml::Filters::Base>] a hash of filter names to classes
+    # @return [{String => Haml::Filters::Base}] a hash of filter names to classes
     def self.defined
       @defined ||= {}
     end

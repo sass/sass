@@ -2,6 +2,18 @@ require 'test/unit'
 require File.dirname(__FILE__) + '/../../lib/sass'
 require 'sass/script'
 
+module Sass::Script::Functions::UserFunctions
+  def call_options_on_new_literal
+    str = Sass::Script::String.new("foo")
+    str.options[:foo]
+    str
+  end
+
+  def user_defined
+    Sass::Script::String.new("I'm a user-defined string!")
+  end
+end
+
 class SassFunctionTest < Test::Unit::TestCase
   # Tests taken from:
   #   http://www.w3.org/Style/CSS/Test/CSS3/Color/20070927/html4/t040204-hsl-h-rotating-b.htm
@@ -235,6 +247,19 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_transparentize_tests_types
     assert_error_message("\"foo\" is not a color for `transparentize'", "transparentize(\"foo\", 10%)")
     assert_error_message("\"foo\" is not a number for `transparentize'", "transparentize(#fff, \"foo\")")
+  end
+
+  def test_user_defined_function
+    assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
+  end
+
+  def test_options_on_new_literals_fails
+    assert_error_message(<<MSG, "call-options-on-new-literal()")
+The #options attribute is not set on this Sass::Script::String.
+  This error is probably occurring because #to_s was called
+  on this literal within a custom Sass function without first
+  setting the #option attribute.
+MSG
   end
 
   private
