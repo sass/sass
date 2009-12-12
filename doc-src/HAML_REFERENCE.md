@@ -297,7 +297,7 @@ is compiled to:
     <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'></html>
 
 Attribute hashes can also be stretched out over multiple lines
-to accomidate many attributes.
+to accommodate many attributes.
 However, newlines may only be placed immediately after commas.
 For example:
 
