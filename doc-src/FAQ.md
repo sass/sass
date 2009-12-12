@@ -5,6 +5,13 @@
 
 ## Haml
 
+### Why is my markup indented properly in development mode, but not in production?
+{#q-indentation-in-production}
+
+To improve performance, Haml defaults to {file:HAML_REFERENCE.md#ugly-option "ugly" mode} in Rails
+apps running in production.
+
+
 ### How do I put a punctuation mark after an element, like "`I like <strong>cake</strong>!`"?
 {#q-punctuation}
 
