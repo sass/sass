@@ -36,7 +36,7 @@ module Sass
       # The options hash for the node.
       # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
       #
-      # @return [Hash<Symbol, Object>]
+      # @return [{Symbol => Object}]
       attr_reader :options
 
       def initialize
@@ -45,7 +45,7 @@ module Sass
 
       # Sets the options hash for the node and all its children.
       #
-      # @param options [Hash<Symbol, Object>] The options
+      # @param options [{Symbol => Object}] The options
       # @see #options
       def options=(options)
         children.each {|c| c.options = options}

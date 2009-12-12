@@ -38,7 +38,7 @@ module Sass
       # and updating them if necessary.
       #
       # @param env The Rack request environment
-      # @return [(#to_i, Hash<String, String>, Object)] The Rack response
+      # @return [(#to_i, {String => String}, Object)] The Rack response
       def call(env)
         Sass::Plugin.check_for_updates
         @app.call(env)

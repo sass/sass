@@ -9,7 +9,7 @@ module Haml
     # The options hash for Haml when used within Rails.
     # See {file:HAML_REFERENCE.md#haml_options the Haml options documentation}.
     #
-    # @return [Hash<Symbol, Object>]
+    # @return [{Symbol => Object}]
     attr_accessor :options
 
     # Enables integration with the Rails 2.2.5+ XSS protection,
@@ -46,7 +46,7 @@ end
 # Decide how we want to load Haml into Rails.
 # Patching was necessary for versions <= 2.0.1,
 # but we can make it a normal handler for higher versions.
-if defined?(ActionView::TemplateHandler)
+if defined?(ActionView::TemplateHandler) || defined?(ActionView::Template::Handler)
   require 'haml/template/plugin'
 else
   require 'haml/template/patch'

@@ -73,7 +73,7 @@ class HelperTest < Test::Unit::TestCase
 
     begin
       ActionView::Base.new.render(:inline => "<%= flatten('Foo\\nBar') %>")
-    rescue NoMethodError, ActionView::TemplateError
+    rescue NoMethodError, Haml::Util.av_template_class(:Error)
       proper_behavior = true
     end
     assert(proper_behavior)

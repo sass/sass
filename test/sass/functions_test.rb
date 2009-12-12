@@ -2,6 +2,16 @@ require 'test/unit'
 require File.dirname(__FILE__) + '/../../lib/sass'
 require 'sass/script'
 
+module UserFunctions
+  def user_defined
+    Sass::Script::String.new("I'm a user-defined string!")
+  end
+end
+
+module Sass::Script::Functions
+  include UserFunctions
+end
+
 class SassFunctionTest < Test::Unit::TestCase
   def test_hsl
     # These tests adapted from the w3c browser tests
@@ -136,6 +146,10 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `rgb'", "rgb(\"foo\", 10, 12)");
     assert_error_message("\"foo\" is not a number for `rgb'", "rgb(10, \"foo\", 12)");
     assert_error_message("\"foo\" is not a number for `rgb'", "rgb(10, 10, \"foo\")");
+  end
+
+  def test_user_defined_function
+    assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
 
   private
