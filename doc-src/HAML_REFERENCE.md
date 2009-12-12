@@ -140,10 +140,10 @@ Available options are:
 {#ugly-option} `:ugly`
 : If set to `true`, Haml makes no attempt to properly
   indent or format the HTML output.
-  This causes the rendering to be done much quicker than it would otherwise,
+  This significantly improves rendering performance
   but makes viewing the source unpleasant.
-  Defaults to `false`, but is set to `true`
-  in production for Rails.
+  Defaults to `true` in Rails production mode, and `false`
+  everywhere else.
 
 {#suppress_eval-option} `:suppress_eval`
 : Whether or not attribute hashes and Ruby scripts
