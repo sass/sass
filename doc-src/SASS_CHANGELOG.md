@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.16
+## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fixed a bug where modules containing user-defined Sass functions
   weren't made available when simply included in {Sass::Script::Functions}

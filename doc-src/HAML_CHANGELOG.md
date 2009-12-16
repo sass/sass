@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.16 (Unreleased)
+## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
 
 * Abstract out references to `ActionView::TemplateError`,
   `ActionView::TemplateHandler`, etc.
