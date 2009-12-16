@@ -103,7 +103,7 @@ Several bug fixes and minor improvements have been made, including:
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
-## 2.2.16
+## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fixed a bug where modules containing user-defined Sass functions
   weren't made available when simply included in {Sass::Script::Functions}
