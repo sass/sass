@@ -132,15 +132,16 @@ module Haml
     class ::Hpricot::DocType
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
-        attrs = public_id.scan(/DTD\s+([^\s]+)\s*([^\s]*)\s*([^\s]*)\s*\/\//)[0]
+        attrs = public_id.nil? ? ["", "", ""] :
+          public_id.scan(/DTD\s+([^\s]+)\s*([^\s]*)\s*([^\s]*)\s*\/\//)[0]
         if attrs == nil
           raise Exception.new("Invalid doctype")
         end
 
         type, version, strictness = attrs.map { |a| a.downcase }
         if type == "html"
-          version = "1.0"
-          strictness = "transitional"
+          version = ""
+          strictness = "strict" if strictness == ""
         end
 
         if version == "1.0" || version.empty?
@@ -151,7 +152,7 @@ module Haml
           strictness = nil
         end
 
-        version = " #{version}" if version
+        version = " #{version.capitalize}" if version
         strictness = " #{strictness.capitalize}" if strictness
 
         "#{tabulate(tabs)}!!!#{version}#{strictness}\n"
