@@ -31,12 +31,12 @@ module Sass
       end
 
       def s
-        nil while tok(:s) || tok(:cdc) || tok(:cdo)
+        nil while tok(:s) || tok(:cdc) || tok(:cdo) || tok(:comment)
         true
       end
 
       def ss
-        nil while tok :s
+        nil while tok(:s) || tok(:comment)
         true
       end
 
