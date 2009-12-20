@@ -100,7 +100,7 @@ module Sass
     #
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
-      root = Tree::Node.new
+      root = Tree::RootNode.new(@template.string)
       whitespace
       rules              root
       expand_commas      root
