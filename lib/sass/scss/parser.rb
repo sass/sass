@@ -9,58 +9,55 @@ module Sass
       end
 
       def parse
-        raise @error unless catch {stylesheet}
+        stylesheet
+        raise "Invalid CSS!" unless @scanner.eos?
       end
 
       private
 
       def stylesheet
-        try do
-          tok :charset; ss
-          tok :string; ss
-          raw ';'
+        if tok :charset
+          ss
+          tok! :string; ss
+          raw! ';'
         end
 
         s
 
-        any {import; s}
-        any {namespace; s}
-        any do
-          catch {ruleset} ||
-            catch {media} ||
-            catch {page} ||
-            font_face
-          s
-        end
+        s while import
+        s while namespace
+        s while ruleset || media || page || font_face
+        true
       end
 
       def s
-        any do
-          catch {tok :s} ||
-            catch {tok :cdc} ||
-            tok(:cdo)
-        end
+        nil while tok(:s) || tok(:cdc) || tok(:cdo)
+        true
       end
 
       def ss
-        any {tok :s}
+        nil while tok :s
+        true
       end
 
       def import
-        tok :import; ss
-        catch {tok :string} || tok(:uri); ss
-        try do
-          medium
-          any {raw ','; ss; medium}
+        return unless tok(:import)
+        ss
+        tok(:string) || tok!(:uri); ss
+        if medium
+          while raw ','
+            ss; expr! :medium
+          end
         end
-        raw ';'; ss
+        raw! ';'; ss
       end
 
       def namespace
-        tok :namespace; ss
-        try {namespace_prefix; ss}
-        catch {tok :string} || tok(:uri); ss
-        raw ';'; ss
+        return unless tok(:namespace)
+        ss
+        ss if namespace_prefix
+        tok(:string) || tok!(:uri); ss
+        raw! ';'; ss
       end
 
       def namespace_prefix
@@ -68,195 +65,206 @@ module Sass
       end
 
       def media
-        tok :media; ss
-        medium
-        any {raw ','; ss; medium}
-        raw '{'; ss
-        any {ruleset}
-        raw '}'; ss
+        return unless tok :media
+        ss
+        expr! :medium
+        while raw ','
+          ss; expr! :medium
+        end
+
+        raw! '{'; ss
+        nil while ruleset
+        raw! '}'; ss
       end
 
       def medium
-        tok :ident; ss
-      end
-
-      def page
-        tok :page; ss
-        try {tok :ident}
-        try {pseudo_page}; ss
-        raw '{'; ss
-        declaration
-        any {raw ';'; ss; declaration}
-        raw '}'; ss
-      end
-
-      def pseudo_page
-        raw ':'
-        tok :ident
-      end
-
-      def font_face
-        tok :font_face; ss
-        raw '{'; ss
-        declaration
-        any {raw ';'; ss declaration}
-        raw '}'; ss
-      end
-
-      def operator
-        catch {raw '/'; ss} ||
-          catch {raw ','; ss} ||
-          empty
-      end
-
-      def combinator
-        catch {raw '+'; ss} ||
-          catch {raw '>'; ss} ||
-          empty
-      end
-
-      def unary_operator
-        catch {raw '-'} || raw('+')
-      end
-
-      def property
-        tok :ident; ss
-      end
-
-      def ruleset
-        selector
-        any {raw ','; ss; selector}
-        raw '{'; ss
-        declaration
-        any {raw ';'; ss; declaration}
-        raw '}'; ss
-      end
-
-      def selector
-        simple_selector
-        any {combinator; simple_selector}
-      end
-
-      def simple_selector
-        try {element_name}
-        any do
-          catch {tok :hash} ||
-            catch {class_expr} ||
-            catch {attrib} ||
-            pseudo
-        end
+        return unless tok :ident
         ss
       end
 
-      def class_expr
-        raw '.'
+      def page
+        return unless tok :page
+        ss
         tok :ident
+        pseudo_page; ss
+        raw! '{'; ss
+        expr! :declaration
+        while raw ';'
+          ss; expr! :declaration
+        end
+        raw! '}'; ss
+      end
+
+      def pseudo_page
+        return unless raw ':'
+        tok! :ident
+      end
+
+      def font_face
+        return unless tok :font_face
+        ss
+        raw! '{'; ss
+        expr! :declaration
+        while raw ';'
+          ss; expr! :declaration
+        end
+        raw! '}'; ss
+      end
+
+      def operator
+        ss if raw('/') || raw(',')
+        true
+      end
+
+      def combinator
+        ss if raw('+') || raw('>')
+        true
+      end
+
+      def unary_operator
+        raw('-') || raw('+')
+      end
+
+      def property
+        return unless tok :ident
+        ss
+      end
+
+      def ruleset
+        return unless selector
+        while raw ','
+          ss; expr! :selector
+        end
+        raw! '{'; ss
+        expr! :declaration
+        while raw ';'
+          ss; expr! :declaration
+        end
+        raw! '}'; ss
+      end
+
+      def selector
+        res = simple_selector
+        while add = combinator && simple_selector
+          res ||= add
+        end
+        res
+      end
+
+      def simple_selector
+        res = element_name
+        while mod = tok(:hash) || class_expr || attrib || pseudo
+          res ||= mod
+        end
+        ss
+        res
+      end
+
+      def class_expr
+        return unless raw '.'
+        tok! :ident
       end
 
       def element_name
-        catch {tok :ident} || raw('*')
+        tok(:ident) || raw('*')
       end
 
       def attrib
-        raw '['; ss
-        tok :ident; ss
-        try do
-          catch {raw '='} ||
-            catch {tok :includes} ||
-            catch {tok :dashmatch} ||
-            catch {tok :prefixmatch} ||
-            catch {tok :suffixmatch} ||
+        return unless raw('[')
+        ss
+        tok! :ident; ss
+        if raw('=') ||
+            tok(:includes) ||
+            tok(:dashmatch) ||
+            tok(:prefixmatch) ||
+            tok(:suffixmatch) ||
             tok(:substringmatch)
           ss
-          catch {tok :ident} || tok(:string); ss
+          tok(:ident) || tok!(:string); ss
         end
-        raw ']'
+        raw! ']'
       end
 
       def pseudo
-        raw ':'
-        catch {tok :ident} ||
-          begin
-            tok :function; ss
-            tok :ident; ss
-            raw ')'
-          end
+        return unless raw ':'
+        return true if tok(:ident)
+        tok! :function; ss
+        tok! :ident; ss
+        raw! ')'
       end
 
       def declaration
-        try do
-          property
-          raw ':'; ss
-          expr
-          try {prio}
-        end
+        return true unless property
+        raw! ':'; ss
+        expr! :expr
+        prio
+        true
       end
 
       def prio
-        tok :important; ss
+        return unless tok :important
+        ss
       end
 
       def expr
-        term
-        any {operator; term}
+        return unless term
+        nil while operator && term
+        true
       end
 
       def term
-        catch do
-          try {unary_operator}
-          catch {tok :number; ss} || function
-        end ||
-          catch {tok :string; ss} ||
-          catch {tok :ident; ss} ||
-          catch {tok :uri; ss} ||
-          catch {tok :unicoderange; ss} ||
+        if unary_operator
+          tok(:number) || expr!(:function)
+          ss
+          return true
+        end
+
+        return unless tok(:number) ||
+          tok(:uri) ||
+          function ||
+          tok(:string) ||
+          tok(:ident) ||
+          tok(:unicoderange) ||
           hexcolor
+        ss
       end
 
       def function
-        tok :function; ss
-        expr
-        raw ')'; ss
+        return unless tok :function
+        ss
+        expr! :expr
+        raw! ')'; ss
       end
 
       #  There is a constraint on the color that it must
       #  have either 3 or 6 hex-digits (i.e., [0-9a-fA-F])
       #  after the "#"; e.g., "#000" is OK, but "#abcd" is not.
       def hexcolor
-        tok :hash; ss
+        return unless tok :hash
+        ss
       end
 
-      def empty
-        true
+      def expr!(name)
+        return true if send(name)
+        raise "Expected #{name} expression, was #{@scanner.rest.inspect}"
       end
 
-      def catch(&block)
-        pos = @scanner.pos
-        res = Kernel.catch(:fail, &block)
-        return false if res && @scanner.pos == pos
-        @scanner.pos = pos unless res
-        res
+      def tok!(name)
+        return true if tok(name)
+        raise "Expected #{name} token at #{@scanner.rest.inspect}"
       end
 
-      def try(&block)
-        catch(&block) || empty
-      end
-
-      def any(&block)
-        nil while catch(&block)
-        true
+      def raw!(chr)
+        return true if raw(chr)
+        raise "Expected #{chr.inspect} at #{@scanner.rest.inspect}"
       end
 
       def tok(name)
-        return true if @scanner.scan(RX.const_get(name.to_s.upcase))
-        @error = "Expected #{name} token at #{@scanner.rest.inspect}"
-        throw :fail, false
+        @scanner.scan(RX.const_get(name.to_s.upcase))
       end
 
       def raw(chr)
-        return true if @scanner.scan(RX.quote(chr))
-        @error = "Expected #{chr.inspect} at #{@scanner.rest.inspect}"
-        throw :fail, false
+        @scanner.scan(RX.quote(chr))
       end
     end
   end
