@@ -73,6 +73,7 @@ module Sass
       # @raise [Sass::SyntaxError] if `child` is invalid
       # @see #invalid_child?
       def <<(child)
+        return if child.nil?
         if msg = invalid_child?(child)
           raise Sass::SyntaxError.new(msg, :line => child.line)
         end

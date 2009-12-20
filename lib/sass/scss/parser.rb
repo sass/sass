@@ -1,5 +1,7 @@
+require 'sass/scss/rx'
+require 'sass/css'
+
 require 'strscan'
-require 'rx'
 
 module Sass
   module SCSS
@@ -9,25 +11,31 @@ module Sass
       end
 
       def parse
-        stylesheet
-        raise "Invalid CSS!" unless @scanner.eos?
+        root = stylesheet
+        raise "Invalid CSS at #{@scanner.rest.inspect}" unless @scanner.eos?
+        root
       end
 
       private
 
       def stylesheet
+        root = Sass::Tree::RootNode.new(@scanner.string)
+
         if tok :charset
           ss
-          tok! :string; ss
+          root << Sass::Tree::DirectiveNode.new("@charset #{tok!(:string).strip}")
+          ss
           raw! ';'
         end
 
         s
 
-        s while import
-        s while namespace
-        s while ruleset || media || page || font_face
-        true
+        while child = import || namespace || ruleset || media ||
+            page || font_face
+          root << child
+          s
+        end
+        root
       end
 
       def s
@@ -43,21 +51,27 @@ module Sass
       def import
         return unless tok(:import)
         ss
-        tok(:string) || tok!(:uri); ss
-        if medium
-          while raw ','
-            ss; expr! :medium
+        val = str do
+          tok(:string) || tok!(:uri); ss
+          if medium
+            while raw ','
+              ss; expr! :medium
+            end
           end
         end
         raw! ';'; ss
+        Sass::Tree::DirectiveNode.new("@import #{val.strip}")
       end
 
       def namespace
         return unless tok(:namespace)
         ss
-        ss if namespace_prefix
-        tok(:string) || tok!(:uri); ss
+        val = str do
+          ss if namespace_prefix
+          tok(:string) || tok!(:uri); ss
+        end
         raw! ';'; ss
+        Sass::Tree::DirectiveNode.new("@namespace #{val.strip}")
       end
 
       def namespace_prefix
@@ -67,14 +81,20 @@ module Sass
       def media
         return unless tok :media
         ss
-        expr! :medium
-        while raw ','
-          ss; expr! :medium
+        val = str do
+          expr! :medium
+          while raw ','
+            ss; expr! :medium
+          end
         end
+        node = Sass::Tree::DirectiveNode.new("@media #{val.strip}")
 
         raw! '{'; ss
-        nil while ruleset
+        while child = ruleset
+          node << child
+        end
         raw! '}'; ss
+        node
       end
 
       def medium
@@ -85,14 +105,11 @@ module Sass
       def page
         return unless tok :page
         ss
-        tok :ident
-        pseudo_page; ss
-        raw! '{'; ss
-        expr! :declaration
-        while raw ';'
-          ss; expr! :declaration
+        val = str do
+          tok :ident
+          pseudo_page; ss
         end
-        raw! '}'; ss
+        declarations(Sass::Tree::DirectiveNode.new("@page #{val.strip}"))
       end
 
       def pseudo_page
@@ -103,12 +120,7 @@ module Sass
       def font_face
         return unless tok :font_face
         ss
-        raw! '{'; ss
-        expr! :declaration
-        while raw ';'
-          ss; expr! :declaration
-        end
-        raw! '}'; ss
+        declarations(Sass::Tree::DirectiveNode.new("@font-face"))
       end
 
       def operator
@@ -121,21 +133,30 @@ module Sass
       end
 
       def property
-        return unless tok :ident
+        return unless name = tok(:ident)
         ss
+        name
       end
 
       def ruleset
-        return unless selector
-        while raw ','
-          ss; expr! :selector
+        rules = str do
+          return unless selector
+          while raw ','
+            ss; expr!(:selector)
+          end
         end
+        declarations(Sass::Tree::RuleNode.new(rules.strip))
+      end
+
+      def declarations(node)
         raw! '{'; ss
-        expr! :declaration
+        node << declaration
         while raw ';'
-          ss; expr! :declaration
+          ss
+          node << declaration
         end
         raw! '}'; ss
+        node
       end
 
       def selector
@@ -231,11 +252,13 @@ module Sass
       end
 
       def declaration
-        return true unless property
+        return unless name = property
         raw! ':'; ss
-        expr! :expr
-        prio
-        true
+        value = str do
+          expr! :expr
+          prio
+        end
+        Sass::Tree::PropNode.new(name, value.strip, :new)
       end
 
       def prio
@@ -281,13 +304,21 @@ module Sass
         ss
       end
 
+      def str
+        @str = ""
+        yield
+        @str
+      ensure
+        @str = nil
+      end
+
       def expr!(name)
-        return true if send(name)
+        (e = send(name)) && (return e)
         raise "Expected #{name} expression, was #{@scanner.rest.inspect}"
       end
 
       def tok!(name)
-        return true if tok(name)
+        (t = tok(name)) && (return t)
         raise "Expected #{name} token at #{@scanner.rest.inspect}"
       end
 
@@ -297,11 +328,15 @@ module Sass
       end
 
       def tok(name)
-        @scanner.scan(RX.const_get(name.to_s.upcase))
+        res = @scanner.scan(RX.const_get(name.to_s.upcase))
+        @str << res if res && @str && name != :comment
+        res
       end
 
       def raw(chr)
-        @scanner.scan(RX.quote(chr))
+        res = @scanner.scan(RX.quote(chr))
+        @str << res if res && @str
+        res
       end
     end
   end
