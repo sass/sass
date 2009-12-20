@@ -52,6 +52,7 @@ module Sass
         return unless tok(:import)
         ss
         val = str do
+          @expected = "string or url()"
           tok(:string) || tok!(:uri); ss
           if medium
             while raw ','
@@ -68,6 +69,7 @@ module Sass
         ss
         val = str do
           ss if namespace_prefix
+          @expected = "string or url()"
           tok(:string) || tok!(:uri); ss
         end
         raw! ';'; ss
@@ -187,7 +189,10 @@ module Sass
 
       def element_name
         res = tok(:ident) || raw('*')
-        res = tok(:ident) || raw!('*') if raw '|'
+        if raw '|'
+          @expected = "element name or *"
+          res = tok(:ident) || raw!('*')
+        end
         res
       end
 
@@ -202,6 +207,7 @@ module Sass
             tok(:suffixmatch) ||
             tok(:substringmatch)
           ss
+          @expected = "identifier or string"
           tok(:ident) || tok!(:string); ss
         end
         raw! ']'
@@ -226,6 +232,7 @@ module Sass
         return unless raw ':'
         raw ':'
 
+        @expected = "pseudoclass or pseudoelement"
         functional_pseudo || tok!(:ident)
       end
 
@@ -248,6 +255,7 @@ module Sass
       def negation
         return unless tok(:not)
         ss
+        @expected = "selector"
         element_name || tok(:hash) || class_expr || attrib || expr!(:pseudo)
       end
 
@@ -274,6 +282,7 @@ module Sass
 
       def term
         if unary_operator
+          @expected = "number or function"
           tok(:number) || expr!(:function)
           ss
           return true
@@ -312,29 +321,44 @@ module Sass
         @str = nil
       end
 
+      EXPR_NAMES = {
+        :medium => "medium (e.g. print, screen)",
+        :pseudo_expr => "expression (e.g. fr, 2n+1)",
+        :expr => "expression (e.g. 1px, bold)",
+      }
+
+      TOK_NAMES = {
+        :ident => "identifier",
+      }
+
       def expr!(name)
         (e = send(name)) && (return e)
-        raise "Expected #{name} expression, was #{@scanner.rest.inspect}"
+        name = @expected || EXPR_NAMES[name] || name.to_s
+        raise "Expected #{name}, was #{@scanner.rest.inspect}"
       end
 
       def tok!(name)
         (t = tok(name)) && (return t)
-        raise "Expected #{name} token at #{@scanner.rest.inspect}"
+        name = @expected || TOK_NAMES[name] || name.to_s
+        raise "Expected #{name}, was #{@scanner.rest.inspect}"
       end
 
       def raw!(chr)
         return true if raw(chr)
-        raise "Expected #{chr.inspect} at #{@scanner.rest.inspect}"
+        name = @expected || chr.inspect
+        raise "Expected #{name}, was #{@scanner.rest.inspect}"
       end
 
       def tok(name)
         res = @scanner.scan(RX.const_get(name.to_s.upcase))
+        @expected = nil if res
         @str << res if res && @str && name != :comment
         res
       end
 
       def raw(chr)
         res = @scanner.scan(RX.quote(chr))
+        @expected = nil if res
         @str << res if res && @str
         res
       end
