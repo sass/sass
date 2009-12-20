@@ -116,11 +116,6 @@ module Sass
         true
       end
 
-      def combinator
-        ss if raw('+') || raw('>')
-        true
-      end
-
       def unary_operator
         raw('-') || raw('+')
       end
@@ -144,20 +139,20 @@ module Sass
       end
 
       def selector
-        res = simple_selector
-        while add = combinator && simple_selector
-          res ||= add
-        end
-        res
+        return unless simple_selector_sequence
+        simple_selector_sequence while combinator
+        true
       end
 
-      def simple_selector
-        res = element_name
-        while mod = tok(:hash) || class_expr || attrib || pseudo
-          res ||= mod
-        end
-        ss
-        res
+      def combinator
+        tok(:plus) || tok(:greater) || tok(:tilde) || tok(:s)
+      end
+
+      def simple_selector_sequence
+        return unless element_name || tok(:hash) || class_expr ||
+          attrib || negation || pseudo
+        nil while tok(:hash) || class_expr || attrib || negation || pseudo
+        true
       end
 
       def class_expr
@@ -166,13 +161,15 @@ module Sass
       end
 
       def element_name
-        tok(:ident) || raw('*')
+        res = tok(:ident) || raw('*')
+        res = tok(:ident) || raw!('*') if raw '|'
+        res
       end
 
       def attrib
         return unless raw('[')
         ss
-        tok! :ident; ss
+        attrib_name!; ss
         if raw('=') ||
             tok(:includes) ||
             tok(:dashmatch) ||
@@ -185,12 +182,48 @@ module Sass
         raw! ']'
       end
 
+      def attrib_name!
+        if tok(:ident)
+          # E or E|E
+          tok! :ident if raw('|')
+        elsif raw('*')
+          # *|E
+          raw! '|'
+          tok! :ident
+        else
+          # |E or E
+          raw '|'
+          tok! :ident
+        end
+      end
+
       def pseudo
         return unless raw ':'
-        return true if tok(:ident)
-        tok! :function; ss
-        tok! :ident; ss
+        raw ':'
+
+        functional_pseudo || tok!(:ident)
+      end
+
+      def functional_pseudo
+        return unless tok :function
+        ss
+        expr! :pseudo_expr
         raw! ')'
+      end
+
+      def pseudo_expr
+        return unless tok(:plus) || raw('-') || tok(:number) ||
+          tok(:string) || tok(:ident)
+        ss
+        ss while tok(:plus) || raw('-') || tok(:number) ||
+          tok(:string) || tok(:ident)
+        true
+      end
+
+      def negation
+        return unless tok(:not)
+        ss
+        element_name || tok(:hash) || class_expr || attrib || expr!(:pseudo)
       end
 
       def declaration

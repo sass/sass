@@ -54,6 +54,12 @@ module Sass
       FUNCTION = /#{IDENT}\(/
 
       UNICODERANGE = /u\+(#{RANGE}|#{H}{1,6}-#{H}{1,6})/
+
+      # Defined in http://www.w3.org/TR/css3-selectors/#lex
+      PLUS = /#{W}\+/
+      GREATER = /#{W}>/
+      TILDE = /#{W}~/
+      NOT = quote(":not(")
     end
   end
 end
