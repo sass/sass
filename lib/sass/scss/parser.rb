@@ -333,20 +333,33 @@ module Sass
 
       def expr!(name)
         (e = send(name)) && (return e)
-        name = @expected || EXPR_NAMES[name] || name.to_s
-        raise "Expected #{name}, was #{@scanner.rest.inspect}"
+        expected(EXPR_NAMES[name] || name.to_s)
       end
 
       def tok!(name)
         (t = tok(name)) && (return t)
-        name = @expected || TOK_NAMES[name] || name.to_s
-        raise "Expected #{name}, was #{@scanner.rest.inspect}"
+        expected(TOK_NAMES[name] || name.to_s)
       end
 
       def raw!(chr)
         return true if raw(chr)
-        name = @expected || chr.inspect
-        raise "Expected #{name}, was #{@scanner.rest.inspect}"
+        expected(chr.inspect)
+      end
+
+      def expected(name)
+        pos = @scanner.pos
+        line = @scanner.string[0...pos].count("\n") + 1
+
+        after = @scanner.string[[pos - 15, 0].max...pos].gsub(/.*\n/m, '')
+        after = "..." + after if pos >= 15
+
+        expected = @expected || name
+
+        was = @scanner.rest[0...15].gsub(/\n.*/m, '')
+        was += "..." if @scanner.rest.size >= 15
+        raise Sass::SyntaxError.new(
+          "Invalid CSS after #{after.inspect}: expected #{expected}, was #{was.inspect}",
+          :line => line)
       end
 
       def tok(name)

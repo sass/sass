@@ -73,7 +73,6 @@ module Sass
         template = template.read
       end
 
-      @line = 1
       @options = options.dup
       # Backwards compatibility
       @options[:old] = true if @options[:alternate] == false
@@ -91,7 +90,7 @@ module Sass
 
       build_tree.to_sass(0, @options).strip + "\n"
     rescue Sass::SyntaxError => err
-      err.modify_backtrace(:filename => @options[:filename] || '(css)', :line => @line)
+      err.modify_backtrace(:filename => @options[:filename] || '(css)')
       raise err
     end
 
