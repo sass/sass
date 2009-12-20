@@ -149,8 +149,12 @@ module Sass
       end
 
       def simple_selector_sequence
-        return unless element_name || tok(:hash) || class_expr ||
-          attrib || negation || pseudo
+        unless element_name || tok(:hash) || class_expr ||
+            attrib || negation || pseudo
+          # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
+          return expr
+        end
+
         nil while tok(:hash) || class_expr || attrib || negation || pseudo
         true
       end
