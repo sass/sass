@@ -126,7 +126,11 @@ module Sass
       end
 
       def operator
-        ss if raw('/') || raw(',')
+        # Many of these operators (all except / and ,)
+        # are disallowed by the CSS spec,
+        # but they're included here for compatibility
+        # with some proprietary MS properties
+        ss if raw('/') || raw(',') || raw(':') || raw('.') || raw('=')
         true
       end
 
