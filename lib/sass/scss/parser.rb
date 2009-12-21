@@ -311,7 +311,7 @@ module Sass
       def function
         return unless tok :function
         ss
-        expr! :expr
+        expr
         raw! ')'; ss
       end
 
