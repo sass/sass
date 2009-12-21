@@ -17,12 +17,14 @@ module Sass
 
       private
 
+      include Sass::SCSS::RX
+
       def stylesheet
         root = Sass::Tree::RootNode.new(@scanner.string)
 
-        if tok :charset
+        if tok CHARSET
           ss
-          root << Sass::Tree::DirectiveNode.new("@charset #{tok!(:string).strip}")
+          root << Sass::Tree::DirectiveNode.new("@charset #{tok!(STRING).strip}")
           ss
           raw! ';'
         end
@@ -38,21 +40,21 @@ module Sass
       end
 
       def s
-        nil while tok(:s) || tok(:cdc) || tok(:cdo) || tok(:comment)
+        nil while tok(S) || tok(CDC) || tok(CDO) || tok(COMMENT)
         true
       end
 
       def ss
-        nil while tok(:s) || tok(:comment)
+        nil while tok(S) || tok(COMMENT)
         true
       end
 
       def import
-        return unless tok(:import)
+        return unless tok(IMPORT)
         ss
         val = str do
           @expected = "string or url()"
-          tok(:string) || tok!(:uri); ss
+          tok(STRING) || tok!(URI); ss
           if medium
             while raw ','
               ss; expr! :medium
@@ -64,23 +66,23 @@ module Sass
       end
 
       def namespace
-        return unless tok(:namespace)
+        return unless tok(NAMESPACE)
         ss
         val = str do
           ss if namespace_prefix
           @expected = "string or url()"
-          tok(:string) || tok!(:uri); ss
+          tok(STRING) || tok!(URI); ss
         end
         raw! ';'; ss
         Sass::Tree::DirectiveNode.new("@namespace #{val.strip}")
       end
 
       def namespace_prefix
-        tok :ident
+        tok IDENT
       end
 
       def media
-        return unless tok :media
+        return unless tok MEDIA
         ss
         val = str do
           expr! :medium
@@ -99,15 +101,15 @@ module Sass
       end
 
       def medium
-        return unless tok :ident
+        return unless tok IDENT
         ss
       end
 
       def page
-        return unless tok :page
+        return unless tok PAGE
         ss
         val = str do
-          tok :ident
+          tok IDENT
           pseudo_page; ss
         end
         declarations(Sass::Tree::DirectiveNode.new("@page #{val.strip}"))
@@ -115,11 +117,11 @@ module Sass
 
       def pseudo_page
         return unless raw ':'
-        tok! :ident
+        tok! IDENT
       end
 
       def font_face
-        return unless tok :font_face
+        return unless tok FONT_FACE
         ss
         declarations(Sass::Tree::DirectiveNode.new("@font-face"))
       end
@@ -138,7 +140,7 @@ module Sass
       end
 
       def property
-        return unless name = tok(:ident)
+        return unless name = tok(IDENT)
         ss
         name
       end
@@ -172,32 +174,32 @@ module Sass
       end
 
       def combinator
-        tok(:plus) || tok(:greater) || tok(:tilde) || tok(:s)
+        tok(PLUS) || tok(GREATER) || tok(TILDE) || tok(S)
       end
 
       def simple_selector_sequence
-        unless element_name || tok(:hash) || class_expr ||
+        unless element_name || tok(HASH) || class_expr ||
             attrib || negation || pseudo
           # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
           return expr
         end
 
         # The raw('*') allows the "E*" hack
-        nil while tok(:hash) || class_expr || attrib ||
+        nil while tok(HASH) || class_expr || attrib ||
           negation || pseudo || raw('*')
         true
       end
 
       def class_expr
         return unless raw '.'
-        tok! :ident
+        tok! IDENT
       end
 
       def element_name
-        res = tok(:ident) || raw('*')
+        res = tok(IDENT) || raw('*')
         if raw '|'
           @expected = "element name or *"
-          res = tok(:ident) || raw!('*')
+          res = tok(IDENT) || raw!('*')
         end
         res
       end
@@ -207,30 +209,30 @@ module Sass
         ss
         attrib_name!; ss
         if raw('=') ||
-            tok(:includes) ||
-            tok(:dashmatch) ||
-            tok(:prefixmatch) ||
-            tok(:suffixmatch) ||
-            tok(:substringmatch)
+            tok(INCLUDES) ||
+            tok(DASHMATCH) ||
+            tok(PREFIXMATCH) ||
+            tok(SUFFIXMATCH) ||
+            tok(SUBSTRINGMATCH)
           ss
           @expected = "identifier or string"
-          tok(:ident) || tok!(:string); ss
+          tok(IDENT) || tok!(STRING); ss
         end
         raw! ']'
       end
 
       def attrib_name!
-        if tok(:ident)
+        if tok(IDENT)
           # E or E|E
-          tok! :ident if raw('|')
+          tok! IDENT if raw('|')
         elsif raw('*')
           # *|E
           raw! '|'
-          tok! :ident
+          tok! IDENT
         else
           # |E or E
           raw '|'
-          tok! :ident
+          tok! IDENT
         end
       end
 
@@ -239,30 +241,30 @@ module Sass
         raw ':'
 
         @expected = "pseudoclass or pseudoelement"
-        functional_pseudo || tok!(:ident)
+        functional_pseudo || tok!(IDENT)
       end
 
       def functional_pseudo
-        return unless tok :function
+        return unless tok FUNCTION
         ss
         expr! :pseudo_expr
         raw! ')'
       end
 
       def pseudo_expr
-        return unless tok(:plus) || raw('-') || tok(:number) ||
-          tok(:string) || tok(:ident)
+        return unless tok(PLUS) || raw('-') || tok(NUMBER) ||
+          tok(STRING) || tok(IDENT)
         ss
-        ss while tok(:plus) || raw('-') || tok(:number) ||
-          tok(:string) || tok(:ident)
+        ss while tok(PLUS) || raw('-') || tok(NUMBER) ||
+          tok(STRING) || tok(IDENT)
         true
       end
 
       def negation
-        return unless tok(:not)
+        return unless tok(NOT)
         ss
         @expected = "selector"
-        element_name || tok(:hash) || class_expr || attrib || expr!(:pseudo)
+        element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo)
       end
 
       def declaration
@@ -282,7 +284,7 @@ module Sass
       end
 
       def prio
-        return unless tok :important
+        return unless tok IMPORTANT
         ss
       end
 
@@ -293,22 +295,22 @@ module Sass
       end
 
       def term
-        unless tok(:number) ||
-            tok(:uri) ||
+        unless tok(NUMBER) ||
+            tok(URI) ||
             function ||
-            tok(:string) ||
-            tok(:ident) ||
-            tok(:unicoderange) ||
+            tok(STRING) ||
+            tok(IDENT) ||
+            tok(UNICODERANGE) ||
             hexcolor
           return unless unary_operator
           @expected = "number or function"
-          tok(:number) || expr!(:function)
+          tok(NUMBER) || expr!(:function)
         end
         ss
       end
 
       def function
-        return unless tok :function
+        return unless tok FUNCTION
         ss
         expr
         raw! ')'; ss
@@ -318,7 +320,7 @@ module Sass
       #  have either 3 or 6 hex-digits (i.e., [0-9a-fA-F])
       #  after the "#"; e.g., "#000" is OK, but "#abcd" is not.
       def hexcolor
-        return unless tok :hash
+        return unless tok HASH
         ss
       end
 
@@ -336,18 +338,18 @@ module Sass
         :expr => "expression (e.g. 1px, bold)",
       }
 
-      TOK_NAMES = {
-        :ident => "identifier",
-      }
+      TOK_NAMES = Haml::Util.to_hash(
+        Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
+        merge(:ident => "identifier")
 
       def expr!(name)
         (e = send(name)) && (return e)
         expected(EXPR_NAMES[name] || name.to_s)
       end
 
-      def tok!(name)
-        (t = tok(name)) && (return t)
-        expected(TOK_NAMES[name] || name.to_s)
+      def tok!(rx)
+        (t = tok(rx)) && (return t)
+        expected(TOK_NAMES[rx])
       end
 
       def raw!(chr)
@@ -371,10 +373,10 @@ module Sass
           :line => line)
       end
 
-      def tok(name)
-        res = @scanner.scan(RX.const_get(name.to_s.upcase))
+      def tok(rx)
+        res = @scanner.scan(rx)
         @expected = nil if res
-        @str << res if res && @str && name != :comment
+        @str << res if res && @str && rx != COMMENT
         res
       end
 
