@@ -12,8 +12,8 @@ module Sass
       ESCAPE   = /#{UNICODE}|\\[ -~\200-\377]/
       NMSTART  = /[a-z]|#{NONASCII}|#{ESCAPE}/i
       NMCHAR   = /[a-z0-9_-]|#{NONASCII}|#{ESCAPE}/i
-      STRING1  = /\"([\t !#%$&(-~]|\\#{NL}|\'|#{NONASCII}|#{ESCAPE})*\"/
-      STRING2  = /\'([\t !#%$&(-~]|\\#{NL}|\"|#{NONASCII}|#{ESCAPE})*\'/
+      STRING1  = /\"([^\n\r\f\\"]|\\#{NL}|#{ESCAPE})*\"/
+      STRING2  = /\'([^\n\r\f\\']|\\#{NL}|#{ESCAPE})*\'/
 
       IDENT    = /[-_]?#{NMSTART}#{NMCHAR}*/
       NAME     = /#{NMCHAR}+/
