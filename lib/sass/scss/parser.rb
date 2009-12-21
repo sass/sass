@@ -112,7 +112,7 @@ module Sass
           tok IDENT
           pseudo_page; ss
         end
-        declarations(Sass::Tree::DirectiveNode.new("@page #{val.strip}"))
+        block(Sass::Tree::DirectiveNode.new("@page #{val.strip}"))
       end
 
       def pseudo_page
@@ -123,7 +123,7 @@ module Sass
       def font_face
         return unless tok FONT_FACE
         ss
-        declarations(Sass::Tree::DirectiveNode.new("@font-face"))
+        block(Sass::Tree::DirectiveNode.new("@font-face"))
       end
 
       def operator
@@ -145,30 +145,47 @@ module Sass
         name
       end
 
-      def ruleset
+      def ruleset(first = nil)
         rules = str do
-          return unless selector
+          return unless selector(first)
+
           while raw ','
             ss; expr!(:selector)
           end
         end
-        declarations(Sass::Tree::RuleNode.new(rules.strip))
+        rules = first + rules if first
+
+        block(Sass::Tree::RuleNode.new(rules.strip))
       end
 
-      def declarations(node)
+      # A block may contain declarations and/or rulesets
+      def block(node)
         raw! '{'; ss
-        node << declaration
+        node << declaration_or_ruleset
         while raw ';'
           ss
-          node << declaration
+          node << declaration_or_ruleset
         end
         raw! '}'; ss
         node
       end
 
-      def selector
+      def declaration_or_ruleset
+        # The raw('*') allows the "*prop: val" hack
+        if raw('*')
+          name = expr! :property
+          tok! DECL_COLON
+          return declaration!(name)
+        end
+        return ruleset unless ident = tok(IDENT)
+        return declaration!(ident) if tok(DECL_COLON)
+        ruleset ident
+      end
+
+      def selector(first = nil)
         # The combinator here allows the "> E" hack
-        return unless combinator || simple_selector_sequence
+        return unless first || combinator || simple_selector_sequence
+        simple_selector_sequence if first
         simple_selector_sequence while combinator
         true
       end
@@ -267,15 +284,7 @@ module Sass
         element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo)
       end
 
-      def declaration
-        # The raw('*') allows the "*prop: val" hack
-        if raw '*'
-          name = expr!(:property)
-        else
-          return unless name = property
-        end
-
-        raw! ':'; ss
+      def declaration!(name)
         value = str do
           expr! :expr
           prio
