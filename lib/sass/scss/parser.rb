@@ -1,5 +1,4 @@
 require 'sass/scss/rx'
-require 'sass/css'
 
 require 'strscan'
 

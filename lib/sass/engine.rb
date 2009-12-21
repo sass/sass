@@ -1,5 +1,6 @@
 require 'strscan'
 require 'digest/sha1'
+require 'sass/scss/parser'
 require 'sass/tree/node'
 require 'sass/tree/root_node'
 require 'sass/tree/rule_node'
@@ -124,6 +125,7 @@ module Sass
       :load_paths => ['.'],
       :cache => true,
       :cache_location => './.sass-cache',
+      :syntax => :sass,
     }.freeze
 
     # @param template [String] The Sass template.
@@ -158,8 +160,13 @@ module Sass
     def to_tree
       check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
 
-      root = Tree::RootNode.new(@template)
-      append_children(root, tree(tabulate(@template)).first, true)
+      if @options[:syntax] == :scss
+        root = Sass::SCSS::Parser.new(@template).parse
+      else
+        root = Tree::RootNode.new(@template)
+        append_children(root, tree(tabulate(@template)).first, true)
+      end
+
       root.options = @options
       root
     rescue SyntaxError => e

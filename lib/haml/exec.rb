@@ -210,6 +210,10 @@ END
       def set_opts(opts)
         super
 
+        opts.on('--scss',
+                'Use the CSS-superset SCSS syntax.') do
+          @options[:for_engine][:syntax] = :scss
+        end
         opts.on('-t', '--style NAME',
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
