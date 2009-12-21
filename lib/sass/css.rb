@@ -25,7 +25,7 @@ module Sass
     class RuleNode
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
-        name = rules.first
+        name = rule
         name = "\\" + name if name[0] == ?:
         str = "\n#{'  ' * tabs}#{name}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
 
@@ -126,8 +126,8 @@ module Sass
     # @param root [Tree::Node] The parent node
     def expand_commas(root)
       root.children.map! do |child|
-        next child unless Tree::RuleNode === child && child.rules.first.include?(',')
-        child.rules.first.split(',').map do |rule|
+        next child unless Tree::RuleNode === child && child.rule.include?(',')
+        child.rule.split(',').map do |rule|
           node = Tree::RuleNode.new(rule.strip)
           node.children = child.children
           node
@@ -174,15 +174,15 @@ module Sass
       current_rule = nil
       root.children.select { |c| Tree::RuleNode === c }.each do |child|
         root.children.delete child
-        first, rest = child.rules.first.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
+        first, rest = child.rule.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
 
-        if current_rule.nil? || current_rule.rules.first != first
+        if current_rule.nil? || current_rule.rule != first
           current_rule = Tree::RuleNode.new(first)
           root << current_rule
         end
 
         if rest
-          child.rules = ["&" + rest]
+          child.rule = "&" + rest
           current_rule << child
         else
           current_rule.children += child.children
@@ -208,7 +208,7 @@ module Sass
     def remove_parent_refs(root)
       root.children.each do |child|
         if child.is_a?(Tree::RuleNode)
-          child.rules.first.gsub! /^& +/, ''
+          child.rule.gsub! /^& +/, ''
           remove_parent_refs child
         end
       end
@@ -249,10 +249,10 @@ module Sass
       while rule.children.size == 1 && rule.children.first.is_a?(Tree::RuleNode)
         child = rule.children.first
 
-        if child.rules.first[0] == ?&
-          rule.rules = [child.rules.first.gsub(/^&/, rule.rules.first)]
+        if child.rule[0] == ?&
+          rule.rule = child.rule.gsub(/^&/, rule.rule)
         else
-          rule.rules = ["#{rule.rules.first} #{child.rules.first}"]
+          rule.rule = "#{rule.rule} #{child.rule}"
         end
 
         rule.children = child.children
@@ -282,7 +282,7 @@ module Sass
         next child unless child.is_a?(Tree::RuleNode)
 
         if prev_rule && prev_rule.children == child.children
-          prev_rule.rules.first << ", #{child.rules.first}"
+          prev_rule.rule << ", #{child.rule}"
           next nil
         end
 

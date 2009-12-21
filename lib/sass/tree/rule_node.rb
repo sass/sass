@@ -21,7 +21,7 @@ module Sass::Tree
     #      "bip, bop, bup"]
     #
     # @return [Array<String>]
-    attr_accessor :rules
+    attr_accessor :rule
 
     # The CSS selectors for this rule,
     # parsed for commas and parent-references.
@@ -84,7 +84,7 @@ module Sass::Tree
 
     # @param rule [String] The first CSS rule. See \{#rules}
     def initialize(rule)
-      @rules = [rule]
+      @rule = rule
       @tabs = 0
       super()
     end
@@ -95,19 +95,19 @@ module Sass::Tree
     # @return [Boolean] Whether or not this node and the other object
     #   are the same
     def ==(other)
-      self.class == other.class && rules == other.rules && super
+      self.class == other.class && rule == other.rule && super
     end
 
     # Adds another {RuleNode}'s rules to this one's.
     #
     # @param node [RuleNode] The other node
     def add_rules(node)
-      @rules += node.rules
+      @rule << "\n" << node.rule
     end
 
     # @return [Boolean] Whether or not this rule is continued on the next line
     def continued?
-      @rules.last[-1] == ?,
+      @rule[-1] == ?,
     end
 
     protected
@@ -120,12 +120,17 @@ module Sass::Tree
       tabs = tabs + self.tabs
 
       rule_separator = style == :compressed ? ',' : ', '
-      line_separator = [:nested, :expanded].include?(style) ? ",\n" : rule_separator
+      line_separator =
+        case style
+          when :nested, :expanded; "\n"
+          when :compressed; ""
+          else; " "
+        end
       rule_indent = '  ' * (tabs - 1)
       per_rule_indent, total_indent = [:nested, :expanded].include?(style) ? [rule_indent, ''] : ['', rule_indent]
 
-      total_rule = total_indent + resolved_rules.map do |line|
-        per_rule_indent + line.join(rule_separator)
+      total_rule = total_indent + resolved_rules.join(rule_separator).split("\n").map do |line|
+        per_rule_indent + line.strip
       end.join(line_separator)
 
       to_return = ''
@@ -171,7 +176,7 @@ module Sass::Tree
     # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
     def perform!(environment)
-      @parsed_rules = @rules.map {|r| parse_selector(interpolate(r, environment))}
+      @parsed_rules = parse_selector(interpolate(@rule, environment))
       super
     end
 
@@ -210,32 +215,29 @@ module Sass::Tree
 
     def resolve_parent_refs(super_rules)
       if super_rules.nil?
-        return @parsed_rules.map do |line|
-          line.map do |rule|
-            if rule.include?(:parent)
-              raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'.")
-            end
+        return @parsed_rules.map do |rule|
+          if rule.include?(:parent)
+            raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'.")
+          end
 
-            rule.join
-          end.compact
+          rule.join
         end
       end
 
       new_rules = []
-      super_rules.each do |super_line|
-        @parsed_rules.each do |line|
+      super_rules.each do |super_rule|
+        @parsed_rules.each do |rule|
           new_rules << []
 
-          super_line.each do |super_rule|
-            line.each do |rule|
-              rule = [:parent, " ", *rule] unless rule.include?(:parent)
+          # An initial newline of the child rule
+          # should be moved to the beginning of the entire rule
+          rule.first.slice!(0) if nl = (rule.first.is_a?(String) && rule.first[0] == ?\n)
+          rule = [nl ? "\n" : "", :parent, " ", *rule] unless rule.include?(:parent)
 
-              new_rules.last << rule.map do |segment|
-                next segment unless segment == :parent
-                super_rule
-              end.join
-            end
-          end
+          new_rules.last << rule.map do |segment|
+            next segment unless segment == :parent
+            super_rule
+          end.join
         end
       end
       new_rules
@@ -251,7 +253,10 @@ module Sass::Tree
         when '&'; rules.last << :parent
         when ','
           scanner.scan(/\s*/)
-          rules << [] if scanner.rest?
+          if scanner.rest?
+            rules << []
+            rules.last << "\n" if scanner.matched.include?("\n")
+          end
         when '"'
           rules.last << '"' << scanner.scan(/([^"\\]|\\.)*/)
           # We don't want to enforce that strings are closed,
