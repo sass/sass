@@ -285,20 +285,17 @@ module Sass
       end
 
       def term
-        if unary_operator
+        unless tok(:number) ||
+            tok(:uri) ||
+            function ||
+            tok(:string) ||
+            tok(:ident) ||
+            tok(:unicoderange) ||
+            hexcolor
+          return unless unary_operator
           @expected = "number or function"
           tok(:number) || expr!(:function)
-          ss
-          return true
         end
-
-        return unless tok(:number) ||
-          tok(:uri) ||
-          function ||
-          tok(:string) ||
-          tok(:ident) ||
-          tok(:unicoderange) ||
-          hexcolor
         ss
       end
 
