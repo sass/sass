@@ -39,12 +39,7 @@ module Sass
 
       HASH = /##{NAME}/
 
-      IMPORT    = quote("@import", Regexp::IGNORECASE)
-      PAGE      = quote("@page", Regexp::IGNORECASE)
-      MEDIA     = quote("@media", Regexp::IGNORECASE)
-      FONT_FACE = quote("@font-face", Regexp::IGNORECASE)
-      CHARSET   = quote("@charset", Regexp::IGNORECASE)
-      NAMESPACE = quote("@namespace", Regexp::IGNORECASE)
+      ATRULE = /@#{IDENT}/
 
       IMPORTANT = /!#{W}important/i
 

@@ -22,17 +22,9 @@ module Sass
       def stylesheet
         root = Sass::Tree::RootNode.new(@scanner.string)
 
-        if tok CHARSET
-          ss
-          root << Sass::Tree::DirectiveNode.new("@charset #{tok!(STRING).strip}")
-          ss
-          raw! ';'
-        end
-
         s
 
-        while child = import || namespace || ruleset || media ||
-            page || font_face
+        while child = at_rule || ruleset
           root << child
           s
         end
@@ -49,81 +41,24 @@ module Sass
         true
       end
 
-      def import
-        return unless tok(IMPORT)
-        ss
+      def at_rule
         val = str do
-          @expected = "string or url()"
-          tok(STRING) || tok!(URI); ss
-          if medium
-            while raw ','
-              ss; expr! :medium
-            end
-          end
+          return unless tok ATRULE
+          ss
+          # Most at-rules take expressions (e.g. @media, @import),
+          # but some (e.g. @page) take selector-like arguments
+          expr || selector
         end
-        raw! ';'; ss
-        Sass::Tree::DirectiveNode.new("@import #{val.strip}")
-      end
+        node = Sass::Tree::DirectiveNode.new(val.strip)
 
-      def namespace
-        return unless tok(NAMESPACE)
-        ss
-        val = str do
-          ss if namespace_prefix
-          @expected = "string or url()"
-          tok(STRING) || tok!(URI); ss
+        @expected = '"{" or ";"'
+        if raw '{'
+          block(node)
+        else
+          raw! ';'
         end
-        raw! ';'; ss
-        Sass::Tree::DirectiveNode.new("@namespace #{val.strip}")
-      end
 
-      def namespace_prefix
-        tok IDENT
-      end
-
-      def media
-        return unless tok MEDIA
-        ss
-        val = str do
-          expr! :medium
-          while raw ','
-            ss; expr! :medium
-          end
-        end
-        node = Sass::Tree::DirectiveNode.new("@media #{val.strip}")
-
-        raw! '{'; ss
-        while child = ruleset
-          node << child
-        end
-        raw! '}'; ss
         node
-      end
-
-      def medium
-        return unless tok IDENT
-        ss
-      end
-
-      def page
-        return unless tok PAGE
-        ss
-        val = str do
-          tok IDENT
-          pseudo_page; ss
-        end
-        block(Sass::Tree::DirectiveNode.new("@page #{val.strip}"))
-      end
-
-      def pseudo_page
-        return unless raw ':'
-        tok! IDENT
-      end
-
-      def font_face
-        return unless tok FONT_FACE
-        ss
-        block(Sass::Tree::DirectiveNode.new("@font-face"))
       end
 
       def operator
@@ -155,12 +90,17 @@ module Sass
         end
         rules = first + rules if first
 
-        block(Sass::Tree::RuleNode.new(rules.strip))
+        block!(Sass::Tree::RuleNode.new(rules.strip))
+      end
+
+      def block!(node)
+        raw! '{'
+        block(node)
       end
 
       # A block may contain declarations and/or rulesets
       def block(node)
-        raw! '{'; ss
+        ss
         node << declaration_or_ruleset
         while raw ';'
           ss
