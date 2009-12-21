@@ -101,10 +101,10 @@ module Sass
       # A block may contain declarations and/or rulesets
       def block(node)
         ss
-        node << declaration_or_ruleset
-        while raw ';'
+        node << (child = declaration_or_ruleset)
+        while raw(';') || (child && !child.children.empty?)
           ss
-          node << declaration_or_ruleset
+          node << (child = declaration_or_ruleset)
         end
         raw! '}'; ss
         node
