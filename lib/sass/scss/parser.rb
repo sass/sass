@@ -166,7 +166,8 @@ module Sass
       end
 
       def selector
-        return unless simple_selector_sequence
+        # The combinator here allows the "> E" hack
+        return unless combinator || simple_selector_sequence
         simple_selector_sequence while combinator
         true
       end
@@ -182,7 +183,9 @@ module Sass
           return expr
         end
 
-        nil while tok(:hash) || class_expr || attrib || negation || pseudo
+        # The raw('*') allows the "E*" hack
+        nil while tok(:hash) || class_expr || attrib ||
+          negation || pseudo || raw('*')
         true
       end
 
@@ -264,7 +267,13 @@ module Sass
       end
 
       def declaration
-        return unless name = property
+        # The raw('*') allows the "*prop: val" hack
+        if raw '*'
+          name = expr!(:property)
+        else
+          return unless name = property
+        end
+
         raw! ':'; ss
         value = str do
           expr! :expr
