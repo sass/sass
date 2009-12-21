@@ -11,7 +11,7 @@ module Sass
 
       def parse
         root = stylesheet
-        raise "Invalid CSS at #{@scanner.rest.inspect}" unless @scanner.eos?
+        expected("selector or at-rule") unless @scanner.eos?
         root
       end
 
