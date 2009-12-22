@@ -70,6 +70,14 @@ module Sass
         return "" if result.empty?
         return result + "\n"
       end
+
+      # Returns false, because all nodes are allowed at the root of the document
+      # (properties are detected elsewhere post-mixin-resolution).
+      #
+      # @see Node#invalid_child?
+      def invalid_child?(child)
+        false
+      end
     end
   end
 end

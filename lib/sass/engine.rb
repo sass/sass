@@ -298,17 +298,6 @@ END
     end
 
     def validate_and_append_child(parent, child, line, root)
-      unless root
-        case child
-        when Tree::MixinDefNode
-          raise SyntaxError.new("Mixins may only be defined at the root of a document.",
-            :line => line.index)
-        when Tree::ImportNode
-          raise SyntaxError.new("Import directives may only be used at the root of a document.",
-            :line => line.index)
-        end
-      end
-
       case child
       when Array
         child.each {|c| validate_and_append_child(parent, c, line, root)}

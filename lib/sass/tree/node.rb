@@ -293,7 +293,8 @@ module Sass
       # Returns an error message if the given child node is invalid,
       # and false otherwise.
       #
-      # By default, all child nodes are valid.
+      # By default, all child nodes except those only allowed at root level
+      # ({Tree::MixinDefNode}, {Tree::ImportNode}) are valid.
       # This is expected to be overriden by subclasses
       # for which some children are invalid.
       #
@@ -301,7 +302,12 @@ module Sass
       # @return [Boolean, String] Whether or not the child node is valid,
       #   as well as the error message to display if it is invalid
       def invalid_child?(child)
-        false
+        case child
+        when Tree::MixinDefNode
+          "Mixins may only be defined at the root of a document."
+        when Tree::ImportNode
+          "Import directives may only be used at the root of a document."
+        end
       end
     end
   end
