@@ -42,19 +42,6 @@ module Sass
         expr
       end
 
-      # Parses a single SassScript expression.
-      # Unlike \{#parse}, doesn't expect this expression
-      # to consume the entire input stream.
-      #
-      # @return [Script::Node] The root node of the parse tree
-      # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
-      def parse_some
-        expr = assert_expr :expr
-        expr.options = @options
-        @lexer.unpeek!
-        expr
-      end
-
       # Parses the argument list for a mixin include.
       #
       # @return [Array<Script::Node>] The root nodes of the arguments.

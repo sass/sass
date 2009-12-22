@@ -1,4 +1,5 @@
 require 'sass/scss/rx'
+require 'sass/scss/script_parser'
 
 require 'strscan'
 require 'set'
@@ -85,7 +86,7 @@ module Sass
 
         raw! '='
         ss
-        expr = sass_script_parser.parse_some
+        expr = sass_script_parser.parse
 
         node(Sass::Tree::VariableNode.new(name, expr, guarded))
       end
@@ -284,7 +285,7 @@ module Sass
 
         value =
           if raw '='
-            sass_script_parser.parse_some
+            sass_script_parser.parse
           else
             @expected = '":" or "="'
             raw! ':'; ss
@@ -353,7 +354,7 @@ module Sass
       end
 
       def sass_script_parser
-        Sass::Script::Parser.new(@scanner, @line,
+        ScriptParser.new(@scanner, @line,
           @scanner.pos - @scanner.string.rindex("\n"))
       end
 
