@@ -63,15 +63,17 @@ module Sass
       end
 
       def mixin
-        node = node(Sass::Tree::MixinDefNode.new(tok!(IDENT), []))
+        name = tok! IDENT
+        args = sass_script_parser.parse_mixin_definition_arglist
         ss
-        block(node)
+        block(node(Sass::Tree::MixinDefNode.new(name, args)))
       end
 
       def include
-        node = node(Sass::Tree::MixinNode.new(tok!(IDENT), []))
+        name = tok! IDENT
+        args = sass_script_parser.parse_mixin_include_arglist
         ss
-        node
+        node(Sass::Tree::MixinNode.new(name, args))
       end
 
       def variable
