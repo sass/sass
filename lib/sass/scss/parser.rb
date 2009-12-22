@@ -21,15 +21,7 @@ module Sass
       include Sass::SCSS::RX
 
       def stylesheet
-        root = Sass::Tree::RootNode.new(@scanner.string)
-
-        s
-
-        while child = directive || ruleset
-          root << child
-          s
-        end
-        root
+        block_contents(Sass::Tree::RootNode.new(@scanner.string)) {s}
       end
 
       def s
@@ -60,7 +52,7 @@ module Sass
 
         @expected = '"{" or ";"'
         if raw '{'
-          block(node)
+          block_contents(node)
         else
           raw! ';'
         end
@@ -71,13 +63,12 @@ module Sass
       def mixin
         node = Sass::Tree::MixinDefNode.new(tok!(IDENT), [])
         ss
-        block!(node)
+        block(node)
       end
 
       def include
         node = Sass::Tree::MixinNode.new(tok!(IDENT), [])
         ss
-        raw! ';'
         node
       end
 
@@ -109,23 +100,25 @@ module Sass
           end
         end
 
-        block!(Sass::Tree::RuleNode.new(rules.strip))
+        block(Sass::Tree::RuleNode.new(rules.strip))
       end
 
-      def block!(node)
+      def block(node)
         raw! '{'
-        block(node)
+        block_contents(node)
+        raw! '}'
+        ss
+        node
       end
 
       # A block may contain declarations and/or rulesets
-      def block(node)
-        ss
-        node << (child = declaration_or_ruleset)
+      def block_contents(node)
+        block_given? ? yield : ss
+        node << (child = directive || declaration_or_ruleset)
         while raw(';') || (child && !child.children.empty?)
-          ss
-          node << (child = declaration_or_ruleset)
+          block_given? ? yield : ss
+          node << (child = directive || declaration_or_ruleset)
         end
-        raw! '}'; ss
         node
       end
 
