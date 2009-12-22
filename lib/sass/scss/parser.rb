@@ -36,7 +36,7 @@ module Sass
         true
       end
 
-      DIRECTIVES = Set[:mixin, :include]
+      DIRECTIVES = Set[:mixin, :include, :debug]
 
       def directive
         return unless name = tok(ATRULE)
@@ -74,6 +74,10 @@ module Sass
         args = sass_script_parser.parse_mixin_include_arglist
         ss
         node(Sass::Tree::MixinNode.new(name, args))
+      end
+
+      def debug
+        node(Sass::Tree::DebugNode.new(sass_script_parser.parse))
       end
 
       def variable
