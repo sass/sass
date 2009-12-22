@@ -69,9 +69,9 @@ module Sass
       original_filename = filename
 
       if [".sass", ".scss"].include?(filename[-5..-1])
-        filename = filename[0...-5]
         was_sass = filename[-5..-1] == ".sass"
         was_scss = filename[-5..-1] == ".scss"
+        filename = filename[0...-5]
       elsif filename[-4..-1] == ".css"
         return filename
       end
