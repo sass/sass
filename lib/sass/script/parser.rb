@@ -156,7 +156,7 @@ RUBY
       unary :not, :funcall
 
       def funcall
-        return paren unless @lexer.peek.type == :ident
+        return paren unless @lexer.peek && @lexer.peek.type == :ident
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next

@@ -45,7 +45,6 @@ module Sass
         '}' => :end_interpolation,
         ';' => :semicolon,
         '{' => :lcurly,
-        '}' => :rcurly,
       }
 
       # A list of operator strings ordered with longer names first
