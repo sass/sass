@@ -36,7 +36,7 @@ module Sass
         true
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug]
+      DIRECTIVES = Set[:mixin, :include, :debug, :for]
 
       def directive
         return unless name = tok(ATRULE)
@@ -78,6 +78,23 @@ module Sass
 
       def debug
         node(Sass::Tree::DebugNode.new(sass_script_parser.parse))
+      end
+
+      def for
+        raw! '!'
+        var = tok! IDENT
+        ss
+
+        raw! 'from'
+        from = sass_script_parser.parse_until Set["to", "through"]
+        ss
+
+        @expected = '"to" or "through"'
+        exclusive = (raw('to') || raw!('through')) == 'to'
+        to = sass_script_parser.parse
+        ss
+
+        block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)))
       end
 
       def variable

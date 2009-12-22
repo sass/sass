@@ -42,6 +42,20 @@ module Sass
         expr
       end
 
+      # Parses a SassScript expression,
+      # ending it when it encounters one of the givne identifier tokens.
+      #
+      # @param [#include?(String)] A set of strings that delimit the expression.
+      # @return [Script::Node] The root node of the parse tree
+      # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
+      def parse_until(tokens)
+        @stop_at = tokens
+        expr = assert_expr :expr
+        assert_done
+        expr.options = @options
+        expr
+      end
+
       # Parses the argument list for a mixin include.
       #
       # @return [Array<Script::Node>] The root nodes of the arguments.
@@ -142,7 +156,10 @@ RUBY
       unary :not, :funcall
 
       def funcall
-        return paren unless name = try_tok(:ident)
+        return paren unless @lexer.peek.type == :ident
+        return if @stop_at && @stop_at.include?(@lexer.peek.value)
+
+        name = @lexer.next
         # An identifier without arguments is just a string
         unless try_tok(:lparen)
           filename = @options[:filename]
