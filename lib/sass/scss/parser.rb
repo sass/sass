@@ -8,6 +8,7 @@ module Sass
     class Parser
       def initialize(str)
         @scanner = StringScanner.new(str)
+        @line = 1
       end
 
       def parse
@@ -21,7 +22,7 @@ module Sass
       include Sass::SCSS::RX
 
       def stylesheet
-        block_contents(Sass::Tree::RootNode.new(@scanner.string)) {s}
+        block_contents(node(Sass::Tree::RootNode.new(@scanner.string))) {s}
       end
 
       def s
@@ -48,7 +49,7 @@ module Sass
           # but some (e.g. @page) take selector-like arguments
           expr || selector
         end
-        node = Sass::Tree::DirectiveNode.new("#{name} #{val.strip}")
+        node = node(Sass::Tree::DirectiveNode.new("#{name} #{val.strip}"))
 
         @expected = '"{" or ";"'
         if raw '{'
@@ -61,13 +62,13 @@ module Sass
       end
 
       def mixin
-        node = Sass::Tree::MixinDefNode.new(tok!(IDENT), [])
+        node = node(Sass::Tree::MixinDefNode.new(tok!(IDENT), []))
         ss
         block(node)
       end
 
       def include
-        node = Sass::Tree::MixinNode.new(tok!(IDENT), [])
+        node = node(Sass::Tree::MixinNode.new(tok!(IDENT), []))
         ss
         node
       end
@@ -100,7 +101,7 @@ module Sass
           end
         end
 
-        block(Sass::Tree::RuleNode.new(rules.strip))
+        block(node(Sass::Tree::RuleNode.new(rules.strip)))
       end
 
       def block(node)
@@ -139,12 +140,14 @@ module Sass
       # but I'm not sure the gains would be worth the added complexity.
       def declaration_or_ruleset
         pos = @scanner.pos
+        line = @line
         begin
           decl = declaration
         rescue Sass::SyntaxError
         end
 
         return decl if decl && tok?(/[;}]/)
+        @line = line
         @scanner.pos = pos
         return ruleset
       end
@@ -264,7 +267,7 @@ module Sass
           expr! :expr
           prio
         end
-        Sass::Tree::PropNode.new(name, value.strip, :new)
+        node(Sass::Tree::PropNode.new(name, value.strip, :new))
       end
 
       def prio
@@ -316,6 +319,11 @@ module Sass
         @str = nil
       end
 
+      def node(node)
+        node.line = @line
+        node
+      end
+
       EXPR_NAMES = {
         :medium => "medium (e.g. print, screen)",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
@@ -347,7 +355,6 @@ module Sass
 
       def expected(name)
         pos = @scanner.pos
-        line = @scanner.string[0...pos].count("\n") + 1
 
         after = @scanner.string[[pos - 15, 0].max...pos].gsub(/.*\n/m, '')
         after = "..." + after if pos >= 15
@@ -358,13 +365,17 @@ module Sass
         was += "..." if @scanner.rest.size >= 15
         raise Sass::SyntaxError.new(
           "Invalid CSS after #{after.inspect}: expected #{expected}, was #{was.inspect}",
-          :line => line)
+          :line => @line)
       end
 
       def tok(rx)
         res = @scanner.scan(rx)
-        @expected = nil if res
-        @str << res if res && @str && rx != COMMENT
+        if res
+          @line += res.count("\n")
+          @expected = nil
+          @str << res if @str && rx != COMMENT
+        end
+
         res
       end
 
