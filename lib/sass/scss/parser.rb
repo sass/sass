@@ -36,7 +36,7 @@ module Sass
         true
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :for, :if]
+      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if]
 
       def directive
         return unless name = tok(ATRULE)
@@ -96,6 +96,12 @@ module Sass
         ss
 
         block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)))
+      end
+
+      def while
+        expr = sass_script_parser.parse
+        ss
+        block(node(Sass::Tree::WhileNode.new(expr)))
       end
 
       def if
