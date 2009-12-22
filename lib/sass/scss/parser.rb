@@ -282,13 +282,20 @@ module Sass
           return unless name = property
         end
 
-        raw! ':'; ss
+        value =
+          if raw '='
+            sass_script_parser.parse_some
+          else
+            @expected = '":" or "="'
+            raw! ':'; ss
 
-        value = str do
-          expr! :expr
-          prio
-        end
-        node(Sass::Tree::PropNode.new(name, value.strip, :new))
+            str do
+              expr! :expr
+              prio
+            end.strip
+          end
+
+        node(Sass::Tree::PropNode.new(name, value, :new))
       end
 
       def prio
