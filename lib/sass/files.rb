@@ -30,7 +30,14 @@ module Sass
         end
       end
 
-      engine = Sass::Engine.new(text, options.merge(:filename => filename))
+      options = options.merge(:filename => filename)
+      if filename =~ /\.scss$/
+        options = options.merge(:syntax => :scss)
+      elsif filename =~ /\.sass$/
+        options = options.merge(:syntax => :sass)
+      end
+
+      engine = Sass::Engine.new(text, options)
 
       root = engine.to_tree
       try_to_write_sassc(root, compiled_filename, sha, options) if options[:cache]
@@ -58,20 +65,22 @@ module Sass
     # @raise [Sass::SyntaxError] if `filename` ends in ``".sass"``
     #   and no corresponding Sass file could be found.
     def find_file_to_import(filename, load_paths)
-      was_sass = false
+      was_sass = was_scss = false
       original_filename = filename
 
-      if filename[-5..-1] == ".sass"
+      if [".sass", ".scss"].include?(filename[-5..-1])
         filename = filename[0...-5]
-        was_sass = true
+        was_sass = filename[-5..-1] == ".sass"
+        was_scss = filename[-5..-1] == ".scss"
       elsif filename[-4..-1] == ".css"
         return filename
       end
 
-      new_filename = find_full_path("#{filename}.sass", load_paths)
+      new_filename   = find_full_path("#{filename}.sass", load_paths) unless was_scss
+      new_filename ||= find_full_path("#{filename}.scss", load_paths) unless was_sass
 
       return new_filename if new_filename
-      return filename + '.css' unless was_sass
+      return filename + '.css' unless was_sass || was_scss
       raise SyntaxError.new("File to import not found or unreadable: #{original_filename}.")
     end
 
