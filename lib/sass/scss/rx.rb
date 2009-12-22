@@ -55,9 +55,6 @@ module Sass
       GREATER = /#{W}>/
       TILDE = /#{W}~/
       NOT = quote(":not(")
-
-      # Nonstandard
-      DECL_COLON = /#{W}:#{S}/
     end
   end
 end

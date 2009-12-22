@@ -80,15 +80,14 @@ module Sass
         name
       end
 
-      def ruleset(first = nil)
+      def ruleset
         rules = str do
-          return unless selector(first)
+          return unless selector
 
           while raw ','
             ss; expr!(:selector)
           end
         end
-        rules = first + rules if first
 
         block!(Sass::Tree::RuleNode.new(rules.strip))
       end
@@ -110,22 +109,36 @@ module Sass
         node
       end
 
+      # This is a nasty hack, and the only place in the parser
+      # that requires backtracking.
+      # The reason is that we can't figure out if certain strings
+      # are declarations or rulesets with fixed finite lookahead.
+      # For example, "foo:bar baz baz baz..." could be either a property
+      # or a selector.
+      #
+      # To handle this, we simply check if it works as a property
+      # (which is the most common case)
+      # and, if it doesn't, try it as a ruleset.
+      #
+      # We could eke some more efficiency out of this
+      # by handling some easy cases (first token isn't an identifier,
+      # no colon after the identifier, whitespace after the colon),
+      # but I'm not sure the gains would be worth the added complexity.
       def declaration_or_ruleset
-        # The raw('*') allows the "*prop: val" hack
-        if raw('*')
-          name = expr! :property
-          tok! DECL_COLON
-          return declaration!(name)
+        pos = @scanner.pos
+        begin
+          decl = declaration
+        rescue Sass::SyntaxError
         end
-        return ruleset unless ident = tok(IDENT)
-        return declaration!(ident) if tok(DECL_COLON)
-        ruleset ident
+
+        return decl if decl && tok?(/[;}]/)
+        @scanner.pos = pos
+        return ruleset
       end
 
-      def selector(first = nil)
+      def selector
         # The combinator here allows the "> E" hack
-        return unless first || combinator || simple_selector_sequence
-        simple_selector_sequence if first
+        return unless combinator || simple_selector_sequence
         simple_selector_sequence while combinator
         true
       end
@@ -224,7 +237,16 @@ module Sass
         element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo)
       end
 
-      def declaration!(name)
+      def declaration
+        # The raw('*') allows the "*prop: val" hack
+        if raw '*'
+          name = expr!(:property)
+        else
+          return unless name = property
+        end
+
+        raw! ':'; ss
+
         value = str do
           expr! :expr
           prio
@@ -290,6 +312,10 @@ module Sass
       TOK_NAMES = Haml::Util.to_hash(
         Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
         merge(:ident => "identifier")
+
+      def tok?(rx)
+        @scanner.match?(rx)
+      end
 
       def expr!(name)
         (e = send(name)) && (return e)
