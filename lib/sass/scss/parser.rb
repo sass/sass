@@ -55,6 +55,7 @@ module Sass
         @expected = '"{" or ";"'
         if raw '{'
           block_contents(node)
+          raw! '}'
         else
           raw! ';'
         end
