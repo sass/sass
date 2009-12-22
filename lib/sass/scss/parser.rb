@@ -36,7 +36,7 @@ module Sass
         true
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if]
+      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import]
 
       def directive
         return unless name = tok(ATRULE)
@@ -108,6 +108,28 @@ module Sass
         expr = sass_script_parser.parse
         ss
         block(node(Sass::Tree::IfNode.new(expr)))
+      end
+
+      def import
+        if path = tok(STRING) || tok(URI)
+          ss
+
+          media = str do
+            if tok IDENT
+              ss
+              while raw ','
+                ss; tok(IDENT); ss
+              end
+            end
+          end
+
+          return node(Sass::Tree::DirectiveNode.new("@import #{path} #{media}".strip))
+        end
+
+        # TODO: Do we want a better way of specifying imports?
+        # We could use the CSS syntax,
+        # but then how do users actually compile to the CSS syntax?
+        node(Sass::Tree::ImportNode.new(tok(PATH).strip))
       end
 
       def variable

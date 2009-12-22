@@ -55,6 +55,9 @@ module Sass
       GREATER = /#{W}>/
       TILDE = /#{W}~/
       NOT = quote(":not(")
+
+      # Custom
+      PATH = /[^;]+/
     end
   end
 end
