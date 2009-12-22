@@ -1,6 +1,7 @@
 require 'sass/scss/rx'
 
 require 'strscan'
+require 'set'
 
 module Sass
   module SCSS
@@ -24,7 +25,7 @@ module Sass
 
         s
 
-        while child = at_rule || ruleset
+        while child = directive || ruleset
           root << child
           s
         end
@@ -41,15 +42,21 @@ module Sass
         true
       end
 
-      def at_rule
+      DIRECTIVES = Set[:mixin, :include]
+
+      def directive
+        return unless name = tok(ATRULE)
+        ss
+
+        sym = name.gsub(/^@/, '').gsub('-', '_').to_sym
+        return send(sym) if DIRECTIVES.include?(sym)
+
         val = str do
-          return unless tok ATRULE
-          ss
           # Most at-rules take expressions (e.g. @media, @import),
           # but some (e.g. @page) take selector-like arguments
           expr || selector
         end
-        node = Sass::Tree::DirectiveNode.new(val.strip)
+        node = Sass::Tree::DirectiveNode.new("#{name} #{val.strip}")
 
         @expected = '"{" or ";"'
         if raw '{'
@@ -58,6 +65,19 @@ module Sass
           raw! ';'
         end
 
+        node
+      end
+
+      def mixin
+        node = Sass::Tree::MixinDefNode.new(tok!(IDENT), [])
+        ss
+        block!(node)
+      end
+
+      def include
+        node = Sass::Tree::MixinNode.new(tok!(IDENT), [])
+        ss
+        raw! ';'
         node
       end
 
