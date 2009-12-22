@@ -43,6 +43,7 @@ module Sass
         '<' => :lt,
         '#{' => :begin_interpolation,
         '}' => :end_interpolation,
+        ';' => :semicolon,
       }
 
       # A list of operator strings ordered with longer names first
@@ -111,6 +112,12 @@ module Sass
       # @return [Token] The next token
       def peek
         @tok ||= read_token
+      end
+
+      # Rewinds the underlying StringScanner
+      # to before the token returned by \{#peek}.
+      def unpeek!
+        @scanner.pos -= @scanner.matched_size if @tok
       end
 
       # @return [Boolean] Whether or not there's more source text to lex.

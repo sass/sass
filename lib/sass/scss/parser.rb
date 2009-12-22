@@ -73,6 +73,23 @@ module Sass
         node
       end
 
+      def variable
+        return unless raw '!'
+        name = tok! IDENT
+        ss
+
+        if raw '|'
+          raw! '|'
+          guarded = true
+        end
+
+        raw! '='
+        ss
+        expr = sass_script_parser.parse_some
+
+        node(Sass::Tree::VariableNode.new(name, expr, guarded))
+      end
+
       def operator
         # Many of these operators (all except / and ,)
         # are disallowed by the CSS spec,
@@ -115,12 +132,16 @@ module Sass
       # A block may contain declarations and/or rulesets
       def block_contents(node)
         block_given? ? yield : ss
-        node << (child = directive || declaration_or_ruleset)
+        node << (child = block_child)
         while raw(';') || (child && !child.children.empty?)
           block_given? ? yield : ss
-          node << (child = directive || declaration_or_ruleset)
+          node << (child = block_child)
         end
         node
+      end
+
+      def block_child
+        variable || directive || declaration_or_ruleset
       end
 
       # This is a nasty hack, and the only place in the parser
@@ -322,6 +343,11 @@ module Sass
       def node(node)
         node.line = @line
         node
+      end
+
+      def sass_script_parser
+        Sass::Script::Parser.new(@scanner, @line,
+          @scanner.pos - @scanner.string.rindex("\n"))
       end
 
       EXPR_NAMES = {
