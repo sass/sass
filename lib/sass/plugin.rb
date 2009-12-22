@@ -140,7 +140,7 @@ module Sass
     end
 
     def stylesheet_needs_update?(css_file, template_file)
-      return true unless File.exists?(css_file)
+      return true unless File.exists?(css_file) && File.exists?(template_file)
 
       css_mtime = File.mtime(css_file)
       File.mtime(template_file) > css_mtime ||

@@ -30,25 +30,25 @@ class SassPluginTest < Test::Unit::TestCase
 
   def test_no_update
     File.delete(tempfile_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_needs_update 'basic'
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_doesnt_need_update 'basic'
   end
 
   def test_update_needed_when_modified
     sleep 1
     FileUtils.touch(template_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_needs_update 'basic'
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_doesnt_need_update 'basic'
   end
 
   def test_update_needed_when_dependency_modified
     sleep 1
     FileUtils.touch(template_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('import', template_loc, tempfile_loc)
+    assert_needs_update 'import'
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('import', template_loc, tempfile_loc)
+    assert_doesnt_need_update 'import'
   end
 
   def test_full_exception_handling
@@ -116,7 +116,7 @@ CSS
     set_plugin_opts
 
     File.delete(tempfile_loc('basic'))
-    assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_needs_update 'basic'
     
     if defined?(MerbHandler)
       MerbHandler.new('.').process nil, nil
@@ -124,7 +124,7 @@ CSS
       Merb::Rack::Application.new.call(::Rack::MockRequest.env_for('/'))
     end
 
-    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_doesnt_need_update 'basic'
   end
 
   def test_doesnt_render_partials
@@ -139,7 +139,7 @@ CSS
 
     sleep 1
     FileUtils.touch(template_loc("basic", "more_"))
-    assert Sass::Plugin.stylesheet_needs_update?("import", template_loc, tempfile_loc)
+    assert_needs_update "basic"
     Sass::Plugin.update_stylesheets
     assert_renders_correctly("import")
   ensure
@@ -210,6 +210,16 @@ CSS
   def wait_a_tick
     time = Time.now
     loop {break if Time.now.sec != time.sec}
+  end
+
+  def assert_needs_update(template)
+    assert Sass::Plugin.stylesheet_needs_update?(
+      tempfile_loc(template), template_loc(template))
+  end
+
+  def assert_doesnt_need_update(template)
+    assert !Sass::Plugin.stylesheet_needs_update?(
+      tempfile_loc(template), template_loc(template))
   end
 end
 
