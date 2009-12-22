@@ -1,5 +1,7 @@
 require 'sass'
 
+require 'fileutils'
+
 module Sass
   # This module handles the compilation of Sass files.
   # It provides global options and checks whether CSS files
@@ -75,12 +77,14 @@ module Sass
       @checked_for_updates = true
       template_locations.zip(css_locations).each do |template_location, css_location|
 
-        Dir.glob(File.join(template_location, "**", "*.sass")).each do |file|
-          # Get the relative path to the file with no extension
-          name = file.sub(template_location + "/", "")[0...-5]
+        Dir.glob(File.join(template_location, "**", "*.s[ca]ss")).each do |file|
+          # Get the relative path to the file
+          name = file.sub(template_location + "/", "")
+          css = css_filename(name, css_location)
 
-          if !forbid_update?(name) && (options[:always_update] || stylesheet_needs_update?(name, template_location, css_location))
-            update_stylesheet(name, template_location, css_location)
+          if !forbid_update?(name) &&
+              (options[:always_update] || stylesheet_needs_update?(css, file))
+            update_stylesheet(file, css)
           end
         end
       end
@@ -88,11 +92,9 @@ module Sass
 
     private
 
-    def update_stylesheet(name, template_location, css_location)
-      css = css_filename(name, css_location)
+    def update_stylesheet(filename, css)
       File.delete(css) if File.exists?(css)
 
-      filename = template_filename(name, template_location)
       result = begin
                  Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
@@ -100,25 +102,18 @@ module Sass
                end
 
       # Create any directories that might be necessary
-      mkpath(css_location, name)
+      FileUtils.mkdir_p(File.dirname(css))
 
       # Finally, write the file
       File.open(css, 'w') do |file|
         file.print(result)
       end
     end
-    
-    # Create any successive directories required to be able to write a file to: File.join(base,name)
-    def mkpath(base, name)
-      dirs = [base]
-      name.split(File::SEPARATOR)[0...-1].each { |dir| dirs << File.join(dirs[-1],dir) }
-      dirs.each { |dir| Dir.mkdir(dir) unless File.exist?(dir) }
-    end
 
     def load_paths(opts = options)
       (opts[:load_paths] || []) + template_locations
     end
-    
+
     def template_locations
       location = (options[:template_location] || File.join(options[:css_location],'sass'))
       if location.is_a?(String)
@@ -127,7 +122,7 @@ module Sass
         location.to_a.map { |l| l.first }
       end
     end
-    
+
     def css_locations
       if options[:template_location] && !options[:template_location].is_a?(String)
         options[:template_location].to_a.map { |l| l.last }
@@ -136,25 +131,15 @@ module Sass
       end
     end
 
-    def template_filename(name, path)
-      "#{path}/#{name}.sass"
-    end
-
     def css_filename(name, path)
-      "#{path}/#{name}.css"
+      "#{path}/#{name}".gsub(/\.s[ac]ss$/, '.css')
     end
 
     def forbid_update?(name)
       name.sub(/^.*\//, '')[0] == ?_
     end
 
-    def stylesheet_needs_update?(name, template_path, css_path)
-      css_file = css_filename(name, css_path)
-      template_file = template_filename(name, template_path)
-      exact_stylesheet_needs_update?(css_file, template_file)
-    end
-
-    def exact_stylesheet_needs_update?(css_file, template_file)
+    def stylesheet_needs_update?(css_file, template_file)
       return true unless File.exists?(css_file)
 
       css_mtime = File.mtime(css_file)
@@ -170,11 +155,14 @@ module Sass
     end
 
     def dependencies(filename)
+      # TODO: This won't work in all cases for SCSS.
+      # We should store this info in the cache
+      # and then re-parse to get it if it's not there.
       File.readlines(filename).grep(/^@import /).map do |line|
         line[8..-1].split(',').map do |inc|
           Sass::Files.find_file_to_import(inc.strip, [File.dirname(filename)] + load_paths)
         end
-      end.flatten.grep(/\.sass$/)
+      end.flatten.grep(/\.s[ac]ss$/)
     end
   end
 end
