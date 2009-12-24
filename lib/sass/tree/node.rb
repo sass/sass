@@ -26,6 +26,8 @@ module Sass
   module Tree
     # The abstract superclass of all parse-tree nodes.
     class Node
+      include Enumerable
+
       # The child nodes of this node.
       #
       # @return [Array<Tree::Node>]
@@ -170,6 +172,16 @@ module Sass
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename, :line => line)
         raise e
+      end
+
+      # Iterates through each node in the tree rooted at this node
+      # in a pre-order walk.
+      #
+      # @yield node
+      # @yieldparam node [Node] a node in the tree
+      def each(&block)
+        yield self
+        children.each {|c| c.each(&block)}
       end
 
       protected

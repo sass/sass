@@ -61,8 +61,8 @@ module Sass
     # @param load_paths [Array<String>] The set of filesystem paths
     #   to search for Sass files.
     # @return [String] The filename of the imported file.
-    #   This is an absolute path if the file is a `".sass"` file.
-    # @raise [Sass::SyntaxError] if `filename` ends in ``".sass"``
+    #   This is an absolute path if the file is a `".sass"` or `".scss"` file.
+    # @raise [Sass::SyntaxError] if `filename` ends in `".sass"` or `".scss"`
     #   and no corresponding Sass file could be found.
     def find_file_to_import(filename, load_paths)
       was_sass = was_scss = false

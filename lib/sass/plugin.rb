@@ -155,15 +155,10 @@ module Sass
     end
 
     def dependencies(filename)
-      Files.tree_for(filename, options)
-      # TODO: This won't work in all cases for SCSS.
-      # We should store this info in the cache
-      # and then re-parse to get it if it's not there.
-      File.readlines(filename).grep(/^@import /).map do |line|
-        line[8..-1].split(',').map do |inc|
-          Sass::Files.find_file_to_import(inc.strip, [File.dirname(filename)] + load_paths)
-        end
-      end.flatten.grep(/\.s[ac]ss$/)
+      Files.tree_for(filename, options).select {|n| n.is_a?(Tree::ImportNode)}.map do |n|
+        next if n.full_filename =~ /\.css$/
+        n.full_filename
+      end.compact
     end
   end
 end
