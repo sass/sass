@@ -95,6 +95,7 @@ module Sass
       result = begin
                  Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
+                 raise e unless options[:full_exception]
                  exception_string(e)
                end
 
@@ -136,32 +137,31 @@ module Sass
     end
 
     def exception_string(e)
-      if options[:full_exception]
-        e_string = "#{e.class}: #{e.message}"
+      e_string = "#{e.class}: #{e.message}"
 
-        if e.is_a? Sass::SyntaxError
-          e_string << "\non line #{e.sass_line}"
+      if e.is_a? Sass::SyntaxError
+        e_string << "\non line #{e.sass_line}"
 
-          if e.sass_filename
-            e_string << " of #{e.sass_filename}"
+        if e.sass_filename
+          e_string << " of #{e.sass_filename}"
 
-            if File.exists?(e.sass_filename)
-              e_string << "\n\n"
+          if File.exists?(e.sass_filename)
+            e_string << "\n\n"
 
-              min = [e.sass_line - 5, 0].max
-              begin
-                File.read(e.sass_filename).rstrip.split("\n")[
-                  min .. e.sass_line + 5
-                ].each_with_index do |line, i|
-                  e_string << "#{min + i + 1}: #{line}\n"
-                end
-              rescue
-                e_string << "Couldn't read sass file: #{e.sass_filename}"
+            min = [e.sass_line - 5, 0].max
+            begin
+              File.read(e.sass_filename).rstrip.split("\n")[
+                min .. e.sass_line + 5
+              ].each_with_index do |line, i|
+                e_string << "#{min + i + 1}: #{line}\n"
               end
+            rescue
+              e_string << "Couldn't read sass file: #{e.sass_filename}"
             end
           end
         end
-        <<END
+      end
+      <<END
 /*
 #{e_string}
 
@@ -172,10 +172,7 @@ body:before {
   font-family: monospace;
   content: "#{e_string.gsub('"', '\"').gsub("\n", '\\A ')}"; }
 END
-        # Fix an emacs syntax-highlighting hiccup: '
-      else
-        "/* Internal stylesheet error */"
-      end
+      # Fix an emacs syntax-highlighting hiccup: '
     end
 
     def template_filename(name, path)

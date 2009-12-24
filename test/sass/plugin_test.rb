@@ -61,14 +61,13 @@ class SassPluginTest < Test::Unit::TestCase
   end
 
   def test_nonfull_exception_handling
+    old_full_exception = Sass::Plugin.options[:full_exception]
     Sass::Plugin.options[:full_exception] = false
 
     File.delete(tempfile_loc('bork'))
-    Sass::Plugin.update_stylesheets
-    assert_equal("/* Internal stylesheet error */", File.read(tempfile_loc('bork')))
-    File.delete(tempfile_loc('bork'))
-
-    Sass::Plugin.options[:full_exception] = true
+    assert_raise(Sass::SyntaxError) {Sass::Plugin.update_stylesheets}
+  ensure
+    Sass::Plugin.options[:full_exception] = old_full_exception
   end
   
   def test_two_template_directories
