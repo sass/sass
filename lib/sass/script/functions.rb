@@ -79,11 +79,16 @@ module Sass::Script
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
-  # This temptation must be resisted.
-  # Keep in mind that Sass stylesheets are only compiled once
-  # at a somewhat indeterminate time
-  # and then left as static CSS files.
-  # Any dynamic CSS should be left in `<style>` tags in the HTML.
+  # This is generally a bad idea;
+  # since Sass files are by default only compiled once,
+  # dynamic code is not a great fit.
+  #
+  # If you really, really need to compile Sass on each request,
+  # first make sure you have adequate caching set up.
+  # Then you can use {Sass::Engine} to render the code,
+  # using the {file:SASS_REFERENCE.md#custom-option `options` parameter}
+  # to pass in data that {EvaluationContext#options can be accessed}
+  # from your Sass functions.
   #
   # Within one of the functions in this module,
   # methods of {EvaluationContext} can be used.
