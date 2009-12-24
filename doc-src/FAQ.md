@@ -154,8 +154,17 @@ but it's not a great idea to put much logic in there anyway
 due to how browsers handle them.
 
 If you really need some sort of dynamic CSS,
-the best thing to do is put only the snippet you need to dynamically set
-in the `head` of your HTML document.
+you can define your own {Sass::Script::Functions Sass functions} using Ruby
+that can access the database or other configuration.
+*Be aware when doing this that Sass files are by default only compiled once
+and then served statically.*
+
+If you really, really need to compile Sass on each request,
+first make sure you have adequate caching set up.
+Then you can use {Sass::Engine} to render the code,
+using the {file:SASS_REFERENCE.md#custom-option `:custom` option}
+to pass in data that {Sass::Script::Functions::EvaluationContext#options can be accessed}
+from your Sass functions.
 
 ## You still haven't answered my question!
 
