@@ -32,7 +32,7 @@ class SassPluginTest < Test::Unit::TestCase
     File.delete(tempfile_loc('basic'))
     assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_stylesheet_updated 'basic'
   end
 
   def test_update_needed_when_modified
@@ -40,7 +40,7 @@ class SassPluginTest < Test::Unit::TestCase
     FileUtils.touch(template_loc('basic'))
     assert Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_stylesheet_updated 'basic'
   end
 
   def test_update_needed_when_dependency_modified
@@ -48,7 +48,7 @@ class SassPluginTest < Test::Unit::TestCase
     FileUtils.touch(template_loc('basic'))
     assert Sass::Plugin.stylesheet_needs_update?('import', template_loc, tempfile_loc)
     Sass::Plugin.update_stylesheets
-    assert !Sass::Plugin.stylesheet_needs_update?('import', template_loc, tempfile_loc)
+    assert_stylesheet_updated 'basic'
   end
 
   def test_full_exception_handling
@@ -116,7 +116,7 @@ class SassPluginTest < Test::Unit::TestCase
       Merb::Rack::Application.new.call(::Rack::MockRequest.env_for('/'))
     end
 
-    assert !Sass::Plugin.stylesheet_needs_update?('basic', template_loc, tempfile_loc)
+    assert_stylesheet_updated 'basic'
   end
 
   def test_doesnt_render_partials
@@ -136,6 +136,21 @@ class SassPluginTest < Test::Unit::TestCase
     assert_renders_correctly("import")
   ensure
     FileUtils.mv(template_loc("basic", "more_"), template_loc("basic"))
+  end
+
+  def test_update_with_cache_but_without_cache_location
+    old_cache = Sass::Plugin.options[:cache]
+    old_cache_location = Sass::Plugin.options[:cache_location]
+    Sass::Plugin.options[:cache] = true
+    Sass::Plugin.options[:cache_location] = nil
+
+    # We just want to make sure this doesn't raise an exception
+    FileUtils.touch(template_loc('basic'))
+    Sass::Plugin.update_stylesheets
+    assert_stylesheet_updated 'basic'
+  ensure
+    Sass::Plugin.options[:cache] = old_cache
+    Sass::Plugin.options[:cache_location] = old_cache_location
   end
 
  private
@@ -158,6 +173,17 @@ class SassPluginTest < Test::Unit::TestCase
     end
     if expected_lines.size < actual_lines.size
       assert(false, "#{actual_lines.size - expected_lines.size} Trailing lines found in #{tempfile_name}.css: #{actual_lines[expected_lines.size..-1].join('\n')}")
+    end
+  end
+
+  def assert_stylesheet_updated(name)
+    assert !Sass::Plugin.stylesheet_needs_update?(name, template_loc, tempfile_loc)
+
+    # Make sure it isn't an exception
+    expected_lines = File.read(result_loc(name)).split("\n")
+    actual_lines = File.read(tempfile_loc(name)).split("\n")
+    if actual_lines.first == "/*" && expected_lines.first != "/*"
+      assert(false, actual_lines[0..actual_lines.enum_with_index.find {|l, i| l == "*/"}.last].join("\n"))
     end
   end
 
