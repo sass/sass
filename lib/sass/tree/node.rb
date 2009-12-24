@@ -80,15 +80,6 @@ module Sass
         @children << child
       end
 
-      # Return the last child node.
-      #
-      # We need this because {Tree::Node} duck types as an Array for {Sass::Engine}.
-      #
-      # @return [Tree::Node] The last child node
-      def last
-        children.last
-      end
-
       # Compares this node and another object (only other {Tree::Node}s will be equal).
       # This does a structural comparison;
       # if the contents of the nodes and all the child nodes are equivalent,

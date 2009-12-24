@@ -446,7 +446,7 @@ SHORT
     end
 
     def parse_else(parent, line, text)
-      previous = parent.last
+      previous = parent.children.last
       raise SyntaxError.new("@else must come after @if.") unless previous.is_a?(Tree::IfNode)
 
       if text

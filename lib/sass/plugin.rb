@@ -155,6 +155,7 @@ module Sass
     end
 
     def dependencies(filename)
+      Files.tree_for(filename, options)
       # TODO: This won't work in all cases for SCSS.
       # We should store this info in the cache
       # and then re-parse to get it if it's not there.
