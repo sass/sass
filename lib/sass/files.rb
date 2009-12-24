@@ -78,7 +78,7 @@ module Sass
     private
 
     def sassc_filename(filename, options)
-      File.join(options[:cache_location] || Sass::Engine::DEFAULT_OPTIONS[:cache_location],
+      File.join(options[:cache_location],
         Digest::SHA1.hexdigest(File.dirname(File.expand_path(filename))),
         File.basename(filename) + 'c')
     end

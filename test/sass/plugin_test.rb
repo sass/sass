@@ -145,21 +145,6 @@ CSS
     FileUtils.mv(template_loc("basic", "more_"), template_loc("basic"))
   end
 
-  def test_update_with_cache_but_without_cache_location
-    old_cache = Sass::Plugin.options[:cache]
-    old_cache_location = Sass::Plugin.options[:cache_location]
-    Sass::Plugin.options[:cache] = true
-    Sass::Plugin.options[:cache_location] = nil
-
-    # We just want to make sure this doesn't raise an exception
-    FileUtils.touch(template_loc('basic'))
-    Sass::Plugin.update_stylesheets
-    assert_stylesheet_updated 'basic'
-  ensure
-    Sass::Plugin.options[:cache] = old_cache
-    Sass::Plugin.options[:cache_location] = old_cache_location
-  end
-
  private
 
   def assert_renders_correctly(*arguments)

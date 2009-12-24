@@ -120,9 +120,6 @@ Several bug fixes and minor improvements have been made, including:
   {Sass::Script::Functions::EvaluationContext Functions::EvaluationContext}).
   Now the module simply needs to be included in {Sass::Script::Functions}.
 
-* Fixed a bug where {Sass::Plugin} would die if caching was enabled
-  but the cache location wasn't explicitly set.
-
 ## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
 
 * Added {Sass::Script::Color#with} for a way of setting color channels
