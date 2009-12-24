@@ -203,6 +203,10 @@ Available options are:
   as a comment. Useful for debugging especially when using imports
   and mixins.
 
+{#custom-option} `:custom`
+: An option that's available for individual applications to set
+  to make data available to {Sass::Script::Functions custom Sass functions}.
+
 ## CSS Rules
 
 Rules in flat CSS have two elements:
