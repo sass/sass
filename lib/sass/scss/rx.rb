@@ -48,7 +48,7 @@ module Sass
       URI = /url\(#{W}(#{STRING}|#{URL})#{W}\)/i
       FUNCTION = /#{IDENT}\(/
 
-      UNICODERANGE = /u\+(#{RANGE}|#{H}{1,6}-#{H}{1,6})/
+      UNICODERANGE = /u\+(#{RANGE}|#{H}{1,6}-#{H}{1,6})/i
 
       # Defined in http://www.w3.org/TR/css3-selectors/#lex
       PLUS = /#{W}\+/
