@@ -39,10 +39,11 @@ module Sass
       DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import]
 
       def directive
-        return unless name = tok(ATRULE)
+        return unless raw('@')
+        name = tok!(IDENT)
         ss
 
-        sym = name.gsub(/^@/, '').gsub('-', '_').to_sym
+        sym = name.gsub('-', '_').to_sym
         return send(sym) if DIRECTIVES.include?(sym)
 
         val = str do
@@ -50,7 +51,7 @@ module Sass
           # but some (e.g. @page) take selector-like arguments
           expr || selector
         end
-        node = node(Sass::Tree::DirectiveNode.new("#{name} #{val}".strip))
+        node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
 
         if raw '{'
           block_contents(node)

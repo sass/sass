@@ -42,8 +42,6 @@ module Sass
 
       HASH = /##{NAME}/
 
-      ATRULE = /@#{IDENT}/
-
       IMPORTANT = /!#{W}important/i
 
       NUMBER = /#{NUM}(#{IDENT}|%)?/
