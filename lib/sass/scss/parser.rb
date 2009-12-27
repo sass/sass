@@ -376,8 +376,8 @@ module Sass
             tok(URI) ||
             function ||
             tok(STRING) ||
-            tok(IDENT) ||
             tok(UNICODERANGE) ||
+            tok(IDENT) ||
             hexcolor
           return unless unary_operator
           @expected = "number or function"
