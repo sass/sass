@@ -50,7 +50,7 @@ module Sass
           # but some (e.g. @page) take selector-like arguments
           expr || selector
         end
-        node = node(Sass::Tree::DirectiveNode.new("#{name} #{val.strip}"))
+        node = node(Sass::Tree::DirectiveNode.new("#{name} #{val}".strip))
 
         if raw '{'
           block_contents(node)
