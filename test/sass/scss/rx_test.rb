@@ -33,6 +33,7 @@ class ScssRxTest < Test::Unit::TestCase
   end
 
   def test_invalid_identifiers
+    assert_no_match IDENT, ""
     assert_no_match IDENT, "1foo"
     assert_no_match IDENT, "-1foo"
     assert_no_match IDENT, "--foo"
@@ -77,20 +78,22 @@ class ScssRxTest < Test::Unit::TestCase
   end
 
   def test_unicode_range
-    assert_match UNICODERANGE, 'U+00-FF'
-    assert_match UNICODERANGE, 'U+980-9FF'
-    assert_match UNICODERANGE, 'U+9??'
+    assert_match UNICODERANGE, 'U+00-Ff'
+    assert_match UNICODERANGE, 'u+980-9FF'
+    assert_match UNICODERANGE, 'U+9aF??'
     assert_match UNICODERANGE, 'U+??'
   end
 
   private
 
   def assert_match(rx, str)
-    super /^#{rx}$/, str
+    assert_not_nil(match = rx.match(str))
+    assert_equal str.size, match[0].size
   end
 
   def assert_no_match(rx, str)
-    super /^#{rx}$/, str
+    match = rx.match(str)
+    assert_not_equal str.size, match && match[0].size
   end
 
 end

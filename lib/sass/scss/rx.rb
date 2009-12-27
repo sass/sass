@@ -21,7 +21,10 @@ module Sass
       STRING   = /#{STRING1}|#{STRING2}/
       URL      = /([!#%$&*-~]|#{NONASCII}|#{ESCAPE})*/
       W        = /[ \t\r\n\f]*/
-      RANGE    = /\?{1,6}|#{H}(\?{0,5}|#{H}(\?{0,4}|#{H}(\?{0,3}|#{H}(\?{0,2}|#{H}(\??|#{H})))))/
+
+      # This is more liberal than the spec's definition,
+      # but that definition didn't work well with the greediness rules
+      RANGE    = /(#{H}|\?){1,6}/
 
       ##
 
@@ -48,7 +51,7 @@ module Sass
       URI = /url\(#{W}(#{STRING}|#{URL})#{W}\)/i
       FUNCTION = /#{IDENT}\(/
 
-      UNICODERANGE = /u\+(#{RANGE}|#{H}{1,6}-#{H}{1,6})/i
+      UNICODERANGE = /u\+(#{H}{1,6}-#{H}{1,6}|#{RANGE})/i
 
       # Defined in http://www.w3.org/TR/css3-selectors/#lex
       PLUS = /#{W}\+/
