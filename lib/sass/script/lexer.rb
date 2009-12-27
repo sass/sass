@@ -5,6 +5,9 @@ module Sass
     # The lexical analyzer for SassScript.
     # It takes a raw string and converts it to individual tokens
     # that are easier to parse.
+    #
+    # @todo Sync up lexing here with SCSS lexing.
+    #   In particular, make sure the variable regexps are the same.
     class Lexer
       # A struct containing information about an individual token.
       #
