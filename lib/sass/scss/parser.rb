@@ -286,8 +286,9 @@ module Sass
 
       def attrib_name!
         if tok(IDENT)
-          # E or E|E
-          tok! IDENT if raw('|')
+          # E, E|E, or E|
+          # The last is allowed so that E|="foo" will work
+          tok(IDENT) if raw('|')
         elsif raw('*')
           # *|E
           raw! '|'
