@@ -52,12 +52,9 @@ module Sass
         end
         node = node(Sass::Tree::DirectiveNode.new("#{name} #{val.strip}"))
 
-        @expected = '"{" or ";"'
         if raw '{'
           block_contents(node)
           raw! '}'
-        else
-          raw! ';'
         end
 
         node
