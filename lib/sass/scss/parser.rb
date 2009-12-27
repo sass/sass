@@ -329,6 +329,7 @@ module Sass
         ss
         @expected = "selector"
         element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo)
+        raw! ')'
       end
 
       def declaration
