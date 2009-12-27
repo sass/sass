@@ -416,7 +416,7 @@ module Sass
 
       def sass_script_parser
         ScriptParser.new(@scanner, @line,
-          @scanner.pos - @scanner.string.rindex("\n"))
+          @scanner.pos - (@scanner.string.rindex("\n") || 0))
       end
 
       EXPR_NAMES = {
