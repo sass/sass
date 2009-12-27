@@ -215,6 +215,10 @@ module Sass
       # by handling some easy cases (first token isn't an identifier,
       # no colon after the identifier, whitespace after the colon),
       # but I'm not sure the gains would be worth the added complexity.
+      #
+      # TODO: We should handle these special cases if only so that
+      # errors get reported for the proper interpretation most of the time,
+      # rather than just for rulesets.
       def declaration_or_ruleset
         pos = @scanner.pos
         line = @line
