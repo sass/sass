@@ -428,7 +428,7 @@ module Sass
 
       TOK_NAMES = Haml::Util.to_hash(
         Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
-        merge(:ident => "identifier")
+        merge(IDENT => "identifier")
 
       def tok?(rx)
         @scanner.match?(rx)
