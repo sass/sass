@@ -22,9 +22,27 @@ class ScssRxTest < Test::Unit::TestCase
     assert_match IDENT, "-foo" # Can put a - before anything
     assert_match IDENT, "-\377oo"
     assert_match IDENT, "-\\f oo"
+    assert_match IDENT, "_foo" # Can put a _ before anything
+    assert_match IDENT, "_\377oo"
+    assert_match IDENT, "_\\f oo"
 
     assert_match IDENT, "foo-bar"
     assert_match IDENT, "f012-23"
+    assert_match IDENT, "foo_-_bar"
+    assert_match IDENT, "f012_23"
+
+    # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/escapes-003.xht
+    assert_match IDENT, "c\\lass"
+    # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/escapes-004.xht
+    assert_match IDENT, "c\\00006Cas\\000073"
+    # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/ident-001.xht
+    assert_match IDENT, "IdE6n-3t0_6"
+    # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/ident-006.xht
+    assert_match IDENT, "\\6000ident"
+    # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/ident-007.xht
+    assert_match IDENT, "iden\\6000t\\6000"
+    # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/ident-013.xht
+    assert_match IDENT, "\\-ident"
   end
 
   def test_underscores_in_identifiers
@@ -43,6 +61,10 @@ class ScssRxTest < Test::Unit::TestCase
     assert_no_match IDENT, "_-foo"
     assert_no_match IDENT, "foo bar"
     assert_no_match IDENT, "foo~bar"
+
+    # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/escapes-008.xht
+    assert_no_match IDENT, "c\\06C  ass"
+    assert_no_match IDENT, "back\\67\n round"
   end
 
   def test_double_quote_strings
