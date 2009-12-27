@@ -36,6 +36,65 @@ baz {bar: baz}
 SCSS
   end
 
+  def test_comments
+    # TODO: Make (some) comments actually show up in the generated CSS.
+    assert_equal <<CSS, render(<<SCSS)
+bar {
+  c: d; }
+CSS
+/* foo {a: b} */
+bar {c: d}
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: d; }
+CSS
+foo {a: /* b; c: */ d}
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: d; }
+CSS
+foo {a /*: b; c */: d}
+SCSS
+
+   # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/t040109-c17-comments-00-b.xht
+   assert_equal <<CSS, render(<<SCSS)
+.one {
+  color: green; }
+
+.three {
+  color: green; }
+
+.five {
+  color: green; }
+
+.six {
+  color: green; }
+
+.seven {
+  color: green; }
+
+.eight {
+  color: green; }
+CSS
+/* This is a CSS comment. */
+.one {color: green;} /* Another comment */
+/* The following should not be used:
+.two {color: red;} */
+.three {color: green; /* color: red; */}
+/**
+.four {color: red;} */
+.five {color: green;}
+/**/
+.six {color: green;}
+/*********/
+.seven {color: green;}
+/* a comment **/
+.eight {color: green;}
+SCSS
+  end
+
   ## Declarations
 
   def test_vendor_properties
