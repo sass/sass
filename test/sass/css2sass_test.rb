@@ -262,7 +262,7 @@ CSS
   end
 
   def test_error_truncate_after
-    css2sass("#{"a" * 15}foo")
+    css2sass("#{"a" * 16}foo")
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => err
     assert_equal(1, err.sass_line)
@@ -270,11 +270,43 @@ CSS
   end
 
   def test_error_truncate_was
-    css2sass("foo }#{"a" * 15}")
+    css2sass("foo }foo#{"a" * 15}")
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => err
     assert_equal(1, err.sass_line)
-    assert_equal('Invalid CSS after "foo ": expected "{", was "}aaaaaaaaaaaaaa..."', err.message)
+    assert_equal('Invalid CSS after "foo ": expected "{", was "}fooaaaaaaaaaaa..."', err.message)
+  end
+
+  def test_error_doesnt_truncate_after_when_elipsis_would_add_length
+    css2sass("#{"a" * 15}foo")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(1, err.sass_line)
+    assert_equal('Invalid CSS after "aaaaaaaaaaaaaaafoo": expected "{", was ""', err.message)
+  end
+
+  def test_error_doesnt_truncate_was_when_elipsis_would_add_length
+    css2sass("foo }foo#{"a" * 14}")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(1, err.sass_line)
+    assert_equal('Invalid CSS after "foo ": expected "{", was "}fooaaaaaaaaaaaaaa"', err.message)
+  end
+
+  def test_error_gets_rid_of_trailing_newline_for_after
+    css2sass("foo  \n  ")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(2, err.sass_line)
+    assert_equal('Invalid CSS after "foo": expected "{", was ""', err.message)
+  end
+
+  def test_error_gets_rid_of_trailing_newline_for_was
+    css2sass("foo \n  }foo")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(2, err.sass_line)
+    assert_equal('Invalid CSS after "foo": expected "{", was "}foo"', err.message)
   end
 
   # Encodings

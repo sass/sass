@@ -448,13 +448,24 @@ module Sass
       def expected(name)
         pos = @scanner.pos
 
-        after = @scanner.string[[pos - 15, 0].max...pos].gsub(/.*\n/m, '')
-        after = "..." + after if pos >= 15
+        after = @scanner.string[0...pos]
+        # Get rid of whitespace between pos and the last token,
+        # but only if there's a newline in there
+        after.gsub!(/\s*\n\s*$/, '')
+        # Also get rid of stuff before the last newline
+        after.gsub!(/.*\n/, '')
+        after = "..." + after[-15..-1] if after.size > 18
 
         expected = @expected || name
 
-        was = @scanner.rest[0...15].gsub(/\n.*/m, '')
-        was += "..." if @scanner.rest.size >= 15
+        was = @scanner.rest.dup
+        # Get rid of whitespace between pos and the next token,
+        # but only if there's a newline in there
+        was.gsub!(/^\s*\n\s*/, '')
+        # Also get rid of stuff after the next newline
+        was.gsub!(/\n.*/, '')
+        was = was[0...15] + "..." if was.size > 18
+
         raise Sass::SyntaxError.new(
           "Invalid CSS after #{after.inspect}: expected #{expected}, was #{was.inspect}",
           :line => @line)

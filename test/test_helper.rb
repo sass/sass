@@ -15,9 +15,10 @@ module Sass::Script::Functions
 end
 
 class Test::Unit::TestCase
-  def munge_filename(opts)
-    return if opts[:filename]
+  def munge_filename(opts = {})
+    return opts if opts[:filename]
     opts[:filename] = test_filename(caller[1])
+    opts
   end
 
   def test_filename(entry = caller.first)
