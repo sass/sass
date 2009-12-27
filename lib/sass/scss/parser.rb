@@ -467,7 +467,7 @@ module Sass
         was = was[0...15] + "..." if was.size > 18
 
         raise Sass::SyntaxError.new(
-          "Invalid CSS after #{after.inspect}: expected #{expected}, was #{was.inspect}",
+          "Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"",
           :line => @line)
       end
 
