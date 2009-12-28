@@ -152,10 +152,13 @@ Available options are:
 
 {#full_exception-option} `:full_exception`
 : Whether an error in the Sass code
-  should cause Sass to provide a detailed description.
-  If set to true, the specific error will be displayed
-  along with a line number and source snippet.
-  Otherwise, a simple uninformative error message will be displayed.
+  should cause Sass to provide a detailed description
+  within the generated CSS file.
+  If set to true, the error will be displayed
+  along with a line number and source snippet
+  both as a comment in the CSS file
+  and at the top of the page (in supported browsers).
+  Otherwise, an exception will be raised in the Ruby code.
   Defaults to false in production mode, true otherwise.
   Only has meaning within Rack, Ruby on Rails, or Merb.
 

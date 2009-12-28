@@ -105,6 +105,15 @@ Several bug fixes and minor improvements have been made, including:
 
 ## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
 
+* When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
+  is false, raise the error in Ruby code rather than swallowing it
+  and printing something uninformative.
+
+* Fixed error-reporting when something goes wrong when loading Sass
+  using the `sass` executable.
+  This used to raise a NameError because `Sass::SyntaxError` wasn't defined.
+  Now it'll raise the correct exception instead.
+
 * Fixed a bug where modules containing user-defined Sass functions
   weren't made available when simply included in {Sass::Script::Functions}
   ({Sass::Script::Functions Functions} needed to be re-included in

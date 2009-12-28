@@ -32,7 +32,7 @@ class SassPluginTest < Test::Unit::TestCase
     File.delete(tempfile_loc('basic'))
     assert_needs_update 'basic'
     Sass::Plugin.update_stylesheets
-    assert_doesnt_need_update 'basic'
+    assert_stylesheet_updated 'basic'
   end
 
   def test_update_needed_when_modified
@@ -40,7 +40,7 @@ class SassPluginTest < Test::Unit::TestCase
     FileUtils.touch(template_loc('basic'))
     assert_needs_update 'basic'
     Sass::Plugin.update_stylesheets
-    assert_doesnt_need_update 'basic'
+    assert_stylesheet_updated 'basic'
   end
 
   def test_update_needed_when_dependency_modified
@@ -48,7 +48,7 @@ class SassPluginTest < Test::Unit::TestCase
     FileUtils.touch(template_loc('basic'))
     assert_needs_update 'import'
     Sass::Plugin.update_stylesheets
-    assert_doesnt_need_update 'import'
+    assert_stylesheet_updated 'basic'
   end
 
   def test_full_exception_handling
@@ -68,14 +68,13 @@ CSS
   end
 
   def test_nonfull_exception_handling
+    old_full_exception = Sass::Plugin.options[:full_exception]
     Sass::Plugin.options[:full_exception] = false
 
     File.delete(tempfile_loc('bork1'))
-    Sass::Plugin.update_stylesheets
-    assert_equal("/* Internal stylesheet error */", File.read(tempfile_loc('bork1')))
-    File.delete(tempfile_loc('bork1'))
-
-    Sass::Plugin.options[:full_exception] = true
+    assert_raise(Sass::SyntaxError) {Sass::Plugin.update_stylesheets}
+  ensure
+    Sass::Plugin.options[:full_exception] = old_full_exception
   end
   
   def test_two_template_directories
@@ -124,7 +123,7 @@ CSS
       Merb::Rack::Application.new.call(::Rack::MockRequest.env_for('/'))
     end
 
-    assert_doesnt_need_update 'basic'
+    assert_stylesheet_updated 'basic'
   end
 
   def test_doesnt_render_partials
@@ -166,6 +165,17 @@ CSS
     end
     if expected_lines.size < actual_lines.size
       assert(false, "#{actual_lines.size - expected_lines.size} Trailing lines found in #{tempfile_name}.css: #{actual_lines[expected_lines.size..-1].join('\n')}")
+    end
+  end
+
+  def assert_stylesheet_updated(name)
+    assert !Sass::Plugin.stylesheet_needs_update?(name, template_loc, tempfile_loc)
+
+    # Make sure it isn't an exception
+    expected_lines = File.read(result_loc(name)).split("\n")
+    actual_lines = File.read(tempfile_loc(name)).split("\n")
+    if actual_lines.first == "/*" && expected_lines.first != "/*"
+      assert(false, actual_lines[0..actual_lines.enum_with_index.find {|l, i| l == "*/"}.last].join("\n"))
     end
   end
 
@@ -214,11 +224,6 @@ CSS
 
   def assert_needs_update(template)
     assert Sass::Plugin.stylesheet_needs_update?(
-      tempfile_loc(template), template_loc(template))
-  end
-
-  def assert_doesnt_need_update(template)
-    assert !Sass::Plugin.stylesheet_needs_update?(
       tempfile_loc(template), template_loc(template))
   end
 end

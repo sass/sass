@@ -149,10 +149,13 @@ module Sass
       # Returns an error report for an exception in CSS format.
       #
       # @param e [Exception]
-      # @param full_exception [Boolean] The value of
-      #   \{file:SASS\_REFERENCE.md#full_exception-option `options[:full_exception]`}
+      # @param options [{Symbol => Object}] The options passed to {Sass::Engine#initialize}
+      # @return [String] The error report
+      # @raise [Exception] `e`, if the
+      #   {file:SASS_REFERENCE.md#full_exception-option `:full_exception`} option
+      #   is set to false.
       def exception_to_css(e, options)
-        return "/* Internal stylesheet error */" unless options[:full_exception]
+        raise e unless options[:full_exception]
 
         header = header_string(e, options)
 
