@@ -342,7 +342,7 @@ module Sass
       def declaration
         # The raw('*') allows the "*prop: val" hack
         if raw '*'
-          name = expr!(:property)
+          name = '*' + expr!(:property)
         else
           return unless name = property
         end
