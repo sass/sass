@@ -41,7 +41,7 @@ module Sass
       DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import]
 
       def directive
-        return unless raw('@')
+        return unless tok(/@/)
         name = tok!(IDENT)
         ss
 
@@ -55,9 +55,9 @@ module Sass
         end
         node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
 
-        if raw '{'
+        if tok(/\{/)
           block_contents(node)
-          raw! '}'
+          tok!(/\}/)
         end
 
         node
@@ -82,16 +82,16 @@ module Sass
       end
 
       def for
-        raw! '!'
+        tok!(/!/)
         var = tok! IDENT
         ss
 
-        raw! 'from'
+        tok!(/from/)
         from = sass_script_parser.parse_until Set["to", "through"]
         ss
 
         @expected = '"to" or "through"'
-        exclusive = (raw('to') || raw!('through')) == 'to'
+        exclusive = (tok(/to/) || tok!(/through/)) == 'to'
         to = sass_script_parser.parse
         ss
 
@@ -117,7 +117,7 @@ module Sass
           media = str do
             if tok IDENT
               ss
-              while raw ','
+              while tok(/,/)
                 ss; tok(IDENT); ss
               end
             end
@@ -133,16 +133,16 @@ module Sass
       end
 
       def variable
-        return unless raw '!'
-        name = tok! IDENT
+        return unless tok(/!/)
+        name = tok!(IDENT)
         ss
 
-        if raw '|'
-          raw! '|'
+        if tok(/\|/)
+          tok!(/\|/)
           guarded = true
         end
 
-        raw! '='
+        tok!(/=/)
         ss
         expr = sass_script_parser.parse
 
@@ -154,12 +154,12 @@ module Sass
         # are disallowed by the CSS spec,
         # but they're included here for compatibility
         # with some proprietary MS properties
-        ss if raw('/') || raw(',') || raw(':') || raw('.') || raw('=')
+        ss if tok(/[\/,:.=]/)
         true
       end
 
       def unary_operator
-        raw('-') || raw('+')
+        tok(/[+-]/)
       end
 
       def property
@@ -172,7 +172,7 @@ module Sass
         rules = str do
           return unless selector
 
-          while raw ','
+          while tok(/,/)
             ss; expr!(:selector)
           end
         end
@@ -181,9 +181,9 @@ module Sass
       end
 
       def block(node)
-        raw! '{'
+        tok!(/\{/)
         block_contents(node)
-        raw! '}'
+        tok!(/\}/)
         ss
         node
       end
@@ -192,7 +192,7 @@ module Sass
       def block_contents(node)
         block_given? ? yield : ss
         node << (child = block_child)
-        while raw(';') || (child && !child.children.empty?)
+        while tok(/;/) || (child && !child.children.empty?)
           block_given? ? yield : ss
           node << (child = block_child)
         end
@@ -254,31 +254,31 @@ module Sass
           return expr
         end
 
-        # The raw('*') allows the "E*" hack
+        # The tok(/\*/) allows the "E*" hack
         nil while tok(HASH) || class_expr || attrib ||
-          negation || pseudo || raw('*')
+          negation || pseudo || tok(/\*/)
         true
       end
 
       def class_expr
-        return unless raw '.'
+        return unless tok(/\./)
         tok! IDENT
       end
 
       def element_name
-        res = tok(IDENT) || raw('*')
-        if raw '|'
+        res = tok(IDENT) || tok(/\*/)
+        if tok(/\|/)
           @expected = "element name or *"
-          res = tok(IDENT) || raw!('*')
+          res = tok(IDENT) || tok!(/\*/)
         end
         res
       end
 
       def attrib
-        return unless raw('[')
+        return unless tok(/\[/)
         ss
         attrib_name!; ss
-        if raw('=') ||
+        if tok(/=/) ||
             tok(INCLUDES) ||
             tok(DASHMATCH) ||
             tok(PREFIXMATCH) ||
@@ -288,28 +288,27 @@ module Sass
           @expected = "identifier or string"
           tok(IDENT) || tok!(STRING); ss
         end
-        raw! ']'
+        tok!(/\]/)
       end
 
       def attrib_name!
         if tok(IDENT)
           # E, E|E, or E|
           # The last is allowed so that E|="foo" will work
-          tok(IDENT) if raw('|')
-        elsif raw('*')
+          tok(IDENT) if tok(/\|/)
+        elsif tok(/\*/)
           # *|E
-          raw! '|'
+          tok!(/\|/)
           tok! IDENT
         else
           # |E or E
-          raw '|'
+          tok(/\|/)
           tok! IDENT
         end
       end
 
       def pseudo
-        return unless raw ':'
-        raw ':'
+        return unless tok(/::?/)
 
         @expected = "pseudoclass or pseudoelement"
         functional_pseudo || tok!(IDENT)
@@ -319,14 +318,14 @@ module Sass
         return unless tok FUNCTION
         ss
         expr! :pseudo_expr
-        raw! ')'
+        tok!(/\)/)
       end
 
       def pseudo_expr
-        return unless tok(PLUS) || raw('-') || tok(NUMBER) ||
+        return unless tok(PLUS) || tok(/-/) || tok(NUMBER) ||
           tok(STRING) || tok(IDENT)
         ss
-        ss while tok(PLUS) || raw('-') || tok(NUMBER) ||
+        ss while tok(PLUS) || tok(/-/) || tok(NUMBER) ||
           tok(STRING) || tok(IDENT)
         true
       end
@@ -336,23 +335,23 @@ module Sass
         ss
         @expected = "selector"
         element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo)
-        raw! ')'
+        tok!(/\)/)
       end
 
       def declaration
-        # The raw('*') allows the "*prop: val" hack
-        if raw '*'
+        # The tok(/\*/) allows the "*prop: val" hack
+        if tok(/\*/)
           name = '*' + expr!(:property)
         else
           return unless name = property
         end
 
         value =
-          if raw '='
+          if tok(/=/)
             sass_script_parser.parse
           else
             @expected = '":" or "="'
-            raw! ':'; ss
+            tok!(/:/); ss
 
             str do
               expr! :expr
@@ -393,7 +392,7 @@ module Sass
         return unless tok FUNCTION
         ss
         expr
-        raw! ')'; ss
+        tok!(/\)/); ss
       end
 
       #  There is a constraint on the color that it must
@@ -446,11 +445,6 @@ module Sass
         expected(TOK_NAMES[rx])
       end
 
-      def raw!(chr)
-        return true if raw(chr)
-        expected(chr.inspect)
-      end
-
       def expected(name)
         pos = @scanner.pos
 
@@ -485,13 +479,6 @@ module Sass
           @str << res if @str && rx != COMMENT
         end
 
-        res
-      end
-
-      def raw(chr)
-        res = @scanner.scan(RX.quote(chr))
-        @expected = nil if res
-        @str << res if res && @str
         res
       end
     end
