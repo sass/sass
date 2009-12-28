@@ -447,6 +447,15 @@ SCSS
     assert_not_parses("identifier", '@<err>12 "foo";')
   end
 
+  def test_invalid_classes
+    assert_not_parses("identifier", 'p.<err> foo {a: b}')
+    assert_not_parses("identifier", 'p.<err>1foo {a: b}')
+  end
+
+  def test_invalid_ids
+    assert_not_parses('"{"', 'p<err># foo {a: b}')
+  end
+
   private
 
   def assert_valid_string(ident)
