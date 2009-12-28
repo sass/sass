@@ -196,6 +196,14 @@ foo {
 SCSS
   end
 
+  def test_zero_arg_functions
+    assert_parses <<SCSS
+foo {
+  a: foo();
+  b: bar baz-bang() bip; }
+SCSS
+  end
+
   ## Directives
 
   def test_charset_directive
