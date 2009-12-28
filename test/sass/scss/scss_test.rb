@@ -4,6 +4,8 @@ require File.dirname(__FILE__) + '/test_helper'
 class ScssTest < Test::Unit::TestCase
   include ScssTestHelper
 
+  ## Nested Rules
+
   def test_nested_rules
     assert_equal <<CSS, render(<<SCSS)
 foo bar {
@@ -30,6 +32,85 @@ CSS
 foo {
   bar {baz {a: b}}
   bang {bip {a: b}}}
+SCSS
+  end
+
+  def test_nested_rules_with_declarations
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b; }
+  foo bar {
+    c: d; }
+CSS
+foo {
+  a: b;
+  bar {c: d}}
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b; }
+  foo bar {
+    c: d; }
+CSS
+foo {
+  bar {c: d}
+  a: b}
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  ump: nump;
+  grump: clump; }
+  foo bar {
+    blat: bang;
+    habit: rabbit; }
+    foo bar baz {
+      a: b; }
+    foo bar bip {
+      c: d; }
+  foo bibble bap {
+    e: f; }
+CSS
+foo {
+  ump: nump;
+  grump: clump;
+  bar {
+    blat: bang;
+    habit: rabbit;
+    baz {a: b}
+    bip {c: d}}
+  bibble {
+    bap {e: f}}}
+SCSS
+  end
+
+  def test_nested_rules_with_fancy_selectors
+    assert_equal <<CSS, render(<<SCSS)
+foo .bar {
+  a: b; }
+foo :baz {
+  c: d; }
+foo bang:bop {
+  e: f; }
+CSS
+foo {
+  .bar {a: b}
+  :baz {c: d}
+  bang:bop {e: f}}
+SCSS
+  end
+
+  def test_almost_ambiguous_nested_rules_and_declarations
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: baz:bang:bop:biddle:woo:look:at:all:these:pseudoclasses;
+  bar: baz bang bop biddle woo look at all these elems; }
+  foo bar:baz bang bop biddle woo look at all these elems {
+    a: b; }
+CSS
+foo {
+  bar:baz:bang:bop:biddle:woo:look:at:all:these:pseudoclasses;
+  bar:baz bang bop biddle woo look at all these elems {a: b};
+  bar:baz bang bop biddle woo look at all these elems; }
 SCSS
   end
 end
