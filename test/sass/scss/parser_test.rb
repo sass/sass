@@ -167,6 +167,14 @@ foo {
 SCSS
   end
 
+  def test_initial_hyphen
+    assert_parses <<SCSS
+foo {
+  a: -moz-bar-baz;
+  b: foo -o-bar-baz; }
+SCSS
+  end
+
   def test_ms_filter_syntax
     assert_equal <<CSS, render(<<SCSS)
 foo {
