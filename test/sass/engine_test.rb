@@ -251,19 +251,19 @@ SASS
     assert(false, "Exception not raised")
   rescue Sass::SyntaxError => err
     assert_equal(2, err.sass_line)
-    assert_equal(test_filename, err.sass_filename)
+    assert_equal(filename_for_test, err.sass_filename)
     assert_equal("error-mixin", err.sass_mixin)
 
     assert_hash_has(err.sass_backtrace.first, :line => err.sass_line,
       :filename => err.sass_filename, :mixin => err.sass_mixin)
     assert_hash_has(err.sass_backtrace[1], :line => 5,
-      :filename => test_filename, :mixin => "outer-mixin")
+      :filename => filename_for_test, :mixin => "outer-mixin")
     assert_hash_has(err.sass_backtrace[2], :line => 8,
-      :filename => test_filename, :mixin => nil)
+      :filename => filename_for_test, :mixin => nil)
 
-    assert_equal("#{test_filename}:2:in `error-mixin'", err.backtrace.first)
-    assert_equal("#{test_filename}:5:in `outer-mixin'", err.backtrace[1])
-    assert_equal("#{test_filename}:8", err.backtrace[2])
+    assert_equal("#{filename_for_test}:2:in `error-mixin'", err.backtrace.first)
+    assert_equal("#{filename_for_test}:5:in `outer-mixin'", err.backtrace[1])
+    assert_equal("#{filename_for_test}:8", err.backtrace[2])
   end
 
   def test_mixin_callsite_exception
@@ -280,11 +280,11 @@ SASS
     assert(false, "Exception not raised")
   rescue Sass::SyntaxError => err
     assert_hash_has(err.sass_backtrace.first, :line => 5,
-      :filename => test_filename, :mixin => "one-arg-mixin")
+      :filename => filename_for_test, :mixin => "one-arg-mixin")
     assert_hash_has(err.sass_backtrace[1], :line => 5,
-      :filename => test_filename, :mixin => "outer-mixin")
+      :filename => filename_for_test, :mixin => "outer-mixin")
     assert_hash_has(err.sass_backtrace[2], :line => 8,
-      :filename => test_filename, :mixin => nil)
+      :filename => filename_for_test, :mixin => nil)
   end
 
   def test_mixin_exception_cssize
@@ -301,11 +301,11 @@ SASS
     assert(false, "Exception not raised")
   rescue Sass::SyntaxError => err
     assert_hash_has(err.sass_backtrace.first, :line => 2,
-      :filename => test_filename, :mixin => "parent-ref-mixin")
+      :filename => filename_for_test, :mixin => "parent-ref-mixin")
     assert_hash_has(err.sass_backtrace[1], :line => 6,
-      :filename => test_filename, :mixin => "outer-mixin")
+      :filename => filename_for_test, :mixin => "outer-mixin")
     assert_hash_has(err.sass_backtrace[2], :line => 8,
-      :filename => test_filename, :mixin => nil)
+      :filename => filename_for_test, :mixin => nil)
   end
 
   def test_mixin_and_import_exception

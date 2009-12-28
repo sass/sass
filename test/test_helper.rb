@@ -17,10 +17,10 @@ end
 class Test::Unit::TestCase
   def munge_filename(opts)
     return if opts[:filename]
-    opts[:filename] = test_filename(caller[1])
+    opts[:filename] = filename_for_test(caller[1])
   end
 
-  def test_filename(entry = caller.first)
+  def filename_for_test(entry = caller.first)
     test_name = Haml::Util.caller_info(entry)[2]
     test_name.sub!(/^(block|rescue) in /, '')
     "#{test_name}_inline.sass"
