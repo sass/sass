@@ -169,7 +169,8 @@ CSS
   end
 
   def assert_stylesheet_updated(name)
-    assert !Sass::Plugin.stylesheet_needs_update?(name, template_loc, tempfile_loc)
+    assert !Sass::Plugin.stylesheet_needs_update?(
+      tempfile_loc(name), template_loc(name))
 
     # Make sure it isn't an exception
     expected_lines = File.read(result_loc(name)).split("\n")
