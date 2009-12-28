@@ -6,6 +6,8 @@ require 'set'
 
 module Sass
   module SCSS
+    # @todo Add a CSS-only parser that doesn't parse the SassScript extensions,
+    #   so css2sass will work properly.
     class Parser
       def initialize(str)
         @scanner = StringScanner.new(str)
