@@ -187,6 +187,15 @@ foo {
 SCSS
   end
 
+  def test_declaration_hacks
+    assert_parses <<SCSS
+foo {
+  _name: val;
+  *name: val;
+  name: val; }
+SCSS
+  end
+
   ## Directives
 
   def test_charset_directive
@@ -476,6 +485,17 @@ SCSS
     assert_selector_parses(':foo(-)')
     assert_selector_parses(':foo(+"bar")')
     assert_selector_parses(':foo(-++--baz-"bar"12px)')
+  end
+
+  def test_selector_hacks
+    assert_selector_parses('> E')
+    assert_selector_parses('+ E')
+    assert_selector_parses('~ E')
+    assert_selector_parses('>> E')
+
+    assert_selector_parses('E*')
+    assert_selector_parses('E*.foo')
+    assert_selector_parses('E*:hover')
   end
 
   ## Errors
