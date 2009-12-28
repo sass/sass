@@ -167,6 +167,18 @@ foo {
 SCSS
   end
 
+  def test_ms_filter_syntax
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#c0ff3300, endColorstr=#ff000000);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#c0ff3300, endColorstr=#ff000000); }
+CSS
+foo {
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#c0ff3300, endColorstr=#ff000000);
+  filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#c0ff3300, endColorstr=#ff000000); }
+SCSS
+  end
+
   ## Directives
 
   def test_charset_directive
@@ -438,6 +450,24 @@ SCSS
     assert_selector_parses("E,\nF")
     assert_selector_parses("E\nF")
     assert_selector_parses("E, F\nG, H")
+  end
+
+  def test_expression_fallback_selectors
+    assert_selector_parses('0%')
+    assert_selector_parses('60%')
+    assert_selector_parses('100%')
+    assert_selector_parses('12px')
+    assert_selector_parses('"foo"')
+  end
+
+  def test_functional_pseudo_selectors
+    assert_selector_parses(':foo("bar")')
+    assert_selector_parses(':foo(bar)')
+    assert_selector_parses(':foo(12px)')
+    assert_selector_parses(':foo(+)')
+    assert_selector_parses(':foo(-)')
+    assert_selector_parses(':foo(+"bar")')
+    assert_selector_parses(':foo(-++--baz-"bar"12px)')
   end
 
   ## Errors
