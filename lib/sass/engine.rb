@@ -310,13 +310,13 @@ END
       return unless node.is_a?(Tree::RuleNode) && node.children.empty?
       warning = (node.rule.include?("\n")) ? <<LONG : <<SHORT
 
-WARNING on line #{node.line}:
+WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 Selector
   #{node.rule.gsub("\n", "\n  ")}
 doesn't have any properties and will not be rendered.
 LONG
 
-WARNING on line #{node.line}:
+WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 Selector #{node.rule.inspect} doesn't have any properties and will not be rendered.
 SHORT
 
