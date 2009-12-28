@@ -3,7 +3,7 @@ require 'sass/engine'
 
 module ScssTestHelper
   def assert_parses(scss)
-    assert_equal scss.rstrip, render(scss, munge_filename).rstrip
+    assert_equal scss.rstrip, render(scss).rstrip
   end
 
   def assert_not_parses(expected, scss)
@@ -21,7 +21,7 @@ module ScssTestHelper
     was = was[0...15] + "..." if was.size > 18
 
     to_render = scss.sub("<err>", "")
-    render(to_render, munge_filename)
+    render(to_render)
     assert(false, "Expected syntax error for:\n#{to_render}\n")
   rescue Sass::SyntaxError => err
     assert_equal("Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"",
