@@ -442,7 +442,15 @@ module Sass
 
       def tok!(rx)
         (t = tok(rx)) && (return t)
-        expected(TOK_NAMES[rx])
+        name = TOK_NAMES[rx]
+
+        unless name
+          # Display basic regexps as plain old strings
+          string = rx.source.gsub(/\\(.)/, '\1')
+          name = rx.source == Regexp.escape(string) ? string.inspect : rx.inspect
+        end
+
+        expected(name)
       end
 
       def expected(name)
