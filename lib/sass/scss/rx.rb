@@ -55,7 +55,7 @@ module Sass
       PLUS = /#{W}\+/
       GREATER = /#{W}>/
       TILDE = /#{W}~/
-      NOT = quote(":not(")
+      NOT = quote(":not(", Regexp::IGNORECASE)
 
       # Custom
       PATH = /[^;]+/
