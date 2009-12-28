@@ -428,6 +428,18 @@ SCSS
     assert_selector_parses('[foo|bar|=baz]')
   end
 
+  def test_comma_selectors
+    assert_selector_parses('E, F')
+    assert_selector_parses('E F, G H')
+    assert_selector_parses('E > F, G > H')
+  end
+
+  def test_selectors_with_newlines
+    assert_selector_parses("E,\nF")
+    assert_selector_parses("E\nF")
+    assert_selector_parses("E, F\nG, H")
+  end
+
   private
 
   def assert_valid_string(ident)
