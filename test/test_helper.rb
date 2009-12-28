@@ -16,7 +16,7 @@ end
 
 class Test::Unit::TestCase
   def munge_filename(opts)
-    return if opts[:filename]
+    return if opts.has_key?(:filename)
     opts[:filename] = filename_for_test
   end
 

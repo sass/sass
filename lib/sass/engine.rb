@@ -313,11 +313,11 @@ END
     def check_for_no_children(node)
       return unless node.is_a?(Tree::RuleNode) && node.children.empty?
       warning = (node.rules.size == 1) ? <<SHORT : <<LONG
-WARNING on line #{node.line}:
+WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 Selector #{node.rules.first.inspect} doesn't have any properties and will not be rendered.
 SHORT
 
-WARNING on line #{node.line}:
+WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 Selector
   #{node.rules.join("\n  ")}
 doesn't have any properties and will not be rendered.
