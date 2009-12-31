@@ -168,4 +168,17 @@ baz {
   bop {a: b}}
 SCSS
   end
+
+  def test_parent_selectors
+    assert_equal <<CSS, render(<<SCSS)
+foo:hover {
+  a: b; }
+bar foo.baz {
+  c: d; }
+CSS
+foo {
+  &:hover {a: b}
+  bar &.baz {c: d}}
+SCSS
+  end
 end
