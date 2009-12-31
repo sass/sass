@@ -113,4 +113,59 @@ foo {
   bar:baz bang bop biddle woo look at all these elems; }
 SCSS
   end
+
+  def test_newlines_in_selectors
+    assert_equal <<CSS, render(<<SCSS)
+foo
+bar {
+  a: b; }
+CSS
+foo
+bar {a: b}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+foo baz,
+foo bang,
+bar baz,
+bar bang {
+  a: b; }
+CSS
+foo,
+bar {
+  baz,
+  bang {a: b}}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+foo
+bar baz
+bang {
+  a: b; }
+foo
+bar bip bop {
+  c: d; }
+CSS
+foo
+bar {
+  baz
+  bang {a: b}
+
+  bip bop {c: d}}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+foo bang, foo bip
+bop, bar
+baz bang, bar
+baz bip
+bop {
+  a: b; }
+CSS
+foo, bar
+baz {
+  bang, bip
+  bop {a: b}}
+SCSS
+  end
 end
