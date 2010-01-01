@@ -4,6 +4,42 @@ require File.dirname(__FILE__) + '/test_helper'
 class ScssTest < Test::Unit::TestCase
   include ScssTestHelper
 
+  ## Script
+
+  def test_variables
+    assert_equal <<CSS, render(<<SCSS)
+blat {
+  a: foo; }
+CSS
+!var = "foo";
+
+blat {a = !var}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 2; }
+CSS
+foo {
+  !var = 2;
+  a = !var; }
+SCSS
+  end
+
+  def test_sass_script
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 3;
+  b: foobar;
+  c: 12px; }
+CSS
+foo {
+  a = 1 + 2;
+  b = "foo" + "bar";
+  c = floor(12.3px); }
+SCSS
+  end
+
   ## Nested Rules
 
   def test_nested_rules
