@@ -181,4 +181,94 @@ foo {
   bar &.baz {c: d}}
 SCSS
   end
+
+  def test_basic_mixins
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+@mixin foo {
+  .foo {a: b}}
+
+@include foo;
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+bar {
+  c: d; }
+  bar .foo {
+    a: b; }
+CSS
+@mixin foo {
+  .foo {a: b}}
+
+bar {
+  @include foo;
+  c: d; }
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+bar {
+  a: b;
+  c: d; }
+CSS
+@mixin foo {a: b}
+
+bar {
+  @include foo;
+  c: d; }
+SCSS
+  end
+
+  def test_mixins_with_empty_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+@mixin foo() {a: b}
+
+.foo {@include foo();}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+@mixin foo() {a: b}
+
+.foo {@include foo;}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+@mixin foo {a: b}
+
+.foo {@include foo();}
+SCSS
+  end
+
+  def test_mixins_with_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: bar; }
+CSS
+@mixin foo(!a) {a = !a}
+
+.foo {@include foo("bar")}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: bar;
+  b: 12px; }
+CSS
+@mixin foo(!a, !b) {
+  a = !a;
+  b = !b; }
+
+.foo {@include foo("bar", 12px)}
+SCSS
+  end
 end
