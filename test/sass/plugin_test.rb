@@ -5,7 +5,7 @@ require 'fileutils'
 
 class SassPluginTest < Test::Unit::TestCase
   @@templates = %w{
-    complex script parent_ref import alt
+    complex script parent_ref import scss_import alt
     subdir/subdir subdir/nested_subdir/nested_subdir
   }
 
@@ -49,6 +49,25 @@ class SassPluginTest < Test::Unit::TestCase
     assert_needs_update 'import'
     Sass::Plugin.update_stylesheets
     assert_stylesheet_updated 'basic'
+    assert_stylesheet_updated 'import'
+  end
+
+  def test_update_needed_when_scss_dependency_modified
+    sleep 1
+    FileUtils.touch(template_loc('scss_importee'))
+    assert_needs_update 'import'
+    Sass::Plugin.update_stylesheets
+    assert_stylesheet_updated 'scss_importee'
+    assert_stylesheet_updated 'import'
+  end
+
+  def test_scss_update_needed_when_dependency_modified
+    sleep 1
+    FileUtils.touch(template_loc('basic'))
+    assert_needs_update 'scss_import'
+    Sass::Plugin.update_stylesheets
+    assert_stylesheet_updated 'basic'
+    assert_stylesheet_updated 'scss_import'
   end
 
   def test_full_exception_handling
@@ -182,7 +201,8 @@ CSS
 
   def template_loc(name = nil, prefix = nil)
     if name
-      absolutize "#{prefix}templates/#{name}.sass"
+      scss = absolutize "#{prefix}templates/#{name}.scss"
+      File.exists?(scss) ? scss : absolutize("#{prefix}templates/#{name}.sass")
     else
       absolutize "#{prefix}templates"
     end
