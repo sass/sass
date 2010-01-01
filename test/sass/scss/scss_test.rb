@@ -26,6 +26,27 @@ foo {
 SCSS
   end
 
+  def test_guard_assign
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 1; }
+CSS
+!var = 1;
+!var ||= 2;
+
+foo {a = !var}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 2; }
+CSS
+!var ||= 2;
+
+foo {a = !var}
+SCSS
+  end
+
   def test_sass_script
     assert_equal <<CSS, render(<<SCSS)
 foo {
