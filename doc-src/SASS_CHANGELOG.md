@@ -105,10 +105,6 @@ Several bug fixes and minor improvements have been made, including:
 
 ## 2.2.17 (Unreleased)
 
-* Report the filename in warnings about selectors without properties.
-
-## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
-
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
   is false, raise the error in Ruby code rather than swallowing it
   and printing something uninformative.
@@ -117,6 +113,10 @@ Several bug fixes and minor improvements have been made, including:
   using the `sass` executable.
   This used to raise a NameError because `Sass::SyntaxError` wasn't defined.
   Now it'll raise the correct exception instead.
+
+* Report the filename in warnings about selectors without properties.
+
+## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fixed a bug where modules containing user-defined Sass functions
   weren't made available when simply included in {Sass::Script::Functions}
