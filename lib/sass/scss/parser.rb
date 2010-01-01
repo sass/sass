@@ -3,14 +3,22 @@ require 'set'
 
 module Sass
   module SCSS
+    # The parser for SCSS.
+    # It parses a string of code into a tree of {Sass::Tree::Node}s.
+    #
     # @todo Add a CSS-only parser that doesn't parse the SassScript extensions,
     #   so css2sass will work properly.
     class Parser
+      # @param str [String] The source document to parse
       def initialize(str)
         @scanner = StringScanner.new(str)
         @line = 1
       end
 
+      # Parses an SCSS document.
+      #
+      # @return [Sass::Tree::RootNode] The root node of the document tree
+      # @raise [Sass::SyntaxError] if there's a syntax error in the document
       def parse
         root = stylesheet
         expected("selector or at-rule") unless @scanner.eos?
