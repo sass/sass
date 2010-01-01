@@ -83,6 +83,43 @@ CSS
 SCSS
   end
 
+  def test_if_directive
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b; }
+CSS
+@if "foo" == "foo" {foo {a: b}}
+@if "foo" != "foo" {bar {a: b}}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b; }
+CSS
+@if "foo" == "foo" {foo {a: b}}
+@if "foo" != "foo" {bar {a: b}}
+SCSS
+  end
+
+  def test_while_directive
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  a: 2;
+  a: 3;
+  a: 4; }
+CSS
+!i = 1;
+
+.foo {
+  @while !i != 5 {
+    a = !i;
+    !i = !i + 1;
+  }
+}
+SCSS
+  end
+
   ## Nested Rules
 
   def test_nested_rules
