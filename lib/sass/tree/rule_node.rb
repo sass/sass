@@ -8,30 +8,20 @@ module Sass::Tree
     # The character used to include the parent selector
     PARENT = '&'
 
-    # The CSS selectors for this rule.
-    # Each string is a selector line, and the lines are meant to be separated by commas.
-    # For example,
+    # The (completely unparsed) CSS selector for this rule.
     #
-    #     foo, bar, baz,
-    #     bip, bop, bup
-    #
-    # would be
-    #
-    #     ["foo, bar, baz",
-    #      "bip, bop, bup"]
-    #
-    # @return [Array<String>]
+    # @return [String]
     attr_accessor :rule
 
     # The CSS selectors for this rule,
     # parsed for commas and parent-references.
     # It's only set once {Tree::Node#perform} has been called.
     #
-    # It's an array of arrays of arrays.
-    # The first level of arrays represents distinct lines in the Sass file;
-    # the second level represents comma-separated selectors;
-    # the third represents structure within those selectors,
+    # It's an array of arrays.
+    # The first level of arrays comma-separated selectors;
+    # the second represents structure within those selectors,
     # currently only parent-refs (represented by `:parent`).
+    # Newlines are represented as literal `\n` characters in the strings.
     # For example,
     #
     #     &.foo, bar, baz,
@@ -39,18 +29,18 @@ module Sass::Tree
     #
     # would be
     #
-    #     [[[:parent, ".foo"], ["bar"], ["baz"]],
-    #      [["bip"], [:parent, ".bop"], ["bup"]]]
+    #     [[:parent, ".foo"], ["bar"], ["baz"],
+    #      ["\nbip"], [:parent, ".bop"], ["bup"]]
     #
-    # @return [Array<Array<Array<String|Symbol>>>]
+    # @return [Array<Array<String|Symbol>>]
     attr_accessor :parsed_rules
 
     # The CSS selectors for this rule,
     # with all nesting and parent references resolved.
     # It's only set once {Tree::Node#cssize} has been called.
     #
-    # The first level of arrays represents distinct lines in the Sass file;
-    # the second level represents comma-separated selectors.
+    # Each element is a distinct selector, separated by commas.
+    # Newlines are represented as literal `\n` characters in the strings.
     # For example,
     #
     #     foo bar, baz,
@@ -58,10 +48,9 @@ module Sass::Tree
     #
     # would be
     #
-    #     [["foo bar", "baz"],
-    #      ["bang", "bip bop", "blip"]]
+    #     ["foo bar", "baz", "\nbang", "bip bop", "blip"]
     #
-    # @return [Array<Array<String>>]
+    # @return [Array<String>]
     attr_accessor :resolved_rules
 
     # How deep this rule is indented

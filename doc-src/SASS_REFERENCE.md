@@ -210,6 +210,13 @@ Available options are:
 : An option that's available for individual applications to set
   to make data available to {Sass::Script::Functions custom Sass functions}.
 
+{#syntax-option} `:syntax`
+: The syntax of the input file, `:sass` for the indented syntax
+  and `:scss` for the CSS syntax.
+  This is only useful when you're constructing {Sass::Engine} instances yourself;
+  it's automatically set properly when using {Sass::Plugin}.
+  Defaults to `:sass`.
+
 ## CSS Rules
 
 Rules in flat CSS have two elements:

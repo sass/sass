@@ -43,7 +43,7 @@ module Sass
       end
 
       # Parses a SassScript expression,
-      # ending it when it encounters one of the givne identifier tokens.
+      # ending it when it encounters one of the given identifier tokens.
       #
       # @param [#include?(String)] A set of strings that delimit the expression.
       # @return [Script::Node] The root node of the parse tree

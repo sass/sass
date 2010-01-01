@@ -3,7 +3,7 @@ require 'sass'
 require 'fileutils'
 
 module Sass
-  # This module handles the compilation of Sass files.
+  # This module handles the compilation of Sass/SCSS files.
   # It provides global options and checks whether CSS files
   # need to be updated.
   #
@@ -67,7 +67,7 @@ module Sass
 
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
+    # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
     # in {file:SASS_REFERENCE.md#css_location-option} `:css_location`}.
     # If it has, it updates the CSS file.

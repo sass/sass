@@ -5,7 +5,7 @@ require 'haml/version'
 
 # The module that contains everything Sass-related:
 #
-# * {Sass::Engine} is the class used to render Sass within Ruby code.
+# * {Sass::Engine} is the class used to render Sass/SCSS within Ruby code.
 # * {Sass::Plugin} is interfaces with web frameworks (Rails and Merb in particular).
 # * {Sass::SyntaxError} is raised when Sass encounters an error.
 # * {Sass::CSS} handles conversion of CSS to Sass.
