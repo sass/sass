@@ -1,6 +1,3 @@
-require 'sass/scss/rx'
-require 'sass/scss/script_parser'
-
 require 'strscan'
 require 'set'
 
