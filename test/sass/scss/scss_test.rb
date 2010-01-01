@@ -40,6 +40,22 @@ foo {
 SCSS
   end
 
+  def test_debug_directive
+    assert_warning "test_debug_directive_inline.scss:2 DEBUG: hello world!" do
+      assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b; }
+
+bar {
+  c: d; }
+CSS
+foo {a: b}
+@debug "hello world!";
+bar {c: d}
+SCSS
+    end
+  end
+
   ## Nested Rules
 
   def test_nested_rules
@@ -217,6 +233,8 @@ foo {
   bar &.baz {c: d}}
 SCSS
   end
+
+  ## Mixins
 
   def test_basic_mixins
     assert_equal <<CSS, render(<<SCSS)

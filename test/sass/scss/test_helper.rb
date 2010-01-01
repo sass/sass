@@ -30,8 +30,8 @@ module ScssTestHelper
   end
 
   def render(scss, options = {})
-    munge_filename options
     options[:syntax] ||= :scss
+    munge_filename options
     Sass::Engine.new(scss, options).render
   end
 end
