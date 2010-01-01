@@ -56,6 +56,33 @@ SCSS
     end
   end
 
+  def test_for_directive
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  a: 2;
+  a: 3;
+  a: 4; }
+CSS
+.foo {
+  @for !var from 1 to 5 {a = !var;}
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  a: 2;
+  a: 3;
+  a: 4;
+  a: 5; }
+CSS
+.foo {
+  @for !var from 1 through 5 {a = !var;}
+}
+SCSS
+  end
+
   ## Nested Rules
 
   def test_nested_rules
