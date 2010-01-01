@@ -71,7 +71,7 @@ module Sass::Tree
     # @return [Boolean]
     attr_accessor :group_end
 
-    # @param rule [String] The first CSS rule. See \{#rules}
+    # @param rule [String] The first CSS rule. See \{#rule}
     def initialize(rule)
       @rule = rule
       @tabs = 0

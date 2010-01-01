@@ -18,7 +18,7 @@ module Sass
       def invisible?; to_s.empty?; end
 
       # Returns the resolved name of the imported file,
-      # as returned by \{Sass::Files.find\_file\_to\_import}.
+      # as returned by \{Sass::Files#find\_file\_to\_import}.
       #
       # @return [String] The filename of the imported file.
       #   This is an absolute path if the file is a `".sass"` or `".scss"` file.
