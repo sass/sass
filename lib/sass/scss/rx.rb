@@ -1,6 +1,17 @@
 module Sass
   module SCSS
+    # A module containing regular expressions used
+    # for lexing tokens in an SCSS document.
+    # Most of these are taken from [the CSS3 spec](http://www.w3.org/TR/css3-syntax/#lexical),
+    # although some have been modified for various reasons.
     module RX
+      # Creates a Regexp from a plain text string,
+      # escaping all significant characters.
+      #
+      # @param str [String] The text of the regexp
+      # @param flags [Fixnum] Flags for the created regular expression
+      # @return [Regexp]
+      # @private
       def self.quote(str, flags = 0)
         Regexp.new(Regexp.quote(str), flags)
       end
