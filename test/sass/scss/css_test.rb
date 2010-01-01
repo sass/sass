@@ -525,6 +525,17 @@ SCSS
     assert_not_parses('"{"', 'p<err># foo {a: b}')
   end
 
+  def test_no_properties_at_toplevel
+    render <<SCSS
+foo {a: b}
+a: b;
+SCSS
+    assert(false, "Expected error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Properties aren't allowed at the root of a document.", e.message
+    assert_equal 2, e.sass_line
+  end
+
   private
 
   def assert_valid_string(ident)

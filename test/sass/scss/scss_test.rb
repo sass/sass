@@ -271,4 +271,28 @@ CSS
 .foo {@include foo("bar", 12px)}
 SCSS
   end
+
+  ## Errors
+
+  def test_mixin_defs_only_at_toplevel
+    render <<SCSS
+foo {
+  @mixin bar {a: b}}
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Mixins may only be defined at the root of a document.", e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_imports_only_at_toplevel
+    render <<SCSS
+foo {
+  @import foo.scss;}
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Import directives may only be used at the root of a document.", e.message
+    assert_equal 2, e.sass_line
+  end
 end
