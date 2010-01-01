@@ -11,7 +11,7 @@ module Sass
     # Returns the {Sass::Tree} for the given file,
     # reading it from the Sass cache if possible.
     #
-    # @param filename [String] The path to the Sass file
+    # @param filename [String] The path to the Sass or SCSS file
     # @param options [{Symbol => Object}] The options hash.
     #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
     # @raise [Sass::SyntaxError] if there's an error in the document.
@@ -44,26 +44,26 @@ module Sass
       root
     end
 
-    # Find the full filename of a Sass or CSS file to import.
+    # Find the full filename of a Sass, SCSS, or CSS file to import.
     # This follows Sass's import rules:
-    # if the filename given ends in `".sass"` or `".css"`,
+    # if the filename given ends in `".sass"`, `".scss"`, or `".css"`,
     # it will try to find that type of file;
-    # otherwise, it will try to find the corresponding Sass file
+    # otherwise, it will try to find the corresponding Sass/SCSS file
     # and fall back on CSS if it's not available.
     #
-    # Any Sass filename returned will correspond to
-    # an actual Sass file on the filesystem.
+    # Any Sass/SCSS filename returned will correspond to
+    # an actual file of the corresponding type on the filesystem.
     # CSS filenames, however, may not;
     # they're expected to be put through directly to the stylesheet
     # as CSS `@import` statements.
     #
     # @param filename [String] The filename to search for
     # @param load_paths [Array<String>] The set of filesystem paths
-    #   to search for Sass files.
+    #   to search for Sass/SCSS files.
     # @return [String] The filename of the imported file.
     #   This is an absolute path if the file is a `".sass"` or `".scss"` file.
     # @raise [Sass::SyntaxError] if `filename` ends in `".sass"` or `".scss"`
-    #   and no corresponding Sass file could be found.
+    #   and no corresponding Sass/SCSS file could be found.
     def find_file_to_import(filename, load_paths)
       was_sass = was_scss = false
       original_filename = filename
