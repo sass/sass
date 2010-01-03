@@ -116,25 +116,25 @@ module Sass
       end
 
       def import
-        if path = tok(STRING) || tok(URI)
-          ss
+        @expected = "string or url()"
+        arg = tok(STRING) || tok!(URI)
+        path = @scanner[1]
+        ss
 
-          media = str do
-            if tok IDENT
-              ss
-              while tok(/,/)
-                ss; tok(IDENT); ss
-              end
+        media = str do
+          if tok IDENT
+            ss
+            while tok(/,/)
+              ss; tok(IDENT); ss
             end
           end
+        end
 
+        unless media.strip.empty?
           return node(Sass::Tree::DirectiveNode.new("@import #{path} #{media}".strip))
         end
 
-        # TODO: Do we want a better way of specifying imports?
-        # We could use the CSS syntax,
-        # but then how do users actually compile to the CSS syntax?
-        node(Sass::Tree::ImportNode.new(tok(PATH).strip))
+        node(Sass::Tree::ImportNode.new(path.strip))
       end
 
       def variable

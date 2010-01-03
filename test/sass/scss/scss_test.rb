@@ -427,7 +427,7 @@ SCSS
   def test_imports_only_at_toplevel
     render <<SCSS
 foo {
-  @import foo.scss;}
+  @import "foo.scss";}
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e

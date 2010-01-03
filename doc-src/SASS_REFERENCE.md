@@ -522,7 +522,7 @@ For example:
     @import red.sass
 
 {.scss-ex}
-    @import red.sass;
+    @import "red.sass";
 
 Some directives can also control whether or how many times
 a chunk of Sass is output.
@@ -552,7 +552,7 @@ For example,
     @import foo.sass
 
 {.scss-ex}
-    @import foo.sass;
+    @import "foo.sass";
 
 or
 
@@ -560,7 +560,7 @@ or
     @import foo
 
 {.scss-ex}
-    @import foo;
+    @import "foo";
 
 would compile to
 
@@ -573,7 +573,7 @@ whereas
     @import foo.css
 
 {.scss-ex}
-    @import foo.css;
+    @import "foo.css";
 
 would compile to
 

@@ -2,7 +2,7 @@
 
 @mixin premixin {pre-mixin: here}
 
-@import importee.sass;
+@import "importee.sass";
 
 nonimported {
   myconst = !preconst;
