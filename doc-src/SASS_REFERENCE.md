@@ -465,8 +465,8 @@ For example,
 
 would compile to
 
-    .foo
-      color: #f00
+    .foo {
+      color: #f00; }
 
 whereas
 
@@ -474,7 +474,7 @@ whereas
 
 would compile to
 
-    @import foo.css
+    @import foo.css;
 
 Finally,
 
