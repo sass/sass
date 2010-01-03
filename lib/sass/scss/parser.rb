@@ -227,6 +227,8 @@ module Sass
       # TODO: We should handle these special cases if only so that
       # errors get reported for the proper interpretation most of the time,
       # rather than just for rulesets.
+      #
+      # TODO: We also need to handle property namespaces.
       def declaration_or_ruleset
         pos = @scanner.pos
         line = @line
