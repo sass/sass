@@ -470,7 +470,7 @@ whereas
 
 would compile to
 
-    @import foo.css;
+    @import "foo.css";
 
 #### Partials {#partials}
 
