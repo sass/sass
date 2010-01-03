@@ -233,19 +233,34 @@ but instead of using brackets to delineate the properties that belong to a parti
 Sass uses indentation.
 For example:
 
+{.sass-ex}
     #main p
       <property>
       <property>
       ...
+
+{.scss-ex}
+    #main p {
+      <property>
+      <property>
+      <property>
+    }
 
 Like CSS, you can stretch selectors over multiple lines.
 However, unlike CSS, you can only do this if each line but the last
 ends with a comma.
 For example:
 
+{.sass-ex}
     .users #userTab,
     .posts #postsTab
       <property>
+
+{.scss-ex}
+    .users #userTab,
+    .posts #postsTab {
+      <property>
+    }
 
 ### Properties
 
@@ -256,9 +271,16 @@ However, Sass properties don't have semicolons at the end;
 each property is on its own line, so they aren't necessary.
 For example:
 
+{.sass-ex}
     #main p
       color: #00ff00
       width: 97%
+
+{.scss-ex}
+    #main p {
+      color: #00ff00;
+      width: 97%;
+    }
 
 is compiled to:
 
@@ -272,9 +294,16 @@ rather than between the name and the value,
 so it's easier to tell what elements are properties just by glancing at them.
 For example:
 
+{.sass-ex}
     #main p
       :color #00ff00
       :width 97%
+
+{.scss-ex}
+    #main p {
+      color: #00ff00;
+      width: 97%;
+    }
 
 is compiled to:
 
@@ -292,6 +321,7 @@ Rules can also be nested within each other.
 This signifies that the inner rule's selector is a child of the outer selector.
 For example:
 
+{.sass-ex}
     #main p
       color: #00ff00
       width: 97%
@@ -299,6 +329,17 @@ For example:
       .redbox
         background-color: #ff0000
         color: #000000
+
+{.scss-ex}
+    #main p {
+      color: #00ff00;
+      width: 97%;
+
+      .redbox {
+        background-color: #ff0000;
+        color: #000000;
+      }
+    }
 
 is compiled to:
 
@@ -311,6 +352,7 @@ is compiled to:
 
 This makes insanely complicated CSS layouts with lots of nested selectors very simple:
 
+{.sass-ex}
     #main
       width: 97%
 
@@ -321,6 +363,18 @@ This makes insanely complicated CSS layouts with lots of nested selectors very s
 
       pre
         font-size: 3em
+
+{.scss-ex}
+    #main {
+      width: 97%;
+
+      p, div {
+        font-size: 2em;
+        a { font-weight: bold; }
+      }
+
+      pre { font-size: 3em; }
+    }
 
 is compiled to:
 
@@ -345,6 +399,7 @@ The ampersand is automatically replaced by the parent selector,
 instead of having it prepended.
 This allows you to cleanly create pseudo-classes:
 
+{.sass-ex}
     a
       font-weight: bold
       text-decoration: none
@@ -352,6 +407,14 @@ This allows you to cleanly create pseudo-classes:
         text-decoration: underline
       &:visited
         font-weight: normal
+
+{.scss-ex}
+    a {
+      font-weight: bold;
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+      &:visited { font-weight: normal; }
+    }
 
 Which would become:
 
@@ -366,6 +429,7 @@ Which would become:
 It also allows you to add selectors at the base of the hierarchy,
 which can be useuful for targeting certain styles to certain browsers:
 
+{.sass-ex}
     #main
       width: 90%
       #sidebar
@@ -373,6 +437,16 @@ which can be useuful for targeting certain styles to certain browsers:
         margin-left: 20%
         .ie6 &
           margin-left: 40%
+
+{.scss-ex}
+    #main {
+      width: 90%;
+      #sidebar {
+        float: left;
+        margin-left: 20%;
+        .ie6 & { margin-left: 40% }
+      }
+    }
 
 Which would become:
 
@@ -396,11 +470,21 @@ just write the namespace one,
 then indent each of the sub-properties within it.
 For example:
 
+{.sass-ex}
     .funky
       font:
         family: fantasy
         size: 30em
         weight: bold
+
+{.scss-ex}
+    .funky {
+      font: {
+        family: fantasy;
+        size: 30em;
+        weight: bold;
+      }
+    }
 
 is compiled to:
 
@@ -434,7 +518,11 @@ a space, and any arguments to it -
 just like CSS directives.
 For example:
 
+{.sass-ex}
     @import red.sass
+
+{.scss-ex}
+    @import red.sass;
 
 Some directives can also control whether or how many times
 a chunk of Sass is output.
@@ -461,7 +549,11 @@ and, failing that, will assume a relevant CSS file will be available.
 
 For example,
 
+{.sass-ex}
     @import foo.sass
+
+{.scss-ex}
+    @import foo.sass;
 
 would compile to
 
@@ -470,7 +562,11 @@ would compile to
 
 whereas
 
+{.sass-ex}
     @import foo.css
+
+{.scss-ex}
+    @import foo.css;
 
 would compile to
 
@@ -478,7 +574,11 @@ would compile to
 
 Finally,
 
+{.sass-ex}
     @import foo
+
+{.scss-ex}
+    @import foo;
 
 might compile to either,
 depending on whether or not a file called "foo.sass" existed.
@@ -495,7 +595,11 @@ For example, you might have `_colors.sass`.
 Then no `_colors.css` file would be created,
 and you can do
 
+{.sass-ex}
     @import colors.sass
+
+{.scss-ex}
+    @import colors.sass;
 
 ### `@debug`
 
@@ -505,7 +609,11 @@ It's useful for debugging Sass files
 that have complicated SassScript going on.
 For example:
 
+{.sass-ex}
     @debug 10em + 12em
+
+{.scss-ex}
+    @debug 10em + 12em;
 
 outputs:
 
@@ -516,9 +624,16 @@ outputs:
 Sass behaves as you'd expect for normal CSS @-directives.
 For example:
 
+{.sass-ex}
     @font-face
       font-family: "Bitstream Vera Sans"
       src: url(http://foo.bar/bvs")
+
+{.scss-ex}
+    @font-face {
+      font-family: "Bitstream Vera Sans";
+      src: url(http://foo.bar/bvs");
+    }
 
 compiles to:
 
@@ -528,12 +643,20 @@ compiles to:
 
 and
 
+{.sass-ex}
     @media print
       #sidebar
         display: none
 
       #main
         background-color: white
+
+{.scss-ex}
+    @media print {
+      #sidebar { display: none; }
+
+      #main { background-color: white; }
+    }
 
 compiles to:
 
@@ -554,11 +677,18 @@ The `@if` statement takes a SassScript expression
 and prints the code nested beneath it if the expression returns
 anything other than `false`:
 
+{.sass-ex}
     p
       @if 1 + 1 == 2
         border: 1px solid
       @if 5 < 3
         border: 2px dotted
+
+{.scss-ex}
+    p {
+      @if 1 + 1 == 2 { border: 1px solid; }
+      @if 5 < 3 { border: 2px dotted; }
+    }
 
 is compiled to:
 
@@ -572,6 +702,7 @@ the `@else if` statements are tried in order
 until one succeeds or the `@else` is reached.
 For example:
 
+{.sass-ex}
     !type = "monster"
     p
       @if !type == "ocean"
@@ -582,6 +713,20 @@ For example:
         color: green
       @else
         color: black
+
+{.scss-ex}
+    !type = "monster";
+    p {
+      @if !type == "ocean" {
+        color: blue;
+      } @else if !type == "matador" {
+        color: red;
+      } @else if !type == "monster" {
+        color: green;
+      } @else {
+        color: black;
+      }
+    }
 
 is compiled to:
 
@@ -602,9 +747,15 @@ from `<start>` to `<end>`,
 including `<end>` if `through` is used.
 For example:
 
+{.sass-ex}
     @for !i from 1 through 3
       .item-#{!i}
         width = 2em * !i
+
+{.scss-ex}
+    @for !i from 1 through 3 {
+      .item-#{!i} { width = 2em * !i; }
+    }
 
 is compiled to:
 
@@ -623,11 +774,19 @@ be used to achieve more complex looping than the `@for`
 statement is capable of.
 For example:
 
+{.sass-ex}
     !i = 6
     @while !i > 0
       .item-#{!i}
         width = 2em * !i
       !i = !i - 2
+
+{.scss-ex}
+    !i = 6;
+    @while !i > 0 {
+      .item-#{!i} { width = 2em * !i; }
+      !i = !i - 2;
+    }
 
 is compiled to:
 
@@ -651,7 +810,11 @@ SassScript can be used as the value for a property
 by using `=` instead of `:`.
 For example:
 
+{.sass-ex}
     color = #123 + #234
+
+{.scss-ex}
+    color = #123 + #234;
 
 is compiled to:
 
@@ -690,13 +853,23 @@ is to set and reference variables.
 Variables begin with exclamation marks,
 and are set like so:
 
+{.sass-ex}
     !width = 5em
+
+{.scss-ex}
+    !width = 5em;
 
 You can then refer to them by putting an equals sign
 after your properties:
 
+{.sass-ex}
     #main
       width = !width
+
+{.scss-ex}
+    #main {
+      width = !width;
+    }
 
 Variables that are first defined in a scoped context are only
 available in that context.
@@ -712,6 +885,7 @@ SassScript supports four data types:
 Any text that doesn't fit into one of those types
 in a SassScript context will cause an error:
 
+{.sass-ex}
     p
       !width = 5em
       // This will cause an error
@@ -719,6 +893,16 @@ in a SassScript context will cause an error:
       // Use one of the following forms instead:
       border = "#{!width} solid blue"
       border = !width "solid" "blue"
+
+{.scss-ex}
+    p {
+      !width = 5em;
+      /* This will cause an error */
+      /* border = !width solid blue; */
+      /* Use one of the following forms instead: */
+      border = "#{!width} solid blue";
+      border = !width "solid" "blue";
+    }
 
 is compiled to:
 
@@ -735,8 +919,14 @@ SassScript supports the standard arithmetic operations on numbers
 (`+`, `-`, `*`, `/`, `%`),
 and will automatically convert between units if it can:
 
+{.sass-ex}
     p
       width = 1in + 8pt
+
+{.scss-ex}
+    p {
+      width = 1in + 8pt;
+    }
 
 is compiled to:
 
@@ -758,8 +948,14 @@ This means that the operation is performed
 on the red, green, and blue components in turn.
 For example:
 
+{.sass-ex}
     p
       color = #010203 + #040506
+
+{.scss-ex}
+    p {
+      color = #010203 + #040506;
+    }
 
 computes `01 + 04 = 05`, `02 + 05 = 07`, and `03 + 06 = 09`,
 and is compiled to:
@@ -771,8 +967,14 @@ Arithmetic operations even work between numbers and colors,
 also piecewise.
 For example:
 
+{.sass-ex}
     p
       color = #010203 * 2
+
+{.scss-ex}
+    p {
+      color = #010203 * 2;
+    }
 
 computes `01 * 2 = 02`, `02 * 2 = 04`, and `03 * 2 = 06`,
 and is compiled to:
@@ -788,8 +990,14 @@ to be done with them.
 The arithmetic doesn't affect the alpha value.
 For example:
 
+{.sass-ex}
     p
       color = rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75)
+
+{.scss-ex}
+    p {
+      color = rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75);
+    }
 
 is compiled to:
 
@@ -801,10 +1009,18 @@ The alpha channel of a color can be adjusted using the
 {Sass::Script::Functions#transparentize transparentize} functions.
 For example:
 
+{.sass-ex}
     !translucent-red = rgba(255, 0, 0, 0.5)
     p
       color = opacify(!translucent-red, 80%)
       background-color = transparentize(!translucent-red, 50%)
+
+{.scss-ex}
+    !translucent-red = rgba(255, 0, 0, 0.5);
+    p {
+      color = opacify(!translucent-red, 80%);
+      background-color = transparentize(!translucent-red, 50%);
+    }
 
 is compiled to:
 
@@ -816,8 +1032,14 @@ is compiled to:
 
 The `+` operation can be used to concatenate strings:
 
+{.sass-ex}
     p
       cursor = "e" + "-resize"
+
+{.scss-ex}
+    p {
+      cursor = "e" + "-resize";
+    }
 
 is compiled to:
 
@@ -827,8 +1049,14 @@ is compiled to:
 By default, if two values are placed next to one another,
 they are concatenated with a space:
 
+{.sass-ex}
     p
       margin = 3px + 4px "auto"
+
+{.scss-ex}
+    p {
+      margin = 3px + 4px "auto";
+    }
 
 is compiled to:
 
@@ -838,8 +1066,14 @@ is compiled to:
 Within a string of text, #{} style interpolation can be used to
 place dynamic values within the string:
 
+{.sass-ex}
     p
       border = "#{5px + 10px} solid #ccc"
+
+{.scss-ex}
+    p {
+      border = "#{5px + 10px} solid #ccc";
+    }
 
 Finally, SassScript supports `and`, `or`, and `not` operators
 for boolean values.
@@ -848,8 +1082,14 @@ for boolean values.
 
 Parentheses can be used to affect the order of operations:
 
+{.sass-ex}
     p
       width = 1em + (2em * 3)
+
+{.scss-ex}
+    p {
+      width = 1em + (2em * 3);
+    }
 
 is compiled to:
 
@@ -861,8 +1101,14 @@ is compiled to:
 SassScript defines some useful functions
 that are called using the normal CSS function syntax:
 
+{.sass-ex}
     p
       color = hsl(0, 100%, 50%)
+
+{.scss-ex}
+    p {
+      color = hsl(0, 100%, 50%);
+    }
 
 is compiled to:
 
@@ -877,10 +1123,16 @@ as well as instructions on defining your own in Ruby.
 You can also use SassScript variables in selectors
 and property names using #{} interpolation syntax:
 
+{.sass-ex}
     !name = foo
     !attr = border
     p.#{!name}
       #{!attr}-color: blue
+
+{.scss-ex}
+    !name = foo;
+    !attr = border;
+    p.#{!name} { #{!attr}-color: blue }
 
 is compiled to:
 
@@ -896,6 +1148,7 @@ but if it doesn't have a value yet, it will be given one.
 
 For example:
 
+{.sass-ex}
     !content = "First content"
     !content ||= "Second content?"
     !new_content ||= "First time reference"
@@ -903,6 +1156,16 @@ For example:
     #main
       content = !content
       new-content = !new_content
+
+{.scss-ex}
+    !content = "First content";
+    !content ||= "Second content?";
+    !new_content ||= "First time reference";
+
+    #main {
+      content = !content;
+      new-content = !new_content;
+    }
 
 is compiled to:
 
@@ -923,6 +1186,7 @@ classes in your markup.
 To define a mixin you use a slightly modified form of selector syntax.
 For example the `large-text` mixin is defined as follows:
 
+{.sass-ex}
     =large-text
       font:
         family: Arial
@@ -930,12 +1194,23 @@ For example the `large-text` mixin is defined as follows:
         weight: bold
       color: #ff0000
 
+{.scss-ex}
+    @mixin large-text {
+      font: {
+        family: Arial;
+        size: 20px;
+        weight: bold;
+      }
+      color: #ff0000;
+    }
+
 The initial `=` marks this as a mixin rather than a standard selector.
 The CSS rules that follow won't be included until the mixin is referenced later on.
 Anything you can put into a standard selector,
 you can put into a mixin definition.
 For example:
 
+{.sass-ex}
     =clearfix
       display: inline-block
       &:after
@@ -947,6 +1222,19 @@ For example:
       * html &
         height: 1px
 
+{.scss-ex}
+    @mixin clearfix {
+      display: inline-block;
+      &:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+      }
+      * html & { height: 1px }
+    }
+
 ### Mixing It In: `+`
 
 Inlining a defined mixin is simple,
@@ -954,11 +1242,18 @@ just prepend a `+` symbol to the name of a mixin defined earlier in the document
 So to inline the `large-text` defined earlier,
 we include the statment `+large-text` in our selector definition thus:
 
+{.sass-ex}
     .page-title
       +large-text
       padding: 4px
-      margin:
-        top: 10px
+      margin-top: 10px
+
+{.scss-ex}
+    .page-title {
+      @include large-text;
+      padding: 4px;
+      margin-top: 10px;
+    }
 
 This will produce the following CSS output:
 
@@ -976,16 +1271,28 @@ the number that can be included in a particular selector.
 Mixin definitions can also include references to other mixins.
 For example:
 
+{.sass-ex}
     =compound
       +highlighted-background
       +header-text
 
     =highlighted-background
-      background:
-        color: #fc0
+      background-color: #fc0
     =header-text
-      font:
-        size: 20px
+      font-size: 20px
+
+{.scss-ex}
+    @mixin compound {
+      @include highlighted-background;
+      @include header-text;
+    }
+
+    @mixin highlighted-background {
+      background-color: #fc0;
+    }
+    @mixin header-text {
+      font-size: 20px;
+    }
 
 Mixins that only define descendent selectors, can be safely mixed
 into the top most level of a document.
@@ -994,6 +1301,7 @@ into the top most level of a document.
 
 Mixins can take arguments which can be used with SassScript:
 
+{.sass-ex}
     =sexy-border(!color)
       border:
         color = !color
@@ -1001,6 +1309,17 @@ Mixins can take arguments which can be used with SassScript:
         style: dashed
     p
       +sexy-border("blue")
+
+{.scss-ex}
+    @mixin sexy-border(!color) {
+      border: {
+        color = !color;
+        width: 1in;
+        style: dashed;
+      }
+    }
+
+    p { @include sexy-border("blue"); }
 
 is compiled to:
 
@@ -1011,6 +1330,7 @@ is compiled to:
 
 Mixins can also specify default values for their arguments:
 
+{.sass-ex}
     =sexy-border(!color, !width = 1in)
       border:
         color = !color
@@ -1018,6 +1338,15 @@ Mixins can also specify default values for their arguments:
         style: dashed
     p
       +sexy-border("blue")
+
+{.scss-ex}
+    @mixin sexy-border(!color, !width = 1in) {
+      border: {
+        color = !color;
+        width = !width;
+        style: dashed;
+      }
+    p { @include sexy-border("blue"); }
 
 is compiled to:
 
@@ -1039,10 +1368,18 @@ These comments output to the document as CSS comments,
 and thus use the same opening sequence: `/*`.
 For example:
 
+{.sass-ex}
     /* A very awesome rule.
     #awesome.rule
       /* An equally awesome property.
       awesomeness: very
+
+{.scss-ex}
+    /* A very awesome rule. */
+    #awesome.rule {
+      /* An equally awesome property. */
+      awesomeness: very;
+    }
 
 becomes
 
@@ -1053,6 +1390,7 @@ becomes
 
 You can also nest content beneath loud comments. For example:
 
+{.sass-ex}
     #pbj
       /* This rule describes
         the styling of the element
@@ -1060,6 +1398,16 @@ You can also nest content beneath loud comments. For example:
         a peanut butter and jelly sandwich.
       background-image: url(/images/pbj.png)
       color: red
+
+{.scss-ex}
+    #pbj {
+      /* This rule describes
+        the styling of the element
+        that represents
+        a peanut butter and jelly sandwich. */
+      background-image: url(/images/pbj.png);
+      color: red;
+    }
 
 becomes
 
@@ -1080,10 +1428,18 @@ Simply use the familiar C-style notation for a one-line comment, `//`,
 at the normal indentation level and all text following it won't be output.
 For example:
 
+{.sass-ex}
     // A very awesome rule.
     #awesome.rule
       // An equally awesome property.
       awesomeness: very
+
+{.scss-ex}
+    // A very awesome rule.
+    #awesome.rule {
+      // An equally awesome property.
+      awesomeness: very;
+    }
 
 becomes
 
@@ -1093,12 +1449,22 @@ becomes
 You can also nest text beneath a comment to comment out a whole block.
 For example:
 
+{.sass-ex}
     // A very awesome rule
     #awesome.rule
       // Don't use these properties
         color: green
         font-size: 10em
       color: red
+
+{.scss-ex}
+    // A very awesome rule
+    #awesome.rule {
+      // Don't use these properties
+      // color: green
+      // font-size: 10em
+      color: red;
+    }
 
 becomes
 
