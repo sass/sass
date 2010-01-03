@@ -449,12 +449,15 @@ using the [`:load_paths`](#load_paths-option) option.
 
 `@import` takes a filename with or without an extension.
 If an extension isn't provided,
-Sass will try to find a Sass file with the given basename in the load paths,
-and, failing that, will assume a relevant CSS file will be available.
+Sass will try to find a Sass file with the given basename in the load paths.
 
 For example,
 
     @import foo.sass
+
+or
+
+    @import foo
 
 would compile to
 
@@ -468,13 +471,6 @@ whereas
 would compile to
 
     @import foo.css;
-
-Finally,
-
-    @import foo
-
-might compile to either,
-depending on whether or not a file called "foo.sass" existed.
 
 #### Partials {#partials}
 
