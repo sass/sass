@@ -424,6 +424,16 @@ CSS
     assert File.exists?(sassc_path("importee"))
   end
 
+  def test_nonexistent_extensionless_import
+    assert_warning(<<WARN) do
+WARNING: nonexistent.sass not found. Using nonexistent.css instead.
+This behavior is deprecated and will be removed in a future version.
+If you really need nonexistent.css, import it explicitly.
+WARN
+      assert_equal("@import url(nonexistent.css);\n", render("@import nonexistent"))
+    end
+  end
+
   def test_no_cache
     assert !File.exists?(sassc_path("importee"))
     renders_correctly("import", {

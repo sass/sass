@@ -116,6 +116,14 @@ Several bug fixes and minor improvements have been made, including:
 
 * Report the filename in warnings about selectors without properties.
 
+### Must Read!
+
+* When `@import` is given a filename without an extension,
+  the behavior of rendering a CSS `@import` if no Sass file is found
+  is deprecated.
+  In future versions, `@import foo` will either import the template
+  or raise an error.
+
 ## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fixed a bug where modules containing user-defined Sass functions

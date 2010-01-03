@@ -71,7 +71,14 @@ module Sass
       new_filename = find_full_path("#{filename}.sass", load_paths)
 
       return new_filename if new_filename
-      return filename + '.css' unless was_sass
+      unless was_sass
+        warn <<END
+WARNING: #{filename}.sass not found. Using #{filename}.css instead.
+This behavior is deprecated and will be removed in a future version.
+If you really need #{filename}.css, import it explicitly.
+END
+        return filename + '.css'
+      end
       raise SyntaxError.new("File to import not found or unreadable: #{original_filename}.")
     end
 
