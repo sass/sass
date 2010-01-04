@@ -355,18 +355,25 @@ module Sass
 
         value =
           if tok(/=/)
+            expression = true
             sass_script_parser.parse
           else
             @expected = '":" or "="'
             tok!(/:/); ss
 
             str do
-              expr! :expr
-              prio
+              expression = expr
+              prio if expression
             end.strip
           end
 
-        node(Sass::Tree::PropNode.new(name, value, :new))
+        node = node(Sass::Tree::PropNode.new(name, value, :new))
+        unless expression
+          ss
+          @expected = 'expression (e.g. 1px, bold) or "{"'
+          block(node)
+        end
+        node
       end
 
       def prio

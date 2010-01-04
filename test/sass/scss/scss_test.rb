@@ -319,6 +319,40 @@ foo {
 SCSS
   end
 
+  ## Namespace Properties
+
+  def test_namespace_properties
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: baz;
+  bang-bip: 1px;
+  bang-bop: bar; }
+CSS
+foo {
+  bar: baz;
+  bang: {
+    bip: 1px;
+    bop: bar;}}
+SCSS
+  end
+
+  def test_nested_namespace_properties
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: baz;
+  bang-bip: 1px;
+  bang-bop: bar;
+  bang-blat-baf: bort; }
+CSS
+foo {
+  bar: baz;
+  bang: {
+    bip: 1px;
+    bop: bar;
+    blat:{baf:bort}}}
+SCSS
+  end
+
   ## Mixins
 
   def test_basic_mixins
@@ -432,6 +466,19 @@ SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
     assert_equal "Import directives may only be used at the root of a document.", e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_rules_beneath_properties
+    render <<SCSS
+foo {
+  bar: {
+    baz {
+      bang: bop }}}
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  bar:": expected pseudoclass or pseudoelement, was " {"', e.message
     assert_equal 2, e.sass_line
   end
 end
