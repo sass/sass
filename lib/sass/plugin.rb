@@ -155,7 +155,7 @@ module Sass
     end
 
     def dependencies(filename)
-      Files.tree_for(filename, options).select {|n| n.is_a?(Tree::ImportNode)}.map do |n|
+      Files.tree_for(filename, engine_options).select {|n| n.is_a?(Tree::ImportNode)}.map do |n|
         next if n.full_filename =~ /\.css$/
         n.full_filename
       end.compact
