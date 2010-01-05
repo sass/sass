@@ -478,7 +478,62 @@ foo {
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar:": expected pseudoclass or pseudoelement, was " {"', e.message
+    assert_equal 'Illegal nesting: Only properties may be nested beneath properties.', e.message
+    assert_equal 3, e.sass_line
+  end
+
+  def test_uses_property_exception_with_star_hack
+    render <<SCSS
+foo {
+  *bar:baz <fail>; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  *bar:baz ": expected ";", was "<fail>; }"', e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_uses_property_exception_with_space_after_name
+    render <<SCSS
+foo {
+  bar: baz <fail>; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  bar: baz ": expected ";", was "<fail>; }"', e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_uses_property_exception_with_non_identifier_after_name
+    render <<SCSS
+foo {
+  bar:1px <fail>; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  bar:1px ": expected ";", was "<fail>; }"', e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_uses_property_exception_with_equals
+    render <<SCSS
+foo {
+  bar=<fail>; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Expected expression, was lt token.", e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_uses_property_exception_when_followed_by_open_bracket
+    render <<SCSS
+foo {
+  bar:{baz: .fail} }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  bar:{baz: ": expected expression (e.g. 1px, bold) or "{", was ".fail} }"', e.message
     assert_equal 2, e.sass_line
   end
 end

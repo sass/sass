@@ -232,15 +232,27 @@ module Sass
       def declaration_or_ruleset
         pos = @scanner.pos
         line = @line
+        old_use_property_exception, @use_property_exception =
+          @use_property_exception, false
         begin
           decl = declaration
-        rescue Sass::SyntaxError
+          # We want an exception if it's not there,
+          # but we don't want to consume if it is
+          tok!(/[;}]/) unless tok?(/[;}]/)
+          return decl
+        rescue Sass::SyntaxError => decl_err
         end
 
-        return decl if decl && tok?(/[;}]/)
         @line = line
         @scanner.pos = pos
-        return ruleset
+
+        begin
+          return ruleset
+        rescue Sass::SyntaxError => ruleset_err
+          raise @use_property_exception ? decl_err : ruleset_err
+        end
+      ensure
+        @use_property_exception = old_use_property_exception
       end
 
       def selector
@@ -348,6 +360,7 @@ module Sass
       def declaration
         # The tok(/\*/) allows the "*prop: val" hack
         if tok(/\*/)
+          @use_property_exception = true
           name = '*' + expr!(:property)
         else
           return unless name = property
@@ -356,11 +369,15 @@ module Sass
         value =
           if tok(/=/)
             expression = true
+            @use_property_exception = true
             sass_script_parser.parse
           else
             @expected = '":" or "="'
-            tok!(/:/); ss
+            tok!(/:/)
+            space = str {ss}.empty?
+            @use_property_exception ||= !space
 
+            @use_property_exception ||= !tok?(IDENT)
             str do
               expression = expr
               prio if expression
@@ -370,6 +387,7 @@ module Sass
         node = node(Sass::Tree::PropNode.new(name, value, :new))
         unless expression
           ss
+          @use_property_exception = true
           @expected = 'expression (e.g. 1px, bold) or "{"'
           block(node)
         end
@@ -443,7 +461,7 @@ module Sass
 
       TOK_NAMES = Haml::Util.to_hash(
         Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
-        merge(IDENT => "identifier")
+        merge(IDENT => "identifier", /[;}]/ => '";"')
 
       def tok?(rx)
         @scanner.match?(rx)
