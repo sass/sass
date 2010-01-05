@@ -253,11 +253,7 @@ END
         node.line = line.index
         node.filename = line.filename
 
-        if node.is_a?(Tree::CommentNode)
-          node.value << "\n" << line.children.map {|l| l.text}.join
-        else
-          append_children(node, line.children, false)
-        end
+        append_children(node, line.children, false)
       end
 
       node_or_nodes
