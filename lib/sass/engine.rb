@@ -254,7 +254,7 @@ END
         node.filename = line.filename
 
         if node.is_a?(Tree::CommentNode)
-          node.lines = line.children
+          node.value << "\n" << line.children.map {|l| l.text}.join
         else
           append_children(node, line.children, false)
         end
@@ -388,7 +388,7 @@ SHORT
 
     def parse_comment(line)
       if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
-        Tree::CommentNode.new(line, line[1] == SASS_COMMENT_CHAR)
+        Tree::CommentNode.new(line[2..-1], line[1] == SASS_COMMENT_CHAR)
       else
         Tree::RuleNode.new(line)
       end

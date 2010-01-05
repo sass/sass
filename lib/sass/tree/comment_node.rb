@@ -5,12 +5,7 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class CommentNode < Node
-    # The lines of text nested beneath the comment.
-    #
-    # @return [Array<Sass::Engine::Line>]
-    attr_accessor :lines
-
-    # The text on the same line as the comment starter.
+    # The text of the comment, not including `/*` and `*/`.
     #
     # @return [String]
     attr_accessor :value
@@ -24,7 +19,7 @@ module Sass::Tree
     # @param silent [Boolean] See \{#silent}
     def initialize(value, silent)
       @lines = []
-      @value = value[2..-1].strip
+      @value = value.strip
       @silent = silent
       super()
     end
@@ -35,7 +30,7 @@ module Sass::Tree
     # @return [Boolean] Whether or not this node and the other object
     #   are the same
     def ==(other)
-      self.class == other.class && value == other.value && silent == other.silent && lines == other.lines
+      self.class == other.class && value == other.value && silent == other.silent
     end
 
     # Returns `true` if this is a silent comment
@@ -61,7 +56,7 @@ module Sass::Tree
       return if invisible?
       spaces = '  ' * (tabs - 1)
 
-      content = (value.split("\n") + lines.map {|l| l.text})
+      content = value.split("\n")
       return spaces + "/* */" if content.empty?
       content.map! {|l| (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '')
