@@ -19,7 +19,7 @@ module Sass::Tree
     # @param silent [Boolean] See \{#silent}
     def initialize(value, silent)
       @lines = []
-      @value = value.strip
+      @value = value
       @silent = silent
       super()
     end
@@ -54,15 +54,11 @@ module Sass::Tree
     # @see #invisible?
     def _to_s(tabs = 0, _ = nil)
       return if invisible?
-      spaces = '  ' * (tabs - 1)
+      spaces = ('  ' * [tabs - 1 - value[/^ */].size, 0].max)
 
-      content = value.split("\n")
-      return spaces + "/* */" if content.empty?
-      content.map! {|l| (l.empty? ? "" : " ") + l}
-      content.first.gsub!(/^ /, '')
-      content.last.gsub!(%r{ ?\*/ *$}, '')
-
-      spaces + "/* " + content.join(style == :compact ? '' : "\n#{spaces} *") + " */"
+      content = value.gsub(/^/, spaces)
+      content.gsub!(/\n +(\* *)?/, ' ') if style == :compact
+      content
     end
 
     # Removes this node from the tree if it's a silent comment.
