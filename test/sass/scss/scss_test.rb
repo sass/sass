@@ -536,4 +536,15 @@ SCSS
     assert_equal 'Invalid CSS after "  bar:{baz: ": expected expression (e.g. 1px, bold) or "{", was ".fail} }"', e.message
     assert_equal 2, e.sass_line
   end
+
+  def test_script_error
+    render <<SCSS
+foo {
+  bar = "baz" + + }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Expected expression, was plus token.", e.message
+    assert_equal 2, e.sass_line
+  end
 end

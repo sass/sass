@@ -70,20 +70,20 @@ module Sass
 
       def mixin
         name = tok! IDENT
-        args = sass_script_parser.parse_mixin_definition_arglist
+        args = sass_script(:parse_mixin_definition_arglist)
         ss
         block(node(Sass::Tree::MixinDefNode.new(name, args)))
       end
 
       def include
         name = tok! IDENT
-        args = sass_script_parser.parse_mixin_include_arglist
+        args = sass_script(:parse_mixin_include_arglist)
         ss
         node(Sass::Tree::MixinNode.new(name, args))
       end
 
       def debug
-        node(Sass::Tree::DebugNode.new(sass_script_parser.parse))
+        node(Sass::Tree::DebugNode.new(sass_script(:parse)))
       end
 
       def for
@@ -92,25 +92,25 @@ module Sass
         ss
 
         tok!(/from/)
-        from = sass_script_parser.parse_until Set["to", "through"]
+        from = sass_script(:parse_until, Set["to", "through"])
         ss
 
         @expected = '"to" or "through"'
         exclusive = (tok(/to/) || tok!(/through/)) == 'to'
-        to = sass_script_parser.parse
+        to = sass_script(:parse)
         ss
 
         block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)))
       end
 
       def while
-        expr = sass_script_parser.parse
+        expr = sass_script(:parse)
         ss
         block(node(Sass::Tree::WhileNode.new(expr)))
       end
 
       def if
-        expr = sass_script_parser.parse
+        expr = sass_script(:parse)
         ss
         block(node(Sass::Tree::IfNode.new(expr)))
       end
@@ -149,7 +149,7 @@ module Sass
 
         tok!(/=/)
         ss
-        expr = sass_script_parser.parse
+        expr = sass_script(:parse)
 
         node(Sass::Tree::VariableNode.new(name, expr, guarded))
       end
@@ -370,7 +370,7 @@ module Sass
           if tok(/=/)
             expression = true
             @use_property_exception = true
-            sass_script_parser.parse
+            sass_script(:parse)
           else
             @expected = '":" or "="'
             tok!(/:/)
@@ -448,9 +448,12 @@ module Sass
         node
       end
 
-      def sass_script_parser
+      def sass_script(*args)
         ScriptParser.new(@scanner, @line,
-          @scanner.pos - (@scanner.string.rindex("\n") || 0))
+          @scanner.pos - (@scanner.string.rindex("\n") || 0)).send(*args)
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @line
+        raise e
       end
 
       EXPR_NAMES = {
