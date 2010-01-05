@@ -353,6 +353,60 @@ foo {
 SCSS
   end
 
+  def test_namespace_properties_with_value
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: baz;
+    bar-bip: bop;
+    bar-bing: bop; }
+CSS
+foo {
+  bar: baz {
+    bip: bop;
+    bing: bop; }}
+SCSS
+  end
+
+  def test_namespace_properties_with_script_value
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: baz;
+    bar-bip: bop;
+    bar-bing: bop; }
+CSS
+foo {
+  bar = "baz" {
+    bip: bop;
+    bing: bop; }}
+SCSS
+  end
+
+  def test_no_namespace_properties_without_space
+    assert_equal <<CSS, render(<<SCSS)
+foo bar:baz {
+  bip: bop; }
+CSS
+foo {
+  bar:baz {
+    bip: bop }}
+SCSS
+  end
+
+  def test_no_namespace_properties_without_space_even_when_its_unambiguous
+    render(<<SCSS)
+foo {
+  bar:1px {
+    bip: bop }}
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal <<MESSAGE, e.message
+Invalid CSS: a space is required between a property and its definition
+when it has other properties nested beneath it.
+MESSAGE
+    assert_equal 2, e.sass_line
+  end
+
   ## Mixins
 
   def test_basic_mixins

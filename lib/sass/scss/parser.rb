@@ -368,30 +368,41 @@ module Sass
 
         value =
           if tok(/=/)
+            require_block = false
             expression = true
+            space = true
             @use_property_exception = true
             sass_script(:parse)
           else
             @expected = '":" or "="'
             tok!(/:/)
-            space = str {ss}.empty?
-            @use_property_exception ||= !space
+            space = !str {ss}.empty?
+            @use_property_exception ||= space || !tok?(IDENT)
 
-            @use_property_exception ||= !tok?(IDENT)
             str do
               expression = expr
               prio if expression
+              require_block = !expression
             end.strip
           end
+        ss
+        require_block ||= tok?(/\{/)
 
         node = node(Sass::Tree::PropNode.new(name, value, :new))
-        unless expression
-          ss
+
+        if require_block && expression && !space
           @use_property_exception = true
-          @expected = 'expression (e.g. 1px, bold) or "{"'
-          block(node)
+          raise Sass::SyntaxError.new(<<MESSAGE, :line => @line)
+Invalid CSS: a space is required between a property and its definition
+when it has other properties nested beneath it.
+MESSAGE
         end
-        node
+
+        return node unless require_block
+
+        @use_property_exception = true
+        @expected = 'expression (e.g. 1px, bold) or "{"'
+        block(node)
       end
 
       def prio
