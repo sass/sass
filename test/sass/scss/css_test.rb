@@ -39,15 +39,7 @@ baz {bar: baz}
 SCSS
   end
 
-  def test_comments
-    # TODO: Make (some) comments actually show up in the generated CSS.
-    assert_equal <<CSS, render(<<SCSS)
-bar {
-  c: d; }
-CSS
-/* foo {a: b} */
-bar {c: d}
-SCSS
+  def test_invisible_comments
     assert_equal <<CSS, render(<<SCSS)
 foo {
   a: d; }
@@ -60,24 +52,36 @@ foo {
 CSS
 foo {a /*: b; c */: d}
 SCSS
+  end
 
-   # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/t040109-c17-comments-00-b.xht
-   assert_equal <<CSS, render(<<SCSS)
+  def test_crazy_comments 
+    # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/t040109-c17-comments-00-b.xht
+    assert_equal <<CSS, render(<<SCSS)
+/* This is a CSS comment. */
 .one {
   color: green; }
 
+/* Another comment */
+/* The following should not be used:
+.two {color: red;} */
 .three {
-  color: green; }
+  color: green;
+  /* color: red; */ }
 
+/**
+.four {color: red;} */
 .five {
   color: green; }
 
+/**/
 .six {
   color: green; }
 
+/*********/
 .seven {
   color: green; }
 
+/* a comment **/
 .eight {
   color: green; }
 CSS
@@ -95,6 +99,117 @@ CSS
 .seven {color: green;}
 /* a comment **/
 .eight {color: green;}
+SCSS
+  end
+
+  def test_rule_comments
+    assert_parses <<SCSS
+/* Foo */
+.foo {
+  a: b; }
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+/* Foo
+ * Bar */
+.foo {
+  a: b; }
+CSS
+/* Foo
+ * Bar */.foo {
+  a: b; }
+SCSS
+  end
+
+  def test_property_comments
+    assert_parses <<SCSS
+.foo {
+  /* Foo */
+  a: b; }
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  /* Foo
+   * Bar */
+  a: b; }
+CSS
+.foo {
+  /* Foo
+   * Bar */a: b; }
+SCSS
+  end
+
+  def test_lonely_comments
+    assert_parses <<SCSS
+/* Foo
+ * Bar */
+SCSS
+    assert_parses <<SCSS
+.foo {
+  /* Foo
+   * Bar */ }
+SCSS
+  end
+
+  def test_multiple_comments
+    assert_parses <<SCSS
+/* Foo
+ * Bar */
+/* Baz
+ * Bang */
+SCSS
+    assert_parses <<SCSS
+.foo {
+  /* Foo
+   * Bar */
+  /* Baz
+   * Bang */ }
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  /* Foo Bar */
+  /* Baz Bang */ }
+CSS
+.foo {
+  /* Foo Bar *//* Baz Bang */ }
+SCSS
+  end
+
+  def test_bizarrely_formatted_comments
+    assert_parses <<SCSS
+.foo {
+  /* Foo
+Bar
+  Baz */
+  a: b; }
+SCSS
+    assert_parses <<SCSS
+.foo {
+    /* Foo
+Bar
+  Baz */
+  a: b; }
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+   /* Foo
+Bar */
+  a: b; }
+CSS
+.foo {/* Foo
+   Bar */
+  a: b; }
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+    /* Foo
+ Bar
+Baz */
+  a: b; }
+CSS
+.foo {/* Foo
+   Bar
+  Baz */
+  a: b; }
 SCSS
   end
 

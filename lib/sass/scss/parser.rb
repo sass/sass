@@ -30,17 +30,37 @@ module Sass
       include Sass::SCSS::RX
 
       def stylesheet
-        block_contents(node(Sass::Tree::RootNode.new(@scanner.string))) {s}
+        node = node(Sass::Tree::RootNode.new(@scanner.string))
+        block_contents(node) {s(node)}
       end
 
-      def s
-        nil while tok(S) || tok(CDC) || tok(CDO) || tok(COMMENT)
+      def s(node)
+        while tok(S) || tok(CDC) || tok(CDO) || (c = tok(COMMENT))
+          next unless c
+          process_comment c, node
+          c = nil
+        end
         true
       end
 
       def ss
         nil while tok(S) || tok(COMMENT)
         true
+      end
+
+      def ss_comments(node)
+        while tok(S) || (c = tok(COMMENT))
+          next unless c
+          process_comment c, node
+          c = nil
+        end
+
+        true
+      end
+
+      def process_comment(text, node)
+        pre_str = @scanner.string[/(?:\A|\n)(.*)\/\*/, 1].gsub(/[^\s]/, ' ')
+        node << Sass::Tree::CommentNode.new(pre_str + text, false)
       end
 
       DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import]
@@ -189,16 +209,15 @@ module Sass
         tok!(/\{/)
         block_contents(node)
         tok!(/\}/)
-        ss
         node
       end
 
       # A block may contain declarations and/or rulesets
       def block_contents(node)
-        block_given? ? yield : ss
+        block_given? ? yield : ss_comments(node)
         node << (child = block_child)
         while tok(/;/) || (child && !child.children.empty?)
-          block_given? ? yield : ss
+          block_given? ? yield : ss_comments(node)
           node << (child = block_child)
         end
         node

@@ -19,7 +19,7 @@ module Sass::Tree
     # @param silent [Boolean] See \{#silent}
     def initialize(value, silent)
       @lines = []
-      @value = value
+      @value = normalize_indentation value
       @silent = silent
       super()
     end
@@ -70,6 +70,18 @@ module Sass::Tree
     def _perform(environment)
       return [] if @silent
       self
+    end
+
+    private
+
+    def normalize_indentation(str)
+      pre = str.split("\n").inject(str[/^[ \t]*/].split("")) do |pre, line|
+        line[/^[ \t]*/].split("").zip(pre).inject([]) do |arr, (a, b)|
+          break arr if a != b
+          arr + [a]
+        end
+      end.join
+      str.gsub(/^#{pre}/, '')
     end
   end
 end
