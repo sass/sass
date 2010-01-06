@@ -180,8 +180,7 @@ module Sass
         # are disallowed by the CSS spec,
         # but they're included here for compatibility
         # with some proprietary MS properties
-        ss if tok(/[\/,:.=]/)
-        true
+        str {ss if tok(/[\/,:.=]/)}
       end
 
       def unary_operator
@@ -392,23 +391,22 @@ module Sass
             expression = true
             space = true
             @use_property_exception = true
-            sass_script(:parse)
+            [sass_script(:parse)]
           else
             @expected = '":" or "="'
             tok!(/:/)
             space = !str {ss}.empty?
             @use_property_exception ||= space || !tok?(IDENT)
 
-            str do
-              expression = expr
-              prio if expression
-              require_block = !expression
-            end.strip
+            expression = expr
+            expression << tok(IMPORTANT) if expression
+            require_block = !expression
+            expression || [""]
           end
         ss
         require_block ||= tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new([name], [value], :new))
+        node = node(Sass::Tree::PropNode.new([name], value.flatten.compact, :new))
 
         if require_block && expression && !space
           @use_property_exception = true
@@ -425,46 +423,38 @@ MESSAGE
         block(node)
       end
 
-      def prio
-        return unless tok IMPORTANT
-        ss
-      end
-
       def expr
-        [str do
-          return unless term
-          nil while operator && term
-        end]
+        return unless t = term
+        res = [t, str{ss}]
+
+        while (o = operator) && (t = term)
+          res << o << t << str{ss}
+        end
+
+        res
       end
 
       def term
-        unless tok(NUMBER) ||
+        unless e = tok(NUMBER) ||
             tok(URI) ||
             function ||
-            tok(STRING) ||
+            interp_string ||
             tok(UNICODERANGE) ||
             tok(IDENT) ||
-            hexcolor
-          return unless unary_operator
+            # TODO: Constrain this to be a hexcolor
+            tok(HASH) ||
+            interpolation
+
+          return unless op = unary_operator
           @expected = "number or function"
-          tok(NUMBER) || expr!(:function)
+          [op, tok(NUMBER) || expr!(:function)]
         end
-        ss
+        e
       end
 
       def function
-        return unless tok FUNCTION
-        ss
-        expr
-        tok!(/\)/); ss
-      end
-
-      #  There is a constraint on the color that it must
-      #  have either 3 or 6 hex-digits (i.e., [0-9a-fA-F])
-      #  after the "#"; e.g., "#000" is OK, but "#abcd" is not.
-      def hexcolor
-        return unless tok HASH
-        ss
+        return unless name = tok(FUNCTION)
+        [name, str{ss}, expr, tok!(/\)/)]
       end
 
       def interpolation
