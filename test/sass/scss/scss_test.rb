@@ -520,6 +520,65 @@ CSS
 SCSS
   end
 
+  ## Interpolation
+
+  def test_basic_selector_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+foo 3 baz {
+  a: b; }
+CSS
+foo \#{1 + 2} baz {a: b}
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+foo.bar baz {
+  a: b; }
+CSS
+foo\#{".bar"} baz {a: b}
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+foo.bar baz {
+  a: b; }
+CSS
+\#{"foo"}.bar baz {a: b}
+SCSS
+  end
+
+  def test_selector_only_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+foo bar {
+  a: b; }
+CSS
+\#{"foo" + " bar"} {a: b}
+SCSS
+  end
+
+  def test_selector_interpolation_before_element_name
+    assert_equal <<CSS, render(<<SCSS)
+foo barbaz {
+  a: b; }
+CSS
+\#{"foo" + " bar"}baz {a: b}
+SCSS
+  end
+
+  def test_selector_interpolation_in_string
+    assert_equal <<CSS, render(<<SCSS)
+foo[val="bar foo bar baz"] {
+  a: b; }
+CSS
+foo[val="bar \#{"foo" + " bar"} baz"] {a: b}
+SCSS
+  end
+
+  def test_selector_interpolation_in_pseudoclass
+    assert_equal <<CSS, render(<<SCSS)
+foo:nth-child(5n) {
+  a: b; }
+CSS
+foo:nth-child(\#{5 + "n"}) {a: b}
+SCSS
+  end
+
   ## Errors
 
   def test_mixin_defs_only_at_toplevel

@@ -273,7 +273,7 @@ module Sass
         text.map do |r|
           next r if r.is_a?(String)
           r.perform(environment).to_s
-        end.join
+        end.join.strip
       end
 
       # @see Haml::Shared.balance

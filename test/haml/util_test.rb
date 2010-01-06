@@ -66,6 +66,15 @@ class UtilTest < Test::Unit::TestCase
       merge_adjacent_strings(["foo ", "bar ", "baz", :bang, "biz", " bop", 12]))
   end
 
+  def test_strip_string_array
+    assert_equal(["foo ", " bar ", " baz"],
+      strip_string_array([" foo ", " bar ", " baz "]))
+    assert_equal([:foo, " bar ", " baz"],
+      strip_string_array([:foo, " bar ", " baz "]))
+    assert_equal(["foo ", " bar ", :baz],
+      strip_string_array([" foo ", " bar ", :baz]))
+  end
+
   def test_silence_warnings
     old_stderr, $stderr = $stderr, StringIO.new
     warn "Out"

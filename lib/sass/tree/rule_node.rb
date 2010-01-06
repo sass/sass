@@ -77,7 +77,8 @@ module Sass::Tree
     # @param rule [Array<String, Sass::Script::Node>]
     #   The CSS rule. See \{#rule}
     def initialize(rule)
-      @rule = rule
+      @rule = Haml::Util.strip_string_array(
+        Haml::Util.merge_adjacent_strings(rule))
       @tabs = 0
       super()
     end

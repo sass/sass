@@ -50,8 +50,10 @@ module Sass::Tree
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
     #   `:old` if it uses `:a b`-style syntax
     def initialize(name, value, prop_syntax)
-      @name = name
-      @value = value
+      @name = Haml::Util.strip_string_array(
+        Haml::Util.merge_adjacent_strings(name))
+      @value = Haml::Util.strip_string_array(
+        Haml::Util.merge_adjacent_strings(value))
       @tabs = 0
       @prop_syntax = prop_syntax
       super()

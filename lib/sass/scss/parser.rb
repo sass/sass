@@ -195,15 +195,16 @@ module Sass
       end
 
       def ruleset
-        rules = str do
-          return unless selector
+        rules = []
+        return unless v = selector
+        rules.concat v
 
-          while tok(/,/)
-            ss; expr!(:selector)
-          end
+        while tok(/,/)
+          rules << ',' << str {ss}
+          rules.concat expr!(:selector)
         end
 
-        block(node(Sass::Tree::RuleNode.new([rules.strip])))
+        block(node(Sass::Tree::RuleNode.new(rules.flatten.compact)))
       end
 
       def block(node)
@@ -271,9 +272,14 @@ module Sass
 
       def selector
         # The combinator here allows the "> E" hack
-        return unless combinator || simple_selector_sequence
-        simple_selector_sequence while combinator
-        true
+        return unless (comb = combinator) || (seq = simple_selector_sequence)
+        res = [comb] + (seq || [])
+
+        while v = combinator
+          res << v
+          res.concat(simple_selector_sequence || [])
+        end
+        res
       end
 
       def combinator
@@ -281,47 +287,47 @@ module Sass
       end
 
       def simple_selector_sequence
-        unless element_name || tok(HASH) || class_expr ||
-            attrib || negation || pseudo || tok(/&/)
-          # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
-          return expr
-        end
+        # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
+        return expr unless e = element_name || tok(HASH) || class_expr ||
+          attrib || negation || pseudo || tok(/&/) || interpolation
+        res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        nil while tok(HASH) || class_expr || attrib ||
-          negation || pseudo || tok(/\*/)
-        true
-      end
-
-      def class_expr
-        return unless tok(/\./)
-        tok! IDENT
-      end
-
-      def element_name
-        res = tok(IDENT) || tok(/\*/)
-        if tok(/\|/)
-          @expected = "element name or *"
-          res = tok(IDENT) || tok!(/\*/)
+        while v = element_name || tok(HASH) || class_expr ||
+            attrib || negation || pseudo || tok(/\*/) || interpolation
+          res << v
         end
         res
       end
 
+      def class_expr
+        return unless tok(/\./)
+        '.' + tok!(IDENT)
+      end
+
+      def element_name
+        return unless name = tok(IDENT) || tok(/\*/) || tok?(/\|/)
+        if tok(/\|/)
+          @expected = "element name or *"
+          name << "|" << (tok(IDENT) || tok!(/\*/))
+        end
+        name
+      end
+
       def attrib
         return unless tok(/\[/)
-        ss
-        attrib_name!; ss
-        if tok(/=/) ||
+        res = ['[', str{ss}, str{attrib_name!}, str{ss}]
+
+        if m = tok(/=/) ||
             tok(INCLUDES) ||
             tok(DASHMATCH) ||
             tok(PREFIXMATCH) ||
             tok(SUFFIXMATCH) ||
             tok(SUBSTRINGMATCH)
-          ss
           @expected = "identifier or string"
-          tok(IDENT) || tok!(STRING); ss
+          res << m << str{ss} << (tok(IDENT) || expr!(:interp_string)) << str{ss}
         end
-        tok!(/\]/)
+        res << tok!(/\]/)
       end
 
       def attrib_name!
@@ -341,34 +347,34 @@ module Sass
       end
 
       def pseudo
-        return unless tok(/::?/)
+        return unless s = tok(/::?/)
 
         @expected = "pseudoclass or pseudoelement"
-        functional_pseudo || tok!(IDENT)
+        [s, functional_pseudo || tok!(IDENT)]
       end
 
       def functional_pseudo
-        return unless tok FUNCTION
-        ss
-        expr! :pseudo_expr
-        tok!(/\)/)
+        return unless fn = tok(FUNCTION)
+        [fn, str{ss}, expr!(:pseudo_expr), tok!(/\)/)]
       end
 
       def pseudo_expr
-        return unless tok(PLUS) || tok(/-/) || tok(NUMBER) ||
-          tok(STRING) || tok(IDENT)
-        ss
-        ss while tok(PLUS) || tok(/-/) || tok(NUMBER) ||
-          tok(STRING) || tok(IDENT)
-        true
+        return unless e = tok(PLUS) || tok(/-/) || tok(NUMBER) ||
+          interp_string || tok(IDENT) || interpolation
+        res = [e, str{ss}]
+        while e = tok(PLUS) || tok(/-/) || tok(NUMBER) ||
+            interp_string || tok(IDENT) || interpolation
+          res << e << str{ss}
+        end
+        res
       end
 
       def negation
         return unless tok(NOT)
-        ss
+        res = [":not(", str{ss}]
         @expected = "selector"
-        element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo)
-        tok!(/\)/)
+        res << (element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo))
+        res << tok!(/\)/)
       end
 
       def declaration
@@ -425,9 +431,10 @@ MESSAGE
       end
 
       def expr
-        return unless term
-        nil while operator && term
-        true
+        [str do
+          return unless term
+          nil while operator && term
+        end]
       end
 
       def term
@@ -458,6 +465,25 @@ MESSAGE
       def hexcolor
         return unless tok HASH
         ss
+      end
+
+      def interpolation
+        return unless tok(/#\{/)
+        sass_script(:parse_interpolated)
+      end
+
+      def interp_string
+        _interp_string(:double) || _interp_string(:single)
+      end
+
+      def _interp_string(type)
+        return unless start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, false]])
+        res = [start]
+
+        mid_re = Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, true]]
+        # @scanner[2].empty? means we've started an interpolated section
+        res << expr!(:interpolation) << tok(mid_re) while @scanner[2].empty?
+        res
       end
 
       def str
