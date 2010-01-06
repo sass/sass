@@ -145,13 +145,13 @@ module Sass::Tree
       end
 
       if style == :compact
-        properties = children.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(' ')
+        properties = children.map { |a| a.to_s(1) }.join(' ')
         to_return << "#{total_rule} { #{properties} }#{"\n" if group_end}"
       elsif style == :compressed
-        properties = children.map { |a| a.to_s(1) }.select{|a| a && a.length > 0}.join(';')
+        properties = children.map { |a| a.to_s(1) }.join(';')
         to_return << "#{total_rule}{#{properties}}"
       else
-        properties = children.map { |a| a.to_s(tabs + 1) }.select{|a| a && a.length > 0}.join("\n")
+        properties = children.map { |a| a.to_s(tabs + 1) }.join("\n")
         end_props = (style == :expanded ? "\n" + old_spaces : ' ')
         to_return << "#{total_rule} {\n#{properties}#{end_props}}#{"\n" if group_end}"
       end
