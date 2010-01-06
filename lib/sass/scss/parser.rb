@@ -35,7 +35,7 @@ module Sass
       end
 
       def s(node)
-        while tok(S) || tok(CDC) || tok(CDO) || (c = tok(COMMENT))
+        while tok(S) || tok(CDC) || tok(CDO) || tok(SINGLE_LINE_COMMENT) || (c = tok(COMMENT))
           next unless c
           process_comment c, node
           c = nil
@@ -44,12 +44,12 @@ module Sass
       end
 
       def ss
-        nil while tok(S) || tok(COMMENT)
+        nil while tok(S) || tok(SINGLE_LINE_COMMENT) || tok(COMMENT)
         true
       end
 
       def ss_comments(node)
-        while tok(S) || (c = tok(COMMENT))
+        while tok(S) || tok(SINGLE_LINE_COMMENT) || (c = tok(COMMENT))
           next unless c
           process_comment c, node
           c = nil
@@ -543,7 +543,7 @@ MESSAGE
         if res
           @line += res.count("\n")
           @expected = nil
-          @str << res if @str && rx != COMMENT
+          @str << res if @str && rx != COMMENT && rx != SINGLE_LINE_COMMENT
         end
 
         res

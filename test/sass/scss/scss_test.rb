@@ -4,6 +4,27 @@ require File.dirname(__FILE__) + '/test_helper'
 class ScssTest < Test::Unit::TestCase
   include ScssTestHelper
 
+  ## One-Line Comments
+
+  def test_one_line_comments
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  baz: bang; }
+CSS
+.foo {// bar: baz;}
+  baz: bang; //}
+}
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+.foo bar[val="//"] {
+  baz: bang; }
+CSS
+.foo bar[val="//"] {
+  baz: bang; //}
+}
+SCSS
+  end
+
   ## Script
 
   def test_variables
