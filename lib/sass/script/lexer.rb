@@ -1,3 +1,5 @@
+require 'sass/scss/rx'
+
 require 'strscan'
 
 module Sass
@@ -5,9 +7,6 @@ module Sass
     # The lexical analyzer for SassScript.
     # It takes a raw string and converts it to individual tokens
     # that are easier to parse.
-    #
-    # @todo Sync up lexing here with SCSS lexing.
-    #   In particular, make sure the variable regexps are the same.
     class Lexer
       # A struct containing information about an individual token.
       #
@@ -57,8 +56,8 @@ module Sass
       # A hash of regular expressions that are used for tokenizing.
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s*/,
-        :variable => /!([\w-]+)/,
-        :ident => /(\\.|[^\s\\+*\/%(),=!])+/,
+        :variable => /!(#{Sass::SCSS::RX::IDENT})/,
+        :ident => Sass::SCSS::RX::IDENT,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})(?![^\s+*\/%),=!])/,
         :bool => /(true|false)\b/,
