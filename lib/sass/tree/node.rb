@@ -262,27 +262,18 @@ module Sass
         children.map {|c| c.perform(environment)}.flatten
       end
 
-      # Replaces SassScript in a chunk of text (via `#{}`)
+      # Replaces SassScript in a chunk of text
       # with the resulting value.
       #
-      # @param text [String] The text to interpolate
+      # @param text [Array<String, Sass::Script::Node>] The text to interpolate
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       # @return [String] The interpolated text
-      def interpolate(text, environment)
-        res = ''
-        rest = Haml::Shared.handle_interpolation text do |scan|
-          escapes = scan[2].size
-          res << scan.matched[0...-2 - escapes]
-          if escapes % 2 == 1
-            res << "\\" * (escapes - 1) << '#{'
-          else
-            res << "\\" * [0, escapes - 1].max
-            res << Script::Parser.new(scan, line, scan.pos - scan.matched_size, filename).
-              parse_interpolated.perform(environment).to_s
-          end
-        end
-        res + rest
+      def run_interp(text, environment)
+        text.map do |r|
+          next r if r.is_a?(String)
+          r.perform(environment).to_s
+        end.join
       end
 
       # @see Haml::Shared.balance

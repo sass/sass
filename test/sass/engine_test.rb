@@ -976,25 +976,7 @@ SASS
   def test_empty_selector_warning
     assert_warning(<<END) {render("foo bar")}
 WARNING on line 1 of test_empty_selector_warning_inline.sass:
-Selector "foo bar" doesn't have any properties and will not be rendered.
-END
-
-    assert_warning(<<END) {render(<<SASS)}
-WARNING on line 3 of test_empty_selector_warning_inline.sass:
-Selector
-  foo, bar, baz,
-  bang, bip, bop
-doesn't have any properties and will not be rendered.
-END
-
-
-foo, bar, baz,
-bang, bip, bop
-SASS
-
-    assert_warning(<<END) {render("foo bar", :filename => nil)}
-WARNING on line 1:
-Selector "foo bar" doesn't have any properties and will not be rendered.
+This selector doesn't have any properties and will not be rendered.
 END
   end
 

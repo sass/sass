@@ -304,19 +304,10 @@ END
 
     def check_for_no_children(node)
       return unless node.is_a?(Tree::RuleNode) && node.children.empty?
-      warning = (node.rule.include?("\n")) ? <<LONG : <<SHORT
-
+      warn(<<WARNING.strip)
 WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
-Selector
-  #{node.rule.gsub("\n", "\n  ")}
-doesn't have any properties and will not be rendered.
-LONG
-
-WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
-Selector #{node.rule.inspect} doesn't have any properties and will not be rendered.
-SHORT
-
-      warn(warning.strip)
+This selector doesn't have any properties and will not be rendered.
+WARNING
     end
 
     def parse_line(parent, line, root)
@@ -329,7 +320,7 @@ SHORT
           # which begin with ::,
           # as well as pseudo-classes
           # if we're using the new property syntax
-          Tree::RuleNode.new(line.text)
+          Tree::RuleNode.new(parse_interp(line.text))
         else
           parse_property(line, PROPERTY_OLD)
         end
@@ -340,12 +331,12 @@ SHORT
       when DIRECTIVE_CHAR
         parse_directive(parent, line, root)
       when ESCAPE_CHAR
-        Tree::RuleNode.new(line.text[1..-1])
+        Tree::RuleNode.new(parse_interp(line.text[1..-1]))
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
         if line.text[1].nil? || line.text[1] == ?\s
-          Tree::RuleNode.new(line.text)
+          Tree::RuleNode.new(parse_interp(line.text))
         else
           parse_mixin_include(line, root)
         end
@@ -353,7 +344,7 @@ SHORT
         if line.text =~ PROPERTY_NEW_MATCHER
           parse_property(line, PROPERTY_NEW)
         else
-          Tree::RuleNode.new(line.text)
+          Tree::RuleNode.new(parse_interp(line.text))
         end
       end
     end
@@ -365,11 +356,13 @@ SHORT
         :line => @line) if name.nil? || value.nil?
 
       expr = if (eq.strip[0] == SCRIPT_CHAR)
-        parse_script(value, :offset => line.offset + line.text.index(value))
+        [parse_script(value, :offset => line.offset + line.text.index(value))]
       else
-        value
+        parse_interp(value)
       end
-      Tree::PropNode.new(name, expr, property_regx == PROPERTY_OLD ? :old : :new)
+      Tree::PropNode.new(
+        parse_interp(name), expr,
+        property_regx == PROPERTY_OLD ? :old : :new)
     end
 
     def parse_variable(line)
@@ -388,7 +381,7 @@ SHORT
           format_comment_text(line[2..-1].strip),
           line[1] == SASS_COMMENT_CHAR)
       else
-        Tree::RuleNode.new(line)
+        Tree::RuleNode.new(parse_interp(line))
       end
     end
 
@@ -496,6 +489,23 @@ SHORT
       content.first.gsub!(/^ /, '')
       content.last.gsub!(%r{ ?\*/ *$}, '')
       "/* " + content.join("\n *") + " */"
+    end
+
+    def parse_interp(text)
+      res = []
+      rest = Haml::Shared.handle_interpolation text do |scan|
+        escapes = scan[2].size
+        res << scan.matched[0...-2 - escapes]
+        if escapes % 2 == 1
+          res << "\\" * (escapes - 1) << '#{'
+        else
+          res << "\\" * [0, escapes - 1].max
+          res << Script::Parser.new(
+            scan, @line, scan.pos - scan.matched_size, @filename).
+            parse_interpolated
+        end
+      end
+      res << rest
     end
   end
 end

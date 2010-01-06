@@ -8,9 +8,12 @@ module Sass::Tree
     # The character used to include the parent selector
     PARENT = '&'
 
-    # The (completely unparsed) CSS selector for this rule.
+    # The CSS selector for this rule,
+    # interspersed with {Sass::Script::Node}s
+    # representing `#{}`-interpolation.
+    # Any adjacent strings will be merged together.
     #
-    # @return [String]
+    # @return [Array<String, Sass::Script::Node>]
     attr_accessor :rule
 
     # The CSS selectors for this rule,
@@ -32,7 +35,7 @@ module Sass::Tree
     #     [[:parent, ".foo"], ["bar"], ["baz"],
     #      ["\nbip"], [:parent, ".bop"], ["bup"]]
     #
-    # @return [Array<Array<String|Symbol>>]
+    # @return [Array<Array<String, Symbol>>]
     attr_accessor :parsed_rules
 
     # The CSS selectors for this rule,
@@ -71,7 +74,8 @@ module Sass::Tree
     # @return [Boolean]
     attr_accessor :group_end
 
-    # @param rule [String] The first CSS rule. See \{#rule}
+    # @param rule [Array<String, Sass::Script::Node>]
+    #   The CSS rule. See \{#rule}
     def initialize(rule)
       @rule = rule
       @tabs = 0
@@ -91,12 +95,13 @@ module Sass::Tree
     #
     # @param node [RuleNode] The other node
     def add_rules(node)
-      @rule << "\n" << node.rule
+      @rule += ["\n"] + node.rule
     end
 
     # @return [Boolean] Whether or not this rule is continued on the next line
     def continued?
-      @rule[-1] == ?,
+      last = @rule.last
+      last.is_a?(String) && last[-1] == ?,
     end
 
     protected
@@ -165,7 +170,7 @@ module Sass::Tree
     # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
     def perform!(environment)
-      @parsed_rules = parse_selector(interpolate(@rule, environment))
+      @parsed_rules = parse_selector(run_interp(@rule, environment))
       super
     end
 

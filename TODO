@@ -1,4 +1,4 @@
-# -*- mode: org -*-
+y# -*- mode: org -*-
 #+STARTUP: nofold
 
 * Documentation
@@ -33,8 +33,6 @@
    CSS superset
    Classes are mixins
      Can refer to specific property values? Syntax?
-   Pre-parse everything possible: never call Node#interpolate
-   Do all parsing in to_tree
    Pull in Compass watcher stuff
    Internationalization
      Particularly word constituents in Regexps

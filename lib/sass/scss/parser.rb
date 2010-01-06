@@ -13,6 +13,7 @@ module Sass
       def initialize(str)
         @scanner = StringScanner.new(str)
         @line = 1
+        @strs = []
       end
 
       # Parses an SCSS document.
@@ -202,7 +203,7 @@ module Sass
           end
         end
 
-        block(node(Sass::Tree::RuleNode.new(rules.strip)))
+        block(node(Sass::Tree::RuleNode.new([rules.strip])))
       end
 
       def block(node)
@@ -401,7 +402,7 @@ module Sass
         ss
         require_block ||= tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name, value, :new))
+        node = node(Sass::Tree::PropNode.new([name], [value], :new))
 
         if require_block && expression && !space
           @use_property_exception = true
@@ -460,11 +461,11 @@ MESSAGE
       end
 
       def str
-        @str = ""
+        @strs.push ""
         yield
-        @str
+        @strs.last
       ensure
-        @str = nil
+        @strs.pop
       end
 
       def node(node)
@@ -543,7 +544,9 @@ MESSAGE
         if res
           @line += res.count("\n")
           @expected = nil
-          @str << res if @str && rx != COMMENT && rx != SINGLE_LINE_COMMENT
+          if !@strs.empty? && rx != COMMENT && rx != SINGLE_LINE_COMMENT
+            @strs.each {|s| s << res}
+          end
         end
 
         res
