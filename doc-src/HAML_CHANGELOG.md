@@ -7,6 +7,9 @@
 
 * Fix compilation of HTML5 doctypes when using `html2haml`.
 
+* `nil` values for Sass options are now ignored,
+  rather than raising errors.
+
 ## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
 
 * Abstract out references to `ActionView::TemplateError`,

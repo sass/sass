@@ -88,7 +88,7 @@ module Haml
       unless ruby1_8?
         @options[:encoding] = Encoding.default_internal || "utf-8"
       end
-      @options.merge! options
+      @options.merge! options.reject {|k, v| v.nil?}
       @index = 0
 
       unless [:xhtml, :html4, :html5].include?(@options[:format])
