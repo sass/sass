@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../sass'
 require 'sass/tree/node'
-require 'sass/scss/parser'
+require 'sass/scss/css_parser'
 require 'strscan'
 
 module Sass
@@ -100,7 +100,7 @@ module Sass
     #
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
-      root = Sass::SCSS::Parser.new(@template).parse
+      root = Sass::SCSS::CssParser.new(@template).parse
       expand_commas      root
       parent_ref_rules   root
       remove_parent_refs root

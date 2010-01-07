@@ -32,7 +32,7 @@ module Sass
 
       def stylesheet
         node = node(Sass::Tree::RootNode.new(@scanner.string))
-        block_contents(node) {s(node)}
+        block_contents(node, :stylesheet) {s(node)}
       end
 
       def s(node)
@@ -71,8 +71,9 @@ module Sass
         name = tok!(IDENT)
         ss
 
-        sym = name.gsub('-', '_').to_sym
-        return send(sym) if DIRECTIVES.include?(sym)
+        if dir = scss_directive(name)
+          return dir
+        end
 
         val = str do
           # Most at-rules take expressions (e.g. @media, @import),
@@ -82,18 +83,23 @@ module Sass
         node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
 
         if tok(/\{/)
-          block_contents(node)
+          block_contents(node, :directive)
           tok!(/\}/)
         end
 
         node
       end
 
+      def scss_directive(name)
+        sym = name.gsub('-', '_').to_sym
+        DIRECTIVES.include?(sym) && send(sym)
+      end
+
       def mixin
         name = tok! IDENT
         args = sass_script(:parse_mixin_definition_arglist)
         ss
-        block(node(Sass::Tree::MixinDefNode.new(name, args)))
+        block(node(Sass::Tree::MixinDefNode.new(name, args)), :directive)
       end
 
       def include
@@ -121,19 +127,19 @@ module Sass
         to = sass_script(:parse)
         ss
 
-        block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)))
+        block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)), :directive)
       end
 
       def while
         expr = sass_script(:parse)
         ss
-        block(node(Sass::Tree::WhileNode.new(expr)))
+        block(node(Sass::Tree::WhileNode.new(expr)), :directive)
       end
 
       def if
         expr = sass_script(:parse)
         ss
-        block(node(Sass::Tree::IfNode.new(expr)))
+        block(node(Sass::Tree::IfNode.new(expr)), :directive)
       end
 
       def import
@@ -209,28 +215,28 @@ module Sass
           rules.concat expr!(:selector)
         end
 
-        block(node(Sass::Tree::RuleNode.new(rules.flatten.compact)))
+        block(node(Sass::Tree::RuleNode.new(rules.flatten.compact)), :ruleset)
       end
 
-      def block(node)
+      def block(node, context)
         tok!(/\{/)
-        block_contents(node)
+        block_contents(node, context)
         tok!(/\}/)
         node
       end
 
       # A block may contain declarations and/or rulesets
-      def block_contents(node)
+      def block_contents(node, context)
         block_given? ? yield : ss_comments(node)
-        node << (child = block_child)
+        node << (child = block_child(context))
         while tok(/;/) || (child && !child.children.empty?)
           block_given? ? yield : ss_comments(node)
-          node << (child = block_child)
+          node << (child = block_child(context))
         end
         node
       end
 
-      def block_child
+      def block_child(context)
         variable || directive || declaration_or_ruleset
       end
 
@@ -294,7 +300,7 @@ module Sass
       def simple_selector_sequence
         # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
         return expr unless e = element_name || tok(HASH) || class_expr ||
-          attrib || negation || pseudo || tok(/&/) || interpolation
+          attrib || negation || pseudo || parent_selector || interpolation
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
@@ -303,6 +309,10 @@ module Sass
           res << v
         end
         res
+      end
+
+      def parent_selector
+        tok(/&/)
       end
 
       def class_expr
@@ -391,30 +401,41 @@ module Sass
           return unless name = property
         end
 
-        value =
-          if tok(/=/)
-            require_block = false
-            expression = true
-            space = true
-            @use_property_exception = true
-            [sass_script(:parse)]
-          else
-            @expected = '":" or "="'
-            tok!(/:/)
-            space = !str {ss}.empty?
-            @use_property_exception ||= space || !tok?(IDENT)
-
-            expression = expr
-            expression << tok(IMPORTANT) if expression
-            require_block = !expression
-            expression || [""]
-          end
+        @expected = expected_property_separator
+        expression, space, value = (script_value || expr!(:plain_value))
         ss
-        require_block ||= tok?(/\{/)
+        require_block = !expression || tok?(/\{/)
 
         node = node(Sass::Tree::PropNode.new(name.flatten.compact, value.flatten.compact, :new))
 
-        if require_block && expression && !space
+        return node unless require_block
+        nested_properties! node, expression, space
+      end
+
+      def expected_property_separator
+        '":" or "="'
+      end
+
+      def script_value
+        return unless tok(/=/)
+        @use_property_exception = true
+        # expression, space, value
+        return true, true, [sass_script(:parse)]
+      end
+
+      def plain_value
+        return unless tok(/:/)
+        space = !str {ss}.empty?
+        @use_property_exception ||= space || !tok?(IDENT)
+
+        expression = expr
+        expression << tok(IMPORTANT) if expression
+        # expression, space, value
+        return expression, space, expression || [""]
+      end
+
+      def nested_properties!(node, expression, space)
+        if expression && !space
           @use_property_exception = true
           raise Sass::SyntaxError.new(<<MESSAGE, :line => @line)
 Invalid CSS: a space is required between a property and its definition
@@ -422,11 +443,9 @@ when it has other properties nested beneath it.
 MESSAGE
         end
 
-        return node unless require_block
-
         @use_property_exception = true
         @expected = 'expression (e.g. 1px, bold) or "{"'
-        block(node)
+        block(node, :property)
       end
 
       def expr

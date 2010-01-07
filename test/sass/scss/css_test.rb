@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/test_helper'
+require 'sass/scss/css_parser'
 
 # These tests just test the parsing of CSS
 # (both standard and any hacks we intend to support).
@@ -641,26 +642,75 @@ SCSS
   end
 
   def test_no_properties_at_toplevel
-    render <<SCSS
-foo {a: b}
-a: b;
+    assert_not_parses('pseudoclass or pseudoelement', 'a:<err> b;')
+  end
+
+  def test_no_scss_directives
+    assert_parses('@import "foo.sass";')
+    assert_parses <<SCSS
+@mixin foo {
+  a: b; }
 SCSS
-    assert(false, "Expected error")
-  rescue Sass::SyntaxError => e
-    assert_equal "Properties aren't allowed at the root of a document.", e.message
-    assert_equal 2, e.sass_line
+  end
+
+  def test_no_variables
+    assert_not_parses("selector or at-rule", "<err>!var = 12;")
+    assert_not_parses('"}"', "foo { <err>!var = 12; }")
+  end
+
+  def test_no_parent_selectors
+    assert_not_parses('"{"', "foo <err>&.bar {a: b}")
+  end
+
+  def test_no_script_values
+    assert_not_parses('":"', "foo {a <err>= b}")
+  end
+
+  def test_no_selector_interpolation
+    assert_not_parses('"{"', 'foo <err>#{"bar"}.baz {a: b}')
+  end
+
+  def test_no_prop_name_interpolation
+    assert_not_parses('":"', 'foo {a<err>#{"bar"}baz: b}')
+  end
+
+  def test_no_prop_val_interpolation
+    assert_not_parses('"}"', 'foo {a: b <err>#{"bar"} c}')
+  end
+
+  def test_no_string_interpolation
+    assert_parses <<SCSS
+foo {
+  a: "bang \#{1 + "bar"} bip"; }
+SCSS
+  end
+
+  def test_no_nested_rules
+    assert_not_parses('":"', 'foo {bar <err>{a: b}}')
+    assert_not_parses('"}"', 'foo {<err>.bar {a: b}}')
+  end
+
+  def test_no_nested_properties
+    assert_not_parses('expression (e.g. 1px, bold)', 'foo {bar: <err>{a: b}}')
+    assert_not_parses('expression (e.g. 1px, bold)', 'foo {bar: bang <err>{a: b}}')
+  end
+
+  def test_no_nested_directives
+    assert_not_parses('"}"', 'foo {<err>@bar {a: b}}')
   end
 
   private
-
-  def assert_valid_string(ident)
-    assert_equal
-  end
 
   def assert_selector_parses(selector)
     assert_parses <<SCSS
 #{selector} {
   a: b; }
 SCSS
+  end
+
+  def render(scss, options = {})
+    tree = Sass::SCSS::CssParser.new(scss).parse
+    tree.options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
+    tree.render
   end
 end
