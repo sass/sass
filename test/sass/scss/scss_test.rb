@@ -627,6 +627,30 @@ foo {bar: flabnabbit(\#{1 + "foo"})}
 SCSS
   end
 
+  def test_basic_prop_name_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  barbazbang: blip; }
+CSS
+foo {bar\#{"baz" + "bang"}: blip}
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar3: blip; }
+CSS
+foo {bar\#{1 + 2}: blip}
+SCSS
+  end
+
+  def test_prop_name_only_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bazbang: blip; }
+CSS
+foo {\#{"baz" + "bang"}: blip}
+SCSS
+  end
+
   ## Errors
 
   def test_mixin_defs_only_at_toplevel

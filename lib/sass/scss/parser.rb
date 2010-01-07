@@ -188,9 +188,15 @@ module Sass
       end
 
       def property
-        return unless name = tok(IDENT)
+        return unless e = (tok(IDENT) || interpolation)
+        res = [e, str{ss}]
+
+        while e = (interpolation || tok(IDENT))
+          res << e
+        end
+
         ss
-        name
+        res
       end
 
       def ruleset
@@ -380,7 +386,7 @@ module Sass
         # The tok(/\*/) allows the "*prop: val" hack
         if tok(/\*/)
           @use_property_exception = true
-          name = '*' + expr!(:property)
+          name = ['*'] + expr!(:property)
         else
           return unless name = property
         end
@@ -406,7 +412,7 @@ module Sass
         ss
         require_block ||= tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new([name], value.flatten.compact, :new))
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value.flatten.compact, :new))
 
         if require_block && expression && !space
           @use_property_exception = true
