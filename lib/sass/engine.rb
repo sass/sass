@@ -130,7 +130,7 @@ module Sass
     # @param options [{Symbol => Object}] An options hash;
     #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
     def initialize(template, options={})
-      @options = DEFAULT_OPTIONS.merge(options)
+      @options = DEFAULT_OPTIONS.merge(options.reject {|k, v| v.nil?})
       @template = template
 
       # Backwards compatibility

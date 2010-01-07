@@ -116,6 +116,9 @@ Several bug fixes and minor improvements have been made, including:
 
 * Report the filename in warnings about selectors without properties.
 
+* `nil` values for Sass options are now ignored,
+  rather than raising errors.
+
 ### Must Read!
 
 * When `@import` is given a filename without an extension,

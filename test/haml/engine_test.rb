@@ -283,6 +283,10 @@ RESULT
 SOURCE
   end
 
+  def test_nil_option
+    assert_equal("<p foo='bar'></p>\n", render('%p{:foo => "bar"}', :attr_wrapper => nil))
+  end
+
   # Regression tests
 
   def test_whitespace_nuke_with_both_newlines
