@@ -8,8 +8,6 @@ module Sass
     #
     # @todo Add a CSS-only parser that doesn't parse the SassScript extensions,
     #   so css2sass will work properly.
-    # @todo Make multiline SassScript work,
-    #   including reporting errors on the proper line.
     class Parser
       # @param str [String] The source document to parse
       def initialize(str)
@@ -500,9 +498,6 @@ MESSAGE
       def sass_script(*args)
         ScriptParser.new(@scanner, @line,
           @scanner.pos - (@scanner.string.rindex("\n") || 0)).send(*args)
-      rescue Sass::SyntaxError => e
-        e.modify_backtrace :line => @line
-        raise e
       end
 
       EXPR_NAMES = {

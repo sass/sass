@@ -501,7 +501,8 @@ WARNING
         else
           res << "\\" * [0, escapes - 1].max
           res << Script::Parser.new(
-            scan, @line, scan.pos - scan.matched_size, @filename).
+            scan, @line, scan.pos - scan.matched_size,
+            :filename => @filename).
             parse_interpolated
         end
       end

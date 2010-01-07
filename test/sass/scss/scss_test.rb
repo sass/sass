@@ -753,4 +753,16 @@ SCSS
     assert_equal "Expected expression, was plus token.", e.message
     assert_equal 2, e.sass_line
   end
+
+  def test_multiline_script_error
+    render <<SCSS
+foo {
+  bar =
+    "baz" + + }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Expected expression, was plus token.", e.message
+    assert_equal 3, e.sass_line
+  end
 end

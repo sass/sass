@@ -29,6 +29,9 @@ module Sass
         assert_tok :end_interpolation
         expr.options = @options
         expr
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
+        raise e
       end
 
       # Parses a SassScript expression.
@@ -40,6 +43,9 @@ module Sass
         assert_done
         expr.options = @options
         expr
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
+        raise e
       end
 
       # Parses a SassScript expression,
@@ -54,6 +60,9 @@ module Sass
         assert_done
         expr.options = @options
         expr
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
+        raise e
       end
 
       # Parses the argument list for a mixin include.
@@ -71,6 +80,9 @@ module Sass
 
         args.each {|a| a.options = @options}
         args
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
+        raise e
       end
 
       # Parses the argument list for a mixin definition.
@@ -91,6 +103,9 @@ module Sass
           v.options = @options if v
         end
         args
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
+        raise e
       end
 
       # Parses a SassScript expression.

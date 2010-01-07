@@ -23,6 +23,17 @@ module Sass
       # : The number of bytes into the line the SassScript token appeared.
       Token = Struct.new(:type, :value, :line, :offset)
 
+      # The line number of the lexer's current position.
+      #
+      # @return [Fixnum]
+      attr_reader :line
+
+      # The number of bytes into the current line
+      # of the lexer's current position.
+      #
+      # @return [Fixnum]
+      attr_reader :offset
+
       # A hash from operator strings to the corresponding token types.
       OPERATORS = {
         '+' => :plus,
@@ -142,7 +153,7 @@ module Sass
       end
 
       def whitespace
-        @scanner.scan(REGULAR_EXPRESSIONS[:whitespace])
+        scan(REGULAR_EXPRESSIONS[:whitespace])
       end
 
       def token
@@ -151,30 +162,30 @@ module Sass
       end
 
       def variable
-        return unless @scanner.scan(REGULAR_EXPRESSIONS[:variable])
+        return unless scan(REGULAR_EXPRESSIONS[:variable])
         [:const, @scanner[1]]
       end
 
       def ident
-        return unless s = @scanner.scan(REGULAR_EXPRESSIONS[:ident])
+        return unless s = scan(REGULAR_EXPRESSIONS[:ident])
         [:ident, s.gsub(/\\(.)/, '\1')]
       end
 
       def string(re, open)
-        return unless @scanner.scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
+        return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
         @interpolation_stack << re if @scanner[2].empty? # Started an interpolated section
         [:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1"))]
       end
 
       def number
-        return unless @scanner.scan(REGULAR_EXPRESSIONS[:number])
+        return unless scan(REGULAR_EXPRESSIONS[:number])
         value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
         value = -value if @scanner[1]
         [:number, Script::Number.new(value, Array(@scanner[4]))]
       end
 
       def color
-        return unless @scanner.scan(REGULAR_EXPRESSIONS[:color])
+        return unless scan(REGULAR_EXPRESSIONS[:color])
         value = if @scanner[4]
                   color = Color::HTML4_COLORS[@scanner[4].downcase]
                 else
@@ -184,18 +195,26 @@ module Sass
       end
 
       def bool
-        return unless s = @scanner.scan(REGULAR_EXPRESSIONS[:bool])
+        return unless s = scan(REGULAR_EXPRESSIONS[:bool])
         [:bool, Script::Bool.new(s == 'true')]
       end
 
       def op
         prev_chr = @scanner.string[@scanner.pos - 1].chr
-        return unless op = @scanner.scan(REGULAR_EXPRESSIONS[:op])
+        return unless op = scan(REGULAR_EXPRESSIONS[:op])
         [OPERATORS[op]]
       end
 
+      def scan(re)
+        return unless str = @scanner.scan(re)
+        c = str.count("\n")
+        @line += str.count("\n")
+        @offset = (c == 0 ? @offset + str.size : str[/\n(.*)/, 1].size)
+        str
+      end
+
       def current_position
-        @offset + @scanner.pos + 1
+        @offset + 1
       end
 
       def last_match_position
