@@ -447,8 +447,7 @@ MESSAGE
             interp_string ||
             tok(UNICODERANGE) ||
             tok(IDENT) ||
-            # TODO: Constrain this to be a hexcolor
-            tok(HASH) ||
+            tok(HEXCOLOR) ||
             interpolation
 
           return unless op = unary_operator

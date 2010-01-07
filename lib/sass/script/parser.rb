@@ -177,6 +177,10 @@ RUBY
         name = @lexer.next
         # An identifier without arguments is just a string
         unless try_tok(:lparen)
+          if color = Color::HTML4_COLORS[name.value]
+            return Color.new(color)
+          end
+
           filename = @options[:filename]
           warn(<<END)
 DEPRECATION WARNING:

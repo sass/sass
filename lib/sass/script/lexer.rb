@@ -70,7 +70,7 @@ module Sass
         :variable => /!(#{Sass::SCSS::RX::IDENT})/,
         :ident => Sass::SCSS::RX::IDENT,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
-        :color => /\##{"([0-9a-fA-F]{1,2})" * 3}|(#{Color::HTML4_COLORS.keys.join("|")})(?![^\s+*\/%),=!])/,
+        :color => Sass::SCSS::RX::HEXCOLOR,
         :bool => /(true|false)\b/,
         :op => %r{(#{Regexp.union(*OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(?:\b|$)' : ''))})})}
       }
@@ -185,12 +185,9 @@ module Sass
       end
 
       def color
-        return unless scan(REGULAR_EXPRESSIONS[:color])
-        value = if @scanner[4]
-                  color = Color::HTML4_COLORS[@scanner[4].downcase]
-                else
-                  (1..3).map {|i| @scanner[i]}.map {|num| num.ljust(2, num).to_i(16)}
-                end
+        return unless s = scan(REGULAR_EXPRESSIONS[:color])
+        value = s.scan(/^#(..?)(..?)(..?)$/).first.
+          map {|num| num.ljust(2, num).to_i(16)}
         [:color, Script::Color.new(value)]
       end
 

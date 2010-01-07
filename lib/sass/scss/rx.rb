@@ -68,6 +68,9 @@ module Sass
       GREATER = /#{W}>/
       TILDE = /#{W}~/
       NOT = quote(":not(", Regexp::IGNORECASE)
+
+      # Custom
+      HEXCOLOR = /\#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?/
     end
   end
 end
