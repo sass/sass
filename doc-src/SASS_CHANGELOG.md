@@ -19,6 +19,10 @@
 * `nil` values for Sass options are now ignored,
   rather than raising errors.
 
+* Fix a bug that appears when Plugin template locations
+  have multiple trailing slashes.
+  Thanks to [Jared Grippe](http://jaredgrippe.com/).
+
 ### Must Read!
 
 * When `@import` is given a filename without an extension,
