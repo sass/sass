@@ -162,6 +162,25 @@ CSS
 SCSS
   end
 
+  def test_block_comment_in_script
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 1bar; }
+CSS
+foo {a = 1 + /* "flang" */ "bar"}
+SCSS
+  end
+
+  def test_line_comment_in_script
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 1blang; }
+CSS
+foo {a = 1 + // "flang" }
+  "blang" }
+SCSS
+  end
+
   ## Nested Rules
 
   def test_nested_rules

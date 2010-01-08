@@ -66,7 +66,9 @@ module Sass
 
       # A hash of regular expressions that are used for tokenizing.
       REGULAR_EXPRESSIONS = {
-        :whitespace => /\s*/,
+        :whitespace => /\s+/,
+        :comment => Sass::SCSS::RX::COMMENT,
+        :single_line_comment => Sass::SCSS::RX::SINGLE_LINE_COMMENT,
         :variable => /!(#{Sass::SCSS::RX::IDENT})/,
         :ident => Sass::SCSS::RX::IDENT,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
@@ -153,7 +155,9 @@ module Sass
       end
 
       def whitespace
-        scan(REGULAR_EXPRESSIONS[:whitespace])
+        nil while scan(REGULAR_EXPRESSIONS[:whitespace]) ||
+          scan(REGULAR_EXPRESSIONS[:comment]) ||
+          scan(REGULAR_EXPRESSIONS[:single_line_comment])
       end
 
       def token
