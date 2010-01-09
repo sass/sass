@@ -79,7 +79,7 @@ module Sass
 
         Dir.glob(File.join(template_location, "**", "*.s[ca]ss")).each do |file|
           # Get the relative path to the file
-          name = file.sub(template_location + "/", "")
+          name = file.sub(template_location.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
 
           if !forbid_update?(name) &&
