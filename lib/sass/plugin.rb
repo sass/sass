@@ -77,7 +77,7 @@ module Sass
 
         Dir.glob(File.join(template_location, "**", "*.sass")).each do |file|
           # Get the relative path to the file with no extension
-          name = file.sub(template_location + "/", "")[0...-5]
+          name = file.sub(template_location.sub(/\/*$/, '/'), "")[0...-5]
 
           if !forbid_update?(name) && (options[:always_update] || stylesheet_needs_update?(name, template_location, css_location))
             update_stylesheet(name, template_location, css_location)
