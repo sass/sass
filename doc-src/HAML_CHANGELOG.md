@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.17 (Unreleased)
+## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fix compilation of HTML5 doctypes when using `html2haml`.
 

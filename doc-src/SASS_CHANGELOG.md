@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.2.17 (Unreleased)
+## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
   is false, raise the error in Ruby code rather than swallowing it
