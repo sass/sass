@@ -10,20 +10,22 @@ require 'sass'
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
 module Sass::Script::Functions
-  def option(name)
-    Sass::Script::String.new(@options[name.value.to_sym].to_s)
-  end
+  module UserFunctions; end
+  include UserFunctions
 end
 
 class Test::Unit::TestCase
   def munge_filename(opts)
-    return if opts[:filename]
-    opts[:filename] = test_filename(caller[1])
+    return if opts.has_key?(:filename)
+    opts[:filename] = filename_for_test
   end
 
-  def test_filename(entry = caller.first)
-    test_name = Haml::Util.caller_info(entry)[2]
-    test_name.sub!(/^(block|rescue) in /, '')
+  def filename_for_test
+    test_name = caller.
+      map {|c| Haml::Util.caller_info(c)[2]}.
+      compact.
+      map {|c| c.sub(/^(block|rescue) in /, '')}.
+      find {|c| c =~ /^test_/}
     "#{test_name}_inline.sass"
   end
 

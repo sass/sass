@@ -5,6 +5,22 @@
 
 ## 2.4.0 (Unreleased)
 
+### haml_tag improvement
+
+The {Haml::Helpers#haml_tag haml\_tag} helper can now take a string
+using the same class/id shorthand as in standard Haml code.
+Manually-specified class and id attributes are merged,
+again as in standard Haml code.
+For example:
+
+    haml_tag('#foo') #=> <div id='foo' />
+    haml_tag('.bar) #=> <div class='bar' />
+    haml_tag('span#foo.bar') #=> <span class='bar' id='foo' />
+    haml_tag('span#foo.bar', :class => 'abc') #=> <span class='abc bar' id='foo' />
+    haml_tag('span#foo.bar', :id => 'abc') #=> <span class='bar' id='abc_foo' />
+
+Cheers, [S. Burkhard](http://github.com/hasclass/).
+
 ### Object Reference Customization
 
 It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}
@@ -133,7 +149,21 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
-## 2.2.15 (Unreleased)
+## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
+
+* Fix compilation of HTML5 doctypes when using `html2haml`.
+
+* `nil` values for Sass options are now ignored,
+  rather than raising errors.
+
+## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
+
+* Abstract out references to `ActionView::TemplateError`,
+  `ActionView::TemplateHandler`, etc.
+  These have all been renamed to `ActionView::Template::*`
+  in Rails 3.0.
+
+## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
 
 * Allow `if` statements with no content followed by `else` clauses.
   For example:

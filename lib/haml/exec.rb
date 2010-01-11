@@ -244,26 +244,29 @@ END
         end
 
         super
-        input = @options[:input]
-        output = @options[:output]
 
-        tree =
-          if input.is_a?(File) && !@options[:check_syntax]
-            ::Sass::Files.tree_for(input.path, @options[:for_engine])
-          else
-            # We don't need to do any special handling of @options[:check_syntax] here,
-            # because the Sass syntax checking happens alongside evaluation
-            # and evaluation doesn't actually evaluate any code anyway.
-            ::Sass::Engine.new(input.read(), @options[:for_engine]).to_tree
-          end
+        begin
+          input = @options[:input]
+          output = @options[:output]
 
-        input.close() if input.is_a?(File)
+          tree =
+            if input.is_a?(File) && !@options[:check_syntax]
+              ::Sass::Files.tree_for(input.path, @options[:for_engine])
+            else
+              # We don't need to do any special handling of @options[:check_syntax] here,
+              # because the Sass syntax checking happens alongside evaluation
+              # and evaluation doesn't actually evaluate any code anyway.
+              ::Sass::Engine.new(input.read(), @options[:for_engine]).to_tree
+            end
 
-        output.write(tree.render)
-        output.close() if output.is_a? File
-      rescue ::Sass::SyntaxError => e
-        raise e if @options[:trace]
-        raise e.sass_backtrace_str("standard input")
+          input.close() if input.is_a?(File)
+
+          output.write(tree.render)
+          output.close() if output.is_a? File
+        rescue ::Sass::SyntaxError => e
+          raise e if @options[:trace]
+          raise e.sass_backtrace_str("standard input")
+        end
       end
     end
 

@@ -116,6 +116,13 @@ including the line number and the offending character.
 The Sass Rails plugin now works using Rack middleware by default
 in versions of Rails that support it (2.3 and onwards).
 
+### `:compressed` Style
+
+When the `:compressed` style is used,
+colors will be output as the minimal possible representation.
+This means whichever is smallest of the HTML4 color name
+and the hex representation (shortened to the three-letter version if possible).
+
 ### `css2sass` Error Handling
 
 Several bug fixes and minor improvements have been made, including:
@@ -137,7 +144,43 @@ Several bug fixes and minor improvements have been made, including:
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
-## 2.2.15 (Unreleased)
+## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
+
+* When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
+  is false, raise the error in Ruby code rather than swallowing it
+  and printing something uninformative.
+
+* Fixed error-reporting when something goes wrong when loading Sass
+  using the `sass` executable.
+  This used to raise a NameError because `Sass::SyntaxError` wasn't defined.
+  Now it'll raise the correct exception instead.
+
+* Report the filename in warnings about selectors without properties.
+
+* `nil` values for Sass options are now ignored,
+  rather than raising errors.
+
+* Fix a bug that appears when Plugin template locations
+  have multiple trailing slashes.
+  Thanks to [Jared Grippe](http://jaredgrippe.com/).
+
+### Must Read!
+
+* When `@import` is given a filename without an extension,
+  the behavior of rendering a CSS `@import` if no Sass file is found
+  is deprecated.
+  In future versions, `@import foo` will either import the template
+  or raise an error.
+
+## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
+
+* Fixed a bug where modules containing user-defined Sass functions
+  weren't made available when simply included in {Sass::Script::Functions}
+  ({Sass::Script::Functions Functions} needed to be re-included in
+  {Sass::Script::Functions::EvaluationContext Functions::EvaluationContext}).
+  Now the module simply needs to be included in {Sass::Script::Functions}.
+
+## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
 
 * Added {Sass::Script::Color#with} for a way of setting color channels
   that's easier than manually constructing a new color

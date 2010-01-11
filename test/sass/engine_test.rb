@@ -3,6 +3,12 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 require 'stringio'
 
+module Sass::Script::Functions::UserFunctions
+  def option(name)
+    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+  end
+end
+
 class SassEngineTest < Test::Unit::TestCase
   # A map of erroneous Sass documents to the error messages they should produce.
   # The error messages may be arrays;
@@ -245,19 +251,19 @@ SASS
     assert(false, "Exception not raised")
   rescue Sass::SyntaxError => err
     assert_equal(2, err.sass_line)
-    assert_equal(test_filename, err.sass_filename)
+    assert_equal(filename_for_test, err.sass_filename)
     assert_equal("error-mixin", err.sass_mixin)
 
     assert_hash_has(err.sass_backtrace.first, :line => err.sass_line,
       :filename => err.sass_filename, :mixin => err.sass_mixin)
     assert_hash_has(err.sass_backtrace[1], :line => 5,
-      :filename => test_filename, :mixin => "outer-mixin")
+      :filename => filename_for_test, :mixin => "outer-mixin")
     assert_hash_has(err.sass_backtrace[2], :line => 8,
-      :filename => test_filename, :mixin => nil)
+      :filename => filename_for_test, :mixin => nil)
 
-    assert_equal("#{test_filename}:2:in `error-mixin'", err.backtrace.first)
-    assert_equal("#{test_filename}:5:in `outer-mixin'", err.backtrace[1])
-    assert_equal("#{test_filename}:8", err.backtrace[2])
+    assert_equal("#{filename_for_test}:2:in `error-mixin'", err.backtrace.first)
+    assert_equal("#{filename_for_test}:5:in `outer-mixin'", err.backtrace[1])
+    assert_equal("#{filename_for_test}:8", err.backtrace[2])
   end
 
   def test_mixin_callsite_exception
@@ -274,11 +280,11 @@ SASS
     assert(false, "Exception not raised")
   rescue Sass::SyntaxError => err
     assert_hash_has(err.sass_backtrace.first, :line => 5,
-      :filename => test_filename, :mixin => "one-arg-mixin")
+      :filename => filename_for_test, :mixin => "one-arg-mixin")
     assert_hash_has(err.sass_backtrace[1], :line => 5,
-      :filename => test_filename, :mixin => "outer-mixin")
+      :filename => filename_for_test, :mixin => "outer-mixin")
     assert_hash_has(err.sass_backtrace[2], :line => 8,
-      :filename => test_filename, :mixin => nil)
+      :filename => filename_for_test, :mixin => nil)
   end
 
   def test_mixin_exception_cssize
@@ -295,11 +301,11 @@ SASS
     assert(false, "Exception not raised")
   rescue Sass::SyntaxError => err
     assert_hash_has(err.sass_backtrace.first, :line => 2,
-      :filename => test_filename, :mixin => "parent-ref-mixin")
+      :filename => filename_for_test, :mixin => "parent-ref-mixin")
     assert_hash_has(err.sass_backtrace[1], :line => 6,
-      :filename => test_filename, :mixin => "outer-mixin")
+      :filename => filename_for_test, :mixin => "outer-mixin")
     assert_hash_has(err.sass_backtrace[2], :line => 8,
-      :filename => test_filename, :mixin => nil)
+      :filename => filename_for_test, :mixin => nil)
   end
 
   def test_mixin_and_import_exception
@@ -416,6 +422,16 @@ CSS
     assert !File.exists?(sassc_path("importee"))
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
     assert File.exists?(sassc_path("importee"))
+  end
+
+  def test_nonexistent_extensionless_import
+    assert_warning(<<WARN) do
+WARNING: nonexistent.sass not found. Using nonexistent.css instead.
+This behavior is deprecated and will be removed in a future version.
+If you really need nonexistent.css, import it explicitly.
+WARN
+      assert_equal("@import url(nonexistent.css);\n", render("@import nonexistent"))
+    end
   end
 
   def test_no_cache
@@ -959,12 +975,12 @@ SASS
 
   def test_empty_selector_warning
     assert_warning(<<END) {render("foo bar")}
-WARNING on line 1:
+WARNING on line 1 of test_empty_selector_warning_inline.sass:
 Selector "foo bar" doesn't have any properties and will not be rendered.
 END
 
     assert_warning(<<END) {render(<<SASS)}
-WARNING on line 3:
+WARNING on line 3 of test_empty_selector_warning_inline.sass:
 Selector
   foo, bar, baz,
   bang, bip, bop
@@ -975,6 +991,11 @@ END
 foo, bar, baz,
 bang, bip, bop
 SASS
+
+    assert_warning(<<END) {render("foo bar", :filename => nil)}
+WARNING on line 1:
+Selector "foo bar" doesn't have any properties and will not be rendered.
+END
   end
 
   def test_root_level_pseudo_class_with_new_properties
@@ -995,6 +1016,16 @@ CSS
 p
   :focus
     outline: 0
+SASS
+  end
+
+  def test_nil_option
+    assert_equal(<<CSS, render(<<SASS, :format => nil))
+foo {
+  a: b; }
+CSS
+foo
+  a: b
 SASS
   end
 

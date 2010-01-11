@@ -41,7 +41,7 @@ module Sass
     # This information is also included in standard backtrace format
     # in the output of \{#backtrace}.
     #
-    # @return [Aray<Hash<Symbol, Object>>]
+    # @return [Aray<{Symbol => Object>}]
     attr_accessor :sass_backtrace
 
     # The text of the template where this error was raised.
@@ -50,7 +50,7 @@ module Sass
     attr_accessor :sass_template
 
     # @param msg [String] The error message
-    # @param attrs [Hash<Symbol, Object>] The information in the backtrace entry.
+    # @param attrs [{Symbol => Object}] The information in the backtrace entry.
     #   See \{#sass\_backtrace}
     def initialize(msg, attrs = {})
       @message = msg
@@ -83,7 +83,7 @@ module Sass
 
     # Adds an entry to the exception's Sass backtrace.
     #
-    # @param attrs [Hash<Symbol, Object>] The information in the backtrace entry.
+    # @param attrs [{Symbol => Object}] The information in the backtrace entry.
     #   See \{#sass\_backtrace}
     def add_backtrace(attrs)
       sass_backtrace << attrs.reject {|k, v| v.nil?}
@@ -101,7 +101,7 @@ module Sass
     # and is not used for less deeply-nested entries
     # (even if they don't have that attribute set).
     #
-    # @param attrs [Hash<Symbol, Object>] The information to add to the backtrace entry.
+    # @param attrs [{Symbol => Object}] The information to add to the backtrace entry.
     #   See \{#sass\_backtrace}
     def modify_backtrace(attrs)
       attrs = attrs.reject {|k, v| v.nil?}
@@ -149,10 +149,13 @@ module Sass
       # Returns an error report for an exception in CSS format.
       #
       # @param e [Exception]
-      # @param full_exception [Boolean] The value of
-      #   \{file:SASS\_REFERENCE.md#full_exception-option `options[:full_exception]`}
+      # @param options [{Symbol => Object}] The options passed to {Sass::Engine#initialize}
+      # @return [String] The error report
+      # @raise [Exception] `e`, if the
+      #   {file:SASS_REFERENCE.md#full_exception-option `:full_exception`} option
+      #   is set to false.
       def exception_to_css(e, options)
-        return "/* Internal stylesheet error */" unless options[:full_exception]
+        raise e unless options[:full_exception]
 
         header = header_string(e, options)
 

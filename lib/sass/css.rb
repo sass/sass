@@ -8,7 +8,7 @@ module Sass
       # Converts a node to Sass code that will generate it.
       #
       # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
-      # @param opts [Hash<Symbol, Object>] An options hash (see {Sass::CSS#initialize})
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
       # @return [String] The Sass code corresponding to the node
       def to_sass(tabs = 0, opts = {})
         result = ''
@@ -100,7 +100,7 @@ module Sass
     #
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
-      root = Tree::Node.new
+      root = Tree::RootNode.new(@template.string)
       whitespace
       rules              root
       expand_commas      root

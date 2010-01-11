@@ -480,10 +480,12 @@ END
       @template_tabs -= 1
     end
 
+    # This is a class method so it can be accessed from {Haml::Helpers}.
+    #
     # Iterates through the classes and ids supplied through `.`
     # and `#` syntax, and returns a hash with them as attributes,
     # that can then be merged with another attributes hash.
-    def parse_class_and_id(list)
+    def self.parse_class_and_id(list)
       attributes = {}
       list.scan(/([#.])([-_a-zA-Z0-9]+)/) do |type, property|
         case type
@@ -733,7 +735,7 @@ END
 
       object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
-      attributes = parse_class_and_id(attributes)
+      attributes = Precompiler.parse_class_and_id(attributes)
       attributes_hashes.map! do |syntax, attributes_hash|
         if syntax == :old
           static_attributes = parse_static_hash(attributes_hash)

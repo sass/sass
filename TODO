@@ -49,3 +49,7 @@
        2: Anything that keeps functionality identical to O2 (default)
        3: Assume order of rules doesn't matter
        Comma-fold even if there are intervening rules that might interfere
+   CSS3
+     Add (optional) support for http://www.w3.org/TR/css3-values/#calc
+       Cross-unit arithmetic should compile into this
+       Should we use "mod" in Sass for consistency?

@@ -127,10 +127,10 @@ module Sass
     }.freeze
 
     # @param template [String] The Sass template.
-    # @param options [Hash<Symbol, Object>] An options hash;
+    # @param options [{Symbol => Object}] An options hash;
     #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
     def initialize(template, options={})
-      @options = DEFAULT_OPTIONS.merge(options)
+      @options = DEFAULT_OPTIONS.merge(options.reject {|k, v| v.nil?})
       @template = template
 
       # Backwards compatibility
@@ -313,11 +313,11 @@ END
     def check_for_no_children(node)
       return unless node.is_a?(Tree::RuleNode) && node.children.empty?
       warning = (node.rules.size == 1) ? <<SHORT : <<LONG
-WARNING on line #{node.line}:
+WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 Selector #{node.rules.first.inspect} doesn't have any properties and will not be rendered.
 SHORT
 
-WARNING on line #{node.line}:
+WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 Selector
   #{node.rules.join("\n  ")}
 doesn't have any properties and will not be rendered.
@@ -470,7 +470,8 @@ LONG
       raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
-      args = Script::Parser.new(arg_string.strip, @line, offset).parse_mixin_definition_arglist
+      args = Script::Parser.new(arg_string.strip, @line, offset, @options).
+        parse_mixin_definition_arglist
       default_arg_found = false
       Tree::MixinDefNode.new(name, args)
     end
@@ -480,7 +481,8 @@ LONG
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
-      args = Script::Parser.new(arg_string.strip, @line, offset).parse_mixin_include_arglist
+      args = Script::Parser.new(arg_string.strip, @line, offset, @options).
+        parse_mixin_include_arglist
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.",
         :line => @line + 1) unless line.children.empty?
       Tree::MixinNode.new(name, args)
@@ -489,7 +491,7 @@ LONG
     def parse_script(script, options = {})
       line = options[:line] || @line
       offset = options[:offset] || 0
-      Script.parse(script, line, offset, @options[:filename])
+      Script.parse(script, line, offset, @options)
     end
   end
 end

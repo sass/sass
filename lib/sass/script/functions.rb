@@ -120,29 +120,43 @@ module Sass::Script
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
-  # This temptation must be resisted.
-  # Keep in mind that Sass stylesheets are only compiled once
-  # at a somewhat indeterminate time
-  # and then left as static CSS files.
-  # Any dynamic CSS should be left in `<style>` tags in the HTML.
+  # This is generally a bad idea;
+  # since Sass files are by default only compiled once,
+  # dynamic code is not a great fit.
+  #
+  # If you really, really need to compile Sass on each request,
+  # first make sure you have adequate caching set up.
+  # Then you can use {Sass::Engine} to render the code,
+  # using the {file:SASS_REFERENCE.md#custom-option `options` parameter}
+  # to pass in data that {EvaluationContext#options can be accessed}
+  # from your Sass functions.
   #
   # Within one of the functions in this module,
   # methods of {EvaluationContext} can be used.
+  #
+  # ### Caveats
+  #
+  # When creating new {Literal} objects within functions,
+  # be aware that it's not safe to call {Literal#to_s #to_s}
+  # (or other methods that use the string representation)
+  # on those objects without first setting {Node#options= the #options attribute}.
   module Functions
     # The context in which methods in {Script::Functions} are evaluated.
     # That means that all instance methods of {EvaluationContext}
     # are available to use in functions.
     class EvaluationContext
-      include Sass::Script::Functions
-
       # The options hash for the {Sass::Engine} that is processing the function call
       #
-      # @return [Hash<Symbol, Object>]
+      # @return [{Symbol => Object}]
       attr_reader :options
 
-      # @param options [Hash<Symbol, Object>] See \{#options}
+      # @param options [{Symbol => Object}] See \{#options}
       def initialize(options)
         @options = options
+
+        # We need to include this individually in each instance
+        # because of an icky Ruby restriction
+        class << self; include Sass::Script::Functions; end
       end
 
       # Asserts that the type of a given SassScript value
