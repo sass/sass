@@ -7,6 +7,18 @@
 
 ### Colors
 
+SassScript color values are much more powerful than they were before.
+Support was added for alpha channels,
+and most of Chris Eppstein's [compass-colors](http://chriseppstein.github.com/compass-colors) plugin
+was merged in, providing color-theoretic functions for modifying colors.
+
+One of the most interesting of these functions is {Sass::Script::Functions#mix mix},
+which mixes two colors together.
+This provides a much better way of combining colors and creating themes
+than standard color arithmetic.
+
+#### Alpha Channels
+
 Sass now supports colors with alpha channels,
 constructed via the {Sass::Script::Functions#rgba rgba}
 and {Sass::Script::Functions#hsla hsla} functions.
@@ -21,6 +33,35 @@ Sass now also supports functions that return the values of the
 {Sass::Script::Functions#green green},
 and {Sass::Script::Functions#alpha alpha}
 components of colors.
+
+#### HSL Colors
+
+Sass has many new functions for using the HSL values of colors.
+For an overview of HSL colors, check out [the CSS3 Spec](http://www.w3.org/TR/css3-color/#hsl-color).
+All these functions work just as well on RGB colors
+as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
+
+* The {Sass::Script::Functions#lighten lighten}
+  and {Sass::Script::Functions#darken darken}
+  functions adjust the lightness of a color.
+
+* The {Sass::Script::Functions#saturate saturate}
+  and {Sass::Script::Functions#desaturate desaturate}
+  functions adjust the saturation of a color.
+
+* The {Sass::Script::Functions#adjust_hue adjust-hue}
+  function adjusts the hue of a color.
+
+* The {Sass::Script::Functions#hue hue},
+  {Sass::Script::Functions#saturation saturation},
+  and {Sass::Script::Functions#lightness lightness}
+  functions return the corresponding HSL values of the color.
+
+* The {Sass::Script::Functions#grayscale grayscale}
+  function converts a color to grayscale.
+
+* The {Sass::Script::Functions#complement complement}
+  function returns the complement of a color.
 
 ### Variable Names
 

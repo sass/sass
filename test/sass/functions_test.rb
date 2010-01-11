@@ -22,9 +22,26 @@ class SassFunctionTest < Test::Unit::TestCase
   File.read(File.dirname(__FILE__) + "/data/hsl-rgb.txt").split("\n\n").each do |chunk|
     hsls, rgbs = chunk.strip.split("====")
     hsls.strip.split("\n").zip(rgbs.strip.split("\n")) do |hsl, rgb|
-      method = "test_hsl: #{hsl} = #{rgb}"
-      define_method(method) do
+      hsl_method = "test_hsl: #{hsl} = #{rgb}"
+      define_method(hsl_method) do
         assert_equal(evaluate(rgb), evaluate(hsl))
+      end
+
+      rgb_to_hsl_method = "test_rgb_to_hsl: #{rgb} = #{hsl}"
+      define_method(rgb_to_hsl_method) do
+        rgb_color = perform(rgb)
+        hsl_color = perform(hsl)
+
+        white = hsl_color.lightness == 100
+        black = hsl_color.lightness == 0
+        grayscale = white || black || hsl_color.saturation == 0
+
+        assert_in_delta(hsl_color.hue, rgb_color.hue, 0.0001,
+          "Hues should be equal") unless grayscale
+        assert_in_delta(hsl_color.saturation, rgb_color.saturation, 0.0001,
+          "Saturations should be equal") unless white || black
+        assert_in_delta(hsl_color.lightness, rgb_color.lightness, 0.0001,
+          "Lightnesses should be equal")
       end
     end
   end
@@ -198,6 +215,32 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("12 is not a color for `blue'", "blue(12)")
   end
 
+  def test_hue
+    assert_equal("18deg", evaluate("hue(hsl(18, 50%, 20%))"))
+  end
+
+  def test_hue_exception
+    assert_error_message("12 is not a color for `hue'", "hue(12)")
+  end
+
+  def test_saturation
+    assert_equal("52%", evaluate("saturation(hsl(20, 52%, 20%))"))
+    assert_equal("52%", evaluate("saturation(hsl(20, 52, 20%))"))
+  end
+
+  def test_saturation_exception
+    assert_error_message("12 is not a color for `saturation'", "saturation(12)")
+  end
+
+  def test_lightness
+    assert_equal("86%", evaluate("lightness(hsl(120, 50%, 86%))"))
+    assert_equal("86%", evaluate("lightness(hsl(120, 50%, 86))"))
+  end
+
+  def test_lightness_exception
+    assert_error_message("12 is not a color for `lightness'", "lightness(12)")
+  end
+
   def test_alpha
     assert_equal("1", evaluate("alpha(#123456)"))
     assert_equal("0.34", evaluate("alpha(rgba(0, 1, 2, 0.34))"))
@@ -250,6 +293,161 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `transparentize'", "transparentize(#fff, \"foo\")")
   end
 
+  def test_lighten
+    assert_equal("#4d4d4d", evaluate("lighten(hsl(0, 0, 0), 30%)"))
+    assert_equal("#ee0000", evaluate("lighten(#800, 20%)"))
+    assert_equal("white", evaluate("lighten(#fff, 20%)"))
+    assert_equal("white", evaluate("lighten(#800, 100%)"))
+    assert_equal("#880000", evaluate("lighten(#800, 0%)"))
+    assert_equal("rgba(238, 0, 0, 0.5)", evaluate("lighten(rgba(136, 0, 0, 0.5), 20%)"))
+  end
+
+  def test_lighten_tests_bounds
+    assert_error_message("Amount -0.001 must be between 0% and 100% for `lighten'",
+      "lighten(#123, -0.001)")
+    assert_error_message("Amount 100.001 must be between 0% and 100% for `lighten'",
+      "lighten(#123, 100.001)")
+  end
+
+  def test_lighten_tests_types
+    assert_error_message("\"foo\" is not a color for `lighten'", "lighten(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `lighten'", "lighten(#fff, \"foo\")")
+  end
+
+  def test_darken
+    assert_equal("#ff6a00", evaluate("darken(hsl(25, 100, 80), 30%)"))
+    assert_equal("#220000", evaluate("darken(#800, 20%)"))
+    assert_equal("black", evaluate("darken(#000, 20%)"))
+    assert_equal("black", evaluate("darken(#800, 100%)"))
+    assert_equal("#880000", evaluate("darken(#800, 0%)"))
+    assert_equal("rgba(34, 0, 0, 0.5)", evaluate("darken(rgba(136, 0, 0, 0.5), 20%)"))
+  end
+
+  def test_darken_tests_bounds
+    assert_error_message("Amount -0.001 must be between 0% and 100% for `darken'",
+      "darken(#123, -0.001)")
+    assert_error_message("Amount 100.001 must be between 0% and 100% for `darken'",
+      "darken(#123, 100.001)")
+  end
+
+  def test_darken_tests_types
+    assert_error_message("\"foo\" is not a color for `darken'", "darken(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `darken'", "darken(#fff, \"foo\")")
+  end
+
+  def test_saturate
+    assert_equal("#d9f2d9", evaluate("saturate(hsl(120, 30, 90), 20%)"))
+    assert_equal("#9e3f3f", evaluate("saturate(#855, 20%)"))
+    assert_equal("black", evaluate("saturate(#000, 20%)"))
+    assert_equal("white", evaluate("saturate(#fff, 20%)"))
+    assert_equal("#33ff33", evaluate("saturate(#8a8, 100%)"))
+    assert_equal("#88aa88", evaluate("saturate(#8a8, 0%)"))
+    assert_equal("rgba(158, 63, 63, 0.5)", evaluate("saturate(rgba(136, 85, 85, 0.5), 20%)"))
+  end
+
+  def test_saturate_tests_bounds
+    assert_error_message("Amount -0.001 must be between 0% and 100% for `saturate'",
+      "saturate(#123, -0.001)")
+    assert_error_message("Amount 100.001 must be between 0% and 100% for `saturate'",
+      "saturate(#123, 100.001)")
+  end
+
+  def test_saturate_tests_types
+    assert_error_message("\"foo\" is not a color for `saturate'", "saturate(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `saturate'", "saturate(#fff, \"foo\")")
+  end
+
+  def test_desaturate
+    assert_equal("#e3e8e3", evaluate("desaturate(hsl(120, 30, 90), 20%)"))
+    assert_equal("#726b6b", evaluate("desaturate(#855, 20%)"))
+    assert_equal("black", evaluate("desaturate(#000, 20%)"))
+    assert_equal("white", evaluate("desaturate(#fff, 20%)"))
+    assert_equal("#999999", evaluate("desaturate(#8a8, 100%)"))
+    assert_equal("#88aa88", evaluate("desaturate(#8a8, 0%)"))
+    assert_equal("rgba(114, 107, 107, 0.5)", evaluate("desaturate(rgba(136, 85, 85, 0.5), 20%)"))
+  end
+
+  def test_desaturate_tests_bounds
+    assert_error_message("Amount -0.001 must be between 0% and 100% for `desaturate'",
+      "desaturate(#123, -0.001)")
+    assert_error_message("Amount 100.001 must be between 0% and 100% for `desaturate'",
+      "desaturate(#123, 100.001)")
+  end
+
+  def test_desaturate_tests_types
+    assert_error_message("\"foo\" is not a color for `desaturate'", "desaturate(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `desaturate'", "desaturate(#fff, \"foo\")")
+  end
+
+  def test_adjust_hue
+    assert_equal("#deeded", evaluate("adjust-hue(hsl(120, 30, 90), 60deg)"))
+    assert_equal("#ededde", evaluate("adjust-hue(hsl(120, 30, 90), -60deg)"))
+    assert_equal("#886a11", evaluate("adjust-hue(#811, 45deg)"))
+    assert_equal("black", evaluate("adjust-hue(#000, 45deg)"))
+    assert_equal("white", evaluate("adjust-hue(#fff, 45deg)"))
+    assert_equal("#88aa88", evaluate("adjust-hue(#8a8, 360deg)"))
+    assert_equal("#88aa88", evaluate("adjust-hue(#8a8, 0deg)"))
+    assert_equal("rgba(136, 106, 17, 0.5)", evaluate("adjust-hue(rgba(136, 17, 17, 0.5), 45deg)"))
+  end
+
+  def test_adjust_hue_tests_types
+    assert_error_message("\"foo\" is not a color for `adjust-hue'", "adjust-hue(\"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `adjust-hue'", "adjust-hue(#fff, \"foo\")")
+  end
+
+  def test_mix
+    assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
+    assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
+    assert_equal("#7f9055", evaluate("mix(#f70, #0aa)"))
+    assert_equal("#3f00bf", evaluate("mix(#f00, #00f, 25%)"))
+    assert_equal("rgba(63, 0, 191, 0.75)", evaluate("mix(rgba(255, 0, 0, 0.5), #00f)"))
+    assert_equal("red", evaluate("mix(#f00, #00f, 100%)"))
+    assert_equal("blue", evaluate("mix(#f00, #00f, 0%)"))
+    assert_equal("rgba(255, 0, 0, 0.5)", evaluate("mix(#f00, transparentize(#00f, 1))"))
+    assert_equal("rgba(0, 0, 255, 0.5)", evaluate("mix(transparentize(#f00, 1), #00f)"))
+    assert_equal("red", evaluate("mix(#f00, transparentize(#00f, 1), 100%)"))
+    assert_equal("blue", evaluate("mix(transparentize(#f00, 1), #00f, 0%)"))
+    assert_equal("rgba(0, 0, 255, 0)", evaluate("mix(#f00, transparentize(#00f, 1), 0%)"))
+    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix(transparentize(#f00, 1), #00f, 100%)"))
+  end
+
+  def test_mix_tests_types
+    assert_error_message("\"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
+    assert_error_message("\"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
+    assert_error_message("\"foo\" is not a number for `mix'", "mix(#f00, #baf, \"foo\")")
+  end
+
+  def test_mix_tests_bounds
+    assert_error_message("Weight -0.001 must be between 0% and 100% for `mix'",
+      "mix(#123, #456, -0.001)")
+    assert_error_message("Weight 100.001 must be between 0% and 100% for `mix'",
+      "mix(#123, #456, 100.001)")
+  end
+
+  def test_grayscale
+    assert_equal("#bbbbbb", evaluate("grayscale(#abc)"))
+    assert_equal("gray", evaluate("grayscale(#f00)"))
+    assert_equal("gray", evaluate("grayscale(#00f)"))
+    assert_equal("white", evaluate("grayscale(white)"))
+    assert_equal("black", evaluate("grayscale(black)"))
+  end
+
+  def tets_grayscale_tests_types
+    assert_error_message("\"foo\" is not a color for `grayscale'", "grayscale(\"foo\")")
+  end
+
+  def test_complement
+    assert_equal("#ccbbaa", evaluate("complement(#abc)"))
+    assert_equal("aqua", evaluate("complement(red)"))
+    assert_equal("red", evaluate("complement(aqua)"))
+    assert_equal("white", evaluate("complement(white)"))
+    assert_equal("black", evaluate("complement(black)"))
+  end
+
+  def tets_complement_tests_types
+    assert_error_message("\"foo\" is not a color for `complement'", "complement(\"foo\")")
+  end
+
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
@@ -267,6 +465,10 @@ MSG
 
   def evaluate(value)
     Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new).to_s
+  end
+
+  def perform(value)
+    Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new)
   end
 
   def assert_error_message(message, value)
