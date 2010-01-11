@@ -149,7 +149,7 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
-## 2.2.17 (Unreleased)
+## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fix compilation of HTML5 doctypes when using `html2haml`.
 
