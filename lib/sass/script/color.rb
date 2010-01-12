@@ -2,6 +2,19 @@ require 'sass/script/literal'
 
 module Sass::Script
   # A SassScript object representing a CSS color.
+  #
+  # A color may be represented internally as RGBA, HSLA, or both.
+  # It's originally represented as whatever its input is;
+  # if it's created with RGB values, it's represented as RGBA,
+  # and if it's created with HSL values, it's represented as HSLA.
+  # Once a property is accessed that requires the other representation --
+  # for example, \{#red} for an HSL color --
+  # that component is calculated and cached.
+  #
+  # The alpha channel of a color is independent of its RGB or HSL representation.
+  # It's always stored, as 1 if nothing else is specified.
+  # If only the alpha channel is modified using \{#with},
+  # the cached RGB and HSL values are retained.
   class Color < Literal
     class << self; include Haml::Util; end
 
@@ -27,50 +40,135 @@ module Sass::Script
     # A hash from `[red, green, blue]` value arrays to color names.
     HTML4_COLORS_REVERSE = map_hash(HTML4_COLORS) {|k, v| [v, k]}
 
-    # Constructs an RGB or RGBA color object.
-    # The RGB values must be between 0 and 255,
-    # and the alpha value is generally expected to be between 0 and 1.
-    # However, the alpha value can be greater than 1
-    # in order to allow it to be used for color multiplication.
+    # Constructs an RGB or HSL color object,
+    # optionally with an alpha channel.
+    # 
+    # The RGB values must be between 0 and 255.
+    # The saturation and lightness values must be between 0 and 100.
+    # The alpha value must be between 0 and 1.
     #
-    # @param rgba [Array<Numeric>] A three-element array of the red, green, blue,
-    #   and optionally alpha values (respectively) of the color
-    # @raise [Sass::SyntaxError] if any color value isn't between 0 and 255,
-    #   or the alpha value is negative
-    def initialize(rgba)
-      @red, @green, @blue = rgba[0...3].map {|c| c.to_i}
-      @alpha = rgba[3] ? rgba[3].to_f : 1
+    # @raise [Sass::SyntaxError] if any color value isn't in the specified range
+    #
+    # @overload initialize(attrs)
+    #   The attributes are specified as a hash.
+    #   This hash must contain either `:hue`, `:saturation`, and `:value` keys,
+    #   or `:red`, `:green`, and `:blue` keys.
+    #   It cannot contain both HSL and RGB keys.
+    #   It may also optionally contain an `:alpha` key.
+    #
+    #   @param attrs [{Symbol => Numeric}] A hash of color attributes to values
+    #   @raise [ArgumentError] if not enough attributes are specified,
+    #     or both RGB and HSL attributes are specified
+    #
+    # @overload initialize(rgba)
+    #   The attributes are specified as an array.
+    #   This overload only supports RGB or RGBA colors.
+    #
+    #   @param rgba [Array<Numeric>] A three-element array of the red, green, blue,
+    #     and optionally alpha values (respectively) of the color
+    #   @raise [ArgumentError] if not enough attributes are specified
+    def initialize(attrs, allow_both_rgb_and_hsl = false)
       super(nil)
 
-      unless rgb.all? {|c| (0..255).include?(c)}
-        raise Sass::SyntaxError.new("Color values must be between 0 and 255")
+      if attrs.is_a?(Array)
+        unless (3..4).include?(attrs.size)
+          raise ArgumentError.new("Color.new(array) expects a three- or four-element array")
+        end
+
+        red, green, blue = attrs[0...3].map {|c| c.to_i}
+        @attrs = {:red => red, :green => green, :blue => blue}
+        @attrs[:alpha] = attrs[3] ? attrs[3].to_f : 1
+      else
+        attrs = attrs.reject {|k, v| v.nil?}
+        hsl = [:hue, :saturation, :lightness] & attrs.keys
+        rgb = [:red, :green, :blue] & attrs.keys
+        if !allow_both_rgb_and_hsl && !hsl.empty? && !rgb.empty?
+          raise ArgumentError.new("Color.new(hash) may not have both HSL and RGB keys specified")
+        elsif hsl.empty? && rgb.empty?
+          raise ArgumentError.new("Color.new(hash) must have either HSL or RGB keys specified")
+        elsif !hsl.empty? && hsl.size != 3
+          raise ArgumentError.new("Color.new(hash) must have all three HSL values specified")
+        elsif !rgb.empty? && rgb.size != 3
+          raise ArgumentError.new("Color.new(hash) must have all three RGB values specified")
+        end
+
+        @attrs = attrs
+        @attrs[:hue] %= 360 if @attrs[:hue]
+        @attrs[:alpha] ||= 1
       end
 
-      unless (0..1).include?(alpha)
-        raise Sass::SyntaxError.new("Color opacity value must between 0 and 1")
+      [:red, :green, :blue].each do |k|
+        next if @attrs[k].nil?
+        @attrs[k] = @attrs[k].to_i
+        next if (0..255).include?(@attrs[k])
+        raise Sass::SyntaxError.new("#{k.to_s.capitalize} value must be between 0 and 255")
+      end
+
+      [:saturation, :lightness].each do |k|
+        next if @attrs[k].nil? || (0..100).include?(@attrs[k])
+        raise Sass::SyntaxError.new("#{k.to_s.capitalize} must be between 0 and 100")
+      end
+
+      unless (0..1).include?(@attrs[:alpha])
+        raise Sass::SyntaxError.new("Alpha channel must between 0 and 1")
       end
     end
 
     # The red component of the color.
     #
     # @return [Fixnum]
-    attr_reader :red
+    def red
+      hsl_to_rgb!
+      @attrs[:red]
+    end
 
     # The green component of the color.
     #
     # @return [Fixnum]
-    attr_reader :green
+    def green
+      hsl_to_rgb!
+      @attrs[:green]
+    end
 
     # The blue component of the color.
     #
     # @return [Fixnum]
-    attr_reader :blue
+    def blue
+      hsl_to_rgb!
+      @attrs[:blue]
+    end
+
+    # The hue component of the color.
+    #
+    # @return [Numeric]
+    def hue
+      rgb_to_hsl!
+      @attrs[:hue]
+    end
+
+    # The saturation component of the color.
+    #
+    # @return [Numeric]
+    def saturation
+      rgb_to_hsl!
+      @attrs[:saturation]
+    end
+
+    # The lightness component of the color.
+    #
+    # @return [Numeric]
+    def lightness
+      rgb_to_hsl!
+      @attrs[:lightness]
+    end
 
     # The alpha channel (opacity) of the color.
     # This is 1 unless otherwise defined.
     #
     # @return [Fixnum]
-    attr_reader :alpha
+    def alpha
+      @attrs[:alpha]
+    end
 
     # Returns whether this color object is translucent;
     # that is, whether the alpha channel is non-1.
@@ -99,6 +197,14 @@ END
       [red, green, blue].freeze
     end
 
+    # Returns the hue, saturation, and lightness components of the color.
+    #
+    # @return [Array<Fixnum>] A frozen three-element array of the
+    #   hue, saturation, and lightness values (respectively) of the color
+    def hsl
+      [hue, saturation, lightness].freeze
+    end
+
     # The SassScript `==` operation.
     # **Note that this returns a {Sass::Script::Bool} object,
     # not a Ruby boolean**.
@@ -112,6 +218,7 @@ END
     end
 
     # Returns a copy of this color with one or more channels changed.
+    # RGB or HSL colors may be changed, but not both at once.
     #
     # For example:
     #
@@ -119,19 +226,36 @@ END
     #       #=> rgb(10, 40, 30)
     #     Color.new([126, 126, 126]).with(:red => 0, :green => 255)
     #       #=> rgb(0, 255, 126)
+    #     Color.new([255, 0, 127]).with(:saturation => 60)
+    #       #=> rgb(204, 51, 127)
     #     Color.new([1, 2, 3]).with(:alpha => 0.4)
     #       #=> rgba(1, 2, 3, 0.4)
     #
     # @param attrs [{Symbol => Numeric}]
-    #   A map of channel names (`:red`, `:green`, `:blue`, or `:alpha`) to values
+    #   A map of channel names (`:red`, `:green`, `:blue`,
+    #   `:hue`, `:saturation`, `:lightness`, or `:alpha`) to values
     # @return [Color] The new Color object
+    # @raise [ArgumentError] if both RGB and HSL keys are specified
     def with(attrs)
-      Color.new([
-          attrs[:red] || red,
-          attrs[:green] || green,
-          attrs[:blue] || blue,
-          attrs[:alpha] || alpha,
-        ])
+      attrs = attrs.reject {|k, v| v.nil?}
+      hsl = !([:hue, :saturation, :lightness] & attrs.keys).empty?
+      rgb = !([:red, :green, :blue] & attrs.keys).empty?
+      if hsl && rgb
+        raise ArgumentError.new("Color#with may not have both HSL and RGB keys specified")
+      end
+
+      if hsl
+        [:hue, :saturation, :lightness].each {|k| attrs[k] ||= send(k)}
+      elsif rgb
+        [:red, :green, :blue].each {|k| attrs[k] ||= send(k)}
+      else
+        # If we're just changing the alpha channel,
+        # keep all the HSL/RGB stuff we've calculated
+        attrs = @attrs.merge(attrs)
+      end
+      attrs[:alpha] ||= alpha
+
+      Color.new(attrs, :allow_both_rgb_and_hsl)
     end
 
     # The SassScript `+` operation.
@@ -298,6 +422,65 @@ END
       end
 
       with(:red => result[0], :green => result[1], :blue => result[2])
+    end
+
+    def hsl_to_rgb!
+      return if @attrs[:red] && @attrs[:blue] && @attrs[:green]
+
+      h = @attrs[:hue] / 360.0
+      s = @attrs[:saturation] / 100.0
+      l = @attrs[:lightness] / 100.0
+
+      # Algorithm from the CSS3 spec: http://www.w3.org/TR/css3-color/#hsl-color.
+      m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
+      m1 = l * 2 - m2
+      @attrs[:red], @attrs[:green], @attrs[:blue] = [
+        hue_to_rgb(m1, m2, h + 1.0/3),
+        hue_to_rgb(m1, m2, h),
+        hue_to_rgb(m1, m2, h - 1.0/3)
+      ].map {|c| (c * 0xff).round}
+    end
+
+    def hue_to_rgb(m1, m2, h)
+      h += 1 if h < 0
+      h -= 1 if h > 1
+      return m1 + (m2 - m1) * h * 6 if h * 6 < 1
+      return m2 if h * 2 < 1
+      return m1 + (m2 - m1) * (2.0/3 - h) * 6 if h * 3 < 2
+      return m1
+    end
+
+    def rgb_to_hsl!
+      return if @attrs[:hue] && @attrs[:saturation] && @attrs[:lightness]
+      r, g, b = [:red, :green, :blue].map {|k| @attrs[k] / 255.0}
+
+      # Algorithm from http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
+      max = [r, g, b].max
+      min = [r, g, b].min
+      d = max - min
+
+      h =
+        case max
+        when min; 0
+        when r; 60 * (g-b)/d
+        when g; 60 * (b-r)/d + 120
+        when b; 60 * (r-g)/d + 240
+        end
+
+      l = (max + min)/2.0
+
+      s =
+        if max == min
+          0
+        elsif l < 0.5
+          d/(2*l)
+        else
+          d/(2 - 2*l)
+        end
+
+      @attrs[:hue] = h % 360
+      @attrs[:saturation] = s * 100
+      @attrs[:lightness] = l * 100
     end
   end
 end

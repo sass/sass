@@ -1001,6 +1001,16 @@ p
 SASS
   end
 
+  def test_nil_option
+    assert_equal(<<CSS, render(<<SASS, :format => nil))
+foo {
+  a: b; }
+CSS
+foo
+  a: b
+SASS
+  end
+
   # Regression tests
 
   def test_parens_in_mixins

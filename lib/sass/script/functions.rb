@@ -2,23 +2,19 @@ module Sass::Script
   # Methods in this module are accessible from the SassScript context.
   # For example, you can write
   #
-  #     !color = hsl(120, 100%, 50%)
+  #     !color = hsl(120deg, 100%, 50%)
   #
   # and it will call {Sass::Script::Functions#hsl}.
   #
   # The following functions are provided:
   #
-  # \{#hsl}
-  # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
-  #
-  # \{#hsla}
-  # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
+  # ## RGB Functions
   #
   # \{#rgb}
   # : Converts an `rgb(red, green, blue)` triplet into a color.
   #
   # \{#rgba}
-  # : Converts an `rgb(red, green, blue, alpha)` triplet into a color.
+  # : Converts an `rgba(red, green, blue, alpha)` quadruplet into a color.
   #
   # \{#red}
   # : Gets the red component of a color.
@@ -29,6 +25,49 @@ module Sass::Script
   # \{#blue}
   # : Gets the blue component of a color.
   #
+  # \{#mix}
+  # : Mixes two colors together.
+  #
+  # ## HSL Functions
+  #
+  # \{#hsl}
+  # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
+  #
+  # \{#hsla}
+  # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
+  #
+  # \{#hue}
+  # : Gets the hue component of a color.
+  #
+  # \{#saturation}
+  # : Gets the saturation component of a color.
+  #
+  # \{#lightness}
+  # : Gets the lightness component of a color.
+  #
+  # \{#adjust_hue #adjust-hue}
+  # : Changes the hue of a color.
+  #
+  # \{#lighten}
+  # : Makes a color lighter.
+  #
+  # \{#darken}
+  # : Makes a color darker.
+  #
+  # \{#saturate}
+  # : Makes a color more saturated.
+  #
+  # \{#desaturate}
+  # : Makes a color less saturated.
+  #
+  # \{#grayscale}
+  # : Converts a color to grayscale.
+  #
+  # \{#complement}
+  # : Returns the complement of a color.
+  #
+  # ## Opacity Functions
+  #
   # \{#alpha} / \{#opacity}
   # : Gets the alpha component (opacity) of a color.
   #
@@ -37,6 +76,8 @@ module Sass::Script
   #
   # \{#transparentize} / \{#fade_out #fade-out}
   # : Makes a color more transparent.
+  #
+  # ## Number Functions
   #
   # \{#percentage}
   # : Converts a unitless number to a percentage.
@@ -139,15 +180,17 @@ module Sass::Script
 
 
     # Creates a {Color} object from red, green, and blue values.
-    # @param red
+    #
+    # @param red [Number]
     #   A number between 0 and 255 inclusive,
     #   or between 0% and 100% inclusive
-    # @param green
+    # @param green [Number]
     #   A number between 0 and 255 inclusive,
     #   or between 0% and 100% inclusive
-    # @param blue
+    # @param blue [Number]
     #   A number between 0 and 255 inclusive,
     #   or between 0% and 100% inclusive
+    # @return [Color]
     def rgb(red, green, blue)
       rgba(red, green, blue, Number.new(1))
     end
@@ -155,14 +198,15 @@ module Sass::Script
     # Creates a {Color} object from red, green, and blue values,
     # as well as an alpha channel indicating opacity.
     #
-    # @param red
+    # @param red [Number]
     #   A number between 0 and 255 inclusive
-    # @param green
+    # @param green [Number]
     #   A number between 0 and 255 inclusive
-    # @param blue
+    # @param blue [Number]
     #   A number between 0 and 255 inclusive
-    # @param alpha
+    # @param alpha [Number]
     #   A number between 0 and 1
+    # @return [Color]
     def rgba(red, green, blue, alpha)
       assert_type red, :Number
       assert_type green, :Number
@@ -233,17 +277,7 @@ module Sass::Script
       raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") unless (0..100).include?(s)
       raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") unless (0..100).include?(l)
 
-      h = (h % 360) / 360.0
-      s /= 100.0
-      l /= 100.0
-
-      m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
-      m1 = l * 2 - m2
-      Color.new(
-        [hue_to_rgb(m1, m2, h + 1.0/3),
-          hue_to_rgb(m1, m2, h),
-          hue_to_rgb(m1, m2, h - 1.0/3)].map { |c| (c * 0xff).round } +
-        [alpha.value])
+      Color.new(:hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
 
     # Returns the red component of a color.
@@ -276,6 +310,48 @@ module Sass::Script
       Sass::Script::Number.new(color.blue)
     end
 
+    # Returns the hue component of a color.
+    #
+    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # @param color [Color]
+    # @return [Number] between 0deg and 360deg
+    # @raise [ArgumentError] if `color` isn't a color
+    def hue(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.hue, ["deg"])
+    end
+
+    # Returns the saturation component of a color.
+    #
+    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # @param color [Color]
+    # @return [Number] between 0% and 100%
+    # @raise [ArgumentError] if `color` isn't a color
+    def saturation(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.saturation, ["%"])
+    end
+
+    # Returns the hue component of a color.
+    #
+    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    #
+    # @param color [Color]
+    # @return [Number] between 0% and 100%
+    # @raise [ArgumentError] if `color` isn't a color
+    def lightness(color)
+      assert_type color, :Color
+      Sass::Script::Number.new(color.lightness, ["%"])
+    end
+
     # Returns the alpha component (opacity) of a color.
     # This is 1 unless otherwise specified.
     #
@@ -299,16 +375,11 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def opacify(color, amount)
-      assert_type color, :Color
-      assert_type amount, :Number
-      unless (0..1).include?(amount.value)
-        raise ArgumentError.new("Amount #{amount} must be between 0 and 1")
-      end
-
-      color.with(:alpha => Haml::Util.restrict(color.alpha + amount.value, 0..1))
+      adjust(color, amount, :alpha, 0..1, :+)
     end
     alias_method :fade_in, :opacify
 
@@ -323,18 +394,193 @@ module Sass::Script
     #
     # @param color [Color]
     # @param amount [Number]
+    # @return [Color]
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def transparentize(color, amount)
-      assert_type color, :Color
-      assert_type amount, :Number
-      unless (0..1).include?(amount.value)
-        raise ArgumentError.new("Amount #{amount} must be between 0 and 1")
-      end
-
-      color.with(:alpha => Haml::Util.restrict(color.alpha - amount.value, 0..1))
+      adjust(color, amount, :alpha, 0..1, :-)
     end
     alias_method :fade_out, :transparentize
+
+    # Makes a color lighter.
+    # Takes a color and an amount between 0% and 100%,
+    # and returns a color with the lightness increased by that value.
+    #
+    # For example:
+    #
+    #     lighten(hsl(0, 0%, 0%), 30%) => hsl(0, 0, 30)
+    #     lighten(#800, 20%) => #e00
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @return [Color]
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0% and 100%
+    def lighten(color, amount)
+      adjust(color, amount, :lightness, 0..100, :+, "%")
+    end
+
+    # Makes a color darker.
+    # Takes a color and an amount between 0% and 100%,
+    # and returns a color with the lightness decreased by that value.
+    #
+    # For example:
+    #
+    #     darken(hsl(25, 100%, 80%), 30%) => hsl(25, 100%, 50%)
+    #     darken(#800, 20%) => #200
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @return [Color]
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0% and 100%
+    def darken(color, amount)
+      adjust(color, amount, :lightness, 0..100, :-, "%")
+    end
+
+    # Makes a color more saturated.
+    # Takes a color and an amount between 0% and 100%,
+    # and returns a color with the saturation increased by that value.
+    #
+    # For example:
+    #
+    #     saturate(hsl(120, 30%, 90%), 20%) => hsl(120, 50%, 90%)
+    #     saturate(#855, 20%) => #9e3f3f
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @return [Color]
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0% and 100%
+    def saturate(color, amount)
+      adjust(color, amount, :saturation, 0..100, :+, "%")
+    end
+
+    # Makes a color less saturated.
+    # Takes a color and an amount between 0% and 100%,
+    # and returns a color with the saturation decreased by that value.
+    #
+    # For example:
+    #
+    #     desaturate(hsl(120, 30%, 90%), 20%) => hsl(120, 10%, 90%)
+    #     desaturate(#855, 20%) => #726b6b
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @return [Color]
+    # @raise [ArgumentError] If `color` isn't a color,
+    #   or `number` isn't a number between 0% and 100%
+    def desaturate(color, amount)
+      adjust(color, amount, :saturation, 0..100, :-, "%")
+    end
+
+    # Changes the hue of a color while retaining the lightness and saturation.
+    # Takes a color and a number of degrees (usually between -360deg and 360deg),
+    # and returns a color with the hue rotated by that value.
+    #
+    # For example:
+    #
+    #     adjust-hue(hsl(120, 30%, 90%), 60deg) => hsl(180, 30%, 90%)
+    #     adjust-hue(hsl(120, 30%, 90%), 060deg) => hsl(60, 30%, 90%)
+    #     adjust-hue(#811, 45deg) => #886a11
+    #
+    # @param color [Color]
+    # @param amount [Number]
+    # @return [Color]
+    # @raise [ArgumentError] If `color` isn't a color, or `number` isn't a number
+    def adjust_hue(color, degrees)
+      assert_type color, :Color
+      assert_type degrees, :Number
+      color.with(:hue => color.hue + degrees.value)
+    end
+
+    # Mixes together two colors.
+    # Specifically, takes the average of each of the RGB components,
+    # optionally weighted by the given percentage.
+    # The opacity of the colors is also considered when weighting the components.
+    #
+    # The weight specifies the amount of the first color that should be included
+    # in the returned color.
+    # The default, 50%, means that half the first color
+    # and half the second color should be used.
+    # 25% means that a quarter of the first color
+    # and three quarters of the second color should be used.
+    #
+    # For example:
+    #
+    #     mix(#f00, #00f) => #7f007f
+    #     mix(#f00, #00f, 25%) => #3f00bf
+    #     mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
+    #
+    # @overload mix(color1, color2, weight = 50%)
+    #   @param color1 [Color]
+    #   @param color2 [Color]
+    #   @param weight [Number] between 0% and 100%
+    #   @return [Color]
+    #   @raise [ArgumentError] if `color1` or `color2` aren't colors,
+    #     or `weight` isn't a number between 0% and 100%
+    def mix(color1, color2, weight = Number.new(50))
+      assert_type color1, :Color
+      assert_type color2, :Color
+      assert_type weight, :Number
+
+      unless (0..100).include?(weight.value)
+        raise ArgumentError.new("Weight #{weight} must be between 0% and 100%")
+      end
+
+      # This algorithm factors in both the user-provided weight
+      # and the difference between the alpha values of the two colors
+      # to decide how to perform the weighted average of the two RGB values.
+      #
+      # It works by first normalizing both parameters to be within [-1, 1],
+      # where 1 indicates "only use color1", -1 indicates "only use color 0",
+      # and all values in between indicated a proportionately weighted average.
+      #
+      # Once we have the normalized variables w and a,
+      # we apply the formula (w + a)/(1 + w*a)
+      # to get the combined weight (in [-1, 1]) of color1.
+      # This formula has two especially nice properties:
+      #
+      #   * When either w or a are -1 or 1, the combined weight is also that number
+      #     (cases where w * a == -1 are undefined, and handled as a special case).
+      #
+      #   * When a is 0, the combined weight is w, and vice versa
+      #
+      # Finally, the weight of color1 is renormalized to be within [0, 1]
+      # and the weight of color2 is given by 1 minus the weight of color1.
+      p = weight.value/100.0
+      w = p*2 - 1
+      a = color1.alpha - color2.alpha
+
+      w1 = (((w * a == -1) ? w : (w + a)/(1 + w*a)) + 1)/2.0
+      w2 = 1 - w1
+
+      rgb = color1.rgb.zip(color2.rgb).map {|v1, v2| v1*w1 + v2*w2}
+      alpha = color1.alpha*p + color2.alpha*(1-p)
+      Color.new(rgb + [alpha])
+    end
+
+    # Converts a color to grayscale.
+    # This is identical to `desaturate(color, 100%)`.
+    #
+    # @param color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` isn't a color
+    # @see #desaturate
+    def grayscale(color)
+      desaturate color, Number.new(100)
+    end
+
+    # Returns the complement of a color.
+    # This is identical to `adjust-hue(color, 180deg)`.
+    #
+    # @param color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` isn't a color
+    # @see #adjust_hue #adjust-hue
+    def complement(color)
+      adjust_hue color, Number.new(180)
+    end
 
     # Converts a decimal number to a percentage.
     # For example:
@@ -413,13 +659,18 @@ module Sass::Script
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
     end
 
-    def hue_to_rgb(m1, m2, h)
-      h += 1 if h < 0
-      h -= 1 if h > 1
-      return m1 + (m2 - m1) * h * 6 if h * 6 < 1
-      return m2 if h * 2 < 1
-      return m1 + (m2 - m1) * (2.0/3 - h) * 6 if h * 3 < 2
-      return m1
+    def adjust(color, amount, attr, range, op, units = "")
+      assert_type color, :Color
+      assert_type amount, :Number
+      unless range.include?(amount.value)
+        raise ArgumentError.new("Amount #{amount} must be between #{range.first}#{units} and #{range.last}#{units}")
+      end
+
+      # TODO: is it worth restricting here,
+      # or should we do so in the Color constructor itself,
+      # and allow clipping in rgb() et al?
+      color.with(attr => Haml::Util.restrict(
+          color.send(attr).send(op, amount.value), range))
     end
   end
 end
