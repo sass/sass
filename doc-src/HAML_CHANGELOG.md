@@ -149,6 +149,11 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
+### Backwards Incompatibilities: Must Read!
+
+* The `puts` helper has been removed.
+  Use {Haml::Helpers#haml\_concat} instead.
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fix compilation of HTML5 doctypes when using `html2haml`.
@@ -480,7 +485,7 @@ encoding errors when dealing with non-ASCII input data.
 This helper is being deprecated for the obvious reason
 that it conflicts with the `Kernel#puts` method.
 I'm ashamed I ever chose this name.
-Use `haml_tag` instead and spare me the embarrassment.
+Use `haml_concat` instead and spare me the embarrassment.
 
 #### `= haml_tag`
 
