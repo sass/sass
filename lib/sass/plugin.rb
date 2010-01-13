@@ -86,6 +86,25 @@ module Sass
       end
     end
 
+    def watch
+      require 'fssm'
+      FSSM.monitor do |mod|
+        template_locations.zip(css_locations).each do |template_location, css_location|
+          mod.path template_location do |path|
+            path.glob '**/*.sass'
+
+            path.update {update_stylesheets}
+            path.create {update_stylesheets}
+            path.delete do |base, relative|
+              css_file = File.join(css_location, relative.gsub(/\.sass$/, ''))
+              File.rm(css_file) if File.exists?(css_file)
+              update_stylesheets
+            end
+          end
+        end
+      end
+    end
+
     private
 
     def update_stylesheet(name, template_location, css_location)

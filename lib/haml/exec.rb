@@ -210,6 +210,9 @@ END
       def set_opts(opts)
         super
 
+        opts.on('--watch', 'Watch one or more directories of Sass files for changes.') do
+          @options[:watch] = true
+        end
         opts.on('-t', '--style NAME',
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
@@ -240,6 +243,14 @@ END
           require 'sass'
           require 'sass/repl'
           ::Sass::Repl.new(@options).run
+          return
+        end
+
+        if @options[:watch]
+          require 'sass'
+          require 'sass/plugin'
+          ::Sass::Plugin.options[:template_location] = @args.map {|dir| [dir, dir]}
+          ::Sass::Plugin.watch
           return
         end
 
