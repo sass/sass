@@ -253,6 +253,7 @@ END
           input = @options[:input]
           output = @options[:output]
 
+          @options[:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
           tree =
             if input.is_a?(File) && !@options[:check_syntax]
               ::Sass::Files.tree_for(input.path, @options[:for_engine])
