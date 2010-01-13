@@ -210,7 +210,10 @@ END
       def set_opts(opts)
         super
 
-        opts.on('--watch', 'Watch one or more directories of Sass files for changes.') do
+        opts.on('--watch', 'Watch files or directories for changes.',
+                           'The location of the generated CSS can be set using a colon:',
+                           '  sass --watch input.sass:output.css',
+                           '  sass --watch input-dir:output-dir') do
           @options[:watch] = true
         end
         opts.on('-t', '--style NAME',
