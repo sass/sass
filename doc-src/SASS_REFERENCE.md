@@ -163,7 +163,7 @@ Available options are:
   Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#template_location-option} `:template_location`
-: A path to the root sass template directory for you application.
+: A path to the root sass template directory for your application.
   If a hash, `:css_location` is ignored and this option designates
   a mapping between input and output directories.
   May also be given a list of 2-element lists, instead of a hash.
