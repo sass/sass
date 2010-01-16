@@ -216,6 +216,10 @@ END
                            '  sass --watch input-dir:output-dir') do
           @options[:watch] = true
         end
+        opts.on('--update', 'Compile files or directories to CSS.',
+                            'Locations are set like --watch.') do
+          @options[:update] = true
+        end
         opts.on('-t', '--style NAME',
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
@@ -249,14 +253,16 @@ END
           return
         end
 
-        if @options[:watch]
+        if @options[:watch] || @options[:update]
           require 'sass'
           require 'sass/plugin'
           dirs, files = @args.map {|name| name.split(':', 2)}.
             map {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}.
             partition {|i, _| File.directory? i}
           ::Sass::Plugin.options[:template_location] = dirs
-          ::Sass::Plugin.watch(files)
+
+          ::Sass::Plugin.watch(files) if @options[:watch]
+          ::Sass::Plugin.update_stylesheets(files) if @options[:update]
           return
         end
 
