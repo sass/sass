@@ -95,7 +95,18 @@ module Sass
     def watch(individual_files = [])
       update_stylesheets(individual_files)
 
-      require 'fssm'
+      begin
+        require 'fssm'
+      rescue LoadError => e
+        e.message << "\n" <<
+          if File.exists?(scope(".git"))
+            'Run "git submodule update --init" to get the recommended version.'
+          else
+            'Run "gem install fssm" to get it.'
+          end
+        raise e
+      end
+
       FSSM.monitor do |mod|
         template_locations.zip(css_locations).each do |template_location, css_location|
           mod.path template_location do |path|
