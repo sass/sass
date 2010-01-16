@@ -1,3 +1,5 @@
+require 'fileutils'
+
 require 'sass'
 
 module Sass
@@ -80,13 +82,15 @@ module Sass
           name = file.sub(template_location.sub(/\/*$/, '/'), "")[0...-5]
 
           if !forbid_update?(name) && (options[:always_update] || stylesheet_needs_update?(name, template_location, css_location))
-            update_stylesheet(name, template_location, css_location)
+            update_stylesheet(
+              template_filename(name, template_location),
+              css_filename(name, css_location))
           end
         end
       end
     end
 
-    def watch
+    def watch(individual_files = [])
       require 'fssm'
       FSSM.monitor do |mod|
         template_locations.zip(css_locations).each do |template_location, css_location|
@@ -102,16 +106,22 @@ module Sass
             end
           end
         end
+
+        individual_files.each do |template, css|
+          mod.file template do |path|
+            path.update {update_stylesheet(template, css)}
+            path.create {update_stylesheet(template, css)}
+            path.delete {File.rm(css) if File.exists?(css)}
+          end
+        end
       end
     end
 
     private
 
-    def update_stylesheet(name, template_location, css_location)
-      css = css_filename(name, css_location)
+    def update_stylesheet(filename, css)
       File.delete(css) if File.exists?(css)
 
-      filename = template_filename(name, template_location)
       result = begin
                  Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
@@ -119,25 +129,18 @@ module Sass
                end
 
       # Create any directories that might be necessary
-      mkpath(css_location, name)
+      FileUtils.mkdir_p(File.dirname(css))
 
       # Finally, write the file
       File.open(css, 'w') do |file|
         file.print(result)
       end
     end
-    
-    # Create any successive directories required to be able to write a file to: File.join(base,name)
-    def mkpath(base, name)
-      dirs = [base]
-      name.split(File::SEPARATOR)[0...-1].each { |dir| dirs << File.join(dirs[-1],dir) }
-      dirs.each { |dir| Dir.mkdir(dir) unless File.exist?(dir) }
-    end
 
     def load_paths(opts = options)
       (opts[:load_paths] || []) + template_locations
     end
-    
+
     def template_locations
       location = (options[:template_location] || File.join(options[:css_location],'sass'))
       if location.is_a?(String)
