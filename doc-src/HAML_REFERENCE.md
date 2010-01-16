@@ -892,21 +892,12 @@ For example:
 
 is compiled to:
 
-    <p>
-      42
-    </p>
-    <p>
-      43
-    </p>
-    <p>
-      44
-    </p>
-    <p>
-      45
-    </p>
-    <p>
-      46
-    </p>
+    <p>42</p>
+    <p>43</p>
+    <p>44</p>
+    <p>45</p>
+    <p>46</p>
+    <p>See, I can count!</p>
 
 Another example:
 
