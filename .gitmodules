@@ -1,3 +1,6 @@
 [submodule "test/haml/spec"]
 	path = test/haml/spec
 	url = git://github.com/norman/haml-spec.git
+[submodule "vendor/fssm"]
+	path = vendor/fssm
+	url = git://github.com/ttilley/fssm
