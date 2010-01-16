@@ -252,7 +252,9 @@ END
         if @options[:watch]
           require 'sass'
           require 'sass/plugin'
-          dirs, files = @args.map {|a| [a, a]}.partition {|i, _| File.directory? i}
+          dirs, files = @args.map {|name| name.split(':', 2)}.
+            map {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}.
+            partition {|i, _| File.directory? i}
           ::Sass::Plugin.options[:template_location] = dirs
           ::Sass::Plugin.watch(files)
           return
