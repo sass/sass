@@ -71,8 +71,10 @@ module Sass
     # to see if it's been modified more recently than the corresponding CSS file
     # in {file:SASS_REFERENCE.md#css_location-option} `:css_location`}.
     # If it has, it updates the CSS file.
-    def update_stylesheets
+    def update_stylesheets(individual_files = [])
       return if options[:never_update]
+
+      individual_files.each(&method(:update_stylesheet))
 
       @checked_for_updates = true
       template_locations.zip(css_locations).each do |template_location, css_location|
@@ -91,6 +93,8 @@ module Sass
     end
 
     def watch(individual_files = [])
+      update_stylesheets(individual_files)
+
       require 'fssm'
       FSSM.monitor do |mod|
         template_locations.zip(css_locations).each do |template_location, css_location|
