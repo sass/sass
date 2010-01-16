@@ -14,12 +14,13 @@ module Sass
   module Script
     # The character that begins a variable.
     VARIABLE_CHAR = ?!
+    ALTERNATE_VARIABLE_CHAR = ?$
 
     # The regular expression used to parse variables.
-    MATCH = /^!([a-zA-Z_]\w*)\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^[!\$]([a-zA-Z_]\w*)\s*((?:\|\|)?=)\s*(.+)/
 
     # The regular expression used to validate variables without matching.
-    VALIDATE = /^![a-zA-Z_]\w*$/
+    VALIDATE = /^[!\$][a-zA-Z_]\w*$/
 
     # Parses a string of SassScript
     #

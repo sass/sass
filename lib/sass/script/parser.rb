@@ -198,7 +198,7 @@ END
 
       def defn_arglist(must_have_default)
         return unless c = try_tok(:const)
-        var = Script::Variable.new(c.value)
+        var = Script::Variable.new(*c.value)
         if try_tok(:single_eq)
           val = assert_expr(:concat)
         elsif must_have_default
@@ -224,7 +224,7 @@ END
 
       def variable
         return string unless c = try_tok(:const)
-        Variable.new(c.value)
+        Variable.new(*c.value)
       end
 
       def string

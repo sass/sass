@@ -324,7 +324,7 @@ WARNING
         else
           parse_property(line, PROPERTY_OLD)
         end
-      when Script::VARIABLE_CHAR
+      when Script::VARIABLE_CHAR, Script::ALTERNATE_VARIABLE_CHAR
         parse_variable(line)
       when COMMENT_CHAR
         parse_comment(line.text)

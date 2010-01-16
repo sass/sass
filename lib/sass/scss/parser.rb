@@ -165,7 +165,7 @@ module Sass
       end
 
       def variable
-        return unless tok(/!/)
+        return unless tok(/!|\$/)
         name = tok!(IDENT)
         ss
 

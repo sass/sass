@@ -89,6 +89,7 @@ MSG
     "@if false\n@else foo" => "Invalid else directive '@else foo': expected 'if <expr>'.",
     "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
     "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "!b".',
+    "a\n  $b = 12\nc\n  d = $b" => 'Undefined variable: "$b".',
     "=foo\n  !b = 12\nc\n  +foo\n  d = !b" => 'Undefined variable: "!b".',
     '@for !a from "foo" to 1' => '"foo" is not an integer.',
     '@for !a from 1 to "2"' => '"2" is not an integer.',
@@ -871,6 +872,22 @@ a
   b = !a
   !a = 2
   c = !a
+SASS
+  end
+
+  def test_dollar_sign_variables
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  one: 1px;
+  two: 2px;
+  both: 3px; }
+CSS
+$var1 = 1px
+$var2 = 2px
+foo
+  one= $var1
+  two= $var2
+  both= $var1 + $var2
 SASS
   end
 

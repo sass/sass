@@ -39,11 +39,14 @@ SCSS
 
     assert_equal <<CSS, render(<<SCSS)
 foo {
-  a: 2; }
+  a: 2;
+  b: 6; }
 CSS
 foo {
   !var = 2;
-  a = !var; }
+  $another-var = 4;
+  a = !var;
+  b = $var + !another-var;}
 SCSS
   end
 
