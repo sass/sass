@@ -119,8 +119,8 @@ module Sass
             path.update {update_stylesheets(individual_files)}
             path.create {update_stylesheets(individual_files)}
             path.delete do |base, relative|
-              css_file = File.join(css_location, relative.gsub(/\.sass$/, ''))
-              File.rm(css_file) if File.exists?(css_file)
+              css_file = File.join(css_location, relative.gsub(/\.sass$/, '.css'))
+              File.delete(css_file) if File.exists?(css_file)
               update_stylesheets(individual_files)
             end
           end
@@ -131,7 +131,7 @@ module Sass
             path.update {update_stylesheets(individual_files)}
             path.create {update_stylesheets(individual_files)}
             path.delete do
-              File.rm(css) if File.exists?(css)
+              File.delete(css) if File.exists?(css)
               update_stylesheets(individual_files)
             end
           end
