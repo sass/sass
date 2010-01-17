@@ -1,6 +1,7 @@
 require 'fileutils'
 
 require 'sass'
+require 'sass/callbacks'
 
 module Sass
   # This module handles the compilation of Sass files.
@@ -14,6 +15,7 @@ module Sass
   # Other frameworks must enable it explicitly; see {Sass::Plugin::Rack}.
   module Plugin
     include Haml::Util
+    include Sass::Callbacks
     extend self
 
     @options = {
