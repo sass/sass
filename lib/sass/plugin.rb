@@ -109,26 +109,31 @@ module Sass
         raise e
       end
 
+      # TODO: Keep better track of what depends on what
+      # so we don't have to run a global update every time anything changes.
       FSSM.monitor do |mod|
         template_locations.zip(css_locations).each do |template_location, css_location|
           mod.path template_location do |path|
             path.glob '**/*.sass'
 
-            path.update {update_stylesheets}
-            path.create {update_stylesheets}
+            path.update {update_stylesheets(individual_files)}
+            path.create {update_stylesheets(individual_files)}
             path.delete do |base, relative|
               css_file = File.join(css_location, relative.gsub(/\.sass$/, ''))
               File.rm(css_file) if File.exists?(css_file)
-              update_stylesheets
+              update_stylesheets(individual_files)
             end
           end
         end
 
         individual_files.each do |template, css|
           mod.file template do |path|
-            path.update {update_stylesheet(template, css)}
-            path.create {update_stylesheet(template, css)}
-            path.delete {File.rm(css) if File.exists?(css)}
+            path.update {update_stylesheets(individual_files)}
+            path.create {update_stylesheets(individual_files)}
+            path.delete do
+              File.rm(css) if File.exists?(css)
+              update_stylesheets(individual_files)
+            end
           end
         end
       end
