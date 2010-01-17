@@ -261,7 +261,11 @@ END
             partition {|i, _| File.directory? i}
           ::Sass::Plugin.options[:template_location] = dirs
 
-          ::Sass::Plugin.watch(files) if @options[:watch]
+          if @options[:watch]
+            puts ">>> Sass is watching for changes. Press Ctrl-C to stop."
+            ::Sass::Plugin.watch(files)
+          end
+
           ::Sass::Plugin.update_stylesheets(files) if @options[:update]
           return
         end
