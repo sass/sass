@@ -85,6 +85,7 @@ end
 
 # Haml monkeypatches various Hpricot classes
 # to add methods for conversion to Haml.
+# @private
 module Hpricot
   # @see Hpricot
   module Node
@@ -145,9 +146,11 @@ module Haml
     end
     alias_method :to_haml, :render
 
+    # @private
     TEXT_REGEXP = /^(\s*).*$/
 
     # @see Hpricot
+    # @private
     class ::Hpricot::Doc
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
@@ -156,6 +159,7 @@ module Haml
     end
 
     # @see Hpricot
+    # @private
     class ::Hpricot::XMLDecl
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
@@ -164,6 +168,7 @@ module Haml
     end
 
     # @see Hpricot
+    # @private
     class ::Hpricot::CData
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
@@ -174,6 +179,7 @@ module Haml
     end
 
     # @see Hpricot
+    # @private
     class ::Hpricot::DocType
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
@@ -203,6 +209,7 @@ module Haml
     end
 
     # @see Hpricot
+    # @private
     class ::Hpricot::Comment
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)
@@ -221,6 +228,7 @@ module Haml
     end
 
     # @see Hpricot
+    # @private
     class ::Hpricot::Elem
       # @see Haml::HTML::Node#to_haml
       def to_haml(tabs, options)

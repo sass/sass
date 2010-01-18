@@ -138,7 +138,7 @@ module Haml
     #     Haml::Engine.new("%p= upcase").render(s) #=> "<p>FOOBAR</p>"
     #
     #     # s now extends Haml::Helpers
-    #     s.responds_to?(:html_attrs) #=> true
+    #     s.respond_to?(:html_attrs) #=> true
     #
     # `locals` is a hash of local variables to make available to the template.
     # For example:
