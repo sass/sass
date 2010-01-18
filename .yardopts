@@ -4,4 +4,5 @@
 --default-return  ""
 --hide-void-return
 --protected
+--no-private
 --no-highlight

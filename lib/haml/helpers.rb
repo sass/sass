@@ -462,6 +462,7 @@ END
     end
 
     # Characters that need to be escaped to HTML entities from user input
+    # @private
     HTML_ESCAPE = { '&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;', '"'=>'&quot;', "'"=>'&#039;', }
 
     # Returns a copy of `text` with ampersands, angle brackets and quotes
