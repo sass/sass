@@ -239,7 +239,7 @@ begin
       list.exclude('lib/haml/template/*.rb')
       list.exclude('lib/haml/helpers/action_view_mods.rb')
     end.to_a
-    t.options << '--use-cache' if Rake.application.top_level_tasks.include?('redoc')
+    t.options << '--incremental' if Rake.application.top_level_tasks.include?('redoc')
     t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
     files = FileList.new('doc-src/*').to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
     t.options << '--files' << files.join(',')
