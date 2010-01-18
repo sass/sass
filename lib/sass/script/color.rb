@@ -19,6 +19,7 @@ module Sass::Script
     class << self; include Haml::Util; end
 
     # A hash from color names to `[red, green, blue]` value arrays.
+    # @private
     HTML4_COLORS = map_vals({
         'black'   => 0x000000,
         'silver'  => 0xc0c0c0,
@@ -38,6 +39,7 @@ module Sass::Script
         'aqua'    => 0x00ffff
       }) {|color| (0..2).map {|n| color >> (n << 3) & 0xff}.reverse}
     # A hash from `[red, green, blue]` value arrays to color names.
+    # @private
     HTML4_COLORS_REVERSE = map_hash(HTML4_COLORS) {|k, v| [v, k]}
 
     # Constructs an RGB or HSL color object,

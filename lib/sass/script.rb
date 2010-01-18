@@ -13,12 +13,15 @@ module Sass
   # This module contains code that handles the parsing and evaluation of SassScript.
   module Script
     # The character that begins a variable.
+    # @private
     VARIABLE_CHAR = ?!
 
     # The regular expression used to parse variables.
+    # @private
     MATCH = /^!([a-zA-Z_]\w*)\s*((?:\|\|)?=)\s*(.+)/
 
     # The regular expression used to validate variables without matching.
+    # @private
     VALIDATE = /^![a-zA-Z_]\w*$/
 
     # Parses a string of SassScript

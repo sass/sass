@@ -8,20 +8,21 @@ module Sass
     class Lexer
       # A struct containing information about an individual token.
       #
-      # `type`: \[{Symbol}\]
+      # `type`: \[`Symbol`\]
       # : The type of token.
       #
-      # `value`: \[{Object}\]
+      # `value`: \[`Object`\]
       # : The Ruby object corresponding to the value of the token.
       #
-      # `line`: \[{Fixnum}\]
+      # `line`: \[`Fixnum`\]
       # : The line of the source file on which the token appears.
       #
-      # `offset`: \[{Fixnum}\]
+      # `offset`: \[`Fixnum`\]
       # : The number of bytes into the line the SassScript token appeared.
       Token = Struct.new(:type, :value, :line, :offset)
 
       # A hash from operator strings to the corresponding token types.
+      # @private
       OPERATORS = {
         '+' => :plus,
         '-' => :minus,
@@ -47,9 +48,11 @@ module Sass
 
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
+      # @private
       OP_NAMES = OPERATORS.keys.sort_by {|o| -o.size}
 
       # A hash of regular expressions that are used for tokenizing.
+      # @private
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s*/,
         :variable => /!([\w-]+)/,

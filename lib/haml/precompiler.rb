@@ -8,46 +8,60 @@ module Haml
     include Haml::Util
 
     # Designates an XHTML/XML element.
+    # @private
     ELEMENT         = ?%
 
     # Designates a `<div>` element with the given class.
+    # @private
     DIV_CLASS       = ?.
 
     # Designates a `<div>` element with the given id.
+    # @private
     DIV_ID          = ?#
 
     # Designates an XHTML/XML comment.
+    # @private
     COMMENT         = ?/
 
     # Designates an XHTML doctype or script that is never HTML-escaped.
+    # @private
     DOCTYPE         = ?!
 
     # Designates script, the result of which is output.
+    # @private
     SCRIPT          = ?=
 
     # Designates script that is always HTML-escaped.
+    # @private
     SANITIZE        = ?&
 
     # Designates script, the result of which is flattened and output.
+    # @private
     FLAT_SCRIPT     = ?~
 
     # Designates script which is run but not output.
+    # @private
     SILENT_SCRIPT   = ?-
 
     # When following SILENT_SCRIPT, designates a comment that is not output.
+    # @private
     SILENT_COMMENT  = ?#
 
     # Designates a non-parsed line.
+    # @private
     ESCAPE          = ?\\
 
     # Designates a block of filtered text.
+    # @private
     FILTER          = ?:
 
     # Designates a non-parsed line. Not actually a character.
+    # @private
     PLAIN_TEXT      = -1
 
     # Keeps track of the ASCII values of the characters that begin a
     # specially-interpreted line.
+    # @private
     SPECIAL_CHARACTERS   = [
       ELEMENT,
       DIV_CLASS,
@@ -64,6 +78,7 @@ module Haml
 
     # The value of the character that designates that a line is part
     # of a multiline string.
+    # @private
     MULTILINE_CHAR_VALUE = ?|
 
     # Regex to match keywords that appear in the middle of a Ruby block
@@ -79,12 +94,15 @@ module Haml
     #
     # The block is ended after `%p no!`, because `else`
     # is a member of this array.
+    # @private
     MID_BLOCK_KEYWORD_REGEX = /^-\s*(#{%w[else elsif rescue ensure when end].join('|')})\b/
 
     # The Regex that matches a Doctype command.
+    # @private
     DOCTYPE_REGEX = /(\d(?:\.\d)?)?[\s]*([a-z]*)/i
 
     # The Regex that matches a literal string or symbol value
+    # @private
     LITERAL_VALUE_REGEX = /:(\w*)|(["'])((?![\\#]|\2).|\\.)*\2/
 
     private
@@ -124,6 +142,7 @@ END
       end.join(';') + ';'
     end
 
+    # @private
     class Line < Struct.new(:text, :unstripped, :full, :index, :precompiler, :eod)
       alias_method :eod?, :eod
 
