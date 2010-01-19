@@ -299,17 +299,17 @@ END
 
         ::Sass::Plugin.on_updating_stylesheet do |_, css|
           if File.exists? css
-            puts_action :overwrite, css
+            puts_action :overwrite, :yellow, css
           else
-            puts_action :create, css
+            puts_action :create, :green, css
           end
         end
 
-        ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, dirname}
-        ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, filename}
+        ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
+        ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
           raise error unless error.is_a?(::Sass::SyntaxError)
-          puts_action :error, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
+          puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
         end
 
         ::Sass::Plugin.on_template_modified {|template| puts ">>> Change detected to: #{template}"}
@@ -319,8 +319,21 @@ END
         ::Sass::Plugin.watch(files)
       end
 
-      def puts_action(name, arg)
-        printf "%11s %s\n", name, arg
+      # @private
+      COLORS = { :red => 31, :green => 32, :yellow => 33 }
+
+      def puts_action(name, color, arg)
+        printf color(color, "%11s %s"), name, arg
+      end
+
+      def color(color, str)
+        raise "[BUG] Unrecognized color #{color}" unless COLORS[color]
+
+        # Almost any real Unix terminal will support color,
+        # so we just filter for Windows terms (which don't set TERM)
+        # and not-real terminals, which aren't ttys.
+        return str if ENV["TERM"].empty? || !STDOUT.tty?
+        return "\e[#{COLORS[color]}m#{str}\e[0m\n"
       end
     end
 
