@@ -246,30 +246,8 @@ END
       # Processes the options set by the command-line arguments,
       # and runs the Sass compiler appropriately.
       def process_result
-        if @options[:interactive]
-          require 'sass'
-          require 'sass/repl'
-          ::Sass::Repl.new(@options).run
-          return
-        end
-
-        if @options[:watch] || @options[:update]
-          require 'sass'
-          require 'sass/plugin'
-          dirs, files = @args.map {|name| name.split(':', 2)}.
-            map {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}.
-            partition {|i, _| File.directory? i}
-          ::Sass::Plugin.options[:template_location] = dirs
-
-          if @options[:watch]
-            puts ">>> Sass is watching for changes. Press Ctrl-C to stop."
-            ::Sass::Plugin.watch(files)
-          end
-
-          ::Sass::Plugin.update_stylesheets(files) if @options[:update]
-          return
-        end
-
+        return interactive if @options[:interactive]
+        return watch_or_update if @options[:watch] || @options[:update]
         super
 
         begin
@@ -294,6 +272,55 @@ END
           raise e if @options[:trace]
           raise e.sass_backtrace_str("standard input")
         end
+      end
+
+      private
+
+      def interactive
+        require 'sass'
+        require 'sass/repl'
+        ::Sass::Repl.new(@options).run
+      end
+
+      def watch_or_update
+        require 'sass'
+        require 'sass/plugin'
+        dirs, files = @args.map {|name| name.split(':', 2)}.
+          map {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}.
+          partition {|i, _| File.directory? i}
+        ::Sass::Plugin.options[:template_location] = dirs
+
+        if @options[:update]
+          ::Sass::Plugin.update_stylesheets(files)
+          return
+        end
+
+        puts ">>> Sass is watching for changes. Press Ctrl-C to stop."
+
+        ::Sass::Plugin.on_updating_stylesheet do |_, css|
+          if File.exists? css
+            puts_action :overwrite, css
+          else
+            puts_action :create, css
+          end
+        end
+
+        ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, dirname}
+        ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, filename}
+        ::Sass::Plugin.on_compilation_error do |error, _, _|
+          raise error unless error.is_a?(::Sass::SyntaxError)
+          puts_action :error, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
+        end
+
+        ::Sass::Plugin.on_template_modified {|template| puts ">>> Change detected to: #{template}"}
+        ::Sass::Plugin.on_template_created {|template| puts ">>> New template detected: #{template}"}
+        ::Sass::Plugin.on_template_deleted {|template| puts ">>> Deleted template detected: #{template}"}
+
+        ::Sass::Plugin.watch(files)
+      end
+
+      def puts_action(name, arg)
+        printf "%11s %s\n", name, arg
       end
     end
 
