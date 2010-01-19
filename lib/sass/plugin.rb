@@ -292,14 +292,14 @@ module Sass
         FileUtils.mkdir_p dir
       end
 
-      result = begin
-                 Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
-               rescue Exception => e
-                 run_compilation_error e, filename, css
-                 Sass::SyntaxError.exception_to_css(e, options)
-               else
-                 run_updating_stylesheet filename, css
-               end
+      begin
+        result = Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
+      rescue Exception => e
+        run_compilation_error e, filename, css
+        result = Sass::SyntaxError.exception_to_css(e, options)
+      else
+        run_updating_stylesheet filename, css
+      end
 
       # Finally, write the file
       File.open(css, 'w') {|file| file.print(result)}
