@@ -286,6 +286,12 @@ module Sass
     private
 
     def update_stylesheet(filename, css)
+      dir = File.dirname(css)
+      unless File.exists?(dir)
+        run_creating_directory dir
+        FileUtils.mkdir_p dir
+      end
+
       result = begin
                  Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
@@ -294,12 +300,6 @@ module Sass
                else
                  run_updating_stylesheet filename, css
                end
-
-      dir = File.dirname(css)
-      unless File.exists?(dir)
-        run_creating_directory dir
-        FileUtils.mkdir_p dir
-      end
 
       # Finally, write the file
       File.open(css, 'w') {|file| file.print(result)}
