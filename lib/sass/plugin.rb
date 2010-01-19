@@ -245,7 +245,7 @@ module Sass
 
             path.delete do |base, relative|
               run_template_deleted File.join(base, relative)
-              css_file = File.join(css_location, relative.gsub(/\.sass$/, '.css'))
+              css = File.join(css_location, relative.gsub(/\.sass$/, '.css'))
               try_delete_css css
               update_stylesheets(individual_files)
             end
