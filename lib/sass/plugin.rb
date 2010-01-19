@@ -277,7 +277,7 @@ module Sass
     private
 
     def update_stylesheet(filename, css)
-      run_updating_stylesheets filename, css
+      run_updating_stylesheet filename, css
 
       result = begin
                  Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
