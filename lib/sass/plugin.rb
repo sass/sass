@@ -42,7 +42,7 @@ module Sass
 
     # Register a callback to be run before stylesheets are mass-updated.
     # This is run whenever \{#update\_stylesheets} is called,
-    # unless the \{file:SASS_REFERENCE.md#never-update_option `:never_update` option}
+    # unless the \{file:SASS_REFERENCE.md#never_update-option `:never_update` option}
     # is enabled.
     #
     # @yield [individual_files]
@@ -56,6 +56,11 @@ module Sass
     # Register a callback to be run before a single stylesheet is updated.
     # The callback is only run if the stylesheet is guaranteed to be updated;
     # if the CSS file is fresh, this won't be run.
+    #
+    # Even if the \{file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
+    # is enabled, this callback won't be run
+    # when an exception CSS file is being written.
+    # To run an action for those files, use \{#on\_compilation\_error}.
     #
     # @yield [template, css]
     # @yieldparam template [String]
@@ -85,8 +90,12 @@ module Sass
     # This could include not only errors in the Sass document,
     # but also errors accessing the file at all.
     #
-    # @yield [error]
+    # @yield [error, template, css]
     # @yieldparam error [Exception] The exception that was raised.
+    # @yieldparam template [String]
+    #   The location of the Sass file being updated.
+    # @yieldparam css [String]
+    #   The location of the CSS file being generated.
     define_callback :compilation_error
 
     # Register a callback to be run when Sass creates a directory
@@ -277,13 +286,13 @@ module Sass
     private
 
     def update_stylesheet(filename, css)
-      run_updating_stylesheet filename, css
-
       result = begin
                  Sass::Files.tree_for(filename, engine_options(:css_filename => css, :filename => filename)).render
                rescue Exception => e
-                 run_compilation_error e
+                 run_compilation_error e, filename, css
                  Sass::SyntaxError.exception_to_css(e, options)
+               else
+                 run_updating_stylesheet filename, css
                end
 
       dir = File.dirname(css)
