@@ -290,13 +290,6 @@ END
           partition {|i, _| File.directory? i}
         ::Sass::Plugin.options[:template_location] = dirs
 
-        if @options[:update]
-          ::Sass::Plugin.update_stylesheets(files)
-          return
-        end
-
-        puts ">>> Sass is watching for changes. Press Ctrl-C to stop."
-
         ::Sass::Plugin.on_updating_stylesheet do |_, css|
           if File.exists? css
             puts_action :overwrite, :yellow, css
@@ -311,6 +304,13 @@ END
           raise error unless error.is_a?(::Sass::SyntaxError)
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
         end
+
+        if @options[:update]
+          ::Sass::Plugin.update_stylesheets(files)
+          return
+        end
+
+        puts ">>> Sass is watching for changes. Press Ctrl-C to stop."
 
         ::Sass::Plugin.on_template_modified {|template| puts ">>> Change detected to: #{template}"}
         ::Sass::Plugin.on_template_created {|template| puts ">>> New template detected: #{template}"}
