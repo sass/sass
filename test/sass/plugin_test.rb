@@ -7,6 +7,7 @@ class SassPluginTest < Test::Unit::TestCase
   @@templates = %w{
     complex script parent_ref import alt
     subdir/subdir subdir/nested_subdir/nested_subdir
+    options
   }
 
   def setup
