@@ -1162,19 +1162,18 @@ should end wit `|`.**
 For example:
 
     %whoo
-      %hoo I think this might get |
-        pretty long so I should   |
-        probably make it          |
-        multiline so it doesn't   |
-        look awful.               |
+      %hoo= h(                       |
+        "I think this might get " +  |
+        "pretty long so I should " + |
+        "probably make it " +        |
+        "multiline so it doesn't " + |
+        "look awful.")               |
       %p This is short.
 
 is compiled to:
 
     <whoo>
-      <hoo>
-        I think this might get pretty long so I should probably make it multiline so it doesn't look awful.
-      </hoo>
+      <hoo>I think this might get pretty long so I should probably make it multiline so it doesn't look awful.</hoo>
       <p>This is short</p>
     </whoo>
 
