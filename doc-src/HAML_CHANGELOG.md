@@ -154,6 +154,11 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * The `puts` helper has been removed.
   Use {Haml::Helpers#haml\_concat} instead.
 
+## 2.2.18 (Unreleased)
+
+* Use `Rails.env` rather than `RAILS_ENV` when running under Rails 3.0.
+  Thanks to [Duncan Grazier](http://duncangrazier.com/).
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fix compilation of HTML5 doctypes when using `html2haml`.

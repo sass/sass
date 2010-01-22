@@ -144,6 +144,11 @@ Several bug fixes and minor improvements have been made, including:
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
+## 2.2.18 (Unreleased)
+
+* Use `Rails.env` rather than `RAILS_ENV` when running under Rails 3.0.
+  Thanks to [Duncan Grazier](http://duncangrazier.com/).
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
