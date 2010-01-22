@@ -6,6 +6,7 @@
 /.sass-cache
 /.haml
 /.sass-cache
+/vendor
 
 /site/*
 /test
