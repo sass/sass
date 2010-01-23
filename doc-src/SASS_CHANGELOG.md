@@ -12,6 +12,9 @@
   since that's what the docs have said forever.
   Similarly, support `--line-numbers` as a command-line option.
 
+* Add a `--unix-newlines` flag to all executables
+  for outputting Unix-style newlines on Windows.
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
