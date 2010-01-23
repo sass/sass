@@ -38,6 +38,12 @@ module Sass
         raise e
       end
 
+      # @see \{Node#perform!}
+      def perform!(environment)
+        environment.options = @options if environment.options.nil? || environment.options.empty?
+        super
+      end
+
       protected
 
       # Destructively converts this static Sass node into a static CSS node,
