@@ -39,7 +39,7 @@ module Haml
   end
 end
 
-if defined?(RAILS_ENV) && RAILS_ENV == "production"
+if Haml::Util.rails_env == "production"
   Haml::Template.options[:ugly] = true
 end
 

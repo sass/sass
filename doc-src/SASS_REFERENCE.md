@@ -184,6 +184,11 @@ Available options are:
   Defaults to `"./tmp/sass-cache"` in Rails and Merb,
   or `"./.sass-cache"` otherwise.
 
+{#unix_newlines-option} `:unix_newlines`
+: If true, use Unix-style newlines when writing files.
+  Only has meaning on Windows, and only when Sass is writing the files
+  (in Rack, Rails, or Merb, or when using {Sass::Plugin} directly).
+
 {#filename-option} `:filename`
 : The filename of the file being rendered.
   This is used solely for reporting errors,
@@ -205,6 +210,7 @@ Available options are:
   where a selector is defined to be emitted into the compiled CSS
   as a comment. Useful for debugging especially when using imports
   and mixins.
+  This option may also be called `:line_comments`.
 
 {#custom-option} `:custom`
 : An option that's available for individual applications to set

@@ -1,4 +1,5 @@
 require 'sass'
+require 'rbconfig'
 
 require 'fileutils'
 
@@ -105,9 +106,9 @@ module Sass
       FileUtils.mkdir_p(File.dirname(css))
 
       # Finally, write the file
-      File.open(css, 'w') do |file|
-        file.print(result)
-      end
+      flag = 'w'
+      flag = 'wb' if RbConfig::CONFIG['host_os'] =~ /mswin|windows/i && options[:unix_newlines]
+      File.open(css, flag) {|file| file.print(result)}
     end
 
     def load_paths(opts = options)
