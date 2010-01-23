@@ -4,8 +4,8 @@ unless defined?(Sass::RAILS_LOADED)
   Sass::Plugin.options.merge!(:template_location => Haml::Util.rails_root + '/public/stylesheets/sass',
                               :css_location      => Haml::Util.rails_root + '/public/stylesheets',
                               :cache_location    => Haml::Util.rails_root + '/tmp/sass-cache',
-                              :always_check      => RAILS_ENV != "production",
-                              :full_exception    => RAILS_ENV != "production")
+                              :always_check      => Haml::Util.rails_env != "production",
+                              :full_exception    => Haml::Util.rails_env != "production")
 
   if defined?(Rails.configuration.middleware)
     # Rails >= 3.0

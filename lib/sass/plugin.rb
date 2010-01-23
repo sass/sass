@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'rbconfig'
 
 require 'sass'
 require 'sass/callbacks'
@@ -302,7 +303,9 @@ module Sass
       end
 
       # Finally, write the file
-      File.open(css, 'w') {|file| file.print(result)}
+      flag = 'w'
+      flag = 'wb' if RbConfig::CONFIG['host_os'] =~ /mswin|windows/i && options[:unix_newlines]
+      File.open(css, flag) {|file| file.print(result)}
     end
 
     def try_delete_css(css)
