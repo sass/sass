@@ -1,5 +1,6 @@
 require 'optparse'
 require 'fileutils'
+require 'rbconfig'
 
 module Haml
   # This module handles the various Haml executables (`haml`, `sass`, `css2sass`, etc).
@@ -67,6 +68,12 @@ module Haml
           @options[:trace] = true
         end
 
+        if RbConfig::CONFIG['host_os'] =~ /mswin|windows/i
+          opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
+            @options[:unix_newlines] = true
+          end
+        end
+
         opts.on_tail("-?", "-h", "--help", "Show this message") do
           puts opts
           exit
@@ -105,6 +112,7 @@ module Haml
 
       def open_file(filename, flag = 'r')
         return if filename.nil?
+        flag = 'wb' if @options[:unix_newlines] && flag == 'w'
         File.open(filename, flag)
       end
     end
