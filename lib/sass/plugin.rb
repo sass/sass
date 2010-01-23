@@ -197,7 +197,7 @@ module Sass
     def update_stylesheets(individual_files = [])
       return if options[:never_update]
 
-      run_updating_stylesheets
+      run_updating_stylesheets individual_files
 
       individual_files.each(&method(:update_stylesheet))
 
