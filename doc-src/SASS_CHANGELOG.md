@@ -10,6 +10,7 @@
 
 * Support `:line_numbers` as an alias for {file:SASS_REFERENCE.md#line_numbers-option `:line_comments`},
   since that's what the docs have said forever.
+  Similarly, support `--line-numbers` as a command-line option.
 
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
