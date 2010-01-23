@@ -149,6 +149,16 @@ Several bug fixes and minor improvements have been made, including:
 * Use `Rails.env` rather than `RAILS_ENV` when running under Rails 3.0.
   Thanks to [Duncan Grazier](http://duncangrazier.com/).
 
+* Support `:line_numbers` as an alias for {file:SASS_REFERENCE.md#line_numbers-option `:line_comments`},
+  since that's what the docs have said forever.
+  Similarly, support `--line-numbers` as a command-line option.
+
+* Add a `--unix-newlines` flag to all executables
+  for outputting Unix-style newlines on Windows.
+
+* Add a {file:SASS_REFERENCE.md#unix_newlines-option `:unix_newlines` option}
+  for {Sass::Plugin} for outputting Unix-style newlines on Windows.
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}

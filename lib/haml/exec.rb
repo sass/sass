@@ -1,5 +1,6 @@
 require 'optparse'
 require 'fileutils'
+require 'rbconfig'
 
 module Haml
   # This module handles the various Haml executables (`haml`, `sass`, `css2sass`, etc).
@@ -67,6 +68,12 @@ module Haml
           @options[:trace] = true
         end
 
+        if RbConfig::CONFIG['host_os'] =~ /mswin|windows/i
+          opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
+            @options[:unix_newlines] = true
+          end
+        end
+
         opts.on_tail("-?", "-h", "--help", "Show this message") do
           puts opts
           exit
@@ -105,6 +112,7 @@ module Haml
 
       def open_file(filename, flag = 'r')
         return if filename.nil?
+        flag = 'wb' if @options[:unix_newlines] && flag == 'w'
         File.open(filename, flag)
       end
     end
@@ -214,9 +222,9 @@ END
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
         end
-        opts.on('-l', '--line-comments',
-                'Line Comments. Emit comments in the generated CSS indicating the corresponding sass line.') do
-          @options[:for_engine][:line_comments] = true
+        opts.on('-l', '--line-numbers', '--line-comments',
+                'Emit comments in the generated CSS indicating the corresponding sass line.') do
+          @options[:for_engine][:line_numbers] = true
         end
         opts.on('-i', '--interactive',
                 'Run an interactive SassScript shell.') do

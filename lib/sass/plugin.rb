@@ -1,4 +1,5 @@
 require 'sass'
+require 'rbconfig'
 
 module Sass
   # This module handles the compilation of Sass files.
@@ -103,9 +104,9 @@ module Sass
       mkpath(css_location, name)
 
       # Finally, write the file
-      File.open(css, 'w') do |file|
-        file.print(result)
-      end
+      flag = 'w'
+      flag = 'wb' if RbConfig::CONFIG['host_os'] =~ /mswin|windows/i && options[:unix_newlines]
+      File.open(css, flag) {|file| file.print(result)}
     end
     
     # Create any successive directories required to be able to write a file to: File.join(base,name)
