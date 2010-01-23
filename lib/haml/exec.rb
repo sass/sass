@@ -293,6 +293,8 @@ END
       def watch_or_update
         require 'sass'
         require 'sass/plugin'
+        ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
+
         dirs, files = @args.map {|name| name.split(':', 2)}.
           map {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}.
           partition {|i, _| File.directory? i}
