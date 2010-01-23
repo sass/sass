@@ -8,6 +8,9 @@
 * Use `Rails.env` rather than `RAILS_ENV` when running under Rails 3.0.
   Thanks to [Duncan Grazier](http://duncangrazier.com/).
 
+* Support `:line_numbers` as an alias for {file:SASS_REFERENCE.md#line_numbers-option `:line_comments`},
+  since that's what the docs have said forever.
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}

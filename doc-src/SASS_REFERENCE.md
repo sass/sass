@@ -205,6 +205,7 @@ Available options are:
   where a selector is defined to be emitted into the compiled CSS
   as a comment. Useful for debugging especially when using imports
   and mixins.
+  This option may also be called `:line_comments`.
 
 {#custom-option} `:custom`
 : An option that's available for individual applications to set
