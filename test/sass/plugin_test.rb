@@ -19,6 +19,7 @@ class SassPluginTest < Test::Unit::TestCase
 
   def teardown
     clean_up_sassc
+    clear_callbacks
     FileUtils.rm_r tempfile_loc
     FileUtils.rm_r tempfile_loc(nil,"more_")
   end
@@ -131,6 +132,45 @@ CSS
     assert !File.exists?(tempfile_loc('_partial'))
   end
 
+  # Callbacks
+
+  def test_updating_stylesheets_callback
+    # Should run even when there's nothing to update
+    assert_callback :updating_stylesheets, []
+  end
+
+  def test_updating_stylesheets_callback_with_individual_files
+    files = [[template_loc("basic"), tempfile_loc("basic")]]
+    assert_callback(:updating_stylesheets, files) {Sass::Plugin.update_stylesheets(files)}
+  end
+
+  def test_updating_stylesheets_callback_with_never_update
+    Sass::Plugin.options[:never_update] = true
+    assert_no_callback :updating_stylesheets
+  end
+
+  def test_updating_stylesheet_callback_for_updated_template
+    Sass::Plugin.options[:always_update] = false
+    sleep 1
+    FileUtils.touch(template_loc("basic"))
+    assert_no_callback :updating_stylesheet, template_loc("complex"), tempfile_loc("complex") do
+      assert_callbacks(
+        [:updating_stylesheet, template_loc("basic"), tempfile_loc("basic")],
+        [:updating_stylesheet, template_loc("import"), tempfile_loc("import")])
+    end
+  end
+
+  def test_updating_stylesheet_callback_for_fresh_template
+    Sass::Plugin.options[:always_update] = false
+    assert_no_callback :updating_stylesheet
+  end
+
+  def test_updating_stylesheet_callback_for_error_template
+    Sass::Plugin.options[:always_update] = false
+    FileUtils.touch(template_loc("bork1"))
+    assert_no_callback :updating_stylesheet
+  end
+
   ## Regression
 
   def test_cached_dependencies_update
@@ -178,6 +218,51 @@ CSS
     if actual_lines.first == "/*" && expected_lines.first != "/*"
       assert(false, actual_lines[0..actual_lines.enum_with_index.find {|l, i| l == "*/"}.last].join("\n"))
     end
+  end
+
+  def assert_callback(name, *expected_args)
+    run = false
+    Sass::Plugin.send("on_#{name}") do |*a|
+      run = true if expected_args == a
+    end
+
+    if block_given?
+      yield
+    else
+      Sass::Plugin.update_stylesheets
+    end
+
+    assert run, "Expected #{name} callback to be run with arguments:\n  #{expected_args.inspect}"
+  end
+
+  def assert_no_callback(name, *unexpected_args)
+    Sass::Plugin.send("on_#{name}") do |*a|
+      next unless unexpected_args.empty? || a == unexpected_args
+
+      msg = "Expected #{name} callback not to be run"
+      if !unexpected_args.empty?
+        msg << " with arguments #{unexpected_args.inspect}"
+      elsif !a.empty?
+        msg << ",\n  was run with arguments #{a.inspect}"
+      end
+
+      flunk msg
+    end
+
+    if block_given?
+      yield
+    else
+      Sass::Plugin.update_stylesheets
+    end
+  end
+
+  def assert_callbacks(*args)
+    return Sass::Plugin.update_stylesheets if args.empty?
+    assert_callback(*args.pop) {assert_callbacks(*args)}
+  end
+
+  def clear_callbacks
+    Sass::Plugin.instance_variable_set('@_sass_callbacks', {})
   end
 
   def template_loc(name = nil, prefix = nil)
