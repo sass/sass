@@ -68,7 +68,7 @@ module Sass
     #
     # Checks each Sass file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
-    # in {file:SASS_REFERENCE.md#css_location-option} `:css_location`}.
+    # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.
     def update_stylesheets
       return if options[:never_update]
