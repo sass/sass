@@ -319,7 +319,15 @@ END
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
-          raise error unless error.is_a?(::Sass::SyntaxError)
+          unless error.is_a?(::Sass::SyntaxError)
+            if error.is_a?(Errno::ENOENT) && error.message =~ /^No such file or directory - (.*)$/ && $1 == @args[1]
+              flag = @options[:update] ? "--update" : "--watch"
+              error.message << "\n  Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}"
+            end
+
+            raise error
+          end
+
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
         end
 
