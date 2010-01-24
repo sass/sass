@@ -193,6 +193,36 @@ CSS
     assert_no_callback :not_updating_stylesheet, template_loc("_partial"), tempfile_loc("_partial")
   end
 
+  def test_not_updating_stylesheet_callback_for_error
+    Sass::Plugin.options[:always_update] = false
+    touch 'bork1'
+    assert_no_callback :not_updating_stylesheet, template_loc("bork1"), tempfile_loc("bork1")
+  end
+
+  def test_compilation_error_callback
+    Sass::Plugin.options[:always_update] = false
+    touch 'bork1'
+    assert_callback(:compilation_error,
+      lambda {|e| e.message == 'Undefined variable: "!bork".'},
+      template_loc("bork1"), tempfile_loc("bork1"))
+  end
+
+  def test_compilation_error_callback_for_file_access
+    Sass::Plugin.options[:always_update] = false
+    assert_callback(:compilation_error,
+      lambda {|e| e.is_a?(Errno::ENOENT)},
+      template_loc("nonexistent"), tempfile_loc("nonexistent")) do
+      Sass::Plugin.update_stylesheets([[template_loc("nonexistent"), tempfile_loc("nonexistent")]])
+    end
+  end
+
+  def test_creating_directory_callback
+    Sass::Plugin.options[:always_update] = false
+    dir = File.join(tempfile_loc, "subdir", "nested_subdir")
+    FileUtils.rm_r dir
+    assert_callback :creating_directory, dir
+  end
+
   ## Regression
 
   def test_cached_dependencies_update
@@ -243,8 +273,10 @@ CSS
 
   def assert_callback(name, *expected_args)
     run = false
-    Sass::Plugin.send("on_#{name}") do |*a|
-      run = true if expected_args == a
+    Sass::Plugin.send("on_#{name}") do |*args|
+      run ||= expected_args.zip(args).all? do |ea, a|
+        ea.respond_to?(:call) ? ea.call(a) : ea == a
+      end
     end
 
     if block_given?

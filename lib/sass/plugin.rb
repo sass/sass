@@ -103,9 +103,11 @@ module Sass
     # into which to put CSS files.
     #
     # Note that even if multiple levels of directories need to be created,
-    # the callback will only be run once.
+    # the callback may only be run once.
     # For example, if "foo/" exists and "foo/bar/baz/" needs to be created,
-    # this will only be run for "foo/bar/baz/".
+    # this may only be run for "foo/bar/baz/".
+    # This is not a guarantee, however;
+    # it may also be run for "foo/bar/".
     #
     # @yield [dirname]
     # @yieldparam dirname [String]
