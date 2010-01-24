@@ -254,6 +254,14 @@ END
       # Processes the options set by the command-line arguments,
       # and runs the Sass compiler appropriately.
       def process_result
+        if @args.first.include?(':')
+          if @args.size == 1
+            @args = @args.first.split(':', 2)
+          else
+            @options[:update] = true
+          end
+        end
+
         return interactive if @options[:interactive]
         return watch_or_update if @options[:watch] || @options[:update]
         super
