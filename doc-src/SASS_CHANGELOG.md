@@ -63,6 +63,61 @@ as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
 * The {Sass::Script::Functions#complement complement}
   function returns the complement of a color.
 
+{#watch}
+### Watching for Updates
+
+The `sass` command-line utility has a new flag: `--watch`.
+`sass --watch` monitors files or directories for updated Sass files
+and compiles those files to CSS automatically.
+This will allow people not using Ruby or [Compass](http://compass-style.org)
+to use Sass without having to manually recompile all the time.
+
+Here's the syntax for watching a directory full of Sass files:
+
+    sass --watch app/stylesheets:public/stylesheets
+
+This will watch every Sass file in `app/stylesheets`.
+Whenever one of them changes,
+the corresponding CSS file in `public/stylesheets` will be regenerated.
+Any files that import that file will be regenerated, too.
+
+The syntax for watching individual files is the same:
+
+    sass --watch style.sass:out.css
+
+You can also omit the output filename if you just want it to compile to name.css.
+For example:
+
+    sass --watch style.sass
+
+This will update `style.css` whenever `style.sass` changes.
+
+You can list more than one file and/or directory,
+and all of them will be watched:
+
+    sass --watch foo/style:public/foo bar/style:public/bar
+    sass --watch screen.sass print.sass awful-hacks.sass:ie.css
+    sass --watch app/stylesheets:public/stylesheets public/stylesheets/test.sass
+
+File and directory watching is accessible from Ruby,
+using the {Sass::Plugin#watch} function.
+
+### Bulk Updating
+
+Another new flag for the `sass` command-line utility is `--update`.
+It checks a group of Sass files to see if their CSS needs to be updated,
+and updates if so.
+
+The syntax for `--update` is just like watch:
+
+    sass --update app/stylesheets:public/stylesheets
+    sass --update style.sass:out.css
+    sass --watch screen.sass print.sass awful-hacks.sass:ie.css
+
+In fact, `--update` work exactly the same as `--watch`,
+except that it doesn't continue watching the files
+after the first check.
+
 ### Variable Names
 
 SassScript variable names may now contain hyphens.
@@ -115,6 +170,18 @@ including the line number and the offending character.
 
 The Sass Rails plugin now works using Rack middleware by default
 in versions of Rails that support it (2.3 and onwards).
+
+### Sass::Plugin Callbacks
+
+{Sass::Plugin} now has a large collection of callbacks that allow users
+to run code when various actions are performed.
+For example:
+
+    Sass::Plugin.on_updating_stylesheet do |template, css|
+      puts "#{template} has been compiled to #{css}!"
+    end
+
+For a full list of callbacks and usage notes, see the {Sass::Plugin} documentation.
 
 ### `:compressed` Style
 
