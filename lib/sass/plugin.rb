@@ -192,8 +192,15 @@ module Sass
     #
     # Checks each Sass file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
-    # in {file:SASS_REFERENCE.md#css_location-option} `:css_location`}.
+    # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.
+    #
+    # @param individual_files [Array<(String, String)>]
+    #   A list of files to check for updates
+    #   **in addition to those specified by the
+    #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
+    #   The first string in each pair is the location of the Sass file,
+    #   the second is the location of the CSS file that it should be compiled to.
     def update_stylesheets(individual_files = [])
       return if options[:never_update]
 
@@ -221,6 +228,30 @@ module Sass
       end
     end
 
+    # Watches the template directory (or directories)
+    # and updates the CSS files whenever the related Sass files change.
+    # `watch` never returns.
+    #
+    # Whenever a change is detected to a Sass file in
+    # {file:SASS_REFERENCE.md#template_location-option `:template_location`},
+    # the corresponding CSS file in {file:SASS_REFERENCE.md#css_location-option `:css_location`}
+    # will be recompiled.
+    # The CSS files of any Sass files that import the changed file will also be recompiled.
+    #
+    # Before the watching starts in earnest, `watch` calls \{#update\_stylesheets}.
+    #
+    # Note that `watch` uses the [FSSM](http://github.com/ttilley/fssm) library
+    # to monitor the filesystem for changes.
+    # FSSM isn't loaded until `watch` is run.
+    # The version of FSSM distributed with Sass is loaded by default,
+    # but if another version has already been loaded that will be used instead.
+    #
+    # @param individual_files [Array<(String, String)>]
+    #   A list of files to watch for updates
+    #   **in addition to those specified by the
+    #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
+    #   The first string in each pair is the location of the Sass file,
+    #   the second is the location of the CSS file that it should be compiled to.
     def watch(individual_files = [])
       update_stylesheets(individual_files)
 
@@ -238,9 +269,9 @@ module Sass
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      FSSM.monitor do |mod|
+      FSSM.monitor do |mon|
         template_locations.zip(css_locations).each do |template_location, css_location|
-          mod.path template_location do |path|
+          mon.path template_location do |path|
             path.glob '**/*.sass'
 
             path.update do |base, relative|
@@ -263,7 +294,7 @@ module Sass
         end
 
         individual_files.each do |template, css|
-          mod.file template do |path|
+          mon.file template do |path|
             path.update do
               run_template_modified template
               update_stylesheets(individual_files)
