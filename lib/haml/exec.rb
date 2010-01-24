@@ -333,7 +333,7 @@ END
       COLORS = { :red => 31, :green => 32, :yellow => 33 }
 
       def puts_action(name, color, arg)
-        printf color(color, "%11s %s"), name, arg
+        printf color(color, "%11s %s\n"), name, arg
       end
 
       def color(color, str)
@@ -343,7 +343,7 @@ END
         # so we just filter for Windows terms (which don't set TERM)
         # and not-real terminals, which aren't ttys.
         return str if ENV["TERM"].empty? || !STDOUT.tty?
-        return "\e[#{COLORS[color]}m#{str}\e[0m\n"
+        return "\e[#{COLORS[color]}m#{str}\e[0m"
       end
     end
 
