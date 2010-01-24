@@ -208,7 +208,7 @@ module Sass
 
       run_updating_stylesheets individual_files
 
-      individual_files.each(&method(:update_stylesheet))
+      individual_files.each {|t, c| update_stylesheet(t, c)}
 
       @checked_for_updates = true
       template_locations.zip(css_locations).each do |template_location, css_location|
