@@ -169,6 +169,30 @@ CSS
     assert_no_callback :updating_stylesheet
   end
 
+  def test_not_updating_stylesheet_callback_for_fresh_template
+    Sass::Plugin.options[:always_update] = false
+    assert_callback :not_updating_stylesheet, template_loc("basic"), tempfile_loc("basic")
+  end
+
+  def test_not_updating_stylesheet_callback_for_updated_template
+    Sass::Plugin.options[:always_update] = false
+    assert_callback :not_updating_stylesheet, template_loc("complex"), tempfile_loc("complex") do
+      assert_no_callbacks(
+        [:updating_stylesheet, template_loc("basic"), tempfile_loc("basic")],
+        [:updating_stylesheet, template_loc("import"), tempfile_loc("import")])
+    end
+  end
+
+  def test_not_updating_stylesheet_callback_with_never_update
+    Sass::Plugin.options[:never_update] = true
+    assert_no_callback :not_updating_stylesheet
+  end
+
+  def test_not_updating_stylesheet_callback_for_partial
+    Sass::Plugin.options[:always_update] = false
+    assert_no_callback :not_updating_stylesheet, template_loc("_partial"), tempfile_loc("_partial")
+  end
+
   ## Regression
 
   def test_cached_dependencies_update
@@ -258,6 +282,11 @@ CSS
     assert_callback(*args.pop) {assert_callbacks(*args)}
   end
 
+  def assert_no_callbacks(*args)
+    return Sass::Plugin.update_stylesheets if args.empty?
+    assert_no_callback(*args.pop) {assert_no_callbacks(*args)}
+  end
+
   def clear_callbacks
     Sass::Plugin.instance_variable_set('@_sass_callbacks', {})
   end
@@ -315,6 +344,7 @@ CSS
       :style => :compact,
       :load_paths => [result_loc],
       :always_update => true,
+      :never_update => false,
     }.merge(overrides)
   end
 end
