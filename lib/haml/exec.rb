@@ -254,7 +254,7 @@ END
       # Processes the options set by the command-line arguments,
       # and runs the Sass compiler appropriately.
       def process_result
-        if @args.first.include?(':')
+        if @args.first && @args.first.include?(':')
           if @args.size == 1
             @args = @args.first.split(':', 2)
           else
