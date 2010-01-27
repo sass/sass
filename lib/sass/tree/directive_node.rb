@@ -22,7 +22,7 @@ module Sass::Tree
 
     # @see Node#to_sass
     def to_sass(tabs, opts = {})
-      "#{'  ' * tabs}#{value}#{children.map {|c| c.to_sass(tabs + 1, opts)}}\n"
+      "#{'  ' * tabs}#{value}\n#{children.map {|c| c.to_sass(tabs + 1, opts)}}\n"
     end
 
     protected

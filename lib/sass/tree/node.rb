@@ -196,7 +196,7 @@ module Sass
           result << "#{'  ' * tabs}#{child.to_sass(0, opts)}\n"
         end
 
-        result
+        result.rstrip + "\n"
       end
 
       protected

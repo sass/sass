@@ -116,7 +116,7 @@ module Sass::Tree
         end
       end.join
       name = "\\" + name if name[0] == ?:
-      str = "\n#{'  ' * tabs}#{name}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
+      str = "#{'  ' * tabs}#{name}\n"
 
       children.each do |child|
         str << "#{child.to_sass(tabs + 1, opts)}"
