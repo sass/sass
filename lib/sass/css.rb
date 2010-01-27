@@ -40,7 +40,7 @@ module Sass
         raise Sass::SyntaxError.new(msg, :line => line)
       end
 
-      build_tree.to_sass(0, @options).strip + "\n"
+      build_tree.to_sass(@options).strip + "\n"
     rescue Sass::SyntaxError => err
       err.modify_backtrace(:filename => @options[:filename] || '(css)')
       raise err

@@ -190,13 +190,7 @@ module Sass
       # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
       # @return [String] The Sass code corresponding to the node
       def to_sass(tabs = 0, opts = {})
-        result = ''
-
-        children.each do |child|
-          result << "#{'  ' * tabs}#{child.to_sass(0, opts)}\n"
-        end
-
-        result.rstrip + "\n"
+        raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #to_sass.")
       end
 
       protected

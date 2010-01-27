@@ -44,6 +44,14 @@ module Sass
         super
       end
 
+      # Converts a node to Sass code that will generate it.
+      #
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the node
+      def to_sass(opts = {})
+        children.map {|child| child.to_sass(0, opts) + "\n"}.join.rstrip + "\n"
+      end
+
       protected
 
       # Destructively converts this static Sass node into a static CSS node,
