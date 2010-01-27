@@ -318,6 +318,19 @@ module Sass
           "Import directives may only be used at the root of a document."
         end
       end
+
+      # Converts the children of this node to a Sass string.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the children
+      def children_to_sass(tabs, opts)
+        str = ""
+        children.each do |child|
+          str << "#{child.to_sass(tabs + 1, opts)}"
+        end
+        str
+      end
     end
   end
 end

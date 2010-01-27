@@ -10,6 +10,11 @@ module Sass
         super()
       end
 
+      # @see Node#to_sass
+      def to_sass(tabs, opts = {})
+        "#{'  ' * tabs}@debug #{@expr.to_sass}"
+      end
+
       protected
 
       # Prints the expression to STDERR.

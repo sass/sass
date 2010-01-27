@@ -116,13 +116,7 @@ module Sass::Tree
         end
       end.join
       name = "\\" + name if name[0] == ?:
-      str = "#{'  ' * tabs}#{name}\n"
-
-      children.each do |child|
-        str << "#{child.to_sass(tabs + 1, opts)}"
-      end
-
-      str
+      "#{'  ' * tabs}#{name}\n" + children_to_sass(tabs, opts)
     end
 
     protected
