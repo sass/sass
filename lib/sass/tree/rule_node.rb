@@ -116,7 +116,7 @@ module Sass::Tree
         end
       end.join
       name = "\\" + name if name[0] == ?:
-      "#{'  ' * tabs}#{name}\n" + children_to_sass(tabs, opts)
+      "#{name.gsub(/^/, '  ' * tabs)}\n" + children_to_sass(tabs, opts)
     end
 
     protected
