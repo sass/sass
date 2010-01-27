@@ -20,6 +20,12 @@ module Sass::Tree
       _cssize(parent) # Pass on the parent even if it's not a MixinNode
     end
 
+    # @see Node#to_sass
+    def to_sass(tabs, opts = {})
+      args = '(' + @args.map {|a| a.to_sass}.join(", ") + ')' unless @args.empty?
+      "#{'  ' * tabs}+#{@name}#{args}"
+    end
+
     protected
 
     # @see Node#_cssize
