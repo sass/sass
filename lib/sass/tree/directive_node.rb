@@ -20,6 +20,11 @@ module Sass::Tree
       super()
     end
 
+    # @see Node#to_sass
+    def to_sass(tabs, opts = {})
+      "#{'  ' * tabs}#{value}#{children.map {|c| c.to_sass(tabs + 1, opts)}}\n"
+    end
+
     protected
 
     # Computes the CSS for the directive.

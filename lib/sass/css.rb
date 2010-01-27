@@ -4,54 +4,6 @@ require 'sass/scss/css_parser'
 require 'strscan'
 
 module Sass
-  module Tree
-    class Node
-      # Converts a node to Sass code that will generate it.
-      #
-      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @return [String] The Sass code corresponding to the node
-      def to_sass(tabs = 0, opts = {})
-        result = ''
-
-        children.each do |child|
-          result << "#{'  ' * tabs}#{child.to_sass(0, opts)}\n"
-        end
-
-        result
-      end
-    end
-
-    class RuleNode
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {})
-        name = rule.first
-        name = "\\" + name if name[0] == ?:
-        str = "\n#{'  ' * tabs}#{name}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
-
-        children.each do |child|
-          str << "#{child.to_sass(tabs + 1, opts)}"
-        end
-
-        str
-      end
-    end
-
-    class PropNode
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {})
-        "#{'  ' * tabs}#{opts[:old] ? ':' : ''}#{name.first}#{opts[:old] ? '' : ':'} #{value.first}\n"
-      end
-    end
-
-    class DirectiveNode
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {})
-        "#{'  ' * tabs}#{value}#{children.map {|c| c.to_sass(tabs + 1, opts)}}\n"
-      end
-    end
-  end
-
   # This class converts CSS documents into Sass templates.
   # It works by parsing the CSS document into a {Sass::Tree} structure,
   # and then applying various transformations to the structure

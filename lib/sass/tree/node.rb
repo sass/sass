@@ -184,6 +184,21 @@ module Sass
         children.each {|c| c.each(&block)}
       end
 
+      # Converts a node to Sass code that will generate it.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the node
+      def to_sass(tabs = 0, opts = {})
+        result = ''
+
+        children.each do |child|
+          result << "#{'  ' * tabs}#{child.to_sass(0, opts)}\n"
+        end
+
+        result
+      end
+
       protected
 
       # Computes the CSS corresponding to this particular Sass node.

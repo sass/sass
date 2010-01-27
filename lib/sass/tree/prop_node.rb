@@ -80,6 +80,11 @@ module Sass::Tree
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
+    # @see Node#to_sass
+    def to_sass(tabs, opts = {})
+      "#{'  ' * tabs}#{opts[:old] ? ':' : ''}#{name.first}#{opts[:old] ? '' : ':'} #{value.first}\n"
+    end
+
     protected
 
     # Computes the CSS for the property.

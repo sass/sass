@@ -106,6 +106,19 @@ module Sass::Tree
       last.is_a?(String) && last[-1] == ?,
     end
 
+    # @see Node#to_sass
+    def to_sass(tabs, opts = {})
+      name = rule.first
+      name = "\\" + name if name[0] == ?:
+      str = "\n#{'  ' * tabs}#{name}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
+
+      children.each do |child|
+        str << "#{child.to_sass(tabs + 1, opts)}"
+      end
+
+      str
+    end
+
     protected
 
     # Computes the CSS for the rule.
