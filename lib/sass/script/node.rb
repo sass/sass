@@ -32,5 +32,12 @@ module Sass::Script
     def children
       raise NotImplementedError.new("All subclasses of Sass::Script::Node must override #children.")
     end
+
+    # Returns the text of this SassScript expression.
+    #
+    # @return [String]
+    def to_sass
+      raise NotImplementedError.new("All subclasses of Sass::Script::Node must override #to_sass.")
+    end
   end
 end

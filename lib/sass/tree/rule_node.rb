@@ -108,7 +108,13 @@ module Sass::Tree
 
     # @see Node#to_sass
     def to_sass(tabs, opts = {})
-      name = rule.first
+      name = rule.map do |r|
+        if r.is_a?(String)
+          r.gsub(/(,[ \t]*)?\n\s*/) {$1 ? $1 + "\n" : " "}
+        else
+          "\#{#{r.to_sass}}"
+        end
+      end.join
       name = "\\" + name if name[0] == ?:
       str = "\n#{'  ' * tabs}#{name}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
 

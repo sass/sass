@@ -26,6 +26,12 @@ module Sass::Script
       "(#{@operator.inspect} #{@operand1.inspect} #{@operand2.inspect})"
     end
 
+    # @see Node#to_sass
+    def to_sass
+      o1 = @operand1.is_a?(Operation) ? "(#{@operand1.to_sass})" : @operand1.to_sass
+      "#{o1} #{Lexer::OPERATORS_REVERSE[@operator]} #{@operand2.to_sass}"
+    end
+
     # Evaluates the operation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript

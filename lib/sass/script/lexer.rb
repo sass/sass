@@ -61,6 +61,9 @@ module Sass
         '{' => :lcurly,
       }
 
+      # @private
+      OPERATORS_REVERSE = Haml::Util.map_hash(OPERATORS) {|k, v| [v, k]}
+
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
       # @private

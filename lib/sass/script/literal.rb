@@ -206,5 +206,6 @@ MSG
     def to_s
       raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Literal must implement #to_s.")
     end
+    alias_method :to_sass, :to_s
   end
 end

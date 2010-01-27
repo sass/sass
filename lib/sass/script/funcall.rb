@@ -29,6 +29,11 @@ module Sass
         "#{name}(#{args.map {|a| a.inspect}.join(', ')})"
       end
 
+      # @see Node#to_sass
+      def to_sass
+        "#{name}(#{args.map {|a| a.to_sass}.join(', ')})"
+      end
+
       # Evaluates the function call.
       #
       # @param environment [Sass::Environment] The environment in which to evaluate the SassScript

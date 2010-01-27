@@ -8,5 +8,10 @@ module Sass::Script
     # @return [String]
     attr_reader :value
     alias_method :to_s, :value
+
+    # @see Node#to_sass
+    def to_sass
+      "\"#{value}\""
+    end
   end
 end
