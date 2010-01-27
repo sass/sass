@@ -233,8 +233,8 @@ END
         opts.on('-I', '--load-path PATH', 'Add a sass import path.') do |path|
           @options[:for_engine][:load_paths] << path
         end
-        opts.on('--cache-location', 'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
-          @options[:for_engine][:cache_location] = path
+        opts.on('--cache-location PATH', 'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
+          @options[:for_engine][:cache_location] = loc
         end
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
           @options[:for_engine][:cache] = false
