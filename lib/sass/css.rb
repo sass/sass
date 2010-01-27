@@ -17,9 +17,6 @@ module Sass
     # @option options :old [Boolean] (false)
     #     Whether or not to output old property syntax
     #     (`:color blue` as opposed to `color: blue`).
-    # @option options :filename [String]
-    #     The filename of the CSS file being processed.
-    #     Used for error reporting
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
