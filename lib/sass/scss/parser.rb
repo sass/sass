@@ -139,7 +139,20 @@ module Sass
       def if
         expr = sass_script(:parse)
         ss
-        block(node(Sass::Tree::IfNode.new(expr)), :directive)
+        node = block(node(Sass::Tree::IfNode.new(expr)), :directive)
+        ss
+        else_block(node)
+      end
+
+      def else_block(node)
+        return node unless tok(/@else/)
+        ss
+        else_node = block(
+          Sass::Tree::IfNode.new((sass_script(:parse) if tok(/if/))),
+          :directive)
+        node.add_else(else_node)
+        ss
+        else_block(node)
       end
 
       def import

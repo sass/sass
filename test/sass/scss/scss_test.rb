@@ -135,11 +135,20 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-foo {
+bar {
   a: b; }
 CSS
-@if "foo" == "foo" {foo {a: b}}
-@if "foo" != "foo" {bar {a: b}}
+@if "foo" != "foo" {foo {a: b}}
+@else if "foo" == "foo" {bar {a: b}}
+@else if true {baz {a: b}}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+bar {
+  a: b; }
+CSS
+@if "foo" != "foo" {foo {a: b}}
+@else {bar {a: b}}
 SCSS
   end
 
