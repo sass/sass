@@ -14,6 +14,11 @@ module Sass
         super()
       end
 
+      # @see Node#to_sass
+      def to_sass(tabs, opts = {})
+        "#{'  ' * tabs}!#{@name} #{'||' if @guarded}= #{@expr.to_sass}"
+      end
+
       protected
 
       # Loads the new variable value into the environment.
