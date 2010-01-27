@@ -5,7 +5,9 @@
 
 ## 2.4.0 (Unreleased)
 
-### haml_tag improvement
+### `haml_tag` and `haml_concat` Improvements
+
+#### `haml_tag` with CSS Selectors
 
 The {Haml::Helpers#haml_tag haml\_tag} helper can now take a string
 using the same class/id shorthand as in standard Haml code.
@@ -20,6 +22,38 @@ For example:
     haml_tag('span#foo.bar', :id => 'abc') #=> <span class='bar' id='abc_foo' />
 
 Cheers, [S. Burkhard](http://github.com/hasclass/).
+
+#### `haml_tag` with Multiple Lines of Content
+
+The {Haml::Helpers#haml_tag haml\_tag} helper also does a better job
+of formatting tags with multiple lines of content.
+If a tag has multiple levels of content,
+that content is indented beneath the tag.
+For example:
+
+    haml_tag(:p, "foo\nbar") #=>
+      # <p>
+      #   foo
+      #   bar
+      # </p>
+
+#### `haml_tag` with Multiple Lines of Content
+
+Similarly, the {Haml::Helpers#haml_concat haml\_concat} helper
+will properly indent multiple lines of content.
+For example:
+
+    haml_tag(:p) {haml_concat "foo\nbar"} #=>
+      # <p>
+      #   foo
+      #   bar
+      # </p>
+
+#### `haml_tag` and `haml_concat` with `:ugly`
+
+When the {file:HAML_REFERENCE.md#ugly-option `:ugly` option} is enabled,
+{Haml::Helpers#haml_tag haml\_tag} and {Haml::Helpers#haml_concat haml\_concat}
+won't do any indentation of their arguments.
 
 ### Object Reference Customization
 
