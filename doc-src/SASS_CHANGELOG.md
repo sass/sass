@@ -226,6 +226,9 @@ Several bug fixes and minor improvements have been made, including:
 * Add a {file:SASS_REFERENCE.md#unix_newlines-option `:unix_newlines` option}
   for {Sass::Plugin} for outputting Unix-style newlines on Windows.
 
+* Fix the `--cache-location` flag, which was previously throwing errors.
+  Thanks to [tav](http://tav.espians.com/).
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
