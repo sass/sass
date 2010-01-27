@@ -82,7 +82,24 @@ module Sass::Tree
 
     # @see Node#to_sass
     def to_sass(tabs, opts = {})
-      "#{'  ' * tabs}#{opts[:old] ? ':' : ''}#{name.first}#{opts[:old] ? '' : ':'} #{value.first}\n"
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
+      initial = opts[:old] ? ':' : ''
+
+      if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
+        mid = '='
+        value = self.value.first.to_sass
+      else
+        mid = opts[:old] ? '' : ':'
+        value = self.value.map do |n|
+          if n.is_a?(String)
+            n.gsub(/\n\s*/, " ")
+          else
+            "\#{#{n.to_sass}}"
+          end
+        end.join
+      end
+
+      "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}\n"
     end
 
     protected
