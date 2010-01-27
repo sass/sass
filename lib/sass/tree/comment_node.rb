@@ -41,6 +41,29 @@ module Sass::Tree
       style == :compressed || @silent
     end
 
+    # @see Node#to_sass
+    def to_sass(tabs, opts = {})
+      content = value.
+        gsub(/\*\/$/, '').
+        gsub(/^([ \t]*)\/\*/, '/*\1').
+        rstrip
+
+      content =
+        unless content.include?("\n")
+          content
+        else
+          content.gsub!(/\n \*/, "\n  ")
+          spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
+          if spaces >= 2
+            content
+          else
+            content.gsub(/\n#{' ' * spaces}/, "\n  ")
+          end
+        end
+
+      content.gsub(/^/, '  ' * tabs).rstrip + "\n"
+    end
+
     protected
 
     # Computes the CSS for the comment.

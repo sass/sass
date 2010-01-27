@@ -60,7 +60,10 @@ module Sass
       end
 
       def process_comment(text, node)
-        pre_str = @scanner.string[/(?:\A|\n)(.*)\/\*/, 1].gsub(/[^\s]/, ' ')
+        pre_str = @scanner.
+          string[0...@scanner.pos].
+          reverse[/.*?\*\/(.*?)($|\Z)/, 1].
+          reverse.gsub(/[^\s]/, ' ')
         node << Sass::Tree::CommentNode.new(pre_str + text, false)
       end
 

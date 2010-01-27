@@ -124,13 +124,13 @@ module Sass
     # @param root [Tree::Node] The parent node
     def parent_ref_rules(root)
       current_rule = nil
-      root.children.select { |c| Tree::RuleNode === c }.each do |child|
-        root.children.delete child
+      root.children.map! do |child|
+        next child unless child.is_a?(Tree::RuleNode)
+
         first, rest = child.rule.first.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
 
         if current_rule.nil? || current_rule.rule.first != first
           current_rule = Tree::RuleNode.new([first])
-          root << current_rule
         end
 
         if rest
@@ -139,7 +139,11 @@ module Sass
         else
           current_rule.children += child.children
         end
+
+        current_rule
       end
+      root.children.compact!
+      root.children.uniq!
 
       root.children.each { |v| parent_ref_rules(v) }
     end

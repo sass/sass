@@ -99,23 +99,32 @@ span.turkey {
 } /* just a line here */
 CSS
     sass = <<SASS
+/* comment
+
 elephant.rawr
   rampages: excessively
+
+/* actual multiline
+  comment
 
 span.turkey
   isdinner: true
 
 .turducken
-
+  /* Sounds funny
+     doesn't it
   chimera: not_really
 
 #overhere
   bored: sorta
-
+  /*               it's for a good
+    cause
   better_than: thread_pools
 
 #one_more
   finally: srsly
+
+/* just a line here
 SASS
     assert_equal(sass, css2sass(css))
   end
