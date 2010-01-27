@@ -99,7 +99,8 @@ module Sass::Tree
         end.join
       end
 
-      "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}\n"
+      "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}\n" +
+        children_to_sass(tabs, opts)
     end
 
     protected
