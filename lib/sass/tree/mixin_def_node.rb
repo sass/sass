@@ -14,6 +14,24 @@ module Sass
         super()
       end
 
+      # @see Node#to_sass
+      def to_sass(tabs, opts = {})
+        args =
+          if @args.empty?
+            ""
+          else
+            '(' + @args.map do |v, d|
+              if d
+                "#{v.to_sass} = #{d.to_sass}"
+              else
+                v.to_sass
+              end
+            end.join(", ") + ')'
+          end
+              
+        "#{'  ' * tabs}=#{@name}#{args}\n" + children_to_sass(tabs, opts)
+      end
+
       protected
 
       # Loads the mixin into the environment.
