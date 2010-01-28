@@ -12,7 +12,7 @@ module Sass
 
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
-        "#{'  ' * tabs}@debug #{@expr.to_sass}"
+        "#{'  ' * tabs}@debug #{@expr.to_sass}\n"
       end
 
       protected

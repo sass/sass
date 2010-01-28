@@ -16,7 +16,7 @@ module Sass
 
       # @see Node#to_sass
       def to_sass(tabs, opts = {})
-        "#{'  ' * tabs}!#{@name} #{'||' if @guarded}= #{@expr.to_sass}"
+        "#{'  ' * tabs}!#{@name} #{'||' if @guarded}= #{@expr.to_sass}\n"
       end
 
       protected

@@ -23,7 +23,7 @@ module Sass::Tree
     # @see Node#to_sass
     def to_sass(tabs, opts = {})
       args = '(' + @args.map {|a| a.to_sass}.join(", ") + ')' unless @args.empty?
-      "#{'  ' * tabs}+#{@name}#{args}"
+      "#{'  ' * tabs}+#{@name}#{args}\n"
     end
 
     protected
