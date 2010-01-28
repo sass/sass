@@ -103,6 +103,26 @@ module Sass::Tree
         children_to_sass(tabs, opts)
     end
 
+    # @see Node#to_scss
+    def to_scss(tabs, opts = {})
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
+
+      if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
+        mid = '='
+        value = self.value.first.to_sass
+      else
+        mid = ':'
+        value = self.value.map do |n|
+          next n if n.is_a?(String)
+          "\#{#{n.to_sass}}"
+        end.join
+      end
+
+      value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}")
+      "#{'  ' * tabs}#{name}#{mid} #{value};\n" +
+        children_to_scss(tabs, opts)
+    end
+
     protected
 
     # Computes the CSS for the property.

@@ -119,6 +119,12 @@ module Sass::Tree
       "#{name.gsub(/^/, '  ' * tabs)}\n" + children_to_sass(tabs, opts)
     end
 
+    def to_scss(tabs, opts = {})
+      name = rule.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass}}"}.
+        join.gsub(/^[ \t]*/, '  ' * tabs)
+      "#{name} {\n#{children_to_scss(tabs, opts).rstrip} }\n"
+    end
+
     protected
 
     # Computes the CSS for the rule.

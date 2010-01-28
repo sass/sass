@@ -193,6 +193,15 @@ module Sass
         raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #to_sass.")
       end
 
+      # Converts a node to SCSS code that will generate it.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the SCSS code
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the node
+      def to_scss(tabs = 0, opts = {})
+        raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #to_scss.")
+      end
+
       protected
 
       # Computes the CSS corresponding to this particular Sass node.
@@ -319,11 +328,16 @@ module Sass
       # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
       # @return [String] The Sass code corresponding to the children
       def children_to_sass(tabs, opts)
-        str = ""
-        children.each do |child|
-          str << "#{child.to_sass(tabs + 1, opts)}"
-        end
-        str
+        children.map {|c| c.to_sass(tabs + 1, opts)}.join
+      end
+
+      # Converts the children of this node to an SCSS string.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the SCSS code
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The SCSS code corresponding to the children
+      def children_to_scss(tabs, opts)
+        children.map {|c| c.to_scss(tabs + 1, opts)}.join
       end
     end
   end

@@ -52,6 +52,14 @@ module Sass
         children.map {|child| child.to_sass(0, opts) + "\n"}.join.rstrip + "\n"
       end
 
+      # Converts a node to SCSS code that will generate it.
+      #
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The SCSS code corresponding to the node
+      def to_scss(opts = {})
+        children.map {|child| child.to_scss(0, opts) + "\n\n"}.join.rstrip + "\n"
+      end
+
       protected
 
       # Destructively converts this static Sass node into a static CSS node,
