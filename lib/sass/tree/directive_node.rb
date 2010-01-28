@@ -25,6 +25,12 @@ module Sass::Tree
       "#{'  ' * tabs}#{value}\n#{children_to_sass(tabs, opts)}\n"
     end
 
+    def to_scss(tabs, opts = {})
+      res = "#{'  ' * tabs}#{value}"
+      return res + ";\n" if children.empty?
+      "#{res} {\n#{children_to_scss(tabs, opts).rstrip} }\n"
+    end
+
     protected
 
     # Computes the CSS for the directive.
