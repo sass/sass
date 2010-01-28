@@ -122,7 +122,15 @@ module Sass::Tree
     def to_scss(tabs, opts = {})
       name = rule.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass}}"}.
         join.gsub(/^[ \t]*/, '  ' * tabs)
-      "#{name} {\n#{children_to_scss(tabs, opts).rstrip} }\n"
+
+      res = "#{name} {\n#{children_to_scss(tabs, opts)}"
+      if children.last.is_a?(CommentNode) && children.last.silent
+        res << ('  ' * tabs) << "}\n"
+      else
+        res.rstrip!
+        res << " }\n"
+      end
+      res
     end
 
     protected

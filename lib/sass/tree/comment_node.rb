@@ -52,7 +52,7 @@ module Sass::Tree
         unless content.include?("\n")
           content
         else
-          content.gsub!(/\n \*/, "\n  ")
+          content.gsub!(/\n( \*|\/\/)/, "\n  ")
           spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
           if spaces >= 2
             content
@@ -64,6 +64,11 @@ module Sass::Tree
       content.gsub!(/^/, '  ' * tabs)
       content.gsub!(/\A\/\*/, '//') if silent
       content.rstrip + "\n"
+    end
+
+    def to_scss(tabs, opts = {})
+      spaces = ('  ' * [tabs - value[/^ */].size, 0].max)
+      value.gsub(/^/, spaces) + "\n"
     end
 
     protected
