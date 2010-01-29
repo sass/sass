@@ -196,6 +196,10 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Add a `--unix-newlines` flag to all executables
   for outputting Unix-style newlines on Windows.
 
+* Fix a couple bugs with the `:erb` filter:
+  make sure error reporting uses the correct line numbers,
+  and allow multi-line expressions.
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fix compilation of HTML5 doctypes when using `html2haml`.

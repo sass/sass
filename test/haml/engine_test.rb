@@ -72,6 +72,7 @@ class EngineTest < Test::Unit::TestCase
     "/ foo\n\n  bar" => ["Illegal nesting: nesting within a tag that already has content is illegal.", 3],
     "!!!\n\n  bar" => ["Illegal nesting: nesting within a header command is illegal.", 3],
     "foo\n:ruby\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
+    "foo\n:erb\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
     "= raise 'foo'\nfoo\nbar\nbaz\nbang" => ["foo", 1],
   }
 
@@ -569,6 +570,17 @@ HAML
 HTML
 :javascript
  & < > \#{"&"}
+HAML
+  end
+
+  def test_erb_filter_with_multiline_expr
+    assert_equal(<<HTML, render(<<HAML))
+foobarbaz
+HTML
+:erb
+  <%= "foo" +
+      "bar" +
+      "baz" %>
 HAML
   end
 
