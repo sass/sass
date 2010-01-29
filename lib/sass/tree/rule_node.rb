@@ -116,20 +116,20 @@ module Sass::Tree
         end
       end.join
       name = "\\" + name if name[0] == ?:
-      "#{name.gsub(/^/, '  ' * tabs)}\n" + children_to_sass(tabs, opts)
+      name.gsub(/^/, '  ' * tabs) + children_to_src(tabs, opts, :sass)
     end
 
     def to_scss(tabs, opts = {})
       name = rule.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass}}"}.
         join.gsub(/^[ \t]*/, '  ' * tabs)
 
-      res = "#{name} {\n#{children_to_scss(tabs, opts)}"
+      res = name + children_to_src(tabs, opts, :scss)
+
       if children.last.is_a?(CommentNode) && children.last.silent
-        res << ('  ' * tabs) << "}\n"
-      else
-        res.rstrip!
-        res << " }\n"
+        res.slice!(-3..-1)
+        res << "\n" << ('  ' * tabs) << "}\n"
       end
+
       res
     end
 

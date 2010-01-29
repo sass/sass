@@ -10,17 +10,11 @@ module Sass
         super()
       end
 
-      # @overload to_sass(tabs, opts = {})
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {}, semi = '')
-        "#{'  ' * tabs}@debug #{@expr.to_sass}#{semi}\n"
-      end
-
-      def to_scss(tabs, opts = {})
-        to_sass(tabs, opts, ';')
-      end
-
       protected
+
+      def to_src(tabs, opts, fmt)
+        "#{'  ' * tabs}@debug #{@expr.to_sass}#{semi fmt}\n"
+      end
 
       # Prints the expression to STDERR.
       #

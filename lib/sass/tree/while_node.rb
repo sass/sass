@@ -11,13 +11,11 @@ module Sass::Tree
       super()
     end
 
-    # @see Node#to_sass
-    def to_sass(tabs, opts = {})
-      "#{'  ' * tabs}@while #{@expr.to_sass}\n" +
-        children_to_sass(tabs, opts)
-    end
-
     protected
+
+    def to_src(tabs, opts, fmt)
+      "#{'  ' * tabs}@while #{@expr.to_sass}" + children_to_src(tabs, opts, fmt)
+    end
 
     # Runs the child nodes until the continue expression becomes false.
     #

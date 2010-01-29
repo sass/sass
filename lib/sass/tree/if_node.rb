@@ -35,16 +35,15 @@ module Sass::Tree
       self.else.options = options if self.else
     end
 
-    # @see Node#to_sass
-    def to_sass(tabs, opts = {}, is_else = false)
+    protected
+
+    def to_src(tabs, opts, fmt, is_else = false)
       name = is_else ? "else if" : "if"
-      str = "#{'  ' * tabs}@#{name} #{@expr.to_sass}\n"
-      str << children_to_sass(tabs, opts)
-      str << @else.to_sass(tabs, opts, true) if @else
+      str = "#{'  ' * tabs}@#{name} #{@expr.to_sass}"
+      str << children_to_src(tabs, opts, fmt)
+      str << @else.send(:to_src, tabs, opts, fmt, true) if @else
       str
     end
-
-    protected
 
     # Runs the child nodes if the conditional expression is true;
     # otherwise, tries the \{#else} nodes.

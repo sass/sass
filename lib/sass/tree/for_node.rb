@@ -18,14 +18,13 @@ module Sass::Tree
       super()
     end
 
-    # @see Node#to_sass
-    def to_sass(tabs, opts = {})
-      to = @exclusive ? "to" : "through"
-      "#{'  ' * tabs}@for !#{@var} from #{@from.to_sass} #{to} #{@to.to_sass}\n" +
-        children_to_sass(tabs, opts)
-    end
-
     protected
+
+    def to_src(tabs, opts, fmt)
+      to = @exclusive ? "to" : "through"
+      "#{'  ' * tabs}@for !#{@var} from #{@from.to_sass} #{to} #{@to.to_sass}" +
+        children_to_src(tabs, opts, fmt)
+    end
 
     # Runs the child nodes once for each time through the loop,
     # varying the variable each time.

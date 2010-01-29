@@ -28,17 +28,11 @@ module Sass
         @full_filename ||= import
       end
 
-      # @overload to_sass(tabs, opts = {})
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {}, semi = '')
-        "#{'  ' * tabs}@import #{@imported_filename}#{semi}\n"
-      end
-
-      def to_scss(tabs, opts = {})
-        to_sass(tabs, opts, ';')
-      end
-
       protected
+
+      def to_src(tabs, opts, fmt)
+        "#{'  ' * tabs}@import #{@imported_filename}#{semi fmt}\n"
+      end
 
       # @see Node#_cssize
       def _cssize(*args)

@@ -80,50 +80,32 @@ module Sass::Tree
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
-    # @see Node#to_sass
-    def to_sass(tabs, opts = {})
+    protected
+
+    def to_src(tabs, opts, fmt)
       name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
-      initial = opts[:old] ? ':' : ''
+      old = opts[:old] && fmt == :sass
+      initial = old ? ':' : ''
 
       if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
         mid = '='
         value = self.value.first.to_sass
       else
-        mid = opts[:old] ? '' : ':'
+        mid = old ? '' : ':'
         value = self.value.map do |n|
           if n.is_a?(String)
-            n.gsub(/\n\s*/, " ")
+            fmt == :sass ? n.gsub(/\n\s*/, " ") : n
           else
             "\#{#{n.to_sass}}"
           end
         end.join
       end
 
-      "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}\n" +
-        children_to_sass(tabs, opts)
+      value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}") if fmt == :scss
+      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}"
+      return res + "#{semi fmt}\n" if children.empty?
+      res.rstrip + children_to_src(tabs, opts, fmt)
     end
-
-    # @see Node#to_scss
-    def to_scss(tabs, opts = {})
-      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
-
-      if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
-        mid = '='
-        value = self.value.first.to_sass
-      else
-        mid = ':'
-        value = self.value.map do |n|
-          next n if n.is_a?(String)
-          "\#{#{n.to_sass}}"
-        end.join
-      end
-
-      value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}")
-      "#{'  ' * tabs}#{name}#{mid} #{value};\n" +
-        children_to_scss(tabs, opts)
-    end
-
-    protected
 
     # Computes the CSS for the property.
     #

@@ -14,8 +14,9 @@ module Sass
         super()
       end
 
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {})
+      protected
+
+      def to_src(tabs, opts, fmt)
         args =
           if @args.empty?
             ""
@@ -29,10 +30,9 @@ module Sass
             end.join(", ") + ')'
           end
               
-        "#{'  ' * tabs}=#{@name}#{args}\n" + children_to_sass(tabs, opts)
+        "#{'  ' * tabs}#{fmt == :sass ? '=' : '@mixin '}#{@name}#{args}\n" +
+          children_to_src(tabs, opts, fmt)
       end
-
-      protected
 
       # Loads the mixin into the environment.
       #

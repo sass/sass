@@ -14,17 +14,11 @@ module Sass
         super()
       end
 
-      # @overload to_sass(tabs, opts = {})
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {}, semi = '')
-        "#{'  ' * tabs}!#{@name} #{'||' if @guarded}= #{@expr.to_sass}\n"
-      end
-
-      def to_scss(tabs, opts = {})
-        to_sass(tabs, opts, ';')
-      end
-
       protected
+
+      def to_sass(tabs, opts, fmt)
+        "#{'  ' * tabs}!#{@name} #{'||' if @guarded}= #{@expr.to_sass}#{semi fmt}\n"
+      end
 
       # Loads the new variable value into the environment.
       #

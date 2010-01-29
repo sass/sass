@@ -20,18 +20,13 @@ module Sass::Tree
       super()
     end
 
-    # @see Node#to_sass
-    def to_sass(tabs, opts = {})
-      "#{'  ' * tabs}#{value}\n#{children_to_sass(tabs, opts)}\n"
-    end
-
-    def to_scss(tabs, opts = {})
-      res = "#{'  ' * tabs}#{value}"
-      return res + ";\n" if children.empty?
-      "#{res} {\n#{children_to_scss(tabs, opts).rstrip} }\n"
-    end
-
     protected
+
+    def to_src(tabs, opts, fmt)
+      res = "#{'  ' * tabs}#{value}"
+      return res + "#{semi fmt}\n" if children.empty?
+      res + children_to_src(tabs, opts, fmt)
+    end
 
     # Computes the CSS for the directive.
     #
