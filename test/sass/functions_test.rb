@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'test/unit'
-require File.dirname(__FILE__) + '/../../lib/sass'
+require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/script'
 
 module Sass::Script::Functions::UserFunctions
@@ -189,6 +189,23 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, \"foo\", 12, 0.1)");
     assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, 10, \"foo\", 0)");
     assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, 10, 10, \"foo\")");
+  end
+
+  def test_rgba_with_color
+    assert_equal "rgba(16, 32, 48, 0.5)", evaluate("rgba(#102030, 0.5)")
+    assert_equal "rgba(0, 0, 255, 0.5)", evaluate("rgba(blue, 0.5)")
+  end
+
+  def test_rgba_with_color_tests_types
+    assert_error_message("\"foo\" is not a color for `rgba'", "rgba(\"foo\", 0.2)");
+    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(blue, \"foo\")");
+  end
+
+  def test_rgba_tests_num_args
+    assert_error_message("wrong number of arguments (0 for 4) for `rgba'", "rgba()");
+    assert_error_message("wrong number of arguments (1 for 4) for `rgba'", "rgba(blue)");
+    assert_error_message("wrong number of arguments (3 for 4) for `rgba'", "rgba(1, 2, 3)");
+    assert_error_message("wrong number of arguments (5 for 4) for `rgba'", "rgba(1, 2, 3, 0.4, 5)");
   end
 
   def test_red

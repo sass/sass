@@ -629,7 +629,7 @@ For example:
 {.sass-ex}
     @font-face
       font-family: "Bitstream Vera Sans"
-      src: url(http://foo.bar/bvs")
+      src: url(http://foo.bar/bvs)
 
 {.scss-ex}
     @font-face {
@@ -641,7 +641,7 @@ compiles to:
 
     @font-face {
       font-family: "Bitstream Vera Sans";
-      src: url(http://foo.bar/bvs"); }
+      src: url(http://foo.bar/bvs); }
 
 and
 
