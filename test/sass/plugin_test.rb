@@ -54,8 +54,7 @@ class SassPluginTest < Test::Unit::TestCase
   end
 
   def test_update_needed_when_scss_dependency_modified
-    sleep 1
-    FileUtils.touch(template_loc('scss_importee'))
+    touch 'scss_importee'
     assert_needs_update 'import'
     Sass::Plugin.update_stylesheets
     assert_stylesheet_updated 'scss_importee'
@@ -63,8 +62,7 @@ class SassPluginTest < Test::Unit::TestCase
   end
 
   def test_scss_update_needed_when_dependency_modified
-    sleep 1
-    FileUtils.touch(template_loc('basic'))
+    touch 'basic'
     assert_needs_update 'scss_import'
     Sass::Plugin.update_stylesheets
     assert_stylesheet_updated 'basic'
