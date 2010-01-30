@@ -200,6 +200,8 @@ that surrounds the filtered text with `<style>` and CDATA tags.
   make sure error reporting uses the correct line numbers,
   and allow multi-line expressions.
 
+* Fix a parsing bug for HTML-style attributes including `#`.
+
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
 * Fix compilation of HTML5 doctypes when using `html2haml`.
