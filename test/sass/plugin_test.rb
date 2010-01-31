@@ -356,8 +356,8 @@ CSS
 
   def reset_mtimes
     atime = Time.now
-    mtime = Time.now - 1
-    Dir["{#{template_loc},#{tempfile_loc}}/**/*.{css,sass}"].each {|f| File.utime(atime, mtime, f)}
+    mtime = Time.now - 5
+    Dir["{#{template_loc},#{tempfile_loc}}/**/*.{css,sass,scss}"].each {|f| File.utime(atime, mtime, f)}
   end
 
   def template_loc(name = nil, prefix = nil)
