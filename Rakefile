@@ -57,6 +57,7 @@ task :revision_file do
   end
 end
 Rake::Task[:package].prerequisites.insert(0, :revision_file)
+Rake::Task[:package].prerequisites.insert(0, :submodules)
 
 # We also need to get rid of this file after packaging.
 at_exit { File.delete('REVISION') rescue nil }
@@ -165,6 +166,18 @@ def mode_unchanged?(mode, version)
   return mode_version unless changed_since?(mode_version, "extra/#{mode}-mode.el")
   raise "#{mode}-mode.el version is #{version.inspect}, but it has changed as of #{version.inspect}"
   return false
+end
+
+task :submodules do
+  if File.exist?(File.dirname(__FILE__) + "/.git")
+    sh %{git submodule sync}
+    sh %{git submodule update --init}
+  elsif !File.exist?(File.dirname(__FILE__) + "/vendor/fssm/lib")
+    warn <<WARN
+WARNING: vendor/fssm doesn't exist, and this isn't a git repository so
+I can't get it automatically!
+WARN
+  end
 end
 
 task :release_edge do

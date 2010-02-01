@@ -66,8 +66,9 @@ module Sass::Script
     #   The attributes are specified as an array.
     #   This overload only supports RGB or RGBA colors.
     #
-    #   @param rgba [Array<Numeric>] A three-element array of the red, green, blue,
-    #     and optionally alpha values (respectively) of the color
+    #   @param rgba [Array<Numeric>] A three- or four-element array
+    #     of the red, green, blue, and optionally alpha values (respectively)
+    #     of the color
     #   @raise [ArgumentError] if not enough attributes are specified
     def initialize(attrs, allow_both_rgb_and_hsl = false)
       super(nil)

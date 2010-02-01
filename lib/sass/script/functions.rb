@@ -71,6 +71,9 @@ module Sass::Script
   # \{#alpha} / \{#opacity}
   # : Gets the alpha component (opacity) of a color.
   #
+  # \{#rgba}
+  # : Sets the alpha component of a color.
+  #
   # \{#opacify} / \{#fade_in #fade-in}
   # : Makes a color more opaque.
   #
@@ -192,43 +195,66 @@ module Sass::Script
     #   or between 0% and 100% inclusive
     # @return [Color]
     def rgb(red, green, blue)
-      rgba(red, green, blue, Number.new(1))
-    end
-
-    # Creates a {Color} object from red, green, and blue values,
-    # as well as an alpha channel indicating opacity.
-    #
-    # @param red [Number]
-    #   A number between 0 and 255 inclusive
-    # @param green [Number]
-    #   A number between 0 and 255 inclusive
-    # @param blue [Number]
-    #   A number between 0 and 255 inclusive
-    # @param alpha [Number]
-    #   A number between 0 and 1
-    # @return [Color]
-    def rgba(red, green, blue, alpha)
       assert_type red, :Number
       assert_type green, :Number
       assert_type blue, :Number
-      assert_type alpha, :Number
 
-      rgb = [red, green, blue].map do |c|
-        v = c.value
-        if c.numerator_units == ["%"] && c.denominator_units.empty?
-          next v * 255 / 100.0 if (0..100).include?(v)
-          raise ArgumentError.new("Color value #{c} must be between 0% and 100% inclusive")
-        else
-          next v if (0..255).include?(v)
-          raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
+      Color.new([red, green, blue].map do |c|
+          v = c.value
+          if c.numerator_units == ["%"] && c.denominator_units.empty?
+            next v * 255 / 100.0 if (0..100).include?(v)
+            raise ArgumentError.new("Color value #{c} must be between 0% and 100% inclusive")
+          else
+            next v if (0..255).include?(v)
+            raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
+          end
+        end)
+    end
+
+    # @overload rgba(red, green, blue, alpha)
+    #   Creates a {Color} object from red, green, and blue values,
+    #   as well as an alpha channel indicating opacity.
+    #
+    #   @param red [Number]
+    #     A number between 0 and 255 inclusive
+    #   @param green [Number]
+    #     A number between 0 and 255 inclusive
+    #   @param blue [Number]
+    #     A number between 0 and 255 inclusive
+    #   @param alpha [Number]
+    #     A number between 0 and 1
+    #   @return [Color]
+    #
+    # @overload rgba(color, alpha)
+    #   Sets the opacity of a color.
+    #
+    #   @example
+    #     rgba(#102030, 0.5) => rgba(16, 32, 48, 0.5)
+    #     rgba(blue, 0.2)    => rgba(0, 0, 255, 0.2)
+    #
+    #   @param color [Color]
+    #   @param alpha [Number]
+    #     A number between 0 and 1
+    #   @return [Color]
+    def rgba(*args)
+      case args.size
+      when 2
+        color, alpha = args
+
+        assert_type color, :Color
+        assert_type alpha, :Number
+
+        unless (0..1).include?(alpha.value)
+          raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1 inclusive")
         end
-      end
 
-      unless (0..1).include?(alpha.value)
-        raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1 inclusive")
+        color.with(:alpha => alpha.value)
+      when 4
+        red, green, blue, alpha = args
+        rgba(rgb(red, green, blue), alpha)
+      else
+        raise ArgumentError.new("wrong number of arguments (#{args.size} for 4)")
       end
-
-      Color.new(rgb + [alpha.value])
     end
 
     # Creates a {Color} object from hue, saturation, and lightness.

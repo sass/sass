@@ -20,5 +20,9 @@ module Sass
 end
 
 require 'haml/util'
+
+dir = Haml::Util.scope("vendor/fssm/lib")
+$LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
+
 require 'sass/engine'
 require 'sass/plugin' if defined?(Merb::Plugins)
