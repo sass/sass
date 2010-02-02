@@ -612,6 +612,15 @@ HTML
 HAML
   end
 
+  def test_html_attributes_with_hash
+    assert_equal("<a href='#' rel='top'>Foo</a>\n",
+      render('%a(href="#" rel="top") Foo'))
+    assert_equal("<a href='#'>Foo</a>\n",
+      render('%a(href="#") #{"Foo"}'))
+
+    assert_equal("<a href='#\"'></a>\n", render('%a(href="#\\"")'))
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

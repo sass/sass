@@ -195,6 +195,7 @@ module Sass
 
     def tabulate(string)
       tab_str = nil
+      initial_comment_tab_str = nil
       first = true
       lines = []
       string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/).each_with_index do |line, index|
@@ -206,6 +207,14 @@ module Sass
 
         line_tab_str = line[/^\s*/]
         unless line_tab_str.empty?
+          initial_comment_tab_str ||= line_tab_str
+          # Support comments at the beginning of the document
+          # using arbitrary indentation
+          if tab_str.nil? && lines.last && lines.last.comment? && line =~ /^(?:#{initial_comment_tab_str})(.*)$/
+            lines.last.text << "\n" << $1
+            next
+          end
+
           tab_str ||= line_tab_str
 
           raise SyntaxError.new("Indenting at the beginning of the document is illegal.",
