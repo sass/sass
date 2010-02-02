@@ -182,7 +182,7 @@ module Sass
 
     def tabulate(string)
       tab_str = nil
-      initial_comment_tab_str = nil
+      comment_tab_str = nil
       first = true
       lines = []
       string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/).each_with_index do |line, index|
@@ -194,12 +194,20 @@ module Sass
 
         line_tab_str = line[/^\s*/]
         unless line_tab_str.empty?
-          initial_comment_tab_str ||= line_tab_str
+          comment_tab_str ||= line_tab_str
           # Support comments at the beginning of the document
           # using arbitrary indentation
-          if tab_str.nil? && lines.last && lines.last.comment? && line =~ /^(?:#{initial_comment_tab_str})(.*)$/
-            lines.last.text << "\n" << $1
-            next
+          if tab_str.nil? && lines.last && lines.last.comment?
+            if line =~ /^(?:#{comment_tab_str})(.*)$/
+              lines.last.text << "\n" << $1
+              next
+            else
+              raise SyntaxError.new(<<MSG.strip.gsub("\n", " "), index)
+Inconsistent indentation:
+previous line was indented by #{Haml::Shared.human_indentation comment_tab_str},
+but this line was indented by #{Haml::Shared.human_indentation line_tab_str}.
+MSG
+            end
           end
 
           tab_str ||= line_tab_str

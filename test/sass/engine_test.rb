@@ -96,6 +96,7 @@ MSG
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
     '@debug' => "Invalid debug directive '@debug': expected expression.",
+    "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
