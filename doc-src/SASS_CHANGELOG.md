@@ -231,6 +231,7 @@ Several bug fixes and minor improvements have been made, including:
 
 * Allow comments at the beginning of the document to have arbitrary indentation,
   just like comments elsewhere.
+  Similarly, comment parsing is a little nicer than before.
 
 ## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
 
