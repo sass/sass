@@ -691,6 +691,22 @@ foo {
 CSS
   end
 
+  def test_comment_indentation_at_beginning_of_doc
+    assert_equal <<CSS, render(<<SASS)
+/* foo
+ * bar
+ *   baz */
+foo {
+  a: b; }
+CSS
+/* foo
+   bar
+     baz
+foo
+  a: b
+SASS
+  end
+
   def test_attribute_selector_with_spaces
     assert_equal(<<CSS, render(<<SASS))
 a b[foo = bar] {
