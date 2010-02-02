@@ -115,6 +115,11 @@ The line containing RE is matched, as well as all lines indented beneath it."
 (defconst haml-comment-re "^ *\\(?:-\\#\\|/\\)")
 
 (defun haml-fontify-region (beg end keywords syntax-table syntactic-keywords)
+  "Fontify a region between BEG and END using another mode's fontification.
+
+KEYWORDS, SYNTAX-TABLE, and SYNTACTIC-KEYWORDS are the values of that mode's
+`font-lock-keywords', `font-lock-syntax-table',
+and `font-lock-syntactic-keywords', respectively."
   (save-excursion
     (save-match-data
       (let ((font-lock-keywords keywords)
@@ -134,13 +139,18 @@ The line containing RE is matched, as well as all lines indented beneath it."
                        ruby-font-lock-syntactic-keywords))
 
 (defun haml-handle-filter (filter-name limit fn)
-  "Call `fn' with `beg' and `end' params if a :filter-name block is found."
+  "If a FILTER-NAME filter is found within LIMIT, run FN on that filter.
+
+FN is passed a pair of points representing the beginning and end
+of the filtered text."
   (when (re-search-forward (haml-nested-regexp (concat ":" filter-name)) limit t)
     (funcall fn (+ 2 (match-beginning 2)) (match-end 2))))
 
 (defun haml-fontify-filter-region (filter-name limit &rest fontify-region-args)
-  "Find a filter block of type `filter-name' and call `haml-fontify-region'
-with the provided args."
+  "If a FILTER-NAME filter is found within LIMIT, fontify it.
+
+The fontification is done by passing FONTIFY-REGION-ARGS to
+`haml-fontify-region'."
   (haml-handle-filter filter-name limit
                       (lambda (beg end)
                         (apply 'haml-fontify-region
@@ -148,22 +158,21 @@ with the provided args."
                                        fontify-region-args)))))
 
 (defun haml-highlight-ruby-filter-block (limit)
-  "Highlight a Ruby script expression inside ':ruby' filter block."
+  "If a :ruby filter is found within LIMIT, highlight it."
   (haml-handle-filter "ruby" limit 'haml-fontify-region-as-ruby))
 
 (defun haml-highlight-css-filter-block (limit)
-  "Highlight CSS inside ':css' filter block.
+  "If a :css filter is found within LIMIT, highlight it.
 
-For this to work, 'css-mode.el' must be available, as is automatically
-the case in Emacs 23."
+This requires that `css-mode' is available.
+`css-mode' is included with Emacs 23."
   (if (boundp 'css-font-lock-keywords)
       (haml-fontify-filter-region "css" limit css-font-lock-keywords nil nil)))
 
 (defun haml-highlight-js-filter-block (limit)
-  "Highlight Javascript inside ':javascript' filter block.
+  "If a :javascript filter is found within LIMIT, highlight it.
 
-For this to work, Karl Landström's 'javascript.el' must be available,
-e.g. by installing it from ELPA."
+This requires that Karl Landström's \"javascript.el\" be available."
   (if (boundp 'js-font-lock-keywords-3)
       (haml-fontify-filter-region "javascript"
                                   limit
@@ -172,20 +181,20 @@ e.g. by installing it from ELPA."
                                   nil)))
 
 (defun haml-highlight-textile-filter-block (limit)
-  "Highlight Textile inside ':textile' filter block.
+  "If a :textile filter is found within LIMIT, highlight it.
 
-Note that the results are not perfect, since textile-mode expects
-certain constructs such as 'h1.' to be at the beginning of a line,
-and indented haml filter blocks always have leading whitespace.
+This requires that `textile-mode' be available.
 
-For this to work, 'textile-mode.el' must be available."
+Note that the results are not perfect, since `textile-mode' expects
+certain constructs such as \"h1.\" to be at the beginning of a line,
+and indented Haml filters always have leading whitespace."
   (if (boundp 'textile-font-lock-keywords)
       (haml-fontify-filter-region "textile" limit textile-font-lock-keywords nil nil)))
 
 (defun haml-highlight-markdown-filter-block (limit)
-  "Highlight Markdown inside ':markdown' filter block.
+  "If a :markdown filter is found within LIMIT, highlight it.
 
-For this to work, 'markdown-mode.el' must be available."
+This requires that `markdown-mode' be available."
   (if (boundp 'markdown-mode-font-lock-keywords)
       (haml-fontify-filter-region "markdown" limit
                                   markdown-mode-font-lock-keywords
