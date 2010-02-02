@@ -188,7 +188,7 @@ module Sass
 
     def tabulate(string)
       tab_str = nil
-      initial_comment_tab_str = nil
+      comment_tab_str = nil
       first = true
       lines = []
       string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^.*?$/).each_with_index do |line, index|
@@ -200,12 +200,10 @@ module Sass
 
         line_tab_str = line[/^\s*/]
         unless line_tab_str.empty?
-          initial_comment_tab_str ||= line_tab_str
-          # Support comments at the beginning of the document
-          # using arbitrary indentation
-          if tab_str.nil? && lines.last && lines.last.comment? && line =~ /^(?:#{initial_comment_tab_str})(.*)$/
-            lines.last.text << "\n" << $1
-            next
+          if tab_str.nil?
+            comment_tab_str ||= line_tab_str
+            next if try_comment(line, lines.last, "", comment_tab_str, index)
+            comment_tab_str = nil
           end
 
           tab_str ||= line_tab_str
@@ -222,9 +220,11 @@ module Sass
           next
         end
 
-        if lines.last && lines.last.comment? && line =~ /^(?:#{tab_str}){#{lines.last.tabs + 1}}(.*)$/
-          lines.last.text << "\n" << $1
+        comment_tab_str ||= line_tab_str
+        if try_comment(line, lines.last, tab_str * (lines.last.tabs + 1), comment_tab_str, index)
           next
+        else
+          comment_tab_str = nil
         end
 
         line_tabs = line_tab_str.scan(tab_str).size
@@ -239,6 +239,21 @@ END
         lines << Line.new(line.strip, line_tabs, index, tab_str.size, @options[:filename], [])
       end
       lines
+    end
+
+    def try_comment(line, last, tab_str, comment_tab_str, index)
+      return unless last && last.comment?
+      return unless line =~ /^#{tab_str}/
+      unless line =~ /^(?:#{comment_tab_str})(.*)$/
+        raise SyntaxError.new(<<MSG.strip.gsub("\n", " "), :line => index)
+Inconsistent indentation:
+previous line was indented by #{Haml::Shared.human_indentation comment_tab_str},
+but this line was indented by #{Haml::Shared.human_indentation line[/^\s*/]}.
+MSG
+      end
+
+      last.text << "\n" << $1
+      true
     end
 
     def tree(arr, i = 0)
