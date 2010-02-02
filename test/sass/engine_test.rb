@@ -708,6 +708,20 @@ foo
 SASS
   end
 
+  def test_unusual_comment_indentation
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  /* foo
+   * bar
+   *   baz */ }
+CSS
+foo
+  /* foo
+     bar
+       baz
+SASS
+  end
+
   def test_attribute_selector_with_spaces
     assert_equal(<<CSS, render(<<SASS))
 a b[foo = bar] {
