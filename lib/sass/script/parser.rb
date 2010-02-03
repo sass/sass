@@ -149,7 +149,7 @@ RUBY
           warn(<<END)
 DEPRECATION WARNING:
 On line #{name.line}, character #{name.offset}#{" of '#{filename}'" if filename}
-Implicit strings have been deprecated and will be removed in version 2.4.
+Implicit strings have been deprecated and will be removed in version 3.0.
 '#{name.value}' was not quoted. Please add double quotes (e.g. "#{name.value}").
 END
           Script::String.new(name.value)
