@@ -408,10 +408,10 @@ module Sass
       end
 
       def declaration
-        # The tok(/\*/) allows the "*prop: val" hack
-        if tok(/\*/)
+        # This allows the "*prop: val" and ":prop: val" hacks
+        if s = tok(/[:\*]/)
           @use_property_exception = true
-          name = ['*'] + expr!(:property)
+          name = [s] + expr!(:property)
         else
           return unless name = property
         end

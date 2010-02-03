@@ -319,6 +319,7 @@ SCSS
 foo {
   _name: val;
   *name: val;
+  :name: val;
   name: val; }
 SCSS
   end
