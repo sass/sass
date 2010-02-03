@@ -170,7 +170,7 @@ module Sass
           warn(<<END)
 DEPRECATION WARNING:
 On line #{@line}, character #{last_match_position}#{" of '#{@filename}'" if @filename}
-- will be allowed as part of variable names in version 2.4.
+- will be allowed as part of variable names in version 3.0.
 Please add whitespace to separate it from the previous token.
 END
         end

@@ -43,13 +43,13 @@ module Sass::Script
       super(rgb.freeze)
     end
 
-    # @deprecated This will be removed in version 2.6.
+    # @deprecated This will be removed in version 3.2.
     # @see #rgb
     def value
       warn <<END
 DEPRECATION WARNING:
 The Sass::Script::Color #value attribute is deprecated and will be
-removed in version 2.6. Use the #rgb attribute instead.
+removed in version 3.2. Use the #rgb attribute instead.
 END
       rgb
     end

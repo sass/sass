@@ -338,12 +338,12 @@ MESSAGE
       haml_buffer.capture_position = nil
     end
 
-    # @deprecated This will be removed in version 2.4.
+    # @deprecated This will be removed in version 3.0.
     # @see #haml_concat
     def puts(*args)
       warn <<END
 DEPRECATION WARNING:
-The Haml #puts helper is deprecated and will be removed in version 2.4.
+The Haml #puts helper is deprecated and will be removed in version 3.0.
 Use the #haml_concat helper instead.
 END
       haml_concat(*args)
