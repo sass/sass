@@ -363,6 +363,28 @@ SCSS
 SCSS
   end
 
+  def test_media_directive_with_keywords
+    assert_parses <<SCSS
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  a: b; }
+SCSS
+    assert_parses <<SCSS
+@media screen and -webkit-min-device-pixel-ratio: 0 {
+  a: b; }
+SCSS
+    assert_parses <<SCSS
+@media screen, print and foo: 0 and bar: 15 {
+  a: b; }
+SCSS
+  end
+
+  def test_import_directive_with_media
+    assert_parses '@import "foo.css" screen;'
+    assert_parses '@import "foo.css" screen, print;'
+    assert_parses '@import "foo.css" screen, print and (foo: 0);'
+    assert_parses '@import "foo.css" screen, print and foo: 0;'
+  end
+
   def test_page_directive
     assert_parses <<SCSS
 @page {

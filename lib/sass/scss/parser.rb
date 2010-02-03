@@ -64,19 +64,19 @@ module Sass
         node << Sass::Tree::CommentNode.new(pre_str + text, false)
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import]
+      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import, :media]
 
       def directive
         return unless tok(/@/)
         name = tok!(IDENT)
         ss
 
-        if dir = scss_directive(name)
+        if dir = special_directive(name)
           return dir
         end
 
         val = str do
-          # Most at-rules take expressions (e.g. @media, @import),
+          # Most at-rules take expressions (e.g. @import),
           # but some (e.g. @page) take selector-like arguments
           expr || selector
         end
@@ -91,7 +91,7 @@ module Sass
         node
       end
 
-      def scss_directive(name)
+      def special_directive(name)
         sym = name.gsub('-', '_').to_sym
         DIRECTIVES.include?(sym) && send(sym)
       end
@@ -162,20 +162,47 @@ module Sass
         path = @scanner[1]
         ss
 
-        media = str do
-          if tok IDENT
-            ss
-            while tok(/,/)
-              ss; tok(IDENT); ss
-            end
-          end
-        end
+        media = str {media_type}.strip
 
-        unless media.strip.empty?
-          return node(Sass::Tree::DirectiveNode.new("@import #{path} #{media}".strip))
+        if !media.strip.empty? || use_css_import?
+          return node(Sass::Tree::DirectiveNode.new("@import #{arg} #{media}".strip))
         end
 
         node(Sass::Tree::ImportNode.new(path.strip))
+      end
+
+      def use_css_import?; false; end
+
+      def media
+        val = str {media_type}.strip
+        block(node(Sass::Tree::DirectiveNode.new("@media #{val}")), :directive)
+      end
+
+      def media_type
+        return unless media_term
+
+        ss
+        while tok(/,|and/)
+          ss; expr!(:media_term); ss
+        end
+
+        true
+      end
+
+      def media_term
+        return unless tok(IDENT) || (p = tok(/\(/))
+        ss
+
+        if p
+          media_type
+          ss
+          tok!(/\)/)
+        elsif tok(/:/)
+          ss
+          tok! NUMBER
+        end
+
+        return true
       end
 
       def variable
@@ -534,7 +561,7 @@ MESSAGE
       end
 
       EXPR_NAMES = {
-        :medium => "medium (e.g. print, screen)",
+        :media_term => "medium (e.g. print, screen)",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
         :expr => "expression (e.g. 1px, bold)",
       }

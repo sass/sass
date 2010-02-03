@@ -3,13 +3,18 @@ module Sass
     class CssParser < Parser
       private
 
-      def scss_directive(name); nil; end
       def variable; nil; end
       def parent_selector; nil; end
       def script_value; nil; end
       def interpolation; nil; end
       def interp_string; tok(STRING); end
       def expected_property_separator; '":"'; end
+      def use_css_import?; true; end
+
+      def special_directive(name)
+        return unless name == 'media' || name == 'import'
+        super
+      end
 
       def block_child(context)
         case context
