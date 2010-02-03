@@ -21,6 +21,14 @@ sel {
 CSS
   end
 
+  def test_empty_rule
+    assert_equal "", render("#foo .bar {}")
+    assert_equal "", render(<<SCSS)
+#foo .bar {
+}
+SCSS
+  end
+
   def test_cdo_and_cdc_ignored_at_toplevel
     assert_equal <<CSS, render(<<SCSS)
 foo {
@@ -396,13 +404,13 @@ SCSS
 SCSS
   end
 
-  # TODO: Make this work.
-  #   Currently we check whether a directive has children
-  #   to determine whether to use {} or ;.
-  #
-  # def test_empty_block_directive
-  #   assert_parses "@foo {}"
-  # end
+  def test_empty_block_directive
+    assert_parses "@foo {}"
+    assert_equal "@foo {}\n", render(<<SCSS)
+@foo {
+}
+SCSS
+  end
 
   def test_multiple_block_directives
     assert_parses <<SCSS

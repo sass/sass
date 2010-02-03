@@ -83,6 +83,7 @@ module Sass
         node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
 
         if tok(/\{/)
+          node.has_children = true
           block_contents(node, :directive)
           tok!(/\}/)
         end
@@ -232,6 +233,7 @@ module Sass
       end
 
       def block(node, context)
+        node.has_children = true
         tok!(/\{/)
         block_contents(node, context)
         tok!(/\}/)
@@ -242,7 +244,7 @@ module Sass
       def block_contents(node, context)
         block_given? ? yield : ss_comments(node)
         node << (child = block_child(context))
-        while tok(/;/) || (child && !child.children.empty?)
+        while tok(/;/) || (child && child.has_children)
           block_given? ? yield : ss_comments(node)
           node << (child = block_child(context))
         end
