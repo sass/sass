@@ -37,9 +37,14 @@ module Sass::Tree
 
     # @see Node#to_sass
     def to_sass(tabs, opts = {}, is_else = false)
-      name = is_else ? "else if" : "if"
-      str = "#{'  ' * tabs}@#{name} #{@expr.to_sass}\n"
-      str << children_to_sass(tabs, opts)
+      name =
+        if !is_else; "if"
+        elsif @expr; "else if"
+        else; "else"
+        end
+      str = "#{'  ' * tabs}@#{name}"
+      str << " #{@expr.to_sass}" if @expr
+      str << "\n" << children_to_sass(tabs, opts)
       str << @else.to_sass(tabs, opts, true) if @else
       str
     end

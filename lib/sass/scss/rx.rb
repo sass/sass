@@ -42,7 +42,7 @@ module Sass
       S = /[ \t\r\n\f]+/
 
       COMMENT = /\/\*[^*]*\*+(?:[^\/][^*]*\*+)*\//
-      SINGLE_LINE_COMMENT = /\/\/.*/
+      SINGLE_LINE_COMMENT = /\/\/.*(\n[ \t]*\/\/.*)*/
 
       CDO            = quote("<!--")
       CDC            = quote("-->")

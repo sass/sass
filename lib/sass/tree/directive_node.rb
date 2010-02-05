@@ -22,7 +22,9 @@ module Sass::Tree
 
     # @see Node#to_sass
     def to_sass(tabs, opts = {})
-      "#{'  ' * tabs}#{value}\n#{children_to_sass(tabs, opts)}\n"
+      dir = "#{'  ' * tabs}#{value}\n"
+      dir << "#{children_to_sass(tabs, opts)}\n" unless children.empty?
+      dir
     end
 
     protected

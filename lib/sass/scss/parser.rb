@@ -65,7 +65,7 @@ module Sass
           string[0...@scanner.pos].
           reverse[/.*?\*\/(.*?)($|\Z)/, 1].
           reverse.gsub(/[^\s]/, ' ')
-        pre_str.gsub!(/^\/\/(.*)$/, '/*\1*/') if single_line
+        text = text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */' if single_line
         node << Sass::Tree::CommentNode.new(pre_str + text, single_line)
       end
 
@@ -176,7 +176,7 @@ module Sass
         end
 
         unless media.strip.empty?
-          return node(Sass::Tree::DirectiveNode.new("@import #{path} #{media}".strip))
+          return node(Sass::Tree::DirectiveNode.new("@import #{arg} #{media}".strip))
         end
 
         node(Sass::Tree::ImportNode.new(path.strip))

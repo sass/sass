@@ -418,7 +418,7 @@ WARNING
     def parse_comment(line)
       if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
         Tree::CommentNode.new(
-          format_comment_text(line[2..-1].strip),
+          format_comment_text(line[2..-1]),
           line[1] == SASS_COMMENT_CHAR)
       else
         Tree::RuleNode.new(parse_interp(line))
@@ -528,7 +528,7 @@ WARNING
       content.map! {|l| (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '')
       content.last.gsub!(%r{ ?\*/ *$}, '')
-      "/* " + content.join("\n *") + " */"
+      "/*" + content.join("\n *") + " */"
     end
 
     def parse_interp(text)
