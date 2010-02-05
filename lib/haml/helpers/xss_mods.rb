@@ -19,45 +19,46 @@ module Haml
       def html_escape_with_haml_xss(text)
         str = text.to_s
         return text if str.html_safe?
-        html_escape_without_haml_xss(str).html_safe!
+        Haml::Util.html_safe(html_escape_without_haml_xss(str))
       end
 
       # Output is always HTML safe
       def find_and_preserve_with_haml_xss(*args, &block)
-        find_and_preserve_without_haml_xss(*args, &block).html_safe!
+        Haml::Util.html_safe(find_and_preserve_without_haml_xss(*args, &block))
       end
 
       # Output is always HTML safe
       def preserve_with_haml_xss(*args, &block)
-        preserve_without_haml_xss(*args, &block).html_safe!
+        Haml::Util.html_safe(preserve_without_haml_xss(*args, &block))
       end
 
       # Output is always HTML safe
       def list_of_with_haml_xss(*args, &block)
-        list_of_without_haml_xss(*args, &block).html_safe!
+        Haml::Util.html_safe(list_of_without_haml_xss(*args, &block))
       end
 
       # Input is escaped, output is always HTML safe
       def surround_with_haml_xss(front, back = front, &block)
-        surround_without_haml_xss(
-          haml_xss_html_escape(front),
-          haml_xss_html_escape(back),
-          &block).html_safe!
+        Haml::Util.html_safe(
+          surround_without_haml_xss(
+            haml_xss_html_escape(front),
+            haml_xss_html_escape(back),
+            &block))
       end
 
       # Input is escaped, output is always HTML safe
       def precede_with_haml_xss(str, &block)
-        precede_without_haml_xss(haml_xss_html_escape(str), &block).html_safe!
+        Haml::Util.html_safe(precede_without_haml_xss(haml_xss_html_escape(str), &block))
       end
 
       # Input is escaped, output is always HTML safe
       def succeed_with_haml_xss(str, &block)
-        succeed_without_haml_xss(haml_xss_html_escape(str), &block).html_safe!
+        Haml::Util.html_safe(succeed_without_haml_xss(haml_xss_html_escape(str), &block))
       end
 
       # Output is always HTML safe
       def capture_haml_with_haml_xss(*args, &block)
-        capture_haml_without_haml_xss(*args, &block).html_safe!
+        Haml::Util.html_safe(capture_haml_without_haml_xss(*args, &block))
       end
 
       # Input is escaped
@@ -67,7 +68,7 @@ module Haml
 
       # Output is always HTML safe
       def haml_indent_with_haml_xss
-        haml_indent_without_haml_xss.html_safe!
+        Haml::Util.html_safe(haml_indent_without_haml_xss)
       end
 
       # Input is escaped, haml_concat'ed output is always HTML safe
@@ -79,7 +80,7 @@ module Haml
 
       # Output is always HTML safe
       def escape_once_with_haml_xss(*args)
-        escape_once_without_haml_xss(*args).html_safe!
+        Haml::Util.html_safe(escape_once_without_haml_xss(*args))
       end
 
       private
