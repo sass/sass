@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 2.2.18 (Unreleased)
+## 2.2.18
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
 
 * Support [the new XSS-protection API](http://yehudakatz.com/2010/02/01/safebuffers-and-rails-3-0/)
   used in Rails 3.

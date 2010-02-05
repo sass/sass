@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 2.2.18 (Unreleased)
+## 2.2.18
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
 
 * Use `Rails.env` rather than `RAILS_ENV` when running under Rails 3.0.
   Thanks to [Duncan Grazier](http://duncangrazier.com/).
