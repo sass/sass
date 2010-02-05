@@ -292,5 +292,19 @@ END
     def test_xss_html_escaping_with_non_strings
       assert_equal("4\n", render("= html_escape(4)"))
     end
+
+    def test_xss_protection_with_concat
+      assert_equal("Foo &amp; Bar", render('- concat "Foo & Bar"', :action_view))
+    end
+
+    def test_xss_protection_with_concat_with_safe_string
+      assert_equal("Foo & Bar", render('- concat(Haml::Util.html_safe("Foo & Bar"))', :action_view))
+    end
+
+    if Haml::Util.has?(:instance_method, ActionView::Helpers::TextHelper, :safe_concat)
+      def test_xss_protection_with_safe_concat
+        assert_equal("Foo & Bar", render('- safe_concat "Foo & Bar"', :action_view))
+      end
+    end
   end
 end

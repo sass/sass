@@ -94,3 +94,32 @@ module Haml
     end
   end
 end
+
+module ActionView
+  module Helpers
+    module TextHelper
+      def concat_with_haml(string)
+        if is_haml?
+          haml_buffer.buffer.concat(haml_xss_html_escape(string))
+        else
+          concat_without_haml(string)
+        end
+      end
+      alias_method :concat_without_haml, :concat
+      alias_method :concat, :concat_with_haml
+
+      # safe_concat was introduced in Rails 3.0
+      if Haml::Util.has?(:instance_method, self, :safe_concat)
+        def safe_concat_with_haml(string)
+          if is_haml?
+            haml_buffer.buffer.concat(string)
+          else
+            concat_without_haml(string)
+          end
+        end
+        alias_method :safe_concat_without_haml, :safe_concat
+        alias_method :safe_concat, :safe_concat_with_haml
+      end
+    end
+  end
+end
