@@ -258,7 +258,7 @@ END
     end
 
     def test_xss_protection_with_safe_strings
-      assert_equal("Foo & Bar\n", render('= "Foo & Bar".html_safe!', :action_view))
+      assert_equal("Foo & Bar\n", render('= Haml::Util.html_safe("Foo & Bar")', :action_view))
     end
 
     def test_xss_protection_with_bang
@@ -274,11 +274,11 @@ END
     end
 
     def test_xss_protection_with_safe_strings_in_interpolation
-      assert_equal("Foo & Bar\n", render('Foo #{"&".html_safe!} Bar', :action_view))
+      assert_equal("Foo & Bar\n", render('Foo #{Haml::Util.html_safe("&")} Bar', :action_view))
     end
 
     def test_xss_protection_with_mixed_strings_in_interpolation
-      assert_equal("Foo & Bar &amp; Baz\n", render('Foo #{"&".html_safe!} Bar #{"&"} Baz', :action_view))
+      assert_equal("Foo & Bar &amp; Baz\n", render('Foo #{Haml::Util.html_safe("&")} Bar #{"&"} Baz', :action_view))
     end
 
     def test_rendered_string_is_html_safe
@@ -291,6 +291,20 @@ END
 
     def test_xss_html_escaping_with_non_strings
       assert_equal("4\n", render("= html_escape(4)"))
+    end
+
+    def test_xss_protection_with_concat
+      assert_equal("Foo &amp; Bar", render('- concat "Foo & Bar"', :action_view))
+    end
+
+    def test_xss_protection_with_concat_with_safe_string
+      assert_equal("Foo & Bar", render('- concat(Haml::Util.html_safe("Foo & Bar"))', :action_view))
+    end
+
+    if Haml::Util.has?(:instance_method, ActionView::Helpers::TextHelper, :safe_concat)
+      def test_xss_protection_with_safe_concat
+        assert_equal("Foo & Bar", render('- safe_concat "Foo & Bar"', :action_view))
+      end
     end
   end
 end
