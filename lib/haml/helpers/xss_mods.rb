@@ -114,7 +114,7 @@ module ActionView
           if is_haml?
             haml_buffer.buffer.concat(string)
           else
-            concat_without_haml(string)
+            safe_concat_without_haml(string)
           end
         end
         alias_method :safe_concat_without_haml, :safe_concat

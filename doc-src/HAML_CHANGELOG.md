@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 2.2.19 (Unreleased)
+
+* Fix a bug with the integration with Rails' XSS support.
+  In particular, correctly override `safe_concat`.
+
 ## 2.2.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
