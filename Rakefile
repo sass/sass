@@ -73,7 +73,6 @@ desc "Release a new Haml package to Rubyforge."
 task :release => [:check_release, :release_elpa, :package] do
   name = File.read("VERSION_NAME").strip
   version = File.read("VERSION").strip
-  sh %{rubyforge login}
   sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.bz2}
