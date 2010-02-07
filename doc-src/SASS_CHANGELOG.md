@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 2.2.19
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
+
+There were no changes made to Sass between versions 2.2.18 and 2.2.19.
+
 ## 2.2.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
