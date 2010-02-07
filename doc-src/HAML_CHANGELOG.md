@@ -188,6 +188,13 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * The `puts` helper has been removed.
   Use {Haml::Helpers#haml\_concat} instead.
 
+## 2.2.19
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.19).
+
+* Fix a bug with the integration with Rails' XSS support.
+  In particular, correctly override `safe_concat`.
+
 ## 2.2.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
