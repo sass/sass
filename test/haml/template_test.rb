@@ -306,5 +306,24 @@ END
         assert_equal("Foo & Bar", render('- safe_concat "Foo & Bar"', :action_view))
       end
     end
+
+    ## Regression
+
+    def test_xss_protection_with_form_for
+      assert_equal(<<HTML, render(<<HAML, :action_view))
+<form action="" method="post">
+  Title:
+  <input id="article_title" name="article[title]" size="30" type="text" value="Hello" />
+  Body:
+  <input id="article_body" name="article[body]" size="30" type="text" value="World" />
+</form>
+HTML
+- form_for :article, @article, :url => '' do |f|
+  Title:
+  = f.text_field :title
+  Body:
+  = f.text_field :body
+HAML
+    end
   end
 end
