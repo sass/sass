@@ -97,6 +97,14 @@ end
 
 module ActionView
   module Helpers
+    module FormTagHelper
+      def form_tag_with_haml_xss(*args, &block)
+        Haml::Util.html_safe(form_tag_without_haml_xss(*args, &block))
+      end
+      alias_method :form_tag_without_haml_xss, :form_tag
+      alias_method :form_tag, :form_tag_with_haml_xss
+    end
+
     module TextHelper
       def concat_with_haml_xss(string)
         if is_haml?
