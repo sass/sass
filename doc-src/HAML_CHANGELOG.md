@@ -188,6 +188,11 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * The `puts` helper has been removed.
   Use {Haml::Helpers#haml\_concat} instead.
 
+## 2.2.20 (Unreleased)
+
+* The `form_tag` Rails helper is now properly marked as HTML-safe
+  when using Rails' XSS protection with Rails 2.3.5.
+
 ## 2.2.19
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.19).
