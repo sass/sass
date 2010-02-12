@@ -443,7 +443,7 @@ module Sass
         # This allows the "*prop: val" and ":prop: val" hacks
         if s = tok(/[:\*]/)
           @use_property_exception = true
-          name = [s] + expr!(:property)
+          name = [s, str{ss}] + expr!(:property)
         else
           return unless name = property
         end
