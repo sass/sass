@@ -147,6 +147,16 @@ CSS
 SCSS
   end
 
+  def test_selector_comments
+    assert_equal <<CSS, render(<<SCSS)
+.foo  #bar:baz( bip) {
+  a: b; }
+CSS
+.foo /* .a #foo */ #bar:baz(/* bang )*/ bip) {
+  a: b; }
+SCSS
+  end
+
   def test_lonely_comments
     assert_parses <<SCSS
 /* Foo

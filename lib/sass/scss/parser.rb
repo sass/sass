@@ -59,6 +59,11 @@ module Sass
         true
       end
 
+      def whitespace
+        return unless tok(S) || tok(SINGLE_LINE_COMMENT) || tok(COMMENT)
+        ss
+      end
+
       def process_comment(text, node)
         pre_str = @scanner.string[/(?:\A|\n)(.*)\/\*/, 1].gsub(/[^\s]/, ' ')
         node << Sass::Tree::CommentNode.new(pre_str + text, false)
@@ -336,7 +341,7 @@ module Sass
       end
 
       def combinator
-        tok(PLUS) || tok(GREATER) || tok(TILDE) || tok(S)
+        tok(PLUS) || tok(GREATER) || tok(TILDE) || str?{whitespace}
       end
 
       def simple_selector_sequence
@@ -551,6 +556,13 @@ MESSAGE
         @strs.push ""
         yield
         @strs.last
+      ensure
+        @strs.pop
+      end
+
+      def str?
+        @strs.push ""
+        yield && @strs.last
       ensure
         @strs.pop
       end
