@@ -332,6 +332,20 @@ foo {
 SCSS
   end
 
+  def test_expression_function
+    assert_parses <<SCSS
+foo {
+  a: 12px expression(1 + (3 / Foo.bar("baz" + "bang") + function() {return 12;}) % 12); }
+SCSS
+  end
+
+  def test_calc_function
+    assert_parses <<SCSS
+foo {
+  a: 12px calc(100%/3 - 2*1em - 2*1px); }
+SCSS
+  end
+
   ## Directives
 
   def test_charset_directive

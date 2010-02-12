@@ -520,7 +520,12 @@ MESSAGE
 
       def function
         return unless name = tok(FUNCTION)
-        [name, str{ss}, expr, tok!(/\)/)]
+        if name == "expression(" || name == "calc("
+          str, _ = Haml::Shared.balance(@scanner, ?(, ?), 1)
+          [name, str]
+        else
+          [name, str{ss}, expr, tok!(/\)/)]
+        end
       end
 
       def interpolation
