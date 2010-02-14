@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../../test_helper'
 require 'sass/engine'
 
@@ -7,7 +8,7 @@ class ScssRxTest < Test::Unit::TestCase
 
   def test_identifiers
     assert_match IDENT, "foo"
-    assert_match IDENT, "\377oo" # Initial char can be nonascii
+    assert_match IDENT, "\xC3\xBFoo" # Initial char can be nonascii
     assert_match IDENT, "\\123abcoo" # Initial char can be unicode escape
     assert_match IDENT, "\\f oo" # Unicode escapes can be followed by whitespace
     assert_match IDENT, "\\fa\too"
@@ -18,12 +19,12 @@ class ScssRxTest < Test::Unit::TestCase
     assert_match IDENT, "\\~oo"
     assert_match IDENT, "\\\\oo"
     assert_match IDENT, "\\{oo"
-    assert_match IDENT, "\\\377oo"
+    assert_match IDENT, "\\\xC3\xBFoo"
     assert_match IDENT, "-foo" # Can put a - before anything
-    assert_match IDENT, "-\377oo"
+    assert_match IDENT, "-\xC3\xBFoo"
     assert_match IDENT, "-\\f oo"
     assert_match IDENT, "_foo" # Can put a _ before anything
-    assert_match IDENT, "_\377oo"
+    assert_match IDENT, "_\xC3\xBFoo"
     assert_match IDENT, "_\\f oo"
 
     assert_match IDENT, "foo-bar"
@@ -47,7 +48,7 @@ class ScssRxTest < Test::Unit::TestCase
 
   def test_underscores_in_identifiers
     assert_match IDENT, "foo_bar"
-    assert_match IDENT, "_\377foo"
+    assert_match IDENT, "_\xC3\xBFfoo"
   end
 
   def test_invalid_identifiers
