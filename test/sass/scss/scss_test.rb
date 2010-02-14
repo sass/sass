@@ -727,6 +727,28 @@ SCSS
     assert_equal 2, e.sass_line
   end
 
+  def test_uses_property_exception_with_colon_hack
+    render <<SCSS
+foo {
+  :bar:baz <fail>; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  :bar:baz ": expected ";", was "<fail>; }"', e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_uses_rule_exception_with_dot_hack
+    render <<SCSS
+foo {
+  .bar:baz <fail>; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  .bar:baz ": expected "{", was "<fail>; }"', e.message
+    assert_equal 2, e.sass_line
+  end
+
   def test_uses_property_exception_with_space_after_name
     render <<SCSS
 foo {

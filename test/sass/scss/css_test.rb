@@ -330,6 +330,7 @@ foo {
   _name: val;
   *name: val;
   :name: val;
+  .name: val;
   name: val; }
 SCSS
   end
@@ -742,7 +743,7 @@ SCSS
 
   def test_no_nested_rules
     assert_not_parses('":"', 'foo {bar <err>{a: b}}')
-    assert_not_parses('"}"', 'foo {<err>.bar {a: b}}')
+    assert_not_parses('"}"', 'foo {<err>#bar {a: b}}')
   end
 
   def test_no_nested_properties
