@@ -518,7 +518,7 @@ MESSAGE
 
           return unless op = unary_operator
           @expected = "number or function"
-          [op, tok(NUMBER) || expr!(:function)]
+          return [op, tok(NUMBER) || expr!(:function)]
         end
         e
       end

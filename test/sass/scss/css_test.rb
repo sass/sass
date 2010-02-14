@@ -357,6 +357,16 @@ foo {
 SCSS
   end
 
+  def test_unary_ops
+    assert_parses <<SCSS
+foo {
+  a: -.5em;
+  b: +.5em;
+  c: -foo(12px);
+  d: +foo(12px); }
+SCSS
+  end
+
   ## Directives
 
   def test_charset_directive
