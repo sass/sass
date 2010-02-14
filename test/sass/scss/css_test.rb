@@ -413,6 +413,14 @@ SCSS
 SCSS
   end
 
+  def test_import_directive
+    assert_parses '@import "foo.css";'
+    assert_parses "@import 'foo.css';"
+    assert_parses '@import url("foo.css");'
+    assert_parses "@import url('foo.css');"
+    assert_parses '@import url(foo.css);'
+  end
+
   def test_import_directive_with_media
     assert_parses '@import "foo.css" screen;'
     assert_parses '@import "foo.css" screen, print;'

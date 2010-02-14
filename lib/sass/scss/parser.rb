@@ -164,7 +164,7 @@ module Sass
       def import
         @expected = "string or url()"
         arg = tok(STRING) || tok!(URI)
-        path = @scanner[1]
+        path = @scanner[1] || @scanner[2] || @scanner[3]
         ss
 
         media = str {media_type}.strip

@@ -171,6 +171,14 @@ CSS
 SCSS
   end
 
+  def test_css_import_directive
+    assert_equal "@import url(foo.css);\n", render('@import "foo.css";')
+    assert_equal "@import url(foo.css);\n", render("@import 'foo.css';")
+    assert_equal "@import url(foo.css);\n", render('@import url("foo.css");')
+    assert_equal "@import url(foo.css);\n", render("@import url('foo.css');")
+    assert_equal "@import url(foo.css);\n", render('@import url(foo.css);')
+  end
+
   def test_block_comment_in_script
     assert_equal <<CSS, render(<<SCSS)
 foo {
