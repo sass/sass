@@ -99,7 +99,7 @@ module Haml
         @options[:encoding] = @options[:encoding].name
       end
 
-      check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
+      template = check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
 
       # :eod is a special end-of-document marker
       @template = (template.rstrip).split(/\r\n|\r|\n/) + [:eod, :eod]

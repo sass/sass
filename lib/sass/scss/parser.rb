@@ -11,7 +11,7 @@ module Sass
     class Parser
       # @param str [String] The source document to parse
       def initialize(str)
-        @scanner = StringScanner.new(str.gsub("\r", ""))
+        @template = str
         @line = 1
         @strs = []
       end
@@ -21,6 +21,10 @@ module Sass
       # @return [Sass::Tree::RootNode] The root node of the document tree
       # @raise [Sass::SyntaxError] if there's a syntax error in the document
       def parse
+        @scanner = StringScanner.new(
+          Haml::Util.check_encoding(@template) do |msg, line|
+            raise Sass::SyntaxError.new(msg, :line => line)
+          end.gsub("\r", ""))
         root = stylesheet
         expected("selector or at-rule") unless @scanner.eos?
         root

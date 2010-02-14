@@ -26,10 +26,10 @@
 (require 'ruby-mode)
 
 ;; Additional (optional) libraries for fontification
-(require 'css-mode nil nil)
-(require 'textile-mode nil nil)
-(require 'markdown-mode nil nil)
-(require 'javascript-mode "javascript" nil)
+(require 'css-mode nil t)
+(require 'textile-mode nil t)
+(require 'markdown-mode nil t)
+(require 'javascript-mode "javascript" t)
 
 
 ;; User definable variables

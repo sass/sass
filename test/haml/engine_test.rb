@@ -1250,6 +1250,17 @@ SASS
 
   # Encodings
 
+  def test_utf_8_bom
+    assert_equal <<CSS, render(<<SCSS)
+<div class='foo'>
+  <p>baz</p>
+</div>
+CSS
+\xEF\xBB\xBF.foo
+  %p baz
+SCSS
+  end
+
   unless Haml::Util.ruby1_8?
     def test_default_encoding
       assert_equal(Encoding.find("utf-8"), render(<<HAML.encode("us-ascii")).encoding)

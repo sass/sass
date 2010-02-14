@@ -80,9 +80,12 @@ of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#
 
 ### Ruby 1.9 Support
 
-Haml and `html2haml` now produce more descriptive errors
-when given a template with invalid byte sequences for that template's encoding,
-including the line number and the offending character.
+* Haml and `html2haml` now produce more descriptive errors
+  when given a template with invalid byte sequences for that template's encoding,
+  including the line number and the offending character.
+
+* Haml and `html2haml` now accept Unicode documents with a
+  [byte-order-mark](http://en.wikipedia.org/wiki/Byte_order_mark).
 
 ### `:css` Filter
 

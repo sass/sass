@@ -84,10 +84,6 @@ module Sass
     # @return [String] The resulting Sass code
     # @raise [Sass::SyntaxError] if there's an error parsing the CSS template
     def render
-      Haml::Util.check_encoding(@template) do |msg, line|
-        raise Sass::SyntaxError.new(msg, :line => line)
-      end
-
       build_tree.to_sass(0, @options).strip + "\n"
     rescue Sass::SyntaxError => err
       err.modify_backtrace(:filename => @options[:filename] || '(css)')
