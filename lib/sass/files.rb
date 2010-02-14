@@ -104,7 +104,7 @@ END
         return unless f.readline("\n").strip == sha
         return Marshal.load(f.read)
       end
-    rescue TypeError, ArgumentError => e
+    rescue EOFError, TypeError, ArgumentError => e
       warn "Warning. Error encountered while reading cache #{compiled_filename}: #{e}"
     end
 
