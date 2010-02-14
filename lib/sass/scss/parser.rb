@@ -11,7 +11,7 @@ module Sass
     class Parser
       # @param str [String] The source document to parse
       def initialize(str)
-        @scanner = StringScanner.new(str)
+        @scanner = StringScanner.new(str.gsub("\r", ""))
         @line = 1
         @strs = []
       end

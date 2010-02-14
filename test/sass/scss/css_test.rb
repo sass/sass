@@ -773,6 +773,17 @@ SCSS
     assert_not_parses('"}"', 'foo {<err>@bar {a: b}}')
   end
 
+  def test_error_with_windows_newlines
+    render <<SCSS
+foo {bar}\r
+baz {a: b}
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "foo {bar": expected ":", was "}"', e.message
+    assert_equal 1, e.sass_line
+  end
+
   private
 
   def assert_selector_parses(selector)
