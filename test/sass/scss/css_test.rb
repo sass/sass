@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/test_helper'
 require 'sass/scss/css_parser'
 
@@ -45,6 +46,13 @@ foo {bar: baz}
 bar {bar: baz}
 -->
 baz {bar: baz}
+SCSS
+  end
+
+  def test_unicode
+    assert_parses <<SCSS
+foo {
+  bar: föö bâr; }
 SCSS
   end
 

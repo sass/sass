@@ -18,9 +18,14 @@ module Sass
 
       H        = /[0-9a-f]/i
       NL       = /\n|\r\n|\r|\f/
-      NONASCII = /[\200-\377]/
       UNICODE  = /\\#{H}{1,6}[ \t\r\n\f]?/
-      ESCAPE   = /#{UNICODE}|\\[ -~\200-\377]/
+      s = if Haml::Util.ruby1_8?
+            '\200-\377'
+          else
+            '\u{80}-\u{D7FF}\u{E000}-\u{FFFD}\u{10000}-\u{10FFFF}'
+          end
+      NONASCII = /[#{s}]/
+      ESCAPE   = /#{UNICODE}|\\[ -~#{s}]/
       NMSTART  = /[a-z]|#{NONASCII}|#{ESCAPE}/i
       NMCHAR   = /[a-z0-9_-]|#{NONASCII}|#{ESCAPE}/i
       STRING1  = /\"((?:[^\n\r\f\\"]|\\#{NL}|#{ESCAPE})*)\"/
