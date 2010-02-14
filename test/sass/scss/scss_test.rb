@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/test_helper'
 
 class ScssTest < Test::Unit::TestCase
@@ -44,6 +45,17 @@ CSS
 foo {
   !var = 2;
   a = !var; }
+SCSS
+  end
+
+  def test_unicode_variables
+    assert_equal <<CSS, render(<<SCSS)
+blat {
+  a: foo; }
+CSS
+!vär = "foo";
+
+blat {a = !vär}
 SCSS
   end
 
