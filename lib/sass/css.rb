@@ -76,7 +76,7 @@ module Sass
       @options = options.dup
       # Backwards compatibility
       @options[:old] = true if @options[:alternate] == false
-      @template = StringScanner.new(template)
+      @template_str = template
     end
 
     # Converts the CSS template into Sass code.
@@ -84,10 +84,10 @@ module Sass
     # @return [String] The resulting Sass code
     # @raise [Sass::SyntaxError] if there's an error parsing the CSS template
     def render
-      Haml::Util.check_encoding(@template.string) do |msg, line|
-        raise Sass::SyntaxError.new(msg, :line => line)
-      end
-
+      @template = StringScanner.new(
+        Haml::Util.check_encoding(@template_str) do |msg, line|
+          raise Sass::SyntaxError.new(msg, :line => line)
+        end)
       build_tree.to_sass(0, @options).strip + "\n"
     rescue Sass::SyntaxError => err
       err.modify_backtrace(:filename => @options[:filename] || '(css)', :line => @line)

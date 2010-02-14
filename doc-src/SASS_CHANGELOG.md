@@ -162,9 +162,12 @@ That is, with the nested properties indented in the source.
 
 ### Ruby 1.9 Support
 
-Sass and `css2sass` now produce more descriptive errors
-when given a template with invalid byte sequences for that template's encoding,
-including the line number and the offending character.
+* Sass and `css2sass` now produce more descriptive errors
+  when given a template with invalid byte sequences for that template's encoding,
+  including the line number and the offending character.
+
+* Sass and `css2sass` now accept Unicode documents with a
+  [byte-order-mark](http://en.wikipedia.org/wiki/Byte_order_mark).
 
 ### Rack Support
 

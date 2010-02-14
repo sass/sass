@@ -127,7 +127,7 @@ module Haml
           template = template.read
         end
 
-        Haml::Util.check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
+        template = Haml::Util.check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
 
         if @options[:erb]
           require 'haml/html/erb'

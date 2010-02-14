@@ -237,7 +237,8 @@ module Haml
       Haml::Util::RUBY_VERSION[0] == 1 && Haml::Util::RUBY_VERSION[1] < 9
     end
 
-    # Checks that the encoding of a string is valid in Ruby 1.9.
+    # Checks that the encoding of a string is valid in Ruby 1.9
+    # and cleans up potential encoding gotchas like the UTF-8 BOM.
     # If it's not, yields an error string describing the invalid character
     # and the line on which it occurrs.
     #
@@ -245,9 +246,19 @@ module Haml
     # @yield [msg] A block in which an encoding error can be raised.
     #   Only yields if there is an encoding error
     # @yieldparam msg [String] The error message to be raised
+    # @return [String] `str`, potentially with encoding gotchas like BOMs removed
     def check_encoding(str)
-      return if ruby1_8?
-      return if str.valid_encoding?
+      if ruby1_8?
+        return str.gsub(/\A\xEF\xBB\xBF/, '') # Get rid of the UTF-8 BOM
+      elsif str.valid_encoding?
+        # Get rid of the Unicode BOM if possible
+        if str.encoding.name =~ /^UTF-(8|16|32)(BE|LE)?$/
+          return str.gsub(Regexp.new("\\A\uFEFF".encode(str.encoding.name)), '')
+        else
+          return str
+        end
+      end
+
       encoding = str.encoding
       newlines = Regexp.new("\r\n|\r|\n".encode(encoding).force_encoding("binary"))
       str.force_encoding("binary").split(newlines).each_with_index do |line, i|
@@ -259,6 +270,7 @@ Invalid #{encoding.name} character #{e.error_char.dump}
 MSG
         end
       end
+      return str
     end
 
     # Checks to see if a class has a given method.
