@@ -55,12 +55,16 @@ When the {file:HAML_REFERENCE.md#ugly-option `:ugly` option} is enabled,
 {Haml::Helpers#haml_tag haml\_tag} and {Haml::Helpers#haml_concat haml\_concat}
 won't do any indentation of their arguments.
 
-### Object Reference Customization
+### Basic Tag Improvements
 
-It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}
-for a given object by implementing the `haml_object_ref` method on that object.
-This method should return a string that will be used in place of the class name of the object
-in the generated class and id.
+* It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}
+  for a given object by implementing the `haml_object_ref` method on that object.
+  This method should return a string that will be used in place of the class name of the object
+  in the generated class and id.
+
+* All attribute values may be non-String types.
+  Their `#to_s` method will be called to convert them to strings.
+  Previously, this only worked for attributes other than `class`.
 
 ### More Powerful `:autoclose` Option
 

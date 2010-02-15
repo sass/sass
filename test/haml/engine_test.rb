@@ -141,6 +141,20 @@ HTML
 HAML
   end
 
+  def test_attributes_with_to_s
+    assert_equal(<<HTML, render(<<HAML))
+<p id='foo_2'></p>
+<p class='2 foo'></p>
+<p blaz='2'></p>
+<p 2='2'></p>
+HTML
+%p#foo{:id => 1+1}
+%p.foo{:class => 1+1}
+%p{:blaz => 1+1}
+%p{(1+1) => 1+1}
+HAML
+  end
+
   def test_nil_should_render_empty_tag
     assert_equal("<div class='no_attributes'></div>",
                  render(".no_attributes{:nil => nil}").chomp)
