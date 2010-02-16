@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 2.2.20 (Unreleased)
+## 2.2.20
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.20).
 
 * If the cache file for a given Sass file is corrupt
   because it doesn't have enough content,

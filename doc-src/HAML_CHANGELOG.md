@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 2.2.20 (Unreleased)
+## 2.2.20
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.20).
 
 * The `form_tag` Rails helper is now properly marked as HTML-safe
   when using Rails' XSS protection with Rails 2.3.5.
