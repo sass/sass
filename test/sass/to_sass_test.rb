@@ -411,6 +411,24 @@ foo {
 SCSS
   end
 
+  def test_while
+    assert_renders <<SASS, <<SCSS
+foo
+  @while flaz(!a + !b)
+    a: b
+  @while 1
+    d: e
+    f: g
+SASS
+foo {
+  @while flaz(!a + !b) {
+    a: b; }
+  @while 1 {
+    d: e;
+    f: g; } }
+SCSS
+  end
+
   def test_if
     assert_renders <<SASS, <<SCSS
 foo
@@ -506,7 +524,7 @@ SCSS
     assert_renders <<SASS, <<SCSS
 =foo-bar(!baz, !bang)
   baz
-    a = !baz !bang
+    a= !baz !bang
 SASS
 @mixin foo-bar(!baz, !bang) {
   baz {
@@ -518,11 +536,67 @@ SCSS
     assert_renders <<SASS, <<SCSS
 =foo-bar(!baz, !bang = 12px)
   baz
-    a = !baz !bang
+    a= !baz !bang
 SASS
 @mixin foo-bar(!baz, !bang = 12px) {
   baz {
     a = !baz !bang; } }
+SCSS
+  end
+
+  def test_argless_mixin_include
+    assert_renders <<SASS, <<SCSS
+foo
+  +foo-bar
+  a: blip
+SASS
+foo {
+  @include foo-bar;
+  a: blip; }
+SCSS
+  end
+
+  def test_mixin_include
+    assert_renders <<SASS, <<SCSS
+foo
+  +foo-bar(12px, "blaz")
+  a: blip
+SASS
+foo {
+  @include foo-bar(12px, "blaz");
+  a: blip; }
+SCSS
+  end
+
+  def test_variable_definition
+    assert_renders <<SASS, <<SCSS
+!var1 = 12px + 15px
+
+foo
+  !var2 = flaz(#abcdef)
+  val= !var1 !var2
+SASS
+!var1 = 12px + 15px;
+
+foo {
+  !var2 = flaz(#abcdef);
+  val = !var1 !var2; }
+SCSS
+  end
+
+  def test_guarded_variable_definition
+    assert_renders <<SASS, <<SCSS
+!var1 ||= 12px + 15px
+
+foo
+  !var2 ||= flaz(#abcdef)
+  val= !var1 !var2
+SASS
+!var1 ||= 12px + 15px;
+
+foo {
+  !var2 ||= flaz(#abcdef);
+  val = !var1 !var2; }
 SCSS
   end
 
