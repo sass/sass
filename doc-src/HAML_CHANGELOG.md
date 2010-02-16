@@ -200,6 +200,15 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * The `form_tag` Rails helper is now properly marked as HTML-safe
   when using Rails' XSS protection with Rails 2.3.5.
 
+* Calls to `defined?` shouldn't interfere with Rails' autoloading
+  in very old versions (1.2.x).
+
+* Fix a bug where calls to ActionView's `render` method
+  with blocks and layouts wouldn't work under the Rails 3.0 beta.
+
+* Fix a bug where the closing tags of nested calls to \{Haml::Helpers#haml\_concat}
+  were improperly escaped under the Rails 3.0 beta.
+
 ## 2.2.19
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.19).

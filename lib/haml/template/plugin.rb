@@ -3,8 +3,11 @@
 
 module Haml
   class Plugin < Haml::Util.av_template_class(:Handler)
-    if defined?(ActionView::TemplateHandlers::Compilable) ||
-        defined?(ActionView::Template::Handlers::Compilable)
+    if (defined?(ActionView::TemplateHandlers) &&
+        defined?(ActionView::TemplateHandlers::Compilable)) ||
+       (defined?(ActionView::Template) &&
+        defined?(ActionView::Template::Handlers) &&
+        defined?(ActionView::Template::Handlers::Compilable))
       include Haml::Util.av_template_class(:Handlers)::Compilable
     end
 

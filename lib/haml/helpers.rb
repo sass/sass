@@ -539,12 +539,12 @@ MESSAGE
     # @yield A block in which the given buffer should be used
     def with_haml_buffer(buffer)
       @haml_buffer, old_buffer = buffer, @haml_buffer
-      old_buffer.active, was_active = false, old_buffer.active? if old_buffer
-      @haml_buffer.active = true
+      old_buffer.active, old_was_active = false, old_buffer.active? if old_buffer
+      @haml_buffer.active, was_active = true, @haml_buffer.active?
       yield
     ensure
-      @haml_buffer.active = false
-      old_buffer.active = was_active if old_buffer
+      @haml_buffer.active = was_active
+      old_buffer.active = old_was_active if old_buffer
       @haml_buffer = old_buffer
     end
 
