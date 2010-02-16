@@ -55,12 +55,16 @@ When the {file:HAML_REFERENCE.md#ugly-option `:ugly` option} is enabled,
 {Haml::Helpers#haml_tag haml\_tag} and {Haml::Helpers#haml_concat haml\_concat}
 won't do any indentation of their arguments.
 
-### Object Reference Customization
+### Basic Tag Improvements
 
-It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}
-for a given object by implementing the `haml_object_ref` method on that object.
-This method should return a string that will be used in place of the class name of the object
-in the generated class and id.
+* It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}
+  for a given object by implementing the `haml_object_ref` method on that object.
+  This method should return a string that will be used in place of the class name of the object
+  in the generated class and id.
+
+* All attribute values may be non-String types.
+  Their `#to_s` method will be called to convert them to strings.
+  Previously, this only worked for attributes other than `class`.
 
 ### More Powerful `:autoclose` Option
 
@@ -195,6 +199,15 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 
 * The `form_tag` Rails helper is now properly marked as HTML-safe
   when using Rails' XSS protection with Rails 2.3.5.
+
+* Calls to `defined?` shouldn't interfere with Rails' autoloading
+  in very old versions (1.2.x).
+
+* Fix a bug where calls to ActionView's `render` method
+  with blocks and layouts wouldn't work under the Rails 3.0 beta.
+
+* Fix a bug where the closing tags of nested calls to \{Haml::Helpers#haml\_concat}
+  were improperly escaped under the Rails 3.0 beta.
 
 ## 2.2.19
 

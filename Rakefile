@@ -213,7 +213,6 @@ task :release_edge do
     sh %{rake package}
     sh %{git checkout VERSION}
 
-    sh %{rubyforge login}
     sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
     sh %{gem push pkg/haml-edge-#{edge_version}.gem}
   end
