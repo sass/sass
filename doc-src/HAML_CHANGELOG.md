@@ -11,6 +11,9 @@
 * Calls to `defined?` shouldn't interfere with Rails' autoloading
   in very old versions (1.2.x).
 
+* Fix a bug where calls to ActionView's `render` method
+  with blocks and layouts wouldn't work under the Rails 3.0 beta.
+
 ## 2.2.19
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.19).
