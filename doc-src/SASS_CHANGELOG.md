@@ -11,6 +11,9 @@
   rather than letting the exception bubble up.
   This is consistent with other sorts of sassc corruption handling.
 
+* Calls to `defined?` shouldn't interfere with Rails' autoloading
+  in very old versions (1.2.x).
+
 ## 2.2.19
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).

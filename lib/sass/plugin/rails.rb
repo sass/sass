@@ -7,7 +7,8 @@ unless defined?(Sass::RAILS_LOADED)
                               :always_check      => Haml::Util.rails_env != "production",
                               :full_exception    => Haml::Util.rails_env != "production")
 
-  if defined?(ActionDispatch::Callbacks.to_prepare)
+  if defined?(ActionDispatch::Callbacks) &&
+      defined?(ActionDispatch::Callbacks.to_prepare)
     # Rails >= 3.0.0
     ActionDispatch::Callbacks.to_prepare(:sass_process) {Sass::Plugin.check_for_updates}
   else
