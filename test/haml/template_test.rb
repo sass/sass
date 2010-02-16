@@ -309,6 +309,20 @@ END
 
     ## Regression
 
+    def test_xss_protection_with_nested_haml_tag
+      assert_equal(<<HTML, render(<<HAML, :action_view))
+<div>
+  <ul>
+    <li>Content!</li>
+  </ul>
+</div>
+HTML
+- haml_tag :div do
+  - haml_tag :ul do
+    - haml_tag :li, "Content!"
+HAML
+    end
+
     def test_xss_protection_with_form_for
       assert_equal(<<HTML, render(<<HAML, :action_view))
 <form action="" method="post">
