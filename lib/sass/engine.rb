@@ -524,9 +524,15 @@ WARNING
 
     def format_comment_text(text)
       content = text.split("\n")
+
+      if content.first && content.first.strip.empty?
+        removed_first = true
+        content.shift
+      end
+
       return "/* */" if content.empty?
       content.map! {|l| (l.empty? ? "" : " ") + l}
-      content.first.gsub!(/^ /, '')
+      content.first.gsub!(/^ /, '') unless removed_first
       content.last.gsub!(%r{ ?\*/ *$}, '')
       "/*" + content.join("\n *") + " */"
     end
