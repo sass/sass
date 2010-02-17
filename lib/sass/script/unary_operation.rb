@@ -19,8 +19,9 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass
-      op = @operand.is_a?(Operation) ? "(#{@operand.to_sass})" : @operand.to_sass
-      Lexer::OPERATORS_REVERSE[@operator] + op
+      operand = @operand.is_a?(Operation) ? "(#{@operand.to_sass})" : @operand.to_sass
+      op = Lexer::OPERATORS_REVERSE[@operator]
+      op + (op =~ /[a-z]/ ? " " : "") + operand
     end
 
     # Evaluates the operation.

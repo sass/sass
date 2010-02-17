@@ -9,6 +9,8 @@ module Sass::Script
   # A SassScript parse node representing a binary operation,
   # such as `!a + !b` or `"foo" + 1`.
   class Operation < Node
+    attr_reader :operator
+
     # @param operand1 [Script::Node] The parse-tree node
     #   for the right-hand side of the operator
     # @param operand2 [Script::Node] The parse-tree node
@@ -28,8 +30,16 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass
-      o1 = @operand1.is_a?(Operation) ? "(#{@operand1.to_sass})" : @operand1.to_sass
-      "#{o1} #{Lexer::OPERATORS_REVERSE[@operator]} #{@operand2.to_sass}"
+      pred = Sass::Script::Parser.precedence_of(@operator)
+      o1 = operand_to_sass pred, @operand1
+      o2 = operand_to_sass pred, @operand2
+      sep =
+        case @operator
+        when :comma; ", "
+        when :concat; " "
+        else; " #{Lexer::OPERATORS_REVERSE[@operator]} "
+        end
+      "#{o1}#{sep}#{o2}"
     end
 
     # Evaluates the operation.
@@ -56,6 +66,14 @@ module Sass::Script
     # @see Node#children
     def children
       [@operand1, @operand2]
+    end
+
+    private
+
+    def operand_to_sass(pred, op)
+      return "(#{op.to_sass})" if op.is_a?(Operation) &&
+        Sass::Script::Parser.precedence_of(op.operator) < pred
+      op.to_sass
     end
   end
 end
