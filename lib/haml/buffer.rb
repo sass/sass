@@ -241,7 +241,7 @@ RUBY
     # Destructively modifies both `to` and `from`.
     #
     # @param to [{String => String}] The attribute hash to merge into
-    # @param from [{String => String}] The attribute hash to merge from
+    # @param from [{String => #to_s}] The attribute hash to merge from
     # @return [{String => String}] `to`, after being merged
     def self.merge_attrs(to, from)
       if to['id'] && from['id']
@@ -252,7 +252,7 @@ RUBY
 
       if to['class'] && from['class']
         # Make sure we don't duplicate class names
-        from['class'] = (from['class'].split(' ') | to['class'].split(' ')).sort.join(' ')
+        from['class'] = (from['class'].to_s.split(' ') | to['class'].split(' ')).sort.join(' ')
       elsif to['class'] || from['class']
         from['class'] ||= to['class']
       end

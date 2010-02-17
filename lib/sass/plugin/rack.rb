@@ -48,12 +48,12 @@ module Sass
       # This is automatically done once the Rack plugin is activated.
       # This is done so that the stylesheets aren't checked twice for each request.
       def self.disable_native_plugin!
-        if defined?(Merb::Rack::Application) &&
+        if defined?(Merb::Rack) && defined?(Merb::Rack::Application) &&
             Haml::Util.has?(:instance_method, Merb::Rack::Application, :call_without_sass)
           Merb::Rack::Application.instance_eval {alias_method :call, :call_without_sass}
         end
 
-        if defined?(ActionDispatch::Callbacks.to_prepare)
+        if defined?(ActionDispatch::Callbacks) && defined?(ActionDispatch::Callbacks.to_prepare)
           ActionDispatch::Callbacks.skip_callback(:prepare, :__sass_process)
         elsif defined?(ActionController::Base) &&
             Haml::Util.has?(:instance_method, ActionController::Base, :sass_old_process)

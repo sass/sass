@@ -174,7 +174,7 @@ module Sass
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
-      check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
+      @template = check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
 
       if @options[:syntax] == :scss
         root = Sass::SCSS::Parser.new(@template).parse

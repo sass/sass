@@ -258,7 +258,8 @@ END
       # Processes the options set by the command-line arguments,
       # and runs the Sass compiler appropriately.
       def process_result
-        if @args.first && @args.first.include?(':')
+        if !@options[:update] && !@options[:watch] &&
+            @args.first && @args.first.include?(':')
           if @args.size == 1
             @args = @args.first.split(':', 2)
           else
@@ -308,6 +309,20 @@ END
         require 'sass/plugin'
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
 
+        if @args[1] && !@args[0].include?(':')
+          flag = @options[:update] ? "--update" : "--watch"
+          err =
+            if !File.exist?(@args[1])
+              "doesn't exist"
+            elsif @args[1] =~ /\.css$/
+              "is a CSS file"
+            end
+          raise <<MSG if err
+File #{@args[1]} #{err}.
+  Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
+MSG
+        end
+
         dirs, files = @args.map {|name| name.split(':', 2)}.
           map {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}.
           partition {|i, _| File.directory? i}
@@ -324,15 +339,7 @@ END
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
-          unless error.is_a?(::Sass::SyntaxError)
-            if error.is_a?(Errno::ENOENT) && error.message =~ /^No such file or directory - (.*)$/ && $1 == @args[1]
-              flag = @options[:update] ? "--update" : "--watch"
-              error.message << "\n  Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}"
-            end
-
-            raise error
-          end
-
+          raise error unless error.is_a?(::Sass::SyntaxError)
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
         end
 

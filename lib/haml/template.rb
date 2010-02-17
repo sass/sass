@@ -28,7 +28,7 @@ module Haml
 
       Haml::Precompiler.module_eval do
         def precompiled_method_return_value_with_haml_xss
-          "(#{precompiled_method_return_value_without_haml_xss}).html_safe!"
+          "::Haml::Util.html_safe(#{precompiled_method_return_value_without_haml_xss})"
         end
         alias_method :precompiled_method_return_value_without_haml_xss, :precompiled_method_return_value
         alias_method :precompiled_method_return_value, :precompiled_method_return_value_with_haml_xss
@@ -46,7 +46,8 @@ end
 # Decide how we want to load Haml into Rails.
 # Patching was necessary for versions <= 2.0.1,
 # but we can make it a normal handler for higher versions.
-if defined?(ActionView::TemplateHandler) || defined?(ActionView::Template::Handler)
+if defined?(ActionView::TemplateHandler) ||
+    (defined?(ActionView::Template) && defined?(ActionView::Template::Handler))
   require 'haml/template/plugin'
 else
   require 'haml/template/patch'

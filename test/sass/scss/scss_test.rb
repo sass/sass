@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/test_helper'
 
 class ScssTest < Test::Unit::TestCase
@@ -44,6 +45,17 @@ CSS
 foo {
   !var = 2;
   a = !var; }
+SCSS
+  end
+
+  def test_unicode_variables
+    assert_equal <<CSS, render(<<SCSS)
+blat {
+  a: foo; }
+CSS
+!vär = "foo";
+
+blat {a = !vär}
 SCSS
   end
 
@@ -169,6 +181,14 @@ CSS
   }
 }
 SCSS
+  end
+
+  def test_css_import_directive
+    assert_equal "@import url(foo.css);\n", render('@import "foo.css";')
+    assert_equal "@import url(foo.css);\n", render("@import 'foo.css';")
+    assert_equal "@import url(foo.css);\n", render('@import url("foo.css");')
+    assert_equal "@import url(foo.css);\n", render("@import url('foo.css');")
+    assert_equal "@import url(foo.css);\n", render('@import url(foo.css);')
   end
 
   def test_block_comment_in_script
@@ -724,6 +744,28 @@ SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
     assert_equal 'Invalid CSS after "  *bar:baz ": expected ";", was "<fail>; }"', e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_uses_property_exception_with_colon_hack
+    render <<SCSS
+foo {
+  :bar:baz <fail>; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  :bar:baz ": expected ";", was "<fail>; }"', e.message
+    assert_equal 2, e.sass_line
+  end
+
+  def test_uses_rule_exception_with_dot_hack
+    render <<SCSS
+foo {
+  .bar:baz <fail>; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "  .bar:baz ": expected "{", was "<fail>; }"', e.message
     assert_equal 2, e.sass_line
   end
 
