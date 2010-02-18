@@ -30,6 +30,7 @@
 (require 'textile-mode nil t)
 (require 'markdown-mode nil t)
 (require 'javascript-mode "javascript" t)
+(require 'js nil t)
 
 
 ;; User definable variables
@@ -172,13 +173,15 @@ This requires that `css-mode' is available.
 (defun haml-highlight-js-filter-block (limit)
   "If a :javascript filter is found within LIMIT, highlight it.
 
-This requires that Karl Landström's \"javascript.el\" be available."
-  (if (boundp 'js-font-lock-keywords-3)
-      (haml-fontify-filter-region "javascript"
-                                  limit
-                                  js-font-lock-keywords-3
-                                  javascript-mode-syntax-table
-                                  nil)))
+This requires that Karl Landström's javascript mode be available, either as the
+\"js.el\" bundled with Emacs 23, or as \"javascript.el\" found in ELPA and
+elsewhere."
+  (let ((keywords (or (and (featurep 'js) js--font-lock-keywords-3)
+                      (and (featurep 'javascript-mode) js-font-lock-keywords-3)))
+        (syntax-table (or (and (featurep 'js) js-mode-syntax-table)
+                          (and (featurep 'javascript-mode) javascript-mode-syntax-table))))
+    (when keywords
+      (haml-fontify-filter-region "javascript" limit keywords syntax-table nil))))
 
 (defun haml-highlight-textile-filter-block (limit)
   "If a :textile filter is found within LIMIT, highlight it.
