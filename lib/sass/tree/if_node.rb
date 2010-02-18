@@ -38,8 +38,13 @@ module Sass::Tree
     protected
 
     def to_src(tabs, opts, fmt, is_else = false)
-      name = is_else ? "else if" : "if"
-      str = "#{'  ' * tabs}@#{name} #{@expr.to_sass}"
+      name =
+        if !is_else; "if"
+        elsif @expr; "else if"
+        else; "else"
+        end
+      str = "#{'  ' * tabs}@#{name}"
+      str << " #{@expr.to_sass}" if @expr
       str << children_to_src(tabs, opts, fmt)
       str << @else.send(:to_src, tabs, opts, fmt, true) if @else
       str

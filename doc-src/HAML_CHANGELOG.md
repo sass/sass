@@ -5,7 +5,9 @@
 
 ## 2.4.0 (Unreleased)
 
-### haml_tag improvement
+### `haml_tag` and `haml_concat` Improvements
+
+#### `haml_tag` with CSS Selectors
 
 The {Haml::Helpers#haml_tag haml\_tag} helper can now take a string
 using the same class/id shorthand as in standard Haml code.
@@ -21,12 +23,48 @@ For example:
 
 Cheers, [S. Burkhard](http://github.com/hasclass/).
 
-### Object Reference Customization
+#### `haml_tag` with Multiple Lines of Content
 
-It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}
-for a given object by implementing the `haml_object_ref` method on that object.
-This method should return a string that will be used in place of the class name of the object
-in the generated class and id.
+The {Haml::Helpers#haml_tag haml\_tag} helper also does a better job
+of formatting tags with multiple lines of content.
+If a tag has multiple levels of content,
+that content is indented beneath the tag.
+For example:
+
+    haml_tag(:p, "foo\nbar") #=>
+      # <p>
+      #   foo
+      #   bar
+      # </p>
+
+#### `haml_tag` with Multiple Lines of Content
+
+Similarly, the {Haml::Helpers#haml_concat haml\_concat} helper
+will properly indent multiple lines of content.
+For example:
+
+    haml_tag(:p) {haml_concat "foo\nbar"} #=>
+      # <p>
+      #   foo
+      #   bar
+      # </p>
+
+#### `haml_tag` and `haml_concat` with `:ugly`
+
+When the {file:HAML_REFERENCE.md#ugly-option `:ugly` option} is enabled,
+{Haml::Helpers#haml_tag haml\_tag} and {Haml::Helpers#haml_concat haml\_concat}
+won't do any indentation of their arguments.
+
+### Basic Tag Improvements
+
+* It's now possible to customize the name used for {file:HAML_REFERENCE.md#object_reference_ object reference}
+  for a given object by implementing the `haml_object_ref` method on that object.
+  This method should return a string that will be used in place of the class name of the object
+  in the generated class and id.
+
+* All attribute values may be non-String types.
+  Their `#to_s` method will be called to convert them to strings.
+  Previously, this only worked for attributes other than `class`.
 
 ### More Powerful `:autoclose` Option
 
@@ -46,9 +84,12 @@ of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#
 
 ### Ruby 1.9 Support
 
-Haml and `html2haml` now produce more descriptive errors
-when given a template with invalid byte sequences for that template's encoding,
-including the line number and the offending character.
+* Haml and `html2haml` now produce more descriptive errors
+  when given a template with invalid byte sequences for that template's encoding,
+  including the line number and the offending character.
+
+* Haml and `html2haml` now accept Unicode documents with a
+  [byte-order-mark](http://en.wikipedia.org/wiki/Byte_order_mark).
 
 ### `:css` Filter
 
@@ -154,7 +195,35 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * The `puts` helper has been removed.
   Use {Haml::Helpers#haml\_concat} instead.
 
-## 2.2.18 (Unreleased)
+## 2.2.20
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.20).
+
+* The `form_tag` Rails helper is now properly marked as HTML-safe
+  when using Rails' XSS protection with Rails 2.3.5.
+
+* Calls to `defined?` shouldn't interfere with Rails' autoloading
+  in very old versions (1.2.x).
+
+* Fix a bug where calls to ActionView's `render` method
+  with blocks and layouts wouldn't work under the Rails 3.0 beta.
+
+* Fix a bug where the closing tags of nested calls to \{Haml::Helpers#haml\_concat}
+  were improperly escaped under the Rails 3.0 beta.
+
+## 2.2.19
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.19).
+
+* Fix a bug with the integration with Rails' XSS support.
+  In particular, correctly override `safe_concat`.
+
+## 2.2.18
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
+
+* Support [the new XSS-protection API](http://yehudakatz.com/2010/02/01/safebuffers-and-rails-3-0/)
+  used in Rails 3.
 
 * Use `Rails.env` rather than `RAILS_ENV` when running under Rails 3.0.
   Thanks to [Duncan Grazier](http://duncangrazier.com/).
@@ -162,21 +231,33 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Add a `--unix-newlines` flag to all executables
   for outputting Unix-style newlines on Windows.
 
-## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
+* Fix a couple bugs with the `:erb` filter:
+  make sure error reporting uses the correct line numbers,
+  and allow multi-line expressions.
+
+* Fix a parsing bug for HTML-style attributes including `#`.
+
+## 2.2.17
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.17).
 
 * Fix compilation of HTML5 doctypes when using `html2haml`.
 
 * `nil` values for Sass options are now ignored,
   rather than raising errors.
 
-## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
+## 2.2.16
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.16).
 
 * Abstract out references to `ActionView::TemplateError`,
   `ActionView::TemplateHandler`, etc.
   These have all been renamed to `ActionView::Template::*`
   in Rails 3.0.
 
-## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
+## 2.2.15
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.15).
 
 * Allow `if` statements with no content followed by `else` clauses.
   For example:
@@ -185,7 +266,9 @@ that surrounds the filtered text with `<style>` and CDATA tags.
     - else
       bar
 
-## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
+## 2.2.14
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.14).
 
 * Don't print warnings when escaping attributes containing non-ASCII characters
   in Ruby 1.9.
@@ -195,7 +278,9 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Support the  HTML5 doctype in an XHTML document
   by using `!!! 5` as the doctype declaration.
 
-## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
+## 2.2.13
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.13).
 
 * Allow users to specify {file:HAML_REFERENCE.md#encoding_option `:encoding => "ascii-8bit"`}
   even for templates that include non-ASCII byte sequences.
@@ -204,11 +289,15 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 
 * Fixed an incompatibility with Hpricot 0.8.2, which is used for `html2haml`.
 
-## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
+## 2.2.12
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.12).
 
 There were no changes made to Haml between versions 2.2.11 and 2.2.12.
 
-## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
+## 2.2.11
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.11).
 
 * Fixed a bug with XSS protection where HTML escaping would raise an error
   if passed a non-string value.
@@ -233,7 +322,9 @@ There were no changes made to Haml between versions 2.2.11 and 2.2.12.
   Instead abstract this out as `Haml::Util.rails_root`.
   This changes makes Haml fully compatible with edge Rails as of this writing.
 
-## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
+## 2.2.10
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.10).
 
 * Fixed a bug where elements with dynamic attributes and no content
   would have too much whitespace between the opening and closing tag.
@@ -250,7 +341,9 @@ There were no changes made to Haml between versions 2.2.11 and 2.2.12.
 * Mark the return value of Haml templates as HTML safe.
   This makes Haml partials work with Rails' XSS protection.
 
-## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
+## 2.2.9
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.9).
 
 * Fixed a bug where Haml's text was concatenated to the wrong buffer
   under certain circumstances.
@@ -284,12 +377,16 @@ There are several components to this:
 * Haml helpers that generate HTML are marked as HTML safe,
   and will escape their input if it's not HTML safe.
 
-## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
+## 2.2.8
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.8).
 
 * Fixed a potential XSS issue with HTML escaping and wacky Unicode nonsense.
   This is the same as [the issue fixed in Rails](http://groups.google.com/group/rubyonrails-security/browse_thread/thread/48ab3f4a2c16190f) a bit ago.
 
-## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
+## 2.2.7
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.7).
 
 * Fixed an `html2haml` issue where ERB attribute values
   weren't HTML-unescaped before being transformed into Haml.
@@ -307,7 +404,9 @@ There are several components to this:
   The `else` et al. clauses of conditionals are now properly
   whitespace-nuked.
 
-## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
+## 2.2.6
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.6).
 
 * Made the error message when unable to load a dependency for html2haml
   respect the `--trace` option.
@@ -321,7 +420,9 @@ There are several components to this:
 * Raise an exception when commas are omitted in static attributes
   (e.g. `%p{:foo => "bar" :baz => "bang"}`).
 
-## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
+## 2.2.5
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.5).
 
 * Got rid of trailing whitespace produced when opening a conditional comment
   (thanks to [Norman Clarke](http://blog.njclarke.com/)).
@@ -331,7 +432,9 @@ There are several components to this:
   
 * Fixed a couple bugs with using "-end" in strings.
 
-## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
+## 2.2.4
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.4).
 
 * Allow `end` to be used for silent script when it's followed by code.
   For example:
@@ -346,12 +449,16 @@ There are several components to this:
   via `haml --rails`. This isn't necessary, and actually gets
   clobbered as soon as haml/template is loaded.
 
-## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
+## 2.2.3
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.3).
 
 Haml 2.2.3 adds support for the JRuby bundling tools
 for Google AppEngine, thanks to [Jan Ulbrich](http://github.com/ulbrich).
 
-## [2.2.2](http://github.com/nex3/haml/commit/2.2.2)
+## 2.2.2
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.2).
 
 Haml 2.2.2 is a minor bugfix release, with several notable changes.
 First, {file:Haml/Helpers.html#haml_concat-instance_method `haml_concat`}
@@ -364,11 +471,15 @@ especially with the {file:HAML_REFERENCE.md#htmlstyle_attributes_ new attribute 
 Third, filters are no longer escaped when the {file:HAML_REFERENCE.md#escape_html-option `:escape_html` option}
 is enabled and `#{}` interpolation is used.
 
-## [2.2.1](http://github.com/nex3/haml/commit/2.2.1)
+## 2.2.1
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.1).
 
 Haml 2.2.1 is a minor bug-fix release.
 
-## [2.2.0](http://github.com/nex3/haml/commit/2.2.0)
+## 2.2.0
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.0).
 
 Haml 2.2 adds several new features to the language,
 fixes several bugs, and dramatically improves performance

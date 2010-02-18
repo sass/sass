@@ -45,10 +45,10 @@ module Haml
       # @yield A block in which all input to `#haml_concat` is treated as raw.
       # @see Haml::Util#rails_xss_safe?
       def with_raw_haml_concat
-        @_haml_concat_raw = true
+        @_haml_concat_raw, old = true, @_haml_concat_raw
         yield
       ensure
-        @_haml_concat_raw = false
+        @_haml_concat_raw = old
       end
     end
   end

@@ -28,6 +28,14 @@ module Sass
         @full_filename ||= import
       end
 
+      def to_sass(tabs = 0, opts = {})
+        to_src(tabs, opts, :sass)
+      end
+
+      def to_scss(tabs = 0, opts = {})
+        to_src(tabs, opts, :scss)
+      end
+
       protected
 
       def to_src(tabs, opts, fmt)

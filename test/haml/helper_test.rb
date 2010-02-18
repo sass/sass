@@ -201,6 +201,42 @@ HAML
     assert_raise(Haml::Error) { render("= haml_tag :p") }
   end
 
+  def test_haml_tag_with_multiline_string
+    assert_equal(<<HTML, render(<<HAML))
+<p>
+  foo
+  bar
+  baz
+</p>
+HTML
+- haml_tag :p, "foo\\nbar\\nbaz"
+HAML
+  end
+
+  def test_haml_concat_with_multiline_string
+    assert_equal(<<HTML, render(<<HAML))
+<p>
+  foo
+  bar
+  baz
+</p>
+HTML
+%p
+  - haml_concat "foo\\nbar\\nbaz"
+HAML
+  end
+
+  def test_haml_tag_with_ugly
+    assert_equal(<<HTML, render(<<HAML, :ugly => true))
+<p>
+<strong>Hi!</strong>
+</p>
+HTML
+- haml_tag :p do
+  - haml_tag :strong, "Hi!"
+HAML
+  end
+
   def test_is_haml
     assert(!ActionView::Base.new.is_haml?)
     assert_equal("true\n", render("= is_haml?"))

@@ -1,0 +1,117 @@
+#!/usr/bin/env ruby
+require File.dirname(__FILE__) + '/../test_helper'
+require 'sass/engine'
+
+class SassScriptTest < Test::Unit::TestCase
+  def test_bool
+    assert_renders "true"
+    assert_renders "false"
+  end
+
+  def test_color
+    assert_renders "#abcdef"
+    assert_renders "blue"
+    assert_renders "rgba(0, 1, 2, 0.2)"
+
+    assert_equal "#aabbcc", render("#abc")
+    assert_equal "blue", render("#0000ff")
+  end
+
+  def test_number
+    assert_renders "10"
+    assert_renders "10.35"
+    assert_renders "12px"
+    assert_renders "12.45px"
+
+    assert_equal "12.346", render("12.345678901")
+  end
+
+  def test_string
+    assert_renders '"foo"'
+    assert_renders '"bar baz"'
+  end
+
+  def test_funcall
+    assert_renders "foo(true, blue)"
+    assert_renders "hsla(20deg, 30%, 50%, 0.3)"
+    assert_renders "blam()"
+  end
+
+  def test_variable
+    assert_renders "!foo-bar"
+    assert_renders "!flaznicate"
+  end
+
+  def test_comma_operator
+    assert_renders "!foo, !bar !baz"
+    assert_renders "!foo !bar, !baz"
+
+    assert_renders "(!foo, !bar) !baz"
+    assert_renders "!foo (!bar, !baz)"
+
+    assert_equal "!foo, !bar !baz", render("!foo, (!bar !baz)")
+    assert_equal "!foo !bar, !baz", render("(!foo !bar), !baz")
+  end
+
+  def test_concat_operator
+    assert_renders "!foo !bar or !baz"
+    assert_renders "!foo or !bar !baz"
+
+    assert_renders "(!foo !bar) or !baz"
+    assert_renders "!foo or (!bar !baz)"
+
+    assert_equal "!foo !bar or !baz", render("!foo (!bar or !baz)")
+    assert_equal "!foo or !bar !baz", render("(!foo or !bar) !baz")
+  end
+
+  def self.test_precedence(outer, inner)
+    op_outer = Sass::Script::Lexer::OPERATORS_REVERSE[outer]
+    op_inner = Sass::Script::Lexer::OPERATORS_REVERSE[inner]
+    class_eval <<RUBY
+      def test_precedence_#{outer}_#{inner} 
+        assert_renders "!foo #{op_outer} !bar #{op_inner} !baz"
+        assert_renders "!foo #{op_inner} !bar #{op_outer} !baz"
+
+        assert_renders "(!foo #{op_outer} !bar) #{op_inner} !baz"
+        assert_renders "!foo #{op_inner} (!bar #{op_outer} !baz)"
+
+        assert_equal "!foo #{op_outer} !bar #{op_inner} !baz",
+          render("!foo #{op_outer} (!bar #{op_inner} !baz)")
+        assert_equal "!foo #{op_inner} !bar #{op_outer} !baz",
+          render("(!foo #{op_inner} !bar) #{op_outer} !baz")
+      end
+RUBY
+  end
+
+  test_precedence :or, :and
+  test_precedence :and, :eq
+  test_precedence :and, :neq
+  test_precedence :eq, :gt
+  test_precedence :eq, :gte
+  test_precedence :eq, :lt
+  test_precedence :eq, :lte
+  test_precedence :gt, :plus
+  test_precedence :gt, :minus
+  test_precedence :plus, :times
+  test_precedence :plus, :div
+  test_precedence :plus, :mod
+
+  def test_unary_op
+    assert_renders "-12px"
+    assert_renders '/"foo"'
+    assert_renders 'not true'
+
+    assert_equal 'not true or false', render('(not true) or false')
+    assert_equal 'not (true or false)', render('not (true or false)')
+  end
+
+  private
+
+  def assert_renders(script, options = {})
+    assert_equal(script, render(script, options))
+  end
+
+  def render(script, options = {})
+    Sass::Script.parse(script, 0, 0, options).to_sass
+  end
+end

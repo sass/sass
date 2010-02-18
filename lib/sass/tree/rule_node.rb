@@ -97,7 +97,8 @@ module Sass::Tree
     #
     # @param node [RuleNode] The other node
     def add_rules(node)
-      @rule += ["\n"] + node.rule
+      @rule = Haml::Util.strip_string_array(
+        Haml::Util.merge_adjacent_strings(@rule + ["\n"] + node.rule))
     end
 
     # @return [Boolean] Whether or not this rule is continued on the next line

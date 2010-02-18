@@ -7,11 +7,12 @@ unless defined?(Sass::RAILS_LOADED)
                               :always_check      => Haml::Util.rails_env != "production",
                               :full_exception    => Haml::Util.rails_env != "production")
 
-  if defined?(Rails.configuration.middleware)
+  if defined?(Rails.configuration) && defined?(Rails.configuration.middleware)
     # Rails >= 3.0
     require 'sass/plugin/rack'
     Rails.configuration.middleware.use(Sass::Plugin::Rack)
-  elsif defined?(ActionController::Dispatcher.middleware)
+  elsif defined?(ActionController::Dispatcher) &&
+      defined?(ActionController::Dispatcher.middleware)
     # Rails >= 2.3
     require 'sass/plugin/rack'
     ActionController::Dispatcher.middleware.use(Sass::Plugin::Rack)

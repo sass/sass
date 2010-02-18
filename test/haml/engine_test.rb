@@ -72,6 +72,7 @@ class EngineTest < Test::Unit::TestCase
     "/ foo\n\n  bar" => ["Illegal nesting: nesting within a tag that already has content is illegal.", 3],
     "!!!\n\n  bar" => ["Illegal nesting: nesting within a header command is illegal.", 3],
     "foo\n:ruby\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
+    "foo\n:erb\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
     "= raise 'foo'\nfoo\nbar\nbaz\nbang" => ["foo", 1],
   }
 
@@ -137,6 +138,20 @@ class EngineTest < Test::Unit::TestCase
 HTML
 %p
   %a{:href => "http://" + "haml-lang.com"}
+HAML
+  end
+
+  def test_attributes_with_to_s
+    assert_equal(<<HTML, render(<<HAML))
+<p id='foo_2'></p>
+<p class='2 foo'></p>
+<p blaz='2'></p>
+<p 2='2'></p>
+HTML
+%p#foo{:id => 1+1}
+%p.foo{:class => 1+1}
+%p{:blaz => 1+1}
+%p{(1+1) => 1+1}
 HAML
   end
 
@@ -572,6 +587,17 @@ HTML
 HAML
   end
 
+  def test_erb_filter_with_multiline_expr
+    assert_equal(<<HTML, render(<<HAML))
+foobarbaz
+HTML
+:erb
+  <%= "foo" +
+      "bar" +
+      "baz" %>
+HAML
+  end
+
   def test_silent_script_with_hyphen_case
     assert_equal("", render("- 'foo-case-bar-case'"))
   end
@@ -598,6 +624,15 @@ HTML
 - else
   foo
 HAML
+  end
+
+  def test_html_attributes_with_hash
+    assert_equal("<a href='#' rel='top'>Foo</a>\n",
+      render('%a(href="#" rel="top") Foo'))
+    assert_equal("<a href='#'>Foo</a>\n",
+      render('%a(href="#") #{"Foo"}'))
+
+    assert_equal("<a href='#\"'></a>\n", render('%a(href="#\\"")'))
   end
 
   # HTML escaping tests
@@ -1228,6 +1263,17 @@ SASS
   end
 
   # Encodings
+
+  def test_utf_8_bom
+    assert_equal <<CSS, render(<<SCSS)
+<div class='foo'>
+  <p>baz</p>
+</div>
+CSS
+\xEF\xBB\xBF.foo
+  %p baz
+SCSS
+  end
 
   unless Haml::Util.ruby1_8?
     def test_default_encoding

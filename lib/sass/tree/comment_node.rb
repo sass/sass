@@ -43,10 +43,15 @@ module Sass::Tree
 
     # @see Node#to_sass
     def to_sass(tabs, opts = {})
-      content = value.
-        gsub(/\*\/$/, '').
-        gsub(/^([ \t]*)\/\*/, '/*\1').
-        rstrip
+      content = value.gsub(/\*\/$/, '').rstrip
+      if content =~ /\A[ \t]/
+        # Re-indent SCSS comments like this:
+        #     /* foo
+        #   bar
+        #       baz */
+        content.gsub!(/^/, '   ')
+        content.sub!(/\A([ \t]*)\/\*/, '/*\1')
+      end
 
       content =
         unless content.include?("\n")

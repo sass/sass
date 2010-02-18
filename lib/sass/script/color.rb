@@ -66,8 +66,9 @@ module Sass::Script
     #   The attributes are specified as an array.
     #   This overload only supports RGB or RGBA colors.
     #
-    #   @param rgba [Array<Numeric>] A three-element array of the red, green, blue,
-    #     and optionally alpha values (respectively) of the color
+    #   @param rgba [Array<Numeric>] A three- or four-element array
+    #     of the red, green, blue, and optionally alpha values (respectively)
+    #     of the color
     #   @raise [ArgumentError] if not enough attributes are specified
     def initialize(attrs, allow_both_rgb_and_hsl = false)
       super(nil)
@@ -180,13 +181,13 @@ module Sass::Script
       alpha < 1
     end
 
-    # @deprecated This will be removed in version 2.6.
+    # @deprecated This will be removed in version 3.2.
     # @see #rgb
     def value
       warn <<END
 DEPRECATION WARNING:
 The Sass::Script::Color #value attribute is deprecated and will be
-removed in version 2.6. Use the #rgb attribute instead.
+removed in version 3.2. Use the #rgb attribute instead.
 END
       rgb
     end
@@ -380,6 +381,7 @@ END
       return HTML4_COLORS_REVERSE[rgb] if HTML4_COLORS_REVERSE[rgb]
       hex_str
     end
+    alias_method :to_sass, :to_s
 
     # Returns a string representation of the color.
     #

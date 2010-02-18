@@ -16,7 +16,7 @@ module Sass
 
       protected
 
-      def to_sass(tabs, opts, fmt)
+      def to_src(tabs, opts, fmt)
         "#{'  ' * tabs}!#{@name} #{'||' if @guarded}= #{@expr.to_sass}#{semi fmt}\n"
       end
 

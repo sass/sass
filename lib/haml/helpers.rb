@@ -342,7 +342,12 @@ MESSAGE
     #
     # @param text [#to_s] The text to output
     def haml_concat(text = "")
-      haml_buffer.buffer << haml_indent << text.to_s << "\n"
+      unless haml_buffer.options[:ugly] || haml_indent == 0
+        haml_buffer.buffer << haml_indent <<
+          text.to_s.gsub("\n", "\n" + haml_indent) << "\n"
+      else
+        haml_buffer.buffer << text.to_s << "\n"
+      end
       ErrorReturn.new("haml_concat")
     end
 
@@ -432,8 +437,17 @@ MESSAGE
 
       tag = "<#{name}#{attributes}>"
       if block.nil?
-        tag << text.to_s << "</#{name}>"
-        haml_concat tag
+        text = text.to_s
+        if text.include?("\n")
+          haml_concat tag
+          tab_up
+          haml_concat text
+          tab_down
+          haml_concat "</#{name}>"
+        else
+          tag << text << "</#{name}>"
+          haml_concat tag
+        end
         return ret
       end
 
@@ -525,12 +539,12 @@ MESSAGE
     # @yield A block in which the given buffer should be used
     def with_haml_buffer(buffer)
       @haml_buffer, old_buffer = buffer, @haml_buffer
-      old_buffer.active, was_active = false, old_buffer.active? if old_buffer
-      @haml_buffer.active = true
+      old_buffer.active, old_was_active = false, old_buffer.active? if old_buffer
+      @haml_buffer.active, was_active = true, @haml_buffer.active?
       yield
     ensure
-      @haml_buffer.active = false
-      old_buffer.active = was_active if old_buffer
+      @haml_buffer.active = was_active
+      old_buffer.active = old_was_active if old_buffer
       @haml_buffer = old_buffer
     end
 

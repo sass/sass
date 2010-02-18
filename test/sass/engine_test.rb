@@ -98,6 +98,7 @@ MSG
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
     '@debug' => "Invalid debug directive '@debug': expected expression.",
+    "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
@@ -929,6 +930,36 @@ foo {
 CSS
   end
 
+  def test_comment_indentation_at_beginning_of_doc
+    assert_equal <<CSS, render(<<SASS)
+/* foo
+ * bar
+ *   baz */
+foo {
+  a: b; }
+CSS
+/* foo
+   bar
+     baz
+foo
+  a: b
+SASS
+  end
+
+  def test_unusual_comment_indentation
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  /* foo
+   * bar
+   *   baz */ }
+CSS
+foo
+  /* foo
+     bar
+       baz
+SASS
+  end
+
   def test_attribute_selector_with_spaces
     assert_equal(<<CSS, render(<<SASS))
 a b[foo = bar] {
@@ -1046,7 +1077,7 @@ SOURCE
 RESULT
 .box
   :border
-    /*:color black
+    /* :color black
     :style solid
 SOURCE
 

@@ -222,6 +222,16 @@ END
                 'Use the CSS-superset SCSS syntax.') do
           @options[:for_engine][:syntax] = :scss
         end
+        opts.on('--watch', 'Watch files or directories for changes.',
+                           'The location of the generated CSS can be set using a colon:',
+                           '  sass --watch input.sass:output.css',
+                           '  sass --watch input-dir:output-dir') do
+          @options[:watch] = true
+        end
+        opts.on('--update', 'Compile files or directories to CSS.',
+                            'Locations are set like --watch.') do
+          @options[:update] = true
+        end
         opts.on('-t', '--style NAME',
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
@@ -237,8 +247,8 @@ END
         opts.on('-I', '--load-path PATH', 'Add a sass import path.') do |path|
           @options[:for_engine][:load_paths] << path
         end
-        opts.on('--cache-location', 'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
-          @options[:for_engine][:cache_location] = path
+        opts.on('--cache-location PATH', 'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
+          @options[:for_engine][:cache_location] = loc
         end
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
           @options[:for_engine][:cache] = false
@@ -248,13 +258,17 @@ END
       # Processes the options set by the command-line arguments,
       # and runs the Sass compiler appropriately.
       def process_result
-        if @options[:interactive]
-          require 'sass'
-          require 'sass/repl'
-          ::Sass::Repl.new(@options).run
-          return
+        if !@options[:update] && !@options[:watch] &&
+            @args.first && @args.first.include?(':')
+          if @args.size == 1
+            @args = @args.first.split(':', 2)
+          else
+            @options[:update] = true
+          end
         end
 
+        return interactive if @options[:interactive]
+        return watch_or_update if @options[:watch] || @options[:update]
         super
 
         begin
@@ -280,6 +294,84 @@ END
           raise e if @options[:trace]
           raise e.sass_backtrace_str("standard input")
         end
+      end
+
+      private
+
+      def interactive
+        require 'sass'
+        require 'sass/repl'
+        ::Sass::Repl.new(@options).run
+      end
+
+      def watch_or_update
+        require 'sass'
+        require 'sass/plugin'
+        ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
+
+        if @args[1] && !@args[0].include?(':')
+          flag = @options[:update] ? "--update" : "--watch"
+          err =
+            if !File.exist?(@args[1])
+              "doesn't exist"
+            elsif @args[1] =~ /\.css$/
+              "is a CSS file"
+            end
+          raise <<MSG if err
+File #{@args[1]} #{err}.
+  Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
+MSG
+        end
+
+        dirs, files = @args.map {|name| name.split(':', 2)}.
+          map {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}.
+          partition {|i, _| File.directory? i}
+        ::Sass::Plugin.options[:template_location] = dirs
+
+        ::Sass::Plugin.on_updating_stylesheet do |_, css|
+          if File.exists? css
+            puts_action :overwrite, :yellow, css
+          else
+            puts_action :create, :green, css
+          end
+        end
+
+        ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
+        ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
+        ::Sass::Plugin.on_compilation_error do |error, _, _|
+          raise error unless error.is_a?(::Sass::SyntaxError)
+          puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
+        end
+
+        if @options[:update]
+          ::Sass::Plugin.update_stylesheets(files)
+          return
+        end
+
+        puts ">>> Sass is watching for changes. Press Ctrl-C to stop."
+
+        ::Sass::Plugin.on_template_modified {|template| puts ">>> Change detected to: #{template}"}
+        ::Sass::Plugin.on_template_created {|template| puts ">>> New template detected: #{template}"}
+        ::Sass::Plugin.on_template_deleted {|template| puts ">>> Deleted template detected: #{template}"}
+
+        ::Sass::Plugin.watch(files)
+      end
+
+      # @private
+      COLORS = { :red => 31, :green => 32, :yellow => 33 }
+
+      def puts_action(name, color, arg)
+        printf color(color, "%11s %s\n"), name, arg
+      end
+
+      def color(color, str)
+        raise "[BUG] Unrecognized color #{color}" unless COLORS[color]
+
+        # Almost any real Unix terminal will support color,
+        # so we just filter for Windows terms (which don't set TERM)
+        # and not-real terminals, which aren't ttys.
+        return str if ENV["TERM"].empty? || !STDOUT.tty?
+        return "\e[#{COLORS[color]}m#{str}\e[0m"
       end
     end
 

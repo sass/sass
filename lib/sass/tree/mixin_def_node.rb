@@ -30,7 +30,7 @@ module Sass
             end.join(", ") + ')'
           end
               
-        "#{'  ' * tabs}#{fmt == :sass ? '=' : '@mixin '}#{@name}#{args}\n" +
+        "#{'  ' * tabs}#{fmt == :sass ? '=' : '@mixin '}#{@name}#{args}" +
           children_to_src(tabs, opts, fmt)
       end
 

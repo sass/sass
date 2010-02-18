@@ -63,6 +63,61 @@ as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
 * The {Sass::Script::Functions#complement complement}
   function returns the complement of a color.
 
+{#watch}
+### Watching for Updates
+
+The `sass` command-line utility has a new flag: `--watch`.
+`sass --watch` monitors files or directories for updated Sass files
+and compiles those files to CSS automatically.
+This will allow people not using Ruby or [Compass](http://compass-style.org)
+to use Sass without having to manually recompile all the time.
+
+Here's the syntax for watching a directory full of Sass files:
+
+    sass --watch app/stylesheets:public/stylesheets
+
+This will watch every Sass file in `app/stylesheets`.
+Whenever one of them changes,
+the corresponding CSS file in `public/stylesheets` will be regenerated.
+Any files that import that file will be regenerated, too.
+
+The syntax for watching individual files is the same:
+
+    sass --watch style.sass:out.css
+
+You can also omit the output filename if you just want it to compile to name.css.
+For example:
+
+    sass --watch style.sass
+
+This will update `style.css` whenever `style.sass` changes.
+
+You can list more than one file and/or directory,
+and all of them will be watched:
+
+    sass --watch foo/style:public/foo bar/style:public/bar
+    sass --watch screen.sass print.sass awful-hacks.sass:ie.css
+    sass --watch app/stylesheets:public/stylesheets public/stylesheets/test.sass
+
+File and directory watching is accessible from Ruby,
+using the {Sass::Plugin#watch} function.
+
+### Bulk Updating
+
+Another new flag for the `sass` command-line utility is `--update`.
+It checks a group of Sass files to see if their CSS needs to be updated,
+and updates if so.
+
+The syntax for `--update` is just like watch:
+
+    sass --update app/stylesheets:public/stylesheets
+    sass --update style.sass:out.css
+    sass --watch screen.sass print.sass awful-hacks.sass:ie.css
+
+In fact, `--update` work exactly the same as `--watch`,
+except that it doesn't continue watching the files
+after the first check.
+
 ### Variable Names
 
 SassScript variable names may now contain hyphens.
@@ -107,14 +162,29 @@ That is, with the nested properties indented in the source.
 
 ### Ruby 1.9 Support
 
-Sass and `css2sass` now produce more descriptive errors
-when given a template with invalid byte sequences for that template's encoding,
-including the line number and the offending character.
+* Sass and `css2sass` now produce more descriptive errors
+  when given a template with invalid byte sequences for that template's encoding,
+  including the line number and the offending character.
+
+* Sass and `css2sass` now accept Unicode documents with a
+  [byte-order-mark](http://en.wikipedia.org/wiki/Byte_order_mark).
 
 ### Rack Support
 
 The Sass Rails plugin now works using Rack middleware by default
 in versions of Rails that support it (2.3 and onwards).
+
+### Sass::Plugin Callbacks
+
+{Sass::Plugin} now has a large collection of callbacks that allow users
+to run code when various actions are performed.
+For example:
+
+    Sass::Plugin.on_updating_stylesheet do |template, css|
+      puts "#{template} has been compiled to #{css}!"
+    end
+
+For a full list of callbacks and usage notes, see the {Sass::Plugin} documentation.
 
 ### `:compressed` Style
 
@@ -144,7 +214,28 @@ Several bug fixes and minor improvements have been made, including:
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
-## 2.2.18 (Unreleased)
+## 2.2.20
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.20).
+
+* If the cache file for a given Sass file is corrupt
+  because it doesn't have enough content,
+  produce a warning and read the Sass file
+  rather than letting the exception bubble up.
+  This is consistent with other sorts of sassc corruption handling.
+
+* Calls to `defined?` shouldn't interfere with Rails' autoloading
+  in very old versions (1.2.x).
+
+## 2.2.19
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
+
+There were no changes made to Sass between versions 2.2.18 and 2.2.19.
+
+## 2.2.18
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
 
 * Use `Rails.env` rather than `RAILS_ENV` when running under Rails 3.0.
   Thanks to [Duncan Grazier](http://duncangrazier.com/).
@@ -159,7 +250,16 @@ Several bug fixes and minor improvements have been made, including:
 * Add a {file:SASS_REFERENCE.md#unix_newlines-option `:unix_newlines` option}
   for {Sass::Plugin} for outputting Unix-style newlines on Windows.
 
-## [2.2.17](http://github.com/nex3/haml/commit/2.2.16)
+* Fix the `--cache-location` flag, which was previously throwing errors.
+  Thanks to [tav](http://tav.espians.com/).
+
+* Allow comments at the beginning of the document to have arbitrary indentation,
+  just like comments elsewhere.
+  Similarly, comment parsing is a little nicer than before.
+
+## 2.2.17
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.16).
 
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
   is false, raise the error in Ruby code rather than swallowing it
@@ -187,7 +287,9 @@ Several bug fixes and minor improvements have been made, including:
   In future versions, `@import foo` will either import the template
   or raise an error.
 
-## [2.2.16](http://github.com/nex3/haml/commit/2.2.16)
+## 2.2.16
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.16).
 
 * Fixed a bug where modules containing user-defined Sass functions
   weren't made available when simply included in {Sass::Script::Functions}
@@ -195,7 +297,9 @@ Several bug fixes and minor improvements have been made, including:
   {Sass::Script::Functions::EvaluationContext Functions::EvaluationContext}).
   Now the module simply needs to be included in {Sass::Script::Functions}.
 
-## [2.2.15](http://github.com/nex3/haml/commit/2.2.15)
+## 2.2.15
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.15).
 
 * Added {Sass::Script::Color#with} for a way of setting color channels
   that's easier than manually constructing a new color
@@ -205,7 +309,9 @@ Several bug fixes and minor improvements have been made, including:
 * Added a missing require in Sass that caused crashes
   when it was being run standalone.
 
-## [2.2.14](http://github.com/nex3/haml/commit/2.2.14)
+## 2.2.14
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.14).
 
 * All Sass functions now raise explicit errors if their inputs
   are of the incorrect type.
@@ -240,15 +346,21 @@ To activate this, just add
 to your `config.ru`.
 See the {Sass::Plugin::Rack} documentation for more details.
 
-## [2.2.13](http://github.com/nex3/haml/commit/2.2.13)
+## 2.2.13
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.13).
 
 There were no changes made to Sass between versions 2.2.12 and 2.2.13.
 
-## [2.2.12](http://github.com/nex3/haml/commit/2.2.12)
+## 2.2.12
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.12).
 
 * Fix a stupid bug introduced in 2.2.11 that broke the Sass Rails plugin.
 
-## [2.2.11](http://github.com/nex3/haml/commit/2.2.11)
+## 2.2.11
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.11).
 
 * Added a note to errors on properties that could be pseudo-classes (e.g. `:focus`)
   indicating that they should be backslash-escaped.
@@ -269,7 +381,9 @@ There were no changes made to Sass between versions 2.2.12 and 2.2.13.
 * Make use of a Rails callback rather than a monkeypatch to check for stylesheet updates
   in Rails 3.0+.
 
-## [2.2.10](http://github.com/nex3/haml/commit/2.2.10)
+## 2.2.10
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.10).
 
 * Add support for attribute selectors with spaces around the `=`.
   For example:
@@ -277,19 +391,27 @@ There were no changes made to Sass between versions 2.2.12 and 2.2.13.
       a[href = http://google.com]
         color: blue
 
-## [2.2.9](http://github.com/nex3/haml/commit/2.2.9)
+## 2.2.9
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.9).
 
 There were no changes made to Sass between versions 2.2.8 and 2.2.9.
 
-## [2.2.8](http://github.com/nex3/haml/commit/2.2.8)
+## 2.2.8
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.8).
 
 There were no changes made to Sass between versions 2.2.7 and 2.2.8.
 
-## [2.2.7](http://github.com/nex3/haml/commit/2.2.7)
+## 2.2.7
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.7).
 
 There were no changes made to Sass between versions 2.2.6 and 2.2.7.
 
-## [2.2.6](http://github.com/nex3/haml/commit/2.2.6)
+## 2.2.6
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.6).
 
 * Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
   as apparently happens sometimes in TextMate
@@ -297,11 +419,15 @@ There were no changes made to Sass between versions 2.2.6 and 2.2.7.
 
 * Add "Sass" to the `--version` string for the executables.
 
-## [2.2.5](http://github.com/nex3/haml/commit/2.2.5)
+## 2.2.5
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.5).
 
 There were no changes made to Sass between versions 2.2.4 and 2.2.5.
 
-## [2.2.4](http://github.com/nex3/haml/commit/2.2.4)
+## 2.2.4
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.4).
 
 * Don't add `require 'rubygems'` to the top of init.rb when installed
   via `sass --rails`. This isn't necessary, and actually gets
@@ -310,18 +436,24 @@ There were no changes made to Sass between versions 2.2.4 and 2.2.5.
 * Document the previously-undocumented {file:SASS_REFERENCE.md#line-option `:line` option},
   which allows the number of the first line of a Sass file to be set for error reporting.
 
-## [2.2.3](http://github.com/nex3/haml/commit/2.2.3)
+## 2.2.3
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.3).
 
 Sass 2.2.3 prints line numbers for warnings about selectors
 with no properties.
 
-## [2.2.2](http://github.com/nex3/haml/commit/2.2.2)
+## 2.2.2
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.2).
 
 Sass 2.2.2 is a minor bug-fix release.
 Notable changes include better parsing of mixin definitions and inclusions
 and better support for Ruby 1.9.
 
-## [2.2.1](http://github.com/nex3/haml/commit/2.2.1)
+## 2.2.1
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.1).
 
 Sass 2.2.1 is a minor bug-fix release.
 
@@ -332,7 +464,9 @@ Sass 2.2.1 is a minor bug-fix release.
   This is now deprecated, so that in the future variables with hyphens
   can be supported. Surround `-` with spaces.
 
-## [2.2.0](http://github.com/nex3/haml/commit/2.2.0)
+## 2.2.0
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.0).
 
 The 2.2 release marks a significant step in the evolution of the Sass
 language. The focus has been to increase the power of Sass to keep

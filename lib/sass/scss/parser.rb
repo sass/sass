@@ -11,7 +11,7 @@ module Sass
     class Parser
       # @param str [String] The source document to parse
       def initialize(str)
-        @scanner = StringScanner.new(str)
+        @template = str
         @line = 1
         @strs = []
       end
@@ -21,6 +21,10 @@ module Sass
       # @return [Sass::Tree::RootNode] The root node of the document tree
       # @raise [Sass::SyntaxError] if there's a syntax error in the document
       def parse
+        @scanner = StringScanner.new(
+          Haml::Util.check_encoding(@template) do |msg, line|
+            raise Sass::SyntaxError.new(msg, :line => line)
+          end.gsub("\r", ""))
         root = stylesheet
         expected("selector or at-rule") unless @scanner.eos?
         root
@@ -59,35 +63,41 @@ module Sass
         true
       end
 
+      def whitespace
+        return unless tok(S) || tok(SINGLE_LINE_COMMENT) || tok(COMMENT)
+        ss
+      end
+
       def process_comment(text, node)
         single_line = text =~ /^\/\//
         pre_str = single_line ? "" : @scanner.
           string[0...@scanner.pos].
           reverse[/.*?\*\/(.*?)($|\Z)/, 1].
           reverse.gsub(/[^\s]/, ' ')
-        pre_str.gsub!(/^\/\/(.*)$/, '/*\1*/') if single_line
+        text = text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */' if single_line
         node << Sass::Tree::CommentNode.new(pre_str + text, single_line)
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import]
+      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import, :media]
 
       def directive
         return unless tok(/@/)
         name = tok!(IDENT)
         ss
 
-        if dir = scss_directive(name)
+        if dir = special_directive(name)
           return dir
         end
 
         val = str do
-          # Most at-rules take expressions (e.g. @media, @import),
+          # Most at-rules take expressions (e.g. @import),
           # but some (e.g. @page) take selector-like arguments
           expr || selector
         end
         node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
 
         if tok(/\{/)
+          node.has_children = true
           block_contents(node, :directive)
           tok!(/\}/)
         end
@@ -95,7 +105,7 @@ module Sass
         node
       end
 
-      def scss_directive(name)
+      def special_directive(name)
         sym = name.gsub('-', '_').to_sym
         DIRECTIVES.include?(sym) && send(sym)
       end
@@ -163,23 +173,50 @@ module Sass
       def import
         @expected = "string or url()"
         arg = tok(STRING) || tok!(URI)
-        path = @scanner[1]
+        path = @scanner[1] || @scanner[2] || @scanner[3]
         ss
 
-        media = str do
-          if tok IDENT
-            ss
-            while tok(/,/)
-              ss; tok(IDENT); ss
-            end
-          end
-        end
+        media = str {media_type}.strip
 
-        unless media.strip.empty?
-          return node(Sass::Tree::DirectiveNode.new("@import #{path} #{media}".strip))
+        if !media.strip.empty? || use_css_import?
+          return node(Sass::Tree::DirectiveNode.new("@import #{arg} #{media}".strip))
         end
 
         node(Sass::Tree::ImportNode.new(path.strip))
+      end
+
+      def use_css_import?; false; end
+
+      def media
+        val = str {media_type}.strip
+        block(node(Sass::Tree::DirectiveNode.new("@media #{val}")), :directive)
+      end
+
+      def media_type
+        return unless media_term
+
+        ss
+        while tok(/,|and/)
+          ss; expr!(:media_term); ss
+        end
+
+        true
+      end
+
+      def media_term
+        return unless tok(IDENT) || (p = tok(/\(/))
+        ss
+
+        if p
+          media_type
+          ss
+          tok!(/\)/)
+        elsif tok(/:/)
+          ss
+          tok! NUMBER
+        end
+
+        return true
       end
 
       def variable
@@ -237,6 +274,7 @@ module Sass
       end
 
       def block(node, context)
+        node.has_children = true
         tok!(/\{/)
         block_contents(node, context)
         tok!(/\}/)
@@ -247,7 +285,7 @@ module Sass
       def block_contents(node, context)
         block_given? ? yield : ss_comments(node)
         node << (child = block_child(context))
-        while tok(/;/) || (child && !child.children.empty?)
+        while tok(/;/) || (child && child.has_children)
           block_given? ? yield : ss_comments(node)
           node << (child = block_child(context))
         end
@@ -312,7 +350,7 @@ module Sass
       end
 
       def combinator
-        tok(PLUS) || tok(GREATER) || tok(TILDE) || tok(S)
+        tok(PLUS) || tok(GREATER) || tok(TILDE) || str?{whitespace}
       end
 
       def simple_selector_sequence
@@ -411,10 +449,10 @@ module Sass
       end
 
       def declaration
-        # The tok(/\*/) allows the "*prop: val" hack
-        if tok(/\*/)
-          @use_property_exception = true
-          name = ['*'] + expr!(:property)
+        # This allows the "*prop: val", ":prop: val", and ".prop: val" hacks
+        if s = tok(/[:\*\.]/)
+          @use_property_exception = s != '.'
+          name = [s, str{ss}] + expr!(:property)
         else
           return unless name = property
         end
@@ -489,14 +527,19 @@ MESSAGE
 
           return unless op = unary_operator
           @expected = "number or function"
-          [op, tok(NUMBER) || expr!(:function)]
+          return [op, tok(NUMBER) || expr!(:function)]
         end
         e
       end
 
       def function
         return unless name = tok(FUNCTION)
-        [name, str{ss}, expr, tok!(/\)/)]
+        if name == "expression(" || name == "calc("
+          str, _ = Haml::Shared.balance(@scanner, ?(, ?), 1)
+          [name, str]
+        else
+          [name, str{ss}, expr, tok!(/\)/)]
+        end
       end
 
       def interpolation
@@ -526,6 +569,13 @@ MESSAGE
         @strs.pop
       end
 
+      def str?
+        @strs.push ""
+        yield && @strs.last
+      ensure
+        @strs.pop
+      end
+
       def node(node)
         node.line = @line
         node
@@ -537,7 +587,7 @@ MESSAGE
       end
 
       EXPR_NAMES = {
-        :medium => "medium (e.g. print, screen)",
+        :media_term => "medium (e.g. print, screen)",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
         :expr => "expression (e.g. 1px, bold)",
       }

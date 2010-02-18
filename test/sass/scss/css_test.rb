@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/test_helper'
 require 'sass/scss/css_parser'
 
@@ -21,6 +22,14 @@ sel {
 CSS
   end
 
+  def test_empty_rule
+    assert_equal "", render("#foo .bar {}")
+    assert_equal "", render(<<SCSS)
+#foo .bar {
+}
+SCSS
+  end
+
   def test_cdo_and_cdc_ignored_at_toplevel
     assert_equal <<CSS, render(<<SCSS)
 foo {
@@ -37,6 +46,13 @@ foo {bar: baz}
 bar {bar: baz}
 -->
 baz {bar: baz}
+SCSS
+  end
+
+  def test_unicode
+    assert_parses <<SCSS
+foo {
+  bar: föö bâr; }
 SCSS
   end
 
@@ -136,6 +152,16 @@ CSS
 .foo {
   /* Foo
    * Bar */a: b; }
+SCSS
+  end
+
+  def test_selector_comments
+    assert_equal <<CSS, render(<<SCSS)
+.foo  #bar:baz( bip) {
+  a: b; }
+CSS
+.foo /* .a #foo */ #bar:baz(/* bang )*/ bip) {
+  a: b; }
 SCSS
   end
 
@@ -311,6 +337,8 @@ SCSS
 foo {
   _name: val;
   *name: val;
+  :name: val;
+  .name: val;
   name: val; }
 SCSS
   end
@@ -320,6 +348,30 @@ SCSS
 foo {
   a: foo();
   b: bar baz-bang() bip; }
+SCSS
+  end
+
+  def test_expression_function
+    assert_parses <<SCSS
+foo {
+  a: 12px expression(1 + (3 / Foo.bar("baz" + "bang") + function() {return 12;}) % 12); }
+SCSS
+  end
+
+  def test_calc_function
+    assert_parses <<SCSS
+foo {
+  a: 12px calc(100%/3 - 2*1em - 2*1px); }
+SCSS
+  end
+
+  def test_unary_ops
+    assert_parses <<SCSS
+foo {
+  a: -.5em;
+  b: +.5em;
+  c: -foo(12px);
+  d: +foo(12px); }
 SCSS
   end
 
@@ -352,6 +404,36 @@ SCSS
   rule2 {
     prop: val; } }
 SCSS
+  end
+
+  def test_media_directive_with_keywords
+    assert_parses <<SCSS
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  a: b; }
+SCSS
+    assert_parses <<SCSS
+@media screen and -webkit-min-device-pixel-ratio: 0 {
+  a: b; }
+SCSS
+    assert_parses <<SCSS
+@media screen, print and foo: 0 and bar: 15 {
+  a: b; }
+SCSS
+  end
+
+  def test_import_directive
+    assert_parses '@import "foo.css";'
+    assert_parses "@import 'foo.css';"
+    assert_parses '@import url("foo.css");'
+    assert_parses "@import url('foo.css');"
+    assert_parses '@import url(foo.css);'
+  end
+
+  def test_import_directive_with_media
+    assert_parses '@import "foo.css" screen;'
+    assert_parses '@import "foo.css" screen, print;'
+    assert_parses '@import "foo.css" screen, print and (foo: 0);'
+    assert_parses '@import "foo.css" screen, print and foo: 0;'
   end
 
   def test_page_directive
@@ -396,13 +478,13 @@ SCSS
 SCSS
   end
 
-  # TODO: Make this work.
-  #   Currently we check whether a directive has children
-  #   to determine whether to use {} or ;.
-  #
-  # def test_empty_block_directive
-  #   assert_parses "@foo {}"
-  # end
+  def test_empty_block_directive
+    assert_parses "@foo {}"
+    assert_equal "@foo {}\n", render(<<SCSS)
+@foo {
+}
+SCSS
+  end
 
   def test_multiple_block_directives
     assert_parses <<SCSS
@@ -687,7 +769,7 @@ SCSS
 
   def test_no_nested_rules
     assert_not_parses('":"', 'foo {bar <err>{a: b}}')
-    assert_not_parses('"}"', 'foo {<err>.bar {a: b}}')
+    assert_not_parses('"}"', 'foo {<err>#bar {a: b}}')
   end
 
   def test_no_nested_properties
@@ -697,6 +779,17 @@ SCSS
 
   def test_no_nested_directives
     assert_not_parses('"}"', 'foo {<err>@bar {a: b}}')
+  end
+
+  def test_error_with_windows_newlines
+    render <<SCSS
+foo {bar}\r
+baz {a: b}
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "foo {bar": expected ":", was "}"', e.message
+    assert_equal 1, e.sass_line
   end
 
   private

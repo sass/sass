@@ -35,8 +35,9 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
     list.include('REVISION')
   end.to_a
   spec.executables = ['haml', 'html2haml', 'sass', 'css2sass']
-  spec.files = FileList['rails/init.rb', 'lib/**/*', 'bin/*', 'test/**/*',
-    'extra/**/*', 'Rakefile', 'init.rb', '.yardopts'].to_a + readmes
+  spec.files = FileList['rails/init.rb', 'lib/**/*', 'vendor/**/*',
+    'bin/*', 'test/**/*', 'extra/**/*', 'Rakefile', 'init.rb',
+    '.yardopts'].to_a + readmes
   spec.homepage = 'http://haml-lang.com/'
   spec.has_rdoc = true
   spec.extra_rdoc_files = readmes

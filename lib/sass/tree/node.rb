@@ -33,6 +33,13 @@ module Sass
       # @return [Array<Tree::Node>]
       attr_accessor :children
 
+      # Whether or not this node has child nodes.
+      # This may be true even when \{#children} is empty,
+      # in which case this node has an empty block (e.g. `{}`).
+      #
+      # @return [Boolean]
+      attr_accessor :has_children
+
       # The line of the document on which this node appeared.
       #
       # @return [Fixnum]
@@ -60,6 +67,12 @@ module Sass
       def options=(options)
         children.each {|c| c.options = options}
         @options = options
+      end
+
+      # @private
+      def children=(children)
+        self.has_children ||= !children.empty?
+        @children = children
       end
 
       # The name of the document on which this node appeared.

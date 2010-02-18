@@ -13,5 +13,6 @@ module Sass::Script
     def to_s
       @value.to_s
     end
+    alias_method :to_sass, :to_s
   end
 end

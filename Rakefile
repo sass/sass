@@ -57,6 +57,7 @@ task :revision_file do
   end
 end
 Rake::Task[:package].prerequisites.insert(0, :revision_file)
+Rake::Task[:package].prerequisites.insert(0, :submodules)
 
 # We also need to get rid of this file after packaging.
 at_exit { File.delete('REVISION') rescue nil }
@@ -72,7 +73,6 @@ desc "Release a new Haml package to Rubyforge."
 task :release => [:check_release, :release_elpa, :package] do
   name = File.read("VERSION_NAME").strip
   version = File.read("VERSION").strip
-  sh %{rubyforge login}
   sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.bz2}
@@ -167,6 +167,18 @@ def mode_unchanged?(mode, version)
   return false
 end
 
+task :submodules do
+  if File.exist?(File.dirname(__FILE__) + "/.git")
+    sh %{git submodule sync}
+    sh %{git submodule update --init}
+  elsif !File.exist?(File.dirname(__FILE__) + "/vendor/fssm/lib")
+    warn <<WARN
+WARNING: vendor/fssm doesn't exist, and this isn't a git repository so
+I can't get it automatically!
+WARN
+  end
+end
+
 task :release_edge do
   ensure_git_cleanup do
     puts "#{'=' * 50} Running rake release_edge"
@@ -201,7 +213,6 @@ task :release_edge do
     sh %{rake package}
     sh %{git checkout VERSION}
 
-    sh %{rubyforge login}
     sh %{rubyforge add_release haml haml-edge "Bleeding Edge (v#{edge_version})" pkg/haml-edge-#{edge_version}.gem}
     sh %{gem push pkg/haml-edge-#{edge_version}.gem}
   end

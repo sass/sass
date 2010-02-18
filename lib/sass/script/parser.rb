@@ -118,7 +118,28 @@ module Sass
         new(*args).parse
       end
 
+      # @private
+      PRECEDENCE = [
+        :comma, :concat, :or, :and,
+        [:eq, :neq],
+        [:gt, :gte, :lt, :lte],
+        [:plus, :minus],
+        [:times, :div, :mod],
+      ]
+
       class << self
+        # Returns an integer representing the precedence
+        # of the given operator.
+        # A lower integer indicates a looser binding.
+        #
+        # @private
+        def precedence_of(op)
+          PRECEDENCE.each_with_index do |e, i|
+            return i if Array(e).include?(op)
+          end
+          raise "[BUG] Unknown operator #{op}"
+        end
+
         private
 
         # Defines a simple left-associative production.
@@ -185,7 +206,7 @@ RUBY
           warn(<<END)
 DEPRECATION WARNING:
 On line #{name.line}, character #{name.offset}#{" of '#{filename}'" if filename}
-Implicit strings have been deprecated and will be removed in version 2.4.
+Implicit strings have been deprecated and will be removed in version 3.0.
 '#{name.value}' was not quoted. Please add double quotes (e.g. "#{name.value}").
 END
           Script::String.new(name.value)
