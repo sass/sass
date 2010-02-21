@@ -49,7 +49,7 @@ module Sass
       # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
       # @return [String] The Sass code corresponding to the node
       def to_sass(opts = {})
-        children.map {|child| child.to_sass(0, opts) + "\n"}.join.rstrip + "\n"
+        to_src(opts, :sass)
       end
 
       # Converts a node to SCSS code that will generate it.
@@ -57,10 +57,22 @@ module Sass
       # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
       # @return [String] The SCSS code corresponding to the node
       def to_scss(opts = {})
-        children.map {|child| child.to_scss(0, opts) + "\n"}.join.rstrip + "\n"
+        to_src(opts, :scss)
       end
 
       protected
+
+      def to_src(opts, fmt)
+        Haml::Util.enum_cons(children + [nil], 2).map do |child, nxt|
+          child.send("to_#{fmt}", 0, opts) +
+            if nxt && child.is_a?(CommentNode) &&
+                child.line + child.value.count("\n") + 1 == nxt.line
+              ""
+            else
+              "\n"
+            end
+        end.join.rstrip + "\n"
+      end
 
       # Destructively converts this static Sass node into a static CSS node,
       # and checks that there are no properties at root level.

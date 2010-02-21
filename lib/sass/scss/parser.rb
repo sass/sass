@@ -75,7 +75,9 @@ module Sass
           reverse[/.*?\*\/(.*?)($|\Z)/, 1].
           reverse.gsub(/[^\s]/, ' ')
         text = text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */' if single_line
-        node << Sass::Tree::CommentNode.new(pre_str + text, single_line)
+        comment = Sass::Tree::CommentNode.new(pre_str + text, single_line)
+        comment.line = @line - text.count("\n")
+        node << comment
       end
 
       DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import, :media]

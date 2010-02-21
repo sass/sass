@@ -370,6 +370,36 @@ foo
 SASS
   end
 
+  def test_immediately_preceding_comments
+    assert_renders <<SASS, <<SCSS
+/* Foo
+   Bar
+   Baz
+.foo#bar
+  a: b
+SASS
+/* Foo
+ * Bar
+ * Baz */
+.foo#bar {
+  a: b; }
+SCSS
+
+    assert_renders <<SASS, <<SCSS
+// Foo
+   Bar
+   Baz
+=foo
+  a: b
+SASS
+// Foo
+// Bar
+// Baz
+@mixin foo {
+  a: b; }
+SCSS
+  end
+
   def test_debug
     assert_renders <<SASS, <<SCSS
 foo
