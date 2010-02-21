@@ -109,7 +109,7 @@ SCSS
   end
 
   def test_property_name_interpolation
-assert_renders <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 foo bar
   baz\#{!bang}bip\#{!bop}: 12
 SASS
@@ -119,7 +119,7 @@ SCSS
   end
 
   def test_property_name_interpolation
-assert_renders <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 foo bar
   baz\#{!bang}bip\#{!bop}: 12
 SASS
@@ -129,7 +129,7 @@ SCSS
   end
 
   def test_property_value_interpolation
-assert_renders <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 foo bar
   baz: 12 \#{!bang} bip \#{"bop"} blat
 SASS
@@ -139,7 +139,7 @@ SCSS
   end
 
   def test_dynamic_properties
-assert_renders <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 foo bar
   baz= 12 !bang "bip"
 SASS
@@ -149,7 +149,7 @@ SCSS
   end
 
   def test_dynamic_properties_with_old
-assert_renders <<SASS, <<SCSS, :old => true
+    assert_renders <<SASS, <<SCSS, :old => true
 foo bar
   :baz= 12 !bang "bip"
 SASS
@@ -159,7 +159,7 @@ SCSS
   end
 
   def test_multiline_properties
-assert_scss_to_sass <<SASS, <<SCSS
+    assert_scss_to_sass <<SASS, <<SCSS
 foo bar
   baz: bip bam boon
 SASS
@@ -172,7 +172,7 @@ SCSS
   end
 
   def test_multiline_dynamic_properties
-assert_scss_to_sass <<SASS, <<SCSS
+    assert_scss_to_sass <<SASS, <<SCSS
 foo bar
   baz= !bip "bam" 12px
 SASS
@@ -185,7 +185,7 @@ SCSS
   end
 
   def test_silent_comments
-assert_renders <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 // foo
 
 // bar
@@ -205,7 +205,7 @@ foo bar {
   a: b; }
 SCSS
 
-assert_renders <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 // foo
    bar
      baz
@@ -225,7 +225,7 @@ SCSS
   end
 
   def test_loud_comments
-assert_renders <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 /* foo
 
 /* bar
@@ -245,7 +245,7 @@ foo bar {
   a: b; }
 SCSS
 
-assert_scss_to_sass <<SASS, <<SCSS
+    assert_scss_to_sass <<SASS, <<SCSS
 /* foo
    bar
      baz
@@ -263,7 +263,7 @@ foo bar {
   a: b; }
 SCSS
 
-assert_renders <<SASS, <<SCSS
+    assert_renders <<SASS, <<SCSS
 /* foo
    bar
      baz
