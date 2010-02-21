@@ -18,11 +18,11 @@ module Sass
 
     # The regular expression used to parse variables.
     # @private
-    MATCH = /^!([a-zA-Z_]\w*)\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^!([a-zA-Z_-][\w-]*)\s*((?:\|\|)?=)\s*(.+)/
 
     # The regular expression used to validate variables without matching.
     # @private
-    VALIDATE = /^![a-zA-Z_]\w*$/
+    VALIDATE = /^![a-zA-Z_-][\w-]*$/
 
     # Parses a string of SassScript
     #
