@@ -94,6 +94,12 @@ foo bar
 baz bang {
   baz: bang; }
 SCSS
+
+    assert_scss_to_scss <<SCSS
+foo bar
+baz bang {
+  baz: bang; }
+SCSS
   end
 
   def test_escaped_selector
@@ -169,6 +175,19 @@ foo bar {
   bam
         boon; }
 SCSS
+
+    assert_scss_to_scss <<OUT, <<IN
+foo bar {
+  baz: bip
+    bam
+    boon; }
+OUT
+foo bar {
+  baz:
+    bip
+  bam
+        boon; }
+IN
   end
 
   def test_multiline_dynamic_properties
@@ -182,6 +201,17 @@ foo bar {
   "bam"
         12px; }
 SCSS
+
+    assert_scss_to_scss <<OUT, <<IN
+foo bar {
+  baz= !bip "bam" 12px; }
+OUT
+foo bar {
+  baz=
+    !bip
+  "bam"
+        12px; }
+IN
   end
 
   def test_silent_comments
@@ -254,6 +284,16 @@ SCSS
 foo bar
   a: b
 SASS
+/* foo
+   bar
+     baz
+   bang */
+
+foo bar {
+  a: b; }
+SCSS
+
+    assert_scss_to_scss <<SCSS
 /* foo
    bar
      baz
@@ -635,9 +675,17 @@ SCSS
       "Expected SCSS to transform to Sass")
   end
 
-  def assert_scss_to_scss(scss, options = {})
-    assert_equal(scss.rstrip, to_scss(scss, options.merge(:syntax => :scss)).rstrip,
-      "Expected SCSS to transform to itself")
+  def assert_scss_to_scss(scss, in_scss = nil, options = nil)
+    if in_scss.is_a?(Hash)
+      options = in_scss
+      in_scss = nil
+    end
+
+    in_scss ||= scss
+    options ||= {}
+
+    assert_equal(scss.rstrip, to_scss(in_scss, options.merge(:syntax => :scss)).rstrip,
+      "Expected SCSS to transform to #{scss == in_scss ? 'itself' : 'SCSS'}k")
   end
 
   def assert_sass_to_scss(scss, sass, options = {})
