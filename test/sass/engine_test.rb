@@ -760,6 +760,19 @@ a
 SASS
   end
 
+  def test_css_identifier_mixin
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  foo: 12; }
+CSS
+=\\{foo\\(12\\)(!a)
+  foo = !a
+
+a
+  +\\{foo\\(12\\)(12)
+SASS
+  end
+
   def test_interpolation
     assert_equal("a-1 {\n  b-2-3: c-3; }\n", render(<<SASS))
 !a = 1
@@ -942,6 +955,18 @@ a
 d
   e = !var-hyphen
   f = !var_under
+SASS
+  end
+
+  def test_css_identifier_variable
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: 12; }
+CSS
+!\\{foo\\(12\\) = 12
+
+a
+  b = !\\{foo\\(12\\)
 SASS
   end
 

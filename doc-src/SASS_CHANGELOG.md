@@ -123,6 +123,7 @@ after the first check.
 #### Variable and Mixin Names
 
 SassScript variable and mixin names may now contain hyphens.
+In fact, they may be any valid CSS3 identifier.
 For example:
 
     !prettiest-color = #542FA9
