@@ -63,6 +63,8 @@ MSG
     "foo\n  @import #{File.dirname(__FILE__)}/templates/basic" => "Import directives may only be used at the root of a document.",
     %Q{!foo = "bar" "baz" !} => %Q{Syntax error in '"bar" "baz" !' at character 20.},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
+    "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
+    "=foo\n  :color red\n.bar\n  +bang-bop" => "Undefined mixin 'bang-bop'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
     "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
     "    a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 1],
@@ -90,6 +92,8 @@ MSG
     "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
     "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "!b".',
     "=foo\n  !b = 12\nc\n  +foo\n  d = !b" => 'Undefined variable: "!b".',
+    "c\n  d = !b-foo" => 'Undefined variable: "!b-foo".',
+    "c\n  d = !b_foo" => 'Undefined variable: "!b_foo".',
     '@for !a from "foo" to 1' => '"foo" is not an integer.',
     '@for !a from 1 to "2"' => '"2" is not an integer.',
     '@for !a from 1 to "foo"' => '"foo" is not an integer.',
@@ -738,6 +742,24 @@ three
 SASS
   end
 
+  def test_hyphen_underscore_insensitive_mixins
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: 12;
+  c: foo; }
+CSS
+=mixin-hyphen
+  b: 12
+
+=mixin_under
+  c: foo
+
+a
+  +mixin_hyphen
+  +mixin-under
+SASS
+  end
+
   def test_interpolation
     assert_equal("a-1 {\n  b-2-3: c-3; }\n", render(<<SASS))
 !a = 1
@@ -897,6 +919,29 @@ a
 b
   +foo
   d = !i
+SASS
+  end
+
+  def test_hyphen_underscore_insensitive_variables
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: c; }
+
+d {
+  e: 13;
+  f: foobar; }
+CSS
+!var-hyphen = 12
+!var_under = "foo"
+
+a
+  !var_hyphen = 1 + !var_hyphen
+  !var-under = !var-under + "bar"
+  b: c
+
+d
+  e = !var-hyphen
+  f = !var_under
 SASS
   end
 
