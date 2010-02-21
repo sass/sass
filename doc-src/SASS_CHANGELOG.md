@@ -120,7 +120,7 @@ after the first check.
 
 ### Syntax
 
-#### Variable Names
+#### Variable and Mixin Names
 
 SassScript variable and mixin names may now contain hyphens.
 For example:
