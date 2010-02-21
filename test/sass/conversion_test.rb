@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ToSassTest < Test::Unit::TestCase
+class ConversionTest < Test::Unit::TestCase
   def test_basic
     assert_renders <<SASS, <<SCSS
 foo bar
