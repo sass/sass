@@ -86,7 +86,7 @@ SCSS
   end
 
   def test_multiline_selector_without_commas
-    assert_renders <<SASS, <<SCSS
+    assert_scss_to_sass <<SASS, <<SCSS
 foo bar baz bang
   baz: bang
 SASS
@@ -159,7 +159,7 @@ SCSS
   end
 
   def test_multiline_properties
-assert_renders <<SASS, <<SCSS
+assert_scss_to_sass <<SASS, <<SCSS
 foo bar
   baz: bip bam boon
 SASS
@@ -172,7 +172,7 @@ SCSS
   end
 
   def test_multiline_dynamic_properties
-assert_renders <<SASS, <<SCSS
+assert_scss_to_sass <<SASS, <<SCSS
 foo bar
   baz= !bip "bam" 12px
 SASS
@@ -224,7 +224,6 @@ foo bar {
 SCSS
   end
 
-
   def test_loud_comments
 assert_renders <<SASS, <<SCSS
 /* foo
@@ -246,7 +245,7 @@ foo bar {
   a: b; }
 SCSS
 
-assert_renders <<SASS, <<SCSS
+assert_scss_to_sass <<SASS, <<SCSS
 /* foo
    bar
      baz
@@ -284,7 +283,7 @@ SCSS
   end
 
   def test_loud_comments_with_weird_indentation
-    assert_renders <<SASS, <<SCSS
+    assert_scss_to_sass <<SASS, <<SCSS
 foo
   /*      foo
      bar
@@ -297,6 +296,20 @@ bar
     baz */
   a: b; }
 SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  /*      foo
+   * bar
+   *     baz */
+  a: b; }
+SCSS
+foo
+  /*      foo
+     bar
+         baz
+  a: b
+SASS
   end
 
   def test_debug
@@ -509,7 +522,7 @@ SASS
     a: b; } }
 SCSS
 
-    assert_renders <<SASS, render(<<SCSS)
+    assert_scss_to_sass <<SASS, to_sass(<<SCSS)
 =foo-bar
   baz
     a: b
@@ -518,6 +531,16 @@ SASS
   baz {
     a: b; } }
 SCSS
+
+    assert_sass_to_scss <<SCSS, to_sass(<<SASS)
+@mixin foo-bar {
+  baz {
+    a: b; } }
+SCSS
+=foo-bar()
+  baz
+    a: b
+SASS
   end
 
   def test_mixin_definition_without_defaults
@@ -528,7 +551,7 @@ SCSS
 SASS
 @mixin foo-bar(!baz, !bang) {
   baz {
-    a = !baz !bang; } }
+    a= !baz !bang; } }
 SCSS
   end
 
@@ -540,7 +563,7 @@ SCSS
 SASS
 @mixin foo-bar(!baz, !bang = 12px) {
   baz {
-    a = !baz !bang; } }
+    a= !baz !bang; } }
 SCSS
   end
 
@@ -580,7 +603,7 @@ SASS
 
 foo {
   !var2 = flaz(#abcdef);
-  val = !var1 !var2; }
+  val= !var1 !var2; }
 SCSS
   end
 
@@ -596,28 +619,44 @@ SASS
 
 foo {
   !var2 ||= flaz(#abcdef);
-  val = !var1 !var2; }
+  val= !var1 !var2; }
 SCSS
   end
 
   private
 
   def assert_sass_to_sass(sass, options = {})
-    assert_equal(sass.rstrip, render(sass, options).rstrip,
+    assert_equal(sass.rstrip, to_sass(sass, options).rstrip,
       "Expected Sass to transform to itself")
   end
 
   def assert_scss_to_sass(sass, scss, options = {})
-    assert_equal(sass.rstrip, render(scss, options.merge(:syntax => :scss)).rstrip,
+    assert_equal(sass.rstrip, to_sass(scss, options.merge(:syntax => :scss)).rstrip,
       "Expected SCSS to transform to Sass")
+  end
+
+  def assert_scss_to_scss(scss, options = {})
+    assert_equal(scss.rstrip, to_scss(scss, options.merge(:syntax => :scss)).rstrip,
+      "Expected SCSS to transform to itself")
+  end
+
+  def assert_sass_to_scss(scss, sass, options = {})
+    assert_equal(scss.rstrip, to_scss(sass, options).rstrip,
+      "Expected Sass to transform to SCSS")
   end
 
   def assert_renders(sass, scss, options = {})
     assert_sass_to_sass(sass, options)
     assert_scss_to_sass(sass, scss, options)
+    assert_scss_to_scss(scss, options)
+    assert_sass_to_scss(scss, sass, options)
   end
 
-  def render(scss, options = {})
+  def to_sass(scss, options = {})
     Sass::Engine.new(scss, options).to_tree.to_sass(options)
+  end
+
+  def to_scss(sass, options = {})
+    Sass::Engine.new(sass, options).to_tree.to_scss(options)
   end
 end

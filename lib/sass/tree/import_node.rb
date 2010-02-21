@@ -29,18 +29,14 @@ module Sass
       end
 
       def to_sass(tabs = 0, opts = {})
-        to_src(tabs, opts, :sass)
+        "#{'  ' * tabs}@import #{@imported_filename}\n"
       end
 
       def to_scss(tabs = 0, opts = {})
-        to_src(tabs, opts, :scss)
+        "#{'  ' * tabs}@import \"#{@imported_filename}\";\n"
       end
 
       protected
-
-      def to_src(tabs, opts, fmt)
-        "#{'  ' * tabs}@import #{@imported_filename}#{semi fmt}\n"
-      end
 
       # @see Node#_cssize
       def _cssize(*args)

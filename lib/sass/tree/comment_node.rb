@@ -73,7 +73,11 @@ module Sass::Tree
 
     def to_scss(tabs, opts = {})
       spaces = ('  ' * [tabs - value[/^ */].size, 0].max)
-      value.gsub(/^/, spaces) + "\n"
+      if silent
+        value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
+      else
+        value
+      end.gsub(/^/, spaces) + "\n"
     end
 
     protected
