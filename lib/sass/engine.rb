@@ -301,6 +301,7 @@ MSG
 
     def append_children(parent, children, root)
       continued_rule = nil
+      continued_comment = nil
       children.each do |line|
         child = build_tree(parent, line, root)
 
@@ -321,6 +322,17 @@ MSG
           continued_rule.add_rules child
           continued_rule.children = child.children
           continued_rule, child = nil, continued_rule
+        end
+
+        if child.is_a?(Tree::CommentNode) && child.silent
+          if continued_comment &&
+              child.line == continued_comment.line +
+              continued_comment.value.count("\n") + 1
+            continued_comment.value << "\n" << child.value
+            next
+          end
+
+          continued_comment = child
         end
 
         check_for_no_children(child)

@@ -252,6 +252,24 @@ SASS
 foo bar {
   a: b; }
 SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+// foo
+// bar
+//   baz
+// bang
+
+foo bar {
+  a: b; }
+SCSS
+// foo
+// bar
+//   baz
+// bang
+
+foo bar
+  a: b
+SASS
   end
 
   def test_loud_comments
