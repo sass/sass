@@ -102,7 +102,7 @@ and all of them will be watched:
 File and directory watching is accessible from Ruby,
 using the {Sass::Plugin#watch} function.
 
-### Bulk Updating
+#### Bulk Updating
 
 Another new flag for the `sass` command-line utility is `--update`.
 It checks a group of Sass files to see if their CSS needs to be updated,
@@ -118,14 +118,31 @@ In fact, `--update` work exactly the same as `--watch`,
 except that it doesn't continue watching the files
 after the first check.
 
-### Variable Names
+### Syntax
 
-SassScript variable names may now contain hyphens.
+#### Variable and Mixin Names
+
+SassScript variable and mixin names may now contain hyphens.
+In fact, they may be any valid CSS3 identifier.
 For example:
 
     !prettiest-color = #542FA9
+    =pretty-text
+      color = !prettiest-color
 
-### Single-Quoted Strings
+In order to allow frameworks like [Compass](http://compass-style.org)
+to use hyphens in variable names
+while maintaining backwards-compatibility,
+variables and mixins using hyphens may be referred to
+with underscores, and vice versa.
+For example:
+
+    !prettiest-color = #542FA9
+    .pretty
+      // Using an underscore instead of a hyphen works
+      color = !prettiest_color
+
+#### Single-Quoted Strings
 
 SassScript now supports single-quoted strings.
 They behave identically to double-quoted strings,

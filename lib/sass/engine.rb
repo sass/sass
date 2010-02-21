@@ -494,8 +494,10 @@ WARNING
       nil
     end
 
+    # @private
+    MIXIN_DEF_RE = /^=\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_definition(line)
-      name, arg_string = line.text.scan(/^=\s*([^(]+)(.*)$/).first
+      name, arg_string = line.text.scan(MIXIN_DEF_RE).first
       raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
@@ -505,8 +507,10 @@ WARNING
       Tree::MixinDefNode.new(name, args)
     end
 
+    # @private
+    MIXIN_INCLUDE_RE = /^\+\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_include(line, root)
-      name, arg_string = line.text.scan(/^\+\s*([^(]+)(.*)$/).first
+      name, arg_string = line.text.scan(MIXIN_INCLUDE_RE).first
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size

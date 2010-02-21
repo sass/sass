@@ -43,10 +43,16 @@ module Sass
       def inherited_hash(name)
         class_eval <<RUBY, __FILE__, __LINE__ + 1
           def #{name}(name)
-            @#{name}s[name] || @parent && @parent.#{name}(name)
+            _#{name}(name.gsub('_', '-'))
           end
 
+          def _#{name}(name)
+            @#{name}s[name] || @parent && @parent._#{name}(name)
+          end
+          protected :_#{name}
+
           def set_#{name}(name, value)
+            name = name.gsub('_', '-')
             @#{name}s[name] = value unless try_set_#{name}(name, value)
           end
 
@@ -63,7 +69,7 @@ module Sass
           protected :try_set_#{name}
 
           def set_local_#{name}(name, value)
-            @#{name}s[name] = value
+            @#{name}s[name.gsub('_', '-')] = value
           end
 RUBY
       end
