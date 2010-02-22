@@ -3,5 +3,11 @@
 require File.dirname(__FILE__) + '/../lib/haml'
 require 'haml/exec'
 
-opts = Haml::Exec::CSS2Sass.new(ARGV)
+warn <<END
+DEPRECATION WARNING:
+The css2sass tool is deprecated and will be removed in Sass 3.2.
+Use the sass-convert tool instead.
+END
+
+opts = Haml::Exec::SassConvert.new(%w[--from css --to sass] + ARGV)
 opts.parse!
