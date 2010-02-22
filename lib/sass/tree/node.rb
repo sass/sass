@@ -328,8 +328,8 @@ module Sass
       # Returns an error message if the given child node is invalid,
       # and false otherwise.
       #
-      # By default, all child nodes except those only allowed at root level
-      # ({Tree::MixinDefNode}, {Tree::ImportNode}) are valid.
+      # By default, all child nodes except those only allowed under specific nodes
+      # ({Tree::MixinDefNode}, {Tree::ImportNode}, {Tree::ExtendNode}) are valid.
       # This is expected to be overriden by subclasses
       # for which some children are invalid.
       #
@@ -342,6 +342,8 @@ module Sass
           "Mixins may only be defined at the root of a document."
         when Tree::ImportNode
           "Import directives may only be used at the root of a document."
+        when Tree::ExtendNode
+          "Extend directives may only be used within rules."
         end
       end
 
