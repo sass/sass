@@ -40,7 +40,7 @@ module Sass
       end
 
       def s(node)
-        while tok(S) || tok(CDC) || tok(CDO) || tok(SINGLE_LINE_COMMENT) || (c = tok(COMMENT))
+        while tok(S) || tok(CDC) || tok(CDO) || (c = tok(SINGLE_LINE_COMMENT)) || (c = tok(COMMENT))
           next unless c
           process_comment c, node
           c = nil
@@ -54,7 +54,7 @@ module Sass
       end
 
       def ss_comments(node)
-        while tok(S) || tok(SINGLE_LINE_COMMENT) || (c = tok(COMMENT))
+        while tok(S) || (c = tok(SINGLE_LINE_COMMENT)) || (c = tok(COMMENT))
           next unless c
           process_comment c, node
           c = nil
@@ -69,8 +69,15 @@ module Sass
       end
 
       def process_comment(text, node)
-        pre_str = @scanner.string[/(?:\A|\n)(.*)\/\*/, 1].gsub(/[^\s]/, ' ')
-        node << Sass::Tree::CommentNode.new(pre_str + text, false)
+        single_line = text =~ /^\/\//
+        pre_str = single_line ? "" : @scanner.
+          string[0...@scanner.pos].
+          reverse[/.*?\*\/(.*?)($|\Z)/, 1].
+          reverse.gsub(/[^\s]/, ' ')
+        text = text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */' if single_line
+        comment = Sass::Tree::CommentNode.new(pre_str + text, single_line)
+        comment.line = @line - text.count("\n")
+        node << comment
       end
 
       DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import, :media]

@@ -24,13 +24,10 @@ SASS
     assert_equal(<<SASS, css2sass(<<CSS))
 li
   display: none
-
   a
     text-decoration: none
-
     span
       color: yellow
-
     &:hover
       text-decoration: underline
 SASS
@@ -57,10 +54,8 @@ CSS
 div .warning
   color: #d21a19
 
-
 span .debug
   cursor: crosshair
-
 
 div .debug
   cursor: default
@@ -104,27 +99,34 @@ span.turkey {
 } /* just a line here */
 CSS
     sass = <<SASS
+/* comment
+
 elephant.rawr
   rampages: excessively
 
+/* actual multiline
+  comment
 
 span.turkey
   isdinner: true
 
-
 .turducken
+  /* Sounds funny
+     doesn't it
   chimera: not_really
-
 
 #overhere
   bored: sorta
+  /*                  it's for a good
+     cause
   better_than: thread_pools
-
 
 #one_more
   finally: srsly
+
+/* just a line here
 SASS
-    assert_equal(css2sass(css), sass)
+    assert_equal(sass, css2sass(css))
   end
 
   def test_fold_commas
@@ -145,11 +147,9 @@ CSS
 .one
   color: green
 
-
 .two
   color: green
   color: red
-
 
 .three
   color: red
@@ -168,19 +168,14 @@ CSS
     assert_equal(<<SASS, css2sass(<<CSS))
 hello
   parent: true
-
   there
     parent: false
-
   who
     hoo: false
-
   why
     y: true
-
   when
     wen: nao
-
 
 down_here
   yeah: true
@@ -214,7 +209,6 @@ CSS
   #location-navigation-form .form-submit, #business-listing-form .form-submit, #detailTabs ul, #detailsEnhanced #addTags, #locationSearchList, #moreHoods
     display: none
 
-
 #navListLeft
   display: none
 SASS
@@ -235,7 +229,6 @@ CSS
     assert_equal(<<SASS, css2sass(<<CSS))
 \\:focus
   a: b
-
   \\:foo
     bar: baz
 SASS

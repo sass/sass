@@ -82,6 +82,31 @@ module Sass::Tree
 
     protected
 
+    def to_src(tabs, opts, fmt)
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
+      old = opts[:old] && fmt == :sass
+      initial = old ? ':' : ''
+
+      if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
+        mid = '='
+        value = self.value.first.to_sass
+      else
+        mid = old ? '' : ':'
+        value = self.value.map do |n|
+          if n.is_a?(String)
+            fmt == :sass ? n.gsub(/\n\s*/, " ") : n
+          else
+            "\#{#{n.to_sass}}"
+          end
+        end.join
+      end
+
+      value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}") if fmt == :scss
+      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}"
+      return res + "#{semi fmt}\n" if children.empty?
+      res.rstrip + children_to_src(tabs, opts, fmt)
+    end
+
     # Computes the CSS for the property.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS

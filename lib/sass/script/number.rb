@@ -235,6 +235,7 @@ module Sass::Script
         end
       "#{value}#{unit_str}"
     end
+    alias_method :to_sass, :inspect
 
     # @return [Fixnum] The integer value of the number
     # @raise [Sass::SyntaxError] if the number isn't an integer

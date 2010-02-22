@@ -22,6 +22,12 @@ module Sass::Tree
 
     protected
 
+    def to_src(tabs, opts, fmt)
+      res = "#{'  ' * tabs}#{value}"
+      return res + "#{semi fmt}\n" if children.empty?
+      res + children_to_src(tabs, opts, fmt) + "\n"
+    end
+
     # Computes the CSS for the directive.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS

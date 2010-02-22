@@ -301,6 +301,7 @@ MSG
 
     def append_children(parent, children, root)
       continued_rule = nil
+      continued_comment = nil
       children.each do |line|
         child = build_tree(parent, line, root)
 
@@ -321,6 +322,17 @@ MSG
           continued_rule.add_rules child
           continued_rule.children = child.children
           continued_rule, child = nil, continued_rule
+        end
+
+        if child.is_a?(Tree::CommentNode) && child.silent
+          if continued_comment &&
+              child.line == continued_comment.line +
+              continued_comment.value.count("\n") + 1
+            continued_comment.value << "\n" << child.value
+            next
+          end
+
+          continued_comment = child
         end
 
         check_for_no_children(child)
@@ -417,9 +429,10 @@ WARNING
 
     def parse_comment(line)
       if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
+        silent = line[1] == SASS_COMMENT_CHAR
         Tree::CommentNode.new(
-          format_comment_text(line[2..-1].strip),
-          line[1] == SASS_COMMENT_CHAR)
+          format_comment_text(line[2..-1], silent),
+          silent)
       else
         Tree::RuleNode.new(parse_interp(line))
       end
@@ -526,13 +539,23 @@ WARNING
       Script.parse(script, line, offset, @options)
     end
 
-    def format_comment_text(text)
+    def format_comment_text(text, silent)
       content = text.split("\n")
-      return "/* */" if content.empty?
+
+      if content.first && content.first.strip.empty?
+        removed_first = true
+        content.shift
+      end
+
+      return silent ? "//" : "/* */" if content.empty?
       content.map! {|l| (l.empty? ? "" : " ") + l}
-      content.first.gsub!(/^ /, '')
+      content.first.gsub!(/^ /, '') unless removed_first
       content.last.gsub!(%r{ ?\*/ *$}, '')
-      "/* " + content.join("\n *") + " */"
+      if silent
+        "//" + content.join("\n//")
+      else
+        "/*" + content.join("\n *") + " */"
+      end
     end
 
     def parse_interp(text)

@@ -381,7 +381,7 @@ END
       return HTML4_COLORS_REVERSE[rgb] if HTML4_COLORS_REVERSE[rgb]
       hex_str
     end
-    alias_method :inspect, :to_s
+    alias_method :to_sass, :to_s
 
     # Returns a string representation of the color.
     #

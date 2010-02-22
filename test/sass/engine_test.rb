@@ -1147,7 +1147,7 @@ SOURCE
 RESULT
 .box
   :border
-    /*:color black
+    /* :color black
     :style solid
 SOURCE
 

@@ -17,6 +17,13 @@ module Sass::Script
       "(#{@operator.inspect} #{@operand.inspect})"
     end
 
+    # @see Node#to_sass
+    def to_sass
+      operand = @operand.is_a?(Operation) ? "(#{@operand.to_sass})" : @operand.to_sass
+      op = Lexer::OPERATORS_REVERSE[@operator]
+      op + (op =~ /[a-z]/ ? " " : "") + operand
+    end
+
     # Returns the operand of the operation.
     #
     # @return [Array<Node>]

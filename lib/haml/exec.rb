@@ -533,12 +533,13 @@ END
       end
     end
 
-    # The `css2sass` executable.
-    class CSS2Sass < Generic
+    # The `sass-convert` executable.
+    class SassConvert < Generic
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
-        @module_opts = {}
+        @options[:for_tree] = {}
+        @options[:for_engine] = {}
       end
 
       # Tells optparse how to parse the arguments.
@@ -546,18 +547,37 @@ END
       # @param opts [OptionParser]
       def set_opts(opts)
         opts.banner = <<END
-Usage: css2sass [options] [INPUT] [OUTPUT]
+Usage: sass-convert [options] [INPUT] [OUTPUT]
 
-Description: Transforms a CSS file into corresponding Sass code.
+Description:
+  Converts between CSS, Sass, and SCSS files.
+  E.g. converts from SCSS to Sass,
+  or converts from CSS to SCSS (adding appropriate nesting).
 
 Options:
 END
 
-        opts.on('--old', 'Output the old-style ":prop val" property syntax') do
-          @module_opts[:old] = true
+        opts.on('-F', '--from FORMAT',
+          'The format to convert from. Can be css, scss, or sass.',
+          'By default, this is inferred from the input filename.') do |name|
+          @options[:from] = name.downcase.to_sym
         end
 
-        opts.on_tail('-a', '--alternate', 'Ignored') {}
+        opts.on('-T', '--to FORMAT',
+          'The format to convert to. Can be scss or sass.',
+          'By default, this is inferred from the output filename.') do |name|
+          @options[:to] = name.downcase.to_sym
+          @options[:for_engine][:syntax] = @options[:to]
+        end
+
+        opts.on('--old', 'Output the old-style ":prop val" property syntax.',
+                         'Only meaningful when generating Sass.') do
+          @options[:for_tree][:old] = true
+        end
+
+        opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
+          @options[:for_engine][:cache] = false
+        end
 
         super
       end
@@ -567,12 +587,40 @@ END
       def process_result
         super
 
-        require 'sass/css'
-
         input = @options[:input]
         output = @options[:output]
 
-        output.write(::Sass::CSS.new(input, @module_opts).render)
+        if input.is_a?(File)
+          @options[:from] ||=
+            case input.path
+            when /\.scss$/; :scss
+            when /\.sass$/; :sass
+            when /\.css$/; :css
+            end
+        end
+
+        if output.is_a?(File)
+          @options[:to] ||=
+            case input.path
+            when /\.scss$/; :scss
+            when /\.sass$/; :sass
+            end
+        end
+
+        out =
+          if @options[:from] == :css
+            require 'sass/css'
+            ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
+          else
+            require 'sass'
+            if input.is_a?(File)
+              ::Sass::Files.tree_for(input.path, @options[:for_engine])
+            else
+              ::Sass::Engine.new(input.read, @options[:for_engine]).to_tree
+            end.send("to_#{@options[:to]}", @options[:for_tree])
+          end
+
+        output.write(out)
       rescue ::Sass::SyntaxError => e
         raise e if @options[:trace]
         raise "Syntax error on line #{get_line e}: #{e.message}\n  Use --trace for backtrace"

@@ -97,13 +97,41 @@ module Sass::Tree
     #
     # @param node [RuleNode] The other node
     def add_rules(node)
-      @rule += ["\n"] + node.rule
+      @rule = Haml::Util.strip_string_array(
+        Haml::Util.merge_adjacent_strings(@rule + ["\n"] + node.rule))
     end
 
     # @return [Boolean] Whether or not this rule is continued on the next line
     def continued?
       last = @rule.last
       last.is_a?(String) && last[-1] == ?,
+    end
+
+    # @see Node#to_sass
+    def to_sass(tabs, opts = {})
+      name = rule.map do |r|
+        if r.is_a?(String)
+          r.gsub(/(,[ \t]*)?\n\s*/) {$1 ? $1 + "\n" : " "}
+        else
+          "\#{#{r.to_sass}}"
+        end
+      end.join
+      name = "\\" + name if name[0] == ?:
+      name.gsub(/^/, '  ' * tabs) + children_to_src(tabs, opts, :sass)
+    end
+
+    def to_scss(tabs, opts = {})
+      name = rule.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass}}"}.
+        join.gsub(/^[ \t]*/, '  ' * tabs)
+
+      res = name + children_to_src(tabs, opts, :scss)
+
+      if children.last.is_a?(CommentNode) && children.last.silent
+        res.slice!(-3..-1)
+        res << "\n" << ('  ' * tabs) << "}\n"
+      end
+
+      res
     end
 
     protected

@@ -28,6 +28,14 @@ module Sass
         @full_filename ||= import
       end
 
+      def to_sass(tabs = 0, opts = {})
+        "#{'  ' * tabs}@import #{@imported_filename}\n"
+      end
+
+      def to_scss(tabs = 0, opts = {})
+        "#{'  ' * tabs}@import \"#{@imported_filename}\";\n"
+      end
+
       protected
 
       # @see Node#_cssize

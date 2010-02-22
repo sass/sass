@@ -4,70 +4,22 @@ require 'sass/scss/css_parser'
 require 'strscan'
 
 module Sass
-  module Tree
-    class Node
-      # Converts a node to Sass code that will generate it.
-      #
-      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @return [String] The Sass code corresponding to the node
-      def to_sass(tabs = 0, opts = {})
-        result = ''
-
-        children.each do |child|
-          result << "#{'  ' * tabs}#{child.to_sass(0, opts)}\n"
-        end
-
-        result
-      end
-    end
-
-    class RuleNode
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {})
-        name = rule.first
-        name = "\\" + name if name[0] == ?:
-        str = "\n#{'  ' * tabs}#{name}#{children.any? { |c| c.is_a? PropNode } ? "\n" : ''}"
-
-        children.each do |child|
-          str << "#{child.to_sass(tabs + 1, opts)}"
-        end
-
-        str
-      end
-    end
-
-    class PropNode
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {})
-        "#{'  ' * tabs}#{opts[:old] ? ':' : ''}#{name.first}#{opts[:old] ? '' : ':'} #{value.first}\n"
-      end
-    end
-
-    class DirectiveNode
-      # @see Node#to_sass
-      def to_sass(tabs, opts = {})
-        "#{'  ' * tabs}#{value}#{children.map {|c| c.to_sass(tabs + 1, opts)}}\n"
-      end
-    end
-  end
-
-  # This class converts CSS documents into Sass templates.
+  # This class converts CSS documents into Sass or SCSS templates.
   # It works by parsing the CSS document into a {Sass::Tree} structure,
   # and then applying various transformations to the structure
-  # to produce more concise and idiomatic Sass.
+  # to produce more concise and idiomatic Sass/SCSS.
   #
   # Example usage:
   #
-  #     Sass::CSS.new("p { color: blue }").render #=> "p\n  color: blue"
+  #     Sass::CSS.new("p { color: blue }").render(:sass) #=> "p\n  color: blue"
+  #     Sass::CSS.new("p { color: blue }").render(:scss) #=> "p {\n  color: blue; }"
   class CSS
     # @param template [String] The CSS code
     # @option options :old [Boolean] (false)
     #     Whether or not to output old property syntax
     #     (`:color blue` as opposed to `color: blue`).
-    # @option options :filename [String]
-    #     The filename of the CSS file being processed.
-    #     Used for error reporting
+    #     This is only meaningful when generating Sass code,
+    #     rather than SCSS.
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
@@ -79,12 +31,17 @@ module Sass
       @template = template
     end
 
-    # Converts the CSS template into Sass code.
+    # Converts the CSS template into Sass or SCSS code.
     #
-    # @return [String] The resulting Sass code
+    # @param fmt [Symbol] `:sass` or `:scss`, designating the format to return.
+    # @return [String] The resulting Sass or SCSS code
     # @raise [Sass::SyntaxError] if there's an error parsing the CSS template
-    def render
-      build_tree.to_sass(0, @options).strip + "\n"
+    def render(fmt = :sass)
+      Haml::Util.check_encoding(@template) do |msg, line|
+        raise Sass::SyntaxError.new(msg, :line => line)
+      end
+
+      build_tree.send("to_#{fmt}", @options).strip + "\n"
     rescue Sass::SyntaxError => err
       err.modify_backtrace(:filename => @options[:filename] || '(css)')
       raise err
@@ -168,13 +125,13 @@ module Sass
     # @param root [Tree::Node] The parent node
     def parent_ref_rules(root)
       current_rule = nil
-      root.children.select { |c| Tree::RuleNode === c }.each do |child|
-        root.children.delete child
+      root.children.map! do |child|
+        next child unless child.is_a?(Tree::RuleNode)
+
         first, rest = child.rule.first.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
 
         if current_rule.nil? || current_rule.rule.first != first
           current_rule = Tree::RuleNode.new([first])
-          root << current_rule
         end
 
         if rest
@@ -183,7 +140,11 @@ module Sass
         else
           current_rule.children += child.children
         end
+
+        current_rule
       end
+      root.children.compact!
+      root.children.uniq!
 
       root.children.each { |v| parent_ref_rules(v) }
     end

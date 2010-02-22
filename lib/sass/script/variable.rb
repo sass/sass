@@ -16,6 +16,7 @@ module Sass
       def inspect
         "!#{name}"
       end
+      alias_method :to_sass, :inspect
 
       # Returns an empty array.
       #
