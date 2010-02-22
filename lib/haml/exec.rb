@@ -539,6 +539,7 @@ END
       def initialize(args)
         super
         @options[:for_tree] = {}
+        @options[:for_engine] = {}
       end
 
       # Tells optparse how to parse the arguments.
