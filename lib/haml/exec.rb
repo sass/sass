@@ -584,6 +584,23 @@ END
         input = @options[:input]
         output = @options[:output]
 
+        if input.is_a?(File)
+          @options[:from] ||=
+            case input.path
+            when /\.scss$/; :scss
+            when /\.sass$/; :sass
+            when /\.css$/; :css
+            end
+        end
+
+        if output.is_a?(File)
+          @options[:to] ||=
+            case input.path
+            when /\.scss$/; :scss
+            when /\.sass$/; :sass
+            end
+        end
+
         out =
           if @options[:from] == :css
             require 'sass/css'
