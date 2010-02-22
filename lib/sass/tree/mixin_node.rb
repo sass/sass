@@ -29,9 +29,12 @@ module Sass::Tree
 
     # @see Node#_cssize
     def _cssize(extends, parent)
-      children.map {|c| c.cssize(extends, parent)}.flatten
+      children.map do |c|
+        parent.check_child! c
+        c.cssize(extends, parent)
+      end.flatten
     rescue Sass::SyntaxError => e
-      e.modify_backtrace(:mixin => @name, :line => line)
+      e.modify_backtrace(:mixin => @name, :filename => filename, :line => line)
       e.add_backtrace(:filename => filename, :line => line)
       raise e
     end

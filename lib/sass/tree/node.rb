@@ -89,10 +89,19 @@ module Sass
       # @see #invalid_child?
       def <<(child)
         return if child.nil?
+        check_child! child
+        @children << child
+      end
+
+      # Raises an error if the given child node is invalid.
+      #
+      # @param child [Tree::Node] The child node
+      # @raise [Sass::SyntaxError] if `child` is invalid
+      # @see #invalid_child?
+      def check_child!(child)
         if msg = invalid_child?(child)
           raise Sass::SyntaxError.new(msg, :line => child.line)
         end
-        @children << child
       end
 
       # Compares this node and another object (only other {Tree::Node}s will be equal).

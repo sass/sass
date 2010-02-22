@@ -72,37 +72,16 @@ module Sass::Tree
     # This only applies for old-style properties with no value,
     # so returns the empty string if this is new-style.
     #
-    # This should only be called once \{#perform} has been called.
-    #
     # @return [String] The message
     def pseudo_class_selector_message
-      return "" if @prop_syntax == :new || !resolved_value.empty?
+      return "" if @prop_syntax == :new || !value.all? {|s| s.is_a?(String) && s.empty?}
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
     protected
 
     def to_src(tabs, opts, fmt)
-      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
-      old = opts[:old] && fmt == :sass
-      initial = old ? ':' : ''
-
-      if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
-        mid = '='
-        value = self.value.first.to_sass
-      else
-        mid = old ? '' : ':'
-        value = self.value.map do |n|
-          if n.is_a?(String)
-            fmt == :sass ? n.gsub(/\n\s*/, " ") : n
-          else
-            "\#{#{n.to_sass}}"
-          end
-        end.join
-      end
-
-      value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}") if fmt == :scss
-      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}"
+      res = declaration(tabs, opts, fmt)
       return res + "#{semi fmt}\n" if children.empty?
       res.rstrip + children_to_src(tabs, opts, fmt)
     end
@@ -180,12 +159,27 @@ module Sass::Tree
       end
     end
 
-    def declaration
-      if @prop_syntax == :new
-        "#{resolved_name}: #{resolved_value}"
+    def declaration(tabs = 0, opts = {:old => @prop_syntax == :old}, fmt = :sass)
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
+      old = opts[:old] && fmt == :sass
+      initial = old ? ':' : ''
+
+      if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
+        mid = '='
+        value = self.value.first.to_sass
       else
-        ":#{resolved_name} #{resolved_value}"
-      end.strip
+        mid = old ? '' : ':'
+        value = self.value.map do |n|
+          if n.is_a?(String)
+            fmt == :sass ? n.gsub(/\n\s*/, " ") : n
+          else
+            "\#{#{n.to_sass}}"
+          end
+        end.join
+      end
+
+      value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}") if fmt == :scss
+      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}".rstrip
     end
   end
 end
