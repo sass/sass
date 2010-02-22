@@ -4,19 +4,22 @@ require 'sass/scss/css_parser'
 require 'strscan'
 
 module Sass
-  # This class converts CSS documents into Sass templates.
+  # This class converts CSS documents into Sass or SCSS templates.
   # It works by parsing the CSS document into a {Sass::Tree} structure,
   # and then applying various transformations to the structure
-  # to produce more concise and idiomatic Sass.
+  # to produce more concise and idiomatic Sass/SCSS.
   #
   # Example usage:
   #
-  #     Sass::CSS.new("p { color: blue }").render #=> "p\n  color: blue"
+  #     Sass::CSS.new("p { color: blue }").render(:sass) #=> "p\n  color: blue"
+  #     Sass::CSS.new("p { color: blue }").render(:scss) #=> "p {\n  color: blue; }"
   class CSS
     # @param template [String] The CSS code
     # @option options :old [Boolean] (false)
     #     Whether or not to output old property syntax
     #     (`:color blue` as opposed to `color: blue`).
+    #     This is only meaningful when generating Sass code,
+    #     rather than SCSS.
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
@@ -28,16 +31,17 @@ module Sass
       @template = template
     end
 
-    # Converts the CSS template into Sass code.
+    # Converts the CSS template into Sass or SCSS code.
     #
-    # @return [String] The resulting Sass code
+    # @param fmt [Symbol] `:sass` or `:scss`, designating the format to return.
+    # @return [String] The resulting Sass or SCSS code
     # @raise [Sass::SyntaxError] if there's an error parsing the CSS template
-    def render
+    def render(fmt = :sass)
       Haml::Util.check_encoding(@template) do |msg, line|
         raise Sass::SyntaxError.new(msg, :line => line)
       end
 
-      build_tree.to_sass(@options).strip + "\n"
+      build_tree.send("to_#{fmt}", @options).strip + "\n"
     rescue Sass::SyntaxError => err
       err.modify_backtrace(:filename => @options[:filename] || '(css)')
       raise err
