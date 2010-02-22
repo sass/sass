@@ -29,6 +29,14 @@ class SassScriptConversionTest < Test::Unit::TestCase
   def test_string
     assert_renders '"foo"'
     assert_renders '"bar baz"'
+    assert_equal '"baz bang"', render("'baz bang'")
+  end
+
+  def test_string_quotes
+    assert_equal "'quote\"quote'", render('"quote\\"quote"')
+    assert_equal '"quote\'quote"', render("'quote\\'quote'")
+    assert_renders '"quote\'quote\\"quote"'
+    assert_equal '"quote\'quote\\"quote"', render("'quote\\'quote\"quote'")
   end
 
   def test_funcall

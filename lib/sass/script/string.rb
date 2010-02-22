@@ -11,7 +11,9 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass
-      "\"#{value}\""
+      return "\"#{value}\"" unless value.include?('"')
+      return "'#{value}'" unless value.include?("'")
+      "\"#{value.gsub('"', "\\\"")}\"" #'
     end
   end
 end
