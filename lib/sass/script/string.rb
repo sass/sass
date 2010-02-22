@@ -11,6 +11,8 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass
+      # Replace single backslashes with double. Really.
+      value = self.value.gsub("\\", "\\\\\\\\")
       return "\"#{value}\"" unless value.include?('"')
       return "'#{value}'" unless value.include?("'")
       "\"#{value.gsub('"', "\\\"")}\"" #'

@@ -39,6 +39,10 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_equal '"quote\'quote\\"quote"', render("'quote\\'quote\"quote'")
   end
 
+  def test_string_escapes
+    assert_renders '"foo\\\\bar"'
+  end
+
   def test_funcall
     assert_renders "foo(true, blue)"
     assert_renders "hsla(20deg, 30%, 50%, 0.3)"
