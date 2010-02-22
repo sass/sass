@@ -601,7 +601,7 @@ END
 
         if output.is_a?(File)
           @options[:to] ||=
-            case input.path
+            case output.path
             when /\.scss$/; :scss
             when /\.sass$/; :sass
             end
