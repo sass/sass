@@ -556,13 +556,13 @@ Description:
 Options:
 END
 
-        opts.on('-f', '--from FORMAT',
+        opts.on('-F', '--from FORMAT',
           'The format to convert from. Can be css, scss, or sass.',
           'By default, this is inferred from the input filename.') do |name|
           @options[:from] = name.downcase.to_sym
         end
 
-        opts.on('-t', '--to FORMAT',
+        opts.on('-T', '--to FORMAT',
           'The format to convert to. Can be scss or sass.',
           'By default, this is inferred from the output filename.') do |name|
           @options[:to] = name.downcase.to_sym
