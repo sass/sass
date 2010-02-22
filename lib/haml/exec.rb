@@ -559,13 +559,15 @@ END
 
         opts.on('-F', '--from FORMAT',
           'The format to convert from. Can be css, scss, or sass.',
-          'By default, this is inferred from the input filename.') do |name|
+          'By default, this is inferred from the input filename.',
+          'If there is none, defaults to css.') do |name|
           @options[:from] = name.downcase.to_sym
         end
 
         opts.on('-T', '--to FORMAT',
           'The format to convert to. Can be scss or sass.',
-          'By default, this is inferred from the output filename.') do |name|
+          'By default, this is inferred from the output filename.',
+          'If there is none, defaults to sass.') do |name|
           @options[:to] = name.downcase.to_sym
           @options[:for_engine][:syntax] = @options[:to]
         end
@@ -606,6 +608,9 @@ END
             when /\.sass$/; :sass
             end
         end
+
+        @options[:from] ||= :css
+        @options[:to] ||= :sass
 
         out =
           if @options[:from] == :css
