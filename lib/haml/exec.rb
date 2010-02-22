@@ -569,7 +569,6 @@ END
           'By default, this is inferred from the output filename.',
           'If there is none, defaults to sass.') do |name|
           @options[:to] = name.downcase.to_sym
-          @options[:for_engine][:syntax] = @options[:to]
         end
 
         opts.on('--old', 'Output the old-style ":prop val" property syntax.',
@@ -611,6 +610,7 @@ END
 
         @options[:from] ||= :css
         @options[:to] ||= :sass
+        @options[:for_engine][:syntax] = @options[:from]
 
         out =
           if @options[:from] == :css
