@@ -23,14 +23,6 @@ module Sass::Script
       @value = value
     end
 
-    # Evaluates the literal.
-    #
-    # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Literal] This literal
-    def perform(environment)
-      self
-    end
-
     # Returns an empty array.
     #
     # @return [Array<Node>] empty
@@ -207,5 +199,15 @@ MSG
       raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Literal must implement #to_s.")
     end
     alias_method :to_sass, :to_s
+
+    protected
+
+    # Evaluates the literal.
+    #
+    # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
+    # @return [Literal] This literal
+    def _perform(environment)
+      self
+    end
   end
 end

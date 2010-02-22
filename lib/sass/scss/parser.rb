@@ -584,8 +584,11 @@ MESSAGE
       end
 
       def sass_script(*args)
-        ScriptParser.new(@scanner, @line,
-          @scanner.pos - (@scanner.string.rindex("\n") || 0)).send(*args)
+        parser = ScriptParser.new(@scanner, @line,
+          @scanner.pos - (@scanner.string.rindex("\n") || 0))
+        result = parser.send(*args)
+        @line = parser.line
+        result
       end
 
       EXPR_NAMES = {
