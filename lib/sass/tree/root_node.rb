@@ -81,7 +81,7 @@ module Sass
       # @param parent [Node, nil] The parent node of this node.
       #   This should only be non-nil if the parent is the same class as this node
       # @see Node#cssize!
-      def cssize!(parent)
+      def cssize!(extends, parent)
         super
         return unless child = children.find {|c| c.is_a?(PropNode)}
         message = "Properties aren't allowed at the root of a document." +

@@ -115,7 +115,8 @@ module Sass
       # @see #perform
       # @see #to_s
       def render
-        perform(Environment.new).cssize.to_s
+        extends = {}
+        perform(Environment.new).cssize(extends).to_s
       end
 
       # True if \{#to\_s} will return `nil`;
@@ -160,8 +161,8 @@ module Sass
       # @return [Tree::Node] The resulting tree of static nodes
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
-      def cssize(parent = nil)
-        _cssize((parent if parent.class == self.class))
+      def cssize(extends, parent = nil)
+        _cssize(extends, (parent if parent.class == self.class))
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename, :line => line)
         raise e
@@ -242,9 +243,9 @@ module Sass
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see #cssize
       # @see Sass::Tree
-      def _cssize(parent)
+      def _cssize(extends, parent)
         node = dup
-        node.cssize!(parent)
+        node.cssize!(extends, parent)
         node
       end
 
@@ -255,8 +256,8 @@ module Sass
       # @param parent [Node, nil] The parent node of this node.
       #   This should only be non-nil if the parent is the same class as this node
       # @see #cssize
-      def cssize!(parent)
-        self.children = children.map {|c| c.cssize(self)}.flatten
+      def cssize!(extends, parent)
+        self.children = children.map {|c| c.cssize(extends, self)}.flatten
       end
 
       # Runs any dynamic Sass code in this particular node.

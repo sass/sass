@@ -208,7 +208,7 @@ module Sass::Tree
     #
     # @param parent [RuleNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {RuleNode}
-    def _cssize(parent)
+    def _cssize(extends, parent)
       node = super
       rules = node.children.select {|c| c.is_a?(RuleNode)}
       props = node.children.reject {|c| c.is_a?(RuleNode) || c.invisible?}
@@ -230,7 +230,7 @@ module Sass::Tree
     # @param parent [RuleNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {RuleNode}
     # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
-    def cssize!(parent)
+    def cssize!(extends, parent)
       self.resolved_rules = resolve_parent_refs(parent && parent.resolved_rules)
       super
     end

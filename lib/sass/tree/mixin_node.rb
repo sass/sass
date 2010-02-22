@@ -16,8 +16,8 @@ module Sass::Tree
     end
 
     # @see Node#cssize
-    def cssize(parent = nil)
-      _cssize(parent) # Pass on the parent even if it's not a MixinNode
+    def cssize(extends, parent = nil)
+      _cssize(extends, parent) # Pass on the parent even if it's not a MixinNode
     end
 
     protected
@@ -28,8 +28,8 @@ module Sass::Tree
     end
 
     # @see Node#_cssize
-    def _cssize(parent)
-      children.map {|c| c.cssize(parent)}.flatten
+    def _cssize(extends, parent)
+      children.map {|c| c.cssize(extends, parent)}.flatten
     rescue Sass::SyntaxError => e
       e.modify_backtrace(:mixin => @name, :line => line)
       e.add_backtrace(:filename => filename, :line => line)
