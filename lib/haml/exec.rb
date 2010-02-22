@@ -566,11 +566,16 @@ END
           'The format to convert to. Can be scss or sass.',
           'By default, this is inferred from the output filename.') do |name|
           @options[:to] = name.downcase.to_sym
+          @options[:for_engine][:syntax] = @options[:to]
         end
 
         opts.on('--old', 'Output the old-style ":prop val" property syntax.',
                          'Only meaningful when generating Sass.') do
           @options[:for_tree][:old] = true
+        end
+
+        opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
+          @options[:for_engine][:cache] = false
         end
 
         super
@@ -608,9 +613,9 @@ END
           else
             require 'sass'
             if input.is_a?(File)
-              ::Sass::Files.tree_for(input.path, :syntax => @options[:from])
+              ::Sass::Files.tree_for(input.path, @options[:for_engine])
             else
-              ::Sass::Engine.new(input.read, :syntax => @options[:from]).to_tree
+              ::Sass::Engine.new(input.read, @options[:for_engine]).to_tree
             end.send("to_#{@options[:to]}", @options[:for_tree])
           end
 
