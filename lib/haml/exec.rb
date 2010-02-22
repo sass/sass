@@ -607,8 +607,11 @@ END
             ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
           else
             require 'sass'
-            ::Sass::Engine.new(input.read, :syntax => @options[:from]).
-              to_tree.send("to_#{@options[:to]}", @options[:for_tree])
+            if input.is_a?(File)
+              ::Sass::Files.tree_for(input.path, :syntax => @options[:from])
+            else
+              ::Sass::Engine.new(input.read, :syntax => @options[:from]).to_tree
+            end.send("to_#{@options[:to]}", @options[:for_tree])
           end
 
         output.write(out)
