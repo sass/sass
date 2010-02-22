@@ -17,26 +17,28 @@ module Sass::Script
       "(#{@operator.inspect} #{@operand.inspect})"
     end
 
-    # Evaluates the operation.
-    #
-    # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Literal] The SassScript object that is the value of the operation
-    # @raise [Sass::SyntaxError] if the operation is undefined for the operand
-    def perform(environment)
-      operator = "unary_#{@operator}"
-      literal = @operand.perform(environment)
-      literal.send(operator)
-    rescue NoMethodError => e
-      raise e unless e.name.to_s == operator.to_s
-      raise Sass::SyntaxError.new("Undefined unary operation: \"#{@operator} #{literal}\".")
-    end
-
     # Returns the operand of the operation.
     #
     # @return [Array<Node>]
     # @see Node#children
     def children
       [@operand]
+    end
+
+    protected
+
+    # Evaluates the operation.
+    #
+    # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
+    # @return [Literal] The SassScript object that is the value of the operation
+    # @raise [Sass::SyntaxError] if the operation is undefined for the operand
+    def _perform(environment)
+      operator = "unary_#{@operator}"
+      literal = @operand.perform(environment)
+      literal.send(operator)
+    rescue NoMethodError => e
+      raise e unless e.name.to_s == operator.to_s
+      raise Sass::SyntaxError.new("Undefined unary operation: \"#{@operator} #{literal}\".")
     end
   end
 end

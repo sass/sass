@@ -5,6 +5,13 @@ module Sass
     # The parser for SassScript.
     # It parses a string of code into a tree of {Script::Node}s.
     class Parser
+      # The line number of the parser's current position.
+      #
+      # @return [Fixnum]
+      def line
+        @lexer.line
+      end
+
       # @param str [String, StringScanner] The source text to parse
       # @param line [Fixnum] The line on which the SassScript appears.
       #   Used for error reporting
@@ -130,7 +137,9 @@ module Sass
             def #{name}
               return unless e = #{sub}
               while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
+                line = @lexer.line
                 e = Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
+                e.line = line
               end
               e
             end
@@ -141,7 +150,10 @@ RUBY
           class_eval <<RUBY
             def unary_#{op}
               return #{sub} unless try_tok(:#{op})
-              UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
+              line = @lexer.line
+              op = UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
+              op.line = line
+              op
             end
 RUBY
         end
@@ -154,7 +166,7 @@ RUBY
       def concat
         return unless e = or_expr
         while sub = or_expr
-          e = Operation.new(e, sub, :concat)
+          e = node(Operation.new(e, sub, :concat))
         end
         e
       end
@@ -178,7 +190,7 @@ RUBY
         # An identifier without arguments is just a string
         unless try_tok(:lparen)
           if color = Color::HTML4_COLORS[name.value]
-            return Color.new(color)
+            return node(Color.new(color))
           end
 
           filename = @options[:filename]
@@ -188,11 +200,11 @@ On line #{name.line}, character #{name.offset}#{" of '#{filename}'" if filename}
 Implicit strings have been deprecated and will be removed in version 3.0.
 '#{name.value}' was not quoted. Please add double quotes (e.g. "#{name.value}").
 END
-          Script::String.new(name.value)
+          node(Script::String.new(name.value))
         else
           args = arglist || []
           assert_tok(:rparen)
-          Script::Funcall.new(name.value, args)
+          node(Script::Funcall.new(name.value, args))
         end
       end
 
@@ -224,15 +236,18 @@ END
 
       def variable
         return string unless c = try_tok(:const)
-        Variable.new(c.value)
+        node(Variable.new(c.value))
       end
 
       def string
         return literal unless first = try_tok(:string)
         return first.value unless try_tok(:begin_interpolation)
+        line = @lexer.line
         mid = parse_interpolated
         last = assert_expr(:string)
-        Operation.new(first.value, Operation.new(mid, last, :plus), :plus)
+        op = Operation.new(first.value, node(Operation.new(mid, last, :plus)), :plus)
+        op.line = line
+        op
       end
 
       def literal
@@ -260,6 +275,11 @@ END
       def assert_done
         return if @lexer.done?
         raise Sass::SyntaxError.new("Unexpected #{@lexer.peek.type} token.")
+      end
+
+      def node(node)
+        node.line = @lexer.line
+        node
       end
     end
   end

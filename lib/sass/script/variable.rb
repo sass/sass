@@ -17,22 +17,24 @@ module Sass
         "!#{name}"
       end
 
-      # Evaluates the variable.
-      #
-      # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-      # @return [Literal] The SassScript object that is the value of the variable
-      # @raise [Sass::SyntaxError] if the variable is undefined
-      def perform(environment)
-        (val = environment.var(name)) && (return val)
-        raise SyntaxError.new("Undefined variable: \"!#{name}\".")
-      end
-
       # Returns an empty array.
       #
       # @return [Array<Node>] empty
       # @see Node#children
       def children
         []
+      end
+
+      protected
+
+      # Evaluates the variable.
+      #
+      # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
+      # @return [Literal] The SassScript object that is the value of the variable
+      # @raise [Sass::SyntaxError] if the variable is undefined
+      def _perform(environment)
+        (val = environment.var(name)) && (return val)
+        raise SyntaxError.new("Undefined variable: \"!#{name}\".")
       end
     end
   end

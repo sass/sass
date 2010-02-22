@@ -824,7 +824,7 @@ SCSS
     assert_equal 2, e.sass_line
   end
 
-  def test_multiline_script_error
+  def test_multiline_script_syntax_error
     render <<SCSS
 foo {
   bar =
@@ -834,5 +834,45 @@ SCSS
   rescue Sass::SyntaxError => e
     assert_equal "Expected expression, was plus token.", e.message
     assert_equal 3, e.sass_line
+  end
+
+  def test_multiline_script_runtime_error
+    render <<SCSS
+foo {
+  bar = "baz" +
+    "bar" +
+    !bang }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Undefined variable: \"!bang\".", e.message
+    assert_equal 4, e.sass_line
+  end
+
+  def test_post_multiline_script_runtime_error
+    render <<SCSS
+foo {
+  bar = "baz" +
+    "bar" +
+    "baz";
+  bip = !bop; }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Undefined variable: \"!bop\".", e.message
+    assert_equal 5, e.sass_line
+  end
+
+  def test_multiline_property_runtime_error
+    render <<SCSS
+foo {
+  bar: baz
+    bar
+    \#{!bang} }
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal "Undefined variable: \"!bang\".", e.message
+    assert_equal 4, e.sass_line
   end
 end

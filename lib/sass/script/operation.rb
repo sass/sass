@@ -26,12 +26,22 @@ module Sass::Script
       "(#{@operator.inspect} #{@operand1.inspect} #{@operand2.inspect})"
     end
 
+    # Returns the operands for this operation.
+    #
+    # @return [Array<Node>]
+    # @see Node#children
+    def children
+      [@operand1, @operand2]
+    end
+
+    protected
+
     # Evaluates the operation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
     # @return [Literal] The SassScript object that is the value of the operation
     # @raise [Sass::SyntaxError] if the operation is undefined for the operands
-    def perform(environment)
+    def _perform(environment)
       literal1 = @operand1.perform(environment)
       literal2 = @operand2.perform(environment)
       begin
@@ -42,14 +52,6 @@ module Sass::Script
         raise e unless e.name.to_s == @operator.to_s
         raise Sass::SyntaxError.new("Undefined operation: \"#{literal1} #{@operator} #{literal2}\".")
       end
-    end
-
-    # Returns the operands for this operation.
-    #
-    # @return [Array<Node>]
-    # @see Node#children
-    def children
-      [@operand1, @operand2]
     end
   end
 end
