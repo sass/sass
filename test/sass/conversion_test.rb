@@ -599,6 +599,34 @@ SASS
 SCSS
   end
 
+  def test_adjacent_imports
+    assert_renders <<SASS, <<SCSS
+@import foo.sass
+@import bar.scss
+@import baz
+SASS
+@import "foo.sass";
+@import "bar.scss";
+@import "baz";
+SCSS
+  end
+
+  def test_non_adjacent_imports
+    assert_renders <<SASS, <<SCSS
+@import foo.sass
+
+@import bar.scss
+
+@import baz
+SASS
+@import "foo.sass";
+
+@import "bar.scss";
+
+@import "baz";
+SCSS
+  end
+
   def test_argless_mixin_definition
     assert_renders <<SASS, <<SCSS
 =foo-bar

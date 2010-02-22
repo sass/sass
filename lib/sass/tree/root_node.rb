@@ -65,8 +65,9 @@ module Sass
       def to_src(opts, fmt)
         Haml::Util.enum_cons(children + [nil], 2).map do |child, nxt|
           child.send("to_#{fmt}", 0, opts) +
-            if nxt && child.is_a?(CommentNode) &&
-                child.line + child.value.count("\n") + 1 == nxt.line
+            if nxt &&
+                (child.is_a?(CommentNode) && child.line + child.value.count("\n") + 1 == nxt.line) ||
+                (child.is_a?(ImportNode) && nxt.is_a?(ImportNode) && child.line + 1 == nxt.line)
               ""
             else
               "\n"
