@@ -408,13 +408,10 @@ module Sass
           # E, E|E, or E|
           # The last is allowed so that E|="foo" will work
           tok(IDENT) if tok(/\|/)
-        elsif tok(/\*/)
-          # *|E
-          tok!(/\|/)
-          tok! IDENT
         else
-          # |E or E
-          tok(/\|/)
+          # *|E or |E
+          tok(/\*/)
+          tok!(/\|/)
           tok! IDENT
         end
       end
