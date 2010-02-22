@@ -288,7 +288,7 @@ END
 
           input.close() if input.is_a?(File)
 
-          output.write(tree.to_scss)
+          output.write(tree.render)
           output.close() if output.is_a? File
         rescue ::Sass::SyntaxError => e
           raise e if @options[:trace]
