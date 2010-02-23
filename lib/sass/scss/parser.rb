@@ -340,13 +340,18 @@ module Sass
       end
 
       def selector
+        return unless sel = _selector
+        sel.flatten.compact.map {|e| e.is_a?(Selector::Node) ? e.to_a : e}.flatten
+      end
+
+      def _selector
         # The combinator here allows the "> E" hack
         return unless (comb = combinator) || (seq = simple_selector_sequence)
-        res = [comb] + (seq || [])
+        res = [comb, seq]
 
         while v = combinator
           res << v
-          res.concat(simple_selector_sequence || [])
+          res << simple_selector_sequence
         end
         res
       end
@@ -357,12 +362,12 @@ module Sass
 
       def simple_selector_sequence
         # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
-        return expr unless e = element_name || tok(HASH) || class_expr ||
+        return expr unless e = element_name || id_expr || class_expr ||
           attrib || negation || pseudo || parent_selector || interpolation
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = element_name || tok(HASH) || class_expr ||
+        while v = element_name || id_expr || class_expr ||
             attrib || negation || pseudo || tok(/\*/) || interpolation
           res << v
         end
@@ -370,62 +375,90 @@ module Sass
       end
 
       def parent_selector
-        tok(/&/)
+        return unless tok(/&/)
+        Selector::Parent.new
       end
 
       def class_expr
         return unless tok(/\./)
-        '.' + tok!(IDENT)
+        Selector::Class.new(tok!(IDENT))
+      end
+
+      def id_expr
+        return unless hash = tok(HASH)
+        Selector::Id.new(hash[1..-1])
       end
 
       def element_name
-        return unless name = tok(IDENT) || tok(/\*/) || tok?(/\|/)
+        return unless name = tok(IDENT) || tok(/\*/) || (tok?(/\|/) && "")
         if tok(/\|/)
           @expected = "element name or *"
-          name << "|" << (tok(IDENT) || tok!(/\*/))
+          ns = name
+          name = tok(IDENT) || tok!(/\*/)
         end
-        name
+
+        name == '*' ? Selector::Universal.new(ns) : Selector::Element.new(name, ns)
+      end
+
+      def interpolation_selector
+        return unless script = interpolation
+        Selector::Interpolation.new(script)
       end
 
       def attrib
         return unless tok(/\[/)
-        res = ['[', str{ss}, str{attrib_name!}, str{ss}]
+        ss
+        ns, name = attrib_name!
+        ss
 
-        if m = tok(/=/) ||
+        if op = tok(/=/) ||
             tok(INCLUDES) ||
             tok(DASHMATCH) ||
             tok(PREFIXMATCH) ||
             tok(SUFFIXMATCH) ||
             tok(SUBSTRINGMATCH)
           @expected = "identifier or string"
-          res << m << str{ss} << (tok(IDENT) || expr!(:interp_string)) << str{ss}
+          ss
+          val = tok(IDENT) || expr!(:interp_string)
+          ss
         end
-        res << tok!(/\]/)
+        tok(/\]/)
+
+        Selector::Attribute.new(name, ns, op, val)
       end
 
       def attrib_name!
-        if tok(IDENT)
-          # E, E|E, or E|
-          # The last is allowed so that E|="foo" will work
-          tok(IDENT) if tok(/\|/)
+        if name_or_ns = tok(IDENT)
+          # E, E|E
+          if tok(/\|(?!=)/)
+            ns = name_or_ns
+            name = tok(IDENT)
+          else
+            name = name_or_ns
+          end
         else
           # *|E or |E
-          tok(/\*/)
+          ns = tok(/\*/) || ""
           tok!(/\|/)
-          tok! IDENT
+          name = tok! IDENT
         end
+        return ns, name
       end
 
       def pseudo
         return unless s = tok(/::?/)
 
         @expected = "pseudoclass or pseudoelement"
-        [s, functional_pseudo || tok!(IDENT)]
+        name, arg = functional_pseudo
+        name ||= tok!(IDENT)
+        Selector::Pseudo.new(s == ':' ? :class : :element, name, arg)
       end
 
       def functional_pseudo
         return unless fn = tok(FUNCTION)
-        [fn, str{ss}, expr!(:pseudo_expr), tok!(/\)/)]
+        val = [str{ss}] + expr!(:pseudo_expr)
+        tok!(/\)/)
+        return fn[0...-1], val
       end
 
       def pseudo_expr
@@ -441,10 +474,11 @@ module Sass
 
       def negation
         return unless tok(NOT)
-        res = [":not(", str{ss}]
+        ss
         @expected = "selector"
-        res << (element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo))
-        res << tok!(/\)/)
+        sel = element_name || id_expr || class_expr || attrib || expr!(:pseudo)
+        tok!(/\)/)
+        Selector::Negation.new(sel)
       end
 
       def declaration
@@ -542,11 +576,12 @@ MESSAGE
       end
 
       def interpolation
-        return unless tok(/#\{/)
+        return unless !@selector_semantic && tok(/#\{/)
         sass_script(:parse_interpolated)
       end
 
       def interp_string
+        return tok(STRING) if @selector_semantic
         _interp_string(:double) || _interp_string(:single)
       end
 
