@@ -115,17 +115,17 @@ foo \#{"\#{"ba" + "r"} baz"} bang
   a: b
 SASS
     assert_equal(<<CSS, render(<<SASS))
-foo \#{bar baz} bang {
+foo [bar="\#{bar baz}"] bang {
   a: b; }
 CSS
-foo \\\#{\#{"ba" + "r"} baz} bang
+foo [bar="\\\#{\#{"ba" + "r"} baz}"] bang
   a: b
 SASS
     assert_equal(<<CSS, render(<<SASS))
-foo \#{baz bang {
+foo [bar="\#{baz"] bang {
   a: b; }
 CSS
-foo \#{"\\\#{" + "baz"} bang
+foo [bar="\#{"\\\#{" + "baz"}"] bang
   a: b
 SASS
   end

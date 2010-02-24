@@ -1032,7 +1032,7 @@ SASS
 
   def test_attribute_selector_with_spaces
     assert_equal(<<CSS, render(<<SASS))
-a b[foo = bar] {
+a b[foo=bar] {
   c: d; }
 CSS
 a

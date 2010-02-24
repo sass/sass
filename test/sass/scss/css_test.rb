@@ -157,7 +157,7 @@ SCSS
 
   def test_selector_comments
     assert_equal <<CSS, render(<<SCSS)
-.foo  #bar:baz( bip) {
+.foo #bar:baz( bip) {
   a: b; }
 CSS
 .foo /* .a #foo */ #bar:baz(/* bang )*/ bip) {
@@ -700,7 +700,14 @@ SCSS
     assert_selector_parses('> E')
     assert_selector_parses('+ E')
     assert_selector_parses('~ E')
-    assert_selector_parses('>> E')
+    assert_selector_parses('> > E')
+    assert_equal <<CSS, render(<<SCSS)
+> > E {
+  a: b; }
+CSS
+>> E {
+  a: b; }
+SCSS
 
     assert_selector_parses('E*')
     assert_selector_parses('E*.foo')

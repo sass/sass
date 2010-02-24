@@ -134,6 +134,33 @@ module Haml
       end
     end
 
+    # Intersperses a value in an enumerable, as would be done with `Array#join`
+    # but without concatenating the array together afterwards.
+    #
+    # @param enum [Enumerable]
+    # @param val
+    # @return [Array]
+    def intersperse(enum, val)
+      enum.inject([]) {|a, e| a << e << val}[0...-1]
+    end
+
+    # Substitutes a sub-array of one array with another sub-array.
+    #
+    # @param ary [Array] The array in which to make the substitution
+    # @param from [Array] The sequence of elements to replace with `to`
+    # @param to [Array] The sequence of elements to replace `from` with
+    def substitute(ary, from, to)
+      res = ary.dup
+      i = 0
+      while i < res.size
+        if res[i...i+from.size] == from
+          res[i...i+from.size] = to
+        end
+        i += 1
+      end
+      res
+    end
+
     # Destructively strips whitespace from the beginning and end
     # of the first and last elements, respectively,
     # in the array (if those elements are strings).

@@ -17,44 +17,19 @@ module Sass::Tree
     # @return [Array<String, Sass::Script::Node>]
     attr_accessor :rule
 
-    # The CSS selectors for this rule,
-    # parsed for commas and parent-references.
+    # The CSS selector for this rule,
+    # without any unresolved interpolation
+    # but with parent references still intact.
     # It's only set once {Tree::Node#perform} has been called.
     #
-    # It's an array of arrays.
-    # The first level of arrays comma-separated selectors;
-    # the second represents structure within those selectors,
-    # currently only parent-refs (represented by `:parent`).
-    # Newlines are represented as literal `\n` characters in the strings.
-    # For example,
-    #
-    #     &.foo, bar, baz,
-    #     bip, &.bop, bup
-    #
-    # would be
-    #
-    #     [[:parent, ".foo"], ["bar"], ["baz"],
-    #      ["\nbip"], [:parent, ".bop"], ["bup"]]
-    #
-    # @return [Array<Array<String, Symbol>>]
+    # @return [Selector::CommaSequence]
     attr_accessor :parsed_rules
 
-    # The CSS selectors for this rule,
-    # with all nesting and parent references resolved.
+    # The CSS selector for this rule,
+    # without any unresolved interpolation or parent references.
     # It's only set once {Tree::Node#cssize} has been called.
     #
-    # Each element is a distinct selector, separated by commas.
-    # Newlines are represented as literal `\n` characters in the strings.
-    # For example,
-    #
-    #     foo bar, baz,
-    #     bang, bip bop, blip
-    #
-    # would be
-    #
-    #     ["foo bar", "baz", "\nbang", "bip bop", "blip"]
-    #
-    # @return [Array<String>]
+    # @return [Selector::CommaSequence]
     attr_accessor :resolved_rules
 
     # How deep this rule is indented
@@ -153,7 +128,9 @@ module Sass::Tree
       rule_indent = '  ' * (tabs - 1)
       per_rule_indent, total_indent = [:nested, :expanded].include?(style) ? [rule_indent, ''] : ['', rule_indent]
 
-      total_rule = total_indent + resolved_rules.join(rule_separator).split("\n").map do |line|
+      total_rule = total_indent + resolved_rules.members.
+        map {|seq| seq.to_a.join}.
+        join(rule_separator).split("\n").map do |line|
         per_rule_indent + line.strip
       end.join(line_separator)
 
@@ -200,7 +177,7 @@ module Sass::Tree
     # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
     def perform!(environment)
-      @parsed_rules = parse_selector(run_interp(@rule, environment))
+      @parsed_rules = Sass::SCSS::StaticParser.new(run_interp(@rule, environment)).parse_selector
       super
     end
 
@@ -231,7 +208,7 @@ module Sass::Tree
     #   or nil if the parent isn't a {RuleNode}
     # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
     def cssize!(extends, parent)
-      self.resolved_rules = resolve_parent_refs(parent && parent.resolved_rules)
+      self.resolved_rules = @parsed_rules.resolve_parent_refs(parent && parent.resolved_rules)
       super
     end
 
@@ -240,72 +217,11 @@ module Sass::Tree
     #
     # {ExtendNode}s are valid within {RuleNode}s.
     #
-    # @param child [Tree::Node] A potential child node
+    # @param child [Tree::Node] A potential child nodecompact.
     # @return [Boolean, String] Whether or not the child node is valid,
     #   as well as the error message to display if it is invalid
     def invalid_child?(child)
       super unless child.is_a?(ExtendNode)
-    end
-
-    private
-
-    def resolve_parent_refs(super_rules)
-      if super_rules.nil?
-        return @parsed_rules.map do |rule|
-          if rule.include?(:parent)
-            raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '#{PARENT}'.")
-          end
-
-          rule.join
-        end
-      end
-
-      new_rules = []
-      super_rules.each do |super_rule|
-        @parsed_rules.each do |rule|
-          new_rules << []
-
-          # An initial newline of the child rule
-          # should be moved to the beginning of the entire rule
-          rule.first.slice!(0) if nl = (rule.first.is_a?(String) && rule.first[0] == ?\n)
-          rule = [nl ? "\n" : "", :parent, " ", *rule] unless rule.include?(:parent)
-
-          new_rules.last << rule.map do |segment|
-            next segment unless segment == :parent
-            super_rule
-          end.join
-        end
-      end
-      new_rules
-    end
-
-    def parse_selector(text)
-      scanner = StringScanner.new(text)
-      rules = [[]]
-
-      while scanner.rest?
-        rules.last << scanner.scan(/[^",&]*/)
-        case scanner.scan(/./)
-        when '&'; rules.last << :parent
-        when ','
-          scanner.scan(/\s*/)
-          if scanner.rest?
-            rules << []
-            rules.last << "\n" if scanner.matched.include?("\n")
-          end
-        when '"'
-          rules.last << '"' << scanner.scan(/([^"\\]|\\.)*/)
-          # We don't want to enforce that strings are closed,
-          # but we do want to consume quotes or trailing backslashes.
-          rules.last << scanner.scan(/./) if scanner.rest?
-        end
-      end
-
-      rules.map! do |l|
-        Haml::Util.merge_adjacent_strings(l).reject {|r| r.is_a?(String) && r.empty?}
-      end
-
-      rules
     end
   end
 end

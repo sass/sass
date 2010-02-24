@@ -21,10 +21,7 @@ module Sass
       # @return [Sass::Tree::RootNode] The root node of the document tree
       # @raise [Sass::SyntaxError] if there's a syntax error in the document
       def parse
-        @scanner = StringScanner.new(
-          Haml::Util.check_encoding(@template) do |msg, line|
-            raise Sass::SyntaxError.new(msg, :line => line)
-          end.gsub("\r", ""))
+        init_scanner!
         root = stylesheet
         expected("selector or at-rule") unless @scanner.eos?
         root
@@ -33,6 +30,13 @@ module Sass
       private
 
       include Sass::SCSS::RX
+
+      def init_scanner!
+        @scanner = StringScanner.new(
+          Haml::Util.check_encoding(@template) do |msg, line|
+            raise Sass::SyntaxError.new(msg, :line => line)
+          end.gsub("\r", ""))
+      end
 
       def stylesheet
         node = node(Sass::Tree::RootNode.new(@scanner.string))
@@ -341,37 +345,40 @@ module Sass
 
       def selector
         return unless sel = _selector
-        sel.flatten.compact.map {|e| e.is_a?(Selector::Node) ? e.to_a : e}.flatten
+        sel.to_a
       end
 
       def _selector
         # The combinator here allows the "> E" hack
-        return unless (comb = combinator) || (seq = simple_selector_sequence)
-        res = [comb, seq]
+        return unless val = combinator || simple_selector_sequence
+        nl = str{ss}.include?("\n")
+        res = []
+        res << val
+        res << "\n" if nl
 
-        while v = combinator
-          res << v
-          res << simple_selector_sequence
+        while val = combinator || simple_selector_sequence
+          res << val
+          res << "\n" if str{ss}.include?("\n")
         end
-        res
+        Selector::Sequence.new(res.compact)
       end
 
       def combinator
-        tok(PLUS) || tok(GREATER) || tok(TILDE) || str?{whitespace}
+        tok(PLUS) || tok(GREATER) || tok(TILDE)
       end
 
       def simple_selector_sequence
         # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
         return expr unless e = element_name || id_expr || class_expr ||
-          attrib || negation || pseudo || parent_selector || interpolation
+          attrib || negation || pseudo || parent_selector || interpolation_selector
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
         while v = element_name || id_expr || class_expr ||
-            attrib || negation || pseudo || tok(/\*/) || interpolation
+            attrib || negation || pseudo || tok(/\*/) || interpolation_selector
           res << v
         end
-        res
+        Selector::SimpleSequence.new(res)
       end
 
       def parent_selector
@@ -419,7 +426,11 @@ module Sass
             tok(SUBSTRINGMATCH)
           @expected = "identifier or string"
           ss
-          val = tok(IDENT) || expr!(:interp_string)
+          if val = tok(IDENT)
+            val = [val]
+          else
+            val = expr!(:interp_string)
+          end
           ss
         end
         tok(/\]/)
@@ -576,12 +587,11 @@ MESSAGE
       end
 
       def interpolation
-        return unless !@selector_semantic && tok(/#\{/)
+        return unless tok(/#\{/)
         sass_script(:parse_interpolated)
       end
 
       def interp_string
-        return tok(STRING) if @selector_semantic
         _interp_string(:double) || _interp_string(:single)
       end
 
@@ -627,6 +637,8 @@ MESSAGE
         :media_term => "medium (e.g. print, screen)",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
         :expr => "expression (e.g. 1px, bold)",
+        :_selector => "selector",
+        :simple_selector_sequence => "selector",
       }
 
       TOK_NAMES = Haml::Util.to_hash(
