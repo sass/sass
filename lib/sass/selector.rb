@@ -14,6 +14,14 @@ module Sass
       def to_a
         raise NotImplementedError.new("All subclasses of Sass::Selector::Node must override #to_a.")
       end
+
+      # Returns a string representation of the node.
+      # This is basically the selector string.
+      #
+      # @return [String]
+      def inspect
+        to_a.map {|e| e.is_a?(Sass::Script::Node) ? "\#{#{e.to_sass}}" : e}.join
+      end
     end
 
     # A comma-separated sequence of selectors.
@@ -52,6 +60,14 @@ module Sass
           super_cseq.members.map do |super_seq|
             @members.map {|seq| seq.resolve_parent_refs(super_seq)}
           end.flatten)
+      end
+
+      # Returns a string representation of the sequence.
+      # This is basically the selector string.
+      #
+      # @return [String]
+      def inspect
+        members.map {|m| m.inspect}.join(", ")
       end
     end
 
@@ -106,6 +122,14 @@ module Sass
         ary = Haml::Util.substitute(ary, [" ", "\n", " "], ["\n"])
         ary.flatten.compact
       end
+
+      # Returns a string representation of the sequence.
+      # This is basically the selector string.
+      #
+      # @return [String]
+      def inspect
+        members.map {|m| m.inspect}.join(" ")
+      end
     end
 
     # A unseparated sequence of selectors
@@ -147,6 +171,14 @@ module Sass
       # @see Node#to_a
       def to_a
         @members.map {|sel| sel.to_a}.flatten
+      end
+
+      # Returns a string representation of the sequence.
+      # This is basically the selector string.
+      #
+      # @return [String]
+      def inspect
+        members.map {|m| m.inspect}.join
       end
     end
 
