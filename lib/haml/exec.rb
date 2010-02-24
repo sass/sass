@@ -538,6 +538,7 @@ END
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
+        require 'sass'
         @options[:for_tree] = {}
         @options[:for_engine] = {}
       end
@@ -617,7 +618,6 @@ END
             require 'sass/css'
             ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
           else
-            require 'sass'
             if input.is_a?(File)
               ::Sass::Files.tree_for(input.path, @options[:for_engine])
             else
