@@ -84,7 +84,7 @@ module Sass
         node << comment
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :import, :media]
+      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :extend, :import, :media]
 
       def directive
         return unless tok(/@/)
@@ -174,6 +174,10 @@ module Sass
         node.add_else(else_node)
         ss
         else_block(node)
+      end
+
+      def extend
+        node(Sass::Tree::ExtendNode.new(expr!(:selector)))
       end
 
       def import

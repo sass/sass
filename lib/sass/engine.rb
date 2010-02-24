@@ -466,6 +466,12 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::DebugNode.new(parse_script(value, :offset => offset))
+      elsif directive == "extend"
+        raise SyntaxError.new("Invalid extend directive '@extend': expected expression.") unless value
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath extend directives.",
+          :line => @line + 1) unless line.children.empty?
+        offset = line.offset + line.text.index(value).to_i
+        Tree::ExtendNode.new(parse_interp(value, offset))
       else
         Tree::DirectiveNode.new(line.text)
       end
@@ -560,7 +566,7 @@ WARNING
       end
     end
 
-    def parse_interp(text)
+    def parse_interp(text, offset = 0)
       res = []
       rest = Haml::Shared.handle_interpolation text do |scan|
         escapes = scan[2].size
@@ -570,7 +576,7 @@ WARNING
         else
           res << "\\" * [0, escapes - 1].max
           res << Script::Parser.new(
-            scan, @line, scan.pos - scan.matched_size,
+            scan, @line, offset + scan.pos - scan.matched_size,
             :filename => @filename).
             parse_interpolated
         end
