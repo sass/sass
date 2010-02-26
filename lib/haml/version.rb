@@ -38,27 +38,42 @@ module Haml
       @@version[:number] = [:major, :minor, :teeny].map { |comp| @@version[comp] }.compact.join('.')
       @@version[:string] = @@version[:number].dup
 
-      if File.exists?(scope('REVISION'))
-        rev = File.read(scope('REVISION')).strip
-        rev = nil if rev !~ /^([a-f0-9]+|\(.*\))$/
-      end
-
-      if (rev.nil? || rev == '(unknown)') && File.exists?(scope('.git/HEAD'))
-        rev = File.read(scope('.git/HEAD')).strip
-        if rev =~ /^ref: (.*)$/
-          rev = File.read(scope(".git/#{$1}")).strip
-        end
-      end
-
-      if rev
+      if rev = revision_number
         @@version[:rev] = rev
         unless rev[0] == ?(
           @@version[:string] << "." << rev[0...7]
         end
-        @@version[:string] << " (#{name})"
       end
 
+      @@version[:string] << " (#{name})"
       @@version
+    end
+
+    private
+
+    def revision_number
+      if File.exists?(scope('REVISION'))
+        rev = File.read(scope('REVISION')).strip
+        return rev unless rev =~ /^([a-f0-9]+|\(.*\))$/ || rev == '(unknown)'
+      end
+
+      return unless File.exists?(scope('.git/HEAD'))
+      rev = File.read(scope('.git/HEAD')).strip
+      return rev unless rev =~ /^ref: (.*)$/
+
+      ref_name = $1
+      ref_file = scope(".git/#{ref_name}")
+      info_file = scope(".git/info/refs")
+      return File.read(ref_file).strip if File.exists?(ref_file)
+      return unless File.exists?(info_file)
+      File.open(info_file) do |f|
+        f.each do |l|
+          sha, ref = l.strip.split("\t", 2)
+          next unless ref == ref_name
+          return sha
+        end
+      end
+      return nil
     end
   end
 end
