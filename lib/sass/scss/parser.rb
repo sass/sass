@@ -379,7 +379,8 @@ module Sass
 
         # The tok(/\*/) allows the "E*" hack
         while v = element_name || id_expr || class_expr ||
-            attrib || negation || pseudo || tok(/\*/) || interpolation_selector
+            attrib || negation || pseudo || interpolation_selector ||
+            (tok(/\*/) && Selector::Universal.new(nil))
           res << v
         end
         Selector::SimpleSequence.new(res)
