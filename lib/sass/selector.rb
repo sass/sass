@@ -22,6 +22,29 @@ module Sass
       def inspect
         to_a.map {|e| e.is_a?(Sass::Script::Node) ? "\#{#{e.to_sass}}" : e}.join
       end
+
+      # Returns a hash code for this selector object.
+      #
+      # By default, this is based on the value of \{#to\_a},
+      # so if that contains information irrelevant to the identity of the selector,
+      # this should be overridden.
+      #
+      # @return [Fixnum]
+      def hash
+        to_a.hash
+      end
+
+      # Checks equality between this and another object.
+      #
+      # By default, this is based on the value of \{#to\_a},
+      # so if that contains information irrelevant to the identity of the selector,
+      # this should be overridden.
+      #
+      # @param other [Object] The object to test equality against
+      # @return [Boolean] Whether or not this is equal to `other`
+      def eql?(other)
+        other.class == self.class && other.to_a.eql?(to_a)
+      end
     end
 
     # A comma-separated sequence of selectors.
@@ -68,6 +91,21 @@ module Sass
       # @return [String]
       def inspect
         members.map {|m| m.inspect}.join(", ")
+      end
+
+      # Returns a hash code for this sequence.
+      #
+      # @return [Fixnum]
+      def hash
+        members.hash
+      end
+
+      # Checks equality between this and another object.
+      #
+      # @param other [Object] The object to test equality against
+      # @return [Boolean] Whether or not this is equal to `other`
+      def eql?(other)
+        other.class == self.class && other.members.eql?(self.members)
       end
     end
 
@@ -130,6 +168,22 @@ module Sass
       def inspect
         members.map {|m| m.inspect}.join(" ")
       end
+
+      # Returns a hash code for this sequence.
+      #
+      # @return [Fixnum]
+      def hash
+        members.reject {|m| m == "\n"}.hash
+      end
+
+      # Checks equality between this and another object.
+      #
+      # @param other [Object] The object to test equality against
+      # @return [Boolean] Whether or not this is equal to `other`
+      def eql?(other)
+        other.class == self.class &&
+          other.members.reject {|m| m == "\n"}.eql?(self.members.reject {|m| m == "\n"})
+      end
     end
 
     # A unseparated sequence of selectors
@@ -179,6 +233,21 @@ module Sass
       # @return [String]
       def inspect
         members.map {|m| m.inspect}.join
+      end
+
+      # Returns a hash code for this sequence.
+      #
+      # @return [Fixnum]
+      def hash
+        members.hash
+      end
+
+      # Checks equality between this and another object.
+      #
+      # @param other [Object] The object to test equality against
+      # @return [Boolean] Whether or not this is equal to `other`
+      def eql?(other)
+        other.class == self.class && other.members.eql?(self.members)
       end
     end
 
