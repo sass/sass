@@ -66,6 +66,40 @@ won't do any indentation of their arguments.
   Their `#to_s` method will be called to convert them to strings.
   Previously, this only worked for attributes other than `class`.
 
+### `:class` and `:id` Attributes Accept Ruby Arrays
+
+In an attribute hash, the `:class` attribute now accepts an Array
+whose elements will be converted to strings and joined with `" "`.
+Likewise, the `:id` attribute now accepts an Array
+whose elements will be converted to strings and joined with `"_"`.
+The array will first be flattened and any elements that do not test as true
+will be stripped out. For example:
+
+    .column{:class => [@item.type, @item == @sortcol && [:sort, @sortdir]] }
+
+could render as any of:
+
+    class="column numeric sort ascending"
+    class="column numeric"
+    class="column sort descending"
+    class="column"
+
+depending on whether `@item.type` is `"numeric"` or `nil`,
+whether `@item == @sortcol`,
+and whether `@sortdir` is `"ascending"` or `"descending"`.
+
+A single value can still be specified.
+If that value evaluates to false it is ignored;
+otherwise it gets converted to a string.
+For example:
+
+    .item{:class => @item.is_empty? && "empty"}
+
+could render as either of:
+
+    class="item"
+    class="item empty"
+
 ### More Powerful `:autoclose` Option
 
 The {file:HAML_REFERENCE.md#attributes_option `:attributes`} option
