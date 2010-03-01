@@ -92,8 +92,9 @@ end
 task :release_elpa do
   require 'tlsmail'
   require 'time'
+  require 'haml'
 
-  version = File.read(scope("VERSION")).strip
+  version = Haml.version[:number]
 
   haml_unchanged = mode_unchanged?(:haml, version)
   sass_unchanged = mode_unchanged?(:sass, version)
@@ -103,11 +104,6 @@ task :release_elpa do
   if sass_unchanged && File.read(scope("extra/sass-mode.el")).
       include?(";; Package-Requires: ((haml-mode #{sass_unchanged.inspect}))")
     raise "sass-mode.el doesn't require the same version of haml-mode."
-  end
-
-  rev = File.read(scope('.git/HEAD')).strip
-  if rev =~ /^ref: (.*)$/
-    rev = File.read(scope(".git/#{$1}")).strip
   end
 
   from = `git config user.email`.strip
@@ -125,8 +121,8 @@ Date: #{Time.now.rfc2822}
 haml-mode and sass-mode #{version} are packaged and ready to be included in ELPA.
 They can be downloaded from:
 
-  http://github.com/nex3/haml/raw/#{rev}/extra/haml-mode.el
-  http://github.com/nex3/haml/raw/#{rev}/extra/sass-mode.el
+  http://github.com/nex3/haml/raw/#{Haml.version[:rev]}/extra/haml-mode.el
+  http://github.com/nex3/haml/raw/#{Haml.version[:rev]}/extra/sass-mode.el
 CONTENT
   end
 end
