@@ -497,11 +497,11 @@ is compiled to:
 
 And,
 
-    #content
-      .articles
-        .article.title Doogie Howser Comes Out
-        .article.date 2006-11-05
-        .article.entry
+    %div#content
+      %div.articles
+        %div.article.title Doogie Howser Comes Out
+        %div.article.date 2006-11-05
+        %div.article.entry
           Neil Patrick Harris would like to dispel any rumors that he is straight
 
 is compiled to:
