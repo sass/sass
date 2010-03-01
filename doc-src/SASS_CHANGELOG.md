@@ -236,6 +236,10 @@ Several bug fixes and minor improvements have been made, including:
   In particular, it will still work if `git gc` has been called recently,
   or if various files are missing.
 
+* Always use `__FILE__` when reading files within the Haml repo in the `Rakefile`.
+  According to [this bug report](http://github.com/carlhuda/bundler/issues/issue/44),
+  this should make Sass work better with Bundler.
+
 ## 2.2.20
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.20).
