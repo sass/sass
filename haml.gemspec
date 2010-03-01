@@ -7,9 +7,9 @@ require 'rake'
 # every time it's pushed to; this is made available as the haml-edge gem.
 HAML_GEMSPEC = Gem::Specification.new do |spec|
   spec.rubyforge_project = 'haml'
-  spec.name = File.exist?('EDGE_GEM_VERSION') ? 'haml-edge' : 'haml'
+  spec.name = File.exist?(File.dirname(__FILE__) + '/EDGE_GEM_VERSION') ? 'haml-edge' : 'haml'
   spec.summary = "An elegant, structured XHTML/XML templating engine.\nComes with Sass, a similar CSS templating engine."
-  spec.version = File.read('VERSION').strip
+  spec.version = File.read(File.dirname(__FILE__) + '/VERSION').strip
   spec.authors = ['Nathan Weizenbaum', 'Hampton Catlin']
   spec.email = 'haml@googlegroups.com'
   spec.description = <<-END
