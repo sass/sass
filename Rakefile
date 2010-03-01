@@ -1,3 +1,9 @@
+# ----- Utility Functions -----
+
+def scope(path)
+  File.join(File.dirname(__FILE__), path)
+end
+
 # ----- Benchmarking -----
 
 desc <<END
@@ -20,10 +26,10 @@ require 'rake/testtask'
 
 Rake::TestTask.new do |t|
   t.libs << 'lib'
-  test_files = FileList['test/**/*_test.rb']
-  test_files.exclude('test/rails/*')
-  test_files.exclude('test/plugins/*')
-  test_files.exclude('test/haml/spec/*')
+  test_files = FileList[scope('test/**/*_test.rb')]
+  test_files.exclude(scope('test/rails/*'))
+  test_files.exclude(scope('test/plugins/*'))
+  test_files.exclude(scope('test/haml/spec/*'))
   t.test_files = test_files
   t.verbose = true
 end
@@ -34,7 +40,7 @@ END
 # ----- Packaging -----
 
 require 'rake/gempackagetask'
-load    'haml.gemspec'
+load scope('haml.gemspec')
 
 Rake::GemPackageTask.new(HAML_GEMSPEC) do |pkg|
   if Rake.application.top_level_tasks.include?('release')
@@ -47,32 +53,32 @@ end
 task :revision_file do
   require 'lib/haml'
 
-  release = Rake.application.top_level_tasks.include?('release') || File.exist?('EDGE_GEM_VERSION')
+  release = Rake.application.top_level_tasks.include?('release') || File.exist?(scope('EDGE_GEM_VERSION'))
   if Haml.version[:rev] && !release
-    File.open('REVISION', 'w') { |f| f.puts Haml.version[:rev] }
+    File.open(scope('REVISION'), 'w') { |f| f.puts Haml.version[:rev] }
   elsif release
-    File.open('REVISION', 'w') { |f| f.puts "(release)" }
+    File.open(scope('REVISION'), 'w') { |f| f.puts "(release)" }
   else
-    File.open('REVISION', 'w') { |f| f.puts "(unknown)" }
+    File.open(scope('REVISION'), 'w') { |f| f.puts "(unknown)" }
   end
 end
 Rake::Task[:package].prerequisites.insert(0, :revision_file)
 Rake::Task[:package].prerequisites.insert(0, :submodules)
 
 # We also need to get rid of this file after packaging.
-at_exit { File.delete('REVISION') rescue nil }
+at_exit { File.delete(scope('REVISION')) rescue nil }
 
 desc "Install Haml as a gem."
 task :install => [:package] do
   sudo = RUBY_PLATFORM =~ /win32/ ? '' : 'sudo'
   gem  = RUBY_PLATFORM =~ /java/  ? 'jgem' : 'gem' 
-  sh %{#{sudo} #{gem} install --no-ri pkg/haml-#{File.read('VERSION').strip}}
+  sh %{#{sudo} #{gem} install --no-ri pkg/haml-#{File.read(scope('VERSION')).strip}}
 end
 
 desc "Release a new Haml package to Rubyforge."
 task :release => [:check_release, :release_elpa, :package] do
-  name = File.read("VERSION_NAME").strip
-  version = File.read("VERSION").strip
+  name = File.read(scope("VERSION_NAME")).strip
+  version = File.read(scope("VERSION")).strip
   sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.bz2}
@@ -84,22 +90,18 @@ end
 task :release_elpa do
   require 'tlsmail'
   require 'time'
+  require 'haml'
 
-  version = File.read("VERSION").strip
+  version = Haml.version[:number]
 
   haml_unchanged = mode_unchanged?(:haml, version)
   sass_unchanged = mode_unchanged?(:sass, version)
   next if haml_unchanged && sass_unchanged
   raise "haml-mode.el and sass-mode.el are out of sync." if haml_unchanged ^ sass_unchanged
 
-  if sass_unchanged && File.read("extra/sass-mode.el").
+  if sass_unchanged && File.read(scope("extra/sass-mode.el")).
       include?(";; Package-Requires: ((haml-mode #{sass_unchanged.inspect}))")
     raise "sass-mode.el doesn't require the same version of haml-mode."
-  end
-
-  rev = File.read('.git/HEAD').strip
-  if rev =~ /^ref: (.*)$/
-    rev = File.read(".git/#{$1}").strip
   end
 
   from = `git config user.email`.strip
@@ -117,17 +119,17 @@ Date: #{Time.now.rfc2822}
 haml-mode and sass-mode #{version} are packaged and ready to be included in ELPA.
 They can be downloaded from:
 
-  http://github.com/nex3/haml/raw/#{rev}/extra/haml-mode.el
-  http://github.com/nex3/haml/raw/#{rev}/extra/sass-mode.el
+  http://github.com/nex3/haml/raw/#{Haml.version[:rev]}/extra/haml-mode.el
+  http://github.com/nex3/haml/raw/#{Haml.version[:rev]}/extra/sass-mode.el
 CONTENT
   end
 end
 
 # Ensures that the version have been updated for a new release.
 task :check_release do
-  version = File.read("VERSION").strip
+  version = File.read(scope("VERSION")).strip
   raise "There have been changes since current version (#{version})" if changed_since?(version)
-  raise "VERSION_NAME must not be 'Bleeding Edge'" if File.read("VERSION_NAME") == "Bleeding Edge"
+  raise "VERSION_NAME must not be 'Bleeding Edge'" if File.read(scope("VERSION_NAME")) == "Bleeding Edge"
 end
 
 # Reads a password from the command line.
@@ -160,7 +162,7 @@ end
 # @param version [String] The version number
 # @return [String, nil] The version number if the version has changed
 def mode_unchanged?(mode, version)
-  mode_version = File.read("extra/#{mode}-mode.el").scan(/^;; Version: (.*)$/).first.first
+  mode_version = File.read(scope("extra/#{mode}-mode.el")).scan(/^;; Version: (.*)$/).first.first
   return false if mode_version == version
   return mode_version unless changed_since?(mode_version, "extra/#{mode}-mode.el")
   raise "#{mode}-mode.el version is #{version.inspect}, but it has changed as of #{version.inspect}"
@@ -188,13 +190,13 @@ task :release_edge do
     sh %{git merge origin/master}
 
     # Get the current master branch version
-    version = File.read('VERSION').strip.split('.').map {|n| n.to_i}
+    version = File.read(scope('VERSION')).strip.split('.').map {|n| n.to_i}
     unless version[1] % 2 == 1 && version[2] == 0
       raise "#{version.join('.')} is not a development version" 
     end
 
     # Bump the edge gem version
-    edge_version = File.read('EDGE_GEM_VERSION').strip.split('.').map {|n| n.to_i}
+    edge_version = File.read(scope('EDGE_GEM_VERSION')).strip.split('.').map {|n| n.to_i}
     if edge_version[0..1] != version[0..1]
       # A new master branch version was released, reset the edge gem version
       edge_version[0..1] = version[0..1]
@@ -204,12 +206,12 @@ task :release_edge do
       edge_version[2] += 1
     end
     edge_version = edge_version.join('.')
-    File.open('EDGE_GEM_VERSION', 'w') {|f| f.puts(edge_version)}
+    File.open(scope('EDGE_GEM_VERSION'), 'w') {|f| f.puts(edge_version)}
     sh %{git commit -m "Bump edge gem version to #{edge_version}." EDGE_GEM_VERSION}
     sh %{git push origin edge-gem}
 
     # Package the edge gem with the proper version
-    File.open('VERSION', 'w') {|f| f.puts(edge_version)}
+    File.open(scope('VERSION'), 'w') {|f| f.puts(edge_version)}
     sh %{rake package}
     sh %{git checkout VERSION}
 
@@ -236,8 +238,8 @@ begin
 
   namespace :yard do
     task :sass do
-      require File.dirname(__FILE__) + '/lib/sass'
-      Dir[File.dirname(__FILE__) + "/yard/default/**/*.sass"].each do |sass|
+      require scope('lib/sass')
+      Dir[scope("yard/default/**/*.sass")].each do |sass|
         File.open(sass.gsub(/sass$/, 'css'), 'w') do |f|
           f.write(Sass::Engine.new(File.read(sass)).render)
         end
@@ -246,15 +248,15 @@ begin
   end
 
   YARD::Rake::YardocTask.new do |t|
-    t.files = FileList.new('lib/**/*.rb') do |list|
+    t.files = FileList.new(scope('lib/**/*.rb')) do |list|
       list.exclude('lib/haml/template/*.rb')
       list.exclude('lib/haml/helpers/action_view_mods.rb')
     end.to_a
     t.options << '--incremental' if Rake.application.top_level_tasks.include?('redoc')
-    t.options += FileList.new('yard/*.rb').to_a.map {|f| ['-e', f]}.flatten
-    files = FileList.new('doc-src/*').to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
+    t.options += FileList.new(scope('yard/*.rb')).to_a.map {|f| ['-e', f]}.flatten
+    files = FileList.new(scope('doc-src/*')).to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
     t.options << '--files' << files.join(',')
-    t.options << '--template-path' << File.dirname(__FILE__) + '/yard'
+    t.options << '--template-path' << scope('yard')
   end
   Rake::Task['yard'].prerequisites.insert(0, 'yard:sass')
   Rake::Task['yard'].instance_variable_set('@comment', nil)
@@ -296,7 +298,7 @@ begin
   require 'rcov/rcovtask'
 
   Rcov::RcovTask.new do |t|
-    t.test_files = FileList['test/**/*_test.rb']
+    t.test_files = FileList[scope('test/**/*_test.rb')]
     t.rcov_opts << '-x' << '"^\/"'
     if ENV['NON_NATIVE']
       t.rcov_opts << "--no-rcovrt"
@@ -327,12 +329,12 @@ END
     if engine == 'sass'
       require 'lib/sass'
 
-      file = File.read("#{File.dirname(__FILE__)}/test/sass/templates/#{file || 'complex'}.sass")
+      file = File.read(scope("test/sass/templates/#{file || 'complex'}.sass"))
       result = RubyProf.profile { times.times { Sass::Engine.new(file).render } }
     else
       require 'lib/haml'
 
-      file = File.read("#{File.dirname(__FILE__)}/test/haml/templates/#{file || 'standard'}.haml")
+      file = File.read(scope("test/haml/templates/#{file || 'standard'}.haml"))
       obj = Object.new
       Haml::Engine.new(file).def_method(obj, :render)
       result = RubyProf.profile { times.times { obj.render } }
