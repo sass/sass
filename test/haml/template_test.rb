@@ -80,7 +80,13 @@ class TemplateTest < Test::Unit::TestCase
     # It's usually provided by ActionController::Base.
     def base.protect_against_forgery?; false; end
 
-    base.controller = DummyController.new
+    # In Rails <= 2.1, a fake controller object was needed
+    # to provide the controller path.
+    if ActionPack::VERSION::MAJOR < 2 ||
+        (ActionPack::VERSION::MAJOR == 2 && ActionPack::VERSION::MINOR < 2)
+      base.controller = DummyController.new
+    end
+
     base
   end
 
