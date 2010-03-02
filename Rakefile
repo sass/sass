@@ -327,8 +327,8 @@ rescue LoadError; end
 # ----- Testing Multiple Rails Versions -----
 
 rails_versions = [
-  "v2.3.4",
-  "v2.2.2",
+  "v2.3.5",
+  "v2.2.3",
   "v2.1.2",
 ]
 rails_versions << "v2.0.5" if RUBY_VERSION =~ /^1\.8/
