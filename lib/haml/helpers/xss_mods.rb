@@ -92,6 +92,13 @@ module Haml
         html_escape(text)
       end
     end
+
+    class ErrorReturn
+      # Any attempt to treat ErrorReturn as a string should cause it to blow up.
+      alias_method :html_safe, :to_s
+      alias_method :html_safe?, :to_s
+      alias_method :html_safe!, :to_s
+    end
   end
 end
 
