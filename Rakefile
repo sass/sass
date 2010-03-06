@@ -257,6 +257,7 @@ begin
     files = FileList.new(scope('doc-src/*')).to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
     t.options << '--files' << files.join(',')
     t.options << '--template-path' << scope('yard')
+    t.options << '--title' << ENV["YARD_TITLE"] if ENV["YARD_TITLE"]
   end
   Rake::Task['yard'].prerequisites.insert(0, 'yard:sass')
   Rake::Task['yard'].instance_variable_set('@comment', nil)
@@ -347,29 +348,36 @@ rescue LoadError; end
 # ----- Testing Multiple Rails Versions -----
 
 rails_versions = [
-  "v2.3.4",
-  "v2.2.2",
+  "v2.3.5",
+  "v2.2.3",
   "v2.1.2",
 ]
 rails_versions << "v2.0.5" if RUBY_VERSION =~ /^1\.8/
+
+def test_rails_version(version)
+  Dir.chdir "test/rails" do
+    `git checkout #{version}`
+  end
+  puts "Testing Rails #{version}"
+  Rake::Task['test'].reenable
+  Rake::Task['test'].execute
+end
 
 namespace :test do
   desc "Test all supported versions of rails. This takes a while."
   task :rails_compatibility do
     `rm -rf test/rails`
     puts "Checking out rails. Please wait."
-    `git clone git://github.com/rails/rails.git test/rails` rescue nil
+    system("git clone git://github.com/rails/rails.git test/rails") rescue nil
     begin
-      rails_versions.each do |version|
-        Dir.chdir "test/rails" do
-          `git checkout #{version}`
-        end
-        puts "Testing Rails #{version}"
-        Rake::Task['test'].reenable
-        Rake::Task['test'].execute
-      end
+      rails_versions.each {|version| test_rails_version version}
+
+      puts "Checking out rails_xss. Please wait."
+      system("git clone git://github.com/NZKoz/rails_xss.git test/plugins/rails_xss")
+      test_rails_version(rails_versions.find {|s| s =~ /^v2\.3/})
     ensure
       `rm -rf test/rails`
+      `rm -rf test/plugins`
     end
   end
 end
