@@ -212,6 +212,8 @@ that surrounds the filtered text with `<style>` and CDATA tags.
   According to [this bug report](http://github.com/carlhuda/bundler/issues/issue/44),
   this should make Haml work better with Bundler.
 
+* Make the error message for `- end` a little more intuitive based on user feedback.
+
 ## 2.2.20
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.20).
