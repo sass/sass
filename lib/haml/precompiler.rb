@@ -245,11 +245,12 @@ END
         return start_haml_comment if text[1] == SILENT_COMMENT
 
         raise SyntaxError.new(<<END.rstrip, index) if text[1..-1].strip == "end"
-You don't need to use "- end" in Haml. Use indentation instead:
+You don't need to use "- end" in Haml. Un-indent to close a block:
 - if foo?
   %strong Foo!
 - else
   Not foo.
+%p This line is un-indented, so it isn't part of the "if" block
 END
 
         push_silent(text[1..-1], true)
