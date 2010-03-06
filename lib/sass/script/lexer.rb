@@ -75,7 +75,7 @@ module Sass
         :whitespace => /\s+/,
         :comment => Sass::SCSS::RX::COMMENT,
         :single_line_comment => Sass::SCSS::RX::SINGLE_LINE_COMMENT,
-        :variable => /!(#{Sass::SCSS::RX::IDENT})/,
+        :variable => /(!|\$)(#{Sass::SCSS::RX::IDENT})/,
         :ident => Sass::SCSS::RX::IDENT,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => Sass::SCSS::RX::HEXCOLOR,
@@ -175,7 +175,7 @@ module Sass
 
       def variable
         return unless scan(REGULAR_EXPRESSIONS[:variable])
-        [:const, @scanner[1]]
+        [:const, [@scanner[1], @scanner[2]]]
       end
 
       def ident

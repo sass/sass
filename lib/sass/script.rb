@@ -15,14 +15,15 @@ module Sass
     # The character that begins a variable.
     # @private
     VARIABLE_CHAR = ?!
+    ALTERNATE_VARIABLE_CHAR = ?$
 
     # The regular expression used to parse variables.
     # @private
-    MATCH = /^!(#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^[!\$](#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=)\s*(.+)/
 
     # The regular expression used to validate variables without matching.
     # @private
-    VALIDATE = /^!#{Sass::SCSS::RX::IDENT}$/
+    VALIDATE = /^[!\$]#{Sass::SCSS::RX::IDENT}$/
 
     # Parses a string of SassScript
     #
