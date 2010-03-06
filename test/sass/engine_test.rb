@@ -826,9 +826,9 @@ CSS
   a-\#{!i}
     2i = 2 * !i
 
-@for !j from 1 through 4
-  b-\#{!j}
-    j-1 = !j - 1
+@for $j from 1 through 4
+  b-\#{$j}
+    j-1 = $j - 1
 SASS
   end
 

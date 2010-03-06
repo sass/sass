@@ -135,7 +135,7 @@ SCSS
   a: 5; }
 CSS
 .foo {
-  @for !var from 1 through 5 {a = !var;}
+  @for $var from 1 through 5 {a = $var;}
 }
 SCSS
   end
