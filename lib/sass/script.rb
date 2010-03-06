@@ -12,11 +12,6 @@ module Sass
   #
   # This module contains code that handles the parsing and evaluation of SassScript.
   module Script
-    # The character that begins a variable.
-    # @private
-    VARIABLE_CHAR = ?!
-    ALTERNATE_VARIABLE_CHAR = ?$
-
     # The regular expression used to parse variables.
     # @private
     MATCH = /^[!\$](#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=)\s*(.+)/
