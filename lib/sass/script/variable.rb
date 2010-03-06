@@ -6,15 +6,17 @@ module Sass
       #
       # @return [String]
       attr_reader :name
+      attr_reader :prefix
 
       # @param name [String] See \{#name}
-      def initialize(name)
+      def initialize(prefix, name)
         @name = name
+        @prefix = prefix
       end
 
       # @return [String] A string representation of the variable
       def inspect
-        "!#{name}"
+        "#{prefix}#{name}"
       end
       alias_method :to_sass, :inspect
 
@@ -35,7 +37,7 @@ module Sass
       # @raise [Sass::SyntaxError] if the variable is undefined
       def _perform(environment)
         (val = environment.var(name)) && (return val)
-        raise SyntaxError.new("Undefined variable: \"!#{name}\".")
+        raise SyntaxError.new("Undefined variable: \"#{prefix}#{name}\".")
       end
     end
   end
