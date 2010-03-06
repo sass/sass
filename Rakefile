@@ -21,7 +21,7 @@ task(:preview => :haml) {staticmatic "preview"}
 desc "Build the YARD documentation."
 task :yardoc => :haml do
   require 'fileutils'
-  Dir.chdir(".haml") {sh %{rake doc ANALYTICS=UA-535380-9}}
+  Dir.chdir(".haml") {sh %{rake doc ANALYTICS=UA-535380-9 YARD_TITLE="Haml Documentation"}}
   FileUtils.mkdir_p("site/docs")
   FileUtils.rm_rf("site/docs/yardoc")
   FileUtils.mv(".haml/doc", "site/docs/yardoc")
