@@ -247,6 +247,7 @@ begin
     files = FileList.new(scope('doc-src/*')).to_a.sort_by {|s| s.size} + %w[MIT-LICENSE VERSION]
     t.options << '--files' << files.join(',')
     t.options << '--template-path' << scope('yard')
+    t.options << '--title' << ENV["YARD_TITLE"] if ENV["YARD_TITLE"]
   end
   Rake::Task['yard'].prerequisites.insert(0, 'yard:sass')
   Rake::Task['yard'].instance_variable_set('@comment', nil)
