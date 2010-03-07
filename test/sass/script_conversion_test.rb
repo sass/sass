@@ -125,6 +125,7 @@ RUBY
   end
 
   def render(script, options = {})
+    munge_filename(options)
     Sass::Script.parse(script, 0, 0, options).to_sass
   end
 end
