@@ -37,5 +37,15 @@ module Sass
       e.modify_backtrace(:line => line, :filename => options[:filename])
       raise e
     end
+
+    # @private
+    def self.var_warning(varname, line, offset, filename)
+      warn <<MESSAGE
+DEPRECATION WARNING:
+On line #{line}, character #{offset}#{" of '#{filename}'" if filename}
+Variables with ! have been deprecated and will be removed in version 3.2.
+Use \"$#{varname}\" instead.
+MESSAGE
+    end
   end
 end

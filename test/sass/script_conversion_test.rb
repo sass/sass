@@ -52,7 +52,12 @@ class SassScriptConversionTest < Test::Unit::TestCase
   def test_variable
     assert_renders "$foo-bar"
     assert_renders "$flaznicate"
-    assert_equal "$tumbly-wumbly", render("!tumbly-wumbly")
+    assert_warning(<<WARN) {assert_equal "$tumbly-wumbly", render("!tumbly-wumbly")}
+DEPRECATION WARNING:
+On line 1, character 1 of 'test_variable_inline.sass'
+Variables with ! have been deprecated and will be removed in version 3.2.
+Use "$tumbly-wumbly" instead.
+WARN
   end
 
   def test_comma_operator
@@ -126,6 +131,6 @@ RUBY
 
   def render(script, options = {})
     munge_filename(options)
-    Sass::Script.parse(script, 0, 0, options).to_sass
+    Sass::Script.parse(script, 1, 0, options).to_sass
   end
 end

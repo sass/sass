@@ -826,9 +826,31 @@ $a = 3
   a-\#{$i}
     2i = 2 * $i
 
-@for !j from 1 through 4
-  b-\#{!j}
-    j-1 = !j - 1
+@for $j from 1 through 4
+  b-\#{$j}
+    j-1 = $j - 1
+SASS
+  end
+
+  def test_for_with_bang_var
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 1, character 6 of 'test_for_with_bang_var_inline.sass'
+Variables with ! have been deprecated and will be removed in version 3.2.
+Use "$bar" instead.
+WARN
+a-0 {
+  b: c; }
+
+a-1 {
+  b: c; }
+
+a-2 {
+  b: c; }
+CSS
+@for !bar from 0 to 3
+  a-\#{$bar}
+    b: c
 SASS
   end
 
@@ -912,18 +934,32 @@ SASS
   end
 
   def test_bang_variables
-    assert_equal(<<CSS, render(<<SASS))
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 1, character 1 of 'test_bang_variables_inline.sass'
+Variables with ! have been deprecated and will be removed in version 3.2.
+Use "$bang-var" instead.
+WARN
 foo {
-  one: 1px;
-  two: 2px;
-  both: 3px; }
+  a: 1px; }
 CSS
-!var1 = 1px
-$var2 = 2px
+!bang-var = 1px
 foo
-  one= $var1
-  two= !var2
-  both= !var1 + $var2
+  a = $bang-var
+SASS
+
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 3, character 7 of 'test_bang_variables_inline.sass'
+Variables with ! have been deprecated and will be removed in version 3.2.
+Use "$dollar-var" instead.
+WARN
+foo {
+  a: 1px; }
+CSS
+$dollar-var = 1px
+foo
+  a = !dollar-var
 SASS
   end
 
@@ -984,6 +1020,17 @@ $\\{foo\\(12\\) = 12
 
 a
   b = $\\{foo\\(12\\)
+SASS
+  end
+
+  def test_important
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: 12px !important; }
+CSS
+$foo = 12px
+a
+  b = $foo !important
 SASS
   end
 
