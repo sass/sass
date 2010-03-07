@@ -65,7 +65,7 @@ module Sass::Script
       end
     end
 
-    # The SassScript binary `-` operation (e.g. `!a - !b`).
+    # The SassScript binary `-` operation (e.g. `$a - $b`).
     # Its functionality depends on the type of its argument:
     #
     # {Number}
@@ -85,7 +85,7 @@ module Sass::Script
       end
     end
 
-    # The SassScript unary `-` operation (e.g. `-!a`).
+    # The SassScript unary `-` operation (e.g. `-$a`).
     #
     # @return [Number] The negative value of this number
     def unary_minus

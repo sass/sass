@@ -126,9 +126,9 @@ SassScript variable and mixin names may now contain hyphens.
 In fact, they may be any valid CSS3 identifier.
 For example:
 
-    !prettiest-color = #542FA9
+    $prettiest-color = #542FA9
     =pretty-text
-      color = !prettiest-color
+      color = $prettiest-color
 
 In order to allow frameworks like [Compass](http://compass-style.org)
 to use hyphens in variable names
@@ -137,10 +137,10 @@ variables and mixins using hyphens may be referred to
 with underscores, and vice versa.
 For example:
 
-    !prettiest-color = #542FA9
+    $prettiest-color = #542FA9
     .pretty
       // Using an underscore instead of a hyphen works
-      color = !prettiest_color
+      color = $prettiest_color
 
 #### Single-Quoted Strings
 

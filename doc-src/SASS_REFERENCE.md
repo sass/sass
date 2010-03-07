@@ -116,11 +116,11 @@ Available options are:
   `:new` forces the use of a colon or equals sign
   after the property name.
   For example: `color: #0f3`
-  or `width = !main_width`.
+  or `width = $main_width`.
   `:old` forces the use of a colon
   before the property name.
   For example: `:color #0f3`
-  or `:width = !main_width`.
+  or `:width = $main_width`.
   By default, either syntax is valid.
 
 {#cache-option} `:cache`
@@ -705,25 +705,25 @@ until one succeeds or the `@else` is reached.
 For example:
 
 {.sass-ex}
-    !type = "monster"
+    $type = "monster"
     p
-      @if !type == "ocean"
+      @if $type == "ocean"
         color: blue
-      @else if !type == "matador"
+      @else if $type == "matador"
         color: red
-      @else if !type == "monster"
+      @else if $type == "monster"
         color: green
       @else
         color: black
 
 {.scss-ex}
-    !type = "monster";
+    $type = "monster";
     p {
-      @if !type == "ocean" {
+      @if $type == "ocean" {
         color: blue;
-      } @else if !type == "matador" {
+      } @else if $type == "matador" {
         color: red;
-      } @else if !type == "monster" {
+      } @else if $type == "monster" {
         color: green;
       } @else {
         color: black;
@@ -740,7 +740,7 @@ is compiled to:
 The `@for` statement has two forms:
 `@for <var> from <start> to <end>` or
 `@for <var> from <start> through <end>`.
-`<var>` is a variable name, like `!i`,
+`<var>` is a variable name, like `$i`,
 and `<start>` and `<end>` are SassScript expressions
 that should return integers.
 
@@ -750,13 +750,13 @@ including `<end>` if `through` is used.
 For example:
 
 {.sass-ex}
-    @for !i from 1 through 3
-      .item-#{!i}
-        width = 2em * !i
+    @for $i from 1 through 3
+      .item-#{$i}
+        width = 2em * $i
 
 {.scss-ex}
-    @for !i from 1 through 3 {
-      .item-#{!i} { width = 2em * !i; }
+    @for $i from 1 through 3 {
+      .item-#{$i} { width = 2em * $i; }
     }
 
 is compiled to:
@@ -777,17 +777,17 @@ statement is capable of.
 For example:
 
 {.sass-ex}
-    !i = 6
-    @while !i > 0
-      .item-#{!i}
-        width = 2em * !i
-      !i = !i - 2
+    $i = 6
+    @while $i > 0
+      .item-#{$i}
+        width = 2em * $i
+      $i = $i - 2
 
 {.scss-ex}
-    !i = 6;
-    @while !i > 0 {
-      .item-#{!i} { width = 2em * !i; }
-      !i = !i - 2;
+    $i = 6;
+    @while $i > 0 {
+      .item-#{$i} { width = 2em * $i; }
+      $i = $i - 2;
     }
 
 is compiled to:
@@ -856,21 +856,21 @@ Variables begin with exclamation marks,
 and are set like so:
 
 {.sass-ex}
-    !width = 5em
+    $width = 5em
 
 {.scss-ex}
-    !width = 5em;
+    $width = 5em;
 
 You can then refer to them by putting an equals sign
 after your properties:
 
 {.sass-ex}
     #main
-      width = !width
+      width = $width
 
 {.scss-ex}
     #main {
-      width = !width;
+      width = $width;
     }
 
 Variables that are first defined in a scoped context are only
@@ -889,21 +889,21 @@ in a SassScript context will cause an error:
 
 {.sass-ex}
     p
-      !width = 5em
+      $width = 5em
       // This will cause an error
-        border = !width solid blue
+        border = $width solid blue
       // Use one of the following forms instead:
-      border = "#{!width} solid blue"
-      border = !width "solid" "blue"
+      border = "#{$width} solid blue"
+      border = $width "solid" "blue"
 
 {.scss-ex}
     p {
-      !width = 5em;
+      $width = 5em;
       /* This will cause an error */
-      /* border = !width solid blue; */
+      /* border = $width solid blue; */
       /* Use one of the following forms instead: */
-      border = "#{!width} solid blue";
-      border = !width "solid" "blue";
+      border = "#{$width} solid blue";
+      border = $width "solid" "blue";
     }
 
 is compiled to:
@@ -1012,16 +1012,16 @@ The alpha channel of a color can be adjusted using the
 For example:
 
 {.sass-ex}
-    !translucent-red = rgba(255, 0, 0, 0.5)
+    $translucent-red = rgba(255, 0, 0, 0.5)
     p
-      color = opacify(!translucent-red, 80%)
-      background-color = transparentize(!translucent-red, 50%)
+      color = opacify($translucent-red, 80%)
+      background-color = transparentize($translucent-red, 50%)
 
 {.scss-ex}
-    !translucent-red = rgba(255, 0, 0, 0.5);
+    $translucent-red = rgba(255, 0, 0, 0.5);
     p {
-      color = opacify(!translucent-red, 80%);
-      background-color = transparentize(!translucent-red, 50%);
+      color = opacify($translucent-red, 80%);
+      background-color = transparentize($translucent-red, 50%);
     }
 
 is compiled to:
@@ -1126,15 +1126,15 @@ You can also use SassScript variables in selectors
 and property names using #{} interpolation syntax:
 
 {.sass-ex}
-    !name = foo
-    !attr = border
-    p.#{!name}
-      #{!attr}-color: blue
+    $name = foo
+    $attr = border
+    p.#{$name}
+      #{$attr}-color: blue
 
 {.scss-ex}
-    !name = foo;
-    !attr = border;
-    p.#{!name} { #{!attr}-color: blue }
+    $name = foo;
+    $attr = border;
+    p.#{$name} { #{$attr}-color: blue }
 
 is compiled to:
 
@@ -1151,22 +1151,22 @@ but if it doesn't have a value yet, it will be given one.
 For example:
 
 {.sass-ex}
-    !content = "First content"
-    !content ||= "Second content?"
-    !new_content ||= "First time reference"
+    $content = "First content"
+    $content ||= "Second content?"
+    $new_content ||= "First time reference"
 
     #main
-      content = !content
-      new-content = !new_content
+      content = $content
+      new-content = $new_content
 
 {.scss-ex}
-    !content = "First content";
-    !content ||= "Second content?";
-    !new_content ||= "First time reference";
+    $content = "First content";
+    $content ||= "Second content?";
+    $new_content ||= "First time reference";
 
     #main {
-      content = !content;
-      new-content = !new_content;
+      content = $content;
+      new-content = $new_content;
     }
 
 is compiled to:
@@ -1304,18 +1304,18 @@ into the top most level of a document.
 Mixins can take arguments which can be used with SassScript:
 
 {.sass-ex}
-    =sexy-border(!color)
+    =sexy-border($color)
       border:
-        color = !color
+        color = $color
         width: 1in
         style: dashed
     p
       +sexy-border("blue")
 
 {.scss-ex}
-    @mixin sexy-border(!color) {
+    @mixin sexy-border($color) {
       border: {
-        color = !color;
+        color = $color;
         width: 1in;
         style: dashed;
       }
@@ -1333,19 +1333,19 @@ is compiled to:
 Mixins can also specify default values for their arguments:
 
 {.sass-ex}
-    =sexy-border(!color, !width = 1in)
+    =sexy-border($color, $width = 1in)
       border:
-        color = !color
-        width = !width
+        color = $color
+        width = $width
         style: dashed
     p
       +sexy-border("blue")
 
 {.scss-ex}
-    @mixin sexy-border(!color, !width = 1in) {
+    @mixin sexy-border($color, $width = 1in) {
       border: {
-        color = !color;
-        width = !width;
+        color = $color;
+        width = $width;
         style: dashed;
       }
     p { @include sexy-border("blue"); }
