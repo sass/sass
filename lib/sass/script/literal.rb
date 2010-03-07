@@ -101,7 +101,7 @@ MSG
       Sass::Script::Bool.new(!to_bool)
     end
 
-    # The SassScript default operation (e.g. `!a !b`, `"foo" "bar"`).
+    # The SassScript default operation (e.g. `$a $b`, `"foo" "bar"`).
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing both literals
@@ -110,7 +110,7 @@ MSG
       Sass::Script::String.new("#{self.to_s} #{other.to_s}")
     end
 
-    # The SassScript `,` operation (e.g. `!a, !b`, `"foo", "bar"`).
+    # The SassScript `,` operation (e.g. `$a, $b`, `"foo", "bar"`).
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing both literals
@@ -146,7 +146,7 @@ MSG
       Sass::Script::String.new("#{self.to_s}/#{other.to_s}")
     end
 
-    # The SassScript unary `-` operation (e.g. `-!a`).
+    # The SassScript unary `-` operation (e.g. `-$a`).
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing the literal
@@ -155,7 +155,7 @@ MSG
       Sass::Script::String.new("-#{self.to_s}")
     end
 
-    # The SassScript unary `/` operation (e.g. `/!a`).
+    # The SassScript unary `/` operation (e.g. `/$a`).
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing the literal

@@ -209,15 +209,15 @@ Then, if you put `=` after your property name,
 you can set it to a variable.
 For example:
 
-    !note_bg= #55aaff
+    $note_bg= #55aaff
 
     #main
       width: 70%
       .note
-        background-color = !note_bg
+        background-color = $note_bg
       p
         width: 5em
-        background-color = !note_bg
+        background-color = $note_bg
 
 becomes:
 
@@ -232,15 +232,15 @@ becomes:
 You can even do simple arithmetic operations with variables,
 adding numbers and even colors together:
 
-    !main_bg= #46ar12
-    !main_width= 40em
+    $main_bg= #46ar12
+    $main_width= 40em
 
     #main
-      background-color = !main_bg
-      width = !main_width
+      background-color = $main_bg
+      width = $main_width
       .sidebar
-        background-color = !main_bg + #333333
-        width = !main_width - 25em
+        background-color = $main_bg + #333333
+        width = $main_width - 25em
 
 becomes:
 

@@ -75,7 +75,7 @@ module Sass
         :whitespace => /\s+/,
         :comment => Sass::SCSS::RX::COMMENT,
         :single_line_comment => Sass::SCSS::RX::SINGLE_LINE_COMMENT,
-        :variable => /(!|\$)(#{Sass::SCSS::RX::IDENT})/,
+        :variable => /([!\$])(#{Sass::SCSS::RX::IDENT})/,
         :ident => Sass::SCSS::RX::IDENT,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => Sass::SCSS::RX::HEXCOLOR,
@@ -174,8 +174,14 @@ module Sass
       end
 
       def variable
+        line = @line
+        offset = @offset
         return unless scan(REGULAR_EXPRESSIONS[:variable])
-        [:const, [@scanner[1], @scanner[2]]]
+        if @scanner[1] == '!' && @scanner[2] != 'important'
+          Script.var_warning(@scanner[2], line, offset + 1, @options[:filename])
+        end
+
+        [:const, @scanner[2]]
       end
 
       def ident

@@ -182,7 +182,7 @@ WARN
   end
 
   def test_hyphenated_variables
-    assert_equal("a-b", resolve("!a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
+    assert_equal("a-b", resolve("$a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
   end
 
   def test_ruby_equality
@@ -260,7 +260,7 @@ WARN
   end
 
   def test_equals
-    assert_equal("true", resolve('"foo" == !foo', {},
+    assert_equal("true", resolve('"foo" == $foo', {},
         env("foo" => Sass::Script::String.new("foo"))))
     assert_equal "true", resolve("1 == 1.0")
     assert_equal "true", resolve("false != true")
