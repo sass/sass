@@ -137,6 +137,16 @@ should now be
     .icon
       width = $width
 
+The `sass-convert` command-line tool can be used
+to upgrade Sass files to the new syntax using the `--in-place` flag.
+For example:
+
+    # Upgrade style.sass:
+    $ sass-convert --in-place style.sass
+
+    # Upgrade all Sass files:
+    $ find -name '*.sass' -exec sass-convert --in-place {} \;
+
 `!` may still be used, but it's deprecated and will print a warning.
 For more details, see [the deprecation section](#deprecation).
 

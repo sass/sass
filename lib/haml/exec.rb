@@ -568,6 +568,12 @@ END
           @options[:to] = name.downcase.to_sym
         end
 
+        opts.on('-i', '--in-place',
+          'Convert a file to its own syntax.',
+          'This can be used to update some deprecated syntax.') do
+          @options[:in_place] = true
+        end
+
         opts.on('--old', 'Output the old-style ":prop val" property syntax.',
                          'Only meaningful when generating Sass.') do
           @options[:for_tree][:old] = true
@@ -583,10 +589,12 @@ END
       # Processes the options set by the command-line arguments,
       # and runs the CSS compiler appropriately.
       def process_result
+        require 'sass'
         super
 
         input = @options[:input]
         output = @options[:output]
+        output = input if @options[:in_place]
 
         if input.is_a?(File)
           @options[:from] ||=
@@ -595,6 +603,8 @@ END
             when /\.sass$/; :sass
             when /\.css$/; :css
             end
+        elsif @options[:in_place]
+          raise "Error: the --in-place option requires a filename."
         end
 
         if output.is_a?(File)
@@ -614,7 +624,6 @@ END
             require 'sass/css'
             ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
           else
-            require 'sass'
             if input.is_a?(File)
               ::Sass::Files.tree_for(input.path, @options[:for_engine])
             else
@@ -622,6 +631,7 @@ END
             end.send("to_#{@options[:to]}", @options[:for_tree])
           end
 
+        output = File.open(input.path, 'w') if @options[:in_place]
         output.write(out)
       rescue ::Sass::SyntaxError => e
         raise e if @options[:trace]
