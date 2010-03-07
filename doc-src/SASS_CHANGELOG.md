@@ -63,8 +63,8 @@ as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
 * The {Sass::Script::Functions#complement complement}
   function returns the complement of a color.
 
-{#watch}
 ### Watching for Updates
+{#3-0-0-watch}
 
 The `sass` command-line utility has a new flag: `--watch`.
 `sass --watch` monitors files or directories for updated Sass files
@@ -121,7 +121,7 @@ after the first check.
 ### Syntax
 
 #### Variable Prefix Character
-{#dollar-prefix}
+{#3-0-0-dollar-prefix}
 
 The Sass variable character has been changed from `!`
 to the more aesthetically-appealing `$`.
@@ -262,7 +262,7 @@ Several bug fixes and minor improvements have been made, including:
   rather than `teal bang(12)`.
 
 ### Must Read!
-{#deprecation}
+{#3-0-0-deprecation}
 
 * The `!` prefix for variables is deprecated,
   and will be removed in Sass 3.2.
