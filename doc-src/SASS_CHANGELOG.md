@@ -120,6 +120,26 @@ after the first check.
 
 ### Syntax
 
+#### Variable Prefix Character
+{#dollar-prefix}
+
+The Sass variable character has been changed from `!`
+to the more aesthetically-appealing `$`.
+For example, what used to be
+
+    !width = 13px
+    .icon
+      width = !width
+
+should now be
+
+    $width = 13px
+    .icon
+      width = $width
+
+`!` may still be used, but it's deprecated and will print a warning.
+For more details, see [the deprecation section](#deprecation).
+
 #### Variable and Mixin Names
 
 SassScript variable and mixin names may now contain hyphens.
@@ -230,6 +250,14 @@ Several bug fixes and minor improvements have been made, including:
   rather than `fuchsia 12`,
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
+
+### Must Read!
+{#deprecation}
+
+* The `!` prefix for variables is deprecated,
+  and will be removed in Sass 3.2.
+  Use `$` as a prefix instead.
+  See also [this changelog entry](#dollar-prefix).
 
 ## 2.2.21 (Unreleased)
 
