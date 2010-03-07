@@ -5,6 +5,14 @@
 
 ## 2.4.0 (Unreleased)
 
+### Must Read!
+{#3-0-0-deprecation}
+
+* The `!` prefix for variables is deprecated,
+  and will be removed in Sass 3.2.
+  Use `$` as a prefix instead.
+  See also [this changelog entry](#dollar-prefix).
+
 ### Colors
 
 SassScript color values are much more powerful than they were before.
@@ -260,14 +268,6 @@ Several bug fixes and minor improvements have been made, including:
   rather than `fuchsia 12`,
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
-
-### Must Read!
-{#3-0-0-deprecation}
-
-* The `!` prefix for variables is deprecated,
-  and will be removed in Sass 3.2.
-  Use `$` as a prefix instead.
-  See also [this changelog entry](#dollar-prefix).
 
 ## 2.2.21 (Unreleased)
 
