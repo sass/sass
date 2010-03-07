@@ -60,6 +60,11 @@ Use "$tumbly-wumbly" instead.
 WARN
   end
 
+  def test_important
+    assert_renders "!important"
+    assert_renders "$foo !important"
+  end
+
   def test_comma_operator
     assert_renders "$foo, $bar $baz"
     assert_renders "$foo $bar, $baz"

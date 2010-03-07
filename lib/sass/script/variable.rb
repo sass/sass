@@ -14,6 +14,7 @@ module Sass
 
       # @return [String] A string representation of the variable
       def inspect
+        return "!important" if name == "important"
         "$#{name}"
       end
       alias_method :to_sass, :inspect
