@@ -93,17 +93,14 @@ module Haml
       # so they can run their respective programs.
       def process_result
         input, output = @options[:input], @options[:output]
-        input_file, output_file = if input
-                                    [nil, open_file(@args[0], 'w')]
-                                  else
-                                    @options[:filename] = @args[0]
-                                    [open_file(@args[0]), open_file(@args[1], 'w')]
-                                  end
-
-        input  ||= input_file
-        output ||= output_file
-        input  ||= $stdin
-        output ||= $stdout
+        args = @args.dup
+        input ||=
+          begin
+            filename = args.shift
+            @options[:filename] = filename
+            open_file(filename) || $stdin
+          end
+        output ||= open_file(args.shift, 'w') || $stdout
 
         @options[:input], @options[:output] = input, output
       end
