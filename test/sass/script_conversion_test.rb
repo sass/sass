@@ -50,30 +50,31 @@ class SassScriptConversionTest < Test::Unit::TestCase
   end
 
   def test_variable
-    assert_renders "!foo-bar"
-    assert_renders "!flaznicate"
+    assert_renders "$foo-bar"
+    assert_renders "$flaznicate"
+    assert_equal "$tumbly-wumbly", render("!tumbly-wumbly")
   end
 
   def test_comma_operator
-    assert_renders "!foo, !bar !baz"
-    assert_renders "!foo !bar, !baz"
+    assert_renders "$foo, $bar $baz"
+    assert_renders "$foo $bar, $baz"
 
-    assert_renders "(!foo, !bar) !baz"
-    assert_renders "!foo (!bar, !baz)"
+    assert_renders "($foo, $bar) $baz"
+    assert_renders "$foo ($bar, $baz)"
 
-    assert_equal "!foo, !bar !baz", render("!foo, (!bar !baz)")
-    assert_equal "!foo !bar, !baz", render("(!foo !bar), !baz")
+    assert_equal "$foo, $bar $baz", render("$foo, ($bar $baz)")
+    assert_equal "$foo $bar, $baz", render("($foo $bar), $baz")
   end
 
   def test_concat_operator
-    assert_renders "!foo !bar or !baz"
-    assert_renders "!foo or !bar !baz"
+    assert_renders "$foo $bar or $baz"
+    assert_renders "$foo or $bar $baz"
 
-    assert_renders "(!foo !bar) or !baz"
-    assert_renders "!foo or (!bar !baz)"
+    assert_renders "($foo $bar) or $baz"
+    assert_renders "$foo or ($bar $baz)"
 
-    assert_equal "!foo !bar or !baz", render("!foo (!bar or !baz)")
-    assert_equal "!foo or !bar !baz", render("(!foo or !bar) !baz")
+    assert_equal "$foo $bar or $baz", render("$foo ($bar or $baz)")
+    assert_equal "$foo or $bar $baz", render("($foo or $bar) $baz")
   end
 
   def self.test_precedence(outer, inner)
@@ -81,16 +82,16 @@ class SassScriptConversionTest < Test::Unit::TestCase
     op_inner = Sass::Script::Lexer::OPERATORS_REVERSE[inner]
     class_eval <<RUBY
       def test_precedence_#{outer}_#{inner} 
-        assert_renders "!foo #{op_outer} !bar #{op_inner} !baz"
-        assert_renders "!foo #{op_inner} !bar #{op_outer} !baz"
+        assert_renders "$foo #{op_outer} $bar #{op_inner} $baz"
+        assert_renders "$foo #{op_inner} $bar #{op_outer} $baz"
 
-        assert_renders "(!foo #{op_outer} !bar) #{op_inner} !baz"
-        assert_renders "!foo #{op_inner} (!bar #{op_outer} !baz)"
+        assert_renders "($foo #{op_outer} $bar) #{op_inner} $baz"
+        assert_renders "$foo #{op_inner} ($bar #{op_outer} $baz)"
 
-        assert_equal "!foo #{op_outer} !bar #{op_inner} !baz",
-          render("!foo #{op_outer} (!bar #{op_inner} !baz)")
-        assert_equal "!foo #{op_inner} !bar #{op_outer} !baz",
-          render("(!foo #{op_inner} !bar) #{op_outer} !baz")
+        assert_equal "$foo #{op_outer} $bar #{op_inner} $baz",
+          render("$foo #{op_outer} ($bar #{op_inner} $baz)")
+        assert_equal "$foo #{op_inner} $bar #{op_outer} $baz",
+          render("($foo #{op_inner} $bar) #{op_outer} $baz")
       end
 RUBY
   end

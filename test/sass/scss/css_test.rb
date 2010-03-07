@@ -736,7 +736,7 @@ SCSS
   end
 
   def test_no_variables
-    assert_not_parses("selector or at-rule", "<err>!var = 12;")
+    assert_not_parses("selector or at-rule", "<err>$var = 12;")
     assert_not_parses('"}"', "foo { <err>!var = 12; }")
   end
 

@@ -33,9 +33,9 @@ SCSS
 blat {
   a: foo; }
 CSS
-!var = "foo";
+$var = "foo";
 
-blat {a = !var}
+blat {a = $var}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
@@ -44,10 +44,10 @@ foo {
   b: 6; }
 CSS
 foo {
-  !var = 2;
+  $var = 2;
   $another-var = 4;
-  a = !var;
-  b = $var + !another-var;}
+  a = $var;
+  b = $var + $another-var;}
 SCSS
   end
 
@@ -56,9 +56,9 @@ SCSS
 blat {
   a: foo; }
 CSS
-!vär = "foo";
+$vär = "foo";
 
-blat {a = !vär}
+blat {a = $vär}
 SCSS
   end
 
@@ -67,19 +67,19 @@ SCSS
 foo {
   a: 1; }
 CSS
-!var = 1;
-!var ||= 2;
+$var = 1;
+$var ||= 2;
 
-foo {a = !var}
+foo {a = $var}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
 foo {
   a: 2; }
 CSS
-!var ||= 2;
+$var ||= 2;
 
-foo {a = !var}
+foo {a = $var}
 SCSS
   end
 
@@ -122,7 +122,7 @@ SCSS
   a: 4; }
 CSS
 .foo {
-  @for !var from 1 to 5 {a = !var;}
+  @for $var from 1 to 5 {a = $var;}
 }
 SCSS
 
@@ -175,12 +175,12 @@ SCSS
   a: 3;
   a: 4; }
 CSS
-!i = 1;
+$i = 1;
 
 .foo {
-  @while !i != 5 {
-    a = !i;
-    !i = !i + 1;
+  @while $i != 5 {
+    a = $i;
+    $i = $i + 1;
   }
 }
 SCSS
@@ -553,7 +553,7 @@ SCSS
 .foo {
   a: bar; }
 CSS
-@mixin foo(!a) {a = !a}
+@mixin foo($a) {a = $a}
 
 .foo {@include foo("bar")}
 SCSS
@@ -563,9 +563,9 @@ SCSS
   a: bar;
   b: 12px; }
 CSS
-@mixin foo(!a, !b) {
-  a = !a;
-  b = !b; }
+@mixin foo($a, $b) {
+  a = $a;
+  b = $b; }
 
 .foo {@include foo("bar", 12px)}
 SCSS
@@ -844,11 +844,11 @@ SCSS
 foo {
   bar = "baz" +
     "bar" +
-    !bang }
+    $bang }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal "Undefined variable: \"!bang\".", e.message
+    assert_equal "Undefined variable: \"$bang\".", e.message
     assert_equal 4, e.sass_line
   end
 
@@ -858,11 +858,11 @@ foo {
   bar = "baz" +
     "bar" +
     "baz";
-  bip = !bop; }
+  bip = $bop; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal "Undefined variable: \"!bop\".", e.message
+    assert_equal "Undefined variable: \"$bop\".", e.message
     assert_equal 5, e.sass_line
   end
 
@@ -871,11 +871,11 @@ SCSS
 foo {
   bar: baz
     bar
-    \#{!bang} }
+    \#{$bang} }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal "Undefined variable: \"!bang\".", e.message
+    assert_equal "Undefined variable: \"$bang\".", e.message
     assert_equal 4, e.sass_line
   end
 end

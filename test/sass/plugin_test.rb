@@ -75,11 +75,11 @@ class SassPluginTest < Test::Unit::TestCase
     File.open(tempfile_loc('bork1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...6].join("\n"))
 /*
-Syntax error: Undefined variable: "!bork".
+Syntax error: Undefined variable: "$bork".
         on line 2 of #{template_loc('bork1')}
 
 1: bork
-2:   :bork= !bork
+2:   :bork= $bork
 CSS
     end
     File.delete(tempfile_loc('bork1'))
@@ -220,7 +220,7 @@ CSS
     Sass::Plugin.options[:always_update] = false
     touch 'bork1'
     assert_callback(:compilation_error,
-      lambda {|e| e.message == 'Undefined variable: "!bork".'},
+      lambda {|e| e.message == 'Undefined variable: "$bork".'},
       template_loc("bork1"), tempfile_loc("bork1"))
   end
 
