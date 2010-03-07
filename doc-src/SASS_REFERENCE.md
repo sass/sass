@@ -848,11 +848,11 @@ and the result printed out for you:
     >> #777 + #888
     white
 
-### Variables: `!`
+### Variables: `$`
 
 The most straightforward way to use SassScript
 is to set and reference variables.
-Variables begin with exclamation marks,
+Variables begin with dollar signs,
 and are set like so:
 
 {.sass-ex}
@@ -861,8 +861,7 @@ and are set like so:
 {.scss-ex}
     $width = 5em;
 
-You can then refer to them by putting an equals sign
-after your properties:
+You can then refer to them in SassScript:
 
 {.sass-ex}
     #main
@@ -873,8 +872,14 @@ after your properties:
       width = $width;
     }
 
-Variables that are first defined in a scoped context are only
-available in that context.
+Variables are only available within the level of nesting
+where they're defined.
+If they're defined outside of any nested selectors,
+they're available everywhere.
+
+Variables used to use the prefix character `!`;
+this still works, but it's deprecated and prints a warning.
+`$` is the recommended syntax.
 
 ### Data Types
 
