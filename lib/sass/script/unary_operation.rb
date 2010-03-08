@@ -19,7 +19,12 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass
-      operand = @operand.is_a?(Operation) ? "(#{@operand.to_sass})" : @operand.to_sass
+      operand = @operand.to_sass
+      if @operand.is_a?(Operation) ||
+          (@operator == :minus &&
+           (operand =~ Sass::SCSS::RX::IDENT) == 0)
+        operand = "(#{@operand.to_sass})"
+      end
       op = Lexer::OPERATORS_REVERSE[@operator]
       op + (op =~ /[a-z]/ ? " " : "") + operand
     end

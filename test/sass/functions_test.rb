@@ -13,6 +13,10 @@ module Sass::Script::Functions::UserFunctions
   def user_defined
     Sass::Script::String.new("I'm a user-defined string!")
   end
+
+  def _preceding_underscore
+    Sass::Script::String.new("I'm another user-defined string!")
+  end
 end
 
 class SassFunctionTest < Test::Unit::TestCase
@@ -467,6 +471,11 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
+  end
+
+  def test_user_defined_function_with_preceding_underscore
+    assert_equal("I'm another user-defined string!", evaluate("_preceding_underscore()"))
+    assert_equal("I'm another user-defined string!", evaluate("-preceding-underscore()"))
   end
 
   def test_options_on_new_literals_fails

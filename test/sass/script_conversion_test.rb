@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 
@@ -47,6 +48,9 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "foo(true, blue)"
     assert_renders "hsla(20deg, 30%, 50%, 0.3)"
     assert_renders "blam()"
+
+    assert_renders "-\xC3\xBFoo(12px)"
+    assert_renders "-foo(12px)"
   end
 
   def test_variable
@@ -123,6 +127,12 @@ RUBY
     assert_renders "-12px"
     assert_renders '/"foo"'
     assert_renders 'not true'
+
+    assert_renders "-(foo(12px))"
+    assert_renders "-(-foo(12px))"
+    assert_renders "-(_foo(12px))"
+    assert_renders "-(\xC3\xBFoo(12px))"
+    assert_renders "-(blue)"
 
     assert_equal 'not true or false', render('(not true) or false')
     assert_equal 'not (true or false)', render('not (true or false)')
