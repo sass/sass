@@ -318,9 +318,11 @@ module Sass
         Haml::Util.enum_with_index(members).map do |sel, i|
           next unless extenders = extends[sel]
           sseq_without_sel = members[0...i] + members[i+1..-1]
-          extenders.
-            map {|sel2| sel2.unify(sseq_without_sel)}.compact.
-            map {|sel2| SimpleSequence.new(sel2)}
+          extenders.map do |sel2|
+            next unless sel2 = sel2.unify(sseq_without_sel)
+            sel2 = SimpleSequence.new(sel2)
+            [sel2] + sel2.extend(extends)
+          end
         end.flatten.compact
       end
 
