@@ -45,6 +45,49 @@ module Sass
       def eql?(other)
         other.class == self.class && other.to_a.eql?(to_a)
       end
+
+      # Unifies this selector with a {SimpleSequence}'s {SimpleSequence#members members array},
+      # returning another `SimpleSequence` members array
+      # that matches both this selector and the input selector.
+      #
+      # By default, this just appends this selector to the end of the array
+      # (or returns the original array if this selector already exists in it).
+      #
+      # @param sels [Array<Node>] A {SimpleSequence}'s {SimpleSequence#members members array}
+      # @return [Array<Node>, nil] A {SimpleSequence} {SimpleSequence#members members array}
+      #   matching both `sels` and this selector,
+      #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
+      # @raise [Sass::SyntaxError] If this selector cannot be unified.
+      #   This will only ever occur when a dynamic selector,
+      #   such as {Parent} or {Interpolation}, is used in unification.
+      #   Since these selectors should be resolved
+      #   by the time extension and unification happen,
+      #   this exception will only ever be raised as a result of programmer error
+      def unify(sels)
+        return sels if sels.any? {|sel2| eql?(sel2)}
+        sels + [self]
+      end
+
+      protected
+
+      # Unifies two namespaces,
+      # returning a namespace that works for both of them if possible.
+      #
+      # @param ns1 [String, nil] The first namespace.
+      #   `nil` means none specified, e.g. `foo`.
+      #   The empty string means no namespace specified, e.g. `|foo`.
+      #   `"*"` means any namespace is allowed, e.g. `*|foo`.
+      # @param ns2 [String, nil] The second namespace. See `ns1`.
+      # @return [Array(String or nil, Boolean)]
+      #   The first value is the unified namespace, or `nil` for no namespace.
+      #   The second value is whether or not a namespace that works for both inputs
+      #   could be found at all.
+      #   If the second value is `false`, the first should be ignored.
+      def unify_namespaces(ns1, ns2)
+        return nil, false unless ns1 == ns2 || ns1.nil? || ns1 == '*' || ns2.nil? || ns2 == '*'
+        return ns2, true unless ns2.nil? || ns2 == '*'
+        return ns1, true
+      end
     end
 
     # A comma-separated sequence of selectors.
@@ -83,6 +126,21 @@ module Sass
           super_cseq.members.map do |super_seq|
             @members.map {|seq| seq.resolve_parent_refs(super_seq)}
           end.flatten)
+      end
+
+      # Non-destrucively extends this selector
+      # with the extensions specified in a hash
+      # (which should be populated via {Sass::Tree::Node#cssize}).
+      #
+      # @todo Link this to the reference documentation on `@extend`
+      #   when such a thing exists.
+      #
+      # @param extends [{Selector::Node => Selector::Node}]
+      #   The extensions to perform on this selector
+      # @return [CommaSequence] A copy of this selector,
+      #   with extensions made according to `extends`
+      def extend(extends)
+        CommaSequence.new(members.map {|seq| seq.extend(extends)}.flatten)
       end
 
       # Returns a string representation of the sequence.
@@ -151,6 +209,34 @@ module Sass
             next seq_or_op unless seq_or_op.is_a?(SimpleSequence)
             seq_or_op.resolve_parent_refs(super_seq)
           end.flatten)
+      end
+
+      # Non-destrucively extends this selector
+      # with the extensions specified in a hash
+      # (which should be populated via {Sass::Tree::Node#cssize}).
+      #
+      # @param extends [{Selector::Node => Selector::Node}]
+      #   The extensions to perform on this selector
+      # @return [Array<Sequence>] A list of selectors generated
+      #   by extending this selector with `extends`.
+      #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
+      # @see CommaSequence#extend
+      def extend(extends)
+        new_seqs = [self]
+        members.each_with_index do |sseq_or_op, i|
+          next unless sseq_or_op.is_a?(SimpleSequence)
+          sseq_or_op.members.each_with_index do |sel, j|
+            next unless extenders = extends[sel]
+            sseq_without_sel = sseq_or_op.members[0...j] + sseq_or_op.members[j+1..-1]
+            extenders.map {|sel2| sel2.unify(sseq_without_sel)}.compact.each do |sel2|
+              new_seqs << Sequence.new(
+                members[0...i] +
+                [SimpleSequence.new(sel2)] +
+                members[i+1..-1])
+            end
+          end
+        end
+        new_seqs
       end
 
       # @see Node#to_a
@@ -259,10 +345,23 @@ module Sass
       def to_a
         ["&"]
       end
+
+      # Always raises an exception.
+      #
+      # @raise [Sass::SyntaxError] Parent selectors should be resolved before unification
+      # @see Node#unify
+      def unify(sels)
+        raise Sass::SyntaxError.new("[BUG] Cannot unify parent selectors.")
+      end
     end
 
     # A class selector (e.g. `.foo`).
     class Class < Node
+      # The class name.
+      #
+      # @return [String]
+      attr_reader :name
+
       # @param name [String] The class name
       def initialize(name)
         @name = name
@@ -276,6 +375,11 @@ module Sass
 
     # An id selector (e.g. `#foo`).
     class Id < Node
+      # The id name.
+      #
+      # @return [String]
+      attr_reader :name
+
       # @param name [String] The id name
       def initialize(name)
         @name = name
@@ -285,12 +389,28 @@ module Sass
       def to_a
         ["#", @name]
       end
+
+      # Returns `nil` if `sels` contains an {Id} selector
+      # with a different name than this one.
+      #
+      # @see Node#unify
+      def unify(sels)
+        return if sels.any? {|sel2| sel2.is_a?(Id) && self.name != sel2.name}
+        super
+      end
     end
 
     # A universal selector (`*` in CSS).
     class Universal < Node
-      # @param namespace [String, nil] The namespace of the universal selector.
-      #   `nil` means the default namespace, `""` means no namespace
+      # The selector namespace.
+      # `nil` means the default namespace,
+      # `""` means no namespace,
+      # `"*"` means any namespace.
+      #
+      # @return [String, nil]
+      attr_reader :namespace
+
+      # @param namespace [String, nil] See \{#namespace}
       def initialize(namespace)
         @namespace = namespace
       end
@@ -299,13 +419,63 @@ module Sass
       def to_a
         @namespace ? [@namespace, "|*"] : ["*"]
       end
+
+      # Unification of a universal selector is somewhat complicated,
+      # especially when a namespace is specified.
+      # If there is no namespace specified
+      # or any namespace is specified (namespace `"*"`),
+      # then `sel` is returned without change
+      # (unless it's empty, in which case `"*"` is required).
+      #
+      # If a namespace is specified
+      # but `sel` does not specify a namespace,
+      # then the given namespace is applied to `sel`,
+      # either by adding this {Universal} selector
+      # or applying this namespace to an existing {Element} selector.
+      #
+      # If both this selector *and* `sel` specify namespaces,
+      # those namespaces are unified via {Node#unify_namespaces}
+      # and the unified namespace is used, if possible.
+      #
+      # @todo There are lots of cases that this documentation specifies;
+      #   make sure we thoroughly test **all of them**.
+      # @todo Keep track of whether a default namespace has been declared
+      #   and handle namespace-unspecified selectors accordingly.
+      #
+      # @see Node#unify
+      def unify(sels)
+        name =
+          case sels.first
+          when Universal; :universal
+          when Element; sels.first.name
+          else
+            return [self] + sels unless ns == nil || ns == '*'
+            return sels
+          end
+
+        ns, accept = unify_namespaces(namespace, sels.first.namespace)
+        return unless accept
+        [name == :universal ? Universal.new(ns) : Element.new(ns, name)] + sels[1..-1]
+      end
     end
 
     # An element selector (e.g. `h1`).
     class Element < Node
+      # The element name.
+      #
+      # @return [String]
+      attr_reader :name
+
+      # The selector namespace.
+      # `nil` means the default namespace,
+      # `""` means no namespace,
+      # `"*"` means any namespace.
+      #
+      # @return [String, nil]
+      attr_reader :namespace
+
       # @param name [String] The element name
-      # @param namespace [String, nil] The namespace of the universal selector.
-      #   `nil` means the default namespace, `""` means no namespace
+      # @param namespace [String, nil] See \{#namespace}
       def initialize(name, namespace)
         @name = name
         @namespace = namespace
@@ -315,10 +485,49 @@ module Sass
       def to_a
         @namespace ? [@namespace, "|", @name] : [@name]
       end
+
+      # Unification of an element selector is somewhat complicated,
+      # especially when a namespace is specified.
+      # First, if `sel` contains another {Element} with a different \{#name},
+      # then the selectors can't be unified and `nil` is returned.
+      #
+      # Otherwise, if `sel` doesn't specify a namespace,
+      # or it specifies any namespace (via `"*"`),
+      # then it's returned with this element selector
+      # (e.g. `.foo` becomes `a.foo` or `svg|a.foo`).
+      # Similarly, if this selector doesn't specify a namespace,
+      # the namespace from `sel` is used.
+      #
+      # If both this selector *and* `sel` specify namespaces,
+      # those namespaces are unified via {Node#unify_namespaces}
+      # and the unified namespace is used, if possible.
+      #
+      # @todo There are lots of cases that this documentation specifies;
+      #   make sure we thoroughly test **all of them**.
+      # @todo Keep track of whether a default namespace has been declared
+      #   and handle namespace-unspecified selectors accordingly.
+      #
+      # @see Node#unify
+      def unify(sels)
+        case sels.first
+        when Universal;
+        when Element; return unless name == sels.first.name
+        else return [self] + sels
+        end
+
+        ns, accept = unify_namespaces(namespace, sels.first.namespace)
+        return unless accept
+        [Element.new(ns, name)] + sels[1..-1]
+      end
     end
 
     # Selector interpolation (`#{}` in Sass).
     class Interpolation < Node
+      # The script to run.
+      #
+      # @return [Sass::Script::Node]
+      attr_reader :script
+
       # @param script [Sass::Script::Node] The script to run
       def initialize(script)
         @script = script
@@ -328,15 +537,49 @@ module Sass
       def to_a
         [@script]
       end
+
+      # Always raises an exception.
+      #
+      # @raise [Sass::SyntaxError] Interpolation selectors should be resolved before unification
+      # @see Node#unify
+      def unify(sels)
+        raise Sass::SyntaxError.new("[BUG] Cannot unify interpolation selectors.")
+      end
     end
 
     # An attribute selector (e.g. `[href^="http://"]`).
     class Attribute < Node
+      # The attribute name.
+      #
+      # @return [String]
+      attr_reader :name
+
+      # The attribute namespace.
+      # `nil` means the default namespace,
+      # `""` means no namespace,
+      # `"*"` means any namespace.
+      #
+      # @return [String, nil]
+      attr_reader :namespace
+
+      # The matching operator, e.g. `"="` or `"^="`.
+      #
+      # @return [String]
+      attr_reader :operator
+
+      # The right-hand side of the operator.
+      #
+      # This may include SassScript nodes that will be run during resolution.
+      # Note that this should not include SassScript nodes
+      # after resolution has taken place.
+      #
+      # @return [Array<String, Sass::Script::Node>]
+      attr_reader :value
+
       # @param name [String] The attribute name
-      # @param namespace [String, nil] The namespace of the universal selector.
-      #   `nil` means the default namespace, `""` means no namespace
+      # @param namespace [String, nil] See \{#namespace}
       # @param operator [String] The matching operator, e.g. `"="` or `"^="`
-      # @param value [Array<String, Sass::Script::Node>] The left-hand side of the operator
+      # @param value [Array<String, Sass::Script::Node>] See \{#value}
       def initialize(name, namespace, operator, value)
         @name = name
         @namespace = namespace
@@ -357,8 +600,29 @@ module Sass
     # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`) selector.
     # It can have arguments (e.g. `:nth-child(2n+1)`).
     class Pseudo < Node
-      # @param type [Symbol] `:class` if this is a pseudoclass,
-      #   `:element` if this is a pseudoelement
+      # The type of the selector.
+      # `:class` if this is a pseudoclass selector,
+      # `:element` if it's a pseudoelement.
+      #
+      # @return [Symbol]
+      attr_reader :type
+
+      # The name of the selector.
+      #
+      # @return [String]
+      attr_reader :name
+
+      # The argument to the selector,
+      # or `nil` if no argument was given.
+      #
+      # This may include SassScript nodes that will be run during resolution.
+      # Note that this should not include SassScript nodes
+      # after resolution has taken place.
+      #
+      # @return [Array<String, Sass::Script::Node>, nil]
+      attr_reader :arg
+
+      # @param type [Symbol] See \{#type}
       # @param name [String] The name of the selector
       # @param arg [nil, Array<String, Sass::Script::Node>] The argument to the selector,
       #   or nil if no argument was given
@@ -378,6 +642,11 @@ module Sass
 
     # A negation pseudoclass selector (e.g. `:not(.foo)`).
     class Negation < Node
+      # The selector to negate.
+      #
+      # @return [Node]
+      attr_reader :selector
+
       # @param [Node] The selector to negate
       def initialize(selector)
         @selector = selector

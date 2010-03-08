@@ -125,7 +125,7 @@ module Sass
       # @see #to_s
       def render
         extends = {}
-        perform(Environment.new).cssize(extends).to_s
+        perform(Environment.new).cssize(extends).extend(extends).to_s
       end
 
       # True if \{#to\_s} will return `nil`;
@@ -157,6 +157,24 @@ module Sass
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename, :line => line)
         raise e
+      end
+
+      # Converts a static CSS tree (e.g. the output of \{#cssize})
+      # into another static CSS tree,
+      # with the given extensions applied to all relevant {RuleNode}s.
+      #
+      # @todo Link this to the reference documentation on `@extend`
+      #   when such a thing exists.
+      #
+      # @param extends [{Selector::Node => Selector::Node}]
+      #   The extensions to perform on this tree
+      # @return [Tree::Node] The resulting tree of static CSS nodes.
+      # @raise [Sass::SyntaxError] Only if there's a programmer error
+      #   and this is not a static CSS tree
+      def extend(extends)
+        node = dup
+        node.children = children.map {|c| c.extend(extends)}
+        node
       end
 
       # Converts a static Sass tree (e.g. the output of \{#perform})

@@ -109,6 +109,15 @@ module Sass::Tree
       res
     end
 
+    # Extends this Rule's selector with the given `extends`.
+    #
+    # @see Node#extend
+    def extend(extends)
+      node = dup
+      node.resolved_rules = resolved_rules.extend(extends)
+      node
+    end
+
     protected
 
     # Computes the CSS for the rule.
