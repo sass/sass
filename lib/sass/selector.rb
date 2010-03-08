@@ -225,16 +225,9 @@ module Sass
         new_seqs = [self]
         members.each_with_index do |sseq_or_op, i|
           next unless sseq_or_op.is_a?(SimpleSequence)
-          sseq_or_op.members.each_with_index do |sel, j|
-            next unless extenders = extends[sel]
-            sseq_without_sel = sseq_or_op.members[0...j] + sseq_or_op.members[j+1..-1]
-            extenders.map {|sel2| sel2.unify(sseq_without_sel)}.compact.each do |sel2|
-              new_seqs << Sequence.new(
-                members[0...i] +
-                [SimpleSequence.new(sel2)] +
-                members[i+1..-1])
-            end
-          end
+          new_seqs.concat(sseq_or_op.extend(extends).map do |sseq|
+              Sequence.new(members[0...i] + [sseq] + members[i+1..-1])
+            end)
         end
         new_seqs
       end
@@ -306,6 +299,29 @@ module Sass
 
         super_seq.members[0...-1] +
           [SimpleSequence.new(super_seq.members.last.members + @members[1..-1])]
+      end
+
+      # Non-destrucively extends this selector
+      # with the extensions specified in a hash
+      # (which should be populated via {Sass::Tree::Node#cssize}).
+      #
+      # @param extends [{Selector::Node => Selector::Node}]
+      #   The extensions to perform on this selector
+      # @return [Array<SimpleSequence>] A list of selectors generated
+      #   by extending this selector with `extends`.
+      #   Note that these correspond more to a {CommaSequence}'s {CommaSequence#members members array},
+      #   than a {Sequence}'s.
+      #   Each individual SimpleSequence will be post-processed into a Sequence
+      #   by {Sequence#extend}.
+      # @see CommaSequence#extend
+      def extend(extends)
+        Haml::Util.enum_with_index(members).map do |sel, i|
+          next unless extenders = extends[sel]
+          sseq_without_sel = members[0...i] + members[i+1..-1]
+          extenders.
+            map {|sel2| sel2.unify(sseq_without_sel)}.compact.
+            map {|sel2| SimpleSequence.new(sel2)}
+        end.flatten.compact
       end
 
       # @see Node#to_a
