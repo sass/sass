@@ -682,6 +682,48 @@ CSS
 SCSS
   end
 
+  ## Long Extendees
+
+  def test_long_extendee
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar, .baz {
+  a: b; }
+CSS
+.foo.bar {a: b}
+.baz {@extend .foo.bar}
+SCSS
+  end
+
+  def test_long_extendee_requires_all_selectors
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+.foo {a: b}
+.baz {@extend .foo.bar}
+SCSS
+  end
+
+  def test_long_extendee_matches_supersets
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar.bap, .baz.bap {
+  a: b; }
+CSS
+.foo.bar.bap {a: b}
+.baz {@extend .foo.bar}
+SCSS
+  end
+
+  def test_long_extendee_runs_unification
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar.bap, ns|a.baz {
+  a: b; }
+CSS
+ns|*.foo.bar {a: b}
+a.baz {@extend .foo.bar}
+SCSS
+  end
+
   private
 
   def render(sass, options = {})
