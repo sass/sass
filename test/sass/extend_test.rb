@@ -78,6 +78,70 @@ CSS
 SCSS
   end
 
+  def test_multiple_extendees
+    assert_equal <<CSS, render(<<SCSS)
+.foo, .baz {
+  a: b; }
+
+.bar, .baz {
+  c: d; }
+CSS
+.foo {a: b}
+.bar {c: d}
+.baz {@extend .foo; @extend .bar}
+SCSS
+  end
+
+  def test_multiple_extends_with_single_extender_and_single_target
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar, .baz .bar, .foo .baz, .baz .baz {
+  a: b; }
+CSS
+.foo .bar {a: b}
+.baz {@extend .foo; @extend .bar}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar, .bar.baz, .foo.baz, .baz {
+  a: b; }
+CSS
+.foo.bar {a: b}
+.baz {@extend .foo; @extend .bar}
+SCSS
+  end
+
+  def test_multiple_extends_with_multiple_extenders_and_single_target
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar, .baz .bar, .foo .bang, .baz .bang {
+  a: b; }
+CSS
+.foo .bar {a: b}
+.baz {@extend .foo}
+.bang {@extend .bar}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar, .bar.baz, .foo.bang, .baz.bang {
+  a: b; }
+CSS
+.foo.bar {a: b}
+.baz {@extend .foo}
+.bang {@extend .bar}
+SCSS
+  end
+
+  def test_chained_extends
+    assert_equal <<CSS, render(<<SCSS)
+.foo, .bar, .baz, .bip {
+  a: b; }
+CSS
+.foo {a: b}
+.bar {@extend .foo}
+.baz {@extend .bar}
+.bip {@extend .bar}
+SCSS
+  end
+
   def test_dynamic_extendee
     assert_equal <<CSS, render(<<SCSS)
 .foo, .bar {
