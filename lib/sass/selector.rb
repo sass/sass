@@ -400,17 +400,12 @@ module Sass
       #   by {Sequence#extend}.
       # @see CommaSequence#extend
       def extend(extends, supers = [])
-        Haml::Util.enum_with_index(members).map do |sel, i|
+        seqs = Haml::Util.enum_with_index(members).map do |sel, i|
           next unless extenders = extends[sel]
           sseq_without_sel = members[0...i] + members[i+1..-1]
-          extenders.map do |sel2|
-            next unless unified = sel2.unify(sseq_without_sel)
-            unified = SimpleSequence.new(unified)
-            res = [unified] + unified.extend(extends, supers.push(sel2))
-            supers.pop
-            res
-          end
-        end.flatten.compact
+          extenders.map {|sel2| sel2.unify(sseq_without_sel)}
+        end.flatten(1).compact.map {|seq| SimpleSequence.new(seq)}
+        seqs.concat seqs.map {|seq| seq.extend(extends)}.flatten.uniq
       rescue SystemStackError
         handle_extend_loop(supers)
       end
