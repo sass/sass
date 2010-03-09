@@ -93,6 +93,13 @@ class UtilTest < Test::Unit::TestCase
       strip_string_array([" foo ", " bar ", :baz]))
   end
 
+  def test_paths
+    assert_equal([[1, 3, 5], [2, 3, 5], [1, 4, 5], [2, 4, 5]],
+      paths([[1, 2], [3, 4], [5]]))
+    assert_equal([[]], paths([]))
+    assert_equal([[1, 2, 3]], paths([[1], [2], [3]]))
+  end
+
   def test_silence_warnings
     old_stderr, $stderr = $stderr, StringIO.new
     warn "Out"

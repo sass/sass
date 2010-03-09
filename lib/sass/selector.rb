@@ -295,14 +295,10 @@ module Sass
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#extend
       def extend(extends)
-        new_seqs = [self]
-        members.each_with_index do |sseq_or_op, i|
-          next unless sseq_or_op.is_a?(SimpleSequence)
-          new_seqs.concat(sseq_or_op.extend(extends).map do |sseq|
-              Sequence.new(members[0...i] + [sseq] + members[i+1..-1])
-            end)
-        end
-        new_seqs
+        Haml::Util.paths(members.map do |sseq_or_op|
+            next [sseq_or_op] unless sseq_or_op.is_a?(SimpleSequence)
+            [sseq_or_op, *sseq_or_op.extend(extends)]
+          end).map {|p| Sequence.new(p)}
       end
 
       # @see Node#to_a
