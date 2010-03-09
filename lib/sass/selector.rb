@@ -96,8 +96,9 @@ module Sass
       #   If the second value is `false`, the first should be ignored.
       def unify_namespaces(ns1, ns2)
         return nil, false unless ns1 == ns2 || ns1.nil? || ns1 == '*' || ns2.nil? || ns2 == '*'
-        return ns2, true unless ns2.nil? || ns2 == '*'
-        return ns1, true
+        return ns2, true if ns1 == '*'
+        return ns1, true if ns2 == '*'
+        return ns1 || ns2, true
       end
     end
 
