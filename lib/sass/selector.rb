@@ -564,7 +564,7 @@ module Sass
           when Universal; :universal
           when Element; sels.first.name
           else
-            return [self] + sels unless ns == nil || ns == '*'
+            return [self] + sels unless namespace == nil || namespace == '*'
             return sels
           end
 
