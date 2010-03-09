@@ -175,6 +175,9 @@ module Sass
         node = dup
         node.children = children.map {|c| c.extend(extends)}
         node
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace(:filename => filename, :line => line)
+        raise e
       end
 
       # Converts a static Sass tree (e.g. the output of \{#perform})

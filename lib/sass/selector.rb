@@ -305,6 +305,7 @@ module Sass
       # with the extensions specified in a hash
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
+      # @overload def extend(extends)
       # @param extends [{Selector::Node => Selector::Node}]
       #   The extensions to perform on this selector
       # @return [Array<SimpleSequence>] A list of selectors generated
@@ -314,16 +315,20 @@ module Sass
       #   Each individual SimpleSequence will be post-processed into a Sequence
       #   by {Sequence#extend}.
       # @see CommaSequence#extend
-      def extend(extends)
+      def extend(extends, supers = [])
         Haml::Util.enum_with_index(members).map do |sel, i|
           next unless extenders = extends[sel]
           sseq_without_sel = members[0...i] + members[i+1..-1]
           extenders.map do |sel2|
-            next unless sel2 = sel2.unify(sseq_without_sel)
-            sel2 = SimpleSequence.new(sel2)
-            [sel2] + sel2.extend(extends)
+            next unless unified = sel2.unify(sseq_without_sel)
+            unified = SimpleSequence.new(unified)
+            res = [unified] + unified.extend(extends, supers.push(sel2))
+            supers.pop
+            res
           end
         end.flatten.compact
+      rescue SystemStackError
+        handle_extend_loop(supers)
       end
 
       # @see Node#to_a
@@ -352,6 +357,28 @@ module Sass
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
         other.class == self.class && other.members.eql?(self.members)
+      end
+
+      private
+
+      # Raise a {Sass::SyntaxError} describing a loop of `@extend` directives.
+      #
+      # @todo Print the @extend line numbers
+      # @todo Deterministically order the description based on line numbers
+      #
+      # @param supers [Array<Node>] The stack of selectors that contains the loop,
+      #   ordered from deepest to most shallow.
+      # @raise [Sass::SyntaxError] Describing the loop
+      def handle_extend_loop(supers)
+        supers.inject([]) do |sels, sel|
+          next sels.push(sel) unless sels.first.eql?(sel)
+          raise Sass::SyntaxError.new("An @extend loop was found:\n" +
+            Haml::Util.enum_cons(sels.push(sel), 2).
+              map {|sel1, sel2| "  #{sel1.inspect} extends #{sel2.inspect}"}.
+              join(",\n"))
+        end
+        # Should never get here
+        raise Sass::SyntaxError.new("An @extend loop exists, but the exact loop couldn't be found")
       end
     end
 
