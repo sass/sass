@@ -113,7 +113,7 @@ class UtilTest < Test::Unit::TestCase
       enum_with_index(%w[foo bar baz]).map {|s, i| "#{s}#{i}"})
   end
 
-  def test_enum_consr
+  def test_enum_cons
     assert_equal(%w[foobar barbaz],
       enum_cons(%w[foo bar baz], 2).map {|s1, s2| "#{s1}#{s2}"})
   end
