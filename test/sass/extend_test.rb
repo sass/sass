@@ -704,6 +704,38 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
+::foo.baz {
+  a: b; }
+CSS
+::foo.baz {a: b}
+::bar {@extend .baz}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+::foo.baz {
+  a: b; }
+CSS
+::foo.baz {a: b}
+::foo(2n+1) {@extend .baz}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+::foo.baz, ::foo {
+  a: b; }
+CSS
+::foo.baz {a: b}
+::foo {@extend .baz}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+::foo(2n+1).baz, ::foo(2n+1) {
+  a: b; }
+CSS
+::foo(2n+1).baz {a: b}
+::foo(2n+1) {@extend .baz}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
 :foo.baz, :foo:bar {
   a: b; }
 CSS
@@ -717,6 +749,24 @@ SCSS
 CSS
 :foo.baz {a: b}
 :foo {@extend .baz}
+SCSS
+  end
+
+  def test_pseudoelement_remains_at_end_of_selector
+    assert_equal <<CSS, render(<<SCSS)
+.foo::bar, .baz::bar {
+  a: b; }
+CSS
+.foo::bar {a: b}
+.baz {@extend .foo}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a.foo::bar, a.baz::bar {
+  a: b; }
+CSS
+a.foo::bar {a: b}
+.baz {@extend .foo}
 SCSS
   end
 

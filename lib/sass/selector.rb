@@ -76,6 +76,9 @@ module Sass
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels)
         return sels if sels.any? {|sel2| eql?(sel2)}
+        if sels.last.is_a?(Pseudo) && sels.last.type == :element
+          return sels[0...-1] + [self, sels.last]
+        end
         sels + [self]
       end
 
@@ -756,6 +759,14 @@ module Sass
         res = [@type == :class ? ":" : "::", @name]
         (res << "(").concat(@arg) << ")" if @arg
         res
+      end
+
+      def unify(sels)
+        return if type == :element && sels.any? do |sel|
+          sel.is_a?(Pseudo) && sel.type == :element &&
+            (sel.name != self.name || sel.arg != self.arg)
+        end
+        super
       end
     end
 
