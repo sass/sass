@@ -344,6 +344,21 @@ module Sass
       # @return [Array<Node>]
       attr_reader :members
 
+      # Returns the element or universal selector in this sequence,
+      # if it exists.
+      #
+      # @return [Element, Universal, nil]
+      def base
+        @base ||= (members.first if members.first.is_a?(Element) || members.first.is_a?(Universal))
+      end
+
+      # Returns the non-base selectors in this sequence.
+      #
+      # @return [Set<Node>]
+      def rest
+        @rest ||= Set.new(base ? members[1..-1] : members)
+      end
+
       # @param selectors [Array<Node>] See \{#members}
       def initialize(selectors)
         @members = selectors
@@ -417,7 +432,7 @@ module Sass
       #
       # @return [Fixnum]
       def hash
-        members.hash
+        [base, rest].hash
       end
 
       # Checks equality between this and another object.
@@ -425,7 +440,7 @@ module Sass
       # @param other [Object] The object to test equality against
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
-        other.class == self.class && other.members.eql?(self.members)
+        other.class == self.class && other.base.eql?(self.base) && other.rest.eql?(self.rest)
       end
 
       private
