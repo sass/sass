@@ -556,6 +556,8 @@ module Sass
       #   make sure we thoroughly test **all of them**.
       # @todo Keep track of whether a default namespace has been declared
       #   and handle namespace-unspecified selectors accordingly.
+      # @todo If any branch of a CommaSequence ends up being just `"*"`,
+      #   then all other branches should be eliminated
       #
       # @see Node#unify
       def unify(sels)
@@ -565,7 +567,8 @@ module Sass
           when Element; sels.first.name
           else
             return [self] + sels unless namespace == nil || namespace == '*'
-            return sels
+            return sels unless sels.empty?
+            return [self]
           end
 
         ns, accept = unify_namespaces(namespace, sels.first.namespace)
