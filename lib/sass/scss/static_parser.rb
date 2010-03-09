@@ -8,9 +8,14 @@ module Sass
     class StaticParser < Parser
       # Parses the text as a selector.
       #
+      # @param line [Fixnum] The line on which the selector appears.
+      #   Used for error reporting
+      # @param filename [String, nil] The file in which the selector appears,
+      #   or nil if there is no such file.
+      #   Used for error reporting
       # @return [Selector::CommaSequence] The parsed selector
       # @raise [Sass::SyntaxError] if there's a syntax error in the selector
-      def parse_selector
+      def parse_selector(line, filename)
         init_scanner!
         selectors = [expr!(:_selector)]
         while tok(/,/)
@@ -19,7 +24,10 @@ module Sass
           selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
         end
         expected("selector") unless @scanner.eos?
-        Selector::CommaSequence.new(selectors)
+        seq = Selector::CommaSequence.new(selectors)
+        seq.line = line
+        seq.filename = filename
+        seq
       end
 
       private

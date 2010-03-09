@@ -4,6 +4,17 @@ module Sass
     # The abstract superclass for simple selectors
     # (that is, those that don't compose multiple selectors).
     class Node
+      # The line of the Sass template on which this selector was declared.
+      #
+      # @return [Fixnum]
+      attr_accessor :line
+
+      # The name of the file in which this selector was declared,
+      # or `nil` if it was not declared in a file (e.g. on stdin).
+      #
+      # @return [String, nil]
+      attr_accessor :filename
+
       # Returns a representation of the node
       # as an array of strings and potentially {Sass::Script::Node}s
       # (if there's interpolation in the selector).
@@ -90,8 +101,45 @@ module Sass
       end
     end
 
+    # The abstract parent class of the various selector sequence classes.
+    #
+    # All subclasses should implement a `members` method
+    # that returns an array of object that respond to `#line=` and `#filename=`.
+    class AbstractSequence
+      # The line of the Sass template on which this selector was declared.
+      #
+      # @return [Fixnum]
+      attr_reader :line
+
+      # The name of the file in which this selector was declared.
+      #
+      # @return [String, nil]
+      attr_reader :filename
+
+      # Sets the line of the Sass template on which this selector was declared.
+      # This also sets the line for all child selectors.
+      #
+      # @param line [Fixnum]
+      # @return [Fixnum]
+      def line=(line)
+        members.each {|m| m.line = line}
+        @line = line
+      end
+
+      # Sets the name of the file in which this selector was declared,
+      # or `nil` if it was not declared in a file (e.g. on stdin).
+      # This also sets the filename for all child selectors.
+      #
+      # @param filename [String, nil]
+      # @return [String, nil]
+      def filename=(filename)
+        members.each {|m| m.filename = filename}
+        @filename = filename
+      end
+    end
+
     # A comma-separated sequence of selectors.
-    class CommaSequence
+    class CommaSequence < AbstractSequence
       # The comma-separated selector sequences
       # represented by this class.
       #
@@ -169,7 +217,28 @@ module Sass
 
     # An operator-separated sequence of
     # {SimpleSequence simple selector sequences}.
-    class Sequence
+    class Sequence < AbstractSequence
+      # Sets the line of the Sass template on which this selector was declared.
+      # This also sets the line for all child selectors.
+      #
+      # @param line [Fixnum]
+      # @return [Fixnum]
+      def line=(line)
+        members.each {|m| m.line = line if m.is_a?(SimpleSequence)}
+        line
+      end
+
+      # Sets the name of the file in which this selector was declared,
+      # or `nil` if it was not declared in a file (e.g. on stdin).
+      # This also sets the filename for all child selectors.
+      #
+      # @param filename [String, nil]
+      # @return [String, nil]
+      def filename=(filename)
+        members.each {|m| m.filename = filename if m.is_a?(SimpleSequence)}
+        filename
+      end
+
       # The array of {SimpleSequence simple selector sequences}, operators, and newlines.
       # The operators are strings such as `"+"` and `">"`
       # representing the corresponding CSS operators.
@@ -269,7 +338,7 @@ module Sass
     # that all apply to a single element.
     # For example, `.foo#bar[attr=baz]` is a simple sequence
     # of the selectors `.foo`, `#bar`, and `[attr=baz]`.
-    class SimpleSequence
+    class SimpleSequence < AbstractSequence
       # The array of individual selectors.
       #
       # @return [Array<Node>]
@@ -363,7 +432,6 @@ module Sass
 
       # Raise a {Sass::SyntaxError} describing a loop of `@extend` directives.
       #
-      # @todo Print the @extend line numbers
       # @todo Deterministically order the description based on line numbers
       #
       # @param supers [Array<Node>] The stack of selectors that contains the loop,
@@ -374,8 +442,11 @@ module Sass
           next sels.push(sel) unless sels.first.eql?(sel)
           raise Sass::SyntaxError.new("An @extend loop was found:\n" +
             Haml::Util.enum_cons(sels.push(sel), 2).
-              map {|sel1, sel2| "  #{sel1.inspect} extends #{sel2.inspect}"}.
-              join(",\n"))
+              map do |sel1, sel2|
+                str = "  #{sel1.inspect} extends #{sel2.inspect} on line #{sel1.line}"
+                str << " of " + sel1.filename if sel1.filename
+                str
+              end.join(",\n"))
         end
         # Should never get here
         raise Sass::SyntaxError.new("An @extend loop exists, but the exact loop couldn't be found")

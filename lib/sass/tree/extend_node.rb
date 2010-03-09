@@ -48,7 +48,8 @@ module Sass::Tree
     protected
 
     def perform!(environment)
-      @resolved_selector = Sass::SCSS::CssParser.new(run_interp(@selector, environment)).parse_selector
+      @resolved_selector = Sass::SCSS::CssParser.new(run_interp(@selector, environment)).
+        parse_selector(self.line, self.filename)
       super
     end
   end
