@@ -432,21 +432,20 @@ module Sass
 
       # Raise a {Sass::SyntaxError} describing a loop of `@extend` directives.
       #
-      # @todo Deterministically order the description based on line numbers
-      #
       # @param supers [Array<Node>] The stack of selectors that contains the loop,
       #   ordered from deepest to most shallow.
       # @raise [Sass::SyntaxError] Describing the loop
       def handle_extend_loop(supers)
         supers.inject([]) do |sels, sel|
           next sels.push(sel) unless sels.first.eql?(sel)
-          raise Sass::SyntaxError.new("An @extend loop was found:\n" +
-            Haml::Util.enum_cons(sels.push(sel), 2).
-              map do |sel1, sel2|
-                str = "  #{sel1.inspect} extends #{sel2.inspect} on line #{sel1.line}"
-                str << " of " + sel1.filename if sel1.filename
-                str
-              end.join(",\n"))
+          conses = Haml::Util.enum_cons(sels.push(sel), 2).to_a
+          _, i = Haml::Util.enum_with_index(conses).max {|((_, sel1), _), ((_, sel2), _)| sel1.line <=> sel2.line}
+          loop = (conses[i..-1] + conses[0...i]).map do |sel1, sel2|
+            str = "  #{sel1.inspect} extends #{sel2.inspect} on line #{sel1.line}"
+            str << " of " << sel1.filename if sel1.filename
+            str
+          end.join(",\n")
+          raise Sass::SyntaxError.new("An @extend loop was found:\n#{loop}")
         end
         # Should never get here
         raise Sass::SyntaxError.new("An @extend loop exists, but the exact loop couldn't be found")
