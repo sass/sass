@@ -2,7 +2,7 @@ module Sass::Script
   # Methods in this module are accessible from the SassScript context.
   # For example, you can write
   #
-  #     !color = hsl(120deg, 100%, 50%)
+  #     $color = hsl(120deg, 100%, 50%)
   #
   # and it will call {Sass::Script::Functions#hsl}.
   #

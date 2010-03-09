@@ -96,6 +96,13 @@ of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#
 Haml now supports a {file:HAML_REFERENCE.md#css-filter `:css` filter}
 that surrounds the filtered text with `<style>` and CDATA tags.
 
+### Rails Support
+
+* When `form_for` is used with `=`, or `form_tag` is used with `=` and a block,
+  they will now raise errors explaining that they should be used with `-`.
+  This is similar to how {Haml::Helpers#haml\_concat} behaves,
+  and will hopefully clear up some difficult bugs for some users.
+
 ### `html2haml` Improvements
 
 * Ruby blocks within ERB are now supported.
@@ -200,6 +207,12 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Fix a few bugs in the git-revision-reporting in {Haml::Version#version}.
   In particular, it will still work if `git gc` has been called recently,
   or if various files are missing.
+
+* Always use `__FILE__` when reading files within the Haml repo in the `Rakefile`.
+  According to [this bug report](http://github.com/carlhuda/bundler/issues/issue/44),
+  this should make Haml work better with Bundler.
+
+* Make the error message for `- end` a little more intuitive based on user feedback.
 
 ## 2.2.20
 

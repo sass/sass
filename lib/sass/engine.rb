@@ -378,7 +378,7 @@ WARNING
         else
           parse_property(line, PROPERTY_OLD)
         end
-      when Script::VARIABLE_CHAR
+      when ?!, ?$
         parse_variable(line)
       when COMMENT_CHAR
         parse_comment(line.text)
@@ -425,6 +425,7 @@ WARNING
         :line => @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
         :line => @line) unless name && value
+      Script.var_warning(name, @line, line.offset + 1, @options[:filename]) if line.text[0] == ?!
 
       Tree::VariableNode.new(name, parse_script(value, :offset => line.offset + line.text.index(value)), op == '||=')
     end
@@ -491,10 +492,14 @@ WARNING
         raise SyntaxError.new("Invalid for directive '@for #{text}': expected #{expected}.")
       end
       raise SyntaxError.new("Invalid variable \"#{var}\".") unless var =~ Script::VALIDATE
+      if var.slice!(0) == ?!
+        offset = line.offset + line.text.index("!" + var) + 1
+        Script.var_warning(var, @line, offset, @options[:filename])
+      end
 
       parsed_from = parse_script(from_expr, :offset => line.offset + line.text.index(from_expr))
       parsed_to = parse_script(to_expr, :offset => line.offset + line.text.index(to_expr))
-      Tree::ForNode.new(var[1..-1], parsed_from, parsed_to, to_name == 'to')
+      Tree::ForNode.new(var, parsed_from, parsed_to, to_name == 'to')
     end
 
     def parse_else(parent, line, text)

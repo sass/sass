@@ -16,7 +16,7 @@ module Sass
         Regexp.new(Regexp.quote(str), flags)
       end
 
-      H        = /[0-9a-f]/i
+      H        = /[0-9a-fA-F]/
       NL       = /\n|\r\n|\r|\f/
       UNICODE  = /\\#{H}{1,6}[ \t\r\n\f]?/
       s = if Haml::Util.ruby1_8?
@@ -26,8 +26,8 @@ module Sass
           end
       NONASCII = /[#{s}]/
       ESCAPE   = /#{UNICODE}|\\[ -~#{s}]/
-      NMSTART  = /[a-z]|#{NONASCII}|#{ESCAPE}/i
-      NMCHAR   = /[a-z0-9_-]|#{NONASCII}|#{ESCAPE}/i
+      NMSTART  = /[a-zA-Z]|#{NONASCII}|#{ESCAPE}/
+      NMCHAR   = /[a-zA-Z0-9_-]|#{NONASCII}|#{ESCAPE}/
       STRING1  = /\"((?:[^\n\r\f\\"]|\\#{NL}|#{ESCAPE})*)\"/
       STRING2  = /\'((?:[^\n\r\f\\']|\\#{NL}|#{ESCAPE})*)\'/
 

@@ -135,7 +135,7 @@ module Sass
       end
 
       def for
-        tok!(/!/)
+        tok!(/\$/)
         var = tok! IDENT
         ss
 
@@ -230,7 +230,7 @@ module Sass
       end
 
       def variable
-        return unless tok(/!/)
+        return unless tok(/\$/)
         name = tok!(IDENT)
         ss
 

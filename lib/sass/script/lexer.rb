@@ -69,18 +69,24 @@ module Sass
       # @private
       OP_NAMES = OPERATORS.keys.sort_by {|o| -o.size}
 
+      # A sub-list of {OP_NAMES} that only includes operators
+      # with identifier names.
+      # @private
+      IDENT_OP_NAMES = OP_NAMES.select {|k, v| k =~ /^\w+/}
+
       # A hash of regular expressions that are used for tokenizing.
       # @private
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s+/,
         :comment => Sass::SCSS::RX::COMMENT,
         :single_line_comment => Sass::SCSS::RX::SINGLE_LINE_COMMENT,
-        :variable => /!(#{Sass::SCSS::RX::IDENT})/,
+        :variable => /([!\$])(#{Sass::SCSS::RX::IDENT})/,
         :ident => Sass::SCSS::RX::IDENT,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => Sass::SCSS::RX::HEXCOLOR,
         :bool => /(true|false)\b/,
-        :op => %r{(#{Regexp.union(*OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + (s =~ /\w$/ ? '(?:\b|$)' : ''))})})}
+        :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + '(?:\b|$)')})})},
+        :op => %r{(#{Regexp.union(*OP_NAMES)})},
       }
 
       class << self
@@ -170,12 +176,19 @@ module Sass
 
       def token
         return string(@interpolation_stack.pop, true) if after_interpolation?
-        variable || string(:double, false) || string(:single, false) || number || color || bool || op || ident
+        variable || string(:double, false) || string(:single, false) || number ||
+          color || bool || ident_op || ident || op
       end
 
       def variable
+        line = @line
+        offset = @offset
         return unless scan(REGULAR_EXPRESSIONS[:variable])
-        [:const, @scanner[1]]
+        if @scanner[1] == '!' && @scanner[2] != 'important'
+          Script.var_warning(@scanner[2], line, offset + 1, @options[:filename])
+        end
+
+        [:const, @scanner[2]]
       end
 
       def ident
@@ -208,8 +221,12 @@ module Sass
         [:bool, Script::Bool.new(s == 'true')]
       end
 
+      def ident_op
+        return unless op = scan(REGULAR_EXPRESSIONS[:ident_op])
+        [OPERATORS[op]]
+      end
+
       def op
-        prev_chr = @scanner.string[@scanner.pos - 1].chr
         return unless op = scan(REGULAR_EXPRESSIONS[:op])
         [OPERATORS[op]]
       end

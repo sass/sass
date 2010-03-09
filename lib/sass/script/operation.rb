@@ -7,7 +7,7 @@ require 'sass/script/unary_operation'
 
 module Sass::Script
   # A SassScript parse node representing a binary operation,
-  # such as `!a + !b` or `"foo" + 1`.
+  # such as `$a + $b` or `"foo" + 1`.
   class Operation < Node
     attr_reader :operator
 

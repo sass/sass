@@ -53,10 +53,10 @@ SCSS
 
   def test_selector_interpolation
     assert_renders <<SASS, <<SCSS
-foo \#{!bar + "baz"}.bip
+foo \#{$bar + "baz"}.bip
   baz: bang
 SASS
-foo \#{!bar + "baz"}.bip {
+foo \#{$bar + "baz"}.bip {
   baz: bang; }
 SCSS
   end
@@ -117,50 +117,50 @@ SCSS
   def test_property_name_interpolation
     assert_renders <<SASS, <<SCSS
 foo bar
-  baz\#{!bang}bip\#{!bop}: 12
+  baz\#{$bang}bip\#{$bop}: 12
 SASS
 foo bar {
-  baz\#{!bang}bip\#{!bop}: 12; }
+  baz\#{$bang}bip\#{$bop}: 12; }
 SCSS
   end
 
   def test_property_name_interpolation
     assert_renders <<SASS, <<SCSS
 foo bar
-  baz\#{!bang}bip\#{!bop}: 12
+  baz\#{$bang}bip\#{$bop}: 12
 SASS
 foo bar {
-  baz\#{!bang}bip\#{!bop}: 12; }
+  baz\#{$bang}bip\#{$bop}: 12; }
 SCSS
   end
 
   def test_property_value_interpolation
     assert_renders <<SASS, <<SCSS
 foo bar
-  baz: 12 \#{!bang} bip \#{"bop"} blat
+  baz: 12 \#{$bang} bip \#{"bop"} blat
 SASS
 foo bar {
-  baz: 12 \#{!bang} bip \#{"bop"} blat; }
+  baz: 12 \#{$bang} bip \#{"bop"} blat; }
 SCSS
   end
 
   def test_dynamic_properties
     assert_renders <<SASS, <<SCSS
 foo bar
-  baz= 12 !bang "bip"
+  baz= 12 $bang "bip"
 SASS
 foo bar {
-  baz= 12 !bang "bip"; }
+  baz= 12 $bang "bip"; }
 SCSS
   end
 
   def test_dynamic_properties_with_old
     assert_renders <<SASS, <<SCSS, :old => true
 foo bar
-  :baz= 12 !bang "bip"
+  :baz= 12 $bang "bip"
 SASS
 foo bar {
-  baz= 12 !bang "bip"; }
+  baz= 12 $bang "bip"; }
 SCSS
   end
 
@@ -193,22 +193,22 @@ IN
   def test_multiline_dynamic_properties
     assert_scss_to_sass <<SASS, <<SCSS
 foo bar
-  baz= !bip "bam" 12px
+  baz= $bip "bam" 12px
 SASS
 foo bar {
   baz=
-    !bip
+    $bip
   "bam"
         12px; }
 SCSS
 
     assert_scss_to_scss <<OUT, <<IN
 foo bar {
-  baz= !bip "bam" 12px; }
+  baz= $bip "bam" 12px; }
 OUT
 foo bar {
   baz=
-    !bip
+    $bip
   "bam"
         12px; }
 IN
@@ -497,16 +497,16 @@ SCSS
   def test_for
     assert_renders <<SASS, <<SCSS
 foo
-  @for !a from !b to !c
+  @for $a from $b to $c
     a: b
-  @for !c from 1 to 16
+  @for $c from 1 to 16
     d: e
     f: g
 SASS
 foo {
-  @for !a from !b to !c {
+  @for $a from $b to $c {
     a: b; }
-  @for !c from 1 to 16 {
+  @for $c from 1 to 16 {
     d: e;
     f: g; } }
 SCSS
@@ -515,14 +515,14 @@ SCSS
   def test_while
     assert_renders <<SASS, <<SCSS
 foo
-  @while flaz(!a + !b)
+  @while flaz($a + $b)
     a: b
   @while 1
     d: e
     f: g
 SASS
 foo {
-  @while flaz(!a + !b) {
+  @while flaz($a + $b) {
     a: b; }
   @while 1 {
     d: e;
@@ -533,21 +533,21 @@ SCSS
   def test_if
     assert_renders <<SASS, <<SCSS
 foo
-  @if !foo or !bar
+  @if $foo or $bar
     a: b
-  @if !baz
+  @if $baz
     d: e
-  @else if !bang
+  @else if $bang
     f: g
   @else
     h: i
 SASS
 foo {
-  @if !foo or !bar {
+  @if $foo or $bar {
     a: b; }
-  @if !baz {
+  @if $baz {
     d: e; }
-  @else if !bang {
+  @else if $bang {
     f: g; }
   @else {
     h: i; } }
@@ -661,25 +661,25 @@ SASS
 
   def test_mixin_definition_without_defaults
     assert_renders <<SASS, <<SCSS
-=foo-bar(!baz, !bang)
+=foo-bar($baz, $bang)
   baz
-    a= !baz !bang
+    a= $baz $bang
 SASS
-@mixin foo-bar(!baz, !bang) {
+@mixin foo-bar($baz, $bang) {
   baz {
-    a= !baz !bang; } }
+    a= $baz $bang; } }
 SCSS
   end
 
   def test_mixin_definition_with_defaults
     assert_renders <<SASS, <<SCSS
-=foo-bar(!baz, !bang = 12px)
+=foo-bar($baz, $bang = 12px)
   baz
-    a= !baz !bang
+    a= $baz $bang
 SASS
-@mixin foo-bar(!baz, !bang = 12px) {
+@mixin foo-bar($baz, $bang = 12px) {
   baz {
-    a= !baz !bang; } }
+    a= $baz $bang; } }
 SCSS
   end
 
@@ -709,33 +709,33 @@ SCSS
 
   def test_variable_definition
     assert_renders <<SASS, <<SCSS
-!var1 = 12px + 15px
+$var1 = 12px + 15px
 
 foo
-  !var2 = flaz(#abcdef)
-  val= !var1 !var2
+  $var2 = flaz(#abcdef)
+  val= $var1 $var2
 SASS
-!var1 = 12px + 15px;
+$var1 = 12px + 15px;
 
 foo {
-  !var2 = flaz(#abcdef);
-  val= !var1 !var2; }
+  $var2 = flaz(#abcdef);
+  val= $var1 $var2; }
 SCSS
   end
 
   def test_guarded_variable_definition
     assert_renders <<SASS, <<SCSS
-!var1 ||= 12px + 15px
+$var1 ||= 12px + 15px
 
 foo
-  !var2 ||= flaz(#abcdef)
-  val= !var1 !var2
+  $var2 ||= flaz(#abcdef)
+  val= $var1 $var2
 SASS
-!var1 ||= 12px + 15px;
+$var1 ||= 12px + 15px;
 
 foo {
-  !var2 ||= flaz(#abcdef);
-  val= !var1 !var2; }
+  $var2 ||= flaz(#abcdef);
+  val= $var1 $var2; }
 SCSS
   end
 

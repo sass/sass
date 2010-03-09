@@ -14,7 +14,8 @@ module Sass
 
       # @return [String] A string representation of the variable
       def inspect
-        "!#{name}"
+        return "!important" if name == "important"
+        "$#{name}"
       end
       alias_method :to_sass, :inspect
 
@@ -35,7 +36,7 @@ module Sass
       # @raise [Sass::SyntaxError] if the variable is undefined
       def _perform(environment)
         (val = environment.var(name)) && (return val)
-        raise SyntaxError.new("Undefined variable: \"!#{name}\".")
+        raise SyntaxError.new("Undefined variable: \"$#{name}\".")
       end
     end
   end

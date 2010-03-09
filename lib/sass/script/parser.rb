@@ -257,7 +257,7 @@ END
 
       def variable
         return string unless c = try_tok(:const)
-        node(Variable.new(c.value))
+        node(Variable.new(*c.value))
       end
 
       def string

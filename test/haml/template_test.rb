@@ -80,7 +80,13 @@ class TemplateTest < Test::Unit::TestCase
     # It's usually provided by ActionController::Base.
     def base.protect_against_forgery?; false; end
 
-    base.controller = DummyController.new
+    # In Rails <= 2.1, a fake controller object was needed
+    # to provide the controller path.
+    if ActionPack::VERSION::MAJOR < 2 ||
+        (ActionPack::VERSION::MAJOR == 2 && ActionPack::VERSION::MINOR < 2)
+      base.controller = DummyController.new
+    end
+
     base
   end
 
@@ -182,6 +188,24 @@ class TemplateTest < Test::Unit::TestCase
 
   def test_template_renders_should_eval
     assert_equal("2\n", render("= 1+1"))
+  end
+
+  def test_form_for_error_return
+    assert_raise(Haml::Error) { render(<<HAML) }
+= form_for :article, @article, :url => '' do |f|
+  Title:
+  = f.text_field :title
+  Body:
+  = f.text_field :body
+HAML
+  end
+
+  def test_form_tag_error_return
+    assert_raise(Haml::Error) { render(<<HAML) }
+= form_tag '' do
+  Title:
+  Body:
+HAML
   end
 
   def test_haml_options

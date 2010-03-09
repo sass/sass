@@ -12,17 +12,13 @@ module Sass
   #
   # This module contains code that handles the parsing and evaluation of SassScript.
   module Script
-    # The character that begins a variable.
-    # @private
-    VARIABLE_CHAR = ?!
-
     # The regular expression used to parse variables.
     # @private
-    MATCH = /^!(#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^[!\$](#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=)\s*(.+)/
 
     # The regular expression used to validate variables without matching.
     # @private
-    VALIDATE = /^!#{Sass::SCSS::RX::IDENT}$/
+    VALIDATE = /^[!\$]#{Sass::SCSS::RX::IDENT}$/
 
     # Parses a string of SassScript
     #
@@ -40,6 +36,16 @@ module Sass
       e.message << ": #{value.inspect}." if e.message == "SassScript error"
       e.modify_backtrace(:line => line, :filename => options[:filename])
       raise e
+    end
+
+    # @private
+    def self.var_warning(varname, line, offset, filename)
+      warn <<MESSAGE
+DEPRECATION WARNING:
+On line #{line}, character #{offset}#{" of '#{filename}'" if filename}
+Variables with ! have been deprecated and will be removed in version 3.2.
+Use \"$#{varname}\" instead.
+MESSAGE
     end
   end
 end

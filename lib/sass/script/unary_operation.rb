@@ -1,6 +1,6 @@
 module Sass::Script
   # A SassScript parse node representing a unary operation,
-  # such as `-!b` or `not true`.
+  # such as `-$b` or `not true`.
   #
   # Currently only `-`, `/`, and `not` are unary operators.
   class UnaryOperation < Node
@@ -19,7 +19,12 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass
-      operand = @operand.is_a?(Operation) ? "(#{@operand.to_sass})" : @operand.to_sass
+      operand = @operand.to_sass
+      if @operand.is_a?(Operation) ||
+          (@operator == :minus &&
+           (operand =~ Sass::SCSS::RX::IDENT) == 0)
+        operand = "(#{@operand.to_sass})"
+      end
       op = Lexer::OPERATORS_REVERSE[@operator]
       op + (op =~ /[a-z]/ ? " " : "") + operand
     end
