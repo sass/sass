@@ -412,11 +412,7 @@ SCSS
   a: b; }
 SCSS
     assert_parses <<SCSS
-@media screen and -webkit-min-device-pixel-ratio: 0 {
-  a: b; }
-SCSS
-    assert_parses <<SCSS
-@media screen, print and foo: 0 and bar: 15 {
+@media only screen, print and (foo: 0px) and (bar: flam(12px solid)) {
   a: b; }
 SCSS
   end
@@ -433,7 +429,7 @@ SCSS
     assert_parses '@import "foo.css" screen;'
     assert_parses '@import "foo.css" screen, print;'
     assert_parses '@import "foo.css" screen, print and (foo: 0);'
-    assert_parses '@import "foo.css" screen, print and foo: 0;'
+    assert_parses '@import "foo.css" screen, only print, screen and (foo: 0);'
   end
 
   def test_page_directive

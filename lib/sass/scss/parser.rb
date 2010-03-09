@@ -178,7 +178,7 @@ module Sass
         path = @scanner[1] || @scanner[2] || @scanner[3]
         ss
 
-        media = str {media_type}.strip
+        media = str {media_query_list}.strip
 
         if !media.strip.empty? || use_css_import?
           return node(Sass::Tree::DirectiveNode.new("@import #{arg} #{media}".strip))
@@ -190,35 +190,54 @@ module Sass
       def use_css_import?; false; end
 
       def media
-        val = str {media_type}.strip
+        val = str {media_query_list}.strip
         block(node(Sass::Tree::DirectiveNode.new("@media #{val}")), :directive)
       end
 
-      def media_type
-        return unless media_term
+      # http://www.w3.org/TR/css3-mediaqueries/#syntax
+      def media_query_list
+        return unless media_query
 
         ss
-        while tok(/,|and/)
-          ss; expr!(:media_term); ss
+        while tok(/,/)
+          ss; expr!(:media_query); ss
         end
 
         true
       end
 
-      def media_term
-        return unless tok(IDENT) || (p = tok(/\(/))
-        ss
-
-        if p
-          media_type
+      def media_query
+        if tok(/only|not/i)
           ss
-          tok!(/\)/)
-        elsif tok(/:/)
+          @expected = "media type (e.g. print, screen)"
+          tok!(IDENT)
           ss
-          tok! NUMBER
+        elsif !tok(IDENT) && !media_expr
+          return
         end
 
-        return true
+        ss
+        while tok(/and/i)
+          ss; expr!(:media_expr); ss
+        end
+
+        true
+      end
+
+      def media_expr
+        return unless tok(/\(/)
+        ss
+        @expected = "media feature (e.g. min-device-width, color)"
+        tok!(IDENT)
+        ss
+
+        if tok(/:/)
+          ss; expr!(:expr)
+        end
+        tok!(/\)/)
+        ss
+
+        true
       end
 
       def variable
@@ -592,7 +611,8 @@ MESSAGE
       end
 
       EXPR_NAMES = {
-        :media_term => "medium (e.g. print, screen)",
+        :media_query => "media query (e.g. print, screen, print and screen)",
+        :media_expr => "media expression (e.g. (min-device-width: 800px)))",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
         :expr => "expression (e.g. 1px, bold)",
       }
