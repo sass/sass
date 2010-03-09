@@ -570,7 +570,7 @@ module Sass
 
         ns, accept = unify_namespaces(namespace, sels.first.namespace)
         return unless accept
-        [name == :universal ? Universal.new(ns) : Element.new(ns, name)] + sels[1..-1]
+        [name == :universal ? Universal.new(ns) : Element.new(name, ns)] + sels[1..-1]
       end
     end
 
@@ -632,7 +632,7 @@ module Sass
 
         ns, accept = unify_namespaces(namespace, sels.first.namespace)
         return unless accept
-        [Element.new(ns, name)] + sels[1..-1]
+        [Element.new(name, ns)] + sels[1..-1]
       end
     end
 
