@@ -404,13 +404,20 @@ module Sass
           next unless extenders = extends[sel]
           sseq_without_sel = members[0...i] + members[i+1..-1]
           extenders.map do |sseq|
-            sseq.members.inject(sseq_without_sel) do |sseq2, sel2|
+            new_sseq = sseq.members.inject(sseq_without_sel) do |sseq2, sel2|
               next unless sseq2
               sel2.unify(sseq2)
             end
+            new_sseq && [sel, new_sseq]
           end
-        end.flatten(1).compact.map {|seq| SimpleSequence.new(seq)}
-        seqs.concat seqs.map {|seq| seq.extend(extends)}.flatten.uniq
+        end.flatten(1).compact.map {|sel, seq| [sel, SimpleSequence.new(seq)]}
+
+        seqs.map {|_, seq| seq}.concat(
+          seqs.map do |sel, seq|
+            new_seqs = seq.extend(extends, supers.unshift(sel))
+            supers.shift
+            new_seqs
+          end.flatten.uniq)
       rescue SystemStackError
         handle_extend_loop(supers)
       end
