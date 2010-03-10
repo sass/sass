@@ -166,7 +166,7 @@ module Sass
       # @todo Link this to the reference documentation on `@extend`
       #   when such a thing exists.
       #
-      # @param extends [{Selector::Node => Selector::Node}]
+      # @param extends [{Selector::Node => Selector::SimpleSequence}]
       #   The extensions to perform on this tree
       # @return [Tree::Node] The resulting tree of static CSS nodes.
       # @raise [Sass::SyntaxError] Only if there's a programmer error

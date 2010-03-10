@@ -838,6 +838,46 @@ a.baz {@extend .foo.bar}
 SCSS
   end
 
+  ## Long Extenders
+
+  def test_long_extender
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar, .bar.baz.bang {
+  a: b; }
+CSS
+.foo.bar {a: b}
+.baz.bang {@extend .foo}
+SCSS
+  end
+
+  def test_long_extender_runs_unification
+    assert_equal <<CSS, render(<<SCSS)
+ns|*.foo.bar, ns|a.bar.baz {
+  a: b; }
+CSS
+ns|*.foo.bar {a: b}
+a.baz {@extend .foo}
+SCSS
+  end
+
+  def test_long_extender_aborts_unification
+    assert_equal <<CSS, render(<<SCSS)
+a.foo#bar {
+  a: b; }
+CSS
+a.foo#bar {a: b}
+h1.baz {@extend .foo}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a.foo#bar {
+  a: b; }
+CSS
+a.foo#bar {a: b}
+.bang#baz {@extend .foo}
+SCSS
+  end
+
   private
 
   def render(sass, options = {})

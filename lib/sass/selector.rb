@@ -187,7 +187,7 @@ module Sass
       # @todo Link this to the reference documentation on `@extend`
       #   when such a thing exists.
       #
-      # @param extends [{Selector::Node => Selector::Node}]
+      # @param extends [{Selector::Node => Selector::SimpleSequence}]
       #   The extensions to perform on this selector
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
@@ -288,7 +288,7 @@ module Sass
       # with the extensions specified in a hash
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
-      # @param extends [{Selector::Node => Selector::Node}]
+      # @param extends [{Selector::Node => Selector::SimpleSequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
@@ -390,7 +390,7 @@ module Sass
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
       # @overload def extend(extends)
-      # @param extends [{Selector::Node => Selector::Node}]
+      # @param extends [{Selector::Node => Selector::SimpleSequence}]
       #   The extensions to perform on this selector
       # @return [Array<SimpleSequence>] A list of selectors generated
       #   by extending this selector with `extends`.
@@ -403,7 +403,12 @@ module Sass
         seqs = Haml::Util.enum_with_index(members).map do |sel, i|
           next unless extenders = extends[sel]
           sseq_without_sel = members[0...i] + members[i+1..-1]
-          extenders.map {|sel2| sel2.unify(sseq_without_sel)}
+          extenders.map do |sseq|
+            sseq.members.inject(sseq_without_sel) do |sseq2, sel2|
+              next unless sseq2
+              sel2.unify(sseq2)
+            end
+          end
         end.flatten(1).compact.map {|seq| SimpleSequence.new(seq)}
         seqs.concat seqs.map {|seq| seq.extend(extends)}.flatten.uniq
       rescue SystemStackError

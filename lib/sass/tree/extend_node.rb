@@ -34,11 +34,7 @@ module Sass::Tree
             raise Sass::SyntaxError.new("#{seq.to_a.join} can't extend: invalid selector")
           end
 
-          if sseq.members.size > 1
-            raise Sass::SyntaxError.new("#{seq.to_a.join} can't extend: long selectors can't extend ")
-          end
-
-          extends[sel] << sseq.members.first
+          extends[sel] << sseq
         end
       end
 
