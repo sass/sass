@@ -92,7 +92,7 @@ end
 task :release_elpa do
   require 'tlsmail'
   require 'time'
-  require 'haml'
+  require scope('lib/haml')
 
   version = Haml.version[:number]
 
