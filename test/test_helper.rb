@@ -49,4 +49,9 @@ class Test::Unit::TestCase
   def silence_warnings(&block)
     Haml::Util.silence_warnings(&block)
   end
+
+  def rails_block_helper_char
+    return '=' if Haml::Util.ap_geq_3?
+    return '-'
+  end
 end
