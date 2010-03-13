@@ -104,6 +104,14 @@ end
 
 module ActionView
   module Helpers
+    module CaptureHelper
+      def with_output_buffer_with_haml_xss(*args, &block)
+        Haml::Util.html_safe(with_output_buffer_without_haml_xss(*args, &block))
+      end
+      alias_method :with_output_buffer_without_haml_xss, :with_output_buffer
+      alias_method :with_output_buffer, :with_output_buffer_with_haml_xss
+    end
+
     module FormTagHelper
       def form_tag_with_haml_xss(*args, &block)
         res = form_tag_without_haml_xss(*args, &block)
@@ -112,6 +120,16 @@ module ActionView
       end
       alias_method :form_tag_without_haml_xss, :form_tag
       alias_method :form_tag, :form_tag_with_haml_xss
+    end
+
+    module FormHelper
+      def form_for_with_haml_xss(*args, &block)
+        res = form_for_without_haml_xss(*args, &block)
+        return Haml::Util.html_safe(res) if res.is_a?(String)
+        return res
+      end
+      alias_method :form_for_without_haml_xss, :form_for
+      alias_method :form_for, :form_for_with_haml_xss
     end
 
     module TextHelper
