@@ -15,6 +15,12 @@
 
 * Make the error message for `- end` a little more intuitive based on user feedback.
 
+* Compatibility with methods like `form_for`
+  that return strings rather than concatenate to the template in Rails 3.
+
+* Add a {Haml::Helpers#with_tabs with_tabs} helper,
+  which sets the indentation level for the duration of a block.
+
 ## 2.2.20
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.20).

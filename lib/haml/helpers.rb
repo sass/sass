@@ -234,6 +234,33 @@ MESSAGE
       haml_buffer.tabulation -= i
     end
 
+    # Sets the number of tabs the buffer automatically adds
+    # to the lines of the template,
+    # but only for the duration of the block.
+    # For example:
+    #
+    #     %h1 foo
+    #     - with_tabs(2) do
+    #       %p bar
+    #     %strong baz
+    #
+    # Produces:
+    #
+    #     <h1>foo</h1>
+    #         <p>bar</p>
+    #     <strong>baz</strong>
+    #
+    #
+    # @param i [Fixnum] The number of tabs to use
+    # @yield [] A block in which the indentation will be `i` spaces
+    def with_tabs(i)
+      old_tabs = haml_buffer.tabulation
+      haml_buffer.tabulation = i
+      yield
+    ensure
+      haml_buffer.tabulation = old_tabs
+    end
+
     # Surrounds a block of Haml code with strings,
     # with no whitespace in between.
     # For example:
