@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 2.2.21 (Unreleased)
+## 2.2.21
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
 
 * Fix a few bugs in the git-revision-reporting in {Haml::Version#version}.
   In particular, it will still work if `git gc` has been called recently,
