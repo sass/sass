@@ -70,8 +70,9 @@ class TemplateTest < Test::Unit::TestCase
     end
     
     if Haml::Util.has?(:private_method, base, :evaluate_assigns)
+      # Rails < 3.0
       base.send(:evaluate_assigns)
-    else
+    elsif Haml::Util.has?(:private_method, base, :_evaluate_assigns_and_ivars)
       # Rails 2.2
       base.send(:_evaluate_assigns_and_ivars)
     end
@@ -190,22 +191,24 @@ class TemplateTest < Test::Unit::TestCase
     assert_equal("2\n", render("= 1+1"))
   end
 
-  def test_form_for_error_return
-    assert_raise(Haml::Error) { render(<<HAML) }
+  unless Haml::Util.ap_geq_3?
+    def test_form_for_error_return
+      assert_raise(Haml::Error) { render(<<HAML) }
 = form_for :article, @article, :url => '' do |f|
   Title:
   = f.text_field :title
   Body:
   = f.text_field :body
 HAML
-  end
+    end
 
-  def test_form_tag_error_return
-    assert_raise(Haml::Error) { render(<<HAML) }
+    def test_form_tag_error_return
+      assert_raise(Haml::Error) { render(<<HAML) }
 = form_tag '' do
   Title:
   Body:
 HAML
+    end
   end
 
   def test_haml_options
@@ -356,7 +359,7 @@ HAML
   <input id="article_body" name="article[body]" size="30" type="text" value="World" />
 </form>
 HTML
-- form_for :article, @article, :url => '' do |f|
+#{rails_block_helper_char} form_for :article, @article, :url => '' do |f|
   Title:
   = f.text_field :title
   Body:
