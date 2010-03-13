@@ -230,7 +230,9 @@ Several bug fixes and minor improvements have been made, including:
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
-## 2.2.21 (Unreleased)
+## 2.2.21
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
 
 * Fix a few bugs in the git-revision-reporting in {Haml::Version#version}.
   In particular, it will still work if `git gc` has been called recently,
