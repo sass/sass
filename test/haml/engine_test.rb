@@ -1194,6 +1194,18 @@ SASS
     assert_equal %{<!DOCTYPE html>\n}, render('!!!', :format => :html5)
   end
 
+  # HTML5 custom data attributes
+  def test_html5_data_attributes
+    assert_equal("<div data-author_id='123' data-biz='baz' data-foo='bar'></div>\n",
+      render("%div{:data => {:author_id => 123, :foo => 'bar', :biz => 'baz'}}"))
+
+    assert_equal("<div data-one_plus_one='2'></div>\n",
+      render("%div{:data => {:one_plus_one => 1+1}}"))
+
+    assert_equal("<div data-foo='Here&apos;s a \"quoteful\" string.'></div>\n",
+      render(%{%div{:data => {:foo => %{Here's a "quoteful" string.}}}}))
+  end
+
   # New attributes
 
   def test_basic_new_attributes

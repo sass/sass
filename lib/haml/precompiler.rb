@@ -553,6 +553,9 @@ END
           next " #{attr}=#{attr_wrapper}#{attr}#{attr_wrapper}"
         elsif value == false
           next
+        elsif attr == 'data' && value.is_a?(Hash)
+          next build_attributes(is_html, attr_wrapper,
+            Haml::Util.map_keys(value) {|name| "data-#{name}"})
         end
 
         value = Haml::Helpers.preserve(Haml::Helpers.escape_once(value.to_s))
