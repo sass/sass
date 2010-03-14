@@ -233,10 +233,11 @@ RUBY
 
     # Merges two attribute hashes.
     # This is the same as `to.merge!(from)`,
-    # except that it merges id and class attributes.
+    # except that it merges id, class, and data attributes.
     #
     # ids are concatenated with `"_"`,
     # and classes are concatenated with `" "`.
+    # data hashes are simply merged.
     #
     # Destructively modifies both `to` and `from`.
     #
@@ -257,6 +258,16 @@ RUBY
         from['class'] = (from['class'].to_s.split(' ') | to['class'].split(' ')).sort.join(' ')
       elsif to['class'] || from['class']
         from['class'] ||= to['class']
+      end
+
+      from_data = from['data'].is_a?(Hash)
+      to_data = to['data'].is_a?(Hash)
+      if from_data && to_data
+        to['data'] = to['data'].merge(from['data'])
+      elsif to_data
+        to = Haml::Util.map_keys(to.delete('data')) {|name| "data-#{name}"}.merge(to)
+      elsif from_data
+        from = Haml::Util.map_keys(from.delete('data')) {|name| "data-#{name}"}.merge(from)
       end
 
       to.merge!(from)

@@ -65,7 +65,7 @@ won't do any indentation of their arguments.
 * All attribute values may be non-String types.
   Their `#to_s` method will be called to convert them to strings.
   Previously, this only worked for attributes other than `class`.
-
+  
 ### `:class` and `:id` Attributes Accept Ruby Arrays
 
 In an attribute hash, the `:class` attribute now accepts an Array
@@ -99,6 +99,22 @@ could render as either of:
 
     class="item"
     class="item empty"
+
+Thanks to [Ronen Barzel](http://www.ronenbarzel.org/).
+
+### HTML5 Custom Data Attributes
+
+Creating an attribute named `:data` with a Hash value
+will generate [HTML5 custom data attributes](http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#embedding-custom-non-visible-data).
+For example:
+
+    %div{:data => {:author_id => 123, :post_id => 234}}
+
+Will compile to:
+
+    <div data-author_id='123' data-post_id='234'></div>
+
+Thanks to [John Reilly](http://twitter.com/johnreilly).
 
 ### More Powerful `:autoclose` Option
 

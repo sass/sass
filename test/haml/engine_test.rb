@@ -1194,6 +1194,47 @@ SASS
     assert_equal %{<!DOCTYPE html>\n}, render('!!!', :format => :html5)
   end
 
+  # HTML5 custom data attributes
+  def test_html5_data_attributes
+    assert_equal("<div data-author_id='123' data-biz='baz' data-foo='bar'></div>\n",
+      render("%div{:data => {:author_id => 123, :foo => 'bar', :biz => 'baz'}}"))
+
+    assert_equal("<div data-one_plus_one='2'></div>\n",
+      render("%div{:data => {:one_plus_one => 1+1}}"))
+
+    assert_equal("<div data-foo='Here&apos;s a \"quoteful\" string.'></div>\n",
+      render(%{%div{:data => {:foo => %{Here's a "quoteful" string.}}}})) #'
+  end
+
+  def test_html5_data_attributes_with_multiple_defs
+    # Should always use the more-explicit attribute
+    assert_equal("<div data-foo='second'></div>\n",
+      render("%div{:data => {:foo => 'first'}, 'data-foo' => 'second'}"))
+    assert_equal("<div data-foo='first'></div>\n",
+      render("%div{'data-foo' => 'first', :data => {:foo => 'second'}}"))
+  end
+
+  def test_html5_data_attributes_with_attr_method
+    Haml::Helpers.module_eval do
+      def data_hash
+        {:data => {:foo => "bar", :baz => "bang"}}
+      end
+
+      def data_val
+        {:data => "dat"}
+      end
+    end
+
+    assert_equal("<div data-baz='bang' data-brat='wurst' data-foo='blip'></div>\n",
+      render("%div{data_hash, :data => {:foo => 'blip', :brat => 'wurst'}}"))
+    assert_equal("<div data-baz='bang' data-foo='blip'></div>\n",
+      render("%div{data_hash, 'data-foo' => 'blip'}"))
+    assert_equal("<div data-baz='bang' data-foo='bar' data='dat'></div>\n",
+      render("%div{data_hash, :data => 'dat'}"))
+    assert_equal("<div data-brat='wurst' data-foo='blip' data='dat'></div>\n",
+      render("%div{data_val, :data => {:foo => 'blip', :brat => 'wurst'}}"))
+  end
+
   # New attributes
 
   def test_basic_new_attributes
