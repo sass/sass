@@ -472,6 +472,21 @@ or using `true` and `false`:
 
     %input(selected=true)
 
+#### HTML5 Custom Data Attributes
+
+HTML5 allows for adding [custom non-visible data attributes](http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#embedding-custom-non-visible-data)
+to elements using attribute names beginning with `data-`.
+Custom data attributes can be used in Haml by using the key `:data` with a Hash value
+in an attribute hash.
+Each of the key/value pairs in the Hash will be transformed into a custom data attribute.
+For example:
+
+    %a{:href=>"/posts", :data => {:author_id => 123}} Posts By Author
+
+will render as:
+
+    <a data-author_id='123' href='/posts'>Posts By Author</a>
+
 ### Class and ID: `.` and `#`
 
 The period and pound sign are borrowed from CSS.

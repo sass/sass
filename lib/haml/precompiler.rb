@@ -542,6 +542,12 @@ END
       quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
       other_quote_char = attr_wrapper == '"' ? "'" : '"'
 
+      if attributes['data'].is_a?(Hash)
+        attributes = attributes.dup
+        attributes =
+          Haml::Util.map_keys(attributes.delete('data')) {|name| "data-#{name}"}.merge(attributes)
+      end
+
       result = attributes.collect do |attr, value|
         next if value.nil?
 
