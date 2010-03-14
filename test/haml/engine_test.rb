@@ -1203,7 +1203,15 @@ SASS
       render("%div{:data => {:one_plus_one => 1+1}}"))
 
     assert_equal("<div data-foo='Here&apos;s a \"quoteful\" string.'></div>\n",
-      render(%{%div{:data => {:foo => %{Here's a "quoteful" string.}}}}))
+      render(%{%div{:data => {:foo => %{Here's a "quoteful" string.}}}})) #'
+  end
+
+  def test_html5_data_attributes_with_multiple_defs
+    # Should always use the more-explicit attribute
+    assert_equal("<div data-foo='second'></div>\n",
+      render("%div{:data => {:foo => 'first'}, 'data-foo' => 'second'}"))
+    assert_equal("<div data-foo='first'></div>\n",
+      render("%div{'data-foo' => 'first', :data => {:foo => 'second'}}"))
   end
 
   # New attributes

@@ -542,6 +542,12 @@ END
       quote_escape = attr_wrapper == '"' ? "&quot;" : "&apos;"
       other_quote_char = attr_wrapper == '"' ? "'" : '"'
 
+      if attributes['data'].is_a?(Hash)
+        attributes = attributes.dup
+        attributes =
+          Haml::Util.map_keys(attributes.delete('data')) {|name| "data-#{name}"}.merge(attributes)
+      end
+
       result = attributes.collect do |attr, value|
         next if value.nil?
 
@@ -553,9 +559,6 @@ END
           next " #{attr}=#{attr_wrapper}#{attr}#{attr_wrapper}"
         elsif value == false
           next
-        elsif attr == 'data' && value.is_a?(Hash)
-          next build_attributes(is_html, attr_wrapper,
-            Haml::Util.map_keys(value) {|name| "data-#{name}"})
         end
 
         value = Haml::Helpers.preserve(Haml::Helpers.escape_once(value.to_s))
