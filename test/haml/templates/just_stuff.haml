@@ -70,7 +70,9 @@
   Nested content
 %p.foo{:class => true ? 'bar' : 'baz'}[@article] Blah
 %p.foo{:class => false ? 'bar' : ''}[@article] Blah
+%p.foo{:class => %w[bar baz]}[@article] Blah
 %p.qux{:class => 'quux'}[@article] Blump
+%p#foo{:id => %w[bar baz]}[@article] Whee
 == #{"Woah inner quotes"}
 %p.dynamic_quote{:quotes => "single '", :dyn => 1 + 2}
 %p.dynamic_self_closing{:dyn => 1 + 2}/

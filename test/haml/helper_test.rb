@@ -198,6 +198,16 @@ HAML
     assert_equal("<br class='foo' />\n", render("- haml_tag :br, :class => 'foo'"))
   end
 
+  def test_haml_tag_with_class_array
+    assert_equal("<p class='a b'>foo</p>\n", render("- haml_tag :p, 'foo', :class => %w[a b]"))
+    assert_equal("<p class='a b c d'>foo</p>\n", render("- haml_tag 'p.c.d', 'foo', :class => %w[a b]"))
+  end
+
+  def test_haml_tag_with_id_array
+    assert_equal("<p id='a_b'>foo</p>\n", render("- haml_tag :p, 'foo', :id => %w[a b]"))
+    assert_equal("<p id='c_a_b'>foo</p>\n", render("- haml_tag 'p#c', 'foo', :id => %w[a b]"))
+  end
+
   def test_haml_tag_non_autoclosed_tags_arent_closed
     assert_equal("<p></p>\n", render("- haml_tag :p"))
   end

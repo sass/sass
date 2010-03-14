@@ -545,6 +545,9 @@ END
       result = attributes.collect do |attr, value|
         next if value.nil?
 
+        value = filter_and_join(value, ' ') if attr == :class
+        value = filter_and_join(value, '_') if attr == :id
+
         if value == true
           next " #{attr}" if is_html
           next " #{attr}=#{attr_wrapper}#{attr}#{attr_wrapper}"
@@ -566,6 +569,11 @@ END
         " #{attr}=#{this_attr_wrapper}#{value}#{this_attr_wrapper}"
       end
       result.compact.sort.join
+    end
+
+    def self.filter_and_join(value, separator)
+      value = [value] unless value.is_a?(Array)
+      return value.flatten.collect {|item| item ? item.to_s : nil}.compact.join(separator)
     end
 
     def prerender_tag(name, self_close, attributes)
