@@ -100,6 +100,8 @@ could render as either of:
     class="item"
     class="item empty"
 
+Thanks to [Ronen Barzel](http://www.ronenbarzel.org/).
+
 ### More Powerful `:autoclose` Option
 
 The {file:HAML_REFERENCE.md#attributes_option `:attributes`} option
