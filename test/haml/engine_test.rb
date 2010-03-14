@@ -1214,6 +1214,27 @@ SASS
       render("%div{'data-foo' => 'first', :data => {:foo => 'second'}}"))
   end
 
+  def test_html5_data_attributes_with_attr_method
+    Haml::Helpers.module_eval do
+      def data_hash
+        {:data => {:foo => "bar", :baz => "bang"}}
+      end
+
+      def data_val
+        {:data => "dat"}
+      end
+    end
+
+    assert_equal("<div data-baz='bang' data-brat='wurst' data-foo='blip'></div>\n",
+      render("%div{data_hash, :data => {:foo => 'blip', :brat => 'wurst'}}"))
+    assert_equal("<div data-baz='bang' data-foo='blip'></div>\n",
+      render("%div{data_hash, 'data-foo' => 'blip'}"))
+    assert_equal("<div data-baz='bang' data-foo='bar' data='dat'></div>\n",
+      render("%div{data_hash, :data => 'dat'}"))
+    assert_equal("<div data-brat='wurst' data-foo='blip' data='dat'></div>\n",
+      render("%div{data_val, :data => {:foo => 'blip', :brat => 'wurst'}}"))
+  end
+
   # New attributes
 
   def test_basic_new_attributes
