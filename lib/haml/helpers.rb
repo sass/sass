@@ -252,7 +252,7 @@ MESSAGE
     #
     #
     # @param i [Fixnum] The number of tabs to use
-    # @yield [] A block in which the indentation will be `i` spaces
+    # @yield A block in which the indentation will be `i` spaces
     def with_tabs(i)
       old_tabs = haml_buffer.tabulation
       haml_buffer.tabulation = i
