@@ -38,3 +38,4 @@ end
 
 require 'haml/util'
 require 'haml/engine'
+require 'haml/railtie'
