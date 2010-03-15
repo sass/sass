@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 2.2.22 (Unreleased)
+
+* Add a railtie so Haml and Sass will be automatically loaded in Rails 3.
+  Thanks to [Daniel Neighman](http://pancakestacks.wordpress.com/).
+
 ## 2.2.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
