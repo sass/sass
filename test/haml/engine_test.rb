@@ -599,8 +599,9 @@ HAML
 <p>foo-end</p>
 <p>bar-end</p>
 HTML
-- "foo-end-bar-end".gsub(/\\w+-end/) do |s|
+- ("foo-end-bar-end".gsub(/\\w+-end/) do |s|
   %p= s
+- end; nil)
 HAML
   end
 

@@ -211,10 +211,13 @@ baz
 HTML
 %p
   foo
-  - with_output_buffer do
+  -# Parenthesis required due to Rails 3.0 deprecation of block helpers
+  -# that return strings.
+  - (with_output_buffer do
     bar
     = "foo".gsub(/./) do |s|
       - "flup"
+  - end; nil)
   baz
 HAML
   end
