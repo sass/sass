@@ -41,7 +41,12 @@ class Test::Unit::TestCase
   def assert_warning(message)
     the_real_stderr, $stderr = $stderr, StringIO.new
     yield
-    assert_equal message.strip, $stderr.string.strip
+
+    if message.is_a?(Regexp)
+      assert_match message, $stderr.string.strip
+    else
+      assert_equal message.strip, $stderr.string.strip
+    end
   ensure
     $stderr = the_real_stderr
   end
