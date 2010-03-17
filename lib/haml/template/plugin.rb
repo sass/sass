@@ -45,7 +45,7 @@ module Haml
       Haml::Util.has?(:instance_method, ActionView::OutputBuffer, :append_if_string=)
     module Precompiler
       def push_silent_with_haml_block_deprecation(text, can_suppress = false)
-        unless can_suppress && block_opened? &&
+        unless can_suppress && block_opened? && !mid_block_keyword?("- #{text}") &&
             text =~ ActionView::Template::Handlers::Erubis::BLOCK_EXPR
           return push_silent_without_haml_block_deprecation(text, can_suppress)
         end
