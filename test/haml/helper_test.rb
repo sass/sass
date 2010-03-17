@@ -131,7 +131,14 @@ HAML
   end
   
   def test_capture_haml
-    assert_equal("\"<p>13</p>\\n\"\n", render("- foo = capture_haml(13) do |a|\n  %p= a\n= foo.dump"))
+    assert_equal(<<HTML, render(<<HAML))
+"<p>13</p>\\n"
+HTML
+- (foo = capture_haml(13) do |a|
+  %p= a
+- end; nil)
+= foo.dump
+HAML
   end
 
   def test_content_tag_block

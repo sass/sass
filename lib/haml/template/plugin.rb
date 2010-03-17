@@ -44,12 +44,13 @@ module Haml
   if defined?(ActionView::OutputBuffer) &&
       Haml::Util.has?(:instance_method, ActionView::OutputBuffer, :append_if_string=)
     module Precompiler
-      def push_silent_with_haml_block_deprecation(text, *args)
-        unless block_opened? && text =~ ActionView::Template::Handlers::Erubis::BLOCK_EXPR
-          return push_silent_without_haml_block_deprecation(text, *args)
+      def push_silent_with_haml_block_deprecation(text, can_suppress = false)
+        unless can_suppress && block_opened? && !mid_block_keyword?("- #{text}") &&
+            text =~ ActionView::Template::Handlers::Erubis::BLOCK_EXPR
+          return push_silent_without_haml_block_deprecation(text, can_suppress)
         end
 
-        push_silent_without_haml_block_deprecation("_hamlout.append_if_string= #{text}", *args)
+        push_silent_without_haml_block_deprecation("_hamlout.append_if_string= #{text}", can_suppress)
       end
       alias_method :push_silent_without_haml_block_deprecation, :push_silent
       alias_method :push_silent, :push_silent_with_haml_block_deprecation
