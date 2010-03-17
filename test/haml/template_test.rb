@@ -231,10 +231,13 @@ baz
 HTML
 %p
   foo
-  - with_output_buffer do
+  -# Parenthesis required due to Rails 3.0 deprecation of block helpers
+  -# that return strings.
+  - (with_output_buffer do
     bar
     = "foo".gsub(/./) do |s|
       - "flup"
+  - end; nil)
   baz
 HAML
   end
@@ -267,6 +270,28 @@ END
       assert_match(/^\(haml\):5/, e.backtrace[0])
     else
       assert false
+    end
+  end
+
+  if defined?(ActionView::OutputBuffer) &&
+      Haml::Util.has?(:instance_method, ActionView::OutputBuffer, :append_if_string=)
+    def test_av_block_deprecation_warning
+      assert_warning(/^DEPRECATION WARNING: - style block helpers are deprecated\. Please use =\./) do
+        assert_equal <<HTML, render(<<HAML, :action_view)
+<form action="" method="post">
+  Title:
+  <input id="article_title" name="article[title]" size="30" type="text" value="Hello" />
+  Body:
+  <input id="article_body" name="article[body]" size="30" type="text" value="World" />
+</form>
+HTML
+- form_for :article, @article, :url => '' do |f|
+  Title:
+  = f.text_field :title
+  Body:
+  = f.text_field :body
+HAML
+      end
     end
   end
 

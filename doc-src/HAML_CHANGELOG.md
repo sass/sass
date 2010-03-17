@@ -257,6 +257,10 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Add a railtie so Haml and Sass will be automatically loaded in Rails 3.
   Thanks to [Daniel Neighman](http://pancakestacks.wordpress.com/).
 
+* Add a deprecation message for using `-` with methods like `form_for`
+  that return strings in Rails 3.
+  This is [the same deprecation that exists in Rails 3](http://github.com/rails/rails/commit/9de83050d3a4b260d4aeb5d09ec4eb64f913ba64).
+
 ## 2.2.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
