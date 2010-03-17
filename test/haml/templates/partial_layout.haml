@@ -1,3 +1,7 @@
 %h1 Partial layout used with for block:
-- render :layout => 'layout_for_partial.haml' do
-  %p Some content within a layout
+- if Haml::Util.ap_geq_3?
+  = render :layout => 'layout_for_partial.haml' do
+    %p Some content within a layout
+- else
+  - render :layout => 'layout_for_partial.haml' do
+    %p Some content within a layout
