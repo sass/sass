@@ -189,7 +189,6 @@ END
         if flat?
           push_flat(@line)
           @line = @next_line
-          newline
           next
         end
 
