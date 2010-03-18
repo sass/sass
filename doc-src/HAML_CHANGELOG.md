@@ -261,6 +261,8 @@ that surrounds the filtered text with `<style>` and CDATA tags.
   that return strings in Rails 3.
   This is [the same deprecation that exists in Rails 3](http://github.com/rails/rails/commit/9de83050d3a4b260d4aeb5d09ec4eb64f913ba64).
 
+* Make sure line numbers are reported correctly when filters are being used.
+
 ## 2.2.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
