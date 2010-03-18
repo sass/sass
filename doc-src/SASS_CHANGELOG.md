@@ -235,6 +235,8 @@ Several bug fixes and minor improvements have been made, including:
 * Add a railtie so Haml and Sass will be automatically loaded in Rails 3.
   Thanks to [Daniel Neighman](http://pancakestacks.wordpress.com/).
 
+* Make loading the gemspec not crash on read-only filesystems like Heroku's.
+
 ## 2.2.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).

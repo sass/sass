@@ -263,6 +263,8 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 
 * Make sure line numbers are reported correctly when filters are being used.
 
+* Make loading the gemspec not crash on read-only filesystems like Heroku's.
+
 ## 2.2.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
