@@ -195,7 +195,7 @@ in versions of Rails that support it (2.3 and onwards).
 A new {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option}
 has been added that emits line-number and filename information
 to the CSS file in a browser-readable format.
-This can be used with the new [FireSass Firebug extension](http://sass-lang.org/firesass.html)
+This can be used with the new [FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
 to report the Sass filename and line number for generated CSS files.
 
 This is also available via the `--debug-info` command-line flag.

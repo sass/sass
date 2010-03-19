@@ -218,7 +218,7 @@ Available options are:
 : When set to true, causes the line number and file
   where a selector is defined to be emitted into the compiled CSS
   in a format that can be understood by the browser.
-  Useful in conjunction with [the FireSass Firebug extension](http://sass-lang.org/firesass.html)
+  Useful in conjunction with [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
   for displaying the Sass filename and line number.
   Automatically disabled when using the `:compressed` output style.
 

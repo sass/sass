@@ -213,7 +213,7 @@ module Sass::Tree
 
     # A hash that will be associated with this rule in the CSS document
     # if the {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option} is enabled.
-    # This data is used by e.g. [the FireSass Firebug extension](http://sass-lang.org/firesass.html).
+    # This data is used by e.g. [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988).
     #
     # @return [{#to_s => #to_s}]
     def debug_info
