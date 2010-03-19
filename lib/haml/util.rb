@@ -324,6 +324,14 @@ MSG
       ruby1_8? ? enum.enum_with_index : enum.each_with_index
     end
 
+    # Returns the ASCII code of the given character.
+    #
+    # @param c [String] All characters but the first are ignored.
+    # @return [Fixnum] The ASCII code of `c`.
+    def ord(c)
+      ruby1_8? ? c[0] : c.ord
+    end
+
     ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.

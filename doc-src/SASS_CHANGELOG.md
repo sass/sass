@@ -190,6 +190,14 @@ That is, with the nested properties indented in the source.
 The Sass Rails plugin now works using Rack middleware by default
 in versions of Rails that support it (2.3 and onwards).
 
+### Firebug Support
+
+A new {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option}
+has been added that emits line-number and filename information
+to the CSS file in a browser-readable format.
+This can be used with the new [FireSass Firebug extension](http://sass-lang.org/firesass.html)
+to report the Sass filename and line number for generated CSS files.
+
 ### Sass::Plugin Callbacks
 
 {Sass::Plugin} now has a large collection of callbacks that allow users
