@@ -198,6 +198,8 @@ to the CSS file in a browser-readable format.
 This can be used with the new [FireSass Firebug extension](http://sass-lang.org/firesass.html)
 to report the Sass filename and line number for generated CSS files.
 
+This is also available via the `--debug-info` command-line flag.
+
 ### Sass::Plugin Callbacks
 
 {Sass::Plugin} now has a large collection of callbacks that allow users

@@ -232,6 +232,10 @@ END
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
         end
+        opts.on('-g', '--debug-info',
+                'Emit extra information in the generated CSS that can be used by the FireSass Firebug plugin.') do
+          @options[:for_engine][:debug_info] = true
+        end
         opts.on('-l', '--line-numbers', '--line-comments',
                 'Emit comments in the generated CSS indicating the corresponding sass line.') do
           @options[:for_engine][:line_numbers] = true
