@@ -628,26 +628,20 @@ SASS
 
   def test_debug_info
     assert_equal(<<CSS, render(<<SASS, :debug_info => true, :style => :compact))
-@media -sass-debug-info { filename { font-family: file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass; }
-  line { font-family: \\0032 ; } }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0032 }}
 foo bar { foo: bar; }
-@media -sass-debug-info { filename { font-family: file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass; }
-  line { font-family: \\0035 ; } }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0035 }}
 foo baz { blip: blop; }
 
-@media -sass-debug-info { filename { font-family: file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass; }
-  line { font-family: \\0039 ; } }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0039 }}
 floodle { flop: blop; }
 
-@media -sass-debug-info { filename { font-family: file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass; }
-  line { font-family: \\0031 8; } }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0031 8}}
 bup { mix: on; }
-@media -sass-debug-info { filename { font-family: file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass; }
-  line { font-family: \\0031 5; } }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0031 5}}
 bup mixin { moop: mup; }
 
-@media -sass-debug-info { filename { font-family: file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass; }
-  line { font-family: \\0032 2; } }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0032 2}}
 bip hop, skip hop { a: b; }
 CSS
 foo
@@ -678,11 +672,7 @@ SASS
 
   def test_debug_info_without_filename
     assert_equal(<<CSS, Sass::Engine.new(<<SASS, :debug_info => true).render)
-@media -sass-debug-info {
-  filename {
-    font-family: ; }
-  line {
-    font-family: \\0031 ; } }
+@media -sass-debug-info{filename{font-family:}line{font-family:\\0031 }}
 foo {
   a: b; }
 CSS
@@ -702,11 +692,7 @@ SASS
 
   def test_debug_info_with_line_annotations
     assert_equal(<<CSS, render(<<SASS, :debug_info => true, :line_comments => true))
-@media -sass-debug-info {
-  filename {
-    font-family: file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_with_line_annotations_inline\\.sass; }
-  line {
-    font-family: \\0031 ; } }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_with_line_annotations_inline\\.sass}line{font-family:\\0031 }}
 foo {
   a: b; }
 CSS

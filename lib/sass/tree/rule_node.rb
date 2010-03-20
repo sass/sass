@@ -134,7 +134,7 @@ module Sass::Tree
       spaces = '  ' * tabs
       if style != :compressed
         if @options[:debug_info]
-          to_return << debug_info_rule.to_s(tabs)
+          to_return << debug_info_rule.to_s(tabs) << "\n"
         elsif @options[:line_comments]
           to_return << "#{old_spaces}/* line #{line}"
 
@@ -293,7 +293,7 @@ module Sass::Tree
         rule << prop
         node << rule
       end
-      node.options = @options.merge(:debug_info => false, :line_comments => false)
+      node.options = @options.merge(:debug_info => false, :line_comments => false, :style => :compressed)
       node
     end
   end
