@@ -75,6 +75,16 @@ task :install => [:package] do
   sh %{#{sudo} #{gem} install --no-ri pkg/haml-#{File.read(scope('VERSION')).strip}}
 end
 
+task :freeze_root do
+  File.open(scope("lib/haml/root.rb"), "w") do |f|
+    f << <<-RUBY
+module Haml
+  ROOT_DIR = #{File.expand_path(File.dirname(__FILE__)).inspect}
+end
+    RUBY
+  end
+end
+
 desc "Release a new Haml package to Rubyforge."
 task :release => [:check_release, :release_elpa, :package] do
   name = File.read(scope("VERSION_NAME")).strip
