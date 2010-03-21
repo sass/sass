@@ -126,6 +126,11 @@ can now take regular expressions that specify which tags to make self-closing.
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
 that causes attributes to use a double-quote mark rather than single-quote.
 
+### `:css` Filter
+
+Haml now supports a {file:HAML_REFERENCE.md#css-filter `:css` filter}
+that surrounds the filtered text with `<style>` and CDATA tags.
+
 ### `haml-spec` Integration
 
 We've added the cross-implementation tests from the [haml-spec](http://github.com/norman/haml-spec) project
@@ -141,17 +146,17 @@ of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#
 * Haml and `html2haml` now accept Unicode documents with a
   [byte-order-mark](http://en.wikipedia.org/wiki/Byte_order_mark).
 
-### `:css` Filter
-
-Haml now supports a {file:HAML_REFERENCE.md#css-filter `:css` filter}
-that surrounds the filtered text with `<style>` and CDATA tags.
-
 ### Rails Support
 
 * When `form_for` is used with `=`, or `form_tag` is used with `=` and a block,
   they will now raise errors explaining that they should be used with `-`.
   This is similar to how {Haml::Helpers#haml\_concat} behaves,
   and will hopefully clear up some difficult bugs for some users.
+
+### Rip Support
+
+Haml is now compatible with the [Rip](http://hellorip.com/) package management system.
+Thanks to [Josh Peek](http://joshpeek.com/).
 
 ### `html2haml` Improvements
 

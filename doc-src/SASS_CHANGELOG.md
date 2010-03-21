@@ -200,6 +200,11 @@ to report the Sass filename and line number for generated CSS files.
 
 This is also available via the `--debug-info` command-line flag.
 
+### Rip Support
+
+Haml is now compatible with the [Rip](http://hellorip.com/) package management system.
+Thanks to [Josh Peek](http://joshpeek.com/).
+
 ### Sass::Plugin Callbacks
 
 {Sass::Plugin} now has a large collection of callbacks that allow users
