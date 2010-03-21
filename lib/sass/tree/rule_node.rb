@@ -285,7 +285,7 @@ module Sass::Tree
 
     def debug_info_rule
       node = DirectiveNode.new("@media -sass-debug-info")
-      debug_info.each do |k, v|
+      debug_info.map {|k, v| [k.to_s, v.to_s]}.sort.each do |k, v|
         rule = RuleNode.new(nil)
         rule.resolved_rules = [[k.to_s.gsub(/[^\w-]/, "\\\\\\0")]]
         val = v.to_s.gsub(/[^\w-]/, "\\\\\\0").
