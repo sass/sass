@@ -2,6 +2,7 @@ require 'erb'
 require 'set'
 require 'enumerator'
 require 'stringio'
+require 'haml/root'
 
 module Haml
   # A module containing various useful functions.
@@ -16,7 +17,7 @@ module Haml
     # @param file [String] The filename relative to the Haml root
     # @return [String] The filename relative to the the working directory
     def scope(file)
-      File.join(File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__)))), file)
+      File.join(Haml::ROOT_DIR, file)
     end
 
     # Converts an array of `[key, value]` pairs to a hash.
