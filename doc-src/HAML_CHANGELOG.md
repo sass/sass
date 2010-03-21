@@ -18,6 +18,8 @@
 
 * Don't crash when methods like `form_for` return `nil` in, for example, Rails 3 beta.
 
+* Compatibility with Rails 3 beta's RJS facilities.
+
 ## 2.2.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
