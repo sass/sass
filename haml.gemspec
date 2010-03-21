@@ -47,6 +47,7 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
   spec.files = FileList['rails/init.rb', 'lib/**/*', 'vendor/**/*',
     'bin/*', 'test/**/*', 'extra/**/*', 'Rakefile', 'init.rb',
     '.yardopts'].to_a + readmes
+  spec.extensions = ['ext/extconf.rb']
   spec.homepage = 'http://haml-lang.com/'
   spec.has_rdoc = true
   spec.extra_rdoc_files = readmes
