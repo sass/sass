@@ -7,4 +7,4 @@ end
   RUBY
 end
 
-File.open('Makefile', 'w') { |f| f.puts("install:\n\texit 0") }
+File.open('Makefile', 'w') { |f| f.puts("install:\n\t$(exit 0)") }
