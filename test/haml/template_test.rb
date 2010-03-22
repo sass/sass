@@ -77,6 +77,9 @@ class TemplateTest < Test::Unit::TestCase
       base.send(:_evaluate_assigns_and_ivars)
     end
 
+    # This is needed by RJS in (at least) Rails 3
+    base.instance_variable_set('@template', base)
+
     # This is used by form_for.
     # It's usually provided by ActionController::Base.
     def base.protect_against_forgery?; false; end
@@ -389,6 +392,15 @@ HTML
   = f.text_field :title
   Body:
   = f.text_field :body
+HAML
+    end
+
+    def test_rjs
+      assert_equal(<<HTML, render(<<HAML, :action_view))
+window.location.reload();
+HTML
+= update_page do |p|
+  - p.reload
 HAML
     end
   end

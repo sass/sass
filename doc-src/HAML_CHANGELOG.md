@@ -126,6 +126,11 @@ can now take regular expressions that specify which tags to make self-closing.
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
 that causes attributes to use a double-quote mark rather than single-quote.
 
+### `:css` Filter
+
+Haml now supports a {file:HAML_REFERENCE.md#css-filter `:css` filter}
+that surrounds the filtered text with `<style>` and CDATA tags.
+
 ### `haml-spec` Integration
 
 We've added the cross-implementation tests from the [haml-spec](http://github.com/norman/haml-spec) project
@@ -141,17 +146,17 @@ of the many and varied [Haml implementations](http://en.wikipedia.org/wiki/Haml#
 * Haml and `html2haml` now accept Unicode documents with a
   [byte-order-mark](http://en.wikipedia.org/wiki/Byte_order_mark).
 
-### `:css` Filter
-
-Haml now supports a {file:HAML_REFERENCE.md#css-filter `:css` filter}
-that surrounds the filtered text with `<style>` and CDATA tags.
-
 ### Rails Support
 
 * When `form_for` is used with `=`, or `form_tag` is used with `=` and a block,
   they will now raise errors explaining that they should be used with `-`.
   This is similar to how {Haml::Helpers#haml\_concat} behaves,
   and will hopefully clear up some difficult bugs for some users.
+
+### Rip Support
+
+Haml is now compatible with the [Rip](http://hellorip.com/) package management system.
+Thanks to [Josh Peek](http://joshpeek.com/).
 
 ### `html2haml` Improvements
 
@@ -252,7 +257,9 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * The `puts` helper has been removed.
   Use {Haml::Helpers#haml\_concat} instead.
 
-## 2.2.22 (Unreleased)
+## 2.2.22
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).
 
 * Add a railtie so Haml and Sass will be automatically loaded in Rails 3.
   Thanks to [Daniel Neighman](http://pancakestacks.wordpress.com/).
@@ -260,6 +267,14 @@ that surrounds the filtered text with `<style>` and CDATA tags.
 * Add a deprecation message for using `-` with methods like `form_for`
   that return strings in Rails 3.
   This is [the same deprecation that exists in Rails 3](http://github.com/rails/rails/commit/9de83050d3a4b260d4aeb5d09ec4eb64f913ba64).
+
+* Make sure line numbers are reported correctly when filters are being used.
+
+* Make loading the gemspec not crash on read-only filesystems like Heroku's.
+
+* Don't crash when methods like `form_for` return `nil` in, for example, Rails 3 beta.
+
+* Compatibility with Rails 3 beta's RJS facilities.
 
 ## 2.2.21
 

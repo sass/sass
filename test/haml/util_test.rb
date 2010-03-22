@@ -100,6 +100,11 @@ class UtilTest < Test::Unit::TestCase
       enum_cons(%w[foo bar baz], 2).map {|s1, s2| "#{s1}#{s2}"})
   end
 
+  def test_ord
+    assert_equal(102, ord("f"))
+    assert_equal(98, ord("bar"))
+  end
+
   def test_caller_info
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, nil], caller_info("/tmp/foo.rb:12"))

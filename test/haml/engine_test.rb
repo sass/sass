@@ -80,6 +80,11 @@ MESSAGE
     "!!!\n\n  bar" => ["Illegal nesting: nesting within a header command is illegal.", 3],
     "foo\n:ruby\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
     "foo\n:erb\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
+    "foo\n:plain\n  1\n  2\n  3\n- raise 'foo'" => ["foo", 6],
+    "foo\n:plain\n  1\n  2\n  3\n4\n- raise 'foo'" => ["foo", 7],
+    "foo\n:plain\n  1\n  2\n  3\#{''}\n- raise 'foo'" => ["foo", 6],
+    "foo\n:plain\n  1\n  2\n  3\#{''}\n4\n- raise 'foo'" => ["foo", 7],
+    "foo\n:plain\n  1\n  2\n  \#{raise 'foo'}" => ["foo", 5],
     "= raise 'foo'\nfoo\nbar\nbaz\nbang" => ["foo", 1],
   }
 
