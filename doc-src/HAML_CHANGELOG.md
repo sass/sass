@@ -257,7 +257,9 @@ Thanks to [Josh Peek](http://joshpeek.com/).
 * The `puts` helper has been removed.
   Use {Haml::Helpers#haml\_concat} instead.
 
-## 2.2.22 (Unreleased)
+## 2.2.22
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).
 
 * Add a railtie so Haml and Sass will be automatically loaded in Rails 3.
   Thanks to [Daniel Neighman](http://pancakestacks.wordpress.com/).
