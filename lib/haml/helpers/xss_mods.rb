@@ -106,7 +106,12 @@ module ActionView
   module Helpers
     module CaptureHelper
       def with_output_buffer_with_haml_xss(*args, &block)
-        Haml::Util.html_safe(with_output_buffer_without_haml_xss(*args, &block))
+        res = with_output_buffer_without_haml_xss(*args, &block)
+        case res
+        when Array; res.map {|s| Haml::Util.html_safe(s)}
+        when String; Haml::Util.html_safe(res)
+        else; res
+        end
       end
       alias_method :with_output_buffer_without_haml_xss, :with_output_buffer
       alias_method :with_output_buffer, :with_output_buffer_with_haml_xss

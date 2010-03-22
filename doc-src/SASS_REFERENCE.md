@@ -208,9 +208,19 @@ Available options are:
 {#line_numbers-option} `:line_numbers`
 : When set to true, causes the line number and file
   where a selector is defined to be emitted into the compiled CSS
-  as a comment. Useful for debugging especially when using imports
+  as a comment. Useful for debugging, especially when using imports
   and mixins.
   This option may also be called `:line_comments`.
+  Automatically disabled when using the `:compressed` output style
+  or the `:debug_info` option.
+
+{#debug_info-option} `:debug_info`
+: When set to true, causes the line number and file
+  where a selector is defined to be emitted into the compiled CSS
+  in a format that can be understood by the browser.
+  Useful in conjunction with [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988)
+  for displaying the Sass filename and line number.
+  Automatically disabled when using the `:compressed` output style.
 
 {#custom-option} `:custom`
 : An option that's available for individual applications to set

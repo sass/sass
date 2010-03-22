@@ -1,4 +1,5 @@
 require 'pathname'
+require 'uri'
 
 module Sass::Tree
   # A static node reprenting a CSS rule.
@@ -146,23 +147,27 @@ module Sass::Tree
       to_return = ''
       old_spaces = '  ' * (tabs - 1)
       spaces = '  ' * tabs
-      if @options[:line_comments] && style != :compressed
-        to_return << "#{old_spaces}/* line #{line}"
+      if style != :compressed
+        if @options[:debug_info]
+          to_return << debug_info_rule.to_s(tabs) << "\n"
+        elsif @options[:line_comments]
+          to_return << "#{old_spaces}/* line #{line}"
 
-        if filename
-          relative_filename = if @options[:css_filename]
-            begin
-              Pathname.new(filename).relative_path_from(
-                Pathname.new(File.dirname(@options[:css_filename]))).to_s
-            rescue ArgumentError
-              nil
+          if filename
+            relative_filename = if @options[:css_filename]
+              begin
+                Pathname.new(filename).relative_path_from(
+                  Pathname.new(File.dirname(@options[:css_filename]))).to_s
+              rescue ArgumentError
+                nil
+              end
             end
+            relative_filename ||= filename
+            to_return << ", #{relative_filename}"
           end
-          relative_filename ||= filename
-          to_return << ", #{relative_filename}"
-        end
 
-        to_return << " */\n"
+          to_return << " */\n"
+        end
       end
 
       if style == :compact
@@ -232,6 +237,33 @@ module Sass::Tree
     #   as well as the error message to display if it is invalid
     def invalid_child?(child)
       super unless child.is_a?(ExtendNode)
+    end
+
+    # A hash that will be associated with this rule in the CSS document
+    # if the {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option} is enabled.
+    # This data is used by e.g. [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988).
+    #
+    # @return [{#to_s => #to_s}]
+    def debug_info
+      {:filename => filename && ("file://" + URI.escape(File.expand_path(filename))),
+       :line => self.line}
+    end
+
+    private
+
+    def debug_info_rule
+      node = DirectiveNode.new("@media -sass-debug-info")
+      debug_info.map {|k, v| [k.to_s, v.to_s]}.sort.each do |k, v|
+        rule = RuleNode.new(nil)
+        rule.resolved_rules = [[k.to_s.gsub(/[^\w-]/, "\\\\\\0")]]
+        val = v.to_s.gsub(/[^\w-]/, "\\\\\\0").
+          gsub(/^[\d-]/) {|c| "\\%04x " % Haml::Util.ord(c)}
+        prop = PropNode.new("font-family", val, :new)
+        rule << prop
+        node << rule
+      end
+      node.options = @options.merge(:debug_info => false, :line_comments => false, :style => :compressed)
+      node
     end
   end
 end

@@ -627,6 +627,81 @@ SASS
     renders_correctly "line_numbers", :line_comments => true, :load_paths => [File.dirname(__FILE__) + "/templates"]
   end
 
+  def test_debug_info
+    assert_equal(<<CSS, render(<<SASS, :debug_info => true, :style => :compact))
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0032 }}
+foo bar { foo: bar; }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0035 }}
+foo baz { blip: blop; }
+
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0039 }}
+floodle { flop: blop; }
+
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0031 8}}
+bup { mix: on; }
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0031 5}}
+bup mixin { moop: mup; }
+
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0032 2}}
+bip hop, skip hop { a: b; }
+CSS
+foo
+  bar
+    foo: bar
+
+  baz
+    blip: blop
+
+
+floodle
+
+  flop: blop
+
+=mxn
+  mix: on
+  mixin
+    moop: mup
+
+bup
+  +mxn
+
+bip, skip
+  hop
+    a: b
+SASS
+  end
+
+  def test_debug_info_without_filename
+    assert_equal(<<CSS, Sass::Engine.new(<<SASS, :debug_info => true).render)
+@media -sass-debug-info{filename{font-family:}line{font-family:\\0031 }}
+foo {
+  a: b; }
+CSS
+foo
+  a: b
+SASS
+  end
+
+  def test_debug_info_with_compressed
+    assert_equal(<<CSS, render(<<SASS, :debug_info => true, :style => :compressed))
+foo{a:b}
+CSS
+foo
+  a: b
+SASS
+  end
+
+  def test_debug_info_with_line_annotations
+    assert_equal(<<CSS, render(<<SASS, :debug_info => true, :line_comments => true))
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_with_line_annotations_inline\\.sass}line{font-family:\\0031 }}
+foo {
+  a: b; }
+CSS
+foo
+  a: b
+SASS
+  end
+
   def test_empty_first_line
     assert_equal("#a {\n  b: c; }\n", render("#a\n\n  b: c"))
   end

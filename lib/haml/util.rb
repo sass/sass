@@ -2,6 +2,7 @@ require 'erb'
 require 'set'
 require 'enumerator'
 require 'stringio'
+require 'haml/root'
 
 require 'haml/util/subset_heap'
 
@@ -18,7 +19,7 @@ module Haml
     # @param file [String] The filename relative to the Haml root
     # @return [String] The filename relative to the the working directory
     def scope(file)
-      File.join(File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__)))), file)
+      File.join(Haml::ROOT_DIR, file)
     end
 
     # Converts an array of `[key, value]` pairs to a hash.
@@ -290,9 +291,10 @@ module Haml
     # With older versions of the Rails XSS-safety mechanism,
     # this destructively modifies the HTML-safety of `text`.
     #
-    # @param text [String]
-    # @return [String] `text`, marked as HTML-safe
+    # @param text [String, nil]
+    # @return [String, nil] `text`, marked as HTML-safe
     def html_safe(text)
+      return unless text
       return text.html_safe if defined?(ActiveSupport::SafeBuffer)
       text.html_safe!
     end
@@ -389,6 +391,14 @@ MSG
     # @return [Enumerator] The consed enumerator
     def enum_cons(enum, n)
       ruby1_8? ? enum.enum_cons(n) : enum.each_cons(n)
+    end
+
+    # Returns the ASCII code of the given character.
+    #
+    # @param c [String] All characters but the first are ignored.
+    # @return [Fixnum] The ASCII code of `c`.
+    def ord(c)
+      ruby1_8? ? c[0] : c.ord
     end
 
     ## Static Method Stuff

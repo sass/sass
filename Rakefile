@@ -384,8 +384,22 @@ end
 
 # ----- Handling Updates -----
 
-def ensure_git_cleanup
+def email_on_error
   yield
+rescue Exception => e
+  IO.popen("sendmail nex342@gmail.com", "w") do |sm|
+    sm << "From: nex3@nex-3.com\n" <<
+      "To: nex342@gmail.com\n" <<
+      "Subject: Exception when running rake #{Rake.application.top_level_tasks.join(', ')}\n" <<
+      e.message << "\n\n" <<
+      e.backtrace.join("\n")
+  end
+ensure
+  raise e if e
+end
+
+def ensure_git_cleanup
+  email_on_error {yield}
 ensure
   sh %{git reset --hard HEAD}
   sh %{git clean -xdf}
@@ -393,32 +407,34 @@ ensure
 end
 
 task :handle_update do
-  unless ENV["REF"] =~ %r{^refs/heads/(master|stable|(?:haml|sass)-pages)$}
-    puts "#{'=' * 20} Ignoring rake handle_update REF=#{ENV["REF"].inspect}"
-    next
+  email_on_error do
+    unless ENV["REF"] =~ %r{^refs/heads/(master|stable|(?:haml|sass)-pages)$}
+      puts "#{'=' * 20} Ignoring rake handle_update REF=#{ENV["REF"].inspect}"
+      next
+    end
+    branch = $1
+
+    puts
+    puts
+    puts '=' * 150
+    puts "Running rake handle_update REF=#{ENV["REF"].inspect}"
+
+    sh %{git fetch origin}
+    sh %{git checkout stable}
+    sh %{git reset --hard origin/stable}
+    sh %{git checkout master}
+    sh %{git reset --hard origin/master}
+
+    if branch == "master"
+      sh %{rake release_edge --trace}
+    elsif branch == "stable"
+      sh %{rake pages --trace PROJ=haml}
+      sh %{rake pages --trace PROJ=sass}
+    elsif branch =~ /^(haml|sass)-pages$/
+      sh %{rake pages --trace PROJ=#{$1}}
+    end
+
+    puts 'Done running handle_update'
+    puts '=' * 150
   end
-  branch = $1
-
-  puts
-  puts
-  puts '=' * 150
-  puts "Running rake handle_update REF=#{ENV["REF"].inspect}"
-
-  sh %{git fetch origin}
-  sh %{git checkout stable}
-  sh %{git reset --hard origin/stable}
-  sh %{git checkout master}
-  sh %{git reset --hard origin/master}
-
-  if branch == "master"
-    sh %{rake release_edge --trace}
-  elsif branch == "stable"
-    sh %{rake pages --trace PROJ=haml}
-    sh %{rake pages --trace PROJ=sass}
-  elsif branch =~ /^(haml|sass)-pages$/
-    sh %{rake pages --trace PROJ=#{$1}}
-  end
-
-  puts 'Done running handle_update'
-  puts '=' * 150
 end
