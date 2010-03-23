@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 2.2.23 (Unreleased)
+
+* Don't crash when `rake gems` is run in Rails with Sass installed.
+  Thanks to [Florian Frank](http://github.com/flori).
+
 ## 2.2.22
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).
