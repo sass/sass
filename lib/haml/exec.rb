@@ -306,6 +306,7 @@ END
       def watch_or_update
         require 'sass'
         require 'sass/plugin'
+        ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
 
         if @args[1] && !@args[0].include?(':')
