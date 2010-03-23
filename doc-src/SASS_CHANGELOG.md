@@ -245,6 +245,11 @@ Several bug fixes and minor improvements have been made, including:
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
+## 2.2.23 (Unreleased)
+
+* Don't crash when `rake gems` is run in Rails with Sass installed.
+  Thanks to [Florian Frank](http://github.com/flori).
+
 ## 2.2.22
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).
