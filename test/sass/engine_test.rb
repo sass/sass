@@ -57,7 +57,12 @@ MSG
     "a," => "Rules can\'t end in commas.",
     "a,\n!b = 1" => ["Rules can\'t end in commas.", 1],
     "!a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
-    "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
+    "@import foo.sass" => <<MSG,
+File to import not found or unreadable: foo.sass.
+Load paths:
+  test/sass
+  .
+MSG
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
     "foo\n  @import #{File.dirname(__FILE__)}/templates/basic" => "Import directives may only be used at the root of a document.",
