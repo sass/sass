@@ -8,6 +8,9 @@
 * Don't crash when `rake gems` is run in Rails with Sass installed.
   Thanks to [Florian Frank](http://github.com/flori).
 
+* When raising a file-not-found error,
+  add a list of load paths that were checked.
+
 ## 2.2.22
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).
