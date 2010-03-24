@@ -204,8 +204,13 @@ END
 
     def dependency_updated?(css_mtime)
       lambda do |dep|
-        File.mtime(dep) > css_mtime ||
-          dependencies(dep).any?(&dependency_updated?(css_mtime))
+        begin
+          File.mtime(dep) > css_mtime ||
+            dependencies(dep).any?(&dependency_updated?(css_mtime))
+        rescue Sass::SyntaxError
+          # If there's an error finding depenencies, default to recompiling.
+          true
+        end
       end
     end
 

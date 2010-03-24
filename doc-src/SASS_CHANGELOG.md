@@ -11,6 +11,10 @@
 * When raising a file-not-found error,
   add a list of load paths that were checked.
 
+* If an import isn't found for a cached Sass file and the
+  {file:SASS_REFERENCE.md#full_exception `:full_exception option`} is enabled,
+  print the full exception rather than raising it.
+
 ## 2.2.22
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).
