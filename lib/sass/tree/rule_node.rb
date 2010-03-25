@@ -314,11 +314,13 @@ module Sass::Tree
     def debug_info_rule
       node = DirectiveNode.new("@media -sass-debug-info")
       debug_info.map {|k, v| [k.to_s, v.to_s]}.sort.each do |k, v|
-        rule = RuleNode.new(nil)
+        rule = RuleNode.new([""])
         rule.resolved_rules = [[k.to_s.gsub(/[^\w-]/, "\\\\\\0")]]
         val = v.to_s.gsub(/[^\w-]/, "\\\\\\0").
           gsub(/^[\d-]/) {|c| "\\%04x " % Haml::Util.ord(c)}
-        prop = PropNode.new("font-family", val, :new)
+        prop = PropNode.new("", "", :new)
+        prop.resolved_name = "font-family"
+        prop.resolved_value = val
         rule << prop
         node << rule
       end

@@ -92,6 +92,7 @@ module Sass
         if msg = invalid_child?(child)
           raise Sass::SyntaxError.new(msg, :line => child.line)
         end
+        self.has_children = true
         @children << child
       end
 
