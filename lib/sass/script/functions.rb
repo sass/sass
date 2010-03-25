@@ -170,6 +170,8 @@ module Sass::Script
       #     assert_type value, :Number
       #
       # Valid types are `:Bool`, `:Color`, `:Number`, and `:String`.
+      # Note that `:String` will match both double-quoted strings
+      # and unquoted identifiers.
       #
       # @param value [Sass::Script::Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be

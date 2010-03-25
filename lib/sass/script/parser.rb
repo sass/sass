@@ -221,7 +221,7 @@ On line #{name.line}, character #{name.offset}#{" of '#{filename}'" if filename}
 Implicit strings have been deprecated and will be removed in version 3.0.
 '#{name.value}' was not quoted. Please add double quotes (e.g. "#{name.value}").
 END
-          node(Script::String.new(name.value))
+          node(Script::String.new(name.value, :identifier))
         else
           args = arglist || []
           assert_tok(:rparen)
