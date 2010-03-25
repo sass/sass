@@ -3,8 +3,7 @@ require 'set'
 require 'enumerator'
 require 'stringio'
 require 'haml/root'
-
-require 'haml/util/subset_heap'
+require 'haml/util/subset_map'
 
 module Haml
   # A module containing various useful functions.
