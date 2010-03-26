@@ -250,10 +250,10 @@ module Sass
           guarded = true
         end
 
-        tok!(/=/)
+        sep = tok!(/[:=]/)
         ss
         expr = sass_script(:parse)
-        expr.context = :equals
+        expr.context = :equals if sep == '='
 
         node(Sass::Tree::VariableNode.new(name, expr, guarded))
       end
@@ -622,7 +622,7 @@ MESSAGE
 
       TOK_NAMES = Haml::Util.to_hash(
         Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
-        merge(IDENT => "identifier", /[;}]/ => '";"')
+        merge(IDENT => "identifier", /[;}]/ => '";"', /[=:]/ => '":"')
 
       def tok?(rx)
         @scanner.match?(rx)
