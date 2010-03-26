@@ -407,14 +407,12 @@ WARNING
       raise SyntaxError.new("Invalid property: \"#{line.text}\".",
         :line => @line) if name.nil? || value.nil?
 
-      expr =
-        if (eq.strip[0] == SCRIPT_CHAR)
-          e = parse_script(value, :offset => line.offset + line.text.index(value))
-          e.context = :equals
-          [e]
-        else
-          parse_interp(value)
-        end
+      if value.strip.empty?
+        expr = Sass::Script::String.new("")
+      else
+        expr = parse_script(value, :offset => line.offset + line.text.index(value))
+        expr.context = :equals if eq.strip[0] == SCRIPT_CHAR
+      end
       Tree::PropNode.new(
         parse_interp(name), expr,
         property_regx == PROPERTY_OLD ? :old : :new)
