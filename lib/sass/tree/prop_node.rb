@@ -18,12 +18,9 @@ module Sass::Tree
     # @return [String]
     attr_accessor :resolved_name
 
-    # The value of the property,
-    # interspersed with {Sass::Script::Node}s
-    # representing `#{}`-interpolation.
-    # Any adjacent strings will be merged together.
+    # The value of the property.
     #
-    # @return [Array<String, Script::Node>]
+    # @return [Sass::Script::Node]
     attr_accessor :value
 
     # The value of the property
@@ -46,14 +43,13 @@ module Sass::Tree
     attr_accessor :tabs
 
     # @param name [Array<String, Sass::Script::Node>] See \{#name}
-    # @param value [Array<String, Sass::Script::Node>] See \{#value}
+    # @param value [Sass::Script::Node] See \{#value}
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
     #   `:old` if it uses `:a b`-style syntax
     def initialize(name, value, prop_syntax)
       @name = Haml::Util.strip_string_array(
         Haml::Util.merge_adjacent_strings(name))
-      @value = Haml::Util.strip_string_array(
-        Haml::Util.merge_adjacent_strings(value))
+      @value = value
       @tabs = 0
       @prop_syntax = prop_syntax
       super()
@@ -86,20 +82,8 @@ module Sass::Tree
       name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
       old = opts[:old] && fmt == :sass
       initial = old ? ':' : ''
-
-      if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
-        mid = '='
-        value = self.value.first.to_sass
-      else
-        mid = old ? '' : ':'
-        value = self.value.map do |n|
-          if n.is_a?(String)
-            fmt == :sass ? n.gsub(/\n\s*/, " ") : n
-          else
-            "\#{#{n.to_sass}}"
-          end
-        end.join
-      end
+      mid = old ? '' : ':'
+      value = self.value.to_sass
 
       value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}") if fmt == :scss
       res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}"
@@ -149,7 +133,13 @@ module Sass::Tree
     #   variable and mixin values
     def perform!(environment)
       @resolved_name = run_interp(@name, environment)
-      @resolved_value = run_interp(@value, environment)
+      val = @value.perform(environment)
+      @resolved_value =
+        if @value.context == :equals && val.is_a?(Sass::Script::String)
+          val.value
+        else
+          val.to_s
+        end
       super
     end
 

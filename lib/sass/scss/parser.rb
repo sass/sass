@@ -480,27 +480,29 @@ module Sass
         end
 
         @expected = expected_property_separator
-        expression, space, value = (script_value || expr!(:plain_value))
+        space, value = expr!(:value)
         ss
-        require_block = !expression || tok?(/\{/)
+        require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value.flatten.compact, :new))
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new))
 
         return node unless require_block
-        nested_properties! node, expression, space
+        nested_properties! node, space
       end
 
       def expected_property_separator
         '":" or "="'
       end
 
-      def script_value
-        return unless tok(/=/)
-        @use_property_exception = true
+      def value
+        return unless sep = tok(/[:=]/)
+        space = !str {ss}.empty?
+        @use_property_exception ||= space || !tok?(IDENT)
+
         expr = sass_script(:parse)
-        expr.context = :equals
+        expr.context = :equals if sep == '='
         # expression, space, value
-        return true, true, [expr]
+        return space, expr
       end
 
       def plain_value
@@ -514,14 +516,11 @@ module Sass
         return expression, space, expression || [""]
       end
 
-      def nested_properties!(node, expression, space)
-        if expression && !space
-          @use_property_exception = true
-          raise Sass::SyntaxError.new(<<MESSAGE, :line => @line)
+      def nested_properties!(node, space)
+        raise Sass::SyntaxError.new(<<MESSAGE, :line => @line) unless space
 Invalid CSS: a space is required between a property and its definition
 when it has other properties nested beneath it.
 MESSAGE
-        end
 
         @use_property_exception = true
         @expected = 'expression (e.g. 1px, bold) or "{"'

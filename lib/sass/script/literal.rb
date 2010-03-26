@@ -150,6 +150,15 @@ MSG
       Sass::Script::String.new("#{self.to_s}/#{other.to_s}")
     end
 
+    # The SassScript unary `+` operation (e.g. `+$a`).
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Script::String] A string containing the literal
+    #   preceded by `"+"`
+    def unary_plus
+      Sass::Script::String.new("+#{self.to_s}")
+    end
+
     # The SassScript unary `-` operation (e.g. `-$a`).
     #
     # @param other [Literal] The right-hand side of the operator

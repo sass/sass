@@ -85,6 +85,13 @@ module Sass::Script
       end
     end
 
+    # The SassScript unary `+` operation (e.g. `+$a`).
+    #
+    # @return [Number] The value of this number
+    def unary_plus
+      self
+    end
+
     # The SassScript unary `-` operation (e.g. `-$a`).
     #
     # @return [Number] The negative value of this number

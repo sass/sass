@@ -198,14 +198,15 @@ RUBY
       production :eq_or_neq, :relational, :eq, :neq
       production :relational, :plus_or_minus, :gt, :gte, :lt, :lte
       production :plus_or_minus, :times_div_or_mod, :plus, :minus
-      production :times_div_or_mod, :unary_minus, :times, :div, :mod
+      production :times_div_or_mod, :unary_plus, :times, :div, :mod
 
+      unary :plus, :unary_minus
       unary :minus, :unary_div
       unary :div, :unary_not # For strings, so /foo/bar works
       unary :not, :funcall
 
       def funcall
-        return paren unless @lexer.peek && @lexer.peek.type == :ident
+        return raw unless @lexer.peek && @lexer.peek.type == :ident
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next
@@ -239,6 +240,11 @@ RUBY
         return unless e = concat
         return [e] unless try_tok(:comma)
         [e, *arglist]
+      end
+
+      def raw
+        return paren unless @lexer.peek && @lexer.peek.type == :raw
+        node(Script::String.new(@lexer.next.value))
       end
 
       def paren

@@ -8,6 +8,8 @@ module Sass
     # It takes a raw string and converts it to individual tokens
     # that are easier to parse.
     class Lexer
+      include Sass::SCSS::RX
+
       # A struct containing information about an individual token.
       #
       # `type`: \[`Symbol`\]
@@ -78,12 +80,12 @@ module Sass
       # @private
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s+/,
-        :comment => Sass::SCSS::RX::COMMENT,
-        :single_line_comment => Sass::SCSS::RX::SINGLE_LINE_COMMENT,
-        :variable => /([!\$])(#{Sass::SCSS::RX::IDENT})/,
-        :ident => Sass::SCSS::RX::IDENT,
+        :comment => COMMENT,
+        :single_line_comment => SINGLE_LINE_COMMENT,
+        :variable => /([!\$])(#{IDENT})/,
+        :ident => IDENT,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
-        :color => Sass::SCSS::RX::HEXCOLOR,
+        :color => HEXCOLOR,
         :bool => /(true|false)\b/,
         :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + '(?:\b|$)')})})},
         :op => %r{(#{Regexp.union(*OP_NAMES)})},
@@ -177,7 +179,8 @@ module Sass
       def token
         return string(@interpolation_stack.pop, true) if after_interpolation?
         variable || string(:double, false) || string(:single, false) || number ||
-          color || bool || ident_op || ident || op
+          color || bool || raw(URI) || raw(UNICODERANGE) || special_fun ||
+          ident_op || ident || op
       end
 
       def variable
@@ -221,6 +224,15 @@ module Sass
         [:bool, Script::Bool.new(s == 'true')]
       end
 
+      def special_fun
+        return unless str1 = scan(/(calc|expression|progid:[a-z\.]*)\(/i)
+        str2, _ = Haml::Shared.balance(@scanner, ?(, ?), 1)
+        c = str2.count("\n")
+        @line += c
+        @offset = (c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size)
+        [:raw, str1 + str2]
+      end
+
       def ident_op
         return unless op = scan(REGULAR_EXPRESSIONS[:ident_op])
         [OPERATORS[op]]
@@ -231,10 +243,15 @@ module Sass
         [OPERATORS[op]]
       end
 
+      def raw(rx)
+        return unless val = scan(rx)
+        [:raw, val]
+      end
+
       def scan(re)
         return unless str = @scanner.scan(re)
         c = str.count("\n")
-        @line += str.count("\n")
+        @line += c
         @offset = (c == 0 ? @offset + str.size : str[/\n(.*)/, 1].size)
         str
       end

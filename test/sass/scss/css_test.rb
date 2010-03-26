@@ -271,7 +271,7 @@ foo {
   e: flanny-blanny-blan;
   f: url(http://sass-lang.com);
   g: U+ffa?;
-  h: #abc; }
+  h: #aabbcc; }
 SCSS
   end
 
@@ -366,10 +366,16 @@ SCSS
   end
 
   def test_unary_ops
-    assert_parses <<SCSS
+    assert_equal <<CSS, render(<<SCSS)
 foo {
-  a: -.5em;
-  b: +.5em;
+  a: -0.5em;
+  b: 0.5em;
+  c: -foo(12px);
+  d: +foo(12px); }
+CSS
+foo {
+  a: -0.5em;
+  b: +0.5em;
   c: -foo(12px);
   d: +foo(12px); }
 SCSS
