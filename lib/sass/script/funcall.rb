@@ -22,6 +22,7 @@ module Sass
       def initialize(name, args)
         @name = name
         @args = args
+        super()
       end
 
       # @return [String] A string representation of the function call

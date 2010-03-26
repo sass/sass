@@ -407,11 +407,14 @@ WARNING
       raise SyntaxError.new("Invalid property: \"#{line.text}\".",
         :line => @line) if name.nil? || value.nil?
 
-      expr = if (eq.strip[0] == SCRIPT_CHAR)
-        [parse_script(value, :offset => line.offset + line.text.index(value))]
-      else
-        parse_interp(value)
-      end
+      expr =
+        if (eq.strip[0] == SCRIPT_CHAR)
+          e = parse_script(value, :offset => line.offset + line.text.index(value))
+          e.context = :equals
+          [e]
+        else
+          parse_interp(value)
+        end
       Tree::PropNode.new(
         parse_interp(name), expr,
         property_regx == PROPERTY_OLD ? :old : :new)
@@ -425,7 +428,9 @@ WARNING
         :line => @line) unless name && value
       Script.var_warning(name, @line, line.offset + 1, @options[:filename]) if line.text[0] == ?!
 
-      Tree::VariableNode.new(name, parse_script(value, :offset => line.offset + line.text.index(value)), op == '||=')
+      expr = parse_script(value, :offset => line.offset + line.text.index(value))
+      expr.context = :equals
+      Tree::VariableNode.new(name, expr, op == '||=')
     end
 
     def parse_comment(line)

@@ -304,7 +304,10 @@ module Sass
       def run_interp(text, environment)
         text.map do |r|
           next r if r.is_a?(String)
-          r.perform(environment).to_s
+          val = r.perform(environment)
+          # Interpolated strings should never render with quotes
+          next val.value if val.is_a?(Sass::Script::String)
+          val.to_s
         end.join.strip
       end
 

@@ -35,6 +35,7 @@ module Sass
         expr = assert_expr :expr
         assert_tok :end_interpolation
         expr.options = @options
+        expr.context = :interpolated
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -213,14 +214,6 @@ RUBY
           if color = Color::HTML4_COLORS[name.value]
             return node(Color.new(color))
           end
-
-          filename = @options[:filename]
-          warn(<<END)
-DEPRECATION WARNING:
-On line #{name.line}, character #{name.offset}#{" of '#{filename}'" if filename}
-Implicit strings have been deprecated and will be removed in version 3.0.
-'#{name.value}' was not quoted. Please add double quotes (e.g. "#{name.value}").
-END
           node(Script::String.new(name.value, :identifier))
         else
           args = arglist || []

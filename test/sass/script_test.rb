@@ -92,11 +92,9 @@ class SassScriptTest < Test::Unit::TestCase
   end
 
   def test_implicit_strings
-    silence_warnings do
-      assert_equal Sass::Script::String.new("foo"), eval("foo")
-      assert_equal Sass::Script::String.new("foo bar"), eval("foo bar")
-      assert_equal Sass::Script::String.new("foo/bar"), eval("foo/bar")
-    end
+    assert_equal Sass::Script::String.new("foo"), eval("foo")
+    assert_equal Sass::Script::String.new("foo bar"), eval("foo bar")
+    assert_equal Sass::Script::String.new("foo/bar"), eval("foo/bar")
   end
 
   def test_interpolation
@@ -130,50 +128,14 @@ foo \#{"\\\#{" + "baz"} bang
 SASS
   end
 
-  def test_implicit_string_warning
-    assert_warning(<<WARN) {eval("foo")}
-DEPRECATION WARNING:
-On line 1, character 1 of 'test_implicit_string_warning_inline.sass'
-Implicit strings have been deprecated and will be removed in version 3.0.
-'foo' was not quoted. Please add double quotes (e.g. "foo").
-WARN
-    assert_warning(<<WARN) {eval("1 + foo")}
-DEPRECATION WARNING:
-On line 1, character 5 of 'test_implicit_string_warning_inline.sass'
-Implicit strings have been deprecated and will be removed in version 3.0.
-'foo' was not quoted. Please add double quotes (e.g. "foo").
-WARN
-    assert_warning(<<WARN) {render("@if 1 + foo")}
-DEPRECATION WARNING:
-On line 1, character 9 of 'test_implicit_string_warning_inline.sass'
-Implicit strings have been deprecated and will be removed in version 3.0.
-'foo' was not quoted. Please add double quotes (e.g. "foo").
-WARN
-
-    # Regression
-    assert_warning(<<WARN) {render("@if if")}
-DEPRECATION WARNING:
-On line 1, character 5 of 'test_implicit_string_warning_inline.sass'
-Implicit strings have been deprecated and will be removed in version 3.0.
-'if' was not quoted. Please add double quotes (e.g. "if").
-WARN
-  end
-
   def test_inaccessible_functions
-    assert_warning <<WARN do
-DEPRECATION WARNING:
-On line 2, character 6 of 'test_inaccessible_functions_inline.sass'
-Implicit strings have been deprecated and will be removed in version 3.0.
-'to_s' was not quoted. Please add double quotes (e.g. "to_s").
-WARN
-      assert_equal "send(to_s)", resolve("send(to_s)", :line => 2)
-    end
+    assert_equal "send(to_s)", resolve("send(to_s)", :line => 2)
     assert_equal "public_instance_methods()", resolve("public_instance_methods()")
   end
 
   def test_default_functions
     assert_equal "url(12)", resolve("url(12)")
-    assert_equal 'blam(foo)', resolve('blam("foo")')
+    assert_equal 'blam("foo")', resolve('blam("foo")')
   end
 
   def test_function_results_have_options
@@ -227,20 +189,20 @@ WARN
   end
 
   def test_string_ops
-    assert_equal "foo bar", resolve('"foo" "bar"')
+    assert_equal '"foo" "bar"', resolve('"foo" "bar"')
     assert_equal "true 1", resolve('true 1')
-    assert_equal "foo, bar", resolve("'foo' , 'bar'")
+    assert_equal '"foo", "bar"', resolve("'foo' , 'bar'")
     assert_equal "true, 1", resolve('true , 1')
     assert_equal "foobar", resolve('"foo" + "bar"')
     assert_equal "true1", resolve('true + 1')
-    assert_equal "foo-bar", resolve("'foo' - 'bar'")
+    assert_equal '"foo"-"bar"', resolve("'foo' - 'bar'")
     assert_equal "true-1", resolve('true - 1')
-    assert_equal "foo/bar", resolve('"foo" / "bar"')
+    assert_equal '"foo"/"bar"', resolve('"foo" / "bar"')
     assert_equal "true/1", resolve('true / 1')
 
-    assert_equal "-bar", resolve("- 'bar'")
+    assert_equal '-"bar"', resolve("- 'bar'")
     assert_equal "-true", resolve('- true')
-    assert_equal "/bar", resolve('/ "bar"')
+    assert_equal '/"bar"', resolve('/ "bar"')
     assert_equal "/true", resolve('/ true')
   end
 
@@ -312,7 +274,8 @@ WARN
 
   def resolve(str, opts = {}, environment = env)
     munge_filename opts
-    eval(str, opts, environment).to_s
+    val = eval(str, opts, environment)
+    val.is_a?(Sass::Script::String) ? val.value : val.to_s
   end
 
   def eval(str, opts = {}, environment = env)

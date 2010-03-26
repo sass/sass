@@ -677,6 +677,11 @@ module Sass::Script
       numeric_transformation(value) {|n| n.abs}
     end
 
+    def unquote(value)
+      assert_type value, :String
+      Sass::Script::String.new(value.value)
+    end
+
     private
 
     # This method implements the pattern of transforming a numeric value into

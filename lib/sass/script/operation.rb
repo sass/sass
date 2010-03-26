@@ -21,6 +21,7 @@ module Sass::Script
       @operand1 = operand1
       @operand2 = operand2
       @operator = operator
+      super()
     end
 
     # @return [String] A human-readable s-expression representation of the operation

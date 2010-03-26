@@ -10,6 +10,7 @@ module Sass::Script
     def initialize(operand, operator)
       @operand = operand
       @operator = operator
+      super()
     end
 
     # @return [String] A human-readable s-expression representation of the operation

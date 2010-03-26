@@ -10,6 +10,7 @@ module Sass
       # @param name [String] See \{#name}
       def initialize(name)
         @name = name
+        super()
       end
 
       # @return [String] A string representation of the variable

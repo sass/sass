@@ -21,6 +21,7 @@ module Sass::Script
     # @param value [Object] The object for \{#value}
     def initialize(value = nil)
       @value = value
+      super()
     end
 
     # Returns an empty array.
@@ -125,6 +126,9 @@ MSG
     # @return [Script::String] A string containing both literals
     #   without any separation
     def plus(other)
+      if other.is_a?(Sass::Script::String)
+        return Sass::Script::String.new(self.to_s + other.value, other.type)
+      end
       Sass::Script::String.new(self.to_s + other.to_s)
     end
 

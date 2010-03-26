@@ -253,6 +253,7 @@ module Sass
         tok!(/=/)
         ss
         expr = sass_script(:parse)
+        expr.context = :equals
 
         node(Sass::Tree::VariableNode.new(name, expr, guarded))
       end
@@ -496,8 +497,10 @@ module Sass
       def script_value
         return unless tok(/=/)
         @use_property_exception = true
+        expr = sass_script(:parse)
+        expr.context = :equals
         # expression, space, value
-        return true, true, [sass_script(:parse)]
+        return true, true, [expr]
       end
 
       def plain_value
