@@ -607,7 +607,7 @@ MESSAGE
 
       def sass_script(*args)
         parser = ScriptParser.new(@scanner, @line,
-          @scanner.pos - (@scanner.string.rindex("\n") || 0))
+          @scanner.pos - (@scanner.string[0...@scanner.pos].rindex("\n") || 0))
         result = parser.send(*args)
         @line = parser.line
         result
