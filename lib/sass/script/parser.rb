@@ -35,7 +35,6 @@ module Sass
         expr = assert_expr :expr
         assert_tok :end_interpolation
         expr.options = @options
-        expr.context = :interpolated
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
