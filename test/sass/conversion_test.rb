@@ -147,21 +147,53 @@ SCSS
   def test_dynamic_properties
     assert_renders <<SASS, <<SCSS
 foo bar
-  baz= 12 $bang "bip"
+  baz: 12 $bang "bip"
+SASS
+foo bar {
+  baz: 12 $bang "bip"; }
+SCSS
+
+    assert_scss_to_sass <<SASS, <<SCSS
+foo bar
+  baz: 12 $bang bip
 SASS
 foo bar {
   baz= 12 $bang "bip"; }
 SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo bar {
+  baz: 12 $bang bip; }
+SCSS
+foo bar
+  baz= 12 $bang "bip"
+SASS
   end
 
   def test_dynamic_properties_with_old
     assert_renders <<SASS, <<SCSS, :old => true
 foo bar
-  :baz= 12 $bang "bip"
+  :baz 12 $bang "bip"
+SASS
+foo bar {
+  baz: 12 $bang "bip"; }
+SCSS
+
+    assert_scss_to_sass <<SASS, <<SCSS, :old => true
+foo bar
+  :baz 12 $bang bip
 SASS
 foo bar {
   baz= 12 $bang "bip"; }
 SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS, :old => true
+foo bar {
+  baz: 12 $bang bip; }
+SCSS
+foo bar
+  :baz= 12 $bang "bip"
+SASS
   end
 
   def test_multiline_properties
@@ -193,10 +225,10 @@ IN
   def test_multiline_dynamic_properties
     assert_scss_to_sass <<SASS, <<SCSS
 foo bar
-  baz= $bip "bam" 12px
+  baz: $bip "bam" 12px
 SASS
 foo bar {
-  baz=
+  baz:
     $bip
   "bam"
         12px; }
@@ -204,10 +236,13 @@ SCSS
 
     assert_scss_to_scss <<OUT, <<IN
 foo bar {
-  baz= $bip "bam" 12px; }
+  baz:
+    $bip
+  "bam"
+        12px; }
 OUT
 foo bar {
-  baz=
+  baz:
     $bip
   "bam"
         12px; }
@@ -638,7 +673,7 @@ SASS
     a: b; } }
 SCSS
 
-    assert_scss_to_sass <<SASS, to_sass(<<SCSS)
+    assert_scss_to_sass <<SASS, <<SCSS
 =foo-bar
   baz
     a: b
@@ -648,7 +683,7 @@ SASS
     a: b; } }
 SCSS
 
-    assert_sass_to_scss <<SCSS, to_sass(<<SASS)
+    assert_sass_to_scss <<SCSS, <<SASS
 @mixin foo-bar {
   baz {
     a: b; } }
@@ -663,11 +698,11 @@ SASS
     assert_renders <<SASS, <<SCSS
 =foo-bar($baz, $bang)
   baz
-    a= $baz $bang
+    a: $baz $bang
 SASS
 @mixin foo-bar($baz, $bang) {
   baz {
-    a= $baz $bang; } }
+    a: $baz $bang; } }
 SCSS
   end
 
@@ -675,11 +710,11 @@ SCSS
     assert_renders <<SASS, <<SCSS
 =foo-bar($baz, $bang = 12px)
   baz
-    a= $baz $bang
+    a: $baz $bang
 SASS
 @mixin foo-bar($baz, $bang = 12px) {
   baz {
-    a= $baz $bang; } }
+    a: $baz $bang; } }
 SCSS
   end
 
@@ -713,13 +748,13 @@ $var1 = 12px + 15px
 
 foo
   $var2 = flaz(#abcdef)
-  val= $var1 $var2
+  val: $var1 $var2
 SASS
 $var1 = 12px + 15px;
 
 foo {
   $var2 = flaz(#abcdef);
-  val= $var1 $var2; }
+  val: $var1 $var2; }
 SCSS
   end
 
@@ -729,13 +764,13 @@ $var1 ||= 12px + 15px
 
 foo
   $var2 ||= flaz(#abcdef)
-  val= $var1 $var2
+  val: $var1 $var2
 SASS
 $var1 ||= 12px + 15px;
 
 foo {
   $var2 ||= flaz(#abcdef);
-  val= $var1 $var2; }
+  val: $var1 $var2; }
 SCSS
   end
 
