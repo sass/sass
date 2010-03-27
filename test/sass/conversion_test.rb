@@ -210,9 +210,7 @@ SCSS
 
     assert_scss_to_scss <<OUT, <<IN
 foo bar {
-  baz: bip
-    bam
-    boon; }
+  baz: bip bam boon; }
 OUT
 foo bar {
   baz:
@@ -236,10 +234,7 @@ SCSS
 
     assert_scss_to_scss <<OUT, <<IN
 foo bar {
-  baz:
-    $bip
-  "bam"
-        12px; }
+  baz: $bip "bam" 12px; }
 OUT
 foo bar {
   baz:

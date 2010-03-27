@@ -83,10 +83,7 @@ module Sass::Tree
       old = opts[:old] && fmt == :sass
       initial = old ? ':' : ''
       mid = old ? '' : ':'
-      value = self.value.to_sass
-
-      value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}") if fmt == :scss
-      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}"
+      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value.to_sass}"
       return res + "#{semi fmt}\n" if children.empty?
       res.rstrip + children_to_src(tabs, opts, fmt)
     end
