@@ -226,8 +226,9 @@ RUBY
       def defn_arglist(must_have_default)
         return unless c = try_tok(:const)
         var = Script::Variable.new(c.value)
-        if try_tok(:single_eq)
+        if tok = (try_tok(:colon) || try_tok(:single_eq))
           val = assert_expr(:concat)
+          val.context = :equals if tok.type == :single_eq
         elsif must_have_default
           raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")
         end

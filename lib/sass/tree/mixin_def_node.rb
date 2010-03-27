@@ -23,7 +23,7 @@ module Sass
           else
             '(' + @args.map do |v, d|
               if d
-                "#{v.to_sass} = #{d.to_sass}"
+                "#{v.to_sass}: #{d.to_sass}"
               else
                 v.to_sass
               end

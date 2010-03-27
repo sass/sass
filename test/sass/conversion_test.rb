@@ -708,14 +708,34 @@ SCSS
 
   def test_mixin_definition_with_defaults
     assert_renders <<SASS, <<SCSS
-=foo-bar($baz, $bang = 12px)
+=foo-bar($baz, $bang: 12px)
   baz
     a: $baz $bang
 SASS
-@mixin foo-bar($baz, $bang = 12px) {
+@mixin foo-bar($baz, $bang: 12px) {
   baz {
     a: $baz $bang; } }
 SCSS
+
+    assert_scss_to_sass <<SASS, <<SCSS
+=foo-bar($baz, $bang: foo)
+  baz
+    a: $baz $bang
+SASS
+@mixin foo-bar($baz, $bang = "foo") {
+  baz {
+    a: $baz $bang; } }
+SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+@mixin foo-bar($baz, $bang: foo) {
+  baz {
+    a: $baz $bang; } }
+SCSS
+=foo-bar($baz, $bang = "foo")
+  baz
+    a: $baz $bang
+SASS
   end
 
   def test_argless_mixin_include

@@ -45,6 +45,7 @@ module Sass
         '/' => :div,
         '%' => :mod,
         '=' => :single_eq,
+        ':' => :colon,
         '(' => :lparen,
         ')' => :rparen,
         ',' => :comma,
