@@ -183,7 +183,19 @@ RUBY
 
       private
 
-      production :expr, :concat, :comma
+      production :expr, :interpolation, :comma
+
+      def interpolation
+        e = concat
+        while (wb = @lexer.whitespace?; try_tok(:begin_interpolation))
+          line = @lexer.line
+          mid = parse_interpolated
+          wa = @lexer.whitespace?
+          e = Script::Interpolation.new(e, mid, concat, wb, wa)
+          e.line = line
+        end
+        e
+      end
 
       def concat
         return unless e = or_expr
@@ -238,7 +250,7 @@ RUBY
       end
 
       def arglist
-        return unless e = concat
+        return unless e = interpolation
         return [e] unless try_tok(:comma)
         [e, *arglist]
       end

@@ -138,6 +138,17 @@ module Sass
         return tok
       end
 
+      # Returns whether or not there's whitespace before the next token.
+      #
+      # @return [Boolean]
+      def whitespace?
+        if peek
+          @scanner.string[0...@scanner.pos - @scanner.matched_size] =~ /\s$/
+        else
+          @scanner.string[0...@scanner.pos] =~ /\s$/
+        end
+      end
+
       # Returns the next token without moving the lexer forward.
       #
       # @return [Token] The next token
@@ -153,7 +164,7 @@ module Sass
 
       # @return [Boolean] Whether or not there's more source text to lex.
       def done?
-        whitespace unless after_interpolation?
+        whitespace unless after_interpolation? && @interpolation_stack.last
         @scanner.eos? && @tok.nil?
       end
 
@@ -178,7 +189,10 @@ module Sass
       end
 
       def token
-        return string(@interpolation_stack.pop, true) if after_interpolation?
+        if after_interpolation? && (interp_type = @interpolation_stack.pop)
+          return string(interp_type, true)
+        end
+
         variable || string(:double, false) || string(:single, false) || number ||
           color || bool || raw(URI) || raw(UNICODERANGE) || special_fun ||
           ident_op || ident || op
@@ -241,6 +255,7 @@ module Sass
 
       def op
         return unless op = scan(REGULAR_EXPRESSIONS[:op])
+        @interpolation_stack << nil if op == :begin_interpolation
         [OPERATORS[op]]
       end
 

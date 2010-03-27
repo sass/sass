@@ -646,7 +646,7 @@ foo {bar: foo\#{1 + 2} baz}
 SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo {
-  bar: foo 3,baz; }
+  bar: foo 3, baz; }
 CSS
 foo {bar: foo \#{1 + 2},baz}
 SCSS
