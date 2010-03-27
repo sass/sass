@@ -311,13 +311,14 @@ SCSS
   def test_almost_ambiguous_nested_rules_and_declarations
     assert_equal <<CSS, render(<<SCSS)
 foo {
-  bar: baz:bang:bop:biddle:woo:look:at:all:these:pseudoclasses;
   bar: baz bang bop biddle woo look at all these elems; }
+  foo bar:baz:bang:bop:biddle:woo:look:at:all:these:pseudoclasses {
+    a: b; }
   foo bar:baz bang bop biddle woo look at all these elems {
     a: b; }
 CSS
 foo {
-  bar:baz:bang:bop:biddle:woo:look:at:all:these:pseudoclasses;
+  bar:baz:bang:bop:biddle:woo:look:at:all:these:pseudoclasses {a: b};
   bar:baz bang bop biddle woo look at all these elems {a: b};
   bar:baz bang bop biddle woo look at all these elems; }
 SCSS

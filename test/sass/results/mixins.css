@@ -1,12 +1,12 @@
 #main {
   width: 15em;
-  color: #0000ff;
+  color: blue;
 }
 #main p {
   border-top-width: 2px;
   border-top-color: #ffcc00;
   border-left-width: 1px;
-  border-left-color: #000;
+  border-left-color: black;
   -moz-border-radius: 10px;
   border-style: dotted;
   border-width: 2px;
@@ -19,7 +19,7 @@
   border-top-width: 2px;
   border-top-color: #ffcc00;
   border-left-width: 1px;
-  border-left-color: #000;
+  border-left-color: black;
   -moz-border-radius: 10px;
   font-size: 2em;
   font-weight: bold;
@@ -30,9 +30,9 @@
   border-top-width: 2px;
   border-top-color: #ffcc00;
   border-left-width: 1px;
-  border-left-color: #000;
+  border-left-color: black;
   -moz-border-radius: 10px;
-  color: #f00;
+  color: red;
   font-size: 20px;
   float: right;
 }
@@ -41,12 +41,12 @@
   border-top-width: 2px;
   border-top-color: #ffcc00;
   border-left-width: 1px;
-  border-left-color: #000;
+  border-left-color: black;
   -moz-border-radius: 10px;
 }
 
 .complex {
-  color: #f00;
+  color: red;
   font-size: 20px;
   text-decoration: none;
 }
@@ -59,12 +59,12 @@
 }
 * html .complex {
   height: 1px;
-  color: #f00;
+  color: red;
   font-size: 20px;
 }
 
 .more-complex {
-  color: #f00;
+  color: red;
   font-size: 20px;
   text-decoration: none;
   display: inline;
@@ -80,16 +80,16 @@
 }
 * html .more-complex {
   height: 1px;
-  color: #f00;
+  color: red;
   font-size: 20px;
 }
 .more-complex a:hover {
   text-decoration: underline;
-  color: #f00;
+  color: red;
   font-size: 20px;
   border-top-width: 2px;
   border-top-color: #ffcc00;
   border-left-width: 1px;
-  border-left-color: #000;
+  border-left-color: black;
   -moz-border-radius: 10px;
 }

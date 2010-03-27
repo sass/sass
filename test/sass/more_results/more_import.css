@@ -24,6 +24,6 @@ body { font: Arial; background: blue; }
 
 @import url(basic.css);
 @import url(../results/complex.css);
-#foo { background-color: #baf; }
+#foo { background-color: #bbaaff; }
 
 nonimported { myconst: hello; otherconst: goodbye; post-mixin: here; }

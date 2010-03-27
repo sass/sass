@@ -394,7 +394,7 @@ CSS
     opts = {:full_exception => true}
     render(<<SASS, opts)
 .filler
-  stuff: stuff!
+  stuff: "stuff!"
 
 a: b
 
@@ -408,7 +408,7 @@ Syntax error: Properties aren't allowed at the root of a document.
         on line 4 of test_cssize_exception_css_inline.sass
 
 1: .filler
-2:   stuff: stuff!
+2:   stuff: "stuff!"
 3: 
 4: a: b
 5: 
@@ -454,7 +454,13 @@ WARN
   end
 
   def test_default_function
-    assert_equal("foo {\n  bar: url(foo.png); }\n", render(%Q{foo\n  bar = url("foo.png")\n}));
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  bar: url("foo.png"); }
+CSS
+foo
+  bar = url("foo.png")
+SASS
     assert_equal("foo {\n  bar: url(); }\n", render("foo\n  bar = url()\n"));
   end
 
