@@ -1,10 +1,10 @@
 module Sass
   module SCSS
-    # A subclass of {Sass::Script::Parser}
-    # that can be used as a subcomponent of {SCSS::Parser}.
-    # In particular, the parser doesn't raise an error
+    # A mixin for subclasses of {Sass::Script::Parser}
+    # that makes them usable by {SCSS::Parser} to parse SassScript.
+    # In particular, the parser won't raise an error
     # when there's more content in the lexer once lexing is done.
-    class ScriptParser < Sass::Script::Parser
+    module ScriptParser
       private
 
       # Instead of raising an error when the parser is done,

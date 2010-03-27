@@ -765,8 +765,12 @@ SCSS
   def test_no_string_interpolation
     assert_parses <<SCSS
 foo {
-  a: "bang \#{1 + "bar"} bip"; }
+  a: "bang \#{1 +    " bar "} bip"; }
 SCSS
+  end
+
+  def test_no_sass_script_values
+    assert_not_parses('"}"', 'foo {a: b <err>* c}')
   end
 
   def test_no_nested_rules

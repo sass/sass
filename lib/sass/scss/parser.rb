@@ -495,7 +495,7 @@ module Sass
       end
 
       def value
-        return unless sep = tok(/[:=]/)
+        return unless sep = property_separator
         space = !str {ss}.empty?
         @use_property_exception ||= space || !tok?(IDENT)
 
@@ -504,6 +504,10 @@ module Sass
         expr.context = :equals if sep == '='
         # expression, space, value
         return space, expr
+      end
+
+      def property_separator
+        tok(/[:=]/)
       end
 
       def plain_value
@@ -605,8 +609,13 @@ MESSAGE
         node
       end
 
+      @sass_script_parser = Class.new(Sass::Script::Parser)
+      @sass_script_parser.send(:include, ScriptParser)
+      # @private
+      def self.sass_script_parser; @sass_script_parser; end
+
       def sass_script(*args)
-        parser = ScriptParser.new(@scanner, @line,
+        parser = self.class.sass_script_parser.new(@scanner, @line,
           @scanner.pos - (@scanner.string[0...@scanner.pos].rindex("\n") || 0))
         result = parser.send(*args)
         @line = parser.line

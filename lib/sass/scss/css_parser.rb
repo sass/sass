@@ -1,3 +1,5 @@
+require 'sass/script/css_parser'
+
 module Sass
   module SCSS
     class CssParser < Parser
@@ -5,10 +7,10 @@ module Sass
 
       def variable; nil; end
       def parent_selector; nil; end
-      def script_value; nil; end
       def interpolation; nil; end
       def interp_string; tok(STRING); end
       def expected_property_separator; '":"'; end
+      def property_separator; tok(/:/); end
       def use_css_import?; true; end
 
       def special_directive(name)
@@ -27,9 +29,12 @@ module Sass
         end
       end
 
-      def nested_properties!(node, expression, space)
+      def nested_properties!(node, space)
         expected('expression (e.g. 1px, bold)');
       end
+
+      @sass_script_parser = Class.new(Sass::Script::CssParser)
+      @sass_script_parser.send(:include, ScriptParser)
     end
   end
 end
