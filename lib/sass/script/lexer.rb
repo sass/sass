@@ -23,7 +23,10 @@ module Sass
       #
       # `offset`: \[`Fixnum`\]
       # : The number of bytes into the line the SassScript token appeared.
-      Token = Struct.new(:type, :value, :line, :offset)
+      #
+      # `pos`: \[`Fixnum`\]
+      # : The scanner position at which the SassScript token appeared.
+      Token = Struct.new(:type, :value, :line, :offset, :pos)
 
       # The line number of the lexer's current position.
       #
@@ -141,11 +144,12 @@ module Sass
       # Returns whether or not there's whitespace before the next token.
       #
       # @return [Boolean]
-      def whitespace?
-        if peek
-          @scanner.string[0...@scanner.pos - @scanner.matched_size] =~ /\s$/
+      def whitespace?(tok = @tok)
+        if tok
+          @scanner.string[0...tok.pos] =~ /\s$/
         else
-          @scanner.string[0...@scanner.pos] =~ /\s$/
+          @scanner.string[@scanner.pos, 1] =~ /^\s/ ||
+            @scanner.string[@scanner.pos - 1, 1] =~ /\s$/
         end
       end
 
@@ -159,13 +163,18 @@ module Sass
       # Rewinds the underlying StringScanner
       # to before the token returned by \{#peek}.
       def unpeek!
-        @scanner.pos -= @scanner.matched_size if @tok
+        @scanner.pos = @tok.pos if @tok
       end
 
       # @return [Boolean] Whether or not there's more source text to lex.
       def done?
         whitespace unless after_interpolation? && @interpolation_stack.last
         @scanner.eos? && @tok.nil?
+      end
+
+      def expected!(name)
+        unpeek!
+        Sass::SCSS::Parser.expected(@scanner, name, @line)
       end
 
       private
@@ -175,11 +184,14 @@ module Sass
 
         value = token
         unless value
+          expected!("property value")
           raise SyntaxError.new("Syntax error in '#{@scanner.string}' at character #{current_position}.")
         end
 
         value.last.line = @line if value.last.is_a?(Script::Node)
-        Token.new(value.first, value.last, @line, last_match_position)
+        Token.new(value.first, value.last, @line,
+          current_position - @scanner.matched_size,
+          @scanner.pos - @scanner.matched_size)
       end
 
       def whitespace
@@ -274,10 +286,6 @@ module Sass
 
       def current_position
         @offset + 1
-      end
-
-      def last_match_position
-        current_position - @scanner.matched_size
       end
 
       def after_interpolation?

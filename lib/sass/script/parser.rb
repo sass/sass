@@ -187,7 +187,8 @@ RUBY
 
       def interpolation
         e = concat
-        while (wb = @lexer.whitespace?; try_tok(:begin_interpolation))
+        while interp = try_tok(:begin_interpolation)
+          wb = @lexer.whitespace?(interp)
           line = @lexer.line
           mid = parse_interpolated
           wa = @lexer.whitespace?
@@ -303,12 +304,12 @@ RUBY
 
       def assert_expr(name)
         (e = send(name)) && (return e)
-        raise Sass::SyntaxError.new("Expected expression, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.type} token"}.")
+        @lexer.expected!(name)
       end
 
       def assert_tok(*names)
         (t = try_tok(*names)) && (return t)
-        raise Sass::SyntaxError.new("Expected #{names.join(' or ')} token, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.type} token"}.")
+        @lexer.expected!(names.join(" or "))
       end
 
       def try_tok(*names)
@@ -318,7 +319,7 @@ RUBY
 
       def assert_done
         return if @lexer.done?
-        raise Sass::SyntaxError.new("Unexpected #{@lexer.peek.type} token.")
+        @lexer.expected!("property value")
       end
 
       def node(node)

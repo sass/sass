@@ -647,9 +647,14 @@ MESSAGE
       end
 
       def expected(name)
-        pos = @scanner.pos
+        self.class.expected(@scanner, @expected || name, @line)
+      end
 
-        after = @scanner.string[0...pos]
+      # @private
+      def self.expected(scanner, expected, line)
+        pos = scanner.pos
+
+        after = scanner.string[0...pos]
         # Get rid of whitespace between pos and the last token,
         # but only if there's a newline in there
         after.gsub!(/\s*\n\s*$/, '')
@@ -657,9 +662,7 @@ MESSAGE
         after.gsub!(/.*\n/, '')
         after = "..." + after[-15..-1] if after.size > 18
 
-        expected = @expected || name
-
-        was = @scanner.rest.dup
+        was = scanner.rest.dup
         # Get rid of whitespace between pos and the next token,
         # but only if there's a newline in there
         was.gsub!(/^\s*\n\s*/, '')
@@ -669,7 +672,7 @@ MESSAGE
 
         raise Sass::SyntaxError.new(
           "Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"",
-          :line => @line)
+          :line => line)
       end
 
       def tok(rx)
