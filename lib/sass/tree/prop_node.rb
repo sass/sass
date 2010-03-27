@@ -159,8 +159,6 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.")
       elsif @options[:property_syntax] == :new && @prop_syntax == :old
         raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.")
-      elsif resolved_value[-1] == ?;
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).")
       elsif resolved_value.empty?
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
           pseudo_class_selector_message)
