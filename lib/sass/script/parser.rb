@@ -262,9 +262,13 @@ RUBY
 
       def paren
         return variable unless try_tok(:lparen)
+        was_in_parens = @in_parens
+        @in_parens = true
         e = assert_expr(:expr)
         assert_tok(:rparen)
         return e
+      ensure
+        @in_parens = was_in_parens
       end
 
       def variable
@@ -273,7 +277,7 @@ RUBY
       end
 
       def string
-        return literal unless first = try_tok(:string)
+        return number unless first = try_tok(:string)
         return first.value unless try_tok(:begin_interpolation)
         line = @lexer.line
         mid = parse_interpolated
@@ -283,8 +287,15 @@ RUBY
         op
       end
 
+      def number
+        return literal unless tok = try_tok(:number)
+        num = tok.value
+        num.original = num.to_s unless @in_parens
+        num
+      end
+
       def literal
-        (t = try_tok(:number, :color, :bool)) && (return t.value)
+        (t = try_tok(:color, :bool)) && (return t.value)
       end
 
       # It would be possible to have unified #assert and #try methods,

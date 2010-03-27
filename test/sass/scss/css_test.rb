@@ -297,7 +297,7 @@ SCSS
     assert_parses <<SCSS
 foo {
   a: foo bar baz;
-  b: foo, #abc, -12;
+  b: foo, #aabbcc, -12;
   c: 1px/2px/-3px;
   d: foo bar, baz/bang; }
 SCSS

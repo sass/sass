@@ -182,8 +182,8 @@ SASS
     assert_equal "2", resolve("1 + 1")
     assert_equal "0", resolve("1 - 1")
     assert_equal "8", resolve("2 * 4")
-    assert_equal "0.5", resolve("2 / 4")
-    assert_equal "2", resolve("4 / 2")
+    assert_equal "0.5", resolve("(2 / 4)")
+    assert_equal "2", resolve("(4 / 2)")
 
     assert_equal "-1", resolve("-1")
   end
