@@ -14,7 +14,7 @@ module Sass
   module Script
     # The regular expression used to parse variables.
     # @private
-    MATCH = /^[!\$](#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^[!\$](#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?[:=])\s*(.+)/
 
     # The regular expression used to validate variables without matching.
     # @private

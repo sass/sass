@@ -427,8 +427,8 @@ WARNING
       Script.var_warning(name, @line, line.offset + 1, @options[:filename]) if line.text[0] == ?!
 
       expr = parse_script(value, :offset => line.offset + line.text.index(value))
-      expr.context = :equals
-      Tree::VariableNode.new(name, expr, op == '||=')
+      expr.context = :equals if op =~ /=$/
+      Tree::VariableNode.new(name, expr, op =~ /^\|\|/)
     end
 
     def parse_comment(line)
