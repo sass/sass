@@ -70,6 +70,13 @@ module Sass
       # @private
       OPERATORS_REVERSE = Haml::Util.map_hash(OPERATORS) {|k, v| [v, k]}
 
+      # @private
+      TOKEN_NAMES = Haml::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge({
+          :const => "variable (e.g. $foo)",
+          :ident => "identifier (e.g. middle)",
+          :bool => "boolean (e.g. true, false)",
+        })
+
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
       # @private
@@ -181,12 +188,7 @@ module Sass
 
       def read_token
         return if done?
-
-        value = token
-        unless value
-          expected!("property value")
-          raise SyntaxError.new("Syntax error in '#{@scanner.string}' at character #{current_position}.")
-        end
+        return unless value = token
 
         value.last.line = @line if value.last.is_a?(Script::Node)
         Token.new(value.first, value.last, @line,

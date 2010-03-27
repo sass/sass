@@ -302,14 +302,19 @@ RUBY
       # It would be possible to have unified #assert and #try methods,
       # but detecting the method/token difference turns out to be quite expensive.
 
+      EXPR_NAMES = {
+        :string => "string",
+        :default => "expression (e.g. 1px, bold)",
+      }
+
       def assert_expr(name)
         (e = send(name)) && (return e)
-        @lexer.expected!(name)
+        @lexer.expected!(EXPR_NAMES[name] || EXPR_NAMES[:default])
       end
 
       def assert_tok(*names)
         (t = try_tok(*names)) && (return t)
-        @lexer.expected!(names.join(" or "))
+        @lexer.expected!(names.map {|tok| Lexer::TOKEN_NAMES[tok] || tok}.join(" or "))
       end
 
       def try_tok(*names)
@@ -319,7 +324,7 @@ RUBY
 
       def assert_done
         return if @lexer.done?
-        @lexer.expected!("property value")
+        @lexer.expected!(EXPR_NAMES[:default])
       end
 
       def node(node)
