@@ -744,34 +744,40 @@ SCSS
 
   def test_variable_definition
     assert_renders <<SASS, <<SCSS
-$var1 = 12px + 15px
+$var1: 12px + 15px
 
 foo
-  $var2 = flaz(#abcdef)
+  $var2: flaz(#abcdef)
   val: $var1 $var2
 SASS
-$var1 = 12px + 15px;
+$var1: 12px + 15px;
 
 foo {
-  $var2 = flaz(#abcdef);
+  $var2: flaz(#abcdef);
   val: $var1 $var2; }
 SCSS
+
+    assert_scss_to_sass '$var: 12px $bar baz', '$var = 12px $bar "baz"'
+    assert_sass_to_scss '$var: 12px $bar baz;', '$var = 12px $bar "baz"'
   end
 
   def test_guarded_variable_definition
     assert_renders <<SASS, <<SCSS
-$var1 ||= 12px + 15px
+$var1 ||: 12px + 15px
 
 foo
-  $var2 ||= flaz(#abcdef)
+  $var2 ||: flaz(#abcdef)
   val: $var1 $var2
 SASS
-$var1 ||= 12px + 15px;
+$var1 ||: 12px + 15px;
 
 foo {
-  $var2 ||= flaz(#abcdef);
+  $var2 ||: flaz(#abcdef);
   val: $var1 $var2; }
 SCSS
+
+    assert_scss_to_sass '$var ||: 12px $bar baz', '$var ||= 12px $bar "baz"'
+    assert_sass_to_scss '$var ||: 12px $bar baz;', '$var ||= 12px $bar "baz"'
   end
 
   private

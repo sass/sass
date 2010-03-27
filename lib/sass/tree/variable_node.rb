@@ -17,7 +17,7 @@ module Sass
       protected
 
       def to_src(tabs, opts, fmt)
-        "#{'  ' * tabs}$#{@name} #{'||' if @guarded}: #{@expr.to_sass}#{semi fmt}\n"
+        "#{'  ' * tabs}$#{@name}#{' ||' if @guarded}: #{@expr.to_sass}#{semi fmt}\n"
       end
 
       # Loads the new variable value into the environment.
