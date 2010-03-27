@@ -499,6 +499,7 @@ module Sass
         space = !str {ss}.empty?
         @use_property_exception ||= space || !tok?(IDENT)
 
+        return true, Sass::Script::String.new("") if tok?(/\{/)
         expr = sass_script(:parse)
         expr.context = :equals if sep == '='
         # expression, space, value
