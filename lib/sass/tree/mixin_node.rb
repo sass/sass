@@ -23,7 +23,7 @@ module Sass::Tree
     protected
 
     def to_src(tabs, opts, fmt)
-      args = '(' + @args.map {|a| a.to_sass}.join(", ") + ')' unless @args.empty?
+      args = '(' + @args.map {|a| a.to_sass}.join(", ") + ')'
       "#{'  ' * tabs}#{fmt == :sass ? '+' : '@include '}#{@name}#{args}#{semi fmt}\n"
     end
 
@@ -57,7 +57,11 @@ END
           if value
             value.perform(environment)
           elsif default
-            default.perform(env)
+            val = default.perform(env)
+            if default.context == :equals && val.is_a?(Sass::Script::String)
+              val = Sass::Script::String.new(val.value)
+            end
+            val
           end)
         raise Sass::SyntaxError.new("Mixin #{@name} is missing parameter #{var.inspect}.") unless env.var(var.name)
         env

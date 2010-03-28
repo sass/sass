@@ -1338,6 +1338,238 @@ foo
 SASS
   end
 
+  def test_plus_preserves_quotedness
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: "foo1";
+  b: "1foo";
+  c: foo1;
+  d: 1foo;
+  e: "foobar";
+  f: foobar; }
+CSS
+foo
+  a: "foo" + 1
+  b: 1 + "foo"
+  c: foo + 1
+  d: 1 + foo
+  e: "foo" + bar
+  f: foo + "bar"
+SASS
+  end
+
+  def test_colon_properties_preserve_quotedness
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: "foo";
+  b: bar;
+  c: "foo" bar;
+  d: foo, "bar"; }
+CSS
+foo
+  a: "foo"
+  b: bar
+  c: "foo" bar
+  d: foo, "bar"
+SASS
+  end
+
+  def test_colon_variables_preserve_quotedness
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: "foo";
+  b: bar; }
+CSS
+$a: "foo"
+$b: bar
+
+foo
+  a: $a
+  b: $b
+SASS
+  end
+
+  def test_colon_args_preserve_quotedness
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: "foo";
+  b: bar;
+  c: "foo" bar;
+  d: foo, "bar"; }
+CSS
+=foo($a: "foo", $b: bar, $c: "foo" bar, $d: (foo, "bar"))
+  foo
+    a: $a
+    b: $b
+    c: $c
+    d: $d
+
++foo
+SASS
+  end
+
+  # Deprecated equals behavior
+
+  def test_equals_properties_unquote_strings
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: foo;
+  b: bar;
+  c: foo bar;
+  d: foo, bar; }
+CSS
+foo
+  a= "foo"
+  b= bar
+  c= "foo" bar
+  d= foo, "bar"
+SASS
+    end
+  end
+
+  def test_equals_properties_unquote_value
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: foo; }
+CSS
+$var: "foo"
+
+foo
+  a= $var
+SASS
+    end
+  end
+
+  def test_equals_properties_dont_unquote_all_vars
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: "foo" bar;
+  b: bar "foo"; }
+CSS
+$var: "foo"
+
+foo
+  a= $var "bar"
+  b= "bar" $var
+SASS
+    end
+  end
+
+  def test_equals_vars_unquote_strings
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: foo;
+  b: bar;
+  c: foo bar;
+  d: foo, bar; }
+CSS
+$a = "foo"
+$b = bar
+$c = "foo" bar
+$d = foo, "bar"
+
+foo
+  a: $a
+  b: $b
+  c: $c
+  d: $d
+SASS
+    end
+  end
+
+  def test_equals_vars_unquote_value
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: foo; }
+CSS
+$var1: "foo"
+$var2 = $var1
+
+foo
+  a: $var2
+SASS
+    end
+  end
+
+  def test_equals_vars_dont_unquote_all_vars
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: "foo" bar;
+  b: bar "foo"; }
+CSS
+$var: "foo"
+$a = $var "bar"
+$b = "bar" $var
+
+foo
+  a: $a
+  b: $b
+SASS
+    end
+  end
+
+  def test_equals_args_unquote_strings
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: foo;
+  b: bar;
+  c: foo bar;
+  d: foo, bar; }
+CSS
+=foo($a = "foo", $b = bar, $c = "foo" bar, $d = (foo, "bar"))
+  foo
+    a: $a
+    b: $b
+    c: $c
+    d: $d
+
++foo
+SASS
+    end
+  end
+
+  def test_equals_vars_unquote_value
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: foo; }
+CSS
+$var1: "foo"
+
+=foo($var2 = $var1)
+  foo
+    a: $var2
+
++foo
+SASS
+    end
+  end
+
+  def test_equals_vars_dont_unquote_all_vars
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: "foo" bar;
+  b: bar "foo"; }
+CSS
+$var: "foo"
+=foo($a = $var "bar", $b = "bar" $var)
+  foo
+    a: $a
+    b: $b
+
++foo
+SASS
+    end
+  end
+
   # Regression tests
 
   def test_parens_in_mixins
