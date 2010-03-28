@@ -1338,6 +1338,8 @@ foo
 SASS
   end
 
+  # SassScript string behavior
+
   def test_plus_preserves_quotedness
     assert_equal(<<CSS, render(<<SASS))
 foo {
@@ -1405,6 +1407,46 @@ CSS
     d: $d
 
 +foo
+SASS
+  end
+
+  def test_interpolation_unquotes_strings
+    assert_equal(<<CSS, render(<<SASS))
+.foo-bar {
+  a: b; }
+CSS
+.foo-\#{"bar"}
+  a: b
+SASS
+
+    assert_equal(<<CSS, render(<<SASS))
+.foo {
+  a: b c; }
+CSS
+.foo
+  a: b \#{"c"}
+SASS
+  end
+
+  def test_interpolation_unquotes_strings_in_vars
+    assert_equal(<<CSS, render(<<SASS))
+.foo-bar {
+  a: b; }
+CSS
+$var: "bar"
+
+.foo-\#{$var}
+  a: b
+SASS
+  end
+
+  def test_interpolation_doesnt_deep_unquote_strings
+    assert_equal(<<CSS, render(<<SASS))
+.foo-"bar" "baz" {
+  a: b; }
+CSS
+.foo-\#{"bar" "baz"}
+  a: b
 SASS
   end
 
