@@ -257,6 +257,33 @@ SASS
     assert_equal "Options defined!", resolve("assert_options('bar' + 'baz')")
   end
 
+  def test_slash_compiles_literally_when_left_alone
+    assert_equal "1px/2px", resolve("1px/2px")
+    assert_equal "1px/2px/3px/4px", resolve("1px/2px/3px/4px")
+
+    assert_equal "1px/2px redpx bluepx", resolve("1px/2px redpx bluepx")
+    assert_equal "foo 1px/2px/3px bar", resolve("foo 1px/2px/3px bar")
+  end
+
+  def test_slash_divides_with_parens
+    assert_equal "0.5", resolve("(1px/2px)")
+    assert_equal "0.5", resolve("(1px)/2px")
+    assert_equal "0.5", resolve("1px/(2px)")
+  end
+
+  def test_slash_divides_with_other_arithmetic
+    assert_equal "0.5px", resolve("1px*1px/2px")
+    assert_equal "0.5px", resolve("1px/2px*1px")
+    assert_equal "0.5", resolve("0+1px/2px")
+    assert_equal "0.5", resolve("1px/2px+0")
+  end
+
+  def test_slash_divides_with_variable
+    assert_equal "0.5", resolve("$var/2px", {}, env("var" => eval("1px")))
+    assert_equal "0.5", resolve("1px/$var", {}, env("var" => eval("2px")))
+    assert_equal "0.5", resolve("$var", {}, env("var" => eval("1px/2px")))
+  end
+
   # Regression Tests
 
   def test_funcall_has_higher_precedence_than_color_name
