@@ -11,7 +11,7 @@
 * The `!` prefix for variables is deprecated,
   and will be removed in Sass 3.2.
   Use `$` as a prefix instead.
-  See also [this changelog entry](#dollar-prefix).
+  See also [this changelog entry](#3-0-0-dollar-prefix).
 
 ### Colors
 
