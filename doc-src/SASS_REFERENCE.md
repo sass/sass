@@ -116,11 +116,11 @@ Available options are:
   `:new` forces the use of a colon or equals sign
   after the property name.
   For example: `color: #0f3`
-  or `width = $main_width`.
+  or `width: $main_width`.
   `:old` forces the use of a colon
   before the property name.
   For example: `:color #0f3`
-  or `:width = $main_width`.
+  or `:width $main_width`.
   By default, either syntax is valid.
 
 {#cache-option} `:cache`
@@ -715,25 +715,25 @@ until one succeeds or the `@else` is reached.
 For example:
 
 {.sass-ex}
-    $type = "monster"
+    $type: monster
     p
-      @if $type == "ocean"
+      @if $type == ocean
         color: blue
-      @else if $type == "matador"
+      @else if $type == matador
         color: red
-      @else if $type == "monster"
+      @else if $type == monster
         color: green
       @else
         color: black
 
 {.scss-ex}
-    $type = "monster";
+    $type: monster;
     p {
-      @if $type == "ocean" {
+      @if $type == ocean {
         color: blue;
-      } @else if $type == "matador" {
+      } @else if $type == matador {
         color: red;
-      } @else if $type == "monster" {
+      } @else if $type == monster {
         color: green;
       } @else {
         color: black;
@@ -762,11 +762,11 @@ For example:
 {.sass-ex}
     @for $i from 1 through 3
       .item-#{$i}
-        width = 2em * $i
+        width: 2em * $i
 
 {.scss-ex}
     @for $i from 1 through 3 {
-      .item-#{$i} { width = 2em * $i; }
+      .item-#{$i} { width: 2em * $i; }
     }
 
 is compiled to:
@@ -787,17 +787,17 @@ statement is capable of.
 For example:
 
 {.sass-ex}
-    $i = 6
+    $i: 6
     @while $i > 0
       .item-#{$i}
-        width = 2em * $i
-      $i = $i - 2
+        width: 2em * $i
+      $i: $i - 2
 
 {.scss-ex}
-    $i = 6;
+    $i: 6;
     @while $i > 0 {
-      .item-#{$i} { width = 2em * $i; }
-      $i = $i - 2;
+      .item-#{$i} { width: 2em * $i; }
+      $i: $i - 2;
     }
 
 is compiled to:
@@ -813,33 +813,17 @@ is compiled to:
 
 ## SassScript
 
-In addition to the declarative templating system,
-Sass supports a simple language known as SassScript
-for dynamically computing CSS values and controlling
-the styles and selectors that get emitted.
+In addition to the plain CSS property syntax,
+Sass supports a small set of extensions called SassScript.
+SassScript allows properties to use
+variables, arithmetic, and extra functions.
+SassScript can also be used to generate selectors and property names,
+which is useful when writing [mixins](#mixins).
 
-SassScript can be used as the value for a property
-by using `=` instead of `:`.
-For example:
-
-{.sass-ex}
-    color = #123 + #234
-
-{.scss-ex}
-    color = #123 + #234;
-
-is compiled to:
-
-    color: #357;
-
-For old-style properties, the `=` is added but the `:` is retained.
-For example:
-
-    :color = #123 + #234
-
-is compiled to:
-
-    color: #357;
+SassScript can be used in any property value.
+Sass used to require that `=` be used to denote SassScript,
+but now all properties use SassScript automatically.
+`=` still works, but it's deprecated and will print a warning.
 
 ### Interactive Shell
 
@@ -861,28 +845,28 @@ and the result printed out for you:
 ### Variables: `$`
 
 The most straightforward way to use SassScript
-is to set and reference variables.
+is to use variables.
 Variables begin with dollar signs,
-and are set like so:
+and are set like CSS properties:
 
 {.sass-ex}
-    $width = 5em
+    $width: 5em
 
 {.scss-ex}
-    $width = 5em;
+    $width: 5em;
 
-You can then refer to them in SassScript:
+You can then refer to them in properties:
 
 {.sass-ex}
     #main
-      width = $width
+      width: $width
 
 {.scss-ex}
     #main {
-      width = $width;
+      width: $width;
     }
 
-Variables are only available within the level of nesting
+Variables are only available within the level of nested selectors
 where they're defined.
 If they're defined outside of any nested selectors,
 they're available everywhere.
@@ -893,42 +877,56 @@ this still works, but it's deprecated and prints a warning.
 
 ### Data Types
 
-SassScript supports four data types:
+SassScript supports four main data types:
 * numbers (e.g. `1.2`, `13`, `10px`)
-* strings of text (e.g. `"foo"`, `"bar"`, `'baz'`)
+* strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
 
-Any text that doesn't fit into one of those types
-in a SassScript context will cause an error:
+SassScript also supports all other types of CSS property value,
+such as Unicode ranges and `!important` declarations.
+However, it has no special handling for these types.
+They're treated just like unquoted strings.
+
+#### Strings
+
+CSS specifies two kinds of strings: those with quotes,
+such as `"Lucida Grande"` or `'http://sass-lang.com'`,
+and those without quotes, such as `sans-serif` or `bold`.
+SassScript recognizes both kinds,
+and in general if one kind of string is used in the Sass document,
+that kind of string will be used in the resulting CSS.
+
+There is one exception to this, though:
+when using [`#{}` interpolation](#interpolation_),
+quoted strings are unquoted.
+This makes it easier to use e.g. selector names in [mixins](#mixins).
+For example:
 
 {.sass-ex}
-    p
-      $width = 5em
-      // This will cause an error
-        border = $width solid blue
-      // Use one of the following forms instead:
-      border = "#{$width} solid blue"
-      border = $width "solid" "blue"
+    =firefox-message($selector)
+      body.firefox #{$selector}:before
+        content: "Hi, Firefox users!"
+
+    +firefox-message(".header")
 
 {.scss-ex}
-    p {
-      $width = 5em;
-      /* This will cause an error */
-      /* border = $width solid blue; */
-      /* Use one of the following forms instead: */
-      border = "#{$width} solid blue";
-      border = $width "solid" "blue";
-    }
+    @mixin firefox-message($selector) {
+      body.firefox #{$selector}:before {
+        content: "Hi, Firefox users!"; } }
+
+    @include firefox-message(".header");
 
 is compiled to:
 
-    p {
-      border: 5em solid blue;
-      border: 5em solid blue; }
-
+    body.firefox .header:before {
+      content: "Hi, Firefox users!"; }
 
 ### Operations
+
+All types support equality operations (`==` and `!=`).
+In addition, each type has its own operations
+that it has special support for.
 
 #### Number Operations
 
@@ -938,11 +936,11 @@ and will automatically convert between units if it can:
 
 {.sass-ex}
     p
-      width = 1in + 8pt
+      width: 1in + 8pt
 
 {.scss-ex}
     p {
-      width = 1in + 8pt;
+      width: 1in + 8pt;
     }
 
 is compiled to:
@@ -957,6 +955,49 @@ and equality operators
 (`==`, `!=`)
 are supported for all types.
 
+##### Division and `/`
+
+CSS allows `/` to appear in property values
+as a way of separating numbers.
+Since SassScript is an extension of the CSS property syntax,
+it must support this, while also allowing `/` to be used for division.
+This means that by default, if two numbers are separated by `/` in SassScript,
+then they will appear that way in the resulting CSS.
+
+However, there are three situations where the `/` will be interpreted as division.
+These cover the vast majority of cases where division is actually used.
+They are:
+
+1. If the value, or any part of it, is stored in a variable.
+2. If the value is surrounded by parentheses.
+3. If the value is used as part of another arithmetic expression.
+
+For example:
+
+{.sass-ex}
+    p
+      font: 10px/8px
+      $width: 1000px
+      width: $width/2
+      height: (500px/2)
+      margin-left: 5px + 8px/2px
+
+{.scss-ex}
+    p {
+      font: 10px/8px;
+      $width: 1000px;
+      width: $width/2;
+      height: (500px/2);
+      margin-left: 5px + 8px/2px; }
+
+is compiled to:
+
+    p {
+      font: 10px/8px;
+      width: 500px;
+      height: 250px;
+      margin-left: 9px; }
+
 #### Color Operations
 
 All arithmetic operations are supported for color values,
@@ -967,11 +1008,11 @@ For example:
 
 {.sass-ex}
     p
-      color = #010203 + #040506
+      color: #010203 + #040506
 
 {.scss-ex}
     p {
-      color = #010203 + #040506;
+      color: #010203 + #040506;
     }
 
 computes `01 + 04 = 05`, `02 + 05 = 07`, and `03 + 06 = 09`,
@@ -980,17 +1021,20 @@ and is compiled to:
     p {
       color: #050709; }
 
-Arithmetic operations even work between numbers and colors,
+Often it's more useful to use {Sass::Script::Functions color functions}
+than to try to use color arithmetic to achieve the same effect.
+
+Arithmetic operations also work between numbers and colors,
 also piecewise.
 For example:
 
 {.sass-ex}
     p
-      color = #010203 * 2
+      color: #010203 * 2
 
 {.scss-ex}
     p {
-      color = #010203 * 2;
+      color: #010203 * 2;
     }
 
 computes `01 * 2 = 02`, `02 * 2 = 04`, and `03 * 2 = 06`,
@@ -1009,11 +1053,11 @@ For example:
 
 {.sass-ex}
     p
-      color = rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75)
+      color: rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75)
 
 {.scss-ex}
     p {
-      color = rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75);
+      color: rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75);
     }
 
 is compiled to:
@@ -1027,16 +1071,16 @@ The alpha channel of a color can be adjusted using the
 For example:
 
 {.sass-ex}
-    $translucent-red = rgba(255, 0, 0, 0.5)
+    $translucent-red: rgba(255, 0, 0, 0.5)
     p
-      color = opacify($translucent-red, 80%)
-      background-color = transparentize($translucent-red, 50%)
+      color: opacify($translucent-red, 80%)
+      background-color: transparentize($translucent-red, 50%)
 
 {.scss-ex}
-    $translucent-red = rgba(255, 0, 0, 0.5);
+    $translucent-red: rgba(255, 0, 0, 0.5);
     p {
-      color = opacify($translucent-red, 80%);
-      background-color = transparentize($translucent-red, 50%);
+      color: opacify($translucent-red, 80%);
+      background-color: transparentize($translucent-red, 50%);
     }
 
 is compiled to:
@@ -1051,11 +1095,11 @@ The `+` operation can be used to concatenate strings:
 
 {.sass-ex}
     p
-      cursor = "e" + "-resize"
+      cursor: e + -resize
 
 {.scss-ex}
     p {
-      cursor = "e" + "-resize";
+      cursor: e + -resize;
     }
 
 is compiled to:
@@ -1063,16 +1107,40 @@ is compiled to:
     p {
       cursor: e-resize; }
 
+Note that if a quoted string is added to an unquoted string
+(that is, the quoted string is to the left of the `+`),
+the result is a quoted string.
+Likewise, if an unquoted string is added to a quoted string
+(the unquoted string is to the left of the `+`),
+the result is an unquoted string.
+For example:
+
+{.sass-ex}
+    p:before
+      content: "Foo " + Bar
+      font-family: sans- + "serif"
+
+{.scss-ex}
+    p:before {
+      content: "Foo " + Bar;
+      font-family: sans- + "serif"; }
+
+is compiled to:
+
+    p:before {
+      content: "Foo Bar";
+      font-family: sans-serif; }
+
 By default, if two values are placed next to one another,
 they are concatenated with a space:
 
 {.sass-ex}
     p
-      margin = 3px + 4px "auto"
+      margin: 3px + 4px auto
 
 {.scss-ex}
     p {
-      margin = 3px + 4px "auto";
+      margin: 3px + 4px auto;
     }
 
 is compiled to:
@@ -1084,15 +1152,21 @@ Within a string of text, #{} style interpolation can be used to
 place dynamic values within the string:
 
 {.sass-ex}
-    p
-      border = "#{5px + 10px} solid #ccc"
+    p:before
+      content: "I ate #{5 + 10} pies!"
 
 {.scss-ex}
-    p {
-      border = "#{5px + 10px} solid #ccc";
-    }
+    p:before {
+      content: "I ate #{5 + 10} pies!"; }
 
-Finally, SassScript supports `and`, `or`, and `not` operators
+is compiled to:
+
+    p:before {
+      content: "I ate 15 pies!"; }
+
+#### Boolean Operations
+
+SassScript supports `and`, `or`, and `not` operators
 for boolean values.
 
 ### Parentheses
@@ -1101,11 +1175,11 @@ Parentheses can be used to affect the order of operations:
 
 {.sass-ex}
     p
-      width = 1em + (2em * 3)
+      width: 1em + (2em * 3)
 
 {.scss-ex}
     p {
-      width = 1em + (2em * 3);
+      width: 1em + (2em * 3);
     }
 
 is compiled to:
@@ -1120,11 +1194,11 @@ that are called using the normal CSS function syntax:
 
 {.sass-ex}
     p
-      color = hsl(0, 100%, 50%)
+      color: hsl(0, 100%, 50%)
 
 {.scss-ex}
     p {
-      color = hsl(0, 100%, 50%);
+      color: hsl(0, 100%, 50%);
     }
 
 is compiled to:
@@ -1135,20 +1209,20 @@ is compiled to:
 See {Sass::Script::Functions} for a full listing of Sass functions,
 as well as instructions on defining your own in Ruby.
 
-### Interpolation: `#{}`
+### Interpolation: `#{}` {#interpolation_}
 
 You can also use SassScript variables in selectors
 and property names using #{} interpolation syntax:
 
 {.sass-ex}
-    $name = foo
-    $attr = border
+    $name: foo
+    $attr: border
     p.#{$name}
       #{$attr}-color: blue
 
 {.scss-ex}
-    $name = foo;
-    $attr = border;
+    $name: foo;
+    $attr: border;
     p.#{$name} { #{$attr}-color: blue }
 
 is compiled to:
@@ -1156,32 +1230,32 @@ is compiled to:
     p.foo {
       border-color: blue; }
 
-### Optional Assignment: `||=`
+### Optional Assignment: `||:`
 
 You can assign to variables if they aren't already assigned
-using the `||=` assignment operator. This means that if the
+using the `||:` assignment operator. This means that if the
 variable has already been assigned to, it won't be re-assigned,
 but if it doesn't have a value yet, it will be given one.
 
 For example:
 
 {.sass-ex}
-    $content = "First content"
-    $content ||= "Second content?"
-    $new_content ||= "First time reference"
+    $content: "First content"
+    $content ||: "Second content?"
+    $new_content ||: "First time reference"
 
     #main
-      content = $content
-      new-content = $new_content
+      content: $content
+      new-content: $new_content
 
 {.scss-ex}
-    $content = "First content";
-    $content ||= "Second content?";
-    $new_content ||= "First time reference";
+    $content: "First content";
+    $content ||: "Second content?";
+    $new_content ||: "First time reference";
 
     #main {
-      content = $content;
-      new-content = $new_content;
+      content: $content;
+      new-content: $new_content;
     }
 
 is compiled to:
@@ -1190,7 +1264,7 @@ is compiled to:
       content: First content;
       new-content: First time reference; }
 
-## Mixins
+## Mixins {#mixins}
 
 Mixins enable you to define groups of CSS properties and
 then include them inline in any number of selectors
@@ -1321,7 +1395,7 @@ Mixins can take arguments which can be used with SassScript:
 {.sass-ex}
     =sexy-border($color)
       border:
-        color = $color
+        color: $color
         width: 1in
         style: dashed
     p
@@ -1330,7 +1404,7 @@ Mixins can take arguments which can be used with SassScript:
 {.scss-ex}
     @mixin sexy-border($color) {
       border: {
-        color = $color;
+        color: $color;
         width: 1in;
         style: dashed;
       }
@@ -1348,19 +1422,19 @@ is compiled to:
 Mixins can also specify default values for their arguments:
 
 {.sass-ex}
-    =sexy-border($color, $width = 1in)
+    =sexy-border($color, $width: 1in)
       border:
-        color = $color
-        width = $width
+        color: $color
+        width: $width
         style: dashed
     p
       +sexy-border("blue")
 
 {.scss-ex}
-    @mixin sexy-border($color, $width = 1in) {
+    @mixin sexy-border($color, $width: 1in) {
       border: {
-        color = $color;
-        width = $width;
+        color: $color;
+        width: $width;
         style: dashed;
       }
     p { @include sexy-border("blue"); }
