@@ -5,13 +5,74 @@
 
 ## 2.4.0 (Unreleased)
 
-### Must Read!
-{#3-0-0-deprecation}
+### Deprecations -- Must Read!
+{#3-0-0-deprecations}
 
 * The `!` prefix for variables is deprecated,
   and will be removed in Sass 3.2.
   Use `$` as a prefix instead.
   See also [this changelog entry](#3-0-0-dollar-prefix).
+
+### Syntax Changes
+
+#### Variable Prefix Character
+{#3-0-0-dollar-prefix}
+
+The Sass variable character has been changed from `!`
+to the more aesthetically-appealing `$`.
+For example, what used to be
+
+    !width = 13px
+    .icon
+      width = !width
+
+should now be
+
+    $width = 13px
+    .icon
+      width = $width
+
+The `sass-convert` command-line tool can be used
+to upgrade Sass files to the new syntax using the `--in-place` flag.
+For example:
+
+    # Upgrade style.sass:
+    $ sass-convert --in-place style.sass
+
+    # Upgrade all Sass files:
+    $ find -name '*.sass' -exec sass-convert --in-place {} \;
+
+`!` may still be used, but it's deprecated and will print a warning.
+It will be removed in the next version of Sass, 3.2.
+
+#### Variable and Mixin Names
+
+SassScript variable and mixin names may now contain hyphens.
+In fact, they may be any valid CSS3 identifier.
+For example:
+
+    $prettiest-color = #542FA9
+    =pretty-text
+      color = $prettiest-color
+
+In order to allow frameworks like [Compass](http://compass-style.org)
+to use hyphens in variable names
+while maintaining backwards-compatibility,
+variables and mixins using hyphens may be referred to
+with underscores, and vice versa.
+For example:
+
+    $prettiest-color = #542FA9
+    .pretty
+      // Using an underscore instead of a hyphen works
+      color = $prettiest_color
+
+#### Single-Quoted Strings
+
+SassScript now supports single-quoted strings.
+They behave identically to double-quoted strings,
+except that single quotes need to be backslash-escaped
+and double quotes do not.
 
 ### Colors
 
@@ -125,67 +186,6 @@ The syntax for `--update` is just like watch:
 In fact, `--update` work exactly the same as `--watch`,
 except that it doesn't continue watching the files
 after the first check.
-
-### Syntax
-
-#### Variable Prefix Character
-{#3-0-0-dollar-prefix}
-
-The Sass variable character has been changed from `!`
-to the more aesthetically-appealing `$`.
-For example, what used to be
-
-    !width = 13px
-    .icon
-      width = !width
-
-should now be
-
-    $width = 13px
-    .icon
-      width = $width
-
-The `sass-convert` command-line tool can be used
-to upgrade Sass files to the new syntax using the `--in-place` flag.
-For example:
-
-    # Upgrade style.sass:
-    $ sass-convert --in-place style.sass
-
-    # Upgrade all Sass files:
-    $ find -name '*.sass' -exec sass-convert --in-place {} \;
-
-`!` may still be used, but it's deprecated and will print a warning.
-For more details, see [the deprecation section](#deprecation).
-
-#### Variable and Mixin Names
-
-SassScript variable and mixin names may now contain hyphens.
-In fact, they may be any valid CSS3 identifier.
-For example:
-
-    $prettiest-color = #542FA9
-    =pretty-text
-      color = $prettiest-color
-
-In order to allow frameworks like [Compass](http://compass-style.org)
-to use hyphens in variable names
-while maintaining backwards-compatibility,
-variables and mixins using hyphens may be referred to
-with underscores, and vice versa.
-For example:
-
-    $prettiest-color = #542FA9
-    .pretty
-      // Using an underscore instead of a hyphen works
-      color = $prettiest_color
-
-#### Single-Quoted Strings
-
-SassScript now supports single-quoted strings.
-They behave identically to double-quoted strings,
-except that single quotes need to be backslash-escaped
-and double quotes do not.
 
 ### Error Backtraces
 
