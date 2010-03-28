@@ -236,11 +236,19 @@ RUBY
       end
 
       def defn_arglist(must_have_default)
+        line = @lexer.line
+        offset = @lexer.offset + 1
         return unless c = try_tok(:const)
         var = Script::Variable.new(c.value)
         if tok = (try_tok(:colon) || try_tok(:single_eq))
-          val = assert_expr(:concat)
-          val.context = :equals if tok.type == :single_eq
+          val = nil
+          val_str = @lexer.str {val = assert_expr(:concat)}
+
+          if tok.type == :single_eq
+            val.context = :equals
+            Script.equals_warning("mixin argument defaults", "$#{c.value}", val_str.strip,
+              line, offset, @options[:filename])
+          end
         elsif must_have_default
           raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")
         end

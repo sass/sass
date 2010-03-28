@@ -411,7 +411,12 @@ WARNING
         expr = Sass::Script::String.new("")
       else
         expr = parse_script(value, :offset => line.offset + line.text.index(value))
-        expr.context = :equals if eq.strip[0] == SCRIPT_CHAR
+
+        if eq.strip[0] == SCRIPT_CHAR
+          expr.context = :equals
+          Script.equals_warning("properties", name, value, @line,
+            line.offset + 1, @options[:filename])
+        end
       end
       Tree::PropNode.new(
         parse_interp(name), expr,
@@ -427,7 +432,14 @@ WARNING
       Script.var_warning(name, @line, line.offset + 1, @options[:filename]) if line.text[0] == ?!
 
       expr = parse_script(value, :offset => line.offset + line.text.index(value))
-      expr.context = :equals if op =~ /=$/
+      if op =~ /=$/
+        expr.context = :equals
+        warning_name = "$#{name}"
+        warning_name << " ||" if op =~ /^\|\|/
+        Script.equals_warning("variables", warning_name, value,
+          @line, line.offset + 1, @options[:filename])
+      end
+
       Tree::VariableNode.new(name, expr, op =~ /^\|\|/)
     end
 

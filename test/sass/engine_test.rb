@@ -746,6 +746,39 @@ foo
 SASS
   end
 
+  def test_equals_warning_for_properties
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 3, character 3 of 'test_equals_warning_for_properties_inline.sass'
+Setting properties with = has been deprecated and will be removed in version 3.2.
+Use "a: $var" instead.
+WARN
+foo {
+  a: 2px 3px; }
+CSS
+$var: 2px 3px
+foo
+  a = $var
+SASS
+  end
+
+  def test_equals_warning_for_dynamic_properties
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 4, character 3 of 'test_equals_warning_for_dynamic_properties_inline.sass'
+Setting properties with = has been deprecated and will be removed in version 3.2.
+Use "a-\#{$i}: $var" instead.
+WARN
+foo {
+  a-12: 2px 3px; }
+CSS
+$var: 2px 3px
+$i: 12
+foo
+  a-\#{$i} = $var
+SASS
+  end
+
   def test_or_eq
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo = "b"\n$foo ||= "c"\nfoo\n  a = $foo}))
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo ||= "b"\nfoo\n  a = $foo}))
@@ -839,6 +872,24 @@ CSS
 a
   +mixin_hyphen
   +mixin-under
+SASS
+  end
+
+  def test_equals_warning_for_mixin_args
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 1, character 6 of 'test_equals_warning_for_mixin_args_inline.sass'
+Setting mixin argument defaults with = has been deprecated and will be removed in version 3.2.
+Use "$arg: 1px" instead.
+WARN
+bar {
+  a: 1px; }
+CSS
+=foo($arg = 1px)
+  a: $arg
+
+bar
+  +foo
 SASS
   end
 
@@ -1041,6 +1092,40 @@ CSS
 $dollar-var = 1px
 foo
   a = !dollar-var
+SASS
+  end
+
+  def test_equals_warning_for_variables
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 2, character 1 of 'test_equals_warning_for_variables_inline.sass'
+Setting variables with = has been deprecated and will be removed in version 3.2.
+Use "$equals-var: 2px  3px" instead.
+WARN
+foo {
+  a: 2px 3px; }
+CSS
+
+$equals-var = 2px  3px
+foo
+  a: $equals-var
+SASS
+  end
+
+  def test_equals_warning_for_guarded_variables
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 2, character 1 of 'test_equals_warning_for_guarded_variables_inline.sass'
+Setting variables with = has been deprecated and will be removed in version 3.2.
+Use "$equals-var ||: 2px  3px" instead.
+WARN
+foo {
+  a: 2px 3px; }
+CSS
+
+$equals-var ||= 2px  3px
+foo
+  a: $equals-var
 SASS
   end
 

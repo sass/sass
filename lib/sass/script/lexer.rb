@@ -184,6 +184,13 @@ module Sass
         Sass::SCSS::Parser.expected(@scanner, name, @line)
       end
 
+      def str
+        old_pos = @tok ? @tok.pos : @scanner.pos
+        yield
+        new_pos = @tok ? @tok.pos : @scanner.pos
+        @scanner.string[old_pos...new_pos]
+      end
+
       private
 
       def read_token
