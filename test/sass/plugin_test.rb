@@ -79,7 +79,7 @@ Syntax error: Undefined variable: "$bork".
         on line 2 of #{template_loc('bork1')}
 
 1: bork
-2:   :bork= $bork
+2:   :bork $bork
 CSS
     end
     File.delete(tempfile_loc('bork1'))

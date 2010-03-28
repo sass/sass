@@ -153,14 +153,6 @@ foo bar {
   baz: 12 $bang "bip"; }
 SCSS
 
-    assert_scss_to_sass <<SASS, <<SCSS
-foo bar
-  baz: 12 $bang bip
-SASS
-foo bar {
-  baz= 12 $bang "bip"; }
-SCSS
-
     assert_sass_to_scss <<SCSS, <<SASS
 foo bar {
   baz: 12 $bang bip; }
@@ -177,14 +169,6 @@ foo bar
 SASS
 foo bar {
   baz: 12 $bang "bip"; }
-SCSS
-
-    assert_scss_to_sass <<SASS, <<SCSS, :old => true
-foo bar
-  :baz 12 $bang bip
-SASS
-foo bar {
-  baz= 12 $bang "bip"; }
 SCSS
 
     assert_sass_to_scss <<SCSS, <<SASS, :old => true
@@ -772,7 +756,6 @@ foo {
   val: $var1 $var2; }
 SCSS
 
-    assert_scss_to_sass '$var: 12px $bar baz', '$var = 12px $bar "baz"'
     assert_sass_to_scss '$var: 12px $bar baz;', '$var = 12px $bar "baz"'
   end
 
@@ -791,7 +774,6 @@ foo {
   val: $var1 $var2; }
 SCSS
 
-    assert_scss_to_sass '$var ||: 12px $bar baz', '$var ||= 12px $bar "baz"'
     assert_sass_to_scss '$var ||: 12px $bar baz;', '$var ||= 12px $bar "baz"'
   end
 

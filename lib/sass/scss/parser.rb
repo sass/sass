@@ -250,12 +250,9 @@ module Sass
           guarded = true
         end
 
-        sep = tok!(/[:=]/)
+        tok!(/:/)
         ss
-        expr = sass_script(:parse)
-        expr.context = :equals if sep == '='
-
-        node(Sass::Tree::VariableNode.new(name, expr, guarded))
+        node(Sass::Tree::VariableNode.new(name, sass_script(:parse), guarded))
       end
 
       def operator
@@ -495,19 +492,13 @@ module Sass
       end
 
       def value
-        return unless sep = property_separator
+        return unless tok(/:/)
         space = !str {ss}.empty?
         @use_property_exception ||= space || !tok?(IDENT)
 
         return true, Sass::Script::String.new("") if tok?(/\{/)
-        expr = sass_script(:parse)
-        expr.context = :equals if sep == '='
         # expression, space, value
-        return space, expr
-      end
-
-      def property_separator
-        tok(/[:=]/)
+        return space, sass_script(:parse)
       end
 
       def plain_value

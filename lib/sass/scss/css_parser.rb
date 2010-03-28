@@ -10,7 +10,6 @@ module Sass
       def interpolation; nil; end
       def interp_string; tok(STRING); end
       def expected_property_separator; '":"'; end
-      def property_separator; tok(/:/); end
       def use_css_import?; true; end
 
       def special_directive(name)

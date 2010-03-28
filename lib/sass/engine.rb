@@ -124,7 +124,7 @@ module Sass
     # The regex that matches and extracts data from
     # properties of the form `name: prop`.
     # @private
-    PROPERTY_NEW = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
+    PROPERTY_NEW = /^([^\s=:"]+)\s*(=|:)(?:\s+|$)(.*)/
 
     # The regex that matches and extracts data from
     # properties of the form `:name prop`.

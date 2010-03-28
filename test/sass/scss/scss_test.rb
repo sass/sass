@@ -33,9 +33,9 @@ SCSS
 blat {
   a: foo; }
 CSS
-$var = "foo";
+$var: foo;
 
-blat {a = $var}
+blat {a: $var}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
@@ -44,10 +44,10 @@ foo {
   b: 6; }
 CSS
 foo {
-  $var = 2;
-  $another-var = 4;
-  a = $var;
-  b = $var + $another-var;}
+  $var: 2;
+  $another-var: 4;
+  a: $var;
+  b: $var + $another-var;}
 SCSS
   end
 
@@ -56,9 +56,9 @@ SCSS
 blat {
   a: foo; }
 CSS
-$vär = "foo";
+$vär: foo;
 
-blat {a = $vär}
+blat {a: $vär}
 SCSS
   end
 
@@ -67,19 +67,19 @@ SCSS
 foo {
   a: 1; }
 CSS
-$var = 1;
-$var ||= 2;
+$var: 1;
+$var ||: 2;
 
-foo {a = $var}
+foo {a: $var}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
 foo {
   a: 2; }
 CSS
-$var ||= 2;
+$var ||: 2;
 
-foo {a = $var}
+foo {a: $var}
 SCSS
   end
 
@@ -91,9 +91,9 @@ foo {
   c: 12px; }
 CSS
 foo {
-  a = 1 + 2;
-  b = "foo" + "bar";
-  c = floor(12.3px); }
+  a: 1 + 2;
+  b: foo + bar;
+  c: floor(12.3px); }
 SCSS
   end
 
@@ -122,7 +122,7 @@ SCSS
   a: 4; }
 CSS
 .foo {
-  @for $var from 1 to 5 {a = $var;}
+  @for $var from 1 to 5 {a: $var;}
 }
 SCSS
 
@@ -135,7 +135,7 @@ SCSS
   a: 5; }
 CSS
 .foo {
-  @for $var from 1 through 5 {a = $var;}
+  @for $var from 1 through 5 {a: $var;}
 }
 SCSS
   end
@@ -175,12 +175,12 @@ SCSS
   a: 3;
   a: 4; }
 CSS
-$i = 1;
+$i: 1;
 
 .foo {
   @while $i != 5 {
-    a = $i;
-    $i = $i + 1;
+    a: $i;
+    $i: $i + 1;
   }
 }
 SCSS
@@ -199,7 +199,7 @@ SCSS
 foo {
   a: 1bar; }
 CSS
-foo {a = 1 + /* "flang" */ "bar"}
+foo {a: 1 + /* flang */ bar}
 SCSS
   end
 
@@ -208,8 +208,8 @@ SCSS
 foo {
   a: 1blang; }
 CSS
-foo {a = 1 + // "flang" }
-  "blang" }
+foo {a: 1 + // flang }
+  blang }
 SCSS
   end
 
@@ -443,12 +443,12 @@ SCSS
   def test_namespace_properties_with_script_value
     assert_equal <<CSS, render(<<SCSS)
 foo {
-  bar: baz;
+  bar: bazbang;
     bar-bip: bop;
     bar-bing: bop; }
 CSS
 foo {
-  bar = "baz" {
+  bar: baz + bang {
     bip: bop;
     bing: bop; }}
 SCSS
@@ -554,9 +554,9 @@ SCSS
 .foo {
   a: bar; }
 CSS
-@mixin foo($a) {a = $a}
+@mixin foo($a) {a: $a}
 
-.foo {@include foo("bar")}
+.foo {@include foo(bar)}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
@@ -565,10 +565,10 @@ SCSS
   b: 12px; }
 CSS
 @mixin foo($a, $b) {
-  a = $a;
-  b = $b; }
+  a: $a;
+  b: $b; }
 
-.foo {@include foo("bar", 12px)}
+.foo {@include foo(bar, 12px)}
 SCSS
   end
 
@@ -795,17 +795,6 @@ SCSS
     assert_equal 2, e.sass_line
   end
 
-  def test_uses_property_exception_with_equals
-    render <<SCSS
-foo {
-  bar=[fail]; }
-SCSS
-    assert(false, "Expected syntax error")
-  rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar=": expected expression (e.g. 1px, bold), was "[fail]; }"', e.message
-    assert_equal 2, e.sass_line
-  end
-
   def test_uses_property_exception_when_followed_by_open_bracket
     render <<SCSS
 foo {
@@ -820,18 +809,18 @@ SCSS
   def test_script_error
     render <<SCSS
 foo {
-  bar = "baz" * * }
+  bar: "baz" * * }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal 'Invalid CSS after "  bar = "baz" * ": expected expression (e.g. 1px, bold), was "* }"', e.message
+    assert_equal 'Invalid CSS after "  bar: "baz" * ": expected expression (e.g. 1px, bold), was "* }"', e.message
     assert_equal 2, e.sass_line
   end
 
   def test_multiline_script_syntax_error
     render <<SCSS
 foo {
-  bar =
+  bar:
     "baz" * * }
 SCSS
     assert(false, "Expected syntax error")
@@ -843,7 +832,7 @@ SCSS
   def test_multiline_script_runtime_error
     render <<SCSS
 foo {
-  bar = "baz" +
+  bar: "baz" +
     "bar" +
     $bang }
 SCSS
@@ -856,10 +845,10 @@ SCSS
   def test_post_multiline_script_runtime_error
     render <<SCSS
 foo {
-  bar = "baz" +
+  bar: "baz" +
     "bar" +
     "baz";
-  bip = $bop; }
+  bip: $bop; }
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e

@@ -15,15 +15,14 @@ class SassEngineTest < Test::Unit::TestCase
   # if so, the second element should be the line number that should be reported for the error.
   # If this isn't provided, the tests will assume the line number should be the last line of the document.
   EXCEPTION_MAP = {
-    "$a = 1 + " => 'Invalid CSS after "1 +": expected expression (e.g. 1px, bold), was ""',
-    "$a = 1 + 2 +" => 'Invalid CSS after "1 + 2 +": expected expression (e.g. 1px, bold), was ""',
-    "$a = 1 + 2 + %" => 'Invalid CSS after "1 + 2 + ": expected expression (e.g. 1px, bold), was "%"',
-    "$a = foo(\"bar\"" => 'Invalid CSS after "foo("bar"": expected ")", was ""',
-    "$a = 1 }" => 'Invalid CSS after "1 ": expected expression (e.g. 1px, bold), was "}"',
-    "$a = 1 }foo\"" => 'Invalid CSS after "1 ": expected expression (e.g. 1px, bold), was "}foo""',
+    "$a: 1 + " => 'Invalid CSS after "1 +": expected expression (e.g. 1px, bold), was ""',
+    "$a: 1 + 2 +" => 'Invalid CSS after "1 + 2 +": expected expression (e.g. 1px, bold), was ""',
+    "$a: 1 + 2 + %" => 'Invalid CSS after "1 + 2 + ": expected expression (e.g. 1px, bold), was "%"',
+    "$a: foo(\"bar\"" => 'Invalid CSS after "foo("bar"": expected ")", was ""',
+    "$a: 1 }" => 'Invalid CSS after "1 ": expected expression (e.g. 1px, bold), was "}"',
+    "$a: 1 }foo\"" => 'Invalid CSS after "1 ": expected expression (e.g. 1px, bold), was "}foo""',
     ":" => 'Invalid property: ":".',
     ": a" => 'Invalid property: ": a".',
-    ":= a" => 'Invalid property: ":= a".',
     "a\n  :b" => <<MSG,
 Invalid property: ":b" (no value).
 If ":b" should be a selector, use "\\:b" instead.
@@ -31,37 +30,34 @@ MSG
     "a\n  b:" => 'Invalid property: "b:" (no value).',
     "a\n  :b: c" => 'Invalid property: ":b: c".',
     "a\n  :b:c d" => 'Invalid property: ":b:c d".',
-    "a\n  :b=c d" => 'Invalid property: ":b=c d".',
     "a\n  :b c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
     "a\n  b: c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
-    "a\n  b : c" => 'Invalid property: "b : c".',
-    "a\n  b=c: d" => 'Invalid property: "b=c: d".',
     "a: b" => 'Properties aren\'t allowed at the root of a document.',
     ":a b" => 'Properties aren\'t allowed at the root of a document.',
     "!" => 'Invalid variable: "!".',
     "$a" => 'Invalid variable: "$a".',
     "! a" => 'Invalid variable: "! a".',
     "$a b" => 'Invalid variable: "$a b".',
-    "$a = 1b + 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a = 1b < 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a = 1b > 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a = 1b <= 2c" => "Incompatible units: 'c' and 'b'.",
-    "$a = 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
-    "a\n  :b= 1b * 2c" => "2b*c isn't a valid CSS value.",
-    "a\n  :b= 1b % 2c" => "Cannot modulo by a number with units: 2c.",
-    "$a = 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
-    "$a = #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
+    "$a: 1b + 2c" => "Incompatible units: 'c' and 'b'.",
+    "$a: 1b < 2c" => "Incompatible units: 'c' and 'b'.",
+    "$a: 1b > 2c" => "Incompatible units: 'c' and 'b'.",
+    "$a: 1b <= 2c" => "Incompatible units: 'c' and 'b'.",
+    "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
+    "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
+    "a\n  b: 1b % 2c" => "Cannot modulo by a number with units: 2c.",
+    "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
+    "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "a,\n  :b c" => ["Rules can\'t end in commas.", 1],
     "a," => "Rules can\'t end in commas.",
-    "a,\n$b = 1" => ["Rules can\'t end in commas.", 1],
-    "$a = b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
+    "a,\n$b: 1" => ["Rules can\'t end in commas.", 1],
+    "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
     "foo\n  @import #{File.dirname(__FILE__)}/templates/basic" => "Import directives may only be used at the root of a document.",
-    '$foo = "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
+    '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
     "=foo\n  :color red\n.bar\n  +bang-bop" => "Undefined mixin 'bang-bop'.",
@@ -85,16 +81,16 @@ MSG
     "=foo\n  bar: baz\n+foo" => ["Properties aren't allowed at the root of a document.", 2],
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
     "=a($b = 1, $c)" => "Required argument $c must come before any optional arguments.",
-    "=a($b = 1)\n  :a= $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
-    "=a($b)\n  :a= $b\ndiv\n  +a" => "Mixin a is missing parameter $b.",
+    "=a($b = 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
+    "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing parameter $b.",
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
     "@if false\n@else foo" => "Invalid else directive '@else foo': expected 'if <expr>'.",
     "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
-    "a\n  !b = 12\nc\n  d = !b" => 'Undefined variable: "$b".',
-    "a\n  $b = 12\nc\n  d = $b" => 'Undefined variable: "$b".',
-    "=foo\n  $b = 12\nc\n  +foo\n  d = $b" => 'Undefined variable: "$b".',
-    "c\n  d = $b-foo" => 'Undefined variable: "$b-foo".',
-    "c\n  d = $b_foo" => 'Undefined variable: "$b_foo".',
+    "a\n  !b: 12\nc\n  d: !b" => 'Undefined variable: "$b".',
+    "a\n  $b: 12\nc\n  d: $b" => 'Undefined variable: "$b".',
+    "=foo\n  $b: 12\nc\n  +foo\n  d: $b" => 'Undefined variable: "$b".',
+    "c\n  d: $b-foo" => 'Undefined variable: "$b-foo".',
+    "c\n  d: $b_foo" => 'Undefined variable: "$b_foo".',
     '@for $a from "foo" to 1' => '"foo" is not an integer.',
     '@for $a from 1 to "2"' => '"2" is not an integer.',
     '@for $a from 1 to "foo"' => '"foo" is not an integer.',
@@ -246,7 +242,7 @@ SASS
   def test_mixin_exception
     render(<<SASS)
 =error-mixin($a)
-  color = $a * 1em * 1px
+  color: $a * 1em * 1px
 
 =outer-mixin($a)
   +error-mixin($a)
@@ -275,7 +271,7 @@ SASS
   def test_mixin_callsite_exception
     render(<<SASS)
 =one-arg-mixin($a)
-  color = $a
+  color: $a
 
 =outer-mixin($a)
   +one-arg-mixin($a, 12)
@@ -362,7 +358,7 @@ CSS
     opts = {:full_exception => true}
     render(<<SASS, opts)
 =error-mixin($a)
-  color = $a * 1em * 1px
+  color: $a * 1em * 1px
 
 =outer-mixin($a)
   +error-mixin($a)
@@ -379,7 +375,7 @@ Syntax error: 12em*px isn't a valid CSS value.
         from line 8 of test_exception_css_with_mixins_inline.sass
 
 1: =error-mixin($a)
-2:   color = $a * 1em * 1px
+2:   color: $a * 1em * 1px
 3: 
 4: =outer-mixin($a)
 5:   +error-mixin($a)
@@ -459,19 +455,19 @@ foo {
   bar: url("foo.png"); }
 CSS
 foo
-  bar = url("foo.png")
+  bar: url("foo.png")
 SASS
-    assert_equal("foo {\n  bar: url(); }\n", render("foo\n  bar = url()\n"));
+    assert_equal("foo {\n  bar: url(); }\n", render("foo\n  bar: url()\n"));
   end
 
   def test_string_minus
-    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render(%Q{foo\n  bar = "baz"-"boom"-"bat"}))
-    assert_equal("foo {\n  bar: -baz-boom; }\n", render(%Q{foo\n  bar = -"baz"-"boom"}))
+    assert_equal("foo {\n  bar: baz-boom-bat; }\n", render(%Q{foo\n  bar: baz-boom-bat}))
+    assert_equal("foo {\n  bar: -baz-boom; }\n", render(%Q{foo\n  bar: -baz-boom}))
   end
 
   def test_string_div
-    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render(%Q{foo\n  bar = "baz"/"boom"/"bat"}))
-    assert_equal("foo {\n  bar: /baz/boom; }\n", render(%Q{foo\n  bar = /"baz"/"boom"}))
+    assert_equal("foo {\n  bar: baz/boom/bat; }\n", render(%Q{foo\n  bar: baz/boom/bat}))
+    assert_equal("foo {\n  bar: /baz/boom; }\n", render(%Q{foo\n  bar: /baz/boom}))
   end
 
   def test_basic_multiline_selector
@@ -779,9 +775,9 @@ foo
 SASS
   end
 
-  def test_or_eq
-    assert_equal("foo {\n  a: b; }\n", render(%Q{$foo = "b"\n$foo ||= "c"\nfoo\n  a = $foo}))
-    assert_equal("foo {\n  a: b; }\n", render(%Q{$foo ||= "b"\nfoo\n  a = $foo}))
+  def test_guarded_assign
+    assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b\n$foo ||: c\nfoo\n  a: $foo}))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{$foo ||: b\nfoo\n  a: $foo}))
   end
   
   def test_mixins
@@ -796,32 +792,32 @@ SASS
   def test_mixin_args
     assert_equal("blat {\n  baz: hi; }\n", render(<<SASS))
 =foo($bar)
-  baz = $bar
+  baz: $bar
 blat
-  +foo(\"hi\")
+  +foo(hi)
 SASS
     assert_equal("blat {\n  baz: 3; }\n", render(<<SASS))
 =foo($a, $b)
-  baz = $a + $b
+  baz: $a + $b
 blat
   +foo(1, 2)
 SASS
     assert_equal("blat {\n  baz: 4;\n  baz: 3;\n  baz: 5;\n  bang: 3; }\n", render(<<SASS))
-=foo($c = (6 + 4) / 2)
-  baz = $c
-$c = 3
+=foo($c: (6 + 4) / 2)
+  baz: $c
+$c: 3
 blat
   +foo($c + 1)
   +foo(($c + 3)/2)
   +foo
-  bang = $c
+  bang: $c
 SASS
   end
 
   def test_default_values_for_mixin_arguments
     assert_equal("white {\n  color: white; }\n\nblack {\n  color: black; }\n", render(<<SASS))
-=foo($a = #FFF)
-  :color= $a
+=foo($a: #FFF)
+  :color $a
 white
   +foo
 black
@@ -843,11 +839,11 @@ three {
   padding: 2px;
   margin: 3px; }
 CSS
-$a = 5px
-=foo($a, $b = 1px, $c = 3px + $b)
-  :color= $a
-  :padding= $b
-  :margin= $c
+$a: 5px
+=foo($a, $b: 1px, $c: 3px + $b)
+  :color $a
+  :padding $b
+  :margin $c
 one
   +foo(#fff)
 two
@@ -899,7 +895,7 @@ a {
   foo: 12; }
 CSS
 =\\{foo\\(12\\)($a)
-  foo = $a
+  foo: $a
 
 a
   +\\{foo\\(12\\)(12)
@@ -908,9 +904,9 @@ SASS
 
   def test_interpolation
     assert_equal("a-1 {\n  b-2-3: c-3; }\n", render(<<SASS))
-$a = 1
-$b = 2
-$c = 3
+$a: 1
+$b: 2
+$c: 3
 a-\#{$a}
   b-\#{$b}-\#{$c}: c-\#{$a + $b}
 SASS
@@ -918,7 +914,7 @@ SASS
 
   def test_if_directive
     assert_equal("a {\n  b: 1; }\n", render(<<SASS))
-$var = true
+$var: true
 a
   @if $var
     b: 1
@@ -953,14 +949,14 @@ b-3 {
 b-4 {
   j-1: 3; }
 CSS
-$a = 3
+$a: 3
 @for $i from 0 to $a + 1
   a-\#{$i}
-    2i = 2 * $i
+    2i: 2 * $i
 
 @for $j from 1 through 4
   b-\#{$j}
-    j-1 = $j - 1
+    j-1: $j - 1
 SASS
   end
 
@@ -1003,11 +999,11 @@ a-2 {
 a-1 {
   blooble: gloop; }
 CSS
-$a = 5
+$a: 5
 @while $a != 0
   a-\#{$a}
     blooble: gloop
-  $a = $a - 1
+  $a: $a - 1
 SASS
   end
 
@@ -1057,11 +1053,11 @@ a {
   b: 1;
   c: 2; }
 CSS
-$a = 1
+$a: 1
 a
-  b = $a
-  $a = 2
-  c = $a
+  b: $a
+  $a: 2
+  c: $a
 SASS
   end
 
@@ -1075,23 +1071,23 @@ WARN
 foo {
   a: 1px; }
 CSS
-!bang-var = 1px
+!bang-var: 1px
 foo
-  a = $bang-var
+  a: $bang-var
 SASS
 
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
 DEPRECATION WARNING:
-On line 3, character 7 of 'test_bang_variables_inline.sass'
+On line 3, character 6 of 'test_bang_variables_inline.sass'
 Variables with ! have been deprecated and will be removed in version 3.2.
 Use "$dollar-var" instead.
 WARN
 foo {
   a: 1px; }
 CSS
-$dollar-var = 1px
+$dollar-var: 1px
 foo
-  a = !dollar-var
+  a: !dollar-var
 SASS
   end
 
@@ -1139,18 +1135,18 @@ a {
 b {
   d: 17; }
 CSS
-$i = 12
+$i: 12
 a
   @for $i from 1 through 2
     b-\#{$i}: c
-  d = $i
+  d: $i
 
 =foo
-  $i = 17
+  $i: 17
 
 b
   +foo
-  d = $i
+  d: $i
 SASS
   end
 
@@ -1163,17 +1159,17 @@ d {
   e: 13;
   f: foobar; }
 CSS
-$var-hyphen = 12
-$var_under = "foo"
+$var-hyphen: 12
+$var_under: foo
 
 a
-  $var_hyphen = 1 + $var_hyphen
-  $var-under = $var-under + "bar"
+  $var_hyphen: 1 + $var_hyphen
+  $var-under: $var-under + bar
   b: c
 
 d
-  e = $var-hyphen
-  f = $var_under
+  e: $var-hyphen
+  f: $var_under
 SASS
   end
 
@@ -1182,10 +1178,10 @@ SASS
 a {
   b: 12; }
 CSS
-$\\{foo\\(12\\) = 12
+$\\{foo\\(12\\): 12
 
 a
-  b = $\\{foo\\(12\\)
+  b: $\\{foo\\(12\\)
 SASS
   end
 
@@ -1194,14 +1190,14 @@ SASS
 a {
   b: 12px !important; }
 CSS
-$foo = 12px
+$foo: 12px
 a
-  b = $foo !important
+  b: $foo !important
 SASS
   end
 
   def test_argument_error
-    assert_raise(Sass::SyntaxError) { render("a\n  b = hsl(1)") }
+    assert_raise(Sass::SyntaxError) { render("a\n  b: hsl(1)") }
   end
 
   def test_comments_at_the_top_of_a_document
@@ -1350,9 +1346,9 @@ SASS
   color: #01ff7f;
   background-color: #000102; }
 CSS
-=foo($c1, $c2 = rgb(0, 1, 2))
-  color = $c1
-  background-color = $c2
+=foo($c1, $c2: rgb(0, 1, 2))
+  color: $c1
+  background-color: $c2
 
 .foo
   +foo(rgb(1,255,127))
@@ -1463,7 +1459,7 @@ a {
   b: nested; }
 CSS
 a
-  b= option("style")
+  b: option("style")
 SASS
   end
 

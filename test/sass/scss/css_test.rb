@@ -746,10 +746,6 @@ SCSS
     assert_not_parses('"{"', "foo <err>&.bar {a: b}")
   end
 
-  def test_no_script_values
-    assert_not_parses('":"', "foo {a <err>= b}")
-  end
-
   def test_no_selector_interpolation
     assert_not_parses('"{"', 'foo <err>#{"bar"}.baz {a: b}')
   end
