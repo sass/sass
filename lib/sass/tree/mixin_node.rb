@@ -23,7 +23,7 @@ module Sass::Tree
     protected
 
     def to_src(tabs, opts, fmt)
-      args = '(' + @args.map {|a| a.to_sass}.join(", ") + ')'
+      args = '(' + @args.map {|a| a.to_sass}.join(", ") + ')' unless @args.empty?
       "#{'  ' * tabs}#{fmt == :sass ? '+' : '@include '}#{@name}#{args}#{semi fmt}\n"
     end
 
