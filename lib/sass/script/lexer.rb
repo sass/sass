@@ -266,7 +266,9 @@ module Sass
         c = str2.count("\n")
         @line += c
         @offset = (c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size)
-        [:raw, str1 + str2]
+        [:special_fun,
+          Haml::Util.merge_adjacent_strings(
+            [str1] + Sass::Engine.parse_interp(str2, @line, @options))]
       end
 
       def ident_op

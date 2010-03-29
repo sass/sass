@@ -579,6 +579,14 @@ WARNING
     end
 
     def parse_interp(text)
+      self.class.parse_interp(text, @line, :filename => @filename)
+    end
+
+    # It's important that this have strings (at least)
+    # at the beginning, the end, and between each Script::Node.
+    #
+    # @private
+    def self.parse_interp(text, line, options)
       res = []
       rest = Haml::Shared.handle_interpolation text do |scan|
         escapes = scan[2].size
@@ -588,8 +596,7 @@ WARNING
         else
           res << "\\" * [0, escapes - 1].max
           res << Script::Parser.new(
-            scan, @line, scan.pos - scan.matched_size,
-            :filename => @filename).
+            scan, line, scan.pos - scan.matched_size, options).
             parse_interpolated
         end
       end

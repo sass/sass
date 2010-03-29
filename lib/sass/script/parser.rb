@@ -264,8 +264,18 @@ RUBY
       end
 
       def raw
-        return paren unless @lexer.peek && @lexer.peek.type == :raw
-        node(Script::String.new(@lexer.next.value))
+        return special_fun unless tok = try_tok(:raw)
+        node(Script::String.new(tok.value))
+      end
+
+      def special_fun
+        return paren unless tok = try_tok(:special_fun)
+        first = node(Script::String.new(tok.value.first))
+        Haml::Util.enum_slice(tok.value[1..-1], 2).inject(first) do |l, (i, r)|
+          Script::Interpolation.new(
+            l, i, r && node(Script::String.new(r)),
+            false, false)
+        end
       end
 
       def paren

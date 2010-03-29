@@ -1338,6 +1338,16 @@ foo
 SASS
   end
 
+  def test_interpolation_in_raw_functions
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  filter: progid:Microsoft.foo.bar.Baz(flip=foobar, bang=#00ff00cc); }
+CSS
+foo
+  filter: progid:Microsoft.foo.bar.Baz(flip=\#{foo + bar}, bang=#00ff00cc)
+SASS
+  end
+
   # SassScript string behavior
 
   def test_plus_preserves_quotedness
