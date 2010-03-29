@@ -76,6 +76,10 @@ they do not render with quotes when used with `#{}`.
 This allows quoted strings to be used for e.g. selectors
 that are passed to mixins.
 
+Strings can be forced to be quoted and unquoted using the new
+\{Sass::Script::Functions#unquote unquote} and \{Sass::Script::Functions#quote quote}
+functions.
+
 ##### Division and `/`
 
 Two numbers separated by a `/` character
