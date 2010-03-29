@@ -811,7 +811,7 @@ is compiled to:
     .item-2 {
       width: 4em; }
 
-## SassScript
+## SassScript {#sassscript}
 
 In addition to the plain CSS property syntax,
 Sass supports a small set of extensions called SassScript.
@@ -875,6 +875,10 @@ Variables used to use the prefix character `!`;
 this still works, but it's deprecated and prints a warning.
 `$` is the recommended syntax.
 
+Variables also used to be defined with `=` rather than `:`;
+this still works, but it's deprecated and prints a warning.
+`:` is the recommended syntax.
+
 ### Data Types
 
 SassScript supports four main data types:
@@ -921,6 +925,10 @@ is compiled to:
 
     body.firefox .header:before {
       content: "Hi, Firefox users!"; }
+
+It's also worth noting that when using the [deprecated `=` property syntax](#sassscript),
+all strings are interpreted as unquoted,
+regardless of whether or not they're written with quotes.
 
 ### Operations
 

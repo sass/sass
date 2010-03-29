@@ -8,12 +8,108 @@
 ### Deprecations -- Must Read!
 {#3-0-0-deprecations}
 
+* Using `=` for SassScript properties and variables is deprecated,
+  and will be removed in Sass 3.2.
+  Use `:` instead.
+  See also [this changelog entry](#3-0-0-sass-script-context)
+
+* Because of the above, property values using `:`
+  will be parsed more thoroughly than they were before.
+  Although all valid CSS3 properties
+  as well as most hacks and proprietary syntax should be supported,
+  it's possible that some properties will break.
+  If this happens, please report it to [the Sass mailing list](http://groups.google.com/group/haml).
+
 * The `!` prefix for variables is deprecated,
   and will be removed in Sass 3.2.
   Use `$` as a prefix instead.
   See also [this changelog entry](#3-0-0-dollar-prefix).
 
 ### Syntax Changes
+
+#### SassScript Context
+{#3-0-0-sass-script-context}
+
+The `=` character is no longer required for properties that use SassScript
+(that is, variables and operations).
+All properties now use SassScript automatically;
+this means that `:` should be used instead.
+Variables should also be set with `:`.
+For example, what used to be
+
+    .page
+      color = 5px + 9px
+
+should now be
+
+    .page
+      color: 5px + 9px
+
+This means that SassScript is now an extension of the CSS3 property syntax.
+All valid CSS3 properties are valid SassScript,
+and will compile without modification
+(some invalid properties work as well, such as Microsoft's proprietary `filter` syntax).
+This entails a few changes to SassScript to make it fully CSS3-compatible,
+which are detailed below.
+
+This also means that Sass will now be fully parsing all property values,
+rather than passing them through unchanged to the CSS.
+Although care has been taken to support all valid CSS3,
+as well as hacks and proprietary syntax,
+it's possible that a property that worked in Sass 2 won't work in Sass 3.
+If this happens, please report it to [the Sass mailing list](http://groups.google.com/group/haml).
+
+Note that if `=` is used,
+SassScript will be interpreted as backwards-compatibly as posssible.
+In particular, the changes listed below don't apply in an `=` context.
+
+##### Quoted Strings
+
+Quoted strings (e.g. `"foo"`) in SassScript now render with quotes.
+In addition, unquoted strings are no longer deprecated,
+and render without quotes.
+This means that almost all strings that had quotes in Sass 2
+should not have quotes in Sass 3.
+
+Although quoted strings render with quotes when used with `:`,
+they do not render with quotes when used with `#{}`.
+This allows quoted strings to be used for e.g. selectors
+that are passed to mixins.
+
+##### Division and `/`
+
+Two numbers separated by a `/` character
+are allowed as property syntax in CSS,
+e.g. for the `font` property.
+SassScript also uses `/` for division, however,
+which means it must decide what to do
+when it encounters numbers separated by `/`.
+
+For CSS compatibility, SassScript does not perform division by default.
+However, division will be done in almost all cases where division is intended.
+In particular, SassScript will perform division
+in the following three situations:
+
+1. If the value, or any part of it, is stored in a variable.
+2. If the value is surrounded by parentheses.
+3. If the value is used as part of another arithmetic expression.
+
+For example:
+
+    p
+      font: 10px/8px
+      $width: 1000px
+      width: $width/2
+      height: (500px/2)
+      margin-left: 5px + 8px/2px
+
+is compiled to:
+
+    p {
+      font: 10px/8px;
+      width: 500px;
+      height: 250px;
+      margin-left: 9px; }
 
 #### Variable Prefix Character
 {#3-0-0-dollar-prefix}
@@ -28,9 +124,9 @@ For example, what used to be
 
 should now be
 
-    $width = 13px
+    $width: 13px
     .icon
-      width = $width
+      width: $width
 
 The `sass-convert` command-line tool can be used
 to upgrade Sass files to the new syntax using the `--in-place` flag.
@@ -51,9 +147,9 @@ SassScript variable and mixin names may now contain hyphens.
 In fact, they may be any valid CSS3 identifier.
 For example:
 
-    $prettiest-color = #542FA9
+    $prettiest-color: #542FA9
     =pretty-text
-      color = $prettiest-color
+      color: $prettiest-color
 
 In order to allow frameworks like [Compass](http://compass-style.org)
 to use hyphens in variable names
@@ -62,10 +158,10 @@ variables and mixins using hyphens may be referred to
 with underscores, and vice versa.
 For example:
 
-    $prettiest-color = #542FA9
+    $prettiest-color: #542FA9
     .pretty
       // Using an underscore instead of a hyphen works
-      color = $prettiest_color
+      color: $prettiest_color
 
 #### Single-Quoted Strings
 
