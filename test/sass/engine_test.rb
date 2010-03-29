@@ -1484,12 +1484,12 @@ SASS
     end
   end
 
-  def test_equals_properties_dont_unquote_all_vars
+  def test_equals_properties_deep_unquote_vars
     silence_warnings do
       assert_equal(<<CSS, render(<<SASS))
 foo {
-  a: "foo" bar;
-  b: bar "foo"; }
+  a: foo bar;
+  b: bar foo; }
 CSS
 $var: "foo"
 
@@ -1538,12 +1538,12 @@ SASS
     end
   end
 
-  def test_equals_vars_dont_unquote_all_vars
+  def test_equals_vars_deep_unquote_vars
     silence_warnings do
       assert_equal(<<CSS, render(<<SASS))
 foo {
-  a: "foo" bar;
-  b: bar "foo"; }
+  a: foo bar;
+  b: bar foo; }
 CSS
 $var: "foo"
 $a = $var "bar"
@@ -1577,7 +1577,7 @@ SASS
     end
   end
 
-  def test_equals_vars_unquote_value
+  def test_equals_args_unquote_value
     silence_warnings do
       assert_equal(<<CSS, render(<<SASS))
 foo {
@@ -1594,12 +1594,12 @@ SASS
     end
   end
 
-  def test_equals_vars_dont_unquote_all_vars
+  def test_equals_args_deep_unquote_vars
     silence_warnings do
       assert_equal(<<CSS, render(<<SASS))
 foo {
-  a: "foo" bar;
-  b: bar "foo"; }
+  a: foo bar;
+  b: bar foo; }
 CSS
 $var: "foo"
 =foo($a = $var "bar", $b = "bar" $var)
@@ -1608,6 +1608,18 @@ $var: "foo"
     b: $b
 
 +foo
+SASS
+    end
+  end
+
+  def test_equals_properties_force_division
+    silence_warnings do
+      assert_equal(<<CSS, render(<<SASS))
+foo {
+  a: 0.5; }
+CSS
+foo
+  a = 1px/2px
 SASS
     end
   end

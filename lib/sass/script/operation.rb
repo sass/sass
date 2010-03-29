@@ -62,6 +62,12 @@ module Sass::Script
     def _perform(environment)
       literal1 = @operand1.perform(environment)
       literal2 = @operand2.perform(environment)
+
+      if @operator == :concat && context == :equals
+        literal1 = Sass::Script::String.new(literal1.value) if literal1.is_a?(Sass::Script::String)
+        literal2 = Sass::Script::String.new(literal2.value) if literal2.is_a?(Sass::Script::String)
+      end
+
       begin
         res = literal1.send(@operator, literal2)
         res.options = environment.options
