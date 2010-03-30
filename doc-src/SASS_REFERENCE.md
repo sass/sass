@@ -68,14 +68,17 @@ The first step for all of these is to install the Haml gem:
 
     gem install haml
 
+If you're using Windows,
+you may need to [install Ruby](http://rubyinstaller.org/download.html) first.
+
 To run Sass from the command line, just use
 
-    sass input.sass output.css
+    sass input.scss output.css
 
 You can also tell Sass to watch the file and update the CSS
 every time the Sass file changes:
 
-    sass --watch input.sass:output.css
+    sass --watch input.scss:output.css
 
 If you have a directory with many Sass files,
 you can also tell Sass to watch the entire directory:
@@ -87,9 +90,9 @@ Use `sass --help` for full documentation.
 Using Sass in Ruby code is very simple.
 After installing the Haml gem,
 you can use it by running `require "sass"`
-and using Sass::Engine like so:
+and using {Sass::Engine} like so:
 
-    engine = Sass::Engine.new("#main\n  background-color: #0000ff")
+    engine = Sass::Engine.new("#main {background-color: #0000ff}", :syntax => :scss)
     engine.render #=> "#main { background-color: #0000ff; }\n"
 
 ### Rack/Rails/Merb Plugin
@@ -116,10 +119,10 @@ to `config.ru`.
 Sass stylesheets don't work the same as views.
 They don't contain dynamic content,
 so the CSS only needs to be generated when the Sass file has been updated.
-By default, ".sass" files are placed in public/stylesheets/sass
+By default, `.sass` and `.scss` files are placed in public/stylesheets/sass
 (this can be customized with the [`:template_location`](#template_location-option) option).
 Then, whenever necessary, they're compiled into corresponding CSS files in public/stylesheets.
-For instance, public/stylesheets/sass/main.sass would be compiled to public/stylesheets/main.css.
+For instance, public/stylesheets/sass/main.scss would be compiled to public/stylesheets/main.css.
 
 ### Caching
 
@@ -146,14 +149,23 @@ in `environment.rb` in Rails or `config.ru` in Rack...
     Merb::Plugin.config[:sass][:style] = :compact
 
 ...or by passing an options hash to {Sass::Engine#initialize}.
+All relevant options are also available via flags
+to the `sass` command-line executable.
 Available options are:
 
 {#style-option} `:style`
 : Sets the style of the CSS output.
   See [Output Style](#output_style).
 
+{#syntax-option} `:syntax`
+: The syntax of the input file, `:sass` for the indented syntax
+  and `:scss` for the CSS-extension syntax.
+  This is only useful when you're constructing {Sass::Engine} instances yourself;
+  it's automatically set properly when using {Sass::Plugin}.
+  Defaults to `:sass`.
+
 {#property_syntax-option} `:property_syntax`
-: Forces the document to use one syntax for properties.
+: Forces indented-syntax documents to use one syntax for properties.
   If the correct syntax isn't used, an error is thrown.
   `:new` forces the use of a colon or equals sign
   after the property name.
@@ -164,6 +176,7 @@ Available options are:
   For example: `:color #0f3`
   or `:width $main_width`.
   By default, either syntax is valid.
+  This has no effect on SCSS documents.
 
 {#cache-option} `:cache`
 : Whether parsed Sass files should be cached,
@@ -181,7 +194,7 @@ Available options are:
   time a controller is accessed,
   as opposed to only when the template has been modified.
   Defaults to false.
-  Only has meaning within Rack, Ruby on Rails,x or Merb.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#always_check-option} `:always_check`
 : Whether a Sass template should be checked for updates every
@@ -229,7 +242,8 @@ Available options are:
 {#unix_newlines-option} `:unix_newlines`
 : If true, use Unix-style newlines when writing files.
   Only has meaning on Windows, and only when Sass is writing the files
-  (in Rack, Rails, or Merb, or when using {Sass::Plugin} directly).
+  (in Rack, Rails, or Merb, when using {Sass::Plugin} directly,
+  or when using the command-line executable).
 
 {#filename-option} `:filename`
 : The filename of the file being rendered.
@@ -273,127 +287,14 @@ Available options are:
   Currently, this just means that strings in mixin arguments
   are treated as though they were in [an `=` context](#sass-script-strings).
 
-{#syntax-option} `:syntax`
-: The syntax of the input file, `:sass` for the indented syntax
-  and `:scss` for the CSS syntax.
-  This is only useful when you're constructing {Sass::Engine} instances yourself;
-  it's automatically set properly when using {Sass::Plugin}.
-  Defaults to `:sass`.
-
-## CSS Rules
-
-Rules in flat CSS have two elements:
-the selector (e.g. `#main`, `div p`, `li a:hover`)
-and the properties (e.g. `color: #00ff00;`, `width: 5em;`).
-Sass has both of these,
-as well as one additional element: nested rules.
-
-### Rules and Selectors
-
-However, some of the syntax is a little different.
-The syntax for selectors is the same,
-but instead of using brackets to delineate the properties that belong to a particular rule,
-Sass uses indentation.
-For example:
-
-{.sass-ex}
-    #main p
-      <property>
-      <property>
-      ...
-
-{.scss-ex}
-    #main p {
-      <property>
-      <property>
-      <property>
-    }
-
-Like CSS, you can stretch selectors over multiple lines.
-However, unlike CSS, you can only do this if each line but the last
-ends with a comma.
-For example:
-
-{.sass-ex}
-    .users #userTab,
-    .posts #postsTab
-      <property>
-
-{.scss-ex}
-    .users #userTab,
-    .posts #postsTab {
-      <property>
-    }
-
-### Properties
-
-There are two different ways to write CSS properties.
-The first is very similar to the how you're used to writing them:
-with a colon between the name and the value.
-However, Sass properties don't have semicolons at the end;
-each property is on its own line, so they aren't necessary.
-For example:
-
-{.sass-ex}
-    #main p
-      color: #00ff00
-      width: 97%
-
-{.scss-ex}
-    #main p {
-      color: #00ff00;
-      width: 97%;
-    }
-
-is compiled to:
-
-    #main p {
-      color: #00ff00;
-      width: 97% }
-
-The second syntax for properties is slightly different.
-The colon is at the beginning of the property,
-rather than between the name and the value,
-so it's easier to tell what elements are properties just by glancing at them.
-For example:
-
-{.sass-ex}
-    #main p
-      :color #00ff00
-      :width 97%
-
-{.scss-ex}
-    #main p {
-      color: #00ff00;
-      width: 97%;
-    }
-
-is compiled to:
-
-    #main p {
-      color: #00ff00;
-      width: 97% }
-
-By default, either property syntax may be used.
-If you want to force one or the other,
-see the [`:property_syntax`](#property_syntax-option) option.
+## CSS Extensions
 
 ### Nested Rules
 
-Rules can also be nested within each other.
-This signifies that the inner rule's selector is a child of the outer selector.
+Sass allows CSS rules to be nested within one another.
+The inner rule then only applies within the outer rule's selector.
 For example:
 
-{.sass-ex}
-    #main p
-      color: #00ff00
-      width: 97%
-
-      .redbox
-        background-color: #ff0000
-        color: #000000
-
-{.scss-ex}
     #main p {
       color: #00ff00;
       width: 97%;
@@ -413,21 +314,10 @@ is compiled to:
         background-color: #ff0000;
         color: #000000; }
 
-This makes insanely complicated CSS layouts with lots of nested selectors very simple:
+This helps avoid repetition of parent selectors,
+and makes complex CSS layouts with lots of nested selectors much simpler.
+For example:
 
-{.sass-ex}
-    #main
-      width: 97%
-
-      p, div
-        font-size: 2em
-        a
-          font-weight: bold
-
-      pre
-        font-size: 3em
-
-{.scss-ex}
     #main {
       width: 97%;
 
@@ -452,95 +342,67 @@ is compiled to:
 
 ### Referencing Parent Selectors: `&`
 
-In addition to the default behavior of inserting the parent selector
-as a CSS parent of the current selector
-(e.g. above, `#main` is the parent of `p`),
-you can have more fine-grained control over what's done with the parent selector
-by using the ampersand character `&` in your selectors.
+Sometimes it's useful to use a nested rule's parent selector
+in other ways than the default.
+For instance, you might want to have special styles
+for when that selector is hovered over
+or for when the body element has a certain class.
+In these cases, you can explicitly specify where the parent selector
+should be inserted using the `&` character.
+For example:
 
-The ampersand is automatically replaced by the parent selector,
-instead of having it prepended.
-This allows you to cleanly create pseudo-classes:
-
-{.sass-ex}
-    a
-      font-weight: bold
-      text-decoration: none
-      &:hover
-        text-decoration: underline
-      &:visited
-        font-weight: normal
-
-{.scss-ex}
     a {
       font-weight: bold;
       text-decoration: none;
       &:hover { text-decoration: underline; }
-      &:visited { font-weight: normal; }
+      body.firefox & { font-weight: normal; }
     }
 
-Which would become:
+is compiled to:
 
     a {
       font-weight: bold;
       text-decoration: none; }
       a:hover {
         text-decoration: underline; }
-      a:visited {
+      body.firefox a {
         font-weight: normal; }
 
-It also allows you to add selectors at the base of the hierarchy,
-which can be useuful for targeting certain styles to certain browsers:
+`&` will be replaced with the parent selector as it appears in the CSS.
+This means that if you have a deeply nested rule,
+the parent selector will be fully resolved
+before the `&` is replaced.
+For example:
 
-{.sass-ex}
-    #main
-      width: 90%
-      #sidebar
-        float: left
-        margin-left: 20%
-        .ie6 &
-          margin-left: 40%
-
-{.scss-ex}
     #main {
-      width: 90%;
-      #sidebar {
-        float: left;
-        margin-left: 20%;
-        .ie6 & { margin-left: 40% }
+      color: black;
+      a {
+        font-weight: bold;
+        &:hover { color: red; }
       }
     }
 
-Which would become:
+is compiled to:
 
     #main {
-      width: 90%; }
-      #main #sidebar {
-        float: left;
-        margin-left: 20%; }
-        .ie6 #main #sidebar {
-          margin-left: 40%; }
+      color: black; }
+      #main a {
+        font-weight: bold; }
+        #main a:hover {
+          color: red; }
 
-### Property Namespaces
+### Nested Properties
 
 CSS has quite a few properties that are in "namespaces;"
 for instance, `font-family`, `font-size`, and `font-weight`
 are all in the `font` namespace.
 In CSS, if you want to set a bunch of properties in the same namespace,
 you have to type it out each time.
-Sass offers a shortcut for this:
+Sass provides a shortcut for this:
 just write the namespace one,
-then indent each of the sub-properties within it.
+then nest each of the sub-properties within it.
 For example:
 
-{.sass-ex}
-    .funky
-      font:
-        family: fantasy
-        size: 30em
-        weight: bold
-
-{.scss-ex}
     .funky {
       font: {
         family: fantasy;
@@ -556,21 +418,24 @@ is compiled to:
       font-size: 30em;
       font-weight: bold; }
 
-### Selector Escaping: `\`
-
-In case, for whatever reason, you need to write a selector
-that begins with a Sass-meaningful character,
-you can escape it with a backslash (`\`).
+The property namespace itself can also have a value.
 For example:
 
-    #main
-      \+div
-        clear: both
+    .funky {
+      font: 2px/3px {
+        family: fantasy;
+        size: 30em;
+        weight: bold;
+      }
+    }
 
 is compiled to:
 
-    #main +div {
-      clear: both; }
+    .funky {
+      font: 2px/3px;
+        font-family: fantasy;
+        font-size: 30em;
+        font-weight: bold; }
 
 ## SassScript {#sassscript}
 
