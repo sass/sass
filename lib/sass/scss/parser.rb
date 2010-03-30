@@ -243,16 +243,11 @@ module Sass
       def variable
         return unless tok(/\$/)
         name = tok!(IDENT)
-        ss
+        ss; tok!(/:/); ss
 
-        if tok(/\|/)
-          tok!(/\|/)
-          guarded = true
-        end
-
-        tok!(/:/)
-        ss
-        node(Sass::Tree::VariableNode.new(name, sass_script(:parse), guarded))
+        expr = sass_script(:parse)
+        guarded = tok(DEFAULT)
+        node(Sass::Tree::VariableNode.new(name, expr, guarded))
       end
 
       def operator
@@ -497,7 +492,6 @@ module Sass
         @use_property_exception ||= space || !tok?(IDENT)
 
         return true, Sass::Script::String.new("") if tok?(/\{/)
-        # expression, space, value
         return space, sass_script(:parse)
       end
 

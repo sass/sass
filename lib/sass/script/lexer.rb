@@ -220,9 +220,13 @@ module Sass
       end
 
       def variable
+        _variable(REGULAR_EXPRESSIONS[:variable])
+      end
+
+      def _variable(rx)
         line = @line
         offset = @offset
-        return unless scan(REGULAR_EXPRESSIONS[:variable])
+        return unless scan(rx)
         if @scanner[1] == '!' && @scanner[2] != 'important'
           Script.var_warning(@scanner[2], line, offset + 1, @options[:filename])
         end

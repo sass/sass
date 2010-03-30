@@ -68,7 +68,7 @@ foo {
   a: 1; }
 CSS
 $var: 1;
-$var ||: 2;
+$var: 2 !default;
 
 foo {a: $var}
 SCSS
@@ -77,7 +77,7 @@ SCSS
 foo {
   a: 2; }
 CSS
-$var ||: 2;
+$var: 2 !default;
 
 foo {a: $var}
 SCSS

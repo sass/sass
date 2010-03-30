@@ -4,12 +4,10 @@ require 'sass/script/css_lexer'
 module Sass
   module Script
     class CssParser < Parser
-      def initialize(str, line, offset, options = {})
-        @options = options
-        @lexer = CssLexer.new(str, line, offset, options)
-      end
-
       private
+
+      # @private
+      def lexer_class; CssLexer; end
 
       # We need a production that only does /,
       # since * and % aren't allowed in plain CSS

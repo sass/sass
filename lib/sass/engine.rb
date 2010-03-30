@@ -415,8 +415,8 @@ WARNING
         if eq.strip[0] == SCRIPT_CHAR
           expr.context = :equals
           Script.equals_warning("properties", name,
-            Sass::Tree::PropNode.val_to_sass(expr), @line,
-            line.offset + 1, @options[:filename])
+            Sass::Tree::PropNode.val_to_sass(expr), false,
+            @line, line.offset + 1, @options[:filename])
         end
       end
       Tree::PropNode.new(
@@ -425,7 +425,8 @@ WARNING
     end
 
     def parse_variable(line)
-      name, op, value = line.text.scan(Script::MATCH)[0]
+      name, op, value, default = line.text.scan(Script::MATCH)[0]
+      guarded = op =~ /^\|\|/
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.",
         :line => @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
@@ -435,13 +436,12 @@ WARNING
       expr = parse_script(value, :offset => line.offset + line.text.index(value))
       if op =~ /=$/
         expr.context = :equals
-        warning_name = "$#{name}"
-        warning_name << " ||" if op =~ /^\|\|/
-        Script.equals_warning("variables", warning_name, expr.to_sass,
-          @line, line.offset + 1, @options[:filename])
+        type = guarded ? "variable defaults" : "variables"
+        Script.equals_warning(type, "$#{name}", expr.to_sass,
+          guarded, @line, line.offset + 1, @options[:filename])
       end
 
-      Tree::VariableNode.new(name, expr, op =~ /^\|\|/)
+      Tree::VariableNode.new(name, expr, default || guarded)
     end
 
     def parse_comment(line)

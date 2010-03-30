@@ -90,6 +90,7 @@ module Sass
       HASH = /##{NAME}/
 
       IMPORTANT = /!#{W}important/i
+      DEFAULT = /!#{W}default/i
 
       NUMBER = /#{NUM}(?:#{IDENT}|%)?/
 

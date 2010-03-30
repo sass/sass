@@ -761,20 +761,20 @@ SCSS
 
   def test_guarded_variable_definition
     assert_renders <<SASS, <<SCSS
-$var1 ||: 12px + 15px
+$var1: 12px + 15px !default
 
 foo
-  $var2 ||: flaz(#abcdef)
+  $var2: flaz(#abcdef) !default
   val: $var1 $var2
 SASS
-$var1 ||: 12px + 15px;
+$var1: 12px + 15px !default;
 
 foo {
-  $var2 ||: flaz(#abcdef);
+  $var2: flaz(#abcdef) !default;
   val: $var1 $var2; }
 SCSS
 
-    assert_sass_to_scss '$var ||: 12px $bar baz;', '$var ||= 12px $bar "baz"'
+    assert_sass_to_scss '$var: 12px $bar baz !default;', '$var ||= 12px $bar "baz"'
   end
 
   # Sass 3 Deprecation conversions

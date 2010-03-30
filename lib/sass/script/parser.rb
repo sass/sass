@@ -21,7 +21,7 @@ module Sass
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
       def initialize(str, line, offset, options = {})
         @options = options
-        @lexer = Lexer.new(str, line, offset, options)
+        @lexer = lexer_class.new(str, line, offset, options)
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).
@@ -182,6 +182,9 @@ RUBY
 
       private
 
+      # @private
+      def lexer_class; Lexer; end
+
       production :expr, :interpolation, :comma
 
       def interpolation
@@ -246,7 +249,7 @@ RUBY
           if tok.type == :single_eq
             val.context = :equals
             Script.equals_warning("mixin argument defaults", "$#{c.value}",
-              val.to_sass, line, offset, @options[:filename])
+              val.to_sass, false, line, offset, @options[:filename])
           end
         elsif must_have_default
           raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")
