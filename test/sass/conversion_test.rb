@@ -871,10 +871,14 @@ SASS
   end
 
   def to_sass(scss, options = {})
-    Sass::Engine.new(scss, options).to_tree.to_sass(options)
+    Haml::Util.silence_haml_warnings do
+      Sass::Engine.new(scss, options).to_tree.to_sass(options)
+    end
   end
 
   def to_scss(sass, options = {})
-    Sass::Engine.new(sass, options).to_tree.to_scss(options)
+    Haml::Util.silence_haml_warnings do
+      Sass::Engine.new(sass, options).to_tree.to_scss(options)
+    end
   end
 end
