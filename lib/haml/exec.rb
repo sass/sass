@@ -631,15 +631,17 @@ END
         @options[:for_engine][:syntax] = @options[:from]
 
         out =
-          if @options[:from] == :css
-            require 'sass/css'
-            ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
-          else
-            if input.is_a?(File)
-              ::Sass::Files.tree_for(input.path, @options[:for_engine])
+          ::Haml::Util.silence_haml_warnings do
+            if @options[:from] == :css
+              require 'sass/css'
+              ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
             else
-              ::Sass::Engine.new(input.read, @options[:for_engine]).to_tree
-            end.send("to_#{@options[:to]}", @options[:for_tree])
+              if input.is_a?(File)
+                ::Sass::Files.tree_for(input.path, @options[:for_engine])
+              else
+                ::Sass::Engine.new(input.read, @options[:for_engine]).to_tree
+              end.send("to_#{@options[:to]}", @options[:for_tree])
+            end
           end
 
         output = File.open(input.path, 'w') if @options[:in_place]
