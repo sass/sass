@@ -530,292 +530,6 @@ is compiled to:
     #main +div {
       clear: both; }
 
-## Directives
-
-Directives allow the author to directly issue instructions to the Sass compiler.
-They're prefixed with an at sign, `@`,
-followed by the name of the directive,
-a space, and any arguments to it -
-just like CSS directives.
-For example:
-
-{.sass-ex}
-    @import red.sass
-
-{.scss-ex}
-    @import "red.sass";
-
-Some directives can also control whether or how many times
-a chunk of Sass is output.
-Those are documented under Control Directives.
-
-### `@import` {#import}
-
-The `@import` directive works in a very similar way to the CSS import directive.
-It can either compile to a literal CSS `@import` directive for a CSS file,
-or it can import a Sass file.
-If it imports a Sass file,
-not only are the rules from that file included,
-but all variables in that file are made available in the current file.
-
-Sass looks for other Sass files in the working directory,
-and the Sass file directory under Rack, Rails, or Merb.
-Additional search directories may be specified
-using the [`:load_paths`](#load_paths-option) option.
-
-`@import` takes a filename with or without an extension.
-If an extension isn't provided,
-Sass will try to find a Sass file with the given basename in the load paths.
-
-For example,
-
-{.sass-ex}
-    @import foo.sass
-
-{.scss-ex}
-    @import "foo.sass";
-
-or
-
-{.sass-ex}
-    @import foo
-
-{.scss-ex}
-    @import "foo";
-
-would compile to
-
-    .foo {
-      color: #f00; }
-
-whereas
-
-{.sass-ex}
-    @import foo.css
-
-{.scss-ex}
-    @import "foo.css";
-
-would compile to
-
-    @import "foo.css";
-
-#### Partials {#partials}
-
-If you have a Sass file that you want to import
-but don't want to compile to a CSS file,
-you can add an underscore to the beginning of the filename.
-This will tell Sass not to compile it to a normal CSS file.
-You can then refer to these files without using the underscore.
-
-For example, you might have `_colors.sass`.
-Then no `_colors.css` file would be created,
-and you can do
-
-{.sass-ex}
-    @import colors.sass
-
-{.scss-ex}
-    @import colors.sass;
-
-### `@debug`
-
-The `@debug` directive prints the value of a SassScript expression
-to standard error.
-It's useful for debugging Sass files
-that have complicated SassScript going on.
-For example:
-
-{.sass-ex}
-    @debug 10em + 12em
-
-{.scss-ex}
-    @debug 10em + 12em;
-
-outputs:
-
-    Line 1 DEBUG: 22em
-
-### `@font-face`, `@media`, etc.
-
-Sass behaves as you'd expect for normal CSS @-directives.
-For example:
-
-{.sass-ex}
-    @font-face
-      font-family: "Bitstream Vera Sans"
-      src: url(http://foo.bar/bvs)
-
-{.scss-ex}
-    @font-face {
-      font-family: "Bitstream Vera Sans";
-      src: url(http://foo.bar/bvs");
-    }
-
-compiles to:
-
-    @font-face {
-      font-family: "Bitstream Vera Sans";
-      src: url(http://foo.bar/bvs); }
-
-and
-
-{.sass-ex}
-    @media print
-      #sidebar
-        display: none
-
-      #main
-        background-color: white
-
-{.scss-ex}
-    @media print {
-      #sidebar { display: none; }
-
-      #main { background-color: white; }
-    }
-
-compiles to:
-
-    @media print {
-      #sidebar {
-        display: none; }
-
-      #main {
-        background-color: white; } }
-
-## Control Directives
-
-SassScript supports basic control directives for looping and conditional evaluation.
-
-### `@if`
-
-The `@if` statement takes a SassScript expression
-and prints the code nested beneath it if the expression returns
-anything other than `false`:
-
-{.sass-ex}
-    p
-      @if 1 + 1 == 2
-        border: 1px solid
-      @if 5 < 3
-        border: 2px dotted
-
-{.scss-ex}
-    p {
-      @if 1 + 1 == 2 { border: 1px solid; }
-      @if 5 < 3 { border: 2px dotted; }
-    }
-
-is compiled to:
-
-    p {
-      border: 1px solid; }
-
-The `@if` statement can be followed by several `@else if` statements
-and one `@else` statement.
-If the `@if` statement fails,
-the `@else if` statements are tried in order
-until one succeeds or the `@else` is reached.
-For example:
-
-{.sass-ex}
-    $type: monster
-    p
-      @if $type == ocean
-        color: blue
-      @else if $type == matador
-        color: red
-      @else if $type == monster
-        color: green
-      @else
-        color: black
-
-{.scss-ex}
-    $type: monster;
-    p {
-      @if $type == ocean {
-        color: blue;
-      } @else if $type == matador {
-        color: red;
-      } @else if $type == monster {
-        color: green;
-      } @else {
-        color: black;
-      }
-    }
-
-is compiled to:
-
-    p {
-      color: green; }
-
-### `@for`
-
-The `@for` statement has two forms:
-`@for <var> from <start> to <end>` or
-`@for <var> from <start> through <end>`.
-`<var>` is a variable name, like `$i`,
-and `<start>` and `<end>` are SassScript expressions
-that should return integers.
-
-The `@for` statement sets `<var>` to each number
-from `<start>` to `<end>`,
-including `<end>` if `through` is used.
-For example:
-
-{.sass-ex}
-    @for $i from 1 through 3
-      .item-#{$i}
-        width: 2em * $i
-
-{.scss-ex}
-    @for $i from 1 through 3 {
-      .item-#{$i} { width: 2em * $i; }
-    }
-
-is compiled to:
-
-    .item-1 {
-      width: 2em; }
-    .item-2 {
-      width: 4em; }
-    .item-3 {
-      width: 6em; }
-
-### `@while`
-
-The `@while` statement repeatedly loops over the nested
-block until the statement evaluates to `false`. This can
-be used to achieve more complex looping than the `@for`
-statement is capable of.
-For example:
-
-{.sass-ex}
-    $i: 6
-    @while $i > 0
-      .item-#{$i}
-        width: 2em * $i
-      $i: $i - 2
-
-{.scss-ex}
-    $i: 6;
-    @while $i > 0 {
-      .item-#{$i} { width: 2em * $i; }
-      $i: $i - 2;
-    }
-
-is compiled to:
-
-    .item-6 {
-      width: 12em; }
-
-    .item-4 {
-      width: 8em; }
-
-    .item-2 {
-      width: 4em; }
-
 ## SassScript {#sassscript}
 
 In addition to the plain CSS property syntax,
@@ -1276,6 +990,292 @@ is compiled to:
     #main {
       content: First content;
       new-content: First time reference; }
+
+## Directives
+
+Directives allow the author to directly issue instructions to the Sass compiler.
+They're prefixed with an at sign, `@`,
+followed by the name of the directive,
+a space, and any arguments to it -
+just like CSS directives.
+For example:
+
+{.sass-ex}
+    @import red.sass
+
+{.scss-ex}
+    @import "red.sass";
+
+Some directives can also control whether or how many times
+a chunk of Sass is output.
+Those are documented under Control Directives.
+
+### `@import` {#import}
+
+The `@import` directive works in a very similar way to the CSS import directive.
+It can either compile to a literal CSS `@import` directive for a CSS file,
+or it can import a Sass file.
+If it imports a Sass file,
+not only are the rules from that file included,
+but all variables in that file are made available in the current file.
+
+Sass looks for other Sass files in the working directory,
+and the Sass file directory under Rack, Rails, or Merb.
+Additional search directories may be specified
+using the [`:load_paths`](#load_paths-option) option.
+
+`@import` takes a filename with or without an extension.
+If an extension isn't provided,
+Sass will try to find a Sass file with the given basename in the load paths.
+
+For example,
+
+{.sass-ex}
+    @import foo.sass
+
+{.scss-ex}
+    @import "foo.sass";
+
+or
+
+{.sass-ex}
+    @import foo
+
+{.scss-ex}
+    @import "foo";
+
+would compile to
+
+    .foo {
+      color: #f00; }
+
+whereas
+
+{.sass-ex}
+    @import foo.css
+
+{.scss-ex}
+    @import "foo.css";
+
+would compile to
+
+    @import "foo.css";
+
+#### Partials {#partials}
+
+If you have a Sass file that you want to import
+but don't want to compile to a CSS file,
+you can add an underscore to the beginning of the filename.
+This will tell Sass not to compile it to a normal CSS file.
+You can then refer to these files without using the underscore.
+
+For example, you might have `_colors.sass`.
+Then no `_colors.css` file would be created,
+and you can do
+
+{.sass-ex}
+    @import colors.sass
+
+{.scss-ex}
+    @import colors.sass;
+
+### `@debug`
+
+The `@debug` directive prints the value of a SassScript expression
+to standard error.
+It's useful for debugging Sass files
+that have complicated SassScript going on.
+For example:
+
+{.sass-ex}
+    @debug 10em + 12em
+
+{.scss-ex}
+    @debug 10em + 12em;
+
+outputs:
+
+    Line 1 DEBUG: 22em
+
+### `@font-face`, `@media`, etc.
+
+Sass behaves as you'd expect for normal CSS @-directives.
+For example:
+
+{.sass-ex}
+    @font-face
+      font-family: "Bitstream Vera Sans"
+      src: url(http://foo.bar/bvs)
+
+{.scss-ex}
+    @font-face {
+      font-family: "Bitstream Vera Sans";
+      src: url(http://foo.bar/bvs");
+    }
+
+compiles to:
+
+    @font-face {
+      font-family: "Bitstream Vera Sans";
+      src: url(http://foo.bar/bvs); }
+
+and
+
+{.sass-ex}
+    @media print
+      #sidebar
+        display: none
+
+      #main
+        background-color: white
+
+{.scss-ex}
+    @media print {
+      #sidebar { display: none; }
+
+      #main { background-color: white; }
+    }
+
+compiles to:
+
+    @media print {
+      #sidebar {
+        display: none; }
+
+      #main {
+        background-color: white; } }
+
+## Control Directives
+
+SassScript supports basic control directives for looping and conditional evaluation.
+
+### `@if`
+
+The `@if` statement takes a SassScript expression
+and prints the code nested beneath it if the expression returns
+anything other than `false`:
+
+{.sass-ex}
+    p
+      @if 1 + 1 == 2
+        border: 1px solid
+      @if 5 < 3
+        border: 2px dotted
+
+{.scss-ex}
+    p {
+      @if 1 + 1 == 2 { border: 1px solid; }
+      @if 5 < 3 { border: 2px dotted; }
+    }
+
+is compiled to:
+
+    p {
+      border: 1px solid; }
+
+The `@if` statement can be followed by several `@else if` statements
+and one `@else` statement.
+If the `@if` statement fails,
+the `@else if` statements are tried in order
+until one succeeds or the `@else` is reached.
+For example:
+
+{.sass-ex}
+    $type: monster
+    p
+      @if $type == ocean
+        color: blue
+      @else if $type == matador
+        color: red
+      @else if $type == monster
+        color: green
+      @else
+        color: black
+
+{.scss-ex}
+    $type: monster;
+    p {
+      @if $type == ocean {
+        color: blue;
+      } @else if $type == matador {
+        color: red;
+      } @else if $type == monster {
+        color: green;
+      } @else {
+        color: black;
+      }
+    }
+
+is compiled to:
+
+    p {
+      color: green; }
+
+### `@for`
+
+The `@for` statement has two forms:
+`@for <var> from <start> to <end>` or
+`@for <var> from <start> through <end>`.
+`<var>` is a variable name, like `$i`,
+and `<start>` and `<end>` are SassScript expressions
+that should return integers.
+
+The `@for` statement sets `<var>` to each number
+from `<start>` to `<end>`,
+including `<end>` if `through` is used.
+For example:
+
+{.sass-ex}
+    @for $i from 1 through 3
+      .item-#{$i}
+        width: 2em * $i
+
+{.scss-ex}
+    @for $i from 1 through 3 {
+      .item-#{$i} { width: 2em * $i; }
+    }
+
+is compiled to:
+
+    .item-1 {
+      width: 2em; }
+    .item-2 {
+      width: 4em; }
+    .item-3 {
+      width: 6em; }
+
+### `@while`
+
+The `@while` statement repeatedly loops over the nested
+block until the statement evaluates to `false`. This can
+be used to achieve more complex looping than the `@for`
+statement is capable of.
+For example:
+
+{.sass-ex}
+    $i: 6
+    @while $i > 0
+      .item-#{$i}
+        width: 2em * $i
+      $i: $i - 2
+
+{.scss-ex}
+    $i: 6;
+    @while $i > 0 {
+      .item-#{$i} { width: 2em * $i; }
+      $i: $i - 2;
+    }
+
+is compiled to:
+
+    .item-6 {
+      width: 12em; }
+
+    .item-4 {
+      width: 8em; }
+
+    .item-2 {
+      width: 4em; }
 
 ## Mixins {#mixins}
 
