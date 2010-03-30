@@ -241,12 +241,11 @@ RUBY
         return unless c = try_tok(:const)
         var = Script::Variable.new(c.value)
         if tok = (try_tok(:colon) || try_tok(:single_eq))
-          val = nil
-          val_str = @lexer.str {val = assert_expr(:concat)}
+          val = assert_expr(:concat)
 
           if tok.type == :single_eq
             val.context = :equals
-            Script.equals_warning("mixin argument defaults", "$#{c.value}", val_str.strip,
+            Script.equals_warning("mixin argument defaults", "$#{c.value}", val,
               line, offset, @options[:filename])
           end
         elsif must_have_default

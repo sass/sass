@@ -783,6 +783,21 @@ foo
 SASS
   end
 
+  def test_equals_warning_for_property_with_string
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
+DEPRECATION WARNING:
+On line 2, character 3 of 'test_equals_warning_for_property_with_string_inline.sass'
+Setting properties with = has been deprecated and will be removed in version 3.2.
+Use "a: foo" instead.
+WARN
+foo {
+  a: foo; }
+CSS
+foo
+  a = "foo"
+SASS
+  end
+
   def test_guarded_assign
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b\n$foo ||: c\nfoo\n  a: $foo}))
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo ||: b\nfoo\n  a: $foo}))
@@ -1104,13 +1119,13 @@ SASS
 DEPRECATION WARNING:
 On line 2, character 1 of 'test_equals_warning_for_variables_inline.sass'
 Setting variables with = has been deprecated and will be removed in version 3.2.
-Use "$equals-var: 2px  3px" instead.
+Use "$equals-var: 2px 3px" instead.
 WARN
 foo {
   a: 2px 3px; }
 CSS
 
-$equals-var = 2px  3px
+$equals-var = 2px 3px
 foo
   a: $equals-var
 SASS
@@ -1121,13 +1136,13 @@ SASS
 DEPRECATION WARNING:
 On line 2, character 1 of 'test_equals_warning_for_guarded_variables_inline.sass'
 Setting variables with = has been deprecated and will be removed in version 3.2.
-Use "$equals-var ||: 2px  3px" instead.
+Use "$equals-var ||: 2px 3px" instead.
 WARN
 foo {
   a: 2px 3px; }
 CSS
 
-$equals-var ||= 2px  3px
+$equals-var ||= 2px 3px
 foo
   a: $equals-var
 SASS

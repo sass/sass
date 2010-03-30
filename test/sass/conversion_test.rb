@@ -777,6 +777,13 @@ SCSS
     assert_sass_to_scss '$var ||: 12px $bar baz;', '$var ||= 12px $bar "baz"'
   end
 
+  # Sass 3 Deprecation conversions
+
+  def test_simple_quoted_strings_unquoted_with_equals
+    assert_sass_to_scss '$var: 1px foo + bar baz;', '!var = 1px "foo" + "bar" baz'
+    assert_sass_to_scss '$var: -foo-bar;', '!var = "-foo-bar"'
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})
