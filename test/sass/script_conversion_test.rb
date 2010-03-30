@@ -61,6 +61,8 @@ DEPRECATION WARNING:
 On line 1, character 1 of 'test_variable_inline.sass'
 Variables with ! have been deprecated and will be removed in version 3.2.
 Use "$tumbly-wumbly" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
   end
 

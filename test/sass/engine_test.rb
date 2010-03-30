@@ -756,6 +756,8 @@ DEPRECATION WARNING:
 On line 3, character 3 of 'test_equals_warning_for_properties_inline.sass'
 Setting properties with = has been deprecated and will be removed in version 3.2.
 Use "a: $var" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 foo {
   a: 2px 3px; }
@@ -772,6 +774,8 @@ DEPRECATION WARNING:
 On line 4, character 3 of 'test_equals_warning_for_dynamic_properties_inline.sass'
 Setting properties with = has been deprecated and will be removed in version 3.2.
 Use "a-\#{$i}: $var" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 foo {
   a-12: 2px 3px; }
@@ -789,6 +793,8 @@ DEPRECATION WARNING:
 On line 2, character 3 of 'test_equals_warning_for_property_with_string_inline.sass'
 Setting properties with = has been deprecated and will be removed in version 3.2.
 Use "a: foo" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 foo {
   a: foo; }
@@ -804,6 +810,8 @@ DEPRECATION WARNING:
 On line 2, character 3 of 'test_equals_warning_for_property_with_division_inline.sass'
 Setting properties with = has been deprecated and will be removed in version 3.2.
 Use "a: (1px / 2px)" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 foo {
   a: 0.5; }
@@ -915,6 +923,8 @@ DEPRECATION WARNING:
 On line 1, character 6 of 'test_equals_warning_for_mixin_args_inline.sass'
 Setting mixin argument defaults with = has been deprecated and will be removed in version 3.2.
 Use "$arg: 1px" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 bar {
   a: 1px; }
@@ -1004,6 +1014,8 @@ DEPRECATION WARNING:
 On line 1, character 6 of 'test_for_with_bang_var_inline.sass'
 Variables with ! have been deprecated and will be removed in version 3.2.
 Use "$bar" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 a-0 {
   b: c; }
@@ -1105,6 +1117,8 @@ DEPRECATION WARNING:
 On line 1, character 1 of 'test_bang_variables_inline.sass'
 Variables with ! have been deprecated and will be removed in version 3.2.
 Use "$bang-var" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 foo {
   a: 1px; }
@@ -1119,6 +1133,8 @@ DEPRECATION WARNING:
 On line 3, character 6 of 'test_bang_variables_inline.sass'
 Variables with ! have been deprecated and will be removed in version 3.2.
 Use "$dollar-var" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 foo {
   a: 1px; }
@@ -1135,6 +1151,8 @@ DEPRECATION WARNING:
 On line 2, character 1 of 'test_equals_warning_for_variables_inline.sass'
 Setting variables with = has been deprecated and will be removed in version 3.2.
 Use "$equals-var: 2px 3px" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 foo {
   a: 2px 3px; }
@@ -1152,6 +1170,8 @@ DEPRECATION WARNING:
 On line 2, character 1 of 'test_equals_warning_for_guarded_variables_inline.sass'
 Setting variables with = has been deprecated and will be removed in version 3.2.
 Use "$equals-var ||: 2px 3px" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
 foo {
   a: 2px 3px; }
