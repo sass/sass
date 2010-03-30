@@ -784,6 +784,21 @@ SCSS
     assert_sass_to_scss '$var: -foo-bar;', '!var = "-foo-bar"'
   end
 
+  def test_complex_quoted_strings_explicitly_unquoted_with_equals
+    assert_sass_to_scss '$var: 1px unquote("foo + bar") baz;', '!var = 1px "foo + bar" baz'
+    assert_sass_to_scss "$var: unquote('foo\"bar');", '!var = "foo\"bar"'
+  end
+
+  def test_division_asserted_with_equals
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  a: (1px / 2px); }
+SCSS
+foo
+  a = 1px / 2px
+SASS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

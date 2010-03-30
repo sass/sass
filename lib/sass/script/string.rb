@@ -43,7 +43,12 @@ module Sass::Script
     #   `:string`s have double quotes, `:identifier`s do not.
     # @see Node#to_sass
     def to_sass(type = self.type)
-      return self.value if type == :identifier
+      if type == :identifier
+        if context == :equals && Sass::SCSS::RX.escape_ident(self.value).include?(?\\)
+          return "unquote(#{Sass::Script::String.new(self.value, :string).to_sass})"
+        end
+        return self.value
+      end
 
       # Replace single backslashes with double. Really.
       value = self.value.gsub("\\", "\\\\\\\\")
