@@ -25,6 +25,11 @@
   Use `$` as a prefix instead.
   See also [this changelog entry](#3-0-0-dollar-prefix).
 
+* The `css2sass` command-line tool has been deprecated,
+  and will be removed in Sass 3.2.
+  Use the new `sass-convert` tool instead.
+  See also [this changelog entry](#3-0-0-sass-convert).
+
 ### Syntax Changes
 
 #### SassScript Context
@@ -297,6 +302,32 @@ In fact, `--update` work exactly the same as `--watch`,
 except that it doesn't continue watching the files
 after the first check.
 
+### `sass-convert` (née `css2sass`) {#3-0-0-sass-convert}
+
+The `sass-convert` tool, which used to be known as `css2sass`,
+has been greatly improved in various ways.
+It now uses a full-fledged CSS3 parser,
+so it should be able to handle any valid CSS3,
+as well as most hacks and proprietary syntax.
+
+It's also now possible to convert a file in-place --
+that is, overwrite the old file with the new file.
+This is useful for converting files in the [Sass 2 syntax](#3-0-0-deprecations)
+to the new Sass 3 syntax,
+e.g. by doing `sass-convert --in-place --from sass2 style.sass`.
+
+#### Error Handling
+
+Several bug fixes and minor improvements have been made, including:
+
+* Fixing line-number reporting for errors on the last line of templates
+  that didn't have trailing newlines.
+
+* Only displaying the text for the current line when reporting CSS parsing errors.
+
+* Displaying the expected strings as strings rather than regular expressions
+  whenever possible.
+
 ### Error Backtraces
 
 Numerous bugs were fixed with the backtraces given for Sass errors,
@@ -372,18 +403,6 @@ When the `:compressed` style is used,
 colors will be output as the minimal possible representation.
 This means whichever is smallest of the HTML4 color name
 and the hex representation (shortened to the three-letter version if possible).
-
-### `css2sass` Error Handling
-
-Several bug fixes and minor improvements have been made, including:
-
-* Fixing line-number reporting for errors on the last line of templates
-  that didn't have trailing newlines.
-
-* Only displaying the text for the current line when reporting CSS parsing errors.
-
-* Displaying the expected strings as strings rather than regular expressions
-  whenever possible.
 
 ### Minor Changes
 
