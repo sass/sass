@@ -443,13 +443,11 @@ In addition to the plain CSS property syntax,
 Sass supports a small set of extensions called SassScript.
 SassScript allows properties to use
 variables, arithmetic, and extra functions.
+SassScript can be used in any property value.
+
 SassScript can also be used to generate selectors and property names,
 which is useful when writing [mixins](#mixins).
-
-SassScript can be used in any property value.
-Sass used to require that `=` be used to denote SassScript,
-but now all properties use SassScript automatically.
-`=` still works, but it's deprecated and will print a warning.
+This is done via [interpolation](#interpolation_).
 
 ### Interactive Shell
 
@@ -475,19 +473,10 @@ is to use variables.
 Variables begin with dollar signs,
 and are set like CSS properties:
 
-{.sass-ex}
-    $width: 5em
-
-{.scss-ex}
     $width: 5em;
 
 You can then refer to them in properties:
 
-{.sass-ex}
-    #main
-      width: $width
-
-{.scss-ex}
     #main {
       width: $width;
     }
@@ -508,6 +497,7 @@ this still works, but it's deprecated and prints a warning.
 ### Data Types
 
 SassScript supports four main data types:
+
 * numbers (e.g. `1.2`, `13`, `10px`)
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
@@ -533,14 +523,6 @@ quoted strings are unquoted.
 This makes it easier to use e.g. selector names in [mixins](#mixins).
 For example:
 
-{.sass-ex}
-    =firefox-message($selector)
-      body.firefox #{$selector}:before
-        content: "Hi, Firefox users!"
-
-    +firefox-message(".header")
-
-{.scss-ex}
     @mixin firefox-message($selector) {
       body.firefox #{$selector}:before {
         content: "Hi, Firefox users!"; } }
@@ -568,11 +550,6 @@ SassScript supports the standard arithmetic operations on numbers
 (`+`, `-`, `*`, `/`, `%`),
 and will automatically convert between units if it can:
 
-{.sass-ex}
-    p
-      width: 1in + 8pt
-
-{.scss-ex}
     p {
       width: 1in + 8pt;
     }
@@ -608,21 +585,13 @@ They are:
 
 For example:
 
-{.sass-ex}
-    p
-      font: 10px/8px
-      $width: 1000px
-      width: $width/2
-      height: (500px/2)
-      margin-left: 5px + 8px/2px
-
-{.scss-ex}
     p {
-      font: 10px/8px;
+      font: 10px/8px;             // Plain CSS, no division
       $width: 1000px;
-      width: $width/2;
-      height: (500px/2);
-      margin-left: 5px + 8px/2px; }
+      width: $width/2;            // Uses a variable, does division
+      height: (500px/2);          // Uses parentheses, does division
+      margin-left: 5px + 8px/2px; // Uses +, does division
+    }
 
 is compiled to:
 
@@ -640,11 +609,6 @@ This means that the operation is performed
 on the red, green, and blue components in turn.
 For example:
 
-{.sass-ex}
-    p
-      color: #010203 + #040506
-
-{.scss-ex}
     p {
       color: #010203 + #040506;
     }
@@ -662,11 +626,6 @@ Arithmetic operations also work between numbers and colors,
 also piecewise.
 For example:
 
-{.sass-ex}
-    p
-      color: #010203 * 2
-
-{.scss-ex}
     p {
       color: #010203 * 2;
     }
@@ -685,11 +644,6 @@ to be done with them.
 The arithmetic doesn't affect the alpha value.
 For example:
 
-{.sass-ex}
-    p
-      color: rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75)
-
-{.scss-ex}
     p {
       color: rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75);
     }
@@ -697,20 +651,13 @@ For example:
 is compiled to:
 
     p {
-      color: rgba(255, 255, 0, 0.75)
+      color: rgba(255, 255, 0, 0.75); }
 
 The alpha channel of a color can be adjusted using the
 {Sass::Script::Functions#opacify opacify} and
 {Sass::Script::Functions#transparentize transparentize} functions.
 For example:
 
-{.sass-ex}
-    $translucent-red: rgba(255, 0, 0, 0.5)
-    p
-      color: opacify($translucent-red, 80%)
-      background-color: transparentize($translucent-red, 50%)
-
-{.scss-ex}
     $translucent-red: rgba(255, 0, 0, 0.5);
     p {
       color: opacify($translucent-red, 80%);
@@ -720,18 +667,13 @@ For example:
 is compiled to:
 
     p {
-      color: rgba(255, 0, 0, 0.9)
-      background-color: rgba(255, 0, 0, 0.25) }
+      color: rgba(255, 0, 0, 0.9);
+      background-color: rgba(255, 0, 0, 0.25); }
 
 #### String Operations
 
 The `+` operation can be used to concatenate strings:
 
-{.sass-ex}
-    p
-      cursor: e + -resize
-
-{.scss-ex}
     p {
       cursor: e + -resize;
     }
@@ -749,12 +691,6 @@ Likewise, if an unquoted string is added to a quoted string
 the result is an unquoted string.
 For example:
 
-{.sass-ex}
-    p:before
-      content: "Foo " + Bar
-      font-family: sans- + "serif"
-
-{.scss-ex}
     p:before {
       content: "Foo " + Bar;
       font-family: sans- + "serif"; }
@@ -768,11 +704,6 @@ is compiled to:
 By default, if two values are placed next to one another,
 they are concatenated with a space:
 
-{.sass-ex}
-    p
-      margin: 3px + 4px auto
-
-{.scss-ex}
     p {
       margin: 3px + 4px auto;
     }
@@ -785,11 +716,6 @@ is compiled to:
 Within a string of text, #{} style interpolation can be used to
 place dynamic values within the string:
 
-{.sass-ex}
-    p:before
-      content: "I ate #{5 + 10} pies!"
-
-{.scss-ex}
     p:before {
       content: "I ate #{5 + 10} pies!"; }
 
@@ -807,11 +733,6 @@ for boolean values.
 
 Parentheses can be used to affect the order of operations:
 
-{.sass-ex}
-    p
-      width: 1em + (2em * 3)
-
-{.scss-ex}
     p {
       width: 1em + (2em * 3);
     }
@@ -826,11 +747,6 @@ is compiled to:
 SassScript defines some useful functions
 that are called using the normal CSS function syntax:
 
-{.sass-ex}
-    p
-      color: hsl(0, 100%, 50%)
-
-{.scss-ex}
     p {
       color: hsl(0, 100%, 50%);
     }
@@ -848,13 +764,6 @@ as well as instructions on defining your own in Ruby.
 You can also use SassScript variables in selectors
 and property names using #{} interpolation syntax:
 
-{.sass-ex}
-    $name: foo
-    $attr: border
-    p.#{$name}
-      #{$attr}-color: blue
-
-{.scss-ex}
     $name: foo;
     $attr: border;
     p.#{$name} { #{$attr}-color: blue }
@@ -874,16 +783,6 @@ but if it doesn't have a value yet, it will be given one.
 
 For example:
 
-{.sass-ex}
-    $content: "First content"
-    $content: "Second content?" !default
-    $new_content: "First time reference" !default
-
-    #main
-      content: $content
-      new-content: $new_content
-
-{.scss-ex}
     $content: "First content";
     $content: "Second content?" !default;
     $new_content: "First time reference" !default;
