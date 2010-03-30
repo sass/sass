@@ -60,7 +60,7 @@ MSG
     "@import foo.sass" => <<MSG,
 File to import not found or unreadable: foo.sass.
 Load paths:
-  test/sass
+  #{Haml::Util.scope("test/sass")}
   .
 MSG
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
