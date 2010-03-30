@@ -7,6 +7,12 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class MixinNode < Node
+    # @see Node#options=
+    def options=(opts)
+      super
+      @args.each {|a| a.context = :equals} if opts[:sass2]
+    end
+
     # @param name [String] The name of the mixin
     # @param args [Array<Script::Node>] The arguments to the mixin
     def initialize(name, args)

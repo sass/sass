@@ -226,6 +226,11 @@ Available options are:
 : An option that's available for individual applications to set
   to make data available to {Sass::Script::Functions custom Sass functions}.
 
+{#sass2-option} `:sass2`
+: Parses the document using semantics closer to that of Sass v2.
+  Currently, this just means that strings in mixin arguments
+  are treated as though they were in [an `=` context](#sass-script-strings).
+
 {#syntax-option} `:syntax`
 : The syntax of the input file, `:sass` for the indented syntax
   and `:scss` for the CSS syntax.
@@ -892,7 +897,7 @@ such as Unicode ranges and `!important` declarations.
 However, it has no special handling for these types.
 They're treated just like unquoted strings.
 
-#### Strings
+#### Strings {#sass-script-strings}
 
 CSS specifies two kinds of strings: those with quotes,
 such as `"Lucida Grande"` or `'http://sass-lang.com'`,

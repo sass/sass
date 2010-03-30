@@ -560,7 +560,8 @@ Options:
 END
 
         opts.on('-F', '--from FORMAT',
-          'The format to convert from. Can be css, scss, or sass.',
+          'The format to convert from. Can be css, scss, sass, or sass2.',
+          'sass2 is the same as sass, but updates more old syntax to new.',
           'By default, this is inferred from the input filename.',
           'If there is none, defaults to css.') do |name|
           @options[:from] = name.downcase.to_sym
@@ -618,6 +619,11 @@ END
             when /\.scss$/; :scss
             when /\.sass$/; :sass
             end
+        end
+
+        if @options[:from] == :sass2
+          @options[:from] = :sass
+          @options[:for_engine][:sass2] = true
         end
 
         @options[:from] ||= :css
