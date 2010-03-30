@@ -184,7 +184,7 @@ module Sass::Script
     # @deprecated This will be removed in version 3.2.
     # @see #rgb
     def value
-      warn <<END
+      Haml::Util.haml_warn <<END
 DEPRECATION WARNING:
 The Sass::Script::Color #value attribute is deprecated and will be
 removed in version 3.2. Use the #rgb attribute instead.

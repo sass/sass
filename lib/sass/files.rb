@@ -81,7 +81,7 @@ module Sass
 
       return new_filename if new_filename
       unless was_sass || was_scss
-        warn <<END
+        Haml::Util.haml_warn <<END
 WARNING: Neither #{filename}.sass nor .scss found. Using #{filename}.css instead.
 This behavior is deprecated and will be removed in a future version.
 If you really need #{filename}.css, import it explicitly.
@@ -116,7 +116,7 @@ END
         return Marshal.load(f.read)
       end
     rescue EOFError, TypeError, ArgumentError => e
-      warn "Warning. Error encountered while reading cache #{compiled_filename}: #{e}"
+      Haml::Util.haml_warn "Warning. Error encountered while reading cache #{compiled_filename}: #{e}"
     end
 
     def try_to_write_sassc(root, compiled_filename, sha, options)
