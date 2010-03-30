@@ -957,19 +957,20 @@ is compiled to:
     p.foo {
       border-color: blue; }
 
-### Optional Assignment: `||:`
+### Variable Defaults: `!default`
 
 You can assign to variables if they aren't already assigned
-using the `||:` assignment operator. This means that if the
-variable has already been assigned to, it won't be re-assigned,
+by adding the `!default` flag to the end of the value.
+This means that if the variable has already been assigned to,
+it won't be re-assigned,
 but if it doesn't have a value yet, it will be given one.
 
 For example:
 
 {.sass-ex}
     $content: "First content"
-    $content ||: "Second content?"
-    $new_content ||: "First time reference"
+    $content: "Second content?" !default
+    $new_content: "First time reference" !default
 
     #main
       content: $content
@@ -977,8 +978,8 @@ For example:
 
 {.scss-ex}
     $content: "First content";
-    $content ||: "Second content?";
-    $new_content ||: "First time reference";
+    $content: "Second content?" !default;
+    $new_content: "First time reference" !default;
 
     #main {
       content: $content;

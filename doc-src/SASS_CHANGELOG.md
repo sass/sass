@@ -20,6 +20,12 @@
   it's possible that some properties will break.
   If this happens, please report it to [the Sass mailing list](http://groups.google.com/group/haml).
 
+* In addition, setting the default value of variables
+  with `||=` is now deprecated
+  and will be removed in Sass 3.2.
+  Instead, add `!default` to the end of the value.
+  See also [this changelog entry](#3-0-0-default-flag)
+
 * The `!` prefix for variables is deprecated,
   and will be removed in Sass 3.2.
   Use `$` as a prefix instead.
@@ -129,6 +135,17 @@ is compiled to:
       width: 500px;
       height: 250px;
       margin-left: 9px; }
+
+##### Variable Defaults
+
+Since `=` is no longer used for variable assignment,
+assigning defaults to variables with `||=` no longer makes sense.
+Instead, the `!default` flag
+should be added to the end of the variable value.
+This syntax is meant to be similar to CSS's `!important` flag.
+For example:
+
+    $var: 12px !default
 
 #### Variable Prefix Character
 {#3-0-0-dollar-prefix}
