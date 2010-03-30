@@ -59,7 +59,7 @@ MSG
     "@import foo.sass" => <<MSG,
 File to import not found or unreadable: foo.sass.
 Load paths:
-  #{Haml::Util.scope("test/sass")}
+  #{File.dirname(__FILE__)}
   .
 MSG
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
@@ -638,21 +638,23 @@ SASS
   end
 
   def test_debug_info
+    esc_file_name = Sass::SCSS::RX.escape_ident(Haml::Util.scope("test_debug_info_inline.sass"))
+
     assert_equal(<<CSS, render(<<SASS, :debug_info => true, :style => :compact))
-@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\000032}}
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\000032}}
 foo bar { foo: bar; }
-@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\000035}}
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\000035}}
 foo baz { blip: blop; }
 
-@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\000039}}
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\000039}}
 floodle { flop: blop; }
 
-@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0000318}}
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\0000318}}
 bup { mix: on; }
-@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0000315}}
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\0000315}}
 bup mixin { moop: mup; }
 
-@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_inline\\.sass}line{font-family:\\0000322}}
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\0000322}}
 bip hop, skip hop { a: b; }
 CSS
 foo
@@ -702,8 +704,10 @@ SASS
   end
 
   def test_debug_info_with_line_annotations
+    esc_file_name = Sass::SCSS::RX.escape_ident(Haml::Util.scope("test_debug_info_with_line_annotations_inline.sass"))
+
     assert_equal(<<CSS, render(<<SASS, :debug_info => true, :line_comments => true))
-@media -sass-debug-info{filename{font-family:file\\:\\/\\/\\/home\\/nex3\\/code\\/haml\\/test_debug_info_with_line_annotations_inline\\.sass}line{font-family:\\000031}}
+@media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\000031}}
 foo {
   a: b; }
 CSS
