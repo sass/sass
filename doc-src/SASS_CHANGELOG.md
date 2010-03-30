@@ -63,6 +63,16 @@ Note that if `=` is used,
 SassScript will be interpreted as backwards-compatibly as posssible.
 In particular, the changes listed below don't apply in an `=` context.
 
+The `sass-convert` command-line tool can be used
+to upgrade Sass files to the new syntax using the `--in-place` flag.
+For example:
+
+    # Upgrade style.sass:
+    $ sass-convert --in-place style.sass
+
+    # Upgrade all Sass files:
+    $ find -name '*.sass' -exec sass-convert --in-place {} \;
+
 ##### Quoted Strings
 
 Quoted strings (e.g. `"foo"`) in SassScript now render with quotes.
