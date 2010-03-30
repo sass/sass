@@ -53,7 +53,7 @@ MESSAGE
 DEPRECATION WARNING:
 On line #{line}#{", character #{offset}" if offset}#{" of '#{filename}'" if filename}
 Setting #{types} with = has been deprecated and will be removed in version 3.2.
-Use "#{name}: #{val.to_sass}" instead.
+Use "#{name}: #{val}" instead.
 MESSAGE
     end
   end

@@ -245,8 +245,8 @@ RUBY
 
           if tok.type == :single_eq
             val.context = :equals
-            Script.equals_warning("mixin argument defaults", "$#{c.value}", val,
-              line, offset, @options[:filename])
+            Script.equals_warning("mixin argument defaults", "$#{c.value}",
+              val.to_sass, line, offset, @options[:filename])
           end
         elsif must_have_default
           raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")

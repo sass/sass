@@ -83,7 +83,7 @@ module Sass::Tree
       old = opts[:old] && fmt == :sass
       initial = old ? ':' : ''
       mid = old ? '' : ':'
-      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value.to_sass}"
+      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value)}"
       return res + "#{semi fmt}\n" if children.empty?
       res.rstrip + children_to_src(tabs, opts, fmt)
     end
@@ -171,6 +171,46 @@ module Sass::Tree
       else
         ":#{resolved_name} #{resolved_value}"
       end.strip
+    end
+
+    class << self
+      # @private
+      def val_to_sass(value)
+        return value.to_sass unless value.context == :equals
+        val_to_sass_comma(value).to_sass
+      end
+
+      private
+
+      def val_to_sass_comma(node)
+        return node unless node.is_a?(Sass::Script::Operation)
+        return val_to_sass_concat(node) unless node.operator == :comma
+
+        Sass::Script::Operation.new(
+          val_to_sass_concat(node.operand1),
+          val_to_sass_comma(node.operand2),
+          node.operator)
+      end
+
+      def val_to_sass_concat(node)
+        return node unless node.is_a?(Sass::Script::Operation)
+        return val_to_sass_div(node) unless node.operator == :concat
+
+        Sass::Script::Operation.new(
+          val_to_sass_div(node.operand1),
+          val_to_sass_concat(node.operand2),
+          node.operator)
+      end
+
+      def val_to_sass_div(node)
+        unless node.is_a?(Sass::Script::Operation) && node.operator == :div &&
+            node.operand1.is_a?(Sass::Script::Number) &&
+            node.operand2.is_a?(Sass::Script::Number)
+          return node
+        end
+
+        Sass::Script::String.new("(#{node.to_sass})")
+      end
     end
   end
 end

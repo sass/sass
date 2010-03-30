@@ -414,7 +414,8 @@ WARNING
 
         if eq.strip[0] == SCRIPT_CHAR
           expr.context = :equals
-          Script.equals_warning("properties", name, expr, @line,
+          Script.equals_warning("properties", name,
+            Sass::Tree::PropNode.val_to_sass(expr), @line,
             line.offset + 1, @options[:filename])
         end
       end
@@ -436,7 +437,7 @@ WARNING
         expr.context = :equals
         warning_name = "$#{name}"
         warning_name << " ||" if op =~ /^\|\|/
-        Script.equals_warning("variables", warning_name, expr,
+        Script.equals_warning("variables", warning_name, expr.to_sass,
           @line, line.offset + 1, @options[:filename])
       end
 

@@ -799,6 +799,40 @@ foo
 SASS
   end
 
+  def test_division_not_asserted_with_equals_when_unnecessary
+    assert_sass_to_scss <<SCSS, <<SASS
+$var: 1px / 2px;
+
+foo {
+  a: $var; }
+SCSS
+!var = 1px / 2px
+
+foo
+  a = !var
+SASS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+$var: 1px;
+
+foo {
+  a: $var / 2px; }
+SCSS
+!var = 1px
+
+foo
+  a = !var / 2px
+SASS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  a: 1 + 1px / 2px; }
+SCSS
+foo
+  a = 1 + 1px / 2px
+SASS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

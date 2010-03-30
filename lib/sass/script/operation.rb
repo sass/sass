@@ -10,6 +10,8 @@ module Sass::Script
   # A SassScript parse node representing a binary operation,
   # such as `$a + $b` or `"foo" + 1`.
   class Operation < Node
+    attr_reader :operand1
+    attr_reader :operand2
     attr_reader :operator
 
     # @param operand1 [Script::Node] The parse-tree node
