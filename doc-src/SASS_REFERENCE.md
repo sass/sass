@@ -72,11 +72,17 @@ To run Sass from the command line, just use
 
     sass input.sass output.css
 
+You can also tell Sass to watch the file and update the CSS
+every time the Sass file changes:
+
+    sass --watch input.sass:output.css
+
+If you have a directory with many Sass files,
+you can also tell Sass to watch the entire directory:
+
+    sass --watch app/sass:public/stylesheets
+
 Use `sass --help` for full documentation.
-At the moment, the command-line tool doesn't support
-updating everything in a directory
-or automatically updating the CSS file when the Sass file changes.
-To do that, check out the [Compass](http://compass-style.org/) Sass framework.
 
 Using Sass in Ruby code is very simple.
 After installing the Haml gem,
