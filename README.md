@@ -262,7 +262,7 @@ See `html2haml --help` for further information and options.
 The `sass-convert` executable converts between CSS, Sass, and SCSS.
 When converting from CSS to Sass or SCSS,
 nesting is applied where appropriate.
-See `css2sass --help` for further information and options.
+See `sass-convert --help` for further information and options.
 
 ## Authors
 

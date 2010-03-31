@@ -3,7 +3,7 @@ require 'fileutils'
 require 'rbconfig'
 
 module Haml
-  # This module handles the various Haml executables (`haml`, `sass`, `css2sass`, etc).
+  # This module handles the various Haml executables (`haml`, `sass`, `sass-convert`, etc).
   module Exec
     # An abstract class that encapsulates the executable code for all three executables.
     class Generic
