@@ -70,7 +70,7 @@ at_exit { File.delete(scope('REVISION')) rescue nil }
 
 desc "Install Haml as a gem."
 task :install => [:package] do
-  sudo = RUBY_PLATFORM =~ /win32/ ? '' : 'sudo'
+  sudo = RUBY_PLATFORM =~ /win32|mingw/ ? '' : 'sudo'
   gem  = RUBY_PLATFORM =~ /java/  ? 'jgem' : 'gem' 
   sh %{#{sudo} #{gem} install --no-ri pkg/haml-#{File.read(scope('VERSION')).strip}}
 end
