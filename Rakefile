@@ -92,6 +92,7 @@ task :release_elpa do
   require 'time'
   require scope('lib/haml')
 
+  next if Haml.version[:prerelease]
   version = Haml.version[:number]
 
   haml_unchanged = mode_unchanged?(:haml, version)
