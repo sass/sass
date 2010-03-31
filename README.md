@@ -150,10 +150,10 @@ and get small stylesheets up and running quickly,
 particularly with the help of
 [the Compass style library](http://compass-style.org).
 
-[vars]:    http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md#variables_
-[nested]:  http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md#nested_rules_
-[mixins]:  http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#mixins
-[imports]: http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md#import
+[vars]:    http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.md#variables_
+[nested]:  http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.md#nested_rules_
+[mixins]:  http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#mixins
+[imports]: http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.md#import
 
 Sass has two syntaxes.
 The one presented here, known as "SCSS" (for "Sassy CSS"),
@@ -162,7 +162,7 @@ The other (older) syntax, known as the indented syntax or just "Sass",
 is whitespace-sensitive and indentation-based.
 For more information, see the [reference documentation][syntax].
 
-[syntax]: http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md#syntax
+[syntax]: http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.md#syntax
 
 To run the following examples and see the CSS they produce,
 put them in a file called `test.scss` and run `sass test.scss`.
@@ -231,7 +231,7 @@ You can even give them arguments.
     }
 
 A comprehensive list of features is available
-in the [Sass reference](http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md).
+in the [Sass reference](http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENCE.md).
 
 ## Executables
 
