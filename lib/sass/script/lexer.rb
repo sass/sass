@@ -196,11 +196,12 @@ module Sass
       def read_token
         return if done?
         return unless value = token
+        type, val, size = value
+        size ||= @scanner.matched_size
 
-        value.last.line = @line if value.last.is_a?(Script::Node)
-        Token.new(value.first, value.last, @line,
-          current_position - @scanner.matched_size,
-          @scanner.pos - @scanner.matched_size)
+        val.line = @line if val.is_a?(Script::Node)
+        Token.new(type, val, @line,
+          current_position - size, @scanner.pos - size)
       end
 
       def whitespace
@@ -272,7 +273,8 @@ module Sass
         @offset = (c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size)
         [:special_fun,
           Haml::Util.merge_adjacent_strings(
-            [str1] + Sass::Engine.parse_interp(str2, @line, @options))]
+            [str1] + Sass::Engine.parse_interp(str2, @line, @options)),
+          str1.size + str2.size]
       end
 
       def ident_op
