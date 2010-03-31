@@ -100,7 +100,11 @@ module Haml
           if contains_interpolation?(text)
             return if options[:suppress_eval]
 
-            text = unescape_interpolation(text).gsub("\\n", "\n")
+            text = unescape_interpolation(text).gsub(/(\\+)n/) do |s|
+              escapes = $1.size
+              next s if escapes % 2 == 0
+              ("\\" * (escapes - 1)) + "\n"
+            end
             newline if text.gsub!(/\n"\Z/, "\\n\"")
             push_script <<RUBY.strip, :escape_html => false
 find_and_preserve(#{filter.inspect}.render_with_options(#{text}, _hamlout.options))
