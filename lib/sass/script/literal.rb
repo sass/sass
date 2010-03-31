@@ -120,6 +120,16 @@ MSG
       Sass::Script::String.new("#{self.to_s}, #{other.to_s}")
     end
 
+    # The SassScript `=` operation
+    # (used for proprietary MS syntax like `alpha(opacity=20)`).
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Script::String] A string containing both literals
+    #   separated by `"="`
+    def single_eq(other)
+      Sass::Script::String.new("#{self.to_s}=#{other.to_s}")
+    end
+
     # The SassScript `+` operation.
     #
     # @param other [Literal] The right-hand side of the operator

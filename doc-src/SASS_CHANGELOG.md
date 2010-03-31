@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.beta.2 (Unreleased)
+
+### CSS Parsing
+
+The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
+
 ## 3.0.0.beta.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.1).

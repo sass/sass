@@ -320,7 +320,7 @@ foo {
 SCSS
   end
 
-  def test_ms_filter_syntax
+  def test_ms_long_filter_syntax
     assert_equal <<CSS, render(<<SCSS)
 foo {
   filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#c0ff3300, endColorstr=#ff000000);
@@ -329,6 +329,15 @@ CSS
 foo {
   filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#c0ff3300, endColorstr=#ff000000);
   filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#c0ff3300, endColorstr=#ff000000); }
+SCSS
+  end
+
+  def test_ms_short_filter_syntax
+    assert_parses <<SCSS
+foo {
+  filter: alpha(opacity=20);
+  filter: alpha(opacity=20, enabled=true);
+  filter: blaznicate(foo=bar, baz=bang bip, bart=#fa4600); }
 SCSS
   end
 

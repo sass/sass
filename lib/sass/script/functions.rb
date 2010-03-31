@@ -391,14 +391,35 @@ module Sass::Script
     # Returns the alpha component (opacity) of a color.
     # This is 1 unless otherwise specified.
     #
+    # This function also supports the proprietary Microsoft
+    # `alpha(opacity=20)` syntax.
+    #
+    # @overload def alpha(color)
     # @param color [Color]
     # @return [Number]
     # @raise [ArgumentError] If `color` isn't a color
-    def alpha(color)
+    def alpha(*args)
+      if args.all? do |a|
+          a.is_a?(Sass::Script::String) && a.type == :identifier &&
+            a.value =~ /^[a-zA-Z]+\s*=/
+        end
+        # Support the proprietary MS alpha() function
+        return Sass::Script::String.new("alpha(#{args.map {|a| a.to_s}.join(", ")})")
+      end
+
+      opacity(*args)
+    end
+
+    # Returns the alpha component (opacity) of a color.
+    # This is 1 unless otherwise specified.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def opacity(color)
       assert_type color, :Color
       Sass::Script::Number.new(color.alpha)
     end
-    alias_method :opacity, :alpha
 
     # Makes a color more opaque.
     # Takes a color and an amount between 0 and 1,

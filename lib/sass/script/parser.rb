@@ -127,7 +127,7 @@ module Sass
 
       # @private
       PRECEDENCE = [
-        :comma, :concat, :or, :and,
+        :comma, :single_eq, :concat, :or, :and,
         [:eq, :neq],
         [:gt, :gte, :lt, :lte],
         [:plus, :minus],
@@ -186,6 +186,7 @@ RUBY
       def lexer_class; Lexer; end
 
       production :expr, :interpolation, :comma
+      production :equals, :interpolation, :single_eq
 
       def interpolation
         e = concat
@@ -232,7 +233,7 @@ RUBY
           end
           node(Script::String.new(name.value, :identifier))
         else
-          args = arglist || []
+          args = fn_arglist || []
           assert_tok(:rparen)
           node(Script::Funcall.new(name.value, args))
         end
@@ -258,6 +259,12 @@ RUBY
 
         return [[var, val]] unless try_tok(:comma)
         [[var, val], *defn_arglist(val)]
+      end
+
+      def fn_arglist
+        return unless e = equals
+        return [e] unless try_tok(:comma)
+        [e, *fn_arglist]
       end
 
       def arglist
