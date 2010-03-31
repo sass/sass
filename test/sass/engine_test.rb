@@ -834,6 +834,19 @@ SASS
     renders_correctly "mixins", { :style => :expanded }
   end
 
+  def test_directive_style_mixins
+    assert_equal <<CSS, render(<<SASS)
+bar {
+  prop: baz; }
+CSS
+@mixin foo($arg)
+  prop: $arg
+
+bar
+  @include foo(baz)
+SASS
+  end
+
   def test_mixins_dont_interfere_with_sibling_combinator
     assert_equal("foo + bar {\n  a: b; }\nfoo + baz {\n  c: d; }\n",
                  render("foo\n  +\n    bar\n      a: b\n    baz\n      c: d"))

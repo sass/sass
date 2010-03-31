@@ -206,6 +206,28 @@ They behave identically to double-quoted strings,
 except that single quotes need to be backslash-escaped
 and double quotes do not.
 
+#### Mixin Definition and Inclusion
+
+Sass now supports the `@mixin` directive as a way of defining mixins (like `=`),
+as well as the `@include` directive as a way of including them (like `+`).
+The old syntax is *not* deprecated,
+and the two are fully compatible.
+For example:
+
+    @mixin pretty-text
+      color: $prettiest-color
+
+    a
+      @include pretty-text
+
+is the same as:
+
+    =pretty-text
+      color: $prettiest-color
+
+    a
+      +pretty-text
+
 ### Colors
 
 SassScript color values are much more powerful than they were before.

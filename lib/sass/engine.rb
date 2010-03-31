@@ -465,6 +465,10 @@ WARNING
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
           :line => @line + 1) unless line.children.empty?
         value.split(/,\s*/).map {|f| Tree::ImportNode.new(f)}
+      elsif directive == "mixin"
+        parse_mixin_definition(line)
+      elsif directive == "include"
+        parse_mixin_include(line, root)
       elsif directive == "for"
         parse_for(line, root, value)
       elsif directive == "else"
@@ -528,7 +532,7 @@ WARNING
     end
 
     # @private
-    MIXIN_DEF_RE = /^=\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
+    MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_definition(line)
       name, arg_string = line.text.scan(MIXIN_DEF_RE).first
       raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".") if name.nil?
@@ -541,7 +545,7 @@ WARNING
     end
 
     # @private
-    MIXIN_INCLUDE_RE = /^\+\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
+    MIXIN_INCLUDE_RE = /^(?:\+|@include)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_include(line, root)
       name, arg_string = line.text.scan(MIXIN_INCLUDE_RE).first
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
