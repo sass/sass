@@ -30,15 +30,13 @@ end
 task :haml => ".haml" do
   Dir.chdir(".haml") do
     sh %{git fetch}
-    sh %{git checkout origin/stable}
-    # Check out the most recent released stable version
-    sh %{git checkout #{File.read("VERSION").strip}}
+    sh %{git checkout origin/master}
   end
 end
 
 file ".haml" do
   sh %{git clone -l -s . .haml}
-  Dir.chdir(".haml") {sh %{git checkout origin/stable}}
+  Dir.chdir(".haml") {sh %{git checkout origin/master}}
 end
 
 task(:default) {puts "Dummy default task for RunCodeRun"}
