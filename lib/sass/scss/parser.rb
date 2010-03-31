@@ -5,9 +5,6 @@ module Sass
   module SCSS
     # The parser for SCSS.
     # It parses a string of code into a tree of {Sass::Tree::Node}s.
-    #
-    # @todo Add a CSS-only parser that doesn't parse the SassScript extensions,
-    #   so css2sass will work properly.
     class Parser
       # @param str [String] The source document to parse
       def initialize(str)
