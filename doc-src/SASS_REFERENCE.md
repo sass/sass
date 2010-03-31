@@ -1183,20 +1183,19 @@ is compiled to:
 
 ## Output Style
 
-Although the default CSS style that Sass outputs is very nice,
-and reflects the structure of the document in a similar way that Sass does,
-sometimes it's good to have other formats available.
+Although the default CSS style that Sass outputs is very nice
+and reflects the structure of the document,
+tastes and needs vary and so Sass supports several other styles.
 
 Sass allows you to choose between four different output styles
-by setting the `:style` option.
-In Rack, Rails, and Merb, this is done by setting `Sass::Plugin.options[:style]`;
-otherwise, it's done by passing an options hash with `:style` set.
+by setting the [`:style` option](#style-option)
+or using the `--style` command-line flag.
 
 ### `:nested`
 
 Nested style is the default Sass style,
-because it reflects the structure of the document
-in much the same way Sass does.
+because it reflects the structure of the CSS styles
+and the HTML document they're styling.
 Each property has its own line,
 but the indentation isn't constant.
 Each rule is indented based on how deeply it's nested.
@@ -1213,14 +1212,13 @@ For example:
       font-weight: bold;
       text-decoration: underline; }
 
-Nested style is very useful when looking at large CSS files
-for the same reason Sass is useful for making them:
-it allows you to very easily grasp the structure of the file
+Nested style is very useful when looking at large CSS files:
+it allows you to easily grasp the structure of the file
 without actually reading anything.
 
 ### `:expanded`
 
-Expanded is the typical human-made CSS style,
+Expanded is a more typical human-made CSS style,
 with each property and rule taking up one line.
 Properties are indented within the rules,
 but the rules aren't indented in any special way.
@@ -1242,13 +1240,12 @@ For example:
 
 ### `:compact`
 
-Compact style, as the name would imply,
-takes up less space than Nested or Expanded.
-However, it's also harder to read.
+Compact style takes up less space than Nested or Expanded.
+It also draws the focus more to the selectors than to their properties.
 Each CSS rule takes up only one line,
 with every property defined on that line.
 Nested rules are placed next to each other with no newline,
-while groups of rules have newlines between them.
+while separate groups of rules have newlines between them.
 For example:
 
     #main { color: #fff; background-color: #000; }
@@ -1261,6 +1258,8 @@ For example:
 Compressed style takes up the minimum amount of space possible,
 having no whitespace except that necessary to separate selectors
 and a newline at the end of the file.
+It also includes some other minor compressions,
+such as choosing the smallest representation for colors.
 It's not meant to be human-readable.
 For example:
 
