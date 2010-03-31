@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 2.4.0 (Unreleased)
+## 3.0.0.beta.1 (Unreleased)
 
 ### Deprecations -- Must Read!
 {#3-0-0-deprecations}
