@@ -163,3 +163,36 @@ is the same as:
 
     h1
       @include large-text
+
+## Deprecated Syntax
+
+Since the indented syntax has been around for a while,
+previous versions have made some syntactic decisions
+that have since been changed.
+Some of the old syntax still works, though,
+so it's documented here.
+
+**Note that this syntax is not recommended
+for use in new Sass files**.
+It will print a warning if it's used,
+and it will be removed in a future version.
+
+### `=` for Properties and Variables
+
+`=` used to be used instead of `:` when setting variables
+and when setting properties to SassScript values.
+It has slightly different semantics than `:`;
+see {file:SASS_CHANGELOG.md#3-0-0-sass-script-context this changelog entry} for details.
+
+### `||=` for Default Variables
+
+`||=` used to be used instead of `:` when setting the default value of a variable.
+The `!default` flag was not used.
+The variable value has the same semantics as `=`;
+see {file:SASS_CHANGELOG.md#3-0-0-sass-script-context this changelog entry} for details.
+
+### `!` Prefix for Variables
+
+`!` used to be used as the variable prefix instead of `$`.
+This had no difference in functionality;
+it was a purely aesthetic change.
