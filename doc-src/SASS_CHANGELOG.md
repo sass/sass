@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.0.beta.1 (Unreleased)
+## 3.0.0.beta.1
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.1).
 
 ### Deprecations -- Must Read!
 {#3-0-0-deprecations}
