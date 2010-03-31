@@ -191,14 +191,16 @@ task :release_edge do
     sh %{git merge origin/master}
 
     # Get the current master branch version
-    version = File.read(scope('VERSION')).strip.split('.').map {|n| n.to_i}
-    unless version[1] % 2 == 1 && version[2] == 0
+    version = File.read(scope('VERSION')).strip.split('.')
+    pr = version[3]
+    version = version.map {|n| n.to_i}
+    unless pr || (version[1] % 2 == 1 && version[2] == 0)
       raise "#{version.join('.')} is not a development version" 
     end
 
     # Bump the edge gem version
     edge_version = File.read(scope('EDGE_GEM_VERSION')).strip.split('.').map {|n| n.to_i}
-    if edge_version[0..1] != version[0..1]
+    if !pr && (edge_version[0..1] != version[0..1])
       # A new master branch version was released, reset the edge gem version
       edge_version[0..1] = version[0..1]
       edge_version[2] = 0
