@@ -129,7 +129,8 @@ like `if` and `while`:
         = "Happy new " + "year!"
 
 Haml provides far more tools than those presented here.
-Check out the reference documentation in the Haml module.
+Check out the [reference documentation](http://beta.haml-lang.com/docs/yardoc/file.HAML_REFERENCE.md)
+for full details.
 
 #### Indentation
 
