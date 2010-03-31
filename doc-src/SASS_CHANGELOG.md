@@ -385,6 +385,13 @@ It now uses a full-fledged CSS3 parser,
 so it should be able to handle any valid CSS3,
 as well as most hacks and proprietary syntax.
 
+`sass-convert` can now convert between Sass and SCSS.
+This is normally inferred from the filename,
+but it can also be specified using the `--from` and `--to` flags.
+For example:
+
+    $ generate-sass | sass-convert --from sass --to scss | consume-scss
+
 It's also now possible to convert a file in-place --
 that is, overwrite the old file with the new file.
 This is useful for converting files in the [Sass 2 syntax](#3-0-0-deprecations)
