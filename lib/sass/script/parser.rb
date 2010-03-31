@@ -248,6 +248,7 @@ RUBY
 
           if tok.type == :single_eq
             val.context = :equals
+            val.options = @options
             Script.equals_warning("mixin argument defaults", "$#{c.value}",
               val.to_sass, false, line, offset, @options[:filename])
           end
