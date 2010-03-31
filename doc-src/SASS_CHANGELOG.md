@@ -57,6 +57,19 @@ it will be used as the default syntax for the reference,
 as well as for most other Sass documentation.
 The indented syntax will continue to be fully supported, however.
 
+Sass files can be converted to SCSS using the new `sass-convert` command-line tool.
+For example:
+
+    # Convert a Sass file to SCSS
+    $ sass-convert style.sass style.scss
+
+**Note that if you're converting a Sass file written for Sass 2**,
+you should use the `--from sass2` flag.
+For example:
+
+    # Convert a Sass file to SCSS
+    $ sass-convert --from sass2 style.sass style.scss
+
 ### Syntax Changes {#3-0-0-syntax-changes}
 
 #### SassScript Context
