@@ -437,6 +437,37 @@ is compiled to:
         font-size: 30em;
         font-weight: bold; }
 
+## Comments: `/* */` and `//` {#comments}
+
+Sass supports standard multiline CSS comments with `/* */`,
+as well as single-line comments with `//`.
+The multiline comments are preserved in the CSS output where possible,
+while the single-line comments are removed.
+For example:
+
+    /* This comment is
+     * several lines long.
+     * since it uses the CSS comment syntax,
+     * it will appear in the CSS output. */
+    body { color: black; }
+
+    // These comments are only one line long each.
+    // They won't appear in the CSS output,
+    // since they use the single-line comment syntax.
+    a { color: green; }
+
+is compiled to:
+
+    /* This comment is
+     * several lines long.
+     * since it uses the CSS comment syntax,
+     * it will appear in the CSS output. */
+    body {
+      color: black; }
+
+    a {
+      color: green; }
+
 ## SassScript {#sassscript}
 
 In addition to the plain CSS property syntax,
@@ -798,178 +829,103 @@ is compiled to:
       content: First content;
       new-content: First time reference; }
 
-## Directives
+## `@`-Rules and Directives {#directives}
 
-Directives allow the author to directly issue instructions to the Sass compiler.
-They're prefixed with an at sign, `@`,
-followed by the name of the directive,
-a space, and any arguments to it -
-just like CSS directives.
-For example:
-
-{.sass-ex}
-    @import red.sass
-
-{.scss-ex}
-    @import "red.sass";
-
-Some directives can also control whether or how many times
-a chunk of Sass is output.
-Those are documented under Control Directives.
+Sass supports all CSS3 `@`-rules,
+as well as some additional Sass-specific ones
+known as "directives."
+These have various effects in Sass, detailed below.
+See also [control directives](#control-directives)
+and [mixin directives](#mixins).
 
 ### `@import` {#import}
 
-The `@import` directive works in a very similar way to the CSS import directive.
-It can either compile to a literal CSS `@import` directive for a CSS file,
-or it can import a Sass file.
-If it imports a Sass file,
-not only are the rules from that file included,
-but all variables in that file are made available in the current file.
+Sass extends the CSS `@import` rule
+to allow it to import SCSS and Sass files.
+All imported SCSS and Sass files will be merged together
+into a single CSS output file.
+In addition, any variables or [mixins](#mixins)
+defined in imported files can be used in the main file.
 
-Sass looks for other Sass files in the working directory,
+Sass looks for other Sass files in the current directory,
 and the Sass file directory under Rack, Rails, or Merb.
 Additional search directories may be specified
-using the [`:load_paths`](#load_paths-option) option.
+using the [`:load_paths`](#load_paths-option) option,
+or the `--load-path` option on the command line.
 
 `@import` takes a filename with or without an extension.
-If an extension isn't provided,
-Sass will try to find a Sass file with the given basename in the load paths.
+If the extension is `.css`, it will be treated as a plain CSS `@import` rule.
+If the extension is `.scss` or `.sass`, that file will be imported.
+If there is no extension,
+Sass will try to find a file with that name and the `.scss` or `.sass` extension
+and import it.
 
 For example,
 
-{.sass-ex}
-    @import foo.sass
-
-{.scss-ex}
-    @import "foo.sass";
+    @import "foo.scss";
 
 or
 
-{.sass-ex}
-    @import foo
-
-{.scss-ex}
     @import "foo";
 
-would compile to
-
-    .foo {
-      color: #f00; }
-
+would both import the file `foo.scss`,
 whereas
 
-{.sass-ex}
-    @import foo.css
-
-{.scss-ex}
     @import "foo.css";
 
-would compile to
+would simply compile to
 
     @import "foo.css";
 
 #### Partials {#partials}
 
-If you have a Sass file that you want to import
+If you have a SCSS or Sass file that you want to import
 but don't want to compile to a CSS file,
 you can add an underscore to the beginning of the filename.
 This will tell Sass not to compile it to a normal CSS file.
-You can then refer to these files without using the underscore.
+You can then import these files without using the underscore.
 
-For example, you might have `_colors.sass`.
+For example, you might have `_colors.scss`.
 Then no `_colors.css` file would be created,
 and you can do
 
-{.sass-ex}
-    @import colors.sass
+    @import "colors";
 
-{.scss-ex}
-    @import colors.sass;
+and `_colors.scss` would be imported.
 
 ### `@debug`
 
 The `@debug` directive prints the value of a SassScript expression
-to standard error.
+to the standard error output stream.
 It's useful for debugging Sass files
-that have complicated SassScript going on.
+that have complicated SassScript going on,
+or for printing warnings in libraries.
 For example:
 
-{.sass-ex}
-    @debug 10em + 12em
-
-{.scss-ex}
     @debug 10em + 12em;
 
 outputs:
 
     Line 1 DEBUG: 22em
 
-### `@font-face`, `@media`, etc.
-
-Sass behaves as you'd expect for normal CSS @-directives.
-For example:
-
-{.sass-ex}
-    @font-face
-      font-family: "Bitstream Vera Sans"
-      src: url(http://foo.bar/bvs)
-
-{.scss-ex}
-    @font-face {
-      font-family: "Bitstream Vera Sans";
-      src: url(http://foo.bar/bvs");
-    }
-
-compiles to:
-
-    @font-face {
-      font-family: "Bitstream Vera Sans";
-      src: url(http://foo.bar/bvs); }
-
-and
-
-{.sass-ex}
-    @media print
-      #sidebar
-        display: none
-
-      #main
-        background-color: white
-
-{.scss-ex}
-    @media print {
-      #sidebar { display: none; }
-
-      #main { background-color: white; }
-    }
-
-compiles to:
-
-    @media print {
-      #sidebar {
-        display: none; }
-
-      #main {
-        background-color: white; } }
-
 ## Control Directives
 
-SassScript supports basic control directives for looping and conditional evaluation.
+SassScript supports basic control directives
+for including styles only under some conditions
+or including the same style several times with variations.
+
+**Note that control directives are an advanced feature,
+and are not recommended in the course of day-to-day styling**.
+They exist mainly for use in [mixins](#mixins),
+particularly those that are part of libraries like [Compass](http://compass-style.org),
+and so require substantial flexibility.
 
 ### `@if`
 
-The `@if` statement takes a SassScript expression
-and prints the code nested beneath it if the expression returns
+The `@if` directive takes a SassScript expression
+and uses the styles nested beneath it if the expression returns
 anything other than `false`:
 
-{.sass-ex}
-    p
-      @if 1 + 1 == 2
-        border: 1px solid
-      @if 5 < 3
-        border: 2px dotted
-
-{.scss-ex}
     p {
       @if 1 + 1 == 2 { border: 1px solid; }
       @if 5 < 3 { border: 2px dotted; }
@@ -987,19 +943,6 @@ the `@else if` statements are tried in order
 until one succeeds or the `@else` is reached.
 For example:
 
-{.sass-ex}
-    $type: monster
-    p
-      @if $type == ocean
-        color: blue
-      @else if $type == matador
-        color: red
-      @else if $type == monster
-        color: green
-      @else
-        color: black
-
-{.scss-ex}
     $type: monster;
     p {
       @if $type == ocean {
@@ -1020,24 +963,20 @@ is compiled to:
 
 ### `@for`
 
-The `@for` statement has two forms:
-`@for <var> from <start> to <end>` or
-`@for <var> from <start> through <end>`.
-`<var>` is a variable name, like `$i`,
+The `@for` directive has two forms:
+`@for $var from <start> to <end>` or
+`@for $var from <start> through <end>`.
+`$var` can be any variable name, like `$i`,
 and `<start>` and `<end>` are SassScript expressions
 that should return integers.
 
-The `@for` statement sets `<var>` to each number
+The `@for` statement sets `$var` to each number
 from `<start>` to `<end>`,
 including `<end>` if `through` is used.
+Then it outputs the nested styles
+using that value of `$var`.
 For example:
 
-{.sass-ex}
-    @for $i from 1 through 3
-      .item-#{$i}
-        width: 2em * $i
-
-{.scss-ex}
     @for $i from 1 through 3 {
       .item-#{$i} { width: 2em * $i; }
     }
@@ -1053,20 +992,14 @@ is compiled to:
 
 ### `@while`
 
-The `@while` statement repeatedly loops over the nested
-block until the statement evaluates to `false`. This can
-be used to achieve more complex looping than the `@for`
-statement is capable of.
+The `@while` directive takes a SassScript expression
+and repeatedly outputs the nested styles
+until the statement evaluates to `false`.
+This can be used to achieve more complex looping
+than the `@for` statement is capable of,
+although this is rarely necessary.
 For example:
 
-{.sass-ex}
-    $i: 6
-    @while $i > 0
-      .item-#{$i}
-        width: 2em * $i
-      $i: $i - 2
-
-{.scss-ex}
     $i: 6;
     @while $i > 0 {
       .item-#{$i} { width: 2em * $i; }
@@ -1084,28 +1017,25 @@ is compiled to:
     .item-2 {
       width: 4em; }
 
-## Mixins {#mixins}
+## Mixin Directives {#mixins}
 
-Mixins enable you to define groups of CSS properties and
-then include them inline in any number of selectors
-throughout the document. This allows you to keep your
-stylesheets DRY and also avoid placing presentation
-classes in your markup.
+Mixins allow you to define styles
+that can be re-used throughout the stylesheet
+without needing to resort to non-semantic classes like `.float-left`.
+Mixins can also contain full CSS rules,
+and anything else allowed elsewhere in a Sass document.
+They can even take [arguments](#mixin-arguments)
+which allows you to produce a wide variety of styles
+with very few mixins.
 
-### Defining a Mixin: `=`
+### Defining a Mixin: `@mixin` {#defining_a_mixin}
 
-To define a mixin you use a slightly modified form of selector syntax.
-For example the `large-text` mixin is defined as follows:
+Mixins are defined with the `@mixin` directive.
+It's followed by the name of the mixin
+and optionally the [arguments](#mixin-arguments),
+and a block containing the contents of the mixin.
+For example, the `large-text` mixin is defined as follows:
 
-{.sass-ex}
-    =large-text
-      font:
-        family: Arial
-        size: 20px
-        weight: bold
-      color: #ff0000
-
-{.scss-ex}
     @mixin large-text {
       font: {
         family: Arial;
@@ -1115,25 +1045,11 @@ For example the `large-text` mixin is defined as follows:
       color: #ff0000;
     }
 
-The initial `=` marks this as a mixin rather than a standard selector.
-The CSS rules that follow won't be included until the mixin is referenced later on.
-Anything you can put into a standard selector,
-you can put into a mixin definition.
+Mixins may also contain selectors,
+possibly mixed with properties.
+The selectors can even contain [parent references](#referencing_parent_selectors_).
 For example:
 
-{.sass-ex}
-    =clearfix
-      display: inline-block
-      &:after
-        content: "."
-        display: block
-        height: 0
-        clear: both
-        visibility: hidden
-      * html &
-        height: 1px
-
-{.scss-ex}
     @mixin clearfix {
       display: inline-block;
       &:after {
@@ -1146,27 +1062,23 @@ For example:
       * html & { height: 1px }
     }
 
-### Mixing It In: `+`
+### Including a Mixin: `@include` {#including_a_mixin}
 
-Inlining a defined mixin is simple,
-just prepend a `+` symbol to the name of a mixin defined earlier in the document.
-So to inline the `large-text` defined earlier,
-we include the statment `+large-text` in our selector definition thus:
+Mixins are included in the document
+with the `@include` directive.
+This takes the name of a mixin
+and optionally [arguments to pass to it](#mixin-arguments),
+and includes the styles defined by that mixin
+into the current rule.
+For example:
 
-{.sass-ex}
-    .page-title
-      +large-text
-      padding: 4px
-      margin-top: 10px
-
-{.scss-ex}
     .page-title {
       @include large-text;
       padding: 4px;
       margin-top: 10px;
     }
 
-This will produce the following CSS output:
+is compiled to:
 
     .page-title {
       font-family: Arial;
@@ -1176,211 +1088,98 @@ This will produce the following CSS output:
       padding: 4px;
       margin-top: 10px; }
 
-Any number of mixins may be defined and there is no limit on
-the number that can be included in a particular selector.
-
-Mixin definitions can also include references to other mixins.
+Mixins may also be included outside of any rule
+(that is, at the root of the document)
+as long as they don't directly define any properties
+or use any parent references.
 For example:
 
-{.sass-ex}
-    =compound
-      +highlighted-background
-      +header-text
+    @mixin silly-links {
+      a {
+        color: blue;
+        background-color: red;
+      }
+    }
 
-    =highlighted-background
-      background-color: #fc0
-    =header-text
-      font-size: 20px
+    @include silly-links;
 
-{.scss-ex}
+is compiled to:
+
+    a {
+      color: blue;
+      background-color: red; }
+
+Mixin definitions can also include other mixins.
+For example:
+
     @mixin compound {
       @include highlighted-background;
       @include header-text;
     }
 
-    @mixin highlighted-background {
-      background-color: #fc0;
-    }
-    @mixin header-text {
-      font-size: 20px;
-    }
+    @mixin highlighted-background { background-color: #fc0; }
+    @mixin header-text { font-size: 20px; }
 
 Mixins that only define descendent selectors, can be safely mixed
 into the top most level of a document.
 
-### Arguments
+### Arguments {#mixin-arguments}
 
-Mixins can take arguments which can be used with SassScript:
+Mixins can take arguments SassScript values as arguments,
+which are given when the mixin is included
+and made available within the mixin as variables.
 
-{.sass-ex}
-    =sexy-border($color)
-      border:
-        color: $color
-        width: 1in
-        style: dashed
-    p
-      +sexy-border("blue")
+When defining a mixin,
+the arguments are written as variable names separated by commas,
+all in parentheses after the name.
+Then when including the mixin,
+values can be passed in in the same manner.
+For example:
 
-{.scss-ex}
-    @mixin sexy-border($color) {
+    @mixin sexy-border($color, $width) {
       border: {
         color: $color;
-        width: 1in;
+        width: $width;
         style: dashed;
       }
     }
 
-    p { @include sexy-border("blue"); }
+    p { @include sexy-border(blue, 1in); }
 
 is compiled to:
 
     p {
-      border-color: #0000ff;
+      border-color: blue;
       border-width: 1in;
       border-style: dashed; }
 
-Mixins can also specify default values for their arguments:
+Mixins can also specify default values for their arguments
+using the normal variable-setting syntax.
+Then when the mixin is included,
+if it doesn't pass in that argument,
+the default value will be used instead.
+For example:
 
-{.sass-ex}
-    =sexy-border($color, $width: 1in)
-      border:
-        color: $color
-        width: $width
-        style: dashed
-    p
-      +sexy-border("blue")
-
-{.scss-ex}
     @mixin sexy-border($color, $width: 1in) {
       border: {
         color: $color;
         width: $width;
         style: dashed;
       }
-    p { @include sexy-border("blue"); }
+    p { @include sexy-border(blue); }
+    h1 { @include sexy-border(blue, 2in); }
 
 is compiled to:
 
     p {
-      border-color: #0000ff;
+      border-color: blue;
       border-width: 1in;
       border-style: dashed; }
 
-## Comments
-
-Sass supports two sorts of comments:
-those that show up in the CSS output
-and those that don't.
-
-### CSS Comments: `/*`
-
-"Loud" comments are just as easy as silent ones.
-These comments output to the document as CSS comments,
-and thus use the same opening sequence: `/*`.
-For example:
-
-{.sass-ex}
-    /* A very awesome rule.
-    #awesome.rule
-      /* An equally awesome property.
-      awesomeness: very
-
-{.scss-ex}
-    /* A very awesome rule. */
-    #awesome.rule {
-      /* An equally awesome property. */
-      awesomeness: very;
-    }
-
-becomes
-
-    /* A very awesome rule. */
-    #awesome.rule {
-      /* An equally awesome property. */
-      awesomeness: very; }
-
-You can also nest content beneath loud comments. For example:
-
-{.sass-ex}
-    #pbj
-      /* This rule describes
-        the styling of the element
-        that represents
-        a peanut butter and jelly sandwich.
-      background-image: url(/images/pbj.png)
-      color: red
-
-{.scss-ex}
-    #pbj {
-      /* This rule describes
-        the styling of the element
-        that represents
-        a peanut butter and jelly sandwich. */
-      background-image: url(/images/pbj.png);
-      color: red;
-    }
-
-becomes
-
-    #pbj {
-      /* This rule describes
-       * the styling of the element
-       * that represents
-       * a peanut butter and jelly sandwich. */
-      background-image: url(/images/pbj.png);
-      color: red; }
-
-### Sass Comments: `//`
-
-It's simple to add "silent" comments,
-which don't output anything to the CSS document,
-to a Sass document.
-Simply use the familiar C-style notation for a one-line comment, `//`,
-at the normal indentation level and all text following it won't be output.
-For example:
-
-{.sass-ex}
-    // A very awesome rule.
-    #awesome.rule
-      // An equally awesome property.
-      awesomeness: very
-
-{.scss-ex}
-    // A very awesome rule.
-    #awesome.rule {
-      // An equally awesome property.
-      awesomeness: very;
-    }
-
-becomes
-
-    #awesome.rule {
-      awesomeness: very; }
-
-You can also nest text beneath a comment to comment out a whole block.
-For example:
-
-{.sass-ex}
-    // A very awesome rule
-    #awesome.rule
-      // Don't use these properties
-        color: green
-        font-size: 10em
-      color: red
-
-{.scss-ex}
-    // A very awesome rule
-    #awesome.rule {
-      // Don't use these properties
-      // color: green
-      // font-size: 10em
-      color: red;
-    }
-
-becomes
-
-    #awesome.rule {
-      color: red; }
+    h1 {
+      border-color: blue;
+      border-width: 2in;
+      border-style: dashed; }
 
 ## Output Style
 
