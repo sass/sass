@@ -47,9 +47,17 @@ In addition, SCSS understands most CSS hacks
 and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms533754%28VS.85%29.aspx).
 
 SCSS files use the `.scss` extension.
-Their syntax is details in the {file:SASS_REFERENCE.md Sass reference},
+They can import `.sass` files, and vice-versa.
+Their syntax is fully described in the {file:SASS_REFERENCE.md Sass reference};
+if you're already familiar with Sass, though,
+you may prefer the {file:SCSS_FOR_SASS_USERS.md intro to SCSS for Sass users}.
 
-### Syntax Changes
+Since SCSS is a much more approachable syntax for those new to Sass,
+it will be used as the default syntax for the reference,
+as well as for most other Sass documentation.
+The indented syntax will continue to be fully supported, however.
+
+### Syntax Changes {#3-0-0-syntax-changes}
 
 #### SassScript Context
 {#3-0-0-sass-script-context}
