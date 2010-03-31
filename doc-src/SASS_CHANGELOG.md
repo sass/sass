@@ -36,6 +36,19 @@
   Use the new `sass-convert` tool instead.
   See also [this changelog entry](#3-0-0-sass-convert).
 
+### SCSS (Sassy CSS)
+
+Sass 3 introduces a new syntax known as SCSS
+which is fully compatible with the syntax of CSS3,
+while still supporting the full power of Sass.
+This means that every valid CSS3 stylesheet
+is a valid SCSS file with the same meaning.
+In addition, SCSS understands most CSS hacks
+and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms533754%28VS.85%29.aspx).
+
+SCSS files use the `.scss` extension.
+Their syntax is details in the {file:SASS_REFERENCE.md Sass reference},
+
 ### Syntax Changes
 
 #### SassScript Context
@@ -48,11 +61,13 @@ this means that `:` should be used instead.
 Variables should also be set with `:`.
 For example, what used to be
 
+    // Indented syntax
     .page
       color = 5px + 9px
 
 should now be
 
+    // Indented syntax
     .page
       color: 5px + 9px
 
@@ -145,7 +160,7 @@ should be added to the end of the variable value.
 This syntax is meant to be similar to CSS's `!important` flag.
 For example:
 
-    $var: 12px !default
+    $var: 12px !default;
 
 #### Variable Prefix Character
 {#3-0-0-dollar-prefix}
