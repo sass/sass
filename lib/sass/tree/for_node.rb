@@ -20,6 +20,12 @@ module Sass::Tree
 
     protected
 
+    def to_src(tabs, opts, fmt)
+      to = @exclusive ? "to" : "through"
+      "#{'  ' * tabs}@for $#{@var} from #{@from.to_sass} #{to} #{@to.to_sass}" +
+        children_to_src(tabs, opts, fmt)
+    end
+
     # Runs the child nodes once for each time through the loop,
     # varying the variable each time.
     #

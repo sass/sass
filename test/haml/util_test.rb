@@ -66,11 +66,34 @@ class UtilTest < Test::Unit::TestCase
       merge_adjacent_strings(["foo ", "bar ", "baz", :bang, "biz", " bop", 12]))
   end
 
+  def test_strip_string_array
+    assert_equal(["foo ", " bar ", " baz"],
+      strip_string_array([" foo ", " bar ", " baz "]))
+    assert_equal([:foo, " bar ", " baz"],
+      strip_string_array([:foo, " bar ", " baz "]))
+    assert_equal(["foo ", " bar ", :baz],
+      strip_string_array([" foo ", " bar ", :baz]))
+  end
+
   def test_silence_warnings
     old_stderr, $stderr = $stderr, StringIO.new
     warn "Out"
     assert_equal("Out\n", $stderr.string)
     silence_warnings {warn "In"}
+    assert_equal("Out\n", $stderr.string)
+  ensure
+    $stderr = old_stderr
+  end
+
+  def test_haml_warn
+    assert_warning("Foo!") {haml_warn "Foo!"}
+  end
+
+  def test_silence_haml_warnings
+    old_stderr, $stderr = $stderr, StringIO.new
+    silence_haml_warnings {warn "Out"}
+    assert_equal("Out\n", $stderr.string)
+    silence_haml_warnings {haml_warn "In"}
     assert_equal("Out\n", $stderr.string)
   ensure
     $stderr = old_stderr
@@ -84,6 +107,11 @@ class UtilTest < Test::Unit::TestCase
   def test_enum_with_index
     assert_equal(%w[foo0 bar1 baz2],
       enum_with_index(%w[foo bar baz]).map {|s, i| "#{s}#{i}"})
+  end
+
+  def test_enum_cons
+    assert_equal(%w[foobar barbaz],
+      enum_cons(%w[foo bar baz], 2).map {|s1, s2| "#{s1}#{s2}"})
   end
 
   def test_ord

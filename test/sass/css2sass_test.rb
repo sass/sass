@@ -24,13 +24,10 @@ SASS
     assert_equal(<<SASS, css2sass(<<CSS))
 li
   display: none
-
   a
     text-decoration: none
-
     span
       color: yellow
-
     &:hover
       text-decoration: underline
 SASS
@@ -57,10 +54,8 @@ CSS
 div .warning
   color: #d21a19
 
-
 span .debug
   cursor: crosshair
-
 
 div .debug
   cursor: default
@@ -104,27 +99,34 @@ span.turkey {
 } /* just a line here */
 CSS
     sass = <<SASS
+/* comment
+
 elephant.rawr
   rampages: excessively
 
+/* actual multiline
+  comment
 
 span.turkey
   isdinner: true
 
-
 .turducken
+  /* Sounds funny
+     doesn't it
   chimera: not_really
-
 
 #overhere
   bored: sorta
+  /*                  it's for a good
+     cause
   better_than: thread_pools
-
 
 #one_more
   finally: srsly
+
+/* just a line here
 SASS
-    assert_equal(css2sass(css), sass)
+    assert_equal(sass, css2sass(css))
   end
 
   def test_fold_commas
@@ -145,11 +147,9 @@ CSS
 .one
   color: green
 
-
 .two
   color: green
   color: red
-
 
 .three
   color: red
@@ -168,19 +168,14 @@ CSS
     assert_equal(<<SASS, css2sass(<<CSS))
 hello
   parent: true
-
   there
     parent: false
-
   who
     hoo: false
-
   why
     y: true
-
   when
     wen: nao
-
 
 down_here
   yeah: true
@@ -214,7 +209,6 @@ CSS
   #location-navigation-form .form-submit, #business-listing-form .form-submit, #detailTabs ul, #detailsEnhanced #addTags, #locationSearchList, #moreHoods
     display: none
 
-
 #navListLeft
   display: none
 SASS
@@ -235,7 +229,6 @@ CSS
     assert_equal(<<SASS, css2sass(<<CSS))
 \\:focus
   a: b
-
   \\:foo
     bar: baz
 SASS
@@ -263,7 +256,7 @@ CSS
   end
 
   def test_error_truncate_after
-    css2sass("#{"a" * 15}foo")
+    css2sass("#{"a" * 16}foo")
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => err
     assert_equal(1, err.sass_line)
@@ -271,11 +264,43 @@ CSS
   end
 
   def test_error_truncate_was
-    css2sass("foo }#{"a" * 15}")
+    css2sass("foo }foo#{"a" * 15}")
     assert(false, "Expected exception")
   rescue Sass::SyntaxError => err
     assert_equal(1, err.sass_line)
-    assert_equal('Invalid CSS after "foo ": expected "{", was "}aaaaaaaaaaaaaa..."', err.message)
+    assert_equal('Invalid CSS after "foo ": expected "{", was "}fooaaaaaaaaaaa..."', err.message)
+  end
+
+  def test_error_doesnt_truncate_after_when_elipsis_would_add_length
+    css2sass("#{"a" * 15}foo")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(1, err.sass_line)
+    assert_equal('Invalid CSS after "aaaaaaaaaaaaaaafoo": expected "{", was ""', err.message)
+  end
+
+  def test_error_doesnt_truncate_was_when_elipsis_would_add_length
+    css2sass("foo }foo#{"a" * 14}")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(1, err.sass_line)
+    assert_equal('Invalid CSS after "foo ": expected "{", was "}fooaaaaaaaaaaaaaa"', err.message)
+  end
+
+  def test_error_gets_rid_of_trailing_newline_for_after
+    css2sass("foo  \n  ")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(2, err.sass_line)
+    assert_equal('Invalid CSS after "foo": expected "{", was ""', err.message)
+  end
+
+  def test_error_gets_rid_of_trailing_newline_for_was
+    css2sass("foo \n  }foo")
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => err
+    assert_equal(2, err.sass_line)
+    assert_equal('Invalid CSS after "foo": expected "{", was "}foo"', err.message)
   end
 
   # Encodings

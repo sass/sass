@@ -21,14 +21,7 @@ module Sass::Script
     # @param value [Object] The object for \{#value}
     def initialize(value = nil)
       @value = value
-    end
-
-    # Evaluates the literal.
-    #
-    # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Literal] This literal
-    def perform(environment)
-      self
+      super()
     end
 
     # Returns an empty array.
@@ -109,7 +102,7 @@ MSG
       Sass::Script::Bool.new(!to_bool)
     end
 
-    # The SassScript default operation (e.g. `!a !b`, `"foo" "bar"`).
+    # The SassScript default operation (e.g. `$a $b`, `"foo" "bar"`).
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing both literals
@@ -118,7 +111,7 @@ MSG
       Sass::Script::String.new("#{self.to_s} #{other.to_s}")
     end
 
-    # The SassScript `,` operation (e.g. `!a, !b`, `"foo", "bar"`).
+    # The SassScript `,` operation (e.g. `$a, $b`, `"foo", "bar"`).
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing both literals
@@ -133,6 +126,9 @@ MSG
     # @return [Script::String] A string containing both literals
     #   without any separation
     def plus(other)
+      if other.is_a?(Sass::Script::String)
+        return Sass::Script::String.new(self.to_s + other.value, other.type)
+      end
       Sass::Script::String.new(self.to_s + other.to_s)
     end
 
@@ -154,7 +150,16 @@ MSG
       Sass::Script::String.new("#{self.to_s}/#{other.to_s}")
     end
 
-    # The SassScript unary `-` operation (e.g. `-!a`).
+    # The SassScript unary `+` operation (e.g. `+$a`).
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Script::String] A string containing the literal
+    #   preceded by `"+"`
+    def unary_plus
+      Sass::Script::String.new("+#{self.to_s}")
+    end
+
+    # The SassScript unary `-` operation (e.g. `-$a`).
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing the literal
@@ -163,7 +168,7 @@ MSG
       Sass::Script::String.new("-#{self.to_s}")
     end
 
-    # The SassScript unary `/` operation (e.g. `/!a`).
+    # The SassScript unary `/` operation (e.g. `/$a`).
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing the literal
@@ -205,6 +210,17 @@ MSG
     # @return [String]
     def to_s
       raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Literal must implement #to_s.")
+    end
+    alias_method :to_sass, :to_s
+
+    protected
+
+    # Evaluates the literal.
+    #
+    # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
+    # @return [Literal] This literal
+    def _perform(environment)
+      self
     end
   end
 end

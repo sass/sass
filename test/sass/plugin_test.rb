@@ -5,7 +5,7 @@ require 'fileutils'
 
 class SassPluginTest < Test::Unit::TestCase
   @@templates = %w{
-    complex script parent_ref import alt
+    complex script parent_ref import scss_import alt
     subdir/subdir subdir/nested_subdir/nested_subdir
     options
   }
@@ -50,6 +50,23 @@ class SassPluginTest < Test::Unit::TestCase
     assert_needs_update 'import'
     Sass::Plugin.update_stylesheets
     assert_stylesheet_updated 'basic'
+    assert_stylesheet_updated 'import'
+  end
+
+  def test_update_needed_when_scss_dependency_modified
+    touch 'scss_importee'
+    assert_needs_update 'import'
+    Sass::Plugin.update_stylesheets
+    assert_stylesheet_updated 'scss_importee'
+    assert_stylesheet_updated 'import'
+  end
+
+  def test_scss_update_needed_when_dependency_modified
+    touch 'basic'
+    assert_needs_update 'scss_import'
+    Sass::Plugin.update_stylesheets
+    assert_stylesheet_updated 'basic'
+    assert_stylesheet_updated 'scss_import'
   end
 
   def test_full_exception_handling
@@ -58,11 +75,11 @@ class SassPluginTest < Test::Unit::TestCase
     File.open(tempfile_loc('bork1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...6].join("\n"))
 /*
-Syntax error: Undefined variable: "!bork".
+Syntax error: Undefined variable: "$bork".
         on line 2 of #{template_loc('bork1')}
 
 1: bork
-2:   :bork= !bork
+2:   :bork $bork
 CSS
     end
     File.delete(tempfile_loc('bork1'))
@@ -203,7 +220,7 @@ CSS
     Sass::Plugin.options[:always_update] = false
     touch 'bork1'
     assert_callback(:compilation_error,
-      lambda {|e| e.message == 'Undefined variable: "!bork".'},
+      lambda {|e| e.message == 'Undefined variable: "$bork".'},
       template_loc("bork1"), tempfile_loc("bork1"))
   end
 
@@ -324,12 +341,12 @@ CSS
   end
 
   def assert_needs_update(name)
-    assert(Sass::Plugin.stylesheet_needs_update?(name, template_loc, tempfile_loc),
+    assert(Sass::Plugin.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} to need an update.")
   end
 
   def assert_doesnt_need_update(name)
-    assert(!Sass::Plugin.stylesheet_needs_update?(name, template_loc, tempfile_loc),
+    assert(!Sass::Plugin.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} not to need an update.")
   end
 
@@ -338,12 +355,15 @@ CSS
   end
 
   def reset_mtimes
-    Dir["{#{template_loc},#{tempfile_loc}}/**/*.{css,sass}"].each {|f| File.utime(Time.now, Time.now - 1, f)}
+    atime = Time.now
+    mtime = Time.now - 5
+    Dir["{#{template_loc},#{tempfile_loc}}/**/*.{css,sass,scss}"].each {|f| File.utime(atime, mtime, f)}
   end
 
   def template_loc(name = nil, prefix = nil)
     if name
-      absolutize "#{prefix}templates/#{name}.sass"
+      scss = absolutize "#{prefix}templates/#{name}.scss"
+      File.exists?(scss) ? scss : absolutize("#{prefix}templates/#{name}.sass")
     else
       absolutize "#{prefix}templates"
     end

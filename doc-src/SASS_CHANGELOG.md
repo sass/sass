@@ -5,6 +5,265 @@
 
 ## 2.4.0 (Unreleased)
 
+### Deprecations -- Must Read!
+{#3-0-0-deprecations}
+
+* Using `=` for SassScript properties and variables is deprecated,
+  and will be removed in Sass 3.2.
+  Use `:` instead.
+  See also [this changelog entry](#3-0-0-sass-script-context)
+
+* Because of the above, property values using `:`
+  will be parsed more thoroughly than they were before.
+  Although all valid CSS3 properties
+  as well as most hacks and proprietary syntax should be supported,
+  it's possible that some properties will break.
+  If this happens, please report it to [the Sass mailing list](http://groups.google.com/group/haml).
+
+* In addition, setting the default value of variables
+  with `||=` is now deprecated
+  and will be removed in Sass 3.2.
+  Instead, add `!default` to the end of the value.
+  See also [this changelog entry](#3-0-0-default-flag)
+
+* The `!` prefix for variables is deprecated,
+  and will be removed in Sass 3.2.
+  Use `$` as a prefix instead.
+  See also [this changelog entry](#3-0-0-dollar-prefix).
+
+* The `css2sass` command-line tool has been deprecated,
+  and will be removed in Sass 3.2.
+  Use the new `sass-convert` tool instead.
+  See also [this changelog entry](#3-0-0-sass-convert).
+
+### SCSS (Sassy CSS)
+
+Sass 3 introduces a new syntax known as SCSS
+which is fully compatible with the syntax of CSS3,
+while still supporting the full power of Sass.
+This means that every valid CSS3 stylesheet
+is a valid SCSS file with the same meaning.
+In addition, SCSS understands most CSS hacks
+and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms533754%28VS.85%29.aspx).
+
+SCSS files use the `.scss` extension.
+They can import `.sass` files, and vice-versa.
+Their syntax is fully described in the {file:SASS_REFERENCE.md Sass reference};
+if you're already familiar with Sass, though,
+you may prefer the {file:SCSS_FOR_SASS_USERS.md intro to SCSS for Sass users}.
+
+Since SCSS is a much more approachable syntax for those new to Sass,
+it will be used as the default syntax for the reference,
+as well as for most other Sass documentation.
+The indented syntax will continue to be fully supported, however.
+
+Sass files can be converted to SCSS using the new `sass-convert` command-line tool.
+For example:
+
+    # Convert a Sass file to SCSS
+    $ sass-convert style.sass style.scss
+
+**Note that if you're converting a Sass file written for Sass 2**,
+you should use the `--from sass2` flag.
+For example:
+
+    # Convert a Sass file to SCSS
+    $ sass-convert --from sass2 style.sass style.scss
+
+### Syntax Changes {#3-0-0-syntax-changes}
+
+#### SassScript Context
+{#3-0-0-sass-script-context}
+
+The `=` character is no longer required for properties that use SassScript
+(that is, variables and operations).
+All properties now use SassScript automatically;
+this means that `:` should be used instead.
+Variables should also be set with `:`.
+For example, what used to be
+
+    // Indented syntax
+    .page
+      color = 5px + 9px
+
+should now be
+
+    // Indented syntax
+    .page
+      color: 5px + 9px
+
+This means that SassScript is now an extension of the CSS3 property syntax.
+All valid CSS3 properties are valid SassScript,
+and will compile without modification
+(some invalid properties work as well, such as Microsoft's proprietary `filter` syntax).
+This entails a few changes to SassScript to make it fully CSS3-compatible,
+which are detailed below.
+
+This also means that Sass will now be fully parsing all property values,
+rather than passing them through unchanged to the CSS.
+Although care has been taken to support all valid CSS3,
+as well as hacks and proprietary syntax,
+it's possible that a property that worked in Sass 2 won't work in Sass 3.
+If this happens, please report it to [the Sass mailing list](http://groups.google.com/group/haml).
+
+Note that if `=` is used,
+SassScript will be interpreted as backwards-compatibly as posssible.
+In particular, the changes listed below don't apply in an `=` context.
+
+The `sass-convert` command-line tool can be used
+to upgrade Sass files to the new syntax using the `--in-place` flag.
+For example:
+
+    # Upgrade style.sass:
+    $ sass-convert --in-place style.sass
+
+    # Upgrade all Sass files:
+    $ find -name '*.sass' -exec sass-convert --in-place {} \;
+
+##### Quoted Strings
+
+Quoted strings (e.g. `"foo"`) in SassScript now render with quotes.
+In addition, unquoted strings are no longer deprecated,
+and render without quotes.
+This means that almost all strings that had quotes in Sass 2
+should not have quotes in Sass 3.
+
+Although quoted strings render with quotes when used with `:`,
+they do not render with quotes when used with `#{}`.
+This allows quoted strings to be used for e.g. selectors
+that are passed to mixins.
+
+Strings can be forced to be quoted and unquoted using the new
+\{Sass::Script::Functions#unquote unquote} and \{Sass::Script::Functions#quote quote}
+functions.
+
+##### Division and `/`
+
+Two numbers separated by a `/` character
+are allowed as property syntax in CSS,
+e.g. for the `font` property.
+SassScript also uses `/` for division, however,
+which means it must decide what to do
+when it encounters numbers separated by `/`.
+
+For CSS compatibility, SassScript does not perform division by default.
+However, division will be done in almost all cases where division is intended.
+In particular, SassScript will perform division
+in the following three situations:
+
+1. If the value, or any part of it, is stored in a variable.
+2. If the value is surrounded by parentheses.
+3. If the value is used as part of another arithmetic expression.
+
+For example:
+
+    p
+      font: 10px/8px
+      $width: 1000px
+      width: $width/2
+      height: (500px/2)
+      margin-left: 5px + 8px/2px
+
+is compiled to:
+
+    p {
+      font: 10px/8px;
+      width: 500px;
+      height: 250px;
+      margin-left: 9px; }
+
+##### Variable Defaults
+
+Since `=` is no longer used for variable assignment,
+assigning defaults to variables with `||=` no longer makes sense.
+Instead, the `!default` flag
+should be added to the end of the variable value.
+This syntax is meant to be similar to CSS's `!important` flag.
+For example:
+
+    $var: 12px !default;
+
+#### Variable Prefix Character
+{#3-0-0-dollar-prefix}
+
+The Sass variable character has been changed from `!`
+to the more aesthetically-appealing `$`.
+For example, what used to be
+
+    !width = 13px
+    .icon
+      width = !width
+
+should now be
+
+    $width: 13px
+    .icon
+      width: $width
+
+The `sass-convert` command-line tool can be used
+to upgrade Sass files to the new syntax using the `--in-place` flag.
+For example:
+
+    # Upgrade style.sass:
+    $ sass-convert --in-place style.sass
+
+    # Upgrade all Sass files:
+    $ find -name '*.sass' -exec sass-convert --in-place {} \;
+
+`!` may still be used, but it's deprecated and will print a warning.
+It will be removed in the next version of Sass, 3.2.
+
+#### Variable and Mixin Names
+
+SassScript variable and mixin names may now contain hyphens.
+In fact, they may be any valid CSS3 identifier.
+For example:
+
+    $prettiest-color: #542FA9
+    =pretty-text
+      color: $prettiest-color
+
+In order to allow frameworks like [Compass](http://compass-style.org)
+to use hyphens in variable names
+while maintaining backwards-compatibility,
+variables and mixins using hyphens may be referred to
+with underscores, and vice versa.
+For example:
+
+    $prettiest-color: #542FA9
+    .pretty
+      // Using an underscore instead of a hyphen works
+      color: $prettiest_color
+
+#### Single-Quoted Strings
+
+SassScript now supports single-quoted strings.
+They behave identically to double-quoted strings,
+except that single quotes need to be backslash-escaped
+and double quotes do not.
+
+#### Mixin Definition and Inclusion
+
+Sass now supports the `@mixin` directive as a way of defining mixins (like `=`),
+as well as the `@include` directive as a way of including them (like `+`).
+The old syntax is *not* deprecated,
+and the two are fully compatible.
+For example:
+
+    @mixin pretty-text
+      color: $prettiest-color
+
+    a
+      @include pretty-text
+
+is the same as:
+
+    =pretty-text
+      color: $prettiest-color
+
+    a
+      +pretty-text
+
 ### Colors
 
 SassScript color values are much more powerful than they were before.
@@ -63,8 +322,8 @@ as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
 * The {Sass::Script::Functions#complement complement}
   function returns the complement of a color.
 
-{#watch}
 ### Watching for Updates
+{#3-0-0-watch}
 
 The `sass` command-line utility has a new flag: `--watch`.
 `sass --watch` monitors files or directories for updated Sass files
@@ -118,35 +377,38 @@ In fact, `--update` work exactly the same as `--watch`,
 except that it doesn't continue watching the files
 after the first check.
 
-### Syntax
+### `sass-convert` (née `css2sass`) {#3-0-0-sass-convert}
 
-#### Variable and Mixin Names
+The `sass-convert` tool, which used to be known as `css2sass`,
+has been greatly improved in various ways.
+It now uses a full-fledged CSS3 parser,
+so it should be able to handle any valid CSS3,
+as well as most hacks and proprietary syntax.
 
-SassScript variable and mixin names may now contain hyphens.
+`sass-convert` can now convert between Sass and SCSS.
+This is normally inferred from the filename,
+but it can also be specified using the `--from` and `--to` flags.
 For example:
 
-    !prettiest-color = #542FA9
-    =pretty-text
-      color = !prettiest-color
+    $ generate-sass | sass-convert --from sass --to scss | consume-scss
 
-In order to allow frameworks like [Compass](http://compass-style.org)
-to use hyphens in variable names
-while maintaining backwards-compatibility,
-variables and mixins using hyphens may be referred to
-with underscores, and vice versa.
-For example:
+It's also now possible to convert a file in-place --
+that is, overwrite the old file with the new file.
+This is useful for converting files in the [Sass 2 syntax](#3-0-0-deprecations)
+to the new Sass 3 syntax,
+e.g. by doing `sass-convert --in-place --from sass2 style.sass`.
 
-    !prettiest-color = #542FA9
-    .pretty
-      // Using an underscore instead of a hyphen works
-      color = !prettiest_color
+#### Error Handling
 
-#### Single-Quoted Strings
+Several bug fixes and minor improvements have been made, including:
 
-SassScript now supports single-quoted strings.
-They behave identically to double-quoted strings,
-except that single quotes need to be backslash-escaped
-and double quotes do not.
+* Fixing line-number reporting for errors on the last line of templates
+  that didn't have trailing newlines.
+
+* Only displaying the text for the current line when reporting CSS parsing errors.
+
+* Displaying the expected strings as strings rather than regular expressions
+  whenever possible.
 
 ### Error Backtraces
 
@@ -223,18 +485,6 @@ When the `:compressed` style is used,
 colors will be output as the minimal possible representation.
 This means whichever is smallest of the HTML4 color name
 and the hex representation (shortened to the three-letter version if possible).
-
-### `css2sass` Error Handling
-
-Several bug fixes and minor improvements have been made, including:
-
-* Fixing line-number reporting for errors on the last line of templates
-  that didn't have trailing newlines.
-
-* Only displaying the text for the current line when reporting CSS parsing errors.
-
-* Displaying the expected strings as strings rather than regular expressions
-  whenever possible.
 
 ### Minor Changes
 

@@ -44,7 +44,36 @@ module Sass
         super
       end
 
+      # Converts a node to Sass code that will generate it.
+      #
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the node
+      def to_sass(opts = {})
+        to_src(opts, :sass)
+      end
+
+      # Converts a node to SCSS code that will generate it.
+      #
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The SCSS code corresponding to the node
+      def to_scss(opts = {})
+        to_src(opts, :scss)
+      end
+
       protected
+
+      def to_src(opts, fmt)
+        Haml::Util.enum_cons(children + [nil], 2).map do |child, nxt|
+          child.send("to_#{fmt}", 0, opts) +
+            if nxt &&
+                (child.is_a?(CommentNode) && child.line + child.value.count("\n") + 1 == nxt.line) ||
+                (child.is_a?(ImportNode) && nxt.is_a?(ImportNode) && child.line + 1 == nxt.line)
+              ""
+            else
+              "\n"
+            end
+        end.join.rstrip + "\n"
+      end
 
       # Destructively converts this static Sass node into a static CSS node,
       # and checks that there are no properties at root level.
@@ -75,6 +104,14 @@ module Sass
         result.rstrip!
         return "" if result.empty?
         return result + "\n"
+      end
+
+      # Returns false, because all nodes are allowed at the root of the document
+      # (properties are detected elsewhere post-mixin-resolution).
+      #
+      # @see Node#invalid_child?
+      def invalid_child?(child)
+        false
       end
     end
   end

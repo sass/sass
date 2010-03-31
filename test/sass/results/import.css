@@ -12,6 +12,8 @@ body { font: Arial; background: blue; }
 
 midrule { inthe: middle; }
 
+scss { imported: yes; }
+
 body { font: Arial; background: blue; }
 
 #page { width: 700px; height: 100; }
@@ -24,6 +26,6 @@ body { font: Arial; background: blue; }
 
 @import url(basic.css);
 @import url(../results/complex.css);
-#foo { background-color: #baf; }
+#foo { background-color: #bbaaff; }
 
 nonimported { myconst: hello; otherconst: goodbye; post-mixin: here; }

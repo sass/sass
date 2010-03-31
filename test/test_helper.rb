@@ -19,18 +19,18 @@ module Sass::Script::Functions
 end
 
 class Test::Unit::TestCase
-  def munge_filename(opts)
+  def munge_filename(opts = {})
     return if opts.has_key?(:filename)
-    opts[:filename] = filename_for_test
+    opts[:filename] = filename_for_test(opts[:syntax] || :sass)
   end
 
-  def filename_for_test
+  def filename_for_test(syntax = :sass)
     test_name = caller.
       map {|c| Haml::Util.caller_info(c)[2]}.
       compact.
       map {|c| c.sub(/^(block|rescue) in /, '')}.
       find {|c| c =~ /^test_/}
-    "#{test_name}_inline.sass"
+    "#{test_name}_inline.#{syntax}"
   end
 
   def clean_up_sassc

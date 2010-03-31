@@ -13,6 +13,10 @@ module Sass::Tree
 
     protected
 
+    def to_src(tabs, opts, fmt)
+      "#{'  ' * tabs}@while #{@expr.to_sass}" + children_to_src(tabs, opts, fmt)
+    end
+
     # Runs the child nodes until the continue expression becomes false.
     #
     # @param environment [Sass::Environment] The lexical environment containing

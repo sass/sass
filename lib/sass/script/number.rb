@@ -25,6 +25,8 @@ module Sass::Script
     # @return [Array<String>]
     attr_reader :denominator_units
 
+    attr_accessor :original
+
     # The precision with which numbers will be printed to CSS files.
     # For example, if this is `1000.0`,
     # `3.1415926` will be printed as `3.142`.
@@ -65,7 +67,7 @@ module Sass::Script
       end
     end
 
-    # The SassScript binary `-` operation (e.g. `!a - !b`).
+    # The SassScript binary `-` operation (e.g. `$a - $b`).
     # Its functionality depends on the type of its argument:
     #
     # {Number}
@@ -85,7 +87,14 @@ module Sass::Script
       end
     end
 
-    # The SassScript unary `-` operation (e.g. `-!a`).
+    # The SassScript unary `+` operation (e.g. `+$a`).
+    #
+    # @return [Number] The value of this number
+    def unary_plus
+      self
+    end
+
+    # The SassScript unary `-` operation (e.g. `-$a`).
     #
     # @return [Number] The negative value of this number
     def unary_minus
@@ -127,7 +136,11 @@ module Sass::Script
     # @return [Literal] The result of the operation
     def div(other)
       if other.is_a? Number
-        operate(other, :/)
+        res = operate(other, :/)
+        if self.original && other.original && context != :equals
+          res.original = "#{self.original}/#{other.original}"
+        end
+        res
       else
         super
       end
@@ -214,6 +227,7 @@ module Sass::Script
     # @raise [Sass::SyntaxError] if this number has units that can't be used in CSS
     #   (e.g. `px*in`)
     def to_s
+      return original if original
       raise Sass::SyntaxError.new("#{inspect} isn't a valid CSS value.") unless legal_units?
       inspect
     end
@@ -235,6 +249,7 @@ module Sass::Script
         end
       "#{value}#{unit_str}"
     end
+    alias_method :to_sass, :inspect
 
     # @return [Fixnum] The integer value of the number
     # @raise [Sass::SyntaxError] if the number isn't an integer

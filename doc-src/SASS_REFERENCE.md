@@ -3,20 +3,56 @@
 * Table of contents
 {:toc}
 
-Sass is a meta-language on top of CSS
-that's used to describe the style of a document
-cleanly and structurally,
-with more power than flat CSS allows.
-Sass both provides a simpler, more elegant syntax for CSS
-and implements various features that are useful
-for creating manageable stylesheets.
+Sass is an extension of CSS
+that adds power and elegance to the basic language.
+It allows you to use [variables](#variables_), [nested rules](#nested_rules),
+[mixins](#mixins), [inline imports](#import), and more,
+all with a fully CSS-compatible syntax.
+Sass helps keep large stylesheets well-organized,
+and get small stylesheets up and running quickly,
+particularly with the help of
+[the Compass style library](http://compass-style.org).
 
 ## Features
 
-* Whitespace active
-* Well-formatted output
-* Elegant input
-* Feature-rich
+* Fully CSS3-compatible
+* Language extensions such as variables, nesting, and mixins
+* Many {Sass::Script::Functions useful functions} for manipulating colors and other values
+* Advanced features like [control directives](#control_directives) for libraries
+* Well-formatted, customizable output
+* [Firebug integration](https://addons.mozilla.org/en-US/firefox/addon/103988)
+
+## Syntax
+
+There are two syntaxes available for Sass.
+The first, known as SCSS (Sassy CSS) and used throughout this reference,
+is an extension of the syntax of CSS3.
+This means that every valid CSS3 stylesheet
+is a valid SCSS file with the same meaning.
+In addition, SCSS understands most CSS hacks
+and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms533754%28VS.85%29.aspx).
+This syntax is enhanced with the Sass features described below.
+Files using this syntax have the `.scss` extension.
+
+The second and older syntax, known as the indented syntax (or sometimes just "Sass"),
+provides a more concise way of writing CSS.
+It uses indentation rather than brackets to indicate nesting of selectors,
+and newlines rather than semicolons to separate properties.
+Some people find this to be easier to read and quicker to write than SCSS.
+The indented syntax has all the same features,
+although some of them have slightly different syntax;
+this is described in {file:INDENTED_SYNTAX.md the indented syntax reference}.
+Files using this syntax have the `.sass` extension.
+
+Either syntax can [import](#import) files written in the other.
+Files can be automatically converted from one syntax to the other
+using the `sass-convert` command line tool:
+
+    # Convert Sass to SCSS
+    $ sass-convert style.sass style.scss
+
+    # Convert SCSS to Sass
+    $ sass-convert style.scss style.sass
 
 ## Using Sass
 
@@ -32,22 +68,31 @@ The first step for all of these is to install the Haml gem:
 
     gem install haml
 
+If you're using Windows,
+you may need to [install Ruby](http://rubyinstaller.org/download.html) first.
+
 To run Sass from the command line, just use
 
-    sass input.sass output.css
+    sass input.scss output.css
+
+You can also tell Sass to watch the file and update the CSS
+every time the Sass file changes:
+
+    sass --watch input.scss:output.css
+
+If you have a directory with many Sass files,
+you can also tell Sass to watch the entire directory:
+
+    sass --watch app/sass:public/stylesheets
 
 Use `sass --help` for full documentation.
-At the moment, the command-line tool doesn't support
-updating everything in a directory
-or automatically updating the CSS file when the Sass file changes.
-To do that, check out the [Compass](http://compass-style.org/) Sass framework.
 
 Using Sass in Ruby code is very simple.
 After installing the Haml gem,
 you can use it by running `require "sass"`
-and using Sass::Engine like so:
+and using {Sass::Engine} like so:
 
-    engine = Sass::Engine.new("#main\n  background-color: #0000ff")
+    engine = Sass::Engine.new("#main {background-color: #0000ff}", :syntax => :scss)
     engine.render #=> "#main { background-color: #0000ff; }\n"
 
 ### Rack/Rails/Merb Plugin
@@ -74,10 +119,10 @@ to `config.ru`.
 Sass stylesheets don't work the same as views.
 They don't contain dynamic content,
 so the CSS only needs to be generated when the Sass file has been updated.
-By default, ".sass" files are placed in public/stylesheets/sass
+By default, `.sass` and `.scss` files are placed in public/stylesheets/sass
 (this can be customized with the [`:template_location`](#template_location-option) option).
 Then, whenever necessary, they're compiled into corresponding CSS files in public/stylesheets.
-For instance, public/stylesheets/sass/main.sass would be compiled to public/stylesheets/main.css.
+For instance, public/stylesheets/sass/main.scss would be compiled to public/stylesheets/main.css.
 
 ### Caching
 
@@ -104,24 +149,34 @@ in `environment.rb` in Rails or `config.ru` in Rack...
     Merb::Plugin.config[:sass][:style] = :compact
 
 ...or by passing an options hash to {Sass::Engine#initialize}.
+All relevant options are also available via flags
+to the `sass` command-line executable.
 Available options are:
 
 {#style-option} `:style`
 : Sets the style of the CSS output.
   See [Output Style](#output_style).
 
+{#syntax-option} `:syntax`
+: The syntax of the input file, `:sass` for the indented syntax
+  and `:scss` for the CSS-extension syntax.
+  This is only useful when you're constructing {Sass::Engine} instances yourself;
+  it's automatically set properly when using {Sass::Plugin}.
+  Defaults to `:sass`.
+
 {#property_syntax-option} `:property_syntax`
-: Forces the document to use one syntax for properties.
+: Forces indented-syntax documents to use one syntax for properties.
   If the correct syntax isn't used, an error is thrown.
   `:new` forces the use of a colon or equals sign
   after the property name.
   For example: `color: #0f3`
-  or `width = !main_width`.
+  or `width: $main_width`.
   `:old` forces the use of a colon
   before the property name.
   For example: `:color #0f3`
-  or `:width = !main_width`.
+  or `:width $main_width`.
   By default, either syntax is valid.
+  This has no effect on SCSS documents.
 
 {#cache-option} `:cache`
 : Whether parsed Sass files should be cached,
@@ -139,7 +194,7 @@ Available options are:
   time a controller is accessed,
   as opposed to only when the template has been modified.
   Defaults to false.
-  Only has meaning within Rack, Ruby on Rails,x or Merb.
+  Only has meaning within Rack, Ruby on Rails, or Merb.
 
 {#always_check-option} `:always_check`
 : Whether a Sass template should be checked for updates every
@@ -187,7 +242,8 @@ Available options are:
 {#unix_newlines-option} `:unix_newlines`
 : If true, use Unix-style newlines when writing files.
   Only has meaning on Windows, and only when Sass is writing the files
-  (in Rack, Rails, or Merb, or when using {Sass::Plugin} directly).
+  (in Rack, Rails, or Merb, when using {Sass::Plugin} directly,
+  or when using the command-line executable).
 
 {#filename-option} `:filename`
 : The filename of the file being rendered.
@@ -226,88 +282,28 @@ Available options are:
 : An option that's available for individual applications to set
   to make data available to {Sass::Script::Functions custom Sass functions}.
 
-## CSS Rules
+{#sass2-option} `:sass2`
+: Parses the document using semantics closer to that of Sass v2.
+  Currently, this just means that strings in mixin arguments
+  are treated as though they were in [an `=` context](#sass-script-strings).
 
-Rules in flat CSS have two elements:
-the selector (e.g. `#main`, `div p`, `li a:hover`)
-and the properties (e.g. `color: #00ff00;`, `width: 5em;`).
-Sass has both of these,
-as well as one additional element: nested rules.
-
-### Rules and Selectors
-
-However, some of the syntax is a little different.
-The syntax for selectors is the same,
-but instead of using brackets to delineate the properties that belong to a particular rule,
-Sass uses indentation.
-For example:
-
-    #main p
-      <property>
-      <property>
-      ...
-
-Like CSS, you can stretch selectors over multiple lines.
-However, unlike CSS, you can only do this if each line but the last
-ends with a comma.
-For example:
-
-    .users #userTab,
-    .posts #postsTab
-      <property>
-
-### Properties
-
-There are two different ways to write CSS properties.
-The first is very similar to the how you're used to writing them:
-with a colon between the name and the value.
-However, Sass properties don't have semicolons at the end;
-each property is on its own line, so they aren't necessary.
-For example:
-
-    #main p
-      color: #00ff00
-      width: 97%
-
-is compiled to:
-
-    #main p {
-      color: #00ff00;
-      width: 97% }
-
-The second syntax for properties is slightly different.
-The colon is at the beginning of the property,
-rather than between the name and the value,
-so it's easier to tell what elements are properties just by glancing at them.
-For example:
-
-    #main p
-      :color #00ff00
-      :width 97%
-
-is compiled to:
-
-    #main p {
-      color: #00ff00;
-      width: 97% }
-
-By default, either property syntax may be used.
-If you want to force one or the other,
-see the [`:property_syntax`](#property_syntax-option) option.
+## CSS Extensions
 
 ### Nested Rules
 
-Rules can also be nested within each other.
-This signifies that the inner rule's selector is a child of the outer selector.
+Sass allows CSS rules to be nested within one another.
+The inner rule then only applies within the outer rule's selector.
 For example:
 
-    #main p
-      color: #00ff00
-      width: 97%
+    #main p {
+      color: #00ff00;
+      width: 97%;
 
-      .redbox
-        background-color: #ff0000
-        color: #000000
+      .redbox {
+        background-color: #ff0000;
+        color: #000000;
+      }
+    }
 
 is compiled to:
 
@@ -318,18 +314,20 @@ is compiled to:
         background-color: #ff0000;
         color: #000000; }
 
-This makes insanely complicated CSS layouts with lots of nested selectors very simple:
+This helps avoid repetition of parent selectors,
+and makes complex CSS layouts with lots of nested selectors much simpler.
+For example:
 
-    #main
-      width: 97%
+    #main {
+      width: 97%;
 
-      p, div
-        font-size: 2em
-        a
-          font-weight: bold
+      p, div {
+        font-size: 2em;
+        a { font-weight: bold; }
+      }
 
-      pre
-        font-size: 3em
+      pre { font-size: 3em; }
+    }
 
 is compiled to:
 
@@ -344,72 +342,74 @@ is compiled to:
 
 ### Referencing Parent Selectors: `&`
 
-In addition to the default behavior of inserting the parent selector
-as a CSS parent of the current selector
-(e.g. above, `#main` is the parent of `p`),
-you can have more fine-grained control over what's done with the parent selector
-by using the ampersand character `&` in your selectors.
+Sometimes it's useful to use a nested rule's parent selector
+in other ways than the default.
+For instance, you might want to have special styles
+for when that selector is hovered over
+or for when the body element has a certain class.
+In these cases, you can explicitly specify where the parent selector
+should be inserted using the `&` character.
+For example:
 
-The ampersand is automatically replaced by the parent selector,
-instead of having it prepended.
-This allows you to cleanly create pseudo-classes:
+    a {
+      font-weight: bold;
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+      body.firefox & { font-weight: normal; }
+    }
 
-    a
-      font-weight: bold
-      text-decoration: none
-      &:hover
-        text-decoration: underline
-      &:visited
-        font-weight: normal
-
-Which would become:
+is compiled to:
 
     a {
       font-weight: bold;
       text-decoration: none; }
       a:hover {
         text-decoration: underline; }
-      a:visited {
+      body.firefox a {
         font-weight: normal; }
 
-It also allows you to add selectors at the base of the hierarchy,
-which can be useuful for targeting certain styles to certain browsers:
-
-    #main
-      width: 90%
-      #sidebar
-        float: left
-        margin-left: 20%
-        .ie6 &
-          margin-left: 40%
-
-Which would become:
+`&` will be replaced with the parent selector as it appears in the CSS.
+This means that if you have a deeply nested rule,
+the parent selector will be fully resolved
+before the `&` is replaced.
+For example:
 
     #main {
-      width: 90%; }
-      #main #sidebar {
-        float: left;
-        margin-left: 20%; }
-        .ie6 #main #sidebar {
-          margin-left: 40%; }
+      color: black;
+      a {
+        font-weight: bold;
+        &:hover { color: red; }
+      }
+    }
 
-### Property Namespaces
+is compiled to:
+
+    #main {
+      color: black; }
+      #main a {
+        font-weight: bold; }
+        #main a:hover {
+          color: red; }
+
+### Nested Properties
 
 CSS has quite a few properties that are in "namespaces;"
 for instance, `font-family`, `font-size`, and `font-weight`
 are all in the `font` namespace.
 In CSS, if you want to set a bunch of properties in the same namespace,
 you have to type it out each time.
-Sass offers a shortcut for this:
+Sass provides a shortcut for this:
 just write the namespace one,
-then indent each of the sub-properties within it.
+then nest each of the sub-properties within it.
 For example:
 
-    .funky
-      font:
-        family: fantasy
-        size: 30em
-        weight: bold
+    .funky {
+      font: {
+        family: fantasy;
+        size: 30em;
+        weight: bold;
+      }
+    }
 
 is compiled to:
 
@@ -418,258 +418,67 @@ is compiled to:
       font-size: 30em;
       font-weight: bold; }
 
-### Selector Escaping: `\`
-
-In case, for whatever reason, you need to write a selector
-that begins with a Sass-meaningful character,
-you can escape it with a backslash (`\`).
+The property namespace itself can also have a value.
 For example:
 
-    #main
-      \+div
-        clear: both
+    .funky {
+      font: 2px/3px {
+        family: fantasy;
+        size: 30em;
+        weight: bold;
+      }
+    }
 
 is compiled to:
 
-    #main +div {
-      clear: both; }
+    .funky {
+      font: 2px/3px;
+        font-family: fantasy;
+        font-size: 30em;
+        font-weight: bold; }
 
-## Directives
+## Comments: `/* */` and `//` {#comments}
 
-Directives allow the author to directly issue instructions to the Sass compiler.
-They're prefixed with an at sign, `@`,
-followed by the name of the directive,
-a space, and any arguments to it -
-just like CSS directives.
+Sass supports standard multiline CSS comments with `/* */`,
+as well as single-line comments with `//`.
+The multiline comments are preserved in the CSS output where possible,
+while the single-line comments are removed.
 For example:
 
-    @import red.sass
+    /* This comment is
+     * several lines long.
+     * since it uses the CSS comment syntax,
+     * it will appear in the CSS output. */
+    body { color: black; }
 
-Some directives can also control whether or how many times
-a chunk of Sass is output.
-Those are documented under Control Directives.
-
-### `@import` {#import}
-
-The `@import` directive works in a very similar way to the CSS import directive.
-It can either compile to a literal CSS `@import` directive for a CSS file,
-or it can import a Sass file.
-If it imports a Sass file,
-not only are the rules from that file included,
-but all variables in that file are made available in the current file.
-
-Sass looks for other Sass files in the working directory,
-and the Sass file directory under Rack, Rails, or Merb.
-Additional search directories may be specified
-using the [`:load_paths`](#load_paths-option) option.
-
-`@import` takes a filename with or without an extension.
-If an extension isn't provided,
-Sass will try to find a Sass file with the given basename in the load paths.
-
-For example,
-
-    @import foo.sass
-
-or
-
-    @import foo
-
-would compile to
-
-    .foo {
-      color: #f00; }
-
-whereas
-
-    @import foo.css
-
-would compile to
-
-    @import "foo.css";
-
-#### Partials {#partials}
-
-If you have a Sass file that you want to import
-but don't want to compile to a CSS file,
-you can add an underscore to the beginning of the filename.
-This will tell Sass not to compile it to a normal CSS file.
-You can then refer to these files without using the underscore.
-
-For example, you might have `_colors.sass`.
-Then no `_colors.css` file would be created,
-and you can do
-
-    @import colors.sass
-
-### `@debug`
-
-The `@debug` directive prints the value of a SassScript expression
-to standard error.
-It's useful for debugging Sass files
-that have complicated SassScript going on.
-For example:
-
-    @debug 10em + 12em
-
-outputs:
-
-    Line 1 DEBUG: 22em
-
-### `@font-face`, `@media`, etc.
-
-Sass behaves as you'd expect for normal CSS @-directives.
-For example:
-
-    @font-face
-      font-family: "Bitstream Vera Sans"
-      src: url(http://foo.bar/bvs)
-
-compiles to:
-
-    @font-face {
-      font-family: "Bitstream Vera Sans";
-      src: url(http://foo.bar/bvs); }
-
-and
-
-    @media print
-      #sidebar
-        display: none
-
-      #main
-        background-color: white
-
-compiles to:
-
-    @media print {
-      #sidebar {
-        display: none; }
-
-      #main {
-        background-color: white; } }
-
-## Control Directives
-
-SassScript supports basic control directives for looping and conditional evaluation.
-
-### `@if`
-
-The `@if` statement takes a SassScript expression
-and prints the code nested beneath it if the expression returns
-anything other than `false`:
-
-    p
-      @if 1 + 1 == 2
-        border: 1px solid
-      @if 5 < 3
-        border: 2px dotted
+    // These comments are only one line long each.
+    // They won't appear in the CSS output,
+    // since they use the single-line comment syntax.
+    a { color: green; }
 
 is compiled to:
 
-    p {
-      border: 1px solid; }
+    /* This comment is
+     * several lines long.
+     * since it uses the CSS comment syntax,
+     * it will appear in the CSS output. */
+    body {
+      color: black; }
 
-The `@if` statement can be followed by several `@else if` statements
-and one `@else` statement.
-If the `@if` statement fails,
-the `@else if` statements are tried in order
-until one succeeds or the `@else` is reached.
-For example:
-
-    !type = "monster"
-    p
-      @if !type == "ocean"
-        color: blue
-      @else if !type == "matador"
-        color: red
-      @else if !type == "monster"
-        color: green
-      @else
-        color: black
-
-is compiled to:
-
-    p {
+    a {
       color: green; }
 
-### `@for`
+## SassScript {#sassscript}
 
-The `@for` statement has two forms:
-`@for <var> from <start> to <end>` or
-`@for <var> from <start> through <end>`.
-`<var>` is a variable name, like `!i`,
-and `<start>` and `<end>` are SassScript expressions
-that should return integers.
+In addition to the plain CSS property syntax,
+Sass supports a small set of extensions called SassScript.
+SassScript allows properties to use
+variables, arithmetic, and extra functions.
+SassScript can be used in any property value.
 
-The `@for` statement sets `<var>` to each number
-from `<start>` to `<end>`,
-including `<end>` if `through` is used.
-For example:
-
-    @for !i from 1 through 3
-      .item-#{!i}
-        width = 2em * !i
-
-is compiled to:
-
-    .item-1 {
-      width: 2em; }
-    .item-2 {
-      width: 4em; }
-    .item-3 {
-      width: 6em; }
-
-### `@while`
-
-The `@while` statement repeatedly loops over the nested
-block until the statement evaluates to `false`. This can
-be used to achieve more complex looping than the `@for`
-statement is capable of.
-For example:
-
-    !i = 6
-    @while !i > 0
-      .item-#{!i}
-        width = 2em * !i
-      !i = !i - 2
-
-is compiled to:
-
-    .item-6 {
-      width: 12em; }
-
-    .item-4 {
-      width: 8em; }
-
-    .item-2 {
-      width: 4em; }
-
-## SassScript
-
-In addition to the declarative templating system,
-Sass supports a simple language known as SassScript
-for dynamically computing CSS values and controlling
-the styles and selectors that get emitted.
-
-SassScript can be used as the value for a property
-by using `=` instead of `:`.
-For example:
-
-    color = #123 + #234
-
-is compiled to:
-
-    color: #357;
-
-For old-style properties, the `=` is added but the `:` is retained.
-For example:
-
-    :color = #123 + #234
-
-is compiled to:
-
-    color: #357;
+SassScript can also be used to generate selectors and property names,
+which is useful when writing [mixins](#mixins).
+This is done via [interpolation](#interpolation_).
 
 ### Interactive Shell
 
@@ -688,51 +497,83 @@ and the result printed out for you:
     >> #777 + #888
     white
 
-### Variables: `!`
+### Variables: `$` {#variables_}
 
 The most straightforward way to use SassScript
-is to set and reference variables.
-Variables begin with exclamation marks,
-and are set like so:
+is to use variables.
+Variables begin with dollar signs,
+and are set like CSS properties:
 
-    !width = 5em
+    $width: 5em;
 
-You can then refer to them by putting an equals sign
-after your properties:
+You can then refer to them in properties:
 
-    #main
-      width = !width
+    #main {
+      width: $width;
+    }
 
-Variables that are first defined in a scoped context are only
-available in that context.
+Variables are only available within the level of nested selectors
+where they're defined.
+If they're defined outside of any nested selectors,
+they're available everywhere.
+
+Variables used to use the prefix character `!`;
+this still works, but it's deprecated and prints a warning.
+`$` is the recommended syntax.
+
+Variables also used to be defined with `=` rather than `:`;
+this still works, but it's deprecated and prints a warning.
+`:` is the recommended syntax.
 
 ### Data Types
 
-SassScript supports four data types:
+SassScript supports four main data types:
+
 * numbers (e.g. `1.2`, `13`, `10px`)
-* strings of text (e.g. `"foo"`, `"bar"`, `'baz'`)
+* strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
 
-Any text that doesn't fit into one of those types
-in a SassScript context will cause an error:
+SassScript also supports all other types of CSS property value,
+such as Unicode ranges and `!important` declarations.
+However, it has no special handling for these types.
+They're treated just like unquoted strings.
 
-    p
-      !width = 5em
-      // This will cause an error
-        border = !width solid blue
-      // Use one of the following forms instead:
-      border = "#{!width} solid blue"
-      border = !width "solid" "blue"
+#### Strings {#sass-script-strings}
+
+CSS specifies two kinds of strings: those with quotes,
+such as `"Lucida Grande"` or `'http://sass-lang.com'`,
+and those without quotes, such as `sans-serif` or `bold`.
+SassScript recognizes both kinds,
+and in general if one kind of string is used in the Sass document,
+that kind of string will be used in the resulting CSS.
+
+There is one exception to this, though:
+when using [`#{}` interpolation](#interpolation_),
+quoted strings are unquoted.
+This makes it easier to use e.g. selector names in [mixins](#mixins).
+For example:
+
+    @mixin firefox-message($selector) {
+      body.firefox #{$selector}:before {
+        content: "Hi, Firefox users!"; } }
+
+    @include firefox-message(".header");
 
 is compiled to:
 
-    p {
-      border: 5em solid blue;
-      border: 5em solid blue; }
+    body.firefox .header:before {
+      content: "Hi, Firefox users!"; }
 
+It's also worth noting that when using the [deprecated `=` property syntax](#sassscript),
+all strings are interpreted as unquoted,
+regardless of whether or not they're written with quotes.
 
 ### Operations
+
+All types support equality operations (`==` and `!=`).
+In addition, each type has its own operations
+that it has special support for.
 
 #### Number Operations
 
@@ -740,8 +581,9 @@ SassScript supports the standard arithmetic operations on numbers
 (`+`, `-`, `*`, `/`, `%`),
 and will automatically convert between units if it can:
 
-    p
-      width = 1in + 8pt
+    p {
+      width: 1in + 8pt;
+    }
 
 is compiled to:
 
@@ -755,6 +597,41 @@ and equality operators
 (`==`, `!=`)
 are supported for all types.
 
+##### Division and `/`
+
+CSS allows `/` to appear in property values
+as a way of separating numbers.
+Since SassScript is an extension of the CSS property syntax,
+it must support this, while also allowing `/` to be used for division.
+This means that by default, if two numbers are separated by `/` in SassScript,
+then they will appear that way in the resulting CSS.
+
+However, there are three situations where the `/` will be interpreted as division.
+These cover the vast majority of cases where division is actually used.
+They are:
+
+1. If the value, or any part of it, is stored in a variable.
+2. If the value is surrounded by parentheses.
+3. If the value is used as part of another arithmetic expression.
+
+For example:
+
+    p {
+      font: 10px/8px;             // Plain CSS, no division
+      $width: 1000px;
+      width: $width/2;            // Uses a variable, does division
+      height: (500px/2);          // Uses parentheses, does division
+      margin-left: 5px + 8px/2px; // Uses +, does division
+    }
+
+is compiled to:
+
+    p {
+      font: 10px/8px;
+      width: 500px;
+      height: 250px;
+      margin-left: 9px; }
+
 #### Color Operations
 
 All arithmetic operations are supported for color values,
@@ -763,8 +640,9 @@ This means that the operation is performed
 on the red, green, and blue components in turn.
 For example:
 
-    p
-      color = #010203 + #040506
+    p {
+      color: #010203 + #040506;
+    }
 
 computes `01 + 04 = 05`, `02 + 05 = 07`, and `03 + 06 = 09`,
 and is compiled to:
@@ -772,12 +650,16 @@ and is compiled to:
     p {
       color: #050709; }
 
-Arithmetic operations even work between numbers and colors,
+Often it's more useful to use {Sass::Script::Functions color functions}
+than to try to use color arithmetic to achieve the same effect.
+
+Arithmetic operations also work between numbers and colors,
 also piecewise.
 For example:
 
-    p
-      color = #010203 * 2
+    p {
+      color: #010203 * 2;
+    }
 
 computes `01 * 2 = 02`, `02 * 2 = 04`, and `03 * 2 = 06`,
 and is compiled to:
@@ -793,47 +675,69 @@ to be done with them.
 The arithmetic doesn't affect the alpha value.
 For example:
 
-    p
-      color = rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75)
+    p {
+      color: rgba(255, 0, 0, 0.75) + rgba(0, 255, 0, 0.75);
+    }
 
 is compiled to:
 
     p {
-      color: rgba(255, 255, 0, 0.75)
+      color: rgba(255, 255, 0, 0.75); }
 
 The alpha channel of a color can be adjusted using the
 {Sass::Script::Functions#opacify opacify} and
 {Sass::Script::Functions#transparentize transparentize} functions.
 For example:
 
-    !translucent-red = rgba(255, 0, 0, 0.5)
-    p
-      color = opacify(!translucent-red, 80%)
-      background-color = transparentize(!translucent-red, 50%)
+    $translucent-red: rgba(255, 0, 0, 0.5);
+    p {
+      color: opacify($translucent-red, 80%);
+      background-color: transparentize($translucent-red, 50%);
+    }
 
 is compiled to:
 
     p {
-      color: rgba(255, 0, 0, 0.9)
-      background-color: rgba(255, 0, 0, 0.25) }
+      color: rgba(255, 0, 0, 0.9);
+      background-color: rgba(255, 0, 0, 0.25); }
 
 #### String Operations
 
 The `+` operation can be used to concatenate strings:
 
-    p
-      cursor = "e" + "-resize"
+    p {
+      cursor: e + -resize;
+    }
 
 is compiled to:
 
     p {
       cursor: e-resize; }
 
+Note that if a quoted string is added to an unquoted string
+(that is, the quoted string is to the left of the `+`),
+the result is a quoted string.
+Likewise, if an unquoted string is added to a quoted string
+(the unquoted string is to the left of the `+`),
+the result is an unquoted string.
+For example:
+
+    p:before {
+      content: "Foo " + Bar;
+      font-family: sans- + "serif"; }
+
+is compiled to:
+
+    p:before {
+      content: "Foo Bar";
+      font-family: sans-serif; }
+
 By default, if two values are placed next to one another,
 they are concatenated with a space:
 
-    p
-      margin = 3px + 4px "auto"
+    p {
+      margin: 3px + 4px auto;
+    }
 
 is compiled to:
 
@@ -843,18 +747,26 @@ is compiled to:
 Within a string of text, #{} style interpolation can be used to
 place dynamic values within the string:
 
-    p
-      border = "#{5px + 10px} solid #ccc"
+    p:before {
+      content: "I ate #{5 + 10} pies!"; }
 
-Finally, SassScript supports `and`, `or`, and `not` operators
+is compiled to:
+
+    p:before {
+      content: "I ate 15 pies!"; }
+
+#### Boolean Operations
+
+SassScript supports `and`, `or`, and `not` operators
 for boolean values.
 
 ### Parentheses
 
 Parentheses can be used to affect the order of operations:
 
-    p
-      width = 1em + (2em * 3)
+    p {
+      width: 1em + (2em * 3);
+    }
 
 is compiled to:
 
@@ -866,8 +778,9 @@ is compiled to:
 SassScript defines some useful functions
 that are called using the normal CSS function syntax:
 
-    p
-      color = hsl(0, 100%, 50%)
+    p {
+      color: hsl(0, 100%, 50%);
+    }
 
 is compiled to:
 
@@ -877,37 +790,38 @@ is compiled to:
 See {Sass::Script::Functions} for a full listing of Sass functions,
 as well as instructions on defining your own in Ruby.
 
-### Interpolation: `#{}`
+### Interpolation: `#{}` {#interpolation_}
 
 You can also use SassScript variables in selectors
 and property names using #{} interpolation syntax:
 
-    !name = foo
-    !attr = border
-    p.#{!name}
-      #{!attr}-color: blue
+    $name: foo;
+    $attr: border;
+    p.#{$name} { #{$attr}-color: blue }
 
 is compiled to:
 
     p.foo {
       border-color: blue; }
 
-### Optional Assignment: `||=`
+### Variable Defaults: `!default`
 
 You can assign to variables if they aren't already assigned
-using the `||=` assignment operator. This means that if the
-variable has already been assigned to, it won't be re-assigned,
+by adding the `!default` flag to the end of the value.
+This means that if the variable has already been assigned to,
+it won't be re-assigned,
 but if it doesn't have a value yet, it will be given one.
 
 For example:
 
-    !content = "First content"
-    !content ||= "Second content?"
-    !new_content ||= "First time reference"
+    $content: "First content";
+    $content: "Second content?" !default;
+    $new_content: "First time reference" !default;
 
-    #main
-      content = !content
-      new-content = !new_content
+    #main {
+      content: $content;
+      new-content: $new_content;
+    }
 
 is compiled to:
 
@@ -915,57 +829,256 @@ is compiled to:
       content: First content;
       new-content: First time reference; }
 
-## Mixins
+## `@`-Rules and Directives {#directives}
 
-Mixins enable you to define groups of CSS properties and
-then include them inline in any number of selectors
-throughout the document. This allows you to keep your
-stylesheets DRY and also avoid placing presentation
-classes in your markup.
+Sass supports all CSS3 `@`-rules,
+as well as some additional Sass-specific ones
+known as "directives."
+These have various effects in Sass, detailed below.
+See also [control directives](#control-directives)
+and [mixin directives](#mixins).
 
-### Defining a Mixin: `=`
+### `@import` {#import}
 
-To define a mixin you use a slightly modified form of selector syntax.
-For example the `large-text` mixin is defined as follows:
+Sass extends the CSS `@import` rule
+to allow it to import SCSS and Sass files.
+All imported SCSS and Sass files will be merged together
+into a single CSS output file.
+In addition, any variables or [mixins](#mixins)
+defined in imported files can be used in the main file.
 
-    =large-text
-      font:
-        family: Arial
-        size: 20px
-        weight: bold
-      color: #ff0000
+Sass looks for other Sass files in the current directory,
+and the Sass file directory under Rack, Rails, or Merb.
+Additional search directories may be specified
+using the [`:load_paths`](#load_paths-option) option,
+or the `--load-path` option on the command line.
 
-The initial `=` marks this as a mixin rather than a standard selector.
-The CSS rules that follow won't be included until the mixin is referenced later on.
-Anything you can put into a standard selector,
-you can put into a mixin definition.
+`@import` takes a filename with or without an extension.
+If the extension is `.css`, it will be treated as a plain CSS `@import` rule.
+If the extension is `.scss` or `.sass`, that file will be imported.
+If there is no extension,
+Sass will try to find a file with that name and the `.scss` or `.sass` extension
+and import it.
+
+For example,
+
+    @import "foo.scss";
+
+or
+
+    @import "foo";
+
+would both import the file `foo.scss`,
+whereas
+
+    @import "foo.css";
+
+would simply compile to
+
+    @import "foo.css";
+
+#### Partials {#partials}
+
+If you have a SCSS or Sass file that you want to import
+but don't want to compile to a CSS file,
+you can add an underscore to the beginning of the filename.
+This will tell Sass not to compile it to a normal CSS file.
+You can then import these files without using the underscore.
+
+For example, you might have `_colors.scss`.
+Then no `_colors.css` file would be created,
+and you can do
+
+    @import "colors";
+
+and `_colors.scss` would be imported.
+
+### `@debug`
+
+The `@debug` directive prints the value of a SassScript expression
+to the standard error output stream.
+It's useful for debugging Sass files
+that have complicated SassScript going on,
+or for printing warnings in libraries.
 For example:
 
-    =clearfix
-      display: inline-block
-      &:after
-        content: "."
-        display: block
-        height: 0
-        clear: both
-        visibility: hidden
-      * html &
-        height: 1px
+    @debug 10em + 12em;
 
-### Mixing It In: `+`
+outputs:
 
-Inlining a defined mixin is simple,
-just prepend a `+` symbol to the name of a mixin defined earlier in the document.
-So to inline the `large-text` defined earlier,
-we include the statment `+large-text` in our selector definition thus:
+    Line 1 DEBUG: 22em
 
-    .page-title
-      +large-text
-      padding: 4px
-      margin:
-        top: 10px
+## Control Directives
 
-This will produce the following CSS output:
+SassScript supports basic control directives
+for including styles only under some conditions
+or including the same style several times with variations.
+
+**Note that control directives are an advanced feature,
+and are not recommended in the course of day-to-day styling**.
+They exist mainly for use in [mixins](#mixins),
+particularly those that are part of libraries like [Compass](http://compass-style.org),
+and so require substantial flexibility.
+
+### `@if`
+
+The `@if` directive takes a SassScript expression
+and uses the styles nested beneath it if the expression returns
+anything other than `false`:
+
+    p {
+      @if 1 + 1 == 2 { border: 1px solid; }
+      @if 5 < 3 { border: 2px dotted; }
+    }
+
+is compiled to:
+
+    p {
+      border: 1px solid; }
+
+The `@if` statement can be followed by several `@else if` statements
+and one `@else` statement.
+If the `@if` statement fails,
+the `@else if` statements are tried in order
+until one succeeds or the `@else` is reached.
+For example:
+
+    $type: monster;
+    p {
+      @if $type == ocean {
+        color: blue;
+      } @else if $type == matador {
+        color: red;
+      } @else if $type == monster {
+        color: green;
+      } @else {
+        color: black;
+      }
+    }
+
+is compiled to:
+
+    p {
+      color: green; }
+
+### `@for`
+
+The `@for` directive has two forms:
+`@for $var from <start> to <end>` or
+`@for $var from <start> through <end>`.
+`$var` can be any variable name, like `$i`,
+and `<start>` and `<end>` are SassScript expressions
+that should return integers.
+
+The `@for` statement sets `$var` to each number
+from `<start>` to `<end>`,
+including `<end>` if `through` is used.
+Then it outputs the nested styles
+using that value of `$var`.
+For example:
+
+    @for $i from 1 through 3 {
+      .item-#{$i} { width: 2em * $i; }
+    }
+
+is compiled to:
+
+    .item-1 {
+      width: 2em; }
+    .item-2 {
+      width: 4em; }
+    .item-3 {
+      width: 6em; }
+
+### `@while`
+
+The `@while` directive takes a SassScript expression
+and repeatedly outputs the nested styles
+until the statement evaluates to `false`.
+This can be used to achieve more complex looping
+than the `@for` statement is capable of,
+although this is rarely necessary.
+For example:
+
+    $i: 6;
+    @while $i > 0 {
+      .item-#{$i} { width: 2em * $i; }
+      $i: $i - 2;
+    }
+
+is compiled to:
+
+    .item-6 {
+      width: 12em; }
+
+    .item-4 {
+      width: 8em; }
+
+    .item-2 {
+      width: 4em; }
+
+## Mixin Directives {#mixins}
+
+Mixins allow you to define styles
+that can be re-used throughout the stylesheet
+without needing to resort to non-semantic classes like `.float-left`.
+Mixins can also contain full CSS rules,
+and anything else allowed elsewhere in a Sass document.
+They can even take [arguments](#mixin-arguments)
+which allows you to produce a wide variety of styles
+with very few mixins.
+
+### Defining a Mixin: `@mixin` {#defining_a_mixin}
+
+Mixins are defined with the `@mixin` directive.
+It's followed by the name of the mixin
+and optionally the [arguments](#mixin-arguments),
+and a block containing the contents of the mixin.
+For example, the `large-text` mixin is defined as follows:
+
+    @mixin large-text {
+      font: {
+        family: Arial;
+        size: 20px;
+        weight: bold;
+      }
+      color: #ff0000;
+    }
+
+Mixins may also contain selectors,
+possibly mixed with properties.
+The selectors can even contain [parent references](#referencing_parent_selectors_).
+For example:
+
+    @mixin clearfix {
+      display: inline-block;
+      &:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+      }
+      * html & { height: 1px }
+    }
+
+### Including a Mixin: `@include` {#including_a_mixin}
+
+Mixins are included in the document
+with the `@include` directive.
+This takes the name of a mixin
+and optionally [arguments to pass to it](#mixin-arguments),
+and includes the styles defined by that mixin
+into the current rule.
+For example:
+
+    .page-title {
+      @include large-text;
+      padding: 4px;
+      margin-top: 10px;
+    }
+
+is compiled to:
 
     .page-title {
       font-family: Arial;
@@ -975,157 +1088,114 @@ This will produce the following CSS output:
       padding: 4px;
       margin-top: 10px; }
 
-Any number of mixins may be defined and there is no limit on
-the number that can be included in a particular selector.
-
-Mixin definitions can also include references to other mixins.
+Mixins may also be included outside of any rule
+(that is, at the root of the document)
+as long as they don't directly define any properties
+or use any parent references.
 For example:
 
-    =compound
-      +highlighted-background
-      +header-text
+    @mixin silly-links {
+      a {
+        color: blue;
+        background-color: red;
+      }
+    }
 
-    =highlighted-background
-      background:
-        color: #fc0
-    =header-text
-      font:
-        size: 20px
+    @include silly-links;
+
+is compiled to:
+
+    a {
+      color: blue;
+      background-color: red; }
+
+Mixin definitions can also include other mixins.
+For example:
+
+    @mixin compound {
+      @include highlighted-background;
+      @include header-text;
+    }
+
+    @mixin highlighted-background { background-color: #fc0; }
+    @mixin header-text { font-size: 20px; }
 
 Mixins that only define descendent selectors, can be safely mixed
 into the top most level of a document.
 
-### Arguments
+### Arguments {#mixin-arguments}
 
-Mixins can take arguments which can be used with SassScript:
+Mixins can take arguments SassScript values as arguments,
+which are given when the mixin is included
+and made available within the mixin as variables.
 
-    =sexy-border(!color)
-      border:
-        color = !color
-        width: 1in
-        style: dashed
-    p
-      +sexy-border("blue")
+When defining a mixin,
+the arguments are written as variable names separated by commas,
+all in parentheses after the name.
+Then when including the mixin,
+values can be passed in in the same manner.
+For example:
+
+    @mixin sexy-border($color, $width) {
+      border: {
+        color: $color;
+        width: $width;
+        style: dashed;
+      }
+    }
+
+    p { @include sexy-border(blue, 1in); }
 
 is compiled to:
 
     p {
-      border-color: #0000ff;
+      border-color: blue;
       border-width: 1in;
       border-style: dashed; }
 
-Mixins can also specify default values for their arguments:
+Mixins can also specify default values for their arguments
+using the normal variable-setting syntax.
+Then when the mixin is included,
+if it doesn't pass in that argument,
+the default value will be used instead.
+For example:
 
-    =sexy-border(!color, !width = 1in)
-      border:
-        color = !color
-        width = !width
-        style: dashed
-    p
-      +sexy-border("blue")
+    @mixin sexy-border($color, $width: 1in) {
+      border: {
+        color: $color;
+        width: $width;
+        style: dashed;
+      }
+    p { @include sexy-border(blue); }
+    h1 { @include sexy-border(blue, 2in); }
 
 is compiled to:
 
     p {
-      border-color: #0000ff;
+      border-color: blue;
       border-width: 1in;
       border-style: dashed; }
 
-## Comments
-
-Sass supports two sorts of comments:
-those that show up in the CSS output
-and those that don't.
-
-### CSS Comments: `/*`
-
-"Loud" comments are just as easy as silent ones.
-These comments output to the document as CSS comments,
-and thus use the same opening sequence: `/*`.
-For example:
-
-    /* A very awesome rule.
-    #awesome.rule
-      /* An equally awesome property.
-      awesomeness: very
-
-becomes
-
-    /* A very awesome rule. */
-    #awesome.rule {
-      /* An equally awesome property. */
-      awesomeness: very; }
-
-You can also nest content beneath loud comments. For example:
-
-    #pbj
-      /* This rule describes
-        the styling of the element
-        that represents
-        a peanut butter and jelly sandwich.
-      background-image: url(/images/pbj.png)
-      color: red
-
-becomes
-
-    #pbj {
-      /* This rule describes
-       * the styling of the element
-       * that represents
-       * a peanut butter and jelly sandwich. */
-      background-image: url(/images/pbj.png);
-      color: red; }
-
-### Sass Comments: `//`
-
-It's simple to add "silent" comments,
-which don't output anything to the CSS document,
-to a Sass document.
-Simply use the familiar C-style notation for a one-line comment, `//`,
-at the normal indentation level and all text following it won't be output.
-For example:
-
-    // A very awesome rule.
-    #awesome.rule
-      // An equally awesome property.
-      awesomeness: very
-
-becomes
-
-    #awesome.rule {
-      awesomeness: very; }
-
-You can also nest text beneath a comment to comment out a whole block.
-For example:
-
-    // A very awesome rule
-    #awesome.rule
-      // Don't use these properties
-        color: green
-        font-size: 10em
-      color: red
-
-becomes
-
-    #awesome.rule {
-      color: red; }
+    h1 {
+      border-color: blue;
+      border-width: 2in;
+      border-style: dashed; }
 
 ## Output Style
 
-Although the default CSS style that Sass outputs is very nice,
-and reflects the structure of the document in a similar way that Sass does,
-sometimes it's good to have other formats available.
+Although the default CSS style that Sass outputs is very nice
+and reflects the structure of the document,
+tastes and needs vary and so Sass supports several other styles.
 
 Sass allows you to choose between four different output styles
-by setting the `:style` option.
-In Rack, Rails, and Merb, this is done by setting `Sass::Plugin.options[:style]`;
-otherwise, it's done by passing an options hash with `:style` set.
+by setting the [`:style` option](#style-option)
+or using the `--style` command-line flag.
 
 ### `:nested`
 
 Nested style is the default Sass style,
-because it reflects the structure of the document
-in much the same way Sass does.
+because it reflects the structure of the CSS styles
+and the HTML document they're styling.
 Each property has its own line,
 but the indentation isn't constant.
 Each rule is indented based on how deeply it's nested.
@@ -1142,14 +1212,13 @@ For example:
       font-weight: bold;
       text-decoration: underline; }
 
-Nested style is very useful when looking at large CSS files
-for the same reason Sass is useful for making them:
-it allows you to very easily grasp the structure of the file
+Nested style is very useful when looking at large CSS files:
+it allows you to easily grasp the structure of the file
 without actually reading anything.
 
 ### `:expanded`
 
-Expanded is the typical human-made CSS style,
+Expanded is a more typical human-made CSS style,
 with each property and rule taking up one line.
 Properties are indented within the rules,
 but the rules aren't indented in any special way.
@@ -1171,13 +1240,12 @@ For example:
 
 ### `:compact`
 
-Compact style, as the name would imply,
-takes up less space than Nested or Expanded.
-However, it's also harder to read.
+Compact style takes up less space than Nested or Expanded.
+It also draws the focus more to the selectors than to their properties.
 Each CSS rule takes up only one line,
 with every property defined on that line.
 Nested rules are placed next to each other with no newline,
-while groups of rules have newlines between them.
+while separate groups of rules have newlines between them.
 For example:
 
     #main { color: #fff; background-color: #000; }
@@ -1190,6 +1258,8 @@ For example:
 Compressed style takes up the minimum amount of space possible,
 having no whitespace except that necessary to separate selectors
 and a newline at the end of the file.
+It also includes some other minor compressions,
+such as choosing the smallest representation for colors.
 It's not meant to be human-readable.
 For example:
 

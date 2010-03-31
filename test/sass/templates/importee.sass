@@ -1,11 +1,11 @@
-!postconst = "goodbye"
+$postconst: goodbye
 
 =postmixin
   post-mixin: here
 
 imported
-  :otherconst = !preconst
-  :myconst = !postconst
+  :otherconst $preconst
+  :myconst $postconst
   +premixin
 
 @import basic

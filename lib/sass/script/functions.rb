@@ -2,7 +2,7 @@ module Sass::Script
   # Methods in this module are accessible from the SassScript context.
   # For example, you can write
   #
-  #     !color = hsl(120deg, 100%, 50%)
+  #     $color = hsl(120deg, 100%, 50%)
   #
   # and it will call {Sass::Script::Functions#hsl}.
   #
@@ -79,6 +79,14 @@ module Sass::Script
   #
   # \{#transparentize} / \{#fade_out #fade-out}
   # : Makes a color more transparent.
+  #
+  # ## String Functions
+  #
+  # \{#unquote}
+  # : Removes the quotes from a string.
+  #
+  # \{#quote}
+  # : Adds quotes to a string.
   #
   # ## Number Functions
   #
@@ -170,6 +178,8 @@ module Sass::Script
       #     assert_type value, :Number
       #
       # Valid types are `:Bool`, `:Color`, `:Number`, and `:String`.
+      # Note that `:String` will match both double-quoted strings
+      # and unquoted identifiers.
       #
       # @param value [Sass::Script::Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
@@ -608,6 +618,36 @@ module Sass::Script
       adjust_hue color, Number.new(180)
     end
 
+    # Removes quotes from a string if the string is quoted,
+    # or returns the same string if it's not.
+    #
+    # @param str [String]
+    # @return [String]
+    # @raise [ArgumentError] if `str` isn't a string
+    # @see #quote
+    # @example
+    # unquote("foo") => foo
+    # unquote(foo) => foo
+    def unquote(str)
+      assert_type str, :String
+      Sass::Script::String.new(str.value, :identifier)
+    end
+
+    # Add quotes to a string if the string isn't quoted,
+    # or returns the same string if it is.
+    #
+    # @param str [String]
+    # @return [String]
+    # @raise [ArgumentError] if `str` isn't a string
+    # @see #unquote
+    # @example
+    # quote("foo") => "foo"
+    # quote(foo) => "foo"
+    def quote(str)
+      assert_type str, :String
+      Sass::Script::String.new(str.value, :string)
+    end
+
     # Converts a decimal number to a percentage.
     # For example:
     #
@@ -673,6 +713,11 @@ module Sass::Script
     # @raise [Sass::SyntaxError] if `value` isn't a number
     def abs(value)
       numeric_transformation(value) {|n| n.abs}
+    end
+
+    def unquote(value)
+      assert_type value, :String
+      Sass::Script::String.new(value.value)
     end
 
     private

@@ -5,7 +5,7 @@ require 'sass'
 require 'sass/callbacks'
 
 module Sass
-  # This module handles the compilation of Sass files.
+  # This module handles the compilation of Sass/SCSS files.
   # It provides global options and checks whether CSS files
   # need to be updated.
   #
@@ -25,9 +25,9 @@ module Sass
   #   puts "Compiling #{template} to #{css}"
   # end
   # Sass::Plugin.update_stylesheets
-  #   #=> Compiling app/sass/screen.sass to public/stylesheets/screen.css
-  #   #=> Compiling app/sass/print.sass to public/stylesheets/print.css
-  #   #=> Compiling app/sass/ie.sass to public/stylesheets/ie.css
+  #   #=> Compiling app/sass/screen.scss to public/stylesheets/screen.css
+  #   #=> Compiling app/sass/print.scss to public/stylesheets/print.css
+  #   #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
   module Plugin
     include Haml::Util
     include Sass::Callbacks
@@ -65,7 +65,7 @@ module Sass
     #
     # @yield [template, css]
     # @yieldparam template [String]
-    #   The location of the Sass file being updated.
+    #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
     define_callback :updating_stylesheet
@@ -81,7 +81,7 @@ module Sass
     #
     # @yield [template, css]
     # @yieldparam template [String]
-    #   The location of the Sass file not being updated.
+    #   The location of the Sass/SCSS file not being updated.
     # @yieldparam css [String]
     #   The location of the CSS file not being generated.
     define_callback :not_updating_stylesheet
@@ -94,7 +94,7 @@ module Sass
     # @yield [error, template, css]
     # @yieldparam error [Exception] The exception that was raised.
     # @yieldparam template [String]
-    #   The location of the Sass file being updated.
+    #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
     define_callback :compilation_error
@@ -142,7 +142,7 @@ module Sass
     define_callback :template_deleted
 
     # Register a callback to be run when Sass deletes a CSS file.
-    # This happens when the corresponding Sass file has been deleted.
+    # This happens when the corresponding Sass/SCSS file has been deleted.
     #
     # @yield [filename]
     # @yieldparam filename [String]
@@ -192,7 +192,7 @@ module Sass
 
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
+    # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
     # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.
@@ -201,7 +201,7 @@ module Sass
     #   A list of files to check for updates
     #   **in addition to those specified by the
     #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
-    #   The first string in each pair is the location of the Sass file,
+    #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
     def update_stylesheets(individual_files = [])
       return if options[:never_update]
@@ -213,32 +213,30 @@ module Sass
       @checked_for_updates = true
       template_locations.zip(css_locations).each do |template_location, css_location|
 
-        Dir.glob(File.join(template_location, "**", "*.sass")).each do |file|
-          # Get the relative path to the file with no extension
-          name = file.sub(template_location.sub(/\/*$/, '/'), "")[0...-5]
+        Dir.glob(File.join(template_location, "**", "*.s[ca]ss")).each do |file|
+          # Get the relative path to the file
+          name = file.sub(template_location.sub(/\/*$/, '/'), "")
+          css = css_filename(name, css_location)
 
           next if forbid_update?(name)
-
-          filename = template_filename(name, template_location)
-          css = css_filename(name, css_location)
-          if options[:always_update] || stylesheet_needs_update?(name, template_location, css_location)
-            update_stylesheet filename, css
+          if options[:always_update] || stylesheet_needs_update?(css, file)
+            update_stylesheet file, css
           else
-            run_not_updating_stylesheet filename, css
+            run_not_updating_stylesheet file, css
           end
         end
       end
     end
 
     # Watches the template directory (or directories)
-    # and updates the CSS files whenever the related Sass files change.
+    # and updates the CSS files whenever the related Sass/SCSS files change.
     # `watch` never returns.
     #
-    # Whenever a change is detected to a Sass file in
+    # Whenever a change is detected to a Sass/SCSS file in
     # {file:SASS_REFERENCE.md#template_location-option `:template_location`},
     # the corresponding CSS file in {file:SASS_REFERENCE.md#css_location-option `:css_location`}
     # will be recompiled.
-    # The CSS files of any Sass files that import the changed file will also be recompiled.
+    # The CSS files of any Sass/SCSS files that import the changed file will also be recompiled.
     #
     # Before the watching starts in earnest, `watch` calls \{#update\_stylesheets}.
     #
@@ -252,7 +250,7 @@ module Sass
     #   A list of files to watch for updates
     #   **in addition to those specified by the
     #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
-    #   The first string in each pair is the location of the Sass file,
+    #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
     def watch(individual_files = [])
       update_stylesheets(individual_files)
@@ -274,7 +272,7 @@ module Sass
       FSSM.monitor do |mon|
         template_locations.zip(css_locations).each do |template_location, css_location|
           mon.path template_location do |path|
-            path.glob '**/*.sass'
+            path.glob '**/*.s[ac]ss'
 
             path.update do |base, relative|
               run_template_modified File.join(base, relative)
@@ -288,7 +286,7 @@ module Sass
 
             path.delete do |base, relative|
               run_template_deleted File.join(base, relative)
-              css = File.join(css_location, relative.gsub(/\.sass$/, '.css'))
+              css = File.join(css_location, relative.gsub(/\.s[ac]ss$/, '.css'))
               try_delete_css css
               update_stylesheets(individual_files)
             end
@@ -368,26 +366,16 @@ module Sass
       end
     end
 
-    def template_filename(name, path)
-      "#{path}/#{name}.sass"
-    end
-
     def css_filename(name, path)
-      "#{path}/#{name}.css"
+      "#{path}/#{name}".gsub(/\.s[ac]ss$/, '.css')
     end
 
     def forbid_update?(name)
       name.sub(/^.*\//, '')[0] == ?_
     end
 
-    def stylesheet_needs_update?(name, template_path, css_path)
-      css_file = css_filename(name, css_path)
-      template_file = template_filename(name, template_path)
-      exact_stylesheet_needs_update?(css_file, template_file)
-    end
-
-    def exact_stylesheet_needs_update?(css_file, template_file)
-      return true unless File.exists?(css_file)
+    def stylesheet_needs_update?(css_file, template_file)
+      return true unless File.exists?(css_file) && File.exists?(template_file)
 
       css_mtime = File.mtime(css_file)
       File.mtime(template_file) > css_mtime ||
@@ -407,11 +395,12 @@ module Sass
     end
 
     def dependencies(filename)
-      File.readlines(filename).grep(/^@import /).map do |line|
-        line[8..-1].split(',').map do |inc|
-          Sass::Files.find_file_to_import(inc.strip, [File.dirname(filename)] + load_paths)
-        end
-      end.flatten.grep(/\.sass$/)
+      Files.tree_for(filename, engine_options).select {|n| n.is_a?(Tree::ImportNode)}.map do |n|
+        next if n.full_filename =~ /\.css$/
+        n.full_filename
+      end.compact
+    rescue Sass::SyntaxError => e
+      [] # If the file has an error, we assume it has no dependencies
     end
   end
 end

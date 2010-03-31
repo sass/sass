@@ -93,17 +93,14 @@ module Haml
       # so they can run their respective programs.
       def process_result
         input, output = @options[:input], @options[:output]
-        input_file, output_file = if input
-                                    [nil, open_file(@args[0], 'w')]
-                                  else
-                                    @options[:filename] = @args[0]
-                                    [open_file(@args[0]), open_file(@args[1], 'w')]
-                                  end
-
-        input  ||= input_file
-        output ||= output_file
-        input  ||= $stdin
-        output ||= $stdout
+        args = @args.dup
+        input ||=
+          begin
+            filename = args.shift
+            @options[:filename] = filename
+            open_file(filename) || $stdin
+          end
+        output ||= open_file(args.shift, 'w') || $stdout
 
         @options[:input], @options[:output] = input, output
       end
@@ -218,6 +215,10 @@ END
       def set_opts(opts)
         super
 
+        opts.on('--scss',
+                'Use the CSS-superset SCSS syntax.') do
+          @options[:for_engine][:syntax] = :scss
+        end
         opts.on('--watch', 'Watch files or directories for changes.',
                            'The location of the generated CSS can be set using a colon:',
                            '  sass --watch input.sass:output.css',
@@ -275,6 +276,7 @@ END
           input = @options[:input]
           output = @options[:output]
 
+          @options[:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
           tree =
             if input.is_a?(File) && !@options[:check_syntax]
               ::Sass::Files.tree_for(input.path, @options[:for_engine])
@@ -533,12 +535,13 @@ END
       end
     end
 
-    # The `css2sass` executable.
-    class CSS2Sass < Generic
+    # The `sass-convert` executable.
+    class SassConvert < Generic
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
-        @module_opts = {}
+        @options[:for_tree] = {}
+        @options[:for_engine] = {}
       end
 
       # Tells optparse how to parse the arguments.
@@ -546,18 +549,45 @@ END
       # @param opts [OptionParser]
       def set_opts(opts)
         opts.banner = <<END
-Usage: css2sass [options] [INPUT] [OUTPUT]
+Usage: sass-convert [options] [INPUT] [OUTPUT]
 
-Description: Transforms a CSS file into corresponding Sass code.
+Description:
+  Converts between CSS, Sass, and SCSS files.
+  E.g. converts from SCSS to Sass,
+  or converts from CSS to SCSS (adding appropriate nesting).
 
 Options:
 END
 
-        opts.on('--old', 'Output the old-style ":prop val" property syntax') do
-          @module_opts[:old] = true
+        opts.on('-F', '--from FORMAT',
+          'The format to convert from. Can be css, scss, sass, or sass2.',
+          'sass2 is the same as sass, but updates more old syntax to new.',
+          'By default, this is inferred from the input filename.',
+          'If there is none, defaults to css.') do |name|
+          @options[:from] = name.downcase.to_sym
         end
 
-        opts.on_tail('-a', '--alternate', 'Ignored') {}
+        opts.on('-T', '--to FORMAT',
+          'The format to convert to. Can be scss or sass.',
+          'By default, this is inferred from the output filename.',
+          'If there is none, defaults to sass.') do |name|
+          @options[:to] = name.downcase.to_sym
+        end
+
+        opts.on('-i', '--in-place',
+          'Convert a file to its own syntax.',
+          'This can be used to update some deprecated syntax.') do
+          @options[:in_place] = true
+        end
+
+        opts.on('--old', 'Output the old-style ":prop val" property syntax.',
+                         'Only meaningful when generating Sass.') do
+          @options[:for_tree][:old] = true
+        end
+
+        opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
+          @options[:for_engine][:cache] = false
+        end
 
         super
       end
@@ -565,14 +595,57 @@ END
       # Processes the options set by the command-line arguments,
       # and runs the CSS compiler appropriately.
       def process_result
+        require 'sass'
         super
-
-        require 'sass/css'
 
         input = @options[:input]
         output = @options[:output]
+        output = input if @options[:in_place]
 
-        output.write(::Sass::CSS.new(input, @module_opts).render)
+        if input.is_a?(File)
+          @options[:from] ||=
+            case input.path
+            when /\.scss$/; :scss
+            when /\.sass$/; :sass
+            when /\.css$/; :css
+            end
+        elsif @options[:in_place]
+          raise "Error: the --in-place option requires a filename."
+        end
+
+        if output.is_a?(File)
+          @options[:to] ||=
+            case output.path
+            when /\.scss$/; :scss
+            when /\.sass$/; :sass
+            end
+        end
+
+        if @options[:from] == :sass2
+          @options[:from] = :sass
+          @options[:for_engine][:sass2] = true
+        end
+
+        @options[:from] ||= :css
+        @options[:to] ||= :sass
+        @options[:for_engine][:syntax] = @options[:from]
+
+        out =
+          ::Haml::Util.silence_haml_warnings do
+            if @options[:from] == :css
+              require 'sass/css'
+              ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
+            else
+              if input.is_a?(File)
+                ::Sass::Files.tree_for(input.path, @options[:for_engine])
+              else
+                ::Sass::Engine.new(input.read, @options[:for_engine]).to_tree
+              end.send("to_#{@options[:to]}", @options[:for_tree])
+            end
+          end
+
+        output = File.open(input.path, 'w') if @options[:in_place]
+        output.write(out)
       rescue ::Sass::SyntaxError => e
         raise e if @options[:trace]
         raise "Syntax error on line #{get_line e}: #{e.message}\n  Use --trace for backtrace"

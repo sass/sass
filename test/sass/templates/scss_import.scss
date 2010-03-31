@@ -1,0 +1,10 @@
+$preconst: hello;
+
+@mixin premixin {pre-mixin: here}
+
+@import "importee.sass";
+
+nonimported {
+  myconst: $preconst;
+  otherconst: $postconst;
+  @include postmixin; }

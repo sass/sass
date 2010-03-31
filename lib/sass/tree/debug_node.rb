@@ -12,16 +12,21 @@ module Sass
 
       protected
 
+      def to_src(tabs, opts, fmt)
+        "#{'  ' * tabs}@debug #{@expr.to_sass}#{semi fmt}\n"
+      end
+
       # Prints the expression to STDERR.
       #
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def _perform(environment)
         res = @expr.perform(environment)
+        res = res.value if res.is_a?(Sass::Script::String)
         if filename
-          STDERR.puts "#{filename}:#{line} DEBUG: #{res}"
+          $stderr.puts "#{filename}:#{line} DEBUG: #{res}"
         else
-          STDERR.puts "Line #{line} DEBUG: #{res}"
+          $stderr.puts "Line #{line} DEBUG: #{res}"
         end
         []
       end

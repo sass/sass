@@ -26,10 +26,19 @@ module Sass
   module Tree
     # The abstract superclass of all parse-tree nodes.
     class Node
+      include Enumerable
+
       # The child nodes of this node.
       #
       # @return [Array<Tree::Node>]
       attr_accessor :children
+
+      # Whether or not this node has child nodes.
+      # This may be true even when \{#children} is empty,
+      # in which case this node has an empty block (e.g. `{}`).
+      #
+      # @return [Boolean]
+      attr_accessor :has_children
 
       # The line of the document on which this node appeared.
       #
@@ -60,6 +69,12 @@ module Sass
         @options = options
       end
 
+      # @private
+      def children=(children)
+        self.has_children ||= !children.empty?
+        @children = children
+      end
+
       # The name of the document on which this node appeared.
       #
       # @return [String]
@@ -73,19 +88,12 @@ module Sass
       # @raise [Sass::SyntaxError] if `child` is invalid
       # @see #invalid_child?
       def <<(child)
+        return if child.nil?
         if msg = invalid_child?(child)
           raise Sass::SyntaxError.new(msg, :line => child.line)
         end
+        self.has_children = true
         @children << child
-      end
-
-      # Return the last child node.
-      #
-      # We need this because {Tree::Node} duck types as an Array for {Sass::Engine}.
-      #
-      # @return [Tree::Node] The last child node
-      def last
-        children.last
       end
 
       # Compares this node and another object (only other {Tree::Node}s will be equal).
@@ -180,6 +188,34 @@ module Sass
         raise e
       end
 
+      # Iterates through each node in the tree rooted at this node
+      # in a pre-order walk.
+      #
+      # @yield node
+      # @yieldparam node [Node] a node in the tree
+      def each(&block)
+        yield self
+        children.each {|c| c.each(&block)}
+      end
+
+      # Converts a node to Sass code that will generate it.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the node
+      def to_sass(tabs = 0, opts = {})
+        to_src(tabs, opts, :sass)
+      end
+
+      # Converts a node to SCSS code that will generate it.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the SCSS code
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the node
+      def to_scss(tabs = 0, opts = {})
+        to_src(tabs, opts, :scss)
+      end
+
       protected
 
       # Computes the CSS corresponding to this particular Sass node.
@@ -258,27 +294,21 @@ module Sass
         children.map {|c| c.perform(environment)}.flatten
       end
 
-      # Replaces SassScript in a chunk of text (via `#{}`)
+      # Replaces SassScript in a chunk of text
       # with the resulting value.
       #
-      # @param text [String] The text to interpolate
+      # @param text [Array<String, Sass::Script::Node>] The text to interpolate
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       # @return [String] The interpolated text
-      def interpolate(text, environment)
-        res = ''
-        rest = Haml::Shared.handle_interpolation text do |scan|
-          escapes = scan[2].size
-          res << scan.matched[0...-2 - escapes]
-          if escapes % 2 == 1
-            res << "\\" * (escapes - 1) << '#{'
-          else
-            res << "\\" * [0, escapes - 1].max
-            res << Script::Parser.new(scan, line, scan.pos - scan.matched_size, filename).
-              parse_interpolated.perform(environment).to_s
-          end
-        end
-        res + rest
+      def run_interp(text, environment)
+        text.map do |r|
+          next r if r.is_a?(String)
+          val = r.perform(environment)
+          # Interpolated strings should never render with quotes
+          next val.value if val.is_a?(Sass::Script::String)
+          val.to_s
+        end.join.strip
       end
 
       # @see Haml::Shared.balance
@@ -292,7 +322,8 @@ module Sass
       # Returns an error message if the given child node is invalid,
       # and false otherwise.
       #
-      # By default, all child nodes are valid.
+      # By default, all child nodes except those only allowed at root level
+      # ({Tree::MixinDefNode}, {Tree::ImportNode}) are valid.
       # This is expected to be overriden by subclasses
       # for which some children are invalid.
       #
@@ -300,7 +331,47 @@ module Sass
       # @return [Boolean, String] Whether or not the child node is valid,
       #   as well as the error message to display if it is invalid
       def invalid_child?(child)
-        false
+        case child
+        when Tree::MixinDefNode
+          "Mixins may only be defined at the root of a document."
+        when Tree::ImportNode
+          "Import directives may only be used at the root of a document."
+        end
+      end
+
+      # Converts a node to Sass or SCSS code that will generate it.
+      #
+      # This method is called by the default \{#to\_sass} and \{#to\_scss} methods,
+      # so that the same code can be used for both with minor variations.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the SCSS code
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @param fmt [Symbol] `:sass` or `:scss`
+      # @return [String] The Sass or SCSS code corresponding to the node
+      def to_src(tabs, opts, fmt)
+        raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #to_#{fmt}.")
+      end
+
+      # Converts the children of this node to a Sass or SCSS string.
+      # This will return the trailing newline for the previous line,
+      # including brackets if this is SCSS.
+      #
+      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @param fmt [Symbol] `:sass` or `:scss`
+      # @return [String] The Sass or CSS code corresponding to the children
+      def children_to_src(tabs, opts, fmt)
+        (fmt == :sass ? "\n" : " {\n") +
+          children.map {|c| c.send("to_#{fmt}", tabs + 1, opts)}.join.rstrip +
+          (fmt == :sass ? "\n" : " }\n")
+      end
+
+      # Returns a semicolon if this is SCSS, or an empty string if this is Sass.
+      #
+      # @param fmt [Symbol] `:sass` or `:scss`
+      # @return [String] A semicolon or the empty string
+      def semi(fmt)
+        fmt == :sass ? "" : ";"
       end
     end
   end

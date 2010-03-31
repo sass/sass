@@ -16,6 +16,24 @@ module Sass
 
       protected
 
+      def to_src(tabs, opts, fmt)
+        args =
+          if @args.empty?
+            ""
+          else
+            '(' + @args.map do |v, d|
+              if d
+                "#{v.to_sass}: #{d.to_sass}"
+              else
+                v.to_sass
+              end
+            end.join(", ") + ')'
+          end
+              
+        "#{'  ' * tabs}#{fmt == :sass ? '=' : '@mixin '}#{@name}#{args}" +
+          children_to_src(tabs, opts, fmt)
+      end
+
       # Loads the mixin into the environment.
       #
       # @param environment [Sass::Environment] The lexical environment containing

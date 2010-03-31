@@ -5,12 +5,7 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class CommentNode < Node
-    # The lines of text nested beneath the comment.
-    #
-    # @return [Array<Sass::Engine::Line>]
-    attr_accessor :lines
-
-    # The text on the same line as the comment starter.
+    # The text of the comment, not including `/*` and `*/`.
     #
     # @return [String]
     attr_accessor :value
@@ -24,7 +19,7 @@ module Sass::Tree
     # @param silent [Boolean] See \{#silent}
     def initialize(value, silent)
       @lines = []
-      @value = value[2..-1].strip
+      @value = normalize_indentation value
       @silent = silent
       super()
     end
@@ -35,7 +30,7 @@ module Sass::Tree
     # @return [Boolean] Whether or not this node and the other object
     #   are the same
     def ==(other)
-      self.class == other.class && value == other.value && silent == other.silent && lines == other.lines
+      self.class == other.class && value == other.value && silent == other.silent
     end
 
     # Returns `true` if this is a silent comment
@@ -44,6 +39,45 @@ module Sass::Tree
     # @return [Boolean]
     def invisible?
       style == :compressed || @silent
+    end
+
+    # @see Node#to_sass
+    def to_sass(tabs, opts = {})
+      content = value.gsub(/\*\/$/, '').rstrip
+      if content =~ /\A[ \t]/
+        # Re-indent SCSS comments like this:
+        #     /* foo
+        #   bar
+        #       baz */
+        content.gsub!(/^/, '   ')
+        content.sub!(/\A([ \t]*)\/\*/, '/*\1')
+      end
+
+      content =
+        unless content.include?("\n")
+          content
+        else
+          content.gsub!(/\n( \*|\/\/)/, "\n  ")
+          spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
+          if spaces >= 2
+            content
+          else
+            content.gsub(/\n#{' ' * spaces}/, "\n  ")
+          end
+        end
+
+      content.gsub!(/^/, '  ' * tabs)
+      content.gsub!(/\A\/\*/, '//') if silent
+      content.rstrip + "\n"
+    end
+
+    def to_scss(tabs, opts = {})
+      spaces = ('  ' * [tabs - value[/^ */].size, 0].max)
+      if silent
+        value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
+      else
+        value
+      end.gsub(/^/, spaces) + "\n"
     end
 
     protected
@@ -59,15 +93,11 @@ module Sass::Tree
     # @see #invisible?
     def _to_s(tabs = 0, _ = nil)
       return if invisible?
-      spaces = '  ' * (tabs - 1)
+      spaces = ('  ' * [tabs - 1 - value[/^ */].size, 0].max)
 
-      content = (value.split("\n") + lines.map {|l| l.text})
-      return spaces + "/* */" if content.empty?
-      content.map! {|l| (l.empty? ? "" : " ") + l}
-      content.first.gsub!(/^ /, '')
-      content.last.gsub!(%r{ ?\*/ *$}, '')
-
-      spaces + "/* " + content.join(style == :compact ? '' : "\n#{spaces} *") + " */"
+      content = value.gsub(/^/, spaces)
+      content.gsub!(/\n +(\* *)?/, ' ') if style == :compact
+      content
     end
 
     # Removes this node from the tree if it's a silent comment.
@@ -79,6 +109,18 @@ module Sass::Tree
     def _perform(environment)
       return [] if @silent
       self
+    end
+
+    private
+
+    def normalize_indentation(str)
+      pre = str.split("\n").inject(str[/^[ \t]*/].split("")) do |pre, line|
+        line[/^[ \t]*/].split("").zip(pre).inject([]) do |arr, (a, b)|
+          break arr if a != b
+          arr + [a]
+        end
+      end.join
+      str.gsub(/^#{pre}/, '')
     end
   end
 end

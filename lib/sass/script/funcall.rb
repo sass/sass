@@ -22,6 +22,7 @@ module Sass
       def initialize(name, args)
         @name = name
         @args = args
+        super()
       end
 
       # @return [String] A string representation of the function call
@@ -29,12 +30,27 @@ module Sass
         "#{name}(#{args.map {|a| a.inspect}.join(', ')})"
       end
 
+      # @see Node#to_sass
+      def to_sass
+        "#{name}(#{args.map {|a| a.to_sass}.join(', ')})"
+      end
+
+      # Returns the arguments to the function.
+      #
+      # @return [Array<Node>]
+      # @see Node#children
+      def children
+        @args
+      end
+
+      protected
+
       # Evaluates the function call.
       #
       # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
       # @return [Literal] The SassScript object that is the value of the function call
       # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
-      def perform(environment)
+      def _perform(environment)
         args = self.args.map {|a| a.perform(environment)}
         ruby_name = name.gsub('-', '_')
         unless Haml::Util.has?(:public_instance_method, Functions, ruby_name) && ruby_name !~ /^__/
@@ -47,14 +63,6 @@ module Sass
       rescue ArgumentError => e
         raise e unless e.backtrace.any? {|t| t =~ /:in `(block in )?(#{name}|perform)'$/}
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
-      end
-
-      # Returns the arguments to the function.
-      #
-      # @return [Array<Node>]
-      # @see Node#children
-      def children
-        @args
       end
     end
   end

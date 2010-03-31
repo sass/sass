@@ -184,7 +184,7 @@ module Sass::Script
     # @deprecated This will be removed in version 3.2.
     # @see #rgb
     def value
-      warn <<END
+      Haml::Util.haml_warn <<END
 DEPRECATION WARNING:
 The Sass::Script::Color #value attribute is deprecated and will be
 removed in version 3.2. Use the #rgb attribute instead.
@@ -381,7 +381,7 @@ END
       return HTML4_COLORS_REVERSE[rgb] if HTML4_COLORS_REVERSE[rgb]
       hex_str
     end
-    alias_method :inspect, :to_s
+    alias_method :to_sass, :to_s
 
     # Returns a string representation of the color.
     #

@@ -11,7 +11,7 @@ module Sass
     # Returns the {Sass::Tree} for the given file,
     # reading it from the Sass cache if possible.
     #
-    # @param filename [String] The path to the Sass file
+    # @param filename [String] The path to the Sass or SCSS file
     # @param options [{Symbol => Object}] The options hash.
     #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
     # @raise [Sass::SyntaxError] if there's an error in the document.
@@ -30,50 +30,59 @@ module Sass
         end
       end
 
-      engine = Sass::Engine.new(text, options.merge(:filename => filename))
+      options = options.merge(:filename => filename)
+      if filename =~ /\.scss$/
+        options = options.merge(:syntax => :scss)
+      elsif filename =~ /\.sass$/
+        options = options.merge(:syntax => :sass)
+      end
+
+      engine = Sass::Engine.new(text, options)
 
       root = engine.to_tree
       try_to_write_sassc(root, compiled_filename, sha, options) if options[:cache]
       root
     end
 
-    # Find the full filename of a Sass or CSS file to import.
+    # Find the full filename of a Sass, SCSS, or CSS file to import.
     # This follows Sass's import rules:
-    # if the filename given ends in `".sass"` or `".css"`,
+    # if the filename given ends in `".sass"`, `".scss"`, or `".css"`,
     # it will try to find that type of file;
-    # otherwise, it will try to find the corresponding Sass file
+    # otherwise, it will try to find the corresponding Sass/SCSS file
     # and fall back on CSS if it's not available.
     #
-    # Any Sass filename returned will correspond to
-    # an actual Sass file on the filesystem.
+    # Any Sass/SCSS filename returned will correspond to
+    # an actual file of the corresponding type on the filesystem.
     # CSS filenames, however, may not;
     # they're expected to be put through directly to the stylesheet
     # as CSS `@import` statements.
     #
     # @param filename [String] The filename to search for
     # @param load_paths [Array<String>] The set of filesystem paths
-    #   to search for Sass files.
+    #   to search for Sass/SCSS files.
     # @return [String] The filename of the imported file.
-    #   This is an absolute path if the file is a `".sass"` file.
-    # @raise [Sass::SyntaxError] if `filename` ends in ``".sass"``
-    #   and no corresponding Sass file could be found.
+    #   This is an absolute path if the file is a `".sass"` or `".scss"` file.
+    # @raise [Sass::SyntaxError] if `filename` ends in `".sass"` or `".scss"`
+    #   and no corresponding Sass/SCSS file could be found.
     def find_file_to_import(filename, load_paths)
-      was_sass = false
+      was_sass = was_scss = false
       original_filename = filename
 
-      if filename[-5..-1] == ".sass"
+      if [".sass", ".scss"].include?(filename[-5..-1])
+        was_sass = filename[-5..-1] == ".sass"
+        was_scss = filename[-5..-1] == ".scss"
         filename = filename[0...-5]
-        was_sass = true
       elsif filename[-4..-1] == ".css"
         return filename
       end
 
-      new_filename = find_full_path("#{filename}.sass", load_paths)
+      new_filename   = find_full_path("#{filename}.sass", load_paths) unless was_scss
+      new_filename ||= find_full_path("#{filename}.scss", load_paths) unless was_sass
 
       return new_filename if new_filename
-      unless was_sass
-        warn <<END
-WARNING: #{filename}.sass not found. Using #{filename}.css instead.
+      unless was_sass || was_scss
+        Haml::Util.haml_warn <<END
+WARNING: Neither #{filename}.sass nor .scss found. Using #{filename}.css instead.
 This behavior is deprecated and will be removed in a future version.
 If you really need #{filename}.css, import it explicitly.
 END
@@ -107,7 +116,7 @@ END
         return Marshal.load(f.read)
       end
     rescue EOFError, TypeError, ArgumentError => e
-      warn "Warning. Error encountered while reading cache #{compiled_filename}: #{e}"
+      Haml::Util.haml_warn "Warning. Error encountered while reading cache #{compiled_filename}: #{e}"
     end
 
     def try_to_write_sassc(root, compiled_filename, sha, options)

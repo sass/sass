@@ -16,6 +16,7 @@ require 'sass/tree/debug_node'
 require 'sass/tree/import_node'
 require 'sass/environment'
 require 'sass/script'
+require 'sass/scss'
 require 'sass/error'
 require 'sass/files'
 require 'haml/shared'
@@ -123,7 +124,7 @@ module Sass
     # The regex that matches and extracts data from
     # properties of the form `name: prop`.
     # @private
-    PROPERTY_NEW = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
+    PROPERTY_NEW = /^([^\s=:"]+)\s*(=|:)(?:\s+|$)(.*)/
 
     # The regex that matches and extracts data from
     # properties of the form `:name prop`.
@@ -136,6 +137,7 @@ module Sass
       :load_paths => ['.'],
       :cache => true,
       :cache_location => './.sass-cache',
+      :syntax => :sass,
     }.freeze
 
     # @param template [String] The Sass template.
@@ -174,8 +176,13 @@ module Sass
     def to_tree
       @template = check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
 
-      root = Tree::RootNode.new(@template)
-      append_children(root, tree(tabulate(@template)).first, true)
+      if @options[:syntax] == :scss
+        root = Sass::SCSS::Parser.new(@template).parse
+      else
+        root = Tree::RootNode.new(@template)
+        append_children(root, tree(tabulate(@template)).first, true)
+      end
+
       root.options = @options
       root
     rescue SyntaxError => e
@@ -286,11 +293,7 @@ MSG
         node.line = line.index
         node.filename = line.filename
 
-        if node.is_a?(Tree::CommentNode)
-          node.lines = line.children
-        else
-          append_children(node, line.children, false)
-        end
+        append_children(node, line.children, false)
       end
 
       node_or_nodes
@@ -298,6 +301,7 @@ MSG
 
     def append_children(parent, children, root)
       continued_rule = nil
+      continued_comment = nil
       children.each do |line|
         child = build_tree(parent, line, root)
 
@@ -320,6 +324,17 @@ MSG
           continued_rule, child = nil, continued_rule
         end
 
+        if child.is_a?(Tree::CommentNode) && child.silent
+          if continued_comment &&
+              child.line == continued_comment.line +
+              continued_comment.value.count("\n") + 1
+            continued_comment.value << "\n" << child.value
+            next
+          end
+
+          continued_comment = child
+        end
+
         check_for_no_children(child)
         validate_and_append_child(parent, child, line, root)
       end
@@ -331,17 +346,6 @@ MSG
     end
 
     def validate_and_append_child(parent, child, line, root)
-      unless root
-        case child
-        when Tree::MixinDefNode
-          raise SyntaxError.new("Mixins may only be defined at the root of a document.",
-            :line => line.index)
-        when Tree::ImportNode
-          raise SyntaxError.new("Import directives may only be used at the root of a document.",
-            :line => line.index)
-        end
-      end
-
       case child
       when Array
         child.each {|c| validate_and_append_child(parent, c, line, root)}
@@ -352,18 +356,10 @@ MSG
 
     def check_for_no_children(node)
       return unless node.is_a?(Tree::RuleNode) && node.children.empty?
-      warning = (node.rules.size == 1) ? <<SHORT : <<LONG
+      Haml::Util.haml_warn(<<WARNING.strip)
 WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
-Selector #{node.rules.first.inspect} doesn't have any properties and will not be rendered.
-SHORT
-
-WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
-Selector
-  #{node.rules.join("\n  ")}
-doesn't have any properties and will not be rendered.
-LONG
-
-      warn(warning.strip)
+This selector doesn't have any properties and will not be rendered.
+WARNING
     end
 
     def parse_line(parent, line, root)
@@ -376,23 +372,23 @@ LONG
           # which begin with ::,
           # as well as pseudo-classes
           # if we're using the new property syntax
-          Tree::RuleNode.new(line.text)
+          Tree::RuleNode.new(parse_interp(line.text))
         else
           parse_property(line, PROPERTY_OLD)
         end
-      when Script::VARIABLE_CHAR
+      when ?!, ?$
         parse_variable(line)
       when COMMENT_CHAR
         parse_comment(line.text)
       when DIRECTIVE_CHAR
         parse_directive(parent, line, root)
       when ESCAPE_CHAR
-        Tree::RuleNode.new(line.text[1..-1])
+        Tree::RuleNode.new(parse_interp(line.text[1..-1]))
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
         if line.text[1].nil? || line.text[1] == ?\s
-          Tree::RuleNode.new(line.text)
+          Tree::RuleNode.new(parse_interp(line.text))
         else
           parse_mixin_include(line, root)
         end
@@ -400,7 +396,7 @@ LONG
         if line.text =~ PROPERTY_NEW_MATCHER
           parse_property(line, PROPERTY_NEW)
         else
-          Tree::RuleNode.new(line.text)
+          Tree::RuleNode.new(parse_interp(line.text))
         end
       end
     end
@@ -411,29 +407,51 @@ LONG
       raise SyntaxError.new("Invalid property: \"#{line.text}\".",
         :line => @line) if name.nil? || value.nil?
 
-      expr = if (eq.strip[0] == SCRIPT_CHAR)
-        parse_script(value, :offset => line.offset + line.text.index(value))
+      if value.strip.empty?
+        expr = Sass::Script::String.new("")
       else
-        value
+        expr = parse_script(value, :offset => line.offset + line.text.index(value))
+
+        if eq.strip[0] == SCRIPT_CHAR
+          expr.context = :equals
+          Script.equals_warning("properties", name,
+            Sass::Tree::PropNode.val_to_sass(expr), false,
+            @line, line.offset + 1, @options[:filename])
+        end
       end
-      Tree::PropNode.new(name, expr, property_regx == PROPERTY_OLD ? :old : :new)
+      Tree::PropNode.new(
+        parse_interp(name), expr,
+        property_regx == PROPERTY_OLD ? :old : :new)
     end
 
     def parse_variable(line)
-      name, op, value = line.text.scan(Script::MATCH)[0]
+      name, op, value, default = line.text.scan(Script::MATCH)[0]
+      guarded = op =~ /^\|\|/
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.",
         :line => @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
         :line => @line) unless name && value
+      Script.var_warning(name, @line, line.offset + 1, @options[:filename]) if line.text[0] == ?!
 
-      Tree::VariableNode.new(name, parse_script(value, :offset => line.offset + line.text.index(value)), op == '||=')
+      expr = parse_script(value, :offset => line.offset + line.text.index(value))
+      if op =~ /=$/
+        expr.context = :equals
+        type = guarded ? "variable defaults" : "variables"
+        Script.equals_warning(type, "$#{name}", expr.to_sass,
+          guarded, @line, line.offset + 1, @options[:filename])
+      end
+
+      Tree::VariableNode.new(name, expr, default || guarded)
     end
 
     def parse_comment(line)
       if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
-        Tree::CommentNode.new(line, line[1] == SASS_COMMENT_CHAR)
+        silent = line[1] == SASS_COMMENT_CHAR
+        Tree::CommentNode.new(
+          format_comment_text(line[2..-1], silent),
+          silent)
       else
-        Tree::RuleNode.new(line)
+        Tree::RuleNode.new(parse_interp(line))
       end
     end
 
@@ -447,6 +465,10 @@ LONG
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
           :line => @line + 1) unless line.children.empty?
         value.split(/,\s*/).map {|f| Tree::ImportNode.new(f)}
+      elsif directive == "mixin"
+        parse_mixin_definition(line)
+      elsif directive == "include"
+        parse_mixin_include(line, root)
       elsif directive == "for"
         parse_for(line, root, value)
       elsif directive == "else"
@@ -482,14 +504,18 @@ LONG
         raise SyntaxError.new("Invalid for directive '@for #{text}': expected #{expected}.")
       end
       raise SyntaxError.new("Invalid variable \"#{var}\".") unless var =~ Script::VALIDATE
+      if var.slice!(0) == ?!
+        offset = line.offset + line.text.index("!" + var) + 1
+        Script.var_warning(var, @line, offset, @options[:filename])
+      end
 
       parsed_from = parse_script(from_expr, :offset => line.offset + line.text.index(from_expr))
       parsed_to = parse_script(to_expr, :offset => line.offset + line.text.index(to_expr))
-      Tree::ForNode.new(var[1..-1], parsed_from, parsed_to, to_name == 'to')
+      Tree::ForNode.new(var, parsed_from, parsed_to, to_name == 'to')
     end
 
     def parse_else(parent, line, text)
-      previous = parent.last
+      previous = parent.children.last
       raise SyntaxError.new("@else must come after @if.") unless previous.is_a?(Tree::IfNode)
 
       if text
@@ -505,8 +531,10 @@ LONG
       nil
     end
 
+    # @private
+    MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_definition(line)
-      name, arg_string = line.text.scan(/^=\s*([^(]+)(.*)$/).first
+      name, arg_string = line.text.scan(MIXIN_DEF_RE).first
       raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
@@ -516,8 +544,10 @@ LONG
       Tree::MixinDefNode.new(name, args)
     end
 
+    # @private
+    MIXIN_INCLUDE_RE = /^(?:\+|@include)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_include(line, root)
-      name, arg_string = line.text.scan(/^\+\s*([^(]+)(.*)$/).first
+      name, arg_string = line.text.scan(MIXIN_INCLUDE_RE).first
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
@@ -532,6 +562,50 @@ LONG
       line = options[:line] || @line
       offset = options[:offset] || 0
       Script.parse(script, line, offset, @options)
+    end
+
+    def format_comment_text(text, silent)
+      content = text.split("\n")
+
+      if content.first && content.first.strip.empty?
+        removed_first = true
+        content.shift
+      end
+
+      return silent ? "//" : "/* */" if content.empty?
+      content.map! {|l| (l.empty? ? "" : " ") + l}
+      content.first.gsub!(/^ /, '') unless removed_first
+      content.last.gsub!(%r{ ?\*/ *$}, '')
+      if silent
+        "//" + content.join("\n//")
+      else
+        "/*" + content.join("\n *") + " */"
+      end
+    end
+
+    def parse_interp(text)
+      self.class.parse_interp(text, @line, :filename => @filename)
+    end
+
+    # It's important that this have strings (at least)
+    # at the beginning, the end, and between each Script::Node.
+    #
+    # @private
+    def self.parse_interp(text, line, options)
+      res = []
+      rest = Haml::Shared.handle_interpolation text do |scan|
+        escapes = scan[2].size
+        res << scan.matched[0...-2 - escapes]
+        if escapes % 2 == 1
+          res << "\\" * (escapes - 1) << '#{'
+        else
+          res << "\\" * [0, escapes - 1].max
+          res << Script::Parser.new(
+            scan, line, scan.pos - scan.matched_size, options).
+            parse_interpolated
+        end
+      end
+      res << rest
     end
   end
 end

@@ -135,6 +135,18 @@ module Haml
       end
     end
 
+    # Destructively strips whitespace from the beginning and end
+    # of the first and last elements, respectively,
+    # in the array (if those elements are strings).
+    #
+    # @param arr [Array]
+    # @return [Array] `arr`
+    def strip_string_array(arr)
+      arr.first.lstrip! if arr.first.is_a?(String)
+      arr.last.rstrip! if arr.last.is_a?(String)
+      arr
+    end
+
     # Returns information about the caller of the previous method.
     #
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
@@ -154,6 +166,26 @@ module Haml
       yield
     ensure
       $stderr = the_real_stderr
+    end
+
+    @@silence_warnings = false
+    # Silences all Haml warnings within a block.
+    #
+    # @yield A block in which no Haml warnings will be printed
+    def silence_haml_warnings
+      old_silence_warnings = @@silence_warnings
+      @@silence_warnings = true
+      yield
+    ensure
+      @@silence_warnings = old_silence_warnings
+    end
+
+    # The same as `Kernel#warn`, but is silenced by \{#silence\_haml\_warnings}.
+    #
+    # @param msg [String]
+    def haml_warn(msg)
+      return if @@silence_warnings
+      warn(msg)
     end
 
     ## Cross Rails Version Compatibility
@@ -324,6 +356,24 @@ MSG
     # @return [Enumerator] The with-index enumerator
     def enum_with_index(enum)
       ruby1_8? ? enum.enum_with_index : enum.each_with_index
+    end
+
+    # A version of `Enumerable#enum_cons` that works in Ruby 1.8 and 1.9.
+    #
+    # @param enum [Enumerable] The enumerable to get the enumerator for
+    # @param n [Fixnum] The size of each cons
+    # @return [Enumerator] The consed enumerator
+    def enum_cons(enum, n)
+      ruby1_8? ? enum.enum_cons(n) : enum.each_cons(n)
+    end
+
+    # A version of `Enumerable#enum_slice` that works in Ruby 1.8 and 1.9.
+    #
+    # @param enum [Enumerable] The enumerable to get the enumerator for
+    # @param n [Fixnum] The size of each slice
+    # @return [Enumerator] The consed enumerator
+    def enum_slice(enum, n)
+      ruby1_8? ? enum.enum_slice(n) : enum.each_slice(n)
     end
 
     # Returns the ASCII code of the given character.

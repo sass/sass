@@ -1,4 +1,4 @@
-!preconst = "hello"
+$preconst: hello
 
 =premixin
   pre-mixin: here
@@ -6,6 +6,6 @@
 @import importee, basic, basic.css, ../results/complex.css, more_partial
 
 nonimported
-  :myconst = !preconst
-  :otherconst = !postconst
+  :myconst $preconst
+  :otherconst $postconst
   +postmixin

@@ -21,7 +21,7 @@ After you convert some HTML to Haml or some CSS to Sass,
 you can run
 
     haml document.haml
-    sass style.sass
+    sass style.scss
 
 to compile them.
 For more information on these commands, check out
@@ -131,169 +131,107 @@ like `if` and `while`:
 Haml provides far more tools than those presented here.
 Check out the reference documentation in the Haml module.
 
-### Sass
+#### Indentation
 
-At its most basic,
-Sass is just another way of writing CSS.
-Although it's very much like normal CSS,
-the basic syntax offers a few helpful features:
-indentation indicates the properties in a rule,
-rather than non-DRY brackets;
-and newlines indicate the end of a properties,
-rather than a semicolon.
-For example:
-
-    #main
-      background-color: #f00
-      width: 98%
-
-becomes:
-
-    #main {
-      background-color: #f00;
-      width: 98% }
-
-However, Sass provides much more than a way to make CSS look nice.
-In CSS, it's important to have accurate selectors,
-so your styles don't just apply to everything.
-However, in order to do this,
-you need to use nested element selectors.
-These get very ugly very quickly.
-I'm sure everyone's had to write something like
-"#main .sidebar .top p h1 a",
-followed by
-"#main .sidebar .top p h1 a:visited" and
-"#main .sidebar .top p h1 a:hover".
-Well, Sass gets rid of that.
-Like Haml, it uses indentation to indicate the structure of the document.
-So, what was:
-
-    #main {
-      width: 90%;
-    }
-    #main p {
-      border-style: solid;
-      border-width: 1px;
-      border-color: #00f;
-    }
-    #main p a {
-      text-decoration: none;
-      font-weight: bold;
-    }
-    #main p a:hover {
-      text-decoration: underline;
-    }
-
-becomes:
-
-    #main
-      width: 90%
-      p
-        border-style: solid
-        border-width: 1px
-        border-color: #00f
-        a
-          text-decoration: none
-          font-weight: bold
-        a:hover
-          text-decoration: underline
-
-Pretty nice, no? Well, it gets better.
-One of the main complaints against CSS is that it doesn't allow variables.
-What if have a color or a width you re-use all the time?
-In CSS, you just have to re-type it each time,
-which is a nightmare when you decide to change it later.
-Not so for Sass!
-You can use the `!` character to set variables.
-Then, if you put `=` after your property name,
-you can set it to a variable.
-For example:
-
-    !note_bg= #55aaff
-
-    #main
-      width: 70%
-      .note
-        background-color = !note_bg
-      p
-        width: 5em
-        background-color = !note_bg
-
-becomes:
-
-    #main {
-      width: 70%; }
-      #main .note {
-        background-color: #55aaff; }
-      #main p {
-        width: 5em;
-        background-color: #55aaff; }
-
-You can even do simple arithmetic operations with variables,
-adding numbers and even colors together:
-
-    !main_bg= #46ar12
-    !main_width= 40em
-
-    #main
-      background-color = !main_bg
-      width = !main_width
-      .sidebar
-        background-color = !main_bg + #333333
-        width = !main_width - 25em
-
-becomes:
-
-    #main {
-      background-color: #46a312;
-      width: 40em; }
-      #main .sidebar {
-        background-color: #79d645;
-        width: 15em; }
-
-Taking the idea of variables a bit further are mixins.
-These let you group whole bunches of CSS properties into a single
-directive and then include those anywhere you want:
-
-    =blue-border
-      border:
-        color: blue
-        width: 2px
-        style: dotted
-
-    .comment
-      +blue-border
-      padding: 2px
-      margin: 10px 0
-
-    .reply
-      +blue-border
-
-becomes:
-
-    .comment {
-      border-color: blue;
-      border-width: 2px;
-      border-style: dotted;
-      padding: 2px;
-      margin: 10px 0;
-    }
-
-    .reply {
-      border-color: blue;
-      border-width: 2px;
-      border-style: dotted;
-    }
-
-A comprehensive list of features is in
-the documentation for the Sass module.
-
-## Indentation
-
-Indentation can be made up of one or more tabs or spaces.
+Haml's indentation can be made up of one or more tabs or spaces.
 However, indentation must be consistent within a given document.
 Hard tabs and spaces can't be mixed,
 and the same number of tabs or spaces must be used throughout.
+
+### Sass
+
+Sass is an extension of CSS
+that adds power and elegance to the basic language.
+It allows you to use [variables][vars], [nested rules][nested],
+[mixins][mixins], [inline imports][imports],
+and more, all with a fully CSS-compatible syntax.
+Sass helps keep large stylesheets well-organized,
+and get small stylesheets up and running quickly,
+particularly with the help of
+[the Compass style library](http://compass-style.org).
+
+[vars]:    http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md#variables_
+[nested]:  http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md#nested_rules_
+[mixins]:  http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#mixins
+[imports]: http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md#import
+
+Sass has two syntaxes.
+The one presented here, known as "SCSS" (for "Sassy CSS"),
+is fully CSS-compatible.
+The other (older) syntax, known as the indented syntax or just "Sass",
+is whitespace-sensitive and indentation-based.
+For more information, see the [reference documentation][syntax].
+
+[syntax]: http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md#syntax
+
+To run the following examples and see the CSS they produce,
+put them in a file called `test.scss` and run `sass test.scss`.
+
+#### Nesting
+
+Sass avoids repetition by nesting selectors within one another.
+The same thing works for properties.
+
+    table.hl {
+      margin: 2em 0;
+      td.ln { text-align: right; }
+    }
+
+    li {
+      font: {
+        family: serif;
+        weight: bold;
+        size: 1.2em;
+      }
+    }
+
+#### Variables
+
+Use the same color all over the place?
+Need to do some math with height and width and text size?
+Sass supports variables, math operations, and many useful functions.
+
+    $blue: #3bbfce;
+    $margin: 16px;
+
+    .content_navigation {
+      border-color: $blue;
+      color: darken($blue, 10%);
+    }
+
+    .border {
+      padding: $margin / 2;
+      margin: $margin / 2;
+      border-color: $blue;
+    }
+
+#### Mixins
+
+Even more powerful than variables,
+mixins allow you to re-use whole chunks of CSS,
+properties or selectors.
+You can even give them arguments. 
+
+    @mixin table-scaffolding {
+      th {
+        text-align: center;
+        font-weight: bold;
+      }
+      td, th { padding: 2px; }
+    }
+
+    @mixin left($dist) {
+      float: left;
+      margin-left: $dist;
+    }
+
+    #data {
+      @include left(10px);
+      @include table-scaffolding;
+    }
+
+A comprehensive list of features is available
+in the [Sass reference](http://sass-lang.org/docs/yardoc/file.SASS_REFERENCE.md).
 
 ## Executables
 
@@ -318,10 +256,11 @@ Since HTML is so variable, this transformation is not always perfect;
 it's a good idea to have a human check the output of this tool.
 See `html2haml --help` for further information and options.
 
-### `css2sass`
+### `sass-convert`
 
-The `css2sass` executable attempts to transform CSS into Sass code.
-This transformation attempts to use Sass nesting where possible.
+The `sass-convert` executable converts between CSS, Sass, and SCSS.
+When converting from CSS to Sass or SCSS,
+nesting is applied where appropriate.
 See `css2sass --help` for further information and options.
 
 ## Authors
