@@ -127,8 +127,8 @@ if they are, the directive will always be interpreted
 as a plain CSS `@import` rule.
 For example, this SCSS:
 
-    @import "themes/dark"
-    @import "font.sass"
+    @import "themes/dark";
+    @import "font.sass";
 
 would be this Sass:
 
