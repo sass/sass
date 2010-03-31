@@ -1,14 +1,48 @@
 # Intro to SCSS for Sass Users
 
-In Sass 3, a new syntax is available.
-This new syntax is called SCSS
-and it is an extension of CSS
-with the full power of Sass at your disposal.
+Sass 3 introduces a new syntax known as SCSS
+which is fully compatible with the syntax of CSS3,
+while still supporting the full power of Sass.
+This means that every valid CSS3 stylesheet
+is a valid SCSS file with the same meaning.
+In addition, SCSS understands most CSS hacks
+and vendor-specific syntax, such as [IE's old `filter` syntax](http://msdn.microsoft.com/en-us/library/ms533754%28VS.85%29.aspx).
+
+Since SCSS is a CSS extension,
+everything that works in CSS works in SCSS.
+This means that for a Sass user to understand it,
+they need only understand how the Sass extensions work.
+Most of these, such as variables, parent references, and directives work the same;
+the only difference is that SCSS requires semicolons
+and brackets instead of newlines and indentation.
+For example, a simple rule in Sass:
+
+    #sidebar
+      width: 30%
+      background-color: #faa
+
+could be converted to SCSS just by adding brackets and semicolons:
+
+    #sidebar {
+      width: 30%;
+      background-color: #faa;
+    }
+
+In addition, SCSS is completely whitespace-insensitive.
+That means the above could also be written as:
+
+    #sidebar {width: 30%; background-color: #faa}
+
+There are some differences that are slightly more complicated.
+These are detailed below.
+Note, though, that SCSS uses all the
+{file:SASS_CHANGELOG.md#3-0-0-syntax-changes syntax changes in Sass 3},
+so make sure you understand those before going forward.
 
 ## Nested Selectors
 
 To nest selectors, simply define a new ruleset
-inside a selector's ruleset.
+inside an existing ruleset:
 
     #sidebar {
       a { text-decoration: none; }
@@ -23,33 +57,27 @@ so you can also do it like this:
 ## Nested Properties
 
 To nest properties,
-simply create a new property set after the colon:
+simply create a new property set
+after an existing property's colon:
 
     #footer {
       border: {
         width: 1px;
         color: #ccc;
         style: solid;
-      };
+      }
     }
 
-Generates:
+This compiles to:
 
     #footer {
       border-width: 1px;
       border-color: #cccccc;
       border-style: solid; }
 
-
-## Semi-colons
-
-Just like in CSS, you can now separate properties with a semi-colon.
-
-    a { text-decoration: none; font-weight: bold; }
-
 ## Mixins
 
-A Mixin is declared with the @mixin directive:
+A mixin is declared with the `@mixin` directive:
 
     @mixin rounded($amount) {
       -moz-border-radius: $amount;
@@ -57,77 +85,71 @@ A Mixin is declared with the @mixin directive:
       border:radius: $amount;
     }
 
-A Mixin is used with the @include directive:
+A mixin is used with the `@include` directive:
 
     .box {
       border: 3px solid #777;
       @include rounded(0.5em);
     }
 
-Existing sass users might complain that this is quite verbose
-compared to the = and + special characters used in Sass syntax.
-This is true, but CSS is a verbose format already,
+This syntax is also available in the indented syntax,
+although the old `=` and `+` syntax still works.
+
+This is rather verbose compared to the `=` and `+` characters used in Sass syntax.
+This is because the SCSS format is designed for CSS compatibility rather than conciseness,
 and creating new syntax when the CSS directive syntax already exists
-is unnecessary and might make supporting future versions of CSS more difficult or impossible.
+adds new syntax needlessly and
+could create incompatibilities with future versions of CSS.
 
-## Variables
+## Comments
 
-Note: This is true for the Sass syntax in Sass 3 as well.
+Like Sass, SCSS supports both comments that are preserved in the CSS output
+and comments that aren't.
+However, SCSS's comments are significantly more flexible.
+It supports standard multiline CSS comments with `/* */`,
+which are preserved where possible in the output.
+These comments can have whatever formatting you like;
+Sass will do its best to format them nicely.
 
-Variables begin with a dollar sign ($) and can be assigned any legal css identifier.
-Like properties in css, the value comes after a colon instead of an equals sign.
+SCSS also uses `//` for comments that are thrown away, like Sass.
+Unlike Sass, though, `//` comments in SCSS may appear anywhere
+and last only until the end of the line.
 
-    $sidebar-bg : #f7f;
-    $sidebar-border-style: solid;
-
-## Defaulting Variables
-
-Note: This is true for the Sass syntax in Sass 3 as well.
-
-If you want to provide a default value for a variable
-you can do so with the `!default` modifier.
 For example:
 
-    $sidebar-bg: #f7f;
-    $previously-unset: blue !default; // is assigned the value of blue
-    $sidebar-bg: red !default; // is still #f7f
+    /* This comment is
+     * several lines long.
+     * since it uses the CSS comment syntax,
+     * it will appear in the CSS output. */
+    body { color: black; }
 
-In sass, this used to be done with the `||=` assignment operator.
+    // These comments are only one line long each.
+    // They won't appear in the CSS output,
+    // since they use the single-line comment syntax.
+    a { color: green; }
 
-# No More "Script Context"
+is compiled to:
 
-Note: This is true for the Sass syntax in Sass 3 as well.
+    /* This comment is
+     * several lines long.
+     * since it uses the CSS comment syntax,
+     * it will appear in the CSS output. */
+    body {
+      color: black; }
 
-In Sass 2, you could only perform sass script operations in a script context.
-That was after a `=` or within `#{}`.
-In Sass 3, you can use SassScript in any value context.
-And so use of the `=` operator has been deprecated.
-However, you can still use `#{}` in all the places where you used to be able to.
+    a {
+      color: green; }
 
-## Identifiers & Strings
+## `@import`
 
-Note: This is true for the Sass syntax in Sass 3 as well.
+The `@import` directive in SCSS functions just like that in Sass,
+except that it takes a quoted string to import.
+For example, this Sass:
 
-In Sass 2, when the sass parser encountered `solid` in a script context
-it would become a string just like if you had typed `"solid"`.
-In Sass 2.2 this behavior was deprecated and strings required quotes in all cases --
-but strings would drop their quotes when they arrived in the generated css file.
+    @import themes/dark
+    @import font.sass
 
-In Sass 3, all of this strangeness is gone.
-If it's a string with quotes in Sass,
-it'll be a string with quotes in the generated css,
-and if it's an identifier without quotes in a sass file,
-it'll be an identifier in the generated css file.
-If you need to convert a string to an indentifier,
-use the unquote() function or the quote() function to convert in the other direction.
+would be this SCSS:
 
-One exception: When a string is returned from an interpolated escape,
-it is automatically unquoted for you.
-This is because interpolation is most commonly used with selectors
-and should be largely unnecessary in values in sass 3.
-
-    $a-string: "quoted";
-    $an-ident: unquoted;
-    my-#{$an-ident} { color: $a-string; } /* my-unquoted { color: "quoted"; } */
-    my-#{$a-string} { color: $an-ident; } /* my-quoted { color: unquoted; } */
-    my-#{$a-string} { color: #{$a-string}; } // my-quoted { color: quoted; }
+    @import "themes/dark";
+    @import "font.sass";
