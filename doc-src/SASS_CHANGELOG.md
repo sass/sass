@@ -13,6 +13,9 @@ The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
 
 * Don't die when using `--watch` under certain Windows configurations.
 
+* Fix an exception that was raised when using the `:debug_info` option
+  with Ruby 1.9.
+
 ## 3.0.0.beta.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.1).

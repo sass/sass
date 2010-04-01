@@ -316,7 +316,7 @@ module Sass::Tree
       debug_info.map {|k, v| [k.to_s, v.to_s]}.sort.each do |k, v|
         rule = RuleNode.new([""])
         rule.resolved_rules = [[k.to_s.gsub(/[^\w-]/, "\\\\\\0")]]
-        prop = PropNode.new("", "", :new)
+        prop = PropNode.new([""], "", :new)
         prop.resolved_name = "font-family"
         prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
         rule << prop
