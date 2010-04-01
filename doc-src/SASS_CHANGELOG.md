@@ -9,6 +9,10 @@
 
 The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
 
+### Bug Fixes
+
+* Don't die when using `--watch` under certain Windows configurations.
+
 ## 3.0.0.beta.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.1).

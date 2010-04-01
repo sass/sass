@@ -372,7 +372,7 @@ MSG
         # Almost any real Unix terminal will support color,
         # so we just filter for Windows terms (which don't set TERM)
         # and not-real terminals, which aren't ttys.
-        return str if ENV["TERM"].empty? || !STDOUT.tty?
+        return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
         return "\e[#{COLORS[color]}m#{str}\e[0m"
       end
     end
