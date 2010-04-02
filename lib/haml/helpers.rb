@@ -348,7 +348,9 @@ MESSAGE
         haml_buffer.capture_position = position
         block.call(*args)
 
-        captured = haml_buffer.buffer.slice!(position..-1).split(/^/)
+        captured = haml_buffer.buffer.slice!(position..-1)
+        return captured if haml_buffer.options[:ugly]
+        captured = captured.split(/^/)
 
         min_tabs = nil
         captured.each do |line|
