@@ -46,6 +46,8 @@ module Sass::Script
       if type == :identifier
         if context == :equals && Sass::SCSS::RX.escape_ident(self.value).include?(?\\)
           return "unquote(#{Sass::Script::String.new(self.value, :string).to_sass})"
+        elsif context == :equals && self.value.size == 0
+          return "\"\""
         end
         return self.value
       end
