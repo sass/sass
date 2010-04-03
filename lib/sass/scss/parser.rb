@@ -366,12 +366,12 @@ module Sass
 
       def simple_selector_sequence
         # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
-        return expr unless e = element_name || tok(HASH) || class_expr ||
+        return expr unless e = element_name || id_selector || class_selector ||
           attrib || negation || pseudo || parent_selector || interpolation
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = element_name || tok(HASH) || class_expr ||
+        while v = element_name || id_selector || class_selector ||
             attrib || negation || pseudo || tok(/\*/) || interpolation
           res << v
         end
@@ -382,9 +382,32 @@ module Sass
         tok(/&/)
       end
 
-      def class_expr
+      def class_selector
         return unless tok(/\./)
-        '.' + tok!(IDENT)
+        res = ['.']
+        while tok?(INTERP_START) or tok?(IDENT)
+          res << if tok?(INTERP_START)
+            interpolation
+          else
+            tok(IDENT)
+          end
+        end
+        tok!(IDENT) if res.size == 1
+        res
+      end
+
+      def id_selector
+        return unless tok?(HASH) or tok?(/##{INTERP_START}/)
+        res = [tok(/#/)]
+        while tok?(INTERP_START) or tok?(NAME)
+          res << if tok?(INTERP_START)
+            interpolation
+          else
+            tok(NAME)
+          end
+        end
+        tok!(NAME) if res.size == 1
+        res
       end
 
       def element_name
@@ -455,7 +478,7 @@ module Sass
         return unless tok(NOT)
         res = [":not(", str{ss}]
         @expected = "selector"
-        res << (element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo))
+        res << (element_name || id_selector || class_selector || attrib || expr!(:pseudo))
         res << tok!(/\)/)
       end
 
@@ -553,7 +576,7 @@ MESSAGE
       end
 
       def interpolation
-        return unless tok(/#\{/)
+        return unless tok(INTERP_START)
         sass_script(:parse_interpolated)
       end
 

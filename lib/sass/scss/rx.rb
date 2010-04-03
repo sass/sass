@@ -107,6 +107,7 @@ module Sass
 
       # Custom
       HEXCOLOR = /\#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?/
+      INTERP_START = /#\{/
     end
   end
 end

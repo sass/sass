@@ -631,6 +631,16 @@ foo:nth-child(\#{5 + "n"}) {a: b}
 SCSS
   end
 
+  def test_selector_interpolation_for_class_and_id
+    assert_equal <<CSS, render(<<SCSS)
+#zzz.zzz {
+  a: b; }
+CSS
+$zzz: zzz;
+#\#{$zzz}.\#{$zzz} { a: b; }
+SCSS
+  end
+
   def test_basic_prop_val_interpolation
     assert_equal <<CSS, render(<<SCSS)
 foo {
