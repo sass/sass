@@ -238,7 +238,7 @@ module Sass::Script
     # as long as there is only one unit.
     #
     # @return [String] The representation
-    def inspect
+    def inspect(opts = {})
       value =
         if self.value.is_a?(Float) && (self.value.infinite? || self.value.nan?)
           self.value

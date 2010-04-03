@@ -375,7 +375,7 @@ END
     # but if the color has a name that's used instead.
     #
     # @return [String] The string representation
-    def to_s
+    def to_s(opts = {})
       return rgba_str if alpha?
       return smallest if options[:style] == :compressed
       return HTML4_COLORS_REVERSE[rgb] if HTML4_COLORS_REVERSE[rgb]

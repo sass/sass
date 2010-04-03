@@ -585,6 +585,10 @@ END
           @options[:in_place] = true
         end
 
+        opts.on('--dasherize', 'Convert underscores to dashes') do
+          @options[:dasherize] = true
+        end
+
         opts.on('--old', 'Output the old-style ":prop val" property syntax.',
                          'Only meaningful when generating Sass.') do
           @options[:for_tree][:old] = true

@@ -10,7 +10,7 @@ module Sass::Script
     alias_method :to_bool, :value
 
     # @return [String] "true" or "false"
-    def to_s
+    def to_s(opts = {})
       @value.to_s
     end
     alias_method :to_sass, :to_s

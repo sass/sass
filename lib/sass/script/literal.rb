@@ -218,7 +218,7 @@ MSG
     # as it would be output to the CSS document.
     #
     # @return [String]
-    def to_s
+    def to_s(opts = {})
       raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Literal must implement #to_s.")
     end
     alias_method :to_sass, :to_s

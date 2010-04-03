@@ -366,6 +366,14 @@ module Sass
           (fmt == :sass ? "\n" : " }\n")
       end
 
+      def dasherize(s, opts)
+        if opts[:dasherize]
+          s.gsub(/_/,'-')
+        else
+          s
+        end
+      end
+
       # Returns a semicolon if this is SCSS, or an empty string if this is Sass.
       #
       # @param fmt [Symbol] `:sass` or `:scss`

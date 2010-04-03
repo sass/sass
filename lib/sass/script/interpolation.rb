@@ -9,16 +9,16 @@ module Sass::Script
     end
 
     def inspect
-      "(interpolation #{@before.inspect} #{@mid.inspect} #{after.inspect})"
+      "(interpolation #{@before.inspect} #{@mid.inspect} #{@after.inspect})"
     end
 
-    def to_sass
+    def to_sass(opts = {})
       res = ""
-      res << @before.to_sass if @before
+      res << @before.to_sass(opts) if @before
       res << ' ' if @before && @whitespace_before
-      res << '#{' << @mid.to_sass << '}'
+      res << '#{' << @mid.to_sass(opts) << '}'
       res << ' ' if @after && @whitespace_after
-      res << @after.to_sass if @after
+      res << @after.to_sass(opts) if @after
       res
     end
 

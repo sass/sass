@@ -14,9 +14,9 @@ module Sass
       end
 
       # @return [String] A string representation of the variable
-      def inspect
+      def inspect(opts = {})
         return "!important" if name == "important"
-        "$#{name}"
+        "$#{dasherize(name, opts)}"
       end
       alias_method :to_sass, :inspect
 

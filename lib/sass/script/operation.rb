@@ -33,10 +33,10 @@ module Sass::Script
     end
 
     # @see Node#to_sass
-    def to_sass
+    def to_sass(opts = {})
       pred = Sass::Script::Parser.precedence_of(@operator)
-      o1 = operand_to_sass pred, @operand1
-      o2 = operand_to_sass pred, @operand2
+      o1 = operand_to_sass pred, @operand1, opts
+      o2 = operand_to_sass pred, @operand2, opts
       sep =
         case @operator
         when :comma; ", "
@@ -82,10 +82,10 @@ module Sass::Script
 
     private
 
-    def operand_to_sass(pred, op)
+    def operand_to_sass(pred, op, opts = {})
       return "(#{op.to_sass})" if op.is_a?(Operation) &&
         Sass::Script::Parser.precedence_of(op.operator) < pred
-      op.to_sass
+      op.to_sass(opts)
     end
   end
 end

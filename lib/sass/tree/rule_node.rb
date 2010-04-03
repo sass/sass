@@ -114,7 +114,7 @@ module Sass::Tree
         if r.is_a?(String)
           r.gsub(/(,[ \t]*)?\n\s*/) {$1 ? $1 + "\n" : " "}
         else
-          "\#{#{r.to_sass}}"
+          "\#{#{r.to_sass(opts)}}"
         end
       end.join
       name = "\\" + name if name[0] == ?:
@@ -122,7 +122,7 @@ module Sass::Tree
     end
 
     def to_scss(tabs, opts = {})
-      name = rule.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass}}"}.
+      name = rule.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass(opts)}}"}.
         join.gsub(/^[ \t]*/, '  ' * tabs)
 
       res = name + children_to_src(tabs, opts, :scss)

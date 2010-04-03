@@ -17,7 +17,7 @@ module Sass
       protected
 
       def to_src(tabs, opts, fmt)
-        "#{'  ' * tabs}$#{@name}: #{@expr.to_sass}#{' !default' if @guarded}#{semi fmt}\n"
+        "#{'  ' * tabs}$#{dasherize(@name, opts)}: #{@expr.to_sass(opts)}#{' !default' if @guarded}#{semi fmt}\n"
       end
 
       # Loads the new variable value into the environment.
