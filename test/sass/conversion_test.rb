@@ -833,6 +833,25 @@ foo
 SASS
   end
 
+  def test_nested_properties
+    assert_renders <<SASS, <<SCSS
+div
+  before: before
+  background:
+    color: blue
+    repeat: no-repeat
+  after: after
+SASS
+div {
+  before: before;
+  background: {
+    color: blue;
+    repeat: no-repeat; };
+  after: after; }
+
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

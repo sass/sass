@@ -85,7 +85,7 @@ module Sass::Tree
       mid = old ? '' : ':'
       res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value)}"
       return res + "#{semi fmt}\n" if children.empty?
-      res.rstrip + children_to_src(tabs, opts, fmt)
+      res.rstrip + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
     end
 
     # Computes the CSS for the property.
