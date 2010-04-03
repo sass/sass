@@ -107,6 +107,24 @@ module Haml
 
       private
 
+
+      # @private
+      COLORS = { :red => 31, :green => 32, :yellow => 33 }
+
+      def puts_action(name, color, arg)
+        printf color(color, "%11s %s\n"), name, arg
+      end
+
+      def color(color, str)
+        raise "[BUG] Unrecognized color #{color}" unless COLORS[color]
+
+        # Almost any real Unix terminal will support color,
+        # so we just filter for Windows terms (which don't set TERM)
+        # and not-real terminals, which aren't ttys.
+        return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
+        return "\e[#{COLORS[color]}m#{str}\e[0m"
+      end
+
       def open_file(filename, flag = 'r')
         return if filename.nil?
         flag = 'wb' if @options[:unix_newlines] && flag == 'w'
@@ -358,23 +376,6 @@ MSG
 
         ::Sass::Plugin.watch(files)
       end
-
-      # @private
-      COLORS = { :red => 31, :green => 32, :yellow => 33 }
-
-      def puts_action(name, color, arg)
-        printf color(color, "%11s %s\n"), name, arg
-      end
-
-      def color(color, str)
-        raise "[BUG] Unrecognized color #{color}" unless COLORS[color]
-
-        # Almost any real Unix terminal will support color,
-        # so we just filter for Windows terms (which don't set TERM)
-        # and not-real terminals, which aren't ttys.
-        return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
-        return "\e[#{COLORS[color]}m#{str}\e[0m"
-      end
     end
 
     # The `haml` executable.
@@ -574,6 +575,10 @@ END
           @options[:to] = name.downcase.to_sym
         end
 
+        opts.on('-r', '--recursive') do
+          @options[:recursive] = true
+        end
+
         opts.on('-i', '--in-place',
           'Convert a file to its own syntax.',
           'This can be used to update some deprecated syntax.') do
@@ -596,11 +601,55 @@ END
       # and runs the CSS compiler appropriately.
       def process_result
         require 'sass'
-        super
 
-        input = @options[:input]
-        output = @options[:output]
-        output = input if @options[:in_place]
+        if @options[:recursive]
+          process_directory
+        else
+          super
+          input = @options[:input]
+          raise "Error: directory specified without --recursive" if File.directory?(input)
+          output = @options[:output]
+          output = input if @options[:in_place]
+          process_one_file(input, output)
+        end
+      end
+
+      def process_directory
+        input = @options[:input] = @args.shift
+        output = @options[:output] = @args.shift
+        raise "Error: please specify --from to convert a directory." unless @options[:from]
+        raise "Error: please specify --to to convert a directory." unless @options[:to]
+        raise "Error: input '#{@options[:input]}' must be a directory" unless File.directory?(@options[:input])
+        @options[:output] ||= @options[:input]
+        if File.exists?(@options[:output])
+          raise "Error: output '#{@options[:output]}' must be a directory" unless File.directory?(@options[:output])
+        else
+        end
+        Dir.glob("#{@options[:input]}/**/*.#{@options[:from]}").each do |f|
+          output = if @options[:in_place]
+            f
+          elsif @options[:output]
+            output_name = f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+            output_name[0...@options[:input].size] = @options[:output]
+            output_name
+          else
+            f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+          end
+          unless File.directory?(File.dirname(output))
+            puts_action :directory, :green, File.dirname(output)
+            FileUtils.mkdir_p(File.dirname(output))
+          end
+          puts_action :convert, :green, f
+          if File.exists?(output)
+            puts_action :overwrite, :yellow, output
+          else
+            puts_action :create, :green, output
+          end
+          process_one_file(open_file(f), open_file(output, "w"))
+        end
+      end
+
+      def process_one_file(input, output)
 
         if input.is_a?(File)
           @options[:from] ||=
