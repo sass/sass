@@ -26,6 +26,16 @@ Note that since underscores may still be used in place of hyphens
 when referring to mixins and variables,
 this won't cause any backwards-incompatibilities.
 
+#### Bug Fixes
+
+* Include `;` when rendering nested properties.
+
+* Interpolation is allowed immediately following `.`, `#`, and `:` in selectors,
+  as well as in attribute selector names.
+
+* When converting from Sass 2,
+  empty strings as variable values are preserved.
+
 ### CSS Parsing
 
 The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
