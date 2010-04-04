@@ -5,6 +5,19 @@
 
 ## 3.0.0.beta.2 (Unreleased)
 
+### `sass-convert`
+
+#### `--recursive`
+
+A `--recursive` option has been added
+that allows `sass-convert` to convert an entire directory of files.
+`--recursive` requires that both the `--from` and `--to` flags are specified.
+For example:
+
+    # Convert all .sass files in stylesheets/ to SCSS.
+    # "sass2" means that these files are assumed to use the Sass 2 syntax.
+    $ sass-convert --recursive --from sass2 --to scss stylesheets/
+
 ### CSS Parsing
 
 The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
@@ -85,6 +98,9 @@ For example:
     # Convert a Sass file to SCSS
     $ sass-convert --from sass2 style.sass style.scss
 
+    # Convert all Sass files to SCSS
+    $ sass-convert --recursive --in-place --from sass2 --to scss stylesheets/
+
 ### Syntax Changes {#3-0-0-syntax-changes}
 
 #### SassScript Context
@@ -133,7 +149,7 @@ For example:
     $ sass-convert --in-place style.sass
 
     # Upgrade all Sass files:
-    $ find -name '*.sass' -exec sass-convert --in-place {} \;
+    $ sass-convert --recursive --in-place --from sass2 --to sass stylesheets/
 
 ##### Quoted Strings
 
@@ -223,7 +239,7 @@ For example:
     $ sass-convert --in-place style.sass
 
     # Upgrade all Sass files:
-    $ find -name '*.sass' -exec sass-convert --in-place {} \;
+    $ sass-convert --recursive --in-place --from sass2 --to sass stylesheets/
 
 `!` may still be used, but it's deprecated and will print a warning.
 It will be removed in the next version of Sass, 3.2.
