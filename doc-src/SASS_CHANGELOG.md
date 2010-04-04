@@ -20,7 +20,7 @@ For example:
 
 #### `--dasherize`
 
-Th `--dasherize` options converts all underscores to hyphens,
+The `--dasherize` options converts all underscores to hyphens,
 which are now allowed as part of identifiers in Sass.
 Note that since underscores may still be used in place of hyphens
 when referring to mixins and variables,
