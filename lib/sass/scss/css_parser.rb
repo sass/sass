@@ -9,6 +9,7 @@ module Sass
       def parent_selector; nil; end
       def interpolation; nil; end
       def interp_string; tok(STRING); end
+      def interp_ident(ident = IDENT); tok(ident); end
       def expected_property_separator; '":"'; end
       def use_css_import?; true; end
 

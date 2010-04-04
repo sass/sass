@@ -384,30 +384,14 @@ module Sass
 
       def class_selector
         return unless tok(/\./)
-        res = ['.']
-        while tok?(INTERP_START) or tok?(IDENT)
-          res << if tok?(INTERP_START)
-            interpolation
-          else
-            tok(IDENT)
-          end
-        end
-        tok!(IDENT) if res.size == 1
-        res
+        @expected = "class name"
+        ['.', expr!(:interp_ident)]
       end
 
       def id_selector
-        return unless tok?(HASH) or tok?(/##{INTERP_START}/)
-        res = [tok(/#/)]
-        while tok?(INTERP_START) or tok?(NAME)
-          res << if tok?(INTERP_START)
-            interpolation
-          else
-            tok(NAME)
-          end
-        end
-        tok!(NAME) if res.size == 1
-        res
+        return unless tok(/#(?!\{)/)
+        @expected = "id name"
+        ['#', expr!(:interp_name)]
       end
 
       def element_name
@@ -421,7 +405,7 @@ module Sass
 
       def attrib
         return unless tok(/\[/)
-        res = ['[', str{ss}, str{attrib_name!}, str{ss}]
+        res = ['[', str{ss}, attrib_name!, str{ss}]
 
         if m = tok(/=/) ||
             tok(INCLUDES) ||
@@ -436,31 +420,29 @@ module Sass
       end
 
       def attrib_name!
-        if tok(IDENT)
-          # E, E|E, or E|
-          # The last is allowed so that E|="foo" will work
-          tok(IDENT) if tok(/\|/)
-        elsif tok(/\*/)
-          # *|E
-          tok!(/\|/)
-          tok! IDENT
+        if name_or_ns = interp_ident
+          # E, E|E
+          if tok(/\|(?!=)/)
+            ns = name_or_ns
+            name = interp_ident
+          else
+            name = name_or_ns
+          end
         else
-          # |E or E
-          tok(/\|/)
-          tok! IDENT
+          # *|E or |E
+          ns = tok(/\*/) || ""
+          tok!(/\|/)
+          name = expr!(:interp_ident)
         end
+        return [ns, ("|" if ns), name]
       end
 
       def pseudo
         return unless s = tok(/::?/)
-
         @expected = "pseudoclass or pseudoelement"
-        [s, functional_pseudo || tok!(IDENT)]
-      end
-
-      def functional_pseudo
-        return unless fn = tok(FUNCTION)
-        [fn, str{ss}, expr!(:pseudo_expr), tok!(/\)/)]
+        res = [s, expr!(:interp_ident)]
+        return res unless tok(/\(/)
+        res << '(' << str{ss} << expr!(:pseudo_expr) << tok!(/\)/)
       end
 
       def pseudo_expr
@@ -594,6 +576,19 @@ MESSAGE
         res
       end
 
+      def interp_ident(ident = IDENT)
+        return unless val = tok(ident) || interpolation
+        res = [val]
+        while val = tok(ident) || interpolation
+          res << val
+        end
+        res
+      end
+
+      def interp_name
+        interp_ident NAME
+      end
+
       def str
         @strs.push ""
         yield
@@ -631,6 +626,8 @@ MESSAGE
         :media_query => "media query (e.g. print, screen, print and screen)",
         :media_expr => "media expression (e.g. (min-device-width: 800px)))",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
+        :interp_ident => "identifier",
+        :interp_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
       }
 
