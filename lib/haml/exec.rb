@@ -105,16 +105,29 @@ module Haml
         @options[:input], @options[:output] = input, output
       end
 
-      private
-
-
       # @private
       COLORS = { :red => 31, :green => 32, :yellow => 33 }
 
+      # Prints a status message about performing the given action,
+      # colored using the given color (via terminal escapes) if possible.
+      #
+      # @param name [#to_s] A short name for the action being performed.
+      #   Shouldn't be longer than 11 characters.
+      # @param color [Symbol] The name of the color to use for this action.
+      #   Can be `:red`, `:green`, or `:yellow`.
       def puts_action(name, color, arg)
         printf color(color, "%11s %s\n"), name, arg
       end
 
+      # Wraps the given string in terminal escapes
+      # causing it to have the given color.
+      # If terminal esapes aren't supported on this platform,
+      # just returns the string instead.
+      #
+      # @param color [Symbol] The name of the color to use.
+      #   Can be `:red`, `:green`, or `:yellow`.
+      # @param str [String] The string to wrap in the given color.
+      # @return [String] The wrapped string.
       def color(color, str)
         raise "[BUG] Unrecognized color #{color}" unless COLORS[color]
 
@@ -124,6 +137,8 @@ module Haml
         return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
         return "\e[#{COLORS[color]}m#{str}\e[0m"
       end
+
+      private
 
       def open_file(filename, flag = 'r')
         return if filename.nil?
