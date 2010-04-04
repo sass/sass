@@ -5,6 +5,7 @@ require 'sass/script/color'
 require 'sass/script/functions'
 require 'sass/script/unary_operation'
 require 'sass/script/interpolation'
+require 'sass/script/string_interpolation'
 
 module Sass::Script
   # A SassScript parse node representing a binary operation,

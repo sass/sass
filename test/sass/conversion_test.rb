@@ -853,12 +853,12 @@ SCSS
   end
 
   def test_dasherize
-    assert_sass_to_scss(<<SCSS,<<SASS, :dasherize => true)
+    assert_sass_to_scss(<<SCSS, <<SASS, :dasherize => true)
 @mixin under-scored-mixin($under-scored-arg: $under-scored-default) {
   bar: $under-scored-arg; }
 
 div {
-  foo: under-scored-fn($under-scored-var + "before" + $another-under-scored-var + "after");
+  foo: under-scored-fn($under-scored-var + "before\#{$another-under-scored-var}after");
   @include under-scored-mixin($passed-arg);
   selector-\#{$under-scored-interp}: bold; }
 

@@ -140,6 +140,30 @@ RUBY
     assert_equal 'not (true or false)', render('not (true or false)')
   end
 
+  def test_interpolation
+    assert_renders "$foo\#{$bar}$baz"
+    assert_renders "$foo\#{$bar} $baz"
+    assert_renders "$foo \#{$bar}$baz"
+    assert_renders "$foo \#{$bar} $baz"
+    assert_renders "$foo \#{$bar}\#{$bang} $baz"
+    assert_renders "$foo \#{$bar} \#{$bang} $baz"
+    assert_renders "\#{$bar}$baz"
+    assert_renders "$foo\#{$bar}"
+    assert_renders "\#{$bar}"
+  end
+
+  def test_string_interpolation
+    assert_renders '"foo#{$bar}baz"'
+    assert_renders '"foo #{$bar}baz"'
+    assert_renders '"foo#{$bar} baz"'
+    assert_renders '"foo #{$bar} baz"'
+    assert_renders '"foo #{$bar}#{$bang} baz"'
+    assert_renders '"foo #{$bar} #{$bang} baz"'
+    assert_renders '"#{$bar}baz"'
+    assert_renders '"foo#{$bar}"'
+    assert_renders '"#{$bar}"'
+  end
+
   private
 
   def assert_renders(script, options = {})

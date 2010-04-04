@@ -310,9 +310,9 @@ RUBY
         line = @lexer.line
         mid = parse_interpolated
         last = assert_expr(:string)
-        op = Operation.new(first.value, node(Operation.new(mid, last, :plus)), :plus)
-        op.line = line
-        op
+        interp = StringInterpolation.new(first.value, mid, last)
+        interp.line = line
+        interp
       end
 
       def number

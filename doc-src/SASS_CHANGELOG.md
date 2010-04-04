@@ -36,6 +36,9 @@ this won't cause any backwards-incompatibilities.
 * When converting from Sass 2,
   empty strings as variable values are preserved.
 
+* `#{}` interpolation within strings will now be converted properly
+  to `#{}` interpolation within strings.
+
 ### CSS Parsing
 
 The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
