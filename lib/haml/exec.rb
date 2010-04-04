@@ -590,7 +590,8 @@ END
           @options[:to] = name.downcase.to_sym
         end
 
-        opts.on('-r', '--recursive') do
+        opts.on('-R', '--recursive',
+          'Convert all the files in a directory. Requires --from and --to.') do
           @options[:recursive] = true
         end
 
@@ -623,37 +624,42 @@ END
 
         if @options[:recursive]
           process_directory
-        else
-          super
-          input = @options[:input]
-          raise "Error: directory specified without --recursive" if File.directory?(input)
-          output = @options[:output]
-          output = input if @options[:in_place]
-          process_one_file(input, output)
+          return
         end
+
+        super
+        input = @options[:input]
+        raise "Error: '#{input}' is a directory (did you mean to use --recursive?)" if File.directory?(input)
+        output = @options[:output]
+        output = input if @options[:in_place]
+        process_file(input, output)
       end
 
       def process_directory
         input = @options[:input] = @args.shift
         output = @options[:output] = @args.shift
-        raise "Error: please specify --from to convert a directory." unless @options[:from]
-        raise "Error: please specify --to to convert a directory." unless @options[:to]
-        raise "Error: input '#{@options[:input]}' must be a directory" unless File.directory?(@options[:input])
-        @options[:output] ||= @options[:input]
-        if File.exists?(@options[:output])
-          raise "Error: output '#{@options[:output]}' must be a directory" unless File.directory?(@options[:output])
-        else
+        raise "Error: --from required when using --recursive." unless @options[:from]
+        raise "Error: --to required when using --recursive." unless @options[:to]
+        raise "Error: '#{@options[:input]}' is not a directory" unless File.directory?(@options[:input])
+        if @options[:output] && File.exists?(@options[:output]) && !File.directory?(@options[:output])
+          raise "Error: '#{@options[:output]}' is not a directory"
         end
-        Dir.glob("#{@options[:input]}/**/*.#{@options[:from]}").each do |f|
-          output = if @options[:in_place]
-            f
-          elsif @options[:output]
-            output_name = f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
-            output_name[0...@options[:input].size] = @options[:output]
-            output_name
-          else
-            f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
-          end
+        @options[:output] ||= @options[:input]
+
+        ext = @options[:from]
+        ext = :sass if ext == :sass2
+        Dir.glob("#{@options[:input]}/**/*.#{ext}") do |f|
+          output =
+            if @options[:in_place]
+              f
+            elsif @options[:output]
+              output_name = f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+              output_name[0...@options[:input].size] = @options[:output]
+              output_name
+            else
+              f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+            end
+
           unless File.directory?(File.dirname(output))
             puts_action :directory, :green, File.dirname(output)
             FileUtils.mkdir_p(File.dirname(output))
@@ -664,12 +670,14 @@ END
           else
             puts_action :create, :green, output
           end
-          process_one_file(open_file(f), open_file(output, "w"))
+
+          input = open_file(f)
+          output = @options[:in_place] ? input : open_file(output, "w")
+          process_file(input, output)
         end
       end
 
-      def process_one_file(input, output)
-
+      def process_file(input, output)
         if input.is_a?(File)
           @options[:from] ||=
             case input.path
