@@ -18,6 +18,14 @@ For example:
     # "sass2" means that these files are assumed to use the Sass 2 syntax.
     $ sass-convert --recursive --from sass2 --to scss stylesheets/
 
+#### `--dasherize`
+
+Th `--dasherize` options converts all underscores to hyphens,
+which are now allowed as part of identifiers in Sass.
+Note that since underscores may still be used in place of hyphens
+when referring to mixins and variables,
+this won't cause any backwards-incompatibilities.
+
 ### CSS Parsing
 
 The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
