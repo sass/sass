@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.beta.2
+
+* Make {Haml::Helpers#capture_haml capture\_haml} faster when using `:ugly`.
+
 ## 3.0.0.beta.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.1).
