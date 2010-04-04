@@ -44,7 +44,7 @@ module Sass::Tree
         else; "else"
         end
       str = "#{'  ' * tabs}@#{name}"
-      str << " #{@expr.to_sass}" if @expr
+      str << " #{@expr.to_sass(opts)}" if @expr
       str << children_to_src(tabs, opts, fmt)
       str << @else.send(:to_src, tabs, opts, fmt, true) if @else
       str

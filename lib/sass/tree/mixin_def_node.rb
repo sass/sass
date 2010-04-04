@@ -23,14 +23,14 @@ module Sass
           else
             '(' + @args.map do |v, d|
               if d
-                "#{v.to_sass}: #{d.to_sass}"
+                "#{v.to_sass(opts)}: #{d.to_sass(opts)}"
               else
-                v.to_sass
+                v.to_sass(opts)
               end
             end.join(", ") + ')'
           end
               
-        "#{'  ' * tabs}#{fmt == :sass ? '=' : '@mixin '}#{@name}#{args}" +
+        "#{'  ' * tabs}#{fmt == :sass ? '=' : '@mixin '}#{dasherize(@name, opts)}#{args}" +
           children_to_src(tabs, opts, fmt)
       end
 

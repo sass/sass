@@ -631,6 +631,46 @@ foo:nth-child(\#{5 + "n"}) {a: b}
 SCSS
   end
 
+  def test_selector_interpolation_at_class_begininng
+    assert_equal <<CSS, render(<<SCSS)
+.zzz {
+  a: b; }
+CSS
+$zzz: zzz;
+.\#{$zzz} { a: b; }
+SCSS
+  end
+
+  def test_selector_interpolation_at_id_begininng
+    assert_equal <<CSS, render(<<SCSS)
+#zzz {
+  a: b; }
+CSS
+$zzz: zzz;
+#\#{$zzz} { a: b; }
+SCSS
+  end
+
+  def test_selector_interpolation_at_pseudo_begininng
+    assert_equal <<CSS, render(<<SCSS)
+:zzz::zzz {
+  a: b; }
+CSS
+$zzz: zzz;
+:\#{$zzz}::\#{$zzz} { a: b; }
+SCSS
+  end
+
+  def test_selector_interpolation_at_attr_beginning
+    assert_equal <<CSS, render(<<SCSS)
+[zzz=foo] {
+  a: b; }
+CSS
+$zzz: zzz;
+[\#{$zzz}=foo] { a: b; }
+SCSS
+  end
+
   def test_basic_prop_val_interpolation
     assert_equal <<CSS, render(<<SCSS)
 foo {

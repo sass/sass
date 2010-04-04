@@ -726,12 +726,12 @@ SCSS
   end
 
   def test_invalid_classes
-    assert_not_parses("identifier", 'p.<err> foo {a: b}')
-    assert_not_parses("identifier", 'p.<err>1foo {a: b}')
+    assert_not_parses("class name", 'p.<err> foo {a: b}')
+    assert_not_parses("class name", 'p.<err>1foo {a: b}')
   end
 
   def test_invalid_ids
-    assert_not_parses('"{"', 'p<err># foo {a: b}')
+    assert_not_parses("id name", 'p#<err> foo {a: b}')
   end
 
   def test_no_properties_at_toplevel

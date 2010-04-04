@@ -74,11 +74,20 @@ module Sass::Script
     # Returns the text of this SassScript expression.
     #
     # @return [String]
-    def to_sass
+    def to_sass(opts = {})
       raise NotImplementedError.new("All subclasses of Sass::Script::Node must override #to_sass.")
     end
 
     protected
+
+    # Converts underscores to dashes if the :dasherize option is set.
+    def dasherize(s, opts)
+      if opts[:dasherize]
+        s.gsub(/_/,'-')
+      else
+        s
+      end
+    end
 
     # Evaluates this node.
     #

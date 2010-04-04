@@ -366,12 +366,12 @@ module Sass
 
       def simple_selector_sequence
         # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
-        return expr unless e = element_name || tok(HASH) || class_expr ||
+        return expr unless e = element_name || id_selector || class_selector ||
           attrib || negation || pseudo || parent_selector || interpolation
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = element_name || tok(HASH) || class_expr ||
+        while v = element_name || id_selector || class_selector ||
             attrib || negation || pseudo || tok(/\*/) || interpolation
           res << v
         end
@@ -382,9 +382,16 @@ module Sass
         tok(/&/)
       end
 
-      def class_expr
+      def class_selector
         return unless tok(/\./)
-        '.' + tok!(IDENT)
+        @expected = "class name"
+        ['.', expr!(:interp_ident)]
+      end
+
+      def id_selector
+        return unless tok(/#(?!\{)/)
+        @expected = "id name"
+        ['#', expr!(:interp_name)]
       end
 
       def element_name
@@ -398,7 +405,7 @@ module Sass
 
       def attrib
         return unless tok(/\[/)
-        res = ['[', str{ss}, str{attrib_name!}, str{ss}]
+        res = ['[', str{ss}, attrib_name!, str{ss}]
 
         if m = tok(/=/) ||
             tok(INCLUDES) ||
@@ -413,31 +420,29 @@ module Sass
       end
 
       def attrib_name!
-        if tok(IDENT)
-          # E, E|E, or E|
-          # The last is allowed so that E|="foo" will work
-          tok(IDENT) if tok(/\|/)
-        elsif tok(/\*/)
-          # *|E
-          tok!(/\|/)
-          tok! IDENT
+        if name_or_ns = interp_ident
+          # E, E|E
+          if tok(/\|(?!=)/)
+            ns = name_or_ns
+            name = interp_ident
+          else
+            name = name_or_ns
+          end
         else
-          # |E or E
-          tok(/\|/)
-          tok! IDENT
+          # *|E or |E
+          ns = tok(/\*/) || ""
+          tok!(/\|/)
+          name = expr!(:interp_ident)
         end
+        return [ns, ("|" if ns), name]
       end
 
       def pseudo
         return unless s = tok(/::?/)
-
         @expected = "pseudoclass or pseudoelement"
-        [s, functional_pseudo || tok!(IDENT)]
-      end
-
-      def functional_pseudo
-        return unless fn = tok(FUNCTION)
-        [fn, str{ss}, expr!(:pseudo_expr), tok!(/\)/)]
+        res = [s, expr!(:interp_ident)]
+        return res unless tok(/\(/)
+        res << '(' << str{ss} << expr!(:pseudo_expr) << tok!(/\)/)
       end
 
       def pseudo_expr
@@ -455,7 +460,7 @@ module Sass
         return unless tok(NOT)
         res = [":not(", str{ss}]
         @expected = "selector"
-        res << (element_name || tok(HASH) || class_expr || attrib || expr!(:pseudo))
+        res << (element_name || id_selector || class_selector || attrib || expr!(:pseudo))
         res << tok!(/\)/)
       end
 
@@ -553,7 +558,7 @@ MESSAGE
       end
 
       def interpolation
-        return unless tok(/#\{/)
+        return unless tok(INTERP_START)
         sass_script(:parse_interpolated)
       end
 
@@ -569,6 +574,19 @@ MESSAGE
         # @scanner[2].empty? means we've started an interpolated section
         res << expr!(:interpolation) << tok(mid_re) while @scanner[2].empty?
         res
+      end
+
+      def interp_ident(ident = IDENT)
+        return unless val = tok(ident) || interpolation
+        res = [val]
+        while val = tok(ident) || interpolation
+          res << val
+        end
+        res
+      end
+
+      def interp_name
+        interp_ident NAME
       end
 
       def str
@@ -608,6 +626,8 @@ MESSAGE
         :media_query => "media query (e.g. print, screen, print and screen)",
         :media_expr => "media expression (e.g. (min-device-width: 800px)))",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
+        :interp_ident => "identifier",
+        :interp_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
       }
 

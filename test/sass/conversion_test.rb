@@ -833,6 +833,53 @@ foo
 SASS
   end
 
+  def test_nested_properties
+    assert_renders <<SASS, <<SCSS
+div
+  before: before
+  background:
+    color: blue
+    repeat: no-repeat
+  after: after
+SASS
+div {
+  before: before;
+  background: {
+    color: blue;
+    repeat: no-repeat; };
+  after: after; }
+
+SCSS
+  end
+
+  def test_dasherize
+    assert_sass_to_scss(<<SCSS,<<SASS, :dasherize => true)
+@mixin under-scored-mixin($under-scored-arg: $under-scored-default) {
+  bar: $under-scored-arg; }
+
+div {
+  foo: under-scored-fn($under-scored-var + "before" + $another-under-scored-var + "after");
+  @include under-scored-mixin($passed-arg);
+  selector-\#{$under-scored-interp}: bold; }
+
+@if $under-scored {
+  @for $for-var from $from-var to $to-var {
+    @while $while-var == true {
+      $while-var: false; } } }
+SCSS
+=under_scored_mixin($under_scored_arg: $under_scored_default)
+  bar: $under_scored_arg
+div
+  foo: under_scored_fn($under_scored_var + "before\#{$another_under_scored_var}after")
+  +under_scored_mixin($passed_arg)
+  selector-\#{$under_scored_interp}: bold
+@if $under_scored
+  @for $for_var from $from_var to $to_var
+    @while $while_var == true
+      $while_var : false
+SASS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

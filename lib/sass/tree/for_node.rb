@@ -22,7 +22,7 @@ module Sass::Tree
 
     def to_src(tabs, opts, fmt)
       to = @exclusive ? "to" : "through"
-      "#{'  ' * tabs}@for $#{@var} from #{@from.to_sass} #{to} #{@to.to_sass}" +
+      "#{'  ' * tabs}@for $#{dasherize(@var, opts)} from #{@from.to_sass(opts)} #{to} #{@to.to_sass(opts)}" +
         children_to_src(tabs, opts, fmt)
     end
 

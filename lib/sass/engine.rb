@@ -415,7 +415,7 @@ WARNING
         if eq.strip[0] == SCRIPT_CHAR
           expr.context = :equals
           Script.equals_warning("properties", name,
-            Sass::Tree::PropNode.val_to_sass(expr), false,
+            Sass::Tree::PropNode.val_to_sass(expr, @options), false,
             @line, line.offset + 1, @options[:filename])
         end
       end

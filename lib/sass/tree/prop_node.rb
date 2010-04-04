@@ -79,13 +79,13 @@ module Sass::Tree
     protected
 
     def to_src(tabs, opts, fmt)
-      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
       old = opts[:old] && fmt == :sass
       initial = old ? ':' : ''
       mid = old ? '' : ':'
-      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value)}"
+      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}"
       return res + "#{semi fmt}\n" if children.empty?
-      res.rstrip + children_to_src(tabs, opts, fmt)
+      res.rstrip + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
     end
 
     # Computes the CSS for the property.
@@ -175,42 +175,43 @@ module Sass::Tree
 
     class << self
       # @private
-      def val_to_sass(value)
-        return value.to_sass unless value.context == :equals
-        val_to_sass_comma(value).to_sass
+      def val_to_sass(value, opts)
+        return value.to_sass(opts) unless value.context == :equals
+        val_to_sass_comma(value, opts).to_sass(opts)
       end
 
       private
 
-      def val_to_sass_comma(node)
+      def val_to_sass_comma(node, opts)
         return node unless node.is_a?(Sass::Script::Operation)
-        return val_to_sass_concat(node) unless node.operator == :comma
+        return val_to_sass_concat(node, opts) unless node.operator == :comma
 
         Sass::Script::Operation.new(
-          val_to_sass_concat(node.operand1),
-          val_to_sass_comma(node.operand2),
+          val_to_sass_concat(node.operand1, opts),
+          val_to_sass_comma(node.operand2, opts),
           node.operator)
       end
 
-      def val_to_sass_concat(node)
+      def val_to_sass_concat(node, opts)
         return node unless node.is_a?(Sass::Script::Operation)
-        return val_to_sass_div(node) unless node.operator == :concat
+        return val_to_sass_div(node, opts) unless node.operator == :concat
 
         Sass::Script::Operation.new(
-          val_to_sass_div(node.operand1),
-          val_to_sass_concat(node.operand2),
+          val_to_sass_div(node.operand1, opts),
+          val_to_sass_concat(node.operand2, opts),
           node.operator)
       end
 
-      def val_to_sass_div(node)
+      def val_to_sass_div(node, opts)
         unless node.is_a?(Sass::Script::Operation) && node.operator == :div &&
             node.operand1.is_a?(Sass::Script::Number) &&
             node.operand2.is_a?(Sass::Script::Number)
           return node
         end
 
-        Sass::Script::String.new("(#{node.to_sass})")
+        Sass::Script::String.new("(#{node.to_sass(opts)})")
       end
+
     end
   end
 end

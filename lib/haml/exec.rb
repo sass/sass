@@ -105,6 +105,39 @@ module Haml
         @options[:input], @options[:output] = input, output
       end
 
+      # @private
+      COLORS = { :red => 31, :green => 32, :yellow => 33 }
+
+      # Prints a status message about performing the given action,
+      # colored using the given color (via terminal escapes) if possible.
+      #
+      # @param name [#to_s] A short name for the action being performed.
+      #   Shouldn't be longer than 11 characters.
+      # @param color [Symbol] The name of the color to use for this action.
+      #   Can be `:red`, `:green`, or `:yellow`.
+      def puts_action(name, color, arg)
+        printf color(color, "%11s %s\n"), name, arg
+      end
+
+      # Wraps the given string in terminal escapes
+      # causing it to have the given color.
+      # If terminal esapes aren't supported on this platform,
+      # just returns the string instead.
+      #
+      # @param color [Symbol] The name of the color to use.
+      #   Can be `:red`, `:green`, or `:yellow`.
+      # @param str [String] The string to wrap in the given color.
+      # @return [String] The wrapped string.
+      def color(color, str)
+        raise "[BUG] Unrecognized color #{color}" unless COLORS[color]
+
+        # Almost any real Unix terminal will support color,
+        # so we just filter for Windows terms (which don't set TERM)
+        # and not-real terminals, which aren't ttys.
+        return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
+        return "\e[#{COLORS[color]}m#{str}\e[0m"
+      end
+
       private
 
       def open_file(filename, flag = 'r')
@@ -358,23 +391,6 @@ MSG
 
         ::Sass::Plugin.watch(files)
       end
-
-      # @private
-      COLORS = { :red => 31, :green => 32, :yellow => 33 }
-
-      def puts_action(name, color, arg)
-        printf color(color, "%11s %s\n"), name, arg
-      end
-
-      def color(color, str)
-        raise "[BUG] Unrecognized color #{color}" unless COLORS[color]
-
-        # Almost any real Unix terminal will support color,
-        # so we just filter for Windows terms (which don't set TERM)
-        # and not-real terminals, which aren't ttys.
-        return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
-        return "\e[#{COLORS[color]}m#{str}\e[0m"
-      end
     end
 
     # The `haml` executable.
@@ -574,10 +590,19 @@ END
           @options[:to] = name.downcase.to_sym
         end
 
+        opts.on('-R', '--recursive',
+          'Convert all the files in a directory. Requires --from and --to.') do
+          @options[:recursive] = true
+        end
+
         opts.on('-i', '--in-place',
           'Convert a file to its own syntax.',
           'This can be used to update some deprecated syntax.') do
           @options[:in_place] = true
+        end
+
+        opts.on('--dasherize', 'Convert underscores to dashes') do
+          @options[:dasherize] = true
         end
 
         opts.on('--old', 'Output the old-style ":prop val" property syntax.',
@@ -596,12 +621,63 @@ END
       # and runs the CSS compiler appropriately.
       def process_result
         require 'sass'
-        super
 
+        if @options[:recursive]
+          process_directory
+          return
+        end
+
+        super
         input = @options[:input]
+        raise "Error: '#{input}' is a directory (did you mean to use --recursive?)" if File.directory?(input)
         output = @options[:output]
         output = input if @options[:in_place]
+        process_file(input, output)
+      end
 
+      def process_directory
+        input = @options[:input] = @args.shift
+        output = @options[:output] = @args.shift
+        raise "Error: --from required when using --recursive." unless @options[:from]
+        raise "Error: --to required when using --recursive." unless @options[:to]
+        raise "Error: '#{@options[:input]}' is not a directory" unless File.directory?(@options[:input])
+        if @options[:output] && File.exists?(@options[:output]) && !File.directory?(@options[:output])
+          raise "Error: '#{@options[:output]}' is not a directory"
+        end
+        @options[:output] ||= @options[:input]
+
+        ext = @options[:from]
+        ext = :sass if ext == :sass2
+        Dir.glob("#{@options[:input]}/**/*.#{ext}") do |f|
+          output =
+            if @options[:in_place]
+              f
+            elsif @options[:output]
+              output_name = f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+              output_name[0...@options[:input].size] = @options[:output]
+              output_name
+            else
+              f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+            end
+
+          unless File.directory?(File.dirname(output))
+            puts_action :directory, :green, File.dirname(output)
+            FileUtils.mkdir_p(File.dirname(output))
+          end
+          puts_action :convert, :green, f
+          if File.exists?(output)
+            puts_action :overwrite, :yellow, output
+          else
+            puts_action :create, :green, output
+          end
+
+          input = open_file(f)
+          output = @options[:in_place] ? input : open_file(output, "w")
+          process_file(input, output)
+        end
+      end
+
+      def process_file(input, output)
         if input.is_a?(File)
           @options[:from] ||=
             case input.path
