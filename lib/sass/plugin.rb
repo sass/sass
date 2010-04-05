@@ -33,18 +33,33 @@ module Sass
       attr_reader :engine_options
 
       def initialize(engine_options)
-        @engine_options, @dependencies, @mtimes = engine_options, {}, {}
+        @engine_options, @dependencies, @mtimes, @dependencies_stale = engine_options, {}, {}, {}
       end
 
       def stylesheet_needs_update?(css_file, template_file)
         return true unless File.exists?(css_file) && File.exists?(template_file)
 
         css_mtime = mtime(css_file)
-        mtime(template_file) > css_mtime ||
-          dependencies(template_file).any?(&dependency_updated?(css_mtime))
+        mtime(template_file) > css_mtime || dependencies_stale?(template_file, css_mtime)
       end
 
       private
+
+      def dependencies_stale?(template_file, css_mtime)
+        timestamps = @dependencies_stale[template_file] ||= {}
+        timestamps.each_pair do |checked_css_mtime, is_stale|
+          if checked_css_mtime <= css_mtime && !is_stale
+            return false
+          elsif checked_css_mtime > css_mtime && is_stale
+            return true
+          end
+        end
+        timestamps[css_mtime] = run_stale_dependencies_check(template_file, css_mtime)
+      end
+
+      def run_stale_dependencies_check(template_file, css_mtime)
+        dependencies(template_file).any?(&dependency_updated?(css_mtime))
+      end
 
       def mtime(filename)
         @mtimes[filename] ||= File.mtime(filename)
@@ -57,8 +72,7 @@ module Sass
       def dependency_updated?(css_mtime)
         lambda do |dep|
           begin
-            mtime(dep) > css_mtime ||
-              dependencies(dep).any?(&dependency_updated?(css_mtime))
+            mtime(dep) > css_mtime || dependencies_stale?(dep, css_mtime)
           rescue Sass::SyntaxError
             # If there's an error finding depenencies, default to recompiling.
             true
