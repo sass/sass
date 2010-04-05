@@ -29,6 +29,49 @@ module Sass
   #   #=> Compiling app/sass/print.scss to public/stylesheets/print.css
   #   #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
   module Plugin
+    class StalenessChecker
+      attr_reader :engine_options
+
+      def initialize(engine_options)
+        @engine_options, @dependencies = engine_options, {}
+      end
+
+      def stylesheet_needs_update?(css_file, template_file)
+        return true unless File.exists?(css_file) && File.exists?(template_file)
+
+        css_mtime = File.mtime(css_file)
+        File.mtime(template_file) > css_mtime ||
+          dependencies(template_file).any?(&dependency_updated?(css_mtime))
+      end
+
+      private
+
+      def dependencies(filename)
+        @dependencies[filename] ||= compute_dependencies(filename)
+      end
+
+      def dependency_updated?(css_mtime)
+        lambda do |dep|
+          begin
+            File.mtime(dep) > css_mtime ||
+              dependencies(dep).any?(&dependency_updated?(css_mtime))
+          rescue Sass::SyntaxError
+            # If there's an error finding depenencies, default to recompiling.
+            true
+          end
+        end
+      end
+
+      def compute_dependencies(filename)
+        Files.tree_for(filename, engine_options).select {|n| n.is_a?(Tree::ImportNode)}.map do |n|
+          next if n.full_filename =~ /\.css$/
+          n.full_filename
+        end.compact
+      rescue Sass::SyntaxError => e
+        [] # If the file has an error, we assume it has no dependencies
+      end
+    end
+
     include Haml::Util
     include Sass::Callbacks
     extend self
@@ -211,6 +254,8 @@ module Sass
       individual_files.each {|t, c| update_stylesheet(t, c)}
 
       @checked_for_updates = true
+      staleness_checker = make_staleness_checker
+
       template_locations.zip(css_locations).each do |template_location, css_location|
 
         Dir.glob(File.join(template_location, "**", "*.s[ca]ss")).each do |file|
@@ -219,7 +264,7 @@ module Sass
           css = css_filename(name, css_location)
 
           next if forbid_update?(name)
-          if options[:always_update] || stylesheet_needs_update?(css, file)
+          if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
             update_stylesheet file, css
           else
             run_not_updating_stylesheet file, css
@@ -374,33 +419,13 @@ module Sass
       name.sub(/^.*\//, '')[0] == ?_
     end
 
+    def make_staleness_checker
+      StalenessChecker.new(engine_options)
+    end
+
+    # Compass expects this to exist
     def stylesheet_needs_update?(css_file, template_file)
-      return true unless File.exists?(css_file) && File.exists?(template_file)
-
-      css_mtime = File.mtime(css_file)
-      File.mtime(template_file) > css_mtime ||
-        dependencies(template_file).any?(&dependency_updated?(css_mtime))
-    end
-
-    def dependency_updated?(css_mtime)
-      lambda do |dep|
-        begin
-          File.mtime(dep) > css_mtime ||
-            dependencies(dep).any?(&dependency_updated?(css_mtime))
-        rescue Sass::SyntaxError
-          # If there's an error finding depenencies, default to recompiling.
-          true
-        end
-      end
-    end
-
-    def dependencies(filename)
-      Files.tree_for(filename, engine_options).select {|n| n.is_a?(Tree::ImportNode)}.map do |n|
-        next if n.full_filename =~ /\.css$/
-        n.full_filename
-      end.compact
-    rescue Sass::SyntaxError => e
-      [] # If the file has an error, we assume it has no dependencies
+      make_staleness_checker.stylesheet_needs_update?(css_file, template_file)
     end
   end
 end

@@ -341,12 +341,14 @@ CSS
   end
 
   def assert_needs_update(name)
-    assert(Sass::Plugin.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
+    checker = make_staleness_checker
+    assert(checker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} to need an update.")
   end
 
   def assert_doesnt_need_update(name)
-    assert(!Sass::Plugin.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
+    checker = make_staleness_checker
+    assert(!checker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} not to need an update.")
   end
 
@@ -389,6 +391,10 @@ CSS
     "#{File.dirname(__FILE__)}/#{file}"
   end
 
+  def make_staleness_checker
+    Sass::Plugin.send(:make_staleness_checker)
+  end
+
   def set_plugin_opts(overrides = {})
     Sass::Plugin.options = {
       :template_location => template_loc,
@@ -398,12 +404,6 @@ CSS
       :always_update => true,
       :never_update => false,
     }.merge(overrides)
-  end
-end
-
-module Sass::Plugin
-  class << self
-    public :stylesheet_needs_update?
   end
 end
 
