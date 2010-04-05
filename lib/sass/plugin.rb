@@ -33,18 +33,22 @@ module Sass
       attr_reader :engine_options
 
       def initialize(engine_options)
-        @engine_options, @dependencies = engine_options, {}
+        @engine_options, @dependencies, @mtimes = engine_options, {}, {}
       end
 
       def stylesheet_needs_update?(css_file, template_file)
         return true unless File.exists?(css_file) && File.exists?(template_file)
 
-        css_mtime = File.mtime(css_file)
-        File.mtime(template_file) > css_mtime ||
+        css_mtime = mtime(css_file)
+        mtime(template_file) > css_mtime ||
           dependencies(template_file).any?(&dependency_updated?(css_mtime))
       end
 
       private
+
+      def mtime(filename)
+        @mtimes[filename] ||= File.mtime(filename)
+      end
 
       def dependencies(filename)
         @dependencies[filename] ||= compute_dependencies(filename)
@@ -53,7 +57,7 @@ module Sass
       def dependency_updated?(css_mtime)
         lambda do |dep|
           begin
-            File.mtime(dep) > css_mtime ||
+            mtime(dep) > css_mtime ||
               dependencies(dep).any?(&dependency_updated?(css_mtime))
           rescue Sass::SyntaxError
             # If there's an error finding depenencies, default to recompiling.
