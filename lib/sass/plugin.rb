@@ -37,6 +37,8 @@ module Sass
       end
 
       def stylesheet_needs_update?(css_file, template_file)
+        template_file = File.expand_path(template_file)
+
         return true unless File.exists?(css_file) && File.exists?(template_file)
 
         css_mtime = mtime(css_file)
@@ -82,7 +84,7 @@ module Sass
 
       def compute_dependencies(filename)
         Files.tree_for(filename, engine_options).grep(Tree::ImportNode) do |n|
-          n.full_filename unless n.full_filename =~ /\.css$/
+          File.expand_path(n.full_filename) unless n.full_filename =~ /\.css$/
         end.compact
       rescue Sass::SyntaxError => e
         [] # If the file has an error, we assume it has no dependencies
