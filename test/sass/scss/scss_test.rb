@@ -671,6 +671,17 @@ $zzz: zzz;
 SCSS
   end
 
+  def test_selector_interpolation_at_dashes
+    assert_equal <<CSS, render(<<SCSS)
+div {
+  -foo-a-b-foo: foo; }
+CSS
+$a : a;
+$b : b;
+div { -foo-\#{$a}-\#{$b}-foo: foo }
+SCSS
+  end
+
   def test_basic_prop_val_interpolation
     assert_equal <<CSS, render(<<SCSS)
 foo {
