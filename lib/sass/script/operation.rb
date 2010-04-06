@@ -84,7 +84,7 @@ module Sass::Script
     private
 
     def operand_to_sass(pred, op, opts = {})
-      return "(#{op.to_sass})" if op.is_a?(Operation) &&
+      return "(#{op.to_sass(opts)})" if op.is_a?(Operation) &&
         Sass::Script::Parser.precedence_of(op.operator) < pred
       op.to_sass(opts)
     end
