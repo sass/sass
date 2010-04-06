@@ -602,7 +602,7 @@ END
         end
 
         opts.on('--dasherize', 'Convert underscores to dashes') do
-          @options[:dasherize] = true
+          @options[:for_tree][:dasherize] = true
         end
 
         opts.on('--old', 'Output the old-style ":prop val" property syntax.',
