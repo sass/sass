@@ -259,18 +259,6 @@ module Sass
         tok(/[+-]/)
       end
 
-      def property
-        return unless e = (tok(IDENT) || interpolation)
-        res = [e, str{ss}]
-
-        while e = (interpolation || tok(IDENT))
-          res << e
-        end
-
-        ss
-        res
-      end
-
       def ruleset
         rules = []
         return unless v = selector
@@ -395,10 +383,10 @@ module Sass
       end
 
       def element_name
-        return unless name = tok(IDENT) || tok(/\*/) || tok?(/\|/)
+        return unless name = interp_ident || tok(/\*/) || tok?(/\|/)
         if tok(/\|/)
           @expected = "element name or *"
-          name << "|" << (tok(IDENT) || tok!(/\*/))
+          name << "|" << (interp_ident || tok!(/\*/))
         end
         name
       end
@@ -468,10 +456,12 @@ module Sass
         # This allows the "*prop: val", ":prop: val", and ".prop: val" hacks
         if s = tok(/[:\*\.]/)
           @use_property_exception = s != '.'
-          name = [s, str{ss}] + expr!(:property)
+          name = [s, str{ss}, *expr!(:interp_ident)]
         else
-          return unless name = property
+          return unless name = interp_ident
+          name = [name] if name.is_a?(String)
         end
+        ss
 
         @expected = expected_property_separator
         space, value = expr!(:value)
@@ -576,10 +566,10 @@ MESSAGE
         res
       end
 
-      def interp_ident(ident = IDENT)
-        return unless val = tok(ident) || interpolation
+      def interp_ident(start = IDENT)
+        return unless val = tok(start) || interpolation
         res = [val]
-        while val = tok(ident) || interpolation
+        while val = tok(NAME) || interpolation
           res << val
         end
         res

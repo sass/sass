@@ -33,6 +33,10 @@ this won't cause any backwards-incompatibilities.
 * Interpolation is allowed immediately following `.`, `#`, and `:` in selectors,
   as well as in attribute selector names.
 
+* Interpolation works even when there's only a hyphen
+  separating two interpolation sections,
+  as in `-foo-#{$a}-#{$b}`.
+
 * When converting from Sass 2,
   empty strings as variable values are preserved.
 
