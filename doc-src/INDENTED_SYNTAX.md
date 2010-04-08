@@ -121,10 +121,7 @@ is compiled to:
 
 ### `@import`
 
-The `@import` directive in Sass does not require quotes.
-Quotes may be used;
-if they are, the directive will always be interpreted
-as a plain CSS `@import` rule.
+The `@import` directive in Sass does not require quotes, although they may be used.
 For example, this SCSS:
 
     @import "themes/dark";

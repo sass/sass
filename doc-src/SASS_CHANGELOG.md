@@ -45,6 +45,12 @@ this won't cause any backwards-incompatibilities.
 * `#{}` interpolation within strings will now be converted properly
   to `#{}` interpolation within strings.
 
+### `@import` in Sass
+
+The Sass `@import` statement now allows non-CSS files to be specified with quotes,
+for similarity with the SCSS syntax. For example, `@import "foo.sass"`
+Will now import the `foo.sass` file, rather than compiling to `@import "foo.sass";`.
+
 ### CSS Parsing
 
 The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.

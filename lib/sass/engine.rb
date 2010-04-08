@@ -461,10 +461,13 @@ WARNING
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
-      if directive == "import" && value !~ /^(url\(|")/
+      if directive == "import" && value !~ /^(url\(|["'])/
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
           :line => @line + 1) unless line.children.empty?
-        value.split(/,\s*/).map {|f| Tree::ImportNode.new(f)}
+        value.split(/,\s*/).map do |f|
+          f = $1 || $2 || $3 if f =~ Sass::SCSS::RX::STRING || f =~ Sass::SCSS::RX::URI
+          Tree::ImportNode.new(f)
+        end
       elsif directive == "mixin"
         parse_mixin_definition(line)
       elsif directive == "include"
