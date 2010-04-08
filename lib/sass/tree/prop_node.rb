@@ -80,6 +80,10 @@ module Sass::Tree
 
     def to_src(tabs, opts, fmt)
       name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
+      if name[0] == ?:
+        raise Sass::SyntaxError.new("The \":#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
+      end
+
       old = opts[:old] && fmt == :sass
       initial = old ? ':' : ''
       mid = old ? '' : ':'

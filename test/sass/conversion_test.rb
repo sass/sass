@@ -836,6 +836,12 @@ SCSS
     assert_selector_renders['E*:hover']
   end
 
+  def test_disallowed_colon_hack
+    assert_raise(Sass::SyntaxError, '":foo: bar" is not allowed in the Sass syntax') do
+      to_sass("foo {:name: val;}", :syntax => :scss)
+    end
+  end
+
   # Sass 3 Deprecation conversions
 
   def test_simple_quoted_strings_unquoted_with_equals
