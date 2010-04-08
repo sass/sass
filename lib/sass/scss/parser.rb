@@ -454,8 +454,8 @@ module Sass
 
       def declaration
         # This allows the "*prop: val", ":prop: val", and ".prop: val" hacks
-        if s = tok(/[:\*\.]/)
-          @use_property_exception = s != '.'
+        if s = tok(/[:\*\.]|\#(?!\{)/)
+          @use_property_exception = s !~ /[\.\#]/
           name = [s, str{ss}, *expr!(:interp_ident)]
         else
           return unless name = interp_ident

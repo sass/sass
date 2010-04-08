@@ -348,7 +348,17 @@ foo {
   *name: val;
   :name: val;
   .name: val;
+  #name: val;
   name: val; }
+SCSS
+  end
+
+  def test_trailing_hash_hack
+    assert_parses <<SCSS
+foo {
+  foo: bar;
+  #baz: bang;
+  #bip: bop; }
 SCSS
   end
 
@@ -780,7 +790,7 @@ SCSS
 
   def test_no_nested_rules
     assert_not_parses('":"', 'foo {bar <err>{a: b}}')
-    assert_not_parses('"}"', 'foo {<err>#bar {a: b}}')
+    assert_not_parses('"}"', 'foo {<err>[bar=baz] {a: b}}')
   end
 
   def test_no_nested_properties

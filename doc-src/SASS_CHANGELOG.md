@@ -37,6 +37,8 @@ this won't cause any backwards-incompatibilities.
   separating two interpolation sections,
   as in `-foo-#{$a}-#{$b}`.
 
+* Properly parse the `#name: value` Safari hack.
+
 * When converting from Sass 2,
   empty strings as variable values are preserved.
 
