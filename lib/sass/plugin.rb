@@ -33,16 +33,20 @@ module Sass
       attr_reader :engine_options
 
       def initialize(engine_options)
-        @engine_options, @dependencies, @mtimes, @dependencies_stale = engine_options, {}, {}, {}
+        @engine_options, @mtimes, @dependencies_stale = engine_options, {}, {}
+        @dependencies = Thread.current[:_sass_file_dependencies] ||= {}
       end
 
       def stylesheet_needs_update?(css_file, template_file)
         template_file = File.expand_path(template_file)
 
-        return true unless File.exists?(css_file) && File.exists?(template_file)
-
-        css_mtime = mtime(css_file)
-        mtime(template_file) > css_mtime || dependencies_stale?(template_file, css_mtime)
+        unless File.exists?(css_file) && File.exists?(template_file)
+          @dependencies.delete(template_file)
+          true
+        else
+          css_mtime = mtime(css_file)
+          mtime(template_file) > css_mtime || dependencies_stale?(template_file, css_mtime)
+        end
       end
 
       private
@@ -68,7 +72,13 @@ module Sass
       end
 
       def dependencies(filename)
-        @dependencies[filename] ||= compute_dependencies(filename)
+        stored_mtime, dependencies = @dependencies[filename]
+
+        if !stored_mtime || stored_mtime < mtime(filename)
+          @dependencies[filename] = [mtime(filename), dependencies = compute_dependencies(filename)]
+        end
+
+        dependencies
       end
 
       def dependency_updated?(css_mtime)
