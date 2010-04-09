@@ -55,8 +55,6 @@ module Sass::Script
         return self.value
       end
 
-      # Replace single backslashes with double. Really.
-      value = self.value.gsub("\\", "\\\\\\\\")
       return "\"#{value.gsub('"', "\\\"")}\"" if opts[:quote] == %q{"}
       return "'#{value.gsub("'", "\\'")}'" if opts[:quote] == %q{'}
       return "\"#{value}\"" unless value.include?('"')

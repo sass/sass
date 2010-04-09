@@ -45,6 +45,8 @@ this won't cause any backwards-incompatibilities.
 * `#{}` interpolation within strings will now be converted properly
   to `#{}` interpolation within strings.
 
+* Don't double-escape backslashes in strings.
+
 ### `@import` in Sass
 
 The Sass `@import` statement now allows non-CSS files to be specified with quotes,

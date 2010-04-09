@@ -400,6 +400,28 @@ foo {
 SCSS
   end
 
+  def test_css_string_escapes
+    assert_parses <<SCSS
+foo {
+  a: "\\foo bar";
+  b: "foo\\ bar";
+  c: "\\2022 \\0020";
+  d: "foo\\\\bar";
+  e: "foo\\"'bar"; }
+SCSS
+  end
+
+  def test_css_ident_escapes
+    assert_parses <<SCSS
+foo {
+  a: \\foo bar;
+  b: foo\\ bar;
+  c: \\2022 \\0020;
+  d: foo\\\\bar;
+  e: foo\\"\\'bar; }
+SCSS
+  end
+
   ## Directives
 
   def test_charset_directive

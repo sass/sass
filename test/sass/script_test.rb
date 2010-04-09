@@ -25,12 +25,12 @@ class SassScriptTest < Test::Unit::TestCase
   def test_string_escapes
     assert_equal "'", resolve("\"'\"")
     assert_equal '"', resolve("\"\\\"\"")
-    assert_equal "\\", resolve("\"\\\\\"")
+    assert_equal "\\\\", resolve("\"\\\\\"")
     assert_equal "\\02fa", resolve("\"\\02fa\"")
 
     assert_equal "'", resolve("'\\''")
     assert_equal '"', resolve("'\"'")
-    assert_equal "\\", resolve("'\\\\'")
+    assert_equal "\\\\", resolve("'\\\\'")
     assert_equal "\\02fa", resolve("'\\02fa'")
   end
 
@@ -290,7 +290,7 @@ SASS
     assert_equal "teal(12)", resolve("teal(12)")
     assert_equal "tealbang(12)", resolve("tealbang(12)")
     assert_equal "teal-bang(12)", resolve("teal-bang(12)")
-    assert_equal "teal+bang(12)", resolve("teal\\+bang(12)")
+    assert_equal "teal\\+bang(12)", resolve("teal\\+bang(12)")
   end
 
   def test_interpolation_after_hash

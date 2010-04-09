@@ -237,13 +237,13 @@ module Sass
 
       def ident
         return unless s = scan(REGULAR_EXPRESSIONS[:ident])
-        [:ident, s.gsub(/\\(.)/, '\1')]
+        [:ident, s]
       end
 
       def string(re, open)
         return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
         @interpolation_stack << re if @scanner[2].empty? # Started an interpolated section
-        [:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1"), :string)]
+        [:string, Script::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)]
       end
 
       def number
