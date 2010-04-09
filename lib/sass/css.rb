@@ -134,7 +134,7 @@ module Sass
           next child
         end
 
-        first, rest = child.rule.first.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
+        first, rest = child.rule.first.scan(/\A(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?\Z/m).first
 
         if current_rule.nil? || current_rule.rule.first != first
           current_rule = Tree::RuleNode.new([first])
