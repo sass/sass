@@ -161,7 +161,23 @@ RUBY
     assert_renders '"foo #{$bar} #{$bang} baz"'
     assert_renders '"#{$bar}baz"'
     assert_renders '"foo#{$bar}"'
-    assert_renders '"#{$bar}"'
+    assert_equal '#{$bar}', render('"#{$bar}"')
+
+    assert_equal '"foo#{$bar}baz"', render("'foo\#{$bar}baz'")
+  end
+
+  def test_sass2_string_interpolation
+    assert_equal 'foo#{$bar}baz', render('"foo#{$bar}baz"', :context => :equals)
+    assert_equal '#{$bar}baz', render('"#{$bar}baz"', :context => :equals)
+    assert_equal 'foo#{$bar}', render('"foo#{$bar}"', :context => :equals)
+
+    assert_equal 'unquote(".foo#{$bar}.bar")', render('".foo#{$bar}.bar"', :context => :equals)
+    assert_equal 'unquote(".foo#{$bar}")', render('".foo#{$bar}"', :context => :equals)
+    assert_equal 'unquote("#{$bar}.bar")', render('"#{$bar}.bar"', :context => :equals)
+
+    assert_equal "unquote(\"f'o\#{$bar}b'z\")", render("'f\\'o\#{$bar}b\\'z'", :context => :equals)
+    assert_equal "unquote('f\"o\#{$bar}b\"z')", render("'f\\\"o\#{$bar}b\\\"z'", :context => :equals)
+    assert_equal "unquote(\"f'o\#{$bar}b\\\"z\")", render("'f\\'o\#{$bar}b\\\"z'", :context => :equals)
   end
 
   private
@@ -172,6 +188,8 @@ RUBY
 
   def render(script, options = {})
     munge_filename(options)
-    Sass::Script.parse(script, 1, 0, options).to_sass
+    node = Sass::Script.parse(script, 1, 0, options)
+    node.context = options[:context] if options[:context]
+    node.to_sass
   end
 end
