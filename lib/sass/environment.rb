@@ -23,7 +23,8 @@ module Sass
       @vars = {}
       @mixins = {}
       @parent = parent
-
+      @stack = []
+      @ignore_parent_stack = false
       set_var("important", Script::String.new("!important")) unless @parent
     end
 
@@ -33,6 +34,49 @@ module Sass
     # @return [{Symbol => Object}]
     def options
       @options || (parent && parent.options) || {}
+    end
+
+    # Push lexical frame information onto the runtime stack.
+    # @param frame_info [{Symbol => Object}]
+    # Frame information has the following keys:
+    #
+    # `:filename`
+    # : The name of the file in which the lexical scope changed.
+    #
+    # `:mixin`
+    # : The name of the mixin in which the lexical scope changed,
+    #   or `nil` if it wasn't within in a mixin.
+    #
+    # `:line`
+    # : The line of the file on which the lexical scope changed. Never nil.
+    #
+    # `:import`
+    # : Set to `true` when the lexical scope is changing due to an import.
+    def push(frame_info)
+      @stack.push frame_info
+    end
+
+    # Pop runtime frame information from the stack.
+    def pop
+      @stack.pop
+    end
+
+    # A list of the runtime stack frame information
+    # The last element in the list was pushed onto the stack most recently.
+    def stack
+      prev = (!@ignore_parent_stack && parent && parent.stack) || []
+      prev + @stack
+    end
+
+    # Temporarily assume the runtime stack that is passed in.
+    # @param stk A stack value from another environment.
+    def with_stack(stk)
+      @stack, old_stack = stk, @stack
+      @ignore_parent_stack = true
+      yield self
+    ensure
+      @ignore_parent_stack = false
+      @stack = old_stack
     end
 
     class << self
