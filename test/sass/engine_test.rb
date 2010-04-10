@@ -1745,6 +1745,22 @@ SASS
     end
   end
 
+  def test_warn_with_imports
+    expected_warning = <<WARN
+WARNING: In the main file
+         issued from line 1 of #{File.dirname(__FILE__)}/templates/warn.sass
+WARNING: Imported
+         issued from line 1 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
+         imported from line 2 of #{File.dirname(__FILE__)}/templates/warn.sass
+WARNING: In an imported mixin
+         issued from line 4 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
+         via 'emits-a-warning' mixed in at line 3 of #{File.dirname(__FILE__)}/templates/warn.sass
+WARN
+    assert_warning expected_warning do
+      renders_correctly "warn", :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"]
+    end
+  end
+
   # Regression tests
 
   def test_parens_in_mixins

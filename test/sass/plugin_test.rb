@@ -14,7 +14,7 @@ class SassPluginTest < Test::Unit::TestCase
     FileUtils.mkdir tempfile_loc
     FileUtils.mkdir tempfile_loc(nil,"more_")
     set_plugin_opts
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     reset_mtimes
   end
 
@@ -34,21 +34,21 @@ class SassPluginTest < Test::Unit::TestCase
   def test_no_update
     File.delete(tempfile_loc('basic'))
     assert_needs_update 'basic'
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     assert_stylesheet_updated 'basic'
   end
 
   def test_update_needed_when_modified
     touch 'basic'
     assert_needs_update 'basic'
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     assert_stylesheet_updated 'basic'
   end
 
   def test_update_needed_when_dependency_modified
     touch 'basic'
     assert_needs_update 'import'
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     assert_stylesheet_updated 'basic'
     assert_stylesheet_updated 'import'
   end
@@ -56,7 +56,7 @@ class SassPluginTest < Test::Unit::TestCase
   def test_update_needed_when_scss_dependency_modified
     touch 'scss_importee'
     assert_needs_update 'import'
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     assert_stylesheet_updated 'scss_importee'
     assert_stylesheet_updated 'import'
   end
@@ -64,14 +64,14 @@ class SassPluginTest < Test::Unit::TestCase
   def test_scss_update_needed_when_dependency_modified
     touch 'basic'
     assert_needs_update 'scss_import'
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     assert_stylesheet_updated 'basic'
     assert_stylesheet_updated 'scss_import'
   end
 
   def test_full_exception_handling
     File.delete(tempfile_loc('bork1'))
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     File.open(tempfile_loc('bork1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...6].join("\n"))
 /*
@@ -90,7 +90,7 @@ CSS
     Sass::Plugin.options[:full_exception] = false
 
     File.delete(tempfile_loc('bork1'))
-    assert_raise(Sass::SyntaxError) {Sass::Plugin.update_stylesheets}
+    assert_raise(Sass::SyntaxError) {update_all_stylesheets!}
   ensure
     Sass::Plugin.options[:full_exception] = old_full_exception
   end
@@ -100,7 +100,7 @@ CSS
       template_loc => tempfile_loc,
       template_loc(nil,'more_') => tempfile_loc(nil,'more_')
     }
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     ['more1', 'more_import'].each { |name| assert_renders_correctly(name, :prefix => 'more_') }
   end
 
@@ -111,7 +111,7 @@ CSS
                       template_loc => tempfile_loc,
                       template_loc(nil,'more_') => tempfile_loc(nil,'more_')
                     }
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     assert_renders_correctly('more1_with_line_comments', 'more1', :prefix => 'more_')
   end
 
@@ -157,7 +157,7 @@ CSS
 
   def test_updating_stylesheets_callback_with_individual_files
     files = [[template_loc("basic"), tempfile_loc("basic")]]
-    assert_callback(:updating_stylesheets, files) {Sass::Plugin.update_stylesheets(files)}
+    assert_callback(:updating_stylesheets, files) {Haml::Util.silence_haml_warnings{Sass::Plugin.update_stylesheets(files)}}
   end
 
   def test_updating_stylesheets_callback_with_never_update
@@ -248,7 +248,7 @@ CSS
 
     touch 'basic', 'more_'
     assert_needs_update "import"
-    Sass::Plugin.update_stylesheets
+    update_all_stylesheets!
     assert_renders_correctly("import")
   ensure
     FileUtils.mv(template_loc("basic", "more_"), template_loc("basic"))
@@ -299,7 +299,7 @@ CSS
     if block_given?
       yield
     else
-      Sass::Plugin.update_stylesheets
+      update_all_stylesheets!
     end
 
     assert run, "Expected #{name} callback to be run with arguments:\n  #{expected_args.inspect}"
@@ -322,22 +322,28 @@ CSS
     if block_given?
       yield
     else
-      Sass::Plugin.update_stylesheets
+      update_all_stylesheets!
     end
   end
 
   def assert_callbacks(*args)
-    return Sass::Plugin.update_stylesheets if args.empty?
+    return update_all_stylesheets! if args.empty?
     assert_callback(*args.pop) {assert_callbacks(*args)}
   end
 
   def assert_no_callbacks(*args)
-    return Sass::Plugin.update_stylesheets if args.empty?
+    return update_all_stylesheets! if args.empty?
     assert_no_callback(*args.pop) {assert_no_callbacks(*args)}
   end
 
   def clear_callbacks
     Sass::Plugin.instance_variable_set('@_sass_callbacks', {})
+  end
+
+  def update_all_stylesheets!
+    Haml::Util.silence_haml_warnings do
+      Sass::Plugin.update_stylesheets
+    end
   end
 
   def assert_needs_update(name)
