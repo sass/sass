@@ -8,6 +8,18 @@ module Sass::Script
     # @return [{Symbol => Object}]
     attr_reader :options
 
+    # The context in which this node was parsed,
+    # which determines how some operations are performed.
+    #
+    # Can be `:equals`, which means it's part of a `$var = val` or `prop = val` assignment,
+    # or `:default`, which means it's anywhere else
+    # (including `$var: val` and `prop: val` assignments,
+    # `#{}`-interpolations,
+    # and other script contexts such as `@if` conditions).
+    #
+    # @return [Symbol]
+    attr_reader :context
+
     # The line of the document on which this node appeared.
     #
     # @return [Fixnum]
@@ -21,6 +33,21 @@ module Sass::Script
     def options=(options)
       @options = options
       children.each {|c| c.options = options}
+    end
+
+    # Sets the options hash for this node,
+    # as well as for all child nodes.
+    #
+    # @param context [Symbol]
+    # @see #context
+    def context=(context)
+      @context = context
+      children.each {|c| c.context = context}
+    end
+
+    # Creates a new script node.
+    def initialize
+      @context = :default
     end
 
     # Evaluates the node.
@@ -47,11 +74,20 @@ module Sass::Script
     # Returns the text of this SassScript expression.
     #
     # @return [String]
-    def to_sass
+    def to_sass(opts = {})
       raise NotImplementedError.new("All subclasses of Sass::Script::Node must override #to_sass.")
     end
 
     protected
+
+    # Converts underscores to dashes if the :dasherize option is set.
+    def dasherize(s, opts)
+      if opts[:dasherize]
+        s.gsub(/_/,'-')
+      else
+        s
+      end
+    end
 
     # Evaluates this node.
     #

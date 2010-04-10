@@ -213,6 +213,26 @@ module Haml
       $stderr = the_real_stderr
     end
 
+    @@silence_warnings = false
+    # Silences all Haml warnings within a block.
+    #
+    # @yield A block in which no Haml warnings will be printed
+    def silence_haml_warnings
+      old_silence_warnings = @@silence_warnings
+      @@silence_warnings = true
+      yield
+    ensure
+      @@silence_warnings = old_silence_warnings
+    end
+
+    # The same as `Kernel#warn`, but is silenced by \{#silence\_haml\_warnings}.
+    #
+    # @param msg [String]
+    def haml_warn(msg)
+      return if @@silence_warnings
+      warn(msg)
+    end
+
     ## Cross Rails Version Compatibility
 
     # Returns the root of the Rails application,
@@ -390,6 +410,15 @@ MSG
     # @return [Enumerator] The consed enumerator
     def enum_cons(enum, n)
       ruby1_8? ? enum.enum_cons(n) : enum.each_cons(n)
+    end
+
+    # A version of `Enumerable#enum_slice` that works in Ruby 1.8 and 1.9.
+    #
+    # @param enum [Enumerable] The enumerable to get the enumerator for
+    # @param n [Fixnum] The size of each slice
+    # @return [Enumerator] The consed enumerator
+    def enum_slice(enum, n)
+      ruby1_8? ? enum.enum_slice(n) : enum.each_slice(n)
     end
 
     # Returns the ASCII code of the given character.

@@ -5,9 +5,6 @@ module Sass
   module SCSS
     # The parser for SCSS.
     # It parses a string of code into a tree of {Sass::Tree::Node}s.
-    #
-    # @todo Add a CSS-only parser that doesn't parse the SassScript extensions,
-    #   so css2sass will work properly.
     class Parser
       # @param str [String] The source document to parse
       def initialize(str)
@@ -251,17 +248,10 @@ module Sass
       def variable
         return unless tok(/\$/)
         name = tok!(IDENT)
-        ss
+        ss; tok!(/:/); ss
 
-        if tok(/\|/)
-          tok!(/\|/)
-          guarded = true
-        end
-
-        tok!(/=/)
-        ss
         expr = sass_script(:parse)
-
+        guarded = tok(DEFAULT)
         node(Sass::Tree::VariableNode.new(name, expr, guarded))
       end
 
@@ -275,18 +265,6 @@ module Sass
 
       def unary_operator
         tok(/[+-]/)
-      end
-
-      def property
-        return unless e = (tok(IDENT) || interpolation)
-        res = [e, str{ss}]
-
-        while e = (interpolation || tok(IDENT))
-          res << e
-        end
-
-        ss
-        res
       end
 
       def ruleset
@@ -392,12 +370,12 @@ module Sass
 
       def simple_selector_sequence
         # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
-        return expr unless e = element_name || id_expr || class_expr ||
+        return expr unless e = element_name || id_selector || class_selector ||
           attrib || negation || pseudo || parent_selector || interpolation_selector
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = element_name || id_expr || class_expr ||
+        while v = element_name || id_selector || class_selector ||
             attrib || negation || pseudo || interpolation_selector ||
             (tok(/\*/) && Selector::Universal.new(nil))
           res << v
@@ -410,25 +388,31 @@ module Sass
         Selector::Parent.new
       end
 
-      def class_expr
+      def class_selector
         return unless tok(/\./)
-        Selector::Class.new(tok!(IDENT))
+        @expected = "class name"
+        Selector::Class.new(expr!(:interp_ident))
       end
 
-      def id_expr
-        return unless hash = tok(HASH)
-        Selector::Id.new(hash[1..-1])
+      def id_selector
+        return unless tok(/#(?!\{)/)
+        @expected = "id name"
+        Selector::Id.new(expr!(:interp_name))
       end
 
       def element_name
-        return unless name = tok(IDENT) || tok(/\*/) || (tok?(/\|/) && "")
+        return unless name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
         if tok(/\|/)
           @expected = "element name or *"
           ns = name
-          name = tok(IDENT) || tok!(/\*/)
+          name = interp_ident || tok!(/\*/)
         end
 
-        name == '*' ? Selector::Universal.new(ns) : Selector::Element.new(name, ns)
+        if name == '*'
+          Selector::Universal.new(ns && [ns].flatten)
+        else
+          Selector::Element.new([name].flatten, ns && [ns].flatten)
+        end
       end
 
       def interpolation_selector
@@ -463,37 +447,33 @@ module Sass
       end
 
       def attrib_name!
-        if name_or_ns = tok(IDENT)
+        if name_or_ns = interp_ident
           # E, E|E
           if tok(/\|(?!=)/)
             ns = name_or_ns
-            name = tok(IDENT)
+            name = interp_ident
           else
             name = name_or_ns
           end
         else
           # *|E or |E
-          ns = tok(/\*/) || ""
+          ns = [tok(/\*/) || ""]
           tok!(/\|/)
-          name = tok! IDENT
+          name = expr!(:interp_ident)
         end
         return ns, name
       end
 
       def pseudo
         return unless s = tok(/::?/)
-
         @expected = "pseudoclass or pseudoelement"
-        name, arg = functional_pseudo
-        name ||= tok!(IDENT)
+        name = expr!(:interp_ident)
+        if tok(/\(/)
+          ss
+          arg = expr!(:pseudo_expr)
+          tok!(/\)/)
+        end
         Selector::Pseudo.new(s == ':' ? :class : :element, name, arg)
-      end
-
-      def functional_pseudo
-        return unless fn = tok(FUNCTION)
-        val = [str{ss}] + expr!(:pseudo_expr)
-        tok!(/\)/)
-        return fn[0...-1], val
       end
 
       def pseudo_expr
@@ -511,40 +491,44 @@ module Sass
         return unless tok(NOT)
         ss
         @expected = "selector"
-        sel = element_name || id_expr || class_expr || attrib || expr!(:pseudo)
+        sel = element_name || id_selector || class_selector || attrib || expr!(:pseudo)
         tok!(/\)/)
         Selector::Negation.new(sel)
       end
 
       def declaration
         # This allows the "*prop: val", ":prop: val", and ".prop: val" hacks
-        if s = tok(/[:\*\.]/)
-          @use_property_exception = s != '.'
-          name = [s, str{ss}] + expr!(:property)
+        if s = tok(/[:\*\.]|\#(?!\{)/)
+          @use_property_exception = s !~ /[\.\#]/
+          name = [s, str{ss}, *expr!(:interp_ident)]
         else
-          return unless name = property
+          return unless name = interp_ident
+          name = [name] if name.is_a?(String)
         end
+        ss
 
         @expected = expected_property_separator
-        expression, space, value = (script_value || expr!(:plain_value))
+        space, value = expr!(:value)
         ss
-        require_block = !expression || tok?(/\{/)
+        require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value.flatten.compact, :new))
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new))
 
         return node unless require_block
-        nested_properties! node, expression, space
+        nested_properties! node, space
       end
 
       def expected_property_separator
         '":" or "="'
       end
 
-      def script_value
-        return unless tok(/=/)
-        @use_property_exception = true
-        # expression, space, value
-        return true, true, [sass_script(:parse)]
+      def value
+        return unless tok(/:/)
+        space = !str {ss}.empty?
+        @use_property_exception ||= space || !tok?(IDENT)
+
+        return true, Sass::Script::String.new("") if tok?(/\{/)
+        return space, sass_script(:parse)
       end
 
       def plain_value
@@ -558,14 +542,11 @@ module Sass
         return expression, space, expression || [""]
       end
 
-      def nested_properties!(node, expression, space)
-        if expression && !space
-          @use_property_exception = true
-          raise Sass::SyntaxError.new(<<MESSAGE, :line => @line)
+      def nested_properties!(node, space)
+        raise Sass::SyntaxError.new(<<MESSAGE, :line => @line) unless space
 Invalid CSS: a space is required between a property and its definition
 when it has other properties nested beneath it.
 MESSAGE
-        end
 
         @use_property_exception = true
         @expected = 'expression (e.g. 1px, bold) or "{"'
@@ -611,7 +592,7 @@ MESSAGE
       end
 
       def interpolation
-        return unless tok(/#\{/)
+        return unless tok(INTERP_START)
         sass_script(:parse_interpolated)
       end
 
@@ -627,6 +608,19 @@ MESSAGE
         # @scanner[2].empty? means we've started an interpolated section
         res << expr!(:interpolation) << tok(mid_re) while @scanner[2].empty?
         res
+      end
+
+      def interp_ident(start = IDENT)
+        return unless val = tok(start) || interpolation
+        res = [val]
+        while val = tok(NAME) || interpolation
+          res << val
+        end
+        res
+      end
+
+      def interp_name
+        interp_ident NAME
       end
 
       def str
@@ -649,9 +643,14 @@ MESSAGE
         node
       end
 
+      @sass_script_parser = Class.new(Sass::Script::Parser)
+      @sass_script_parser.send(:include, ScriptParser)
+      # @private
+      def self.sass_script_parser; @sass_script_parser; end
+
       def sass_script(*args)
-        parser = ScriptParser.new(@scanner, @line,
-          @scanner.pos - (@scanner.string.rindex("\n") || 0))
+        parser = self.class.sass_script_parser.new(@scanner, @line,
+          @scanner.pos - (@scanner.string[0...@scanner.pos].rindex("\n") || 0))
         result = parser.send(*args)
         @line = parser.line
         result
@@ -661,6 +660,8 @@ MESSAGE
         :media_query => "media query (e.g. print, screen, print and screen)",
         :media_expr => "media expression (e.g. (min-device-width: 800px)))",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
+        :interp_ident => "identifier",
+        :interp_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
         :_selector => "selector",
         :simple_selector_sequence => "selector",
@@ -668,7 +669,7 @@ MESSAGE
 
       TOK_NAMES = Haml::Util.to_hash(
         Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
-        merge(IDENT => "identifier", /[;}]/ => '";"')
+        merge(IDENT => "identifier", /[;}]/ => '";"', /[=:]/ => '":"')
 
       def tok?(rx)
         @scanner.match?(rx)
@@ -693,9 +694,14 @@ MESSAGE
       end
 
       def expected(name)
-        pos = @scanner.pos
+        self.class.expected(@scanner, @expected || name, @line)
+      end
 
-        after = @scanner.string[0...pos]
+      # @private
+      def self.expected(scanner, expected, line)
+        pos = scanner.pos
+
+        after = scanner.string[0...pos]
         # Get rid of whitespace between pos and the last token,
         # but only if there's a newline in there
         after.gsub!(/\s*\n\s*$/, '')
@@ -703,9 +709,7 @@ MESSAGE
         after.gsub!(/.*\n/, '')
         after = "..." + after[-15..-1] if after.size > 18
 
-        expected = @expected || name
-
-        was = @scanner.rest.dup
+        was = scanner.rest.dup
         # Get rid of whitespace between pos and the next token,
         # but only if there's a newline in there
         was.gsub!(/^\s*\n\s*/, '')
@@ -715,7 +719,7 @@ MESSAGE
 
         raise Sass::SyntaxError.new(
           "Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"",
-          :line => @line)
+          :line => line)
       end
 
       def tok(rx)

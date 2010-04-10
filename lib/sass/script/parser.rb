@@ -21,7 +21,7 @@ module Sass
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
       def initialize(str, line, offset, options = {})
         @options = options
-        @lexer = Lexer.new(str, line, offset, options)
+        @lexer = lexer_class.new(str, line, offset, options)
       end
 
       # Parses a SassScript expression within an interpolated segment (`#{}`).
@@ -127,7 +127,7 @@ module Sass
 
       # @private
       PRECEDENCE = [
-        :comma, :concat, :or, :and,
+        :comma, :single_eq, :concat, :or, :and,
         [:eq, :neq],
         [:gt, :gte, :lt, :lte],
         [:plus, :minus],
@@ -182,7 +182,24 @@ RUBY
 
       private
 
-      production :expr, :concat, :comma
+      # @private
+      def lexer_class; Lexer; end
+
+      production :expr, :interpolation, :comma
+      production :equals, :interpolation, :single_eq
+
+      def interpolation
+        e = concat
+        while interp = try_tok(:begin_interpolation)
+          wb = @lexer.whitespace?(interp)
+          line = @lexer.line
+          mid = parse_interpolated
+          wa = @lexer.whitespace?
+          e = Script::Interpolation.new(e, mid, concat, wb, wa)
+          e.line = line
+        end
+        e
+      end
 
       def concat
         return unless e = or_expr
@@ -197,14 +214,15 @@ RUBY
       production :eq_or_neq, :relational, :eq, :neq
       production :relational, :plus_or_minus, :gt, :gte, :lt, :lte
       production :plus_or_minus, :times_div_or_mod, :plus, :minus
-      production :times_div_or_mod, :unary_minus, :times, :div, :mod
+      production :times_div_or_mod, :unary_plus, :times, :div, :mod
 
+      unary :plus, :unary_minus
       unary :minus, :unary_div
       unary :div, :unary_not # For strings, so /foo/bar works
       unary :not, :funcall
 
       def funcall
-        return paren unless @lexer.peek && @lexer.peek.type == :ident
+        return raw unless @lexer.peek && @lexer.peek.type == :ident
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next
@@ -213,27 +231,28 @@ RUBY
           if color = Color::HTML4_COLORS[name.value]
             return node(Color.new(color))
           end
-
-          filename = @options[:filename]
-          warn(<<END)
-DEPRECATION WARNING:
-On line #{name.line}, character #{name.offset}#{" of '#{filename}'" if filename}
-Implicit strings have been deprecated and will be removed in version 3.0.
-'#{name.value}' was not quoted. Please add double quotes (e.g. "#{name.value}").
-END
-          node(Script::String.new(name.value))
+          node(Script::String.new(name.value, :identifier))
         else
-          args = arglist || []
+          args = fn_arglist || []
           assert_tok(:rparen)
           node(Script::Funcall.new(name.value, args))
         end
       end
 
       def defn_arglist(must_have_default)
+        line = @lexer.line
+        offset = @lexer.offset + 1
         return unless c = try_tok(:const)
         var = Script::Variable.new(c.value)
-        if try_tok(:single_eq)
+        if tok = (try_tok(:colon) || try_tok(:single_eq))
           val = assert_expr(:concat)
+
+          if tok.type == :single_eq
+            val.context = :equals
+            val.options = @options
+            Script.equals_warning("mixin argument defaults", "$#{c.value}",
+              val.to_sass, false, line, offset, @options[:filename])
+          end
         elsif must_have_default
           raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")
         end
@@ -242,17 +261,42 @@ END
         [[var, val], *defn_arglist(val)]
       end
 
+      def fn_arglist
+        return unless e = equals
+        return [e] unless try_tok(:comma)
+        [e, *fn_arglist]
+      end
+
       def arglist
-        return unless e = concat
+        return unless e = interpolation
         return [e] unless try_tok(:comma)
         [e, *arglist]
       end
 
+      def raw
+        return special_fun unless tok = try_tok(:raw)
+        node(Script::String.new(tok.value))
+      end
+
+      def special_fun
+        return paren unless tok = try_tok(:special_fun)
+        first = node(Script::String.new(tok.value.first))
+        Haml::Util.enum_slice(tok.value[1..-1], 2).inject(first) do |l, (i, r)|
+          Script::Interpolation.new(
+            l, i, r && node(Script::String.new(r)),
+            false, false)
+        end
+      end
+
       def paren
         return variable unless try_tok(:lparen)
+        was_in_parens = @in_parens
+        @in_parens = true
         e = assert_expr(:expr)
         assert_tok(:rparen)
         return e
+      ensure
+        @in_parens = was_in_parens
       end
 
       def variable
@@ -261,31 +305,43 @@ END
       end
 
       def string
-        return literal unless first = try_tok(:string)
+        return number unless first = try_tok(:string)
         return first.value unless try_tok(:begin_interpolation)
         line = @lexer.line
         mid = parse_interpolated
         last = assert_expr(:string)
-        op = Operation.new(first.value, node(Operation.new(mid, last, :plus)), :plus)
-        op.line = line
-        op
+        interp = StringInterpolation.new(first.value, mid, last)
+        interp.line = line
+        interp
+      end
+
+      def number
+        return literal unless tok = try_tok(:number)
+        num = tok.value
+        num.original = num.to_s unless @in_parens
+        num
       end
 
       def literal
-        (t = try_tok(:number, :color, :bool)) && (return t.value)
+        (t = try_tok(:color, :bool)) && (return t.value)
       end
 
       # It would be possible to have unified #assert and #try methods,
       # but detecting the method/token difference turns out to be quite expensive.
 
+      EXPR_NAMES = {
+        :string => "string",
+        :default => "expression (e.g. 1px, bold)",
+      }
+
       def assert_expr(name)
         (e = send(name)) && (return e)
-        raise Sass::SyntaxError.new("Expected expression, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.type} token"}.")
+        @lexer.expected!(EXPR_NAMES[name] || EXPR_NAMES[:default])
       end
 
       def assert_tok(*names)
         (t = try_tok(*names)) && (return t)
-        raise Sass::SyntaxError.new("Expected #{names.join(' or ')} token, was #{@lexer.done? ? 'end of text' : "#{@lexer.peek.type} token"}.")
+        @lexer.expected!(names.map {|tok| Lexer::TOKEN_NAMES[tok] || tok}.join(" or "))
       end
 
       def try_tok(*names)
@@ -295,7 +351,7 @@ END
 
       def assert_done
         return if @lexer.done?
-        raise Sass::SyntaxError.new("Unexpected #{@lexer.peek.type} token.")
+        @lexer.expected!(EXPR_NAMES[:default])
       end
 
       def node(node)

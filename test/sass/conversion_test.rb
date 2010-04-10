@@ -147,21 +147,37 @@ SCSS
   def test_dynamic_properties
     assert_renders <<SASS, <<SCSS
 foo bar
-  baz= 12 $bang "bip"
+  baz: 12 $bang "bip"
 SASS
 foo bar {
-  baz= 12 $bang "bip"; }
+  baz: 12 $bang "bip"; }
 SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo bar {
+  baz: 12 $bang bip; }
+SCSS
+foo bar
+  baz= 12 $bang "bip"
+SASS
   end
 
   def test_dynamic_properties_with_old
     assert_renders <<SASS, <<SCSS, :old => true
 foo bar
-  :baz= 12 $bang "bip"
+  :baz 12 $bang "bip"
 SASS
 foo bar {
-  baz= 12 $bang "bip"; }
+  baz: 12 $bang "bip"; }
 SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS, :old => true
+foo bar {
+  baz: 12 $bang bip; }
+SCSS
+foo bar
+  :baz= 12 $bang "bip"
+SASS
   end
 
   def test_multiline_properties
@@ -178,9 +194,7 @@ SCSS
 
     assert_scss_to_scss <<OUT, <<IN
 foo bar {
-  baz: bip
-    bam
-    boon; }
+  baz: bip bam boon; }
 OUT
 foo bar {
   baz:
@@ -193,10 +207,10 @@ IN
   def test_multiline_dynamic_properties
     assert_scss_to_sass <<SASS, <<SCSS
 foo bar
-  baz= $bip "bam" 12px
+  baz: $bip "bam" 12px
 SASS
 foo bar {
-  baz=
+  baz:
     $bip
   "bam"
         12px; }
@@ -204,10 +218,10 @@ SCSS
 
     assert_scss_to_scss <<OUT, <<IN
 foo bar {
-  baz= $bip "bam" 12px; }
+  baz: $bip "bam" 12px; }
 OUT
 foo bar {
-  baz=
+  baz:
     $bip
   "bam"
         12px; }
@@ -638,7 +652,7 @@ SASS
     a: b; } }
 SCSS
 
-    assert_scss_to_sass <<SASS, to_sass(<<SCSS)
+    assert_scss_to_sass <<SASS, <<SCSS
 =foo-bar
   baz
     a: b
@@ -648,7 +662,7 @@ SASS
     a: b; } }
 SCSS
 
-    assert_sass_to_scss <<SCSS, to_sass(<<SASS)
+    assert_sass_to_scss <<SCSS, <<SASS
 @mixin foo-bar {
   baz {
     a: b; } }
@@ -663,24 +677,44 @@ SASS
     assert_renders <<SASS, <<SCSS
 =foo-bar($baz, $bang)
   baz
-    a= $baz $bang
+    a: $baz $bang
 SASS
 @mixin foo-bar($baz, $bang) {
   baz {
-    a= $baz $bang; } }
+    a: $baz $bang; } }
 SCSS
   end
 
   def test_mixin_definition_with_defaults
     assert_renders <<SASS, <<SCSS
-=foo-bar($baz, $bang = 12px)
+=foo-bar($baz, $bang: 12px)
   baz
-    a= $baz $bang
+    a: $baz $bang
 SASS
-@mixin foo-bar($baz, $bang = 12px) {
+@mixin foo-bar($baz, $bang: 12px) {
   baz {
-    a= $baz $bang; } }
+    a: $baz $bang; } }
 SCSS
+
+    assert_scss_to_sass <<SASS, <<SCSS
+=foo-bar($baz, $bang: foo)
+  baz
+    a: $baz $bang
+SASS
+@mixin foo-bar($baz, $bang = "foo") {
+  baz {
+    a: $baz $bang; } }
+SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+@mixin foo-bar($baz, $bang: foo) {
+  baz {
+    a: $baz $bang; } }
+SCSS
+=foo-bar($baz, $bang = "foo")
+  baz
+    a: $baz $bang
+SASS
   end
 
   def test_argless_mixin_include
@@ -709,34 +743,206 @@ SCSS
 
   def test_variable_definition
     assert_renders <<SASS, <<SCSS
-$var1 = 12px + 15px
+$var1: 12px + 15px
 
 foo
-  $var2 = flaz(#abcdef)
-  val= $var1 $var2
+  $var2: flaz(#abcdef)
+  val: $var1 $var2
 SASS
-$var1 = 12px + 15px;
+$var1: 12px + 15px;
 
 foo {
-  $var2 = flaz(#abcdef);
-  val= $var1 $var2; }
+  $var2: flaz(#abcdef);
+  val: $var1 $var2; }
 SCSS
+
+    assert_sass_to_scss '$var: 12px $bar baz;', '$var = 12px $bar "baz"'
   end
 
   def test_guarded_variable_definition
     assert_renders <<SASS, <<SCSS
-$var1 ||= 12px + 15px
+$var1: 12px + 15px !default
 
 foo
-  $var2 ||= flaz(#abcdef)
-  val= $var1 $var2
+  $var2: flaz(#abcdef) !default
+  val: $var1 $var2
 SASS
-$var1 ||= 12px + 15px;
+$var1: 12px + 15px !default;
 
 foo {
-  $var2 ||= flaz(#abcdef);
-  val= $var1 $var2; }
+  $var2: flaz(#abcdef) !default;
+  val: $var1 $var2; }
 SCSS
+
+    assert_sass_to_scss '$var: 12px $bar baz !default;', '$var ||= 12px $bar "baz"'
+  end
+
+  # Hacks
+
+  def test_declaration_hacks
+    assert_renders <<SASS, <<SCSS
+foo
+  _name: val
+  *name: val
+  #name: val
+  .name: val
+  name: val
+SASS
+foo {
+  _name: val;
+  *name: val;
+  #name: val;
+  .name: val;
+  name: val; }
+SCSS
+  end
+
+  def test_old_declaration_hacks
+    assert_renders <<SASS, <<SCSS, :old => true
+foo
+  :_name val
+  :*name val
+  :#name val
+  :.name val
+  :name val
+SASS
+foo {
+  _name: val;
+  *name: val;
+  #name: val;
+  .name: val;
+  name: val; }
+SCSS
+  end
+
+  def test_selector_hacks
+    assert_selector_renders = lambda do |s|
+      assert_renders <<SASS, <<SCSS
+#{s}
+  a: b
+SASS
+#{s} {
+  a: b; }
+SCSS
+    end
+
+    assert_selector_renders['> E']
+    assert_selector_renders['+ E']
+    assert_selector_renders['~ E']
+    assert_selector_renders['>> E']
+
+    assert_selector_renders['E*']
+    assert_selector_renders['E*.foo']
+    assert_selector_renders['E*:hover']
+  end
+
+  def test_disallowed_colon_hack
+    assert_raise(Sass::SyntaxError, '":foo: bar" is not allowed in the Sass syntax') do
+      to_sass("foo {:name: val;}", :syntax => :scss)
+    end
+  end
+
+  # Sass 3 Deprecation conversions
+
+  def test_simple_quoted_strings_unquoted_with_equals
+    assert_sass_to_scss '$var: 1px foo + bar baz;', '!var = 1px "foo" + "bar" baz'
+    assert_sass_to_scss '$var: -foo-bar;', '!var = "-foo-bar"'
+  end
+
+  def test_complex_quoted_strings_explicitly_unquoted_with_equals
+    assert_sass_to_scss '$var: 1px unquote("foo + bar") baz;', '!var = 1px "foo + bar" baz'
+    assert_sass_to_scss "$var: unquote('foo\"bar');", '!var = "foo\"bar"'
+  end
+
+  def test_division_asserted_with_equals
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  a: (1px / 2px); }
+SCSS
+foo
+  a = 1px / 2px
+SASS
+  end
+
+  def test_division_not_asserted_with_equals_when_unnecessary
+    assert_sass_to_scss <<SCSS, <<SASS
+$var: 1px / 2px;
+
+foo {
+  a: $var; }
+SCSS
+!var = 1px / 2px
+
+foo
+  a = !var
+SASS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+$var: 1px;
+
+foo {
+  a: $var / 2px; }
+SCSS
+!var = 1px
+
+foo
+  a = !var / 2px
+SASS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  a: 1 + 1px / 2px; }
+SCSS
+foo
+  a = 1 + 1px / 2px
+SASS
+  end
+
+  def test_nested_properties
+    assert_renders <<SASS, <<SCSS
+div
+  before: before
+  background:
+    color: blue
+    repeat: no-repeat
+  after: after
+SASS
+div {
+  before: before;
+  background: {
+    color: blue;
+    repeat: no-repeat; };
+  after: after; }
+
+SCSS
+  end
+
+  def test_dasherize
+    assert_sass_to_scss(<<SCSS, <<SASS, :dasherize => true)
+@mixin under-scored-mixin($under-scored-arg: $under-scored-default) {
+  bar: $under-scored-arg; }
+
+div {
+  foo: under-scored-fn($under-scored-var + "before\#{$another-under-scored-var}after");
+  @include under-scored-mixin($passed-arg);
+  selector-\#{$under-scored-interp}: bold; }
+
+@if $under-scored {
+  @for $for-var from $from-var to $to-var {
+    @while $while-var == true {
+      $while-var: false; } } }
+SCSS
+=under_scored_mixin($under_scored_arg: $under_scored_default)
+  bar: $under_scored_arg
+div
+  foo: under_scored_fn($under_scored_var + "before\#{$another_under_scored_var}after")
+  +under_scored_mixin($passed_arg)
+  selector-\#{$under_scored_interp}: bold
+@if $under_scored
+  @for $for_var from $from_var to $to_var
+    @while $while_var == true
+      $while_var : false
+SASS
   end
 
   private
@@ -777,10 +983,14 @@ SCSS
   end
 
   def to_sass(scss, options = {})
-    Sass::Engine.new(scss, options).to_tree.to_sass(options)
+    Haml::Util.silence_haml_warnings do
+      Sass::Engine.new(scss, options).to_tree.to_sass(options)
+    end
   end
 
   def to_scss(sass, options = {})
-    Sass::Engine.new(sass, options).to_tree.to_scss(options)
+    Haml::Util.silence_haml_warnings do
+      Sass::Engine.new(sass, options).to_tree.to_scss(options)
+    end
   end
 end

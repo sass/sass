@@ -22,6 +22,7 @@ module Sass
       def initialize(name, args)
         @name = name
         @args = args
+        super()
       end
 
       # @return [String] A string representation of the function call
@@ -30,8 +31,8 @@ module Sass
       end
 
       # @see Node#to_sass
-      def to_sass
-        "#{name}(#{args.map {|a| a.to_sass}.join(', ')})"
+      def to_sass(opts = {})
+        "#{dasherize(name, opts)}(#{args.map {|a| a.to_sass(opts)}.join(', ')})"
       end
 
       # Returns the arguments to the function.

@@ -237,6 +237,37 @@ SASS
 CSS
   end
 
+  # Regressions
+
+  def test_nesting_within_media
+    assert_equal(<<SASS, css2sass(<<CSS))
+@media all
+  .next .vevent
+    padding-left: 0
+    padding-right: 0
+SASS
+@media all {
+  .next .vevent {
+    padding-left: 0;
+    padding-right: 0; } }
+CSS
+  end
+
+  def test_multiline_selector_within_media_and_with_child_selector
+    assert_equal(<<SASS, css2sass(<<CSS))
+@media all
+  foo bar, baz
+    padding-left: 0
+    padding-right: 0
+SASS
+@media all {
+  foo bar,
+  baz {
+    padding-left: 0;
+    padding-right: 0; } }
+CSS
+  end
+
   # Error reporting
 
   def test_error_reporting

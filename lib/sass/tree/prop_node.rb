@@ -18,12 +18,9 @@ module Sass::Tree
     # @return [String]
     attr_accessor :resolved_name
 
-    # The value of the property,
-    # interspersed with {Sass::Script::Node}s
-    # representing `#{}`-interpolation.
-    # Any adjacent strings will be merged together.
+    # The value of the property.
     #
-    # @return [Array<String, Script::Node>]
+    # @return [Sass::Script::Node]
     attr_accessor :value
 
     # The value of the property
@@ -46,14 +43,13 @@ module Sass::Tree
     attr_accessor :tabs
 
     # @param name [Array<String, Sass::Script::Node>] See \{#name}
-    # @param value [Array<String, Sass::Script::Node>] See \{#value}
+    # @param value [Sass::Script::Node] See \{#value}
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
     #   `:old` if it uses `:a b`-style syntax
     def initialize(name, value, prop_syntax)
       @name = Haml::Util.strip_string_array(
         Haml::Util.merge_adjacent_strings(name))
-      @value = Haml::Util.strip_string_array(
-        Haml::Util.merge_adjacent_strings(value))
+      @value = value
       @tabs = 0
       @prop_syntax = prop_syntax
       super()
@@ -83,7 +79,7 @@ module Sass::Tree
     def to_src(tabs, opts, fmt)
       res = declaration(tabs, opts, fmt)
       return res + "#{semi fmt}\n" if children.empty?
-      res.rstrip + children_to_src(tabs, opts, fmt)
+      res.rstrip + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
     end
 
     # Computes the CSS for the property.
@@ -128,7 +124,13 @@ module Sass::Tree
     #   variable and mixin values
     def perform!(environment)
       @resolved_name = run_interp(@name, environment)
-      @resolved_value = run_interp(@value, environment)
+      val = @value.perform(environment)
+      @resolved_value =
+        if @value.context == :equals && val.is_a?(Sass::Script::String)
+          val.value
+        else
+          val.to_s
+        end
       super
     end
 
@@ -151,8 +153,6 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.")
       elsif @options[:property_syntax] == :new && @prop_syntax == :old
         raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.")
-      elsif resolved_value[-1] == ?;
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no \";\" required at end-of-line).")
       elsif resolved_value.empty?
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
           pseudo_class_selector_message)
@@ -160,26 +160,56 @@ module Sass::Tree
     end
 
     def declaration(tabs = 0, opts = {:old => @prop_syntax == :old}, fmt = :sass)
-      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass}}"}.join
-      old = opts[:old] && fmt == :sass
-      initial = old ? ':' : ''
-
-      if self.value.size == 1 && self.value.first.is_a?(Sass::Script::Node)
-        mid = '='
-        value = self.value.first.to_sass
-      else
-        mid = old ? '' : ':'
-        value = self.value.map do |n|
-          if n.is_a?(String)
-            fmt == :sass ? n.gsub(/\n\s*/, " ") : n
-          else
-            "\#{#{n.to_sass}}"
-          end
-        end.join
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
+      if name[0] == ?:
+        raise Sass::SyntaxError.new("The \":#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
       end
 
-      value.gsub!(/\n[ \t]*/, "\n#{'  ' * (tabs + 1)}") if fmt == :scss
-      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{value}".rstrip
+      old = opts[:old] && fmt == :sass
+      initial = old ? ':' : ''
+      mid = old ? '' : ':'
+      "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}"
+    end
+
+    class << self
+      # @private
+      def val_to_sass(value, opts)
+        return value.to_sass(opts) unless value.context == :equals
+        val_to_sass_comma(value, opts).to_sass(opts)
+      end
+
+      private
+
+      def val_to_sass_comma(node, opts)
+        return node unless node.is_a?(Sass::Script::Operation)
+        return val_to_sass_concat(node, opts) unless node.operator == :comma
+
+        Sass::Script::Operation.new(
+          val_to_sass_concat(node.operand1, opts),
+          val_to_sass_comma(node.operand2, opts),
+          node.operator)
+      end
+
+      def val_to_sass_concat(node, opts)
+        return node unless node.is_a?(Sass::Script::Operation)
+        return val_to_sass_div(node, opts) unless node.operator == :concat
+
+        Sass::Script::Operation.new(
+          val_to_sass_div(node.operand1, opts),
+          val_to_sass_concat(node.operand2, opts),
+          node.operator)
+      end
+
+      def val_to_sass_div(node, opts)
+        unless node.is_a?(Sass::Script::Operation) && node.operator == :div &&
+            node.operand1.is_a?(Sass::Script::Number) &&
+            node.operand2.is_a?(Sass::Script::Number)
+          return node
+        end
+
+        Sass::Script::String.new("(#{node.to_sass(opts)})")
+      end
+
     end
   end
 end

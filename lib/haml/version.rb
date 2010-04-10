@@ -23,11 +23,27 @@ module Haml
     #       :major  => 2, :minor => 1, :teeny => 0
     #     }
     #
+    # If a prerelease version of Haml is being used,
+    # the `:string` and `:number` fields will reflect the full version
+    # (e.g. `"2.2.beta.1"`), and the `:tiny` field will be `-1`.
+    # A `:prerelease` key will contain the name of the prerelease (e.g. `"beta"`),
+    # and a `:prerelease_number` key will contain the rerelease number.
+    # For example:
+    #
+    #     {
+    #       :string => "3.0.beta.1",
+    #       :number => "3.0.beta.1",
+    #       :major => 3, :minor => 0, :tiny => -1,
+    #       :prerelease => "beta",
+    #       :prerelease_number => 1
+    #     }
+    #
     # @return [{Symbol => String/Fixnum}] The version hash
     def version
       return @@version if defined?(@@version)
 
-      numbers = File.read(scope('VERSION')).strip.split('.').map { |n| n.to_i }
+      numbers = File.read(scope('VERSION')).strip.split('.').
+        map {|n| n =~ /^[0-9]+$/ ? n.to_i : n}
       name = File.read(scope('VERSION_NAME')).strip
       @@version = {
         :major => numbers[0],
@@ -35,7 +51,14 @@ module Haml
         :teeny => numbers[2],
         :name => name
       }
-      @@version[:number] = [:major, :minor, :teeny].map { |comp| @@version[comp] }.compact.join('.')
+
+      if numbers[3].is_a?(String)
+        @@version[:teeny] = -1
+        @@version[:prerelease] = numbers[3]
+        @@version[:prerelease_number] = numbers[4]
+      end
+
+      @@version[:number] = numbers.join('.')
       @@version[:string] = @@version[:number].dup
 
       if rev = revision_number

@@ -80,6 +80,14 @@ module Sass::Script
   # \{#transparentize} / \{#fade_out #fade-out}
   # : Makes a color more transparent.
   #
+  # ## String Functions
+  #
+  # \{#unquote}
+  # : Removes the quotes from a string.
+  #
+  # \{#quote}
+  # : Adds quotes to a string.
+  #
   # ## Number Functions
   #
   # \{#percentage}
@@ -170,6 +178,8 @@ module Sass::Script
       #     assert_type value, :Number
       #
       # Valid types are `:Bool`, `:Color`, `:Number`, and `:String`.
+      # Note that `:String` will match both double-quoted strings
+      # and unquoted identifiers.
       #
       # @param value [Sass::Script::Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
@@ -381,14 +391,35 @@ module Sass::Script
     # Returns the alpha component (opacity) of a color.
     # This is 1 unless otherwise specified.
     #
+    # This function also supports the proprietary Microsoft
+    # `alpha(opacity=20)` syntax.
+    #
+    # @overload def alpha(color)
     # @param color [Color]
     # @return [Number]
     # @raise [ArgumentError] If `color` isn't a color
-    def alpha(color)
+    def alpha(*args)
+      if args.all? do |a|
+          a.is_a?(Sass::Script::String) && a.type == :identifier &&
+            a.value =~ /^[a-zA-Z]+\s*=/
+        end
+        # Support the proprietary MS alpha() function
+        return Sass::Script::String.new("alpha(#{args.map {|a| a.to_s}.join(", ")})")
+      end
+
+      opacity(*args)
+    end
+
+    # Returns the alpha component (opacity) of a color.
+    # This is 1 unless otherwise specified.
+    #
+    # @param color [Color]
+    # @return [Number]
+    # @raise [ArgumentError] If `color` isn't a color
+    def opacity(color)
       assert_type color, :Color
       Sass::Script::Number.new(color.alpha)
     end
-    alias_method :opacity, :alpha
 
     # Makes a color more opaque.
     # Takes a color and an amount between 0 and 1,
@@ -608,6 +639,36 @@ module Sass::Script
       adjust_hue color, Number.new(180)
     end
 
+    # Removes quotes from a string if the string is quoted,
+    # or returns the same string if it's not.
+    #
+    # @param str [String]
+    # @return [String]
+    # @raise [ArgumentError] if `str` isn't a string
+    # @see #quote
+    # @example
+    # unquote("foo") => foo
+    # unquote(foo) => foo
+    def unquote(str)
+      assert_type str, :String
+      Sass::Script::String.new(str.value, :identifier)
+    end
+
+    # Add quotes to a string if the string isn't quoted,
+    # or returns the same string if it is.
+    #
+    # @param str [String]
+    # @return [String]
+    # @raise [ArgumentError] if `str` isn't a string
+    # @see #unquote
+    # @example
+    # quote("foo") => "foo"
+    # quote(foo) => "foo"
+    def quote(str)
+      assert_type str, :String
+      Sass::Script::String.new(str.value, :string)
+    end
+
     # Converts a decimal number to a percentage.
     # For example:
     #
@@ -673,6 +734,11 @@ module Sass::Script
     # @raise [Sass::SyntaxError] if `value` isn't a number
     def abs(value)
       numeric_transformation(value) {|n| n.abs}
+    end
+
+    def unquote(value)
+      assert_type value, :String
+      Sass::Script::String.new(value.value)
     end
 
     private

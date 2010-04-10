@@ -4,11 +4,15 @@ require 'sass/script/number'
 require 'sass/script/color'
 require 'sass/script/functions'
 require 'sass/script/unary_operation'
+require 'sass/script/interpolation'
+require 'sass/script/string_interpolation'
 
 module Sass::Script
   # A SassScript parse node representing a binary operation,
   # such as `$a + $b` or `"foo" + 1`.
   class Operation < Node
+    attr_reader :operand1
+    attr_reader :operand2
     attr_reader :operator
 
     # @param operand1 [Script::Node] The parse-tree node
@@ -21,6 +25,7 @@ module Sass::Script
       @operand1 = operand1
       @operand2 = operand2
       @operator = operator
+      super()
     end
 
     # @return [String] A human-readable s-expression representation of the operation
@@ -29,10 +34,10 @@ module Sass::Script
     end
 
     # @see Node#to_sass
-    def to_sass
+    def to_sass(opts = {})
       pred = Sass::Script::Parser.precedence_of(@operator)
-      o1 = operand_to_sass pred, @operand1
-      o2 = operand_to_sass pred, @operand2
+      o1 = operand_to_sass pred, @operand1, opts
+      o2 = operand_to_sass pred, @operand2, opts
       sep =
         case @operator
         when :comma; ", "
@@ -60,6 +65,12 @@ module Sass::Script
     def _perform(environment)
       literal1 = @operand1.perform(environment)
       literal2 = @operand2.perform(environment)
+
+      if @operator == :concat && context == :equals
+        literal1 = Sass::Script::String.new(literal1.value) if literal1.is_a?(Sass::Script::String)
+        literal2 = Sass::Script::String.new(literal2.value) if literal2.is_a?(Sass::Script::String)
+      end
+
       begin
         res = literal1.send(@operator, literal2)
         res.options = environment.options
@@ -72,10 +83,10 @@ module Sass::Script
 
     private
 
-    def operand_to_sass(pred, op)
-      return "(#{op.to_sass})" if op.is_a?(Operation) &&
+    def operand_to_sass(pred, op, opts = {})
+      return "(#{op.to_sass(opts)})" if op.is_a?(Operation) &&
         Sass::Script::Parser.precedence_of(op.operator) < pred
-      op.to_sass
+      op.to_sass(opts)
     end
   end
 end

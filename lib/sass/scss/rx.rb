@@ -5,6 +5,36 @@ module Sass
     # Most of these are taken from [the CSS3 spec](http://www.w3.org/TR/css3-syntax/#lexical),
     # although some have been modified for various reasons.
     module RX
+      # Takes a string and returns a CSS identifier
+      # that will have the value of the given string.
+      #
+      # @param str [String] The string to escape
+      # @return [String] The escaped string
+      def self.escape_ident(str)
+        return "" if str.empty?
+        return "\\#{str}" if str == '-' || str == '_'
+        out = ""
+        value = str.dup
+        out << value.slice!(0...1) if value =~ /^[-_]/
+        if value[0...1] =~ NMSTART
+          out << value.slice!(0...1)
+        else
+          out << escape_char(value.slice!(0...1))
+        end
+        out << value.gsub(/[^a-zA-Z0-9_-]/) {|c| escape_char c}
+        return out
+      end
+
+      # Escapes a single character for a CSS identifier.
+      #
+      # @param c [String] The character to escape. Should have length 1
+      # @return [String] The escaped character
+      # @private
+      def self.escape_char(c)
+        return "\\%06x" % Haml::Util.ord(c) unless c =~ /[ -\/:-~]/
+        return "\\#{c}"
+      end
+
       # Creates a Regexp from a plain text string,
       # escaping all significant characters.
       #
@@ -60,6 +90,7 @@ module Sass
       HASH = /##{NAME}/
 
       IMPORTANT = /!#{W}important/i
+      DEFAULT = /!#{W}default/i
 
       NUMBER = /#{NUM}(?:#{IDENT}|%)?/
 
@@ -76,6 +107,7 @@ module Sass
 
       # Custom
       HEXCOLOR = /\#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?/
+      INTERP_START = /#\{/
     end
   end
 end

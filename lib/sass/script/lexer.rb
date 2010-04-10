@@ -8,6 +8,8 @@ module Sass
     # It takes a raw string and converts it to individual tokens
     # that are easier to parse.
     class Lexer
+      include Sass::SCSS::RX
+
       # A struct containing information about an individual token.
       #
       # `type`: \[`Symbol`\]
@@ -21,7 +23,10 @@ module Sass
       #
       # `offset`: \[`Fixnum`\]
       # : The number of bytes into the line the SassScript token appeared.
-      Token = Struct.new(:type, :value, :line, :offset)
+      #
+      # `pos`: \[`Fixnum`\]
+      # : The scanner position at which the SassScript token appeared.
+      Token = Struct.new(:type, :value, :line, :offset, :pos)
 
       # The line number of the lexer's current position.
       #
@@ -43,6 +48,7 @@ module Sass
         '/' => :div,
         '%' => :mod,
         '=' => :single_eq,
+        ':' => :colon,
         '(' => :lparen,
         ')' => :rparen,
         ',' => :comma,
@@ -64,6 +70,13 @@ module Sass
       # @private
       OPERATORS_REVERSE = Haml::Util.map_hash(OPERATORS) {|k, v| [v, k]}
 
+      # @private
+      TOKEN_NAMES = Haml::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge({
+          :const => "variable (e.g. $foo)",
+          :ident => "identifier (e.g. middle)",
+          :bool => "boolean (e.g. true, false)",
+        })
+
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
       # @private
@@ -78,12 +91,12 @@ module Sass
       # @private
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s+/,
-        :comment => Sass::SCSS::RX::COMMENT,
-        :single_line_comment => Sass::SCSS::RX::SINGLE_LINE_COMMENT,
-        :variable => /([!\$])(#{Sass::SCSS::RX::IDENT})/,
-        :ident => Sass::SCSS::RX::IDENT,
+        :comment => COMMENT,
+        :single_line_comment => SINGLE_LINE_COMMENT,
+        :variable => /([!\$])(#{IDENT})/,
+        :ident => IDENT,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
-        :color => Sass::SCSS::RX::HEXCOLOR,
+        :color => HEXCOLOR,
         :bool => /(true|false)\b/,
         :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + '(?:\b|$)')})})},
         :op => %r{(#{Regexp.union(*OP_NAMES)})},
@@ -135,6 +148,18 @@ module Sass
         return tok
       end
 
+      # Returns whether or not there's whitespace before the next token.
+      #
+      # @return [Boolean]
+      def whitespace?(tok = @tok)
+        if tok
+          @scanner.string[0...tok.pos] =~ /\s$/
+        else
+          @scanner.string[@scanner.pos, 1] =~ /^\s/ ||
+            @scanner.string[@scanner.pos - 1, 1] =~ /\s$/
+        end
+      end
+
       # Returns the next token without moving the lexer forward.
       #
       # @return [Token] The next token
@@ -145,27 +170,38 @@ module Sass
       # Rewinds the underlying StringScanner
       # to before the token returned by \{#peek}.
       def unpeek!
-        @scanner.pos -= @scanner.matched_size if @tok
+        @scanner.pos = @tok.pos if @tok
       end
 
       # @return [Boolean] Whether or not there's more source text to lex.
       def done?
-        whitespace unless after_interpolation?
+        whitespace unless after_interpolation? && @interpolation_stack.last
         @scanner.eos? && @tok.nil?
+      end
+
+      def expected!(name)
+        unpeek!
+        Sass::SCSS::Parser.expected(@scanner, name, @line)
+      end
+
+      def str
+        old_pos = @tok ? @tok.pos : @scanner.pos
+        yield
+        new_pos = @tok ? @tok.pos : @scanner.pos
+        @scanner.string[old_pos...new_pos]
       end
 
       private
 
       def read_token
         return if done?
+        return unless value = token
+        type, val, size = value
+        size ||= @scanner.matched_size
 
-        value = token
-        unless value
-          raise SyntaxError.new("Syntax error in '#{@scanner.string}' at character #{current_position}.")
-        end
-
-        value.last.line = @line if value.last.is_a?(Script::Node)
-        Token.new(value.first, value.last, @line, last_match_position)
+        val.line = @line if val.is_a?(Script::Node)
+        Token.new(type, val, @line,
+          current_position - size, @scanner.pos - size)
       end
 
       def whitespace
@@ -175,15 +211,23 @@ module Sass
       end
 
       def token
-        return string(@interpolation_stack.pop, true) if after_interpolation?
+        if after_interpolation? && (interp_type = @interpolation_stack.pop)
+          return string(interp_type, true)
+        end
+
         variable || string(:double, false) || string(:single, false) || number ||
-          color || bool || ident_op || ident || op
+          color || bool || raw(URI) || raw(UNICODERANGE) || special_fun ||
+          ident_op || ident || op
       end
 
       def variable
+        _variable(REGULAR_EXPRESSIONS[:variable])
+      end
+
+      def _variable(rx)
         line = @line
         offset = @offset
-        return unless scan(REGULAR_EXPRESSIONS[:variable])
+        return unless scan(rx)
         if @scanner[1] == '!' && @scanner[2] != 'important'
           Script.var_warning(@scanner[2], line, offset + 1, @options[:filename])
         end
@@ -193,13 +237,13 @@ module Sass
 
       def ident
         return unless s = scan(REGULAR_EXPRESSIONS[:ident])
-        [:ident, s.gsub(/\\(.)/, '\1')]
+        [:ident, s]
       end
 
       def string(re, open)
         return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
         @interpolation_stack << re if @scanner[2].empty? # Started an interpolated section
-        [:string, Script::String.new(@scanner[1].gsub(/\\([^0-9a-f])/, '\1').gsub(/\\([0-9a-f]{1,4})/, "\\\\\\1"))]
+        [:string, Script::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)]
       end
 
       def number
@@ -221,6 +265,20 @@ module Sass
         [:bool, Script::Bool.new(s == 'true')]
       end
 
+      def special_fun
+        return unless str1 = scan(/(calc|expression|progid:[a-z\.]*)\(/i)
+        str2, _ = Haml::Shared.balance(@scanner, ?(, ?), 1)
+        c = str2.count("\n")
+        old_line = @line
+        old_offset = @offset
+        @line += c
+        @offset = (c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size)
+        [:special_fun,
+          Haml::Util.merge_adjacent_strings(
+            [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
+          str1.size + str2.size]
+      end
+
       def ident_op
         return unless op = scan(REGULAR_EXPRESSIONS[:ident_op])
         [OPERATORS[op]]
@@ -228,23 +286,25 @@ module Sass
 
       def op
         return unless op = scan(REGULAR_EXPRESSIONS[:op])
+        @interpolation_stack << nil if op == :begin_interpolation
         [OPERATORS[op]]
+      end
+
+      def raw(rx)
+        return unless val = scan(rx)
+        [:raw, val]
       end
 
       def scan(re)
         return unless str = @scanner.scan(re)
         c = str.count("\n")
-        @line += str.count("\n")
+        @line += c
         @offset = (c == 0 ? @offset + str.size : str[/\n(.*)/, 1].size)
         str
       end
 
       def current_position
         @offset + 1
-      end
-
-      def last_match_position
-        current_position - @scanner.matched_size
       end
 
       def after_interpolation?

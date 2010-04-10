@@ -126,7 +126,7 @@ module Sass
     # The regex that matches and extracts data from
     # properties of the form `name: prop`.
     # @private
-    PROPERTY_NEW = /^([^\s=:"]+)(\s*=|:)(?:\s+|$)(.*)/
+    PROPERTY_NEW = /^([^\s=:"]+)\s*(=|:)(?:\s+|$)(.*)/
 
     # The regex that matches and extracts data from
     # properties of the form `:name prop`.
@@ -358,7 +358,7 @@ MSG
 
     def check_for_no_children(node)
       return unless node.is_a?(Tree::RuleNode) && node.children.empty?
-      warn(<<WARNING.strip)
+      Haml::Util.haml_warn(<<WARNING.strip)
 WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 This selector doesn't have any properties and will not be rendered.
 WARNING
@@ -409,10 +409,17 @@ WARNING
       raise SyntaxError.new("Invalid property: \"#{line.text}\".",
         :line => @line) if name.nil? || value.nil?
 
-      expr = if (eq.strip[0] == SCRIPT_CHAR)
-        [parse_script(value, :offset => line.offset + line.text.index(value))]
+      if value.strip.empty?
+        expr = Sass::Script::String.new("")
       else
-        parse_interp(value)
+        expr = parse_script(value, :offset => line.offset + line.text.index(value))
+
+        if eq.strip[0] == SCRIPT_CHAR
+          expr.context = :equals
+          Script.equals_warning("properties", name,
+            Sass::Tree::PropNode.val_to_sass(expr, @options), false,
+            @line, line.offset + 1, @options[:filename])
+        end
       end
       Tree::PropNode.new(
         parse_interp(name), expr,
@@ -420,14 +427,23 @@ WARNING
     end
 
     def parse_variable(line)
-      name, op, value = line.text.scan(Script::MATCH)[0]
+      name, op, value, default = line.text.scan(Script::MATCH)[0]
+      guarded = op =~ /^\|\|/
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.",
         :line => @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
         :line => @line) unless name && value
       Script.var_warning(name, @line, line.offset + 1, @options[:filename]) if line.text[0] == ?!
 
-      Tree::VariableNode.new(name, parse_script(value, :offset => line.offset + line.text.index(value)), op == '||=')
+      expr = parse_script(value, :offset => line.offset + line.text.index(value))
+      if op =~ /=$/
+        expr.context = :equals
+        type = guarded ? "variable defaults" : "variables"
+        Script.equals_warning(type, "$#{name}", expr.to_sass,
+          guarded, @line, line.offset + 1, @options[:filename])
+      end
+
+      Tree::VariableNode.new(name, expr, default || guarded)
     end
 
     def parse_comment(line)
@@ -447,10 +463,17 @@ WARNING
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
-      if directive == "import" && value !~ /^(url\(|")/
+      if directive == "import" && value !~ /^(url\(|["'])/
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
           :line => @line + 1) unless line.children.empty?
-        value.split(/,\s*/).map {|f| Tree::ImportNode.new(f)}
+        value.split(/,\s*/).map do |f|
+          f = $1 || $2 || $3 if f =~ Sass::SCSS::RX::STRING || f =~ Sass::SCSS::RX::URI
+          Tree::ImportNode.new(f)
+        end
+      elsif directive == "mixin"
+        parse_mixin_definition(line)
+      elsif directive == "include"
+        parse_mixin_include(line, root)
       elsif directive == "for"
         parse_for(line, root, value)
       elsif directive == "else"
@@ -520,7 +543,7 @@ WARNING
     end
 
     # @private
-    MIXIN_DEF_RE = /^=\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
+    MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_definition(line)
       name, arg_string = line.text.scan(MIXIN_DEF_RE).first
       raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".") if name.nil?
@@ -533,7 +556,7 @@ WARNING
     end
 
     # @private
-    MIXIN_INCLUDE_RE = /^\+\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
+    MIXIN_INCLUDE_RE = /^(?:\+|@include)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_include(line, root)
       name, arg_string = line.text.scan(MIXIN_INCLUDE_RE).first
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
@@ -572,6 +595,14 @@ WARNING
     end
 
     def parse_interp(text, offset = 0)
+      self.class.parse_interp(text, @line, offset, :filename => @filename)
+    end
+
+    # It's important that this have strings (at least)
+    # at the beginning, the end, and between each Script::Node.
+    #
+    # @private
+    def self.parse_interp(text, line, offset, options)
       res = []
       rest = Haml::Shared.handle_interpolation text do |scan|
         escapes = scan[2].size
@@ -581,8 +612,7 @@ WARNING
         else
           res << "\\" * [0, escapes - 1].max
           res << Script::Parser.new(
-            scan, @line, offset + scan.pos - scan.matched_size,
-            :filename => @filename).
+            scan, line, offset + scan.pos - scan.matched_size, options).
             parse_interpolated
         end
       end

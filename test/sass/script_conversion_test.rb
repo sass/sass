@@ -61,6 +61,8 @@ DEPRECATION WARNING:
 On line 1, character 1 of 'test_variable_inline.sass'
 Variables with ! have been deprecated and will be removed in version 3.2.
 Use "$tumbly-wumbly" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 WARN
   end
 
@@ -138,6 +140,46 @@ RUBY
     assert_equal 'not (true or false)', render('not (true or false)')
   end
 
+  def test_interpolation
+    assert_renders "$foo\#{$bar}$baz"
+    assert_renders "$foo\#{$bar} $baz"
+    assert_renders "$foo \#{$bar}$baz"
+    assert_renders "$foo \#{$bar} $baz"
+    assert_renders "$foo \#{$bar}\#{$bang} $baz"
+    assert_renders "$foo \#{$bar} \#{$bang} $baz"
+    assert_renders "\#{$bar}$baz"
+    assert_renders "$foo\#{$bar}"
+    assert_renders "\#{$bar}"
+  end
+
+  def test_string_interpolation
+    assert_renders '"foo#{$bar}baz"'
+    assert_renders '"foo #{$bar}baz"'
+    assert_renders '"foo#{$bar} baz"'
+    assert_renders '"foo #{$bar} baz"'
+    assert_renders '"foo #{$bar}#{$bang} baz"'
+    assert_renders '"foo #{$bar} #{$bang} baz"'
+    assert_renders '"#{$bar}baz"'
+    assert_renders '"foo#{$bar}"'
+    assert_equal '#{$bar}', render('"#{$bar}"')
+
+    assert_equal '"foo#{$bar}baz"', render("'foo\#{$bar}baz'")
+  end
+
+  def test_sass2_string_interpolation
+    assert_equal 'foo#{$bar}baz', render('"foo#{$bar}baz"', :context => :equals)
+    assert_equal '#{$bar}baz', render('"#{$bar}baz"', :context => :equals)
+    assert_equal 'foo#{$bar}', render('"foo#{$bar}"', :context => :equals)
+
+    assert_equal 'unquote(".foo#{$bar}.bar")', render('".foo#{$bar}.bar"', :context => :equals)
+    assert_equal 'unquote(".foo#{$bar}")', render('".foo#{$bar}"', :context => :equals)
+    assert_equal 'unquote("#{$bar}.bar")', render('"#{$bar}.bar"', :context => :equals)
+
+    assert_equal "unquote(\"f'o\#{$bar}b'z\")", render("'f\\'o\#{$bar}b\\'z'", :context => :equals)
+    assert_equal "unquote('f\"o\#{$bar}b\"z')", render("'f\\\"o\#{$bar}b\\\"z'", :context => :equals)
+    assert_equal "unquote(\"f'o\#{$bar}b\\\"z\")", render("'f\\'o\#{$bar}b\\\"z'", :context => :equals)
+  end
+
   private
 
   def assert_renders(script, options = {})
@@ -146,6 +188,8 @@ RUBY
 
   def render(script, options = {})
     munge_filename(options)
-    Sass::Script.parse(script, 1, 0, options).to_sass
+    node = Sass::Script.parse(script, 1, 0, options)
+    node.context = options[:context] if options[:context]
+    node.to_sass
   end
 end

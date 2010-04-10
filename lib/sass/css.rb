@@ -79,7 +79,10 @@ module Sass
     # @param root [Tree::Node] The parent node
     def expand_commas(root)
       root.children.map! do |child|
-        next child unless Tree::RuleNode === child && child.rule.first.include?(',')
+        unless child.is_a?(Tree::RuleNode) && child.rule.first.include?(',')
+          expand_commas(child) if child.is_a?(Tree::DirectiveNode)
+          next child
+        end
         child.rule.first.split(',').map do |rule|
           node = Tree::RuleNode.new([rule.strip])
           node.children = child.children
@@ -126,9 +129,12 @@ module Sass
     def parent_ref_rules(root)
       current_rule = nil
       root.children.map! do |child|
-        next child unless child.is_a?(Tree::RuleNode)
+        unless child.is_a?(Tree::RuleNode)
+          parent_ref_rules(child) if child.is_a?(Tree::DirectiveNode)
+          next child
+        end
 
-        first, rest = child.rule.first.scan(/^(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?$/).first
+        first, rest = child.rule.first.scan(/\A(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?\Z/m).first
 
         if current_rule.nil? || current_rule.rule.first != first
           current_rule = Tree::RuleNode.new([first])
@@ -164,8 +170,11 @@ module Sass
     # @param root [Tree::Node] The parent node
     def remove_parent_refs(root)
       root.children.each do |child|
-        if child.is_a?(Tree::RuleNode)
+        case child
+        when Tree::RuleNode
           child.rule.first.gsub! /^& +/, ''
+          remove_parent_refs child
+        when Tree::DirectiveNode
           remove_parent_refs child
         end
       end
@@ -195,7 +204,14 @@ module Sass
     #
     # @param root [Tree::Node] The parent node
     def flatten_rules(root)
-      root.children.each { |child| flatten_rule(child) if child.is_a?(Tree::RuleNode) }
+      root.children.each do |child|
+        case child
+        when Tree::RuleNode
+          flatten_rule(child)
+        when Tree::DirectiveNode
+          flatten_rules(child)
+        end
+      end
     end
 
     # Flattens a single rule
@@ -236,7 +252,10 @@ module Sass
     def fold_commas(root)
       prev_rule = nil
       root.children.map! do |child|
-        next child unless child.is_a?(Tree::RuleNode)
+        unless child.is_a?(Tree::RuleNode)
+          fold_commas(child) if child.is_a?(Tree::DirectiveNode)
+          next child
+        end
 
         if prev_rule && prev_rule.children == child.children
           prev_rule.rule.first << ", #{child.rule.first}"

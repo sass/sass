@@ -90,6 +90,7 @@ module Sass
       def <<(child)
         return if child.nil?
         check_child! child
+        self.has_children = true
         @children << child
       end
 
@@ -334,7 +335,10 @@ module Sass
       def run_interp(text, environment)
         text.map do |r|
           next r if r.is_a?(String)
-          r.perform(environment).to_s
+          val = r.perform(environment)
+          # Interpolated strings should never render with quotes
+          next val.value if val.is_a?(Sass::Script::String)
+          val.to_s
         end.join.strip
       end
 
@@ -393,6 +397,14 @@ module Sass
         (fmt == :sass ? "\n" : " {\n") +
           children.map {|c| c.send("to_#{fmt}", tabs + 1, opts)}.join.rstrip +
           (fmt == :sass ? "\n" : " }\n")
+      end
+
+      def dasherize(s, opts)
+        if opts[:dasherize]
+          s.gsub(/_/,'-')
+        else
+          s
+        end
       end
 
       # Returns a semicolon if this is SCSS, or an empty string if this is Sass.

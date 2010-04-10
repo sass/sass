@@ -107,6 +107,40 @@ class ScssRxTest < Test::Unit::TestCase
     assert_match UNICODERANGE, 'U+??'
   end
 
+  def test_escape_empty_ident
+    assert_equal "", Sass::SCSS::RX.escape_ident("")
+  end
+
+  def test_escape_just_prefix_ident
+    assert_equal "\\-", Sass::SCSS::RX.escape_ident("-")
+    assert_equal "\\_", Sass::SCSS::RX.escape_ident("_")
+  end
+
+  def test_escape_plain_ident
+    assert_equal "foo", Sass::SCSS::RX.escape_ident("foo")
+    assert_equal "foo-1bar", Sass::SCSS::RX.escape_ident("foo-1bar")
+    assert_equal "-foo-bar", Sass::SCSS::RX.escape_ident("-foo-bar")
+    assert_equal "f2oo_bar", Sass::SCSS::RX.escape_ident("f2oo_bar")
+    assert_equal "_foo_bar", Sass::SCSS::RX.escape_ident("_foo_bar")
+  end
+
+  def test_escape_initial_funky_ident
+    assert_equal "\\000035foo", Sass::SCSS::RX.escape_ident("5foo")
+    assert_equal "-\\000035foo", Sass::SCSS::RX.escape_ident("-5foo")
+    assert_equal "_\\000035foo", Sass::SCSS::RX.escape_ident("_5foo")
+
+    assert_equal "\\&foo", Sass::SCSS::RX.escape_ident("&foo")
+    assert_equal "-\\&foo", Sass::SCSS::RX.escape_ident("-&foo")
+
+    assert_equal "-\\ foo", Sass::SCSS::RX.escape_ident("- foo")
+  end
+
+  def test_escape_mid_funky_ident
+    assert_equal "foo\\&bar", Sass::SCSS::RX.escape_ident("foo&bar")
+    assert_equal "foo\\ \\ bar", Sass::SCSS::RX.escape_ident("foo  bar")
+    assert_equal "foo\\00007fbar", Sass::SCSS::RX.escape_ident("foo\177bar")
+  end
+
   private
 
   def assert_match(rx, str)

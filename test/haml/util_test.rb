@@ -110,6 +110,20 @@ class UtilTest < Test::Unit::TestCase
     $stderr = old_stderr
   end
 
+  def test_haml_warn
+    assert_warning("Foo!") {haml_warn "Foo!"}
+  end
+
+  def test_silence_haml_warnings
+    old_stderr, $stderr = $stderr, StringIO.new
+    silence_haml_warnings {warn "Out"}
+    assert_equal("Out\n", $stderr.string)
+    silence_haml_warnings {haml_warn "In"}
+    assert_equal("Out\n", $stderr.string)
+  ensure
+    $stderr = old_stderr
+  end
+
   def test_has
     assert(has?(:instance_method, String, :chomp!))
     assert(has?(:private_instance_method, Haml::Engine, :set_locals))

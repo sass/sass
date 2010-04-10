@@ -77,7 +77,7 @@ if Haml::Util.rails_root
       FileUtils.cp(haml_init_file, rails_init_file) unless FileUtils.cmp(rails_init_file, haml_init_file)
     end
   rescue SystemCallError
-    warn <<END
+    Haml::Util.haml_warn <<END
 HAML WARNING:
 #{rails_init_file} is out of date and couldn't be automatically updated.
 Please run `haml --rails #{File.expand_path(Haml::Util.rails_root)}' to update it.

@@ -10,12 +10,13 @@ module Sass
       # @param name [String] See \{#name}
       def initialize(name)
         @name = name
+        super()
       end
 
       # @return [String] A string representation of the variable
-      def inspect
+      def inspect(opts = {})
         return "!important" if name == "important"
-        "$#{name}"
+        "$#{dasherize(name, opts)}"
       end
       alias_method :to_sass, :inspect
 
@@ -35,8 +36,12 @@ module Sass
       # @return [Literal] The SassScript object that is the value of the variable
       # @raise [Sass::SyntaxError] if the variable is undefined
       def _perform(environment)
-        (val = environment.var(name)) && (return val)
-        raise SyntaxError.new("Undefined variable: \"$#{name}\".")
+        raise SyntaxError.new("Undefined variable: \"$#{name}\".") unless val = environment.var(name)
+        if val.is_a?(Number)
+          val = val.dup
+          val.original = nil
+        end
+        return val
       end
     end
   end

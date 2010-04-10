@@ -671,6 +671,15 @@ HAML
     assert_equal("<a href='#\"'></a>\n", render('%a(href="#\\"")'))
   end
 
+  def test_filter_with_newline_and_interp
+    assert_equal(<<HTML, render(<<HAML))
+\\n
+HTML
+:plain
+  \\n\#{""}
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

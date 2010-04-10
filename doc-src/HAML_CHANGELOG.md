@@ -3,7 +3,13 @@
 * Table of contents
 {:toc}
 
-## 2.4.0 (Unreleased)
+## 3.0.0.beta.2
+
+* Make {Haml::Helpers#capture_haml capture\_haml} faster when using `:ugly`.
+
+## 3.0.0.beta.1
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.1).
 
 ### `haml_tag` and `haml_concat` Improvements
 
@@ -261,6 +267,8 @@ Thanks to [Josh Peek](http://joshpeek.com/).
 
 * Don't crash when `rake gems` is run in Rails with Haml installed.
   Thanks to [Florian Frank](http://github.com/flori).
+
+* Don't remove `\n` in filters with interpolation.
 
 ## 2.2.22
 

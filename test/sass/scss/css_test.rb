@@ -271,7 +271,7 @@ foo {
   e: flanny-blanny-blan;
   f: url(http://sass-lang.com);
   g: U+ffa?;
-  h: #abc; }
+  h: #aabbcc; }
 SCSS
   end
 
@@ -297,7 +297,7 @@ SCSS
     assert_parses <<SCSS
 foo {
   a: foo bar baz;
-  b: foo, #abc, -12;
+  b: foo, #aabbcc, -12;
   c: 1px/2px/-3px;
   d: foo bar, baz/bang; }
 SCSS
@@ -320,7 +320,7 @@ foo {
 SCSS
   end
 
-  def test_ms_filter_syntax
+  def test_ms_long_filter_syntax
     assert_equal <<CSS, render(<<SCSS)
 foo {
   filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1, startColorstr=#c0ff3300, endColorstr=#ff000000);
@@ -332,6 +332,15 @@ foo {
 SCSS
   end
 
+  def test_ms_short_filter_syntax
+    assert_parses <<SCSS
+foo {
+  filter: alpha(opacity=20);
+  filter: alpha(opacity=20, enabled=true);
+  filter: blaznicate(foo=bar, baz=bang bip, bart=#fa4600); }
+SCSS
+  end
+
   def test_declaration_hacks
     assert_parses <<SCSS
 foo {
@@ -339,7 +348,17 @@ foo {
   *name: val;
   :name: val;
   .name: val;
+  #name: val;
   name: val; }
+SCSS
+  end
+
+  def test_trailing_hash_hack
+    assert_parses <<SCSS
+foo {
+  foo: bar;
+  #baz: bang;
+  #bip: bop; }
 SCSS
   end
 
@@ -366,12 +385,40 @@ SCSS
   end
 
   def test_unary_ops
-    assert_parses <<SCSS
+    assert_equal <<CSS, render(<<SCSS)
 foo {
-  a: -.5em;
-  b: +.5em;
+  a: -0.5em;
+  b: 0.5em;
   c: -foo(12px);
   d: +foo(12px); }
+CSS
+foo {
+  a: -0.5em;
+  b: +0.5em;
+  c: -foo(12px);
+  d: +foo(12px); }
+SCSS
+  end
+
+  def test_css_string_escapes
+    assert_parses <<SCSS
+foo {
+  a: "\\foo bar";
+  b: "foo\\ bar";
+  c: "\\2022 \\0020";
+  d: "foo\\\\bar";
+  e: "foo\\"'bar"; }
+SCSS
+  end
+
+  def test_css_ident_escapes
+    assert_parses <<SCSS
+foo {
+  a: \\foo bar;
+  b: foo\\ bar;
+  c: \\2022 \\0020;
+  d: foo\\\\bar;
+  e: foo\\"\\'bar; }
 SCSS
   end
 
@@ -718,12 +765,12 @@ SCSS
   end
 
   def test_invalid_classes
-    assert_not_parses("identifier", 'p.<err> foo {a: b}')
-    assert_not_parses("identifier", 'p.<err>1foo {a: b}')
+    assert_not_parses("class name", 'p.<err> foo {a: b}')
+    assert_not_parses("class name", 'p.<err>1foo {a: b}')
   end
 
   def test_invalid_ids
-    assert_not_parses('"{"', 'p<err># foo {a: b}')
+    assert_not_parses("id name", 'p#<err> foo {a: b}')
   end
 
   def test_no_properties_at_toplevel
@@ -747,10 +794,6 @@ SCSS
     assert_not_parses('"{"', "foo <err>&.bar {a: b}")
   end
 
-  def test_no_script_values
-    assert_not_parses('":"', "foo {a <err>= b}")
-  end
-
   def test_no_selector_interpolation
     assert_not_parses('"{"', 'foo <err>#{"bar"}.baz {a: b}')
   end
@@ -766,13 +809,17 @@ SCSS
   def test_no_string_interpolation
     assert_parses <<SCSS
 foo {
-  a: "bang \#{1 + "bar"} bip"; }
+  a: "bang \#{1 +    " bar "} bip"; }
 SCSS
+  end
+
+  def test_no_sass_script_values
+    assert_not_parses('"}"', 'foo {a: b <err>* c}')
   end
 
   def test_no_nested_rules
     assert_not_parses('":"', 'foo {bar <err>{a: b}}')
-    assert_not_parses('"}"', 'foo {<err>#bar {a: b}}')
+    assert_not_parses('"}"', 'foo {<err>[bar=baz] {a: b}}')
   end
 
   def test_no_nested_properties

@@ -14,7 +14,7 @@ module Sass
   module Script
     # The regular expression used to parse variables.
     # @private
-    MATCH = /^[!\$](#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=)\s*(.+)/
+    MATCH = /^[!\$](#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=|:)\s*(.+?)(!(?i:default))?$/
 
     # The regular expression used to validate variables without matching.
     # @private
@@ -40,11 +40,24 @@ module Sass
 
     # @private
     def self.var_warning(varname, line, offset, filename)
-      warn <<MESSAGE
+      Haml::Util.haml_warn <<MESSAGE
 DEPRECATION WARNING:
 On line #{line}, character #{offset}#{" of '#{filename}'" if filename}
 Variables with ! have been deprecated and will be removed in version 3.2.
 Use \"$#{varname}\" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
+MESSAGE
+    end
+
+    def self.equals_warning(types, name, val, guarded, line, offset, filename)
+      Haml::Util.haml_warn <<MESSAGE
+DEPRECATION WARNING:
+On line #{line}#{", character #{offset}" if offset}#{" of '#{filename}'" if filename}
+Setting #{types} with #{"||" if guarded}= has been deprecated and will be removed in version 3.2.
+Use "#{name}: #{val}#{" !default" if guarded}" instead.
+
+You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
 MESSAGE
     end
   end

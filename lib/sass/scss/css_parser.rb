@@ -1,3 +1,5 @@
+require 'sass/script/css_parser'
+
 module Sass
   module SCSS
     # A parser for a CSS tree.
@@ -18,9 +20,12 @@ module Sass
         end
       end
 
-      def nested_properties!(node, expression, space)
+      def nested_properties!(node, space)
         expected('expression (e.g. 1px, bold)');
       end
+
+      @sass_script_parser = Class.new(Sass::Script::CssParser)
+      @sass_script_parser.send(:include, ScriptParser)
     end
   end
 end

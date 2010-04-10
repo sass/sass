@@ -43,7 +43,7 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
     list.exclude('TODO')
     list.include('REVISION') if have_revision
   end.to_a
-  spec.executables = ['haml', 'html2haml', 'sass', 'css2sass']
+  spec.executables = ['haml', 'html2haml', 'sass', 'css2sass', 'sass-convert']
   spec.files = FileList['rails/init.rb', 'lib/**/*', 'vendor/**/*',
     'bin/*', 'test/**/*', 'extra/**/*', 'Rakefile', 'init.rb',
     '.yardopts'].to_a + readmes

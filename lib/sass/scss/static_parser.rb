@@ -36,6 +36,7 @@ module Sass
       def script_value; nil; end
       def interpolation; nil; end
       def interp_string; s = tok(STRING) and [s]; end
+      def interp_ident(ident = IDENT); s = tok(ident) and [s]; end
       def expected_property_separator; '":"'; end
       def use_css_import?; true; end
 

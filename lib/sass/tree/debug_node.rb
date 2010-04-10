@@ -22,6 +22,7 @@ module Sass
       #   variable and mixin values
       def _perform(environment)
         res = @expr.perform(environment)
+        res = res.value if res.is_a?(Sass::Script::String)
         if filename
           $stderr.puts "#{filename}:#{line} DEBUG: #{res}"
         else
