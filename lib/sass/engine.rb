@@ -165,7 +165,9 @@ module Sass
     # @return [String] The CSS
     # @raise [Sass::SyntaxError] if there's an error in the document
     def render
-      to_tree.render
+      Haml::Util.with_warnings(!@options[:quiet]) do
+        to_tree.render
+      end
     end
 
     alias_method :to_css, :render

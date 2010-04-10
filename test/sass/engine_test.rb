@@ -1736,6 +1736,15 @@ SASS
     end
   end
 
+  def test_warn_directive_when_quiet
+    assert_warning "" do
+      assert_equal <<CSS, render(<<SASS, :quiet => true)
+CSS
+@warn "this is a warning"
+SASS
+    end
+  end
+
   # Regression tests
 
   def test_parens_in_mixins
