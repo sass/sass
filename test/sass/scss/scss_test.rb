@@ -113,6 +113,26 @@ SCSS
     end
   end
 
+  def test_warn_directive
+    expected_warning = <<EXPECTATION
+WARNING: this is a warning
+         issued from line 2 of test_warn_directive_inline.scss
+WARNING: this is a mixin
+         issued from line 1 of test_warn_directive_inline.scss
+         via 'foo' mixed in at line 3 of test_warn_directive_inline.scss
+EXPECTATION
+    assert_warning expected_warning do
+      assert_equal <<CSS, render(<<SCSS)
+bar {
+  c: d; }
+CSS
+@mixin foo { @warn "this is a mixin";}
+@warn "this is a warning";
+bar {c: d; @include foo;}
+SCSS
+    end
+  end
+
   def test_for_directive
     assert_equal <<CSS, render(<<SCSS)
 .foo {

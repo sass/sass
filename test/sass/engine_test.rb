@@ -107,6 +107,9 @@ MSG
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
     '@debug' => "Invalid debug directive '@debug': expected expression.",
+    %Q{@debug "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath debug directives.",
+    '@warn' => "Invalid warn directive '@warn': expected expression.",
+    %Q{@warn "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath warn directives.",
     "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
 
     # Regression tests
@@ -1705,6 +1708,30 @@ foo {
 CSS
 foo
   a = 1px/2px
+SASS
+    end
+  end
+
+  def test_warn_directive
+  expected_warning = <<EXPECTATION
+WARNING: this is a warning
+         issued from line 4 of test_warn_directive_inline.sass
+WARNING: this is a mixin warning
+         issued from line 2 of test_warn_directive_inline.sass
+         via 'foo' mixed in at line 7 of test_warn_directive_inline.sass
+EXPECTATION
+    assert_warning expected_warning do
+      assert_equal <<CSS, render(<<SASS)
+bar {
+  c: d; }
+CSS
+=foo
+  @warn "this is a mixin warning"
+
+@warn "this is a warning"
+bar
+  c: d
+  +foo
 SASS
     end
   end

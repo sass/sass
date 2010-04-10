@@ -13,6 +13,7 @@ require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
 require 'sass/tree/debug_node'
+require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
 require 'sass/environment'
 require 'sass/script'
@@ -488,6 +489,12 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::DebugNode.new(parse_script(value, :offset => offset))
+      elsif directive == "warn"
+        raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",
+          :line => @line + 1) unless line.children.empty?
+        offset = line.offset + line.text.index(value).to_i
+        Tree::WarnNode.new(parse_script(value, :offset => offset))
       else
         Tree::DirectiveNode.new(line.text)
       end
