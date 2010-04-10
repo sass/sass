@@ -15,14 +15,11 @@ module Haml
 
       # Parses the command-line arguments and runs the executable.
       # Calls `Kernel#exit` at the end, so it never returns.
+      #
+      # @see #parse
       def parse!
         begin
-          @opts = OptionParser.new(&method(:set_opts))
-          @opts.parse!(@args)
-
-          process_result
-
-          @options
+          parse
         rescue Exception => e
           raise e if @options[:trace] || e.is_a?(SystemExit)
 
@@ -30,6 +27,19 @@ module Haml
           exit 1
         end
         exit 0
+      end
+
+      # Parses the command-line arguments and runs the executable.
+      # This does not handle exceptions or exit the program.
+      #
+      # @see #parse!
+      def parse
+        @opts = OptionParser.new(&method(:set_opts))
+        @opts.parse!(@args)
+
+        process_result
+
+        @options
       end
 
       # @return [String] A description of the executable
