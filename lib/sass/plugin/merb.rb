@@ -14,6 +14,7 @@ unless defined?(Sass::MERB_LOADED)
                               :css_location      => root + '/public/stylesheets',
                               :cache_location    => root + '/tmp/sass-cache',
                               :always_check      => env != "production",
+                              :quiet             => env != "production",
                               :full_exception    => env != "production")
   config = Merb::Plugins.config[:sass] || Merb::Plugins.config["sass"] || {}
 

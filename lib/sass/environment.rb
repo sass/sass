@@ -23,7 +23,7 @@ module Sass
       @vars = {}
       @mixins = {}
       @parent = parent
-
+      @stack = [] unless parent
       set_var("important", Script::String.new("!important")) unless @parent
     end
 
@@ -33,6 +33,52 @@ module Sass
     # @return [{Symbol => Object}]
     def options
       @options || (parent && parent.options) || {}
+    end
+
+    # Push a new stack frame onto the mixin/include stack.
+    #
+    # @param frame_info [{Symbol => Object}]
+    #   Frame information has the following keys:
+    #
+    #   `:filename`
+    #   : The name of the file in which the lexical scope changed.
+    #
+    #   `:mixin`
+    #   : The name of the mixin in which the lexical scope changed,
+    #     or `nil` if it wasn't within in a mixin.
+    #
+    #   `:line`
+    #   : The line of the file on which the lexical scope changed. Never nil.
+    def push_frame(frame_info)
+      if stack.last && stack.last[:prepared]
+        stack.last.delete(:prepared)
+        stack.last.merge!(frame_info)
+      else
+        stack.push(frame_info)
+      end
+    end
+
+    # Like \{#push\_frame}, but next time a stack frame is pushed,
+    # it will be merged with this frame.
+    #
+    # @param frame_info [{Symbol => Object}] Same as for \{#push\_frame}.
+    def prepare_frame(frame_info)
+      push_frame(frame_info.merge(:prepared => true))
+    end
+
+    # Pop a stack frame from the mixin/include stack.
+    def pop_frame
+      stack.pop if stack.last[:prepared]
+      stack.pop
+    end
+
+    # A list of stack frames in the mixin/include stack.
+    # The last element in the list is the most deeply-nested frame.
+    #
+    # @return [Array<{Symbol => Object}>] The stack frames,
+    #   of the form passed to \{#push}.
+    def stack
+      @stack ||= @parent.stack
     end
 
     class << self

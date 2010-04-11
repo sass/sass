@@ -50,13 +50,15 @@ module Sass::Tree
     # @raise [Sass::SyntaxError] if an incorrect number of arguments was passed
     # @see Sass::Tree
     def perform!(environment)
+      original_env = environment
+      original_env.push_frame(:filename => filename, :line => line)
+      original_env.prepare_frame(:mixin => @name)
       raise Sass::SyntaxError.new("Undefined mixin '#{@name}'.") unless mixin = environment.mixin(@name)
 
       raise Sass::SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < @args.size
 Mixin #{@name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{@args.size} #{@args.size == 1 ? 'was' : 'were'} passed.
 END
-
       environment = mixin.args.zip(@args).
         inject(Sass::Environment.new(mixin.environment)) do |env, ((var, default), value)|
         env.set_local_var(var.name,
@@ -78,6 +80,8 @@ END
       e.modify_backtrace(:mixin => @name, :line => @line)
       e.add_backtrace(:line => @line)
       raise e
+    ensure
+      original_env.pop_frame
     end
   end
 end

@@ -76,8 +76,11 @@ module Sass
         return filename
       end
 
-      new_filename   = find_full_path("#{filename}.sass", load_paths) unless was_scss
-      new_filename ||= find_full_path("#{filename}.scss", load_paths) unless was_sass
+      new_filename = nil
+      load_paths.each do |load_path|
+        new_filename ||= find_full_path("#{filename}.sass", load_path) unless was_scss
+        new_filename ||= find_full_path("#{filename}.scss", load_path) unless was_sass
+      end
 
       return new_filename if new_filename
       unless was_sass || was_scss
@@ -134,7 +137,7 @@ END
       end
     end
 
-    def find_full_path(filename, load_paths)
+    def find_full_path(filename, load_path)
       partial_name = File.join(File.dirname(filename), "_#{File.basename(filename)}")
 
       if Pathname.new(filename).absolute?
@@ -144,13 +147,9 @@ END
         return nil
       end
 
-      load_paths.each do |path|
-        [partial_name, filename].each do |name|
-          full_path = File.join(path, name)
-          if File.readable?(full_path)
-            return full_path
-          end
-        end
+      [partial_name, filename].each do |name|
+        full_path = File.join(load_path, name)
+        return full_path if File.readable?(full_path)
       end
       nil
     end

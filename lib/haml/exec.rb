@@ -276,6 +276,9 @@ END
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
         end
+        opts.on('-q', '--quiet', 'Silence warnings during compilation.') do
+          @options[:for_engine][:quiet] = true
+        end
         opts.on('-g', '--debug-info',
                 'Emit extra information in the generated CSS that can be used by the FireSass Firebug plugin.') do
           @options[:for_engine][:debug_info] = true

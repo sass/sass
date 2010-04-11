@@ -13,7 +13,7 @@ module Sass
       protected
 
       def to_src(tabs, opts, fmt)
-        "#{'  ' * tabs}@debug #{@expr.to_sass}#{semi fmt}\n"
+        "#{'  ' * tabs}@debug #{@expr.to_sass(opts)}#{semi fmt}\n"
       end
 
       # Prints the expression to STDERR.

@@ -299,6 +299,30 @@ module Sass::Script
                  end, num_units, den_units)
     end
 
+    # @param other [Number] A number to decide if it can be compared with this number.
+    # @return [Boolean] Whether or not this number can be compared with the other.
+    def comparable_to?(other)
+      begin
+        self.operate(other, :+)
+        true
+      rescue Sass::UnitConversionError
+        false
+      end
+    end
+
+    # Returns a human readable representation of the units in this number.
+    # For complex units this takes the form of:
+    # numerator_unit1 * numerator_unit2 / denominator_unit1 * denominator_unit2
+    # @return [String] a string that represents the units in this number
+    def unit_str
+      rv = numerator_units.sort.join("*")
+      if denominator_units.any?
+        rv << "/"
+        rv << denominator_units.sort.join("*")
+      end
+      rv
+    end
+
     protected
 
     def operate(other, operation)
@@ -341,15 +365,6 @@ module Sass::Script
       else  
         [this.numerator_units, this.denominator_units]
       end
-    end
-
-    def unit_str
-      rv = numerator_units.join("*")
-      if denominator_units.any?
-        rv << "/"
-        rv << denominator_units.join("*")
-      end
-      rv
     end
 
     def normalize!

@@ -5,6 +5,38 @@
 
 ## 3.0.0.beta.2 (Unreleased)
 
+### New Sass Functions for Introspection
+
+Several new functions were added to make it easier to have
+more flexible arguments to mixins and to enable deprecation
+of obsolete APIs.
+
+* {Sass::Script::Functions#type_of `type-of`} -- Returns the type of a value.
+* {Sass::Script::Functions#unit `unit`} --
+  Returns the units associated with a number.
+* {Sass::Script::Functions#unitless `unitless`} --
+  Returns whether a number has units or not.
+* {Sass::Script::Functions#comparable `comparable`} --
+  Returns whether two numbers can be added or compared.
+
+### `@warn`
+
+A new directive `@warn` has been added that allows Sass libraries to emit warnings.
+This can be used to issue deprecation warnings, discourage sloppy use of mixins, etc.
+`@warn` takes a single argument: a SassScript expression that will be
+displayed on the console along with a stylesheet trace for locating the warning.
+For example:
+
+    @mixin blue-text {
+      @warn "The blue-text mixin is deprecated. Use new-blue-text instead.";
+      color: #00f;
+    }
+
+Warnings may be silenced with the new `--quiet` command line option,
+or the corresponding {file:SASS_REFERENCE.md#quiet-option `:quiey` Sass option}.
+This option will also affect warnings printed by Sass itself.
+Warnings are off by default in the Rails, Rack, and Merb production environments.
+
 ### `sass-convert`
 
 #### `--recursive`

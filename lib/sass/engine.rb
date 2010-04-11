@@ -13,6 +13,7 @@ require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
 require 'sass/tree/debug_node'
+require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
 require 'sass/environment'
 require 'sass/script'
@@ -164,9 +165,9 @@ module Sass
     # @return [String] The CSS
     # @raise [Sass::SyntaxError] if there's an error in the document
     def render
-      to_tree.render
+      return _to_tree.render unless @options[:quiet]
+      Haml::Util.silence_haml_warnings {_to_tree.render}
     end
-
     alias_method :to_css, :render
 
     # Parses the document into its parse tree.
@@ -174,6 +175,13 @@ module Sass
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
+      return _to_tree unless @options[:quiet]
+      Haml::Util.silence_haml_warnings {_to_tree}
+    end
+
+    private
+
+    def _to_tree
       @template = check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
 
       if @options[:syntax] == :scss
@@ -190,8 +198,6 @@ module Sass
       e.sass_template = @template
       raise e
     end
-
-    private
 
     def tabulate(string)
       tab_str = nil
@@ -488,6 +494,12 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::DebugNode.new(parse_script(value, :offset => offset))
+      elsif directive == "warn"
+        raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",
+          :line => @line + 1) unless line.children.empty?
+        offset = line.offset + line.text.index(value).to_i
+        Tree::WarnNode.new(parse_script(value, :offset => offset))
       else
         Tree::DirectiveNode.new(line.text)
       end
