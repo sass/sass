@@ -41,7 +41,7 @@ module Haml
       #
       # This runs in `O(n)` time, where `n` is the size of `set`.
       #
-      # @param set [Set] The set to use as the map key. May not be empty.
+      # @param set [#to_set] The set to use as the map key. May not be empty.
       # @param value [Object] The value to associate with `set`.
       # @raise [ArgumentError] If `set` is empty.
       def []=(set, value)
@@ -51,7 +51,7 @@ module Haml
         @vals << value
         set.each do |k|
           @hash[k] ||= []
-          @hash[k] << [set, index]
+          @hash[k] << [set, set.to_set, index]
         end
       end
 
@@ -64,17 +64,18 @@ module Haml
       # `m` will typically be much smaller.
       #
       # @param set [Set] The set to use as the map key.
-      # @return [Array<(Object, Set)>] An array of pairs,
+      # @return [Array<(Object, #to_set)>] An array of pairs,
       #   where the first value is the value associated with a subset of `set`,
-      #   and the second value is that subset of `set`.
+      #   and the second value is that subset of `set`
+      #   (or whatever `#to_set` object was used to set the value)
       #   This array is in insertion order.
       # @see #[]
       def get(set)
         res = set.map do |k|
           next unless subsets = @hash[k]
-          subsets.map do |subset, index|
+          subsets.map do |subenum, subset, index|
             next unless subset.subset?(set)
-            [index, subset]
+            [index, subenum]
           end
         end
         res.flatten!(1)
