@@ -76,8 +76,11 @@ module Sass
         return filename
       end
 
-      new_filename   = find_full_path("#{filename}.sass", load_paths) unless was_scss
-      new_filename ||= find_full_path("#{filename}.scss", load_paths) unless was_sass
+      new_filename = nil
+      load_paths.each do |load_path|
+        new_filename ||= find_full_path("#{filename}.sass", [load_path]) unless was_scss
+        new_filename ||= find_full_path("#{filename}.scss", [load_path]) unless was_sass
+      end
 
       return new_filename if new_filename
       unless was_sass || was_scss
