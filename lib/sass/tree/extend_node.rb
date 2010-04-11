@@ -18,7 +18,7 @@ module Sass::Tree
           raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: invalid selector")
         end
 
-        sel = sseq.members.to_set
+        sel = sseq.members
         parent.resolved_rules.members.each do |seq|
           if seq.members.size > 1
             raise Sass::SyntaxError.new("#{seq.to_a.join} can't extend: nested selectors can't extend")

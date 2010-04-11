@@ -401,7 +401,7 @@ module Sass
       # @see CommaSequence#extend
       def extend(extends, supers = [])
         seqs = extends.get(members.to_set).map do |sseq, sels|
-          sseq_without_sel = members - sels.to_a
+          sseq_without_sel = members - sels
           new_sseq = sseq.members.inject(sseq_without_sel) do |sseq2, sel2|
             next unless sseq2
             sel2.unify(sseq2)
@@ -455,13 +455,17 @@ module Sass
       #   ordered from deepest to most shallow.
       # @raise [Sass::SyntaxError] Describing the loop
       def handle_extend_loop(supers)
-        supers.inject([]) do |sels, sel|
-          next sels.push(sel) unless sels.first.eql?(sel)
-          conses = Haml::Util.enum_cons(sels.push(sel), 2).to_a
-          _, i = Haml::Util.enum_with_index(conses).max {|((_, sel1), _), ((_, sel2), _)| sel1.line <=> sel2.line}
-          loop = (conses[i..-1] + conses[0...i]).map do |sel1, sel2|
-            str = "  #{sel1.inspect} extends #{sel2.inspect} on line #{sel1.line}"
-            str << " of " << sel1.filename if sel1.filename
+        supers.inject([]) do |sseqs, sseq|
+          next sseqs.push(sseq) unless sseqs.first.eql?(sseq)
+          conses = Haml::Util.enum_cons(sseqs.push(sseq), 2).to_a
+          _, i = Haml::Util.enum_with_index(conses).max do |((_, sseq1), _), ((_, sseq2), _)|
+            sseq1.first.line <=> sseq2.first.line
+          end
+          loop = (conses[i..-1] + conses[0...i]).map do |sseq1, sseq2|
+            sel1 = SimpleSequence.new(sseq1).inspect
+            sel2 = SimpleSequence.new(sseq2).inspect
+            str = "  #{sel1} extends #{sel2} on line #{sseq2.first.line}"
+            str << " of " << sseq2.first.filename if sseq2.first.filename
             str
           end.join(",\n")
           raise Sass::SyntaxError.new("An @extend loop was found:\n#{loop}")
