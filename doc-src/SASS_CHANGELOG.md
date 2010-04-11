@@ -12,6 +12,7 @@ more flexible arguments to mixins and to enable deprecation
 of obsolete APIs.
 
 * `type-of` -- Returns the type of a value.
+* `unit` -- Returns the units associated with a number.
 
 ### `@warn`
 

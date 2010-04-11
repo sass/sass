@@ -513,6 +513,15 @@ MSG
     assert_equal("color", evaluate("type-of(#fff)"))
   end
 
+  def test_unit
+    assert_equal(%Q{""}, evaluate("unit(100)"))
+    assert_equal(%Q{"px"}, evaluate("unit(100px)"))
+    assert_equal(%Q{"em*px"}, evaluate("unit(10px * 5em)"))
+    assert_equal(%Q{"em*px"}, evaluate("unit(5em * 10px)"))
+    assert_equal(%Q{"em*px/cm*rem"}, evaluate("unit(10px * 5em / 30cm / 1rem)"))
+    assert_error_message("#ff0000 is not a number for `unit'", "unit(#f00)")
+  end
+
   private
 
   def evaluate(value)

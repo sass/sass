@@ -110,6 +110,9 @@ module Sass::Script
   # \{#type_of}
   # : Returns the type of a value.
   #
+  # \{#unit}
+  # : Returns the units associated with a number.
+  #
   # These functions are described in more detail below.
   #
   # ## Adding Custom Functions
@@ -688,6 +691,24 @@ module Sass::Script
     # @return [String] The unquoted string value of the literal's type
     def type_of(obj)
       Sass::Script::String.new(obj.class.name.gsub(/Sass::Script::/,'').downcase)
+    end
+
+    # Inspects the unit of the number, returning it as a quoted string.
+    # Complex units are sorted in alphabetical order by numerator and denominator.
+    # For example:
+    #
+    #     unit(100) => ""
+    #     unit(100px) => "px"
+    #     unit(3em) => "em"
+    #     unit(10px * 5em) => "em*px"
+    #     unit(10px * 5em / 30cm / 1rem) => "em*px/cm*rem"
+    #
+    # @param number [Literal] The number to inspect
+    # @return [String] The unit(s) of the number
+    # @raise [ArgumentError] if `number` isn't a number
+    def unit(number)
+      assert_type number, :Number
+      Sass::Script::String.new(number.unit_str, :string)
     end
 
     # Converts a decimal number to a percentage.
