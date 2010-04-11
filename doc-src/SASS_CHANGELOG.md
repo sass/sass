@@ -18,13 +18,21 @@ of obsolete APIs.
 
 ### `@warn`
 
-A new directive `@warn` has been added that allows sass libraries to emit warnings. This can be used to issue deprecation warnings, discourage sloppy coding, etc.
-`@warn` takes a single argument that is a SassScript expression that will be
-displayed on the console along with a stylesheet trace.
+A new directive `@warn` has been added that allows Sass libraries to emit warnings.
+This can be used to issue deprecation warnings, discourage sloppy use of mixins, etc.
+`@warn` takes a single argument: a SassScript expression that will be
+displayed on the console along with a stylesheet trace for locating the warning.
+For example:
+
+    @mixin blue-text {
+      @warn "The blue-text mixin is deprecated. Use new-blue-text instead.";
+      color: #00f;
+    }
 
 Warnings may be silenced with the new `--quiet` command line option,
-or the corresponding `:quiet` Sass option. Warnings are off by default
-in Rails and Merb production environments.
+or the corresponding {file:SASS_REFERENCE.md#quiet-option `:quiey` Sass option}.
+This option will also affect warnings printed by Sass itself.
+Warnings are off by default in the Rails, Rack, and Merb production environments.
 
 ### `sass-convert`
 

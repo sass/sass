@@ -915,14 +915,13 @@ outputs:
 The `@warn` directive prints the value of a SassScript expression
 to the standard error output stream.
 It's useful for libraries that need to warn users of deprecations
-or recovering from minor coding mistakes. There are two major distinctions
-between `@warn` and `@debug`:
+or recovering from minor mixin usage mistakes.
+There are two major distinctions between `@warn` and `@debug`:
 
 1. You can turn warnings off with the `--quiet` command-line option
    or the `:quiet` Sass option.
 2. A stylesheet trace will be printed out along with the message
-   so that the user being warned can see where they are calling from
-   their code.
+   so that the user being warned can see where their styles caused the warning.
 
 Usage Example:
 
@@ -937,19 +936,6 @@ Usage Example:
       }
       position: relative; left: $x; top: $y;
     }
-
-Indented Syntax Example:
-
-    =adjust-location($x, $y)
-      @if unitless($x)
-        @warn "Assuming #{$x} to be in pixels"
-        $x: 1px * $x
-      @if unitless($y)
-        @warn "Assuming #{$y} to be in pixels"
-        $y: 1px * $y
-      position: relative
-      left: $x
-      top: $y
 
 ## Control Directives
 
