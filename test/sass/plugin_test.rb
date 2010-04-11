@@ -341,14 +341,12 @@ CSS
   end
 
   def assert_needs_update(name)
-    checker = Sass::Plugin::StalenessChecker.new
-    assert(checker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
+    assert(Sass::Plugin::StalenessChecker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} to need an update.")
   end
 
   def assert_doesnt_need_update(name)
-    checker = Sass::Plugin::StalenessChecker.new
-    assert(!checker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
+    assert(!Sass::Plugin::StalenessChecker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} not to need an update.")
   end
 

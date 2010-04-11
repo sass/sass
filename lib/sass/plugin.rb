@@ -379,7 +379,7 @@ module Sass
 
     # Compass expects this to exist
     def stylesheet_needs_update?(css_file, template_file)
-      StalenessChecker.new.stylesheet_needs_update?(css_file, template_file)
+      StalenessChecker.stylesheet_needs_update?(css_file, template_file)
     end
   end
 end

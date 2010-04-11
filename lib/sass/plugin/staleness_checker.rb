@@ -70,6 +70,10 @@ module Sass
       rescue Sass::SyntaxError => e
         [] # If the file has an error, we assume it has no dependencies
       end
+      
+      def self.stylesheet_needs_update?(css_file, template_file)
+        new.stylesheet_needs_update?(css_file, template_file)
+      end
     end
   end
 end
