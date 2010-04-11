@@ -64,22 +64,36 @@ module Haml
       # `m` will typically be much smaller.
       #
       # @param set [Set] The set to use as the map key.
-      # @return [Array] All values associated with subsets of `set`,
-      #   in insertion order.
-      def [](set)
+      # @return [Array<(Object, Set)>] An array of pairs,
+      #   where the first value is the value associated with a subset of `set`,
+      #   and the second value is that subset of `set`.
+      #   This array is in insertion order.
+      # @see #[]
+      def get(set)
         res = set.map do |k|
           next unless subsets = @hash[k]
           subsets.map do |subset, index|
             next unless subset.subset?(set)
-            index
+            [index, subset]
           end
         end
-        res.flatten!
+        res.flatten!(1)
         res.compact!
         res.uniq!
         res.sort!
-        res.map! {|i| @vals[i]}
-        res
+        res.map! {|i, s| [@vals[i], s]}
+        return res
+      end
+
+      # Same as \{#get}, but doesn't return the subsets of the argument
+      # for which values were found.
+      #
+      # @param set [Set] The set to use as the map key.
+      # @return [Array] The array of all values
+      #   associated with subsets of `set`, in insertion order.
+      # @see #get
+      def [](set)
+        get(set).map {|v, _| v}
       end
     end
   end
