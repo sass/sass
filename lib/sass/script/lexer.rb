@@ -111,7 +111,7 @@ module Sass
 
       # A hash of regular expressions that are used for tokenizing strings.
       #
-      # The key is a [Symbol, Boolean] pair.
+      # The key is a `[Symbol, Boolean]` pair.
       # The symbol represents which style of quotation to use,
       # while the boolean represents whether or not the string
       # is following an interpolated segment.

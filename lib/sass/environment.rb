@@ -76,7 +76,7 @@ module Sass
     # The last element in the list is the most deeply-nested frame.
     #
     # @return [Array<{Symbol => Object}>] The stack frames,
-    #   of the form passed to \{#push}.
+    #   of the form passed to \{#push\_frame}.
     def stack
       @stack ||= @parent.stack
     end
