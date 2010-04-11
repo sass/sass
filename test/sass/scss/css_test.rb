@@ -157,7 +157,7 @@ SCSS
 
   def test_selector_comments
     assert_equal <<CSS, render(<<SCSS)
-.foo #bar:baz( bip) {
+.foo #bar:baz(bip) {
   a: b; }
 CSS
 .foo /* .a #foo */ #bar:baz(/* bang )*/ bip) {
@@ -675,7 +675,14 @@ SCSS
     assert_selector_parses(':nth-child(+2n-3)')
     assert_selector_parses(':nth-child(-2n+3)')
     assert_selector_parses(':nth-child(-2n+ 3)')
-    assert_selector_parses(':nth-child( 2n + 3 )')
+
+    assert_equal(<<CSS, render(<<SCSS))
+:nth-child(2n + 3) {
+  a: b; }
+CSS
+:nth-child( 2n + 3 ) {
+  a: b; }
+SCSS
   end
 
   def test_negation_selectors

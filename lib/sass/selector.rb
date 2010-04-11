@@ -771,7 +771,7 @@ module Sass
       # @see Node#to_a
       def to_a
         res = [@type == :class ? ":" : "::"] + @name
-        (res << "(").concat(@arg) << ")" if @arg
+        (res << "(").concat(Haml::Util.strip_string_array(@arg)) << ")" if @arg
         res
       end
 
