@@ -287,6 +287,9 @@ Available options are:
   Currently, this just means that strings in mixin arguments
   are treated as though they were in [an `=` context](#sass-script-strings).
 
+{#quiet-option} `:quiet`
+: When set to true, causes warnings to be disabled.
+
 ## CSS Extensions
 
 ### Nested Rules
@@ -898,8 +901,7 @@ and `_colors.scss` would be imported.
 The `@debug` directive prints the value of a SassScript expression
 to the standard error output stream.
 It's useful for debugging Sass files
-that have complicated SassScript going on,
-or for printing warnings in libraries.
+that have complicated SassScript going on.
 For example:
 
     @debug 10em + 12em;
@@ -907,6 +909,20 @@ For example:
 outputs:
 
     Line 1 DEBUG: 22em
+
+### `@warn`
+
+The `@warn` directive prints the value of a SassScript expression
+to the standard error output stream.
+It's useful for libraries that need to warn users of deprecations
+or recovering from minor coding mistakes. There are two major distinctions
+between `@warn` and `@debug`:
+
+1. You can turn warnings off with the `--quiet` command-line option
+   or the `:quiet` Sass option.
+2. A stylesheet trace will be printed out along with the message
+   so that the user being warned can see where they are calling from
+   their code.
 
 ## Control Directives
 

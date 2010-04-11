@@ -5,6 +5,16 @@
 
 ## 3.0.0.beta.2 (Unreleased)
 
+### `@warn`
+
+A new directive `@warn` has been added that allows sass libraries to emit warnings. This can be used to issue deprecation warnings, discourage sloppy coding, etc.
+`@warn` takes a single argument that is a SassScript expression that will be
+displayed on the console along with a stylesheet trace.
+
+Warnings may be silenced with the new `--quiet` command line option,
+or the corresponding `:quiet` Sass option. Warnings are off by default
+in Rails and Merb production environments.
+
 ### `sass-convert`
 
 #### `--recursive`
