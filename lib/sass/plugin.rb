@@ -212,7 +212,7 @@ module Sass
       individual_files.each {|t, c| update_stylesheet(t, c)}
 
       @checked_for_updates = true
-      staleness_checker = make_staleness_checker
+      staleness_checker = StalenessChecker.new
 
       template_locations.zip(css_locations).each do |template_location, css_location|
 
@@ -377,13 +377,9 @@ module Sass
       name.sub(/^.*\//, '')[0] == ?_
     end
 
-    def make_staleness_checker
-      StalenessChecker.new(engine_options)
-    end
-
     # Compass expects this to exist
     def stylesheet_needs_update?(css_file, template_file)
-      make_staleness_checker.stylesheet_needs_update?(css_file, template_file)
+      StalenessChecker.new.stylesheet_needs_update?(css_file, template_file)
     end
   end
 end

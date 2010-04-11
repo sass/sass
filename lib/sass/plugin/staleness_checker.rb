@@ -1,10 +1,8 @@
 module Sass
   module Plugin
     class StalenessChecker
-      attr_reader :engine_options
-
-      def initialize(engine_options)
-        @engine_options, @mtimes, @dependencies_stale = engine_options, {}, {}
+      def initialize
+        @mtimes, @dependencies_stale = {}, {}
         @dependencies = Thread.current[:_sass_file_dependencies] ||= {}
       end
 
@@ -60,7 +58,7 @@ module Sass
       end
 
       def compute_dependencies(filename)
-        Files.tree_for(filename, engine_options).grep(Tree::ImportNode) do |n|
+        Files.tree_for(filename, Plugin.engine_options).grep(Tree::ImportNode) do |n|
           File.expand_path(n.full_filename) unless n.full_filename =~ /\.css$/
         end.compact
       rescue Sass::SyntaxError => e

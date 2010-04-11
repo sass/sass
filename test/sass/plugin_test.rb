@@ -341,13 +341,13 @@ CSS
   end
 
   def assert_needs_update(name)
-    checker = make_staleness_checker
+    checker = Sass::Plugin::StalenessChecker.new
     assert(checker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} to need an update.")
   end
 
   def assert_doesnt_need_update(name)
-    checker = make_staleness_checker
+    checker = Sass::Plugin::StalenessChecker.new
     assert(!checker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} not to need an update.")
   end
@@ -389,10 +389,6 @@ CSS
 
   def absolutize(file)
     "#{File.dirname(__FILE__)}/#{file}"
-  end
-
-  def make_staleness_checker
-    Sass::Plugin.send(:make_staleness_checker)
   end
 
   def set_plugin_opts(overrides = {})
