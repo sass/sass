@@ -522,6 +522,12 @@ MSG
     assert_error_message("#ff0000 is not a number for `unit'", "unit(#f00)")
   end
 
+  def test_unitless
+    assert_equal(%Q{true}, evaluate("unitless(100)"))
+    assert_equal(%Q{false}, evaluate("unitless(100px)"))
+    assert_error_message("#ff0000 is not a number for `unitless'", "unitless(#f00)")
+  end
+
   private
 
   def evaluate(value)

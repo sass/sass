@@ -113,6 +113,9 @@ module Sass::Script
   # \{#unit}
   # : Returns the units associated with a number.
   #
+  # \{#unitless}
+  # : Returns whether a number has units or not.
+  #
   # These functions are described in more detail below.
   #
   # ## Adding Custom Functions
@@ -709,6 +712,20 @@ module Sass::Script
     def unit(number)
       assert_type number, :Number
       Sass::Script::String.new(number.unit_str, :string)
+    end
+
+    # Inspects the unit of the number, returning a boolean indicating if it is unitless.
+    # For example:
+    #
+    #     unitless(100) => true
+    #     unitless(100px) => false
+    #
+    # @param number [Literal] The number to inspect
+    # @return [Bool] indicating if the number is unitless
+    # @raise [ArgumentError] if `number` isn't a number
+    def unitless(number)
+      assert_type number, :Number
+      Sass::Script::Bool.new(number.unitless?)
     end
 
     # Converts a decimal number to a percentage.
