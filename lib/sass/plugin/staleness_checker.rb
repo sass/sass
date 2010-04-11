@@ -28,8 +28,8 @@ module Sass
         attr_accessor :dependencies_cache
       end
 
-      def initialize(dependencies = self.class.dependencies_cache)
-        @dependencies = dependencies
+      def initialize
+        @dependencies = self.class.dependencies_cache
 
         # Entries in the following instance-level caches are never explicitly expired.
         # Instead they are supposed to automaticaly go out of scope when a series of staleness checks
