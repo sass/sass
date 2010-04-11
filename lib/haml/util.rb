@@ -180,14 +180,6 @@ module Haml
       @@silence_warnings = old_silence_warnings
     end
 
-    def with_warnings(state)
-      old_silence_warnings = @@silence_warnings
-      @@silence_warnings = !state
-      yield
-    ensure
-      @@silence_warnings = old_silence_warnings
-    end
-
     # The same as `Kernel#warn`, but is silenced by \{#silence\_haml\_warnings}.
     #
     # @param msg [String]
