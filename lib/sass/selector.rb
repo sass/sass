@@ -401,7 +401,7 @@ module Sass
       # @see CommaSequence#extend
       def extend(extends, supers = [])
         seqs = Haml::Util.enum_with_index(members).map do |sel, i|
-          next unless extenders = extends[sel]
+          next unless extenders = extends[Set[sel]]
           sseq_without_sel = members[0...i] + members[i+1..-1]
           extenders.map do |sseq|
             new_sseq = sseq.members.inject(sseq_without_sel) do |sseq2, sel2|
