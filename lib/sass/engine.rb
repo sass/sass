@@ -165,10 +165,9 @@ module Sass
     # @return [String] The CSS
     # @raise [Sass::SyntaxError] if there's an error in the document
     def render
-      return to_tree.render unless @options[:quiet]
-      Haml::Util.silence_haml_warnings {to_tree.render}
+      return _to_tree.render unless @options[:quiet]
+      Haml::Util.silence_haml_warnings {_to_tree.render}
     end
-
     alias_method :to_css, :render
 
     # Parses the document into its parse tree.
@@ -176,6 +175,13 @@ module Sass
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
+      return _to_tree unless @options[:quiet]
+      Haml::Util.silence_haml_warnings {_to_tree}
+    end
+
+    private
+
+    def _to_tree
       @template = check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
 
       if @options[:syntax] == :scss
@@ -192,8 +198,6 @@ module Sass
       e.sass_template = @template
       raise e
     end
-
-    private
 
     def tabulate(string)
       tab_str = nil
