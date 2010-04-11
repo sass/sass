@@ -513,7 +513,7 @@ MESSAGE
     # @param text [String] The string to sanitize
     # @return [String] The sanitized string
     def html_escape(text)
-      text.to_s.gsub(/[\"><&]/n) {|s| HTML_ESCAPE[s]}
+      Haml::Util.silence_warnings {text.to_s.gsub(/[\"><&]/n) {|s| HTML_ESCAPE[s]}}
     end
 
     # Escapes HTML entities in `text`, but without escaping an ampersand

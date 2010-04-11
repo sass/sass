@@ -270,6 +270,8 @@ Thanks to [Josh Peek](http://joshpeek.com/).
 
 * Don't remove `\n` in filters with interpolation.
 
+* Silence those annoying `"regexp match /.../n against to UTF-8 string"` warnings.
+
 ## 2.2.22
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).

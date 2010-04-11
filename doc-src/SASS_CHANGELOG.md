@@ -611,6 +611,9 @@ and the hex representation (shortened to the three-letter version if possible).
   {file:SASS_REFERENCE.md#full_exception `:full_exception option`} is enabled,
   print the full exception rather than raising it.
 
+* Fix a bug with a weird interaction with Haml, DataMapper, and Rails 3
+  that caused some tag helpers to go into infinite recursion.
+
 ## 2.2.22
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).
