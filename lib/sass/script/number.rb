@@ -299,6 +299,17 @@ module Sass::Script
                  end, num_units, den_units)
     end
 
+    # @param other [Number] A number to decide if it can be compared with this number.
+    # @return [Boolean] Whether or not this number can be compared with the other.
+    def comparable_to?(other)
+      begin
+        self.operate(other, :+)
+        true
+      rescue Sass::UnitConversionError
+        false
+      end
+    end
+
     # Returns a human readable representation of the units in this number.
     # For complex units this takes the form of:
     # numerator_unit1 * numerator_unit2 / denominator_unit1 * denominator_unit2

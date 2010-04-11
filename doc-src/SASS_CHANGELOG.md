@@ -14,6 +14,7 @@ of obsolete APIs.
 * `type-of` -- Returns the type of a value.
 * `unit` -- Returns the units associated with a number.
 * `unitless` -- Returns whether a number has units or not.
+* `comparable` -- Returns whether two numbers can be added or compared.
 
 ### `@warn`
 

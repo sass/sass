@@ -528,6 +528,14 @@ MSG
     assert_error_message("#ff0000 is not a number for `unitless'", "unitless(#f00)")
   end
 
+  def test_comparable
+    assert_equal(%Q{true}, evaluate("comparable(2px, 1px)"))
+    assert_equal(%Q{true}, evaluate("comparable(10cm, 3mm)"))
+    assert_equal(%Q{false}, evaluate("comparable(100px, 3em)"))
+    assert_error_message("#ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
+    assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
+  end
+
   private
 
   def evaluate(value)

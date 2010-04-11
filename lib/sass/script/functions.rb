@@ -116,6 +116,9 @@ module Sass::Script
   # \{#unitless}
   # : Returns whether a number has units or not.
   #
+  # \{#comparable}
+  # : Returns whether two numbers can be added or compared.
+  #
   # These functions are described in more detail below.
   #
   # ## Adding Custom Functions
@@ -726,6 +729,23 @@ module Sass::Script
     def unitless(number)
       assert_type number, :Number
       Sass::Script::Bool.new(number.unitless?)
+    end
+
+    # Returns true if two numbers are similar enough to be added, subtracted, or compared.
+    # For example:
+    #
+    #     comparable(2px, 1px) => true
+    #     comparable(100px, 3em) => false
+    #     comparable(10cm, 3mm) => true
+    #
+    # @param number1 [Number]
+    # @param number2 [Number]
+    # @return [Bool] indicating if the numbers can be compared.
+    # @raise [ArgumentError] if `number1` or `number2` aren't numbers
+    def comparable(number1, number2)
+      assert_type number1, :Number
+      assert_type number2, :Number
+      Sass::Script::Bool.new(number1.comparable_to?(number2))
     end
 
     # Converts a decimal number to a percentage.
