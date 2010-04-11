@@ -1,18 +1,26 @@
 module Sass
   module Plugin
-    # The class handles .s[ca]ss file staleness checks via their mtime timestamps.
-    # To speed things up 2 level of caches are employed:
-    #   * a class-level @dependencies_cache storing @import paths, this is a long lived cache
-    #     that is being reused by every StalenessChecker instance,
-    #   * 2 class-level short lived @mtimes, @dependencies_stale caches that are only used by a single
-    #     StalenessChecker instance.
+    # The class handles `.s[ca]ss` file staleness checks via their mtime timestamps.
+    #
+    # To speed things up two level of caches are employed:
+    #
+    # * A class-level dependency cache which stores @import paths for each file.
+    #   This is a long-lived cache that is reused by every StalenessChecker instance.
+    # * Two short-lived instance-level caches, one for file mtimes
+    #   and one for whether a file is stale during this particular run.
+    #   These are only used by a single StalenessChecker instance.
+    #
     # Usage:
-    #   * In case of a one-off staleness check of a single .s[ca]ss file a class level
-    #     StalenessChecker.stylesheet_needs_update? method should be used.
-    #   * In case of a series of checks (checking all the files for staleness) an instance should be created,
-    #     as its caches should make the whole process significantly faster.
-    #     WARNING: It is important that you do not hold on onto the instance for too long as its
-    #              instance-level caches are never explicitly expired.
+    #
+    # * For a one-off staleness check of a single `.s[ca]ss` file,
+    #   the class-level {stylesheet_needs_update?} method
+    #   should be used.
+    # * For a series of staleness checks (e.g. checking all files for staleness)
+    #   a StalenessChecker instance should be created,
+    #   and the instance-level \{#stylesheet\_needs\_update?} method should be used.
+    #   the caches should make the whole process significantly faster.
+    #   *WARNING*: It is important not to retain the instance for too long,
+    #   as its instance-level caches are never explicitly expired.
     class StalenessChecker
       @dependencies_cache = {}
 
