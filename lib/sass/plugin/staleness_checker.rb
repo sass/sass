@@ -25,9 +25,12 @@ module Sass
       @dependencies_cache = {}
 
       class << self
+        # @private
         attr_accessor :dependencies_cache
       end
 
+      # Creates a new StalenessChecker
+      # for checking the staleness of several stylesheets at once.
       def initialize
         @dependencies = self.class.dependencies_cache
 
@@ -37,6 +40,12 @@ module Sass
         @mtimes, @dependencies_stale = {}, {}
       end
 
+      # Returns whether or not a given CSS file is out of date
+      # and needs to be regenerated.
+      #
+      # @param css_file [String] The location of the CSS file to check.
+      # @param template_file [String] The location of the Sass or SCSS template
+      #   that is compiled to `css_file`.
       def stylesheet_needs_update?(css_file, template_file)
         template_file = File.expand_path(template_file)
 
@@ -47,6 +56,20 @@ module Sass
           css_mtime = mtime(css_file)
           mtime(template_file) > css_mtime || dependencies_stale?(template_file, css_mtime)
         end
+      end
+
+      # Returns whether or not a given CSS file is out of date
+      # and needs to be regenerated.
+      #
+      # The distinction between this method and the instance-level \{#stylesheet\_needs\_update?}
+      # is that the instance method preserves mtime and stale-dependency caches,
+      # so it's better to use when checking multiple stylesheets at once.
+      #
+      # @param css_file [String] The location of the CSS file to check.
+      # @param template_file [String] The location of the Sass or SCSS template
+      #   that is compiled to `css_file`.
+      def self.stylesheet_needs_update?(css_file, template_file)
+        new.stylesheet_needs_update?(css_file, template_file)
       end
 
       private
@@ -94,10 +117,6 @@ module Sass
         end.compact
       rescue Sass::SyntaxError => e
         [] # If the file has an error, we assume it has no dependencies
-      end
-
-      def self.stylesheet_needs_update?(css_file, template_file)
-        new.stylesheet_needs_update?(css_file, template_file)
       end
     end
   end
