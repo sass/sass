@@ -820,7 +820,7 @@ SCSS
 
   def test_long_extendee_matches_supersets
     assert_equal <<CSS, render(<<SCSS)
-.foo.bar.bap, .baz.bap {
+.foo.bar.bap, .bap.baz {
   a: b; }
 CSS
 .foo.bar.bap {a: b}
@@ -830,7 +830,7 @@ SCSS
 
   def test_long_extendee_runs_unification
     assert_equal <<CSS, render(<<SCSS)
-.foo.bar.bap, ns|a.baz {
+ns|*.foo.bar, ns|a.baz {
   a: b; }
 CSS
 ns|*.foo.bar {a: b}

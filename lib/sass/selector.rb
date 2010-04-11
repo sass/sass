@@ -400,21 +400,18 @@ module Sass
       #   by {Sequence#extend}.
       # @see CommaSequence#extend
       def extend(extends, supers = [])
-        seqs = Haml::Util.enum_with_index(members).map do |sel, i|
-          next unless extenders = extends[Set[sel]]
-          sseq_without_sel = members[0...i] + members[i+1..-1]
-          extenders.map do |sseq|
-            new_sseq = sseq.members.inject(sseq_without_sel) do |sseq2, sel2|
-              next unless sseq2
-              sel2.unify(sseq2)
-            end
-            new_sseq && [sel, new_sseq]
+        seqs = extends.get(members.to_set).map do |sseq, sels|
+          sseq_without_sel = members - sels.to_a
+          new_sseq = sseq.members.inject(sseq_without_sel) do |sseq2, sel2|
+            next unless sseq2
+            sel2.unify(sseq2)
           end
-        end.flatten(1).compact.map {|sel, seq| [sel, SimpleSequence.new(seq)]}
+          new_sseq && [sels, new_sseq]
+        end.compact.map {|sels, seq| [sels, SimpleSequence.new(seq)]}
 
         seqs.map {|_, seq| seq}.concat(
-          seqs.map do |sel, seq|
-            new_seqs = seq.extend(extends, supers.unshift(sel))
+          seqs.map do |sels, seq|
+            new_seqs = seq.extend(extends, supers.unshift(sels))
             supers.shift
             new_seqs
           end.flatten.uniq)
