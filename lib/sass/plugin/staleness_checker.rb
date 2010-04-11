@@ -31,11 +31,7 @@ module Sass
             return true
           end
         end
-        timestamps[css_mtime] = run_stale_dependencies_check(template_file, css_mtime)
-      end
-
-      def run_stale_dependencies_check(template_file, css_mtime)
-        dependencies(template_file).any?(&dependency_updated?(css_mtime))
+        timestamps[css_mtime] = dependencies(template_file).any?(&dependency_updated?(css_mtime))
       end
 
       def mtime(filename)
