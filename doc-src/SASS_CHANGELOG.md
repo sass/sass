@@ -11,10 +11,13 @@ Several new functions were added to make it easier to have
 more flexible arguments to mixins and to enable deprecation
 of obsolete APIs.
 
-* `type-of` -- Returns the type of a value.
-* `unit` -- Returns the units associated with a number.
-* `unitless` -- Returns whether a number has units or not.
-* `comparable` -- Returns whether two numbers can be added or compared.
+* {Sass::Script::Functions#type_of `type-of`} -- Returns the type of a value.
+* {Sass::Script::Functions#unit `unit`} --
+  Returns the units associated with a number.
+* {Sass::Script::Functions#unitless `unitless`} --
+  Returns whether a number has units or not.
+* {Sass::Script::Functions#comparable `comparable`} --
+  Returns whether two numbers can be added or compared.
 
 ### `@warn`
 

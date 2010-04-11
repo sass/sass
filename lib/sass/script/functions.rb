@@ -694,7 +694,7 @@ module Sass::Script
     #     type-of(blue)   => color
     #
     # @param obj [Literal] The object to inspect
-    # @return [String] The unquoted string value of the literal's type
+    # @return [String] The unquoted string name of the literal's type
     def type_of(obj)
       Sass::Script::String.new(obj.class.name.gsub(/Sass::Script::/,'').downcase)
     end
@@ -724,7 +724,7 @@ module Sass::Script
     #     unitless(100px) => false
     #
     # @param number [Literal] The number to inspect
-    # @return [Bool] indicating if the number is unitless
+    # @return [Bool] Whether or not the number is unitless
     # @raise [ArgumentError] if `number` isn't a number
     def unitless(number)
       assert_type number, :Number
