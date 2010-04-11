@@ -255,7 +255,12 @@ module Sass::Tree
       node = DirectiveNode.new("@media -sass-debug-info")
       debug_info.map {|k, v| [k.to_s, v.to_s]}.sort.each do |k, v|
         rule = RuleNode.new([""])
-        rule.resolved_rules = [[k.to_s.gsub(/[^\w-]/, "\\\\\\0")]]
+        rule.resolved_rules = Sass::Selector::CommaSequence.new(
+          [Sass::Selector::Sequence.new(
+              [Sass::Selector::SimpleSequence.new(
+                  [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)])
+              ])
+          ])
         prop = PropNode.new([""], "", :new)
         prop.resolved_name = "font-family"
         prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
