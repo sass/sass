@@ -391,13 +391,13 @@ module Sass
       def class_selector
         return unless tok(/\./)
         @expected = "class name"
-        Selector::Class.new(expr!(:interp_ident))
+        Selector::Class.new(merge(expr!(:interp_ident)))
       end
 
       def id_selector
         return unless tok(/#(?!\{)/)
         @expected = "id name"
-        Selector::Id.new(expr!(:interp_name))
+        Selector::Id.new(merge(expr!(:interp_name)))
       end
 
       def element_name
@@ -409,9 +409,9 @@ module Sass
         end
 
         if name == '*'
-          Selector::Universal.new(ns && [ns].flatten)
+          Selector::Universal.new(merge(ns))
         else
-          Selector::Element.new([name].flatten, ns && [ns].flatten)
+          Selector::Element.new(merge(name), merge(ns))
         end
       end
 
@@ -443,7 +443,7 @@ module Sass
         end
         tok(/\]/)
 
-        Selector::Attribute.new(name, ns, op, val)
+        Selector::Attribute.new(merge(name), merge(ns), op, merge(val))
       end
 
       def attrib_name!
@@ -473,7 +473,7 @@ module Sass
           arg = expr!(:pseudo_expr)
           tok!(/\)/)
         end
-        Selector::Pseudo.new(s == ':' ? :class : :element, name, arg)
+        Selector::Pseudo.new(s == ':' ? :class : :element, merge(name), merge(arg))
       end
 
       def pseudo_expr
@@ -654,6 +654,10 @@ MESSAGE
         result = parser.send(*args)
         @line = parser.line
         result
+      end
+
+      def merge(arr)
+        arr && Haml::Util.merge_adjacent_strings([arr].flatten)
       end
 
       EXPR_NAMES = {
