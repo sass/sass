@@ -62,7 +62,7 @@ module Sass
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def perform!(environment)
-        environment.push(:filename => @filename, :line => @line, :import => true)
+        environment.push_frame(:filename => @filename, :line => @line)
         root = Sass::Files.tree_for(full_filename, @options)
         @template = root.template
         self.children = root.children
@@ -72,7 +72,7 @@ module Sass
         e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       ensure
-        environment.pop
+        environment.pop_frame
       end
 
       private

@@ -21,25 +21,20 @@ module Sass
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def _perform(environment)
-        environment.push(:filename => filename, :line => line)
+        environment.push_frame(:filename => filename, :line => line)
         res = @expr.perform(environment)
         res = res.value if res.is_a?(Sass::Script::String)
-        Haml::Util.haml_warn "WARNING: #{res}"
-        Haml::Util.enum_with_index(environment.stack.reverse).each do |entry, i|
-          where = "         "
-          if entry[:mixin]
-            where << "via '#{entry[:mixin]}' mixed in at line #{entry[:line]}"
-          elsif entry[:import]
-            where << "imported from line #{entry[:line]}"
-          else
-            where << "#{"issued" if i == 0} from line #{entry[:line]}"
-          end
-          where << " of #{entry[:filename] || "(sass)"}"
-          Haml::Util.haml_warn where
+        msg = "WARNING: #{res}\n"
+        environment.stack.reverse.each_with_index do |entry, i|
+          msg << "        #{i == 0 ? "on" : "from"} line #{entry[:line]}" <<
+            " of #{entry[:filename] || "an unknown file"}"
+          msg << ", in `#{entry[:mixin]}'" if entry[:mixin]
+          msg << "\n"
         end
+        Haml::Util.haml_warn msg
         []
       ensure
-        environment.pop
+        environment.pop_frame
       end
     end
   end

@@ -23,8 +23,7 @@ module Sass
       @vars = {}
       @mixins = {}
       @parent = parent
-      @stack = []
-      @ignore_parent_stack = false
+      @stack = [] unless parent
       set_var("important", Script::String.new("!important")) unless @parent
     end
 
@@ -36,7 +35,8 @@ module Sass
       @options || (parent && parent.options) || {}
     end
 
-    # Push lexical frame information onto the runtime stack.
+    # Push a new stack frame onto the mixin/include stack.
+    #
     # @param frame_info [{Symbol => Object}]
     #   Frame information has the following keys:
     #
@@ -49,40 +49,36 @@ module Sass
     #
     #   `:line`
     #   : The line of the file on which the lexical scope changed. Never nil.
+    def push_frame(frame_info)
+      if stack.last && stack.last[:prepared]
+        stack.last.delete(:prepared)
+        stack.last.merge!(frame_info)
+      else
+        stack.push(frame_info)
+      end
+    end
+
+    # Like \{#push\_frame}, but next time a stack frame is pushed,
+    # it will be merged with this frame.
     #
-    #   `:import`
-    #   : Set to `true` when the lexical scope is changing due to an import.
-    def push(frame_info)
-      @stack.push frame_info
+    # @param frame_info [{Symbol => Object}] Same as for \{#push\_frame}.
+    def prepare_frame(frame_info)
+      push_frame(frame_info.merge(:prepared => true))
     end
 
-    # Pop runtime frame information from the stack.
-    def pop
-      @stack.pop
+    # Pop a stack frame from the mixin/include stack.
+    def pop_frame
+      stack.pop if stack.last[:prepared]
+      stack.pop
     end
 
-    # A list of the runtime stack frame information
-    # The last element in the list was pushed onto the stack most recently.
+    # A list of stack frames in the mixin/include stack.
+    # The last element in the list is the most deeply-nested frame.
     #
     # @return [Array<{Symbol => Object}>] The stack frames,
     #   of the form passed to \{#push}.
     def stack
-      prev = (!@ignore_parent_stack && parent && parent.stack) || []
-      prev + @stack
-    end
-
-    # Temporarily assume the runtime stack that is passed in.
-    #
-    # @param stk [Array<{Symbol => Object}>] A call stack from another environment,
-    #   of the form returned by \{#stack}.
-    # @yield A block in which the stack is set to `stk`.
-    def with_stack(stk)
-      @stack, old_stack = stk, @stack
-      @ignore_parent_stack = true
-      yield self
-    ensure
-      @ignore_parent_stack = false
-      @stack = old_stack
+      @stack ||= @parent.stack
     end
 
     class << self

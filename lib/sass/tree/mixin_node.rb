@@ -51,38 +51,37 @@ module Sass::Tree
     # @see Sass::Tree
     def perform!(environment)
       original_env = environment
-      original_env.push(:filename => filename, :mixin => @name, :line => line)
+      original_env.push_frame(:filename => filename, :line => line)
+      original_env.prepare_frame(:mixin => @name)
       raise Sass::SyntaxError.new("Undefined mixin '#{@name}'.") unless mixin = environment.mixin(@name)
 
       raise Sass::SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < @args.size
 Mixin #{@name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{@args.size} #{@args.size == 1 ? 'was' : 'were'} passed.
 END
-
-      mixin.environment.with_stack(original_env.stack) do |mixin_env|
-        environment = mixin.args.zip(@args).
-          inject(Sass::Environment.new(mixin_env)) do |env, ((var, default), value)|
-          env.set_local_var(var.name,
-            if value
-              value.perform(environment)
-            elsif default
-              val = default.perform(env)
-              if default.context == :equals && val.is_a?(Sass::Script::String)
-                val = Sass::Script::String.new(val.value)
-              end
-              val
-            end)
-          raise Sass::SyntaxError.new("Mixin #{@name} is missing parameter #{var.inspect}.") unless env.var(var.name)
-          env
-        end
-        self.children = mixin.tree.map {|c| c.perform(environment)}.flatten
+      environment = mixin.args.zip(@args).
+        inject(Sass::Environment.new(mixin.environment)) do |env, ((var, default), value)|
+        env.set_local_var(var.name,
+          if value
+            value.perform(environment)
+          elsif default
+            val = default.perform(env)
+            if default.context == :equals && val.is_a?(Sass::Script::String)
+              val = Sass::Script::String.new(val.value)
+            end
+            val
+          end)
+        raise Sass::SyntaxError.new("Mixin #{@name} is missing parameter #{var.inspect}.") unless env.var(var.name)
+        env
       end
+
+      self.children = mixin.tree.map {|c| c.perform(environment)}.flatten
     rescue Sass::SyntaxError => e
       e.modify_backtrace(:mixin => @name, :line => @line)
       e.add_backtrace(:line => @line)
       raise e
     ensure
-      original_env.pop
+      original_env.pop_frame
     end
   end
 end
