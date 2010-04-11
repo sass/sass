@@ -1,5 +1,18 @@
 module Sass
   module Plugin
+    # The class handles .s[ca]ss file staleness checks via their mtime timestamps.
+    # To speed things up 2 level of caches are employed:
+    #   * a class-level @dependencies_cache storing @import paths, this is a long lived cache
+    #     that is being reused by every StalenessChecker instance,
+    #   * 2 class-level short lived @mtimes, @dependencies_stale caches that are only used by a single
+    #     StalenessChecker instance.
+    # Usage:
+    #   * In case of a one-off staleness check of a single .s[ca]ss file a class level
+    #     StalenessChecker.stylesheet_needs_update? method should be used.
+    #   * In case of a series of checks (checking all the files for staleness) an instance should be created,
+    #     as its caches should make the whole process significantly faster.
+    #     WARNING: It is important that you do not hold on onto the instance for too long as its
+    #              instance-level caches are never explicitly expired.
     class StalenessChecker
       @dependencies_cache = {}
 
@@ -8,7 +21,11 @@ module Sass
       end
       
       def initialize(dependencies = self.class.dependencies_cache)
-        @dependencies                = dependencies
+        @dependencies = dependencies
+
+        # Entries in the following instance-level caches are never explicitly expired.
+        # Instead they are supposed to automaticaly go out of scope when a series of staleness checks
+        # (this instance of StalenessChecker was created for) is finished.
         @mtimes, @dependencies_stale = {}, {}
       end
 
