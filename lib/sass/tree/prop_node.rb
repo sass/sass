@@ -79,7 +79,7 @@ module Sass::Tree
     def to_src(tabs, opts, fmt)
       res = declaration(tabs, opts, fmt)
       return res + "#{semi fmt}\n" if children.empty?
-      res.rstrip + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
+      res + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
     end
 
     # Computes the CSS for the property.
@@ -168,7 +168,7 @@ module Sass::Tree
       old = opts[:old] && fmt == :sass
       initial = old ? ':' : ''
       mid = old ? '' : ':'
-      "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}"
+      "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
     class << self
