@@ -38,20 +38,20 @@ module Sass
 
     # Push lexical frame information onto the runtime stack.
     # @param frame_info [{Symbol => Object}]
-    # Frame information has the following keys:
+    #   Frame information has the following keys:
     #
-    # `:filename`
-    # : The name of the file in which the lexical scope changed.
+    #   `:filename`
+    #   : The name of the file in which the lexical scope changed.
     #
-    # `:mixin`
-    # : The name of the mixin in which the lexical scope changed,
-    #   or `nil` if it wasn't within in a mixin.
+    #   `:mixin`
+    #   : The name of the mixin in which the lexical scope changed,
+    #     or `nil` if it wasn't within in a mixin.
     #
-    # `:line`
-    # : The line of the file on which the lexical scope changed. Never nil.
+    #   `:line`
+    #   : The line of the file on which the lexical scope changed. Never nil.
     #
-    # `:import`
-    # : Set to `true` when the lexical scope is changing due to an import.
+    #   `:import`
+    #   : Set to `true` when the lexical scope is changing due to an import.
     def push(frame_info)
       @stack.push frame_info
     end
@@ -63,13 +63,19 @@ module Sass
 
     # A list of the runtime stack frame information
     # The last element in the list was pushed onto the stack most recently.
+    #
+    # @return [Array<{Symbol => Object}>] The stack frames,
+    #   of the form passed to \{#push}.
     def stack
       prev = (!@ignore_parent_stack && parent && parent.stack) || []
       prev + @stack
     end
 
     # Temporarily assume the runtime stack that is passed in.
-    # @param stk A stack value from another environment.
+    #
+    # @param stk [Array<{Symbol => Object}>] A call stack from another environment,
+    #   of the form returned by \{#stack}.
+    # @yield A block in which the stack is set to `stk`.
     def with_stack(stk)
       @stack, old_stack = stk, @stack
       @ignore_parent_stack = true
