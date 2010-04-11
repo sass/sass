@@ -591,6 +591,9 @@ END
           'By default, this is inferred from the input filename.',
           'If there is none, defaults to css.') do |name|
           @options[:from] = name.downcase.to_sym
+          unless [:css, :scss, :sass].include?(@options[:from])
+            raise "Unknown format for sass-convert --from: #{name}"
+          end
         end
 
         opts.on('-T', '--to FORMAT',
@@ -598,6 +601,9 @@ END
           'By default, this is inferred from the output filename.',
           'If there is none, defaults to sass.') do |name|
           @options[:to] = name.downcase.to_sym
+          unless [:scss, :sass].include?(@options[:to])
+            raise "Unknown format for sass-convert --to: #{name}"
+          end
         end
 
         opts.on('-R', '--recursive',
