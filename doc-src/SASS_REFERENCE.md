@@ -924,6 +924,33 @@ between `@warn` and `@debug`:
    so that the user being warned can see where they are calling from
    their code.
 
+Usage Example:
+
+    @mixin adjust-location($x, $y) {
+      @if unitless($x) {
+        @warn "Assuming #{$x} to be in pixels";
+        $x: 1px * $x;
+      }
+      @if unitless($y) {
+        @warn "Assuming #{$y} to be in pixels";
+        $y: 1px * $y;
+      }
+      position: relative; left: $x; top: $y;
+    }
+
+Indented Syntax Example:
+
+    =adjust-location($x, $y)
+      @if unitless($x)
+        @warn "Assuming #{$x} to be in pixels"
+        $x: 1px * $x
+      @if unitless($y)
+        @warn "Assuming #{$y} to be in pixels"
+        $y: 1px * $y
+      position: relative
+      left: $x
+      top: $y
+
 ## Control Directives
 
 SassScript supports basic control directives
