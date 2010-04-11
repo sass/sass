@@ -347,12 +347,12 @@ CSS
   end
 
   def assert_needs_update(name)
-    assert(Sass::Plugin.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
+    assert(Sass::Plugin::StalenessChecker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} to need an update.")
   end
 
   def assert_doesnt_need_update(name)
-    assert(!Sass::Plugin.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
+    assert(!Sass::Plugin::StalenessChecker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
       "Expected #{template_loc(name)} not to need an update.")
   end
 
@@ -361,6 +361,7 @@ CSS
   end
 
   def reset_mtimes
+    Sass::Plugin::StalenessChecker.dependencies_cache = {}
     atime = Time.now
     mtime = Time.now - 5
     Dir["{#{template_loc},#{tempfile_loc}}/**/*.{css,sass,scss}"].each {|f| File.utime(atime, mtime, f)}
@@ -404,12 +405,6 @@ CSS
       :always_update => true,
       :never_update => false,
     }.merge(overrides)
-  end
-end
-
-module Sass::Plugin
-  class << self
-    public :stylesheet_needs_update?
   end
 end
 
