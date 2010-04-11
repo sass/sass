@@ -1,9 +1,15 @@
 module Sass
   module Plugin
     class StalenessChecker
-      def initialize
+      @dependencies_cache = {}
+
+      class << self
+        attr_accessor :dependencies_cache
+      end
+      
+      def initialize(dependencies = self.class.dependencies_cache)
+        @dependencies                = dependencies
         @mtimes, @dependencies_stale = {}, {}
-        @dependencies = Thread.current[:_sass_file_dependencies] ||= {}
       end
 
       def stylesheet_needs_update?(css_file, template_file)
