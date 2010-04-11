@@ -505,6 +505,14 @@ The #options attribute is not set on this Sass::Script::String.
 MSG
   end
 
+  def test_type_of
+    assert_equal("string", evaluate("type-of(\"asdf\")"))
+    assert_equal("string", evaluate("type-of(asdf)"))
+    assert_equal("number", evaluate("type-of(1px)"))
+    assert_equal("bool", evaluate("type-of(true)"))
+    assert_equal("color", evaluate("type-of(#fff)"))
+  end
+
   private
 
   def evaluate(value)

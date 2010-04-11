@@ -105,6 +105,11 @@ module Sass::Script
   # \{#abs}
   # : Returns the absolute value of a number.
   #
+  # ## Introspection Functions
+  #
+  # \{#type_of}
+  # : Returns the type of a value.
+  #
   # These functions are described in more detail below.
   #
   # ## Adding Custom Functions
@@ -667,6 +672,22 @@ module Sass::Script
     def quote(str)
       assert_type str, :String
       Sass::Script::String.new(str.value, :string)
+    end
+
+    # Inspects the type of the argument, returning it as an unquoted string.
+    # For example:
+    #
+    #     type-of(100px)  => number
+    #     type-of(asdf)   => string
+    #     type-of("asdf") => string
+    #     type-of(true)   => bool
+    #     type-of(#fff)   => color
+    #     type-of(blue)   => color
+    #
+    # @param obj [Literal] The object to inspect
+    # @return [String] The unquoted string value of the literal's type
+    def type_of(obj)
+      Sass::Script::String.new(obj.class.name.gsub(/Sass::Script::/,'').downcase)
     end
 
     # Converts a decimal number to a percentage.

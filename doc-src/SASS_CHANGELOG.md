@@ -5,6 +5,14 @@
 
 ## 3.0.0.beta.2 (Unreleased)
 
+### New Sass Functions for Introspection
+
+Several new functions were added to make it easier to have
+more flexible arguments to mixins and to enable deprecation
+of obsolete APIs.
+
+* `type-of` -- Returns the type of a value.
+
 ### `@warn`
 
 A new directive `@warn` has been added that allows sass libraries to emit warnings. This can be used to issue deprecation warnings, discourage sloppy coding, etc.
