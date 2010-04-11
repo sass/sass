@@ -771,6 +771,10 @@ the following doctypes are supported:
 : XHTML Mobile 1.2<br/>
  `<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">`
 
+`!!! RDFa`
+: XHTML+RDFa 1.0<br/>
+ `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">`
+
 When the [`:format`](#format) option is set to `:html4`,
 the following doctypes are supported:
 
