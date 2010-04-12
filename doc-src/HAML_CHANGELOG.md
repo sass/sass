@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 2.2.23 (Unreleased)
+## 2.2.23
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.23).
 
 * Don't crash when `rake gems` is run in Rails with Haml installed.
   Thanks to [Florian Frank](http://github.com/flori).
