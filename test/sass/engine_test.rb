@@ -1304,6 +1304,18 @@ foo {
 CSS
   end
 
+  def test_loud_comments_with_starred_lines
+    assert_equal(<<CSS, render(<<SASS))
+/* This is a comment that
+ * continues to the second line.
+ * And even to the third! */
+CSS
+/* This is a comment that
+ * continues to the second line.
+ * And even to the third!
+SASS
+  end
+
   def test_comment_indentation_at_beginning_of_doc
     assert_equal <<CSS, render(<<SASS)
 /* foo

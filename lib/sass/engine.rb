@@ -588,6 +588,7 @@ WARNING
       end
 
       return silent ? "//" : "/* */" if content.empty?
+      content.each {|l| l.gsub!(/^\* /, '')}
       content.map! {|l| (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
       content.last.gsub!(%r{ ?\*/ *$}, '')

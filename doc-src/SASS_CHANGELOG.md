@@ -58,6 +58,16 @@ Note that since underscores may still be used in place of hyphens
 when referring to mixins and variables,
 this won't cause any backwards-incompatibilities.
 
+### Minor Changes
+
+Indented-syntax `/*` comments may now include `*` on lines beyond the first,
+which will get stripped out of the output.
+This means that the following will render nicely:
+
+    /* Foo
+     * Bar
+     * Baz
+
 #### Bug Fixes
 
 * Include `;` when rendering nested properties.
