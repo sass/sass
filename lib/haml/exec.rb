@@ -594,7 +594,7 @@ END
           'By default, this is inferred from the input filename.',
           'If there is none, defaults to css.') do |name|
           @options[:from] = name.downcase.to_sym
-          unless [:css, :scss, :sass].include?(@options[:from])
+          unless [:css, :scss, :sass, :sass2].include?(@options[:from])
             raise "Unknown format for sass-convert --from: #{name}"
           end
         end
