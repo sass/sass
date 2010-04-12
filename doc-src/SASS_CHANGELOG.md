@@ -7,6 +7,16 @@
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.2).
 
+### Stylesheet Updating Speed
+
+Several caching layers were added to Sass's stylesheet updater.
+This means that it should run significantly faster.
+This benefit will be seen by people using Sass in development mode
+with Rails, Rack, and Merb,
+as well as people using `sass --watch` from the command line,
+and to a lesser (but still significant) extent `sass --update`.
+Thanks to [thedarkone](http://github.com/thedarkone).
+
 ### New Sass Functions for Introspection
 
 Several new functions were added to make it easier to have
