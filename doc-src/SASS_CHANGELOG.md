@@ -58,6 +58,13 @@ Note that since underscores may still be used in place of hyphens
 when referring to mixins and variables,
 this won't cause any backwards-incompatibilities.
 
+#### Sass Comment Format
+
+When converting to the indented syntax,
+each line of comments past the first begins with either `//` (for Sass comments)
+or ` *` (for CSS comments).
+This prevents some whitespace errors.
+
 ### Minor Changes
 
 Indented-syntax `/*` comments may now include `*` on lines beyond the first,

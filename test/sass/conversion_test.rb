@@ -251,9 +251,9 @@ SCSS
 
     assert_renders <<SASS, <<SCSS
 // foo
-   bar
-     baz
-   bang
+// bar
+//   baz
+// bang
 
 foo bar
   a: b
@@ -309,9 +309,9 @@ SCSS
 
     assert_scss_to_sass <<SASS, <<SCSS
 /* foo
-   bar
-     baz
-   bang
+ * bar
+ *   baz
+ * bang
 
 foo bar
   a: b
@@ -337,9 +337,9 @@ SCSS
 
     assert_renders <<SASS, <<SCSS
 /* foo
-   bar
-     baz
-   bang
+ * bar
+ *   baz
+ * bang
 
 foo bar
   a: b
@@ -358,8 +358,8 @@ SCSS
     assert_scss_to_sass <<SASS, <<SCSS
 foo
   /*      foo
-     bar
-         baz
+   * bar
+   *     baz
   a: b
 SASS
 foo {
@@ -387,8 +387,8 @@ SASS
   def test_immediately_preceding_comments
     assert_renders <<SASS, <<SCSS
 /* Foo
-   Bar
-   Baz
+ * Bar
+ * Baz
 .foo#bar
   a: b
 SASS
@@ -401,8 +401,8 @@ SCSS
 
     assert_renders <<SASS, <<SCSS
 // Foo
-   Bar
-   Baz
+// Bar
+// Baz
 =foo
   a: b
 SASS

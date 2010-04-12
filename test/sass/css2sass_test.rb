@@ -105,20 +105,20 @@ elephant.rawr
   rampages: excessively
 
 /* actual multiline
-  comment
+ *comment
 
 span.turkey
   isdinner: true
 
 .turducken
   /* Sounds funny
-     doesn't it
+   * doesn't it
   chimera: not_really
 
 #overhere
   bored: sorta
   /*                  it's for a good
-     cause
+   * cause
   better_than: thread_pools
 
 #one_more
