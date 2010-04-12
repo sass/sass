@@ -102,6 +102,9 @@ This means that the following will render nicely:
 * Prevent multiline CSS selectors from getting cut off
   in certain rare cases.
 
+* Improve the parsing of mixin argument lists.
+  This mostly means that error messages will be clearer.
+
 ### `@import` in Sass
 
 The Sass `@import` statement now allows non-CSS files to be specified with quotes,

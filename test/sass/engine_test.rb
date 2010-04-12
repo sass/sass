@@ -81,10 +81,10 @@ MSG
     "a\n  b: c\na\n    d: e" => ["The line was indented 2 levels deeper than the previous line.", 4],
     "a\n  b: c\n  a\n        d: e" => ["The line was indented 3 levels deeper than the previous line.", 4],
     "a\n \tb: c" => ["Indentation can't use both tabs and spaces.", 2],
-    "=a(" => 'Invalid CSS after "(": expected ")", was ""',
-    "=a(b)" => 'Invalid CSS after "(": expected ")", was "b)"',
-    "=a(,)" => 'Invalid CSS after "(": expected ")", was ",)"',
-    "=a(!)" => 'Invalid CSS after "(": expected ")", was "!)"',
+    "=a(" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ""',
+    "=a(b)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "b)"',
+    "=a(,)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ",)"',
+    "=a($)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "$)"',
     "=a($foo bar)" => 'Invalid CSS after "($foo ": expected ")", was "bar)"',
     "=foo\n  bar: baz\n+foo" => ["Properties aren't allowed at the root of a document.", 2],
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
@@ -940,7 +940,7 @@ SASS
   def test_equals_warning_for_mixin_args
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
 DEPRECATION WARNING:
-On line 1, character 6 of 'test_equals_warning_for_mixin_args_inline.sass'
+On line 1, character 10 of 'test_equals_warning_for_mixin_args_inline.sass'
 Setting mixin argument defaults with = has been deprecated and will be removed in version 3.2.
 Use "$arg: 1px" instead.
 
@@ -1899,6 +1899,15 @@ CSS
 a
   b: option("style")
 SASS
+  end
+
+  def test_mixin_no_arg_error
+    assert_raise(Sass::SyntaxError, 'Invalid CSS after "($bar,": expected variable name, was ")"') do
+      render(<<SASS)
+=foo($bar,)
+  bip: bap
+SASS
+    end
   end
 
   # Encodings
