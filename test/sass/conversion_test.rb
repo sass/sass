@@ -595,8 +595,8 @@ SCSS
   end
 
   def test_import_as_directive_in_sass
-    assert_sass_to_sass '@import "foo.css"'
-    assert_sass_to_sass '@import url(foo.css)'
+    assert_equal "@import foo.css\n", to_sass('@import "foo.css"')
+    assert_equal "@import foo.css\n", to_sass('@import url(foo.css)')
   end
 
   def test_import_as_directive_in_scss

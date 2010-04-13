@@ -3,6 +3,14 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.beta.3 (Unreleased)
+
+### `@import` in Sass
+
+The Sass `@import` statement now allows non-CSS files to be specified with quotes,
+for similarity with the SCSS syntax. For example, `@import "foo.sass"`
+Will now import the `foo.sass` file, rather than compiling to `@import "foo.sass";`.
+
 ## 3.0.0.beta.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.2).

@@ -3,7 +3,8 @@ $preconst: hello
 =premixin
   pre-mixin: here
 
-@import importee.sass, scss_importee, "basic.sass", basic.css, ../results/complex.css, url(partial.sass)
+@import importee.sass, scss_importee, "basic.sass", basic.css, ../results/complex.css
+@import url(partial.sass)
 
 nonimported
   :myconst $preconst

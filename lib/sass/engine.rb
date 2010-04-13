@@ -467,9 +467,13 @@ WARNING
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
-      if directive == "import" && value !~ /^(url\(|["'])/
+      if directive == "import"
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
           :line => @line + 1) unless line.children.empty?
+        if (match = value.match(Sass::SCSS::RX::STRING) || value.match(Sass::SCSS::RX::URI)) &&
+            !match.post_match.strip.empty? && match.post_match.strip[0] != ?,
+          return Tree::DirectiveNode.new("@import #{value}")
+        end
         value.split(/,\s*/).map do |f|
           f = $1 || $2 || $3 if f =~ Sass::SCSS::RX::STRING || f =~ Sass::SCSS::RX::URI
           Tree::ImportNode.new(f)
