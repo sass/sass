@@ -67,8 +67,8 @@ module Sass::Tree
           end
         end
 
-      content.gsub!(/^/, '  ' * tabs)
       content.gsub!(/\A\/\*/, '//') if silent
+      content.gsub!(/^/, '  ' * tabs)
       content.rstrip + "\n"
     end
 

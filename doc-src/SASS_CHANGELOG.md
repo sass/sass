@@ -11,6 +11,12 @@ The Sass `@import` statement now allows non-CSS files to be specified with quote
 for similarity with the SCSS syntax. For example, `@import "foo.sass"`
 Will now import the `foo.sass` file, rather than compiling to `@import "foo.sass";`.
 
+### Bug Fixes
+
+* Make sure nested comments use the proper prefix when `sass-convert` outputs Sass.
+
+* Allow comments to begin with ` *` in all cases.
+
 ## 3.0.0.beta.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.2).

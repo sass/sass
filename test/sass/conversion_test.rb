@@ -286,6 +286,50 @@ foo bar
 SASS
   end
 
+  def test_nested_silent_comments
+    assert_renders <<SASS, <<SCSS
+foo
+  bar: baz
+  // bip bop
+  // beep boop
+  bang: bizz
+  // bubble bubble
+  // toil trouble
+SASS
+foo {
+  bar: baz;
+  // bip bop
+  // beep boop
+  bang: bizz;
+  // bubble bubble
+  // toil trouble
+}
+SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  bar: baz;
+  // bip bop
+  // beep boop
+  //   bap blimp
+  bang: bizz;
+  // bubble bubble
+  // toil trouble
+  //    gorp
+}
+SCSS
+foo
+  bar: baz
+  // bip bop
+     beep boop
+       bap blimp
+  bang: bizz
+  // bubble bubble
+    toil trouble
+       gorp
+SASS
+  end
+
   def test_loud_comments
     assert_renders <<SASS, <<SCSS
 /* foo
@@ -352,6 +396,48 @@ SASS
 foo bar {
   a: b; }
 SCSS
+  end
+
+  def test_nested_loud_comments
+    assert_renders <<SASS, <<SCSS
+foo
+  bar: baz
+  /* bip bop
+   * beep boop
+  bang: bizz
+  /* bubble bubble
+   * toil trouble
+SASS
+foo {
+  bar: baz;
+  /* bip bop
+   * beep boop */
+  bang: bizz;
+  /* bubble bubble
+   * toil trouble */ }
+SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  bar: baz;
+  /* bip bop
+   * beep boop
+   *   bap blimp */
+  bang: bizz;
+  /* bubble bubble
+   * toil trouble
+   *    gorp */ }
+SCSS
+foo
+  bar: baz
+  /* bip bop
+     beep boop
+       bap blimp
+  bang: bizz
+  /* bubble bubble
+    toil trouble
+       gorp
+SASS
   end
 
   def test_loud_comments_with_weird_indentation

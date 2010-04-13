@@ -234,7 +234,7 @@ module Sass
         end
 
         comment_tab_str ||= line_tab_str
-        if try_comment(line, lines.last, tab_str * (lines.last.tabs + 1), comment_tab_str, index)
+        if try_comment(line, lines.last, tab_str * lines.last.tabs, comment_tab_str, index)
           next
         else
           comment_tab_str = nil
@@ -256,7 +256,9 @@ END
 
     def try_comment(line, last, tab_str, comment_tab_str, index)
       return unless last && last.comment?
-      return unless line =~ /^#{tab_str}/
+      # Nested comment stuff must be at least one whitespace char deeper
+      # than the normal indentation
+      return unless line =~ /^#{tab_str}\s/
       unless line =~ /^(?:#{comment_tab_str})(.*)$/
         raise SyntaxError.new(<<MSG.strip.gsub("\n", " "), :line => index)
 Inconsistent indentation:
