@@ -288,7 +288,7 @@ END
   <input id="article_body" name="article[body]" size="30" type="text" value="World" />
 </form>
 HTML
-- form_for :article, @article, :url => '' do |f|
+- form_for #{form_for_calling_convention(:article)}, :url => '' do |f|
   Title:
   = f.text_field :title
   Body:
@@ -387,7 +387,7 @@ HAML
   <input id="article_body" name="article[body]" size="30" type="text" value="World" />
 </form>
 HTML
-#{rails_block_helper_char} form_for :article, @article, :url => '' do |f|
+#{rails_block_helper_char} form_for #{form_for_calling_convention(:article)}, :url => '' do |f|
   Title:
   = f.text_field :title
   Body:

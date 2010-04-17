@@ -62,6 +62,19 @@ click
         <input id="article_body" name="article[body]" size="30" type="text" value="World" />
       </form>
     </div>
+- elsif Haml::Util.ap_geq_3_beta_3?
+  %p
+    = form_tag ''
+  %div
+    = form_tag '' do
+      %div= submit_tag 'save'
+      - @foo = 'value one'
+      = test_partial 'partial'
+    = form_for @article, :as => :article, :url => '', :html => {:class => nil, :id => nil} do |f|
+      Title:
+      = f.text_field :title
+      Body:
+      = f.text_field :body
 - elsif Haml::Util.ap_geq_3?
   %p
     = form_tag ''

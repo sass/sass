@@ -59,4 +59,9 @@ class Test::Unit::TestCase
     return '=' if Haml::Util.ap_geq_3?
     return '-'
   end
+
+  def form_for_calling_convention(name)
+    return "@#{name}, :as => :#{name}, :html => {:class => nil, :id => nil}" if Haml::Util.ap_geq_3_beta_3?
+    return ":#{name}, @#{name}"
+  end
 end
