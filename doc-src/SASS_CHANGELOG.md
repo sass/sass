@@ -5,6 +5,14 @@
 
 ## 3.0.0.beta.4
 
+### Sass Property Syntax
+
+New-style properties (with the colon after the name) in the indented syntax
+now allow whitespace before the colon. For example:
+
+    foo
+      color : blue
+
 ### Bug Fixes
 
 * Variables are now allowed as arguments to `url()`.
@@ -13,6 +21,8 @@
 
 * Don't consider e.g. `foo ($bar + $baz)` to be a function call.
   Function calls can't have whitespace between the name and the parentheses.
+
+* Allow interpolation in Sass properties to contain spaces.
 
 ## 3.0.0.beta.3
 

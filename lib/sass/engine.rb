@@ -382,7 +382,10 @@ WARNING
           # if we're using the new property syntax
           Tree::RuleNode.new(parse_interp(line.text))
         else
-          parse_property(line, PROPERTY_OLD)
+          name, eq, value = line.text.scan(PROPERTY_OLD)[0]
+          raise SyntaxError.new("Invalid property: \"#{line.text}\".",
+            :line => @line) if name.nil? || value.nil?
+          parse_property(name, parse_interp(name), eq, value, :old, line)
         end
       when ?!, ?$
         parse_variable(line)
@@ -401,20 +404,29 @@ WARNING
           parse_mixin_include(line, root)
         end
       else
-        if line.text =~ PROPERTY_NEW_MATCHER
-          parse_property(line, PROPERTY_NEW)
-        else
-          Tree::RuleNode.new(parse_interp(line.text))
-        end
+        parse_property_or_rule(line)
       end
     end
 
-    def parse_property(line, property_regx)
-      name, eq, value = line.text.scan(property_regx)[0]
+    def parse_property_or_rule(line)
+      scanner = StringScanner.new(line.text)
+      hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
+      parser = Sass::SCSS::Parser.new(scanner, @line)
 
-      raise SyntaxError.new("Invalid property: \"#{line.text}\".",
-        :line => @line) if name.nil? || value.nil?
+      unless res = parser.parse_interp_ident
+        return Tree::RuleNode.new(parse_interp(line.text))
+      end
+      res.unshift(hack_char) if hack_char
 
+      name = line.text[0...scanner.pos]
+      if scanner.scan(/\s*([:=])(?:\s|$)/)
+        parse_property(name, res, scanner[1], scanner.rest, :new, line)
+      else
+        Tree::RuleNode.new(res + parse_interp(scanner.rest))
+      end
+    end
+
+    def parse_property(name, parsed_name, eq, value, prop, line)
       if value.strip.empty?
         expr = Sass::Script::String.new("")
       else
@@ -427,9 +439,7 @@ WARNING
             @line, line.offset + 1, @options[:filename])
         end
       end
-      Tree::PropNode.new(
-        parse_interp(name), expr,
-        property_regx == PROPERTY_OLD ? :old : :new)
+      Tree::PropNode.new(parse_interp(name), expr, prop)
     end
 
     def parse_variable(line)

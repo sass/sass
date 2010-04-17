@@ -6,10 +6,12 @@ module Sass
     # The parser for SCSS.
     # It parses a string of code into a tree of {Sass::Tree::Node}s.
     class Parser
-      # @param str [String] The source document to parse
-      def initialize(str)
+      # @param str [String, StringScanner] The source document to parse
+      # @param line [Fixnum] The line on which the source string appeared,
+      #   if it's part of another document
+      def initialize(str, line = 1)
         @template = str
-        @line = 1
+        @line = line
         @strs = []
       end
 
@@ -18,18 +20,38 @@ module Sass
       # @return [Sass::Tree::RootNode] The root node of the document tree
       # @raise [Sass::SyntaxError] if there's a syntax error in the document
       def parse
-        @scanner = StringScanner.new(
-          Haml::Util.check_encoding(@template) do |msg, line|
-            raise Sass::SyntaxError.new(msg, :line => line)
-          end.gsub("\r", ""))
+        init_scanner!
         root = stylesheet
         expected("selector or at-rule") unless @scanner.eos?
         root
       end
 
+      # Parses an identifier with interpolation.
+      # Note that this won't assert that the identifier takes up the entire input string;
+      # it's meant to be used with `StringScanner`s as part of other parsers.
+      #
+      # @return [Array<String, Sass::Script::Node>, nil]
+      #   The interpolated identifier, or nil if none could be parsed
+      def parse_interp_ident
+        init_scanner!
+        interp_ident
+      end
+
       private
 
       include Sass::SCSS::RX
+
+      def init_scanner!
+        @scanner =
+          if @template.is_a?(StringScanner)
+            @template
+          else
+            StringScanner.new(
+              Haml::Util.check_encoding(@template) do |msg, line|
+                raise Sass::SyntaxError.new(msg, :line => line)
+              end.gsub("\r", ""))
+          end
+      end
 
       def stylesheet
         node = node(Sass::Tree::RootNode.new(@scanner.string))
