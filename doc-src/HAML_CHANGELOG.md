@@ -273,6 +273,12 @@ Thanks to [Josh Peek](http://joshpeek.com/).
 * The `puts` helper has been removed.
   Use {Haml::Helpers#haml\_concat} instead.
 
+## 2.2.24
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.24).
+
+* Make sure `form_for` blocks are properly indented under Rails 3.0.0.beta.3.
+
 ## 2.2.23
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.23).
