@@ -11,6 +11,9 @@
 
 * `#{}` interpolation is now allowed within `url()`.
 
+* Don't consider e.g. `foo ($bar + $baz)` to be a function call.
+  Function calls can't have whitespace between the name and the parentheses.
+
 ## 3.0.0.beta.3
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).

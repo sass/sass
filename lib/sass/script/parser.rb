@@ -214,24 +214,24 @@ RUBY
       unary :plus, :unary_minus
       unary :minus, :unary_div
       unary :div, :unary_not # For strings, so /foo/bar works
-      unary :not, :funcall
+      unary :not, :ident
 
-      def funcall
-        return raw unless @lexer.peek && @lexer.peek.type == :ident
+      def ident
+        return funcall unless @lexer.peek && @lexer.peek.type == :ident
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next
-        # An identifier without arguments is just a string
-        unless try_tok(:lparen)
-          if color = Color::HTML4_COLORS[name.value]
-            return node(Color.new(color))
-          end
-          node(Script::String.new(name.value, :identifier))
-        else
-          args = fn_arglist || []
-          assert_tok(:rparen)
-          node(Script::Funcall.new(name.value, args))
+        if color = Color::HTML4_COLORS[name.value]
+          return node(Color.new(color))
         end
+        node(Script::String.new(name.value, :identifier))
+      end
+
+      def funcall
+        return raw unless tok = try_tok(:funcall)
+        args = fn_arglist || []
+        assert_tok(:rparen)
+        node(Script::Funcall.new(tok.value, args))
       end
 
       def defn_arglist!(must_have_default)

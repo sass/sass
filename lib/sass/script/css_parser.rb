@@ -21,7 +21,7 @@ module Sass
       # Short-circuit all the SassScript-only productions
       alias_method :interpolation, :concat
       alias_method :or_expr, :div
-      alias_method :unary_div, :funcall
+      alias_method :unary_div, :ident
       alias_method :paren, :string
     end
   end
