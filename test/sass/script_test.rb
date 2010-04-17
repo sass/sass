@@ -143,6 +143,11 @@ SASS
     assert_equal "Options defined!", resolve("assert_options(round(1.2))")
   end
 
+  def test_funcall_requires_no_whitespace_before_lparen
+    assert_equal "no-repeat 15px", resolve("no-repeat (7px + 8px)")
+    assert_equal "no-repeat(15px)", resolve("no-repeat(7px + 8px)")
+  end
+
   def test_dynamic_url
     assert_equal "url(foo-bar)", resolve("url($foo)", {}, env('foo' => Sass::Script::String.new("foo-bar")))
     assert_equal "url(foo-bar baz)", resolve("url($foo $bar)", {}, env('foo' => Sass::Script::String.new("foo-bar"), 'bar' => Sass::Script::String.new("baz")))

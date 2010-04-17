@@ -94,7 +94,7 @@ module Sass
         :comment => COMMENT,
         :single_line_comment => SINGLE_LINE_COMMENT,
         :variable => /([!\$])(#{IDENT})/,
-        :ident => IDENT,
+        :ident => /(#{IDENT})(\()?/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
         :bool => /(true|false)\b/,
@@ -238,8 +238,8 @@ module Sass
       end
 
       def ident
-        return unless s = scan(REGULAR_EXPRESSIONS[:ident])
-        [:ident, s]
+        return unless scan(REGULAR_EXPRESSIONS[:ident])
+        [@scanner[2] ? :funcall : :ident, @scanner[1]]
       end
 
       def string(re, open)
