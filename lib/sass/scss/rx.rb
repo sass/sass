@@ -65,7 +65,8 @@ module Sass
       NAME     = /#{NMCHAR}+/
       NUM      = /[0-9]+|[0-9]*.[0-9]+/
       STRING   = /#{STRING1}|#{STRING2}/
-      URL      = /((?:[!#%&*-~]|#{NONASCII}|#{ESCAPE})*)/
+      URLCHAR  = /[!#%&*-~]|#{NONASCII}|#{ESCAPE}/
+      URL      = /(#{URLCHAR}*)/
       W        = /[ \t\r\n\f]*/
 
       # This is more liberal than the spec's definition,

@@ -9,6 +9,8 @@
 
 * Variables are now allowed as arguments to `url()`.
 
+* `#{}` interpolation is now allowed within `url()`.
+
 ## 3.0.0.beta.3
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).

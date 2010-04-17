@@ -120,6 +120,8 @@ module Sass
         [:single, false] => string_re("'", "'"),
         [:double, true] => string_re('', '"'),
         [:single, true] => string_re('', "'"),
+        [:uri, false] => /url\(#{W}(#{URLCHAR}*?)(#{W}\)|(?=#\{))/,
+        [:uri, true] => /(#{URLCHAR}*?)(#{W}\)|(?=#\{))/,
       }
 
       # @param str [String, StringScanner] The source text to lex
@@ -216,8 +218,8 @@ module Sass
         end
 
         variable || string(:double, false) || string(:single, false) || number ||
-          color || bool || raw(URI) || raw(UNICODERANGE) || special_fun ||
-          ident_op || ident || op
+          color || bool || string(:uri, false) || raw(UNICODERANGE) ||
+          special_fun || ident_op || ident || op
       end
 
       def variable
@@ -243,7 +245,13 @@ module Sass
       def string(re, open)
         return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
         @interpolation_stack << re if @scanner[2].empty? # Started an interpolated section
-        [:string, Script::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)]
+        str =
+          if re == :uri
+            Script::String.new("#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2].empty?}")
+          else
+            Script::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
+          end
+        [:string, str]
       end
 
       def number

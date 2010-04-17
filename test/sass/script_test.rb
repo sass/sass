@@ -150,6 +150,12 @@ SASS
     assert_equal "url(foo bar)", resolve("url(foo    bar)")
   end
 
+  def test_url_with_interpolation
+    assert_equal "url(http://sass-lang.com/images/foo-bar)", resolve("url(http://sass-lang.com/images/\#{foo-bar})")
+    assert_equal 'url("http://sass-lang.com/images/foo-bar")', resolve("url('http://sass-lang.com/images/\#{foo-bar}')")
+    assert_equal 'url("http://sass-lang.com/images/foo-bar")', resolve('url("http://sass-lang.com/images/#{foo-bar}")')
+  end
+
   def test_hyphenated_variables
     assert_equal("a-b", resolve("$a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
   end
