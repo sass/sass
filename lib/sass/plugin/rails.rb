@@ -5,6 +5,7 @@ unless defined?(Sass::RAILS_LOADED)
                               :css_location      => Haml::Util.rails_root + '/public/stylesheets',
                               :cache_location    => Haml::Util.rails_root + '/tmp/sass-cache',
                               :always_check      => Haml::Util.rails_env != "production",
+                              :quiet             => Haml::Util.rails_env != "production",
                               :full_exception    => Haml::Util.rails_env != "production")
 
   if defined?(Rails.configuration) && defined?(Rails.configuration.middleware)

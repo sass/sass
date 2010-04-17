@@ -14,6 +14,7 @@ require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
 require 'sass/tree/debug_node'
+require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
 require 'sass/selector'
 require 'sass/environment'
@@ -166,9 +167,9 @@ module Sass
     # @return [String] The CSS
     # @raise [Sass::SyntaxError] if there's an error in the document
     def render
-      to_tree.render
+      return _to_tree.render unless @options[:quiet]
+      Haml::Util.silence_haml_warnings {_to_tree.render}
     end
-
     alias_method :to_css, :render
 
     # Parses the document into its parse tree.
@@ -176,6 +177,13 @@ module Sass
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
+      return _to_tree unless @options[:quiet]
+      Haml::Util.silence_haml_warnings {_to_tree}
+    end
+
+    private
+
+    def _to_tree
       @template = check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
 
       if @options[:syntax] == :scss
@@ -192,8 +200,6 @@ module Sass
       e.sass_template = @template
       raise e
     end
-
-    private
 
     def tabulate(string)
       tab_str = nil
@@ -230,7 +236,7 @@ module Sass
         end
 
         comment_tab_str ||= line_tab_str
-        if try_comment(line, lines.last, tab_str * (lines.last.tabs + 1), comment_tab_str, index)
+        if try_comment(line, lines.last, tab_str * lines.last.tabs, comment_tab_str, index)
           next
         else
           comment_tab_str = nil
@@ -252,7 +258,9 @@ END
 
     def try_comment(line, last, tab_str, comment_tab_str, index)
       return unless last && last.comment?
-      return unless line =~ /^#{tab_str}/
+      # Nested comment stuff must be at least one whitespace char deeper
+      # than the normal indentation
+      return unless line =~ /^#{tab_str}\s/
       unless line =~ /^(?:#{comment_tab_str})(.*)$/
         raise SyntaxError.new(<<MSG.strip.gsub("\n", " "), :line => index)
 Inconsistent indentation:
@@ -463,9 +471,13 @@ WARNING
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
-      if directive == "import" && value !~ /^(url\(|["'])/
+      if directive == "import"
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
           :line => @line + 1) unless line.children.empty?
+        if (match = value.match(Sass::SCSS::RX::STRING) || value.match(Sass::SCSS::RX::URI)) &&
+            !match.post_match.strip.empty? && match.post_match.strip[0] != ?,
+          return Tree::DirectiveNode.new("@import #{value}")
+        end
         value.split(/,\s*/).map do |f|
           f = $1 || $2 || $3 if f =~ Sass::SCSS::RX::STRING || f =~ Sass::SCSS::RX::URI
           Tree::ImportNode.new(f)
@@ -496,6 +508,12 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::ExtendNode.new(parse_interp(value, offset))
+      elsif directive == "warn"
+        raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",
+          :line => @line + 1) unless line.children.empty?
+        offset = line.offset + line.text.index(value).to_i
+        Tree::WarnNode.new(parse_script(value, :offset => offset))
       else
         Tree::DirectiveNode.new(line.text)
       end
@@ -584,6 +602,7 @@ WARNING
       end
 
       return silent ? "//" : "/* */" if content.empty?
+      content.each {|l| l.gsub!(/^\* /, '')}
       content.map! {|l| (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
       content.last.gsub!(%r{ ?\*/ *$}, '')

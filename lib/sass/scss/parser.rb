@@ -81,7 +81,7 @@ module Sass
         node << comment
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :for, :while, :if, :extend, :import, :media]
+      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :extend, :import, :media]
 
       def directive
         return unless tok(/@/)
@@ -129,6 +129,10 @@ module Sass
 
       def debug
         node(Sass::Tree::DebugNode.new(sass_script(:parse)))
+      end
+
+      def warn
+        node(Sass::Tree::WarnNode.new(sass_script(:parse)))
       end
 
       def for

@@ -59,15 +59,16 @@ module Sass::Tree
         else
           content.gsub!(/\n( \*|\/\/)/, "\n  ")
           spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
+          sep = silent ? "\n//" : "\n *"
           if spaces >= 2
-            content
+            content.gsub(/\n  /, sep)
           else
-            content.gsub(/\n#{' ' * spaces}/, "\n  ")
+            content.gsub(/\n#{' ' * spaces}/, sep)
           end
         end
 
-      content.gsub!(/^/, '  ' * tabs)
       content.gsub!(/\A\/\*/, '//') if silent
+      content.gsub!(/^/, '  ' * tabs)
       content.rstrip + "\n"
     end
 

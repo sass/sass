@@ -81,10 +81,10 @@ MSG
     "a\n  b: c\na\n    d: e" => ["The line was indented 2 levels deeper than the previous line.", 4],
     "a\n  b: c\n  a\n        d: e" => ["The line was indented 3 levels deeper than the previous line.", 4],
     "a\n \tb: c" => ["Indentation can't use both tabs and spaces.", 2],
-    "=a(" => 'Invalid CSS after "(": expected ")", was ""',
-    "=a(b)" => 'Invalid CSS after "(": expected ")", was "b)"',
-    "=a(,)" => 'Invalid CSS after "(": expected ")", was ",)"',
-    "=a(!)" => 'Invalid CSS after "(": expected ")", was "!)"',
+    "=a(" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ""',
+    "=a(b)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "b)"',
+    "=a(,)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ",)"',
+    "=a($)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "$)"',
     "=a($foo bar)" => 'Invalid CSS after "($foo ": expected ")", was "bar)"',
     "=foo\n  bar: baz\n+foo" => ["Properties aren't allowed at the root of a document.", 2],
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
@@ -107,6 +107,9 @@ MSG
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
     '@debug' => "Invalid debug directive '@debug': expected expression.",
+    %Q{@debug "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath debug directives.",
+    '@warn' => "Invalid warn directive '@warn': expected expression.",
+    %Q{@warn "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath warn directives.",
     "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
 
     # Regression tests
@@ -937,7 +940,7 @@ SASS
   def test_equals_warning_for_mixin_args
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
 DEPRECATION WARNING:
-On line 1, character 6 of 'test_equals_warning_for_mixin_args_inline.sass'
+On line 1, character 10 of 'test_equals_warning_for_mixin_args_inline.sass'
 Setting mixin argument defaults with = has been deprecated and will be removed in version 3.2.
 Use "$arg: 1px" instead.
 
@@ -1299,6 +1302,18 @@ assert_equal(<<CSS, actual_css)
 foo {
   bar: baz; }
 CSS
+  end
+
+  def test_loud_comments_with_starred_lines
+    assert_equal(<<CSS, render(<<SASS))
+/* This is a comment that
+ * continues to the second line.
+ * And even to the third! */
+CSS
+/* This is a comment that
+ * continues to the second line.
+ * And even to the third!
+SASS
   end
 
   def test_comment_indentation_at_beginning_of_doc
@@ -1709,6 +1724,58 @@ SASS
     end
   end
 
+  def test_warn_directive
+  expected_warning = <<EXPECTATION
+WARNING: this is a warning
+        on line 4 of test_warn_directive_inline.sass
+
+WARNING: this is a mixin warning
+        on line 2 of test_warn_directive_inline.sass, in `foo'
+        from line 7 of test_warn_directive_inline.sass
+EXPECTATION
+    assert_warning expected_warning do
+      assert_equal <<CSS, render(<<SASS)
+bar {
+  c: d; }
+CSS
+=foo
+  @warn "this is a mixin warning"
+
+@warn "this is a warning"
+bar
+  c: d
+  +foo
+SASS
+    end
+  end
+
+  def test_warn_directive_when_quiet
+    assert_warning "" do
+      assert_equal <<CSS, render(<<SASS, :quiet => true)
+CSS
+@warn "this is a warning"
+SASS
+    end
+  end
+
+  def test_warn_with_imports
+    expected_warning = <<WARN
+WARNING: In the main file
+        on line 1 of #{File.dirname(__FILE__)}/templates/warn.sass
+
+WARNING: Imported
+        on line 1 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
+        from line 2 of #{File.dirname(__FILE__)}/templates/warn.sass
+
+WARNING: In an imported mixin
+        on line 4 of #{File.dirname(__FILE__)}/templates/warn_imported.sass, in `emits-a-warning'
+        from line 3 of #{File.dirname(__FILE__)}/templates/warn.sass
+WARN
+    assert_warning expected_warning do
+      renders_correctly "warn", :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"]
+    end
+  end
+
   # Regression tests
 
   def test_parens_in_mixins
@@ -1832,6 +1899,15 @@ CSS
 a
   b: option("style")
 SASS
+  end
+
+  def test_mixin_no_arg_error
+    assert_raise(Sass::SyntaxError, 'Invalid CSS after "($bar,": expected variable name, was ")"') do
+      render(<<SASS)
+=foo($bar,)
+  bip: bap
+SASS
+    end
   end
 
   # Encodings

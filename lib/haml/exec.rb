@@ -276,6 +276,9 @@ END
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
         end
+        opts.on('-q', '--quiet', 'Silence warnings during compilation.') do
+          @options[:for_engine][:quiet] = true
+        end
         opts.on('-g', '--debug-info',
                 'Emit extra information in the generated CSS that can be used by the FireSass Firebug plugin.') do
           @options[:for_engine][:debug_info] = true
@@ -592,6 +595,9 @@ END
           'By default, this is inferred from the input filename.',
           'If there is none, defaults to css.') do |name|
           @options[:from] = name.downcase.to_sym
+          unless [:css, :scss, :sass, :sass2].include?(@options[:from])
+            raise "Unknown format for sass-convert --from: #{name}"
+          end
         end
 
         opts.on('-T', '--to FORMAT',
@@ -599,6 +605,9 @@ END
           'By default, this is inferred from the output filename.',
           'If there is none, defaults to sass.') do |name|
           @options[:to] = name.downcase.to_sym
+          unless [:scss, :sass].include?(@options[:to])
+            raise "Unknown format for sass-convert --to: #{name}"
+          end
         end
 
         opts.on('-R', '--recursive',

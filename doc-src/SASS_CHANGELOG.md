@@ -3,7 +3,75 @@
 * Table of contents
 {:toc}
 
-## 3.0.0.beta.2 (Unreleased)
+## 3.0.0.beta.4
+
+### Bug Fixes
+
+* Variables are now allowed as arguments to `url()`.
+
+* `#{}` interpolation is now allowed within `url()`.
+
+## 3.0.0.beta.3
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).
+
+### `@import` in Sass
+
+The Sass `@import` statement now allows non-CSS files to be specified with quotes,
+for similarity with the SCSS syntax. For example, `@import "foo.sass"`
+Will now import the `foo.sass` file, rather than compiling to `@import "foo.sass";`.
+
+### Bug Fixes
+
+* Make sure nested comments use the proper prefix when `sass-convert` outputs Sass.
+
+* Allow comments to begin with ` *` in all cases.
+
+## 3.0.0.beta.2
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.2).
+
+### Stylesheet Updating Speed
+
+Several caching layers were added to Sass's stylesheet updater.
+This means that it should run significantly faster.
+This benefit will be seen by people using Sass in development mode
+with Rails, Rack, and Merb,
+as well as people using `sass --watch` from the command line,
+and to a lesser (but still significant) extent `sass --update`.
+Thanks to [thedarkone](http://github.com/thedarkone).
+
+### New Sass Functions for Introspection
+
+Several new functions were added to make it easier to have
+more flexible arguments to mixins and to enable deprecation
+of obsolete APIs.
+
+* {Sass::Script::Functions#type_of `type-of`} -- Returns the type of a value.
+* {Sass::Script::Functions#unit `unit`} --
+  Returns the units associated with a number.
+* {Sass::Script::Functions#unitless `unitless`} --
+  Returns whether a number has units or not.
+* {Sass::Script::Functions#comparable `comparable`} --
+  Returns whether two numbers can be added or compared.
+
+### `@warn`
+
+A new directive `@warn` has been added that allows Sass libraries to emit warnings.
+This can be used to issue deprecation warnings, discourage sloppy use of mixins, etc.
+`@warn` takes a single argument: a SassScript expression that will be
+displayed on the console along with a stylesheet trace for locating the warning.
+For example:
+
+    @mixin blue-text {
+      @warn "The blue-text mixin is deprecated. Use new-blue-text instead.";
+      color: #00f;
+    }
+
+Warnings may be silenced with the new `--quiet` command line option,
+or the corresponding {file:SASS_REFERENCE.md#quiet-option `:quiey` Sass option}.
+This option will also affect warnings printed by Sass itself.
+Warnings are off by default in the Rails, Rack, and Merb production environments.
 
 ### `sass-convert`
 
@@ -25,6 +93,23 @@ which are now allowed as part of identifiers in Sass.
 Note that since underscores may still be used in place of hyphens
 when referring to mixins and variables,
 this won't cause any backwards-incompatibilities.
+
+#### Sass Comment Format
+
+When converting to the indented syntax,
+each line of comments past the first begins with either `//` (for Sass comments)
+or ` *` (for CSS comments).
+This prevents some whitespace errors.
+
+### Minor Changes
+
+Indented-syntax `/*` comments may now include `*` on lines beyond the first,
+which will get stripped out of the output.
+This means that the following will render nicely:
+
+    /* Foo
+     * Bar
+     * Baz
 
 #### Bug Fixes
 
@@ -53,11 +138,8 @@ this won't cause any backwards-incompatibilities.
 * Prevent multiline CSS selectors from getting cut off
   in certain rare cases.
 
-### `@import` in Sass
-
-The Sass `@import` statement now allows non-CSS files to be specified with quotes,
-for similarity with the SCSS syntax. For example, `@import "foo.sass"`
-Will now import the `foo.sass` file, rather than compiling to `@import "foo.sass";`.
+* Improve the parsing of mixin argument lists.
+  This mostly means that error messages will be clearer.
 
 ### CSS Parsing
 
@@ -567,7 +649,9 @@ and the hex representation (shortened to the three-letter version if possible).
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
-## 2.2.23 (Unreleased)
+## 2.2.23
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.23).
 
 * Don't crash when `rake gems` is run in Rails with Sass installed.
   Thanks to [Florian Frank](http://github.com/flori).
@@ -578,6 +662,9 @@ and the hex representation (shortened to the three-letter version if possible).
 * If an import isn't found for a cached Sass file and the
   {file:SASS_REFERENCE.md#full_exception `:full_exception option`} is enabled,
   print the full exception rather than raising it.
+
+* Fix a bug with a weird interaction with Haml, DataMapper, and Rails 3
+  that caused some tag helpers to go into infinite recursion.
 
 ## 2.2.22
 

@@ -251,9 +251,9 @@ SCSS
 
     assert_renders <<SASS, <<SCSS
 // foo
-   bar
-     baz
-   bang
+// bar
+//   baz
+// bang
 
 foo bar
   a: b
@@ -286,6 +286,50 @@ foo bar
 SASS
   end
 
+  def test_nested_silent_comments
+    assert_renders <<SASS, <<SCSS
+foo
+  bar: baz
+  // bip bop
+  // beep boop
+  bang: bizz
+  // bubble bubble
+  // toil trouble
+SASS
+foo {
+  bar: baz;
+  // bip bop
+  // beep boop
+  bang: bizz;
+  // bubble bubble
+  // toil trouble
+}
+SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  bar: baz;
+  // bip bop
+  // beep boop
+  //   bap blimp
+  bang: bizz;
+  // bubble bubble
+  // toil trouble
+  //    gorp
+}
+SCSS
+foo
+  bar: baz
+  // bip bop
+     beep boop
+       bap blimp
+  bang: bizz
+  // bubble bubble
+    toil trouble
+       gorp
+SASS
+  end
+
   def test_loud_comments
     assert_renders <<SASS, <<SCSS
 /* foo
@@ -309,9 +353,9 @@ SCSS
 
     assert_scss_to_sass <<SASS, <<SCSS
 /* foo
-   bar
-     baz
-   bang
+ * bar
+ *   baz
+ * bang
 
 foo bar
   a: b
@@ -337,9 +381,9 @@ SCSS
 
     assert_renders <<SASS, <<SCSS
 /* foo
-   bar
-     baz
-   bang
+ * bar
+ *   baz
+ * bang
 
 foo bar
   a: b
@@ -354,12 +398,54 @@ foo bar {
 SCSS
   end
 
+  def test_nested_loud_comments
+    assert_renders <<SASS, <<SCSS
+foo
+  bar: baz
+  /* bip bop
+   * beep boop
+  bang: bizz
+  /* bubble bubble
+   * toil trouble
+SASS
+foo {
+  bar: baz;
+  /* bip bop
+   * beep boop */
+  bang: bizz;
+  /* bubble bubble
+   * toil trouble */ }
+SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  bar: baz;
+  /* bip bop
+   * beep boop
+   *   bap blimp */
+  bang: bizz;
+  /* bubble bubble
+   * toil trouble
+   *    gorp */ }
+SCSS
+foo
+  bar: baz
+  /* bip bop
+     beep boop
+       bap blimp
+  bang: bizz
+  /* bubble bubble
+    toil trouble
+       gorp
+SASS
+  end
+
   def test_loud_comments_with_weird_indentation
     assert_scss_to_sass <<SASS, <<SCSS
 foo
   /*      foo
-     bar
-         baz
+   * bar
+   *     baz
   a: b
 SASS
 foo {
@@ -387,8 +473,8 @@ SASS
   def test_immediately_preceding_comments
     assert_renders <<SASS, <<SCSS
 /* Foo
-   Bar
-   Baz
+ * Bar
+ * Baz
 .foo#bar
   a: b
 SASS
@@ -401,8 +487,8 @@ SCSS
 
     assert_renders <<SASS, <<SCSS
 // Foo
-   Bar
-   Baz
+// Bar
+// Baz
 =foo
   a: b
 SASS
@@ -595,8 +681,8 @@ SCSS
   end
 
   def test_import_as_directive_in_sass
-    assert_sass_to_sass '@import "foo.css"'
-    assert_sass_to_sass '@import url(foo.css)'
+    assert_equal "@import foo.css\n", to_sass('@import "foo.css"')
+    assert_equal "@import foo.css\n", to_sass('@import url(foo.css)')
   end
 
   def test_import_as_directive_in_scss

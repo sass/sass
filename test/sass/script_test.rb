@@ -143,6 +143,19 @@ SASS
     assert_equal "Options defined!", resolve("assert_options(round(1.2))")
   end
 
+  def test_dynamic_url
+    assert_equal "url(foo-bar)", resolve("url($foo)", {}, env('foo' => Sass::Script::String.new("foo-bar")))
+    assert_equal "url(foo-bar baz)", resolve("url($foo $bar)", {}, env('foo' => Sass::Script::String.new("foo-bar"), 'bar' => Sass::Script::String.new("baz")))
+    assert_equal "url(foo baz)", resolve("url(foo $bar)", {}, env('bar' => Sass::Script::String.new("baz")))
+    assert_equal "url(foo bar)", resolve("url(foo    bar)")
+  end
+
+  def test_url_with_interpolation
+    assert_equal "url(http://sass-lang.com/images/foo-bar)", resolve("url(http://sass-lang.com/images/\#{foo-bar})")
+    assert_equal 'url("http://sass-lang.com/images/foo-bar")', resolve("url('http://sass-lang.com/images/\#{foo-bar}')")
+    assert_equal 'url("http://sass-lang.com/images/foo-bar")', resolve('url("http://sass-lang.com/images/#{foo-bar}")')
+  end
+
   def test_hyphenated_variables
     assert_equal("a-b", resolve("$a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
   end

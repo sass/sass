@@ -97,12 +97,7 @@ module Sass
       # @return [Array<Script::Node>] The root nodes of the arguments.
       # @raise [Sass::SyntaxError] if the argument list isn't valid SassScript
       def parse_mixin_definition_arglist
-        args = []
-
-        if try_tok(:lparen)
-          args = defn_arglist(false) || args
-          assert_tok(:rparen)
-        end
+        args = defn_arglist!(false)
         assert_done
 
         args.each do |k, v|
@@ -239,26 +234,33 @@ RUBY
         end
       end
 
-      def defn_arglist(must_have_default)
-        line = @lexer.line
-        offset = @lexer.offset + 1
-        return unless c = try_tok(:const)
-        var = Script::Variable.new(c.value)
-        if tok = (try_tok(:colon) || try_tok(:single_eq))
-          val = assert_expr(:concat)
+      def defn_arglist!(must_have_default)
+        return [] unless try_tok(:lparen)
+        return [] if try_tok(:rparen)
+        res = []
+        loop do
+          line = @lexer.line
+          offset = @lexer.offset + 1
+          c = assert_tok(:const)
+          var = Script::Variable.new(c.value)
+          if tok = (try_tok(:colon) || try_tok(:single_eq))
+            val = assert_expr(:concat)
 
-          if tok.type == :single_eq
-            val.context = :equals
-            val.options = @options
-            Script.equals_warning("mixin argument defaults", "$#{c.value}",
-              val.to_sass, false, line, offset, @options[:filename])
+            if tok.type == :single_eq
+              val.context = :equals
+              val.options = @options
+              Script.equals_warning("mixin argument defaults", "$#{c.value}",
+                val.to_sass, false, line, offset, @options[:filename])
+            end
+            must_have_default = true
+          elsif must_have_default
+            raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")
           end
-        elsif must_have_default
-          raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")
+          res << [var, val]
+          break unless try_tok(:comma)
         end
-
-        return [[var, val]] unless try_tok(:comma)
-        [[var, val], *defn_arglist(val)]
+        assert_tok(:rparen)
+        res
       end
 
       def fn_arglist

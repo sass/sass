@@ -5,7 +5,12 @@ module Sass
         important || super
       end
 
-      def string(*args)
+      def string(re, *args)
+        if re == :uri
+          return unless uri = scan(URI)
+          return [:string, Script::String.new(uri)]
+        end
+
         return unless scan(STRING)
         [:string, Script::String.new((@scanner[1] || @scanner[2]).gsub(/\\(['"])/, '\1'), :string)]
       end

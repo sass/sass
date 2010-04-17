@@ -3,9 +3,19 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.beta.3
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).
+
+There were no changes made to Haml between beta 2 and beta 3.
+
 ## 3.0.0.beta.2
 
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.2).
+
 * Make {Haml::Helpers#capture_haml capture\_haml} faster when using `:ugly`.
+
+* Add an `RDFa` doctype shortcut.
 
 ## 3.0.0.beta.1
 
@@ -263,12 +273,16 @@ Thanks to [Josh Peek](http://joshpeek.com/).
 * The `puts` helper has been removed.
   Use {Haml::Helpers#haml\_concat} instead.
 
-## 2.2.23 (Unreleased)
+## 2.2.23
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.23).
 
 * Don't crash when `rake gems` is run in Rails with Haml installed.
   Thanks to [Florian Frank](http://github.com/flori).
 
 * Don't remove `\n` in filters with interpolation.
+
+* Silence those annoying `"regexp match /.../n against to UTF-8 string"` warnings.
 
 ## 2.2.22
 

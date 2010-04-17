@@ -505,6 +505,37 @@ The #options attribute is not set on this Sass::Script::String.
 MSG
   end
 
+  def test_type_of
+    assert_equal("string", evaluate("type-of(\"asdf\")"))
+    assert_equal("string", evaluate("type-of(asdf)"))
+    assert_equal("number", evaluate("type-of(1px)"))
+    assert_equal("bool", evaluate("type-of(true)"))
+    assert_equal("color", evaluate("type-of(#fff)"))
+  end
+
+  def test_unit
+    assert_equal(%Q{""}, evaluate("unit(100)"))
+    assert_equal(%Q{"px"}, evaluate("unit(100px)"))
+    assert_equal(%Q{"em*px"}, evaluate("unit(10px * 5em)"))
+    assert_equal(%Q{"em*px"}, evaluate("unit(5em * 10px)"))
+    assert_equal(%Q{"em*px/cm*rem"}, evaluate("unit(10px * 5em / 30cm / 1rem)"))
+    assert_error_message("#ff0000 is not a number for `unit'", "unit(#f00)")
+  end
+
+  def test_unitless
+    assert_equal(%Q{true}, evaluate("unitless(100)"))
+    assert_equal(%Q{false}, evaluate("unitless(100px)"))
+    assert_error_message("#ff0000 is not a number for `unitless'", "unitless(#f00)")
+  end
+
+  def test_comparable
+    assert_equal(%Q{true}, evaluate("comparable(2px, 1px)"))
+    assert_equal(%Q{true}, evaluate("comparable(10cm, 3mm)"))
+    assert_equal(%Q{false}, evaluate("comparable(100px, 3em)"))
+    assert_error_message("#ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
+    assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
+  end
+
   private
 
   def evaluate(value)
