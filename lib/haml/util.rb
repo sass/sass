@@ -182,6 +182,28 @@ module Haml
           ActionPack::VERSION::TINY == "0.beta")
     end
 
+    # Returns whether this environment is using ActionPack
+    # version 3.0.0.beta.3 or greater.
+    #
+    # @return [Boolean]
+    def ap_geq_3_beta_3?
+      # The ActionPack module is always loaded automatically in Rails >= 3
+      return false unless defined?(ActionPack) && defined?(ActionPack::VERSION)
+
+      version =
+        if defined?(ActionPack::VERSION::MAJOR)
+          ActionPack::VERSION::MAJOR
+        else
+          # Rails 1.2
+          ActionPack::VERSION::Major
+        end
+      version >= 3 &&
+        ((defined?(ActionPack::VERSION::TINY) && ActionPack::VERSION::TINY >= 1) ||
+         (defined?(ActionPack::VERSION::BUILD) &&
+          ActionPack::VERSION::BUILD =~ /beta(\d+)/ &&
+          $1.to_i >= 3))
+    end
+
     # Returns an ActionView::Template* class.
     # In pre-3.0 versions of Rails, most of these classes
     # were of the form `ActionView::TemplateFoo`,
