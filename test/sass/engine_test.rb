@@ -592,6 +592,36 @@ END
     assert_equal("@a{b:c;#d{e:f}g:h}\n", render(to_render, :style => :compressed))
   end
 
+  def test_property_hacks
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  _name: val;
+  *name: val;
+  #name: val;
+  .name: val;
+  name: val; }
+CSS
+foo
+  _name: val
+  *name: val
+  #name: val
+  .name: val
+  name: val
+SASS
+  end
+
+  def test_properties_with_space_after_colon
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  bar: baz;
+  bizz: bap; }
+CSS
+foo
+  bar : baz
+  bizz	: bap
+SASS
+  end
+
   def test_line_annotations
     assert_equal(<<CSS, render(<<SASS, :line_comments => true, :style => :compact))
 /* line 2, test_line_annotations_inline.sass */
@@ -980,6 +1010,19 @@ a-\#{$a}
 SASS
   end
 
+  def test_complex_property_interpolation
+    assert_equal(<<CSS, render(<<SASS))
+a-1 {
+  b-2 3-fizzap18: c-3; }
+CSS
+$a: 1
+$b: 2
+$c: 3
+a-\#{$a}
+  b-\#{$b $c}-\#{fizzap + ($c + 15)}: c-\#{$a + $b}
+SASS
+  end
+
   def test_if_directive
     assert_equal("a {\n  b: 1; }\n", render(<<SASS))
 $var: true
@@ -994,16 +1037,16 @@ SASS
   def test_for
     assert_equal(<<CSS, render(<<SASS))
 a-0 {
-  2i: 0; }
+  two-i: 0; }
 
 a-1 {
-  2i: 2; }
+  two-i: 2; }
 
 a-2 {
-  2i: 4; }
+  two-i: 4; }
 
 a-3 {
-  2i: 6; }
+  two-i: 6; }
 
 b-1 {
   j-1: 0; }
@@ -1020,7 +1063,7 @@ CSS
 $a: 3
 @for $i from 0 to $a + 1
   a-\#{$i}
-    2i: 2 * $i
+    two-i: 2 * $i
 
 @for $j from 1 through 4
   b-\#{$j}
