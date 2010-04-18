@@ -126,7 +126,9 @@ module ActionView
       end
 
       def content_tag(*args)
-        content_tag_with_haml(*args)
+        html_tag = content_tag_with_haml(*args)
+        return error_wrapping(html_tag) if respond_to?(:error_wrapping)
+        return html_tag
       end
     end
 
