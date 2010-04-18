@@ -15,7 +15,18 @@ module Haml::Helpers
 end
 
 class HelperTest < Test::Unit::TestCase
-  Post = Struct.new('Post', :body)
+  Post = Struct.new('Post', :body, :error_field, :errors)
+  class PostErrors
+    def on(name)
+      return unless name == 'error_field'
+      ["Really bad error"]
+    end
+    alias_method :full_messages, :on
+
+    def [](name)
+      on(name) || []
+    end
+  end
   
   def setup
     @base = ActionView::Base.new
@@ -26,7 +37,7 @@ class HelperTest < Test::Unit::TestCase
       @base.controller.response = ActionController::Response.new
     end
 
-    @base.instance_variable_set('@post', Post.new("Foo bar\nbaz"))
+    @base.instance_variable_set('@post', Post.new("Foo bar\nbaz", nil, PostErrors.new))
   end
 
   def render(text, options = {})
@@ -150,6 +161,18 @@ HTML
 #{rails_block_helper_char} content_tag :div do
   %p bar
   %strong bar
+HAML
+  end
+
+  def test_content_tag_error_wrapping
+    def @base.protect_against_forgery?; false; end
+    assert_equal(<<HTML, render(<<HAML, :action_view))
+<form action="" method="post">
+  <div class="fieldWithErrors"><label for="post_error_field">Error field</label></div>
+</form>
+HTML
+#{rails_block_helper_char} form_for #{form_for_calling_convention('post')}, :url => '' do |f|
+  = f.label 'error_field'
 HAML
   end
 

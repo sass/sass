@@ -127,8 +127,10 @@ module ActionView
 
       def content_tag(*args)
         html_tag = content_tag_with_haml(*args)
-        return error_wrapping(html_tag) if respond_to?(:error_wrapping)
-        return html_tag
+        return html_tag unless respond_to?(:error_wrapping)
+        return error_wrapping(html_tag) if method(:error_wrapping).arity == 1
+        return html_tag unless object.respond_to?(:errors) && object.errors.respond_to?(:on)
+        return error_wrapping(html_tag, object.errors.on(@method_name))
       end
     end
 
