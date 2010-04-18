@@ -253,7 +253,9 @@ module Haml
           ActionPack::VERSION::Major
         end
       version >= 3 &&
-        ((defined?(ActionPack::VERSION::TINY) && ActionPack::VERSION::TINY >= 1) ||
+        ((defined?(ActionPack::VERSION::TINY) &&
+          ActionPack::VERSION::TINY.is_a?(Fixnum) &&
+          ActionPack::VERSION::TINY >= 1) ||
          (defined?(ActionPack::VERSION::BUILD) &&
           ActionPack::VERSION::BUILD =~ /beta(\d+)/ &&
           $1.to_i >= 3))
