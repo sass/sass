@@ -335,8 +335,13 @@ module Sass
 
       private
 
-      # @param paths [Array<Array<SimpleSequence>>]
-      # @return [Array<Array<SimpleSequence>>]
+      # Conceptually, this expands "parenthesized selectors".
+      # That is, if we have `.A .B {@extend .C}` and `.D .C {...}`,
+      # this conceptually expands into `.D .C, .D (.A .B)`,
+      # and this function translates `.D (.A .B)` into `.D .A .B, .A.D .B, .D .A .B`.
+      #
+      # @param path [Array<Array<SimpleSequence>>] A list of parenthesized selector groups.
+      # @return [Array<Array<SimpleSequence>>] A list of fully-expanded selectors.
       def weave(path)
         befores = [[]]
         afters = path.dup
@@ -351,6 +356,16 @@ module Sass
         end
       end
 
+      # This interweaves two lists of selectors,
+      # returning all possible orderings of them (including using unification)
+      # that maintain the relative ordering of the input arrays.
+      #
+      # For example, given `.foo .bar` and `.baz .bang`,
+      # this would return `.foo .bar .baz .bang`, `.foo .bar.baz .bang`,
+      # `.foo .baz .bar .bang`, `.foo .baz .bar.bang`, `.foo .baz .bang .bar`,
+      # and so on until `.baz .bang .foo .bar`.
+      #
+      # @overload def subweave(seq1, seq2)
       # @param seq1 [Array<SimpleSequence>]
       # @param seq2 [Array<SimpleSequence>]
       # @return [Array<Array<SimpleSequence>>]
