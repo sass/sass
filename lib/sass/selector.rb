@@ -288,16 +288,17 @@ module Sass
       # with the extensions specified in a hash
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
+      # @overload def extend(extends)
       # @param extends [{Selector::Node => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#extend
-      def extend(extends)
+      def extend(extends, supers = [])
         Haml::Util.paths(members.map do |sseq_or_op|
             next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-            [[sseq_or_op], *sseq_or_op.extend(extends).map {|seq| seq.members}]
+            [[sseq_or_op], *sseq_or_op.extend(extends, supers).map {|seq| seq.members}]
           end).map {|path| weave(path)}.flatten(1).map {|p| Sequence.new(p)}
       end
 
@@ -478,7 +479,7 @@ module Sass
 
         seqs.map {|_, seq| seq}.concat(
           seqs.map do |sels, seq|
-            new_seqs = seq.extend(extends)[1..-1] #, supers.unshift(sels))
+            new_seqs = seq.extend(extends, supers.unshift(sels))[1..-1]
             supers.shift
             new_seqs
           end.flatten.uniq)
