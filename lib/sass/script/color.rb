@@ -108,7 +108,10 @@ module Sass::Script
       end
 
       [:saturation, :lightness].each do |k|
-        next if @attrs[k].nil? || (0..100).include?(@attrs[k])
+        next if @attrs[k].nil?
+        @attrs[k] = 0 if @attrs[k] < 0.00001 && @attrs[k] > -0.00001
+        @attrs[k] = 100 if @attrs[k] - 100 < 0.00001 && @attrs[k] - 100 > -0.00001
+        next if (0..100).include?(@attrs[k])
         raise Sass::SyntaxError.new("#{k.to_s.capitalize} must be between 0 and 100")
       end
 
