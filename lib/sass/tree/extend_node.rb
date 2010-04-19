@@ -19,7 +19,13 @@ module Sass::Tree
         end
 
         sel = sseq.members
-        parent.resolved_rules.members.each {|seq| extends[sel] = seq}
+        parent.resolved_rules.members.each do |seq|
+          if !seq.members.last.is_a?(Sass::Selector::SimpleSequence)
+            raise Sass::SyntaxError.new("#{seq} can't extend: invalid selector")
+          end
+
+          extends[sel] = seq
+        end
       end
 
       []

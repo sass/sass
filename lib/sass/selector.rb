@@ -340,17 +340,20 @@ module Sass
       # this conceptually expands into `.D .C, .D (.A .B)`,
       # and this function translates `.D (.A .B)` into `.D .A .B, .A.D .B, .D .A .B`.
       #
-      # @param path [Array<Array<SimpleSequence>>] A list of parenthesized selector groups.
-      # @return [Array<Array<SimpleSequence>>] A list of fully-expanded selectors.
+      # @param path [Array<Array<SimpleSequence or String>>] A list of parenthesized selector groups.
+      # @return [Array<Array<SimpleSequence or String>>] A list of fully-expanded selectors.
       def weave(path)
         befores = [[]]
         afters = path.dup
 
         until afters.empty?
           current = afters.shift.dup
-          last_current = current.pop
+          last_current = [current.pop]
+          while !current.empty? && last_current.first.is_a?(String) || current.last.is_a?(String)
+            last_current.unshift(current.pop)
+          end
           befores = befores.map do |before|
-            subweave(before, current).map {|seqs| seqs + [last_current]}
+            subweave(before, current).map {|seqs| seqs + last_current}
           end.flatten(1)
           return befores if afters.empty?
         end
@@ -366,24 +369,39 @@ module Sass
       # and so on until `.baz .bang .foo .bar`.
       #
       # @overload def subweave(seq1, seq2)
-      # @param seq1 [Array<SimpleSequence>]
-      # @param seq2 [Array<SimpleSequence>]
-      # @return [Array<Array<SimpleSequence>>]
+      # @param seq1 [Array<SimpleSequence or String>]
+      # @param seq2 [Array<SimpleSequence or String>]
+      # @return [Array<Array<SimpleSequence or String>>]
       def subweave(seq1, seq2, cache = {})
         return [seq2] if seq1.empty?
         return [seq1] if seq2.empty?
         cache[[seq1, seq2]] ||=
           begin
-            sseq1 = seq1.first
-            sseq2 = seq2.first
-            unified = sseq1.unify(sseq2.members)
+            sseq1, rest1 = seq_split(seq1)
+            sseq2, rest2 = seq_split(seq2)
+            unified = unify_heads(sseq1, sseq2) || unify_heads(sseq2, sseq1)
 
             res = []
-            subweave(seq1[1..-1], seq2, cache).each {|subseq| res << [sseq1] + subseq}
-            subweave(seq1[1..-1], seq2[1..-1], cache).each {|subseq| res << [unified] + subseq} if unified
-            subweave(seq1, seq2[1..-1], cache).each {|subseq| res << [sseq2] + subseq}
+            subweave(rest1, seq2, cache).each {|subseq| res << sseq1 + subseq}
+            subweave(rest1, rest2, cache).each {|subseq| res << unified + subseq} if unified
+            subweave(seq1, rest2, cache).each {|subseq| res << sseq2 + subseq}
             res
           end
+      end
+
+      def seq_split(seq)
+        tail = seq.dup
+        head = []
+        begin
+          head << tail.shift
+        end while !tail.empty? && head.last.is_a?(String) || tail.first.is_a?(String)
+        return head, tail
+      end
+
+      def unify_heads(sseq1, sseq2)
+        return unless sseq2.size == 1
+        unified = sseq1.last.unify(sseq2.last.members) unless sseq1.last.is_a?(String) || sseq2.last.is_a?(String)
+        sseq1[0...-1] << unified if unified
       end
     end
 

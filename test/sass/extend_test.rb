@@ -971,6 +971,22 @@ foo > bar {@extend .foo}
 SCSS
   end
 
+  def test_nested_extender_with_child_selector_and_more
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar, .foo foo > bar baz, foo > bar.foo baz, foo > bar .foo baz {
+  a: b; }
+CSS
+.foo .bar {a: b}
+foo > bar baz {@extend .bar}
+SCSS
+  end
+
+  def test_nested_extender_with_trailing_child_selector
+    assert_raise(Sass::SyntaxError, "bar > can't extend: invalid selector") do
+      render("bar > {@extend .baz}")
+    end
+  end
+
   def test_nested_extender_with_sibling_selector
     assert_equal <<CSS, render(<<SCSS)
 .baz .foo, .baz foo + bar {
@@ -996,14 +1012,6 @@ SCSS
 CSS
 .baz .foo {a: b}
 > > bar {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.baz .foo, bar + .foo {
-  a: b; }
-CSS
-.baz .foo {a: b}
-bar + {@extend .baz}
 SCSS
   end
 
