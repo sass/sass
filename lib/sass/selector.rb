@@ -187,7 +187,7 @@ module Sass
       # @todo Link this to the reference documentation on `@extend`
       #   when such a thing exists.
       #
-      # @param extends [{Selector::Node => Selector::SimpleSequence}]
+      # @param extends [{Selector::Node => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
@@ -288,7 +288,7 @@ module Sass
       # with the extensions specified in a hash
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
-      # @param extends [{Selector::Node => Selector::SimpleSequence}]
+      # @param extends [{Selector::Node => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
@@ -296,9 +296,9 @@ module Sass
       # @see CommaSequence#extend
       def extend(extends)
         Haml::Util.paths(members.map do |sseq_or_op|
-            next [sseq_or_op] unless sseq_or_op.is_a?(SimpleSequence)
-            [sseq_or_op, *sseq_or_op.extend(extends)]
-          end).map {|p| Sequence.new(p)}
+            next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
+            [[sseq_or_op], *sseq_or_op.extend(extends).map {|seq| seq.members}]
+          end).map {|path| weave(path)}.flatten(1).map {|p| Sequence.new(p)}
       end
 
       # @see Node#to_a
@@ -331,6 +331,44 @@ module Sass
       def eql?(other)
         other.class == self.class &&
           other.members.reject {|m| m == "\n"}.eql?(self.members.reject {|m| m == "\n"})
+      end
+
+      private
+
+      # @param paths [Array<Array<SimpleSequence>>]
+      # @return [Array<Array<SimpleSequence>>]
+      def weave(path)
+        befores = [[]]
+        afters = path.dup
+
+        until afters.empty?
+          current = afters.shift.dup
+          last_current = current.pop
+          befores = befores.map do |before|
+            subweave(before, current).map {|seqs| seqs + [last_current]}
+          end.flatten(1)
+          return befores if afters.empty?
+        end
+      end
+
+      # @param seq1 [Array<SimpleSequence>]
+      # @param seq2 [Array<SimpleSequence>]
+      # @return [Array<Array<SimpleSequence>>]
+      def subweave(seq1, seq2, cache = {})
+        return [seq2] if seq1.empty?
+        return [seq1] if seq2.empty?
+        cache[[seq1, seq2]] ||=
+          begin
+            sseq1 = seq1.first
+            sseq2 = seq2.first
+            unified = sseq1.unify(sseq2.members)
+
+            res = []
+            subweave(seq1[1..-1], seq2, cache).each {|subseq| res << [sseq1] + subseq}
+            subweave(seq1[1..-1], seq2[1..-1], cache).each {|subseq| res << [unified] + subseq} if unified
+            subweave(seq1, seq2[1..-1], cache).each {|subseq| res << [sseq2] + subseq}
+            res
+          end
       end
     end
 
@@ -390,33 +428,37 @@ module Sass
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
       # @overload def extend(extends)
-      # @param extends [{Selector::Node => Selector::SimpleSequence}]
+      # @param extends [{Selector::Node => Selector::Sequence}]
       #   The extensions to perform on this selector
-      # @return [Array<SimpleSequence>] A list of selectors generated
+      # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
-      #   Note that these correspond more to a {CommaSequence}'s {CommaSequence#members members array},
-      #   than a {Sequence}'s.
-      #   Each individual SimpleSequence will be post-processed into a Sequence
-      #   by {Sequence#extend}.
       # @see CommaSequence#extend
       def extend(extends, supers = [])
-        seqs = extends.get(members.to_set).map do |sseq, sels|
-          sseq_without_sel = members - sels
-          new_sseq = sseq.members.inject(sseq_without_sel) do |sseq2, sel2|
-            next unless sseq2
-            sel2.unify(sseq2)
-          end
-          new_sseq && [sels, new_sseq]
-        end.compact.map {|sels, seq| [sels, SimpleSequence.new(seq)]}
+        seqs = extends.get(members.to_set).map do |seq, sels|
+          # If A {@extend B} and C {...},
+          # seq is A, sels is B, and self is C
+
+          self_without_sel = self.members - sels
+          next unless unified = seq.members.last.unify(self_without_sel)
+          [sels, seq.members[0...-1] + [unified]]
+        end.compact.map {|sels, seq| [sels, Sequence.new(seq)]}
 
         seqs.map {|_, seq| seq}.concat(
           seqs.map do |sels, seq|
-            new_seqs = seq.extend(extends, supers.unshift(sels))
+            new_seqs = seq.extend(extends)[1..-1] #, supers.unshift(sels))
             supers.shift
             new_seqs
           end.flatten.uniq)
       rescue SystemStackError
         handle_extend_loop(supers)
+      end
+
+      def unify(sels)
+        return unless sseq = members.inject(sels) do |sseq, sel|
+          return unless sseq
+          sel.unify(sseq)
+        end
+        SimpleSequence.new(sseq)
       end
 
       # @see Node#to_a

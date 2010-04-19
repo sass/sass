@@ -878,6 +878,135 @@ a.foo#bar {a: b}
 SCSS
   end
 
+  ## Nested Extenders
+
+  def test_nested_extender
+    assert_equal <<CSS, render(<<SCSS)
+.foo, foo bar {
+  a: b; }
+CSS
+.foo {a: b}
+foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_runs_unification
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar, foo bar.bar {
+  a: b; }
+CSS
+.foo.bar {a: b}
+foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_aborts_unification
+    assert_equal <<CSS, render(<<SCSS)
+baz.foo {
+  a: b; }
+CSS
+baz.foo {a: b}
+foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_interleaves_parents_with_unification
+    assert_equal <<CSS, render(<<SCSS)
+.baz .foo, .baz foo bar, foo.baz bar, foo .baz bar {
+  a: b; }
+CSS
+.baz .foo {a: b}
+foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_interleaves_parents_with_aborted_unification
+    assert_equal <<CSS, render(<<SCSS)
+baz .foo, baz foo bar, foo baz bar {
+  a: b; }
+CSS
+baz .foo {a: b}
+foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_with_lots_of_interleaving
+    # Please, never ever do this in a real stylesheet
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar .baz .bang, .foo .bar .baz .foo2 .bar2 .baz2 .bang2, .foo .bar .foo2.baz .bar2 .baz2 .bang2, .foo .bar .foo2 .baz .bar2 .baz2 .bang2, .foo .bar .foo2 .bar2.baz .baz2 .bang2, .foo .bar .foo2 .bar2 .baz .baz2 .bang2, .foo .bar .foo2 .bar2 .baz2.baz .bang2, .foo .bar .foo2 .bar2 .baz2 .baz .bang2, .foo .foo2.bar .baz .bar2 .baz2 .bang2, .foo .foo2.bar .bar2.baz .baz2 .bang2, .foo .foo2.bar .bar2 .baz .baz2 .bang2, .foo .foo2.bar .bar2 .baz2.baz .bang2, .foo .foo2.bar .bar2 .baz2 .baz .bang2, .foo .foo2 .bar .baz .bar2 .baz2 .bang2, .foo .foo2 .bar .bar2.baz .baz2 .bang2, .foo .foo2 .bar .bar2 .baz .baz2 .bang2, .foo .foo2 .bar .bar2 .baz2.baz .bang2, .foo .foo2 .bar .bar2 .baz2 .baz .bang2, .foo .foo2 .bar2.bar .baz .baz2 .bang2, .foo .foo2 .bar2.bar .baz2.baz .bang2, .foo .foo2 .bar2.bar .baz2 .baz .bang2, .foo .foo2 .bar2 .bar .baz .baz2 .bang2, .foo .foo2 .bar2 .bar .baz2.baz .bang2, .foo .foo2 .bar2 .bar .baz2 .baz .bang2, .foo .foo2 .bar2 .baz2.bar .baz .bang2, .foo .foo2 .bar2 .baz2 .bar .baz .bang2, .foo2.foo .bar .baz .bar2 .baz2 .bang2, .foo2.foo .bar .bar2.baz .baz2 .bang2, .foo2.foo .bar .bar2 .baz .baz2 .bang2, .foo2.foo .bar .bar2 .baz2.baz .bang2, .foo2.foo .bar .bar2 .baz2 .baz .bang2, .foo2.foo .bar2.bar .baz .baz2 .bang2, .foo2.foo .bar2.bar .baz2.baz .bang2, .foo2.foo .bar2.bar .baz2 .baz .bang2, .foo2.foo .bar2 .bar .baz .baz2 .bang2, .foo2.foo .bar2 .bar .baz2.baz .bang2, .foo2.foo .bar2 .bar .baz2 .baz .bang2, .foo2.foo .bar2 .baz2.bar .baz .bang2, .foo2.foo .bar2 .baz2 .bar .baz .bang2, .foo2 .foo .bar .baz .bar2 .baz2 .bang2, .foo2 .foo .bar .bar2.baz .baz2 .bang2, .foo2 .foo .bar .bar2 .baz .baz2 .bang2, .foo2 .foo .bar .bar2 .baz2.baz .bang2, .foo2 .foo .bar .bar2 .baz2 .baz .bang2, .foo2 .foo .bar2.bar .baz .baz2 .bang2, .foo2 .foo .bar2.bar .baz2.baz .bang2, .foo2 .foo .bar2.bar .baz2 .baz .bang2, .foo2 .foo .bar2 .bar .baz .baz2 .bang2, .foo2 .foo .bar2 .bar .baz2.baz .bang2, .foo2 .foo .bar2 .bar .baz2 .baz .bang2, .foo2 .foo .bar2 .baz2.bar .baz .bang2, .foo2 .foo .bar2 .baz2 .bar .baz .bang2, .foo2 .bar2.foo .bar .baz .baz2 .bang2, .foo2 .bar2.foo .bar .baz2.baz .bang2, .foo2 .bar2.foo .bar .baz2 .baz .bang2, .foo2 .bar2.foo .baz2.bar .baz .bang2, .foo2 .bar2.foo .baz2 .bar .baz .bang2, .foo2 .bar2 .foo .bar .baz .baz2 .bang2, .foo2 .bar2 .foo .bar .baz2.baz .bang2, .foo2 .bar2 .foo .bar .baz2 .baz .bang2, .foo2 .bar2 .foo .baz2.bar .baz .bang2, .foo2 .bar2 .foo .baz2 .bar .baz .bang2, .foo2 .bar2 .baz2.foo .bar .baz .bang2, .foo2 .bar2 .baz2 .foo .bar .baz .bang2 {
+  a: b; }
+CSS
+.foo .bar .baz .bang {a: b}
+.foo2 .bar2 .baz2 .bang2 {@extend .bang}
+SCSS
+  end
+
+  def test_nested_extender_with_child_selector
+    assert_equal <<CSS, render(<<SCSS)
+.baz .foo, .baz foo > bar {
+  a: b; }
+CSS
+.baz .foo {a: b}
+foo > bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_with_descendant_and_child_selector
+    assert_equal <<CSS, render(<<SCSS)
+.baz .foo, .baz bang foo > bar, bang.baz foo > bar, bang .baz foo > bar {
+  a: b; }
+CSS
+.baz .foo {a: b}
+bang foo > bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_with_child_selector_unifies
+    assert_equal <<CSS, render(<<SCSS)
+.baz.foo, foo > bar.baz {
+  a: b; }
+CSS
+.baz.foo {a: b}
+foo > bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_with_sibling_selector
+    assert_equal <<CSS, render(<<SCSS)
+.baz .foo, .baz foo + bar {
+  a: b; }
+CSS
+.baz .foo {a: b}
+foo + bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_with_hacky_selector
+    assert_equal <<CSS, render(<<SCSS)
+.baz .foo, .baz foo + > > + bar {
+  a: b; }
+CSS
+.baz .foo {a: b}
+foo + > > + bar {@extend .foo}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.baz .foo, .baz > > bar {
+  a: b; }
+CSS
+.baz .foo {a: b}
+> > bar {@extend .foo}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.baz .foo, bar + .foo {
+  a: b; }
+CSS
+.baz .foo {a: b}
+bar + {@extend .baz}
+SCSS
+  end
+
   private
 
   def render(sass, options = {})
