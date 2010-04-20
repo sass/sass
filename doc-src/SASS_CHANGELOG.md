@@ -24,6 +24,8 @@ now allow whitespace before the colon. For example:
 
 * Allow interpolation in Sass properties to contain spaces.
 
+* Don't crash with odd HSL errors for some color functions.
+
 ## 3.0.0.beta.3
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).
