@@ -306,6 +306,10 @@ module Haml
       raise Haml::Error.new("Expected #{text.inspect} to be HTML-safe.")
     end
 
+    # The class for the Rails SafeBuffer XSS protection class.
+    # This varies depending on Rails version.
+    #
+    # @return [Class]
     def rails_safe_buffer_class
       return ActionView::SafeBuffer if defined?(ActionView::SafeBuffer)
       ActiveSupport::SafeBuffer

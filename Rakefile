@@ -239,7 +239,7 @@ end
 begin
   require 'yard'
 
-  namespace :yard do
+  namespace :doc do
     task :sass do
       require scope('lib/sass')
       Dir[scope("yard/default/**/*.sass")].each do |sass|
@@ -248,12 +248,27 @@ begin
         end
       end
     end
+
+    desc "List all undocumented methods and classes."
+    task :undocumented do
+      opts = ENV["YARD_OPTS"] || ""
+      ENV["YARD_OPTS"] = opts.dup + <<OPTS
+ --list --query "
+  object.docstring.blank? &&
+  !(object.type == :method && object.is_alias?)"
+OPTS
+      Rake::Task['yard'].execute
+    end
   end
 
   YARD::Rake::YardocTask.new do |t|
     t.files = FileList.new(scope('lib/**/*.rb')) do |list|
       list.exclude('lib/haml/template/*.rb')
+      list.exclude('lib/haml/railtie.rb')
       list.exclude('lib/haml/helpers/action_view_mods.rb')
+      list.exclude('lib/haml/helpers/xss_mods.rb')
+      list.exclude('lib/sass/plugin/merb.rb')
+      list.exclude('lib/sass/plugin/rails.rb')
     end.to_a
     t.options << '--incremental' if Rake.application.top_level_tasks.include?('redoc')
     t.options += FileList.new(scope('yard/*.rb')).to_a.map {|f| ['-e', f]}.flatten
@@ -261,8 +276,15 @@ begin
     t.options << '--files' << files.join(',')
     t.options << '--template-path' << scope('yard')
     t.options << '--title' << ENV["YARD_TITLE"] if ENV["YARD_TITLE"]
+
+    t.before = lambda do
+      if ENV["YARD_OPTS"]
+        require 'shellwords'
+        t.options.concat(Shellwords.shellwords(ENV["YARD_OPTS"]))
+      end
+    end
   end
-  Rake::Task['yard'].prerequisites.insert(0, 'yard:sass')
+  Rake::Task['yard'].prerequisites.insert(0, 'doc:sass')
   Rake::Task['yard'].instance_variable_set('@comment', nil)
 
   desc "Generate Documentation"

@@ -115,7 +115,7 @@ module Sass::Script
     # @raise [NoMethodError] if `other` is an invalid type
     def times(other)
       if other.is_a? Number
-        self.operate(other, :*)
+        operate(other, :*)
       elsif other.is_a? Color
         other.times(self)
       else
@@ -303,7 +303,7 @@ module Sass::Script
     # @return [Boolean] Whether or not this number can be compared with the other.
     def comparable_to?(other)
       begin
-        self.operate(other, :+)
+        operate(other, :+)
         true
       rescue Sass::UnitConversionError
         false
@@ -323,7 +323,7 @@ module Sass::Script
       rv
     end
 
-    protected
+    private
 
     def operate(other, operation)
       this = self
