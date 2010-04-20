@@ -81,6 +81,19 @@ module Sass
         handle_extend_loop(supers)
       end
 
+      # Unifies this selector with another {SimpleSequence}'s {SimpleSequence#members members array},
+      # returning another `SimpleSequence`
+      # that matches both this selector and the input selector.
+      #
+      # @param sels [Array<Node>] A {SimpleSequence}'s {SimpleSequence#members members array}
+      # @return [SimpleSequence, nil] A {SimpleSequence} matching both `sels` and this selector,
+      #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
+      # @raise [Sass::SyntaxError] If this selector cannot be unified.
+      #   This will only ever occur when a dynamic selector,
+      #   such as {Parent} or {Interpolation}, is used in unification.
+      #   Since these selectors should be resolved
+      #   by the time extension and unification happen,
+      #   this exception will only ever be raised as a result of programmer error
       def unify(sels)
         return unless sseq = members.inject(sels) do |sseq, sel|
           return unless sseq
