@@ -1,6 +1,11 @@
 module Sass
   module Script
+    # This is a subclass of {Lexer} for use in parsing plain CSS properties.
+    #
+    # @see Sass::SCSS::CssParser
     class CssLexer < Lexer
+      private
+
       def token
         important || super
       end

@@ -7,7 +7,6 @@ module Sass::Tree
   # @see Sass::Tree
   class RuleNode < Node
     # The character used to include the parent selector
-    # @private
     PARENT = '&'
 
     # The CSS selector for this rule,
@@ -96,6 +95,7 @@ module Sass::Tree
       name.gsub(/^/, '  ' * tabs) + children_to_src(tabs, opts, :sass)
     end
 
+    # @see Node#to_scss
     def to_scss(tabs, opts = {})
       name = rule.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass(opts)}}"}.
         join.gsub(/^[ \t]*/, '  ' * tabs)

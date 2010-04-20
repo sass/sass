@@ -40,6 +40,7 @@ module Sass::Tree
       super unless child.is_a?(ExtendNode)
     end
 
+    # @see Node#to_src
     def to_src(tabs, opts, fmt)
       args = '(' + @args.map {|a| a.to_sass(opts)}.join(", ") + ')' unless @args.empty?
       "#{'  ' * tabs}#{fmt == :sass ? '+' : '@include '}#{dasherize(@name, opts)}#{args}#{semi fmt}\n"

@@ -11,6 +11,7 @@ module Haml
     extend self
 
     # An array of ints representing the Ruby version number.
+    # @api public
     RUBY_VERSION = ::RUBY_VERSION.split(".").map {|s| s.to_i}
 
     # Returns the path of a file relative to the Haml root directory.
@@ -351,6 +352,10 @@ module Haml
       raise Haml::Error.new("Expected #{text.inspect} to be HTML-safe.")
     end
 
+    # The class for the Rails SafeBuffer XSS protection class.
+    # This varies depending on Rails version.
+    #
+    # @return [Class]
     def rails_safe_buffer_class
       return ActionView::SafeBuffer if defined?(ActionView::SafeBuffer)
       ActiveSupport::SafeBuffer

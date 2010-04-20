@@ -62,6 +62,7 @@ module Sass
 
       protected
 
+      # @see Node#to_src
       def to_src(opts, fmt)
         Haml::Util.enum_cons(children + [nil], 2).map do |child, nxt|
           child.send("to_#{fmt}", 0, opts) +

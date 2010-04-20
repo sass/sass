@@ -16,6 +16,7 @@ module Sass
 
   # A string representing the version of Sass.
   # A more fine-grained representation is available from {Haml::Version#version Sass.version}.
+  # @api public
   VERSION = version[:string] unless defined?(Sass::VERSION)
 end
 

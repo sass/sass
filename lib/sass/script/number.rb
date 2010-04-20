@@ -30,6 +30,7 @@ module Sass::Script
     # The precision with which numbers will be printed to CSS files.
     # For example, if this is `1000.0`,
     # `3.1415926` will be printed as `3.142`.
+    # @api public
     PRECISION = 1000.0
 
     # @param value [Numeric] The value of the number
@@ -115,7 +116,7 @@ module Sass::Script
     # @raise [NoMethodError] if `other` is an invalid type
     def times(other)
       if other.is_a? Number
-        self.operate(other, :*)
+        operate(other, :*)
       elsif other.is_a? Color
         other.times(self)
       else
@@ -303,7 +304,7 @@ module Sass::Script
     # @return [Boolean] Whether or not this number can be compared with the other.
     def comparable_to?(other)
       begin
-        self.operate(other, :+)
+        operate(other, :+)
         true
       rescue Sass::UnitConversionError
         false
@@ -323,7 +324,7 @@ module Sass::Script
       rv
     end
 
-    protected
+    private
 
     def operate(other, operation)
       this = self
@@ -381,9 +382,7 @@ module Sass::Script
     end
 
     # A hash of unit names to their index in the conversion table
-    # @private
     CONVERTABLE_UNITS = {"in" => 0,        "cm" => 1,    "pc" => 2,    "mm" => 3,   "pt" => 4}
-    # @private
     CONVERSION_TABLE = [[ 1,                2.54,         6,            25.4,        72        ], # in
                         [ nil,              1,            2.36220473,   10,          28.3464567], # cm
                         [ nil,              nil,          1,            4.23333333,  12        ], # pc

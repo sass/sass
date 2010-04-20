@@ -17,6 +17,7 @@ module Haml
 
   # A string representing the version of Haml.
   # A more fine-grained representation is available from Haml.version.
+  # @api public
   VERSION = version[:string] unless defined?(Haml::VERSION)
 
   # Initializes Haml for Rails.

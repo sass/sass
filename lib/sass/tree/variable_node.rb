@@ -16,6 +16,7 @@ module Sass
 
       protected
 
+      # @see Node#to_src
       def to_src(tabs, opts, fmt)
         "#{'  ' * tabs}$#{dasherize(@name, opts)}: #{@expr.to_sass(opts)}#{' !default' if @guarded}#{semi fmt}\n"
       end

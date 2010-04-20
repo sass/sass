@@ -12,6 +12,7 @@ module Sass
 
       protected
 
+      # @see Node#to_src
       def to_src(tabs, opts, fmt)
         "#{'  ' * tabs}@warn #{@expr.to_sass(opts)}#{semi fmt}\n"
       end

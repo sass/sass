@@ -399,9 +399,15 @@ module Sass
           (fmt == :sass ? "\n" : " }\n")
       end
 
+      # Convert any underscores in a string into hyphens,
+      # but only if the `:dasherize` option is set.
+      #
+      # @param s [String] The string to convert
+      # @param opts [{Symbol => Object}] The options hash
+      # @return [String] The converted string
       def dasherize(s, opts)
         if opts[:dasherize]
-          s.gsub(/_/,'-')
+          s.gsub('_', '-')
         else
           s
         end

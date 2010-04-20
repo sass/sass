@@ -120,7 +120,6 @@ module Sass
         new(*args).parse
       end
 
-      # @private
       PRECEDENCE = [
         :comma, :single_eq, :concat, :or, :and,
         [:eq, :neq],

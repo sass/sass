@@ -1,15 +1,26 @@
 module Sass::Script
+  # A SassScript object representing `#{}` interpolation within a string.
+  #
+  # @see Interpolation
   class StringInterpolation < Node
+    # Interpolation in a string is of the form `"before #{mid} after"`,
+    # where `before` and `after` may include more interpolation.
+    #
+    # @param before [Node] The string before the interpolation
+    # @param mid [Node] The SassScript within the interpolation
+    # @param after [Node] The string after the interpolation
     def initialize(before, mid, after)
       @before = before
       @mid = mid
       @after = after
     end
 
+    # @return [String] A human-readable s-expression representation of the interpolation
     def inspect
       "(string_interpolation #{@before.inspect} #{@mid.inspect} #{@after.inspect})"
     end
 
+    # @see Node#to_sass
     def to_sass(opts = {})
       # We can get rid of all of this when we remove the deprecated :equals context
       before_unquote, before_quote_char, before_str = parse_str(@before.to_sass(opts))
@@ -39,12 +50,21 @@ module Sass::Script
       res
     end
 
+    # Returns the three components of the interpolation, `before`, `mid`, and `after`.
+    #
+    # @return [Array<Node>]
+    # @see #initialize
+    # @see Node#children
     def children
       [@before, @mid, @after].compact
     end
 
     protected
 
+    # Evaluates the interpolation.
+    #
+    # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
+    # @return [Sass::Script::String] The SassScript string that is the value of the interpolation
     def _perform(environment)
       res = ""
       res << @before.perform(environment).value
@@ -53,6 +73,8 @@ module Sass::Script
       res << @after.perform(environment).value
       Sass::Script::String.new(res, :string)
     end
+
+    private
 
     def parse_str(str)
       case str

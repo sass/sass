@@ -115,7 +115,6 @@ module Haml
         @options[:input], @options[:output] = input, output
       end
 
-      # @private
       COLORS = { :red => 31, :green => 32, :yellow => 33 }
 
       # Prints a status message about performing the given action,
@@ -654,6 +653,8 @@ END
         output = input if @options[:in_place]
         process_file(input, output)
       end
+
+      private
 
       def process_directory
         input = @options[:input] = @args.shift

@@ -40,7 +40,6 @@ module Sass
       attr_reader :offset
 
       # A hash from operator strings to the corresponding token types.
-      # @private
       OPERATORS = {
         '+' => :plus,
         '-' => :minus,
@@ -67,10 +66,8 @@ module Sass
         '{' => :lcurly,
       }
 
-      # @private
       OPERATORS_REVERSE = Haml::Util.map_hash(OPERATORS) {|k, v| [v, k]}
 
-      # @private
       TOKEN_NAMES = Haml::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge({
           :const => "variable (e.g. $foo)",
           :ident => "identifier (e.g. middle)",
@@ -79,16 +76,13 @@ module Sass
 
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
-      # @private
       OP_NAMES = OPERATORS.keys.sort_by {|o| -o.size}
 
       # A sub-list of {OP_NAMES} that only includes operators
       # with identifier names.
-      # @private
       IDENT_OP_NAMES = OP_NAMES.select {|k, v| k =~ /^\w+/}
 
       # A hash of regular expressions that are used for tokenizing.
-      # @private
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s+/,
         :comment => COMMENT,
@@ -181,11 +175,24 @@ module Sass
         @scanner.eos? && @tok.nil?
       end
 
+      # Raise an error to the effect that `name` was expected in the input stream
+      # and wasn't found.
+      #
+      # This calls \{#unpeek!} to rewind the scanner to immediately after
+      # the last returned token.
+      #
+      # @param name [String] The name of the entity that was expected but not found
+      # @raise [Sass::SyntaxError]
       def expected!(name)
         unpeek!
         Sass::SCSS::Parser.expected(@scanner, name, @line)
       end
 
+      # Records all non-comment text the lexer consumes within the block
+      # and returns it as a string.
+      #
+      # @yield A block in which text is recorded
+      # @return [String]
       def str
         old_pos = @tok ? @tok.pos : @scanner.pos
         yield

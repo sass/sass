@@ -76,6 +76,7 @@ module Sass::Tree
 
     protected
 
+    # @see Node#to_src
     def to_src(tabs, opts, fmt)
       res = declaration(tabs, opts, fmt)
       return res + "#{semi fmt}\n" if children.empty?

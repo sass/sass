@@ -3,6 +3,9 @@ require 'sass/script/css_lexer'
 
 module Sass
   module Script
+    # This is a subclass of {Parser} for use in parsing plain CSS properties.
+    #
+    # @see Sass::SCSS::CssParser
     class CssParser < Parser
       private
 

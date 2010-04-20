@@ -16,6 +16,7 @@ module Sass
 
       protected
 
+      # @see Node#to_src
       def to_src(tabs, opts, fmt)
         args =
           if @args.empty?

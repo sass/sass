@@ -72,6 +72,7 @@ module Sass::Tree
       content.rstrip + "\n"
     end
 
+    # @see Node#to_scss
     def to_scss(tabs, opts = {})
       spaces = ('  ' * [tabs - value[/^ */].size, 0].max)
       if silent
