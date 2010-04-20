@@ -55,13 +55,13 @@ module Sass
       # with the extensions specified in a hash
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
-      # @overload def extend(extends)
+      # @overload def do_extend(extends)
       # @param extends [{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
-      # @see CommaSequence#extend
-      def extend(extends, supers = [])
+      # @see CommaSequence#do_extend
+      def do_extend(extends, supers = [])
         seqs = extends.get(members.to_set).map do |seq, sels|
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
@@ -73,7 +73,7 @@ module Sass
 
         seqs.map {|_, seq| seq}.concat(
           seqs.map do |sels, seq|
-            new_seqs = seq.extend(extends, supers.unshift(sels))[1..-1]
+            new_seqs = seq.do_extend(extends, supers.unshift(sels))[1..-1]
             supers.shift
             new_seqs
           end.flatten.uniq)

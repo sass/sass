@@ -69,17 +69,17 @@ module Sass
       # with the extensions specified in a hash
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
-      # @overload def extend(extends)
+      # @overload def do_extend(extends)
       # @param extends [{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
-      # @see CommaSequence#extend
-      def extend(extends, supers = [])
+      # @see CommaSequence#do_extend
+      def do_extend(extends, supers = [])
         Haml::Util.paths(members.map do |sseq_or_op|
             next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-            [[sseq_or_op], *sseq_or_op.extend(extends, supers).map {|seq| seq.members}]
+            [[sseq_or_op], *sseq_or_op.do_extend(extends, supers).map {|seq| seq.members}]
           end).map {|path| weave(path)}.flatten(1).map {|p| Sequence.new(p)}
       end
 

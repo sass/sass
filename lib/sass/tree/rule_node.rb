@@ -112,10 +112,10 @@ module Sass::Tree
 
     # Extends this Rule's selector with the given `extends`.
     #
-    # @see Node#extend
-    def extend(extends)
+    # @see Node#do_extend
+    def do_extend(extends)
       node = dup
-      node.resolved_rules = resolved_rules.extend(extends)
+      node.resolved_rules = resolved_rules.do_extend(extends)
       node
     end
 

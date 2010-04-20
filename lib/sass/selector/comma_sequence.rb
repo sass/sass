@@ -49,8 +49,8 @@ module Sass
       #   The extensions to perform on this selector
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def extend(extends)
-        CommaSequence.new(members.map {|seq| seq.extend(extends)}.flatten)
+      def do_extend(extends)
+        CommaSequence.new(members.map {|seq| seq.do_extend(extends)}.flatten)
       end
 
       # Returns a string representation of the sequence.

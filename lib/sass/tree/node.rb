@@ -126,7 +126,7 @@ module Sass
       # @see #to_s
       def render
         extends = Haml::Util::SubsetMap.new
-        perform(Environment.new).cssize(extends).extend(extends).to_s
+        perform(Environment.new).cssize(extends).do_extend(extends).to_s
       end
 
       # True if \{#to\_s} will return `nil`;
@@ -172,9 +172,9 @@ module Sass
       # @return [Tree::Node] The resulting tree of static CSS nodes.
       # @raise [Sass::SyntaxError] Only if there's a programmer error
       #   and this is not a static CSS tree
-      def extend(extends)
+      def do_extend(extends)
         node = dup
-        node.children = children.map {|c| c.extend(extends)}
+        node.children = children.map {|c| c.do_extend(extends)}
         node
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename, :line => line)
