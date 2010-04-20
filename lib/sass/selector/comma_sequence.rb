@@ -45,7 +45,7 @@ module Sass
       # @todo Link this to the reference documentation on `@extend`
       #   when such a thing exists.
       #
-      # @param extends [{Selector::Node => Selector::Sequence}]
+      # @param extends [{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`

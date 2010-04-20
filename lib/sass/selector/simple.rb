@@ -2,7 +2,7 @@ module Sass
   module Selector
     # The abstract superclass for simple selectors
     # (that is, those that don't compose multiple selectors).
-    class Node
+    class Simple
       # The line of the Sass template on which this selector was declared.
       #
       # @return [Fixnum]
@@ -22,7 +22,7 @@ module Sass
       #
       # @return [Array<String, Sass::Script::Node>]
       def to_a
-        raise NotImplementedError.new("All subclasses of Sass::Selector::Node must override #to_a.")
+        raise NotImplementedError.new("All subclasses of Sass::Selector::Simple must override #to_a.")
       end
 
       # Returns a string representation of the node.
@@ -63,8 +63,8 @@ module Sass
       # By default, this just appends this selector to the end of the array
       # (or returns the original array if this selector already exists in it).
       #
-      # @param sels [Array<Node>] A {SimpleSequence}'s {SimpleSequence#members members array}
-      # @return [Array<Node>, nil] A {SimpleSequence} {SimpleSequence#members members array}
+      # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
+      # @return [Array<Simple>, nil] A {SimpleSequence} {SimpleSequence#members members array}
       #   matching both `sels` and this selector,
       #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
       # @raise [Sass::SyntaxError] If this selector cannot be unified.

@@ -1,4 +1,4 @@
-require 'sass/selector/node'
+require 'sass/selector/simple'
 require 'sass/selector/abstract_sequence'
 require 'sass/selector/comma_sequence'
 require 'sass/selector/sequence'
@@ -10,8 +10,8 @@ module Sass
     # A parent-referencing selector (`&` in Sass).
     # The function of this is to be replaced by the parent selector
     # in the nested hierarchy.
-    class Parent < Node
-      # @see Node#to_a
+    class Parent < Simple
+      # @see Selector#to_a
       def to_a
         ["&"]
       end
@@ -19,14 +19,14 @@ module Sass
       # Always raises an exception.
       #
       # @raise [Sass::SyntaxError] Parent selectors should be resolved before unification
-      # @see Node#unify
+      # @see Selector#unify
       def unify(sels)
         raise Sass::SyntaxError.new("[BUG] Cannot unify parent selectors.")
       end
     end
 
     # A class selector (e.g. `.foo`).
-    class Class < Node
+    class Class < Simple
       # The class name.
       #
       # @return [Array<String, Sass::Script::Node>]
@@ -37,14 +37,14 @@ module Sass
         @name = name
       end
 
-      # @see Node#to_a
+      # @see Selector#to_a
       def to_a
         [".", *@name]
       end
     end
 
     # An id selector (e.g. `#foo`).
-    class Id < Node
+    class Id < Simple
       # The id name.
       #
       # @return [Array<String, Sass::Script::Node>]
@@ -55,7 +55,7 @@ module Sass
         @name = name
       end
 
-      # @see Node#to_a
+      # @see Selector#to_a
       def to_a
         ["#", *@name]
       end
@@ -63,7 +63,7 @@ module Sass
       # Returns `nil` if `sels` contains an {Id} selector
       # with a different name than this one.
       #
-      # @see Node#unify
+      # @see Selector#unify
       def unify(sels)
         return if sels.any? {|sel2| sel2.is_a?(Id) && self.name != sel2.name}
         super
@@ -71,7 +71,7 @@ module Sass
     end
 
     # A universal selector (`*` in CSS).
-    class Universal < Node
+    class Universal < Simple
       # The selector namespace.
       # `nil` means the default namespace,
       # `[""]` means no namespace,
@@ -85,7 +85,7 @@ module Sass
         @namespace = namespace
       end
 
-      # @see Node#to_a
+      # @see Selector#to_a
       def to_a
         @namespace ? @namespace + ["|*"] : ["*"]
       end
@@ -104,7 +104,7 @@ module Sass
       # or applying this namespace to an existing {Element} selector.
       #
       # If both this selector *and* `sel` specify namespaces,
-      # those namespaces are unified via {Node#unify_namespaces}
+      # those namespaces are unified via {Selector#unify_namespaces}
       # and the unified namespace is used, if possible.
       #
       # @todo There are lots of cases that this documentation specifies;
@@ -114,7 +114,7 @@ module Sass
       # @todo If any branch of a CommaSequence ends up being just `"*"`,
       #   then all other branches should be eliminated
       #
-      # @see Node#unify
+      # @see Selector#unify
       def unify(sels)
         name =
           case sels.first
@@ -133,7 +133,7 @@ module Sass
     end
 
     # An element selector (e.g. `h1`).
-    class Element < Node
+    class Element < Simple
       # The element name.
       #
       # @return [Array<String, Sass::Script::Node>]
@@ -154,7 +154,7 @@ module Sass
         @namespace = namespace
       end
 
-      # @see Node#to_a
+      # @see Selector#to_a
       def to_a
         @namespace ? @namespace + ["|"] + @name : @name
       end
@@ -172,7 +172,7 @@ module Sass
       # the namespace from `sel` is used.
       #
       # If both this selector *and* `sel` specify namespaces,
-      # those namespaces are unified via {Node#unify_namespaces}
+      # those namespaces are unified via {Selector#unify_namespaces}
       # and the unified namespace is used, if possible.
       #
       # @todo There are lots of cases that this documentation specifies;
@@ -180,7 +180,7 @@ module Sass
       # @todo Keep track of whether a default namespace has been declared
       #   and handle namespace-unspecified selectors accordingly.
       #
-      # @see Node#unify
+      # @see Selector#unify
       def unify(sels)
         case sels.first
         when Universal;
@@ -195,7 +195,7 @@ module Sass
     end
 
     # Selector interpolation (`#{}` in Sass).
-    class Interpolation < Node
+    class Interpolation < Simple
       # The script to run.
       #
       # @return [Sass::Script::Node]
@@ -206,7 +206,7 @@ module Sass
         @script = script
       end
 
-      # @see Node#to_a
+      # @see Selector#to_a
       def to_a
         [@script]
       end
@@ -214,14 +214,14 @@ module Sass
       # Always raises an exception.
       #
       # @raise [Sass::SyntaxError] Interpolation selectors should be resolved before unification
-      # @see Node#unify
+      # @see Selector#unify
       def unify(sels)
         raise Sass::SyntaxError.new("[BUG] Cannot unify interpolation selectors.")
       end
     end
 
     # An attribute selector (e.g. `[href^="http://"]`).
-    class Attribute < Node
+    class Attribute < Simple
       # The attribute name.
       #
       # @return [Array<String, Sass::Script::Node>]
@@ -256,7 +256,7 @@ module Sass
         @value = value
       end
 
-      # @see Node#to_a
+      # @see Selector#to_a
       def to_a
         res = ["["]
         res.concat(@namespace) << "|" if @namespace
@@ -268,7 +268,7 @@ module Sass
 
     # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`) selector.
     # It can have arguments (e.g. `:nth-child(2n+1)`).
-    class Pseudo < Node
+    class Pseudo < Simple
       # The type of the selector.
       # `:class` if this is a pseudoclass selector,
       # `:element` if it's a pseudoelement.
@@ -301,7 +301,7 @@ module Sass
         @arg = arg
       end
 
-      # @see Node#to_a
+      # @see Selector#to_a
       def to_a
         res = [@type == :class ? ":" : "::"] + @name
         (res << "(").concat(Haml::Util.strip_string_array(@arg)) << ")" if @arg
@@ -318,18 +318,18 @@ module Sass
     end
 
     # A negation pseudoclass selector (e.g. `:not(.foo)`).
-    class Negation < Node
+    class Negation < Simple
       # The selector to negate.
       #
-      # @return [Node]
+      # @return [Selector]
       attr_reader :selector
 
-      # @param [Node] The selector to negate
+      # @param [Selector] The selector to negate
       def initialize(selector)
         @selector = selector
       end
 
-      # @see Node#to_a
+      # @see Selector#to_a
       def to_a
         [":not("] + @selector.to_a + [")"]
       end

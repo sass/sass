@@ -7,7 +7,7 @@ module Sass
     class SimpleSequence < AbstractSequence
       # The array of individual selectors.
       #
-      # @return [Array<Node>]
+      # @return [Array<Simple>]
       attr_reader :members
 
       # Returns the element or universal selector in this sequence,
@@ -20,12 +20,12 @@ module Sass
 
       # Returns the non-base selectors in this sequence.
       #
-      # @return [Set<Node>]
+      # @return [Set<Simple>]
       def rest
         @rest ||= Set.new(base ? members[1..-1] : members)
       end
 
-      # @param selectors [Array<Node>] See \{#members}
+      # @param selectors [Array<Simple>] See \{#members}
       def initialize(selectors)
         @members = selectors
       end
@@ -56,7 +56,7 @@ module Sass
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
       # @overload def extend(extends)
-      # @param extends [{Selector::Node => Selector::Sequence}]
+      # @param extends [{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
@@ -85,7 +85,7 @@ module Sass
       # returning another `SimpleSequence`
       # that matches both this selector and the input selector.
       #
-      # @param sels [Array<Node>] A {SimpleSequence}'s {SimpleSequence#members members array}
+      # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
       # @return [SimpleSequence, nil] A {SimpleSequence} matching both `sels` and this selector,
       #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
       # @raise [Sass::SyntaxError] If this selector cannot be unified.
@@ -102,7 +102,7 @@ module Sass
         SimpleSequence.new(sseq)
       end
 
-      # @see Node#to_a
+      # @see Simple#to_a
       def to_a
         @members.map {|sel| sel.to_a}.flatten
       end
@@ -134,7 +134,7 @@ module Sass
 
       # Raise a {Sass::SyntaxError} describing a loop of `@extend` directives.
       #
-      # @param supers [Array<Node>] The stack of selectors that contains the loop,
+      # @param supers [Array<Simple>] The stack of selectors that contains the loop,
       #   ordered from deepest to most shallow.
       # @raise [Sass::SyntaxError] Describing the loop
       def handle_extend_loop(supers)

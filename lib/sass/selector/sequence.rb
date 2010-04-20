@@ -70,7 +70,7 @@ module Sass
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
       # @overload def extend(extends)
-      # @param extends [{Selector::Node => Selector::Sequence}]
+      # @param extends [{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
@@ -83,7 +83,7 @@ module Sass
           end).map {|path| weave(path)}.flatten(1).map {|p| Sequence.new(p)}
       end
 
-      # @see Node#to_a
+      # @see Simple#to_a
       def to_a
         ary = @members.map {|seq_or_op| seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a : seq_or_op}
         ary = Haml::Util.intersperse(ary, " ")
