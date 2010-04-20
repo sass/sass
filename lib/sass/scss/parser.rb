@@ -128,32 +128,32 @@ module Sass
 
       def special_directive(name)
         sym = name.gsub('-', '_').to_sym
-        DIRECTIVES.include?(sym) && send(sym)
+        DIRECTIVES.include?(sym) && send("#{sym}_directive")
       end
 
-      def mixin
+      def mixin_directive
         name = tok! IDENT
         args = sass_script(:parse_mixin_definition_arglist)
         ss
         block(node(Sass::Tree::MixinDefNode.new(name, args)), :directive)
       end
 
-      def include
+      def include_directive
         name = tok! IDENT
         args = sass_script(:parse_mixin_include_arglist)
         ss
         node(Sass::Tree::MixinNode.new(name, args))
       end
 
-      def debug
+      def debug_directive
         node(Sass::Tree::DebugNode.new(sass_script(:parse)))
       end
 
-      def warn
+      def warn_directive
         node(Sass::Tree::WarnNode.new(sass_script(:parse)))
       end
 
-      def for
+      def for_directive
         tok!(/\$/)
         var = tok! IDENT
         ss
@@ -170,13 +170,13 @@ module Sass
         block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)), :directive)
       end
 
-      def while
+      def while_directive
         expr = sass_script(:parse)
         ss
         block(node(Sass::Tree::WhileNode.new(expr)), :directive)
       end
 
-      def if
+      def if_directive
         expr = sass_script(:parse)
         ss
         node = block(node(Sass::Tree::IfNode.new(expr)), :directive)
@@ -195,11 +195,11 @@ module Sass
         else_block(node)
       end
 
-      def extend
+      def extend_directive
         node(Sass::Tree::ExtendNode.new(expr!(:selector)))
       end
 
-      def import
+      def import_directive
         @expected = "string or url()"
         arg = tok(STRING) || tok!(URI)
         path = @scanner[1] || @scanner[2] || @scanner[3]
@@ -216,7 +216,7 @@ module Sass
 
       def use_css_import?; false; end
 
-      def media
+      def media_directive
         val = str {media_query_list}.strip
         block(node(Sass::Tree::DirectiveNode.new("@media #{val}")), :directive)
       end
