@@ -577,6 +577,7 @@ END
   end
 end
 
+# @private
 class Object
   # Haml overrides various `ActionView` helpers,
   # which call an \{#is\_haml?} method

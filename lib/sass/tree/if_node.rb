@@ -30,6 +30,7 @@ module Sass::Tree
       @last_else = node
     end
 
+    # @see Node#options=
     def options=(options)
       super
       self.else.options = options if self.else

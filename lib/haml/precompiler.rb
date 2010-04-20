@@ -146,6 +146,7 @@ END
     class Line < Struct.new(:text, :unstripped, :full, :index, :precompiler, :eod)
       alias_method :eod?, :eod
 
+      # @private
       def tabs
         line = self
         @tabs ||= precompiler.instance_eval do
