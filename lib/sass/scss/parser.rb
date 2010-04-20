@@ -402,6 +402,8 @@ module Sass
             (tok(/\*/) && Selector::Universal.new(nil))
           res << v
         end
+        expected('"{"') if tok?(/&/)
+
         Selector::SimpleSequence.new(res)
       end
 

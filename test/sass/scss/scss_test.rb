@@ -940,4 +940,34 @@ SCSS
     assert_equal "Undefined variable: \"$bang\".", e.message
     assert_equal 4, e.sass_line
   end
+
+  def test_post_resolution_selector_error
+    assert_raise(Sass::SyntaxError, 'Invalid CSS after "foo ": expected selector, was ") bar"') do
+      render 'foo #{") bar"} {a: b}'
+    end
+  end
+
+  def test_parent_in_mid_selector_error
+    assert_raise(Sass::SyntaxError, 'Invalid CSS after ".foo": expected "{", was "&.bar"') {render <<SCSS}
+flim {
+  .foo&.bar {a: b}
+}
+SCSS
+  end
+
+  def test_parent_in_mid_selector_error
+    assert_raise(Sass::SyntaxError, 'Invalid CSS after ".foo.bar": expected "{", was "&"') {render <<SCSS}
+flim {
+  .foo.bar& {a: b}
+}
+SCSS
+  end
+
+  def test_double_parent_selector_error
+    assert_raise(Sass::SyntaxError, 'Invalid CSS after "&": expected "{", was "&"') {render <<SCSS}
+flim {
+  && {a: b}
+}
+SCSS
+  end
 end
