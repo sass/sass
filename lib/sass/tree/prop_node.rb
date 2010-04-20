@@ -78,6 +78,7 @@ module Sass::Tree
 
     protected
 
+    # @see Node#to_src
     def to_src(tabs, opts, fmt)
       name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
       if name[0] == ?:

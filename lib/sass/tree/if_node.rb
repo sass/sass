@@ -38,6 +38,7 @@ module Sass::Tree
 
     protected
 
+    # @see Node#to_src
     def to_src(tabs, opts, fmt, is_else = false)
       name =
         if !is_else; "if"

@@ -15,6 +15,10 @@ module Sass::Script
     # @return [Symbol] `:string` or `:identifier`
     attr_reader :type
 
+    # In addition to setting the {#context} of the string,
+    # this sets the string to be an identifier if the context is `:equals`.
+    #
+    # @see Node#context=
     def context=(context)
       super
       @type = :identifier if context == :equals
@@ -29,6 +33,7 @@ module Sass::Script
       @type = type
     end
 
+    # @see Literal#plus
     def plus(other)
       other_str = other.is_a?(Sass::Script::String) ? other.value : other.to_s
       Sass::Script::String.new(self.value + other_str, self.type)

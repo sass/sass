@@ -654,6 +654,8 @@ END
         process_file(input, output)
       end
 
+      private
+
       def process_directory
         input = @options[:input] = @args.shift
         output = @options[:output] = @args.shift

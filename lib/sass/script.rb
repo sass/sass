@@ -50,6 +50,7 @@ You can use `sass-convert --in-place --from sass2 file.sass' to convert files au
 MESSAGE
     end
 
+    # @private
     def self.equals_warning(types, name, val, guarded, line, offset, filename)
       Haml::Util.haml_warn <<MESSAGE
 DEPRECATION WARNING:

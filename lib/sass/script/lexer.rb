@@ -181,11 +181,24 @@ module Sass
         @scanner.eos? && @tok.nil?
       end
 
+      # Raise an error to the effect that `name` was expected in the input stream
+      # and wasn't found.
+      #
+      # This calls \{#unpeek!} to rewind the scanner to immediately after
+      # the last returned token.
+      #
+      # @param name [String] The name of the entity that was expected but not found
+      # @raise [Sass::SyntaxError]
       def expected!(name)
         unpeek!
         Sass::SCSS::Parser.expected(@scanner, name, @line)
       end
 
+      # Records all non-comment text the lexer consumes within the block
+      # and returns it as a string.
+      #
+      # @yield A block in which text is recorded
+      # @return [String]
       def str
         old_pos = @tok ? @tok.pos : @scanner.pos
         yield

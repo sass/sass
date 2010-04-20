@@ -2,6 +2,10 @@ require 'sass/script/css_parser'
 
 module Sass
   module SCSS
+    # This is a subclass of {Parser} which only parses plain CSS.
+    # It doesn't support any Sass extensions, such as interpolation,
+    # parent references, nested selectors, and so forth.
+    # It does support all the same CSS hacks as the SCSS parser, though.
     class CssParser < Parser
       private
 

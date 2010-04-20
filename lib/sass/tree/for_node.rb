@@ -20,6 +20,7 @@ module Sass::Tree
 
     protected
 
+    # @see Node#to_src
     def to_src(tabs, opts, fmt)
       to = @exclusive ? "to" : "through"
       "#{'  ' * tabs}@for $#{dasherize(@var, opts)} from #{@from.to_sass(opts)} #{to} #{@to.to_sass(opts)}" +
