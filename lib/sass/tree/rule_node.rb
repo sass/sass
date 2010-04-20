@@ -202,7 +202,15 @@ module Sass::Tree
       while scanner.rest?
         rules.last << scanner.scan(/[^",&]*/)
         case scanner.scan(/./)
-        when '&'; rules.last << :parent
+        when '&'
+          warn <<END unless rules.last.empty? || rules.last.last =~ /(^|\s)$/
+DEPRECATION WARNING:
+On line #{@line}#{" of '#{@filename}'" if @filename}
+In Sass 3, parent selectors will only be able to appear
+at the beginning of simple selector sequences.
+For example, ".foo &.bar" is allowed but ".bar&" is not.
+END
+          rules.last << :parent
         when ','
           scanner.scan(/\s*/)
           rules << [] if scanner.rest?

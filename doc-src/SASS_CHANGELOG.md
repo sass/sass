@@ -3,6 +3,13 @@
 * Table of contents
 {:toc}
 
+## 2.2.24 (Unreleased)
+
+* Parent references -- the `&` character --
+  may only be placed at the beginning of simple selector sequences in Sass 3.
+  Placing them elsewhere is deprecated in 2.2.24 and will print a warning.
+  For example, `foo &.bar` is allowed, but `foo .bar&` is not.
+
 ## 2.2.23
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.23).
