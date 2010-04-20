@@ -4,6 +4,7 @@
 --default-return  ""
 --title           "Haml/Sass Documentation"
 --query           'object.type != :classvariable'
+--query           'object.type != :constant || @api && @api.text == "public"'
 --hide-void-return
 --protected
 --no-private

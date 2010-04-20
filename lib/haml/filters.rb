@@ -327,6 +327,7 @@ END
     end
     # An alias for the Textile filter,
     # since the only available Textile parser is RedCloth.
+    # @api public
     RedCloth = Textile
     Filters.defined['redcloth'] = RedCloth
 

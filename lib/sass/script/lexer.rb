@@ -40,7 +40,6 @@ module Sass
       attr_reader :offset
 
       # A hash from operator strings to the corresponding token types.
-      # @private
       OPERATORS = {
         '+' => :plus,
         '-' => :minus,
@@ -67,10 +66,8 @@ module Sass
         '{' => :lcurly,
       }
 
-      # @private
       OPERATORS_REVERSE = Haml::Util.map_hash(OPERATORS) {|k, v| [v, k]}
 
-      # @private
       TOKEN_NAMES = Haml::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge({
           :const => "variable (e.g. $foo)",
           :ident => "identifier (e.g. middle)",
@@ -79,16 +76,13 @@ module Sass
 
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.
-      # @private
       OP_NAMES = OPERATORS.keys.sort_by {|o| -o.size}
 
       # A sub-list of {OP_NAMES} that only includes operators
       # with identifier names.
-      # @private
       IDENT_OP_NAMES = OP_NAMES.select {|k, v| k =~ /^\w+/}
 
       # A hash of regular expressions that are used for tokenizing.
-      # @private
       REGULAR_EXPRESSIONS = {
         :whitespace => /\s+/,
         :comment => COMMENT,

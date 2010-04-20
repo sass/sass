@@ -13,11 +13,9 @@ module Sass
   # This module contains code that handles the parsing and evaluation of SassScript.
   module Script
     # The regular expression used to parse variables.
-    # @private
     MATCH = /^[!\$](#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=|:)\s*(.+?)(!(?i:default))?$/
 
     # The regular expression used to validate variables without matching.
-    # @private
     VALIDATE = /^[!\$]#{Sass::SCSS::RX::IDENT}$/
 
     # Parses a string of SassScript

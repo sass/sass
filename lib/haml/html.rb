@@ -146,7 +146,6 @@ module Haml
     end
     alias_method :to_haml, :render
 
-    # @private
     TEXT_REGEXP = /^(\s*).*$/
 
     # @see Hpricot

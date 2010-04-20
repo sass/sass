@@ -15,7 +15,7 @@ module Sass::Script
     # @return [Symbol] `:string` or `:identifier`
     attr_reader :type
 
-    # In addition to setting the {#context} of the string,
+    # In addition to setting the \{#context} of the string,
     # this sets the string to be an identifier if the context is `:equals`.
     #
     # @see Node#context=

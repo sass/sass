@@ -7,7 +7,6 @@ module Sass::Tree
   # @see Sass::Tree
   class RuleNode < Node
     # The character used to include the parent selector
-    # @private
     PARENT = '&'
 
     # The CSS selector for this rule,

@@ -99,7 +99,6 @@ module Sass
         node << comment
       end
 
-      # @private
       DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :import, :media]
 
       def directive
@@ -639,7 +638,6 @@ MESSAGE
         result
       end
 
-      # @private
       EXPR_NAMES = {
         :media_query => "media query (e.g. print, screen, print and screen)",
         :media_expr => "media expression (e.g. (min-device-width: 800px)))",
@@ -649,7 +647,6 @@ MESSAGE
         :expr => "expression (e.g. 1px, bold)",
       }
 
-      # @private
       TOK_NAMES = Haml::Util.to_hash(
         Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
         merge(IDENT => "identifier", /[;}]/ => '";"', /[=:]/ => '":"')

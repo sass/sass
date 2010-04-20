@@ -79,60 +79,49 @@ module Sass
     end
 
     # The character that begins a CSS property.
-    # @private
     PROPERTY_CHAR  = ?:
 
     # The character that designates that
     # a property should be assigned to a SassScript expression.
-    # @private
     SCRIPT_CHAR     = ?=
 
     # The character that designates the beginning of a comment,
     # either Sass or CSS.
-    # @private
     COMMENT_CHAR = ?/
 
     # The character that follows the general COMMENT_CHAR and designates a Sass comment,
     # which is not output as a CSS comment.
-    # @private
     SASS_COMMENT_CHAR = ?/
 
     # The character that follows the general COMMENT_CHAR and designates a CSS comment,
     # which is embedded in the CSS document.
-    # @private
     CSS_COMMENT_CHAR = ?*
 
     # The character used to denote a compiler directive.
-    # @private
     DIRECTIVE_CHAR = ?@
 
     # Designates a non-parsed rule.
-    # @private
     ESCAPE_CHAR    = ?\\
 
     # Designates block as mixin definition rather than CSS rules to output
-    # @private
     MIXIN_DEFINITION_CHAR = ?=
 
     # Includes named mixin declared using MIXIN_DEFINITION_CHAR
-    # @private
     MIXIN_INCLUDE_CHAR    = ?+
 
     # The regex that matches properties of the form `name: prop`.
-    # @private
     PROPERTY_NEW_MATCHER = /^[^\s:"\[]+\s*[=:](\s|$)/
 
     # The regex that matches and extracts data from
     # properties of the form `name: prop`.
-    # @private
     PROPERTY_NEW = /^([^\s=:"]+)\s*(=|:)(?:\s+|$)(.*)/
 
     # The regex that matches and extracts data from
     # properties of the form `:name prop`.
-    # @private
     PROPERTY_OLD = /^:([^\s=:"]+)\s*(=?)(?:\s+|$)(.*)/
 
     # The default options for Sass::Engine.
+    # @api public
     DEFAULT_OPTIONS = {
       :style => :nested,
       :load_paths => ['.'],
@@ -562,7 +551,6 @@ WARNING
       nil
     end
 
-    # @private
     MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_definition(line)
       name, arg_string = line.text.scan(MIXIN_DEF_RE).first
@@ -575,7 +563,6 @@ WARNING
       Tree::MixinDefNode.new(name, args)
     end
 
-    # @private
     MIXIN_INCLUDE_RE = /^(?:\+|@include)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_include(line, root)
       name, arg_string = line.text.scan(MIXIN_INCLUDE_RE).first
