@@ -248,6 +248,10 @@ begin
     t.options << '--files' << files.join(',')
     t.options << '--template-path' << scope('yard')
     t.options << '--title' << ENV["YARD_TITLE"] if ENV["YARD_TITLE"]
+    if ENV["YARD_OPTS"]
+      require 'shellwords'
+      t.options.concat(Shellwords.shellwords(ENV["YARD_OPTS"]))
+    end
   end
   Rake::Task['yard'].prerequisites.insert(0, 'yard:sass')
   Rake::Task['yard'].instance_variable_set('@comment', nil)
