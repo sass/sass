@@ -308,6 +308,10 @@ module Sass
         res
       end
 
+      # Returns `nil` if this is a pseudoclass selector
+      # and `sels` contains a pseudoclass selector different than this one.
+      #
+      # @see Selector#unify
       def unify(sels)
         return if type == :element && sels.any? do |sel|
           sel.is_a?(Pseudo) && sel.type == :element &&

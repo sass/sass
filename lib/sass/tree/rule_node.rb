@@ -185,8 +185,8 @@ module Sass::Tree
       to_return
     end
 
-    # Runs any SassScript that may be embedded in the rule,
-    # and parses the selectors for commas.
+    # Runs SassScript interpolation in the selector,
+    # and then parses the result into a {Sass::Selector::CommaSequence}.
     #
     # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
