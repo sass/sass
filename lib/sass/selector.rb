@@ -6,6 +6,17 @@ require 'sass/selector/simple_sequence'
 
 module Sass
   # A namespace for nodes in the parse tree for selectors.
+  #
+  # {CommaSequence} is the toplevel seelctor,
+  # representing a comma-separated sequence of {Sequence}s,
+  # such as `foo bar, baz bang`.
+  # {Sequence} is the next level,
+  # representing {SimpleSequence}s separated by combinators (e.g. descendant or child),
+  # such as `foo bar` or `foo > bar baz`.
+  # {SimpleSequence} is a sequence of selectors that all apply to a single element,
+  # such as `foo.bar[attr=val]`.
+  # Finally, {Simple} is the superclass of the simplest selectors,
+  # such as `.foo` or `#bar`.
   module Selector
     # A parent-referencing selector (`&` in Sass).
     # The function of this is to be replaced by the parent selector
@@ -104,7 +115,7 @@ module Sass
       # or applying this namespace to an existing {Element} selector.
       #
       # If both this selector *and* `sel` specify namespaces,
-      # those namespaces are unified via {Selector#unify_namespaces}
+      # those namespaces are unified via {Simple#unify_namespaces}
       # and the unified namespace is used, if possible.
       #
       # @todo There are lots of cases that this documentation specifies;
@@ -172,7 +183,7 @@ module Sass
       # the namespace from `sel` is used.
       #
       # If both this selector *and* `sel` specify namespaces,
-      # those namespaces are unified via {Selector#unify_namespaces}
+      # those namespaces are unified via {Simple#unify_namespaces}
       # and the unified namespace is used, if possible.
       #
       # @todo There are lots of cases that this documentation specifies;

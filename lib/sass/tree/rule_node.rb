@@ -198,6 +198,8 @@ module Sass::Tree
 
     # Converts nested rules into a flat list of rules.
     #
+    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    #   The extensions defined for this tree
     # @param parent [RuleNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {RuleNode}
     def _cssize(extends, parent)
@@ -219,6 +221,8 @@ module Sass::Tree
     # Resolves parent references and nested selectors,
     # and updates the indentation based on the parent's indentation.
     #
+    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    #   The extensions defined for this tree
     # @param parent [RuleNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {RuleNode}
     # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`

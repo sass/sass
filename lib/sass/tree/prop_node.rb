@@ -94,6 +94,8 @@ module Sass::Tree
 
     # Converts nested properties into flat properties.
     #
+    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    #   The extensions defined for this tree
     # @param parent [PropNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {PropNode}
     # @raise [Sass::SyntaxError] if the property uses invalid syntax
@@ -110,6 +112,8 @@ module Sass::Tree
     # Updates the name and indentation of this node based on the parent name
     # and nesting level.
     #
+    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    #   The extensions defined for this tree
     # @param parent [PropNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {PropNode}
     def cssize!(extends, parent)
