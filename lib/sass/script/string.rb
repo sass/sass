@@ -52,7 +52,8 @@ module Sass::Script
     def to_sass(opts = {})
       type = opts[:type] || self.type
       if type == :identifier
-        if context == :equals && Sass::SCSS::RX.escape_ident(self.value).include?(?\\)
+        if context == :equals && self.value !~ Sass::SCSS::RX::URI &&
+            Sass::SCSS::RX.escape_ident(self.value).include?(?\\)
           return "unquote(#{Sass::Script::String.new(self.value, :string).to_sass})"
         elsif context == :equals && self.value.size == 0
           return %q{""}

@@ -19,6 +19,8 @@ now allow whitespace before the colon. For example:
 
 * `#{}` interpolation is now allowed within `url()`.
 
+* `url()`s within Sass2 properties are properly converted to Sass 3 or SCSS now.
+
 * Don't consider e.g. `foo ($bar + $baz)` to be a function call.
   Function calls can't have whitespace between the name and the parentheses.
 

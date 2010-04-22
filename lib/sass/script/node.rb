@@ -35,7 +35,7 @@ module Sass::Script
       children.each {|c| c.options = options}
     end
 
-    # Sets the options hash for this node,
+    # Sets the context for this node,
     # as well as for all child nodes.
     #
     # @param context [Symbol]

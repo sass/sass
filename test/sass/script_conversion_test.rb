@@ -186,6 +186,16 @@ RUBY
     assert_equal "unquote(\"f'o\#{$bar}b\\\"z\")", render("'f\\'o\#{$bar}b\\\"z'", :context => :equals)
   end
 
+  def test_sass2_urls
+    Haml::Util.silence_haml_warnings do
+      assert_equal 'url(foo/bar.gif)', render('url(foo/bar.gif)', :context => :equals)
+      assert_equal 'url("foo/bar.gif")', render('url("foo/bar.gif")', :context => :equals)
+
+      assert_equal 'url($var)', render('url(!var)', :context => :equals)
+      assert_equal 'url("#{$var}/flip.gif")', render('url("#{!var}/flip.gif")', :context => :equals)
+    end
+  end
+
   private
 
   def assert_renders(script, options = {})
