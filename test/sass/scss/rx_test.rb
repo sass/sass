@@ -93,7 +93,7 @@ class ScssRxTest < Test::Unit::TestCase
     assert_match URI, 'url("foo bar)")'
     assert_match URI, "url('foo bar)')"
     assert_match URI, 'url( "foo bar)" )'
-    assert_match URI, "url(!#\\%&**+,-./0123456789~)"
+    assert_match URI, "url(#\\%&**+,-./0123456789~)"
   end
 
   def test_invalid_uri
