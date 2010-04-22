@@ -400,7 +400,7 @@ WARNING
     def parse_property_or_rule(line)
       scanner = StringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
-      parser = Sass::SCSS::Parser.new(scanner, @line)
+      parser = Sass::SCSS::SassParser.new(scanner, @line)
 
       unless res = parser.parse_interp_ident
         return Tree::RuleNode.new(parse_interp(line.text))
