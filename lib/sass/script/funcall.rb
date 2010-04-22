@@ -17,6 +17,15 @@ module Sass
       # @return [Array<Script::Node>]
       attr_reader :args
 
+      # Don't set the context for child nodes if this is `url()`,
+      # since `url()` allows quoted strings.
+      #
+      # @param context [Symbol]
+      # @see Node#context=
+      def context=(context)
+        super unless @name == "url"
+      end
+
       # @param name [String] See \{#name}
       # @param name [Array<Script::Node>] See \{#args}
       def initialize(name, args)

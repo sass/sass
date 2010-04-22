@@ -1031,6 +1031,26 @@ div
 SASS
   end
 
+  def test_sass2_var_in_property_interpolation
+assert_sass_to_scss <<SCSS, <<SASS
+foo {
+  a: b \#{$c} d; }
+SCSS
+foo
+  a: b \#{!c} d
+SASS
+  end
+
+  def test_sass2_var_in_selector_interpolation
+assert_sass_to_scss <<SCSS, <<SASS
+foo-\#{$c} {
+  a: b; }
+SCSS
+foo-\#{!c}
+  a: b
+SASS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})
