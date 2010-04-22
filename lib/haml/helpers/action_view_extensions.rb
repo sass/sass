@@ -1,7 +1,7 @@
-require 'haml/helpers/action_view_mods'
-
 module Haml
   module Helpers
+    @@action_view_defined = true
+
     # This module contains various useful helper methods
     # that either tie into ActionView or the rest of the ActionPack stack,
     # or are only useful in that context.
@@ -51,5 +51,7 @@ module Haml
         @_haml_concat_raw = old
       end
     end
+
+    include ActionViewExtensions
   end
 end

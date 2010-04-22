@@ -1,4 +1,6 @@
 require 'haml/engine'
+require 'haml/helpers/action_view_mods'
+require 'haml/helpers/action_view_extensions'
 
 module Haml
   # The class that keeps track of the global options for Haml within Rails.

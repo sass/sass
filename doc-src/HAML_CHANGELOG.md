@@ -3,13 +3,14 @@
 * Table of contents
 {:toc}
 
-## 2.2.24
+## 2.2.24 (Unreleased)
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.24).
+* Don't prevent ActiveModel form elements from having error formatting applied.
 
 * Make sure `form_for` blocks are properly indented under Rails 3.0.0.beta.3.
 
-* Don't prevent ActiveModel form elements from having error formatting applied.
+* Don't activate a bug in the `dynamic_form` plugin under Rails 3.0.0.beta.3
+  that would cause its methods not to be loaded.
 
 ## 2.2.23
 
