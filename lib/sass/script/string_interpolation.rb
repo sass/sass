@@ -67,11 +67,12 @@ module Sass::Script
     # @return [Sass::Script::String] The SassScript string that is the value of the interpolation
     def _perform(environment)
       res = ""
-      res << @before.perform(environment).value
-      val = @mid.perform(environment)
-      res << (val.is_a?(Sass::Script::String) ? val.value : val.to_s)
+      before = @before.perform(environment)
+      res << before.value
+      mid = @mid.perform(environment)
+      res << (mid.is_a?(Sass::Script::String) ? mid.value : mid.to_s)
       res << @after.perform(environment).value
-      Sass::Script::String.new(res, :string)
+      Sass::Script::String.new(res, before.type)
     end
 
     private

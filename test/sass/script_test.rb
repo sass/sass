@@ -159,6 +159,7 @@ SASS
     assert_equal "url(http://sass-lang.com/images/foo-bar)", resolve("url(http://sass-lang.com/images/\#{foo-bar})")
     assert_equal 'url("http://sass-lang.com/images/foo-bar")', resolve("url('http://sass-lang.com/images/\#{foo-bar}')")
     assert_equal 'url("http://sass-lang.com/images/foo-bar")', resolve('url("http://sass-lang.com/images/#{foo-bar}")')
+    assert_unquoted "url(http://sass-lang.com/images/\#{foo-bar})"
   end
 
   def test_hyphenated_variables
@@ -321,6 +322,20 @@ SASS
     munge_filename opts
     val = eval(str, opts, environment)
     val.is_a?(Sass::Script::String) ? val.value : val.to_s
+  end
+
+  def assert_unquoted(str, opts = {}, environment = env)
+    munge_filename opts
+    val = eval(str, opts, environment)
+    assert_kind_of Sass::Script::String, val
+    assert_equal :identifier, val.type
+  end
+
+  def assert_quoted(str, opts = {}, environment = env)
+    munge_filename opts
+    val = eval(str, opts, environment)
+    assert_kind_of Sass::Script::String, val
+    assert_equal :string, val.type
   end
 
   def eval(str, opts = {}, environment = env)

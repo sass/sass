@@ -53,6 +53,12 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "-foo(12px)"
   end
 
+  def test_url
+    assert_renders "url(foo.gif)"
+    assert_renders "url($var)"
+    assert_renders "url(\#{$var}/flip.gif)"
+  end
+
   def test_variable
     assert_renders "$foo-bar"
     assert_renders "$flaznicate"
