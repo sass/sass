@@ -161,13 +161,17 @@ module Sass
           begin
             sseq1, rest1 = seq_split(seq1)
             sseq2, rest2 = seq_split(seq2)
-            unified = unify_heads(sseq1, sseq2) || unify_heads(sseq2, sseq1)
 
-            res = []
-            subweave(rest1, seq2, cache).each {|subseq| res << sseq1 + subseq}
-            subweave(rest1, rest2, cache).each {|subseq| res << unified + subseq} if unified
-            subweave(seq1, rest2, cache).each {|subseq| res << sseq2 + subseq}
-            res
+            if sseq1.eql?(sseq2)
+              subweave(rest1, rest2, cache).map {|subseq| sseq1 + subseq}
+            else
+              unified = unify_heads(sseq1, sseq2) || unify_heads(sseq2, sseq1)
+              res = []
+              subweave(rest1, seq2, cache).each {|subseq| res << sseq1 + subseq}
+              subweave(rest1, rest2, cache).each {|subseq| res << unified + subseq} if unified
+              subweave(seq1, rest2, cache).each {|subseq| res << sseq2 + subseq}
+              res
+            end
           end
       end
 
@@ -181,7 +185,7 @@ module Sass
       end
 
       def unify_heads(sseq1, sseq2)
-        return unless sseq2.size == 1
+        return unless sseq2.size == 1 # Can't unify ".foo > .bar" and ".baz > .bang"
         unified = sseq1.last.unify(sseq2.last.members) unless sseq1.last.is_a?(String) || sseq2.last.is_a?(String)
         sseq1[0...-1] << unified if unified
       end

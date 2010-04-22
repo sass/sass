@@ -1015,6 +1015,27 @@ CSS
 SCSS
   end
 
+  def test_nested_extender_merges_with_same_selector
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar, .foo .baz {
+  a: b; }
+CSS
+.foo {
+  .bar {a: b}
+  .baz {@extend .bar} }
+SCSS
+  end
+
+  def test_nested_extender_with_child_selector_merges_with_same_selector
+    assert_equal <<CSS, render(<<SCSS)
+.foo > .bar .baz, .foo > .bar .bang {
+  a: b; }
+CSS
+.foo > .bar .baz {a: b}
+.foo > .bar .bang {@extend .baz}
+SCSS
+  end
+
   private
 
   def render(sass, options = {})
