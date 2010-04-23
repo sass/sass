@@ -318,6 +318,7 @@ module Sass
       end
 
       def block_child(context)
+        return variable || directive || ruleset if context == :stylesheet
         variable || directive || declaration_or_ruleset
       end
 

@@ -19,6 +19,8 @@ now allow whitespace before the colon. For example:
   unless `--in-place` is provided,
   to prevent accidental erasure of source files.
 
+* SCSS parsing speed is dramatically improved.
+
 ### Bug Fixes
 
 * Variables are now allowed as arguments to `url()`.
