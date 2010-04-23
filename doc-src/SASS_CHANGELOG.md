@@ -13,6 +13,14 @@ now allow whitespace before the colon. For example:
     foo
       color : blue
 
+### Minor Changes
+
+* Running `sass-convert --from sass --to sass` will raise an error
+  unless `--in-place` is provided,
+  to prevent accidental erasure of source files.
+
+* SCSS parsing speed is dramatically improved.
+
 ### Bug Fixes
 
 * Variables are now allowed as arguments to `url()`.

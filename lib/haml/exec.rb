@@ -667,6 +667,11 @@ END
         end
         @options[:output] ||= @options[:input]
 
+        if @options[:to] == @options[:from] && !@options[:in_place]
+          fmt = @options[:from]
+          raise "Error: converting from #{fmt} to #{fmt} without --in-place"
+        end
+
         ext = @options[:from]
         ext = :sass if ext == :sass2
         Dir.glob("#{@options[:input]}/**/*.#{ext}") do |f|
