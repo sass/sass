@@ -104,7 +104,7 @@ module Sass
         lambda do |dep|
           begin
             mtime(dep) > css_mtime || dependencies_stale?(dep, css_mtime)
-          rescue Sass::SyntaxError
+          rescue Sass::SyntaxError, Errno::ENOENT
             # If there's an error finding depenencies, default to recompiling.
             true
           end
