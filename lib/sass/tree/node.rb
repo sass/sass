@@ -126,7 +126,9 @@ module Sass
       # @see #to_s
       def render
         extends = Haml::Util::SubsetMap.new
-        perform(Environment.new).cssize(extends).do_extend(extends).to_s
+        result = perform(Environment.new).cssize(extends)
+        result = result.do_extend(extends) unless extends.empty?
+        result.to_s
       end
 
       # True if \{#to\_s} will return `nil`;
