@@ -490,8 +490,8 @@ module Sass
         end
         ss
 
-        @expected = expected_property_separator
-        space, value = expr!(:value)
+        tok!(/:/)
+        space, value = value!
         ss
         require_block = tok?(/\{/)
 
@@ -501,12 +501,7 @@ module Sass
         nested_properties! node, space
       end
 
-      def expected_property_separator
-        '":" or "="'
-      end
-
-      def value
-        return unless tok(/:/)
+      def value!
         space = !str {ss}.empty?
         @use_property_exception ||= space || !tok?(IDENT)
 
@@ -650,7 +645,7 @@ MESSAGE
 
       TOK_NAMES = Haml::Util.to_hash(
         Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
-        merge(IDENT => "identifier", /[;}]/ => '";"', /[=:]/ => '":"')
+        merge(IDENT => "identifier", /[;}]/ => '";"')
 
       def tok?(rx)
         @scanner.match?(rx)
