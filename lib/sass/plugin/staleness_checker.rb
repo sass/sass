@@ -83,7 +83,7 @@ module Sass
 
       def mtime(filename)
         @mtimes[filename] ||= begin
-          File.mtime(filename)
+          File.mtime(filename).to_i
         rescue Errno::ENOENT
           @dependencies.delete(filename)
           DELETED
