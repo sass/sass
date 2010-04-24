@@ -506,6 +506,14 @@ module Sass
         @use_property_exception ||= space || !tok?(IDENT)
 
         return true, Sass::Script::String.new("") if tok?(/\{/)
+        # This is a bit of a dirty trick:
+        # if the value is completely static,
+        # we don't parse it at all, and instead return a plain old string
+        # containing the value.
+        # This results in a dramatic speed increase.
+        if val = tok(STATIC_VALUE)
+          return space, Sass::Script::String.new(val.strip)
+        end
         return space, sass_script(:parse)
       end
 

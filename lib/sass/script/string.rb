@@ -58,7 +58,7 @@ module Sass::Script
         elsif context == :equals && self.value.size == 0
           return %q{""}
         end
-        return self.value
+        return self.value.gsub("\n", " ")
       end
 
       return "\"#{value.gsub('"', "\\\"")}\"" if opts[:quote] == %q{"}

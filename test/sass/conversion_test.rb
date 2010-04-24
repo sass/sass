@@ -183,7 +183,7 @@ SASS
   def test_multiline_properties
     assert_scss_to_sass <<SASS, <<SCSS
 foo bar
-  baz: bip bam boon
+  baz: bip   bam         boon
 SASS
 foo bar {
   baz:
@@ -194,7 +194,7 @@ SCSS
 
     assert_scss_to_scss <<OUT, <<IN
 foo bar {
-  baz: bip bam boon; }
+  baz: bip   bam         boon; }
 OUT
 foo bar {
   baz:

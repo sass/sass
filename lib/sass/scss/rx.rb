@@ -109,6 +109,11 @@ module Sass
       # Custom
       HEXCOLOR = /\#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?/
       INTERP_START = /#\{/
+
+      STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/
+      STRING2_NOINTERP = /\'((?:[^\n\r\f\\'#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\'/
+      STRING_NOINTERP = /#{STRING1_NOINTERP}|#{STRING2_NOINTERP}/
+      STATIC_VALUE = /(#{NMCHAR}|#{STRING1_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]||\.[0-9]|\!important)+(?=[;}])/i
     end
   end
 end
