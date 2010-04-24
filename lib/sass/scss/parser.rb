@@ -286,15 +286,7 @@ module Sass
       end
 
       def ruleset
-        rules = []
-        return unless v = selector
-        rules.concat v
-
-        while tok(/,/)
-          rules << ',' << str {ss}
-          rules.concat expr!(:selector)
-        end
-
+        return unless rules = selector_sequence
         block(node(Sass::Tree::RuleNode.new(rules.flatten.compact)), :ruleset)
       end
 
@@ -361,6 +353,22 @@ module Sass
         end
       ensure
         @use_property_exception = old_use_property_exception
+      end
+
+      def selector_sequence
+        if sel = tok(STATIC_SELECTOR)
+          return [sel]
+        end
+
+        rules = []
+        return unless v = selector
+        rules.concat v
+
+        while tok(/,/)
+          rules << ',' << str {ss}
+          rules.concat expr!(:selector)
+        end
+        rules
       end
 
       def selector
