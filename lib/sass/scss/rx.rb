@@ -114,6 +114,8 @@ module Sass
       STRING2_NOINTERP = /\'((?:[^\n\r\f\\'#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\'/
       STRING_NOINTERP = /#{STRING1_NOINTERP}|#{STRING2_NOINTERP}/
       STATIC_VALUE = /(#{NMCHAR}|#{STRING1_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]||\.[0-9]|\!important)+(?=[;}])/i
+
+      STATIC_SELECTOR = /(#{NMCHAR}|\s|[,>+*]|[:#.]#{NMSTART})+(?=[{])/i
     end
   end
 end
