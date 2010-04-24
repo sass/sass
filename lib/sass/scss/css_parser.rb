@@ -10,6 +10,15 @@ module Sass
       private
 
       def parent_selector; nil; end
+      def interpolation; nil; end
+      def interp_string; tok(STRING); end
+      def interp_ident(ident = IDENT); tok(ident); end
+      def use_css_import?; true; end
+
+      def special_directive(name)
+        return unless name == 'media' || name == 'import'
+        super
+      end
 
       def block_child(context)
         case context

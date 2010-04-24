@@ -36,6 +36,9 @@ now allow whitespace before the colon. For example:
 
 * Don't crash with odd HSL errors for some color functions.
 
+* Don't crash when files fail to exist in certain obscure updating circumstances
+  (thanks to [thedarkone](http://github.com/thedarkone)).
+
 ## 3.0.0.beta.3
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).

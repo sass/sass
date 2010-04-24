@@ -38,5 +38,7 @@ module Haml
 end
 
 require 'haml/util'
-require 'haml/engine'
-require 'haml/railtie'
+unless $0 =~ /sass(-convert)?$/
+  require 'haml/engine'
+  require 'haml/railtie'
+end
