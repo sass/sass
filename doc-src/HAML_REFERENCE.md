@@ -931,6 +931,14 @@ would be compiled to
 
     <p>hello</p>
 
+A line of Ruby code can be stretched over multiple lines
+as long as each line but the last ends with a comma.
+For example:
+
+    = link_to_remote "Add to cart",
+        :url => { :action => "add", :id => product.id },
+        :update => { :success => "cart", :failure => "error" }
+
 Note that it's illegal to nest code within a tag that ends with `=`.
 
 ### Running Ruby: `-`
@@ -954,6 +962,14 @@ is compiled to:
     <p>
       hello there you!
     </p>
+
+A line of Ruby code can be stretched over multiple lines
+as long as each line but the last ends with a comma.
+For example:
+
+    - links = {:home => "/",
+        :docs => "/docs",
+        :about => "/about"}
 
 #### Ruby Blocks
 
@@ -1262,10 +1278,18 @@ in their Haml templates.
 If you find yourself using multiline declarations, stop and think:
 could I do this better with a helper?
 
-Note that there is one case where it's useful to allow
-something to flow over onto multiple lines in a non-awkward manner: attributes.
+Note that there are a few cases where it's useful to allow
+something to flow over onto multiple lines in a non-awkward manner.
+One of these is HTML attributes.
 Some elements just have lots of attributes,
 so you can wrap attributes without using `|` (see [Attributes](#attributes)).
+
+In addition, sometimes you need to call Ruby methods or declare data structures
+that just need a lot of template information.
+So data structures and  functions that require lots of arguments
+can be wrapped over multiple lines,
+as long as each line but the last ends in a comma
+(see [Inserting Ruby](#inserting_ruby_)).
 
 ## Whitespace Preservation
 

@@ -103,6 +103,17 @@ For example:
         really_move.it.into(    |
           :a => @helper)        |
 
+Note that sometimes it is valid to include lots of Ruby in a template
+when that Ruby is a helper call that passes in a lot of template information.
+Thus when a function has lots of arguments,
+it's possible to wrap it across multiple lines
+as long as each line ends in a comma.
+For example:
+
+    = link_to_remote "Add to cart",
+        :url => { :action => "add", :id => product.id },
+        :update => { :success => "cart", :failure => "error" }
+
 ### `form_for` is printing the form tag twice!
 
 Make sure you're calling it with `-`, not `=`.

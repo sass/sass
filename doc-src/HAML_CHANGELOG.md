@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.beta.4 (Unreleased)
+
+Ruby code can now be wrapped across multiple lines
+as long as each line but the last ends in a comma.
+
 ## 3.0.0.beta.3
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).
