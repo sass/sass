@@ -235,6 +235,7 @@ You don't need to use "- end" in Haml. Un-indent to close a block:
 %p This line is un-indented, so it isn't part of the "if" block
 END
 
+        text = handle_ruby_multiline(text)
         push_silent(text[1..-1], true)
         newline_now
 
@@ -378,6 +379,7 @@ END
     # the result before it is added to `@buffer`
     def push_script(text, opts = {})
       raise SyntaxError.new("There's no Ruby code for = to evaluate.") if text.empty?
+      text = handle_ruby_multiline(text)
       return if options[:suppress_eval]
       opts[:escape_html] = options[:escape_html] if opts[:escape_html].nil?
 
@@ -764,9 +766,12 @@ END
       end.compact!
 
       raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", @next_line.index) if block_opened? && self_closing
-      raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", @next_line.index) if block_opened? && !value.empty?
       raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.", last_line - 1) if parse && value.empty?
       raise SyntaxError.new("Self-closing tags can't have content.", last_line - 1) if self_closing && !value.empty?
+
+      if block_opened? && !value.empty? && !is_ruby_multiline?(value)
+        raise SyntaxError.new("Illegal nesting: content can't be both given on the same line as %#{tag_name} and nested within it.", @next_line.index)
+      end
 
       self_closing ||= !!(!block_opened? && value.empty? && @options[:autoclose].any? {|t| t === tag_name})
       value = nil if value.empty? && (block_opened? || self_closing)
@@ -967,23 +972,42 @@ END
     end
 
     def handle_multiline(line)
-      if is_multiline?(line.text)
-        line.text.slice!(-1)
-        while new_line = raw_next_line.first
-          break if new_line == :eod
-          newline and next if new_line.strip.empty?
-          break unless is_multiline?(new_line.strip)
-          line.text << new_line.strip[0...-1]
-          newline
-        end
-        un_next_line new_line
-        resolve_newlines
+      return unless is_multiline?(line.text)
+      line.text.slice!(-1)
+      while new_line = raw_next_line.first
+        break if new_line == :eod
+        newline and next if new_line.strip.empty?
+        break unless is_multiline?(new_line.strip)
+        line.text << new_line.strip[0...-1]
+        newline
       end
+      un_next_line new_line
+      resolve_newlines
     end
 
     # Checks whether or not +line+ is in a multiline sequence.
     def is_multiline?(text)
       text && text.length > 1 && text[-1] == MULTILINE_CHAR_VALUE && text[-2] == ?\s
+    end
+
+    def handle_ruby_multiline(text)
+      text = text.rstrip
+      return text unless is_ruby_multiline?(text)
+      un_next_line @next_line.full
+      begin
+        new_line = raw_next_line.first
+        break if new_line == :eod
+        newline and next if new_line.strip.empty?
+        text << " " << new_line.strip
+        newline
+      end while is_ruby_multiline?(new_line.strip)
+      next_line
+      resolve_newlines
+      text
+    end
+
+    def is_ruby_multiline?(text)
+      text && text.length > 1 && text[-1] == ?, && text[-2] != ?? && text[-3..-2] != "?\\"
     end
 
     def contains_interpolation?(str)
