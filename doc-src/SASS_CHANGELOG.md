@@ -21,6 +21,10 @@ now allow whitespace before the colon. For example:
 
 * SCSS parsing speed is dramatically improved.
 
+* Add a `:read_cache` option to allow the Sass cache to be read from but not written to.
+
+* Don't write to the Sass cache when running `sass-convert`.
+
 ### Bug Fixes
 
 * Variables are now allowed as arguments to `url()`.

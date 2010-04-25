@@ -182,6 +182,11 @@ Available options are:
 : Whether parsed Sass files should be cached,
   allowing greater speed. Defaults to true.
 
+{#read_cache-option} `:read_cache`
+: If this is set and `:cache` is not,
+  only read the Sass cache if it exists,
+  don't write to it if it doesn't.
+
 {#never_update-option} `:never_update`
 : Whether the CSS files should never be updated,
   even if the template file changes.
