@@ -22,6 +22,7 @@ module Sass
     #   *WARNING*: It is important not to retain the instance for too long,
     #   as its instance-level caches are never explicitly expired.
     class StalenessChecker
+      DELETED             = 1.0/0.0 # positive Infinity
       @dependencies_cache = {}
 
       class << self
@@ -47,15 +48,9 @@ module Sass
       # @param template_file [String] The location of the Sass or SCSS template
       #   that is compiled to `css_file`.
       def stylesheet_needs_update?(css_file, template_file)
-        template_file = File.expand_path(template_file)
+        template_file, css_mtime = File.expand_path(template_file), mtime(css_file)
 
-        unless File.exists?(css_file) && File.exists?(template_file)
-          @dependencies.delete(template_file)
-          true
-        else
-          css_mtime = mtime(css_file)
-          mtime(template_file) > css_mtime || dependencies_stale?(template_file, css_mtime)
-        end
+        css_mtime == DELETED || dependency_updated?(css_mtime).call(template_file)
       end
 
       # Returns whether or not a given CSS file is out of date
@@ -87,7 +82,12 @@ module Sass
       end
 
       def mtime(filename)
-        @mtimes[filename] ||= File.mtime(filename)
+        @mtimes[filename] ||= begin
+          File.mtime(filename).to_i
+        rescue Errno::ENOENT
+          @dependencies.delete(filename)
+          DELETED
+        end
       end
 
       def dependencies(filename)
@@ -104,7 +104,7 @@ module Sass
         lambda do |dep|
           begin
             mtime(dep) > css_mtime || dependencies_stale?(dep, css_mtime)
-          rescue Sass::SyntaxError, Errno::ENOENT
+          rescue Sass::SyntaxError
             # If there's an error finding depenencies, default to recompiling.
             true
           end
