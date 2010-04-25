@@ -13,6 +13,13 @@ now allow whitespace before the colon. For example:
     foo
       color : blue
 
+### `Sass::Plugin.force_update_stylesheets`
+
+{Sass::Plugin} has a new method, {Sass::Plugin#force_update_stylesheets force_update_stylesheets}.
+This functions just like {Sass::Plugin#update_stylesheets},
+except that it doesn't check modification times and doesn't use the cache;
+all stylesheets are always compiled anew.
+
 ### Minor Changes
 
 * Running `sass-convert --from sass --to sass` will raise an error
