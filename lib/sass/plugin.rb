@@ -231,6 +231,27 @@ module Sass
       end
     end
 
+    # Updates all stylesheets, even those that aren't out-of-date.
+    # Ignores the cache.
+    #
+    # @param individual_files [Array<(String, String)>]
+    #   A list of files to check for updates
+    #   **in addition to those specified by the
+    #   {file:SASS_REFERENCE.md#template_location-option `:template_location` option}.**
+    #   The first string in each pair is the location of the Sass/SCSS file,
+    #   the second is the location of the CSS file that it should be compiled to.
+    # @see #update_stylesheets
+    def force_update_stylesheets(individual_files = [])
+      old_options = options
+      self.options = options.dup
+      options[:never_update] = false
+      options[:always_update] = true
+      options[:cache] = false
+      update_stylesheets(individual_files)
+    ensure
+      self.options = old_options
+    end
+
     # Watches the template directory (or directories)
     # and updates the CSS files whenever the related Sass/SCSS files change.
     # `watch` never returns.
