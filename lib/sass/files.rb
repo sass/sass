@@ -20,7 +20,7 @@ module Sass
       options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
       text = File.read(filename)
 
-      if options[:cache]
+      if options[:cache] || options[:read_cache]
         compiled_filename = sassc_filename(filename, options)
         sha = Digest::SHA1.hexdigest(text)
 

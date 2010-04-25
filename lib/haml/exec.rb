@@ -297,7 +297,7 @@ END
           @options[:for_engine][:cache_location] = loc
         end
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
-          @options[:for_engine][:cache] = false
+          @options[:for_engine][:read_cache] = false
         end
       end
 
@@ -570,7 +570,7 @@ END
         super
         require 'sass'
         @options[:for_tree] = {}
-        @options[:for_engine] = {}
+        @options[:for_engine] = {:cache => false, :read_cache => true}
       end
 
       # Tells optparse how to parse the arguments.
@@ -630,7 +630,7 @@ END
         end
 
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
-          @options[:for_engine][:cache] = false
+          @options[:for_engine][:read_cache] = false
         end
 
         super
