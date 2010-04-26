@@ -595,12 +595,12 @@ Options:
 END
 
         opts.on('-F', '--from FORMAT',
-          'The format to convert from. Can be css, scss, sass, or sass2.',
+          'The format to convert from. Can be css, scss, sass, less, or sass2.',
           'sass2 is the same as sass, but updates more old syntax to new.',
           'By default, this is inferred from the input filename.',
           'If there is none, defaults to css.') do |name|
           @options[:from] = name.downcase.to_sym
-          unless [:css, :scss, :sass, :sass2].include?(@options[:from])
+          unless [:css, :scss, :sass, :less, :sass2].include?(@options[:from])
             raise "Unknown format for sass-convert --from: #{name}"
           end
         end
@@ -715,6 +715,7 @@ END
             case input.path
             when /\.scss$/; :scss
             when /\.sass$/; :sass
+            when /\.less$/; :less
             when /\.css$/; :css
             end
         elsif @options[:in_place]
@@ -743,6 +744,9 @@ END
             if @options[:from] == :css
               require 'sass/css'
               ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
+            elsif @options[:from] == :less
+              require 'sass/less'
+              Less::Engine.new(input.read).to_tree.to_sass_tree.send("to_#{@options[:to]}", @options[:for_tree])
             else
               if input.is_a?(File)
                 ::Sass::Files.tree_for(input.path, @options[:for_engine])
