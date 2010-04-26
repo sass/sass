@@ -972,4 +972,19 @@ flim {
 }
 SCSS
   end
+
+  # Regression
+
+  def test_weird_added_space
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: -moz-bip; }
+CSS
+$value : bip;
+
+foo {
+  bar: -moz-\#{$value};
+}
+SCSS
+  end
 end

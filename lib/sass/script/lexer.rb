@@ -149,10 +149,10 @@ module Sass
       # @return [Boolean]
       def whitespace?(tok = @tok)
         if tok
-          @scanner.string[0...tok.pos] =~ /\s$/
+          @scanner.string[0...tok.pos] =~ /\s\Z/
         else
           @scanner.string[@scanner.pos, 1] =~ /^\s/ ||
-            @scanner.string[@scanner.pos - 1, 1] =~ /\s$/
+            @scanner.string[@scanner.pos - 1, 1] =~ /\s\Z/
         end
       end
 
