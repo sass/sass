@@ -538,6 +538,9 @@ module Sass
           return unless name = interp_ident
           name = [name] if name.is_a?(String)
         end
+        if comment = tok(COMMENT)
+          name << comment
+        end
         ss
 
         tok!(/:/)

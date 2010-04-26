@@ -408,11 +408,15 @@ WARNING
         return Tree::RuleNode.new(parse_interp(line.text))
       end
       res.unshift(hack_char) if hack_char
+      if comment = scanner.scan(Sass::SCSS::RX::COMMENT)
+        res << comment
+      end
 
       name = line.text[0...scanner.pos]
       if scanner.scan(/\s*([:=])(?:\s|$)/)
         parse_property(name, res, scanner[1], scanner.rest, :new, line)
       else
+        res.pop if comment
         Tree::RuleNode.new(res + parse_interp(scanner.rest))
       end
     end

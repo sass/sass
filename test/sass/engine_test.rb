@@ -601,6 +601,8 @@ foo {
   *name: val;
   #name: val;
   .name: val;
+  name/**/: val;
+  name/*\\**/: val;
   name: val; }
 CSS
 foo
@@ -608,6 +610,8 @@ foo
   *name: val
   #name: val
   .name: val
+  name/**/: val
+  name/*\\**/: val
   name: val
 SASS
   end

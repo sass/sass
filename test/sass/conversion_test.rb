@@ -872,6 +872,8 @@ foo
   *name: val
   #name: val
   .name: val
+  name/**/: val
+  name/*\\**/: val
   name: val
 SASS
 foo {
@@ -879,6 +881,8 @@ foo {
   *name: val;
   #name: val;
   .name: val;
+  name/**/: val;
+  name/*\\**/: val;
   name: val; }
 SCSS
   end

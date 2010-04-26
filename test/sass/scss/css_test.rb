@@ -349,6 +349,8 @@ foo {
   :name: val;
   .name: val;
   #name: val;
+  name/**/: val;
+  name/*\\**/: val;
   name: val; }
 SCSS
   end
