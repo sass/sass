@@ -89,11 +89,20 @@ module Sass
       # @see #invalid_child?
       def <<(child)
         return if child.nil?
+        check_child! child
+        self.has_children = true
+        @children << child
+      end
+
+      # Raises an error if the given child node is invalid.
+      #
+      # @param child [Tree::Node] The child node
+      # @raise [Sass::SyntaxError] if `child` is invalid
+      # @see #invalid_child?
+      def check_child!(child)
         if msg = invalid_child?(child)
           raise Sass::SyntaxError.new(msg, :line => child.line)
         end
-        self.has_children = true
-        @children << child
       end
 
       # Compares this node and another object (only other {Tree::Node}s will be equal).
@@ -116,7 +125,10 @@ module Sass
       # @see #perform
       # @see #to_s
       def render
-        perform(Environment.new).cssize.to_s
+        extends = Haml::Util::SubsetMap.new
+        result = perform(Environment.new).cssize(extends)
+        result = result.do_extend(extends) unless extends.empty?
+        result.to_s
       end
 
       # True if \{#to\_s} will return `nil`;
@@ -150,19 +162,42 @@ module Sass
         raise e
       end
 
+      # Converts a static CSS tree (e.g. the output of \{#cssize})
+      # into another static CSS tree,
+      # with the given extensions applied to all relevant {RuleNode}s.
+      #
+      # @todo Link this to the reference documentation on `@extend`
+      #   when such a thing exists.
+      #
+      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      #   The extensions to perform on this tree
+      # @return [Tree::Node] The resulting tree of static CSS nodes.
+      # @raise [Sass::SyntaxError] Only if there's a programmer error
+      #   and this is not a static CSS tree
+      def do_extend(extends)
+        node = dup
+        node.children = children.map {|c| c.do_extend(extends)}
+        node
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace(:filename => filename, :line => line)
+        raise e
+      end
+
       # Converts a static Sass tree (e.g. the output of \{#perform})
       # into a static CSS tree.
       #
       # \{#cssize} shouldn't be overridden directly;
       # instead, override \{#\_cssize} or \{#cssize!}.
       #
+      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      #   The extensions defined for this tree
       # @param parent [Node, nil] The parent node of this node.
       #   This should only be non-nil if the parent is the same class as this node
       # @return [Tree::Node] The resulting tree of static nodes
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see Sass::Tree
-      def cssize(parent = nil)
-        _cssize((parent if parent.class == self.class))
+      def cssize(extends, parent = nil)
+        _cssize(extends, (parent if parent.class == self.class))
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename, :line => line)
         raise e
@@ -237,15 +272,17 @@ module Sass
       # returning the new node.
       # This doesn't modify this node or any of its children.
       #
+      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      #   The extensions defined for this tree
       # @param parent [Node, nil] The parent node of this node.
       #   This should only be non-nil if the parent is the same class as this node
       # @return [Tree::Node, Array<Tree::Node>] The resulting static CSS nodes
       # @raise [Sass::SyntaxError] if some element of the tree is invalid
       # @see #cssize
       # @see Sass::Tree
-      def _cssize(parent)
+      def _cssize(extends, parent)
         node = dup
-        node.cssize!(parent)
+        node.cssize!(extends, parent)
         node
       end
 
@@ -253,11 +290,13 @@ module Sass
       # This *does* modify this node,
       # but will be run non-destructively by \{#\_cssize\}.
       #
+      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      #   The extensions defined for this tree
       # @param parent [Node, nil] The parent node of this node.
       #   This should only be non-nil if the parent is the same class as this node
       # @see #cssize
-      def cssize!(parent)
-        self.children = children.map {|c| c.cssize(self)}.flatten
+      def cssize!(extends, parent)
+        self.children = children.map {|c| c.cssize(extends, self)}.flatten
       end
 
       # Runs any dynamic Sass code in this particular node.
@@ -322,8 +361,8 @@ module Sass
       # Returns an error message if the given child node is invalid,
       # and false otherwise.
       #
-      # By default, all child nodes except those only allowed at root level
-      # ({Tree::MixinDefNode}, {Tree::ImportNode}) are valid.
+      # By default, all child nodes except those only allowed under specific nodes
+      # ({Tree::MixinDefNode}, {Tree::ImportNode}, {Tree::ExtendNode}) are valid.
       # This is expected to be overriden by subclasses
       # for which some children are invalid.
       #
@@ -336,6 +375,8 @@ module Sass
           "Mixins may only be defined at the root of a document."
         when Tree::ImportNode
           "Import directives may only be used at the root of a document."
+        when Tree::ExtendNode
+          "Extend directives may only be used within rules."
         end
       end
 

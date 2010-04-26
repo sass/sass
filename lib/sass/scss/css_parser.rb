@@ -6,10 +6,9 @@ module Sass
     # It doesn't support any Sass extensions, such as interpolation,
     # parent references, nested selectors, and so forth.
     # It does support all the same CSS hacks as the SCSS parser, though.
-    class CssParser < Parser
+    class CssParser < StaticParser
       private
 
-      def variable; nil; end
       def parent_selector; nil; end
       def interpolation; nil; end
       def interp_string; tok(STRING); end

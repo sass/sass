@@ -915,7 +915,7 @@ SCSS
     assert_selector_renders['> E']
     assert_selector_renders['+ E']
     assert_selector_renders['~ E']
-    assert_selector_renders['>> E']
+    assert_selector_renders['> > E']
 
     assert_selector_renders['E*']
     assert_selector_renders['E*.foo']

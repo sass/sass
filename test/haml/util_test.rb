@@ -66,6 +66,24 @@ class UtilTest < Test::Unit::TestCase
       merge_adjacent_strings(["foo ", "bar ", "baz", :bang, "biz", " bop", 12]))
   end
 
+  def test_intersperse
+    assert_equal(["foo", " ", "bar", " ", "baz"],
+      intersperse(%w[foo bar baz], " "))
+    assert_equal([], intersperse([], " "))
+  end
+
+  def test_substitute
+    assert_equal(["foo", "bar", "baz", 3, 4],
+      substitute([1, 2, 3, 4], [1, 2], ["foo", "bar", "baz"]))
+    assert_equal([1, "foo", "bar", "baz", 4],
+      substitute([1, 2, 3, 4], [2, 3], ["foo", "bar", "baz"]))
+    assert_equal([1, 2, "foo", "bar", "baz"],
+      substitute([1, 2, 3, 4], [3, 4], ["foo", "bar", "baz"]))
+
+    assert_equal([1, "foo", "bar", "baz", 2, 3, 4],
+      substitute([1, 2, 2, 2, 3, 4], [2, 2], ["foo", "bar", "baz"]))
+  end
+
   def test_strip_string_array
     assert_equal(["foo ", " bar ", " baz"],
       strip_string_array([" foo ", " bar ", " baz "]))
@@ -73,6 +91,13 @@ class UtilTest < Test::Unit::TestCase
       strip_string_array([:foo, " bar ", " baz "]))
     assert_equal(["foo ", " bar ", :baz],
       strip_string_array([" foo ", " bar ", :baz]))
+  end
+
+  def test_paths
+    assert_equal([[1, 3, 5], [2, 3, 5], [1, 4, 5], [2, 4, 5]],
+      paths([[1, 2], [3, 4], [5]]))
+    assert_equal([[]], paths([]))
+    assert_equal([[1, 2, 3]], paths([[1], [2], [3]]))
   end
 
   def test_silence_warnings

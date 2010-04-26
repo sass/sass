@@ -68,11 +68,9 @@ module Sass::Tree
     # This only applies for old-style properties with no value,
     # so returns the empty string if this is new-style.
     #
-    # This should only be called once \{#perform} has been called.
-    #
     # @return [String] The message
     def pseudo_class_selector_message
-      return "" if @prop_syntax == :new || !resolved_value.empty?
+      return "" if @prop_syntax == :new || !value.is_a?(Sass::Script::String) || !value.value.empty?
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
@@ -80,17 +78,9 @@ module Sass::Tree
 
     # @see Node#to_src
     def to_src(tabs, opts, fmt)
-      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
-      if name[0] == ?:
-        raise Sass::SyntaxError.new("The \":#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
-      end
-
-      old = opts[:old] && fmt == :sass
-      initial = old ? ':' : ''
-      mid = old ? '' : ':'
-      res = "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}"
+      res = declaration(tabs, opts, fmt)
       return res + "#{semi fmt}\n" if children.empty?
-      res.rstrip + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
+      res + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
     end
 
     # Computes the CSS for the property.
@@ -104,10 +94,12 @@ module Sass::Tree
 
     # Converts nested properties into flat properties.
     #
+    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    #   The extensions defined for this tree
     # @param parent [PropNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {PropNode}
     # @raise [Sass::SyntaxError] if the property uses invalid syntax
-    def _cssize(parent)
+    def _cssize(extends, parent)
       node = super
       result = node.children.dup
       if !node.resolved_value.empty? || node.children.empty?
@@ -120,9 +112,11 @@ module Sass::Tree
     # Updates the name and indentation of this node based on the parent name
     # and nesting level.
     #
+    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    #   The extensions defined for this tree
     # @param parent [PropNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {PropNode}
-    def cssize!(parent)
+    def cssize!(extends, parent)
       self.resolved_name = "#{parent.resolved_name}-#{resolved_name}" if parent
       self.tabs = parent.tabs + (parent.resolved_value.empty? ? 0 : 1) if parent && style == :nested
       super
@@ -170,12 +164,16 @@ module Sass::Tree
       end
     end
 
-    def declaration
-      if @prop_syntax == :new
-        "#{resolved_name}: #{resolved_value}"
-      else
-        ":#{resolved_name} #{resolved_value}"
-      end.strip
+    def declaration(tabs = 0, opts = {:old => @prop_syntax == :old}, fmt = :sass)
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
+      if name[0] == ?:
+        raise Sass::SyntaxError.new("The \":#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
+      end
+
+      old = opts[:old] && fmt == :sass
+      initial = old ? ':' : ''
+      mid = old ? '' : ':'
+      "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
     class << self

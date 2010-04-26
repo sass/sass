@@ -1391,7 +1391,7 @@ SASS
 
   def test_attribute_selector_with_spaces
     assert_equal(<<CSS, render(<<SASS))
-a b[foo = bar] {
+a b[foo=bar] {
   c: d; }
 CSS
 a
@@ -1585,7 +1585,7 @@ SASS
 
   def test_interpolation_doesnt_deep_unquote_strings
     assert_equal(<<CSS, render(<<SASS))
-.foo-"bar" "baz" {
+.foo- "bar" "baz" {
   a: b; }
 CSS
 .foo-\#{"bar" "baz"}

@@ -3,6 +3,7 @@ require 'set'
 require 'enumerator'
 require 'stringio'
 require 'haml/root'
+require 'haml/util/subset_map'
 
 module Haml
   # A module containing various useful functions.
@@ -136,6 +137,33 @@ module Haml
       end
     end
 
+    # Intersperses a value in an enumerable, as would be done with `Array#join`
+    # but without concatenating the array together afterwards.
+    #
+    # @param enum [Enumerable]
+    # @param val
+    # @return [Array]
+    def intersperse(enum, val)
+      enum.inject([]) {|a, e| a << e << val}[0...-1]
+    end
+
+    # Substitutes a sub-array of one array with another sub-array.
+    #
+    # @param ary [Array] The array in which to make the substitution
+    # @param from [Array] The sequence of elements to replace with `to`
+    # @param to [Array] The sequence of elements to replace `from` with
+    def substitute(ary, from, to)
+      res = ary.dup
+      i = 0
+      while i < res.size
+        if res[i...i+from.size] == from
+          res[i...i+from.size] = to
+        end
+        i += 1
+      end
+      res
+    end
+
     # Destructively strips whitespace from the beginning and end
     # of the first and last elements, respectively,
     # in the array (if those elements are strings).
@@ -146,6 +174,23 @@ module Haml
       arr.first.lstrip! if arr.first.is_a?(String)
       arr.last.rstrip! if arr.last.is_a?(String)
       arr
+    end
+
+    # Return an array of all possible paths through the given arrays.
+    #
+    # @param arrs [Array<Array>]
+    # @return [Array<Arrays>]
+    #
+    # @example
+    # paths([[1, 2], [3, 4], [5]]) #=>
+    #   # [[1, 3, 5],
+    #   #  [2, 3, 5],
+    #   #  [1, 4, 5],
+    #   #  [2, 4, 5]]
+    def paths(arrs)
+      arrs.inject([[]]) do |paths, arr|
+        arr.map {|e| paths.map {|path| path + [e]}}.flatten(1)
+      end
     end
 
     # Returns information about the caller of the previous method.

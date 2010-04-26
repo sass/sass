@@ -17,7 +17,6 @@ body { margin: 0; font: 0.85em "Lucida Grande", "Trebuchet MS", Verdana, sans-se
 #menu { clear: both; text-align: right; height: 20px; border-bottom: 5px solid #006b95; background: #00a4e4; }
 #menu .contests ul { margin: 0 5px 0 0; padding: 0; }
 #menu .contests ul li { list-style-type: none; margin: 0 5px; padding: 5px 5px 0 5px; display: inline; font-size: 1.1em; color: white; background: #00a4e4; }
-#menu .contests ul li / This rule isn't a comment! { red: green; }
 #menu .contests a:link, #menu .contests a:visited { color: white; text-decoration: none; font-weight: bold; }
 #menu .contests a:hover { text-decoration: underline; }
 

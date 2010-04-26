@@ -284,11 +284,13 @@ module Sass
         return unless str1 = scan(/(calc|expression|progid:[a-z\.]*)\(/i)
         str2, _ = Haml::Shared.balance(@scanner, ?(, ?), 1)
         c = str2.count("\n")
+        old_line = @line
+        old_offset = @offset
         @line += c
         @offset = (c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size)
         [:special_fun,
           Haml::Util.merge_adjacent_strings(
-            [str1] + Sass::Engine.parse_interp(str2, @line, @options)),
+            [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
           str1.size + str2.size]
       end
 

@@ -22,11 +22,23 @@ module Sass::Tree
     end
 
     # @see Node#cssize
-    def cssize(parent = nil)
-      _cssize(parent) # Pass on the parent even if it's not a MixinNode
+    def cssize(extends, parent = nil)
+      _cssize(extends, parent) # Pass on the parent even if it's not a MixinNode
     end
 
     protected
+
+    # Returns an error message if the given child node is invalid,
+    # and false otherwise.
+    #
+    # {ExtendNode}s are valid within {MixinNode}s.
+    #
+    # @param child [Tree::Node] A potential child node
+    # @return [Boolean, String] Whether or not the child node is valid,
+    #   as well as the error message to display if it is invalid
+    def invalid_child?(child)
+      super unless child.is_a?(ExtendNode)
+    end
 
     # @see Node#to_src
     def to_src(tabs, opts, fmt)
@@ -35,10 +47,13 @@ module Sass::Tree
     end
 
     # @see Node#_cssize
-    def _cssize(parent)
-      children.map {|c| c.cssize(parent)}.flatten
+    def _cssize(extends, parent)
+      children.map do |c|
+        parent.check_child! c
+        c.cssize(extends, parent)
+      end.flatten
     rescue Sass::SyntaxError => e
-      e.modify_backtrace(:mixin => @name, :line => line)
+      e.modify_backtrace(:mixin => @name, :filename => filename, :line => line)
       e.add_backtrace(:filename => filename, :line => line)
       raise e
     end

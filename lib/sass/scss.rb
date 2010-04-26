@@ -3,6 +3,8 @@ require 'sass/scss/script_lexer'
 require 'sass/scss/script_parser'
 require 'sass/scss/parser'
 require 'sass/scss/sass_parser'
+require 'sass/scss/static_parser'
+require 'sass/scss/css_parser'
 
 module Sass
   # SCSS is the CSS syntax for Sass.

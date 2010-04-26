@@ -568,6 +568,7 @@ END
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
+        require 'sass'
         @options[:for_tree] = {}
         @options[:for_engine] = {:cache => false, :read_cache => true}
       end

@@ -9,12 +9,14 @@ require 'sass/tree/directive_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
+require 'sass/tree/extend_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
 require 'sass/tree/debug_node'
 require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
+require 'sass/selector'
 require 'sass/environment'
 require 'sass/script'
 require 'sass/scss'
@@ -499,6 +501,12 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::DebugNode.new(parse_script(value, :offset => offset))
+      elsif directive == "extend"
+        raise SyntaxError.new("Invalid extend directive '@extend': expected expression.") unless value
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath extend directives.",
+          :line => @line + 1) unless line.children.empty?
+        offset = line.offset + line.text.index(value).to_i
+        Tree::ExtendNode.new(parse_interp(value, offset))
       elsif directive == "warn"
         raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",
@@ -602,15 +610,15 @@ WARNING
       end
     end
 
-    def parse_interp(text)
-      self.class.parse_interp(text, @line, :filename => @filename)
+    def parse_interp(text, offset = 0)
+      self.class.parse_interp(text, @line, offset, :filename => @filename)
     end
 
     # It's important that this have strings (at least)
     # at the beginning, the end, and between each Script::Node.
     #
     # @private
-    def self.parse_interp(text, line, options)
+    def self.parse_interp(text, line, offset, options)
       res = []
       rest = Haml::Shared.handle_interpolation text do |scan|
         escapes = scan[2].size
@@ -620,7 +628,7 @@ WARNING
         else
           res << "\\" * [0, escapes - 1].max
           res << Script::Parser.new(
-            scan, line, scan.pos - scan.matched_size, options).
+            scan, line, offset + scan.pos - scan.matched_size, options).
             parse_interpolated
         end
       end
