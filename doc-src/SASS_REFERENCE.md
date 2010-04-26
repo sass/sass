@@ -1064,6 +1064,48 @@ Thus, the styles defined later in the document take precedence:
 `.seriousError` has background color `#ff0` rather than `#fdd`,
 since `.attention` is defined later than `.error`.
 
+#### Chaining Extends
+
+It's possible for one selector to extend another selector
+that in turn extends a third.
+For example:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+    .seriousError {
+      @extend .error;
+      border-width: 3px;
+    }
+    .criticalError {
+      @extend .seriousError;
+      position: fixed;
+      top: 10%;
+      bottom: 10%;
+      left: 10%;
+      right: 10%;
+    }
+
+Now everything with class `.seriousError` also has class `.error`,
+and everything with class `.criticalError` has class `.seriousError`
+*and* class `.error`.
+It's compiled to:
+
+    .error, .seriousError, .criticalError {
+      border: 1px #f00;
+      background-color: #fdd; }
+
+    .seriousError, .criticalError {
+      border-width: 3px; }
+
+    .criticalError {
+      position: fixed;
+      top: 10%;
+      bottom: 10%;
+      left: 10%;
+      right: 10%; }
+
 #### Selector Sequences
 
 Selector sequences, such as `.foo .bar` or `.foo + .bar`, currently can't be extended.
