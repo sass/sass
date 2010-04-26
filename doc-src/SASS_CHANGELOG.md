@@ -64,24 +64,6 @@ For example, if we have special styles for errors caused by hackers:
 Then `<div class="seriousError intrusion">`
 will have the `hacked.png` background image as well.
 
-    .error {
-      @extend .criticalError;
-      border: 1px #f00;
-      background-color: #fdd;
-    }
-    .seriousError {
-      @extend .error;
-      border-width: 3px;
-    }
-    .criticalError {
-      @extend .seriousError;
-      position: fixed;
-      top: 10%;
-      bottom: 10%;
-      left: 10%;
-      right: 10%;
-    }
-
 #### How it Works
 
 `@extend` works by inserting the extending selector (e.g. `.seriousError`)
