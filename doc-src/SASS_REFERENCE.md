@@ -901,7 +901,7 @@ and you can do
 
 and `_colors.scss` would be imported.
 
-### `@extend`
+### `@extend` {#extend}
 
 There are often cases when designing a page
 when one class should have all the styles of another class,
