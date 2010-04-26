@@ -1025,6 +1025,45 @@ is compiled to:
 
     .comment a.user:hover, .comment .hoverlink.user {font-weight: bold}
 
+#### Multiple Extends
+
+A single selector can extend more than one selector.
+This means that it inherits the styles of all the extended selectors.
+For example:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+    .attention {
+      font-size: 3em;
+      background-color: #ff0;
+    }
+    .seriousError {
+      @extend .error;
+      @extend .attention;
+      border-width: 3px;
+    }
+
+is compiled to:
+
+    .error, .seriousError {
+      border: 1px #f00;
+      background-color: #fdd; }
+
+    .attention, .seriousError {
+      font-size: 3em;
+      background-color: #ff0; }
+
+    .seriousError {
+      border-width: 3px; }
+
+In effect, everything with class `.seriousError`
+also has class `.error` *and* class `.attention`.
+Thus, the styles defined later in the document take precedence:
+`.seriousError` has background color `#ff0` rather than `#fdd`,
+since `.attention` is defined later than `.error`.
+
 #### Selector Sequences
 
 Selector sequences, such as `.foo .bar` or `.foo + .bar`, currently can't be extended.
