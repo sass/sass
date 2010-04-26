@@ -191,8 +191,8 @@ module Sass::Tree
     # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
     def perform!(environment)
-      @parsed_rules = Sass::SCSS::StaticParser.new(run_interp(@rule, environment)).
-        parse_selector(self.line, self.filename)
+      @parsed_rules = Sass::SCSS::StaticParser.new(run_interp(@rule, environment), self.line).
+        parse_selector(self.filename)
       super
     end
 

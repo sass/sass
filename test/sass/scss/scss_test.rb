@@ -942,9 +942,11 @@ SCSS
   end
 
   def test_post_resolution_selector_error
-    assert_raise(Sass::SyntaxError, 'Invalid CSS after "foo ": expected selector, was ") bar"') do
-      render 'foo #{") bar"} {a: b}'
-    end
+    render "\n\nfoo \#{\") bar\"} {a: b}"
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "foo ": expected selector, was ") bar"', e.message
+    assert_equal 3, e.sass_line
   end
 
   def test_parent_in_mid_selector_error

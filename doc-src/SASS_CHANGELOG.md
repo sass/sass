@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.rc.2 (Unreleased)
+
+### Bug Fixes
+
+* Properly report line numbers for invalid selectors.
+
 ## 3.0.0.rc.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.1).

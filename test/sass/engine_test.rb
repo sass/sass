@@ -32,6 +32,8 @@ MSG
     "a\n  :b:c d" => 'Invalid property: ":b:c d".',
     "a\n  :b c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
     "a\n  b: c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
+    ".foo ^bar\n  a: b" => ['Invalid CSS after ".foo ": expected selector, was "^bar"', 1],
+    "a\n  @extend .foo ^bar" => 'Invalid CSS after ".foo ": expected selector, was "^bar"',
     "a: b" => 'Properties aren\'t allowed at the root of a document.',
     ":a b" => 'Properties aren\'t allowed at the root of a document.',
     "!" => 'Invalid variable: "!".',
