@@ -144,6 +144,20 @@ class UtilTest < Test::Unit::TestCase
     assert_equal(98, ord("bar"))
   end
 
+  def test_flatten
+    assert_equal([1, 2, 3], flatten([1, 2, 3], 0))
+    assert_equal([1, 2, 3], flatten([1, 2, 3], 1))
+    assert_equal([1, 2, 3], flatten([1, 2, 3], 2))
+
+    assert_equal([[1, 2], 3], flatten([[1, 2], 3], 0))
+    assert_equal([1, 2, 3], flatten([[1, 2], 3], 1))
+    assert_equal([1, 2, 3], flatten([[1, 2], 3], 2))
+
+    assert_equal([[[1], 2], [3], 4], flatten([[[1], 2], [3], 4], 0))
+    assert_equal([[1], 2, 3, 4], flatten([[[1], 2], [3], 4], 1))
+    assert_equal([1, 2, 3, 4], flatten([[[1], 2], [3], 4], 2))
+  end
+
   def test_caller_info
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, nil], caller_info("/tmp/foo.rb:12"))

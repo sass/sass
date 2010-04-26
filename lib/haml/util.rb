@@ -189,7 +189,7 @@ module Haml
     #   #  [2, 4, 5]]
     def paths(arrs)
       arrs.inject([[]]) do |paths, arr|
-        arr.map {|e| paths.map {|path| path + [e]}}.flatten(1)
+        flatten(arr.map {|e| paths.map {|path| path + [e]}}, 1)
       end
     end
 
@@ -370,6 +370,14 @@ module Haml
       Haml::Util::RUBY_VERSION[0] == 1 && Haml::Util::RUBY_VERSION[1] < 9
     end
 
+    # Whether or not this is running under Ruby 1.8.6 or lower.
+    # Note that lower versions are not officially supported.
+    #
+    # @return [Boolean]
+    def ruby1_8_6?
+      ruby1_8? && Haml::Util::RUBY_VERSION[2] < 7
+    end
+
     # Checks that the encoding of a string is valid in Ruby 1.9
     # and cleans up potential encoding gotchas like the UTF-8 BOM.
     # If it's not, yields an error string describing the invalid character
@@ -456,6 +464,17 @@ MSG
     # @return [Fixnum] The ASCII code of `c`.
     def ord(c)
       ruby1_8? ? c[0] : c.ord
+    end
+
+    # Flattens the first `n` nested arrays in a cross-version manner.
+    #
+    # @param arr [Array] The array to flatten
+    # @param n [Fixnum] The number of levels to flatten
+    # @return [Array] The flattened array
+    def flatten(arr, n)
+      return arr.flatten(n) unless ruby1_8_6?
+      return arr if n == 0
+      arr.inject([]) {|res, e| e.is_a?(Array) ? res.concat(flatten(e, n - 1)) : res << e}
     end
 
     ## Static Method Stuff

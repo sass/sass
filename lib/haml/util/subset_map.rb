@@ -78,7 +78,7 @@ module Haml
             [index, subenum]
           end
         end
-        res.flatten!(1)
+        res = Haml::Util.flatten(res, 1)
         res.compact!
         res.uniq!
         res.sort!

@@ -77,10 +77,11 @@ module Sass
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#do_extend
       def do_extend(extends, supers = [])
-        Haml::Util.paths(members.map do |sseq_or_op|
+        paths = Haml::Util.paths(members.map do |sseq_or_op|
             next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
             [[sseq_or_op], *sseq_or_op.do_extend(extends, supers).map {|seq| seq.members}]
-          end).map {|path| weave(path)}.flatten(1).map {|p| Sequence.new(p)}
+          end)
+        Haml::Util.flatten(paths.map {|path| weave(path)}, 1).map {|p| Sequence.new(p)}
       end
 
       # @see Simple#to_a
@@ -134,9 +135,9 @@ module Sass
           while !current.empty? && last_current.first.is_a?(String) || current.last.is_a?(String)
             last_current.unshift(current.pop)
           end
-          befores = befores.map do |before|
-            subweave(before, current).map {|seqs| seqs + last_current}
-          end.flatten(1)
+          befores = Haml::Util.flatten(befores.map do |before|
+              subweave(before, current).map {|seqs| seqs + last_current}
+            end, 1)
           return befores if afters.empty?
         end
       end
