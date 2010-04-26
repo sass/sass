@@ -1027,8 +1027,7 @@ is compiled to:
 
 #### Selector Sequences
 
-Selector sequences, such as `.foo .bar` or `.foo + .bar`,
-currently can't be extended.
+Selector sequences, such as `.foo .bar` or `.foo + .bar`, currently can't be extended.
 However, it is possible for nested selectors themselves to use `@extend`.
 For example:
 
@@ -1052,6 +1051,20 @@ since all possible sequences of selectors must be used.
 It's highly recommended that you be careful to avoid this
 when using `@extend` with nested selectors.
 For example:
+
+    .foo .bar {@extend .bang}
+    .baz .bang {color: blue}
+
+When `.bang` in `.baz .bang` is replaced with `.foo .bar`,
+we need the resulting selector to match any element with class `.bar`
+that has a parent with class `.foo` *and* a parent with class `.baz`.
+That includes each of the following cases:
+
+    <div class="baz"><div class="foo"><div class="bar">...</div></div></div>
+    <div class="foo baz"><div class="bar">...</div></div>
+    <div class="foo"><div class="baz"><div class="bar">...</div></div></div>
+
+There's no single selector that matches all of these, so the following:
 
     .foo .bar {@extend .bang}
     .baz .bang {color: blue}
