@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.0.0.beta.4 (Unreleased)
+## 3.0.0.rc.1
 
 Ruby code can now be wrapped across multiple lines
 as long as each line but the last ends in a comma.
