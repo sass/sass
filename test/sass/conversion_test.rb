@@ -727,6 +727,18 @@ SASS
 SCSS
   end
 
+  def test_extend
+    assert_renders <<SASS, <<SCSS
+.foo
+  @extend .bar
+  @extend .baz:bang
+SASS
+.foo {
+  @extend .bar;
+  @extend .baz:bang; }
+SCSS
+  end
+
   def test_argless_mixin_definition
     assert_renders <<SASS, <<SCSS
 =foo-bar

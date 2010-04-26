@@ -46,6 +46,11 @@ module Sass::Tree
 
     protected
 
+    # @see Node#to_src
+    def to_src(tabs, opts, fmt)
+      "#{'  ' * tabs}@extend #{selector_to_src(@selector, tabs, opts, fmt).lstrip}#{semi fmt}\n"
+    end
+
     # Runs SassScript interpolation in the selector,
     # and then parses the result into a {Sass::Selector::CommaSequence}.
     #

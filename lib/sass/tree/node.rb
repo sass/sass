@@ -400,11 +400,48 @@ module Sass
       # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
       # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
       # @param fmt [Symbol] `:sass` or `:scss`
-      # @return [String] The Sass or CSS code corresponding to the children
+      # @return [String] The Sass or SCSS code corresponding to the children
       def children_to_src(tabs, opts, fmt)
         (fmt == :sass ? "\n" : " {\n") +
           children.map {|c| c.send("to_#{fmt}", tabs + 1, opts)}.join.rstrip +
           (fmt == :sass ? "\n" : " }\n")
+      end
+
+      # Converts a selector to a Sass or SCSS string.
+      #
+      # @param sel [Array<String, Sass::Script::Node>] The selector to convert
+      # @param tabs [Fixnum] The indentation of the selector
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @param fmt [Symbol] `:sass` or `:scss`
+      # @return [String] The Sass or SCSS code corresponding to the selector
+      def selector_to_src(sel, tabs, opts, fmt)
+        fmt == :sass ? selector_to_sass(sel, opts) : selector_to_scss(sel, tabs, opts)
+      end
+
+      # Converts a selector to a Sass string.
+      #
+      # @param sel [Array<String, Sass::Script::Node>] The selector to convert
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The Sass code corresponding to the selector
+      def selector_to_sass(sel, opts)
+        sel.map do |r|
+          if r.is_a?(String)
+            r.gsub(/(,[ \t]*)?\n\s*/) {$1 ? $1 + "\n" : " "}
+          else
+            "\#{#{r.to_sass(opts)}}"
+          end
+        end.join
+      end
+
+      # Converts a selector to a SCSS string.
+      #
+      # @param sel [Array<String, Sass::Script::Node>] The selector to convert
+      # @param tabs [Fixnum] The indentation of the selector
+      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @return [String] The SCSS code corresponding to the selector
+      def selector_to_scss(sel, tabs, opts)
+        sel.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass(opts)}}"}.
+          join.gsub(/^[ \t]*/, '  ' * tabs)
       end
 
       # Convert any underscores in a string into hyphens,

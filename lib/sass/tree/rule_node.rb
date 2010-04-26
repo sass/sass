@@ -84,22 +84,14 @@ module Sass::Tree
 
     # @see Node#to_sass
     def to_sass(tabs, opts = {})
-      name = rule.map do |r|
-        if r.is_a?(String)
-          r.gsub(/(,[ \t]*)?\n\s*/) {$1 ? $1 + "\n" : " "}
-        else
-          "\#{#{r.to_sass(opts)}}"
-        end
-      end.join
+      name = selector_to_sass(rule, opts)
       name = "\\" + name if name[0] == ?:
       name.gsub(/^/, '  ' * tabs) + children_to_src(tabs, opts, :sass)
     end
 
     # @see Node#to_scss
     def to_scss(tabs, opts = {})
-      name = rule.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass(opts)}}"}.
-        join.gsub(/^[ \t]*/, '  ' * tabs)
-
+      name = selector_to_scss(rule, tabs, opts)
       res = name + children_to_src(tabs, opts, :scss)
 
       if children.last.is_a?(CommentNode) && children.last.silent
