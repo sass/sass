@@ -901,6 +901,166 @@ and you can do
 
 and `_colors.scss` would be imported.
 
+### `@extend`
+
+There are often cases when designing a page
+when one class should have all the styles of another class,
+as well as its own specific styles.
+The most common way of handling this is to use both the more general class
+and the more specific class in the HTML.
+For example, suppose we have a design for a normal error
+and also for a serious error. We might write our markup like so:
+
+    <div class="error seriousError">
+      Oh no! You've been hacked!
+    </div>
+
+And our styles like so:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+    .seriousError {
+      border-width: 3px;
+    }
+
+Unfortunately, this means that we have to always remember
+to use `.error` with `.seriousError`.
+This is a maintenance burden, leads to tricky bugs,
+and can bring non-semantic style concerns into the markup.
+
+The `@extend` directive avoids these problems
+by telling Sass that one selector should inherit the styles of another selector.
+For example:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+    .seriousError {
+      @extend .error;
+      border-width: 3px;
+    }
+
+This means that all styles defined for `.error`
+are also applied to `.seriousError`,
+in addition to the styles specific to `.seriousError`.
+In effect, everything with class `.seriousError` also has class `.error`.
+
+Other rules that use `.error` will work for `.seriousError` as well.
+For example, if we have special styles for errors caused by hackers:
+
+    .error.intrusion {
+      background-image: url("/image/hacked.png");
+    }
+
+Then `<div class="seriousError intrusion">`
+will have the `hacked.png` background image as well.
+
+#### How it Works
+
+`@extend` works by inserting the extending selector (e.g. `.seriousError`)
+anywhere in the stylesheet that the extended selector (.e.g `.error`) appears.
+Thus the example above:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+    .error.intrusion {
+      background-image: url("/image/hacked.png");
+    }
+    .seriousError {
+      @extend .error;
+      border-width: 3px;
+    }
+
+is compiled to:
+
+    .error, .seriousError {
+      border: 1px #f00;
+      background-color: #fdd; }
+
+    .error.intrusion, .seriousError.intrusion {
+      background-image: url("/image/hacked.png"); }
+
+    .seriousError {
+      border-width: 3px; }
+
+When merging selectors, `@extend` is smart enough
+to avoid unnecessary duplication,
+so something like `.seriousError.seriousError` gets translated to `.seriousError`.
+In addition, it won't produce selectors that can't match anything, like `#main#footer`.
+
+#### Extending Complex Selectors
+
+Class selectors aren't the only things that can be extended.
+It's possible to extend any selector involving only a single element,
+such as `.special.cool`, `a:hover`, or `a.user[href^="http://"]`.
+For example:
+
+    .hoverlink {@extend a:hover}
+
+Just like with classes, this means that all styles defined for `a:hover`
+are also applied to `.hoverlink`.
+For example:
+
+    .hoverlink {@extend a:hover}
+    a:hover {text-decoration: underline}
+
+is compiled to:
+
+    a:hover, .hoverlink {text-decoration: underline}
+
+Just like with `.error.intrusion` above,
+any rule that uses `a:hover` will also work for `.hoverlink`,
+even if they have other selectors as well.
+For example:
+
+    .hoverlink {@extend a:hover}
+    .comment a.user:hover {font-weight: bold}
+
+is compiled to:
+
+    .comment a.user:hover, .comment .hoverlink.user {font-weight: bold}
+
+#### Selector Sequences
+
+Selector sequences, such as `.foo .bar` or `.foo + .bar`,
+currently can't be extended.
+However, it is possible for nested selectors themselves to use `@extend`.
+For example:
+
+    #fake-links .link {@extend a}
+
+    a {
+      color: blue;
+      &:hover {text-decoration: underline}
+    }
+
+is compiled to
+
+    a, #fake-links .link {
+      color: blue; }
+      a:hover, #fake-links .link:hover {
+        text-decoration: underline; }
+
+**Warning**: if a nested selector is merged into another nested selector,
+this can result in a very large amount of output,
+since all possible sequences of selectors must be used.
+It's highly recommended that you be careful to avoid this
+when using `@extend` with nested selectors.
+For example:
+
+    .foo .bar {@extend .bang}
+    .baz .bang {color: blue}
+
+is compiled to:
+
+    .baz .bang, .baz .foo .bar, .foo.baz .bar, .foo .baz .bar {
+      color: blue; }
+
 ### `@debug`
 
 The `@debug` directive prints the value of a SassScript expression
