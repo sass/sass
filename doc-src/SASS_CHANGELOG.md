@@ -21,6 +21,8 @@ This is the first time it's worked in SCSS, since the comment was silently swall
 
 * `@extend` is converted via `sass-convert`.
 
+* Fix Ruby 1.8.6 support.
+
 ## 3.0.0.rc.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.1).
