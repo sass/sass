@@ -751,7 +751,8 @@ END
         output.write(out)
       rescue ::Sass::SyntaxError => e
         raise e if @options[:trace]
-        raise "Syntax error on line #{get_line e}: #{e.message}\n  Use --trace for backtrace"
+        file = " of #{e.sass_filename}" if e.sass_filename
+        raise "Syntax error on line #{e.sass_line}#{file}: #{e.message}\n  Use --trace for backtrace"
       end
     end
   end

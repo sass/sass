@@ -45,6 +45,8 @@ rather than:
 * `sass --update .` now compiles all Sass/SCSS files in the current directory into CSS files.
   Same for `sass --watch .`.
 
+* Report the filename when a syntax error is found with `sass-convert`.
+
 ### Bug Fixes
 
 * Properly report line numbers for invalid selectors.
