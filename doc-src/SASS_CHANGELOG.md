@@ -15,6 +15,25 @@ For example:
 This hack was allowed in Sass prior to RC 1, but was broken in RC 1.
 This is the first time it's worked in SCSS, since the comment was silently swallowed.
 
+### `@extend` Output
+
+The `@extend` directive now produces significantly reduced output
+by removing more specific selectors when more general ones are present.
+For example:
+
+    .foo.bar {color: blue}
+    .foo {@extend .bar}
+
+is now compiled to:
+
+    .foo {
+      color: blue; }
+
+rather than:
+
+    .foo.bar, .foo {
+      color: blue; }
+
 ### Minor Improvements
 
 * Pseudo-selectors remain at the end of selectors that are merged via `@extend`.

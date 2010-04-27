@@ -79,9 +79,17 @@ module Sass
       def do_extend(extends, supers = [])
         paths = Haml::Util.paths(members.map do |sseq_or_op|
             next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-            [[sseq_or_op], *sseq_or_op.do_extend(extends, supers).map {|seq| seq.members}]
+            extended = sseq_or_op.do_extend(extends, supers)
+            choices = extended.map {|seq| seq.members}
+            choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
+            choices
           end)
         Haml::Util.flatten(paths.map {|path| weave(path)}, 1).map {|p| Sequence.new(p)}
+      end
+
+      def superselector?(sseq)
+        return false unless members.size == 1
+        members.last.superselector?(sseq)
       end
 
       # @see Simple#to_a

@@ -102,7 +102,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-.foo.bar, .bar.baz, .baz, .foo.baz {
+.foo.bar, .baz {
   a: b; }
 CSS
 .foo.bar {a: b}
@@ -190,7 +190,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-.foo.baz, .baz {
+.baz {
   a: b; }
 CSS
 .foo.baz {a: b}
@@ -208,7 +208,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-.foo#baz, #baz {
+#baz {
   a: b; }
 CSS
 .foo#baz {a: b}
@@ -242,7 +242,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-.foo.bar, .bar {
+.bar {
   a: b; }
 CSS
 .foo.bar {a: b}
@@ -250,7 +250,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-.foo.bar, .bar {
+.bar {
   a: b; }
 CSS
 .foo.bar {a: b}
@@ -268,7 +268,7 @@ SCSS
 
   def test_universal_unification_with_namespaceless_universal_target
     assert_equal <<CSS, render(<<SCSS)
-*.foo, * {
+* {
   a: b; }
 CSS
 *.foo {a: b}
@@ -276,7 +276,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-*.foo, * {
+* {
   a: b; }
 CSS
 *.foo {a: b}
@@ -292,7 +292,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-*|*.foo, *|* {
+*|* {
   a: b; }
 CSS
 *|*.foo {a: b}
@@ -318,7 +318,7 @@ SCSS
 
   def test_universal_unification_with_namespaced_universal_target
     assert_equal <<CSS, render(<<SCSS)
-ns|*.foo, ns|* {
+ns|* {
   a: b; }
 CSS
 ns|*.foo {a: b}
@@ -326,7 +326,7 @@ ns|*.foo {a: b}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-ns|*.foo, ns|* {
+ns|* {
   a: b; }
 CSS
 ns|*.foo {a: b}
@@ -342,7 +342,7 @@ ns2|* {@extend .foo}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-ns|*.foo, ns|* {
+ns|* {
   a: b; }
 CSS
 ns|*.foo {a: b}
@@ -352,7 +352,7 @@ SCSS
 
   def test_universal_unification_with_namespaceless_element_target
     assert_equal <<CSS, render(<<SCSS)
-a.foo, a {
+a {
   a: b; }
 CSS
 a.foo {a: b}
@@ -360,7 +360,7 @@ a.foo {a: b}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-a.foo, a {
+a {
   a: b; }
 CSS
 a.foo {a: b}
@@ -376,7 +376,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-*|a.foo, *|a {
+*|a {
   a: b; }
 CSS
 *|a.foo {a: b}
@@ -402,7 +402,7 @@ SCSS
 
   def test_universal_unification_with_namespaced_element_target
     assert_equal <<CSS, render(<<SCSS)
-ns|a.foo, ns|a {
+ns|a {
   a: b; }
 CSS
 ns|a.foo {a: b}
@@ -410,7 +410,7 @@ ns|a.foo {a: b}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-ns|a.foo, ns|a {
+ns|a {
   a: b; }
 CSS
 ns|a.foo {a: b}
@@ -426,7 +426,7 @@ ns2|* {@extend .foo}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-ns|a.foo, ns|a {
+ns|a {
   a: b; }
 CSS
 ns|a.foo {a: b}
@@ -554,7 +554,7 @@ SCSS
 
   def test_element_unification_with_namespaceless_element_target
     assert_equal <<CSS, render(<<SCSS)
-a.foo, a {
+a {
   a: b; }
 CSS
 a.foo {a: b}
@@ -562,7 +562,7 @@ a {@extend .foo}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-a.foo, a {
+a {
   a: b; }
 CSS
 a.foo {a: b}
@@ -578,7 +578,7 @@ a {@extend .foo}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-*|a.foo, *|a {
+*|a {
   a: b; }
 CSS
 *|a.foo {a: b}
@@ -612,7 +612,7 @@ SCSS
 
   def test_element_unification_with_namespaced_element_target
     assert_equal <<CSS, render(<<SCSS)
-ns|a.foo, ns|a {
+ns|a {
   a: b; }
 CSS
 ns|a.foo {a: b}
@@ -620,7 +620,7 @@ a {@extend .foo}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-ns|a.foo, ns|a {
+ns|a {
   a: b; }
 CSS
 ns|a.foo {a: b}
@@ -636,7 +636,7 @@ ns2|a {@extend .foo}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-ns|a.foo, ns|a {
+ns|a {
   a: b; }
 CSS
 ns|a.foo {a: b}
@@ -678,7 +678,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-[foo=bar].baz, [foo=bar] {
+[foo=bar] {
   a: b; }
 CSS
 [foo=bar].baz {a: b}
@@ -720,7 +720,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-::foo.baz, ::foo {
+::foo {
   a: b; }
 CSS
 ::foo.baz {a: b}
@@ -728,7 +728,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-::foo(2n+1).baz, ::foo(2n+1) {
+::foo(2n+1) {
   a: b; }
 CSS
 ::foo(2n+1).baz {a: b}
@@ -744,7 +744,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-:foo.baz, :foo {
+:foo {
   a: b; }
 CSS
 :foo.baz {a: b}
@@ -844,7 +844,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-:not(.foo).baz, :not(.foo) {
+:not(.foo) {
   a: b; }
 CSS
 :not(.foo).baz {a: b}
@@ -852,7 +852,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-:not([a=b]).baz, :not([a=b]) {
+:not([a=b]) {
   a: b; }
 CSS
 :not([a=b]).baz {a: b}
@@ -1097,6 +1097,16 @@ SCSS
 CSS
 .foo > .bar .baz {a: b}
 .foo > .bar .bang {@extend .baz}
+SCSS
+  end
+
+  def test_multiple_extender_merges_with_superset_selector
+    assert_equal <<CSS, render(<<SCSS)
+a.bar.baz, a.foo {
+  a: b; }
+CSS
+.foo {@extend .bar; @extend .baz}
+a.bar.baz {a: b}
 SCSS
   end
 

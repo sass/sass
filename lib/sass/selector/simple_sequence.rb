@@ -99,6 +99,10 @@ module Sass
         SimpleSequence.new(sseq)
       end
 
+      def superselector?(sseq)
+        (base.nil? || base.eql?(sseq.base)) && rest.subset?(sseq.rest)
+      end
+
       # @see Simple#to_a
       def to_a
         @members.map {|sel| sel.to_a}.flatten
