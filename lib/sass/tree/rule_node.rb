@@ -228,7 +228,7 @@ module Sass::Tree
     #
     # {ExtendNode}s are valid within {RuleNode}s.
     #
-    # @param child [Tree::Node] A potential child nodecompact.
+    # @param child [Tree::Node] A potential child node.
     # @return [Boolean, String] Whether or not the child node is valid,
     #   as well as the error message to display if it is invalid
     def invalid_child?(child)

@@ -40,6 +40,8 @@ rather than:
 
 * Empty selectors render like `.foo {}` when converted to SCSS using `sass-convert`.
 
+* Allow `@extend` to be used within mixins.
+
 ### Bug Fixes
 
 * Properly report line numbers for invalid selectors.
