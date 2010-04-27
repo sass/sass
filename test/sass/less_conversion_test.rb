@@ -480,13 +480,13 @@ SCSS
 LESS
 
     assert_renders <<SCSS, <<LESS
-@mixin foo($a: 2px, $b: red) {
+@mixin foo($a: 2px + 3px, $b: red) {
   a: $a; }
 
 .bar {
   @include foo(5px); }
 SCSS
-.foo(@a: 2px, @b: #f00) {a: @a}
+.foo(@a: 2px + 3px, @b: #f00) {a: @a}
 .bar {.foo(5px);}
 LESS
   end

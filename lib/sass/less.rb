@@ -140,6 +140,7 @@ WARNING
         def to_sass_tree
           return if hide_in_sass
           mixin = Sass::Tree::MixinDefNode.new(name, @params.map do |v|
+              v.value.flatten!
               [Sass::Script::Variable.new(v), v.value.to_sass_tree]
             end)
           rules.each {|r| mixin << r.to_sass_tree}
