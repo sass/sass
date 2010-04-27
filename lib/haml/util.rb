@@ -274,13 +274,7 @@ module Haml
           ActionPack::VERSION::Major
         end
 
-      # 3.0.0.beta1 acts more like ActionPack 2
-      # for purposes of this method
-      # (checking whether block helpers require = or -).
-      # This extra check can be removed when beta2 is out.
-      version >= 3 &&
-        !(defined?(ActionPack::VERSION::TINY) &&
-          ActionPack::VERSION::TINY == "0.beta")
+      version >= 3
     end
 
     # Returns whether this environment is using ActionPack
