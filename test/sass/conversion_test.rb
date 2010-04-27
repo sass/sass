@@ -23,6 +23,19 @@ foo bar {
 SCSS
   end
 
+  def test_empty_selector
+    assert_renders "foo bar", "foo bar {}"
+  end
+
+  def test_empty_directive
+    assert_scss_to_sass "@media screen", "@media screen {}"
+    assert_scss_to_scss "@media screen {}"
+  end
+
+  def test_empty_control_directive
+    assert_renders "@if false", "@if false {}"
+  end
+
   def test_nesting
     assert_renders <<SASS, <<SCSS
 foo bar

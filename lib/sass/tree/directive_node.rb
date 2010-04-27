@@ -25,7 +25,7 @@ module Sass::Tree
     # @see Node#to_src
     def to_src(tabs, opts, fmt)
       res = "#{'  ' * tabs}#{value}"
-      return res + "#{semi fmt}\n" if children.empty?
+      return res + "#{semi fmt}\n" unless has_children
       res + children_to_src(tabs, opts, fmt) + "\n"
     end
 

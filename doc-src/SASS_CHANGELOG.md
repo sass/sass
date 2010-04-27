@@ -38,6 +38,8 @@ rather than:
 
 * Pseudo-selectors remain at the end of selectors that are merged via `@extend`.
 
+* Empty selectors render like `.foo {}` when converted to SCSS using `sass-convert`.
+
 ### Bug Fixes
 
 * Properly report line numbers for invalid selectors.

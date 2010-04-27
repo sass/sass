@@ -402,6 +402,8 @@ module Sass
       # @param fmt [Symbol] `:sass` or `:scss`
       # @return [String] The Sass or SCSS code corresponding to the children
       def children_to_src(tabs, opts, fmt)
+        return fmt == :sass ? "\n" : " {}\n" if children.empty?
+
         (fmt == :sass ? "\n" : " {\n") +
           children.map {|c| c.send("to_#{fmt}", tabs + 1, opts)}.join.rstrip +
           (fmt == :sass ? "\n" : " }\n")
