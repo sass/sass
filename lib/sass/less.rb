@@ -54,7 +54,9 @@ WARNING
         el = self
         loop do
           case el.selector
-          when ":", "::"; sel << "#{el.selector}#{el.name}"
+          when ":", "::"
+            sel << "" unless sel.last
+            sel.last << el.selector << el.name
           else sel << el.selector << el.name
           end
           break unless el.rules.size == 1 && el.rules.first.is_a?(Element)

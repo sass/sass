@@ -116,6 +116,24 @@ SCSS
 LESS
   end
 
+  def test_pseudoclass_in_sequence
+    assert_renders <<SCSS, <<LESS
+.foo:bar {
+  a: b; }
+SCSS
+.foo:bar {a: b}
+LESS
+  end
+
+  def test_pseudoelement_in_sequence
+    assert_renders <<SCSS, <<LESS
+.foo::bar {
+  a: b; }
+SCSS
+.foo::bar {a: b}
+LESS
+  end
+
   # Properties
 
   def test_space_separated_props
