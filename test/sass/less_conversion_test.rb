@@ -5,6 +5,34 @@ begin
 require 'sass/less'
 
 class LessConversionTest < Test::Unit::TestCase
+  def test_variable_declarations
+    assert_renders <<SCSS, <<LESS
+$var1: 2px 3px;
+
+$var2: $var1 + 7px;
+
+foo {
+  prop: $var1 $var2; }
+SCSS
+@var1: 2px 3px;
+@var2: @var1 + 7px;
+
+foo {prop: @var1 @var2}
+LESS
+  end
+
+  def test_nested_variable_declarations
+    assert_renders <<SCSS, <<LESS
+.foo {
+  $var: 2px;
+  prop: $var; }
+SCSS
+.foo {
+  @var: 2px;
+  prop: @var; }
+LESS
+  end
+
   # Selectors
 
   def test_element_selector
@@ -203,6 +231,76 @@ foo {
   a: 1px + -3px; }
 SCSS
 foo {a: 1px + (- 3px)}
+LESS
+  end
+
+  # Mixins
+
+  def test_class_inheritance
+    assert_renders <<SCSS, <<LESS
+.foo {
+  a: b; }
+
+.bar {
+  @extend .foo; }
+SCSS
+.foo {a: b}
+.bar {.foo;}
+LESS
+  end
+
+  def test_multiple_class_inheritance
+    assert_renders <<SCSS, <<LESS
+.foo {
+  a: b; }
+
+.bar {
+  c: d; }
+
+.baz {
+  @extend .foo;
+  @extend .bar; }
+SCSS
+.foo {a: b}
+.bar {c: d}
+.baz {.foo, .bar;}
+LESS
+  end
+
+  def test_abstract_mixin
+    assert_renders <<SCSS, <<LESS
+@mixin foo {
+  a: b; }
+
+.bar {
+  @include foo; }
+SCSS
+.foo() {a: b}
+.bar {.foo;}
+LESS
+  end
+
+  def test_mixin_with_args
+    assert_renders <<SCSS, <<LESS
+@mixin foo($a: 2px, $b: red) {
+  a: $a; }
+
+.bar {
+  @include foo; }
+SCSS
+.foo(@a: 2px, @b: #f00) {a: @a}
+.bar {.foo;}
+LESS
+
+    assert_renders <<SCSS, <<LESS
+@mixin foo($a: 2px, $b: red) {
+  a: $a; }
+
+.bar {
+  @include foo(5px); }
+SCSS
+.foo(@a: 2px, @b: #f00) {a: @a}
+.bar {.foo(5px);}
 LESS
   end
 
