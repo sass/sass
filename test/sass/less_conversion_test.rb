@@ -33,6 +33,24 @@ SCSS
 LESS
   end
 
+  def test_import
+    assert_renders <<SCSS, <<LESS
+@import "../foo/bar/baz";
+@import "../foo/bar/baz";
+
+@import "../foo/bar/baz";
+@import "../foo/bar/baz";
+@import "../foo/bar/baz";
+SCSS
+@import url(../foo/bar/baz.less);
+@import url("../foo/bar/baz.less");
+
+@import url('../foo/bar/baz.less');
+@import '../foo/bar/baz.less';
+@import "../foo/bar/baz.less";
+LESS
+  end
+
   # Selectors
 
   def test_element_selector

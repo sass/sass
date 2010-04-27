@@ -42,6 +42,12 @@ WARNING
       end
     end
 
+    module Import1
+      def build(env)
+        env << Node::Import.new(url.value, input.line_of(interval.first))
+      end
+    end
+
     module Entity::Alpha1
       def build(env)
         Node::Function.new("alpha",
@@ -124,6 +130,21 @@ WARNING
           rules.each {|r| mixin << r.to_sass_tree}
           mixin
         end
+      end
+    end
+
+    class Import
+      include Entity
+
+      def initialize(url, line)
+        @url = url
+        @line = line
+      end
+
+      def to_sass_tree
+        import = Sass::Tree::ImportNode.new(@url.gsub(/\.less$/, ''))
+        import.line = @line
+        import
       end
     end
 
