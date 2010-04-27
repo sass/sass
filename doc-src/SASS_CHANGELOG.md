@@ -21,18 +21,18 @@ The `@extend` directive now produces significantly reduced output
 by removing more specific selectors when more general ones are present.
 For example:
 
-    .foo.bar {color: blue}
-    .foo {@extend .bar}
+    a:hover {text-decoration: underline}
+    .hoverlink {@extend a; @extend :hover}
 
 is now compiled to:
 
-    .foo {
-      color: blue; }
+    a:hover, .hoverlink {
+      text-decoration: underline; }
 
 rather than:
 
-    .foo.bar, .foo {
-      color: blue; }
+    a:hover, a.hoverlink, .hoverlink:hover, .hoverlink {
+      text-decoration: underline; }
 
 ### Minor Improvements
 
