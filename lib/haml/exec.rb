@@ -648,7 +648,7 @@ END
 
         super
         input = @options[:input]
-        raise "Error: '#{input}' is a directory (did you mean to use --recursive?)" if File.directory?(input)
+        raise "Error: '#{input.path}' is a directory (did you mean to use --recursive?)" if File.directory?(input)
         output = @options[:output]
         output = input if @options[:in_place]
         process_file(input, output)
