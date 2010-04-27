@@ -119,7 +119,7 @@ module Sass
       #
       # @return [Fixnum]
       def hash
-        [base, rest].hash
+        [base, Haml::Util.set_hash(rest)].hash
       end
 
       # Checks equality between this and another object.
@@ -127,7 +127,8 @@ module Sass
       # @param other [Object] The object to test equality against
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
-        other.class == self.class && other.base.eql?(self.base) && other.rest.eql?(self.rest)
+        other.class == self.class && other.base.eql?(self.base) &&
+          Haml::Util.set_eql?(other.rest, self.rest)
       end
 
       private

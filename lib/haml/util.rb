@@ -477,6 +477,27 @@ MSG
       arr.inject([]) {|res, e| e.is_a?(Array) ? res.concat(flatten(e, n - 1)) : res << e}
     end
 
+    # Returns the hash code for a set in a cross-version manner.
+    # Aggravatingly, this is order-dependent in Ruby 1.8.6.
+    #
+    # @param set [Set]
+    # @return [Fixnum] The order-independent hashcode of `set`
+    def set_hash(set)
+      return set.hash unless ruby1_8_6?
+      set.map {|e| e.hash}.uniq.sort.hash
+    end
+
+    # Tests the hash-equality of two sets in a cross-version manner.
+    # Aggravatingly, this is order-dependent in Ruby 1.8.6.
+    #
+    # @param set1 [Set]
+    # @param set2 [Set]
+    # @return [Boolean] Whether or not the sets are hashcode equal
+    def set_eql?(set1, set2)
+      return set1.eql?(set2) unless ruby1_8_6?
+      set1.to_a.uniq.sort_by {|e| e.hash}.eql?(set2.to_a.uniq.sort_by {|e| e.hash})
+    end
+
     ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.
