@@ -102,7 +102,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-.foo.bar, .bar.baz, .foo.baz, .baz {
+.foo.bar, .bar.baz, .baz, .foo.baz {
   a: b; }
 CSS
 .foo.bar {a: b}
@@ -121,7 +121,7 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-.foo.bar, .bar.baz, .foo.bang, .baz.bang {
+.foo.bar, .bar.baz, .baz.bang, .foo.bang {
   a: b; }
 CSS
 .foo.bar {a: b}
