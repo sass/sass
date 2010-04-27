@@ -279,6 +279,78 @@ foo {a: 1px + (- 3px)}
 LESS
   end
 
+  # Nested Rules
+
+  def test_single_nested_rule
+    assert_renders <<SCSS, <<LESS
+foo bar {
+  a: b; }
+SCSS
+foo {bar {a: b}}
+LESS
+  end
+
+  def test_single_nested_rule_with_props
+    assert_renders <<SCSS, <<LESS
+foo {
+  bar {
+    a: b; }
+  c: d;
+  e: f; }
+SCSS
+foo {
+  bar {a: b}
+  c: d;
+  e: f; }
+LESS
+  end
+
+  def test_two_nested_rules
+    assert_renders <<SCSS, <<LESS
+foo {
+  bar {
+    a: b; }
+  baz {
+    c: d; } }
+SCSS
+foo {
+  bar {a: b}
+  baz {c: d} }
+LESS
+  end
+
+  def test_two_nested_rules_with_props
+    assert_renders <<SCSS, <<LESS
+foo {
+  bar {
+    a: b; }
+  baz {
+    c: d; }
+  e: f;
+  g: h; }
+SCSS
+foo {
+  bar {a: b}
+  baz {c: d}
+  e: f;
+  g: h; }
+LESS
+  end
+
+  def test_nested_rules_with_combinators
+    assert_renders <<SCSS, <<LESS
+foo {
+  > bar {
+    a: b; }
+  + baz {
+    c: d; } }
+SCSS
+foo {
+  > bar {a: b}
+  + baz {c: d} }
+LESS
+  end
+
   # Mixins
 
   def test_class_inheritance
