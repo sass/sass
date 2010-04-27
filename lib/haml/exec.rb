@@ -685,11 +685,11 @@ END
             if @options[:in_place]
               f
             elsif @options[:output]
-              output_name = f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+              output_name = f.gsub(/\.(c|sa|sc|le)ss$/, ".#{@options[:to]}")
               output_name[0...@options[:input].size] = @options[:output]
               output_name
             else
-              f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+              f.gsub(/\.(c|sa|sc|le)ss$/, ".#{@options[:to]}")
             end
 
           unless File.directory?(File.dirname(output))
