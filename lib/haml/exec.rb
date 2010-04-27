@@ -746,7 +746,7 @@ END
               ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
             elsif @options[:from] == :less
               require 'sass/less'
-              Less::Engine.new(input.read).to_tree.to_sass_tree.send("to_#{@options[:to]}", @options[:for_tree])
+              Less::Engine.new(input).to_tree.to_sass_tree.send("to_#{@options[:to]}", @options[:for_tree])
             else
               if input.is_a?(File)
                 ::Sass::Files.tree_for(input.path, @options[:for_engine])

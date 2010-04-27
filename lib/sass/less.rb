@@ -46,10 +46,13 @@ WARNING
 
     module Import1
       def build_with_sass(env)
+        line = input.line_of(interval.first)
         env << Node::Import.new(url.value, input.line_of(interval.first))
         old_rules = env.rules.dup
         build_without_sass env
         (env.rules - old_rules).each {|r| r.hide_in_sass = true}
+      rescue ImportError => e
+        raise Sass::SyntaxError.new("File to import #{url.text_value} not found or unreadable", :line => line)
       end
       alias_method :build_without_sass, :build
       alias_method :build, :build_with_sass
@@ -270,5 +273,24 @@ WARNING
         end
       end
     end
+  end
+
+  class Engine
+    def initialize_with_sass(obj, opts = {})
+      initialize_without_sass(obj, opts)
+      @filename = obj.path if obj.is_a?(File)
+    end
+    alias_method :initialize_without_sass, :initialize
+    alias_method :initialize, :initialize_with_sass
+
+    def parse_with_sass
+      parse_without_sass
+    rescue Sass::SyntaxError => e
+      e.modify_backtrace(:filename => @filename)
+      raise e
+    end
+    alias_method :parse_without_sass, :parse
+    alias_method :parse, :parse_with_sass
+    alias_method :to_tree, :parse
   end
 end
