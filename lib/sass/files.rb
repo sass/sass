@@ -77,6 +77,7 @@ module Sass
       end
 
       new_filename = nil
+      load_paths = load_paths.uniq
       load_paths.each do |load_path|
         new_filename ||= find_full_path("#{filename}.sass", load_path) unless was_scss
         new_filename ||= find_full_path("#{filename}.scss", load_path) unless was_sass

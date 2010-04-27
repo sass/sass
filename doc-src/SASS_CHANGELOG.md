@@ -56,6 +56,8 @@ rather than:
 * Make sure division is always converted to division with `sass-convert`,
   and never to `num/num` literals.
 
+* Don't report duplicate load paths when a file can't be found.
+
 ## 3.0.0.rc.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.1).
