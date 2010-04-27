@@ -89,6 +89,33 @@ a.foo#bar[attr=val] {a: b}
 LESS
   end
 
+  def test_descendant_selector
+    assert_renders <<SCSS, <<LESS
+.foo .bar {
+  a: b; }
+SCSS
+.foo .bar {a: b}
+LESS
+  end
+
+  def test_child_selector
+    assert_renders <<SCSS, <<LESS
+.foo > .bar {
+  a: b; }
+SCSS
+.foo > .bar {a: b}
+LESS
+  end
+
+  def test_adjacent_selector
+    assert_renders <<SCSS, <<LESS
+.foo + .bar {
+  a: b; }
+SCSS
+.foo + .bar {a: b}
+LESS
+  end
+
   # Properties
 
   def test_space_separated_props

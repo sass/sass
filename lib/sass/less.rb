@@ -50,13 +50,18 @@ WARNING
           return root
         end
 
-        sel =
-          case @selector
-          when /[+>~]/; "#{@selector} "
-          else @selector
+        sel = []
+        el = self
+        loop do
+          case el.selector
+          when ":", "::"; sel << "#{el.selector}#{el.name}"
+          else sel << el.selector << el.name
           end
-        rule = Sass::Tree::RuleNode.new([sel, @name])
-        rules.each {|r| rule << r.to_sass_tree}
+          break unless el.rules.size == 1 && el.rules.first.is_a?(Element)
+          el = el.rules.first
+        end
+        rule = Sass::Tree::RuleNode.new(sel.reject {|s| s.empty?}.join(" "))
+        el.rules.each {|r| rule << r.to_sass_tree}
         return rule
       end
 
