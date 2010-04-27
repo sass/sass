@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.0.rc.2 (Unreleased)
+## 3.0.0.rc.2
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.2).
 
 ### CSS Hack Support
 
