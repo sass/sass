@@ -55,7 +55,7 @@ WARNING
         loop do
           case el.selector
           when ":", "::"
-            sel << "" unless sel.last
+            sel << (parent.root? ? "" : "&") unless sel.last
             sel.last << el.selector << el.name
           else sel << el.selector << el.name
           end

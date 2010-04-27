@@ -351,6 +351,20 @@ foo {
 LESS
   end
 
+  def test_nested_pseudo_rules
+    assert_renders <<SCSS, <<LESS
+foo {
+  &:bar {
+    a: b; }
+  &::baz {
+    c: d; } }
+SCSS
+foo {
+  :bar {a: b}
+  ::baz {c: d} }
+LESS
+  end
+
   # Mixins
 
   def test_class_inheritance
