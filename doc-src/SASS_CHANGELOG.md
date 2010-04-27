@@ -15,6 +15,10 @@ For example:
 This hack was allowed in Sass prior to RC 1, but was broken in RC 1.
 This is the first time it's worked in SCSS, since the comment was silently swallowed.
 
+### Minor Improvements
+
+* Pseudo-selectors remain at the end of selectors that are merged via `@extend`.
+
 ### Bug Fixes
 
 * Properly report line numbers for invalid selectors.

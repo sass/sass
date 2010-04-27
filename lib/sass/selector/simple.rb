@@ -75,10 +75,15 @@ module Sass
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels)
         return sels if sels.any? {|sel2| eql?(sel2)}
-        if sels.last.is_a?(Pseudo) && sels.last.type == :element
-          return sels[0...-1] + [self, sels.last]
-        end
-        sels + [self]
+        sels_with_ix = Haml::Util.enum_with_index(sels)
+        _, i =
+          if self.is_a?(Pseudo) || self.is_a?(Negation)
+            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && sels.last.type == :element}
+          else
+            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(Negation)}
+          end
+        return sels + [self] unless i
+        return sels[0...i] + [self] + sels[i..-1]
       end
 
       protected

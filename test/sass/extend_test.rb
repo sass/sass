@@ -770,6 +770,70 @@ a.foo::bar {a: b}
 SCSS
   end
 
+  def test_pseudoclass_remains_at_end_of_selector
+    assert_equal <<CSS, render(<<SCSS)
+.foo:bar, .baz:bar {
+  a: b; }
+CSS
+.foo:bar {a: b}
+.baz {@extend .foo}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a.foo:bar, a.baz:bar {
+  a: b; }
+CSS
+a.foo:bar {a: b}
+.baz {@extend .foo}
+SCSS
+  end
+
+  def test_not_remains_at_end_of_selector
+    assert_equal <<CSS, render(<<SCSS)
+.foo:not(.bar), .baz:not(.bar) {
+  a: b; }
+CSS
+.foo:not(.bar) {a: b}
+.baz {@extend .foo}
+SCSS
+  end
+
+  def test_pseudoelement_goes_lefter_than_pseudoclass
+    assert_equal <<CSS, render(<<SCSS)
+.foo::bar, .baz:bang::bar {
+  a: b; }
+CSS
+.foo::bar {a: b}
+.baz:bang {@extend .foo}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo:bar, .baz:bar::bang {
+  a: b; }
+CSS
+.foo:bar {a: b}
+.baz::bang {@extend .foo}
+SCSS
+  end
+
+  def test_pseudoelement_goes_lefter_than_not
+    assert_equal <<CSS, render(<<SCSS)
+.foo::bar, .baz:not(.bang)::bar {
+  a: b; }
+CSS
+.foo::bar {a: b}
+.baz:not(.bang) {@extend .foo}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo:not(.bang), .baz:not(.bang)::bar {
+  a: b; }
+CSS
+.foo:not(.bang) {a: b}
+.baz::bar {@extend .foo}
+SCSS
+  end
+
   def test_negation_unification
     assert_equal <<CSS, render(<<SCSS)
 :not(.foo).baz, :not(.foo):not(.bar) {
