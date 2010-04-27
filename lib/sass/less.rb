@@ -20,6 +20,18 @@ module Less
       end
     end
 
+    module Selectors2
+      def build_with_sass(env, method)
+        arr = build_without_sass(env, method)
+        return arr if method == :mixin
+        rarr = arr.map {|e| e.top(env)}
+        rarr.each {|e| e.group = rarr}
+        arr
+      end
+      alias_method :build_without_sass, :build
+      alias_method :build, :build_with_sass
+    end
+
     module Accessor1
       def build(env)
         warn <<WARNING
@@ -43,27 +55,37 @@ WARNING
 
   module Node
     class Element
+      attr_accessor :group
+
+      def top(env)
+        return self if parent.equal?(env)
+        return parent.top(env)
+      end
+
       def to_sass_tree
         if root?
           root = Sass::Tree::RootNode.new("")
           rules.each {|r| root << r.to_sass_tree}
           return root
         end
+        return if !self.equal?(group.first)
 
-        sel = []
-        el = self
-        loop do
-          case el.selector
-          when ":", "::"
-            sel << (parent.root? ? "" : "&") unless sel.last
-            sel.last << el.selector << el.name
-          else sel << el.selector << el.name
+        last_el = nil
+        sel = group.map do |el|
+          comma_sel = []
+          loop do
+            comma_sel << el.sass_selector_str
+            break unless el.rules.size == 1 && el.rules.first.is_a?(Element)
+            el = el.rules.first
           end
-          break unless el.rules.size == 1 && el.rules.first.is_a?(Element)
-          el = el.rules.first
-        end
-        rule = Sass::Tree::RuleNode.new(sel.reject {|s| s.empty?}.join(" "))
-        el.rules.each {|r| rule << r.to_sass_tree}
+          last_el = el
+          comma_sel = comma_sel.join(' ').gsub(' :', ':')
+          comma_sel.gsub!(/^:/, '&:') unless parent.root?
+          comma_sel
+        end.join(', ')
+
+        rule = Sass::Tree::RuleNode.new(sel)
+        last_el.rules.each {|r| rule << r.to_sass_tree}
         return rule
       end
 

@@ -80,6 +80,26 @@ SCSS
 LESS
   end
 
+  def test_comma_selector
+    assert_renders <<SCSS, <<LESS
+foo, .bar .baz, :bang {
+  a: b; }
+SCSS
+foo, .bar .baz, :bang {a: b}
+LESS
+  end
+
+  def test_nested_comma_selector
+    assert_renders <<SCSS, <<LESS
+foo bar, .baz {
+  .bang, &:bip bap {
+    a: b; } }
+SCSS
+foo bar, .baz {
+  .bang, :bip bap {a: b} }
+LESS
+  end
+
   def test_simple_selector_sequence
     assert_renders <<SCSS, <<LESS
 a.foo#bar[attr=val] {
