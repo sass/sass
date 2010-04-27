@@ -875,6 +875,60 @@ SCSS
     assert_sass_to_scss '$var: 12px $bar baz !default;', '$var ||= 12px $bar "baz"'
   end
 
+  def test_division_asserted_with_parens
+    assert_renders <<SASS, <<SCSS
+foo
+  a: (1px / 2px)
+SASS
+foo {
+  a: (1px / 2px); }
+SCSS
+  end
+
+  def test_division_not_asserted_when_unnecessary
+    assert_renders <<SASS, <<SCSS
+$var: 1px / 2px
+
+foo
+  a: $var
+SASS
+$var: 1px / 2px;
+
+foo {
+  a: $var; }
+SCSS
+
+    assert_renders <<SASS, <<SCSS
+$var: 1px
+
+foo
+  a: $var / 2px
+SASS
+$var: 1px;
+
+foo {
+  a: $var / 2px; }
+SCSS
+
+    assert_renders <<SASS, <<SCSS
+foo
+  a: 1 + 1px / 2px
+SASS
+foo {
+  a: 1 + 1px / 2px; }
+SCSS
+  end
+
+  def test_literal_slash
+    assert_renders <<SASS, <<SCSS
+foo
+  a: 1px / 2px
+SASS
+foo {
+  a: 1px / 2px; }
+SCSS
+  end
+
   # Hacks
 
   def test_declaration_hacks

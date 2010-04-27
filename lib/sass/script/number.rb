@@ -25,6 +25,14 @@ module Sass::Script
     # @return [Array<String>]
     attr_reader :denominator_units
 
+    # The original representation of this number.
+    # For example, although the result of `1px/2px` is `0.5`,
+    # the value of `#original` is `"1px/2px"`.
+    #
+    # This is only non-nil when the original value should be used as the CSS value,
+    # as in `font: 1px/2px`.
+    #
+    # @return [Boolean, nil]
     attr_accessor :original
 
     # The precision with which numbers will be printed to CSS files.

@@ -46,6 +46,9 @@ rather than:
 
 * Fix Ruby 1.8.6 support.
 
+* Make sure division is always converted to division with `sass-convert`,
+  and never to `num/num` literals.
+
 ## 3.0.0.rc.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.1).

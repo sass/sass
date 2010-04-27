@@ -179,7 +179,6 @@ module Sass::Tree
     class << self
       # @private
       def val_to_sass(value, opts)
-        return value.to_sass(opts) unless value.context == :equals
         val_to_sass_comma(value, opts).to_sass(opts)
       end
 
@@ -208,7 +207,8 @@ module Sass::Tree
       def val_to_sass_div(node, opts)
         unless node.is_a?(Sass::Script::Operation) && node.operator == :div &&
             node.operand1.is_a?(Sass::Script::Number) &&
-            node.operand2.is_a?(Sass::Script::Number)
+            node.operand2.is_a?(Sass::Script::Number) &&
+            (node.context == :equals || !node.operand1.original || !node.operand2.original)
           return node
         end
 
