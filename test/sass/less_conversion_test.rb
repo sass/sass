@@ -34,20 +34,38 @@ LESS
   end
 
   def test_import
+    path = File.dirname(__FILE__) + "/templates/importee.less"
+    resolved_path = File.dirname(__FILE__) + "/templates/importee"
     assert_renders <<SCSS, <<LESS
-@import "../foo/bar/baz";
-@import "../foo/bar/baz";
+@import "#{resolved_path}";
+@import "#{resolved_path}";
 
-@import "../foo/bar/baz";
-@import "../foo/bar/baz";
-@import "../foo/bar/baz";
+@import "#{resolved_path}";
+@import "#{resolved_path}";
+@import "#{resolved_path}";
 SCSS
-@import url(../foo/bar/baz.less);
-@import url("../foo/bar/baz.less");
+@import url(#{path});
+@import url("#{path}");
 
-@import url('../foo/bar/baz.less');
-@import '../foo/bar/baz.less';
-@import "../foo/bar/baz.less";
+@import url('#{path}');
+@import '#{path}';
+@import "#{path}";
+LESS
+  end
+
+  def test_mixins_found_through_import
+    path = File.dirname(__FILE__) + "/templates/importee.less"
+    resolved_path = File.dirname(__FILE__) + "/templates/importee"
+    assert_renders <<SCSS, <<LESS
+@import "#{resolved_path}";
+
+.baz {
+  @extend .foo;
+  @include bar; }
+SCSS
+@import "#{path}";
+
+.baz {.foo; .bar;}
 LESS
   end
 

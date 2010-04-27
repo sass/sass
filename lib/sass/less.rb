@@ -5,7 +5,7 @@ require 'less'
 module Less
   module StyleSheet
     module Mixin4
-      def build(env)
+      def build_with_sass(env)
         selectors.build(env, :mixin).each do |path|
           el = path.inject(env.root) do |current, node|
             current.descend(node.selector, node) or raise MixinNameError, "#{selectors.text_value} in #{env}"
@@ -18,6 +18,8 @@ module Less
           end
         end
       end
+      alias_method :build_without_sass, :build
+      alias_method :build, :build_with_sass
     end
 
     module Selectors2
@@ -43,9 +45,14 @@ WARNING
     end
 
     module Import1
-      def build(env)
+      def build_with_sass(env)
         env << Node::Import.new(url.value, input.line_of(interval.first))
+        old_rules = env.rules.dup
+        build_without_sass env
+        (env.rules - old_rules).each {|r| r.hide_in_sass = true}
       end
+      alias_method :build_without_sass, :build
+      alias_method :build, :build_with_sass
     end
 
     module Entity::Alpha1
@@ -60,6 +67,10 @@ WARNING
   end
 
   module Node
+    module Entity
+      attr_accessor :hide_in_sass
+    end
+
     class Element
       attr_accessor :group
 
@@ -74,6 +85,7 @@ WARNING
           rules.each {|r| root << r.to_sass_tree}
           return root
         end
+        return if hide_in_sass
         return if !self.equal?(group.first)
 
         last_el = nil
@@ -112,18 +124,21 @@ WARNING
         end
 
         def to_sass_tree
+          return if hide_in_sass
           Sass::Tree::ExtendNode.new([@name])
         end
       end
 
       class Call
         def to_sass_tree
+          return if hide_in_sass
           Sass::Tree::MixinNode.new(@mixin.name.gsub(/^\./, ''), @params.map {|v| v.to_sass_tree})
         end
       end
 
       class Def
         def to_sass_tree
+          return if hide_in_sass
           mixin = Sass::Tree::MixinDefNode.new(name, @params.map do |v|
               [Sass::Script::Variable.new(v), v.value.to_sass_tree]
             end)
@@ -142,6 +157,7 @@ WARNING
       end
 
       def to_sass_tree
+        return if hide_in_sass
         import = Sass::Tree::ImportNode.new(@url.gsub(/\.less$/, ''))
         import.line = @line
         import
@@ -150,6 +166,7 @@ WARNING
 
     class Property
       def to_sass_tree
+        return if hide_in_sass
         Sass::Tree::PropNode.new([self], @value.to_sass_tree, :new)
       end
     end
@@ -212,6 +229,7 @@ WARNING
     class Variable
       def to_sass_tree
         if @declaration
+          return if hide_in_sass
           Sass::Tree::VariableNode.new(self, @value.to_sass_tree, false)
         else
           Sass::Script::Variable.new(self)
