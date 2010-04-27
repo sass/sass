@@ -42,6 +42,9 @@ rather than:
 
 * Allow `@extend` to be used within mixins.
 
+* `sass --update .` now compiles all Sass/SCSS files in the current directory into CSS files.
+  Same for `sass --watch .`.
+
 ### Bug Fixes
 
 * Properly report line numbers for invalid selectors.
