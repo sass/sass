@@ -23,7 +23,7 @@ module Less
     module Accessor1
       def build(env)
         warn <<WARNING
-Sass doesn't support attribute accessors.
+WARNING: Sass doesn't support attribute accessors.
 Ignoring #{text_value}
 WARNING
         Node::Anonymous.new("/* #{text_value} */")

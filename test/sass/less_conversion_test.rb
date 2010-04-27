@@ -435,6 +435,41 @@ SCSS
 LESS
   end
 
+  # Accessors
+
+  def test_property_accessor
+    assert_warning(<<WARN) {assert_renders <<SCSS, <<LESS}
+WARNING: Sass doesn't support attribute accessors.
+Ignoring .magic-box['content']
+WARN
+.magic-box {
+  content: "gold"; }
+
+.foo {
+  content: /* .magic-box['content'] */; }
+SCSS
+.magic-box {content: "gold"}
+.foo {content: .magic-box['content']}
+LESS
+  end
+
+  def test_variable_accessor
+    assert_warning(<<WARN) {assert_renders <<SCSS, <<LESS}
+WARNING: Sass doesn't support attribute accessors.
+Ignoring .magic-box[@content]
+WARN
+.magic-box {
+  $content: "gold";
+  content: $content; }
+
+.foo {
+  content: /* .magic-box[@content] */; }
+SCSS
+.magic-box {@content: "gold"; content: @content}
+.foo {content: .magic-box[@content]}
+LESS
+  end
+
   private
 
   def assert_renders(scss, less)
