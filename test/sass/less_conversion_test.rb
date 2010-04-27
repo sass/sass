@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
+
+begin
 require 'sass/less'
 
 class LessConversionTest < Test::Unit::TestCase
@@ -209,4 +211,8 @@ LESS
   def assert_renders(scss, less)
     assert_equal(scss, Less::Engine.new(less).to_tree.to_sass_tree.to_scss)
   end
+end
+
+rescue LoadError => e
+puts "\nCouldn't require less, skipping some tests."
 end
