@@ -19,7 +19,11 @@ module Haml
     #
     # @return [Boolean] Whether the XSS integration was enabled.
     def try_enabling_xss_integration
-      return false unless ActionView::Base.respond_to?(:xss_safe?) && ActionView::Base.xss_safe?
+      return false unless (ActionView::Base.respond_to?(:xss_safe?) && ActionView::Base.xss_safe?) ||
+        # We check for ActiveSupport#on_load here because if we're loading Haml that way, it means:
+        # A) we're in Rails 3 so XSS support is always on, and
+        # B) we might be in Rails 3 beta 3 where the load order is broken and xss_safe? is undefined
+        (defined?(ActiveSupport) && Haml::Util.has?(:public_method, ActiveSupport, :on_load))
 
       Haml::Template.options[:escape_html] = true
 
