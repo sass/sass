@@ -99,6 +99,15 @@ module Sass
         SimpleSequence.new(sseq)
       end
 
+      # Returns whether or not this selector matches all elements
+      # that the given selector matches (as well as possibly more).
+      #
+      # @example
+      # (.foo).superselector?(.foo.bar) #=> true
+      # (.foo).superselector?(.bar) #=> false
+      #
+      # @param sseq [SimpleSequence]
+      # @return [Boolean]
       def superselector?(sseq)
         (base.nil? || base.eql?(sseq.base)) && rest.subset?(sseq.rest)
       end

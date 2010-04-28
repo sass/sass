@@ -87,6 +87,16 @@ module Sass
         Haml::Util.flatten(paths.map {|path| weave(path)}, 1).map {|p| Sequence.new(p)}
       end
 
+      # Returns whether or not this selector matches all elements
+      # that the given selector matches (as well as possibly more).
+      #
+      # @example
+      # (.foo).superselector?(.foo.bar) #=> true
+      # (.foo).superselector?(.bar) #=> false
+      # (.bar .foo).superselector?(.foo) #=> false
+      #
+      # @param sseq [SimpleSequence]
+      # @return [Boolean]
       def superselector?(sseq)
         return false unless members.size == 1
         members.last.superselector?(sseq)
