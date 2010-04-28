@@ -10,7 +10,7 @@ elsif defined?(Rails::Railtie)
   # Rails 3.0.0.beta1
   module Haml
     class Railtie < Rails::Railtie
-      ActiveSupport.on_load(:action_view) do
+      initializer :haml do
         Haml.init_rails(binding)
       end
     end
