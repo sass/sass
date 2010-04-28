@@ -560,7 +560,11 @@ END
       rescue LoadError => err
         dep = err.message.scan(/^no such file to load -- (.*)/)[0]
         raise err if @options[:trace] || dep.nil? || dep.empty?
-        $stderr.puts "Required dependency #{dep} not found!\n  Use --trace for backtrace."
+        $stderr.puts <<MESSAGE
+Required dependency #{dep} not found!
+  Run "gem install #{dep}" to get it.
+  Use --trace for backtrace.
+MESSAGE
         exit 1
       end
     end
