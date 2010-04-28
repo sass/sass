@@ -82,7 +82,7 @@ A mixin is declared with the `@mixin` directive:
     @mixin rounded($amount) {
       -moz-border-radius: $amount;
       -webkit-border-radius: $amount;
-      border:radius: $amount;
+      border-radius: $amount;
     }
 
 A mixin is used with the `@include` directive:
