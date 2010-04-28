@@ -155,6 +155,17 @@ module Haml
         flag = 'wb' if @options[:unix_newlines] && flag == 'w'
         File.open(filename, flag)
       end
+
+      def handle_load_error(err)
+        dep = err.message.scan(/^no such file to load -- (.*)/)[0]
+        raise err if @options[:trace] || dep.nil? || dep.empty?
+        $stderr.puts <<MESSAGE
+Required dependency #{dep} not found!
+  Run "gem install #{dep}" to get it.
+  Use --trace for backtrace.
+MESSAGE
+        exit 1
+      end
     end
 
     # An abstrac class that encapsulates the code
@@ -558,14 +569,7 @@ END
         raise "#{e.is_a?(::Haml::SyntaxError) ? "Syntax error" : "Error"} on line " +
           "#{get_line e}: #{e.message}"
       rescue LoadError => err
-        dep = err.message.scan(/^no such file to load -- (.*)/)[0]
-        raise err if @options[:trace] || dep.nil? || dep.empty?
-        $stderr.puts <<MESSAGE
-Required dependency #{dep} not found!
-  Run "gem install #{dep}" to get it.
-  Use --trace for backtrace.
-MESSAGE
-        exit 1
+        handle_load_error(err)
       end
     end
 
@@ -762,6 +766,8 @@ END
         raise e if @options[:trace]
         file = " of #{e.sass_filename}" if e.sass_filename
         raise "Error on line #{e.sass_line}#{file}: #{e.message}\n  Use --trace for backtrace"
+      rescue LoadError => err
+        handle_load_error(err)
       end
     end
   end
