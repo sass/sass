@@ -860,7 +860,9 @@ and the hex representation (shortened to the three-letter version if possible).
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
 
-## 2.2.24 (Unreleased)
+## 2.2.24
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.24).
 
 * Parent references -- the `&` character --
   may only be placed at the beginning of simple selector sequences in Sass 3.
