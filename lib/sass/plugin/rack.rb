@@ -31,7 +31,6 @@ module Sass
       # @param app [#call] The Rack application
       def initialize(app)
         @app = app
-        self.class.disable_native_plugin!
       end
 
       # Process a request, checking the Sass stylesheets for changes
@@ -42,23 +41,6 @@ module Sass
       def call(env)
         Sass::Plugin.check_for_updates
         @app.call(env)
-      end
-
-      # Disable the native Rails or Merb plugins, if they're enabled.
-      # This is automatically done once the Rack plugin is activated.
-      # This is done so that the stylesheets aren't checked twice for each request.
-      def self.disable_native_plugin!
-        if defined?(Merb::Rack) && defined?(Merb::Rack::Application) &&
-            Haml::Util.has?(:instance_method, Merb::Rack::Application, :call_without_sass)
-          Merb::Rack::Application.instance_eval {alias_method :call, :call_without_sass}
-        end
-
-        if defined?(ActionDispatch::Callbacks) && defined?(ActionDispatch::Callbacks.to_prepare)
-          ActionDispatch::Callbacks.skip_callback(:prepare, :__sass_process)
-        elsif defined?(ActionController::Base) &&
-            Haml::Util.has?(:instance_method, ActionController::Base, :sass_old_process)
-          ActionController::Base.instance_eval {alias_method :process, :sass_old_process}
-        end
       end
     end
   end
