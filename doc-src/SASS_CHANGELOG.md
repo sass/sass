@@ -16,6 +16,10 @@
 
 The Sass Rails plugin now works using Rack middleware by default.
 
+### Bug Fixes
+
+* Don't die when given a 70 kb property.
+
 ## 3.0.0.rc.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.2).

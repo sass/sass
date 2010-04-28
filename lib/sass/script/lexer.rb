@@ -99,7 +99,7 @@ module Sass
       class << self
         private
         def string_re(open, close)
-          /#{open}((?:\\.|\#(?!\{)|[^#{close}\\#])*)(#{close}|(?=#\{))/
+          /#{open}((?:\\.|\#(?!\{)|[^#{close}\\#])*)(#{close}|#\{)/
         end
       end
 
@@ -114,8 +114,8 @@ module Sass
         [:single, false] => string_re("'", "'"),
         [:double, true] => string_re('', '"'),
         [:single, true] => string_re('', "'"),
-        [:uri, false] => /url\(#{W}(#{URLCHAR}*?)(#{W}\)|(?=#\{))/,
-        [:uri, true] => /(#{URLCHAR}*?)(#{W}\)|(?=#\{))/,
+        [:uri, false] => /url\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
+        [:uri, true] => /(#{URLCHAR}*?)(#{W}\)|#\{)/,
       }
 
       # @param str [String, StringScanner] The source text to lex
@@ -251,10 +251,13 @@ module Sass
 
       def string(re, open)
         return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
-        @interpolation_stack << re if @scanner[2].empty? # Started an interpolated section
+        if @scanner[2] == '#{' #'
+          @scanner.pos -= 2 # Don't actually consume the #{
+          @interpolation_stack << re
+        end
         str =
           if re == :uri
-            Script::String.new("#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2].empty?}")
+            Script::String.new("#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2] == '#{'}")
           else
             Script::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
           end

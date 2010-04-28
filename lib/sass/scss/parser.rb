@@ -645,7 +645,11 @@ MESSAGE
 
         mid_re = Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, true]]
         # @scanner[2].empty? means we've started an interpolated section
-        res << expr!(:interpolation) << tok(mid_re) while @scanner[2].empty?
+        while @scanner[2] == '#{'
+          @scanner.pos -= 2 # Don't consume the #{
+          res.last.slice!(-2..-1)
+          res << expr!(:interpolation) << tok(mid_re)
+        end
         res
       end
 
