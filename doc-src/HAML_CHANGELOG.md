@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 2.2.24 (Unreleased)
+## 2.2.24
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.24).
 
 * Don't prevent ActiveModel form elements from having error formatting applied.
 
