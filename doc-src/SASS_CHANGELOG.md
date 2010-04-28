@@ -12,6 +12,10 @@
 
 * Properly insert the Rack middleware so that stylesheets are updated on each request.
 
+### Merb Rack Support
+
+The Sass Rails plugin now works using Rack middleware by default.
+
 ## 3.0.0.rc.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.2).
