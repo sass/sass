@@ -8,10 +8,10 @@ unless defined?(Sass::RAILS_LOADED)
                               :quiet             => Haml::Util.rails_env != "production",
                               :full_exception    => Haml::Util.rails_env != "production")
 
-  if defined?(Rails.configuration) && defined?(Rails.configuration.middleware)
+  if defined?(ActionController::Metal)
     # Rails >= 3.0
     require 'sass/plugin/rack'
-    Rails.configuration.middleware.use(Sass::Plugin::Rack)
+    ActionController::Metal.use(Sass::Plugin::Rack)
   elsif defined?(ActionController::Dispatcher) &&
       defined?(ActionController::Dispatcher.middleware)
     # Rails >= 2.3

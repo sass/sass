@@ -10,6 +10,8 @@
 * **Support for Rails 3.0.0.beta1 has been dropped**.
   Use Rails beta 2 or later instead.
 
+* Properly insert the Rack middleware so that stylesheets are updated on each request.
+
 ## 3.0.0.rc.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.2).
