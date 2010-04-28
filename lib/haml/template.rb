@@ -55,10 +55,14 @@ else
   require 'haml/template/patch'
 end
 
-# Enable XSS integration. Use Rails' after_initialize method if possible
+# Enable XSS integration. Use Rails' after_initialize method
 # so that integration will be checked after the rails_xss plugin is loaded
 # (for Rails 2.3.* where it's not enabled by default).
-if defined?(Rails.configuration.after_initialize)
+#
+# If we're running under Rails 3, though, we don't want to use after_intialize,
+# since Haml loading has already been deferred via ActiveSupport.on_load.
+if defined?(Rails.configuration.after_initialize) &&
+    !(defined?(ActiveSupport) && Haml::Util.has?(:public_method, ActiveSupport, :on_load))
   Rails.configuration.after_initialize {Haml::Template.try_enabling_xss_integration}
 else
   Haml::Template.try_enabling_xss_integration
