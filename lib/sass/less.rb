@@ -115,7 +115,7 @@ WARNING
           comma_sel
         end.join(', ')
 
-        rule = Sass::Tree::RuleNode.new(sel)
+        rule = Sass::Tree::RuleNode.new([sel])
         last_el.rules.each {|r| rule << r.to_sass_tree}
         return rule
       end
