@@ -14,7 +14,15 @@ module Less
             env << Node::Mixin::Call.new(el, [], env)
           else
             sel = path.map {|e| e.sass_selector_str}.join(' ').gsub(' :', ':')
-            env << Node::SassNode.new(Sass::Tree::ExtendNode.new([sel]))
+            if path[1..-1].any? {|e| e.selector !~ /^:{1,2}/} || path.first.selector !~ /^:{0,2}$/
+              warn <<WARNING
+WARNING: Sass doesn't support mixing in selector sequences.
+Ignoring #{sel}
+WARNING
+              env << Node::SassNode.new(Sass::Tree::CommentNode.new("// #{sel};", true))
+            else
+              env << Node::SassNode.new(Sass::Tree::ExtendNode.new([sel]))
+            end
           end
         end
       end

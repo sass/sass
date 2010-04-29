@@ -454,6 +454,32 @@ SCSS
 LESS
   end
 
+  def test_pseudoclass_inheritance
+    assert_renders <<SCSS, <<LESS
+:foo {
+  a: b; }
+
+:bar {
+  @extend :foo; }
+SCSS
+:foo {a: b}
+:bar {:foo;}
+LESS
+  end
+
+  def test_multiple_pseudoclass_inheritance
+    assert_renders <<SCSS, <<LESS
+:foo:bar {
+  a: b; }
+
+:baz {
+  @extend :foo:bar; }
+SCSS
+:foo:bar {a: b}
+:baz {:foo:bar;}
+LESS
+  end
+
   def test_abstract_mixin
     assert_renders <<SCSS, <<LESS
 @mixin foo {
@@ -488,6 +514,42 @@ LESS
 SCSS
 .foo(@a: 2px + 3px, @b: #f00) {a: @a}
 .bar {.foo(5px);}
+LESS
+  end
+
+  ## Disallowed Mixins
+
+  def test_nested_mixin
+    assert_warning(<<WARN) {assert_renders <<SCSS, <<LESS}
+WARNING: Sass doesn't support mixing in selector sequences.
+Ignoring .foo .bar
+WARN
+.foo .bar {
+  a: b; }
+
+.bar {
+  // .foo .bar;
+}
+SCSS
+.foo .bar {a: b}
+.bar {.foo .bar;}
+LESS
+  end
+
+  def test_child_selector_mixin
+    assert_warning(<<WARN) {assert_renders <<SCSS, <<LESS}
+WARNING: Sass doesn't support mixing in selector sequences.
+Ignoring > .bar
+WARN
+.foo > .bar {
+  a: b; }
+
+.bar {
+  // > .bar;
+}
+SCSS
+.foo > .bar {a: b}
+.bar {> .bar;}
 LESS
   end
 
