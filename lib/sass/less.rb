@@ -15,7 +15,7 @@ module Less
           else
             sel = path.map {|e| e.sass_selector_str}.join(' ').gsub(' :', ':')
             if path[1..-1].any? {|e| e.selector !~ /^:{1,2}/} || path.first.selector !~ /^:{0,2}$/
-              warn <<WARNING
+              Haml::Util.haml_warn <<WARNING
 WARNING: Sass doesn't support mixing in selector sequences.
 Ignoring #{sel}
 WARNING
@@ -44,7 +44,7 @@ WARNING
 
     module Accessor1
       def build(env)
-        warn <<WARNING
+        Haml::Util.haml_warn <<WARNING
 WARNING: Sass doesn't support attribute accessors.
 Ignoring #{text_value}
 WARNING
