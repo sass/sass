@@ -14,7 +14,7 @@ module Less
             env << Node::Mixin::Call.new(el, [], env)
           else
             sel = path.map {|e| e.sass_selector_str}.join(' ').gsub(' :', ':')
-            env << Node::Mixin::Extend.new(sel)
+            env << Node::SassNode.new(Sass::Tree::ExtendNode.new([sel]))
           end
         end
       end
@@ -47,7 +47,9 @@ WARNING
     module Import1
       def build_with_sass(env)
         line = input.line_of(interval.first)
-        env << Node::Import.new(url.value, input.line_of(interval.first))
+        import = Sass::Tree::ImportNode.new(url.value.gsub(/\.less$/, ''))
+        import.line = input.line_of(interval.first)
+        env << Node::SassNode.new(import)
         old_rules = env.rules.dup
         build_without_sass env
         (env.rules - old_rules).each {|r| r.hide_in_sass = true}
@@ -119,19 +121,6 @@ WARNING
     end
 
     module Mixin
-      class Extend
-        include Entity
-
-        def initialize(name)
-          @name = name
-        end
-
-        def to_sass_tree
-          return if hide_in_sass
-          Sass::Tree::ExtendNode.new([@name])
-        end
-      end
-
       class Call
         def to_sass_tree
           return if hide_in_sass
@@ -152,19 +141,16 @@ WARNING
       end
     end
 
-    class Import
+    class SassNode
       include Entity
 
-      def initialize(url, line)
-        @url = url
-        @line = line
+      def initialize(node)
+        @node = node
       end
 
       def to_sass_tree
         return if hide_in_sass
-        import = Sass::Tree::ImportNode.new(@url.gsub(/\.less$/, ''))
-        import.line = @line
-        import
+        @node
       end
     end
 
