@@ -5,6 +5,28 @@
 
 ## 3.0.0.rc.3 (Unreleased)
 
+### `@extend` Support
+
+It's now possible to create a loop of `@extend` relations.
+For example,
+
+    .blueLink {
+      color: blue;
+      @extend .link; }
+
+    .link {
+      font-weight: bold;
+      @extend .blueLink; }
+
+Before, this would have raised an error.
+Now it produces the following CSS:
+
+    .link, .blueLink {
+      color: blue; }
+
+    .blueLink, .link {
+      font-weight: bold; }
+
 ### Rails Beta Support
 
 * **Support for Rails 3.0.0.beta1 has been dropped**.

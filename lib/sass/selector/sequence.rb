@@ -76,10 +76,10 @@ module Sass
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#do_extend
-      def do_extend(extends, supers = [])
+      def do_extend(extends, seen = Set.new)
         paths = Haml::Util.paths(members.map do |sseq_or_op|
             next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-            extended = sseq_or_op.do_extend(extends, supers)
+            extended = sseq_or_op.do_extend(extends, seen)
             choices = extended.map {|seq| seq.members}
             choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
             choices
