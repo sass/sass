@@ -45,7 +45,7 @@ desc "Build all the packages."
 task :package => [:revision_file, :submodules] do
   load scope('haml.gemspec')
   Gem::Builder.new(HAML_GEMSPEC).build
-  pkg = "haml-#{HAML_GEMSPEC.version}"
+  pkg = "#{HAML_GEMSPEC.name}-#{HAML_GEMSPEC.version}"
   mkdir_p "pkg"
   verbose(true) {mv "#{pkg}.gem", "pkg/#{pkg}.gem"}
 
