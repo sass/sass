@@ -42,6 +42,8 @@ The Sass Rails plugin now works using Rack middleware by default.
 
 * Don't die when given a 70 kb property.
 
+* `sass --watch` now works with a single file on OS X.
+
 ## 3.0.0.rc.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.2).

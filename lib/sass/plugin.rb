@@ -291,6 +291,13 @@ module Sass
         raise e
       end
 
+      unless individual_files.empty? && FSSM::Backends::Default.name == "FSSM::Backends::FSEvents"
+        # As of FSSM 0.1.4, it doesn't support FSevents on individual files,
+        # but it also isn't smart enough to switch to polling itself.
+        require 'fssm/backends/polling'
+        FSSM::Backends.const_set(:Default, FSSM::Backends::Polling)
+      end
+
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
       FSSM.monitor do |mon|
