@@ -3,7 +3,14 @@
 require 'less'
 
 module Less
+  # This is the class that Treetop defines for parsing Less files.
+  # Since not everything gets parsed into the AST but is instead resolved at parse-time,
+  # we need to override some of it so that it can be converted into Sass.
   module StyleSheet
+    # Selector mixins that don't have arguments.
+    # This depends only on the syntax at the call site;
+    # if it doesn't use parens, it hits this production,
+    # regardless of whether the mixin being called has arguments or not.
     module Mixin4
       def build_with_sass(env)
         selectors.build(env, :mixin).each do |path|
@@ -11,8 +18,10 @@ module Less
             current.descend(node.selector, node) or raise MixinNameError, "#{selectors.text_value} in #{env}"
           end
           if el.is_a?(Node::Mixin::Def)
+            # Calling a mixin with arguments, which gets compiled to a Sass mixin
             env << Node::Mixin::Call.new(el, [], env)
           else
+            # Calling a mixin without arguments, which gets compiled to @extend
             sel = selector_str(path)
             base = selector_str(selector_base(path))
             if base == sel
@@ -43,6 +52,11 @@ WARNING
       end
     end
 
+    # Comma-separated selectors.
+    # Less breaks these into completely separate nodes.
+    # Since we don't want this duplication in the Sass,
+    # we modify the production to keep track of the original group
+    # so we can reconstruct it later on.
     module Selectors2
       def build_with_sass(env, method)
         arr = build_without_sass(env, method)
@@ -55,6 +69,9 @@ WARNING
       alias_method :build, :build_with_sass
     end
 
+    # Attribute accessors.
+    # Sass just flat-out doesn't support these,
+    # so we print a warning to that effect and compile them to comments.
     module Accessor1
       def build(env)
         Haml::Util.haml_warn <<WARNING
@@ -65,6 +82,13 @@ WARNING
       end
     end
 
+    # @import statements.
+    # Less handles these during parse-time,
+    # so we want to wrap them up as a node in the tree.
+    # We also include the nodes, though,
+    # since we want to have access to the mixins
+    # so we can tell if they take arguments or not.
+    # The included nodes are hidden so they don't appear in the output.
     module Import1
       def build_with_sass(env)
         line = input.line_of(interval.first)
@@ -81,6 +105,12 @@ WARNING
       alias_method :build, :build_with_sass
     end
 
+    # The IE-specific `alpha(opacity=@var)`.
+    # Less manually resolves the variable here at parse-time.
+    # We want to keep the variable around,
+    # so we compile this to a function.
+    # Less doesn't actually have an `=` operator,
+    # but that's okay since it's just getting compiled to Sass anyway.
     module Entity::Alpha1
       def build(env)
         Node::Function.new("alpha",
@@ -92,6 +122,10 @@ WARNING
     end
   end
 
+  # The Less AST classes for the document,
+  # including both stylesheet-level nodes and expression-level nodes.
+  # The main purpose of overriding these is to add `#to_sass_tree` functions
+  # for converting to Sass.
   module Node
     module Entity
       attr_accessor :hide_in_sass
@@ -282,6 +316,10 @@ WARNING
     end
   end
 
+  # The entry point to Less.
+  # By default Less doesn't preserve the filename of the file being parsed,
+  # which is unpleasant for error reporting.
+  # Our monkeypatch keeps it around.
   class Engine
     def initialize_with_sass(obj, opts = {})
       initialize_without_sass(obj, opts)
