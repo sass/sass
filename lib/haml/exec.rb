@@ -607,6 +607,7 @@ END
           unless [:css, :scss, :sass, :less, :sass2].include?(@options[:from])
             raise "Unknown format for sass-convert --from: #{name}"
           end
+          try_less_note if @options[:from] == :less
         end
 
         opts.on('-T', '--to FORMAT',
@@ -750,6 +751,7 @@ END
               ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
             elsif @options[:from] == :less
               require 'sass/less'
+              try_less_note
               input = input.read if input.is_a?(IO) && !input.is_a?(File) # Less is dumb
               Less::Engine.new(input).to_tree.to_sass_tree.send("to_#{@options[:to]}", @options[:for_tree])
             else
@@ -769,6 +771,17 @@ END
         raise "Error on line #{e.sass_line}#{file}: #{e.message}\n  Use --trace for backtrace"
       rescue LoadError => err
         handle_load_error(err)
+      end
+
+      @@less_note_printed = false
+      def try_less_note
+        return if @@less_note_printed
+        @@less_note_printed = true
+        warn <<NOTE
+* NOTE: Sass and Less are different languages, and they work differently.
+* I'll do my best to translate, but some features -- especially mixins --
+* should be checked by hand.
+NOTE
       end
     end
   end
