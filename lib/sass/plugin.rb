@@ -295,7 +295,9 @@ module Sass
         # As of FSSM 0.1.4, it doesn't support FSevents on individual files,
         # but it also isn't smart enough to switch to polling itself.
         require 'fssm/backends/polling'
-        FSSM::Backends.const_set(:Default, FSSM::Backends::Polling)
+        Haml::Util.silence_warnings do
+          FSSM::Backends.const_set(:Default, FSSM::Backends::Polling)
+        end
       end
 
       # TODO: Keep better track of what depends on what
