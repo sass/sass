@@ -522,14 +522,14 @@ LESS
   def test_nested_mixin
     assert_warning(<<WARN) {assert_renders <<SCSS, <<LESS}
 WARNING: Sass doesn't support mixing in selector sequences.
-Ignoring .foo .bar
+Replacing ".foo .bar" with "@extend .bar"
 WARN
 .foo .bar {
   a: b; }
 
 .bar {
   // .foo .bar;
-}
+  @extend .bar; }
 SCSS
 .foo .bar {a: b}
 .bar {.foo .bar;}
@@ -539,14 +539,14 @@ LESS
   def test_child_selector_mixin
     assert_warning(<<WARN) {assert_renders <<SCSS, <<LESS}
 WARNING: Sass doesn't support mixing in selector sequences.
-Ignoring > .bar
+Replacing "> .bar" with "@extend .bar"
 WARN
 .foo > .bar {
   a: b; }
 
 .bar {
   // > .bar;
-}
+  @extend .bar; }
 SCSS
 .foo > .bar {a: b}
 .bar {> .bar;}

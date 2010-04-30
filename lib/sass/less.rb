@@ -13,21 +13,34 @@ module Less
           if el.is_a?(Node::Mixin::Def)
             env << Node::Mixin::Call.new(el, [], env)
           else
-            sel = path.map {|e| e.sass_selector_str}.join(' ').gsub(' :', ':')
-            if path[1..-1].any? {|e| e.selector !~ /^:{1,2}/} || path.first.selector !~ /^:{0,2}$/
+            sel = selector_str(path)
+            base = selector_str(selector_base(path))
+            if base == sel
+              env << Node::SassNode.new(Sass::Tree::ExtendNode.new([sel]))
+            else
               Haml::Util.haml_warn <<WARNING
 WARNING: Sass doesn't support mixing in selector sequences.
-Ignoring #{sel}
+Replacing "#{sel}" with "@extend #{base}"
 WARNING
               env << Node::SassNode.new(Sass::Tree::CommentNode.new("// #{sel};", true))
-            else
-              env << Node::SassNode.new(Sass::Tree::ExtendNode.new([sel]))
+              env << Node::SassNode.new(Sass::Tree::ExtendNode.new([base]))
             end
           end
         end
       end
       alias_method :build_without_sass, :build
       alias_method :build, :build_with_sass
+
+      def selector_base(path)
+        el, i = Haml::Util.enum_with_index(path).to_a.reverse.find {|e, i| e.selector !~ /^:{1,2}$/} ||
+          [path.first, 0]
+        sel = (el.selector =~ /^:{0,2}$/ ? el.selector : "")
+        [Node::Element.new(el.name, sel)] + path[i+1..-1]
+      end
+
+      def selector_str(path)
+        path.map {|e| e.sass_selector_str}.join(' ').gsub(' :', ':')
+      end
     end
 
     module Selectors2
