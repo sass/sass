@@ -39,15 +39,19 @@ END
 
 # ----- Packaging -----
 
-require 'rake/gempackagetask'
-load scope('haml.gemspec')
+# Don't use Rake::GemPackageTast because we want prerequisites to run
+# before we load the gemspec.
+desc "Build all the packages."
+task :package => [:revision_file, :submodules] do
+  load scope('haml.gemspec')
+  Gem::Builder.new(HAML_GEMSPEC).build
+  pkg = "haml-#{HAML_GEMSPEC.version}"
+  mkdir_p "pkg"
+  verbose(true) {mv "#{pkg}.gem", "pkg/#{pkg}.gem"}
 
-Rake::GemPackageTask.new(HAML_GEMSPEC) do |pkg|
-  if Rake.application.top_level_tasks.include?('release')
-    pkg.need_tar_gz  = true
-    pkg.need_tar_bz2 = true
-    pkg.need_zip     = true
-  end
+  sh %{rm -f pkg/#{pkg}.tar.gz}
+  verbose(false) {HAML_GEMSPEC.files.each {|f| sh %{tar rf pkg/#{pkg}.tar #{f}}}}
+  sh %{gzip pkg/#{pkg}.tar}
 end
 
 task :revision_file do
@@ -62,8 +66,6 @@ task :revision_file do
     File.open(scope('REVISION'), 'w') { |f| f.puts "(unknown)" }
   end
 end
-Rake::Task[:package].prerequisites.insert(0, :revision_file)
-Rake::Task[:package].prerequisites.insert(0, :submodules)
 
 # We also need to get rid of this file after packaging.
 at_exit { File.delete(scope('REVISION')) rescue nil }
@@ -81,8 +83,6 @@ task :release => [:check_release, :release_elpa, :package] do
   version = File.read(scope("VERSION")).strip
   sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
-  sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.bz2}
-  sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.zip}
   sh %{gem push pkg/haml-#{version}.gem}
 end
 
