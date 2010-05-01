@@ -1,3 +1,4 @@
+require 'haml/template/options'
 require 'haml/engine'
 require 'haml/helpers/action_view_mods'
 require 'haml/helpers/action_view_extensions'
@@ -5,15 +6,6 @@ require 'haml/helpers/action_view_extensions'
 module Haml
   # The class that keeps track of the global options for Haml within Rails.
   module Template
-    extend self
-
-    @options = {}
-    # The options hash for Haml when used within Rails.
-    # See {file:HAML_REFERENCE.md#haml_options the Haml options documentation}.
-    #
-    # @return [{Symbol => Object}]
-    attr_accessor :options
-
     # Enables integration with the Rails 2.2.5+ XSS protection,
     # if it's available and enabled.
     #
