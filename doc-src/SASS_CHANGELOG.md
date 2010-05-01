@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.rc.4 (Unreleased)
+
+* Don't check stylesheets for each request when running tests in Rails.
+  This should speed up some tests significantly.
+
 ## 3.0.0.rc.3
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.3).
