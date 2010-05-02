@@ -1100,6 +1100,61 @@ CSS
 SCSS
   end
 
+  # Loops
+
+  def test_extend_self_loop
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+.foo {a: b; @extend .foo}
+SCSS
+  end
+
+  def test_basic_extend_loop
+    assert_equal <<CSS, render(<<SCSS)
+.bar, .foo {
+  a: b; }
+
+.foo, .bar {
+  c: d; }
+CSS
+.foo {a: b; @extend .bar}
+.bar {c: d; @extend .foo}
+SCSS
+  end
+
+  def test_three_level_extend_loop
+    assert_equal <<CSS, render(<<SCSS)
+.baz, .bar, .foo {
+  a: b; }
+
+.foo, .baz, .bar {
+  c: d; }
+
+.bar, .foo, .baz {
+  e: f; }
+CSS
+.foo {a: b; @extend .bar}
+.bar {c: d; @extend .baz}
+.baz {e: f; @extend .foo}
+SCSS
+  end
+
+  def test_nested_extend_loop
+    assert_equal <<CSS, render(<<SCSS)
+.bar, .bar .foo {
+  a: b; }
+  .bar .foo, .bar .foo .foo {
+    c: d; }
+CSS
+.bar {
+  a: b;
+  .foo {c: d; @extend .bar}
+}
+SCSS
+  end
+
   def test_multiple_extender_merges_with_superset_selector
     assert_equal <<CSS, render(<<SCSS)
 a.bar.baz, a.foo {

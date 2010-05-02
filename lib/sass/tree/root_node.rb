@@ -68,7 +68,8 @@ module Sass
           child.send("to_#{fmt}", 0, opts) +
             if nxt &&
                 (child.is_a?(CommentNode) && child.line + child.value.count("\n") + 1 == nxt.line) ||
-                (child.is_a?(ImportNode) && nxt.is_a?(ImportNode) && child.line + 1 == nxt.line)
+                (child.is_a?(ImportNode) && nxt.is_a?(ImportNode) && child.line + 1 == nxt.line) ||
+                (child.is_a?(VariableNode) && nxt.is_a?(VariableNode) && child.line + 1 == nxt.line)
               ""
             else
               "\n"

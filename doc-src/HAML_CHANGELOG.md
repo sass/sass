@@ -3,7 +3,16 @@
 * Table of contents
 {:toc}
 
-## 3.0.0.rc.3 (Unreleased)
+## 3.0.0.rc.4 (Unreleased)
+
+### Rails Beta Support
+
+* Setting options via `Haml::Template.options` in the initializer
+  now works without using `ActiveSupport.on_load(:action_view)`.
+
+## 3.0.0.rc.3
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.3).
 
 ### Rails Beta Support
 

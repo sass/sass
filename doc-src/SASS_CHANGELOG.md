@@ -3,7 +3,38 @@
 * Table of contents
 {:toc}
 
-## 3.0.0.rc.3 (Unreleased)
+## 3.0.0.rc.4 (Unreleased)
+
+* Don't check stylesheets for each request when running tests in Rails.
+  This should speed up some tests significantly.
+
+* Don't add extra newlines between variables with `sass-convert`.
+
+## 3.0.0.rc.3
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.3).
+
+### `@extend` Support
+
+It's now possible to create a loop of `@extend` relations.
+For example,
+
+    .blueLink {
+      color: blue;
+      @extend .link; }
+
+    .link {
+      font-weight: bold;
+      @extend .blueLink; }
+
+Before, this would have raised an error.
+Now it produces the following CSS:
+
+    .link, .blueLink {
+      color: blue; }
+
+    .blueLink, .link {
+      font-weight: bold; }
 
 ### Rails Beta Support
 
@@ -19,6 +50,8 @@ The Sass Rails plugin now works using Rack middleware by default.
 ### Bug Fixes
 
 * Don't die when given a 70 kb property.
+
+* `sass --watch` now works with a single file on OS X.
 
 ## 3.0.0.rc.2
 

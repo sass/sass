@@ -61,7 +61,7 @@ module Sass
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
-      def do_extend(extends, supers = [])
+      def do_extend(extends, seen = Set.new)
         extends.get(members.to_set).map do |seq, sels|
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
@@ -69,13 +69,10 @@ module Sass
           self_without_sel = self.members - sels
           next unless unified = seq.members.last.unify(self_without_sel)
           [sels, seq.members[0...-1] + [unified]]
-        end.compact.map {|sels, seq| [sels, Sequence.new(seq)]}.map do |sels, seq|
-          seqs = seq.do_extend(extends, supers.unshift(sels))
-          supers.shift
-          seqs
+        end.compact.map do |sels, seq|
+          seq = Sequence.new(seq)
+          seen.include?(sels) ? [] : seq.do_extend(extends, seen + [sels])
         end.flatten.uniq
-      rescue SystemStackError
-        handle_extend_loop(supers)
       end
 
       # Unifies this selector with another {SimpleSequence}'s {SimpleSequence#members members array},
@@ -139,33 +136,6 @@ module Sass
       def eql?(other)
         other.class == self.class && other.base.eql?(self.base) &&
           Haml::Util.set_eql?(other.rest, self.rest)
-      end
-
-      private
-
-      # Raise a {Sass::SyntaxError} describing a loop of `@extend` directives.
-      #
-      # @param supers [Array<Simple>] The stack of selectors that contains the loop,
-      #   ordered from deepest to most shallow.
-      # @raise [Sass::SyntaxError] Describing the loop
-      def handle_extend_loop(supers)
-        supers.inject([]) do |sseqs, sseq|
-          next sseqs.push(sseq) unless sseqs.first.eql?(sseq)
-          conses = Haml::Util.enum_cons(sseqs.push(sseq), 2).to_a
-          _, i = Haml::Util.enum_with_index(conses).max do |((_, sseq1), _), ((_, sseq2), _)|
-            sseq1.first.line <=> sseq2.first.line
-          end
-          loop = (conses[i..-1] + conses[0...i]).map do |sseq1, sseq2|
-            sel1 = SimpleSequence.new(sseq1).inspect
-            sel2 = SimpleSequence.new(sseq2).inspect
-            str = "  #{sel1} extends #{sel2} on line #{sseq2.first.line}"
-            str << " of " << sseq2.first.filename if sseq2.first.filename
-            str
-          end.join(",\n")
-          raise Sass::SyntaxError.new("An @extend loop was found:\n#{loop}")
-        end
-        # Should never get here
-        raise Sass::SyntaxError.new("An @extend loop exists, but the exact loop couldn't be found")
       end
     end
   end
