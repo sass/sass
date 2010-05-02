@@ -52,6 +52,18 @@ WARNING
       end
     end
 
+    # Property and variable declarations.
+    # We want to keep track of the line number
+    # so we don't space out the variables too much in the generated Sass.
+    module Declaration3
+      def build_with_sass(env)
+        build_without_sass(env)
+        env.rules.last.src_line = input.line_of(interval.first)
+      end
+      alias_method :build_without_sass, :build
+      alias_method :build, :build_with_sass
+    end
+
     # Comma-separated selectors.
     # Less breaks these into completely separate nodes.
     # Since we don't want this duplication in the Sass,
@@ -129,6 +141,7 @@ WARNING
   module Node
     module Entity
       attr_accessor :hide_in_sass
+      attr_accessor :src_line
     end
 
     class Element
@@ -235,12 +248,19 @@ WARNING
       LESS_TO_SASS_OPERATORS = {"-" => :minus, "+" => :plus, "*" => :times, "/" => :div, "=" => :single_eq}
       def _to_sass_tree(arr)
         return Sass::Script::UnaryOperation.new(_to_sass_tree(arr[1..-1]), :minus) if arr[0] == "-"
+        _to_sass_tree2(*_sass_split(arr))
+      end
 
-        first, rest = _sass_split(arr)
+      def _to_sass_tree2(first, rest)
         return first if rest.empty?
         if rest[0].is_a?(Operator)
-          return Sass::Script::Operation.new(first, _to_sass_tree(rest[1..-1]),
-              LESS_TO_SASS_OPERATORS[rest[0]])
+          op = LESS_TO_SASS_OPERATORS[rest[0]]
+          if op == :times || op == :div
+            second, rest = _sass_split(rest[1..-1])
+            return _to_sass_tree2(Sass::Script::Operation.new(first, second, op), rest)
+          else
+            return Sass::Script::Operation.new(first, _to_sass_tree(rest[1..-1]), op)
+          end
         end
 
         Sass::Script::Operation.new(first, _to_sass_tree(rest), :concat)
@@ -275,7 +295,9 @@ WARNING
       def to_sass_tree
         if @declaration
           return if hide_in_sass
-          Sass::Tree::VariableNode.new(self, @value.to_sass_tree, false)
+          node = Sass::Tree::VariableNode.new(self, @value.to_sass_tree, false)
+          node.line = self.src_line
+          node
         else
           Sass::Script::Variable.new(self)
         end

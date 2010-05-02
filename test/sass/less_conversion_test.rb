@@ -8,16 +8,19 @@ class LessConversionTest < Test::Unit::TestCase
   def test_variable_declarations
     assert_renders <<SCSS, <<LESS
 $var1: 2px 3px;
-
 $var2: $var1 + 7px;
 
+$var3: fizz;
+
 foo {
-  prop: $var1 $var2; }
+  prop: $var1 $var2 $var3; }
 SCSS
 @var1: 2px 3px;
 @var2: @var1 + 7px;
 
-foo {prop: @var1 @var2}
+@var3: fizz;
+
+foo {prop: @var1 @var2 @var3}
 LESS
   end
 
@@ -311,6 +314,28 @@ foo {
   b: #ba8 - #a12;
   c: 5 * 3;
   d: 8 / 4; }
+LESS
+  end
+
+  def test_operator_precedence
+    assert_renders <<SCSS, <<LESS
+foo {
+  a: 1 + 2 * 3 + 4;
+  b: 1 * 2 + 3 * 4;
+  c: 1 - 2 + 2 - 4;
+  d: 1 + 2 - 3 + 4;
+  e: 1 / 2 - 3 / 4;
+  f: 1 - 2 / 3 - 4;
+  g: 1 / 2 * 3 / 4; }
+SCSS
+foo {
+  a: 1 + 2 * 3 + 4;
+  b: 1 * 2 + 3 * 4;
+  c: 1 - 2 + 2 - 4;
+  d: 1 + 2 - 3 + 4;
+  e: 1 / 2 - 3 / 4;
+  f: 1 - 2 / 3 - 4;
+  g: 1 / 2 * 3 / 4; }
 LESS
   end
 
