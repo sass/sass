@@ -8,6 +8,8 @@
 * Don't check stylesheets for each request when running tests in Rails.
   This should speed up some tests significantly.
 
+* Don't add extra newlines between variables with `sass-convert`.
+
 ## 3.0.0.rc.3
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.3).

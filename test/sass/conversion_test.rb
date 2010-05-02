@@ -888,6 +888,24 @@ SCSS
     assert_sass_to_scss '$var: 12px $bar baz !default;', '$var ||= 12px $bar "baz"'
   end
 
+  def test_multiple_variable_definitions
+    assert_renders <<SASS, <<SCSS
+$var1: foo
+$var2: bar
+$var3: baz
+
+$var4: bip
+$var5: bap
+SASS
+$var1: foo;
+$var2: bar;
+$var3: baz;
+
+$var4: bip;
+$var5: bap;
+SCSS
+  end
+
   def test_division_asserted_with_parens
     assert_renders <<SASS, <<SCSS
 foo
