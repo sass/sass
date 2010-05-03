@@ -1165,6 +1165,73 @@ a.bar.baz {a: b}
 SCSS
   end
 
+  def test_control_flow_if
+    assert_equal <<CSS, render(<<SCSS)
+.true, .also-true {
+  color: green; }
+
+.false, .also-false {
+  color: red; }
+CSS
+.true  { color: green; }
+.false { color: red;   }
+.also-true {
+  @if true { @extend .true;  }
+  @else    { @extend .false; }
+}
+.also-false {
+  @if false { @extend .true;  }
+  @else     { @extend .false; }
+}
+SCSS
+  end
+
+  def test_control_flow_for
+    assert_equal <<CSS, render(<<SCSS)
+.base-0, .added {
+  color: green; }
+
+.base-1, .added {
+  display: block; }
+
+.base-2, .added {
+  border: 1px solid blue; }
+CSS
+.base-0  { color: green; }
+.base-1  { display: block; }
+.base-2  { border: 1px solid blue; }
+.added {
+  @for $i from 0 to 3 {
+    @extend .base-\#{$i};
+  }
+}
+SCSS
+  end
+
+  def test_control_flow_while
+    assert_equal <<CSS, render(<<SCSS)
+.base-0, .added {
+  color: green; }
+
+.base-1, .added {
+  display: block; }
+
+.base-2, .added {
+  border: 1px solid blue; }
+CSS
+.base-0  { color: green; }
+.base-1  { display: block; }
+.base-2  { border: 1px solid blue; }
+.added {
+  $i : 0;
+  @while $i < 3 {
+    @extend .base-\#{$i};
+    $i : $i + 1;
+  }
+}
+SCSS
+  end
+
   private
 
   def render(sass, options = {})

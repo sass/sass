@@ -65,5 +65,17 @@ module Sass::Tree
       return @else.perform(environment) if @else
       []
     end
+
+    # Returns an error message if the given child node is invalid,
+    # and false otherwise.
+    #
+    # {ExtendNode}s are valid within {IfNode}s.
+    #
+    # @param child [Tree::Node] A potential child node.
+    # @return [Boolean, String] Whether or not the child node is valid,
+    #   as well as the error message to display if it is invalid
+    def invalid_child?(child)
+      super unless child.is_a?(ExtendNode)
+    end
   end
 end

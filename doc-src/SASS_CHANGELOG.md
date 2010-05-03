@@ -8,6 +8,9 @@
 * Don't check stylesheets for each request when running tests in Rails.
   This should speed up some tests significantly.
 
+* Allow `@extend` to appear inside of control-flow directives:
+  `@if`, `@for`, and `@while`.
+
 * Don't add extra newlines between variables with `sass-convert`.
 
 ## 3.0.0.rc.3
