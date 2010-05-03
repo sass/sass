@@ -5,6 +5,59 @@
 
 ## 3.0.0.rc.4 (Unreleased)
 
+### Convert Less to SCSS
+
+Sass RC 4 comes with the ability to convert [Less](http://lesscss.org) files
+to SCSS (or the Sass syntax, although I anticipate less interest in that).
+This is done with the standard `sass-convert` tool.
+For example:
+
+    # Convert all .less files in the current directory into .scss files
+    sass-convert --from less --to scss --recursive .
+
+This is done using the Less parser, so it requires that the `less` RubyGem be installed.
+
+#### Incompatibilities
+
+Because of the reasonably substantial differences between Sass and Less,
+there are some things that can't be directly translated,
+and one feature that can't be translated at all.
+In the tests I've run on open-source Less stylesheets,
+none of these have presented issues, but it's good to be aware of them.
+
+First, Less doesn't distinguish fully between mixins and selector inheritance.
+In Less, all classes and some other selectors may be used as mixins,
+alongside more Sass-like mixins.
+If a class is being used as a mixin,
+it may also be used directly in the HTML,
+so it's not safe to translate it into a Sass mixin.
+What `sass-convert` does instead is leave the class in the stylesheet as a class,
+and use {file:SASS_REFERENCE.md#extend `@extend`}
+rather than {file:SASS_REFERENCE.md#including_a_mixin `@include`}
+to take on the styles of that class.
+Although `@extend` and mixins work quite differently,
+using `@extend` here doesn't actually seem to make a difference in practice.
+
+Another issue with Less mixins is that Less allows nested selectors
+(such as `.body .button` or `.colors > .teal`) to be used
+as a means of "namespacing" mixins.
+Sass's `@extend` doesn't work that way,
+so it does away with the namespacing and just extends the base class
+(so `.colors > .teal` becomes simply `@extend .teal`).
+In practice, this feature doesn't seem to be widely-used,
+but `sass-convert` will print a warning and leave a comment
+when it encounters it just in case.
+
+Finally, Less has the ability to directly access variables and property values
+defined in other selectors, which Sass does not support.
+Whenever such an accessor is used,
+`sass-convert` will print a warning
+and comment it out in the SCSS output.
+Like namespaced mixins, though,
+this does not seem to be a widely-used feature.
+
+### Minor Improvements
+
 * Don't check stylesheets for each request when running tests in Rails.
   This should speed up some tests significantly.
 

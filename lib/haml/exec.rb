@@ -155,6 +155,17 @@ module Haml
         flag = 'wb' if @options[:unix_newlines] && flag == 'w'
         File.open(filename, flag)
       end
+
+      def handle_load_error(err)
+        dep = err.message.scan(/^no such file to load -- (.*)/)[0]
+        raise err if @options[:trace] || dep.nil? || dep.empty?
+        $stderr.puts <<MESSAGE
+Required dependency #{dep} not found!
+  Run "gem install #{dep}" to get it.
+  Use --trace for backtrace.
+MESSAGE
+        exit 1
+      end
     end
 
     # An abstrac class that encapsulates the code
@@ -558,14 +569,7 @@ END
         raise "#{e.is_a?(::Haml::SyntaxError) ? "Syntax error" : "Error"} on line " +
           "#{get_line e}: #{e.message}"
       rescue LoadError => err
-        dep = err.message.scan(/^no such file to load -- (.*)/)[0]
-        raise err if @options[:trace] || dep.nil? || dep.empty?
-        $stderr.puts <<MESSAGE
-Required dependency #{dep} not found!
-  Run "gem install #{dep}" to get it.
-  Use --trace for backtrace.
-MESSAGE
-        exit 1
+        handle_load_error(err)
       end
     end
 
@@ -595,14 +599,15 @@ Options:
 END
 
         opts.on('-F', '--from FORMAT',
-          'The format to convert from. Can be css, scss, sass, or sass2.',
+          'The format to convert from. Can be css, scss, sass, less, or sass2.',
           'sass2 is the same as sass, but updates more old syntax to new.',
           'By default, this is inferred from the input filename.',
           'If there is none, defaults to css.') do |name|
           @options[:from] = name.downcase.to_sym
-          unless [:css, :scss, :sass, :sass2].include?(@options[:from])
+          unless [:css, :scss, :sass, :less, :sass2].include?(@options[:from])
             raise "Unknown format for sass-convert --from: #{name}"
           end
+          try_less_note if @options[:from] == :less
         end
 
         opts.on('-T', '--to FORMAT',
@@ -685,11 +690,11 @@ END
             if @options[:in_place]
               f
             elsif @options[:output]
-              output_name = f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+              output_name = f.gsub(/\.(c|sa|sc|le)ss$/, ".#{@options[:to]}")
               output_name[0...@options[:input].size] = @options[:output]
               output_name
             else
-              f.gsub(/\.(c|sa|sc)ss$/, ".#{@options[:to]}")
+              f.gsub(/\.(c|sa|sc|le)ss$/, ".#{@options[:to]}")
             end
 
           unless File.directory?(File.dirname(output))
@@ -715,6 +720,7 @@ END
             case input.path
             when /\.scss$/; :scss
             when /\.sass$/; :sass
+            when /\.less$/; :less
             when /\.css$/; :css
             end
         elsif @options[:in_place]
@@ -743,6 +749,11 @@ END
             if @options[:from] == :css
               require 'sass/css'
               ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])
+            elsif @options[:from] == :less
+              require 'sass/less'
+              try_less_note
+              input = input.read if input.is_a?(IO) && !input.is_a?(File) # Less is dumb
+              Less::Engine.new(input).to_tree.to_sass_tree.send("to_#{@options[:to]}", @options[:for_tree])
             else
               if input.is_a?(File)
                 ::Sass::Files.tree_for(input.path, @options[:for_engine])
@@ -758,6 +769,19 @@ END
         raise e if @options[:trace]
         file = " of #{e.sass_filename}" if e.sass_filename
         raise "Error on line #{e.sass_line}#{file}: #{e.message}\n  Use --trace for backtrace"
+      rescue LoadError => err
+        handle_load_error(err)
+      end
+
+      @@less_note_printed = false
+      def try_less_note
+        return if @@less_note_printed
+        @@less_note_printed = true
+        warn <<NOTE
+* NOTE: Sass and Less are different languages, and they work differently.
+* I'll do my best to translate, but some features -- especially mixins --
+* should be checked by hand.
+NOTE
       end
     end
   end
