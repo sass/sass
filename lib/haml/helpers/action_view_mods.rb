@@ -169,6 +169,22 @@ module ActionView
         alias_method :form_for_without_haml, :form_for
         alias_method :form_for, :form_for_with_haml
       end
+
+      module CacheHelper
+        # This is a workaround for a Rails 3 bug
+        # that's present at least through beta 3.
+        # Their fragment_for assumes that the block
+        # will return its contents as a string,
+        # which is not always the case.
+        # Luckily, it only makes this assumption if caching is disabled,
+        # so we only override that case.
+        def fragment_for_with_haml(*args, &block)
+          return fragment_for_without_haml(*args, &block) if controller.perform_caching
+          capture(&block)
+        end
+        alias_method :fragment_for_without_haml, :fragment_for
+        alias_method :fragment_for, :fragment_for_with_haml
+      end
     else
       module FormTagHelper
         def form_tag_with_haml(url_for_options = {}, options = {}, *parameters_for_url, &proc)

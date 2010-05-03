@@ -403,5 +403,16 @@ HTML
   - p.reload
 HAML
     end
+
+    def test_cache
+      @base.controller = ActionController::Base.new
+      @base.controller.perform_caching = false
+      assert_equal(<<HTML, render(<<HAML, :action_view))
+Test
+HTML
+- cache do
+  Test
+HAML
+    end
   end
 end
