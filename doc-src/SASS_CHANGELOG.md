@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.0.rc.4 (Unreleased)
+## 3.0.0.rc.4
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.4).
 
 ### Convert Less to SCSS
 
