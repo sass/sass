@@ -1608,13 +1608,15 @@ foo {
   a: foo;
   b: bar;
   c: foo bar;
-  d: foo, bar; }
+  d: foo, bar baz;
+  e: foo bar, bar; }
 CSS
 foo
   a= "foo"
   b= bar
   c= "foo" bar
-  d= foo, "bar"
+  d= foo, "bar baz"
+  e= "foo bar", bar
 SASS
     end
   end

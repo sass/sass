@@ -41,23 +41,8 @@ module Sass::Script
 
     # @see Node#to_s
     def to_s(opts = {})
-      to_sass(opts)
-    end
-
-    # @param opts [{Symbol => Object}]
-    #   `opts[:type]` -- The type of string to render this as.
-    #     `:string`s have double quotes, `:identifier`s do not.
-    #     Defaults to `:identifier`.
-    # @see Node#to_sass
-    def to_sass(opts = {})
-      type = opts[:type] || self.type
-      if type == :identifier
-        if context == :equals && self.value !~ Sass::SCSS::RX::URI &&
-            Sass::SCSS::RX.escape_ident(self.value).include?(?\\)
-          return "unquote(#{Sass::Script::String.new(self.value, :string).to_sass})"
-        elsif context == :equals && self.value.size == 0
-          return %q{""}
-        end
+      if self.type == :identifier
+        return %q{""} if context == :equals && self.value.size == 0
         return self.value.gsub("\n", " ")
       end
 
@@ -66,6 +51,17 @@ module Sass::Script
       return "\"#{value}\"" unless value.include?('"')
       return "'#{value}'" unless value.include?("'")
       "\"#{value.gsub('"', "\\\"")}\"" #'
+    end
+
+    # @see Node#to_sass
+    def to_sass(opts = {})
+      if self.type == :identifier && context == :equals &&
+          self.value !~ Sass::SCSS::RX::URI &&
+          Sass::SCSS::RX.escape_ident(self.value).include?(?\\)
+        return "unquote(#{Sass::Script::String.new(self.value, :string).to_sass})"
+      else
+        return to_s
+      end
     end
   end
 end

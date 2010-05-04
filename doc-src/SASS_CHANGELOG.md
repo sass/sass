@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.rc.5 (Unreleased)
+
+* Fix a bug with quoted SassScript strings in `=`.
+  Not that `=` should be used anymore,
+  but we're trying to preserve backwards-compatibility.
+
 ## 3.0.0.rc.4
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.4).
