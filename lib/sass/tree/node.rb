@@ -120,17 +120,6 @@ module Sass
         self.class == other.class && other.children == children
       end
 
-      # Runs the dynamic Sass code *and* computes the CSS for the tree.
-      #
-      # @see #perform
-      # @see #to_s
-      def render
-        extends = Haml::Util::SubsetMap.new
-        result = perform(Environment.new).cssize(extends)
-        result = result.do_extend(extends) unless extends.empty?
-        result.to_s
-      end
-
       # True if \{#to\_s} will return `nil`;
       # that is, if the node shouldn't be rendered.
       # Should only be called in a static tree.

@@ -21,6 +21,17 @@ module Sass
         raise e
       end
 
+      # Runs the dynamic Sass code *and* computes the CSS for the tree.
+      #
+      # @see #perform
+      # @see #to_s
+      def render
+        extends = Haml::Util::SubsetMap.new
+        result = perform(Environment.new).cssize(extends)
+        result = result.do_extend(extends) unless extends.empty?
+        result.to_s
+      end
+
       # @see Node#perform
       def perform(environment)
         environment.options = @options if environment.options.nil? || environment.options.empty?
