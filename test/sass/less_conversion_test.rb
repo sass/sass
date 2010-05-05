@@ -37,8 +37,8 @@ LESS
   end
 
   def test_import
-    path = File.dirname(__FILE__) + "/templates/importee.less"
-    resolved_path = File.dirname(__FILE__) + "/templates/importee"
+    path = relative_path_to(File.dirname(__FILE__) + "/templates/importee.less")
+    resolved_path = relative_path_to(File.dirname(__FILE__) + "/templates/importee")
     assert_renders <<SCSS, <<LESS
 @import "#{resolved_path}";
 @import "#{resolved_path}";
@@ -57,8 +57,8 @@ LESS
   end
 
   def test_mixins_found_through_import
-    path = File.dirname(__FILE__) + "/templates/importee.less"
-    resolved_path = File.dirname(__FILE__) + "/templates/importee"
+    path = relative_path_to(File.dirname(__FILE__) + "/templates/importee.less")
+    resolved_path = relative_path_to(File.dirname(__FILE__) + "/templates/importee")
     assert_renders <<SCSS, <<LESS
 @import "#{resolved_path}";
 
@@ -617,6 +617,13 @@ LESS
 
   def assert_renders(scss, less)
     assert_equal(scss, Less::Engine.new(less).to_tree.to_sass_tree.to_scss)
+  end
+
+  # Necessary because Less can't import absolute files
+  def relative_path_to(file)
+    file = Pathname.new(file)
+    pwd = file.absolute? ? Dir.pwd : "."
+    file.relative_path_from(Pathname.new(pwd))
   end
 end
 
