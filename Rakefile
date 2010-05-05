@@ -263,7 +263,8 @@ OPTS
 
   YARD::Rake::YardocTask.new do |t|
     t.files = FileList.new(scope('lib/**/*.rb')) do |list|
-      list.exclude('lib/haml/template/*.rb')
+      list.exclude('lib/haml/template/patch.rb')
+      list.exclude('lib/haml/template/plugin.rb')
       list.exclude('lib/haml/railtie.rb')
       list.exclude('lib/haml/helpers/action_view_mods.rb')
       list.exclude('lib/haml/helpers/xss_mods.rb')
