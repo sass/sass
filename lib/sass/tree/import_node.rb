@@ -38,6 +38,11 @@ module Sass
         "#{'  ' * tabs}@import \"#{@imported_filename}\";\n"
       end
 
+      # @see Node#cssize
+      def cssize(*args)
+        super.first
+      end
+
       protected
 
       # @see Node#_cssize

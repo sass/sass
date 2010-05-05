@@ -26,8 +26,7 @@ module Sass
       # @see #perform
       # @see #to_s
       def render
-        extends = Haml::Util::SubsetMap.new
-        result = perform(Environment.new).cssize(extends)
+        result, extends = perform(Environment.new).cssize
         result = result.do_extend(extends) unless extends.empty?
         result.to_s
       end
@@ -41,9 +40,14 @@ module Sass
         raise e
       end
 
-      # @see Node#cssize
-      def cssize(*args)
-        super
+      # Like {Node#cssize}, except that this method
+      # will create its own `extends` map if necessary,
+      # and it returns that map along with the cssized tree.
+      #
+      # @return [(Tree::Node, Haml::Util::SubsetMap)] The resulting tree of static nodes
+      #   *and* the extensions defined for this tree
+      def cssize(extends = Haml::Util::SubsetMap.new, parent = nil)
+        return super(extends), extends
       rescue Sass::SyntaxError => e
         e.sass_template = @template
         raise e
