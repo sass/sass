@@ -41,7 +41,7 @@ module Sass
       #
       # @return [Fixnum]
       def hash
-        to_a.hash
+        @_hash ||= to_a.hash
       end
 
       # Checks equality between this and another object.
@@ -53,7 +53,7 @@ module Sass
       # @param other [Object] The object to test equality against
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
-        other.class == self.class && other.to_a.eql?(to_a)
+        other.class == self.class && other.hash == self.hash && other.to_a.eql?(to_a)
       end
 
       # Unifies this selector with a {SimpleSequence}'s {SimpleSequence#members members array},

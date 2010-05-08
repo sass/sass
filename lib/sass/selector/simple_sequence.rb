@@ -122,20 +122,14 @@ module Sass
         members.map {|m| m.inspect}.join
       end
 
-      # Returns a hash code for this sequence.
-      #
-      # @return [Fixnum]
-      def hash
+      private
+
+      def _hash
         [base, Haml::Util.set_hash(rest)].hash
       end
 
-      # Checks equality between this and another object.
-      #
-      # @param other [Object] The object to test equality against
-      # @return [Boolean] Whether or not this is equal to `other`
-      def eql?(other)
-        other.class == self.class && other.base.eql?(self.base) &&
-          Haml::Util.set_eql?(other.rest, self.rest)
+      def _eql?(other)
+        other.base.eql?(self.base) && Haml::Util.set_eql?(other.rest, self.rest)
       end
     end
   end

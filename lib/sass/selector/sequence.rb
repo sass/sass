@@ -118,22 +118,6 @@ module Sass
         members.map {|m| m.inspect}.join(" ")
       end
 
-      # Returns a hash code for this sequence.
-      #
-      # @return [Fixnum]
-      def hash
-        members.reject {|m| m == "\n"}.hash
-      end
-
-      # Checks equality between this and another object.
-      #
-      # @param other [Object] The object to test equality against
-      # @return [Boolean] Whether or not this is equal to `other`
-      def eql?(other)
-        other.class == self.class &&
-          other.members.reject {|m| m == "\n"}.eql?(self.members.reject {|m| m == "\n"})
-      end
-
       private
 
       # Conceptually, this expands "parenthesized selectors".
@@ -207,6 +191,14 @@ module Sass
         return unless sseq2.size == 1 # Can't unify ".foo > .bar" and ".baz > .bang"
         unified = sseq1.last.unify(sseq2.last.members) unless sseq1.last.is_a?(String) || sseq2.last.is_a?(String)
         sseq1[0...-1] << unified if unified
+      end
+
+      def _hash
+        members.reject {|m| m == "\n"}.hash
+      end
+
+      def _eql?(other)
+        other.members.reject {|m| m == "\n"}.eql?(self.members.reject {|m| m == "\n"})
       end
     end
   end
