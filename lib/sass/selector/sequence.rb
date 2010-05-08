@@ -212,10 +212,13 @@ module Sass
           return unless sseq2.size > 1
           # .foo ~ .bar is a superselector of .foo + .bar
           return unless sseq1[1] == "~" ? sseq2[1] != ">" : sseq2[1] == sseq1[1]
-          return sseq1.first.superselector?(sseq2.first) &&
-            subweave_superselector?(sseq1[2..-1], sseq2[2..-1])
+          return unless sseq1.first.superselector?(sseq2.first)
+          return true if sseq1.size == 2
+          return false if sseq2.size == 2
+          return subweave_superselector?(sseq1[2..-1], sseq2[2..-1])
         elsif sseq2.size > 1
           return true if sseq2[1] == ">" && sseq1.first.superselector?(sseq2.first)
+          return false if sseq2.size == 2
           return subweave_superselector?(sseq1, sseq2[2..-1])
         else
           sseq1.first.superselector?(sseq2.first)
