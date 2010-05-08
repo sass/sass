@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.0.0.rc.5
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.5).
+
+There were no changes made to Haml between RC 4 and RC 5.
+
 ## 3.0.0.rc.4
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.4).
