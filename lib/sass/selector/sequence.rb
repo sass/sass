@@ -163,11 +163,16 @@ module Sass
 
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
-        lcs = Haml::Util.lcs(seq2, seq1)
+        lcs = Haml::Util.lcs(seq2, seq1) do |s1, s2|
+          next s1 if s1 == s2
+          next unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
+          next s2 if subweave_superselector?(s1, s2)
+          next s1 if subweave_superselector?(s2, s1)
+        end
 
         diff = []
         until lcs.empty?
-          diff << chunks(seq1, seq2) {|s| s.first == lcs.first} << [lcs.shift]
+          diff << chunks(seq1, seq2) {|s| subweave_superselector?(s.first, lcs.first)} << [lcs.shift]
           seq1.shift
           seq2.shift
         end
@@ -199,6 +204,22 @@ module Sass
           newseq << head
         end
         return newseq
+      end
+
+      def subweave_superselector?(sseq1, sseq2)
+        if sseq1.size > 1
+          # More complex selectors are never superselectors of less complex ones
+          return unless sseq2.size > 1
+          # .foo ~ .bar is a superselector of .foo + .bar
+          return unless sseq1[1] == "~" ? sseq2[1] != ">" : sseq2[1] == sseq1[1]
+          return sseq1.first.superselector?(sseq2.first) &&
+            subweave_superselector?(sseq1[2..-1], sseq2[2..-1])
+        elsif sseq2.size > 1
+          return true if sseq2[1] == ">" && sseq1.first.superselector?(sseq2.first)
+          return subweave_superselector?(sseq1, sseq2[2..-1])
+        else
+          sseq1.first.superselector?(sseq2.first)
+        end
       end
 
       def unify_heads(sseq1, sseq2)

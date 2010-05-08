@@ -199,22 +199,16 @@ module Haml
     #
     # @param x [Array]
     # @param y [Array]
+    # @yield [a, b] An optional block to use in place of a check for equality
+    #   between elements of `x` and `y`.
+    # @yieldreturn [Object, nil] If the two values register as equal,
+    #   this will return the value to use in the LCS array.
     # @return [Array] The LCS
-    def lcs(x, y)
+    def lcs(x, y, &block)
       x = [nil, *x]
       y = [nil, *y]
-      lcs_backtrace(lcs_table(x, y), x, y, x.size-1, y.size-1)
-    end
-
-    # Computes all single longest common subsequences for `x` and `y`.
-    #
-    # @param x [Array]
-    # @param y [Array]
-    # @return [Set<Array>] The LCSes
-    def lcs_all(x, y)
-      x = [nil, *x]
-      y = [nil, *y]
-      lcs_backtrace_all(lcs_table(x, y), x, y, x.size-1, y.size-1)
+      block ||= proc {|a, b| a == b && a}
+      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size-1, y.size-1, &block)
     end
 
     # Returns information about the caller of the previous method.
@@ -600,7 +594,7 @@ METHOD
       (1...x.size).each do |i|
         (1...y.size).each do |j|
           c[i][j] =
-            if x[i] == y[j]
+            if yield x[i], y[j]
               c[i-1][j-1] + 1
             else
               [c[i][j-1], c[i-1][j]].max
@@ -612,22 +606,14 @@ METHOD
 
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
-    def lcs_backtrace(c, x, y, i, j)
+    def lcs_backtrace(c, x, y, i, j, &block)
       return [] if i == 0 || j == 0
-      return lcs_backtrace(c, x, y, i-1, j-1) << x[i] if x[i] == y[j]
-      return lcs_backtrace(c, x, y, i, j-1) if c[i][j-1] > c[i-1][j]
-      return lcs_backtrace(c, x, y, i-1, j)
-    end
+      if v = yield(x[i], y[j])
+        return lcs_backtrace(c, x, y, i-1, j-1, &block) << v
+      end
 
-    # Computes all longest common subsequences for arrays x and y.
-    # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_all_LCSs)
-    def lcs_backtrace_all(c, x, y, i, j)
-      return Set[[]] if i == 0 || j == 0
-      return lcs_backtrace_all(c, x, y, i-1, j-1).map {|z| z << x[i]}.to_set if x[i] == y[j]
-      r = Set.new
-      r.merge(lcs_backtrace_all(c, x, y, i, j-1)) if c[i][j-1] >= c[i-1][j]
-      r.merge(lcs_backtrace_all(c, x, y, i-1, j)) if c[i-1][j] >= c[i][j-1]
-      r
+      return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
+      return lcs_backtrace(c, x, y, i-1, j, &block)
     end
   end
 end

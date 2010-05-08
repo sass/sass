@@ -1024,6 +1024,26 @@ CSS
 SCSS
   end
 
+  def test_nested_extender_counts_extended_subselectors
+    assert_equal <<CSS, render(<<SCSS)
+.a .bip.bop .foo, .a .b .bip.bop .bar, .b .a .bip.bop .bar {
+  a: b; }
+CSS
+.a .bip.bop .foo {a: b}
+.b .bip .bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_counts_extended_superselectors
+    assert_equal <<CSS, render(<<SCSS)
+.a .bip .foo, .a .b .bip.bop .bar, .b .a .bip.bop .bar {
+  a: b; }
+CSS
+.a .bip .foo {a: b}
+.b .bip.bop .bar {@extend .foo}
+SCSS
+  end
+
   def test_nested_extender_with_child_selector
     assert_equal <<CSS, render(<<SCSS)
 .baz .foo, .baz foo > bar {
@@ -1031,6 +1051,76 @@ SCSS
 CSS
 .baz .foo {a: b}
 foo > bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_extender_finds_common_selectors_around_child_selector
+    assert_equal <<CSS, render(<<SCSS)
+a > b c .c1, a > b c .c2 {
+  a: b; }
+CSS
+a > b c .c1 {a: b}
+a c .c2 {@extend .c1}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a > b c .c1, a > b c .c2 {
+  a: b; }
+CSS
+a > b c .c1 {a: b}
+b c .c2 {@extend .c1}
+SCSS
+  end
+
+  def test_nested_extender_doesnt_find_common_selectors_around_adjacent_sibling_selector
+    assert_equal <<CSS, render(<<SCSS)
+a + b c .c1, a + b a c .c2, a a + b c .c2 {
+  a: b; }
+CSS
+a + b c .c1 {a: b}
+a c .c2 {@extend .c1}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a + b c .c1, a a + b c .c2 {
+  a: b; }
+CSS
+a + b c .c1 {a: b}
+a b .c2 {@extend .c1}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a + b c .c1, a + b c .c2 {
+  a: b; }
+CSS
+a + b c .c1 {a: b}
+b c .c2 {@extend .c1}
+SCSS
+  end
+
+  def test_nested_extender_doesnt_find_common_selectors_around_sibling_selector
+    assert_equal <<CSS, render(<<SCSS)
+a ~ b c .c1, a ~ b a c .c2, a a ~ b c .c2 {
+  a: b; }
+CSS
+a ~ b c .c1 {a: b}
+a c .c2 {@extend .c1}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a ~ b c .c1, a a ~ b c .c2 {
+  a: b; }
+CSS
+a ~ b c .c1 {a: b}
+a b .c2 {@extend .c1}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a ~ b c .c1, a ~ b c .c2 {
+  a: b; }
+CSS
+a ~ b c .c1 {a: b}
+b c .c2 {@extend .c1}
 SCSS
   end
 

@@ -110,14 +110,11 @@ class UtilTest < Test::Unit::TestCase
     assert_equal([1, 2], lcs([1, 2, 3, 4], [3, 4, 1, 2]))
   end
 
-  def test_lcs_all
-    assert_equal(Set[[1, 2, 3]], lcs_all([1, 2, 3], [1, 2, 3]))
-    assert_equal(Set[[]], lcs_all([], [1, 2, 3]))
-    assert_equal(Set[[]], lcs_all([1, 2, 3], []))
-    assert_equal(Set[[1, 2, 3]], lcs_all([5, 1, 4, 2, 3, 17], [0, 0, 1, 2, 6, 3]))
-
-    assert_equal(Set[[1], [2], [3], [4]], lcs_all([1, 2, 3, 4], [4, 3, 2, 1]))
-    assert_equal(Set[[1, 2], [3, 4]], lcs_all([1, 2, 3, 4], [3, 4, 1, 2]))
+  def test_lcs_with_block
+    assert_equal(["1", "2", "3"],
+      lcs([1, 4, 2, 5, 3], [1, 2, 3]) {|a, b| a == b && a.to_s})
+    assert_equal([-4, 2, 8],
+      lcs([-5, 3, 2, 8], [-4, 1, 8]) {|a, b| (a - b).abs <= 1 && [a, b].max})
   end
 
   def test_silence_warnings
