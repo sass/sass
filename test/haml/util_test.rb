@@ -100,6 +100,26 @@ class UtilTest < Test::Unit::TestCase
     assert_equal([[1, 2, 3]], paths([[1], [2], [3]]))
   end
 
+  def test_lcs
+    assert_equal([1, 2, 3], lcs([1, 2, 3], [1, 2, 3]))
+    assert_equal([], lcs([], [1, 2, 3]))
+    assert_equal([], lcs([1, 2, 3], []))
+    assert_equal([1, 2, 3], lcs([5, 1, 4, 2, 3, 17], [0, 0, 1, 2, 6, 3]))
+
+    assert_equal([1], lcs([1, 2, 3, 4], [4, 3, 2, 1]))
+    assert_equal([1, 2], lcs([1, 2, 3, 4], [3, 4, 1, 2]))
+  end
+
+  def test_lcs_all
+    assert_equal(Set[[1, 2, 3]], lcs_all([1, 2, 3], [1, 2, 3]))
+    assert_equal(Set[[]], lcs_all([], [1, 2, 3]))
+    assert_equal(Set[[]], lcs_all([1, 2, 3], []))
+    assert_equal(Set[[1, 2, 3]], lcs_all([5, 1, 4, 2, 3, 17], [0, 0, 1, 2, 6, 3]))
+
+    assert_equal(Set[[1], [2], [3], [4]], lcs_all([1, 2, 3, 4], [4, 3, 2, 1]))
+    assert_equal(Set[[1, 2], [3, 4]], lcs_all([1, 2, 3, 4], [3, 4, 1, 2]))
+  end
+
   def test_silence_warnings
     old_stderr, $stderr = $stderr, StringIO.new
     warn "Out"

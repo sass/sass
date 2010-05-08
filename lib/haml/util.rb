@@ -193,6 +193,30 @@ module Haml
       end
     end
 
+    # Computes a single longest common subsequence for `x` and `y`.
+    # If there are more than one longest common subsequences,
+    # the one returned is that which starts first in `x`.
+    #
+    # @param x [Array]
+    # @param y [Array]
+    # @return [Array] The LCS
+    def lcs(x, y)
+      x = [nil, *x]
+      y = [nil, *y]
+      lcs_backtrace(lcs_table(x, y), x, y, x.size-1, y.size-1)
+    end
+
+    # Computes all single longest common subsequences for `x` and `y`.
+    #
+    # @param x [Array]
+    # @param y [Array]
+    # @return [Set<Array>] The LCSes
+    def lcs_all(x, y)
+      x = [nil, *x]
+      y = [nil, *y]
+      lcs_backtrace_all(lcs_table(x, y), x, y, x.size-1, y.size-1)
+    end
+
     # Returns information about the caller of the previous method.
     #
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
@@ -563,6 +587,47 @@ METHOD
     # @return [String] The real name of the static method
     def static_method_name(name, *vars)
       "#{name}_#{vars.map {|v| !!v}.join('_')}"
+    end
+
+    private
+
+    # Calculates the memoization table for the Least Common Subsequence algorithm.
+    # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
+    def lcs_table(x, y)
+      c = Array.new(x.size) {[]}
+      x.size.times {|i| c[i][0] = 0}
+      y.size.times {|j| c[0][j] = 0}
+      (1...x.size).each do |i|
+        (1...y.size).each do |j|
+          c[i][j] =
+            if x[i] == y[j]
+              c[i-1][j-1] + 1
+            else
+              [c[i][j-1], c[i-1][j]].max
+            end
+        end
+      end
+      return c
+    end
+
+    # Computes a single longest common subsequence for arrays x and y.
+    # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
+    def lcs_backtrace(c, x, y, i, j)
+      return [] if i == 0 || j == 0
+      return lcs_backtrace(c, x, y, i-1, j-1) << x[i] if x[i] == y[j]
+      return lcs_backtrace(c, x, y, i, j-1) if c[i][j-1] > c[i-1][j]
+      return lcs_backtrace(c, x, y, i-1, j)
+    end
+
+    # Computes all longest common subsequences for arrays x and y.
+    # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_all_LCSs)
+    def lcs_backtrace_all(c, x, y, i, j)
+      return Set[[]] if i == 0 || j == 0
+      return lcs_backtrace_all(c, x, y, i-1, j-1).map {|z| z << x[i]}.to_set if x[i] == y[j]
+      r = Set.new
+      r.merge(lcs_backtrace_all(c, x, y, i, j-1)) if c[i][j-1] >= c[i-1][j]
+      r.merge(lcs_backtrace_all(c, x, y, i-1, j)) if c[i-1][j] >= c[i][j-1]
+      r
     end
   end
 end
