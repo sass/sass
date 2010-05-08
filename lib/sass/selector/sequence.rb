@@ -222,12 +222,6 @@ module Sass
         end
       end
 
-      def unify_heads(sseq1, sseq2)
-        return unless sseq2.size == 1 # Can't unify ".foo > .bar" and ".baz > .bang"
-        unified = sseq1.last.unify(sseq2.last.members) unless sseq1.last.is_a?(String) || sseq2.last.is_a?(String)
-        sseq1[0...-1] << unified if unified
-      end
-
       def _hash
         members.reject {|m| m == "\n"}.hash
       end
