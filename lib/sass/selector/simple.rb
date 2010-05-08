@@ -55,6 +55,7 @@ module Sass
       def eql?(other)
         other.class == self.class && other.hash == self.hash && other.to_a.eql?(to_a)
       end
+      alias_method :==, :eql?
 
       # Unifies this selector with a {SimpleSequence}'s {SimpleSequence#members members array},
       # returning another `SimpleSequence` members array

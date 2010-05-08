@@ -56,6 +56,7 @@ module Sass
       def eql?(other)
         other.class == self.class && other.hash == self.hash && _eql?(other)
       end
+      alias_method :==, :eql?
     end
   end
 end
