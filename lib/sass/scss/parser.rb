@@ -411,7 +411,18 @@ module Sass
             (tok(/\*/) && Selector::Universal.new(nil))
           res << v
         end
-        expected('"{"') if tok?(/&/)
+
+        if tok?(/&/)
+          begin
+            expected('"{"')
+          rescue Sass::SyntaxError => e
+            e.message << "\n\n" << <<MESSAGE
+In Sass 3, the parent selector & can only be used where element names are valid,
+since it could potentially be replaced by an element name.
+MESSAGE
+            raise e
+          end
+        end
 
         Selector::SimpleSequence.new(res)
       end
