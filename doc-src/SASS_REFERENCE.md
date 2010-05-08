@@ -1126,34 +1126,52 @@ is compiled to
       a:hover, #fake-links .link:hover {
         text-decoration: underline; }
 
-**Warning**: if a nested selector is merged into another nested selector,
-this can result in a very large amount of output,
-since all possible sequences of selectors must be used.
-It's highly recommended that you be careful to avoid this
-when using `@extend` with nested selectors.
+##### Merging Selector Sequences
+
+Sometimes a selector sequence extends another selector that appears in another sequence.
+In this case, the two sequences need to be merged.
 For example:
 
-    .foo .bar {@extend .bang}
-    .baz .bang {color: blue}
+    #admin .tabbar a {font-weight: bold}
+    #demo .overview .fakelink {@extend a}
 
-When `.bang` in `.baz .bang` is replaced with `.foo .bar`,
-we need the resulting selector to match any element with class `.bar`
-that has a parent with class `.foo` *and* a parent with class `.baz`.
-That includes each of the following cases:
+While it would technically be possible
+to generate all selectors that could possibly match either sequence,
+this would make the stylesheet far too large.
+The simple example above, for instance, would require ten selectors.
+Instead, Sass generates only selectors that are likely to be useful.
 
-    <div class="baz"><div class="foo"><div class="bar">...</div></div></div>
-    <div class="foo baz"><div class="bar">...</div></div>
-    <div class="foo"><div class="baz"><div class="bar">...</div></div></div>
+When the two sequences being merged have no selectors in common,
+then two new selectors are generated:
+one with the first sequence before the second,
+and one with the second sequence before the first.
+For example:
 
-There's no single selector that matches all of these, so the following:
-
-    .foo .bar {@extend .bang}
-    .baz .bang {color: blue}
+    #admin .tabbar a {font-weight: bold}
+    #demo .overview .fakelink {@extend a}
 
 is compiled to:
 
-    .baz .bang, .baz .foo .bar, .foo.baz .bar, .foo .baz .bar {
-      color: blue; }
+    #admin .tabbar a,
+    #admin .tabbar #demo .overview .fakelink,
+    #demo .overview #admin .tabbar .fakelink {
+      font-weight: bold; }
+
+If the two sequences do share some selectors,
+then those selectors will be merged together
+and only the differences (if any still exist) will alternate.
+In this example, both sequences contain the id `#admin`,
+so the resulting selectors will merge those two ids:
+
+    #admin .tabbar a {font-weight: bold}
+    #admin .overview .fakelink {@extend a}
+
+This is compiled to:
+
+    #admin .tabbar a,
+    #admin .tabbar .overview .fakelink,
+    #admin .overview .tabbar .fakelink {
+      font-weight: bold; }
 
 ### `@debug`
 

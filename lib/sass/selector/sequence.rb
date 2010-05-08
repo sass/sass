@@ -160,31 +160,45 @@ module Sass
       def subweave(seq1, seq2, cache = {})
         return [seq2] if seq1.empty?
         return [seq1] if seq2.empty?
-        cache[[seq1, seq2]] ||=
-          begin
-            sseq1, rest1 = seq_split(seq1)
-            sseq2, rest2 = seq_split(seq2)
 
-            if sseq1.eql?(sseq2)
-              subweave(rest1, rest2, cache).map {|subseq| sseq1 + subseq}
-            else
-              unified = unify_heads(sseq1, sseq2) || unify_heads(sseq2, sseq1)
-              res = []
-              subweave(rest1, seq2, cache).each {|subseq| res << sseq1 + subseq}
-              subweave(rest1, rest2, cache).each {|subseq| res << unified + subseq} if unified
-              subweave(seq1, rest2, cache).each {|subseq| res << sseq2 + subseq}
-              res
-            end
-          end
+        seq1 = group_selectors(seq1)
+        seq2 = group_selectors(seq2)
+        lcs = Haml::Util.lcs(seq2, seq1)
+
+        diff = []
+        until lcs.empty?
+          diff << chunks(seq1, seq2) {|s| s.first == lcs.first} << [lcs.shift]
+          seq1.shift
+          seq2.shift
+        end
+        diff << chunks(seq1, seq2) {|s| s.empty?}
+        diff.reject! {|c| c.empty?}
+
+        Haml::Util.paths(diff).map {|p| p.flatten}
       end
 
-      def seq_split(seq)
+      def chunks(seq1, seq2)
+        chunk1 = []
+        chunk1 << seq1.shift until yield seq1
+        chunk2 = []
+        chunk2 << seq2.shift until yield seq2
+        return [] if chunk1.empty? && chunk2.empty?
+        return [chunk2] if chunk1.empty?
+        return [chunk1] if chunk2.empty?
+        [chunk1 + chunk2, chunk2 + chunk1]
+      end
+
+      def group_selectors(seq)
+        newseq = []
         tail = seq.dup
-        head = []
-        begin
-          head << tail.shift
-        end while !tail.empty? && head.last.is_a?(String) || tail.first.is_a?(String)
-        return head, tail
+        until tail.empty?
+          head = []
+          begin
+            head << tail.shift
+          end while !tail.empty? && head.last.is_a?(String) || tail.first.is_a?(String)
+          newseq << head
+        end
+        return newseq
       end
 
       def unify_heads(sseq1, sseq2)

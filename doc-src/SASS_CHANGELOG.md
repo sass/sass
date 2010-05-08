@@ -5,6 +5,31 @@
 
 ## 3.0.0.rc.5 (Unreleased)
 
+### `@extend` Behavior Change
+
+The behavior of the `@extend` directive has been changed slightly
+when a selector sequence (e.g. `.foo .bar`) uses `@extend`.
+In RC 1 through 4, when a selector sequence used `@extend`
+and the extended selector was used as part of a sequence,
+every possible selector matching both of those sequences was generated.
+For example:
+
+    .foo .bar {@extend .bang}
+    .baz .bang {color: blue}
+
+would be compiled to:
+
+    .foo .bar, .baz .bang, .baz .foo .bar, .foo.baz .bar, .foo .baz .bar {
+      color: blue; }
+
+In many common cases, this produced a huge number of selectors,
+almost all of them not what the author intended.
+The new behavior removes most of the extra selectors that were generated,
+leaving only selectors that are likely to be useful.
+For details on how this works, see {file:SASS_REFERENCE.md#merging_selector_sequences the Sass reference}.
+
+### Bug Fixes
+
 * Fix a bug with quoted SassScript strings in `=`.
   Not that `=` should be used anymore,
   but we're trying to preserve backwards-compatibility.
