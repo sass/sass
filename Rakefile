@@ -70,11 +70,10 @@ end
 # We also need to get rid of this file after packaging.
 at_exit { File.delete(scope('REVISION')) rescue nil }
 
-desc "Install Haml as a gem."
+desc "Install Haml as a gem. Use SUDO=1 to install with sudo."
 task :install => [:package] do
-  sudo = RUBY_PLATFORM =~ /win32|mingw/ ? '' : 'sudo'
   gem  = RUBY_PLATFORM =~ /java/  ? 'jgem' : 'gem' 
-  sh %{#{sudo} #{gem} install --no-ri pkg/haml-#{File.read(scope('VERSION')).strip}}
+  sh %{#{'sudo ' if ENV["SUDO"]}#{gem} install --no-ri pkg/haml-#{File.read(scope('VERSION')).strip}}
 end
 
 desc "Release a new Haml package to Rubyforge."
