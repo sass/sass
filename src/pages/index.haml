@@ -1,72 +1,63 @@
--# It would be great if we could use :target to highlight the feature
-  that the user has clicked
 #blurb
   :maruku
     Sass makes CSS fun again.
-    Sass is CSS, plus [nested rules](#nesting),
-    [variables](#variables), [mixins](#mixins),
-    and [more](/docs/yardoc/file.SASS_REFERENCE.html),
-    all in a [concise, readable syntax](#beauty).
+    Sass is an extension of CSS3,
+    adding [nested rules](#nesting), [variables](#variables),
+    [mixins](#mixins), [selector inheritance](#extend),
+    and [more](/docs/yardoc/file.SASS_REFERENCE.html).
+    It's translated to well-formatted, standard CSS
+    using the command line tool or a web-framework plugin.
 
-:maruku
-  <blockquote cite="https://twitter.com/mattdarby/status/1737336511" markdown="1">
-    "Using SASS has not only improved my CSS, but also the page
-    structure/layout, and decreased IE headaches. Super highly
-    recommended."
-    - [Matt Darby](https://twitter.com/mattdarby/status/1737336511)
-  </blockquote>
+    Sass has two syntaxes.
+    The main syntax is known as "SCSS" (for "Sassy CSS")
+    and is a superset of CSS3's syntax.
+    This means that every valid CSS3 stylesheet is valid SCSS as well.
+    SCSS files use the extension `.scss`.
 
-  <blockquote cite="http://6brand.com/converting-css-to-sass-files.html" markdown="1">
-    "If I were to write a post about how much Haml and Sass have
-    changed the way I develop for the web ... I'd write an elaborate
-    sonnet about how Sass makes CSS almost usable for developers who
-    like to keep things DRY."
-    - [Jack Canty, Hoopla!](http://6brand.com/converting-css-to-sass-files.html)
-  </blockquote>
+    The second, older syntax is known as
+    [the indented syntax](/docs/yardoc/file.INDENTED_SYNTAX.md) (or just "Sass").
+    It's for people who prefer conciseness over similarity to CSS.
+    Instead of brackets and semicolons,
+    it uses the indentation of lines to specify blocks.
+    Files in the indented syntax use the extention `.sass`.
 
-  <blockquote cite= "http://www.intridea.com/2009/2/4/sass-the-better-more-powerful-css" markdown="1">
-    "I am a huge fan of Sass (Syntactically Awesome Stylesheets) for
-    styling Rails applications. I have been using it on all of my
-    projects for quite a while now and have developed some great
-    techniques that make it much easier to organize, write, and read
-    stylesheets in an application. ... Sass retains most of the same
-    "feel" when writing the code as vanilla CSS. It simply adds more
-    power and better organizational tools, making it an easy choice as a
-    go-to replacement."
-    - [Michael Bleigh, Intridea](http://www.intridea.com/2009/2/4/sass-the-better-more-powerful-css)
-  </blockquote>
-
-.feature#beauty
-  %h2 Beauty
+.feature#variables
+  %h2 Variables
   %p
-    Sass does away with the unnecessary brackets and semicolons of CSS.
-    Properties are nested beneath selectors,
-    and each property gets its own line.
+    Use the same color all over the place?
+    Need to do some math with height and width and text size?
+    Sass supports variables as well as basic math operations.
 
   %pre.sass
     :preserve
-      // Sass
+      // SCSS
 
-      h1
-        height: 118px
-        margin-top: 1em
+      $blue: #3bbfce;
+      $margin: 16px;
 
-      .tagline
-        font-size: 26px
-        text-align: right
+      .content-navigation {
+        border-color: $blue;
+        color: $blue - #111;
+
+      .border {
+        padding: $margin / 2;
+        margin: $margin / 2;
+        border-color: $blue;
+      }
 
   %pre.css
     :preserve
       /* CSS */
 
-      h1 {
-        height: 118px;
-        margin-top: 1em;
+      .content-navigation {
+        border-color: #3bbfce;
+        color: #2aaebd;
       }
 
-      .tagline {
-        font-size: 26px;
-        text-align: right;
+      .border {
+        padding: 8px;
+        margin: 8px;
+        border-color: #3bbfce;
       }
 
 .feature#nesting
@@ -77,18 +68,22 @@
 
   %pre.sass
     :preserve
-      // Sass
+      // SCSS
 
-      table.hl
-        margin: 2em 0
-        td.ln
-          text-align: right
+      table.hl {
+        margin: 2em 0;
+        td.ln {
+          text-align: right;
+        }
+      }
 
-      li
-        font:
-          family: serif
-          weight: bold
-          size: 1.2em
+      li {
+        font: {
+          family: serif;
+          weight: bold;
+          size: 1.2em;
+        }
+      }
 
   %pre.css
     :preserve
@@ -107,70 +102,35 @@
         font-size: 1.2em;
       }
 
-.feature#variables
-  %h2 Variables
-  %p
-    Use the same color all over the place?
-    Need to do some math with height and width and text size?
-    Sass supports variables as well as basic math operations.
-
-  %pre.sass
-    :preserve
-      // Sass
-
-      !blue = #3bbfce
-      !margin = 16px
-
-      .content_navigation
-        border-color = !blue
-        color = !blue - #111
-
-      .border
-        padding = !margin / 2
-        margin = !margin / 2
-        border-color = !blue
-
-  %pre.css
-    :preserve
-      /* CSS */
-
-      .content_navigation {
-        border-color: #3bbfce;
-        color: #2aaebd;
-      }
-
-      .border {
-        padding: 8px;
-        margin: 8px;
-        border-color: #3bbfce;
-      }
-
 .feature#mixins
   %h2 Mixins
   %p
-    Even more powerful than variables,
+    Even more useful than variables,
     mixins allow you to re-use whole chunks of CSS,
     properties or selectors.
     You can even give them arguments.
 
   %pre.sass
     :preserve
-      // Sass
+      // SCSS
 
-      =table-scaffolding
-        th
-          text-align: center
-          font-weight: bold
-        td, th
-          padding: 2px
+      @mixin table-base {
+        th {
+          text-align: center;
+          font-weight: bold;
+        }
+        td, th {padding: 2px}
+      }
 
-      =left(!dist)
-        float: left
-        margin-left = !dist
+      @mixin left($dist) {
+        float: left;
+        margin-left: $dist;
+      }
 
-      #data
-        +left(10px)
-        +table-scaffolding
+      #data {
+        @include left(10px);
+        @include table-base;
+      }
 
   %pre.css
     :preserve
@@ -186,4 +146,47 @@
       }
       #data td, #data th {
         padding: 2px;
+      }
+
+.feature#extend
+  %h2 Selector Inheritance
+  %p
+    Sass can tell one selector to inherit all the styles of another
+    by inserting the first everywhere the second appears in the stylesheet.
+
+  %pre.sass
+    :preserve
+      // SCSS
+
+      .error {
+        border: 1px #f00;
+        background: #fdd;
+      }
+      .error.intrusion {
+        font-size: 1.3em;
+        font-weight: bold;
+      }
+
+      .badError {
+        @extend .error;
+        border-width: 3px;
+      }
+
+  %pre.css
+    :preserve
+      /* CSS */
+
+      .error, .badError {
+        border: 1px #f00;
+        background: #fdd;
+      }
+
+      .error.intrusion,
+      .badError.intrusion {
+        font-size: 1.3em;
+        font-weight: bold;
+      }
+
+      .badError {
+        border-width: 3px;
       }
