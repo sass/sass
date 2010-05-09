@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.0 (Unreleased)
+
+* When converting HTML with inline formatting to Haml via `html2haml`,
+  use `>` or {Haml::Helpers#succeed #succeed} where necessary.
+
 ## 3.0.0.rc.5
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.5).

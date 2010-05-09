@@ -246,6 +246,39 @@ HTML
     assert_equal("%p # foo bar #", render("<p># foo bar #</p>"))
   end
 
+  def test_comma_post_tag
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+#foo
+  %span> Foo
+  ,
+  %span bar
+  Foo
+  %span> bar
+  ,
+  %span baz
+HAML
+<div id="foo">
+  <span>Foo</span>, <span>bar</span>
+  Foo<span>bar</span>, <span>baz</span>
+</div>
+HTML
+  end
+
+  def test_comma_post_tag_with_text_before
+    assert_equal(<<HAML.rstrip, render(<<HTML))
+#foo
+  Batch
+  - succeed "," do
+    %span Foo
+  %span Bar
+HAML
+<div id="foo">
+  Batch
+  <span>Foo</span>, <span>Bar</span>
+</div>
+HTML
+  end
+
   begin
     require 'haml/html/erb'
     include ErbTests
