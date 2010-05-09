@@ -1,6 +1,6 @@
 #header
-  !nav_top = 145px
-  !nav_left = 200px
+  $nav-top: 145px
+  $nav-left: 200px
   height: 250px
   width: 795px
   margin: 0 auto
@@ -22,16 +22,16 @@
     position: absolute
     background-color: #f8f8ff
     padding: 5px
-    +border-radius(5px, "bottom")
+    +border-radius(5px, bottom)
     border:
       width: 1px
       style: solid
-      color = !border_color
+      color: $border-color
       top:
         style: none
       bottom:
         width: 5px
-        color = !main_color
+        color: $main-color
 
     code:before
       content: "$ "
@@ -41,11 +41,11 @@
 
   #nav
     position: relative
-    top = !nav_top
-    margin-left = !nav_left
+    top: $nav-top
+    margin-left: $nav-left
     height: 23px
     padding: 11px 0
-    border-bottom = !border
+    border-bottom: $border
 
     ul
       margin: 0
@@ -63,24 +63,24 @@
         font: 14px  Georgia, Garamond, Times, "Times New Roman", serif
         letter-spacing: 0px
         border: 1px solid #cacaca
-        border-bottom: 3px solid #{!main_color}
+        border-bottom: 3px solid $main-color
 
         a
           text-decoration: none
-          color = !main_color / 4
+          color: $main-color / 4
 
           &:hover
-            color = !main_color
+            color: $main-color
 
   #latest
     position: relative
     text-align: center
-    top = !nav_top + 25px
-    margin-left = !nav_left
-    color: #888
+    top: $nav-top + 25px
+    margin-left: $nav-left
+    color: #888888
 
     h2
-      color: #555
+      color: #555555
       font:
         size: 1.4em
         weight: bold
