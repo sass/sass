@@ -26,7 +26,8 @@
   %p
     Use the same color all over the place?
     Need to do some math with height and width and text size?
-    Sass supports variables as well as basic math operations.
+    Sass supports variables as well as basic math operations
+    and <a href="/docs/yardoc/Sass/Script/Functions.html">many useful functions</a>.
 
   %pre.sass
     :preserve
@@ -37,7 +38,8 @@
 
       .content-navigation {
         border-color: $blue;
-        color: $blue - #111;
+        color:
+          darken($blue, 10%);
       }
 
       .border {
@@ -52,7 +54,7 @@
 
       .content-navigation {
         border-color: #3bbfce;
-        color: #2aaebd;
+        color: #2b9eab;
       }
 
       .border {
