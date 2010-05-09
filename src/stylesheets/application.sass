@@ -1,10 +1,10 @@
 /* Haml
-  Design & CSS - Lukas Dryja
-  http://www.lukasdryja.com
-  --------------------
+ * Design & CSS - Lukas Dryja
+ * http://www.lukasdryja.com
+ * --------------------
 
-@import compass/utilities/general/inline_block.sass
-@import blueprint/modules/buttons.sass
+@import compass/css3/inline_block.sass
+@import blueprint/buttons.sass
 
 @import vars.sass
 @import header.sass
@@ -16,23 +16,22 @@
   margin: 0
   padding: 0
 
-
 html, body
   padding: 0
-  background: #FFFFFF
+  background: white
   color: #090909
   height: 100%
-  font: 13px/21px Georgia, Garamond, Times, "Times New Roman", serif
-  border-top: 2px solid #{!main_color}
+  font: 13px / 21px Georgia, Garamond, Times, "Times New Roman", serif
+  border-top: 2px solid #{$main-color}
 
 
 a
   text-decoration: underline
   outline: none
-  color = !main_color
+  color: $main-color
 
   &:hover
-    color = !main_color + #666
+    color: $main-color + #666666
 
 
 p
@@ -49,7 +48,7 @@ p
   margin: 0 auto
   padding: 0 30px
   width: 795px
-  border-right = !border
+  border-right: $border
 
 
 a img
@@ -77,7 +76,7 @@ ul
   padding-left: 20px
 
 /* Intro paragraph
-  --------------------
+ * --------------------
 p
   &.mainintro
     float: left
@@ -89,7 +88,6 @@ p
     margin-top: 40px
     margin-bottom: 60px
     background: url(/images/maindescription.gif) no-repeat top left
-
   &.intro
     margin-top: 20px
     margin-right: 50px
@@ -101,22 +99,20 @@ blockquote
   font-style: italic
   color: #757575
 
-
 /* Main
-  --------------------
+ * --------------------
 #main
   margin: 0 auto
   position: relative
   clear: both
-
   &:after
     clear: both
     display: block
-    content: ''
+    content: ""
 
 
 /* Footer
-  --------------------
+ * --------------------
 #footer
   padding-top: 10px
   font-style: italic
@@ -125,7 +121,7 @@ blockquote
 
 
 /* Misc
-  --------------------
+ * --------------------
 dt
   padding-top: 10px
   padding-left: 10px
@@ -150,14 +146,14 @@ pre
       style: solid
       width: 1px
   code
-    border-color = !border_color
+    border-color: $border-color
     background-color: #fff8f8
   &.haml
-    border-color = !main_color
+    border-color: $main-color
     background-color: #ffeee0
   &.erb, &.html
     background-color: #e5e5e5
-    border-color: #777
+    border-color: #777777
 
 h4
   margin:

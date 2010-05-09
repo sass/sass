@@ -1,6 +1,6 @@
-=showdown-lang-border(!side)
-  border-#{!side}: 4px double #ccc
-  -moz-border-#{!side}-colors: #ccc white white #e5e5e5
+=showdown-lang-border($side)
+  border-#{$side}: 4px double #cccccc
+  -moz-border-#{$side}-colors: #cccccc white white #e5e5e5
 
 #showdown
   margin-top: 1em
@@ -16,14 +16,14 @@
     border:
       width: 1px
       style: solid
-      color = !main_color
+      color: $main-color
 
     &, & span
       +border-radius(8px)
 
     span
       display: block
-      background-color = !main_color
+      background-color: $main-color
       color: white
       padding: 5px 0
       border:
@@ -45,12 +45,12 @@
         left: 8px
         bottom: 2px
         top: 7px
-      +showdown-lang-border("top")
-      +showdown-lang-border("left")
-      +showdown-lang-border("right")
-      +border-radius(8px, "top")
+      +showdown-lang-border(top)
+      +showdown-lang-border(left)
+      +showdown-lang-border(right)
+      +border-radius(8px, top)
     pre
-      +border-radius(8px, "top")
+      +border-radius(8px, top)
       color: #747474
       height: 16em
       margin: 0
@@ -64,11 +64,10 @@
         style: solid
         width: 1px
         color: #dedede !important
-
   .haml
     float: left
     h3
-      color = !main_color
+      color: $main-color
   .erb
     position: relative
     right: -65px

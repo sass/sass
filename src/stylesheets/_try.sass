@@ -1,21 +1,21 @@
 #try
-  !margin = 3%
-  !padding = 2%
+  $margin: 3%
+  $padding: 2%
 
   textarea
-    margin-left = !margin
+    margin-left: $margin
     height: 30em
     width: 460px
 
   .result
-    width = 100% - (!margin + !padding) * 2
+    width: 100% - ($margin + $padding) * 2
     margin:
       top: 0
       bottom: 1em
       left: auto
       right: auto
-    padding = !padding
-    background-color: #eee
+    padding: $padding
+    background-color: #eeeeee
     overflow: auto
 
   textarea, .result
