@@ -5,12 +5,12 @@
     %code gem install haml
     %br/
     %code
-      %span.executable css2sass
-      style.css style.sass
+      %span mv
+      style.css style.scss
     %br/
     %code
       %span.executable sass
-      style.sass style.css
+      \--watch style.scss:style.css
 
   #nav
     %ul
