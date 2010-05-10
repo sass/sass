@@ -5,496 +5,6 @@
 
 ## 3.0.0 (Unreleased)
 
-* Don't force nested properties to have a trailing semicolon.
-
-## 3.0.0.rc.5
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.5).
-
-### `@extend` Behavior Change
-
-The behavior of the `@extend` directive has been changed slightly
-when a selector sequence (e.g. `.foo .bar`) uses `@extend`.
-In RC 1 through 4, when a selector sequence used `@extend`
-and the extended selector was used as part of a sequence,
-every possible selector matching both of those sequences was generated.
-For example:
-
-    .foo .bar {@extend .bang}
-    .baz .bang {color: blue}
-
-would be compiled to:
-
-    .foo .bar, .baz .bang, .baz .foo .bar, .foo.baz .bar, .foo .baz .bar {
-      color: blue; }
-
-In many common cases, this produced a huge number of selectors,
-almost all of them not what the author intended.
-The new behavior removes most of the extra selectors that were generated,
-leaving only selectors that are likely to be useful.
-For details on how this works, see {file:SASS_REFERENCE.md#merging_selector_sequences the Sass reference}.
-
-### Bug Fixes
-
-* Fix a bug with quoted SassScript strings in `=`.
-  Not that `=` should be used anymore,
-  but we're trying to preserve backwards-compatibility.
-
-## 3.0.0.rc.4
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.4).
-
-### Convert Less to SCSS
-
-Sass RC 4 comes with the ability to convert [Less](http://lesscss.org) files
-to SCSS (or the Sass syntax, although I anticipate less interest in that).
-This is done with the standard `sass-convert` tool.
-For example:
-
-    # Convert all .less files in the current directory into .scss files
-    sass-convert --from less --to scss --recursive .
-
-This is done using the Less parser, so it requires that the `less` RubyGem be installed.
-
-#### Incompatibilities
-
-Because of the reasonably substantial differences between Sass and Less,
-there are some things that can't be directly translated,
-and one feature that can't be translated at all.
-In the tests I've run on open-source Less stylesheets,
-none of these have presented issues, but it's good to be aware of them.
-
-First, Less doesn't distinguish fully between mixins and selector inheritance.
-In Less, all classes and some other selectors may be used as mixins,
-alongside more Sass-like mixins.
-If a class is being used as a mixin,
-it may also be used directly in the HTML,
-so it's not safe to translate it into a Sass mixin.
-What `sass-convert` does instead is leave the class in the stylesheet as a class,
-and use {file:SASS_REFERENCE.md#extend `@extend`}
-rather than {file:SASS_REFERENCE.md#including_a_mixin `@include`}
-to take on the styles of that class.
-Although `@extend` and mixins work quite differently,
-using `@extend` here doesn't actually seem to make a difference in practice.
-
-Another issue with Less mixins is that Less allows nested selectors
-(such as `.body .button` or `.colors > .teal`) to be used
-as a means of "namespacing" mixins.
-Sass's `@extend` doesn't work that way,
-so it does away with the namespacing and just extends the base class
-(so `.colors > .teal` becomes simply `@extend .teal`).
-In practice, this feature doesn't seem to be widely-used,
-but `sass-convert` will print a warning and leave a comment
-when it encounters it just in case.
-
-Finally, Less has the ability to directly access variables and property values
-defined in other selectors, which Sass does not support.
-Whenever such an accessor is used,
-`sass-convert` will print a warning
-and comment it out in the SCSS output.
-Like namespaced mixins, though,
-this does not seem to be a widely-used feature.
-
-### Minor Improvements
-
-* Don't check stylesheets for each request when running tests in Rails.
-  This should speed up some tests significantly.
-
-* Allow `@extend` to appear inside of control-flow directives:
-  `@if`, `@for`, and `@while`.
-
-* Don't add extra newlines between variables with `sass-convert`.
-
-## 3.0.0.rc.3
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.3).
-
-### `@extend` Support
-
-It's now possible to create a loop of `@extend` relations.
-For example,
-
-    .blueLink {
-      color: blue;
-      @extend .link; }
-
-    .link {
-      font-weight: bold;
-      @extend .blueLink; }
-
-Before, this would have raised an error.
-Now it produces the following CSS:
-
-    .link, .blueLink {
-      color: blue; }
-
-    .blueLink, .link {
-      font-weight: bold; }
-
-### Rails Beta Support
-
-* **Support for Rails 3.0.0.beta1 has been dropped**.
-  Use Rails beta 2 or later instead.
-
-* Properly insert the Rack middleware so that stylesheets are updated on each request.
-
-### Merb Rack Support
-
-The Sass Rails plugin now works using Rack middleware by default.
-
-### Bug Fixes
-
-* Don't die when given a 70 kb property.
-
-* `sass --watch` now works with a single file on OS X.
-
-## 3.0.0.rc.2
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.2).
-
-### CSS Hack Support
-
-The CSS comment hack that selects for IE6 is now allowed in properties.
-For example:
-
-    #main { color/**/: blue }
-
-This hack was allowed in Sass prior to RC 1, but was broken in RC 1.
-This is the first time it's worked in SCSS, since the comment was silently swallowed.
-
-### `@extend` Output
-
-The `@extend` directive now produces significantly reduced output
-by removing more specific selectors when more general ones are present.
-For example:
-
-    a:hover {text-decoration: underline}
-    .hoverlink {@extend a; @extend :hover}
-
-is now compiled to:
-
-    a:hover, .hoverlink {
-      text-decoration: underline; }
-
-rather than:
-
-    a:hover, a.hoverlink, .hoverlink:hover, .hoverlink {
-      text-decoration: underline; }
-
-### Minor Improvements
-
-* Pseudo-selectors remain at the end of selectors that are merged via `@extend`.
-
-* Empty selectors render like `.foo {}` when converted to SCSS using `sass-convert`.
-
-* Allow `@extend` to be used within mixins.
-
-* `sass --update .` now compiles all Sass/SCSS files in the current directory into CSS files.
-  Same for `sass --watch .`.
-
-* Report the filename when a syntax error is found with `sass-convert`.
-
-### Bug Fixes
-
-* Properly report line numbers for invalid selectors.
-
-* `@extend` is converted via `sass-convert`.
-
-* Fix Ruby 1.8.6 support.
-
-* Make sure division is always converted to division with `sass-convert`,
-  and never to `num/num` literals.
-
-* Don't report duplicate load paths when a file can't be found.
-
-## 3.0.0.rc.1
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.1).
-
-### `@extend`
-
-There are often cases when designing a page
-when one class should have all the styles of another class,
-as well as its own specific styles.
-The most common way of handling this is to use both the more general class
-and the more specific class in the HTML.
-For example, suppose we have a design for a normal error
-and also for a serious error. We might write our markup like so:
-
-    <div class="error seriousError">
-      Oh no! You've been hacked!
-    </div>
-
-And our styles like so:
-
-    .error {
-      border: 1px #f00;
-      background-color: #fdd;
-    }
-    .seriousError {
-      border-width: 3px;
-    }
-
-Unfortunately, this means that we have to always remember
-to use `.error` with `.seriousError`.
-This is a maintenance burden, leads to tricky bugs,
-and can bring non-semantic style concerns into the markup.
-
-The `@extend` directive avoids these problems
-by telling Sass that one selector should inherit the styles of another selector.
-For example:
-
-    .error {
-      border: 1px #f00;
-      background-color: #fdd;
-    }
-    .seriousError {
-      @extend .error;
-      border-width: 3px;
-    }
-
-This means that all styles defined for `.error`
-are also applied to `.seriousError`,
-in addition to the styles specific to `.seriousError`.
-In effect, everything with class `.seriousError` also has class `.error`.
-
-Other rules that use `.error` will work for `.seriousError` as well.
-For example, if we have special styles for errors caused by hackers:
-
-    .error.intrusion {
-      background-image: url("/image/hacked.png");
-    }
-
-Then `<div class="seriousError intrusion">`
-will have the `hacked.png` background image as well.
-
-#### How it Works
-
-`@extend` works by inserting the extending selector (e.g. `.seriousError`)
-anywhere in the stylesheet that the extended selector (.e.g `.error`) appears.
-Thus the example above:
-
-    .error {
-      border: 1px #f00;
-      background-color: #fdd;
-    }
-    .error.intrusion {
-      background-image: url("/image/hacked.png");
-    }
-    .seriousError {
-      @extend .error;
-      border-width: 3px;
-    }
-
-is compiled to:
-
-    .error, .seriousError {
-      border: 1px #f00;
-      background-color: #fdd; }
-
-    .error.intrusion, .seriousError.intrusion {
-      background-image: url("/image/hacked.png"); }
-
-    .seriousError {
-      border-width: 3px; }
-
-When merging selectors, `@extend` is smart enough
-to avoid unnecessary duplication,
-so something like `.seriousError.seriousError` gets translated to `.seriousError`.
-In addition, it won't produce selectors that can't match anything, like `#main#footer`.
-
-See also {file:SASS_REFERENCE.md#extend the `@extend` reference documentation}.
-
-### Sass Property Syntax
-
-New-style properties (with the colon after the name) in the indented syntax
-now allow whitespace before the colon. For example:
-
-    foo
-      color : blue
-
-### `Sass::Plugin.force_update_stylesheets`
-
-{Sass::Plugin} has a new method, {Sass::Plugin#force_update_stylesheets force_update_stylesheets}.
-This functions just like {Sass::Plugin#update_stylesheets},
-except that it doesn't check modification times and doesn't use the cache;
-all stylesheets are always compiled anew.
-
-### Minor Changes
-
-* Running `sass-convert --from sass --to sass` will raise an error
-  unless `--in-place` is provided,
-  to prevent accidental erasure of source files.
-
-* SCSS parsing speed is dramatically improved.
-
-* Add a `:read_cache` option to allow the Sass cache to be read from but not written to.
-
-* Don't write to the Sass cache when running `sass-convert`.
-
-### Bug Fixes
-
-* Variables are now allowed as arguments to `url()`.
-
-* `#{}` interpolation is now allowed within `url()`.
-
-* `url()`s within Sass2 properties are properly converted to Sass 3 or SCSS now.
-
-* Don't consider e.g. `foo ($bar + $baz)` to be a function call.
-  Function calls can't have whitespace between the name and the parentheses.
-
-* Allow interpolation in Sass properties to contain spaces.
-
-* Don't crash with odd HSL errors for some color functions.
-
-* Don't crash when files fail to exist in certain obscure updating circumstances
-  (thanks to [thedarkone](http://github.com/thedarkone)).
-
-## 3.0.0.beta.3
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).
-
-### `@import` in Sass
-
-The Sass `@import` statement now allows non-CSS files to be specified with quotes,
-for similarity with the SCSS syntax. For example, `@import "foo.sass"`
-Will now import the `foo.sass` file, rather than compiling to `@import "foo.sass";`.
-
-### Bug Fixes
-
-* Make sure nested comments use the proper prefix when `sass-convert` outputs Sass.
-
-* Allow comments to begin with ` *` in all cases.
-
-## 3.0.0.beta.2
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.2).
-
-### Stylesheet Updating Speed
-
-Several caching layers were added to Sass's stylesheet updater.
-This means that it should run significantly faster.
-This benefit will be seen by people using Sass in development mode
-with Rails, Rack, and Merb,
-as well as people using `sass --watch` from the command line,
-and to a lesser (but still significant) extent `sass --update`.
-Thanks to [thedarkone](http://github.com/thedarkone).
-
-### New Sass Functions for Introspection
-
-Several new functions were added to make it easier to have
-more flexible arguments to mixins and to enable deprecation
-of obsolete APIs.
-
-* {Sass::Script::Functions#type_of `type-of`} -- Returns the type of a value.
-* {Sass::Script::Functions#unit `unit`} --
-  Returns the units associated with a number.
-* {Sass::Script::Functions#unitless `unitless`} --
-  Returns whether a number has units or not.
-* {Sass::Script::Functions#comparable `comparable`} --
-  Returns whether two numbers can be added or compared.
-
-### `@warn`
-
-A new directive `@warn` has been added that allows Sass libraries to emit warnings.
-This can be used to issue deprecation warnings, discourage sloppy use of mixins, etc.
-`@warn` takes a single argument: a SassScript expression that will be
-displayed on the console along with a stylesheet trace for locating the warning.
-For example:
-
-    @mixin blue-text {
-      @warn "The blue-text mixin is deprecated. Use new-blue-text instead.";
-      color: #00f;
-    }
-
-Warnings may be silenced with the new `--quiet` command line option,
-or the corresponding {file:SASS_REFERENCE.md#quiet-option `:quiey` Sass option}.
-This option will also affect warnings printed by Sass itself.
-Warnings are off by default in the Rails, Rack, and Merb production environments.
-
-### `sass-convert`
-
-#### `--recursive`
-
-A `--recursive` option has been added
-that allows `sass-convert` to convert an entire directory of files.
-`--recursive` requires that both the `--from` and `--to` flags are specified.
-For example:
-
-    # Convert all .sass files in stylesheets/ to SCSS.
-    # "sass2" means that these files are assumed to use the Sass 2 syntax.
-    $ sass-convert --recursive --from sass2 --to scss stylesheets/
-
-#### `--dasherize`
-
-The `--dasherize` options converts all underscores to hyphens,
-which are now allowed as part of identifiers in Sass.
-Note that since underscores may still be used in place of hyphens
-when referring to mixins and variables,
-this won't cause any backwards-incompatibilities.
-
-#### Sass Comment Format
-
-When converting to the indented syntax,
-each line of comments past the first begins with either `//` (for Sass comments)
-or ` *` (for CSS comments).
-This prevents some whitespace errors.
-
-### Minor Changes
-
-Indented-syntax `/*` comments may now include `*` on lines beyond the first,
-which will get stripped out of the output.
-This means that the following will render nicely:
-
-    /* Foo
-     * Bar
-     * Baz
-
-#### Bug Fixes
-
-* Include `;` when rendering nested properties.
-
-* Interpolation is allowed immediately following `.`, `#`, and `:` in selectors,
-  as well as in attribute selector names.
-
-* Interpolation works even when there's only a hyphen
-  separating two interpolation sections,
-  as in `-foo-#{$a}-#{$b}`.
-
-* Properly parse the `#name: value` Safari hack.
-
-* When converting from Sass 2,
-  empty strings as variable values are preserved.
-
-* `#{}` interpolation within strings will now be converted properly
-  to `#{}` interpolation within strings.
-
-* Don't double-escape backslashes in strings.
-
-* Perform all conversions to rules within directive blocks
-  when converting CSS.
-
-* Prevent multiline CSS selectors from getting cut off
-  in certain rare cases.
-
-* Improve the parsing of mixin argument lists.
-  This mostly means that error messages will be clearer.
-
-### CSS Parsing
-
-The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
-
-### Bug Fixes
-
-* Don't die when using `--watch` under certain Windows configurations.
-
-* Fix an exception that was raised when using the `:debug_info` option
-  with Ruby 1.9.
-
-## 3.0.0.beta.1
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.1).
-
 ### Deprecations -- Must Read!
 {#3-0-0-deprecations}
 
@@ -525,6 +35,12 @@ The proprietary Microsoft `alpha(opacity=20)` syntax is now correctly parsed.
   and will be removed in Sass 3.2.
   Use the new `sass-convert` tool instead.
   See also [this changelog entry](#3-0-0-sass-convert).
+
+* Selector parent references using `&` can now only be used
+  where element names are valid.
+  This is because Sass 3 fully parses selectors
+  to support the new [`@extend` directive](#3-0-0-extend),
+  and it's possible that the `&` could be replaced by an element name.
 
 ### SCSS (Sassy CSS)
 
@@ -757,6 +273,115 @@ is the same as:
     a
       +pretty-text
 
+#### Sass Properties
+
+New-style properties (with the colon after the name) in indented syntax
+now allow whitespace before the colon. For example:
+
+    foo
+      color : blue
+
+#### Sass `@import`
+
+The Sass `@import` statement now allows non-CSS files to be specified with quotes,
+for similarity with the SCSS syntax. For example, `@import "foo.sass"`
+will now import the `foo.sass` file, rather than compiling to `@import "foo.sass";`.
+
+### `@extend`
+{#3-0-0-extend}
+
+There are often cases when designing a page
+when one class should have all the styles of another class,
+as well as its own specific styles.
+The most common way of handling this is to use both the more general class
+and the more specific class in the HTML.
+For example, suppose we have a design for a normal error
+and also for a serious error. We might write our markup like so:
+
+    <div class="error seriousError">
+      Oh no! You've been hacked!
+    </div>
+
+And our styles like so:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+    .seriousError {
+      border-width: 3px;
+    }
+
+Unfortunately, this means that we have to always remember
+to use `.error` with `.seriousError`.
+This is a maintenance burden, leads to tricky bugs,
+and can bring non-semantic style concerns into the markup.
+
+The `@extend` directive avoids these problems
+by telling Sass that one selector should inherit the styles of another selector.
+For example:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+    .seriousError {
+      @extend .error;
+      border-width: 3px;
+    }
+
+This means that all styles defined for `.error`
+are also applied to `.seriousError`,
+in addition to the styles specific to `.seriousError`.
+In effect, everything with class `.seriousError` also has class `.error`.
+
+Other rules that use `.error` will work for `.seriousError` as well.
+For example, if we have special styles for errors caused by hackers:
+
+    .error.intrusion {
+      background-image: url("/image/hacked.png");
+    }
+
+Then `<div class="seriousError intrusion">`
+will have the `hacked.png` background image as well.
+
+#### How it Works
+
+`@extend` works by inserting the extending selector (e.g. `.seriousError`)
+anywhere in the stylesheet that the extended selector (.e.g `.error`) appears.
+Thus the example above:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+    .error.intrusion {
+      background-image: url("/image/hacked.png");
+    }
+    .seriousError {
+      @extend .error;
+      border-width: 3px;
+    }
+
+is compiled to:
+
+    .error, .seriousError {
+      border: 1px #f00;
+      background-color: #fdd; }
+
+    .error.intrusion, .seriousError.intrusion {
+      background-image: url("/image/hacked.png"); }
+
+    .seriousError {
+      border-width: 3px; }
+
+When merging selectors, `@extend` is smart enough
+to avoid unnecessary duplication,
+so something like `.seriousError.seriousError` gets translated to `.seriousError`.
+In addition, it won't produce selectors that can't match anything, like `#main#footer`.
+
+See also {file:SASS_REFERENCE.md#extend the `@extend` reference documentation}.
+
 ### Colors
 
 SassScript color values are much more powerful than they were before.
@@ -814,6 +439,20 @@ as on colors constructed with the {Sass::Script::Functions#hsl hsl} function.
 
 * The {Sass::Script::Functions#complement complement}
   function returns the complement of a color.
+
+### Other New Functions
+
+Several other new functions were added to make it easier to have
+more flexible arguments to mixins and to enable deprecation
+of obsolete APIs.
+
+* {Sass::Script::Functions#type_of `type-of`} -- Returns the type of a value.
+* {Sass::Script::Functions#unit `unit`} --
+  Returns the units associated with a number.
+* {Sass::Script::Functions#unitless `unitless`} --
+  Returns whether a number has units or not.
+* {Sass::Script::Functions#comparable `comparable`} --
+  Returns whether two numbers can be added or compared.
 
 ### Watching for Updates
 {#3-0-0-watch}
@@ -891,17 +530,142 @@ This is useful for converting files in the [Sass 2 syntax](#3-0-0-deprecations)
 to the new Sass 3 syntax,
 e.g. by doing `sass-convert --in-place --from sass2 style.sass`.
 
-#### Error Handling
+#### `--recursive`
 
-Several bug fixes and minor improvements have been made, including:
+The `--recursive` option allows `sass-convert` to convert an entire directory of files.
+`--recursive` requires both the `--from` and `--to` flags to be specified.
+For example:
 
-* Fixing line-number reporting for errors on the last line of templates
-  that didn't have trailing newlines.
+    # Convert all .sass files in stylesheets/ to SCSS.
+    # "sass2" means that these files are assumed to use the Sass 2 syntax.
+    $ sass-convert --recursive --from sass2 --to scss stylesheets/
 
-* Only displaying the text for the current line when reporting CSS parsing errors.
+#### `--dasherize`
 
-* Displaying the expected strings as strings rather than regular expressions
-  whenever possible.
+The `--dasherize` options converts all underscores to hyphens,
+which are now allowed as part of identifiers in Sass.
+Note that since underscores may still be used in place of hyphens
+when referring to mixins and variables,
+this won't cause any backwards-incompatibilities.
+
+#### Convert Less to SCSS
+
+`sass-convert` can also convert [Less](http://lesscss.org) files
+to SCSS (or the indented syntax, although I anticipate less interest in that).
+For example:
+
+    # Convert all .less files in the current directory into .scss files
+    sass-convert --from less --to scss --recursive .
+
+This is done using the Less parser, so it requires that the `less` RubyGem be installed.
+
+##### Incompatibilities
+
+Because of the reasonably substantial differences between Sass and Less,
+there are some things that can't be directly translated,
+and one feature that can't be translated at all.
+In the tests I've run on open-source Less stylesheets,
+none of these have presented issues, but it's good to be aware of them.
+
+First, Less doesn't distinguish fully between mixins and selector inheritance.
+In Less, all classes and some other selectors may be used as mixins,
+alongside more Sass-like mixins.
+If a class is being used as a mixin,
+it may also be used directly in the HTML,
+so it's not safe to translate it into a Sass mixin.
+What `sass-convert` does instead is leave the class in the stylesheet as a class,
+and use {file:SASS_REFERENCE.md#extend `@extend`}
+rather than {file:SASS_REFERENCE.md#including_a_mixin `@include`}
+to take on the styles of that class.
+Although `@extend` and mixins work quite differently,
+using `@extend` here doesn't actually seem to make a difference in practice.
+
+Another issue with Less mixins is that Less allows nested selectors
+(such as `.body .button` or `.colors > .teal`) to be used
+as a means of "namespacing" mixins.
+Sass's `@extend` doesn't work that way,
+so it does away with the namespacing and just extends the base class
+(so `.colors > .teal` becomes simply `@extend .teal`).
+In practice, this feature doesn't seem to be widely-used,
+but `sass-convert` will print a warning and leave a comment
+when it encounters it just in case.
+
+Finally, Less has the ability to directly access variables and property values
+defined in other selectors, which Sass does not support.
+Whenever such an accessor is used,
+`sass-convert` will print a warning
+and comment it out in the SCSS output.
+Like namespaced mixins, though,
+this does not seem to be a widely-used feature.
+
+### `@warn` Directive
+
+A new directive `@warn` has been added that allows Sass libraries to emit warnings.
+This can be used to issue deprecation warnings, discourage sloppy use of mixins, etc.
+`@warn` takes a single argument: a SassScript expression that will be
+displayed on the console along with a stylesheet trace for locating the warning.
+For example:
+
+    @mixin blue-text {
+      @warn "The blue-text mixin is deprecated. Use new-blue-text instead.";
+      color: #00f;
+    }
+
+Warnings may be silenced with the new `--quiet` command line option,
+or the corresponding {file:SASS_REFERENCE.md#quiet-option `:quiey` Sass option}.
+This option will also affect warnings printed by Sass itself.
+Warnings are off by default in the Rails, Rack, and Merb production environments.
+
+### Sass::Plugin API
+
+{Sass::Plugin} now has a large collection of callbacks that allow users
+to run code when various actions are performed.
+For example:
+
+    Sass::Plugin.on_updating_stylesheet do |template, css|
+      puts "#{template} has been compiled to #{css}!"
+    end
+
+For a full list of callbacks and usage notes, see the {Sass::Plugin} documentation.
+
+{Sass::Plugin} also has a new method,
+{Sass::Plugin#force_update_stylesheets force_update_stylesheets}.
+This works just like {Sass::Plugin#update_stylesheets},
+except that it doesn't check modification times and doesn't use the cache;
+all stylesheets are always compiled anew.
+
+### Output Formatting
+
+Properties with a value and *also* nested properties
+are now rendered with the nested properties indented.
+For example:
+
+    margin: auto
+      top: 10px
+      bottom: 20px
+
+is now compiled to:
+
+    margin: auto;
+      margin-top: 10px;
+      margin-bottom: 20px;
+
+#### `:compressed` Style
+
+When the `:compressed` style is used,
+colors will be output as the minimal possible representation.
+This means whichever is smallest of the HTML4 color name
+and the hex representation (shortened to the three-letter version if possible).
+
+### Stylesheet Updating Speed
+
+Several caching layers were added to Sass's stylesheet updater.
+This means that it should run significantly faster.
+This benefit will be seen by people using Sass in development mode
+with Rails, Rack, and Merb,
+as well as people using `sass --watch` from the command line,
+and to a lesser (but still significant) extent `sass --update`.
+Thanks to [thedarkone](http://github.com/thedarkone).
 
 ### Error Backtraces
 
@@ -914,23 +678,6 @@ In addition, when the `sass` executable encounters an error,
 it now prints the filename where the error occurs,
 as well as a backtrace of Sass imports and mixins.
 
-### Formatting
-
-Properties of the form
-
-    margin: auto
-      top: 10px
-      bottom: 20px
-
-That is, properties with a value and *also* nested properties,
-are now rendered as such in nested output mode:
-
-    margin: auto;
-      margin-top: 10px;
-      margin-bottom: 20px;
-
-That is, with the nested properties indented in the source.
-
 ### Ruby 1.9 Support
 
 * Sass and `css2sass` now produce more descriptive errors
@@ -939,11 +686,6 @@ That is, with the nested properties indented in the source.
 
 * Sass and `css2sass` now accept Unicode documents with a
   [byte-order-mark](http://en.wikipedia.org/wiki/Byte_order_mark).
-
-### Rack Support
-
-The Sass Rails plugin now works using Rack middleware by default
-in versions of Rails that support it (2.3 and onwards).
 
 ### Firebug Support
 
@@ -955,31 +697,7 @@ to report the Sass filename and line number for generated CSS files.
 
 This is also available via the `--debug-info` command-line flag.
 
-### Rip Support
-
-Haml is now compatible with the [Rip](http://hellorip.com/) package management system.
-Thanks to [Josh Peek](http://joshpeek.com/).
-
-### Sass::Plugin Callbacks
-
-{Sass::Plugin} now has a large collection of callbacks that allow users
-to run code when various actions are performed.
-For example:
-
-    Sass::Plugin.on_updating_stylesheet do |template, css|
-      puts "#{template} has been compiled to #{css}!"
-    end
-
-For a full list of callbacks and usage notes, see the {Sass::Plugin} documentation.
-
-### `:compressed` Style
-
-When the `:compressed` style is used,
-colors will be output as the minimal possible representation.
-This means whichever is smallest of the HTML4 color name
-and the hex representation (shortened to the three-letter version if possible).
-
-### Minor Changes
+### Minor Improvements
 
 * If a CSS or Sass function is used that has the name of a color,
   it will now be parsed as a function rather than as a color.
@@ -987,6 +705,20 @@ and the hex representation (shortened to the three-letter version if possible).
   rather than `fuchsia 12`,
   and `tealbang(12)` now renders as `tealbang(12)`
   rather than `teal bang(12)`.
+
+* The Sass Rails and Merb plugins now use Rack middleware by default.
+
+* Haml is now compatible with the [Rip](http://hellorip.com/) package management system.
+  Thanks to [Josh Peek](http://joshpeek.com/).
+
+* Indented-syntax `/*` comments may now include `*` on lines beyond the first.
+
+* A {file:SASS_REFERENCE.md#read_cache-option `:read_cache`} option has been added
+  to allow the Sass cache to be read from but not written to.
+
+* Stylesheets are no longer checked during each request
+  when running tests in Rails.
+  This should speed up some tests significantly.
 
 ## 2.2.24
 
