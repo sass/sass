@@ -5,65 +5,20 @@
 
 ## 3.0.0 (Unreleased)
 
-* When converting HTML with inline formatting to Haml via `html2haml`,
-  use `>` or {Haml::Helpers#succeed #succeed} where necessary.
+### Backwards Incompatibilities: Must Read!
 
-## 3.0.0.rc.5
+* The `puts` helper has been removed.
+  Use {Haml::Helpers#haml\_concat} instead.
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.5).
-
-There were no changes made to Haml between RC 4 and RC 5.
-
-## 3.0.0.rc.4
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.4).
-
-### Rails Beta Support
-
-* Setting options via `Haml::Template.options` in the initializer
-  now works without using `ActiveSupport.on_load(:action_view)`.
-
-## 3.0.0.rc.3
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.3).
-
-### Rails Beta Support
-
-* **Support for Rails 3.0.0.beta1 has been dropped**.
-  Use Rails beta 2 or later instead.
-
-* Don't improperly HTML-escape stuff like form contents.
-
-## 3.0.0.rc.2
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.2).
-
-There were no changes made to Haml between RC 1 and RC 2.
-
-## 3.0.0.rc.1
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.1).
+### More Useful Multiline
 
 Ruby code can now be wrapped across multiple lines
 as long as each line but the last ends in a comma.
+For example:
 
-## 3.0.0.beta.3
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.3).
-
-There were no changes made to Haml between beta 2 and beta 3.
-
-## 3.0.0.beta.2
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.2).
-
-* Make {Haml::Helpers#capture_haml capture\_haml} faster when using `:ugly`.
-
-* Add an `RDFa` doctype shortcut.
-
-## 3.0.0.beta.1
-
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.beta.1).
+    = link_to_remote "Add to cart",
+        :url => { :action => "add", :id => product.id },
+        :update => { :success => "cart", :failure => "error" }
 
 ### `haml_tag` and `haml_concat` Improvements
 
@@ -309,13 +264,17 @@ Thanks to [Josh Peek](http://joshpeek.com/).
 
 * Attributes are now sorted, to maintain a deterministic order.
 
+* `>` or {Haml::Helpers#succeed #succeed} are inserted where necessary
+  when inline formatting is used.
+
 * Multi-line ERB statements are now properly indented,
   and those without any content are removed.
 
-### Backwards Incompatibilities: Must Read!
+### Minor Improvements
 
-* The `puts` helper has been removed.
-  Use {Haml::Helpers#haml\_concat} instead.
+* {Haml::Helpers#capture_haml capture\_haml} is now faster when using `:ugly`.
+
+* Add an `RDFa` doctype shortcut.
 
 ## 2.2.24
 
