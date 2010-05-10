@@ -3,8 +3,10 @@
 * Table of contents
 {:toc}
 
-## 3.0.0 (Unreleased)
+## 3.0.0
 {#3-0-0}
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0).
 
 ### Backwards Incompatibilities: Must Read!
 
