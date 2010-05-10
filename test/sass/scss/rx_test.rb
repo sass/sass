@@ -57,7 +57,6 @@ class ScssRxTest < Test::Unit::TestCase
     assert_no_match IDENT, "-1foo"
     assert_no_match IDENT, "--foo"
     assert_no_match IDENT, "_1foo"
-    assert_no_match IDENT, "__foo"
     assert_no_match IDENT, "-_foo"
     assert_no_match IDENT, "_-foo"
     assert_no_match IDENT, "foo bar"

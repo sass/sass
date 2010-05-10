@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.1 (Unreleased)
+
+* Allow identifiers to begin with multiple underscores.
+
 ## 3.0.0
 {#3-0-0}
 
