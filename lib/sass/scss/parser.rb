@@ -340,9 +340,11 @@ module Sass
           @use_property_exception, false
         begin
           decl = declaration
-          # We want an exception if it's not there,
-          # but we don't want to consume if it is
-          tok!(/[;}]/) unless tok?(/[;}]/)
+          unless decl && decl.has_children
+            # We want an exception if it's not there,
+            # but we don't want to consume if it is
+            tok!(/[;}]/) unless tok?(/[;}]/)
+          end
           return decl
         rescue Sass::SyntaxError => decl_err
         end

@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.0 (Unreleased)
+
+* Don't force nested properties to have a trailing semicolon.
+
 ## 3.0.0.rc.5
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0.rc.5).

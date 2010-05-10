@@ -430,6 +430,28 @@ foo {
 SCSS
   end
 
+  def test_several_namespace_properties
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  bar: baz;
+  bang-bip: 1px;
+  bang-bop: bar;
+  buzz-fram: "foo";
+  buzz-frum: moo; }
+CSS
+foo {
+  bar: baz;
+  bang: {
+    bip: 1px;
+    bop: bar;}
+  buzz: {
+    fram: "foo";
+    frum: moo;
+  }
+}
+SCSS
+  end
+
   def test_nested_namespace_properties
     assert_equal <<CSS, render(<<SCSS)
 foo {
