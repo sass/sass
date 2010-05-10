@@ -217,6 +217,7 @@ module Sass::Script
     # @param blue [Number]
     #   A number between 0 and 255 inclusive,
     #   or between 0% and 100% inclusive
+    # @see #rgba
     # @return [Color]
     def rgb(red, green, blue)
       assert_type red, :Number
@@ -235,6 +236,7 @@ module Sass::Script
         end)
     end
 
+    # @see #rgb
     # @overload rgba(red, green, blue, alpha)
     #   Creates a {Color} object from red, green, and blue values,
     #   as well as an alpha channel indicating opacity.
@@ -291,6 +293,7 @@ module Sass::Script
     # @param lightness [Number] The lightness of the color.
     #   Must be between `0%` and `100%`, inclusive
     # @return [Color] The resulting color
+    # @see #hsla
     # @raise [ArgumentError] if `saturation` or `lightness` are out of bounds
     def hsl(hue, saturation, lightness)
       hsla(hue, saturation, lightness, Number.new(1))
@@ -309,6 +312,7 @@ module Sass::Script
     # @param alpha [Number] The opacity of the color.
     #   Must be between 0 and 1, inclusive
     # @return [Color] The resulting color
+    # @see #hsl
     # @raise [ArgumentError] if `saturation`, `lightness`, or `alpha` are out of bounds
     def hsla(hue, saturation, lightness, alpha)
       assert_type hue, :Number
@@ -368,6 +372,7 @@ module Sass::Script
     #
     # @param color [Color]
     # @return [Number] between 0deg and 360deg
+    # @see #adjust_hue
     # @raise [ArgumentError] if `color` isn't a color
     def hue(color)
       assert_type color, :Color
@@ -382,6 +387,8 @@ module Sass::Script
     #
     # @param color [Color]
     # @return [Number] between 0% and 100%
+    # @see #saturate
+    # @see #desaturate
     # @raise [ArgumentError] if `color` isn't a color
     def saturation(color)
       assert_type color, :Color
@@ -396,6 +403,8 @@ module Sass::Script
     #
     # @param color [Color]
     # @return [Number] between 0% and 100%
+    # @see #lighten
+    # @see #darken
     # @raise [ArgumentError] if `color` isn't a color
     def lightness(color)
       assert_type color, :Color
@@ -411,6 +420,8 @@ module Sass::Script
     # @overload def alpha(color)
     # @param color [Color]
     # @return [Number]
+    # @see #opacify
+    # @see #transparentize
     # @raise [ArgumentError] If `color` isn't a color
     def alpha(*args)
       if args.all? do |a|
@@ -429,6 +440,8 @@ module Sass::Script
     #
     # @param color [Color]
     # @return [Number]
+    # @see #opacify
+    # @see #transparentize
     # @raise [ArgumentError] If `color` isn't a color
     def opacity(color)
       assert_type color, :Color
@@ -447,6 +460,7 @@ module Sass::Script
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
+    # @see #transparentize
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def opacify(color, amount)
@@ -466,6 +480,7 @@ module Sass::Script
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
+    # @see #opacify
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def transparentize(color, amount)
@@ -485,6 +500,7 @@ module Sass::Script
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
+    # @see #darken
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def lighten(color, amount)
@@ -503,6 +519,7 @@ module Sass::Script
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
+    # @see #lighten
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def darken(color, amount)
@@ -521,6 +538,7 @@ module Sass::Script
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
+    # @see #desaturate
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def saturate(color, amount)
@@ -539,6 +557,7 @@ module Sass::Script
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
+    # @see #saturate
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def desaturate(color, amount)
