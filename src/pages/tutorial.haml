@@ -1,5 +1,5 @@
 :maruku
-  #### Install Ruby and Sass
+  ### Install Ruby and Sass
 
   First of all, let's get Sass up and running.
   If you're using OS X, you'll already have Ruby installed.
@@ -10,7 +10,7 @@
 
       gem install haml
 
-  #### Your First Sass Stylesheet
+  ### Your First Sass Stylesheet
 
   We'll start out by creating a very simple SCSS file.
   Since SCSS is an extension of CSS3,
@@ -35,7 +35,7 @@
 
       sass --watch stylesheets/sass:stylesheets/compiled
 
-  ### Nesting
+  ## Nesting
 
   Often when writing CSS, you'll have several selectors
   that all begin with the same thing.
@@ -117,7 +117,7 @@
         border-right-color: #ccc; }
 
 :maruku
-  #### Parent References
+  ### Parent References
 
   What about pseudoclasses, like `:hover`?
   There isn't a space between them and their parent selector,
@@ -148,7 +148,7 @@
           color: #c458cb; }
 
 :maruku
-  ### Variables
+  ## Variables
 
   Sass allows you to declare variables
   that can be used throughout your stylesheet.
@@ -196,7 +196,7 @@
   such as tweaking the coloring or the sizing,
   can be done in one place, not all over the stylesheet.
 
-  #### Operations and Functions
+  ### Operations and Functions
 
   In addition to just using variable values as they're defined,
   you can also modify and combine them using math and useful predefined functions.
@@ -252,7 +252,7 @@
             background-color: #d976e0; }
 
 :maruku
-  #### Interpolation
+  ### Interpolation
 
   Variables can be used for more than just property values.
   You can use `\#{}` to insert them into property names or selectors.
@@ -281,7 +281,7 @@
         -webkit-border-top-radius: 10px; }
 
 :maruku
-  ### Mixins
+  ## Mixins
 
   Mixins are one of the most powerful Sass features.
   They allow re-use of styles -- properties or even selectors --
@@ -324,7 +324,7 @@
         -webkit-border-top-radius: 10px; }
 
 :maruku
-  #### Arguments
+  ### Arguments
 
   The real power of mixins comes when you pass them arguments.
   Arguments are declared as a parenthesized, comma-separated list of variables.
@@ -370,7 +370,7 @@
         -webkit-border-left-radius: 8px; }
 
 :maruku
-  ### `@import`
+  ## `@import`
 
   Stylesheets can get pretty big.
   CSS has an `@import` directive
@@ -430,7 +430,7 @@
       #sidebar { @include rounded(left, 8px); }
 
 :maruku
-  ### Further Reading
+  ## Further Reading
 
   This should be enough to get you up and running with Sass,
   but there's a lot more to explore:
