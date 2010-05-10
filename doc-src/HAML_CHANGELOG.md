@@ -76,6 +76,7 @@ won't do any indentation of their arguments.
   for a given object by implementing the `haml_object_ref` method on that object.
   This method should return a string that will be used in place of the class name of the object
   in the generated class and id.
+  Thanks to [Tim Carey-Smith](http://twitter.com/halorgium).
 
 * All attribute values may be non-String types.
   Their `#to_s` method will be called to convert them to strings.
@@ -140,6 +141,7 @@ can now take regular expressions that specify which tags to make self-closing.
 
 The Haml executable now has a `--double-quote-attributes` option (short form: `-q`)
 that causes attributes to use a double-quote mark rather than single-quote.
+Thanks to [Charles Roper](http://charlesroper.com/).
 
 ### `:css` Filter
 
@@ -273,6 +275,7 @@ Thanks to [Josh Peek](http://joshpeek.com/).
 ### Minor Improvements
 
 * {Haml::Helpers#capture_haml capture\_haml} is now faster when using `:ugly`.
+  Thanks to [Alf Mikula](http://alfmikula.blogspot.com/).
 
 * Add an `RDFa` doctype shortcut.
 
