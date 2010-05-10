@@ -1,66 +1,47 @@
 :maruku
+  #### Install Ruby and Sass
+
   First of all, let's get Sass up and running.
-  To get it, [get Ruby](http://www.ruby-lang.org/en/downloads/) and run
+  If you're using OS X, you'll already have Ruby installed.
+  Windows users can install Ruby via [the Windows installer](http://rubyinstaller.org/download.html),
+  and Linux users can install it via their package manager.
+
+  Once you have Ruby installed, you can install Sass by running
 
       gem install haml
 
-  To compile a Sass file into CSS, run
+  #### Your First Sass Stylesheet
 
-      sass style.sass style.css
+  We'll start out by creating a very simple SCSS file.
+  Since SCSS is an extension of CSS3,
+  our first file will start out as plain CSS.
+  Open up a new file called **`style.scss`** in your [text editor](/editors.html),
+  and add the following:
 
-  If you're using a Ruby framework like Rails or Merb,
-  [you can set Sass up](/docs/yardoc/file.SASS_REFERENCE.html#plugin)
-  to compile automatically.
-  If you aren't - Sass works great with non-Ruby stuff -
-  you can use the [Compass Sass framework](http://compass-style.org)
-  to do the same thing.
+  <pre class="block sass">/* style.scss */
+  #navbar {
+    width: 80%;
+    height: 23px;
+  }</pre>
 
-  You can convert your existing CSS files to Sass
-  using the `css2sass` utility:
+  To translate this Sass file into a CSS file, run
 
-      css2sass style.css style.sass
+      sass --watch style.scss:style.css
 
-  `css2sass` knows about several neat Sass tricks,
-  so it's usually a good idea to start off your conversion using it.
-  For this tutorial, though, open up a brand new Sass file
-  so you can follow along.
+  Now whenever you change `style.scss`,
+  Sass will automatically update `style.css` with the changes.
+  Later on when you have several Sass files,
+  you can also watch an entire directory:
 
-  ## Syntax
+      sass --watch stylesheets/sass:stylesheets/compiled
 
-  The first thing to learn about Sass is the syntax.
-  Sass uses indentation and line breaks
-  rather than curly braces and semicolons
-  to define rules and divide up properties.
-  This may take a little getting used to at first,
-  but give it a try; you might find that you end up liking it
-  (if you really hate it, Sass 2.4 will support braces and semicolons as well).
-
-.compare
-  %pre.sass
-    :preserve
-      // Sass
-
-      .important
-        color: red
-        font-weight: bold
-
-  %pre.css
-    :preserve
-      /* CSS */
-
-      .important {
-        color: red;
-        font-weight: bold; }
-
-:markdown
-  ## Nesting
+  ### Nesting
 
   Often when writing CSS, you'll have several selectors
   that all begin with the same thing.
-  For example, you might have "#main p", "#main .notice",
-  and "#main .notice h2".
+  For example, you might have "#navbar ul", "#navbar li", and "#navbar li a".
   It's a pain to repeat the beginning over and over again,
-  especially when it's long.
+  especially when it gets long.
 
   Sass allows you to avoid this by nesting the child selectors
   within the parent selector.
@@ -68,61 +49,65 @@
 .compare
   %pre.sass
     :preserve
-      // Sass
+      /* style.scss */
 
-      #main
-        p
-          padding-left: 1.5em
-          margin: 0.5em 0
+      #navbar {
+        width: 80%;
+        height: 23px;
 
-        .notice
-          font-size: 1.2em
-          background-color: #fff
-
-          h2
-            font-size: 0.8em    
+        ul { list-style-type: none; }
+        li {
+          float: left;
+          a { font-weight: bold; }
+        }
+      }
 
   %pre.css
     :preserve
-      /* CSS */
+      /* style.css */
 
-      #main p {
-        padding-left: 1.5em;
-        margin: 0.5em 0; }
-      #main .notice {
-        font-size: 1.2em;
-        background-color: #fff;
-        #main .notice h2 {
-          font-size: 0.8em; }
+      #navbar {
+        width: 80%;
+        height: 23px; }
+        #navbar ul {
+          list-style-type: none; }
+        #navbar li {
+          float: left; }
+          #navbar li a {
+            font-weight: bold; }
 
 :markdown
-  Notice how the output is formatted as much like the Sass code as possible.
-  This is the default output mode,
-  but there are [other modes](/docs/yardoc/file.SASS_REFERENCE.html#output_style)
-  for all sorts of CSS formatting styles.
+  Notice how the output is formatted
+  to reflect the original nesting of the selectors.
+  This is the default CSS style,
+  but there are [other styles](/docs/yardoc/file.SASS_REFERENCE.html#output_style)
+  for all sorts of CSS formatting preferences.
   There's even one for compressing the CSS as much as possible!
 
   You can also nest properties,
-  so you don't have to repeat stuff like `border-left-` all the time.
+  so you don't have to repeat stuff like &#8220;`border-left-`" all the time.
 
 .compare
   %pre.sass
     :preserve
-      // Sass
+      /* style.scss */
 
-      .fakeshadow
-        border:
-          style: solid
-          left:
-            width: 4px
-            color: #888
-          right:
-            width: 2px
-            color: #ccc
+      .fakeshadow {
+        border: {
+          style: solid;
+          left: {
+            width: 4px;
+            color: #888;
+          }
+          right: {
+            width: 2px;
+            color: #ccc;
+          }
+        }
 
   %pre.css
     :preserve
-      /* CSS */
+      /* style.css */
 
       .fakeshadow {
         border-style: solid;
@@ -132,9 +117,9 @@
         border-right-color: #ccc; }
 
 :maruku
-  ### Parent Reference
+  #### Parent References
 
-  What about pseudo-selectors, like `:hover`?
+  What about pseudoclasses, like `:hover`?
   There isn't a space between them and their parent selector,
   but it's still possible to nest them.
   You just need to use the Sass special character `&`.
@@ -143,278 +128,317 @@
 .compare
   %pre.sass
     :preserve
-      // Sass
+      /* style.scss */
 
-      #main
-        width: 97%
-
-        a
-          color: #0000ff
-
-          &:hover
-            color: #ff0000
-
-          &:visited
-            color: #00ff00
+      a {
+        color: #ce4dd6;
+        &:hover { color: #ffb3ff; }
+        &:visited { color: #c458cb; }
+      }
 
   %pre.css
     :preserve
-      /* CSS */
+      /* style.css */
 
-      #main {
-        width: 97%; }
-        #main a {
-          color: #0000ff; }
-          #main a:hover {
-            color: #ff0000; }
-          #main a:visited {
-            color: #00ff00; }
+      a {
+        color: #ce4dd6; }
+        a:hover {
+          color: #ffb3ff; }
+        a:visited {
+          color: #c458cb; }
 
 :maruku
-  ## Variables
+  ### Variables
 
   Sass allows you to declare variables
   that can be used throughout your stylesheet.
-  Variables begin with `!` and can be
-  colors, strings of text, true/false, or numbers (with units!).
-  To use a variable in a property,
-  just use `=` instead of `:`.
+  Variables begin with `$` and are declared just like properties.
+  They can have any value that's allowed for a CSS property,
+  such as colors, numbers (with units), or text.
 
 .compare
   %pre.sass
     :preserve
-      // Sass
+      /* style.scss */
 
-      !main_color = #ce4dd6
-      !style = "solid"
+      $main-color: #ce4dd6;
+      $style: solid;
 
-      #header
-        border-bottom:
-          color = !main_color
-          style = !style
+      #navbar {
+        border-bottom: {
+          color: $main-color;
+          style: $style;
+        }
+      }
 
-      a
-        color = !main_color
+      a {
+        color: $main-color;
+        &:hover { border-bottom: $style 1px; }
+      }
 
   %pre.css
     :preserve
-      /* CSS */
+      /* style.css */
 
-      #header {
+      #navbar {
         border-bottom-color: #ce4dd6;
         border-bottom-style: solid; }
 
       a {
         color: #ce4dd6; }
+        a:hover {
+          border-bottom: solid 1px; }
 
 :maruku
   Variables allow you to re-use colors, sizes, and other values
   without repeating yourself.
-  This means that changes that should be small -
-  tweaking the coloring or the sizing -
+  This means that changes that should be small,
+  such as tweaking the coloring or the sizing,
   can be done in one place, not all over the stylesheet.
 
-  ### Operations
+  #### Operations and Functions
 
   In addition to just using variable values as they're defined,
-  you can also use operations on them.
+  you can also modify and combine them using math and useful predefined functions.
   This allows you to compute element sizing
   and even coloration dynamically.
 
   The standard math operations (`+`, `-`, `*`, `/`, and `%`)
-  are supported for numbers, and units will be converted if possible.
-  The same operations work for colors,
-  where the operation is performed
-  on the red, green, and blue components in turn.
+  are supported for numbers, even those with units.
+  For colors, there are all sorts of useful functions
+  for changing the [lightness](/docs/yardoc/Sass/Script/Functions.html#lighten-instance_method),
+  [hue](/docs/yardoc/Sass/Script/Functions.html#adjust_hue-instance_method),
+  [saturation](/docs/yardoc/Sass/Script/Functions.html#saturate-instance_method),
+  and [more](/docs/yardoc/Sass/Script/Functions.html).
 
 .compare
   %pre.sass
     :preserve
-      // Sass
+      /* style.scss */
 
-      !sidebar_width = 150px
-      !main_color = #ce4dd6
+      #navbar {
+        $navbar-width: 800px;
+        $items: 5;
+        $navbar-color: #ce4dd6;
 
-      #main
-        border:
-          color = !main_color
-          style: solid
-        background-color = !main_color * 1.1
-        padding-right = !sidebar_width + 20px
+        width: $navbar-width;
+        border-bottom: 2px solid $navbar-color;
 
-        #sidebar
-          width = !sidebar_width
+        li {
+          float: left;
+          width: $navbar-width/$items - 10px;
+
+          background-color:
+            lighten($navbar-color, 20%);
+          &:hover {
+            background-color:
+              lighten($navbar-color, 10%);
+          }
+        }
+      }
 
   %pre.css
     :preserve
-      /* CSS */
+      /* style.css */
 
-      #main {
-        border-color: #ce4dd6;
-        border-style: solid;
-        background-color: #e254eb;
-        padding-right: 170px; }
-        #sidebar {
-          width: 150px; }
+      #navbar {
+        width: 800px;
+        border-bottom: 2px solid #ce4dd6; }
+        #navbar li {
+          float: left;
+          width: 150px;
+          background-color: #e5a0e9; }
+          #navbar li:hover {
+            background-color: #d976e0; }
 
 :maruku
-  ### Interpolation
+  #### Interpolation
 
   Variables can be used for more than just property values.
-  You can use `\#{}` to insert them into property names or even selectors.
+  You can use `\#{}` to insert them into property names or selectors.
 
 .compare
   %pre.sass
     :preserve
-      // Sass
+      /* style.scss */
 
-      !border_side = "left"
-      !border_class = "nifty"
+      $side: top;
+      $radius: 10px;
 
-      .\#{!border_class}
-        border-\#{!border_side}:
-          style: solid
-          color: blue
+      .rounded-#{$side} {
+        border-\#{$side}-radius: $radius;
+        -moz-border-radius-\#{$side}: $radius;
+        -webkit-border-\#{$side}-radius: $radius;
+      }
 
   %pre.css
     :preserve
-      /* CSS */
+      /* style.css */
 
-      .nifty {
-        border-left-style: solid;
-        border-left-color: blue; }
+      .rounded-top {
+        border-top-radius: 10px;
+        -moz-border-radius-top: 10px;
+        -webkit-border-top-radius: 10px; }
 
 :maruku
-  ## Mixins
+  ### Mixins
 
-  Mixins are one of the most powerful aspects of Sass.
-  They allow re-use of styling - properties or even entire rules -
-  without having to re-write them or move them into a non-semantic class.
+  Mixins are one of the most powerful Sass features.
+  They allow re-use of styles -- properties or even selectors --
+  without having to copy and paste them
+  or move them into a non-semantic class.
 
-  To define a mixin, just write `=mixin-name`
-  with some Sass nested underneath.
-  To use it, write `+mixin-name` where you want it to be expanded.
+  Mixins are defined using the &#8220;`@mixin`" directive,
+  which takes a block of styles
+  that can then be included in another selector using the &#8220;`@include`" directive.
 
 .compare
   %pre.sass
     :preserve
-      // Sass
+      /* style.scss */
 
-      =float-left
-        display: inline
-        float: left
+      @mixin rounded-top {
+        $side: top;
+        $radius: 10px;
 
-      #sidebar
-        +float-left
+        border-\#{$side}-radius: $radius;
+        -moz-border-radius-\#{$side}: $radius;
+        -webkit-border-\#{$side}-radius: $radius;
+      }
 
-      #content img
-        +float-left
+      #navbar li { @include rounded-top; }
+      #footer { @include rounded-top; }
 
   %pre.css
     :preserve
-      /* CSS */
+      /* style.css */
 
-      #sidebar {
-        display: inline;
-        float: left; }
+      #navbar li {
+        border-top-radius: 10px;
+        -moz-border-radius-top: 10px;
+        -webkit-border-top-radius: 10px; }
 
-      #content img {
-        display: inline;
-        float: left; }
-
+      #footer {
+        border-top-radius: 10px;
+        -moz-border-radius-top: 10px;
+        -webkit-border-top-radius: 10px; }
 
 :maruku
-  ### Arguments
+  #### Arguments
 
   The real power of mixins comes when you pass them arguments.
   Arguments are declared as a parenthesized, comma-separated list of variables.
   Each of those variables is assigned a value each time the mixin is used.
 
   Mixin arguments can also be given default values
-  by following them with `=` and the value.
+  just like you'd declare them normally.
   Then the user of the mixin can choose not to pass that argument
   and it will be assigned the default value.
 
 .compare
   %pre.sass
     :preserve
-      // Sass
+      /* style.scss */
 
-      =replace-text(!img, !x = 50%, !y = 50%)
-        text-indent: -9999em
-        overflow: hidden
-        background:
-          image = image_url(!img)
-          repeat: no-repeat
-          position = !x !y
+      @mixin rounded($side, $radius: 10px) {
+        border-\#{$side}-radius: $radius;
+        -moz-border-radius-\#{$side}: $radius;
+        -webkit-border-\#{$side}-radius: $radius;
+      }
 
-      #header h1
-        +replace-text("/images/logo.png")
-
-      li#overview
-        +replace-text("/images/overview.png", 20%)
+      #navbar li { @include rounded(top); }
+      #footer { @include rounded(top, 5px); }
+      #sidebar { @include rounded(left, 8px); }
 
   %pre.css
     :preserve
-      /* CSS */
+      /* style.css */
 
-      #header h1 {
-        text-indent: -9999em;
-        overflow: hidden;
-        background-image: image_url(/images/logo.png);
-        background-repeat: no-repeat;
-        background-position: 50% 50%; }
+      #navbar li {
+        border-top-radius: 10px;
+        -moz-border-radius-top: 10px;
+        -webkit-border-top-radius: 10px; }
 
-      li#overview {
-        text-indent: -9999em;
-        overflow: hidden;
-        background-image: image_url(/images/overview.png);
-        background-repeat: no-repeat;
-        background-position: 20% 50%; }
+      #footer {
+        border-top-radius: 5px;
+        -moz-border-radius-top: 5px;
+        -webkit-border-top-radius: 5px; }
+
+      #sidebar {
+        border-left-radius: 8px;
+        -moz-border-radius-left: 8px;
+        -webkit-border-left-radius: 8px; }
 
 :maruku
-  ## `@import`
+  ### `@import`
 
   Stylesheets can get pretty big.
-  CSS has an `@import` statement
+  CSS has an `@import` directive
   that allows you to break your styles up into multiple stylesheets,
-  but each stylesheet is a separate (expensive) HTTP request.
-  That's why Sass's `@import` statement pulls in Sass files directly.
+  but each stylesheet takes a separate (slow) HTTP request.
+  That's why Sass's `@import` directive pulls in the stylesheets directly.
   Not only that, but any variables or mixins defined in `@import`ed files
-  are available in the file that imported them.
+  are available to the files that import them.
 
-  Sass has a naming convention for Sass files that are meant to be imported:
+  Sass has a naming convention for files
+  that are meant to be imported (called "partials"):
   they begin with an underscore.
-  You can import these files without using the underscore,
-  and they won't get rendered as CSS.
+  Let's create a partial called **`_rounded.scss`** to hold our `rounded` mixin.
+
+  In order to support both `.scss` and `.sass` files,
+  Sass allows files to be imported without specifying a file extension.
+  That means we can just import `"rounded"`, rather than `"rounded.scss"`.
 
 .compare
   %pre.sass
     :preserve
-      // Sass: _defines.sass
+      /* _rounded.scss */
 
-      !main_color = #ce4dd6
-
-      =float(!side)
-        display: inline
-        float = !side
-
-      // style.sass
-
-      @import defines.sass
-
-      #main
-        color = !main_color
-
-        #sidebar
-          +float("right")
+      @mixin rounded($side, $radius: 10px) {
+        border-\#{$side}-radius: $radius;
+        -moz-border-radius-\#{$side}: $radius;
+        -webkit-border-\#{$side}-radius: $radius;
+      }
 
   %pre.css
     :preserve
-      /* CSS : style.css */
+      /* style.css */
 
-      #main {
-        color: #ce4dd6; }
-        #sidebar {
-          display: inline;
-          float: right; }
+      #navbar li {
+        border-top-radius: 10px;
+        -moz-border-radius-top: 10px;
+        -webkit-border-top-radius: 10px; }
+
+      #footer {
+        border-top-radius: 5px;
+        -moz-border-radius-top: 5px;
+        -webkit-border-top-radius: 5px; }
+
+      #sidebar {
+        border-left-radius: 8px;
+        -moz-border-radius-left: 8px;
+        -webkit-border-left-radius: 8px; }
+
+  %pre.sass
+    :preserve
+      /* style.scss */
+
+      @import "rounded";
+
+      #navbar li { @include rounded(top); }
+      #footer { @include rounded(top, 5px); }
+      #sidebar { @include rounded(left, 8px); }
+
+:maruku
+  ### Further Reading
+
+  This should be enough to get you up and running with Sass,
+  but there's a lot more to explore:
+  check out the [Sass reference](/docs/yardoc/file.SASS_REFERENCE.html)
+  for a full account of what Sass can do,
+  including all the [options you can set](/docs/yardoc/file.SASS_REFERENCE.html#options)
+  and [how to use it as a Rails/Rack plugin](/docs/yardoc/file.SASS_REFERENCE.html#plugin).
+
+  If you need any help or if you just want to chat about Sass,
+  hop on the #haml IRC channel on [irc.freenode.net](http://webchat.freenode.net/).
+  Questions can also be asked on [the Haml/Sass mailing list](http://groups.google.com/group/haml).

@@ -134,11 +134,18 @@ pre, ul
 
 pre
   margin-left: 2em
-  code
-    background-color: #f8f8ff
-    padding: 3px 5px
-    +border-radius(4px)
-    border:
-      style: solid
-      width: 1px
-      color: $border-color
+  background-color: #f8f8ff
+  padding: 3px 5px
+  +border-radius(4px)
+  +inline-block
+  border:
+    style: solid
+    width: 1px
+    color: $border-color
+
+  &.sass
+    background-color: #ffeeff
+    border-color: $main-color
+  &.css
+    background-color: #e0e0e0
+    border-color: #777
