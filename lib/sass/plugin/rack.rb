@@ -1,5 +1,3 @@
-require 'sass/plugin'
-
 module Sass
   module Plugin
     # Rack middleware for compiling Sass code.
@@ -45,3 +43,5 @@ module Sass
     end
   end
 end
+
+require 'sass/plugin'

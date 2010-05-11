@@ -5,6 +5,9 @@
 
 ## 3.0.1 (Unreleased)
 
+* Make sure manually importing the Sass Rack plugin still works with Rails,
+  even though it's not necessary now.
+
 * Allow identifiers to begin with multiple underscores.
 
 ## 3.0.0
