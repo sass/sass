@@ -8,6 +8,8 @@
 * Make sure manually importing the Sass Rack plugin still works with Rails,
   even though it's not necessary now.
 
+* Allow Sass to be configured in Rails even when it's being lazy-loaded.
+
 * Allow identifiers to begin with multiple underscores.
 
 ## 3.0.0
