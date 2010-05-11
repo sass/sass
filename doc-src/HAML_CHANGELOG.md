@@ -34,7 +34,7 @@ again as in standard Haml code.
 For example:
 
     haml_tag('#foo') #=> <div id='foo' />
-    haml_tag('.bar) #=> <div class='bar' />
+    haml_tag('.bar') #=> <div class='bar' />
     haml_tag('span#foo.bar') #=> <span class='bar' id='foo' />
     haml_tag('span#foo.bar', :class => 'abc') #=> <span class='abc bar' id='foo' />
     haml_tag('span#foo.bar', :id => 'abc') #=> <span class='bar' id='abc_foo' />
@@ -88,7 +88,7 @@ won't do any indentation of their arguments.
 ### `:class` and `:id` Attributes Accept Ruby Arrays
 
 In an attribute hash, the `:class` attribute now accepts an Array
-whose elements will be converted to strings and joined with `" "`.
+whose elements will be converted to strings and joined with <nobr>`" "`</nobr>.
 Likewise, the `:id` attribute now accepts an Array
 whose elements will be converted to strings and joined with `"_"`.
 The array will first be flattened and any elements that do not test as true
