@@ -56,12 +56,12 @@ module Sass
           end
       NONASCII = /[#{s}]/
       ESCAPE   = /#{UNICODE}|\\[ -~#{s}]/
-      NMSTART  = /[a-zA-Z]|#{NONASCII}|#{ESCAPE}/
+      NMSTART  = /[_a-zA-Z]|#{NONASCII}|#{ESCAPE}/
       NMCHAR   = /[a-zA-Z0-9_-]|#{NONASCII}|#{ESCAPE}/
       STRING1  = /\"((?:[^\n\r\f\\"]|\\#{NL}|#{ESCAPE})*)\"/
       STRING2  = /\'((?:[^\n\r\f\\']|\\#{NL}|#{ESCAPE})*)\'/
 
-      IDENT    = /[-_]?#{NMSTART}#{NMCHAR}*/
+      IDENT    = /-?#{NMSTART}#{NMCHAR}*/
       NAME     = /#{NMCHAR}+/
       NUM      = /[0-9]+|[0-9]*.[0-9]+/
       STRING   = /#{STRING1}|#{STRING2}/
