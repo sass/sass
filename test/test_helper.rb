@@ -7,6 +7,8 @@ $:.unshift lib_dir unless $:.include?(lib_dir)
 require 'haml'
 require 'sass'
 
+Haml::Template.options[:ugly] = false
+
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
 module Sass::Script::Functions

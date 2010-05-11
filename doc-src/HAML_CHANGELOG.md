@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.1 (Unreleased)
+
+* Turn the {file:HAML_REFERENCE.md#ugly-option `:ugly` option} on by default
+  in the testing environment in Rails to help tests run faster.
+
 ## 3.0.0
 {#3-0-0}
 
