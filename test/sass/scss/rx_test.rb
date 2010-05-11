@@ -49,6 +49,10 @@ class ScssRxTest < Test::Unit::TestCase
   def test_underscores_in_identifiers
     assert_match IDENT, "foo_bar"
     assert_match IDENT, "_\xC3\xBFfoo"
+    assert_match IDENT, "__foo"
+    assert_match IDENT, "_1foo"
+    assert_match IDENT, "-_foo"
+    assert_match IDENT, "_-foo"
   end
 
   def test_invalid_identifiers
@@ -56,9 +60,6 @@ class ScssRxTest < Test::Unit::TestCase
     assert_no_match IDENT, "1foo"
     assert_no_match IDENT, "-1foo"
     assert_no_match IDENT, "--foo"
-    assert_no_match IDENT, "_1foo"
-    assert_no_match IDENT, "-_foo"
-    assert_no_match IDENT, "_-foo"
     assert_no_match IDENT, "foo bar"
     assert_no_match IDENT, "foo~bar"
 

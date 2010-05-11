@@ -3,7 +3,13 @@
 * Table of contents
 {:toc}
 
-## 3.0.1 (Unreleased)
+## 3.0.2 (Unreleased)
+
+* Allow identifiers to begin with multiple underscores.
+
+## 3.0.1
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.1).
 
 ### Installation in Rails
 
@@ -37,10 +43,6 @@ Thus, three new methods have been added for handling it:
 
 * {Sass::Plugin#remove_template_location} --
   Converts the template location option to an array and removes an existing location.
-
-### Bug Fixes
-
-* Allow identifiers to begin with multiple underscores.
 
 ## 3.0.0
 {#3-0-0}
