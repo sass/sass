@@ -5,6 +5,12 @@
 
 ## 3.0.2 (Unreleased)
 
+### Merb 1.1.0 Support
+
+Fixed a bug inserting the Sass plugin into the Merb 1.1.0 Rack application.
+
+### Bug Fixes
+
 * Allow identifiers to begin with multiple underscores.
 
 ## 3.0.1

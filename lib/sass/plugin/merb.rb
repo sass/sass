@@ -25,5 +25,6 @@ unless defined?(Sass::MERB_LOADED)
   Sass::Plugin.options.merge!(config)
 
   require 'sass/plugin/rack'
-  Merb::Config[:app].use Sass::Plugin::Rack
+  # Merb::Config is used in Merb >= 1.1.0
+  (Merb::Config[:app] || Merb::Config).use Sass::Plugin::Rack
 end
