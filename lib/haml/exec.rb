@@ -200,18 +200,29 @@ END
         opts.on('--rails RAILS_DIR', "Install Haml and Sass from the Gem to a Rails project") do |dir|
           original_dir = dir
 
+          env = File.join(dir, "config", "environment.rb")
+          if File.exists?(File.join(dir, "Gemfile"))
+            puts("haml --rails isn't needed for Rails 3 or greater.",
+              "Add 'gem \"haml\"' to your Gemfile instead.", "",
+              "haml --rails will no longer work in the next version of #{@name}.", "")
+          elsif File.exists?(env) && File.open(f) {|f| f.grep(/config\.gem/)}
+            puts("haml --rails isn't needed for Rails 2.1 or greater.",
+              "Add 'gem \"haml\"' to config/environment.rb instead.", "",
+              "haml --rails will no longer work in the next version of #{@name}.", "")
+          end
+
           dir = File.join(dir, 'vendor', 'plugins')
 
           unless File.exists?(dir)
             puts "Directory #{dir} doesn't exist"
-            exit
+            exit 1
           end
 
           dir = File.join(dir, 'haml')
 
           if File.exists?(dir)
             print "Directory #{dir} already exists, overwrite [y/N]? "
-            exit if gets !~ /y/i
+            exit 2 if gets !~ /y/i
             FileUtils.rm_rf(dir)
           end
 
@@ -219,7 +230,7 @@ END
             Dir.mkdir(dir)
           rescue SystemCallError
             puts "Cannot create #{dir}"
-            exit
+            exit 1
           end
 
           File.open(File.join(dir, 'init.rb'), 'w') do |file|

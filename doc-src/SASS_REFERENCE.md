@@ -97,16 +97,19 @@ and using {Sass::Engine} like so:
 
 ### Rack/Rails/Merb Plugin
 
-To enable Sass as a Rails plugin, run
+To enable Sass in Rails versions before Rails 3,
+add the following line to `environment.rb`:
 
-    haml --rails path/to/rails/app
+    config.gem "haml"
+
+For Rails 3, instead add the following line to the Gemfile:
+
+    gem "haml"
 
 To enable Sass in Merb,
-add
+add the following line to `config/dependencies.rb`:
 
     dependency "merb-haml"
-
-to `config/dependencies.rb`.
 
 To enable Sass in a Rack application,
 add

@@ -5,8 +5,20 @@
 
 ## 3.0.1 (Unreleased)
 
-* Turn the {file:HAML_REFERENCE.md#ugly-option `:ugly` option} on by default
-  in the testing environment in Rails to help tests run faster.
+### Installation in Rails
+
+`haml --rails` is no longer necessary for installing Haml in Rails.
+Now all you need to do is add `gem "haml"` to the Gemfile for Rails 3,
+or add `config.gem "haml"` to `config/environment.rb` for previous versions.
+
+`haml --rails` will still work,
+but it has been deprecated and will print an error message.
+It will not work in the next version of Haml.
+
+### Rails Test Speed
+
+The {file:HAML_REFERENCE.md#ugly-option `:ugly` option} is now on by default
+in the testing environment in Rails to help tests run faster.
 
 ## 3.0.0
 {#3-0-0}

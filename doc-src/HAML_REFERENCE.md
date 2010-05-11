@@ -39,9 +39,14 @@ Use `haml --help` for full documentation.
 
 ### Rails/Merb Plugin {#plugin}
 
-To enable Haml as a Rails plugin, run
+To enable Haml in Rails versions before Rails 3,
+add the following line to `environment.rb`:
 
-    haml --rails path/to/rails/app
+    config.gem "haml"
+
+For Rails 3, instead add the following line to the Gemfile:
+
+    gem "haml"
 
 Once it's installed, all view files with the `".html.haml"` extension
 will be compiled using Haml.
