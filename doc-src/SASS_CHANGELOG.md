@@ -5,6 +5,16 @@
 
 ## 3.0.1 (Unreleased)
 
+### Installation in Rails
+
+`haml --rails` is no longer necessary for installing Sass in Rails.
+Now all you need to do is add `gem "haml"` to the Gemfile for Rails 3,
+or add `config.gem "haml"` to `config/environment.rb` for previous versions.
+
+`haml --rails` will still work,
+but it has been deprecated and will print an error message.
+It will not work in the next version of Sass.
+
 ### Rails 3 Beta Integration
 
 * Make sure manually importing the Sass Rack plugin still works with Rails,
