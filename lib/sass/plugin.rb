@@ -74,7 +74,7 @@ module Sass
       @checked_for_updates = true
       staleness_checker = StalenessChecker.new
 
-      template_locations.zip(css_locations).each do |template_location, css_location|
+      template_location_array.each do |template_location, css_location|
 
         Dir.glob(File.join(template_location, "**", "*.s[ca]ss")).each do |file|
           # Get the relative path to the file
@@ -163,7 +163,7 @@ module Sass
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
       FSSM.monitor do |mon|
-        template_locations.zip(css_locations).each do |template_location, css_location|
+        template_location_array.each do |template_location, css_location|
           mon.path template_location do |path|
             path.glob '**/*.s[ac]ss'
 
@@ -243,20 +243,11 @@ module Sass
     end
 
     def template_locations
-      location = (options[:template_location] || File.join(options[:css_location],'sass'))
-      if location.is_a?(String)
-        [location]
-      else
-        location.to_a.map { |l| l.first }
-      end
+      template_location_array.to_a.map {|l| l.first}
     end
 
     def css_locations
-      if options[:template_location] && !options[:template_location].is_a?(String)
-        options[:template_location].to_a.map { |l| l.last }
-      else
-        [options[:css_location]]
-      end
+      template_location_array.to_a.map {|l| l.last}
     end
 
     def css_filename(name, path)

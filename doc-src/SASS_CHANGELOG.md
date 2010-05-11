@@ -22,6 +22,22 @@ It will not work in the next version of Sass.
 
 * Allow Sass to be configured in Rails even when it's being lazy-loaded.
 
+### `:template_location` Methods
+
+The {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
+can be either a String, a Hash, or an Array.
+This makes it difficult to modify or use with confidence.
+Thus, three new methods have been added for handling it:
+
+* {Sass::Plugin#template_location_array} --
+  Returns the template locations and CSS locations formatted as an array.
+
+* {Sass::Plugin#add_template_location} --
+  Converts the template location option to an array and adds a new location.
+
+* {Sass::Plugin#remove_template_location} --
+  Converts the template location option to an array and removes an existing location.
+
 ### Bug Fixes
 
 * Allow identifiers to begin with multiple underscores.

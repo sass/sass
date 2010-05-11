@@ -148,6 +148,41 @@ CSS
     assert !File.exists?(tempfile_loc('_partial'))
   end
 
+  def test_template_location_array
+    assert_equal [[template_loc, tempfile_loc]], Sass::Plugin.template_location_array
+  end
+
+  def test_add_template_location
+    Sass::Plugin.add_template_location(template_loc(nil, "more_"), tempfile_loc(nil, "more_"))
+    assert_equal(
+      [[template_loc, tempfile_loc], [template_loc(nil, "more_"), tempfile_loc(nil, "more_")]],
+      Sass::Plugin.template_location_array)
+
+    touch 'more1', 'more_'
+    touch 'basic'
+    assert_needs_update "more1", "more_"
+    assert_needs_update "basic"
+    update_all_stylesheets!
+    assert_doesnt_need_update "more1", "more_"
+    assert_doesnt_need_update "basic"
+  end
+
+  def test_remove_template_location
+    Sass::Plugin.add_template_location(template_loc(nil, "more_"), tempfile_loc(nil, "more_"))
+    Sass::Plugin.remove_template_location(template_loc, tempfile_loc)
+    assert_equal(
+      [[template_loc(nil, "more_"), tempfile_loc(nil, "more_")]],
+      Sass::Plugin.template_location_array)
+
+    touch 'more1', 'more_'
+    touch 'basic'
+    assert_needs_update "more1", "more_"
+    assert_needs_update "basic"
+    update_all_stylesheets!
+    assert_doesnt_need_update "more1", "more_"
+    assert_needs_update "basic"
+  end
+
   # Callbacks
 
   def test_updating_stylesheets_callback
@@ -346,14 +381,14 @@ CSS
     end
   end
 
-  def assert_needs_update(name)
-    assert(Sass::Plugin::StalenessChecker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
-      "Expected #{template_loc(name)} to need an update.")
+  def assert_needs_update(*args)
+    assert(Sass::Plugin::StalenessChecker.stylesheet_needs_update?(tempfile_loc(*args), template_loc(*args)),
+      "Expected #{template_loc(*args)} to need an update.")
   end
 
-  def assert_doesnt_need_update(name)
-    assert(!Sass::Plugin::StalenessChecker.stylesheet_needs_update?(tempfile_loc(name), template_loc(name)),
-      "Expected #{template_loc(name)} not to need an update.")
+  def assert_doesnt_need_update(*args)
+    assert(!Sass::Plugin::StalenessChecker.stylesheet_needs_update?(tempfile_loc(*args), template_loc(*args)),
+      "Expected #{template_loc(*args)} not to need an update.")
   end
 
   def touch(*args)
