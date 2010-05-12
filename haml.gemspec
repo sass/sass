@@ -10,7 +10,7 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
   spec.name = File.exist?(File.dirname(__FILE__) + '/EDGE_GEM_VERSION') ? 'haml-edge' : 'haml'
   spec.summary = "An elegant, structured XHTML/XML templating engine.\nComes with Sass, a similar CSS templating engine."
   spec.version = File.read(File.dirname(__FILE__) + '/VERSION').strip
-  spec.authors = ['Nathan Weizenbaum', 'Hampton Catlin']
+  spec.authors = ['Nathan Weizenbaum', 'Chris Eppstein', 'Hampton Catlin']
   spec.email = 'haml@googlegroups.com'
   spec.description = <<-END
       Haml (HTML Abstraction Markup Language) is a layer on top of XHTML or XML
