@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.0.2
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.2).
+
+There were no changes made to Haml between versions 3.0.1 and 3.0.2.
+
 ## 3.0.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.1).
