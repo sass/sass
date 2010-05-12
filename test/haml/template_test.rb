@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
-require 'haml/template'
 require 'sass/plugin'
 require File.dirname(__FILE__) + '/mocks/article'
 

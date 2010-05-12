@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
-require 'haml/template'
 
 class ActionView::Base
   def nested_tag
@@ -388,7 +387,7 @@ MESSAGE
     render("- something_that_uses_haml_concat")
     assert false, "Expected Haml::Error"
   rescue Haml::Error => e
-    assert_equal 13, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
+    assert_equal 12, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
   end
 
   class ActsLikeTag
