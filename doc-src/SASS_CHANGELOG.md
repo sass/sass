@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.2 (Unreleased)
+## 3.0.2
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.2).
 
 ### Merb 1.1.0 Support
 
