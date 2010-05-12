@@ -13,6 +13,8 @@ Fixed a bug inserting the Sass plugin into the Merb 1.1.0 Rack application.
 
 * Allow identifiers to begin with multiple underscores.
 
+* Don't raise an error when using `haml --rails` with older Rails versions.
+
 ## 3.0.1
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.1).
