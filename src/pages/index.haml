@@ -31,17 +31,15 @@
     Sass supports variables as well as basic math operations
     and <a href="/docs/yardoc/Sass/Script/Functions.html">many useful functions</a>.
 
-  %pre.sass
+  %pre.scss
     :preserve
-      // SCSS
-
       $blue: #3bbfce;
       $margin: 16px;
 
       .content-navigation {
         border-color: $blue;
         color:
-          darken($blue, 10%);
+          darken($blue, 9%);
       }
 
       .border {
@@ -49,6 +47,20 @@
         margin: $margin / 2;
         border-color: $blue;
       }
+
+  %pre.sass
+    :preserve
+      $blue: #3bbfce
+      $margin: 16px
+
+      .content-navigation
+        border-color: $blue
+        color: darken($blue, 9%)
+
+      .border
+        padding: $margin / 2
+        margin: $margin / 2
+        border-color: $blue
 
   %pre.css
     :preserve
@@ -71,10 +83,8 @@
     Sass avoids repetition by nesting selectors within one another.
     The same thing works with properties.
 
-  %pre.sass
+  %pre.scss
     :preserve
-      // SCSS
-
       table.hl {
         margin: 2em 0;
         td.ln {
@@ -89,6 +99,19 @@
           size: 1.2em;
         }
       }
+
+  %pre.sass
+    :preserve
+      table.hl
+        margin: 2em 0
+        td.ln
+          text-align: right
+
+      li
+        font:
+          family: serif
+          weight: bold
+          size: 1.2em
 
   %pre.css
     :preserve
@@ -115,10 +138,8 @@
     properties or selectors.
     You can even give them arguments.
 
-  %pre.sass
+  %pre.scss
     :preserve
-      // SCSS
-
       @mixin table-base {
         th {
           text-align: center;
@@ -136,6 +157,23 @@
         @include left(10px);
         @include table-base;
       }
+
+  %pre.sass
+    :preserve
+      @mixin table-base
+        th
+          text-align: center
+          font-weight: bold
+        td, th
+          padding: 2px
+
+      @mixin left($dist)
+        float: left
+        margin-left: $dist
+
+      #data
+        @include left(10px)
+        @include table-base
 
   %pre.css
     :preserve
@@ -159,10 +197,8 @@
     Sass can tell one selector to inherit all the styles of another
     without duplicating the CSS properties.
 
-  %pre.sass
+  %pre.scss
     :preserve
-      // SCSS
-
       .error {
         border: 1px #f00;
         background: #fdd;
@@ -176,6 +212,20 @@
         @extend .error;
         border-width: 3px;
       }
+
+  %pre.sass
+    :preserve
+      .error
+        border: 1px #f00
+        background: #fdd
+
+      .error.intrusion
+        font-size: 1.3em
+        font-weight: bold
+
+      .badError
+        @extend .error
+        border-width: 3px
 
   %pre.css
     :preserve

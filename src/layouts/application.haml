@@ -8,6 +8,8 @@
     %meta{:name => "keywords", :content => "Sass, SASS, sass, CSS, stylesheet, stylesheets, variables, mixins, abstraction, Syntactically Awesome Stylesheets, Ruby, Rails"}/
     %title&= @title || "Sass - Syntactically Awesome Stylesheets"
     = stylesheets :application
+    %script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js", :type => "text/javascript"}
+    = javascripts :application
   %body
     #page
       = partial "header"
