@@ -205,7 +205,7 @@ END
             puts("haml --rails isn't needed for Rails 3 or greater.",
               "Add 'gem \"haml\"' to your Gemfile instead.", "",
               "haml --rails will no longer work in the next version of #{@name}.", "")
-          elsif File.exists?(env) && File.open(f) {|f| f.grep(/config\.gem/)}
+          elsif File.exists?(env) && File.open(env) {|env| env.grep(/config\.gem/)}
             puts("haml --rails isn't needed for Rails 2.1 or greater.",
               "Add 'gem \"haml\"' to config/environment.rb instead.", "",
               "haml --rails will no longer work in the next version of #{@name}.", "")
