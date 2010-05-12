@@ -382,7 +382,7 @@ rails_versions << "v2.0.5" if RUBY_VERSION =~ /^1\.8/
 
 def test_rails_version(version)
   Dir.chdir "test/rails" do
-    `git checkout #{version}`
+    sh %{git checkout #{version}}
   end
   puts "Testing Rails #{version}"
   Rake::Task['test'].reenable
@@ -392,14 +392,14 @@ end
 namespace :test do
   desc "Test all supported versions of rails. This takes a while."
   task :rails_compatibility do
-    `rm -rf test/rails`
+    sh %{rm -rf test/rails}
     puts "Checking out rails. Please wait."
-    system("git clone git://github.com/rails/rails.git test/rails")
+    sh %{git clone git://github.com/rails/rails.git test/rails}
     begin
       rails_versions.each {|version| test_rails_version version}
 
       puts "Checking out rails_xss. Please wait."
-      system("git clone git://github.com/NZKoz/rails_xss.git test/plugins/rails_xss")
+      sh %{git clone git://github.com/NZKoz/rails_xss.git test/plugins/rails_xss}
       test_rails_version(rails_versions.find {|s| s =~ /^v2\.3/})
     ensure
       `rm -rf test/rails`
