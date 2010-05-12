@@ -10,7 +10,12 @@ end
 require 'rubygems'
 require 'action_controller'
 require 'action_view'
-require 'rails'
+
+begin
+  # Necessary for Rails 3
+  require 'rails'
+rescue LoadError
+end
 
 ActionController::Base.logger = Logger.new(nil)
 
