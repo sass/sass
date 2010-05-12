@@ -1024,4 +1024,18 @@ foo {
 }
 SCSS
   end
+
+  def test_extra_comma_in_mixin_arglist_error
+    assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+Invalid CSS after "@include foo(bar, ": expected mixin argument, was ")"
+MESSAGE
+@mixin foo($a1, $a2) {
+  baz: $a1 $a2;
+}
+
+.bar {
+  @include foo(bar, );
+}
+SCSS
+  end
 end

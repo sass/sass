@@ -271,7 +271,7 @@ RUBY
       def arglist
         return unless e = interpolation
         return [e] unless try_tok(:comma)
-        [e, *arglist]
+        [e, *assert_expr(:arglist)]
       end
 
       def raw
@@ -333,6 +333,7 @@ RUBY
       EXPR_NAMES = {
         :string => "string",
         :default => "expression (e.g. 1px, bold)",
+        :arglist => "mixin argument",
       }
 
       def assert_expr(name)
