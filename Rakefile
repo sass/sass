@@ -394,7 +394,7 @@ namespace :test do
   task :rails_compatibility do
     `rm -rf test/rails`
     puts "Checking out rails. Please wait."
-    system("git clone git://github.com/rails/rails.git test/rails") rescue nil
+    system("git clone git://github.com/rails/rails.git test/rails")
     begin
       rails_versions.each {|version| test_rails_version version}
 
