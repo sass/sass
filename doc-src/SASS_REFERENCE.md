@@ -239,7 +239,7 @@ Available options are:
   this option should only be set directly, not accessed or modified.
   Use the {Sass::Plugin#template_location_array},
   {Sass::Plugin#add_template_location},
-  and {Sass::Plugin#remove_template_location} methods instead.
+  and {Sass::Plugin#remove_template_location} methods instead**.
 
 {#css_location-option} `:css_location`
 : The path where CSS output should be written to.
