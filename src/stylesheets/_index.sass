@@ -57,7 +57,15 @@
         border-bottom-color: #ffeeff
         z-index: 1
 
+    pre.sass
+      display: block
     pre.scss
+      display: none
+
+  &.scss, &.sass
+    pre.sass, pre.scss
+      +border-top-left-radius(0)
+    .scss-comment
       display: none
 
   .tabs div
@@ -75,7 +83,8 @@
 
   pre.sass, pre.scss
     clear: left
-    +border-top-left-radius(0)
+  pre.sass
+    display: none
 
   $margin: -8%
   &#variables, &#mixins
