@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.3 (Unreleased)
+
+* Raise an informative error when mixin arguments have a mispaced comma,
+  as in `@include foo(bar, )`.
+
 ## 3.0.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.2).
