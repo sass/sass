@@ -5,10 +5,17 @@ if File.exists?(linked_rails) && !$:.include?(linked_rails + '/activesupport/lib
   puts "[ using linked Rails ]"
   $:.unshift linked_rails + '/activesupport/lib'
   $:.unshift linked_rails + '/actionpack/lib'
+  $:.unshift linked_rails + '/railties/lib'
 end
 require 'rubygems'
 require 'action_controller'
 require 'action_view'
+
+begin
+  # Necessary for Rails 3
+  require 'rails'
+rescue LoadError
+end
 
 ActionController::Base.logger = Logger.new(nil)
 
