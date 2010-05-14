@@ -10,6 +10,8 @@
 
 * Make sure SassScript subtraction happens even when nothing else dynamic is going on.
 
+* Raise an error when colors are used with the wrong number of digits.
+
 ## 3.0.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.2).

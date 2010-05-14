@@ -303,6 +303,19 @@ SASS
     assert_equal "0.5", resolve("$var", {}, env("var" => eval("1px/2px")))
   end
 
+  def test_colors_with_wrong_number_of_digits
+    assert_raise(Sass::SyntaxError,
+      "Colors must have either three or six digits: '#0'") {eval("#0")}
+    assert_raise(Sass::SyntaxError,
+      "Colors must have either three or six digits: '#12'") {eval("#12")}
+    assert_raise(Sass::SyntaxError,
+      "Colors must have either three or six digits: '#abcd'") {eval("#abcd")}
+    assert_raise(Sass::SyntaxError,
+      "Colors must have either three or six digits: '#abcdE'") {eval("#abcdE")}
+    assert_raise(Sass::SyntaxError,
+      "Colors must have either three or six digits: '#abcdEFA'") {eval("#abcdEFA")}
+  end
+
   # Regression Tests
 
   def test_funcall_has_higher_precedence_than_color_name

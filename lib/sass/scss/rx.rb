@@ -107,7 +107,7 @@ module Sass
       NOT = quote(":not(", Regexp::IGNORECASE)
 
       # Custom
-      HEXCOLOR = /\#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?/
+      HEXCOLOR = /\#[0-9a-fA-F]+/
       INTERP_START = /#\{/
 
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/
