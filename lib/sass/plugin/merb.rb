@@ -25,6 +25,13 @@ unless defined?(Sass::MERB_LOADED)
   Sass::Plugin.options.merge!(config)
 
   require 'sass/plugin/rack'
-  # Merb::Config is used in Merb >= 1.1.0
-  (Merb::Config[:app] || Merb::Config).use Sass::Plugin::Rack
+  class Sass::Plugin::MerbBootLoader < Merb::BootLoader
+    after Merb::BootLoader::RackUpApplication
+
+    def self.run
+      # Apparently there's no better way than this to add Sass
+      # to Merb's Rack stack.
+      Merb::Config[:app] = Sass::Plugin::Rack.new(Merb::Config[:app])
+    end
+  end
 end

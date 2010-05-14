@@ -5,6 +5,13 @@
 
 ## 3.0.3 (Unreleased)
 
+### Merb Support
+
+Merb, including 1.1.0 as well as earlier versions,
+should *really* work with this release.
+
+### Bug Fixes
+
 * Raise an informative error when mixin arguments have a mispaced comma,
   as in `@include foo(bar, )`.
 
