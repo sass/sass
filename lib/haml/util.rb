@@ -260,7 +260,10 @@ module Haml
     #
     # @return [String, nil]
     def rails_root
-      return Rails.root.to_s if defined?(Rails.root)
+      if defined?(Rails.root)
+        return Rails.root.to_s if Rails.root
+        raise "ERROR: Rails.root is nil!"
+      end
       return RAILS_ROOT.to_s if defined?(RAILS_ROOT)
       return nil
     end
