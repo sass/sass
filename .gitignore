@@ -12,4 +12,5 @@
 /test
 !/site/images
 !/site/javascripts
+!/site/firesass
 /yard
