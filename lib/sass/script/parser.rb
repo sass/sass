@@ -265,7 +265,7 @@ RUBY
       def fn_arglist
         return unless e = equals
         return [e] unless try_tok(:comma)
-        [e, *fn_arglist]
+        [e, *assert_expr(:fn_arglist)]
       end
 
       def arglist
@@ -334,6 +334,7 @@ RUBY
         :string => "string",
         :default => "expression (e.g. 1px, bold)",
         :arglist => "mixin argument",
+        :fn_arglist => "function argument",
       }
 
       def assert_expr(name)
