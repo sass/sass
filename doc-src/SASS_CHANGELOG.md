@@ -7,7 +7,10 @@
 
 ### Rails 3 Support
 
-In order to make some Rails loading errors easier to debug,
+Make sure Sass is loaded properly when using Rails 3
+along with non-Rails-3-compatible plugins like some versions of `will_paginate`.
+
+Also, In order to make some Rails loading errors like the above easier to debug,
 Sass will now raise an error if `Rails.root` is `nil` when Sass is loading.
 Previously, this would just cause the paths to be mis-set.
 
