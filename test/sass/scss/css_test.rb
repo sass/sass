@@ -390,7 +390,7 @@ SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo {
   a: -0.5em;
-  b: 0.5em;
+  b: +0.5em;
   c: -foo(12px);
   d: +foo(12px); }
 CSS

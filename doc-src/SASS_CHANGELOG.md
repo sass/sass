@@ -5,8 +5,28 @@
 
 ## 3.0.3 (Unreleased)
 
+### Rails 3 Support
+
+Make sure Sass is loaded properly when using Rails 3
+along with non-Rails-3-compatible plugins like some versions of `will_paginate`.
+
+Also, In order to make some Rails loading errors like the above easier to debug,
+Sass will now raise an error if `Rails.root` is `nil` when Sass is loading.
+Previously, this would just cause the paths to be mis-set.
+
+### Merb Support
+
+Merb, including 1.1.0 as well as earlier versions,
+should *really* work with this release.
+
+### Bug Fixes
+
 * Raise an informative error when mixin arguments have a mispaced comma,
   as in `@include foo(bar, )`.
+
+* Make sure SassScript subtraction happens even when nothing else dynamic is going on.
+
+* Raise an error when colors are used with the wrong number of digits.
 
 ## 3.0.2
 

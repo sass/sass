@@ -3,6 +3,14 @@
 * Table of contents
 {:toc}
 
+## 3.0.3 (Unreleased)
+
+### Rails 3 Support
+
+In order to make some Rails loading errors easier to debug,
+Sass will now raise an error if `Rails.root` is `nil` when Sass is loading.
+Previously, this would just cause the paths to be mis-set.
+
 ## 3.0.2
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.2).

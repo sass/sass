@@ -107,13 +107,17 @@ module Sass
       NOT = quote(":not(", Regexp::IGNORECASE)
 
       # Custom
-      HEXCOLOR = /\#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?/
+      HEXCOLOR = /\#[0-9a-fA-F]+/
       INTERP_START = /#\{/
 
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/
       STRING2_NOINTERP = /\'((?:[^\n\r\f\\'#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\'/
       STRING_NOINTERP = /#{STRING1_NOINTERP}|#{STRING2_NOINTERP}/
-      STATIC_VALUE = /(#{NMCHAR}|#{STRING1_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]|\.[0-9]|\!important)+(?=[;}])/i
+      # Can't use IDENT here, because it seems to take exponential time on 1.8.
+      # We could use it for 1.9 only, but I don't want to introduce a cross-version
+      # behavior difference.
+      # There aren't really any plain-CSS single-character identifiers anyway.
+      STATIC_VALUE = /(-?#{NMSTART}#{NMCHAR}+|#{STRING_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important)+(?=[;}])/i
 
       STATIC_SELECTOR = /(#{NMCHAR}|\s|[,>+*]|[:#.]#{NMSTART})+(?=[{])/i
     end
