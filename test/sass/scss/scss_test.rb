@@ -87,13 +87,15 @@ SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo {
   a: 3;
-  b: foobar;
-  c: 12px; }
+  b: -1;
+  c: foobar;
+  d: 12px; }
 CSS
 foo {
   a: 1 + 2;
-  b: foo + bar;
-  c: floor(12.3px); }
+  b: 1 - 2;
+  c: foo + bar;
+  d: floor(12.3px); }
 SCSS
   end
 
