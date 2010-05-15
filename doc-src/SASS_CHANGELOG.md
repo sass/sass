@@ -8,6 +8,9 @@
 * Raise an informative error when function arguments have a mispaced comma,
   as in `foo(bar, )`.
 
+* Fix a performance problem when using long function names
+  such as `-moz-linear-gradient`.
+
 ## 3.0.3
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.3).
