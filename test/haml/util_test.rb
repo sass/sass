@@ -211,6 +211,7 @@ class UtilTest < Test::Unit::TestCase
     assert_equal(["(haml)", 12, "blah"], caller_info("(haml):12: in `blah'"))
     assert_equal(["", 12, "boop"], caller_info(":12: in `boop'"))
     assert_equal(["/tmp/foo.rb", -12, "fizzle"], caller_info("/tmp/foo.rb:-12: in `fizzle'"))
+    assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle {}'"))
   end
 
   def test_def_static_method

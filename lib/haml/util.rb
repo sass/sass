@@ -219,6 +219,8 @@ module Haml
     def caller_info(entry = caller[1])
       info = entry.scan(/^(.*?):(-?.*?)(?::.*`(.+)')?$/).first
       info[1] = info[1].to_i
+      # This is added by Rubinius to designate a block, but we don't care about it.
+      info[2].sub!(/ \{\}\Z/, '') if info[2]
       info
     end
 
