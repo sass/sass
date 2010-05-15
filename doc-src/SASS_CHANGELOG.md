@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.4 (Unreleased)
+## 3.0.4
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.4).
 
 * Raise an informative error when function arguments have a mispaced comma,
   as in `foo(bar, )`.
