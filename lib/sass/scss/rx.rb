@@ -116,8 +116,8 @@ module Sass
       # Can't use IDENT here, because it seems to take exponential time on 1.8.
       # We could use it for 1.9 only, but I don't want to introduce a cross-version
       # behavior difference.
-      # There aren't really any plain-CSS single-character identifiers anyway.
-      STATIC_VALUE = /(-?#{NMSTART}#{NMCHAR}+|#{STRING_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important)+(?=[;}])/i
+      # In any case, almost all CSS idents will be matched by this.
+      STATIC_VALUE = /(-?#{NMSTART}|#{STRING_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important)+(?=[;}])/i
 
       STATIC_SELECTOR = /(#{NMCHAR}|\s|[,>+*]|[:#.]#{NMSTART})+(?=[{])/i
     end
