@@ -25,7 +25,7 @@ module Haml
     #
     # If a prerelease version of Haml is being used,
     # the `:string` and `:number` fields will reflect the full version
-    # (e.g. `"2.2.beta.1"`), and the `:tiny` field will be `-1`.
+    # (e.g. `"2.2.beta.1"`), and the `:teeny` field will be `-1`.
     # A `:prerelease` key will contain the name of the prerelease (e.g. `"beta"`),
     # and a `:prerelease_number` key will contain the rerelease number.
     # For example:
@@ -33,7 +33,7 @@ module Haml
     #     {
     #       :string => "3.0.beta.1",
     #       :number => "3.0.beta.1",
-    #       :major => 3, :minor => 0, :tiny => -1,
+    #       :major => 3, :minor => 0, :teeny => -1,
     #       :prerelease => "beta",
     #       :prerelease_number => 1
     #     }
