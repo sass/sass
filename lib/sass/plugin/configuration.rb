@@ -143,7 +143,7 @@ module Sass
     # @param additional_options [{Symbol => Object}] An options hash with which to merge \{#options}
     # @return [{Symbol => Object}] The modified options hash
     def engine_options(additional_options = {})
-      opts = options.dup.merge(additional_options)
+      opts = options.merge(additional_options)
       opts[:load_paths] = load_paths(opts)
       opts
     end
