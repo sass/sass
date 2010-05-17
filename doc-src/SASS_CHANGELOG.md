@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.5 (Unreleased)
+
+* Fix Sass configuration under Rails 3.
+  Thanks [Dan Cheail](http://github.com/codeape).
+
 ## 3.0.4
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.4).
