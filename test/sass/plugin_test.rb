@@ -115,35 +115,6 @@ CSS
     assert_renders_correctly('more1_with_line_comments', 'more1', :prefix => 'more_')
   end
 
-  def test_merb_update
-    begin
-      require 'merb'
-    rescue LoadError
-      puts "\nmerb couldn't be loaded, skipping a test"
-      return
-    end
-    
-    require 'sass/plugin/merb'
-    if defined?(MerbHandler)
-      MerbHandler.send(:define_method, :process_without_sass) { |*args| }
-    else
-      Merb::Rack::Application.send(:define_method, :call_without_sass) { |*args| }
-    end
-
-    set_plugin_opts
-
-    File.delete(tempfile_loc('basic'))
-    assert_needs_update 'basic'
-    
-    if defined?(MerbHandler)
-      MerbHandler.new('.').process nil, nil
-    else
-      Merb::Rack::Application.new.call(::Rack::MockRequest.env_for('/'))
-    end
-
-    assert_stylesheet_updated 'basic'
-  end
-
   def test_doesnt_render_partials
     assert !File.exists?(tempfile_loc('_partial'))
   end
