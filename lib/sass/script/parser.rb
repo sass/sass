@@ -150,8 +150,10 @@ module Sass
         def production(name, sub, *ops)
           class_eval <<RUBY
             def #{name}
+              interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}) and return interp
               return unless e = #{sub}
               while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
+                interp = try_op_before_interp(tok, e) and return interp
                 line = @lexer.line
                 e = Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
                 e.line = line
@@ -164,8 +166,9 @@ RUBY
         def unary(op, sub)
           class_eval <<RUBY
             def unary_#{op}
-              return #{sub} unless try_tok(:#{op})
-              line = @lexer.line
+              return #{sub} unless tok = try_tok(:#{op})
+              interp = try_op_before_interp(tok) and return interp
+              line = @lexer.line 
               op = UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
               op.line = line
               op
@@ -182,8 +185,31 @@ RUBY
       production :expr, :interpolation, :comma
       production :equals, :interpolation, :single_eq
 
-      def interpolation
-        e = concat
+      def try_op_before_interp(op, prev = nil)
+        return unless @lexer.peek.type == :begin_interpolation
+        wb = @lexer.whitespace?(op)
+        str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
+        str.line = @lexer.line
+        interp = Script::Interpolation.new(prev, str, nil, wb, !:wa, :originally_text)
+        interp.line = @lexer.line
+        interpolation(interp)
+      end
+
+      def try_ops_after_interp(ops, name)
+        return unless @lexer.after_interpolation?
+        return unless op = try_tok(*ops)
+        interp = try_op_before_interp(op) and return interp
+
+        wa = @lexer.whitespace?
+        str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
+        str.line = @lexer.line
+        interp = Script::Interpolation.new(nil, str, assert_expr(name), !:wb, wa, :originally_text)
+        interp.line = @lexer.line
+        return interp
+      end
+
+      def interpolation(first = concat)
+        e = first
         while interp = try_tok(:begin_interpolation)
           wb = @lexer.whitespace?(interp)
           line = @lexer.line

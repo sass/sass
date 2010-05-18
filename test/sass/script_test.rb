@@ -97,7 +97,63 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal Sass::Script::String.new("foo/bar"), eval("foo/bar")
   end
 
-  def test_interpolation
+  def test_basic_interpolation
+    assert_equal "foo3bar", resolve("foo\#{1 + 2}bar")
+    assert_equal "foo3 bar", resolve("foo\#{1 + 2} bar")
+    assert_equal "foo 3bar", resolve("foo \#{1 + 2}bar")
+    assert_equal "foo 3 bar", resolve("foo \#{1 + 2} bar")
+    assert_equal "foo 35 bar", resolve("foo \#{1 + 2}\#{2 + 3} bar")
+    assert_equal "foo 3 5 bar", resolve("foo \#{1 + 2} \#{2 + 3} bar")
+    assert_equal "3bar", resolve("\#{1 + 2}bar")
+    assert_equal "foo3", resolve("foo\#{1 + 2}")
+    assert_equal "3", resolve("\#{1 + 2}")
+  end
+
+  def test_interpolation_in_function
+    assert_equal 'flabnabbit(1foo)', resolve('flabnabbit(#{1 + "foo"})')
+    assert_equal 'flabnabbit(foo 1foobaz)', resolve('flabnabbit(foo #{1 + "foo"}baz)')
+    assert_equal('flabnabbit(foo 1foo2bar baz)',
+      resolve('flabnabbit(foo #{1 + "foo"}#{2 + "bar"} baz)'))
+  end
+
+  def test_interpolation_near_operators
+    assert_equal '3 , 7', resolve('#{1 + 2} , #{3 + 4}')
+    assert_equal '3, 7', resolve('#{1 + 2}, #{3 + 4}')
+    assert_equal '3 ,7', resolve('#{1 + 2} ,#{3 + 4}')
+    assert_equal '3,7', resolve('#{1 + 2},#{3 + 4}')
+
+    assert_equal '3 / 7', resolve('3 / #{3 + 4}')
+    assert_equal '3 /7', resolve('3 /#{3 + 4}')
+    assert_equal '3/ 7', resolve('3/ #{3 + 4}')
+    assert_equal '3/7', resolve('3/#{3 + 4}')
+
+    assert_equal '3 * 7', resolve('#{1 + 2} * 7')
+    assert_equal '3* 7', resolve('#{1 + 2}* 7')
+    assert_equal '3 *7', resolve('#{1 + 2} *7')
+    assert_equal '3*7', resolve('#{1 + 2}*7')
+
+    assert_equal '-3', resolve('-#{1 + 2}')
+    assert_equal '- 3', resolve('- #{1 + 2}')
+
+    assert_equal '5 + 3 * 7', resolve('5 + #{1 + 2} * #{3 + 4}')
+    assert_equal '5 +3 * 7', resolve('5 +#{1 + 2} * #{3 + 4}')
+    assert_equal '5+3 * 7', resolve('5+#{1 + 2} * #{3 + 4}')
+    assert_equal '3 * 7 + 5', resolve('#{1 + 2} * #{3 + 4} + 5')
+    assert_equal '3 * 7+ 5', resolve('#{1 + 2} * #{3 + 4}+ 5')
+    assert_equal '3 * 7+5', resolve('#{1 + 2} * #{3 + 4}+5')
+
+    assert_equal '5/3 + 7', resolve('5 / (#{1 + 2} + #{3 + 4})')
+    assert_equal '5/3 + 7', resolve('5 /(#{1 + 2} + #{3 + 4})')
+    assert_equal '5/3 + 7', resolve('5 /( #{1 + 2} + #{3 + 4} )')
+    assert_equal '3 + 7/5', resolve('(#{1 + 2} + #{3 + 4}) / 5')
+    assert_equal '3 + 7/5', resolve('(#{1 + 2} + #{3 + 4})/ 5')
+    assert_equal '3 + 7/5', resolve('( #{1 + 2} + #{3 + 4} )/ 5')
+
+    assert_equal '3 + 5', resolve('#{1 + 2} + 2 + 3')
+    assert_equal '3 +5', resolve('#{1 + 2} +2 + 3')
+  end
+
+  def test_string_interpolation
     assert_equal "foo bar, baz bang", resolve('"foo #{"bar"}, #{"baz"} bang"')
     assert_equal "foo bar baz bang", resolve('"foo #{"#{"ba" + "r"} baz"} bang"')
     assert_equal 'foo #{bar baz} bang', resolve('"foo \#{#{"ba" + "r"} baz} bang"')
