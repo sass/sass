@@ -175,6 +175,11 @@ module Sass
         @scanner.eos? && @tok.nil?
       end
 
+      # @return [Boolean] Whether or not the last token lexed was `:end_interpolation`.
+      def after_interpolation?
+        @prev && @prev.type == :end_interpolation
+      end
+
       # Raise an error to the effect that `name` was expected in the input stream
       # and wasn't found.
       #
@@ -326,10 +331,6 @@ MESSAGE
 
       def current_position
         @offset + 1
-      end
-
-      def after_interpolation?
-        @prev && @prev.type == :end_interpolation
       end
     end
   end

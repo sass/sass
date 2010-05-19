@@ -727,54 +727,6 @@ div { -foo-\#{$a}-\#{$b}-foo: foo }
 SCSS
   end
 
-  def test_basic_prop_val_interpolation
-    assert_equal <<CSS, render(<<SCSS)
-foo {
-  bar: foo 3 baz; }
-CSS
-foo {bar: foo \#{1 + 2} baz}
-SCSS
-    assert_equal <<CSS, render(<<SCSS)
-foo {
-  bar: foo3 baz; }
-CSS
-foo {bar: foo\#{1 + 2} baz}
-SCSS
-    assert_equal <<CSS, render(<<SCSS)
-foo {
-  bar: foo 3, baz; }
-CSS
-foo {bar: foo \#{1 + 2},baz}
-SCSS
-  end
-
-  def test_prop_val_only_interpolation
-    assert_equal <<CSS, render(<<SCSS)
-foo {
-  bar: bazbang; }
-CSS
-foo {bar: \#{"baz" + "bang"}}
-SCSS
-  end
-
-  def test_prop_val_interpolation_in_string
-    assert_equal <<CSS, render(<<SCSS)
-foo {
-  bar: "bizzle bazbang bop"; }
-CSS
-foo {bar: "bizzle \#{"baz" + "bang"} bop"}
-SCSS
-  end
-
-  def test_prop_val_interpolation_in_function
-    assert_equal <<CSS, render(<<SCSS)
-foo {
-  bar: flabnabbit(1foo); }
-CSS
-foo {bar: flabnabbit(\#{1 + "foo"})}
-SCSS
-  end
-
   def test_basic_prop_name_interpolation
     assert_equal <<CSS, render(<<SCSS)
 foo {

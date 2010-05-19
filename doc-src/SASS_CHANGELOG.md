@@ -5,8 +5,40 @@
 
 ## 3.0.5 (Unreleased)
 
-* Fix Sass configuration under Rails 3.
-  Thanks [Dan Cheail](http://github.com/codeape).
+### `#{}` Interpolation in Properties
+
+Previously, using `#{}` in some places in properties
+would cause a syntax error.
+Now it can be used just about anywhere.
+
+Note that when `#{}` is used near operators like `/`,
+those operators are treated as plain CSS
+rather than math operators.
+For example:
+
+    p {
+      $font-size: 12px;
+      $line-height: 30px;
+      font: #{$font-size}/#{$line-height};
+    }
+
+is compiled to:
+
+    p {
+      font: 12px/30px;
+    }
+
+This is useful, since normally {file:SASS_REFERENCE.md#division-and-slash
+a slash with variables is treated as division}.
+
+### Rails 3 Support
+
+Fix Sass configuration under Rails 3.
+Thanks [Dan Cheail](http://github.com/codeape).
+
+### `sass --no-cache`
+
+Make the `--no-cache` flag properly forbid Sass from writing `.sass-cache` files.
 
 ## 3.0.4
 

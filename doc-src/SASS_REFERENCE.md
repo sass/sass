@@ -614,6 +614,7 @@ and equality operators
 are supported for all types.
 
 ##### Division and `/`
+{#division-and-slash}
 
 CSS allows `/` to appear in property values
 as a way of separating numbers.
@@ -647,6 +648,22 @@ is compiled to:
       width: 500px;
       height: 250px;
       margin-left: 9px; }
+
+If you want to use variables along with a plain CSS `/`,
+you can use `#{}` to insert them.
+For example:
+
+    p {
+      $font-size: 12px;
+      $line-height: 30px;
+      font: #{$font-size}/#{$line-height};
+    }
+
+is compiled to:
+
+    p {
+      font: 12px/30px;
+    }
 
 #### Color Operations
 
@@ -819,6 +836,24 @@ is compiled to:
 
     p.foo {
       border-color: blue; }
+
+It's also possible to use `#{}` to put SassScript into property values.
+In most cases this isn't any better than using a variable,
+but using `#{}` does mean that any operations near it
+will be treated as plain CSS.
+For example:
+
+    p {
+      $font-size: 12px;
+      $line-height: 30px;
+      font: #{$font-size}/#{$line-height};
+    }
+
+is compiled to:
+
+    p {
+      font: 12px/30px;
+    }
 
 ### Variable Defaults: `!default`
 

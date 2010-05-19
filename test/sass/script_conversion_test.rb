@@ -158,6 +158,49 @@ RUBY
     assert_renders "\#{$bar}"
   end
 
+  def test_interpolation_in_function
+    assert_renders 'flabnabbit(#{1 + "foo"})'
+    assert_renders 'flabnabbit($foo #{1 + "foo"}$baz)'
+    assert_renders 'flabnabbit($foo #{1 + "foo"}#{2 + "bar"} $baz)'
+  end
+
+  def test_interpolation_near_operators
+    assert_renders '#{1 + 2} , #{3 + 4}'
+    assert_renders '#{1 + 2}, #{3 + 4}'
+    assert_renders '#{1 + 2} ,#{3 + 4}'
+    assert_renders '#{1 + 2},#{3 + 4}'
+
+    assert_renders '3 / #{3 + 4}'
+    assert_renders '3 /#{3 + 4}'
+    assert_renders '3/ #{3 + 4}'
+    assert_renders '3/#{3 + 4}'
+
+    assert_renders '#{1 + 2} * 7'
+    assert_renders '#{1 + 2}* 7'
+    assert_renders '#{1 + 2} *7'
+    assert_renders '#{1 + 2}*7'
+
+    assert_renders '-#{1 + 2}'
+    assert_renders '- #{1 + 2}'
+
+    assert_renders '5 + #{1 + 2} * #{3 + 4}'
+    assert_renders '5 +#{1 + 2} * #{3 + 4}'
+    assert_renders '5+#{1 + 2} * #{3 + 4}'
+    assert_renders '#{1 + 2} * #{3 + 4} + 5'
+    assert_renders '#{1 + 2} * #{3 + 4}+ 5'
+    assert_renders '#{1 + 2} * #{3 + 4}+5'
+
+    assert_equal '5 / #{1 + 2} + #{3 + 4}', render('5 / (#{1 + 2} + #{3 + 4})')
+    assert_equal '5 / #{1 + 2} + #{3 + 4}', render('5 /(#{1 + 2} + #{3 + 4})')
+    assert_equal '5 / #{1 + 2} + #{3 + 4}', render('5 /( #{1 + 2} + #{3 + 4} )')
+    assert_equal '#{1 + 2} + #{3 + 4} / 5', render('(#{1 + 2} + #{3 + 4}) / 5')
+    assert_equal '#{1 + 2} + #{3 + 4} / 5', render('(#{1 + 2} + #{3 + 4})/ 5')
+    assert_equal '#{1 + 2} + #{3 + 4} / 5', render('( #{1 + 2} + #{3 + 4} )/ 5')
+
+    assert_renders '#{1 + 2} + 2 + 3'
+    assert_renders '#{1 + 2} +2 + 3'
+  end
+
   def test_string_interpolation
     assert_renders '"foo#{$bar}baz"'
     assert_renders '"foo #{$bar}baz"'

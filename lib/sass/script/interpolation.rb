@@ -10,12 +10,17 @@ module Sass::Script
     # @param after [Node] The SassScript after the interpolation
     # @param wb [Boolean] Whether there was whitespace between `before` and `#{`
     # @param wa [Boolean] Whether there was whitespace between `}` and `after`
-    def initialize(before, mid, after, wb, wa)
+    # @param originally_text [Boolean]
+    #   Whether the original format of the interpolation was plain text,
+    #   not an interpolation.
+    #   This is used when converting back to SassScript.
+    def initialize(before, mid, after, wb, wa, originally_text = false)
       @before = before
       @mid = mid
       @after = after
       @whitespace_before = wb
       @whitespace_after = wa
+      @originally_text = originally_text
     end
 
     # @return [String] A human-readable s-expression representation of the interpolation
@@ -28,7 +33,9 @@ module Sass::Script
       res = ""
       res << @before.to_sass(opts) if @before
       res << ' ' if @before && @whitespace_before
-      res << '#{' << @mid.to_sass(opts) << '}'
+      res << '#{' unless @originally_text
+      res << @mid.to_sass(opts)
+      res << '}' unless @originally_text
       res << ' ' if @after && @whitespace_after
       res << @after.to_sass(opts) if @after
       res

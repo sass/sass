@@ -17,6 +17,13 @@ begin
 rescue LoadError
 end
 
+if defined?(Rails::Application) # Rails 3
+  class TestApp < Rails::Application
+    config.root = File.join(File.dirname(__FILE__), "../..")
+  end
+  Rails.application = TestApp
+end
+
 ActionController::Base.logger = Logger.new(nil)
 
 # Load plugins from test/plugins.

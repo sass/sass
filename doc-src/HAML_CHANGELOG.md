@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.5 (Unreleased)
+
+* Make sure the `#capture` helper in Rails 3
+  doesn't print its value directly to the template.
+
 ## 3.0.4
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.4).
