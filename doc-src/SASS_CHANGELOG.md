@@ -33,8 +33,12 @@ a slash with variables is treated as division}.
 
 ### Rails 3 Support
 
-* Fix Sass configuration under Rails 3.
-  Thanks [Dan Cheail](http://github.com/codeape).
+Fix Sass configuration under Rails 3.
+Thanks [Dan Cheail](http://github.com/codeape).
+
+### `sass --no-cache`
+
+Make the `--no-cache` flag properly forbid Sass from writing `.sass-cache` files.
 
 ## 3.0.4
 

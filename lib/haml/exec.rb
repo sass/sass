@@ -320,7 +320,7 @@ END
           @options[:for_engine][:cache_location] = loc
         end
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
-          @options[:for_engine][:read_cache] = false
+          @options[:for_engine][:cache] = false
         end
       end
 
