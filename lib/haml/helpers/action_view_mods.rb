@@ -85,7 +85,9 @@ module ActionView
       module CaptureHelper
         def capture_with_haml(*args, &block)
           if Haml::Helpers.block_is_haml?(block)
-            capture_haml(*args, &block)
+            str = capture_haml(*args, &block)
+            return ActionView::NonConcattingString.new(str) if defined?(ActionView::NonConcattingString)
+            return str
           else
             capture_without_haml(*args, &block)
           end
