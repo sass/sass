@@ -23,7 +23,17 @@ module Sass
   # m.on_string_munged {|str, res| puts "#{str} was munged into #{res}!"}
   # m.munge "bar" #=> bar was munged into bbaarr!
   module Callbacks
+    def self.extended(base)
+      base.send(:include, InstanceMethods)
+    end
     protected
+
+    module InstanceMethods
+      # Removes all callbacks registered against this object.
+      def clear_callbacks!
+        @_sass_callbacks = {}
+      end
+    end
 
     # Define a callback with the given name.
     # This will define an `on_#{name}` method

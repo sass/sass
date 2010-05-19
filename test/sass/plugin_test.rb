@@ -20,7 +20,7 @@ class SassPluginTest < Test::Unit::TestCase
 
   def teardown
     clean_up_sassc
-    clear_callbacks
+    Sass::Plugin.reset!
     FileUtils.rm_r tempfile_loc
     FileUtils.rm_r tempfile_loc(nil,"more_")
   end
@@ -342,10 +342,6 @@ CSS
     assert_no_callback(*args.pop) {assert_no_callbacks(*args)}
   end
 
-  def clear_callbacks
-    Sass::Plugin.instance_variable_set('@_sass_callbacks', {})
-  end
-
   def update_all_stylesheets!
     Haml::Util.silence_haml_warnings do
       Sass::Plugin.update_stylesheets
@@ -403,14 +399,16 @@ CSS
   end
 
   def set_plugin_opts(overrides = {})
-    Sass::Plugin.options = {
+    Sass::Plugin.options.merge!(
       :template_location => template_loc,
       :css_location => tempfile_loc,
       :style => :compact,
       :load_paths => [result_loc],
       :always_update => true,
       :never_update => false,
-    }.merge(overrides)
+      :full_exception => true
+    )
+    Sass::Plugin.options.merge!(overrides)
   end
 end
 

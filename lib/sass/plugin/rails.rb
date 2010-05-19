@@ -1,13 +1,22 @@
 unless defined?(Sass::RAILS_LOADED)
   Sass::RAILS_LOADED = true
 
-  # Reverse-merging (we're in Rails, anyway) so we dont' clobber what's already been defined further up-stream
-  Sass::Plugin.options.reverse_merge!(:template_location => Haml::Util.rails_root + '/public/stylesheets/sass',
-                                      :css_location      => Haml::Util.rails_root + '/public/stylesheets',
-                                      :cache_location    => Haml::Util.rails_root + '/tmp/sass-cache',
-                                      :always_check      => Haml::Util.rails_env == "development",
-                                      :quiet             => Haml::Util.rails_env != "production",
-                                      :full_exception    => Haml::Util.rails_env != "production")
+  module Sass::Plugin::Configuration
+    # Different default options in a rails envirionment.
+    def default_options
+      @default_options ||= {
+        :always_update      => false,
+        :template_location => Haml::Util.rails_root + '/public/stylesheets/sass',
+        :css_location      => Haml::Util.rails_root + '/public/stylesheets',
+        :cache_location    => Haml::Util.rails_root + '/tmp/sass-cache',
+        :always_check      => Haml::Util.rails_env == "development",
+        :quiet             => Haml::Util.rails_env != "production",
+        :full_exception    => Haml::Util.rails_env != "production"
+      }.freeze
+    end
+  end
+
+  Sass::Plugin.options.reverse_merge!(Sass::Plugin.default_options)
 
   if defined?(ActionController::Metal)
     # Rails >= 3.0

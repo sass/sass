@@ -1,21 +1,32 @@
 unless defined?(Sass::MERB_LOADED)
   Sass::MERB_LOADED = true
 
-  version = Merb::VERSION.split('.').map { |n| n.to_i }
-  if version[0] <= 0 && version[1] < 5
-    root = MERB_ROOT
-    env  = MERB_ENV
-  else
-    root = Merb.root.to_s
-    env  = Merb.environment
+  module Sass::Plugin::Configuration
+    # Different default options in a m envirionment.
+    def default_options
+      @default_options ||= begin
+        version = Merb::VERSION.split('.').map { |n| n.to_i }
+        if version[0] <= 0 && version[1] < 5
+          root = MERB_ROOT
+          env  = MERB_ENV
+        else
+          root = Merb.root.to_s
+          env  = Merb.environment
+        end
+
+        {
+          :always_update      => false,
+          :template_location => root + '/public/stylesheets/sass',
+          :css_location      => root + '/public/stylesheets',
+          :cache_location    => root + '/tmp/sass-cache',
+          :always_check      => env != "production",
+          :quiet             => env != "production",
+          :full_exception    => env != "production"
+        }.freeze
+      end
+    end
   end
 
-  Sass::Plugin.options.merge!(:template_location => root + '/public/stylesheets/sass',
-                              :css_location      => root + '/public/stylesheets',
-                              :cache_location    => root + '/tmp/sass-cache',
-                              :always_check      => env != "production",
-                              :quiet             => env != "production",
-                              :full_exception    => env != "production")
   config = Merb::Plugins.config[:sass] || Merb::Plugins.config["sass"] || {}
 
   if defined? config.symbolize_keys!

@@ -142,7 +142,7 @@ set the [`:cache`](#cache-option) option to `false`.
 
 ### Options
 
-Options can be set by setting the {Sass::Plugin#options Sass::Plugin.options} hash
+Options can be set by setting the {Sass::Plugin::Configuration#options Sass::Plugin#options} hash
 in `environment.rb` in Rails or `config.ru` in Rack...
 
     Sass::Plugin.options[:style] = :compact
@@ -237,9 +237,9 @@ Available options are:
   between them.
   **Note that due to the many possible formats it can take,
   this option should only be set directly, not accessed or modified.
-  Use the {Sass::Plugin#template_location_array},
-  {Sass::Plugin#add_template_location},
-  and {Sass::Plugin#remove_template_location} methods instead**.
+  Use the {Sass::Plugin::Configuration#template_location_array Sass::Plugin#template_location_array},
+  {Sass::Plugin::Configuration#add_template_location Sass::Plugin#add_template_location},
+  and {Sass::Plugin::Configuration#remove_template_location Sass::Plugin#remove_template_location} methods instead**.
 
 {#css_location-option} `:css_location`
 : The path where CSS output should be written to.
