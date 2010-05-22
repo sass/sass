@@ -68,7 +68,7 @@ module Sass
 
     # Pop a stack frame from the mixin/include stack.
     def pop_frame
-      stack.pop if stack.last[:prepared]
+      stack.pop if stack.last && stack.last[:prepared]
       stack.pop
     end
 
