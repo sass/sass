@@ -23,7 +23,8 @@ module Haml
         rescue Exception => e
           raise e if @options[:trace] || e.is_a?(SystemExit)
 
-          $stderr.puts "#{e.class}: #{e.message}"
+          $stderr.print "#{e.class}: " unless e.class == RuntimeError
+          $stderr.puts "#{e.message}"
           $stderr.puts "  Use --trace for backtrace."
           exit 1
         end
