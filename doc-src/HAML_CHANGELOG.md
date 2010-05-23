@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.5 (Unreleased)
+## 3.0.5
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.5).
 
 ### Rails 2.3.6 Support
 
