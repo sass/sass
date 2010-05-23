@@ -254,3 +254,24 @@ module ActionView
     end
   end
 end
+
+# Rails 2.3.6 uses #safe_concat in #fragment_for
+# rather than using #concat with an #html_safe string.
+# This fixes that issue.
+if Haml::Util.ap_2_3_6?
+  module ActionController::Caching::Fragments
+    def fragment_for(buffer, name = {}, options = nil, &block) #:nodoc:
+      if perform_caching
+        if cache = read_fragment(name, options)
+          buffer.concat(cache.html_safe)
+        else
+          pos = buffer.length
+          block.call
+          write_fragment(name, buffer[pos..-1], options)
+        end
+      else
+        block.call
+      end
+    end
+  end
+end
