@@ -5,8 +5,15 @@
 
 ## 3.0.5 (Unreleased)
 
-* Make sure the `#capture` helper in Rails 3
-  doesn't print its value directly to the template.
+### Rails 2.3.6 Support
+
+This release hacks around various bugs in Rails 2.3.6,
+bringing Haml up to full compatibility.
+
+### Rails 3 Support
+
+Make sure the `#capture` helper in Rails 3
+doesn't print its value directly to the template.
 
 ## 3.0.4
 
