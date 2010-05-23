@@ -342,6 +342,63 @@ SASS
     assert_hash_has(err.sass_backtrace[4], :filename => nil, :mixin => nil, :line => 1)
   end
 
+  def test_basic_mixin_loop_exception
+    render <<SASS
+@mixin foo
+  @include foo
+@include foo
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal("An @include loop has been found: foo includes itself", err.message)
+    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 2)
+  end
+
+  def test_double_mixin_loop_exception
+    render <<SASS
+@mixin foo
+  @include bar
+@mixin bar
+  @include foo
+@include foo
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal(<<MESSAGE.rstrip, err.message)
+An @include loop has been found:
+    foo includes bar
+    bar includes foo
+MESSAGE
+    assert_hash_has(err.sass_backtrace[0], :mixin => "bar", :line => 4)
+    assert_hash_has(err.sass_backtrace[1], :mixin => "foo", :line => 2)
+  end
+
+  def test_deep_mixin_loop_exception
+    render <<SASS
+@mixin foo
+  @include bar
+
+@mixin bar
+  @include baz
+
+@mixin baz
+  @include foo
+
+@include foo
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal(<<MESSAGE.rstrip, err.message)
+An @include loop has been found:
+    foo includes bar
+    bar includes baz
+    baz includes foo
+MESSAGE
+    assert_hash_has(err.sass_backtrace[0], :mixin => "baz", :line => 8)
+    assert_hash_has(err.sass_backtrace[1], :mixin => "bar", :line => 5)
+    assert_hash_has(err.sass_backtrace[2], :mixin => "foo", :line => 2)
+  end
+
   def test_exception_css_with_offset
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)

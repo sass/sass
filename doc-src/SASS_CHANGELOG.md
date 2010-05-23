@@ -31,6 +31,26 @@ is compiled to:
 This is useful, since normally {file:SASS_REFERENCE.md#division-and-slash
 a slash with variables is treated as division}.
 
+### Recursive Mixins
+
+Mixins that include themselves will now print
+much more informative error messages.
+For example:
+
+    @mixin foo {@include bar}
+    @mixin bar {@include foo}
+    @include foo
+
+will print:
+
+    An @include loop has been found:
+        foo includes bar
+        bar includes foo
+
+Although it was previously possible to use recursive mixins
+without causing infinite looping, this is now disallowed,
+since there's no good reason to do it.
+
 ### Rails 3 Support
 
 Fix Sass configuration under Rails 3.

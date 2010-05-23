@@ -1,3 +1,5 @@
+require 'set'
+
 module Sass
   # The lexical environment for SassScript.
   # This keeps track of variable and mixin definitions.
@@ -24,6 +26,7 @@ module Sass
       @mixins = {}
       @parent = parent
       @stack = [] unless parent
+      @mixins_in_use = Set.new unless parent
       set_var("important", Script::String.new("!important")) unless @parent
     end
 
@@ -56,6 +59,7 @@ module Sass
       else
         stack.push(frame_info)
       end
+      mixins_in_use << stack.last[:mixin] if stack.last[:mixin] && !stack.last[:prepared]
     end
 
     # Like \{#push\_frame}, but next time a stack frame is pushed,
@@ -68,8 +72,9 @@ module Sass
 
     # Pop a stack frame from the mixin/include stack.
     def pop_frame
-      stack.pop if stack.last[:prepared]
-      stack.pop
+      stack.pop if stack.last && stack.last[:prepared]
+      popped = stack.pop
+      mixins_in_use.delete(popped[:mixin]) if popped && popped[:mixin]
     end
 
     # A list of stack frames in the mixin/include stack.
@@ -79,6 +84,13 @@ module Sass
     #   of the form passed to \{#push\_frame}.
     def stack
       @stack ||= @parent.stack
+    end
+
+    # A set of names of mixins currently present in the stack.
+    #
+    # @return [Set<String>] The mixin names.
+    def mixins_in_use
+      @mixins_in_use ||= @parent.mixins_in_use
     end
 
     class << self
