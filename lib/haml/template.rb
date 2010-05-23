@@ -64,14 +64,10 @@ else
   Haml::Template.try_enabling_xss_integration
 end
 
-require 'action_pack'
 # Rails 2.3.6 monkeypatches ERB in incompatible ways.
 # We fix our own subclass of ERB here so the Haml ERB filter
 # will continue to work.
-if defined?(ActionPack::VERSION::MAJOR) &&
-    ActionPack::VERSION::MAJOR == 2 &&
-    ActionPack::VERSION::MINOR == 3 &&
-    ActionPack::VERSION::TINY >= 6
+if Haml::Util.ap_2_3_6?
   class Haml::Filters::ERB::RealERB
     def set_eoutvar(compiler, eoutvar = '_erbout')
       compiler.put_cmd = "#{eoutvar}.concat"
