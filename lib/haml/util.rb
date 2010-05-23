@@ -324,6 +324,20 @@ module Haml
           $1.to_i >= 3))
     end
 
+    # Returns whether this environment is using ActionPack
+    # version 2.3.6 (or greater, up until 3.0.0).
+    #
+    # @return [Boolean]
+    def ap_2_3_6?
+      # Hopefully Rails 2.3.7 will fix the issues that this method hacks around,
+      # but for now we'll assume it won't
+      require 'action_pack'
+      defined?(ActionPack::VERSION::MAJOR) &&
+        ActionPack::VERSION::MAJOR == 2 &&
+        ActionPack::VERSION::MINOR == 3 &&
+        ActionPack::VERSION::TINY >= 6
+    end
+
     # Returns an ActionView::Template* class.
     # In pre-3.0 versions of Rails, most of these classes
     # were of the form `ActionView::TemplateFoo`,
@@ -374,8 +388,11 @@ module Haml
     #
     # @return [Class]
     def rails_safe_buffer_class
-      return ActionView::SafeBuffer if defined?(ActionView::SafeBuffer)
-      ActiveSupport::SafeBuffer
+      # It's important that we check ActiveSupport first,
+      # because in Rails 2.3.6 ActionView::SafeBuffer exists
+      # but is a deprecated proxy object.
+      return ActiveSupport::SafeBuffer if defined?(ActiveSupport::SafeBuffer)
+      return ActionView::SafeBuffer
     end
 
     ## Cross-Ruby-Version Compatibility

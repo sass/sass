@@ -64,6 +64,28 @@ else
   Haml::Template.try_enabling_xss_integration
 end
 
+# Rails 2.3.6 monkeypatches ERB in incompatible ways.
+# We fix our own subclass of ERB here so the Haml ERB filter
+# will continue to work.
+if Haml::Util.ap_2_3_6?
+  class Haml::Filters::ERB::RealERB
+    def set_eoutvar(compiler, eoutvar = '_erbout')
+      compiler.put_cmd = "#{eoutvar}.concat"
+      compiler.insert_cmd = "#{eoutvar}.concat"
+
+      cmd = []
+      cmd.push "#{eoutvar} = ''"
+
+      compiler.pre_cmd = cmd
+
+      cmd = []
+      cmd.push(eoutvar)
+
+      compiler.post_cmd = cmd
+    end
+  end
+end
+
 if Haml::Util.rails_root
   # Update init.rb to the current version
   # if it's out of date.
