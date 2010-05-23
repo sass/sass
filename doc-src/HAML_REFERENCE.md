@@ -745,7 +745,7 @@ is compiled to:
     </html>
 
 You can also specify the specific doctype after the `!!!`
-When the [`:format`](#format) is set to `:xhtml` (the default),
+When the [`:format`](#format-option) is set to `:xhtml` (the default),
 the following doctypes are supported:
 
 `!!!`
@@ -780,7 +780,7 @@ the following doctypes are supported:
 : XHTML+RDFa 1.0<br/>
  `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">`
 
-When the [`:format`](#format) option is set to `:html4`,
+When the [`:format`](#format-option) option is set to `:html4`,
 the following doctypes are supported:
 
 `!!!`
@@ -795,7 +795,7 @@ the following doctypes are supported:
 : HTML 4.01 Frameset<br/>
  `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">`
 
-When the [`:format`](#format) option is set to `:html5`,
+When the [`:format`](#format-option) option is set to `:html5`,
 `!!!` is always `<!DOCTYPE html>`.
 
 If you're not using the UTF-8 character set for your document,
