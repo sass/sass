@@ -3,6 +3,11 @@ require 'haml/engine'
 require 'haml/helpers/action_view_mods'
 require 'haml/helpers/action_view_extensions'
 
+if defined?(ActionPack::VERSION::STRING) &&
+    ActionPack::VERSION::STRING == "2.3.6"
+  raise "Haml does not support Rails 2.3.6. Please upgrade to 2.3.7 or later."
+end
+
 module Haml
   # The class that keeps track of the global options for Haml within Rails.
   module Template
@@ -62,28 +67,6 @@ if defined?(Rails.configuration.after_initialize) &&
   Rails.configuration.after_initialize {Haml::Template.try_enabling_xss_integration}
 else
   Haml::Template.try_enabling_xss_integration
-end
-
-# Rails 2.3.6 monkeypatches ERB in incompatible ways.
-# We fix our own subclass of ERB here so the Haml ERB filter
-# will continue to work.
-if Haml::Util.ap_2_3_6?
-  class Haml::Filters::ERB::RealERB
-    def set_eoutvar(compiler, eoutvar = '_erbout')
-      compiler.put_cmd = "#{eoutvar}.concat"
-      compiler.insert_cmd = "#{eoutvar}.concat"
-
-      cmd = []
-      cmd.push "#{eoutvar} = ''"
-
-      compiler.pre_cmd = cmd
-
-      cmd = []
-      cmd.push(eoutvar)
-
-      compiler.post_cmd = cmd
-    end
-  end
 end
 
 if Haml::Util.rails_root

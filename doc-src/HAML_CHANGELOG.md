@@ -3,6 +3,24 @@
 * Table of contents
 {:toc}
 
+## 3.0.6
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).
+
+### Rails 2.3.7 Support
+
+This release fully supports Rails 2.3.7.
+
+### Rails 2.3.6 Support Removed
+
+Rails 2.3.6 was released with various bugs related to XSS-protection
+and interfacing with Haml.
+Rails 2.3.7 was released shortly after with fixes for these bugs.
+Thus, Haml no longer supports Rails 2.3.6,
+and anyone using it should upgrade to 2.3.7.
+
+Attempting to use Haml with Rails 2.3.6 will cause an error.
+
 ## 3.0.5
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.5).

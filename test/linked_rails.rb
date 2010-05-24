@@ -15,6 +15,9 @@ begin
   # Necessary for Rails 3
   require 'rails'
 rescue LoadError
+  # Necessary for Rails 2.3.7
+  require 'initializer'
+rescue LoadError
 end
 
 if defined?(Rails::Application) # Rails 3
@@ -22,6 +25,10 @@ if defined?(Rails::Application) # Rails 3
     config.root = File.join(File.dirname(__FILE__), "../..")
   end
   Rails.application = TestApp
+elsif defined?(RAILS_ROOT)
+  RAILS_ROOT.replace(File.join(File.dirname(__FILE__), "../.."))
+else
+  RAILS_ROOT = File.join(File.dirname(__FILE__), "../..")
 end
 
 ActionController::Base.logger = Logger.new(nil)
@@ -31,5 +38,5 @@ ActionController::Base.logger = Logger.new(nil)
 # since we don't want to load the entirety of Rails.
 Dir[File.dirname(__FILE__) + '/plugins/*'].each do |plugin|
   $: << plugin + '/lib'
-  Object.new.instance_eval(File.read(plugin + '/init.rb'))
+  eval(File.read(plugin + '/init.rb'))
 end

@@ -308,16 +308,10 @@ END
       # @see Base#compile
       def compile(precompiler, text)
         return if precompiler.options[:suppress_eval]
-        src = RealERB.new(text).src.sub(/^#coding:.*?\n/, '').
+        src = ::ERB.new(text).src.sub(/^#coding:.*?\n/, '').
           sub(/^_erbout = '';/, "")
         precompiler.send(:push_silent, src)
       end
-
-      # This is a dummy ERB subclass
-      # that's used to work around Rails 2.3.6's
-      # incompatible monkeypatches of ERB.
-      # It's modified in `haml/template.rb` if need be.
-      class RealERB < ::ERB; end
     end
 
     # Parses the filtered text with [Textile](http://www.textism.com/tools/textile).

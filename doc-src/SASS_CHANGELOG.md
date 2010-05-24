@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.0.6
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).
+
+There were no changes made to Sass between versions 3.0.5 and 3.0.6.
+
 ## 3.0.5
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.5).
