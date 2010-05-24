@@ -329,8 +329,6 @@ module Haml
     #
     # @return [Boolean]
     def ap_2_3_6?
-      # Hopefully Rails 2.3.7 will fix the issues that this method hacks around,
-      # but for now we'll assume it won't
       require 'action_pack'
       defined?(ActionPack::VERSION::MAJOR) &&
         ActionPack::VERSION::MAJOR == 2 &&
