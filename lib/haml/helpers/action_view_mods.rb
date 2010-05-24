@@ -97,22 +97,6 @@ module ActionView
       end
     end
 
-    # For some reason, Rails 2.3.6 uses #safe_concat in #capture
-    # even when XSS support is disabled.
-    if Haml::Util.ap_2_3_6?
-      module TextHelper
-        def concat_with_haml(string, binding = nil)
-          if is_haml?
-            haml_buffer.buffer.concat(string)
-          else
-            concat_without_haml(string, binding)
-          end
-        end
-        alias_method :concat_without_haml, :concat
-        alias_method :concat, :concat_with_haml
-      end
-    end
-
     module TagHelper
       def content_tag_with_haml(name, *args, &block)
         return content_tag_without_haml(name, *args, &block) unless is_haml?
