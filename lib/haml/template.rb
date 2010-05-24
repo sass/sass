@@ -3,6 +3,11 @@ require 'haml/engine'
 require 'haml/helpers/action_view_mods'
 require 'haml/helpers/action_view_extensions'
 
+if defined?(ActionPack::VERSION::STRING) &&
+    ActionPack::VERSION::STRING == "2.3.6"
+  raise "Haml does not support Rails 2.3.6. Please upgrade to 2.3.7 or later."
+end
+
 module Haml
   # The class that keeps track of the global options for Haml within Rails.
   module Template
