@@ -5,6 +5,11 @@
 
 ## 3.0.7 (Unreleased)
 
+### Encoding Support
+
+Add support for `@charset` for declaring the encoding of a stylesheet.
+For details see {file:SASS_REFERENCE.md#encodings the reference}.
+
 ### Bug Fixes
 
 * When compiling a file named `.sass` but with SCSS syntax specified,

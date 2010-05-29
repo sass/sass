@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 require 'stringio'
@@ -2038,12 +2039,106 @@ SASS
       assert_equal(3, e.sass_line)
       assert_equal('Invalid UTF-16LE character "\xFE"', e.message)
     end
+
+    def test_same_charset_as_encoding
+      assert_renders_encoded(<<CSS, <<SASS)
+@charset "utf-8";
+fóó {
+  a: b; }
+CSS
+@charset "utf-8"
+fóó
+  a: b
+SASS
+    end
+
+    def test_different_charset_than_encoding
+      assert_renders_encoded(<<CSS.force_encoding("IBM866"), <<SASS)
+@charset "ibm866";
+fóó {
+  a: b; }
+CSS
+@charset "ibm866"
+fóó
+  a: b
+SASS
+    end
+
+    def test_different_encoding_than_system
+      assert_renders_encoded(<<CSS.encode("IBM866"), <<SASS.encode("IBM866"))
+тАЬ {
+  a: b; }
+CSS
+тАЬ
+  a: b
+SASS
+    end
+
+    def test_multibyte_charset
+      assert_renders_encoded(<<CSS.encode("UTF-16BE"), <<SASS.encode("UTF-16BE").force_encoding("UTF-8"))
+@charset "utf-16be";
+fóó {
+  a: b; }
+CSS
+@charset "utf-16be"
+fóó
+  a: b
+SASS
+    end
+
+    def test_multibyte_charset_without_endian_specifier
+      assert_renders_encoded(<<CSS.encode("UTF-32LE"), <<SASS.encode("UTF-32LE").force_encoding("UTF-8"))
+@charset "utf-32";
+fóó {
+  a: b; }
+CSS
+@charset "utf-32"
+fóó
+  a: b
+SASS
+    end
+
+    def test_utf8_bom
+      assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
+fóó {
+  a: b; }
+CSS
+\uFEFFfóó
+  a: b
+SASS
+    end
+
+    def test_utf16le_bom
+      assert_renders_encoded(<<CSS.encode("UTF-16LE"), <<SASS.encode("UTF-16LE").force_encoding("BINARY"))
+fóó {
+  a: b; }
+CSS
+\uFEFFfóó
+  a: b
+SASS
+    end
+
+    def test_utf32be_bom
+      assert_renders_encoded(<<CSS.encode("UTF-32BE"), <<SASS.encode("UTF-32BE").force_encoding("BINARY"))
+fóó {
+  a: b; }
+CSS
+\uFEFFfóó
+  a: b
+SASS
+    end
   end
 
   private
 
   def assert_hash_has(hash, expected)
     expected.each {|k, v| assert_equal(v, hash[k])}
+  end
+
+  def assert_renders_encoded(css, sass)
+    result = render(sass)
+    assert_equal css.encoding, result.encoding
+    assert_equal css, result
   end
 
   def render(sass, options = {})

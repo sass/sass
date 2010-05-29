@@ -133,6 +133,11 @@ module Sass
     }.freeze
 
     # @param template [String] The Sass template.
+    #   This template can be encoded using any encoding
+    #   that can be converted to Unicode.
+    #   If the template contains an `@charset` declaration,
+    #   that overrides the Ruby encoding
+    #   (see {file:SASS_REFERENCE.md#encodings the encoding documentation})
     # @param options [{Symbol => Object}] An options hash;
     #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
     def initialize(template, options={})
@@ -155,9 +160,12 @@ module Sass
     #
     # @return [String] The CSS
     # @raise [Sass::SyntaxError] if there's an error in the document
+    # @raise [Encoding::UndefinedConversionError] if the source encoding
+    #   cannot be converted to UTF-8
+    # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
     def render
-      return _to_tree.render unless @options[:quiet]
-      Haml::Util.silence_haml_warnings {_to_tree.render}
+      return _render unless @options[:quiet]
+      Haml::Util.silence_haml_warnings {_render}
     end
     alias_method :to_css, :render
 
@@ -170,10 +178,28 @@ module Sass
       Haml::Util.silence_haml_warnings {_to_tree}
     end
 
+    # Returns the original encoding of the document,
+    # or `nil` under Ruby 1.8.
+    #
+    # @return [Encoding, nil]
+    # @raise [Encoding::UndefinedConversionError] if the source encoding
+    #   cannot be converted to UTF-8
+    # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
+    def source_encoding
+      check_encoding!
+      @original_encoding
+    end
+
     private
 
+    def _render
+      rendered = _to_tree.render
+      return rendered if ruby1_8?
+      return rendered.encode(source_encoding)
+    end
+
     def _to_tree
-      @template = check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
+      check_encoding!
 
       if @options[:syntax] == :scss
         root = Sass::SCSS::Parser.new(@template).parse
@@ -188,6 +214,14 @@ module Sass
       e.modify_backtrace(:filename => @options[:filename], :line => @line)
       e.sass_template = @template
       raise e
+    end
+
+    def check_encoding!
+      return if @checked_encoding
+      @checked_encoding = true
+      @template, @original_encoding = check_sass_encoding(@template) do |msg, line|
+        raise Sass::SyntaxError.new(msg, :line => line)
+      end
     end
 
     def tabulate(string)

@@ -434,6 +434,78 @@ MSG
       return str
     end
 
+    # Like {\#check\_encoding}, but also checks for a `@charset` declaration
+    # at the beginning of the file and uses that encoding if it exists.
+    #
+    # The Sass encoding rules are simple.
+    # If a `@charset` declaration exists,
+    # we assume that that's the original encoding of the document.
+    # Otherwise, we use whatever encoding Ruby has.
+    # Then we convert that to UTF-8 to process internally.
+    # The UTF-8 end result is what's returned by this method.
+    #
+    # @param str [String] The string of which to check the encoding
+    # @yield [msg] A block in which an encoding error can be raised.
+    #   Only yields if there is an encoding error
+    # @yieldparam msg [String] The error message to be raised
+    # @return [(String, Encoding)] The original string encoded as UTF-8,
+    #   and the source encoding of the string (or `nil` under Ruby 1.8)
+    # @raise [Encoding::UndefinedConversionError] if the source encoding
+    #   cannot be converted to UTF-8
+    # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
+    def check_sass_encoding(str, &block)
+      return check_encoding(str, &block), nil if ruby1_8?
+      # We allow any printable ASCII characters but double quotes in the charset decl
+      bin = str.dup.force_encoding("BINARY")
+      encoding = Haml::Util::ENCODINGS_TO_CHECK.find do |enc|
+        bin =~ Haml::Util::CHARSET_REGEXPS[enc]
+      end
+      charset, bom = $1, $2
+      if charset
+        charset = charset.force_encoding(encoding).encode("UTF-8")
+        if endianness = encoding[/[BL]E$/]
+          begin
+            Encoding.find(charset + endianness)
+            charset << endianness
+          rescue ArgumentError # Encoding charset + endianness doesn't exist
+          end
+        end
+        str.force_encoding(charset)
+      elsif bom
+        str.force_encoding(encoding)
+      end
+
+      str = check_encoding(str, &block)
+      return str.encode("UTF-8"), str.encoding
+    end
+
+    unless ruby1_8?
+      # @private
+      def _enc(string, encoding)
+        string.encode(encoding).force_encoding("BINARY")
+      end
+
+      # We could automatically add in any non-ASCII-compatible encodings here,
+      # but there's not really a good way to do that
+      # without manually checking that each encoding
+      # encodes all ASCII characters properly,
+      # which takes long enough to affect the startup time of the CLI.
+      ENCODINGS_TO_CHECK = %w[UTF-8 UTF-16BE UTF-16LE UTF-32BE UTF-32LE]
+
+      CHARSET_REGEXPS = Hash.new do |h, e|
+        h[e] =
+          begin
+            # /\A(?:\uFEFF)?@charset "(.*?)"|\A(\uFEFF)/
+            Regexp.new(/\A(?:#{_enc("\uFEFF", e)})?#{
+              _enc('@charset "', e)}(.*?)#{_enc('"', e)}|\A(#{
+              _enc("\uFEFF", e)})/)
+          rescue
+            # /\A@charset "(.*?)"/
+            Regexp.new(/\A#{_enc('@charset "', e)}(.*?)#{_enc('"', e)}/)
+          end
+      end
+    end
+
     # Checks to see if a class has a given method.
     # For example:
     #
