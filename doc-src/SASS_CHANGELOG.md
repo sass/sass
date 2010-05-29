@@ -7,7 +7,7 @@
 
 ### Encoding Support
 
-Add support for `@charset` for declaring the encoding of a stylesheet.
+Sass 3.0.7 adds support for `@charset` for declaring the encoding of a stylesheet.
 For details see {file:SASS_REFERENCE.md#encodings the reference}.
 
 ### Bug Fixes

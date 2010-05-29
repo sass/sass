@@ -3,6 +3,20 @@
 * Table of contents
 {:toc}
 
+## 3.0.7 (Unreleased)
+
+### Encoding Support
+
+Haml 3.0.7 adds support for Ruby-style `-# coding:` comments
+for declaring the encoding of a template.
+For details see {file:HAML_REFERENCE.md#encodings the reference}.
+
+This also slightly changes the behavior of Haml when the
+{file:HAML_REFERENCE.md#encoding-option `:encoding` option} is not set.
+Rather than defaulting to `"utf-8"`,
+it defaults to the encoding of the source document,
+and only falls back to `"utf-8"` if this encoding is `"us-ascii"`.
+
 ## 3.0.6
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).

@@ -85,8 +85,15 @@ module Haml
         :format => :xhtml,
         :escape_html => false,
       }
+
+
+      template = check_haml_encoding(template) do |msg, line|
+        raise Haml::Error.new(msg, line)
+      end
+
       unless ruby1_8?
-        @options[:encoding] = Encoding.default_internal || "utf-8"
+        @options[:encoding] = Encoding.default_internal || template.encoding
+        @options[:encoding] = "utf-8" if @options[:encoding].name == "US-ASCII"
       end
       @options.merge! options.reject {|k, v| v.nil?}
       @index = 0
@@ -98,8 +105,6 @@ module Haml
       if @options[:encoding] && @options[:encoding].is_a?(Encoding)
         @options[:encoding] = @options[:encoding].name
       end
-
-      template = check_encoding(template) {|msg, line| raise Haml::Error.new(msg, line)}
 
       # :eod is a special end-of-document marker
       @template = (template.rstrip).split(/\r\n|\r|\n/) + [:eod, :eod]
