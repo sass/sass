@@ -1546,7 +1546,6 @@ HAML
   unless Haml::Util.ruby1_8?
     def test_default_encoding
       assert_equal(Encoding.find("utf-8"), render(<<HAML.encode("us-ascii")).encoding)
-HTML
 %p bar
 %p foo
 HAML
