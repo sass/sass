@@ -17,6 +17,12 @@ Rather than defaulting to `"utf-8"`,
 it defaults to the encoding of the source document,
 and only falls back to `"utf-8"` if this encoding is `"us-ascii"`.
 
+### Other Changes
+
+* Default to the {file:HAML_REFERENCE.md#format-option `:html5` format}
+  when running under Rails 3,
+  since it defaults to HTML5 as well.
+
 ## 3.0.6
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).

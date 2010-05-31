@@ -46,6 +46,10 @@ unless Haml::Util.rails_env == "development"
   Haml::Template.options[:ugly] ||= true
 end
 
+if ActionPack::VERSION::MAJOR >= 3
+  Haml::Template.options[:format] ||= :html5
+end
+
 # Decide how we want to load Haml into Rails.
 # Patching was necessary for versions <= 2.0.1,
 # but we can make it a normal handler for higher versions.
