@@ -11,6 +11,8 @@ module Haml
       include Haml::Util.av_template_class(:Handlers)::Compilable
     end
 
+    def handles_encoding?; true; end
+
     def compile(template)
       options = Haml::Template.options.dup
 
