@@ -23,6 +23,11 @@ and only falls back to `"utf-8"` if this encoding is `"us-ascii"`.
   when running under Rails 3,
   since it defaults to HTML5 as well.
 
+### Bug Fixes
+
+* When generating Haml for something like `<span>foo</span>,`,
+  use `= succeed` rather than `- succeed` (which doesn't work).
+
 ## 3.0.6
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).

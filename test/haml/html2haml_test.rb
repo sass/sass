@@ -268,7 +268,7 @@ HTML
     assert_equal(<<HAML.rstrip, render(<<HTML))
 #foo
   Batch
-  - succeed "," do
+  = succeed "," do
     %span Foo
   %span Bar
 HAML

@@ -285,7 +285,7 @@ module Haml
                self.previous.content =~ /\A\s*\Z/ && self.previous.previous.nil?)
             nuke_outer_whitespace = true
           else
-            output << "- succeed #{self.next.content.slice!(/\A[^\s]+/).dump} do\n"
+            output << "= succeed #{self.next.content.slice!(/\A[^\s]+/).dump} do\n"
             tabs += 1
             output << tabulate(tabs)
           end
