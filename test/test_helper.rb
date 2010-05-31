@@ -9,6 +9,7 @@ require 'sass'
 
 require 'haml/template'
 Haml::Template.options[:ugly] = false
+Haml::Template.options[:format] = :xhtml
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 

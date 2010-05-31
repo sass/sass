@@ -186,7 +186,7 @@ RUBY
       production :equals, :interpolation, :single_eq
 
       def try_op_before_interp(op, prev = nil)
-        return unless @lexer.peek.type == :begin_interpolation
+        return unless @lexer.peek && @lexer.peek.type == :begin_interpolation
         wb = @lexer.whitespace?(op)
         str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
         str.line = @lexer.line

@@ -3,6 +3,18 @@
 * Table of contents
 {:toc}
 
+## 3.0.7 (Unreleased)
+
+### Encoding Support
+
+Sass 3.0.7 adds support for `@charset` for declaring the encoding of a stylesheet.
+For details see {file:SASS_REFERENCE.md#encodings the reference}.
+
+### Bug Fixes
+
+* When compiling a file named `.sass` but with SCSS syntax specified,
+  use the latter (and vice versa).
+
 ## 3.0.6
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).

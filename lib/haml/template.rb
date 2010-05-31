@@ -43,7 +43,11 @@ module Haml
 end
 
 unless Haml::Util.rails_env == "development"
-  Haml::Template.options[:ugly] = true
+  Haml::Template.options[:ugly] ||= true
+end
+
+if ActionPack::VERSION::MAJOR >= 3
+  Haml::Template.options[:format] ||= :html5
 end
 
 # Decide how we want to load Haml into Rails.

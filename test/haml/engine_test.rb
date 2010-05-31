@@ -1546,7 +1546,6 @@ HAML
   unless Haml::Util.ruby1_8?
     def test_default_encoding
       assert_equal(Encoding.find("utf-8"), render(<<HAML.encode("us-ascii")).encoding)
-HTML
 %p bar
 %p foo
 HAML
@@ -1605,6 +1604,202 @@ HAML
       assert_equal(3, e.line)
       assert_equal('Invalid UTF-16LE character "\xFE"', e.message)
     end
+
+    def test_same_coding_comment_as_encoding
+      assert_renders_encoded(<<HTML, <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# coding: utf-8
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_different_coding_comment_than_encoding
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# coding: ibm866
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_different_coding_than_system
+      assert_renders_encoded(<<HTML.encode("IBM866"), <<HAML.encode("IBM866"))
+<p>тАЬ</p>
+HTML
+%p тАЬ
+HAML
+    end
+
+    def test_case_insensitive_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# CodINg: IbM866
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_whitespace_insensitive_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-#coding:ibm866
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_equals_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# CodINg= ibm866
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_prefixed_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# foo BAR FAOJcoding: ibm866
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_suffixed_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# coding: ibm866 ASFJ (&(&#!$
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_emacs_prefixed_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# -*- coding: ibm866
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_emacs_suffixed_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# coding: ibm866 -*- coding: blah
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_emacs_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# -*- coding: ibm866 -*-
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_emacs_encoding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# -*- encoding: ibm866 -*-
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_quoted_emacs_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# -*- coding: "ibm866" -*-
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_whitespace_insensitive_emacs_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-#-*-coding:ibm866-*-
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_whitespace_insensitive_emacs_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-#-*-coding:ibm866-*-
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_one_of_several_emacs_comments
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# -*- foo: bar; coding: ibm866; baz: bang -*-
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_prefixed_emacs_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# foo bar coding: baz -*- coding: ibm866 -*-
+%p bâr
+%p föö
+HAML
+    end
+
+    def test_suffixed_emacs_coding_comment
+      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+-# -*- coding: ibm866 -*- foo bar coding: baz
+%p bâr
+%p föö
+HAML
+    end
+
   end
 
   private
@@ -1618,5 +1813,11 @@ HAML
 <p>bâr</p>
 <p>föö</p>
 HTML
+  end
+
+  def assert_renders_encoded(html, haml)
+    result = render(haml)
+    assert_equal html.encoding, result.encoding
+    assert_equal html, result
   end
 end

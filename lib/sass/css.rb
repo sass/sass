@@ -14,7 +14,12 @@ module Sass
   #     Sass::CSS.new("p { color: blue }").render(:sass) #=> "p\n  color: blue"
   #     Sass::CSS.new("p { color: blue }").render(:scss) #=> "p {\n  color: blue; }"
   class CSS
-    # @param template [String] The CSS code
+    # @param template [String] The CSS stylesheet.
+    #   This stylesheet can be encoded using any encoding
+    #   that can be converted to Unicode.
+    #   If the stylesheet contains an `@charset` declaration,
+    #   that overrides the Ruby encoding
+    #   (see {file:SASS_REFERENCE.md#encodings the encoding documentation})
     # @option options :old [Boolean] (false)
     #     Whether or not to output old property syntax
     #     (`:color blue` as opposed to `color: blue`).
@@ -37,17 +42,34 @@ module Sass
     # @return [String] The resulting Sass or SCSS code
     # @raise [Sass::SyntaxError] if there's an error parsing the CSS template
     def render(fmt = :sass)
-      Haml::Util.check_encoding(@template) do |msg, line|
-        raise Sass::SyntaxError.new(msg, :line => line)
-      end
-
+      check_encoding!
       build_tree.send("to_#{fmt}", @options).strip + "\n"
     rescue Sass::SyntaxError => err
       err.modify_backtrace(:filename => @options[:filename] || '(css)')
       raise err
     end
 
+    # Returns the original encoding of the document,
+    # or `nil` under Ruby 1.8.
+    #
+    # @return [Encoding, nil]
+    # @raise [Encoding::UndefinedConversionError] if the source encoding
+    #   cannot be converted to UTF-8
+    # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
+    def source_encoding
+      check_encoding!
+      @original_encoding
+    end
+
     private
+
+    def check_encoding!
+      return if @checked_encoding
+      @checked_encoding = true
+      @template, @original_encoding = Haml::Util.check_sass_encoding(@template) do |msg, line|
+        raise Sass::SyntaxError.new(msg, :line => line)
+      end
+    end
 
     # Parses the CSS template and applies various transformations
     #
