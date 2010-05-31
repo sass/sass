@@ -15,6 +15,8 @@ For details see {file:SASS_REFERENCE.md#encodings the reference}.
 * When compiling a file named `.sass` but with SCSS syntax specified,
   use the latter (and vice versa).
 
+* Fix a bug where interpolation would cause some selectors to render improperly.
+
 ## 3.0.6
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).
