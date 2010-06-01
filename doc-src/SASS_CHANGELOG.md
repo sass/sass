@@ -3,10 +3,17 @@
 * Table of contents
 {:toc}
 
-## 3.0.9 (Unreleased)
+## 3.0.10 (Unreleased)
 
 * When using `sass-convert --from sass2 --to sass --recursive`,
   suggest the use of `--in-place` as well.
+
+## 3.0.9
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.9).
+
+There were no changes made to Sass between versions 3.0.8 and 3.0.9.
+A bug in Gemcutter caused the gem to be uploaded improperly.
 
 ## 3.0.8
 

@@ -3,6 +3,13 @@
 * Table of contents
 {:toc}
 
+## 3.0.9
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.9).
+
+There were no changes made to Haml between versions 3.0.8 and 3.0.9.
+A bug in Gemcutter caused the gem to be uploaded improperly.
+
 ## 3.0.8
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.8).
