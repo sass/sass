@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.8 (Unreleased)
+## 3.0.8
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.8).
 
 * Fix a bug with Rails versions prior to Rails 3.
 
