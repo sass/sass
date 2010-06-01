@@ -17,6 +17,9 @@ For details see {file:SASS_REFERENCE.md#encodings the reference}.
 
 * Fix a bug where interpolation would cause some selectors to render improperly.
 
+* If a line in a Sass comment starts with `*foo`,
+  render it as `*foo` rather than `* *foo`.
+
 ## 3.0.6
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).
