@@ -1423,6 +1423,18 @@ CSS
 SASS
   end
 
+  def test_loud_comments_with_no_space_after_starred_lines
+    assert_equal(<<CSS, render(<<SASS))
+/*bip bop
+ *beep boop
+ *bap blimp */
+CSS
+/*bip bop
+ *beep boop
+ *bap blimp
+SASS
+  end
+
   def test_comment_indentation_at_beginning_of_doc
     assert_equal <<CSS, render(<<SASS)
 /* foo

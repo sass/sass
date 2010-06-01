@@ -128,9 +128,13 @@ module Haml
     # @param enum [Enumerable]
     # @return [Array] The enumerable with strings merged
     def merge_adjacent_strings(enum)
-      e = enum.inject([]) do |a, e|
-        if e.is_a?(String) && a.last.is_a?(String)
-          a.last << e
+      enum.inject([]) do |a, e|
+        if e.is_a?(String)
+          if a.last.is_a?(String)
+            a.last << e
+          else
+            a << e.dup
+          end
         else
           a << e
         end

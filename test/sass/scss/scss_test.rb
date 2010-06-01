@@ -979,6 +979,16 @@ foo {
 SCSS
   end
 
+  def test_interpolation_with_bracket_on_next_line
+    assert_equal <<CSS, render(<<SCSS)
+a.foo b {
+  color: red; }
+CSS
+a.\#{"foo"} b
+{color: red}
+SCSS
+  end
+
   def test_extra_comma_in_mixin_arglist_error
     assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
 Invalid CSS after "@include foo(bar, ": expected mixin argument, was ")"
