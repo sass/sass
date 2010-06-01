@@ -323,6 +323,12 @@ END
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
           @options[:for_engine][:cache] = false
         end
+
+        unless ::Haml::Util.ruby1_8?
+          opts.on('-E encoding', 'Specify the default encoding for Sass files.') do |encoding|
+            Encoding.default_external = encoding
+          end
+        end
       end
 
       # Processes the options set by the command-line arguments,
@@ -472,6 +478,14 @@ MSG
 
         opts.on('-I', '--load-path PATH', "Same as 'ruby -I'.") do |path|
           @options[:load_paths] << path
+        end
+
+        unless ::Haml::Util.ruby1_8?
+          opts.on('-E ex[:in]', 'Specify the default external and internal character encodings.') do |encoding|
+            external, internal = encoding.split(':')
+            Encoding.default_external = external if external && !external.empty?
+            Encoding.default_internal = internal if internal && !internal.empty?
+          end
         end
 
         opts.on('--debug', "Print out the precompiled Ruby source.") do
@@ -654,6 +668,12 @@ END
 
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
           @options[:for_engine][:read_cache] = false
+        end
+
+        unless ::Haml::Util.ruby1_8?
+          opts.on('-E encoding', 'Specify the default encoding for Sass and CSS files.') do |encoding|
+            Encoding.default_external = encoding
+          end
         end
 
         super

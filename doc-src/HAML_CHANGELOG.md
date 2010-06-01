@@ -17,6 +17,9 @@ Rather than defaulting to `"utf-8"`,
 it defaults to the encoding of the source document,
 and only falls back to `"utf-8"` if this encoding is `"us-ascii"`.
 
+The `haml` executable also now takes an `-E` option for specifying encoding,
+which works the same way as Ruby's `-E` option.
+
 ### Other Changes
 
 * Default to the {file:HAML_REFERENCE.md#format-option `:html5` format}

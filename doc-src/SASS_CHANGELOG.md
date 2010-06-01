@@ -10,6 +10,9 @@
 Sass 3.0.7 adds support for `@charset` for declaring the encoding of a stylesheet.
 For details see {file:SASS_REFERENCE.md#encodings the reference}.
 
+The `sass` and `sass-convert` executables also now take an `-E` option
+for specifying the encoding of Sass/SCSS/CSS files.
+
 ### Bug Fixes
 
 * When compiling a file named `.sass` but with SCSS syntax specified,
