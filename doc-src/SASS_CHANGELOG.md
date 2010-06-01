@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.9 (Unreleased)
+
+* When using `sass-convert --from sass2 --to sass --recursive`,
+  suggest the use of `--in-place` as well.
+
 ## 3.0.8
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.8).

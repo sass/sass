@@ -710,6 +710,8 @@ END
         end
         @options[:output] ||= @options[:input]
 
+        from = @options[:from]
+        from = :sass if from == :sass2
         if @options[:to] == @options[:from] && !@options[:in_place]
           fmt = @options[:from]
           raise "Error: converting from #{fmt} to #{fmt} without --in-place"
