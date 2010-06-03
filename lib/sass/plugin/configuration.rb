@@ -15,7 +15,8 @@ module Sass
           :css_location       => './public/stylesheets',
           :always_update      => false,
           :always_check       => true,
-          :full_exception     => true
+          :full_exception     => true,
+          :cache_location     => ".sass-cache"
         }.freeze
       end
 
@@ -31,6 +32,8 @@ module Sass
       # @return [{Symbol => Object}]
       def options
         @options ||= default_options.dup
+        @options[:cache_store] ||= Sass::FileCacheStore.new(@options[:cache_location])
+        @options
       end
 
       # Sets the options hash.

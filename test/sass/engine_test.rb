@@ -434,9 +434,10 @@ CSS
   end
 
   def test_sass_import
-    assert !File.exists?(sassc_path("importee"))
+    sassc_file = sassc_path("importee")
+    assert !File.exists?(sassc_file)
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
-    assert File.exists?(sassc_path("importee"))
+    assert File.exists?(sassc_file)
   end
 
   def test_nonexistent_extensionless_import
@@ -2015,7 +2016,9 @@ SASS
 
   def sassc_path(template)
     sassc_path = File.join(File.dirname(__FILE__) + "/templates/#{template}.sass")
-    Sass::Files.send(:sassc_filename, sassc_path, Sass::Engine::DEFAULT_OPTIONS)
+    engine_opts = Sass::Engine.new("").instance_variable_get("@options")
+    key = Sass::Files.send(:sassc_key, sassc_path, engine_opts)
+    File.join(engine_opts[:cache_location], key)
   end
 end
  

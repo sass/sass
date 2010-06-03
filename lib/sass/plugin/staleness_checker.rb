@@ -32,13 +32,14 @@ module Sass
 
       # Creates a new StalenessChecker
       # for checking the staleness of several stylesheets at once.
-      def initialize
+      def initialize(options = Plugin.engine_options)
         @dependencies = self.class.dependencies_cache
 
         # Entries in the following instance-level caches are never explicitly expired.
         # Instead they are supposed to automaticaly go out of scope when a series of staleness checks
         # (this instance of StalenessChecker was created for) is finished.
         @mtimes, @dependencies_stale = {}, {}
+        @options = options
       end
 
       # Returns whether or not a given CSS file is out of date
@@ -112,7 +113,7 @@ module Sass
       end
 
       def compute_dependencies(filename)
-        Files.tree_for(filename, Plugin.engine_options).grep(Tree::ImportNode) do |n|
+        Files.tree_for(filename, @options).grep(Tree::ImportNode) do |n|
           File.expand_path(n.full_filename) unless n.full_filename =~ /\.css$/
         end.compact
       rescue Sass::SyntaxError => e

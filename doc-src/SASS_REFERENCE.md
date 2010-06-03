@@ -190,6 +190,13 @@ Available options are:
   only read the Sass cache if it exists,
   don't write to it if it doesn't.
 
+{#cache_store-option} `:cache_store`
+: If set to an object implementing the {Sass::CacheStore}
+  interface, will be used to store and retrieve
+  cached compilation results from a cache store.
+  Defaults to a {Sass::FileCacheStore} that is
+  initialized using the [`:cache_location`](#cache_location-option).
+
 {#never_update-option} `:never_update`
 : Whether the CSS files should never be updated,
   even if the template file changes.

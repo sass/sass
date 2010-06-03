@@ -162,7 +162,7 @@ module Sass::Plugin
       individual_files.each {|t, c| update_stylesheet(t, c)}
 
       @checked_for_updates = true
-      staleness_checker = StalenessChecker.new
+      staleness_checker = StalenessChecker.new(options)
 
       template_location_array.each do |template_location, css_location|
 

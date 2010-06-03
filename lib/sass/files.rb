@@ -21,10 +21,10 @@ module Sass
       text = File.read(filename)
 
       if options[:cache] || options[:read_cache]
-        compiled_filename = sassc_filename(filename, options)
+        key = sassc_key(filename, options)
         sha = Digest::SHA1.hexdigest(text)
 
-        if root = try_to_read_sassc(filename, compiled_filename, sha)
+        if root = options[:cache_store].retrieve(key, sha)
           root.options = options.merge(:filename => filename)
           return root
         end
@@ -40,7 +40,7 @@ module Sass
       engine = Sass::Engine.new(text, options)
 
       root = engine.to_tree
-      try_to_write_sassc(root, compiled_filename, sha, options) if options[:cache]
+      options[:cache_store].store(key, sha, root) if options[:cache]
       root
     end
 
@@ -105,37 +105,9 @@ END
 
     private
 
-    def sassc_filename(filename, options)
-      File.join(options[:cache_location],
-        Digest::SHA1.hexdigest(File.dirname(File.expand_path(filename))),
-        File.basename(filename) + 'c')
-    end
-
-    def try_to_read_sassc(filename, compiled_filename, sha)
-      return unless File.readable?(compiled_filename)
-
-      File.open(compiled_filename, "rb") do |f|
-        return unless f.readline("\n").strip == Sass::VERSION
-        return unless f.readline("\n").strip == sha
-        return Marshal.load(f.read)
-      end
-    rescue EOFError, TypeError, ArgumentError => e
-      Haml::Util.haml_warn "Warning. Error encountered while reading cache #{compiled_filename}: #{e}"
-    end
-
-    def try_to_write_sassc(root, compiled_filename, sha, options)
-      return unless File.writable?(File.dirname(options[:cache_location]))
-      return if File.exists?(options[:cache_location]) && !File.writable?(options[:cache_location])
-      return if File.exists?(File.dirname(compiled_filename)) && !File.writable?(File.dirname(compiled_filename))
-      return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
-      FileUtils.mkdir_p(File.dirname(compiled_filename))
-      File.open(compiled_filename, "wb") do |f|
-        f.write(Sass::VERSION)
-        f.write("\n")
-        f.write(sha)
-        f.write("\n")
-        f.write(Marshal.dump(root))
-      end
+    def sassc_key(filename, options)
+      dir = File.dirname(File.expand_path(filename))
+      options[:cache_store].key(dir, File.basename(filename))
     end
 
     def find_full_path(filename, load_path)
