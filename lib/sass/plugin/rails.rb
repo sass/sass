@@ -12,7 +12,7 @@ unless defined?(Sass::RAILS_LOADED)
   if defined?(ActionController::Metal)
     # Rails >= 3.0
     require 'sass/plugin/rack'
-    ActionController::Metal.use(Sass::Plugin::Rack)
+    Rails.configuration.middleware.use(Sass::Plugin::Rack)
   elsif defined?(ActionController::Dispatcher) &&
       defined?(ActionController::Dispatcher.middleware)
     # Rails >= 2.3
