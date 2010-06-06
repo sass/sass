@@ -10,9 +10,11 @@ class SassPluginTest < Test::Unit::TestCase
     options
   }
 
+  @@cache_store = Sass::InMemoryCacheStore.new
+
   def setup
-    FileUtils.mkdir tempfile_loc
-    FileUtils.mkdir tempfile_loc(nil,"more_")
+    FileUtils.mkdir_p tempfile_loc
+    FileUtils.mkdir_p tempfile_loc(nil,"more_")
     set_plugin_opts
     update_all_stylesheets!
     reset_mtimes
@@ -406,7 +408,8 @@ CSS
       :load_paths => [result_loc],
       :always_update => true,
       :never_update => false,
-      :full_exception => true
+      :full_exception => true,
+      :cache_store => @@cache_store
     )
     Sass::Plugin.options.merge!(overrides)
   end
