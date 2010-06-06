@@ -5,6 +5,14 @@
 
 ## 3.0.10 (Unreleased)
 
+### Appengine-JRuby Support
+
+The way we determine the location of the Haml installation
+no longer breaks the version of JRuby
+used by [`appengine-jruby`](http://code.google.com/p/appengine-jruby/).
+
+### Other Improvements
+
 * When using `sass-convert --from sass2 --to sass --recursive`,
   suggest the use of `--in-place` as well.
 
