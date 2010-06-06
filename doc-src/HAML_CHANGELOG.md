@@ -3,6 +3,14 @@
 * Table of contents
 {:toc}
 
+## 3.0.10 (Unreleased)
+
+### Appengine-JRuby Support
+
+The way we determine the location of the Haml installation
+no longer breaks the version of JRuby
+used by [`appengine-jruby`](http://code.google.com/p/appengine-jruby/).
+
 ## 3.0.9
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.9).
