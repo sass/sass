@@ -11,6 +11,10 @@ The way we determine the location of the Haml installation
 no longer breaks the version of JRuby
 used by [`appengine-jruby`](http://code.google.com/p/appengine-jruby/).
 
+### Bug Fixes
+
+* Single-line comments are now handled properly by `html2haml`.
+
 ## 3.0.9
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.9).

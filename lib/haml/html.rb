@@ -221,7 +221,7 @@ module Haml
         if content.include?("\n")
           "#{tabulate(tabs)}/#{condition}\n#{parse_text(content, tabs + 1)}"
         else
-          "#{tabulate(tabs)}/#{condition} #{content.strip}"
+          "#{tabulate(tabs)}/#{condition} #{content.strip}\n"
         end
       end
     end
