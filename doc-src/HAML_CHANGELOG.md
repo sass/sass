@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.10 (Unreleased)
+## 3.0.10
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.10).
 
 ### Appengine-JRuby Support
 
