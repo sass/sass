@@ -291,42 +291,22 @@ module Haml
     #
     # @return [Boolean]
     def ap_geq_3?
-      # The ActionPack module is always loaded automatically in Rails >= 3
-      return false unless defined?(ActionPack) && defined?(ActionPack::VERSION)
-
-      version =
-        if defined?(ActionPack::VERSION::MAJOR)
-          ActionPack::VERSION::MAJOR
-        else
-          # Rails 1.2
-          ActionPack::VERSION::Major
-        end
-
-      version >= 3
+      ap_geq?("3.0.0.beta1")
     end
 
     # Returns whether this environment is using ActionPack
-    # version 3.0.0.beta.3 or greater.
+    # of a version greater than or equal to that specified.
     #
+    # @param version [String] The string version number to check against.
+    #   Should be greater than or equal to Rails 3,
+    #   because otherwise ActionPack::VERSION isn't autoloaded
     # @return [Boolean]
-    def ap_geq_3_beta_3?
+    def ap_geq?(version)
       # The ActionPack module is always loaded automatically in Rails >= 3
-      return false unless defined?(ActionPack) && defined?(ActionPack::VERSION)
+      return false unless defined?(ActionPack) && defined?(ActionPack::VERSION) &&
+        defined?(ActionPack::VERSION::STRING)
 
-      version =
-        if defined?(ActionPack::VERSION::MAJOR)
-          ActionPack::VERSION::MAJOR
-        else
-          # Rails 1.2
-          ActionPack::VERSION::Major
-        end
-      version >= 3 &&
-        ((defined?(ActionPack::VERSION::TINY) &&
-          ActionPack::VERSION::TINY.is_a?(Fixnum) &&
-          ActionPack::VERSION::TINY >= 1) ||
-         (defined?(ActionPack::VERSION::BUILD) &&
-          ActionPack::VERSION::BUILD =~ /beta(\d+)/ &&
-          $1.to_i >= 3))
+      ActionPack::VERSION::STRING >= version
     end
 
     # Returns an ActionView::Template* class.
