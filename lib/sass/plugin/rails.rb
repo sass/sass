@@ -12,7 +12,8 @@ unless defined?(Sass::RAILS_LOADED)
   if defined?(ActionController::Metal)
     # Rails >= 3.0
     require 'sass/plugin/rack'
-    Rails.configuration.middleware.use(Sass::Plugin::Rack)
+    Rails.application.instance_variable_set('@app',
+      Sass::Plugin::Rack.new(Rails.application.app))
   elsif defined?(ActionController::Dispatcher) &&
       defined?(ActionController::Dispatcher.middleware)
     # Rails >= 2.3
