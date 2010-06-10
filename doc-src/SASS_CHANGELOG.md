@@ -3,6 +3,21 @@
 * Table of contents
 {:toc}
 
+## 3.0.12
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).
+
+## Rails 3 Support
+
+Apparently the last version broke in new and exciting ways under Rails 3,
+due to the inconsistent load order caused by certain combinations of gems.
+3.0.12 hacks around that inconsistency, and *should* be fully Rails 3-compatible.
+
+### Deprecated: Rails 3 Beta 3
+
+Haml's support for Rails 3.0.0.beta.3 has been deprecated.
+Haml 3.0.13 will only support 3.0.0.beta.4.
+
 ## 3.0.11
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.11).
