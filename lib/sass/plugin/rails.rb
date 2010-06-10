@@ -12,8 +12,17 @@ unless defined?(Sass::RAILS_LOADED)
   if defined?(ActionController::Metal)
     # Rails >= 3.0
     require 'sass/plugin/rack'
-    Rails.application.instance_variable_set('@app',
-      Sass::Plugin::Rack.new(Rails.application.app))
+    if Rails.application.instance_variable_get('@app')
+      # The application has already been built,
+      # so we need to hack the middleware in
+      Rails.application.instance_variable_set('@app',
+        Sass::Plugin::Rack.new(Rails.application.app))
+    else
+      # The application hasn't been built yet,
+      # so we can just add Sass::Plugin::Rack
+      # to the pending middleware stack.
+      Rails.configuration.middleware.use(Sass::Plugin::Rack)
+    end
   elsif defined?(ActionController::Dispatcher) &&
       defined?(ActionController::Dispatcher.middleware)
     # Rails >= 2.3
