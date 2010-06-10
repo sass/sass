@@ -3,7 +3,11 @@
 * Table of contents
 {:toc}
 
-## 3.0.11 (Unreleased)
+## 3.0.11
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.11).
+
+There were no changes made to Haml between versions 3.0.10 and 3.0.11.
 
 ## Rails 3 Support
 
