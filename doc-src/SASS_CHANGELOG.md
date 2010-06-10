@@ -11,6 +11,11 @@ Make sure Sass *actually* regenerates stylesheets under Rails 3.
 The fix in 3.0.10 didn't work because the Rack stack we were modifying
 wasn't reloaded at the proper time.
 
+## Bug Fixes
+
+* Give a decent error message when `--recursive` is used
+  in `sass-convert` without a directory.
+
 ## 3.0.10
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.10).
