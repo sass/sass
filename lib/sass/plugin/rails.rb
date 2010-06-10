@@ -1,4 +1,13 @@
 unless defined?(Sass::RAILS_LOADED)
+  if Haml::Util.ap_geq_3? && !Haml::Util.ap_geq?("3.0.0.beta4")
+    Haml::Util.haml_warn(<<WARNING)
+DEPRECATION WARNING:
+Haml/Sass support for Rails 3 versions before beta 4 is deprecated,
+  and will be removed in Haml/Sass 3.0.13.
+  Please upgrade to Rails 3.0.0.beta4 or later.
+WARNING
+  end
+
   Sass::RAILS_LOADED = true
 
   # Reverse-merging (we're in Rails, anyway) so we dont' clobber what's already been defined further up-stream
