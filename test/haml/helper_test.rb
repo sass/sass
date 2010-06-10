@@ -165,7 +165,7 @@ HAML
 
   def test_content_tag_error_wrapping
     def @base.protect_against_forgery?; false; end
-    error_class = Haml::Util.ap_geq?("3.0.0.beta4") ? "field_with_errors" : "fieldWithErrors"
+    error_class = Haml::Util.ap_geq_3? ? "field_with_errors" : "fieldWithErrors"
     assert_equal(<<HTML, render(<<HAML, :action_view))
 <form action="" method="post">
   <div class="#{error_class}"><label for="post_error_field">Error field</label></div>
@@ -315,7 +315,7 @@ HAML
   end
 
   def test_indented_capture
-    prior = Haml::Util.ap_geq?("3.0.0.beta4") ? "" : "  \n"
+    prior = Haml::Util.ap_geq_3? ? "" : "  \n"
     assert_equal("#{prior}  Foo\n  ", @base.render(:inline => "  <% res = capture do %>\n  Foo\n  <% end %><%= res %>"))
   end
 
