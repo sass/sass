@@ -2,38 +2,42 @@ require 'fileutils'
 require 'rbconfig'
 
 require 'sass'
+# XXX CE: is this still necessary now that we have the compiler class?
+require 'sass/callbacks'
 require 'sass/plugin/configuration'
 require 'sass/plugin/staleness_checker'
 
 module Sass::Plugin
 
-  # The Compiler class provides compilation of 
-  # multiple files and/or directories. It is
-  # used by the Sass Plugin module to update
-  # Stylesheets for a single application, but
-  # since it is not a singleton, several compilers
-  # can be created within a single running application.
+  # The Compiler class handles compilation of multiple files and/or directories,
+  # including checking which CSS files are out-of-date and need to be updated
+  # and calling Sass to perform the compilation on those files.
+  #
+  # {Sass::Plugin} uses this class to update stylesheets for a single application.
+  # Unlike {Sass::Plugin}, though, the Compiler class has no global state,
+  # and so multiple instances may be created and used independently.
   #
   # If you need to compile a Sass string into CSS,
   # please see the {Sass::Engine} class.
   #
-  # Unlike the Sass::Plugin, this class does not have
-  # any logic about how many times to compile or whether
-  # to compile at all. Therefore, the following options
-  # to Sass::Plugin are ignored here (but are handled by
-  # the plugin itself):
+  # Unlike {Sass::Plugin}, this class doesn't keep track of
+  # whether or how many times a stylesheet should be updated.
+  # Therefore, the following `Sass::Plugin` options are ignored by the Compiler:
   #
   # * `:never_update`
   # * `:always_check`
   class Compiler
     include Haml::Util
     include Configuration
+    extend Sass::Callbacks
 
+    # Creates a new compiler.
+    #
+    # @param options [{Symbol => Object}]
+    #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     def initialize(options = {})
       self.options.merge!(options)
     end
-
-    extend Sass::Callbacks
 
     # Register a callback to be run before stylesheets are mass-updated.
     # This is run whenever \{#update\_stylesheets} is called,
@@ -162,7 +166,7 @@ module Sass::Plugin
       individual_files.each {|t, c| update_stylesheet(t, c)}
 
       @checked_for_updates = true
-      staleness_checker = StalenessChecker.new(options)
+      staleness_checker = StalenessChecker.new(engine_options)
 
       template_location_array.each do |template_location, css_location|
 
@@ -277,8 +281,11 @@ module Sass::Plugin
       end
     end
 
-    # returns options that have been made suitable for
-    # passing to to the Sass::Engine.
+    # Non-destructively modifies \{#options} so that default values are properly set,
+    # and returns the result.
+    #
+    # @param additional_options [{Symbol => Object}] An options hash with which to merge \{#options}
+    # @return [{Symbol => Object}] The modified options hash
     def engine_options(additional_options = {})
       opts = options.merge(additional_options)
       opts[:load_paths] = load_paths(opts)
@@ -342,6 +349,3 @@ module Sass::Plugin
     end
   end
 end
-
-require 'sass/plugin/rails' if defined?(ActionController)
-require 'sass/plugin/merb'  if defined?(Merb::Plugins)

@@ -1,15 +1,14 @@
 # We keep configuration in its own self-contained file
 # so that we can load it independently in Rails 3,
 # where the full plugin stuff is lazy-loaded.
-#
-# XXX CE: is this still necessary now that we have the compiler class?
-require 'sass/callbacks'
 
 module Sass
   module Plugin
     module Configuration
 
-      # Returns the default options for a Sass::Plugin::Compiler
+      # Returns the default options for a {Sass::Plugin::Compiler}.
+      #
+      # @return [{Symbol => Object}]
       def default_options
         @default_options ||= {
           :css_location       => './public/stylesheets',

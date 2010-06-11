@@ -191,11 +191,11 @@ Available options are:
   don't write to it if it doesn't.
 
 {#cache_store-option} `:cache_store`
-: If set to an object implementing the {Sass::CacheStore}
-  interface, will be used to store and retrieve
-  cached compilation results from a cache store.
+: If this is set to an instance of a subclass of {Sass::CacheStore},
+  that cache store will be used to store and retrieve
+  cached compilation results.
   Defaults to a {Sass::FileCacheStore} that is
-  initialized using the [`:cache_location`](#cache_location-option).
+  initialized using the [`:cache_location` option](#cache_location-option).
 
 {#never_update-option} `:never_update`
 : Whether the CSS files should never be updated,
@@ -258,6 +258,8 @@ Available options are:
 : The path where the cached `sassc` files should be written to.
   Defaults to `"./tmp/sass-cache"` in Rails and Merb,
   or `"./.sass-cache"` otherwise.
+  If the [`:cache_store` option](#cache_location-option) is set,
+  this is ignored.
 
 {#unix_newlines-option} `:unix_newlines`
 : If true, use Unix-style newlines when writing files.

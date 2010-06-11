@@ -2,8 +2,7 @@ require 'fileutils'
 require 'rbconfig'
 
 require 'sass'
-require 'sass/plugin/configuration'
-require 'sass/plugin/staleness_checker'
+require 'sass/plugin/compiler'
 
 module Sass
   # This module provides a single interface to the compilation of Sass/SCSS files
@@ -21,6 +20,9 @@ module Sass
   # All callback methods are of the form `on_#{name}`,
   # and they all take a block that's called when the given action occurs.
   #
+  # Note that this class proxies almost all methods to its {Sass::Plugin::Compiler} instance.
+  # See \{#compiler}.
+  #
   # @example Using a callback
   # Sass::Plugin.on_updating_stylesheet do |template, css|
   #   puts "Compiling #{template} to #{css}"
@@ -29,6 +31,8 @@ module Sass
   #   #=> Compiling app/sass/screen.scss to public/stylesheets/screen.css
   #   #=> Compiling app/sass/print.scss to public/stylesheets/print.css
   #   #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
+  #
+  # @see Sass::Plugin::Compiler
   module Plugin
     extend self
 
@@ -51,9 +55,11 @@ module Sass
       update_stylesheets
     end
 
-    # Returns the singleton compiler instance
+    # Returns the singleton compiler instance.
     # This compiler has been pre-configured according
     # to the plugin configuration.
+    #
+    # @return [Sass::Plugin::Compiler]
     def compiler
       @compiler ||= Compiler.new
     end
@@ -97,7 +103,7 @@ module Sass
       self.options = old_options
     end
 
-    # All other method invocations are proxied to the compiler instance
+    # All other method invocations are proxied to the \{#compiler}.
     #
     # @see #compiler
     # @see Sass::Plugin::Compiler
@@ -112,6 +118,5 @@ module Sass
   end
 end
 
-require 'sass/plugin/compiler'
 require 'sass/plugin/rails' if defined?(ActionController)
 require 'sass/plugin/merb'  if defined?(Merb::Plugins)

@@ -32,7 +32,10 @@ module Sass
 
       # Creates a new StalenessChecker
       # for checking the staleness of several stylesheets at once.
-      def initialize(options = Plugin.engine_options)
+      #
+      # @param options [{Symbol => Object}]
+      #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+      def initialize(options)
         @dependencies = self.class.dependencies_cache
 
         # Entries in the following instance-level caches are never explicitly expired.
@@ -65,7 +68,7 @@ module Sass
       # @param template_file [String] The location of the Sass or SCSS template
       #   that is compiled to `css_file`.
       def self.stylesheet_needs_update?(css_file, template_file)
-        new.stylesheet_needs_update?(css_file, template_file)
+        new(Plugin.engine_options).stylesheet_needs_update?(css_file, template_file)
       end
 
       private

@@ -1,5 +1,6 @@
 require 'strscan'
 require 'digest/sha1'
+require 'sass/cache_store'
 require 'sass/tree/node'
 require 'sass/tree/root_node'
 require 'sass/tree/rule_node'

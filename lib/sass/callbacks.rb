@@ -23,6 +23,10 @@ module Sass
   # m.on_string_munged {|str, res| puts "#{str} was munged into #{res}!"}
   # m.munge "bar" #=> bar was munged into bbaarr!
   module Callbacks
+    # Automatically includes {InstanceMethods}
+    # when something extends this module.
+    #
+    # @param base [Module]
     def self.extended(base)
       base.send(:include, InstanceMethods)
     end

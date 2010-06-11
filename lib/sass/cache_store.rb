@@ -1,8 +1,13 @@
 require 'stringio'
+
 module Sass
-  # An abstract base class for all cache stores.
-  # At a minimum, subclasses should implement the
-  # `_store_` and `_retrieve_` methods.
+  # An abstract base class for backends for the Sass cache.
+  # Any key-value store can act as such a backend;
+  # it just needs to implement the
+  # \{#_store_} and \{#_retrieve_} methods.
+  #
+  # To use a cache store with Sass,
+  # use the {file:SASS_REFERENCE.md#cache_store-option `:cache_store` option}.
   class CacheStore
     # Store cached contents for later retrieval
     # Must be implemented by all CacheStore subclasses
@@ -16,7 +21,7 @@ module Sass
     #                Cached contents must not be retrieved if the sha has changed.
     # @param contents [String] The contents to store.
     def _store_(key, version, sha, contents)
-      raise "Implement Me!"
+      raise "#{self.class} must implement #_store_."
     end
 
     # Retrieved cached contents.
@@ -33,12 +38,13 @@ module Sass
     # @return [String] The contents that were previously stored.
     # @return [NilClass] when the cache key is not found or the version or sha have changed.
     def _retrieve_(key, version, sha)
-      raise "Implement Me!"
+      raise "#{self.class} must implement #_retrieve_."
     end
 
-    # stores a {Sass::Tree::RootNode}
-    # @param key [String] The key to store it as
-    # @param sha [String] The checksum for the contents that are being stored
+    # Store a {Sass::Tree::RootNode}.
+    #
+    # @param key [String] The key to store it under.
+    # @param sha [String] The checksum for the contents that are being stored.
     # @param root [Sass::Tree::RootNode] The root of the tree to be stored.
     def store(key, sha, root)
       orig_options = root.options
@@ -50,9 +56,10 @@ module Sass
       end
     end
 
-    # retrieves a {Sass::Tree::RootNode}
-    # @param key [String] The key the root element was stored as
-    # @param sha [String] The checksum of the root element's content
+    # Retrieve a {Sass::Tree::RootNode}.
+    #
+    # @param key [String] The key the root element was stored under.
+    # @param sha [String] The checksum of the root element's content.
     # @return [Sass::Tree::RootNode] The root node.
     def retrieve(key, sha)
       contents = _retrieve_(key, Sass::VERSION, sha)
@@ -63,33 +70,44 @@ module Sass
     end
 
     # Return the key for the sass file.
-    # @param real_sass_location [String] An identifier for the location where the original sass file is located.
-    # @param sass_filename [String] The name of the sass file that is being referenced.
-    def key(real_sass_location, sass_filename)
-      dir = Digest::SHA1.hexdigest(real_sass_location)
-      filename = "#{sass_filename}c"
+    #
+    # The `(sass_dirname, sass_basename)` pair
+    # should uniquely identify the Sass document,
+    # but otherwise there are no restrictions on their content.
+    # It would be nice if 
+    #
+    # @param sass_dirname [String]
+    #   The fully-expanded location of the Sass file.
+    #   This corresponds to the directory name on a filesystem.
+    # @param sass_basename [String] The name of the Sass file that is being referenced.
+    #   This corresponds to the basename on a filesystem.
+    def key(sass_dirname, sass_basename)
+      dir = Digest::SHA1.hexdigest(sass_dirname)
+      filename = "#{sass_basename}c"
       "#{dir}/#{filename}"
     end
   end
 
-  # Stores the cached files to the filesystem.
+  # A backend for the Sass cache using the filesystem.
   class FileCacheStore < CacheStore
+    # The directory where the cached files will be stored.
+    #
+    # @return [String]
     attr_accessor :cache_location
 
     # Create a new FileCacheStore.
-    # @param cache_location [String] The path to the cache
+    #
+    # @param cache_location [String] @see \{#cache_location}
     def initialize(cache_location)
       @cache_location = cache_location
     end
 
-    # retrieves the key from disk.
-    # @param key [String] The key to be retrieved.
-    # @return [String] the contents of a cached sass file.
+    # @see {CacheStore#\_retrieve\_}
     def _retrieve_(key, version, sha)
       return unless File.readable?(path_to(key))
       contents = nil
       File.open(path_to(key), "rb") do |f|
-        if (was_version = f.readline("\n").strip) == version && (was_sha = f.readline("\n").strip) == sha
+        if f.readline("\n").strip == version && f.readline("\n").strip == sha
           return f.read
         end
       end
@@ -99,9 +117,7 @@ module Sass
       Haml::Util.haml_warn "Warning. Error encountered while reading cache #{path_to(key)}: #{e}"
     end
 
-    # Stores the contents to disk under key.
-    # @param key [String] The key to store. This key is written to the `cache_location` provided when creating the cache store.
-    # @param contents [String] The contents to store.
+    # @see {CacheStore#\_store\_}
     def _store_(key, version, sha, contents)
       return unless File.writable?(File.dirname(@cache_location))
       return if File.exists?(@cache_location) && !File.writable?(@cache_location)
@@ -117,32 +133,41 @@ module Sass
     end
 
     private
-    # Returns the path to a file for the key given.
+
+    # Returns the path to a file for the given key.
+    #
+    # @param key [String]
+    # @return [String] The path to the cache file.
     def path_to(key)
       File.join(cache_location, key)
     end
   end
 
-  # Store the sass cache in the process's memory
+  # A backend for the Sass cache using in-process memory.
   class InMemoryCacheStore < CacheStore
-    # @private
-    # Since the object is stored in the options
+    # Since the {InMemoryCacheStore} is stored in the Sass tree's options hash,
     # when the options get serialized as part of serializing the tree,
-    # you get crazy exponential growth in the size of the cached objects.
+    # you get crazy exponential growth in the size of the cached objects
+    # unless you don't dump the cache.
+    #
+    # @private
     def _dump(depth)
       ""
     end
 
-    # @private
     # If we deserialize this class, just make a new empty one.
+    #
+    # @private
     def self._load(repr)
       InMemoryCacheStore.new
     end
 
+    # Create a new, empty cache store.
     def initialize
       @contents = {}
     end
 
+    # @see CacheStore#_retrieve_
     def _retrieve_(key, version, sha)
       if @contents.has_key?(key)
         return unless @contents[key][:version] == version
@@ -151,6 +176,7 @@ module Sass
       end
     end
     
+    # @see CacheStore#_store_
     def _store_(key, version, sha, contents)
       @contents[key] = {
         :version => version,
@@ -159,19 +185,21 @@ module Sass
       }
     end
     
-    # Resets the cache
+    # Destructively clear the cache.
     def reset!
       @contents = {}
     end
   end
 
-  # @private
   # Doesn't store anything, but records what things it should have stored.
   # This doesn't currently have any use except for testing and debugging.
+  #
+  # @private
   class NullCacheStore < CacheStore
     def initialize
       @keys = {}
     end
+
     def _retrieve_(key, version, sha)
       nil
     end
@@ -184,5 +212,4 @@ module Sass
       @keys[key]
     end
   end
-
 end
