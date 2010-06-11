@@ -221,7 +221,7 @@ module Haml
         if content.include?("\n")
           "#{tabulate(tabs)}/#{condition}\n#{parse_text(content, tabs + 1)}"
         else
-          "#{tabulate(tabs)}/#{condition} #{content.strip}"
+          "#{tabulate(tabs)}/#{condition} #{content.strip}\n"
         end
       end
     end
@@ -285,7 +285,7 @@ module Haml
                self.previous.content =~ /\A\s*\Z/ && self.previous.previous.nil?)
             nuke_outer_whitespace = true
           else
-            output << "- succeed #{self.next.content.slice!(/\A[^\s]+/).dump} do\n"
+            output << "= succeed #{self.next.content.slice!(/\A[^\s]+/).dump} do\n"
             tabs += 1
             output << tabulate(tabs)
           end

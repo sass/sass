@@ -134,6 +134,11 @@ module Sass
     }.freeze
 
     # @param template [String] The Sass template.
+    #   This template can be encoded using any encoding
+    #   that can be converted to Unicode.
+    #   If the template contains an `@charset` declaration,
+    #   that overrides the Ruby encoding
+    #   (see {file:SASS_REFERENCE.md#encodings the encoding documentation})
     # @param options [{Symbol => Object}] An options hash;
     #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
     def initialize(template, options={})
@@ -157,9 +162,12 @@ module Sass
     #
     # @return [String] The CSS
     # @raise [Sass::SyntaxError] if there's an error in the document
+    # @raise [Encoding::UndefinedConversionError] if the source encoding
+    #   cannot be converted to UTF-8
+    # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
     def render
-      return _to_tree.render unless @options[:quiet]
-      Haml::Util.silence_haml_warnings {_to_tree.render}
+      return _render unless @options[:quiet]
+      Haml::Util.silence_haml_warnings {_render}
     end
     alias_method :to_css, :render
 
@@ -172,10 +180,28 @@ module Sass
       Haml::Util.silence_haml_warnings {_to_tree}
     end
 
+    # Returns the original encoding of the document,
+    # or `nil` under Ruby 1.8.
+    #
+    # @return [Encoding, nil]
+    # @raise [Encoding::UndefinedConversionError] if the source encoding
+    #   cannot be converted to UTF-8
+    # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
+    def source_encoding
+      check_encoding!
+      @original_encoding
+    end
+
     private
 
+    def _render
+      rendered = _to_tree.render
+      return rendered if ruby1_8?
+      return rendered.encode(source_encoding)
+    end
+
     def _to_tree
-      @template = check_encoding(@template) {|msg, line| raise Sass::SyntaxError.new(msg, :line => line)}
+      check_encoding!
 
       if @options[:syntax] == :scss
         root = Sass::SCSS::Parser.new(@template).parse
@@ -190,6 +216,14 @@ module Sass
       e.modify_backtrace(:filename => @options[:filename], :line => @line)
       e.sass_template = @template
       raise e
+    end
+
+    def check_encoding!
+      return if @checked_encoding
+      @checked_encoding = true
+      @template, @original_encoding = check_sass_encoding(@template) do |msg, line|
+        raise Sass::SyntaxError.new(msg, :line => line)
+      end
     end
 
     def tabulate(string)
@@ -477,16 +511,7 @@ WARNING
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
       if directive == "import"
-        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
-          :line => @line + 1) unless line.children.empty?
-        if (match = value.match(Sass::SCSS::RX::STRING) || value.match(Sass::SCSS::RX::URI)) &&
-            !match.post_match.strip.empty? && match.post_match.strip[0] != ?,
-          return Tree::DirectiveNode.new("@import #{value}")
-        end
-        value.split(/,\s*/).map do |f|
-          f = $1 || $2 || $3 if f =~ Sass::SCSS::RX::STRING || f =~ Sass::SCSS::RX::URI
-          Tree::ImportNode.new(f)
-        end
+        parse_import(line, value)
       elsif directive == "mixin"
         parse_mixin_definition(line)
       elsif directive == "include"
@@ -565,6 +590,32 @@ WARNING
       nil
     end
 
+    def parse_import(line, value)
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
+        :line => @line + 1) unless line.children.empty?
+
+      if (match = value.match(Sass::SCSS::RX::STRING) || value.match(Sass::SCSS::RX::URI)) &&
+          match.offset(0).first == 0 && !match.post_match.strip.empty? &&
+          match.post_match.strip[0] != ?,
+        # @import "filename" media-type
+        return Tree::DirectiveNode.new("@import #{value}")
+      end
+
+      value.split(/,\s*/).map do |f|
+        if f =~ Sass::SCSS::RX::URI
+          # All url()s are literal CSS @imports
+          next Tree::DirectiveNode.new("@import #{f}")
+        elsif f =~ Sass::SCSS::RX::STRING
+          f = $1 || $2
+        end
+
+        # http:// URLs are always literal CSS imports
+        next Tree::DirectiveNode.new("@import url(#{f})") if f =~ /^http:\/\//
+
+        Tree::ImportNode.new(f)
+      end
+    end
+
     MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_definition(line)
       name, arg_string = line.text.scan(MIXIN_DEF_RE).first
@@ -605,8 +656,7 @@ WARNING
       end
 
       return silent ? "//" : "/* */" if content.empty?
-      content.each {|l| l.gsub!(/^\* /, '')}
-      content.map! {|l| (l.empty? ? "" : " ") + l}
+      content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
       content.last.gsub!(%r{ ?\*/ *$}, '')
       if silent

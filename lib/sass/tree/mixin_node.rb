@@ -66,6 +66,8 @@ module Sass::Tree
     # @raise [Sass::SyntaxError] if an incorrect number of arguments was passed
     # @see Sass::Tree
     def perform!(environment)
+      handle_include_loop!(environment) if environment.mixins_in_use.include?(@name)
+
       original_env = environment
       original_env.push_frame(:filename => filename, :line => line)
       original_env.prepare_frame(:mixin => @name)
@@ -93,11 +95,29 @@ END
 
       self.children = mixin.tree.map {|c| c.perform(environment)}.flatten
     rescue Sass::SyntaxError => e
-      e.modify_backtrace(:mixin => @name, :line => @line)
-      e.add_backtrace(:line => @line)
+      if original_env # Don't add backtrace info if this is an @include loop
+        e.modify_backtrace(:mixin => @name, :line => @line)
+        e.add_backtrace(:line => @line)
+      end
       raise e
     ensure
-      original_env.pop_frame
+      original_env.pop_frame if original_env
+    end
+
+    private
+
+    def handle_include_loop!(environment)
+      msg = "An @include loop has been found:"
+      mixins = environment.stack.map {|s| s[:mixin]}.compact
+      if mixins.size == 2 && mixins[0] == mixins[1]
+        raise Sass::SyntaxError.new("#{msg} #{@name} includes itself")
+      end
+
+      mixins << @name
+      msg << "\n" << Haml::Util.enum_cons(mixins, 2).map do |m1, m2|
+        "    #{m1} includes #{m2}"
+      end.join("\n")
+      raise Sass::SyntaxError.new(msg)
     end
   end
 end

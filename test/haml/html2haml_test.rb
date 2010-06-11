@@ -86,6 +86,13 @@ HTML
 
   def test_inline_comment
     assert_equal("/ foo", render("<!-- foo -->"))
+    assert_equal(<<HAML.strip, render(<<HTML))
+/ foo
+%p bar
+HAML
+<!-- foo -->
+<p>bar</p>
+HTML
   end
 
   def test_non_inline_comment
@@ -268,7 +275,7 @@ HTML
     assert_equal(<<HAML.rstrip, render(<<HTML))
 #foo
   Batch
-  - succeed "," do
+  = succeed "," do
     %span Foo
   %span Bar
 HAML

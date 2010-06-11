@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/engine'
 require 'stringio'
@@ -342,6 +343,63 @@ SASS
     assert_hash_has(err.sass_backtrace[4], :filename => nil, :mixin => nil, :line => 1)
   end
 
+  def test_basic_mixin_loop_exception
+    render <<SASS
+@mixin foo
+  @include foo
+@include foo
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal("An @include loop has been found: foo includes itself", err.message)
+    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 2)
+  end
+
+  def test_double_mixin_loop_exception
+    render <<SASS
+@mixin foo
+  @include bar
+@mixin bar
+  @include foo
+@include foo
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal(<<MESSAGE.rstrip, err.message)
+An @include loop has been found:
+    foo includes bar
+    bar includes foo
+MESSAGE
+    assert_hash_has(err.sass_backtrace[0], :mixin => "bar", :line => 4)
+    assert_hash_has(err.sass_backtrace[1], :mixin => "foo", :line => 2)
+  end
+
+  def test_deep_mixin_loop_exception
+    render <<SASS
+@mixin foo
+  @include bar
+
+@mixin bar
+  @include baz
+
+@mixin baz
+  @include foo
+
+@include foo
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal(<<MESSAGE.rstrip, err.message)
+An @include loop has been found:
+    foo includes bar
+    bar includes baz
+    baz includes foo
+MESSAGE
+    assert_hash_has(err.sass_backtrace[0], :mixin => "baz", :line => 8)
+    assert_hash_has(err.sass_backtrace[1], :mixin => "bar", :line => 5)
+    assert_hash_has(err.sass_backtrace[2], :mixin => "foo", :line => 2)
+  end
+
   def test_exception_css_with_offset
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)
@@ -429,8 +487,21 @@ CSS
   end
 
   def test_css_import
-    assert_equal("@import url(./fonts.css) screen;\n", render("@import url(./fonts.css) screen"))
-    assert_equal("@import \"./fonts.css\" screen;\n", render("@import \"./fonts.css\" screen"))
+    assert_equal("@import url(./fonts.css);\n", render("@import \"./fonts.css\""))
+  end
+
+  def test_media_import
+    assert_equal("@import \"./fonts.sass\" all;\n",
+      render("@import \"./fonts.sass\" all"))
+  end
+
+  def test_http_import
+    assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
+      render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
+  end
+
+  def test_url_import
+    assert_equal("@import url(fonts.sass);\n", render("@import url(fonts.sass)"))
   end
 
   def test_sass_import
@@ -1366,6 +1437,18 @@ CSS
 SASS
   end
 
+  def test_loud_comments_with_no_space_after_starred_lines
+    assert_equal(<<CSS, render(<<SASS))
+/*bip bop
+ *beep boop
+ *bap blimp */
+CSS
+/*bip bop
+ *beep boop
+ *bap blimp
+SASS
+  end
+
   def test_comment_indentation_at_beginning_of_doc
     assert_equal <<CSS, render(<<SASS)
 /* foo
@@ -1982,12 +2065,106 @@ SASS
       assert_equal(3, e.sass_line)
       assert_equal('Invalid UTF-16LE character "\xFE"', e.message)
     end
+
+    def test_same_charset_as_encoding
+      assert_renders_encoded(<<CSS, <<SASS)
+@charset "utf-8";
+fóó {
+  a: b; }
+CSS
+@charset "utf-8"
+fóó
+  a: b
+SASS
+    end
+
+    def test_different_charset_than_encoding
+      assert_renders_encoded(<<CSS.force_encoding("IBM866"), <<SASS)
+@charset "ibm866";
+fóó {
+  a: b; }
+CSS
+@charset "ibm866"
+fóó
+  a: b
+SASS
+    end
+
+    def test_different_encoding_than_system
+      assert_renders_encoded(<<CSS.encode("IBM866"), <<SASS.encode("IBM866"))
+тАЬ {
+  a: b; }
+CSS
+тАЬ
+  a: b
+SASS
+    end
+
+    def test_multibyte_charset
+      assert_renders_encoded(<<CSS.encode("UTF-16BE"), <<SASS.encode("UTF-16BE").force_encoding("UTF-8"))
+@charset "utf-16be";
+fóó {
+  a: b; }
+CSS
+@charset "utf-16be"
+fóó
+  a: b
+SASS
+    end
+
+    def test_multibyte_charset_without_endian_specifier
+      assert_renders_encoded(<<CSS.encode("UTF-32LE"), <<SASS.encode("UTF-32LE").force_encoding("UTF-8"))
+@charset "utf-32";
+fóó {
+  a: b; }
+CSS
+@charset "utf-32"
+fóó
+  a: b
+SASS
+    end
+
+    def test_utf8_bom
+      assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
+fóó {
+  a: b; }
+CSS
+\uFEFFfóó
+  a: b
+SASS
+    end
+
+    def test_utf16le_bom
+      assert_renders_encoded(<<CSS.encode("UTF-16LE"), <<SASS.encode("UTF-16LE").force_encoding("BINARY"))
+fóó {
+  a: b; }
+CSS
+\uFEFFfóó
+  a: b
+SASS
+    end
+
+    def test_utf32be_bom
+      assert_renders_encoded(<<CSS.encode("UTF-32BE"), <<SASS.encode("UTF-32BE").force_encoding("BINARY"))
+fóó {
+  a: b; }
+CSS
+\uFEFFfóó
+  a: b
+SASS
+    end
   end
 
   private
 
   def assert_hash_has(hash, expected)
     expected.each {|k, v| assert_equal(v, hash[k])}
+  end
+
+  def assert_renders_encoded(css, sass)
+    result = render(sass)
+    assert_equal css.encoding, result.encoding
+    assert_equal css, result
   end
 
   def render(sass, options = {})

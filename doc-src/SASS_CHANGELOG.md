@@ -3,7 +3,142 @@
 * Table of contents
 {:toc}
 
-## 3.0.5 (Unreleased)
+## 3.0.13 (Unreleased)
+
+## CSS `@import` Directives
+
+Sass is now more intelligent about when to compile `@import` directives to plain CSS.
+Any of the following conditions will cause a literal CSS `@import`:
+
+* Importing a path with a `.css` extension (e.g. `@import "foo.css"`).
+* Importing a path with a media type (e.g. `@import "foo" screen;`).
+* Importing an HTTP path (e.g. `@import "http://foo.com/style.css"`).
+* Importing any URL (e.g. `@import url(foo)`).
+
+The former two conditions always worked, but the latter two are new.
+
+## `-moz-calc` Support
+
+The new [`-moz-calc()` function](http://hacks.mozilla.org/2010/06/css3-calc/) in Firefox 4
+will now be properly parsed by Sass.
+`calc()` was already supported, but because the parsing rules are different
+than for normal CSS functions, this had to be expanded to include `-moz-calc`.
+
+In anticipation of wider browser support, in fact,
+*any* function named `-*-calc` (such as `-webkit-calc` or `-ms-calc`)
+will be parsed the same as the `calc` function.
+
+## `:-moz-any` Support
+
+The [`:-moz-any` pseudoclass selector](http://hacks.mozilla.org/2010/05/moz-any-selector-grouping/)
+is now parsed by Sass.
+
+## `--require` Flag
+
+The Sass command-line executable can now require Ruby files
+using the `--require` flag (or `-r` for short).
+
+## Rails 3 Support
+
+Support for Rails 3 versions prior to beta 4 has been removed.
+Upg rade to Rails 3.0.0.beta4 if you haven't already.
+
+## 3.0.12
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).
+
+## Rails 3 Support
+
+Apparently the last version broke in new and exciting ways under Rails 3,
+due to the inconsistent load order caused by certain combinations of gems.
+3.0.12 hacks around that inconsistency, and *should* be fully Rails 3-compatible.
+
+### Deprecated: Rails 3 Beta 3
+
+Haml's support for Rails 3.0.0.beta.3 has been deprecated.
+Haml 3.0.13 will only support 3.0.0.beta.4.
+
+## 3.0.11
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.11).
+
+There were no changes made to Haml between versions 3.0.10 and 3.0.11.
+
+## Rails 3 Support
+
+Make sure Sass *actually* regenerates stylesheets under Rails 3.
+The fix in 3.0.10 didn't work because the Rack stack we were modifying
+wasn't reloaded at the proper time.
+
+## Bug Fixes
+
+* Give a decent error message when `--recursive` is used
+  in `sass-convert` without a directory.
+
+## 3.0.10
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.10).
+
+### Appengine-JRuby Support
+
+The way we determine the location of the Haml installation
+no longer breaks the version of JRuby
+used by [`appengine-jruby`](http://code.google.com/p/appengine-jruby/).
+
+### Rails 3 Support
+
+Sass will regenerate stylesheets under Rails 3
+even when no controllers are being accessed.
+
+### Other Improvements
+
+* When using `sass-convert --from sass2 --to sass --recursive`,
+  suggest the use of `--in-place` as well.
+
+## 3.0.9
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.9).
+
+There were no changes made to Sass between versions 3.0.8 and 3.0.9.
+A bug in Gemcutter caused the gem to be uploaded improperly.
+
+## 3.0.8
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.8).
+
+* Fix a bug with Rails versions prior to Rails 3.
+
+## 3.0.7
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.7).
+
+### Encoding Support
+
+Sass 3.0.7 adds support for `@charset` for declaring the encoding of a stylesheet.
+For details see {file:SASS_REFERENCE.md#encodings the reference}.
+
+The `sass` and `sass-convert` executables also now take an `-E` option
+for specifying the encoding of Sass/SCSS/CSS files.
+
+### Bug Fixes
+
+* When compiling a file named `.sass` but with SCSS syntax specified,
+  use the latter (and vice versa).
+
+* Fix a bug where interpolation would cause some selectors to render improperly.
+
+* If a line in a Sass comment starts with `*foo`,
+  render it as `*foo` rather than `* *foo`.
+
+## 3.0.6
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).
+
+There were no changes made to Sass between versions 3.0.5 and 3.0.6.
+
+## 3.0.5
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.5).
 
 ### `#{}` Interpolation in Properties
 
@@ -30,6 +165,26 @@ is compiled to:
 
 This is useful, since normally {file:SASS_REFERENCE.md#division-and-slash
 a slash with variables is treated as division}.
+
+### Recursive Mixins
+
+Mixins that include themselves will now print
+much more informative error messages.
+For example:
+
+    @mixin foo {@include bar}
+    @mixin bar {@include foo}
+    @include foo
+
+will print:
+
+    An @include loop has been found:
+        foo includes bar
+        bar includes foo
+
+Although it was previously possible to use recursive mixins
+without causing infinite looping, this is now disallowed,
+since there's no good reason to do it.
 
 ### Rails 3 Support
 

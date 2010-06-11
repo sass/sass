@@ -2,6 +2,7 @@ require 'erb'
 require 'set'
 require 'enumerator'
 require 'stringio'
+require 'strscan'
 require 'haml/root'
 require 'haml/util/subset_map'
 
@@ -127,9 +128,13 @@ module Haml
     # @param enum [Enumerable]
     # @return [Array] The enumerable with strings merged
     def merge_adjacent_strings(enum)
-      e = enum.inject([]) do |a, e|
-        if e.is_a?(String) && a.last.is_a?(String)
-          a.last << e
+      enum.inject([]) do |a, e|
+        if e.is_a?(String)
+          if a.last.is_a?(String)
+            a.last << e
+          else
+            a << e.dup
+          end
         else
           a << e
         end
@@ -286,42 +291,22 @@ module Haml
     #
     # @return [Boolean]
     def ap_geq_3?
-      # The ActionPack module is always loaded automatically in Rails >= 3
-      return false unless defined?(ActionPack) && defined?(ActionPack::VERSION)
-
-      version =
-        if defined?(ActionPack::VERSION::MAJOR)
-          ActionPack::VERSION::MAJOR
-        else
-          # Rails 1.2
-          ActionPack::VERSION::Major
-        end
-
-      version >= 3
+      ap_geq?("3.0.0.beta1")
     end
 
     # Returns whether this environment is using ActionPack
-    # version 3.0.0.beta.3 or greater.
+    # of a version greater than or equal to that specified.
     #
+    # @param version [String] The string version number to check against.
+    #   Should be greater than or equal to Rails 3,
+    #   because otherwise ActionPack::VERSION isn't autoloaded
     # @return [Boolean]
-    def ap_geq_3_beta_3?
+    def ap_geq?(version)
       # The ActionPack module is always loaded automatically in Rails >= 3
-      return false unless defined?(ActionPack) && defined?(ActionPack::VERSION)
+      return false unless defined?(ActionPack) && defined?(ActionPack::VERSION) &&
+        defined?(ActionPack::VERSION::STRING)
 
-      version =
-        if defined?(ActionPack::VERSION::MAJOR)
-          ActionPack::VERSION::MAJOR
-        else
-          # Rails 1.2
-          ActionPack::VERSION::Major
-        end
-      version >= 3 &&
-        ((defined?(ActionPack::VERSION::TINY) &&
-          ActionPack::VERSION::TINY.is_a?(Fixnum) &&
-          ActionPack::VERSION::TINY >= 1) ||
-         (defined?(ActionPack::VERSION::BUILD) &&
-          ActionPack::VERSION::BUILD =~ /beta(\d+)/ &&
-          $1.to_i >= 3))
+      ActionPack::VERSION::STRING >= version
     end
 
     # Returns an ActionView::Template* class.
@@ -374,8 +359,11 @@ module Haml
     #
     # @return [Class]
     def rails_safe_buffer_class
-      return ActionView::SafeBuffer if defined?(ActionView::SafeBuffer)
-      ActiveSupport::SafeBuffer
+      # It's important that we check ActiveSupport first,
+      # because in Rails 2.3.6 ActionView::SafeBuffer exists
+      # but is a deprecated proxy object.
+      return ActiveSupport::SafeBuffer if defined?(ActiveSupport::SafeBuffer)
+      return ActionView::SafeBuffer
     end
 
     ## Cross-Ruby-Version Compatibility
@@ -429,6 +417,109 @@ MSG
         end
       end
       return str
+    end
+
+    # Like {\#check\_encoding}, but also checks for a Ruby-style `-# coding:` comment
+    # at the beginning of the template and uses that encoding if it exists.
+    #
+    # The Sass encoding rules are simple.
+    # If a `-# coding:` comment exists,
+    # we assume that that's the original encoding of the document.
+    # Otherwise, we use whatever encoding Ruby has.
+    #
+    # Haml uses the same rules for parsing coding comments as Ruby.
+    # This means that it can understand Emacs-style comments
+    # (e.g. `-*- encoding: "utf-8" -*-`),
+    # and also that it cannot understand non-ASCII-compatible encodings
+    # such as `UTF-16` and `UTF-32`.
+    #
+    # @param str [String] The Haml template of which to check the encoding
+    # @yield [msg] A block in which an encoding error can be raised.
+    #   Only yields if there is an encoding error
+    # @yieldparam msg [String] The error message to be raised
+    # @return [String] The original string encoded properly
+    # @raise [ArgumentError] if the document declares an unknown encoding
+    def check_haml_encoding(str, &block)
+      return check_encoding(str, &block) if ruby1_8?
+
+      bom, encoding = parse_haml_magic_comment(str)
+      if encoding; str.force_encoding(encoding)
+      elsif bom; str.force_encoding("UTF-8")
+      end
+
+      return check_encoding(str, &block)
+    end
+
+    # Like {\#check\_encoding}, but also checks for a `@charset` declaration
+    # at the beginning of the file and uses that encoding if it exists.
+    #
+    # The Sass encoding rules are simple.
+    # If a `@charset` declaration exists,
+    # we assume that that's the original encoding of the document.
+    # Otherwise, we use whatever encoding Ruby has.
+    # Then we convert that to UTF-8 to process internally.
+    # The UTF-8 end result is what's returned by this method.
+    #
+    # @param str [String] The string of which to check the encoding
+    # @yield [msg] A block in which an encoding error can be raised.
+    #   Only yields if there is an encoding error
+    # @yieldparam msg [String] The error message to be raised
+    # @return [(String, Encoding)] The original string encoded as UTF-8,
+    #   and the source encoding of the string (or `nil` under Ruby 1.8)
+    # @raise [Encoding::UndefinedConversionError] if the source encoding
+    #   cannot be converted to UTF-8
+    # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
+    def check_sass_encoding(str, &block)
+      return check_encoding(str, &block), nil if ruby1_8?
+      # We allow any printable ASCII characters but double quotes in the charset decl
+      bin = str.dup.force_encoding("BINARY")
+      encoding = Haml::Util::ENCODINGS_TO_CHECK.find do |enc|
+        bin =~ Haml::Util::CHARSET_REGEXPS[enc]
+      end
+      charset, bom = $1, $2
+      if charset
+        charset = charset.force_encoding(encoding).encode("UTF-8")
+        if endianness = encoding[/[BL]E$/]
+          begin
+            Encoding.find(charset + endianness)
+            charset << endianness
+          rescue ArgumentError # Encoding charset + endianness doesn't exist
+          end
+        end
+        str.force_encoding(charset)
+      elsif bom
+        str.force_encoding(encoding)
+      end
+
+      str = check_encoding(str, &block)
+      return str.encode("UTF-8"), str.encoding
+    end
+
+    unless ruby1_8?
+      # @private
+      def _enc(string, encoding)
+        string.encode(encoding).force_encoding("BINARY")
+      end
+
+      # We could automatically add in any non-ASCII-compatible encodings here,
+      # but there's not really a good way to do that
+      # without manually checking that each encoding
+      # encodes all ASCII characters properly,
+      # which takes long enough to affect the startup time of the CLI.
+      ENCODINGS_TO_CHECK = %w[UTF-8 UTF-16BE UTF-16LE UTF-32BE UTF-32LE]
+
+      CHARSET_REGEXPS = Hash.new do |h, e|
+        h[e] =
+          begin
+            # /\A(?:\uFEFF)?@charset "(.*?)"|\A(\uFEFF)/
+            Regexp.new(/\A(?:#{_enc("\uFEFF", e)})?#{
+              _enc('@charset "', e)}(.*?)#{_enc('"', e)}|\A(#{
+              _enc("\uFEFF", e)})/)
+          rescue
+            # /\A@charset "(.*?)"/
+            Regexp.new(/\A#{_enc('@charset "', e)}(.*?)#{_enc('"', e)}/)
+          end
+      end
     end
 
     # Checks to see if a class has a given method.
@@ -619,6 +710,37 @@ METHOD
 
       return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
       return lcs_backtrace(c, x, y, i-1, j, &block)
+    end
+
+    # Parses a magic comment at the beginning of a Haml file.
+    # The parsing rules are basically the same as Ruby's.
+    #
+    # @return [(Boolean, String or nil)]
+    #   Whether the document begins with a UTF-8 BOM,
+    #   and the declared encoding of the document (or nil if none is declared)
+    def parse_haml_magic_comment(str)
+      scanner = StringScanner.new(str.dup.force_encoding("BINARY"))
+      bom = scanner.scan(/\xEF\xBB\xBF/n)
+      return bom unless scanner.scan(/-\s*#\s*/n)
+      if coding = try_parse_haml_emacs_magic_comment(scanner)
+        return bom, coding
+      end
+
+      return bom unless scanner.scan(/.*?coding[=:]\s*([\w-]+)/in)
+      return bom, scanner[1]
+    end
+
+    def try_parse_haml_emacs_magic_comment(scanner)
+      pos = scanner.pos
+      return unless scanner.scan(/.*?-\*-\s*/n)
+      # From Ruby's parse.y
+      return unless scanner.scan(/([^\s'":;]+)\s*:\s*("(?:\\.|[^"])*"|[^"\s;]+?)[\s;]*-\*-/n)
+      name, val = scanner[1], scanner[2]
+      return unless name =~ /(en)?coding/in
+      val = $1 if val =~ /^"(.*)"$/n
+      return val
+    ensure
+      scanner.pos = pos
     end
   end
 end

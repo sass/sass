@@ -9,6 +9,7 @@ require 'sass'
 
 require 'haml/template'
 Haml::Template.options[:ugly] = false
+Haml::Template.options[:format] = :xhtml
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
@@ -64,7 +65,7 @@ class Test::Unit::TestCase
   end
 
   def form_for_calling_convention(name)
-    return "@#{name}, :as => :#{name}, :html => {:class => nil, :id => nil}" if Haml::Util.ap_geq_3_beta_3?
+    return "@#{name}, :as => :#{name}, :html => {:class => nil, :id => nil}" if Haml::Util.ap_geq_3?
     return ":#{name}, @#{name}"
   end
 end

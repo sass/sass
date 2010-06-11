@@ -332,21 +332,29 @@ module Sass
       end
     end
 
-    # A negation pseudoclass selector (e.g. `:not(.foo)`).
-    class Negation < Simple
-      # The selector to negate.
+    # A pseudoclass selector whose argument is itself a selector
+    # (e.g. `:not(.foo)` or `:-moz-all(.foo, .bar)`).
+    class SelectorPseudoClass < Simple
+      # The name of the pseudoclass.
       #
-      # @return [Selector]
+      # @return [String]
+      attr_reader :name
+
+      # The selector argument.
+      #
+      # @return [Selector::Sequence]
       attr_reader :selector
 
-      # @param [Selector] The selector to negate
-      def initialize(selector)
+      # @param [String] The name of the pseudoclass
+      # @param [Selector::Sequence] The selector argument
+      def initialize(name, selector)
+        @name = name
         @selector = selector
       end
 
       # @see Selector#to_a
       def to_a
-        [":not("] + @selector.to_a + [")"]
+        [":", @name, "("] + @selector.to_a + [")"]
       end
     end
   end

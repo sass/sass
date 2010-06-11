@@ -70,7 +70,9 @@ module Sass
       #   variable and mixin values
       def perform!(environment)
         environment.push_frame(:filename => @filename, :line => @line)
-        root = Sass::Files.tree_for(full_filename, @options)
+        options = @options.dup
+        options.delete(:syntax)
+        root = Sass::Files.tree_for(full_filename, options)
         @template = root.template
         self.children = root.children
         self.children = perform_children(environment)

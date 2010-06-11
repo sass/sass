@@ -6,7 +6,9 @@ module Sass
     # The parser for SCSS.
     # It parses a string of code into a tree of {Sass::Tree::Node}s.
     class Parser
-      # @param str [String, StringScanner] The source document to parse
+      # @param str [String, StringScanner] The source document to parse.
+      #   Note that `Parser` *won't* raise a nice error message if this isn't properly parsed;
+      #   for that, you should use the higher-level {Sass::Engine} or {Sass::CSS}.
       # @param line [Fixnum] The line on which the source string appeared,
       #   if it's part of another document
       def initialize(str, line = 1)
@@ -46,10 +48,7 @@ module Sass
           if @template.is_a?(StringScanner)
             @template
           else
-            StringScanner.new(
-              Haml::Util.check_encoding(@template) do |msg, line|
-                raise Sass::SyntaxError.new(msg, :line => line)
-              end.gsub("\r", ""))
+            StringScanner.new(@template.gsub("\r", ""))
           end
       end
 
@@ -201,13 +200,13 @@ module Sass
 
       def import_directive
         @expected = "string or url()"
-        arg = tok(STRING) || tok!(URI)
+        arg = tok(STRING) || (uri = tok!(URI))
         path = @scanner[1] || @scanner[2] || @scanner[3]
         ss
 
         media = str {media_query_list}.strip
 
-        if !media.strip.empty? || use_css_import?
+        if uri || path =~ /^http:\/\// || !media.strip.empty? || use_css_import?
           return node(Sass::Tree::DirectiveNode.new("@import #{arg} #{media}".strip))
         end
 
@@ -382,6 +381,17 @@ module Sass
         sel.to_a
       end
 
+      def selector_comma_sequence
+        return unless sel = _selector
+        selectors = [sel]
+        while tok(/,/)
+          ws = str{ss}
+          selectors << expr!(:_selector)
+          selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
+        end
+        Selector::CommaSequence.new(selectors)
+      end
+
       def _selector
         # The combinator here allows the "> E" hack
         return unless val = combinator || simple_selector_sequence
@@ -534,12 +544,12 @@ MESSAGE
       end
 
       def negation
-        return unless tok(NOT)
+        return unless name = tok(NOT) || tok(MOZ_ANY)
         ss
         @expected = "selector"
-        sel = element_name || id_selector || class_selector || attrib || expr!(:pseudo)
+        sel = selector_comma_sequence
         tok!(/\)/)
-        Selector::Negation.new(sel)
+        Selector::SelectorPseudoClass.new(name[1...-1], sel)
       end
 
       def declaration
@@ -723,7 +733,7 @@ MESSAGE
         :interp_ident => "identifier",
         :interp_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
-        :_selector => "selector",
+        :selector_comma_sequence => "selector",
         :simple_selector_sequence => "selector",
       }
 

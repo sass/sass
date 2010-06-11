@@ -3,10 +3,120 @@
 * Table of contents
 {:toc}
 
-## 3.0.5 (Unreleased)
+## 3.0.13 (Unreleased)
 
-* Make sure the `#capture` helper in Rails 3
-  doesn't print its value directly to the template.
+## Rails 3 Support
+
+Support for Rails 3 versions prior to beta 4 has been removed.
+Upgrade to Rails 3.0.0.beta4 if you haven't already.
+
+## 3.0.12
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).
+
+## Rails 3 Support
+
+Apparently the last version broke in new and exciting ways under Rails 3,
+due to the inconsistent load order caused by certain combinations of gems.
+3.0.12 hacks around that inconsistency, and *should* be fully Rails 3-compatible.
+
+### Deprecated: Rails 3 Beta 3
+
+Haml's support for Rails 3.0.0.beta.3 has been deprecated.
+Haml 3.0.13 will only support 3.0.0.beta.4.
+
+## 3.0.11
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.11).
+
+## 3.0.10
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.10).
+
+### Appengine-JRuby Support
+
+The way we determine the location of the Haml installation
+no longer breaks the version of JRuby
+used by [`appengine-jruby`](http://code.google.com/p/appengine-jruby/).
+
+### Bug Fixes
+
+* Single-line comments are now handled properly by `html2haml`.
+
+## 3.0.9
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.9).
+
+There were no changes made to Haml between versions 3.0.8 and 3.0.9.
+A bug in Gemcutter caused the gem to be uploaded improperly.
+
+## 3.0.8
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.8).
+
+* Fix a bug with Rails versions prior to Rails 3.
+
+## 3.0.7
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.7).
+
+### Encoding Support
+
+Haml 3.0.7 adds support for Ruby-style `-# coding:` comments
+for declaring the encoding of a template.
+For details see {file:HAML_REFERENCE.md#encodings the reference}.
+
+This also slightly changes the behavior of Haml when the
+{file:HAML_REFERENCE.md#encoding-option `:encoding` option} is not set.
+Rather than defaulting to `"utf-8"`,
+it defaults to the encoding of the source document,
+and only falls back to `"utf-8"` if this encoding is `"us-ascii"`.
+
+The `haml` executable also now takes an `-E` option for specifying encoding,
+which works the same way as Ruby's `-E` option.
+
+### Other Changes
+
+* Default to the {file:HAML_REFERENCE.md#format-option `:html5` format}
+  when running under Rails 3,
+  since it defaults to HTML5 as well.
+
+### Bug Fixes
+
+* When generating Haml for something like `<span>foo</span>,`,
+  use `= succeed` rather than `- succeed` (which doesn't work).
+
+## 3.0.6
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).
+
+### Rails 2.3.7 Support
+
+This release fully supports Rails 2.3.7.
+
+### Rails 2.3.6 Support Removed
+
+Rails 2.3.6 was released with various bugs related to XSS-protection
+and interfacing with Haml.
+Rails 2.3.7 was released shortly after with fixes for these bugs.
+Thus, Haml no longer supports Rails 2.3.6,
+and anyone using it should upgrade to 2.3.7.
+
+Attempting to use Haml with Rails 2.3.6 will cause an error.
+
+## 3.0.5
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.5).
+
+### Rails 2.3.6 Support
+
+This release hacks around various bugs in Rails 2.3.6,
+bringing Haml up to full compatibility.
+
+### Rails 3 Support
+
+Make sure the `#capture` helper in Rails 3
+doesn't print its value directly to the template.
 
 ## 3.0.4
 

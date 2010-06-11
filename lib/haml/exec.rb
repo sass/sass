@@ -23,7 +23,8 @@ module Haml
         rescue Exception => e
           raise e if @options[:trace] || e.is_a?(SystemExit)
 
-          $stderr.puts "#{e.class}: #{e.message}"
+          $stderr.print "#{e.class}: " unless e.class == RuntimeError
+          $stderr.puts "#{e.message}"
           $stderr.puts "  Use --trace for backtrace."
           exit 1
         end
@@ -316,7 +317,7 @@ END
         opts.on('-I', '--load-path PATH', 'Add a sass import path.') do |path|
           @options[:for_engine][:load_paths] << path
         end
-        opts.on('-r', '--require LIB', 'Require a ruby library before processing') do |lib|
+        opts.on('-r', '--require LIB', 'Require a Ruby library before running Sass.') do |lib|
           require lib
         end
         opts.on('--cache-location PATH', 'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
@@ -324,6 +325,12 @@ END
         end
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
           @options[:for_engine][:cache] = false
+        end
+
+        unless ::Haml::Util.ruby1_8?
+          opts.on('-E encoding', 'Specify the default encoding for Sass files.') do |encoding|
+            Encoding.default_external = encoding
+          end
         end
       end
 
@@ -474,6 +481,14 @@ MSG
 
         opts.on('-I', '--load-path PATH', "Same as 'ruby -I'.") do |path|
           @options[:load_paths] << path
+        end
+
+        unless ::Haml::Util.ruby1_8?
+          opts.on('-E ex[:in]', 'Specify the default external and internal character encodings.') do |encoding|
+            external, internal = encoding.split(':')
+            Encoding.default_external = external if external && !external.empty?
+            Encoding.default_internal = internal if internal && !internal.empty?
+          end
         end
 
         opts.on('--debug', "Print out the precompiled Ruby source.") do
@@ -658,6 +673,12 @@ END
           @options[:for_engine][:read_cache] = false
         end
 
+        unless ::Haml::Util.ruby1_8?
+          opts.on('-E encoding', 'Specify the default encoding for Sass and CSS files.') do |encoding|
+            Encoding.default_external = encoding
+          end
+        end
+
         super
       end
 
@@ -682,7 +703,10 @@ END
       private
 
       def process_directory
-        input = @options[:input] = @args.shift
+        unless input = @options[:input] = @args.shift
+          raise "Error: directory required when using --recursive."
+        end
+
         output = @options[:output] = @args.shift
         raise "Error: --from required when using --recursive." unless @options[:from]
         raise "Error: --to required when using --recursive." unless @options[:to]
@@ -692,6 +716,8 @@ END
         end
         @options[:output] ||= @options[:input]
 
+        from = @options[:from]
+        from = :sass if from == :sass2
         if @options[:to] == @options[:from] && !@options[:in_place]
           fmt = @options[:from]
           raise "Error: converting from #{fmt} to #{fmt} without --in-place"

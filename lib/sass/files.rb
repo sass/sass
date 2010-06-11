@@ -17,7 +17,9 @@ module Sass
     # @raise [Sass::SyntaxError] if there's an error in the document.
     #   The caller has responsibility for setting backtrace information, if necessary
     def tree_for(filename, options)
-      options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
+      default_options = Sass::Engine::DEFAULT_OPTIONS.dup
+      default_options.delete(:syntax)
+      options = default_options.merge!(options)
       text = File.read(filename)
 
       if options[:cache] || options[:read_cache]
@@ -32,9 +34,9 @@ module Sass
 
       options = options.merge(:filename => filename)
       if filename =~ /\.scss$/
-        options = options.merge(:syntax => :scss)
+        options = {:syntax => :scss}.merge(options)
       elsif filename =~ /\.sass$/
-        options = options.merge(:syntax => :sass)
+        options = {:syntax => :sass}.merge(options)
       end
 
       engine = Sass::Engine.new(text, options)

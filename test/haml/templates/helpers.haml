@@ -62,7 +62,7 @@ click
         <input id="article_body" name="article[body]" size="30" type="text" value="World" />
       </form>
     </div>
-- elsif Haml::Util.ap_geq_3_beta_3?
+- elsif Haml::Util.ap_geq?("3.0.0.beta3")
   %p
     = form_tag ''
   %div

@@ -671,10 +671,14 @@ SCSS
     assert_renders <<SASS, <<SCSS
 @import foo
 
+@import url(bar.css)
+
 foo
   bar: baz
 SASS
 @import "foo";
+
+@import url(bar.css);
 
 foo {
   bar: baz; }
@@ -683,10 +687,14 @@ SCSS
     assert_renders <<SASS, <<SCSS
 @import foo.css
 
+@import url(bar.css)
+
 foo
   bar: baz
 SASS
 @import "foo.css";
+
+@import url(bar.css);
 
 foo {
   bar: baz; }
@@ -695,7 +703,6 @@ SCSS
 
   def test_import_as_directive_in_sass
     assert_equal "@import foo.css\n", to_sass('@import "foo.css"')
-    assert_equal "@import foo.css\n", to_sass('@import url(foo.css)')
   end
 
   def test_import_as_directive_in_scss
