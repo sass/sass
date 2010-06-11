@@ -336,10 +336,10 @@ module Sass
     class Negation < Simple
       # The selector to negate.
       #
-      # @return [Selector]
+      # @return [Selector::Sequence]
       attr_reader :selector
 
-      # @param [Selector] The selector to negate
+      # @param [Selector::Sequence] The selector to negate
       def initialize(selector)
         @selector = selector
       end

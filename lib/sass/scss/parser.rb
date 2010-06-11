@@ -381,6 +381,17 @@ module Sass
         sel.to_a
       end
 
+      def selector_comma_sequence
+        return unless sel = _selector
+        selectors = [sel]
+        while tok(/,/)
+          ws = str{ss}
+          selectors << expr!(:_selector)
+          selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
+        end
+        Selector::CommaSequence.new(selectors)
+      end
+
       def _selector
         # The combinator here allows the "> E" hack
         return unless val = combinator || simple_selector_sequence
@@ -536,7 +547,7 @@ MESSAGE
         return unless tok(NOT)
         ss
         @expected = "selector"
-        sel = element_name || id_selector || class_selector || attrib || expr!(:pseudo)
+        sel = selector_comma_sequence
         tok!(/\)/)
         Selector::Negation.new(sel)
       end
@@ -722,7 +733,7 @@ MESSAGE
         :interp_ident => "identifier",
         :interp_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
-        :_selector => "selector",
+        :selector_comma_sequence => "selector",
         :simple_selector_sequence => "selector",
       }
 

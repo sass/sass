@@ -706,6 +706,12 @@ SCSS
 
     assert_selector_parses(':not(:hover)')
     assert_selector_parses(':not(:nth-child(2n + 3))')
+
+    # Not technically allowed, but what the heck
+    assert_selector_parses(':not(:not(#foo))')
+    assert_selector_parses(':not(a#foo.bar)')
+    assert_selector_parses(':not(#foo .bar > baz)')
+    assert_selector_parses(':not(h1, h2, h3)')
   end
 
   def test_namespaced_selectors
