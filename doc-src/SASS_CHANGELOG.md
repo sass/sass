@@ -33,6 +33,11 @@ will be parsed the same as the `calc` function.
 The [`:-moz-any` pseudoclass selector](http://hacks.mozilla.org/2010/05/moz-any-selector-grouping/)
 is now parsed by Sass.
 
+## `--require` Flag
+
+The Sass command-line executable can now require Ruby files
+using the `--require` flag (or `-r` for short).
+
 ## Rails 3 Support
 
 Support for Rails 3 versions prior to beta 4 has been removed.
