@@ -145,7 +145,7 @@ module Sass
       @options = DEFAULT_OPTIONS.merge(options.reject {|k, v| v.nil?})
       @template = template
 
-      @cache_store = (@options[:cache_store] ||= Sass::FileCacheStore.new(@options[:cache_location]))
+      @options[:cache_store] ||= Sass::FileCacheStore.new(@options[:cache_location])
       # Support both, because the docs said one and the other actually worked
       # for quite a long time.
       @options[:line_comments] ||= @options[:line_numbers]

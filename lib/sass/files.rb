@@ -20,6 +20,7 @@ module Sass
       default_options = Sass::Engine::DEFAULT_OPTIONS.dup
       default_options.delete(:syntax)
       options = default_options.merge!(options)
+      options[:cache_store] ||= Sass::FileCacheStore.new(options[:cache_location])
       text = File.read(filename)
 
       if options[:cache] || options[:read_cache]
