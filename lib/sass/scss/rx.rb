@@ -109,7 +109,7 @@ module Sass
       # Custom
       HEXCOLOR = /\#[0-9a-fA-F]+/
       INTERP_START = /#\{/
-      MOZ_ALL = quote(":-moz-any(", Regexp::IGNORECASE)
+      MOZ_ANY = quote(":-moz-any(", Regexp::IGNORECASE)
 
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/
       STRING2_NOINTERP = /\'((?:[^\n\r\f\\'#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\'/
