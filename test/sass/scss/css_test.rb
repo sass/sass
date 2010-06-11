@@ -382,7 +382,10 @@ SCSS
   def test_calc_function
     assert_parses <<SCSS
 foo {
-  a: 12px calc(100%/3 - 2*1em - 2*1px); }
+  a: 12px calc(100%/3 - 2*1em - 2*1px);
+  b: 12px -moz-calc(100%/3 - 2*1em - 2*1px);
+  b: 12px -webkit-calc(100%/3 - 2*1em - 2*1px);
+  b: 12px -foobar-calc(100%/3 - 2*1em - 2*1px); }
 SCSS
   end
 
