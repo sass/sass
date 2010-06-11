@@ -382,7 +382,10 @@ SCSS
   def test_calc_function
     assert_parses <<SCSS
 foo {
-  a: 12px calc(100%/3 - 2*1em - 2*1px); }
+  a: 12px calc(100%/3 - 2*1em - 2*1px);
+  b: 12px -moz-calc(100%/3 - 2*1em - 2*1px);
+  b: 12px -webkit-calc(100%/3 - 2*1em - 2*1px);
+  b: 12px -foobar-calc(100%/3 - 2*1em - 2*1px); }
 SCSS
   end
 
@@ -703,6 +706,18 @@ SCSS
 
     assert_selector_parses(':not(:hover)')
     assert_selector_parses(':not(:nth-child(2n + 3))')
+
+    # Not technically allowed, but what the heck
+    assert_selector_parses(':not(:not(#foo))')
+    assert_selector_parses(':not(a#foo.bar)')
+    assert_selector_parses(':not(#foo .bar > baz)')
+    assert_selector_parses(':not(h1, h2, h3)')
+  end
+
+  def test_moz_any_selector
+    assert_selector_parses(':-moz-any(h1, h2, h3)')
+    assert_selector_parses(':-moz-any(.foo)')
+    assert_selector_parses(':-moz-any(foo bar, .baz > .bang)')
   end
 
   def test_namespaced_selectors

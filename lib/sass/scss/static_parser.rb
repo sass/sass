@@ -17,14 +17,8 @@ module Sass
       # @raise [Sass::SyntaxError] if there's a syntax error in the selector
       def parse_selector(filename)
         init_scanner!
-        selectors = [expr!(:_selector)]
-        while tok(/,/)
-          ws = str{ss}
-          selectors << expr!(:_selector)
-          selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
-        end
+        seq = expr!(:selector_comma_sequence)
         expected("selector") unless @scanner.eos?
-        seq = Selector::CommaSequence.new(selectors)
         seq.line = @line
         seq.filename = filename
         seq

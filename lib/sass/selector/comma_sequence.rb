@@ -61,6 +61,13 @@ module Sass
         members.map {|m| m.inspect}.join(", ")
       end
 
+      # @see Simple#to_a
+      def to_a
+        arr = Haml::Util.intersperse(@members.map {|m| m.to_a}, ", ").flatten
+        arr.delete("\n")
+        arr
+      end
+
       private
 
       def _hash
