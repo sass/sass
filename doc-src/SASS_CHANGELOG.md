@@ -28,6 +28,11 @@ In anticipation of wider browser support, in fact,
 *any* function named `-*-calc` (such as `-webkit-calc` or `-ms-calc`)
 will be parsed the same as the `calc` function.
 
+## `:-moz-any` Support
+
+The [`:-moz-any` pseudoclass selector](http://hacks.mozilla.org/2010/05/moz-any-selector-grouping/)
+is now parsed by Sass.
+
 ## Rails 3 Support
 
 Support for Rails 3 versions prior to beta 4 has been removed.

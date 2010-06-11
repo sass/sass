@@ -714,6 +714,12 @@ SCSS
     assert_selector_parses(':not(h1, h2, h3)')
   end
 
+  def test_moz_any_selector
+    assert_selector_parses(':-moz-any(h1, h2, h3)')
+    assert_selector_parses(':-moz-any(.foo)')
+    assert_selector_parses(':-moz-any(foo bar, .baz > .bang)')
+  end
+
   def test_namespaced_selectors
     assert_selector_parses('foo|E')
     assert_selector_parses('*|E')

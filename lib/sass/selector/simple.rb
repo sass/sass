@@ -78,10 +78,10 @@ module Sass
         return sels if sels.any? {|sel2| eql?(sel2)}
         sels_with_ix = Haml::Util.enum_with_index(sels)
         _, i =
-          if self.is_a?(Pseudo) || self.is_a?(Negation)
+          if self.is_a?(Pseudo) || self.is_a?(SelectorPseudoClass)
             sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && sels.last.type == :element}
           else
-            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(Negation)}
+            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(SelectorPseudoClass)}
           end
         return sels + [self] unless i
         return sels[0...i] + [self] + sels[i..-1]

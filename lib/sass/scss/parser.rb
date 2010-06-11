@@ -544,12 +544,12 @@ MESSAGE
       end
 
       def negation
-        return unless tok(NOT)
+        return unless name = tok(NOT) || tok(MOZ_ANY)
         ss
         @expected = "selector"
         sel = selector_comma_sequence
         tok!(/\)/)
-        Selector::Negation.new(sel)
+        Selector::SelectorPseudoClass.new(name[1...-1], sel)
       end
 
       def declaration
