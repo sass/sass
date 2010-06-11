@@ -200,13 +200,13 @@ module Sass
 
       def import_directive
         @expected = "string or url()"
-        arg = tok(STRING) || tok!(URI)
+        arg = tok(STRING) || (uri = tok!(URI))
         path = @scanner[1] || @scanner[2] || @scanner[3]
         ss
 
         media = str {media_query_list}.strip
 
-        if !media.strip.empty? || use_css_import?
+        if uri || path =~ /^http:\/\// || !media.strip.empty? || use_css_import?
           return node(Sass::Tree::DirectiveNode.new("@import #{arg} #{media}".strip))
         end
 

@@ -5,6 +5,18 @@
 
 ## 3.0.13 (Unreleased)
 
+## CSS `@import` Directives
+
+Sass is now more intelligent about when to compile `@import` directives to plain CSS.
+Any of the following conditions will cause a literal CSS `@import`:
+
+* Importing a path with a `.css` extension (e.g. `@import "foo.css"`).
+* Importing a path with a media type (e.g. `@import "foo" screen;`).
+* Importing an HTTP path (e.g. `@import "http://foo.com/style.css"`).
+* Importing any URL (e.g. `@import url(foo)`).
+
+The former two conditions always worked, but the latter two are new.
+
 ## Rails 3 Support
 
 Support for Rails 3 versions prior to beta 4 has been removed.

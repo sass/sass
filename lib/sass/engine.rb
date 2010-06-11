@@ -509,16 +509,7 @@ WARNING
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
       if directive == "import"
-        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
-          :line => @line + 1) unless line.children.empty?
-        if (match = value.match(Sass::SCSS::RX::STRING) || value.match(Sass::SCSS::RX::URI)) &&
-            !match.post_match.strip.empty? && match.post_match.strip[0] != ?,
-          return Tree::DirectiveNode.new("@import #{value}")
-        end
-        value.split(/,\s*/).map do |f|
-          f = $1 || $2 || $3 if f =~ Sass::SCSS::RX::STRING || f =~ Sass::SCSS::RX::URI
-          Tree::ImportNode.new(f)
-        end
+        parse_import(line, value)
       elsif directive == "mixin"
         parse_mixin_definition(line)
       elsif directive == "include"
@@ -595,6 +586,32 @@ WARNING
       append_children(node, line.children, false)
       previous.add_else node
       nil
+    end
+
+    def parse_import(line, value)
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
+        :line => @line + 1) unless line.children.empty?
+
+      if (match = value.match(Sass::SCSS::RX::STRING) || value.match(Sass::SCSS::RX::URI)) &&
+          match.offset(0).first == 0 && !match.post_match.strip.empty? &&
+          match.post_match.strip[0] != ?,
+        # @import "filename" media-type
+        return Tree::DirectiveNode.new("@import #{value}")
+      end
+
+      value.split(/,\s*/).map do |f|
+        if f =~ Sass::SCSS::RX::URI
+          # All url()s are literal CSS @imports
+          next Tree::DirectiveNode.new("@import #{f}")
+        elsif f =~ Sass::SCSS::RX::STRING
+          f = $1 || $2
+        end
+
+        # http:// URLs are always literal CSS imports
+        next Tree::DirectiveNode.new("@import url(#{f})") if f =~ /^http:\/\//
+
+        Tree::ImportNode.new(f)
+      end
     end
 
     MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/

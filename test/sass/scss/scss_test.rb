@@ -212,9 +212,22 @@ SCSS
   def test_css_import_directive
     assert_equal "@import url(foo.css);\n", render('@import "foo.css";')
     assert_equal "@import url(foo.css);\n", render("@import 'foo.css';")
-    assert_equal "@import url(foo.css);\n", render('@import url("foo.css");')
-    assert_equal "@import url(foo.css);\n", render("@import url('foo.css');")
+    assert_equal "@import url(\"foo.css\");\n", render('@import url("foo.css");')
+    assert_equal "@import url('foo.css');\n", render("@import url('foo.css');")
     assert_equal "@import url(foo.css);\n", render('@import url(foo.css);')
+  end
+
+  def test_media_import
+    assert_equal("@import \"./fonts.sass\" all;\n", render("@import \"./fonts.sass\" all;"))
+  end
+
+  def test_http_import
+    assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
+      render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";"))
+  end
+
+  def test_url_import
+    assert_equal("@import url(fonts.sass);\n", render("@import url(fonts.sass);"))
   end
 
   def test_block_comment_in_script
