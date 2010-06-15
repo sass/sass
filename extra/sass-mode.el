@@ -43,11 +43,12 @@
   :group 'sass)
 
 (defvar sass-non-block-openers
-  '("^ *:[^ \t]+[ \t]+[^ \t]"
-    "^ *[^ \t:]+[ \t]*[=:][ \t]*[^ \t]")
-  "A list of regexps that match lines of Sass that don't open blocks.
-That is, a Sass line that can't have text nested beneath it
-should be matched by a regexp in this list.")
+  '("^.*,$" ;; Continued selectors
+    "^ *@\\(extend\\|debug\\|warn\\|include\\|import\\)" ;; Single-line mixins
+    "^ *[$!]" ;; Variables
+    )
+  "A list of regexps that match lines of Sass that couldn't have
+text nested beneath them.")
 
 ;; Font lock
 
