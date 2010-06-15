@@ -195,8 +195,8 @@ LIMIT is the limit of the search."
 (defun sass-indent-p ()
   "Return non-nil if the current line can have lines nested beneath it."
   (loop for opener in sass-non-block-openers
-        unless (looking-at opener) return t
-        return nil))
+        if (looking-at opener) return nil
+        finally return t))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
