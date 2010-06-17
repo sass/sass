@@ -750,7 +750,7 @@ For example:
 
     $translucent-red: rgba(255, 0, 0, 0.5);
     p {
-      color: opacify($translucent-red, 80%);
+      color: opacify($translucent-red, 0.8);
       background-color: transparentize($translucent-red, 50%);
     }
 
