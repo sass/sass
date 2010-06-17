@@ -838,12 +838,12 @@ SassScript defines some useful functions
 that are called using the normal CSS function syntax:
 
     p {
-      color: hsl(0, 100%, 50%);
+      color: hsl(0, 100%, 0.5);
     }
 
 is compiled to:
 
-    #main {
+    p {
       color: #ff0000; }
 
 See {Sass::Script::Functions} for a full listing of Sass functions,
@@ -1541,6 +1541,7 @@ For example:
         width: $width;
         style: dashed;
       }
+    }
     p { @include sexy-border(blue); }
     h1 { @include sexy-border(blue, 2in); }
 
