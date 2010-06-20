@@ -9,11 +9,11 @@
       = preserve(CGI.escapeHTML(params[:input]))
     - else
       :preserve
-        // Constant Definitions
+        // Variable Definitions
 
-        !page_width    = 800px
-        !sidebar_width = 200px
-        !primary_color = #eeeeee
+        $page-width:    800px
+        $sidebar-width: 200px
+        $primary-color: #eeeeee
 
         // Global Attributes
 
@@ -26,13 +26,13 @@
         // Scoped Styles
 
         #contents
-          width = !page_width
+          width: $page-width
           #sidebar
             float: right
-            width = !sidebar_width
+            width: $sidebar-width
           #main
-            width = !page_width - !sidebar_width
-            background = !primary_color
+            width: $page-width - $sidebar-width
+            background: $primary-color
             h2
               color: blue
         #footer
