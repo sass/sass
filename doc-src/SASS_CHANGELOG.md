@@ -38,10 +38,15 @@ is now parsed by Sass.
 The Sass command-line executable can now require Ruby files
 using the `--require` flag (or `-r` for short).
 
-## Rails 3 Support
+## Rails Support
+
+Make sure the default Rails options take precedence over the default non-Rails options.
+This makes `./script/server --daemon` work again.
+
+### Rails 3 Support
 
 Support for Rails 3 versions prior to beta 4 has been removed.
-Upg rade to Rails 3.0.0.beta4 if you haven't already.
+Upgrade to Rails 3.0.0.beta4 if you haven't already.
 
 ## 3.0.12
 
