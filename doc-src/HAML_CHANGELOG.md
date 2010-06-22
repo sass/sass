@@ -10,6 +10,10 @@
 Support for Rails 3 versions prior to beta 4 has been removed.
 Upgrade to Rails 3.0.0.beta4 if you haven't already.
 
+### Minor Improvements
+
+* Properly process frozen strings with encoding declarations.
+
 ## 3.0.12
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).
