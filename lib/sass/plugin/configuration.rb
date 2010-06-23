@@ -117,12 +117,7 @@ module Sass
     #   The location of the CSS file that was deleted.
     define_callback :deleting_css
 
-    @options = {
-      :css_location       => './public/stylesheets',
-      :always_update      => false,
-      :always_check       => true,
-      :full_exception     => true
-    }
+    @options = {:full_exception => true}
 
     # An options hash.
     # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
@@ -215,7 +210,9 @@ module Sass
       return if options[:template_location].is_a?(Array)
       options[:template_location] =
         case options[:template_location]
-        when nil; [[File.join(options[:css_location], 'sass'), options[:css_location]]]
+        when nil
+          css_location = options[:css_location] || './public/stylesheets'
+          [[File.join(css_location, 'sass'), css_location]]
         when String; [[options[:template_location], options[:css_location]]]
         else; options[:template_location].to_a
         end

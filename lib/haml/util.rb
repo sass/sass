@@ -441,6 +441,7 @@ MSG
     # @raise [ArgumentError] if the document declares an unknown encoding
     def check_haml_encoding(str, &block)
       return check_encoding(str, &block) if ruby1_8?
+      str = str.dup if str.frozen?
 
       bom, encoding = parse_haml_magic_comment(str)
       if encoding; str.force_encoding(encoding)
