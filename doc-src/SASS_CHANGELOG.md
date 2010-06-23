@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.13 (Unreleased)
+## 3.0.13
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).
 
 ## CSS `@import` Directives
 
