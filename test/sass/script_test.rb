@@ -390,6 +390,18 @@ SASS
       'Invalid CSS after "foo(bar, ": expected function argument, was ")"') {eval('foo(bar, )')}
   end
 
+  def test_color_prefixed_identifier
+    assert_equal "tealbang", resolve("tealbang")
+    assert_equal "teal-bang", resolve("teal-bang")
+  end
+
+  def test_op_prefixed_identifier
+    assert_equal "notbang", resolve("notbang")
+    assert_equal "not-bang", resolve("not-bang")
+    assert_equal "or-bang", resolve("or-bang")
+    assert_equal "and-bang", resolve("and-bang")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)
