@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.14 (Unreleased)
+
+* Allow CSS-style classes and ids to contain colons.
+
 ## 3.0.13
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).

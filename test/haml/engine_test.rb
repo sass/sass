@@ -165,6 +165,14 @@ MESSAGE
     assert_equal("<p id='html_a_b'>foo</p>\n", render("%p(id='html'){:id => %w[a b]} foo")) # html attrs
   end
 
+  def test_colon_in_class_attr
+    assert_equal("<p class='foo:bar' />\n", render("%p.foo:bar/"))
+  end
+
+  def test_colon_in_id_attr
+    assert_equal("<p id='foo:bar' />\n", render("%p#foo:bar/"))
+  end
+
   def test_dynamic_attributes_with_no_content
     assert_equal(<<HTML, render(<<HAML))
 <p>
