@@ -132,8 +132,9 @@ in Haml, you have to do
 {#q-blank-page}
 
 There are several reasons these things might be happening.
-First of all, make sure `vendor/plugins/haml` really exists
-and has an `init.rb` file in there.
+First of all, make sure that Haml really is installed;
+either you've loaded the gem (via `config.gem` in Rails 2.3 or in the Gemfile in Rails 3),
+or `vendor/plugins/haml` exists and contains files.
 Then try restarting Mongrel or WEBrick or whatever you might be using.
 
 Finally, if none of these work,
