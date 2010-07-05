@@ -3,6 +3,8 @@ require 'set'
 require 'enumerator'
 require 'stringio'
 require 'strscan'
+require 'rbconfig'
+
 require 'haml/root'
 require 'haml/util/subset_map'
 
@@ -364,6 +366,15 @@ module Haml
       # but is a deprecated proxy object.
       return ActiveSupport::SafeBuffer if defined?(ActiveSupport::SafeBuffer)
       return ActionView::SafeBuffer
+    end
+
+    ## Cross-OS Compatibility
+
+    # Whether or not this is running on Windows.
+    #
+    # @return [Boolean]
+    def windows?
+      RbConfig::CONFIG['host_os'] =~ /mswin|windows/i
     end
 
     ## Cross-Ruby-Version Compatibility

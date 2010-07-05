@@ -1,6 +1,5 @@
 require 'optparse'
 require 'fileutils'
-require 'rbconfig'
 
 module Haml
   # This module handles the various Haml executables (`haml`, `sass`, `sass-convert`, etc).
@@ -80,7 +79,7 @@ module Haml
           @options[:trace] = true
         end
 
-        if RbConfig::CONFIG['host_os'] =~ /mswin|windows/i
+        if ::Haml::Util.windows?
           opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
             @options[:unix_newlines] = true
           end
@@ -338,9 +337,9 @@ END
       # and runs the Sass compiler appropriately.
       def process_result
         if !@options[:update] && !@options[:watch] &&
-            @args.first && @args.first.include?(':')
+            @args.first && colon_path?(@args.first)
           if @args.size == 1
-            @args = @args.first.split(':', 2)
+            @args = split_colon_path(@args.first)
           else
             @options[:update] = true
           end
@@ -389,7 +388,10 @@ END
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
 
-        if @args[1] && !@args[0].include?(':')
+        p [colon_path?(@args[0]), split_colon_path(@args[0])]
+        exit
+
+        if @args[1] && !colon_path?(@args[0])
           flag = @options[:update] ? "--update" : "--watch"
           err =
             if !File.exist?(@args[1])
@@ -403,7 +405,7 @@ File #{@args[1]} #{err}.
 MSG
         end
 
-        dirs, files = @args.map {|name| name.split(':', 2)}.
+        dirs, files = @args.map {|name| split_colon_path(name)}.
           partition {|i, _| File.directory? i}
         files.map! {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}
         dirs.map! {|from, to| [from, to || from]}
@@ -436,6 +438,22 @@ MSG
         ::Sass::Plugin.on_template_deleted {|template| puts ">>> Deleted template detected: #{template}"}
 
         ::Sass::Plugin.watch(files)
+      end
+
+      def colon_path?(path)
+        !split_colon_path(path)[1].nil?
+      end
+
+      def split_colon_path(path)
+        one, two = path.split(':', 2)
+        if one && two && #::Haml::Util.windows? &&
+            one =~ /\A[A-Za-z]\Z/ && two =~ /\A[\/\\]/
+          # If we're on Windows and we were passed a drive letter path,
+          # don't split on that colon.
+          one2, two = two.split(':', 2)
+          one = one + ':' + one2
+        end
+        return one, two
       end
     end
 
