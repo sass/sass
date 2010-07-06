@@ -242,29 +242,20 @@ END
         # Handle stuff like - end.join("|")
         @to_close_stack.last << false if text =~ /^-\s*end\b/ && !block_opened?
 
-        case_stmt = text =~ /^-\s*case\b/
         keyword = mid_block_keyword?(text)
         block = block_opened? && !keyword
 
         # It's important to preserve tabulation modification for keywords
         # that involve choosing between posible blocks of code.
         if %w[else elsif when].include?(keyword)
-          # @to_close_stack may not have a :script on top
-          # when the preceding "- if" has nothing nested
-          if @to_close_stack.last && @to_close_stack.last.first == :script
-            @dont_indent_next_line, @dont_tab_up_next_text = @to_close_stack.last[1..2]
-          else
-            push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text])
-          end
+          @dont_indent_next_line, @dont_tab_up_next_text = @to_close_stack.last[1..2]
 
           # when is unusual in that either it will be indented twice,
           # or the case won't have created its own indentation
           if keyword == "when"
             push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text, false])
           end
-        elsif block || case_stmt
-          push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text])
-        elsif block && case_stmt
+        elsif block || text =~ /^-\s*(case|if)\b/
           push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text])
         end
       when FILTER; start_filtered(text[1..-1].downcase)

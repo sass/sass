@@ -668,6 +668,15 @@ HTML
 - else
   foo
 HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- if true
+  - if false
+  - else
+    foo
+HAML
   end
 
   def test_html_attributes_with_hash
