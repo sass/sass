@@ -180,12 +180,20 @@ HAML
     assert_equal("<p id='some_id'></p>\n", render("- haml_tag 'p#some_id'"))
   end
 
+  def test_haml_tag_name_attribute_with_colon_id
+    assert_equal("<p id='some:id'></p>\n", render("- haml_tag 'p#some:id'"))
+  end
+
   def test_haml_tag_without_name_but_with_id
     assert_equal("<div id='some_id'></div>\n", render("- haml_tag '#some_id'"))
   end
 
   def test_haml_tag_without_name_but_with_class
     assert_equal("<div class='foo'></div>\n", render("- haml_tag '.foo'"))
+  end
+
+  def test_haml_tag_without_name_but_with_colon_class
+    assert_equal("<div class='foo:bar'></div>\n", render("- haml_tag '.foo:bar'"))
   end
 
   def test_haml_tag_name_with_id_and_class

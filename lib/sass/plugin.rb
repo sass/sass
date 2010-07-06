@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'rbconfig'
 
 require 'sass'
 require 'sass/plugin/configuration'
@@ -228,7 +227,7 @@ module Sass
 
       # Finally, write the file
       flag = 'w'
-      flag = 'wb' if RbConfig::CONFIG['host_os'] =~ /mswin|windows/i && options[:unix_newlines]
+      flag = 'wb' if Haml::Util.windows? && options[:unix_newlines]
       File.open(css, flag) {|file| file.print(result)}
     end
 
