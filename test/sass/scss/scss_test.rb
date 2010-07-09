@@ -1041,4 +1041,14 @@ MESSAGE
 }
 SCSS
   end
+
+  def test_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+ul li#foo a span.label {
+  foo: bar; }
+CSS
+$bar : "#foo";
+ul li\#{$bar} a span.label { foo: bar; }
+SCSS
+  end
 end
