@@ -75,7 +75,7 @@ module Sass
 
       template_location_array.each do |template_location, css_location|
 
-        Dir.glob(File.join(template_location, "**", "*.s[ca]ss")).each do |file|
+        Dir.glob(File.join(template_location, "**", "*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
           name = file.sub(template_location.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
