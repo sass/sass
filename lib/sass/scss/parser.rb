@@ -179,19 +179,33 @@ module Sass
         expr = sass_script(:parse)
         ss
         node = block(node(Sass::Tree::IfNode.new(expr)), :directive)
+        pos = @scanner.pos
         ss
-        else_block(node)
+
+        else_block(node) ||
+          begin
+            # Backtrack in case there are any comments we want to parse
+            @scanner.pos = pos
+            node
+          end
       end
 
       def else_block(node)
-        return node unless tok(/@else/)
+        return unless tok(/@else/)
         ss
         else_node = block(
           Sass::Tree::IfNode.new((sass_script(:parse) if tok(/if/))),
           :directive)
         node.add_else(else_node)
+        pos = @scanner.pos
         ss
-        else_block(node)
+
+        else_block(node) ||
+          begin
+            # Backtrack in case there are any comments we want to parse
+            @scanner.pos = pos
+            node
+          end
       end
 
       def extend_directive
