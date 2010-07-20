@@ -360,10 +360,10 @@ For example:
 
 could render as any of:
 
-    <div class="column numeric sort ascending">Contents</div>
-    <div class="column numeric">Contents</div>
-    <div class="column sort descending">Contents</div>
-    <div class="column">Contents</div>
+    <div class="numeric sort ascending">Contents</div>
+    <div class="numeric">Contents</div>
+    <div class="sort descending">Contents</div>
+    <div>Contents</div>
 
 depending on whether `@item.type` is `"numeric"` or `nil`,
 whether `@item == @sortcol`,
