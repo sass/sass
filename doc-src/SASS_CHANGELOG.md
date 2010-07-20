@@ -8,6 +8,8 @@
 * Properly parse paths with drive letters on Windows (e.g. `C:\Foo\Bar.sass`)
   in the Sass executable.
 
+* Compile Sass files in a deterministic order.
+
 ## 3.0.13
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).
