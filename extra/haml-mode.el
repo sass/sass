@@ -4,7 +4,7 @@
 
 ;; Author: Nathan Weizenbaum
 ;; URL: http://github.com/nex3/haml/tree/master
-;; Version: 3.0.13
+;; Version: 3.0.14
 ;; Created: 2007-03-08
 ;; By: Nathan Weizenbaum
 ;; Keywords: markup, language, html
@@ -57,13 +57,6 @@ re-indented along with the line itself."
   :type 'boolean
   :group 'haml)
 
-(defface haml-tab-face
-  '((((class color)) (:background "hotpink"))
-    (t (:reverse-video t)))
-  "Face to use for highlighting tabs in Haml files."
-  :group 'faces
-  :group 'haml)
-
 (defvar haml-indent-function 'haml-indent-p
   "A function for checking if nesting is allowed.
 This function should look at the current line and return t
@@ -73,19 +66,19 @@ The function can also return a positive integer to indicate
 a specific level to which the current line could be indented.")
 
 (defconst haml-tag-beg-re
-  "^ *\\(?:[%\\.#][a-z0-9_:\\-]*\\)+\\(?:(.*)\\|{.*}\\|\\[.*\\]\\)*"
+  "^[ \t]*\\(?:[%\\.#][a-z0-9_:\\-]*\\)+\\(?:(.*)\\|{.*}\\|\\[.*\\]\\)*"
   "A regexp matching the beginning of a Haml tag, through (), {}, and [].")
 
 (defvar haml-block-openers
   `(,(concat haml-tag-beg-re "[><]*[ \t]*$")
-    "^ *[&!]?[-=~].*do[ \t]*\\(|.*|[ \t]*\\)?$"
-    ,(concat "^ *[&!]?[-=~][ \t]*\\("
+    "^[ \t]*[&!]?[-=~].*do[ \t]*\\(|.*|[ \t]*\\)?$"
+    ,(concat "^[ \t]*[&!]?[-=~][ \t]*\\("
              (regexp-opt '("if" "unless" "while" "until" "else"
                            "begin" "elsif" "rescue" "ensure" "when"))
              "\\)")
-    "^ */\\(\\[.*\\]\\)?[ \t]*$"
-    "^ *-#"
-    "^ *:")
+    "^[ \t]*/\\(\\[.*\\]\\)?[ \t]*$"
+    "^[ \t]*-#"
+    "^[ \t]*:")
   "A list of regexps that match lines of Haml that open blocks.
 That is, a Haml line that can have text nested beneath it should
 be matched by a regexp in this list.")
@@ -95,7 +88,7 @@ be matched by a regexp in this list.")
 (defun haml-nested-regexp (re)
   "Create a regexp to match a block starting with RE.
 The line containing RE is matched, as well as all lines indented beneath it."
-  (concat "^\\( *\\)" re "\\(\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*\\(?:\\1 .*\\| *\\)?\\)?"))
+  (concat "^\\([ \t]*\\)" re "\\(\n\\(?:\\(?:\\1 .*\\| *\\)\n\\)*\\(?:\\1 .*\\| *\\)?\\)?"))
 
 (defconst haml-font-lock-keywords
   `((,(haml-nested-regexp "\\(?:-#\\|/\\).*")  0 font-lock-comment-face)
@@ -108,12 +101,11 @@ The line containing RE is matched, as well as all lines indented beneath it."
     (haml-highlight-interpolation         1 font-lock-variable-name-face prepend)
     (haml-highlight-ruby-tag              1 font-lock-preprocessor-face)
     (haml-highlight-ruby-script           1 font-lock-preprocessor-face)
-    ("^ *\\(\t\\)"                        1 'haml-tab-face)
     ("^!!!.*"                             0 font-lock-constant-face)
     ("| *$"                               0 font-lock-string-face)))
 
-(defconst haml-filter-re "^ *:\\w+")
-(defconst haml-comment-re "^ *\\(?:-\\#\\|/\\)")
+(defconst haml-filter-re "^[ \t]*:\\w+")
+(defconst haml-comment-re "^[ \t]*\\(?:-\\#\\|/\\)")
 
 (defun haml-fontify-region (beg end keywords syntax-table syntactic-keywords)
   "Fontify a region between BEG and END using another mode's fontification.
@@ -208,7 +200,7 @@ This requires that `markdown-mode' be available."
 (defun haml-highlight-ruby-script (limit)
   "Highlight a Ruby script expression (-, =, or ~).
 LIMIT works as it does in `re-search-forward'."
-  (when (re-search-forward "^ *\\(-\\|[&!]?[=~]\\) \\(.*\\)$" limit t)
+  (when (re-search-forward "^[ \t]*\\(-\\|[&!]?[=~]\\) \\(.*\\)$" limit t)
     (haml-fontify-region-as-ruby (match-beginning 2) (match-end 2))))
 
 (defun haml-highlight-ruby-tag (limit)
@@ -223,7 +215,7 @@ For example, this will highlight all of the following:
   %p[@bar]
   %p= 'baz'
   %p{:foo => 'bar'}[@bar]= 'baz'"
-  (when (re-search-forward "^ *[%.#]" limit t)
+  (when (re-search-forward "^[ \t]*[%.#]" limit t)
     (forward-char -1)
 
     ;; Highlight tag, classes, and ids
@@ -407,7 +399,6 @@ With ARG, do it that many times."
   (set (make-local-variable 'indent-region-function) 'haml-indent-region)
   (set (make-local-variable 'parse-sexp-lookup-properties) t)
   (setq comment-start "-#")
-  (setq indent-tabs-mode nil)
   (setq font-lock-defaults '((haml-font-lock-keywords) t t)))
 
 ;; Useful functions
@@ -620,18 +611,18 @@ TYPE is the type of text parsed ('name or 'value)
 and BEG and END delimit that text in the buffer."
   (let ((eol (save-excursion (end-of-line) (point))))
     (while (not (haml-move ")"))
-      (haml-move " *")
+      (haml-move "[ \t]*")
       (unless (haml-move "[a-z0-9_:\\-]+")
-        (return-from haml-parse-new-attr-hash (haml-move " *$")))
+        (return-from haml-parse-new-attr-hash (haml-move "[ \t]*$")))
       (funcall fn 'name (match-beginning 0) (match-end 0))
-      (haml-move " *")
+      (haml-move "[ \t]*")
       (when (haml-move "=")
-        (haml-move " *")
+        (haml-move "[ \t]*")
         (unless (looking-at "[\"'@a-z]") (return-from haml-parse-new-attr-hash))
         (let ((beg (point)))
           (haml-limited-forward-sexp eol)
           (funcall fn 'value beg (point)))
-        (haml-move " *")))
+        (haml-move "[ \t]*")))
     nil))
 
 (defun haml-compute-indentation ()
@@ -704,10 +695,19 @@ back-dent the line by `haml-indent-offset' spaces.  On reaching column
   "Add N spaces to the beginning of each line in the region.
 If N is negative, will remove the spaces instead.  Assumes all
 lines in the region have indentation >= that of the first line."
-  (let ((ci (current-indentation)))
+  (let* ((ci (current-indentation))
+         (indent-rx
+          (concat "^"
+                  (if indent-tabs-mode
+                      (concat (make-string (/ ci tab-width) ?\t)
+                              (make-string (mod ci tab-width) ?\t))
+                    (make-string ci ?\s)))))
     (save-excursion
-      (while (re-search-forward (concat "^" (make-string ci ?\s)) (mark) t)
-        (replace-match (make-string (max 0 (+ ci n)) ?\s))))))
+      (while (re-search-forward indent-rx (mark) t)
+        (let ((ci (current-indentation)))
+          (delete-horizontal-space)
+          (beginning-of-line)
+          (indent-to (max 0 (+ ci n))))))))
 
 (defun haml-electric-backspace (arg)
   "Delete characters or back-dent the current line.
@@ -730,8 +730,8 @@ the current line."
             (haml-mark-sexp-but-not-next-line)
           (set-mark (save-excursion (end-of-line) (point))))
         (haml-reindent-region-by (* (- arg) haml-indent-offset))
-        (back-to-indentation)
-        (pop-mark)))))
+        (pop-mark)))
+    (back-to-indentation)))
 
 (defun haml-kill-line-and-indent ()
   "Kill the current line, and re-indent all lines nested beneath it."
