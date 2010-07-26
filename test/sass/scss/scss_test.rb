@@ -190,6 +190,32 @@ CSS
 SCSS
   end
 
+  def test_comment_after_if_directive
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b;
+  /* This is a comment */
+  c: d; }
+CSS
+foo {
+  @if true {a: b}
+  /* This is a comment */
+  c: d }
+SCSS
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b;
+  /* This is a comment */
+  c: d; }
+CSS
+foo {
+  @if true {a: b}
+  @else {x: y}
+  /* This is a comment */
+  c: d }
+SCSS
+  end
+
   def test_while_directive
     assert_equal <<CSS, render(<<SCSS)
 .foo {
