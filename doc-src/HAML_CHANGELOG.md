@@ -5,6 +5,8 @@
 
 ## 3.0.14 (Unreleased)
 
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.14).
+
 * Allow CSS-style classes and ids to contain colons.
 
 * Fix an obscure bug with if statements.
@@ -15,7 +17,7 @@
 
 ## 3.0.13
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.13).
 
 ## Rails 3 Support
 
