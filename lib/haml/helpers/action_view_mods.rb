@@ -107,9 +107,9 @@ module ActionView
           return content_tag_without_haml(name, *args) {preserve(&block)}
         end
 
-        returning content_tag_without_haml(name, *args, &block) do |content|
-          return Haml::Helpers.preserve(content) if preserve && content
-        end
+        content = content_tag_without_haml(name, *args, &block)
+        content = Haml::Helpers.preserve(content) if preserve && content
+        content
       end
 
       alias_method :content_tag_without_haml, :content_tag
