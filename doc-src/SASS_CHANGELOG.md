@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.15 (Unreleased)
+
+* Fix a bug where `sass --watch` and `sass --update` were completely broken.
+
 ## 3.0.14
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.14).
