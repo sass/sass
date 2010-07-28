@@ -3,6 +3,14 @@
 * Table of contents
 {:toc}
 
+## 3.0.15
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).
+
+* Fix a bug where `sass --watch` and `sass --update` were completely broken.
+
+* Allow `@import`ed values to contain commas.
+
 ## 3.0.14
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.14).

@@ -592,25 +592,38 @@ WARNING
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
         :line => @line + 1) unless line.children.empty?
 
-      if (match = value.match(Sass::SCSS::RX::STRING) || value.match(Sass::SCSS::RX::URI)) &&
-          match.offset(0).first == 0 && !match.post_match.strip.empty? &&
-          match.post_match.strip[0] != ?,
-        # @import "filename" media-type
-        return Tree::DirectiveNode.new("@import #{value}")
+      scanner = StringScanner.new(value)
+      values = []
+
+      loop do
+        unless node = parse_import_arg(scanner)
+          raise SyntaxError.new("Invalid @import: expected file to import, was #{scanner.rest.inspect}",
+            :line => @line)
+        end
+        values << node
+        break unless scanner.scan(/,\s*/)
       end
 
-      value.split(/,\s*/).map do |f|
-        if f =~ Sass::SCSS::RX::URI
-          # All url()s are literal CSS @imports
-          next Tree::DirectiveNode.new("@import #{f}")
-        elsif f =~ Sass::SCSS::RX::STRING
-          f = $1 || $2
-        end
+      return values
+    end
 
-        # http:// URLs are always literal CSS imports
-        next Tree::DirectiveNode.new("@import url(#{f})") if f =~ /^http:\/\//
+    def parse_import_arg(scanner)
+      return if scanner.eos?
+      unless (str = scanner.scan(Sass::SCSS::RX::STRING)) ||
+          (uri = scanner.scan(Sass::SCSS::RX::URI))
+        return Tree::ImportNode.new(scanner.scan(/[^,]+/))
+      end
 
-        Tree::ImportNode.new(f)
+      val = scanner[1] || scanner[2]
+      scanner.scan(/\s*/)
+      if media = scanner.scan(/[^,].*/)
+        Tree::DirectiveNode.new("@import #{str || uri} #{media}")
+      elsif uri
+        Tree::DirectiveNode.new("@import #{uri}")
+      elsif val =~ /^http:\/\//
+        Tree::DirectiveNode.new("@import url(#{val})")
+      else
+        Tree::ImportNode.new(val)
       end
     end
 

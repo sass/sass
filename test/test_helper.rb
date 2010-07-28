@@ -68,4 +68,14 @@ class Test::Unit::TestCase
     return "@#{name}, :as => :#{name}, :html => {:class => nil, :id => nil}" if Haml::Util.ap_geq_3?
     return ":#{name}, @#{name}"
   end
+
+  def rails_form_attr
+    return 'accept-charset="UTF-8" ' if Haml::Util.ap_geq?("3.0.0.rc")
+    return ''
+  end
+
+  def rails_form_opener
+    return '' unless Haml::Util.ap_geq?("3.0.0.rc")
+    return '<div style="margin:0;padding:0;display:inline"><input name="_snowman" type="hidden" value="&#9731;" /></div>'
+  end
 end

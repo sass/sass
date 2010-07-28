@@ -388,9 +388,6 @@ END
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
 
-        p [colon_path?(@args[0]), split_colon_path(@args[0])]
-        exit
-
         if @args[1] && !colon_path?(@args[0])
           flag = @options[:update] ? "--update" : "--watch"
           err =
@@ -446,7 +443,7 @@ MSG
 
       def split_colon_path(path)
         one, two = path.split(':', 2)
-        if one && two && #::Haml::Util.windows? &&
+        if one && two && ::Haml::Util.windows? &&
             one =~ /\A[A-Za-z]\Z/ && two =~ /\A[\/\\]/
           # If we're on Windows and we were passed a drive letter path,
           # don't split on that colon.

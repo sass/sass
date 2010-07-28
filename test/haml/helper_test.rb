@@ -118,7 +118,7 @@ HAML
     # This is usually provided by ActionController::Base.
     def @base.protect_against_forgery?; false; end
     assert_equal(<<HTML, render(<<HAML, :action_view))
-<form action="foo" method="post">
+<form #{rails_form_attr}action="foo" method="post">#{rails_form_opener}
   <p>bar</p>
   <strong>baz</strong>
 </form>
@@ -167,7 +167,7 @@ HAML
     def @base.protect_against_forgery?; false; end
     error_class = Haml::Util.ap_geq_3? ? "field_with_errors" : "fieldWithErrors"
     assert_equal(<<HTML, render(<<HAML, :action_view))
-<form action="" method="post">
+<form #{rails_form_attr}action="" method="post">#{rails_form_opener}
   <div class="#{error_class}"><label for="post_error_field">Error field</label></div>
 </form>
 HTML
