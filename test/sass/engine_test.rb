@@ -493,6 +493,12 @@ CSS
   def test_media_import
     assert_equal("@import \"./fonts.sass\" all;\n",
       render("@import \"./fonts.sass\" all"))
+    assert_equal(<<CSS, render(<<SASS))
+@import "./fonts.sass" all;
+@import url(./fonts.scss);
+CSS
+@import "./fonts.sass" all, url(./fonts.scss)
+SASS
   end
 
   def test_http_import
@@ -2042,6 +2048,14 @@ SASS
   bip: bap
 SASS
     end
+  end
+
+  def test_import_with_commas_in_url
+    assert_equal <<CSS, render(<<SASS)
+@import url(foo.css?bar,baz);
+CSS
+@import url(foo.css?bar,baz)
+SASS
   end
 
   # Encodings
