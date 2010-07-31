@@ -490,17 +490,6 @@ CSS
     assert_equal("@import url(./fonts.css);\n", render("@import \"./fonts.css\""))
   end
 
-  def test_media_import
-    assert_equal("@import \"./fonts.sass\" all;\n",
-      render("@import \"./fonts.sass\" all"))
-    assert_equal(<<CSS, render(<<SASS))
-@import "./fonts.sass" all;
-@import url(./fonts.scss);
-CSS
-@import "./fonts.sass" all, url(./fonts.scss)
-SASS
-  end
-
   def test_http_import
     assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
