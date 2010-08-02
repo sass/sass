@@ -388,7 +388,7 @@ END
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
 
-        if @args[1] && !colon_path?(@args[0])
+        if !colon_path?(@args[0]) && probably_dest_dir?(@args[1])
           flag = @options[:update] ? "--update" : "--watch"
           err =
             if !File.exist?(@args[1])
@@ -396,7 +396,7 @@ END
             elsif @args[1] =~ /\.css$/
               "is a CSS file"
             end
-          raise <<MSG if err
+          msg = <<MSG if err
 File #{@args[1]} #{err}.
   Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
 MSG
@@ -451,6 +451,13 @@ MSG
           one = one + ':' + one2
         end
         return one, two
+      end
+
+      # Whether path is likely to be meant as the destination
+      # in a source:dest pair.
+      def probably_dest_dir?(path)
+        return false if colon_path?(path)
+        return Dir.glob(File.join(path, "*.s[ca]ss")).empty?
       end
     end
 
