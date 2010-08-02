@@ -8,6 +8,8 @@
 * Fix a bug where certain sorts of comments would get improperly
   rendered in the `:compact` style.
 
+* Always allow a trailing `*/` in loud comments in the indented syntax.
+
 ## 3.0.15
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).

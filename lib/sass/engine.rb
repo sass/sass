@@ -667,13 +667,14 @@ WARNING
       end
 
       return silent ? "//" : "/* */" if content.empty?
+      content.last.gsub!(%r{ ?\*/ *$}, '')
       content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
-      content.last.gsub!(%r{ ?\*/ *$}, '')
       if silent
         "//" + content.join("\n//")
       else
-        "/*" + content.join("\n *") + " */"
+        # The #gsub fixes the case of a trailing */
+        "/*" + content.join("\n *").gsub(/ \*\Z/, '') + " */"
       end
     end
 
