@@ -98,7 +98,7 @@ module Sass::Tree
       spaces = ('  ' * [tabs - 1 - value[/^ */].size, 0].max)
 
       content = value.gsub(/^/, spaces)
-      content.gsub!(/\n +(\* *)?/, ' ') if style == :compact
+      content.gsub!(/\n +(\* *(?!\/))?/, ' ') if style == :compact
       content
     end
 

@@ -866,6 +866,20 @@ SCSS
     assert_equal 1, e.sass_line
   end
 
+  ## Regressions
+
+  def test_closing_line_comment_end_with_compact_output
+    assert_equal(<<CSS, render(<<SCSS, :style => :compact))
+/* foo */
+bar { baz: bang; }
+CSS
+/*
+ * foo
+ */
+bar {baz: bang}
+SCSS
+  end
+
   private
 
   def assert_selector_parses(selector)
