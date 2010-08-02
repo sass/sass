@@ -10,6 +10,9 @@
 
 * Always allow a trailing `*/` in loud comments in the indented syntax.
 
+* Fix a performance issue with SCSS parsing in rare cases.
+  Thanks to [Chris Eppstein](http://chriseppstein.github.com).
+
 ## 3.0.15
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).
