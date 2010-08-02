@@ -13,6 +13,9 @@
 * Fix a performance issue with SCSS parsing in rare cases.
   Thanks to [Chris Eppstein](http://chriseppstein.github.com).
 
+* Use better heuristics for figuring out when someone might be using
+  the wrong syntax with `sass --watch`.
+
 ## 3.0.15
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).
