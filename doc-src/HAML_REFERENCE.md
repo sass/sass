@@ -1279,7 +1279,7 @@ It's placed at the end of a line (after some whitespace)
 and means that all following lines that end with `|`
 will be evaluated as though they were on the same line.
 **Note that even the last line in the multiline block
-should end wit `|`.**
+should end with `|`.**
 For example:
 
     %whoo

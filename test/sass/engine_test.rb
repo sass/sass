@@ -1473,6 +1473,32 @@ foo
 SASS
   end
 
+  def test_loud_comment_with_close
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  /* foo
+   * bar */ }
+CSS
+foo
+  /* foo
+     bar */
+SASS
+  end
+
+  def test_loud_comment_with_separate_line_close
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  /* foo
+   * bar
+   */ }
+CSS
+foo
+  /* foo
+   * bar
+   */
+SASS
+  end
+
   def test_attribute_selector_with_spaces
     assert_equal(<<CSS, render(<<SASS))
 a b[foo=bar] {
