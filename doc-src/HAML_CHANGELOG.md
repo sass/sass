@@ -8,6 +8,9 @@
 * Fix an html2haml ERB-parsing bug where ERB blocks were occasionally
   left without indentation in Haml.
 
+* Fix parsing of `if` and `case` statements whose values were assigned to variables.
+  This is still bad style, though.
+
 ## 3.0.15
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).

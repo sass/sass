@@ -248,12 +248,20 @@ END
         # It's important to preserve tabulation modification for keywords
         # that involve choosing between posible blocks of code.
         if %w[else elsif when].include?(keyword)
-          @dont_indent_next_line, @dont_tab_up_next_text = @to_close_stack.last[1..2]
+          # Whether a script block has already been opened immediately above this line
+          was_opened = @to_close_stack.last && @to_close_stack.last.first == :script
+          if was_opened
+            @dont_indent_next_line, @dont_tab_up_next_text = @to_close_stack.last[1..2]
+          end
 
           # when is unusual in that either it will be indented twice,
-          # or the case won't have created its own indentation
-          if keyword == "when"
-            push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text, false])
+          # or the case won't have created its own indentation.
+          # Also, if no block has been opened yet, we need to make sure we add an end
+          # once we de-indent.
+          if !was_opened || keyword == "when"
+            push_and_tabulate([
+                :script, @dont_indent_next_line, @dont_tab_up_next_text,
+                !was_opened])
           end
         elsif block || text =~ /^-\s*(case|if)\b/
           push_and_tabulate([:script, @dont_indent_next_line, @dont_tab_up_next_text])

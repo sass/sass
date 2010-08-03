@@ -697,6 +697,72 @@ HTML
 HAML
   end
 
+  def test_case_assigned_to_var
+    assert_equal(<<HTML, render(<<HAML))
+bar
+HTML
+- var = case 12
+- when 1; "foo"
+- when 12; "bar"
+= var
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+bar
+HTML
+- var = case 12
+- when 1
+  - "foo"
+- when 12
+  - "bar"
+= var
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+bar
+HTML
+- var = case 12
+  - when 1
+    - "foo"
+  - when 12
+    - "bar"
+= var
+HAML
+  end
+
+  def test_if_assigned_to_var
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- var = if false
+- else
+  - "foo"
+= var
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- var = if false
+- elsif 12
+  - "foo"
+- elsif 14; "bar"
+- else
+  - "baz"
+= var
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- var = if false
+  - "bar"
+- else
+  - "foo"
+= var
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape
