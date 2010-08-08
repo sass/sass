@@ -8,11 +8,9 @@ module Sass
     class StaticParser < Parser
       # Parses the text as a selector.
       #
-      # @param line [Fixnum] The line on which the selector appears.
-      #   Used for error reporting
       # @param filename [String, nil] The file in which the selector appears,
       #   or nil if there is no such file.
-      #   Used for error reporting
+      #   Used for error reporting.
       # @return [Selector::CommaSequence] The parsed selector
       # @raise [Sass::SyntaxError] if there's a syntax error in the selector
       def parse_selector(filename)
