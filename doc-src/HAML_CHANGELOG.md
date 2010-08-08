@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.16 (Unreleased)
+## 3.0.16
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.16).
 
 * Fix an html2haml ERB-parsing bug where ERB blocks were occasionally
   left without indentation in Haml.

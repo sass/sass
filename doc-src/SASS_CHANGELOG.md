@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.16 (Unreleased)
+## 3.0.16
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.16).
 
 * Fix a bug where certain sorts of comments would get improperly
   rendered in the `:compact` style.
