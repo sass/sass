@@ -1003,6 +1003,16 @@ flim {
 SCSS
   end
 
+  def test_no_interpolation_in_media_queries
+    assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+Invalid CSS after "...nd (min-width: ": expected expression (e.g. 1px, bold), was "\#{100}px) {
+MESSAGE
+@media screen and (min-width: \#{100}px) {
+  foo {bar: baz}
+}
+SCSS
+  end
+
   # Regression
 
   def test_weird_added_space

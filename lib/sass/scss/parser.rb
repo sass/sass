@@ -644,11 +644,10 @@ MESSAGE
         unless e = tok(NUMBER) ||
             tok(URI) ||
             function ||
-            interp_string ||
+            tok(STRING) ||
             tok(UNICODERANGE) ||
             tok(IDENT) ||
-            tok(HEXCOLOR) ||
-            interpolation
+            tok(HEXCOLOR)
 
           return unless op = unary_operator
           @expected = "number or function"
