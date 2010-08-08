@@ -1013,6 +1013,16 @@ MESSAGE
 SCSS
   end
 
+  def test_no_interpolation_in_unrecognized_directives
+    assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+Invalid CSS after "@foo ": expected selector or at-rule, was "\#{100} {"
+MESSAGE
+@foo \#{100} {
+  foo {bar: baz}
+}
+SCSS
+  end
+
   # Regression
 
   def test_weird_added_space

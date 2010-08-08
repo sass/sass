@@ -7,6 +7,15 @@ module Sass
     # parent references, nested selectors, and so forth.
     # It does support all the same CSS hacks as the SCSS parser, though.
     class CssParser < StaticParser
+      # Parse a selector, and return its value as a string.
+      #
+      # @return [String, nil] The parsed selector, or nil if no selector was parsed
+      # @raise [Sass::SyntaxError] if there's a syntax error in the selector
+      def parse_selector_string
+        init_scanner!
+        str {return unless selector}
+      end
+
       private
 
       def parent_selector; nil; end
