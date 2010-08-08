@@ -13,13 +13,13 @@ class SassScriptTest < Test::Unit::TestCase
   include Sass::Script
 
   def test_color_checks_input
-    assert_raise(Sass::SyntaxError, "Color values must be between 0 and 255") {Color.new([1, 2, -1])}
-    assert_raise(Sass::SyntaxError, "Color values must be between 0 and 255") {Color.new([256, 2, 3])}
+    assert_raise_message(Sass::SyntaxError, "Blue value must be between 0 and 255") {Color.new([1, 2, -1])}
+    assert_raise_message(Sass::SyntaxError, "Red value must be between 0 and 255") {Color.new([256, 2, 3])}
   end
 
   def test_color_checks_rgba_input
-    assert_raise(Sass::SyntaxError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, 1.1])}
-    assert_raise(Sass::SyntaxError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, -0.1])}
+    assert_raise_message(Sass::SyntaxError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, 1.1])}
+    assert_raise_message(Sass::SyntaxError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, -0.1])}
   end
 
   def test_string_escapes
@@ -63,13 +63,13 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "rgba(50, 50, 100, 0.35)", resolve("rgba(1, 1, 2, 0.35) * rgba(50, 50, 50, 0.35)")
     assert_equal "rgba(52, 52, 52, 0.25)", resolve("rgba(2, 2, 2, 0.25) + rgba(50, 50, 50, 0.25)")
 
-    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)") do
+    assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)") do
       resolve("rgba(1, 2, 3, 0.15) + rgba(50, 50, 50, 0.75)")
     end
-    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: #123456 * rgba(50, 50, 50, 0.75)") do
+    assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: #123456 * rgba(50, 50, 50, 0.75)") do
       resolve("#123456 * rgba(50, 50, 50, 0.75)")
     end
-    assert_raise(Sass::SyntaxError, "Alpha channels must be equal: #123456 / #123456") do
+    assert_raise_message(Sass::SyntaxError, "Alpha channels must be equal: rgba(50, 50, 50, 0.75) / #123456") do
       resolve("rgba(50, 50, 50, 0.75) / #123456")
     end
   end
@@ -360,15 +360,15 @@ SASS
   end
 
   def test_colors_with_wrong_number_of_digits
-    assert_raise(Sass::SyntaxError,
+    assert_raise_message(Sass::SyntaxError,
       "Colors must have either three or six digits: '#0'") {eval("#0")}
-    assert_raise(Sass::SyntaxError,
+    assert_raise_message(Sass::SyntaxError,
       "Colors must have either three or six digits: '#12'") {eval("#12")}
-    assert_raise(Sass::SyntaxError,
+    assert_raise_message(Sass::SyntaxError,
       "Colors must have either three or six digits: '#abcd'") {eval("#abcd")}
-    assert_raise(Sass::SyntaxError,
+    assert_raise_message(Sass::SyntaxError,
       "Colors must have either three or six digits: '#abcdE'") {eval("#abcdE")}
-    assert_raise(Sass::SyntaxError,
+    assert_raise_message(Sass::SyntaxError,
       "Colors must have either three or six digits: '#abcdEFA'") {eval("#abcdEFA")}
   end
 
@@ -386,7 +386,7 @@ SASS
   end
 
   def test_misplaced_comma_in_funcall
-    assert_raise(Sass::SyntaxError,
+    assert_raise_message(Sass::SyntaxError,
       'Invalid CSS after "foo(bar, ": expected function argument, was ")"') {eval('foo(bar, )')}
   end
 

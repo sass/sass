@@ -965,7 +965,7 @@ SCSS
   end
 
   def test_parent_in_mid_selector_error
-    assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
 Invalid CSS after ".foo": expected "{", was "&.bar"
 
 In Sass 3, the parent selector & can only be used where element names are valid,
@@ -978,8 +978,8 @@ SCSS
   end
 
   def test_parent_in_mid_selector_error
-    assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
-Invalid CSS after ".foo.bar": expected "{", was "&"
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
 
 In Sass 3, the parent selector & can only be used where element names are valid,
 since it could potentially be replaced by an element name.
@@ -991,8 +991,8 @@ SCSS
   end
 
   def test_double_parent_selector_error
-    assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
-Invalid CSS after "&": expected "{", was "&"
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+Invalid CSS after "  &": expected "{", was "& {a: b}"
 
 In Sass 3, the parent selector & can only be used where element names are valid,
 since it could potentially be replaced by an element name.
@@ -1004,10 +1004,20 @@ SCSS
   end
 
   def test_no_interpolation_in_media_queries
-    assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
-Invalid CSS after "...nd (min-width: ": expected expression (e.g. 1px, bold), was "\#{100}px) {
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Invalid CSS after "...nd (min-width: ": expected expression (e.g. 1px, bold), was "\#{100}px) {"
 MESSAGE
 @media screen and (min-width: \#{100}px) {
+  foo {bar: baz}
+}
+SCSS
+  end
+
+  def test_no_interpolation_in_unrecognized_directives
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Invalid CSS after "@foo ": expected selector or at-rule, was "\#{100} {"
+MESSAGE
+@foo \#{100} {
   foo {bar: baz}
 }
 SCSS
@@ -1039,8 +1049,8 @@ SCSS
   end
 
   def test_extra_comma_in_mixin_arglist_error
-    assert_raise(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
-Invalid CSS after "@include foo(bar, ": expected mixin argument, was ")"
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Invalid CSS after "...clude foo(bar, ": expected mixin argument, was ");"
 MESSAGE
 @mixin foo($a1, $a2) {
   baz: $a1 $a2;

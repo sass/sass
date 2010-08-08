@@ -109,11 +109,10 @@ module Sass
           return dir
         end
 
-        val = str do
-          # Most at-rules take expressions (e.g. @import),
-          # but some (e.g. @page) take selector-like arguments
-          expr || selector
-        end
+        # Most at-rules take expressions (e.g. @import),
+        # but some (e.g. @page) take selector-like arguments
+        val = str {break unless expr}
+        val ||= CssParser.new(@scanner, @line).parse_selector_string
         node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
 
         if tok(/\{/)

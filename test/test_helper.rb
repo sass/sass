@@ -78,4 +78,13 @@ class Test::Unit::TestCase
     return '' unless Haml::Util.ap_geq?("3.0.0.rc")
     return '<div style="margin:0;padding:0;display:inline"><input name="_snowman" type="hidden" value="&#9731;" /></div>'
   end
+
+  def assert_raise_message(klass, message)
+    yield
+  rescue Exception => e
+    assert_instance_of(klass, e)
+    assert_equal(message, e.message)
+  else
+    flunk "Expected exception #{klass}, none raised"
+  end
 end

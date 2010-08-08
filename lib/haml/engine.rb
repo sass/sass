@@ -99,7 +99,7 @@ module Haml
       @index = 0
 
       unless [:xhtml, :html4, :html5].include?(@options[:format])
-        raise Haml::Error, "Invalid format #{@options[:format].inspect}"
+        raise Haml::Error, "Invalid output format #{@options[:format].inspect}"
       end
 
       if @options[:encoding] && @options[:encoding].is_a?(Encoding)
