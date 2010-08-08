@@ -11,6 +11,9 @@
 * Fix parsing of `if` and `case` statements whose values were assigned to variables.
   This is still bad style, though.
 
+* Fix `form_for` and `form_tag` when they're passed a block that
+  returns a string in a helper.
+
 ## 3.0.15
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).
