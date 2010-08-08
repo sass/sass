@@ -1236,7 +1236,9 @@ SASS
   end
 
   def test_arbitrary_output_option
-    assert_raise(Haml::Error, "Invalid output format :html1") { engine("%br", :format => :html1) }
+    assert_raise_message(Haml::Error, "Invalid output format :html1") do
+      engine("%br", :format => :html1)
+    end
   end
 
   def test_static_hashes

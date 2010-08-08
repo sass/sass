@@ -114,7 +114,7 @@ module Sass::Script
       end
 
       unless (0..1).include?(@attrs[:alpha])
-        raise Sass::SyntaxError.new("Alpha channel must between 0 and 1")
+        raise Sass::SyntaxError.new("Alpha channel must be between 0 and 1")
       end
     end
 

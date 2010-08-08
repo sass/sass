@@ -278,7 +278,7 @@ module Sass
 
       def color
         return unless s = scan(REGULAR_EXPRESSIONS[:color])
-        raise Sass::SyntaxError.new(<<MESSAGE) unless s.size == 4 || s.size == 7
+        raise Sass::SyntaxError.new(<<MESSAGE.rstrip) unless s.size == 4 || s.size == 7
 Colors must have either three or six digits: '#{s}'
 MESSAGE
         value = s.scan(/^#(..?)(..?)(..?)$/).first.

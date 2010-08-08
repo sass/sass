@@ -1031,7 +1031,7 @@ SCSS
   end
 
   def test_disallowed_colon_hack
-    assert_raise(Sass::SyntaxError, '":foo: bar" is not allowed in the Sass syntax') do
+    assert_raise_message(Sass::SyntaxError, 'The ":name: val" hack is not allowed in the Sass indented syntax') do
       to_sass("foo {:name: val;}", :syntax => :scss)
     end
   end

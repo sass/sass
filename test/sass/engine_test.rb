@@ -2057,7 +2057,7 @@ SASS
   end
 
   def test_mixin_no_arg_error
-    assert_raise(Sass::SyntaxError, 'Invalid CSS after "($bar,": expected variable name, was ")"') do
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "($bar,": expected variable (e.g. $foo), was ")"') do
       render(<<SASS)
 =foo($bar,)
   bip: bap
