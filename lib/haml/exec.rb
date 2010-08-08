@@ -388,6 +388,12 @@ END
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
 
+        raise <<MSG if @args.empty?
+What files should I watch? Did you mean something like:
+  sass --watch input.sass:output.css
+  sass --watch input-dir:output-dir
+MSG
+
         if !colon_path?(@args[0]) && probably_dest_dir?(@args[1])
           flag = @options[:update] ? "--update" : "--watch"
           err =
