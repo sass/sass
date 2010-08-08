@@ -462,6 +462,7 @@ MSG
       # Whether path is likely to be meant as the destination
       # in a source:dest pair.
       def probably_dest_dir?(path)
+        return false unless path
         return false if colon_path?(path)
         return Dir.glob(File.join(path, "*.s[ca]ss")).empty?
       end
