@@ -5,6 +5,10 @@ class ActionView::Base
   def nested_tag
     content_tag(:span) {content_tag(:div) {"something"}}
   end
+
+  def wacky_form
+    form_tag("/foo") {"bar"}
+  end
 end
 
 module Haml::Helpers
@@ -173,6 +177,15 @@ HAML
 HTML
 #{rails_block_helper_char} form_for #{form_for_calling_convention('post')}, :url => '' do |f|
   = f.label 'error_field'
+HAML
+  end
+
+  def test_form_tag_in_helper_with_string_block
+    def @base.protect_against_forgery?; false; end
+    assert_equal(<<HTML, render(<<HAML, :action_view))
+<form #{rails_form_attr}action="/foo" method="post">#{rails_form_opener}bar</form>
+HTML
+#{rails_block_helper_char} wacky_form
 HAML
   end
 
@@ -397,7 +410,7 @@ MESSAGE
     render("- something_that_uses_haml_concat")
     assert false, "Expected Haml::Error"
   rescue Haml::Error => e
-    assert_equal 12, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
+    assert_equal 16, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
   end
 
   class ActsLikeTag
