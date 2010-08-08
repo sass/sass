@@ -396,7 +396,7 @@ END
             elsif @args[1] =~ /\.css$/
               "is a CSS file"
             end
-          msg = <<MSG if err
+          raise <<MSG if err
 File #{@args[1]} #{err}.
   Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
 MSG
