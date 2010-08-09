@@ -161,7 +161,7 @@ module Haml
         raise err if @options[:trace] || dep.nil? || dep.empty?
         $stderr.puts <<MESSAGE
 Required dependency #{dep} not found!
-  Run "gem install #{dep}" to get it.
+    Run "gem install #{dep}" to get it.
   Use --trace for backtrace.
 MESSAGE
         exit 1
@@ -388,6 +388,12 @@ END
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
 
+        raise <<MSG if @args.empty?
+What files should I watch? Did you mean something like:
+    sass --watch input.sass:output.css
+    sass --watch input-dir:output-dir
+MSG
+
         if !colon_path?(@args[0]) && probably_dest_dir?(@args[1])
           flag = @options[:update] ? "--update" : "--watch"
           err =
@@ -396,9 +402,9 @@ END
             elsif @args[1] =~ /\.css$/
               "is a CSS file"
             end
-          msg = <<MSG if err
+          raise <<MSG if err
 File #{@args[1]} #{err}.
-  Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
+    Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
 MSG
         end
 
@@ -456,6 +462,7 @@ MSG
       # Whether path is likely to be meant as the destination
       # in a source:dest pair.
       def probably_dest_dir?(path)
+        return false unless path
         return false if colon_path?(path)
         return Dir.glob(File.join(path, "*.s[ca]ss")).empty?
       end
