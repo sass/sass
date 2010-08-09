@@ -161,7 +161,7 @@ module Haml
         raise err if @options[:trace] || dep.nil? || dep.empty?
         $stderr.puts <<MESSAGE
 Required dependency #{dep} not found!
-  Run "gem install #{dep}" to get it.
+    Run "gem install #{dep}" to get it.
   Use --trace for backtrace.
 MESSAGE
         exit 1
@@ -390,8 +390,8 @@ END
 
         raise <<MSG if @args.empty?
 What files should I watch? Did you mean something like:
-  sass --watch input.sass:output.css
-  sass --watch input-dir:output-dir
+    sass --watch input.sass:output.css
+    sass --watch input-dir:output-dir
 MSG
 
         if !colon_path?(@args[0]) && probably_dest_dir?(@args[1])
@@ -404,7 +404,7 @@ MSG
             end
           raise <<MSG if err
 File #{@args[1]} #{err}.
-  Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
+    Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
 MSG
         end
 
