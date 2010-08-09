@@ -11,6 +11,8 @@
   This was never allowed, but now it explicitly throws an error
   rather than just producing invalid CSS.
 
+* Make `sass --watch` not throw an error when passed a single file or directory.
+
 ## 3.0.16
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.16).
