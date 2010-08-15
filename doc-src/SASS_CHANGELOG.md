@@ -13,6 +13,9 @@
 
 * Understand that mingw counts as Windows.
 
+* Make `sass --update` return a non-0 exit code if one or more files being updated
+  contained an error.
+
 ## 3.0.16
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.16).
