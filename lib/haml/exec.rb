@@ -422,15 +422,18 @@ MSG
           end
         end
 
+        had_error = false
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
           raise error unless error.is_a?(::Sass::SyntaxError)
+          had_error = true
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
         end
 
         if @options[:update]
           ::Sass::Plugin.update_stylesheets(files)
+          exit 1 if had_error
           return
         end
 
