@@ -374,7 +374,7 @@ module Haml
     #
     # @return [Boolean]
     def windows?
-      RbConfig::CONFIG['host_os'] =~ /mswin|windows/i
+      RbConfig::CONFIG['host_os'] =~ /mswin|windows|mingw/i
     end
 
     ## Cross-Ruby-Version Compatibility

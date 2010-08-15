@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.17 (Unreleased)
+
+* Understand that mingw counts as Windows.
+
 ## 3.0.16
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.16).

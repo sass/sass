@@ -5,13 +5,13 @@
 
 ## 3.0.17 (Unreleased)
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
-
 * Disallow `#{}` interpolation in `@media` queries or unrecognized directives.
   This was never allowed, but now it explicitly throws an error
   rather than just producing invalid CSS.
 
 * Make `sass --watch` not throw an error when passed a single file or directory.
+
+* Understand that mingw counts as Windows.
 
 ## 3.0.16
 
