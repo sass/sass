@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.17 (Unreleased)
+## 3.0.17
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
 
 * Disallow `#{}` interpolation in `@media` queries or unrecognized directives.
   This was never allowed, but now it explicitly throws an error
