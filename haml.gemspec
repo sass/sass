@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'rake'
 
 # Note that Haml's gem-compilation process requires access to the filesystem.
 # This means that it cannot be automatically run by e.g. GitHub's gem system.
@@ -25,15 +24,11 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
   spec.add_development_dependency 'yard', '>= 0.5.3'
   spec.add_development_dependency 'maruku', '>= 0.5.9'
 
-  readmes = FileList.new('*') do |list|
-    list.exclude(/(^|[^.a-z])[a-z]+/)
-    list.exclude('TODO')
-    list.include('REVISION') if File.exist?('REVISION')
-  end.to_a
+  readmes = Dir['*'].reject{ |x| x =~ /(^|[^.a-z])[a-z]+/ || x == "TODO" }
   spec.executables = ['haml', 'html2haml', 'sass', 'css2sass', 'sass-convert']
-  spec.files = FileList['rails/init.rb', 'lib/**/*', 'vendor/**/*',
+  spec.files = Dir['rails/init.rb', 'lib/**/*', 'vendor/**/*',
     'bin/*', 'test/**/*', 'extra/**/*', 'Rakefile', 'init.rb',
-    '.yardopts'].to_a + readmes
+    '.yardopts'] + readmes
   spec.homepage = 'http://haml-lang.com/'
   spec.has_rdoc = true
   spec.extra_rdoc_files = readmes
@@ -44,5 +39,5 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
     '--line-numbers',
     '--inline-source'
    ]
-  spec.test_files = FileList['test/**/*_test.rb'].to_a
+  spec.test_files = Dir['test/**/*_test.rb']
 end

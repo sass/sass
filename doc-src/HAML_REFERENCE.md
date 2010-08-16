@@ -128,7 +128,8 @@ in `environment.rb` in Rails...
 Available options are:
 
 {#format-option} `:format`
-: Determines the output format. The default is `:xhtml`.
+: Determines the output format. Normally the default is `:xhtml`,
+  although under Rails 3 it's `:html5`, since that's the Rails 3's default format.
   Other options are `:html4` and `:html5`, which are
   identical to `:xhtml` except there are no self-closing tags,
   the XML prolog is ignored and correct DOCTYPEs are generated.
@@ -766,7 +767,7 @@ is compiled to:
     </html>
 
 You can also specify the specific doctype after the `!!!`
-When the [`:format`](#format-option) is set to `:xhtml` (the default),
+When the [`:format`](#format-option) is set to `:xhtml` (the default except in Rails 3),
 the following doctypes are supported:
 
 `!!!`
