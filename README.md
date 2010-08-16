@@ -30,7 +30,7 @@ For more information on these commands, check out
     sass --help
 
 To install Haml and Sass in Rails 2,
-just add `gem "haml"` to `config/environment.rb`.
+just add `config.gem "haml"` to `config/environment.rb`.
 In Rails 3, add `gem "haml"` to your Gemfile instead.
 and both Haml and Sass will be installed.
 Views with the `.html.haml` extension will automatically use Haml.
