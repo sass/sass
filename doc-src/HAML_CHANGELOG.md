@@ -8,6 +8,8 @@
 * Don't require `rake` in the gemspec, for bundler compatibility under
   JRuby. Thanks to [Gordon McCreight](http://www.gmccreight.com/blog).
 
+* Get rid of the annoying RDoc errors on install.
+
 ## 3.0.17
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).

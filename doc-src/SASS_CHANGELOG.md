@@ -14,6 +14,8 @@
 * Fix a bug in `haml_tag` that would allow duplicate attributes to be added
   and make `data-` attributes not work.
 
+* Get rid of the annoying RDoc errors on install.
+
 ## 3.0.17
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
