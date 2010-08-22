@@ -148,7 +148,7 @@ MESSAGE
     assert_equal("<p class='b css'>foo</p>\n", render("%p.css{:class => %w[css b]} foo")) # merge uniquely
     assert_equal("<p class='a b c d'>foo</p>\n", render("%p{:class => [%w[a b], %w[c d]]} foo")) # flatten
     assert_equal("<p class='a b'>foo</p>\n", render("%p{:class => [:a, :b] } foo")) # stringify
-    assert_equal("<p class=''>foo</p>\n", render("%p{:class => [nil, false] } foo")) # strip falsey
+    assert_equal("<p>foo</p>\n", render("%p{:class => [nil, false] } foo")) # strip falsey
     assert_equal("<p class='a'>foo</p>\n", render("%p{:class => :a} foo")) # single stringify
     assert_equal("<p>foo</p>\n", render("%p{:class => false} foo")) # single falsey
     assert_equal("<p class='a b html'>foo</p>\n", render("%p(class='html'){:class => %w[a b]} foo")) # html attrs
@@ -159,7 +159,7 @@ MESSAGE
     assert_equal("<p id='css_a_b'>foo</p>\n", render("%p#css{:id => %w[a b]} foo")) # merge with css
     assert_equal("<p id='a_b_c_d'>foo</p>\n", render("%p{:id => [%w[a b], %w[c d]]} foo")) # flatten
     assert_equal("<p id='a_b'>foo</p>\n", render("%p{:id => [:a, :b] } foo")) # stringify
-    assert_equal("<p id=''>foo</p>\n", render("%p{:id => [nil, false] } foo")) # strip falsey
+    assert_equal("<p>foo</p>\n", render("%p{:id => [nil, false] } foo")) # strip falsey
     assert_equal("<p id='a'>foo</p>\n", render("%p{:id => :a} foo")) # single stringify
     assert_equal("<p>foo</p>\n", render("%p{:id => false} foo")) # single falsey
     assert_equal("<p id='html_a_b'>foo</p>\n", render("%p(id='html'){:id => %w[a b]} foo")) # html attrs
