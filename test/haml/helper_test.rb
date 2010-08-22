@@ -259,6 +259,11 @@ HAML
     assert_equal("<p id='c_a_b'>foo</p>\n", render("- haml_tag 'p#c', 'foo', :id => %w[a b]"))
   end
 
+  def test_haml_tag_with_data_hash
+    assert_equal("<p data-baz='data-baz' data-foo='bar'>foo</p>\n",
+      render("- haml_tag :p, 'foo', :data => {:foo => 'bar', :baz => true}"))
+  end
+
   def test_haml_tag_non_autoclosed_tags_arent_closed
     assert_equal("<p></p>\n", render("- haml_tag :p"))
   end

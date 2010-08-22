@@ -294,6 +294,10 @@ END
                             'Locations are set like --watch.') do
           @options[:update] = true
         end
+        opts.on('--stop-on-error', 'If a file fails to compile, exit immediately.',
+                                   'Only meaningful for --watch and --update.') do
+          @options[:stop_on_error] = true
+        end
         opts.on('-t', '--style NAME',
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
@@ -426,7 +430,7 @@ MSG
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
-          raise error unless error.is_a?(::Sass::SyntaxError)
+          raise error unless error.is_a?(::Sass::SyntaxError) && !@options[:stop_on_error]
           had_error = true
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
         end
