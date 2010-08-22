@@ -8,6 +8,9 @@
 * Don't require `rake` in the gemspec, for bundler compatibility under
   JRuby. Thanks to [Gordon McCreight](http://www.gmccreight.com/blog).
 
+* Add a command-line option `--stop-on-error` that causes Sass to exit
+  when a file fails to compile using `--watch` or `--update`.
+
 ## 3.0.17
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
