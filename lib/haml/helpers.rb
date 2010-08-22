@@ -442,7 +442,8 @@ MESSAGE
       text = rest.shift.to_s unless [Symbol, Hash, NilClass].any? {|t| rest.first.is_a? t}
       flags = []
       flags << rest.shift while rest.first.is_a? Symbol
-      name, attrs = merge_name_and_attributes(name.to_s, rest.shift || {})
+      attrs = Haml::Util.map_keys(rest.shift || {}) {|key| key.to_s}
+      name, attrs = merge_name_and_attributes(name.to_s, attrs)
 
       attributes = Haml::Precompiler.build_attributes(haml_buffer.html?,
                                                       haml_buffer.options[:attr_wrapper],
@@ -551,8 +552,7 @@ MESSAGE
       return name, attributes_hash unless name =~ /^(.+?)?([\.#].*)$/
 
       return $1 || "div", Buffer.merge_attrs(
-        Precompiler.parse_class_and_id($2),
-        Haml::Util.map_keys(attributes_hash) {|key| key.to_s})
+        Precompiler.parse_class_and_id($2), attributes_hash)
     end
 
     # Runs a block of code with the given buffer as the currently active buffer.

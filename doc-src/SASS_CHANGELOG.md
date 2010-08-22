@@ -11,6 +11,9 @@
 * Add a command-line option `--stop-on-error` that causes Sass to exit
   when a file fails to compile using `--watch` or `--update`.
 
+* Fix a bug in `haml_tag` that would allow duplicate attributes to be added
+  and make `data-` attributes not work.
+
 ## 3.0.17
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
