@@ -30,14 +30,6 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
     'bin/*', 'test/**/*', 'extra/**/*', 'Rakefile', 'init.rb',
     '.yardopts'] + readmes
   spec.homepage = 'http://haml-lang.com/'
-  spec.has_rdoc = true
-  spec.extra_rdoc_files = readmes
-  spec.rdoc_options += [
-    '--title', 'Haml',
-    '--main', 'README.rdoc',
-    '--exclude', 'lib/haml/buffer.rb',
-    '--line-numbers',
-    '--inline-source'
-   ]
+  spec.has_rdoc = false
   spec.test_files = Dir['test/**/*_test.rb']
 end
