@@ -180,8 +180,8 @@ from your Sass functions.
 
 ## You still haven't answered my question!
 
-Sorry! Try looking at the Haml or Sass references,
-in the doucmentation for the haml and Sass modules, respectively.
+Sorry! Try looking at the [Haml](http://haml-lang.com/docs/yardoc/HAML_REFERENCE.md.html)
+or [Sass](http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html) references,
 If you can't find an answer there,
 feel free to ask in `#haml` on irc.freenode.net
 or send an email to the [mailing list](http://groups.google.com/group/haml?hl=en).
