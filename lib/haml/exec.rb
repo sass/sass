@@ -197,50 +197,6 @@ Description:
 Options:
 END
 
-        opts.on('--rails RAILS_DIR', "Install Haml and Sass from the Gem to a Rails project") do |dir|
-          original_dir = dir
-
-          env = File.join(dir, "config", "environment.rb")
-          if File.exists?(File.join(dir, "Gemfile"))
-            puts("haml --rails isn't needed for Rails 3 or greater.",
-              "Add 'gem \"haml\"' to your Gemfile instead.", "",
-              "haml --rails will no longer work in the next version of #{@name}.", "")
-          elsif File.exists?(env) && File.open(env) {|env| env.grep(/config\.gem/)}
-            puts("haml --rails isn't needed for Rails 2.1 or greater.",
-              "Add 'config.gem \"haml\"' to config/environment.rb instead.", "",
-              "haml --rails will no longer work in the next version of #{@name}.", "")
-          end
-
-          dir = File.join(dir, 'vendor', 'plugins')
-
-          unless File.exists?(dir)
-            puts "Directory #{dir} doesn't exist"
-            exit 1
-          end
-
-          dir = File.join(dir, 'haml')
-
-          if File.exists?(dir)
-            print "Directory #{dir} already exists, overwrite [y/N]? "
-            exit 2 if gets !~ /y/i
-            FileUtils.rm_rf(dir)
-          end
-
-          begin
-            Dir.mkdir(dir)
-          rescue SystemCallError
-            puts "Cannot create #{dir}"
-            exit 1
-          end
-
-          File.open(File.join(dir, 'init.rb'), 'w') do |file|
-            file << File.read(File.dirname(__FILE__) + "/../../init.rb")
-          end
-
-          puts "Haml plugin added to #{original_dir}"
-          exit
-        end
-
         opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
           require 'stringio'
           @options[:check_syntax] = true
