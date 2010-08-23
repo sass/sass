@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # The command line Sass parser.
 
-require File.dirname(__FILE__) + '/../lib/haml'
-require 'haml/exec'
+require File.dirname(__FILE__) + '/../lib/sass'
+require 'sass/exec'
 
-opts = Haml::Exec::Sass.new(ARGV)
+opts = Sass::Exec::Sass.new(ARGV)
 opts.parse!

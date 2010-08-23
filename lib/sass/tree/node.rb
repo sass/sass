@@ -158,7 +158,7 @@ module Sass
       # @todo Link this to the reference documentation on `@extend`
       #   when such a thing exists.
       #
-      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this tree
       # @return [Tree::Node] The resulting tree of static CSS nodes.
       # @raise [Sass::SyntaxError] Only if there's a programmer error
@@ -178,7 +178,7 @@ module Sass
       # \{#cssize} shouldn't be overridden directly;
       # instead, override \{#\_cssize} or \{#cssize!}.
       #
-      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions defined for this tree
       # @param parent [Node, nil] The parent node of this node.
       #   This should only be non-nil if the parent is the same class as this node
@@ -261,7 +261,7 @@ module Sass
       # returning the new node.
       # This doesn't modify this node or any of its children.
       #
-      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions defined for this tree
       # @param parent [Node, nil] The parent node of this node.
       #   This should only be non-nil if the parent is the same class as this node
@@ -279,7 +279,7 @@ module Sass
       # This *does* modify this node,
       # but will be run non-destructively by \{#\_cssize\}.
       #
-      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions defined for this tree
       # @param parent [Node, nil] The parent node of this node.
       #   This should only be non-nil if the parent is the same class as this node
@@ -339,10 +339,10 @@ module Sass
         end.join.strip
       end
 
-      # @see Haml::Shared.balance
+      # @see Sass::Shared.balance
       # @raise [Sass::SyntaxError] if the brackets aren't balanced
       def balance(*args)
-        res = Haml::Shared.balance(*args)
+        res = Sass::Shared.balance(*args)
         return res if res
         raise Sass::SyntaxError.new("Unbalanced brackets.", :line => line)
       end

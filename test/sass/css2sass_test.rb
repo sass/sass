@@ -336,7 +336,7 @@ CSS
 
   # Encodings
 
-  unless Haml::Util.ruby1_8?
+  unless Sass::Util.ruby1_8?
     def test_encoding_error
       css2sass("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
       assert(false, "Expected exception")

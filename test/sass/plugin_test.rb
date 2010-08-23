@@ -163,7 +163,7 @@ CSS
 
   def test_updating_stylesheets_callback_with_individual_files
     files = [[template_loc("basic"), tempfile_loc("basic")]]
-    assert_callback(:updating_stylesheets, files) {Haml::Util.silence_haml_warnings{Sass::Plugin.update_stylesheets(files)}}
+    assert_callback(:updating_stylesheets, files) {Sass::Util.silence_sass_warnings{Sass::Plugin.update_stylesheets(files)}}
   end
 
   def test_updating_stylesheets_callback_with_never_update
@@ -347,7 +347,7 @@ CSS
   end
 
   def update_all_stylesheets!
-    Haml::Util.silence_haml_warnings do
+    Sass::Util.silence_sass_warnings do
       Sass::Plugin.update_stylesheets
     end
   end

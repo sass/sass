@@ -1,6 +1,6 @@
 require 'set'
 
-module Haml
+module Sass
   module Util
     # A map from sets to values.
     # A value is \{#\[]= set} by providing a set (the "set-set") and a value,
@@ -78,7 +78,7 @@ module Haml
             [index, subenum]
           end
         end
-        res = Haml::Util.flatten(res, 1)
+        res = Sass::Util.flatten(res, 1)
         res.compact!
         res.uniq!
         res.sort!

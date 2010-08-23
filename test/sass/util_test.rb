@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'pathname'
 
 class UtilTest < Test::Unit::TestCase
-  include Haml::Util
+  include Sass::Util
 
   def test_scope
     assert(File.exist?(scope("Rakefile")))
@@ -130,15 +130,15 @@ class UtilTest < Test::Unit::TestCase
     $stderr = old_stderr
   end
 
-  def test_haml_warn
-    assert_warning("Foo!") {haml_warn "Foo!"}
+  def test_sass_warn
+    assert_warning("Foo!") {sass_warn "Foo!"}
   end
 
-  def test_silence_haml_warnings
+  def test_silence_sass_warnings
     old_stderr, $stderr = $stderr, StringIO.new
-    silence_haml_warnings {warn "Out"}
+    silence_sass_warnings {warn "Out"}
     assert_equal("Out\n", $stderr.string)
-    silence_haml_warnings {haml_warn "In"}
+    silence_sass_warnings {sass_warn "In"}
     assert_equal("Out\n", $stderr.string)
   ensure
     $stderr = old_stderr
@@ -146,7 +146,7 @@ class UtilTest < Test::Unit::TestCase
 
   def test_has
     assert(has?(:instance_method, String, :chomp!))
-    assert(has?(:private_instance_method, Haml::Engine, :set_locals))
+    assert(has?(:private_instance_method, Sass::Engine, :parse_interp))
   end
 
   def test_enum_with_index
@@ -211,35 +211,9 @@ class UtilTest < Test::Unit::TestCase
   def test_caller_info
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, nil], caller_info("/tmp/foo.rb:12"))
-    assert_equal(["(haml)", 12, "blah"], caller_info("(haml):12: in `blah'"))
+    assert_equal(["(sass)", 12, "blah"], caller_info("(sass):12: in `blah'"))
     assert_equal(["", 12, "boop"], caller_info(":12: in `boop'"))
     assert_equal(["/tmp/foo.rb", -12, "fizzle"], caller_info("/tmp/foo.rb:-12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle {}'"))
-  end
-
-  def test_def_static_method
-    klass = Class.new
-    def_static_method(klass, :static_method, [:arg1, :arg2],
-      :sarg1, :sarg2, <<RUBY)
-      s = "Always " + arg1
-      s << " <% if sarg1 %>and<% else %>but never<% end %> " << arg2
-
-      <% if sarg2 %>
-        s << "."
-      <% end %>
-RUBY
-    c = klass.new
-    assert_equal("Always brush your teeth and comb your hair.",
-      c.send(static_method_name(:static_method, true, true),
-        "brush your teeth", "comb your hair"))
-    assert_equal("Always brush your teeth and comb your hair",
-      c.send(static_method_name(:static_method, true, false),
-        "brush your teeth", "comb your hair"))
-    assert_equal("Always brush your teeth but never play with fire.",
-      c.send(static_method_name(:static_method, false, true),
-        "brush your teeth", "play with fire"))
-    assert_equal("Always brush your teeth but never play with fire",
-      c.send(static_method_name(:static_method, false, false),
-        "brush your teeth", "play with fire"))
   end
 end

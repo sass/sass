@@ -38,7 +38,7 @@ module Sass
 
     # @private
     def self.var_warning(varname, line, offset, filename)
-      Haml::Util.haml_warn <<MESSAGE
+      Sass::Util.sass_warn <<MESSAGE
 DEPRECATION WARNING:
 On line #{line}, character #{offset}#{" of '#{filename}'" if filename}
 Variables with ! have been deprecated and will be removed in version 3.2.
@@ -50,7 +50,7 @@ MESSAGE
 
     # @private
     def self.equals_warning(types, name, val, guarded, line, offset, filename)
-      Haml::Util.haml_warn <<MESSAGE
+      Sass::Util.sass_warn <<MESSAGE
 DEPRECATION WARNING:
 On line #{line}#{", character #{offset}" if offset}#{" of '#{filename}'" if filename}
 Setting #{types} with #{"||" if guarded}= has been deprecated and will be removed in version 3.2.

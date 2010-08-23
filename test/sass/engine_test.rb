@@ -743,7 +743,7 @@ SASS
   end
 
   def test_debug_info
-    esc_file_name = Sass::SCSS::RX.escape_ident(Haml::Util.scope("test_debug_info_inline.sass"))
+    esc_file_name = Sass::SCSS::RX.escape_ident(Sass::Util.scope("test_debug_info_inline.sass"))
 
     assert_equal(<<CSS, render(<<SASS, :debug_info => true, :style => :compact))
 @media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\000032}}
@@ -809,7 +809,7 @@ SASS
   end
 
   def test_debug_info_with_line_annotations
-    esc_file_name = Sass::SCSS::RX.escape_ident(Haml::Util.scope("test_debug_info_with_line_annotations_inline.sass"))
+    esc_file_name = Sass::SCSS::RX.escape_ident(Sass::Util.scope("test_debug_info_with_line_annotations_inline.sass"))
 
     assert_equal(<<CSS, render(<<SASS, :debug_info => true, :line_comments => true))
 @media -sass-debug-info{filename{font-family:file\\:\\/\\/#{esc_file_name}}line{font-family:\\000031}}
@@ -2075,7 +2075,7 @@ SASS
 
   # Encodings
 
-  unless Haml::Util.ruby1_8?
+  unless Sass::Util.ruby1_8?
     def test_encoding_error
       render("foo\nbar\nb\xFEaz".force_encoding("utf-8"))
       assert(false, "Expected exception")

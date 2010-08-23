@@ -230,7 +230,7 @@ RUBY
   end
 
   def test_sass2_urls
-    Haml::Util.silence_haml_warnings do
+    Sass::Util.silence_sass_warnings do
       assert_equal 'url(foo/bar.gif)', render('url(foo/bar.gif)', :context => :equals)
       assert_equal 'url("foo/bar.gif")', render('url("foo/bar.gif")', :context => :equals)
 

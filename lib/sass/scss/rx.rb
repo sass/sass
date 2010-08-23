@@ -31,7 +31,7 @@ module Sass
       # @return [String] The escaped character
       # @private
       def self.escape_char(c)
-        return "\\%06x" % Haml::Util.ord(c) unless c =~ /[ -\/:-~]/
+        return "\\%06x" % Sass::Util.ord(c) unless c =~ /[ -\/:-~]/
         return "\\#{c}"
       end
 
@@ -49,7 +49,7 @@ module Sass
       H        = /[0-9a-fA-F]/
       NL       = /\n|\r\n|\r|\f/
       UNICODE  = /\\#{H}{1,6}[ \t\r\n\f]?/
-      s = if Haml::Util.ruby1_8?
+      s = if Sass::Util.ruby1_8?
             '\200-\377'
           else
             '\u{80}-\u{D7FF}\u{E000}-\u{FFFD}\u{10000}-\u{10FFFF}'

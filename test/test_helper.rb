@@ -1,15 +1,9 @@
 lib_dir = File.dirname(__FILE__) + '/../lib'
-require File.dirname(__FILE__) + '/linked_rails'
 
 require 'test/unit'
 require 'fileutils'
 $:.unshift lib_dir unless $:.include?(lib_dir)
-require 'haml'
 require 'sass'
-
-require 'haml/template'
-Haml::Template.options[:ugly] = false
-Haml::Template.options[:format] = :xhtml
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
@@ -30,7 +24,7 @@ class Test::Unit::TestCase
 
   def filename_for_test(syntax = :sass)
     test_name = caller.
-      map {|c| Haml::Util.caller_info(c)[2]}.
+      map {|c| Sass::Util.caller_info(c)[2]}.
       compact.
       map {|c| c.sub(/^(block|rescue) in /, '')}.
       find {|c| c =~ /^test_/}
@@ -56,27 +50,7 @@ class Test::Unit::TestCase
   end
 
   def silence_warnings(&block)
-    Haml::Util.silence_warnings(&block)
-  end
-
-  def rails_block_helper_char
-    return '=' if Haml::Util.ap_geq_3?
-    return '-'
-  end
-
-  def form_for_calling_convention(name)
-    return "@#{name}, :as => :#{name}, :html => {:class => nil, :id => nil}" if Haml::Util.ap_geq_3?
-    return ":#{name}, @#{name}"
-  end
-
-  def rails_form_attr
-    return 'accept-charset="UTF-8" ' if Haml::Util.ap_geq?("3.0.0.rc")
-    return ''
-  end
-
-  def rails_form_opener
-    return '' unless Haml::Util.ap_geq?("3.0.0.rc")
-    return '<div style="margin:0;padding:0;display:inline"><input name="_snowman" type="hidden" value="&#9731;" /></div>'
+    Sass::Util.silence_warnings(&block)
   end
 
   def assert_raise_message(klass, message)

@@ -76,7 +76,7 @@ module Sass
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels)
         return sels if sels.any? {|sel2| eql?(sel2)}
-        sels_with_ix = Haml::Util.enum_with_index(sels)
+        sels_with_ix = Sass::Util.enum_with_index(sels)
         _, i =
           if self.is_a?(Pseudo) || self.is_a?(SelectorPseudoClass)
             sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && sels.last.type == :element}

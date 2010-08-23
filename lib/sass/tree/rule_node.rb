@@ -54,9 +54,9 @@ module Sass::Tree
     #   The CSS rule. See \{#rule}
     def initialize(rule)
       #p rule
-      merged = Haml::Util.merge_adjacent_strings(rule)
+      merged = Sass::Util.merge_adjacent_strings(rule)
       #p merged
-      @rule = Haml::Util.strip_string_array(merged)
+      @rule = Sass::Util.strip_string_array(merged)
       #p @rule
       @tabs = 0
       super()
@@ -75,8 +75,8 @@ module Sass::Tree
     #
     # @param node [RuleNode] The other node
     def add_rules(node)
-      @rule = Haml::Util.strip_string_array(
-        Haml::Util.merge_adjacent_strings(@rule + ["\n"] + node.rule))
+      @rule = Sass::Util.strip_string_array(
+        Sass::Util.merge_adjacent_strings(@rule + ["\n"] + node.rule))
     end
 
     # @return [Boolean] Whether or not this rule is continued on the next line
@@ -193,7 +193,7 @@ module Sass::Tree
 
     # Converts nested rules into a flat list of rules.
     #
-    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
     #   The extensions defined for this tree
     # @param parent [RuleNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {RuleNode}
@@ -216,7 +216,7 @@ module Sass::Tree
     # Resolves parent references and nested selectors,
     # and updates the indentation based on the parent's indentation.
     #
-    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
     #   The extensions defined for this tree
     # @param parent [RuleNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {RuleNode}

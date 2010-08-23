@@ -44,9 +44,9 @@ module Sass
       # will create its own `extends` map if necessary,
       # and it returns that map along with the cssized tree.
       #
-      # @return [(Tree::Node, Haml::Util::SubsetMap)] The resulting tree of static nodes
+      # @return [(Tree::Node, Sass::Util::SubsetMap)] The resulting tree of static nodes
       #   *and* the extensions defined for this tree
-      def cssize(extends = Haml::Util::SubsetMap.new, parent = nil)
+      def cssize(extends = Sass::Util::SubsetMap.new, parent = nil)
         return super(extends), extends
       rescue Sass::SyntaxError => e
         e.sass_template = @template
@@ -79,7 +79,7 @@ module Sass
 
       # @see Node#to_src
       def to_src(opts, fmt)
-        Haml::Util.enum_cons(children + [nil], 2).map do |child, nxt|
+        Sass::Util.enum_cons(children + [nil], 2).map do |child, nxt|
           child.send("to_#{fmt}", 0, opts) +
             if nxt &&
                 (child.is_a?(CommentNode) && child.line + child.value.count("\n") + 1 == nxt.line) ||

@@ -29,7 +29,7 @@ module Sass
   #   #=> Compiling app/sass/print.scss to public/stylesheets/print.css
   #   #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
   module Plugin
-    include Haml::Util
+    include Sass::Util
 
     @checked_for_updates = false
 
@@ -154,7 +154,7 @@ module Sass
         # As of FSSM 0.1.4, it doesn't support FSevents on individual files,
         # but it also isn't smart enough to switch to polling itself.
         require 'fssm/backends/polling'
-        Haml::Util.silence_warnings do
+        Sass::Util.silence_warnings do
           FSSM::Backends.const_set(:Default, FSSM::Backends::Polling)
         end
       end
@@ -227,7 +227,7 @@ module Sass
 
       # Finally, write the file
       flag = 'w'
-      flag = 'wb' if Haml::Util.windows? && options[:unix_newlines]
+      flag = 'wb' if Sass::Util.windows? && options[:unix_newlines]
       File.open(css, flag) {|file| file.print(result)}
     end
 

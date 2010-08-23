@@ -16,7 +16,7 @@ module Sass::Tree
 
     # Registers this extension in the `extends` subset map.
     #
-    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
     #   The extensions defined for this tree
     # @param parent [RuleNode] The parent node of this node
     # @see Node#cssize

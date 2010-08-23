@@ -16,7 +16,7 @@ module Sass::Script
   # If only the alpha channel is modified using \{#with},
   # the cached RGB and HSL values are retained.
   class Color < Literal
-    class << self; include Haml::Util; end
+    class << self; include Sass::Util; end
 
     # A hash from color names to `[red, green, blue]` value arrays.
     HTML4_COLORS = map_vals({
@@ -185,7 +185,7 @@ module Sass::Script
     # @deprecated This will be removed in version 3.2.
     # @see #rgb
     def value
-      Haml::Util.haml_warn <<END
+      Sass::Util.sass_warn <<END
 DEPRECATION WARNING:
 The Sass::Script::Color #value attribute is deprecated and will be
 removed in version 3.2. Use the #rgb attribute instead.

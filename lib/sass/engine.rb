@@ -22,7 +22,7 @@ require 'sass/script'
 require 'sass/scss'
 require 'sass/error'
 require 'sass/files'
-require 'haml/shared'
+require 'sass/shared'
 
 module Sass
   # A Sass mixin.
@@ -52,7 +52,7 @@ module Sass
   #     output = sass_engine.render
   #     puts output
   class Engine
-    include Haml::Util
+    include Sass::Util
 
     # A line of Sass code.
     #
@@ -165,7 +165,7 @@ module Sass
     # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
     def render
       return _render unless @options[:quiet]
-      Haml::Util.silence_haml_warnings {_render}
+      Sass::Util.silence_sass_warnings {_render}
     end
     alias_method :to_css, :render
 
@@ -175,7 +175,7 @@ module Sass
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
       return _to_tree unless @options[:quiet]
-      Haml::Util.silence_haml_warnings {_to_tree}
+      Sass::Util.silence_sass_warnings {_to_tree}
     end
 
     # Returns the original encoding of the document,
@@ -268,8 +268,8 @@ module Sass
         line_tabs = line_tab_str.scan(tab_str).size
         if tab_str * line_tabs != line_tab_str
           message = <<END.strip.gsub("\n", ' ')
-Inconsistent indentation: #{Haml::Shared.human_indentation line_tab_str, true} used for indentation,
-but the rest of the document was indented using #{Haml::Shared.human_indentation tab_str}.
+Inconsistent indentation: #{Sass::Shared.human_indentation line_tab_str, true} used for indentation,
+but the rest of the document was indented using #{Sass::Shared.human_indentation tab_str}.
 END
           raise SyntaxError.new(message, :line => index)
         end
@@ -287,8 +287,8 @@ END
       unless line =~ /^(?:#{comment_tab_str})(.*)$/
         raise SyntaxError.new(<<MSG.strip.gsub("\n", " "), :line => index)
 Inconsistent indentation:
-previous line was indented by #{Haml::Shared.human_indentation comment_tab_str},
-but this line was indented by #{Haml::Shared.human_indentation line[/^\s*/]}.
+previous line was indented by #{Sass::Shared.human_indentation comment_tab_str},
+but this line was indented by #{Sass::Shared.human_indentation line[/^\s*/]}.
 MSG
       end
 
@@ -389,7 +389,7 @@ MSG
 
     def check_for_no_children(node)
       return unless node.is_a?(Tree::RuleNode) && node.children.empty?
-      Haml::Util.haml_warn(<<WARNING.strip)
+      Sass::Util.sass_warn(<<WARNING.strip)
 WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 This selector doesn't have any properties and will not be rendered.
 WARNING
@@ -688,7 +688,7 @@ WARNING
     # @private
     def self.parse_interp(text, line, offset, options)
       res = []
-      rest = Haml::Shared.handle_interpolation text do |scan|
+      rest = Sass::Shared.handle_interpolation text do |scan|
         escapes = scan[2].size
         res << scan.matched[0...-2 - escapes]
         if escapes % 2 == 1

@@ -70,21 +70,21 @@ module Sass
       # (which should be populated via {Sass::Tree::Node#cssize}).
       #
       # @overload def do_extend(extends)
-      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#do_extend
       def do_extend(extends, seen = Set.new)
-        paths = Haml::Util.paths(members.map do |sseq_or_op|
+        paths = Sass::Util.paths(members.map do |sseq_or_op|
             next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
             extended = sseq_or_op.do_extend(extends, seen)
             choices = extended.map {|seq| seq.members}
             choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
             choices
           end)
-        Haml::Util.flatten(paths.map {|path| weave(path)}, 1).map {|p| Sequence.new(p)}
+        Sass::Util.flatten(paths.map {|path| weave(path)}, 1).map {|p| Sequence.new(p)}
       end
 
       # Returns whether or not this selector matches all elements
@@ -105,8 +105,8 @@ module Sass
       # @see Simple#to_a
       def to_a
         ary = @members.map {|seq_or_op| seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a : seq_or_op}
-        ary = Haml::Util.intersperse(ary, " ")
-        ary = Haml::Util.substitute(ary, [" ", "\n", " "], ["\n"])
+        ary = Sass::Util.intersperse(ary, " ")
+        ary = Sass::Util.substitute(ary, [" ", "\n", " "], ["\n"])
         ary.flatten.compact
       end
 
@@ -137,7 +137,7 @@ module Sass
           while !current.empty? && last_current.first.is_a?(String) || current.last.is_a?(String)
             last_current.unshift(current.pop)
           end
-          befores = Haml::Util.flatten(befores.map do |before|
+          befores = Sass::Util.flatten(befores.map do |before|
               subweave(before, current).map {|seqs| seqs + last_current}
             end, 1)
           return befores if afters.empty?
@@ -163,7 +163,7 @@ module Sass
 
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
-        lcs = Haml::Util.lcs(seq2, seq1) do |s1, s2|
+        lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
           next s1 if s1 == s2
           next unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
           next s2 if subweave_superselector?(s1, s2)
@@ -179,7 +179,7 @@ module Sass
         diff << chunks(seq1, seq2) {|s| s.empty?}
         diff.reject! {|c| c.empty?}
 
-        Haml::Util.paths(diff).map {|p| p.flatten}
+        Sass::Util.paths(diff).map {|p| p.flatten}
       end
 
       def chunks(seq1, seq2)

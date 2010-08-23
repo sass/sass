@@ -308,7 +308,7 @@ RUBY
       def special_fun
         return paren unless tok = try_tok(:special_fun)
         first = node(Script::String.new(tok.value.first))
-        Haml::Util.enum_slice(tok.value[1..-1], 2).inject(first) do |l, (i, r)|
+        Sass::Util.enum_slice(tok.value[1..-1], 2).inject(first) do |l, (i, r)|
           Script::Interpolation.new(
             l, i, r && node(Script::String.new(r)),
             false, false)

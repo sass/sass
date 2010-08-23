@@ -1,54 +1,50 @@
-# Haml and Sass
+# Sass
 
-Haml and Sass are templating engines
-for the two most common types of documents on the web:
-HTML and CSS, respectively.
-They are designed to make it both easier and more pleasant
-to code HTML and CSS documents,
-by eliminating redundancy,
-reflecting the underlying structure that the document represents,
-and providing elegant, easily understandable, and powerful syntax.
+**Sass makes CSS fun again**. Sass is an extension of CSS3,
+adding nested rules, variables, mixins, selector inheritance, and more.
+It's translated to well-formatted, standard CSS
+using the command line tool or a web-framework plugin.
+
+Sass has two syntaxes. The new main syntax (as of Sass 3)
+is known as "SCSS" (for "Sassy CSS"),
+and is a superset of CSS3's syntax.
+This means that every valid CSS3 stylesheet is valid SCSS as well.
+SCSS files use the extension `.scss`.
+
+The second, older syntax is known as the indented syntax (or just "Sass").
+Inspired by Haml's terseness, it's intended for people
+who prefer conciseness over similarity to CSS.
+Instead of brackets and semicolons,
+it uses the indentation of lines to specify blocks.
+Although no longer the primary syntax,
+the indented syntax will continue to be supported.
+Files in the indented syntax use the extension `.sass`.
 
 ## Using
 
-Haml and Sass can be used from the command line
-or as part of a Ruby web framework.
+Sass can be used from the command line
+or as part of a web framework.
 The first step is to install the gem:
 
-    gem install haml
+    gem install sass
 
-After you convert some HTML to Haml or some CSS to Sass,
-you can run
+After you convert some CSS to Sass, you can run
 
-    haml document.haml
     sass style.scss
 
-to compile them.
+to compile it back to CSS.
 For more information on these commands, check out
 
-    haml --help
     sass --help
 
-To install Haml and Sass in Rails 2,
-just add `config.gem "haml"` to `config/environment.rb`.
-In Rails 3, add `gem "haml"` to your Gemfile instead.
-and both Haml and Sass will be installed.
-Views with the `.html.haml` extension will automatically use Haml.
-Sass is a little more complicated;
-`.sass` files should be placed in `public/stylesheets/sass`,
+To install Sass in Rails 2,
+just add `config.gem "sass"` to `config/environment.rb`.
+In Rails 3, add `gem "sass"` to your Gemfile instead.
+`.sass` or `.scss` files should be placed in `public/stylesheets/sass`,
 where they'll be automatically compiled
 to corresponding CSS files in `public/stylesheets` when needed
 (the Sass template directory is customizable...
 see [the Sass reference](http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#template_location-option) for details).
-
-For Merb, `.html.haml` views will work without any further modification.
-To enable Sass, you also need to add a dependency.
-To do so, just add
-
-    dependency "merb-haml"
-
-to `config/dependencies.rb` (or `config/init.rb` in a flat/very flat Merb application).
-Then it'll work just like it does in Rails.
 
 Sass can also be used with any Rack-enabled web framework.
 To do so, just add
@@ -60,87 +56,10 @@ to `config.ru`.
 Then any Sass files in `public/stylesheets/sass`
 will be compiled CSS files in `public/stylesheets` on every request.
 
-To use Haml and Sass programatically,
-check out the [YARD documentation](http://haml-lang.com/docs/yardoc/).
+To use Sass programatically,
+check out the [YARD documentation](http://sass-lang.com/docs/yardoc/).
 
 ## Formatting
-
-### Haml
-
-The most basic element of Haml
-is a shorthand for creating HTML:
-
-    %tagname{:attr1 => 'value1', :attr2 => 'value2'} Contents
-
-No end-tag is needed; Haml handles that automatically.
-If you prefer HTML-style attributes, you can also use:
-
-    %tagname(attr1='value1' attr2='value2') Contents
-
-Adding `class` and `id` attributes is even easier.
-Haml uses the same syntax as the CSS that styles the document:
-
-    %tagname#id.class
-
-In fact, when you're using the `<div>` tag,
-it becomes _even easier_.
-Because `<div>` is such a common element,
-a tag without a name defaults to a div. So
-
-    #foo Hello!
-
-becomes
-
-    <div id='foo'>Hello!</div>
-
-Haml uses indentation
-to bring the individual elements to represent the HTML structure.
-A tag's children are indented beneath than the parent tag.
-Again, a closing tag is automatically added.
-For example:
-
-    %ul
-      %li Salt
-      %li Pepper
-
-becomes:
-
-    <ul>
-      <li>Salt</li>
-      <li>Pepper</li>
-    </ul>
-
-You can also put plain text as a child of an element:
-
-    %p
-      Hello,
-      World!
-
-It's also possible to embed Ruby code into Haml documents.
-An equals sign, `=`, will output the result of the code.
-A hyphen, `-`, will run the code but not output the result.
-You can even use control statements
-like `if` and `while`:
-
-    %p
-      Date/Time:
-      - now = DateTime.now
-      %strong= now
-      - if now > DateTime.parse("December 31, 2006")
-        = "Happy new " + "year!"
-
-Haml provides far more tools than those presented here.
-Check out the [reference documentation](http://beta.haml-lang.com/docs/yardoc/file.HAML_REFERENCE.html)
-for full details.
-
-#### Indentation
-
-Haml's indentation can be made up of one or more tabs or spaces.
-However, indentation must be consistent within a given document.
-Hard tabs and spaces can't be mixed,
-and the same number of tabs or spaces must be used throughout.
-
-### Sass
 
 Sass is an extension of CSS
 that adds power and elegance to the basic language.
@@ -169,7 +88,7 @@ For more information, see the [reference documentation][syntax].
 To run the following examples and see the CSS they produce,
 put them in a file called `test.scss` and run `sass test.scss`.
 
-#### Nesting
+### Nesting
 
 Sass avoids repetition by nesting selectors within one another.
 The same thing works for properties.
@@ -187,7 +106,7 @@ The same thing works for properties.
       }
     }
 
-#### Variables
+### Variables
 
 Use the same color all over the place?
 Need to do some math with height and width and text size?
@@ -207,7 +126,7 @@ Sass supports variables, math operations, and many useful functions.
       border-color: $blue;
     }
 
-#### Mixins
+### Mixins
 
 Even more powerful than variables,
 mixins allow you to re-use whole chunks of CSS,
@@ -237,26 +156,13 @@ in the [Sass reference](http://beta.sass-lang.com/docs/yardoc/file.SASS_REFERENC
 
 ## Executables
 
-The Haml gem includes several executables that are useful
-for dealing with Haml and Sass from the command line.
-
-### `haml`
-
-The `haml` executable transforms a source Haml file into HTML.
-See `haml --help` for further information and options.
+The Sass gem includes several executables that are useful
+for dealing with Sass from the command line.
 
 ### `sass`
 
 The `sass` executable transforms a source Sass file into CSS.
 See `sass --help` for further information and options.
-
-### `html2haml`
-
-The `html2haml` executable attempts to transform HTML,
-optionally with ERB markup, into Haml code.
-Since HTML is so variable, this transformation is not always perfect;
-it's a good idea to have a human check the output of this tool.
-See `html2haml --help` for further information and options.
 
 ### `sass-convert`
 
@@ -267,19 +173,18 @@ See `sass-convert --help` for further information and options.
 
 ## Authors
 
-Haml and Sass were created by [Hampton Catlin](http://hamptoncatlin.com)
-(hcatlin) and he is the author of the original implementation. However, Hampton
-doesn't even know his way around the code anymore and now occasionally consults
-on the language issues.  Hampton lives in Jacksonville, Florida and is the lead
-mobile developer for Wikimedia.
+Sass was envisioned by [Hampton Catlin](http://hamptoncatlin.com) (hcatlin).
+However, Hampton doesn't even know his way around the code anymore and now
+occasionally consults on the language issues. Hampton lives in Jacksonville,
+Florida and is the lead mobile developer for Wikimedia.
 
 [Nathan Weizenbaum](http://nex-3.com) is the primary developer and architect of
-the "modern" Ruby implementation of Haml. His hard work has kept the project
-alive by endlessly answering forum posts, fixing bugs, refactoring, finding
-speed improvements, writing documentation, implementing new features, and
-getting Hampton coffee (a fitting task for a boy-genius). Nathan lives in
-Seattle, Washington and while not being a student at the University of
-Washington or working at an internship, he consults for Unspace Interactive.
+Sass. His hard work has kept the project alive by endlessly answering forum
+posts, fixing bugs, refactoring, finding speed improvements, writing
+documentation, implementing new features, and getting Hampton coffee (a fitting
+task for a boy-genius). Nathan lives in Seattle, Washington and while not being
+a student at the University of Washington or working at an internship, he
+consults for Unspace Interactive.
 
 [Chris Eppstein](http://acts-as-architect.blogspot.com) is a core contributor to
 Sass and the creator of Compass, the first Sass-based framework. Chris focuses
@@ -291,8 +196,6 @@ whose parents are sick or elderly, that uses Haml and Sass.
 
 If you use this software, you must pay Hampton a compliment. And
 buy Nathan some jelly beans. Maybe pet a kitten. Yeah. Pet that kitty.
-
-Some of the work on Haml was supported by Unspace Interactive.
 
 Beyond that, the implementation is licensed under the MIT License.
 Okay, fine, I guess that means compliments aren't __required__.

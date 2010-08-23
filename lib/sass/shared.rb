@@ -1,6 +1,6 @@
 require 'strscan'
 
-module Haml
+module Sass
   # This module contains functionality that's shared between Haml and Sass.
   module Shared
     extend self

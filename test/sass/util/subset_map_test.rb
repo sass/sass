@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../../test_helper'
 
 class SubsetMapTest < Test::Unit::TestCase
   def setup
-    @ssm = Haml::Util::SubsetMap.new
+    @ssm = Sass::Util::SubsetMap.new
     @ssm[Set[1, 2]] = "Foo"
     @ssm[Set["fizz", "fazz"]] = "Bar"
 

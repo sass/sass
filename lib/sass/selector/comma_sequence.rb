@@ -45,7 +45,7 @@ module Sass
       # @todo Link this to the reference documentation on `@extend`
       #   when such a thing exists.
       #
-      # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
@@ -63,7 +63,7 @@ module Sass
 
       # @see Simple#to_a
       def to_a
-        arr = Haml::Util.intersperse(@members.map {|m| m.to_a}, ", ").flatten
+        arr = Sass::Util.intersperse(@members.map {|m| m.to_a}, ", ").flatten
         arr.delete("\n")
         arr
       end

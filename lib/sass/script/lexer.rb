@@ -66,9 +66,9 @@ module Sass
         '{' => :lcurly,
       }
 
-      OPERATORS_REVERSE = Haml::Util.map_hash(OPERATORS) {|k, v| [v, k]}
+      OPERATORS_REVERSE = Sass::Util.map_hash(OPERATORS) {|k, v| [v, k]}
 
-      TOKEN_NAMES = Haml::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge({
+      TOKEN_NAMES = Sass::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge({
           :const => "variable (e.g. $foo)",
           :ident => "identifier (e.g. middle)",
           :bool => "boolean (e.g. true, false)",
@@ -293,14 +293,14 @@ MESSAGE
 
       def special_fun
         return unless str1 = scan(/((-[\w-]+-)?calc|expression|progid:[a-z\.]*)\(/i)
-        str2, _ = Haml::Shared.balance(@scanner, ?(, ?), 1)
+        str2, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
         c = str2.count("\n")
         old_line = @line
         old_offset = @offset
         @line += c
         @offset = (c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size)
         [:special_fun,
-          Haml::Util.merge_adjacent_strings(
+          Sass::Util.merge_adjacent_strings(
             [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
           str1.size + str2.size]
       end

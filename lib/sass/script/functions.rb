@@ -854,7 +854,7 @@ module Sass::Script
       # TODO: is it worth restricting here,
       # or should we do so in the Color constructor itself,
       # and allow clipping in rgb() et al?
-      color.with(attr => Haml::Util.restrict(
+      color.with(attr => Sass::Util.restrict(
           color.send(attr).send(op, amount.value), range))
     end
   end

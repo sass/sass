@@ -1,19 +1,19 @@
-require 'haml/util'
+require 'sass/util'
 
-module Haml
-  # Handles Haml version-reporting.
-  # Haml not only reports the standard three version numbers,
+module Sass
+  # Handles Sass version-reporting.
+  # Sass not only reports the standard three version numbers,
   # but its Git revision hash as well,
   # if it was installed from Git.
   module Version
-    include Haml::Util
+    include Sass::Util
 
-    # Returns a hash representing the version of Haml.
+    # Returns a hash representing the version of Sass.
     # The `:major`, `:minor`, and `:teeny` keys have their respective numbers as Fixnums.
     # The `:name` key has the name of the version.
     # The `:string` key contains a human-readable string representation of the version.
     # The `:number` key is the major, minor, and teeny keys separated by periods.
-    # If Haml is checked out from Git, the `:rev` key will have the revision hash.
+    # If Sass is checked out from Git, the `:rev` key will have the revision hash.
     # For example:
     #
     #     {
@@ -23,7 +23,7 @@ module Haml
     #       :major  => 2, :minor => 1, :teeny => 0
     #     }
     #
-    # If a prerelease version of Haml is being used,
+    # If a prerelease version of Sass is being used,
     # the `:string` and `:number` fields will reflect the full version
     # (e.g. `"2.2.beta.1"`), and the `:teeny` field will be `-1`.
     # A `:prerelease` key will contain the name of the prerelease (e.g. `"beta"`),

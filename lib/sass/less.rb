@@ -27,7 +27,7 @@ module Less
             if base == sel
               env << Node::SassNode.new(Sass::Tree::ExtendNode.new([sel]))
             else
-              Haml::Util.haml_warn <<WARNING
+              Sass::Util.sass_warn <<WARNING
 WARNING: Sass doesn't support mixing in selector sequences.
 Replacing "#{sel}" with "@extend #{base}"
 WARNING
@@ -41,7 +41,7 @@ WARNING
       alias_method :build, :build_with_sass
 
       def selector_base(path)
-        el, i = Haml::Util.enum_with_index(path).to_a.reverse.find {|e, i| e.selector !~ /^:{1,2}$/} ||
+        el, i = Sass::Util.enum_with_index(path).to_a.reverse.find {|e, i| e.selector !~ /^:{1,2}$/} ||
           [path.first, 0]
         sel = (el.selector =~ /^:{0,2}$/ ? el.selector : "")
         [Node::Element.new(el.name, sel)] + path[i+1..-1]
@@ -86,7 +86,7 @@ WARNING
     # so we print a warning to that effect and compile them to comments.
     module Accessor1
       def build(env)
-        Haml::Util.haml_warn <<WARNING
+        Sass::Util.sass_warn <<WARNING
 WARNING: Sass doesn't support attribute accessors.
 Ignoring #{text_value}
 WARNING

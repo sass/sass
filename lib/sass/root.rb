@@ -1,5 +1,5 @@
-module Haml
-  # The root directory of the Haml source tree.
+module Sass
+  # The root directory of the Sass source tree.
   # This may be overridden by the package manager
   # if the lib directory is separated from the main source tree.
   # @api public

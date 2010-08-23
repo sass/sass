@@ -315,7 +315,7 @@ module Sass
       # @see Selector#to_a
       def to_a
         res = [@type == :class ? ":" : "::"] + @name
-        (res << "(").concat(Haml::Util.strip_string_array(@arg)) << ")" if @arg
+        (res << "(").concat(Sass::Util.strip_string_array(@arg)) << ")" if @arg
         res
       end
 

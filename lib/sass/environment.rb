@@ -97,7 +97,7 @@ module Sass
       private
 
       # Note: when updating this,
-      # update haml/yard/inherited_hash.rb as well.
+      # update sass/yard/inherited_hash.rb as well.
       def inherited_hash(name)
         class_eval <<RUBY, __FILE__, __LINE__ + 1
           def #{name}(name)

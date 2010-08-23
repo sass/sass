@@ -1,10 +1,8 @@
-y# -*- mode: org -*-
+# -*- mode: org -*-
 #+STARTUP: nofold
 
 * Documentation
   Redo tutorial?
-  Using helpers
-    haml_concat and haml_tag in particular
   Syntax highlighting?
 
 * Code
@@ -13,18 +11,6 @@ y# -*- mode: org -*-
     Just clean up SassScript syntax errors in general
     Lexer errors in particular are icky
     See in particular error changes made in c07b5c8
-** Haml
-   Support finer-grained HTML-escaping in filters
-   Speed
-     Make tags with dynamic attributes pre-render as much as possible
-     Including the attribute name where doable
-   :ugly + :html improvements
-     Ignore closing tags where we can
-       http://code.google.com/speed/articles/optimizing-html.html
-       Requires Haml parsing refactor
-     Don't quote attributes that don't require it
-       http://www.w3.org/TR/REC-html40/intro/sgmltut.html#h-3.2.2
-       http://www.w3.org/TR/html5/syntax.html#attributes
 ** Sass
    Benchmark the effects of storing the raw template in sassc
      If it's expensive, overload RootNode dumping/loading to dup and set @template to nil

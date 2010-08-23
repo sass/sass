@@ -658,7 +658,7 @@ MESSAGE
       def function
         return unless name = tok(FUNCTION)
         if name == "expression(" || name == "calc("
-          str, _ = Haml::Shared.balance(@scanner, ?(, ?), 1)
+          str, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
           [name, str]
         else
           [name, str{ss}, expr, tok!(/\)/)]
@@ -735,7 +735,7 @@ MESSAGE
       end
 
       def merge(arr)
-        arr && Haml::Util.merge_adjacent_strings([arr].flatten)
+        arr && Sass::Util.merge_adjacent_strings([arr].flatten)
       end
 
       EXPR_NAMES = {
@@ -749,7 +749,7 @@ MESSAGE
         :simple_selector_sequence => "selector",
       }
 
-      TOK_NAMES = Haml::Util.to_hash(
+      TOK_NAMES = Sass::Util.to_hash(
         Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
         merge(IDENT => "identifier", /[;}]/ => '";"')
 

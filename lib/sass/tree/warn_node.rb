@@ -32,7 +32,7 @@ module Sass
           msg << ", in `#{entry[:mixin]}'" if entry[:mixin]
           msg << "\n"
         end
-        Haml::Util.haml_warn msg
+        Sass::Util.sass_warn msg
         []
       ensure
         environment.pop_frame

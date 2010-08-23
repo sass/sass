@@ -5,10 +5,10 @@ require 'stringio'
 require 'strscan'
 require 'rbconfig'
 
-require 'haml/root'
-require 'haml/util/subset_map'
+require 'sass/root'
+require 'sass/util/subset_map'
 
-module Haml
+module Sass
   # A module containing various useful functions.
   module Util
     extend self
@@ -17,12 +17,12 @@ module Haml
     # @api public
     RUBY_VERSION = ::RUBY_VERSION.split(".").map {|s| s.to_i}
 
-    # Returns the path of a file relative to the Haml root directory.
+    # Returns the path of a file relative to the Sass root directory.
     #
-    # @param file [String] The filename relative to the Haml root
+    # @param file [String] The filename relative to the Sass root
     # @return [String] The filename relative to the the working directory
     def scope(file)
-      File.join(Haml::ROOT_DIR, file)
+      File.join(Sass::ROOT_DIR, file)
     end
 
     # Converts an array of `[key, value]` pairs to a hash.
@@ -242,10 +242,10 @@ module Haml
     end
 
     @@silence_warnings = false
-    # Silences all Haml warnings within a block.
+    # Silences all Sass warnings within a block.
     #
-    # @yield A block in which no Haml warnings will be printed
-    def silence_haml_warnings
+    # @yield A block in which no Sass warnings will be printed
+    def silence_sass_warnings
       old_silence_warnings = @@silence_warnings
       @@silence_warnings = true
       yield
@@ -253,10 +253,10 @@ module Haml
       @@silence_warnings = old_silence_warnings
     end
 
-    # The same as `Kernel#warn`, but is silenced by \{#silence\_haml\_warnings}.
+    # The same as `Kernel#warn`, but is silenced by \{#silence\_sass\_warnings}.
     #
     # @param msg [String]
-    def haml_warn(msg)
+    def sass_warn(msg)
       return if @@silence_warnings
       warn(msg)
     end
@@ -324,50 +324,6 @@ module Haml
       return ActionView::Template.const_get(name.to_s)
     end
 
-    ## Rails XSS Safety
-
-    # Whether or not ActionView's XSS protection is available and enabled,
-    # as is the default for Rails 3.0+, and optional for version 2.3.5+.
-    # Overridden in haml/template.rb if this is the case.
-    #
-    # @return [Boolean]
-    def rails_xss_safe?
-      false
-    end
-
-    # Returns the given text, marked as being HTML-safe.
-    # With older versions of the Rails XSS-safety mechanism,
-    # this destructively modifies the HTML-safety of `text`.
-    #
-    # @param text [String, nil]
-    # @return [String, nil] `text`, marked as HTML-safe
-    def html_safe(text)
-      return unless text
-      return text.html_safe if defined?(ActiveSupport::SafeBuffer)
-      text.html_safe!
-    end
-
-    # Assert that a given object (usually a String) is HTML safe
-    # according to Rails' XSS handling, if it's loaded.
-    #
-    # @param text [Object]
-    def assert_html_safe!(text)
-      return unless rails_xss_safe? && text && !text.to_s.html_safe?
-      raise Haml::Error.new("Expected #{text.inspect} to be HTML-safe.")
-    end
-
-    # The class for the Rails SafeBuffer XSS protection class.
-    # This varies depending on Rails version.
-    #
-    # @return [Class]
-    def rails_safe_buffer_class
-      # It's important that we check ActiveSupport first,
-      # because in Rails 2.3.6 ActionView::SafeBuffer exists
-      # but is a deprecated proxy object.
-      return ActiveSupport::SafeBuffer if defined?(ActiveSupport::SafeBuffer)
-      return ActionView::SafeBuffer
-    end
-
     ## Cross-OS Compatibility
 
     # Whether or not this is running on Windows.
@@ -383,7 +339,7 @@ module Haml
     #
     # @return [Boolean]
     def ruby1_8?
-      Haml::Util::RUBY_VERSION[0] == 1 && Haml::Util::RUBY_VERSION[1] < 9
+      Sass::Util::RUBY_VERSION[0] == 1 && Sass::Util::RUBY_VERSION[1] < 9
     end
 
     # Whether or not this is running under Ruby 1.8.6 or lower.
@@ -391,7 +347,7 @@ module Haml
     #
     # @return [Boolean]
     def ruby1_8_6?
-      ruby1_8? && Haml::Util::RUBY_VERSION[2] < 7
+      ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
     end
 
     # Checks that the encoding of a string is valid in Ruby 1.9
@@ -430,38 +386,6 @@ MSG
       return str
     end
 
-    # Like {\#check\_encoding}, but also checks for a Ruby-style `-# coding:` comment
-    # at the beginning of the template and uses that encoding if it exists.
-    #
-    # The Sass encoding rules are simple.
-    # If a `-# coding:` comment exists,
-    # we assume that that's the original encoding of the document.
-    # Otherwise, we use whatever encoding Ruby has.
-    #
-    # Haml uses the same rules for parsing coding comments as Ruby.
-    # This means that it can understand Emacs-style comments
-    # (e.g. `-*- encoding: "utf-8" -*-`),
-    # and also that it cannot understand non-ASCII-compatible encodings
-    # such as `UTF-16` and `UTF-32`.
-    #
-    # @param str [String] The Haml template of which to check the encoding
-    # @yield [msg] A block in which an encoding error can be raised.
-    #   Only yields if there is an encoding error
-    # @yieldparam msg [String] The error message to be raised
-    # @return [String] The original string encoded properly
-    # @raise [ArgumentError] if the document declares an unknown encoding
-    def check_haml_encoding(str, &block)
-      return check_encoding(str, &block) if ruby1_8?
-      str = str.dup if str.frozen?
-
-      bom, encoding = parse_haml_magic_comment(str)
-      if encoding; str.force_encoding(encoding)
-      elsif bom; str.force_encoding("UTF-8")
-      end
-
-      return check_encoding(str, &block)
-    end
-
     # Like {\#check\_encoding}, but also checks for a `@charset` declaration
     # at the beginning of the file and uses that encoding if it exists.
     #
@@ -485,8 +409,8 @@ MSG
       return check_encoding(str, &block), nil if ruby1_8?
       # We allow any printable ASCII characters but double quotes in the charset decl
       bin = str.dup.force_encoding("BINARY")
-      encoding = Haml::Util::ENCODINGS_TO_CHECK.find do |enc|
-        bin =~ Haml::Util::CHARSET_REGEXPS[enc]
+      encoding = Sass::Util::ENCODINGS_TO_CHECK.find do |enc|
+        bin =~ Sass::Util::CHARSET_REGEXPS[enc]
       end
       charset, bom = $1, $2
       if charset
@@ -537,7 +461,7 @@ MSG
     # Checks to see if a class has a given method.
     # For example:
     #
-    #     Haml::Util.has?(:public_instance_method, String, :gsub) #=> true
+    #     Sass::Util.has?(:public_instance_method, String, :gsub) #=> true
     #
     # Method collections like `Class#instance_methods`
     # return strings in Ruby 1.8 and symbols in Ruby 1.9 and on,
@@ -637,60 +561,6 @@ MSG
       end
     end
 
-    # This is used for methods in {Haml::Buffer} that need to be very fast,
-    # and take a lot of boolean parameters
-    # that are known at compile-time.
-    # Instead of passing the parameters in normally,
-    # a separate method is defined for every possible combination of those parameters;
-    # these are then called using \{#static\_method\_name}.
-    #
-    # To define a static method, an ERB template for the method is provided.
-    # All conditionals based on the static parameters
-    # are done as embedded Ruby within this template.
-    # For example:
-    #
-    #     def_static_method(Foo, :my_static_method, [:foo, :bar], :baz, :bang, <<RUBY)
-    #       <% if baz && bang %>
-    #         return foo + bar
-    #       <% elsif baz || bang %>
-    #         return foo - bar
-    #       <% else %>
-    #         return 17
-    #       <% end %>
-    #     RUBY
-    #
-    # \{#static\_method\_name} can be used to call static methods.
-    #
-    # @overload def_static_method(klass, name, args, *vars, erb)
-    # @param klass [Module] The class on which to define the static method
-    # @param name [#to_s] The (base) name of the static method
-    # @param args [Array<Symbol>] The names of the arguments to the defined methods
-    #   (**not** to the ERB template)
-    # @param vars [Array<Symbol>] The names of the static boolean variables
-    #   to be made available to the ERB template
-    # @param erb [String] The template for the method code
-    def def_static_method(klass, name, args, *vars)
-      erb = vars.pop
-      info = caller_info
-      powerset(vars).each do |set|
-        context = StaticConditionalContext.new(set).instance_eval {binding}
-        klass.class_eval(<<METHOD, info[0], info[1])
-def #{static_method_name(name, *vars.map {|v| set.include?(v)})}(#{args.join(', ')})
-  #{ERB.new(erb).result(context)}
-end
-METHOD
-      end
-    end
-
-    # Computes the name for a method defined via \{#def\_static\_method}.
-    #
-    # @param name [String] The base name of the static method
-    # @param vars [Array<Boolean>] The static variable assignment
-    # @return [String] The real name of the static method
-    def static_method_name(name, *vars)
-      "#{name}_#{vars.map {|v| !!v}.join('_')}"
-    end
-
     private
 
     # Calculates the memoization table for the Least Common Subsequence algorithm.
@@ -722,37 +592,6 @@ METHOD
 
       return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
       return lcs_backtrace(c, x, y, i-1, j, &block)
-    end
-
-    # Parses a magic comment at the beginning of a Haml file.
-    # The parsing rules are basically the same as Ruby's.
-    #
-    # @return [(Boolean, String or nil)]
-    #   Whether the document begins with a UTF-8 BOM,
-    #   and the declared encoding of the document (or nil if none is declared)
-    def parse_haml_magic_comment(str)
-      scanner = StringScanner.new(str.dup.force_encoding("BINARY"))
-      bom = scanner.scan(/\xEF\xBB\xBF/n)
-      return bom unless scanner.scan(/-\s*#\s*/n)
-      if coding = try_parse_haml_emacs_magic_comment(scanner)
-        return bom, coding
-      end
-
-      return bom unless scanner.scan(/.*?coding[=:]\s*([\w-]+)/in)
-      return bom, scanner[1]
-    end
-
-    def try_parse_haml_emacs_magic_comment(scanner)
-      pos = scanner.pos
-      return unless scanner.scan(/.*?-\*-\s*/n)
-      # From Ruby's parse.y
-      return unless scanner.scan(/([^\s'":;]+)\s*:\s*("(?:\\.|[^"])*"|[^"\s;]+?)[\s;]*-\*-/n)
-      name, val = scanner[1], scanner[2]
-      return unless name =~ /(en)?coding/in
-      val = $1 if val =~ /^"(.*)"$/n
-      return val
-    ensure
-      scanner.pos = pos
     end
   end
 end

@@ -47,8 +47,8 @@ module Sass::Tree
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
     #   `:old` if it uses `:a b`-style syntax
     def initialize(name, value, prop_syntax)
-      @name = Haml::Util.strip_string_array(
-        Haml::Util.merge_adjacent_strings(name))
+      @name = Sass::Util.strip_string_array(
+        Sass::Util.merge_adjacent_strings(name))
       @value = value
       @tabs = 0
       @prop_syntax = prop_syntax
@@ -94,7 +94,7 @@ module Sass::Tree
 
     # Converts nested properties into flat properties.
     #
-    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
     #   The extensions defined for this tree
     # @param parent [PropNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {PropNode}
@@ -112,7 +112,7 @@ module Sass::Tree
     # Updates the name and indentation of this node based on the parent name
     # and nesting level.
     #
-    # @param extends [Haml::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
     #   The extensions defined for this tree
     # @param parent [PropNode, nil] The parent node of this node,
     #   or nil if the parent isn't a {PropNode}

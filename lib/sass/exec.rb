@@ -1,8 +1,8 @@
 require 'optparse'
 require 'fileutils'
 
-module Haml
-  # This module handles the various Haml executables (`haml`, `sass`, `sass-convert`, etc).
+module Sass
+  # This module handles the various Sass executables (`sass` and `sass-convert`).
   module Exec
     # An abstract class that encapsulates the executable code for all three executables.
     class Generic
@@ -57,8 +57,7 @@ module Haml
       # @return [String] The line number
       def get_line(exception)
         # SyntaxErrors have weird line reporting
-        # when there's trailing whitespace,
-        # which there is for Haml documents.
+        # when there's trailing whitespace
         return (exception.message.scan(/:(\d+)/).first || ["??"]).first if exception.is_a?(::SyntaxError)
         (exception.backtrace[0].scan(/:(\d+)/).first || ["??"]).first
       end
@@ -79,7 +78,7 @@ module Haml
           @options[:trace] = true
         end
 
-        if ::Haml::Util.windows?
+        if ::Sass::Util.windows?
           opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
             @options[:unix_newlines] = true
           end
@@ -91,7 +90,7 @@ module Haml
         end
 
         opts.on_tail("-v", "--version", "Print version") do
-          puts("Haml/Sass #{::Haml.version[:string]}")
+          puts("Sass #{::Sass.version[:string]}")
           exit
         end
       end
@@ -250,7 +249,7 @@ END
           @options[:for_engine][:cache] = false
         end
 
-        unless ::Haml::Util.ruby1_8?
+        unless ::Sass::Util.ruby1_8?
           opts.on('-E encoding', 'Specify the default encoding for Sass files.') do |encoding|
             Encoding.default_external = encoding
           end
@@ -377,7 +376,7 @@ MSG
 
       def split_colon_path(path)
         one, two = path.split(':', 2)
-        if one && two && ::Haml::Util.windows? &&
+        if one && two && ::Sass::Util.windows? &&
             one =~ /\A[A-Za-z]\Z/ && two =~ /\A[\/\\]/
           # If we're on Windows and we were passed a drive letter path,
           # don't split on that colon.
@@ -393,185 +392,6 @@ MSG
         return false unless path
         return false if colon_path?(path)
         return Dir.glob(File.join(path, "*.s[ca]ss")).empty?
-      end
-    end
-
-    # The `haml` executable.
-    class Haml < Generic
-      # @param args [Array<String>] The command-line arguments
-      def initialize(args)
-        super
-        @options[:for_engine] = {}
-        @options[:requires] = []
-        @options[:load_paths] = []
-      end
-
-      # Tells optparse how to parse the arguments.
-      #
-      # @param opts [OptionParser]
-      def set_opts(opts)
-        super
-
-        opts.banner = <<END
-Usage: haml [options] [INPUT] [OUTPUT]
-
-Description:
-  Converts Haml files to HTML.
-
-Options:
-END
-
-        opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
-          require 'stringio'
-          @options[:check_syntax] = true
-          @options[:output] = StringIO.new
-        end
-
-        opts.on('-t', '--style NAME',
-                'Output style. Can be indented (default) or ugly.') do |name|
-          @options[:for_engine][:ugly] = true if name.to_sym == :ugly
-        end
-
-        opts.on('-f', '--format NAME',
-                'Output format. Can be xhtml (default), html4, or html5.') do |name|
-          @options[:for_engine][:format] = name.to_sym
-        end
-
-        opts.on('-e', '--escape-html',
-                'Escape HTML characters (like ampersands and angle brackets) by default.') do
-          @options[:for_engine][:escape_html] = true
-        end
-
-        opts.on('-q', '--double-quote-attributes',
-                'Set attribute wrapper to double-quotes (default is single).') do
-          @options[:for_engine][:attr_wrapper] = '"'
-        end
-
-        opts.on('-r', '--require FILE', "Same as 'ruby -r'.") do |file|
-          @options[:requires] << file
-        end
-
-        opts.on('-I', '--load-path PATH', "Same as 'ruby -I'.") do |path|
-          @options[:load_paths] << path
-        end
-
-        unless ::Haml::Util.ruby1_8?
-          opts.on('-E ex[:in]', 'Specify the default external and internal character encodings.') do |encoding|
-            external, internal = encoding.split(':')
-            Encoding.default_external = external if external && !external.empty?
-            Encoding.default_internal = internal if internal && !internal.empty?
-          end
-        end
-
-        opts.on('--debug', "Print out the precompiled Ruby source.") do
-          @options[:debug] = true
-        end
-      end
-
-      # Processes the options set by the command-line arguments,
-      # and runs the Haml compiler appropriately.
-      def process_result
-        super
-        @options[:for_engine][:filename] = @options[:filename]
-        input = @options[:input]
-        output = @options[:output]
-
-        template = input.read()
-        input.close() if input.is_a? File
-
-        begin
-          engine = ::Haml::Engine.new(template, @options[:for_engine])
-          if @options[:check_syntax]
-            puts "Syntax OK"
-            return
-          end
-
-          @options[:load_paths].each {|p| $LOAD_PATH << p}
-          @options[:requires].each {|f| require f}
-
-          if @options[:debug]
-            puts engine.precompiled
-            puts '=' * 100
-          end
-
-          result = engine.to_html
-        rescue Exception => e
-          raise e if @options[:trace]
-
-          case e
-          when ::Haml::SyntaxError; raise "Syntax error on line #{get_line e}: #{e.message}"
-          when ::Haml::Error;       raise "Haml error on line #{get_line e}: #{e.message}"
-          else raise "Exception on line #{get_line e}: #{e.message}\n  Use --trace for backtrace."
-          end
-        end
-
-        output.write(result)
-        output.close() if output.is_a? File
-      end
-    end
-
-    # The `html2haml` executable.
-    class HTML2Haml < Generic
-      # @param args [Array<String>] The command-line arguments
-      def initialize(args)
-        super
-        @module_opts = {}
-      end
-
-      # Tells optparse how to parse the arguments.
-      #
-      # @param opts [OptionParser]
-      def set_opts(opts)
-        opts.banner = <<END
-Usage: html2haml [options] [INPUT] [OUTPUT]
-
-Description: Transforms an HTML file into corresponding Haml code.
-
-Options:
-END
-
-        opts.on('-e', '--erb', 'Parse ERb tags.') do
-          @module_opts[:erb] = true
-        end
-
-        opts.on('--no-erb', "Don't parse ERb tags.") do
-          @options[:no_erb] = true
-        end
-
-        opts.on('-r', '--rhtml', 'Deprecated; same as --erb.') do
-          @module_opts[:erb] = true
-        end
-
-        opts.on('--no-rhtml', "Deprecated; same as --no-erb.") do
-          @options[:no_erb] = true
-        end
-
-        opts.on('-x', '--xhtml', 'Parse the input using the more strict XHTML parser.') do
-          @module_opts[:xhtml] = true
-        end
-
-        super
-      end
-
-      # Processes the options set by the command-line arguments,
-      # and runs the HTML compiler appropriately.
-      def process_result
-        super
-
-        require 'haml/html'
-
-        input = @options[:input]
-        output = @options[:output]
-
-        @module_opts[:erb] ||= input.respond_to?(:path) && input.path =~ /\.(rhtml|erb)$/
-        @module_opts[:erb] &&= @options[:no_erb] != false
-
-        output.write(::Haml::HTML.new(input, @module_opts).render)
-      rescue ::Haml::Error => e
-        raise "#{e.is_a?(::Haml::SyntaxError) ? "Syntax error" : "Error"} on line " +
-          "#{get_line e}: #{e.message}"
-      rescue LoadError => err
-        handle_load_error(err)
       end
     end
 
@@ -646,7 +466,7 @@ END
           @options[:for_engine][:read_cache] = false
         end
 
-        unless ::Haml::Util.ruby1_8?
+        unless ::Sass::Util.ruby1_8?
           opts.on('-E encoding', 'Specify the default encoding for Sass and CSS files.') do |encoding|
             Encoding.default_external = encoding
           end
@@ -758,7 +578,7 @@ END
         @options[:for_engine][:syntax] = @options[:from]
 
         out =
-          ::Haml::Util.silence_haml_warnings do
+          ::Sass::Util.silence_sass_warnings do
             if @options[:from] == :css
               require 'sass/css'
               ::Sass::CSS.new(input.read, @options[:for_tree]).render(@options[:to])

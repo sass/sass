@@ -114,7 +114,7 @@ END
       end
 
       mixins << @name
-      msg << "\n" << Haml::Util.enum_cons(mixins, 2).map do |m1, m2|
+      msg << "\n" << Sass::Util.enum_cons(mixins, 2).map do |m1, m2|
         "    #{m1} includes #{m2}"
       end.join("\n")
       raise Sass::SyntaxError.new(msg)

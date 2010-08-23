@@ -61,12 +61,9 @@ as a command-line tool,
 as a standalone Ruby module,
 and as a plugin for any Rack-enabled framework,
 including Ruby on Rails and Merb.
-Sass is bundled with Haml,
-so if the Haml plugin or RubyGem is installed,
-Sass will already be installed as a plugin or gem, respectively.
-The first step for all of these is to install the Haml gem:
+The first step for all of these is to install the Sass gem:
 
-    gem install haml
+    gem install sass
 
 If you're using Windows,
 you may need to [install Ruby](http://rubyinstaller.org/download.html) first.
@@ -88,7 +85,7 @@ you can also tell Sass to watch the entire directory:
 Use `sass --help` for full documentation.
 
 Using Sass in Ruby code is very simple.
-After installing the Haml gem,
+After installing the Sass gem,
 you can use it by running `require "sass"`
 and using {Sass::Engine} like so:
 
@@ -100,11 +97,11 @@ and using {Sass::Engine} like so:
 To enable Sass in Rails versions before Rails 3,
 add the following line to `environment.rb`:
 
-    config.gem "haml"
+    config.gem "sass"
 
 For Rails 3, instead add the following line to the Gemfile:
 
-    gem "haml"
+    gem "sass"
 
 To enable Sass in Merb,
 add the following line to `config/dependencies.rb`:

@@ -125,11 +125,11 @@ module Sass
       private
 
       def _hash
-        [base, Haml::Util.set_hash(rest)].hash
+        [base, Sass::Util.set_hash(rest)].hash
       end
 
       def _eql?(other)
-        other.base.eql?(self.base) && Haml::Util.set_eql?(other.rest, self.rest)
+        other.base.eql?(self.base) && Sass::Util.set_eql?(other.rest, self.rest)
       end
     end
   end
