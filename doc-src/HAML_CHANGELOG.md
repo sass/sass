@@ -16,6 +16,8 @@
 
 * Get rid of the annoying RDoc errors on install.
 
+* Disambiguate references to the `Rails` module when `haml-rails` is installed.
+
 ## 3.0.17
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).

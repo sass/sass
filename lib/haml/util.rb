@@ -269,8 +269,8 @@ module Haml
     #
     # @return [String, nil]
     def rails_root
-      if defined?(Rails.root)
-        return Rails.root.to_s if Rails.root
+      if defined?(::Rails.root)
+        return ::Rails.root.to_s if ::Rails.root
         raise "ERROR: Rails.root is nil!"
       end
       return RAILS_ROOT.to_s if defined?(RAILS_ROOT)
@@ -283,7 +283,7 @@ module Haml
     #
     # @return [String, nil]
     def rails_env
-      return Rails.env.to_s if defined?(Rails.root)
+      return ::Rails.env.to_s if defined?(::Rails.env)
       return RAILS_ENV.to_s if defined?(RAILS_ENV)
       return nil
     end

@@ -22,6 +22,10 @@
 
 * Get rid of the annoying RDoc errors on install.
 
+* Disambiguate references to the `Rails` module when `haml-rails` is installed.
+
+* Allow `@import` in SCSS to import multiple files in the same `@import` rule.
+
 ## 3.0.17
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
