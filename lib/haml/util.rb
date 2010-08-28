@@ -283,7 +283,7 @@ module Haml
     #
     # @return [String, nil]
     def rails_env
-      return ::Rails.env.to_s if defined?(::Rails.root)
+      return ::Rails.env.to_s if defined?(::Rails.env)
       return RAILS_ENV.to_s if defined?(RAILS_ENV)
       return nil
     end
