@@ -212,8 +212,18 @@ module Sass
       end
 
       def import_directive
-        @expected = "string or url()"
-        arg = tok(STRING) || (uri = tok!(URI))
+        values = []
+
+        loop do
+          values << expr!(:import_arg)
+          break if use_css_import? || !tok(/,\s*/)
+        end
+
+        return values
+      end
+
+      def import_arg
+        return unless arg = tok(STRING) || (uri = tok!(URI))
         path = @scanner[1] || @scanner[2] || @scanner[3]
         ss
 
@@ -318,7 +328,7 @@ module Sass
       def block_contents(node, context)
         block_given? ? yield : ss_comments(node)
         node << (child = block_child(context))
-        while tok(/;/) || (child && child.has_children)
+        while tok(/;/) || has_children?(child)
           block_given? ? yield : ss_comments(node)
           node << (child = block_child(context))
         end
@@ -328,6 +338,12 @@ module Sass
       def block_child(context)
         return variable || directive || ruleset if context == :stylesheet
         variable || directive || declaration_or_ruleset
+      end
+
+      def has_children?(child_or_array)
+        return false unless child_or_array
+        return child_or_array.last.has_children if child_or_array.is_a?(Array)
+        return child_or_array.has_children
       end
 
       # This is a nasty hack, and the only place in the parser
@@ -747,6 +763,7 @@ MESSAGE
         :expr => "expression (e.g. 1px, bold)",
         :selector_comma_sequence => "selector",
         :simple_selector_sequence => "selector",
+        :import_arg => "file to import (string or url())",
       }
 
       TOK_NAMES = Haml::Util.to_hash(
