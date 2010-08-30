@@ -231,6 +231,44 @@ module Haml
       info
     end
 
+    # Returns whether one version string represents a more recent version than another.
+    #
+    # @param v1 [String] A version string.
+    # @param v2 [String] Another version string.
+    # @return [Boolean]
+    def version_gt(v1, v2)
+      # Construct an array to make sure the shorter version is padded with nil
+      Array.new([v1.length, v2.length].max).zip(v1.split("."), v2.split(".")) do |_, p1, p2|
+        p1 ||= "0"
+        p2 ||= "0"
+        release1 = p1 =~ /^[0-9]+$/
+        release2 = p2 =~ /^[0-9]+$/
+        if release1 && release2
+          # Integer comparison if both are full releases
+          p1, p2 = p1.to_i, p2.to_i
+          next if p1 == p2
+          return p1 > p2
+        elsif !release1 && !release2
+          # String comparison if both are prereleases
+          next if p1 == p2
+          return p1 > p2
+        else
+          # If only one is a release, that one is newer
+          return release1
+        end
+      end
+    end
+
+    # Returns whether one version string represents the same or a more
+    # recent version than another.
+    #
+    # @param v1 [String] A version string.
+    # @param v2 [String] Another version string.
+    # @return [Boolean]
+    def version_geq(v1, v2)
+      version_gt(v1, v2) || !version_gt(v2, v1)
+    end
+
     # Silence all output to STDERR within a block.
     #
     # @yield A block in which no output will be printed to STDERR
@@ -308,7 +346,7 @@ module Haml
       return false unless defined?(ActionPack) && defined?(ActionPack::VERSION) &&
         defined?(ActionPack::VERSION::STRING)
 
-      ActionPack::VERSION::STRING >= version
+      version_geq(ActionPack::VERSION::STRING, version)
     end
 
     # Returns an ActionView::Template* class.

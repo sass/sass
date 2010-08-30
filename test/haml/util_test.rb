@@ -217,6 +217,29 @@ class UtilTest < Test::Unit::TestCase
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle {}'"))
   end
 
+  def test_version_gt
+    assert_version_gt("2.0.0", "1.0.0")
+    assert_version_gt("1.1.0", "1.0.0")
+    assert_version_gt("1.0.1", "1.0.0")
+    assert_version_gt("1.0.0", "1.0.0.rc")
+    assert_version_gt("1.0.0.1", "1.0.0.rc")
+    assert_version_gt("1.0.0.rc", "0.9.9")
+    assert_version_gt("1.0.0.beta", "1.0.0.alpha")
+
+    assert_version_eq("1.0.0", "1.0.0")
+    assert_version_eq("1.0.0", "1.0.0.0")
+  end
+
+  def assert_version_gt(v1, v2)
+    #assert(version_gt(v1, v2), "Expected #{v1} > #{v2}")
+    assert(!version_gt(v2, v1), "Expected #{v2} < #{v1}")
+  end
+
+  def assert_version_eq(v1, v2)
+    assert(!version_gt(v1, v2), "Expected #{v1} = #{v2}")
+    assert(!version_gt(v2, v1), "Expected #{v2} = #{v1}")
+  end
+
   def test_def_static_method
     klass = Class.new
     def_static_method(klass, :static_method, [:arg1, :arg2],
