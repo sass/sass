@@ -20,6 +20,9 @@
 
 * Disambiguate references to the `Rails` module when `haml-rails` is installed.
 
+* Fix a bug in `haml_tag` that would allow duplicate attributes to be added
+  and make `data-` attributes not work.
+
 * Compatibility with Rails 3 final.
 
 ## 3.0.17
