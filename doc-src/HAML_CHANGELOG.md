@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.18 (Unreleased)
+## 3.0.18
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
 
 * Don't require `rake` in the gemspec, for bundler compatibility under
   JRuby. Thanks to [Gordon McCreight](http://www.gmccreight.com/blog).
