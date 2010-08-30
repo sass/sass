@@ -76,7 +76,15 @@ class Test::Unit::TestCase
 
   def rails_form_opener
     return '' unless Haml::Util.ap_geq?("3.0.0.rc")
-    return '<div style="margin:0;padding:0;display:inline"><input name="_snowman" type="hidden" value="&#9731;" /></div>'
+    if Haml::Util.ap_geq?("3.0.0.rc2")
+      encoding = 'utf8'
+      char = '&#x2713;'
+    else
+      encoding = '_snowman'
+      char = '&#9731;'
+    end
+    return '<div style="margin:0;padding:0;display:inline"><input name="' + encoding +
+      '" type="hidden" value="' + char + '" /></div>'
   end
 
   def assert_raise_message(klass, message)
