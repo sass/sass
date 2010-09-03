@@ -393,7 +393,7 @@ SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo {
   a: -0.5em;
-  b: +0.5em;
+  b: 0.5em;
   c: -foo(12px);
   d: +foo(12px); }
 CSS
@@ -864,6 +864,20 @@ SCSS
   rescue Sass::SyntaxError => e
     assert_equal 'Invalid CSS after "foo {bar": expected ":", was "}"', e.message
     assert_equal 1, e.sass_line
+  end
+
+  ## Regressions
+
+  def test_closing_line_comment_end_with_compact_output
+    assert_equal(<<CSS, render(<<SCSS, :style => :compact))
+/* foo */
+bar { baz: bang; }
+CSS
+/*
+ * foo
+ */
+bar {baz: bang}
+SCSS
   end
 
   private

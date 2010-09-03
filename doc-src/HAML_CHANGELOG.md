@@ -3,12 +3,77 @@
 * Table of contents
 {:toc}
 
-## 3.0.13 (Unreleased)
+## 3.2.0 (Unreleased)
+
+* Get rid of the `--rails` flag for the `haml` executable.
+  This flag hasn't been necessary since Rails 2.0.
+  Existing Rails 2.0 installations will continue to work.
+
+## 3.0.18
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
+
+* Don't require `rake` in the gemspec, for bundler compatibility under
+  JRuby. Thanks to [Gordon McCreight](http://www.gmccreight.com/blog).
+
+* Get rid of the annoying RDoc errors on install.
+
+* Disambiguate references to the `Rails` module when `haml-rails` is installed.
+
+* Fix a bug in `haml_tag` that would allow duplicate attributes to be added
+  and make `data-` attributes not work.
+
+* Compatibility with Rails 3 final.
+
+## 3.0.17
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
+
+* Understand that mingw counts as Windows.
+
+## 3.0.16
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.16).
+
+* Fix an html2haml ERB-parsing bug where ERB blocks were occasionally
+  left without indentation in Haml.
+
+* Fix parsing of `if` and `case` statements whose values were assigned to variables.
+  This is still bad style, though.
+
+* Fix `form_for` and `form_tag` when they're passed a block that
+  returns a string in a helper.
+
+## 3.0.15
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).
+
+There were no changes made to Haml between versions 3.0.14 and 3.0.15.
+
+## 3.0.14
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.14).
+
+* Allow CSS-style classes and ids to contain colons.
+
+* Fix an obscure bug with if statements.
+
+### Rails 3 Support
+
+* Don't use the `#returning` method, which Rails 3 no longer provides.
+
+## 3.0.13
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.13).
 
 ## Rails 3 Support
 
 Support for Rails 3 versions prior to beta 4 has been removed.
 Upgrade to Rails 3.0.0.beta4 if you haven't already.
+
+### Minor Improvements
+
+* Properly process frozen strings with encoding declarations.
 
 ## 3.0.12
 

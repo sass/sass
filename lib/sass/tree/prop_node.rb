@@ -167,7 +167,7 @@ module Sass::Tree
     def declaration(tabs = 0, opts = {:old => @prop_syntax == :old}, fmt = :sass)
       name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
       if name[0] == ?:
-        raise Sass::SyntaxError.new("The \":#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
+        raise Sass::SyntaxError.new("The \"#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
       end
 
       old = opts[:old] && fmt == :sass

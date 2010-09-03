@@ -759,7 +759,7 @@ For example:
 
     $translucent-red: rgba(255, 0, 0, 0.5);
     p {
-      color: opacify($translucent-red, 80%);
+      color: opacify($translucent-red, 0.8);
       background-color: transparentize($translucent-red, 50%);
     }
 
@@ -847,12 +847,12 @@ SassScript defines some useful functions
 that are called using the normal CSS function syntax:
 
     p {
-      color: hsl(0, 100%, 50%);
+      color: hsl(0, 100%, 0.5);
     }
 
 is compiled to:
 
-    #main {
+    p {
       color: #ff0000; }
 
 See {Sass::Script::Functions} for a full listing of Sass functions,
@@ -912,8 +912,8 @@ For example:
 is compiled to:
 
     #main {
-      content: First content;
-      new-content: First time reference; }
+      content: "First content";
+      new-content: "First time reference"; }
 
 ## `@`-Rules and Directives {#directives}
 
@@ -939,9 +939,18 @@ Additional search directories may be specified
 using the [`:load_paths`](#load_paths-option) option,
 or the `--load-path` option on the command line.
 
-`@import` takes a filename with or without an extension.
-If the extension is `.css`, it will be treated as a plain CSS `@import` rule.
-If the extension is `.scss` or `.sass`, that file will be imported.
+`@import` takes a filename to import.
+By default, it looks for a Sass file to import directly,
+but there are a few circumstances under which it will compile to a CSS `@import` rule:
+
+* If the file's extension is `.css`.
+* If the filename begins with `http://`.
+* If the filename is a `url()`.
+* If the `@import` has any media queries.
+
+If none of the above conditions are met
+and the extension is `.scss` or `.sass`,
+then the named Sass or SCSS file will be imported.
 If there is no extension,
 Sass will try to find a file with that name and the `.scss` or `.sass` extension
 and import it.
@@ -958,10 +967,22 @@ would both import the file `foo.scss`,
 whereas
 
     @import "foo.css";
+    @import "foo" screen;
+    @import "http://foo.com/bar";
+    @import url(foo);
 
-would simply compile to
+would all compile to
 
     @import "foo.css";
+    @import "foo" screen;
+    @import "http://foo.com/bar";
+    @import url(foo);
+
+It's also possible to import multiple files in one `@import`. For example:
+
+    @import "rounded-corners", "text-shadow";
+
+would import both the `rounded-corners` and the `text-shadow` files.
 
 #### Partials {#partials}
 
@@ -1550,6 +1571,7 @@ For example:
         width: $width;
         style: dashed;
       }
+    }
     p { @include sexy-border(blue); }
     h1 { @include sexy-border(blue, 2in); }
 

@@ -490,11 +490,6 @@ CSS
     assert_equal("@import url(./fonts.css);\n", render("@import \"./fonts.css\""))
   end
 
-  def test_media_import
-    assert_equal("@import \"./fonts.sass\" all;\n",
-      render("@import \"./fonts.sass\" all"))
-  end
-
   def test_http_import
     assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
@@ -1479,6 +1474,32 @@ foo
 SASS
   end
 
+  def test_loud_comment_with_close
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  /* foo
+   * bar */ }
+CSS
+foo
+  /* foo
+     bar */
+SASS
+  end
+
+  def test_loud_comment_with_separate_line_close
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  /* foo
+   * bar
+   */ }
+CSS
+foo
+  /* foo
+   * bar
+   */
+SASS
+  end
+
   def test_attribute_selector_with_spaces
     assert_equal(<<CSS, render(<<SASS))
 a b[foo=bar] {
@@ -2037,12 +2058,20 @@ SASS
   end
 
   def test_mixin_no_arg_error
-    assert_raise(Sass::SyntaxError, 'Invalid CSS after "($bar,": expected variable name, was ")"') do
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "($bar,": expected variable (e.g. $foo), was ")"') do
       render(<<SASS)
 =foo($bar,)
   bip: bap
 SASS
     end
+  end
+
+  def test_import_with_commas_in_url
+    assert_equal <<CSS, render(<<SASS)
+@import url(foo.css?bar,baz);
+CSS
+@import url(foo.css?bar,baz)
+SASS
   end
 
   # Encodings

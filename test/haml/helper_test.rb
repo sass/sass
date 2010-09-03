@@ -5,6 +5,10 @@ class ActionView::Base
   def nested_tag
     content_tag(:span) {content_tag(:div) {"something"}}
   end
+
+  def wacky_form
+    form_tag("/foo") {"bar"}
+  end
 end
 
 module Haml::Helpers
@@ -118,7 +122,7 @@ HAML
     # This is usually provided by ActionController::Base.
     def @base.protect_against_forgery?; false; end
     assert_equal(<<HTML, render(<<HAML, :action_view))
-<form action="foo" method="post">
+<form #{rails_form_attr}action="foo" method="post">#{rails_form_opener}
   <p>bar</p>
   <strong>baz</strong>
 </form>
@@ -167,7 +171,7 @@ HAML
     def @base.protect_against_forgery?; false; end
     error_class = Haml::Util.ap_geq_3? ? "field_with_errors" : "fieldWithErrors"
     assert_equal(<<HTML, render(<<HAML, :action_view))
-<form action="" method="post">
+<form #{rails_form_attr}action="" method="post">#{rails_form_opener}
   <div class="#{error_class}"><label for="post_error_field">Error field</label></div>
 </form>
 HTML
@@ -176,8 +180,21 @@ HTML
 HAML
   end
 
+  def test_form_tag_in_helper_with_string_block
+    def @base.protect_against_forgery?; false; end
+    assert_equal(<<HTML, render(<<HAML, :action_view))
+<form #{rails_form_attr}action="/foo" method="post">#{rails_form_opener}bar</form>
+HTML
+#{rails_block_helper_char} wacky_form
+HAML
+  end
+
   def test_haml_tag_name_attribute_with_id
     assert_equal("<p id='some_id'></p>\n", render("- haml_tag 'p#some_id'"))
+  end
+
+  def test_haml_tag_name_attribute_with_colon_id
+    assert_equal("<p id='some:id'></p>\n", render("- haml_tag 'p#some:id'"))
   end
 
   def test_haml_tag_without_name_but_with_id
@@ -186,6 +203,10 @@ HAML
 
   def test_haml_tag_without_name_but_with_class
     assert_equal("<div class='foo'></div>\n", render("- haml_tag '.foo'"))
+  end
+
+  def test_haml_tag_without_name_but_with_colon_class
+    assert_equal("<div class='foo:bar'></div>\n", render("- haml_tag '.foo:bar'"))
   end
 
   def test_haml_tag_name_with_id_and_class
@@ -236,6 +257,11 @@ HAML
   def test_haml_tag_with_id_array
     assert_equal("<p id='a_b'>foo</p>\n", render("- haml_tag :p, 'foo', :id => %w[a b]"))
     assert_equal("<p id='c_a_b'>foo</p>\n", render("- haml_tag 'p#c', 'foo', :id => %w[a b]"))
+  end
+
+  def test_haml_tag_with_data_hash
+    assert_equal("<p data-baz='data-baz' data-foo='bar'>foo</p>\n",
+      render("- haml_tag :p, 'foo', :data => {:foo => 'bar', :baz => true}"))
   end
 
   def test_haml_tag_non_autoclosed_tags_arent_closed
@@ -389,7 +415,7 @@ MESSAGE
     render("- something_that_uses_haml_concat")
     assert false, "Expected Haml::Error"
   rescue Haml::Error => e
-    assert_equal 12, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
+    assert_equal 16, e.backtrace[0].scan(/:(\d+)/).first.first.to_i
   end
 
   class ActsLikeTag

@@ -132,8 +132,9 @@ in Haml, you have to do
 {#q-blank-page}
 
 There are several reasons these things might be happening.
-First of all, make sure `vendor/plugins/haml` really exists
-and has an `init.rb` file in there.
+First of all, make sure that Haml really is installed;
+either you've loaded the gem (via `config.gem` in Rails 2.3 or in the Gemfile in Rails 3),
+or `vendor/plugins/haml` exists and contains files.
 Then try restarting Mongrel or WEBrick or whatever you might be using.
 
 Finally, if none of these work,
@@ -179,8 +180,8 @@ from your Sass functions.
 
 ## You still haven't answered my question!
 
-Sorry! Try looking at the Haml or Sass references,
-in the doucmentation for the haml and Sass modules, respectively.
+Sorry! Try looking at the [Haml](http://haml-lang.com/docs/yardoc/HAML_REFERENCE.md.html)
+or [Sass](http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html) references,
 If you can't find an answer there,
 feel free to ask in `#haml` on irc.freenode.net
 or send an email to the [mailing list](http://groups.google.com/group/haml?hl=en).

@@ -1,6 +1,5 @@
 require 'optparse'
 require 'fileutils'
-require 'rbconfig'
 
 module Haml
   # This module handles the various Haml executables (`haml`, `sass`, `sass-convert`, etc).
@@ -80,7 +79,7 @@ module Haml
           @options[:trace] = true
         end
 
-        if RbConfig::CONFIG['host_os'] =~ /mswin|windows/i
+        if ::Haml::Util.windows?
           opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
             @options[:unix_newlines] = true
           end
@@ -162,115 +161,21 @@ module Haml
         raise err if @options[:trace] || dep.nil? || dep.empty?
         $stderr.puts <<MESSAGE
 Required dependency #{dep} not found!
-  Run "gem install #{dep}" to get it.
+    Run "gem install #{dep}" to get it.
   Use --trace for backtrace.
 MESSAGE
         exit 1
       end
     end
 
-    # An abstrac class that encapsulates the code
-    # specific to the `haml` and `sass` executables.
-    class HamlSass < Generic
-      # @param args [Array<String>] The command-line arguments
-      def initialize(args)
-        super
-        @options[:for_engine] = {}
-      end
-
-      protected
-
-      # Tells optparse how to parse the arguments
-      # available for the `haml` and `sass` executables.
-      #
-      # This is meant to be overridden by subclasses
-      # so they can add their own options.
-      #
-      # @param opts [OptionParser]
-      def set_opts(opts)
-        opts.banner = <<END
-Usage: #{@name.downcase} [options] [INPUT] [OUTPUT]
-
-Description:
-  Uses the #{@name} engine to parse the specified template
-  and outputs the result to the specified file.
-
-Options:
-END
-
-        opts.on('--rails RAILS_DIR', "Install Haml and Sass from the Gem to a Rails project") do |dir|
-          original_dir = dir
-
-          env = File.join(dir, "config", "environment.rb")
-          if File.exists?(File.join(dir, "Gemfile"))
-            puts("haml --rails isn't needed for Rails 3 or greater.",
-              "Add 'gem \"haml\"' to your Gemfile instead.", "",
-              "haml --rails will no longer work in the next version of #{@name}.", "")
-          elsif File.exists?(env) && File.open(env) {|env| env.grep(/config\.gem/)}
-            puts("haml --rails isn't needed for Rails 2.1 or greater.",
-              "Add 'gem \"haml\"' to config/environment.rb instead.", "",
-              "haml --rails will no longer work in the next version of #{@name}.", "")
-          end
-
-          dir = File.join(dir, 'vendor', 'plugins')
-
-          unless File.exists?(dir)
-            puts "Directory #{dir} doesn't exist"
-            exit 1
-          end
-
-          dir = File.join(dir, 'haml')
-
-          if File.exists?(dir)
-            print "Directory #{dir} already exists, overwrite [y/N]? "
-            exit 2 if gets !~ /y/i
-            FileUtils.rm_rf(dir)
-          end
-
-          begin
-            Dir.mkdir(dir)
-          rescue SystemCallError
-            puts "Cannot create #{dir}"
-            exit 1
-          end
-
-          File.open(File.join(dir, 'init.rb'), 'w') do |file|
-            file << File.read(File.dirname(__FILE__) + "/../../init.rb")
-          end
-
-          puts "Haml plugin added to #{original_dir}"
-          exit
-        end
-
-        opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
-          require 'stringio'
-          @options[:check_syntax] = true
-          @options[:output] = StringIO.new
-        end
-
-        super
-      end
-
-      # Processes the options set by the command-line arguments.
-      # In particular, sets `@options[:for_engine][:filename]` to the input filename
-      # and requires the appropriate file.
-      #
-      # This is meant to be overridden by subclasses
-      # so they can run their respective programs.
-      def process_result
-        super
-        @options[:for_engine][:filename] = @options[:filename] if @options[:filename]
-        require File.dirname(__FILE__) + "/../#{@name.downcase}"
-      end
-    end
-
     # The `sass` executable.
-    class Sass < HamlSass
+    class Sass < Generic
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
-        @name = "Sass"
-        @options[:for_engine][:load_paths] = ['.'] + (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
+        @options[:for_engine] = {
+          :load_paths => ['.'] + (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
+        }
       end
 
       protected
@@ -280,6 +185,15 @@ END
       # @param opts [OptionParser]
       def set_opts(opts)
         super
+
+        opts.banner = <<END
+Usage: sass [options] [INPUT] [OUTPUT]
+
+Description:
+  Converts SCSS or Sass files to CSS.
+
+Options:
+END
 
         opts.on('--scss',
                 'Use the CSS-superset SCSS syntax.') do
@@ -294,6 +208,15 @@ END
         opts.on('--update', 'Compile files or directories to CSS.',
                             'Locations are set like --watch.') do
           @options[:update] = true
+        end
+        opts.on('--stop-on-error', 'If a file fails to compile, exit immediately.',
+                                   'Only meaningful for --watch and --update.') do
+          @options[:stop_on_error] = true
+        end
+        opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
+          require 'stringio'
+          @options[:check_syntax] = true
+          @options[:output] = StringIO.new
         end
         opts.on('-t', '--style NAME',
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
@@ -337,10 +260,12 @@ END
       # Processes the options set by the command-line arguments,
       # and runs the Sass compiler appropriately.
       def process_result
+        require 'sass'
+
         if !@options[:update] && !@options[:watch] &&
-            @args.first && @args.first.include?(':')
+            @args.first && colon_path?(@args.first)
           if @args.size == 1
-            @args = @args.first.split(':', 2)
+            @args = split_colon_path(@args.first)
           else
             @options[:update] = true
           end
@@ -349,6 +274,7 @@ END
         return interactive if @options[:interactive]
         return watch_or_update if @options[:watch] || @options[:update]
         super
+        @options[:for_engine][:filename] = @options[:filename]
 
         begin
           input = @options[:input]
@@ -378,18 +304,22 @@ END
       private
 
       def interactive
-        require 'sass'
         require 'sass/repl'
         ::Sass::Repl.new(@options).run
       end
 
       def watch_or_update
-        require 'sass'
         require 'sass/plugin'
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
 
-        if @args[1] && !@args[0].include?(':')
+        raise <<MSG if @args.empty?
+What files should I watch? Did you mean something like:
+    sass --watch input.sass:output.css
+    sass --watch input-dir:output-dir
+MSG
+
+        if !colon_path?(@args[0]) && probably_dest_dir?(@args[1])
           flag = @options[:update] ? "--update" : "--watch"
           err =
             if !File.exist?(@args[1])
@@ -399,11 +329,11 @@ END
             end
           raise <<MSG if err
 File #{@args[1]} #{err}.
-  Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
+    Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
 MSG
         end
 
-        dirs, files = @args.map {|name| name.split(':', 2)}.
+        dirs, files = @args.map {|name| split_colon_path(name)}.
           partition {|i, _| File.directory? i}
         files.map! {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}
         dirs.map! {|from, to| [from, to || from]}
@@ -417,15 +347,18 @@ MSG
           end
         end
 
+        had_error = false
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
-          raise error unless error.is_a?(::Sass::SyntaxError)
+          raise error unless error.is_a?(::Sass::SyntaxError) && !@options[:stop_on_error]
+          had_error = true
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
         end
 
         if @options[:update]
           ::Sass::Plugin.update_stylesheets(files)
+          exit 1 if had_error
           return
         end
 
@@ -437,14 +370,38 @@ MSG
 
         ::Sass::Plugin.watch(files)
       end
+
+      def colon_path?(path)
+        !split_colon_path(path)[1].nil?
+      end
+
+      def split_colon_path(path)
+        one, two = path.split(':', 2)
+        if one && two && ::Haml::Util.windows? &&
+            one =~ /\A[A-Za-z]\Z/ && two =~ /\A[\/\\]/
+          # If we're on Windows and we were passed a drive letter path,
+          # don't split on that colon.
+          one2, two = two.split(':', 2)
+          one = one + ':' + one2
+        end
+        return one, two
+      end
+
+      # Whether path is likely to be meant as the destination
+      # in a source:dest pair.
+      def probably_dest_dir?(path)
+        return false unless path
+        return false if colon_path?(path)
+        return Dir.glob(File.join(path, "*.s[ca]ss")).empty?
+      end
     end
 
     # The `haml` executable.
-    class Haml < HamlSass
+    class Haml < Generic
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
-        @name = "Haml"
+        @options[:for_engine] = {}
         @options[:requires] = []
         @options[:load_paths] = []
       end
@@ -454,6 +411,21 @@ MSG
       # @param opts [OptionParser]
       def set_opts(opts)
         super
+
+        opts.banner = <<END
+Usage: haml [options] [INPUT] [OUTPUT]
+
+Description:
+  Converts Haml files to HTML.
+
+Options:
+END
+
+        opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
+          require 'stringio'
+          @options[:check_syntax] = true
+          @options[:output] = StringIO.new
+        end
 
         opts.on('-t', '--style NAME',
                 'Output style. Can be indented (default) or ugly.') do |name|
@@ -500,6 +472,7 @@ MSG
       # and runs the Haml compiler appropriately.
       def process_result
         super
+        @options[:for_engine][:filename] = @options[:filename]
         input = @options[:input]
         output = @options[:output]
 

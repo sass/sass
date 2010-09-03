@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'rbconfig'
 
 require 'sass'
 require 'sass/plugin/compiler'
@@ -118,5 +117,10 @@ module Sass
   end
 end
 
-require 'sass/plugin/rails' if defined?(ActionController)
-require 'sass/plugin/merb'  if defined?(Merb::Plugins)
+if defined?(ActionController)
+  require 'sass/plugin/rails'
+elsif defined?(Merb::Plugins)
+  require 'sass/plugin/merb'
+else
+  require 'sass/plugin/generic'
+end

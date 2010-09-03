@@ -100,6 +100,23 @@ end
 
 require 'hpricot'
 
+# @private
+HAML_TAGS = %w[haml:block haml:loud haml:silent]
+
+Hpricot::ElementContent.keys.each do |k|
+  HAML_TAGS.each do |el|
+    val = Hpricot::ElementContent[k]
+    val[el.hash] = true if val.is_a?(Hash)
+  end
+end
+
+HAML_TAGS.each do |t|
+  Hpricot::ElementContent[t] = {}
+  Hpricot::ElementContent.keys.each do |key|
+    Hpricot::ElementContent[t][key.hash] = true
+  end
+end
+
 module Haml
   # Converts HTML documents into Haml templates.
   # Depends on [Hpricot](http://github.com/whymirror/hpricot) for HTML parsing.

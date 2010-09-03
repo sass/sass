@@ -3,6 +3,8 @@ require 'set'
 require 'enumerator'
 require 'stringio'
 require 'strscan'
+require 'rbconfig'
+
 require 'haml/root'
 require 'haml/util/subset_map'
 
@@ -229,6 +231,44 @@ module Haml
       info
     end
 
+    # Returns whether one version string represents a more recent version than another.
+    #
+    # @param v1 [String] A version string.
+    # @param v2 [String] Another version string.
+    # @return [Boolean]
+    def version_gt(v1, v2)
+      # Construct an array to make sure the shorter version is padded with nil
+      Array.new([v1.length, v2.length].max).zip(v1.split("."), v2.split(".")) do |_, p1, p2|
+        p1 ||= "0"
+        p2 ||= "0"
+        release1 = p1 =~ /^[0-9]+$/
+        release2 = p2 =~ /^[0-9]+$/
+        if release1 && release2
+          # Integer comparison if both are full releases
+          p1, p2 = p1.to_i, p2.to_i
+          next if p1 == p2
+          return p1 > p2
+        elsif !release1 && !release2
+          # String comparison if both are prereleases
+          next if p1 == p2
+          return p1 > p2
+        else
+          # If only one is a release, that one is newer
+          return release1
+        end
+      end
+    end
+
+    # Returns whether one version string represents the same or a more
+    # recent version than another.
+    #
+    # @param v1 [String] A version string.
+    # @param v2 [String] Another version string.
+    # @return [Boolean]
+    def version_geq(v1, v2)
+      version_gt(v1, v2) || !version_gt(v2, v1)
+    end
+
     # Silence all output to STDERR within a block.
     #
     # @yield A block in which no output will be printed to STDERR
@@ -267,8 +307,8 @@ module Haml
     #
     # @return [String, nil]
     def rails_root
-      if defined?(Rails.root)
-        return Rails.root.to_s if Rails.root
+      if defined?(::Rails.root)
+        return ::Rails.root.to_s if ::Rails.root
         raise "ERROR: Rails.root is nil!"
       end
       return RAILS_ROOT.to_s if defined?(RAILS_ROOT)
@@ -281,7 +321,7 @@ module Haml
     #
     # @return [String, nil]
     def rails_env
-      return Rails.env.to_s if defined?(Rails.root)
+      return ::Rails.env.to_s if defined?(::Rails.env)
       return RAILS_ENV.to_s if defined?(RAILS_ENV)
       return nil
     end
@@ -306,7 +346,7 @@ module Haml
       return false unless defined?(ActionPack) && defined?(ActionPack::VERSION) &&
         defined?(ActionPack::VERSION::STRING)
 
-      ActionPack::VERSION::STRING >= version
+      version_geq(ActionPack::VERSION::STRING, version)
     end
 
     # Returns an ActionView::Template* class.
@@ -364,6 +404,15 @@ module Haml
       # but is a deprecated proxy object.
       return ActiveSupport::SafeBuffer if defined?(ActiveSupport::SafeBuffer)
       return ActionView::SafeBuffer
+    end
+
+    ## Cross-OS Compatibility
+
+    # Whether or not this is running on Windows.
+    #
+    # @return [Boolean]
+    def windows?
+      RbConfig::CONFIG['host_os'] =~ /mswin|windows|mingw/i
     end
 
     ## Cross-Ruby-Version Compatibility
@@ -441,6 +490,7 @@ MSG
     # @raise [ArgumentError] if the document declares an unknown encoding
     def check_haml_encoding(str, &block)
       return check_encoding(str, &block) if ruby1_8?
+      str = str.dup if str.frozen?
 
       bom, encoding = parse_haml_magic_comment(str)
       if encoding; str.force_encoding(encoding)

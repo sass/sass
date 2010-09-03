@@ -148,7 +148,7 @@ MESSAGE
     assert_equal("<p class='b css'>foo</p>\n", render("%p.css{:class => %w[css b]} foo")) # merge uniquely
     assert_equal("<p class='a b c d'>foo</p>\n", render("%p{:class => [%w[a b], %w[c d]]} foo")) # flatten
     assert_equal("<p class='a b'>foo</p>\n", render("%p{:class => [:a, :b] } foo")) # stringify
-    assert_equal("<p class=''>foo</p>\n", render("%p{:class => [nil, false] } foo")) # strip falsey
+    assert_equal("<p>foo</p>\n", render("%p{:class => [nil, false] } foo")) # strip falsey
     assert_equal("<p class='a'>foo</p>\n", render("%p{:class => :a} foo")) # single stringify
     assert_equal("<p>foo</p>\n", render("%p{:class => false} foo")) # single falsey
     assert_equal("<p class='a b html'>foo</p>\n", render("%p(class='html'){:class => %w[a b]} foo")) # html attrs
@@ -159,10 +159,18 @@ MESSAGE
     assert_equal("<p id='css_a_b'>foo</p>\n", render("%p#css{:id => %w[a b]} foo")) # merge with css
     assert_equal("<p id='a_b_c_d'>foo</p>\n", render("%p{:id => [%w[a b], %w[c d]]} foo")) # flatten
     assert_equal("<p id='a_b'>foo</p>\n", render("%p{:id => [:a, :b] } foo")) # stringify
-    assert_equal("<p id=''>foo</p>\n", render("%p{:id => [nil, false] } foo")) # strip falsey
+    assert_equal("<p>foo</p>\n", render("%p{:id => [nil, false] } foo")) # strip falsey
     assert_equal("<p id='a'>foo</p>\n", render("%p{:id => :a} foo")) # single stringify
     assert_equal("<p>foo</p>\n", render("%p{:id => false} foo")) # single falsey
     assert_equal("<p id='html_a_b'>foo</p>\n", render("%p(id='html'){:id => %w[a b]} foo")) # html attrs
+  end
+
+  def test_colon_in_class_attr
+    assert_equal("<p class='foo:bar' />\n", render("%p.foo:bar/"))
+  end
+
+  def test_colon_in_id_attr
+    assert_equal("<p id='foo:bar' />\n", render("%p#foo:bar/"))
   end
 
   def test_dynamic_attributes_with_no_content
@@ -660,6 +668,15 @@ HTML
 - else
   foo
 HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- if true
+  - if false
+  - else
+    foo
+HAML
   end
 
   def test_html_attributes_with_hash
@@ -677,6 +694,72 @@ HAML
 HTML
 :plain
   \\n\#{""}
+HAML
+  end
+
+  def test_case_assigned_to_var
+    assert_equal(<<HTML, render(<<HAML))
+bar
+HTML
+- var = case 12
+- when 1; "foo"
+- when 12; "bar"
+= var
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+bar
+HTML
+- var = case 12
+- when 1
+  - "foo"
+- when 12
+  - "bar"
+= var
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+bar
+HTML
+- var = case 12
+  - when 1
+    - "foo"
+  - when 12
+    - "bar"
+= var
+HAML
+  end
+
+  def test_if_assigned_to_var
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- var = if false
+- else
+  - "foo"
+= var
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- var = if false
+- elsif 12
+  - "foo"
+- elsif 14; "bar"
+- else
+  - "baz"
+= var
+HAML
+
+    assert_equal(<<HTML, render(<<HAML))
+foo
+HTML
+- var = if false
+  - "bar"
+- else
+  - "foo"
+= var
 HAML
   end
 
@@ -1153,7 +1236,9 @@ SASS
   end
 
   def test_arbitrary_output_option
-    assert_raise(Haml::Error, "Invalid output format :html1") { engine("%br", :format => :html1) }
+    assert_raise_message(Haml::Error, "Invalid output format :html1") do
+      engine("%br", :format => :html1)
+    end
   end
 
   def test_static_hashes

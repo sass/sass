@@ -3,7 +3,84 @@
 * Table of contents
 {:toc}
 
-## 3.0.13 (Unreleased)
+## 3.2.0 (Unreleased)
+
+* Get rid of the `--rails` flag for the `sass` executable.
+  This flag hasn't been necessary since Rails 2.0.
+  Existing Rails 2.0 installations will continue to work.
+
+## 3.0.18
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
+
+* Don't require `rake` in the gemspec, for bundler compatibility under
+  JRuby. Thanks to [Gordon McCreight](http://www.gmccreight.com/blog).
+
+* Add a command-line option `--stop-on-error` that causes Sass to exit
+  when a file fails to compile using `--watch` or `--update`.
+
+* Fix a bug in `haml_tag` that would allow duplicate attributes to be added
+  and make `data-` attributes not work.
+
+* Get rid of the annoying RDoc errors on install.
+
+* Disambiguate references to the `Rails` module when `haml-rails` is installed.
+
+* Allow `@import` in SCSS to import multiple files in the same `@import` rule.
+
+## 3.0.17
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
+
+* Disallow `#{}` interpolation in `@media` queries or unrecognized directives.
+  This was never allowed, but now it explicitly throws an error
+  rather than just producing invalid CSS.
+
+* Make `sass --watch` not throw an error when passed a single file or directory.
+
+* Understand that mingw counts as Windows.
+
+* Make `sass --update` return a non-0 exit code if one or more files being updated
+  contained an error.
+
+## 3.0.16
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.16).
+
+* Fix a bug where certain sorts of comments would get improperly
+  rendered in the `:compact` style.
+
+* Always allow a trailing `*/` in loud comments in the indented syntax.
+
+* Fix a performance issue with SCSS parsing in rare cases.
+  Thanks to [Chris Eppstein](http://chriseppstein.github.com).
+
+* Use better heuristics for figuring out when someone might be using
+  the wrong syntax with `sass --watch`.
+
+## 3.0.15
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).
+
+* Fix a bug where `sass --watch` and `sass --update` were completely broken.
+
+* Allow `@import`ed values to contain commas.
+
+## 3.0.14
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.14).
+
+* Properly parse paths with drive letters on Windows (e.g. `C:\Foo\Bar.sass`)
+  in the Sass executable.
+
+* Compile Sass files in a deterministic order.
+
+* Fix a bug where comments after `@if` statements in SCSS
+  weren't getting passed through to the output document.
+
+## 3.0.13
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.13).
 
 ## CSS `@import` Directives
 
@@ -38,10 +115,15 @@ is now parsed by Sass.
 The Sass command-line executable can now require Ruby files
 using the `--require` flag (or `-r` for short).
 
-## Rails 3 Support
+## Rails Support
+
+Make sure the default Rails options take precedence over the default non-Rails options.
+This makes `./script/server --daemon` work again.
+
+### Rails 3 Support
 
 Support for Rails 3 versions prior to beta 4 has been removed.
-Upg rade to Rails 3.0.0.beta4 if you haven't already.
+Upgrade to Rails 3.0.0.beta4 if you haven't already.
 
 ## 3.0.12
 

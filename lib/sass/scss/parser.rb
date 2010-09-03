@@ -109,11 +109,10 @@ module Sass
           return dir
         end
 
-        val = str do
-          # Most at-rules take expressions (e.g. @import),
-          # but some (e.g. @page) take selector-like arguments
-          expr || selector
-        end
+        # Most at-rules take expressions (e.g. @import),
+        # but some (e.g. @page) take selector-like arguments
+        val = str {break unless expr}
+        val ||= CssParser.new(@scanner, @line).parse_selector_string
         node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
 
         if tok(/\{/)
@@ -179,19 +178,33 @@ module Sass
         expr = sass_script(:parse)
         ss
         node = block(node(Sass::Tree::IfNode.new(expr)), :directive)
+        pos = @scanner.pos
         ss
-        else_block(node)
+
+        else_block(node) ||
+          begin
+            # Backtrack in case there are any comments we want to parse
+            @scanner.pos = pos
+            node
+          end
       end
 
       def else_block(node)
-        return node unless tok(/@else/)
+        return unless tok(/@else/)
         ss
         else_node = block(
           Sass::Tree::IfNode.new((sass_script(:parse) if tok(/if/))),
           :directive)
         node.add_else(else_node)
+        pos = @scanner.pos
         ss
-        else_block(node)
+
+        else_block(node) ||
+          begin
+            # Backtrack in case there are any comments we want to parse
+            @scanner.pos = pos
+            node
+          end
       end
 
       def extend_directive
@@ -199,8 +212,18 @@ module Sass
       end
 
       def import_directive
-        @expected = "string or url()"
-        arg = tok(STRING) || (uri = tok!(URI))
+        values = []
+
+        loop do
+          values << expr!(:import_arg)
+          break if use_css_import? || !tok(/,\s*/)
+        end
+
+        return values
+      end
+
+      def import_arg
+        return unless arg = tok(STRING) || (uri = tok!(URI))
         path = @scanner[1] || @scanner[2] || @scanner[3]
         ss
 
@@ -305,7 +328,7 @@ module Sass
       def block_contents(node, context)
         block_given? ? yield : ss_comments(node)
         node << (child = block_child(context))
-        while tok(/;/) || (child && child.has_children)
+        while tok(/;/) || has_children?(child)
           block_given? ? yield : ss_comments(node)
           node << (child = block_child(context))
         end
@@ -315,6 +338,12 @@ module Sass
       def block_child(context)
         return variable || directive || ruleset if context == :stylesheet
         variable || directive || declaration_or_ruleset
+      end
+
+      def has_children?(child_or_array)
+        return false unless child_or_array
+        return child_or_array.last.has_children if child_or_array.is_a?(Array)
+        return child_or_array.has_children
       end
 
       # This is a nasty hack, and the only place in the parser
@@ -630,11 +659,10 @@ MESSAGE
         unless e = tok(NUMBER) ||
             tok(URI) ||
             function ||
-            interp_string ||
+            tok(STRING) ||
             tok(UNICODERANGE) ||
             tok(IDENT) ||
-            tok(HEXCOLOR) ||
-            interpolation
+            tok(HEXCOLOR)
 
           return unless op = unary_operator
           @expected = "number or function"
@@ -735,6 +763,7 @@ MESSAGE
         :expr => "expression (e.g. 1px, bold)",
         :selector_comma_sequence => "selector",
         :simple_selector_sequence => "selector",
+        :import_arg => "file to import (string or url())",
       }
 
       TOK_NAMES = Haml::Util.to_hash(

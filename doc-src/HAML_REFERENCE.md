@@ -128,7 +128,8 @@ in `environment.rb` in Rails...
 Available options are:
 
 {#format-option} `:format`
-: Determines the output format. The default is `:xhtml`.
+: Determines the output format. Normally the default is `:xhtml`,
+  although under Rails 3 it's `:html5`, since that's the Rails 3's default format.
   Other options are `:html4` and `:html5`, which are
   identical to `:xhtml` except there are no self-closing tags,
   the XML prolog is ignored and correct DOCTYPEs are generated.
@@ -360,10 +361,10 @@ For example:
 
 could render as any of:
 
-    <div class="column numeric sort ascending">Contents</div>
-    <div class="column numeric">Contents</div>
-    <div class="column sort descending">Contents</div>
-    <div class="column">Contents</div>
+    <div class="numeric sort ascending">Contents</div>
+    <div class="numeric">Contents</div>
+    <div class="sort descending">Contents</div>
+    <div>Contents</div>
 
 depending on whether `@item.type` is `"numeric"` or `nil`,
 whether `@item == @sortcol`,
@@ -766,7 +767,7 @@ is compiled to:
     </html>
 
 You can also specify the specific doctype after the `!!!`
-When the [`:format`](#format-option) is set to `:xhtml` (the default),
+When the [`:format`](#format-option) is set to `:xhtml` (the default except in Rails 3),
 the following doctypes are supported:
 
 `!!!`
@@ -1279,7 +1280,7 @@ It's placed at the end of a line (after some whitespace)
 and means that all following lines that end with `|`
 will be evaluated as though they were on the same line.
 **Note that even the last line in the multiline block
-should end wit `|`.**
+should end with `|`.**
 For example:
 
     %whoo

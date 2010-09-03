@@ -407,4 +407,20 @@ HAML
 <% end %>
 ERB
   end
+
+  # Regression
+
+  def test_tag_inside_block
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+%table
+  - foo.each do
+    %tr
+HAML
+<table>
+  <% foo.each do %>
+    <tr></tr>
+  <% end %>
+</table>
+ERB
+  end
 end

@@ -29,8 +29,9 @@ For more information on these commands, check out
     haml --help
     sass --help
 
-To install Haml and Sass as a Rails plugin,
-just run `haml --rails path/to/rails/app`
+To install Haml and Sass in Rails 2,
+just add `config.gem "haml"` to `config/environment.rb`.
+In Rails 3, add `gem "haml"` to your Gemfile instead.
 and both Haml and Sass will be installed.
 Views with the `.html.haml` extension will automatically use Haml.
 Sass is a little more complicated;

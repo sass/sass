@@ -280,7 +280,7 @@ END
     def test_av_block_deprecation_warning
       assert_warning(/^DEPRECATION WARNING: - style block helpers are deprecated\. Please use =\./) do
         assert_equal <<HTML, render(<<HAML, :action_view)
-<form action="" method="post">
+<form #{rails_form_attr}action="" method="post">#{rails_form_opener}
   Title:
   <input id="article_title" name="article[title]" size="30" type="text" value="Hello" />
   Body:
@@ -379,7 +379,7 @@ HAML
 
     def test_xss_protection_with_form_for
       assert_equal(<<HTML, render(<<HAML, :action_view))
-<form action="" method="post">
+<form #{rails_form_attr}action="" method="post">#{rails_form_opener}
   Title:
   <input id="article_title" name="article[title]" size="30" type="text" value="Hello" />
   Body:

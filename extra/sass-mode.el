@@ -4,11 +4,11 @@
 
 ;; Author: Nathan Weizenbaum
 ;; URL: http://github.com/nex3/haml/tree/master
-;; Version: 3.0.10
+;; Version: 3.0.14
 ;; Created: 2007-03-15
 ;; By: Nathan Weizenbaum
 ;; Keywords: markup, language, css
-;; Package-Requires: ((haml-mode "3.0.10"))
+;; Package-Requires: ((haml-mode "3.0.14"))
 
 ;;; Commentary:
 
@@ -43,11 +43,12 @@
   :group 'sass)
 
 (defvar sass-non-block-openers
-  '("^ *:[^ \t]+[ \t]+[^ \t]"
-    "^ *[^ \t:]+[ \t]*[=:][ \t]*[^ \t]")
-  "A list of regexps that match lines of Sass that don't open blocks.
-That is, a Sass line that can't have text nested beneath it
-should be matched by a regexp in this list.")
+  '("^.*,$" ;; Continued selectors
+    "^ *@\\(extend\\|debug\\|warn\\|include\\|import\\)" ;; Single-line mixins
+    "^ *[$!]" ;; Variables
+    )
+  "A list of regexps that match lines of Sass that couldn't have
+text nested beneath them.")
 
 ;; Font lock
 
@@ -195,8 +196,8 @@ LIMIT is the limit of the search."
 (defun sass-indent-p ()
   "Return non-nil if the current line can have lines nested beneath it."
   (loop for opener in sass-non-block-openers
-        unless (looking-at opener) return t
-        return nil))
+        if (looking-at opener) return nil
+        finally return t))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
