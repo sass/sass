@@ -11,99 +11,35 @@ module Sass
     # Returns the {Sass::Tree} for the given file,
     # reading it from the Sass cache if possible.
     #
-    # @param filename [String] The path to the Sass or SCSS file
+    # @param filename [SassFile, String] A SassFile or the path to the Sass or SCSS file
     # @param options [{Symbol => Object}] The options hash.
     #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
     # @raise [Sass::SyntaxError] if there's an error in the document.
     #   The caller has responsibility for setting backtrace information, if necessary
-    def tree_for(filename, options)
+    def tree_for(sass_file, options)
+      # XXX revisit whether we need to accept a string here.
+      sass_file = SassFile.new_from_filename(sass_file) if sass_file.is_a?(String)
       default_options = Sass::Engine::DEFAULT_OPTIONS.dup
       default_options.delete(:syntax)
       options = default_options.merge!(options)
       options[:cache_store] ||= Sass::FileCacheStore.new(options[:cache_location])
-      text = File.read(filename)
 
       if options[:cache] || options[:read_cache]
-        key = sassc_key(filename, options)
-        sha = Digest::SHA1.hexdigest(text)
+        key = sassc_key(sass_file.filename, options)
+        sha = Digest::SHA1.hexdigest(sass_file.contents)
 
         if root = options[:cache_store].retrieve(key, sha)
-          root.options = options.merge(:filename => filename)
+          root.options = options.merge(:filename => sass_file.filename)
           return root
         end
       end
 
-      options = options.merge(:filename => filename)
-      if filename =~ /\.scss$/
-        options = {:syntax => :scss}.merge(options)
-      elsif filename =~ /\.sass$/
-        options = {:syntax => :sass}.merge(options)
-      end
-
-      engine = Sass::Engine.new(text, options)
+      options = options.merge(:filename => sass_file.filename, :syntax => sass_file.syntax, :file => sass_file)
+      engine = Sass::Engine.new(sass_file.contents, options)
 
       root = engine.to_tree
       options[:cache_store].store(key, sha, root) if options[:cache]
       root
-    end
-
-    # Find the full filename of a Sass, SCSS, or CSS file to import.
-    # This follows Sass's import rules:
-    # if the filename given ends in `".sass"`, `".scss"`, or `".css"`,
-    # it will try to find that type of file;
-    # otherwise, it will try to find the corresponding Sass/SCSS file
-    # and fall back on CSS if it's not available.
-    #
-    # Any Sass/SCSS filename returned will correspond to
-    # an actual file of the corresponding type on the filesystem.
-    # CSS filenames, however, may not;
-    # they're expected to be put through directly to the stylesheet
-    # as CSS `@import` statements.
-    #
-    # @param filename [String] The filename to search for
-    # @param load_paths [Array<String>] The set of filesystem paths
-    #   to search for Sass/SCSS files.
-    # @return [String] The filename of the imported file.
-    #   This is an absolute path if the file is a `".sass"` or `".scss"` file.
-    # @raise [Sass::SyntaxError] if `filename` ends in `".sass"` or `".scss"`
-    #   and no corresponding Sass/SCSS file could be found.
-    def find_file_to_import(filename, load_paths)
-      was_sass = was_scss = false
-      original_filename = filename
-
-      if [".sass", ".scss"].include?(filename[-5..-1])
-        was_sass = filename[-5..-1] == ".sass"
-        was_scss = filename[-5..-1] == ".scss"
-        filename = filename[0...-5]
-      elsif filename[-4..-1] == ".css"
-        return filename
-      end
-
-      new_filename = nil
-      load_paths = load_paths.uniq
-      load_paths.each do |load_path|
-        new_filename ||= find_full_path("#{filename}.sass", load_path) unless was_scss
-        new_filename ||= find_full_path("#{filename}.scss", load_path) unless was_sass
-      end
-
-      return new_filename if new_filename
-      unless was_sass || was_scss
-        Haml::Util.haml_warn <<END
-WARNING: Neither #{filename}.sass nor .scss found. Using #{filename}.css instead.
-This behavior is deprecated and will be removed in a future version.
-If you really need #{filename}.css, import it explicitly.
-END
-        return filename + '.css'
-      end
-
-      message = "File to import not found or unreadable: #{original_filename}.\n"
-      if load_paths.size == 1
-        message << "Load path: #{load_paths.first}"
-      else
-        message << "Load paths:\n  " << load_paths.join("\n  ")
-      end
-
-      raise SyntaxError.new(message)
     end
 
     private

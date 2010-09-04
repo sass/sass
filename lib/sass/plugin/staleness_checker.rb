@@ -109,7 +109,7 @@ module Sass
           begin
             mtime(dep) > css_mtime || dependencies_stale?(dep, css_mtime)
           rescue Sass::SyntaxError
-            # If there's an error finding depenencies, default to recompiling.
+            # If there's an error finding dependencies, default to recompiling.
             true
           end
         end
@@ -117,7 +117,9 @@ module Sass
 
       def compute_dependencies(filename)
         Files.tree_for(filename, @options).grep(Tree::ImportNode) do |n|
-          File.expand_path(n.full_filename) unless n.full_filename =~ /\.css$/
+          if n.imported_file
+            File.expand_path(n.imported_file.filename) unless n.imported_file.filename =~ /\.css$/
+          end
         end.compact
       rescue Sass::SyntaxError => e
         [] # If the file has an error, we assume it has no dependencies

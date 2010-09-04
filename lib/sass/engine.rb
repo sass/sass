@@ -23,6 +23,7 @@ require 'sass/script'
 require 'sass/scss'
 require 'sass/error'
 require 'sass/files'
+require 'sass/importers'
 require 'haml/shared'
 
 module Sass

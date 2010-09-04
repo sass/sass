@@ -17,15 +17,11 @@ module Sass
 
       def invisible?; to_s.empty?; end
 
-      # Returns the resolved name of the imported file,
-      # as returned by \{Sass::Files#find\_file\_to\_import}.
+      # Returns the resolved imported file.
       #
-      # @return [String] The filename of the imported file.
-      #   This is an absolute path if the file is a `".sass"` or `".scss"` file.
-      # @raise [Sass::SyntaxError] if `filename` ends in `".sass"` or `".scss"`
-      #   and no corresponding Sass file could be found.
-      def full_filename
-        @full_filename ||= import
+      # @return [SassFile] The imported file or nil if not found
+      def imported_file
+        @imported_file ||= import
       end
 
       # @see Node#to_sass
@@ -60,7 +56,9 @@ module Sass
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def _perform(environment)
-        return DirectiveNode.new("@import url(#{full_filename})") if full_filename =~ /\.css$/
+        if path = css_import?
+          return DirectiveNode.new("@import url(#{path})")
+        end
         super
       end
 
@@ -69,15 +67,15 @@ module Sass
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def perform!(environment)
-        environment.push_frame(:filename => @filename, :line => @line)
+        environment.push_frame(:filename => @filename, :line => @line, :file => imported_file)
         options = @options.dup
         options.delete(:syntax)
-        root = Sass::Files.tree_for(full_filename, options)
+        root = Sass::Files.tree_for(imported_file, options)
         @template = root.template
         self.children = root.children
         self.children = perform_children(environment)
       rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => full_filename)
+        e.modify_backtrace(:filename => imported_file.filename)
         e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       ensure
@@ -87,13 +85,64 @@ module Sass
       private
 
       def import_paths
-        paths = (@options[:load_paths] || []).dup
-        paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
-        paths
+        @import_paths ||= begin
+          @options[:load_paths] ||= []
+          @options[:load_paths].map! do |p|
+            if p.is_a? String
+              Importer.default_filesystem_class.new(p)
+            else
+              p
+            end
+          end
+        end
+      end
+
+      def current_sass_file
+        @current_sass_file ||= @options[:file]
+        @current_sass_file ||= if @options[:filename]
+          SassFile.new_from_filename(@options[:filename])
+        end
+      end
+
+      # whether or not this import specified the file with an extension
+      def explicit_import?
+        File.extname(@imported_filename).size > 0
+      end
+
+      # whether or not this import should emit a CSS @import declaration
+      def css_import?
+        if @imported_filename =~ /\.css$/
+          @imported_filename
+        elsif imported_file.is_a?(String) && imported_file =~ /\.css$/
+          imported_file
+        end
       end
 
       def import
-        Sass::Files.find_file_to_import(@imported_filename, import_paths)
+        sass_file = current_sass_file
+        paths = import_paths.dup
+        paths.unshift(sass_file.source) if sass_file && sass_file.source
+        import_paths.each do |p|
+          if f = p.find(@imported_filename, sass_file)
+            return f
+          end
+        end
+        if explicit_import?
+          message = "File to import not found or unreadable: #{@imported_filename}.\n"
+          if import_paths.size == 1
+            message << "Load path: #{import_paths.first}"
+          else
+            message << "Load paths:\n  " << import_paths.join("\n  ")
+          end
+          raise SyntaxError.new(message)
+        else
+          Haml::Util.haml_warn <<END
+WARNING: Neither #{@imported_filename}.sass nor .scss found. Using #{@imported_filename}.css instead.
+This behavior is deprecated and will be removed in a future version.
+If you really need #{@imported_filename}.css, import it explicitly.
+END
+          return @imported_filename + '.css'
+        end
       rescue Exception => e
         raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
       end

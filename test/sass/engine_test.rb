@@ -11,6 +11,7 @@ module Sass::Script::Functions::UserFunctions
 end
 
 class SassEngineTest < Test::Unit::TestCase
+  FAKE_FILE_NAME = __FILE__.gsub(/rb$/,"sass")
   # A map of erroneous Sass documents to the error messages they should produce.
   # The error messages may be arrays;
   # if so, the second element should be the line number that should be reported for the error.
@@ -61,9 +62,7 @@ MSG
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import foo.sass" => <<MSG,
 File to import not found or unreadable: foo.sass.
-Load paths:
-  #{File.dirname(__FILE__)}
-  .
+Load path: .
 MSG
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
@@ -156,14 +155,14 @@ MSG
     define_method("test_exception (#{key.inspect})") do
       line = 10
       begin
-        silence_warnings {Sass::Engine.new(key, :filename => __FILE__, :line => line).render}
+        silence_warnings {Sass::Engine.new(key, :filename => FAKE_FILE_NAME, :line => line).render}
       rescue Sass::SyntaxError => err
         value = [value] unless value.is_a?(Array)
 
         assert_equal(value.first.rstrip, err.message, "Line: #{key}")
-        assert_equal(__FILE__, err.sass_filename)
+        assert_equal(FAKE_FILE_NAME, err.sass_filename)
         assert_equal((value[1] || key.split("\n").length) + line - 1, err.sass_line, "Line: #{key}")
-        assert_match(/#{Regexp.escape(__FILE__)}:[0-9]+/, err.backtrace[0], "Line: #{key}")
+        assert_match(/#{Regexp.escape(FAKE_FILE_NAME)}:[0-9]+/, err.backtrace[0], "Line: #{key}")
       else
         assert(false, "Exception not raised for\n#{key}")
       end
@@ -196,9 +195,9 @@ rule
   :broken
 SASS
     begin
-      Sass::Engine.new(to_render, :filename => __FILE__, :line => (__LINE__-7)).render
+      Sass::Engine.new(to_render, :filename => FAKE_FILE_NAME, :line => (__LINE__-7)).render
     rescue Sass::SyntaxError => err
-      assert_equal(__FILE__, err.sass_filename)
+      assert_equal(FAKE_FILE_NAME, err.sass_filename)
       assert_equal((__LINE__-6), err.sass_line)
     else
       assert(false, "Exception not raised for '#{to_render}'!")
@@ -2204,7 +2203,7 @@ SASS
   def renders_correctly(name, options={})
     sass_file  = load_file(name, "sass")
     css_file   = load_file(name, "css")
-    options[:filename] ||= filename(name, "sass")
+    options[:file] ||= Sass::SassFile.new(filename(name, "sass"), :sass, sass_file, nil)
     options[:css_filename] ||= filename(name, "css")
     css_result = Sass::Engine.new(sass_file, options).render
     assert_equal css_file, css_result

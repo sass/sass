@@ -301,6 +301,7 @@ module Sass::Plugin
       end
 
       begin
+        File.read(filename) unless File.readable?(filename) # triggers an error for handling
         engine_opts = engine_options(:css_filename => css, :filename => filename)
         result = Sass::Files.tree_for(filename, engine_opts).render
       rescue Exception => e

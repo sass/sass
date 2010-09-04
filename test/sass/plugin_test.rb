@@ -252,7 +252,7 @@ CSS
 
   def test_cached_dependencies_update
     FileUtils.mv(template_loc("basic"), template_loc("basic", "more_"))
-    set_plugin_opts :load_paths => [result_loc, template_loc(nil, "more_")]
+    set_plugin_opts :load_paths => [template_loc(nil, "more_")]
 
     touch 'basic', 'more_'
     assert_needs_update "import"
@@ -405,7 +405,6 @@ CSS
       :template_location => template_loc,
       :css_location => tempfile_loc,
       :style => :compact,
-      :load_paths => [result_loc],
       :always_update => true,
       :never_update => false,
       :full_exception => true,
