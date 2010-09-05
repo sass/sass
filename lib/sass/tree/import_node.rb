@@ -100,7 +100,7 @@ module Sass
           @options[:load_paths] ||= []
           @options[:load_paths].map! do |p|
             if p.is_a? String
-              Importer.default_filesystem_class.new(p)
+              Importers::Base.default_filesystem_class.new(p)
             else
               p
             end
