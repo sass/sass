@@ -21,17 +21,17 @@ module Sass
     # @return [Sass::Importer, nil]
     attr_accessor :source
 
-    # @param [String] filename See \{#filename}.
-    # @param [Symbol] syntax See \{#syntax}.
-    # @param [String] contents See \{#contents}.
-    # @param [Sass::Importer] source See \{#source}.
+    # @param filename [String] See \{#filename}.
+    # @param syntax [Symbol] See \{#syntax}.
+    # @param contents [String] See \{#contents}.
+    # @param source [Sass::Importer] See \{#source}.
     def initialize(filename, syntax, contents, source = nil)
       @filename, @syntax, @contents, @source = filename, syntax, contents, source
     end
 
     # Reads a SassFile from a file on disk, and populates the metadata appropriately.
     #
-    # @param [String] filename The path to the Sass, SCSS, or CSS file.
+    # @param filename [String] The path to the Sass, SCSS, or CSS file.
     # @raise [Sass::SyntaxError] If `filename` isn't a Sass, SCSS, or CSS filename.
     def self.new_from_filename(filename)
       ext = filename[/\.(.*?)$/]
