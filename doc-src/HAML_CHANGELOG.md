@@ -5,6 +5,8 @@
 
 ## 3.2.0 (Unreleased)
 
+### Backwards Incompatibilities -- Must Read!
+
 * Get rid of the `--rails` flag for the `haml` executable.
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
