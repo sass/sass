@@ -53,13 +53,13 @@ module Sass
     #   `:line`
     #   : The line of the file on which the lexical scope changed. Never nil.
     def push_frame(frame_info)
-      if stack.last && stack.last[:prepared]
-        stack.last.delete(:prepared)
-        stack.last.merge!(frame_info)
+      top_of_stack = stack.last
+      if top_of_stack && top_of_stack.delete(:prepared)
+        top_of_stack.merge!(frame_info)
       else
-        stack.push(frame_info)
+        stack.push(top_of_stack = frame_info)
       end
-      mixins_in_use << stack.last[:mixin] if stack.last[:mixin] && !stack.last[:prepared]
+      mixins_in_use << top_of_stack[:mixin] if top_of_stack[:mixin] && !top_of_stack[:prepared]
     end
 
     # Like \{#push\_frame}, but next time a stack frame is pushed,
