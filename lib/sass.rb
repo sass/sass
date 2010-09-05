@@ -21,24 +21,34 @@ module Sass
 
   # Compile a Sass or SCSS string to CSS.
   # Defaults to SCSS.
-  # @raise [Sass::SyntaxError] if there's any problems
+  #
+  # @param contents [String] The contents of the Sass file.
+  # @param options [{Symbol => Object}] An options hash;
+  #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+  # @raise [Sass::SyntaxError] if there's an error in the document
+  # @raise [Encoding::UndefinedConversionError] if the source encoding
+  #   cannot be converted to UTF-8
+  # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
   def self.compile(contents, options = {})
     options[:syntax] ||= :scss
     Engine.new(contents, options).to_css
   end
 
-  # Compile a file to CSS
-  # This function has two modes:
+  # Compile a file on disk to CSS.
   #
-  # Compiles `filename` and writes the output to `css_filename`, returning nil.
+  # @param filename [String] The path to the Sass, SCSS, or CSS file on disk.
+  # @param options [{Symbol => Object}] An options hash;
+  #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+  # @raise [Sass::SyntaxError] if there's an error in the document
+  # @raise [Encoding::UndefinedConversionError] if the source encoding
+  #   cannot be converted to UTF-8
+  # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
   #
-  #     Sass.compile_file(filename, css_filename, options)
+  # @overload compile_file(filename, options = {})
+  #   @return [String] The compiled CSS.
   #
-  # Compiles `filename` and returns a string
-  #
-  #     Sass.compile_file(filename, options)
-  #
-  # @raise [Sass::SyntaxError] if there's any problems
+  # @overload compile_file(filename, css_filename, options = {})
+  #   @param css_filename [String] The location to which to write the compiled CSS.
   def self.compile_file(filename, *args)
     options = args.last.is_a?(Hash) ? args.pop : {}
     css_filename ||= args.shift
@@ -55,7 +65,6 @@ module Sass
       result
     end
   end
-
 end
 
 require 'haml/util'
