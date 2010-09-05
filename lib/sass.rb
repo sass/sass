@@ -72,5 +72,6 @@ require 'haml/util'
 dir = Haml::Util.scope("vendor/fssm/lib")
 $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 
+require 'sass/sass_file'
 require 'sass/engine'
 require 'sass/plugin' if defined?(Merb::Plugins)
