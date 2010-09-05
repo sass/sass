@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/plugin'
 require 'fileutils'
 
@@ -394,10 +395,6 @@ CSS
     else
       absolutize "#{prefix}results"
     end
-  end
-
-  def absolutize(file)
-    "#{File.dirname(__FILE__)}/#{file}"
   end
 
   def set_plugin_opts(overrides = {})
