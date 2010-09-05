@@ -200,7 +200,7 @@ module Sass::Tree
     #   or nil if the parent isn't a {RuleNode}
     def _cssize(extends, parent)
       node = super
-      rules = node.children.select {|c| c.is_a?(RuleNode)}
+      rules = node.children.grep(RuleNode)
       props = node.children.reject {|c| c.is_a?(RuleNode) || c.invisible?}
 
       unless props.empty?
