@@ -1,6 +1,6 @@
 module Sass
   module Importers
-    class FilesystemImporter < Base
+    class Filesystem < Base
       def initialize(root)
         @root = root
       end

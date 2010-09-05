@@ -9,7 +9,7 @@ module Sass
     class Base
 
       def self.default_filesystem_class
-        @default_filesystem_class || FilesystemImporter
+        @default_filesystem_class || Filesystem
       end
       def self.default_filesystem_class=(klass)
         @default_filesystem_class = klass

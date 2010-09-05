@@ -4,4 +4,4 @@ module Sass
 end
 
 require 'sass/importers/base'
-require 'sass/importers/filesystem_importer'
+require 'sass/importers/filesystem'
