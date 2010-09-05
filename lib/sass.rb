@@ -18,6 +18,44 @@ module Sass
   # A more fine-grained representation is available from {Haml::Version#version Sass.version}.
   # @api public
   VERSION = version[:string] unless defined?(Sass::VERSION)
+
+  # Compile a Sass or SCSS string to CSS.
+  # Defaults to SCSS.
+  # @raise [Sass::SyntaxError] if there's any problems
+  def self.compile(contents, options = {})
+    options[:syntax] ||= :scss
+    Engine.new(contents, options).to_css
+  end
+
+  # Compile a file to CSS
+  # This function has two modes:
+  #
+  # Compiles `filename` and writes the output to `css_filename`, returning nil.
+  #
+  #     Sass.compile_file(filename, css_filename, options)
+  #
+  # Compiles `filename` and returns a string
+  #
+  #     Sass.compile_file(filename, options)
+  #
+  # @raise [Sass::SyntaxError] if there's any problems
+  def self.compile_file(filename, *args)
+    options = args.last.is_a?(Hash) ? args.pop : {}
+    css_filename ||= args.shift
+    if options[:syntax].nil? && filename =~ /\.(css|sass|scss)$/
+      options[:syntax] = $1.to_sym
+    end
+    options[:filename] = filename
+    options[:css_filename] = css_filename
+    result = Sass::Files.tree_for(filename, options).render
+    if css_filename
+      open(css_filename,"w") {|css_file| css_file.write(result) }
+      nil
+    else
+      result
+    end
+  end
+
 end
 
 require 'haml/util'
