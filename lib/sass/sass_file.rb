@@ -34,9 +34,8 @@ module Sass
     # @param filename [String] The path to the Sass, SCSS, or CSS file.
     # @raise [Sass::SyntaxError] If `filename` isn't a Sass, SCSS, or CSS filename.
     def self.new_from_filename(filename)
-      ext = nil
-      ext = $1 if filename =~ /\.([^\/\\]+?)$/
-      raise Sass::SyntaxError.new("Filename #{filename} has no extension") unless ext
+      ext = File.extname(filename)[1..-1]
+      raise Sass::SyntaxError.new("Filename #{filename} has no extension") unless ext && !ext.empty?
       ext = ext.downcase
       raise Sass::SyntaxError.new("Unknown extension: #{ext}") unless %w[sass scss css].include?(ext)
       new(File.expand_path(filename), ext.to_sym, (File.read(filename) rescue nil))
