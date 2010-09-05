@@ -47,7 +47,7 @@ module Sass
     end
     options[:filename] = filename
     options[:css_filename] = css_filename
-    result = compile(File.read(filename), options)
+    result = Sass::Files.tree_for(filename, options).render
     if css_filename
       open(css_filename,"w") {|css_file| css_file.write(result) }
       nil
