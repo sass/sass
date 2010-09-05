@@ -95,19 +95,6 @@ module Sass
 
       private
 
-      def import_paths
-        @import_paths ||= begin
-          @options[:load_paths] ||= []
-          @options[:load_paths].map! do |p|
-            if p.is_a? String
-              Importers::Base.default_filesystem_class.new(p)
-            else
-              p
-            end
-          end
-        end
-      end
-
       def current_sass_file
         @current_sass_file ||= @options[:file]
         @current_sass_file ||= if @options[:filename]
@@ -117,19 +104,23 @@ module Sass
 
       def import
         sass_file = current_sass_file
-        paths = import_paths.dup
-        paths.unshift(sass_file.source) if sass_file && sass_file.source
-        import_paths.each do |p|
+        paths = @options[:load_paths].dup
+        if sass_file && sass_file.source
+          paths.delete(sass_file.source)
+          paths.unshift(sass_file.source)
+        end
+
+        paths.each do |p|
           if f = p.find(@imported_filename, sass_file)
             return f
           end
         end
 
         message = "File to import not found or unreadable: #{@imported_filename}.\n"
-        if import_paths.size == 1
-          message << "Load path: #{import_paths.first}"
+        if paths.size == 1
+          message << "Load path: #{paths.first}"
         else
-          message << "Load paths:\n  " << import_paths.join("\n  ")
+          message << "Load paths:\n  " << paths.join("\n  ")
         end
         raise SyntaxError.new(message)
       rescue Exception => e

@@ -152,6 +152,11 @@ module Sass
       # for quite a long time.
       @options[:line_comments] ||= @options[:line_numbers]
 
+      @options[:load_paths] = @options[:load_paths].map do |p|
+        next p unless p.is_a?(String)
+        Importers::Base.default_filesystem_class.new(p)
+      end
+
       # Backwards compatibility
       @options[:property_syntax] ||= @options[:attribute_syntax]
       case @options[:property_syntax]
