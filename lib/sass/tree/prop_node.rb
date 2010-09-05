@@ -88,8 +88,12 @@ module Sass::Tree
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String] The resulting CSS
     def _to_s(tabs)
-      to_return = '  ' * (tabs - 1 + self.tabs) + resolved_name + ":" +
-        (style == :compressed ? '' : ' ') + resolved_value + (style == :compressed ? "" : ";")
+      tab_str = '  ' * (tabs - 1 + self.tabs)
+      if style == :compressed
+        "#{tab_str}#{resolved_name}:#{resolved_value}"
+      else
+        "#{tab_str}#{resolved_name}: #{resolved_value};"
+      end
     end
 
     # Converts nested properties into flat properties.
