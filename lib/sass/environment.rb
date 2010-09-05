@@ -101,13 +101,14 @@ module Sass
 
     class << self
       private
+      UNDERSCORE, DASH = '_', '-'
 
       # Note: when updating this,
       # update haml/yard/inherited_hash.rb as well.
       def inherited_hash(name)
         class_eval <<RUBY, __FILE__, __LINE__ + 1
           def #{name}(name)
-            _#{name}(name.gsub('_', '-'))
+            _#{name}(name.tr(UNDERSCORE, DASH))
           end
 
           def _#{name}(name)
@@ -116,7 +117,7 @@ module Sass
           protected :_#{name}
 
           def set_#{name}(name, value)
-            name = name.gsub('_', '-')
+            name = name.tr(UNDERSCORE, DASH)
             @#{name}s[name] = value unless try_set_#{name}(name, value)
           end
 
@@ -135,7 +136,7 @@ module Sass
 
           def set_local_#{name}(name, value)
             @#{name}s ||= {}
-            @#{name}s[name.gsub('_', '-')] = value
+            @#{name}s[name.tr(UNDERSCORE, DASH)] = value
           end
 RUBY
       end
