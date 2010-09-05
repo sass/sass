@@ -143,6 +143,24 @@ MSG
     renders_correctly "nested", { :style => :nested }
     renders_correctly "compressed", { :style => :compressed }
   end
+
+  def test_compile
+    assert_equal "div { hello: world; }\n", Sass.compile("$who: world\ndiv\n  hello: $who", :syntax => :sass, :style => :compact)
+    assert_equal "div { hello: world; }\n", Sass.compile("$who: world; div { hello: $who }", :style => :compact)
+  end
+
+  def test_compile_file
+    open("test_compile_file.sass", "w") {|f| f.write("$who: world\ndiv\n  hello: $who")}
+    open("test_compile_file.scss", "w") {|f| f.write("$who: world; div { hello: $who }")}
+    assert_equal "div { hello: world; }\n", Sass.compile_file("test_compile_file.sass", :style => :compact)
+    assert_equal "div { hello: world; }\n", Sass.compile_file("test_compile_file.scss", :style => :compact)
+    Sass.compile_file("test_compile_file.sass", "test_compile_file_sass.css", :style => :compact)
+    Sass.compile_file("test_compile_file.scss", "test_compile_file_scss.css", :style => :compact)
+    assert_equal "div { hello: world; }\n", File.read("test_compile_file_sass.css")
+    assert_equal "div { hello: world; }\n", File.read("test_compile_file_scss.css")
+  ensure
+    FileUtils.rm(%w(test_compile_file.sass test_compile_file.scss test_compile_file_sass.css test_compile_file_scss.css) , :force => true)
+  end
   
   def test_flexible_tabulation
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
