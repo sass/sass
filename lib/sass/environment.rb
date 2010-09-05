@@ -22,12 +22,12 @@ module Sass
 
     # @param parent [Environment] See \{#parent}
     def initialize(parent = nil)
-      @vars = {}
-      @mixins = {}
       @parent = parent
-      @stack = [] unless parent
-      @mixins_in_use = Set.new unless parent
-      set_var("important", Script::String.new("!important")) unless @parent
+      unless parent
+        @stack = []
+        @mixins_in_use = Set.new
+        set_var("important", Script::String.new("!important"))
+      end
     end
 
     # The options hash.
@@ -111,7 +111,7 @@ module Sass
           end
 
           def _#{name}(name)
-            @#{name}s[name] || @parent && @parent._#{name}(name)
+            (@#{name}s && @#{name}s[name]) || @parent && @parent._#{name}(name)
           end
           protected :_#{name}
 
@@ -121,6 +121,7 @@ module Sass
           end
 
           def try_set_#{name}(name, value)
+            @#{name}s ||= {}
             if @#{name}s.include?(name)
               @#{name}s[name] = value
               true
@@ -133,6 +134,7 @@ module Sass
           protected :try_set_#{name}
 
           def set_local_#{name}(name, value)
+            @#{name}s ||= {}
             @#{name}s[name.gsub('_', '-')] = value
           end
 RUBY
