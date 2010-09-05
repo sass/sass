@@ -7,6 +7,11 @@
 
 ### Backwards Incompatibilities -- Must Read!
 
+* When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,
+  and no file exists at that path, it will now throw an error.
+  The old behavior of becoming a plain-CSS `@import` was deprecated
+  and has now been removed.
+
 * Get rid of the `--rails` flag for the `sass` executable.
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.

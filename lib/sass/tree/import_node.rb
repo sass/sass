@@ -115,11 +115,6 @@ module Sass
         end
       end
 
-      # whether or not this import specified the file with an extension
-      def explicit_import?
-        File.extname(@imported_filename).size > 0
-      end
-
       def import
         sass_file = current_sass_file
         paths = import_paths.dup
@@ -129,22 +124,14 @@ module Sass
             return f
           end
         end
-        if explicit_import?
-          message = "File to import not found or unreadable: #{@imported_filename}.\n"
-          if import_paths.size == 1
-            message << "Load path: #{import_paths.first}"
-          else
-            message << "Load paths:\n  " << import_paths.join("\n  ")
-          end
-          raise SyntaxError.new(message)
+
+        message = "File to import not found or unreadable: #{@imported_filename}.\n"
+        if import_paths.size == 1
+          message << "Load path: #{import_paths.first}"
         else
-          Haml::Util.haml_warn <<END
-WARNING: Neither #{@imported_filename}.sass nor .scss found. Using #{@imported_filename}.css instead.
-This behavior is deprecated and will be removed in a future version.
-If you really need #{@imported_filename}.css, import it explicitly.
-END
-          return @imported_filename + '.css'
+          message << "Load paths:\n  " << import_paths.join("\n  ")
         end
+        raise SyntaxError.new(message)
       rescue Exception => e
         raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
       end

@@ -534,11 +534,10 @@ CSS
   end
 
   def test_nonexistent_extensionless_import
-    assert_warning(<<WARN) do
-WARNING: Neither nonexistent.sass nor .scss found. Using nonexistent.css instead.
-This behavior is deprecated and will be removed in a future version.
-If you really need nonexistent.css, import it explicitly.
-WARN
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) do
+File to import not found or unreadable: nonexistent.
+Load path: .
+ERR
       assert_equal("@import url(nonexistent.css);\n", render("@import nonexistent"))
     end
   end
