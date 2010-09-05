@@ -39,6 +39,17 @@ module Sass
         super.first
       end
 
+      # Returns whether or not this import should emit a CSS @import declaration
+      #
+      # @return [Boolean] Whether or not this is a simple CSS @import declaration.
+      def css_import?
+        if @imported_filename =~ /\.css$/
+          @imported_filename
+        elsif imported_file.is_a?(String) && imported_file =~ /\.css$/
+          imported_file
+        end
+      end
+
       protected
 
       # @see Node#_cssize
@@ -107,15 +118,6 @@ module Sass
       # whether or not this import specified the file with an extension
       def explicit_import?
         File.extname(@imported_filename).size > 0
-      end
-
-      # whether or not this import should emit a CSS @import declaration
-      def css_import?
-        if @imported_filename =~ /\.css$/
-          @imported_filename
-        elsif imported_file.is_a?(String) && imported_file =~ /\.css$/
-          imported_file
-        end
       end
 
       def import

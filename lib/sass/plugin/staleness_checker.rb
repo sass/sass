@@ -117,9 +117,7 @@ module Sass
 
       def compute_dependencies(filename)
         Files.tree_for(filename, @options).grep(Tree::ImportNode) do |n|
-          if n.imported_file
-            File.expand_path(n.imported_file.filename) unless n.imported_file.filename =~ /\.css$/
-          end
+          File.expand_path(n.imported_file.filename) unless n.css_import?
         end.compact
       rescue Sass::SyntaxError => e
         [] # If the file has an error, we assume it has no dependencies
