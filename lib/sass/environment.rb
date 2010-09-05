@@ -35,7 +35,7 @@ module Sass
     #
     # @return [{Symbol => Object}]
     def options
-      @options || (parent && parent.options) || {}
+      @options || parent_options || {}
     end
 
     # Push a new stack frame onto the mixin/include stack.
@@ -91,6 +91,12 @@ module Sass
     # @return [Set<String>] The mixin names.
     def mixins_in_use
       @mixins_in_use ||= @parent.mixins_in_use
+    end
+
+    private
+
+    def parent_options
+      @parent_options ||= @parent && @parent.options
     end
 
     class << self
