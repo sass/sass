@@ -121,17 +121,18 @@ module Sass::Tree
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String] The resulting CSS
     def _to_s(tabs)
+      output_style = style
       tabs = tabs + self.tabs
 
-      rule_separator = style == :compressed ? ',' : ', '
+      rule_separator = output_style == :compressed ? ',' : ', '
       line_separator =
-        case style
+        case output_style
           when :nested, :expanded; "\n"
           when :compressed; ""
           else; " "
         end
       rule_indent = '  ' * (tabs - 1)
-      per_rule_indent, total_indent = [:nested, :expanded].include?(style) ? [rule_indent, ''] : ['', rule_indent]
+      per_rule_indent, total_indent = [:nested, :expanded].include?(output_style) ? [rule_indent, ''] : ['', rule_indent]
 
       total_rule = total_indent + resolved_rules.members.
         map {|seq| seq.to_a.join.gsub(/([^,])\n/m, style == :compressed ? '\1 ' : "\\1\n")}.
@@ -142,7 +143,7 @@ module Sass::Tree
       to_return = ''
       old_spaces = '  ' * (tabs - 1)
       spaces = '  ' * tabs
-      if style != :compressed
+      if output_style != :compressed
         if @options[:debug_info]
           to_return << debug_info_rule.to_s(tabs) << "\n"
         elsif @options[:line_comments]
@@ -165,15 +166,15 @@ module Sass::Tree
         end
       end
 
-      if style == :compact
+      if output_style == :compact
         properties = children.map { |a| a.to_s(1) }.join(' ')
         to_return << "#{total_rule} { #{properties} }#{"\n" if group_end}"
-      elsif style == :compressed
+      elsif output_style == :compressed
         properties = children.map { |a| a.to_s(1) }.join(';')
         to_return << "#{total_rule}{#{properties}}"
       else
         properties = children.map { |a| a.to_s(tabs + 1) }.join("\n")
-        end_props = (style == :expanded ? "\n" + old_spaces : ' ')
+        end_props = (output_style == :expanded ? "\n" + old_spaces : ' ')
         to_return << "#{total_rule} {\n#{properties}#{end_props}}#{"\n" if group_end}"
       end
 
