@@ -83,6 +83,9 @@ module Sass
           end
         end
         timestamps[css_mtime] = dependencies(template_file).any?(&dependency_updated?(css_mtime))
+      rescue Sass::SyntaxError
+        # If there's an error finding dependencies, default to recompiling.
+        true
       end
 
       def mtime(filename)
@@ -105,22 +108,13 @@ module Sass
       end
 
       def dependency_updated?(css_mtime)
-        lambda do |dep|
-          begin
-            mtime(dep) > css_mtime || dependencies_stale?(dep, css_mtime)
-          rescue Sass::SyntaxError
-            # If there's an error finding dependencies, default to recompiling.
-            true
-          end
-        end
+        lambda {|dep| mtime(dep) > css_mtime || dependencies_stale?(dep, css_mtime)}
       end
 
       def compute_dependencies(filename)
         Files.tree_for(filename, @options).grep(Tree::ImportNode) do |n|
           File.expand_path(n.imported_file.filename) unless n.css_import?
         end.compact
-      rescue Sass::SyntaxError => e
-        [] # If the file has an error, we assume it has no dependencies
       end
     end
   end
