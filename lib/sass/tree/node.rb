@@ -148,8 +148,8 @@ module Sass
       # @param args [Array] Passed on to \{#\_to\_s}
       # @return [String, nil] The resulting CSS
       # @see Sass::Tree
-      def to_s(*args)
-        _to_s(*args)
+      def to_s(opts = nil)
+        _to_s(opts)
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename, :line => line)
         raise e
