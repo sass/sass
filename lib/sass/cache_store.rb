@@ -49,8 +49,7 @@ module Sass
     def store(key, sha, root)
       orig_options = root.options
       begin
-        root.options = {}
-        _store_(key, Sass::VERSION, sha, Marshal.dump(root))
+        _store_(key, Sass::VERSION, sha, Haml::Util.dump(root))
       ensure
         root.options = orig_options
       end
@@ -63,7 +62,7 @@ module Sass
     # @return [Sass::Tree::RootNode] The root node.
     def retrieve(key, sha)
       contents = _retrieve_(key, Sass::VERSION, sha)
-      Marshal.load(contents) if contents
+      Haml::Util.load(contents) if contents
     rescue EOFError, TypeError, ArgumentError => e
       raise
       Haml::Util.haml_warn "Warning. Error encountered while reading cache #{path_to(key)}: #{e}"

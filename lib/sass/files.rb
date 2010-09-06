@@ -29,7 +29,8 @@ module Sass
         sha = Digest::SHA1.hexdigest(sass_file.contents)
 
         if root = options[:cache_store].retrieve(key, sha)
-          root.options = options.merge(:filename => sass_file.filename)
+          root.options = root.options.merge(
+            options.merge(:filename => sass_file.filename))
           return root
         end
       end

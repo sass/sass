@@ -244,6 +244,23 @@ module Sass
         to_src(tabs, opts, :scss)
       end
 
+      # Names of options that are saved when the node is serialized and cached.
+      #
+      # @type [Array<Symbol>]
+      SAVED_OPTIONS = []
+
+      # Ensures that only {SAVED_OPTIONS} get saved.
+      def _around_dump
+        old_options = @options
+        @options = {}
+        SAVED_OPTIONS.each do |opt|
+          @options[opt] = old_options[opt]
+        end
+        yield
+      ensure
+        options = old_options
+      end
+
       protected
 
       # Computes the CSS corresponding to this particular Sass node.
