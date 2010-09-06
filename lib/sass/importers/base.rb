@@ -101,12 +101,6 @@ module Sass
         raise "Implement Me"
       end
 
-      # Whether the file was found on disk.
-      # @return [Boolean]
-      def on_disk?
-        false
-      end
-
       protected
       def split(name)
         extension = nil
