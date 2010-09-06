@@ -30,7 +30,7 @@ class ImporterTest < Test::Unit::TestCase
   # This class proves that you can override the extension scheme for importers
   class ReversedExtImporter < Sass::Importers::Filesystem
     def extensions
-      Haml::Util.to_hash(["sscs", "ssas"].map {|k| [k, k.reverse.to_sym]})
+      {"sscs" => :scss, "ssas" => :sass}
     end
   end
 

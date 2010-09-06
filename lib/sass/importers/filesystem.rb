@@ -57,14 +57,13 @@ module Sass
       #   The first element of each pair is a filename to look for;
       #   the second element is the syntax that file would be in (`:sass` or `:scss`).
       def possible_files(name)
-        dirname, basename, extname = File.dirname(name), File.basename(name), File.extname(name)
-        extname.slice!(0)
+        dirname, basename, extname = split(name)
         sorted_exts = extensions.sort
         syntax = extensions[extname]
 
         Haml::Util.flatten(
           ["#{dirname}/#{basename}", "#{dirname}/_#{basename}"].map do |name|
-            next [[name, syntax]] if syntax
+            next [["#{name}.#{extensions.invert[syntax]}", syntax]] if syntax
             sorted_exts.map {|ext, syn| ["#{name}.#{ext}", syn]}
           end, 1)
       end
@@ -82,6 +81,18 @@ module Sass
           end
         end
         nil
+      end
+
+      # Splits a filename into three parts, a directory part, a basename, and an extension
+      # Only the known extensions returned from the extensions method will be recognized as such.
+      def split(name)
+        extension = nil
+        dirname, basename = File.dirname(name), File.basename(name)
+        if basename =~ /^(.*)\.(#{extensions.keys.map{|e| Regexp.escape(e)}.join('|')})$/
+          basename = $1
+          extension = $2
+        end
+        [dirname, basename, extension]
       end
 
       private
