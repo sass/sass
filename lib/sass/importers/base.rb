@@ -111,7 +111,7 @@ module Sass
       def split(name)
         extension = nil
         dirname, basename = File.dirname(name), File.basename(name)
-        if basename =~ /^(.*)\.(css|sass|scss)$/
+        if basename =~ /^(.*)\.(#{known_extensions.map{|e| Regexp.escape(e)}.join('|')})$/
           basename = $1
           extension = $2
         end
@@ -124,14 +124,19 @@ module Sass
         filenames
       end
 
+      def known_extensions
+        ["sass", "scss", "css"]
+      end
+
+      # returns a syntax symbol
+      def determine_syntax_from_extension(ext)
+        ext.to_sym
+      end
+
       def each_possible_filename(name)
         dirname, basename, extension = split(name)
         basenames = ["#{basename}", "_#{basename}"]
-        extensions = if extension
-          [extension]
-        else
-          ["sass", "scss", "css"]
-        end
+        extensions = extension ? [extension] : known_extensions
         basenames.each do |bn|
           extensions.each do |ext|
             yield "#{dirname}/#{bn}.#{ext}"
