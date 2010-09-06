@@ -31,12 +31,15 @@ module Sass
       #
       # See \{#find} for important information on how this method should behave.
       #
+      # The `:filename` option passed to the returned {Sass::Engine}
+      # should be of a format that could be passed to \{#find}.
+      #
       # @param uri [String] The URI to import. This is not necessarily relative,
       #   but this method should only return true if it is.
       # @param base [String] The base filename. If `uri` is relative,
       #   it should be interpreted as relative to `base`.
       #   `base` is guaranteed to be in a format importable by this importer.
-      # @param options [{Symbol => String}] Options for the Sass file
+      # @param options [{Symbol => Object}] Options for the Sass file
       #   containing the `@import` that's currently being resolved.
       # @return [Sass::Engine, nil] An Engine containing the imported file,
       #   or nil if it couldn't be found or was in the wrong format.
@@ -73,7 +76,7 @@ module Sass
       # and `:importer` should be set to this importer.
       #
       # @param uri [String] The URI to import.
-      # @param options [{Symbol => String}] Options for the Sass file
+      # @param options [{Symbol => Object}] Options for the Sass file
       #   containing the `@import` that's currently being resolved.
       #   This is safe for subclasses to modify destructively.
       #   Callers should only pass in a value they don't mind being destructively modified.

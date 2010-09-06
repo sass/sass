@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Sass
   module Importers
     # The default importer, used for any strings found in the load path.
@@ -67,7 +69,7 @@ module Sass
       # @return [(String, Symbol)] A filename-syntax pair.
       def find_real_file(dir, name)
         possible_files(name).each do |f, s|
-          if File.exists?(full_path = "#{dir}/#{f}")
+          if File.exists?(full_path = join(dir, f))
             return full_path, s
           end
         end
@@ -81,9 +83,19 @@ module Sass
         return unless full_filename && File.readable?(full_filename)
 
         options[:syntax] = syntax
-        options[:filename] = full_filename
+        options[:filename] = relative(@root, full_filename)
         options[:importer] = self
         Sass::Engine.new(File.read(full_filename), options)
+      end
+
+      def join(base, path)
+        Pathname.new(base).join(path).to_s
+      end
+
+      def relative(base, path)
+        path = Pathname.new(path)
+        return path.to_s if path.absolute?
+        path.relative_path_from(Pathname.new(base)).to_s
       end
     end
   end
