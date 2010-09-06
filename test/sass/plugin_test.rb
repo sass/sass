@@ -263,6 +263,15 @@ CSS
     FileUtils.mv(template_loc("basic", "more_"), template_loc("basic"))
   end
 
+  def test_cached_relative_import
+    old_always_update = Sass::Plugin.options[:always_update]
+    Sass::Plugin.options[:always_update] = true
+    update_all_stylesheets!
+    assert_renders_correctly('subdir/subdir')
+  ensure
+    Sass::Plugin.options[:always_update] = old_always_update
+  end
+
  private
 
   def assert_renders_correctly(*arguments)

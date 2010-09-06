@@ -113,7 +113,7 @@ module Sass
 
       def compute_dependencies(filename)
         Files.tree_for(filename, @options).grep(Tree::ImportNode) do |n|
-          File.expand_path(n.imported_file.filename) unless n.css_import?
+          File.expand_path(n.imported_file.options[:filename]) unless n.css_import?
         end.compact
       end
     end

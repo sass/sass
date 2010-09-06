@@ -3,6 +3,11 @@ module Sass
     # An importer can be placed onto the Sass load path and it will
     # find files and return them as SassFile objects.
     #
+    # Importers should be serializable via `Marshall.dump`.
+    # In addition to the standard `_dump` and `_load` methods,
+    # importers can define `_before_dump`, `_after_dump`, `_around_dump`,
+    # and `_after_load` methods as per {Haml::Util#dump} and {Haml::Util#load}.
+    #
     # Note: Sass does not require an extension to import a file. But a user
     # may provide an extension and this means that they are choosing a specific
     # syntax to import. All Importers must adhere to this policy. 
@@ -15,11 +20,11 @@ module Sass
         @default_filesystem_class = klass
       end
 
-      # @param name [String] The name of the file that is requested to be imported.
-      # @param context [SassFile] The file doing the import. The importer must not
-      #   depend on the contents nor the source being set on the SassFile.
-      # @return [SassFile] if one is found.
-      def find(name, context = nil)
+      def find_relative(name, base, options)
+        raise "Implement Me"
+      end
+
+      def find(name, options)
         raise "Implement Me"
       end
 

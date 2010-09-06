@@ -52,10 +52,6 @@ module Sass
   def self.compile_file(filename, *args)
     options = args.last.is_a?(Hash) ? args.pop : {}
     css_filename ||= args.shift
-    if options[:syntax].nil? && filename =~ /\.(css|sass|scss)$/
-      options[:syntax] = $1.to_sym
-    end
-    options[:filename] = filename
     options[:css_filename] = css_filename
     result = Sass::Files.tree_for(filename, options).render
     if css_filename
@@ -72,6 +68,5 @@ require 'haml/util'
 dir = Haml::Util.scope("vendor/fssm/lib")
 $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 
-require 'sass/sass_file'
 require 'sass/engine'
 require 'sass/plugin' if defined?(Merb::Plugins)

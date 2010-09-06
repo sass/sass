@@ -11,32 +11,37 @@ module Sass
     # Returns the {Sass::Tree} for the given file,
     # reading it from the Sass cache if possible.
     #
-    # @param filename [SassFile, String] A SassFile or the path to the Sass or SCSS file
+    # @param filename [String] The path to the Sass or SCSS file
     # @param options [{Symbol => Object}] The options hash.
     #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
     # @raise [Sass::SyntaxError] if there's an error in the document.
     #   The caller has responsibility for setting backtrace information, if necessary
-    def tree_for(sass_file, options)
-      # XXX revisit whether we need to accept a string here.
-      sass_file = SassFile.new_from_filename(sass_file) if sass_file.is_a?(String)
-      default_options = Sass::Engine::DEFAULT_OPTIONS.dup
-      default_options.delete(:syntax)
-      options = default_options.merge!(options)
-      options[:cache_store] ||= Sass::FileCacheStore.new(options[:cache_location])
+    def tree_for(filename, options)
+      had_syntax = options[:syntax]
+      options = Sass::Engine.normalize_options(options)
+      text = File.read(filename)
 
       if options[:cache] || options[:read_cache]
-        key = sassc_key(sass_file.filename, options)
-        sha = Digest::SHA1.hexdigest(sass_file.contents)
+        key = sassc_key(filename, options)
+        sha = Digest::SHA1.hexdigest(text)
 
         if root = options[:cache_store].retrieve(key, sha)
-          root.options = root.options.merge(
-            options.merge(:filename => sass_file.filename))
+          root.options = root.options.merge(options.merge(:filename => filename))
           return root
         end
       end
 
-      options = options.merge(:filename => sass_file.filename, :syntax => sass_file.syntax, :file => sass_file)
-      engine = Sass::Engine.new(sass_file.contents, options)
+      if had_syntax
+        # Use what was explicitly specificed
+      elsif filename =~ /\.scss$/
+        options.merge!(:syntax => :scss)
+      elsif filename =~ /\.sass$/
+        options.merge!(:syntax => :sass)
+      end
+
+      options = options.merge(:filename => filename,
+        :importer => Importers::Base.default_filesystem_class.new("."))
+      engine = Sass::Engine.new(text, options)
 
       root = engine.to_tree
       options[:cache_store].store(key, sha, root) if options[:cache]

@@ -17,9 +17,10 @@ module Sass
 
       def invisible?; to_s.empty?; end
 
-      # Returns the resolved imported file.
+      # Returns the imported file.
       #
-      # @return [SassFile] The imported file or nil if not found
+      # @return [Sass::Engine]
+      # @raise [Sass::SyntaxError] If no file could be found to import.
       def imported_file
         @imported_file ||= import
       end
@@ -79,14 +80,12 @@ module Sass
       #   variable and mixin values
       def perform!(environment)
         environment.push_frame(:filename => @filename, :line => @line, :file => imported_file)
-        options = @options.dup
-        options.delete(:syntax)
-        root = Sass::Files.tree_for(imported_file, options)
-        @template = root.template
+        # TODO: re-enable caching
+        root = imported_file.to_tree
         self.children = root.children
         self.children = perform_children(environment)
       rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => imported_file.filename)
+        e.modify_backtrace(:filename => imported_file.options[:filename])
         e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       ensure
@@ -95,23 +94,17 @@ module Sass
 
       private
 
-      def current_sass_file
-        @current_sass_file ||= @options[:file]
-        @current_sass_file ||= if @options[:filename]
-          SassFile.new_from_filename(@options[:filename])
-        end
-      end
-
       def import
-        sass_file = current_sass_file
-        paths = @options[:load_paths].dup
-        if sass_file && sass_file.source
-          paths.delete(sass_file.source)
-          paths.unshift(sass_file.source)
+        paths = @options[:load_paths]
+
+        if @options[:importer]
+          f = @options[:importer].find_relative(
+            @imported_filename, @options[:filename], @options.dup)
+          return f if f
         end
 
         paths.each do |p|
-          if f = p.find(@imported_filename, sass_file)
+          if f = p.find(@imported_filename, @options.dup)
             return f
           end
         end
@@ -123,7 +116,7 @@ module Sass
           message << "Load paths:\n  " << paths.join("\n  ")
         end
         raise SyntaxError.new(message)
-      rescue Exception => e
+      rescue SyntaxError => e
         raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
       end
     end

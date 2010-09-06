@@ -135,6 +135,42 @@ module Sass
       :syntax => :sass,
     }.freeze
 
+    # Converts a Sass options hash into a standard form, filling in
+    # default values and resolving aliases.
+    #
+    # @param options [{Symbol => Object}] The options hash;
+    #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+    # @return [{Symbol => Object}] The normalized options hash.
+    # @private
+    def self.normalize_options(options)
+      options = DEFAULT_OPTIONS.merge(options.reject {|k, v| v.nil?})
+
+      options[:cache_store] ||= Sass::FileCacheStore.new(options[:cache_location])
+      # Support both, because the docs said one and the other actually worked
+      # for quite a long time.
+      options[:line_comments] ||= options[:line_numbers]
+
+      options[:load_paths] = options[:load_paths].map do |p|
+        next p unless p.is_a?(String)
+        Importers::Base.default_filesystem_class.new(p)
+      end
+
+      # Backwards compatibility
+      options[:property_syntax] ||= options[:attribute_syntax]
+      case options[:property_syntax]
+      when :alternate; options[:property_syntax] = :new
+      when :normal; options[:property_syntax] = :old
+      end
+
+      options
+    end
+
+    # The options for the Sass engine.
+    # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+    #
+    # @return [{Symbol => Object}]
+    attr_reader :options
+
     # @param template [String] The Sass template.
     #   This template can be encoded using any encoding
     #   that can be converted to Unicode.
@@ -142,27 +178,10 @@ module Sass
     #   that overrides the Ruby encoding
     #   (see {file:SASS_REFERENCE.md#encodings the encoding documentation})
     # @param options [{Symbol => Object}] An options hash;
-    #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
+    #   
     def initialize(template, options={})
-      @options = DEFAULT_OPTIONS.merge(options.reject {|k, v| v.nil?})
+      @options = self.class.normalize_options(options)
       @template = template
-
-      @options[:cache_store] ||= Sass::FileCacheStore.new(@options[:cache_location])
-      # Support both, because the docs said one and the other actually worked
-      # for quite a long time.
-      @options[:line_comments] ||= @options[:line_numbers]
-
-      @options[:load_paths] = @options[:load_paths].map do |p|
-        next p unless p.is_a?(String)
-        Importers::Base.default_filesystem_class.new(p)
-      end
-
-      # Backwards compatibility
-      @options[:property_syntax] ||= @options[:attribute_syntax]
-      case @options[:property_syntax]
-      when :alternate; @options[:property_syntax] = :new
-      when :normal; @options[:property_syntax] = :old
-      end
     end
 
     # Render the template to CSS.

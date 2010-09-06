@@ -2230,7 +2230,8 @@ SASS
   def renders_correctly(name, options={})
     sass_file  = load_file(name, "sass")
     css_file   = load_file(name, "css")
-    options[:file] ||= Sass::SassFile.new(filename(name, "sass"), :sass, sass_file, nil)
+    options[:filename] ||= filename(name, "sass")
+    options[:syntax] ||= :sass
     options[:css_filename] ||= filename(name, "css")
     css_result = Sass::Engine.new(sass_file, options).render
     assert_equal css_file, css_result

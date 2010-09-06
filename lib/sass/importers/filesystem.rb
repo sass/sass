@@ -5,13 +5,33 @@ module Sass
         @root = root
       end
 
-      def find(name, context = nil)
-        full_filename = nil
-        full_filename = detect_within(File.dirname(context.filename), name) if context
-        full_filename ||= detect_within(@root, name)
+      def find_relative(name, base, options)
+        _find(detect_within(File.dirname(base), name), options)
+      end
+
+      def find(name, options)
+        _find(detect_within(@root, name), options)
+      end
+
+      def to_s
+        @root
+      end
+
+      def on_disk?
+        true
+      end
+
+      private
+
+      def _find(full_filename, options)
         return unless full_filename && File.readable?(full_filename)
-        dirname, basename, extension = split(full_filename)
-        SassFile.new(File.expand_path(full_filename), extension.to_sym, File.read(full_filename), self)
+
+        options[:syntax] = File.extname(full_filename)[1..-1].to_sym
+        return unless [:sass, :scss, :css].include?(options[:syntax])
+
+        options[:filename] = full_filename
+        options[:importer] = self
+        Sass::Engine.new(File.read(full_filename), options)
       end
 
       def detect_within(dir, name)
@@ -21,14 +41,6 @@ module Sass
           end
         end
         nil
-      end
-
-      def to_s
-        @root
-      end
-
-      def on_disk?
-        true
       end
     end
   end
