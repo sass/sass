@@ -291,6 +291,11 @@ module Sass::Plugin
       opts
     end
 
+    # Compass expects this to exist
+    def stylesheet_needs_update?(css_file, template_file)
+      StalenessChecker.stylesheet_needs_update?(css_file, template_file)
+    end
+
     private
 
     def update_stylesheet(filename, css)
@@ -341,11 +346,6 @@ module Sass::Plugin
 
     def forbid_update?(name)
       name.sub(/^.*\//, '')[0] == ?_
-    end
-
-    # Compass expects this to exist
-    def stylesheet_needs_update?(css_file, template_file)
-      StalenessChecker.stylesheet_needs_update?(css_file, template_file)
     end
   end
 end
