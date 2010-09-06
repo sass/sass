@@ -283,6 +283,13 @@ Available options are:
   This defaults to the working directory and, in Rack, Rails, or Merb,
   whatever `:template_location` is.
 
+{#filesystem_importer-option} `:filesystem_importer`
+: A {Sass::Importers::Base} subclass used to handle plain string load paths.
+  This should import files from the filesystem.
+  It should be a Class object inheriting from {Sass::Importers::Base}
+  with a constructor that takes a single string argument (the load path).
+  Defaults to {Sass::Importers::Filesystem}.
+
 {#line_numbers-option} `:line_numbers`
 : When set to true, causes the line number and file
   where a selector is defined to be emitted into the compiled CSS

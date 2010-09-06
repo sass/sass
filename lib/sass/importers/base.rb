@@ -22,13 +22,6 @@ module Sass
     # @abstract
     class Base
 
-      def self.default_filesystem_class
-        @default_filesystem_class || Filesystem
-      end
-      def self.default_filesystem_class=(klass)
-        @default_filesystem_class = klass
-      end
-
       # Find a Sass file relative to another file.
       # Importers without a notion of "relative paths"
       # should just return nil here.
