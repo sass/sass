@@ -116,7 +116,7 @@ module Sass
           message << "Load paths:\n  " << paths.join("\n  ")
         end
         raise SyntaxError.new(message)
-      rescue SyntaxError => e
+      rescue Exception => e
         raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
       end
     end
