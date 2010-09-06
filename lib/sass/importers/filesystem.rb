@@ -26,11 +26,6 @@ module Sass
         @root
       end
 
-      # @see Base#on_disk?
-      def on_disk?
-        true
-      end
-
       private
 
       def _find(full_filename, options)

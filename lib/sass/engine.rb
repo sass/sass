@@ -133,6 +133,7 @@ module Sass
       :cache => true,
       :cache_location => './.sass-cache',
       :syntax => :sass,
+      :filesystem_importer = Sass::Importers::Filesystem,
     }.freeze
 
     # Converts a Sass options hash into a standard form, filling in
@@ -152,7 +153,7 @@ module Sass
 
       options[:load_paths] = options[:load_paths].map do |p|
         next p unless p.is_a?(String)
-        Importers::Base.default_filesystem_class.new(p)
+        options[:filesystem_importer].new(p)
       end
 
       # Backwards compatibility

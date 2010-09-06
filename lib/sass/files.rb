@@ -40,7 +40,7 @@ module Sass
       end
 
       options = options.merge(:filename => filename,
-        :importer => Importers::Base.default_filesystem_class.new("."))
+        :importer => options[:filesystem_importer].new("."))
       engine = Sass::Engine.new(text, options)
 
       root = engine.to_tree
