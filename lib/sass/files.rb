@@ -54,22 +54,5 @@ module Sass
       dir = File.dirname(File.expand_path(filename))
       options[:cache_store].key(dir, File.basename(filename))
     end
-
-    def find_full_path(filename, load_path)
-      partial_name = File.join(File.dirname(filename), "_#{File.basename(filename)}")
-
-      if Pathname.new(filename).absolute?
-        [partial_name, filename].each do |name|
-          return name if File.readable?(name)
-        end
-        return nil
-      end
-
-      [partial_name, filename].each do |name|
-        full_path = File.join(load_path, name)
-        return full_path if File.readable?(full_path)
-      end
-      nil
-    end
   end
 end
