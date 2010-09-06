@@ -44,7 +44,7 @@ module Sass
       # @return [Sass::Engine, nil] An Engine containing the imported file,
       #   or nil if it couldn't be found or was in the wrong format.
       def find_relative(uri, base, options)
-        raise "Implement Me"
+        Haml::Util.abstract(self)
       end
 
       # Find a Sass file, if it exists.
@@ -83,7 +83,7 @@ module Sass
       # @return [Sass::Engine, nil] An Engine containing the imported file,
       #   or nil if it couldn't be found or was in the wrong format.
       def find(uri, options)
-        raise "Implement Me"
+        Haml::Util.abstract(self)
       end
 
       # Returns the time the given Sass file was last modified.
@@ -97,7 +97,7 @@ module Sass
       #   containing the `@import` currently being checked.
       # @return [Time, nil]
       def mtime(uri, options)
-        raise "Implement Me"
+        Haml::Util.abstract(self)
       end
 
       # A string representation of the importer.
@@ -108,7 +108,7 @@ module Sass
       #
       # @return [String]
       def to_s
-        raise "Implement Me"
+        Haml::Util.abstract(self)
       end
     end
   end

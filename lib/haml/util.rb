@@ -298,6 +298,14 @@ module Haml
       obj
     end
 
+    # Throws a NotImplementedError for an abstract method.
+    #
+    # @param obj [Object] `self`
+    # @raise [NotImplementedError]
+    def abstract(obj)
+      raise NotImplementedError.new("#{obj.class} must implement ##{caller_info[2]}")
+    end
+
     # Silence all output to STDERR within a block.
     #
     # @yield A block in which no output will be printed to STDERR

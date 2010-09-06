@@ -261,6 +261,17 @@ class UtilTest < Test::Unit::TestCase
     assert_equal([:before, :around_before, :loaded], obj2.arr)
   end
 
+  class FooBar
+    def foo
+      Haml::Util.abstract(self)
+    end
+  end
+
+  def test_abstract
+    assert_raise_message(NotImplementedError,
+      "UtilTest::FooBar must implement #foo") {FooBar.new.foo}
+  end
+
   def test_def_static_method
     klass = Class.new
     def_static_method(klass, :static_method, [:arg1, :arg2],

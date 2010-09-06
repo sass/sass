@@ -275,7 +275,7 @@ module Sass
       # @see #to_s
       # @see Sass::Tree
       def _to_s
-        raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #_to_s or #to_s.")
+        Haml::Util.abstract(self)
       end
 
       # Converts this static Sass node into a static CSS node,
@@ -400,7 +400,7 @@ module Sass
       # @param fmt [Symbol] `:sass` or `:scss`
       # @return [String] The Sass or SCSS code corresponding to the node
       def to_src(tabs, opts, fmt)
-        raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #to_#{fmt}.")
+        Haml::Util.abstract(self)
       end
 
       # Converts the children of this node to a Sass or SCSS string.

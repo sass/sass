@@ -22,7 +22,7 @@ module Sass
       #
       # @return [Array<String, Sass::Script::Node>]
       def to_a
-        raise NotImplementedError.new("All subclasses of Sass::Selector::Simple must override #to_a.")
+        Haml::Util.abstract(self)
       end
 
       # Returns a string representation of the node.
