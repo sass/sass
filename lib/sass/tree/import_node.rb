@@ -79,7 +79,7 @@ module Sass
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def perform!(environment)
-        environment.push_frame(:filename => @filename, :line => @line, :file => imported_file)
+        environment.push_frame(:filename => @filename, :line => @line)
         # TODO: re-enable caching
         root = imported_file.to_tree
         self.children = root.children
