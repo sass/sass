@@ -108,6 +108,7 @@ module Sass
       end
 
       protected
+      # Splits a filename into three parts, a directory part, a basename, and an extension
       def split(name)
         extension = nil
         dirname, basename = File.dirname(name), File.basename(name)
@@ -118,12 +119,14 @@ module Sass
         [dirname, basename, extension]
       end
 
+      # Returns an array of possible filenames for the given import name
       def possible_filenames(name)
         filenames = []
         each_possible_filename(name) {|fn| filenames << fn}
         filenames
       end
 
+      # a list of known extensions that this importer supports
       def known_extensions
         ["sass", "scss", "css"]
       end
@@ -133,6 +136,7 @@ module Sass
         ext.to_sym
       end
 
+      # yields possible filenames
       def each_possible_filename(name)
         dirname, basename, extension = split(name)
         basenames = ["#{basename}", "_#{basename}"]
