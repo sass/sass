@@ -1,22 +1,32 @@
 module Sass
   module Importers
+    # The default importer, used for any strings found in the load path.
+    # Simply loads Sass files from the filesystem using the default logic.
     class Filesystem < Base
+      # Creates a new filesystem importer that imports files relative to a given path.
+      #
+      # @param root [String] The root path.
+      #   This importer will import files relative to this path.
       def initialize(root)
         @root = root
       end
 
+      # @see Base#find_relative
       def find_relative(name, base, options)
         _find(detect_within(File.dirname(base), name), options)
       end
 
+      # @see Base#find
       def find(name, options)
         _find(detect_within(@root, name), options)
       end
 
+      # @see Base#to_s
       def to_s
         @root
       end
 
+      # @see Base#on_disk?
       def on_disk?
         true
       end
