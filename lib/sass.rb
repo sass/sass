@@ -61,6 +61,19 @@ module Sass
       result
     end
   end
+
+  # Constuct a [Sass::Engine] with the four most common arguments which are
+  # required in most cases.
+  #
+  # @param filename [String] The filename of the file to be rendered, if not
+  #    from a file on disk, any reasonable URI-like identifier may be used.
+  # @param syntax [Symbol] `:sass` or `:scss`
+  # @param contents [String] The contents of the file
+  # @param importer [Sass::Importers::Base] The importer that found the file.
+  def self.engine_for(filename, syntax, contents, importer, options = {})
+    Sass::Engine.new(contents, options.merge(:importer => importer, :filename => filename, :syntax => syntax))
+  end
+
 end
 
 require 'haml/util'
