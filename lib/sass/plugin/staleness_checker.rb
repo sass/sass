@@ -6,8 +6,9 @@ module Sass
     #
     # * A class-level dependency cache which stores @import paths for each file.
     #   This is a long-lived cache that is reused by every StalenessChecker instance.
-    # * Two short-lived instance-level caches, one for file mtimes
-    #   and one for whether a file is stale during this particular run.
+    # * Three short-lived instance-level caches, one for file mtimes,
+    #   one for whether a file is stale during this particular run.
+    #   and one for the parse tree for a file.
     #   These are only used by a single StalenessChecker instance.
     #
     # Usage:
@@ -26,6 +27,7 @@ module Sass
       @dependencies_cache = {}
 
       class << self
+        # TODO: attach this to a compiler instance.
         # @private
         attr_accessor :dependencies_cache
       end
@@ -41,8 +43,8 @@ module Sass
         # Entries in the following instance-level caches are never explicitly expired.
         # Instead they are supposed to automaticaly go out of scope when a series of staleness checks
         # (this instance of StalenessChecker was created for) is finished.
-        @mtimes, @dependencies_stale = {}, {}
-        @options = options
+        @mtimes, @dependencies_stale, @parse_trees = {}, {}, {}
+        @options = Sass::Engine.normalize_options(options)
       end
 
       # Returns whether or not a given CSS file is out of date
@@ -52,9 +54,15 @@ module Sass
       # @param template_file [String] The location of the Sass or SCSS template
       #   that is compiled to `css_file`.
       def stylesheet_needs_update?(css_file, template_file)
-        template_file, css_mtime = File.expand_path(template_file), mtime(css_file)
+        template_file = File.expand_path(template_file)
+        begin
+          css_mtime = File.mtime(css_file).to_i
+        rescue Errno::ENOENT
+          return true
+        end
 
-        css_mtime == DELETED || dependency_updated?(css_mtime).call(template_file)
+        dependency_updated?(css_mtime).call(
+          template_file, @options[:filesystem_importer].new("."))
       end
 
       # Returns whether or not a given CSS file is out of date
@@ -73,8 +81,8 @@ module Sass
 
       private
 
-      def dependencies_stale?(template_file, css_mtime)
-        timestamps = @dependencies_stale[template_file] ||= {}
+      def dependencies_stale?(uri, importer, css_mtime)
+        timestamps = @dependencies_stale[[uri, importer]] ||= {}
         timestamps.each_pair do |checked_css_mtime, is_stale|
           if checked_css_mtime <= css_mtime && !is_stale
             return false
@@ -82,39 +90,55 @@ module Sass
             return true
           end
         end
-        timestamps[css_mtime] = dependencies(template_file).any?(&dependency_updated?(css_mtime))
+        timestamps[css_mtime] = dependencies(uri, importer).any?(&dependency_updated?(css_mtime))
       rescue Sass::SyntaxError
         # If there's an error finding dependencies, default to recompiling.
         true
       end
 
-      def mtime(filename)
-        @mtimes[filename] ||= begin
-          File.mtime(filename).to_i
-        rescue Errno::ENOENT
-          @dependencies.delete(filename)
-          DELETED
-        end
+      def mtime(uri, importer)
+        @mtimes[[uri, importer]] ||=
+          begin
+            mtime = importer.mtime(uri, @options)
+            if mtime.nil?
+              @dependencies.delete([uri, importer])
+              DELETED
+            else
+              mtime.to_i
+            end
+          end
       end
 
-      def dependencies(filename)
-        stored_mtime, dependencies = @dependencies[filename]
+      def dependencies(uri, importer)
+        stored_mtime, dependencies = @dependencies[[uri, importer]]
 
-        if !stored_mtime || stored_mtime < mtime(filename)
-          @dependencies[filename] = [mtime(filename), dependencies = compute_dependencies(filename)]
+        if !stored_mtime || stored_mtime < mtime(uri, importer)
+          dependencies = compute_dependencies(uri, importer)
+          @dependencies[[uri, importer]] = [mtime(uri, importer), dependencies]
         end
 
         dependencies
       end
 
       def dependency_updated?(css_mtime)
-        lambda {|dep| mtime(dep) > css_mtime || dependencies_stale?(dep, css_mtime)}
+        lambda do |uri, importer|
+          mtime(uri, importer) > css_mtime ||
+            dependencies_stale?(uri, importer, css_mtime)
+        end
       end
 
-      def compute_dependencies(filename)
-        Files.tree_for(filename, @options).grep(Tree::ImportNode) do |n|
-          File.expand_path(n.imported_file.options[:filename]) unless n.css_import?
+      def compute_dependencies(uri, importer)
+        tree(uri, importer).grep(Tree::ImportNode) do |n|
+          next if n.css_import?
+          file = n.imported_file
+          key = [file.options[:filename], file.options[:importer]]
+          @parse_trees[key] = file.to_tree
+          key
         end.compact
+      end
+
+      def tree(uri, importer)
+        @parse_trees[[uri, importer]] ||= importer.find(uri, @options).to_tree
       end
     end
   end

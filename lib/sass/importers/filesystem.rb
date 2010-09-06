@@ -23,6 +23,14 @@ module Sass
         _find(@root, name, options)
       end
 
+      # @see Base#mtime
+      def mtime(name, options)
+        file = find_real_file(@root, name)
+        File.mtime(name)
+      rescue Errno::ENOENT
+        nil
+      end
+
       # @see Base#to_s
       def to_s
         @root
