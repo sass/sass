@@ -93,47 +93,6 @@ module Sass
       def to_s
         raise "Implement Me"
       end
-
-      protected
-      # Splits a filename into three parts, a directory part, a basename, and an extension
-      def split(name)
-        extension = nil
-        dirname, basename = File.dirname(name), File.basename(name)
-        if basename =~ /^(.*)\.(#{known_extensions.map{|e| Regexp.escape(e)}.join('|')})$/
-          basename = $1
-          extension = $2
-        end
-        [dirname, basename, extension]
-      end
-
-      # Returns an array of possible filenames for the given import name
-      def possible_filenames(name)
-        filenames = []
-        each_possible_filename(name) {|fn| filenames << fn}
-        filenames
-      end
-
-      # a list of known extensions that this importer supports
-      def known_extensions
-        ["sass", "scss", "css"]
-      end
-
-      # returns a syntax symbol
-      def determine_syntax_from_extension(ext)
-        ext.to_sym
-      end
-
-      # yields possible filenames
-      def each_possible_filename(name)
-        dirname, basename, extension = split(name)
-        basenames = ["#{basename}", "_#{basename}"]
-        extensions = extension ? [extension] : known_extensions
-        basenames.each do |bn|
-          extensions.each do |ext|
-            yield "#{dirname}/#{bn}.#{ext}"
-          end
-        end
-      end
     end
   end
 end
