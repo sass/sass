@@ -37,8 +37,10 @@ module Sass
         return unless full_filename && File.readable?(full_filename)
 
         dirname, basename, extension = split(full_filename)
-        syntax = determine_syntax_from_extension(extension)
-        Sass.engine_for(full_filename, syntax, File.read(full_filename), self, options)
+        options[:syntax] = determine_syntax_from_extension(extension)
+        options[:filename] = full_filename
+        options[:importer] = self
+        Sass::Engine.new(File.read(full_filename), options)
       end
 
       def detect_within(dir, name)

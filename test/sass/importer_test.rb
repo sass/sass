@@ -22,7 +22,7 @@ class ImporterTest < Test::Unit::TestCase
             color: $#{fruit}-color;
           }
         }
-        Sass.engine_for(name, :scss, contents, self)
+        Sass::Engine.new(contents, :filename => name, :syntax => :scss, :importer => self)
       end
     end
   end
