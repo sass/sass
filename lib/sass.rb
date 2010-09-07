@@ -16,23 +16,7 @@ require 'sass/version'
 # * {Sass::CSS} handles conversion of CSS to Sass.
 #
 # Also see the {file:SASS_REFERENCE.md full Sass reference}.
-module Sass
-  # Initializes Sass for Rails.
-  #
-  # This method is called by `init.rb`,
-  # which is run by Rails on startup.
-  # We use it rather than putting stuff straight into `init.rb`
-  # so we can change the initialization behavior
-  # without modifying the file itself.
-  #
-  # @param binding [Binding] The context of the `init.rb` file.
-  #   This isn't actually used;
-  #   it's just passed in in case it needs to be used in the future
-  def self.init_rails(binding)
-    # No &method here for Rails 2.1 compatibility
-    %w[sass sass/plugin].each {|f| require f}
-  end
-end
+module Sass; end
 
 require 'sass/util'
 
@@ -41,3 +25,4 @@ $LOAD_PATH.unshift dir unless $LOAD_PATH.include?(dir)
 
 require 'sass/engine'
 require 'sass/plugin' if defined?(Merb::Plugins)
+require 'sass/railtie'
