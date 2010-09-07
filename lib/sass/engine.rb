@@ -228,6 +228,18 @@ module Sass
     end
 
     def _to_tree
+      if (@options[:cache] || @options[:read_cache]) &&
+          @options[:filename] && @options[:importer]
+        key = sassc_key
+        sha = Digest::SHA1.hexdigest(@template)
+
+        if root = @options[:cache_store].retrieve(key, sha)
+          @options = root.options.merge(@options)
+          root.options = @options
+          return root
+        end
+      end
+
       check_encoding!
 
       if @options[:syntax] == :scss
@@ -238,11 +250,16 @@ module Sass
       end
 
       root.options = @options
+      @options[:cache_store].store(key, sha, root) if @options[:cache] && key && sha
       root
     rescue SyntaxError => e
       e.modify_backtrace(:filename => @options[:filename], :line => @line)
       e.sass_template = @template
       raise e
+    end
+
+    def sassc_key
+      @options[:cache_store].key(*@options[:importer].key(@options[:filename], @options))
     end
 
     def check_encoding!

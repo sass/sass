@@ -8,6 +8,10 @@ module Sass
   module Files
     extend self
 
+    def tree_for(filename, options)
+      engine_for(filename, options).to_tree
+    end
+
     # Returns the {Sass::Tree} for the given file,
     # reading it from the Sass cache if possible.
     #
@@ -16,20 +20,9 @@ module Sass
     #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
     # @raise [Sass::SyntaxError] if there's an error in the document.
     #   The caller has responsibility for setting backtrace information, if necessary
-    def tree_for(filename, options)
+    def engine_for(filename, options)
       had_syntax = options[:syntax]
       options = Sass::Engine.normalize_options(options)
-      text = File.read(filename)
-
-      if options[:cache] || options[:read_cache]
-        key = sassc_key(filename, options)
-        sha = Digest::SHA1.hexdigest(text)
-
-        if root = options[:cache_store].retrieve(key, sha)
-          root.options = root.options.merge(options.merge(:filename => filename))
-          return root
-        end
-      end
 
       if had_syntax
         # Use what was explicitly specificed
@@ -41,18 +34,7 @@ module Sass
 
       options = options.merge(:filename => filename,
         :importer => options[:filesystem_importer].new("."))
-      engine = Sass::Engine.new(text, options)
-
-      root = engine.to_tree
-      options[:cache_store].store(key, sha, root) if options[:cache]
-      root
-    end
-
-    private
-
-    def sassc_key(filename, options)
-      dir = File.dirname(File.expand_path(filename))
-      options[:cache_store].key(dir, File.basename(filename))
+      Sass::Engine.new(File.read(filename), options)
     end
   end
 end

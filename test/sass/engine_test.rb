@@ -2249,9 +2249,10 @@ SASS
 
   def sassc_path(template)
     sassc_path = File.join(File.dirname(__FILE__) + "/templates/#{template}.sass")
-    engine_opts = Sass::Engine.new("").instance_variable_get("@options")
-    key = Sass::Files.send(:sassc_key, sassc_path, engine_opts)
-    File.join(engine_opts[:cache_location], key)
+    engine = Sass::Engine.new("", :filename => sassc_path,
+      :importer => Sass::Importers::Filesystem.new("."))
+    key = engine.send(:sassc_key)
+    File.join(engine.options[:cache_location], key)
   end
 end
  

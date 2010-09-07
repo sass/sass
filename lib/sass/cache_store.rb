@@ -73,7 +73,6 @@ module Sass
     # The `(sass_dirname, sass_basename)` pair
     # should uniquely identify the Sass document,
     # but otherwise there are no restrictions on their content.
-    # It would be nice if 
     #
     # @param sass_dirname [String]
     #   The fully-expanded location of the Sass file.

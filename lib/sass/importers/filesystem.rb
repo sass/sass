@@ -31,6 +31,12 @@ module Sass
         nil
       end
 
+      # @see Base#key
+      def key(name, options)
+        [self.class.name + ":" + File.dirname(File.expand_path(name)),
+          File.basename(name)]
+      end
+
       # @see Base#to_s
       def to_s
         @root
@@ -102,19 +108,13 @@ module Sass
         return unless full_filename && File.readable?(full_filename)
 
         options[:syntax] = syntax
-        options[:filename] = relative(@root, full_filename)
+        options[:filename] = full_filename
         options[:importer] = self
         Sass::Engine.new(File.read(full_filename), options)
       end
 
       def join(base, path)
         Pathname.new(base).join(path).to_s
-      end
-
-      def relative(base, path)
-        path = Pathname.new(path)
-        return path.to_s if path.absolute?
-        path.relative_path_from(Pathname.new(base)).to_s
       end
     end
   end
