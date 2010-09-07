@@ -67,7 +67,7 @@ task :release => [:check_release, :package] do
   sh %{gem push pkg/sass-#{version}.gem}
 end
 
-# Ensures that the version have been updated for a new release.
+# Ensures that the VERSION file has been updated for a new release.
 task :check_release do
   version = File.read(scope("VERSION")).strip
   raise "There have been changes since current version (#{version})" if changed_since?(version)
@@ -117,25 +117,11 @@ task :release_edge do
     sh %{git reset --hard origin/edge-gem}
     sh %{git merge origin/master}
 
-    # Get the current master branch version
-    version = File.read(scope('VERSION')).strip.split('.')
-    pr = version[3]
-    version = version.map {|n| n.to_i}
-    unless pr || (version[1] % 2 == 1 && version[2] == 0)
-      raise "#{version.join('.')} is not a development version" 
+    unless edge_version = bump_edge_version
+      puts "master is already a prerelease version, no use building an edge gem"
+      next
     end
 
-    # Bump the edge gem version
-    edge_version = File.read(scope('EDGE_GEM_VERSION')).strip.split('.').map {|n| n.to_i}
-    if !pr && (edge_version[0..1] != version[0..1])
-      # A new master branch version was released, reset the edge gem version
-      edge_version[0..1] = version[0..1]
-      edge_version[2] = 0
-    else
-      # Just bump the teeny version
-      edge_version[2] += 1
-    end
-    edge_version = edge_version.join('.')
     File.open(scope('EDGE_GEM_VERSION'), 'w') {|f| f.puts(edge_version)}
     sh %{git commit -m "Bump edge gem version to #{edge_version}." EDGE_GEM_VERSION}
     sh %{git push origin edge-gem}
@@ -145,9 +131,39 @@ task :release_edge do
     sh %{rake package}
     sh %{git checkout VERSION}
 
-    sh %{rubyforge add_release sass sass-edge "Bleeding Edge (v#{edge_version})" pkg/sass-edge-#{edge_version}.gem}
-    sh %{gem push pkg/sass-edge-#{edge_version}.gem}
+    sh %{rubyforge add_release sass sass "Bleeding Edge (v#{edge_version})" pkg/sass-#{edge_version}.gem}
+    sh %{gem push pkg/sass-#{edge_version}.gem}
   end
+end
+
+# Reads the master version and the edge gem version,
+# bump the latter, and return it.
+#
+# Returns nil if the current master version is already a non-alpha prerelease.
+def bump_edge_version
+  # Get the current master branch version
+  version = File.read(scope('VERSION')).strip.split('.')
+  version.map! {|n| n =~ /^[0-9]+$/ ? n.to_i : n}
+  unless version.size == 5 # prerelease
+    raise "master version #{version.join('.')} is not a prerelease version" 
+  end
+
+  # Bump the edge gem version
+  edge_version = File.read(scope('EDGE_GEM_VERSION')).strip.split('.')
+  edge_version.map! {|n| n =~ /^[0-9]+$/ ? n.to_i : n}
+
+  if version[3] != "alpha"
+    return
+  elsif edge_version[0..2] != version[0..2]
+    # A new master branch version was released, reset the edge gem version
+    edge_version[0..2] = version[0..2]
+    edge_version[4] = 1
+  else
+    # Just bump the teeny version
+    edge_version[4] += 1
+  end
+
+  edge_version.join('.')
 end
 
 task :watch_for_update do

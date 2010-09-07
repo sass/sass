@@ -3,10 +3,10 @@ require 'rubygems'
 # Note that Sass's gem-compilation process requires access to the filesystem.
 # This means that it cannot be automatically run by e.g. GitHub's gem system.
 # However, a build server automatically packages the master branch
-# every time it's pushed to; this is made available as the haml-edge gem.
+# every time it's pushed to; this is made available as a prerelease gem.
 SASS_GEMSPEC = Gem::Specification.new do |spec|
   spec.rubyforge_project = 'sass'
-  spec.name = File.exist?(File.dirname(__FILE__) + '/EDGE_GEM_VERSION') ? 'sass-edge' : 'sass'
+  spec.name = 'sass'
   spec.summary = "A powerful but elegant CSS compiler that makes CSS fun again."
   spec.version = File.read(File.dirname(__FILE__) + '/VERSION').strip
   spec.authors = ['Nathan Weizenbaum', 'Chris Eppstein', 'Hampton Catlin']
