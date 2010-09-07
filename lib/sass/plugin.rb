@@ -21,13 +21,13 @@ module Sass
   # and they all take a block that's called when the given action occurs.
   #
   # @example Using a callback
-  # Sass::Plugin.on_updating_stylesheet do |template, css|
-  #   puts "Compiling #{template} to #{css}"
-  # end
-  # Sass::Plugin.update_stylesheets
-  #   #=> Compiling app/sass/screen.scss to public/stylesheets/screen.css
-  #   #=> Compiling app/sass/print.scss to public/stylesheets/print.css
-  #   #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
+  #   Sass::Plugin.on_updating_stylesheet do |template, css|
+  #     puts "Compiling #{template} to #{css}"
+  #   end
+  #   Sass::Plugin.update_stylesheets
+  #     #=> Compiling app/sass/screen.scss to public/stylesheets/screen.css
+  #     #=> Compiling app/sass/print.scss to public/stylesheets/print.css
+  #     #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
   module Plugin
     include Haml::Util
 

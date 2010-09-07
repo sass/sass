@@ -12,12 +12,12 @@ module Haml
     # SubsetMap preserves the order of values as they're inserted.
     #
     # @example
-    # ssm = SubsetMap.new
-    # ssm[Set[1, 2]] = "Foo"
-    # ssm[Set[2, 3]] = "Bar"
-    # ssm[Set[1, 2, 3]] = "Baz"
+    #   ssm = SubsetMap.new
+    #   ssm[Set[1, 2]] = "Foo"
+    #   ssm[Set[2, 3]] = "Bar"
+    #   ssm[Set[1, 2, 3]] = "Baz"
     #
-    # ssm[Set[1, 2, 3]] #=> ["Foo", "Bar", "Baz"]
+    #   ssm[Set[1, 2, 3]] #=> ["Foo", "Bar", "Baz"]
     class SubsetMap
       # Creates a new, empty SubsetMap.
       def initialize

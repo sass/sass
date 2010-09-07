@@ -7,21 +7,21 @@ module Sass
   # and passing in a block that's run when the callback is activated.
   #
   # @example Define a callback
-  # class Munger
-  #   extend Sass::Callbacks
-  #   define_callback :string_munged
+  #   class Munger
+  #     extend Sass::Callbacks
+  #     define_callback :string_munged
   #
-  #   def munge(str)
-  #     res = str.gsub(/[a-z]/, '\1\1')
-  #     run_string_munged str, res
-  #     res
+  #     def munge(str)
+  #       res = str.gsub(/[a-z]/, '\1\1')
+  #       run_string_munged str, res
+  #       res
+  #     end
   #   end
-  # end
   #
   # @example Use a callback
-  # m = Munger.new
-  # m.on_string_munged {|str, res| puts "#{str} was munged into #{res}!"}
-  # m.munge "bar" #=> bar was munged into bbaarr!
+  #   m = Munger.new
+  #   m.on_string_munged {|str, res| puts "#{str} was munged into #{res}!"}
+  #   m.munge "bar" #=> bar was munged into bbaarr!
   module Callbacks
     protected
 

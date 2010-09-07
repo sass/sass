@@ -91,10 +91,9 @@ module Sass
       # that the given selector matches (as well as possibly more).
       #
       # @example
-      # (.foo).superselector?(.foo.bar) #=> true
-      # (.foo).superselector?(.bar) #=> false
-      # (.bar .foo).superselector?(.foo) #=> false
-      #
+      #   (.foo).superselector?(.foo.bar) #=> true
+      #   (.foo).superselector?(.bar) #=> false
+      #   (.bar .foo).superselector?(.foo) #=> false
       # @param sseq [SimpleSequence]
       # @return [Boolean]
       def superselector?(sseq)
