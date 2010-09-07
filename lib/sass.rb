@@ -12,13 +12,6 @@ require 'sass/version'
 #
 # Also see the {file:SASS_REFERENCE.md full Sass reference}.
 module Sass
-  extend Sass::Version
-
-  # A string representing the version of Sass.
-  # A more fine-grained representation is available from {Sass::Version#version Sass.version}.
-  # @api public
-  VERSION = version[:string] unless defined?(Sass::VERSION)
-
   # Initializes Sass for Rails.
   #
   # This method is called by `init.rb`,
