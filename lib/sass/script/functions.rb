@@ -186,15 +186,14 @@ module Sass::Script
 
       # Asserts that the type of a given SassScript value
       # is the expected type (designated by a symbol).
-      # For example:
-      #
-      #     assert_type value, :String
-      #     assert_type value, :Number
       #
       # Valid types are `:Bool`, `:Color`, `:Number`, and `:String`.
       # Note that `:String` will match both double-quoted strings
       # and unquoted identifiers.
       #
+      # @example
+      #   assert_type value, :String
+      #   assert_type value, :Number
       # @param value [Sass::Script::Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
       def assert_type(value, type)
@@ -452,11 +451,9 @@ module Sass::Script
     # Takes a color and an amount between 0 and 1,
     # and returns a color with the opacity increased by that value.
     #
-    # For example:
-    #
-    #     opacify(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.6)
-    #     opacify(rgba(0, 0, 17, 0.8), 0.2) => #001
-    #
+    # @example
+    #   opacify(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.6)
+    #   opacify(rgba(0, 0, 17, 0.8), 0.2) => #001
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
@@ -472,11 +469,9 @@ module Sass::Script
     # Takes a color and an amount between 0 and 1,
     # and returns a color with the opacity decreased by that value.
     #
-    # For example:
-    #
-    #     transparentize(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.4)
-    #     transparentize(rgba(0, 0, 0, 0.8), 0.2) => rgba(0, 0, 0, 0.6)
-    #
+    # @example
+    #   transparentize(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.4)
+    #   transparentize(rgba(0, 0, 0, 0.8), 0.2) => rgba(0, 0, 0, 0.6)
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
@@ -492,11 +487,9 @@ module Sass::Script
     # Takes a color and an amount between 0% and 100%,
     # and returns a color with the lightness increased by that value.
     #
-    # For example:
-    #
-    #     lighten(hsl(0, 0%, 0%), 30%) => hsl(0, 0, 30)
-    #     lighten(#800, 20%) => #e00
-    #
+    # @example
+    #   lighten(hsl(0, 0%, 0%), 30%) => hsl(0, 0, 30)
+    #   lighten(#800, 20%) => #e00
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
@@ -511,11 +504,9 @@ module Sass::Script
     # Takes a color and an amount between 0% and 100%,
     # and returns a color with the lightness decreased by that value.
     #
-    # For example:
-    #
-    #     darken(hsl(25, 100%, 80%), 30%) => hsl(25, 100%, 50%)
-    #     darken(#800, 20%) => #200
-    #
+    # @example
+    #   darken(hsl(25, 100%, 80%), 30%) => hsl(25, 100%, 50%)
+    #   darken(#800, 20%) => #200
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
@@ -530,11 +521,9 @@ module Sass::Script
     # Takes a color and an amount between 0% and 100%,
     # and returns a color with the saturation increased by that value.
     #
-    # For example:
-    #
-    #     saturate(hsl(120, 30%, 90%), 20%) => hsl(120, 50%, 90%)
-    #     saturate(#855, 20%) => #9e3f3f
-    #
+    # @example
+    #   saturate(hsl(120, 30%, 90%), 20%) => hsl(120, 50%, 90%)
+    #   saturate(#855, 20%) => #9e3f3f
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
@@ -549,11 +538,9 @@ module Sass::Script
     # Takes a color and an amount between 0% and 100%,
     # and returns a color with the saturation decreased by that value.
     #
-    # For example:
-    #
-    #     desaturate(hsl(120, 30%, 90%), 20%) => hsl(120, 10%, 90%)
-    #     desaturate(#855, 20%) => #726b6b
-    #
+    # @example
+    #   desaturate(hsl(120, 30%, 90%), 20%) => hsl(120, 10%, 90%)
+    #   desaturate(#855, 20%) => #726b6b
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
@@ -568,12 +555,10 @@ module Sass::Script
     # Takes a color and a number of degrees (usually between -360deg and 360deg),
     # and returns a color with the hue rotated by that value.
     #
-    # For example:
-    #
-    #     adjust-hue(hsl(120, 30%, 90%), 60deg) => hsl(180, 30%, 90%)
-    #     adjust-hue(hsl(120, 30%, 90%), 060deg) => hsl(60, 30%, 90%)
-    #     adjust-hue(#811, 45deg) => #886a11
-    #
+    # @example
+    #   adjust-hue(hsl(120, 30%, 90%), 60deg) => hsl(180, 30%, 90%)
+    #   adjust-hue(hsl(120, 30%, 90%), 060deg) => hsl(60, 30%, 90%)
+    #   adjust-hue(#811, 45deg) => #886a11
     # @param color [Color]
     # @param amount [Number]
     # @return [Color]
@@ -596,12 +581,10 @@ module Sass::Script
     # 25% means that a quarter of the first color
     # and three quarters of the second color should be used.
     #
-    # For example:
-    #
-    #     mix(#f00, #00f) => #7f007f
-    #     mix(#f00, #00f, 25%) => #3f00bf
-    #     mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
-    #
+    # @example
+    #   mix(#f00, #00f) => #7f007f
+    #   mix(#f00, #00f, 25%) => #3f00bf
+    #   mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
     # @overload mix(color1, color2, weight = 50%)
     #   @param color1 [Color]
     #   @param color2 [Color]
@@ -680,8 +663,8 @@ module Sass::Script
     # @raise [ArgumentError] if `str` isn't a string
     # @see #quote
     # @example
-    # unquote("foo") => foo
-    # unquote(foo) => foo
+    #   unquote("foo") => foo
+    #   unquote(foo) => foo
     def unquote(str)
       assert_type str, :String
       Sass::Script::String.new(str.value, :identifier)
@@ -695,23 +678,22 @@ module Sass::Script
     # @raise [ArgumentError] if `str` isn't a string
     # @see #unquote
     # @example
-    # quote("foo") => "foo"
-    # quote(foo) => "foo"
+    #   quote("foo") => "foo"
+    #   quote(foo) => "foo"
     def quote(str)
       assert_type str, :String
       Sass::Script::String.new(str.value, :string)
     end
 
     # Inspects the type of the argument, returning it as an unquoted string.
-    # For example:
     #
-    #     type-of(100px)  => number
-    #     type-of(asdf)   => string
-    #     type-of("asdf") => string
-    #     type-of(true)   => bool
-    #     type-of(#fff)   => color
-    #     type-of(blue)   => color
-    #
+    # @example
+    #   type-of(100px)  => number
+    #   type-of(asdf)   => string
+    #   type-of("asdf") => string
+    #   type-of(true)   => bool
+    #   type-of(#fff)   => color
+    #   type-of(blue)   => color
     # @param obj [Literal] The object to inspect
     # @return [String] The unquoted string name of the literal's type
     def type_of(obj)
@@ -720,14 +702,13 @@ module Sass::Script
 
     # Inspects the unit of the number, returning it as a quoted string.
     # Complex units are sorted in alphabetical order by numerator and denominator.
-    # For example:
     #
-    #     unit(100) => ""
-    #     unit(100px) => "px"
-    #     unit(3em) => "em"
-    #     unit(10px * 5em) => "em*px"
-    #     unit(10px * 5em / 30cm / 1rem) => "em*px/cm*rem"
-    #
+    # @example
+    #   unit(100) => ""
+    #   unit(100px) => "px"
+    #   unit(3em) => "em"
+    #   unit(10px * 5em) => "em*px"
+    #   unit(10px * 5em / 30cm / 1rem) => "em*px/cm*rem"
     # @param number [Literal] The number to inspect
     # @return [String] The unit(s) of the number
     # @raise [ArgumentError] if `number` isn't a number
@@ -737,11 +718,10 @@ module Sass::Script
     end
 
     # Inspects the unit of the number, returning a boolean indicating if it is unitless.
-    # For example:
     #
-    #     unitless(100) => true
-    #     unitless(100px) => false
-    #
+    # @example
+    #   unitless(100) => true
+    #   unitless(100px) => false
     # @param number [Literal] The number to inspect
     # @return [Bool] Whether or not the number is unitless
     # @raise [ArgumentError] if `number` isn't a number
@@ -751,12 +731,11 @@ module Sass::Script
     end
 
     # Returns true if two numbers are similar enough to be added, subtracted, or compared.
-    # For example:
     #
-    #     comparable(2px, 1px) => true
-    #     comparable(100px, 3em) => false
-    #     comparable(10cm, 3mm) => true
-    #
+    # @example
+    #   comparable(2px, 1px) => true
+    #   comparable(100px, 3em) => false
+    #   comparable(10cm, 3mm) => true
     # @param number1 [Number]
     # @param number2 [Number]
     # @return [Bool] indicating if the numbers can be compared.
@@ -768,10 +747,9 @@ module Sass::Script
     end
 
     # Converts a decimal number to a percentage.
-    # For example:
     #
-    #     percentage(100px / 50px) => 200%
-    #
+    # @example
+    #   percentage(100px / 50px) => 200%
     # @param value [Number] The decimal number to convert to a percentage
     # @return [Number] The percentage
     # @raise [ArgumentError] If `value` isn't a unitless number
@@ -783,11 +761,10 @@ module Sass::Script
     end
 
     # Rounds a number to the nearest whole number.
-    # For example:
     #
-    #     round(10.4px) => 10px
-    #     round(10.6px) => 11px
-    #
+    # @example
+    #   round(10.4px) => 10px
+    #   round(10.6px) => 11px
     # @param value [Number] The number
     # @return [Number] The rounded number
     # @raise [Sass::SyntaxError] if `value` isn't a number
@@ -796,11 +773,10 @@ module Sass::Script
     end
 
     # Rounds a number up to the nearest whole number.
-    # For example:
     #
-    #     ciel(10.4px) => 11px
-    #     ciel(10.6px) => 11px
-    #
+    # @example
+    #   ciel(10.4px) => 11px
+    #   ciel(10.6px) => 11px
     # @param value [Number] The number
     # @return [Number] The rounded number
     # @raise [Sass::SyntaxError] if `value` isn't a number
@@ -809,11 +785,10 @@ module Sass::Script
     end
 
     # Rounds down to the nearest whole number.
-    # For example:
     #
-    #     floor(10.4px) => 10px
-    #     floor(10.6px) => 10px
-    #
+    # @example
+    #   floor(10.4px) => 10px
+    #   floor(10.6px) => 10px
     # @param value [Number] The number
     # @return [Number] The rounded number
     # @raise [Sass::SyntaxError] if `value` isn't a number
@@ -822,11 +797,10 @@ module Sass::Script
     end
 
     # Finds the absolute value of a number.
-    # For example:
     #
-    #     abs(10px) => 10px
-    #     abs(-10px) => 10px
-    #
+    # @example
+    #   abs(10px) => 10px
+    #   abs(-10px) => 10px
     # @param value [Number] The number
     # @return [Number] The absolute value
     # @raise [Sass::SyntaxError] if `value` isn't a number

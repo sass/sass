@@ -23,14 +23,13 @@ module Sass
   # See \{#compiler}.
   #
   # @example Using a callback
-  # Sass::Plugin.on_updating_stylesheet do |template, css|
-  #   puts "Compiling #{template} to #{css}"
-  # end
-  # Sass::Plugin.update_stylesheets
-  #   #=> Compiling app/sass/screen.scss to public/stylesheets/screen.css
-  #   #=> Compiling app/sass/print.scss to public/stylesheets/print.css
-  #   #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
-  #
+  #   Sass::Plugin.on_updating_stylesheet do |template, css|
+  #     puts "Compiling #{template} to #{css}"
+  #   end
+  #   Sass::Plugin.update_stylesheets
+  #     #=> Compiling app/sass/screen.scss to public/stylesheets/screen.css
+  #     #=> Compiling app/sass/print.scss to public/stylesheets/print.css
+  #     #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
   # @see Sass::Plugin::Compiler
   module Plugin
     extend self
