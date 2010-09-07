@@ -13,13 +13,6 @@ require 'haml/version'
 #
 # Also see the {file:HAML_REFERENCE.md full Haml reference}.
 module Haml
-  extend Haml::Version
-
-  # A string representing the version of Haml.
-  # A more fine-grained representation is available from Haml.version.
-  # @api public
-  VERSION = version[:string] unless defined?(Haml::VERSION)
-
   # Initializes Haml for Rails.
   #
   # This method is called by `init.rb`,

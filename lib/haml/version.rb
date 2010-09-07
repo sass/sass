@@ -99,4 +99,11 @@ module Haml
       return nil
     end
   end
+
+  extend Haml::Version
+
+  # A string representing the version of Haml.
+  # A more fine-grained representation is available from Haml.version.
+  # @api public
+  VERSION = version[:string] unless defined?(Haml::VERSION)
 end
