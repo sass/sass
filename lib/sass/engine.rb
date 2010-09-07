@@ -146,6 +146,10 @@ module Sass
     def self.normalize_options(options)
       options = DEFAULT_OPTIONS.merge(options.reject {|k, v| v.nil?})
 
+      # If the `:filename` option is passed in without an importer,
+      # assume it's using the default filesystem importer.
+      options[:importer] ||= options[:filesystem_importer].new(".") if options[:filename]
+
       options[:cache_store] ||= Sass::FileCacheStore.new(options[:cache_location])
       # Support both, because the docs said one and the other actually worked
       # for quite a long time.

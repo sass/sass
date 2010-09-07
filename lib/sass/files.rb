@@ -8,21 +8,19 @@ module Sass
   module Files
     extend self
 
-    def tree_for(filename, options)
-      engine_for(filename, options).to_tree
-    end
-
-    # Returns the {Sass::Tree} for the given file,
-    # reading it from the Sass cache if possible.
+    # Returns the {Sass::Engine} for the given file.
+    # This is preferable to {Sass::Engine.new} when reading from a file
+    # because it properly sets up the Engine's metadata,
+    # enables parse-tree caching,
+    # and infers the syntax from the filename.
     #
     # @param filename [String] The path to the Sass or SCSS file
     # @param options [{Symbol => Object}] The options hash.
     #   Only the {file:SASS_REFERENCE.md#cache-option `:cache_location`} option is used
+    # @return [Sass::Engine] The Engine for the given Sass or SCSS file.
     # @raise [Sass::SyntaxError] if there's an error in the document.
-    #   The caller has responsibility for setting backtrace information, if necessary
     def engine_for(filename, options)
       had_syntax = options[:syntax]
-      options = Sass::Engine.normalize_options(options)
 
       if had_syntax
         # Use what was explicitly specificed
@@ -32,9 +30,7 @@ module Sass
         options.merge!(:syntax => :sass)
       end
 
-      options = options.merge(:filename => filename,
-        :importer => options[:filesystem_importer].new("."))
-      Sass::Engine.new(File.read(filename), options)
+      Sass::Engine.new(File.read(filename), options.merge(:filename => filename))
     end
   end
 end

@@ -281,19 +281,19 @@ END
           output = @options[:output]
 
           @options[:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
-          tree =
+          engine =
             if input.is_a?(File) && !@options[:check_syntax]
-              ::Sass::Files.tree_for(input.path, @options[:for_engine])
+              ::Sass::Files.engine_for(input.path, @options[:for_engine])
             else
               # We don't need to do any special handling of @options[:check_syntax] here,
               # because the Sass syntax checking happens alongside evaluation
               # and evaluation doesn't actually evaluate any code anyway.
-              ::Sass::Engine.new(input.read(), @options[:for_engine]).to_tree
+              ::Sass::Engine.new(input.read(), @options[:for_engine])
             end
 
           input.close() if input.is_a?(File)
 
-          output.write(tree.render)
+          output.write(engine.render)
           output.close() if output.is_a? File
         rescue ::Sass::SyntaxError => e
           raise e if @options[:trace]
@@ -769,10 +769,10 @@ END
               Less::Engine.new(input).to_tree.to_sass_tree.send("to_#{@options[:to]}", @options[:for_tree])
             else
               if input.is_a?(File)
-                ::Sass::Files.tree_for(input.path, @options[:for_engine])
+                ::Sass::Files.engine_for(input.path, @options[:for_engine])
               else
-                ::Sass::Engine.new(input.read, @options[:for_engine]).to_tree
-              end.send("to_#{@options[:to]}", @options[:for_tree])
+                ::Sass::Engine.new(input.read, @options[:for_engine])
+              end.to_tree.send("to_#{@options[:to]}", @options[:for_tree])
             end
           end
 

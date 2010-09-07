@@ -53,7 +53,7 @@ module Sass
     options = args.last.is_a?(Hash) ? args.pop : {}
     css_filename ||= args.shift
     options[:css_filename] = css_filename
-    result = Sass::Files.tree_for(filename, options).render
+    result = Sass::Files.engine_for(filename, options).render
     if css_filename
       open(css_filename,"w") {|css_file| css_file.write(result) }
       nil
