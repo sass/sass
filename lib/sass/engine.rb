@@ -22,7 +22,6 @@ require 'sass/environment'
 require 'sass/script'
 require 'sass/scss'
 require 'sass/error'
-require 'sass/files'
 require 'sass/importers'
 require 'haml/shared'
 
@@ -170,20 +169,54 @@ module Sass
       options
     end
 
+    # Returns the {Sass::Engine} for the given file.
+    # This is preferable to {Sass::Engine.new} when reading from a file
+    # because it properly sets up the Engine's metadata,
+    # enables parse-tree caching,
+    # and infers the syntax from the filename.
+    #
+    # @param filename [String] The path to the Sass or SCSS file
+    # @param options [{Symbol => Object}] The options hash;
+    #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+    # @return [Sass::Engine] The Engine for the given Sass or SCSS file.
+    # @raise [Sass::SyntaxError] if there's an error in the document.
+    def self.for_file(filename, options)
+      had_syntax = options[:syntax]
+
+      if had_syntax
+        # Use what was explicitly specificed
+      elsif filename =~ /\.scss$/
+        options.merge!(:syntax => :scss)
+      elsif filename =~ /\.sass$/
+        options.merge!(:syntax => :sass)
+      end
+
+      Sass::Engine.new(File.read(filename), options.merge(:filename => filename))
+    end
+
     # The options for the Sass engine.
     # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
     # @return [{Symbol => Object}]
     attr_reader :options
 
+    # Creates a new Engine. Note that Engine should only be used directly
+    # when compiling in-memory Sass code.
+    # If you're compiling a single Sass file from the filesystem,
+    # use \{Sass::Engine.for\_file}.
+    # If you're compiling multiple files from the filesystem,
+    # use {Sass::Plugin.
+    #
     # @param template [String] The Sass template.
     #   This template can be encoded using any encoding
     #   that can be converted to Unicode.
     #   If the template contains an `@charset` declaration,
     #   that overrides the Ruby encoding
     #   (see {file:SASS_REFERENCE.md#encodings the encoding documentation})
-    # @param options [{Symbol => Object}] An options hash;
-    #   
+    # @param options [{Symbol => Object}] An options hash.
+    #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
+    # @see {Sass::Engine.for_file}
+    # @see {Sass::Plugin}
     def initialize(template, options={})
       @options = self.class.normalize_options(options)
       @template = template
