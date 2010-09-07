@@ -84,14 +84,18 @@ module Sass
 
       # Appends a child to the node.
       #
-      # @param child [Tree::Node] The child node
+      # @param child [Tree::Node, Array<Tree::Node>] The child node or nodes
       # @raise [Sass::SyntaxError] if `child` is invalid
       # @see #invalid_child?
       def <<(child)
         return if child.nil?
-        check_child! child
-        self.has_children = true
-        @children << child
+        if child.is_a?(Array)
+          child.each {|c| self << c}
+        else
+          check_child! child
+          self.has_children = true
+          @children << child
+        end
       end
 
       # Raises an error if the given child node is invalid.

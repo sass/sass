@@ -26,11 +26,10 @@ module Sass
     end
 
     # Converts an array of `[key, value]` pairs to a hash.
-    # For example:
     #
-    #     to_hash([[:foo, "bar"], [:baz, "bang"]])
-    #       #=> {:foo => "bar", :baz => "bang"}
-    #
+    # @example
+    #   to_hash([[:foo, "bar"], [:baz, "bang"]])
+    #     #=> {:foo => "bar", :baz => "bang"}
     # @param arr [Array<(Object, Object)>] An array of pairs
     # @return [Hash] A hash
     def to_hash(arr)
@@ -38,11 +37,10 @@ module Sass
     end
 
     # Maps the keys in a hash according to a block.
-    # For example:
     #
-    #     map_keys({:foo => "bar", :baz => "bang"}) {|k| k.to_s}
-    #       #=> {"foo" => "bar", "baz" => "bang"}
-    #
+    # @example
+    #   map_keys({:foo => "bar", :baz => "bang"}) {|k| k.to_s}
+    #     #=> {"foo" => "bar", "baz" => "bang"}
     # @param hash [Hash] The hash to map
     # @yield [key] A block in which the keys are transformed
     # @yieldparam key [Object] The key that should be mapped
@@ -55,11 +53,10 @@ module Sass
     end
 
     # Maps the values in a hash according to a block.
-    # For example:
     #
-    #     map_values({:foo => "bar", :baz => "bang"}) {|v| v.to_sym}
-    #       #=> {:foo => :bar, :baz => :bang}
-    #
+    # @example
+    #   map_values({:foo => "bar", :baz => "bang"}) {|v| v.to_sym}
+    #     #=> {:foo => :bar, :baz => :bang}
     # @param hash [Hash] The hash to map
     # @yield [value] A block in which the values are transformed
     # @yieldparam value [Object] The value that should be mapped
@@ -72,11 +69,10 @@ module Sass
     end
 
     # Maps the key-value pairs of a hash according to a block.
-    # For example:
     #
-    #     map_hash({:foo => "bar", :baz => "bang"}) {|k, v| [k.to_s, v.to_sym]}
-    #       #=> {"foo" => :bar, "baz" => :bang}
-    #
+    # @example
+    #   map_hash({:foo => "bar", :baz => "bang"}) {|k, v| [k.to_s, v.to_sym]}
+    #     #=> {"foo" => :bar, "baz" => :bang}
     # @param hash [Hash] The hash to map
     # @yield [key, value] A block in which the key-value pairs are transformed
     # @yieldparam [key] The hash key
@@ -91,11 +87,10 @@ module Sass
 
     # Computes the powerset of the given array.
     # This is the set of all subsets of the array.
-    # For example:
     #
-    #     powerset([1, 2, 3]) #=>
-    #       Set[Set[], Set[1], Set[2], Set[3], Set[1, 2], Set[2, 3], Set[1, 3], Set[1, 2, 3]]
-    #
+    # @example
+    #   powerset([1, 2, 3]) #=>
+    #     Set[Set[], Set[1], Set[2], Set[3], Set[1, 2], Set[2, 3], Set[1, 3], Set[1, 2, 3]]
     # @param arr [Enumerable]
     # @return [Set<Set>] The subsets of `arr`
     def powerset(arr)
@@ -122,11 +117,10 @@ module Sass
 
     # Concatenates all strings that are adjacent in an array,
     # while leaving other elements as they are.
-    # For example:
     #
-    #     merge_adjacent_strings([1, "foo", "bar", 2, "baz"])
-    #       #=> [1, "foobar", 2, "baz"]
-    #
+    # @example
+    #   merge_adjacent_strings([1, "foo", "bar", 2, "baz"])
+    #     #=> [1, "foobar", 2, "baz"]
     # @param enum [Enumerable]
     # @return [Array] The enumerable with strings merged
     def merge_adjacent_strings(enum)
@@ -189,11 +183,11 @@ module Sass
     # @return [Array<Arrays>]
     #
     # @example
-    # paths([[1, 2], [3, 4], [5]]) #=>
-    #   # [[1, 3, 5],
-    #   #  [2, 3, 5],
-    #   #  [1, 4, 5],
-    #   #  [2, 4, 5]]
+    #   paths([[1, 2], [3, 4], [5]]) #=>
+    #     # [[1, 3, 5],
+    #     #  [2, 3, 5],
+    #     #  [1, 4, 5],
+    #     #  [2, 4, 5]]
     def paths(arrs)
       arrs.inject([[]]) do |paths, arr|
         flatten(arr.map {|e| paths.map {|path| path + [e]}}, 1)
@@ -229,6 +223,44 @@ module Sass
       # This is added by Rubinius to designate a block, but we don't care about it.
       info[2].sub!(/ \{\}\Z/, '') if info[2]
       info
+    end
+
+    # Returns whether one version string represents a more recent version than another.
+    #
+    # @param v1 [String] A version string.
+    # @param v2 [String] Another version string.
+    # @return [Boolean]
+    def version_gt(v1, v2)
+      # Construct an array to make sure the shorter version is padded with nil
+      Array.new([v1.length, v2.length].max).zip(v1.split("."), v2.split(".")) do |_, p1, p2|
+        p1 ||= "0"
+        p2 ||= "0"
+        release1 = p1 =~ /^[0-9]+$/
+        release2 = p2 =~ /^[0-9]+$/
+        if release1 && release2
+          # Integer comparison if both are full releases
+          p1, p2 = p1.to_i, p2.to_i
+          next if p1 == p2
+          return p1 > p2
+        elsif !release1 && !release2
+          # String comparison if both are prereleases
+          next if p1 == p2
+          return p1 > p2
+        else
+          # If only one is a release, that one is newer
+          return release1
+        end
+      end
+    end
+
+    # Returns whether one version string represents the same or a more
+    # recent version than another.
+    #
+    # @param v1 [String] A version string.
+    # @param v2 [String] Another version string.
+    # @return [Boolean]
+    def version_geq(v1, v2)
+      version_gt(v1, v2) || !version_gt(v2, v1)
     end
 
     # Silence all output to STDERR within a block.
@@ -269,8 +301,8 @@ module Sass
     #
     # @return [String, nil]
     def rails_root
-      if defined?(Rails.root)
-        return Rails.root.to_s if Rails.root
+      if defined?(::Rails.root)
+        return ::Rails.root.to_s if ::Rails.root
         raise "ERROR: Rails.root is nil!"
       end
       return RAILS_ROOT.to_s if defined?(RAILS_ROOT)
@@ -283,7 +315,7 @@ module Sass
     #
     # @return [String, nil]
     def rails_env
-      return Rails.env.to_s if defined?(Rails.root)
+      return ::Rails.env.to_s if defined?(::Rails.env)
       return RAILS_ENV.to_s if defined?(RAILS_ENV)
       return nil
     end
@@ -308,7 +340,7 @@ module Sass
       return false unless defined?(ActionPack) && defined?(ActionPack::VERSION) &&
         defined?(ActionPack::VERSION::STRING)
 
-      ActionPack::VERSION::STRING >= version
+      version_geq(ActionPack::VERSION::STRING, version)
     end
 
     # Returns an ActionView::Template* class.

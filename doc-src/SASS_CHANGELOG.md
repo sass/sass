@@ -9,7 +9,9 @@
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
-## 3.0.18 (Unreleased)
+## 3.0.18
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
 
 * Don't require `rake` in the gemspec, for bundler compatibility under
   JRuby. Thanks to [Gordon McCreight](http://www.gmccreight.com/blog).
@@ -21,6 +23,10 @@
   and make `data-` attributes not work.
 
 * Get rid of the annoying RDoc errors on install.
+
+* Disambiguate references to the `Rails` module when `haml-rails` is installed.
+
+* Allow `@import` in SCSS to import multiple files in the same `@import` rule.
 
 ## 3.0.17
 
