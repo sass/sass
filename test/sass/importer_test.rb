@@ -25,6 +25,10 @@ class ImporterTest < Test::Unit::TestCase
         Sass::Engine.new(contents, :filename => name, :syntax => :scss, :importer => self)
       end
     end
+
+    def key(name, context)
+      [self.class.name, name]
+    end
   end
 
   # This class proves that you can override the extension scheme for importers
