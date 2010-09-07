@@ -245,8 +245,6 @@ module Sass
       end
 
       # Names of options that are saved when the node is serialized and cached.
-      #
-      # @type [Array<Symbol>]
       SAVED_OPTIONS = [:importer]
 
       # Ensures that only {SAVED_OPTIONS} get saved.

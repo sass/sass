@@ -95,7 +95,7 @@ module Sass
 
     # Create a new FileCacheStore.
     #
-    # @param cache_location [String] @see \{#cache_location}
+    # @param cache_location [String] see \{#cache\_location}
     def initialize(cache_location)
       @cache_location = cache_location
     end
