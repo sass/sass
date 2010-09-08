@@ -1506,7 +1506,7 @@ HAML
 
   def test_loud_ruby_multiline_with_block
     assert_equal(<<HTML, render(<<HAML))
-farfazfang
+#{%w[far faz fang]}
 <p>foo</p>
 <p>bar</p>
 HTML
@@ -1629,13 +1629,6 @@ HAML
   end
 
   unless Haml::Util.ruby1_8?
-    def test_default_encoding
-      assert_equal(Encoding.find("utf-8"), render(<<HAML.encode("us-ascii")).encoding)
-%p bar
-%p foo
-HAML
-    end
-
     def test_convert_template_render
       assert_equal(<<HTML, render(<<HAML.encode("iso-8859-1"), :encoding => "utf-8"))
 <p>bâr</p>

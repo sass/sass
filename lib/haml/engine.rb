@@ -56,12 +56,7 @@ module Haml
     # (see {file:HAML_REFERENCE.md#encoding-option the `:encoding` option}).
     #
     # @return [String]
-    def precompiled
-      return @precompiled if ruby1_8?
-      encoding = Encoding.find(@options[:encoding])
-      return @precompiled.force_encoding(encoding) if encoding == Encoding::BINARY
-      return @precompiled.encode(encoding)
-    end
+    attr_reader :precompiled
 
     # Precompiles the Haml template.
     #
@@ -93,7 +88,6 @@ module Haml
 
       unless ruby1_8?
         @options[:encoding] = Encoding.default_internal || template.encoding
-        @options[:encoding] = "utf-8" if @options[:encoding].name == "US-ASCII"
       end
       @options.merge! options.reject {|k, v| v.nil?}
       @index = 0
@@ -102,19 +96,29 @@ module Haml
         raise Haml::Error, "Invalid output format #{@options[:format].inspect}"
       end
 
-      if @options[:encoding] && @options[:encoding].is_a?(Encoding)
-        @options[:encoding] = @options[:encoding].name
+      unless ruby1_8?
+        unless @options[:encoding].is_a?(Encoding)
+          @options[:encoding] = Encoding.find(@options[:encoding])
+        end
+
+        template =
+          if @options[:encoding] == Encoding::BINARY
+            template.force_encoding(@options[:encoding])
+          else
+            template.encode(@options[:encoding])
+          end
       end
 
       # :eod is a special end-of-document marker
       @template = (template.rstrip).split(/\r\n|\r|\n/) + [:eod, :eod]
+      @template_encoding = template.encoding
       @template_index = 0
       @to_close_stack = []
       @output_tabs = 0
       @template_tabs = 0
       @flat = false
       @newlines = 0
-      @precompiled = ''
+      @precompiled = ''.encode(template.encoding)
       @to_merge = []
       @tab_change  = 0
 
@@ -292,7 +296,6 @@ module Haml
         :attr_wrapper => @options[:attr_wrapper],
         :ugly => @options[:ugly],
         :format => @options[:format],
-        :encoding => @options[:encoding],
         :escape_html => @options[:escape_html],
       }
     end
