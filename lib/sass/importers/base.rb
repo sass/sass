@@ -113,7 +113,7 @@ module Sass
       # at the beginning of the first component.
       #
       # @param uri [String] A URI known to be valid for this importer.
-      # @param options [{Symbol => Objet}] Options for the Sass file
+      # @param options [{Symbol => Object}] Options for the Sass file
       #   containing the `@import` currently being checked.
       # @return [(String, String)] The key pair which uniquely identifies
       #   the file at the given URI.
