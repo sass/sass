@@ -4,7 +4,7 @@ module Sass
   # An abstract base class for backends for the Sass cache.
   # Any key-value store can act as such a backend;
   # it just needs to implement the
-  # \{#_store_} and \{#_retrieve_} methods.
+  # \{#_store} and \{#_retrieve} methods.
   #
   # To use a cache store with Sass,
   # use the {file:SASS_REFERENCE.md#cache_store-option `:cache_store` option}.
@@ -20,8 +20,8 @@ module Sass
     # @param sha [String] The sha of the sass source.
     #                Cached contents must not be retrieved if the sha has changed.
     # @param contents [String] The contents to store.
-    def _store_(key, version, sha, contents)
-      raise "#{self.class} must implement #_store_."
+    def _store(key, version, sha, contents)
+      raise "#{self.class} must implement #_store."
     end
 
     # Retrieved cached contents.
@@ -37,8 +37,8 @@ module Sass
     #                Cached contents must not be retrieved if the sha has changed.
     # @return [String] The contents that were previously stored.
     # @return [NilClass] when the cache key is not found or the version or sha have changed.
-    def _retrieve_(key, version, sha)
-      raise "#{self.class} must implement #_retrieve_."
+    def _retrieve(key, version, sha)
+      raise "#{self.class} must implement #_retrieve."
     end
 
     # Store a {Sass::Tree::RootNode}.
@@ -49,7 +49,7 @@ module Sass
     def store(key, sha, root)
       orig_options = root.options
       begin
-        _store_(key, Sass::VERSION, sha, Haml::Util.dump(root))
+        _store(key, Sass::VERSION, sha, Haml::Util.dump(root))
       ensure
         root.options = orig_options
       end
@@ -61,7 +61,7 @@ module Sass
     # @param sha [String] The checksum of the root element's content.
     # @return [Sass::Tree::RootNode] The root node.
     def retrieve(key, sha)
-      contents = _retrieve_(key, Sass::VERSION, sha)
+      contents = _retrieve(key, Sass::VERSION, sha)
       Haml::Util.load(contents) if contents
     rescue EOFError, TypeError, ArgumentError => e
       raise
@@ -101,7 +101,7 @@ module Sass
     end
 
     # @see {CacheStore#\_retrieve\_}
-    def _retrieve_(key, version, sha)
+    def _retrieve(key, version, sha)
       return unless File.readable?(path_to(key))
       contents = nil
       File.open(path_to(key), "rb") do |f|
@@ -116,7 +116,7 @@ module Sass
     end
 
     # @see {CacheStore#\_store\_}
-    def _store_(key, version, sha, contents)
+    def _store(key, version, sha, contents)
       return unless File.writable?(File.dirname(@cache_location))
       return if File.exists?(@cache_location) && !File.writable?(@cache_location)
       compiled_filename = path_to(key)
@@ -165,8 +165,8 @@ module Sass
       @contents = {}
     end
 
-    # @see CacheStore#_retrieve_
-    def _retrieve_(key, version, sha)
+    # @see CacheStore#_retrieve
+    def _retrieve(key, version, sha)
       if @contents.has_key?(key)
         return unless @contents[key][:version] == version
         return unless @contents[key][:sha] == sha
@@ -174,8 +174,8 @@ module Sass
       end
     end
     
-    # @see CacheStore#_store_
-    def _store_(key, version, sha, contents)
+    # @see CacheStore#_store
+    def _store(key, version, sha, contents)
       @contents[key] = {
         :version => version,
         :sha => sha,
@@ -198,11 +198,11 @@ module Sass
       @keys = {}
     end
 
-    def _retrieve_(key, version, sha)
+    def _retrieve(key, version, sha)
       nil
     end
     
-    def _store_(key, version, sha, contents)
+    def _store(key, version, sha, contents)
       @keys[key] = true
     end
     
