@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.19 (Unreleased)
+
+* Make the alpha value for `rgba` colors respect {Sass::Script::Number::PRECISION}.
+
 ## 3.0.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
