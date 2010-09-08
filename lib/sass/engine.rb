@@ -170,7 +170,7 @@ module Sass
     end
 
     # Returns the {Sass::Engine} for the given file.
-    # This is preferable to {Sass::Engine.new} when reading from a file
+    # This is preferable to Sass::Engine.new when reading from a file
     # because it properly sets up the Engine's metadata,
     # enables parse-tree caching,
     # and infers the syntax from the filename.

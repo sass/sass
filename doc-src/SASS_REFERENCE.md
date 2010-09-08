@@ -1677,3 +1677,40 @@ It's not meant to be human-readable.
 For example:
 
     #main{color:#fff;background-color:#000}#main p{width:10em}.huge{font-size:10em;font-weight:bold;text-decoration:underline}
+
+## Extending Sass
+
+Sass provides a number of advanced customizations for users with unique requirements.
+Using these features requires a strong understanding of Ruby.
+
+### Defining Custom Sass Functions
+
+The same way that Sass defines new functions for use in Sass stylesheets is available
+to users who which to do so. For more information see the [source
+documentation](/docs/yardoc/Sass/Script/Functions.html#adding_custom_functions).
+
+### Cache Stores
+
+Sass caches parsed documents so that they can be reused without parsing them again
+unless they have changed. By default, Sass will write these cache files to a location
+on the filesystem indicated by [`:cache_location`](#cache_location-option). If you
+cannot write to the filesystem or need to share cache across ruby processes or machines,
+then you can define your own cache store and set the[`:cache_store`
+option](#cache_store-option). For details on creating your own cache store, please
+see the {Sass::CacheStore source documentation}.
+
+### Custom Importers
+
+Sass importers are in charge of taking paths passed to `@import` and finding the
+appropriate Sass code for those paths. By default, this code is loaded from
+the {Sass::Importers::Filesystem filesystem}, but importers could be added to load
+from a database, over HTTP, or use a different file naming scheme than what Sass expects.
+
+Each importer is in charge of a single load path (or whatever the corresponding notion
+is for the backend). Importers can be placed in the {file:SASS_REFERENCE.md#load_paths-option
+`:load_paths` array} alongside normal filesystem paths.
+
+When resolving an `@import`, Sass will go through the load paths looking for an importer
+that successfully imports the path. Once one is found, the imported file is used.
+
+User-created importers must inherit from {Sass::Importers::Base}.
