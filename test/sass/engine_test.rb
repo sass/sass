@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/engine'
 require 'stringio'
 
@@ -11,6 +12,7 @@ module Sass::Script::Functions::UserFunctions
 end
 
 class SassEngineTest < Test::Unit::TestCase
+  FAKE_FILE_NAME = __FILE__.gsub(/rb$/,"sass")
   # A map of erroneous Sass documents to the error messages they should produce.
   # The error messages may be arrays;
   # if so, the second element should be the line number that should be reported for the error.
@@ -61,9 +63,7 @@ MSG
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import foo.sass" => <<MSG,
 File to import not found or unreadable: foo.sass.
-Load paths:
-  #{File.dirname(__FILE__)}
-  .
+Load path: .
 MSG
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
@@ -144,6 +144,33 @@ MSG
     renders_correctly "nested", { :style => :nested }
     renders_correctly "compressed", { :style => :compressed }
   end
+
+  def test_compile
+    assert_equal "div { hello: world; }\n", Sass.compile("$who: world\ndiv\n  hello: $who", :syntax => :sass, :style => :compact)
+    assert_equal "div { hello: world; }\n", Sass.compile("$who: world; div { hello: $who }", :style => :compact)
+  end
+
+  def test_compile_file
+    FileUtils.mkdir_p(absolutize("tmp"))
+    open(absolutize("tmp/test_compile_file.sass"), "w") {|f| f.write("$who: world\ndiv\n  hello: $who")}
+    open(absolutize("tmp/test_compile_file.scss"), "w") {|f| f.write("$who: world; div { hello: $who }")}
+    assert_equal "div { hello: world; }\n", Sass.compile_file(absolutize("tmp/test_compile_file.sass"), :style => :compact)
+    assert_equal "div { hello: world; }\n", Sass.compile_file(absolutize("tmp/test_compile_file.scss"), :style => :compact)
+  ensure
+    FileUtils.rm_rf(absolutize("tmp"))
+  end
+
+  def test_compile_file_to_css_file
+    FileUtils.mkdir_p(absolutize("tmp"))
+    open(absolutize("tmp/test_compile_file.sass"), "w") {|f| f.write("$who: world\ndiv\n  hello: $who")}
+    open(absolutize("tmp/test_compile_file.scss"), "w") {|f| f.write("$who: world; div { hello: $who }")}
+    Sass.compile_file(absolutize("tmp/test_compile_file.sass"), absolutize("tmp/test_compile_file_sass.css"), :style => :compact)
+    Sass.compile_file(absolutize("tmp/test_compile_file.scss"), absolutize("tmp/test_compile_file_scss.css"), :style => :compact)
+    assert_equal "div { hello: world; }\n", File.read(absolutize("tmp/test_compile_file_sass.css"))
+    assert_equal "div { hello: world; }\n", File.read(absolutize("tmp/test_compile_file_scss.css"))
+  ensure
+    FileUtils.rm_rf(absolutize("tmp"))
+  end
   
   def test_flexible_tabulation
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
@@ -156,14 +183,14 @@ MSG
     define_method("test_exception (#{key.inspect})") do
       line = 10
       begin
-        silence_warnings {Sass::Engine.new(key, :filename => __FILE__, :line => line).render}
+        silence_warnings {Sass::Engine.new(key, :filename => FAKE_FILE_NAME, :line => line).render}
       rescue Sass::SyntaxError => err
         value = [value] unless value.is_a?(Array)
 
         assert_equal(value.first.rstrip, err.message, "Line: #{key}")
-        assert_equal(__FILE__, err.sass_filename)
+        assert_equal(FAKE_FILE_NAME, err.sass_filename)
         assert_equal((value[1] || key.split("\n").length) + line - 1, err.sass_line, "Line: #{key}")
-        assert_match(/#{Regexp.escape(__FILE__)}:[0-9]+/, err.backtrace[0], "Line: #{key}")
+        assert_match(/#{Regexp.escape(FAKE_FILE_NAME)}:[0-9]+/, err.backtrace[0], "Line: #{key}")
       else
         assert(false, "Exception not raised for\n#{key}")
       end
@@ -196,9 +223,9 @@ rule
   :broken
 SASS
     begin
-      Sass::Engine.new(to_render, :filename => __FILE__, :line => (__LINE__-7)).render
+      Sass::Engine.new(to_render, :filename => FAKE_FILE_NAME, :line => (__LINE__-7)).render
     rescue Sass::SyntaxError => err
-      assert_equal(__FILE__, err.sass_filename)
+      assert_equal(FAKE_FILE_NAME, err.sass_filename)
       assert_equal((__LINE__-6), err.sass_line)
     else
       assert(false, "Exception not raised for '#{to_render}'!")
@@ -500,17 +527,17 @@ CSS
   end
 
   def test_sass_import
-    assert !File.exists?(sassc_path("importee"))
+    sassc_file = sassc_path("importee")
+    assert !File.exists?(sassc_file)
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
-    assert File.exists?(sassc_path("importee"))
+    assert File.exists?(sassc_file)
   end
 
   def test_nonexistent_extensionless_import
-    assert_warning(<<WARN) do
-WARNING: Neither nonexistent.sass nor .scss found. Using nonexistent.css instead.
-This behavior is deprecated and will be removed in a future version.
-If you really need nonexistent.css, import it explicitly.
-WARN
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) do
+File to import not found or unreadable: nonexistent.
+Load path: .
+ERR
       assert_equal("@import url(nonexistent.css);\n", render("@import nonexistent"))
     end
   end
@@ -2204,6 +2231,7 @@ SASS
     sass_file  = load_file(name, "sass")
     css_file   = load_file(name, "css")
     options[:filename] ||= filename(name, "sass")
+    options[:syntax] ||= :sass
     options[:css_filename] ||= filename(name, "css")
     css_result = Sass::Engine.new(sass_file, options).render
     assert_equal css_file, css_result
@@ -2221,7 +2249,10 @@ SASS
 
   def sassc_path(template)
     sassc_path = File.join(File.dirname(__FILE__) + "/templates/#{template}.sass")
-    Sass::Files.send(:sassc_filename, sassc_path, Sass::Engine::DEFAULT_OPTIONS)
+    engine = Sass::Engine.new("", :filename => sassc_path,
+      :importer => Sass::Importers::Filesystem.new("."))
+    key = engine.send(:sassc_key)
+    File.join(engine.options[:cache_location], key)
   end
 end
  

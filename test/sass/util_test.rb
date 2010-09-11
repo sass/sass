@@ -5,6 +5,19 @@ require 'pathname'
 class UtilTest < Test::Unit::TestCase
   include Sass::Util
 
+  class Dumpable
+    attr_reader :arr
+    def initialize; @arr = []; end
+    def _before_dump; @arr << :before; end
+    def _after_dump; @arr << :after; end
+    def _around_dump
+      @arr << :around_before
+      yield
+      @arr << :around_after
+    end
+    def _after_load; @arr << :loaded; end
+  end
+
   def test_scope
     assert(File.exist?(scope("Rakefile")))
   end
@@ -239,4 +252,24 @@ class UtilTest < Test::Unit::TestCase
     assert(!version_gt(v1, v2), "Expected #{v1} = #{v2}")
     assert(!version_gt(v2, v1), "Expected #{v2} = #{v1}")
   end
+
+  def test_dump_and_load
+    obj = Dumpable.new
+    data = dump(obj)
+    assert_equal([:before, :around_before, :around_after, :after], obj.arr)
+    obj2 = load(data)
+    assert_equal([:before, :around_before, :loaded], obj2.arr)
+  end
+
+  class FooBar
+    def foo
+      Sass::Util.abstract(self)
+    end
+  end
+
+  def test_abstract
+    assert_raise_message(NotImplementedError,
+      "UtilTest::FooBar must implement #foo") {FooBar.new.foo}
+  end
+
 end

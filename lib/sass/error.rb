@@ -125,6 +125,7 @@ module Sass
     # @return [Array<String>]
     def backtrace
       return nil if super.nil?
+      return super if sass_backtrace.all? {|h| h.empty?}
       sass_backtrace.map do |h|
         "#{h[:filename] || "(sass)"}:#{h[:line]}" +
           (h[:mixin] ? ":in `#{h[:mixin]}'" : "")
@@ -178,7 +179,9 @@ END
       private
 
       def header_string(e, options)
-        return "#{e.class}: #{e.message}" unless e.is_a? Sass::SyntaxError
+        unless e.is_a?(Sass::SyntaxError) && e.sass_line && e.sass_template
+          return "#{e.class}: #{e.message}"
+        end
 
         line_offset = options[:line] || 1
         line_num = e.sass_line + 1 - line_offset

@@ -68,14 +68,14 @@ module Sass::Script
     #
     # @return [Array<Node>]
     def children
-      raise NotImplementedError.new("All subclasses of Sass::Script::Node must override #children.")
+      Sass::Util.abstract(self)
     end
 
     # Returns the text of this SassScript expression.
     #
     # @return [String]
     def to_sass(opts = {})
-      raise NotImplementedError.new("All subclasses of Sass::Script::Node must override #to_sass.")
+      Sass::Util.abstract(self)
     end
 
     protected
@@ -95,7 +95,7 @@ module Sass::Script
     # @return [Literal] The SassScript object that is the value of the SassScript
     # @see #perform
     def _perform(environment)
-      raise NotImplementedError.new("All subclasses of Sass::Script::Node must override #_perform.")
+      Sass::Util.abstract(self)
     end
   end
 end

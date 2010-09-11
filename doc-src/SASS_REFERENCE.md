@@ -139,7 +139,7 @@ set the [`:cache`](#cache-option) option to `false`.
 
 ### Options
 
-Options can be set by setting the {Sass::Plugin#options Sass::Plugin.options} hash
+Options can be set by setting the {Sass::Plugin::Configuration#options Sass::Plugin#options} hash
 in `environment.rb` in Rails or `config.ru` in Rack...
 
     Sass::Plugin.options[:style] = :compact
@@ -186,6 +186,13 @@ Available options are:
 : If this is set and `:cache` is not,
   only read the Sass cache if it exists,
   don't write to it if it doesn't.
+
+{#cache_store-option} `:cache_store`
+: If this is set to an instance of a subclass of {Sass::CacheStore},
+  that cache store will be used to store and retrieve
+  cached compilation results.
+  Defaults to a {Sass::FileCacheStore} that is
+  initialized using the [`:cache_location` option](#cache_location-option).
 
 {#never_update-option} `:never_update`
 : Whether the CSS files should never be updated,
@@ -234,9 +241,9 @@ Available options are:
   between them.
   **Note that due to the many possible formats it can take,
   this option should only be set directly, not accessed or modified.
-  Use the {Sass::Plugin#template_location_array},
-  {Sass::Plugin#add_template_location},
-  and {Sass::Plugin#remove_template_location} methods instead**.
+  Use the {Sass::Plugin::Configuration#template_location_array Sass::Plugin#template_location_array},
+  {Sass::Plugin::Configuration#add_template_location Sass::Plugin#add_template_location},
+  and {Sass::Plugin::Configuration#remove_template_location Sass::Plugin#remove_template_location} methods instead**.
 
 {#css_location-option} `:css_location`
 : The path where CSS output should be written to.
@@ -248,6 +255,8 @@ Available options are:
 : The path where the cached `sassc` files should be written to.
   Defaults to `"./tmp/sass-cache"` in Rails and Merb,
   or `"./.sass-cache"` otherwise.
+  If the [`:cache_store` option](#cache_location-option) is set,
+  this is ignored.
 
 {#unix_newlines-option} `:unix_newlines`
 : If true, use Unix-style newlines when writing files.
@@ -270,6 +279,13 @@ Available options are:
   for Sass templates imported with the [`@import`](#import) directive.
   This defaults to the working directory and, in Rack, Rails, or Merb,
   whatever `:template_location` is.
+
+{#filesystem_importer-option} `:filesystem_importer`
+: A {Sass::Importers::Base} subclass used to handle plain string load paths.
+  This should import files from the filesystem.
+  It should be a Class object inheriting from {Sass::Importers::Base}
+  with a constructor that takes a single string argument (the load path).
+  Defaults to {Sass::Importers::Filesystem}.
 
 {#line_numbers-option} `:line_numbers`
 : When set to true, causes the line number and file
@@ -1658,3 +1674,40 @@ It's not meant to be human-readable.
 For example:
 
     #main{color:#fff;background-color:#000}#main p{width:10em}.huge{font-size:10em;font-weight:bold;text-decoration:underline}
+
+## Extending Sass
+
+Sass provides a number of advanced customizations for users with unique requirements.
+Using these features requires a strong understanding of Ruby.
+
+### Defining Custom Sass Functions
+
+The same way that Sass defines new functions for use in Sass stylesheets is available
+to users who which to do so. For more information see the [source
+documentation](/docs/yardoc/Sass/Script/Functions.html#adding_custom_functions).
+
+### Cache Stores
+
+Sass caches parsed documents so that they can be reused without parsing them again
+unless they have changed. By default, Sass will write these cache files to a location
+on the filesystem indicated by [`:cache_location`](#cache_location-option). If you
+cannot write to the filesystem or need to share cache across ruby processes or machines,
+then you can define your own cache store and set the[`:cache_store`
+option](#cache_store-option). For details on creating your own cache store, please
+see the {Sass::CacheStore source documentation}.
+
+### Custom Importers
+
+Sass importers are in charge of taking paths passed to `@import` and finding the
+appropriate Sass code for those paths. By default, this code is loaded from
+the {Sass::Importers::Filesystem filesystem}, but importers could be added to load
+from a database, over HTTP, or use a different file naming scheme than what Sass expects.
+
+Each importer is in charge of a single load path (or whatever the corresponding notion
+is for the backend). Importers can be placed in the {file:SASS_REFERENCE.md#load_paths-option
+`:load_paths` array} alongside normal filesystem paths.
+
+When resolving an `@import`, Sass will go through the load paths looking for an importer
+that successfully imports the path. Once one is found, the imported file is used.
+
+User-created importers must inherit from {Sass::Importers::Base}.

@@ -17,15 +17,12 @@ module Sass
 
       def invisible?; to_s.empty?; end
 
-      # Returns the resolved name of the imported file,
-      # as returned by \{Sass::Files#find\_file\_to\_import}.
+      # Returns the imported file.
       #
-      # @return [String] The filename of the imported file.
-      #   This is an absolute path if the file is a `".sass"` or `".scss"` file.
-      # @raise [Sass::SyntaxError] if `filename` ends in `".sass"` or `".scss"`
-      #   and no corresponding Sass file could be found.
-      def full_filename
-        @full_filename ||= import
+      # @return [Sass::Engine]
+      # @raise [Sass::SyntaxError] If no file could be found to import.
+      def imported_file
+        @imported_file ||= import
       end
 
       # @see Node#to_sass
@@ -41,6 +38,17 @@ module Sass
       # @see Node#cssize
       def cssize(*args)
         super.first
+      end
+
+      # Returns whether or not this import should emit a CSS @import declaration
+      #
+      # @return [Boolean] Whether or not this is a simple CSS @import declaration.
+      def css_import?
+        if @imported_filename =~ /\.css$/
+          @imported_filename
+        elsif imported_file.is_a?(String) && imported_file =~ /\.css$/
+          imported_file
+        end
       end
 
       protected
@@ -60,7 +68,9 @@ module Sass
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def _perform(environment)
-        return DirectiveNode.new("@import url(#{full_filename})") if full_filename =~ /\.css$/
+        if path = css_import?
+          return DirectiveNode.new("@import url(#{path})")
+        end
         super
       end
 
@@ -70,14 +80,12 @@ module Sass
       #   variable and mixin values
       def perform!(environment)
         environment.push_frame(:filename => @filename, :line => @line)
-        options = @options.dup
-        options.delete(:syntax)
-        root = Sass::Files.tree_for(full_filename, options)
-        @template = root.template
+        # TODO: re-enable caching
+        root = imported_file.to_tree
         self.children = root.children
         self.children = perform_children(environment)
       rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => full_filename)
+        e.modify_backtrace(:filename => imported_file.options[:filename])
         e.add_backtrace(:filename => @filename, :line => @line)
         raise e
       ensure
@@ -86,15 +94,29 @@ module Sass
 
       private
 
-      def import_paths
-        paths = (@options[:load_paths] || []).dup
-        paths.unshift(File.dirname(@options[:filename])) if @options[:filename]
-        paths
-      end
-
       def import
-        Sass::Files.find_file_to_import(@imported_filename, import_paths)
-      rescue Exception => e
+        paths = @options[:load_paths]
+
+        if @options[:importer]
+          f = @options[:importer].find_relative(
+            @imported_filename, @options[:filename], @options.dup)
+          return f if f
+        end
+
+        paths.each do |p|
+          if f = p.find(@imported_filename, @options.dup)
+            return f
+          end
+        end
+
+        message = "File to import not found or unreadable: #{@imported_filename}.\n"
+        if paths.size == 1
+          message << "Load path: #{paths.first}"
+        else
+          message << "Load paths:\n  " << paths.join("\n  ")
+        end
+        raise SyntaxError.new(message)
+      rescue SyntaxError => e
         raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
       end
     end

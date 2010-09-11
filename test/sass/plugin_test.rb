@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/plugin'
 require 'fileutils'
 
@@ -10,9 +11,11 @@ class SassPluginTest < Test::Unit::TestCase
     options
   }
 
+  @@cache_store = Sass::InMemoryCacheStore.new
+
   def setup
-    FileUtils.mkdir tempfile_loc
-    FileUtils.mkdir tempfile_loc(nil,"more_")
+    FileUtils.mkdir_p tempfile_loc
+    FileUtils.mkdir_p tempfile_loc(nil,"more_")
     set_plugin_opts
     update_all_stylesheets!
     reset_mtimes
@@ -20,7 +23,7 @@ class SassPluginTest < Test::Unit::TestCase
 
   def teardown
     clean_up_sassc
-    clear_callbacks
+    Sass::Plugin.reset!
     FileUtils.rm_r tempfile_loc
     FileUtils.rm_r tempfile_loc(nil,"more_")
   end
@@ -250,7 +253,7 @@ CSS
 
   def test_cached_dependencies_update
     FileUtils.mv(template_loc("basic"), template_loc("basic", "more_"))
-    set_plugin_opts :load_paths => [result_loc, template_loc(nil, "more_")]
+    set_plugin_opts :load_paths => [template_loc(nil, "more_")]
 
     touch 'basic', 'more_'
     assert_needs_update "import"
@@ -258,6 +261,15 @@ CSS
     assert_renders_correctly("import")
   ensure
     FileUtils.mv(template_loc("basic", "more_"), template_loc("basic"))
+  end
+
+  def test_cached_relative_import
+    old_always_update = Sass::Plugin.options[:always_update]
+    Sass::Plugin.options[:always_update] = true
+    update_all_stylesheets!
+    assert_renders_correctly('subdir/subdir')
+  ensure
+    Sass::Plugin.options[:always_update] = old_always_update
   end
 
  private
@@ -342,10 +354,6 @@ CSS
     assert_no_callback(*args.pop) {assert_no_callbacks(*args)}
   end
 
-  def clear_callbacks
-    Sass::Plugin.instance_variable_set('@_sass_callbacks', {})
-  end
-
   def update_all_stylesheets!
     Sass::Util.silence_sass_warnings do
       Sass::Plugin.update_stylesheets
@@ -398,19 +406,17 @@ CSS
     end
   end
 
-  def absolutize(file)
-    "#{File.dirname(__FILE__)}/#{file}"
-  end
-
   def set_plugin_opts(overrides = {})
-    Sass::Plugin.options = {
+    Sass::Plugin.options.merge!(
       :template_location => template_loc,
       :css_location => tempfile_loc,
       :style => :compact,
-      :load_paths => [result_loc],
       :always_update => true,
       :never_update => false,
-    }.merge(overrides)
+      :full_exception => true,
+      :cache_store => @@cache_store
+    )
+    Sass::Plugin.options.merge!(overrides)
   end
 end
 

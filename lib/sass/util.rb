@@ -263,6 +263,43 @@ module Sass
       version_gt(v1, v2) || !version_gt(v2, v1)
     end
 
+    # A wrapper for `Marshal.dump` that calls `#_before_dump` on the object
+    # before dumping it, `#_after_dump` afterwards.
+    # It also calls `#_around_dump` and passes it a block in which the object is dumped.
+    #
+    # If any of these methods are undefined, they are not called.
+    #
+    # @param obj [Object] The object to dump.
+    # @return [String] The dumped data.
+    def dump(obj)
+      obj._before_dump if obj.respond_to?(:_before_dump)
+      return Marshal.dump(obj) unless obj.respond_to?(:_around_dump)
+      res = nil
+      obj._around_dump {res = Marshal.dump(obj)}
+      res
+    ensure
+      obj._after_dump if obj.respond_to?(:_after_dump)
+    end
+
+    # A wrapper for `Marshal.load` that calls `#_after_load` on the object
+    # after loading it, if it's defined.
+    #
+    # @param data [String] The data to load.
+    # @return [Object] The loaded object.
+    def load(data)
+      obj = Marshal.load(data)
+      obj._after_load if obj.respond_to?(:_after_load)
+      obj
+    end
+
+    # Throws a NotImplementedError for an abstract method.
+    #
+    # @param obj [Object] `self`
+    # @raise [NotImplementedError]
+    def abstract(obj)
+      raise NotImplementedError.new("#{obj.class} must implement ##{caller_info[2]}")
+    end
+
     # Silence all output to STDERR within a block.
     #
     # @yield A block in which no output will be printed to STDERR

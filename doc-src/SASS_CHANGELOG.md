@@ -5,6 +5,13 @@
 
 ## 3.2.0 (Unreleased)
 
+### Backwards Incompatibilities -- Must Read!
+
+* When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,
+  and no file exists at that path, it will now throw an error.
+  The old behavior of becoming a plain-CSS `@import` was deprecated
+  and has now been removed.
+
 * Get rid of the `--rails` flag for the `sass` executable.
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
@@ -356,13 +363,13 @@ can be either a String, a Hash, or an Array.
 This makes it difficult to modify or use with confidence.
 Thus, three new methods have been added for handling it:
 
-* {Sass::Plugin#template_location_array} --
+* {Sass::Plugin::Configuration#template_location_array Sass::Plugin#template_location_array} --
   Returns the template locations and CSS locations formatted as an array.
 
-* {Sass::Plugin#add_template_location} --
+* {Sass::Plugin::Configuration#add_template_location Sass::Plugin#add_template_location} --
   Converts the template location option to an array and adds a new location.
 
-* {Sass::Plugin#remove_template_location} --
+* {Sass::Plugin::Configuration#remove_template_location Sass::Plugin#remove_template_location} --
   Converts the template location option to an array and removes an existing location.
 
 ## 3.0.0
@@ -856,7 +863,7 @@ and all of them will be watched:
     sass --watch app/stylesheets:public/stylesheets public/stylesheets/test.sass
 
 File and directory watching is accessible from Ruby,
-using the {Sass::Plugin#watch} function.
+using the {Sass::Plugin::Compiler#watch Sass::Plugin#watch} function.
 
 #### Bulk Updating
 

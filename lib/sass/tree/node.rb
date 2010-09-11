@@ -244,6 +244,21 @@ module Sass
         to_src(tabs, opts, :scss)
       end
 
+      # Names of options that are saved when the node is serialized and cached.
+      SAVED_OPTIONS = [:importer]
+
+      # Ensures that only {SAVED_OPTIONS} get saved.
+      def _around_dump
+        old_options = @options
+        @options = {}
+        SAVED_OPTIONS.each do |opt|
+          @options[opt] = old_options[opt]
+        end
+        yield
+      ensure
+        options = old_options
+      end
+
       protected
 
       # Computes the CSS corresponding to this particular Sass node.
@@ -258,7 +273,7 @@ module Sass
       # @see #to_s
       # @see Sass::Tree
       def _to_s
-        raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #_to_s or #to_s.")
+        Sass::Util.abstract(self)
       end
 
       # Converts this static Sass node into a static CSS node,
@@ -383,7 +398,7 @@ module Sass
       # @param fmt [Symbol] `:sass` or `:scss`
       # @return [String] The Sass or SCSS code corresponding to the node
       def to_src(tabs, opts, fmt)
-        raise NotImplementedError.new("All static-node subclasses of Sass::Tree::Node must override #to_#{fmt}.")
+        Sass::Util.abstract(self)
       end
 
       # Converts the children of this node to a Sass or SCSS string.
