@@ -545,6 +545,11 @@ MSG
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
+  def test_if
+    assert_equal("1px", evaluate("if(true, 1px, 2px)"))
+    assert_equal("2px", evaluate("if(false, 1px, 2px)"))
+  end
+
   private
 
   def evaluate(value)
