@@ -308,7 +308,7 @@ module Sass::Plugin
       begin
         File.read(filename) unless File.readable?(filename) # triggers an error for handling
         engine_opts = engine_options(:css_filename => css, :filename => filename)
-        result = Sass::Files.engine_for(filename, engine_opts).render
+        result = Sass::Engine.for_file(filename, engine_opts).render
       rescue Exception => e
         run_compilation_error e, filename, css
         result = Sass::SyntaxError.exception_to_css(e, options)
