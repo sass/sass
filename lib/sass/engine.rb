@@ -149,6 +149,9 @@ module Sass
       # assume it's using the default filesystem importer.
       options[:importer] ||= options[:filesystem_importer].new(".") if options[:filename]
 
+      # Tracks the original filename of the top-level Sass file
+      options[:original_filename] = options[:original_filename] || options[:filename]
+
       options[:cache_store] ||= Sass::FileCacheStore.new(options[:cache_location])
       # Support both, because the docs said one and the other actually worked
       # for quite a long time.

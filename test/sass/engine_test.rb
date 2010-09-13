@@ -11,6 +11,51 @@ module Sass::Script::Functions::UserFunctions
   end
 end
 
+class MockImporter < Sass::Importers::Base
+  def initialize(name = "mock")
+    @name = name
+    @imports = {}
+    @mtimes = {}
+    @syntax = {}
+  end
+
+  def add_import(uri, contents, syntax = :scss, mtime = Time.now)
+    @imports[uri] = contents
+    @mtimes[uri] = mtime
+    @syntax[uri] = syntax
+  end
+
+  def touch(uri)
+    @mtimes[uri] = Time.now
+  end
+
+  def find_relative(uri, base, options)
+    nil
+  end
+
+  def find(uri, options)
+    contents = @imports[uri]
+    return unless contents
+    options[:syntax] = @syntax[uri]
+    options[:filename] = uri
+    options[:importer] = self
+    Sass::Engine.new(contents, options)
+  end
+
+  def mtime(uri, options)
+    @mtimes[uri]
+  end
+
+  def key(uri, options)
+    "mock:#{uri}"
+  end
+
+  def to_s
+    @name
+  end
+
+end
+
 class SassEngineTest < Test::Unit::TestCase
   FAKE_FILE_NAME = __FILE__.gsub(/rb$/,"sass")
   # A map of erroneous Sass documents to the error messages they should produce.
@@ -2209,6 +2254,18 @@ CSS
 SASS
     end
   end
+
+  def test_original_filename_set
+    importer = MockImporter.new
+    importer.add_import("imported", "div{color:red}")
+    top_level = %Q{@import "imported"; div{color:blue}}
+    original_filename = "test.sass"
+    engine = Sass::Engine.new(top_level, :filename => original_filename, :load_paths => [importer], :syntax => :scss)
+    assert_equal original_filename, engine.options[:original_filename]
+    imported_engine = engine.to_tree.children.first.send(:import)
+    assert_equal original_filename, imported_engine.options[:original_filename]
+  end
+
 
   private
 
