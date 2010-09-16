@@ -2117,6 +2117,22 @@ CSS
 SASS
   end
 
+  def test_mixin_keyword_args_handle_variable_underscore_dash_equivalence
+    assert_equal <<CSS, render(<<SASS)
+.mixed {
+  required: foo;
+  arg1: non-default-val1;
+  arg2: non-default-val2; }
+CSS
+=a-mixin($required, $arg-1: default-val1, $arg_2: default-val2)
+  required: $required
+  arg1: $arg_1
+  arg2: $arg-2
+.mixed
+  +a-mixin(foo, $arg-2: non-default-val2, $arg_1: non-default-val1)
+SASS
+  end
+
   def test_passing_required_args_as_a_keyword_arg
     assert_equal <<CSS, render(<<SASS)
 .mixed {

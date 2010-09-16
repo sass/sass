@@ -81,7 +81,8 @@ Mixin #{@name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{@args.size} #{@args.size == 1 ? 'was' : 'were'} passed.
 END
       kw_args.each do |name, value|
-        unless mixin.args.find{|(var, default)| var.name == name}
+        underscored_name = name.gsub(/-/,"_")
+        unless mixin.args.find{|(var, default)| var.underscored_name == underscored_name}
           raise Sass::SyntaxError.new("Mixin #{@name} does not have an argument named $#{name}.")
         end
       end
@@ -90,8 +91,8 @@ END
         env.set_local_var(var.name,
           if value
             value.perform(environment)
-          elsif kw_args[var.name]
-            kw_args[var.name].perform(env)
+          elsif kv = kw_args.find{|k,v| var.underscored_name == k.gsub(/-/,"_")}
+            kv[1].perform(env)
           elsif default
             val = default.perform(env)
             if default.context == :equals && val.is_a?(Sass::Script::String)

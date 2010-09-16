@@ -7,9 +7,15 @@ module Sass
       # @return [String]
       attr_reader :name
 
+      # The underscored name of the variable.
+      #
+      # @return [String]
+      attr_reader :underscored_name
+
       # @param name [String] See \{#name}
       def initialize(name)
         @name = name
+        @underscored_name = name.gsub(/-/,"_")
         super()
       end
 
