@@ -73,12 +73,18 @@ module Sass::Tree
       original_env.prepare_frame(:mixin => @name)
       raise Sass::SyntaxError.new("Undefined mixin '#{@name}'.") unless mixin = environment.mixin(@name)
 
-      raise Sass::SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < @args.size
+      passed_args = @args.dup
+      kw_args = passed_args.last.is_a?(Hash) ? passed_args.pop : {}
+
+      raise Sass::SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < passed_args.size
 Mixin #{@name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{@args.size} #{@args.size == 1 ? 'was' : 'were'} passed.
 END
-      passed_args = @args.dup
-      kw_args = passed_args.last.is_a?(Hash) ? passed_args.pop : {}
+      kw_args.each do |name, value|
+        unless mixin.args.find{|(var, default)| var.name == name}
+          raise Sass::SyntaxError.new("Mixin #{@name} does not have an argument named $#{name}.")
+        end
+      end
       environment = mixin.args.zip(passed_args).
         inject(Sass::Environment.new(mixin.environment)) do |env, ((var, default), value)|
         env.set_local_var(var.name,
