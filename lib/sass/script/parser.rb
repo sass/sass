@@ -295,9 +295,24 @@ RUBY
       end
 
       def arglist
+        if kw_args = keyword_arglist
+          return [kw_args]
+        end
         return unless e = interpolation
         return [e] unless try_tok(:comma)
         [e, *assert_expr(:arglist)]
+      end
+
+      def keyword_arglist
+        return unless var = try_tok(:const)
+        unless try_tok(:colon)
+          return_tok!
+          return
+        end
+        name = var[1]
+        value = interpolation
+        return {name => value} unless try_tok(:comma)
+        {name => value}.merge(assert_expr(:keyword_arglist))
       end
 
       def raw
