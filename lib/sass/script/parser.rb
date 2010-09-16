@@ -85,7 +85,15 @@ module Sass
         end
         assert_done
 
-        args.each {|a| a.options = @options}
+        args.each do |a|
+          if a.is_a? Hash
+            a.each do |name, value|
+              value.options = @options
+            end
+          else
+            a.options = @options
+          end
+        end
         args
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]

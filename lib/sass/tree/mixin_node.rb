@@ -77,11 +77,15 @@ module Sass::Tree
 Mixin #{@name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{@args.size} #{@args.size == 1 ? 'was' : 'were'} passed.
 END
-      environment = mixin.args.zip(@args).
+      passed_args = @args.dup
+      kw_args = passed_args.last.is_a?(Hash) ? passed_args.pop : {}
+      environment = mixin.args.zip(passed_args).
         inject(Sass::Environment.new(mixin.environment)) do |env, ((var, default), value)|
         env.set_local_var(var.name,
           if value
             value.perform(environment)
+          elsif kw_args[var.name]
+            kw_args[var.name].perform(env)
           elsif default
             val = default.perform(env)
             if default.context == :equals && val.is_a?(Sass::Script::String)
