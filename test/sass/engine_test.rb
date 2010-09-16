@@ -2116,6 +2116,38 @@ CSS
 SASS
   end
 
+  def test_passing_required_args_as_a_keyword_arg
+    assert_equal <<CSS, render(<<SASS)
+.mixed {
+  required: foo;
+  arg1: default-val1;
+  arg2: default-val2; }
+CSS
+=a-mixin($required, $arg1: default-val1, $arg2: default-val2)
+  required: $required
+  arg1: $arg1
+  arg2: $arg2
+.mixed
+  +a-mixin($required: foo)
+SASS
+  end
+
+  def test_passing_all_as_keyword_args_in_opposite_order
+    assert_equal <<CSS, render(<<SASS)
+.mixed {
+  required: foo;
+  arg1: non-default-val1;
+  arg2: non-default-val2; }
+CSS
+=a-mixin($required, $arg1: default-val1, $arg2: default-val2)
+  required: $required
+  arg1: $arg1
+  arg2: $arg2
+.mixed
+  +a-mixin($arg2: non-default-val2, $arg1: non-default-val1, $required: foo)
+SASS
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?
