@@ -2100,6 +2100,22 @@ CSS
 SASS
   end
 
+  def test_mixin_with_keyword_args
+    assert_equal <<CSS, render(<<SASS)
+.mixed {
+  required: foo;
+  arg1: default-val1;
+  arg2: non-default-val2; }
+CSS
+=a-mixin($required, $arg1: default-val1, $arg2: default-val2)
+  required: $required
+  arg1: $arg1
+  arg2: $arg2
+.mixed
+  +a-mixin(foo, $arg2: non-default-val2)
+SASS
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?
