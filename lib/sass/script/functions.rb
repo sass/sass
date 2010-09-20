@@ -166,6 +166,67 @@ module Sass::Script
   # (or other methods that use the string representation)
   # on those objects without first setting {Node#options= the #options attribute}.
   module Functions
+    @signatures = {}
+
+    # Declare a sass signature for a ruby-defined function.
+    #
+    # Sass function signatures can be overloaded as long as they have different arities
+    # by calling define on the same method name repeatedly. The first matching signature
+    # for the calling arguments is chosen in the order they are defined.
+    #
+    # @param options
+    #   `:args` - Array of Symbols or Strings. Required arguments for this method signature.
+    #   `:var_args` - Boolean. Indicates whether additional unnamed arguments can be passed.
+    #   `:var_kwargs` - Boolean. Indicates whether additional named arguments can be passed.
+    #                   These values are passed as the last argument and as a hash
+    #                   of {String => Literal}
+    # @example
+    #   define :rgba, :args => [:hex, :alpha]
+    #   define :rgba, :args => [:red, :green, :blue, :alpha]
+    #   define :accepts_anything, :var_args => true, :var_kwargs => true
+    #   define :some_func, :args => [:foo, :bar, :baz], :var_kwargs => true
+    def self.define(method_name, options)
+      options[:args] ||= []
+      options[:args].map!{|a| a.to_s }
+      options[:var_args] ||= false
+      options[:var_kwargs] ||= false
+      @signatures[method_name.to_sym] ||= []
+      @signatures[method_name.to_sym] << options
+    end
+
+    # Determine the correct signature for the arity of the arguments
+    # if none match, the first signature is returned for error messaging
+    #
+    # @param method_name The name of the ruby function to be called
+    # @param arg_arity The number of unnamed arguments the function was invoked with
+    # @param kwarg_arity The number of named arguments the function was invoked with
+    #
+    # @return The signature options for the matching signature that were passed to {define}
+    def self.signature(method_name, arg_arity, kwarg_arity)
+      return unless @signatures[method_name.to_sym]
+      @signatures[method_name.to_sym].each do |signature|
+        if signature[:args].size == arg_arity + kwarg_arity
+          return signature
+        elsif signature[:args].size < arg_arity + kwarg_arity
+          # we have enough args but we need to figure out what is variable
+          # and if the signature allows it
+          t_arg_arity, t_kwarg_arity = arg_arity, kwarg_arity
+          if signature[:args].size > t_arg_arity
+            # we transfer some kwargs arity to args arity
+            # if it does not have enough args -- assuming the names will work out.
+            t_kwarg_arity -= (signature[:args].size - t_arg_arity)
+            t_arg_arity = signature[:args].size
+          end
+          if (t_arg_arity == signature[:args].size ||
+              t_arg_arity > signature[:args].size && signature[:var_args]) &&
+             (t_kwarg_arity > 0 && signature[:var_kwargs])
+            return signature
+          end
+        end
+      end
+      @signatures[method_name.to_sym].first
+    end
+
     # The context in which methods in {Script::Functions} are evaluated.
     # That means that all instance methods of {EvaluationContext}
     # are available to use in functions.
@@ -234,6 +295,7 @@ module Sass::Script
           end
         end)
     end
+    define :rgb, :args => [:red, :green, :blue]
 
     # @see #rgb
     # @overload rgba(red, green, blue, alpha)
@@ -281,6 +343,8 @@ module Sass::Script
         raise ArgumentError.new("wrong number of arguments (#{args.size} for 4)")
       end
     end
+    define :rgba, :args => [:red, :green, :blue, :alpha]
+    define :rgba, :args => [:color, :alpha]
 
     # Creates a {Color} object from hue, saturation, and lightness.
     # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).

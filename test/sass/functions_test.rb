@@ -3,6 +3,12 @@ require 'test/unit'
 require 'test_helper'
 require 'sass/script'
 
+module Sass::Script::Functions
+  def no_kw_args
+    Sass::Script::String.new("no-kw-args")
+  end
+end
+
 module Sass::Script::Functions::UserFunctions
   def call_options_on_new_literal
     str = Sass::Script::String.new("foo")
@@ -534,6 +540,33 @@ MSG
     assert_equal(%Q{false}, evaluate("comparable(100px, 3em)"))
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
+  end
+
+  def test_keyword_args_rgb
+    assert_equal(%Q{white}, evaluate("rgb($red: 255, $green: 255, $blue: 255)"))
+  end
+
+  def test_keyword_args_rgba
+    assert_equal(%Q{rgba(255, 255, 255, 0.5)}, evaluate("rgba($red: 255, $green: 255, $blue: 255, $alpha: 0.5)"))
+    assert_equal(%Q{rgba(255, 255, 255, 0.5)}, evaluate("rgba($color: #fff, $alpha: 0.5)"))
+  end
+
+  def test_keyword_args_rgba_with_extra_args
+    assert_equal(%Q{rgba(255, 255, 255, 0.5)}, evaluate("rgba($red: 255, $green: 255, $blue: 255, $alpha: 0.5, $extra: error)"))
+  rescue Sass::SyntaxError => e
+    assert_equal("rgba does not accept an argument named extra.", e.message)
+  end
+
+  def test_keyword_args_must_have_signature
+    evaluate("no-kw-args($fake: value)")
+  rescue Sass::SyntaxError => e
+    assert_equal("no-kw-args cannot be called with keyword-style arguments.", e.message)
+  end
+
+  def test_keyword_args_with_missing_argument
+    evaluate("rgb($red: 255, $green: 255)")
+  rescue Sass::SyntaxError => e
+    assert_equal("rgb requires an argument named blue.", e.message)
   end
 
   private

@@ -297,6 +297,9 @@ RUBY
       end
 
       def fn_arglist
+        if kw_args = keyword_arglist
+          return [kw_args]
+        end
         return unless e = equals
         return [e] unless try_tok(:comma)
         [e, *assert_expr(:fn_arglist)]
