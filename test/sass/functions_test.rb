@@ -56,6 +56,10 @@ class SassFunctionTest < Test::Unit::TestCase
     end
   end
 
+  def test_hsl_kwargs
+    assert_equal "#33cccc", evaluate("hsl($hue: 180, $saturation: 60%, $lightness: 50%)")
+  end
+
   def test_hsl_checks_bounds
     assert_error_message("Saturation -114 must be between 0% and 100% for `hsl'", "hsl(10, -114, 12)");
     assert_error_message("Lightness 256 must be between 0% and 100% for `hsl'", "hsl(10, 10, 256%)");
@@ -71,6 +75,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal "rgba(51, 204, 204, 0.4)", evaluate("hsla(180, 60%, 50%, 0.4)")
     assert_equal "#33cccc", evaluate("hsla(180, 60%, 50%, 1)")
     assert_equal "rgba(51, 204, 204, 0)", evaluate("hsla(180, 60%, 50%, 0)")
+    assert_equal "rgba(51, 204, 204, 0.4)", evaluate("hsla($hue: 180, $saturation: 60%, $lightness: 50%, $alpha: 0.4)")
   end
 
   def test_hsla_checks_bounds
@@ -91,6 +96,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))
     assert_equal("25%",  evaluate("percentage(25px / 100px)"))
+    assert_equal("50%",  evaluate("percentage($value: 0.5)"))
   end
 
   def test_percentage_checks_types
@@ -103,6 +109,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5",   evaluate("round(4.8)"))
     assert_equal("5px", evaluate("round(4.8px)"))
     assert_equal("5px", evaluate("round(5.49px)"))
+    assert_equal("5px", evaluate("round($value: 5.49px)"))
 
     assert_error_message("#cccccc is not a number for `round'", "round(#ccc)")
   end
@@ -110,6 +117,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_floor
     assert_equal("4",   evaluate("floor(4.8)"))
     assert_equal("4px", evaluate("floor(4.8px)"))
+    assert_equal("4px", evaluate("floor($value: 4.8px)"))
 
     assert_error_message("\"foo\" is not a number for `floor'", "floor(\"foo\")")
   end
@@ -117,6 +125,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_ceil
     assert_equal("5",   evaluate("ceil(4.1)"))
     assert_equal("5px", evaluate("ceil(4.8px)"))
+    assert_equal("5px", evaluate("ceil($value: 4.8px)"))
 
     assert_error_message("\"a\" is not a number for `ceil'", "ceil(\"a\")")
   end
@@ -126,6 +135,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5px", evaluate("abs(-5px)"))
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
+    assert_equal("5px", evaluate("abs($value: 5px)"))
 
     assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
@@ -134,6 +144,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("#123456", evaluate("rgb(18, 52, 86)"))
     assert_equal("#beaded", evaluate("rgb(190, 173, 237)"))
     assert_equal("#00ff7f", evaluate("rgb(0, 255, 127)"))
+    assert_equal("#00ff7f", evaluate("rgb($red: 0, $green: 255, $blue: 127)"))
   end
 
   def test_rgb_percent
@@ -175,6 +186,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("rgba(18, 52, 86, 0.5)", evaluate("rgba(18, 52, 86, 0.5)"))
     assert_equal("#beaded", evaluate("rgba(190, 173, 237, 1)"))
     assert_equal("rgba(0, 255, 127, 0)", evaluate("rgba(0, 255, 127, 0)"))
+    assert_equal("rgba(0, 255, 127, 0)", evaluate("rgba($red: 0, $green: 255, $blue: 127, $alpha: 0)"))
   end
 
   def test_rgb_tests_bounds
@@ -204,6 +216,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_rgba_with_color
     assert_equal "rgba(16, 32, 48, 0.5)", evaluate("rgba(#102030, 0.5)")
     assert_equal "rgba(0, 0, 255, 0.5)", evaluate("rgba(blue, 0.5)")
+    assert_equal "rgba(0, 0, 255, 0.5)", evaluate("rgba($color: blue, $alpha: 0.5)")
   end
 
   def test_rgba_with_color_tests_types
@@ -220,6 +233,7 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_red
     assert_equal("18", evaluate("red(#123456)"))
+    assert_equal("18", evaluate("red($color: #123456)"))
   end
 
   def test_red_exception
@@ -228,6 +242,7 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_green
     assert_equal("52", evaluate("green(#123456)"))
+    assert_equal("52", evaluate("green($color: #123456)"))
   end
 
   def test_green_exception
@@ -236,6 +251,7 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_blue
     assert_equal("86", evaluate("blue(#123456)"))
+    assert_equal("86", evaluate("blue($color: #123456)"))
   end
 
   def test_blue_exception
@@ -244,6 +260,7 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_hue
     assert_equal("18deg", evaluate("hue(hsl(18, 50%, 20%))"))
+    assert_equal("18deg", evaluate("hue($color: hsl(18, 50%, 20%))"))
   end
 
   def test_hue_exception
@@ -253,6 +270,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_saturation
     assert_equal("52%", evaluate("saturation(hsl(20, 52%, 20%))"))
     assert_equal("52%", evaluate("saturation(hsl(20, 52, 20%))"))
+    assert_equal("52%", evaluate("saturation($color: hsl(20, 52, 20%))"))
   end
 
   def test_saturation_exception
@@ -262,6 +280,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_lightness
     assert_equal("86%", evaluate("lightness(hsl(120, 50%, 86%))"))
     assert_equal("86%", evaluate("lightness(hsl(120, 50%, 86))"))
+    assert_equal("86%", evaluate("lightness($color: hsl(120, 50%, 86))"))
   end
 
   def test_lightness_exception
@@ -272,6 +291,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("1", evaluate("alpha(#123456)"))
     assert_equal("0.34", evaluate("alpha(rgba(0, 1, 2, 0.34))"))
     assert_equal("0", evaluate("alpha(hsla(0, 1, 2, 0))"))
+    assert_equal("0", evaluate("alpha($color: hsla(0, 1, 2, 0))"))
   end
 
   def test_alpha_exception
@@ -285,6 +305,8 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("black", evaluate("fade_in(rgba(0, 0, 0, 0.2), 0.8)"))
     assert_equal("black", evaluate("opacify(rgba(0, 0, 0, 0.2), 1)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("opacify(rgba(0, 0, 0, 0.2), 0%)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("opacify($color: rgba(0, 0, 0, 0.2), $amount: 0%)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("fade-in($color: rgba(0, 0, 0, 0.2), $amount: 0%)"))
   end
 
   def test_opacify_tests_bounds
@@ -306,6 +328,8 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("rgba(0, 0, 0, 0)", evaluate("fade_out(rgba(0, 0, 0, 0.2), 0.2)"))
     assert_equal("rgba(0, 0, 0, 0)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 1)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize($color: rgba(0, 0, 0, 0.2), $amount: 0)"))
+    assert_equal("rgba(0, 0, 0, 0.2)", evaluate("fade-out($color: rgba(0, 0, 0, 0.2), $amount: 0)"))
   end
 
   def test_transparentize_tests_bounds
@@ -327,6 +351,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("white", evaluate("lighten(#800, 100%)"))
     assert_equal("#880000", evaluate("lighten(#800, 0%)"))
     assert_equal("rgba(238, 0, 0, 0.5)", evaluate("lighten(rgba(136, 0, 0, 0.5), 20%)"))
+    assert_equal("rgba(238, 0, 0, 0.5)", evaluate("lighten($color: rgba(136, 0, 0, 0.5), $amount: 20%)"))
   end
 
   def test_lighten_tests_bounds
@@ -348,6 +373,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("black", evaluate("darken(#800, 100%)"))
     assert_equal("#880000", evaluate("darken(#800, 0%)"))
     assert_equal("rgba(34, 0, 0, 0.5)", evaluate("darken(rgba(136, 0, 0, 0.5), 20%)"))
+    assert_equal("rgba(34, 0, 0, 0.5)", evaluate("darken($color: rgba(136, 0, 0, 0.5), $amount: 20%)"))
   end
 
   def test_darken_tests_bounds
@@ -370,6 +396,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("#33ff33", evaluate("saturate(#8a8, 100%)"))
     assert_equal("#88aa88", evaluate("saturate(#8a8, 0%)"))
     assert_equal("rgba(158, 63, 63, 0.5)", evaluate("saturate(rgba(136, 85, 85, 0.5), 20%)"))
+    assert_equal("rgba(158, 63, 63, 0.5)", evaluate("saturate($color: rgba(136, 85, 85, 0.5), $amount: 20%)"))
   end
 
   def test_saturate_tests_bounds
@@ -392,6 +419,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("#999999", evaluate("desaturate(#8a8, 100%)"))
     assert_equal("#88aa88", evaluate("desaturate(#8a8, 0%)"))
     assert_equal("rgba(114, 107, 107, 0.5)", evaluate("desaturate(rgba(136, 85, 85, 0.5), 20%)"))
+    assert_equal("rgba(114, 107, 107, 0.5)", evaluate("desaturate($color: rgba(136, 85, 85, 0.5), $amount: 20%)"))
   end
 
   def test_desaturate_tests_bounds
@@ -415,6 +443,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("#88aa88", evaluate("adjust-hue(#8a8, 360deg)"))
     assert_equal("#88aa88", evaluate("adjust-hue(#8a8, 0deg)"))
     assert_equal("rgba(136, 106, 17, 0.5)", evaluate("adjust-hue(rgba(136, 17, 17, 0.5), 45deg)"))
+    assert_equal("rgba(136, 106, 17, 0.5)", evaluate("adjust-hue($color: rgba(136, 17, 17, 0.5), $degrees: 45deg)"))
   end
 
   def test_adjust_hue_tests_types
@@ -436,6 +465,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("blue", evaluate("mix(transparentize(#f00, 1), #00f, 0%)"))
     assert_equal("rgba(0, 0, 255, 0)", evaluate("mix(#f00, transparentize(#00f, 1), 0%)"))
     assert_equal("rgba(255, 0, 0, 0)", evaluate("mix(transparentize(#f00, 1), #00f, 100%)"))
+    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f, $weight: 100%)"))
   end
 
   def test_mix_tests_types
@@ -457,6 +487,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("gray", evaluate("grayscale(#00f)"))
     assert_equal("white", evaluate("grayscale(white)"))
     assert_equal("black", evaluate("grayscale(black)"))
+    assert_equal("black", evaluate("grayscale($color: black)"))
   end
 
   def tets_grayscale_tests_types
@@ -469,6 +500,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("red", evaluate("complement(aqua)"))
     assert_equal("white", evaluate("complement(white)"))
     assert_equal("black", evaluate("complement(black)"))
+    assert_equal("black", evaluate("complement($color: black)"))
   end
 
   def tets_complement_tests_types
@@ -478,6 +510,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_unquote
     assert_equal('foo', evaluate('unquote("foo")'))
     assert_equal('foo', evaluate('unquote(foo)'))
+    assert_equal('foo', evaluate('unquote($string: foo)'))
   end
 
   def test_unquote_tests_type
@@ -487,6 +520,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_quote
     assert_equal('"foo"', evaluate('quote(foo)'))
     assert_equal('"foo"', evaluate('quote("foo")'))
+    assert_equal('"foo"', evaluate('quote($string: "foo")'))
   end
 
   def test_quote_tests_type
@@ -517,6 +551,7 @@ MSG
     assert_equal("number", evaluate("type-of(1px)"))
     assert_equal("bool", evaluate("type-of(true)"))
     assert_equal("color", evaluate("type-of(#fff)"))
+    assert_equal("color", evaluate("type-of($value: #fff)"))
   end
 
   def test_unit
@@ -525,12 +560,14 @@ MSG
     assert_equal(%Q{"em*px"}, evaluate("unit(10px * 5em)"))
     assert_equal(%Q{"em*px"}, evaluate("unit(5em * 10px)"))
     assert_equal(%Q{"em*px/cm*rem"}, evaluate("unit(10px * 5em / 30cm / 1rem)"))
+    assert_equal(%Q{"px"}, evaluate("unit($number: 100px)"))
     assert_error_message("#ff0000 is not a number for `unit'", "unit(#f00)")
   end
 
   def test_unitless
     assert_equal(%Q{true}, evaluate("unitless(100)"))
     assert_equal(%Q{false}, evaluate("unitless(100px)"))
+    assert_equal(%Q{false}, evaluate("unitless($number: 100px)"))
     assert_error_message("#ff0000 is not a number for `unitless'", "unitless(#f00)")
   end
 
@@ -538,6 +575,7 @@ MSG
     assert_equal(%Q{true}, evaluate("comparable(2px, 1px)"))
     assert_equal(%Q{true}, evaluate("comparable(10cm, 3mm)"))
     assert_equal(%Q{false}, evaluate("comparable(100px, 3em)"))
+    assert_equal(%Q{false}, evaluate("comparable($number-1: 100px, $number-2: 3em)"))
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
