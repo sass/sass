@@ -1023,6 +1023,42 @@ MESSAGE
 SCSS
   end
 
+  # XXX TODO: test several medias in the same nesting level and at different nesting levels
+  # XXX TODO: media nesting
+  def test_media_directives_bubble_up_to_the_top_level
+    assert_equal <<CSS, render(<<SCSS)
+.outside {
+  color: red; }
+
+@media print {
+  .outside {
+    color: black;
+  }
+  .outside .inside {
+    border: 1px solid black; } }
+
+.outside {
+  background: blue; }
+
+.outside .middle {
+  display: block; }
+CSS
+.outside {
+  color: red;
+  @media print {
+    color: back;
+    .inside {
+      border: 1px solid black;
+    }
+  }
+  background: blue;
+  .middle {
+    display: block;
+  }
+}
+SCSS
+  end
+
   # Regression
 
   def test_weird_added_space
