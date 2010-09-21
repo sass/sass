@@ -1118,6 +1118,15 @@ CSS
 SCSS
   end
 
+  def test_keyword_args_in_functions
+    assert_equal <<CSS, render(<<SCSS)
+.keyed {
+  color: rgba(170, 119, 204, 0.4); }
+CSS
+.keyed { color: rgba($color: #a7c, $alpha: 0.4) }
+SCSS
+  end
+
   def test_unknown_keyword_arg_raises_error
     assert_raise_message(Sass::SyntaxError, "Mixin a does not have an argument named $c.") {render <<SCSS}
 @mixin a($b: 1) { a: $b; }
