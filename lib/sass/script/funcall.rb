@@ -92,8 +92,8 @@ module Sass
           end
           keyword_args = args.last.dup
           args = args[0..-2] + signature[:args][(args.size - 1)..-1].map do |argname|
-            if keyword_args.has_key?(argname)
-              keyword_args.delete(argname)
+            if keyword_args.has_key?(argname) || keyword_args.has_key?(argname.tr("_", "-"))
+              keyword_args.delete(argname) || keyword_args.delete(argname.tr("_", "-"))
             else
               raise Sass::SyntaxError, "#{name} requires an argument named #{argname}."
             end
