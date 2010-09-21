@@ -7,6 +7,14 @@ module Sass::Script::Functions
   def no_kw_args
     Sass::Script::String.new("no-kw-args")
   end
+  def only_var_args(*args)
+    Sass::Script::String.new("only-var-args("+args.map{|a| a.plus(Sass::Script::Number.new(1)).to_s }.join(", ")+")")
+  end
+  define :only_var_args, :var_args => true
+  def only_kw_args(kwargs)
+    Sass::Script::String.new("only-kw-args("+kwargs.keys.join(", ")+")")
+  end
+  define :only_kw_args, :var_kwargs => true
 end
 
 module Sass::Script::Functions::UserFunctions
@@ -607,6 +615,12 @@ MSG
     assert_equal("rgb requires an argument named blue.", e.message)
   end
 
+  def test_only_var_args
+    assert_equal "only-var-args(2px, 3px, 4px)", evaluate("only-var-args(1px, 2px, 3px)")
+  end
+  def test_only_kw_args
+    assert_equal "only-kw-args(a, b, c)", evaluate("only-kw-args($a: 1, $b: 2, $c: 3)")
+  end
   private
 
   def evaluate(value)

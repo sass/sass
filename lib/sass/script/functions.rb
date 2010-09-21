@@ -217,9 +217,8 @@ module Sass::Script
             t_kwarg_arity -= (signature[:args].size - t_arg_arity)
             t_arg_arity = signature[:args].size
           end
-          if (t_arg_arity == signature[:args].size ||
-              t_arg_arity > signature[:args].size && signature[:var_args]) &&
-             (t_kwarg_arity > 0 && signature[:var_kwargs])
+          if (  t_arg_arity == signature[:args].size ||   t_arg_arity > signature[:args].size && signature[:var_args]  ) &&
+             (t_kwarg_arity == 0                     || t_kwarg_arity > 0                     && signature[:var_kwargs])
             return signature
           end
         end
