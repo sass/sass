@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'sinatra'
 require 'json'
-set :port, 3123
+set :port, 3124
 set :environment, :production
 enable :lock
 Dir.chdir(File.dirname(__FILE__) + "/..")
