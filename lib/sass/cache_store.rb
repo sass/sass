@@ -45,23 +45,16 @@ module Sass
     #
     # @param key [String] The key to store it under.
     # @param sha [String] The checksum for the contents that are being stored.
-    # @param root [Sass::Tree::RootNode, Object] The root of the tree to be stored
-    #   or an arbitrary object that is coupled to stylesheet generation.
+    # @param obj [Object] The object to cache.
     def store(key, sha, root)
-      orig_options = root.options if root.respond_to?(:options)
-      begin
-        _store(key, Sass::VERSION, sha, Sass::Util.dump(root))
-      ensure
-        root.options = orig_options if root.respond_to?(:options=)
-      end
+      _store(key, Sass::VERSION, sha, Sass::Util.dump(root))
     end
 
     # Retrieve a {Sass::Tree::RootNode}.
     #
     # @param key [String] The key the root element was stored under.
     # @param sha [String] The checksum of the root element's content.
-    # @return [Sass::Tree::RootNode, Object] The root node or the
-    #   object that was stored under key.
+    # @return [Object] The cached object.
     def retrieve(key, sha)
       contents = _retrieve(key, Sass::VERSION, sha)
       Sass::Util.load(contents) if contents
