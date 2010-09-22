@@ -269,13 +269,18 @@ module Sass
     #
     # If any of these methods are undefined, they are not called.
     #
+    # This will recursively call itself on members of arrays and hashes,
+    # but not of user-defined objects.
+    # This means that user-defined objects that need their members' `#_before_dump` etc. methods called
+    # must call `Haml::Util.dump` and `Haml::Util.load` manually on those members.
+    #
     # @param obj [Object] The object to dump.
     # @return [String] The dumped data.
     def dump(obj)
       obj._before_dump if obj.respond_to?(:_before_dump)
-      return Marshal.dump(obj) unless obj.respond_to?(:_around_dump)
+      return convert_and_dump(obj) unless obj.respond_to?(:_around_dump)
       res = nil
-      obj._around_dump {res = Marshal.dump(obj)}
+      obj._around_dump {res = convert_and_dump(obj)}
       res
     ensure
       obj._after_dump if obj.respond_to?(:_after_dump)
@@ -288,6 +293,13 @@ module Sass
     # @return [Object] The loaded object.
     def load(data)
       obj = Marshal.load(data)
+
+      if obj.is_a?(Array)
+        obj = obj.map {|e| Sass::Util.load(e)}
+      elsif obj.is_a?(Hash)
+        obj = map_hash(obj) {|k, v| [Sass::Util.load(k), Sass::Util.load(v)]}
+      end
+
       obj._after_load if obj.respond_to?(:_after_load)
       obj
     end
@@ -661,6 +673,15 @@ MSG
 
       return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
       return lcs_backtrace(c, x, y, i-1, j, &block)
+    end
+
+    def convert_and_dump(obj)
+      if obj.is_a?(Array)
+        obj = obj.map {|e| dump(e)}
+      elsif obj.is_a?(Hash)
+        obj = map_hash(obj) {|k, v| [dump(k), dump(v)]}
+      end
+      Marshal.dump(obj)
     end
   end
 end
