@@ -623,6 +623,20 @@ MSG
       set1.to_a.uniq.sort_by {|e| e.hash}.eql?(set2.to_a.uniq.sort_by {|e| e.hash})
     end
 
+    # The precision with which numbers will be printed to CSS files.
+    # For example, if this is `1000.0`,
+    # `3.1415926` will be printed as `3.142`.
+    # @api public
+    PRECISION = 1000.0
+
+    # Round to the nearest decimal point digit
+    # @param number - the number to tolerate
+    # @param precision - a multiple of 10 
+    def tolerate(number, precision = PRECISION)
+      n = (number * precision).round / precision.to_f
+      n % 1 == 0 ? n.to_i : n
+    end
+
     ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.

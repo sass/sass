@@ -35,12 +35,6 @@ module Sass::Script
     # @return [Boolean, nil]
     attr_accessor :original
 
-    # The precision with which numbers will be printed to CSS files.
-    # For example, if this is `1000.0`,
-    # `3.1415926` will be printed as `3.142`.
-    # @api public
-    PRECISION = 1000.0
-
     # @param value [Numeric] The value of the number
     # @param numerator_units [Array<String>] See \{#numerator\_units}
     # @param denominator_units [Array<String>] See \{#denominator\_units}
@@ -254,7 +248,7 @@ module Sass::Script
         elsif int?
           self.value.to_i
         else
-          (self.value * PRECISION).round / PRECISION
+          Sass::Util.tolerate(self.value)
         end
       "#{value}#{unit_str}"
     end
