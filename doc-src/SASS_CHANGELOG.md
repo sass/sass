@@ -18,6 +18,14 @@
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+## 3.0.19 (Unreleased)
+
+* Remove all newlines in selectors in `:compressed` mode.
+
+* Make color names case-insensitive.
+
+* Properly detect SCSS files when using `sass -c`.
+
 ## 3.0.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).

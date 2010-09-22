@@ -280,7 +280,7 @@ END
           input = @options[:input]
           output = @options[:output]
 
-          @options[:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
+          @options[:for_engine][:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
           engine =
             if input.is_a?(File) && !@options[:check_syntax]
               ::Sass::Engine.for_file(input.path, @options[:for_engine])

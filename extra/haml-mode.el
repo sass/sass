@@ -73,7 +73,7 @@ a specific level to which the current line could be indented.")
   `(,(concat haml-tag-beg-re "[><]*[ \t]*$")
     "^[ \t]*[&!]?[-=~].*do[ \t]*\\(|.*|[ \t]*\\)?$"
     ,(concat "^[ \t]*[&!]?[-=~][ \t]*\\("
-             (regexp-opt '("if" "unless" "while" "until" "else"
+             (regexp-opt '("if" "unless" "while" "until" "else" "for"
                            "begin" "elsif" "rescue" "ensure" "when"))
              "\\)")
     "^[ \t]*/\\(\\[.*\\]\\)?[ \t]*$"
