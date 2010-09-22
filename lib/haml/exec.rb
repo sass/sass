@@ -79,10 +79,8 @@ module Haml
           @options[:trace] = true
         end
 
-        if ::Haml::Util.windows?
-          opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
-            @options[:unix_newlines] = true
-          end
+        opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
+          @options[:unix_newlines] = true if ::Haml::Util.windows?
         end
 
         opts.on_tail("-?", "-h", "--help", "Show this message") do
