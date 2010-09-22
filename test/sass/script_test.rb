@@ -372,6 +372,12 @@ SASS
       "Colors must have either three or six digits: '#abcdEFA'") {eval("#abcdEFA")}
   end
 
+  def test_case_insensitive_color_names
+    assert_equal "blue", resolve("BLUE")
+    assert_equal "red", resolve("rEd")
+    assert_equal "#7f4000", resolve("mix(GrEeN, ReD)")
+  end
+
   # Regression Tests
 
   def test_funcall_has_higher_precedence_than_color_name

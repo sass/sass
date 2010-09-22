@@ -7,6 +7,8 @@
 
 * Remove all newlines in selectors in `:compressed` mode.
 
+* Make color names case-insensitive.
+
 ## 3.0.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
