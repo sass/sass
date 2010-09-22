@@ -1071,4 +1071,18 @@ $bar : "#foo";
 ul li\#{$bar} a span.label { foo: bar; }
 SCSS
   end
+
+  def test_newlines_removed_from_selectors_when_compressed
+    assert_equal <<CSS, render(<<SCSS, :style=>:compressed)
+z a,z b{display:block}
+CSS
+a,
+b {
+  z & {
+    display: block;
+  }
+}
+SCSS
+
+  end
 end
