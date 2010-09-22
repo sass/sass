@@ -66,6 +66,9 @@ module Sass::Script
   # \{#complement}
   # : Returns the complement of a color.
   #
+  # \{#invert}
+  # : Returns the inverse of a color.
+  #
   # ## Opacity Functions
   #
   # \{#alpha} / \{#opacity}
@@ -653,6 +656,20 @@ module Sass::Script
     # @see #adjust_hue #adjust-hue
     def complement(color)
       adjust_hue color, Number.new(180)
+    end
+
+    # Returns the inverse (negative) of a color.
+    # The red, green, and blue values are inverted, while the opacity is left alone.
+    #
+    # @param color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` isn't a color
+    def invert(color)
+      assert_type color, :Color
+      color.with(
+        :red => (255 - color.red),
+        :green => (255 - color.green),
+        :blue => (255 - color.blue))
     end
 
     # Removes quotes from a string if the string is quoted,

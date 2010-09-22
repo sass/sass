@@ -469,6 +469,15 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a color for `complement'", "complement(\"foo\")")
   end
 
+  def test_invert
+    assert_equal("#112233", evaluate("invert(#edc)"))
+    assert_equal("rgba(245, 235, 225, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5))"))
+  end
+
+  def test_invert_tests_types
+    assert_error_message("\"foo\" is not a color for `invert'", "invert(\"foo\")")
+  end
+
   def test_unquote
     assert_equal('foo', evaluate('unquote("foo")'))
     assert_equal('foo', evaluate('unquote(foo)'))

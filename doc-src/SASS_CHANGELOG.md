@@ -5,6 +5,8 @@
 
 ## 3.2.0 (Unreleased)
 
+* Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,
