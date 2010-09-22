@@ -259,6 +259,57 @@ module Sass
         options = old_options
       end
 
+      # Restructures a static Sass tree (e.g. the output of \{#perform})
+      # into another static Sass tree. This allows a single node in the
+      # tree to rewrite itself as an array of nodes that should replace it
+      # in its parent's child array.
+      #
+      # This step is used to bubble nested nodes to the top level
+      # in cases where CSS does not understand them in a nested context.
+      #
+      # \{#restructure} shouldn't be overridden directly;
+      # instead, override \{#\_restructure} or \{#restructure!}.
+      #
+      # @return [Array<Tree::Node>] The resulting tree of static nodes
+      # @see Sass::Tree
+      # @see Sass::Tree::RootNode#restructure
+      def restructure
+        new_children = children.map {|c| c.restructure}.flatten
+        unless new_children.any?{|c| c.bubbles?(self)}
+          # optimization path?
+          self.children = new_children
+          return [self]
+        end
+        child_groups = [[]]
+        new_children.each do |child|
+          if child.bubbles?(self)
+            child_groups << [child]
+            child_groups << []
+          else
+            child_groups.last << child
+          end
+        end
+        child_groups.reject!{|group| group.empty?}
+        replacements = child_groups.map do |children|
+          node = self.dup
+          if children.size == 1 && children.first.bubbles?(self)
+            # swap the child and parent in the tree
+            node, child = children.first, node
+            child.children = node.children
+            node.children = [child]
+          else
+            node.children = children
+          end
+          node
+        end
+        replacements
+      end
+
+      # Whether this node should bubble up to the next level
+      def bubbles?(parent)
+        false
+      end
+
       protected
 
       # Computes the CSS corresponding to this particular Sass node.
@@ -274,6 +325,14 @@ module Sass
       # @see Sass::Tree
       def _to_s
         Sass::Util.abstract(self)
+      end
+
+      # Destructively converts this static Sass node into a new static Sass node.
+      # This *does* modify this node,
+      # but will be run non-destructively by \{#\_restructure\}.
+      #
+      # @see #restructure
+      def restructure!
       end
 
       # Converts this static Sass node into a static CSS node,
