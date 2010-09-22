@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.19 (Unreleased)
+
+* Remove all newlines in selectors in `:compressed` mode.
+
 ## 3.0.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
