@@ -11,6 +11,10 @@
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+## 3.0.19 (Unreleased)
+
+* Allow the `--unix-newlines` flag to work on Unix, where it's a no-op.
+
 ## 3.0.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
