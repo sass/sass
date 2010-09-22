@@ -62,8 +62,8 @@ desc "Release a new Sass package to Rubyforge."
 task :release => [:check_release, :package] do
   name = File.read(scope("VERSION_NAME")).strip
   version = File.read(scope("VERSION")).strip
-  #sh %{rubyforge add_release sass sass "#{name} (v#{version})" pkg/sass-#{version}.gem}
-  #sh %{rubyforge add_file    sass sass "#{name} (v#{version})" pkg/sass-#{version}.tar.gz}
+  sh %{rubyforge add_release sass sass "#{name} (v#{version})" pkg/sass-#{version}.gem}
+  sh %{rubyforge add_file    sass sass "#{name} (v#{version})" pkg/sass-#{version}.tar.gz}
   sh %{gem push pkg/sass-#{version}.gem}
 end
 
@@ -131,7 +131,7 @@ task :release_edge do
     sh %{rake package}
     sh %{git checkout VERSION}
 
-    #sh %{rubyforge add_release sass sass "Bleeding Edge (v#{edge_version})" pkg/sass-#{edge_version}.gem}
+    sh %{rubyforge add_release sass sass "Bleeding Edge (v#{edge_version})" pkg/sass-#{edge_version}.gem}
     sh %{gem push pkg/sass-#{edge_version}.gem}
   end
 end
