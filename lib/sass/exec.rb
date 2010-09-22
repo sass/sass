@@ -282,7 +282,7 @@ END
           @options[:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
           engine =
             if input.is_a?(File) && !@options[:check_syntax]
-              ::Sass::Engin.for_file(input.path, @options[:for_engine])
+              ::Sass::Engine.for_file(input.path, @options[:for_engine])
             else
               # We don't need to do any special handling of @options[:check_syntax] here,
               # because the Sass syntax checking happens alongside evaluation
