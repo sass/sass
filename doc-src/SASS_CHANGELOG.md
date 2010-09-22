@@ -9,6 +9,8 @@
 
 * Make color names case-insensitive.
 
+* Properly detect SCSS files when using `sass -c`.
+
 ## 3.0.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
