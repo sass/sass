@@ -264,22 +264,26 @@ module Sass
       # tree to rewrite itself as an array of nodes that should replace it
       # in its parent's child array.
       #
-      # This step is used to bubble nested nodes to the top level
-      # in cases where CSS does not understand them in a nested context.
+      # This step is used to bubble nodes up the tree and to merge
+      # nodes with their parent in cases where CSS does not understand them
+      # in a nested context.
       #
-      # \{#restructure} shouldn't be overridden directly;
-      # instead, override \{#\_restructure} or \{#restructure!}.
+      # \{#restructure} generally shouldn't be overridden directly;
+      # instead, override \{#bubbles?}, \{#merges?}.
       #
       # @return [Array<Tree::Node>] The resulting tree of static nodes
       # @see Sass::Tree
       # @see Sass::Tree::RootNode#restructure
       def restructure
+        # First we restructure the children and replace them with their returned array of nodes
         new_children = children.map {|c| c.restructure}.flatten
         unless new_children.any?{|c| c.bubbles?(self) || c.merges?(self)}
-          # optimization path?
+          # No more restructuring to do just return.
           self.children = new_children
           return [self]
         end
+        # break the children into sets of nodes separated by nodes that need to be restructured.
+        # The parent node will be duplicated/replaced for each set.
         child_groups = [[]]
         new_children.each do |child|
           if child.bubbles?(self) || child.merges?(self)
@@ -289,7 +293,11 @@ module Sass
             child_groups.last << child
           end
         end
+        # The above approach can generate empty sets -- dump them
         child_groups.reject!{|group| group.empty?}
+
+        # perform the restructuring by bubbling and merging those
+        # nodes which require it.
         replacements = child_groups.map do |children|
           node = self.dup
           if children.size == 1 && children.first.bubbles?(self)
@@ -317,6 +325,14 @@ module Sass
       # Whether this node should bubble up to the next level
       def merges?(parent)
         false
+      end
+
+      # Merges this node with another, returning a new node
+      #
+      # Any node that returns true for \{#merges?} should
+      # implement this method.
+      def merge_with(parent)
+        Sass::Util.abstract(self)
       end
 
       protected
