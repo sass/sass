@@ -1032,21 +1032,19 @@ SCSS
 
 @media print {
   .outside {
-    color: black;
-  }
-  .outside .inside {
-    border: 1px solid black; } }
+    color: black; }
+    .outside .inside {
+      border: 1px solid black; } }
 
 .outside {
   background: blue; }
-
-.outside .middle {
-  display: block; }
+  .outside .middle {
+    display: block; }
 CSS
 .outside {
   color: red;
   @media print {
-    color: back;
+    color: black;
     .inside {
       border: 1px solid black;
     }
@@ -1059,6 +1057,43 @@ CSS
 SCSS
   end
 
+  def test_nested_media
+    scss_str = <<SCSS
+.outside {
+  color: red;
+  @media print {
+    color: black;
+    @media nested {
+      .inside {
+        border: 1px solid black;
+      }
+    }
+  }
+  background: blue;
+  .middle {
+    display: block;
+  }
+}
+SCSS
+    css_str = <<CSS
+.outside {
+  color: red; }
+
+@media print {
+  .outside {
+    color: black; } }
+
+@media (print) and (nested) {
+  .outside .inside {
+    border: 1px solid black; } }
+
+.outside {
+  background: blue; }
+  .outside .middle {
+    display: block; }
+CSS
+    assert_equal css_str, render(scss_str)
+  end
   # Regression
 
   def test_weird_added_space

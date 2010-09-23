@@ -275,14 +275,14 @@ module Sass
       # @see Sass::Tree::RootNode#restructure
       def restructure
         new_children = children.map {|c| c.restructure}.flatten
-        unless new_children.any?{|c| c.bubbles?(self)}
+        unless new_children.any?{|c| c.bubbles?(self) || c.merges?(self)}
           # optimization path?
           self.children = new_children
           return [self]
         end
         child_groups = [[]]
         new_children.each do |child|
-          if child.bubbles?(self)
+          if child.bubbles?(self) || child.merges?(self)
             child_groups << [child]
             child_groups << []
           else
@@ -297,6 +297,10 @@ module Sass
             node, child = children.first, node
             child.children = node.children
             node.children = [child]
+          elsif children.size == 1 && children.first.merges?(self)
+            # merge the child and parent in the tree
+            node.children = []
+            node = node.merge_with(children.first)
           else
             node.children = children
           end
@@ -307,6 +311,11 @@ module Sass
 
       # Whether this node should bubble up to the next level
       def bubbles?(parent)
+        false
+      end
+
+      # Whether this node should bubble up to the next level
+      def merges?(parent)
         false
       end
 
