@@ -7,6 +7,7 @@ require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/prop_node'
 require 'sass/tree/directive_node'
+require 'sass/tree/media_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
@@ -625,6 +626,8 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::WarnNode.new(parse_script(value, :offset => offset))
+      elsif directive == "media"
+        Tree::MediaNode.new(line.text)
       else
         Tree::DirectiveNode.new(line.text)
       end

@@ -28,34 +28,6 @@ module Sass::Tree
       value.split(/\s+/, 2).last
     end
 
-    def media?
-      name == "@media"
-    end
-
-    def bubbles?(parent)
-      r = media? && !(parent.is_a?(DirectiveNode) && parent.media?)
-      r
-    end
-
-    def merges?(parent)
-      r = media? && parent.is_a?(DirectiveNode) && parent.media?
-      r
-    end
-
-    def merge_with(node)
-      unless node.is_a?(DirectiveNode) && node.media?
-        raise ArgumentError, "Cannot merge with #{node.inspect}"
-      end
-      query1 = rest.strip
-      query1 = query1[1..-2] if query1[0] == ?( && query1[query1.size - 1] == ?)
-      query2 = node.rest.strip
-      query2 = query2[1..-2] if query2[0] == ?( && query2[query2.size - 1] == ?)
-      n = DirectiveNode.new("@media (#{rest}) and (#{node.rest})")
-      n.children = node.children
-      n.options = options
-      n
-    end
-
     protected
 
     # @see Node#to_src
