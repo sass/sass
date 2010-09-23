@@ -79,10 +79,8 @@ module Haml
           @options[:trace] = true
         end
 
-        if ::Haml::Util.windows?
-          opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
-            @options[:unix_newlines] = true
-          end
+        opts.on('--unix-newlines', 'Use Unix-style newlines in written files.') do
+          @options[:unix_newlines] = true if ::Haml::Util.windows?
         end
 
         opts.on_tail("-?", "-h", "--help", "Show this message") do
@@ -357,7 +355,7 @@ END
           input = @options[:input]
           output = @options[:output]
 
-          @options[:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
+          @options[:for_engine][:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
           tree =
             if input.is_a?(File) && !@options[:check_syntax]
               ::Sass::Files.tree_for(input.path, @options[:for_engine])

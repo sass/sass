@@ -7,6 +7,8 @@
 
 * Properly respect the `:encoding` option under Ruby 1.9.2.
 
+* Allow the `--unix-newlines` flag to work on Unix, where it's a no-op.
+
 ## 3.0.18
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
