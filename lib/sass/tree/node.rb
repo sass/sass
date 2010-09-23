@@ -352,14 +352,6 @@ module Sass
         Sass::Util.abstract(self)
       end
 
-      # Destructively converts this static Sass node into a new static Sass node.
-      # This *does* modify this node,
-      # but will be run non-destructively by \{#\_restructure\}.
-      #
-      # @see #restructure
-      def restructure!
-      end
-
       # Converts this static Sass node into a static CSS node,
       # returning the new node.
       # This doesn't modify this node or any of its children.
