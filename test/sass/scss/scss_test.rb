@@ -1133,6 +1133,24 @@ CSS
     assert_equal css_str, render(scss_str)
   end
 
+  def test_media_with_parent_references
+    scss_str = <<SCSS
+.outside {
+  @media print {
+    &.inside {
+      border: 1px solid black;
+    }
+  }
+}
+SCSS
+    css_str = <<CSS
+@media print {
+  .outside.inside {
+    border: 1px solid black; } }
+CSS
+    assert_equal css_str, render(scss_str)
+  end
+
   # Regression
 
   def test_weird_added_space
