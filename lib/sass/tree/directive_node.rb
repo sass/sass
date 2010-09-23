@@ -20,6 +20,13 @@ module Sass::Tree
       super()
     end
 
+    def name
+      value.split(/\s/, 2).first
+    end
+
+    def bubbles?(parent)
+      name == "media" && !(parent.is_a?(DirectiveNode) && parent.name == "media")
+    end
     protected
 
     # @see Node#to_src
