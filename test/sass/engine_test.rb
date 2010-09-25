@@ -2224,6 +2224,85 @@ SASS
     assert_equal original_filename, importer.engine("imported").options[:original_filename]
   end
 
+  def test_list_support
+    assert_equal(<<CSS, render(<<SASS))
+.sdl {
+  first: 2px;
+  second: solid;
+  third: blue; }
+
+.cdl {
+  first: 3px;
+  second: dashed;
+  third: green; }
+
+.combined {
+  first: 2px;
+  second: dashed solid;
+  third: blue green gray;
+  second-first: dashed;
+  second-second: solid;
+  third-first: blue;
+  third-second: green;
+  third-third: gray; }
+CSS
+$space-delimited-list: 2px solid blue
+$comma-delimited-list: 3px, dashed, green
+$combined-list: 2px, dashed solid, blue green gray
+.sdl
+  first : nth($space-delimited-list, 1)
+  second: nth($space-delimited-list, 2)
+  third : nth($space-delimited-list, 3)
+.cdl
+  first : nth($comma-delimited-list, 1)
+  second: nth($comma-delimited-list, 2)
+  third : nth($comma-delimited-list, 3)
+.combined
+  first : nth($combined-list, 1)
+  second: nth($combined-list, 2)
+  third : nth($combined-list, 3)
+  second-first : nth(nth($combined-list, 2), 1)
+  second-second: nth(nth($combined-list, 2), 2)
+  third-first  : nth(nth($combined-list, 3), 1)
+  third-second : nth(nth($combined-list, 3), 2)
+  third-third  : nth(nth($combined-list, 3), 3)
+SASS
+  end
+
+  def test_for_directive_supports_lists
+    assert_equal(<<CSS, render(<<SASS))
+.rounded {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ie-border-radius: 5px; }
+CSS
+.rounded
+  @for $prefix in -webkit, -moz, -ie
+    \#{$prefix}-border-radius: 5px
+SASS
+  end
+
+  def test_lists_in_expresssions
+    assert_equal(<<CSS, render(<<SASS))
+.lists {
+  equality: works;
+  inequality: works;
+  type-check: works; }
+CSS
+.lists
+  @if (2px 3px) == (2px 3px)
+    equality: works
+  @if (2px 3px) == (3px 2px)
+    equality: broken
+  @if (2px 3px) != (2px 3px)
+    inequality: broken
+  @if (2px 3px) != (3px 2px)
+    inequality: works
+  @if (2px 3px) != (2px, 3px)
+    type-check: works
+  
+SASS
+  end
 
   private
 

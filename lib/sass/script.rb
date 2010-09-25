@@ -1,5 +1,6 @@
 require 'strscan'
 require 'sass/script/node'
+require 'sass/script/list'
 require 'sass/script/variable'
 require 'sass/script/funcall'
 require 'sass/script/operation'

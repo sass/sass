@@ -6,6 +6,17 @@
 ## 3.2.0 (Unreleased)
 
 * Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
+* List Support - Sass now supports two new kinds of literals: space and comma delimited lists.
+  These data types can be stored and manipulated easier than before. Sass provides a number
+  of new functions for accessing and manipulating lists:
+  * `nth(list, index)` - returns the 1-based index of the list. Example: `nth(2px 3px, 1) => 2px`
+  * `count(list)` - returns the number of elements in the list.
+  * `contains(list, value*)` - returns whether the list contains all of the values.
+  * `append(list, value*)` - returns a new list that has one or more values appended to the end of the list.
+  * `prepend(list, value*)` - returns a new list that has one or more values prepended to the start of the list.
+  * `concat(list*)` - returns a new list that is the concatenation of two or more lists.
+  * `slice(list, from, to)` - returns a new list that is a subset of the list starting at
+    `from` and continuing until `to` (inclusively)
 
 ### Backwards Incompatibilities -- Must Read!
 

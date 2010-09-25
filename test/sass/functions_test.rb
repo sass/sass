@@ -545,6 +545,75 @@ MSG
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
+  def test_nth
+    assert_kind_of Sass::Script::SpaceList, perform("1px 2px")
+    assert_kind_of Sass::Script::CommaList, perform("1px, 2px")
+    assert_equal(%Q{1px}, evaluate("nth(1px 2px, 1)"))
+    assert_equal(%Q{2px}, evaluate("nth(1px 2px, 2)"))
+    assert_equal(%Q{2px 3px}, evaluate("nth(1px (2px 3px) 4px, 2)"))
+    assert_equal(%Q{4px}, evaluate("nth(1px (2px 3px) 4px, 3)"))
+    assert_equal(%Q{2px}, evaluate("nth(nth((1px, 2px 3px, 4px), 2),1)"))
+  end
+
+  def test_nth_requires_a_list
+    assert_error_message(%Q{"error" is not a list for `nth'}, "nth(error, 1)")
+  end
+
+  def test_nth_requires_a_unitless_positive_integer_index
+    assert_error_message(%Q{index 0 cannot be less than 1}, "nth(1 2 3, 0)")
+    assert_error_message(%Q{integer expected for index. Got: 1.3}, "nth(1 2 3, 1.3)")
+    assert_error_message(%Q{units are not allowed for index. Got: 1px}, "nth(1 2 3, 1px)")
+  end
+
+  def test_append
+    assert_equal(%Q{1px 2px 3px}, evaluate("append(1px 2px, 3px)"))
+    assert_equal(%Q{1px, 2px, 3px}, evaluate("append((1px, 2px), 3px)"))
+    assert_equal(%Q{1px, 2px, 3px, 4px, 5px}, evaluate("append((1px, 2px), 3px, 4px, 5px)"))
+    assert_error_message(%Q{"error" is not a list for `append'}, "append(error, 1)")
+  end
+
+  def test_prepend
+    assert_equal(%Q{3px 1px 2px}, evaluate("prepend(1px 2px, 3px)"))
+    assert_equal(%Q{3px, 1px, 2px}, evaluate("prepend((1px, 2px), 3px)"))
+    assert_equal(%Q{3px, 4px, 5px, 1px, 2px}, evaluate("prepend((1px, 2px), 3px, 4px, 5px)"))
+    assert_error_message(%Q{"error" is not a list for `prepend'}, "prepend(error, 1)")
+  end
+
+  def test_concat
+    assert_equal(%Q{1px 2px 3px 4px}, evaluate("concat(1px 2px, 3px 4px)"))
+    assert_equal(%Q{1px, 2px, 3px, 4px}, evaluate("concat((1px, 2px), (3px, 4px))"))
+    assert_equal(%Q{1px, 2px, 3px, 4px}, evaluate("concat((1px, 2px), (3px 4px))"))
+    assert_equal(%Q{1px 2px 3px 4px}, evaluate("concat(1px 2px, (3px, 4px))"))
+    assert_equal(%Q{1px 2px 3px 4px 5px 6px}, evaluate("concat(1px 2px, 3px 4px, 5px 6px)"))
+    assert_error_message(%Q{"first" is not a list for `concat'}, "concat(first, 1px 2px)")
+    assert_error_message(%Q{"second" is not a list for `concat'}, "concat(1px 2px, second)")
+  end
+
+  def test_slice
+    assert_equal(%Q{2px 3px}, evaluate("slice(1px 2px 3px 4px, 2, 3)"))
+    assert_equal(%Q{2px}, evaluate("slice(1px 2px 3px 4px, 2, 2)"))
+    assert_equal(%Q{2px 5px}, evaluate("append(slice(1px 2px 3px 4px, 2, 2), 5px)"))
+    assert_error_message(%Q{"first" is not a list for `slice'}, "slice(first, 2, 3)")
+    assert_error_message(%Q{index 0 cannot be less than 1}, "slice(1 2 3 4 5, 0, 3)")
+    assert_error_message(%Q{index 0 cannot be less than 2}, "slice(1 2 3 4 5, 2, 0)")
+  end
+
+  def test_count
+    assert_equal(%Q{2}, evaluate("count(1px 2px)"))
+    assert_equal(%Q{2}, evaluate("count((1px, 2px))"))
+    assert_error_message(%Q{"error" is not a list for `count'}, "count(error)")
+  end
+
+  def test_contains
+    assert_equal(%Q{true}, evaluate("contains(1px 2px, 2px)"))
+    assert_equal(%Q{false}, evaluate("contains(1px 2px, 2pc)"))
+    assert_equal(%Q{true}, evaluate("contains(red green blue, red)"))
+    assert_equal(%Q{true}, evaluate("contains(red green blue, red, green)"))
+    assert_equal(%Q{false}, evaluate("contains(red green blue, red, purple)"))
+    assert_equal(%Q{false}, evaluate("contains(1px 2px, 3px)"))
+    assert_error_message(%Q{"error" is not a list for `contains'}, "contains(error, value)")
+  end
+
   private
 
   def evaluate(value)

@@ -108,7 +108,7 @@ MSG
     # @return [Script::String] A string containing both literals
     #   separated by a space
     def concat(other)
-      Sass::Script::String.new("#{self.to_s} #{other.to_s}")
+      Sass::Script::SpaceList.new([self, other])
     end
 
     # The SassScript `,` operation (e.g. `$a, $b`, `"foo", "bar"`).
@@ -117,7 +117,7 @@ MSG
     # @return [Script::String] A string containing both literals
     #   separated by `", "`
     def comma(other)
-      Sass::Script::String.new("#{self.to_s}, #{other.to_s}")
+      Sass::Script::CommaList.new([self, other])
     end
 
     # The SassScript `=` operation
@@ -213,6 +213,11 @@ MSG
 
     # @raise [Sass::SyntaxError] if this literal isn't an integer
     def assert_int!; to_i; end
+
+    # @raise [Sass::SyntaxError] if this literal isn't a list
+    def assert_list!
+      raise Sass::SyntaxError, "#{self.inspect} is not a list."
+    end
 
     # Returns the string representation of this literal
     # as it would be output to the CSS document.

@@ -1083,6 +1083,21 @@ b {
   }
 }
 SCSS
-
   end
+
+  def test_for_directive_supports_lists
+    assert_equal(<<CSS, render(<<SCSS))
+.rounded {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ie-border-radius: 5px; }
+CSS
+.rounded {
+  @for $prefix in -webkit, -moz, -ie {
+    \#{$prefix}-border-radius: 5px
+  }
+}
+SCSS
+  end
+
 end

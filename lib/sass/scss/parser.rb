@@ -156,16 +156,22 @@ module Sass
         var = tok! IDENT
         ss
 
-        tok!(/from/)
-        from = sass_script(:parse_until, Set["to", "through"])
-        ss
+        if tok(/in/)
+          list = sass_script(:parse)
+          ss
+          block(node(Sass::Tree::IteratorNode.new(var, list)), :directive)
+        else
+          tok!(/from/)
+          from = sass_script(:parse_until, Set["to", "through"])
+          ss
 
-        @expected = '"to" or "through"'
-        exclusive = (tok(/to/) || tok!(/through/)) == 'to'
-        to = sass_script(:parse)
-        ss
+          @expected = '"to" or "through"'
+          exclusive = (tok(/to/) || tok!(/through/)) == 'to'
+          to = sass_script(:parse)
+          ss
 
-        block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)), :directive)
+          block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)), :directive)
+        end
       end
 
       def while_directive

@@ -97,7 +97,6 @@ class SassScriptTest < Test::Unit::TestCase
 
   def test_implicit_strings
     assert_equal Sass::Script::String.new("foo"), eval("foo")
-    assert_equal Sass::Script::String.new("foo bar"), eval("foo bar")
     assert_equal Sass::Script::String.new("foo/bar"), eval("foo/bar")
   end
 

@@ -825,6 +825,57 @@ module Sass::Script
       numeric_transformation(value) {|n| n.abs}
     end
 
+    ######## List Functions ###########
+
+    def nth(list, index)
+      assert_type list, :List
+      assert_type index, :Number
+      idx = assert_index index, 1, list.elements.size
+      list.elements[idx - 1]
+    end
+
+    def append(list, *elements)
+      assert_type list, :List
+      list.class.new(list.elements + elements)
+    end
+
+    def prepend(list, *elements)
+      assert_type list, :List
+      list.class.new(elements + list.elements)
+    end
+
+    def concat(list, *lists)
+      assert_type list, :List
+      elements = list.elements.dup
+      lists.each do |l|
+        assert_type l, :List
+        elements += l.elements
+      end
+      list.class.new(elements)
+    end
+
+    def slice(list, from, to)
+      assert_type list, :List
+      assert_type from, :Number
+      assert_type to, :Number
+      from_int = assert_index from, 1, list.elements.size
+      to_int = assert_index to, from_int, list.elements.size
+      list.class.new(list.elements[(from_int-1)..(to_int-1)])
+    end
+
+    def count(list)
+      assert_type list, :List
+      Sass::Script::Number.new(list.elements.size)
+    end
+
+    def contains(list, *values)
+      assert_type list, :List
+      values.each do |value|
+        return Sass::Script::Bool.new(false) unless list.elements.include?(value)
+      end
+      Sass::Script::Bool.new(true)
+    end
+
     private
 
     # This method implements the pattern of transforming a numeric value into
@@ -847,6 +898,22 @@ module Sass::Script
       # and allow clipping in rgb() et al?
       color.with(attr => Sass::Util.restrict(
           color.send(attr).send(op, amount.value), range))
+    end
+
+    def assert_index(index, min, max)
+      unless index.unitless?
+        raise Sass::SyntaxError, "units are not allowed for index. Got: #{index.to_s}"
+      end
+      unless index.int?
+        raise Sass::SyntaxError, "integer expected for index. Got: #{index.to_s}"
+      end
+      index = index.to_i
+      if index > max
+        raise Sass::SyntaxError, "index of #{index} out of range of #{max}"
+      elsif index < min
+        raise Sass::SyntaxError, "index #{index} cannot be less than #{min}"
+      end
+      index
     end
   end
 end
