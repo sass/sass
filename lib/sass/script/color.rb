@@ -401,7 +401,7 @@ END
     end
 
     def rgba_str
-      "rgba(#{rgb.join(', ')}, #{Sass::Util.tolerate(alpha)})"
+      "rgba(#{rgb.join(', ')}, #{Number.round(alpha)})"
     end
 
     def hex_str

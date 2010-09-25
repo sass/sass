@@ -10,6 +10,12 @@ module Sass::Script
   # Numbers can also have more complex units, such as `1px*em/in`.
   # These cannot be inputted directly in Sass code at the moment.
   class Number < Literal
+    # The precision with which numbers will be printed to CSS files.
+    # For example, if this is `1000.0`,
+    # `3.1415926` will be printed as `3.142`.
+    # @api public
+    PRECISION = 1000.0
+
     # The Ruby value of the number.
     #
     # @return [Numeric]
@@ -242,15 +248,7 @@ module Sass::Script
     #
     # @return [String] The representation
     def inspect(opts = {})
-      value =
-        if self.value.is_a?(Float) && (self.value.infinite? || self.value.nan?)
-          self.value
-        elsif int?
-          self.value.to_i
-        else
-          Sass::Util.tolerate(self.value)
-        end
-      "#{value}#{unit_str}"
+      "#{self.class.round(self.value)}#{unit_str}"
     end
     alias_method :to_sass, :inspect
 
@@ -327,6 +325,17 @@ module Sass::Script
     end
 
     private
+
+    # @private
+    def self.round(num)
+      if num.is_a?(Float) && (num.infinite? || num.nan?)
+        num
+      elsif num % 1 == 0.0
+        num.to_i
+      else
+        (num * PRECISION).round / PRECISION
+      end
+    end
 
     def operate(other, operation)
       this = self
