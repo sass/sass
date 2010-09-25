@@ -169,12 +169,11 @@ module Sass::Plugin
 
       template_location_array.each do |template_location, css_location|
 
-        Dir.glob(File.join(template_location, "**", "*.s[ca]ss")).sort.each do |file|
+        Dir.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
           name = file.sub(template_location.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
 
-          next if forbid_update?(name)
           if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
             update_stylesheet file, css
           else
@@ -342,10 +341,6 @@ module Sass::Plugin
 
     def css_filename(name, path)
       "#{path}/#{name}".gsub(/\.s[ac]ss$/, '.css')
-    end
-
-    def forbid_update?(name)
-      name.sub(/^.*\//, '')[0] == ?_
     end
   end
 end

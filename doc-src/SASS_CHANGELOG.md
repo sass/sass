@@ -5,6 +5,8 @@
 
 ## 3.2.0 (Unreleased)
 
+* Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,
@@ -15,6 +17,18 @@
 * Get rid of the `--rails` flag for the `sass` executable.
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
+
+## 3.0.19 (Unreleased)
+
+* Make the alpha value for `rgba` colors respect {Sass::Script::Number::PRECISION}.
+
+* Remove all newlines in selectors in `:compressed` mode.
+
+* Make color names case-insensitive.
+
+* Properly detect SCSS files when using `sass -c`.
+
+* Allow the `--unix-newlines` flag to work on Unix, where it's a no-op.
 
 ## 3.0.18
 
