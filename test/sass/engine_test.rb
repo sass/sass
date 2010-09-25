@@ -4,6 +4,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 require 'sass/engine'
 require 'stringio'
+require 'mock_importer'
 
 module Sass::Script::Functions::UserFunctions
   def option(name)
@@ -2274,6 +2275,20 @@ CSS
 SASS
     end
   end
+
+  def test_original_filename_set
+    importer = MockImporter.new
+    importer.add_import("imported", "div{color:red}")
+
+    original_filename = filename_for_test
+    engine = Sass::Engine.new('@import "imported"; div{color:blue}',
+      :filename => original_filename, :load_paths => [importer], :syntax => :scss)
+    engine.render
+
+    assert_equal original_filename, engine.options[:original_filename]
+    assert_equal original_filename, importer.engine("imported").options[:original_filename]
+  end
+
 
   private
 

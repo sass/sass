@@ -79,6 +79,10 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "rgba(100, 100, 100, 0.75)", resolve("rgba(50, 50, 50, 0.75) * 2")
   end
 
+  def test_rgba_rounding
+    assert_equal "rgba(10, 1, 0, 0.123)", resolve("rgba(10.0, 1.23456789, 0.0, 0.1234567)")
+  end
+
   def test_compressed_colors
     assert_equal "#123456", resolve("#123456", :style => :compressed)
     assert_equal "rgba(1, 2, 3, 0.5)", resolve("rgba(1, 2, 3, 0.5)", :style => :compressed)
@@ -370,6 +374,12 @@ SASS
       "Colors must have either three or six digits: '#abcdE'") {eval("#abcdE")}
     assert_raise_message(Sass::SyntaxError,
       "Colors must have either three or six digits: '#abcdEFA'") {eval("#abcdEFA")}
+  end
+
+  def test_case_insensitive_color_names
+    assert_equal "blue", resolve("BLUE")
+    assert_equal "red", resolve("rEd")
+    assert_equal "#7f4000", resolve("mix(GrEeN, ReD)")
   end
 
   # Regression Tests

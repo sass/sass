@@ -57,6 +57,13 @@ class CacheTest < Test::Unit::TestCase
     end
   end
 
+  def test_arbitrary_objects_can_go_into_cache
+    cache = Sass::InMemoryCacheStore.new
+    an_object = {:foo => :bar}
+    cache.store("an_object", "", an_object)
+    assert_equal an_object, cache.retrieve("an_object", "")
+  end
+
   private
   def root_node
     Sass::Engine.new(<<-SCSS, :syntax => :scss).to_tree

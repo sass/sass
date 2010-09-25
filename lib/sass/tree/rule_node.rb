@@ -134,7 +134,7 @@ module Sass::Tree
       per_rule_indent, total_indent = [:nested, :expanded].include?(style) ? [rule_indent, ''] : ['', rule_indent]
 
       total_rule = total_indent + resolved_rules.members.
-        map {|seq| seq.to_a.join}.
+        map {|seq| seq.to_a.join.gsub(/([^,])\n/m, style == :compressed ? '\1 ' : "\\1\n")}.
         join(rule_separator).split("\n").map do |line|
         per_rule_indent + line.strip
       end.join(line_separator)
