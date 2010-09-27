@@ -20,6 +20,20 @@
   * `slice(list, from, to)` - returns a new list that is a subset of the list starting at
     `from` and continuing until `to` (inclusively)
 
+  Lists can now be iterated with a new form of `@for`:
+  <pre><code>.border {
+      $border-props: width 2px, style dashed, color red;
+      @for $value in $border-props {
+        border-#{nth($value,first)}: nth($value, last);
+      }
+  }</code></pre>
+
+  Generates:
+  <pre><code>.border {
+      border-width: 2px;
+      border-style: dashed;
+      border-color: red; }</code></pre>
+
 ### Backwards Incompatibilities -- Must Read!
 
 * When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,
