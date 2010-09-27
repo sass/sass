@@ -553,6 +553,8 @@ MSG
     assert_equal(%Q{2px 3px}, evaluate("nth(1px (2px 3px) 4px, 2)"))
     assert_equal(%Q{4px}, evaluate("nth(1px (2px 3px) 4px, 3)"))
     assert_equal(%Q{2px}, evaluate("nth(nth((1px, 2px 3px, 4px), 2),1)"))
+    assert_equal(%Q{1px}, evaluate("nth(1px 2px 3px 4px, first)"))
+    assert_equal(%Q{4px}, evaluate("nth(1px 2px 3px 4px, last)"))
   end
 
   def test_nth_requires_a_list

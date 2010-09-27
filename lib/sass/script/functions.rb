@@ -829,7 +829,6 @@ module Sass::Script
 
     def nth(list, index)
       assert_type list, :List
-      assert_type index, :Number
       idx = assert_index index, 1, list.elements.size
       list.elements[idx - 1]
     end
@@ -856,8 +855,6 @@ module Sass::Script
 
     def slice(list, from, to)
       assert_type list, :List
-      assert_type from, :Number
-      assert_type to, :Number
       from_int = assert_index from, 1, list.elements.size
       to_int = assert_index to, from_int, list.elements.size
       list.class.new(list.elements[(from_int-1)..(to_int-1)])
@@ -901,6 +898,14 @@ module Sass::Script
     end
 
     def assert_index(index, min, max)
+      if index.is_a?(Sass::Script::String)
+        if "first" == index.value
+          index = Sass::Script::Number.new(1)
+        elsif "last" == index.value
+          index = Sass::Script::Number.new(max)
+        end
+      end
+      assert_type index, :Number
       unless index.unitless?
         raise Sass::SyntaxError, "units are not allowed for index. Got: #{index.to_s}"
       end
