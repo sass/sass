@@ -588,6 +588,7 @@ SassScript supports four main data types:
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
+* lists (e.g. `1px solid blue`, `-moz, -ms, -webkit`)
 
 SassScript also supports all other types of CSS property value,
 such as Unicode ranges and `!important` declarations.
@@ -623,6 +624,34 @@ is compiled to:
 It's also worth noting that when using the [deprecated `=` property syntax](#sassscript),
 all strings are interpreted as unquoted,
 regardless of whether or not they're written with quotes.
+
+#### Lists {#sass-script-lists}
+
+There are two kinds of lists: comma delimited and space delimited.
+
+    $prefixes: -moz, -ms, -webkit; // Comma delimited
+    $widths: 2px 4px 6px 8px; // Space delimited
+
+There are number of functions that can be used to with lists:
+
+* `nth($list, $index)` - returns the 1-based index of the list.
+  Special index values of `first` and `last` are also supported.
+  Example: `nth(2px 3px, 1) => 2px`
+* `count($list)` - returns the number of elements in the list.
+* `contains($list, $value*)` - returns whether the list contains all of the values.
+* `append($list, $value*)` - returns a new list that has one or more values appended to the end of the list.
+* `prepend($list, $value*)` - returns a new list that has one or more values prepended to the start of the list.
+* `concat($list*)` - returns a new list that is the concatenation of two or more lists.
+  The delimiter of the first list is used in the combined list.
+* `slice($list, $from, $to)` - returns a new list that is a subset of the list starting at
+  `from` and continuing until `to` (inclusively)
+* `list($value*)` - Returns a new space delimited list constructed of the values passed in.
+  This makes is easier to construct 0 and 1 element lists.
+* `comma-list($value*)` - Returns a new comma delimited list constructed of the values.
+  This makes is easier to construct 0 and 1 element lists.
+
+
+
 
 ### Operations
 
@@ -1372,14 +1401,17 @@ is compiled to:
 
 ### `@for`
 
-The `@for` directive has two forms:
-`@for $var from <start> to <end>` or
-`@for $var from <start> through <end>`.
+The `@for` directive has three forms:
+
+1. `@for $var from <start> to <end>`
+2. `@for $var from <start> through <end>`
+3. `@for $var in <list>`
 `$var` can be any variable name, like `$i`,
 and `<start>` and `<end>` are SassScript expressions
-that should return integers.
+that should return integers. `<list>` is a SassScript
+expression that should return a list.
 
-The `@for` statement sets `$var` to each number
+In the first two forms, the `@for` statement sets `$var` to each number
 from `<start>` to `<end>`,
 including `<end>` if `through` is used.
 Then it outputs the nested styles
@@ -1398,6 +1430,21 @@ is compiled to:
       width: 4em; }
     .item-3 {
       width: 6em; }
+
+In the list iterator form, the variable will be bound to successive
+values stored in the list. For example:
+
+    @for $width in 2px 4px 6px {
+      .border-#{$width/1px} {
+        border-width: $width;
+      }
+    }
+
+is compiled to:
+
+    .border-2 { border-width: 2px; }
+    .border-4 { border-width: 4px; }
+    .border-6 { border-width: 6px; }
 
 ### `@while`
 
