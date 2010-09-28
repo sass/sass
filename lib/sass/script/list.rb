@@ -27,6 +27,10 @@ module Sass::Script
       )
     end
 
+    def to_bool
+      self.elements.size > 0
+    end
+
     # Don't raise an error
     def assert_list!; end
 

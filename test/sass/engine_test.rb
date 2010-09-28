@@ -2287,7 +2287,9 @@ SASS
 .lists {
   equality: works;
   inequality: works;
-  type-check: works; }
+  type-check: works;
+  empty-list-is-false: working;
+  list-is-true: working; }
 CSS
 .lists
   @if (2px 3px) == (2px 3px)
@@ -2300,6 +2302,14 @@ CSS
     inequality: works
   @if (2px 3px) != (2px, 3px)
     type-check: works
+  @if list()
+    empty-list-is-false: broken
+  @if not list()
+    empty-list-is-false: working
+  @if list(1px)
+    list-is-true: working
+  @if not list(1px)
+    list-is-true: broken
   
 SASS
   end
