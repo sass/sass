@@ -317,13 +317,15 @@ RUBY
 
       def paren
         return variable unless try_tok(:lparen)
-        was_in_parens = @in_parens
-        @in_parens = true
-        e = assert_expr(:expr)
-        assert_tok(:rparen)
-        return e
-      ensure
-        @in_parens = was_in_parens
+        begin
+          was_in_parens = @in_parens
+          @in_parens = true
+          e = assert_expr(:expr)
+          assert_tok(:rparen)
+          return e
+        ensure
+          @in_parens = was_in_parens
+        end
       end
 
       def variable
