@@ -78,8 +78,9 @@ module Sass::Script
       self.class.new(elements.reject{|el| other_elements.include?(el)})
     end
 
+    # Convert this object to a ruby boolean
     def to_bool
-      self.elements.size > 0
+      elements.size > 0
     end
 
     # Convert this object to a ruby array.
