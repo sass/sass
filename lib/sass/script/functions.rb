@@ -827,6 +827,14 @@ module Sass::Script
 
     ######## List Functions ###########
 
+    def list(*values)
+      Sass::Script::SpaceList.new(values)
+    end
+
+    def comma_list(*values)
+      Sass::Script::CommaList.new(values)
+    end
+
     def nth(list, index)
       assert_type list, :List
       idx = assert_index index, 1, list.elements.size

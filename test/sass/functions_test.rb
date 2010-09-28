@@ -545,6 +545,24 @@ MSG
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
+  def test_list
+    assert_kind_of Sass::Script::SpaceList, perform("list(1px, 2px)")
+    assert_kind_of Sass::Script::SpaceList, perform("list()")
+    assert_kind_of Sass::Script::SpaceList, perform("list(1px)")
+    assert_equal(%Q{1px 2px}, evaluate("list(1px, 2px)"))
+    assert_equal(%Q{1px}, evaluate("list(1px)"))
+    assert_equal(%Q{}, evaluate("list()"))
+  end
+
+  def test_comma_list
+    assert_kind_of Sass::Script::CommaList, perform("comma-list(1px, 2px)")
+    assert_kind_of Sass::Script::CommaList, perform("comma-list()")
+    assert_kind_of Sass::Script::CommaList, perform("comma-list(1px)")
+    assert_equal(%Q{1px, 2px}, evaluate("comma-list(1px, 2px)"))
+    assert_equal(%Q{1px}, evaluate("comma-list(1px)"))
+    assert_equal(%Q{}, evaluate("comma-list()"))
+  end
+
   def test_nth
     assert_kind_of Sass::Script::SpaceList, perform("1px 2px")
     assert_kind_of Sass::Script::CommaList, perform("1px, 2px")
