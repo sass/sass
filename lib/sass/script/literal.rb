@@ -132,12 +132,19 @@ MSG
 
     # The SassScript `+` operation.
     #
+    # If the right-hand-side of this operation is a list,
+    # prepend this value to the list:
+    #
+    #     $value + $list == prepend($list, $value)
+    #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing both literals
     #   without any separation
     def plus(other)
       if other.is_a?(Sass::Script::String)
         return Sass::Script::String.new(self.to_s + other.value, other.type)
+      elsif other.is_a?(Sass::Script::List)
+        return other.class.new([self, other.elements])
       end
       Sass::Script::String.new(self.to_s + other.to_s)
     end

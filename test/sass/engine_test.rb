@@ -2289,7 +2289,14 @@ SASS
   inequality: works;
   type-check: works;
   empty-list-is-false: working;
-  list-is-true: working; }
+  list-is-true: working;
+  concat: 1px solid blue;
+  plus-value: 3px 4px 5px;
+  plus-list: 3px 4px 5px 6px;
+  minus-value: 4px;
+  minus-list: 5px;
+  unary-minus-list: -3px -4px -5px;
+  unary-plus-list: 3px 4px 5px; }
 CSS
 .lists
   @if (2px 3px) == (2px 3px)
@@ -2310,7 +2317,13 @@ CSS
     list-is-true: working
   @if not list(1px)
     list-is-true: broken
-  
+  concat: (1px solid) + list(blue)
+  plus-value: (3px 4px) + 5px
+  plus-list: (3px 4px) + (5px 6px)
+  minus-value: (3px 4px) - 3px
+  minus-list: (3px 4px 5px 4px) - (4px 3px)
+  unary-minus-list: -(3px 4px 5px)
+  unary-plus-list: +(3px 4px 5px)
 SASS
   end
 
