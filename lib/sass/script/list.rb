@@ -45,28 +45,6 @@ module Sass::Script
       end
     end
 
-    def self.applies_to_each_element(method, *args)
-      eval %Q{
-        def #{method}(#{args.join(", ")})
-          self.class.new(elements.map{|e| e.#{method}(#{args.join(", ")})})
-        end
-      }
-    end
-
-    # The SassScript unary `+` operation (e.g. `+$list`).
-    #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A new list containing the result of
-    # calling unary plus on each element in the list.
-    applies_to_each_element :unary_plus
-
-    # The SassScript unary `-` operation (e.g. `-$list`).
-    #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A new list containing the result of
-    # calling unary plus on each element in the list.
-    applies_to_each_element :unary_minus
-
     # The SassScript `-` operation.
     #
     # @param other [Literal] The right-hand side of the operator
@@ -76,6 +54,58 @@ module Sass::Script
     def minus(other)
       other_elements = Array(other)
       self.class.new(elements.reject{|el| other_elements.include?(el)})
+    end
+
+    # The SassScript unary `+` operation (e.g. `+$list`).
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Script::String] A new list containing the result of
+    # calling unary plus on each element in the list.
+    def unary_plus
+      apply(:unary_plus)
+    end
+
+    # The SassScript unary `-` operation (e.g. `-$list`).
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Script::String] A new list containing the result of
+    # calling unary plus on each element in the list.
+    def unary_minus
+      apply(:unary_minus)
+    end
+
+    # The SassScript times `*` operation (e.g. `$list * 2`).
+    #
+    # When the right hand value is a unitless non-negative integer
+    # The list will be duplicated that many times:
+    #
+    #     (1px 2px) * 2 == 1px 2px 1px 2px
+    #
+    # If you need to multiply a unitless number across the list,
+    # perform the operation with the number on the left side
+    #
+    # Otherwise, the operation is applied to each element in the list:
+    #
+    #     (2 3) * 2px == 4px 6px
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Script::String] A new list containing the result of
+    # calling unary plus on each element in the list.
+    def times(other)
+      if other.is_a?(Sass::Script::Number) && other.unitless? && other.int? && other.to_i >= 0
+        self.class.new(elements * other.to_i)
+      else
+        apply(:times, other)
+      end
+    end
+
+    # The SassScript `/` operation.
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Script::String] A new list containing the result of
+    # calling `div(other)` on each element in the list.
+    def div(other)
+      apply(:div, other)
     end
 
     # Convert this object to a ruby boolean
@@ -98,6 +128,26 @@ module Sass::Script
       to_s
     end
     alias_method :to_sass, :inspect
+
+    # Calls method on each element in the list with args passed to it.
+    def apply(method, *args)
+      self.class.new(elements.map{|el|
+        el.send(method, *args)
+      }.each{|el|
+        el.context = context
+      })
+    end
+
+    # Calls method on left_side for each element in the list with this
+    # object as the first argument and any additional args passed to it.
+    # @return a new list
+    def right_apply(method, left_side, *args)
+      self.class.new(elements.map{|el|
+        left_side.send(method, *args.dup.unshift(el))
+      }.each{|el|
+        el.context = context
+      })
+    end
   end
 
   class CommaList < List

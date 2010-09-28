@@ -164,7 +164,23 @@ MSG
     # @return [Script::String] A string containing both literals
     #   separated by `"/"`
     def div(other)
-      Sass::Script::String.new("#{self.to_s}/#{other.to_s}")
+      if other.is_a?(Sass::Script::List)
+        other.right_apply(:div, self)
+      else
+        Sass::Script::String.new("#{self.to_s}/#{other.to_s}")
+      end
+    end
+
+    # The SassScript `*` operation.
+    #
+    # @param other [Literal] The right-hand side of the operator
+    # @return [Script::String] 
+    def times(other)
+      if other.is_a?(Sass::Script::List)
+        other.right_apply(:times, self)
+      else
+        raise Sass::SyntaxError.new("Undefined operation: \"#{self.inspect} * #{other.inspect}\".")
+      end
     end
 
     # The SassScript unary `+` operation (e.g. `+$a`).

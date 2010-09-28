@@ -2296,7 +2296,11 @@ SASS
   minus-value: 4px;
   minus-list: 5px;
   unary-minus-list: -3px -4px -5px;
-  unary-plus-list: 3px 4px 5px; }
+  unary-plus-list: 3px 4px 5px;
+  rh-multiply-list: 6px 8px 10px;
+  lh-multiply-list: 3px 4px 5px 3px 4px 5px;
+  rh-div-list: 1.5px 2px 2.5px;
+  lh-div-list: 5px 3.75px 3px; }
 CSS
 .lists
   @if (2px 3px) == (2px 3px)
@@ -2324,6 +2328,10 @@ CSS
   minus-list: (3px 4px 5px 4px) - (4px 3px)
   unary-minus-list: -(3px 4px 5px)
   unary-plus-list: +(3px 4px 5px)
+  rh-multiply-list: 2 * (3px 4px 5px)
+  lh-multiply-list: (3px 4px 5px) * 2
+  rh-div-list: (3px 4px 5px) / 2
+  lh-div-list: 15px / (3 4 5)
 SASS
   end
 

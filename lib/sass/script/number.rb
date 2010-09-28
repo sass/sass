@@ -125,10 +125,10 @@ module Sass::Script
     def times(other)
       if other.is_a? Number
         operate(other, :*)
-      elsif other.is_a? Color
-        other.times(self)
+      elsif other.is_a?(List)
+        super
       else
-        raise NoMethodError.new(nil, :times)
+        other.times(self)
       end
     end
 
@@ -346,6 +346,7 @@ module Sass::Script
           other = other.coerce(numerator_units, denominator_units)
         end
       end
+  
       # avoid integer division
       value = (:/ == operation) ? this.value.to_f : this.value
       result = value.send(operation, other.value)
