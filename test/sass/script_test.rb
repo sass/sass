@@ -79,9 +79,13 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "rgba(100, 100, 100, 0.75)", resolve("rgba(50, 50, 50, 0.75) * 2")
   end
 
+  def test_rgba_rounding
+    assert_equal "rgba(10, 1, 0, 0.123)", resolve("rgba(10.0, 1.23456789, 0.0, 0.1234567)")
+  end
+
   def test_compressed_colors
     assert_equal "#123456", resolve("#123456", :style => :compressed)
-    assert_equal "rgba(1, 2, 3, 0.5)", resolve("rgba(1, 2, 3, 0.5)", :style => :compressed)
+    assert_equal "rgba(1,2,3,0.5)", resolve("rgba(1, 2, 3, 0.5)", :style => :compressed)
     assert_equal "#123", resolve("#112233", :style => :compressed)
     assert_equal "#000", resolve("black", :style => :compressed)
     assert_equal "red", resolve("#f00", :style => :compressed)
@@ -89,6 +93,12 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "navy", resolve("#000080", :style => :compressed)
     assert_equal "navy #fff", resolve("#000080 white", :style => :compressed)
     assert_equal "This color is #fff", resolve('"This color is #{ white }"', :style => :compressed)
+  end
+
+  def test_compressed_comma
+    # assert_equal "foo,bar,baz", resolve("foo, bar, baz", :style => :compressed)
+    # assert_equal "foo,#baf,baz", resolve("foo, #baf, baz", :style => :compressed)
+    assert_equal "foo,#baf,red", resolve("foo, #baf, #f00", :style => :compressed)
   end
 
   def test_implicit_strings
@@ -432,6 +442,7 @@ SASS
 
   def eval(str, opts = {}, environment = env)
     munge_filename opts
+    environment.options = opts
     Sass::Script.parse(str, opts.delete(:line) || 1,
       opts.delete(:offset) || 0, opts).perform(environment)
   end

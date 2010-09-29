@@ -248,15 +248,7 @@ module Sass::Script
     #
     # @return [String] The representation
     def inspect(opts = {})
-      value =
-        if self.value.is_a?(Float) && (self.value.infinite? || self.value.nan?)
-          self.value
-        elsif int?
-          self.value.to_i
-        else
-          (self.value * PRECISION).round / PRECISION
-        end
-      "#{value}#{unit_str}"
+      "#{self.class.round(self.value)}#{unit_str}"
     end
     alias_method :to_sass, :inspect
 
@@ -333,6 +325,17 @@ module Sass::Script
     end
 
     private
+
+    # @private
+    def self.round(num)
+      if num.is_a?(Float) && (num.infinite? || num.nan?)
+        num
+      elsif num % 1 == 0.0
+        num.to_i
+      else
+        (num * PRECISION).round / PRECISION
+      end
+    end
 
     def operate(other, operation)
       this = self

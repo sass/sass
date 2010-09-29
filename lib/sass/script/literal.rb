@@ -117,7 +117,7 @@ MSG
     # @return [Script::String] A string containing both literals
     #   separated by `", "`
     def comma(other)
-      Sass::Script::String.new("#{self.to_s}, #{other.to_s}")
+      Sass::Script::String.new("#{self.to_s},#{' ' unless options[:style] == :compressed}#{other.to_s}")
     end
 
     # The SassScript `=` operation

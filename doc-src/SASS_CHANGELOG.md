@@ -20,11 +20,15 @@
 
 ## 3.0.19 (Unreleased)
 
+* Make the alpha value for `rgba` colors respect {Sass::Script::Number::PRECISION}.
+
 * Remove all newlines in selectors in `:compressed` mode.
 
 * Make color names case-insensitive.
 
 * Properly detect SCSS files when using `sass -c`.
+
+* Remove spaces after commas in `:compressed` mode.
 
 * Allow the `--unix-newlines` flag to work on Unix, where it's a no-op.
 
