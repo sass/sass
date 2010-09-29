@@ -190,7 +190,7 @@ module Haml
     ensure
       # Get rid of the current buffer
       scope_object.instance_eval do
-        @haml_buffer = buffer.upper
+        @haml_buffer = buffer.upper if buffer
       end
     end
     alias_method :to_html, :render
