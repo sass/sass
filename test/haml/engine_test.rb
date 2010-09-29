@@ -774,6 +774,14 @@ HTML
 HAML
   end
 
+  def test_escape_html_with_interpolated_if_statement
+    assert_equal(<<HTML, render(<<HAML, :escape_html => true))
+foo,
+HTML
+foo\#{"," if true}
+HAML
+  end
+
   # HTML escaping tests
 
   def test_ampersand_equals_should_escape

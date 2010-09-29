@@ -1024,7 +1024,7 @@ END
           res << '#{'
         else
           content = eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"')
-          content = "Haml::Helpers.html_escape(#{content})" if opts[:escape_html]
+          content = "Haml::Helpers.html_escape((#{content}))" if opts[:escape_html]
           res << '#{' + content + "}"# Use eval to get rid of string escapes
         end
       end
