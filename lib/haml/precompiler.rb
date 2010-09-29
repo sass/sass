@@ -118,8 +118,8 @@ END
 
       names.map do |name|
         # Can't use || because someone might explicitly pass in false with a symbol
-        sym_local = "_haml_locals[#{name.to_sym.inspect}]"
-        str_local = "_haml_locals[#{name.to_s.inspect}]"
+        sym_local = "_haml_locals[#{inspect(name.to_sym)}]"
+        str_local = "_haml_locals[#{inspect(name.to_s)}]"
         "#{name} = #{sym_local}.nil? ? #{str_local} : #{sym_local}"
       end.join(';') + ';'
     end
@@ -320,7 +320,7 @@ END
       @to_merge.each do |type, val, tabs|
         case type
         when :text
-          str << val.inspect[1...-1]
+          str << inspect(val)[1...-1]
           mtabs += tabs
         when :script
           if mtabs != 0 && !@options[:ugly]
@@ -660,7 +660,7 @@ END
         if type == :static
           static_attributes[name] = val
         else
-          dynamic_attributes << name.inspect << " => " << val << ","
+          dynamic_attributes << inspect(name) << " => " << val << ","
         end
       end
       dynamic_attributes << "}"
@@ -695,7 +695,7 @@ END
 
       return name, [:static, content.first[1]] if content.size == 1
       return name, [:dynamic,
-        '"' + content.map {|(t, v)| t == :str ? v.inspect[1...-1] : "\#{#{v}}"}.join + '"']
+        '"' + content.map {|(t, v)| t == :str ? inspect(v)[1...-1] : "\#{#{v}}"}.join + '"']
     end
 
     # Parses a line that will render as an XHTML tag, and adds the code that will
@@ -800,7 +800,7 @@ END
         return if tag_closed
       else
         flush_merged_text
-        content = parse ? 'nil' : value.inspect
+        content = parse ? 'nil' : inspect(value)
         if attributes_hashes.empty?
           attributes_hashes = ''
         elsif attributes_hashes.size == 1
@@ -811,7 +811,7 @@ END
 
         args = [tag_name, self_closing, !block_opened?, preserve_tag, escape_html,
                 attributes, nuke_outer_whitespace, nuke_inner_whitespace
-               ].map { |v| v.inspect }.join(', ')
+               ].map {|v| inspect(v)}.join(', ')
         push_silent "_hamlout.open_tag(#{args}, #{object_ref}, #{content}#{attributes_hashes})"
         @dont_tab_up_next_text = @dont_indent_next_line = dont_indent_next_line
       end
@@ -1017,14 +1017,14 @@ END
 
     def unescape_interpolation(str, opts = {})
       res = ''
-      rest = Haml::Shared.handle_interpolation str.dump do |scan|
+      rest = Haml::Shared.handle_interpolation inspect(str) do |scan|
         escapes = (scan[2].size - 1) / 2
         res << scan.matched[0...-3 - escapes]
         if escapes % 2 == 1
           res << '#{'
         else
           content = eval('"' + balance(scan, ?{, ?}, 1)[0][0...-1] + '"')
-          content = "Haml::Helpers.html_escape(#{content})" if opts[:escape_html]
+          content = "Haml::Helpers.html_escape((#{content}))" if opts[:escape_html]
           res << '#{' + content + "}"# Use eval to get rid of string escapes
         end
       end

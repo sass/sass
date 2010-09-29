@@ -13,6 +13,10 @@
 
 ## 3.0.19 (Unreleased)
 
+* Fix the `:encoding` option under Ruby 1.9.2.
+
+* Fix interpolated if statement when HTML escaping is enabled.
+
 * Allow the `--unix-newlines` flag to work on Unix, where it's a no-op.
 
 ## 3.0.18

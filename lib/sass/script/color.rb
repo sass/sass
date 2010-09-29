@@ -401,7 +401,8 @@ END
     end
 
     def rgba_str
-      "rgba(#{rgb.join(', ')}, #{alpha % 1 == 0.0 ? alpha.to_i : alpha})"
+      split = options[:style] == :compressed ? ',' : ', '
+      "rgba(#{rgb.join(split)}#{split}#{Number.round(alpha)})"
     end
 
     def hex_str
