@@ -42,7 +42,7 @@ END
 # Don't use Rake::GemPackageTast because we want prerequisites to run
 # before we load the gemspec.
 desc "Build all the packages."
-task :package => [:permissions, :revision_file, :submodules] do
+task :package => [:revision_file, :submodules, :permissions] do
   load scope('haml.gemspec')
   Gem::Builder.new(HAML_GEMSPEC).build
   pkg = "#{HAML_GEMSPEC.name}-#{HAML_GEMSPEC.version}"

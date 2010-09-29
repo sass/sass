@@ -5,6 +5,8 @@
 
 ## 3.0.21 (Unreleased)
 
+* Fix the permissions errors for good.
+
 * Fix more `#options` attribute errors.
 
 ## 3.0.20
