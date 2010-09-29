@@ -60,7 +60,7 @@ task :permissions do
   require 'shellwords'
   Dir.glob('test/**/*_test.rb') do |file|
     next if file =~ %r{^test/haml/spec/}
-    sh %{chmod a+rx #{Shellwords.shellescape file}}
+    sh %{chmod a+rx #{file}}
   end
 end
 
