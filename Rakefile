@@ -24,7 +24,7 @@ end
 # Don't use Rake::GemPackageTast because we want prerequisites to run
 # before we load the gemspec.
 desc "Build all the packages."
-task :package => [:revision_file, :submodules] do
+task :package => [:permissions, :revision_file, :submodules] do
   load scope('sass.gemspec')
   Gem::Builder.new(SASS_GEMSPEC).build
   pkg = "#{SASS_GEMSPEC.name}-#{SASS_GEMSPEC.version}"
@@ -34,6 +34,16 @@ task :package => [:revision_file, :submodules] do
   sh %{rm -f pkg/#{pkg}.tar.gz}
   verbose(false) {SASS_GEMSPEC.files.each {|f| sh %{tar rf pkg/#{pkg}.tar #{f}}}}
   sh %{gzip pkg/#{pkg}.tar}
+end
+
+task :permissions do
+  sh %{chmod -R a+rx bin}
+  sh %{chmod -R a+r .}
+  require 'shellwords'
+  Dir.glob('test/**/*_test.rb') do |file|
+    next if file =~ %r{^test/haml/spec/}
+    sh %{chmod a+rx #{Shellwords.shellescape file}}
+  end
 end
 
 task :revision_file do

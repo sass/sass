@@ -63,10 +63,11 @@ module Sass
         args = self.args.map {|a| a.perform(environment)}
         ruby_name = name.gsub('-', '_')
         unless Sass::Util.has?(:public_instance_method, Functions, ruby_name) && ruby_name !~ /^__/
-          return Script::String.new("#{name}(#{args.map {|a| a.perform(environment)}.join(', ')})")
+          result = Script::String.new("#{name}(#{args.map {|a| a.perform(environment)}.join(', ')})")
+        else
+          result = Functions::EvaluationContext.new(environment.options).send(ruby_name, *args)
         end
 
-        result = Functions::EvaluationContext.new(environment.options).send(ruby_name, *args)
         result.options = environment.options
         return result
       rescue ArgumentError => e
