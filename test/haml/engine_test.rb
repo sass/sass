@@ -1741,13 +1741,13 @@ HAML
   private
 
   def assert_valid_encoding_comment(comment)
-    assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
+    assert_renders_encoded(<<HTML.encode("IBM866"), <<HAML.encode("IBM866").force_encoding("UTF-8"))
+<p>ЖЛЫ</p>
+<p>тАЬ</p>
 HTML
 #{comment}
-%p bâr
-%p föö
+%p ЖЛЫ
+%p тАЬ
 HAML
   end
 
