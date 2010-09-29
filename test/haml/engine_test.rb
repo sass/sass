@@ -1645,18 +1645,8 @@ HAML
 HAML
     end
 
-    def test_convert_template_render
-      assert_equal(<<HTML, render(<<HAML.encode("iso-8859-1"), :encoding => "utf-8"))
-<p>bâr</p>
-<p>föö</p>
-HTML
-%p bâr
-%p föö
-HAML
-    end
-
     def test_fake_ascii_encoding
-      assert_equal(<<HTML.force_encoding("ascii-8bit"), render(<<HAML, :encoding => "ascii-8bit"))
+      assert_encoded_equal(<<HTML.force_encoding("ascii-8bit"), render(<<HAML, :encoding => "ascii-8bit"))
 <p>bâr</p>
 <p>föö</p>
 HTML
@@ -1752,11 +1742,11 @@ HAML
   end
 
   def assert_converts_template_properly
-    engine = Haml::Engine.new(<<HAML.encode("iso-8859-1"), :encoding => "utf-8")
+    engine = Haml::Engine.new(<<HAML.encode("iso-8859-1"), :encoding => "macRoman")
 %p bâr
 %p föö
 HAML
-    assert_equal(<<HTML, yield(engine))
+    assert_encoded_equal(<<HTML.encode("macRoman"), yield(engine))
 <p>bâr</p>
 <p>föö</p>
 HTML
@@ -1764,7 +1754,11 @@ HTML
 
   def assert_renders_encoded(html, haml)
     result = render(haml)
-    assert_equal html.encoding, result.encoding
-    assert_equal html, result
+    assert_encoded_equal html, result
+  end
+
+  def assert_encoded_equal(expected, actual)
+    assert_equal expected.encoding, actual.encoding
+    assert_equal expected, actual
   end
 end
