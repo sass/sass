@@ -7,6 +7,8 @@
 
 * Fix some permissions errors.
 
+* Fix `#options` attribute errors when CSS functions were used with commas.
+
 ## 3.0.19
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.19).

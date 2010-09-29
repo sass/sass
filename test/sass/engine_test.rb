@@ -2073,6 +2073,16 @@ CSS
 SASS
   end
 
+  def test_function_output_with_comma
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  a: b(c), d(e); }
+CSS
+foo
+  a: b(c), d(e)
+SASS
+  end
+
   # Encodings
 
   unless Haml::Util.ruby1_8?
