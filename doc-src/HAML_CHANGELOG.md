@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.20 (Unreleased)
+
+* Fix some permissions errors.
+
 ## 3.0.19
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.19).
