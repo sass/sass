@@ -1506,7 +1506,7 @@ HAML
 
   def test_loud_ruby_multiline_with_block
     assert_equal(<<HTML, render(<<HAML))
-farfazfang
+#{%w[far faz fang]}
 <p>foo</p>
 <p>bar</p>
 HTML
