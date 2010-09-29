@@ -135,12 +135,12 @@ module Sass::Script
     # Returns a readable representation of this list.
     #
     # @return [String] The human representation
-    def inspect(opts = {})
+    def inspect
       @elements.map do |e|
         if e.is_a?(List)
-          "(#{e.inspect(opts)})"
+          "(#{e.inspect})"
         else
-          e.inspect(opts)
+          e.inspect
         end
       end.join(delimeter)
     end
