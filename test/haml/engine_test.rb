@@ -111,6 +111,15 @@ MESSAGE
     Haml::Engine.new(text, options)
   end
 
+  def setup
+    @old_default_internal = Encoding.default_internal
+    Encoding.default_internal = nil
+  end
+
+  def teardown
+    Encoding.default_internal = @old_default_internal
+  end
+
   def test_empty_render
     assert_equal "", render("")
   end
