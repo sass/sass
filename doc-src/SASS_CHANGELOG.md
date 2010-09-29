@@ -13,6 +13,8 @@
 
 * Properly detect SCSS files when using `sass -c`.
 
+* Remove spaces after commas in `:compressed` mode.
+
 * Allow the `--unix-newlines` flag to work on Unix, where it's a no-op.
 
 ## 3.0.18
