@@ -24,7 +24,7 @@ end
 # Don't use Rake::GemPackageTast because we want prerequisites to run
 # before we load the gemspec.
 desc "Build all the packages."
-task :package => [:permissions, :revision_file, :submodules] do
+task :package => [:revision_file, :submodules, :permissions] do
   load scope('sass.gemspec')
   Gem::Builder.new(SASS_GEMSPEC).build
   pkg = "#{SASS_GEMSPEC.name}-#{SASS_GEMSPEC.version}"

@@ -2111,6 +2111,28 @@ foo
 SASS
   end
 
+  def test_interpolation_with_comma
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  a: foo, bar; }
+CSS
+$foo: foo
+foo
+  a: \#{$foo}, bar
+SASS
+  end
+
+  def test_string_interpolation_with_comma
+    assert_equal <<CSS, render(<<SASS)
+foo {
+  a: "bip foo bap", bar; }
+CSS
+$foo: foo
+foo
+  a: "bip \#{$foo} bap", bar
+SASS
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?
