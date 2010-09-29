@@ -5,6 +5,8 @@
 
 ## 3.0.19 (Unreleased)
 
+* Fix the `:encoding` option under Ruby 1.9.2.
+
 * Allow the `--unix-newlines` flag to work on Unix, where it's a no-op.
 
 ## 3.0.18
