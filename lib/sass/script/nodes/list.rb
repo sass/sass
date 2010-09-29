@@ -1,4 +1,4 @@
-require 'sass/script/literal'
+require 'sass/script/nodes/literal'
 
 module Sass::Script
   # An abstract SassScript object representing a list.

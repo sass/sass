@@ -1,11 +1,11 @@
 require 'set'
-require 'sass/script/string'
-require 'sass/script/number'
-require 'sass/script/color'
+require 'sass/script/nodes/string'
+require 'sass/script/nodes/number'
+require 'sass/script/nodes/color'
 require 'sass/script/functions'
-require 'sass/script/unary_operation'
-require 'sass/script/interpolation'
-require 'sass/script/string_interpolation'
+require 'sass/script/nodes/unary_operation'
+require 'sass/script/nodes/interpolation'
+require 'sass/script/nodes/string_interpolation'
 
 module Sass::Script
   # A SassScript parse node representing a binary operation,

@@ -5,10 +5,10 @@ module Sass::Script
   # are designed to be overridden by subclasses which may change the semantics somewhat.
   # The operations listed here are just the defaults.
   class Literal < Node
-    require 'sass/script/string'
-    require 'sass/script/number'
-    require 'sass/script/color'
-    require 'sass/script/bool'
+    require 'sass/script/nodes/string'
+    require 'sass/script/nodes/number'
+    require 'sass/script/nodes/color'
+    require 'sass/script/nodes/bool'
 
     # Returns the Ruby value of the literal.
     # The type of this value varies based on the subclass.

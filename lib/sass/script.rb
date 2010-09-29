@@ -1,10 +1,10 @@
 require 'strscan'
-require 'sass/script/node'
-require 'sass/script/list'
-require 'sass/script/variable'
-require 'sass/script/funcall'
-require 'sass/script/operation'
-require 'sass/script/literal'
+require 'sass/script/nodes/node'
+require 'sass/script/nodes/list'
+require 'sass/script/nodes/variable'
+require 'sass/script/nodes/funcall'
+require 'sass/script/nodes/operation'
+require 'sass/script/nodes/literal'
 require 'sass/script/parser'
 
 module Sass
