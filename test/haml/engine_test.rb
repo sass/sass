@@ -1701,15 +1701,23 @@ HTML
 HAML
     end
 
-    def test_different_coding_comment_than_encoding
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# coding: ibm866
-%p bâr
-%p föö
-HAML
+    def test_coding_comments
+      assert_valid_encoding_comment("-# coding: ibm866")
+      assert_valid_encoding_comment("-# CodINg: IbM866")
+      assert_valid_encoding_comment("-#coding:ibm866")
+      assert_valid_encoding_comment("-# CodINg= ibm866")
+      assert_valid_encoding_comment("-# foo BAR FAOJcoding: ibm866")
+      assert_valid_encoding_comment("-# coding: ibm866 ASFJ (&(&#!$")
+      assert_valid_encoding_comment("-# -*- coding: ibm866")
+      assert_valid_encoding_comment("-# coding: ibm866 -*- coding: blah")
+      assert_valid_encoding_comment("-# -*- coding: ibm866 -*-")
+      assert_valid_encoding_comment("-# -*- encoding: ibm866 -*-")
+      assert_valid_encoding_comment('-# -*- coding: "ibm866" -*-')
+      assert_valid_encoding_comment("-#-*-coding:ibm866-*-")
+      assert_valid_encoding_comment("-#-*-coding:ibm866-*-")
+      assert_valid_encoding_comment("-# -*- foo: bar; coding: ibm866; baz: bang -*-")
+      assert_valid_encoding_comment("-# foo bar coding: baz -*- coding: ibm866 -*-")
+      assert_valid_encoding_comment("-# -*- coding: ibm866 -*- foo bar coding: baz")
     end
 
     def test_different_coding_than_system
@@ -1719,175 +1727,20 @@ HTML
 %p тАЬ
 HAML
     end
-
-    def test_case_insensitive_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# CodINg: IbM866
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_whitespace_insensitive_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--#coding:ibm866
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_equals_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# CodINg= ibm866
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_prefixed_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# foo BAR FAOJcoding: ibm866
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_suffixed_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# coding: ibm866 ASFJ (&(&#!$
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_emacs_prefixed_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# -*- coding: ibm866
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_emacs_suffixed_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# coding: ibm866 -*- coding: blah
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_emacs_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# -*- coding: ibm866 -*-
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_emacs_encoding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# -*- encoding: ibm866 -*-
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_quoted_emacs_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# -*- coding: "ibm866" -*-
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_whitespace_insensitive_emacs_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--#-*-coding:ibm866-*-
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_whitespace_insensitive_emacs_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--#-*-coding:ibm866-*-
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_one_of_several_emacs_comments
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# -*- foo: bar; coding: ibm866; baz: bang -*-
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_prefixed_emacs_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# foo bar coding: baz -*- coding: ibm866 -*-
-%p bâr
-%p föö
-HAML
-    end
-
-    def test_suffixed_emacs_coding_comment
-      assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
-<p>bâr</p>
-<p>föö</p>
-HTML
--# -*- coding: ibm866 -*- foo bar coding: baz
-%p bâr
-%p föö
-HAML
-    end
-
   end
 
   private
+
+  def assert_valid_encoding_comment(comment)
+    assert_renders_encoded(<<HTML.force_encoding("IBM866"), <<HAML)
+<p>bâr</p>
+<p>föö</p>
+HTML
+#{comment}
+%p bâr
+%p föö
+HAML
+  end
 
   def assert_converts_template_properly
     engine = Haml::Engine.new(<<HAML.encode("iso-8859-1"), :encoding => "utf-8")
