@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.0.21 (Unreleased)
+
+* Fix more `#options` attribute errors.
+
 ## 3.0.20
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.20).

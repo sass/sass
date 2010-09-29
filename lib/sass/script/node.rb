@@ -90,12 +90,23 @@ module Sass::Script
     end
 
     # Evaluates this node.
+    # Note that all {Literal} objects created within this method
+    # should have their \{#options} attribute set, probably via \{#opts}.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
     # @return [Literal] The SassScript object that is the value of the SassScript
     # @see #perform
     def _perform(environment)
       raise NotImplementedError.new("All subclasses of Sass::Script::Node must override #_perform.")
+    end
+
+    # Sets the \{#options} field on the given literal and returns it
+    #
+    # @param literal [Literal]
+    # @return [Literal]
+    def opts(literal)
+      literal.options = options
+      literal
     end
   end
 end
