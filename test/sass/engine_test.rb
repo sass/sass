@@ -2291,7 +2291,8 @@ SASS
   empty-list-is-false: working;
   list-is-true: working;
   concat: 1px solid blue;
-  plus-value: 3px 4px 5px;
+  lh-plus-value: 3px 4px 5px;
+  rh-plus-value: 1px 3px 4px;
   plus-list: 3px 4px 5px 6px;
   minus-value: 4px;
   minus-list: 5px;
@@ -2322,7 +2323,8 @@ CSS
   @if not list(1px)
     list-is-true: broken
   concat: (1px solid) + list(blue)
-  plus-value: (3px 4px) + 5px
+  lh-plus-value: (3px 4px) + 5px
+  rh-plus-value: 1px + (3px 4px)
   plus-list: (3px 4px) + (5px 6px)
   minus-value: (3px 4px) - 3px
   minus-list: (3px 4px 5px 4px) - (4px 3px)
@@ -2333,6 +2335,16 @@ CSS
   rh-div-list: (3px 4px 5px) / 2
   lh-div-list: 15px / (3 4 5)
 SASS
+  end
+
+  def test_invalid_lists
+    assert_raise_message(Sass::SyntaxError, '"1 2 (3, 4) 5 6" isn\'t a valid CSS value') do
+      render(<<SASS)
+$list: 1 2 (3, 4) 5 6
+div
+  value: $list
+SASS
+    end
   end
 
   private

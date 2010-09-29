@@ -8,10 +8,6 @@ module Sass::Script
       Sass::Util.abstract(self)
     end
     
-    def to_s
-      @elements.map{|e| e.to_s}.join(delimeter)
-    end
-
     # The SassScript `==` operation.
     # **Note that this returns a {Sass::Script::Bool} object,
     # not a Ruby boolean**.
@@ -121,13 +117,47 @@ module Sass::Script
     # Don't raise an error
     def assert_list!; end
 
+    # Returns the string representation of this list
+    # as it would be output to the CSS document.
+    #
+    # @return [String] The CSS representation
+    def to_s
+      @elements.map do |e|
+        if e.is_a?(CommaList)
+          # Comma lists must always be the top-most list and can never be nested in CSS.
+          raise Sass::SyntaxError, %Q{"#{self.inspect}" isn't a valid CSS value}
+        else
+          e.to_s
+        end
+      end.join(delimeter)
+    end
+
     # Returns a readable representation of this list.
     #
-    # @return [String] The representation
+    # @return [String] The human representation
     def inspect(opts = {})
-      to_s
+      @elements.map do |e|
+        if e.is_a?(List)
+          "(#{e.inspect(opts)})"
+        else
+          e.inspect(opts)
+        end
+      end.join(delimeter)
     end
-    alias_method :to_sass, :inspect
+
+    # Returns a representation of this list that can
+    # be reparsed to generate the same value.
+    #
+    # @return [String] The sass representation
+    def to_sass(opts = {})
+      @elements.map do |e|
+        if e.is_a?(List)
+          "#{'comma-' if e.is_a?(CommaList)}list(#{e.to_sass(opts)})"
+        else
+          e.to_sass(opts)
+        end
+      end.join(delimeter)
+    end
 
     # Calls method on each element in the list with args passed to it.
     def apply(method, *args)
@@ -159,13 +189,22 @@ module Sass::Script
       ", "
     end
 
-    # The SassScript `,` operation (e.g. `$a, $b`, `"foo", "bar"`).
+    # The SassScript `,` operation.
+    # On a comma list, this appends the right hand value.
+    #
+    # This means that (1px, 2px), 3px == 1px, 2px, 3px
+    #
+    # If you need to construct a nested list of the same delimiter type
+    # use the `comma-list()` function like so: `comma-list((1px, 2px), 3px)`
     #
     # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A string containing both literals
-    #   separated by `", "`
+    # @return [Script::String] 
     def comma(other)
-      Sass::Script::CommaList.new(elements + [other])
+      if other.is_a?(CommaList)
+        CommaList.new(elements + other.elements)
+      else
+        CommaList.new(elements + [other])
+      end
     end
 
   end
@@ -179,12 +218,22 @@ module Sass::Script
       " "
     end
 
-    # The SassScript default operation (e.g. `$a $b`, `"foo" "bar"`).
+    # The SassScript default (space) operation. E.g.: `1px 2px`
+    # On a space list, this appends the right hand value.
+    #
+    # This means that (1px 2px) 3px == 1px 2px 3px
+    #
+    # If you need to construct a nested list of the same delimiter type
+    # use the `list()` function like so: `list(1px 2px, 3px 4px)`
     #
     # @param other [Literal] The right-hand side of the operator
-    # @return [Script::SpaceList] 
+    # @return [Script::String] 
     def concat(other)
-      SpaceList.new(elements + [other])
+      if other.is_a?(SpaceList)
+        SpaceList.new(elements + other.elements)
+      else
+        SpaceList.new(elements + [other])
+      end
     end
 
   end

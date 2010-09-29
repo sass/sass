@@ -1159,6 +1159,40 @@ foo-\#{!c}
 SASS
   end
 
+  def test_basic_lists
+    assert_renders <<SASS, <<SCSS
+foo
+  space: 1px 2px
+  comma: one, two
+SASS
+foo {
+  space: 1px 2px;
+  comma: one, two; }
+SCSS
+  end
+
+  def test_nested_lists
+    assert_renders <<SASS, <<SCSS
+foo
+  space: 1px 2px, 3px 4px
+  comma: (one, two) (three, four)
+SASS
+foo {
+  space: 1px 2px, 3px 4px;
+  comma: (one, two) (three, four); }
+SCSS
+  end
+
+  def test_wonky_nested_lists
+    assert_renders <<SASS, <<SCSS
+foo
+  wonky: 1px (2px, 3px (foo, bar) 5px) 4px
+SASS
+foo {
+  wonky: 1px (2px, 3px (foo, bar) 5px) 4px; }
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})
