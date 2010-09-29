@@ -634,10 +634,29 @@ MSG
     assert_error_message(%Q{"error" is not a list for `contains'}, "contains(error, value)")
   end
 
+  def test_zip
+    assert_equal(%Q{width 100px, height 200px}, evaluate("zip(width height, 100px 200px)"))
+    assert_equal(%Q{width 100px foo, height 200px bar}, evaluate("zip(width height, 100px 200px, foo bar)"))
+    assert_error_message(%Q{100px expected to have 2 elements for `zip'}, "zip(width height, list(100px))")
+  end
+
+  def test_map
+    assert_equal(%Q{204 119 0}, evaluate(%Q{map("red", #ccc #777 #000)}))
+  end
+
+  def test_apply
+    assert_equal(%Q{#cccccc}, evaluate(%Q{apply(rgb, $list)}, "$list" => "204 204 204"))
+  end
+
   private
 
-  def evaluate(value)
-    Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new).to_s
+  def evaluate(value, variables = {})
+    env = Sass::Environment.new
+    variables.each do |var,v|
+      env.set_var(var.gsub(/\A\$/, ''),
+        Sass::Script::Parser.parse(v, 0, 0).perform(env))
+    end
+    Sass::Script::Parser.parse(value, 0, 0).perform(env).to_s
   end
 
   def perform(value)

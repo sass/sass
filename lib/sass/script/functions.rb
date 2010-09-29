@@ -881,6 +881,40 @@ module Sass::Script
       Sass::Script::Bool.new(true)
     end
 
+    def zip(list1, *lists)
+      assert_type list1, :List
+      lists.each do |l|
+        assert_type l, :List
+        unless l.elements.size == list1.elements.size
+          raise ArgumentError, "#{l.inspect} expected to have #{list1.elements.size} elements"
+        end
+      end
+      CommaList.new(list1.elements.zip(*lists.map{|l| l.elements}).map{|l| SpaceList.new(l)})
+    end
+
+    def map(fn, list, *args)
+      assert_type fn, :String
+      assert_type list, :List
+      applied = list.elements.map do |el|
+        funcall = Funcall.new(fn.value, [el] + args)
+        funcall.options = fn.options
+        funcall.context = fn.context
+        # XXX We need to pass the environment to the evaluation context.
+        funcall.perform(Sass::Environment.new)
+      end
+      list.class.new(applied)
+    end
+
+    def apply(fn, list)
+      assert_type fn, :String
+      assert_type list, :List
+      funcall = Funcall.new(fn.value, list.elements)
+      funcall.options = fn.options
+      funcall.context = fn.context
+      # XXX We need to pass the environment to the evaluation context.
+      funcall.perform(Sass::Environment.new)
+    end
+
     private
 
     # This method implements the pattern of transforming a numeric value into
