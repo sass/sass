@@ -11,6 +11,12 @@
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+## 3.0.21
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.21).
+
+* Fix the permissions errors for good.
+
 ## 3.0.20
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.20).
