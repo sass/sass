@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.19 (Unreleased)
+## 3.0.19
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.19).
 
 * Fix the `:encoding` option under Ruby 1.9.2.
 
