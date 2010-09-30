@@ -28,8 +28,10 @@ module Sass::Script
     # Returns the concatenation two lists or adds
     # the element to the list on the side of the list where it is added.
     # That is:
-    # $list1 + $list2 == concat($list1, $list2)
-    # $list + $value == append($list1, $value)
+    #
+    #     $list1 + $list2 == concat($list1, $list2)
+    #     $list + $value == append($list1, $value)
+    #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing both literals
     #   without any separation
@@ -65,7 +67,7 @@ module Sass::Script
     #
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A new list containing the result of
-    # calling unary plus on each element in the list.
+    # calling unary minus on each element in the list.
     def unary_minus
       apply(:unary_minus)
     end
@@ -192,7 +194,7 @@ module Sass::Script
     # The SassScript `,` operation.
     # On a comma list, this appends the right hand value.
     #
-    # This means that (1px, 2px), 3px == 1px, 2px, 3px
+    # This means that `(1px, 2px), 3px == 1px, 2px, 3px`
     #
     # If you need to construct a nested list of the same delimiter type
     # use the `comma-list()` function like so: `comma-list((1px, 2px), 3px)`
@@ -221,7 +223,7 @@ module Sass::Script
     # The SassScript default (space) operation. E.g.: `1px 2px`
     # On a space list, this appends the right hand value.
     #
-    # This means that (1px 2px) 3px == 1px 2px 3px
+    # This means that `(1px 2px) 3px == 1px 2px 3px`
     #
     # If you need to construct a nested list of the same delimiter type
     # use the `list()` function like so: `list(1px 2px, 3px 4px)`
