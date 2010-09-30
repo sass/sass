@@ -168,8 +168,7 @@ module Sass::Script::Functions
       funcall = Sass::Script::Funcall.new(fn.value, [el] + args)
       funcall.options = fn.options
       funcall.context = fn.context
-      # XXX We need to pass the environment to the evaluation context.
-      funcall.perform(Sass::Environment.new)
+      funcall.perform(environment)
     end
     list.class.new(applied)
   end
@@ -186,8 +185,7 @@ module Sass::Script::Functions
     funcall = Sass::Script::Funcall.new(fn.value, list.elements)
     funcall.options = fn.options
     funcall.context = fn.context
-    # XXX We need to pass the environment to the evaluation context.
-    funcall.perform(Sass::Environment.new)
+    funcall.perform(environment)
   end
 
   private

@@ -12,7 +12,7 @@ module Sass::Script::Functions
   include UserFunctions
 
   def option(name)
-    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+    Sass::Script::String.new(self.options[name.value.to_sym].to_s)
   end
 end
 
