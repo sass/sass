@@ -10,116 +10,158 @@ module Sass::Script
   #
   # ## RGB Functions
   #
-  # \{#rgb}
+  # \{#rgb rgb}
   # : Converts an `rgb(red, green, blue)` triplet into a color.
   #
-  # \{#rgba}
+  # \{#rgba rgba}
   # : Converts an `rgba(red, green, blue, alpha)` quadruplet into a color.
   #
-  # \{#red}
+  # \{#red red}
   # : Gets the red component of a color.
   #
-  # \{#green}
+  # \{#green green}
   # : Gets the green component of a color.
   #
-  # \{#blue}
+  # \{#blue blue}
   # : Gets the blue component of a color.
   #
-  # \{#mix}
+  # \{#mix mix}
   # : Mixes two colors together.
   #
   # ## HSL Functions
   #
-  # \{#hsl}
+  # \{#hsl hsl}
   # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
   #
-  # \{#hsla}
+  # \{#hsla hsla}
   # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
   #
-  # \{#hue}
+  # \{#hue hue}
   # : Gets the hue component of a color.
   #
-  # \{#saturation}
+  # \{#saturation saturation}
   # : Gets the saturation component of a color.
   #
-  # \{#lightness}
+  # \{#lightness lightness}
   # : Gets the lightness component of a color.
   #
-  # \{#adjust_hue #adjust-hue}
+  # \{#adjust_hue adjust-hue}
   # : Changes the hue of a color.
   #
-  # \{#lighten}
+  # \{#lighten lighten}
   # : Makes a color lighter.
   #
-  # \{#darken}
+  # \{#darken darken}
   # : Makes a color darker.
   #
-  # \{#saturate}
+  # \{#saturate saturate}
   # : Makes a color more saturated.
   #
-  # \{#desaturate}
+  # \{#desaturate desaturate}
   # : Makes a color less saturated.
   #
-  # \{#grayscale}
+  # \{#grayscale grayscale}
   # : Converts a color to grayscale.
   #
-  # \{#complement}
+  # \{#complement complement}
   # : Returns the complement of a color.
   #
-  # \{#invert}
+  # \{#invert invert}
   # : Returns the inverse of a color.
   #
   # ## Opacity Functions
   #
-  # \{#alpha} / \{#opacity}
+  # \{#alpha alpha} / \{#opacity opacity}
   # : Gets the alpha component (opacity) of a color.
   #
-  # \{#rgba}
+  # \{#rgba rgba}
   # : Sets the alpha component of a color.
   #
-  # \{#opacify} / \{#fade_in #fade-in}
+  # \{#opacify opacify} / \{#fade_in fade-in}
   # : Makes a color more opaque.
   #
-  # \{#transparentize} / \{#fade_out #fade-out}
+  # \{#transparentize transparentize} / \{#fade_out fade-out}
   # : Makes a color more transparent.
   #
   # ## String Functions
   #
-  # \{#unquote}
+  # \{#unquote unquote}
   # : Removes the quotes from a string.
   #
-  # \{#quote}
+  # \{#quote quote}
   # : Adds quotes to a string.
   #
   # ## Number Functions
   #
-  # \{#percentage}
+  # \{#percentage percentage}
   # : Converts a unitless number to a percentage.
   #
-  # \{#round}
+  # \{#round round}
   # : Rounds a number to the nearest whole number.
   #
-  # \{#ceil}
+  # \{#ceil ceil}
   # : Rounds a number up to the nearest whole number.
   #
-  # \{#floor}
+  # \{#floor floor}
   # : Rounds a number down to the nearest whole number.
   #
-  # \{#abs}
+  # \{#abs abs}
   # : Returns the absolute value of a number.
+  #
+  # ## List Functions
+  #
+  # \{#list list}
+  # : Creates a space-delimited list
+  #
+  # \{#comma_list comma-list}
+  # : Creates a comma-delimited list
+  #
+  # \{#nth nth}
+  # : Returns the value at the nth index of a list
+  #
+  # \{#append append}
+  # : Add one or more elements to the end of a list
+  #
+  # \{#prepend prepend}
+  # : Add one or more elements to the beginning of a list
+  #
+  # \{#concat concat}
+  # : Combine several lists into a single list
+  #
+  # \{#slice slice}
+  # : Extract a sublist from a list
+  #
+  # \{#count count}
+  # : Count how many elements are in a list
+  #
+  # \{#contains contains}
+  # : Check whether a list contains all of the specified values
+  #
+  # \{#zip zip}
+  # : Combine several lists of equal counts into one list
+  #   where each element is a list of the values at that same
+  #   index in the original lists.
+  #
+  # \{#map map}
+  # : Create a new list where the elements are the results
+  #   of successively calling the passed function with the
+  #   list as the first argument.
+  #
+  # \{#apply apply}
+  # : Calls a function using a list as the arguments
   #
   # ## Introspection Functions
   #
-  # \{#type_of}
+  # \{#type_of type-of}
   # : Returns the type of a value.
   #
-  # \{#unit}
+  # \{#unit unit}
   # : Returns the units associated with a number.
   #
-  # \{#unitless}
+  # \{#unitless unitless}
   # : Returns whether a number has units or not.
   #
-  # \{#comparable}
+  # \{#comparable comparable}
   # : Returns whether two numbers can be added or compared.
   #
   # These functions are described in more detail below.

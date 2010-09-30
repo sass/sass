@@ -51,7 +51,7 @@ module Sass::Script::Functions
     list.class.new(list.elements + elements)
   end
 
-  # Add one or more elements to the front of a list
+  # Add one or more elements to the beginning of a list
   #
   # @example
   #   prepend(10px solid, blue) => blue 10px solid 
@@ -64,7 +64,7 @@ module Sass::Script::Functions
     list.class.new(elements + list.elements)
   end
 
-  # Add one or more elements to the front of a list
+  # Combine several lists into a single list.
   #
   # @example
   #   concat(10px solid, red green) => 10px solid red green
@@ -72,7 +72,7 @@ module Sass::Script::Functions
   #   concat(10px solid, (red, green)) => 10px solid red green
   #   concat(one two, three four, five six) => one two three four five six
   #
-  # @return [List] a new list
+  # @return [List] a new list with the same delimiter as the first list
   def concat(list, *lists)
     assert_type list, :List
     elements = list.elements.dup
@@ -109,7 +109,7 @@ module Sass::Script::Functions
     Sass::Script::Number.new(list.elements.size)
   end
 
-  # Check whether a list contains all of the provided values.
+  # Check whether a list contains all of the specified values.
   #
   # @example
   #   contains(a b c d, a) => true
@@ -177,7 +177,7 @@ module Sass::Script::Functions
   # Calls a function using a list as the arguments
   #
   # @example
-  #   apply(rgb, 255 0 127) => ff007f
+  #   apply(rgb, 255 0 127) => #ff007f
   #
   # @return [List] A new list containing the return values
   def apply(fn, list)
