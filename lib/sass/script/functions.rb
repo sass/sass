@@ -175,7 +175,7 @@ end
 
 require 'sass/script/functions/color'
 require 'sass/script/functions/list'
-require 'sass/script/functions/meta'
+require 'sass/script/functions/introspection'
 require 'sass/script/functions/number'
 require 'sass/script/functions/string'
 require 'sass/script/functions/evaluation_context'
