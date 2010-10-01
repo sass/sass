@@ -212,10 +212,13 @@ module Sass::Script
   # (or other methods that use the string representation)
   # on those objects without first setting {Node#options= the #options attribute}.
   module Functions
+
     instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
+
   end
 end
 
+require 'sass/script/functions/signatures'
 require 'sass/script/functions/color'
 require 'sass/script/functions/list'
 require 'sass/script/functions/introspection'

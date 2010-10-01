@@ -1,3 +1,5 @@
+require "sass/script/functions"
+
 module Sass::Script::Functions
   # Converts a decimal number to a percentage.
   #
@@ -12,6 +14,7 @@ module Sass::Script::Functions
     end
     Sass::Script::Number.new(value.value * 100, ['%'])
   end
+  define :percentage, :args => [:value]
 
   # Rounds a number to the nearest whole number.
   #
@@ -24,6 +27,7 @@ module Sass::Script::Functions
   def round(value)
     numeric_transformation(value) {|n| n.round}
   end
+  define :round, :args => [:value]
 
   # Rounds a number up to the nearest whole number.
   #
@@ -36,6 +40,7 @@ module Sass::Script::Functions
   def ceil(value)
     numeric_transformation(value) {|n| n.ceil}
   end
+  define :ceil, :args => [:value]
 
   # Rounds down to the nearest whole number.
   #
@@ -48,6 +53,7 @@ module Sass::Script::Functions
   def floor(value)
     numeric_transformation(value) {|n| n.floor}
   end
+  define :floor, :args => [:value]
 
   # Finds the absolute value of a number.
   #
@@ -60,6 +66,7 @@ module Sass::Script::Functions
   def abs(value)
     numeric_transformation(value) {|n| n.abs}
   end
+  define :abs, :args => [:value]
 
   private
 

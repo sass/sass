@@ -1081,6 +1081,69 @@ ul li\#{$bar} a span.label { foo: bar; }
 SCSS
   end
 
+  def test_mixin_with_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.mixed {
+  required: foo;
+  arg1: default-val1;
+  arg2: non-default-val2; }
+CSS
+@mixin a-mixin($required, $arg1: default-val1, $arg2: default-val2) {
+  required: $required;
+  arg1: $arg1;
+  arg2: $arg2;
+}
+.mixed { @include a-mixin(foo, $arg2: non-default-val2); }
+SCSS
+  end
+
+  def test_passing_required_args_as_a_keyword_arg
+    assert_equal <<CSS, render(<<SCSS)
+.mixed {
+  required: foo;
+  arg1: default-val1;
+  arg2: default-val2; }
+CSS
+@mixin a-mixin($required, $arg1: default-val1, $arg2: default-val2) {
+  required: $required;
+  arg1: $arg1;
+  arg2: $arg2; }
+.mixed { @include a-mixin($required: foo); }
+SCSS
+  end
+
+  def test_passing_all_as_keyword_args_in_opposite_order
+    assert_equal <<CSS, render(<<SCSS)
+.mixed {
+  required: foo;
+  arg1: non-default-val1;
+  arg2: non-default-val2; }
+CSS
+@mixin a-mixin($required, $arg1: default-val1, $arg2: default-val2) {
+  required: $required;
+  arg1: $arg1;
+  arg2: $arg2; }
+.mixed { @include a-mixin($arg2: non-default-val2, $arg1: non-default-val1, $required: foo); }
+SCSS
+  end
+
+  def test_keyword_args_in_functions
+    assert_equal <<CSS, render(<<SCSS)
+.keyed {
+  color: rgba(170, 119, 204, 0.4); }
+CSS
+.keyed { color: rgba($color: #a7c, $alpha: 0.4) }
+SCSS
+  end
+
+  def test_unknown_keyword_arg_raises_error
+    assert_raise_message(Sass::SyntaxError, "Mixin a does not have an argument named $c.") {render <<SCSS}
+@mixin a($b: 1) { a: $b; }
+div { @include a(1, $c: 3); }
+SCSS
+  end
+
+
   def test_newlines_removed_from_selectors_when_compressed
     assert_equal <<CSS, render(<<SCSS, :style=>:compressed)
 z a,z b{display:block}

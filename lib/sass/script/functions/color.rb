@@ -1,3 +1,5 @@
+require "sass/script/functions"
+
 module Sass::Script::Functions
 
   # Creates a {Color} object from red, green, and blue values.
@@ -29,6 +31,7 @@ module Sass::Script::Functions
         end
       end)
   end
+  define :rgb, :args => [:red, :green, :blue]
 
   # @see #rgb
   # @overload rgba(red, green, blue, alpha)
@@ -76,6 +79,8 @@ module Sass::Script::Functions
       raise ArgumentError.new("wrong number of arguments (#{args.size} for 4)")
     end
   end
+  define :rgba, :args => [:red, :green, :blue, :alpha]
+  define :rgba, :args => [:color, :alpha]
 
   # Creates a {Color} object from hue, saturation, and lightness.
   # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
@@ -92,6 +97,7 @@ module Sass::Script::Functions
   def hsl(hue, saturation, lightness)
     hsla(hue, saturation, lightness, Sass::Script::Number.new(1))
   end
+  define :hsl, :args => [:hue, :saturation, :lightness]
 
   # Creates a {Color} object from hue, saturation, and lightness,
   # as well as an alpha channel indicating opacity.
@@ -127,6 +133,7 @@ module Sass::Script::Functions
 
     Sass::Script::Color.new(:hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
   end
+  define :hsla, :args => [:hue, :saturation, :lightness, :alpha]
 
   # Returns the red component of a color.
   #
@@ -137,6 +144,7 @@ module Sass::Script::Functions
     assert_type color, :Color
     Sass::Script::Number.new(color.red)
   end
+  define :red, :args => [:color]
 
   # Returns the green component of a color.
   #
@@ -147,6 +155,7 @@ module Sass::Script::Functions
     assert_type color, :Color
     Sass::Script::Number.new(color.green)
   end
+  define :green, :args => [:color]
 
   # Returns the blue component of a color.
   #
@@ -157,6 +166,7 @@ module Sass::Script::Functions
     assert_type color, :Color
     Sass::Script::Number.new(color.blue)
   end
+  define :blue, :args => [:color]
 
   # Returns the hue component of a color.
   #
@@ -172,6 +182,7 @@ module Sass::Script::Functions
     assert_type color, :Color
     Sass::Script::Number.new(color.hue, ["deg"])
   end
+  define :hue, :args => [:color]
 
   # Returns the saturation component of a color.
   #
@@ -188,6 +199,7 @@ module Sass::Script::Functions
     assert_type color, :Color
     Sass::Script::Number.new(color.saturation, ["%"])
   end
+  define :saturation, :args => [:color]
 
   # Returns the hue component of a color.
   #
@@ -204,6 +216,7 @@ module Sass::Script::Functions
     assert_type color, :Color
     Sass::Script::Number.new(color.lightness, ["%"])
   end
+  define :lightness, :args => [:color]
 
   # Returns the alpha component (opacity) of a color.
   # This is 1 unless otherwise specified.
@@ -228,6 +241,7 @@ module Sass::Script::Functions
 
     opacity(*args)
   end
+  define :alpha, :args => [:color]
 
   # Returns the alpha component (opacity) of a color.
   # This is 1 unless otherwise specified.
@@ -241,6 +255,7 @@ module Sass::Script::Functions
     assert_type color, :Color
     Sass::Script::Number.new(color.alpha)
   end
+  define :opacity, :args => [:color]
 
   # Makes a color more opaque.
   # Takes a color and an amount between 0 and 1,
@@ -258,7 +273,10 @@ module Sass::Script::Functions
   def opacify(color, amount)
     adjust(color, amount, :alpha, 0..1, :+)
   end
+  define :opacify, :args => [:color, :amount]
+
   alias_method :fade_in, :opacify
+  define :fade_in, :args => [:color, :amount]
 
   # Makes a color more transparent.
   # Takes a color and an amount between 0 and 1,
@@ -276,7 +294,10 @@ module Sass::Script::Functions
   def transparentize(color, amount)
     adjust(color, amount, :alpha, 0..1, :-)
   end
+  define :transparentize, :args => [:color, :amount]
+
   alias_method :fade_out, :transparentize
+  define :fade_out, :args => [:color, :amount]
 
   # Makes a color lighter.
   # Takes a color and an amount between 0% and 100%,
@@ -294,6 +315,7 @@ module Sass::Script::Functions
   def lighten(color, amount)
     adjust(color, amount, :lightness, 0..100, :+, "%")
   end
+  define :lighten, :args => [:color, :amount]
 
   # Makes a color darker.
   # Takes a color and an amount between 0% and 100%,
@@ -311,6 +333,7 @@ module Sass::Script::Functions
   def darken(color, amount)
     adjust(color, amount, :lightness, 0..100, :-, "%")
   end
+  define :darken, :args => [:color, :amount]
 
   # Makes a color more saturated.
   # Takes a color and an amount between 0% and 100%,
@@ -328,6 +351,7 @@ module Sass::Script::Functions
   def saturate(color, amount)
     adjust(color, amount, :saturation, 0..100, :+, "%")
   end
+  define :saturate, :args => [:color, :amount]
 
   # Makes a color less saturated.
   # Takes a color and an amount between 0% and 100%,
@@ -345,6 +369,7 @@ module Sass::Script::Functions
   def desaturate(color, amount)
     adjust(color, amount, :saturation, 0..100, :-, "%")
   end
+  define :desaturate, :args => [:color, :amount]
 
   # Changes the hue of a color while retaining the lightness and saturation.
   # Takes a color and a number of degrees (usually between -360deg and 360deg),
@@ -363,6 +388,7 @@ module Sass::Script::Functions
     assert_type degrees, :Number
     color.with(:hue => color.hue + degrees.value)
   end
+  define :adjust_hue, :args => [:color, :degrees]
 
   # Mixes together two colors.
   # Specifically, takes the average of each of the RGB components,
@@ -427,6 +453,8 @@ module Sass::Script::Functions
     alpha = color1.alpha*p + color2.alpha*(1-p)
     Sass::Script::Color.new(rgb + [alpha])
   end
+  define :mix, :args => [:color_1, :color_2]
+  define :mix, :args => [:color_1, :color_2, :weight]
 
   # Converts a color to grayscale.
   # This is identical to `desaturate(color, 100%)`.
@@ -438,6 +466,7 @@ module Sass::Script::Functions
   def grayscale(color)
     desaturate color, Sass::Script::Number.new(100)
   end
+  define :grayscale, :args => [:color]
 
   # Returns the complement of a color.
   # This is identical to `adjust-hue(color, 180deg)`.
@@ -449,6 +478,7 @@ module Sass::Script::Functions
   def complement(color)
     adjust_hue color, Sass::Script::Number.new(180)
   end
+  define :complement, :args => [:color]
 
   # Returns the inverse (negative) of a color.
   # The red, green, and blue values are inverted, while the opacity is left alone.

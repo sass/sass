@@ -1,3 +1,5 @@
+require "sass/script/functions"
+
 module Sass::Script::Functions
 
   # Creates a space-delimited list from the arguments.

@@ -1,3 +1,5 @@
+require "sass/script/functions"
+
 module Sass::Script::Functions
 
   # The context in which methods in {Script::Functions} are evaluated.

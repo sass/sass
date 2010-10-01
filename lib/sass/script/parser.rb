@@ -85,7 +85,15 @@ module Sass
         end
         assert_done
 
-        args.each {|a| a.options = @options}
+        args.each do |a|
+          if a.is_a? Hash
+            a.each do |name, value|
+              value.options = @options
+            end
+          else
+            a.options = @options
+          end
+        end
         args
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -289,15 +297,33 @@ RUBY
       end
 
       def fn_arglist
+        if kw_args = keyword_arglist
+          return [kw_args]
+        end
         return unless e = equals
         return [e] unless try_tok(:comma)
         [e, *assert_expr(:fn_arglist)]
       end
 
       def arglist
+        if kw_args = keyword_arglist
+          return [kw_args]
+        end
         return unless e = interpolation
         return [e] unless try_tok(:comma)
         [e, *assert_expr(:arglist)]
+      end
+
+      def keyword_arglist
+        return unless var = try_tok(:const)
+        unless try_tok(:colon)
+          return_tok!
+          return
+        end
+        name = var[1]
+        value = interpolation
+        return {name => value} unless try_tok(:comma)
+        {name => value}.merge(assert_expr(:keyword_arglist))
       end
 
       def raw
@@ -378,6 +404,10 @@ RUBY
       def try_tok(*names)
         peeked =  @lexer.peek
         peeked && names.include?(peeked.type) && @lexer.next
+      end
+
+      def return_tok!
+        @lexer.return_previous!
       end
 
       def assert_done

@@ -32,7 +32,13 @@ module Sass::Script
     # @param options [{Symbol => Object}] The options
     def options=(options)
       @options = options
-      children.each {|c| c.options = options}
+      children.each do |c|
+        if c.is_a? Hash
+          c.values.each {|v| v.options = options }
+        else
+          c.options = options
+        end
+      end
     end
 
     # Sets the context for this node,
