@@ -1032,6 +1032,134 @@ MESSAGE
 SCSS
   end
 
+  # XXX TODO: test several medias in the same nesting level and at different nesting levels
+  # XXX TODO: media nesting
+  def test_media_directives_bubble_up_to_the_top_level
+    assert_equal <<CSS, render(<<SCSS)
+.outside {
+  color: red; }
+
+@media print {
+  .outside {
+    color: black; }
+    .outside .inside {
+      border: 1px solid black; } }
+
+.outside {
+  background: blue; }
+  .outside .middle {
+    display: block; }
+CSS
+.outside {
+  color: red;
+  @media print {
+    color: black;
+    .inside {
+      border: 1px solid black;
+    }
+  }
+  background: blue;
+  .middle {
+    display: block;
+  }
+}
+SCSS
+  end
+
+  def test_nested_media
+    scss_str = <<SCSS
+.outside {
+  color: red;
+  @media print {
+    color: black;
+    @media nested {
+      .inside {
+        border: 1px solid black;
+      }
+    }
+  }
+  background: blue;
+  .middle {
+    display: block;
+  }
+}
+SCSS
+    css_str = <<CSS
+.outside {
+  color: red; }
+
+@media print {
+  .outside {
+    color: black; } }
+
+@media (print) and (nested) {
+  .outside .inside {
+    border: 1px solid black; } }
+
+.outside {
+  background: blue; }
+  .outside .middle {
+    display: block; }
+CSS
+    assert_equal css_str, render(scss_str)
+  end
+
+  def test_nested_media_around_properties
+    scss_str = <<SCSS
+.outside {
+  color: red;
+  @media print {
+    color: black;
+    .inside {
+      @media nested {
+        border: 1px solid black;
+      }
+    }
+  }
+  background: blue;
+  .middle {
+    display: block;
+  }
+}
+SCSS
+    css_str = <<CSS
+.outside {
+  color: red; }
+
+@media print {
+  .outside {
+    color: black; } }
+
+@media (print) and (nested) {
+  .outside .inside {
+    border: 1px solid black; } }
+
+.outside {
+  background: blue; }
+  .outside .middle {
+    display: block; }
+CSS
+    assert_equal css_str, render(scss_str)
+  end
+
+  def test_media_with_parent_references
+    scss_str = <<SCSS
+.outside {
+  @media print {
+    &.inside {
+      border: 1px solid black;
+    }
+  }
+}
+SCSS
+    css_str = <<CSS
+@media print {
+  .outside.inside {
+    border: 1px solid black; } }
+CSS
+    assert_equal css_str, render(scss_str)
+  end
+
   # Regression
 
   def test_weird_added_space

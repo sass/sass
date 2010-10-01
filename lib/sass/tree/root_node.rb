@@ -26,9 +26,19 @@ module Sass
       # @see #perform
       # @see #to_s
       def render
-        result, extends = perform(Environment.new).cssize
+        result = self.perform(Environment.new)
+        result = result.restructure
+        result, extends = result.cssize
         result = result.do_extend(extends) unless extends.empty?
         result.to_s
+      end
+
+      # The root node is always on the top and it needn't be restructured
+      # so it does not return an array.
+      def restructure
+        node = self.dup
+        node.children = children.map {|c| c.restructure}.flatten
+        return node
       end
 
       # @see Node#perform

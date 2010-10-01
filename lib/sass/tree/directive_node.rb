@@ -20,6 +20,14 @@ module Sass::Tree
       super()
     end
 
+    def name
+      value.split(/\s/, 2).first
+    end
+
+    def rest
+      value.split(/\s+/, 2).last
+    end
+
     protected
 
     # @see Node#to_src
