@@ -623,6 +623,19 @@ MSG
       set1.to_a.uniq.sort_by {|e| e.hash}.eql?(set2.to_a.uniq.sort_by {|e| e.hash})
     end
 
+    # Like `Object#inspect`, but preserves non-ASCII characters rather than escaping them under Ruby 1.9.2.
+    # This is necessary so that the precompiled Haml template can be `#encode`d into `@options[:encoding]`
+    # before being evaluated.
+    #
+    # @param obj {Object}
+    # @return {String}
+    def inspect(obj)
+      return obj.inspect unless version_geq(::RUBY_VERSION, "1.9.2")
+      return ':' + inspect(obj.to_s) if obj.is_a?(Symbol)
+      return obj.inspect unless obj.is_a?(String)
+      '"' + obj.gsub(/[\x00-\x7F]+/) {|s| s.inspect[1...-1]} + '"'
+    end
+
     ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.

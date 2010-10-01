@@ -5,6 +5,15 @@ require File.dirname(__FILE__) + '/test_helper'
 class ScssTest < Test::Unit::TestCase
   include ScssTestHelper
 
+  def test_comma_properties
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  background: url("url1"), url("url2"); }
+CSS
+.foo { background: url('url1'), url('url2'); }
+SCSS
+  end
+
   ## One-Line Comments
 
   def test_one_line_comments
