@@ -33,6 +33,9 @@
       border-width: 2px;
       border-style: dashed;
       border-color: red; }</code></pre>
+* A new sass function called `if` can be used to emit one of two values
+  based on the truth value of the first argument. E.g. `if(true, 1px, 2px)`
+  returns `1px` and `if(false, 1px, 2px)` returns `2px`
 
 ### Backwards Incompatibilities -- Must Read!
 

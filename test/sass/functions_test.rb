@@ -730,8 +730,14 @@ MSG
   def test_only_var_args
     assert_equal "only-var-args(2px, 3px, 4px)", evaluate("only-var-args(1px, 2px, 3px)")
   end
+
   def test_only_kw_args
     assert_equal "only-kw-args(a, b, c)", evaluate("only-kw-args($a: 1, $b: 2, $c: 3)")
+  end
+
+  def test_if
+    assert_equal("1px", evaluate("if(true, 1px, 2px)"))
+    assert_equal("2px", evaluate("if(false, 1px, 2px)"))
   end
 
   private

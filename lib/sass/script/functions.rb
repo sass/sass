@@ -219,6 +219,7 @@ module Sass::Script
 end
 
 require 'sass/script/functions/signatures'
+require 'sass/script/functions/bool'
 require 'sass/script/functions/color'
 require 'sass/script/functions/list'
 require 'sass/script/functions/introspection'
