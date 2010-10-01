@@ -492,6 +492,66 @@ is compiled to:
         font-size: 30em;
         font-weight: bold; }
 
+### Nested `@media`
+
+`@media` directives may also be nested at any depth within selector blocks and other
+`@media` blocks. The Sass compiler will bubble these blocks up to the top level where
+they are required to be in CSS. Example:
+
+    nav {
+      li {
+        float: left;
+        @media screen and (max-width: 500px) {
+          clear: left;
+        }
+      }
+    }
+
+Generates:
+
+    nav li { float: left; }
+    
+    @media screen and (min-width: 500px) {
+      nav li { clear: left; }
+    }
+
+`@media` blocks can be nested and their queries will be merged:
+
+    @media screen {
+      @media (max-width: 500px) {
+        @media (min-pixel-ratio: 2) {
+          color: red;
+        }
+      }
+    }
+
+Generates:
+
+    @media (screen) and ((max-width: 500px) and (min-pixel-ratio: 2)) {
+      color: red;
+    }
+
+Selector nesting and parent references (`&`) work across nested `@media` blocks too:
+
+    nav {
+      li { float: left; }
+      &.side { background: blue; }
+      @media screen and (max-width: 500px) {
+        li { float: none; }
+        &.side { background: red; }
+      }
+    }
+
+Generates:
+
+    nav li { float: left; }
+    nav.side { background: blue; }
+    @media screen and (max-width: 500px) {
+      nav li { float: none; }
+      nav.side { background: red; }
+    }
+
+
 ## Comments: `/* */` and `//` {#comments}
 
 Sass supports standard multiline CSS comments with `/* */`,

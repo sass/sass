@@ -5,6 +5,8 @@
 
 ## 3.2.0 (Unreleased)
 
+*Because people will ask*: Yes. All the features in this release work in both syntaxes.
+
 * Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
 * List Support - Sass now supports two new kinds of literals: space and comma delimited lists.
   These data types can be stored and manipulated easier than before.
@@ -36,6 +38,40 @@
 * A new sass function called `if` can be used to emit one of two values
   based on the truth value of the first argument. E.g. `if(true, 1px, 2px)`
   returns `1px` and `if(false, 1px, 2px)` returns `2px`
+* Support for **nested @media directives**. `@media` directives can now be placed in a nested
+  context -- This means they can be used within selector blocks and other `@media` blocks.
+  Sass will then bubble these at-rules up to the top level where they must be in CSS.
+  Example:
+  
+      nav {
+        li {
+          float: left;
+          @media screen and (max-width: 500px) {
+            clear: left; } } }
+  
+  Generates:
+  
+      nav li { float: left; }
+      
+      @media screen and (min-width: 500px) {
+        nav li { clear: left; }
+      }
+  
+  Similarly, Sass will combine nested `@media` directives for your styling pleasure:
+
+      @media screen {
+        color: red;
+        @media (min-width: 500px) { color: blue; }
+      }
+  
+  Generates:
+  
+      @media screen { color: red; }
+      @media (screen) and (min-width: 500px) { color: blue; }
+  
+  Similarly, selectors nested within `@media` blocks are placed within their full selector
+  context, the parent-reference selector `&` will work as expected, and @media blocks can
+  be safely used within mixins.
 
 ### Backwards Incompatibilities -- Must Read!
 
