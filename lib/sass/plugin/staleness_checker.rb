@@ -121,7 +121,7 @@ module Sass
       end
 
       def dependency_updated?(css_mtime)
-        lambda do |uri, importer|
+        Proc.new do |uri, importer|
           mtime(uri, importer) > css_mtime ||
             dependencies_stale?(uri, importer, css_mtime)
         end
