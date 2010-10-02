@@ -33,7 +33,7 @@ module Sass
     # @param arr [Array<(Object, Object)>] An array of pairs
     # @return [Hash] A hash
     def to_hash(arr)
-      arr.compact.inject({}) {|h, (k, v)| h[k] = v; h}
+      Hash[arr.compact]
     end
 
     # Maps the keys in a hash according to a block.

@@ -65,8 +65,6 @@ module Sass::Script
     def _perform(environment)
       literal1 = @operand1.perform(environment)
       literal2 = @operand2.perform(environment)
-      literal1.options = environment.options
-      literal2.options = environment.options
 
       if @operator == :concat && context == :equals
         literal1 = Sass::Script::String.new(literal1.value) if literal1.is_a?(Sass::Script::String)
@@ -74,9 +72,7 @@ module Sass::Script
       end
 
       begin
-        res = literal1.send(@operator, literal2)
-        res.options = environment.options
-        res
+        opts(literal1.send(@operator, literal2))
       rescue NoMethodError => e
         raise e unless e.name.to_s == @operator.to_s
         raise Sass::SyntaxError.new("Undefined operation: \"#{literal1} #{@operator} #{literal2}\".")

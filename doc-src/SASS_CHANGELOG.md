@@ -18,6 +18,22 @@
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+## 3.0.21
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.21).
+
+* Fix the permissions errors for good.
+
+* Fix more `#options` attribute errors.
+
+## 3.0.20
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.20).
+
+* Fix some permissions errors.
+
+* Fix `#options` attribute errors when CSS functions were used with commas.
+
 ## 3.0.19
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.19).
