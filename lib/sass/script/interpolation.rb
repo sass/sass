@@ -64,7 +64,7 @@ module Sass::Script
       res << (val.is_a?(Sass::Script::String) ? val.value : val.to_s)
       res << " " if @after && @whitespace_after
       res << @after.perform(environment).to_s if @after
-      Sass::Script::String.new(res)
+      opts(Sass::Script::String.new(res))
     end
   end
 end
