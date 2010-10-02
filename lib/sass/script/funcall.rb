@@ -69,16 +69,16 @@ module Sass
             a.perform(environment)
           end
         end
-        ruby_name = name.tr('-', '_')
-        unless Sass::Util.has?(:public_instance_method, Functions, ruby_name) && ruby_name !~ /^__/
-          return Script::String.new("#{name}(#{args.map {|a| a.perform(environment)}.join(', ')})")
-        end
 
         args = construct_ruby_args(name, args)
 
-        result = Functions::EvaluationContext.new(environment.options).send(ruby_name, *args)
-        result.options = environment.options
-        return result
+        ruby_name = name.tr('-', '_')
+
+        unless Sass::Util.has?(:public_instance_method, Functions, ruby_name) && ruby_name !~ /^__/
+          opts(Script::String.new("#{name}(#{args.map {|a| a.perform(environment)}.join(', ')})"))
+        else
+          opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
+        end
       rescue ArgumentError => e
         raise e unless e.backtrace.any? {|t| t =~ /:in `(block in )?(#{name}|perform)'$/}
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
