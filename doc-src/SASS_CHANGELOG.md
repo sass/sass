@@ -72,6 +72,11 @@
   Similarly, selectors nested within `@media` blocks are placed within their full selector
   context, the parent-reference selector `&` will work as expected, and @media blocks can
   be safely used within mixins.
+* Sass Functions and Mixins now accept **Named Arguments** in addition to the more traditional
+  positional argument style. See the following documentation for more information:
+  {file:SASS_REFERENCE.md#named_arguments Named Arguments for Mixins},
+  {file:SASS_REFERENCE.md#functions Named Arguments for Sass Functions},
+  {file:SASS_REFERENCE.md#defining_custom_sass_functions Defining Custom Functions}
 
 ### Backwards Incompatibilities -- Must Read!
 
