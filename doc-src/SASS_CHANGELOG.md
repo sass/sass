@@ -6,6 +6,11 @@
 ## 3.2.0 (Unreleased)
 
 * Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
+* Sass Functions and Mixins now accept **Named Arguments** in addition to the more traditional
+  positional argument style. See the following documentation for more information:
+  {file:SASS_REFERENCE.md#named_arguments Named Arguments for Mixins},
+  {file:SASS_REFERENCE.md#functions Named Arguments for Sass Functions},
+  {file:SASS_REFERENCE.md#defining_custom_sass_functions Defining Custom Functions}
 
 ### Backwards Incompatibilities -- Must Read!
 

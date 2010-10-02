@@ -8,121 +8,124 @@ module Sass::Script
   #
   # The following functions are provided:
   #
+  # *Note: These functions are described in more detail below.*
+  #
   # ## RGB Functions
   #
-  # \{#rgb}
+  # \{#rgb rgb($red, $green, $blue)}
   # : Converts an `rgb(red, green, blue)` triplet into a color.
   #
-  # \{#rgba}
+  # \{#rgba rgba($red, $green, $blue, $alpha)}
   # : Converts an `rgba(red, green, blue, alpha)` quadruplet into a color.
   #
-  # \{#red}
+  # \{#rgba rgba($color, $alpha)}
+  # : Adds an alpha layer to any color value.
+  #
+  # \{#red red($color)}
   # : Gets the red component of a color.
   #
-  # \{#green}
+  # \{#green green($color)}
   # : Gets the green component of a color.
   #
-  # \{#blue}
+  # \{#blue blue($color)}
   # : Gets the blue component of a color.
   #
-  # \{#mix}
+  # \{#mix mix($color-1, $color-2\[, $weight\])}
   # : Mixes two colors together.
   #
   # ## HSL Functions
   #
-  # \{#hsl}
+  # \{#hsl hsl($hue, $saturation, $lightness)}
   # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
   #
-  # \{#hsla}
+  # \{#hsla hsla($hue, $saturation, $lightness, $alpha)}
   # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
   #
-  # \{#hue}
+  # \{#hue hue($color)}
   # : Gets the hue component of a color.
   #
-  # \{#saturation}
+  # \{#saturation saturation($color)}
   # : Gets the saturation component of a color.
   #
-  # \{#lightness}
+  # \{#lightness lightness($color))}
   # : Gets the lightness component of a color.
   #
-  # \{#adjust_hue #adjust-hue}
+  # \{#adjust_hue adjust-hue($color, $degrees)}
   # : Changes the hue of a color.
   #
-  # \{#lighten}
+  # \{#lighten lighten($color, $amount)}
   # : Makes a color lighter.
   #
-  # \{#darken}
+  # \{#darken darken($color, $amount)}
   # : Makes a color darker.
   #
-  # \{#saturate}
+  # \{#saturate saturate($color, $amount)}
   # : Makes a color more saturated.
   #
-  # \{#desaturate}
+  # \{#desaturate desaturate($color, $amount)}
   # : Makes a color less saturated.
   #
-  # \{#grayscale}
+  # \{#grayscale grayscale($color)}
   # : Converts a color to grayscale.
   #
-  # \{#complement}
+  # \{#complement complement($color)}
   # : Returns the complement of a color.
   #
-  # \{#invert}
+  # \{#invert invert($color)}
   # : Returns the inverse of a color.
   #
   # ## Opacity Functions
   #
-  # \{#alpha} / \{#opacity}
+  # \{#alpha alpha($color)} / \{#opacity opacity($color)}
   # : Gets the alpha component (opacity) of a color.
   #
-  # \{#rgba}
-  # : Sets the alpha component of a color.
+  # \{#rgba rgba($color, $alpha)}
+  # : Add or change an alpha layer for any color value.
   #
-  # \{#opacify} / \{#fade_in #fade-in}
+  # \{#opacify opacify($color, $amount)} / \{#fade_in fade-in($color, $amount)}
   # : Makes a color more opaque.
   #
-  # \{#transparentize} / \{#fade_out #fade-out}
+  # \{#transparentize transparentize($color, $amount)} / \{#fade_out fade-out($color, $amount)}
   # : Makes a color more transparent.
   #
   # ## String Functions
   #
-  # \{#unquote}
+  # \{#unquote unquote($string)}
   # : Removes the quotes from a string.
   #
-  # \{#quote}
+  # \{#quote quote($string)}
   # : Adds quotes to a string.
   #
   # ## Number Functions
   #
-  # \{#percentage}
+  # \{#percentage percentage($value)}
   # : Converts a unitless number to a percentage.
   #
-  # \{#round}
+  # \{#round round($value)}
   # : Rounds a number to the nearest whole number.
   #
-  # \{#ceil}
+  # \{#ceil ceil($value)}
   # : Rounds a number up to the nearest whole number.
   #
-  # \{#floor}
+  # \{#floor floor($value)}
   # : Rounds a number down to the nearest whole number.
   #
-  # \{#abs}
+  # \{#abs abs($value)}
   # : Returns the absolute value of a number.
   #
   # ## Introspection Functions
   #
-  # \{#type_of}
+  # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
-  # \{#unit}
+  # \{#unit unit($number)}
   # : Returns the units associated with a number.
   #
-  # \{#unitless}
+  # \{#unitless unitless($number)}
   # : Returns whether a number has units or not.
   #
-  # \{#comparable}
+  # \{#comparable comparable($number-1, $number-2)}
   # : Returns whether two numbers can be added or compared.
-  #
-  # These functions are described in more detail below.
   #
   # ## Adding Custom Functions
   #
@@ -134,7 +137,13 @@ module Sass::Script
   #         assert_type string, :String
   #         Sass::Script::String.new(string.value.reverse)
   #       end
+  #       define :reverse, :args => [:string]
   #     end
+  #
+  # Calling `define` after creating your function is how you tell
+  # Sass what function signature(s) your function presents to the stylesheets.
+  # If omitted, the function will still work, but will not be able to accept
+  # named arguments. See {Sass::Script::Functions.define} for more information.
   #
   # There are a few things to keep in mind when modifying this module.
   # First of all, the arguments passed are {Sass::Script::Literal} objects.
@@ -204,7 +213,7 @@ module Sass::Script
     # @param arg_arity The number of unnamed arguments the function was invoked with
     # @param kwarg_arity The number of named arguments the function was invoked with
     #
-    # @return The signature options for the matching signature that were passed to {define}
+    # @return [Hash] The signature options for the matching signature that were passed to {define}
     def self.signature(method_name, arg_arity, kwarg_arity)
       return unless @signatures[method_name.to_sym]
       @signatures[method_name.to_sym].each do |signature|
