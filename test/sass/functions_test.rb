@@ -625,6 +625,7 @@ MSG
     assert_equal(%Q{2px}, evaluate("nth(nth((1px, 2px 3px, 4px), 2),1)"))
     assert_equal(%Q{1px}, evaluate("nth(1px 2px 3px 4px, first)"))
     assert_equal(%Q{4px}, evaluate("nth(1px 2px 3px 4px, last)"))
+    assert_equal(%Q{4px}, evaluate("nth($list: 1px 2px 3px 4px, $index: last)"))
   end
 
   def test_nth_requires_a_list
@@ -641,6 +642,7 @@ MSG
     assert_equal(%Q{1px 2px 3px}, evaluate("append(1px 2px, 3px)"))
     assert_equal(%Q{1px, 2px, 3px}, evaluate("append((1px, 2px), 3px)"))
     assert_equal(%Q{1px, 2px, 3px, 4px, 5px}, evaluate("append((1px, 2px), 3px, 4px, 5px)"))
+    assert_equal(%Q{1px, 2px, 3px, 4px, 5px}, evaluate("append($list: (1px, 2px), $elements: (3px, 4px, 5px))"))
     assert_error_message(%Q{"error" is not a list for `append'}, "append(error, 1)")
   end
 
@@ -648,6 +650,7 @@ MSG
     assert_equal(%Q{3px 1px 2px}, evaluate("prepend(1px 2px, 3px)"))
     assert_equal(%Q{3px, 1px, 2px}, evaluate("prepend((1px, 2px), 3px)"))
     assert_equal(%Q{3px, 4px, 5px, 1px, 2px}, evaluate("prepend((1px, 2px), 3px, 4px, 5px)"))
+    assert_equal(%Q{3px, 4px, 5px, 1px, 2px}, evaluate("prepend($list: (1px, 2px), $elements: (3px, 4px, 5px))"))
     assert_error_message(%Q{"error" is not a list for `prepend'}, "prepend(error, 1)")
   end
 
@@ -657,6 +660,7 @@ MSG
     assert_equal(%Q{1px, 2px, 3px, 4px}, evaluate("concat((1px, 2px), (3px 4px))"))
     assert_equal(%Q{1px 2px 3px 4px}, evaluate("concat(1px 2px, (3px, 4px))"))
     assert_equal(%Q{1px 2px 3px 4px 5px 6px}, evaluate("concat(1px 2px, 3px 4px, 5px 6px)"))
+    assert_equal(%Q{1px 2px 3px 4px 5px 6px}, evaluate("concat($list: 1px 2px, $lists: (3px 4px, 5px 6px))"))
     assert_error_message(%Q{"first" is not a list for `concat'}, "concat(first, 1px 2px)")
     assert_error_message(%Q{"second" is not a list for `concat'}, "concat(1px 2px, second)")
   end
@@ -664,6 +668,7 @@ MSG
   def test_slice
     assert_equal(%Q{2px 3px}, evaluate("slice(1px 2px 3px 4px, 2, 3)"))
     assert_equal(%Q{2px}, evaluate("slice(1px 2px 3px 4px, 2, 2)"))
+    assert_equal(%Q{2px}, evaluate("slice($list: 1px 2px 3px 4px, $from: 2, $to: 2)"))
     assert_equal(%Q{2px 5px}, evaluate("append(slice(1px 2px 3px 4px, 2, 2), 5px)"))
     assert_error_message(%Q{"first" is not a list for `slice'}, "slice(first, 2, 3)")
     assert_error_message(%Q{index 0 cannot be less than 1}, "slice(1 2 3 4 5, 0, 3)")
@@ -673,6 +678,7 @@ MSG
   def test_count
     assert_equal(%Q{2}, evaluate("count(1px 2px)"))
     assert_equal(%Q{2}, evaluate("count((1px, 2px))"))
+    assert_equal(%Q{2}, evaluate("count($list: (1px, 2px))"))
     assert_error_message(%Q{"error" is not a list for `count'}, "count(error)")
   end
 
@@ -694,10 +700,13 @@ MSG
 
   def test_map
     assert_equal(%Q{204 119 0}, evaluate(%Q{map("red", #ccc #777 #000)}))
+    assert_equal(%Q{204 119 0}, evaluate(%Q{map($function: "red", $list: #ccc #777 #000)}))
+    assert_equal(%Q{true false false true}, evaluate(%Q{map($function: comparable, $list: 2px 1in 3em 1, $number-2: 5px)}))
   end
 
   def test_apply
     assert_equal(%Q{#cccccc}, evaluate(%Q{apply(rgb, $list)}, "$list" => "204 204 204"))
+    assert_equal(%Q{#cccccc}, evaluate(%Q{apply($function: rgb, $arguments: $list)}, "$list" => "204 204 204"))
   end
 
   def test_keyword_args_rgb

@@ -115,44 +115,46 @@ module Sass::Script
   #
   # ## List Functions
   #
-  # \{#list list}
+  # \{#list list(...)}
   # : Creates a space-delimited list
   #
-  # \{#comma_list comma-list}
+  # \{#comma_list comma-list(...)}
   # : Creates a comma-delimited list
   #
-  # \{#nth nth}
+  # \{#nth nth($list, $index)}
   # : Returns the value at the nth index of a list
   #
-  # \{#append append}
+  # \{#append append($list, $elements...)}
   # : Add one or more elements to the end of a list
   #
-  # \{#prepend prepend}
+  # \{#prepend prepend($list, $elements...)}
   # : Add one or more elements to the beginning of a list
   #
-  # \{#concat concat}
+  # \{#concat concat($list, $lists...)}
   # : Combine several lists into a single list
   #
-  # \{#slice slice}
+  # \{#slice slice($list, $from, $to)}
   # : Extract a sublist from a list
   #
-  # \{#count count}
+  # \{#count count($list)}
   # : Count how many elements are in a list
   #
-  # \{#contains contains}
+  # \{#contains contains($list, ...)}
   # : Check whether a list contains all of the specified values
   #
-  # \{#zip zip}
+  # \{#zip zip(...)}
   # : Combine several lists of equal counts into one list
   #   where each element is a list of the values at that same
   #   index in the original lists.
   #
-  # \{#map map}
+  # \{#map map($function, $list, ...)}
   # : Create a new list where the elements are the results
   #   of successively calling the passed function with the
-  #   list as the first argument.
+  #   list as the first argument. Additional arguments to
+  #   map are passed directly to the function being called
+  #   as additional arguments
   #
-  # \{#apply apply}
+  # \{#apply apply($function, $arguments)}
   # : Calls a function using a list as the arguments
   #
   # ## Introspection Functions
