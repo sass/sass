@@ -188,7 +188,7 @@ module Sass::Script
     end
 
     def delimeter
-      ", "
+      options[:style] == :compressed ? "," : ", "
     end
 
     # The SassScript `,` operation.

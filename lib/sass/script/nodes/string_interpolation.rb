@@ -72,7 +72,7 @@ module Sass::Script
       mid = @mid.perform(environment)
       res << (mid.is_a?(Sass::Script::String) ? mid.value : mid.to_s)
       res << @after.perform(environment).value
-      Sass::Script::String.new(res, before.type)
+      opts(Sass::Script::String.new(res, before.type))
     end
 
     private
