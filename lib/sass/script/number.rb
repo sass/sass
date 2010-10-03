@@ -248,7 +248,8 @@ module Sass::Script
     #
     # @return [String] The representation
     def inspect(opts = {})
-      "#{self.class.round(self.value)}#{unit_str}"
+      value = self.class.round(self.value)
+      unitless? ? value.to_s : "#{value}#{unit_str}"
     end
     alias_method :to_sass, :inspect
 
