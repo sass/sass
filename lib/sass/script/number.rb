@@ -107,7 +107,7 @@ module Sass::Script
     #
     # @return [Number] The negative value of this number
     def unary_minus
-      Number.new(-value, numerator_units, denominator_units)
+      Number.new(-value, @numerator_units, @denominator_units)
     end
 
     # The SassScript `*` operation.
@@ -183,7 +183,7 @@ module Sass::Script
         if unitless?
           this = this.coerce(other.numerator_units, other.denominator_units)
         else
-          other = other.coerce(numerator_units, denominator_units)
+          other = other.coerce(@numerator_units, @denominator_units)
         end
       rescue Sass::UnitConversionError
         return Sass::Script::Bool.new(false)
@@ -267,13 +267,13 @@ module Sass::Script
 
     # @return [Boolean] Whether or not this number has no units.
     def unitless?
-      numerator_units.empty? && denominator_units.empty?
+      @numerator_units.empty? && @denominator_units.empty?
     end
 
     # @return [Boolean] Whether or not this number has units that can be represented in CSS
     #   (that is, zero or one \{#numerator\_units}).
     def legal_units?
-      (numerator_units.empty? || numerator_units.size == 1) && denominator_units.empty?
+      (@numerator_units.empty? || @numerator_units.size == 1) && @denominator_units.empty?
     end
 
     # Returns this number converted to other units.
@@ -296,8 +296,8 @@ module Sass::Script
       Number.new(if unitless?
                    self.value
                  else
-                   self.value * coercion_factor(self.numerator_units, num_units) /
-                     coercion_factor(self.denominator_units, den_units)
+                   self.value * coercion_factor(@numerator_units, num_units) /
+                     coercion_factor(@denominator_units, den_units)
                  end, num_units, den_units)
     end
 
@@ -317,10 +317,10 @@ module Sass::Script
     # numerator_unit1 * numerator_unit2 / denominator_unit1 * denominator_unit2
     # @return [String] a string that represents the units in this number
     def unit_str
-      rv = numerator_units.sort.join("*")
-      if denominator_units.any?
+      rv = @numerator_units.sort.join("*")
+      if @denominator_units.any?
         rv << "/"
-        rv << denominator_units.sort.join("*")
+        rv << @denominator_units.sort.join("*")
       end
       rv
     end
@@ -346,7 +346,7 @@ module Sass::Script
         if unitless?
           this = this.coerce(other.numerator_units, other.denominator_units)
         else
-          other = other.coerce(numerator_units, denominator_units)
+          other = other.coerce(@numerator_units, @denominator_units)
         end
       end
       # avoid integer division
@@ -384,7 +384,7 @@ module Sass::Script
 
     def normalize!
       return if unitless?
-      @numerator_units, @denominator_units = sans_common_units(numerator_units, denominator_units)
+      @numerator_units, @denominator_units = sans_common_units(@numerator_units, @denominator_units)
 
       @denominator_units.each_with_index do |d, i|
         if convertable?(d) && (u = @numerator_units.detect(&method(:convertable?)))
