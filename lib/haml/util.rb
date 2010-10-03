@@ -121,10 +121,12 @@ module Haml
     # @example
     #   merge_adjacent_strings([1, "foo", "bar", 2, "baz"])
     #     #=> [1, "foobar", 2, "baz"]
-    # @param enum [Enumerable]
+    # @param arr [Array]
     # @return [Array] The enumerable with strings merged
-    def merge_adjacent_strings(enum)
-      enum.inject([]) do |a, e|
+    def merge_adjacent_strings(arr)
+      # Optimize for the common case of one element
+      return arr if arr.size < 2
+      arr.inject([]) do |a, e|
         if e.is_a?(String)
           if a.last.is_a?(String)
             a.last << e
