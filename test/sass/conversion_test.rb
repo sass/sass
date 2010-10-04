@@ -859,6 +859,20 @@ foo {
 SCSS
   end
 
+  def test_mixin_include_with_keyword_args
+    assert_renders <<SASS, <<SCSS
+foo
+  +foo-bar(12px, "blaz", $blip: blap, $bloop: blop)
+  +foo-bar($blip: blap, $bloop: blop)
+  a: blip
+SASS
+foo {
+  @include foo-bar(12px, "blaz", $blip: blap, $bloop: blop);
+  @include foo-bar($blip: blap, $bloop: blop);
+  a: blip; }
+SCSS
+  end
+
   def test_variable_definition
     assert_renders <<SASS, <<SCSS
 $var1: 12px + 15px

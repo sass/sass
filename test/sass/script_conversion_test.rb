@@ -53,6 +53,11 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "-foo(12px)"
   end
 
+  def test_funcall_with_keyword_args
+    assert_renders "foo(arg1, arg2, $karg1: val, $karg2: val2)"
+    assert_renders "foo($karg1: val, $karg2: val2)"
+  end
+
   def test_url
     assert_renders "url(foo.gif)"
     assert_renders "url($var)"
