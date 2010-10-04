@@ -43,12 +43,18 @@ module Sass
 
       # @return [String] A string representation of the function call
       def inspect
-        "#{name}(#{args.map {|a| a.inspect}.join(', ')})"
+        args = @args.map {|a| a.inspect}.join(', ')
+        keywords = @keywords.sort_by {|k, v| k}.
+            map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
+        "#{name}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
       end
 
       # @see Node#to_sass
       def to_sass(opts = {})
-        "#{dasherize(name, opts)}(#{args.map {|a| a.to_sass(opts)}.join(', ')})"
+        args = @args.map {|a| a.to_sass(opts)}.join(', ')
+        keywords = @keywords.sort_by {|k, v| k}.
+          map {|k, v| "$#{dasherize(k, opts)}: #{v.to_sass(opts)}"}.join(', ')
+        "#{dasherize(name, opts)}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
       end
 
       # Returns the arguments to the function.
@@ -56,7 +62,7 @@ module Sass
       # @return [Array<Node>]
       # @see Node#children
       def children
-        @args
+        @args + @keywords.values
       end
 
       protected

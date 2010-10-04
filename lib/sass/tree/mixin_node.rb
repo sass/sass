@@ -11,6 +11,7 @@ module Sass::Tree
     def options=(opts)
       super
       @args.each {|a| a.context = :equals} if opts[:sass2]
+      @keywords.each {|k, v| v.context = :equals} if opts[:sass2]
     end
 
     # @param name [String] The name of the mixin
@@ -44,8 +45,12 @@ module Sass::Tree
 
     # @see Node#to_src
     def to_src(tabs, opts, fmt)
-      args = '(' + @args.map {|a| a.to_sass(opts)}.join(", ") + ')' unless @args.empty?
-      "#{'  ' * tabs}#{fmt == :sass ? '+' : '@include '}#{dasherize(@name, opts)}#{args}#{semi fmt}\n"
+      unless @args.empty? && @keywords.empty?
+        args = @args.map {|a| a.to_sass(opts)}.join(", ")
+        keywords = @keywords.map {|k, v| "$#{dasherize(k, opts)}: #{v.to_sass(opts)}"}.join(', ')
+        arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
+      end
+      "#{'  ' * tabs}#{fmt == :sass ? '+' : '@include '}#{dasherize(@name, opts)}#{arglist}#{semi fmt}\n"
     end
 
     # @see Node#_cssize
