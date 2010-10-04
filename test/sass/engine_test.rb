@@ -116,6 +116,16 @@ MSG
     '@warn' => "Invalid warn directive '@warn': expected expression.",
     %Q{@warn "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath warn directives.",
     "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
+    '+foo(1 + 1: 2)' => 'Invalid CSS after "(1 + 1": expected comma, was ": 2)"',
+    '+foo($var: )' => 'Invalid CSS after "($var: ": expected mixin argument, was ")"',
+    '+foo($var: a, $var: b)' => 'Keyword argument "$var" passed more than once',
+    '+foo($var-var: a, $var_var: b)' => 'Keyword argument "$var-var" passed more than once',
+    '+foo($var_var: a, $var-var: b)' => 'Keyword argument "$var_var" passed more than once',
+    "a\n  b: foo(1 + 1: 2)" => 'Invalid CSS after "foo(1 + 1": expected comma, was ": 2)"',
+    "a\n  b: foo($var: )" => 'Invalid CSS after "foo($var: ": expected function argument, was ")"',
+    "a\n  b: foo($var: a, $var: b)" => 'Keyword argument "$var" passed more than once',
+    "a\n  b: foo($var-var: a, $var_var: b)" => 'Keyword argument "$var-var" passed more than once',
+    "a\n  b: foo($var_var: a, $var-var: b)" => 'Keyword argument "$var_var" passed more than once',
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
