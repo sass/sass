@@ -404,10 +404,6 @@ RUBY
         peeked && names.include?(peeked.type) && @lexer.next
       end
 
-      def return_tok!
-        @lexer.return_previous!
-      end
-
       def assert_done
         return if @lexer.done?
         @lexer.expected!(EXPR_NAMES[:default])

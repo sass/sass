@@ -169,16 +169,6 @@ module Sass
         @scanner.pos = @tok.pos if @tok
       end
 
-      # Rewinds the underlying StringScanner
-      # to before the previous token returned by \{#next}.
-      def return_previous!
-        if @prev
-          @scanner.pos = @prev.pos
-          @prev = nil
-          @tok = nil
-        end
-      end
-
       # @return [Boolean] Whether or not there's more source text to lex.
       def done?
         whitespace unless after_interpolation? && @interpolation_stack.last
