@@ -48,12 +48,12 @@ module Sass
       # @raise [Sass::SyntaxError] If a parent selector is invalid
       def resolve_parent_refs(super_seq)
         members = @members
-        members.slice!(0) if nl = (members.first == "\n")
+        nl = (members.first == "\n" && members.shift)
         unless members.any? do |seq_or_op|
             seq_or_op.is_a?(SimpleSequence) && seq_or_op.members.first.is_a?(Parent)
           end
           members = []
-          members << "\n" if nl
+          members << nl if nl
           members << SimpleSequence.new([Parent.new])
           members += @members
         end

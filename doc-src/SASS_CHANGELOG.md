@@ -12,6 +12,8 @@
   {file:SASS_REFERENCE.md#functions Named Arguments for Sass Functions},
   {file:SASS_REFERENCE.md#defining_custom_sass_functions Defining Custom Functions}
 
+* Many performance optimizations have been made by [thedarkone](http://github.com/thedarkone).
+
 ### Backwards Incompatibilities -- Must Read!
 
 * When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,

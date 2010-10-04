@@ -90,10 +90,7 @@ module Sass
             return true
           end
         end
-        checker = dependency_updated?(css_mtime)
-        timestamps[css_mtime] = dependencies(uri, importer).any? do |dep|
-          checker.call(*dep)
-        end
+        timestamps[css_mtime] = dependencies(uri, importer).any?(&dependency_updated?(css_mtime))
       rescue Sass::SyntaxError
         # If there's an error finding dependencies, default to recompiling.
         true

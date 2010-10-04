@@ -12,7 +12,6 @@ require 'rake/testtask'
 
 Rake::TestTask.new do |t|
   t.libs << 'lib'
-  t.libs << 'test'
   test_files = FileList[scope('test/**/*_test.rb')]
   test_files.exclude(scope('test/rails/*'))
   test_files.exclude(scope('test/plugins/*'))

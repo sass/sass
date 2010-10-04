@@ -22,12 +22,12 @@ module Sass
 
     # @param parent [Environment] See \{#parent}
     def initialize(parent = nil)
-      @vars = {}
-      @mixins = {}
       @parent = parent
-      @stack = [] unless parent
-      @mixins_in_use = Set.new unless parent
-      set_var("important", Script::String.new("!important")) unless @parent
+      unless parent
+        @stack = []
+        @mixins_in_use = Set.new
+        set_var("important", Script::String.new("!important"))
+      end
     end
 
     # The options hash.
@@ -35,7 +35,7 @@ module Sass
     #
     # @return [{Symbol => Object}]
     def options
-      @options || (parent && parent.options) || {}
+      @options || parent_options || {}
     end
 
     # Push a new stack frame onto the mixin/include stack.
@@ -53,13 +53,13 @@ module Sass
     #   `:line`
     #   : The line of the file on which the lexical scope changed. Never nil.
     def push_frame(frame_info)
-      if stack.last && stack.last[:prepared]
-        stack.last.delete(:prepared)
-        stack.last.merge!(frame_info)
+      top_of_stack = stack.last
+      if top_of_stack && top_of_stack.delete(:prepared)
+        top_of_stack.merge!(frame_info)
       else
-        stack.push(frame_info)
+        stack.push(top_of_stack = frame_info)
       end
-      mixins_in_use << stack.last[:mixin] if stack.last[:mixin] && !stack.last[:prepared]
+      mixins_in_use << top_of_stack[:mixin] if top_of_stack[:mixin] && !top_of_stack[:prepared]
     end
 
     # Like \{#push\_frame}, but next time a stack frame is pushed,
@@ -93,28 +93,36 @@ module Sass
       @mixins_in_use ||= @parent.mixins_in_use
     end
 
+    private
+
+    def parent_options
+      @parent_options ||= @parent && @parent.options
+    end
+
     class << self
       private
+      UNDERSCORE, DASH = '_', '-'
 
       # Note: when updating this,
       # update sass/yard/inherited_hash.rb as well.
       def inherited_hash(name)
         class_eval <<RUBY, __FILE__, __LINE__ + 1
           def #{name}(name)
-            _#{name}(name.gsub('_', '-'))
+            _#{name}(name.tr(UNDERSCORE, DASH))
           end
 
           def _#{name}(name)
-            @#{name}s[name] || @parent && @parent._#{name}(name)
+            (@#{name}s && @#{name}s[name]) || @parent && @parent._#{name}(name)
           end
           protected :_#{name}
 
           def set_#{name}(name, value)
-            name = name.gsub('_', '-')
+            name = name.tr(UNDERSCORE, DASH)
             @#{name}s[name] = value unless try_set_#{name}(name, value)
           end
 
           def try_set_#{name}(name, value)
+            @#{name}s ||= {}
             if @#{name}s.include?(name)
               @#{name}s[name] = value
               true
@@ -127,7 +135,8 @@ module Sass
           protected :try_set_#{name}
 
           def set_local_#{name}(name, value)
-            @#{name}s[name.gsub('_', '-')] = value
+            @#{name}s ||= {}
+            @#{name}s[name.tr(UNDERSCORE, DASH)] = value
           end
 RUBY
       end

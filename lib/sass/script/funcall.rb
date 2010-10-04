@@ -71,11 +71,10 @@ module Sass
         end
 
         args = construct_ruby_args(name, args)
-
-        ruby_name = name.tr('-', '_')
+        ruby_name = @name.tr('-', '_')
 
         unless Sass::Util.has?(:public_instance_method, Functions, ruby_name) && ruby_name !~ /^__/
-          opts(Script::String.new("#{name}(#{args.map {|a| a.perform(environment)}.join(', ')})"))
+          opts(Script::String.new("#{name}(#{args.join(', ')})"))
         else
           opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
         end

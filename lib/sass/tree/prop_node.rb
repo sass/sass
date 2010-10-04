@@ -88,8 +88,12 @@ module Sass::Tree
     # @param tabs [Fixnum] The level of indentation for the CSS
     # @return [String] The resulting CSS
     def _to_s(tabs)
-      to_return = '  ' * (tabs - 1 + self.tabs) + resolved_name + ":" +
-        (style == :compressed ? '' : ' ') + resolved_value + (style == :compressed ? "" : ";")
+      tab_str = '  ' * (tabs - 1 + self.tabs)
+      if style == :compressed
+        "#{tab_str}#{resolved_name}:#{resolved_value}"
+      else
+        "#{tab_str}#{resolved_name}: #{resolved_value};"
+      end
     end
 
     # Converts nested properties into flat properties.
@@ -154,10 +158,9 @@ module Sass::Tree
     private
 
     def check!
-      if @options[:property_syntax] == :old && @prop_syntax == :new
-        raise Sass::SyntaxError.new("Illegal property syntax: can't use new syntax when :property_syntax => :old is set.")
-      elsif @options[:property_syntax] == :new && @prop_syntax == :old
-        raise Sass::SyntaxError.new("Illegal property syntax: can't use old syntax when :property_syntax => :new is set.")
+      if @options[:property_syntax] && @options[:property_syntax] != @prop_syntax
+        raise Sass::SyntaxError.new(
+          "Illegal property syntax: can't use #{@prop_syntax} syntax when :property_syntax => #{@options[:property_syntax].inspect} is set.")
       elsif resolved_value.empty?
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
           pseudo_class_selector_message)

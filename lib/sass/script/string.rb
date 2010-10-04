@@ -41,9 +41,8 @@ module Sass::Script
 
     # @see Node#to_s
     def to_s(opts = {})
-      if self.type == :identifier
-        return %q{""} if context == :equals && self.value.size == 0
-        return self.value.gsub("\n", " ")
+      if @type == :identifier
+        return @context == :equals && @value.empty? ? %q{""} : @value.tr("\n", " ")
       end
 
       return "\"#{value.gsub('"', "\\\"")}\"" if opts[:quote] == %q{"}

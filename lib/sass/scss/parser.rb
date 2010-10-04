@@ -821,17 +821,20 @@ MESSAGE
           :line => line)
       end
 
+      # Avoid allocating lots of new strings for `#tok`.
+      # This is important because `#tok` is called all the time.
+      NEWLINE = "\n"
+
       def tok(rx)
         res = @scanner.scan(rx)
         if res
-          @line += res.count("\n")
+          @line += res.count(NEWLINE)
           @expected = nil
           if !@strs.empty? && rx != COMMENT && rx != SINGLE_LINE_COMMENT
             @strs.each {|s| s << res}
           end
+          res
         end
-
-        res
       end
     end
   end

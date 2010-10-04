@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'test/unit'
-require 'test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
 require 'sass/script'
 
 module Sass::Script::Functions
