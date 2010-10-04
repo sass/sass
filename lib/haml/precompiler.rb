@@ -336,12 +336,14 @@ END
         end
       end
 
-      @precompiled <<
-        if @options[:ugly]
-          "_hamlout.buffer << \"#{str}\";"
-        else
-          "_hamlout.push_text(\"#{str}\", #{mtabs}, #{@dont_tab_up_next_text.inspect});"
-        end
+      unless str.empty?
+        @precompiled <<
+          if @options[:ugly]
+            "_hamlout.buffer << \"#{str}\";"
+          else
+            "_hamlout.push_text(\"#{str}\", #{mtabs}, #{@dont_tab_up_next_text.inspect});"
+          end
+      end
       @precompiled << "\n" * newlines
       @to_merge = []
       @dont_tab_up_next_text = false
