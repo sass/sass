@@ -7,6 +7,8 @@
 
 * Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
 
+* Many performance optimizations have been made by [thedarkone](http://github.com/thedarkone).
+
 ### Backwards Incompatibilities -- Must Read!
 
 * When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,
