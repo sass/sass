@@ -17,6 +17,11 @@ module Sass
       # @return [Array<Script::Node>]
       attr_reader :args
 
+      # The keyword arguments to the function.
+      #
+      # @return [{String => Script::Node}]
+      attr_reader :keywords
+
       # Don't set the context for child nodes if this is `url()`,
       # since `url()` allows quoted strings.
       #
@@ -27,10 +32,12 @@ module Sass
       end
 
       # @param name [String] See \{#name}
-      # @param name [Array<Script::Node>] See \{#args}
-      def initialize(name, args)
+      # @param args [Array<Script::Node>] See \{#args}
+      # @param keywords [{String => Script::Node}] See \{#keywords}
+      def initialize(name, args, keywords)
         @name = name
         @args = args
+        @keywords = keywords
         super()
       end
 
@@ -60,18 +67,10 @@ module Sass
       # @return [Literal] The SassScript object that is the value of the function call
       # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
       def _perform(environment)
-        args = self.args.map do |a|
-          if a.is_a?(Hash)
-            h = {}
-            a.each{|k,v| h[k] = v.perform(environment)}
-            h
-          else
-            a.perform(environment)
-          end
-        end
-
-        args = construct_ruby_args(name, args)
+        args = @args.map {|a| a.perform(environment)}
+        keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
         ruby_name = @name.tr('-', '_')
+        args = construct_ruby_args(ruby_name, args, keywords)
 
         unless Sass::Util.has?(:public_instance_method, Functions, ruby_name) && ruby_name !~ /^__/
           opts(Script::String.new("#{name}(#{args.join(', ')})"))
@@ -83,33 +82,30 @@ module Sass
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
       end
 
-      def construct_ruby_args(name, args)
-        if args.last.is_a? Hash
-          ruby_name = name.tr('-', '_')
-          unless signature = Functions.signature(ruby_name, args.size - 1, args.last.size)
-            raise Sass::SyntaxError.new("#{name} cannot be called with keyword-style arguments.")
-          end
-          keyword_args = args.last.dup
-          args = args[0..-2] + signature[:args][(args.size - 1)..-1].map do |argname|
-            if keyword_args.has_key?(argname) || keyword_args.has_key?(argname.tr("_", "-"))
-              keyword_args.delete(argname) || keyword_args.delete(argname.tr("_", "-"))
-            else
-              raise Sass::SyntaxError, "#{name} requires an argument named #{argname}."
-            end
-          end
-          if keyword_args.size > 0 && signature[:var_kwargs]
-            # Pass any unknown args as variable keyword arguments
-            args << keyword_args
-          elsif keyword_args.size > 0
-            # doesn't accept variable keyword arguments, raise an error about an unknown argument.
-            raise Sass::SyntaxError, "#{name} does not accept an argument named #{keyword_args.keys.first}."
-          end
-          args
-        else
-          args
+      def construct_ruby_args(name, args, keywords)
+        return args if keywords.empty?
+        unless signature = Functions.signature(name, args.size, keywords.size)
+          raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
         end
-      end
 
+        args = args + signature[:args][args.size..-1].map do |argname|
+          if keywords.has_key?(argname)
+            keywords.delete(argname)
+          else
+            raise Sass::SyntaxError, "Function #{name} requires an argument named $#{argname}"
+          end
+        end
+
+        if keywords.size > 0
+          if signature[:var_kwargs]
+            args << Sass::Util.map_hash(keywords) {|k, v| [k.to_sym, v]}
+          else
+            raise Sass::SyntaxError, "Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}"
+          end
+        end
+
+        args
+      end
     end
   end
 end

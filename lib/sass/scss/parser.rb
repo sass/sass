@@ -138,9 +138,9 @@ module Sass
 
       def include_directive
         name = tok! IDENT
-        args = sass_script(:parse_mixin_include_arglist)
+        args, keywords = sass_script(:parse_mixin_include_arglist)
         ss
-        node(Sass::Tree::MixinNode.new(name, args))
+        node(Sass::Tree::MixinNode.new(name, args, keywords))
       end
 
       def debug_directive

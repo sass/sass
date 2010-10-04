@@ -731,11 +731,11 @@ WARNING
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
-      args = Script::Parser.new(arg_string.strip, @line, offset, @options).
+      args, keywords = Script::Parser.new(arg_string.strip, @line, offset, @options).
         parse_mixin_include_arglist
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.",
         :line => @line + 1) unless line.children.empty?
-      Tree::MixinNode.new(name, args)
+      Tree::MixinNode.new(name, args, keywords)
     end
 
     def parse_script(script, options = {})

@@ -74,27 +74,21 @@ module Sass
 
       # Parses the argument list for a mixin include.
       #
-      # @return [Array<Script::Node>] The root nodes of the arguments.
+      # @return [(Array<Script::Node>, {String => Script::Note})]
+      #   The root nodes of the arguments.
+      #   Keyword arguments are in a hash from names to values.
       # @raise [Sass::SyntaxError] if the argument list isn't valid SassScript
       def parse_mixin_include_arglist
-        args = []
-
+        args, keywords = [], {}
         if try_tok(:lparen)
-          args = arglist || args
+          args, keywords = mixin_arglist || [[], {}]
           assert_tok(:rparen)
         end
         assert_done
 
-        args.each do |a|
-          if a.is_a? Hash
-            a.each do |name, value|
-              value.options = @options
-            end
-          else
-            a.options = @options
-          end
-        end
-        args
+        args.each {|a| a.options = @options}
+        keywords.each {|k, v| v.options = @options}
+        return args, keywords
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
         raise e
@@ -262,9 +256,9 @@ RUBY
 
       def funcall
         return raw unless tok = try_tok(:funcall)
-        args = fn_arglist || []
+        args, keywords = fn_arglist || [[], {}]
         assert_tok(:rparen)
-        node(Script::Funcall.new(tok.value, args))
+        node(Script::Funcall.new(tok.value, args, keywords))
       end
 
       def defn_arglist!(must_have_default)
@@ -297,21 +291,36 @@ RUBY
       end
 
       def fn_arglist
-        if kw_args = keyword_arglist
-          return [kw_args]
-        end
-        return unless e = equals
-        return [e] unless try_tok(:comma)
-        [e, *assert_expr(:fn_arglist)]
+        arglist(:fn_arglist, :equals)
       end
 
-      def arglist
-        if kw_args = keyword_arglist
-          return [kw_args]
+      def mixin_arglist
+        arglist(:mixin_arglist, :interpolation)
+      end
+
+      def arglist(type, subexpr)
+        return unless e = send(subexpr)
+        if @lexer.peek && @lexer.peek.type == :colon
+          name = e
+          @lexer.expected!("comma") unless name.is_a?(Variable)
+          assert_tok(:colon)
+          keywords = {name.underscored_name => assert_expr(subexpr, EXPR_NAMES[type])}
         end
-        return unless e = interpolation
-        return [e] unless try_tok(:comma)
-        [e, *assert_expr(:arglist)]
+
+        unless try_tok(:comma)
+          return [], keywords if keywords
+          return [e], {}
+        end
+
+        other_args, other_keywords = assert_expr(type)
+        if keywords
+          if other_keywords[name.underscored_name]
+            raise SyntaxError.new("Keyword argument \"#{name.to_sass}\" passed more than once")
+          end
+          return other_args, keywords.merge(other_keywords)
+        else
+          return [e, *other_args], other_keywords
+        end
       end
 
       def keyword_arglist
@@ -385,13 +394,13 @@ RUBY
       EXPR_NAMES = {
         :string => "string",
         :default => "expression (e.g. 1px, bold)",
-        :arglist => "mixin argument",
+        :mixin_arglist => "mixin argument",
         :fn_arglist => "function argument",
       }
 
-      def assert_expr(name)
+      def assert_expr(name, expected = nil)
         (e = send(name)) && (return e)
-        @lexer.expected!(EXPR_NAMES[name] || EXPR_NAMES[:default])
+        @lexer.expected!(expected || EXPR_NAMES[name] || EXPR_NAMES[:default])
       end
 
       def assert_tok(*names)
