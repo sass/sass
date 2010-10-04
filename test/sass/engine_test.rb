@@ -94,7 +94,7 @@ MSG
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
     "=a($b = 1, $c)" => "Required argument $c must come before any optional arguments.",
     "=a($b = 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
-    "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a does not have an argument named $c.",
+    "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c",
     "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing parameter $b.",
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
     "@if false\n@else foo" => "Invalid else directive '@else foo': expected 'if <expr>'.",

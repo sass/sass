@@ -609,19 +609,19 @@ MSG
   def test_keyword_args_rgba_with_extra_args
     assert_equal(%Q{rgba(255, 255, 255, 0.5)}, evaluate("rgba($red: 255, $green: 255, $blue: 255, $alpha: 0.5, $extra: error)"))
   rescue Sass::SyntaxError => e
-    assert_equal("rgba does not accept an argument named extra.", e.message)
+    assert_equal("Function rgba doesn't take an argument named $extra", e.message)
   end
 
   def test_keyword_args_must_have_signature
     evaluate("no-kw-args($fake: value)")
   rescue Sass::SyntaxError => e
-    assert_equal("no-kw-args cannot be called with keyword-style arguments.", e.message)
+    assert_equal("Function no_kw_args doesn't support keyword arguments", e.message)
   end
 
   def test_keyword_args_with_missing_argument
     evaluate("rgb($red: 255, $green: 255)")
   rescue Sass::SyntaxError => e
-    assert_equal("rgb requires an argument named blue.", e.message)
+    assert_equal("Function rgb requires an argument named $blue", e.message)
   end
 
   def test_only_var_args
