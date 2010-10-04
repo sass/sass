@@ -11,6 +11,10 @@
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+## 3.0.22 (Unreleased)
+
+* Allow an empty line after `case` but before `when`.
+
 ## 3.0.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.21).
