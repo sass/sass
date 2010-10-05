@@ -35,7 +35,7 @@ For functions, the names are defined along with the functions.
 The argument names for the built-in functions are listed
 {Sass::Script::Functions in the function documentation}.
 
-Sass functions defined in Ruby can use the {Sass::Script::Functions.define} method
+Sass functions defined in Ruby can use the {Sass::Script::Functions.declare} method
 to declare the names of the arguments they take.
 
 ### Backwards Incompatibilities -- Must Read!
