@@ -26,7 +26,7 @@ HAML_GEMSPEC = Gem::Specification.new do |spec|
 
   readmes = Dir['*'].reject{ |x| x =~ /(^|[^.a-z])[a-z]+/ || x == "TODO" }
   spec.executables = ['haml', 'html2haml', 'sass', 'css2sass', 'sass-convert']
-  spec.files = Dir['rails/init.rb', 'lib/**/*', 'vendor/**/*',
+  spec.files = Dir['rails/init.rb', 'lib/**/*', 'vendor/fssm/**/*',
     'bin/*', 'test/**/*', 'extra/**/*', 'Rakefile', 'init.rb',
     '.yardopts'] + readmes
   spec.homepage = 'http://haml-lang.com/'
