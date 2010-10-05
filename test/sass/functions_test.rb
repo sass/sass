@@ -11,12 +11,12 @@ module Sass::Script::Functions
   def only_var_args(*args)
     Sass::Script::String.new("only-var-args("+args.map{|a| a.plus(Sass::Script::Number.new(1)).to_s }.join(", ")+")")
   end
-  declare :only_var_args, :var_args => true
+  declare :only_var_args, [], :var_args => true
 
   def only_kw_args(kwargs)
     Sass::Script::String.new("only-kw-args("+kwargs.keys.join(", ")+")")
   end
-  declare :only_kw_args, :var_kwargs => true
+  declare :only_kw_args, [], :var_kwargs => true
 end
 
 module Sass::Script::Functions::UserFunctions
