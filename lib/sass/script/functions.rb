@@ -30,7 +30,7 @@ module Sass::Script
   # \{#blue blue($color)}
   # : Gets the blue component of a color.
   #
-  # \{#mix mix($color-1, $color-2\[, $weight\])}
+  # \{#mix mix($color-1, $color-2, \[$weight\])}
   # : Mixes two colors together.
   #
   # ## HSL Functions
@@ -47,7 +47,7 @@ module Sass::Script
   # \{#saturation saturation($color)}
   # : Gets the saturation component of a color.
   #
-  # \{#lightness lightness($color))}
+  # \{#lightness lightness($color)}
   # : Gets the lightness component of a color.
   #
   # \{#adjust_hue adjust-hue($color, $degrees)}
@@ -140,10 +140,9 @@ module Sass::Script
   #       define :reverse, :args => [:string]
   #     end
   #
-  # Calling `define` after creating your function is how you tell
-  # Sass what function signature(s) your function presents to the stylesheets.
-  # If omitted, the function will still work, but will not be able to accept
-  # named arguments. See {Sass::Script::Functions.define} for more information.
+  # Calling {define} tells Sass the argument names for your function.
+  # If omitted, the function will still work, but will not be able to accept keyword arguments.
+  # {define} can also allow your function to take arbitrary keyword arguments.
   #
   # There are a few things to keep in mind when modifying this module.
   # First of all, the arguments passed are {Sass::Script::Literal} objects.
@@ -180,18 +179,34 @@ module Sass::Script
   module Functions
     @signatures = {}
 
-    # Declare a sass signature for a ruby-defined function.
+    # Declare a Sass signature for a Ruby-defined function.
+    # This includes the names of the arguments,
+    # whether the function takes a variable number of arguments,
+    # and whether the function takes an arbitrary set of keyword arguments.
     #
-    # Sass function signatures can be overloaded as long as they have different arities
-    # by calling define on the same method name repeatedly. The first matching signature
-    # for the calling arguments is chosen in the order they are defined.
+    # It's not necessary to declare a signature for a function.
+    # However, without a signature it won't support keyword arguments.
     #
-    # @param options
-    #   `:args` - Array of Symbols or Strings. Required arguments for this method signature.
-    #   `:var_args` - Boolean. Indicates whether additional unnamed arguments can be passed.
-    #   `:var_kwargs` - Boolean. Indicates whether additional named arguments can be passed.
-    #                   These values are passed as the last argument and as a hash
-    #                   of {String => Literal}
+    # A single function can have multiple signatures declared
+    # as long as each one takes a different number of arguments.
+    # It's also possible to declare multiple signatures
+    # that all take the same number of arguments,
+    # but none of them but the first will be used
+    # unless the user uses keyword arguments.
+    #
+    # @param method_name [Symbol] The name of the method
+    #   whose signature is being declared.
+    # @option options :args [Array<Symbol>] ([])
+    #   The names of the arguments for the function signature.
+    # @option options :var_args [Boolean] (false)
+    #   Whether the function accepts a variable number of (unnamed) arguments
+    #   in addition to the named arguments.
+    # @option options :var_kwargs [Boolean] (false)
+    #   Whether the function accepts other keyword arguments
+    #   in addition to those in `:args`.
+    #   If this is true, the Ruby function will be passed a hash from strings
+    #   to {Sass::Script::Literal}s as the last argument.
+    # 
     # @example
     #   define :rgba, :args => [:hex, :alpha]
     #   define :rgba, :args => [:red, :green, :blue, :alpha]
@@ -206,14 +221,16 @@ module Sass::Script
       @signatures[method_name.to_sym] << options
     end
 
-    # Determine the correct signature for the arity of the arguments
-    # if none match, the first signature is returned for error messaging
+    # Determine the correct signature for the number of arguments
+    # passed in for a given function.
+    # If no signatures match, the first signature is returned for error messaging.
     #
-    # @param method_name The name of the ruby function to be called
-    # @param arg_arity The number of unnamed arguments the function was invoked with
-    # @param kwarg_arity The number of named arguments the function was invoked with
+    # @param method_name [Symbol] The name of the Ruby function to be called.
+    # @param arg_arity [Number] The number of unnamed arguments the function was passed.
+    # @param kwarg_arity [Number] The number of keyword arguments the function was passed.
     #
-    # @return [Hash] The signature options for the matching signature that were passed to {define}
+    # @return [{Symbol => Object}]
+    #   The signature options for the matching signature. See {define}.
     def self.signature(method_name, arg_arity, kwarg_arity)
       return unless @signatures[method_name.to_sym]
       @signatures[method_name.to_sym].each do |signature|

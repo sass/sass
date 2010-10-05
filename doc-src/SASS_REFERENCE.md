@@ -851,7 +851,7 @@ SassScript defines some useful functions
 that are called using the normal CSS function syntax:
 
     p {
-      color: hsl(0, 100%, 0.5);
+      color: hsl(0, 100%, 50%);
     }
 
 is compiled to:
@@ -859,20 +859,23 @@ is compiled to:
     p {
       color: #ff0000; }
 
-Unlike their CSS counterparts, Sass-based functions allow you to pass
-named arguments in addition to the more traditional positional argument style.
-The example above can also be written as:
+#### Keyword Arguments
+
+Sass functions can also be called using explicit keyword arguments.
+The above example can also be written as:
 
     p {
-      color: hsl($hue: 0, $saturation: 100%, $lightness: 0.5);
+      color: hsl($hue: 0, $saturation: 100%, $lightness: 50%);
     }
 
-While this is more typing, you might prefer it to add clarity for the readers of
-the stylesheet. Additionally, since a sass function can accept arbitrary named
-arguments, this allows a ruby function to present a very flexible interface to
-the stylesheets.
+While this is less concise, it can make the stylesheet easier to read.
+It also allows functions to present more flexible interfaces,
+providing many arguments without becoming difficult to call.
 
-See {Sass::Script::Functions} for a full listing of Sass functions,
+Named arguments can be passed in any order, and arguments with default values can be omitted.
+Since the named arguments are variable names, underscores and dashes can be used interchangeably.
+
+See {Sass::Script::Functions} for a full listing of Sass functions and their argument names,
 as well as instructions on defining your own in Ruby.
 
 ### Interpolation: `#{}` {#interpolation_}
@@ -1604,31 +1607,20 @@ is compiled to:
       border-width: 2in;
       border-style: dashed; }
 
-### Named Arguments
+#### Keyword Arguments
 
-Because mixins are not standardized, it can be difficult for readers of a stylesheet
-to know what the arguments mean when they come across a mixin include. Additionally, some
-mixins have many arguments and often those have defaults and it becomes difficult to include
-the mixin when you only care to override a small set of the default values. Because of
-these cases, Sass allows you to pass named arguments when including a mixin or calling a
-sass function.
+Mixins can also be included using explicit keyword arguments.
+For instance, we the above example could be written as:
 
-For instance, we could have written the above example like this:
-
-    @mixin sexy-border($color, $width: 1in) {
-      border: {
-        color: $color;
-        width: $width;
-        style: dashed;
-      }
-    }
     p { @include sexy-border($color: blue); }
     h1 { @include sexy-border($color: blue, $width: 2in); }
 
-Named arguments can be passed in any order and arguments with default values can be
-omitted just like they can when passing arguments positionally. Because the named
-arguments are variable names, it should be noted that underscores and dashes can be used
-interchangeably.
+While this is less concise, it can make the stylesheet easier to read.
+It also allows functions to present more flexible interfaces,
+providing many arguments without becoming difficult to call.
+
+Named arguments can be passed in any order, and arguments with default values can be omitted.
+Since the named arguments are variable names, underscores and dashes can be used interchangeably.
 
 ## Output Style
 
@@ -1721,9 +1713,8 @@ Using these features requires a strong understanding of Ruby.
 
 ### Defining Custom Sass Functions
 
-The same way that Sass defines new functions for use in Sass stylesheets is available
-to users who which to do so. For more information see the [source
-documentation](Sass/Script/Functions.html#adding_custom_functions).
+Users can define their own Sass functions using the Ruby API.
+For more information, see the [source documentation](Sass/Script/Functions.html#adding_custom_functions).
 
 ### Cache Stores
 

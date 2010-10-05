@@ -6,13 +6,37 @@
 ## 3.2.0 (Unreleased)
 
 * Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
-* Sass Functions and Mixins now accept **Named Arguments** in addition to the more traditional
-  positional argument style. See the following documentation for more information:
-  {file:SASS_REFERENCE.md#named_arguments Named Arguments for Mixins},
-  {file:SASS_REFERENCE.md#functions Named Arguments for Sass Functions},
-  {file:SASS_REFERENCE.md#defining_custom_sass_functions Defining Custom Functions}
 
 * Many performance optimizations have been made by [thedarkone](http://github.com/thedarkone).
+
+### Keyword Arguments
+
+Both mixins and Sass functions now support the ability to pass in keyword arguments.
+For example, with mixins:
+
+    @mixin border-radius($value, $moz: true, $webkit: true, $css3: true) {
+      @if $moz { -moz-border-radius: $value }
+      @if $webkit { -webkit-border-radius: $value }
+      @if $css3 { border-radius: $value }
+    }
+
+    @include border-radius(10px, $webkit: false);
+
+And with functions:
+
+    p {
+      color: hsl($hue: 180, $saturation: 78%, lightness: 57%);
+    }
+
+Keyword arguments are of the form `$name: value` and come after normal arguments.
+They can be used for either optional or required arguments.
+For mixins, the names are the same as the argument names for the mixins.
+For functions, the names are defined along with the functions.
+The argument names for the built-in functions are listed
+{Sass::Script::Functions in the function documentation}.
+
+Sass functions defined in Ruby can use the {Sass::Script::Functions.define} method
+to declare the names of the arguments they take.
 
 ### Backwards Incompatibilities -- Must Read!
 
