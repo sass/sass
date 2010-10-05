@@ -179,6 +179,13 @@ module Sass::Script
   module Functions
     @signatures = {}
 
+    # A class representing a Sass function signature.
+    #
+    # @attr args [Array<Symbol>] The names of the arguments to the function.
+    # @attr var_args [Boolean] Whether the function takes a variable number of arguments.
+    # @attr var_kwargs [Boolean] Whether the function takes an arbitrary set of keyword arguments.
+    Signature = Struct.new(:args, :var_args, :var_kwargs)
+
     # Declare a Sass signature for a Ruby-defined function.
     # This includes the names of the arguments,
     # whether the function takes a variable number of arguments,
@@ -213,12 +220,11 @@ module Sass::Script
     #   declare :accepts_anything, :var_args => true, :var_kwargs => true
     #   declare :some_func, :args => [:foo, :bar, :baz], :var_kwargs => true
     def self.declare(method_name, options)
-      options[:args] ||= []
-      options[:args].map!{|a| a.to_s }
-      options[:var_args] ||= false
-      options[:var_kwargs] ||= false
-      @signatures[method_name.to_sym] ||= []
-      @signatures[method_name.to_sym] << options
+      @signatures[method_name] ||= []
+      @signatures[method_name] << Signature.new(
+        (options[:args] || []).map {|s| s.to_s},
+        options[:var_args],
+        options[:var_kwargs])
     end
 
     # Determine the correct signature for the number of arguments
@@ -232,27 +238,27 @@ module Sass::Script
     # @return [{Symbol => Object}]
     #   The signature options for the matching signature. See {declare}.
     def self.signature(method_name, arg_arity, kwarg_arity)
-      return unless @signatures[method_name.to_sym]
-      @signatures[method_name.to_sym].each do |signature|
-        if signature[:args].size == arg_arity + kwarg_arity
+      return unless @signatures[method_name]
+      @signatures[method_name].each do |signature|
+        if signature.args.size == arg_arity + kwarg_arity
           return signature
-        elsif signature[:args].size < arg_arity + kwarg_arity
+        elsif signature.args.size < arg_arity + kwarg_arity
           # we have enough args but we need to figure out what is variable
           # and if the signature allows it
           t_arg_arity, t_kwarg_arity = arg_arity, kwarg_arity
-          if signature[:args].size > t_arg_arity
+          if signature.args.size > t_arg_arity
             # we transfer some kwargs arity to args arity
             # if it does not have enough args -- assuming the names will work out.
-            t_kwarg_arity -= (signature[:args].size - t_arg_arity)
-            t_arg_arity = signature[:args].size
+            t_kwarg_arity -= (signature.args.size - t_arg_arity)
+            t_arg_arity = signature.args.size
           end
-          if (  t_arg_arity == signature[:args].size ||   t_arg_arity > signature[:args].size && signature[:var_args]  ) &&
-             (t_kwarg_arity == 0                     || t_kwarg_arity > 0                     && signature[:var_kwargs])
+          if (  t_arg_arity == signature.args.size ||   t_arg_arity > signature.args.size && signature.var_args  ) &&
+             (t_kwarg_arity == 0                   || t_kwarg_arity > 0                   && signature.var_kwargs)
             return signature
           end
         end
       end
-      @signatures[method_name.to_sym].first
+      @signatures[method_name].first
     end
 
     # The context in which methods in {Script::Functions} are evaluated.

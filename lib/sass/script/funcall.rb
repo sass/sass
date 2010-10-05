@@ -90,11 +90,11 @@ module Sass
 
       def construct_ruby_args(name, args, keywords)
         return args if keywords.empty?
-        unless signature = Functions.signature(name, args.size, keywords.size)
+        unless signature = Functions.signature(name.to_sym, args.size, keywords.size)
           raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
         end
 
-        args = args + signature[:args][args.size..-1].map do |argname|
+        args = args + signature.args[args.size..-1].map do |argname|
           if keywords.has_key?(argname)
             keywords.delete(argname)
           else
@@ -103,7 +103,7 @@ module Sass
         end
 
         if keywords.size > 0
-          if signature[:var_kwargs]
+          if signature.var_kwargs
             args << Sass::Util.map_hash(keywords) {|k, v| [k.to_sym, v]}
           else
             raise Sass::SyntaxError, "Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}"
