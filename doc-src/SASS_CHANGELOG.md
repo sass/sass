@@ -49,6 +49,11 @@ to declare the names of the arguments they take.
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+## 3.0.22 (Unreleased)
+
+* Remove `vendor/sass`, which snuck into the gem by mistake
+  and was causing trouble for Heroku users (thanks to [Jacques Crocker](http://railsjedi.com/)).
+
 ## 3.0.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.21).
