@@ -235,27 +235,29 @@ module Sass::Script
     # @param arg_arity [Number] The number of unnamed arguments the function was passed.
     # @param kwarg_arity [Number] The number of keyword arguments the function was passed.
     #
-    # @return [{Symbol => Object}]
-    #   The signature options for the matching signature. See {declare}.
+    # @return [{Symbol => Object}, nil]
+    #   The signature options for the matching signature,
+    #   or nil if no signatures are declared for this function. See {declare}.
     def self.signature(method_name, arg_arity, kwarg_arity)
       return unless @signatures[method_name]
       @signatures[method_name].each do |signature|
-        if signature.args.size == arg_arity + kwarg_arity
+        return signature if signature.args.size == arg_arity + kwarg_arity
+        next unless signature.args.size < arg_arity + kwarg_arity
+
+        # We have enough args.
+        # Now we need to figure out which args are varargs
+        # and if the signature allows them.
+        t_arg_arity, t_kwarg_arity = arg_arity, kwarg_arity
+        if signature.args.size > t_arg_arity
+          # we transfer some kwargs arity to args arity
+          # if it does not have enough args -- assuming the names will work out.
+          t_kwarg_arity -= (signature.args.size - t_arg_arity)
+          t_arg_arity = signature.args.size
+        end
+
+        if (  t_arg_arity == signature.args.size ||   t_arg_arity > signature.args.size && signature.var_args  ) &&
+           (t_kwarg_arity == 0                   || t_kwarg_arity > 0                   && signature.var_kwargs)
           return signature
-        elsif signature.args.size < arg_arity + kwarg_arity
-          # we have enough args but we need to figure out what is variable
-          # and if the signature allows it
-          t_arg_arity, t_kwarg_arity = arg_arity, kwarg_arity
-          if signature.args.size > t_arg_arity
-            # we transfer some kwargs arity to args arity
-            # if it does not have enough args -- assuming the names will work out.
-            t_kwarg_arity -= (signature.args.size - t_arg_arity)
-            t_arg_arity = signature.args.size
-          end
-          if (  t_arg_arity == signature.args.size ||   t_arg_arity > signature.args.size && signature.var_args  ) &&
-             (t_kwarg_arity == 0                   || t_kwarg_arity > 0                   && signature.var_kwargs)
-            return signature
-          end
         end
       end
       @signatures[method_name].first
