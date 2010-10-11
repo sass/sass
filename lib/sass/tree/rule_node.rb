@@ -59,6 +59,7 @@ module Sass::Tree
       @rule = Sass::Util.strip_string_array(merged)
       #p @rule
       @tabs = 0
+      try_to_parse_non_interpolated_rules
       super()
     end
 
@@ -77,6 +78,7 @@ module Sass::Tree
     def add_rules(node)
       @rule = Sass::Util.strip_string_array(
         Sass::Util.merge_adjacent_strings(@rule + ["\n"] + node.rule))
+      try_to_parse_non_interpolated_rules
     end
 
     # @return [Boolean] Whether or not this rule is continued on the next line
@@ -191,8 +193,7 @@ module Sass::Tree
     # @param environment [Sass::Environment] The lexical environment containing
     #   variable and mixin values
     def perform!(environment)
-      @parsed_rules = Sass::SCSS::StaticParser.new(run_interp(@rule, environment), self.line).
-        parse_selector(self.filename)
+      @parsed_rules ||= parse_selector(run_interp(@rule, environment))
       super
     end
 
@@ -254,6 +255,16 @@ module Sass::Tree
     end
 
     private
+
+    def try_to_parse_non_interpolated_rules
+      if @rule.all? {|t| t.kind_of?(String)}
+        @parsed_rules = parse_selector(@rule.join.strip) rescue nil
+      end
+    end
+
+    def parse_selector(text, line = self.line || 1)
+      Sass::SCSS::StaticParser.new(text, line).parse_selector(filename)
+    end
 
     def debug_info_rule
       node = DirectiveNode.new("@media -sass-debug-info")
