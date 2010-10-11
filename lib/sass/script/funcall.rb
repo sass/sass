@@ -74,9 +74,8 @@ module Sass
       # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
       def _perform(environment)
         args = @args.map {|a| a.perform(environment)}
-        keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
         ruby_name = @name.tr('-', '_')
-        args = construct_ruby_args(ruby_name, args, keywords)
+        args = construct_keyword_args(ruby_name, args, environment) unless @keywords.empty?
 
         unless Functions.callable?(ruby_name)
           opts(Script::String.new("#{name}(#{args.join(', ')})"))
@@ -88,8 +87,9 @@ module Sass
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
       end
 
-      def construct_ruby_args(name, args, keywords)
-        return args if keywords.empty?
+      def construct_keyword_args(name, args, environment)
+        keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
+
         unless signature = Functions.signature(name.to_sym, args.size, keywords.size)
           raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
         end
