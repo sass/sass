@@ -78,7 +78,7 @@ module Sass
         ruby_name = @name.tr('-', '_')
         args = construct_ruby_args(ruby_name, args, keywords)
 
-        unless Functions.callable?(ruby_name) && ruby_name !~ /\A__/
+        unless Functions.callable?(ruby_name)
           opts(Script::String.new("#{name}(#{args.join(', ')})"))
         else
           opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
