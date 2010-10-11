@@ -266,6 +266,8 @@ module Sass::Script
     # That means that all instance methods of {EvaluationContext}
     # are available to use in functions.
     class EvaluationContext
+      include Functions
+
       # The options hash for the {Sass::Engine} that is processing the function call
       #
       # @return [{Symbol => Object}]
@@ -274,10 +276,6 @@ module Sass::Script
       # @param options [{Symbol => Object}] See \{#options}
       def initialize(options)
         @options = options
-
-        # We need to include this individually in each instance
-        # because of an icky Ruby restriction
-        class << self; include Sass::Script::Functions; end
       end
 
       # Asserts that the type of a given SassScript value
@@ -298,8 +296,18 @@ module Sass::Script
       end
     end
 
-    instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
+    class << self
+      private
+      def include(*args)
+        r = super
+        # We have to re-include ourselves into EvaluationContext to work around
+        # an icky Ruby restriction.
+        EvaluationContext.send :include, self
+        r
+      end
+    end
 
+    instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
 
     # Creates a {Color} object from red, green, and blue values.
     #
