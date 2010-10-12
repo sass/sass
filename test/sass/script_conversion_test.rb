@@ -123,6 +123,44 @@ WARN
 RUBY
   end
 
+  def self.assert_associative(op_name, sibling_name)
+    op = Sass::Script::Lexer::OPERATORS_REVERSE[op_name]
+    sibling = Sass::Script::Lexer::OPERATORS_REVERSE[sibling_name]
+    class_eval <<RUBY
+      def test_associative_#{op_name}_#{sibling_name} 
+        assert_renders "$foo #{op} $bar #{op} $baz"
+
+        assert_equal "$foo #{op} $bar #{op} $baz",
+          render("$foo #{op} ($bar #{op} $baz)")
+        assert_equal "$foo #{op} $bar #{op} $baz",
+          render("($foo #{op} $bar) #{op} $baz")
+
+        assert_equal "$foo #{op} $bar #{sibling} $baz",
+          render("$foo #{op} ($bar #{sibling} $baz)")
+        assert_equal "$foo #{sibling} $bar #{op} $baz",
+          render("($foo #{sibling} $bar) #{op} $baz")
+      end
+RUBY
+  end
+
+  def self.assert_non_associative(op_name, sibling_name)
+    op = Sass::Script::Lexer::OPERATORS_REVERSE[op_name]
+    sibling = Sass::Script::Lexer::OPERATORS_REVERSE[sibling_name]
+    class_eval <<RUBY
+      def test_non_associative_#{op_name}_#{sibling_name} 
+        assert_renders "$foo #{op} $bar #{op} $baz"
+
+        assert_renders "$foo #{op} ($bar #{op} $baz)"
+        assert_equal "$foo #{op} $bar #{op} $baz",
+          render("($foo #{op} $bar) #{op} $baz")
+
+        assert_renders "$foo #{op} ($bar #{sibling} $baz)"
+        assert_equal "$foo #{sibling} $bar #{op} $baz",
+          render("($foo #{sibling} $bar) #{op} $baz")
+      end
+RUBY
+  end
+
   test_precedence :or, :and
   test_precedence :and, :eq
   test_precedence :and, :neq
@@ -135,6 +173,18 @@ RUBY
   test_precedence :plus, :times
   test_precedence :plus, :div
   test_precedence :plus, :mod
+
+  assert_associative :plus, :minus
+  assert_associative :times, :div
+  assert_associative :times, :mod
+
+  assert_non_associative :minus, :plus
+  assert_non_associative :div, :times
+  assert_non_associative :mod, :times
+  assert_non_associative :gt, :gte
+  assert_non_associative :gte, :lt
+  assert_non_associative :lt, :lte
+  assert_non_associative :lte, :gt
 
   def test_unary_op
     assert_renders "-12px"
