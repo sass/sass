@@ -321,11 +321,6 @@ module Sass::Script
         FUNCTIONS.clear
         public_instance_methods.each {|function_name| FUNCTIONS << function_name.to_s}
       end
-
-      def method_added(name)
-        update_callable_functions
-        super
-      end
     end
 
     instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
@@ -1009,5 +1004,15 @@ module Sass::Script
       color.with(attr => Sass::Util.restrict(
           color.send(attr).send(op, amount.value), range))
     end
+
+    class << self
+      private
+      def method_added(name)
+        update_callable_functions
+        super
+      end
+    end
+
+    update_callable_functions # generate the initial set
   end
 end
