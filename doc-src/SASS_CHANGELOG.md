@@ -23,6 +23,9 @@
 * Remove `vendor/sass`, which snuck into the gem by mistake
   and was causing trouble for Heroku users (thanks to [Jacques Crocker](http://railsjedi.com/)).
 
+* `sass-convert` now understands better when it's acceptable
+  to remove parentheses from expressions.
+
 ## 3.0.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.21).
