@@ -128,6 +128,8 @@ module Sass
         [:times, :div, :mod],
       ]
 
+      ASSOCIATIVE = [:plus, :times]
+
       class << self
         # Returns an integer representing the precedence
         # of the given operator.
@@ -139,6 +141,13 @@ module Sass
             return i if Array(e).include?(op)
           end
           raise "[BUG] Unknown operator #{op}"
+        end
+
+        # Returns whether or not the given operation is associative.
+        #
+        # @private
+        def associative?(op)
+          ASSOCIATIVE.include?(op)
         end
 
         private
