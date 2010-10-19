@@ -14,7 +14,7 @@ module Sass::Script::Functions
   declare :only_var_args, [], :var_args => true
 
   def only_kw_args(kwargs)
-    Sass::Script::String.new("only-kw-args("+kwargs.keys.join(", ")+")")
+    Sass::Script::String.new("only-kw-args(" + kwargs.keys.sort.join(", ") + ")")
   end
   declare :only_kw_args, [], :var_kwargs => true
 end
@@ -629,9 +629,11 @@ MSG
   def test_only_var_args
     assert_equal "only-var-args(2px, 3px, 4px)", evaluate("only-var-args(1px, 2px, 3px)")
   end
+
   def test_only_kw_args
     assert_equal "only-kw-args(a, b, c)", evaluate("only-kw-args($a: 1, $b: 2, $c: 3)")
   end
+
   private
 
   def evaluate(value)
