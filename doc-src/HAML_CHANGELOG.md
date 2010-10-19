@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.22 (Unreleased)
+## 3.0.22
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.22).
 
 * Allow an empty line after `case` but before `when`.
 
