@@ -628,5 +628,12 @@ LESS
 end
 
 rescue LoadError => e
-puts "\nCouldn't require less, skipping some tests."
+  unless defined?(Gem)
+    begin
+      require 'rubygems'
+      retry
+    rescue Exception
+    end
+  end
+  puts "\nCouldn't require less, skipping some tests."
 end
