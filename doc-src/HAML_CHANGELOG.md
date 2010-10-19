@@ -10,6 +10,8 @@
 * Remove `vendor/sass`, which snuck into the gem by mistake
   and was causing trouble for Heroku users (thanks to [Jacques Crocker](http://railsjedi.com/)).
 
+* Support the Rails 3.1 template handler API.
+
 ## 3.0.21
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.21).
