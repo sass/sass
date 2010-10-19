@@ -5,6 +5,7 @@ require File.dirname(__FILE__) + '/test_helper'
 require 'sass/engine'
 require 'stringio'
 require 'mock_importer'
+require 'pathname'
 
 module Sass::Script::Functions::UserFunctions
   def option(name)
@@ -542,6 +543,15 @@ CSS
     sassc_file = sassc_path("importee")
     assert !File.exists?(sassc_file)
     renders_correctly "import", { :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"] }
+    assert File.exists?(sassc_file)
+  end
+
+  def test_sass_pathname_import
+    sassc_file = sassc_path("importee")
+    assert !File.exists?(sassc_file)
+    renders_correctly("import",
+      :style => :compact,
+      :load_paths => [Pathname.new(File.dirname(__FILE__) + "/templates")])
     assert File.exists?(sassc_file)
   end
 

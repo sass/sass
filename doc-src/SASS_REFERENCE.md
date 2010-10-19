@@ -277,7 +277,7 @@ Available options are:
 {#load_paths-option} `:load_paths`
 : An array of filesystem paths or importers which should be searched
   for Sass templates imported with the [`@import`](#import) directive.
-  These may be strings or subclasses of {Sass::Importers::Base}.
+  These may be strings, `Pathname` objects, or subclasses of {Sass::Importers::Base}.
   This defaults to the working directory and, in Rack, Rails, or Merb,
   whatever `:template_location` is.
 
