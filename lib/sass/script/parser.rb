@@ -130,7 +130,7 @@ module Sass
         [:times, :div, :mod],
       ]
 
-      ASSOCIATIVE = [:plus, :times]
+      ASSOCIATIVE = [:comma, :concat, :plus, :times]
 
       class << self
         # Returns an integer representing the precedence

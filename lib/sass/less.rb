@@ -246,24 +246,43 @@ WARNING
       private
 
       LESS_TO_SASS_OPERATORS = {"-" => :minus, "+" => :plus, "*" => :times, "/" => :div, "=" => :single_eq}
+
       def _to_sass_tree(arr)
-        return Sass::Script::UnaryOperation.new(_to_sass_tree(arr[1..-1]), :minus) if arr[0] == "-"
-        _to_sass_tree2(*_sass_split(arr))
+        e, rest = _to_sass_tree_plus_minus_eq(arr)
+        until rest.empty?
+          e2, rest = _to_sass_tree_plus_minus_eq(rest)
+          e = Sass::Script::Operation.new(e, e2, :concat)
+        end
+        return e
       end
 
-      def _to_sass_tree2(first, rest)
-        return first if rest.empty?
-        if rest[0].is_a?(Operator)
+      def _to_sass_tree_plus_minus_eq(arr)
+        e, rest = _to_sass_tree_times_div(arr)
+        while rest[0] && rest[0].is_a?(Operator) && %w[+ - =].include?(rest[0])
           op = LESS_TO_SASS_OPERATORS[rest[0]]
-          if op == :times || op == :div
-            second, rest = _sass_split(rest[1..-1])
-            return _to_sass_tree2(Sass::Script::Operation.new(first, second, op), rest)
-          else
-            return Sass::Script::Operation.new(first, _to_sass_tree(rest[1..-1]), op)
-          end
+          e2, rest = _to_sass_tree_times_div(rest[1..-1])
+          e = Sass::Script::Operation.new(e, e2, op)
         end
+        return e, rest
+      end
 
-        Sass::Script::Operation.new(first, _to_sass_tree(rest), :concat)
+      def _to_sass_tree_times_div(arr)
+        e, rest = _to_sass_tree_unary(arr)
+        while rest[0] && rest[0].is_a?(Operator) && %w[* /].include?(rest[0])
+          op = LESS_TO_SASS_OPERATORS[rest[0]]
+          e2, rest = _to_sass_tree_unary(rest[1..-1])
+          e = Sass::Script::Operation.new(e, e2, op)
+        end
+        return e, rest
+      end
+
+      def _to_sass_tree_unary(arr)
+        if arr[0] == "-"
+          first, rest = _sass_split(arr[1..-1])
+          return Sass::Script::UnaryOperation.new(first, :minus), rest
+        else
+          return _sass_split(arr[0..-1])
+        end
       end
 
       def _sass_split(arr)

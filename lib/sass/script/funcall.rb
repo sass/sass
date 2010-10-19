@@ -1,4 +1,5 @@
-require File.join(File.dirname(__FILE__), 'functions')
+require 'sass/script/functions'
+
 module Sass
   module Script
     # A SassScript parse node representing a function call.
