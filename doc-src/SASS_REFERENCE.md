@@ -275,8 +275,9 @@ Available options are:
   This is useful to set if the Sass template is embedded in a Ruby file.
 
 {#load_paths-option} `:load_paths`
-: An array of filesystem paths which should be searched
+: An array of filesystem paths or importers which should be searched
   for Sass templates imported with the [`@import`](#import) directive.
+  These may be strings or subclasses of {Sass::Importers::Base}.
   This defaults to the working directory and, in Rack, Rails, or Merb,
   whatever `:template_location` is.
 
