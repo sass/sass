@@ -3,12 +3,16 @@
 * Table of contents
 {:toc}
 
-## 3.0.22 (Unreleased)
+## 3.0.22
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.22).
 
 * Allow an empty line after `case` but before `when`.
 
 * Remove `vendor/sass`, which snuck into the gem by mistake
   and was causing trouble for Heroku users (thanks to [Jacques Crocker](http://railsjedi.com/)).
+
+* Support the Rails 3.1 template handler API.
 
 ## 3.0.21
 
