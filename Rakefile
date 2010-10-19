@@ -87,52 +87,12 @@ task :install => [:package] do
 end
 
 desc "Release a new Haml package to Rubyforge."
-task :release => [:check_release, :release_elpa, :package] do
+task :release => [:check_release, :package] do
   name = File.read(scope("VERSION_NAME")).strip
   version = File.read(scope("VERSION")).strip
   sh %{rubyforge add_release haml haml "#{name} (v#{version})" pkg/haml-#{version}.gem}
   sh %{rubyforge add_file    haml haml "#{name} (v#{version})" pkg/haml-#{version}.tar.gz}
   sh %{gem push pkg/haml-#{version}.gem}
-end
-
-# Releases haml-mode.el and sass-mode.el to ELPA.
-task :release_elpa do
-  require 'tlsmail'
-  require 'time'
-  require scope('lib/haml')
-
-  next if Haml.version[:prerelease]
-  version = Haml.version[:number]
-
-  haml_unchanged = mode_unchanged?(:haml, version)
-  sass_unchanged = mode_unchanged?(:sass, version)
-  next if haml_unchanged && sass_unchanged
-  raise "haml-mode.el and sass-mode.el are out of sync." if (!!haml_unchanged) ^ (!!sass_unchanged)
-
-  if sass_unchanged && File.read(scope("extra/sass-mode.el")).
-      include?(";; Package-Requires: ((haml-mode #{sass_unchanged.inspect}))")
-    raise "sass-mode.el doesn't require the same version of haml-mode."
-  end
-
-  from = `git config user.email`.strip
-  raise "Don't know how to send emails except via Gmail" unless from =~ /@gmail.com$/
-
-  to = "elpa@tromey.com"
-  Net::SMTP.enable_tls(OpenSSL::SSL::VERIFY_NONE)
-  Net::SMTP.start('smtp.gmail.com', 587, 'gmail.com', from, read_password("GMail Password"), :login) do |smtp|
-    smtp.send_message(<<CONTENT, from, to)
-From: Nathan Weizenbaum <#{from}>
-To: #{to}
-Subject: Submitting haml-mode and sass-mode #{version}
-Date: #{Time.now.rfc2822}
-
-haml-mode and sass-mode #{version} are packaged and ready to be included in ELPA.
-They can be downloaded from:
-
-  http://github.com/nex3/haml/raw/#{Haml.version[:rev]}/extra/haml-mode.el
-  http://github.com/nex3/haml/raw/#{Haml.version[:rev]}/extra/sass-mode.el
-CONTENT
-  end
 end
 
 # Ensures that the version have been updated for a new release.
