@@ -326,7 +326,14 @@ foo {
   d: 1 + 2 - 3 + 4;
   e: 1 / 2 - 3 / 4;
   f: 1 - 2 / 3 - 4;
-  g: 1 / 2 * 3 / 4; }
+  g: 1 / 2 * 3 / 4;
+  h: (1 + 2) * (3 + 4);
+  i: 1 * (2 + 3) * 4;
+  j: 1 - (2 + 2) - 4;
+  k: 1 + 2 - (3 + 4);
+  l: 1 / (2 - 3) / 4;
+  m: (1 - 2) / (3 - 4);
+  n: 1 / (2 * 3) / 4; }
 SCSS
 foo {
   a: 1 + 2 * 3 + 4;
@@ -335,7 +342,14 @@ foo {
   d: 1 + 2 - 3 + 4;
   e: 1 / 2 - 3 / 4;
   f: 1 - 2 / 3 - 4;
-  g: 1 / 2 * 3 / 4; }
+  g: 1 / 2 * 3 / 4;
+  h: (1 + 2) * (3 + 4);
+  i: 1 * (2 + 3) * 4;
+  j: 1 - (2 + 2) - 4;
+  k: 1 + 2 - (3 + 4);
+  l: 1 / (2 - 3) / 4;
+  m: (1 - 2) / (3 - 4);
+  n: 1 / (2 * 3) / 4; }
 LESS
   end
 
@@ -628,5 +642,12 @@ LESS
 end
 
 rescue LoadError => e
-puts "\nCouldn't require less, skipping some tests."
+  unless defined?(Gem)
+    begin
+      require 'rubygems'
+      retry
+    rescue Exception
+    end
+  end
+  puts "\nCouldn't require less, skipping some tests."
 end

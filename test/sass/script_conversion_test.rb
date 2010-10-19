@@ -119,23 +119,31 @@ RUBY
   end
 
   def self.assert_associative(op_name, sibling_name)
-    op = Sass::Script::Lexer::OPERATORS_REVERSE[op_name]
-    sibling = Sass::Script::Lexer::OPERATORS_REVERSE[sibling_name]
+    op = separator_for(op_name)
+    sibling = separator_for(sibling_name)
     class_eval <<RUBY
       def test_associative_#{op_name}_#{sibling_name} 
-        assert_renders "$foo #{op} $bar #{op} $baz"
+        assert_renders "$foo#{op}$bar#{op}$baz"
 
-        assert_equal "$foo #{op} $bar #{op} $baz",
-          render("$foo #{op} ($bar #{op} $baz)")
-        assert_equal "$foo #{op} $bar #{op} $baz",
-          render("($foo #{op} $bar) #{op} $baz")
+        assert_equal "$foo#{op}$bar#{op}$baz",
+          render("$foo#{op}($bar#{op}$baz)")
+        assert_equal "$foo#{op}$bar#{op}$baz",
+          render("($foo#{op}$bar)#{op}$baz")
 
-        assert_equal "$foo #{op} $bar #{sibling} $baz",
-          render("$foo #{op} ($bar #{sibling} $baz)")
-        assert_equal "$foo #{sibling} $bar #{op} $baz",
-          render("($foo #{sibling} $bar) #{op} $baz")
+        assert_equal "$foo#{op}$bar#{sibling}$baz",
+          render("$foo#{op}($bar#{sibling}$baz)")
+        assert_equal "$foo#{sibling}$bar#{op}$baz",
+          render("($foo#{sibling}$bar)#{op}$baz")
       end
 RUBY
+  end
+
+  def self.separator_for(op_name)
+    case op_name
+    when :comma; ", "
+    when :concat; " "
+    else; " #{Sass::Script::Lexer::OPERATORS_REVERSE[op_name]} "
+    end
   end
 
   def self.assert_non_associative(op_name, sibling_name)
@@ -169,6 +177,8 @@ RUBY
   test_precedence :plus, :div
   test_precedence :plus, :mod
 
+  assert_associative :comma, :concat
+  assert_associative :concat, :or
   assert_associative :plus, :minus
   assert_associative :times, :div
   assert_associative :times, :mod
