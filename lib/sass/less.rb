@@ -192,7 +192,7 @@ WARNING
       class Call
         def to_sass_tree
           return if hide_in_sass
-          Sass::Tree::MixinNode.new(@mixin.name.gsub(/^\./, ''), @params.map {|v| v.to_sass_tree})
+          Sass::Tree::MixinNode.new(@mixin.name.gsub(/^\./, ''), @params.map {|v| v.to_sass_tree}, {})
         end
       end
 
@@ -325,7 +325,7 @@ WARNING
 
     class Function
       def to_sass_tree
-        Sass::Script::Funcall.new(self, @args.map {|a| a.to_sass_tree})
+        Sass::Script::Funcall.new(self, @args.map {|a| a.to_sass_tree}, {})
       end
     end
 
