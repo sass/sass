@@ -1,4 +1,6 @@
-require 'sass/util'
+# This is necessary for loading Sass when Haml is required in Rails 3.
+# Once the split is complete, we can remove it.
+require File.dirname(__FILE__) + '/../sass'
 
 module Sass
   # Handles Sass version-reporting.
