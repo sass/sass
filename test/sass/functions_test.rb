@@ -14,7 +14,7 @@ module Sass::Script::Functions
   declare :only_var_args, [], :var_args => true
 
   def only_kw_args(kwargs)
-    Sass::Script::String.new("only-kw-args(" + kwargs.keys.sort.join(", ") + ")")
+    Sass::Script::String.new("only-kw-args(" + kwargs.keys.map {|a| a.to_s}.sort.join(", ") + ")")
   end
   declare :only_kw_args, [], :var_kwargs => true
 end
