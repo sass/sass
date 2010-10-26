@@ -695,9 +695,9 @@ MSG
     #
     # @param obj {Object}
     # @return {String}
-    def inspect(obj)
+    def inspect_obj(obj)
       return obj.inspect unless version_geq(::RUBY_VERSION, "1.9.2")
-      return ':' + inspect(obj.to_s) if obj.is_a?(Symbol)
+      return ':' + inspect_obj(obj.to_s) if obj.is_a?(Symbol)
       return obj.inspect unless obj.is_a?(String)
       '"' + obj.gsub(/[\x00-\x7F]+/) {|s| s.inspect[1...-1]} + '"'
     end
