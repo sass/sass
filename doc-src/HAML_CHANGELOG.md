@@ -7,6 +7,8 @@
 
 * Fix the error message for unloadable modules when running the executables under Ruby 1.9.2.
 
+* Fix an error when combining old-style and new-style attributes.
+
 ## 3.0.22
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.22).
