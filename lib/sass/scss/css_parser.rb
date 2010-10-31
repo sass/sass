@@ -24,11 +24,6 @@ module Sass
       def interp_ident(ident = IDENT); tok(ident); end
       def use_css_import?; true; end
 
-      def special_directive(name)
-        return unless name == 'media' || name == 'import'
-        super
-      end
-
       def block_child(context)
         case context
         when :ruleset

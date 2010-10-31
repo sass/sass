@@ -47,7 +47,7 @@ module Sass
       # @return [(Tree::Node, Haml::Util::SubsetMap)] The resulting tree of static nodes
       #   *and* the extensions defined for this tree
       def cssize(extends = Haml::Util::SubsetMap.new, parent = nil)
-        return super(extends), extends
+        return super(extends, parent), extends
       rescue Sass::SyntaxError => e
         e.sass_template = @template
         raise e
@@ -106,7 +106,39 @@ module Sass
         end
         result.rstrip!
         return "" if result.empty?
-        return result + "\n"
+        result << "\n"
+        unless Haml::Util.ruby1_8? || result.ascii_only?
+          if children.first.is_a?(CharsetNode)
+            begin
+              encoding = children.first.name
+              # Default to big-endian encoding, because we have to decide somehow
+              encoding << 'BE' if encoding =~ /\Autf-(16|32)\Z/i
+              result = result.encode(Encoding.find(encoding))
+            rescue EncodingError
+            end
+          end
+
+          result = "@charset \"#{result.encoding.name}\";#{
+            style == :compressed ? '' : "\n"
+          }".encode(result.encoding) + result
+        end
+        result
+      end
+
+      # In Ruby 1.8, ensures that there's only one @charset directive
+      # and that it's at the top of the document.
+      #
+      # @see Node#cssize
+      def cssize!(extends, parent)
+        super
+
+        # In Ruby 1.9 we can make all @charset nodes invisible
+        # and infer the final @charset from the encoding of the final string.
+        if Haml::Util.ruby1_8? && parent.nil?
+          charset = self.children.find {|c| c.is_a?(CharsetNode)}
+          self.children.reject! {|c| c.is_a?(CharsetNode)}
+          self.children.unshift charset if charset
+        end
       end
 
       # Returns an error message if the given child node is invalid,

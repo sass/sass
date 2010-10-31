@@ -7,6 +7,41 @@
 
 * Fix the error message for unloadable modules when running the executables under Ruby 1.9.2.
 
+### `@charset` Change
+
+The behavior of `@charset` has changed in version 3.0.23
+in order to work around a bug in Safari,
+where `@charset` declarations placed anywhere other than the beginning of the document
+cause some CSS rules to be ignored.
+This change also makes `@charset`s in imported files behave in a more useful way.
+
+#### Ruby 1.9
+
+When using Ruby 1.9, which keeps track of the character encoding of the Sass document internally,
+`@charset` directive in the Sass stylesheet and any stylesheets it imports
+are no longer directly output to the generated CSS.
+They're still used for determining the encoding of the input and output stylesheets,
+but they aren't rendered in the same way other directives are.
+
+Instead, Sass adds a single `@charset` directive at the beginning of the output stylesheet
+if necessary, whether or not the input stylesheet had a `@charset` directive.
+It will add this directive if and only if the output stylesheet contains non-ASCII characters.
+By default, the declared charset will be UTF-8,
+but if the Sass stylesheet declares a different charset then that will be used instead if possible.
+
+One important consequence of this scheme is that it's possible for a Sass file
+to import partials with different encodings (e.g. one encoded as UTF-8 and one as IBM866).
+The output will then be UTF-8, unless the importing stylesheet
+declares a different charset.
+
+#### Ruby 1.8
+
+Ruby 1.8 doesn't have good support for encodings, so it uses a simpler but less accurate
+scheme for figuring out what `@charset` declaration to use for the output stylesheet.
+It just takes the first `@charset` declaration to appear in the stylesheet
+or any of its imports and moves it to the beginning of the document.
+This means that under Ruby 1.8 it's *not* safe to import files with different encodings.
+
 ## 3.0.22
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.22).

@@ -228,7 +228,10 @@ module Sass
       # Finally, write the file
       flag = 'w'
       flag = 'wb' if Haml::Util.windows? && options[:unix_newlines]
-      File.open(css, flag) {|file| file.print(result)}
+      File.open(css, flag) do |file|
+        file.set_encoding(result.encoding) unless Haml::Util.ruby1_8?
+        file.print(result)
+      end
     end
 
     def try_delete_css(css)

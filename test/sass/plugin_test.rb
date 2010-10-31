@@ -9,6 +9,8 @@ class SassPluginTest < Test::Unit::TestCase
     subdir/subdir subdir/nested_subdir/nested_subdir
     options
   }
+  @@templates += %w[import_charset import_charset_ibm866] unless Haml::Util.ruby1_8?
+  @@templates << 'import_charset_1_8' if Haml::Util.ruby1_8?
 
   def setup
     FileUtils.mkdir tempfile_loc
@@ -267,11 +269,18 @@ CSS
     prefix = options[:prefix]
     result_name = arguments.shift
     tempfile_name = arguments.shift || result_name
-    expected_lines = File.read(result_loc(result_name, prefix)).split("\n")
-    actual_lines = File.read(tempfile_loc(tempfile_name, prefix)).split("\n")
+
+    expected_str = File.read(result_loc(result_name, prefix))
+    actual_str = File.read(tempfile_loc(tempfile_name, prefix))
+    unless Haml::Util.ruby1_8?
+      expected_str = expected_str.force_encoding('IBM866') if result_name == 'import_charset_ibm866'
+      actual_str = actual_str.force_encoding('IBM866') if tempfile_name == 'import_charset_ibm866'
+    end
+    expected_lines = expected_str.split("\n")
+    actual_lines = actual_str.split("\n")
 
     if actual_lines.first == "/*" && expected_lines.first != "/*"
-      assert(false, actual_lines[0..actual_lines.enum_with_index.find {|l, i| l == "*/"}.last].join("\n"))
+      assert(false, actual_lines[0..Haml::Util.enum_with_index(actual_lines).find {|l, i| l == "*/"}.last].join("\n"))
     end
 
     expected_lines.zip(actual_lines).each_with_index do |pair, line|

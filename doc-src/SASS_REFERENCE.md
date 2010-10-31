@@ -329,6 +329,23 @@ Note that Sass does not support the obscure `UTF-32-2143`,
 since Ruby does not have support for them
 and they're highly unlikely to ever be used in practice.
 
+#### Output Encoding
+
+In general, Sass will try to encode the output stylesheet
+using the same encoding as the input stylesheet.
+In order for it to do this, though, the input stylesheet must have a `@charset` declaration;
+otherwise, Sass will default to encoding the output stylesheet as UTF-8.
+In addition, it will add a `@charset` declaration to the output
+if it's not plain ASCII.
+
+When other stylesheets with `@charset` declarations are `@import`ed,
+Sass will convert them to the same encoding as the main stylesheet.
+
+Note that Ruby 1.8 does not have good support for character encodings,
+and so Sass behaves somewhat differently when running under it than under Ruby 1.9 and later.
+In Ruby 1.8, Sass simply uses the first `@charset` declaration in the stylesheet
+or any of the other stylesheets it `@import`s.
+
 ## CSS Extensions
 
 ### Nested Rules

@@ -1,0 +1,4 @@
+@charset "IBM866";
+.foo { a: b; }
+
+.bar { a: é; }
