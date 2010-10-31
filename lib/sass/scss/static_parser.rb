@@ -32,7 +32,7 @@ module Sass
       def use_css_import?; true; end
 
       def special_directive(name)
-        return unless name == 'media' || name == 'import'
+        return unless  %w[media import charset].include?(name)
         super
       end
     end

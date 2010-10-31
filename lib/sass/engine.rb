@@ -17,6 +17,7 @@ require 'sass/tree/for_node'
 require 'sass/tree/debug_node'
 require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
+require 'sass/tree/charset_node'
 require 'sass/selector'
 require 'sass/environment'
 require 'sass/script'
@@ -261,7 +262,14 @@ module Sass
     def _render
       rendered = _to_tree.render
       return rendered if ruby1_8?
-      return rendered.encode(source_encoding)
+      begin
+        # Try to convert the result to the original encoding,
+        # but if that doesn't work fall back on UTF-8
+        rendered = rendered.encode(source_encoding)
+      rescue EncodingError
+      end
+      rendered.gsub(Regexp.new('\A@charset "(.*?)"'.encode(source_encoding)),
+        "@charset \"#{source_encoding.name}\"".encode(source_encoding))
     end
 
     def _to_tree
@@ -625,6 +633,12 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::WarnNode.new(parse_script(value, :offset => offset))
+      elsif directive == "charset"
+        name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
+        raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath charset directives.",
+          :line => @line + 1) unless line.children.empty?
+        Tree::CharsetNode.new(name)
       else
         Tree::DirectiveNode.new(line.text)
       end
