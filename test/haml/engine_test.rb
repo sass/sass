@@ -1389,7 +1389,7 @@ SASS
 
   def test_new_attribute_ids
     assert_equal("<div id='foo_bar'></div>\n", render("#foo(id='bar')"))
-    assert_equal("<div id='foo_bar_baz'></div>\n", render("#foo{:id => 'bar'}(id='baz')"))
+    assert_equal("<div id='foo_baz_bar'></div>\n", render("#foo{:id => 'bar'}(id='baz')"))
     assert_equal("<div id='foo_baz_bar'></div>\n", render("#foo(id='baz'){:id => 'bar'}"))
     foo = User.new(42)
     assert_equal("<div class='struct_user' id='foo_baz_bar_struct_user_42'></div>\n",
@@ -1398,7 +1398,7 @@ SASS
       render("#foo(id='baz')[foo]{:id => 'bar'}", :locals => {:foo => foo}))
     assert_equal("<div class='struct_user' id='foo_baz_bar_struct_user_42'></div>\n",
       render("#foo[foo](id='baz'){:id => 'bar'}", :locals => {:foo => foo}))
-    assert_equal("<div class='struct_user' id='foo_bar_baz_struct_user_42'></div>\n",
+    assert_equal("<div class='struct_user' id='foo_baz_bar_struct_user_42'></div>\n",
       render("#foo[foo]{:id => 'bar'}(id='baz')", :locals => {:foo => foo}))
   end
 
@@ -1470,11 +1470,17 @@ SASS
     assert_equal("<a a='b' c='d'>bar</a>\n", render("%a(c='d'){:a => 'b'} bar"))
     assert_equal("<a a='b' c='d'>bar</a>\n", render("%a{:a => 'b'}(c='d') bar"))
 
-    assert_equal("<a a='d'>bar</a>\n", render("%a{:a => 'b'}(a='d') bar"))
+    # Old-style always takes precedence over new-style,
+    # because theoretically old-style could have arbitrary end-of-method-call syntax.
+    assert_equal("<a a='b'>bar</a>\n", render("%a{:a => 'b'}(a='d') bar"))
     assert_equal("<a a='b'>bar</a>\n", render("%a(a='d'){:a => 'b'} bar"))
 
     assert_equal("<a a='b' b='c' c='d' d='e'>bar</a>\n",
       render("%a{:a => 'b',\n:b => 'c'}(c='d'\nd='e') bar"))
+
+    locals = {:b => 'b', :d => 'd'}
+    assert_equal("<p a='b' c='d'></p>\n", render("%p{:a => b}(c=d)", :locals => locals))
+    assert_equal("<p a='b' c='d'></p>\n", render("%p(a=b){:c => d}", :locals => locals))
   end
 
   # Ruby Multiline

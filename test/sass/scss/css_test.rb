@@ -49,11 +49,34 @@ baz {bar: baz}
 SCSS
   end
 
-  def test_unicode
-    assert_parses <<SCSS
+  if Haml::Util.ruby1_8?
+    def test_unicode
+      assert_parses <<SCSS
+@charset "UTF-8";
 foo {
   bar: föö bâr; }
 SCSS
+      assert_parses <<SCSS
+foo {
+  bar: föö bâr; }
+SCSS
+    end
+  else
+    def test_unicode
+      assert_parses <<SCSS
+@charset "UTF-8";
+foo {
+  bar: föö bâr; }
+SCSS
+      assert_equal <<CSS, render(<<SCSS)
+@charset "UTF-8";
+foo {
+  bar: föö bâr; }
+CSS
+foo {
+  bar: föö bâr; }
+SCSS
+    end
   end
 
   def test_invisible_comments
@@ -429,10 +452,6 @@ SCSS
 
   ## Directives
 
-  def test_charset_directive
-    assert_parses '@charset "utf-8";'
-  end
-
   def test_namespace_directive
     assert_parses '@namespace "http://www.w3.org/Profiles/xhtml1-strict";'
     assert_parses '@namespace url(http://www.w3.org/Profiles/xhtml1-strict);'
@@ -508,11 +527,11 @@ SCSS
   end
 
   def test_blockless_directive_without_semicolon
-    assert_equal "@charset \"utf-8\";\n", render('@charset "utf-8"')
+    assert_equal "@foo \"bar\";\n", render('@foo "bar"')
   end
 
   def test_directive_with_lots_of_whitespace
-    assert_equal "@charset \"utf-16\";\n", render('@charset    "utf-16"  ;')
+    assert_equal "@foo \"bar\";\n", render('@foo    "bar"  ;')
   end
 
   def test_empty_blockless_directive

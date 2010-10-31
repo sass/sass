@@ -579,17 +579,17 @@ END
       raise SyntaxError.new("Invalid tag: \"#{line}\".") unless match = line.scan(/%([-:\w]+)([-:\w\.\#]*)(.*)/)[0]
       tag_name, attributes, rest = match
       new_attributes_hash = old_attributes_hash = last_line = object_ref = nil
-      attributes_hashes = []
+      attributes_hashes = {}
       while rest
         case rest[0]
         when ?{
           break if old_attributes_hash
           old_attributes_hash, rest, last_line = parse_old_attributes(rest)
-          attributes_hashes << [:old, old_attributes_hash]
+          attributes_hashes[:old] = old_attributes_hash
         when ?(
           break if new_attributes_hash
           new_attributes_hash, rest, last_line = parse_new_attributes(rest)
-          attributes_hashes << [:new, new_attributes_hash]
+          attributes_hashes[:new] = new_attributes_hash
         when ?[
           break if object_ref
           object_ref, rest = balance(rest, ?[, ?])
@@ -757,16 +757,21 @@ END
       object_ref = "nil" if object_ref.nil? || @options[:suppress_eval]
 
       attributes = Precompiler.parse_class_and_id(attributes)
-      attributes_hashes.map! do |syntax, attributes_hash|
-        if syntax == :old
-          static_attributes = parse_static_hash(attributes_hash)
-          attributes_hash = nil if static_attributes || @options[:suppress_eval]
-        else
-          static_attributes, attributes_hash = attributes_hash
-        end
+      attributes_list = []
+
+      if attributes_hashes[:new]
+        static_attributes, attributes_hash = attributes_hashes[:new]
         Buffer.merge_attrs(attributes, static_attributes) if static_attributes
-        attributes_hash
-      end.compact!
+        attributes_list << attributes_hash
+      end
+
+      if attributes_hashes[:old]
+        static_attributes = parse_static_hash(attributes_hashes[:old])
+        Buffer.merge_attrs(attributes, static_attributes) if static_attributes
+        attributes_list << attributes_hashes[:old] unless static_attributes || @options[:suppress_eval]
+      end
+
+      attributes_list.compact!
 
       raise SyntaxError.new("Illegal nesting: nesting within a self-closing tag is illegal.", @next_line.index) if block_opened? && self_closing
       raise SyntaxError.new("There's no Ruby code for #{action} to evaluate.", last_line - 1) if parse && value.empty?
@@ -784,7 +789,7 @@ END
         (nuke_inner_whitespace && block_opened?)
 
       # Check if we can render the tag directly to text and not process it in the buffer
-      if object_ref == "nil" && attributes_hashes.empty? && !preserve_script
+      if object_ref == "nil" && attributes_list.empty? && !preserve_script
         tag_closed = !block_opened? && !self_closing && !parse
 
         open_tag  = prerender_tag(tag_name, self_closing, attributes)
@@ -803,18 +808,18 @@ END
       else
         flush_merged_text
         content = parse ? 'nil' : inspect_obj(value)
-        if attributes_hashes.empty?
-          attributes_hashes = ''
-        elsif attributes_hashes.size == 1
-          attributes_hashes = ", #{attributes_hashes.first}"
+        if attributes_list.empty?
+          attributes_list = ''
+        elsif attributes_list.size == 1
+          attributes_list = ", #{attributes_list.first}"
         else
-          attributes_hashes = ", (#{attributes_hashes.join(").merge(")})"
+          attributes_list = ", (#{attributes_list.join(").merge(")})"
         end
 
         args = [tag_name, self_closing, !block_opened?, preserve_tag, escape_html,
                 attributes, nuke_outer_whitespace, nuke_inner_whitespace
                ].map {|v| inspect_obj(v)}.join(', ')
-        push_silent "_hamlout.open_tag(#{args}, #{object_ref}, #{content}#{attributes_hashes})"
+        push_silent "_hamlout.open_tag(#{args}, #{object_ref}, #{content}#{attributes_list})"
         @dont_tab_up_next_text = @dont_indent_next_line = dont_indent_next_line
       end
 
