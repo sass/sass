@@ -2241,7 +2241,7 @@ SASS
 
     def test_same_charset_as_encoding
       assert_renders_encoded(<<CSS, <<SASS)
-@charset "utf-8";
+@charset "UTF-8";
 fóó {
   a: b; }
 CSS
@@ -2253,7 +2253,7 @@ SASS
 
     def test_different_charset_than_encoding
       assert_renders_encoded(<<CSS.force_encoding("IBM866"), <<SASS)
-@charset "ibm866";
+@charset "IBM866";
 fóó {
   a: b; }
 CSS
@@ -2265,6 +2265,7 @@ SASS
 
     def test_different_encoding_than_system
       assert_renders_encoded(<<CSS.encode("IBM866"), <<SASS.encode("IBM866"))
+@charset "IBM866";
 тАЬ {
   a: b; }
 CSS
@@ -2274,20 +2275,20 @@ SASS
     end
 
     def test_multibyte_charset
-      assert_renders_encoded(<<CSS.encode("UTF-16BE"), <<SASS.encode("UTF-16BE").force_encoding("UTF-8"))
-@charset "utf-16be";
+      assert_renders_encoded(<<CSS.encode("UTF-16LE"), <<SASS.encode("UTF-16LE").force_encoding("UTF-8"))
+@charset "UTF-16LE";
 fóó {
   a: b; }
 CSS
-@charset "utf-16be"
+@charset "utf-16le"
 fóó
   a: b
 SASS
     end
 
     def test_multibyte_charset_without_endian_specifier
-      assert_renders_encoded(<<CSS.encode("UTF-32LE"), <<SASS.encode("UTF-32LE").force_encoding("UTF-8"))
-@charset "utf-32";
+      assert_renders_encoded(<<CSS.encode("UTF-32BE"), <<SASS.encode("UTF-32BE").force_encoding("UTF-8"))
+@charset "UTF-32BE";
 fóó {
   a: b; }
 CSS
@@ -2299,6 +2300,7 @@ SASS
 
     def test_utf8_bom
       assert_renders_encoded(<<CSS, <<SASS.force_encoding("BINARY"))
+@charset "UTF-8";
 fóó {
   a: b; }
 CSS
@@ -2309,6 +2311,7 @@ SASS
 
     def test_utf16le_bom
       assert_renders_encoded(<<CSS.encode("UTF-16LE"), <<SASS.encode("UTF-16LE").force_encoding("BINARY"))
+@charset "UTF-16LE";
 fóó {
   a: b; }
 CSS
@@ -2319,6 +2322,7 @@ SASS
 
     def test_utf32be_bom
       assert_renders_encoded(<<CSS.encode("UTF-32BE"), <<SASS.encode("UTF-32BE").force_encoding("BINARY"))
+@charset "UTF-32BE";
 fóó {
   a: b; }
 CSS

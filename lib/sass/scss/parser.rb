@@ -98,7 +98,8 @@ module Sass
         node << comment
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :extend, :import, :media]
+      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :extend, :import,
+        :media, :charset]
 
       def directive
         return unless tok(/@/)
@@ -287,6 +288,13 @@ module Sass
         ss
 
         true
+      end
+
+      def charset_directive
+        tok! STRING
+        name = @scanner[1] || @scanner[2]
+        ss
+        node(Sass::Tree::CharsetNode.new(name))
       end
 
       def variable

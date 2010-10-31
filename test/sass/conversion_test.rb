@@ -607,6 +607,14 @@ foo {
 SCSS
   end
 
+  def test_charset
+    assert_renders <<SASS, <<SCSS
+@charset "utf-8"
+SASS
+@charset "utf-8";
+SCSS
+  end
+
   def test_for
     assert_renders <<SASS, <<SCSS
 foo
