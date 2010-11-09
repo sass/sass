@@ -146,7 +146,7 @@ RUBY
   def self.separator_for(op_name)
     case op_name
     when :comma; ", "
-    when :concat; " "
+    when :space; " "
     else; " #{Sass::Script::Lexer::OPERATORS_REVERSE[op_name]} "
     end
   end
@@ -182,8 +182,8 @@ RUBY
   test_precedence :plus, :div
   test_precedence :plus, :mod
 
-  assert_associative :comma, :concat
-  assert_associative :concat, :or
+  assert_associative :comma, :space
+  assert_associative :space, :or
   assert_associative :plus, :minus
   assert_associative :times, :div
   assert_associative :times, :mod

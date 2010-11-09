@@ -107,7 +107,7 @@ MSG
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing both literals
     #   separated by a space
-    def concat(other)
+    def space(other)
       Sass::Script::String.new("#{self.to_s} #{other.to_s}")
     end
 

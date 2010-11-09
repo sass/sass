@@ -123,14 +123,14 @@ module Sass
       end
 
       PRECEDENCE = [
-        :comma, :single_eq, :concat, :or, :and,
+        :comma, :single_eq, :space, :or, :and,
         [:eq, :neq],
         [:gt, :gte, :lt, :lte],
         [:plus, :minus],
         [:times, :div, :mod],
       ]
 
-      ASSOCIATIVE = [:comma, :concat, :plus, :times]
+      ASSOCIATIVE = [:comma, :space, :plus, :times]
 
       class << self
         # Returns an integer representing the precedence
@@ -219,23 +219,23 @@ RUBY
         return interp
       end
 
-      def interpolation(first = concat)
+      def interpolation(first = space)
         e = first
         while interp = try_tok(:begin_interpolation)
           wb = @lexer.whitespace?(interp)
           line = @lexer.line
           mid = parse_interpolated
           wa = @lexer.whitespace?
-          e = Script::Interpolation.new(e, mid, concat, wb, wa)
+          e = Script::Interpolation.new(e, mid, space, wb, wa)
           e.line = line
         end
         e
       end
 
-      def concat
+      def space
         return unless e = or_expr
         while sub = or_expr
-          e = node(Operation.new(e, sub, :concat))
+          e = node(Operation.new(e, sub, :space))
         end
         e
       end
@@ -280,7 +280,7 @@ RUBY
           c = assert_tok(:const)
           var = Script::Variable.new(c.value)
           if tok = (try_tok(:colon) || try_tok(:single_eq))
-            val = assert_expr(:concat)
+            val = assert_expr(:space)
 
             if tok.type == :single_eq
               val.context = :equals
