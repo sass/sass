@@ -235,6 +235,10 @@ SASS
   def test_ruby_equality
     assert_equal eval('"foo"'), eval('"foo"')
     assert_equal eval('1'), eval('1.0')
+    assert_equal eval('1 2 3.0'), eval('1 2 3')
+    assert_equal eval('1, 2, 3.0'), eval('1, 2, 3')
+    assert_equal eval('(1 2), (3, 4), (5 6)'), eval('(1 2), (3, 4), (5 6)')
+    assert_not_equal eval('1, 2, 3'), eval('1 2 3')
     assert_not_equal eval('1'), eval('"1"')
   end
 
@@ -313,6 +317,12 @@ SASS
     assert_equal "true", resolve("false != true")
     assert_equal "false", resolve("1em == 1px")
     assert_equal "false", resolve("12 != 12")
+    assert_equal "true", resolve("(foo bar baz) == (foo bar baz)")
+    assert_equal "true", resolve("(foo, bar, baz) == (foo, bar, baz)")
+    assert_equal "true", resolve('((1 2), (3, 4), (5 6)) == ((1 2), (3, 4), (5 6))')
+    assert_equal "true", resolve('((1 2), (3 4)) == (1 2, 3 4)')
+    assert_equal "false", resolve('((1, 2) (3, 4)) == (1, 2 3, 4)')
+    assert_equal "false", resolve('(1 2 3) == (1, 2, 3)')
   end
 
   def test_operation_precedence
