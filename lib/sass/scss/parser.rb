@@ -98,8 +98,8 @@ module Sass
         node << comment
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :extend, :import,
-        :media, :charset]
+      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :else,
+        :extend, :import, :media, :charset]
 
       def directive
         return unless tok(/@/)
@@ -206,6 +206,11 @@ module Sass
             @scanner.pos = pos
             node
           end
+      end
+
+      def else_directive
+        raise Sass::SyntaxError.new(
+          "Invalid CSS: @else must come after @if", :line => @line)
       end
 
       def extend_directive
