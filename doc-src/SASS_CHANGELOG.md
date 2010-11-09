@@ -7,6 +7,9 @@
 
 * Raise an error when `@else` appears without an `@if` in SCSS.
 
+* Fix some cases where `@if` rules were causing the line numbers in error reports
+  to become incorrect.
+
 ## 3.0.23
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.23).

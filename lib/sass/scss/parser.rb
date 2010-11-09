@@ -180,12 +180,14 @@ module Sass
         ss
         node = block(node(Sass::Tree::IfNode.new(expr)), :directive)
         pos = @scanner.pos
+        line = @line
         ss
 
         else_block(node) ||
           begin
             # Backtrack in case there are any comments we want to parse
             @scanner.pos = pos
+            @line = line
             node
           end
       end
@@ -198,12 +200,14 @@ module Sass
           :directive)
         node.add_else(else_node)
         pos = @scanner.pos
+        line = @line
         ss
 
         else_block(node) ||
           begin
             # Backtrack in case there are any comments we want to parse
             @scanner.pos = pos
+            @line = line
             node
           end
       end

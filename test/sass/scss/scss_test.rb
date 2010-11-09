@@ -1091,6 +1091,12 @@ b {
   }
 }
 SCSS
+  end
 
+  def test_if_error_line
+    assert_raise_line(2) {render(<<SCSS)}
+@if true {foo: bar}
+}
+SCSS
   end
 end
