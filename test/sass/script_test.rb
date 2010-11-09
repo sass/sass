@@ -103,7 +103,6 @@ class SassScriptTest < Test::Unit::TestCase
 
   def test_implicit_strings
     assert_equal Sass::Script::String.new("foo"), eval("foo")
-    assert_equal Sass::Script::String.new("foo bar"), eval("foo bar")
     assert_equal Sass::Script::String.new("foo/bar"), eval("foo/bar")
   end
 
@@ -321,6 +320,8 @@ SASS
     assert_equal "true", resolve("(foo, bar, baz) == (foo, bar, baz)")
     assert_equal "true", resolve('((1 2), (3, 4), (5 6)) == ((1 2), (3, 4), (5 6))')
     assert_equal "true", resolve('((1 2), (3 4)) == (1 2, 3 4)')
+    assert_equal "false", resolve('((1 2) 3) == (1 2 3)')
+    assert_equal "false", resolve('(1 (2 3)) == (1 2 3)')
     assert_equal "false", resolve('((1, 2) (3, 4)) == (1, 2 3, 4)')
     assert_equal "false", resolve('(1 2 3) == (1, 2, 3)')
   end

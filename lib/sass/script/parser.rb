@@ -130,7 +130,7 @@ module Sass
         [:times, :div, :mod],
       ]
 
-      ASSOCIATIVE = [:comma, :space, :plus, :times]
+      ASSOCIATIVE = [:plus, :times]
 
       class << self
         # Returns an integer representing the precedence
@@ -193,7 +193,18 @@ RUBY
       # @private
       def lexer_class; Lexer; end
 
-      production :expr, :interpolation, :comma
+      def expr
+        interp = try_ops_after_interp([:comma], :expr) and return interp
+        line = @lexer.line
+        return unless e = interpolation
+        arr = [e]
+        while tok = try_tok(:comma)
+          interp = try_op_before_interp(tok, e) and return interp
+          arr << assert_expr(:interpolation)
+        end
+        arr.size == 1 ? arr.first : node(List.new(arr, :comma), line)
+      end
+
       production :equals, :interpolation, :single_eq
 
       def try_op_before_interp(op, prev = nil)
@@ -233,11 +244,13 @@ RUBY
       end
 
       def space
+        line = @lexer.line
         return unless e = or_expr
-        while sub = or_expr
-          e = node(Operation.new(e, sub, :space))
+        arr = [e]
+        while e = or_expr
+          arr << e
         end
-        e
+        arr.size == 1 ? arr.first : node(List.new(arr, :space), line)
       end
 
       production :or_expr, :and_expr, :or
@@ -427,8 +440,8 @@ RUBY
         @lexer.expected!(EXPR_NAMES[:default])
       end
 
-      def node(node)
-        node.line = @lexer.line
+      def node(node, line = @lexer.line)
+        node.line = line
         node
       end
     end

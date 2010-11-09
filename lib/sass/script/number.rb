@@ -238,7 +238,7 @@ module Sass::Script
     # @return [String] The CSS representation of this number
     # @raise [Sass::SyntaxError] if this number has units that can't be used in CSS
     #   (e.g. `px*in`)
-    def to_s
+    def to_s(opts = {})
       return original if original
       raise Sass::SyntaxError.new("#{inspect} isn't a valid CSS value.") unless legal_units?
       inspect

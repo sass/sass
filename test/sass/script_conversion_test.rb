@@ -82,28 +82,6 @@ WARN
     assert_renders "$foo !important"
   end
 
-  def test_comma_operator
-    assert_renders "$foo, $bar $baz"
-    assert_renders "$foo $bar, $baz"
-
-    assert_renders "($foo, $bar) $baz"
-    assert_renders "$foo ($bar, $baz)"
-
-    assert_equal "$foo, $bar $baz", render("$foo, ($bar $baz)")
-    assert_equal "$foo $bar, $baz", render("($foo $bar), $baz")
-  end
-
-  def test_concat_operator
-    assert_renders "$foo $bar or $baz"
-    assert_renders "$foo or $bar $baz"
-
-    assert_renders "($foo $bar) or $baz"
-    assert_renders "$foo or ($bar $baz)"
-
-    assert_equal "$foo $bar or $baz", render("$foo ($bar or $baz)")
-    assert_equal "$foo or $bar $baz", render("($foo or $bar) $baz")
-  end
-
   def self.test_precedence(outer, inner)
     op_outer = Sass::Script::Lexer::OPERATORS_REVERSE[outer]
     op_inner = Sass::Script::Lexer::OPERATORS_REVERSE[inner]
@@ -182,8 +160,6 @@ RUBY
   test_precedence :plus, :div
   test_precedence :plus, :mod
 
-  assert_associative :comma, :space
-  assert_associative :space, :or
   assert_associative :plus, :minus
   assert_associative :times, :div
   assert_associative :times, :mod
@@ -195,6 +171,32 @@ RUBY
   assert_non_associative :gte, :lt
   assert_non_associative :lt, :lte
   assert_non_associative :lte, :gt
+
+  def test_comma_precedence
+    assert_renders "$foo, $bar, $baz"
+
+    assert_renders "$foo ($bar, $baz)"
+    assert_renders "($foo, $bar) $baz"
+
+    assert_equal "$foo, $bar $baz", render("$foo, ($bar $baz)")
+    assert_equal "$foo $bar, $baz", render("($foo $bar), $baz")
+
+    assert_equal "$foo, ($bar, $baz)", render("$foo, ($bar, $baz)")
+    assert_equal "($foo, $bar), $baz", render("($foo, $bar), $baz")
+  end
+
+  def test_space_precedence
+    assert_renders "$foo $bar $baz"
+
+    assert_renders "$foo or ($bar $baz)"
+    assert_renders "($foo $bar) or $baz"
+
+    assert_equal "$foo $bar or $baz", render("$foo ($bar or $baz)")
+    assert_equal "$foo or $bar $baz", render("($foo or $bar) $baz")
+
+    assert_equal "$foo ($bar $baz)", render("$foo ($bar $baz)")
+    assert_equal "($foo $bar) $baz", render("($foo $bar) $baz")
+  end
 
   def test_unary_op
     assert_renders "-12px"
