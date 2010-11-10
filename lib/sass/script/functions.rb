@@ -113,6 +113,17 @@ module Sass::Script
   # \{#abs abs($value)}
   # : Returns the absolute value of a number.
   #
+  # ## List Functions {#list-functions}
+  #
+  # \{#length length($list)}
+  # : Returns the length of a list.
+  #
+  # \{#nth nth($list, $n)}
+  # : Returns a specific item in a list.
+  #
+  # \{#join join($list1, $list2, \[$separator\])}
+  # : Joins together two lists into one.
+  #
   # ## Introspection Functions
   #
   # \{#type_of type-of($value)}
