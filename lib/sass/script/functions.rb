@@ -969,6 +969,29 @@ module Sass::Script
     end
     declare :length, [:list]
 
+    # Gets the nth item in a list.
+    #
+    # Note that unlike some languages, the first item in a Sass list is number 1,
+    # the second number 2, and so forth.
+    #
+    # @param list [Literal] The list
+    # @param n [Number] The index into the list
+    # @return [Literal] The nth item in the list
+    # @raise [ArgumentError] If `n` isn't an integer between 1 and the list's length.
+    def nth(list, n)
+      assert_type n, :Number
+      if !n.int?
+        raise ArgumentError.new("List index #{n} must be an integer")
+      elsif n.to_i < 1
+        raise ArgumentError.new("List index #{n} must be greater than or equal to 1")
+      elsif n.to_i > (size = list.to_a.size)
+        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
+      end
+
+      list.to_a[n.to_i - 1]
+    end
+    declare :nth, [:list, :n]
+
     private
 
     # This method implements the pattern of transforming a numeric value into
