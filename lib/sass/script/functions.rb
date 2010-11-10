@@ -912,7 +912,7 @@ module Sass::Script
     #   round(10.6px) => 11px
     # @param value [Number] The number
     # @return [Number] The rounded number
-    # @raise [Sass::SyntaxError] if `value` isn't a number
+    # @raise [ArgumentError] if `value` isn't a number
     def round(value)
       numeric_transformation(value) {|n| n.round}
     end
@@ -925,7 +925,7 @@ module Sass::Script
     #   ciel(10.6px) => 11px
     # @param value [Number] The number
     # @return [Number] The rounded number
-    # @raise [Sass::SyntaxError] if `value` isn't a number
+    # @raise [ArgumentError] if `value` isn't a number
     def ceil(value)
       numeric_transformation(value) {|n| n.ceil}
     end
@@ -938,7 +938,7 @@ module Sass::Script
     #   floor(10.6px) => 10px
     # @param value [Number] The number
     # @return [Number] The rounded number
-    # @raise [Sass::SyntaxError] if `value` isn't a number
+    # @raise [ArgumentError] if `value` isn't a number
     def floor(value)
       numeric_transformation(value) {|n| n.floor}
     end
@@ -951,7 +951,7 @@ module Sass::Script
     #   abs(-10px) => 10px
     # @param value [Number] The number
     # @return [Number] The absolute value
-    # @raise [Sass::SyntaxError] if `value` isn't a number
+    # @raise [ArgumentError] if `value` isn't a number
     def abs(value)
       numeric_transformation(value) {|n| n.abs}
     end
