@@ -599,6 +599,75 @@ MSG
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
+  def test_length
+    assert_equal("5", evaluate("length(1 2 3 4 5)"))
+    assert_equal("4", evaluate("length((foo, bar, baz, bip))"))
+    assert_equal("3", evaluate("length((foo, bar, baz bip))"))
+    assert_equal("3", evaluate("length((foo, bar, (baz, bip)))"))
+    assert_equal("1", evaluate("length(#f00)"))
+  end
+
+  def test_nth
+    assert_equal("1", evaluate("nth(1 2 3, 1)"))
+    assert_equal("2", evaluate("nth(1 2 3, 2)"))
+    assert_equal("3", evaluate("nth((1, 2, 3), 3)"))
+    assert_equal("foo", evaluate("nth(foo, 1)"))
+    assert_equal("bar baz", evaluate("nth(foo (bar baz) bang, 2)"))
+    assert_error_message("List index 0 must be greater than or equal to 1 for `nth'", "nth(foo, 0)")
+    assert_error_message("List index -10 must be greater than or equal to 1 for `nth'", "nth(foo, -10)")
+    assert_error_message("List index 1.5 must be an integer for `nth'", "nth(foo, 1.5)")
+    assert_error_message("List index is 5 but list is only 4 items long for `nth'", "nth(1 2 3 4, 5)")
+    assert_error_message("List index is 2 but list is only 1 item long for `nth'", "nth(foo, 2)")
+  end
+
+  def test_join
+    assert_equal("1 2 3", evaluate("join(1 2, 3)"))
+    assert_equal("1 2 3", evaluate("join(1, 2 3)"))
+    assert_equal("1 2 3 4", evaluate("join(1 2, 3 4)"))
+    assert_equal("true", evaluate("(1 2 3 4) == join(1 2, 3 4)"))
+    assert_equal("false", evaluate("(1 2 (3 4)) == join(1 2, 3 4)"))
+    assert_equal("1, 2, 3", evaluate("join((1, 2), 3)"))
+    assert_equal("1, 2, 3", evaluate("join(1, (2, 3))"))
+    assert_equal("1, 2, 3, 4", evaluate("join((1, 2), (3, 4))"))
+    assert_equal("true", evaluate("(1, 2, 3, 4) == join((1, 2), (3, 4))"))
+    assert_equal("false", evaluate("(1, 2, (3, 4)) == join((1, 2), (3, 4))"))
+
+    assert_equal("1 2", evaluate("join(1, 2)"))
+    assert_equal("1 2 3 4", evaluate("join(1 2, (3, 4))"))
+    assert_equal("1, 2, 3, 4", evaluate("join((1, 2), 3 4)"))
+
+    assert_equal("1 2", evaluate("join(1, 2, auto)"))
+    assert_equal("1, 2, 3, 4", evaluate("join(1 2, 3 4, comma)"))
+    assert_equal("1 2 3 4", evaluate("join((1, 2), (3, 4), space)"))
+    assert_equal("1, 2", evaluate("join(1, 2, comma)"))
+
+    assert_error_message("Separator name must be space, comma, or auto for `join'", "join(1, 2, baboon)")
+  end
+
+  def test_append
+    assert_equal("1 2 3", evaluate("append(1 2, 3)"))
+    assert_equal("1 2 3 4", evaluate("append(1 2, 3 4)"))
+    assert_equal("false", evaluate("(1 2 3 4) == append(1 2, 3 4)"))
+    assert_equal("true", evaluate("(1 2 (3 4)) == append(1 2, 3 4)"))
+    assert_equal("1, 2, 3", evaluate("append((1, 2), 3)"))
+    assert_equal("1, 2, 3, 4", evaluate("append((1, 2), (3, 4))"))
+    assert_equal("false", evaluate("(1, 2, 3, 4) == append((1, 2), (3, 4))"))
+    assert_equal("true", evaluate("(1, 2, (3, 4)) == append((1, 2), (3, 4))"))
+
+    assert_equal("1 2", evaluate("append(1, 2)"))
+    assert_equal("1 2 3, 4", evaluate("append(1 2, (3, 4))"))
+    assert_equal("true", evaluate("(1 2 (3, 4)) == append(1 2, (3, 4))"))
+    assert_equal("1, 2, 3 4", evaluate("append((1, 2), 3 4)"))
+    assert_equal("true", evaluate("(1, 2, 3 4) == append((1, 2), 3 4)"))
+
+    assert_equal("1 2", evaluate("append(1, 2, auto)"))
+    assert_equal("1, 2, 3 4", evaluate("append(1 2, 3 4, comma)"))
+    assert_equal("1 2 3, 4", evaluate("append((1, 2), (3, 4), space)"))
+    assert_equal("1, 2", evaluate("append(1, 2, comma)"))
+
+    assert_error_message("Separator name must be space, comma, or auto for `append'", "append(1, 2, baboon)")
+  end
+
   def test_keyword_args_rgb
     assert_equal(%Q{white}, evaluate("rgb($red: 255, $green: 255, $blue: 255)"))
   end

@@ -14,6 +14,7 @@ require 'sass/tree/extend_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
 require 'sass/tree/for_node'
+require 'sass/tree/each_node'
 require 'sass/tree/debug_node'
 require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
@@ -610,6 +611,8 @@ WARNING
         parse_mixin_include(line, root)
       elsif directive == "for"
         parse_for(line, root, value)
+      elsif directive == "each"
+        parse_each(line, root, value)
       elsif directive == "else"
         parse_else(parent, line, value)
       elsif directive == "while"
@@ -669,6 +672,27 @@ WARNING
       parsed_from = parse_script(from_expr, :offset => line.offset + line.text.index(from_expr))
       parsed_to = parse_script(to_expr, :offset => line.offset + line.text.index(to_expr))
       Tree::ForNode.new(var, parsed_from, parsed_to, to_name == 'to')
+    end
+
+    def parse_each(line, root, text)
+      var, list_expr = text.scan(/^([^\s]+)\s+in\s+(.+)$/).first
+
+      if var.nil? # scan failed, try to figure out why for error message
+        if text !~ /^[^\s]+/
+          expected = "variable name"
+        elsif text !~ /^[^\s]+\s+from\s+.+/
+          expected = "'in <expr>'"
+        end
+        raise SyntaxError.new("Invalid for directive '@each #{text}': expected #{expected}.")
+      end
+      raise SyntaxError.new("Invalid variable \"#{var}\".") unless var =~ Script::VALIDATE
+      if var.slice!(0) == ?!
+        offset = line.offset + line.text.index("!" + var) + 1
+        Script.var_warning(var, @line, offset, @options[:filename])
+      end
+
+      parsed_list = parse_script(list_expr, :offset => line.offset + line.text.index(list_expr))
+      Tree::EachNode.new(var, parsed_list)
     end
 
     def parse_else(parent, line, text)

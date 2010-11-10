@@ -38,6 +38,54 @@ The argument names for the built-in functions are listed
 Sass functions defined in Ruby can use the {Sass::Script::Functions.declare} method
 to declare the names of the arguments they take.
 
+### Lists
+
+Lists are now a first-class data type in Sass,
+alongside strings, numbers, colors, and booleans.
+They can be assigned to variables, passed to mixins,
+and used in CSS declarations.
+Just like the other data types (except booleans),
+Sass lists look just like their CSS counterparts.
+They can be separated either by spaces (e.g. `1px 2px 0 10px`)
+or by commas (e.g. `Helvetica, Arial, sans-serif`).
+In addition, individual values count as single-item lists.
+
+Lists won't behave any differently in Sass 3.1 than they did in 3.0.
+However, you can now do more with them using the new {file:Sass/Script/Functions.html#list-functions list functions}:
+
+* The {Sass::Script::Functions#nth `nth($list, $n)` function} returns the nth item in a list.
+  For example, `nth(1px 2px 10px, 2)` returns the second item, `2px`.
+  Note that lists in Sass start at 1, not at 0 like they do in some other languages.
+
+* The {Sass::Script::Functions#join `join($list1, $list2)` function}
+  joins together two lists into one.
+  For example, `join(1px 2px, 10px 5px)` returns `1px 2px 10px 5px`.
+
+* The {Sass::Script::Functions#append `append($list, $val)` function}
+  appends values to the end of a list.
+  For example, `append(1px 2px, 10px)` returns `1px 2px 10px`.
+
+* The {Sass::Script::Functions#join `length($list)` function}
+  returns the length of a list.
+  For example, `length(1px 2px 10px 5px)` returns `4`.
+
+For more details about lists see {file:SASS_REFERENCE.md#lists the reference}.
+
+#### `@each`
+
+There's also a new directive that makes use of lists.
+The {file:SASS_REFERENCE.md#each-directive `@each` directive} assigns a variable to each item in a list in turn,
+like `@for` does for numbers.
+This is useful for writing a bunch of similar styles
+without having to go to the trouble of creating a mixin.
+For example:
+
+    @each $animal in puma, sea-slug, egret, salamander {
+      .#{$animal}-icon {
+        background-image: url('/images/#{$animal}.png');
+      }
+    }
+
 ### Backwards Incompatibilities -- Must Read!
 
 * When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,

@@ -9,6 +9,7 @@ module Sass::Script
     require 'sass/script/number'
     require 'sass/script/color'
     require 'sass/script/bool'
+    require 'sass/script/list'
 
     # Returns the Ruby value of the literal.
     # The type of this value varies based on the subclass.
@@ -107,7 +108,7 @@ MSG
     # @param other [Literal] The right-hand side of the operator
     # @return [Script::String] A string containing both literals
     #   separated by a space
-    def concat(other)
+    def space(other)
       Sass::Script::String.new("#{self.to_s} #{other.to_s}")
     end
 
@@ -213,6 +214,14 @@ MSG
 
     # @raise [Sass::SyntaxError] if this literal isn't an integer
     def assert_int!; to_i; end
+
+    # Returns the value of this literal as a list.
+    # Single literals are considered the same as single-element lists.
+    #
+    # @return [Array<Literal>] The of this literal as a list
+    def to_a
+      [self]
+    end
 
     # Returns the string representation of this literal
     # as it would be output to the CSS document.

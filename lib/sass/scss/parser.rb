@@ -98,8 +98,8 @@ module Sass
         node << comment
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :extend, :import,
-        :media, :charset]
+      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :each, :while, :if,
+        :extend, :import, :media, :charset]
 
       def directive
         return unless tok(/@/)
@@ -167,6 +167,18 @@ module Sass
         ss
 
         block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)), :directive)
+      end
+
+      def each_directive
+        tok!(/\$/)
+        var = tok! IDENT
+        ss
+
+        tok!(/in/)
+        list = sass_script(:parse)
+        ss
+
+        block(node(Sass::Tree::EachNode.new(var, list)), :directive)
       end
 
       def while_directive
