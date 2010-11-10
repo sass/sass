@@ -655,6 +655,7 @@ but the {file:Sass/Script/Functions.html#list-functions Sass list functions}
 make them useful.
 The {Sass::Script::Functions#nth nth function} can access items in a list,
 and the {Sass::Script::Functions#join join function} can join multiple lists together.
+The [`@each` rule](#each-directive) can also add styles for each item in a list.
 
 In addition to containing simple values, lists can contain other lists.
 For example, `1px 2px, 5px 6px` is a two-item list
@@ -1473,6 +1474,33 @@ is compiled to:
       width: 4em; }
     .item-3 {
       width: 6em; }
+
+### `@each` {#each-directive}
+
+The `@each` rule has the form `@each $var in <list>`.
+`$var` can be any variable name, like `$length` or `$name`,
+and `<list>` is a SassScript expression that returns a list.
+
+The `@each` rule sets `$var` to each item in the list,
+then outputs the styles it contains using that value of `$var`.
+For example:
+
+    @each $animal in puma, sea-slug, egret, salamander {
+      .#{$animal}-icon {
+        background-image: url('/images/#{$animal}.png');
+      }
+    }
+
+is compiled to:
+
+   .puma-icon {
+     background-image: url('/images/puma.png'); }
+   .sea-slug-icon {
+     background-image: url('/images/sea-slug.png'); }
+   .egret-icon {
+     background-image: url('/images/egret.png'); }
+   .salamander-icon {
+     background-image: url('/images/salamander.png'); }
 
 ### `@while`
 
