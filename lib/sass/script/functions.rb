@@ -705,7 +705,7 @@ module Sass::Script
     #   mix(#f00, #00f) => #7f007f
     #   mix(#f00, #00f, 25%) => #3f00bf
     #   mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
-    # @overload mix(color1, color2, weight = 50%)
+    # @overload mix(color1, color2, weight: 50%)
     #   @param color1 [Color]
     #   @param color2 [Color]
     #   @param weight [Number] between 0% and 100%
@@ -994,6 +994,43 @@ module Sass::Script
       list.to_a[n.to_i - 1]
     end
     declare :nth, [:list, :n]
+
+    # Joins together two lists into a new list.
+    # Since individual values are the same as one-item lists,
+    # this can also join items onto the beginning or end of a list.
+    #
+    # Unless the `$separator` argument is passed,
+    # if one list is comma-separated and one is space-separated,
+    # the first parameter's separator is used for the resulting list.
+    # If the lists have only one item each, spaces are used for the resulting list.
+    #
+    # @example
+    #   join(10px 20px, 30px 40px) => 10px 20px 30px 40px
+    #   join((blue, red), (#abc, #def)) => blue, red, #abc, #def
+    #   join(10px, 20px) => 10px 20px
+    #   join(10px, 20px, comma) => 10px, 20px
+    #   join((blue, red), (#abc, #def), space) => blue red #abc #def
+    # @overload join(list1, list2, separator: auto)
+    #   @param list1 [Literal] The first list to join
+    #   @param list2 [Literal] The second list to join
+    #   @param separator [String] How the list separator (comma or space) should be determined.
+    #     If this is `comma` or `space`, that is always the separator;
+    #     if this is `auto` (the default), the separator is determined as explained above.
+    def join(list1, list2, separator = Sass::Script::String.new("auto"))
+      assert_type separator, :String
+      unless %w[auto space comma].include?(separator.value)
+        throw ArgumentError.new("Separator name must be space, comma, or auto")
+      end
+      sep1 = list1.separator if list1.is_a?(Sass::Script::List)
+      sep2 = list2.separator if list2.is_a?(Sass::Script::List)
+      Sass::Script::List.new(
+        list1.to_a + list2.to_a,
+        if separator.value == 'auto'
+          sep1 || sep2 || :space
+        else
+          separator.value.to_sym
+        end)
+    end
 
     private
 

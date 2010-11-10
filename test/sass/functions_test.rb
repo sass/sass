@@ -620,6 +620,24 @@ MSG
     assert_error_message("List index is 2 but list is only 1 item long for `nth'", "nth(foo, 2)")
   end
 
+  def test_join
+    assert_equal("1 2 3", evaluate("join(1 2, 3)"))
+    assert_equal("1 2 3", evaluate("join(1, 2 3)"))
+    assert_equal("1 2 3 4", evaluate("join(1 2, 3 4)"))
+    assert_equal("1, 2, 3", evaluate("join((1, 2), 3)"))
+    assert_equal("1, 2, 3", evaluate("join(1, (2, 3))"))
+    assert_equal("1, 2, 3, 4", evaluate("join((1, 2), (3, 4))"))
+
+    assert_equal("1 2", evaluate("join(1, 2)"))
+    assert_equal("1 2 3 4", evaluate("join(1 2, (3, 4))"))
+    assert_equal("1, 2, 3, 4", evaluate("join((1, 2), 3 4)"))
+
+    assert_equal("1 2", evaluate("join(1, 2, auto)"))
+    assert_equal("1, 2, 3, 4", evaluate("join(1 2, 3 4, comma)"))
+    assert_equal("1 2 3 4", evaluate("join((1, 2), (3, 4), space)"))
+    assert_equal("1, 2", evaluate("join(1, 2, comma)"))
+  end
+
   def test_keyword_args_rgb
     assert_equal(%Q{white}, evaluate("rgb($red: 255, $green: 255, $blue: 255)"))
   end
