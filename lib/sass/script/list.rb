@@ -1,4 +1,6 @@
 module Sass::Script
+  # A SassScript object representing a CSS list.
+  # This includes both comma-separated lists and space-separated lists.
   class List < Literal
     # The Ruby array containing the contents of the list.
     #
