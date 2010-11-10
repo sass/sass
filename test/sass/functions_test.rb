@@ -644,6 +644,30 @@ MSG
     assert_error_message("Separator name must be space, comma, or auto for `join'", "join(1, 2, baboon)")
   end
 
+  def test_append
+    assert_equal("1 2 3", evaluate("append(1 2, 3)"))
+    assert_equal("1 2 3 4", evaluate("append(1 2, 3 4)"))
+    assert_equal("false", evaluate("(1 2 3 4) == append(1 2, 3 4)"))
+    assert_equal("true", evaluate("(1 2 (3 4)) == append(1 2, 3 4)"))
+    assert_equal("1, 2, 3", evaluate("append((1, 2), 3)"))
+    assert_equal("1, 2, 3, 4", evaluate("append((1, 2), (3, 4))"))
+    assert_equal("false", evaluate("(1, 2, 3, 4) == append((1, 2), (3, 4))"))
+    assert_equal("true", evaluate("(1, 2, (3, 4)) == append((1, 2), (3, 4))"))
+
+    assert_equal("1 2", evaluate("append(1, 2)"))
+    assert_equal("1 2 3, 4", evaluate("append(1 2, (3, 4))"))
+    assert_equal("true", evaluate("(1 2 (3, 4)) == append(1 2, (3, 4))"))
+    assert_equal("1, 2, 3 4", evaluate("append((1, 2), 3 4)"))
+    assert_equal("true", evaluate("(1, 2, 3 4) == append((1, 2), 3 4)"))
+
+    assert_equal("1 2", evaluate("append(1, 2, auto)"))
+    assert_equal("1, 2, 3 4", evaluate("append(1 2, 3 4, comma)"))
+    assert_equal("1 2 3, 4", evaluate("append((1, 2), (3, 4), space)"))
+    assert_equal("1, 2", evaluate("append(1, 2, comma)"))
+
+    assert_error_message("Separator name must be space, comma, or auto for `append'", "append(1, 2, baboon)")
+  end
+
   def test_keyword_args_rgb
     assert_equal(%Q{white}, evaluate("rgb($red: 255, $green: 255, $blue: 255)"))
   end

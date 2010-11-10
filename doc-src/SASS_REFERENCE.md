@@ -654,7 +654,8 @@ On their own, lists don't do much,
 but the {file:Sass/Script/Functions.html#list-functions Sass list functions}
 make them useful.
 The {Sass::Script::Functions#nth nth function} can access items in a list,
-and the {Sass::Script::Functions#join join function} can join multiple lists together.
+the {Sass::Script::Functions#join join function} can join multiple lists together,
+and the {Sass::Script::Functions#append append function} can add items to lists.
 The [`@each` rule](#each-directive) can also add styles for each item in a list.
 
 In addition to containing simple values, lists can contain other lists.

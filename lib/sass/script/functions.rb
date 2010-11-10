@@ -1043,6 +1043,41 @@ module Sass::Script
     declare :join, [:list1, :list2]
     declare :join, [:list1, :list2, :separator]
 
+    # Appends a single value onto the end of a list.
+    #
+    # Unless the `$separator` argument is passed,
+    # if the list has only one item,
+    # the resulting list will be space-separated.
+    #
+    # @example
+    #   append(10px 20px, 30px) => 10px 20px 30px
+    #   append((blue, red), green) => blue, red, green
+    #   append(10px 20px, 30px 40px) => 10px 20px (30px 40px)
+    #   join(10px, 20px, comma) => 10px, 20px
+    #   join((blue, red), green, space) => blue red green
+    # @overload join(list, val, separator: auto)
+    #   @param list1 [Literal] The first list to join
+    #   @param list2 [Literal] The second list to join
+    #   @param separator [String] How the list separator (comma or space) should be determined.
+    #     If this is `comma` or `space`, that is always the separator;
+    #     if this is `auto` (the default), the separator is determined as explained above.
+    def append(list, val, separator = Sass::Script::String.new("auto"))
+      assert_type separator, :String
+      unless %w[auto space comma].include?(separator.value)
+        raise ArgumentError.new("Separator name must be space, comma, or auto")
+      end
+      sep = list.separator if list.is_a?(Sass::Script::List)
+      Sass::Script::List.new(
+        list.to_a + [val],
+        if separator.value == 'auto'
+          sep || :space
+        else
+          separator.value.to_sym
+        end)
+    end
+    declare :append, [:list, :val]
+    declare :append, [:list, :val, :separator]
+
     private
 
     # This method implements the pattern of transforming a numeric value into

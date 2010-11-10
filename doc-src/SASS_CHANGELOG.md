@@ -61,6 +61,10 @@ However, you can now do more with them using the new {file:Sass/Script/Functions
   joins together two lists into one.
   For example, `join(1px 2px, 10px 5px)` returns `1px 2px 10px 5px`.
 
+* The {Sass::Script::Functions#append `append($list, $val)` function}
+  appends values to the end of a list.
+  For example, `append(1px 2px, 10px)` returns `1px 2px 10px`.
+
 * The {Sass::Script::Functions#join `length($list)` function}
   returns the length of a list.
   For example, `length(1px 2px 10px 5px)` returns `4`.
