@@ -19,7 +19,7 @@ module Sass::Script
     #
     # @param value [Array<Literal>] See \{#value}
     # @param separator [String] See \{#separator}
-    def initialize(value, separator = :space)
+    def initialize(value, separator)
       super(value)
       @separator = separator
     end
