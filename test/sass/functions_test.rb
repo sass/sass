@@ -599,6 +599,14 @@ MSG
     assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
+  def test_length
+    assert_equal("5", evaluate("length(1 2 3 4 5)"))
+    assert_equal("4", evaluate("length((foo, bar, baz, bip))"))
+    assert_equal("3", evaluate("length((foo, bar, baz bip))"))
+    assert_equal("3", evaluate("length((foo, bar, (baz, bip)))"))
+    assert_equal("1", evaluate("length(#f00)"))
+  end
+
   def test_keyword_args_rgb
     assert_equal(%Q{white}, evaluate("rgb($red: 255, $green: 255, $blue: 255)"))
   end

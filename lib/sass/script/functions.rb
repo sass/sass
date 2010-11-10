@@ -957,6 +957,18 @@ module Sass::Script
     end
     declare :abs, [:value]
 
+    # Return the length of a list.
+    #
+    # @example
+    #   length(10px) => 1
+    #   length(10px 20px 30px) => 3
+    # @param list [Literal] The list
+    # @return [Number] The length
+    def length(list)
+      Sass::Script::Number.new(list.to_a.size)
+    end
+    declare :length, [:list]
+
     private
 
     # This method implements the pattern of transforming a numeric value into

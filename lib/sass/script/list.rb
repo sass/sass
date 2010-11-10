@@ -7,6 +7,7 @@ module Sass::Script
     # @return [Array<Literal>]
     attr_reader :value
     alias_method :children, :value
+    alias_method :to_a, :value
 
     # The operator separating the values of the list.
     # Either `:comma` or `:space`.

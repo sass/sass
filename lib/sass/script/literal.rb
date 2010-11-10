@@ -215,6 +215,14 @@ MSG
     # @raise [Sass::SyntaxError] if this literal isn't an integer
     def assert_int!; to_i; end
 
+    # Returns the value of this literal as a list.
+    # Single literals are considered the same as single-element lists.
+    #
+    # @return [Array<Literal>] The of this literal as a list
+    def to_a
+      [self]
+    end
+
     # Returns the string representation of this literal
     # as it would be output to the CSS document.
     #
