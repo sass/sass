@@ -59,7 +59,6 @@ However, you can now do more with them using the new {file:Sass/Script/Functions
 
 * The {Sass::Script::Functions#join `join($list1, $list2)` function}
   joins together two lists into one.
-  Since values are lists as well, it can also be used to add items onto lists.
   For example, `join(1px 2px, 10px 5px)` returns `1px 2px 10px 5px`.
 
 * The {Sass::Script::Functions#join `length($list)` function}

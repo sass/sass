@@ -624,9 +624,13 @@ MSG
     assert_equal("1 2 3", evaluate("join(1 2, 3)"))
     assert_equal("1 2 3", evaluate("join(1, 2 3)"))
     assert_equal("1 2 3 4", evaluate("join(1 2, 3 4)"))
+    assert_equal("true", evaluate("(1 2 3 4) == join(1 2, 3 4)"))
+    assert_equal("false", evaluate("(1 2 (3 4)) == join(1 2, 3 4)"))
     assert_equal("1, 2, 3", evaluate("join((1, 2), 3)"))
     assert_equal("1, 2, 3", evaluate("join(1, (2, 3))"))
     assert_equal("1, 2, 3, 4", evaluate("join((1, 2), (3, 4))"))
+    assert_equal("true", evaluate("(1, 2, 3, 4) == join((1, 2), (3, 4))"))
+    assert_equal("false", evaluate("(1, 2, (3, 4)) == join((1, 2), (3, 4))"))
 
     assert_equal("1 2", evaluate("join(1, 2)"))
     assert_equal("1 2 3 4", evaluate("join(1 2, (3, 4))"))
@@ -636,6 +640,8 @@ MSG
     assert_equal("1, 2, 3, 4", evaluate("join(1 2, 3 4, comma)"))
     assert_equal("1 2 3 4", evaluate("join((1, 2), (3, 4), space)"))
     assert_equal("1, 2", evaluate("join(1, 2, comma)"))
+
+    assert_error_message("Separator name must be space, comma, or auto for `join'", "join(1, 2, baboon)")
   end
 
   def test_keyword_args_rgb

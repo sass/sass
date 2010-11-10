@@ -1007,8 +1007,6 @@ module Sass::Script
     declare :nth, [:list, :n]
 
     # Joins together two lists into a new list.
-    # Since individual values are the same as one-item lists,
-    # this can also join items onto the beginning or end of a list.
     #
     # Unless the `$separator` argument is passed,
     # if one list is comma-separated and one is space-separated,
@@ -1030,7 +1028,7 @@ module Sass::Script
     def join(list1, list2, separator = Sass::Script::String.new("auto"))
       assert_type separator, :String
       unless %w[auto space comma].include?(separator.value)
-        throw ArgumentError.new("Separator name must be space, comma, or auto")
+        raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
       sep1 = list1.separator if list1.is_a?(Sass::Script::List)
       sep2 = list2.separator if list2.is_a?(Sass::Script::List)
@@ -1042,6 +1040,8 @@ module Sass::Script
           separator.value.to_sym
         end)
     end
+    declare :join, [:list1, :list2]
+    declare :join, [:list1, :list2, :separator]
 
     private
 
