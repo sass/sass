@@ -974,6 +974,9 @@ module Sass::Script
     # Note that unlike some languages, the first item in a Sass list is number 1,
     # the second number 2, and so forth.
     #
+    # @example
+    #   nth(10px 20px 30px, 1) => 10px
+    #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
     # @param list [Literal] The list
     # @param n [Number] The index into the list
     # @return [Literal] The nth item in the list
