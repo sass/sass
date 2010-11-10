@@ -1281,6 +1281,29 @@ a
 SASS
   end
 
+  def test_each
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: 1px;
+  b: 2px;
+  b: 3px;
+  b: 4px;
+  c: foo;
+  c: bar;
+  c: baz;
+  c: bang;
+  d: blue; }
+CSS
+a
+  @each $number in 1px 2px 3px 4px
+    b: $number
+  @each $str in foo, bar, baz, bang
+    c: $str
+  @each $single in blue
+    d: $single
+SASS
+  end
+
   def test_variable_reassignment
     assert_equal(<<CSS, render(<<SASS))
 a {

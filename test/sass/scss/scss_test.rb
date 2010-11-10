@@ -235,6 +235,33 @@ $i: 1;
 SCSS
   end
 
+  def test_each_directive
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  b: 1px;
+  b: 2px;
+  b: 3px;
+  b: 4px; }
+
+c {
+  d: foo;
+  d: bar;
+  d: baz;
+  d: bang; }
+CSS
+a {
+  @each $number in 1px 2px 3px 4px {
+    b: $number;
+  }
+}
+c {
+  @each $str in foo, bar, baz, bang {
+    d: $str;
+  }
+}
+SCSS
+  end
+
   def test_css_import_directive
     assert_equal "@import url(foo.css);\n", render('@import "foo.css";')
     assert_equal "@import url(foo.css);\n", render("@import 'foo.css';")

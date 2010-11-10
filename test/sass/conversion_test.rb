@@ -675,6 +675,26 @@ foo {
 SCSS
   end
 
+  def test_each
+    assert_renders <<SASS, <<SCSS
+a
+  @each $number in 1px 2px 3px 4px
+    b: $number
+
+c
+  @each $str in foo, bar, baz, bang
+    d: $str
+SASS
+a {
+  @each $number in 1px 2px 3px 4px {
+    b: $number; } }
+
+c {
+  @each $str in foo, bar, baz, bang {
+    d: $str; } }
+SCSS
+  end
+
   def test_import
     assert_renders <<SASS, <<SCSS
 @import foo
