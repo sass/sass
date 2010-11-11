@@ -2374,7 +2374,19 @@ SASS
   end
 
   def test_nested_media_around_properties
-    sass_str = <<SASS
+    assert_equal <<CSS, render(<<SASS)
+.outside {
+  color: red;
+  background: blue; }
+  @media print {
+    .outside {
+      color: black; } }
+    @media print and nested {
+      .outside .inside {
+        border: 1px solid black; } }
+  .outside .middle {
+    display: block; }
+CSS
 .outside
   color: red
   @media print
@@ -2386,24 +2398,6 @@ SASS
   .middle
     display: block
 SASS
-    css_str = <<CSS
-.outside {
-  color: red; }
-
-@media print {
-  .outside {
-    color: black; } }
-
-@media (print) and (nested) {
-  .outside .inside {
-    border: 1px solid black; } }
-
-.outside {
-  background: blue; }
-  .outside .middle {
-    display: block; }
-CSS
-    assert_equal css_str, render(sass_str)
   end
 
   def test_media_with_parent_references
