@@ -21,7 +21,12 @@ module Sass::Tree
     def initialize(query)
       @query = query
       @tabs = 0
-      super("@media #{query}")
+      super('')
+    end
+
+    # @see DirectiveNode#value
+    def value
+      "@media #{query}"
     end
 
     # Pass on the parent if it's a RuleNode.
@@ -36,11 +41,22 @@ module Sass::Tree
 
     protected
 
+    # Merge nested media queries.
+    #
+    # @see Node#_cssize
+    def _cssize(extends, parent)
+      node = super
+      media = node.children.select {|c| c.is_a?(MediaNode)}
+      node.children.reject! {|c| c.is_a?(MediaNode)}
+      media.each {|n| n.query = "#{query} and #{n.query}"}
+      (node.children.empty? ? [] : [node]) + media
+    end
+
     # If we're passed a parent, bubble it down.
     #
     # @see Node#cssize
     def cssize!(extends, parent)
-      return super unless parent
+      return super unless parent.is_a?(RuleNode)
       new_rule = parent.dup
       new_rule.children = self.children
       self.children = Array(new_rule.cssize(extends, self))

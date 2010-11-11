@@ -2327,6 +2327,34 @@ CSS
 SASS
   end
 
+  def test_double_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media bar and baz {
+  .foo {
+    c: d; } }
+CSS
+@media bar
+  @media baz
+    .foo
+      c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media bar {
+  .foo {
+    a: b; } }
+  @media bar and baz {
+    .foo {
+      c: d; } }
+CSS
+.foo
+  @media bar
+    a: b
+    @media baz
+      c: d
+SASS
+  end
+
   def test_rule_media_rule_bubbling
     assert_equal <<CSS, render(<<SASS)
 @media bar {

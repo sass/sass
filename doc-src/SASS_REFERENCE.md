@@ -1111,6 +1111,26 @@ is compiled to:
       }
     }
 
+`@media` queries can also be nested within one another.
+The queries will then be combined using the `and` operator.
+For example:
+
+    @media screen {
+      .sidebar {
+        @media (orientation: landscape) {
+          width: 500px;
+        }
+      }
+    }
+
+is compiled to:
+
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
 ### `@extend` {#extend}
 
 There are often cases when designing a page
