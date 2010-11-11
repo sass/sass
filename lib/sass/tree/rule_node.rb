@@ -197,8 +197,8 @@ module Sass::Tree
     #   or nil if the parent isn't a {RuleNode}
     def _cssize(extends, parent)
       node = super
-      rules = node.children.grep(RuleNode)
-      props = node.children.reject {|c| c.is_a?(RuleNode) || c.invisible?}
+      rules = node.children.select {|c| c.is_a?(RuleNode) || c.is_a?(MediaNode)}
+      props = node.children.reject {|c| c.is_a?(RuleNode) || c.is_a?(MediaNode) || c.invisible?}
 
       unless props.empty?
         node.children = props
@@ -220,7 +220,8 @@ module Sass::Tree
     #   or nil if the parent isn't a {RuleNode}
     # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
     def cssize!(extends, parent)
-      self.resolved_rules = @parsed_rules.resolve_parent_refs(parent && parent.resolved_rules)
+      # It's possible for resolved_rules to be set if we've duplicated this node during @media bubbling
+      self.resolved_rules ||= @parsed_rules.resolve_parent_refs(parent && parent.resolved_rules)
       super
     end
 
