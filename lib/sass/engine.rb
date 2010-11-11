@@ -7,6 +7,7 @@ require 'sass/tree/rule_node'
 require 'sass/tree/comment_node'
 require 'sass/tree/prop_node'
 require 'sass/tree/directive_node'
+require 'sass/tree/media_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
@@ -645,6 +646,8 @@ WARNING
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath charset directives.",
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
+      elsif directive == "media"
+        Tree::MediaNode.new(value)
       else
         Tree::DirectiveNode.new(line.text)
       end

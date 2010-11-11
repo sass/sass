@@ -1081,6 +1081,56 @@ and you can do
 
 and `_colors.scss` would be imported.
 
+### `@media` {#media}
+
+`@media` directives in Sass behave just like they do in plain CSS,
+with one extra capability: they can be nested in CSS rules.
+If a `@media` directive appears within a CSS rule,
+it will be bubbled up to the top level of the stylesheet,
+putting all the selectors on the way inside the rule.
+This makes it easy to add media-specific styles
+without having to repeat selectors
+or break the flow of the stylesheet.
+For example:
+
+    .sidebar {
+      width: 300px;
+      @media screen and (orientation: landscape) {
+        width: 500px;
+      }
+    }
+
+is compiled to:
+
+    .sidebar {
+      width: 300px;
+    }
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
+`@media` queries can also be nested within one another.
+The queries will then be combined using the `and` operator.
+For example:
+
+    @media screen {
+      .sidebar {
+        @media (orientation: landscape) {
+          width: 500px;
+        }
+      }
+    }
+
+is compiled to:
+
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
 ### `@extend` {#extend}
 
 There are often cases when designing a page

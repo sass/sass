@@ -97,6 +97,58 @@ is compiled to:
     .salamander-icon {
       background-image: url('/images/salamander.png'); }
 
+### `@media` Bubbling
+
+Modern stylesheets often use `@media` rules to target styles
+at certain sorts of devices, screen resolutions, or even orientations.
+They're also useful for print and aural styling.
+Unfortunately, it's annoying and repetitive to break the flow of a stylesheet
+and add a `@media` rule containing selectors you've already written
+just to tweak the style a little.
+
+Thus, Sass 3.1 now allows you to nest `@media` rules within selectors.
+It will automatically bubble them up to the top level,
+putting all the selectors on the way inside the rule.
+For example:
+
+    .sidebar {
+      width: 300px;
+      @media screen and (orientation: landscape) {
+        width: 500px;
+      }
+    }
+
+is compiled to:
+
+    .sidebar {
+      width: 300px;
+    }
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
+You can also nest `@media` directives within one another.
+The queries will then be combined using the `and` operator.
+For example:
+
+    @media screen {
+      .sidebar {
+        @media (orientation: landscape) {
+          width: 500px;
+        }
+      }
+    }
+
+is compiled to:
+
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
 ### Backwards Incompatibilities -- Must Read!
 
 * When `@import` is given a path without `.sass`, `.scss`, or `.css` extension,
