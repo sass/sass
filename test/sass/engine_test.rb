@@ -2241,6 +2241,110 @@ foo
 SASS
   end
 
+  def test_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+.foo {
+  a: b; }
+  @media bar {
+    .foo {
+      c: d; } }
+  .foo .baz {
+    e: f; }
+    @media bip {
+      .foo .baz {
+        g: h; } }
+
+.other {
+  i: j; }
+CSS
+.foo
+  a: b
+  @media bar
+    c: d
+  .baz
+    e: f
+    @media bip
+      g: h
+
+.other
+  i: j
+SASS
+
+    assert_equal <<CSS, render(<<SASS, :style => :compact)
+.foo { a: b; }
+@media bar { .foo { c: d; } }
+.foo .baz { e: f; }
+@media bip { .foo .baz { g: h; } }
+
+.other { i: j; }
+CSS
+.foo
+  a: b
+  @media bar
+    c: d
+  .baz
+    e: f
+    @media bip
+      g: h
+
+.other
+  i: j
+SASS
+
+    assert_equal <<CSS, render(<<SASS, :style => :expanded)
+.foo {
+  a: b;
+}
+@media bar {
+  .foo {
+    c: d;
+  }
+}
+.foo .baz {
+  e: f;
+}
+@media bip {
+  .foo .baz {
+    g: h;
+  }
+}
+
+.other {
+  i: j;
+}
+CSS
+.foo
+  a: b
+  @media bar
+    c: d
+  .baz
+    e: f
+    @media bip
+      g: h
+
+.other
+  i: j
+SASS
+  end
+
+  def test_rule_media_rule_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media bar {
+  .foo {
+    a: b;
+    e: f; }
+    .foo .baz {
+      c: d; } }
+CSS
+.foo
+  @media bar
+    a: b
+    .baz
+      c: d
+    e: f
+SASS
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?
