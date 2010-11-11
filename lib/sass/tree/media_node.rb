@@ -60,6 +60,9 @@ module Sass::Tree
       new_rule = parent.dup
       new_rule.children = self.children
       self.children = Array(new_rule.cssize(extends, self))
+      # If the last child is actually the end of the group,
+      # the parent's cssize will set it properly
+      self.children.last.group_end = false unless self.children.empty?
     end
 
     # @see Node#to_s
