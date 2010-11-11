@@ -1494,14 +1494,14 @@ For example:
 
 is compiled to:
 
-   .puma-icon {
-     background-image: url('/images/puma.png'); }
-   .sea-slug-icon {
-     background-image: url('/images/sea-slug.png'); }
-   .egret-icon {
-     background-image: url('/images/egret.png'); }
-   .salamander-icon {
-     background-image: url('/images/salamander.png'); }
+    .puma-icon {
+      background-image: url('/images/puma.png'); }
+    .sea-slug-icon {
+      background-image: url('/images/sea-slug.png'); }
+    .egret-icon {
+      background-image: url('/images/egret.png'); }
+    .salamander-icon {
+      background-image: url('/images/salamander.png'); }
 
 ### `@while`
 
