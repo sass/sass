@@ -53,11 +53,8 @@ module Sass::Tree
     # @param rule [Array<String, Sass::Script::Node>]
     #   The CSS rule. See \{#rule}
     def initialize(rule)
-      #p rule
       merged = Sass::Util.merge_adjacent_strings(rule)
-      #p merged
       @rule = Sass::Util.strip_string_array(merged)
-      #p @rule
       @tabs = 0
       super()
     end
