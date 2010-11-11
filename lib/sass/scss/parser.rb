@@ -253,7 +253,7 @@ module Sass
 
       def media_directive
         val = str {media_query_list}.strip
-        block(node(Sass::Tree::DirectiveNode.new("@media #{val}")), :directive)
+        block(node(Sass::Tree::MediaNode.new(val)), :directive)
       end
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
