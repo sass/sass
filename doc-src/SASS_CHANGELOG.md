@@ -25,7 +25,7 @@ For example, with mixins:
 And with functions:
 
     p {
-      color: hsl($hue: 180, $saturation: 78%, lightness: 57%);
+      color: hsl($hue: 180, $saturation: 78%, $lightness: 57%);
     }
 
 Keyword arguments are of the form `$name: value` and come after normal arguments.
