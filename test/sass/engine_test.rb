@@ -2373,6 +2373,54 @@ CSS
 SASS
   end
 
+  def test_nested_media_around_properties
+    sass_str = <<SASS
+.outside
+  color: red
+  @media print
+    color: black
+    .inside
+      @media nested
+        border: 1px solid black
+  background: blue
+  .middle
+    display: block
+SASS
+    css_str = <<CSS
+.outside {
+  color: red; }
+
+@media print {
+  .outside {
+    color: black; } }
+
+@media (print) and (nested) {
+  .outside .inside {
+    border: 1px solid black; } }
+
+.outside {
+  background: blue; }
+  .outside .middle {
+    display: block; }
+CSS
+    assert_equal css_str, render(sass_str)
+  end
+
+  def test_media_with_parent_references
+    sass_str = <<SASS
+.outside
+  @media print
+    &.inside
+      border: 1px solid black
+SASS
+    css_str = <<CSS
+@media print {
+  .outside.inside {
+    border: 1px solid black; } }
+CSS
+    assert_equal css_str, render(sass_str)
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?
