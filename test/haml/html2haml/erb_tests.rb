@@ -423,4 +423,18 @@ HAML
 </table>
 ERB
   end
+
+  def test_silent_inside_block_inside_tag
+    assert_equal(<<HAML.rstrip, render_erb(<<ERB))
+%table
+  - foo.each do
+    - haml_puts "foo"
+HAML
+<table>
+  <% foo.each do %>
+    <% haml_puts "foo" %>
+  <% end %>
+</table>
+ERB
+  end
 end
