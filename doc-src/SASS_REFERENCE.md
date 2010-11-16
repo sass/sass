@@ -606,6 +606,7 @@ SassScript supports four main data types:
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
+* lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
 
 SassScript also supports all other types of CSS property value,
 such as Unicode ranges and `!important` declarations.
@@ -641,6 +642,42 @@ is compiled to:
 It's also worth noting that when using the [deprecated `=` property syntax](#sassscript),
 all strings are interpreted as unquoted,
 regardless of whether or not they're written with quotes.
+
+#### Lists
+
+Lists are how Sass represents the values of CSS declarations
+like `margin: 10px 15px 0 0` or `font-face: Helvetica, Arial, sans-serif`.
+Lists are just a series of other values, separated by either spaces or commas.
+In fact, individual values count as lists, too: they're just lists with one item.
+
+On their own, lists don't do much,
+but the {file:Sass/Script/Functions.html#list-functions Sass list functions}
+make them useful.
+The {Sass::Script::Functions#nth nth function} can access items in a list,
+the {Sass::Script::Functions#join join function} can join multiple lists together,
+and the {Sass::Script::Functions#append append function} can add items to lists.
+The [`@each` rule](#each-directive) can also add styles for each item in a list.
+
+In addition to containing simple values, lists can contain other lists.
+For example, `1px 2px, 5px 6px` is a two-item list
+containing the list `1px 2px` and the list `5px 6px`.
+If the inner lists have the same separator as the outer list,
+you'll need to use parentheses to make it clear
+where the inner lists start and stop.
+For example, `(1px 2px) (5px 6px)` is also a two-item list
+containing the list `1px 2px` and the list `5px 6px`.
+The difference is that the outer list is space-separated,
+where before it was comma-separated.
+
+When lists are turned into plain CSS, Sass doesn't add any parentheses,
+since CSS doesn't understand them.
+That means that `(1px 2px) (5px 6px)` and `1px 2px 5px 6px`
+will look the same when they become CSS.
+However, they aren't the same when they're Sass:
+the first is a list containing two lists,
+while the second is a list containing four numbers.
+
+It's not possible to have a list with zero elements in Sass.
 
 ### Operations
 
@@ -850,6 +887,12 @@ is compiled to:
 SassScript supports `and`, `or`, and `not` operators
 for boolean values.
 
+#### List Operations
+
+Lists don't support any special operations.
+Instead, they're manipulated using the
+{file:Sass/Script/Functions.html#list-functions list functions}.
+
 ### Parentheses
 
 Parentheses can be used to affect the order of operations:
@@ -1037,6 +1080,56 @@ and you can do
     @import "colors";
 
 and `_colors.scss` would be imported.
+
+### `@media` {#media}
+
+`@media` directives in Sass behave just like they do in plain CSS,
+with one extra capability: they can be nested in CSS rules.
+If a `@media` directive appears within a CSS rule,
+it will be bubbled up to the top level of the stylesheet,
+putting all the selectors on the way inside the rule.
+This makes it easy to add media-specific styles
+without having to repeat selectors
+or break the flow of the stylesheet.
+For example:
+
+    .sidebar {
+      width: 300px;
+      @media screen and (orientation: landscape) {
+        width: 500px;
+      }
+    }
+
+is compiled to:
+
+    .sidebar {
+      width: 300px;
+    }
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
+`@media` queries can also be nested within one another.
+The queries will then be combined using the `and` operator.
+For example:
+
+    @media screen {
+      .sidebar {
+        @media (orientation: landscape) {
+          width: 500px;
+        }
+      }
+    }
+
+is compiled to:
+
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
 
 ### `@extend` {#extend}
 
@@ -1432,6 +1525,33 @@ is compiled to:
       width: 4em; }
     .item-3 {
       width: 6em; }
+
+### `@each` {#each-directive}
+
+The `@each` rule has the form `@each $var in <list>`.
+`$var` can be any variable name, like `$length` or `$name`,
+and `<list>` is a SassScript expression that returns a list.
+
+The `@each` rule sets `$var` to each item in the list,
+then outputs the styles it contains using that value of `$var`.
+For example:
+
+    @each $animal in puma, sea-slug, egret, salamander {
+      .#{$animal}-icon {
+        background-image: url('/images/#{$animal}.png');
+      }
+    }
+
+is compiled to:
+
+    .puma-icon {
+      background-image: url('/images/puma.png'); }
+    .sea-slug-icon {
+      background-image: url('/images/sea-slug.png'); }
+    .egret-icon {
+      background-image: url('/images/egret.png'); }
+    .salamander-icon {
+      background-image: url('/images/salamander.png'); }
 
 ### `@while`
 

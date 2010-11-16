@@ -25,7 +25,7 @@ For example, with mixins:
 And with functions:
 
     p {
-      color: hsl($hue: 180, $saturation: 78%, lightness: 57%);
+      color: hsl($hue: 180, $saturation: 78%, $lightness: 57%);
     }
 
 Keyword arguments are of the form `$name: value` and come after normal arguments.
@@ -37,6 +37,117 @@ The argument names for the built-in functions are listed
 
 Sass functions defined in Ruby can use the {Sass::Script::Functions.declare} method
 to declare the names of the arguments they take.
+
+### Lists
+
+Lists are now a first-class data type in Sass,
+alongside strings, numbers, colors, and booleans.
+They can be assigned to variables, passed to mixins,
+and used in CSS declarations.
+Just like the other data types (except booleans),
+Sass lists look just like their CSS counterparts.
+They can be separated either by spaces (e.g. `1px 2px 0 10px`)
+or by commas (e.g. `Helvetica, Arial, sans-serif`).
+In addition, individual values count as single-item lists.
+
+Lists won't behave any differently in Sass 3.1 than they did in 3.0.
+However, you can now do more with them using the new {file:Sass/Script/Functions.html#list-functions list functions}:
+
+* The {Sass::Script::Functions#nth `nth($list, $n)` function} returns the nth item in a list.
+  For example, `nth(1px 2px 10px, 2)` returns the second item, `2px`.
+  Note that lists in Sass start at 1, not at 0 like they do in some other languages.
+
+* The {Sass::Script::Functions#join `join($list1, $list2)` function}
+  joins together two lists into one.
+  For example, `join(1px 2px, 10px 5px)` returns `1px 2px 10px 5px`.
+
+* The {Sass::Script::Functions#append `append($list, $val)` function}
+  appends values to the end of a list.
+  For example, `append(1px 2px, 10px)` returns `1px 2px 10px`.
+
+* The {Sass::Script::Functions#join `length($list)` function}
+  returns the length of a list.
+  For example, `length(1px 2px 10px 5px)` returns `4`.
+
+For more details about lists see {file:SASS_REFERENCE.md#lists the reference}.
+
+#### `@each`
+
+There's also a new directive that makes use of lists.
+The {file:SASS_REFERENCE.md#each-directive `@each` directive} assigns a variable to each item in a list in turn,
+like `@for` does for numbers.
+This is useful for writing a bunch of similar styles
+without having to go to the trouble of creating a mixin.
+For example:
+
+    @each $animal in puma, sea-slug, egret, salamander {
+      .#{$animal}-icon {
+        background-image: url('/images/#{$animal}.png');
+      }
+    }
+
+is compiled to:
+
+    .puma-icon {
+      background-image: url('/images/puma.png'); }
+    .sea-slug-icon {
+      background-image: url('/images/sea-slug.png'); }
+    .egret-icon {
+      background-image: url('/images/egret.png'); }
+    .salamander-icon {
+      background-image: url('/images/salamander.png'); }
+
+### `@media` Bubbling
+
+Modern stylesheets often use `@media` rules to target styles
+at certain sorts of devices, screen resolutions, or even orientations.
+They're also useful for print and aural styling.
+Unfortunately, it's annoying and repetitive to break the flow of a stylesheet
+and add a `@media` rule containing selectors you've already written
+just to tweak the style a little.
+
+Thus, Sass 3.1 now allows you to nest `@media` rules within selectors.
+It will automatically bubble them up to the top level,
+putting all the selectors on the way inside the rule.
+For example:
+
+    .sidebar {
+      width: 300px;
+      @media screen and (orientation: landscape) {
+        width: 500px;
+      }
+    }
+
+is compiled to:
+
+    .sidebar {
+      width: 300px;
+    }
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
+You can also nest `@media` directives within one another.
+The queries will then be combined using the `and` operator.
+For example:
+
+    @media screen {
+      .sidebar {
+        @media (orientation: landscape) {
+          width: 500px;
+        }
+      }
+    }
+
+is compiled to:
+
+    @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
 
 ### Backwards Incompatibilities -- Must Read!
 

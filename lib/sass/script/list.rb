@@ -1,0 +1,76 @@
+module Sass::Script
+  # A SassScript object representing a CSS list.
+  # This includes both comma-separated lists and space-separated lists.
+  class List < Literal
+    # The Ruby array containing the contents of the list.
+    #
+    # @return [Array<Literal>]
+    attr_reader :value
+    alias_method :children, :value
+    alias_method :to_a, :value
+
+    # The operator separating the values of the list.
+    # Either `:comma` or `:space`.
+    #
+    # @return [Symbol]
+    attr_reader :separator
+
+    # Creates a new list.
+    #
+    # @param value [Array<Literal>] See \{#value}
+    # @param separator [String] See \{#separator}
+    def initialize(value, separator)
+      super(value)
+      @separator = separator
+    end
+
+    # @see Node#eq
+    def eq(other)
+      Sass::Script::Bool.new(
+        self.class == other.class && self.value == other.value &&
+        self.separator == other.separator)
+    end
+
+    # @see Node#to_s
+    def to_s(opts = {})
+      return value.map {|e| e.to_s(opts)}.join(sep_str)
+    end
+
+    # @see Node#to_sass
+    def to_sass(opts = {})
+      precedence = Sass::Script::Parser.precedence_of(separator)
+      value.map do |v|
+        if v.is_a?(List) && Sass::Script::Parser.precedence_of(v.separator) <= precedence
+          "(#{v.to_sass(opts)})"
+        else
+          v.to_sass(opts)
+        end
+      end.join(sep_str(nil))
+    end
+
+    # @see Node#inspect
+    def inspect
+      "(#{to_sass})"
+    end
+
+    protected
+
+    # @see Node#_perform
+    def _perform(environment)
+      list = Sass::Script::List.new(
+        value.map {|e| e.perform(environment)},
+        separator)
+      list.options = self.options
+      list.context = self.context
+      list
+    end
+
+    private
+
+    def sep_str(opts = self.options)
+      return ' ' if separator == :space
+      return ',' if opts && opts[:style] == :compressed
+      return ', '
+    end
+  end
+end

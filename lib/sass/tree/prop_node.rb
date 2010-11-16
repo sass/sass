@@ -199,7 +199,7 @@ module Sass::Tree
 
       def val_to_sass_concat(node, opts)
         return node unless node.is_a?(Sass::Script::Operation)
-        return val_to_sass_div(node, opts) unless node.operator == :concat
+        return val_to_sass_div(node, opts) unless node.operator == :space
 
         Sass::Script::Operation.new(
           val_to_sass_div(node.operand1, opts),

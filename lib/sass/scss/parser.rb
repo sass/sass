@@ -98,8 +98,8 @@ module Sass
         node << comment
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :else,
-        :extend, :import, :media, :charset]
+      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :each, :while, :if,
+        :else, :extend, :import, :media, :charset]
 
       def directive
         return unless tok(/@/)
@@ -167,6 +167,18 @@ module Sass
         ss
 
         block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)), :directive)
+      end
+
+      def each_directive
+        tok!(/\$/)
+        var = tok! IDENT
+        ss
+
+        tok!(/in/)
+        list = sass_script(:parse)
+        ss
+
+        block(node(Sass::Tree::EachNode.new(var, list)), :directive)
       end
 
       def while_directive
@@ -250,7 +262,7 @@ module Sass
 
       def media_directive
         val = str {media_query_list}.strip
-        block(node(Sass::Tree::DirectiveNode.new("@media #{val}")), :directive)
+        block(node(Sass::Tree::MediaNode.new(val)), :directive)
       end
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax

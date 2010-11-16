@@ -41,7 +41,7 @@ module Sass::Script
       sep =
         case @operator
         when :comma; ", "
-        when :concat; " "
+        when :space; " "
         else; " #{Lexer::OPERATORS_REVERSE[@operator]} "
         end
       "#{o1}#{sep}#{o2}"
@@ -66,7 +66,7 @@ module Sass::Script
       literal1 = @operand1.perform(environment)
       literal2 = @operand2.perform(environment)
 
-      if @operator == :concat && context == :equals
+      if @operator == :space && context == :equals
         literal1 = Sass::Script::String.new(literal1.value) if literal1.is_a?(Sass::Script::String)
         literal2 = Sass::Script::String.new(literal2.value) if literal2.is_a?(Sass::Script::String)
       end
@@ -82,6 +82,7 @@ module Sass::Script
     private
 
     def operand_to_sass(op, side, opts)
+      return "(#{op.to_sass(opts)})" if op.is_a?(List)
       return op.to_sass(opts) unless op.is_a?(Operation)
 
       pred = Sass::Script::Parser.precedence_of(@operator)

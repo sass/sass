@@ -251,7 +251,7 @@ WARNING
         e, rest = _to_sass_tree_plus_minus_eq(arr)
         until rest.empty?
           e2, rest = _to_sass_tree_plus_minus_eq(rest)
-          e = Sass::Script::Operation.new(e, e2, :concat)
+          e = Sass::Script::Operation.new(e, e2, :space)
         end
         return e
       end

@@ -113,6 +113,17 @@ module Sass::Script
   # \{#abs abs($value)}
   # : Returns the absolute value of a number.
   #
+  # ## List Functions {#list-functions}
+  #
+  # \{#length length($list)}
+  # : Returns the length of a list.
+  #
+  # \{#nth nth($list, $n)}
+  # : Returns a specific item in a list.
+  #
+  # \{#join join($list1, $list2, \[$separator\])}
+  # : Joins together two lists into one.
+  #
   # ## Introspection Functions
   #
   # \{#type_of type-of($value)}
@@ -705,7 +716,7 @@ module Sass::Script
     #   mix(#f00, #00f) => #7f007f
     #   mix(#f00, #00f, 25%) => #3f00bf
     #   mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
-    # @overload mix(color1, color2, weight = 50%)
+    # @overload mix(color1, color2, weight: 50%)
     #   @param color1 [Color]
     #   @param color2 [Color]
     #   @param weight [Number] between 0% and 100%
@@ -912,7 +923,7 @@ module Sass::Script
     #   round(10.6px) => 11px
     # @param value [Number] The number
     # @return [Number] The rounded number
-    # @raise [Sass::SyntaxError] if `value` isn't a number
+    # @raise [ArgumentError] if `value` isn't a number
     def round(value)
       numeric_transformation(value) {|n| n.round}
     end
@@ -925,7 +936,7 @@ module Sass::Script
     #   ciel(10.6px) => 11px
     # @param value [Number] The number
     # @return [Number] The rounded number
-    # @raise [Sass::SyntaxError] if `value` isn't a number
+    # @raise [ArgumentError] if `value` isn't a number
     def ceil(value)
       numeric_transformation(value) {|n| n.ceil}
     end
@@ -938,7 +949,7 @@ module Sass::Script
     #   floor(10.6px) => 10px
     # @param value [Number] The number
     # @return [Number] The rounded number
-    # @raise [Sass::SyntaxError] if `value` isn't a number
+    # @raise [ArgumentError] if `value` isn't a number
     def floor(value)
       numeric_transformation(value) {|n| n.floor}
     end
@@ -951,11 +962,121 @@ module Sass::Script
     #   abs(-10px) => 10px
     # @param value [Number] The number
     # @return [Number] The absolute value
-    # @raise [Sass::SyntaxError] if `value` isn't a number
+    # @raise [ArgumentError] if `value` isn't a number
     def abs(value)
       numeric_transformation(value) {|n| n.abs}
     end
     declare :abs, [:value]
+
+    # Return the length of a list.
+    #
+    # @example
+    #   length(10px) => 1
+    #   length(10px 20px 30px) => 3
+    # @param list [Literal] The list
+    # @return [Number] The length
+    def length(list)
+      Sass::Script::Number.new(list.to_a.size)
+    end
+    declare :length, [:list]
+
+    # Gets the nth item in a list.
+    #
+    # Note that unlike some languages, the first item in a Sass list is number 1,
+    # the second number 2, and so forth.
+    #
+    # @example
+    #   nth(10px 20px 30px, 1) => 10px
+    #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
+    # @param list [Literal] The list
+    # @param n [Number] The index into the list
+    # @return [Literal] The nth item in the list
+    # @raise [ArgumentError] If `n` isn't an integer between 1 and the list's length.
+    def nth(list, n)
+      assert_type n, :Number
+      if !n.int?
+        raise ArgumentError.new("List index #{n} must be an integer")
+      elsif n.to_i < 1
+        raise ArgumentError.new("List index #{n} must be greater than or equal to 1")
+      elsif n.to_i > (size = list.to_a.size)
+        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
+      end
+
+      list.to_a[n.to_i - 1]
+    end
+    declare :nth, [:list, :n]
+
+    # Joins together two lists into a new list.
+    #
+    # Unless the `$separator` argument is passed,
+    # if one list is comma-separated and one is space-separated,
+    # the first parameter's separator is used for the resulting list.
+    # If the lists have only one item each, spaces are used for the resulting list.
+    #
+    # @example
+    #   join(10px 20px, 30px 40px) => 10px 20px 30px 40px
+    #   join((blue, red), (#abc, #def)) => blue, red, #abc, #def
+    #   join(10px, 20px) => 10px 20px
+    #   join(10px, 20px, comma) => 10px, 20px
+    #   join((blue, red), (#abc, #def), space) => blue red #abc #def
+    # @overload join(list1, list2, separator: auto)
+    #   @param list1 [Literal] The first list to join
+    #   @param list2 [Literal] The second list to join
+    #   @param separator [String] How the list separator (comma or space) should be determined.
+    #     If this is `comma` or `space`, that is always the separator;
+    #     if this is `auto` (the default), the separator is determined as explained above.
+    def join(list1, list2, separator = Sass::Script::String.new("auto"))
+      assert_type separator, :String
+      unless %w[auto space comma].include?(separator.value)
+        raise ArgumentError.new("Separator name must be space, comma, or auto")
+      end
+      sep1 = list1.separator if list1.is_a?(Sass::Script::List)
+      sep2 = list2.separator if list2.is_a?(Sass::Script::List)
+      Sass::Script::List.new(
+        list1.to_a + list2.to_a,
+        if separator.value == 'auto'
+          sep1 || sep2 || :space
+        else
+          separator.value.to_sym
+        end)
+    end
+    declare :join, [:list1, :list2]
+    declare :join, [:list1, :list2, :separator]
+
+    # Appends a single value onto the end of a list.
+    #
+    # Unless the `$separator` argument is passed,
+    # if the list has only one item,
+    # the resulting list will be space-separated.
+    #
+    # @example
+    #   append(10px 20px, 30px) => 10px 20px 30px
+    #   append((blue, red), green) => blue, red, green
+    #   append(10px 20px, 30px 40px) => 10px 20px (30px 40px)
+    #   join(10px, 20px, comma) => 10px, 20px
+    #   join((blue, red), green, space) => blue red green
+    # @overload join(list, val, separator: auto)
+    #   @param list1 [Literal] The first list to join
+    #   @param list2 [Literal] The second list to join
+    #   @param separator [String] How the list separator (comma or space) should be determined.
+    #     If this is `comma` or `space`, that is always the separator;
+    #     if this is `auto` (the default), the separator is determined as explained above.
+    def append(list, val, separator = Sass::Script::String.new("auto"))
+      assert_type separator, :String
+      unless %w[auto space comma].include?(separator.value)
+        raise ArgumentError.new("Separator name must be space, comma, or auto")
+      end
+      sep = list.separator if list.is_a?(Sass::Script::List)
+      Sass::Script::List.new(
+        list.to_a + [val],
+        if separator.value == 'auto'
+          sep || :space
+        else
+          separator.value.to_sym
+        end)
+    end
+    declare :append, [:list, :val]
+    declare :append, [:list, :val, :separator]
 
     private
 
