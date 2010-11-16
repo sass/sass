@@ -98,8 +98,8 @@ module Sass
         node << comment
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :extend, :import,
-        :media, :charset]
+      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :while, :if, :else,
+        :extend, :import, :media, :charset]
 
       def directive
         return unless tok(/@/)
@@ -180,12 +180,14 @@ module Sass
         ss
         node = block(node(Sass::Tree::IfNode.new(expr)), :directive)
         pos = @scanner.pos
+        line = @line
         ss
 
         else_block(node) ||
           begin
             # Backtrack in case there are any comments we want to parse
             @scanner.pos = pos
+            @line = line
             node
           end
       end
@@ -198,14 +200,21 @@ module Sass
           :directive)
         node.add_else(else_node)
         pos = @scanner.pos
+        line = @line
         ss
 
         else_block(node) ||
           begin
             # Backtrack in case there are any comments we want to parse
             @scanner.pos = pos
+            @line = line
             node
           end
+      end
+
+      def else_directive
+        raise Sass::SyntaxError.new(
+          "Invalid CSS: @else must come after @if", :line => @line)
       end
 
       def extend_directive

@@ -123,7 +123,16 @@ module Sass
       # @param color [Symbol] The name of the color to use for this action.
       #   Can be `:red`, `:green`, or `:yellow`.
       def puts_action(name, color, arg)
+        return if @options[:for_engine][:quiet]
         printf color(color, "%11s %s\n"), name, arg
+      end
+
+      # Same as \{Kernel.puts}, but doesn't print anything if the `--quiet` option is set.
+      #
+      # @param args [Array] Passed on to \{Kernel.puts}
+      def puts(*args)
+        return if @options[:for_engine][:quiet]
+        Kernel.puts(*args)
       end
 
       # Wraps the given string in terminal escapes
@@ -219,7 +228,7 @@ END
                 'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
           @options[:for_engine][:style] = name.to_sym
         end
-        opts.on('-q', '--quiet', 'Silence warnings during compilation.') do
+        opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
           @options[:for_engine][:quiet] = true
         end
         opts.on('-g', '--debug-info',
