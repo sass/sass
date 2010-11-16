@@ -95,4 +95,12 @@ class Test::Unit::TestCase
   else
     flunk "Expected exception #{klass}, none raised"
   end
+
+  def assert_raise_line(line)
+    yield
+  rescue Sass::SyntaxError => e
+    assert_equal(line, e.sass_line)
+  else
+    flunk "Expected exception on line #{line}, none raised"
+  end
 end
