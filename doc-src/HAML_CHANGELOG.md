@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.24 (Unreleased)
+## 3.0.24
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).
 
 * `html2haml` now properly generates Haml for silent script expressions
   nested within blocks.
