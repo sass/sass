@@ -17,6 +17,11 @@ module Haml
     # @api public
     RUBY_VERSION = ::RUBY_VERSION.split(".").map {|s| s.to_i}
 
+    # The Ruby engine we're running under. Defaults to `"ruby"`
+    # if the top-level constant is undefined.
+    # @api public
+    RUBY_ENGINE = defined?(::RUBY_ENGINE) ? ::RUBY_ENGINE : "ruby"
+
     # Returns the path of a file relative to the Haml root directory.
     #
     # @param file [String] The filename relative to the Haml root
@@ -415,13 +420,25 @@ module Haml
       RbConfig::CONFIG['host_os'] =~ /mswin|windows|mingw/i
     end
 
+    # Whether or not this is running on IronRuby.
+    #
+    # @return [Boolean]
+    def ironruby?
+      RUBY_ENGINE == "ironruby"
+    end
+
     ## Cross-Ruby-Version Compatibility
 
     # Whether or not this is running under Ruby 1.8 or lower.
     #
+    # Note that IronRuby counts as Ruby 1.8,
+    # because it doesn't support the Ruby 1.9 encoding API.
+    #
     # @return [Boolean]
     def ruby1_8?
-      Haml::Util::RUBY_VERSION[0] == 1 && Haml::Util::RUBY_VERSION[1] < 9
+      # IronRuby says its version is 1.9, but doesn't support any of the encoding APIs.
+      # We have to fall back to 1.8 behavior.
+      ironruby? || (Haml::Util::RUBY_VERSION[0] == 1 && Haml::Util::RUBY_VERSION[1] < 9)
     end
 
     # Whether or not this is running under Ruby 1.8.6 or lower.

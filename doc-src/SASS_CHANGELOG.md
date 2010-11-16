@@ -10,6 +10,9 @@
 * Fix some cases where `@if` rules were causing the line numbers in error reports
   to become incorrect.
 
+* IronRuby compatibility. This is sort of a hack: IronRuby reports its version as 1.9,
+  but it doesn't support the encoding APIs, so we treat it as 1.8 instead.
+
 ## 3.0.23
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.23).
