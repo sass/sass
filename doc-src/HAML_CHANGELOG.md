@@ -3,6 +3,14 @@
 * Table of contents
 {:toc}
 
+## 3.0.24 (Unreleased)
+
+* `html2haml` now properly generates Haml for silent script expressions
+  nested within blocks.
+
+* IronRuby compatibility. This is sort of a hack: IronRuby reports its version as 1.9,
+  but it doesn't support the encoding APIs, so we treat it as 1.8 instead.
+
 ## 3.0.23
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.23).
