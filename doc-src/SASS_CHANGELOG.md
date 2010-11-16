@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.24 (Unreleased)
+## 3.0.24
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).
 
 * Raise an error when `@else` appears without an `@if` in SCSS.
 
