@@ -53,6 +53,7 @@ module Sass
       # @param css_file [String] The location of the CSS file to check.
       # @param template_file [String] The location of the Sass or SCSS template
       #   that is compiled to `css_file`.
+      # @return [Boolean] Whether the stylesheet needs to be updated.
       def stylesheet_needs_update?(css_file, template_file)
         template_file = File.expand_path(template_file)
         begin
@@ -61,8 +62,19 @@ module Sass
           return true
         end
 
-        dependency_updated?(css_mtime).call(
-          template_file, @options[:filesystem_importer].new("."))
+        stylesheet_modified_since?(template_file, css_mtime)
+      end
+
+      # Returns whether a Sass or SCSS stylesheet has been modified since a given time.
+      #
+      # @param template_file [String] The location of the Sass or SCSS template.
+      # @param mtime [Fixnum] The modification time to check against.
+      # @param importer [Sass::Importers::Base] The importer used to locate the stylesheet.
+      #   Defaults to the filesystem importer.
+      # @return [Boolean] Whether the stylesheet has been modified.
+      def stylesheet_modified_since?(template_file, mtime, importer = nil)
+        importer ||= @options[:filesystem_importer].new(".")
+        dependency_updated?(mtime).call(template_file, importer)
       end
 
       # Returns whether or not a given CSS file is out of date
@@ -75,8 +87,24 @@ module Sass
       # @param css_file [String] The location of the CSS file to check.
       # @param template_file [String] The location of the Sass or SCSS template
       #   that is compiled to `css_file`.
+      # @return [Boolean] Whether the stylesheet needs to be updated.
       def self.stylesheet_needs_update?(css_file, template_file)
         new(Plugin.engine_options).stylesheet_needs_update?(css_file, template_file)
+      end
+
+      # Returns whether a Sass or SCSS stylesheet has been modified since a given time.
+      #
+      # The distinction between this method and the instance-level \{#stylesheet\_modified\_since?}
+      # is that the instance method preserves mtime and stale-dependency caches,
+      # so it's better to use when checking multiple stylesheets at once.
+      #
+      # @param template_file [String] The location of the Sass or SCSS template.
+      # @param mtime [Fixnum] The modification time to check against.
+      # @param importer [Sass::Importers::Base] The importer used to locate the stylesheet.
+      #   Defaults to the filesystem importer.
+      # @return [Boolean] Whether the stylesheet has been modified.
+      def self.stylesheet_modified_since?(template_file, mtime, importer = nil)
+        new(Plugin.engine_options).stylesheet_modified_since?(template_file, mtime, importer)
       end
 
       private
