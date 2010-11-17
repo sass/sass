@@ -43,13 +43,16 @@ unless defined?(Sass::RAILS_LOADED)
 
         <<RUBY
 importer = Sass::Importers::Rails.new(lookup_context)
+# Since we need to re-parse the template, force Rails to re-load the source.
+# Once we pre-compute the dependencies, we can avoid doing this
+# until we know we need to update the method.
+@_template.expire!
 staleness_checker = Sass::Plugin::StalenessChecker.new(
   Sass::Plugin.engine_options.merge(:load_paths => [importer], :cache => false))
 if staleness_checker.stylesheet_modified_since?(
     #{template.virtual_path.inspect},
     #{Time.now.to_i},
     importer)
-  @_template.expire!
   @_template.rerender(self)
 else
   #{tree.render.inspect}
