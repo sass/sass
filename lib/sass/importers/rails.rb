@@ -37,7 +37,7 @@ module Sass
         return unless template =
           find_template(uri, nil, !:partial) ||
           find_template(uri, nil, :partial)
-        File.mtime(template.identifier).to_i
+        template.updated_at.to_i
       end
 
       # @see Base#to_s
