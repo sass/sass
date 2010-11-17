@@ -18,7 +18,47 @@ unless defined?(Sass::RAILS_LOADED)
 
   Sass::Plugin.options.reverse_merge!(Sass::Plugin.default_options)
 
-  if defined?(ActionController::Metal)
+  if Sass::Util.ap_geq?('3.1.0.beta')
+    require 'sass/importers/rails'
+    class Sass::Plugin::TemplateHandler
+      attr_reader :syntax
+
+      def initialize(syntax)
+        @syntax = syntax
+      end
+
+      def handles_encoding?; true; end
+
+      def call(template, view)
+        rails_importer = Sass::Importers::Rails.new(view.lookup_context)
+        tree = Sass::Engine.new(template.source,
+          :syntax => @syntax,
+          :cache => false,
+          :filename => template.virtual_path,
+          :importer => rails_importer,
+          :load_paths => [rails_importer],
+          ).to_tree
+
+        <<RUBY
+importer = Sass::Importers::Rails.new(lookup_context)
+staleness_checker = Sass::Plugin::StalenessChecker.new(
+  Sass::Plugin.engine_options.merge(:load_paths => [importer], :cache => false))
+if staleness_checker.stylesheet_modified_since?(
+    #{template.virtual_path.inspect},
+    #{Time.now.to_i},
+    importer)
+  @_template.expire!
+  @_template.rerender(self)
+else
+  #{tree.render.inspect}
+end
+RUBY
+      end
+    end
+
+    ActionView::Template.register_template_handler(:sass, Sass::Plugin::TemplateHandler.new(:sass))
+    ActionView::Template.register_template_handler(:scss, Sass::Plugin::TemplateHandler.new(:scss))
+  elsif defined?(ActionController::Metal)
     # Rails >= 3.0
     require 'sass/plugin/rack'
     Rails.configuration.middleware.use(Sass::Plugin::Rack)
