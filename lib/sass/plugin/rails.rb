@@ -18,7 +18,9 @@ unless defined?(Sass::RAILS_LOADED)
 
   Sass::Plugin.options.reverse_merge!(Sass::Plugin.default_options)
 
-  if Sass::Util.ap_geq?('3.1.0.beta')
+  # Disable this for now, until we figure out how to get Rails
+  # to pass in the view.
+  if false #Sass::Util.ap_geq?('3.1.0.beta')
     require 'sass/importers/rails'
     class Sass::Plugin::TemplateHandler
       attr_reader :syntax
