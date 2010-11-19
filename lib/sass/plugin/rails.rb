@@ -33,31 +33,32 @@ unless defined?(Sass::RAILS_LOADED)
 
       def call(template, view)
         rails_importer = Sass::Importers::Rails.new(view.lookup_context)
-        tree = Sass::Engine.new(template.source,
+        engine = Sass::Engine.new(template.source,
           :syntax => @syntax,
           :cache => false,
           :filename => template.virtual_path,
           :importer => rails_importer,
-          :load_paths => [rails_importer],
-          ).to_tree
+          :load_paths => [rails_importer])
 
+        dependencies = engine.dependencies
         <<RUBY
-importer = Sass::Importers::Rails.new(lookup_context)
-# Since we need to re-parse the template, force Rails to re-load the source.
-# Once we pre-compute the dependencies, we can avoid doing this
-# until we know we need to update the method.
-@_template.expire!
-staleness_checker = Sass::Plugin::StalenessChecker.new(
-  Sass::Plugin.engine_options.merge(:load_paths => [importer], :cache => false))
-if staleness_checker.stylesheet_modified_since?(
-    #{template.virtual_path.inspect},
-    #{Time.now.to_i},
-    importer)
+if Sass::Plugin::TemplateHandler.dependencies_changed?(
+    #{dependencies.map {|e| e.options[:filename]}.inspect},
+    Sass::Importers::Rails.new(lookup_context),
+    #{Time.now.to_i})
+  @_template.expire!
   @_template.rerender(self)
 else
-  #{tree.render.inspect}
+  #{engine.render.inspect}
 end
 RUBY
+      end
+
+      def self.dependencies_changed?(deps, importer, since)
+        options = Sass::Plugin.engine_options.merge(
+          :load_paths => [importer],
+          :cache => false)
+        deps.any? {|d| importer.mtime(d, options) > since}
       end
     end
 
