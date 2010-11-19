@@ -1,4 +1,5 @@
 require 'strscan'
+require 'set'
 require 'digest/sha1'
 require 'sass/cache_store'
 require 'sass/tree/node'
@@ -261,6 +262,29 @@ module Sass
     def source_encoding
       check_encoding!
       @original_encoding
+    end
+
+    # Gets a set of all the documents
+    # that are (transitive) dependencies of this document,
+    # not including the document itself.
+    #
+    # @return [[Sass::Engine]] The dependency documents.
+    def dependencies
+      _dependencies(Set.new, engines = Set.new)
+      engines - [self]
+    end
+
+    # Helper for \{#dependencies}.
+    #
+    # @private
+    def _dependencies(seen, engines)
+      return if seen.include?(key = [@options[:filename], @options[:importer]])
+      seen << key
+      engines << self
+      to_tree.grep(Tree::ImportNode) do |n|
+        next if n.css_import?
+        n.imported_file._dependencies(seen, engines)
+      end
     end
 
     private
