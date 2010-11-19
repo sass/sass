@@ -63,6 +63,14 @@ unless defined?(Sass::RAILS_LOADED)
               }]
           end)
 
+        stylesheet =
+          begin
+            engine.render
+          rescue Sass::SyntaxError => e
+            Sass::Plugin::TemplateHandler.munge_exception e, view.lookup_context
+            Sass::SyntaxError.exception_to_css(e, Sass::Plugin.options)
+          end
+
         <<RUBY
 begin
   #{importers.map {|_, val| "#{val[:variable]} = #{val[:expression]}"}.join("\n")}
@@ -72,14 +80,13 @@ begin
     @_template.expire!
     @_template.rerender(self)
   else
-    #{engine.render.inspect}
+    #{stylesheet.inspect}
   end
 rescue Sass::SyntaxError => e
   Sass::Plugin::TemplateHandler.munge_exception e, lookup_context
+  Sass::SyntaxError.exception_to_css(e, Sass::Plugin.options)
 end
 RUBY
-      rescue Sass::SyntaxError => e
-        Sass::Plugin::TemplateHandler.munge_exception e, lookup_context
       end
 
       def self.dependencies_changed?(deps, since)
@@ -92,7 +99,6 @@ RUBY
           next unless engine = importer.find(bt[:filename], Sass::Plugin.options)
           bt[:filename] = engine.options[:_rails_filename]
         end
-        raise e
       end
     end
 
