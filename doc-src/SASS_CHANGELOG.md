@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.25 (Unreleased)
+
+* When displaying a Sass error in an imported stylesheet,
+  use the imported stylesheet's contents rather than the top-level stylesheet.
+
 ## 3.0.24
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).
