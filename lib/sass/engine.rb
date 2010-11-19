@@ -241,13 +241,14 @@ module Sass
     end
     alias_method :to_css, :render
 
-    # Parses the document into its parse tree.
+    # Parses the document into its parse tree. Memoized.
     #
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
-      return _to_tree unless @options[:quiet]
-      Sass::Util.silence_sass_warnings {_to_tree}
+      @tree ||= @options[:quiet] ?
+        Sass::Util.silence_sass_warnings {_to_tree} :
+        _to_tree
     end
 
     # Returns the original encoding of the document,
