@@ -40,11 +40,25 @@ unless defined?(Sass::RAILS_LOADED)
           :importer => rails_importer,
           :load_paths => [rails_importer])
 
+        # We need to serialize/deserialize the importers to make sure
+        # that each dependency is matched up to its proper importer
+        # for when importer#mtime is called.
         dependencies = engine.dependencies
+        importers = Sass::Util.to_hash(
+          Sass::Util.enum_with_index(dependencies).map do |e, i|
+            importer = e.options[:importer]
+            [importer, {
+                :variable => "importer_#{i}",
+                :expression => (importer == rails_importer ?
+                  "Sass::Importers::Rails.new(lookup_context)" :
+                  "Sass::Util.load(#{Sass::Util.dump(importer)})")
+              }]
+          end)
+
         <<RUBY
+#{importers.map {|_, val| "#{val[:variable]} = #{val[:expression]}"}.join("\n")}
 if Sass::Plugin::TemplateHandler.dependencies_changed?(
-    #{dependencies.map {|e| e.options[:filename]}.inspect},
-    Sass::Importers::Rails.new(lookup_context),
+    [#{dependencies.map {|e| "[#{e.options[:filename].inspect}, #{importers[e.options[:importer]][:variable]}]"}.join(',')}],
     #{Time.now.to_i})
   @_template.expire!
   @_template.rerender(self)
@@ -54,11 +68,9 @@ end
 RUBY
       end
 
-      def self.dependencies_changed?(deps, importer, since)
-        options = Sass::Plugin.engine_options.merge(
-          :load_paths => [importer],
-          :cache => false)
-        deps.any? {|d| importer.mtime(d, options) > since}
+      def self.dependencies_changed?(deps, since)
+        options = Sass::Plugin.engine_options.merge(:cache => false)
+        deps.any? {|d, i| i.mtime(d, options) > since}
       end
     end
 
