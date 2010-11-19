@@ -18,6 +18,27 @@
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+## 3.0.25 (Unreleased)
+
+* When displaying a Sass error in an imported stylesheet,
+  use the imported stylesheet's contents rather than the top-level stylesheet.
+
+* Fix a bug that caused some lines with non-ASCII characters to be ignored in Ruby 1.8.
+
+## 3.0.24
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).
+
+* Raise an error when `@else` appears without an `@if` in SCSS.
+
+* Fix some cases where `@if` rules were causing the line numbers in error reports
+  to become incorrect.
+
+* IronRuby compatibility. This is sort of a hack: IronRuby reports its version as 1.9,
+  but it doesn't support the encoding APIs, so we treat it as 1.8 instead.
+
+* The `--quiet` option now silences informational output from `--update` and `--watch`.
+
 ## 3.0.23
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.23).
