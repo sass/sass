@@ -64,20 +64,35 @@ unless defined?(Sass::RAILS_LOADED)
           end)
 
         <<RUBY
-#{importers.map {|_, val| "#{val[:variable]} = #{val[:expression]}"}.join("\n")}
-if Sass::Plugin::TemplateHandler.dependencies_changed?(
-    [#{dependencies.map {|e| "[#{e.options[:filename].inspect}, #{importers[e.options[:importer]][:variable]}]"}.join(',')}],
-    #{Time.now.to_i})
-  @_template.expire!
-  @_template.rerender(self)
-else
-  #{engine.render.inspect}
+begin
+  #{importers.map {|_, val| "#{val[:variable]} = #{val[:expression]}"}.join("\n")}
+  if Sass::Plugin::TemplateHandler.dependencies_changed?(
+      [#{dependencies.map {|e| "[#{e.options[:filename].inspect}, #{importers[e.options[:importer]][:variable]}]"}.join(',')}],
+      #{Time.now.to_i})
+    @_template.expire!
+    @_template.rerender(self)
+  else
+    #{engine.render.inspect}
+  end
+rescue Sass::SyntaxError => e
+  Sass::Plugin::TemplateHandler.munge_exception e, lookup_context
 end
 RUBY
+      rescue Sass::SyntaxError => e
+        Sass::Plugin::TemplateHandler.munge_exception e, lookup_context
       end
 
       def self.dependencies_changed?(deps, since)
         deps.any? {|d, i| i.mtime(d, Sass::Plugin.options) > since}
+      end
+
+      def self.munge_exception(e, lookup_context)
+        importer = Sass::Importers::Rails.new(lookup_context)
+        e.sass_backtrace.each do |bt|
+          next unless engine = importer.find(bt[:filename], Sass::Plugin.options)
+          bt[:filename] = engine.options[:_rails_filename]
+        end
+        raise e
       end
     end
 

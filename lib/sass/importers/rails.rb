@@ -64,6 +64,7 @@ module Sass
         return unless template
         options[:syntax] = template.handler.syntax
         options[:filename] = template.virtual_path
+        options[:_rails_filename] = template.identifier
         options[:importer] = self
         Sass::Engine.new(template.source, options)
       end
