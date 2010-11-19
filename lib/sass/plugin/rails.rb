@@ -9,7 +9,7 @@ unless defined?(Sass::RAILS_LOADED)
         :full_exception    => Sass::Util.rails_env != "production"
       }
 
-      if false #Sass::Util.ap_geq?('3.1.0.beta')
+      if Sass::Util.ap_geq?('3.1.0.beta')
         opts.merge!(:cache => false, :load_paths => [])
       else
         opts.merge!(
@@ -28,7 +28,7 @@ unless defined?(Sass::RAILS_LOADED)
 
   # Disable this for now, until we figure out how to get Rails
   # to pass in the view.
-  if false #Sass::Util.ap_geq?('3.1.0.beta')
+  if Sass::Util.ap_geq?('3.1.0.beta')
     require 'sass/importers/rails'
     class Sass::Plugin::TemplateHandler
       attr_reader :syntax
