@@ -4,15 +4,23 @@ unless defined?(Sass::RAILS_LOADED)
   module Sass::Plugin::Configuration
     # Different default options in a rails envirionment.
     def default_options
-      @default_options ||= {
-        :always_update      => false,
-        :template_location => Sass::Util.rails_root + '/public/stylesheets/sass',
-        :css_location      => Sass::Util.rails_root + '/public/stylesheets',
-        :cache_location    => Sass::Util.rails_root + '/tmp/sass-cache',
-        :always_check      => Sass::Util.rails_env == "development",
+      opts = {
         :quiet             => Sass::Util.rails_env != "production",
         :full_exception    => Sass::Util.rails_env != "production"
-      }.freeze
+      }
+
+      if false #Sass::Util.ap_geq?('3.1.0.beta')
+        opts.merge!(:cache => false, :load_paths => [])
+      else
+        opts.merge!(
+          :always_update      => false,
+          :template_location => Sass::Util.rails_root + '/public/stylesheets/sass',
+          :css_location      => Sass::Util.rails_root + '/public/stylesheets',
+          :cache_location    => Sass::Util.rails_root + '/tmp/sass-cache',
+          :always_check      => Sass::Util.rails_env == "development")
+      end
+
+      @default_options ||= opts.freeze
     end
   end
 
@@ -34,11 +42,11 @@ unless defined?(Sass::RAILS_LOADED)
       def call(template, view)
         rails_importer = Sass::Importers::Rails.new(view.lookup_context)
         engine = Sass::Engine.new(template.source,
-          :syntax => @syntax,
-          :cache => false,
-          :filename => template.virtual_path,
-          :importer => rails_importer,
-          :load_paths => [rails_importer])
+          Sass::Plugin.options.merge(
+            :syntax => @syntax,
+            :filename => template.virtual_path,
+            :importer => rails_importer,
+            :load_paths => [rails_importer] + Sass::Plugin.options[:load_paths]))
 
         # We need to serialize/deserialize the importers to make sure
         # that each dependency is matched up to its proper importer
@@ -69,8 +77,7 @@ RUBY
       end
 
       def self.dependencies_changed?(deps, since)
-        options = Sass::Plugin.engine_options.merge(:cache => false)
-        deps.any? {|d, i| i.mtime(d, options) > since}
+        deps.any? {|d, i| i.mtime(d, Sass::Plugin.options) > since}
       end
     end
 
