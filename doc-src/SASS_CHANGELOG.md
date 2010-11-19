@@ -160,6 +160,13 @@ is compiled to:
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+## 3.0.25 (Unreleased)
+
+* When displaying a Sass error in an imported stylesheet,
+  use the imported stylesheet's contents rather than the top-level stylesheet.
+
+* Fix a bug that caused some lines with non-ASCII characters to be ignored in Ruby 1.8.
+
 ## 3.0.24
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).

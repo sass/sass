@@ -17,7 +17,7 @@ module Sass
       def to_s(*args)
         super
       rescue Sass::SyntaxError => e
-        e.sass_template = @template
+        e.sass_template ||= @template
         raise e
       end
 
@@ -36,7 +36,7 @@ module Sass
         environment.options = @options if environment.options.nil? || environment.options.empty?
         super
       rescue Sass::SyntaxError => e
-        e.sass_template = @template
+        e.sass_template ||= @template
         raise e
       end
 
@@ -49,7 +49,7 @@ module Sass
       def cssize(extends = Sass::Util::SubsetMap.new, parent = nil)
         return super(extends, parent), extends
       rescue Sass::SyntaxError => e
-        e.sass_template = @template
+        e.sass_template ||= @template
         raise e
       end
 
