@@ -56,12 +56,8 @@ MSG
     "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
-    "a,\n  :b c" => ["Rules can\'t end in commas.", 1],
-    "a," => "Rules can\'t end in commas.",
-    "a,\n$b: 1" => ["Rules can\'t end in commas.", 1],
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
-    "a,\n$b: 1" => ["Rules can\'t end in commas.", 1],
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
     "@import foo.sass" => <<MSG,
 File to import not found or unreadable: foo.sass.
@@ -610,6 +606,12 @@ SASS
                  
     assert_equal("#foo #bar,#baz #boom{foo:bar}\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compressed))
+
+    assert_equal("#foo #bar,\n#baz #boom {\n  foo: bar; }\n",
+                 render("#foo #bar,,\n,#baz #boom,\n  :foo bar"))
+
+    assert_equal("#bip #bop {\n  foo: bar; }\n",
+                 render("#bip #bop,, ,\n  :foo bar"))
   end
 
   def test_complex_multiline_selector

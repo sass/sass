@@ -9,6 +9,9 @@
 
 * Many performance optimizations have been made by [thedarkone](http://github.com/thedarkone).
 
+* Allow selectors to contain extra commas to make them easier to modify.
+  Extra commas will be removed when the selectors are converted to CSS.
+
 ### Keyword Arguments
 
 Both mixins and Sass functions now support the ability to pass in keyword arguments.

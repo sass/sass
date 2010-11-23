@@ -468,6 +468,22 @@ baz {
 SCSS
   end
 
+  def test_trailing_comma_in_selector
+    assert_equal <<CSS, render(<<SCSS)
+#foo #bar,
+#baz #boom {
+  a: b; }
+
+#bip #bop {
+  c: d; }
+CSS
+#foo #bar,,
+,#baz #boom, {a: b}
+
+#bip #bop, ,, {c: d}
+SCSS
+  end
+
   def test_parent_selectors
     assert_equal <<CSS, render(<<SCSS)
 foo:hover {

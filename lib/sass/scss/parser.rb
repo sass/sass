@@ -427,9 +427,14 @@ module Sass
         return unless v = selector
         rules.concat v
 
+        ws = ''
         while tok(/,/)
-          rules << ',' << str {ss}
-          rules.concat expr!(:selector)
+          ws << str {ss}
+          if v = selector
+            rules << ',' << ws
+            rules.concat v
+            ws = ''
+          end
         end
         rules
       end
@@ -442,10 +447,14 @@ module Sass
       def selector_comma_sequence
         return unless sel = _selector
         selectors = [sel]
+        ws = ''
         while tok(/,/)
-          ws = str{ss}
-          selectors << expr!(:_selector)
-          selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
+          ws << str{ss}
+          if sel = _selector
+            selectors << sel
+            selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
+            ws = ''
+          end
         end
         Selector::CommaSequence.new(selectors)
       end

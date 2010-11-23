@@ -459,23 +459,21 @@ MSG
       children.each do |line|
         child = build_tree(parent, line, root)
 
-        if child.is_a?(Tree::RuleNode) && child.continued?
-          raise SyntaxError.new("Rules can't end in commas.",
-            :line => child.line) unless child.children.empty?
-          if continued_rule
+        if child.is_a?(Tree::RuleNode)
+          if child.continued? && child.children.empty?
+            if continued_rule
+              continued_rule.add_rules child
+            else
+              continued_rule = child
+            end
+            next
+          elsif continued_rule
             continued_rule.add_rules child
-          else
-            continued_rule = child
+            continued_rule.children = child.children
+            continued_rule, child = nil, continued_rule
           end
-          next
-        end
-
-        if continued_rule
-          raise SyntaxError.new("Rules can't end in commas.",
-            :line => continued_rule.line) unless child.is_a?(Tree::RuleNode)
-          continued_rule.add_rules child
-          continued_rule.children = child.children
-          continued_rule, child = nil, continued_rule
+        elsif continued_rule
+          continued_rule = nil
         end
 
         if child.is_a?(Tree::CommentNode) && child.silent
@@ -492,9 +490,6 @@ MSG
         check_for_no_children(child)
         validate_and_append_child(parent, child, line, root)
       end
-
-      raise SyntaxError.new("Rules can't end in commas.",
-        :line => continued_rule.line) if continued_rule
 
       parent
     end
