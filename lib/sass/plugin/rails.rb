@@ -42,11 +42,11 @@ unless defined?(Sass::RAILS_LOADED)
       def call(template, view)
         rails_importer = Sass::Importers::Rails.new(view.lookup_context)
         engine = Sass::Engine.new(template.source,
-          Sass::Plugin.options.merge(
+          Sass::Plugin.engine_options.merge(
             :syntax => @syntax,
             :filename => template.virtual_path,
             :importer => rails_importer,
-            :load_paths => [rails_importer] + Sass::Plugin.options[:load_paths]))
+            :load_paths => [rails_importer] + Sass::Plugin.engine_options[:load_paths]))
 
         # We need to serialize/deserialize the importers to make sure
         # that each dependency is matched up to its proper importer
@@ -68,7 +68,7 @@ unless defined?(Sass::RAILS_LOADED)
             engine.render
           rescue Sass::SyntaxError => e
             Sass::Plugin::TemplateHandler.munge_exception e, view.lookup_context
-            Sass::SyntaxError.exception_to_css(e, Sass::Plugin.options)
+            Sass::SyntaxError.exception_to_css(e, Sass::Plugin.engine_options)
           end
 
         <<RUBY
