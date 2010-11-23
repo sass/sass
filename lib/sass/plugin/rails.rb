@@ -84,19 +84,19 @@ begin
   end
 rescue Sass::SyntaxError => e
   Sass::Plugin::TemplateHandler.munge_exception e, lookup_context
-  Sass::SyntaxError.exception_to_css(e, Sass::Plugin.options)
+  Sass::SyntaxError.exception_to_css(e, Sass::Plugin.engine_options)
 end
 RUBY
       end
 
       def self.dependencies_changed?(deps, since)
-        deps.any? {|d, i| i.mtime(d, Sass::Plugin.options) > since}
+        deps.any? {|d, i| i.mtime(d, Sass::Plugin.engine_options) > since}
       end
 
       def self.munge_exception(e, lookup_context)
         importer = Sass::Importers::Rails.new(lookup_context)
         e.sass_backtrace.each do |bt|
-          next unless engine = importer.find(bt[:filename], Sass::Plugin.options)
+          next unless engine = importer.find(bt[:filename], Sass::Plugin.engine_options)
           bt[:filename] = engine.options[:_rails_filename]
         end
       end
