@@ -10,6 +10,9 @@
 
 * Fix a bug that caused some lines with non-ASCII characters to be ignored in Ruby 1.8.
 
+* Fix a bug where boolean operators (`and`, `or`, and `not`) wouldn't work at the end of a line
+  in a multiline SassScript expression.
+
 ## 3.0.24
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).
