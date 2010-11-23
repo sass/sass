@@ -27,8 +27,12 @@ module Sass
       # Initialize the middleware.
       #
       # @param app [#call] The Rack application
-      def initialize(app)
+      # @param dwell [Float] A delay, in seconds, which Sass will not check
+      #  for updates.
+      def initialize(app, dwell = 1.0)
         @app = app
+        @dwell = dwell
+        @check_after = Time.now.to_f
       end
 
       # Process a request, checking the Sass stylesheets for changes
@@ -37,7 +41,10 @@ module Sass
       # @param env The Rack request environment
       # @return [(#to_i, {String => String}, Object)] The Rack response
       def call(env)
-        Sass::Plugin.check_for_updates
+        if Time.now.to_f > @check_after
+          Sass::Plugin.check_for_updates
+          @check_after = Time.now.to_f + @dwell
+        end
         @app.call(env)
       end
     end
