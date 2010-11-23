@@ -10,7 +10,7 @@ unless defined?(Sass::RAILS_LOADED)
       }
 
       if Sass::Util.ap_geq?('3.1.0.beta')
-        opts.merge!(:cache => false, :load_paths => [])
+        opts.merge!(:load_paths => [])
       else
         opts.merge!(
           :always_update      => false,
@@ -43,6 +43,7 @@ unless defined?(Sass::RAILS_LOADED)
         rails_importer = Sass::Importers::Rails.new(view.lookup_context)
         engine = Sass::Engine.new(template.source,
           Sass::Plugin.engine_options.merge(
+            :cache => false,
             :syntax => @syntax,
             :filename => template.virtual_path,
             :importer => rails_importer,
@@ -90,13 +91,15 @@ RUBY
       end
 
       def self.dependencies_changed?(deps, since)
-        deps.any? {|d, i| i.mtime(d, Sass::Plugin.engine_options) > since}
+        opts = Sass::Plugin.engine_options.merge(:cache => false)
+        deps.any? {|d, i| i.mtime(d, opts) > since}
       end
 
       def self.munge_exception(e, lookup_context)
         importer = Sass::Importers::Rails.new(lookup_context)
+        opts = Sass::Plugin.engine_options.merge(:cache => false)
         e.sass_backtrace.each do |bt|
-          next unless engine = importer.find(bt[:filename], Sass::Plugin.engine_options)
+          next unless engine = importer.find(bt[:filename], opts)
           bt[:filename] = engine.options[:_rails_filename]
         end
       end
