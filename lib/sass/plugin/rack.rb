@@ -26,6 +26,7 @@ module Sass
     class Rack
       # The delay, in seconds, between update checks.
       # Useful when many resources are requested for a single page.
+      # `nil` means no delay at all.
       #
       # @return [Float]
       attr_accessor :dwell
@@ -46,9 +47,9 @@ module Sass
       # @param env The Rack request environment
       # @return [(#to_i, {String => String}, Object)] The Rack response
       def call(env)
-        if Time.now.to_f > @check_after
+        if @dwell.nil? || Time.now.to_f > @check_after
           Sass::Plugin.check_for_updates
-          @check_after = Time.now.to_f + @dwell
+          @check_after = Time.now.to_f + @dwell if @dwell
         end
         @app.call(env)
       end
