@@ -790,6 +790,7 @@ MESSAGE
         :interp_ident => "identifier",
         :interp_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
+        :_selector => "selector",
         :selector_comma_sequence => "selector",
         :simple_selector_sequence => "selector",
         :import_arg => "file to import (string or url())",
