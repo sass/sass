@@ -24,11 +24,16 @@ module Sass
     # The locations and frequency {file:SASS_REFERENCE.md#options can be customized}.
     # That's all there is to it!
     class Rack
+      # The delay, in seconds, between update checks.
+      # Useful when many resources are requested for a single page.
+      #
+      # @return [Float]
+      attr_accessor :dwell
+
       # Initialize the middleware.
       #
       # @param app [#call] The Rack application
-      # @param dwell [Float] A delay, in seconds, which Sass will not check
-      #  for updates.
+      # @param dwell [Float] See \{#dwell}
       def initialize(app, dwell = 1.0)
         @app = app
         @dwell = dwell
