@@ -13,7 +13,7 @@ class SassPluginTest < Test::Unit::TestCase
   @@templates += %w[import_charset import_charset_ibm866] unless Sass::Util.ruby1_8?
   @@templates << 'import_charset_1_8' if Sass::Util.ruby1_8?
 
-  @@cache_store = Sass::InMemoryCacheStore.new
+  @@cache_store = Sass::CacheStores::Memory.new
 
   def setup
     FileUtils.mkdir_p tempfile_loc

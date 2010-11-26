@@ -1,7 +1,7 @@
 require 'strscan'
 require 'set'
 require 'digest/sha1'
-require 'sass/cache_store'
+require 'sass/cache_stores'
 require 'sass/tree/node'
 require 'sass/tree/root_node'
 require 'sass/tree/rule_node'
@@ -156,7 +156,7 @@ module Sass
       # Tracks the original filename of the top-level Sass file
       options[:original_filename] = options[:original_filename] || options[:filename]
 
-      options[:cache_store] ||= Sass::FileCacheStore.new(options[:cache_location])
+      options[:cache_store] ||= Sass::CacheStores::Filesystem.new(options[:cache_location])
       # Support both, because the docs said one and the other actually worked
       # for quite a long time.
       options[:line_comments] ||= options[:line_numbers]

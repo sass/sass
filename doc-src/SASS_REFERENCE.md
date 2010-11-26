@@ -188,10 +188,10 @@ Available options are:
   don't write to it if it doesn't.
 
 {#cache_store-option} `:cache_store`
-: If this is set to an instance of a subclass of {Sass::CacheStore},
+: If this is set to an instance of a subclass of {Sass::CacheStores::Base},
   that cache store will be used to store and retrieve
   cached compilation results.
-  Defaults to a {Sass::FileCacheStore} that is
+  Defaults to a {Sass::CacheStores::Filesytem} that is
   initialized using the [`:cache_location` option](#cache_location-option).
 
 {#never_update-option} `:never_update`
@@ -1862,7 +1862,7 @@ on the filesystem indicated by [`:cache_location`](#cache_location-option). If y
 cannot write to the filesystem or need to share cache across ruby processes or machines,
 then you can define your own cache store and set the[`:cache_store`
 option](#cache_store-option). For details on creating your own cache store, please
-see the {Sass::CacheStore source documentation}.
+see the {Sass::CacheStores::Base source documentation}.
 
 ### Custom Importers
 

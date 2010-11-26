@@ -14,13 +14,13 @@ class CacheTest < Test::Unit::TestCase
   end
 
   def test_file_cache_writes_a_file
-    file_store = Sass::FileCacheStore.new(@@cache_dir)
+    file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
     file_store.store("asdf/foo.scssc", "fakesha1", root_node)
     assert File.exists?("#{@@cache_dir}/asdf/foo.scssc")
   end
 
   def test_file_cache_reads_a_file
-    file_store = Sass::FileCacheStore.new(@@cache_dir)
+    file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
     assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
     file_store.store("asdf/foo.scssc", "fakesha1", root_node)
     assert File.exists?("#{@@cache_dir}/asdf/foo.scssc")
@@ -28,13 +28,13 @@ class CacheTest < Test::Unit::TestCase
   end
 
   def test_file_cache_miss_returns_nil
-    file_store = Sass::FileCacheStore.new(@@cache_dir)
+    file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
     assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
     assert_nil file_store.retrieve("asdf/foo.scssc", "fakesha1")
   end
 
   def test_sha_change_invalidates_cache_and_cleans_up
-    file_store = Sass::FileCacheStore.new(@@cache_dir)
+    file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
     assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
     file_store.store("asdf/foo.scssc", "fakesha1", root_node)
     assert File.exists?("#{@@cache_dir}/asdf/foo.scssc")
@@ -43,7 +43,7 @@ class CacheTest < Test::Unit::TestCase
   end
 
   def test_version_change_invalidates_cache_and_cleans_up
-    file_store = Sass::FileCacheStore.new(@@cache_dir)
+    file_store = Sass::CacheStores::Filesystem.new(@@cache_dir)
     assert !File.exists?("#{@@cache_dir}/asdf/foo.scssc")
     file_store.store("asdf/foo.scssc", "fakesha1", root_node)
     assert File.exists?("#{@@cache_dir}/asdf/foo.scssc")
@@ -58,7 +58,7 @@ class CacheTest < Test::Unit::TestCase
   end
 
   def test_arbitrary_objects_can_go_into_cache
-    cache = Sass::InMemoryCacheStore.new
+    cache = Sass::CacheStores::Memory.new
     an_object = {:foo => :bar}
     cache.store("an_object", "", an_object)
     assert_equal an_object, cache.retrieve("an_object", "")
