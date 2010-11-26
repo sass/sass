@@ -49,20 +49,9 @@ unless defined?(Sass::RAILS_LOADED)
             :importer => rails_importer,
             :load_paths => [rails_importer] + Sass::Plugin.engine_options[:load_paths]))
 
-        # We need to serialize/deserialize the importers to make sure
-        # that each dependency is matched up to its proper importer
-        # for when importer#mtime is called.
-        dependencies = engine.dependencies
-        importers = Sass::Util.to_hash(
-          Sass::Util.enum_with_index(dependencies).map do |e, i|
-            importer = e.options[:importer]
-            [importer, {
-                :variable => "importer_#{i}",
-                :expression => (importer == rails_importer ?
-                  "Sass::Importers::Rails.new(lookup_context)" :
-                  "Sass::Util.load(#{Sass::Util.dump(importer).inspect})")
-              }]
-          end)
+        template.data[:sass_importers] = engine.dependencies.map do |e|
+          [e.options[:filename], e.options[:importer]]
+        end
 
         stylesheet =
           begin
@@ -74,10 +63,8 @@ unless defined?(Sass::RAILS_LOADED)
 
         <<RUBY
 begin
-  #{importers.map {|_, val| "#{val[:variable]} = #{val[:expression]}"}.join("\n")}
   if Sass::Plugin::TemplateHandler.dependencies_changed?(
-      [#{dependencies.map {|e| "[#{e.options[:filename].inspect}, #{importers[e.options[:importer]][:variable]}]"}.join(',')}],
-      #{Time.now.to_i})
+      @_template.data[:sass_importers], #{Time.now.to_i})
     @_template.expire!
     @_template.rerender(self)
   else
