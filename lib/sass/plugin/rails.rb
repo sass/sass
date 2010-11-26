@@ -13,7 +13,9 @@ unless defined?(Sass::RAILS_LOADED)
 
       if Sass::Util.ap_geq?('3.1.0.beta')
         require 'sass/importers/rails'
+        require 'sass/cache_stores/active_support'
         opts.merge!(:load_paths => [Sass::Importers::Rails.new])
+        opts.merge!(:cache_store => Sass::CacheStores::ActiveSupport.new(Rails.cache)) if Rails.cache
       else
         opts.merge!(
           :always_update      => false,
