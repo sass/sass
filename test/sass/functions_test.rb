@@ -668,6 +668,11 @@ MSG
     assert_error_message("Separator name must be space, comma, or auto for `append'", "append(1, 2, baboon)")
   end
 
+  def test_if
+    assert_equal("1px", evaluate("if(true, 1px, 2px)"))
+    assert_equal("2px", evaluate("if(false, 1px, 2px)"))
+  end
+
   def test_keyword_args_rgb
     assert_equal(%Q{white}, evaluate("rgb($red: 255, $green: 255, $blue: 255)"))
   end
