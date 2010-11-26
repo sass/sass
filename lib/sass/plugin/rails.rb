@@ -92,7 +92,10 @@ RUBY
 
       def self.dependencies_changed?(deps, since)
         opts = Sass::Plugin.engine_options.merge(:cache => false)
-        deps.any? {|d, i| i.mtime(d, opts) > since}
+        deps.any? do |d, i|
+          return true unless time = i.mtime(d, opts)
+          time.to_i > since
+        end
       end
 
       def self.munge_exception(e, lookup_context)
