@@ -1099,6 +1099,7 @@ module Sass::Script
         if_false
       end
     end
+    declare :if, [:condition, :if_true, :if_false]
 
     private
 
