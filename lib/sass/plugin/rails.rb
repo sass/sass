@@ -60,7 +60,7 @@ unless defined?(Sass::RAILS_LOADED)
                 :variable => "importer_#{i}",
                 :expression => (importer == rails_importer ?
                   "Sass::Importers::Rails.new(lookup_context)" :
-                  "Sass::Util.load(#{Sass::Util.dump(importer)})")
+                  "Sass::Util.load(#{Sass::Util.dump(importer).inspect})")
               }]
           end)
 
