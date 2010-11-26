@@ -16,11 +16,7 @@ module Sass
     # as well as the controller prefix for the view being generated.
     class Rails < Base
       # Creates a new Rails importer that imports files as Rails views.
-      #
-      # @param lookup_context [ActionView::LookupContext] The Rails view finder.
-      def initialize(lookup_context)
-        @lookup_context = lookup_context
-      end
+      def initialize; end
 
       # @see Base#find_relative
       def find_relative(uri, base, options)
@@ -35,8 +31,8 @@ module Sass
       # @see Base#mtime
       def mtime(uri, options)
         return unless template =
-          find_template(uri, nil, !:partial) ||
-          find_template(uri, nil, :partial)
+          find_template(uri, nil, !:partial, options) ||
+          find_template(uri, nil, :partial, options)
         template.updated_at
       end
 
@@ -49,13 +45,13 @@ module Sass
 
       def find_(uri, prefix, options)
         prepare_template(
-          find_template(uri, prefix, !:partial) ||
-            find_template(uri, prefix, :partial),
+          find_template(uri, prefix, !:partial, options) ||
+            find_template(uri, prefix, :partial, options),
           options)
       end
 
-      def find_template(uri, prefix, partial)
-        return @lookup_context.
+      def find_template(uri, prefix, partial, options)
+        return options[:_rails_lookup_context].
           find_all(uri, prefix, partial).
           find {|t| t.handler.is_a?(Sass::Plugin::TemplateHandler)}
       end

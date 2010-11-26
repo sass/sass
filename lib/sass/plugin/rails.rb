@@ -40,14 +40,14 @@ unless defined?(Sass::RAILS_LOADED)
       def handles_encoding?; true; end
 
       def call(template, view)
-        rails_importer = Sass::Importers::Rails.new(view.lookup_context)
         engine = Sass::Engine.new(template.source,
           Sass::Plugin.engine_options.merge(
             :cache => false,
             :syntax => @syntax,
             :filename => template.virtual_path,
-            :importer => rails_importer,
-            :load_paths => [rails_importer] + Sass::Plugin.engine_options[:load_paths]))
+            :_rails_lookup_context => view.lookup_context,
+            :importer => Sass::Importers::Rails.new,
+            :load_paths => [Sass::Importers::Rails.new] + Sass::Plugin.engine_options[:load_paths]))
 
         template.data[:sass_importers] = engine.dependencies.map do |e|
           [e.options[:filename], e.options[:importer]]
@@ -64,7 +64,7 @@ unless defined?(Sass::RAILS_LOADED)
         <<RUBY
 begin
   if Sass::Plugin::TemplateHandler.dependencies_changed?(
-      @_template.data[:sass_importers], #{Time.now.to_i})
+      @_template.data[:sass_importers], #{Time.now.to_i}, lookup_context)
     @_template.expire!
     @_template.rerender(self)
   else
@@ -77,8 +77,9 @@ end
 RUBY
       end
 
-      def self.dependencies_changed?(deps, since)
-        opts = Sass::Plugin.engine_options.merge(:cache => false)
+      def self.dependencies_changed?(deps, since, lookup_context)
+        opts = Sass::Plugin.engine_options.merge(
+          :_rails_lookup_context => lookup_context, :cache => false)
         deps.any? do |d, i|
           return true unless time = i.mtime(d, opts)
           time.to_i > since
@@ -86,8 +87,9 @@ RUBY
       end
 
       def self.munge_exception(e, lookup_context)
-        importer = Sass::Importers::Rails.new(lookup_context)
-        opts = Sass::Plugin.engine_options.merge(:cache => false)
+        importer = Sass::Importers::Rails.new
+        opts = Sass::Plugin.engine_options.merge(
+          :_rails_lookup_context => lookup_context, :cache => false)
         e.sass_backtrace.each do |bt|
           next unless engine = importer.find(bt[:filename], opts)
           bt[:filename] = engine.options[:_rails_filename]
