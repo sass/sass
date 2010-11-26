@@ -59,7 +59,6 @@ module Sass
       contents = _retrieve(key, Sass::VERSION, sha)
       Sass::Util.load(contents) if contents
     rescue EOFError, TypeError, ArgumentError => e
-      raise
       Sass::Util.sass_warn "Warning. Error encountered while reading cache #{path_to(key)}: #{e}"
     end
 
