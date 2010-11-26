@@ -4,6 +4,7 @@ unless defined?(Sass::RAILS_LOADED)
   module Sass::Plugin::Configuration
     # Different default options in a rails envirionment.
     def default_options
+      return @default_options if @default_options
       opts = {
         :quiet             => Sass::Util.rails_env != "production",
         :full_exception    => Sass::Util.rails_env != "production",
@@ -20,7 +21,7 @@ unless defined?(Sass::RAILS_LOADED)
           :always_check      => Sass::Util.rails_env == "development")
       end
 
-      @default_options ||= opts.freeze
+      @default_options = opts.freeze
     end
   end
 
