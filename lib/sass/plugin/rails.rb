@@ -6,7 +6,8 @@ unless defined?(Sass::RAILS_LOADED)
     def default_options
       opts = {
         :quiet             => Sass::Util.rails_env != "production",
-        :full_exception    => Sass::Util.rails_env != "production"
+        :full_exception    => Sass::Util.rails_env != "production",
+        :cache_location    => Sass::Util.rails_root + '/tmp/sass-cache'
       }
 
       if Sass::Util.ap_geq?('3.1.0.beta')
@@ -16,7 +17,6 @@ unless defined?(Sass::RAILS_LOADED)
           :always_update      => false,
           :template_location => Sass::Util.rails_root + '/public/stylesheets/sass',
           :css_location      => Sass::Util.rails_root + '/public/stylesheets',
-          :cache_location    => Sass::Util.rails_root + '/tmp/sass-cache',
           :always_check      => Sass::Util.rails_env == "development")
       end
 
@@ -42,7 +42,6 @@ unless defined?(Sass::RAILS_LOADED)
       def call(template, view)
         engine = Sass::Engine.new(template.source,
           Sass::Plugin.engine_options.merge(
-            :cache => false,
             :syntax => @syntax,
             :filename => template.virtual_path,
             :_rails_lookup_context => view.lookup_context,
@@ -78,8 +77,7 @@ RUBY
       end
 
       def self.dependencies_changed?(deps, since, lookup_context)
-        opts = Sass::Plugin.engine_options.merge(
-          :_rails_lookup_context => lookup_context, :cache => false)
+        opts = Sass::Plugin.engine_options.merge(:_rails_lookup_context => lookup_context)
         deps.any? do |d, i|
           return true unless time = i.mtime(d, opts)
           time.to_i > since
@@ -88,8 +86,7 @@ RUBY
 
       def self.munge_exception(e, lookup_context)
         importer = Sass::Importers::Rails.new
-        opts = Sass::Plugin.engine_options.merge(
-          :_rails_lookup_context => lookup_context, :cache => false)
+        opts = Sass::Plugin.engine_options.merge(:_rails_lookup_context => lookup_context)
         e.sass_backtrace.each do |bt|
           next unless engine = importer.find(bt[:filename], opts)
           bt[:filename] = engine.options[:_rails_filename]

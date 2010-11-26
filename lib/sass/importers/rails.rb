@@ -36,6 +36,12 @@ module Sass
         template.updated_at
       end
 
+      # @see Base#key
+      def key(uri, options)
+        [self.class.name + ":" + uri.split('/')[0...-1].join('/'),
+          uri.split('/')[-1] + "." + options[:syntax].to_s]
+      end
+
       # @see Base#to_s
       def to_s
         "(Rails importer)"
