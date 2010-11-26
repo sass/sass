@@ -138,6 +138,11 @@ module Sass::Script
   # \{#comparable comparable($number-1, $number-2)}
   # : Returns whether two numbers can be added or compared.
   #
+  # ## Miscellaneous Functions
+  #
+  # \{#if if($condition, $if-true, $if-false)}
+  # : Returns one of two values, depending on whether or not a condition is true.
+  #
   # ## Adding Custom Functions
   #
   # New Sass functions can be added by adding Ruby methods to this module.
@@ -1078,15 +1083,16 @@ module Sass::Script
     declare :append, [:list, :val]
     declare :append, [:list, :val, :separator]
 
-    # returns one of two values based on the truth value of the first argument.
+    # Returns one of two values based on the truth value of the first argument.
     #
     # @example
     #   if(true, 1px, 2px) => 1px
     #   if(false, 1px, 2px) => 2px
-    # @param truth [Bool] the expression to be evaluated for truth
-    # @param if_true will be returned if the truth value is true.
-    # @param if_false will be returned if the truth value is false.
-    def if(truth, if_true, if_false)
+    # @param condition [Bool] Whether the first or second value will be returned.
+    # @param if_true [Literal] The value that will be returned if `$condition` is true.
+    # @param if_false [Literal] The value that will be returned if `$condition` is false.
+    def if(condition, if_true, if_false)
+      assert_type condition, :Bool
       if truth.to_bool
         if_true
       else
