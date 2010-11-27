@@ -231,6 +231,9 @@ END
         opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
           @options[:for_engine][:quiet] = true
         end
+        opts.on('--compass', 'Loads compass.') do
+          @options[:compass] = true
+        end
         opts.on('-g', '--debug-info',
                 'Emit extra information in the generated CSS that can be used by the FireSass Firebug plugin.') do
           @options[:for_engine][:debug_info] = true
@@ -276,7 +279,7 @@ END
             @options[:update] = true
           end
         end
-
+        load_compass if @options[:compass]
         return interactive if @options[:interactive]
         return watch_or_update if @options[:watch] || @options[:update]
         super
@@ -308,6 +311,22 @@ END
       end
 
       private
+
+      def load_compass
+        begin
+          require 'compass'
+        rescue LoadError
+          require 'rubygems'
+          begin
+            require 'compass'
+          rescue LoadError
+            puts "ERROR: Cannot load compass."
+            exit 1
+          end
+        end
+        Compass.add_project_configuration
+        @options[:for_engine][:load_paths] += Compass.configuration.sass_load_paths
+      end
 
       def interactive
         require 'sass/repl'
