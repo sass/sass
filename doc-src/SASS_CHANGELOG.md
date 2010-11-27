@@ -11,6 +11,10 @@
   based on the truth value of the first argument.
   For example, `if(true, 1px, 2px)` returns `1px` and `if(false, 1px, 2px)` returns `2px`.
 
+* Compass users can now interact with the sass command line more easily by adding the
+  `--compass` flag which will make the compass libraries available as well your project's
+  own imports when running the command from your project root.
+
 * Many performance optimizations have been made by [thedarkone](http://github.com/thedarkone).
 
 * Allow selectors to contain extra commas to make them easier to modify.
