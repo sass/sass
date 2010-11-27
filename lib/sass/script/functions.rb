@@ -1093,7 +1093,7 @@ module Sass::Script
     # @param if_false [Literal] The value that will be returned if `$condition` is false.
     def if(condition, if_true, if_false)
       assert_type condition, :Bool
-      if truth.to_bool
+      if condition.to_bool
         if_true
       else
         if_false
