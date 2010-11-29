@@ -93,6 +93,16 @@ MSG
     "=a($b = 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c",
     "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing parameter $b.",
+    "@function foo()\n  1 + 2" => "something about 'did you mean @return'",
+    "@function foo()\n  foo: bar" => "something about 'did you mean @return'",
+    "@function foo()\n  foo: bar\n  @return 3" => ["Properties not allowed within functions", 2],
+    "@function foo\n  @return 1" => 'Invalid CSS after "": expected "(", was ""',
+    "@function foo(\n  @return 1" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ""',
+    "@function foo(b)\n  @return 1" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "b)"',
+    "@function foo(,)\n  @return 1" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ",)"',
+    "@function foo($)\n  @return 1" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "$)"',
+    "@function foo()\n  @return" => ['Invalid @return: expected expression.', 2],
+    "foo\n  @function bar()\n    @return 1" => ['Functions may only be defined at the root of a document.', 2],
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
     "@if false\n@else foo" => "Invalid else directive '@else foo': expected 'if <expr>'.",
     "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
@@ -1120,6 +1130,90 @@ CSS
 
 a
   +\\{foo\\(12\\)(12)
+SASS
+  end
+
+  def test_basic_function
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 3; }
+CSS
+@function foo()
+  @return 1 + 2
+
+bar
+  a: foo()
+SASS
+  end
+
+  def test_function_args
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 3; }
+CSS
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus(1, 2)
+SASS
+  end
+
+  def test_function_arg_default
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 3; }
+CSS
+@function plus($var1, $var2: 2)
+  @return $var1 + $var2
+
+bar
+  a: plus(1)
+SASS
+  end
+
+  def test_function_arg_keyword
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 1bar; }
+CSS
+@function plus($var1: 1, $var2: 2)
+  @return $var1 + $var2
+
+bar
+  a: plus($var2: bar)
+SASS
+  end
+
+  def test_function_with_if
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: foo;
+  b: bar; }
+CSS
+@function my-if($cond, $val1, $val2)
+  @if $cond
+    @return $val1
+  @else
+    @return $val2
+
+bar
+  a: my-if(true, foo, bar)
+  b: my-if(false, foo, bar)
+SASS
+  end
+
+  def test_function_with_var
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 1; }
+CSS
+@function foo($val1, $val2)
+  $intermediate: $val1 + $val2
+  @return $intermediate/3
+
+bar
+  a: foo(1, 2)
 SASS
   end
 

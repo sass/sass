@@ -901,6 +901,47 @@ foo {
 SCSS
   end
 
+  def test_argless_function_definition
+    assert_renders <<SASS, <<SCSS
+@function foo()
+  $var: 1 + 1
+  @return $var
+SASS
+@function foo() {
+  $var: 1 + 1;
+  @return $var;
+}
+SCSS
+  end
+
+  def test_function_definition_without_defaults
+    assert_renders <<SASS, <<SCSS
+@function foo($var1, $var2)
+  @if $var1
+    @return $var1 + $var2
+SASS
+@function foo($var1, $var2) {
+  @if $var1 {
+    @return $var1 + $var2;
+  }
+}
+SCSS
+  end
+
+  def test_function_definition_with_defaults
+    assert_renders <<SASS, <<SCSS
+@function foo($var1, $var2: foo)
+  @if $var1
+    @return $var1 + $var2
+SASS
+@function foo($var1, $var2: foo) {
+  @if $var1 {
+    @return $var1 + $var2;
+  }
+}
+SCSS
+  end
+
   def test_variable_definition
     assert_renders <<SASS, <<SCSS
 $var1: 12px + 15px
