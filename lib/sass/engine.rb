@@ -12,6 +12,7 @@ require 'sass/tree/media_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
+require 'sass/tree/function_node'
 require 'sass/tree/extend_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
@@ -630,6 +631,8 @@ WARNING
         parse_mixin_definition(line)
       elsif directive == "include"
         parse_mixin_include(line, root)
+      elsif directive == "function"
+        parse_function(line, root)
       elsif directive == "for"
         parse_for(line, root, value)
       elsif directive == "each"
@@ -782,7 +785,6 @@ WARNING
       offset = line.offset + line.text.size - arg_string.size
       args = Script::Parser.new(arg_string.strip, @line, offset, @options).
         parse_mixin_definition_arglist
-      default_arg_found = false
       Tree::MixinDefNode.new(name, args)
     end
 
@@ -797,6 +799,17 @@ WARNING
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.",
         :line => @line + 1) unless line.children.empty?
       Tree::MixinNode.new(name, args, keywords)
+    end
+
+    FUNCTION_RE = /^@function\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
+    def parse_function(line, root)
+      name, arg_string = line.text.scan(FUNCTION_RE).first
+      raise SyntaxError.new("Invalid function definition \"#{line.text}\".") if name.nil?
+
+      offset = line.offset + line.text.size - arg_string.size
+      args = Script::Parser.new(arg_string.strip, @line, offset, @options).
+        parse_mixin_definition_arglist
+      Tree::FunctionNode.new(name, args)
     end
 
     def parse_script(script, options = {})

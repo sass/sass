@@ -381,7 +381,8 @@ module Sass
       # and false otherwise.
       #
       # By default, all child nodes except those only allowed under specific nodes
-      # ({Tree::MixinDefNode}, {Tree::ImportNode}, {Tree::ExtendNode}) are valid.
+      # ({Tree::MixinDefNode}, {Tree::FunctionNode}, {Tree::ImportNode}, {Tree::ExtendNode})
+      # are valid.
       # This is expected to be overriden by subclasses
       # for which some children are invalid.
       #
@@ -392,6 +393,8 @@ module Sass
         case child
         when Tree::MixinDefNode
           "Mixins may only be defined at the root of a document."
+        when Tree::FunctionNode
+          "Functions may only be defined at the root of a document."
         when Tree::ImportNode
           "Import directives may only be used at the root of a document."
         end
