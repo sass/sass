@@ -114,6 +114,10 @@ MSG
     '@warn' => "Invalid warn directive '@warn': expected expression.",
     %Q{@warn "a message"\n  "nested message"} => "Illegal nesting: Nothing may be nested beneath warn directives.",
     "/* foo\n    bar\n  baz" => "Inconsistent indentation: previous line was indented by 4 spaces, but this line was indented by 2 spaces.",
+    "@if foo\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
+    "$var: true\n@while $var\n  @extend .bar\n  $var: false" => ["Extend directives may only be used within rules.", 3],
+    "@for $i from 0 to 1\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
+    "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
