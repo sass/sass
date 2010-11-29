@@ -123,6 +123,10 @@ MSG
     "a\n  b: foo($var: a, $var: b)" => 'Keyword argument "$var" passed more than once',
     "a\n  b: foo($var-var: a, $var_var: b)" => 'Keyword argument "$var-var" passed more than once',
     "a\n  b: foo($var_var: a, $var-var: b)" => 'Keyword argument "$var_var" passed more than once',
+    "@if foo\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
+    "$var: true\n@while $var\n  @extend .bar\n  $var: false" => ["Extend directives may only be used within rules.", 3],
+    "@for $i from 0 to 1\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
+    "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
