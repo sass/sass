@@ -31,18 +31,6 @@ module Sass::Tree
 
     protected
 
-    # Returns an error message if the given child node is invalid,
-    # and false otherwise.
-    #
-    # {ExtendNode}s are valid within {MixinNode}s.
-    #
-    # @param child [Tree::Node] A potential child node
-    # @return [Boolean, String] Whether or not the child node is valid,
-    #   as well as the error message to display if it is invalid
-    def invalid_child?(child)
-      super unless child.is_a?(ExtendNode)
-    end
-
     # @see Node#to_src
     def to_src(tabs, opts, fmt)
       unless @args.empty? && @keywords.empty?

@@ -340,6 +340,7 @@ module Sass
       # @see #perform
       def perform!(environment)
         self.children = perform_children(Environment.new(environment))
+        self.children.each {|c| check_child! c}
       end
 
       # Non-destructively runs \{#perform} on all children of the current node.
@@ -393,8 +394,6 @@ module Sass
           "Mixins may only be defined at the root of a document."
         when Tree::ImportNode
           "Import directives may only be used at the root of a document."
-        when Tree::ExtendNode
-          "Extend directives may only be used within rules."
         end
       end
 
