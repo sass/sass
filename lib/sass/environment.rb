@@ -146,10 +146,10 @@ RUBY
     # Script::Literal
     inherited_hash :var
     # mixin
-    # Engine::Mixin
+    # Sass::Callable
     inherited_hash :mixin
     # function
-    # Engine::Mixin
+    # Sass::Callable
     inherited_hash :function
   end
 end

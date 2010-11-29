@@ -40,7 +40,7 @@ module Sass
       # @param environment [Sass::Environment] The lexical environment containing
       #   variable and mixin values
       def _perform(environment)
-        environment.set_mixin(@name, Sass::Mixin.new(@name, @args, environment, children))
+        environment.set_mixin(@name, Sass::Callable.new(@name, @args, environment, children))
         []
       end
     end

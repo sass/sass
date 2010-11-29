@@ -32,24 +32,24 @@ require 'sass/shared'
 
 module Sass
 
-  # A Sass mixin.
+  # A Sass mixin or function.
   #
   # `name`: `String`
-  # : The name of the mixin.
+  # : The name of the mixin/function.
   #
   # `args`: `Array<(String, Script::Node)>`
-  # : The arguments for the mixin.
+  # : The arguments for the mixin/function.
   #   Each element is a tuple containing the name of the argument
   #   and the parse tree for the default value of the argument.
   #
   # `environment`: {Sass::Environment}
-  # : The environment in which the mixin was defined.
-  #   This is captured so that the mixin can have access
+  # : The environment in which the mixin/function was defined.
+  #   This is captured so that the mixin/function can have access
   #   to local variables defined in its scope.
   #
-  # `tree`: {Sass::Tree::Node}
-  # : The parse tree for the mixin.
-  Mixin = Struct.new(:name, :args, :environment, :tree)
+  # `tree`: `Array<Tree::Node>`
+  # : The parse tree for the mixin/function.
+  Callable = Struct.new(:name, :args, :environment, :tree)
 
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
