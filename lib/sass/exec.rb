@@ -231,7 +231,7 @@ END
         opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
           @options[:for_engine][:quiet] = true
         end
-        opts.on('--compass', 'Loads compass.') do
+        opts.on('--compass', 'Make Compass imports available and load project configuration.') do
           @options[:compass] = true
         end
         opts.on('-g', '--debug-info',
