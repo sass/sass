@@ -226,18 +226,6 @@ module Sass::Tree
       super
     end
 
-    # Returns an error message if the given child node is invalid,
-    # and false otherwise.
-    #
-    # {ExtendNode}s are valid within {RuleNode}s.
-    #
-    # @param child [Tree::Node] A potential child node.
-    # @return [Boolean, String] Whether or not the child node is valid,
-    #   as well as the error message to display if it is invalid
-    def invalid_child?(child)
-      super unless child.is_a?(ExtendNode)
-    end
-
     # A hash that will be associated with this rule in the CSS document
     # if the {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option} is enabled.
     # This data is used by e.g. [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988).

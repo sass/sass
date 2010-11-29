@@ -369,8 +369,6 @@ module Sass
           "Mixins may only be defined at the root of a document."
         when Tree::ImportNode
           "Import directives may only be used at the root of a document."
-        when Tree::ExtendNode
-          "Extend directives may only be used within rules."
         end
       end
 

@@ -148,9 +148,15 @@ module Sass
       #
       # @see Node#invalid_child?
       def invalid_child?(child)
-        return unless child.is_a?(Tree::PropNode)
-        "Properties aren't allowed at the root of a document." +
-          child.pseudo_class_selector_message
+        case child
+        when Tree::ExtendNode
+          "Extend directives may only be used within rules."
+        when Tree::PropNode
+          "Properties aren't allowed at the root of a document." +
+            child.pseudo_class_selector_message
+        else
+          return
+        end
       end
     end
   end
