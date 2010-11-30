@@ -102,6 +102,7 @@ MSG
     "@function foo(,)\n  @return 1" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ",)"',
     "@function foo($)\n  @return 1" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "$)"',
     "@function foo()\n  @return" => ['Invalid @return: expected expression.', 2],
+    "@function foo()\n  @return 1\n    $var: val" => ['Illegal nesting: nothing may be nested beneath return directives.', 2],
     "foo\n  @function bar()\n    @return 1" => ['Functions may only be defined at the root of a document.', 2],
     "@return 1" => '@return may only be used within a function.',
     "@if true\n  @return 1" => '@return may only be used within a function.',
