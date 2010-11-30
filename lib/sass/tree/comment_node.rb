@@ -102,17 +102,6 @@ module Sass::Tree
       content
     end
 
-    # Removes this node from the tree if it's a silent comment.
-    #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    # @return [Tree::Node, Array<Tree::Node>] The resulting static nodes
-    # @see Sass::Tree
-    def _perform(environment)
-      return [] if @silent
-      self
-    end
-
     private
 
     def normalize_indentation(str)

@@ -22,28 +22,11 @@ module Sass
       end
 
       # Runs the dynamic Sass code *and* computes the CSS for the tree.
-      #
-      # @see #perform
       # @see #to_s
       def render
-        result, extends = Visitors::Cssize.visit(perform(Environment.new))
+        result, extends = Visitors::Cssize.visit(Visitors::Perform.visit(self))
         result = result.do_extend(extends) unless extends.empty?
         result.to_s
-      end
-
-      # @see Node#perform
-      def perform(environment)
-        environment.options = @options if environment.options.nil? || environment.options.empty?
-        super
-      rescue Sass::SyntaxError => e
-        e.sass_template ||= @template
-        raise e
-      end
-
-      # @see \{Node#perform!}
-      def perform!(environment)
-        environment.options = @options if environment.options.nil? || environment.options.empty?
-        super
       end
 
       # Converts a node to Sass code that will generate it.

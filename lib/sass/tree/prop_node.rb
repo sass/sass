@@ -13,7 +13,7 @@ module Sass::Tree
 
     # The name of the property
     # after any interpolated SassScript has been resolved.
-    # Only set once \{Tree::Node#perform} has been called.
+    # Only set once \{Tree::Visitors::Perform} has been run.
     #
     # @return [String]
     attr_accessor :resolved_name
@@ -25,7 +25,7 @@ module Sass::Tree
 
     # The value of the property
     # after any interpolated SassScript has been resolved.
-    # Only set once \{Tree::Node#perform} has been called.
+    # Only set once \{Tree::Visitors::Perform} has been run.
     #
     # @return [String]
     attr_accessor :resolved_value
@@ -94,23 +94,6 @@ module Sass::Tree
       else
         "#{tab_str}#{resolved_name}: #{resolved_value};"
       end
-    end
-
-    # Runs any SassScript that may be embedded in the property,
-    # and invludes the parent property, if any.
-    #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    def perform!(environment)
-      @resolved_name = run_interp(@name, environment)
-      val = @value.perform(environment)
-      @resolved_value =
-        if @value.context == :equals && val.is_a?(Sass::Script::String)
-          val.value
-        else
-          val.to_s
-        end
-      super
     end
 
     # Returns an error message if the given child node is invalid,

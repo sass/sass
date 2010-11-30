@@ -8,7 +8,7 @@ module Sass
   # in addition to nodes for CSS rules and properties.
   # Nodes that only appear in this state are called **dynamic nodes**.
   #
-  # {Tree::Node#perform} returns a static Sass tree, which is different.
+  # {Tree::Visitors::Perform} creates a static Sass tree, which is different.
   # It still has nodes for CSS rules and properties
   # but it doesn't have any dynamic-generation-related nodes.
   # The nodes in this state are in the same structure as the Sass document:
@@ -176,26 +176,6 @@ module Sass
         raise e
       end
 
-      # Converts a dynamic tree into a static Sass tree.
-      # That is, runs the dynamic Sass code:
-      # mixins, variables, control directives, and so forth.
-      # This doesn't modify this node or any of its children.
-      #
-      # \{#perform} shouldn't be overridden directly;
-      # instead, override \{#\_perform} or \{#perform!}.
-      #
-      # @param environment [Sass::Environment] The lexical environment containing
-      #   variable and mixin values
-      # @return [Tree::Node] The resulting tree of static nodes
-      # @raise [Sass::SyntaxError] if some element of the tree is invalid
-      # @see Sass::Tree
-      def perform(environment)
-        _perform(environment)
-      rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => filename, :line => line)
-        raise e
-      end
-
       # Iterates through each node in the tree rooted at this node
       # in a pre-order walk.
       #
@@ -256,7 +236,7 @@ module Sass
       # This method should never raise {Sass::SyntaxError}s.
       # Such errors will not be properly annotated with Sass backtrace information.
       # All error conditions should be checked in earlier transformations,
-      # such as \{Tree::Visitors::Cssize} and \{#perform}.
+      # such as \{Tree::Visitors::Cssize} and \{Tree::Visitors::Perform}.
       #
       # @param args [Array] ignored
       # @return [String, nil] The resulting CSS
@@ -264,58 +244,6 @@ module Sass
       # @see Sass::Tree
       def _to_s
         Sass::Util.abstract(self)
-      end
-
-      # Runs any dynamic Sass code in this particular node.
-      # This doesn't modify this node or any of its children.
-      #
-      # @param environment [Sass::Environment] The lexical environment containing
-      #   variable and mixin values
-      # @return [Tree::Node, Array<Tree::Node>] The resulting static nodes
-      # @see #perform
-      # @see Sass::Tree
-      def _perform(environment)
-        node = dup
-        node.perform!(environment)
-        node
-      end
-
-      # Destructively runs dynamic Sass code in this particular node.
-      # This *does* modify this node,
-      # but will be run non-destructively by \{#\_perform\}.
-      #
-      # @param environment [Sass::Environment] The lexical environment containing
-      #   variable and mixin values
-      # @see #perform
-      def perform!(environment)
-        self.children = perform_children(Environment.new(environment))
-        self.children.each {|c| check_child! c}
-      end
-
-      # Non-destructively runs \{#perform} on all children of the current node.
-      #
-      # @param environment [Sass::Environment] The lexical environment containing
-      #   variable and mixin values
-      # @return [Array<Tree::Node>] The resulting static nodes
-      def perform_children(environment)
-        children.map {|c| c.perform(environment)}.flatten
-      end
-
-      # Replaces SassScript in a chunk of text
-      # with the resulting value.
-      #
-      # @param text [Array<String, Sass::Script::Node>] The text to interpolate
-      # @param environment [Sass::Environment] The lexical environment containing
-      #   variable and mixin values
-      # @return [String] The interpolated text
-      def run_interp(text, environment)
-        text.map do |r|
-          next r if r.is_a?(String)
-          val = r.perform(environment)
-          # Interpolated strings should never render with quotes
-          next val.value if val.is_a?(Sass::Script::String)
-          val.to_s
-        end.join.strip
       end
 
       # @see Sass::Shared.balance

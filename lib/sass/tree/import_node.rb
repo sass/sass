@@ -46,38 +46,6 @@ module Sass
         end
       end
 
-      protected
-
-      # Returns a static DirectiveNode if this is importing a CSS file,
-      # or parses and includes the imported Sass file.
-      #
-      # @param environment [Sass::Environment] The lexical environment containing
-      #   variable and mixin values
-      def _perform(environment)
-        if path = css_import?
-          return DirectiveNode.new("@import url(#{path})")
-        end
-        super
-      end
-
-      # Parses the imported file and runs the dynamic Sass for it.
-      #
-      # @param environment [Sass::Environment] The lexical environment containing
-      #   variable and mixin values
-      def perform!(environment)
-        environment.push_frame(:filename => @filename, :line => @line)
-        # TODO: re-enable caching
-        root = imported_file.to_tree
-        self.children = root.children
-        self.children = perform_children(environment)
-      rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => imported_file.options[:filename])
-        e.add_backtrace(:filename => @filename, :line => @line)
-        raise e
-      ensure
-        environment.pop_frame
-      end
-
       private
 
       def import

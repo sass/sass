@@ -5,6 +5,14 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class EachNode < Node
+    # The name of the loop variable.
+    # @return [String]
+    attr_reader :var
+
+    # The parse tree for the list.
+    # @param [Script::Node]
+    attr_reader :list
+
     # @param var [String] The name of the loop variable
     # @param list [Script::Node] The parse tree for the list
     def initialize(var, list)
@@ -19,24 +27,6 @@ module Sass::Tree
     def to_src(tabs, opts, fmt)
       "#{'  ' * tabs}@each $#{dasherize(@var, opts)} in #{@list.to_sass(opts)}" +
         children_to_src(tabs, opts, fmt)
-    end
-
-    # Runs the child nodes once for each value in the list.
-    #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    # @return [Array<Tree::Node>] The resulting static nodes
-    # @see Sass::Tree
-    def _perform(environment)
-      list = @list.perform(environment)
-
-      children = []
-      environment = Sass::Environment.new(environment)
-      list.to_a.each do |v|
-        environment.set_local_var(@var, v)
-        children += perform_children(environment)
-      end
-      children
     end
 
     # Returns an error message if the given child node is invalid,

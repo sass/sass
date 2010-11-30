@@ -178,17 +178,6 @@ module Sass::Tree
       to_return
     end
 
-    # Runs SassScript interpolation in the selector,
-    # and then parses the result into a {Sass::Selector::CommaSequence}.
-    #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    def perform!(environment)
-      @parsed_rules = Sass::SCSS::StaticParser.new(run_interp(@rule, environment), self.line).
-        parse_selector(self.filename)
-      super
-    end
-
     # A hash that will be associated with this rule in the CSS document
     # if the {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option} is enabled.
     # This data is used by e.g. [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988).
