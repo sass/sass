@@ -25,11 +25,10 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Keeps track of the current parent node.
   def visit_children(parent)
-    old_parent, @parent = @parent, parent
-    parent.children = super.flatten
-    parent
-  ensure
-    @parent = old_parent
+    with_parent parent do
+      parent.children = super.flatten
+      parent
+    end
   end
 
   # Runs a block of code with the current parent node
