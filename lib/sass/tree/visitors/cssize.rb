@@ -7,9 +7,12 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   protected
 
+  # Returns the immediate parent of the current node.
+  # @return [Tree::Node]
+  attr_reader :parent
+
   def initialize
     @extends = Sass::Util::SubsetMap.new
-    @parents = []
   end
 
   # If an exception is raised, this adds proper metadata to the backtrace.
@@ -20,13 +23,13 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     raise e
   end
 
-  # Keeps track of the current stack of parent nodes.
+  # Keeps track of the current parent node.
   def visit_children(parent)
-    @parents.push(parent)
+    old_parent, @parent = @parent, parent
     parent.children = super.flatten
     parent
   ensure
-    @parents.pop
+    @parent = old_parent
   end
 
   # Runs a block of code with the current parent node
@@ -36,16 +39,10 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # @yield A block in which the parent is set to `parent`.
   # @return [Object] The return value of the block.
   def with_parent(parent)
-    old_parent, @parents[-1] = @parents[-1], parent
+    old_parent, @parent = @parent, parent
     yield
   ensure
-    @parents[-1] = old_parent
-  end
-
-  # Returns the immediate parent of the current node.
-  # @return [Tree::Node]
-  def parent
-    @parents.last
+    @parent = old_parent
   end
 
   # In Ruby 1.8, ensures that there's only one `@charset` directive
@@ -58,7 +55,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
     # In Ruby 1.9 we can make all @charset nodes invisible
     # and infer the final @charset from the encoding of the final string.
-    if Sass::Util.ruby1_8? && @parents.empty?
+    if Sass::Util.ruby1_8? && parent.nil?
       charset = node.children.find {|c| c.is_a?(Sass::Tree::CharsetNode)}
       node.children.reject! {|c| c.is_a?(Sass::Tree::CharsetNode)}
       node.children.unshift charset if charset
