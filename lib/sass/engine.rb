@@ -13,6 +13,7 @@ require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
 require 'sass/tree/function_node'
+require 'sass/tree/return_node'
 require 'sass/tree/extend_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
@@ -663,6 +664,12 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::WarnNode.new(parse_script(value, :offset => offset))
+      elsif directive == "return"
+        raise SyntaxError.new("Invalid @return: expected expression.") unless value
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath return directives.",
+          :line => @line + 1) unless line.children.empty?
+        offset = line.offset + line.text.index(value).to_i
+        Tree::ReturnNode.new(parse_script(value, :offset => offset))
       elsif directive == "charset"
         name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
         raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name

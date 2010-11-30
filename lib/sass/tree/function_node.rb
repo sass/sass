@@ -44,8 +44,8 @@ module Sass
       # @return [String] An error message if the child is invalid, or nil otherwise
       def invalid_child?(child)
         super ||
-          unless [CommentNode, DebugNode, EachNode, ForNode,
-              IfNode, VariableNode, WarnNode, WhileNode].any? {|c| child.is_a?(c)}
+          unless [CommentNode, DebugNode, EachNode, ForNode, IfNode,
+              ReturnNode, VariableNode, WarnNode, WhileNode].any? {|c| child.is_a?(c)}
             "Functions can only contain variable declarations and certain directives."
           end
       end
