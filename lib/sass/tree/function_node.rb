@@ -4,6 +4,10 @@ module Sass
     #
     # @see Sass::Tree
     class FunctionNode < Node
+      # @param name [String] The function name
+      # @param args [Array<(Script::Node, Script::Node)>] The arguments for the function.
+      #   Each element is a tuple containing the variable for argument
+      #   and the parse tree for the default value of the argument
       def initialize(name, args)
         @name = name
         @args = args
