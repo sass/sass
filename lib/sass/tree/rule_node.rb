@@ -27,7 +27,7 @@ module Sass::Tree
 
     # The CSS selector for this rule,
     # without any unresolved interpolation or parent references.
-    # It's only set once {Tree::Node#cssize} has been called.
+    # It's only set once {Tree::Visitors::Cssize} has been run.
     #
     # @return [Selector::CommaSequence]
     attr_accessor :resolved_rules
@@ -186,42 +186,6 @@ module Sass::Tree
     def perform!(environment)
       @parsed_rules = Sass::SCSS::StaticParser.new(run_interp(@rule, environment), self.line).
         parse_selector(self.filename)
-      super
-    end
-
-    # Converts nested rules into a flat list of rules.
-    #
-    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
-    #   The extensions defined for this tree
-    # @param parent [RuleNode, nil] The parent node of this node,
-    #   or nil if the parent isn't a {RuleNode}
-    def _cssize(extends, parent)
-      node = super
-      rules = node.children.select {|c| c.is_a?(RuleNode) || c.is_a?(MediaNode)}
-      props = node.children.reject {|c| c.is_a?(RuleNode) || c.is_a?(MediaNode) || c.invisible?}
-
-      unless props.empty?
-        node.children = props
-        rules.each {|r| r.tabs += 1} if style == :nested
-        rules.unshift(node)
-      end
-
-      rules.last.group_end = true unless parent || rules.empty?
-
-      rules
-    end
-
-    # Resolves parent references and nested selectors,
-    # and updates the indentation based on the parent's indentation.
-    #
-    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
-    #   The extensions defined for this tree
-    # @param parent [RuleNode, nil] The parent node of this node,
-    #   or nil if the parent isn't a {RuleNode}
-    # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
-    def cssize!(extends, parent)
-      # It's possible for resolved_rules to be set if we've duplicated this node during @media bubbling
-      self.resolved_rules ||= @parsed_rules.resolve_parent_refs(parent && parent.resolved_rules)
       super
     end
 

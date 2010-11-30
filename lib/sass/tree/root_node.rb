@@ -26,7 +26,7 @@ module Sass
       # @see #perform
       # @see #to_s
       def render
-        result, extends = perform(Environment.new).cssize
+        result, extends = Visitors::Cssize.visit(perform(Environment.new))
         result = result.do_extend(extends) unless extends.empty?
         result.to_s
       end
@@ -35,19 +35,6 @@ module Sass
       def perform(environment)
         environment.options = @options if environment.options.nil? || environment.options.empty?
         super
-      rescue Sass::SyntaxError => e
-        e.sass_template ||= @template
-        raise e
-      end
-
-      # Like {Node#cssize}, except that this method
-      # will create its own `extends` map if necessary,
-      # and it returns that map along with the cssized tree.
-      #
-      # @return [(Tree::Node, Sass::Util::SubsetMap)] The resulting tree of static nodes
-      #   *and* the extensions defined for this tree
-      def cssize(extends = Sass::Util::SubsetMap.new, parent = nil)
-        return super(extends, parent), extends
       rescue Sass::SyntaxError => e
         e.sass_template ||= @template
         raise e
@@ -123,22 +110,6 @@ module Sass
           }".encode(result.encoding) + result
         end
         result
-      end
-
-      # In Ruby 1.8, ensures that there's only one @charset directive
-      # and that it's at the top of the document.
-      #
-      # @see Node#cssize
-      def cssize!(extends, parent)
-        super
-
-        # In Ruby 1.9 we can make all @charset nodes invisible
-        # and infer the final @charset from the encoding of the final string.
-        if Sass::Util.ruby1_8? && parent.nil?
-          charset = self.children.find {|c| c.is_a?(CharsetNode)}
-          self.children.reject! {|c| c.is_a?(CharsetNode)}
-          self.children.unshift charset if charset
-        end
       end
 
       # Returns an error message if the given child node is invalid,

@@ -51,9 +51,8 @@ module Sass
           [SimpleSequence.new(super_seq.members.last.members + @members[1..-1])]
       end
 
-      # Non-destrucively extends this selector
-      # with the extensions specified in a hash
-      # (which should be populated via {Sass::Tree::Node#cssize}).
+      # Non-destrucively extends this selector with the extensions specified in a hash
+      # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
       # @overload def do_extend(extends)
       # @param extends [{Selector::Simple => Selector::Sequence}]

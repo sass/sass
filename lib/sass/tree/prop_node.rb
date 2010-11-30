@@ -96,36 +96,6 @@ module Sass::Tree
       end
     end
 
-    # Converts nested properties into flat properties.
-    #
-    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
-    #   The extensions defined for this tree
-    # @param parent [PropNode, nil] The parent node of this node,
-    #   or nil if the parent isn't a {PropNode}
-    # @raise [Sass::SyntaxError] if the property uses invalid syntax
-    def _cssize(extends, parent)
-      node = super
-      result = node.children.dup
-      if !node.resolved_value.empty? || node.children.empty?
-        node.send(:check!)
-        result.unshift(node)
-      end
-      result
-    end
-
-    # Updates the name and indentation of this node based on the parent name
-    # and nesting level.
-    #
-    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
-    #   The extensions defined for this tree
-    # @param parent [PropNode, nil] The parent node of this node,
-    #   or nil if the parent isn't a {PropNode}
-    def cssize!(extends, parent)
-      self.resolved_name = "#{parent.resolved_name}-#{resolved_name}" if parent
-      self.tabs = parent.tabs + (parent.resolved_value.empty? ? 0 : 1) if parent && style == :nested
-      super
-    end
-
     # Runs any SassScript that may be embedded in the property,
     # and invludes the parent property, if any.
     #

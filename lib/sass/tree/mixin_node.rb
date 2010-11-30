@@ -7,6 +7,10 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class MixinNode < Node
+    # The name of the mixin.
+    # @return [String]
+    attr_reader :name
+
     # @see Node#options=
     def options=(opts)
       super
@@ -24,11 +28,6 @@ module Sass::Tree
       super()
     end
 
-    # @see Node#cssize
-    def cssize(extends, parent = nil)
-      _cssize(extends, parent) # Pass on the parent even if it's not a MixinNode
-    end
-
     protected
 
     # @see Node#to_src
@@ -39,18 +38,6 @@ module Sass::Tree
         arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
       end
       "#{'  ' * tabs}#{fmt == :sass ? '+' : '@include '}#{dasherize(@name, opts)}#{arglist}#{semi fmt}\n"
-    end
-
-    # @see Node#_cssize
-    def _cssize(extends, parent)
-      children.map do |c|
-        parent.check_child! c
-        c.cssize(extends, parent)
-      end.flatten
-    rescue Sass::SyntaxError => e
-      e.modify_backtrace(:mixin => @name, :filename => filename, :line => line)
-      e.add_backtrace(:filename => filename, :line => line)
-      raise e
     end
 
     # Runs the mixin.

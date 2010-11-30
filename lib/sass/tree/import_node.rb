@@ -35,11 +35,6 @@ module Sass
         "#{'  ' * tabs}@import \"#{@imported_filename}\";\n"
       end
 
-      # @see Node#cssize
-      def cssize(*args)
-        super.first
-      end
-
       # Returns whether or not this import should emit a CSS @import declaration
       #
       # @return [Boolean] Whether or not this is a simple CSS @import declaration.
@@ -52,15 +47,6 @@ module Sass
       end
 
       protected
-
-      # @see Node#_cssize
-      def _cssize(*args)
-        super.children
-      rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => children.first.filename)
-        e.add_backtrace(:filename => @filename, :line => @line)
-        raise e
-      end
 
       # Returns a static DirectiveNode if this is importing a CSS file,
       # or parses and includes the imported Sass file.
