@@ -9,6 +9,11 @@ module Sass::Tree::Visitors
   # These methods take the node in question as argument.
   # They may `yield` to visit the child nodes of the current node.
   #
+  # *Note*: due to the unusual nature of {Sass::Tree::IfNode},
+  # special care must be taken to ensure that it is properly handled.
+  # In particular, there is no built-in scaffolding
+  # for dealing with the return value of `@else` nodes.
+  #
   # @abstract
   class Base
     # Runs the visitor on a tree.
@@ -46,6 +51,14 @@ module Sass::Tree::Visitors
     # @return [Array<Object>] The return values of the `visit_*` methods for the children.
     def visit_children(parent)
       parent.children.map {|c| visit(c)}
+    end
+
+    # `yield`s, then runs the visitor on the `@else` clause if the node has one.
+    # This exists to ensure that the contents of the `@else` clause get visited.
+    def visit_if(node)
+      yield
+      visit(node.else) if node.else
+      node
     end
   end
 end
