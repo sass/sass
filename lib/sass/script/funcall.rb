@@ -105,7 +105,7 @@ module Sass
 
         if keywords.size > 0
           if signature.var_kwargs
-            args << Sass::Util.map_hash(keywords) {|k, v| [k.to_sym, v]}
+            args << keywords
           else
             raise Sass::SyntaxError, "Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}"
           end
