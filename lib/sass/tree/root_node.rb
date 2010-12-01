@@ -13,53 +13,12 @@ module Sass
         @template = template
       end
 
-      # @see Node#to_s
-      def to_s(*args)
-        super
-      rescue Sass::SyntaxError => e
-        e.sass_template ||= @template
-        raise e
-      end
-
       # Runs the dynamic Sass code *and* computes the CSS for the tree.
       # @see #to_s
       def render
         result, extends = Visitors::Cssize.visit(Visitors::Perform.visit(self))
         result = result.do_extend(extends) unless extends.empty?
         result.to_s
-      end
-
-      # Computes the CSS corresponding to this Sass tree.
-      #
-      # @param args [Array] ignored
-      # @return [String] The resulting CSS
-      # @see Sass::Tree
-      def _to_s(*args)
-        result = String.new
-        children.each do |child|
-          next if child.invisible?
-          child_str = child.to_s(1)
-          result << child_str + (style == :compressed ? '' : "\n")
-        end
-        result.rstrip!
-        return "" if result.empty?
-        result << "\n"
-        unless Sass::Util.ruby1_8? || result.ascii_only?
-          if children.first.is_a?(CharsetNode)
-            begin
-              encoding = children.first.name
-              # Default to big-endian encoding, because we have to decide somehow
-              encoding << 'BE' if encoding =~ /\Autf-(16|32)\Z/i
-              result = result.encode(Encoding.find(encoding))
-            rescue EncodingError
-            end
-          end
-
-          result = "@charset \"#{result.encoding.name}\";#{
-            style == :compressed ? '' : "\n"
-          }".encode(result.encoding) + result
-        end
-        result
       end
 
       # Returns an error message if the given child node is invalid,

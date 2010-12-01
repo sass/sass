@@ -41,26 +41,6 @@ module Sass::Tree
       style == :compressed || @silent
     end
 
-    protected
-
-    # Computes the CSS for the comment.
-    #
-    # Returns `nil` if this is a silent comment
-    # or the current style doesn't render comments.
-    #
-    # @overload to_s(tabs = 0)
-    # @param tabs [Fixnum] The level of indentation for the CSS
-    # @return [String, nil] The resulting CSS
-    # @see #invisible?
-    def _to_s(tabs = 0, _ = nil)
-      return if invisible?
-      spaces = ('  ' * [tabs - 1 - value[/^ */].size, 0].max)
-
-      content = value.gsub(/^/, spaces)
-      content.gsub!(/\n +(\* *(?!\/))?/, ' ') if style == :compact
-      content
-    end
-
     private
 
     def normalize_indentation(str)

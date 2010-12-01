@@ -92,21 +92,6 @@ module Sass::Tree
       "#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
-    protected
-
-    # Computes the CSS for the property.
-    #
-    # @param tabs [Fixnum] The level of indentation for the CSS
-    # @return [String] The resulting CSS
-    def _to_s(tabs)
-      tab_str = '  ' * (tabs - 1 + self.tabs)
-      if style == :compressed
-        "#{tab_str}#{resolved_name}:#{resolved_value}"
-      else
-        "#{tab_str}#{resolved_name}: #{resolved_value};"
-      end
-    end
-
     # Returns an error message if the given child node is invalid,
     # and false otherwise.
     #

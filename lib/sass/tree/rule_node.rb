@@ -91,73 +91,6 @@ module Sass::Tree
       node
     end
 
-    protected
-
-    # Computes the CSS for the rule.
-    #
-    # @param tabs [Fixnum] The level of indentation for the CSS
-    # @return [String] The resulting CSS
-    def _to_s(tabs)
-      output_style = style
-      tabs = tabs + self.tabs
-
-      rule_separator = output_style == :compressed ? ',' : ', '
-      line_separator =
-        case output_style
-          when :nested, :expanded; "\n"
-          when :compressed; ""
-          else; " "
-        end
-      rule_indent = '  ' * (tabs - 1)
-      per_rule_indent, total_indent = [:nested, :expanded].include?(output_style) ? [rule_indent, ''] : ['', rule_indent]
-
-      total_rule = total_indent + resolved_rules.members.
-        map {|seq| seq.to_a.join.gsub(/([^,])\n/m, style == :compressed ? '\1 ' : "\\1\n")}.
-        join(rule_separator).split("\n").map do |line|
-        per_rule_indent + line.strip
-      end.join(line_separator)
-
-      to_return = ''
-      old_spaces = '  ' * (tabs - 1)
-      spaces = '  ' * tabs
-      if output_style != :compressed
-        if @options[:debug_info]
-          to_return << debug_info_rule.to_s(tabs) << "\n"
-        elsif @options[:line_comments]
-          to_return << "#{old_spaces}/* line #{line}"
-
-          if filename
-            relative_filename = if @options[:css_filename]
-              begin
-                Pathname.new(filename).relative_path_from(
-                  Pathname.new(File.dirname(@options[:css_filename]))).to_s
-              rescue ArgumentError
-                nil
-              end
-            end
-            relative_filename ||= filename
-            to_return << ", #{relative_filename}"
-          end
-
-          to_return << " */\n"
-        end
-      end
-
-      if output_style == :compact
-        properties = children.map { |a| a.to_s(1) }.join(' ')
-        to_return << "#{total_rule} { #{properties} }#{"\n" if group_end}"
-      elsif output_style == :compressed
-        properties = children.map { |a| a.to_s(1) }.join(';')
-        to_return << "#{total_rule}{#{properties}}"
-      else
-        properties = children.map { |a| a.to_s(tabs + 1) }.join("\n")
-        end_props = (output_style == :expanded ? "\n" + old_spaces : ' ')
-        to_return << "#{total_rule} {\n#{properties}#{end_props}}#{"\n" if group_end}"
-      end
-
-      to_return
-    end
-
     # A hash that will be associated with this rule in the CSS document
     # if the {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option} is enabled.
     # This data is used by e.g. [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988).
@@ -166,28 +99,6 @@ module Sass::Tree
     def debug_info
       {:filename => filename && ("file://" + URI.escape(File.expand_path(filename))),
        :line => self.line}
-    end
-
-    private
-
-    def debug_info_rule
-      node = DirectiveNode.new("@media -sass-debug-info")
-      debug_info.map {|k, v| [k.to_s, v.to_s]}.sort.each do |k, v|
-        rule = RuleNode.new([""])
-        rule.resolved_rules = Sass::Selector::CommaSequence.new(
-          [Sass::Selector::Sequence.new(
-              [Sass::Selector::SimpleSequence.new(
-                  [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)])
-              ])
-          ])
-        prop = PropNode.new([""], "", :new)
-        prop.resolved_name = "font-family"
-        prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
-        rule << prop
-        node << rule
-      end
-      node.options = @options.merge(:debug_info => false, :line_comments => false, :style => :compressed)
-      node
     end
   end
 end

@@ -28,14 +28,5 @@ module Sass::Tree
     def value
       "@media #{query}"
     end
-
-    protected
-
-    # @see Node#to_s
-    def _to_s(tabs)
-      str = super(tabs + self.tabs)
-      str.gsub!(/\n\Z/, '') unless style == :compressed || group_end
-      str
-    end
   end
 end

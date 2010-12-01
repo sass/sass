@@ -21,7 +21,7 @@ module Sass
   # but the structure exactly mirrors that of the generated CSS.
   # Rules and properties can't be nested beneath one another in this state.
   #
-  # Finally, {Tree::Node#to_s} can be called on a static CSS tree
+  # Finally, {Tree::Visitors::ToCss} can be called on a static CSS tree
   # to get the actual CSS code as a string.
   module Tree
     # The abstract superclass of all parse-tree nodes.
@@ -140,19 +140,10 @@ module Sass
 
       # Computes the CSS corresponding to this static CSS tree.
       #
-      # \{#to_s} shouldn't be overridden directly; instead, override \{#\_to\_s}.
-      # Only static-node subclasses need to implement \{#to\_s}.
-      #
-      # This may return `nil`, but it will only do so if \{#invisible?} is true.
-      #
-      # @param args [Array] Passed on to \{#\_to\_s}
       # @return [String, nil] The resulting CSS
       # @see Sass::Tree
-      def to_s(opts = nil)
-        _to_s(opts)
-      rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => filename, :line => line)
-        raise e
+      def to_s
+        Sass::Tree::Visitors::ToCss.visit(self)
       end
 
       # Converts a static CSS tree (e.g. the output of \{Tree::Visitors::Cssize})
@@ -228,21 +219,6 @@ module Sass
       end
 
       protected
-
-      # Computes the CSS corresponding to this particular Sass node.
-      #
-      # This method should never raise {Sass::SyntaxError}s.
-      # Such errors will not be properly annotated with Sass backtrace information.
-      # All error conditions should be checked in earlier transformations,
-      # such as \{Tree::Visitors::Cssize} and \{Tree::Visitors::Perform}.
-      #
-      # @param args [Array] ignored
-      # @return [String, nil] The resulting CSS
-      # @see #to_s
-      # @see Sass::Tree
-      def _to_s
-        Sass::Util.abstract(self)
-      end
 
       # @see Sass::Shared.balance
       # @raise [Sass::SyntaxError] if the brackets aren't balanced
