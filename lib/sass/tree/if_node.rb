@@ -59,21 +59,5 @@ module Sass::Tree
       @else = Sass::Util.load(@else)
       @last_else = (@last_else ? Sass::Util.load(@last_else) : self)
     end
-
-    protected
-
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt, is_else = false)
-      name =
-        if !is_else; "if"
-        elsif @expr; "else if"
-        else; "else"
-        end
-      str = "#{'  ' * tabs}@#{name}"
-      str << " #{@expr.to_sass(opts)}" if @expr
-      str << children_to_src(tabs, opts, fmt)
-      str << @else.send(:to_src, tabs, opts, fmt, true) if @else
-      str
-    end
   end
 end

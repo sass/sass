@@ -188,20 +188,18 @@ module Sass
 
       # Converts a node to Sass code that will generate it.
       #
-      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
       # @return [String] The Sass code corresponding to the node
-      def to_sass(tabs = 0, opts = {})
-        to_src(tabs, opts, :sass)
+      def to_sass(options = {})
+        Sass::Tree::Visitors::Convert.visit(self, options, :sass)
       end
 
       # Converts a node to SCSS code that will generate it.
       #
-      # @param tabs [Fixnum] The amount of tabulation to use for the SCSS code
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
+      # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
       # @return [String] The Sass code corresponding to the node
-      def to_scss(tabs = 0, opts = {})
-        to_src(tabs, opts, :scss)
+      def to_scss(options = {})
+        Sass::Tree::Visitors::Convert.visit(self, options, :scss)
       end
 
       # Names of options that are saved when the node is serialized and cached.
@@ -272,94 +270,6 @@ module Sass
         when Tree::ImportNode
           "Import directives may only be used at the root of a document."
         end
-      end
-
-      # Converts a node to Sass or SCSS code that will generate it.
-      #
-      # This method is called by the default \{#to\_sass} and \{#to\_scss} methods,
-      # so that the same code can be used for both with minor variations.
-      #
-      # @param tabs [Fixnum] The amount of tabulation to use for the SCSS code
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @param fmt [Symbol] `:sass` or `:scss`
-      # @return [String] The Sass or SCSS code corresponding to the node
-      def to_src(tabs, opts, fmt)
-        Sass::Util.abstract(self)
-      end
-
-      # Converts the children of this node to a Sass or SCSS string.
-      # This will return the trailing newline for the previous line,
-      # including brackets if this is SCSS.
-      #
-      # @param tabs [Fixnum] The amount of tabulation to use for the Sass code
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @param fmt [Symbol] `:sass` or `:scss`
-      # @return [String] The Sass or SCSS code corresponding to the children
-      def children_to_src(tabs, opts, fmt)
-        return fmt == :sass ? "\n" : " {}\n" if children.empty?
-
-        (fmt == :sass ? "\n" : " {\n") +
-          children.map {|c| c.send("to_#{fmt}", tabs + 1, opts)}.join.rstrip +
-          (fmt == :sass ? "\n" : " }\n")
-      end
-
-      # Converts a selector to a Sass or SCSS string.
-      #
-      # @param sel [Array<String, Sass::Script::Node>] The selector to convert
-      # @param tabs [Fixnum] The indentation of the selector
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @param fmt [Symbol] `:sass` or `:scss`
-      # @return [String] The Sass or SCSS code corresponding to the selector
-      def selector_to_src(sel, tabs, opts, fmt)
-        fmt == :sass ? selector_to_sass(sel, opts) : selector_to_scss(sel, tabs, opts)
-      end
-
-      # Converts a selector to a Sass string.
-      #
-      # @param sel [Array<String, Sass::Script::Node>] The selector to convert
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @return [String] The Sass code corresponding to the selector
-      def selector_to_sass(sel, opts)
-        sel.map do |r|
-          if r.is_a?(String)
-            r.gsub(/(,[ \t]*)?\n\s*/) {$1 ? $1 + "\n" : " "}
-          else
-            "\#{#{r.to_sass(opts)}}"
-          end
-        end.join
-      end
-
-      # Converts a selector to a SCSS string.
-      #
-      # @param sel [Array<String, Sass::Script::Node>] The selector to convert
-      # @param tabs [Fixnum] The indentation of the selector
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @return [String] The SCSS code corresponding to the selector
-      def selector_to_scss(sel, tabs, opts)
-        sel.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass(opts)}}"}.
-          join.gsub(/^[ \t]*/, '  ' * tabs)
-      end
-
-      # Convert any underscores in a string into hyphens,
-      # but only if the `:dasherize` option is set.
-      #
-      # @param s [String] The string to convert
-      # @param opts [{Symbol => Object}] The options hash
-      # @return [String] The converted string
-      def dasherize(s, opts)
-        if opts[:dasherize]
-          s.gsub('_', '-')
-        else
-          s
-        end
-      end
-
-      # Returns a semicolon if this is SCSS, or an empty string if this is Sass.
-      #
-      # @param fmt [Symbol] `:sass` or `:scss`
-      # @return [String] A semicolon or the empty string
-      def semi(fmt)
-        fmt == :sass ? "" : ";"
       end
     end
   end

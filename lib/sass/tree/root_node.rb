@@ -29,39 +29,6 @@ module Sass
         result.to_s
       end
 
-      # Converts a node to Sass code that will generate it.
-      #
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @return [String] The Sass code corresponding to the node
-      def to_sass(opts = {})
-        to_src(opts, :sass)
-      end
-
-      # Converts a node to SCSS code that will generate it.
-      #
-      # @param opts [{Symbol => Object}] An options hash (see {Sass::CSS#initialize})
-      # @return [String] The SCSS code corresponding to the node
-      def to_scss(opts = {})
-        to_src(opts, :scss)
-      end
-
-      protected
-
-      # @see Node#to_src
-      def to_src(opts, fmt)
-        Sass::Util.enum_cons(children + [nil], 2).map do |child, nxt|
-          child.send("to_#{fmt}", 0, opts) +
-            if nxt &&
-                (child.is_a?(CommentNode) && child.line + child.value.count("\n") + 1 == nxt.line) ||
-                (child.is_a?(ImportNode) && nxt.is_a?(ImportNode) && child.line + 1 == nxt.line) ||
-                (child.is_a?(VariableNode) && nxt.is_a?(VariableNode) && child.line + 1 == nxt.line)
-              ""
-            else
-              "\n"
-            end
-        end.join.rstrip + "\n"
-      end
-
       # Computes the CSS corresponding to this Sass tree.
       #
       # @param args [Array] ignored

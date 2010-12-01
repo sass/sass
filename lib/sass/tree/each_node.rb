@@ -23,12 +23,6 @@ module Sass::Tree
 
     protected
 
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt)
-      "#{'  ' * tabs}@each $#{dasherize(@var, opts)} in #{@list.to_sass(opts)}" +
-        children_to_src(tabs, opts, fmt)
-    end
-
     # Returns an error message if the given child node is invalid,
     # and false otherwise.
     #

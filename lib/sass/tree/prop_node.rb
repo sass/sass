@@ -74,14 +74,25 @@ module Sass::Tree
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
-    protected
+    # Computes the Sass or SCSS code for the variable declaration.
+    # This is like \{#to\_scss} or \{#to\_sass},
+    # except it doesn't print any child properties or a trailing semicolon.
+    #
+    # @param opts [{Symbol => Object}] The options hash for the tree.
+    # @param fmt [Symbol] `:scss` or `:sass`.
+    def declaration(opts = {:old => @prop_syntax == :old}, fmt = :sass)
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
+      if name[0] == ?:
+        raise Sass::SyntaxError.new("The \"#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
+      end
 
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt)
-      res = declaration(tabs, opts, fmt)
-      return res + "#{semi fmt}\n" if children.empty?
-      res + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
+      old = opts[:old] && fmt == :sass
+      initial = old ? ':' : ''
+      mid = old ? '' : ':'
+      "#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
+
+    protected
 
     # Computes the CSS for the property.
     #
@@ -118,18 +129,6 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
           pseudo_class_selector_message)
       end
-    end
-
-    def declaration(tabs = 0, opts = {:old => @prop_syntax == :old}, fmt = :sass)
-      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
-      if name[0] == ?:
-        raise Sass::SyntaxError.new("The \"#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
-      end
-
-      old = opts[:old] && fmt == :sass
-      initial = old ? ':' : ''
-      mid = old ? '' : ':'
-      "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
     class << self

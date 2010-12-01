@@ -41,47 +41,6 @@ module Sass::Tree
       style == :compressed || @silent
     end
 
-    # @see Node#to_sass
-    def to_sass(tabs, opts = {})
-      content = value.gsub(/\*\/$/, '').rstrip
-      if content =~ /\A[ \t]/
-        # Re-indent SCSS comments like this:
-        #     /* foo
-        #   bar
-        #       baz */
-        content.gsub!(/^/, '   ')
-        content.sub!(/\A([ \t]*)\/\*/, '/*\1')
-      end
-
-      content =
-        unless content.include?("\n")
-          content
-        else
-          content.gsub!(/\n( \*|\/\/)/, "\n  ")
-          spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
-          sep = silent ? "\n//" : "\n *"
-          if spaces >= 2
-            content.gsub(/\n  /, sep)
-          else
-            content.gsub(/\n#{' ' * spaces}/, sep)
-          end
-        end
-
-      content.gsub!(/\A\/\*/, '//') if silent
-      content.gsub!(/^/, '  ' * tabs)
-      content.rstrip + "\n"
-    end
-
-    # @see Node#to_scss
-    def to_scss(tabs, opts = {})
-      spaces = ('  ' * [tabs - value[/^ */].size, 0].max)
-      if silent
-        value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
-      else
-        value
-      end.gsub(/^/, spaces) + "\n"
-    end
-
     protected
 
     # Computes the CSS for the comment.

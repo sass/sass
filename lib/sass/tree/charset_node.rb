@@ -21,11 +21,6 @@ module Sass::Tree
 
     protected
 
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt)
-      "#{'  ' * tabs}@charset \"#{name}\"#{semi fmt}\n"
-    end
-
     # Computes the CSS for the directive.
     #
     # @param tabs [Fixnum] The level of indentation for the CSS

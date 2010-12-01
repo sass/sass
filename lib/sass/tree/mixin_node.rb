@@ -35,17 +35,5 @@ module Sass::Tree
       @keywords = keywords
       super()
     end
-
-    protected
-
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt)
-      unless @args.empty? && @keywords.empty?
-        args = @args.map {|a| a.to_sass(opts)}.join(", ")
-        keywords = @keywords.map {|k, v| "$#{dasherize(k, opts)}: #{v.to_sass(opts)}"}.join(', ')
-        arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
-      end
-      "#{'  ' * tabs}#{fmt == :sass ? '+' : '@include '}#{dasherize(@name, opts)}#{arglist}#{semi fmt}\n"
-    end
   end
 end

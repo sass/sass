@@ -14,12 +14,5 @@ module Sass::Tree
       @expr = expr
       super()
     end
-
-    protected
-
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt)
-      "#{'  ' * tabs}@while #{@expr.to_sass(opts)}" + children_to_src(tabs, opts, fmt)
-    end
   end
 end

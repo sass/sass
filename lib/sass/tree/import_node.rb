@@ -25,16 +25,6 @@ module Sass
         @imported_file ||= import
       end
 
-      # @see Node#to_sass
-      def to_sass(tabs = 0, opts = {})
-        "#{'  ' * tabs}@import #{@imported_filename}\n"
-      end
-
-      # @see Node#to_scss
-      def to_scss(tabs = 0, opts = {})
-        "#{'  ' * tabs}@import \"#{@imported_filename}\";\n"
-      end
-
       # Returns whether or not this import should emit a CSS @import declaration
       #
       # @return [Boolean] Whether or not this is a simple CSS @import declaration.

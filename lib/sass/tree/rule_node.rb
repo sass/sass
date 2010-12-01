@@ -82,26 +82,6 @@ module Sass::Tree
       last.is_a?(String) && last[-1] == ?,
     end
 
-    # @see Node#to_sass
-    def to_sass(tabs, opts = {})
-      name = selector_to_sass(rule, opts)
-      name = "\\" + name if name[0] == ?:
-      name.gsub(/^/, '  ' * tabs) + children_to_src(tabs, opts, :sass)
-    end
-
-    # @see Node#to_scss
-    def to_scss(tabs, opts = {})
-      name = selector_to_scss(rule, tabs, opts)
-      res = name + children_to_src(tabs, opts, :scss)
-
-      if children.last.is_a?(CommentNode) && children.last.silent
-        res.slice!(-3..-1)
-        res << "\n" << ('  ' * tabs) << "}\n"
-      end
-
-      res
-    end
-
     # Extends this Rule's selector with the given `extends`.
     #
     # @see Node#do_extend

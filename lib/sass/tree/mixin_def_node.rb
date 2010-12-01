@@ -22,27 +22,6 @@ module Sass
         @args = args
         super()
       end
-
-      protected
-
-      # @see Node#to_src
-      def to_src(tabs, opts, fmt)
-        args =
-          if @args.empty?
-            ""
-          else
-            '(' + @args.map do |v, d|
-              if d
-                "#{v.to_sass(opts)}: #{d.to_sass(opts)}"
-              else
-                v.to_sass(opts)
-              end
-            end.join(", ") + ')'
-          end
-              
-        "#{'  ' * tabs}#{fmt == :sass ? '=' : '@mixin '}#{dasherize(@name, opts)}#{args}" +
-          children_to_src(tabs, opts, fmt)
-      end
     end
   end
 end

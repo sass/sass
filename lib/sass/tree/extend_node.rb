@@ -25,12 +25,5 @@ module Sass::Tree
       @selector = selector
       super()
     end
-
-    protected
-
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt)
-      "#{'  ' * tabs}@extend #{selector_to_src(@selector, tabs, opts, fmt).lstrip}#{semi fmt}\n"
-    end
   end
 end
