@@ -111,7 +111,7 @@ module Sass
 
         if keywords.size > 0
           if signature.var_kwargs
-            args << Sass::Util.map_hash(keywords) {|k, v| [k.to_sym, v]}
+            args << keywords
           else
             raise Sass::SyntaxError, "Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}"
           end
@@ -138,7 +138,7 @@ module Sass
         end
 
         val = catch :_sass_return do
-          function.tree.each {|c| c.perform(environment)}
+          function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, environment)}
           raise Sass::SyntaxError.new("Function #{@name} finished without @return")
         end
         val

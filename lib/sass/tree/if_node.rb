@@ -9,13 +9,18 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class IfNode < Node
+    # The conditional expression.
+    # If this is nil, this is an `@else` node, not an `@else if`.
+    #
+    # @return [Script::Expr]
+    attr_reader :expr
+
     # The next {IfNode} in the if-else list, or `nil`.
     #
     # @return [IfNode]
     attr_accessor :else
 
-    # @param expr [Script::Expr] The conditional expression.
-    #   If this is nil, this is an `@else` node, not an `@else if`
+    # @param expr [Script::Expr] See \{#expr}
     def initialize(expr)
       @expr = expr
       @last_else = self
@@ -53,36 +58,6 @@ module Sass::Tree
       super
       @else = Sass::Util.load(@else)
       @last_else = (@last_else ? Sass::Util.load(@last_else) : self)
-    end
-
-    protected
-
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt, is_else = false)
-      name =
-        if !is_else; "if"
-        elsif @expr; "else if"
-        else; "else"
-        end
-      str = "#{'  ' * tabs}@#{name}"
-      str << " #{@expr.to_sass(opts)}" if @expr
-      str << children_to_src(tabs, opts, fmt)
-      str << @else.send(:to_src, tabs, opts, fmt, true) if @else
-      str
-    end
-
-    # Runs the child nodes if the conditional expression is true;
-    # otherwise, tries the \{#else} nodes.
-    #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    # @return [Array<Tree::Node>] The resulting static nodes
-    # @see Sass::Tree
-    def _perform(environment)
-      environment = Sass::Environment.new(environment)
-      return perform_children(environment) if @expr.nil? || @expr.perform(environment).to_bool
-      return @else.perform(environment) if @else
-      []
     end
   end
 end

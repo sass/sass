@@ -65,9 +65,8 @@ module Sass
           end.flatten)
       end
 
-      # Non-destructively extends this selector
-      # with the extensions specified in a hash
-      # (which should be populated via {Sass::Tree::Node#cssize}).
+      # Non-destructively extends this selector with the extensions specified in a hash
+      # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
       # @overload def do_extend(extends)
       # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]

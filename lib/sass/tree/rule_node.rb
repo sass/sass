@@ -27,7 +27,7 @@ module Sass::Tree
 
     # The CSS selector for this rule,
     # without any unresolved interpolation or parent references.
-    # It's only set once {Tree::Node#cssize} has been called.
+    # It's only set once {Tree::Visitors::Cssize} has been run.
     #
     # @return [Selector::CommaSequence]
     attr_accessor :resolved_rules
@@ -82,26 +82,6 @@ module Sass::Tree
       last.is_a?(String) && last[-1] == ?,
     end
 
-    # @see Node#to_sass
-    def to_sass(tabs, opts = {})
-      name = selector_to_sass(rule, opts)
-      name = "\\" + name if name[0] == ?:
-      name.gsub(/^/, '  ' * tabs) + children_to_src(tabs, opts, :sass)
-    end
-
-    # @see Node#to_scss
-    def to_scss(tabs, opts = {})
-      name = selector_to_scss(rule, tabs, opts)
-      res = name + children_to_src(tabs, opts, :scss)
-
-      if children.last.is_a?(CommentNode) && children.last.silent
-        res.slice!(-3..-1)
-        res << "\n" << ('  ' * tabs) << "}\n"
-      end
-
-      res
-    end
-
     # Extends this Rule's selector with the given `extends`.
     #
     # @see Node#do_extend
@@ -109,120 +89,6 @@ module Sass::Tree
       node = dup
       node.resolved_rules = resolved_rules.do_extend(extends)
       node
-    end
-
-    protected
-
-    # Computes the CSS for the rule.
-    #
-    # @param tabs [Fixnum] The level of indentation for the CSS
-    # @return [String] The resulting CSS
-    def _to_s(tabs)
-      output_style = style
-      tabs = tabs + self.tabs
-
-      rule_separator = output_style == :compressed ? ',' : ', '
-      line_separator =
-        case output_style
-          when :nested, :expanded; "\n"
-          when :compressed; ""
-          else; " "
-        end
-      rule_indent = '  ' * (tabs - 1)
-      per_rule_indent, total_indent = [:nested, :expanded].include?(output_style) ? [rule_indent, ''] : ['', rule_indent]
-
-      total_rule = total_indent + resolved_rules.members.
-        map {|seq| seq.to_a.join.gsub(/([^,])\n/m, style == :compressed ? '\1 ' : "\\1\n")}.
-        join(rule_separator).split("\n").map do |line|
-        per_rule_indent + line.strip
-      end.join(line_separator)
-
-      to_return = ''
-      old_spaces = '  ' * (tabs - 1)
-      spaces = '  ' * tabs
-      if output_style != :compressed
-        if @options[:debug_info]
-          to_return << debug_info_rule.to_s(tabs) << "\n"
-        elsif @options[:line_comments]
-          to_return << "#{old_spaces}/* line #{line}"
-
-          if filename
-            relative_filename = if @options[:css_filename]
-              begin
-                Pathname.new(filename).relative_path_from(
-                  Pathname.new(File.dirname(@options[:css_filename]))).to_s
-              rescue ArgumentError
-                nil
-              end
-            end
-            relative_filename ||= filename
-            to_return << ", #{relative_filename}"
-          end
-
-          to_return << " */\n"
-        end
-      end
-
-      if output_style == :compact
-        properties = children.map { |a| a.to_s(1) }.join(' ')
-        to_return << "#{total_rule} { #{properties} }#{"\n" if group_end}"
-      elsif output_style == :compressed
-        properties = children.map { |a| a.to_s(1) }.join(';')
-        to_return << "#{total_rule}{#{properties}}"
-      else
-        properties = children.map { |a| a.to_s(tabs + 1) }.join("\n")
-        end_props = (output_style == :expanded ? "\n" + old_spaces : ' ')
-        to_return << "#{total_rule} {\n#{properties}#{end_props}}#{"\n" if group_end}"
-      end
-
-      to_return
-    end
-
-    # Runs SassScript interpolation in the selector,
-    # and then parses the result into a {Sass::Selector::CommaSequence}.
-    #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    def perform!(environment)
-      @parsed_rules = Sass::SCSS::StaticParser.new(run_interp(@rule, environment), self.line).
-        parse_selector(self.filename)
-      super
-    end
-
-    # Converts nested rules into a flat list of rules.
-    #
-    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
-    #   The extensions defined for this tree
-    # @param parent [RuleNode, nil] The parent node of this node,
-    #   or nil if the parent isn't a {RuleNode}
-    def _cssize(extends, parent)
-      node = super
-      rules = node.children.select {|c| c.is_a?(RuleNode) || c.is_a?(MediaNode)}
-      props = node.children.reject {|c| c.is_a?(RuleNode) || c.is_a?(MediaNode) || c.invisible?}
-
-      unless props.empty?
-        node.children = props
-        rules.each {|r| r.tabs += 1} if style == :nested
-        rules.unshift(node)
-      end
-
-      rules.last.group_end = true unless parent || rules.empty?
-
-      rules
-    end
-
-    # Resolves parent references and nested selectors,
-    # and updates the indentation based on the parent's indentation.
-    #
-    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
-    #   The extensions defined for this tree
-    # @param parent [RuleNode, nil] The parent node of this node,
-    #   or nil if the parent isn't a {RuleNode}
-    # @raise [Sass::SyntaxError] if the rule has no parents but uses `&`
-    def cssize!(extends, parent)
-      # It's possible for resolved_rules to be set if we've duplicated this node during @media bubbling
-      self.resolved_rules ||= @parsed_rules.resolve_parent_refs(parent && parent.resolved_rules)
-      super
     end
 
     # A hash that will be associated with this rule in the CSS document
@@ -233,28 +99,6 @@ module Sass::Tree
     def debug_info
       {:filename => filename && ("file://" + URI.escape(File.expand_path(filename))),
        :line => self.line}
-    end
-
-    private
-
-    def debug_info_rule
-      node = DirectiveNode.new("@media -sass-debug-info")
-      debug_info.map {|k, v| [k.to_s, v.to_s]}.sort.each do |k, v|
-        rule = RuleNode.new([""])
-        rule.resolved_rules = Sass::Selector::CommaSequence.new(
-          [Sass::Selector::Sequence.new(
-              [Sass::Selector::SimpleSequence.new(
-                  [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)])
-              ])
-          ])
-        prop = PropNode.new([""], "", :new)
-        prop.resolved_name = "font-family"
-        prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
-        rule << prop
-        node << rule
-      end
-      node.options = @options.merge(:debug_info => false, :line_comments => false, :style => :compressed)
-      node
     end
   end
 end

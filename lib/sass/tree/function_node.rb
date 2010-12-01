@@ -4,10 +4,19 @@ module Sass
     #
     # @see Sass::Tree
     class FunctionNode < Node
+      # The name of the function.
+      # @return [String]
+      attr_reader :name
+
+      # The arguments to the function. Each element is a tuple
+      # containing the variable for argument and the parse tree for
+      # the default value of the argument
+      #
+      # @return [Array<Script::Node>]
+      attr_reader :args
+
       # @param name [String] The function name
       # @param args [Array<(Script::Node, Script::Node)>] The arguments for the function.
-      #   Each element is a tuple containing the variable for argument
-      #   and the parse tree for the default value of the argument
       def initialize(name, args)
         @name = name
         @args = args
@@ -15,25 +24,6 @@ module Sass
       end
 
       protected
-
-      # @see Node#to_src
-      def to_src(tabs, opts, fmt)
-        args = @args.map do |v, d|
-          d ? "#{v.to_sass(opts)}: #{d.to_sass(opts)}" : v.to_sass(opts)
-        end.join(", ")
-
-        "#{'  ' * tabs}@function #{dasherize(@name, opts)}(#{args})" +
-          children_to_src(tabs, opts, fmt)
-      end
-
-      # Loads the function into the environment.
-      #
-      # @param environment [Sass::Environment] The lexical environment containing
-      #   variable, mixin, and function values
-      def _perform(environment)
-        environment.set_function(@name, Sass::Callable.new(@name, @args, environment, children))
-        []
-      end
 
       # Returns an error message if the given child node is invalid,
       # and false otherwise.

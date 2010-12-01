@@ -13,7 +13,7 @@ module Sass::Tree
 
     # The name of the property
     # after any interpolated SassScript has been resolved.
-    # Only set once \{Tree::Node#perform} has been called.
+    # Only set once \{Tree::Visitors::Perform} has been run.
     #
     # @return [String]
     attr_accessor :resolved_name
@@ -25,7 +25,7 @@ module Sass::Tree
 
     # The value of the property
     # after any interpolated SassScript has been resolved.
-    # Only set once \{Tree::Node#perform} has been called.
+    # Only set once \{Tree::Visitors::Perform} has been run.
     #
     # @return [String]
     attr_accessor :resolved_value
@@ -74,73 +74,22 @@ module Sass::Tree
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
-    protected
-
-    # @see Node#to_src
-    def to_src(tabs, opts, fmt)
-      res = declaration(tabs, opts, fmt)
-      return res + "#{semi fmt}\n" if children.empty?
-      res + children_to_src(tabs, opts, fmt).rstrip + semi(fmt) + "\n"
-    end
-
-    # Computes the CSS for the property.
+    # Computes the Sass or SCSS code for the variable declaration.
+    # This is like \{#to\_scss} or \{#to\_sass},
+    # except it doesn't print any child properties or a trailing semicolon.
     #
-    # @param tabs [Fixnum] The level of indentation for the CSS
-    # @return [String] The resulting CSS
-    def _to_s(tabs)
-      tab_str = '  ' * (tabs - 1 + self.tabs)
-      if style == :compressed
-        "#{tab_str}#{resolved_name}:#{resolved_value}"
-      else
-        "#{tab_str}#{resolved_name}: #{resolved_value};"
+    # @param opts [{Symbol => Object}] The options hash for the tree.
+    # @param fmt [Symbol] `:scss` or `:sass`.
+    def declaration(opts = {:old => @prop_syntax == :old}, fmt = :sass)
+      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
+      if name[0] == ?:
+        raise Sass::SyntaxError.new("The \"#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
       end
-    end
 
-    # Converts nested properties into flat properties.
-    #
-    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
-    #   The extensions defined for this tree
-    # @param parent [PropNode, nil] The parent node of this node,
-    #   or nil if the parent isn't a {PropNode}
-    # @raise [Sass::SyntaxError] if the property uses invalid syntax
-    def _cssize(extends, parent)
-      node = super
-      result = node.children.dup
-      if !node.resolved_value.empty? || node.children.empty?
-        node.send(:check!)
-        result.unshift(node)
-      end
-      result
-    end
-
-    # Updates the name and indentation of this node based on the parent name
-    # and nesting level.
-    #
-    # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
-    #   The extensions defined for this tree
-    # @param parent [PropNode, nil] The parent node of this node,
-    #   or nil if the parent isn't a {PropNode}
-    def cssize!(extends, parent)
-      self.resolved_name = "#{parent.resolved_name}-#{resolved_name}" if parent
-      self.tabs = parent.tabs + (parent.resolved_value.empty? ? 0 : 1) if parent && style == :nested
-      super
-    end
-
-    # Runs any SassScript that may be embedded in the property,
-    # and invludes the parent property, if any.
-    #
-    # @param environment [Sass::Environment] The lexical environment containing
-    #   variable and mixin values
-    def perform!(environment)
-      @resolved_name = run_interp(@name, environment)
-      val = @value.perform(environment)
-      @resolved_value =
-        if @value.context == :equals && val.is_a?(Sass::Script::String)
-          val.value
-        else
-          val.to_s
-        end
-      super
+      old = opts[:old] && fmt == :sass
+      initial = old ? ':' : ''
+      mid = old ? '' : ':'
+      "#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
     # Returns an error message if the given child node is invalid,
@@ -165,18 +114,6 @@ module Sass::Tree
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
           pseudo_class_selector_message)
       end
-    end
-
-    def declaration(tabs = 0, opts = {:old => @prop_syntax == :old}, fmt = :sass)
-      name = self.name.map {|n| n.is_a?(String) ? n : "\#{#{n.to_sass(opts)}}"}.join
-      if name[0] == ?:
-        raise Sass::SyntaxError.new("The \"#{name}: #{self.class.val_to_sass(value, opts)}\" hack is not allowed in the Sass indented syntax")
-      end
-
-      old = opts[:old] && fmt == :sass
-      initial = old ? ':' : ''
-      mid = old ? '' : ':'
-      "#{'  ' * tabs}#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
     class << self
