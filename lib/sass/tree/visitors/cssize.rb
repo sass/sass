@@ -144,12 +144,13 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
     yield
 
+    result = node.children.dup
     if !node.resolved_value.empty? || node.children.empty?
       node.send(:check!)
-      node.children.unshift(node)
+      result.unshift(node)
     end
 
-    node.children
+    result
   end
 
   # Resolves parent references and nested selectors,

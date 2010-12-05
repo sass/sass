@@ -2421,6 +2421,16 @@ foo
 SASS
   end
 
+  def test_unknown_directive
+    assert_equal <<CSS, render(<<SASS)
+@baz {
+  c: d; }
+CSS
+@baz
+  c: d
+SASS
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?
