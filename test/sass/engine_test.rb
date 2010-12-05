@@ -2009,6 +2009,180 @@ WARN
     end
   end
 
+  def test_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+.foo {
+  a: b; }
+  @media bar {
+    .foo {
+      c: d; } }
+  .foo .baz {
+    e: f; }
+    @media bip {
+      .foo .baz {
+        g: h; } }
+
+.other {
+  i: j; }
+CSS
+.foo
+  a: b
+  @media bar
+    c: d
+  .baz
+    e: f
+    @media bip
+      g: h
+
+.other
+  i: j
+SASS
+
+    assert_equal <<CSS, render(<<SASS, :style => :compact)
+.foo { a: b; }
+@media bar { .foo { c: d; } }
+.foo .baz { e: f; }
+@media bip { .foo .baz { g: h; } }
+
+.other { i: j; }
+CSS
+.foo
+  a: b
+  @media bar
+    c: d
+  .baz
+    e: f
+    @media bip
+      g: h
+
+.other
+  i: j
+SASS
+
+    assert_equal <<CSS, render(<<SASS, :style => :expanded)
+.foo {
+  a: b;
+}
+@media bar {
+  .foo {
+    c: d;
+  }
+}
+.foo .baz {
+  e: f;
+}
+@media bip {
+  .foo .baz {
+    g: h;
+  }
+}
+
+.other {
+  i: j;
+}
+CSS
+.foo
+  a: b
+  @media bar
+    c: d
+  .baz
+    e: f
+    @media bip
+      g: h
+
+.other
+  i: j
+SASS
+  end
+
+  def test_double_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media bar and baz {
+  .foo {
+    c: d; } }
+CSS
+@media bar
+  @media baz
+    .foo
+      c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media bar {
+  .foo {
+    a: b; } }
+  @media bar and baz {
+    .foo {
+      c: d; } }
+CSS
+.foo
+  @media bar
+    a: b
+    @media baz
+      c: d
+SASS
+  end
+
+  def test_rule_media_rule_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media bar {
+  .foo {
+    a: b;
+    e: f; }
+    .foo .baz {
+      c: d; } }
+CSS
+.foo
+  @media bar
+    a: b
+    .baz
+      c: d
+    e: f
+SASS
+  end
+
+  def test_nested_media_around_properties
+    assert_equal <<CSS, render(<<SASS)
+.outside {
+  color: red;
+  background: blue; }
+  @media print {
+    .outside {
+      color: black; } }
+    @media print and nested {
+      .outside .inside {
+        border: 1px solid black; } }
+  .outside .middle {
+    display: block; }
+CSS
+.outside
+  color: red
+  @media print
+    color: black
+    .inside
+      @media nested
+        border: 1px solid black
+  background: blue
+  .middle
+    display: block
+SASS
+  end
+
+  def test_media_with_parent_references
+    sass_str = <<SASS
+.outside
+  @media print
+    &.inside
+      border: 1px solid black
+SASS
+    css_str = <<CSS
+@media print {
+  .outside.inside {
+    border: 1px solid black; } }
+CSS
+    assert_equal css_str, render(sass_str)
+  end
+
   # Regression tests
 
   def test_parens_in_mixins
@@ -2245,180 +2419,6 @@ $foo: foo
 foo
   a: "bip \#{$foo} bap", bar
 SASS
-  end
-
-  def test_media_bubbling
-    assert_equal <<CSS, render(<<SASS)
-.foo {
-  a: b; }
-  @media bar {
-    .foo {
-      c: d; } }
-  .foo .baz {
-    e: f; }
-    @media bip {
-      .foo .baz {
-        g: h; } }
-
-.other {
-  i: j; }
-CSS
-.foo
-  a: b
-  @media bar
-    c: d
-  .baz
-    e: f
-    @media bip
-      g: h
-
-.other
-  i: j
-SASS
-
-    assert_equal <<CSS, render(<<SASS, :style => :compact)
-.foo { a: b; }
-@media bar { .foo { c: d; } }
-.foo .baz { e: f; }
-@media bip { .foo .baz { g: h; } }
-
-.other { i: j; }
-CSS
-.foo
-  a: b
-  @media bar
-    c: d
-  .baz
-    e: f
-    @media bip
-      g: h
-
-.other
-  i: j
-SASS
-
-    assert_equal <<CSS, render(<<SASS, :style => :expanded)
-.foo {
-  a: b;
-}
-@media bar {
-  .foo {
-    c: d;
-  }
-}
-.foo .baz {
-  e: f;
-}
-@media bip {
-  .foo .baz {
-    g: h;
-  }
-}
-
-.other {
-  i: j;
-}
-CSS
-.foo
-  a: b
-  @media bar
-    c: d
-  .baz
-    e: f
-    @media bip
-      g: h
-
-.other
-  i: j
-SASS
-  end
-
-  def test_double_media_bubbling
-    assert_equal <<CSS, render(<<SASS)
-@media bar and baz {
-  .foo {
-    c: d; } }
-CSS
-@media bar
-  @media baz
-    .foo
-      c: d
-SASS
-
-    assert_equal <<CSS, render(<<SASS)
-@media bar {
-  .foo {
-    a: b; } }
-  @media bar and baz {
-    .foo {
-      c: d; } }
-CSS
-.foo
-  @media bar
-    a: b
-    @media baz
-      c: d
-SASS
-  end
-
-  def test_rule_media_rule_bubbling
-    assert_equal <<CSS, render(<<SASS)
-@media bar {
-  .foo {
-    a: b;
-    e: f; }
-    .foo .baz {
-      c: d; } }
-CSS
-.foo
-  @media bar
-    a: b
-    .baz
-      c: d
-    e: f
-SASS
-  end
-
-  def test_nested_media_around_properties
-    assert_equal <<CSS, render(<<SASS)
-.outside {
-  color: red;
-  background: blue; }
-  @media print {
-    .outside {
-      color: black; } }
-    @media print and nested {
-      .outside .inside {
-        border: 1px solid black; } }
-  .outside .middle {
-    display: block; }
-CSS
-.outside
-  color: red
-  @media print
-    color: black
-    .inside
-      @media nested
-        border: 1px solid black
-  background: blue
-  .middle
-    display: block
-SASS
-  end
-
-  def test_media_with_parent_references
-    sass_str = <<SASS
-.outside
-  @media print
-    &.inside
-      border: 1px solid black
-SASS
-    css_str = <<CSS
-@media print {
-  .outside.inside {
-    border: 1px solid black; } }
-CSS
-    assert_equal css_str, render(sass_str)
   end
 
   # Encodings
