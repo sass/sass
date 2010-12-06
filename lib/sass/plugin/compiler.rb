@@ -213,13 +213,19 @@ module Sass::Plugin
       begin
         require 'fssm'
       rescue LoadError => e
-        e.message << "\n" <<
-          if File.exists?(scope(".git"))
-            'Run "git submodule update --init" to get the recommended version.'
-          else
-            'Run "gem install fssm" to get it.'
-          end
-        raise e
+        dir = Sass::Util.scope("vendor/fssm/lib")
+        if $LOAD_PATH.include?(dir)
+          e.message << "\n" <<
+            if File.exists?(scope(".git"))
+              'Run "git submodule update --init" to get the recommended version.'
+            else
+              'Run "gem install fssm" to get it.'
+            end
+          raise e
+        else
+          $LOAD_PATH.unshift dir
+          retry
+        end
       end
 
       unless individual_files.empty? && FSSM::Backends::Default.name == "FSSM::Backends::FSEvents"
