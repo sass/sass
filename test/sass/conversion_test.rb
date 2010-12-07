@@ -909,8 +909,7 @@ SCSS
 SASS
 @function foo() {
   $var: 1 + 1;
-  @return $var;
-}
+  @return $var; }
 SCSS
   end
 
@@ -922,9 +921,7 @@ SCSS
 SASS
 @function foo($var1, $var2) {
   @if $var1 {
-    @return $var1 + $var2;
-  }
-}
+    @return $var1 + $var2; } }
 SCSS
   end
 
@@ -936,9 +933,7 @@ SCSS
 SASS
 @function foo($var1, $var2: foo) {
   @if $var1 {
-    @return $var1 + $var2;
-  }
-}
+    @return $var1 + $var2; } }
 SCSS
   end
 

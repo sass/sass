@@ -98,8 +98,8 @@ module Sass
         node << comment
       end
 
-      DIRECTIVES = Set[:mixin, :include, :debug, :warn, :for, :each, :while, :if,
-        :else, :extend, :import, :media, :charset]
+      DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
+        :each, :while, :if, :else, :extend, :import, :media, :charset]
 
       def directive
         return unless tok(/@/)
@@ -142,6 +142,17 @@ module Sass
         args, keywords = sass_script(:parse_mixin_include_arglist)
         ss
         node(Sass::Tree::MixinNode.new(name, args, keywords))
+      end
+
+      def function_directive
+        name = tok! IDENT
+        args = sass_script(:parse_function_definition_arglist)
+        ss
+        block(node(Sass::Tree::FunctionNode.new(name, args)), :function)
+      end
+
+      def return_directive
+        node(Sass::Tree::ReturnNode.new(sass_script(:parse)))
       end
 
       def debug_directive
@@ -365,6 +376,7 @@ module Sass
       end
 
       def block_child(context)
+        return variable || directive if context == :function
         return variable || directive || ruleset if context == :stylesheet
         variable || directive || declaration_or_ruleset
       end
