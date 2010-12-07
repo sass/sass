@@ -25,8 +25,12 @@ end
 # before we load the gemspec.
 desc "Build all the packages."
 task :package => [:revision_file, :submodules, :permissions] do
+  version = get_version
+  File.open(scope('VERSION'), 'w') {|f| f.puts(version)}
   load scope('sass.gemspec')
   Gem::Builder.new(SASS_GEMSPEC).build
+  sh %{git checkout VERSION}
+
   pkg = "#{SASS_GEMSPEC.name}-#{SASS_GEMSPEC.version}"
   mkdir_p "pkg"
   verbose(true) {mv "#{pkg}.gem", "pkg/#{pkg}.gem"}
@@ -65,7 +69,7 @@ at_exit { File.delete(scope('REVISION')) rescue nil }
 desc "Install Sass as a gem. Use SUDO=1 to install with sudo."
 task :install => [:package] do
   gem  = RUBY_PLATFORM =~ /java/  ? 'jgem' : 'gem' 
-  sh %{#{'sudo ' if ENV["SUDO"]}#{gem} install --no-ri pkg/sass-#{File.read(scope('VERSION')).strip}}
+  sh %{#{'sudo ' if ENV["SUDO"]}#{gem} install --no-ri pkg/sass-#{get_version}}
 end
 
 desc "Release a new Sass package to Rubyforge."
@@ -123,57 +127,28 @@ task :release_edge do
   ensure_git_cleanup do
     puts "#{'=' * 50} Running rake release_edge"
 
-    sh %{git checkout edge-gem}
-    sh %{git reset --hard origin/edge-gem}
-    sh %{git merge origin/master}
-
-    unless edge_version = bump_edge_version
-      puts "master is already a prerelease version, no use building an edge gem"
-      next
-    end
-
-    File.open(scope('EDGE_GEM_VERSION'), 'w') {|f| f.puts(edge_version)}
-    sh %{git commit -m "Bump edge gem version to #{edge_version}." EDGE_GEM_VERSION}
-    sh %{git push origin edge-gem}
-
-    # Package the edge gem with the proper version
-    File.open(scope('VERSION'), 'w') {|f| f.puts(edge_version)}
+    sh %{git checkout master}
+    sh %{git reset --hard origin/master}
     sh %{rake package}
-    sh %{git checkout VERSION}
-
     sh %{rubyforge add_release sass sass "Bleeding Edge (v#{edge_version})" pkg/sass-#{edge_version}.gem}
     sh %{gem push pkg/sass-#{edge_version}.gem}
   end
 end
 
-# Reads the master version and the edge gem version,
-# bump the latter, and return it.
-#
-# Returns nil if the current master version is already a non-alpha prerelease.
-def bump_edge_version
+# Get the version string. If this is being installed from Git,
+# this includes the proper prerelease version.
+def get_version
+  written_version = File.read(scope('VERSION').strip)
+  return written_version unless File.exist?(scope('.git'))
+
   # Get the current master branch version
-  version = File.read(scope('VERSION')).strip.split('.')
+  version = written_version.split('.')
   version.map! {|n| n =~ /^[0-9]+$/ ? n.to_i : n}
-  unless version.size == 5 # prerelease
-    raise "master version #{version.join('.')} is not a prerelease version" 
-  end
+  return written_version unless version.size == 5 && version[3] == "alpha" # prerelease
 
-  # Bump the edge gem version
-  edge_version = File.read(scope('EDGE_GEM_VERSION')).strip.split('.')
-  edge_version.map! {|n| n =~ /^[0-9]+$/ ? n.to_i : n}
-
-  if version[3] != "alpha"
-    return
-  elsif edge_version[0..2] != version[0..2]
-    # A new master branch version was released, reset the edge gem version
-    edge_version[0..2] = version[0..2]
-    edge_version[4] = 1
-  else
-    # Just bump the teeny version
-    edge_version[4] += 1
-  end
-
-  edge_version.join('.')
+  return written_version if (commit_count = `git log --pretty=oneline --first-parent stable.. | wc -l`).empty?
+  version[4] = commit_count.strip
+  version.join('.')
 end
 
 task :watch_for_update do
