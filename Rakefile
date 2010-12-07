@@ -130,8 +130,9 @@ task :release_edge do
     sh %{git checkout master}
     sh %{git reset --hard origin/master}
     sh %{rake package}
-    sh %{rubyforge add_release sass sass "Bleeding Edge (v#{edge_version})" pkg/sass-#{get_version}.gem}
-    sh %{gem push pkg/sass-#{edge_version}.gem}
+    version = get_version
+    sh %{rubyforge add_release sass sass "Bleeding Edge (v#{version})" pkg/sass-#{version}.gem}
+    sh %{gem push pkg/sass-#{version}.gem}
   end
 end
 
