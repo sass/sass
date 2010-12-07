@@ -1,9 +1,16 @@
 # A visitor for converting a dynamic Sass tree into a static Sass tree.
 class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
+  # @param root [Tree::Node] The root node of the tree to visit.
+  # @param environment [Sass::Environment] The lexical environment.
+  # @return [Tree::Node] The resulting tree of static nodes.
+  def self.visit(root, environment = Sass::Environment.new)
+    new(environment).send(:visit, root)
+  end
+
   protected
 
-  def initialize
-    @environment = Sass::Environment.new
+  def initialize(env)
+    @environment = env
   end
 
   # If an exception is raised, this add proper metadata to the backtrace.
@@ -18,7 +25,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_children(parent)
     with_environment Sass::Environment.new(@environment) do
       parent.children = super.flatten
-      parent.children.each {|c| parent.check_child! c}
       parent
     end
   end
@@ -100,6 +106,13 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     end
   end
 
+  # Loads the function into the environment.
+  def visit_function(node)
+    @environment.set_function(node.name,
+      Sass::Callable.new(node.name, node.args, @environment, node.children))
+    []
+  end
+
   # Runs the child nodes if the conditional expression is true;
   # otherwise, tries the else nodes.
   def visit_if(node)
@@ -135,7 +148,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Loads a mixin into the environment.
   def visit_mixindef(node)
     @environment.set_mixin(node.name,
-      Sass::Mixin.new(node.name, node.args, @environment, node.children))
+      Sass::Callable.new(node.name, node.args, @environment, node.children))
     []
   end
 
@@ -204,6 +217,11 @@ END
         val.to_s
       end
     yield
+  end
+
+  # Returns the value of the expression.
+  def visit_return(node)
+    throw :_sass_return, node.expr.perform(@environment)
   end
 
   # Runs SassScript interpolation in the selector,

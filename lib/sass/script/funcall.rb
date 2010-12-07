@@ -76,6 +76,10 @@ module Sass
       def _perform(environment)
         args = @args.map {|a| a.perform(environment)}
         keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
+        if fn = environment.function(@name)
+          return perform_sass_fn(fn, args, keywords)
+        end
+
         ruby_name = @name.tr('-', '_')
         args = construct_ruby_args(ruby_name, args, keywords)
 
@@ -88,6 +92,8 @@ module Sass
         raise e unless e.backtrace.any? {|t| t =~ /:in `(block in )?(#{name}|perform)'$/}
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
       end
+
+      private
 
       def construct_ruby_args(name, args, keywords)
         return args if keywords.empty?
@@ -112,6 +118,30 @@ module Sass
         end
 
         args
+      end
+
+      def perform_sass_fn(function, args, keywords)
+        # TODO: merge with mixin arg evaluation?
+        keywords.each do |name, value|
+          # TODO: Make this fast
+          unless function.args.find {|(var, default)| var.underscored_name == name}
+            raise Sass::SyntaxError.new("Function #{@name} doesn't have an argument named $#{name}")
+          end
+        end
+
+        environment = function.args.zip(args).
+          inject(Sass::Environment.new(function.environment)) do |env, ((var, default), value)|
+          env.set_local_var(var.name,
+            value || keywords[var.underscored_name] || (default && default.perform(env)))
+          raise Sass::SyntaxError.new("Function #{@name} is missing parameter #{var.inspect}.") unless env.var(var.name)
+          env
+        end
+
+        val = catch :_sass_return do
+          function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, environment)}
+          raise Sass::SyntaxError.new("Function #{@name} finished without @return")
+        end
+        val
       end
     end
   end

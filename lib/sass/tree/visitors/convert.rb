@@ -110,6 +110,14 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       "#{node.exclusive ? "to" : "through"} #{node.to.to_sass(@options)}#{yield}"
   end
 
+  def visit_function(node)
+    args = node.args.map do |v, d|
+      d ? "#{v.to_sass(@options)}: #{d.to_sass(@options)}" : v.to_sass(@options)
+    end.join(", ")
+
+    "#{tab_str}@function #{dasherize(node.name)}(#{args})#{yield}"
+  end
+
   def visit_if(node)
     name =
       if !@is_else; "if"
@@ -165,6 +173,10 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     res = tab_str + node.declaration(@options, @format)
     return res + semi + "\n" if node.children.empty?
     res + yield.rstrip + semi + "\n"
+  end
+
+  def visit_return(node)
+    "#{tab_str}@return #{node.expr.to_sass(@options)}#{semi}\n"
   end
 
   def visit_rule(node)

@@ -16,27 +16,12 @@ module Sass
       # Runs the dynamic Sass code *and* computes the CSS for the tree.
       # @see #to_s
       def render
-        result, extends = Visitors::Cssize.visit(Visitors::Perform.visit(self))
+        Visitors::CheckNesting.visit(self)
+        result = Visitors::Perform.visit(self)
+        Visitors::CheckNesting.visit(result) # Check again to validate mixins
+        result, extends = Visitors::Cssize.visit(result)
         result = result.do_extend(extends) unless extends.empty?
         result.to_s
-      end
-
-      # Returns an error message if the given child node is invalid,
-      # and false otherwise.
-      #
-      # Only property nodes are invalid at root level.
-      #
-      # @see Node#invalid_child?
-      def invalid_child?(child)
-        case child
-        when Tree::ExtendNode
-          "Extend directives may only be used within rules."
-        when Tree::PropNode
-          "Properties aren't allowed at the root of a document." +
-            child.pseudo_class_selector_message
-        else
-          return
-        end
       end
     end
   end

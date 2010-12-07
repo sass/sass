@@ -2,7 +2,7 @@ require 'set'
 
 module Sass
   # The lexical environment for SassScript.
-  # This keeps track of variable and mixin definitions.
+  # This keeps track of variable, mixin, and function definitions.
   #
   # A new environment is created for each level of Sass nesting.
   # This allows variables to be lexically scoped.
@@ -146,7 +146,10 @@ RUBY
     # Script::Literal
     inherited_hash :var
     # mixin
-    # Engine::Mixin
+    # Sass::Callable
     inherited_hash :mixin
+    # function
+    # Sass::Callable
+    inherited_hash :function
   end
 end

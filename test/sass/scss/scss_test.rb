@@ -699,6 +699,38 @@ CSS
 SCSS
   end
 
+  ## Functions
+
+  def test_basic_function
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 3; }
+CSS
+@function foo() {
+  @return 1 + 2;
+}
+
+bar {
+  a: foo();
+}
+SASS
+  end
+
+  def test_function_args
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 3; }
+CSS
+@function plus($var1, $var2) {
+  @return $var1 + $var2;
+}
+
+bar {
+  a: plus(1, 2);
+}
+SASS
+  end
+
   ## Interpolation
 
   def test_basic_selector_interpolation

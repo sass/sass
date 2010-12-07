@@ -39,8 +39,8 @@ MSG
     "a\n  b: c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
     ".foo ^bar\n  a: b" => ['Invalid CSS after ".foo ": expected selector, was "^bar"', 1],
     "a\n  @extend .foo ^bar" => 'Invalid CSS after ".foo ": expected selector, was "^bar"',
-    "a: b" => 'Properties aren\'t allowed at the root of a document.',
-    ":a b" => 'Properties aren\'t allowed at the root of a document.',
+    "a: b" => 'Properties are only allowed within rules, directives, or other properties.',
+    ":a b" => 'Properties are only allowed within rules, directives, or other properties.',
     "!" => 'Invalid variable: "!".',
     "$a" => 'Invalid variable: "$a".',
     "! a" => 'Invalid variable: "! a".',
@@ -87,12 +87,26 @@ MSG
     "=a(,)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ",)"',
     "=a($)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "$)"',
     "=a($foo bar)" => 'Invalid CSS after "($foo ": expected ")", was "bar)"',
-    "=foo\n  bar: baz\n+foo" => ["Properties aren't allowed at the root of a document.", 2],
+    "=foo\n  bar: baz\n+foo" => ["Properties are only allowed within rules, directives, or other properties.", 2],
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
     "=a($b = 1, $c)" => "Required argument $c must come before any optional arguments.",
     "=a($b = 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c",
     "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing parameter $b.",
+    "@function foo()\n  1 + 2" => "Functions can only contain variable declarations and control directives.",
+    "@function foo()\n  foo: bar" => "Functions can only contain variable declarations and control directives.",
+    "@function foo()\n  foo: bar\n  @return 3" => ["Functions can only contain variable declarations and control directives.", 2],
+    "@function foo\n  @return 1" => ['Invalid CSS after "": expected "(", was ""', 1],
+    "@function foo(\n  @return 1" => ['Invalid CSS after "(": expected variable (e.g. $foo), was ""', 1],
+    "@function foo(b)\n  @return 1" => ['Invalid CSS after "(": expected variable (e.g. $foo), was "b)"', 1],
+    "@function foo(,)\n  @return 1" => ['Invalid CSS after "(": expected variable (e.g. $foo), was ",)"', 1],
+    "@function foo($)\n  @return 1" => ['Invalid CSS after "(": expected variable (e.g. $foo), was "$)"', 1],
+    "@function foo()\n  @return" => 'Invalid @return: expected expression.',
+    "@function foo()\n  @return 1\n    $var: val" => 'Illegal nesting: Nothing may be nested beneath return directives.',
+    "foo\n  @function bar()\n    @return 1" => ['Functions may only be defined at the root of a document.', 2],
+    "@return 1" => '@return may only be used within a function.',
+    "@if true\n  @return 1" => '@return may only be used within a function.',
+    "@mixin foo\n  @return 1\n@include foo" => ['@return may only be used within a function.', 2],
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
     "@if false\n@else foo" => "Invalid else directive '@else foo': expected 'if <expr>'.",
     "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
@@ -511,7 +525,7 @@ SASS
   rescue Sass::SyntaxError => e
     assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..11].join("\n"))
 /*
-Syntax error: Properties aren't allowed at the root of a document.
+Syntax error: Properties are only allowed within rules, directives, or other properties.
         on line 4 of test_cssize_exception_css_inline.sass
 
 1: .filler
@@ -1124,6 +1138,90 @@ CSS
 
 a
   +\\{foo\\(12\\)(12)
+SASS
+  end
+
+  def test_basic_function
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 3; }
+CSS
+@function foo()
+  @return 1 + 2
+
+bar
+  a: foo()
+SASS
+  end
+
+  def test_function_args
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 3; }
+CSS
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus(1, 2)
+SASS
+  end
+
+  def test_function_arg_default
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 3; }
+CSS
+@function plus($var1, $var2: 2)
+  @return $var1 + $var2
+
+bar
+  a: plus(1)
+SASS
+  end
+
+  def test_function_arg_keyword
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 1bar; }
+CSS
+@function plus($var1: 1, $var2: 2)
+  @return $var1 + $var2
+
+bar
+  a: plus($var2: bar)
+SASS
+  end
+
+  def test_function_with_if
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: foo;
+  b: bar; }
+CSS
+@function my-if($cond, $val1, $val2)
+  @if $cond
+    @return $val1
+  @else
+    @return $val2
+
+bar
+  a: my-if(true, foo, bar)
+  b: my-if(false, foo, bar)
+SASS
+  end
+
+  def test_function_with_var
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 1; }
+CSS
+@function foo($val1, $val2)
+  $intermediate: $val1 + $val2
+  @return $intermediate/3
+
+bar
+  a: foo(1, 2)
 SASS
   end
 

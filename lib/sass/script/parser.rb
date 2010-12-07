@@ -112,6 +112,24 @@ module Sass
         raise e
       end
 
+      # Parses the argument list for a function definition.
+      #
+      # @return [Array<Script::Node>] The root nodes of the arguments.
+      # @raise [Sass::SyntaxError] if the argument list isn't valid SassScript
+      def parse_function_definition_arglist
+        args = defn_arglist!(true)
+        assert_done
+
+        args.each do |k, v|
+          k.options = @options
+          v.options = @options if v
+        end
+        args
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
+        raise e
+      end
+
       # Parses a SassScript expression.
       #
       # @overload parse(str, line, offset, filename = nil)
@@ -283,10 +301,16 @@ RUBY
         node(Script::Funcall.new(tok.value, args, keywords))
       end
 
-      def defn_arglist!(must_have_default)
-        return [] unless try_tok(:lparen)
+      def defn_arglist!(must_have_parens)
+        if must_have_parens
+          assert_tok(:lparen)
+        else
+          return [] unless try_tok(:lparen)
+        end
         return [] if try_tok(:rparen)
+
         res = []
+        must_have_default = false
         loop do
           line = @lexer.line
           offset = @lexer.offset + 1

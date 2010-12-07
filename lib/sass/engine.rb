@@ -12,6 +12,8 @@ require 'sass/tree/media_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
+require 'sass/tree/function_node'
+require 'sass/tree/return_node'
 require 'sass/tree/extend_node'
 require 'sass/tree/if_node'
 require 'sass/tree/while_node'
@@ -26,6 +28,7 @@ require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
 require 'sass/tree/visitors/convert'
 require 'sass/tree/visitors/to_css'
+require 'sass/tree/visitors/check_nesting'
 require 'sass/selector'
 require 'sass/environment'
 require 'sass/script'
@@ -36,24 +39,24 @@ require 'sass/shared'
 
 module Sass
 
-  # A Sass mixin.
+  # A Sass mixin or function.
   #
   # `name`: `String`
-  # : The name of the mixin.
+  # : The name of the mixin/function.
   #
   # `args`: `Array<(String, Script::Node)>`
-  # : The arguments for the mixin.
+  # : The arguments for the mixin/function.
   #   Each element is a tuple containing the name of the argument
   #   and the parse tree for the default value of the argument.
   #
   # `environment`: {Sass::Environment}
-  # : The environment in which the mixin was defined.
-  #   This is captured so that the mixin can have access
+  # : The environment in which the mixin/function was defined.
+  #   This is captured so that the mixin/function can have access
   #   to local variables defined in its scope.
   #
-  # `tree`: {Sass::Tree::Node}
-  # : The parse tree for the mixin.
-  Mixin = Struct.new(:name, :args, :environment, :tree)
+  # `tree`: `Array<Tree::Node>`
+  # : The parse tree for the mixin/function.
+  Callable = Struct.new(:name, :args, :environment, :tree)
 
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
@@ -635,6 +638,8 @@ WARNING
         parse_mixin_definition(line)
       elsif directive == "include"
         parse_mixin_include(line, root)
+      elsif directive == "function"
+        parse_function(line, root)
       elsif directive == "for"
         parse_for(line, root, value)
       elsif directive == "each"
@@ -665,6 +670,12 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::WarnNode.new(parse_script(value, :offset => offset))
+      elsif directive == "return"
+        raise SyntaxError.new("Invalid @return: expected expression.") unless value
+        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath return directives.",
+          :line => @line + 1) unless line.children.empty?
+        offset = line.offset + line.text.index(value).to_i
+        Tree::ReturnNode.new(parse_script(value, :offset => offset))
       elsif directive == "charset"
         name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
         raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name
@@ -787,7 +798,6 @@ WARNING
       offset = line.offset + line.text.size - arg_string.size
       args = Script::Parser.new(arg_string.strip, @line, offset, @options).
         parse_mixin_definition_arglist
-      default_arg_found = false
       Tree::MixinDefNode.new(name, args)
     end
 
@@ -802,6 +812,17 @@ WARNING
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.",
         :line => @line + 1) unless line.children.empty?
       Tree::MixinNode.new(name, args, keywords)
+    end
+
+    FUNCTION_RE = /^@function\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
+    def parse_function(line, root)
+      name, arg_string = line.text.scan(FUNCTION_RE).first
+      raise SyntaxError.new("Invalid function definition \"#{line.text}\".") if name.nil?
+
+      offset = line.offset + line.text.size - arg_string.size
+      args = Script::Parser.new(arg_string.strip, @line, offset, @options).
+        parse_function_definition_arglist
+      Tree::FunctionNode.new(name, args)
     end
 
     def parse_script(script, options = {})
