@@ -92,18 +92,6 @@ module Sass::Tree
       "#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
-    # Returns an error message if the given child node is invalid,
-    # and false otherwise.
-    #
-    # {PropNode} only allows other {PropNode}s and {CommentNode}s as children.
-    # @param child [Tree::Node] A potential child node
-    # @return [String] An error message if the child is invalid, or nil otherwise
-    def invalid_child?(child)
-      if !child.is_a?(PropNode) && !child.is_a?(CommentNode)
-        "Illegal nesting: Only properties may be nested beneath properties."
-      end
-    end
-
     private
 
     def check!

@@ -86,26 +86,13 @@ module Sass
       #
       # @param child [Tree::Node, Array<Tree::Node>] The child node or nodes
       # @raise [Sass::SyntaxError] if `child` is invalid
-      # @see #invalid_child?
       def <<(child)
         return if child.nil?
         if child.is_a?(Array)
           child.each {|c| self << c}
         else
-          check_child! child
           self.has_children = true
           @children << child
-        end
-      end
-
-      # Raises an error if the given child node is invalid.
-      #
-      # @param child [Tree::Node] The child node
-      # @raise [Sass::SyntaxError] if `child` is invalid
-      # @see #invalid_child?
-      def check_child!(child)
-        if msg = invalid_child?(child)
-          raise Sass::SyntaxError.new(msg, :line => child.line)
         end
       end
 
@@ -226,29 +213,6 @@ module Sass
         res = Sass::Shared.balance(*args)
         return res if res
         raise Sass::SyntaxError.new("Unbalanced brackets.", :line => line)
-      end
-
-      # Returns an error message if the given child node is invalid,
-      # and false otherwise.
-      #
-      # By default, all child nodes except those only allowed under specific nodes
-      # ({Tree::MixinDefNode}, {Tree::FunctionNode}, {Tree::ImportNode}, {Tree::ExtendNode})
-      # are valid.
-      # This is expected to be overriden by subclasses
-      # for which some children are invalid.
-      #
-      # @param child [Tree::Node] A potential child node
-      # @return [Boolean, String] Whether or not the child node is valid,
-      #   as well as the error message to display if it is invalid
-      def invalid_child?(child)
-        case child
-        when Tree::MixinDefNode
-          "Mixins may only be defined at the root of a document."
-        when Tree::FunctionNode
-          "Functions may only be defined at the root of a document."
-        when Tree::ImportNode
-          "Import directives may only be used at the root of a document."
-        end
       end
     end
   end

@@ -25,7 +25,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_children(parent)
     with_environment Sass::Environment.new(@environment) do
       parent.children = super.flatten
-      parent.children.each {|c| parent.check_child! c}
       parent
     end
   end
