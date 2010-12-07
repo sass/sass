@@ -821,7 +821,7 @@ WARNING
 
       offset = line.offset + line.text.size - arg_string.size
       args = Script::Parser.new(arg_string.strip, @line, offset, @options).
-        parse_mixin_definition_arglist
+        parse_function_definition_arglist
       Tree::FunctionNode.new(name, args)
     end
 
