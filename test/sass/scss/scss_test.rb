@@ -1099,4 +1099,24 @@ SCSS
 }
 SCSS
   end
+
+  def test_multiline_var
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 3;
+  b: false;
+  c: a b c; }
+CSS
+foo {
+  $var1: 1 +
+    2;
+  $var2: true and
+    false;
+  $var3: a b
+    c;
+  a: $var1;
+  b: $var2;
+  c: $var3; }
+SCSS
+  end
 end

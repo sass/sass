@@ -3,15 +3,27 @@
 * Table of contents
 {:toc}
 
-## 3.0.24 (Unreleased)
+## 3.0.25 (Unreleased)
+
+* When displaying a Sass error in an imported stylesheet,
+  use the imported stylesheet's contents rather than the top-level stylesheet.
+
+* Fix a bug that caused some lines with non-ASCII characters to be ignored in Ruby 1.8.
+
+* Fix a bug where boolean operators (`and`, `or`, and `not`) wouldn't work at the end of a line
+  in a multiline SassScript expression.
+
+* Fix a performance bug in large SCSS stylesheets with many nested selectors.
+  This should dramatically decrease compilation time of such stylesheets.
+
+## 3.0.24
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).
 
 * Raise an error when `@else` appears without an `@if` in SCSS.
 
 * Fix some cases where `@if` rules were causing the line numbers in error reports
   to become incorrect.
-
-* Fix a performance bug in large SCSS stylesheets with many nested selectors.
-  This should dramatically decrease compilation time of such stylesheets.
 
 ## 3.0.23
 
