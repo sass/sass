@@ -1013,8 +1013,11 @@ module Sass::Script
     #   unquote("foo") => foo
     #   unquote(foo) => foo
     def unquote(string)
-      assert_type string, :String
-      Sass::Script::String.new(string.value, :identifier)
+      if string.is_a?(Sass::Script::String)
+        Sass::Script::String.new(string.value, :identifier)
+      else
+        string
+      end
     end
     declare :unquote, [:string]
 
