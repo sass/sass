@@ -10,6 +10,9 @@
 * Fix some cases where `@if` rules were causing the line numbers in error reports
   to become incorrect.
 
+* Fix a performance bug in large SCSS stylesheets with many nested selectors.
+  This should dramatically decrease compilation time of such stylesheets.
+
 ## 3.0.23
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.23).

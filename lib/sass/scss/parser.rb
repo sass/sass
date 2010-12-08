@@ -213,8 +213,7 @@ module Sass
       end
 
       def else_directive
-        raise Sass::SyntaxError.new(
-          "Invalid CSS: @else must come after @if", :line => @line)
+        err("Invalid CSS: @else must come after @if")
       end
 
       def extend_directive
@@ -379,11 +378,9 @@ module Sass
       # no colon after the identifier, whitespace after the colon),
       # but I'm not sure the gains would be worth the added complexity.
       def declaration_or_ruleset
-        pos = @scanner.pos
-        line = @line
         old_use_property_exception, @use_property_exception =
           @use_property_exception, false
-        begin
+        decl_err = catch_error do
           decl = declaration
           unless decl && decl.has_children
             # We want an exception if it's not there,
@@ -391,17 +388,10 @@ module Sass
             tok!(/[;}]/) unless tok?(/[;}]/)
           end
           return decl
-        rescue Sass::SyntaxError => decl_err
         end
 
-        @line = line
-        @scanner.pos = pos
-
-        begin
-          return ruleset
-        rescue Sass::SyntaxError => ruleset_err
-          raise @use_property_exception ? decl_err : ruleset_err
-        end
+        ruleset_err = catch_error {return ruleset}
+        rethrow(@use_property_exception ? decl_err : ruleset_err)
       ensure
         @use_property_exception = old_use_property_exception
       end
@@ -651,7 +641,7 @@ MESSAGE
       end
 
       def nested_properties!(node, space)
-        raise Sass::SyntaxError.new(<<MESSAGE, :line => @line) unless space
+        err(<<MESSAGE) unless space
 Invalid CSS: a space is required between a property and its definition
 when it has other properties nested beneath it.
 MESSAGE
@@ -765,6 +755,9 @@ MESSAGE
         result = parser.send(*args)
         @line = parser.line
         result
+      rescue Sass::SyntaxError => e
+        throw(:_sass_parser_error, true) if @throw_error
+        raise e
       end
 
       def merge(arr)
@@ -810,7 +803,40 @@ MESSAGE
       end
 
       def expected(name)
+        throw(:_sass_parser_error, true) if @throw_error
         self.class.expected(@scanner, @expected || name, @line)
+      end
+
+      def err(msg)
+        throw(:_sass_parser_error, true) if @throw_error
+        raise Sass::SyntaxError.new(msg, :line => @line)
+      end
+
+      def catch_error(&block)
+        old_throw_error, @throw_error = @throw_error, true
+        pos = @scanner.pos
+        line = @line
+        expected = @expected
+        if catch(:_sass_parser_error, &block)
+          @scanner.pos = pos
+          @line = line
+          @expected = expected
+          {:pos => pos, :line => line, :expected => @expected, :block => block}
+        end
+      ensure
+        @throw_error = old_throw_error
+      end
+
+      def rethrow(err)
+        if @throw_err
+          throw :_sass_parser_error, err
+        else
+          @scanner = StringScanner.new(@scanner.string)
+          @scanner.pos = err[:pos]
+          @line = err[:line]
+          @expected = err[:expected]
+          err[:block].call
+        end
       end
 
       # @private
