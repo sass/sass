@@ -125,6 +125,10 @@ module Sass
         @options[:style]
       end
 
+      def indent_with
+        @options[:indent_with] || '  '
+      end
+
       # Computes the CSS corresponding to this static CSS tree.
       #
       # @return [String, nil] The resulting CSS

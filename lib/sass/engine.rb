@@ -144,7 +144,8 @@ module Sass
       :cache => true,
       :cache_location => './.sass-cache',
       :syntax => :sass,
-      :filesystem_importer => Sass::Importers::Filesystem
+      :filesystem_importer => Sass::Importers::Filesystem,
+      :indent_with => '  '
     }.freeze
 
     # Converts a Sass options hash into a standard form, filling in
