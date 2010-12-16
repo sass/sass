@@ -569,6 +569,12 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_adjust_argument_errors
     assert_error_message("Unknown argument $hoo (260deg) for `adjust'",
       "adjust(blue, $hoo: 260deg)")
+    assert_error_message("10px is not a keyword argument for `adjust'",
+      "adjust(blue, 10px)")
+    assert_error_message("10px is not a keyword argument for `adjust'",
+      "adjust(blue, 10px, 20px)")
+    assert_error_message("10px is not a keyword argument for `adjust'",
+      "adjust(blue, 10px, $hue: 180deg)")
   end
 
   def test_mix

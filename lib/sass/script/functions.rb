@@ -233,6 +233,8 @@ module Sass::Script
     #   in addition to those in `:args`.
     #   If this is true, the Ruby function will be passed a hash from strings
     #   to {Sass::Script::Literal}s as the last argument.
+    #   In addition, if this is true and `:var_args` is not,
+    #   Sass will ensure that the last argument passed is a hash.
     # 
     # @example
     #   declare :rgba, [:hex, :alpha]
