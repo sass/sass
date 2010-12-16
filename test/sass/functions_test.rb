@@ -515,6 +515,27 @@ class SassFunctionTest < Test::Unit::TestCase
       evaluate("adjust(rgb(10, 20, 30), $blue: -40)"))
   end
 
+  def test_adjust_tests_types
+    assert_error_message("\"foo\" is not a color for `adjust'", "adjust(foo, $hue: 10)")
+    # HSL
+    assert_error_message("$hue: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $hue: foo)")
+    assert_error_message("$saturation: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $saturation: foo)")
+    assert_error_message("$lightness: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $lightness: foo)")
+    # RGB
+    assert_error_message("$red: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $red: foo)")
+    assert_error_message("$green: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $green: foo)")
+    assert_error_message("$blue: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $blue: foo)")
+    # Alpha
+    assert_error_message("$alpha: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $alpha: foo)")
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))

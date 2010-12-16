@@ -313,9 +313,12 @@ module Sass::Script
       #   assert_type value, :Number
       # @param value [Sass::Script::Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
-      def assert_type(value, type)
+      # @param name [String, nil] The name of the argument.
+      def assert_type(value, type, name = nil)
         return if value.is_a?(Sass::Script.const_get(type))
-        raise ArgumentError.new("#{value.inspect} is not a #{type.to_s.downcase}")
+        err = "#{value.inspect} is not a #{type.to_s.downcase}"
+        err = "$#{name}: " + err if name
+        raise ArgumentError.new(err)
       end
     end
 
@@ -749,7 +752,7 @@ module Sass::Script
           }) do |name, (range, units)|
 
           next unless val = kwargs[name]
-          assert_type val, :Number
+          assert_type val, :Number, name
           if range && !range.include?(val.value)
             raise ArgumentError.new("Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
           end
