@@ -741,6 +741,11 @@ module Sass::Script
     # @param lightness [Number]
     # @param alpha [Number]
     # @return [Color]
+    # @raise [ArgumentError] if `color` is not a color,
+    #   if any keyword argument is not a number,
+    #   if any keyword argument is not in the legal range,
+    #   if an unexpected keyword argument is given,
+    #   or if both HSL and RGB properties are given.
     def adjust(color, kwargs)
       assert_type color, :Color
       with = Sass::Util.map_hash({
