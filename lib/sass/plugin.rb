@@ -67,11 +67,14 @@ module Sass
       return if options[:never_update]
 
       run_updating_stylesheets individual_files
-
-      individual_files.each {|t, c| update_stylesheet(t, c)}
-
       @checked_for_updates = true
       staleness_checker = StalenessChecker.new
+
+      individual_files.each do |t, c|
+        if options[:always_update] || staleness_checker.stylesheet_needs_update?(c, t)
+          update_stylesheet(t, c)
+        end
+      end
 
       template_location_array.each do |template_location, css_location|
 

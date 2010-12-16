@@ -13,6 +13,8 @@
 * Fix a bug where boolean operators (`and`, `or`, and `not`) wouldn't work at the end of a line
   in a multiline SassScript expression.
 
+* When using `sass --update`, only update individual files when they've changed.
+
 ## 3.0.24
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).
