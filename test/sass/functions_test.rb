@@ -566,6 +566,11 @@ class SassFunctionTest < Test::Unit::TestCase
       "adjust(blue, $alpha: -1.1)")
   end
 
+  def test_adjust_argument_errors
+    assert_error_message("Unknown argument $hoo (260deg) for `adjust'",
+      "adjust(blue, $hoo: 260deg)")
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))

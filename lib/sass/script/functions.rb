@@ -741,25 +741,32 @@ module Sass::Script
     # @return [Color]
     def adjust(color, kwargs)
       assert_type color, :Color
-      color.with(Sass::Util.map_hash({
-            "red" => [-255..255, ""],
-            "green" => [-255..255, ""],
-            "blue" => [-255..255, ""],
-            "hue" => nil,
-            "saturation" => [-100..100, "%"],
-            "lightness" => [-100..100, "%"],
-            "alpha" => [-1..1, ""]
-          }) do |name, (range, units)|
+      with = Sass::Util.map_hash({
+          "red" => [-255..255, ""],
+          "green" => [-255..255, ""],
+          "blue" => [-255..255, ""],
+          "hue" => nil,
+          "saturation" => [-100..100, "%"],
+          "lightness" => [-100..100, "%"],
+          "alpha" => [-1..1, ""]
+        }) do |name, (range, units)|
 
-          next unless val = kwargs[name]
-          assert_type val, :Number, name
-          if range && !range.include?(val.value)
-            raise ArgumentError.new("$#{name}: Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
-          end
-          adjusted = color.send(name) + val.value
-          adjusted = [0, Sass::Util.restrict(adjusted, range)].max if range
-          [name.to_sym, adjusted]
-        end)
+        next unless val = kwargs.delete(name)
+        assert_type val, :Number, name
+        if range && !range.include?(val.value)
+          raise ArgumentError.new("$#{name}: Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
+        end
+        adjusted = color.send(name) + val.value
+        adjusted = [0, Sass::Util.restrict(adjusted, range)].max if range
+        [name.to_sym, adjusted]
+      end
+
+      unless kwargs.empty?
+        name, val = kwargs.to_a.first
+        raise ArgumentError.new("Unknown argument $#{name} (#{val})")
+      end
+
+      color.with(with)
     end
     declare :adjust, [:color], :var_kwargs => true
 
