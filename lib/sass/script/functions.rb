@@ -754,7 +754,7 @@ module Sass::Script
           next unless val = kwargs[name]
           assert_type val, :Number, name
           if range && !range.include?(val.value)
-            raise ArgumentError.new("Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
+            raise ArgumentError.new("$#{name}: Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
           end
           adjusted = color.send(name) + val.value
           adjusted = [0, Sass::Util.restrict(adjusted, range)].max if range

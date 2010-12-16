@@ -536,6 +536,36 @@ class SassFunctionTest < Test::Unit::TestCase
       "adjust(blue, $alpha: foo)")
   end
 
+  def test_adjust_tests_arg_range
+    # HSL
+    assert_error_message("$saturation: Amount 101% must be between -100% and 100% for `adjust'",
+      "adjust(blue, $saturation: 101%)")
+    assert_error_message("$saturation: Amount -101% must be between -100% and 100% for `adjust'",
+      "adjust(blue, $saturation: -101%)")
+    assert_error_message("$lightness: Amount 101% must be between -100% and 100% for `adjust'",
+      "adjust(blue, $lightness: 101%)")
+    assert_error_message("$lightness: Amount -101% must be between -100% and 100% for `adjust'",
+      "adjust(blue, $lightness: -101%)")
+    # RGB
+    assert_error_message("$red: Amount 256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $red: 256)")
+    assert_error_message("$red: Amount -256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $red: -256)")
+    assert_error_message("$green: Amount 256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $green: 256)")
+    assert_error_message("$green: Amount -256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $green: -256)")
+    assert_error_message("$blue: Amount 256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $blue: 256)")
+    assert_error_message("$blue: Amount -256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $blue: -256)")
+    # Alpha
+    assert_error_message("$alpha: Amount 1.1 must be between -1 and 1 for `adjust'",
+      "adjust(blue, $alpha: 1.1)")
+    assert_error_message("$alpha: Amount -1.1 must be between -1 and 1 for `adjust'",
+      "adjust(blue, $alpha: -1.1)")
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
