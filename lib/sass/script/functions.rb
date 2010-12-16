@@ -88,6 +88,11 @@ module Sass::Script
   # \{#transparentize transparentize($color, $amount)} / \{#fade_out fade-out($color, $amount)}
   # : Makes a color more transparent.
   #
+  # ## Other Color Functions
+  #
+  # \{#adjust adjust($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # : Increase or decrease any of the components of a color.
+  #
   # ## String Functions
   #
   # \{#unquote unquote($string)}
@@ -586,7 +591,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def opacify(color, amount)
-      adjust(color, amount, :alpha, 0..1, :+)
+      _adjust(color, amount, :alpha, 0..1, :+)
     end
     declare :opacify, [:color, :amount]
 
@@ -607,7 +612,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def transparentize(color, amount)
-      adjust(color, amount, :alpha, 0..1, :-)
+      _adjust(color, amount, :alpha, 0..1, :-)
     end
     declare :transparentize, [:color, :amount]
 
@@ -628,7 +633,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def lighten(color, amount)
-      adjust(color, amount, :lightness, 0..100, :+, "%")
+      _adjust(color, amount, :lightness, 0..100, :+, "%")
     end
     declare :lighten, [:color, :amount]
 
@@ -646,7 +651,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def darken(color, amount)
-      adjust(color, amount, :lightness, 0..100, :-, "%")
+      _adjust(color, amount, :lightness, 0..100, :-, "%")
     end
     declare :darken, [:color, :amount]
 
@@ -664,7 +669,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def saturate(color, amount)
-      adjust(color, amount, :saturation, 0..100, :+, "%")
+      _adjust(color, amount, :saturation, 0..100, :+, "%")
     end
     declare :saturate, [:color, :amount]
 
@@ -682,7 +687,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def desaturate(color, amount)
-      adjust(color, amount, :saturation, 0..100, :-, "%")
+      _adjust(color, amount, :saturation, 0..100, :-, "%")
     end
     declare :desaturate, [:color, :amount]
 
@@ -704,6 +709,56 @@ module Sass::Script
       color.with(:hue => color.hue + degrees.value)
     end
     declare :adjust_hue, [:color, :degrees]
+
+    # Adjusts one or more properties of a color.
+    # This can change the red, green, blue, hue, saturation, value, and alpha properties.
+    # The properties are specified as keyword arguments,
+    # and are added to or subtracted from the color's current value for that property.
+    #
+    # `$red`, `$green`, and `$blue` properties should be between 0 and 255.
+    # `$saturation` and `$lightness` should be between 0% and 100%.
+    # `$alpha` should be between 0 and 1.
+    #
+    # All properties are optional.
+    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
+    # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
+    #
+    # @example
+    #   adjust(#102030, :blue => 5) => #102035
+    #   adjust(#102030, :red => -5, :blue => 5) => #0b2035
+    #   adjust(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
+    # @param color [Color]
+    # @param red [Number]
+    # @param green [Number]
+    # @param blue [Number]
+    # @param hue [Number]
+    # @param saturation [Number]
+    # @param lightness [Number]
+    # @param alpha [Number]
+    # @return [Color]
+    def adjust(color, kwargs)
+      assert_type color, :Color
+      color.with(Sass::Util.map_hash({
+            "red" => [-255..255, ""],
+            "green" => [-255..255, ""],
+            "blue" => [-255..255, ""],
+            "hue" => nil,
+            "saturation" => [-100..100, "%"],
+            "lightness" => [-100..100, "%"],
+            "alpha" => [-1..1, ""]
+          }) do |name, (range, units)|
+
+          next unless val = kwargs[name]
+          assert_type val, :Number
+          if range && !range.include?(val.value)
+            raise ArgumentError.new("Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
+          end
+          adjusted = color.send(name) + val.value
+          adjusted = [0, Sass::Util.restrict(adjusted, range)].max if range
+          [name.to_sym, adjusted]
+        end)
+    end
+    declare :adjust, [:color], :var_kwargs => true
 
     # Mixes together two colors.
     # Specifically, takes the average of each of the RGB components,
@@ -1110,7 +1165,7 @@ module Sass::Script
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
     end
 
-    def adjust(color, amount, attr, range, op, units = "")
+    def _adjust(color, amount, attr, range, op, units = "")
       assert_type color, :Color
       assert_type amount, :Number
       unless range.include?(amount.value)

@@ -461,6 +461,60 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `adjust-hue'", "adjust-hue(#fff, \"foo\")")
   end
 
+  def test_adjust
+    # HSL
+    assert_equal(evaluate("hsl(180, 30, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $hue: 60deg)"))
+    assert_equal(evaluate("hsl(120, 50, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $saturation: 20%)"))
+    assert_equal(evaluate("hsl(120, 30, 60)"),
+      evaluate("adjust(hsl(120, 30, 90), $lightness: -30%)"))
+    # RGB
+    assert_equal(evaluate("rgb(15, 20, 30)"),
+      evaluate("adjust(rgb(10, 20, 30), $red: 5)"))
+    assert_equal(evaluate("rgb(10, 15, 30)"),
+      evaluate("adjust(rgb(10, 20, 30), $green: -5)"))
+    assert_equal(evaluate("rgb(10, 20, 40)"),
+      evaluate("adjust(rgb(10, 20, 30), $blue: 10)"))
+    # Alpha
+    assert_equal(evaluate("hsla(120, 30, 90, 0.65)"),
+      evaluate("adjust(hsl(120, 30, 90), $alpha: -0.35)"))
+    assert_equal(evaluate("rgba(10, 20, 30, 0.9)"),
+      evaluate("adjust(rgba(10, 20, 30, 0.4), $alpha: 0.5)"))
+
+    # HSL composability
+    assert_equal(evaluate("hsl(180, 20, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $hue: 60deg, $saturation: -10%)"))
+    assert_equal(evaluate("hsl(180, 20, 95)"),
+      evaluate("adjust(hsl(120, 30, 90), $hue: 60deg, $saturation: -10%, $lightness: 5%)"))
+    assert_equal(evaluate("hsla(120, 20, 95, 0.3)"),
+      evaluate("adjust(hsl(120, 30, 90), $saturation: -10%, $lightness: 5%, $alpha: -0.7)"))
+
+    # RGB composability
+    assert_equal(evaluate("rgb(15, 20, 29)"),
+      evaluate("adjust(rgb(10, 20, 30), $red: 5, $blue: -1)"))
+    assert_equal(evaluate("rgb(15, 45, 29)"),
+      evaluate("adjust(rgb(10, 20, 30), $red: 5, $green: 25, $blue: -1)"))
+    assert_equal(evaluate("rgba(10, 25, 29, 0.7)"),
+      evaluate("adjust(rgb(10, 20, 30), $green: 5, $blue: -1, $alpha: -0.3)"))
+
+    # HSL range restriction
+    assert_equal(evaluate("hsl(120, 30, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $hue: 720deg)"))
+    assert_equal(evaluate("hsl(120, 0, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $saturation: -90%)"))
+    assert_equal(evaluate("hsl(120, 30, 100)"),
+      evaluate("adjust(hsl(120, 30, 90), $lightness: 30%)"))
+
+    # RGB range restriction
+    assert_equal(evaluate("rgb(255, 20, 30)"),
+      evaluate("adjust(rgb(10, 20, 30), $red: 250)"))
+    assert_equal(evaluate("rgb(10, 0, 30)"),
+      evaluate("adjust(rgb(10, 20, 30), $green: -30)"))
+    assert_equal(evaluate("rgb(10, 20, 0)"),
+      evaluate("adjust(rgb(10, 20, 30), $blue: -40)"))
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))

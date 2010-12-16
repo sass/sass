@@ -245,7 +245,7 @@ END
       hsl = !([:hue, :saturation, :lightness] & attrs.keys).empty?
       rgb = !([:red, :green, :blue] & attrs.keys).empty?
       if hsl && rgb
-        raise ArgumentError.new("Color#with may not have both HSL and RGB keys specified")
+        raise ArgumentError.new("Cannot specify HSL and RGB values for a color at the same time")
       end
 
       if hsl
