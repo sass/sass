@@ -50,6 +50,42 @@ The argument names for the built-in functions are listed
 Sass functions defined in Ruby can use the {Sass::Script::Functions.declare} method
 to declare the names of the arguments they take.
 
+#### New Keyword Functions
+
+The new keyword argument functionality enables new Sass color functions
+that use keywords to encompass a large amount of functionality in one function.
+
+* The `adjust()` function works like the old `lighten`, `saturate`, and `adjust-hue` methods.
+  It increases and/or decreases the values of a color's properties by set amounts.
+  For example, `adjust($color, $lightness: 10%)` is the same as `lighten($color, 10%)`:
+  it returns `$color` with its lightness increased by 10%.
+
+* The `scale()` function is similar to `adjust()`,
+  but instead of increasing and/or decreasing a color's properties by set amounts,
+  it scales them fluidly by percentages.
+  The closer the percentage is to 100% (or -100%),
+  the closer the new property value will be to its maximum (or minimum).
+  For example, `scale(hsl(120, 70, 80), $lightness: 50%)`
+  will change the lightness from 80% to 90%,
+  because 90% is halfway between 80% and 100%.
+  Similarly, `scale(hsl(120, 70, 50), $lightness: 50%)`
+  will change the lightness from 50% to 75%.
+
+* The `set()` function simply sets a color's properties
+  regardless of their old values.
+  For example `set($color, $lightness: 10%)` returns `$color` with 10% lightness,
+  and `set($color, $alpha: 0.7)` returns color with opacity 0.7.
+
+Each keyword function accepts `$hue`, `$saturation`, `$value`,
+`$red`, `$green`, `$blue`, and `$alpha` keywords,
+with the exception of `scale()` which doesn't accept `$hue`.
+These keywords modify the respective properties of the given color.
+
+Each keyword function can modify multiple properties at once.
+For example, `adjust($color, $lightness: 15%, $saturation: -10%)`
+both lightens and desaturates `$color`.
+HSL properties cannot be modified at the same time as RGB properties, though.
+
 ### Lists
 
 Lists are now a first-class data type in Sass,
