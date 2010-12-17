@@ -140,6 +140,10 @@ module Sass
           end
         end
 
+        if args.size > function.args.size
+          raise ArgumentError.new("Wrong number of arguments (#{args.size} for #{function.args.size})")
+        end
+
         environment = function.args.zip(args).
           inject(Sass::Environment.new(function.environment)) do |env, ((var, default), value)|
           env.set_local_var(var.name,

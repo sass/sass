@@ -104,6 +104,8 @@ MSG
     "@function foo()\n  @return" => 'Invalid @return: expected expression.',
     "@function foo()\n  @return 1\n    $var: val" => 'Illegal nesting: Nothing may be nested beneath return directives.',
     "foo\n  @function bar()\n    @return 1" => ['Functions may only be defined at the root of a document.', 2],
+    "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing parameter $a.',
+    "@function foo()\n  @return 1\na\n  b: foo(2)" => 'Wrong number of arguments (1 for 0) for `foo\'',
     "@return 1" => '@return may only be used within a function.',
     "@if true\n  @return 1" => '@return may only be used within a function.',
     "@mixin foo\n  @return 1\n@include foo" => ['@return may only be used within a function.', 2],
