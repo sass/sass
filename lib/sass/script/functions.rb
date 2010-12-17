@@ -850,6 +850,54 @@ module Sass::Script
     end
     declare :scale, [:color], :var_kwargs => true
 
+    # Sets on or more properties of a color.
+    # This can set the red, green, blue, hue, saturation, value, and alpha properties.
+    # The properties are specified as keyword arguments,
+    # and replace the color's current value for that property.
+    #
+    # `$red`, `$green`, and `$blue` properties should be between 0 and 255.
+    # `$saturation` and `$lightness` should be between 0% and 100%.
+    # `$alpha` should be between 0 and 1.
+    #
+    # All properties are optional.
+    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
+    # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
+    #
+    # @example
+    #   set(#102030, $blue: 5) => #102005
+    #   set(#102030, $red: 120, $blue: 5) => #782005
+    #   set(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
+    # @param color [Color]
+    # @param red [Number]
+    # @param green [Number]
+    # @param blue [Number]
+    # @param hue [Number]
+    # @param saturation [Number]
+    # @param lightness [Number]
+    # @param alpha [Number]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` is not a color,
+    #   if any keyword argument is not a number,
+    #   if any keyword argument is not in the legal range,
+    #   if an unexpected keyword argument is given,
+    #   or if both HSL and RGB properties are given.
+    def set(color, kwargs)
+      assert_type color, :Color
+      with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
+        next unless val = kwargs.delete(name)
+        assert_type val, :Number, name
+        [name.to_sym, val.value]
+      end
+
+      unless kwargs.empty?
+        name, val = kwargs.to_a.first
+        raise ArgumentError.new("Unknown argument $#{name} (#{val})")
+      end
+
+      color.with(with)
+    end
+    declare :set, [:color], :var_kwargs => true
+
     # Mixes together two colors.
     # Specifically, takes the average of each of the RGB components,
     # optionally weighted by the given percentage.
