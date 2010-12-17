@@ -51,5 +51,12 @@ module Sass::Tree
       node.else = else_
       node
     end
+
+    # @see Node#deep_copy
+    def deep_copy
+      node = super
+      node.else = self.else.deep_copy if self.else
+      node
+    end
   end
 end

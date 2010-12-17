@@ -180,6 +180,16 @@ module Sass
         Sass::Tree::Visitors::Convert.visit(self, options, :scss)
       end
 
+      # Return a deep clone of this node.
+      # The child nodes are cloned, but options are not.
+      #
+      # @return [Node]
+      def deep_copy
+        node = dup
+        node.children = children.map {|c| c.deep_copy}
+        node
+      end
+
       protected
 
       # @see Sass::Shared.balance
