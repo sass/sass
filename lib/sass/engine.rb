@@ -164,7 +164,8 @@ module Sass
       # Tracks the original filename of the top-level Sass file
       options[:original_filename] = options[:original_filename] || options[:filename]
 
-      options[:cache_store] ||= Sass::CacheStores::Filesystem.new(options[:cache_location])
+      options[:cache_store] ||= Sass::CacheStores::Chain.new(
+        Sass::CacheStores::Memory.new, Sass::CacheStores::Filesystem.new(options[:cache_location]))
       # Support both, because the docs said one and the other actually worked
       # for quite a long time.
       options[:line_comments] ||= options[:line_numbers]
