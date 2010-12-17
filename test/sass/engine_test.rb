@@ -65,6 +65,8 @@ Load path: .
 MSG
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
+    "@if true\n  @import foo" => "Import directives may not be used within control directives or mixins.",
+    "@mixin foo\n  @import foo" => "Import directives may not be used within control directives or mixins.",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
@@ -603,32 +605,6 @@ CSS
 
 .bar
   a: b
-  @import partial
-SASS
-  end
-
-  def test_import_in_mixin
-    assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
-.foo #foo {
-  background-color: #bbaaff; }
-CSS
-@mixin import
-  @import partial
-
-.foo
-  @include import
-SASS
-  end
-
-  def test_import_in_loop
-    assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
-#foo {
-  background-color: #bbaaff; }
-
-#foo {
-  background-color: #bbaaff; }
-CSS
-@for $i from 1 through 2
   @import partial
 SASS
   end
