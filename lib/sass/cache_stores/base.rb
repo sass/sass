@@ -48,7 +48,7 @@ module Sass
       # @param sha [String] The checksum for the contents that are being stored.
       # @param obj [Object] The object to cache.
       def store(key, sha, root)
-        _store(key, Sass::VERSION, sha, Sass::Util.dump(root))
+        _store(key, Sass::VERSION, sha, Marshal.dump(root))
       end
 
       # Retrieve a {Sass::Tree::RootNode}.
@@ -58,7 +58,7 @@ module Sass
       # @return [Object] The cached object.
       def retrieve(key, sha)
         contents = _retrieve(key, Sass::VERSION, sha)
-        Sass::Util.load(contents) if contents
+        Marshal.load(contents) if contents
       rescue EOFError, TypeError, ArgumentError => e
         Sass::Util.sass_warn "Warning. Error encountered while reading cache #{path_to(key)}: #{e}"
       end

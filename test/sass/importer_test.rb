@@ -5,8 +5,6 @@ require File.dirname(__FILE__) + '/test_helper'
 class ImporterTest < Test::Unit::TestCase
   
   class FruitImporter < Sass::Importers::Base
-    attr_reader :cached
-
     def find(name, context = nil)
       if name =~ %r{fruits/(\w+)(\.s[ac]ss)?}
         fruit = $1
@@ -30,13 +28,6 @@ class ImporterTest < Test::Unit::TestCase
 
     def key(name, context)
       [self.class.name, name]
-    end
-
-    def _around_dump
-      @cached = true
-      yield
-    ensure
-      @cached = false
     end
   end
 
@@ -87,18 +78,5 @@ CSS
     assert_equal css_file, Sass::Engine.new(scss_file, options).render
   ensure
     FileUtils.rm_rf(absolutize("tmp"))
-  end
-
-  def test_caching_importer
-    source = "p\n  foo: bar"
-    importer = FruitImporter.new
-    filename = filename_for_test
-    engine = Sass::Engine.new(source, :filename => filename, :importer => importer)
-    engine.to_tree # Trigger caching
-
-    sha = Digest::SHA1.hexdigest(source)
-    cache = engine.options[:cache_store]
-    cached_tree = cache.retrieve(cache.key(*importer.key(filename, engine.options)), sha)
-    assert cached_tree.options[:importer].cached, "Importer's _around_dump method should have been called"
   end
 end

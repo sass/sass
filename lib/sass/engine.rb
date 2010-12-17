@@ -334,7 +334,15 @@ module Sass
       end
 
       root.options = @options
-      @options[:cache_store].store(key, sha, root) if @options[:cache] && key && sha
+      if @options[:cache] && key && sha
+        begin
+          old_options = root.options
+          root.options = {:importer => root.options[:importer]}
+          @options[:cache_store].store(key, sha, root)
+        ensure
+          root.options = old_options
+        end
+      end
       root
     rescue SyntaxError => e
       e.modify_backtrace(:filename => @options[:filename], :line => @line)

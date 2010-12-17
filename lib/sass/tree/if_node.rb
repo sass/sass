@@ -41,23 +41,15 @@ module Sass::Tree
       self.else.options = options if self.else
     end
 
-    # @see Node#_around_dump
-    def _around_dump
-      old_else = @else
-      old_last_else = @last_else
-      @else = Sass::Util.dump(@else)
-      @last_else = (self == @last_else ? nil : Sass::Util.dump(@last_else))
-      super
-    ensure
-      @else = old_else
-      @last_else = old_last_else
+    def _dump(f)
+      Marshal.dump([self.expr, self.else])
     end
 
-    # @see Node#_after_load
-    def _after_load
-      super
-      @else = Sass::Util.load(@else)
-      @last_else = (@last_else ? Sass::Util.load(@last_else) : self)
+    def self._load(data)
+      expr, else_ = Marshal.load(data)
+      node = IfNode.new(expr)
+      node.else = else_
+      node
     end
   end
 end

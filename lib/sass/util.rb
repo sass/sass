@@ -270,47 +270,6 @@ module Sass
       version_gt(v1, v2) || !version_gt(v2, v1)
     end
 
-    # A wrapper for `Marshal.dump` that calls `#_before_dump` on the object
-    # before dumping it, `#_after_dump` afterwards.
-    # It also calls `#_around_dump` and passes it a block in which the object is dumped.
-    #
-    # If any of these methods are undefined, they are not called.
-    #
-    # This will recursively call itself on members of arrays and hashes,
-    # but not of user-defined objects.
-    # This means that user-defined objects that need their members' `#_before_dump` etc. methods called
-    # must call `Haml::Util.dump` and `Haml::Util.load` manually on those members.
-    #
-    # @param obj [Object] The object to dump.
-    # @return [String] The dumped data.
-    def dump(obj)
-      obj._before_dump if obj.respond_to?(:_before_dump)
-      return convert_and_dump(obj) unless obj.respond_to?(:_around_dump)
-      res = nil
-      obj._around_dump {res = convert_and_dump(obj)}
-      res
-    ensure
-      obj._after_dump if obj.respond_to?(:_after_dump)
-    end
-
-    # A wrapper for `Marshal.load` that calls `#_after_load` on the object
-    # after loading it, if it's defined.
-    #
-    # @param data [String] The data to load.
-    # @return [Object] The loaded object.
-    def load(data)
-      obj = Marshal.load(data)
-
-      if obj.is_a?(Array)
-        obj = obj.map {|e| Sass::Util.load(e)}
-      elsif obj.is_a?(Hash)
-        obj = map_hash(obj) {|k, v| [Sass::Util.load(k), Sass::Util.load(v)]}
-      end
-
-      obj._after_load if obj.respond_to?(:_after_load)
-      obj
-    end
-
     # Throws a NotImplementedError for an abstract method.
     #
     # @param obj [Object] `self`
@@ -705,15 +664,6 @@ MSG
 
       return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
       return lcs_backtrace(c, x, y, i-1, j, &block)
-    end
-
-    def convert_and_dump(obj)
-      if obj.is_a?(Array)
-        obj = obj.map {|e| dump(e)}
-      elsif obj.is_a?(Hash)
-        obj = map_hash(obj) {|k, v| [dump(k), dump(v)]}
-      end
-      Marshal.dump(obj)
     end
   end
 end
