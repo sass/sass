@@ -3,7 +3,9 @@
 * Table of contents
 {:toc}
 
-## 3.0.25 (Unreleased)
+## 3.0.25
+
+[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.25).
 
 * HTML-to-Haml conversion now works within Ruby even if Hpricot is loaded before `haml/html`.
 
