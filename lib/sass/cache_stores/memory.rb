@@ -24,22 +24,17 @@ module Sass
         @contents = {}
       end
 
-      # @see Base#_retrieve
-      def _retrieve(key, version, sha)
+      # @see Base#retrieve
+      def retrieve(key,  sha)
         if @contents.has_key?(key)
-          return unless @contents[key][:version] == version
           return unless @contents[key][:sha] == sha
-          return @contents[key][:contents]
+          return @contents[key][:obj]
         end
       end
-      
-      # @see Base#_store
-      def _store(key, version, sha, contents)
-        @contents[key] = {
-          :version => version,
-          :sha => sha,
-          :contents => contents
-        }
+
+      # @see Base#store
+      def store(key, sha, obj)
+        @contents[key] = {:sha => sha, :obj => obj}
       end
       
       # Destructively clear the cache.
