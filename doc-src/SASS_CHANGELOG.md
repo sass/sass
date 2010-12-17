@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.0.26 (Unreleased)
+
+* Fix a performance bug in large SCSS stylesheets with many nested selectors.
+  This should dramatically decrease compilation time of such stylesheets.
+
 ## 3.0.25
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.25).
@@ -25,11 +30,6 @@
 
 * Fix some cases where `@if` rules were causing the line numbers in error reports
   to become incorrect.
-
-* IronRuby compatibility. This is sort of a hack: IronRuby reports its version as 1.9,
-  but it doesn't support the encoding APIs, so we treat it as 1.8 instead.
-
-* The `--quiet` option now silences informational output from `--update` and `--watch`.
 
 ## 3.0.23
 
