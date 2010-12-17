@@ -161,11 +161,14 @@ module Sass::Plugin
     #   the second is the location of the CSS file that it should be compiled to.
     def update_stylesheets(individual_files = [])
       run_updating_stylesheets individual_files
-
-      individual_files.each {|t, c| update_stylesheet(t, c)}
-
       @checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
+
+      individual_files.each do |t, c|
+        if options[:always_update] || staleness_checker.stylesheet_needs_update?(c, t)
+          update_stylesheet(t, c)
+        end
+      end
 
       template_location_array.each do |template_location, css_location|
 
