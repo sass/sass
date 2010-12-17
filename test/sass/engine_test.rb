@@ -64,8 +64,7 @@ File to import not found or unreadable: foo.sass.
 Load path: .
 MSG
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
-    "foo\n  @import templates/basic" => "Import directives may only be used at the root of a document.",
-    "foo\n  @import #{File.dirname(__FILE__)}/templates/basic" => "Import directives may only be used at the root of a document.",
+    "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
@@ -587,6 +586,69 @@ ERR
         :load_paths => [File.dirname(__FILE__) + "/templates"],
       })
     assert !File.exists?(sassc_path("importee"))
+  end
+
+  def test_import_in_rule
+    assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
+.foo #foo {
+  background-color: #bbaaff; }
+
+.bar {
+  a: b; }
+  .bar #foo {
+    background-color: #bbaaff; }
+CSS
+.foo
+  @import partial
+
+.bar
+  a: b
+  @import partial
+SASS
+  end
+
+  def test_import_in_mixin
+    assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
+.foo #foo {
+  background-color: #bbaaff; }
+CSS
+@mixin import
+  @import partial
+
+.foo
+  @include import
+SASS
+  end
+
+  def test_import_in_loop
+    assert_equal(<<CSS, render(<<SASS, :load_paths => [File.dirname(__FILE__) + '/templates/']))
+#foo {
+  background-color: #bbaaff; }
+
+#foo {
+  background-color: #bbaaff; }
+CSS
+@for $i from 1 through 2
+  @import partial
+SASS
+  end
+
+  def test_nested_import_with_toplevel_constructs
+    Sass::Engine.new(".foo\n  @import importee", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
+  rescue Sass::SyntaxError => err
+    assert_equal(3, err.sass_line)
+    assert_match(/(\/|^)importee\.sass$/, err.sass_filename)
+
+    assert_hash_has(err.sass_backtrace.first,
+      :filename => err.sass_filename, :line => err.sass_line)
+
+    assert_nil(err.sass_backtrace[1][:filename])
+    assert_equal(2, err.sass_backtrace[1][:line])
+
+    assert_match(/(\/|^)importee\.sass:3$/, err.backtrace.first)
+    assert_equal("(sass):2", err.backtrace[1])
+  else
+    assert(false, "Exception not raised for importing mixins nested")
   end
 
   def test_units

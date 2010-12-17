@@ -74,6 +74,14 @@ class SassPluginTest < Test::Unit::TestCase
     assert_stylesheet_updated 'scss_import'
   end
 
+  def test_update_needed_when_nested_import_dependency_modified
+    touch 'basic'
+    assert_needs_update 'nested_import'
+    update_all_stylesheets!
+    assert_stylesheet_updated 'basic'
+    assert_stylesheet_updated 'scss_import'
+  end
+
   def test_full_exception_handling
     File.delete(tempfile_loc('bork1'))
     update_all_stylesheets!
