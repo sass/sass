@@ -777,6 +777,79 @@ module Sass::Script
     end
     declare :adjust, [:color], :var_kwargs => true
 
+    # Scales one or more properties of a color by a percentage value.
+    # Unlike \{#adjust}, which changes a color's properties by fixed amounts,
+    # \{#scale} fluidly changes them based on how high or low they already are.
+    # That means that lightening an already-light color with \{#scale}
+    # won't change the lightness much,
+    # but lightening a dark color by the same amount will change it more dramatically.
+    # This has the benefit of making `scale($color, ...)` have a similar effect
+    # regardless of what `$color` is.
+    #
+    # For example, the lightness of a color can be anywhere between 0 and 100.
+    # If `scale($color, $lightness: 40%)` is called, the resulting color's lightness
+    # will be 40% of the way between its original lightness and 100.
+    # If `scale($color, $lightness: -40%)` is called instead,
+    # the lightness will be 40% of the way between the original and 0.
+    #
+    # This can change the red, green, blue, saturation, value, and alpha properties.
+    # The properties are specified as keyword arguments.
+    # All arguments should be percentages between 0% and 100%.
+    #
+    # All properties are optional.
+    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
+    # and HSL properties (`$saturation`, `$value`) at the same time.
+    #
+    # @example
+    #   scale(hsl(120, 70, 80), $lightness: 50%) => hsl(120, 70, 90)
+    #   scale(rgb(200, 150, 170), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
+    #   scale(hsl(200, 70, 80), $saturation: -90%, $alpha: -30%) => hsla(200, 7, 80, 0.7)
+    # @param color [Color]
+    # @param red [Number]
+    # @param green [Number]
+    # @param blue [Number]
+    # @param saturation [Number]
+    # @param lightness [Number]
+    # @param alpha [Number]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` is not a color,
+    #   if any keyword argument is not a percentage between 0% and 100%,
+    #   if an unexpected keyword argument is given,
+    #   or if both HSL and RGB properties are given.
+    def scale(color, kwargs)
+      assert_type color, :Color
+      with = Sass::Util.map_hash({
+          "red" => 255,
+          "green" => 255,
+          "blue" => 255,
+          "saturation" => 100,
+          "lightness" => 100,
+          "alpha" => 1
+        }) do |name, max|
+
+        next unless val = kwargs.delete(name)
+        assert_type val, :Number, name
+        if !(val.numerator_units == ['%'] && val.denominator_units.empty?)
+          raise ArgumentError.new("$#{name}: Amount #{val} must be a % (e.g. #{val.value}%)")
+        elsif !(-100..100).include?(val.value)
+          raise ArgumentError.new("$#{name}: Amount #{val} must be between -100% and 100%")
+        end
+
+        current = color.send(name)
+        scale = val.value/100.0
+        diff = scale > 0 ? max - current : current
+        [name.to_sym, current + diff*scale]
+      end
+
+      unless kwargs.empty?
+        name, val = kwargs.to_a.first
+        raise ArgumentError.new("Unknown argument $#{name} (#{val})")
+      end
+
+      color.with(with)
+    end
+    declare :scale, [:color], :var_kwargs => true
+
     # Mixes together two colors.
     # Specifically, takes the average of each of the RGB components,
     # optionally weighted by the given percentage.

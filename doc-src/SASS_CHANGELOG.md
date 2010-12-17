@@ -55,13 +55,15 @@ to declare the names of the arguments they take.
 The new keyword argument functionality enables new Sass color functions
 that use keywords to encompass a large amount of functionality in one function.
 
-* The `adjust()` function works like the old `lighten`, `saturate`, and `adjust-hue` methods.
-  It increases and/or decreases the values of a color's properties by set amounts.
+* The {Sass::Script::Functions#adjust adjust} function works like the old
+  `lighten`, `saturate`, and `adjust-hue` methods.
+  It increases and/or decreases the values of a color's properties by fixed amounts.
   For example, `adjust($color, $lightness: 10%)` is the same as `lighten($color, 10%)`:
   it returns `$color` with its lightness increased by 10%.
 
-* The `scale()` function is similar to `adjust()`,
-  but instead of increasing and/or decreasing a color's properties by set amounts,
+* The {Sass::Script::Functions#scale scale} function
+  is similar to {Sass::Script::Functions#adjust adjust},
+  but instead of increasing and/or decreasing a color's properties by fixed amounts,
   it scales them fluidly by percentages.
   The closer the percentage is to 100% (or -100%),
   the closer the new property value will be to its maximum (or minimum).
@@ -71,7 +73,7 @@ that use keywords to encompass a large amount of functionality in one function.
   Similarly, `scale(hsl(120, 70, 50), $lightness: 50%)`
   will change the lightness from 50% to 75%.
 
-* The `set()` function simply sets a color's properties
+* The {Sass::Script::Functions#set set} function simply sets a color's properties
   regardless of their old values.
   For example `set($color, $lightness: 10%)` returns `$color` with 10% lightness,
   and `set($color, $alpha: 0.7)` returns color with opacity 0.7.
