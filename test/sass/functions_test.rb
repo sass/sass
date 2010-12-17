@@ -461,6 +461,276 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"foo\" is not a number for `adjust-hue'", "adjust-hue(#fff, \"foo\")")
   end
 
+  def test_adjust
+    # HSL
+    assert_equal(evaluate("hsl(180, 30, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $hue: 60deg)"))
+    assert_equal(evaluate("hsl(120, 50, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $saturation: 20%)"))
+    assert_equal(evaluate("hsl(120, 30, 60)"),
+      evaluate("adjust(hsl(120, 30, 90), $lightness: -30%)"))
+    # RGB
+    assert_equal(evaluate("rgb(15, 20, 30)"),
+      evaluate("adjust(rgb(10, 20, 30), $red: 5)"))
+    assert_equal(evaluate("rgb(10, 15, 30)"),
+      evaluate("adjust(rgb(10, 20, 30), $green: -5)"))
+    assert_equal(evaluate("rgb(10, 20, 40)"),
+      evaluate("adjust(rgb(10, 20, 30), $blue: 10)"))
+    # Alpha
+    assert_equal(evaluate("hsla(120, 30, 90, 0.65)"),
+      evaluate("adjust(hsl(120, 30, 90), $alpha: -0.35)"))
+    assert_equal(evaluate("rgba(10, 20, 30, 0.9)"),
+      evaluate("adjust(rgba(10, 20, 30, 0.4), $alpha: 0.5)"))
+
+    # HSL composability
+    assert_equal(evaluate("hsl(180, 20, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $hue: 60deg, $saturation: -10%)"))
+    assert_equal(evaluate("hsl(180, 20, 95)"),
+      evaluate("adjust(hsl(120, 30, 90), $hue: 60deg, $saturation: -10%, $lightness: 5%)"))
+    assert_equal(evaluate("hsla(120, 20, 95, 0.3)"),
+      evaluate("adjust(hsl(120, 30, 90), $saturation: -10%, $lightness: 5%, $alpha: -0.7)"))
+
+    # RGB composability
+    assert_equal(evaluate("rgb(15, 20, 29)"),
+      evaluate("adjust(rgb(10, 20, 30), $red: 5, $blue: -1)"))
+    assert_equal(evaluate("rgb(15, 45, 29)"),
+      evaluate("adjust(rgb(10, 20, 30), $red: 5, $green: 25, $blue: -1)"))
+    assert_equal(evaluate("rgba(10, 25, 29, 0.7)"),
+      evaluate("adjust(rgb(10, 20, 30), $green: 5, $blue: -1, $alpha: -0.3)"))
+
+    # HSL range restriction
+    assert_equal(evaluate("hsl(120, 30, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $hue: 720deg)"))
+    assert_equal(evaluate("hsl(120, 0, 90)"),
+      evaluate("adjust(hsl(120, 30, 90), $saturation: -90%)"))
+    assert_equal(evaluate("hsl(120, 30, 100)"),
+      evaluate("adjust(hsl(120, 30, 90), $lightness: 30%)"))
+
+    # RGB range restriction
+    assert_equal(evaluate("rgb(255, 20, 30)"),
+      evaluate("adjust(rgb(10, 20, 30), $red: 250)"))
+    assert_equal(evaluate("rgb(10, 0, 30)"),
+      evaluate("adjust(rgb(10, 20, 30), $green: -30)"))
+    assert_equal(evaluate("rgb(10, 20, 0)"),
+      evaluate("adjust(rgb(10, 20, 30), $blue: -40)"))
+  end
+
+  def test_adjust_tests_types
+    assert_error_message("\"foo\" is not a color for `adjust'", "adjust(foo, $hue: 10)")
+    # HSL
+    assert_error_message("$hue: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $hue: foo)")
+    assert_error_message("$saturation: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $saturation: foo)")
+    assert_error_message("$lightness: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $lightness: foo)")
+    # RGB
+    assert_error_message("$red: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $red: foo)")
+    assert_error_message("$green: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $green: foo)")
+    assert_error_message("$blue: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $blue: foo)")
+    # Alpha
+    assert_error_message("$alpha: \"foo\" is not a number for `adjust'",
+      "adjust(blue, $alpha: foo)")
+  end
+
+  def test_adjust_tests_arg_range
+    # HSL
+    assert_error_message("$saturation: Amount 101% must be between -100% and 100% for `adjust'",
+      "adjust(blue, $saturation: 101%)")
+    assert_error_message("$saturation: Amount -101% must be between -100% and 100% for `adjust'",
+      "adjust(blue, $saturation: -101%)")
+    assert_error_message("$lightness: Amount 101% must be between -100% and 100% for `adjust'",
+      "adjust(blue, $lightness: 101%)")
+    assert_error_message("$lightness: Amount -101% must be between -100% and 100% for `adjust'",
+      "adjust(blue, $lightness: -101%)")
+    # RGB
+    assert_error_message("$red: Amount 256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $red: 256)")
+    assert_error_message("$red: Amount -256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $red: -256)")
+    assert_error_message("$green: Amount 256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $green: 256)")
+    assert_error_message("$green: Amount -256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $green: -256)")
+    assert_error_message("$blue: Amount 256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $blue: 256)")
+    assert_error_message("$blue: Amount -256 must be between -255 and 255 for `adjust'",
+      "adjust(blue, $blue: -256)")
+    # Alpha
+    assert_error_message("$alpha: Amount 1.1 must be between -1 and 1 for `adjust'",
+      "adjust(blue, $alpha: 1.1)")
+    assert_error_message("$alpha: Amount -1.1 must be between -1 and 1 for `adjust'",
+      "adjust(blue, $alpha: -1.1)")
+  end
+
+  def test_adjust_argument_errors
+    assert_error_message("Unknown argument $hoo (260deg) for `adjust'",
+      "adjust(blue, $hoo: 260deg)")
+    assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `adjust'",
+      "adjust(blue, $hue: 120deg, $red: 10)");
+    assert_error_message("10px is not a keyword argument for `adjust'",
+      "adjust(blue, 10px)")
+    assert_error_message("10px is not a keyword argument for `adjust'",
+      "adjust(blue, 10px, 20px)")
+    assert_error_message("10px is not a keyword argument for `adjust'",
+      "adjust(blue, 10px, $hue: 180deg)")
+  end
+
+  def test_scale
+    # HSL
+    assert_equal(evaluate("hsl(120, 51, 90)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 30%)"))
+    assert_equal(evaluate("hsl(120, 30, 76.5)"),
+      evaluate("scale(hsl(120, 30, 90), $lightness: -15%)"))
+    # RGB
+    assert_equal(evaluate("rgb(157, 20, 30)"),
+      evaluate("scale(rgb(10, 20, 30), $red: 60%)"))
+    assert_equal(evaluate("rgb(10, 38.8, 30)"),
+      evaluate("scale(rgb(10, 20, 30), $green: 8%)"))
+    assert_equal(evaluate("rgb(10, 20, 20)"),
+      evaluate("scale(rgb(10, 20, 30), $blue: -(1/3)*100%)"))
+    # Alpha
+    assert_equal(evaluate("hsla(120, 30, 90, 0.86)"),
+      evaluate("scale(hsl(120, 30, 90), $alpha: -14%)"))
+    assert_equal(evaluate("rgba(10, 20, 30, 0.82)"),
+      evaluate("scale(rgba(10, 20, 30, 0.8), $alpha: 10%)"))
+
+    # HSL composability
+    assert_equal(evaluate("hsl(120, 51, 76.5)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 30%, $lightness: -15%)"))
+    assert_equal(evaluate("hsla(120, 51, 90, 0.2)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 30%, $alpha: -80%)"))
+
+    # RGB composability
+    assert_equal(evaluate("rgb(157, 38.8, 30)"),
+      evaluate("scale(rgb(10, 20, 30), $red: 60%, $green: 8%)"))
+    assert_equal(evaluate("rgb(157, 38.8, 20)"),
+      evaluate("scale(rgb(10, 20, 30), $red: 60%, $green: 8%, $blue: -(1/3)*100%)"))
+    assert_equal(evaluate("rgba(10, 38.8, 20, 0.55)"),
+      evaluate("scale(rgba(10, 20, 30, 0.5), $green: 8%, $blue: -(1/3)*100%, $alpha: 10%)"))
+
+    # Extremes
+    assert_equal(evaluate("hsl(120, 100, 90)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 100%)"))
+    assert_equal(evaluate("hsl(120, 30, 90)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 0%)"))
+    assert_equal(evaluate("hsl(120, 0, 90)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: -100%)"))
+  end
+
+  def test_scale_tests_types
+    assert_error_message("\"foo\" is not a color for `scale'", "scale(foo, $red: 10%)")
+    # HSL
+    assert_error_message("$saturation: \"foo\" is not a number for `scale'",
+      "scale(blue, $saturation: foo)")
+    assert_error_message("$lightness: \"foo\" is not a number for `scale'",
+      "scale(blue, $lightness: foo)")
+    # RGB
+    assert_error_message("$red: \"foo\" is not a number for `scale'",
+      "scale(blue, $red: foo)")
+    assert_error_message("$green: \"foo\" is not a number for `scale'",
+      "scale(blue, $green: foo)")
+    assert_error_message("$blue: \"foo\" is not a number for `scale'",
+      "scale(blue, $blue: foo)")
+    # Alpha
+    assert_error_message("$alpha: \"foo\" is not a number for `scale'",
+      "scale(blue, $alpha: foo)")
+  end
+
+  def test_scale_argument_errors
+    # Range
+    assert_error_message("$saturation: Amount 101% must be between -100% and 100% for `scale'",
+      "scale(blue, $saturation: 101%)")
+    assert_error_message("$red: Amount -101% must be between -100% and 100% for `scale'",
+      "scale(blue, $red: -101%)")
+    assert_error_message("$alpha: Amount -101% must be between -100% and 100% for `scale'",
+      "scale(blue, $alpha: -101%)")
+
+    # Unit
+    assert_error_message("$saturation: Amount 80 must be a % (e.g. 80%) for `scale'",
+      "scale(blue, $saturation: 80)")
+    assert_error_message("$alpha: Amount 0.5 must be a % (e.g. 0.5%) for `scale'",
+      "scale(blue, $alpha: 0.5)")
+
+    # Unknown argument
+    assert_error_message("Unknown argument $hue (80%) for `scale'", "scale(blue, $hue: 80%)")
+
+    # Non-keyword arg
+    assert_error_message("10px is not a keyword argument for `scale'", "scale(blue, 10px)")
+
+    # HSL/RGB
+    assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `scale'",
+      "scale(blue, $lightness: 10%, $red: 20%)");
+  end
+
+  def test_set
+    # HSL
+    assert_equal(evaluate("hsl(195, 30, 90)"),
+      evaluate("set(hsl(120, 30, 90), $hue: 195deg)"))
+    assert_equal(evaluate("hsl(120, 50, 90)"),
+      evaluate("set(hsl(120, 30, 90), $saturation: 50%)"))
+    assert_equal(evaluate("hsl(120, 30, 40)"),
+      evaluate("set(hsl(120, 30, 90), $lightness: 40%)"))
+    # RGB
+    assert_equal(evaluate("rgb(123, 20, 30)"),
+      evaluate("set(rgb(10, 20, 30), $red: 123)"))
+    assert_equal(evaluate("rgb(10, 234, 30)"),
+      evaluate("set(rgb(10, 20, 30), $green: 234)"))
+    assert_equal(evaluate("rgb(10, 20, 198)"),
+      evaluate("set(rgb(10, 20, 30), $blue: 198)"))
+    # Alpha
+    assert_equal(evaluate("rgba(10, 20, 30, 0.76)"),
+      evaluate("set(rgb(10, 20, 30), $alpha: 0.76)"))
+
+    # HSL composability
+    assert_equal(evaluate("hsl(56, 30, 47)"),
+      evaluate("set(hsl(120, 30, 90), $hue: 56deg, $lightness: 47%)"))
+    assert_equal(evaluate("hsla(56, 30, 47, 0.9)"),
+      evaluate("set(hsl(120, 30, 90), $hue: 56deg, $lightness: 47%, $alpha: 0.9)"))
+  end
+
+  def test_set_tests_types
+    assert_error_message("\"foo\" is not a color for `set'", "set(foo, $red: 10%)")
+    # HSL
+    assert_error_message("$saturation: \"foo\" is not a number for `set'",
+      "set(blue, $saturation: foo)")
+    assert_error_message("$lightness: \"foo\" is not a number for `set'",
+      "set(blue, $lightness: foo)")
+    # RGB
+    assert_error_message("$red: \"foo\" is not a number for `set'", "set(blue, $red: foo)")
+    assert_error_message("$green: \"foo\" is not a number for `set'", "set(blue, $green: foo)")
+    assert_error_message("$blue: \"foo\" is not a number for `set'", "set(blue, $blue: foo)")
+    # Alpha
+    assert_error_message("$alpha: \"foo\" is not a number for `set'", "set(blue, $alpha: foo)")
+  end
+
+  def test_set_argument_errors
+    # Range
+    assert_error_message("Saturation must be between 0 and 100 for `set'",
+      "set(blue, $saturation: 101%)")
+    assert_error_message("Lightness must be between 0 and 100 for `set'",
+      "set(blue, $lightness: 101%)")
+    assert_error_message("Red value must be between 0 and 255 for `set'",
+      "set(blue, $red: -1)")
+    assert_error_message("Green value must be between 0 and 255 for `set'",
+      "set(blue, $green: 256)")
+    assert_error_message("Blue value must be between 0 and 255 for `set'",
+      "set(blue, $blue: 500)")
+
+    # Unknown argument
+    assert_error_message("Unknown argument $hoo (80%) for `set'", "set(blue, $hoo: 80%)")
+
+    # Non-keyword arg
+    assert_error_message("10px is not a keyword argument for `set'", "set(blue, 10px)")
+
+    # HSL/RGB
+    assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `set'",
+      "set(blue, $lightness: 10%, $red: 120)");
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))

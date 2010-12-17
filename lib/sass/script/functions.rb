@@ -88,6 +88,11 @@ module Sass::Script
   # \{#transparentize transparentize($color, $amount)} / \{#fade_out fade-out($color, $amount)}
   # : Makes a color more transparent.
   #
+  # ## Other Color Functions
+  #
+  # \{#adjust adjust($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # : Increase or decrease any of the components of a color.
+  #
   # ## String Functions
   #
   # \{#unquote unquote($string)}
@@ -228,6 +233,8 @@ module Sass::Script
     #   in addition to those in `:args`.
     #   If this is true, the Ruby function will be passed a hash from strings
     #   to {Sass::Script::Literal}s as the last argument.
+    #   In addition, if this is true and `:var_args` is not,
+    #   Sass will ensure that the last argument passed is a hash.
     # 
     # @example
     #   declare :rgba, [:hex, :alpha]
@@ -308,9 +315,12 @@ module Sass::Script
       #   assert_type value, :Number
       # @param value [Sass::Script::Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
-      def assert_type(value, type)
+      # @param name [String, nil] The name of the argument.
+      def assert_type(value, type, name = nil)
         return if value.is_a?(Sass::Script.const_get(type))
-        raise ArgumentError.new("#{value.inspect} is not a #{type.to_s.downcase}")
+        err = "#{value.inspect} is not a #{type.to_s.downcase}"
+        err = "$#{name}: " + err if name
+        raise ArgumentError.new(err)
       end
     end
 
@@ -586,7 +596,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def opacify(color, amount)
-      adjust(color, amount, :alpha, 0..1, :+)
+      _adjust(color, amount, :alpha, 0..1, :+)
     end
     declare :opacify, [:color, :amount]
 
@@ -607,7 +617,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0 and 1
     def transparentize(color, amount)
-      adjust(color, amount, :alpha, 0..1, :-)
+      _adjust(color, amount, :alpha, 0..1, :-)
     end
     declare :transparentize, [:color, :amount]
 
@@ -628,7 +638,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def lighten(color, amount)
-      adjust(color, amount, :lightness, 0..100, :+, "%")
+      _adjust(color, amount, :lightness, 0..100, :+, "%")
     end
     declare :lighten, [:color, :amount]
 
@@ -646,7 +656,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def darken(color, amount)
-      adjust(color, amount, :lightness, 0..100, :-, "%")
+      _adjust(color, amount, :lightness, 0..100, :-, "%")
     end
     declare :darken, [:color, :amount]
 
@@ -664,7 +674,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def saturate(color, amount)
-      adjust(color, amount, :saturation, 0..100, :+, "%")
+      _adjust(color, amount, :saturation, 0..100, :+, "%")
     end
     declare :saturate, [:color, :amount]
 
@@ -682,7 +692,7 @@ module Sass::Script
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
     def desaturate(color, amount)
-      adjust(color, amount, :saturation, 0..100, :-, "%")
+      _adjust(color, amount, :saturation, 0..100, :-, "%")
     end
     declare :desaturate, [:color, :amount]
 
@@ -704,6 +714,189 @@ module Sass::Script
       color.with(:hue => color.hue + degrees.value)
     end
     declare :adjust_hue, [:color, :degrees]
+
+    # Adjusts one or more properties of a color.
+    # This can change the red, green, blue, hue, saturation, value, and alpha properties.
+    # The properties are specified as keyword arguments,
+    # and are added to or subtracted from the color's current value for that property.
+    #
+    # `$red`, `$green`, and `$blue` properties should be between 0 and 255.
+    # `$saturation` and `$lightness` should be between 0% and 100%.
+    # `$alpha` should be between 0 and 1.
+    #
+    # All properties are optional.
+    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
+    # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
+    #
+    # @example
+    #   adjust(#102030, $blue: 5) => #102035
+    #   adjust(#102030, $red: -5, $blue: 5) => #0b2035
+    #   adjust(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
+    # @param color [Color]
+    # @param red [Number]
+    # @param green [Number]
+    # @param blue [Number]
+    # @param hue [Number]
+    # @param saturation [Number]
+    # @param lightness [Number]
+    # @param alpha [Number]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` is not a color,
+    #   if any keyword argument is not a number,
+    #   if any keyword argument is not in the legal range,
+    #   if an unexpected keyword argument is given,
+    #   or if both HSL and RGB properties are given.
+    def adjust(color, kwargs)
+      assert_type color, :Color
+      with = Sass::Util.map_hash({
+          "red" => [-255..255, ""],
+          "green" => [-255..255, ""],
+          "blue" => [-255..255, ""],
+          "hue" => nil,
+          "saturation" => [-100..100, "%"],
+          "lightness" => [-100..100, "%"],
+          "alpha" => [-1..1, ""]
+        }) do |name, (range, units)|
+
+        next unless val = kwargs.delete(name)
+        assert_type val, :Number, name
+        if range && !range.include?(val.value)
+          raise ArgumentError.new("$#{name}: Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
+        end
+        adjusted = color.send(name) + val.value
+        adjusted = [0, Sass::Util.restrict(adjusted, range)].max if range
+        [name.to_sym, adjusted]
+      end
+
+      unless kwargs.empty?
+        name, val = kwargs.to_a.first
+        raise ArgumentError.new("Unknown argument $#{name} (#{val})")
+      end
+
+      color.with(with)
+    end
+    declare :adjust, [:color], :var_kwargs => true
+
+    # Scales one or more properties of a color by a percentage value.
+    # Unlike \{#adjust}, which changes a color's properties by fixed amounts,
+    # \{#scale} fluidly changes them based on how high or low they already are.
+    # That means that lightening an already-light color with \{#scale}
+    # won't change the lightness much,
+    # but lightening a dark color by the same amount will change it more dramatically.
+    # This has the benefit of making `scale($color, ...)` have a similar effect
+    # regardless of what `$color` is.
+    #
+    # For example, the lightness of a color can be anywhere between 0 and 100.
+    # If `scale($color, $lightness: 40%)` is called, the resulting color's lightness
+    # will be 40% of the way between its original lightness and 100.
+    # If `scale($color, $lightness: -40%)` is called instead,
+    # the lightness will be 40% of the way between the original and 0.
+    #
+    # This can change the red, green, blue, saturation, value, and alpha properties.
+    # The properties are specified as keyword arguments.
+    # All arguments should be percentages between 0% and 100%.
+    #
+    # All properties are optional.
+    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
+    # and HSL properties (`$saturation`, `$value`) at the same time.
+    #
+    # @example
+    #   scale(hsl(120, 70, 80), $lightness: 50%) => hsl(120, 70, 90)
+    #   scale(rgb(200, 150, 170), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
+    #   scale(hsl(200, 70, 80), $saturation: -90%, $alpha: -30%) => hsla(200, 7, 80, 0.7)
+    # @param color [Color]
+    # @param red [Number]
+    # @param green [Number]
+    # @param blue [Number]
+    # @param saturation [Number]
+    # @param lightness [Number]
+    # @param alpha [Number]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` is not a color,
+    #   if any keyword argument is not a percentage between 0% and 100%,
+    #   if an unexpected keyword argument is given,
+    #   or if both HSL and RGB properties are given.
+    def scale(color, kwargs)
+      assert_type color, :Color
+      with = Sass::Util.map_hash({
+          "red" => 255,
+          "green" => 255,
+          "blue" => 255,
+          "saturation" => 100,
+          "lightness" => 100,
+          "alpha" => 1
+        }) do |name, max|
+
+        next unless val = kwargs.delete(name)
+        assert_type val, :Number, name
+        if !(val.numerator_units == ['%'] && val.denominator_units.empty?)
+          raise ArgumentError.new("$#{name}: Amount #{val} must be a % (e.g. #{val.value}%)")
+        elsif !(-100..100).include?(val.value)
+          raise ArgumentError.new("$#{name}: Amount #{val} must be between -100% and 100%")
+        end
+
+        current = color.send(name)
+        scale = val.value/100.0
+        diff = scale > 0 ? max - current : current
+        [name.to_sym, current + diff*scale]
+      end
+
+      unless kwargs.empty?
+        name, val = kwargs.to_a.first
+        raise ArgumentError.new("Unknown argument $#{name} (#{val})")
+      end
+
+      color.with(with)
+    end
+    declare :scale, [:color], :var_kwargs => true
+
+    # Sets on or more properties of a color.
+    # This can set the red, green, blue, hue, saturation, value, and alpha properties.
+    # The properties are specified as keyword arguments,
+    # and replace the color's current value for that property.
+    #
+    # `$red`, `$green`, and `$blue` properties should be between 0 and 255.
+    # `$saturation` and `$lightness` should be between 0% and 100%.
+    # `$alpha` should be between 0 and 1.
+    #
+    # All properties are optional.
+    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
+    # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
+    #
+    # @example
+    #   set(#102030, $blue: 5) => #102005
+    #   set(#102030, $red: 120, $blue: 5) => #782005
+    #   set(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
+    # @param color [Color]
+    # @param red [Number]
+    # @param green [Number]
+    # @param blue [Number]
+    # @param hue [Number]
+    # @param saturation [Number]
+    # @param lightness [Number]
+    # @param alpha [Number]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` is not a color,
+    #   if any keyword argument is not a number,
+    #   if any keyword argument is not in the legal range,
+    #   if an unexpected keyword argument is given,
+    #   or if both HSL and RGB properties are given.
+    def set(color, kwargs)
+      assert_type color, :Color
+      with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
+        next unless val = kwargs.delete(name)
+        assert_type val, :Number, name
+        [name.to_sym, val.value]
+      end
+
+      unless kwargs.empty?
+        name, val = kwargs.to_a.first
+        raise ArgumentError.new("Unknown argument $#{name} (#{val})")
+      end
+
+      color.with(with)
+    end
+    declare :set, [:color], :var_kwargs => true
 
     # Mixes together two colors.
     # Specifically, takes the average of each of the RGB components,
@@ -1110,7 +1303,7 @@ module Sass::Script
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
     end
 
-    def adjust(color, amount, attr, range, op, units = "")
+    def _adjust(color, amount, attr, range, op, units = "")
       assert_type color, :Color
       assert_type amount, :Number
       unless range.include?(amount.value)

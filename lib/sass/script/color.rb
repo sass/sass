@@ -102,7 +102,7 @@ module Sass::Script
         next if @attrs[k].nil?
         @attrs[k] = @attrs[k].to_i
         next if (0..255).include?(@attrs[k])
-        raise Sass::SyntaxError.new("#{k.to_s.capitalize} value must be between 0 and 255")
+        raise ArgumentError.new("#{k.to_s.capitalize} value must be between 0 and 255")
       end
 
       [:saturation, :lightness].each do |k|
@@ -110,11 +110,11 @@ module Sass::Script
         @attrs[k] = 0 if @attrs[k] < 0.00001 && @attrs[k] > -0.00001
         @attrs[k] = 100 if @attrs[k] - 100 < 0.00001 && @attrs[k] - 100 > -0.00001
         next if (0..100).include?(@attrs[k])
-        raise Sass::SyntaxError.new("#{k.to_s.capitalize} must be between 0 and 100")
+        raise ArgumentError.new("#{k.to_s.capitalize} must be between 0 and 100")
       end
 
       unless (0..1).include?(@attrs[:alpha])
-        raise Sass::SyntaxError.new("Alpha channel must be between 0 and 1")
+        raise ArgumentError.new("Alpha channel must be between 0 and 1")
       end
     end
 
@@ -245,7 +245,7 @@ END
       hsl = !([:hue, :saturation, :lightness] & attrs.keys).empty?
       rgb = !([:red, :green, :blue] & attrs.keys).empty?
       if hsl && rgb
-        raise ArgumentError.new("Color#with may not have both HSL and RGB keys specified")
+        raise ArgumentError.new("Cannot specify HSL and RGB values for a color at the same time")
       end
 
       if hsl

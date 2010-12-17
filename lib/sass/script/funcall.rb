@@ -96,16 +96,27 @@ module Sass
       private
 
       def construct_ruby_args(name, args, keywords)
-        return args if keywords.empty?
         unless signature = Functions.signature(name.to_sym, args.size, keywords.size)
+          return args if keywords.empty?
           raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
+        end
+
+        # If the user passes more non-keyword args than the function expects,
+        # but it does expect keyword args, Ruby's arg handling won't raise an error.
+        # Since we don't want to make functions think about this,
+        # we'll handle it for them here.
+        if signature.var_kwargs && !signature.var_args && args.size > signature.args.size
+          raise Sass::SyntaxError.new(
+            "#{args[signature.args.size].inspect} is not a keyword argument for `#{name}'")
+        elsif keywords.empty?
+          return args 
         end
 
         args = args + signature.args[args.size..-1].map do |argname|
           if keywords.has_key?(argname)
             keywords.delete(argname)
           else
-            raise Sass::SyntaxError, "Function #{name} requires an argument named $#{argname}"
+            raise Sass::SyntaxError.new("Function #{name} requires an argument named $#{argname}")
           end
         end
 
@@ -113,7 +124,7 @@ module Sass
           if signature.var_kwargs
             args << keywords
           else
-            raise Sass::SyntaxError, "Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}"
+            raise Sass::SyntaxError.new("Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}")
           end
         end
 
