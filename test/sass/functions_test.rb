@@ -577,6 +577,89 @@ class SassFunctionTest < Test::Unit::TestCase
       "adjust(blue, 10px, $hue: 180deg)")
   end
 
+  def test_scale
+    # HSL
+    assert_equal(evaluate("hsl(120, 51, 90)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 30%)"))
+    assert_equal(evaluate("hsl(120, 30, 76.5)"),
+      evaluate("scale(hsl(120, 30, 90), $lightness: -15%)"))
+    # RGB
+    assert_equal(evaluate("rgb(157, 20, 30)"),
+      evaluate("scale(rgb(10, 20, 30), $red: 60%)"))
+    assert_equal(evaluate("rgb(10, 38.8, 30)"),
+      evaluate("scale(rgb(10, 20, 30), $green: 8%)"))
+    assert_equal(evaluate("rgb(10, 20, 20)"),
+      evaluate("scale(rgb(10, 20, 30), $blue: -(1/3)*100%)"))
+    # Alpha
+    assert_equal(evaluate("hsla(120, 30, 90, 0.86)"),
+      evaluate("scale(hsl(120, 30, 90), $alpha: -14%)"))
+    assert_equal(evaluate("rgba(10, 20, 30, 0.82)"),
+      evaluate("scale(rgba(10, 20, 30, 0.8), $alpha: 10%)"))
+
+    # HSL composability
+    assert_equal(evaluate("hsl(120, 51, 76.5)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 30%, $lightness: -15%)"))
+    assert_equal(evaluate("hsla(120, 51, 90, 0.2)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 30%, $alpha: -80%)"))
+
+    # RGB composability
+    assert_equal(evaluate("rgb(157, 38.8, 30)"),
+      evaluate("scale(rgb(10, 20, 30), $red: 60%, $green: 8%)"))
+    assert_equal(evaluate("rgb(157, 38.8, 20)"),
+      evaluate("scale(rgb(10, 20, 30), $red: 60%, $green: 8%, $blue: -(1/3)*100%)"))
+    assert_equal(evaluate("rgba(10, 38.8, 20, 0.55)"),
+      evaluate("scale(rgba(10, 20, 30, 0.5), $green: 8%, $blue: -(1/3)*100%, $alpha: 10%)"))
+
+    # Extremes
+    assert_equal(evaluate("hsl(120, 100, 90)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 100%)"))
+    assert_equal(evaluate("hsl(120, 30, 90)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: 0%)"))
+    assert_equal(evaluate("hsl(120, 0, 90)"),
+      evaluate("scale(hsl(120, 30, 90), $saturation: -100%)"))
+  end
+
+  def test_scale_tests_types
+    assert_error_message("\"foo\" is not a color for `scale'", "scale(foo, $red: 10%)")
+    # HSL
+    assert_error_message("$saturation: \"foo\" is not a number for `scale'",
+      "scale(blue, $saturation: foo)")
+    assert_error_message("$lightness: \"foo\" is not a number for `scale'",
+      "scale(blue, $lightness: foo)")
+    # RGB
+    assert_error_message("$red: \"foo\" is not a number for `scale'",
+      "scale(blue, $red: foo)")
+    assert_error_message("$green: \"foo\" is not a number for `scale'",
+      "scale(blue, $green: foo)")
+    assert_error_message("$blue: \"foo\" is not a number for `scale'",
+      "scale(blue, $blue: foo)")
+    # Alpha
+    assert_error_message("$alpha: \"foo\" is not a number for `scale'",
+      "scale(blue, $alpha: foo)")
+  end
+
+  def test_scale_argument_errors
+    # Range
+    assert_error_message("$saturation: Amount 101% must be between -100% and 100% for `scale'",
+      "scale(blue, $saturation: 101%)")
+    assert_error_message("$red: Amount -101% must be between -100% and 100% for `scale'",
+      "scale(blue, $red: -101%)")
+    assert_error_message("$alpha: Amount -101% must be between -100% and 100% for `scale'",
+      "scale(blue, $alpha: -101%)")
+
+    # Unit
+    assert_error_message("$saturation: Amount 80 must be a % (e.g. 80%) for `scale'",
+      "scale(blue, $saturation: 80)")
+    assert_error_message("$alpha: Amount 0.5 must be a % (e.g. 0.5%) for `scale'",
+      "scale(blue, $alpha: 0.5)")
+
+    # Unknown argument
+    assert_error_message("Unknown argument $hue (80%) for `scale'", "scale(blue, $hue: 80%)")
+
+    # Non-keyword arg
+    assert_error_message("10px is not a keyword argument for `scale'", "scale(blue, 10px)")
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
