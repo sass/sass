@@ -729,8 +729,8 @@ module Sass::Script
     # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
     #
     # @example
-    #   adjust(#102030, :blue => 5) => #102035
-    #   adjust(#102030, :red => -5, :blue => 5) => #0b2035
+    #   adjust(#102030, $blue: 5) => #102035
+    #   adjust(#102030, $red: -5, $blue: 5) => #0b2035
     #   adjust(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
     # @param color [Color]
     # @param red [Number]
