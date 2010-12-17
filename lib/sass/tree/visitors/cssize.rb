@@ -93,8 +93,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Modifies exception backtraces to include the imported file.
   def visit_import(node)
-    yield
-    node.children
+    # Don't use #visit_children to avoid adding the import node to the list of parents.
+    node.children.map {|c| visit(c)}.flatten
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.children.first.filename)
     e.add_backtrace(:filename => node.filename, :line => node.line)

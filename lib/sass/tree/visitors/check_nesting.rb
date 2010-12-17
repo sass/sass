@@ -3,9 +3,12 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   protected
 
   def visit(node)
-    if error = @parent && (
-        try_send("invalid_#{node_name @parent}_child?", @parent, node) ||
-        try_send("invalid_#{node_name node}_parent?", @parent, node))
+    if error = (@parent && (
+          try_send("invalid_#{node_name @parent}_child?", @parent, node) ||
+          try_send("invalid_#{node_name node}_parent?", @parent, node))) ||
+        (@real_parent && (
+          try_send("invalid_#{node_name @real_parent}_real_child?", @real_parent, node) ||
+          try_send("invalid_#{node_name node}_real_parent?", @real_parent, node)))
       raise Sass::SyntaxError.new(error)
     end
     super
@@ -19,9 +22,11 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     @parent = parent unless is_any_of?(parent, 
       Sass::Tree::EachNode, Sass::Tree::ForNode, Sass::Tree::IfNode,
       Sass::Tree::ImportNode, Sass::Tree::MixinNode, Sass::Tree::WhileNode)
+    old_real_parent, @real_parent = @real_parent, parent
     super
   ensure
     @parent = old_parent
+    @real_parent = old_real_parent
   end
 
   def visit_root(node)
@@ -63,7 +68,24 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   def invalid_import_parent?(parent, child)
-    "Import directives may only be used at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
+    if is_any_of?(@real_parent, Sass::Tree::IfNode, Sass::Tree::ForNode, Sass::Tree::WhileNode,
+        Sass::Tree::EachNode, Sass::Tree::MixinDefNode)
+      return "Import directives may not be used within control directives or mixins."
+    end
+    return if parent.is_a?(Sass::Tree::RootNode)
+    return "CSS import directives may only be used at the root of a document." if child.css_import?
+    # If this is a nested @import, we need to make sure it doesn't have anything
+    # that's legal at top-level but not in the current context (e.g. mixin defs).
+    child.imported_file.to_tree.children.each {|c| visit(c)}
+    nil
+  rescue Sass::SyntaxError => e
+    e.modify_backtrace(:filename => child.imported_file.options[:filename])
+    e.add_backtrace(:filename => child.filename, :line => child.line)
+    raise e
+  end
+
+  def invalid_import_real_parent?(parent, child)
+    
   end
 
   def invalid_mixindef_parent?(parent, child)
@@ -99,3 +121,4 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     send(method, *args, &block)
   end
 end
+

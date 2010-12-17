@@ -1081,6 +1081,38 @@ and you can do
 
 and `_colors.scss` would be imported.
 
+#### Nested `@import` {#nested-import}
+
+Although most of the time it's most useful to just have `@import`s
+at the top level of the document,
+it is possible to include them within CSS rules and `@media` rules.
+Like a base-level `@import`, this includes the contents of the `@import`ed file.
+However, the imported rules will be nested in the same place as the original `@import`.
+
+For example, if `example.scss` contains
+
+    .example {
+      color: red;
+    }
+
+then
+
+    #main {
+      @import .example;
+    }
+
+would compile to
+
+    #main .example {
+      color: red;
+    }
+
+Directives that are only allowed at the base level of a document,
+like `@mixin` or `@charset`, are not allowed in files that are `@import`ed
+in a nested context.
+
+It's not possible to nest `@import` within mixins or control directives.
+
 ### `@media` {#media}
 
 `@media` directives in Sass behave just like they do in plain CSS,
