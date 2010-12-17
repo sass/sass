@@ -569,6 +569,8 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_adjust_argument_errors
     assert_error_message("Unknown argument $hoo (260deg) for `adjust'",
       "adjust(blue, $hoo: 260deg)")
+    assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `adjust'",
+      "adjust(blue, $hue: 120deg, $red: 10)");
     assert_error_message("10px is not a keyword argument for `adjust'",
       "adjust(blue, 10px)")
     assert_error_message("10px is not a keyword argument for `adjust'",
@@ -658,6 +660,10 @@ class SassFunctionTest < Test::Unit::TestCase
 
     # Non-keyword arg
     assert_error_message("10px is not a keyword argument for `scale'", "scale(blue, 10px)")
+
+    # HSL/RGB
+    assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `scale'",
+      "scale(blue, $lightness: 10%, $red: 20%)");
   end
 
   def test_set
@@ -719,6 +725,10 @@ class SassFunctionTest < Test::Unit::TestCase
 
     # Non-keyword arg
     assert_error_message("10px is not a keyword argument for `set'", "set(blue, 10px)")
+
+    # HSL/RGB
+    assert_error_message("Cannot specify HSL and RGB values for a color at the same time for `set'",
+      "set(blue, $lightness: 10%, $red: 120)");
   end
 
   def test_mix
