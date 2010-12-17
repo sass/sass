@@ -660,6 +660,67 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("10px is not a keyword argument for `scale'", "scale(blue, 10px)")
   end
 
+  def test_set
+    # HSL
+    assert_equal(evaluate("hsl(195, 30, 90)"),
+      evaluate("set(hsl(120, 30, 90), $hue: 195deg)"))
+    assert_equal(evaluate("hsl(120, 50, 90)"),
+      evaluate("set(hsl(120, 30, 90), $saturation: 50%)"))
+    assert_equal(evaluate("hsl(120, 30, 40)"),
+      evaluate("set(hsl(120, 30, 90), $lightness: 40%)"))
+    # RGB
+    assert_equal(evaluate("rgb(123, 20, 30)"),
+      evaluate("set(rgb(10, 20, 30), $red: 123)"))
+    assert_equal(evaluate("rgb(10, 234, 30)"),
+      evaluate("set(rgb(10, 20, 30), $green: 234)"))
+    assert_equal(evaluate("rgb(10, 20, 198)"),
+      evaluate("set(rgb(10, 20, 30), $blue: 198)"))
+    # Alpha
+    assert_equal(evaluate("rgba(10, 20, 30, 0.76)"),
+      evaluate("set(rgb(10, 20, 30), $alpha: 0.76)"))
+
+    # HSL composability
+    assert_equal(evaluate("hsl(56, 30, 47)"),
+      evaluate("set(hsl(120, 30, 90), $hue: 56deg, $lightness: 47%)"))
+    assert_equal(evaluate("hsla(56, 30, 47, 0.9)"),
+      evaluate("set(hsl(120, 30, 90), $hue: 56deg, $lightness: 47%, $alpha: 0.9)"))
+  end
+
+  def test_set_tests_types
+    assert_error_message("\"foo\" is not a color for `set'", "set(foo, $red: 10%)")
+    # HSL
+    assert_error_message("$saturation: \"foo\" is not a number for `set'",
+      "set(blue, $saturation: foo)")
+    assert_error_message("$lightness: \"foo\" is not a number for `set'",
+      "set(blue, $lightness: foo)")
+    # RGB
+    assert_error_message("$red: \"foo\" is not a number for `set'", "set(blue, $red: foo)")
+    assert_error_message("$green: \"foo\" is not a number for `set'", "set(blue, $green: foo)")
+    assert_error_message("$blue: \"foo\" is not a number for `set'", "set(blue, $blue: foo)")
+    # Alpha
+    assert_error_message("$alpha: \"foo\" is not a number for `set'", "set(blue, $alpha: foo)")
+  end
+
+  def test_set_argument_errors
+    # Range
+    assert_error_message("Saturation must be between 0 and 100 for `set'",
+      "set(blue, $saturation: 101%)")
+    assert_error_message("Lightness must be between 0 and 100 for `set'",
+      "set(blue, $lightness: 101%)")
+    assert_error_message("Red value must be between 0 and 255 for `set'",
+      "set(blue, $red: -1)")
+    assert_error_message("Green value must be between 0 and 255 for `set'",
+      "set(blue, $green: 256)")
+    assert_error_message("Blue value must be between 0 and 255 for `set'",
+      "set(blue, $blue: 500)")
+
+    # Unknown argument
+    assert_error_message("Unknown argument $hoo (80%) for `set'", "set(blue, $hoo: 80%)")
+
+    # Non-keyword arg
+    assert_error_message("10px is not a keyword argument for `set'", "set(blue, 10px)")
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
