@@ -63,7 +63,16 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   def invalid_import_parent?(parent, child)
-    "Import directives may only be used at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
+    return if parent.is_a?(Sass::Tree::RootNode)
+    return "CSS import directives may only be used at the root of a document." if child.css_import?
+    # If this is a nested @import, we need to make sure it doesn't have anything
+    # that's legal at top-level but not in the current context (e.g. mixin defs).
+    child.imported_file.to_tree.children.each {|c| visit(c)}
+    nil
+  rescue Sass::SyntaxError => e
+    e.modify_backtrace(:filename => child.imported_file.options[:filename])
+    e.add_backtrace(:filename => child.filename, :line => child.line)
+    raise e
   end
 
   def invalid_mixindef_parent?(parent, child)
