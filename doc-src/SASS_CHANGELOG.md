@@ -8,6 +8,9 @@
 * Fix a performance bug in large SCSS stylesheets with many nested selectors.
   This should dramatically decrease compilation time of such stylesheets.
 
+* Upgrade the bundled FSSM to version 0.2.3.
+  This means `sass --watch` will work out of the box with Rubinius.
+
 ## 3.0.25
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.25).
