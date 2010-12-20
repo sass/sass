@@ -93,6 +93,12 @@ module Sass::Script
   # \{#adjust adjust($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Increase or decrease any of the components of a color.
   #
+  # \{#scale scale($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # : Fluidly scale any of the components of a color.
+  #
+  # \{#set set($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # : Set any of the components of a color.
+  #
   # ## String Functions
   #
   # \{#unquote unquote($string)}
