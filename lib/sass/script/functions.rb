@@ -850,7 +850,7 @@ module Sass::Script
     end
     declare :scale, [:color], :var_kwargs => true
 
-    # Sets on or more properties of a color.
+    # Sets one or more properties of a color.
     # This can set the red, green, blue, hue, saturation, value, and alpha properties.
     # The properties are specified as keyword arguments,
     # and replace the color's current value for that property.
