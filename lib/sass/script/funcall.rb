@@ -84,13 +84,20 @@ module Sass
         args = construct_ruby_args(ruby_name, args, keywords)
 
         unless Sass::Util.has?(:public_instance_method, Functions, ruby_name) && ruby_name !~ /^__/
-          opts(Script::String.new("#{name}(#{args.join(', ')})"))
+          opts(to_literal(args))
         else
           opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
         end
       rescue ArgumentError => e
         raise e unless e.backtrace.any? {|t| t =~ /:in `(block in )?(#{name}|perform)'$/}
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
+      end
+
+      # This method is factored out from `_perform` so that compass can override
+      # it with a cross-browser implementation for functions that require vendor prefixes
+      # in the generated css.
+      def to_literal(args)
+        Script::String.new("#{name}(#{args.join(', ')})")
       end
 
       private
