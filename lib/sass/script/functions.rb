@@ -93,6 +93,9 @@ module Sass::Script
   # \{#adjust adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Increase or decrease any of the components of a color.
   #
+  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # : Changes one or more properties of a color.
+  #
   # ## String Functions
   #
   # \{#unquote unquote($string)}
@@ -850,8 +853,8 @@ module Sass::Script
     end
     declare :scale, [:color], :var_kwargs => true
 
-    # Sets one or more properties of a color.
-    # This can set the red, green, blue, hue, saturation, value, and alpha properties.
+    # Changes one or more properties of a color.
+    # This can change the red, green, blue, hue, saturation, value, and alpha properties.
     # The properties are specified as keyword arguments,
     # and replace the color's current value for that property.
     #
@@ -864,9 +867,9 @@ module Sass::Script
     # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
     #
     # @example
-    #   set(#102030, $blue: 5) => #102005
-    #   set(#102030, $red: 120, $blue: 5) => #782005
-    #   set(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
+    #   change-color(#102030, $blue: 5) => #102005
+    #   change-color(#102030, $red: 120, $blue: 5) => #782005
+    #   change-color(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
     # @param color [Color]
     # @param red [Number]
     # @param green [Number]
@@ -881,7 +884,7 @@ module Sass::Script
     #   if any keyword argument is not in the legal range,
     #   if an unexpected keyword argument is given,
     #   or if both HSL and RGB properties are given.
-    def set(color, kwargs)
+    def change_color(color, kwargs)
       assert_type color, :Color
       with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
         next unless val = kwargs.delete(name)
@@ -896,7 +899,7 @@ module Sass::Script
 
       color.with(with)
     end
-    declare :set, [:color], :var_kwargs => true
+    declare :change_color, [:color], :var_kwargs => true
 
     # Mixes together two colors.
     # Specifically, takes the average of each of the RGB components,
