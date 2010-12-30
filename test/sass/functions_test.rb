@@ -802,10 +802,6 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal('foo', evaluate('unquote($string: foo)'))
   end
 
-  def test_unquote_tests_type
-    assert_error_message("#ff0000 is not a string for `unquote'", "unquote(#f00)")
-  end
-
   def test_quote
     assert_equal('"foo"', evaluate('quote(foo)'))
     assert_equal('"foo"', evaluate('quote("foo")'))
