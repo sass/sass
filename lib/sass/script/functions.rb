@@ -90,7 +90,7 @@ module Sass::Script
   #
   # ## Other Color Functions
   #
-  # \{#adjust adjust($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # \{#adjust adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Increase or decrease any of the components of a color.
   #
   # ## String Functions
@@ -729,9 +729,9 @@ module Sass::Script
     # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
     #
     # @example
-    #   adjust(#102030, $blue: 5) => #102035
-    #   adjust(#102030, $red: -5, $blue: 5) => #0b2035
-    #   adjust(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
+    #   adjust-color(#102030, $blue: 5) => #102035
+    #   adjust-color(#102030, $red: -5, $blue: 5) => #0b2035
+    #   adjust-color(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
     # @param color [Color]
     # @param red [Number]
     # @param green [Number]
@@ -746,7 +746,7 @@ module Sass::Script
     #   if any keyword argument is not in the legal range,
     #   if an unexpected keyword argument is given,
     #   or if both HSL and RGB properties are given.
-    def adjust(color, kwargs)
+    def adjust_color(color, kwargs)
       assert_type color, :Color
       with = Sass::Util.map_hash({
           "red" => [-255..255, ""],
@@ -775,7 +775,7 @@ module Sass::Script
 
       color.with(with)
     end
-    declare :adjust, [:color], :var_kwargs => true
+    declare :adjust_color, [:color], :var_kwargs => true
 
     # Scales one or more properties of a color by a percentage value.
     # Unlike \{#adjust}, which changes a color's properties by fixed amounts,
