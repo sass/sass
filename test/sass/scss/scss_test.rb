@@ -878,17 +878,6 @@ SCSS
     assert_equal 2, e.sass_line
   end
 
-  def test_imports_only_at_toplevel
-    render <<SCSS
-foo {
-  @import "foo.scss";}
-SCSS
-    assert(false, "Expected syntax error")
-  rescue Sass::SyntaxError => e
-    assert_equal "Import directives may only be used at the root of a document.", e.message
-    assert_equal 2, e.sass_line
-  end
-
   def test_rules_beneath_properties
     render <<SCSS
 foo {
