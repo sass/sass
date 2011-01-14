@@ -330,8 +330,6 @@ module Sass::Script
       end
     end
 
-    instance_methods.each { |m| undef_method m unless m.to_s =~ /^__/ }
-
 
     # Creates a {Color} object from red, green, and blue values.
     #
