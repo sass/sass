@@ -125,9 +125,5 @@ module Sass::Tree
         @parsed_rules = parser.parse_selector('') rescue nil
       end
     end
-
-    def parse_selector(text, line = self.line || 1)
-      (text, line).parse_selector(filename)
-    end
   end
 end
