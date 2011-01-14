@@ -81,7 +81,7 @@ module Sass
         end
 
         ruby_name = @name.tr('-', '_')
-        args = construct_keyword_args(ruby_name, args, environment) unless @keywords.empty?
+        args = construct_ruby_args(ruby_name, args, environment)
 
         unless Functions.callable?(ruby_name)
           opts(to_literal(args))
@@ -102,13 +102,12 @@ module Sass
 
       private
 
-      def construct_keyword_args(name, args, environment)
-        keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
-
-        unless signature = Functions.signature(name.to_sym, args.size, keywords.size)
+      def construct_ruby_args(name, args, environment)
+        unless signature = Functions.signature(name.to_sym, args.size, @keywords.size)
           return args if keywords.empty?
           raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
         end
+        keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
 
         # If the user passes more non-keyword args than the function expects,
         # but it does expect keyword args, Ruby's arg handling won't raise an error.
