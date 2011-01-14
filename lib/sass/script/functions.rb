@@ -90,14 +90,14 @@ module Sass::Script
   #
   # ## Other Color Functions
   #
-  # \{#adjust adjust($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # \{#adjust adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Increase or decrease any of the components of a color.
   #
-  # \{#scale scale($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\]}
-  # : Fluidly scale any of the components of a color.
+  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # : Fluidly scale one or more components of a color.
   #
-  # \{#set set($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
-  # : Set any of the components of a color.
+  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # : Changes one or more properties of a color.
   #
   # ## String Functions
   #
@@ -735,9 +735,9 @@ module Sass::Script
     # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
     #
     # @example
-    #   adjust(#102030, $blue: 5) => #102035
-    #   adjust(#102030, $red: -5, $blue: 5) => #0b2035
-    #   adjust(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
+    #   adjust-color(#102030, $blue: 5) => #102035
+    #   adjust-color(#102030, $red: -5, $blue: 5) => #0b2035
+    #   adjust-color(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
     # @param color [Color]
     # @param red [Number]
     # @param green [Number]
@@ -752,7 +752,7 @@ module Sass::Script
     #   if any keyword argument is not in the legal range,
     #   if an unexpected keyword argument is given,
     #   or if both HSL and RGB properties are given.
-    def adjust(color, kwargs)
+    def adjust_color(color, kwargs)
       assert_type color, :Color
       with = Sass::Util.map_hash({
           "red" => [-255..255, ""],
@@ -781,7 +781,7 @@ module Sass::Script
 
       color.with(with)
     end
-    declare :adjust, [:color], :var_kwargs => true
+    declare :adjust_color, [:color], :var_kwargs => true
 
     # Scales one or more properties of a color by a percentage value.
     # Unlike \{#adjust}, which changes a color's properties by fixed amounts,
@@ -789,13 +789,13 @@ module Sass::Script
     # That means that lightening an already-light color with \{#scale}
     # won't change the lightness much,
     # but lightening a dark color by the same amount will change it more dramatically.
-    # This has the benefit of making `scale($color, ...)` have a similar effect
+    # This has the benefit of making `scale-color($color, ...)` have a similar effect
     # regardless of what `$color` is.
     #
     # For example, the lightness of a color can be anywhere between 0 and 100.
-    # If `scale($color, $lightness: 40%)` is called, the resulting color's lightness
+    # If `scale-color($color, $lightness: 40%)` is called, the resulting color's lightness
     # will be 40% of the way between its original lightness and 100.
-    # If `scale($color, $lightness: -40%)` is called instead,
+    # If `scale-color($color, $lightness: -40%)` is called instead,
     # the lightness will be 40% of the way between the original and 0.
     #
     # This can change the red, green, blue, saturation, value, and alpha properties.
@@ -807,9 +807,9 @@ module Sass::Script
     # and HSL properties (`$saturation`, `$value`) at the same time.
     #
     # @example
-    #   scale(hsl(120, 70, 80), $lightness: 50%) => hsl(120, 70, 90)
-    #   scale(rgb(200, 150, 170), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
-    #   scale(hsl(200, 70, 80), $saturation: -90%, $alpha: -30%) => hsla(200, 7, 80, 0.7)
+    #   scale-color(hsl(120, 70, 80), $lightness: 50%) => hsl(120, 70, 90)
+    #   scale-color(rgb(200, 150, 170), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
+    #   scale-color(hsl(200, 70, 80), $saturation: -90%, $alpha: -30%) => hsla(200, 7, 80, 0.7)
     # @param color [Color]
     # @param red [Number]
     # @param green [Number]
@@ -822,7 +822,7 @@ module Sass::Script
     #   if any keyword argument is not a percentage between 0% and 100%,
     #   if an unexpected keyword argument is given,
     #   or if both HSL and RGB properties are given.
-    def scale(color, kwargs)
+    def scale_color(color, kwargs)
       assert_type color, :Color
       with = Sass::Util.map_hash({
           "red" => 255,
@@ -854,10 +854,10 @@ module Sass::Script
 
       color.with(with)
     end
-    declare :scale, [:color], :var_kwargs => true
+    declare :scale_color, [:color], :var_kwargs => true
 
-    # Sets on or more properties of a color.
-    # This can set the red, green, blue, hue, saturation, value, and alpha properties.
+    # Changes one or more properties of a color.
+    # This can change the red, green, blue, hue, saturation, value, and alpha properties.
     # The properties are specified as keyword arguments,
     # and replace the color's current value for that property.
     #
@@ -870,9 +870,9 @@ module Sass::Script
     # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
     #
     # @example
-    #   set(#102030, $blue: 5) => #102005
-    #   set(#102030, $red: 120, $blue: 5) => #782005
-    #   set(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
+    #   change-color(#102030, $blue: 5) => #102005
+    #   change-color(#102030, $red: 120, $blue: 5) => #782005
+    #   change-color(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
     # @param color [Color]
     # @param red [Number]
     # @param green [Number]
@@ -887,7 +887,7 @@ module Sass::Script
     #   if any keyword argument is not in the legal range,
     #   if an unexpected keyword argument is given,
     #   or if both HSL and RGB properties are given.
-    def set(color, kwargs)
+    def change_color(color, kwargs)
       assert_type color, :Color
       with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
         next unless val = kwargs.delete(name)
@@ -902,7 +902,7 @@ module Sass::Script
 
       color.with(with)
     end
-    declare :set, [:color], :var_kwargs => true
+    declare :change_color, [:color], :var_kwargs => true
 
     # Mixes together two colors.
     # Specifically, takes the average of each of the RGB components,
@@ -1019,8 +1019,11 @@ module Sass::Script
     #   unquote("foo") => foo
     #   unquote(foo) => foo
     def unquote(string)
-      assert_type string, :String
-      Sass::Script::String.new(string.value, :identifier)
+      if string.is_a?(Sass::Script::String)
+        Sass::Script::String.new(string.value, :identifier)
+      else
+        string
+      end
     end
     declare :unquote, [:string]
 

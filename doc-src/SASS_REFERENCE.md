@@ -1098,7 +1098,7 @@ For example, if `example.scss` contains
 then
 
     #main {
-      @import .example;
+      @import "example";
     }
 
 would compile to
