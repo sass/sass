@@ -128,9 +128,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       rule_indent = '  ' * @tabs
       per_rule_indent, total_indent = [:nested, :expanded].include?(node.style) ? [rule_indent, ''] : ['', rule_indent]
 
-      joined_rules = resolved_rules.members.map do |seq|
+      joined_rules = node.resolved_rules.members.map do |seq|
         rule_part = seq.to_a.join
-        rule_part.gsub!(/\s*([^,])\s*\n\s*/m, '\1 ') if output_style == :compressed
+        rule_part.gsub!(/\s*([^,])\s*\n\s*/m, '\1 ') if node.style == :compressed
         rule_part
       end.join(rule_separator)
 
