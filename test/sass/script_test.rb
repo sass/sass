@@ -198,6 +198,13 @@ SASS
     assert_equal "public_instance_methods()", resolve("public_instance_methods()")
   end
 
+  def test_adding_functions_directly_to_functions_module
+    assert !Functions.callable?('nonexistant')
+    Functions.class_eval { def nonexistant; end }
+    assert Functions.callable?('nonexistant')
+    Functions.send :remove_method, :nonexistant
+  end
+
   def test_default_functions
     assert_equal "url(12)", resolve("url(12)")
     assert_equal 'blam("foo")', resolve('blam("foo")')

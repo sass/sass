@@ -56,7 +56,20 @@ module Sass::Tree
       merged = Sass::Util.merge_adjacent_strings(rule)
       @rule = Sass::Util.strip_string_array(merged)
       @tabs = 0
+      try_to_parse_non_interpolated_rules
       super()
+    end
+
+    # If we've precached the parsed selector, set the line on it, too.
+    def line=(line)
+      @parsed_rules.line = line if @parsed_rules
+      super
+    end
+
+    # If we've precached the parsed selector, set the filename on it, too.
+    def filename=(filename)
+      @parsed_rules.filename = filename if @parsed_rules
+      super
     end
 
     # Compares the contents of two rules.
@@ -74,6 +87,7 @@ module Sass::Tree
     def add_rules(node)
       @rule = Sass::Util.strip_string_array(
         Sass::Util.merge_adjacent_strings(@rule + ["\n"] + node.rule))
+      try_to_parse_non_interpolated_rules
     end
 
     # @return [Boolean] Whether or not this rule is continued on the next line
@@ -99,6 +113,21 @@ module Sass::Tree
     def debug_info
       {:filename => filename && ("file://" + URI.escape(File.expand_path(filename))),
        :line => self.line}
+    end
+
+    private
+
+    def try_to_parse_non_interpolated_rules
+      if @rule.all? {|t| t.kind_of?(String)}
+        # We don't use real filename/line info because we don't have it yet.
+        # When we get it, we'll set it on the parsed rules if possible.
+        parser = Sass::SCSS::StaticParser.new(@rule.join.strip, 1)
+        @parsed_rules = parser.parse_selector('') rescue nil
+      end
+    end
+
+    def parse_selector(text, line = self.line || 1)
+      (text, line).parse_selector(filename)
     end
   end
 end

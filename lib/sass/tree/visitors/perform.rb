@@ -228,7 +228,7 @@ END
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.line)
-    node.parsed_rules = parser.parse_selector(node.filename)
+    node.parsed_rules ||= parser.parse_selector(node.filename)
     yield
   end
 

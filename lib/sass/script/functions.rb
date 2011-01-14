@@ -295,6 +295,8 @@ module Sass::Script
     # That means that all instance methods of {EvaluationContext}
     # are available to use in functions.
     class EvaluationContext
+      include Functions
+
       # The options hash for the {Sass::Engine} that is processing the function call
       #
       # @return [{Symbol => Object}]
@@ -303,10 +305,6 @@ module Sass::Script
       # @param options [{Symbol => Object}] See \{#options}
       def initialize(options)
         @options = options
-
-        # We need to include this individually in each instance
-        # because of an icky Ruby restriction
-        class << self; include Sass::Script::Functions; end
       end
 
       # Asserts that the type of a given SassScript value
@@ -330,6 +328,32 @@ module Sass::Script
       end
     end
 
+    class << self
+      FUNCTIONS = Set.new
+
+      # Returns whether user function with a given name exists.
+      #
+      # @param function_name [String]
+      # @return [Boolean]
+      def callable?(function_name)
+        FUNCTIONS.include?(function_name)
+      end
+
+      private
+      def include(*args)
+        r = super
+        update_callable_functions
+        # We have to re-include ourselves into EvaluationContext to work around
+        # an icky Ruby restriction.
+        EvaluationContext.send :include, self
+        r
+      end
+
+      def update_callable_functions
+        FUNCTIONS.clear
+        public_instance_methods.each {|function_name| FUNCTIONS << function_name.to_s}
+      end
+    end
 
     # Creates a {Color} object from red, green, and blue values.
     #
@@ -1323,5 +1347,15 @@ module Sass::Script
       color.with(attr => Sass::Util.restrict(
           color.send(attr).send(op, amount.value), range))
     end
+
+    class << self
+      private
+      def method_added(name)
+        update_callable_functions
+        super
+      end
+    end
+
+    update_callable_functions # generate the initial set
   end
 end

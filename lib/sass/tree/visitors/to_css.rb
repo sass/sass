@@ -128,11 +128,15 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       rule_indent = '  ' * @tabs
       per_rule_indent, total_indent = [:nested, :expanded].include?(node.style) ? [rule_indent, ''] : ['', rule_indent]
 
-      total_rule = total_indent + node.resolved_rules.members.
-        map {|seq| seq.to_a.join.gsub(/([^,])\n/m, node.style == :compressed ? '\1 ' : "\\1\n")}.
-        join(rule_separator).split("\n").map do |line|
-        per_rule_indent + line.strip
-      end.join(line_separator)
+      joined_rules = resolved_rules.members.map do |seq|
+        rule_part = seq.to_a.join
+        rule_part.gsub!(/\s*([^,])\s*\n\s*/m, '\1 ') if output_style == :compressed
+        rule_part
+      end.join(rule_separator)
+
+      joined_rules.sub!(/\A\s*/, per_rule_indent)
+      joined_rules.gsub!(/\s*\n\s*/, "#{line_separator}#{per_rule_indent}")
+      total_rule = total_indent << joined_rules
 
       to_return = ''
       old_spaces = '  ' * @tabs
