@@ -58,6 +58,7 @@ module Sass::Tree::Visitors
     # @param [Tree::Node] node The node.
     # @return [String] The name.
     def node_name(node)
+      # XXX This is unecessarily slow.
       node.class.name.gsub(/.*::(.*?)Node$/, '\\1').downcase
     end
 
