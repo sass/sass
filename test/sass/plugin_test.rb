@@ -282,6 +282,16 @@ CSS
     Sass::Plugin.options[:always_update] = old_always_update
   end
 
+  def test_cached_if
+    set_plugin_opts :cache_store => Sass::CacheStores::Filesystem.new(tempfile_loc + '/cache')
+    update_all_stylesheets!
+    assert_renders_correctly 'if'
+    update_all_stylesheets!
+    assert_renders_correctly 'if'
+  ensure
+    set_plugin_opts :cache_store => @@cache_store
+  end
+
  private
 
   def assert_renders_correctly(*arguments)
