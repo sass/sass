@@ -329,29 +329,19 @@ module Sass::Script
     end
 
     class << self
-      FUNCTIONS = Set.new
-
       # Returns whether user function with a given name exists.
       #
       # @param function_name [String]
       # @return [Boolean]
-      def callable?(function_name)
-        FUNCTIONS.include?(function_name)
-      end
+      alias_method :callable?, :public_method_defined?
 
       private
       def include(*args)
         r = super
-        update_callable_functions
         # We have to re-include ourselves into EvaluationContext to work around
         # an icky Ruby restriction.
         EvaluationContext.send :include, self
         r
-      end
-
-      def update_callable_functions
-        FUNCTIONS.clear
-        public_instance_methods.each {|function_name| FUNCTIONS << function_name.to_s}
       end
     end
 
@@ -1347,15 +1337,5 @@ module Sass::Script
       color.with(attr => Sass::Util.restrict(
           color.send(attr).send(op, amount.value), range))
     end
-
-    class << self
-      private
-      def method_added(name)
-        update_callable_functions
-        super
-      end
-    end
-
-    update_callable_functions # generate the initial set
   end
 end
