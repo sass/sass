@@ -53,13 +53,15 @@ module Sass::Tree::Visitors
       parent.children.map {|c| visit(c)}
     end
 
+    NODE_NAME_RE = /.*::(.*?)Node$/
+
     # Returns the name of a node as used in the `visit_*` method.
     #
     # @param [Tree::Node] node The node.
     # @return [String] The name.
     def node_name(node)
-      # XXX This is unecessarily slow.
-      node.class.name.gsub(/.*::(.*?)Node$/, '\\1').downcase
+      @@node_names ||= {}
+      @@node_names[node.class.name] ||= node.class.name.gsub(NODE_NAME_RE, '\\1').downcase
     end
 
     # `yield`s, then runs the visitor on the `@else` clause if the node has one.
