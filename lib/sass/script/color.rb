@@ -182,17 +182,6 @@ module Sass::Script
       alpha < 1
     end
 
-    # @deprecated This will be removed in version 3.2.
-    # @see #rgb
-    def value
-      Sass::Util.sass_warn <<END
-DEPRECATION WARNING:
-The Sass::Script::Color #value attribute is deprecated and will be
-removed in version 3.2. Use the #rgb attribute instead.
-END
-      rgb
-    end
-
     # Returns the red, green, and blue components of the color.
     #
     # @return [Array<Fixnum>] A frozen three-element array of the red, green, and blue
