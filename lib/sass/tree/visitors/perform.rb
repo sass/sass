@@ -52,7 +52,14 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Removes this node from the tree if it's a silent comment.
   def visit_comment(node)
-    node.silent ? [] : node
+    return [] if node.invisible?
+    if node.evaluated?
+      node.value.gsub!(/(^|[^\\])\#{([^}]*)}/) do |md|
+        $1+Sass::Script.parse($2, node.line, 0, node.options).perform(@environment).to_s
+      end
+      node.value = run_interp([Sass::Script::String.new(node.value)])
+    end
+    node
   end
 
   # Prints the expression to STDERR.

@@ -10,6 +10,14 @@ module Sass::Tree
     # @return [String]
     attr_accessor :value
 
+    # Whether the comment is loud.
+    #
+    # Loud comments start with ! and force the comment to be generated
+    # irrespective of compilation settings or the comment syntax used.
+    #
+    # @return [Boolean]
+    attr_accessor :loud
+
     # Whether or not the comment is silent (that is, doesn't output to CSS).
     #
     # @return [Boolean]
@@ -19,8 +27,10 @@ module Sass::Tree
     # @param silent [Boolean] See \{#silent}
     def initialize(value, silent)
       @lines = []
-      @value = normalize_indentation value
       @silent = silent
+      @value = normalize_indentation value
+      @loud = @value =~ %r{^(/[\/\*])?!}
+      @value.sub!("#{$1}!", $1.to_s) if @loud
       super()
     end
 
@@ -36,9 +46,20 @@ module Sass::Tree
     # Returns `true` if this is a silent comment
     # or the current style doesn't render comments.
     #
+    # Comments starting with ! are never invisible (and the ! is removed from the output.)
+    #
     # @return [Boolean]
     def invisible?
-      style == :compressed || @silent
+      if @loud
+        return false
+      else
+        @silent || (style == :compressed)
+      end
+    end
+
+    # Returns whether this comment should be interpolated for dynamic comment generation.
+    def evaluated?
+      @loud
     end
 
     private

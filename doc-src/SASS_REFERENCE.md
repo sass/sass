@@ -541,6 +541,9 @@ is compiled to:
     a {
       color: green; }
 
+When the first letter of a comment is `!`, the comment will be interpolated
+and always rendered into css output even in compressed output modes. This is useful for adding Copyright notices to your generated CSS.
+
 ## SassScript {#sassscript}
 
 In addition to the plain CSS property syntax,

@@ -59,8 +59,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     return if node.invisible?
     spaces = ('  ' * [@tabs - node.value[/^ */].size, 0].max)
 
-    content = node.value.gsub(/^/, spaces)
-    content.gsub!(/\n +(\* *(?!\/))?/, ' ') if node.style == :compact
+    content = node.value.gsub(/^/, spaces).gsub(%r{^(\s*)//(.*)$}) do |md|
+      "#{$1}/*#{$2} */"
+    end
+    content.gsub!(/\n +(\* *(?!\/))?/, ' ') if (node.style == :compact || node.style == :compressed) && !node.loud
     content
   end
 

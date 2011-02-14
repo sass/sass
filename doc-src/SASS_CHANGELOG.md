@@ -25,6 +25,12 @@
   The imported file will be treated as though it were nested within the rule.
   Files with mixins may not be imported in nested contexts.
 
+* If a comment starts with `!`, that comment will now be interpolated
+  (`#{...}` will be replaced with the resulting value of the expression
+  inside) and the comment will always be printed out in the generated CSS
+  file -- even with compressed output. This is useful for adding copyright
+  notices to your stylesheets.
+
 ### Keyword Arguments
 
 Both mixins and Sass functions now support the ability to pass in keyword arguments.

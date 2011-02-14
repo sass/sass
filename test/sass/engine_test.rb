@@ -1715,6 +1715,47 @@ foo
 SASS
   end
 
+  def test_loud_comment_in_compressed_mode
+    assert_equal <<CSS, render(<<SASS, :style => :compressed)
+foo{color:blue;/* foo
+ * bar
+ */}
+CSS
+foo
+  color: blue
+  /*! foo
+   * bar
+   */
+SASS
+  end
+  def test_loud_comment_in_silent_comment
+    assert_equal <<CSS, render(<<SASS, :style => :compressed)
+foo{color:blue;/* foo */
+/* bar */
+/* */
+/* bip */
+/* baz */}
+CSS
+foo
+  color: blue
+  //! foo
+  //! bar
+  //!
+    bip
+    baz
+SASS
+  end
+
+  def test_loud_comment_is_evaluated
+    assert_equal <<CSS, render(<<SASS)
+/*
+ * Hue: 327.216deg */
+CSS
+/*!
+  Hue: \#{hue(#f836a0)}
+SASS
+  end
+
   def test_attribute_selector_with_spaces
     assert_equal(<<CSS, render(<<SASS))
 a b[foo=bar] {
