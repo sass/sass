@@ -82,6 +82,18 @@ class SassPluginTest < Test::Unit::TestCase
     assert_stylesheet_updated 'scss_import'
   end
 
+  def test_no_updates_when_always_check_and_always_update_both_false
+    Sass::Plugin.options[:always_update] = false
+    Sass::Plugin.options[:always_check] = false
+
+    touch 'basic'
+    assert_needs_update 'basic'
+    check_for_updates!
+
+    # Check it's still stale
+    assert_needs_update 'basic'
+  end
+
   def test_full_exception_handling
     File.delete(tempfile_loc('bork1'))
     check_for_updates!
