@@ -91,8 +91,8 @@ MSG
     "=a($foo bar)" => 'Invalid CSS after "($foo ": expected ")", was "bar)"',
     "=foo\n  bar: baz\n+foo" => ["Properties are only allowed within rules, directives, or other properties.", 2],
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
-    "=a($b = 1, $c)" => "Required argument $c must come before any optional arguments.",
-    "=a($b = 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
+    "=a($b: 1, $c)" => "Required argument $c must come before any optional arguments.",
+    "=a($b: 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c",
     "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing parameter $b.",
     "@function foo()\n  1 + 2" => "Functions can only contain variable declarations and control directives.",
@@ -968,77 +968,6 @@ foo
 SASS
   end
 
-  def test_equals_warning_for_properties
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 3, character 3 of 'test_equals_warning_for_properties_inline.sass'
-Setting properties with = has been deprecated and will be removed in version 3.2.
-Use "a: $var" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-foo {
-  a: 2px 3px; }
-CSS
-$var: 2px 3px
-foo
-  a = $var
-SASS
-  end
-
-  def test_equals_warning_for_dynamic_properties
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 4, character 3 of 'test_equals_warning_for_dynamic_properties_inline.sass'
-Setting properties with = has been deprecated and will be removed in version 3.2.
-Use "a-\#{$i}: $var" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-foo {
-  a-12: 2px 3px; }
-CSS
-$var: 2px 3px
-$i: 12
-foo
-  a-\#{$i} = $var
-SASS
-  end
-
-  def test_equals_warning_for_property_with_string
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 2, character 3 of 'test_equals_warning_for_property_with_string_inline.sass'
-Setting properties with = has been deprecated and will be removed in version 3.2.
-Use "a: foo" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-foo {
-  a: foo; }
-CSS
-foo
-  a = "foo"
-SASS
-  end
-
-  def test_equals_warning_for_property_with_division
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 2, character 3 of 'test_equals_warning_for_property_with_division_inline.sass'
-Setting properties with = has been deprecated and will be removed in version 3.2.
-Use "a: (1px / 2px)" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-foo {
-  a: 0.5; }
-CSS
-foo
-  a = 1px/2px
-SASS
-  end
-
   def test_guarded_assign
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b\n$foo: c !default\nfoo\n  a: $foo}))
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b !default\nfoo\n  a: $foo}))
@@ -1145,26 +1074,6 @@ CSS
 a
   +mixin_hyphen
   +mixin-under
-SASS
-  end
-
-  def test_equals_warning_for_mixin_args
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 1, character 10 of 'test_equals_warning_for_mixin_args_inline.sass'
-Setting mixin argument defaults with = has been deprecated and will be removed in version 3.2.
-Use "$arg: 1px" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-bar {
-  a: 1px; }
-CSS
-=foo($arg = 1px)
-  a: $arg
-
-bar
-  +foo
 SASS
   end
 
@@ -1435,44 +1344,6 @@ a
   b: $a
   $a: 2
   c: $a
-SASS
-  end
-
-  def test_equals_warning_for_variables
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 2, character 1 of 'test_equals_warning_for_variables_inline.sass'
-Setting variables with = has been deprecated and will be removed in version 3.2.
-Use "$equals-var: 2px 3px" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-foo {
-  a: 2px 3px; }
-CSS
-
-$equals-var = 2px 3px
-foo
-  a: $equals-var
-SASS
-  end
-
-  def test_equals_warning_for_guarded_variables
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 2, character 1 of 'test_equals_warning_for_guarded_variables_inline.sass'
-Setting variable defaults with ||= has been deprecated and will be removed in version 3.2.
-Use "$equals-var: 2px 3px !default" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-foo {
-  a: 2px 3px; }
-CSS
-
-$equals-var ||= 2px 3px
-foo
-  a: $equals-var
 SASS
   end
 
@@ -1900,182 +1771,6 @@ CSS
 .foo-\#{"bar" "baz"}
   a: b
 SASS
-  end
-
-  # Deprecated equals behavior
-
-  def test_equals_properties_unquote_strings
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo;
-  b: bar;
-  c: foo bar;
-  d: foo, bar baz;
-  e: foo bar, bar; }
-CSS
-foo
-  a= "foo"
-  b= bar
-  c= "foo" bar
-  d= foo, "bar baz"
-  e= "foo bar", bar
-SASS
-    end
-  end
-
-  def test_equals_properties_unquote_value
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo; }
-CSS
-$var: "foo"
-
-foo
-  a= $var
-SASS
-    end
-  end
-
-  def test_equals_properties_deep_unquote_vars
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo bar;
-  b: bar foo; }
-CSS
-$var: "foo"
-
-foo
-  a= $var "bar"
-  b= "bar" $var
-SASS
-    end
-  end
-
-  def test_equals_vars_unquote_strings
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo;
-  b: bar;
-  c: foo bar;
-  d: foo, bar; }
-CSS
-$a = "foo"
-$b = bar
-$c = "foo" bar
-$d = foo, "bar"
-
-foo
-  a: $a
-  b: $b
-  c: $c
-  d: $d
-SASS
-    end
-  end
-
-  def test_equals_vars_unquote_value
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo; }
-CSS
-$var1: "foo"
-$var2 = $var1
-
-foo
-  a: $var2
-SASS
-    end
-  end
-
-  def test_equals_vars_deep_unquote_vars
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo bar;
-  b: bar foo; }
-CSS
-$var: "foo"
-$a = $var "bar"
-$b = "bar" $var
-
-foo
-  a: $a
-  b: $b
-SASS
-    end
-  end
-
-  def test_equals_args_unquote_strings
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo;
-  b: bar;
-  c: foo bar;
-  d: foo, bar; }
-CSS
-=foo($a = "foo", $b = bar, $c = "foo" bar, $d = (foo, "bar"))
-  foo
-    a: $a
-    b: $b
-    c: $c
-    d: $d
-
-+foo
-SASS
-    end
-  end
-
-  def test_equals_args_unquote_value
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo; }
-CSS
-$var1: "foo"
-
-=foo($var2 = $var1)
-  foo
-    a: $var2
-
-+foo
-SASS
-    end
-  end
-
-  def test_equals_args_deep_unquote_vars
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: foo bar;
-  b: bar foo; }
-CSS
-$var: "foo"
-=foo($a = $var "bar", $b = "bar" $var)
-  foo
-    a: $a
-    b: $b
-
-+foo
-SASS
-    end
-  end
-
-  def test_equals_properties_force_division
-    silence_warnings do
-      assert_equal(<<CSS, render(<<SASS))
-foo {
-  a: 0.5; }
-CSS
-foo
-  a = 1px/2px
-SASS
-    end
   end
 
   def test_warn_directive

@@ -316,15 +316,8 @@ RUBY
           offset = @lexer.offset + 1
           c = assert_tok(:const)
           var = Script::Variable.new(c.value)
-          if tok = (try_tok(:colon) || try_tok(:single_eq))
+          if tok = try_tok(:colon)
             val = assert_expr(:space)
-
-            if tok.type == :single_eq
-              val.context = :equals
-              val.options = @options
-              Script.equals_warning("mixin argument defaults", "$#{c.value}",
-                val.to_sass, false, line, offset, @options[:filename])
-            end
             must_have_default = true
           elsif must_have_default
             raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")

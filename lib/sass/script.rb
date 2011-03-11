@@ -13,7 +13,7 @@ module Sass
   # This module contains code that handles the parsing and evaluation of SassScript.
   module Script
     # The regular expression used to parse variables.
-    MATCH = /^\$(#{Sass::SCSS::RX::IDENT})\s*((?:\|\|)?=|:)\s*(.+?)(!(?i:default))?$/
+    MATCH = /^\$(#{Sass::SCSS::RX::IDENT})\s*:\s*(.+?)(!(?i:default))?$/
 
     # The regular expression used to validate variables without matching.
     VALIDATE = /^\$#{Sass::SCSS::RX::IDENT}$/
@@ -36,16 +36,5 @@ module Sass
       raise e
     end
 
-    # @private
-    def self.equals_warning(types, name, val, guarded, line, offset, filename)
-      Sass::Util.sass_warn <<MESSAGE
-DEPRECATION WARNING:
-On line #{line}#{", character #{offset}" if offset}#{" of '#{filename}'" if filename}
-Setting #{types} with #{"||" if guarded}= has been deprecated and will be removed in version 3.2.
-Use "#{name}: #{val}#{" !default" if guarded}" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-MESSAGE
-    end
   end
 end

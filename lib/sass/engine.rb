@@ -97,10 +97,6 @@ module Sass
     # The character that begins a CSS property.
     PROPERTY_CHAR  = ?:
 
-    # The character that designates that
-    # a property should be assigned to a SassScript expression.
-    SCRIPT_CHAR     = ?=
-
     # The character that designates the beginning of a comment,
     # either Sass or CSS.
     COMMENT_CHAR = ?/
@@ -125,16 +121,9 @@ module Sass
     # Includes named mixin declared using MIXIN_DEFINITION_CHAR
     MIXIN_INCLUDE_CHAR    = ?+
 
-    # The regex that matches properties of the form `name: prop`.
-    PROPERTY_NEW_MATCHER = /^[^\s:"\[]+\s*[=:](\s|$)/
-
-    # The regex that matches and extracts data from
-    # properties of the form `name: prop`.
-    PROPERTY_NEW = /^([^\s=:"]+)\s*(=|:)(?:\s+|$)(.*)/
-
     # The regex that matches and extracts data from
     # properties of the form `:name prop`.
-    PROPERTY_OLD = /^:([^\s=:"]+)\s*(=?)(?:\s+|$)(.*)/
+    PROPERTY_OLD = /^:([^\s=:"]+)\s*(?:\s+|$)(.*)/
 
     # The default options for Sass::Engine.
     # @api public
@@ -533,17 +522,17 @@ WARNING
       when PROPERTY_CHAR
         if line.text[1] == PROPERTY_CHAR ||
             (@options[:property_syntax] == :new &&
-             line.text =~ PROPERTY_OLD && $3.empty?)
+             line.text =~ PROPERTY_OLD && $2.empty?)
           # Support CSS3-style pseudo-elements,
           # which begin with ::,
           # as well as pseudo-classes
           # if we're using the new property syntax
           Tree::RuleNode.new(parse_interp(line.text))
         else
-          name, eq, value = line.text.scan(PROPERTY_OLD)[0]
+          name, value = line.text.scan(PROPERTY_OLD)[0]
           raise SyntaxError.new("Invalid property: \"#{line.text}\".",
             :line => @line) if name.nil? || value.nil?
-          parse_property(name, parse_interp(name), eq, value, :old, line)
+          parse_property(name, parse_interp(name), value, :old, line)
         end
       when ?$
         parse_variable(line)
@@ -580,15 +569,15 @@ WARNING
       end
 
       name = line.text[0...scanner.pos]
-      if scanner.scan(/\s*([:=])(?:\s|$)/)
-        parse_property(name, res, scanner[1], scanner.rest, :new, line)
+      if scanner.scan(/\s*:(?:\s|$)/)
+        parse_property(name, res, scanner.rest, :new, line)
       else
         res.pop if comment
         Tree::RuleNode.new(res + parse_interp(scanner.rest))
       end
     end
 
-    def parse_property(name, parsed_name, eq, value, prop, line)
+    def parse_property(name, parsed_name, value, prop, line)
       if value.strip.empty?
         expr = Sass::Script::String.new("")
       else
@@ -599,34 +588,20 @@ WARNING
         end
         expr = parse_script(value, :offset => line.offset + line.text.index(value))
 
-
-        if eq.strip[0] == SCRIPT_CHAR
-          expr.context = :equals
-          Script.equals_warning("properties", name,
-            Sass::Tree::PropNode.val_to_sass(expr, @options), false,
-            @line, line.offset + 1, @options[:filename])
-        end
       end
       Tree::PropNode.new(parse_interp(name), expr, important, prop)
     end
 
     def parse_variable(line)
-      name, op, value, default = line.text.scan(Script::MATCH)[0]
-      guarded = op =~ /^\|\|/
+      name, value, default = line.text.scan(Script::MATCH)[0]
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath variable declarations.",
         :line => @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
         :line => @line) unless name && value
 
       expr = parse_script(value, :offset => line.offset + line.text.index(value))
-      if op =~ /=$/
-        expr.context = :equals
-        type = guarded ? "variable defaults" : "variables"
-        Script.equals_warning(type, "$#{name}", expr.to_sass,
-          guarded, @line, line.offset + 1, @options[:filename])
-      end
 
-      Tree::VariableNode.new(name, expr, default || guarded)
+      Tree::VariableNode.new(name, expr, default)
     end
 
     def parse_comment(line)

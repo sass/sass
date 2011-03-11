@@ -165,14 +165,6 @@ SASS
 foo bar {
   baz: 12 $bang "bip"; }
 SCSS
-
-    assert_sass_to_scss <<SCSS, <<SASS
-foo bar {
-  baz: 12 $bang bip; }
-SCSS
-foo bar
-  baz= 12 $bang "bip"
-SASS
   end
 
   def test_dynamic_properties_with_old
@@ -183,14 +175,6 @@ SASS
 foo bar {
   baz: 12 $bang "bip"; }
 SCSS
-
-    assert_sass_to_scss <<SCSS, <<SASS, :old => true
-foo bar {
-  baz: 12 $bang bip; }
-SCSS
-foo bar
-  :baz= 12 $bang "bip"
-SASS
   end
 
   def test_multiline_properties
@@ -842,22 +826,12 @@ SASS
     a: $baz $bang; } }
 SCSS
 
-    assert_scss_to_sass <<SASS, <<SCSS
-=foo-bar($baz, $bang: foo)
-  baz
-    a: $baz $bang
-SASS
-@mixin foo-bar($baz, $bang = "foo") {
-  baz {
-    a: $baz $bang; } }
-SCSS
-
     assert_sass_to_scss <<SCSS, <<SASS
 @mixin foo-bar($baz, $bang: foo) {
   baz {
     a: $baz $bang; } }
 SCSS
-=foo-bar($baz, $bang = "foo")
+=foo-bar($baz, $bang: foo)
   baz
     a: $baz $bang
 SASS
@@ -951,8 +925,6 @@ foo {
   $var2: flaz(#abcdef);
   val: $var1 $var2; }
 SCSS
-
-    assert_sass_to_scss '$var: 12px $bar baz;', '$var = 12px $bar "baz"'
   end
 
   def test_guarded_variable_definition
@@ -969,8 +941,6 @@ foo {
   $var2: flaz(#abcdef) !default;
   val: $var1 $var2; }
 SCSS
-
-    assert_sass_to_scss '$var: 12px $bar baz !default;', '$var ||= 12px $bar "baz"'
   end
 
   def test_multiple_variable_definitions
@@ -1112,62 +1082,6 @@ SCSS
     assert_raise_message(Sass::SyntaxError, 'The ":name: val" hack is not allowed in the Sass indented syntax') do
       to_sass("foo {:name: val;}", :syntax => :scss)
     end
-  end
-
-  # Sass 3 Deprecation conversions
-
-  def test_simple_quoted_strings_unquoted_with_equals
-    assert_sass_to_scss '$var: 1px foo + bar baz;', '$var = 1px "foo" + "bar" baz'
-    assert_sass_to_scss '$var: -foo-bar;', '$var = "-foo-bar"'
-  end
-
-  def test_complex_quoted_strings_explicitly_unquoted_with_equals
-    assert_sass_to_scss '$var: 1px unquote("foo + bar") baz;', '$var = 1px "foo + bar" baz'
-    assert_sass_to_scss "$var: unquote('foo\"bar');", '$var = "foo\"bar"'
-  end
-
-  def test_division_asserted_with_equals
-    assert_sass_to_scss <<SCSS, <<SASS
-foo {
-  a: (1px / 2px); }
-SCSS
-foo
-  a = 1px / 2px
-SASS
-  end
-
-  def test_division_not_asserted_with_equals_when_unnecessary
-    assert_sass_to_scss <<SCSS, <<SASS
-$var: 1px / 2px;
-
-foo {
-  a: $var; }
-SCSS
-$var = 1px / 2px
-
-foo
-  a = $var
-SASS
-
-    assert_sass_to_scss <<SCSS, <<SASS
-$var: 1px;
-
-foo {
-  a: $var / 2px; }
-SCSS
-$var = 1px
-
-foo
-  a = $var / 2px
-SASS
-
-    assert_sass_to_scss <<SCSS, <<SASS
-foo {
-  a: 1 + 1px / 2px; }
-SCSS
-foo
-  a = 1 + 1px / 2px
-SASS
   end
 
   def test_nested_properties
