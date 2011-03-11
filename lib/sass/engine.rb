@@ -545,7 +545,7 @@ WARNING
             :line => @line) if name.nil? || value.nil?
           parse_property(name, parse_interp(name), eq, value, :old, line)
         end
-      when ?!, ?$
+      when ?$
         parse_variable(line)
       when COMMENT_CHAR
         parse_comment(line.text)
@@ -592,7 +592,13 @@ WARNING
       if value.strip.empty?
         expr = Sass::Script::String.new("")
       else
+        important = false
+        if value =~ Sass::SCSS::RX::IMPORTANT
+          important = true
+          value = value.gsub(Sass::SCSS::RX::IMPORTANT,"")
+        end
         expr = parse_script(value, :offset => line.offset + line.text.index(value))
+
 
         if eq.strip[0] == SCRIPT_CHAR
           expr.context = :equals
@@ -601,7 +607,7 @@ WARNING
             @line, line.offset + 1, @options[:filename])
         end
       end
-      Tree::PropNode.new(parse_interp(name), expr, prop)
+      Tree::PropNode.new(parse_interp(name), expr, important, prop)
     end
 
     def parse_variable(line)
@@ -611,7 +617,6 @@ WARNING
         :line => @line + 1) unless line.children.empty?
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
         :line => @line) unless name && value
-      Script.var_warning(name, @line, line.offset + 1, @options[:filename]) if line.text[0] == ?!
 
       expr = parse_script(value, :offset => line.offset + line.text.index(value))
       if op =~ /=$/
@@ -712,11 +717,8 @@ WARNING
         raise SyntaxError.new("Invalid for directive '@for #{text}': expected #{expected}.")
       end
       raise SyntaxError.new("Invalid variable \"#{var}\".") unless var =~ Script::VALIDATE
-      if var.slice!(0) == ?!
-        offset = line.offset + line.text.index("!" + var) + 1
-        Script.var_warning(var, @line, offset, @options[:filename])
-      end
 
+      var = var[1..-1]
       parsed_from = parse_script(from_expr, :offset => line.offset + line.text.index(from_expr))
       parsed_to = parse_script(to_expr, :offset => line.offset + line.text.index(to_expr))
       Tree::ForNode.new(var, parsed_from, parsed_to, to_name == 'to')
@@ -734,11 +736,8 @@ WARNING
         raise SyntaxError.new("Invalid for directive '@each #{text}': expected #{expected}.")
       end
       raise SyntaxError.new("Invalid variable \"#{var}\".") unless var =~ Script::VALIDATE
-      if var.slice!(0) == ?!
-        offset = line.offset + line.text.index("!" + var) + 1
-        Script.var_warning(var, @line, offset, @options[:filename])
-      end
 
+      var = var[1..-1]
       parsed_list = parse_script(list_expr, :offset => line.offset + line.text.index(list_expr))
       Tree::EachNode.new(var, parsed_list)
     end

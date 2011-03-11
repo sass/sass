@@ -41,9 +41,9 @@ MSG
     "a\n  @extend .foo ^bar" => 'Invalid CSS after ".foo ": expected selector, was "^bar"',
     "a: b" => 'Properties are only allowed within rules, directives, or other properties.',
     ":a b" => 'Properties are only allowed within rules, directives, or other properties.',
-    "!" => 'Invalid variable: "!".',
+    "$" => 'Invalid variable: "$".',
     "$a" => 'Invalid variable: "$a".',
-    "! a" => 'Invalid variable: "! a".',
+    "$ a" => 'Invalid variable: "$ a".',
     "$a b" => 'Invalid variable: "$a b".',
     "$a: 1b + 2c" => "Incompatible units: 'c' and 'b'.",
     "$a: 1b < 2c" => "Incompatible units: 'c' and 'b'.",
@@ -68,6 +68,7 @@ MSG
     "@if true\n  @import foo" => "Import directives may not be used within control directives or mixins.",
     "@mixin foo\n  @import foo" => "Import directives may not be used within control directives or mixins.",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
+    '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
     "=foo\n  :color red\n.bar\n  +bang-bop" => "Undefined mixin 'bang-bop'.",
@@ -113,7 +114,6 @@ MSG
     "@else\n  a\n    b: c" => ["@else must come after @if.", 1],
     "@if false\n@else foo" => "Invalid else directive '@else foo': expected 'if <expr>'.",
     "@if false\n@else if " => "Invalid else directive '@else if': expected 'if <expr>'.",
-    "a\n  !b: 12\nc\n  d: !b" => 'Undefined variable: "$b".',
     "a\n  $b: 12\nc\n  d: $b" => 'Undefined variable: "$b".',
     "=foo\n  $b: 12\nc\n  +foo\n  d: $b" => 'Undefined variable: "$b".',
     "c\n  d: $b-foo" => 'Undefined variable: "$b-foo".',
@@ -1336,30 +1336,6 @@ $a: 3
 SASS
   end
 
-  def test_for_with_bang_var
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 1, character 6 of 'test_for_with_bang_var_inline.sass'
-Variables with ! have been deprecated and will be removed in version 3.2.
-Use "$bar" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-a-0 {
-  b: c; }
-
-a-1 {
-  b: c; }
-
-a-2 {
-  b: c; }
-CSS
-@for !bar from 0 to 3
-  a-\#{$bar}
-    b: c
-SASS
-  end
-
   def test_while
     assert_equal(<<CSS, render(<<SASS))
 a-5 {
@@ -1459,40 +1435,6 @@ a
   b: $a
   $a: 2
   c: $a
-SASS
-  end
-
-  def test_bang_variables
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 1, character 1 of 'test_bang_variables_inline.sass'
-Variables with ! have been deprecated and will be removed in version 3.2.
-Use "$bang-var" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-foo {
-  a: 1px; }
-CSS
-!bang-var: 1px
-foo
-  a: $bang-var
-SASS
-
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SASS))}
-DEPRECATION WARNING:
-On line 3, character 6 of 'test_bang_variables_inline.sass'
-Variables with ! have been deprecated and will be removed in version 3.2.
-Use "$dollar-var" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-foo {
-  a: 1px; }
-CSS
-$dollar-var: 1px
-foo
-  a: !dollar-var
 SASS
   end
 

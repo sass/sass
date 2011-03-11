@@ -225,7 +225,7 @@ WARNING
     class Property
       def to_sass_tree
         return if hide_in_sass
-        Sass::Tree::PropNode.new([self], @value.to_sass_tree, :new)
+        Sass::Tree::PropNode.new([self], @value.to_sass_tree, false, :new)
       end
     end
 

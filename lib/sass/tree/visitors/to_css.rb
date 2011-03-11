@@ -112,9 +112,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   def visit_prop(node)
     tab_str = '  ' * (@tabs + node.tabs)
     if node.style == :compressed
-      "#{tab_str}#{node.resolved_name}:#{node.resolved_value}"
+      "#{tab_str}#{node.resolved_name}:#{node.resolved_value}#{'!important' if node.important}"
     else
-      "#{tab_str}#{node.resolved_name}: #{node.resolved_value};"
+      "#{tab_str}#{node.resolved_name}: #{node.resolved_value}#{' !important' if node.important};"
     end
   end
 
@@ -194,7 +194,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
                 [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)])
             ])
         ])
-      prop = Sass::Tree::PropNode.new([""], "", :new)
+      prop = Sass::Tree::PropNode.new([""], "", false, :new)
       prop.resolved_name = "font-family"
       prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
       rule << prop

@@ -1117,13 +1117,13 @@ SCSS
   # Sass 3 Deprecation conversions
 
   def test_simple_quoted_strings_unquoted_with_equals
-    assert_sass_to_scss '$var: 1px foo + bar baz;', '!var = 1px "foo" + "bar" baz'
-    assert_sass_to_scss '$var: -foo-bar;', '!var = "-foo-bar"'
+    assert_sass_to_scss '$var: 1px foo + bar baz;', '$var = 1px "foo" + "bar" baz'
+    assert_sass_to_scss '$var: -foo-bar;', '$var = "-foo-bar"'
   end
 
   def test_complex_quoted_strings_explicitly_unquoted_with_equals
-    assert_sass_to_scss '$var: 1px unquote("foo + bar") baz;', '!var = 1px "foo + bar" baz'
-    assert_sass_to_scss "$var: unquote('foo\"bar');", '!var = "foo\"bar"'
+    assert_sass_to_scss '$var: 1px unquote("foo + bar") baz;', '$var = 1px "foo + bar" baz'
+    assert_sass_to_scss "$var: unquote('foo\"bar');", '$var = "foo\"bar"'
   end
 
   def test_division_asserted_with_equals
@@ -1143,10 +1143,10 @@ $var: 1px / 2px;
 foo {
   a: $var; }
 SCSS
-!var = 1px / 2px
+$var = 1px / 2px
 
 foo
-  a = !var
+  a = $var
 SASS
 
     assert_sass_to_scss <<SCSS, <<SASS
@@ -1155,10 +1155,10 @@ $var: 1px;
 foo {
   a: $var / 2px; }
 SCSS
-!var = 1px
+$var = 1px
 
 foo
-  a = !var / 2px
+  a = $var / 2px
 SASS
 
     assert_sass_to_scss <<SCSS, <<SASS
@@ -1214,26 +1214,6 @@ div
   @for $for_var from $from_var to $to_var
     @while $while_var == true
       $while_var : false
-SASS
-  end
-
-  def test_sass2_var_in_property_interpolation
-assert_sass_to_scss <<SCSS, <<SASS
-foo {
-  a: b \#{$c} d; }
-SCSS
-foo
-  a: b \#{!c} d
-SASS
-  end
-
-  def test_sass2_var_in_selector_interpolation
-assert_sass_to_scss <<SCSS, <<SASS
-foo-\#{$c} {
-  a: b; }
-SCSS
-foo-\#{!c}
-  a: b
 SASS
   end
 

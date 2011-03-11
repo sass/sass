@@ -118,7 +118,7 @@ module Sass
       # We could use it for 1.9 only, but I don't want to introduce a cross-version
       # behavior difference.
       # In any case, almost all CSS idents will be matched by this.
-      STATIC_VALUE = /(-?#{NMSTART}|#{STRING_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important)+(?=[;}])/i
+      STATIC_VALUE = /(-?#{NMSTART}|#{STRING_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]|#{NUM})+(?=[;}])/i
 
       STATIC_SELECTOR = /(#{NMCHAR}|\s|[,>+*]|[:#.]#{NMSTART})+(?=[{])/i
     end

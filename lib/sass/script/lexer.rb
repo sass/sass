@@ -87,7 +87,7 @@ module Sass
         :whitespace => /\s+/,
         :comment => COMMENT,
         :single_line_comment => SINGLE_LINE_COMMENT,
-        :variable => /([!\$])(#{IDENT})/,
+        :variable => /(\$)(#{IDENT})/,
         :ident => /(#{IDENT})(\()?/,
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
@@ -242,9 +242,6 @@ module Sass
         line = @line
         offset = @offset
         return unless scan(rx)
-        if @scanner[1] == '!' && @scanner[2] != 'important'
-          Script.var_warning(@scanner[2], line, offset + 1, @options[:filename])
-        end
 
         [:const, @scanner[2]]
       end

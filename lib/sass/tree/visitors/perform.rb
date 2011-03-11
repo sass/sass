@@ -54,7 +54,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_comment(node)
     return [] if node.invisible?
     if node.evaluated?
-      node.value.gsub!(/(^|[^\\])\#{([^}]*)}/) do |md|
+      node.value.gsub!(/(^|[^\\])\#\{([^}]*)\}/) do |md|
         $1+Sass::Script.parse($2, node.line, 0, node.options).perform(@environment).to_s
       end
       node.value = run_interp([Sass::Script::String.new(node.value)])

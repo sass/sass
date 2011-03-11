@@ -67,19 +67,6 @@ class SassScriptConversionTest < Test::Unit::TestCase
   def test_variable
     assert_renders "$foo-bar"
     assert_renders "$flaznicate"
-    assert_warning(<<WARN) {assert_equal "$tumbly-wumbly", render("!tumbly-wumbly")}
-DEPRECATION WARNING:
-On line 1, character 1 of 'test_variable_inline.sass'
-Variables with ! have been deprecated and will be removed in version 3.2.
-Use "$tumbly-wumbly" instead.
-
-You can use `sass-convert --in-place --from sass2 file.sass' to convert files automatically.
-WARN
-  end
-
-  def test_important
-    assert_renders "!important"
-    assert_renders "$foo !important"
   end
 
   def self.test_precedence(outer, inner)
@@ -301,8 +288,8 @@ RUBY
       assert_equal 'url(foo/bar.gif)', render('url(foo/bar.gif)', :context => :equals)
       assert_equal 'url("foo/bar.gif")', render('url("foo/bar.gif")', :context => :equals)
 
-      assert_equal 'url($var)', render('url(!var)', :context => :equals)
-      assert_equal 'url("#{$var}/flip.gif")', render('url("#{!var}/flip.gif")', :context => :equals)
+      assert_equal 'url($var)', render('url($var)', :context => :equals)
+      assert_equal 'url("#{$var}/flip.gif")', render('url("#{$var}/flip.gif")', :context => :equals)
     end
   end
 
