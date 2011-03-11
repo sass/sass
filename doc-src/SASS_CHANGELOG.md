@@ -223,6 +223,15 @@ is compiled to:
   This flag hasn't been necessary since Rails 2.0.
   Existing Rails 2.0 installations will continue to work.
 
+* Removed deprecated support for ! prefixed variables. Use $ to prefix variables now.
+
+* Removed the deprecated css2sass executable. Use sass-convert now.
+
+* Removed support for the equals operator in variable assignment. Use : now.
+
+* Removed the sass2 mode from sass-convert. Users who have to migrate from sass2
+  should install Sass 3.0 and quiet all deprecation warnings before installing Sass 3.1.
+
 ## 3.0.26 (Unreleased)
 
 * Fix a performance bug in large SCSS stylesheets with many nested selectors.
