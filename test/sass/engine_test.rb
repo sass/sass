@@ -2247,6 +2247,28 @@ CSS
 SASS
   end
 
+  def test_comment_interpolation_warning
+    assert_warning(<<END) {render("/* \#{foo}")}
+WARNING:
+On line 1 of 'test_comment_interpolation_warnings_inline.sass'
+Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
+Please escape the interpolation by adding a backslash before the hash sign.
+END
+  end
+
+  def test_loud_comment_interpolations_can_be_escaped
+    assert_equal <<CSS, render(<<SASS)
+/* \#{foo} */
+CSS
+/* \\\#{foo}
+SASS
+    assert_equal <<CSS, render(<<SASS)
+/* \#{foo} */
+CSS
+/*! \\\#{foo}
+SASS
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?
