@@ -88,7 +88,6 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     end
     if node.loud
       if node.silent
-        (require 'ruby-debug'; debugger if content =~ /!/)
         content.gsub!(%r{^\s*(//!?)}, '//!')
       else
         content.sub!(%r{^\s*(/\*)}, '/*!')
