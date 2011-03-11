@@ -191,11 +191,7 @@ END
         elsif kv = passed_keywords[var.underscored_name]
           kv.perform(env)
         elsif default
-          val = default.perform(env)
-          if default.context == :equals && val.is_a?(Sass::Script::String)
-            val = Sass::Script::String.new(val.value)
-          end
-          val
+          default.perform(env)
         end)
       raise Sass::SyntaxError.new("Mixin #{node.name} is missing parameter #{var.inspect}.") unless env.var(var.name)
       env
@@ -217,12 +213,7 @@ END
   def visit_prop(node)
     node.resolved_name = run_interp(node.name)
     val = node.value.perform(@environment)
-    node.resolved_value =
-      if node.value.context == :equals && val.is_a?(Sass::Script::String)
-        val.value
-      else
-        val.to_s
-      end
+    node.resolved_value = val.to_s
     yield
   end
 
@@ -243,7 +234,6 @@ END
   def visit_variable(node)
     return [] if node.guarded && !@environment.var(node.name).nil?
     val = node.expr.perform(@environment)
-    val = Sass::Script::String.new(val.value) if node.expr.context == :equals && val.is_a?(Sass::Script::String)
     @environment.set_var(node.name, val)
     []
   end

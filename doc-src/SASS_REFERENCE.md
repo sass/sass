@@ -309,11 +309,6 @@ Available options are:
 : An option that's available for individual applications to set
   to make data available to {Sass::Script::Functions custom Sass functions}.
 
-{#sass2-option} `:sass2`
-: Parses the document using semantics closer to that of Sass v2.
-  Currently, this just means that strings in mixin arguments
-  are treated as though they were in [an `=` context](#sass-script-strings).
-
 {#quiet-option} `:quiet`
 : When set to true, causes warnings to be disabled.
 

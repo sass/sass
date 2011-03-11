@@ -143,7 +143,7 @@ module Sass::Tree
         unless node.is_a?(Sass::Script::Operation) && node.operator == :div &&
             node.operand1.is_a?(Sass::Script::Number) &&
             node.operand2.is_a?(Sass::Script::Number) &&
-            (node.context == :equals || !node.operand1.original || !node.operand2.original)
+            (!node.operand1.original || !node.operand2.original)
           return node
         end
 

@@ -61,7 +61,6 @@ module Sass::Script
         value.map {|e| e.perform(environment)},
         separator)
       list.options = self.options
-      list.context = self.context
       list
     end
 

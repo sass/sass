@@ -23,6 +23,7 @@ module Sass::Script
     # @see Node#to_sass
     def to_sass(opts = {})
       # We can get rid of all of this when we remove the deprecated :equals context
+      # XXX CE: It's gone now but I'm not sure what can be removed now.
       before_unquote, before_quote_char, before_str = parse_str(@before.to_sass(opts))
       after_unquote, after_quote_char, after_str = parse_str(@after.to_sass(opts))
       unquote = before_unquote || after_unquote ||

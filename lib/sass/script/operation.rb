@@ -66,11 +66,6 @@ module Sass::Script
       literal1 = @operand1.perform(environment)
       literal2 = @operand2.perform(environment)
 
-      if @operator == :space && context == :equals
-        literal1 = Sass::Script::String.new(literal1.value) if literal1.is_a?(Sass::Script::String)
-        literal2 = Sass::Script::String.new(literal2.value) if literal2.is_a?(Sass::Script::String)
-      end
-
       begin
         opts(literal1.send(@operator, literal2))
       rescue NoMethodError => e

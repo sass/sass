@@ -447,12 +447,11 @@ Options:
 END
 
         opts.on('-F', '--from FORMAT',
-          'The format to convert from. Can be css, scss, sass, less, or sass2.',
-          'sass2 is the same as sass, but updates more old syntax to new.',
+          'The format to convert from. Can be css, scss, sass, less.',
           'By default, this is inferred from the input filename.',
           'If there is none, defaults to css.') do |name|
           @options[:from] = name.downcase.to_sym
-          unless [:css, :scss, :sass, :less, :sass2].include?(@options[:from])
+          unless [:css, :scss, :sass, :less].include?(@options[:from])
             raise "Unknown format for sass-convert --from: #{name}"
           end
           try_less_note if @options[:from] == :less
@@ -536,14 +535,12 @@ END
         @options[:output] ||= @options[:input]
 
         from = @options[:from]
-        from = :sass if from == :sass2
         if @options[:to] == @options[:from] && !@options[:in_place]
           fmt = @options[:from]
           raise "Error: converting from #{fmt} to #{fmt} without --in-place"
         end
 
         ext = @options[:from]
-        ext = :sass if ext == :sass2
         Dir.glob("#{@options[:input]}/**/*.#{ext}") do |f|
           output =
             if @options[:in_place]
@@ -592,11 +589,6 @@ END
             when /\.scss$/; :scss
             when /\.sass$/; :sass
             end
-        end
-
-        if @options[:from] == :sass2
-          @options[:from] = :sass
-          @options[:for_engine][:sass2] = true
         end
 
         @options[:from] ||= :css

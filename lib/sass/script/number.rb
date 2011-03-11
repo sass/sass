@@ -149,7 +149,7 @@ module Sass::Script
     def div(other)
       if other.is_a? Number
         res = operate(other, :/)
-        if self.original && other.original && context != :equals
+        if self.original && other.original
           res.original = "#{self.original}/#{other.original}"
         end
         res

@@ -19,13 +19,6 @@ module Sass::Tree
     # @return [{String => Script::Node}]
     attr_reader :keywords
 
-    # @see Node#options=
-    def options=(opts)
-      super
-      @args.each {|a| a.context = :equals} if opts[:sass2]
-      @keywords.each {|k, v| v.context = :equals} if opts[:sass2]
-    end
-
     # @param name [String] The name of the mixin
     # @param args [Array<Script::Node>] See \{#args}
     # @param keywords [{String => Script::Node}] See \{#keywords}
