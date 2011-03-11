@@ -49,7 +49,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_comment(node)
-    if @format == :sass
+    content = if @format == :sass
       content = node.value.gsub(/\*\/$/, '').rstrip
       if content =~ /\A[ \t]/
         # Re-indent SCSS comments like this:
@@ -79,12 +79,22 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       content.rstrip + "\n"
     else
       spaces = ('  ' * [@tabs - node.value[/^ */].size, 0].max)
-      if node.silent
+      content = if node.silent
         node.value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
       else
         node.value
       end.gsub(/^/, spaces) + "\n"
+      content
     end
+    if node.loud
+      if node.silent
+        (require 'ruby-debug'; debugger if content =~ /!/)
+        content.gsub!(%r{^\s*(//!?)}, '//!')
+      else
+        content.sub!(%r{^\s*(/\*)}, '/*!')
+      end
+    end
+    content
   end
 
   def visit_debug(node)
