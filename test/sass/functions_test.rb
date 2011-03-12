@@ -35,6 +35,10 @@ module Sass::Script::Functions::UserFunctions
   end
 end
 
+module Sass::Script::Functions
+  include Sass::Script::Functions::UserFunctions
+end
+
 class SassFunctionTest < Test::Unit::TestCase
   # Tests taken from:
   #   http://www.w3.org/Style/CSS/Test/CSS3/Color/20070927/html4/t040204-hsl-h-rotating-b.htm
