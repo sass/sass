@@ -325,6 +325,7 @@ END
           end
         end
         Compass.add_project_configuration
+        Compass.configuration.project_path ||= Dir.pwd
         @options[:for_engine][:load_paths] += Compass.configuration.sass_load_paths
       end
 
