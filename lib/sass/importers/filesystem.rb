@@ -68,7 +68,7 @@ module Sass
         syntax = extensions[extname]
 
         Sass::Util.flatten(
-          ["#{dirname}/#{basename}", "#{dirname}/_#{basename}"].map do |name|
+          ["#{dirname}/_#{basename}", "#{dirname}/#{basename}"].map do |name|
             next [["#{name}.#{extensions.invert[syntax]}", syntax]] if syntax
             sorted_exts.map {|ext, syn| ["#{name}.#{ext}", syn]}
           end, 1)
