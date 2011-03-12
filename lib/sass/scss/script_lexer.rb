@@ -8,7 +8,7 @@ module Sass
 
       def variable
         return [:raw, "!important"] if scan(Sass::SCSS::RX::IMPORTANT)
-        _variable(/(\$)(#{Sass::SCSS::RX::IDENT})/)
+        _variable(Sass::SCSS::RX::VARIABLE)
       end
     end
   end

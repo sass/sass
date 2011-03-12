@@ -68,6 +68,7 @@ module Sass
       URLCHAR  = /[#%&*-~]|#{NONASCII}|#{ESCAPE}/
       URL      = /(#{URLCHAR}*)/
       W        = /[ \t\r\n\f]*/
+      VARIABLE = /(\$)(#{Sass::SCSS::RX::IDENT})/
 
       # This is more liberal than the spec's definition,
       # but that definition didn't work well with the greediness rules
