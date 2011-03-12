@@ -25,8 +25,8 @@ module Sass
 
       # @see Base#mtime
       def mtime(name, options)
-        file = find_real_file(@root, name)
-        File.mtime(name)
+        file, s = find_real_file(@root, name)
+        File.mtime(file)
       rescue Errno::ENOENT
         nil
       end
