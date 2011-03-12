@@ -17,11 +17,11 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     raise e
   end
 
+  PARENT_CLASSES = [ Sass::Tree::EachNode,   Sass::Tree::ForNode,   Sass::Tree::IfNode,
+                     Sass::Tree::ImportNode, Sass::Tree::MixinNode, Sass::Tree::WhileNode]
   def visit_children(parent)
     old_parent = @parent
-    @parent = parent unless is_any_of?(parent, 
-      Sass::Tree::EachNode, Sass::Tree::ForNode, Sass::Tree::IfNode,
-      Sass::Tree::ImportNode, Sass::Tree::MixinNode, Sass::Tree::WhileNode)
+    @parent = parent unless is_any_of?(parent, PARENT_CLASSES)
     old_real_parent, @real_parent = @real_parent, parent
     super
   ensure
@@ -48,8 +48,9 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     "@charset may only be used at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
 
+  INVALID_EXTEND_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::MixinDefNode]
   def invalid_extend_parent?(parent, child)
-    unless is_any_of?(parent, Sass::Tree::RuleNode, Sass::Tree::MixinDefNode)
+    unless is_any_of?(parent, INVALID_EXTEND_PARENTS)
       "Extend directives may only be used within rules."
     end
   end
@@ -58,18 +59,23 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     "Functions may only be defined at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
 
+  INVALID_FUNCTION_CHILDREN = [
+    Sass::Tree::CommentNode,  Sass::Tree::DebugNode, Sass::Tree::EachNode,
+    Sass::Tree::ForNode,      Sass::Tree::IfNode,    Sass::Tree::ReturnNode,
+    Sass::Tree::VariableNode, Sass::Tree::WarnNode,  Sass::Tree::WhileNode
+  ]
   def invalid_function_child?(parent, child)
-    unless is_any_of?(child,
-        Sass::Tree::CommentNode, Sass::Tree::DebugNode, Sass::Tree::EachNode,
-        Sass::Tree::ForNode, Sass::Tree::IfNode, Sass::Tree::ReturnNode,
-        Sass::Tree::VariableNode, Sass::Tree::WarnNode, Sass::Tree::WhileNode)
+    unless is_any_of?(child, INVALID_FUNCTION_CHILDREN)
       "Functions can only contain variable declarations and control directives."
     end
   end
 
+  INVALID_IMPORT_PARENTS = [
+    Sass::Tree::IfNode,   Sass::Tree::ForNode, Sass::Tree::WhileNode,
+    Sass::Tree::EachNode, Sass::Tree::MixinDefNode
+  ]
   def invalid_import_parent?(parent, child)
-    if is_any_of?(@real_parent, Sass::Tree::IfNode, Sass::Tree::ForNode, Sass::Tree::WhileNode,
-        Sass::Tree::EachNode, Sass::Tree::MixinDefNode)
+    if is_any_of?(@real_parent, INVALID_IMPORT_PARENTS)
       return "Import directives may not be used within control directives or mixins."
     end
     return if parent.is_a?(Sass::Tree::RootNode)
@@ -92,16 +98,17 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     "Mixins may only be defined at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
 
+  INVALID_PROP_CHILDREN = [Sass::Tree::CommentNode, Sass::Tree::PropNode]
   def invalid_prop_child?(parent, child)
-    unless is_any_of?(child, Sass::Tree::CommentNode, Sass::Tree::PropNode)
+    unless is_any_of?(child, INVALID_PROP_CHILDREN)
       "Illegal nesting: Only properties may be nested beneath properties."
     end
   end
 
+  INVALID_PROP_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::PropNode,
+                          Sass::Tree::MixinDefNode, Sass::Tree::DirectiveNode]
   def invalid_prop_parent?(parent, child)
-    unless is_any_of?(parent,
-        Sass::Tree::RuleNode, Sass::Tree::PropNode,
-        Sass::Tree::MixinDefNode, Sass::Tree::DirectiveNode)
+    unless is_any_of?(parent, INVALID_PROP_PARENTS)
       "Properties are only allowed within rules, directives, or other properties." + child.pseudo_class_selector_message
     end
   end
@@ -112,8 +119,11 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
 
   private
 
-  def is_any_of?(val, *classes)
-    classes.any? {|c| val.is_a?(c)}
+  def is_any_of?(val, classes)
+    for c in classes
+      return true if val.is_a?(c)
+    end
+    return false
   end
 
   def try_send(method, *args, &block)
