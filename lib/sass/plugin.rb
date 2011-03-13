@@ -41,7 +41,7 @@ module Sass
     # (in this Ruby instance).
     #
     # @return [Boolean]
-    attr_reader :checked_for_updates
+    attr_accessor :checked_for_updates
 
     # Same as \{#update\_stylesheets}, but respects \{#checked\_for\_updates}
     # and the {file:SASS_REFERENCE.md#always_update-option `:always_update`}

@@ -19,7 +19,7 @@ class SassPluginTest < Test::Unit::TestCase
     FileUtils.mkdir_p tempfile_loc
     FileUtils.mkdir_p tempfile_loc(nil,"more_")
     set_plugin_opts
-    update_all_stylesheets!
+    check_for_updates!
     reset_mtimes
   end
 
@@ -39,21 +39,21 @@ class SassPluginTest < Test::Unit::TestCase
   def test_no_update
     File.delete(tempfile_loc('basic'))
     assert_needs_update 'basic'
-    update_all_stylesheets!
+    check_for_updates!
     assert_stylesheet_updated 'basic'
   end
 
   def test_update_needed_when_modified
     touch 'basic'
     assert_needs_update 'basic'
-    update_all_stylesheets!
+    check_for_updates!
     assert_stylesheet_updated 'basic'
   end
 
   def test_update_needed_when_dependency_modified
     touch 'basic'
     assert_needs_update 'import'
-    update_all_stylesheets!
+    check_for_updates!
     assert_stylesheet_updated 'basic'
     assert_stylesheet_updated 'import'
   end
@@ -61,7 +61,7 @@ class SassPluginTest < Test::Unit::TestCase
   def test_update_needed_when_scss_dependency_modified
     touch 'scss_importee'
     assert_needs_update 'import'
-    update_all_stylesheets!
+    check_for_updates!
     assert_stylesheet_updated 'scss_importee'
     assert_stylesheet_updated 'import'
   end
@@ -69,7 +69,7 @@ class SassPluginTest < Test::Unit::TestCase
   def test_scss_update_needed_when_dependency_modified
     touch 'basic'
     assert_needs_update 'scss_import'
-    update_all_stylesheets!
+    check_for_updates!
     assert_stylesheet_updated 'basic'
     assert_stylesheet_updated 'scss_import'
   end
@@ -77,14 +77,26 @@ class SassPluginTest < Test::Unit::TestCase
   def test_update_needed_when_nested_import_dependency_modified
     touch 'basic'
     assert_needs_update 'nested_import'
-    update_all_stylesheets!
+    check_for_updates!
     assert_stylesheet_updated 'basic'
     assert_stylesheet_updated 'scss_import'
   end
 
+  def test_no_updates_when_always_check_and_always_update_both_false
+    Sass::Plugin.options[:always_update] = false
+    Sass::Plugin.options[:always_check] = false
+
+    touch 'basic'
+    assert_needs_update 'basic'
+    check_for_updates!
+
+    # Check it's still stale
+    assert_needs_update 'basic'
+  end
+
   def test_full_exception_handling
     File.delete(tempfile_loc('bork1'))
-    update_all_stylesheets!
+    check_for_updates!
     File.open(tempfile_loc('bork1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...6].join("\n"))
 /*
@@ -103,17 +115,17 @@ CSS
     Sass::Plugin.options[:full_exception] = false
 
     File.delete(tempfile_loc('bork1'))
-    assert_raise(Sass::SyntaxError) {update_all_stylesheets!}
+    assert_raise(Sass::SyntaxError) {check_for_updates!}
   ensure
     Sass::Plugin.options[:full_exception] = old_full_exception
   end
-  
+
   def test_two_template_directories
     set_plugin_opts :template_location => {
       template_loc => tempfile_loc,
       template_loc(nil,'more_') => tempfile_loc(nil,'more_')
     }
-    update_all_stylesheets!
+    check_for_updates!
     ['more1', 'more_import'].each { |name| assert_renders_correctly(name, :prefix => 'more_') }
   end
 
@@ -124,7 +136,7 @@ CSS
                       template_loc => tempfile_loc,
                       template_loc(nil,'more_') => tempfile_loc(nil,'more_')
                     }
-    update_all_stylesheets!
+    check_for_updates!
     assert_renders_correctly('more1_with_line_comments', 'more1', :prefix => 'more_')
   end
 
@@ -146,7 +158,7 @@ CSS
     touch 'basic'
     assert_needs_update "more1", "more_"
     assert_needs_update "basic"
-    update_all_stylesheets!
+    check_for_updates!
     assert_doesnt_need_update "more1", "more_"
     assert_doesnt_need_update "basic"
   end
@@ -162,7 +174,7 @@ CSS
     touch 'basic'
     assert_needs_update "more1", "more_"
     assert_needs_update "basic"
-    update_all_stylesheets!
+    check_for_updates!
     assert_doesnt_need_update "more1", "more_"
     assert_needs_update "basic"
   end
@@ -267,7 +279,7 @@ CSS
 
     touch 'basic', 'more_'
     assert_needs_update "import"
-    update_all_stylesheets!
+    check_for_updates!
     assert_renders_correctly("import")
   ensure
     FileUtils.mv(template_loc("basic", "more_"), template_loc("basic"))
@@ -276,7 +288,7 @@ CSS
   def test_cached_relative_import
     old_always_update = Sass::Plugin.options[:always_update]
     Sass::Plugin.options[:always_update] = true
-    update_all_stylesheets!
+    check_for_updates!
     assert_renders_correctly('subdir/subdir')
   ensure
     Sass::Plugin.options[:always_update] = old_always_update
@@ -284,9 +296,9 @@ CSS
 
   def test_cached_if
     set_plugin_opts :cache_store => Sass::CacheStores::Filesystem.new(tempfile_loc + '/cache')
-    update_all_stylesheets!
+    check_for_updates!
     assert_renders_correctly 'if'
-    update_all_stylesheets!
+    check_for_updates!
     assert_renders_correctly 'if'
   ensure
     set_plugin_opts :cache_store => @@cache_store
@@ -344,7 +356,7 @@ CSS
     if block_given?
       yield
     else
-      update_all_stylesheets!
+      check_for_updates!
     end
 
     assert run, "Expected #{name} callback to be run with arguments:\n  #{expected_args.inspect}"
@@ -367,23 +379,23 @@ CSS
     if block_given?
       yield
     else
-      update_all_stylesheets!
+      check_for_updates!
     end
   end
 
   def assert_callbacks(*args)
-    return update_all_stylesheets! if args.empty?
+    return check_for_updates! if args.empty?
     assert_callback(*args.pop) {assert_callbacks(*args)}
   end
 
   def assert_no_callbacks(*args)
-    return update_all_stylesheets! if args.empty?
+    return check_for_updates! if args.empty?
     assert_no_callback(*args.pop) {assert_no_callbacks(*args)}
   end
 
-  def update_all_stylesheets!
+  def check_for_updates!
     Sass::Util.silence_sass_warnings do
-      Sass::Plugin.update_stylesheets
+      Sass::Plugin.check_for_updates
     end
   end
 
