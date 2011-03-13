@@ -174,7 +174,7 @@ module Sass::Plugin
 
         Dir.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
-          name = file.sub(template_location.sub(/\/*$/, '/'), "")
+          name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
 
           if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
