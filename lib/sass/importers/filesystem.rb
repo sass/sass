@@ -67,13 +67,12 @@ module Sass
         sorted_exts = extensions.sort
         syntax = extensions[extname]
 
-        Sass::Util.flatten(
-          ["#{dirname}/_#{basename}", "#{dirname}/#{basename}"].map do |name|
-            next [["#{name}.#{extensions.invert[syntax]}", syntax]] if syntax
-            sorted_exts.map {|ext, syn| ["#{name}.#{ext}", syn]}
-          end, 1)
+        return [["#{dirname}/{_,}#{basename}.#{extensions.invert[syntax]}", syntax]] if syntax
+        sorted_exts.map {|ext, syn| ["#{dirname}/{_,}#{basename}.#{ext}", syn]}
       end
 
+
+      REDUNDANT_DIRECTORY = %r{#{Regexp.escape(File::SEPARATOR)}\.#{Regexp.escape(File::SEPARATOR)}}
       # Given a base directory and an `@import`ed name,
       # finds an existant file that matches the name.
       #
@@ -81,8 +80,10 @@ module Sass
       # @param name [String] The filename to search for.
       # @return [(String, Symbol)] A filename-syntax pair.
       def find_real_file(dir, name)
-        possible_files(name).each do |f, s|
-          if File.exists?(full_path = join(dir, f))
+        for (f,s) in possible_files(name)
+          path = (dir == ".") ? f : "#{dir}/#{f}"
+          if full_path = Dir[path].first
+            full_path.gsub!(REDUNDANT_DIRECTORY,File::SEPARATOR)
             return full_path, s
           end
         end
