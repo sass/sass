@@ -53,15 +53,13 @@ module Sass
       # @param template_file [String] The location of the Sass or SCSS template
       #   that is compiled to `css_file`.
       # @return [Boolean] Whether the stylesheet needs to be updated.
-      def stylesheet_needs_update?(css_file, template_file)
-        template_file = File.expand_path(template_file)
+      def stylesheet_needs_update?(css_file, template_file, importer = nil)
         begin
           css_mtime = File.mtime(css_file)
         rescue Errno::ENOENT
           return true
         end
-
-        stylesheet_modified_since?(template_file, css_mtime)
+        stylesheet_modified_since?(template_file, css_mtime, importer)
       end
 
       # Returns whether a Sass or SCSS stylesheet has been modified since a given time.
