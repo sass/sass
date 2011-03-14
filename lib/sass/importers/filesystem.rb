@@ -44,6 +44,16 @@ module Sass
 
       protected
 
+      # If a full uri is passed, this removes the root from it
+      # otherwise returns the name unchanged
+      def remove_root(name)
+        if name.index(@root) == 0
+          name[@root.length..-1]
+        else
+          name
+        end
+      end
+
       # A hash from file extensions to the syntaxes for those extensions.
       # The syntaxes must be `:sass` or `:scss`.
       #
@@ -80,7 +90,7 @@ module Sass
       # @param name [String] The filename to search for.
       # @return [(String, Symbol)] A filename-syntax pair.
       def find_real_file(dir, name)
-        for (f,s) in possible_files(name)
+        for (f,s) in possible_files(remove_root(name))
           path = (dir == ".") ? f : "#{dir}/#{f}"
           if full_path = Dir[path].first
             full_path.gsub!(REDUNDANT_DIRECTORY,File::SEPARATOR)
