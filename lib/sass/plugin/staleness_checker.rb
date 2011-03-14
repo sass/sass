@@ -23,7 +23,6 @@ module Sass
     #   *WARNING*: It is important not to retain the instance for too long,
     #   as its instance-level caches are never explicitly expired.
     class StalenessChecker
-      DELETED             = 1.0/0.0 # positive Infinity
       @dependencies_cache = {}
 
       class << self
@@ -57,7 +56,7 @@ module Sass
       def stylesheet_needs_update?(css_file, template_file)
         template_file = File.expand_path(template_file)
         begin
-          css_mtime = File.mtime(css_file).to_i
+          css_mtime = File.mtime(css_file)
         rescue Errno::ENOENT
           return true
         end
@@ -130,9 +129,9 @@ module Sass
             mtime = importer.mtime(uri, @options)
             if mtime.nil?
               @dependencies.delete([uri, importer])
-              DELETED
+              nil
             else
-              mtime.to_i
+              mtime
             end
           end
       end
@@ -150,7 +149,9 @@ module Sass
 
       def dependency_updated?(css_mtime)
         Proc.new do |uri, importer|
-          mtime(uri, importer) > css_mtime ||
+          sass_mtime = mtime(uri, importer)
+          !sass_mtime ||
+            sass_mtime > css_mtime ||
             dependencies_stale?(uri, importer, css_mtime)
         end
       end
