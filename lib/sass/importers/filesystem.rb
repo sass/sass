@@ -47,7 +47,7 @@ module Sass
       # If a full uri is passed, this removes the root from it
       # otherwise returns the name unchanged
       def remove_root(name)
-        if name.index(@root) == 0
+        if name.index("..") != 0 && name.index(@root) == 0
           name[@root.length..-1]
         else
           name
