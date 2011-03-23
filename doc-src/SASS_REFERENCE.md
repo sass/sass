@@ -1799,6 +1799,38 @@ providing many arguments without becoming difficult to call.
 Named arguments can be passed in any order, and arguments with default values can be omitted.
 Since the named arguments are variable names, underscores and dashes can be used interchangeably.
 
+## Function Directives {#functions}
+
+It is possible to define your own functions in sass and use them in any
+value or script context. For example:
+
+    $grid-width: 40px;
+    $gutter-width: 10px;
+    
+    @function grid-width($n) {
+      @return $n * $grid-width + ($n - 1) * $gutter-width;
+    }
+    
+    #sidebar { width: grid-width(5); }
+
+Becomes:
+
+    #sidebar {
+      width: 240px; }
+
+As you can see functions can access any globally defined variables as well as
+accept arguments just like a mixin. A function may have several statements
+contained within it, and you must call `@return` to set the return value of
+the function.
+
+As with mixins, you can call Sass-defined functions using keyword arguments.
+In the above example we could have called the function like this:
+
+    #sidebar { width: grid-width($n: 5); }
+
+It is recommended that you prefix your functions to avoid naming conflicts
+and so that readers of your stylesheets know they are not part of Sass or CSS. For example, if you work for ACME Corp, you might have named the function above `-acme-grid-width`.
+
 ## Output Style
 
 Although the default CSS style that Sass outputs is very nice

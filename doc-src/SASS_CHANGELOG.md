@@ -36,6 +36,25 @@
   Both programs will use the source file's extension to determine the syntax where
   possible.
 
+### Sass-based Functions
+
+While it has always been possible to add functions to Sass with Ruby, this release adds the ability to define new functions within Sass files directly.
+For example:
+
+    $grid-width: 40px;
+    $gutter-width: 10px;
+    
+    @function grid-width($n) {
+      @return $n * $grid-width + ($n - 1) * $gutter-width;
+    }
+    
+    #sidebar { width: grid-width(5); }
+
+Becomes:
+
+    #sidebar {
+      width: 240px; }
+
 ### Keyword Arguments
 
 Both mixins and Sass functions now support the ability to pass in keyword arguments.
