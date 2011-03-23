@@ -150,7 +150,7 @@ in `environment.rb` in Rails or `config.ru` in Rack...
 
 ...or by passing an options hash to {Sass::Engine#initialize}.
 All relevant options are also available via flags
-to the `sass` command-line executable.
+to the `sass` and `scss` command-line executables.
 Available options are:
 
 {#style-option} `:style`
@@ -311,6 +311,15 @@ Available options are:
 
 {#quiet-option} `:quiet`
 : When set to true, causes warnings to be disabled.
+
+### Syntax Selection
+
+The Sass command-line tool will use the file extension to determine which
+syntax you are using, but there's not always a filename. The `sass`
+command-line program defaults to the indented syntax but you can pass the
+`--scss` option to it if the input should be interpreted as SCSS syntax.
+Alternatively, you can use the `scss` command-line program which is exactly
+like the `sass` program but it defaults to assuming the syntax is SCSS.
 
 ### Encodings
 

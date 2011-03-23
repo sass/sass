@@ -31,6 +31,11 @@
   file -- even with compressed output. This is useful for adding copyright
   notices to your stylesheets.
 
+* A new executable named `scss` is now available. It is exactly like the
+  `sass` executable except it defaults to assuming input is in the SCSS syntax.
+  Both programs will use the source file's extension to determine the syntax where
+  possible.
+
 ### Keyword Arguments
 
 Both mixins and Sass functions now support the ability to pass in keyword arguments.

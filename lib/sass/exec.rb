@@ -176,12 +176,15 @@ MESSAGE
 
     # The `sass` executable.
     class Sass < Generic
+      attr_reader :default_syntax
+
       # @param args [Array<String>] The command-line arguments
       def initialize(args)
         super
         @options[:for_engine] = {
           :load_paths => ['.'] + (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
         }
+        @default_syntax = :sass
       end
 
       protected
@@ -193,7 +196,7 @@ MESSAGE
         super
 
         opts.banner = <<END
-Usage: sass [options] [INPUT] [OUTPUT]
+Usage: #{default_syntax} [options] [INPUT] [OUTPUT]
 
 Description:
   Converts SCSS or Sass files to CSS.
@@ -201,14 +204,21 @@ Description:
 Options:
 END
 
-        opts.on('--scss',
-                'Use the CSS-superset SCSS syntax.') do
-          @options[:for_engine][:syntax] = :scss
+        if @default_syntax == :sass
+          opts.on('--scss',
+                  'Use the CSS-superset SCSS syntax.') do
+            @options[:for_engine][:syntax] = :scss
+          end
+        else
+          opts.on('--sass',
+                  'Use the Indented syntax.') do
+            @options[:for_engine][:syntax] = :sass
+          end
         end
         opts.on('--watch', 'Watch files or directories for changes.',
                            'The location of the generated CSS can be set using a colon:',
-                           '  sass --watch input.sass:output.css',
-                           '  sass --watch input-dir:output-dir') do
+                           "  #{@default_syntax} --watch input.#{@default_syntax}:output.css",
+                           "  #{@default_syntax} --watch input-dir:output-dir") do
           @options[:watch] = true
         end
         opts.on('--update', 'Compile files or directories to CSS.',
@@ -239,7 +249,7 @@ END
           @options[:for_engine][:debug_info] = true
         end
         opts.on('-l', '--line-numbers', '--line-comments',
-                'Emit comments in the generated CSS indicating the corresponding sass line.') do
+                'Emit comments in the generated CSS indicating the corresponding source line.') do
           @options[:for_engine][:line_numbers] = true
         end
         opts.on('-i', '--interactive',
@@ -290,6 +300,7 @@ END
           output = @options[:output]
 
           @options[:for_engine][:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
+          @options[:for_engine][:syntax] ||= @default_syntax
           engine =
             if input.is_a?(File) && !@options[:check_syntax]
               ::Sass::Engine.for_file(input.path, @options[:for_engine])
@@ -341,8 +352,8 @@ END
 
         raise <<MSG if @args.empty?
 What files should I watch? Did you mean something like:
-    sass --watch input.sass:output.css
-    sass --watch input-dir:output-dir
+    #{@default_syntax} --watch input.#{@default_syntax}:output.css
+    #{@default_syntax} --watch input-dir:output-dir
 MSG
 
         if !colon_path?(@args[0]) && probably_dest_dir?(@args[1])
@@ -355,7 +366,7 @@ MSG
             end
           raise <<MSG if err
 File #{@args[1]} #{err}.
-    Did you mean: sass #{flag} #{@args[0]}:#{@args[1]}
+    Did you mean: #{@default_syntax} #{flag} #{@args[0]}:#{@args[1]}
 MSG
         end
 
@@ -419,6 +430,14 @@ MSG
         return false unless path
         return false if colon_path?(path)
         return Dir.glob(File.join(path, "*.s[ca]ss")).empty?
+      end
+    end
+
+    class Scss < Sass
+      # @param args [Array<String>] The command-line arguments
+      def initialize(args)
+        super
+        @default_syntax = :scss
       end
     end
 
