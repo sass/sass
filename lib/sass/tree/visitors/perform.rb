@@ -189,7 +189,7 @@ END
         if value
           value.perform(@environment)
         elsif kv = passed_keywords[var.underscored_name]
-          kv.perform(env)
+          kv.perform(@environment)
         elsif default
           default.perform(env)
         end)
