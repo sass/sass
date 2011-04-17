@@ -114,6 +114,16 @@ module Sass
       end
     end
 
+    # For parity with method_missing
+    def respond_to?(method)
+      super || compiler.respond_to?(method)
+    end
+
+    # There's a small speedup by not using method missing for frequently delegated methods.
+    def options
+      compiler.options
+    end
+
   end
 end
 
