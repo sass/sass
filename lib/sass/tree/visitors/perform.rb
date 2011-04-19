@@ -265,6 +265,14 @@ END
     children.flatten
   end
 
+  def visit_directive(node)
+    if node.value['#{']
+      node.value = run_interp(Sass::Engine.parse_interp(node.value, node.line, 0, node.options))
+    end
+    yield
+    node
+  end
+
   private
 
   def run_interp(text)
