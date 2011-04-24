@@ -235,6 +235,16 @@ is compiled to:
 
 ### Nested `@import`
 
+The `@import` statement can now be nested within other structures
+such as CSS rules and `@media` rules. For example:
+
+    @media print {
+      @import "print";
+    }
+
+This imports `print.scss` and places all rules so imported within the `@media print` block.
+This makes it easier to create stylesheets for specific media or sections of the document
+and distributing those stylesheets across multiple files.
 
 ### Backwards Incompatibilities -- Must Read!
 
