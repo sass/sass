@@ -256,6 +256,12 @@ is compiled to:
 * Removed the sass2 mode from sass-convert. Users who have to migrate from sass2
   should install Sass 3.0 and quiet all deprecation warnings before installing Sass 3.1.
 
+### Sass Internals
+
+* It is now possible to define a custom importer that can be used to find imports using different import semantics than the default filesystem importer that Sass provides. For instance, you can use this to generate imports on the fly, look them up from a database, or implement different file naming conventions. See the {Sass::Importers::Base Importer Base class} for more information.
+
+* It is now possible to define a custom cache store to allow for efficient caching of Sass files using alternative cache stores like memcached in environments where a writable filesystem is not available or where the cache need to be shared across many servers for dynamically generated stylesheet environments. See the {Sass::CacheStores::Base CacheStore Base class} for more information.
+
 ## 3.0.26 (Unreleased)
 
 * Fix a performance bug in large SCSS stylesheets with many nested selectors.
