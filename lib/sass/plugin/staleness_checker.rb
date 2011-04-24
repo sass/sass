@@ -54,6 +54,7 @@ module Sass
       #   that is compiled to `css_file`.
       # @return [Boolean] Whether the stylesheet needs to be updated.
       def stylesheet_needs_update?(css_file, template_file, importer = nil)
+        template_file = File.expand_path(template_file)
         begin
           css_mtime = File.mtime(css_file)
         rescue Errno::ENOENT
