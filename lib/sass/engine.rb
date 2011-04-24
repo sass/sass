@@ -151,7 +151,7 @@ module Sass
       options[:importer] ||= options[:filesystem_importer].new(".") if options[:filename]
 
       # Tracks the original filename of the top-level Sass file
-      options[:original_filename] = options[:original_filename] || options[:filename]
+      options[:original_filename] ||= options[:filename]
 
       options[:cache_store] ||= Sass::CacheStores::Chain.new(
         Sass::CacheStores::Memory.new, Sass::CacheStores::Filesystem.new(options[:cache_location]))

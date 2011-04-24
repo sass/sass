@@ -89,7 +89,7 @@ to declare the names of the arguments they take.
 The new keyword argument functionality enables new Sass color functions
 that use keywords to encompass a large amount of functionality in one function.
 
-* The {Sass::Script::Functions#adjust adjust} function works like the old
+* The {Sass::Script::Functions#adjust_color adjust-color} function works like the old
   `lighten`, `saturate`, and `adjust-hue` methods.
   It increases and/or decreases the values of a color's properties by fixed amounts.
   For example, `adjust-color($color, $lightness: 10%)` is the same as `lighten($color, 10%)`:
@@ -255,6 +255,12 @@ is compiled to:
 
 * Removed the sass2 mode from sass-convert. Users who have to migrate from sass2
   should install Sass 3.0 and quiet all deprecation warnings before installing Sass 3.1.
+
+### Sass Internals
+
+* It is now possible to define a custom importer that can be used to find imports using different import semantics than the default filesystem importer that Sass provides. For instance, you can use this to generate imports on the fly, look them up from a database, or implement different file naming conventions. See the {Sass::Importers::Base Importer Base class} for more information.
+
+* It is now possible to define a custom cache store to allow for efficient caching of Sass files using alternative cache stores like memcached in environments where a writable filesystem is not available or where the cache need to be shared across many servers for dynamically generated stylesheet environments. See the {Sass::CacheStores::Base CacheStore Base class} for more information.
 
 ## 3.0.26 (Unreleased)
 
@@ -1485,7 +1491,7 @@ This is also available via the `--debug-info` command-line flag.
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
 
-* Fix a few bugs in the git-revision-reporting in {Haml::Version#version}.
+* Fix a few bugs in the git-revision-reporting in {Sass::Version#version}.
   In particular, it will still work if `git gc` has been called recently,
   or if various files are missing.
 
@@ -1606,7 +1612,7 @@ There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 These changes only affect people defining their own Sass functions
 using {Sass::Script::Functions}.
 
-* {Sass::Script::Color#value} attribute is deprecated.
+* Sass::Script::Color#value attribute is deprecated.
   Use {Sass::Script::Color#rgb} instead.
   The returned array is now frozen as well.
 

@@ -86,8 +86,8 @@ module Sass
       # @param template_file [String] The location of the Sass or SCSS template
       #   that is compiled to `css_file`.
       # @return [Boolean] Whether the stylesheet needs to be updated.
-      def self.stylesheet_needs_update?(css_file, template_file)
-        new(Plugin.engine_options).stylesheet_needs_update?(css_file, template_file)
+      def self.stylesheet_needs_update?(css_file, template_file, importer = nil)
+        new(Plugin.engine_options).stylesheet_needs_update?(css_file, template_file, importer)
       end
 
       # Returns whether a Sass or SCSS stylesheet has been modified since a given time.
