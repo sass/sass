@@ -89,7 +89,7 @@ to declare the names of the arguments they take.
 The new keyword argument functionality enables new Sass color functions
 that use keywords to encompass a large amount of functionality in one function.
 
-* The {Sass::Script::Functions#adjust adjust} function works like the old
+* The {Sass::Script::Functions#adjust_color adjust-color} function works like the old
   `lighten`, `saturate`, and `adjust-hue` methods.
   It increases and/or decreases the values of a color's properties by fixed amounts.
   For example, `adjust-color($color, $lightness: 10%)` is the same as `lighten($color, 10%)`:
@@ -1491,7 +1491,7 @@ This is also available via the `--debug-info` command-line flag.
 
 [Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
 
-* Fix a few bugs in the git-revision-reporting in {Haml::Version#version}.
+* Fix a few bugs in the git-revision-reporting in {Sass::Version#version}.
   In particular, it will still work if `git gc` has been called recently,
   or if various files are missing.
 
@@ -1612,7 +1612,7 @@ There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 These changes only affect people defining their own Sass functions
 using {Sass::Script::Functions}.
 
-* {Sass::Script::Color#value} attribute is deprecated.
+* Sass::Script::Color#value attribute is deprecated.
   Use {Sass::Script::Color#rgb} instead.
   The returned array is now frozen as well.
 

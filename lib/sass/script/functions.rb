@@ -90,7 +90,7 @@ module Sass::Script
   #
   # ## Other Color Functions
   #
-  # \{#adjust adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Increase or decrease any of the components of a color.
   #
   # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
@@ -796,9 +796,9 @@ module Sass::Script
     declare :adjust_color, [:color], :var_kwargs => true
 
     # Scales one or more properties of a color by a percentage value.
-    # Unlike \{#adjust}, which changes a color's properties by fixed amounts,
-    # \{#scale} fluidly changes them based on how high or low they already are.
-    # That means that lightening an already-light color with \{#scale}
+    # Unlike \{#adjust_color adjust-color}, which changes a color's properties by fixed amounts,
+    # \{#scale_color scale-color} fluidly changes them based on how high or low they already are.
+    # That means that lightening an already-light color with \{#scale_color scale-color}
     # won't change the lightness much,
     # but lightening a dark color by the same amount will change it more dramatically.
     # This has the benefit of making `scale-color($color, ...)` have a similar effect

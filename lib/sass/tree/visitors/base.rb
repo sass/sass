@@ -5,7 +5,7 @@ module Sass::Tree::Visitors
   # The abstract base class for Sass visitors.
   # Visitors should extend this class,
   # then implement `visit_*` methods for each node they care about
-  # (e.g. `visit_rule` for {RuleNode} or `visit_for` for {FileNode}).
+  # (e.g. `visit_rule` for {RuleNode} or `visit_for` for {ForNode}).
   # These methods take the node in question as argument.
   # They may `yield` to visit the child nodes of the current node.
   #

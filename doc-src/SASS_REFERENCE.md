@@ -191,7 +191,7 @@ Available options are:
 : If this is set to an instance of a subclass of {Sass::CacheStores::Base},
   that cache store will be used to store and retrieve
   cached compilation results.
-  Defaults to a {Sass::CacheStores::Filesytem} that is
+  Defaults to a {Sass::CacheStores::Filesystem} that is
   initialized using the [`:cache_location` option](#cache_location-option).
 
 {#never_update-option} `:never_update`
