@@ -1217,6 +1217,8 @@ module Sass::Script
         raise ArgumentError.new("List index #{n} must be an integer")
       elsif n.to_i < 1
         raise ArgumentError.new("List index #{n} must be greater than or equal to 1")
+      elsif list.to_a.size == 0
+        raise ArgumentError.new("List index is #{n} but list has no items")
       elsif n.to_i > (size = list.to_a.size)
         raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
       end
@@ -1249,8 +1251,8 @@ module Sass::Script
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep1 = list1.separator if list1.is_a?(Sass::Script::List)
-      sep2 = list2.separator if list2.is_a?(Sass::Script::List)
+      sep1 = list1.separator if list1.is_a?(Sass::Script::List) && !list1.value.empty?
+      sep2 = list2.separator if list2.is_a?(Sass::Script::List) && !list2.value.empty?
       Sass::Script::List.new(
         list1.to_a + list2.to_a,
         if separator.value == 'auto'

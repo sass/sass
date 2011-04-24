@@ -406,6 +406,14 @@ SASS
     assert_equal "#7f4000", resolve("mix(GrEeN, ReD)")
   end
 
+  def test_empty_list
+    assert_equal "1 2 3", resolve("1 2 () 3")
+    assert_equal "1 2 3", resolve("1 2 3 ()")
+    assert_equal "1 2 3", resolve("() 1 2 3")
+    assert_raise_message(Sass::SyntaxError, "() isn't a valid CSS value.") {resolve("()")}
+    assert_raise_message(Sass::SyntaxError, "() isn't a valid CSS value.") {resolve("nth(append((), ()), 1)")}
+  end
+
   # Regression Tests
 
   def test_funcall_has_higher_precedence_than_color_name

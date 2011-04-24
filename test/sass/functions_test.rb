@@ -875,6 +875,8 @@ MSG
     assert_equal("3", evaluate("length((foo, bar, baz bip))"))
     assert_equal("3", evaluate("length((foo, bar, (baz, bip)))"))
     assert_equal("1", evaluate("length(#f00)"))
+    assert_equal("0", evaluate("length(())"))
+    assert_equal("4", evaluate("length(1 2 () 3)"))
   end
 
   def test_nth
@@ -888,6 +890,7 @@ MSG
     assert_error_message("List index 1.5 must be an integer for `nth'", "nth(foo, 1.5)")
     assert_error_message("List index is 5 but list is only 4 items long for `nth'", "nth(1 2 3 4, 5)")
     assert_error_message("List index is 2 but list is only 1 item long for `nth'", "nth(foo, 2)")
+    assert_error_message("List index is 1 but list has no items for `nth'", "nth((), 1)")
   end
 
   def test_join
@@ -910,6 +913,20 @@ MSG
     assert_equal("1, 2, 3, 4", evaluate("join(1 2, 3 4, comma)"))
     assert_equal("1 2 3 4", evaluate("join((1, 2), (3, 4), space)"))
     assert_equal("1, 2", evaluate("join(1, 2, comma)"))
+
+    assert_equal("1 2", evaluate("join(1 2, ())"))
+    assert_equal("1, 2", evaluate("join((1, 2), ())"))
+    assert_equal("true", evaluate("(1 2) == join(1 2, ())"))
+    assert_equal("true", evaluate("(1, 2) == join((1, 2), ())"))
+    assert_equal("false", evaluate("(1 2 ()) == join(1 2, ())"))
+    assert_equal("false", evaluate("(1, 2, ()) == join((1, 2), ())"))
+
+    assert_equal("1 2", evaluate("join((), 1 2)"))
+    assert_equal("1, 2", evaluate("join((), (1, 2))"))
+    assert_equal("true", evaluate("(1 2) == join((), 1 2)"))
+    assert_equal("true", evaluate("(1, 2) == join((), (1, 2))"))
+    assert_equal("false", evaluate("(1 2 ()) == join((), 1 2)"))
+    assert_equal("false", evaluate("(1, 2, ()) == join((), (1, 2))"))
 
     assert_error_message("Separator name must be space, comma, or auto for `join'", "join(1, 2, baboon)")
   end
@@ -934,6 +951,16 @@ MSG
     assert_equal("1, 2, 3 4", evaluate("append(1 2, 3 4, comma)"))
     assert_equal("1 2 3, 4", evaluate("append((1, 2), (3, 4), space)"))
     assert_equal("1, 2", evaluate("append(1, 2, comma)"))
+
+    assert_equal("1 2", evaluate("append(1 2, ())"))
+    assert_equal("1, 2", evaluate("append((1, 2), ())"))
+    assert_equal("true", evaluate("(1 2 ()) == append(1 2, ())"))
+    assert_equal("true", evaluate("(1, 2, ()) == append((1, 2), ())"))
+
+    assert_equal("1 2", evaluate("append((), 1 2)"))
+    assert_equal("1, 2", evaluate("append((), (1, 2))"))
+    assert_equal("false", evaluate("(1 2) == append((), 1 2)"))
+    assert_equal("true", evaluate("(1 2) == nth(append((), 1 2), 1)"))
 
     assert_error_message("Separator name must be space, comma, or auto for `append'", "append(1, 2, baboon)")
   end

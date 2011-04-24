@@ -393,9 +393,10 @@ RUBY
         return variable unless try_tok(:lparen)
         was_in_parens = @in_parens
         @in_parens = true
-        e = assert_expr(:expr)
+        line = @lexer.line
+        e = expr
         assert_tok(:rparen)
-        return e
+        return e || node(List.new([], :space), line)
       ensure
         @in_parens = was_in_parens
       end
