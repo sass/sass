@@ -684,7 +684,12 @@ However, they aren't the same when they're Sass:
 the first is a list containing two lists,
 while the second is a list containing four numbers.
 
-It's not possible to have a list with zero elements in Sass.
+Lists can also have no items in them at all.
+These lists are represented as `()`.
+They can't be output directly to CSS;
+if you try to do e.g. `font-family: ()`, Sass will raise an error.
+If a list contains empty lists, as in `1px 2px () 3px`,
+the empty list will be removed before it's turned into CSS.
 
 ### Operations
 
