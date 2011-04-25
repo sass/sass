@@ -1,5 +1,13 @@
 require 'rubygems'
 require 'rake'
+require 'date'
+
+$: << File.dirname(__FILE__)
+
+if defined?(Encoding)
+  Encoding.default_external = 'UTF-8'
+  Encoding.default_internal = 'UTF-8'
+end
 
 def staticmatic(command)
   require '.haml/lib/haml'
