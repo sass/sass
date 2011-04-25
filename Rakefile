@@ -3,6 +3,7 @@ require 'rake'
 
 def staticmatic(command)
   require '.haml/lib/haml'
+  require '.sass/lib/sass'
   require 'staticmatic'
   configuration = StaticMatic::Configuration.new
   eval(File.read("src/configuration.rb"))
