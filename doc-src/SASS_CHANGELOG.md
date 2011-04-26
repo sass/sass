@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.1 (Unreleased)
+## 3.1.1
 
 * Make sure `Sass::Plugin` is loaded at the correct time in Rails 3.
 
