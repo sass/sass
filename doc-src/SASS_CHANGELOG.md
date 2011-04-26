@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.0 (Unreleased)
+## 3.1.0
 
 * Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
 
