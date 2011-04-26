@@ -638,11 +638,9 @@ MESSAGE
         tok!(/:/)
         space, value = value!
         ss
-        important = tok(IMPORTANT)
-        ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, !!important, :new))
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new))
 
         return node unless require_block
         nested_properties! node, space

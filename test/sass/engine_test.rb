@@ -2148,6 +2148,16 @@ CSS
 SASS
   end
 
+  def test_silent_comment_in_prop_val_after_important
+    assert_equal(<<CSS, render(<<SASS))
+.advanced {
+  display: none !important; }
+CSS
+.advanced
+  display: none !important // yeah, yeah. it's not really a style anyway.
+SASS
+  end
+
   def test_mixin_with_keyword_args
     assert_equal <<CSS, render(<<SASS)
 .mixed {

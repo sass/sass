@@ -3,7 +3,11 @@
 * Table of contents
 {:toc}
 
-## 3.1.0 (Unreleased)
+## 3.1.1 (Unreleased)
+
+* Make sure `Sass::Plugin` is loaded at the correct time in Rails 3.
+
+## 3.1.0
 
 * Add an {Sass::Script::Functions#invert `invert` function} that takes the inverse of colors.
 
