@@ -581,15 +581,9 @@ WARNING
       if value.strip.empty?
         expr = Sass::Script::String.new("")
       else
-        important = false
-        if value =~ Sass::SCSS::RX::IMPORTANT
-          important = true
-          value = value.gsub(Sass::SCSS::RX::IMPORTANT,"")
-        end
         expr = parse_script(value, :offset => line.offset + line.text.index(value))
-
       end
-      Tree::PropNode.new(parse_interp(name), expr, important, prop)
+      Tree::PropNode.new(parse_interp(name), expr, prop)
     end
 
     def parse_variable(line)

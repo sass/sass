@@ -122,9 +122,9 @@ MESSAGE
   def visit_prop(node)
     tab_str = '  ' * (@tabs + node.tabs)
     if node.style == :compressed
-      "#{tab_str}#{node.resolved_name}:#{node.resolved_value}#{'!important' if node.important}"
+      "#{tab_str}#{node.resolved_name}:#{node.resolved_value}"
     else
-      "#{tab_str}#{node.resolved_name}: #{node.resolved_value}#{' !important' if node.important};"
+      "#{tab_str}#{node.resolved_name}: #{node.resolved_value};"
     end
   end
 
@@ -204,7 +204,7 @@ MESSAGE
                 [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)])
             ])
         ])
-      prop = Sass::Tree::PropNode.new([""], "", false, :new)
+      prop = Sass::Tree::PropNode.new([""], "", :new)
       prop.resolved_name = "font-family"
       prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
       rule << prop

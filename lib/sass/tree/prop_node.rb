@@ -23,11 +23,6 @@ module Sass::Tree
     # @return [Sass::Script::Node]
     attr_accessor :value
 
-    # Whether the property was marked as !important.
-    #
-    # @return [Boolean]
-    attr_accessor :important
-
     # The value of the property
     # after any interpolated SassScript has been resolved.
     # Only set once \{Tree::Visitors::Perform} has been run.
@@ -49,16 +44,14 @@ module Sass::Tree
 
     # @param name [Array<String, Sass::Script::Node>] See \{#name}
     # @param value [Sass::Script::Node] See \{#value}
-    # @param important [Boolean] whether this is an !important property
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
     #   `:old` if it uses `:a b`-style syntax
-    def initialize(name, value, important, prop_syntax)
+    def initialize(name, value, prop_syntax)
       @name = Sass::Util.strip_string_array(
         Sass::Util.merge_adjacent_strings(name))
       @value = value
       @tabs = 0
       @prop_syntax = prop_syntax
-      @important = important
       super()
     end
 
@@ -96,7 +89,7 @@ module Sass::Tree
       old = opts[:old] && fmt == :sass
       initial = old ? ':' : ''
       mid = old ? '' : ':'
-      "#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}#{' !important' if important}".rstrip
+      "#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
     private

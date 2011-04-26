@@ -231,7 +231,7 @@ module Sass
 
         variable || string(:double, false) || string(:single, false) || number ||
           color || bool || string(:uri, false) || raw(UNICODERANGE) ||
-          special_fun || ident_op || ident || op
+          special_fun || special_val || ident_op || ident || op
       end
 
       def variable
@@ -300,6 +300,11 @@ MESSAGE
           Sass::Util.merge_adjacent_strings(
             [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
           str1.size + str2.size]
+      end
+
+      def special_val
+        return unless scan(/!important/i)
+        [:string, Script::String.new("!important")]
       end
 
       def ident_op
