@@ -1,7 +1,4 @@
 :markdown
-  Sass is bundled with [Haml](http://haml-lang.com),
-  so to get it you'll need to install Haml as well.
-
   Note that Sass is written in Ruby, so you'll need Ruby installed as well.
   If you're using OS X, it's already there.
   Windows users can get it via [the RubyInstaller for Windows](http://rubyinstaller.org/downloads/).
@@ -12,27 +9,24 @@
   Most people will just want the standard stable Sass gem.
   To install this:
 
-      gem install haml
+      gem install sass
 
-  ## `haml-edge` Gem
+  ## Prerelease Gem
 
   To get the latest and greatest Sass goodness, though,
   you'll need something else.
-  A `haml-edge` gem is created automatically every time changes are made
+  A prerelease gem is created automatically every time changes are made
   to the master branch.
   To install it:
 
-      gem install haml-edge
-
-  Note that `gem "haml-edge"` must be used before `require 'sass'`
-  if `haml-edge` is to be used.
+      gem install sass --pre
 
   ## Installation from Git
 
-  Haml can also be installed directly from the [Git repository](http://github.com/nex3/haml):
+  Sass can also be installed directly from the [Git repository](http://github.com/nex3/sass):
 
-      git clone git://github.com/nex3/haml.git
-      cd haml
+      git clone git://github.com/nex3/sass.git
+      cd sass
       rake install
 
   ## Downloadable Archives
