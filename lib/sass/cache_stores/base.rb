@@ -49,6 +49,8 @@ module Sass
       # @param obj [Object] The object to cache.
       def store(key, sha, root)
         _store(key, Sass::VERSION, sha, Marshal.dump(root))
+      rescue TypeError, LoadError => e
+        Sass::Util.sass_warn "Warning. Error encountered while saving cache #{path_to(key)}: #{e}"
       end
 
       # Retrieve a {Sass::Tree::RootNode}.
@@ -59,7 +61,7 @@ module Sass
       def retrieve(key, sha)
         contents = _retrieve(key, Sass::VERSION, sha)
         Marshal.load(contents) if contents
-      rescue EOFError, TypeError, ArgumentError => e
+      rescue EOFError, TypeError, ArgumentError, LoadError => e
         Sass::Util.sass_warn "Warning. Error encountered while reading cache #{path_to(key)}: #{e}"
       end
 
