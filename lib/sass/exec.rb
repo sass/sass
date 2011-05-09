@@ -215,6 +215,9 @@ END
             @options[:for_engine][:syntax] = :sass
           end
         end
+        opts.on('--flip', "Auto-convert prop/values to right-to-left equivalents.") do
+          @options[:for_engine][:flip] = true
+        end
         opts.on('--watch', 'Watch files or directories for changes.',
                            'The location of the generated CSS can be set using a colon:',
                            "  #{@default_syntax} --watch input.#{@default_syntax}:output.css",

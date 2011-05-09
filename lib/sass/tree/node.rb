@@ -125,6 +125,13 @@ module Sass
         @options[:style]
       end
 
+      # True if the automatic right-to-left transformation has been enabled.
+      #
+      # @return [Boolean]
+      def flip
+        @options[:flip]
+      end
+
       # Computes the CSS corresponding to this static CSS tree.
       #
       # @return [String, nil] The resulting CSS

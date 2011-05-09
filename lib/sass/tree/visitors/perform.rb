@@ -3,7 +3,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # @param root [Tree::Node] The root node of the tree to visit.
   # @param environment [Sass::Environment] The lexical environment.
   # @return [Tree::Node] The resulting tree of static nodes.
-  def self.visit(root, environment = Sass::Environment.new)
+  def self.visit(root)
+    if root.flip
+      environment = Sass::Environment.new nil, true
+    else
+      environment = Sass::Environment.new
+    end
     new(environment).send(:visit, root)
   end
 
