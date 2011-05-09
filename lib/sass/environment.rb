@@ -21,12 +21,17 @@ module Sass
     attr_writer :options
 
     # @param parent [Environment] See \{#parent}
-    def initialize(parent = nil)
+    def initialize(parent = nil, flip = false)
       @parent = parent
       unless parent
         @stack = []
         @mixins_in_use = Set.new
         set_var("important", Script::String.new("!important"))
+        if flip
+          set_var("dir", Script::String.new("rtl"))
+        else
+          set_var("dir", Script::String.new("ltr"))
+        end
       end
     end
 

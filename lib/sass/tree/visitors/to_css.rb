@@ -121,10 +121,119 @@ MESSAGE
 
   def visit_prop(node)
     tab_str = '  ' * (@tabs + node.tabs)
+    prop = node.resolved_name
+    value = node.resolved_value
+    if node.flip
+      # Flip property names, e.g. border-right, left, padding-left, etc.
+      if prop.include?("left")
+        prop["left"] = "right"
+      elsif prop.include?("right")
+        prop["right"] = "left"
+      # Flip properties with left/right values, e.g. float, text-align, etc.
+      elsif ["float", "clear", "text-align", "ruby-align", "text-align-last", "caption-side", "tab-side"].include?(prop)
+        if value.include?("left")
+          value["left"] = "right"
+        elsif value.include?("right")
+          value["right"] = "left"
+        end
+      # Flip margin/padding/border-width properties with 4 values (including
+      # optional !important, etc.)
+      elsif ["margin", "padding", "border-width"].include?(prop)
+        split = value.split()
+        if split.length >= 4
+          split[1], split[3] = split[3], split[1]
+          value = split.join(" ")
+        end
+      # Flip any border-width value within the shorthand border property.
+      elsif prop == "border"
+        value.sub!(/(((\s*[0-9]+(px|em|ch|cm|ex|gd|in|mm|pc|pt|rem|vh|vw|vm)[^\S]*)|(\s*(medium|thick|thin)[^\S]*)){4})/) do |m|
+          match = $1
+          prefix = match.scan(/^\s*/)[0]
+          suffix = match.scan(/\s*$/)[0]
+          split = match.split()
+          split[1], split[3] = split[3], split[1]
+          prefix + split.join(" ") + suffix
+        end
+      # Flip variants of the border-radius property.
+      elsif ["border-radius", "-moz-border-radius", "-webkit-border-radius"].include?(prop)
+        split = value.split('/')
+        split.map! do |v|
+          elems = v.split()
+          if elems[-1] == "!important"
+            important = true
+            elems.pop()
+          else
+            important = false
+          end
+          el_length = elems.length
+          if el_length == 4
+            elems = [elems[1], elems[0], elems[3], elems[2]]
+          elsif el_length == 2
+            elems = [elems[1], elems[0]]
+          elsif el_length == 3
+            elems = [elems[1], elems[0], elems[1], elems[2]]
+          elsif not el_length == 1
+            raise "Unsupported number of value elements in #{prop}: #{value}"
+          end
+          if important
+            elems.join(" ") + " !important"
+          else
+            elems.join(" ")
+          end
+        end
+        value = split.join(" / ")
+      # Flip plain left/right and percentage-based background-position,
+      # perspective-origin and transform-origin values.
+      elsif prop == "background-position" ||
+          prop.include?("transform-origin") ||
+          prop.include?("perspective-origin")
+        if value.include?("left")
+          value["left"] = "right"
+        elsif value.include?("right")
+          value["right"] = "left"
+        elsif value.include?("%")
+          split = value.split()
+          xpercent = split[0]
+          if xpercent.include?("%")
+            split[0] = String(100 - Integer(xpercent[0...-1]))
+            value = split.join(" ")
+          end
+        end
+      # Flip any background-position value within the shorthand background
+      # property.
+      elsif prop == "background"
+        if /(^|[^\S])left([^\S]|$)/.match(value)
+          value.gsub!(/(^|[^\S])left([^\S]|$)/, '\\1right\\2')
+        else
+          if /(^|[^\S])([0-9]{1,2})%([^\S]|$)/.match(value)
+            value.sub!(/(^|[^\S])([0-9]{1,2})%([^\S]|$)/) do |m|
+              "#{$1}#{100 - Integer($2)}%#{$3}"
+            end
+          else
+            value.gsub!(/(^|[^\S])right([^\S]|$)/, '\\1left\\2')
+          end
+        end
+      # Flip cursor property values like sw-resize.
+      elsif prop == "cursor"
+        if /([ns]?)e-resize/.match(value)
+          value.gsub!(/([ns]?)e-resize/, '\\1w-resize')
+        else
+          value.gsub!(/([ns]?)w-resize/, '\\1e-resize')
+        end
+      end
+      # We don't handle the following properties where x-pos is defined in any
+      # units other than percentage, e.g. 6px.
+      #
+      #   background-position: x-pos y-pos
+      #   perspective-origin: x-pos y-pos
+      #   transform-origin: x-pos y-pos
+      #
+      # We also don't currently support the box/text-shadow variants.
+    end
     if node.style == :compressed
-      "#{tab_str}#{node.resolved_name}:#{node.resolved_value}"
+      "#{tab_str}#{prop}:#{value}"
     else
-      "#{tab_str}#{node.resolved_name}: #{node.resolved_value};"
+      "#{tab_str}#{prop}: #{value};"
     end
   end
 
