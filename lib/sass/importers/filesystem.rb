@@ -45,6 +45,14 @@ module Sass
         @root
       end
 
+      def hash
+        @root.hash
+      end
+
+      def eql?(other)
+        root.eql?(other.root)
+      end
+
       protected
 
       # If a full uri is passed, this removes the root from it
@@ -114,14 +122,6 @@ module Sass
           extension = $2
         end
         [dirname, basename, extension]
-      end
-
-      def hash
-        @root.hash
-      end
-
-      def eql?(other)
-        root.eql?(other.root)
       end
 
       private
