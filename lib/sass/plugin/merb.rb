@@ -4,7 +4,8 @@ unless defined?(Sass::MERB_LOADED)
   module Sass::Plugin::Configuration
     # Different default options in a m envirionment.
     def default_options
-      @default_options ||= begin
+      return @default_options if @default_options
+      @default_options = begin
         version = Merb::VERSION.split('.').map { |n| n.to_i }
         if version[0] <= 0 && version[1] < 5
           root = MERB_ROOT
@@ -21,8 +22,12 @@ unless defined?(Sass::MERB_LOADED)
           :cache_location    => root + '/tmp/sass-cache',
           :always_check      => env != "production",
           :quiet             => env != "production",
-          :full_exception    => env != "production"
-        }.freeze
+          :full_exception    => env != "production",
+          # This is bad. See Sass::Plugin::Configuration#default_options_default_proc.
+          # :cache_store      => Sass::CacheStores::Filesystem.new(options[:cache_location]),
+        }
+        @default_options.default_proc = Sass::Plugin::Configuration.default_options_default_proc
+        @default_options.freeze
       end
     end
   end
