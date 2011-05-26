@@ -326,7 +326,7 @@ module Sass
       if @options[:cache] && key && sha
         begin
           old_options = root.options
-          root.options = {:importer => root.options[:importer]}
+          root.options = {}
           @options[:cache_store].store(key, sha, root)
         ensure
           root.options = old_options
