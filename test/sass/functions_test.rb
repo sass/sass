@@ -965,6 +965,11 @@ MSG
     assert_error_message("Separator name must be space, comma, or auto for `append'", "append(1, 2, baboon)")
   end
 
+  def test_zip
+    assert_equal("1 3 5, 2 4 6", evaluate("zip(1 2, 3 4, 5 6)"))
+    assert_equal("1 4 7, 2 5 8", evaluate("zip(1 2 3, 4 5 6, 7 8)"))
+  end
+
   def test_index
     assert_equal("1", evaluate("index(1px solid blue, 1px)"))
     assert_equal("2", evaluate("index(1px solid blue, solid)"))

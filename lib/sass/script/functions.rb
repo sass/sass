@@ -1299,6 +1299,32 @@ module Sass::Script
     declare :append, [:list, :val]
     declare :append, [:list, :val, :separator]
 
+    # Combines several lists into a single comma separated list
+    # space separated lists.
+    #
+    # The length of the resulting list is the length of the
+    # shortest list.
+    #
+    # @example
+    #   zip(1px 1px 3px, solid dashed solid, red green blue)
+    #   => 1px solid red, 1px dashed green, 3px solid blue
+    def zip(*lists)
+      length = nil
+      values = []
+      lists.each do |list|
+        assert_type list, :List
+        values << list.value.dup
+        length = length.nil? ? list.value.length : [length, list.value.length].min
+      end
+      values.each do |value|
+        value.slice!(length)
+      end
+      new_list_value = values.first.zip(*values[1..-1])
+      List.new(new_list_value.map{|list| List.new(list, :space)}, :comma)
+    end
+    declare :zip, [], :var_args => true
+
+
     # Returns the position of the given value within the given
     # list. If not found, returns false.
     #
