@@ -1299,6 +1299,23 @@ module Sass::Script
     declare :append, [:list, :val]
     declare :append, [:list, :val, :separator]
 
+    # Returns the position of the given value within the given
+    # list. If not found, returns false.
+    #
+    # @example
+    #   index(1px solid red, solid) => 2
+    #   index(1px solid red, dashed) => false
+    def index(list, value)
+      assert_type list, :List
+      index = list.value.index {|e| e.eq(value).to_bool }
+      if index
+        Number.new(index + 1)
+      else
+        Bool.new(false)
+      end
+    end
+    declare :index, [:list, :value]
+
     # Returns one of two values based on the truth value of the first argument.
     #
     # @example

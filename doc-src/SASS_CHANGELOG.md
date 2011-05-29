@@ -7,6 +7,9 @@
 
 * Fix some issues that were breaking Sass when running within Rubinius.
 * Fix some issues that were affecting Rails 3.1 integration.
+* New function `index` returns the list index of a value
+  within a list. For example: `index(1px solid red, solid)`
+  returns `2`. When the value is not found `false` is returned.
 
 ## 3.1.1
 

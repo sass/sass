@@ -965,6 +965,14 @@ MSG
     assert_error_message("Separator name must be space, comma, or auto for `append'", "append(1, 2, baboon)")
   end
 
+  def test_index
+    assert_equal("1", evaluate("index(1px solid blue, 1px)"))
+    assert_equal("2", evaluate("index(1px solid blue, solid)"))
+    assert_equal("3", evaluate("index(1px solid blue, #00f)"))
+    assert_equal("false", evaluate("index(1px solid blue, 1em)"))
+    assert_equal("false", evaluate("index(1px solid blue, notfound)"))
+  end
+
   def test_if
     assert_equal("1px", evaluate("if(true, 1px, 2px)"))
     assert_equal("2px", evaluate("if(false, 1px, 2px)"))
