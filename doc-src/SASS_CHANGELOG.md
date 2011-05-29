@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.1.2
+
+* Fix some issues that were breaking Sass when running within Rubinius.
+* Fix some issues that were affecting Rails 3.1 integration.
+
 ## 3.1.1
 
 * Make sure `Sass::Plugin` is loaded at the correct time in Rails 3.
