@@ -3,6 +3,18 @@
 * Table of contents
 {:toc}
 
+## 3.1.2
+
+* Fix some issues that were breaking Sass when running within Rubinius.
+* Fix some issues that were affecting Rails 3.1 integration.
+* New function `zip` allows several lists to be combined into one
+  list of lists. For example:
+  `zip(1px 1px 3px, solid dashed solid, red green blue)` becomes
+  `1px solid red, 1px dashed green, 3px solid blue`
+* New function `index` returns the list index of a value
+  within a list. For example: `index(1px solid red, solid)`
+  returns `2`. When the value is not found `false` is returned.
+
 ## 3.1.1
 
 * Make sure `Sass::Plugin` is loaded at the correct time in Rails 3.
