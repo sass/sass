@@ -13,7 +13,7 @@ module Sass
       # @param root [String] The root path.
       #   This importer will import files relative to this path.
       def initialize(root)
-        @root = root
+        @root = File.expand_path(root)
       end
 
       # @see Base#find_relative
@@ -58,9 +58,8 @@ module Sass
       # If a full uri is passed, this removes the root from it
       # otherwise returns the name unchanged
       def remove_root(name)
-        root = @root.end_with?('/') ? @root : @root + '/'
-        if name.index(root) == 0
-          name[root.length..-1]
+        if name.index(@root + "/") == 0
+          name[(@root.length + 1)..-1]
         else
           name
         end
