@@ -293,19 +293,17 @@ module Sass
     #
     # @yield A block in which no Sass warnings will be printed
     def silence_sass_warnings
-      old_silence_warnings = @@silence_warnings
-      @@silence_warnings = true
+      old_level, Sass.logger.log_level = Sass.logger.log_level, :error
       yield
     ensure
-      @@silence_warnings = old_silence_warnings
+      Sass.logger.log_level = old_level
     end
 
     # The same as `Kernel#warn`, but is silenced by \{#silence\_sass\_warnings}.
     #
     # @param msg [String]
     def sass_warn(msg)
-      return if @@silence_warnings
-      warn(msg)
+      Sass.logger.warn(msg)
     end
 
     ## Cross Rails Version Compatibility
