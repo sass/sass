@@ -48,7 +48,6 @@ class LoggerTest < Test::Unit::TestCase
 
   def test_logging_can_be_disabled
     logger = InterceptedLogger.new
-    # (require 'ruby-debug'; debugger)
     logger.error("message #1")
     assert_equal 1, logger.messages.size
     logger.reset!
