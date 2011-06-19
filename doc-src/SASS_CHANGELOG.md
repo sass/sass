@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.1.3
+
+* Sass now logs message thru a logger object which can be changed to
+  provide integration with other frameworks' logging infrastructure.
+
+
 ## 3.1.2
 
 * Fix some issues that were breaking Sass when running within Rubinius.
