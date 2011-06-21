@@ -13,7 +13,7 @@ module Sass
       # @param root [String] The root path.
       #   This importer will import files relative to this path.
       def initialize(root)
-        @root = root
+        @root = File.expand_path(root)
       end
 
       # @see Base#find_relative
@@ -45,14 +45,21 @@ module Sass
         @root
       end
 
+      def hash
+        @root.hash
+      end
+
+      def eql?(other)
+        root.eql?(other.root)
+      end
+
       protected
 
       # If a full uri is passed, this removes the root from it
       # otherwise returns the name unchanged
       def remove_root(name)
-        root = @root.end_with?('/') ? @root : @root + '/'
-        if name.index(root) == 0
-          name[root.length..-1]
+        if name.index(@root + "/") == 0
+          name[(@root.length + 1)..-1]
         else
           name
         end
@@ -77,6 +84,7 @@ module Sass
       #   The first element of each pair is a filename to look for;
       #   the second element is the syntax that file would be in (`:sass` or `:scss`).
       def possible_files(name)
+        name = escape_glob_characters(name)
         dirname, basename, extname = split(name)
         sorted_exts = extensions.sort
         syntax = extensions[extname]
@@ -85,6 +93,11 @@ module Sass
         sorted_exts.map {|ext, syn| ["#{dirname}/{_,}#{basename}.#{ext}", syn]}
       end
 
+      def escape_glob_characters(name)
+        name.gsub(/[\*\[\]\{\}\?]/) do |char|
+          "\\#{char}"
+        end
+      end
 
       REDUNDANT_DIRECTORY = %r{#{Regexp.escape(File::SEPARATOR)}\.#{Regexp.escape(File::SEPARATOR)}}
       # Given a base directory and an `@import`ed name,
@@ -114,14 +127,6 @@ module Sass
           extension = $2
         end
         [dirname, basename, extension]
-      end
-
-      def hash
-        @root.hash
-      end
-
-      def eql?(other)
-        root.eql?(other.root)
       end
 
       private

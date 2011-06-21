@@ -5,6 +5,7 @@
 /test/rails
 /.sass-cache
 /.haml
+/.sass
 /site
 *.rbc
 /.sass

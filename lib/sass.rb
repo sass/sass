@@ -65,6 +65,7 @@ module Sass
   end
 end
 
+require 'sass/logger'
 require 'sass/util'
 
 require 'sass/engine'

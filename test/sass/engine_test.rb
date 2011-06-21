@@ -57,12 +57,7 @@ MSG
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
     "a\n  :b\n    c" => "Illegal nesting: Only properties may be nested beneath properties.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
-    "@import foo.sass" => "File to import not found or unreadable: foo.sass.",
     "$a: b\n  :c d\n" => "Illegal nesting: Nothing may be nested beneath variable declarations.",
-    "@import foo.sass" => <<MSG,
-File to import not found or unreadable: foo.sass.
-Load path: .
-MSG
     "@import templates/basic\n  foo" => "Illegal nesting: Nothing may be nested beneath import directives.",
     "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
     "@if true\n  @import foo" => "Import directives may not be used within control directives or mixins.",
@@ -579,12 +574,21 @@ CSS
     assert File.exists?(sassc_file)
   end
 
+  def test_nonexistent_import
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) do
+File to import not found or unreadable: nonexistent.sass.
+Load path: #{Dir.pwd}
+ERR
+      render("@import nonexistent.sass")
+    end
+  end
+
   def test_nonexistent_extensionless_import
     assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) do
 File to import not found or unreadable: nonexistent.
-Load path: .
+Load path: #{Dir.pwd}
 ERR
-      assert_equal("@import url(nonexistent.css);\n", render("@import nonexistent"))
+      render("@import nonexistent")
     end
   end
 
@@ -2145,6 +2149,16 @@ SASS
 @import url(foo.css?bar,baz);
 CSS
 @import url(foo.css?bar,baz)
+SASS
+  end
+
+  def test_silent_comment_in_prop_val_after_important
+    assert_equal(<<CSS, render(<<SASS))
+.advanced {
+  display: none !important; }
+CSS
+.advanced
+  display: none !important // yeah, yeah. it's not really a style anyway.
 SASS
   end
 
