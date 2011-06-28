@@ -1811,11 +1811,11 @@ value or script context. For example:
 
     $grid-width: 40px;
     $gutter-width: 10px;
-    
+
     @function grid-width($n) {
       @return $n * $grid-width + ($n - 1) * $gutter-width;
     }
-    
+
     #sidebar { width: grid-width(5); }
 
 Becomes:

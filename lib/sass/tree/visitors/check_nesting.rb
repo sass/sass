@@ -91,7 +91,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   def invalid_import_real_parent?(parent, child)
-    
+
   end
 
   def invalid_mixindef_parent?(parent, child)

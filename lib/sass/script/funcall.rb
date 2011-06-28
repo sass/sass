@@ -108,7 +108,7 @@ module Sass
           raise Sass::SyntaxError.new(
             "#{args[signature.args.size].inspect} is not a keyword argument for `#{name}'")
         elsif keywords.empty?
-          return args 
+          return args
         end
 
         args = args + signature.args[args.size..-1].map do |argname|

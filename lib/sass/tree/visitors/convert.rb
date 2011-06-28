@@ -165,7 +165,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
           end
         end.join(", ") + ')'
       end
-          
+
     "#{tab_str}#{@format == :sass ? '=' : '@mixin '}#{dasherize(node.name)}#{args}#{yield}"
   end
 

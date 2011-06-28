@@ -196,14 +196,14 @@ MSG
   ensure
     FileUtils.rm_rf(absolutize("tmp"))
   end
-  
+
   def test_flexible_tabulation
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
                  render("p\n a: b\n q\n  c: d\n"))
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
                  render("p\n\ta: b\n\tq\n\t\tc: d\n"))
   end
-  
+
   EXCEPTION_MAP.each do |key, value|
     define_method("test_exception (#{key.inspect})") do
       line = 10
@@ -499,10 +499,10 @@ Syntax error: 12em*px isn't a valid CSS value.
 
 1: =error-mixin($a)
 2:   color: $a * 1em * 1px
-3: 
+3:
 4: =outer-mixin($a)
 5:   +error-mixin($a)
-6: 
+6:
 7: .error
 CSS
   else
@@ -528,9 +528,9 @@ Syntax error: Properties are only allowed within rules, directives, or other pro
 
 1: .filler
 2:   stuff: "stuff!"
-3: 
+3:
 4: a: b
-5: 
+5:
 6: .more.filler
 7:   a: b
 CSS
@@ -672,7 +672,7 @@ SASS
                  render("#foo,\n#bar\n  :foo bar\n  #baz\n    :foo bar"))
     assert_equal("#foo #bar, #baz #boom { foo: bar; }\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compact))
-                 
+
     assert_equal("#foo #bar,#baz #boom{foo:bar}\n",
                  render("#foo #bar,\n#baz #boom\n  :foo bar", :style => :compressed))
 
@@ -753,7 +753,7 @@ SASS
                  render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :expanded))
     assert_equal("@a{#b{a:b}#b #c{d:e}}\n",
                  render("@a\n  #b\n    :a b\n    #c\n      :d e", :style => :compressed))
-                 
+
     assert_equal("@a {\n  #foo,\n  #bar {\n    b: c; } }\n",
                  render("@a\n  #foo, \n  #bar\n    :b c"))
     assert_equal("@a { #foo, #bar { b: c; } }\n",
@@ -776,7 +776,7 @@ END
   g: h; }
 END
     assert_equal(rendered, render(to_render, :style => :compact))
-    
+
     assert_equal("@a{b:c;#d{e:f}g:h}\n", render(to_render, :style => :compressed))
   end
 
@@ -983,7 +983,7 @@ SASS
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b\n$foo: c !default\nfoo\n  a: $foo}))
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b !default\nfoo\n  a: $foo}))
   end
-  
+
   def test_mixins
     renders_correctly "mixins", { :style => :expanded }
   end
@@ -2480,4 +2480,3 @@ SASS
     File.join(engine.options[:cache_location], key)
   end
 end
- 

@@ -53,7 +53,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   def visit_charset(node)
     "@charset \"#{node.name}\";"
-  end 
+  end
 
   def visit_comment(node)
     return if node.invisible?

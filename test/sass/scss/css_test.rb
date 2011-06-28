@@ -94,7 +94,7 @@ foo {a /*: b; c */: d}
 SCSS
   end
 
-  def test_crazy_comments 
+  def test_crazy_comments
     # http://www.w3.org/Style/CSS/Test/CSS2.1/current/xhtml1/t040109-c17-comments-00-b.xht
     assert_equal <<CSS, render(<<SCSS)
 /* This is a CSS comment. */

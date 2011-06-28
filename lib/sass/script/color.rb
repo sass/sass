@@ -42,7 +42,7 @@ module Sass::Script
 
     # Constructs an RGB or HSL color object,
     # optionally with an alpha channel.
-    # 
+    #
     # The RGB values must be between 0 and 255.
     # The saturation and lightness values must be between 0 and 100.
     # The alpha value must be between 0 and 1.
@@ -402,7 +402,7 @@ module Sass::Script
     def piecewise(other, operation)
       other_num = other.is_a? Number
       if other_num && !other.unitless?
-        raise Sass::SyntaxError.new("Cannot add a number with units (#{other}) to a color (#{self}).") 
+        raise Sass::SyntaxError.new("Cannot add a number with units (#{other}) to a color (#{self}).")
       end
 
       result = []

@@ -131,7 +131,7 @@ Sass supports variables, math operations, and many useful functions.
 Even more powerful than variables,
 mixins allow you to re-use whole chunks of CSS,
 properties or selectors.
-You can even give them arguments. 
+You can even give them arguments.
 
     @mixin table-scaffolding {
       th {

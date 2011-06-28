@@ -59,11 +59,11 @@ For example:
 
     $grid-width: 40px;
     $gutter-width: 10px;
-    
+
     @function grid-width($n) {
       @return $n * $grid-width + ($n - 1) * $gutter-width;
     }
-    
+
     #sidebar { width: grid-width(5); }
 
 Becomes:
@@ -1863,7 +1863,7 @@ the previous arguments in the declaration. For example:
     !default_width = 10px
     .small-default-box
       +my-fancy-mixin
-    
+
 
 compiles to:
 
@@ -1882,7 +1882,7 @@ compiles to:
     .small-default-box {
       width: 10px;
       height: 10px; }
-    
+
 
 ### Sass, Interactive
 
@@ -2212,7 +2212,7 @@ During compilation the following will be printed:
 
 #### Ruby 1.9 Support
 
-Sass now fully supports Ruby 1.9.1. 
+Sass now fully supports Ruby 1.9.1.
 
 #### Sass Cache
 

@@ -5,7 +5,7 @@ module Sass
     # @see Sass::Tree
     class DebugNode < Node
       # The expression to print.
-      # @return [Script::Node] 
+      # @return [Script::Node]
       attr_reader :expr
 
       # @param expr [Script::Node] The expression to print
