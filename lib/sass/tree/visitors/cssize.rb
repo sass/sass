@@ -79,12 +79,12 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       end
 
       sel = sseq.members
-      parent.resolved_rules.members.each do |seq|
-        if !seq.members.last.is_a?(Sass::Selector::SimpleSequence)
-          raise Sass::SyntaxError.new("#{seq} can't extend: invalid selector")
+      parent.resolved_rules.members.each do |seq1|
+        if !seq1.members.last.is_a?(Sass::Selector::SimpleSequence)
+          raise Sass::SyntaxError.new("#{seq1} can't extend: invalid selector")
         end
 
-        @extends[sel] = seq
+        @extends[sel] = seq1
       end
     end
 

@@ -65,8 +65,8 @@ module Sass::Tree
     private
 
     def normalize_indentation(str)
-      pre = str.split("\n").inject(str[/^[ \t]*/].split("")) do |pre, line|
-        line[/^[ \t]*/].split("").zip(pre).inject([]) do |arr, (a, b)|
+      pre = str.split("\n").inject(str[/^[ \t]*/].split("")) do |pre1, line|
+        line[/^[ \t]*/].split("").zip(pre1).inject([]) do |arr, (a, b)|
           break arr if a != b
           arr + [a]
         end

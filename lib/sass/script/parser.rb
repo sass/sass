@@ -197,7 +197,7 @@ RUBY
             def unary_#{op}
               return #{sub} unless tok = try_tok(:#{op})
               interp = try_op_before_interp(tok) and return interp
-              line = @lexer.line 
+              line = @lexer.line
               op = UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
               op.line = line
               op
@@ -230,7 +230,7 @@ RUBY
         wb = @lexer.whitespace?(op)
         str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
         str.line = @lexer.line
-        interp = Script::Interpolation.new(prev, str, nil, wb, !:wa, :originally_text)
+        interp = Script::Interpolation.new(prev, str, nil, wb, false, :originally_text)
         interp.line = @lexer.line
         interpolation(interp)
       end
@@ -243,7 +243,7 @@ RUBY
         wa = @lexer.whitespace?
         str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
         str.line = @lexer.line
-        interp = Script::Interpolation.new(nil, str, assert_expr(name), !:wb, wa, :originally_text)
+        interp = Script::Interpolation.new(nil, str, assert_expr(name), false, wa, :originally_text)
         interp.line = @lexer.line
         return interp
       end

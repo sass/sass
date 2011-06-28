@@ -88,9 +88,9 @@ module Sass
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels)
-        return unless sseq = members.inject(sels) do |sseq, sel|
-          return unless sseq
-          sel.unify(sseq)
+        return unless sseq = members.inject(sels) do |sseq1, sel|
+          return unless sseq1
+          sel.unify(sseq1)
         end
         SimpleSequence.new(sseq)
       end

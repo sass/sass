@@ -1,5 +1,5 @@
 class InheritedHashHandler < YARD::Handlers::Ruby::Legacy::Base
-  handles /\Ainherited_hash(\s|\()/
+  handles(/\Ainherited_hash(\s|\()/)
 
   def process
     hash_name = tokval(statement.tokens[2])

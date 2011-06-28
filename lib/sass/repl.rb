@@ -49,8 +49,8 @@ module Sass
     rescue Sass::SyntaxError => e
       puts "SyntaxError: #{e.message}"
       if @options[:trace]
-        e.backtrace.each do |e|
-          puts "\tfrom #{e}"
+        e.backtrace.each do |e1|
+          puts "\tfrom #{e1}"
         end
       end
     end

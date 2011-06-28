@@ -194,7 +194,7 @@ module Sass
       root.children.each do |child|
         case child
         when Tree::RuleNode
-          child.rule.first.gsub! /^& +/, ''
+          child.rule.first.gsub!(/^& +/, '')
           remove_parent_refs child
         when Tree::DirectiveNode
           remove_parent_refs child

@@ -1,5 +1,5 @@
 class CallbacksHandler < YARD::Handlers::Ruby::Legacy::Base
-  handles /\Adefine_callback(\s|\()/
+  handles(/\Adefine_callback(\s|\()/)
 
   def process
     callback_name = tokval(statement.tokens[2])

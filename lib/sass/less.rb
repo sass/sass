@@ -41,7 +41,7 @@ WARNING
       alias_method :build, :build_with_sass
 
       def selector_base(path)
-        el, i = Sass::Util.enum_with_index(path).to_a.reverse.find {|e, i| e.selector !~ /^:{1,2}$/} ||
+        el, i = Sass::Util.enum_with_index(path).to_a.reverse.find {|e, unused| e.selector !~ /^:{1,2}$/} ||
           [path.first, 0]
         sel = (el.selector =~ /^:{0,2}$/ ? el.selector : "")
         [Node::Element.new(el.name, sel)] + path[i+1..-1]
@@ -288,10 +288,10 @@ WARNING
       def _sass_split(arr)
         return arr[0].to_sass_tree, arr[1..-1] unless arr[0] == "("
         parens = 1
-        i = arr[1..-1].each_with_index do |e, i|
+        i = arr[1..-1].each_with_index do |e, i1|
           parens += 1 if e == "("
           parens -= 1 if e == ")"
-          break i if parens == 0
+          break i1 if parens == 0
         end
 
         return _to_sass_tree(arr[1...i+1]), arr[i+2..-1]
