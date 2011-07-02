@@ -28,5 +28,10 @@ module Sass::Tree
       @keywords = keywords
       super()
     end
+
+    # Returns sub nodes that are not tree children.
+    def subnodes
+      Array(args) + (keywords||{}).values
+    end
   end
 end

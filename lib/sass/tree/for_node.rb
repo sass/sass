@@ -32,5 +32,10 @@ module Sass::Tree
       @exclusive = exclusive
       super()
     end
+
+    # Returns sub nodes that are not tree children.
+    def subnodes
+      Array(from) + Array(to)
+    end
   end
 end

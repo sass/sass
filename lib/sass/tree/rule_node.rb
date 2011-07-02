@@ -115,6 +115,11 @@ module Sass::Tree
        :line => self.line}
     end
 
+    # Returns sub nodes that are not tree children.
+    def subnodes
+      rule.select{|r| r.is_a?(Sass::Script::Node)}
+    end
+
     private
 
     def try_to_parse_non_interpolated_rules
