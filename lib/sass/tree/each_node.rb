@@ -20,5 +20,11 @@ module Sass::Tree
       @list = list
       super()
     end
+
+    # Returns sub nodes that are not tree children.
+    def subnodes
+      Array(list)
+    end
+
   end
 end

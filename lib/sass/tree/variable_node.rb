@@ -25,6 +25,12 @@ module Sass
         @guarded = guarded
         super()
       end
+
+      # Returns sub nodes that are not tree children.
+      def subnodes
+        Array(expr)
+      end
+
     end
   end
 end

@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.1.4
+
+* Sass no longer unnecessarily caches the sass options hash.
+  This allows objects that cannot be marshaled to be placed into the
+  options hash.
+
 ## 3.1.3
 
 * Sass now logs message thru a logger object which can be changed to
