@@ -157,15 +157,15 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_rgb
     assert_equal("#123456", evaluate("rgb(18, 52, 86)"))
     assert_equal("#beaded", evaluate("rgb(190, 173, 237)"))
-    assert_equal("#00ff7f", evaluate("rgb(0, 255, 127)"))
-    assert_equal("#00ff7f", evaluate("rgb($red: 0, $green: 255, $blue: 127)"))
+    assert_equal("springgreen", evaluate("rgb(0, 255, 127)"))
+    assert_equal("springgreen", evaluate("rgb($red: 0, $green: 255, $blue: 127)"))
   end
 
   def test_rgb_percent
     assert_equal("#123456", evaluate("rgb(7.1%, 20.4%, 34%)"))
     assert_equal("#beaded", evaluate("rgb(74.7%, 173, 93%)"))
     assert_equal("#beaded", evaluate("rgb(190, 68%, 237)"))
-    assert_equal("#00ff7f", evaluate("rgb(0%, 100%, 50%)"))
+    assert_equal("springgreen", evaluate("rgb(0%, 100%, 50%)"))
   end
 
   def test_rgb_tests_bounds

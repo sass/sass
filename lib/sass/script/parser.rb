@@ -288,7 +288,7 @@ RUBY
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next
-        if color = Color::HTML4_COLORS[name.value.downcase]
+        if color = Color::COLOR_NAMES[name.value.downcase]
           return node(Color.new(color))
         end
         node(Script::String.new(name.value, :identifier))
