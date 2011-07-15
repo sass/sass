@@ -132,23 +132,51 @@ module Sass
 
       def perform_sass_fn(function, args, keywords)
         # TODO: merge with mixin arg evaluation?
-        keywords.each do |name, value|
-          # TODO: Make this fast
-          unless function.args.find {|(var, default)| var.underscored_name == name}
-            raise Sass::SyntaxError.new("Function #{@name} doesn't have an argument named $#{name}")
+
+        glob_arg = function.args.detect{|arg| arg.first.is_a? Script::GlobVariable }
+        glob_position = function.args.index glob_arg
+        has_glob = !!glob_arg
+
+        unless has_glob
+          if (unknown_args = keywords.keys - function.args.map {|(var, default)| var.underscored_name }).any?
+            raise Sass::SyntaxError.new("Function #{@name} doesn't have named argument#{'s' if unknown_args.length > 1}: #{unknown_args.map{|arg| "$#{arg}" }.join(', ')}")
           end
-        end
 
-        if args.size > function.args.size
-          raise ArgumentError.new("Wrong number of arguments (#{args.size} for #{function.args.size})")
-        end
+          if args.size > function.args.size
+            raise ArgumentError.new("Wrong number of arguments (#{args.size} for #{function.args.size}#{'+' if has_glob})")
+          end
 
-        environment = function.args.zip(args).
-          inject(Sass::Environment.new(function.environment)) do |env, ((var, default), value)|
-          env.set_local_var(var.name,
-            value || keywords[var.underscored_name] || (default && default.perform(env)))
-          raise Sass::SyntaxError.new("Function #{@name} is missing parameter #{var.inspect}.") unless env.var(var.name)
-          env
+          environment = function.args.zip(args).
+            inject(Sass::Environment.new(function.environment)) do |env, ((var, default), value)|
+            env.set_local_var(var.name,
+              value || keywords[var.underscored_name] || (default && default.perform(env)))
+            raise Sass::SyntaxError.new("Function #{@name} is missing parameter #{var.inspect}.") unless env.var(var.name)
+            env
+          end
+        else
+          pre_glob_args = function.args[0...glob_position]
+          post_glob_args = function.args[(glob_position + 1)..-1]
+
+          environment = Sass::Environment.new(function.environment)
+          pre_glob_args.each do |(var, default)|
+            unless kw_value = keywords.delete(var.underscored_name)
+              value = args.shift
+            end
+            environment.set_local_var(var.name,
+              kw_value || value || (default && default.perform(environment)))
+            raise Sass::SyntaxError.new("Function #{@name} is missing parameter #{var.inspect}.") unless environment.var(var.name)
+          end
+
+          post_glob_args.reverse.each do |(var, default)|
+            unless kw_value = keywords.delete(var.underscored_name)
+              value = args.pop
+            end
+            environment.set_local_var(var.name,
+              kw_value || value || (default && default.perform(environment)))
+            raise Sass::SyntaxError.new("Function #{@name} is missing parameter #{var.inspect}.") unless environment.var(var.name)
+          end
+
+          environment.set_local_var(glob_arg[0].name, args + keywords.values)
         end
 
         val = catch :_sass_return do

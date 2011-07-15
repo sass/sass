@@ -311,11 +311,20 @@ RUBY
 
         res = []
         must_have_default = false
+        has_glob = false
         loop do
           line = @lexer.line
           offset = @lexer.offset + 1
+          if tok = try_tok(:times)
+            if has_glob
+              raise SyntaxError.new("Function can have only one glob argument.")
+            end
+            var_class = Script::GlobVariable
+          else
+            var_class = Script::Variable
+          end
           c = assert_tok(:const)
-          var = Script::Variable.new(c.value)
+          var = var_class.new(c.value)
           if tok = try_tok(:colon)
             val = assert_expr(:space)
             must_have_default = true

@@ -1153,6 +1153,110 @@ bar
 SASS
   end
 
+  def test_function_arg_glob
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 6; }
+CSS
+@function plus(*$args)
+  $result: 0
+  @each $i in $args
+    $result: $result + $i
+  @return $result
+
+bar
+  a: plus(1, 2, 3)
+SASS
+  end
+
+  def test_function_arg_glob_and_args
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: "1 5";
+  b: "1 5 4"; }
+CSS
+@function plus($arg1, *$args)
+  $result: 0
+  @each $i in $args
+    $result: $result + $i
+  @return $arg1 + ' ' + $result
+
+@function another_plus($arg1, *$args, $arg2)
+  $result: 0
+  @each $i in $args
+    $result: $result + $i
+  @return $arg1 + ' ' + $result + ' ' + $arg2
+
+bar
+  a: plus(1, 2, 3)
+  b: another_plus(1, 2, 3, 4)
+SASS
+  end
+
+  def test_function_arg_glob_and_keyword_args
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: "1 5 4"; }
+CSS
+@function plus($arg1, *$args, $arg2)
+  $result: 0
+  @each $i in $args
+    $result: $result + $i
+  @return $arg1 + ' ' + $result + ' ' + $arg2
+
+bar
+  a: plus(2, 3, $arg2: 4, $arg1: 1)
+SASS
+  end
+
+  def test_function_arg_glob_and_multiple_args
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: "3 12 13"; }
+CSS
+@function plus($arg1, $arg2, *$args, $arg3, $arg4)
+  $result: 0
+  @each $i in $args
+    $result: $result + $i
+  @return ($arg1 + $arg2) + ' ' + $result + ' ' + ($arg3 + $arg4)
+
+bar
+  a: plus(1, 2, 3, 4, 5, 6, 7)
+SASS
+  end
+
+  def test_function_arg_glob_and_multiple_keyword_args
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: "3 12 13"; }
+CSS
+@function plus($arg1, $arg2, *$args, $arg3, $arg4)
+  $result: 0
+  @each $i in $args
+    $result: $result + $i
+  @return ($arg1 + $arg2) + ' ' + $result + ' ' + ($arg3 + $arg4)
+
+bar
+  a: plus(3, 4, 5, $arg4: 7, $arg2: 2, $arg3: 6, $arg1: 1)
+SASS
+  end
+
+  def test_function_arg_glob_and_multiple_mixed_args
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: "3 12 13"; }
+CSS
+@function plus($arg1, $arg2, *$args, $arg3, $arg4)
+  $result: 0
+  @each $i in $args
+    $result: $result + $i
+  @return ($arg1 + $arg2) + ' ' + $result + ' ' + ($arg3 + $arg4)
+
+bar
+  a: plus(2, 3, $arg4: 7, 4, 5, $arg1: 1, 6)
+SASS
+  end
+
   def test_function_with_if
     assert_equal(<<CSS, render(<<SASS))
 bar {
