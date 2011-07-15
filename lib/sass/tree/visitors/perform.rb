@@ -171,30 +171,66 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     passed_args = node.args.dup
     passed_keywords = node.keywords.dup
 
-    raise Sass::SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < passed_args.size
+    glob_arg = mixin.args.detect{|arg| arg.first.is_a? Sass::Script::GlobVariable }
+    glob_position = mixin.args.index glob_arg
+    has_glob = !!glob_arg
+
+    if has_glob
+      pre_glob_args = mixin.args[0...glob_position]
+      post_glob_args = mixin.args[(glob_position + 1)..-1]
+
+      environment = Sass::Environment.new(mixin.environment)
+      pre_glob_args.each do |(var, default)|
+        val = if kw_value = passed_keywords.delete(var.underscored_name)
+          kw_value.perform(@environment)
+        elsif value = passed_args.shift
+          value.perform(@environment)
+        else
+          default.perform(environment)
+        end
+        environment.set_local_var(var.name, val)
+        raise Sass::SyntaxError.new("Mixin #{@name} is missing parameter #{var.inspect}.") unless environment.var(var.name)
+      end
+
+      post_glob_args.reverse.each do |(var, default)|
+        val = if kw_value = passed_keywords.delete(var.underscored_name)
+          kw_value.perform(@environment)
+        elsif value = passed_args.pop
+          value.perform(@environment)
+        else
+          default.perform(environment)
+        end
+        environment.set_local_var(var.name, val)
+        raise Sass::SyntaxError.new("Mixin #{@name} is missing parameter #{var.inspect}.") unless environment.var(var.name)
+      end
+
+      environment.set_local_var(glob_arg[0].name, passed_args + passed_keywords.values)
+    else
+      raise Sass::SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < passed_args.size
 Mixin #{node.name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
  but #{node.args.size} #{node.args.size == 1 ? 'was' : 'were'} passed.
 END
 
-    passed_keywords.each do |name, value|
-      # TODO: Make this fast
-      unless mixin.args.find {|(var, default)| var.underscored_name == name}
-        raise Sass::SyntaxError.new("Mixin #{node.name} doesn't have an argument named $#{name}")
+      passed_keywords.each do |name, value|
+        # TODO: Make this fast
+        unless mixin.args.find {|(var, default)| var.underscored_name == name}
+          raise Sass::SyntaxError.new("Mixin #{node.name} doesn't have an argument named $#{name}")
+        end
       end
-    end
 
-    environment = mixin.args.zip(passed_args).
-      inject(Sass::Environment.new(mixin.environment)) do |env, ((var, default), value)|
-      env.set_local_var(var.name,
-        if value
-          value.perform(@environment)
-        elsif kv = passed_keywords[var.underscored_name]
-          kv.perform(@environment)
-        elsif default
-          default.perform(env)
-        end)
-      raise Sass::SyntaxError.new("Mixin #{node.name} is missing parameter #{var.inspect}.") unless env.var(var.name)
-      env
+      environment = mixin.args.zip(passed_args).
+        inject(Sass::Environment.new(mixin.environment)) do |env, ((var, default), value)|
+        env.set_local_var(var.name,
+          if value
+            value.perform(@environment)
+          elsif kv = passed_keywords[var.underscored_name]
+            kv.perform(@environment)
+          elsif default
+            default.perform(env)
+          end)
+        raise Sass::SyntaxError.new("Mixin #{node.name} is missing parameter #{var.inspect}.") unless env.var(var.name)
+        env
+      end
     end
 
     with_environment(environment) {node.children = mixin.tree.map {|c| visit(c)}.flatten}
