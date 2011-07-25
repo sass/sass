@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.1.5
+
+* Updated the vendored FSSM version, which will avoid segfaults on OS
+  X Lion when using `--watch`.
+
 ## 3.1.4
 
 * Sass no longer unnecessarily caches the sass options hash.
