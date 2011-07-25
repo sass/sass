@@ -156,6 +156,10 @@ MESSAGE
       if node.style != :compressed
         if node.options[:debug_info]
           to_return << visit(debug_info_rule(node.debug_info, node.options)) << "\n"
+        elsif node.options[:trace_selectors]
+          to_return << "#{old_spaces}/* "
+          to_return << node.stack_trace.join("\n   #{old_spaces}")
+          to_return << " */\n"
         elsif node.options[:line_comments]
           to_return << "#{old_spaces}/* line #{node.line}"
 

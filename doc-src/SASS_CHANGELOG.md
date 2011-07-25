@@ -3,6 +3,14 @@
 * Table of contents
 {:toc}
 
+## 3.1.6
+
+* The option `:trace_selectors` can now be used to emit a full trace
+  before each selector. This can be helpful for in-browser debugging of
+  stylesheet imports and mixin includes. This option supersedes the
+  `:line_comments` option and is superseded by the `:debug_info`
+  option.
+
 ## 3.1.5
 
 * Updated the vendored FSSM version, which will avoid segfaults on OS
