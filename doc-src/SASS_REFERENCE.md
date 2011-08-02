@@ -295,7 +295,15 @@ Available options are:
   and mixins.
   This option may also be called `:line_comments`.
   Automatically disabled when using the `:compressed` output style
-  or the `:debug_info` option.
+  or the `:debug_info`/`:trace_selectors` options.
+
+{#trace_selectors-option} `:trace_selectors`
+: When set to true, emit a full trace of imports and mixins before
+  each selector. This can be helpful for in-browser debugging of
+  stylesheet imports and mixin includes. This option supersedes
+  the `:line_comments` option and is superseded by the
+  `:debug_info` option. Automatically disabled when using the
+  `:compressed` output style.
 
 {#debug_info-option} `:debug_info`
 : When set to true, causes the line number and file

@@ -227,6 +227,11 @@ END
   def visit_rule(node)
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.line)
     node.parsed_rules ||= parser.parse_selector(node.filename)
+    if node.options[:trace_selectors]
+      @environment.push_frame(:filename => node.filename, :line => node.line)
+      node.stack_trace = @environment.stack_trace
+      @environment.pop_frame
+    end
     yield
   end
 
@@ -243,13 +248,9 @@ END
     @environment.push_frame(:filename => node.filename, :line => node.line)
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::String)
-    msg = "WARNING: #{res}\n"
-    @environment.stack.reverse.each_with_index do |entry, i|
-      msg << "        #{i == 0 ? "on" : "from"} line #{entry[:line]}" <<
-        " of #{entry[:filename] || "an unknown file"}"
-      msg << ", in `#{entry[:mixin]}'" if entry[:mixin]
-      msg << "\n"
-    end
+    msg = "WARNING: #{res}\n         "
+    msg << @environment.stack_trace.join("\n         ")
+    msg << "\n"
     Sass::Util.sass_warn msg
     []
   ensure

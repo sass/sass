@@ -50,6 +50,13 @@ module Sass::Tree
     # @return [Boolean]
     attr_accessor :group_end
 
+    # The stack trace.
+    # This is only readable in a CSS tree as it is written during the perform step
+    # and only when the :trace_selectors option is set.
+    #
+    # @return [Array<String>]
+    attr_accessor :stack_trace
+
     # @param rule [Array<String, Sass::Script::Node>]
     #   The CSS rule. See \{#rule}
     def initialize(rule)

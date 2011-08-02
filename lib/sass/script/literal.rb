@@ -33,6 +33,11 @@ module Sass::Script
       []
     end
 
+    # @see Node#deep_copy
+    def deep_copy
+      dup
+    end
+
     # Returns the options hash for this node.
     #
     # @return [{Symbol => Object}]

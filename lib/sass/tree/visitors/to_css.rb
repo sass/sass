@@ -156,6 +156,10 @@ MESSAGE
       if node.style != :compressed
         if node.options[:debug_info]
           to_return << visit(debug_info_rule(node.debug_info, node.options)) << "\n"
+        elsif node.options[:trace_selectors]
+          to_return << "#{old_spaces}/* "
+          to_return << node.stack_trace.join("\n   #{old_spaces}")
+          to_return << " */\n"
         elsif node.options[:line_comments]
           to_return << "#{old_spaces}/* line #{node.line}"
 
@@ -204,7 +208,7 @@ MESSAGE
                 [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)])
             ])
         ])
-      prop = Sass::Tree::PropNode.new([""], "", :new)
+      prop = Sass::Tree::PropNode.new([""], Sass::Script::String.new(''), :new)
       prop.resolved_name = "font-family"
       prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
       rule << prop

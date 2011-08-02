@@ -13,7 +13,7 @@ module Sass
       # and the parse tree for the default value of the argument.
       #
       # @return [Array<(Script::Node, Script::Node)>]
-      attr_reader :args
+      attr_accessor :args
 
       # @param name [String] The mixin name
       # @param args [Array<(Script::Node, Script::Node)>] See \{#args}

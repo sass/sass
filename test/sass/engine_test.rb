@@ -305,6 +305,23 @@ SASS
     end
   end
 
+  def test_selector_tracing
+    actual_css = render(<<-SCSS, :syntax => :scss, :trace_selectors => true)
+      @mixin mixed {
+        .mixed { color: red; }
+      }
+      .context {
+        @include mixed;
+      }
+    SCSS
+    assert_equal(<<CSS,actual_css)
+/* on line 2 of test_selector_tracing_inline.scss, in `mixed'
+   from line 5 of test_selector_tracing_inline.scss */
+.context .mixed {
+  color: red; }
+CSS
+  end
+
   def test_mixin_exception
     render(<<SASS)
 =error-mixin($a)
@@ -1787,11 +1804,11 @@ SASS
   def test_warn_directive
   expected_warning = <<EXPECTATION
 WARNING: this is a warning
-        on line 4 of test_warn_directive_inline.sass
+         on line 4 of test_warn_directive_inline.sass
 
 WARNING: this is a mixin warning
-        on line 2 of test_warn_directive_inline.sass, in `foo'
-        from line 7 of test_warn_directive_inline.sass
+         on line 2 of test_warn_directive_inline.sass, in `foo'
+         from line 7 of test_warn_directive_inline.sass
 EXPECTATION
     assert_warning expected_warning do
       assert_equal <<CSS, render(<<SASS)
@@ -1821,15 +1838,15 @@ SASS
   def test_warn_with_imports
     expected_warning = <<WARN
 WARNING: In the main file
-        on line 1 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 1 of #{File.dirname(__FILE__)}/templates/warn.sass
 
 WARNING: Imported
-        on line 1 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
-        from line 2 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 1 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
+         from line 2 of #{File.dirname(__FILE__)}/templates/warn.sass
 
 WARNING: In an imported mixin
-        on line 4 of #{File.dirname(__FILE__)}/templates/warn_imported.sass, in `emits-a-warning'
-        from line 3 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 4 of #{File.dirname(__FILE__)}/templates/warn_imported.sass, in `emits-a-warning'
+         from line 3 of #{File.dirname(__FILE__)}/templates/warn.sass
 WARN
     assert_warning expected_warning do
       renders_correctly "warn", :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"]

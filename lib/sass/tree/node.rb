@@ -65,8 +65,7 @@ module Sass
       # @param options [{Symbol => Object}] The options
       # @see #options
       def options=(options)
-        children.each {|c| c.options = options}
-        @options = options
+        Sass::Tree::Visitors::SetOptions.visit(self, options)
       end
 
       # @private
@@ -185,9 +184,7 @@ module Sass
       #
       # @return [Node]
       def deep_copy
-        node = dup
-        node.children = children.map {|c| c.deep_copy}
-        node
+        Sass::Tree::Visitors::DeepCopy.visit(self)
       end
 
       protected

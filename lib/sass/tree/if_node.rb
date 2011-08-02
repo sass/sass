@@ -13,7 +13,7 @@ module Sass::Tree
     # If this is nil, this is an `@else` node, not an `@else if`.
     #
     # @return [Script::Expr]
-    attr_reader :expr
+    attr_accessor :expr
 
     # The next {IfNode} in the if-else list, or `nil`.
     #
@@ -35,12 +35,6 @@ module Sass::Tree
       @last_else = node
     end
 
-    # @see Node#options=
-    def options=(options)
-      super
-      self.else.options = options if self.else
-    end
-
     def _dump(f)
       Marshal.dump([self.expr, self.else, self.children])
     end
@@ -52,13 +46,6 @@ module Sass::Tree
       node.children = children
       node.instance_variable_set('@last_else',
         node.else ? node.else.instance_variable_get('@last_else') : node)
-      node
-    end
-
-    # @see Node#deep_copy
-    def deep_copy
-      node = super
-      node.else = self.else.deep_copy if self.else
       node
     end
   end

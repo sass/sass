@@ -57,6 +57,14 @@ module Sass
         @args + @keywords.values
       end
 
+      # @see Node#deep_copy
+      def deep_copy
+        node = dup
+        node.instance_variable_set('@args', args.map {|a| a.deep_copy})
+        node.instance_variable_set('@keywords', Hash[keywords.map {|k, v| [k, v.deep_copy]}])
+        node
+      end
+
       protected
 
       # Evaluates the function call.

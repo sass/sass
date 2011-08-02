@@ -11,11 +11,11 @@ module Sass::Tree
 
     # The parse tree for the initial expression.
     # @return [Script::Node]
-    attr_reader :from
+    attr_accessor :from
 
     # The parse tree for the final expression.
     # @return [Script::Node]
-    attr_reader :to
+    attr_accessor :to
 
     # Whether to include `to` in the loop or stop just before.
     # @return [Boolean]

@@ -93,6 +93,17 @@ module Sass
       @mixins_in_use ||= @parent.mixins_in_use
     end
 
+    def stack_trace
+      trace = []
+      stack.reverse.each_with_index do |entry, i|
+        msg = "#{i == 0 ? "on" : "from"} line #{entry[:line]}"
+        msg << " of #{entry[:filename] || "an unknown file"}"
+        msg << ", in `#{entry[:mixin]}'" if entry[:mixin]
+        trace << msg
+      end
+      trace
+    end
+
     private
 
     def parent_options

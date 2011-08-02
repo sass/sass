@@ -28,6 +28,8 @@ require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
 require 'sass/tree/visitors/convert'
 require 'sass/tree/visitors/to_css'
+require 'sass/tree/visitors/deep_copy'
+require 'sass/tree/visitors/set_options'
 require 'sass/tree/visitors/check_nesting'
 require 'sass/selector'
 require 'sass/environment'
@@ -307,7 +309,6 @@ module Sass
         sha = Digest::SHA1.hexdigest(@template)
 
         if root = @options[:cache_store].retrieve(key, sha)
-          @options = root.options.merge(@options)
           root.options = @options
           return root
         end

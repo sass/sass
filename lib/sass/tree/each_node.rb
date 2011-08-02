@@ -11,7 +11,7 @@ module Sass::Tree
 
     # The parse tree for the list.
     # @param [Script::Node]
-    attr_reader :list
+    attr_accessor :list
 
     # @param var [String] The name of the loop variable
     # @param list [Script::Node] The parse tree for the list
