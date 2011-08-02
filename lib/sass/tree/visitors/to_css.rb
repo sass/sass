@@ -208,7 +208,7 @@ MESSAGE
                 [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)])
             ])
         ])
-      prop = Sass::Tree::PropNode.new([""], "", :new)
+      prop = Sass::Tree::PropNode.new([""], Sass::Script::String.new(''), :new)
       prop.resolved_name = "font-family"
       prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
       rule << prop
