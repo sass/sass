@@ -309,7 +309,6 @@ module Sass
         sha = Digest::SHA1.hexdigest(@template)
 
         if root = @options[:cache_store].retrieve(key, sha)
-          @options = root.options.merge(@options)
           root.options = @options
           return root
         end
