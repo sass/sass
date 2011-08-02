@@ -61,10 +61,5 @@ module Sass::Tree
       node.else = self.else.deep_copy if self.else
       node
     end
-
-    # Returns sub nodes that are not tree children.
-    def subnodes
-      Array(expr) + Array(self.else)
-    end
   end
 end
