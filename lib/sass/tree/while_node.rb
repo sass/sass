@@ -14,11 +14,5 @@ module Sass::Tree
       @expr = expr
       super()
     end
-
-    # Returns sub nodes that are not tree children.
-    def subnodes
-      Array(expr)
-    end
-
   end
 end
