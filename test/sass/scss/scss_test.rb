@@ -1246,4 +1246,12 @@ foo {
   c: $var3; }
 SCSS
   end
+
+  def test_options_passed_to_script
+    assert_equal <<CSS, render(<<SCSS, :style => :compressed)
+foo{color:#000}
+CSS
+foo {color: darken(black, 10%)}
+SCSS
+  end
 end
