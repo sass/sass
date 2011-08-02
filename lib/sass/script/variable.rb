@@ -34,6 +34,11 @@ module Sass
         []
       end
 
+      # @see Node#deep_copy
+      def deep_copy
+        dup
+      end
+
       protected
 
       # Evaluates the variable.

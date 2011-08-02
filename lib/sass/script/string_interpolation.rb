@@ -60,6 +60,15 @@ module Sass::Script
       [@before, @mid, @after].compact
     end
 
+    # @see Node#deep_copy
+    def deep_copy
+      node = dup
+      node.instance_variable_set('@before', @before.deep_copy) if @before
+      node.instance_variable_set('@mid', @mid.deep_copy)
+      node.instance_variable_set('@after', @after.deep_copy) if @after
+      node
+    end
+
     protected
 
     # Evaluates the interpolation.
