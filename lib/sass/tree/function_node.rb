@@ -22,6 +22,11 @@ module Sass
         @args = args
         super()
       end
+
+      # Returns sub nodes that are not tree children.
+      def subnodes
+        Array(args)
+      end
     end
   end
 end

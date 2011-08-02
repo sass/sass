@@ -42,15 +42,20 @@ module Sass
         raise "#{self.class} must implement #_retrieve."
       end
 
-      # Store a {Sass::Tree::RootNode}.
+      # Store an object to the Sass Cache.
       #
       # @param key [String] The key to store it under.
       # @param sha [String] The checksum for the contents that are being stored.
       # @param obj [Object] The object to cache.
-      def store(key, sha, root)
-        _store(key, Sass::VERSION, sha, Marshal.dump(root))
+      def store(key, sha, obj)
+        temp = obj.before_sass_cache_store if obj.respond_to?(:before_sass_cache_store)
+        begin
+          _store(key, Sass::VERSION, sha, Marshal.dump(obj))
+        ensure
+          obj.after_sass_cache_store(temp) if obj.respond_to?(:after_sass_cache_store)
+        end
       rescue TypeError, LoadError => e
-        Sass::Util.sass_warn "Warning. Error encountered while saving cache #{path_to(key)}: #{e}"
+        Sass::Util.sass_warn "Warning. Error encountered while saving a #{obj.class.name} to cache #{path_to(key)}: #{e}"
       end
 
       # Retrieve a {Sass::Tree::RootNode}.

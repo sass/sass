@@ -55,6 +55,11 @@ module Sass::Tree
       super()
     end
 
+    # Returns sub nodes that are not tree children.
+    def subnodes
+      Array(name).select{|n| n.is_a?(Sass::Script::Node)} + [value]
+    end
+
     # Compares the names and values of two properties.
     #
     # @param other [Object] The object to compare with

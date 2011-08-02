@@ -3,6 +3,23 @@
 * Table of contents
 {:toc}
 
+## 3.1.5
+
+* Updated the vendored FSSM version, which will avoid segfaults on OS
+  X Lion when using `--watch`.
+
+## 3.1.4
+
+* Sass no longer unnecessarily caches the sass options hash.
+  This allows objects that cannot be marshaled to be placed into the
+  options hash.
+
+## 3.1.3
+
+* Sass now logs message thru a logger object which can be changed to
+  provide integration with other frameworks' logging infrastructure.
+
+
 ## 3.1.2
 
 * Fix some issues that were breaking Sass when running within Rubinius.
