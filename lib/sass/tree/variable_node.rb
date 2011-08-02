@@ -10,7 +10,7 @@ module Sass
 
       # The parse tree for the variable value.
       # @return [Script::Node]
-      attr_reader :expr
+      attr_accessor :expr
 
       # Whether this is a guarded variable assignment (`!default`).
       # @return [Boolean]

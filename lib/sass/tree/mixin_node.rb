@@ -13,11 +13,11 @@ module Sass::Tree
 
     # The arguments to the mixin.
     # @return [Array<Script::Node>]
-    attr_reader :args
+    attr_accessor :args
 
     # A hash from keyword argument names to values.
     # @return [{String => Script::Node}]
-    attr_reader :keywords
+    attr_accessor :keywords
 
     # @param name [String] The name of the mixin
     # @param args [Array<Script::Node>] See \{#args}

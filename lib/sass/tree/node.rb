@@ -185,9 +185,7 @@ module Sass
       #
       # @return [Node]
       def deep_copy
-        node = dup
-        node.children = children.map {|c| c.deep_copy}
-        node
+        Sass::Tree::Visitors::DeepCopy.visit(self)
       end
 
       protected
