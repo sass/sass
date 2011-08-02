@@ -35,12 +35,6 @@ module Sass::Tree
       @last_else = node
     end
 
-    # @see Node#options=
-    def options=(options)
-      super
-      self.else.options = options if self.else
-    end
-
     def _dump(f)
       Marshal.dump([self.expr, self.else, self.children])
     end

@@ -65,8 +65,7 @@ module Sass
       # @param options [{Symbol => Object}] The options
       # @see #options
       def options=(options)
-        children.each {|c| c.options = options}
-        @options = options
+        Sass::Tree::Visitors::SetOptions.visit(self, options)
       end
 
       # @private
