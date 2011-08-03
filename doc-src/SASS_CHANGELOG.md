@@ -11,6 +11,9 @@
   `:line_comments` option and is superseded by the `:debug_info`
   option.
 
+* Fix a bug where long `@if`/`@else` chains would cause exponential slowdown
+  under some circumstances.
+
 ## 3.1.5
 
 * Updated the vendored FSSM version, which will avoid segfaults on OS
