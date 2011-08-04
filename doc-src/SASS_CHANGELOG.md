@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.1.7 (Unreleased)
+
+* Don't crash when doing certain operations with `@function`s.
+
 ## 3.1.6
 
 * The option `:trace_selectors` can now be used to emit a full trace
