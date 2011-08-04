@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.7 (Unreleased)
+## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
 
