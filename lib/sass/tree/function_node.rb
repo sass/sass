@@ -13,7 +13,7 @@ module Sass
       # the default value of the argument
       #
       # @return [Array<Script::Node>]
-      attr_reader :args
+      attr_accessor :args
 
       # @param name [String] The function name
       # @param args [Array<(Script::Node, Script::Node)>] The arguments for the function.
