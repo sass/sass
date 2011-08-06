@@ -22,8 +22,22 @@
     border: 2px inset
     font-size: 12px
     line-height: 15px
+    float: left
 
-  input
+  input.render
     +button-button
+    float: left
+    clear: both
     display: block
     margin: 2em auto
+
+  input.radio, label
+    float: left
+    display: block
+    margin-top: 2em
+
+  input.radio
+    margin-left: 3em
+    position: relative
+    top: 3px
+    right: 3px
