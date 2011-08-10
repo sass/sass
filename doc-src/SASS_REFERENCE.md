@@ -666,7 +666,7 @@ Lists are just a series of other values, separated by either spaces or commas.
 In fact, individual values count as lists, too: they're just lists with one item.
 
 On their own, lists don't do much,
-but the {file:Sass/Script/Functions.html#list-functions Sass list functions}
+but the [Sass list functions](Sass/Script/Functions.html#list-functions)
 make them useful.
 The {Sass::Script::Functions#nth nth function} can access items in a list,
 the {Sass::Script::Functions#join join function} can join multiple lists together,
@@ -911,7 +911,7 @@ for boolean values.
 
 Lists don't support any special operations.
 Instead, they're manipulated using the
-{file:Sass/Script/Functions.html#list-functions list functions}.
+[list functions](Sass/Script/Functions.html#list-functions).
 
 ### Parentheses
 
