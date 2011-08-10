@@ -250,7 +250,8 @@ END
     res = res.value if res.is_a?(Sass::Script::String)
     msg = "WARNING: #{res}\n         "
     msg << @environment.stack_trace.join("\n         ")
-    msg << "\n"
+    # JRuby doesn't automatically add a newline for #warn
+    msg << (RUBY_PLATFORM =~ /java/ ? "\n\n" : "\n")
     Sass::Util.sass_warn msg
     []
   ensure
