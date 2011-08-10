@@ -3,6 +3,15 @@
 * Table of contents
 {:toc}
 
+## 3.2.0 (Unreleased)
+
+
+### Backwards Incompatibilities -- Must Read!
+
+* Parent selectors followed immediately by identifiers (e.g. `&foo`)
+  are fully disallowed.
+  They were deprecated in 3.1.8.
+
 ## 3.1.8 (Unreleased)
 
 * Deprecate parent selectors followed immediately by identifiers (e.g. `&foo`).
