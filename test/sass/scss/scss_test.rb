@@ -892,7 +892,8 @@ SCSS
   end
 
   def test_uses_property_exception_with_star_hack
-    render <<SCSS
+    # Silence the "beginning of selector" warning
+    Sass::Util.silence_warnings {render <<SCSS}
 foo {
   *bar:baz [fail]; }
 SCSS

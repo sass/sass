@@ -128,8 +128,8 @@ module Sass::Tree
       if @rule.all? {|t| t.kind_of?(String)}
         # We don't use real filename/line info because we don't have it yet.
         # When we get it, we'll set it on the parsed rules if possible.
-        parser = Sass::SCSS::StaticParser.new(@rule.join.strip, 1)
-        @parsed_rules = parser.parse_selector('') rescue nil
+        parser = Sass::SCSS::StaticParser.new(@rule.join.strip, '', 1)
+        @parsed_rules = parser.parse_selector rescue nil
       end
     end
   end

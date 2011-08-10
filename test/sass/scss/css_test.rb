@@ -909,7 +909,7 @@ SCSS
   end
 
   def render(scss, options = {})
-    tree = Sass::SCSS::CssParser.new(scss).parse
+    tree = Sass::SCSS::CssParser.new(scss, options[:filename]).parse
     tree.options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
     tree.render
   end

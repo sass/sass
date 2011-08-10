@@ -89,8 +89,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_extend(node)
-    parser = Sass::SCSS::CssParser.new(run_interp(node.selector), node.line)
-    node.resolved_selector = parser.parse_selector(node.filename)
+    parser = Sass::SCSS::CssParser.new(run_interp(node.selector), node.filename, node.line)
+    node.resolved_selector = parser.parse_selector
     node
   end
 
@@ -225,8 +225,8 @@ END
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
-    parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.line)
-    node.parsed_rules ||= parser.parse_selector(node.filename)
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.filename, node.line)
+    node.parsed_rules ||= parser.parse_selector
     if node.options[:trace_selectors]
       @environment.push_frame(:filename => node.filename, :line => node.line)
       node.stack_trace = @environment.stack_trace
