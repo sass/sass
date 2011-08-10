@@ -82,6 +82,10 @@ module Sass
           @options[:unix_newlines] = true if ::Sass::Util.windows?
         end
 
+        opts.on('--always-update', 'Always generate files, even if there is no change.') do
+          @options[:always_update] = true
+        end
+
         opts.on_tail("-?", "-h", "--help", "Show this message") do
           puts opts
           exit
@@ -349,6 +353,7 @@ END
         require 'sass/plugin'
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
+        ::Sass::Plugin.options[:always_update] = @options[:always_update]
 
         raise <<MSG if @args.empty?
 What files should I watch? Did you mean something like:
