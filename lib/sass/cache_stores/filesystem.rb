@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module Sass
   module CacheStores
     # A backend for the Sass cache using the filesystem.

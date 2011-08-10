@@ -14,6 +14,8 @@
 
 * Disallow semicolons at the end of `@import` directives in the indented syntax.
 
+* Don't error out when being used as a library without requiring `fileutil`.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
