@@ -9,6 +9,13 @@
   This should never have worked, since it violates the rule
   of `&` only being usable where an element selector would.
 
+* Add a `--force` option to the `sass` executable which makes `--update`
+  always compile all stylesheets, even if the CSS is newer.
+
+* Disallow semicolons at the end of `@import` directives in the indented syntax.
+
+* Don't error out when being used as a library without requiring `fileutil`.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
@@ -189,7 +196,7 @@ or by commas (e.g. `Helvetica, Arial, sans-serif`).
 In addition, individual values count as single-item lists.
 
 Lists won't behave any differently in Sass 3.1 than they did in 3.0.
-However, you can now do more with them using the new {file:Sass/Script/Functions.html#list-functions list functions}:
+However, you can now do more with them using the new [list functions](Sass/Script/Functions.html#list-functions):
 
 * The {Sass::Script::Functions#nth `nth($list, $n)` function} returns the nth item in a list.
   For example, `nth(1px 2px 10px, 2)` returns the second item, `2px`.

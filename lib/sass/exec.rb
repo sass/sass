@@ -229,6 +229,10 @@ END
                                    'Only meaningful for --watch and --update.') do
           @options[:stop_on_error] = true
         end
+        opts.on('-f', '--force', 'Recompile all Sass files, even if the CSS file is newer.',
+                                 'Only meaningful for --update.') do
+          @options[:force] = true
+        end
         opts.on('-c', '--check', "Just check syntax, don't evaluate.") do
           require 'stringio'
           @options[:check_syntax] = true
@@ -349,6 +353,11 @@ END
         require 'sass/plugin'
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
+
+        if @options[:force]
+          raise "The --force flag may only be used with --update." unless @options[:update]
+          ::Sass::Plugin.options[:always_update] = true
+        end
 
         raise <<MSG if @args.empty?
 What files should I watch? Did you mean something like:

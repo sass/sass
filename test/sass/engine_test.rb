@@ -62,6 +62,7 @@ MSG
     "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
     "@if true\n  @import foo" => "Import directives may not be used within control directives or mixins.",
     "@mixin foo\n  @import foo" => "Import directives may not be used within control directives or mixins.",
+    "@import foo;" => "Invalid @import: expected end of line, was \";\".",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
     '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
