@@ -12,6 +12,8 @@
 * Add a `--force` option to the `sass` executable which makes `--update`
   always compile all stylesheets, even if the CSS is newer.
 
+* Disallow semicolons at the end of `@import` directives in the indented syntax.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.

@@ -745,6 +745,11 @@ WARNING
         break unless scanner.scan(/,\s*/)
       end
 
+      if scanner.scan(/;/)
+        raise SyntaxError.new("Invalid @import: expected end of line, was \";\".",
+          :line => @line)
+      end
+
       return values
     end
 
@@ -752,12 +757,12 @@ WARNING
       return if scanner.eos?
       unless (str = scanner.scan(Sass::SCSS::RX::STRING)) ||
           (uri = scanner.scan(Sass::SCSS::RX::URI))
-        return Tree::ImportNode.new(scanner.scan(/[^,]+/))
+        return Tree::ImportNode.new(scanner.scan(/[^,;]+/))
       end
 
       val = scanner[1] || scanner[2]
       scanner.scan(/\s*/)
-      if media = scanner.scan(/[^,].*/)
+      if media = scanner.scan(/[^,;].*/)
         Tree::DirectiveNode.new("@import #{str || uri} #{media}")
       elsif uri
         Tree::DirectiveNode.new("@import #{uri}")
