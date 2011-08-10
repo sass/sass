@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.1.8 (Unreleased)
+
+* Disallow parent selectors followed immediately by identifiers (e.g. `&foo`).
+  This should never have worked, since it violates the rule
+  of `&` only being usable where an element selector would.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.

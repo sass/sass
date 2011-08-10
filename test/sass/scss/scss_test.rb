@@ -1029,11 +1029,10 @@ SCSS
   end
 
   def test_parent_in_mid_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after ".foo": expected "{", was "&.bar"
 
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
+"&" may only be used at the beginning of a selector.
 MESSAGE
 flim {
   .foo&.bar {a: b}
@@ -1042,11 +1041,10 @@ SCSS
   end
 
   def test_parent_in_mid_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
 
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
+"&" may only be used at the beginning of a selector.
 MESSAGE
 flim {
   .foo.bar& {a: b}
@@ -1055,11 +1053,10 @@ SCSS
   end
 
   def test_double_parent_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  &": expected "{", was "& {a: b}"
 
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
+"&" may only be used at the beginning of a selector.
 MESSAGE
 flim {
   && {a: b}
