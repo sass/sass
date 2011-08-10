@@ -139,6 +139,8 @@ MSG
     "$var: true\n@while $var\n  @extend .bar\n  $var: false" => ["Extend directives may only be used within rules.", 3],
     "@for $i from 0 to 1\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
+    "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a selector.", 2],
+    "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a selector.", 2],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
@@ -1793,11 +1795,11 @@ SASS
 
   def test_interpolation_doesnt_deep_unquote_strings
     assert_equal(<<CSS, render(<<SASS))
-.foo- "bar" "baz" {
-  a: b; }
+.foo {
+  a: "bar" "baz"; }
 CSS
-.foo-\#{"bar" "baz"}
-  a: b
+.foo
+  a: \#{"bar" "baz"}
 SASS
   end
 

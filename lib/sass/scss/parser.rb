@@ -487,20 +487,20 @@ module Sass
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = element_name || id_selector || class_selector ||
-            attrib || negation || pseudo || interpolation_selector ||
-            (tok(/\*/) && Selector::Universal.new(nil))
+        while v = id_selector || class_selector || attrib || negation || pseudo ||
+            interpolation_selector || (tok(/\*/) && Selector::Universal.new(nil))
           res << v
         end
 
-        if tok?(/&/)
+        pos = @scanner.pos
+        line = @line
+        if sel = str? {simple_selector_sequence}
+          @scanner.pos = pos
+          @line = line
           begin
             expected('"{"')
           rescue Sass::SyntaxError => e
-            e.message << "\n\n" << <<MESSAGE
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
-MESSAGE
+            e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
             raise e
           end
         end
