@@ -13,12 +13,12 @@ module Sass
       #   Used for error reporting.
       # @return [Selector::CommaSequence] The parsed selector
       # @raise [Sass::SyntaxError] if there's a syntax error in the selector
-      def parse_selector(filename)
+      def parse_selector
         init_scanner!
         seq = expr!(:selector_comma_sequence)
         expected("selector") unless @scanner.eos?
         seq.line = @line
-        seq.filename = filename
+        seq.filename = @filename
         seq
       end
 

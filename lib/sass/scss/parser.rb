@@ -9,10 +9,12 @@ module Sass
       # @param str [String, StringScanner] The source document to parse.
       #   Note that `Parser` *won't* raise a nice error message if this isn't properly parsed;
       #   for that, you should use the higher-level {Sass::Engine} or {Sass::CSS}.
+      # @param filename [String] The name of the file being parsed. Used for warnings.
       # @param line [Fixnum] The line on which the source string appeared,
-      #   if it's part of another document
-      def initialize(str, line = 1)
+      #   if it's part of another document.
+      def initialize(str, filename, line = 1)
         @template = str
+        @filename = filename
         @line = line
         @strs = []
       end
