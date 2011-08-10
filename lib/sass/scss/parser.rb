@@ -499,11 +499,20 @@ module Sass
         if sel = str? {simple_selector_sequence}
           @scanner.pos = pos
           @line = line
-          begin
-            expected('"{"')
-          rescue Sass::SyntaxError => e
-            e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
-            raise e
+
+          if sel =~ /^&/
+            begin
+              expected('"{"')
+            rescue Sass::SyntaxError => e
+              e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
+              raise e
+            end
+          else
+            Sass::Util.sass_warn(<<MESSAGE)
+DEPRECATION WARNING:
+On line #{@line}#{" of \"#{@filename}\"" if @filename}, after "#{self.class.prior_snippet(@scanner)}"
+Starting in Sass 3.2, "#{sel}" may only be used at the beginning of a selector.
+MESSAGE
           end
         end
 
@@ -877,16 +886,6 @@ MESSAGE
 
       # @private
       def self.expected(scanner, expected, line)
-        pos = scanner.pos
-
-        after = scanner.string[0...pos]
-        # Get rid of whitespace between pos and the last token,
-        # but only if there's a newline in there
-        after.gsub!(/\s*\n\s*$/, '')
-        # Also get rid of stuff before the last newline
-        after.gsub!(/.*\n/, '')
-        after = "..." + after[-15..-1] if after.size > 18
-
         was = scanner.rest.dup
         # Get rid of whitespace between pos and the next token,
         # but only if there's a newline in there
@@ -896,8 +895,22 @@ MESSAGE
         was = was[0...15] + "..." if was.size > 18
 
         raise Sass::SyntaxError.new(
-          "Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"",
+          "Invalid CSS after \"#{prior_snippet(scanner)}\": expected #{expected}, was \"#{was}\"",
           :line => line)
+      end
+
+      # @private
+      def self.prior_snippet(scanner)
+        pos = scanner.pos
+
+        after = scanner.string[0...pos]
+        # Get rid of whitespace between pos and the last token,
+        # but only if there's a newline in there
+        after.gsub!(/\s*\n\s*$/, '')
+        # Also get rid of stuff before the last newline
+        after.gsub!(/.*\n/, '')
+        after = "..." + after[-15..-1] if after.size > 18
+        after
       end
 
       # Avoid allocating lots of new strings for `#tok`.

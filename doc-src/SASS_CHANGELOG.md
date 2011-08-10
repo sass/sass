@@ -5,7 +5,7 @@
 
 ## 3.1.8 (Unreleased)
 
-* Disallow parent selectors followed immediately by identifiers (e.g. `&foo`).
+* Deprecate parent selectors followed immediately by identifiers (e.g. `&foo`).
   This should never have worked, since it violates the rule
   of `&` only being usable where an element selector would.
 
