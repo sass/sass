@@ -159,7 +159,7 @@ module Sass
         tree(uri, importer).grep(Tree::ImportNode) do |n|
           next if n.css_import?
           file = n.imported_file
-          key = [file.options[:filename], file.options[:importer]]
+          key = [n.imported_filename, file.options[:importer]]
           @parse_trees[key] = file.to_tree
           key
         end.compact
