@@ -16,6 +16,9 @@
 
 * Don't error out when being used as a library without requiring `fileutil`.
 
+* Don't crash when Compass-style sprite imports are used with `StalenessChecker`
+  (thanks to [Matthias Bauer](https://github.com/moeffju)).
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
