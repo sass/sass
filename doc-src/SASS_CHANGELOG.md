@@ -5,6 +5,8 @@
 
 ## 3.2.0 (Unreleased)
 
+* Added `decimal` function to convert percentage value into decimal value
+  (thanks to [Beau Smith](http://about.me/beau))
 
 ### Backwards Incompatibilities -- Must Read!
 

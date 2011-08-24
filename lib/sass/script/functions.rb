@@ -1135,6 +1135,21 @@ module Sass::Script
     end
     declare :percentage, [:value]
 
+    # Converts a percentage to a decimal number.
+    #
+    # @example
+    #   decimal(44%) => 0.44
+    # @param value [Number] The percentage to convert to a decimal number
+    # @return [Number] The decimal number
+    # @raise [ArgumentError] If `value` isn't a unitless number
+    def decimal(value)
+      unless value.is_a?(Sass::Script::Number) && value.unit_str == "%"
+        raise ArgumentError.new("#{value.inspect} is not a percentage")
+      end
+      Sass::Script::Number.new(value.value / 100.0)
+    end
+    declare :decimal, [:value]
+
     # Rounds a number to the nearest whole number.
     #
     # @example

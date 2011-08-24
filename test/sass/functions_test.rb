@@ -119,6 +119,20 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
+  def test_decimal
+    assert_equal("0.5",   evaluate("decimal(50%)"))
+    assert_equal("1",     evaluate("decimal(100%)"))
+    assert_equal("0.333", evaluate("decimal(33.333%)"))
+    assert_equal("0.25",  evaluate("decimal((25px / 100px) * 100%)"))
+    assert_equal("0.5",   evaluate("decimal($value: 50%)"))
+  end
+
+  def test_decimal_checks_types
+    assert_error_message("50px is not a percentage value for `decimal'", "decimal(50px)")
+    assert_error_message("#cccccc is not a percentage value for `decimal'", "decimal(#ccc)")
+    assert_error_message("\"string\"is not a percentage value for `decimal'", %Q{decimal("string")})
+  end
+
   def test_round
     assert_equal("5",   evaluate("round(4.8)"))
     assert_equal("5px", evaluate("round(4.8px)"))
