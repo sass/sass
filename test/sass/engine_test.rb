@@ -2454,6 +2454,27 @@ SASS
     assert_equal original_filename, importer.engine("imported").options[:original_filename]
   end
 
+  def test_deprecated_PRECISION
+    assert_warning(<<END) {assert_equal 1000.0, Sass::Script::Number::PRECISION}
+Sass::Script::Number::PRECISION is deprecated and will be removed in a future release. Use Sass::Script::Number.precision_factor instead.
+END
+  end
+  def test_changing_precision
+    begin
+      Sass::Script::Number.precision = 8
+      assert_equal <<CSS, render(<<SASS)
+div {
+  maximum: 1.00000001;
+  too-much: 1.0; }
+CSS
+div
+  maximum : 1.00000001
+  too-much: 1.000000001
+SASS
+    ensure
+      Sass::Script::Number.precision = 3
+    end
+  end
 
   private
 
