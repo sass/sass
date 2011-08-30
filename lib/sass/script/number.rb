@@ -35,11 +35,34 @@ module Sass::Script
     # @return [Boolean, nil]
     attr_accessor :original
 
-    # The precision with which numbers will be printed to CSS files.
-    # For example, if this is `1000.0`,
+    def self.precision
+      @precision ||= 3
+    end
+
+    # Sets the number of digits of precision
+    # For example, if this is `3`,
     # `3.1415926` will be printed as `3.142`.
-    # @api public
-    PRECISION = 1000.0
+    def self.precision=(digits)
+      @precision = digits.round
+      @precision_factor = 10.0**@precision
+    end
+
+    # the precision factor used in numeric output
+    # it is derived from the `precision` method.
+    def self.precision_factor
+      @precision_factor ||= 10.0**precision
+    end
+
+    # Handles the deprecation warning for the PRECISION constant
+    # This can be removed in 3.2.
+    def self.const_missing(const)
+      if const == :PRECISION
+        Sass::Util.sass_warn("Sass::Script::Number::PRECISION is deprecated and will be removed in a future release. Use Sass::Script::Number.precision_factor instead.")
+        const_set(:PRECISION, self.precision_factor)
+      else
+        super
+      end
+    end
 
     # Used so we don't allocate two new arrays for each new number.
     NO_UNITS  = []
@@ -337,7 +360,7 @@ module Sass::Script
       elsif num % 1 == 0.0
         num.to_i
       else
-        (num * PRECISION).round / PRECISION
+        (num * self.precision_factor).round / self.precision_factor
       end
     end
 

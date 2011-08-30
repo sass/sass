@@ -19,6 +19,15 @@
 * Don't crash when Compass-style sprite imports are used with `StalenessChecker`
   (thanks to [Matthias Bauer](https://github.com/moeffju)).
 
+* The numeric precision of numbers in Sass can now be set using the
+  `--precision` option to the command line. Additionally, the default
+  number of digits of precision in Sass output can now be
+  changed by setting `Sass::Script::Number.precision` to an integer
+  (defaults to 3). Since this value can now be changed, the `PRECISION`
+  constant in `Sass::Script::Number` has been deprecated. In the unlikely
+  event that you were using it in your code, you should now use
+   `Sass::Script::Number.precision_factor` instead.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
