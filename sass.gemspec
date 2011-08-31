@@ -18,6 +18,7 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
       command line tool or a web-framework plugin.
     END
 
+  spec.required_ruby_version = '>= 1.8.7'
   spec.add_development_dependency 'yard', '>= 0.5.3'
   spec.add_development_dependency 'maruku', '>= 0.5.9'
 
