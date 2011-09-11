@@ -13,7 +13,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     @environment = env
   end
 
-  # If an exception is raised, this add proper metadata to the backtrace.
+  # If an exception is raised, this adds proper metadata to the backtrace.
   def visit(node)
     super(node.dup)
   rescue Sass::SyntaxError => e
@@ -22,7 +22,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   # Keeps track of the current environment.
-  def visit_children(parent)
+  def visit_child_nodes(parent)
     with_environment Sass::Environment.new(@environment) do
       parent.children = super.flatten
       parent
@@ -163,6 +163,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_mixin(node)
     handle_include_loop!(node) if @environment.mixins_in_use.include?(node.name)
 
+    @current_mixin, old_mixin = node.name, @current_mixin
+    @current_mixin_children, old_mixin_children = node.children, @current_mixin_children
+    @current_mixin_env = @environment
     original_env = @environment
     original_env.push_frame(:filename => node.filename, :line => node.line)
     original_env.prepare_frame(:mixin => node.name)
@@ -207,6 +210,14 @@ END
     raise e
   ensure
     original_env.pop_frame if original_env
+    @current_mixin_children = old_mixin_children
+    @current_mixin = old_mixin
+  end
+
+  def visit_children(node)
+    with_environment(@current_mixin_env) do
+      (@current_mixin_children || []).map{|c| visit(c.dup) }
+    end
   end
 
   # Runs any SassScript that may be embedded in a property.

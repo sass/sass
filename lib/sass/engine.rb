@@ -12,6 +12,7 @@ require 'sass/tree/media_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
+require 'sass/tree/children_node'
 require 'sass/tree/function_node'
 require 'sass/tree/return_node'
 require 'sass/tree/extend_node'
@@ -620,6 +621,8 @@ WARNING
         parse_import(line, value)
       elsif directive == "mixin"
         parse_mixin_definition(line)
+      elsif directive == "children"
+        parse_children_directive(line)
       elsif directive == "include"
         parse_mixin_include(line, root)
       elsif directive == "function"
@@ -784,6 +787,13 @@ WARNING
       Tree::MixinDefNode.new(name, args)
     end
 
+    CHILDREN_RE = /^(?:=|@children)\s(.*)$/
+    def parse_children_directive(line)
+      trailing = line.text.scan(CHILDREN_RE).first
+      raise SyntaxError.new("Invalid children directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
+      Tree::ChildrenNode.new
+    end
+
     MIXIN_INCLUDE_RE = /^(?:\+|@include)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_include(line, root)
       name, arg_string = line.text.scan(MIXIN_INCLUDE_RE).first
@@ -792,8 +802,6 @@ WARNING
       offset = line.offset + line.text.size - arg_string.size
       args, keywords = Script::Parser.new(arg_string.strip, @line, offset, @options).
         parse_mixin_include_arglist
-      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.",
-        :line => @line + 1) unless line.children.empty?
       Tree::MixinNode.new(name, args, keywords)
     end
 

@@ -1244,6 +1244,32 @@ foo {
 SCSS
   end
 
+  def test_mixin_children
+    assert_equal <<CSS, render(<<SASS)
+.parent {
+  background-color: red;
+  border-color: red; }
+  .parent .child {
+    background-color: yellow;
+    color: blue;
+    border-color: yellow; }
+CSS
+$color: blue;
+@mixin context($class, $color: red) {
+  .\#{$class} {
+    background-color: $color;
+    @children;
+    border-color: $color;
+  }
+}
+@include context(parent) {
+  @include context(child, $color: yellow) {
+    color: $color;
+  }
+}
+SASS
+  end
+
   def test_options_passed_to_script
     assert_equal <<CSS, render(<<SCSS, :style => :compressed)
 foo{color:#000}

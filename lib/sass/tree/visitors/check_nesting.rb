@@ -1,27 +1,34 @@
 # A visitor for checking that all nodes are properly nested.
 class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
+
+  def check!(real_parent, parent, node)
+    begin
+      if error = (parent && (
+            try_send("invalid_#{node_name parent}_child?", parent, node) ||
+            try_send("invalid_#{node_name node}_parent?", parent, node))) ||
+          (real_parent && (
+            try_send("invalid_#{node_name real_parent}_real_child?", real_parent, node) ||
+            try_send("invalid_#{node_name node}_real_parent?", real_parent, node)))
+        raise Sass::SyntaxError.new(error)
+      end
+    rescue Sass::SyntaxError => e
+      e.modify_backtrace(:filename => node.filename, :line => node.line)
+      raise e
+    end
+  end
+
   protected
 
   def visit(node)
-    if error = (@parent && (
-          try_send("invalid_#{node_name @parent}_child?", @parent, node) ||
-          try_send("invalid_#{node_name node}_parent?", @parent, node))) ||
-        (@real_parent && (
-          try_send("invalid_#{node_name @real_parent}_real_child?", @real_parent, node) ||
-          try_send("invalid_#{node_name node}_real_parent?", @real_parent, node)))
-      raise Sass::SyntaxError.new(error)
-    end
+    check!(@real_parent, @parent, node)
     super
-  rescue Sass::SyntaxError => e
-    e.modify_backtrace(:filename => node.filename, :line => node.line)
-    raise e
   end
 
-  PARENT_CLASSES = [ Sass::Tree::EachNode,   Sass::Tree::ForNode,   Sass::Tree::IfNode,
-                     Sass::Tree::ImportNode, Sass::Tree::MixinNode, Sass::Tree::WhileNode]
-  def visit_children(parent)
+  TRANS_PARENT_CLASSES = [ Sass::Tree::EachNode,   Sass::Tree::ForNode,   Sass::Tree::IfNode,
+                           Sass::Tree::ImportNode, Sass::Tree::WhileNode]
+  def visit_child_nodes(parent)
     old_parent = @parent
-    @parent = parent unless is_any_of?(parent, PARENT_CLASSES)
+    @parent = parent unless is_any_of?(parent, TRANS_PARENT_CLASSES)
     old_real_parent, @real_parent = @real_parent, parent
     super
   ensure
@@ -98,18 +105,19 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     "Mixins may only be defined at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
 
-  INVALID_PROP_CHILDREN = [Sass::Tree::CommentNode, Sass::Tree::PropNode]
+  VALID_PROP_CHILDREN = [Sass::Tree::CommentNode, Sass::Tree::PropNode]
   def invalid_prop_child?(parent, child)
-    unless is_any_of?(child, INVALID_PROP_CHILDREN)
+    unless is_any_of?(child, VALID_PROP_CHILDREN)
       "Illegal nesting: Only properties may be nested beneath properties."
     end
   end
 
-  INVALID_PROP_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::PropNode,
-                          Sass::Tree::MixinDefNode, Sass::Tree::DirectiveNode]
+  VALID_PROP_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::PropNode,
+                        Sass::Tree::MixinDefNode, Sass::Tree::DirectiveNode,
+                        Sass::Tree::MixinNode]
   def invalid_prop_parent?(parent, child)
-    unless is_any_of?(parent, INVALID_PROP_PARENTS)
-      "Properties are only allowed within rules, directives, or other properties." + child.pseudo_class_selector_message
+    unless is_any_of?(parent, VALID_PROP_PARENTS)
+      "Properties are only allowed within rules, directives, mixin includes, or other properties." + child.pseudo_class_selector_message
     end
   end
 

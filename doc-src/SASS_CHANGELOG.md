@@ -5,6 +5,27 @@
 
 ## 3.2.0 (Unreleased)
 
+* A mixin include can now accept a block of styles that will be passed to the mixin
+  and can be placed at the point @children is used. E.g.:
+  
+      @mixin iphone {
+        @media only screen and (max-width: 480px) {
+          @children;
+        }
+      }
+
+      @include iphone {
+        body { color: red }
+      }
+  
+  Produces:
+  
+    @media only screen and (max-width: 480px) {
+      body { color: red }
+    }
+  
+  Note that the contents passed to the mixin are evaluated in the scope they are used,
+  not the scope of the mixin.
 
 ### Backwards Incompatibilities -- Must Read!
 

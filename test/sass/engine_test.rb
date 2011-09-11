@@ -39,8 +39,8 @@ MSG
     "a\n  b: c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
     ".foo ^bar\n  a: b" => ['Invalid CSS after ".foo ": expected selector, was "^bar"', 1],
     "a\n  @extend .foo ^bar" => 'Invalid CSS after ".foo ": expected selector, was "^bar"',
-    "a: b" => 'Properties are only allowed within rules, directives, or other properties.',
-    ":a b" => 'Properties are only allowed within rules, directives, or other properties.',
+    "a: b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
+    ":a b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
     "$" => 'Invalid variable: "$".',
     "$a" => 'Invalid variable: "$a".',
     "$ a" => 'Invalid variable: "$ a".',
@@ -69,7 +69,6 @@ MSG
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
     "=foo\n  :color red\n.bar\n  +bang-bop" => "Undefined mixin 'bang-bop'.",
     ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
-    "=foo\n  :color red\n.bar\n  +foo\n    :color red" => "Illegal nesting: Nothing may be nested beneath mixin directives.",
     "    a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 1],
     " \n   \n\t\n  a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 4],
     "a\n  b: c\n b: c" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 3],
@@ -85,7 +84,7 @@ MSG
     "=a(,)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was ",)"',
     "=a($)" => 'Invalid CSS after "(": expected variable (e.g. $foo), was "$)"',
     "=a($foo bar)" => 'Invalid CSS after "($foo ": expected ")", was "bar)"',
-    "=foo\n  bar: baz\n+foo" => ["Properties are only allowed within rules, directives, or other properties.", 2],
+    "=foo\n  bar: baz\n+foo" => ["Properties are only allowed within rules, directives, mixin includes, or other properties.", 2],
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
     "=a($b: 1, $c)" => "Required argument $c must come before any optional arguments.",
     "=a($b: 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
@@ -142,6 +141,7 @@ MSG
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
     "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a selector.", 2],
     "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a selector.", 2],
+    "=foo\n  @children error" => "Invalid children directive. Trailing characters found: \"error\".",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
@@ -543,7 +543,7 @@ SASS
   rescue Sass::SyntaxError => e
     assert_equal(<<CSS, Sass::SyntaxError.exception_to_css(e, opts).split("\n")[0..11].join("\n"))
 /*
-Syntax error: Properties are only allowed within rules, directives, or other properties.
+Syntax error: Properties are only allowed within rules, directives, mixin includes, or other properties.
         on line 4 of test_cssize_exception_css_inline.sass
 
 1: .filler
@@ -2474,6 +2474,85 @@ SASS
     ensure
       Sass::Script::Number.precision = 3
     end
+  end
+
+  def test_children
+    assert_equal <<CSS, render(<<SASS)
+.children {
+  background-color: red;
+  color: blue;
+  border-color: red; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .\#{$class}
+    background-color: $color
+    @children
+    border-color: $color
++context(children)
+  color: $color
+SASS
+  end
+
+  def test_selector_in_children
+    assert_equal <<CSS, render(<<SASS)
+.parent {
+  background-color: red;
+  border-color: red; }
+  .parent .children {
+    color: blue; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .\#{$class}
+    background-color: $color
+    @children
+    border-color: $color
++context(parent)
+  .children
+    color: $color
+SASS
+  end
+
+  def test_using_parent_mixin_in_children
+    assert_equal <<CSS, render(<<SASS)
+.parent {
+  background-color: red;
+  border-color: red; }
+  .parent .child {
+    background-color: yellow;
+    color: blue;
+    border-color: yellow; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .\#{$class}
+    background-color: $color
+    @children
+    border-color: $color
++context(parent)
+  +context(child, $color: yellow)
+    color: $color
+SASS
+  end
+
+  def test_children_more_than_once
+    assert_equal <<CSS, render(<<SASS)
+.once {
+  color: blue; }
+
+.twice {
+  color: blue; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .once
+    @children
+  .twice
+    @children
++context(parent)
+  color: $color
+SASS
   end
 
   private

@@ -18,7 +18,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     @tabs = 0
   end
 
-  def visit_children(parent)
+  def visit_child_nodes(parent)
     @tabs += 1
     return @format == :sass ? "\n" : " {}\n" if parent.children.empty?
     (@format == :sass ? "\n" : " {\n") + super.join.rstrip + (@format == :sass ? "\n" : " }\n")
@@ -175,7 +175,11 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       keywords = node.keywords.map {|k, v| "$#{dasherize(k)}: #{v.to_sass(@options)}"}.join(', ')
       arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
     end
-    "#{tab_str}#{@format == :sass ? '+' : '@include '}#{dasherize(node.name)}#{arglist}#{semi}\n"
+    "#{tab_str}#{@format == :sass ? '+' : '@include '}#{dasherize(node.name)}#{arglist}#{node.children.any? ? yield : semi}\n"
+  end
+
+  def visit_children(node)
+    "#{tab_str}@children#{semi}\n"
   end
 
   def visit_prop(node)
