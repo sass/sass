@@ -142,6 +142,7 @@ MSG
     "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a selector.", 2],
     "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a selector.", 2],
     "=foo\n  @children error" => "Invalid children directive. Trailing characters found: \"error\".",
+    "@children" => '@children may only be used within a mixin.',
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],

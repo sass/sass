@@ -51,6 +51,22 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     raise e
   end
 
+  def visit_mixindef(node)
+    @inside_mixindef = true
+    yield
+  ensure
+    @inside_mixindef = false
+  end
+
+  def visit_children(node)
+    unless @inside_mixindef
+      raise Sass::SyntaxError, "@children may only be used within a mixin."
+    end
+  rescue Sass::SyntaxError => e
+    e.modify_backtrace(:filename => node.filename, :line => node.line)
+    raise e
+  end
+
   def invalid_charset_parent?(parent, child)
     "@charset may only be used at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
