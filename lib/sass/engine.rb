@@ -32,6 +32,7 @@ require 'sass/tree/visitors/to_css'
 require 'sass/tree/visitors/deep_copy'
 require 'sass/tree/visitors/set_options'
 require 'sass/tree/visitors/check_nesting'
+require 'sass/tree/visitors/grep'
 require 'sass/selector'
 require 'sass/environment'
 require 'sass/script'
@@ -59,7 +60,17 @@ module Sass
   #
   # `tree`: `Array<Tree::Node>`
   # : The parse tree for the mixin/function.
-  Callable = Struct.new(:name, :args, :environment, :tree)
+  class Callable < Struct.new(:name, :args, :environment, :tree)
+    def accepts_style_block?
+      if @accepts_style_block.nil?
+        @accepts_style_block = Sass::Tree::Visitors::Grep.visit(self) {|n| n.is_a?(Tree::ChildrenNode) }.any?
+      end
+      @accepts_style_block
+    end
+    def children
+      tree
+    end
+  end
 
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:

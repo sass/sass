@@ -171,6 +171,10 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     original_env.prepare_frame(:mixin => node.name)
     raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
 
+    if node.children.any? && !mixin.accepts_style_block?
+      raise Sass::SyntaxError, %Q{Mixin "#{node.name}" does not accept a style block.}
+    end
+
     passed_args = node.args.dup
     passed_keywords = node.keywords.dup
 
