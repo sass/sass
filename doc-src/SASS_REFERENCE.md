@@ -1812,6 +1812,67 @@ providing many arguments without becoming difficult to call.
 Named arguments can be passed in any order, and arguments with default values can be omitted.
 Since the named arguments are variable names, underscores and dashes can be used interchangeably.
 
+### Passing Style Blocks to a Mixin {#mixin-children}
+
+It is possible to pass a block of styles to the mixin for placement within the styles included by
+the mixin. The styles will appear at the location of any `@children` directives found within the mixin. This makes is possible to define abstractions relating to the construction of
+selectors and directives.
+
+For example:
+
+    @mixin apply-to-ie6-only {
+      * html {
+        @children;
+      }
+    }
+    @include apply-to-ie6-only {
+      #logo {
+        background-image: url(/logo.gif);
+      }
+    }
+
+Generates:
+
+    * html #logo {
+      background-image: url(/logo.gif);
+    }
+
+The same mixins can be done in the `.sass` shorthand syntax:
+
+    =apply-to-ie6-only
+      * html
+        @children
+    
+    +apply-to-ie6-only
+      #logo
+        background-image: url(/logo.gif)
+
+**Note:** when the `@children` directive is specified more than once or in a loop, the style block will be duplicated with each invocation.
+
+#### Variable Scope and Style Blocks
+
+The block of styles passed to a mixin are evaluated in the scope where the block is defined,
+not in the scope of the mixin. This means that variables local to the mixin **cannot** be used
+within the passed style block and variables will resolve to the global value:
+
+    $color: white;
+    @mixin colors($color: blue) {
+      background-color: $color;
+      @children;
+      border-color: $color;
+    }
+    .colors {
+      @include colors { color: $color; }
+    }
+
+Compiles to:
+
+    .colors {
+      background-color: blue;
+      color: white;
+      border-color: blue;
+    }
+
 ## Function Directives {#functions}
 
 It is possible to define your own functions in sass and use them in any

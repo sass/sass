@@ -13,16 +13,26 @@
           @children;
         }
       }
-
+      
       @include iphone {
         body { color: red }
       }
+
+  Or in `.sass` syntax:
   
+      =iphone
+        @media only screen and (max-width: 480px)
+          @children
+      
+      +iphone
+        body
+          color: red
+
   Produces:
   
-    @media only screen and (max-width: 480px) {
-      body { color: red }
-    }
+      @media only screen and (max-width: 480px) {
+        body { color: red }
+      }
   
   Note that the contents passed to the mixin are evaluated in the scope they are used,
   not the scope of the mixin.
