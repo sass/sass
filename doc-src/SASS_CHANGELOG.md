@@ -6,6 +6,11 @@
 ## 3.2.0 (Unreleased)
 
 
+## `:any` Support
+
+Previously, only the `:-moz-any` selector was supported; this has been expanded
+to support any vendor prefix, as well as the plain `:any` selector.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Parent selectors followed immediately by identifiers (e.g. `&foo`)
