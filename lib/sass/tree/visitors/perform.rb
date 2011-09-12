@@ -165,7 +165,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     @current_mixin, old_mixin = node.name, @current_mixin
     @current_mixin_children, old_mixin_children = node.children, @current_mixin_children
-    @current_mixin_env = @environment
+    @current_mixin_env, old_mixin_env = @environment, @current_mixin_env
     original_env = @environment
     original_env.push_frame(:filename => node.filename, :line => node.line)
     original_env.prepare_frame(:mixin => node.name)
@@ -216,6 +216,7 @@ END
     original_env.pop_frame if original_env
     @current_mixin_children = old_mixin_children
     @current_mixin = old_mixin
+    @current_mixin_env = old_mixin_env
   end
 
   def visit_children(node)
