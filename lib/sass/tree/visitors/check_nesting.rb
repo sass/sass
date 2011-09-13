@@ -1,27 +1,20 @@
 # A visitor for checking that all nodes are properly nested.
 class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
-
-  def check!(real_parent, parent, node)
-    begin
-      if error = (parent && (
-            try_send("invalid_#{node_name parent}_child?", parent, node) ||
-            try_send("invalid_#{node_name node}_parent?", parent, node))) ||
-          (real_parent && (
-            try_send("invalid_#{node_name real_parent}_real_child?", real_parent, node) ||
-            try_send("invalid_#{node_name node}_real_parent?", real_parent, node)))
-        raise Sass::SyntaxError.new(error)
-      end
-      yield if block_given?
-    rescue Sass::SyntaxError => e
-      e.modify_backtrace(:filename => node.filename, :line => node.line)
-      raise e
-    end
-  end
-
   protected
 
   def visit(node)
-    check!(@real_parent, @parent, node) { super }
+    if error = (@parent && (
+          try_send("invalid_#{node_name @parent}_child?", @parent, node) ||
+          try_send("invalid_#{node_name node}_parent?", @parent, node))) ||
+        (@real_parent && (
+          try_send("invalid_#{node_name @real_parent}_real_child?", @real_parent, node) ||
+          try_send("invalid_#{node_name node}_real_parent?", @real_parent, node)))
+      raise Sass::SyntaxError.new(error)
+    end
+    super
+  rescue Sass::SyntaxError => e
+    e.modify_backtrace(:filename => node.filename, :line => node.line)
+    raise e
   end
 
   PARENT_CLASSES = [ Sass::Tree::EachNode,   Sass::Tree::ForNode,   Sass::Tree::IfNode,
