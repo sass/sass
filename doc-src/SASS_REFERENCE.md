@@ -1873,6 +1873,18 @@ Compiles to:
       border-color: blue;
     }
 
+Additionally, this makes it clear that the variables and mixins that are used within the
+passed block are related to the other styles around where the block is defined. For example:
+
+    #sidebar {
+      $sidebar-width: 300px;
+      width: $sidebar-width;
+      @include iphone {
+        width: $sidebar-width / 3;
+      }
+    }
+
+
 ## Function Directives {#functions}
 
 It is possible to define your own functions in sass and use them in any
