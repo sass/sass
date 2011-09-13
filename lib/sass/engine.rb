@@ -798,7 +798,7 @@ WARNING
       Tree::MixinDefNode.new(name, args)
     end
 
-    CHILDREN_RE = /^(?:=|@children)\s(.*)$/
+    CHILDREN_RE = /^(?:@children)\s(.*)$/
     def parse_children_directive(line)
       trailing = line.text.scan(CHILDREN_RE).first
       raise SyntaxError.new("Invalid children directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
