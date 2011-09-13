@@ -12,7 +12,7 @@ require 'sass/tree/media_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
-require 'sass/tree/children_node'
+require 'sass/tree/content_node'
 require 'sass/tree/function_node'
 require 'sass/tree/return_node'
 require 'sass/tree/extend_node'
@@ -63,7 +63,7 @@ module Sass
   class Callable < Struct.new(:name, :args, :environment, :tree)
     def accepts_style_block?
       if @accepts_style_block.nil?
-        @accepts_style_block = Sass::Tree::Visitors::Grep.visit(self) {|n| n.is_a?(Tree::ChildrenNode) }.any?
+        @accepts_style_block = Sass::Tree::Visitors::Grep.visit(self) {|n| n.is_a?(Tree::ContentNode) }.any?
       end
       @accepts_style_block
     end
@@ -632,8 +632,8 @@ WARNING
         parse_import(line, value)
       elsif directive == "mixin"
         parse_mixin_definition(line)
-      elsif directive == "children"
-        parse_children_directive(line)
+      elsif directive == "content"
+        parse_content_directive(line)
       elsif directive == "include"
         parse_mixin_include(line, root)
       elsif directive == "function"
@@ -798,13 +798,13 @@ WARNING
       Tree::MixinDefNode.new(name, args)
     end
 
-    CHILDREN_RE = /^(?:@children)\s*(.+)?$/
-    def parse_children_directive(line)
-      trailing = line.text.scan(CHILDREN_RE).first.first
-      raise SyntaxError.new("Invalid children directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
-      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath @children directives.",
+    CONTENT_RE = /^(?:@content)\s*(.+)?$/
+    def parse_content_directive(line)
+      trailing = line.text.scan(CONTENT_RE).first.first
+      raise SyntaxError.new("Invalid content directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath @content directives.",
         :line => line.index + 1) unless line.children.empty?
-      Tree::ChildrenNode.new
+      Tree::ContentNode.new
     end
 
     MIXIN_INCLUDE_RE = /^(?:\+|@include)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/

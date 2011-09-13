@@ -141,10 +141,10 @@ MSG
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
     "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a selector.", 2],
     "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a selector.", 2],
-    "=foo\n  @children error" => "Invalid children directive. Trailing characters found: \"error\".",
-    "=foo\n  @children\n    b: c" => "Illegal nesting: Nothing may be nested beneath @children directives.",
-    "@children" => '@children may only be used within a mixin.',
-    "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a style block.', 4],
+    "=foo\n  @content error" => "Invalid content directive. Trailing characters found: \"error\".",
+    "=foo\n  @content\n    b: c" => "Illegal nesting: Nothing may be nested beneath @content directives.",
+    "@content" => '@content may only be used within a mixin.',
+    "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
@@ -2479,7 +2479,7 @@ SASS
     end
   end
 
-  def test_children
+  def test_content
     assert_equal <<CSS, render(<<SASS)
 .children {
   background-color: red;
@@ -2490,14 +2490,14 @@ $color: blue
 =context($class, $color: red)
   .\#{$class}
     background-color: $color
-    @children
+    @content
     border-color: $color
 +context(children)
   color: $color
 SASS
   end
 
-  def test_selector_in_children
+  def test_selector_in_content
     assert_equal <<CSS, render(<<SASS)
 .parent {
   background-color: red;
@@ -2509,7 +2509,7 @@ $color: blue
 =context($class, $color: red)
   .\#{$class}
     background-color: $color
-    @children
+    @content
     border-color: $color
 +context(parent)
   .children
@@ -2517,7 +2517,7 @@ $color: blue
 SASS
   end
 
-  def test_using_parent_mixin_in_children
+  def test_using_parent_mixin_in_content
     assert_equal <<CSS, render(<<SASS)
 .parent {
   background-color: red;
@@ -2531,7 +2531,7 @@ $color: blue
 =context($class, $color: red)
   .\#{$class}
     background-color: $color
-    @children
+    @content
     border-color: $color
 +context(parent)
   +context(child, $color: yellow)
@@ -2539,7 +2539,7 @@ $color: blue
 SASS
   end
 
-  def test_children_more_than_once
+  def test_content_more_than_once
     assert_equal <<CSS, render(<<SASS)
 .once {
   color: blue; }
@@ -2550,9 +2550,9 @@ CSS
 $color: blue
 =context($class, $color: red)
   .once
-    @children
+    @content
   .twice
-    @children
+    @content
 +context(parent)
   color: $color
 SASS

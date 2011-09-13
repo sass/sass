@@ -58,9 +58,9 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     @inside_mixindef = false
   end
 
-  def visit_children(node)
+  def visit_content(node)
     unless @inside_mixindef
-      raise Sass::SyntaxError, "@children may only be used within a mixin."
+      raise Sass::SyntaxError, "@content may only be used within a mixin."
     end
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.filename, :line => node.line)

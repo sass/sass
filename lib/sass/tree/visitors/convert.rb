@@ -178,8 +178,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     "#{tab_str}#{@format == :sass ? '+' : '@include '}#{dasherize(node.name)}#{arglist}#{node.children.any? ? yield : semi}\n"
   end
 
-  def visit_children(node)
-    "#{tab_str}@children#{semi}\n"
+  def visit_content(node)
+    "#{tab_str}@content#{semi}\n"
   end
 
   def visit_prop(node)

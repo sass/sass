@@ -1159,7 +1159,7 @@ $color: blue
 =context($class, $color: red)
   .\#{$class}
     background-color: $color
-    @children
+    @content
     border-color: $color
 
 +context(parent)
@@ -1171,7 +1171,7 @@ $color: blue;
 @mixin context($class, $color: red) {
   .\#{$class} {
     background-color: $color;
-    @children;
+    @content;
     border-color: $color; } }
 
 @include context(parent) {

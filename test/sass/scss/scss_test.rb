@@ -1244,7 +1244,7 @@ foo {
 SCSS
   end
 
-  def test_mixin_children
+  def test_mixin_content
     assert_equal <<CSS, render(<<SASS)
 .parent {
   background-color: red;
@@ -1258,7 +1258,7 @@ $color: blue;
 @mixin context($class, $color: red) {
   .\#{$class} {
     background-color: $color;
-    @children;
+    @content;
     border-color: $color;
   }
 }
