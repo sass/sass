@@ -116,7 +116,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Loads the function into the environment.
   def visit_function(node)
     @environment.set_function(node.name,
-      Sass::Callable.new(node.name, node.args, @environment, node.children))
+      Sass::Callable.new(node.name, node.args, @environment, node.children, !:has_content))
     []
   end
 
@@ -155,7 +155,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Loads a mixin into the environment.
   def visit_mixindef(node)
     @environment.set_mixin(node.name,
-      Sass::Callable.new(node.name, node.args, @environment, node.children))
+      Sass::Callable.new(node.name, node.args, @environment, node.children, node.has_content))
     []
   end
 
@@ -168,7 +168,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     original_env.prepare_frame(:mixin => node.name)
     raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
 
-    if node.children.any? && !mixin.accepts_style_block?
+    if node.children.any? && !mixin.has_content
       raise Sass::SyntaxError, %Q{Mixin "#{node.name}" does not accept a content block.}
     end
 
