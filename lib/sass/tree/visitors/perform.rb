@@ -208,7 +208,7 @@ END
     trace_node
   rescue Sass::SyntaxError => e
     if original_env # Don't add backtrace info if this is an @include loop
-      e.modify_backtrace(:mixin => node.name, :line => node.line, :mixin_content => nil)
+      e.modify_backtrace(:mixin => node.name, :line => node.line)
       e.add_backtrace(:line => node.line)
     end
     raise e
