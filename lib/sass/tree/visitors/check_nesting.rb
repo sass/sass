@@ -58,14 +58,13 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     @current_mixin_def = old_mixin_def
   end
 
-  def visit_content(node)
-    unless @current_mixin_def
-      raise Sass::SyntaxError, "@content may only be used within a mixin."
+  def invalid_content_parent?(parent, child)
+    if @current_mixin_def
+      @current_mixin_def.has_content = true
+      nil
+    else
+      "@content may only be used within a mixin."
     end
-    @current_mixin_def.has_content = true
-  rescue Sass::SyntaxError => e
-    e.modify_backtrace(:filename => node.filename, :line => node.line)
-    raise e
   end
 
   def invalid_charset_parent?(parent, child)
