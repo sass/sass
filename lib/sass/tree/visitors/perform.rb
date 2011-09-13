@@ -163,7 +163,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_mixin(node)
     handle_include_loop!(node) if @environment.mixins_in_use.include?(node.name)
 
-    @current_mixin, old_mixin = node.name, @current_mixin
     @current_mixin_children, old_mixin_children = node.children, @current_mixin_children
     @current_mixin_env, old_mixin_env = @environment, @current_mixin_env
     original_env = @environment
@@ -215,7 +214,6 @@ END
   ensure
     original_env.pop_frame if original_env
     @current_mixin_children = old_mixin_children
-    @current_mixin = old_mixin
     @current_mixin_env = old_mixin_env
   end
 
