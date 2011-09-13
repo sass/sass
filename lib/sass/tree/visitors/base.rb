@@ -20,8 +20,8 @@ module Sass::Tree::Visitors
     #
     # @param root [Tree::Node] The root node of the Sass tree.
     # @return [Object] The return value of \{#visit} for the root node.
-    def self.visit(root, &block)
-      new.send(:visit, root, &block)
+    def self.visit(root)
+      new.send(:visit, root)
     end
 
     protected
