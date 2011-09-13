@@ -798,10 +798,12 @@ WARNING
       Tree::MixinDefNode.new(name, args)
     end
 
-    CHILDREN_RE = /^(?:@children)\s(.*)$/
+    CHILDREN_RE = /^(?:@children)\s*(.+)?$/
     def parse_children_directive(line)
-      trailing = line.text.scan(CHILDREN_RE).first
+      trailing = line.text.scan(CHILDREN_RE).first.first
       raise SyntaxError.new("Invalid children directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath @children directives.",
+        :line => line.index + 1) unless line.children.empty?
       Tree::ChildrenNode.new
     end
 
