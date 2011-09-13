@@ -122,12 +122,9 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   end
 
   # Asserts that all the mixin's children are valid in their new location.
-  def visit_mixin(node)
-    checker = Sass::Tree::Visitors::CheckNesting.new
-    # double checks that including the mixin won't create an invalid tree
-    children = node.children.map {|c| visit(c) }.flatten
-    children.each {|c| checker.check!(self, parent, c) }
-    children
+  def visit_mixintrace(node)
+    # Don't use #visit_children to avoid adding the mixin node to the list of parents.
+    node.children.map {|c| visit(c)}.flatten
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => node.name, :filename => node.filename, :line => node.line)
     e.add_backtrace(:filename => node.filename, :line => node.line)

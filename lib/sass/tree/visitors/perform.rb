@@ -203,8 +203,9 @@ END
     environment.caller = Sass::Environment.new(original_env)
     environment.content = node.children if node.has_children
 
-    with_environment(environment) {node.children = mixin.tree.map {|c| visit(c)}.flatten}
-    node
+    trace_node = Sass::Tree::MixinTraceNode.from_mixin(node)
+    with_environment(environment) {trace_node.children = mixin.tree.map {|c| visit(c)}.flatten}
+    trace_node
   rescue Sass::SyntaxError => e
     if original_env # Don't add backtrace info if this is an @include loop
       e.modify_backtrace(:mixin => node.name, :line => node.line, :mixin_content => nil)
