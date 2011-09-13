@@ -24,11 +24,11 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     check!(@real_parent, @parent, node) { super }
   end
 
-  TRANS_PARENT_CLASSES = [ Sass::Tree::EachNode,   Sass::Tree::ForNode,   Sass::Tree::IfNode,
-                           Sass::Tree::ImportNode, Sass::Tree::WhileNode]
+  PARENT_CLASSES = [ Sass::Tree::EachNode,   Sass::Tree::ForNode,   Sass::Tree::IfNode,
+                     Sass::Tree::ImportNode, Sass::Tree::WhileNode]
   def visit_child_nodes(parent)
     old_parent = @parent
-    @parent = parent unless is_any_of?(parent, TRANS_PARENT_CLASSES)
+    @parent = parent unless is_any_of?(parent, PARENT_CLASSES)
     old_real_parent, @real_parent = @real_parent, parent
     super
   ensure
