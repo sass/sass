@@ -106,6 +106,7 @@ module Sass
           next child
         end
         child.rule.first.split(',').map do |rule|
+          next if rule.strip.empty?
           node = Tree::RuleNode.new([rule.strip])
           node.children = child.children
           node
