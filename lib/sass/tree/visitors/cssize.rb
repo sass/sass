@@ -3,9 +3,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # @param root [Tree::Node] The root node of the tree to visit.
   # @return [(Tree::Node, Sass::Util::SubsetMap)] The resulting tree of static nodes
   #   *and* the extensions defined for this tree
-  def self.visit(root)
-    super
-  end
+  def self.visit(root); super; end
 
   protected
 
