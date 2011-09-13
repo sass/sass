@@ -20,8 +20,8 @@ module Sass::Tree::Visitors
     #
     # @param root [Tree::Node] The root node of the Sass tree.
     # @return [Object] The return value of \{#visit} for the root node.
-    def self.visit(root)
-      new.send(:visit, root)
+    def self.visit(root, &block)
+      new.send(:visit, root, &block)
     end
 
     protected
@@ -34,9 +34,9 @@ module Sass::Tree::Visitors
     def visit(node)
       method = "visit_#{node_name node}"
       if self.respond_to?(method)
-        self.send(method, node) {visit_children(node)}
+        self.send(method, node) {visit_child_nodes(node)}
       else
-        visit_children(node)
+        visit_child_nodes(node)
       end
     end
 
@@ -49,7 +49,7 @@ module Sass::Tree::Visitors
     #
     # @param parent [Tree::Node] The parent node of the children to visit.
     # @return [Array<Object>] The return values of the `visit_*` methods for the children.
-    def visit_children(parent)
+    def visit_child_nodes(parent)
       parent.children.map {|c| visit(c)}
     end
 

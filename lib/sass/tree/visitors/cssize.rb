@@ -24,7 +24,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   end
 
   # Keeps track of the current parent node.
-  def visit_children(parent)
+  def visit_child_nodes(parent)
     with_parent parent do
       parent.children = super.flatten
       parent
@@ -93,7 +93,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Modifies exception backtraces to include the imported file.
   def visit_import(node)
-    # Don't use #visit_children to avoid adding the import node to the list of parents.
+    # Don't use #visit_child_nodes to avoid adding the import node to the list of parents.
     node.children.map {|c| visit(c)}.flatten
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.children.first.filename)
@@ -123,8 +123,11 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Asserts that all the mixin's children are valid in their new location.
   def visit_mixin(node)
-    # Don't use #visit_children to avoid adding the mixin node to the list of parents.
-    node.children.map {|c| visit(c)}.flatten
+    checker = Sass::Tree::Visitors::CheckNesting.new
+    # double checks that including the mixin won't create an invalid tree
+    children = node.children.map {|c| visit(c) }.flatten
+    children.each {|c| checker.check!(self, parent, c) }
+    children
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => node.name, :filename => node.filename, :line => node.line)
     e.add_backtrace(:filename => node.filename, :line => node.line)

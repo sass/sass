@@ -77,6 +77,14 @@ module Sass
       mixins_in_use.delete(popped[:mixin]) if popped && popped[:mixin]
     end
 
+    def current_mixin_caller_env
+      stack.find{|frame| frame[:mixin_caller_env] }[:mixin_caller_env]
+    end
+
+    def current_mixin_content
+      stack.find{|frame| frame[:mixin_content] }[:mixin_content]
+    end
+
     # A list of stack frames in the mixin/include stack.
     # The last element in the list is the most deeply-nested frame.
     #

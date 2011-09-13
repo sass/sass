@@ -13,7 +13,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     @environment = env
   end
 
-  # If an exception is raised, this add proper metadata to the backtrace.
+  # If an exception is raised, this adds proper metadata to the backtrace.
   def visit(node)
     super(node.dup)
   rescue Sass::SyntaxError => e
@@ -22,7 +22,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   # Keeps track of the current environment.
-  def visit_children(parent)
+  def visit_child_nodes(parent)
     with_environment Sass::Environment.new(@environment) do
       parent.children = super.flatten
       parent
@@ -165,8 +165,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     original_env = @environment
     original_env.push_frame(:filename => node.filename, :line => node.line)
-    original_env.prepare_frame(:mixin => node.name)
+    original_env.prepare_frame(:mixin => node.name, :mixin_content => node.children, :mixin_caller_env => original_env)
     raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
+
+    if node.children.any? && !mixin.accepts_style_block?
+      raise Sass::SyntaxError, %Q{Mixin "#{node.name}" does not accept a content block.}
+    end
 
     passed_args = node.args.dup
     passed_keywords = node.keywords.dup
@@ -201,12 +205,18 @@ END
     node
   rescue Sass::SyntaxError => e
     if original_env # Don't add backtrace info if this is an @include loop
-      e.modify_backtrace(:mixin => node.name, :line => node.line)
+      e.modify_backtrace(:mixin => node.name, :line => node.line, :mixin_content => nil)
       e.add_backtrace(:line => node.line)
     end
     raise e
   ensure
     original_env.pop_frame if original_env
+  end
+
+  def visit_content(node)
+    with_environment(@environment.current_mixin_caller_env) do
+      (@environment.current_mixin_content || []).map{|c| visit(c.dup) }
+    end
   end
 
   # Runs any SassScript that may be embedded in a property.
