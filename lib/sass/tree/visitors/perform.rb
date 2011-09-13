@@ -165,7 +165,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     original_env = @environment
     original_env.push_frame(:filename => node.filename, :line => node.line)
-    original_env.prepare_frame(:mixin => node.name, :mixin_content => node.children, :mixin_caller_env => original_env)
+    original_env.prepare_frame(:mixin => node.name)
     raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
 
     if node.children.any? && !mixin.accepts_style_block?
@@ -200,6 +200,8 @@ END
       raise Sass::SyntaxError.new("Mixin #{node.name} is missing parameter #{var.inspect}.") unless env.var(var.name)
       env
     end
+    environment.caller = Sass::Environment.new(original_env)
+    environment.content = node.children if node.has_children
 
     with_environment(environment) {node.children = mixin.tree.map {|c| visit(c)}.flatten}
     node
@@ -214,9 +216,8 @@ END
   end
 
   def visit_content(node)
-    with_environment(@environment.current_mixin_caller_env) do
-      (@environment.current_mixin_content || []).map{|c| visit(c.dup) }
-    end
+    content = @environment.content || []
+    with_environment(@environment.caller) {content.map {|c| visit(c.dup)}}
   end
 
   # Runs any SassScript that may be embedded in a property.
