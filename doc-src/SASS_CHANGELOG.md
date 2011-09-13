@@ -28,6 +28,8 @@
   event that you were using it in your code, you should now use
    `Sass::Script::Number.precision_factor` instead.
 
+* Don't crash when running `sass-convert` with selectors with two commas in a row.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
