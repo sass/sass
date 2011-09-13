@@ -22,7 +22,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   # Keeps track of the current environment.
-  def visit_child_nodes(parent)
+  def visit_children(parent)
     with_environment Sass::Environment.new(@environment) do
       parent.children = super.flatten
       parent

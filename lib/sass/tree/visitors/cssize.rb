@@ -24,7 +24,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   end
 
   # Keeps track of the current parent node.
-  def visit_child_nodes(parent)
+  def visit_children(parent)
     with_parent parent do
       parent.children = super.flatten
       parent
@@ -93,7 +93,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Modifies exception backtraces to include the imported file.
   def visit_import(node)
-    # Don't use #visit_child_nodes to avoid adding the import node to the list of parents.
+    # Don't use #visit_children to avoid adding the import node to the list of parents.
     node.children.map {|c| visit(c)}.flatten
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.children.first.filename)

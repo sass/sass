@@ -6,7 +6,7 @@ class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
     super(node.dup)
   end
 
-  def visit_child_nodes(parent)
+  def visit_children(parent)
     parent.children = parent.children.map {|c| visit(c)}
     parent
   end
