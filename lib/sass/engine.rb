@@ -798,7 +798,7 @@ WARNING
       Tree::MixinDefNode.new(name, args)
     end
 
-    CONTENT_RE = /^(?:@content)\s*(.+)?$/
+    CONTENT_RE = /^@content\s*(.+)?$/
     def parse_content_directive(line)
       trailing = line.text.scan(CONTENT_RE).first.first
       raise SyntaxError.new("Invalid content directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
