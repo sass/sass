@@ -1270,6 +1270,16 @@ $color: blue;
 SASS
   end
 
+  def test_empty_content
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  b: c; }
+CSS
+@mixin foo { @content }
+a { b: c; @include foo {} }
+SCSS
+  end
+
   def test_options_passed_to_script
     assert_equal <<CSS, render(<<SCSS, :style => :compressed)
 foo{color:#000}

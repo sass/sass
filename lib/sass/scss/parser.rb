@@ -143,11 +143,12 @@ module Sass
         name = tok! IDENT
         args, keywords = sass_script(:parse_mixin_include_arglist)
         ss
-        include_node = Sass::Tree::MixinNode.new(name, args, keywords)
+        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords))
         if tok?(/\{/)
-          block(node(include_node), :directive)
+          include_node.has_children = true
+          block(include_node, :directive)
         else
-          node(include_node)
+          include_node
         end
       end
 

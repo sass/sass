@@ -1181,6 +1181,15 @@ SCSS
 
   end
 
+  def test_empty_content
+    assert_scss_to_scss(<<SCSS)
+@mixin foo {
+  @content; }
+
+@include foo {}
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

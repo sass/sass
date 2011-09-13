@@ -175,7 +175,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       keywords = node.keywords.map {|k, v| "$#{dasherize(k)}: #{v.to_sass(@options)}"}.join(', ')
       arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
     end
-    "#{tab_str}#{@format == :sass ? '+' : '@include '}#{dasherize(node.name)}#{arglist}#{node.children.any? ? yield : semi}\n"
+    "#{tab_str}#{@format == :sass ? '+' : '@include '}#{dasherize(node.name)}#{arglist}#{node.has_children ? yield : semi}\n"
   end
 
   def visit_content(node)
