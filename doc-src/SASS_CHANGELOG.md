@@ -42,6 +42,10 @@ to support any vendor prefix, as well as the plain `:any` selector.
   event that you were using it in your code, you should now use
    `Sass::Script::Number.precision_factor` instead.
 
+* Don't crash when running `sass-convert` with selectors with two commas in a row.
+
+* Explicitly require Ruby >= 1.8.7 (thanks [Eric Mason](https://github.com/ericmason)).
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
