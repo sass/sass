@@ -216,7 +216,7 @@ END
   end
 
   def visit_content(node)
-    content = @environment.content || []
+    raise Sass::SyntaxError.new("No @content passed.") unless content = @environment.content
     with_environment(@environment.caller) {content.map {|c| visit(c.dup)}}
   end
 
