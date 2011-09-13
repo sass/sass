@@ -1152,7 +1152,7 @@ SASS
 SCSS
   end
 
-  def test_children_conversion
+  def test_content_conversion
     assert_renders(<<SASS, <<SCSS)
 $color: blue
 
