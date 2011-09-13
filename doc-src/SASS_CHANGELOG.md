@@ -37,6 +37,11 @@
   Note that the contents passed to the mixin are evaluated in the scope they are used,
   not the scope of the mixin. {file:SASS_REFERENCE.md#variable_scope_and_style_blocks More on variable scoping.}
 
+## `:any` Support
+
+Previously, only the `:-moz-any` selector was supported; this has been expanded
+to support any vendor prefix, as well as the plain `:any` selector.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Parent selectors followed immediately by identifiers (e.g. `&foo`)

@@ -625,7 +625,7 @@ module Sass
       end
 
       def negation
-        return unless name = tok(NOT) || tok(MOZ_ANY)
+        return unless name = tok(NOT) || tok(ANY)
         ss
         @expected = "selector"
         sel = selector_comma_sequence
