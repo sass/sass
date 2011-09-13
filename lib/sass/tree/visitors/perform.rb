@@ -169,7 +169,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
 
     if node.children.any? && !mixin.has_content
-      raise Sass::SyntaxError, %Q{Mixin "#{node.name}" does not accept a content block.}
+      raise Sass::SyntaxError.new(%Q{Mixin "#{node.name}" does not accept a content block.})
     end
 
     passed_args = node.args.dup
