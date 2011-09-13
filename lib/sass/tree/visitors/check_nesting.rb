@@ -11,6 +11,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
             try_send("invalid_#{node_name node}_real_parent?", real_parent, node)))
         raise Sass::SyntaxError.new(error)
       end
+      yield if block_given?
     rescue Sass::SyntaxError => e
       e.modify_backtrace(:filename => node.filename, :line => node.line)
       raise e
@@ -20,8 +21,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   protected
 
   def visit(node)
-    check!(@real_parent, @parent, node)
-    super
+    check!(@real_parent, @parent, node) { super }
   end
 
   TRANS_PARENT_CLASSES = [ Sass::Tree::EachNode,   Sass::Tree::ForNode,   Sass::Tree::IfNode,
