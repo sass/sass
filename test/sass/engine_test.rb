@@ -2558,6 +2558,40 @@ $color: blue
 SASS
   end
 
+  def test_nested_content_blocks
+    assert_equal <<CSS, render(<<SASS)
+.foo {
+  a: foo; }
+  .foo .bar {
+    a: bar; }
+    .foo .bar .baz {
+      a: baz; }
+      .foo .bar .baz .outside {
+        a: outside;
+        color: red; }
+CSS
+$a: outside
+=baz($a: baz)
+  .baz
+    a: $a
+    @content
+=bar($a: bar)
+  .bar
+    a: $a
+    +baz
+      @content
+=foo($a: foo)
+  .foo
+    a: $a
+    +bar
+      @content
++foo
+  .outside
+    a: $a
+    color: red
+SASS
+  end
+
   private
 
   def assert_hash_has(hash, expected)

@@ -163,11 +163,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_mixin(node)
     handle_include_loop!(node) if @environment.mixins_in_use.include?(node.name)
 
-    @current_mixin_content, old_mixin_content = node.children, @current_mixin_content
-    @current_mixin_env, old_mixin_env = @environment, @current_mixin_env
     original_env = @environment
     original_env.push_frame(:filename => node.filename, :line => node.line)
-    original_env.prepare_frame(:mixin => node.name)
+    original_env.prepare_frame(:mixin => node.name, :mixin_content => node.children, :mixin_caller_env => original_env)
     raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
 
     if node.children.any? && !mixin.accepts_style_block?
@@ -207,19 +205,17 @@ END
     node
   rescue Sass::SyntaxError => e
     if original_env # Don't add backtrace info if this is an @include loop
-      e.modify_backtrace(:mixin => node.name, :line => node.line)
+      e.modify_backtrace(:mixin => node.name, :line => node.line, :mixin_content => nil)
       e.add_backtrace(:line => node.line)
     end
     raise e
   ensure
     original_env.pop_frame if original_env
-    @current_mixin_content = old_mixin_content
-    @current_mixin_env = old_mixin_env
   end
 
   def visit_content(node)
-    with_environment(@current_mixin_env) do
-      (@current_mixin_content || []).map{|c| visit(c.dup) }
+    with_environment(@environment.current_mixin_caller_env) do
+      (@environment.current_mixin_content || []).map{|c| visit(c.dup) }
     end
   end
 
