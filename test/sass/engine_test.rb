@@ -2036,6 +2036,31 @@ CSS
 
   # Regression tests
 
+  def test_multiple_warns_in_nested_mixins
+    assert_warning <<WARNING do
+WARNING: 1
+         on line 2 of test_multiple_warns_in_nested_mixins_inline.sass, in `foo'
+         from line 6 of test_multiple_warns_in_nested_mixins_inline.sass, in `bar'
+         from line 8 of test_multiple_warns_in_nested_mixins_inline.sass
+
+WARNING: 2
+         on line 3 of test_multiple_warns_in_nested_mixins_inline.sass, in `foo'
+         from line 6 of test_multiple_warns_in_nested_mixins_inline.sass, in `bar'
+         from line 8 of test_multiple_warns_in_nested_mixins_inline.sass
+WARNING
+      render <<SASS
+=foo
+  @warn 1
+  @warn 2
+
+=bar
+  +foo
+
++bar
+SASS
+    end
+  end
+
   def test_parens_in_mixins
     assert_equal(<<CSS, render(<<SASS))
 .foo {
