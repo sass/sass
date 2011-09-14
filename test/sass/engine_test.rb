@@ -2521,22 +2521,26 @@ SASS
   def test_using_parent_mixin_in_content
     assert_equal <<CSS, render(<<SASS)
 .parent {
-  background-color: red;
-  border-color: red; }
-  .parent .child {
-    background-color: yellow;
-    color: blue;
-    border-color: yellow; }
+  before-color: red;
+  after-color: red; }
+  .parent .sibling {
+    before-color: yellow;
+    after-color: yellow; }
+    .parent .sibling .child {
+      before-color: green;
+      color: blue;
+      after-color: green; }
 CSS
 $color: blue
 =context($class, $color: red)
   .\#{$class}
-    background-color: $color
+    before-color: $color
     @content
-    border-color: $color
+    after-color: $color
 +context(parent)
-  +context(child, $color: yellow)
-    color: $color
+  +context(sibling, $color: yellow)
+    +context(child, $color: green)
+      color: $color
 SASS
   end
 
