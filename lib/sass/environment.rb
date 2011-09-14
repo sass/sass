@@ -19,6 +19,8 @@ module Sass
     # @return [Environment]
     attr_reader :parent
     attr_writer :options
+    attr_writer :caller
+    attr_writer :content
 
     # @param parent [Environment] See \{#parent}
     def initialize(parent = nil)
@@ -28,6 +30,19 @@ module Sass
         @mixins_in_use = Set.new
         set_var("important", Script::String.new("!important"))
       end
+    end
+
+    # The environment of the caller of this environment's mixin or function.
+    # @return {Environment?}
+    def caller
+      @caller || (@parent && @parent.caller)
+    end
+
+    # The content passed to this environmnet. This is naturally only set
+    # for mixin body environments with content passed in.
+    # @return {Environment?}
+    def content
+      @content || (@parent && @parent.content)
     end
 
     # The options hash.

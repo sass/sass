@@ -101,7 +101,7 @@ module Sass
       end
 
       DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
-        :each, :while, :if, :else, :extend, :import, :media, :charset]
+        :each, :while, :if, :else, :extend, :import, :media, :charset, :content]
 
       def directive
         return unless tok(/@/)
@@ -143,7 +143,18 @@ module Sass
         name = tok! IDENT
         args, keywords = sass_script(:parse_mixin_include_arglist)
         ss
-        node(Sass::Tree::MixinNode.new(name, args, keywords))
+        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords))
+        if tok?(/\{/)
+          include_node.has_children = true
+          block(include_node, :directive)
+        else
+          include_node
+        end
+      end
+
+      def content_directive
+        ss
+        node(Sass::Tree::ContentNode.new)
       end
 
       def function_directive

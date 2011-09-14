@@ -1152,6 +1152,44 @@ SASS
 SCSS
   end
 
+  def test_content_conversion
+    assert_renders(<<SASS, <<SCSS)
+$color: blue
+
+=context($class, $color: red)
+  .\#{$class}
+    background-color: $color
+    @content
+    border-color: $color
+
++context(parent)
+  +context(child, $color: yellow)
+    color: $color
+SASS
+$color: blue;
+
+@mixin context($class, $color: red) {
+  .\#{$class} {
+    background-color: $color;
+    @content;
+    border-color: $color; } }
+
+@include context(parent) {
+  @include context(child, $color: yellow) {
+    color: $color; } }
+SCSS
+
+  end
+
+  def test_empty_content
+    assert_scss_to_scss(<<SCSS)
+@mixin foo {
+  @content; }
+
+@include foo {}
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

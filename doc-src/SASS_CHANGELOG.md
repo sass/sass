@@ -5,6 +5,37 @@
 
 ## 3.2.0 (Unreleased)
 
+* A mixin include can now accept a block of content ({file:SASS_REFERENCE.md#mixin-content Reference Documentation}).
+  The style block will be passed to the mixin and can be placed at the point @content is used. E.g.:
+  
+      @mixin iphone {
+        @media only screen and (max-width: 480px) {
+          @content;
+        }
+      }
+      
+      @include iphone {
+        body { color: red }
+      }
+
+  Or in `.sass` syntax:
+  
+      =iphone
+        @media only screen and (max-width: 480px)
+          @content
+      
+      +iphone
+        body
+          color: red
+
+  Produces:
+  
+      @media only screen and (max-width: 480px) {
+        body { color: red }
+      }
+  
+  Note that the contents passed to the mixin are evaluated in the scope they are used,
+  not the scope of the mixin. {file:SASS_REFERENCE.md#variable_scope_and_content_blocks More on variable scoping.}
 
 ## `:any` Support
 

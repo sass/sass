@@ -13,7 +13,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     @environment = env
   end
 
-  # If an exception is raised, this add proper metadata to the backtrace.
+  # If an exception is raised, this adds proper metadata to the backtrace.
   def visit(node)
     super(node.dup)
   rescue Sass::SyntaxError => e
@@ -116,7 +116,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Loads the function into the environment.
   def visit_function(node)
     @environment.set_function(node.name,
-      Sass::Callable.new(node.name, node.args, @environment, node.children))
+      Sass::Callable.new(node.name, node.args, @environment, node.children, !:has_content))
     []
   end
 
@@ -155,7 +155,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Loads a mixin into the environment.
   def visit_mixindef(node)
     @environment.set_mixin(node.name,
-      Sass::Callable.new(node.name, node.args, @environment, node.children))
+      Sass::Callable.new(node.name, node.args, @environment, node.children, node.has_content))
     []
   end
 
@@ -167,6 +167,10 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     original_env.push_frame(:filename => node.filename, :line => node.line)
     original_env.prepare_frame(:mixin => node.name)
     raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
+
+    if node.children.any? && !mixin.has_content
+      raise Sass::SyntaxError.new(%Q{Mixin "#{node.name}" does not accept a content block.})
+    end
 
     passed_args = node.args.dup
     passed_keywords = node.keywords.dup
@@ -196,9 +200,12 @@ END
       raise Sass::SyntaxError.new("Mixin #{node.name} is missing parameter #{var.inspect}.") unless env.var(var.name)
       env
     end
+    environment.caller = Sass::Environment.new(original_env)
+    environment.content = node.children if node.has_children
 
-    with_environment(environment) {node.children = mixin.tree.map {|c| visit(c)}.flatten}
-    node
+    trace_node = Sass::Tree::TraceNode.from_node(node.name, node)
+    with_environment(environment) {trace_node.children = mixin.tree.map {|c| visit(c)}.flatten}
+    trace_node
   rescue Sass::SyntaxError => e
     if original_env # Don't add backtrace info if this is an @include loop
       e.modify_backtrace(:mixin => node.name, :line => node.line)
@@ -207,6 +214,17 @@ END
     raise e
   ensure
     original_env.pop_frame if original_env
+  end
+
+  def visit_content(node)
+    raise Sass::SyntaxError.new("No @content passed.") unless content = @environment.content
+    trace_node = Sass::Tree::TraceNode.from_node('@content', node)
+    with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}}
+    trace_node
+  rescue Sass::SyntaxError => e
+    e.modify_backtrace(:mixin => '@content', :line => node.line)
+    e.add_backtrace(:line => node.line)
+    raise e
   end
 
   # Runs any SassScript that may be embedded in a property.
