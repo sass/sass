@@ -64,9 +64,9 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     "@charset may only be used at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
 
-  INVALID_EXTEND_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::MixinDefNode]
+  VALID_EXTEND_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::MixinDefNode, Sass::Tree::MixinNode]
   def invalid_extend_parent?(parent, child)
-    unless is_any_of?(parent, INVALID_EXTEND_PARENTS)
+    unless is_any_of?(parent, VALID_EXTEND_PARENTS)
       "Extend directives may only be used within rules."
     end
   end
@@ -75,20 +75,20 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     "Functions may only be defined at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
 
-  INVALID_FUNCTION_CHILDREN = [
+  VALID_FUNCTION_CHILDREN = [
     Sass::Tree::CommentNode,  Sass::Tree::DebugNode, Sass::Tree::EachNode,
     Sass::Tree::ForNode,      Sass::Tree::IfNode,    Sass::Tree::ReturnNode,
     Sass::Tree::VariableNode, Sass::Tree::WarnNode,  Sass::Tree::WhileNode
   ]
   def invalid_function_child?(parent, child)
-    unless is_any_of?(child, INVALID_FUNCTION_CHILDREN)
+    unless is_any_of?(child, VALID_FUNCTION_CHILDREN)
       "Functions can only contain variable declarations and control directives."
     end
   end
 
   INVALID_IMPORT_PARENTS = [
-    Sass::Tree::IfNode,   Sass::Tree::ForNode, Sass::Tree::WhileNode,
-    Sass::Tree::EachNode, Sass::Tree::MixinDefNode
+    Sass::Tree::IfNode,   Sass::Tree::ForNode,      Sass::Tree::WhileNode,
+    Sass::Tree::EachNode, Sass::Tree::MixinDefNode, Sass::Tree::MixinNode
   ]
   def invalid_import_parent?(parent, child)
     if is_any_of?(@real_parent, INVALID_IMPORT_PARENTS)
