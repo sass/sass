@@ -203,7 +203,7 @@ END
     environment.caller = Sass::Environment.new(original_env)
     environment.content = node.children if node.has_children
 
-    trace_node = Sass::Tree::MixinTraceNode.from_mixin(node)
+    trace_node = Sass::Tree::TraceNode.from_node(node.name, node)
     with_environment(environment) {trace_node.children = mixin.tree.map {|c| visit(c)}.flatten}
     trace_node
   rescue Sass::SyntaxError => e

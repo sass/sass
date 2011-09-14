@@ -18,7 +18,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   PARENT_CLASSES = [ Sass::Tree::EachNode,   Sass::Tree::ForNode,   Sass::Tree::IfNode,
-                     Sass::Tree::ImportNode, Sass::Tree::WhileNode, Sass::Tree::MixinTraceNode]
+                     Sass::Tree::ImportNode, Sass::Tree::TraceNode, Sass::Tree::WhileNode]
   def visit_children(parent)
     old_parent = @parent
     @parent = parent unless is_any_of?(parent, PARENT_CLASSES)

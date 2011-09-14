@@ -121,9 +121,9 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     (node.children.empty? ? [] : [node]) + media
   end
 
-  # Asserts that all the mixin's children are valid in their new location.
-  def visit_mixintrace(node)
-    # Don't use #visit_children to avoid adding the mixin node to the list of parents.
+  # Asserts that all the traced children are valid in their new location.
+  def visit_trace(node)
+    # Don't use #visit_children to avoid adding the trace node to the list of parents.
     node.children.map {|c| visit(c)}.flatten
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => node.name, :filename => node.filename, :line => node.line)
