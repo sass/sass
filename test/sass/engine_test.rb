@@ -2612,6 +2612,42 @@ SASS
     assert_equal(7, e.sass_line)
   end
 
+  def test_content_backtrace_for_perform
+    render(<<SASS)
+=foo
+  @content
+
+a
+  +foo
+    b: 1em + 2px
+SASS
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal([
+        {:mixin => '@content', :line => 6, :filename => 'test_content_backtrace_for_perform_inline.sass'},
+        {:mixin => 'foo', :line => 2, :filename => 'test_content_backtrace_for_perform_inline.sass'},
+        {:line => 5, :filename => 'test_content_backtrace_for_perform_inline.sass'},
+      ], e.sass_backtrace)
+  end
+
+  def test_content_backtrace_for_cssize
+    render(<<SASS)
+=foo
+  @content
+
+a
+  +foo
+    @extend foo bar baz
+SASS
+    assert(false, "Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal([
+        {:mixin => '@content', :line => 6, :filename => 'test_content_backtrace_for_cssize_inline.sass'},
+        {:mixin => 'foo', :line => 2, :filename => 'test_content_backtrace_for_cssize_inline.sass'},
+        {:line => 5, :filename => 'test_content_backtrace_for_cssize_inline.sass'},
+      ], e.sass_backtrace)
+  end
+
   private
 
   def assert_hash_has(hash, expected)
