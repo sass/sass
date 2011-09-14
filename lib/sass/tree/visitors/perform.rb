@@ -219,7 +219,7 @@ END
   def visit_content(node)
     raise Sass::SyntaxError.new("No @content passed.") unless content = @environment.content
     trace_node = Sass::Tree::TraceNode.from_node('@content', node)
-    with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}}
+    with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}.flatten}
     trace_node
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => '@content', :line => node.line)

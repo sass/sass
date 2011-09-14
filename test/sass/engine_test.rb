@@ -2559,6 +2559,20 @@ $color: blue
 SASS
   end
 
+  def test_content_with_variable
+    assert_equal <<CSS, render(<<SASS)
+.foo {
+  a: 1px; }
+CSS
+=foo
+  .foo
+    @content
++foo
+  $a: 1px
+  a: $a
+SASS
+  end
+
   def test_nested_content_blocks
     assert_equal <<CSS, render(<<SASS)
 .foo {
