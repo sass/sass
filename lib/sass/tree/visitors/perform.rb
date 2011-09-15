@@ -11,6 +11,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def initialize(env)
     @environment = env
+    # Stack trace information, including mixin includes and imports.
+    @stack = []
   end
 
   # If an exception is raised, this adds proper metadata to the backtrace.
@@ -140,7 +142,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       return Sass::Tree::DirectiveNode.new("@import url(#{path})")
     end
 
-    @environment.push_frame(:filename => node.filename, :line => node.line)
+    @stack.push(:filename => node.filename, :line => node.line)
     root = node.imported_file.to_tree
     node.children = root.children.map {|c| visit(c)}.flatten
     node
@@ -149,7 +151,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     e.add_backtrace(:filename => node.filename, :line => node.line)
     raise e
   ensure
-    @environment.pop_frame
+    @stack.pop unless path
   end
 
   # Loads a mixin into the environment.
@@ -161,11 +163,11 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Runs a mixin.
   def visit_mixin(node)
-    handle_include_loop!(node) if @environment.mixins_in_use.include?(node.name)
+    include_loop = true
+    handle_include_loop!(node) if @stack.any? {|e| e[:name] == node.name}
+    include_loop = false
 
-    original_env = @environment
-    original_env.push_frame(:filename => node.filename, :line => node.line)
-    original_env.prepare_frame(:mixin => node.name)
+    @stack.push(:filename => node.filename, :line => node.line, :name => node.name)
     raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
 
     if node.children.any? && !mixin.has_content
@@ -200,24 +202,25 @@ END
       raise Sass::SyntaxError.new("Mixin #{node.name} is missing parameter #{var.inspect}.") unless env.var(var.name)
       env
     end
-    environment.caller = Sass::Environment.new(original_env)
+    environment.caller = Sass::Environment.new(@environment)
     environment.content = node.children if node.has_children
 
     trace_node = Sass::Tree::TraceNode.from_node(node.name, node)
     with_environment(environment) {trace_node.children = mixin.tree.map {|c| visit(c)}.flatten}
     trace_node
   rescue Sass::SyntaxError => e
-    if original_env # Don't add backtrace info if this is an @include loop
+    unless include_loop
       e.modify_backtrace(:mixin => node.name, :line => node.line)
       e.add_backtrace(:line => node.line)
     end
     raise e
   ensure
-    original_env.pop_frame if original_env
+    @stack.pop unless include_loop
   end
 
   def visit_content(node)
     raise Sass::SyntaxError.new("No @content passed.") unless content = @environment.content
+    @stack.push(:filename => node.filename, :line => node.line, :name => '@content')
     trace_node = Sass::Tree::TraceNode.from_node('@content', node)
     with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}.flatten}
     trace_node
@@ -225,6 +228,8 @@ END
     e.modify_backtrace(:mixin => '@content', :line => node.line)
     e.add_backtrace(:line => node.line)
     raise e
+  ensure
+    @stack.pop if content
   end
 
   # Runs any SassScript that may be embedded in a property.
@@ -246,9 +251,9 @@ END
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.filename, node.line)
     node.parsed_rules ||= parser.parse_selector
     if node.options[:trace_selectors]
-      @environment.push_frame(:filename => node.filename, :line => node.line)
-      node.stack_trace = @environment.stack_trace
-      @environment.pop_frame
+      @stack.push(:filename => node.filename, :line => node.line)
+      node.stack_trace = stack_trace
+      @stack.pop
     end
     yield
   end
@@ -263,17 +268,17 @@ END
 
   # Prints the expression to STDERR with a stylesheet trace.
   def visit_warn(node)
-    @environment.push_frame(:filename => node.filename, :line => node.line)
+    @stack.push(:filename => node.filename, :line => node.line)
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::String)
     msg = "WARNING: #{res}\n         "
-    msg << @environment.stack_trace.join("\n         ")
+    msg << stack_trace.join("\n         ")
     # JRuby doesn't automatically add a newline for #warn
     msg << (RUBY_PLATFORM =~ /java/ ? "\n\n" : "\n")
     Sass::Util.sass_warn msg
     []
   ensure
-    @environment.pop_frame
+    @stack.pop
   end
 
   # Runs the child nodes until the continuation expression becomes false.
@@ -295,6 +300,19 @@ END
 
   private
 
+  def stack_trace
+    trace = []
+    stack = @stack.map {|e| e.dup}.reverse
+    stack.each_cons(2) {|(e1, e2)| e1[:caller] = e2[:name]; [e1, e2]}
+    stack.each_with_index do |entry, i|
+      msg = "#{i == 0 ? "on" : "from"} line #{entry[:line]}"
+      msg << " of #{entry[:filename] || "an unknown file"}"
+      msg << ", in `#{entry[:caller]}'" if entry[:caller]
+      trace << msg
+    end
+    trace
+  end
+
   def run_interp(text)
     text.map do |r|
       next r if r.is_a?(String)
@@ -307,13 +325,23 @@ END
 
   def handle_include_loop!(node)
     msg = "An @include loop has been found:"
-    mixins = @environment.stack.map {|s| s[:mixin]}.compact
-    if mixins.size == 2 && mixins[0] == mixins[1]
-      raise Sass::SyntaxError.new("#{msg} #{node.name} includes itself")
+    content_count = 0
+    mixins = @stack.reverse.map {|s| s[:name]}.compact.select do |s|
+      if s == '@content'
+        content_count += 1
+        false
+      elsif content_count > 0
+        content_count -= 1
+        false
+      else
+        true
+      end
     end
 
-    mixins << node.name
-    msg << "\n" << Sass::Util.enum_cons(mixins, 2).map do |m1, m2|
+    return if mixins.empty?
+    raise Sass::SyntaxError.new("#{msg} #{node.name} includes itself") if mixins.size == 1
+
+    msg << "\n" << Sass::Util.enum_cons(mixins.reverse + [node.name], 2).map do |m1, m2|
       "    #{m1} includes #{m2}"
     end.join("\n")
     raise Sass::SyntaxError.new(msg)
