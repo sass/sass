@@ -144,6 +144,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     @stack.push(:filename => node.filename, :line => node.line)
     root = node.imported_file.to_tree
+    Sass::Tree::Visitors::CheckNesting.visit(root)
     node.children = root.children.map {|c| visit(c)}.flatten
     node
   rescue Sass::SyntaxError => e
