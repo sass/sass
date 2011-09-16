@@ -259,7 +259,7 @@ SASS
   end
 
   def test_imported_exception
-    [1, 2, 3, 4].each do |i|
+    [1, 2, 3, 4, 5].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -281,7 +281,7 @@ SASS
   end
 
   def test_double_imported_exception
-    [1, 2, 3, 4].each do |i|
+    [1, 2, 3, 4, 5].each do |i|
       begin
         Sass::Engine.new("@import nested_bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err

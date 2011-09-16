@@ -32,6 +32,8 @@
 
 * Explicitly require Ruby >= 1.8.7 (thanks [Eric Mason](https://github.com/ericmason)).
 
+* Properly validate the nesting of elements in imported stylesheets.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
