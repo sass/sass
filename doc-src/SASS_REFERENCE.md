@@ -484,7 +484,7 @@ are all in the `font` namespace.
 In CSS, if you want to set a bunch of properties in the same namespace,
 you have to type it out each time.
 Sass provides a shortcut for this:
-just write the namespace one,
+just write the namespace once,
 then nest each of the sub-properties within it.
 For example:
 
