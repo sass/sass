@@ -744,6 +744,22 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
+.baz:foo, :foo:after {
+  a: b; }
+CSS
+.baz:foo {a: b}
+:after {@extend .baz}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.baz:after, :foo:after {
+  a: b; }
+CSS
+.baz:after {a: b}
+:foo {@extend .baz}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
 :foo {
   a: b; }
 CSS

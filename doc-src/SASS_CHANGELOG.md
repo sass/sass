@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.1.6 (Unreleased)
+
+* Make sure `:after` and `:before` selectors end up on the end of
+  selectors resulting from `@extend`.
+
 ## 3.1.5
 
 * Updated the vendored FSSM version, which will avoid segfaults on OS
