@@ -385,7 +385,7 @@ MSG
 
         dirs, files = @args.map {|name| split_colon_path(name)}.
           partition {|i, _| File.directory? i}
-        files.map! {|from, to| [from, to || from.gsub(/\..*?$/, '.css')]}
+        files.map! {|from, to| [from, to || from.gsub(/\.[^.]*?$/, '.css')]}
         dirs.map! {|from, to| [from, to || from]}
         ::Sass::Plugin.options[:template_location] = dirs
 
