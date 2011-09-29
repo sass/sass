@@ -34,6 +34,8 @@
 
 * Properly validate the nesting of elements in imported stylesheets.
 
+* Properly compile files in parent directories with `--watch` and `--update`.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
