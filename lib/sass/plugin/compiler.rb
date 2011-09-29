@@ -38,7 +38,7 @@ module Sass::Plugin
       self.options.merge!(options)
     end
 
-    # Register a callback to be run before stylesheets are mass-updated.
+    # Register a callback to be run after stylesheets are mass-updated.
     # This is run whenever \{#update\_stylesheets} is called,
     # unless the \{file:SASS_REFERENCE.md#never_update-option `:never_update` option}
     # is enabled.
@@ -51,8 +51,8 @@ module Sass::Plugin
     #   the second is the target CSS file.
     define_callback :updating_stylesheets
 
-    # Register a callback to be run before a single stylesheet is updated.
-    # The callback is only run if the stylesheet is guaranteed to be updated;
+    # Register a callback to be run after a single stylesheet is updated.
+    # The callback is only run if the stylesheet is really updated;
     # if the CSS file is fresh, this won't be run.
     #
     # Even if the \{file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
@@ -160,7 +160,6 @@ module Sass::Plugin
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
     def update_stylesheets(individual_files = [])
-      run_updating_stylesheets individual_files
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
 
@@ -169,13 +168,15 @@ module Sass::Plugin
           update_stylesheet(t, c)
         end
       end
+      run_updating_stylesheets individual_files
 
+      files_in_template_location = []
       template_location_array.each do |template_location, css_location|
-
         Dir.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
+          files_in_template_location << [file, css]
 
           if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
             update_stylesheet file, css
@@ -184,6 +185,7 @@ module Sass::Plugin
           end
         end
       end
+      run_updating_stylesheets files_in_template_location
     end
 
     # Watches the template directory (or directories)
@@ -320,8 +322,6 @@ module Sass::Plugin
       rescue Exception => e
         run_compilation_error e, filename, css
         result = Sass::SyntaxError.exception_to_css(e, options)
-      else
-        run_updating_stylesheet filename, css
       end
 
       # Finally, write the file
@@ -331,6 +331,8 @@ module Sass::Plugin
         file.set_encoding(result.encoding) unless Sass::Util.ruby1_8?
         file.print(result)
       end
+
+      run_updating_stylesheet filename, css
     end
 
     def try_delete_css(css)
