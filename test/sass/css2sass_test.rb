@@ -268,6 +268,15 @@ SASS
 CSS
   end
 
+  def test_double_comma
+    assert_equal(<<SASS, css2sass(<<CSS))
+foo, bar
+  a: b
+SASS
+foo, , bar { a: b }
+CSS
+  end
+
   # Error reporting
 
   def test_error_reporting

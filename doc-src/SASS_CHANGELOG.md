@@ -3,6 +3,37 @@
 * Table of contents
 {:toc}
 
+## 3.1.8 (Unreleased)
+
+* Deprecate parent selectors followed immediately by identifiers (e.g. `&foo`).
+  This should never have worked, since it violates the rule
+  of `&` only being usable where an element selector would.
+
+* Add a `--force` option to the `sass` executable which makes `--update`
+  always compile all stylesheets, even if the CSS is newer.
+
+* Disallow semicolons at the end of `@import` directives in the indented syntax.
+
+* Don't error out when being used as a library without requiring `fileutil`.
+
+* Don't crash when Compass-style sprite imports are used with `StalenessChecker`
+  (thanks to [Matthias Bauer](https://github.com/moeffju)).
+
+* The numeric precision of numbers in Sass can now be set using the
+  `--precision` option to the command line. Additionally, the default
+  number of digits of precision in Sass output can now be
+  changed by setting `Sass::Script::Number.precision` to an integer
+  (defaults to 3). Since this value can now be changed, the `PRECISION`
+  constant in `Sass::Script::Number` has been deprecated. In the unlikely
+  event that you were using it in your code, you should now use
+   `Sass::Script::Number.precision_factor` instead.
+
+* Don't crash when running `sass-convert` with selectors with two commas in a row.
+
+* Explicitly require Ruby >= 1.8.7 (thanks [Eric Mason](https://github.com/ericmason)).
+
+* Properly validate the nesting of elements in imported stylesheets.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
@@ -183,7 +214,7 @@ or by commas (e.g. `Helvetica, Arial, sans-serif`).
 In addition, individual values count as single-item lists.
 
 Lists won't behave any differently in Sass 3.1 than they did in 3.0.
-However, you can now do more with them using the new {file:Sass/Script/Functions.html#list-functions list functions}:
+However, you can now do more with them using the new [list functions](Sass/Script/Functions.html#list-functions):
 
 * The {Sass::Script::Functions#nth `nth($list, $n)` function} returns the nth item in a list.
   For example, `nth(1px 2px 10px, 2)` returns the second item, `2px`.

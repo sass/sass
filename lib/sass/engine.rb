@@ -317,7 +317,7 @@ module Sass
       check_encoding!
 
       if @options[:syntax] == :scss
-        root = Sass::SCSS::Parser.new(@template).parse
+        root = Sass::SCSS::Parser.new(@template, @options[:filename]).parse
       else
         root = Tree::RootNode.new(@template)
         append_children(root, tree(tabulate(@template)).first, true)
@@ -559,7 +559,7 @@ WARNING
     def parse_property_or_rule(line)
       scanner = StringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
-      parser = Sass::SCSS::SassParser.new(scanner, @line)
+      parser = Sass::SCSS::SassParser.new(scanner, @options[:filename], @line)
 
       unless res = parser.parse_interp_ident
         return Tree::RuleNode.new(parse_interp(line.text))
@@ -745,6 +745,11 @@ WARNING
         break unless scanner.scan(/,\s*/)
       end
 
+      if scanner.scan(/;/)
+        raise SyntaxError.new("Invalid @import: expected end of line, was \";\".",
+          :line => @line)
+      end
+
       return values
     end
 
@@ -752,12 +757,12 @@ WARNING
       return if scanner.eos?
       unless (str = scanner.scan(Sass::SCSS::RX::STRING)) ||
           (uri = scanner.scan(Sass::SCSS::RX::URI))
-        return Tree::ImportNode.new(scanner.scan(/[^,]+/))
+        return Tree::ImportNode.new(scanner.scan(/[^,;]+/))
       end
 
       val = scanner[1] || scanner[2]
       scanner.scan(/\s*/)
-      if media = scanner.scan(/[^,].*/)
+      if media = scanner.scan(/[^,;].*/)
         Tree::DirectiveNode.new("@import #{str || uri} #{media}")
       elsif uri
         Tree::DirectiveNode.new("@import #{uri}")

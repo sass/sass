@@ -75,7 +75,7 @@ module Sass
     #
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
-      root = Sass::SCSS::CssParser.new(@template).parse
+      root = Sass::SCSS::CssParser.new(@template, @options[:filename]).parse
       expand_commas      root
       parent_ref_rules   root
       remove_parent_refs root
@@ -106,6 +106,7 @@ module Sass
           next child
         end
         child.rule.first.split(',').map do |rule|
+          next if rule.strip.empty?
           node = Tree::RuleNode.new([rule.strip])
           node.children = child.children
           node

@@ -62,6 +62,7 @@ MSG
     "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
     "@if true\n  @import foo" => "Import directives may not be used within control directives or mixins.",
     "@mixin foo\n  @import foo" => "Import directives may not be used within control directives or mixins.",
+    "@import foo;" => "Invalid @import: expected end of line, was \";\".",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
     '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
@@ -258,7 +259,7 @@ SASS
   end
 
   def test_imported_exception
-    [1, 2, 3, 4].each do |i|
+    [1, 2, 3, 4, 5].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -280,7 +281,7 @@ SASS
   end
 
   def test_double_imported_exception
-    [1, 2, 3, 4].each do |i|
+    [1, 2, 3, 4, 5].each do |i|
       begin
         Sass::Engine.new("@import nested_bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -1793,11 +1794,11 @@ SASS
 
   def test_interpolation_doesnt_deep_unquote_strings
     assert_equal(<<CSS, render(<<SASS))
-.foo- "bar" "baz" {
-  a: b; }
+.foo {
+  a: "bar" "baz"; }
 CSS
-.foo-\#{"bar" "baz"}
-  a: b
+.foo
+  a: \#{"bar" "baz"}
 SASS
   end
 
@@ -2451,6 +2452,27 @@ SASS
     assert_equal original_filename, importer.engine("imported").options[:original_filename]
   end
 
+  def test_deprecated_PRECISION
+    assert_warning(<<END) {assert_equal 1000.0, Sass::Script::Number::PRECISION}
+Sass::Script::Number::PRECISION is deprecated and will be removed in a future release. Use Sass::Script::Number.precision_factor instead.
+END
+  end
+  def test_changing_precision
+    begin
+      Sass::Script::Number.precision = 8
+      assert_equal <<CSS, render(<<SASS)
+div {
+  maximum: 1.00000001;
+  too-much: 1.0; }
+CSS
+div
+  maximum : 1.00000001
+  too-much: 1.000000001
+SASS
+    ensure
+      Sass::Script::Number.precision = 3
+    end
+  end
 
   private
 

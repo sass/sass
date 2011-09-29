@@ -9,10 +9,12 @@ module Sass
       # @param str [String, StringScanner] The source document to parse.
       #   Note that `Parser` *won't* raise a nice error message if this isn't properly parsed;
       #   for that, you should use the higher-level {Sass::Engine} or {Sass::CSS}.
+      # @param filename [String] The name of the file being parsed. Used for warnings.
       # @param line [Fixnum] The line on which the source string appeared,
-      #   if it's part of another document
-      def initialize(str, line = 1)
+      #   if it's part of another document.
+      def initialize(str, filename, line = 1)
         @template = str
+        @filename = filename
         @line = line
         @strs = []
       end
@@ -487,21 +489,30 @@ module Sass
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = element_name || id_selector || class_selector ||
-            attrib || negation || pseudo || interpolation_selector ||
-            (tok(/\*/) && Selector::Universal.new(nil))
+        while v = id_selector || class_selector || attrib || negation || pseudo ||
+            interpolation_selector || (tok(/\*/) && Selector::Universal.new(nil))
           res << v
         end
 
-        if tok?(/&/)
-          begin
-            expected('"{"')
-          rescue Sass::SyntaxError => e
-            e.message << "\n\n" << <<MESSAGE
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
+        pos = @scanner.pos
+        line = @line
+        if sel = str? {simple_selector_sequence}
+          @scanner.pos = pos
+          @line = line
+
+          if sel =~ /^&/
+            begin
+              expected('"{"')
+            rescue Sass::SyntaxError => e
+              e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
+              raise e
+            end
+          else
+            Sass::Util.sass_warn(<<MESSAGE)
+DEPRECATION WARNING:
+On line #{@line}#{" of \"#{@filename}\"" if @filename}, after "#{self.class.prior_snippet(@scanner)}"
+Starting in Sass 3.2, "#{sel}" may only be used at the beginning of a selector.
 MESSAGE
-            raise e
           end
         end
 
@@ -875,16 +886,6 @@ MESSAGE
 
       # @private
       def self.expected(scanner, expected, line)
-        pos = scanner.pos
-
-        after = scanner.string[0...pos]
-        # Get rid of whitespace between pos and the last token,
-        # but only if there's a newline in there
-        after.gsub!(/\s*\n\s*$/, '')
-        # Also get rid of stuff before the last newline
-        after.gsub!(/.*\n/, '')
-        after = "..." + after[-15..-1] if after.size > 18
-
         was = scanner.rest.dup
         # Get rid of whitespace between pos and the next token,
         # but only if there's a newline in there
@@ -894,8 +895,22 @@ MESSAGE
         was = was[0...15] + "..." if was.size > 18
 
         raise Sass::SyntaxError.new(
-          "Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"",
+          "Invalid CSS after \"#{prior_snippet(scanner)}\": expected #{expected}, was \"#{was}\"",
           :line => line)
+      end
+
+      # @private
+      def self.prior_snippet(scanner)
+        pos = scanner.pos
+
+        after = scanner.string[0...pos]
+        # Get rid of whitespace between pos and the last token,
+        # but only if there's a newline in there
+        after.gsub!(/\s*\n\s*$/, '')
+        # Also get rid of stuff before the last newline
+        after.gsub!(/.*\n/, '')
+        after = "..." + after[-15..-1] if after.size > 18
+        after
       end
 
       # Avoid allocating lots of new strings for `#tok`.

@@ -72,7 +72,8 @@ module Sass
       # If no such files exist, it should return nil.
       #
       # The {Sass::Engine} to be returned should be passed `options`,
-      # with a few modifications. `:filename` and `:syntax` should be set appropriately,
+      # with a few modifications. `:syntax` should be set appropriately,
+      # `:filename` should be set to `uri`,
       # and `:importer` should be set to this importer.
       #
       # @param uri [String] The URI to import.
