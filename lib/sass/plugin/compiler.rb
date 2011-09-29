@@ -170,12 +170,13 @@ module Sass::Plugin
       end
       run_updating_stylesheets individual_files
 
+      files_in_template_location = []
       template_location_array.each do |template_location, css_location|
-
         Dir.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
+          files_in_template_location << [file, css]
 
           if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
             update_stylesheet file, css
@@ -184,6 +185,7 @@ module Sass::Plugin
           end
         end
       end
+      run_updating_stylesheets files_in_template_location
     end
 
     # Watches the template directory (or directories)
