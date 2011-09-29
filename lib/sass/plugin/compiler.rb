@@ -38,7 +38,7 @@ module Sass::Plugin
       self.options.merge!(options)
     end
 
-    # Register a callback to be run before stylesheets are mass-updated.
+    # Register a callback to be run after stylesheets are mass-updated.
     # This is run whenever \{#update\_stylesheets} is called,
     # unless the \{file:SASS_REFERENCE.md#never_update-option `:never_update` option}
     # is enabled.
@@ -160,7 +160,6 @@ module Sass::Plugin
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
     def update_stylesheets(individual_files = [])
-      run_updating_stylesheets individual_files
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
 
@@ -169,6 +168,7 @@ module Sass::Plugin
           update_stylesheet(t, c)
         end
       end
+      run_updating_stylesheets individual_files
 
       template_location_array.each do |template_location, css_location|
 
