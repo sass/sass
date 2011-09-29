@@ -51,8 +51,8 @@ module Sass::Plugin
     #   the second is the target CSS file.
     define_callback :updating_stylesheets
 
-    # Register a callback to be run before a single stylesheet is updated.
-    # The callback is only run if the stylesheet is guaranteed to be updated;
+    # Register a callback to be run after a single stylesheet is updated.
+    # The callback is only run if the stylesheet is really updated;
     # if the CSS file is fresh, this won't be run.
     #
     # Even if the \{file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
@@ -320,8 +320,6 @@ module Sass::Plugin
       rescue Exception => e
         run_compilation_error e, filename, css
         result = Sass::SyntaxError.exception_to_css(e, options)
-      else
-        run_updating_stylesheet filename, css
       end
 
       # Finally, write the file
@@ -331,6 +329,8 @@ module Sass::Plugin
         file.set_encoding(result.encoding) unless Sass::Util.ruby1_8?
         file.print(result)
       end
+
+      run_updating_stylesheet filename, css
     end
 
     def try_delete_css(css)
