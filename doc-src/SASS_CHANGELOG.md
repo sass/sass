@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.8 (Unreleased)
+## 3.1.8
 
 * Deprecate parent selectors followed immediately by identifiers (e.g. `&foo`).
   This should never have worked, since it violates the rule
