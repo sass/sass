@@ -34,6 +34,9 @@
 
 * Properly validate the nesting of elements in imported stylesheets.
 
+* Add new updated_stylesheet callback, which is run after the stylesheet has
+  been successfully compiled.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.

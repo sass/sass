@@ -65,6 +65,22 @@ module Sass::Plugin
     #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
+    define_callback :updated_stylesheet
+
+    # Register a callback to be run before a single stylesheet is updated.
+    # The callback is only run if the stylesheet is guaranteed to be updated;
+    # if the CSS file is fresh, this won't be run.
+    #
+    # Even if the \{file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
+    # is enabled, this callback won't be run
+    # when an exception CSS file is being written.
+    # To run an action for those files, use \{#on\_compilation\_error}.
+    #
+    # @yield [template, css]
+    # @yieldparam template [String]
+    #   The location of the Sass/SCSS file being updated.
+    # @yieldparam css [String]
+    #   The location of the CSS file being generated.
     define_callback :updating_stylesheet
 
     # Register a callback to be run when Sass decides not to update a stylesheet.
@@ -315,19 +331,24 @@ module Sass::Plugin
         engine_opts = engine_options(:css_filename => css, :filename => filename)
         result = Sass::Engine.for_file(filename, engine_opts).render
       rescue Exception => e
+        compilation_error_occured = true
         run_compilation_error e, filename, css
         result = Sass::SyntaxError.exception_to_css(e, options)
+      else
+        run_updating_stylesheet filename, css
       end
 
-      # Finally, write the file
+      write_file(css, result)
+      run_updated_stylesheet(filename, css) unless compilation_error_occured
+    end
+
+    def write_file(css, content)
       flag = 'w'
       flag = 'wb' if Sass::Util.windows? && options[:unix_newlines]
       File.open(css, flag) do |file|
-        file.set_encoding(result.encoding) unless Sass::Util.ruby1_8?
-        file.print(result)
+        file.set_encoding(content.encoding) unless Sass::Util.ruby1_8?
+        file.print(content)
       end
-
-      run_updating_stylesheet filename, css
     end
 
     def try_delete_css(css)
