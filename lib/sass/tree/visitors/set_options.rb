@@ -50,7 +50,7 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     yield
   end
 
-  def visit_mixin_def(node)
+  def visit_mixindef(node)
     node.args.each do |k, v|
       k.options = @options
       v.options = @options if v

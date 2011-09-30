@@ -43,7 +43,7 @@ class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
     yield
   end
 
-  def visit_mixin_def(node)
+  def visit_mixindef(node)
     node.args = node.args.map {|k, v| [k.deep_copy, v && v.deep_copy]}
     yield
   end
