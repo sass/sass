@@ -183,6 +183,7 @@ CSS
 
   def test_updating_stylesheets_callback
     # Should run even when there's nothing to update
+    Sass::Plugin.options[:template_location] = nil
     assert_callback :updating_stylesheets, []
   end
 
