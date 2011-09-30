@@ -163,29 +163,24 @@ module Sass::Plugin
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
 
-      individual_files.each do |t, c|
-        if options[:always_update] || staleness_checker.stylesheet_needs_update?(c, t)
-          update_stylesheet(t, c)
-        end
-      end
-      run_updating_stylesheets individual_files
-
-      files_in_template_location = []
       template_location_array.each do |template_location, css_location|
         Dir.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
-          files_in_template_location << [file, css]
-
-          if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
-            update_stylesheet file, css
-          else
-            run_not_updating_stylesheet file, css
-          end
+          individual_files << [file, css]
         end
       end
-      run_updating_stylesheets files_in_template_location
+
+      run_updating_stylesheets individual_files
+
+      individual_files.each do |file, css|
+        if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
+          update_stylesheet(file, css)
+        else
+          run_not_updating_stylesheet(file, css)
+        end
+      end
     end
 
     # Watches the template directory (or directories)
