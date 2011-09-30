@@ -347,9 +347,11 @@ CSS
 
   def assert_callback(name, *expected_args)
     run = false
+    received_args = nil
     Sass::Plugin.send("on_#{name}") do |*args|
-      run ||= expected_args.zip(args).all? do |ea, a|
-        ea.respond_to?(:call) ? ea.call(a) : ea == a
+      received_args = args
+      run ||= expected_args.zip(received_args).all? do |ea, ra|
+        ea.respond_to?(:call) ? ea.call(ra) : ea == ra
       end
     end
 
@@ -359,7 +361,7 @@ CSS
       check_for_updates!
     end
 
-    assert run, "Expected #{name} callback to be run with arguments:\n  #{expected_args.inspect}"
+    assert run, "Expected #{name} callback to be run with arguments:\n  #{expected_args.inspect}\nHowever, it got:\n  #{received_args.inspect}"
   end
 
   def assert_no_callback(name, *unexpected_args)
