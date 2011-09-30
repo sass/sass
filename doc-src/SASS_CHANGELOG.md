@@ -36,6 +36,9 @@
 
 * Properly compile files in parent directories with `--watch` and `--update`.
 
+* Properly null out options in mixin definitions before caching them. This fixes
+  a caching bug that has been plaguing some Rails 3.1 users.
+
 ## 3.1.7
 
 * Don't crash when doing certain operations with `@function`s.
