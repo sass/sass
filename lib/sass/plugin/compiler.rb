@@ -83,6 +83,13 @@ module Sass::Plugin
     #   The location of the CSS file being generated.
     define_callback :updating_stylesheet
 
+    def on_updating_stylesheet_with_deprecation_warning(&block)
+      Sass::Util.sass_warn("Sass::Compiler#on_updating_stylesheet callback is deprecated and will be removed in a future release. Use Sass::Compiler#on_updated_stylesheet instead, which is run after stylesheet compilation.")
+      on_updating_stylesheet_without_deprecation_warning(&block)
+    end
+    alias_method :on_updating_stylesheet_without_deprecation_warning, :on_updating_stylesheet
+    alias_method :on_updating_stylesheet, :on_updating_stylesheet_with_deprecation_warning
+
     # Register a callback to be run when Sass decides not to update a stylesheet.
     # In particular, the callback is run when Sass finds that
     # the template file and none of its dependencies
