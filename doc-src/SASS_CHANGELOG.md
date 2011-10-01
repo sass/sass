@@ -35,7 +35,9 @@
 * Properly validate the nesting of elements in imported stylesheets.
 
 * Add new updated_stylesheet callback, which is run after the stylesheet has
-  been successfully compiled.
+  been successfully compiled. The old callback updating_stylesheet,
+  which is run before compiling, is deprecated and will be removed in a
+  future release.
 
 ## 3.1.7
 
