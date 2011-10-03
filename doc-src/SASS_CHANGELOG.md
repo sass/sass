@@ -3,7 +3,14 @@
 * Table of contents
 {:toc}
 
-## 3.1.8 (Unreleased)
+## 3.1.9 (Unreleased)
+
+* Add new updated_stylesheet callback, which is run after the stylesheet has
+  been successfully compiled. The old callback updating_stylesheet,
+  which is run before compiling, is deprecated and will be removed in a
+  future release.
+
+## 3.1.8
 
 * Deprecate parent selectors followed immediately by identifiers (e.g. `&foo`).
   This should never have worked, since it violates the rule
@@ -34,10 +41,10 @@
 
 * Properly validate the nesting of elements in imported stylesheets.
 
-* Add new updated_stylesheet callback, which is run after the stylesheet has
-  been successfully compiled. The old callback updating_stylesheet,
-  which is run before compiling, is deprecated and will be removed in a
-  future release.
+* Properly compile files in parent directories with `--watch` and `--update`.
+
+* Properly null out options in mixin definitions before caching them. This fixes
+  a caching bug that has been plaguing some Rails 3.1 users.
 
 ## 3.1.7
 
