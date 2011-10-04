@@ -48,6 +48,10 @@ to support any vendor prefix, as well as the plain `:any` selector.
   are fully disallowed.
   They were deprecated in 3.1.8.
 
+## 3.1.9 (Unreleased)
+
+* Fix a regression in 3.1.8 that broke the `+` combinator in selectors.
+
 ## 3.1.8
 
 * Deprecate parent selectors followed immediately by identifiers (e.g. `&foo`).

@@ -779,8 +779,14 @@ MESSAGE
       end
 
       def str?
+        pos = @scanner.pos
+        line = @line
         @strs.push ""
         yield && @strs.last
+      rescue Sass::SyntaxError => e
+        @scanner.pos = pos
+        @line = line
+        nil
       ensure
         @strs.pop
       end
