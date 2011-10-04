@@ -802,6 +802,12 @@ SCSS
     assert_selector_parses('E*:hover')
   end
 
+  def test_spaceless_combo_selectors
+    assert_equal "E > F {\n  a: b; }\n", render("E>F { a: b;} ")
+    assert_equal "E ~ F {\n  a: b; }\n", render("E~F { a: b;} ")
+    assert_equal "E + F {\n  a: b; }\n", render("E+F { a: b;} ")
+  end
+
   ## Errors
 
   def test_invalid_directives
