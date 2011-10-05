@@ -208,6 +208,18 @@ class UtilTest < Test::Unit::TestCase
     assert(set_eql?(s1, s2))
   end
 
+  def test_extract_and_inject_values
+    test = lambda {|arr| assert_equal(arr, with_extracted_values(arr) {|str| str})}
+
+    test[['foo bar']]
+    test[['foo {12} bar']]
+    test[['foo {{12} bar']]
+    test[['foo {{1', 12, '2} bar']]
+    test[['foo 1', 2, '{3', 4, 5, 6, '{7}', 8]]
+    test[['foo 1', [2, 3, 4], ' bar']]
+    test[['foo ', 1, "\n bar\n", [2, 3, 4], "\n baz"]]
+  end
+
   def test_caller_info
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, nil], caller_info("/tmp/foo.rb:12"))

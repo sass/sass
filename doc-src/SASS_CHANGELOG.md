@@ -52,6 +52,9 @@ to support any vendor prefix, as well as the plain `:any` selector.
 
 * Fix a regression in 3.1.8 that broke the `+` combinator in selectors.
 
+* Deprecate the loud-comment flag when used with silent comments (e.g. `//!`).
+  Using it with multi-line comments (e.g. `/*!`) still works.
+
 ## 3.1.8
 
 * Deprecate parent selectors followed immediately by identifiers (e.g. `&foo`).

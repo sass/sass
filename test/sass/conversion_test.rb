@@ -1131,17 +1131,13 @@ div
 SASS
   end
 
-  def test_loud_comment_conversion
+   def test_loud_comment_conversion
     assert_renders(<<SASS, <<SCSS)
 /*! \#{"interpolated"}
-/*!
- *  \#{"also interpolated"}
 SASS
 /*! \#{"interpolated"} */
-/*!
- *  \#{"also interpolated"} */
 SCSS
-    assert_renders(<<SASS, <<SCSS)
+    silence_warnings {assert_renders(<<SASS, <<SCSS)}
 //! \#{"interpolated"}
 //!
 //! \#{"also interpolated"}

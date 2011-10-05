@@ -612,6 +612,57 @@ MSG
       '"' + obj.gsub(/[\x00-\x7F]+/) {|s| s.inspect[1...-1]} + '"'
     end
 
+    # Extracts the non-string vlaues from an array containing both strings and non-strings.
+    # These values are replaced with escape sequences.
+    # This can be undone using \{#inject\_values}.
+    #
+    # This is useful e.g. when we want to do string manipulation
+    # on an interpolated string.
+    #
+    # The precise format of the resulting string is not guaranteed.
+    # However, it is guaranteed that newlines and whitespace won't be affected.
+    #
+    # @param arr [Array] The array from which values are extracted.
+    # @return [(String, Array)] The resulting string, and an array of extracted values.
+    def extract_values(arr)
+      values = []
+      return arr.map do |e|
+        next e.gsub('{', '{{') if e.is_a?(String)
+        values << e
+        next "{#{values.count - 1}}"
+      end.join, values
+    end
+
+    # Undoes \{#extract\_values} by transforming a string with escape sequences
+    # into an array of strings and non-string values.
+    #
+    # @param str [String] The string with escape sequences.
+    # @param values [Array] The array of values to inject.
+    # @return [Array] The array of strings and values.
+    def inject_values(str, values)
+      return [str.gsub('{{', '{')] if values.empty?
+      # Add an extra { so that we process the tail end of the string
+      result = (str + '{{').scan(/(.*?)(?:(\{\{)|\{(\d+)\})/m).map do |(pre, esc, n)|
+        [pre, esc ? '{' : '', n ? values[n.to_i] : '']
+      end.flatten(1)
+      result[-2] = '' # Get rid of the extra {
+      merge_adjacent_strings(result).reject {|s| s == ''}
+    end
+
+    # Allows modifications to be performed on the string form
+    # of an array containing both strings and non-strings.
+    #
+    # @param arr [Array] The array from which values are extracted.
+    # @yield [str] A block in which string manipulation can be done to the array.
+    # @yieldparam str [String] The string form of `arr`.
+    # @yieldreturn [String] The modified string.
+    # @return [Array] The modified, interpolated array.
+    def with_extracted_values(arr)
+      str, vals = extract_values(arr)
+      str = yield str
+      inject_values(str, vals)
+    end
+
     ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.

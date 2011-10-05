@@ -57,20 +57,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   def visit_comment(node)
     return if node.invisible?
-    spaces = ('  ' * [@tabs - node.value[/^ */].size, 0].max)
+    spaces = ('  ' * [@tabs - node.resolved_value[/^ */].size, 0].max)
 
-    content = node.value.gsub(/^/, spaces).gsub(%r{^(\s*)//(.*)$}) do |md|
+    content = node.resolved_value.gsub(/^/, spaces).gsub(%r{^(\s*)//(.*)$}) do |md|
       "#{$1}/*#{$2} */"
-    end
-    if content =~ /[^\\]\#\{.*\}/
-      Sass::Util.sass_warn <<MESSAGE
-WARNING:
-On line #{node.line}#{" of '#{node.filename}'" if node.filename}
-Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
-Please escape the interpolation by adding a backslash before the hash sign.
-MESSAGE
-    elsif content =~ /\\\#\{.*\}/
-      content.gsub!(/\\(\#\{.*\})/, '\1')
     end
     content.gsub!(/\n +(\* *(?!\/))?/, ' ') if (node.style == :compact || node.style == :compressed) && !node.loud
     content

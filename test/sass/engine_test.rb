@@ -1576,11 +1576,11 @@ foo
    */
 SASS
   end
+
   def test_loud_comment_in_silent_comment
-    assert_equal <<CSS, render(<<SASS, :style => :compressed)
+    silence_warnings {assert_equal <<CSS, render(<<SASS, :style => :compressed)}
 foo{color:blue;/* foo */
 /* bar */
-/* */
 /* bip */
 /* baz */}
 CSS
@@ -1596,8 +1596,7 @@ SASS
 
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/*
- * Hue: 327.216deg */
+/* Hue: 327.216deg */
 CSS
 /*!
   Hue: \#{hue(#f836a0)}
@@ -2036,29 +2035,29 @@ CSS
 
   # Regression tests
 
-  def test_multiple_warns_in_nested_mixins
-    assert_warning <<WARNING do
-WARNING: 1
-         on line 2 of test_multiple_warns_in_nested_mixins_inline.sass, in `foo'
-         from line 6 of test_multiple_warns_in_nested_mixins_inline.sass, in `bar'
-         from line 8 of test_multiple_warns_in_nested_mixins_inline.sass
+  def test_interpolated_comment_in_mixin
+    assert_equal <<CSS, render(<<SASS)
+/* color: red */
+.foo {
+  color: red; }
 
-WARNING: 2
-         on line 3 of test_multiple_warns_in_nested_mixins_inline.sass, in `foo'
-         from line 6 of test_multiple_warns_in_nested_mixins_inline.sass, in `bar'
-         from line 8 of test_multiple_warns_in_nested_mixins_inline.sass
-WARNING
-      render <<SASS
-=foo
-  @warn 1
-  @warn 2
+/* color: blue */
+.foo {
+  color: blue; }
 
-=bar
-  +foo
+/* color: green */
+.foo {
+  color: green; }
+CSS
+=foo($var)
+  /*! color: \#{$var}
+  .foo
+    color: $var
 
-+bar
++foo(red)
++foo(blue)
++foo(green)
 SASS
-    end
   end
 
   def test_parens_in_mixins
@@ -2339,7 +2338,16 @@ SASS
 WARNING:
 On line 1 of 'test_comment_interpolation_warning_inline.sass'
 Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
-Please escape the interpolation by adding a backslash before the hash sign.
+Please escape the interpolation by adding a backslash before the `#`.
+END
+  end
+
+  def test_loud_silent_comment_warning
+    assert_warning(<<END) {render("//! \#{foo}")}
+WARNING:
+On line 1 of 'test_loud_silent_comment_warning_inline.sass'
+`//` comments will no longer be allowed to use the `!` flag in Sass 3.2.
+Please change to `/*` comments.
 END
   end
 

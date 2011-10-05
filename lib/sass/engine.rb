@@ -95,7 +95,10 @@ module Sass
     #
     # `children`: `Array<Line>`
     # : The lines nested below this one.
-    class Line < Struct.new(:text, :tabs, :index, :offset, :filename, :children)
+    #
+    # `comment_tab_str`: `String?`
+    # : The prefix indentation for this comment, if it is a comment.
+    class Line < Struct.new(:text, :tabs, :index, :offset, :filename, :children, :comment_tab_str)
       def comment?
         text[0] == COMMENT_CHAR && (text[1] == SASS_COMMENT_CHAR || text[1] == CSS_COMMENT_CHAR)
       end
@@ -111,6 +114,10 @@ module Sass
     # The character that follows the general COMMENT_CHAR and designates a Sass comment,
     # which is not output as a CSS comment.
     SASS_COMMENT_CHAR = ?/
+
+    # The character that indicates that a comment allows interpolation
+    # and should be preserved even in `:compressed` mode.
+    SASS_LOUD_COMMENT_CHAR = ?!
 
     # The character that follows the general COMMENT_CHAR and designates a CSS comment,
     # which is embedded in the CSS document.
@@ -425,7 +432,8 @@ but this line was indented by #{Sass::Shared.human_indentation line[/^\s*/]}.
 MSG
       end
 
-      last.text << "\n" << $1
+      last.comment_tab_str ||= comment_tab_str
+      last.text << "\n" << line
       true
     end
 
@@ -491,8 +499,8 @@ MSG
         if child.is_a?(Tree::CommentNode) && child.silent
           if continued_comment &&
               child.line == continued_comment.line +
-              continued_comment.value.count("\n") + 1
-            continued_comment.value << "\n" << child.value
+              continued_comment.lines + 1
+            continued_comment.value += ["\n"] + child.value
             next
           end
 
@@ -543,7 +551,7 @@ WARNING
       when ?$
         parse_variable(line)
       when COMMENT_CHAR
-        parse_comment(line.text)
+        parse_comment(line)
       when DIRECTIVE_CHAR
         parse_directive(parent, line, root)
       when ESCAPE_CHAR
@@ -605,11 +613,19 @@ WARNING
     end
 
     def parse_comment(line)
-      if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
-        silent = line[1] == SASS_COMMENT_CHAR
-        Tree::CommentNode.new(
-          format_comment_text(line[2..-1], silent),
-          silent)
+      if line.text[1] == CSS_COMMENT_CHAR || line.text[1] == SASS_COMMENT_CHAR
+        silent = line.text[1] == SASS_COMMENT_CHAR
+        if loud = line.text[2] == SASS_LOUD_COMMENT_CHAR
+          value = self.class.parse_interp(line.text, line.index, line.offset, :filename => @filename)
+          value[0].slice!(2) # get rid of the "!"
+        else
+          value = [line.text]
+        end
+        value = with_extracted_values(value) do |str|
+          str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
+          format_comment_text(str, silent)
+        end
+        Tree::CommentNode.new(value, silent, loud)
       else
         Tree::RuleNode.new(parse_interp(line))
       end

@@ -17,7 +17,7 @@ module Sass
     # @return [String] The text remaining in the scanner after all `#{`s have been processed
     def handle_interpolation(str)
       scan = StringScanner.new(str)
-      yield scan while scan.scan(/(.*?)(\\*)\#\{/)
+      yield scan while scan.scan(/(.*?)(\\*)\#\{/m)
       scan.rest
     end
 
