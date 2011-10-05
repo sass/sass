@@ -1570,11 +1570,11 @@ foo
    */
 SASS
   end
+
   def test_loud_comment_in_silent_comment
     assert_equal <<CSS, render(<<SASS, :style => :compressed)
 foo{color:blue;/* foo */
 /* bar */
-/* */
 /* bip */
 /* baz */}
 CSS
@@ -1590,8 +1590,7 @@ SASS
 
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/*
- * Hue: 327.216deg */
+/* Hue: 327.216deg */
 CSS
 /*!
   Hue: \#{hue(#f836a0)}
@@ -2030,6 +2029,31 @@ CSS
 
   # Regression tests
 
+  def test_interpolated_comment_in_mixin
+    assert_equal <<CSS, render(<<SASS)
+/* color: red */
+.foo {
+  color: red; }
+
+/* color: blue */
+.foo {
+  color: blue; }
+
+/* color: green */
+.foo {
+  color: green; }
+CSS
+=foo($var)
+  /*! color: \#{$var}
+  .foo
+    color: $var
+
++foo(red)
++foo(blue)
++foo(green)
+SASS
+  end
+
   def test_parens_in_mixins
     assert_equal(<<CSS, render(<<SASS))
 .foo {
@@ -2308,7 +2332,7 @@ SASS
 WARNING:
 On line 1 of 'test_comment_interpolation_warning_inline.sass'
 Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
-Please escape the interpolation by adding a backslash before the hash sign.
+Please escape the interpolation by adding a backslash before the `#`.
 END
   end
 

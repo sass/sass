@@ -53,12 +53,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Removes this node from the tree if it's a silent comment.
   def visit_comment(node)
     return [] if node.invisible?
-    if node.evaluated?
-      node.value.gsub!(/(^|[^\\])\#\{([^}]*)\}/) do |md|
-        $1+Sass::Script.parse($2, node.line, 0, node.options).perform(@environment).to_s
-      end
-      node.value = run_interp([Sass::Script::String.new(node.value)])
-    end
+    check_for_comment_interp node
+    node.resolved_value = run_interp_no_strip(node.value)
+    node.resolved_value.gsub!(/\\([\\#])/, '\1')
     node
   end
 
@@ -278,14 +275,18 @@ END
 
   private
 
-  def run_interp(text)
+  def run_interp_no_strip(text)
     text.map do |r|
       next r if r.is_a?(String)
       val = r.perform(@environment)
       # Interpolated strings should never render with quotes
       next val.value if val.is_a?(Sass::Script::String)
       val.to_s
-    end.join.strip
+    end.join
+  end
+
+  def run_interp(text)
+    run_interp_no_strip(text).strip
   end
 
   def handle_include_loop!(node)
@@ -300,5 +301,21 @@ END
       "    #{m1} includes #{m2}"
     end.join("\n")
     raise Sass::SyntaxError.new(msg)
+  end
+
+  def check_for_comment_interp(node)
+    return if node.loud
+    node.value.each do |e|
+      next unless e.is_a?(String)
+      e.scan(/(\\*)#\{/) do |esc|
+        Sass::Util.sass_warn <<MESSAGE if esc.first.size.even?
+WARNING:
+On line #{node.line}#{" of '#{node.filename}'" if node.filename}
+Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
+Please escape the interpolation by adding a backslash before the `#`.
+MESSAGE
+        return
+      end
+    end
   end
 end

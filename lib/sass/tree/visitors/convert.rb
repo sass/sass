@@ -32,7 +32,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       visit(child) +
         if nxt &&
             (child.is_a?(Sass::Tree::CommentNode) &&
-              child.line + child.value.count("\n") + 1 == nxt.line) ||
+              child.line + child.lines + 1 == nxt.line) ||
             (child.is_a?(Sass::Tree::ImportNode) && nxt.is_a?(Sass::Tree::ImportNode) &&
               child.line + 1 == nxt.line) ||
             (child.is_a?(Sass::Tree::VariableNode) && nxt.is_a?(Sass::Tree::VariableNode) &&
@@ -49,8 +49,13 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_comment(node)
+    value = node.value.map do |r|
+      next r if r.is_a?(String)
+      "\#{#{r.to_sass(@options)}}"
+    end.join
+
     content = if @format == :sass
-      content = node.value.gsub(/\*\/$/, '').rstrip
+      content = value.gsub(/\*\/$/, '').rstrip
       if content =~ /\A[ \t]/
         # Re-indent SCSS comments like this:
         #     /* foo
@@ -78,11 +83,11 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       content.gsub!(/^/, tab_str)
       content.rstrip + "\n"
     else
-      spaces = ('  ' * [@tabs - node.value[/^ */].size, 0].max)
+      spaces = ('  ' * [@tabs - value[/^ */].size, 0].max)
       content = if node.silent
-        node.value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
+        value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
       else
-        node.value
+        value
       end.gsub(/^/, spaces) + "\n"
       content
     end

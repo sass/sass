@@ -6,9 +6,18 @@ module Sass::Tree
   # @see Sass::Tree
   class CommentNode < Node
     # The text of the comment, not including `/*` and `*/`.
+    # Interspersed with {Sass::Script::Node}s representing `#{}`-interpolation
+    # if this is a loud comment.
+    #
+    # @return [Array<String, Sass::Script::Node>]
+    attr_accessor :value
+
+    # The text of the comment
+    # after any interpolated SassScript has been resolved.
+    # Only set once \{Tree::Visitors::Perform} has been run.
     #
     # @return [String]
-    attr_accessor :value
+    attr_accessor :resolved_value
 
     # Whether the comment is loud.
     #
@@ -23,14 +32,13 @@ module Sass::Tree
     # @return [Boolean]
     attr_accessor :silent
 
-    # @param value [String] See \{#value}
+    # @param value [Array<String, Sass::Script::Node>] See \{#value}
     # @param silent [Boolean] See \{#silent}
-    def initialize(value, silent)
-      @lines = []
+    # @param loud [Boolean] See \{#loud}
+    def initialize(value, silent, loud)
+      @value = Sass::Util.with_extracted_values(value) {|str| normalize_indentation str}
       @silent = silent
-      @value = normalize_indentation value
-      @loud = @value =~ %r{^(/[\/\*])?!}
-      @value.sub!("#{$1}!", $1.to_s) if @loud
+      @loud = loud
       super()
     end
 
@@ -40,7 +48,7 @@ module Sass::Tree
     # @return [Boolean] Whether or not this node and the other object
     #   are the same
     def ==(other)
-      self.class == other.class && value == other.value && silent == other.silent
+      self.class == other.class && value == other.value && silent == other.silent && loud == other.loud
     end
 
     # Returns `true` if this is a silent comment
@@ -57,9 +65,14 @@ module Sass::Tree
       end
     end
 
-    # Returns whether this comment should be interpolated for dynamic comment generation.
-    def evaluated?
-      @loud
+    # Returns the number of lines in the comment.
+    #
+    # @return [Fixnum]
+    def lines
+      @value.inject(0) do |s, e|
+        next s + e.count("\n") if e.is_a?(String)
+        next s
+      end
     end
 
     private
