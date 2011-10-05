@@ -1137,15 +1137,6 @@ SASS
 SASS
 /*! \#{"interpolated"} */
 SCSS
-    silence_warnings {assert_renders(<<SASS, <<SCSS)}
-//! \#{"interpolated"}
-//!
-//! \#{"also interpolated"}
-SASS
-//! \#{"interpolated"}
-//!
-//! \#{"also interpolated"}
-SCSS
   end
 
   def test_content_conversion

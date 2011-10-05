@@ -90,26 +90,22 @@ module Sass
 
       def process_comment(text, node)
         silent = text =~ /^\/\//
+        loud = !silent && text =~ %r{^/[/*]!}
         line = @line - text.count("\n")
-        if loud = text =~ %r{^/[/*]!}
-          value = Sass::Engine.parse_interp(text, line, @scanner.pos - text.size, :filename => @filename)
-          value[0].slice!(2) # get rid of the "!"
-        else
-          value = [text]
-        end
 
         if silent
-          value = Sass::Util.with_extracted_values(value) do |str|
-            str.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */'
-          end
+          value = [text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */']
         else
+          value = Sass::Engine.parse_interp(text, line, @scanner.pos - text.size, :filename => @filename)
+          value[0].slice!(2) if loud # get rid of the "!"
           value.unshift(@scanner.
             string[0...@scanner.pos].
             reverse[/.*?\*\/(.*?)($|\Z)/, 1].
             reverse.gsub(/[^\s]/, ' '))
         end
 
-        comment = Sass::Tree::CommentNode.new(value, silent, loud)
+        type = if silent then :silent elsif loud then :loud else :normal end
+        comment = Sass::Tree::CommentNode.new(value, type)
         comment.line = line
         node << comment
       end

@@ -496,7 +496,7 @@ MSG
           continued_rule = nil
         end
 
-        if child.is_a?(Tree::CommentNode) && child.silent
+        if child.is_a?(Tree::CommentNode) && child.type == :silent
           if continued_comment &&
               child.line == continued_comment.line +
               continued_comment.lines + 1
@@ -615,17 +615,19 @@ WARNING
     def parse_comment(line)
       if line.text[1] == CSS_COMMENT_CHAR || line.text[1] == SASS_COMMENT_CHAR
         silent = line.text[1] == SASS_COMMENT_CHAR
-        if loud = line.text[2] == SASS_LOUD_COMMENT_CHAR
-          value = self.class.parse_interp(line.text, line.index, line.offset, :filename => @filename)
-          value[0].slice!(2) # get rid of the "!"
-        else
+        loud = !silent && line.text[2] == SASS_LOUD_COMMENT_CHAR
+        if silent
           value = [line.text]
+        else
+          value = self.class.parse_interp(line.text, line.index, line.offset, :filename => @filename)
+          value[0].slice!(2) if loud # get rid of the "!"
         end
         value = with_extracted_values(value) do |str|
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
           format_comment_text(str, silent)
         end
-        Tree::CommentNode.new(value, silent, loud)
+        type = if silent then :silent elsif loud then :loud else :normal end
+        Tree::CommentNode.new(value, type)
       else
         Tree::RuleNode.new(parse_interp(line))
       end
