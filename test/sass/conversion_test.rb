@@ -1137,7 +1137,7 @@ SASS
 SASS
 /*! \#{"interpolated"} */
 SCSS
-    assert_renders(<<SASS, <<SCSS)
+    silence_warnings {assert_renders(<<SASS, <<SCSS)}
 //! \#{"interpolated"}
 //!
 //! \#{"also interpolated"}

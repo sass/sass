@@ -53,6 +53,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Removes this node from the tree if it's a silent comment.
   def visit_comment(node)
     return [] if node.invisible?
+    check_for_loud_silent_comment node
     check_for_comment_interp node
     node.resolved_value = run_interp_no_strip(node.value)
     node.resolved_value.gsub!(/\\([\\#])/, '\1')
@@ -301,6 +302,16 @@ END
       "    #{m1} includes #{m2}"
     end.join("\n")
     raise Sass::SyntaxError.new(msg)
+  end
+
+  def check_for_loud_silent_comment(node)
+    return unless node.loud && node.silent
+    Sass::Util.sass_warn <<MESSAGE
+WARNING:
+On line #{node.line}#{" of '#{node.filename}'" if node.filename}
+`//` comments will no longer be allowed to use the `!` flag in Sass 3.2.
+Please change to `/*` comments.
+MESSAGE
   end
 
   def check_for_comment_interp(node)

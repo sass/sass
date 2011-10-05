@@ -1572,7 +1572,7 @@ SASS
   end
 
   def test_loud_comment_in_silent_comment
-    assert_equal <<CSS, render(<<SASS, :style => :compressed)
+    silence_warnings {assert_equal <<CSS, render(<<SASS, :style => :compressed)}
 foo{color:blue;/* foo */
 /* bar */
 /* bip */
@@ -2333,6 +2333,15 @@ WARNING:
 On line 1 of 'test_comment_interpolation_warning_inline.sass'
 Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
 Please escape the interpolation by adding a backslash before the `#`.
+END
+  end
+
+  def test_loud_silent_comment_warning
+    assert_warning(<<END) {render("//! \#{foo}")}
+WARNING:
+On line 1 of 'test_loud_silent_comment_warning_inline.sass'
+`//` comments will no longer be allowed to use the `!` flag in Sass 3.2.
+Please change to `/*` comments.
 END
   end
 
