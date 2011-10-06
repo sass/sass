@@ -52,7 +52,7 @@ to support any vendor prefix, as well as the plain `:any` selector.
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
 
-## 3.1.9 (Unreleased)
+## 3.1.9
 
 * Fix a regression in 3.1.8 that broke the `+` combinator in selectors.
 
