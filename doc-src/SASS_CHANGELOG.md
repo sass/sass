@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.9 (Unreleased)
+## 3.1.9
 
 * Fix a regression in 3.1.8 that broke the `+` combinator in selectors.
 
