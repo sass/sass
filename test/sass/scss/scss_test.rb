@@ -1094,6 +1094,15 @@ SCSS
 
   # Regression
 
+  def test_star_plus_and_parent
+    assert_equal <<CSS, render(<<SCSS)
+* + html foo {
+  a: b; }
+CSS
+foo {*+html & {a: b}}
+SCSS
+  end
+
   def test_weird_added_space
     assert_equal <<CSS, render(<<SCSS)
 foo {

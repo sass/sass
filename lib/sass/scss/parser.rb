@@ -521,7 +521,7 @@ module Sass
           @scanner.pos = pos
           @line = line
           begin
-            expected('"{"')
+            throw_error {expected('"{"')}
           rescue Sass::SyntaxError => e
             e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
             raise e
@@ -788,11 +788,11 @@ MESSAGE
         @strs.pop
       end
 
-      def str?
+      def str?(&block)
         pos = @scanner.pos
         line = @line
         @strs.push ""
-        yield && @strs.last
+        throw_error(&block) && @strs.last
       rescue Sass::SyntaxError => e
         @scanner.pos = pos
         @line = line
@@ -873,6 +873,13 @@ MESSAGE
       def err(msg)
         throw(:_sass_parser_error, true) if @throw_error
         raise Sass::SyntaxError.new(msg, :line => @line)
+      end
+
+      def throw_error
+        old_throw_error, @throw_error = @throw_error, false
+        yield
+      ensure
+        @throw_error = old_throw_error
       end
 
       def catch_error(&block)
