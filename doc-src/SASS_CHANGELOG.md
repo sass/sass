@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.10 (Unreleased)
+## 3.1.10
 
 * Fix another aspect of the 3.1.8 regression relating to `+`.
 
