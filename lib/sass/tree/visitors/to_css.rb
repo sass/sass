@@ -151,7 +151,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
           to_return << node.stack_trace.join("\n   #{old_spaces}")
           to_return << " */\n"
         elsif node.options[:line_comments]
-          to_return << "#{old_spaces}/* line #{node.line}"
+          to_return << "#{old_spaces}/* "
 
           if node.filename
             relative_filename = if node.options[:css_filename]
@@ -163,7 +163,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
               end
             end
             relative_filename ||= node.filename
-            to_return << ", #{relative_filename}"
+            to_return << "#{relative_filename}:#{node.line}"
           end
 
           to_return << " */\n"
