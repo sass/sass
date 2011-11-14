@@ -11,33 +11,44 @@
       :preserve
         // Variable Definitions
 
-        $page-width:    800px
-        $sidebar-width: 200px
-        $primary-color: #eeeeee
+        $page-width:    800px;
+        $sidebar-width: 200px;
+        $primary-color: #eeeeee;
 
         // Global Attributes
 
-        body
-          font:
-            family: sans-serif
-            size: 30em
-            weight: bold
+        body {
+          font: {
+            family: sans-serif;
+            size: 30em;
+            weight: bold;
+          }
+        }
 
         // Scoped Styles
 
-        #contents
-          width: $page-width
-          #sidebar
-            float: right
-            width: $sidebar-width
-          #main
-            width: $page-width - $sidebar-width
-            background: $primary-color
-            h2
-              color: blue
-        #footer
-          height: 200px
+        #contents {
+          width: $page-width;
+          #sidebar {
+            float: right;
+            width: $sidebar-width;
+          }
+          #main {
+            width: $page-width - $sidebar-width;
+            background: $primary-color;
+            h2 { color: blue; }
+          }
+        }
 
-  %input{:type => "submit", :value => "Render"}
+        #footer {
+          height: 200px;
+        }
+
+  %input.render{:type => "submit", :value => "Render"}
+
+  %input.radio{:type => "radio", :name => "syntax", :value => "scss", :id => "scss-radio", :checked => true}
+  %label{:for => "scss-radio"} SCSS
+  %input.radio{:type => "radio", :name => "syntax", :value => "sass", :id => "sass-radio"}
+  %label{:for => "sass-radio"} Indented Syntax
 
   %pre.result&= @result
