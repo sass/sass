@@ -178,6 +178,14 @@ CSS
     assert_doesnt_need_update "more1", "more_"
     assert_needs_update "basic"
   end
+  
+  def test_force_update_stylesheets
+#    Sass::Plugin.options[:never_update] = true
+    orig_options = Sass::Plugin.options.dup
+    Sass::Util.silence_sass_warnings{ Sass::Plugin.force_update_stylesheets }
+    current_options = Sass::Plugin.options.dup    
+    assert_equal orig_options, current_options
+  end
 
   # Callbacks
 
