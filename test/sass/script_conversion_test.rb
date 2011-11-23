@@ -223,6 +223,8 @@ RUBY
     assert_renders '#{1 + 2}, #{3 + 4}'
     assert_renders '#{1 + 2} ,#{3 + 4}'
     assert_renders '#{1 + 2},#{3 + 4}'
+    assert_renders '#{1 + 2}, #{3 + 4}, #{5 + 6}'
+    assert_renders '3, #{3 + 4}, 11'
 
     assert_renders '3 / #{3 + 4}'
     assert_renders '3 /#{3 + 4}'
