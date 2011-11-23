@@ -7,6 +7,10 @@ module Sass::Script::Functions::UserFunctions
     val.options[:foo]
     Sass::Script::String.new("Options defined!")
   end
+
+  def arg_error
+    assert_options
+  end
 end
 
 module Sass::Script::Functions
@@ -416,6 +420,14 @@ SASS
     assert_equal "1 2 3", resolve("() 1 2 3")
     assert_raise_message(Sass::SyntaxError, "() isn't a valid CSS value.") {resolve("()")}
     assert_raise_message(Sass::SyntaxError, "() isn't a valid CSS value.") {resolve("nth(append((), ()), 1)")}
+  end
+
+  def test_deep_argument_error_not_unwrapped
+    assert_raise_message(ArgumentError, 'wrong number of arguments (0 for 1)') {resolve("arg-error()")}
+  end
+
+  def test_shallow_argument_error_unwrapped
+    assert_raise_message(Sass::SyntaxError, "wrong number of arguments (1 for 0) for `arg-error'") {resolve("arg-error(1)")}
   end
 
   # Regression Tests
