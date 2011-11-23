@@ -9,6 +9,10 @@ module Sass::Script::Functions::UserFunctions
   end
 end
 
+module Sass::Script::Functions
+  include Sass::Script::Functions::UserFunctions
+end
+
 class SassScriptTest < Test::Unit::TestCase
   include Sass::Script
 
