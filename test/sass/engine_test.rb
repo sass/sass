@@ -1203,6 +1203,18 @@ bar
 SASS
   end
 
+  def test_control_directive_in_nested_property
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a-b: c; }
+CSS
+foo
+  a:
+    @if true
+      b: c
+SASS
+  end
+
   def test_interpolation
     assert_equal("a-1 {\n  b-2-3: c-3; }\n", render(<<SASS))
 $a: 1
