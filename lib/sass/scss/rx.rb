@@ -112,6 +112,7 @@ module Sass
       INTERP_START = /#\{/
       MOZ_ANY = quote(":-moz-any(", Regexp::IGNORECASE)
 
+      IDENT_HYPHEN_INTERP = /-(?=#\{)/
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/
       STRING2_NOINTERP = /\'((?:[^\n\r\f\\'#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\'/
       STRING_NOINTERP = /#{STRING1_NOINTERP}|#{STRING2_NOINTERP}/

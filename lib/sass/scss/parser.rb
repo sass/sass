@@ -770,7 +770,7 @@ MESSAGE
       end
 
       def interp_ident(start = IDENT)
-        return unless val = tok(start) || interpolation
+        return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP)
         res = [val]
         while val = tok(NAME) || interpolation
           res << val

@@ -6,6 +6,7 @@
 ## 3.1.11 (Unreleased)
 
 * Allow control directives (such as `@if`) to be nested beneath properties.
+* Allow property names to begin with a hyphen followed by interpolation (e.g. `-#{...}`).
 * Make `--cache-store` with with `--update`.
 * Properly report `ArgumentError`s that occur within user-defined functions.
 * Don't crash on JRuby if the underlying Java doesn't support every Unicode encoding.
