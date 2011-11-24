@@ -88,7 +88,12 @@ module Sass
           opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
         end
       rescue ArgumentError => e
-        raise e unless e.backtrace.any? {|t| t =~ /:in `(block in )?(#{name}|perform)'$/}
+        # If this is a legitimate Ruby-raised argument error, re-raise it.
+        # Otherwise, it's an error in the user's stylesheet, so wrap it.
+        if e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
+            e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
+          raise e
+        end
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
       end
 

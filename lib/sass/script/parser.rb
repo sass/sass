@@ -182,7 +182,11 @@ module Sass
               interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}) and return interp
               return unless e = #{sub}
               while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
-                interp = try_op_before_interp(tok, e) and return interp
+                if interp = try_op_before_interp(tok, e)
+                  return interp unless other_interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}, interp)
+                  return other_interp
+                end
+
                 line = @lexer.line
                 e = Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
                 e.line = line
@@ -217,7 +221,10 @@ RUBY
         return unless e = interpolation
         arr = [e]
         while tok = try_tok(:comma)
-          interp = try_op_before_interp(tok, e) and return interp
+          if interp = try_op_before_interp(tok, e)
+            return interp unless other_interp = try_ops_after_interp([:comma], :expr, interp)
+            return other_interp
+          end
           arr << assert_expr(:interpolation)
         end
         arr.size == 1 ? arr.first : node(List.new(arr, :comma), line)
@@ -235,15 +242,15 @@ RUBY
         interpolation(interp)
       end
 
-      def try_ops_after_interp(ops, name)
+      def try_ops_after_interp(ops, name, prev = nil)
         return unless @lexer.after_interpolation?
         return unless op = try_tok(*ops)
-        interp = try_op_before_interp(op) and return interp
+        interp = try_op_before_interp(op, prev) and return interp
 
         wa = @lexer.whitespace?
         str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
         str.line = @lexer.line
-        interp = Script::Interpolation.new(nil, str, assert_expr(name), !:wb, wa, :originally_text)
+        interp = Script::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text)
         interp.line = @lexer.line
         return interp
       end

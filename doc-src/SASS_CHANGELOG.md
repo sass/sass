@@ -52,6 +52,24 @@ to support any vendor prefix, as well as the plain `:any` selector.
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
 
+## 3.1.11 (Unreleased)
+
+* Allow control directives (such as `@if`) to be nested beneath properties.
+* Allow property names to begin with a hyphen followed by interpolation (e.g. `-#{...}`).
+* Fix a parsing error with interpolation in comma-separated lists.
+* Make `--cache-store` with with `--update`.
+* Properly report `ArgumentError`s that occur within user-defined functions.
+* Don't crash on JRuby if the underlying Java doesn't support every Unicode encoding.
+* Add new `updated_stylesheet` callback, which is run after each stylesheet has
+  been successfully compiled. Thanks to [Christian Peters](https://github.com/ChristianPeters).
+* Allow absolute paths to be used in an importer with a different root.
+* Don't destructively modify the options when running `Sass::Plugin.force_update`.
+
+### Deprecations -- Must Read!
+
+* The `updating_stylesheet` is deprecated and will be removed in a
+  future release. Use the new `updated_stylesheet` callback instead.
+
 ## 3.1.10
 
 * Fix another aspect of the 3.1.8 regression relating to `+`.

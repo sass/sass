@@ -467,7 +467,8 @@ MSG
       # We allow any printable ASCII characters but double quotes in the charset decl
       bin = str.dup.force_encoding("BINARY")
       encoding = Sass::Util::ENCODINGS_TO_CHECK.find do |enc|
-        bin =~ Sass::Util::CHARSET_REGEXPS[enc]
+        re = Sass::Util::CHARSET_REGEXPS[enc]
+        re && bin =~ re
       end
       charset, bom = $1, $2
       if charset
@@ -508,6 +509,8 @@ MSG
             Regexp.new(/\A(?:#{_enc("\uFEFF", e)})?#{
               _enc('@charset "', e)}(.*?)#{_enc('"', e)}|\A(#{
               _enc("\uFEFF", e)})/)
+          rescue Encoding::ConverterNotFound => _
+            nil # JRuby on Java 5 doesn't support UTF-32
           rescue
             # /\A@charset "(.*?)"/
             Regexp.new(/\A#{_enc('@charset "', e)}(.*?)#{_enc('"', e)}/)

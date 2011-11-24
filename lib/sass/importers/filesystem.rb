@@ -108,7 +108,7 @@ module Sass
       # @return [(String, Symbol)] A filename-syntax pair.
       def find_real_file(dir, name)
         for (f,s) in possible_files(remove_root(name))
-          path = (dir == ".") ? f : "#{dir}/#{f}"
+          path = (dir == "." || Pathname.new(f).absolute?) ? f : "#{dir}/#{f}"
           if full_path = Dir[path].first
             full_path.gsub!(REDUNDANT_DIRECTORY,File::SEPARATOR)
             return full_path, s

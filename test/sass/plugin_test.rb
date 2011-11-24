@@ -183,6 +183,7 @@ CSS
 
   def test_updating_stylesheets_callback
     # Should run even when there's nothing to update
+    Sass::Plugin.options[:template_location] = nil
     assert_callback :updating_stylesheets, []
   end
 
@@ -196,25 +197,25 @@ CSS
     assert_no_callback :updating_stylesheets
   end
 
-  def test_updating_stylesheet_callback_for_updated_template
+  def test_updated_stylesheet_callback_for_updated_template
     Sass::Plugin.options[:always_update] = false
     touch 'basic'
-    assert_no_callback :updating_stylesheet, template_loc("complex"), tempfile_loc("complex") do
+    assert_no_callback :updated_stylesheet, template_loc("complex"), tempfile_loc("complex") do
       assert_callbacks(
-        [:updating_stylesheet, template_loc("basic"), tempfile_loc("basic")],
-        [:updating_stylesheet, template_loc("import"), tempfile_loc("import")])
+        [:updated_stylesheet, template_loc("basic"), tempfile_loc("basic")],
+        [:updated_stylesheet, template_loc("import"), tempfile_loc("import")])
     end
   end
 
-  def test_updating_stylesheet_callback_for_fresh_template
+  def test_updated_stylesheet_callback_for_fresh_template
     Sass::Plugin.options[:always_update] = false
-    assert_no_callback :updating_stylesheet
+    assert_no_callback :updated_stylesheet
   end
 
-  def test_updating_stylesheet_callback_for_error_template
+  def test_updated_stylesheet_callback_for_error_template
     Sass::Plugin.options[:always_update] = false
     touch 'bork1'
-    assert_no_callback :updating_stylesheet
+    assert_no_callback :updated_stylesheet
   end
 
   def test_not_updating_stylesheet_callback_for_fresh_template
@@ -226,8 +227,8 @@ CSS
     Sass::Plugin.options[:always_update] = false
     assert_callback :not_updating_stylesheet, template_loc("complex"), tempfile_loc("complex") do
       assert_no_callbacks(
-        [:updating_stylesheet, template_loc("basic"), tempfile_loc("basic")],
-        [:updating_stylesheet, template_loc("import"), tempfile_loc("import")])
+        [:updated_stylesheet, template_loc("basic"), tempfile_loc("basic")],
+        [:updated_stylesheet, template_loc("import"), tempfile_loc("import")])
     end
   end
 
@@ -347,9 +348,11 @@ CSS
 
   def assert_callback(name, *expected_args)
     run = false
+    received_args = nil
     Sass::Plugin.send("on_#{name}") do |*args|
-      run ||= expected_args.zip(args).all? do |ea, a|
-        ea.respond_to?(:call) ? ea.call(a) : ea == a
+      received_args = args
+      run ||= expected_args.zip(received_args).all? do |ea, ra|
+        ea.respond_to?(:call) ? ea.call(ra) : ea == ra
       end
     end
 
@@ -359,7 +362,7 @@ CSS
       check_for_updates!
     end
 
-    assert run, "Expected #{name} callback to be run with arguments:\n  #{expected_args.inspect}"
+    assert run, "Expected #{name} callback to be run with arguments:\n  #{expected_args.inspect}\nHowever, it got:\n  #{received_args.inspect}"
   end
 
   def assert_no_callback(name, *unexpected_args)

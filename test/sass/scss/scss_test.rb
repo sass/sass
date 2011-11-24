@@ -1094,6 +1094,15 @@ SCSS
 
   # Regression
 
+  def test_prop_name_interpolation_after_hyphen
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  -foo-bar: b; }
+CSS
+a { -\#{"foo"}-bar: b; }
+SCSS
+  end
+
   def test_star_plus_and_parent
     assert_equal <<CSS, render(<<SCSS)
 * + html foo {

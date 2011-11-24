@@ -521,6 +521,9 @@ module Sass
           @scanner.pos = pos
           @line = line
           begin
+            # If we see "*E", don't force a throw because this could be the
+            # "*prop: val" hack.
+            expected('"{"') if res.length == 1 && res[0].is_a?(Selector::Universal)
             throw_error {expected('"{"')}
           rescue Sass::SyntaxError => e
             e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
@@ -768,7 +771,7 @@ MESSAGE
       end
 
       def interp_ident(start = IDENT)
-        return unless val = tok(start) || interpolation
+        return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP)
         res = [val]
         while val = tok(NAME) || interpolation
           res << val

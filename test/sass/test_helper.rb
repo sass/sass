@@ -3,6 +3,6 @@ $:.unshift test_dir unless $:.include?(test_dir)
 
 class Test::Unit::TestCase
   def absolutize(file)
-    "#{File.dirname(__FILE__)}/#{file}"
+    File.expand_path("#{File.dirname(__FILE__)}/#{file}")
   end
 end
