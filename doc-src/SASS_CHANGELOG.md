@@ -14,6 +14,7 @@
 * Add new `updated_stylesheet` callback, which is run after each stylesheet has
   been successfully compiled. Thanks to [Christian Peters](https://github.com/ChristianPeters).
 * Allow absolute paths to be used in an importer with a different root.
+* Don't destructively modify the options when running `Sass::Plugin.force_update`.
 
 ### Deprecations -- Must Read!
 
