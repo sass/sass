@@ -13,6 +13,7 @@
 * Don't crash on JRuby if the underlying Java doesn't support every Unicode encoding.
 * Add new `updated_stylesheet` callback, which is run after each stylesheet has
   been successfully compiled. Thanks to [Christian Peters](https://github.com/ChristianPeters).
+* Allow absolute paths to be used in an importer with a different root.
 
 ### Deprecations -- Must Read!
 
