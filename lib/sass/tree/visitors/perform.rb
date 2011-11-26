@@ -287,6 +287,14 @@ END
     children.flatten
   end
 
+  def visit_media(node)
+    if node.query['#{']
+      node.query = run_interp(Sass::Engine.parse_interp(node.query, node.line, 0, node.options))
+    end
+    yield
+    node
+  end
+
   def visit_directive(node)
     if node.value['#{']
       node.value = run_interp(Sass::Engine.parse_interp(node.value, node.line, 0, node.options))
