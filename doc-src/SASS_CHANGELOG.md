@@ -5,6 +5,8 @@
 
 ## 3.2.0 (Unreleased)
 
+* Allow interpolation in `@media` directives.
+
 * A mixin include can now accept a block of content ({file:SASS_REFERENCE.md#mixin-content Reference Documentation}).
   The style block will be passed to the mixin and can be placed at the point @content is used. E.g.:
   

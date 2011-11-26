@@ -1244,6 +1244,28 @@ a-\#{$a}
 SASS
   end
 
+  def test_directive_interpolation
+    assert_equal(<<CSS, render(<<SASS))
+@foo hi {
+  a: 3; }
+CSS
+$foo: "hi"
+@foo \#{$foo}
+  a: 3
+SASS
+  end
+
+  def test_media_interpolation
+    assert_equal(<<CSS, render(<<SASS))
+@media screen {
+  a: 3; }
+CSS
+$media: "screen"
+@media \#{$media}
+  a: 3
+SASS
+  end
+
   def test_if_directive
     assert_equal("a {\n  b: 1; }\n", render(<<SASS))
 $var: true
