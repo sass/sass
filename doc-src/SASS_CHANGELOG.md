@@ -52,7 +52,7 @@ to support any vendor prefix, as well as the plain `:any` selector.
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
 
-## 3.1.11 (Unreleased)
+## 3.1.11
 
 * Allow control directives (such as `@if`) to be nested beneath properties.
 * Allow property names to begin with a hyphen followed by interpolation (e.g. `-#{...}`).
