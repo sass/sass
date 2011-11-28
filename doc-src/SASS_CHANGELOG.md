@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.11 (Unreleased)
+## 3.1.11
 
 * Allow control directives (such as `@if`) to be nested beneath properties.
 * Allow property names to begin with a hyphen followed by interpolation (e.g. `-#{...}`).
