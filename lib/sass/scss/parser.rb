@@ -437,7 +437,7 @@ module Sass
       end
 
       def selector_sequence
-        if sel = tok(STATIC_SELECTOR)
+        if sel = tok(STATIC_SELECTOR, true)
           return [sel]
         end
 
@@ -681,7 +681,7 @@ MESSAGE
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
-        if val = tok(STATIC_VALUE)
+        if val = tok(STATIC_VALUE, true)
           return space, Sass::Script::String.new(val.strip)
         end
         return space, sass_script(:parse)
@@ -770,7 +770,7 @@ MESSAGE
       end
 
       def interp_ident(start = IDENT)
-        return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP)
+        return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
         res = [val]
         while val = tok(NAME) || interpolation
           res << val
@@ -944,9 +944,14 @@ MESSAGE
       # This is important because `#tok` is called all the time.
       NEWLINE = "\n"
 
-      def tok(rx)
+      def tok(rx, last_group_lookahead = false)
         res = @scanner.scan(rx)
         if res
+          if last_group_lookahead
+            last_group = @scanner[-1]
+            @scanner.pos -= last_group.length
+            res.chomp!(last_group)
+          end
           @line += res.count(NEWLINE)
           @expected = nil
           if !@strs.empty? && rx != COMMENT && rx != SINGLE_LINE_COMMENT
