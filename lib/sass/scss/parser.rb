@@ -947,10 +947,17 @@ MESSAGE
       def tok(rx, last_group_lookahead = false)
         res = @scanner.scan(rx)
         if res
-          if last_group_lookahead
-            last_group = @scanner[-1]
-            @scanner.pos -= last_group.length
-            res.chomp!(last_group)
+          # This fixes https://github.com/nex3/sass/issues/104, which affects
+          # Ruby 1.8.7 and REE. This fix is to replace the ?= zero-width
+          # positive lookahead operator in the Regexp (which matches without
+          # consuming the matched group), with a match that does consume the
+          # group, but then rewinds the scanner and removes the group from the
+          # end of the matched string. This fix makes the assumption that the
+          # matched group will always occur at the end of the match; this
+          # assumption is asserted.
+          if last_group_lookahead && @scanner[-1]
+            @scanner.pos -= @scanner[-1].length
+            raise unless res.chomp!(@scanner[-1])
           end
           @line += res.count(NEWLINE)
           @expected = nil
