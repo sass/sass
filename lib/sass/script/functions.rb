@@ -968,7 +968,7 @@ module Sass::Script
       #
       # Finally, the weight of color1 is renormalized to be within [0, 1]
       # and the weight of color2 is given by 1 minus the weight of color1.
-      p = weight.value/100.0
+      p = (weight.value/100.0).to_f
       w = p*2 - 1
       a = color1.alpha - color2.alpha
 
