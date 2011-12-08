@@ -360,7 +360,7 @@ module Sass::Script
       elsif num % 1 == 0.0
         num.to_i
       else
-        (num * self.precision_factor).round / self.precision_factor
+        ((num * self.precision_factor).round / self.precision_factor).to_f
       end
     end
 
