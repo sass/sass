@@ -68,6 +68,8 @@ to support any vendor prefix, as well as the plain `:any` selector.
   been successfully compiled. Thanks to [Christian Peters](https://github.com/ChristianPeters).
 * Allow absolute paths to be used in an importer with a different root.
 * Don't destructively modify the options when running `Sass::Plugin.force_update`.
+* Prevent Regexp buffer overflows when parsing long strings.
+  Thanks to [Agworld](https://github.com/Agworld).
 
 ### Deprecations -- Must Read!
 
