@@ -52,6 +52,10 @@ to support any vendor prefix, as well as the plain `:any` selector.
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
 
+## 3.1.12 (Unreleased)
+
+* Compatibility with the `mathn` library on Ruby 1.9.3 (thanks to [Thomas Walpole](https://github.com/twalpole)).
+
 ## 3.1.11
 
 * Allow control directives (such as `@if`) to be nested beneath properties.

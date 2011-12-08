@@ -1,9 +1,20 @@
 rvm:
   - 1.8.7
   - 1.9.2
-gemfile:
-  - test/Gemfile
+  - 1.9.3
+gemfile: test/Gemfile
+env:
+  - MATHN=true
+  - MATHN=false
 branches:
   only:
     - master
     - stable
+matrix:
+  exclude:
+    - rvm: 1.8.7
+      env: MATHN=true
+    - rvm: 1.9.2
+      env: MATHN=true
+notifications:
+  irc: {channels: "irc.freenode.org#sass"}
