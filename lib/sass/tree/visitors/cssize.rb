@@ -12,7 +12,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   attr_reader :parent
 
   def initialize
-    @extends = Sass::Util::SubsetMap.new
+    @extends  = Sass::Util::SubsetMap.new
+    @silenced = Set.new
   end
 
   # If an exception is raised, this adds proper metadata to the backtrace.
@@ -60,7 +61,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       node.children.unshift charset if charset
     end
 
-    return node, @extends
+    return node, @extends, @silenced
   rescue Sass::SyntaxError => e
     e.sass_template ||= node.template
     raise e
@@ -88,6 +89,20 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       end
     end
 
+    []
+  end
+
+  # registers the enclosing selector as silent and removes the silent node from the tree.
+  def visit_silent(node)
+    selectors = parent.resolved_rules
+    selectors.members.each do |seq|
+      if seq.members.size == 1 && seq.members.first.is_a?(Sass::Selector::SimpleSequence) &&
+         seq.members.first.members.size == 1 && seq.members.first.members.first.is_a?(Sass::Selector::Class)
+        @silenced << seq.members.first.members.first
+      else
+        raise Sass::SyntaxError.new("Only classes can be silenced: #{selectors.inspect}")
+      end
+    end
     []
   end
 

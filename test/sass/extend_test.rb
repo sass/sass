@@ -1339,6 +1339,84 @@ CSS
 SCSS
   end
 
+  def test_silent
+    assert_equal "", render(<<SCSS)
+.silent { @silent }
+SCSS
+  end
+
+  def test_silent_removes_a_class_from_a_comma_sequence
+    assert_equal ".not-silent { color: red; }\n", render(<<SCSS, :style => :compact)
+.silent { @silent }
+.silent, .not-silent { color: red; }
+SCSS
+  end
+
+  def test_silent_removes_a_complex_selector_from_a_comma_sequence
+    assert_equal ".before, .not-silent { color: red; }\n", render(<<SCSS, :style => :compact)
+.silent { @silent }
+.before, #id .silent > child, .not-silent { color: red; }
+SCSS
+  end
+
+  def test_silent_complete_removes_a_fully_silenced_selector
+    assert_equal "", render(<<SCSS, :style => :compact)
+.silent { @silent }
+#foo .silent > a, another .silent { color: red; }
+SCSS
+  end
+
+  def test_silent_complete_removes_a_chained_class
+    assert_equal "", render(<<SCSS, :style => :compact)
+.silent { @silent }
+.silent.foo { color: red; }
+SCSS
+  end
+
+  def test_silent_nodes_can_be_extended
+    assert_equal "#foo .not-silent > a { color: red; }\n", render(<<SCSS, :style => :compact)
+.silent { @silent }
+.not-silent { @extend .silent }
+#foo .silent > a { color: red; }
+SCSS
+  end
+
+  def test_can_silence_an_intermediate_class
+    assert_equal "#foo .child > a { color: red; }\n\n#foo .child > a { background-color: blue; }\n", render(<<SCSS, :style => :compact)
+.base { @silent }
+.intermediate { @extend .base; @silent; }
+.child { @extend .intermediate }
+#foo .base > a { color: red; }
+#foo .intermediate > a { background-color: blue; }
+SCSS
+  end
+
+  def test_silent_can_be_applied_by_mixin
+    assert_equal "", render(<<SCSS, :style => :compact)
+@mixin make-silent { @silent; }
+.silent { @include make-silent; }
+SCSS
+  end
+
+  def test_silent_can_be_conditional
+    assert_equal "", render(<<SCSS, :style => :compact)
+$silent: true;
+.silent {
+  @if $silent {
+    @silent;
+  }
+}
+SCSS
+  end
+
+  def test_silent_can_be_applied_by_mixin_content
+    assert_equal ".foo { color: red; }\n", render(<<SCSS, :style => :compact)
+@mixin make-base-class { .silent { color: red; @content; } }
+@include make-base-class { @silent }
+.foo { @extend .silent; }
+SCSS
+  end
+
   private
 
   def render(sass, options = {})

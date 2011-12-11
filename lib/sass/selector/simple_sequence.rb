@@ -54,13 +54,15 @@ module Sass
       # Non-destrucively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload def do_extend(extends)
+      # @overload def do_extend(extends, silenced)
       # @param extends [{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
+      # @param silenced [Set<Selector::Simple>]
+      #   The selectors that are silenced in this stylesheet.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
-      def do_extend(extends, seen = Set.new)
+      def do_extend(extends, silenced, seen = Set.new)
         extends.get(members.to_set).map do |seq, sels|
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
@@ -70,8 +72,14 @@ module Sass
           [sels, seq.members[0...-1] + [unified]]
         end.compact.map do |sels, seq|
           seq = Sequence.new(seq)
-          seen.include?(sels) ? [] : seq.do_extend(extends, seen + [sels])
+          seen.include?(sels) ? [] : seq.do_extend(extends, silenced, seen + [sels])
         end.flatten.uniq
+      end
+
+      # Returns true if any of the selectors in this selector sequence
+      # are found in the enumerable of selectors passed in.
+      def contains_one_of?(selectors)
+        members.any?{|m| selectors.include?(m)}
       end
 
       # Unifies this selector with another {SimpleSequence}'s {SimpleSequence#members members array},

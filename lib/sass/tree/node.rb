@@ -142,12 +142,14 @@ module Sass
       #
       # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this tree
+      # @param silenced [Set<Selector::Simple>]
+      #   The selectors that are silenced in this stylesheet.
       # @return [Tree::Node] The resulting tree of static CSS nodes.
       # @raise [Sass::SyntaxError] Only if there's a programmer error
       #   and this is not a static CSS tree
-      def do_extend(extends)
+      def do_extend(extends, silenced)
         node = dup
-        node.children = children.map {|c| c.do_extend(extends)}
+        node.children = children.map {|c| c.do_extend(extends, silenced)}
         node
       rescue Sass::SyntaxError => e
         e.modify_backtrace(:filename => filename, :line => line)

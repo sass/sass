@@ -71,17 +71,25 @@ module Sass
       # @overload def do_extend(extends)
       # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
+      # @param silenced [Set<Selector::Simple>]
+      #   The selectors that are silenced in this stylesheet.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#do_extend
-      def do_extend(extends, seen = Set.new)
+      def do_extend(extends, silenced, seen = Set.new)
         paths = Sass::Util.paths(members.map do |sseq_or_op|
             next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-            extended = sseq_or_op.do_extend(extends, seen)
+            extended = sseq_or_op.do_extend(extends, silenced, seen)
             choices = extended.map {|seq| seq.members}
             choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
-            choices
+            if silenced.any?
+              choices.map{|c| c.reject do |sel|
+                sel.contains_one_of?(silenced)
+              end}.reject{|c| c.size == 0}
+            else
+              choices
+            end
           end)
         Sass::Util.flatten(paths.map {|path| weave(path)}, 1).map {|p| Sequence.new(p)}
       end
@@ -111,7 +119,7 @@ module Sass
       #
       # @return [String]
       def inspect
-        members.map {|m| m.inspect}.join(" ")
+        members.map {|m| m.is_a?(String) ? m : m.inspect }.join(" ")
       end
 
       private

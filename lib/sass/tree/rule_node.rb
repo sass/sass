@@ -106,10 +106,18 @@ module Sass::Tree
     # Extends this Rule's selector with the given `extends`.
     #
     # @see Node#do_extend
-    def do_extend(extends)
+    def do_extend(extends, silenced)
       node = dup
-      node.resolved_rules = resolved_rules.do_extend(extends)
+      node.resolved_rules = resolved_rules.do_extend(extends, silenced)
       node
+    end
+
+    # Causes this ruleset to be removed from the output if all the resolved rules
+    # become silenced.
+    #
+    # @overload def invisible?
+    def invisible?
+      resolved_rules.size == 0
     end
 
     # A hash that will be associated with this rule in the CSS document

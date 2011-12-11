@@ -1457,6 +1457,37 @@ This is compiled to:
     #admin .overview .tabbar .fakelink {
       font-weight: bold; }
 
+### `@silent`
+
+The `@silent` directive can be used to prevent a CSS class from being output.
+
+This is mostly useful when defining a base class for the purposes of it
+being extended. When a css class is made silent, all selectors that
+contain that class are removed. If a ruleset's selector is completely silenced
+then the ruleset itself is also pruned from the output.
+
+Example:
+
+    .grid-column {
+      @silent;
+      float: left;
+      margin-right: 10px;
+    }
+    @for $g from 1 through 4 {
+      .span-#{$g} {
+        @extend .grid-column;
+        width: 40px * $g + 10px * ($g - 1);
+      }
+    }
+
+Outputs:
+
+    .span-1, .span-2, .span-3, .span-4 { float: left; margin-right: 10px; }
+    .span-1 { width: 40px; }
+    .span-2 { width: 90px; }
+    .span-3 { width: 140px; }
+    .span-4 { width: 190px; }
+
 ### `@debug`
 
 The `@debug` directive prints the value of a SassScript expression
