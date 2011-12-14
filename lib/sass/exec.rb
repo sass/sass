@@ -389,7 +389,7 @@ MSG
         dirs.map! {|from, to| [from, to || from]}
         ::Sass::Plugin.options[:template_location] = dirs
 
-        ::Sass::Plugin.on_updating_stylesheet do |_, css|
+        ::Sass::Plugin.on_updated_stylesheet do |_, css|
           if File.exists? css
             puts_action :overwrite, :yellow, css
           else
