@@ -10,6 +10,8 @@
 * Fix some infinite loops with mixins that were previously uncaught.
 
 * Catch infinite `@import` loops.
+* Fix a deprecation warning in `sass --update` and `--watch`
+  (thanks to [Marcel Köppen](https://github.com/Marzelpan)).
 
 ## 3.1.11
 
