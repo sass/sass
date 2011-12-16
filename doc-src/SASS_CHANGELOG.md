@@ -48,6 +48,12 @@ Sass now supports a global list of load paths, accessible via {Sass.load_paths}.
 This allows plugins and libraries to easily register their Sass files
 such that they're accessible to all {Sass::Engine} instances.
 
+### `SASS_PATH`
+
+`Sass.load_paths` is initialized to the value of the `SASS_PATH` environment variable.
+This variable should contain a colon-separated list of load paths
+(semicolon-separated on Windows).
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Parent selectors followed immediately by identifiers (e.g. `&foo`)

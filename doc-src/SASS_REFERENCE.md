@@ -280,7 +280,8 @@ Available options are:
   These may be strings, `Pathname` objects, or subclasses of {Sass::Importers::Base}.
   This defaults to the working directory and, in Rack, Rails, or Merb,
   whatever `:template_location` is.
-  The load path is also informed by {Sass.load_paths}.
+  The load path is also informed by {Sass.load_paths}
+  and the `SASS_PATH` environment variable.
 
 {#filesystem_importer-option} `:filesystem_importer`
 : A {Sass::Importers::Base} subclass used to handle plain string load paths.

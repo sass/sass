@@ -23,6 +23,11 @@ module Sass
   # They are lower-precedence than any load paths passed in via the
   # {file:SASS_REFERENCE.md#load_paths-option `:load_paths` option}.
   #
+  # If the `SASS_PATH` environment variable is set,
+  # the initial value of `load_paths` will be initialized based on that.
+  # The variable should be a colon-separated list of path names
+  # (semicolon-separated on Windows).
+  #
   # Note that files on the global load path are never compiled to CSS
   # themselves, even if they aren't partials. They exist only to be imported.
   #
@@ -30,7 +35,8 @@ module Sass
   #   Sass.load_paths << File.dirname(__FILE__ + '/sass')
   # @return [Array<String, Pathname, Sass::Importers::Base>]
   def self.load_paths
-    @load_path ||= []
+    @load_paths ||= ENV['SASS_PATH'] ?
+      ENV['SASS_PATH'].split(Sass::Util.windows? ? ';' : ':') : []
   end
 
   # Compile a Sass or SCSS string to CSS.
