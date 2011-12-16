@@ -7,6 +7,8 @@
 
 * Compatibility with the `mathn` library (thanks to [Thomas Walpole](https://github.com/twalpole)).
 
+* Fix some infinite loops with mixins that were previously uncaught.
+
 ## 3.1.11
 
 * Allow control directives (such as `@if`) to be nested beneath properties.

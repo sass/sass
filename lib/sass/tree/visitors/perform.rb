@@ -293,9 +293,7 @@ END
   def handle_include_loop!(node)
     msg = "An @include loop has been found:"
     mixins = @environment.stack.map {|s| s[:mixin]}.compact
-    if mixins.size == 2 && mixins[0] == mixins[1]
-      raise Sass::SyntaxError.new("#{msg} #{node.name} includes itself")
-    end
+    raise Sass::SyntaxError.new("#{msg} #{node.name} includes itself") if mixins.size == 1
 
     mixins << node.name
     msg << "\n" << Sass::Util.enum_cons(mixins, 2).map do |m1, m2|

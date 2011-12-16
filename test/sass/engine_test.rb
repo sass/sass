@@ -2041,6 +2041,24 @@ CSS
 
   # Regression tests
 
+  def test_tricky_mixin_loop_exception
+    render <<SASS
+@mixin foo($a)
+  @if $a
+    @include foo(false)
+    @include foo(true)
+  @else
+    a: b
+
+a
+  @include foo(true)
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal("An @include loop has been found: foo includes itself", err.message)
+    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 3)
+  end
+
   def test_interpolated_comment_in_mixin
     assert_equal <<CSS, render(<<SASS)
 /* color: red */

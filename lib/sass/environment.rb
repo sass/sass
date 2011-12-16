@@ -59,7 +59,7 @@ module Sass
       else
         stack.push(top_of_stack = frame_info)
       end
-      mixins_in_use << top_of_stack[:mixin] if top_of_stack[:mixin] && !top_of_stack[:prepared]
+      mixins_in_use << top_of_stack[:mixin] if top_of_stack[:mixin]
     end
 
     # Like \{#push\_frame}, but next time a stack frame is pushed,
@@ -72,9 +72,8 @@ module Sass
 
     # Pop a stack frame from the mixin/include stack.
     def pop_frame
-      stack.pop if stack.last && stack.last[:prepared]
-      popped = stack.pop
-      mixins_in_use.delete(popped[:mixin]) if popped && popped[:mixin]
+      pop_and_unuse if stack.last && stack.last[:prepared]
+      pop_and_unuse
     end
 
     # A list of stack frames in the mixin/include stack.
@@ -105,6 +104,12 @@ module Sass
     end
 
     private
+
+    def pop_and_unuse
+      popped = stack.pop
+      mixins_in_use.delete(popped[:mixin]) if popped && popped[:mixin]
+      popped
+    end
 
     def parent_options
       @parent_options ||= @parent && @parent.options
