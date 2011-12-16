@@ -25,7 +25,6 @@ module Sass
     # @param parent [Environment] See \{#parent}
     def initialize(parent = nil)
       @parent = parent
-      set_var("important", Script::String.new("!important")) unless parent
     end
 
     # The environment of the caller of this environment's mixin or function.

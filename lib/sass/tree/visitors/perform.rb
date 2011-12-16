@@ -137,9 +137,11 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     if path = node.css_import?
       return Sass::Tree::DirectiveNode.new("@import url(#{path})")
     end
+    file = node.imported_file
+    handle_import_loop!(node) if @stack.any? {|e| e[:filename] == file.options[:filename]}
 
     @stack.push(:filename => node.filename, :line => node.line)
-    root = node.imported_file.to_tree
+    root = file.to_tree
     Sass::Tree::Visitors::CheckNesting.visit(root)
     node.children = root.children.map {|c| visit(c)}.flatten
     node
@@ -344,6 +346,18 @@ END
 
     msg << "\n" << Sass::Util.enum_cons(mixins.reverse + [node.name], 2).map do |m1, m2|
       "    #{m1} includes #{m2}"
+    end.join("\n")
+    raise Sass::SyntaxError.new(msg)
+  end
+
+  def handle_import_loop!(node)
+    msg = "An @import loop has been found:"
+    files = @stack.map {|s| s[:filename]}.compact
+    raise Sass::SyntaxError.new("#{msg} #{node.filename} imports itself") if files.size == 1
+
+    files << node.filename << node.imported_file.options[:filename]
+    msg << "\n" << Sass::Util.enum_cons(files, 2).map do |m1, m2|
+      "    #{m1} imports #{m2}"
     end.join("\n")
     raise Sass::SyntaxError.new(msg)
   end

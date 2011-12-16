@@ -60,7 +60,13 @@ such that they're accessible to all {Sass::Engine} instances.
 
 ## 3.1.12 (Unreleased)
 
-* Compatibility with the `mathn` library (thanks to [Thomas Walpole](https://github.com/twalpole)).
+* Compatibility with the `mathn` library
+  (thanks to [Thomas Walpole](https://github.com/twalpole)).
+* Fix some infinite loops with mixins that were previously uncaught.
+* Catch infinite `@import` loops.
+* Fix a deprecation warning in `sass --update` and `--watch`
+  (thanks to [Marcel Köppen](https://github.com/Marzelpan)).
+* Don't make `$important` a special pre-initialized variable.
 
 ## 3.1.11
 
@@ -74,6 +80,8 @@ such that they're accessible to all {Sass::Engine} instances.
   been successfully compiled. Thanks to [Christian Peters](https://github.com/ChristianPeters).
 * Allow absolute paths to be used in an importer with a different root.
 * Don't destructively modify the options when running `Sass::Plugin.force_update`.
+* Prevent Regexp buffer overflows when parsing long strings
+  (thanks to [Agworld](https://github.com/Agworld).
 
 ### Deprecations -- Must Read!
 
