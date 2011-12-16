@@ -173,7 +173,7 @@ module Sass
       # for quite a long time.
       options[:line_comments] ||= options[:line_numbers]
 
-      options[:load_paths] = options[:load_paths].map do |p|
+      options[:load_paths] = (options[:load_paths] + Sass.load_paths).map do |p|
         next p unless p.is_a?(String) || (defined?(Pathname) && p.is_a?(Pathname))
         options[:filesystem_importer].new(p.to_s)
       end

@@ -598,6 +598,16 @@ CSS
     assert File.exists?(sassc_file)
   end
 
+  def test_import_from_global_load_paths
+    importer = MockImporter.new
+    importer.add_import("imported", "div{color:red}")
+    Sass.load_paths << importer
+
+    assert_equal "div {\n  color: red; }\n", Sass::Engine.new('@import "imported"').render
+  ensure
+    Sass.load_paths.clear
+  end
+
   def test_nonexistent_import
     assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) do
 File to import not found or unreadable: nonexistent.sass.

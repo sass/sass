@@ -42,6 +42,12 @@
 Previously, only the `:-moz-any` selector was supported; this has been expanded
 to support any vendor prefix, as well as the plain `:any` selector.
 
+## `Sass.load_paths`
+
+Sass now supports a global list of load paths, accessible via {Sass.load_paths}.
+This allows plugins and libraries to easily register their Sass files
+such that they're accessible to all {Sass::Engine} instances.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Parent selectors followed immediately by identifiers (e.g. `&foo`)
