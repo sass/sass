@@ -9,6 +9,8 @@
 
 * Fix some infinite loops with mixins that were previously uncaught.
 
+* Catch infinite `@import` loops.
+
 ## 3.1.11
 
 * Allow control directives (such as `@if`) to be nested beneath properties.

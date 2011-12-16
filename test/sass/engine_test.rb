@@ -470,6 +470,53 @@ MESSAGE
     assert_hash_has(err.sass_backtrace[2], :mixin => "foo", :line => 2)
   end
 
+  def test_basic_import_loop_exception
+    import = filename_for_test
+    importer = MockImporter.new
+    importer.add_import(import, "@import '#{import}'")
+
+    engine = Sass::Engine.new("@import '#{import}'", :filename => import,
+      :load_paths => [importer])
+
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
+An @import loop has been found: #{import} imports itself
+ERR
+  end
+
+  def test_double_import_loop_exception
+    importer = MockImporter.new
+    importer.add_import("foo", "@import 'bar'")
+    importer.add_import("bar", "@import 'foo'")
+
+    engine = Sass::Engine.new('@import "foo"', :filename => filename_for_test,
+      :load_paths => [importer])
+
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
+An @import loop has been found:
+    #{filename_for_test} imports foo
+    foo imports bar
+    bar imports foo
+ERR
+  end
+
+  def test_deep_import_loop_exception
+    importer = MockImporter.new
+    importer.add_import("foo", "@import 'bar'")
+    importer.add_import("bar", "@import 'baz'")
+    importer.add_import("baz", "@import 'foo'")
+
+    engine = Sass::Engine.new('@import "foo"', :filename => filename_for_test,
+      :load_paths => [importer])
+
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
+An @import loop has been found:
+    #{filename_for_test} imports foo
+    foo imports bar
+    bar imports baz
+    baz imports foo
+ERR
+  end
+
   def test_exception_css_with_offset
     opts = {:full_exception => true, :line => 362}
     render(("a\n  b: c\n" * 10) + "d\n  e:\n" + ("f\n  g: h\n" * 10), opts)

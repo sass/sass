@@ -26,6 +26,7 @@ module Sass
       unless parent
         @stack = []
         @mixins_in_use = Set.new
+        @files_in_use = Set.new
         set_var("important", Script::String.new("!important"))
       end
     end
@@ -60,6 +61,7 @@ module Sass
         stack.push(top_of_stack = frame_info)
       end
       mixins_in_use << top_of_stack[:mixin] if top_of_stack[:mixin]
+      files_in_use << top_of_stack[:filename] if top_of_stack[:filename]
     end
 
     # Like \{#push\_frame}, but next time a stack frame is pushed,
@@ -92,6 +94,13 @@ module Sass
       @mixins_in_use ||= @parent.mixins_in_use
     end
 
+    # A set of names of files currently present in the stack.
+    #
+    # @return [Set<String>] The filenames.
+    def files_in_use
+      @files_in_use ||= @parent.files_in_use
+    end
+
     def stack_trace
       trace = []
       stack.reverse.each_with_index do |entry, i|
@@ -108,6 +117,7 @@ module Sass
     def pop_and_unuse
       popped = stack.pop
       mixins_in_use.delete(popped[:mixin]) if popped && popped[:mixin]
+      files_in_use.delete(popped[:filename]) if popped && popped[:filename]
       popped
     end
 
