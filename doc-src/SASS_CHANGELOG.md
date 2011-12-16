@@ -5,10 +5,9 @@
 
 ## 3.1.12 (Unreleased)
 
-* Compatibility with the `mathn` library (thanks to [Thomas Walpole](https://github.com/twalpole)).
-
+* Compatibility with the `mathn` library
+  (thanks to [Thomas Walpole](https://github.com/twalpole)).
 * Fix some infinite loops with mixins that were previously uncaught.
-
 * Catch infinite `@import` loops.
 * Fix a deprecation warning in `sass --update` and `--watch`
   (thanks to [Marcel Köppen](https://github.com/Marzelpan)).
