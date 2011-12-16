@@ -37,18 +37,18 @@
   Note that the contents passed to the mixin are evaluated in the scope they are used,
   not the scope of the mixin. {file:SASS_REFERENCE.md#variable_scope_and_content_blocks More on variable scoping.}
 
-## `:any` Support
+### `:any` Support
 
 Previously, only the `:-moz-any` selector was supported; this has been expanded
 to support any vendor prefix, as well as the plain `:any` selector.
 
-## `Sass.load_paths`
+### `Sass.load_paths`
 
 Sass now supports a global list of load paths, accessible via {Sass.load_paths}.
 This allows plugins and libraries to easily register their Sass files
 such that they're accessible to all {Sass::Engine} instances.
 
-### `SASS_PATH`
+#### `SASS_PATH`
 
 `Sass.load_paths` is initialized to the value of the `SASS_PATH` environment variable.
 This variable should contain a colon-separated list of load paths
