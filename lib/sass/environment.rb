@@ -27,7 +27,6 @@ module Sass
         @stack = []
         @mixins_in_use = Set.new
         @files_in_use = Set.new
-        set_var("important", Script::String.new("!important"))
       end
     end
 

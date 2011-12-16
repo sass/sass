@@ -11,6 +11,7 @@
 * Catch infinite `@import` loops.
 * Fix a deprecation warning in `sass --update` and `--watch`
   (thanks to [Marcel Köppen](https://github.com/Marzelpan)).
+* Don't make `$important` a special pre-initialized variable.
 
 ## 3.1.11
 
