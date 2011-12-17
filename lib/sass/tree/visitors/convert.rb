@@ -154,7 +154,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_media(node)
-    "#{tab_str}@media #{node.query}#{yield}"
+    "#{tab_str}@media #{node.query.join(', ')}#{yield}"
   end
 
   def visit_mixindef(node)

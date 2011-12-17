@@ -287,20 +287,20 @@ module Sass
       def use_css_import?; false; end
 
       def media_directive
-        val = str {media_query_list}.strip
-        block(node(Sass::Tree::MediaNode.new(val)), :directive)
+        block(node(Sass::Tree::MediaNode.new(media_query_list)), :directive)
       end
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
       def media_query_list
-        return unless media_query
+        return unless q = media_query
+        queries = [q]
 
         ss
         while tok(/,/)
-          ss; expr!(:media_query); ss
+          ss; queries << str {expr!(:media_query)}; ss
         end
 
-        true
+        queries
       end
 
       def media_query

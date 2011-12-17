@@ -683,7 +683,7 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
       elsif directive == "media"
-        Tree::MediaNode.new(value)
+        Tree::MediaNode.new(value.split(',').map {|s| s.strip})
       else
         Tree::DirectiveNode.new(line.text)
       end
