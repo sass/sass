@@ -292,12 +292,12 @@ module Sass
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
       def media_query_list
-        return unless q = media_query
-        queries = [q]
+        return unless q = str? {media_query}
+        queries = [q.strip]
 
         ss
         while tok(/,/)
-          ss; queries << str {expr!(:media_query)}; ss
+          ss; queries << str {expr!(:media_query)}.strip; ss
         end
 
         queries
