@@ -64,7 +64,7 @@ This variable should contain a colon-separated list of load paths
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
 
-## 3.1.12 (Unreleased)
+## 3.1.12
 
 * Compatibility with the `mathn` library
   (thanks to [Thomas Walpole](https://github.com/twalpole)).
