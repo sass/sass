@@ -2025,6 +2025,19 @@ CSS
 SASS
   end
 
+  def test_double_media_bubbling_with_commas
+    assert_equal <<CSS, render(<<SASS)
+@media foo and baz, foo and bang, bar and baz, bar and bang {
+  .foo {
+    c: d; } }
+CSS
+@media foo, bar
+  @media baz, bang
+    .foo
+      c: d
+SASS
+  end
+
   def test_rule_media_rule_bubbling
     assert_equal <<CSS, render(<<SASS)
 @media bar {

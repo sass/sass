@@ -73,6 +73,10 @@ This variable should contain a colon-separated list of load paths
 * Fix a deprecation warning in `sass --update` and `--watch`
   (thanks to [Marcel Köppen](https://github.com/Marzelpan)).
 * Don't make `$important` a special pre-initialized variable.
+* Fix exponential parsing time of certain complex property values and selectors.
+* Properly merge `@media` directives with comma-separated queries.
+  E.g. `@media foo, bar { @media baz { ... } }` now becomes
+  `@media foo and baz, bar and baz { ... }`.
 
 ## 3.1.11
 
