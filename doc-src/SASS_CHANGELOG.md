@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.12 (Unreleased)
+## 3.1.12
 
 * Compatibility with the `mathn` library
   (thanks to [Thomas Walpole](https://github.com/twalpole)).
