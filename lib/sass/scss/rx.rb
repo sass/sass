@@ -120,9 +120,13 @@ module Sass
       # We could use it for 1.9 only, but I don't want to introduce a cross-version
       # behavior difference.
       # In any case, almost all CSS idents will be matched by this.
-      STATIC_VALUE = /(-?#{NMSTART}|#{STRING_NOINTERP}|\s(?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important)+([;}])/i
-
-      STATIC_SELECTOR = /(#{NMCHAR}|\s|[,>+*]|[:#.]#{NMSTART})+([{])/i
+      #
+      # We explicitly avoid parsing newlines or values/selectors longer than
+      # about 50 characters. This mitigates the problem of exponential parsing
+      # time when a value has a long string of valid, parsable content followed
+      # by something invalid.
+      STATIC_VALUE = /(-?#{NMSTART}|#{STRING_NOINTERP}|[ \t](?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important){0,50}([;}])/i
+      STATIC_SELECTOR = /(#{NMCHAR}|[ \t]|[,>+*]|[:#.]#{NMSTART}){0,50}([{])/i
     end
   end
 end

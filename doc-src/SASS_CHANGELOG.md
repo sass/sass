@@ -12,6 +12,7 @@
 * Fix a deprecation warning in `sass --update` and `--watch`
   (thanks to [Marcel Köppen](https://github.com/Marzelpan)).
 * Don't make `$important` a special pre-initialized variable.
+* Fix exponential parsing time of certain complex property values and selectors.
 
 ## 3.1.11
 
