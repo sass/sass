@@ -230,7 +230,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def selector_to_sass(sel)
     sel.map do |r|
       if r.is_a?(String)
-        r.gsub(/(,[ \t]*)?\n\s*/) {$1 ? $1 + "\n" : " "}
+        r.gsub(/(,)?([ \t]*)\n\s*/) {$1 ? "#{$1}#{$2}\n" : " "}
       else
         "\#{#{r.to_sass(@options)}}"
       end
@@ -239,7 +239,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def selector_to_scss(sel)
     sel.map {|r| r.is_a?(String) ? r : "\#{#{r.to_sass(@options)}}"}.
-      join.gsub(/^[ \t]*/, tab_str)
+      join.gsub(/^[ \t]*/, tab_str).gsub(/[ \t]*$/, '')
   end
 
   def semi

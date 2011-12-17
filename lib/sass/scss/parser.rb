@@ -292,7 +292,10 @@ module Sass
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
       def media_query_list
-        return unless q = str? {media_query}
+        has_q = false
+        q = str {has_q = media_query}
+
+        return unless has_q
         queries = [q.strip]
 
         ss
