@@ -16,6 +16,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     @options = options
     @format = format
     @tabs = 0
+    # 2 spaces by default
+    @tab_chars = @options[:indent] ? @options[:indent] : "  "
   end
 
   def visit_children(parent)
@@ -247,7 +249,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def tab_str
-    '  ' * @tabs
+    @tab_chars * @tabs
   end
 
   def dasherize(s)

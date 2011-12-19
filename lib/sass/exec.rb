@@ -515,6 +515,17 @@ END
           @options[:for_tree][:dasherize] = true
         end
 
+        opts.on('--indent indent',
+          'Customize the indent size in written files. 2 by default.',
+          'Use "t" if you want to use real tab.') do |indent|
+
+          if indent == 't'
+            @options[:for_tree][:indent] = "\t"
+          else
+            @options[:for_tree][:indent] = " " * indent.to_i
+          end
+        end
+
         opts.on('--old', 'Output the old-style ":prop val" property syntax.',
                          'Only meaningful when generating Sass.') do
           @options[:for_tree][:old] = true

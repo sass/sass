@@ -1148,6 +1148,93 @@ SASS
 SCSS
   end
 
+  def test_indent
+    assert_renders <<SASS, <<SCSS, :indent => "    "
+foo bar
+    baz bang
+        baz: bang
+        bip: bop
+    blat: boo
+SASS
+foo bar {
+    baz bang {
+        baz: bang;
+        bip: bop; }
+    blat: boo; }
+SCSS
+
+    assert_renders <<SASS, <<SCSS, :indent => "\t"
+foo bar
+	baz bang
+		baz: bang
+		bip: bop
+	blat: boo
+SASS
+foo bar {
+	baz bang {
+		baz: bang;
+		bip: bop; }
+	blat: boo; }
+SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS, :indent => "    "
+foo bar {
+    baz bang {
+        baz: bang;
+        bip: bop; }
+    blat: boo; }
+SCSS
+foo bar
+  baz bang
+    baz: bang
+    bip: bop
+  blat: boo
+SASS
+
+    assert_sass_to_scss <<SCSS, <<SASS, :indent => "\t"
+foo bar {
+	baz bang {
+		baz: bang;
+		bip: bop; }
+	blat: boo; }
+SCSS
+foo bar
+  baz bang
+    baz: bang
+    bip: bop
+  blat: boo
+SASS
+
+    assert_scss_to_sass <<SASS, <<SCSS, :indent => "    "
+foo bar
+    baz bang
+        baz: bang
+        bip: bop
+    blat: boo
+SASS
+foo bar {
+  baz bang {
+    baz: bang;
+    bip: bop; }
+  blat: boo; }
+SCSS
+
+    assert_scss_to_sass <<SASS, <<SCSS, :indent => "\t"
+foo bar
+	baz bang
+		baz: bang
+		bip: bop
+	blat: boo
+SASS
+foo bar {
+  baz bang {
+    baz: bang;
+    bip: bop; }
+  blat: boo; }
+SCSS
+  end
+
+
   private
 
   def assert_sass_to_sass(sass, options = {})
