@@ -46,10 +46,12 @@ module Sass
       #
       # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
+      # @param silenced [Set<Selector::Simple>]
+      #   The selectors that are silenced in this stylesheet.
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def do_extend(extends)
-        CommaSequence.new(members.map {|seq| seq.do_extend(extends)}.flatten)
+      def do_extend(extends, silenced)
+        CommaSequence.new(members.map {|seq| seq.do_extend(extends, silenced)}.flatten)
       end
 
       # Returns a string representation of the sequence.
@@ -65,6 +67,11 @@ module Sass
         arr = Sass::Util.intersperse(@members.map {|m| m.to_a}, ", ").flatten
         arr.delete("\n")
         arr
+      end
+
+      # Return the number of selects in the Comma-delimited sequence.
+      def size
+        members.size
       end
 
       private

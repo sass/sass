@@ -146,6 +146,10 @@ MSG
     "@content" => '@content may only be used within a mixin.',
     "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
     "=foo\n  @content\n+foo" => ["No @content passed.", 2],
+    "#id\n  @silent" => "Only classes can be silenced: #id",
+    "element\n  @silent" => "Only classes can be silenced: element",
+    "element > .foo\n  @silent" => "Only classes can be silenced: element > .foo",
+    "@silent" => "@silent directives may only be used within rules.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
@@ -2763,6 +2767,7 @@ SASS
         {:line => 5, :filename => 'test_content_backtrace_for_cssize_inline.sass'},
       ], e.sass_backtrace)
   end
+
 
   private
 

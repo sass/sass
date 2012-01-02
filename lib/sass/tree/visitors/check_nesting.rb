@@ -72,6 +72,13 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     end
   end
 
+  VALID_SILENT_PARENTS = [Sass::Tree::RuleNode, Sass::Tree::MixinDefNode, Sass::Tree::MixinNode]
+  def invalid_silent_parent?(parent, child)
+    unless is_any_of?(parent, VALID_EXTEND_PARENTS)
+      "@silent directives may only be used within rules."
+    end
+  end
+
   def invalid_function_parent?(parent, child)
     "Functions may only be defined at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end

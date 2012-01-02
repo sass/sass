@@ -111,7 +111,7 @@ module Sass
       end
 
       DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
-        :each, :while, :if, :else, :extend, :import, :media, :charset, :content]
+        :each, :while, :if, :else, :extend, :silent, :import, :media, :charset, :content]
 
       def directive
         return unless tok(/@/)
@@ -165,6 +165,11 @@ module Sass
       def content_directive
         ss
         node(Sass::Tree::ContentNode.new)
+      end
+
+      def silent_directive
+        ss
+        node(Sass::Tree::SilentNode.new)
       end
 
       def function_directive
