@@ -2620,31 +2620,31 @@ $color: blue
 SASS
   end
 
-#   def test_using_parent_mixin_in_content
-#     assert_equal <<CSS, render(<<SASS)
-# .parent {
-#   before-color: red;
-#   after-color: red; }
-#   .parent .sibling {
-#     before-color: yellow;
-#     after-color: yellow; }
-#     .parent .sibling .child {
-#       before-color: green;
-#       color: blue;
-#       after-color: green; }
-# CSS
-# $color: blue
-# =context($class, $color: red)
-#   .\#{$class}
-#     before-color: $color
-#     @content
-#     after-color: $color
-# +context(parent)
-#   +context(sibling, $color: yellow)
-#     +context(child, $color: green)
-#       color: $color
-# SASS
-#   end
+  def test_using_parent_mixin_in_content
+    assert_equal <<CSS, render(<<SASS)
+.parent {
+  before-color: red;
+  after-color: red; }
+  .parent .sibling {
+    before-color: yellow;
+    after-color: yellow; }
+    .parent .sibling .child {
+      before-color: green;
+      color: blue;
+      after-color: green; }
+CSS
+$color: blue
+=context($class, $color: red)
+  .\#{$class}
+    before-color: $color
+    @content
+    after-color: $color
++context(parent)
+  +context(sibling, $color: yellow)
+    +context(child, $color: green)
+      color: $color
+SASS
+  end
 
   def test_content_more_than_once
     assert_equal <<CSS, render(<<SASS)
