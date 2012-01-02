@@ -219,6 +219,10 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     "#{tab_str}@while #{node.expr.to_sass(@options)}#{yield}"
   end
 
+  def visit_silent(node)
+    "#{tab_str}@silent"
+  end
+
   private
 
   def selector_to_src(sel)

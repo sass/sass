@@ -1177,6 +1177,17 @@ SCSS
 SCSS
   end
 
+  def test_silent
+    assert_renders(<<SASS, <<SCSS)
+.silent
+  @silent
+SASS
+.silent {
+  @silent }
+SCSS
+
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})
