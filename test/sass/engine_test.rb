@@ -64,7 +64,7 @@ MSG
     "@mixin foo\n  @import foo" => "Import directives may not be used within control directives or mixins.",
     "@import foo;" => "Invalid @import: expected end of line, was \";\".",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
-    '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"},
+    '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"}, #'
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
     "=foo\n  :color red\n.bar\n  +bang-bop" => "Undefined mixin 'bang-bop'.",
@@ -141,6 +141,7 @@ MSG
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
     "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a selector.", 2],
     "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a selector.", 2],
+    "foo %\n  a: b" => ['Invalid CSS after "foo %": expected placeholder name, was ""', 1],
     "=foo\n  @content error" => "Invalid content directive. Trailing characters found: \"error\".",
     "=foo\n  @content\n    b: c" => "Illegal nesting: Nothing may be nested beneath @content directives.",
     "@content" => '@content may only be used within a mixin.',
