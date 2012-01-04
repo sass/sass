@@ -131,10 +131,11 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       per_rule_indent, total_indent = [:nested, :expanded].include?(node.style) ? [rule_indent, ''] : ['', rule_indent]
 
       joined_rules = node.resolved_rules.members.map do |seq|
+        next if seq.has_placeholder?
         rule_part = seq.to_a.join
         rule_part.gsub!(/\s*([^,])\s*\n\s*/m, '\1 ') if node.style == :compressed
         rule_part
-      end.join(rule_separator)
+      end.compact.join(rule_separator)
 
       joined_rules.sub!(/\A\s*/, per_rule_indent)
       joined_rules.gsub!(/\s*\n\s*/, "#{line_separator}#{per_rule_indent}")
