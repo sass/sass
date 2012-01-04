@@ -1177,6 +1177,36 @@ SCSS
 SCSS
   end
 
+  def test_placeholder_conversion
+    assert_renders(<<SASS, <<SCSS)
+#content a%foo.bar
+  color: blue
+SASS
+#content a%foo.bar {
+  color: blue; }
+SCSS
+  end
+
+  def test_placeholder_interoplation_conversion
+    assert_renders(<<SASS, <<SCSS)
+$foo: foo
+
+%\#{$foo}
+  color: blue
+
+.bar
+  @extend %foo
+SASS
+$foo: foo;
+
+%\#{$foo} {
+  color: blue; }
+
+.bar {
+  @extend %foo; }
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

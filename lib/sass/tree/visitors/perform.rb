@@ -87,7 +87,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_extend(node)
-    parser = Sass::SCSS::CssParser.new(run_interp(node.selector), node.filename, node.line)
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.selector), node.filename, node.line)
     node.resolved_selector = parser.parse_selector
     node
   end

@@ -81,6 +81,27 @@ module Sass
       end
     end
 
+    # A placeholder selector (e.g. `%foo`).
+    # This exists to be replaced via `@extend`.
+    # Rulesets using this selector will not be printed, but can be extended.
+    # Otherwise, this acts just like a class selector.
+    class Placeholder < Simple
+      # The placeholder name.
+      #
+      # @return [Array<String, Sass::Script::Node>]
+      attr_reader :name
+
+      # @param name [Array<String, Sass::Script::Node>] The placeholder name
+      def initialize(name)
+        @name = name
+      end
+
+      # @see Selector#to_a
+      def to_a
+        ["%", *@name]
+      end
+    end
+
     # A universal selector (`*` in CSS).
     class Universal < Simple
       # The selector namespace.

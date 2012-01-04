@@ -76,6 +76,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       sseq = seq.members.first
       if !sseq.is_a?(Sass::Selector::SimpleSequence)
         raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: invalid selector")
+      elsif sseq.members.any? {|ss| ss.is_a?(Sass::Selector::Parent)}
+        raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: can't extend parent selectors")
       end
 
       sel = sseq.members
