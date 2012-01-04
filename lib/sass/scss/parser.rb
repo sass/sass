@@ -509,12 +509,14 @@ module Sass
       def simple_selector_sequence
         # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
         return expr unless e = element_name || id_selector || class_selector ||
-          attrib || negation || pseudo || parent_selector || interpolation_selector
+          placeholder_selector || attrib || negation || pseudo || parent_selector ||
+          interpolation_selector
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = id_selector || class_selector || attrib || negation || pseudo ||
-            interpolation_selector || (tok(/\*/) && Selector::Universal.new(nil))
+        while v = id_selector || class_selector || placeholder_selector || attrib ||
+            negation || pseudo || interpolation_selector ||
+            (tok(/\*/) && Selector::Universal.new(nil))
           res << v
         end
 
@@ -552,6 +554,12 @@ module Sass
         return unless tok(/#(?!\{)/)
         @expected = "id name"
         Selector::Id.new(merge(expr!(:interp_name)))
+      end
+
+      def placeholder_selector
+        return unless tok(/%/)
+        @expected = "placeholder name"
+        Selector::Placeholder.new(merge(expr!(:interp_ident)))
       end
 
       def element_name
