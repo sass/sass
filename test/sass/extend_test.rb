@@ -1370,6 +1370,15 @@ CSS
 SCSS
   end
 
+  def test_semi_placeholder_selector
+    assert_equal <<CSS, render(<<SCSS)
+.bar .baz {
+  color: blue; }
+CSS
+#context %foo, .bar .baz {color: blue}
+SCSS
+  end
+
   def test_placeholder_selector_with_multiple_extenders
     assert_equal <<CSS, render(<<SCSS)
 .bar, .baz {
