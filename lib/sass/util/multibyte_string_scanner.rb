@@ -8,6 +8,11 @@ else
   # characters, for methods like [#pos] and [#matched_size]. This class deals
   # only in characters, instead.
   class Sass::Util::MultibyteStringScanner < StringScanner
+    def self.new(str)
+      return StringScanner.new(str) if str.ascii_only?
+      super
+    end
+
     def initialize(str)
       super
       @mb_pos = 0
