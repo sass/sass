@@ -719,3 +719,5 @@ MSG
     end
   end
 end
+
+require 'sass/util/multibyte_string_scanner'
