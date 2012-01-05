@@ -98,6 +98,11 @@ This variable should contain a colon-separated list of load paths
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
 
+## 3.1.13 (Unreleased)
+
+* Fix a smattering of subtle bugs that would crop up when using multibyte
+  character sets.
+
 ## 3.1.12
 
 * Compatibility with the `mathn` library
