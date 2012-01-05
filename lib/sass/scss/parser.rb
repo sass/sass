@@ -1,4 +1,3 @@
-require 'strscan'
 require 'set'
 
 module Sass
@@ -50,7 +49,7 @@ module Sass
           if @template.is_a?(StringScanner)
             @template
           else
-            StringScanner.new(@template.gsub("\r", ""))
+            Sass::Util::MultibyteStringScanner.new(@template.gsub("\r", ""))
           end
       end
 
@@ -906,7 +905,7 @@ MESSAGE
         if @throw_err
           throw :_sass_parser_error, err
         else
-          @scanner = StringScanner.new(@scanner.string)
+          @scanner = Sass::Util::MultibyteStringScanner.new(@scanner.string)
           @scanner.pos = err[:pos]
           @line = err[:line]
           @expected = err[:expected]

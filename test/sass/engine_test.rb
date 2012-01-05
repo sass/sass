@@ -2560,6 +2560,31 @@ CSS
   a: b
 SASS
     end
+
+    # Encoding Regression Test
+
+    def test_multibyte_prop_name
+      assert_equal(<<CSS, render(<<SASS))
+@charset "UTF-8";
+#bar {
+  cölor: blue; }
+CSS
+#bar
+  cölor: blue
+SASS
+    end
+
+    def test_multibyte_and_interpolation
+      assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
+#bar {
+  background: a 0%; }
+CSS
+#bar {
+  // 
+  background: \#{a} 0%;
+}
+SCSS
+    end
   end
 
   def test_original_filename_set

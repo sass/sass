@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.1.13 (Unreleased)
+
+* Fix a smattering of subtle bugs that would crop up when using multibyte
+  character sets.
+
 ## 3.1.12
 
 * Compatibility with the `mathn` library

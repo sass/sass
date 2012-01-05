@@ -1,5 +1,3 @@
-require 'strscan'
-
 module Sass
   # This module contains functionality that's shared between Haml and Sass.
   module Shared
@@ -16,7 +14,7 @@ module Sass
     # @yieldparam scan [StringScanner] The scanner scanning through the string
     # @return [String] The text remaining in the scanner after all `#{`s have been processed
     def handle_interpolation(str)
-      scan = StringScanner.new(str)
+      scan = Sass::Util::MultibyteStringScanner.new(str)
       yield scan while scan.scan(/(.*?)(\\*)\#\{/m)
       scan.rest
     end
@@ -40,7 +38,7 @@ module Sass
     #   `["Foo (Bar (Baz bang) bop)", " (Bang (bop bip))"]` in the example above.
     def balance(scanner, start, finish, count = 0)
       str = ''
-      scanner = StringScanner.new(scanner) unless scanner.is_a? StringScanner
+      scanner = Sass::Util::MultibyteStringScanner.new(scanner) unless scanner.is_a? StringScanner
       regexp = Regexp.new("(.*?)[\\#{start.chr}\\#{finish.chr}]", Regexp::MULTILINE)
       while scanner.scan(regexp)
         str << scanner.matched

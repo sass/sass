@@ -1,4 +1,3 @@
-require 'strscan'
 require 'set'
 require 'digest/sha1'
 require 'sass/cache_stores'
@@ -565,7 +564,7 @@ WARNING
     end
 
     def parse_property_or_rule(line)
-      scanner = StringScanner.new(line.text)
+      scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
       parser = Sass::SCSS::SassParser.new(scanner, @options[:filename], @line)
 
@@ -749,7 +748,7 @@ WARNING
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
         :line => @line + 1) unless line.children.empty?
 
-      scanner = StringScanner.new(value)
+      scanner = Sass::Util::MultibyteStringScanner.new(value)
       values = []
 
       loop do

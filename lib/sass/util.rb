@@ -2,7 +2,6 @@ require 'erb'
 require 'set'
 require 'enumerator'
 require 'stringio'
-require 'strscan'
 require 'rbconfig'
 
 require 'sass/root'
