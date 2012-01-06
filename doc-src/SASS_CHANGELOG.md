@@ -5,37 +5,71 @@
 
 ## 3.2.0 (Unreleased)
 
-* A mixin include can now accept a block of content ({file:SASS_REFERENCE.md#mixin-content Reference Documentation}).
-  The style block will be passed to the mixin and can be placed at the point @content is used. E.g.:
-  
-      @mixin iphone {
-        @media only screen and (max-width: 480px) {
-          @content;
-        }
-      }
-      
-      @include iphone {
-        body { color: red }
-      }
+### `@content`
 
-  Or in `.sass` syntax:
+A mixin include can now accept a block of content ({file:SASS_REFERENCE.md#mixin-content Reference Documentation}).
+The style block will be passed to the mixin and can be placed at the point @content is used. E.g.:
   
-      =iphone
-        @media only screen and (max-width: 480px)
-          @content
-      
-      +iphone
-        body
-          color: red
-
-  Produces:
-  
+    @mixin iphone {
       @media only screen and (max-width: 480px) {
-        body { color: red }
+        @content;
       }
-  
-  Note that the contents passed to the mixin are evaluated in the scope they are used,
-  not the scope of the mixin. {file:SASS_REFERENCE.md#variable_scope_and_content_blocks More on variable scoping.}
+    }
+    
+    @include iphone {
+      body { color: red }
+    }
+
+Or in `.sass` syntax:
+
+    =iphone
+      @media only screen and (max-width: 480px)
+        @content
+    
+    +iphone
+      body
+        color: red
+
+Produces:
+
+    @media only screen and (max-width: 480px) {
+      body { color: red }
+    }
+
+Note that the contents passed to the mixin are evaluated in the scope they are used,
+not the scope of the mixin. {file:SASS_REFERENCE.md#variable_scope_and_content_blocks More on variable scoping.}
+
+### Placeholder Selectors: `%foo`
+
+Sass supports a new, special type of selector called a "placeholder selector".
+These look like class and id selectors, except the `#` or `.` is replaced by `%`.
+They're meant to be used with the {file:SASS_REFERENCE.md#extend `@extend` directive},
+when you want to write styles to be extended
+but you don't want the base styles to appear in the CSS.
+
+On its own, a placeholder selector just causes a ruleset not to be rendered.
+For example:
+
+    // This ruleset won't be rendered on its own.
+    #context a%extreme {
+      color: blue;
+      font-weight: bold;
+      font-size: 2em;
+    }
+
+However, placeholder selectors can be extended, just like classes and ids.
+The extended selectors will be generated, but the base placeholder selector will not.
+For example:
+
+    .notice { @extend %extreme; }
+
+Is compiled to:
+
+    #context a.notice {
+      color: blue;
+      font-weight: bold;
+      font-size: 2em;
+    }
 
 ### `:any` Support
 
@@ -63,6 +97,11 @@ This variable should contain a colon-separated list of load paths
 * `#{}` interpolation is now allowed in all comments.
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
+
+## 3.1.13 (Unreleased)
+
+* Fix a smattering of subtle bugs that would crop up when using multibyte
+  character sets.
 
 ## 3.1.12
 

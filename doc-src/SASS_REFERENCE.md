@@ -524,6 +524,16 @@ is compiled to:
         font-size: 30em;
         font-weight: bold; }
 
+### Placeholder Selectors: `%foo`
+
+Sass supports a special type of selector called a "placeholder selector".
+These look like class and id selectors, except the `#` or `.` is replaced by `%`.
+They're meant to be used with the [`@extend` directive](#extend);
+for more information see [`@extend`-Only Selectors](#placeholders).
+
+On their own, without any use of `@extend`, rulesets that use placeholder selectors
+will not be rendered to CSS.
+
 ## Comments: `/* */` and `//` {#comments}
 
 Sass supports standard multiline CSS comments with `/* */`,
@@ -1456,6 +1466,47 @@ This is compiled to:
     #admin .tabbar .overview .fakelink,
     #admin .overview .tabbar .fakelink {
       font-weight: bold; }
+
+#### `@extend`-Only Selectors {#placeholders}
+
+Sometimes you'll write styles for a class
+that you only ever want to `@extend`,
+and never want to use directly in your HTML.
+This is especially true when writing a Sass library,
+where you may provide styles for users to `@extend` if they need
+and ignore if they don't.
+
+If you use normal classes for this, you end up creating a lot of extra CSS
+when the stylesheets are generated, and run the risk of colliding with other classes
+that are being used in the HTML.
+That's why Sass supports "placeholder selectors" (for example, `%foo`).
+
+Placeholder selectors look like class and id selectors,
+except the `#` or `.` is replaced by `%`.
+They can be used anywhere a class or id could,
+and on their own they prevent rulesets from being rendered to CSS.
+For example:
+
+    // This ruleset won't be rendered on its own.
+    #context a%extreme {
+      color: blue;
+      font-weight: bold;
+      font-size: 2em;
+    }
+
+However, placeholder selectors can be extended, just like classes and ids.
+The extended selectors will be generated, but the base placeholder selector will not.
+For example:
+
+    .notice { @extend %extreme; }
+
+Is compiled to:
+
+    #context a.notice {
+      color: blue;
+      font-weight: bold;
+      font-size: 2em;
+    }
 
 ### `@debug`
 

@@ -18,6 +18,7 @@ module Sass
 
       private
 
+      def placeholder_selector; nil; end
       def parent_selector; nil; end
       def interpolation; nil; end
       def interp_string; tok(STRING); end

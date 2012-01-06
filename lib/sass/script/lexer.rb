@@ -1,7 +1,5 @@
 require 'sass/scss/rx'
 
-require 'strscan'
-
 module Sass
   module Script
     # The lexical analyzer for SassScript.
@@ -126,7 +124,7 @@ module Sass
       # @param options [{Symbol => Object}] An options hash;
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
       def initialize(str, line, offset, options)
-        @scanner = str.is_a?(StringScanner) ? str : StringScanner.new(str)
+        @scanner = str.is_a?(StringScanner) ? str : Sass::Util::MultibyteStringScanner.new(str)
         @line = line
         @offset = offset
         @options = options

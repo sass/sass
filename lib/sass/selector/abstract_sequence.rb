@@ -57,6 +57,13 @@ module Sass
         other.class == self.class && other.hash == self.hash && _eql?(other)
       end
       alias_method :==, :eql?
+
+      # Whether or not this selector sequence contains a placeholder selector.
+      # Checks recursively.
+      def has_placeholder?
+        @has_placeholder ||=
+          members.any? {|m| m.is_a?(AbstractSequence) ? m.has_placeholder? : m.is_a?(Placeholder)}
+      end
     end
   end
 end

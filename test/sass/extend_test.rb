@@ -1339,6 +1339,80 @@ CSS
 SCSS
   end
 
+  def test_basic_placeholder_selector
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  color: blue; }
+CSS
+%foo {color: blue}
+.bar {@extend %foo}
+SCSS
+  end
+
+  def test_unused_placeholder_selector
+    assert_equal <<CSS, render(<<SCSS)
+.baz {
+  color: blue; }
+CSS
+%foo {color: blue}
+%bar {color: red}
+.baz {@extend %foo}
+SCSS
+  end
+
+  def test_placeholder_descendant_selector
+    assert_equal <<CSS, render(<<SCSS)
+#context .bar a {
+  color: blue; }
+CSS
+#context %foo a {color: blue}
+.bar {@extend %foo}
+SCSS
+  end
+
+  def test_semi_placeholder_selector
+    assert_equal <<CSS, render(<<SCSS)
+.bar .baz {
+  color: blue; }
+CSS
+#context %foo, .bar .baz {color: blue}
+SCSS
+  end
+
+  def test_placeholder_selector_with_multiple_extenders
+    assert_equal <<CSS, render(<<SCSS)
+.bar, .baz {
+  color: blue; }
+CSS
+%foo {color: blue}
+.bar {@extend %foo}
+.baz {@extend %foo}
+SCSS
+  end
+
+  def test_placeholder_selector_as_modifier
+    assert_equal <<CSS, render(<<SCSS)
+a.baz.bar {
+  color: blue; }
+CSS
+a%foo.baz {color: blue}
+.bar {@extend %foo}
+div {@extend %foo}
+SCSS
+  end
+
+  def test_placeholder_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  color: blue; }
+CSS
+$foo: foo;
+
+%\#{$foo} {color: blue}
+.bar {@extend %foo}
+SCSS
+  end
+
   private
 
   def render(sass, options = {})

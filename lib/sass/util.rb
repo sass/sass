@@ -2,7 +2,6 @@ require 'erb'
 require 'set'
 require 'enumerator'
 require 'stringio'
-require 'strscan'
 require 'rbconfig'
 
 require 'sass/root'
@@ -719,3 +718,5 @@ MSG
     end
   end
 end
+
+require 'sass/util/multibyte_string_scanner'

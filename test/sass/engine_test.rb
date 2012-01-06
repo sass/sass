@@ -39,6 +39,9 @@ MSG
     "a\n  b: c;" => 'Invalid CSS after "c": expected expression (e.g. 1px, bold), was ";"',
     ".foo ^bar\n  a: b" => ['Invalid CSS after ".foo ": expected selector, was "^bar"', 1],
     "a\n  @extend .foo ^bar" => 'Invalid CSS after ".foo ": expected selector, was "^bar"',
+    "a\n  @extend .foo .bar" => "Can't extend .foo .bar: can't extend nested selectors",
+    "a\n  @extend >" => "Can't extend >: invalid selector",
+    "a\n  @extend &.foo" => "Can't extend &.foo: can't extend parent selectors",
     "a: b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
     ":a b" => 'Properties are only allowed within rules, directives, mixin includes, or other properties.',
     "$" => 'Invalid variable: "$".',
@@ -64,7 +67,7 @@ MSG
     "@mixin foo\n  @import foo" => "Import directives may not be used within control directives or mixins.",
     "@import foo;" => "Invalid @import: expected end of line, was \";\".",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
-    '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"},
+    '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"}, #'
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
     "=foo\n  :color red\n.bar\n  +bang-bop" => "Undefined mixin 'bang-bop'.",
@@ -141,6 +144,7 @@ MSG
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
     "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a selector.", 2],
     "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a selector.", 2],
+    "foo %\n  a: b" => ['Invalid CSS after "foo %": expected placeholder name, was ""', 1],
     "=foo\n  @content error" => "Invalid content directive. Trailing characters found: \"error\".",
     "=foo\n  @content\n    b: c" => "Illegal nesting: Nothing may be nested beneath @content directives.",
     "@content" => '@content may only be used within a mixin.',
@@ -2540,6 +2544,31 @@ CSS
 \uFEFFfóó
   a: b
 SASS
+    end
+
+    # Encoding Regression Test
+
+    def test_multibyte_prop_name
+      assert_equal(<<CSS, render(<<SASS))
+@charset "UTF-8";
+#bar {
+  cölor: blue; }
+CSS
+#bar
+  cölor: blue
+SASS
+    end
+
+    def test_multibyte_and_interpolation
+      assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
+#bar {
+  background: a 0%; }
+CSS
+#bar {
+  // 
+  background: \#{a} 0%;
+}
+SCSS
     end
   end
 
