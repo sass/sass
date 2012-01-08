@@ -85,6 +85,7 @@ module Sass
           # seq is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
+          sels.each {|s| s.extended!}
           next unless unified = seq.members.last.unify(self_without_sel)
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
           new_seq.add_sources!(sources + [seq])

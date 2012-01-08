@@ -82,6 +82,16 @@ module Sass
         _specificity(members)
       end
 
+      # Marks this selector as extended.
+      def extended!
+        @extended = true
+      end
+
+      # Checks whether this selector has been extended
+      def extended?
+        @extended
+      end
+
       protected
 
       def _specificity(arr)
@@ -89,6 +99,7 @@ module Sass
         arr.map {|m| spec += m.is_a?(String) ? 0 : m.specificity}
         spec
       end
+
     end
   end
 end

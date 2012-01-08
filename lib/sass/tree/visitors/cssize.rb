@@ -100,7 +100,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
         if !seq.members.last.is_a?(Sass::Selector::SimpleSequence)
           raise Sass::SyntaxError.new("#{seq} can't extend: invalid selector")
         end
-
+        seq.line = node.line
+        seq.filename = node.filename
         @extends[sel] = seq
       end
     end

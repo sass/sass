@@ -93,6 +93,16 @@ module Sass
         return sels[0...i] + [self] + sels[i..-1]
       end
 
+      # Marks this selector as extended.
+      def extended!
+        @extended = true
+      end
+
+      # Checks whether this selector has been extended
+      def extended?
+        @extended
+      end
+
       protected
 
       # Unifies two namespaces,
