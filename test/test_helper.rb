@@ -47,6 +47,10 @@ class Test::Unit::TestCase
     $stderr = the_real_stderr
   end
 
+  def assert_no_warnings(&block)
+    assert_warning("", &block)
+  end
+
   def silence_warnings(&block)
     Sass::Util.silence_warnings(&block)
   end
