@@ -914,7 +914,18 @@ MESSAGE
   end
 
   def test_extend_does_not_warn_when_base_class_is_found
-    assert_warning("") { render(".base {a:b;} .foo { @extend .base; }") }
+    assert_no_warnings { render(".base {a:b;} .foo { @extend .base; }") }
+  end
+
+  def test_extend_does_not_warn_when_optional
+    assert_no_warnings { render(".foo { @extend .base !optional; }") }
+  end
+
+  def test_extend_does_not_warn_when_optional_in_sass
+    assert_no_warnings { render(<<SASS, :syntax => :sass) }
+.foo
+  @extend .base !optional
+SASS
   end
 
   private

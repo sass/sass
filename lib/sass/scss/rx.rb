@@ -93,6 +93,7 @@ module Sass
 
       IMPORTANT = /!#{W}important/i
       DEFAULT = /!#{W}default/i
+      OPTIONAL = /!#{W}optional/i
 
       NUMBER = /#{NUM}(?:#{IDENT}|%)?/
 

@@ -102,6 +102,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
         end
         seq.line = node.line
         seq.filename = node.filename
+        seq.extension_optional! if node.optional
         @extends[sel] = seq
       end
     end
