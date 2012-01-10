@@ -223,7 +223,7 @@ module Sass
     # If you're compiling a single Sass file from the filesystem,
     # use \{Sass::Engine.for\_file}.
     # If you're compiling multiple files from the filesystem,
-    # use {Sass::Plugin.
+    # use {Sass::Plugin}.
     #
     # @param template [String] The Sass template.
     #   This template can be encoded using any encoding
