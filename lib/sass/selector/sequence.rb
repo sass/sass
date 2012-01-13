@@ -178,6 +178,25 @@ module Sass
         Sass::Util.paths(diff).map {|p| p.flatten}
       end
 
+      # Takes initial subsequences of `seq1` and `seq2` and returns all
+      # orderings of those subsequences. The initial subsequences are determined
+      # by a block.
+      #
+      # Destructively removes the initial subsequences of `seq1` and `seq2`.
+      #
+      # For example, given `(A B C | D E)` and `(1 2 | 3 4 5)` (with `|`
+      # denoting the boundary of the initial subsequence), this would return
+      # `[(A B C 1 2), (1 2 A B C)]`. The sequences would then be `(D E)` and
+      # `(3 4 5)`.
+      #
+      # @param seq1 [Array]
+      # @param seq2 [Array]
+      # @yield [a] Used to determine when to cut off the initial subsequences.
+      #   Called repeatedly for each sequence until it returns true.
+      # @yieldparam a [Array] A final subsequence of one input sequence after
+      #   cutting off some initial subsequence.
+      # @yieldreturn [Boolean] Whether or not to cut off the initial subsequence
+      #   here.
       def chunks(seq1, seq2)
         chunk1 = []
         chunk1 << seq1.shift until yield seq1
@@ -189,6 +208,15 @@ module Sass
         [chunk1 + chunk2, chunk2 + chunk1]
       end
 
+      # Groups a sequence into subsequences. The subsequences are determined by
+      # strings; adjacent non-string elements will be put into separate groups,
+      # but any element adjacent to a string will be grouped with that string.
+      #
+      # For example, `(A B "C" D E "F" G "H" "I" J)` will become `[(A) (B "C" D)
+      # (E "F" G "H" "I" J)]`.
+      #
+      # @param seq [Array]
+      # @return [Array<Array>]
       def group_selectors(seq)
         newseq = []
         tail = seq.dup
@@ -202,6 +230,12 @@ module Sass
         return newseq
       end
 
+      # Given two sequences of simple selectors, returns whether `sseq1` is a
+      # superselector of `sseq2`.
+      #
+      # @param sseq1 [Array<SimpleSelector or String>]
+      # @param sseq2 [Array<SimpleSelector or String>]
+      # @return [Boolean]
       def subweave_superselector?(sseq1, sseq2)
         if sseq1.size > 1
           # More complex selectors are never superselectors of less complex ones
