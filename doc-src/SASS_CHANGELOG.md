@@ -7,6 +7,7 @@
 
 * Fix a smattering of subtle bugs that would crop up when using multibyte
   character sets.
+* Fix a bug when using `@extend` with selectors containing newlines.
 
 ## 3.1.12
 

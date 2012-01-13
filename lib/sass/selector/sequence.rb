@@ -134,10 +134,11 @@ module Sass
             last_current.unshift(current.pop)
           end
           befores = Sass::Util.flatten(befores.map do |before|
-              subweave(before, current).map {|seqs| seqs + last_current}
+              next [] unless sub = subweave(before, current)
+              sub.map {|seqs| seqs + last_current}
             end, 1)
-          return befores if afters.empty?
         end
+        return befores
       end
 
       # This interweaves two lists of selectors,
@@ -156,6 +157,7 @@ module Sass
         return [seq2] if seq1.empty?
         return [seq1] if seq2.empty?
 
+        return unless init = merge_initial_ops(seq1, seq2)
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
         lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
@@ -165,7 +167,7 @@ module Sass
           next s1 if subweave_superselector?(s2, s1)
         end
 
-        diff = []
+        diff = [[init]]
         until lcs.empty?
           diff << chunks(seq1, seq2) {|s| subweave_superselector?(s.first, lcs.first)} << [lcs.shift]
           seq1.shift
@@ -175,6 +177,31 @@ module Sass
         diff.reject! {|c| c.empty?}
 
         Sass::Util.paths(diff).map {|p| p.flatten}
+      end
+
+      # Extracts initial selector operators (`"+"`, `">"`, `"~"`, and `"\n"`)
+      # from two sequences and merges them together into a single array of
+      # selector operators.
+      #
+      # @param seq1 [Array<SimpleSequence or String>]
+      # @param seq2 [Array<SimpleSequence or String>]
+      # @return [Array<String>, nil] If there are no operators in the merged
+      #   sequence, this will be the empty array. If the operators cannot be
+      #   merged, this will be nil.
+      def merge_initial_ops(seq1, seq2)
+        ops1, ops2 = [], []
+        ops1 << seq1.shift while seq1.first.is_a?(String)
+        ops2 << seq2.shift while seq2.first.is_a?(String)
+
+        newline = false
+        newline ||= !!ops1.shift if ops1.first == "\n"
+        newline ||= !!ops2.shift if ops2.first == "\n"
+
+        # If neither sequence is a subsequence of the other, they cannot be
+        # merged successfully
+        lcs = Sass::Util.lcs(ops1, ops2)
+        return unless lcs == ops1 || lcs == ops2
+        return (newline ? ["\n"] : []) + (ops1.size > ops2.size ? ops1 : ops2)
       end
 
       # Takes initial subsequences of `seq1` and `seq2` and returns all
