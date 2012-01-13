@@ -149,11 +149,10 @@ module Sass
       # `.foo .baz .bar .bang`, `.foo .baz .bar.bang`, `.foo .baz .bang .bar`,
       # and so on until `.baz .bang .foo .bar`.
       #
-      # @overload def subweave(seq1, seq2)
       # @param seq1 [Array<SimpleSequence or String>]
       # @param seq2 [Array<SimpleSequence or String>]
       # @return [Array<Array<SimpleSequence or String>>]
-      def subweave(seq1, seq2, cache = {})
+      def subweave(seq1, seq2)
         return [seq2] if seq1.empty?
         return [seq1] if seq2.empty?
 
