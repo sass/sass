@@ -67,12 +67,12 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
 
   def visit_directive(node)
-    return node.value + ";" unless node.has_children
-    return node.value + " {}" if node.children.empty?
+    return node.resolved_value + ";" unless node.has_children
+    return node.resolved_value + " {}" if node.children.empty?
     result = if node.style == :compressed
-               "#{node.value}{"
+               "#{node.resolved_value}{"
              else
-               "#{'  ' * @tabs}#{node.value} {" + (node.style == :compact ? ' ' : "\n")
+               "#{'  ' * @tabs}#{node.resolved_value} {" + (node.style == :compact ? ' ' : "\n")
              end
     was_prop = false
     first = true

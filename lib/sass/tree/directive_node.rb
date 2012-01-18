@@ -14,6 +14,12 @@ module Sass::Tree
     # @return [Array<String, Sass::Script::Node>]
     attr_accessor :value
 
+    # The text of the directive after any interpolated SassScript has been resolved.
+    # Only set once \{Tree::Visitors::Perform} has been run.
+    #
+    # @return [String]
+    attr_accessor :resolved_value
+
     # @param value [Array<String, Sass::Script::Node>] See \{#value}
     def initialize(value)
       @value = value
