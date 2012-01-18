@@ -698,17 +698,6 @@ module Sass
         return space, sass_script(:parse)
       end
 
-      def plain_value
-        return unless tok(/:/)
-        space = !str {ss}.empty?
-        @use_property_exception ||= space || !tok?(IDENT)
-
-        expression = expr
-        expression << tok(IMPORTANT) if expression
-        # expression, space, value
-        return expression, space, expression || [""]
-      end
-
       def nested_properties!(node, space)
         err(<<MESSAGE) unless space
 Invalid CSS: a space is required between a property and its definition
