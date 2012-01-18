@@ -103,6 +103,8 @@ This variable should contain a colon-separated list of load paths
 * Fix a smattering of subtle bugs that would crop up when using multibyte
   character sets.
 * Fix a bug when using `@extend` with selectors containing newlines.
+* Make sure `:after` and `:before` selectors end up on the end of
+  selectors resulting from `@extend`.
 
 ## 3.1.12
 
