@@ -1015,6 +1015,54 @@ foo {
 SCSS
   end
 
+  def test_directive_with_interpolation
+    assert_renders <<SASS, <<SCSS
+$baz: 12
+
+@foo bar\#{$baz} qux
+  a: b
+SASS
+$baz: 12;
+
+@foo bar\#{$baz} qux {
+  a: b; }
+SCSS
+  end
+
+  def test_media_with_interpolation
+    assert_renders <<SASS, <<SCSS
+$baz: 12
+
+@media bar\#{$baz}
+  a: b
+SASS
+$baz: 12;
+
+@media bar\#{$baz} {
+  a: b; }
+SCSS
+  end
+
+  def test_media_with_variables
+    assert_renders <<SASS, <<SCSS
+$media1: screen
+$media2: print
+$var: -webkit-min-device-pixel-ratio
+$val: 20
+
+@media $media1 and ($var: $val), only $media2
+  a: b
+SASS
+$media1: screen;
+$media2: print;
+$var: -webkit-min-device-pixel-ratio;
+$val: 20;
+
+@media $media2 and ($var: $val), only $media2 {
+  a: b; }
+SCSS
+  end
+
   # Hacks
 
   def test_declaration_hacks

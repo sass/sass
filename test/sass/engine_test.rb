@@ -2102,6 +2102,42 @@ CSS
     assert_equal css_str, render(sass_str)
   end
 
+  def test_directive_interpolation
+    assert_equal <<CSS, render(<<SASS)
+@foo bar12 qux {
+  a: b; }
+CSS
+$baz: 12
+@foo bar\#{$baz} qux
+  a: b
+SASS
+  end
+
+  def test_media_interpolation
+    assert_equal <<CSS, render(<<SASS)
+@media bar12 {
+  a: b; }
+CSS
+$baz: 12
+@media bar\#{$baz}
+  a: b
+SASS
+  end
+
+  def test_variables_in_media
+    assert_equal <<CSS, render(<<SASS)
+@media screen and (-webkit-min-device-pixel-ratio: 20), only print {
+  a: b; }
+CSS
+$media1: screen
+$media2: print
+$var: -webkit-min-device-pixel-ratio
+$val: 20
+@media $media1 and ($var: $val), only $media2
+  a: b
+SASS
+  end
+
   # Regression tests
 
   def test_tricky_mixin_loop_exception
