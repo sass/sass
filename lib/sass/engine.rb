@@ -39,6 +39,7 @@ require 'sass/scss'
 require 'sass/error'
 require 'sass/importers'
 require 'sass/shared'
+require 'sass/media'
 
 module Sass
 
