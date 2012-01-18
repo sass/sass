@@ -9,12 +9,12 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class DirectiveNode < Node
-    # The text of the directive, `@` and all.
+    # The text of the directive, `@` and all, with interpolation included.
     #
-    # @return [String]
+    # @return [Array<String, Sass::Script::Node>]
     attr_accessor :value
 
-    # @param value [String] See \{#value}
+    # @param value [Array<String, Sass::Script::Node>] See \{#value}
     def initialize(value)
       @value = value
       super()

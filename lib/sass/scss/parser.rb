@@ -123,9 +123,8 @@ module Sass
 
         # Most at-rules take expressions (e.g. @import),
         # but some (e.g. @page) take selector-like arguments
-        val = str {break unless expr}
-        val ||= CssParser.new(@scanner, @line).parse_selector_string
-        node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
+        val = ["@#{name} "] + Sass::Util.strip_string_array(expr || expr!(:selector))
+        node = node(Sass::Tree::DirectiveNode.new(val))
 
         if tok(/\{/)
           node.has_children = true
@@ -369,10 +368,6 @@ module Sass
         # but they're included here for compatibility
         # with some proprietary MS properties
         str {ss if tok(/[\/,:.=]/)}
-      end
-
-      def unary_operator
-        tok(/[+-]/)
       end
 
       def ruleset
@@ -728,23 +723,23 @@ MESSAGE
           res << o << t << str{ss}
         end
 
-        res
+        res.flatten
       end
 
       def term
-        unless e = tok(NUMBER) ||
+        if e = tok(NUMBER) ||
             tok(URI) ||
             function ||
             tok(STRING) ||
             tok(UNICODERANGE) ||
-            tok(IDENT) ||
+            interp_ident ||
             tok(HEXCOLOR)
-
-          return unless op = unary_operator
-          @expected = "number or function"
-          return [op, tok(NUMBER) || expr!(:function)]
+          return e
         end
-        e
+
+        return unless op = tok(/[+-]/)
+        @expected = "number or function"
+        return [op, tok(NUMBER) || function || expr!(:interpolation)]
       end
 
       def function
