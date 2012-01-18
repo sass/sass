@@ -694,7 +694,8 @@ WARNING
       elsif directive == "media"
         Tree::MediaNode.new(value.split(',').map {|s| s.strip})
       else
-        Tree::DirectiveNode.new(["@#{directive} "] + parse_interp(value, offset))
+        Tree::DirectiveNode.new(
+          value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
       end
     end
 
