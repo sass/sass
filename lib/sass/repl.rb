@@ -15,7 +15,6 @@ module Sass
     # Starts the read-eval-print loop.
     def run
       environment = Environment.new
-      environment.set_var('important', Script::String.new('!important'))
       @line = 0
       loop do
         @line += 1

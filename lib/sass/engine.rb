@@ -1,4 +1,3 @@
-require 'strscan'
 require 'set'
 require 'digest/sha1'
 require 'sass/cache_stores'
@@ -28,6 +27,8 @@ require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
 require 'sass/tree/visitors/convert'
 require 'sass/tree/visitors/to_css'
+require 'sass/tree/visitors/deep_copy'
+require 'sass/tree/visitors/set_options'
 require 'sass/tree/visitors/check_nesting'
 require 'sass/selector'
 require 'sass/environment'
@@ -88,7 +89,10 @@ module Sass
     #
     # `children`: `Array<Line>`
     # : The lines nested below this one.
-    class Line < Struct.new(:text, :tabs, :index, :offset, :filename, :children)
+    #
+    # `comment_tab_str`: `String?`
+    # : The prefix indentation for this comment, if it is a comment.
+    class Line < Struct.new(:text, :tabs, :index, :offset, :filename, :children, :comment_tab_str)
       def comment?
         text[0] == COMMENT_CHAR && (text[1] == SASS_COMMENT_CHAR || text[1] == CSS_COMMENT_CHAR)
       end
@@ -104,6 +108,10 @@ module Sass
     # The character that follows the general COMMENT_CHAR and designates a Sass comment,
     # which is not output as a CSS comment.
     SASS_COMMENT_CHAR = ?/
+
+    # The character that indicates that a comment allows interpolation
+    # and should be preserved even in `:compressed` mode.
+    SASS_LOUD_COMMENT_CHAR = ?!
 
     # The character that follows the general COMMENT_CHAR and designates a CSS comment,
     # which is embedded in the CSS document.
@@ -307,7 +315,6 @@ module Sass
         sha = Digest::SHA1.hexdigest(@template)
 
         if root = @options[:cache_store].retrieve(key, sha)
-          @options = root.options.merge(@options)
           root.options = @options
           return root
         end
@@ -316,7 +323,7 @@ module Sass
       check_encoding!
 
       if @options[:syntax] == :scss
-        root = Sass::SCSS::Parser.new(@template).parse
+        root = Sass::SCSS::Parser.new(@template, @options[:filename]).parse
       else
         root = Tree::RootNode.new(@template)
         append_children(root, tree(tabulate(@template)).first, true)
@@ -419,7 +426,8 @@ but this line was indented by #{Sass::Shared.human_indentation line[/^\s*/]}.
 MSG
       end
 
-      last.text << "\n" << $1
+      last.comment_tab_str ||= comment_tab_str
+      last.text << "\n" << line
       true
     end
 
@@ -485,8 +493,8 @@ MSG
         if child.is_a?(Tree::CommentNode) && child.silent
           if continued_comment &&
               child.line == continued_comment.line +
-              continued_comment.value.count("\n") + 1
-            continued_comment.value << "\n" << child.value
+              continued_comment.lines + 1
+            continued_comment.value += ["\n"] + child.value
             next
           end
 
@@ -537,7 +545,7 @@ WARNING
       when ?$
         parse_variable(line)
       when COMMENT_CHAR
-        parse_comment(line.text)
+        parse_comment(line)
       when DIRECTIVE_CHAR
         parse_directive(parent, line, root)
       when ESCAPE_CHAR
@@ -556,9 +564,9 @@ WARNING
     end
 
     def parse_property_or_rule(line)
-      scanner = StringScanner.new(line.text)
+      scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
-      parser = Sass::SCSS::SassParser.new(scanner, @line)
+      parser = Sass::SCSS::SassParser.new(scanner, @options[:filename], @line)
 
       unless res = parser.parse_interp_ident
         return Tree::RuleNode.new(parse_interp(line.text))
@@ -599,11 +607,19 @@ WARNING
     end
 
     def parse_comment(line)
-      if line[1] == CSS_COMMENT_CHAR || line[1] == SASS_COMMENT_CHAR
-        silent = line[1] == SASS_COMMENT_CHAR
-        Tree::CommentNode.new(
-          format_comment_text(line[2..-1], silent),
-          silent)
+      if line.text[1] == CSS_COMMENT_CHAR || line.text[1] == SASS_COMMENT_CHAR
+        silent = line.text[1] == SASS_COMMENT_CHAR
+        if loud = line.text[2] == SASS_LOUD_COMMENT_CHAR
+          value = self.class.parse_interp(line.text, line.index, line.offset, :filename => @filename)
+          value[0].slice!(2) # get rid of the "!"
+        else
+          value = [line.text]
+        end
+        value = with_extracted_values(value) do |str|
+          str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
+          format_comment_text(str, silent)
+        end
+        Tree::CommentNode.new(value, silent, loud)
       else
         Tree::RuleNode.new(parse_interp(line))
       end
@@ -666,7 +682,7 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
       elsif directive == "media"
-        Tree::MediaNode.new(value)
+        Tree::MediaNode.new(value.split(',').map {|s| s.strip})
       else
         Tree::DirectiveNode.new(line.text)
       end
@@ -732,7 +748,7 @@ WARNING
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
         :line => @line + 1) unless line.children.empty?
 
-      scanner = StringScanner.new(value)
+      scanner = Sass::Util::MultibyteStringScanner.new(value)
       values = []
 
       loop do
@@ -744,6 +760,11 @@ WARNING
         break unless scanner.scan(/,\s*/)
       end
 
+      if scanner.scan(/;/)
+        raise SyntaxError.new("Invalid @import: expected end of line, was \";\".",
+          :line => @line)
+      end
+
       return values
     end
 
@@ -751,12 +772,12 @@ WARNING
       return if scanner.eos?
       unless (str = scanner.scan(Sass::SCSS::RX::STRING)) ||
           (uri = scanner.scan(Sass::SCSS::RX::URI))
-        return Tree::ImportNode.new(scanner.scan(/[^,]+/))
+        return Tree::ImportNode.new(scanner.scan(/[^,;]+/))
       end
 
       val = scanner[1] || scanner[2]
       scanner.scan(/\s*/)
-      if media = scanner.scan(/[^,].*/)
+      if media = scanner.scan(/[^,;].*/)
         Tree::DirectiveNode.new("@import #{str || uri} #{media}")
       elsif uri
         Tree::DirectiveNode.new("@import #{uri}")

@@ -24,6 +24,13 @@ module Sass::Script
       @separator = separator
     end
 
+    # @see Node#deep_copy
+    def deep_copy
+      node = dup
+      node.instance_variable_set('@value', value.map {|c| c.deep_copy})
+      node
+    end
+
     # @see Node#eq
     def eq(other)
       Sass::Script::Bool.new(

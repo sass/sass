@@ -26,7 +26,7 @@ module Sass
       unless parent
         @stack = []
         @mixins_in_use = Set.new
-        set_var("important", Script::String.new("!important"))
+        @files_in_use = Set.new
       end
     end
 
@@ -59,7 +59,8 @@ module Sass
       else
         stack.push(top_of_stack = frame_info)
       end
-      mixins_in_use << top_of_stack[:mixin] if top_of_stack[:mixin] && !top_of_stack[:prepared]
+      mixins_in_use << top_of_stack[:mixin] if top_of_stack[:mixin]
+      files_in_use << top_of_stack[:filename] if top_of_stack[:filename]
     end
 
     # Like \{#push\_frame}, but next time a stack frame is pushed,
@@ -72,9 +73,8 @@ module Sass
 
     # Pop a stack frame from the mixin/include stack.
     def pop_frame
-      stack.pop if stack.last && stack.last[:prepared]
-      popped = stack.pop
-      mixins_in_use.delete(popped[:mixin]) if popped && popped[:mixin]
+      pop_and_unuse if stack.last && stack.last[:prepared]
+      pop_and_unuse
     end
 
     # A list of stack frames in the mixin/include stack.
@@ -93,7 +93,32 @@ module Sass
       @mixins_in_use ||= @parent.mixins_in_use
     end
 
+    # A set of names of files currently present in the stack.
+    #
+    # @return [Set<String>] The filenames.
+    def files_in_use
+      @files_in_use ||= @parent.files_in_use
+    end
+
+    def stack_trace
+      trace = []
+      stack.reverse.each_with_index do |entry, i|
+        msg = "#{i == 0 ? "on" : "from"} line #{entry[:line]}"
+        msg << " of #{entry[:filename] || "an unknown file"}"
+        msg << ", in `#{entry[:mixin]}'" if entry[:mixin]
+        trace << msg
+      end
+      trace
+    end
+
     private
+
+    def pop_and_unuse
+      popped = stack.pop
+      mixins_in_use.delete(popped[:mixin]) if popped && popped[:mixin]
+      files_in_use.delete(popped[:filename]) if popped && popped[:filename]
+      popped
+    end
 
     def parent_options
       @parent_options ||= @parent && @parent.options

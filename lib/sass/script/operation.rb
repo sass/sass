@@ -55,6 +55,14 @@ module Sass::Script
       [@operand1, @operand2]
     end
 
+    # @see Node#deep_copy
+    def deep_copy
+      node = dup
+      node.instance_variable_set('@operand1', @operand1.deep_copy)
+      node.instance_variable_set('@operand2', @operand2.deep_copy)
+      node
+    end
+
     protected
 
     # Evaluates the operation.

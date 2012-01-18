@@ -13,7 +13,7 @@ module Sass
       # and the parse tree for the default value of the argument.
       #
       # @return [Array<(Script::Node, Script::Node)>]
-      attr_reader :args
+      attr_accessor :args
 
       # @param name [String] The mixin name
       # @param args [Array<(Script::Node, Script::Node)>] See \{#args}
@@ -21,11 +21,6 @@ module Sass
         @name = name
         @args = args
         super()
-      end
-
-      # Returns sub nodes that are not tree children.
-      def subnodes
-        Array(args)
       end
     end
   end

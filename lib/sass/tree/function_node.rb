@@ -13,7 +13,7 @@ module Sass
       # the default value of the argument
       #
       # @return [Array<Script::Node>]
-      attr_reader :args
+      attr_accessor :args
 
       # @param name [String] The function name
       # @param args [Array<(Script::Node, Script::Node)>] The arguments for the function.
@@ -21,11 +21,6 @@ module Sass
         @name = name
         @args = args
         super()
-      end
-
-      # Returns sub nodes that are not tree children.
-      def subnodes
-        Array(args)
       end
     end
   end

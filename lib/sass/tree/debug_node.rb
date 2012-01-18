@@ -6,12 +6,7 @@ module Sass
     class DebugNode < Node
       # The expression to print.
       # @return [Script::Node] 
-      attr_reader :expr
-
-      # Returns sub nodes that are not tree children.
-      def subnodes
-        Array(expr)
-      end
+      attr_accessor :expr
 
       # @param expr [Script::Node] The expression to print
       def initialize(expr)

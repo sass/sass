@@ -3,10 +3,109 @@
 * Table of contents
 {:toc}
 
-## 3.1.6 (Unreleased)
+## 3.1.13 (Unreleased)
 
+* Fix a smattering of subtle bugs that would crop up when using multibyte
+  character sets.
+* Fix a bug when using `@extend` with selectors containing newlines.
 * Make sure `:after` and `:before` selectors end up on the end of
   selectors resulting from `@extend`.
+
+## 3.1.12
+
+* Compatibility with the `mathn` library
+  (thanks to [Thomas Walpole](https://github.com/twalpole)).
+* Fix some infinite loops with mixins that were previously uncaught.
+* Catch infinite `@import` loops.
+* Fix a deprecation warning in `sass --update` and `--watch`
+  (thanks to [Marcel Köppen](https://github.com/Marzelpan)).
+* Don't make `$important` a special pre-initialized variable.
+* Fix exponential parsing time of certain complex property values and selectors.
+* Properly merge `@media` directives with comma-separated queries.
+  E.g. `@media foo, bar { @media baz { ... } }` now becomes
+  `@media foo and baz, bar and baz { ... }`.
+
+## 3.1.11
+
+* Allow control directives (such as `@if`) to be nested beneath properties.
+* Allow property names to begin with a hyphen followed by interpolation (e.g. `-#{...}`).
+* Fix a parsing error with interpolation in comma-separated lists.
+* Make `--cache-store` with with `--update`.
+* Properly report `ArgumentError`s that occur within user-defined functions.
+* Don't crash on JRuby if the underlying Java doesn't support every Unicode encoding.
+* Add new `updated_stylesheet` callback, which is run after each stylesheet has
+  been successfully compiled. Thanks to [Christian Peters](https://github.com/ChristianPeters).
+* Allow absolute paths to be used in an importer with a different root.
+* Don't destructively modify the options when running `Sass::Plugin.force_update`.
+* Prevent Regexp buffer overflows when parsing long strings
+  (thanks to [Agworld](https://github.com/Agworld).
+
+### Deprecations -- Must Read!
+
+* The `updating_stylesheet` is deprecated and will be removed in a
+  future release. Use the new `updated_stylesheet` callback instead.
+
+## 3.1.10
+
+* Fix another aspect of the 3.1.8 regression relating to `+`.
+
+## 3.1.9
+
+* Fix a regression in 3.1.8 that broke the `+` combinator in selectors.
+
+* Deprecate the loud-comment flag when used with silent comments (e.g. `//!`).
+  Using it with multi-line comments (e.g. `/*!`) still works.
+
+## 3.1.8
+
+* Deprecate parent selectors followed immediately by identifiers (e.g. `&foo`).
+  This should never have worked, since it violates the rule
+  of `&` only being usable where an element selector would.
+
+* Add a `--force` option to the `sass` executable which makes `--update`
+  always compile all stylesheets, even if the CSS is newer.
+
+* Disallow semicolons at the end of `@import` directives in the indented syntax.
+
+* Don't error out when being used as a library without requiring `fileutil`.
+
+* Don't crash when Compass-style sprite imports are used with `StalenessChecker`
+  (thanks to [Matthias Bauer](https://github.com/moeffju)).
+
+* The numeric precision of numbers in Sass can now be set using the
+  `--precision` option to the command line. Additionally, the default
+  number of digits of precision in Sass output can now be
+  changed by setting `Sass::Script::Number.precision` to an integer
+  (defaults to 3). Since this value can now be changed, the `PRECISION`
+  constant in `Sass::Script::Number` has been deprecated. In the unlikely
+  event that you were using it in your code, you should now use
+   `Sass::Script::Number.precision_factor` instead.
+
+* Don't crash when running `sass-convert` with selectors with two commas in a row.
+
+* Explicitly require Ruby >= 1.8.7 (thanks [Eric Mason](https://github.com/ericmason)).
+
+* Properly validate the nesting of elements in imported stylesheets.
+
+* Properly compile files in parent directories with `--watch` and `--update`.
+
+* Properly null out options in mixin definitions before caching them. This fixes
+  a caching bug that has been plaguing some Rails 3.1 users.
+
+## 3.1.7
+
+* Don't crash when doing certain operations with `@function`s.
+
+## 3.1.6
+
+* The option `:trace_selectors` can now be used to emit a full trace
+  before each selector. This can be helpful for in-browser debugging of
+  stylesheet imports and mixin includes. This option supersedes the
+  `:line_comments` option and is superseded by the `:debug_info`
+  option.
+
+* Fix a bug where long `@if`/`@else` chains would cause exponential slowdown
+  under some circumstances.
 
 ## 3.1.5
 
@@ -173,7 +272,7 @@ or by commas (e.g. `Helvetica, Arial, sans-serif`).
 In addition, individual values count as single-item lists.
 
 Lists won't behave any differently in Sass 3.1 than they did in 3.0.
-However, you can now do more with them using the new {file:Sass/Script/Functions.html#list-functions list functions}:
+However, you can now do more with them using the new [list functions](Sass/Script/Functions.html#list-functions):
 
 * The {Sass::Script::Functions#nth `nth($list, $n)` function} returns the nth item in a list.
   For example, `nth(1px 2px 10px, 2)` returns the second item, `2px`.

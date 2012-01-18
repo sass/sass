@@ -1355,6 +1355,78 @@ CSS
 SCSS
   end
 
+  # Regression Tests
+
+  def test_duplicated_selector_with_newlines
+    assert_equal(<<CSS, render(<<SCSS))
+.example-1-1,
+.example-1-2,
+.my-page-1 .my-module-1-1,
+.example-1-3 {
+  a: b; }
+CSS
+.example-1-1,
+.example-1-2,
+.example-1-3 {
+  a: b;
+}
+
+.my-page-1 .my-module-1-1 {@extend .example-1-2}
+SCSS
+  end
+
+  def test_nested_selector_with_child_selector_hack_extendee
+    assert_equal <<CSS, render(<<SCSS)
+> .foo, > foo bar {
+  a: b; }
+CSS
+> .foo {a: b}
+foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_selector_with_child_selector_hack_extender
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar, > .foo foo bar, > foo .foo bar {
+  a: b; }
+CSS
+.foo .bar {a: b}
+> foo bar {@extend .bar}
+SCSS
+  end
+
+  def test_nested_selector_with_child_selector_hack_extender_and_extendee
+    assert_equal <<CSS, render(<<SCSS)
+> .foo, > foo bar {
+  a: b; }
+CSS
+> .foo {a: b}
+> foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_selector_with_child_selector_hack_extender_and_sibling_selector_extendee
+    assert_equal <<CSS, render(<<SCSS)
+~ .foo {
+  a: b; }
+CSS
+~ .foo {a: b}
+> foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_nested_selector_with_child_selector_hack_extender_and_extendee_and_newline
+    assert_equal <<CSS, render(<<SCSS)
+> .foo, > flip,
+> foo bar {
+  a: b; }
+CSS
+> .foo {a: b}
+flip,
+> foo bar {@extend .foo}
+SCSS
+  end
+
   private
 
   def render(sass, options = {})

@@ -11,7 +11,7 @@ module Sass::Tree
 
     # The parse tree for the list.
     # @param [Script::Node]
-    attr_reader :list
+    attr_accessor :list
 
     # @param var [String] The name of the loop variable
     # @param list [Script::Node] The parse tree for the list
@@ -20,11 +20,5 @@ module Sass::Tree
       @list = list
       super()
     end
-
-    # Returns sub nodes that are not tree children.
-    def subnodes
-      Array(list)
-    end
-
   end
 end

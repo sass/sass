@@ -1,4 +1,3 @@
-require 'strscan'
 require 'set'
 
 module Sass
@@ -9,10 +8,12 @@ module Sass
       # @param str [String, StringScanner] The source document to parse.
       #   Note that `Parser` *won't* raise a nice error message if this isn't properly parsed;
       #   for that, you should use the higher-level {Sass::Engine} or {Sass::CSS}.
+      # @param filename [String] The name of the file being parsed. Used for warnings.
       # @param line [Fixnum] The line on which the source string appeared,
-      #   if it's part of another document
-      def initialize(str, line = 1)
+      #   if it's part of another document.
+      def initialize(str, filename, line = 1)
         @template = str
+        @filename = filename
         @line = line
         @strs = []
       end
@@ -48,7 +49,7 @@ module Sass
           if @template.is_a?(StringScanner)
             @template
           else
-            StringScanner.new(@template.gsub("\r", ""))
+            Sass::Util::MultibyteStringScanner.new(@template.gsub("\r", ""))
           end
       end
 
@@ -87,14 +88,28 @@ module Sass
       end
 
       def process_comment(text, node)
-        single_line = text =~ /^\/\//
-        pre_str = single_line ? "" : @scanner.
-          string[0...@scanner.pos].
-          reverse[/.*?\*\/(.*?)($|\Z)/, 1].
-          reverse.gsub(/[^\s]/, ' ')
-        text = text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */' if single_line
-        comment = Sass::Tree::CommentNode.new(pre_str + text, single_line)
-        comment.line = @line - text.count("\n")
+        silent = text =~ /^\/\//
+        line = @line - text.count("\n")
+        if loud = text =~ %r{^/[/*]!}
+          value = Sass::Engine.parse_interp(text, line, @scanner.pos - text.size, :filename => @filename)
+          value[0].slice!(2) # get rid of the "!"
+        else
+          value = [text]
+        end
+
+        if silent
+          value = Sass::Util.with_extracted_values(value) do |str|
+            str.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */'
+          end
+        else
+          value.unshift(@scanner.
+            string[0...@scanner.pos].
+            reverse[/.*?\*\/(.*?)($|\Z)/, 1].
+            reverse.gsub(/[^\s]/, ' '))
+        end
+
+        comment = Sass::Tree::CommentNode.new(value, silent, loud)
+        comment.line = line
         node << comment
       end
 
@@ -271,20 +286,23 @@ module Sass
       def use_css_import?; false; end
 
       def media_directive
-        val = str {media_query_list}.strip
-        block(node(Sass::Tree::MediaNode.new(val)), :directive)
+        block(node(Sass::Tree::MediaNode.new(media_query_list)), :directive)
       end
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
       def media_query_list
-        return unless media_query
+        has_q = false
+        q = str {has_q = media_query}
+
+        return unless has_q
+        queries = [q.strip]
 
         ss
         while tok(/,/)
-          ss; expr!(:media_query); ss
+          ss; queries << str {expr!(:media_query)}.strip; ss
         end
 
-        true
+        queries
       end
 
       def media_query
@@ -421,7 +439,7 @@ module Sass
       end
 
       def selector_sequence
-        if sel = tok(STATIC_SELECTOR)
+        if sel = tok(STATIC_SELECTOR, true)
           return [sel]
         end
 
@@ -487,21 +505,30 @@ module Sass
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = element_name || id_selector || class_selector ||
-            attrib || negation || pseudo || interpolation_selector ||
-            (tok(/\*/) && Selector::Universal.new(nil))
+        while v = id_selector || class_selector || attrib || negation || pseudo ||
+            interpolation_selector || (tok(/\*/) && Selector::Universal.new(nil))
           res << v
         end
 
-        if tok?(/&/)
-          begin
-            expected('"{"')
-          rescue Sass::SyntaxError => e
-            e.message << "\n\n" << <<MESSAGE
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
+        pos = @scanner.pos
+        line = @line
+        if sel = str? {simple_selector_sequence}
+          @scanner.pos = pos
+          @line = line
+
+          if sel =~ /^&/
+            begin
+              throw_error {expected('"{"')}
+            rescue Sass::SyntaxError => e
+              e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
+              raise e
+            end
+          else
+            Sass::Util.sass_warn(<<MESSAGE)
+DEPRECATION WARNING:
+On line #{@line}#{" of \"#{@filename}\"" if @filename}, after "#{self.class.prior_snippet(@scanner)}"
+Starting in Sass 3.2, "#{sel}" may only be used at the beginning of a selector.
 MESSAGE
-            raise e
           end
         end
 
@@ -656,7 +683,7 @@ MESSAGE
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
-        if val = tok(STATIC_VALUE)
+        if val = tok(STATIC_VALUE, true)
           return space, Sass::Script::String.new(val.strip)
         end
         return space, sass_script(:parse)
@@ -745,7 +772,7 @@ MESSAGE
       end
 
       def interp_ident(start = IDENT)
-        return unless val = tok(start) || interpolation
+        return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
         res = [val]
         while val = tok(NAME) || interpolation
           res << val
@@ -765,9 +792,15 @@ MESSAGE
         @strs.pop
       end
 
-      def str?
+      def str?(&block)
+        pos = @scanner.pos
+        line = @line
         @strs.push ""
-        yield && @strs.last
+        throw_error(&block) && @strs.last
+      rescue Sass::SyntaxError => e
+        @scanner.pos = pos
+        @line = line
+        nil
       ensure
         @strs.pop
       end
@@ -846,6 +879,13 @@ MESSAGE
         raise Sass::SyntaxError.new(msg, :line => @line)
       end
 
+      def throw_error
+        old_throw_error, @throw_error = @throw_error, false
+        yield
+      ensure
+        @throw_error = old_throw_error
+      end
+
       def catch_error(&block)
         old_throw_error, @throw_error = @throw_error, true
         pos = @scanner.pos
@@ -865,7 +905,7 @@ MESSAGE
         if @throw_err
           throw :_sass_parser_error, err
         else
-          @scanner = StringScanner.new(@scanner.string)
+          @scanner = Sass::Util::MultibyteStringScanner.new(@scanner.string)
           @scanner.pos = err[:pos]
           @line = err[:line]
           @expected = err[:expected]
@@ -875,16 +915,6 @@ MESSAGE
 
       # @private
       def self.expected(scanner, expected, line)
-        pos = scanner.pos
-
-        after = scanner.string[0...pos]
-        # Get rid of whitespace between pos and the last token,
-        # but only if there's a newline in there
-        after.gsub!(/\s*\n\s*$/, '')
-        # Also get rid of stuff before the last newline
-        after.gsub!(/.*\n/, '')
-        after = "..." + after[-15..-1] if after.size > 18
-
         was = scanner.rest.dup
         # Get rid of whitespace between pos and the next token,
         # but only if there's a newline in there
@@ -894,17 +924,42 @@ MESSAGE
         was = was[0...15] + "..." if was.size > 18
 
         raise Sass::SyntaxError.new(
-          "Invalid CSS after \"#{after}\": expected #{expected}, was \"#{was}\"",
+          "Invalid CSS after \"#{prior_snippet(scanner)}\": expected #{expected}, was \"#{was}\"",
           :line => line)
+      end
+
+      # @private
+      def self.prior_snippet(scanner)
+        pos = scanner.pos
+
+        after = scanner.string[0...pos]
+        # Get rid of whitespace between pos and the last token,
+        # but only if there's a newline in there
+        after.gsub!(/\s*\n\s*$/, '')
+        # Also get rid of stuff before the last newline
+        after.gsub!(/.*\n/, '')
+        after = "..." + after[-15..-1] if after.size > 18
+        after
       end
 
       # Avoid allocating lots of new strings for `#tok`.
       # This is important because `#tok` is called all the time.
       NEWLINE = "\n"
 
-      def tok(rx)
+      def tok(rx, last_group_lookahead = false)
         res = @scanner.scan(rx)
         if res
+          # This fixes https://github.com/nex3/sass/issues/104, which affects
+          # Ruby 1.8.7 and REE. This fix is to replace the ?= zero-width
+          # positive lookahead operator in the Regexp (which matches without
+          # consuming the matched group), with a match that does consume the
+          # group, but then rewinds the scanner and removes the group from the
+          # end of the matched string. This fix makes the assumption that the
+          # matched group will always occur at the end of the match.
+          if last_group_lookahead && @scanner[-1]
+            @scanner.pos -= @scanner[-1].length
+            res.slice!(-@scanner[-1].length..-1)
+          end
           @line += res.count(NEWLINE)
           @expected = nil
           if !@strs.empty? && rx != COMMENT && rx != SINGLE_LINE_COMMENT

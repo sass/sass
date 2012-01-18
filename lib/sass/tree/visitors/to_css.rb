@@ -57,20 +57,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   def visit_comment(node)
     return if node.invisible?
-    spaces = ('  ' * [@tabs - node.value[/^ */].size, 0].max)
+    spaces = ('  ' * [@tabs - node.resolved_value[/^ */].size, 0].max)
 
-    content = node.value.gsub(/^/, spaces).gsub(%r{^(\s*)//(.*)$}) do |md|
+    content = node.resolved_value.gsub(/^/, spaces).gsub(%r{^(\s*)//(.*)$}) do |md|
       "#{$1}/*#{$2} */"
-    end
-    if content =~ /[^\\]\#\{.*\}/
-      Sass::Util.sass_warn <<MESSAGE
-WARNING:
-On line #{node.line}#{" of '#{node.filename}'" if node.filename}
-Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
-Please escape the interpolation by adding a backslash before the hash sign.
-MESSAGE
-    elsif content =~ /\\\#\{.*\}/
-      content.gsub!(/\\(\#\{.*\})/, '\1')
     end
     content.gsub!(/\n +(\* *(?!\/))?/, ' ') if (node.style == :compact || node.style == :compressed) && !node.loud
     content
@@ -156,6 +146,10 @@ MESSAGE
       if node.style != :compressed
         if node.options[:debug_info]
           to_return << visit(debug_info_rule(node.debug_info, node.options)) << "\n"
+        elsif node.options[:trace_selectors]
+          to_return << "#{old_spaces}/* "
+          to_return << node.stack_trace.join("\n   #{old_spaces}")
+          to_return << " */\n"
         elsif node.options[:line_comments]
           to_return << "#{old_spaces}/* line #{node.line}"
 
@@ -204,7 +198,7 @@ MESSAGE
                 [Sass::Selector::Element.new(k.to_s.gsub(/[^\w-]/, "\\\\\\0"), nil)])
             ])
         ])
-      prop = Sass::Tree::PropNode.new([""], "", :new)
+      prop = Sass::Tree::PropNode.new([""], Sass::Script::String.new(''), :new)
       prop.resolved_name = "font-family"
       prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
       rule << prop

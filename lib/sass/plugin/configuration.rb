@@ -31,8 +31,6 @@ module Sass
       # @return [{Symbol => Object}]
       def options
         @options ||= default_options.dup
-        @options[:cache_store] ||= Sass::CacheStores::Filesystem.new(@options[:cache_location])
-        @options
       end
 
       # Sets the options hash.

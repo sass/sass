@@ -180,7 +180,7 @@ SCSS
   def test_multiline_properties
     assert_scss_to_sass <<SASS, <<SCSS
 foo bar
-  baz: bip   bam         boon
+  baz: bip bam boon
 SASS
 foo bar {
   baz:
@@ -191,7 +191,7 @@ SCSS
 
     assert_scss_to_scss <<OUT, <<IN
 foo bar {
-  baz: bip   bam         boon; }
+  baz: bip bam boon; }
 OUT
 foo bar {
   baz:
@@ -1131,17 +1131,13 @@ div
 SASS
   end
 
-  def test_loud_comment_conversion
+   def test_loud_comment_conversion
     assert_renders(<<SASS, <<SCSS)
 /*! \#{"interpolated"}
-/*!
- *  \#{"also interpolated"}
 SASS
 /*! \#{"interpolated"} */
-/*!
- *  \#{"also interpolated"} */
 SCSS
-    assert_renders(<<SASS, <<SCSS)
+    silence_warnings {assert_renders(<<SASS, <<SCSS)}
 //! \#{"interpolated"}
 //!
 //! \#{"also interpolated"}

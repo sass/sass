@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/engine'
 
 class CacheTest < Test::Unit::TestCase
@@ -11,6 +12,7 @@ class CacheTest < Test::Unit::TestCase
 
   def teardown
     FileUtils.rm_rf @@cache_dir
+    clean_up_sassc
   end
 
   def test_file_cache_writes_a_file
@@ -62,6 +64,19 @@ class CacheTest < Test::Unit::TestCase
     an_object = {:foo => :bar}
     cache.store("an_object", "", an_object)
     assert_equal an_object, cache.retrieve("an_object", "")
+  end
+
+  class Unmarshalable
+    def _dump(_)
+      raise 'Unmarshalable'
+    end
+  end
+
+  def test_cache_node_with_unmarshalable_option
+    engine = Sass::Engine.new("foo {a: b + c}",
+      :syntax => :scss, :object => Unmarshalable.new, :filename => 'file.scss',
+      :importer => Sass::Importers::Filesystem.new(absolutize('templates')))
+    engine.to_tree
   end
 
   private

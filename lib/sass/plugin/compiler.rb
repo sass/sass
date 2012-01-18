@@ -38,7 +38,7 @@ module Sass::Plugin
       self.options.merge!(options)
     end
 
-    # Register a callback to be run before stylesheets are mass-updated.
+    # Register a callback to be run after stylesheets are mass-updated.
     # This is run whenever \{#update\_stylesheets} is called,
     # unless the \{file:SASS_REFERENCE.md#never_update-option `:never_update` option}
     # is enabled.
@@ -50,6 +50,22 @@ module Sass::Plugin
     #   The first element of each pair is the source file,
     #   the second is the target CSS file.
     define_callback :updating_stylesheets
+
+    # Register a callback to be run after a single stylesheet is updated.
+    # The callback is only run if the stylesheet is really updated;
+    # if the CSS file is fresh, this won't be run.
+    #
+    # Even if the \{file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
+    # is enabled, this callback won't be run
+    # when an exception CSS file is being written.
+    # To run an action for those files, use \{#on\_compilation\_error}.
+    #
+    # @yield [template, css]
+    # @yieldparam template [String]
+    #   The location of the Sass/SCSS file being updated.
+    # @yieldparam css [String]
+    #   The location of the CSS file being generated.
+    define_callback :updated_stylesheet
 
     # Register a callback to be run before a single stylesheet is updated.
     # The callback is only run if the stylesheet is guaranteed to be updated;
@@ -66,6 +82,13 @@ module Sass::Plugin
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
     define_callback :updating_stylesheet
+
+    def on_updating_stylesheet_with_deprecation_warning(&block)
+      Sass::Util.sass_warn("Sass::Compiler#on_updating_stylesheet callback is deprecated and will be removed in a future release. Use Sass::Compiler#on_updated_stylesheet instead, which is run after stylesheet compilation.")
+      on_updating_stylesheet_without_deprecation_warning(&block)
+    end
+    alias_method :on_updating_stylesheet_without_deprecation_warning, :on_updating_stylesheet
+    alias_method :on_updating_stylesheet, :on_updating_stylesheet_with_deprecation_warning
 
     # Register a callback to be run when Sass decides not to update a stylesheet.
     # In particular, the callback is run when Sass finds that
@@ -160,28 +183,25 @@ module Sass::Plugin
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
     def update_stylesheets(individual_files = [])
-      run_updating_stylesheets individual_files
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
 
-      individual_files.each do |t, c|
-        if options[:always_update] || staleness_checker.stylesheet_needs_update?(c, t)
-          update_stylesheet(t, c)
-        end
-      end
-
       template_location_array.each do |template_location, css_location|
-
         Dir.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
+          individual_files << [file, css]
+        end
+      end
 
-          if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
-            update_stylesheet file, css
-          else
-            run_not_updating_stylesheet file, css
-          end
+      run_updating_stylesheets individual_files
+
+      individual_files.each do |file, css|
+        if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
+          update_stylesheet(file, css)
+        else
+          run_not_updating_stylesheet(file, css)
         end
       end
     end
@@ -318,18 +338,23 @@ module Sass::Plugin
         engine_opts = engine_options(:css_filename => css, :filename => filename)
         result = Sass::Engine.for_file(filename, engine_opts).render
       rescue Exception => e
+        compilation_error_occured = true
         run_compilation_error e, filename, css
         result = Sass::SyntaxError.exception_to_css(e, options)
       else
         run_updating_stylesheet filename, css
       end
 
-      # Finally, write the file
+      write_file(css, result)
+      run_updated_stylesheet(filename, css) unless compilation_error_occured
+    end
+
+    def write_file(css, content)
       flag = 'w'
       flag = 'wb' if Sass::Util.windows? && options[:unix_newlines]
       File.open(css, flag) do |file|
-        file.set_encoding(result.encoding) unless Sass::Util.ruby1_8?
-        file.print(result)
+        file.set_encoding(content.encoding) unless Sass::Util.ruby1_8?
+        file.print(content)
       end
     end
 

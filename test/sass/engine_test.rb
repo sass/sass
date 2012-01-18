@@ -62,6 +62,7 @@ MSG
     "foo\n  @import foo.css" => "CSS import directives may only be used at the root of a document.",
     "@if true\n  @import foo" => "Import directives may not be used within control directives or mixins.",
     "@mixin foo\n  @import foo" => "Import directives may not be used within control directives or mixins.",
+    "@import foo;" => "Invalid @import: expected end of line, was \";\".",
     '$foo: "bar" "baz" !' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "!"},
     '$foo: "bar" "baz" $' => %Q{Invalid CSS after ""bar" "baz" ": expected expression (e.g. 1px, bold), was "$"},
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
@@ -258,7 +259,7 @@ SASS
   end
 
   def test_imported_exception
-    [1, 2, 3, 4].each do |i|
+    [1, 2, 3, 4, 5].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -280,7 +281,7 @@ SASS
   end
 
   def test_double_imported_exception
-    [1, 2, 3, 4].each do |i|
+    [1, 2, 3, 4, 5].each do |i|
       begin
         Sass::Engine.new("@import nested_bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -303,6 +304,23 @@ SASS
         assert(false, "Exception not raised for imported template: bork#{i}")
       end
     end
+  end
+
+  def test_selector_tracing
+    actual_css = render(<<-SCSS, :syntax => :scss, :trace_selectors => true)
+      @mixin mixed {
+        .mixed { color: red; }
+      }
+      .context {
+        @include mixed;
+      }
+    SCSS
+    assert_equal(<<CSS,actual_css)
+/* on line 2 of test_selector_tracing_inline.scss, in `mixed'
+   from line 5 of test_selector_tracing_inline.scss */
+.context .mixed {
+  color: red; }
+CSS
   end
 
   def test_mixin_exception
@@ -450,6 +468,53 @@ MESSAGE
     assert_hash_has(err.sass_backtrace[0], :mixin => "baz", :line => 8)
     assert_hash_has(err.sass_backtrace[1], :mixin => "bar", :line => 5)
     assert_hash_has(err.sass_backtrace[2], :mixin => "foo", :line => 2)
+  end
+
+  def test_basic_import_loop_exception
+    import = filename_for_test
+    importer = MockImporter.new
+    importer.add_import(import, "@import '#{import}'")
+
+    engine = Sass::Engine.new("@import '#{import}'", :filename => import,
+      :load_paths => [importer])
+
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
+An @import loop has been found: #{import} imports itself
+ERR
+  end
+
+  def test_double_import_loop_exception
+    importer = MockImporter.new
+    importer.add_import("foo", "@import 'bar'")
+    importer.add_import("bar", "@import 'foo'")
+
+    engine = Sass::Engine.new('@import "foo"', :filename => filename_for_test,
+      :load_paths => [importer])
+
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
+An @import loop has been found:
+    #{filename_for_test} imports foo
+    foo imports bar
+    bar imports foo
+ERR
+  end
+
+  def test_deep_import_loop_exception
+    importer = MockImporter.new
+    importer.add_import("foo", "@import 'bar'")
+    importer.add_import("bar", "@import 'baz'")
+    importer.add_import("baz", "@import 'foo'")
+
+    engine = Sass::Engine.new('@import "foo"', :filename => filename_for_test,
+      :load_paths => [importer])
+
+    assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
+An @import loop has been found:
+    #{filename_for_test} imports foo
+    foo imports bar
+    bar imports baz
+    baz imports foo
+ERR
   end
 
   def test_exception_css_with_offset
@@ -1185,6 +1250,18 @@ bar
 SASS
   end
 
+  def test_control_directive_in_nested_property
+    assert_equal(<<CSS, render(<<SASS))
+foo {
+  a-b: c; }
+CSS
+foo
+  a:
+    @if true
+      b: c
+SASS
+  end
+
   def test_interpolation
     assert_equal("a-1 {\n  b-2-3: c-3; }\n", render(<<SASS))
 $a: 1
@@ -1552,11 +1629,11 @@ foo
    */
 SASS
   end
+
   def test_loud_comment_in_silent_comment
-    assert_equal <<CSS, render(<<SASS, :style => :compressed)
+    silence_warnings {assert_equal <<CSS, render(<<SASS, :style => :compressed)}
 foo{color:blue;/* foo */
 /* bar */
-/* */
 /* bip */
 /* baz */}
 CSS
@@ -1572,8 +1649,7 @@ SASS
 
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/*
- * Hue: 327.216deg */
+/* Hue: 327.216deg */
 CSS
 /*!
   Hue: \#{hue(#f836a0)}
@@ -1776,22 +1852,22 @@ SASS
 
   def test_interpolation_doesnt_deep_unquote_strings
     assert_equal(<<CSS, render(<<SASS))
-.foo- "bar" "baz" {
-  a: b; }
+.foo {
+  a: "bar" "baz"; }
 CSS
-.foo-\#{"bar" "baz"}
-  a: b
+.foo
+  a: \#{"bar" "baz"}
 SASS
   end
 
   def test_warn_directive
   expected_warning = <<EXPECTATION
 WARNING: this is a warning
-        on line 4 of test_warn_directive_inline.sass
+         on line 4 of test_warn_directive_inline.sass
 
 WARNING: this is a mixin warning
-        on line 2 of test_warn_directive_inline.sass, in `foo'
-        from line 7 of test_warn_directive_inline.sass
+         on line 2 of test_warn_directive_inline.sass, in `foo'
+         from line 7 of test_warn_directive_inline.sass
 EXPECTATION
     assert_warning expected_warning do
       assert_equal <<CSS, render(<<SASS)
@@ -1821,15 +1897,15 @@ SASS
   def test_warn_with_imports
     expected_warning = <<WARN
 WARNING: In the main file
-        on line 1 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 1 of #{File.dirname(__FILE__)}/templates/warn.sass
 
 WARNING: Imported
-        on line 1 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
-        from line 2 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 1 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
+         from line 2 of #{File.dirname(__FILE__)}/templates/warn.sass
 
 WARNING: In an imported mixin
-        on line 4 of #{File.dirname(__FILE__)}/templates/warn_imported.sass, in `emits-a-warning'
-        from line 3 of #{File.dirname(__FILE__)}/templates/warn.sass
+         on line 4 of #{File.dirname(__FILE__)}/templates/warn_imported.sass, in `emits-a-warning'
+         from line 3 of #{File.dirname(__FILE__)}/templates/warn.sass
 WARN
     assert_warning expected_warning do
       renders_correctly "warn", :style => :compact, :load_paths => [File.dirname(__FILE__) + "/templates"]
@@ -1950,6 +2026,19 @@ CSS
 SASS
   end
 
+  def test_double_media_bubbling_with_commas
+    assert_equal <<CSS, render(<<SASS)
+@media foo and baz, foo and bang, bar and baz, bar and bang {
+  .foo {
+    c: d; } }
+CSS
+@media foo, bar
+  @media baz, bang
+    .foo
+      c: d
+SASS
+  end
+
   def test_rule_media_rule_bubbling
     assert_equal <<CSS, render(<<SASS)
 @media bar {
@@ -2011,6 +2100,49 @@ CSS
   end
 
   # Regression tests
+
+  def test_tricky_mixin_loop_exception
+    render <<SASS
+@mixin foo($a)
+  @if $a
+    @include foo(false)
+    @include foo(true)
+  @else
+    a: b
+
+a
+  @include foo(true)
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal("An @include loop has been found: foo includes itself", err.message)
+    assert_hash_has(err.sass_backtrace[0], :mixin => "foo", :line => 3)
+  end
+
+  def test_interpolated_comment_in_mixin
+    assert_equal <<CSS, render(<<SASS)
+/* color: red */
+.foo {
+  color: red; }
+
+/* color: blue */
+.foo {
+  color: blue; }
+
+/* color: green */
+.foo {
+  color: green; }
+CSS
+=foo($var)
+  /*! color: \#{$var}
+  .foo
+    color: $var
+
++foo(red)
++foo(blue)
++foo(green)
+SASS
+  end
 
   def test_parens_in_mixins
     assert_equal(<<CSS, render(<<SASS))
@@ -2290,7 +2422,16 @@ SASS
 WARNING:
 On line 1 of 'test_comment_interpolation_warning_inline.sass'
 Comments will evaluate the contents of interpolations (\#{ ... }) in Sass 3.2.
-Please escape the interpolation by adding a backslash before the hash sign.
+Please escape the interpolation by adding a backslash before the `#`.
+END
+  end
+
+  def test_loud_silent_comment_warning
+    assert_warning(<<END) {render("//! \#{foo}")}
+WARNING:
+On line 1 of 'test_loud_silent_comment_warning_inline.sass'
+`//` comments will no longer be allowed to use the `!` flag in Sass 3.2.
+Please change to `/*` comments.
 END
   end
 
@@ -2419,6 +2560,31 @@ CSS
   a: b
 SASS
     end
+
+    # Encoding Regression Test
+
+    def test_multibyte_prop_name
+      assert_equal(<<CSS, render(<<SASS))
+@charset "UTF-8";
+#bar {
+  cölor: blue; }
+CSS
+#bar
+  cölor: blue
+SASS
+    end
+
+    def test_multibyte_and_interpolation
+      assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
+#bar {
+  background: a 0%; }
+CSS
+#bar {
+  // 
+  background: \#{a} 0%;
+}
+SCSS
+    end
   end
 
   def test_original_filename_set
@@ -2434,6 +2600,27 @@ SASS
     assert_equal original_filename, importer.engine("imported").options[:original_filename]
   end
 
+  def test_deprecated_PRECISION
+    assert_warning(<<END) {assert_equal 1000.0, Sass::Script::Number::PRECISION}
+Sass::Script::Number::PRECISION is deprecated and will be removed in a future release. Use Sass::Script::Number.precision_factor instead.
+END
+  end
+  def test_changing_precision
+    begin
+      Sass::Script::Number.precision = 8
+      assert_equal <<CSS, render(<<SASS)
+div {
+  maximum: 1.00000001;
+  too-much: 1.0; }
+CSS
+div
+  maximum : 1.00000001
+  too-much: 1.000000001
+SASS
+    ensure
+      Sass::Script::Number.precision = 3
+    end
+  end
 
   private
 

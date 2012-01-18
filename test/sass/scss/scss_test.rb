@@ -118,11 +118,11 @@ SCSS
   def test_warn_directive
     expected_warning = <<EXPECTATION
 WARNING: this is a warning
-        on line 2 of test_warn_directive_inline.scss
+         on line 2 of test_warn_directive_inline.scss
 
 WARNING: this is a mixin
-        on line 1 of test_warn_directive_inline.scss, in `foo'
-        from line 3 of test_warn_directive_inline.scss
+         on line 1 of test_warn_directive_inline.scss, in `foo'
+         from line 3 of test_warn_directive_inline.scss
 EXPECTATION
     assert_warning expected_warning do
       assert_equal <<CSS, render(<<SCSS)
@@ -892,7 +892,8 @@ SCSS
   end
 
   def test_uses_property_exception_with_star_hack
-    render <<SCSS
+    # Silence the "beginning of selector" warning
+    Sass::Util.silence_warnings {render <<SCSS}
 foo {
   *bar:baz [fail]; }
 SCSS
@@ -1029,11 +1030,10 @@ SCSS
   end
 
   def test_parent_in_mid_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after ".foo": expected "{", was "&.bar"
 
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
+"&" may only be used at the beginning of a selector.
 MESSAGE
 flim {
   .foo&.bar {a: b}
@@ -1042,11 +1042,10 @@ SCSS
   end
 
   def test_parent_in_mid_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
 
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
+"&" may only be used at the beginning of a selector.
 MESSAGE
 flim {
   .foo.bar& {a: b}
@@ -1055,11 +1054,10 @@ SCSS
   end
 
   def test_double_parent_selector_error
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  &": expected "{", was "& {a: b}"
 
-In Sass 3, the parent selector & can only be used where element names are valid,
-since it could potentially be replaced by an element name.
+"&" may only be used at the beginning of a selector.
 MESSAGE
 flim {
   && {a: b}
@@ -1096,6 +1094,24 @@ SCSS
   end
 
   # Regression
+
+  def test_prop_name_interpolation_after_hyphen
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  -foo-bar: b; }
+CSS
+a { -\#{"foo"}-bar: b; }
+SCSS
+  end
+
+  def test_star_plus_and_parent
+    assert_equal <<CSS, render(<<SCSS)
+* + html foo {
+  a: b; }
+CSS
+foo {*+html & {a: b}}
+SCSS
+  end
 
   def test_weird_added_space
     assert_equal <<CSS, render(<<SCSS)
@@ -1245,5 +1261,38 @@ foo {
   b: $var2;
   c: $var3; }
 SCSS
+  end
+
+  def test_options_passed_to_script
+    assert_equal <<CSS, render(<<SCSS, :style => :compressed)
+foo{color:#000}
+CSS
+foo {color: darken(black, 10%)}
+SCSS
+  end
+
+  # ref: https://github.com/nex3/sass/issues/104
+  def test_no_buffer_overflow
+    template = render <<SCSS
+.aaa {
+  background-color: white;
+}
+.aaa .aaa .aaa {
+  background-color: black;
+}   
+.bbb {
+  @extend .aaa;
+} 
+.xxx {
+  @extend .bbb;
+}
+.yyy {
+  @extend .bbb;
+}
+.zzz {
+  @extend .bbb;
+}
+SCSS
+    Sass::SCSS::Parser.new(template, "test.scss").parse
   end
 end

@@ -134,10 +134,11 @@ module Sass
             last_current.unshift(current.pop)
           end
           befores = Sass::Util.flatten(befores.map do |before|
-              subweave(before, current).map {|seqs| seqs + last_current}
+              next [] unless sub = subweave(before, current)
+              sub.map {|seqs| seqs + last_current}
             end, 1)
-          return befores if afters.empty?
         end
+        return befores
       end
 
       # This interweaves two lists of selectors,
@@ -149,14 +150,14 @@ module Sass
       # `.foo .baz .bar .bang`, `.foo .baz .bar.bang`, `.foo .baz .bang .bar`,
       # and so on until `.baz .bang .foo .bar`.
       #
-      # @overload def subweave(seq1, seq2)
       # @param seq1 [Array<SimpleSequence or String>]
       # @param seq2 [Array<SimpleSequence or String>]
       # @return [Array<Array<SimpleSequence or String>>]
-      def subweave(seq1, seq2, cache = {})
+      def subweave(seq1, seq2)
         return [seq2] if seq1.empty?
         return [seq1] if seq2.empty?
 
+        return unless init = merge_initial_ops(seq1, seq2)
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
         lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
@@ -166,7 +167,7 @@ module Sass
           next s1 if subweave_superselector?(s2, s1)
         end
 
-        diff = []
+        diff = [[init]]
         until lcs.empty?
           diff << chunks(seq1, seq2) {|s| subweave_superselector?(s.first, lcs.first)} << [lcs.shift]
           seq1.shift
@@ -178,6 +179,50 @@ module Sass
         Sass::Util.paths(diff).map {|p| p.flatten}
       end
 
+      # Extracts initial selector operators (`"+"`, `">"`, `"~"`, and `"\n"`)
+      # from two sequences and merges them together into a single array of
+      # selector operators.
+      #
+      # @param seq1 [Array<SimpleSequence or String>]
+      # @param seq2 [Array<SimpleSequence or String>]
+      # @return [Array<String>, nil] If there are no operators in the merged
+      #   sequence, this will be the empty array. If the operators cannot be
+      #   merged, this will be nil.
+      def merge_initial_ops(seq1, seq2)
+        ops1, ops2 = [], []
+        ops1 << seq1.shift while seq1.first.is_a?(String)
+        ops2 << seq2.shift while seq2.first.is_a?(String)
+
+        newline = false
+        newline ||= !!ops1.shift if ops1.first == "\n"
+        newline ||= !!ops2.shift if ops2.first == "\n"
+
+        # If neither sequence is a subsequence of the other, they cannot be
+        # merged successfully
+        lcs = Sass::Util.lcs(ops1, ops2)
+        return unless lcs == ops1 || lcs == ops2
+        return (newline ? ["\n"] : []) + (ops1.size > ops2.size ? ops1 : ops2)
+      end
+
+      # Takes initial subsequences of `seq1` and `seq2` and returns all
+      # orderings of those subsequences. The initial subsequences are determined
+      # by a block.
+      #
+      # Destructively removes the initial subsequences of `seq1` and `seq2`.
+      #
+      # For example, given `(A B C | D E)` and `(1 2 | 3 4 5)` (with `|`
+      # denoting the boundary of the initial subsequence), this would return
+      # `[(A B C 1 2), (1 2 A B C)]`. The sequences would then be `(D E)` and
+      # `(3 4 5)`.
+      #
+      # @param seq1 [Array]
+      # @param seq2 [Array]
+      # @yield [a] Used to determine when to cut off the initial subsequences.
+      #   Called repeatedly for each sequence until it returns true.
+      # @yieldparam a [Array] A final subsequence of one input sequence after
+      #   cutting off some initial subsequence.
+      # @yieldreturn [Boolean] Whether or not to cut off the initial subsequence
+      #   here.
       def chunks(seq1, seq2)
         chunk1 = []
         chunk1 << seq1.shift until yield seq1
@@ -189,6 +234,15 @@ module Sass
         [chunk1 + chunk2, chunk2 + chunk1]
       end
 
+      # Groups a sequence into subsequences. The subsequences are determined by
+      # strings; adjacent non-string elements will be put into separate groups,
+      # but any element adjacent to a string will be grouped with that string.
+      #
+      # For example, `(A B "C" D E "F" G "H" "I" J)` will become `[(A) (B "C" D)
+      # (E "F" G "H" "I" J)]`.
+      #
+      # @param seq [Array]
+      # @return [Array<Array>]
       def group_selectors(seq)
         newseq = []
         tail = seq.dup
@@ -202,6 +256,12 @@ module Sass
         return newseq
       end
 
+      # Given two sequences of simple selectors, returns whether `sseq1` is a
+      # superselector of `sseq2`.
+      #
+      # @param sseq1 [Array<SimpleSelector or String>]
+      # @param sseq2 [Array<SimpleSelector or String>]
+      # @return [Boolean]
       def subweave_superselector?(sseq1, sseq2)
         if sseq1.size > 1
           # More complex selectors are never superselectors of less complex ones

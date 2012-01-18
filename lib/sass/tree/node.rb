@@ -65,11 +65,7 @@ module Sass
       # @param options [{Symbol => Object}] The options
       # @see #options
       def options=(options)
-        children.each {|c| c.options = options}
-        if respond_to?(:subnodes)
-          subnodes.each {|n| n.options = options if n.respond_to?(:options=)}
-        end
-        @options = options
+        Sass::Tree::Visitors::SetOptions.visit(self, options)
       end
 
       # @private
@@ -188,19 +184,7 @@ module Sass
       #
       # @return [Node]
       def deep_copy
-        node = dup
-        node.children = children.map {|c| c.deep_copy}
-        node
-      end
-
-      def before_sass_cache_store
-        o = self.options
-        self.options = {}
-        return o
-      end
-
-      def after_sass_cache_store(o)
-        self.options = o
+        Sass::Tree::Visitors::DeepCopy.visit(self)
       end
 
       protected

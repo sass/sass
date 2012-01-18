@@ -15,7 +15,7 @@ module Sass::Tree
     # representing `#{}`-interpolation.
     #
     # @return [Array<String, Sass::Script::Node>]
-    attr_reader :selector
+    attr_accessor :selector
 
     # @param selector [Array<String, Sass::Script::Node>]
     #   The CSS selector to extend,

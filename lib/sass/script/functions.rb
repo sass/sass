@@ -93,7 +93,7 @@ module Sass::Script
   # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Increase or decrease any of the components of a color.
   #
-  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Fluidly scale one or more components of a color.
   #
   # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
@@ -968,7 +968,7 @@ module Sass::Script
       #
       # Finally, the weight of color1 is renormalized to be within [0, 1]
       # and the weight of color2 is given by 1 minus the weight of color1.
-      p = weight.value/100.0
+      p = (weight.value/100.0).to_f
       w = p*2 - 1
       a = color1.alpha - color2.alpha
 

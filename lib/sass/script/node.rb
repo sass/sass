@@ -57,6 +57,14 @@ module Sass::Script
       Sass::Util.abstract(self)
     end
 
+    # Returns a deep clone of this node.
+    # The child nodes are cloned, but options are not.
+    #
+    # @return [Node]
+    def deep_copy
+      Sass::Util.abstract(self)
+    end
+
     protected
 
     # Converts underscores to dashes if the :dasherize option is set.
