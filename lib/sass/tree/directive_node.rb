@@ -25,5 +25,13 @@ module Sass::Tree
       @value = value
       super()
     end
+
+    # @param value [String] See \{#resolved_value}
+    # @return [DirectiveNode]
+    def self.resolved(value)
+      node = new([value])
+      node.resolved_value = value
+      node
+    end
   end
 end

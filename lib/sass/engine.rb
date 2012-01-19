@@ -692,7 +692,8 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
       elsif directive == "media"
-        Tree::MediaNode.new(value.split(',').map {|s| s.strip})
+        parser = Sass::SCSS::SassParser.new(value, @options[:filename], @line)
+        Tree::MediaNode.new(parser.parse_media_query_list)
       else
         Tree::DirectiveNode.new(
           value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
@@ -789,11 +790,11 @@ WARNING
       val = scanner[1] || scanner[2]
       scanner.scan(/\s*/)
       if media = scanner.scan(/[^,;].*/)
-        Tree::DirectiveNode.new("@import #{str || uri} #{media}")
+        Tree::DirectiveNode.new(["@import #{str || uri} #{media}"])
       elsif uri
-        Tree::DirectiveNode.new("@import #{uri}")
+        Tree::DirectiveNode.new(["@import #{uri}"])
       elsif val =~ /^http:\/\//
-        Tree::DirectiveNode.new("@import url(#{val})")
+        Tree::DirectiveNode.new(["@import url(#{val})"])
       else
         Tree::ImportNode.new(val)
       end
