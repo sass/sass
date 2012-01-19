@@ -270,6 +270,15 @@ END
 
   def visit_directive(node)
     if node.value['#{']
+      if node.value =~ /^@import (?!url\()/
+        Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
+@import directives using \#{} interpolation will need to use url() in Sass 3.2.
+For example:
+
+  @import url("http://\#{$url}/style.css");
+WARNING
+      end
       node.value = run_interp(Sass::Engine.parse_interp(node.value, node.line, 0, node.options))
     end
     yield

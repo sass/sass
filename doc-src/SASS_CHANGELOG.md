@@ -11,6 +11,12 @@
 * Make sure `:after` and `:before` selectors end up on the end of
   selectors resulting from `@extend`.
 
+### Deprecations -- Must Read!
+
+* Using `#{}` interpolation in `@import` directives will, as of Sass 3.2,
+  require that the `@import` directive use `url()` rather than a plain string.
+  The old way is deprecated and will print a warning.
+
 ## 3.1.12
 
 * Compatibility with the `mathn` library
