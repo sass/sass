@@ -115,6 +115,8 @@ module Sass::Media
     def merge(other)
       m1, t1 = resolved_modifier.downcase, resolved_type.downcase
       m2, t2 = other.resolved_modifier.downcase, other.resolved_type.downcase
+      t1 = t2 if t1.empty?
+      t2 = t1 if t2.empty?
       if ((m1 == 'not') ^ (m2 == 'not')) && (t1 != t2)
         type = m1 == 'not' ? t2 : t1
         mod = m1 == 'not' ? m2 : m1
@@ -129,7 +131,7 @@ module Sass::Media
         type = t1
         mod = m1.empty? ? m2 : m1
       end
-      q = Query.new([], [], expressions + other.expressions)
+      q = Query.new([], [], other.expressions + expressions)
       q.resolved_type = type
       q.resolved_modifier = mod
       return q

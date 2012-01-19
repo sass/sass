@@ -2003,12 +2003,12 @@ SASS
 
   def test_double_media_bubbling
     assert_equal <<CSS, render(<<SASS)
-@media bar and baz {
+@media bar and (a: b) {
   .foo {
     c: d; } }
 CSS
 @media bar
-  @media baz
+  @media (a: b)
     .foo
       c: d
 SASS
@@ -2017,26 +2017,26 @@ SASS
 @media bar {
   .foo {
     a: b; } }
-  @media bar and baz {
+  @media bar and (a: b) {
     .foo {
       c: d; } }
 CSS
 .foo
   @media bar
     a: b
-    @media baz
+    @media (a: b)
       c: d
 SASS
   end
 
   def test_double_media_bubbling_with_commas
     assert_equal <<CSS, render(<<SASS)
-@media foo and baz, foo and bang, bar and baz, bar and bang {
+@media (a: b) and (e: f), (c: d) and (e: f), (a: b) and (g: h), (c: d) and (g: h) {
   .foo {
     c: d; } }
 CSS
-@media foo, bar
-  @media baz, bang
+@media (a: b), (c: d)
+  @media (e: f), (g: h)
     .foo
       c: d
 SASS
@@ -2068,7 +2068,7 @@ SASS
   @media print {
     .outside {
       color: black; } }
-    @media print and nested {
+    @media print and (a: b) {
       .outside .inside {
         border: 1px solid black; } }
   .outside .middle {
@@ -2079,7 +2079,7 @@ CSS
   @media print
     color: black
     .inside
-      @media nested
+      @media (a: b)
         border: 1px solid black
   background: blue
   .middle
