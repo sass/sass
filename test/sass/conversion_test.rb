@@ -1058,7 +1058,7 @@ $media2: print;
 $var: -webkit-min-device-pixel-ratio;
 $val: 20;
 
-@media $media2 and ($var: $val), only $media2 {
+@media $media1 and ($var: $val), only $media2 {
   a: b; }
 SCSS
   end

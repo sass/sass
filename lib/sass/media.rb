@@ -43,6 +43,14 @@ module Sass::Media
     def to_css
       queries.map {|q| q.to_css}.join(', ')
     end
+
+    # Returns the Sass/SCSS code for the media query list.
+    #
+    # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
+    # @return [String]
+    def to_src(options)
+      queries.map {|q| q.to_src(options)}.join(', ')
+    end
   end
 
   # A single media query.
@@ -139,6 +147,20 @@ module Sass::Media
       css << expressions.map {|e| e.to_css}.join(' and ')
       css
     end
+
+    # Returns the Sass/SCSS code for the media query.
+    #
+    # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
+    # @return [String]
+    def to_src(options)
+      src = ''
+      src << Sass::Media._interp_or_var_to_src(modifier, options)
+      src << ' ' unless modifier.empty?
+      src << Sass::Media._interp_or_var_to_src(type, options)
+      src << ' and ' unless type.empty? || expressions.empty?
+      src << expressions.map {|e| e.to_src(options)}.join(' and ')
+      src
+    end
   end
 
   # A media query expression.
@@ -195,5 +217,31 @@ module Sass::Media
       css << ')'
       css
     end
+
+    # Returns the Sass/SCSS code for the expression.
+    #
+    # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
+    # @return [String]
+    def to_src(options)
+      src = '('
+      src << Sass::Media._interp_or_var_to_src(name, options)
+      src << ': ' << Sass::Media._interp_or_var_to_src(value, options) unless value.empty?
+      src << ')'
+      src
+    end
+  end
+
+  # Converts an interpolation array that may represent a single variable to source.
+  #
+  # @param [Array<String, Sass::Script::Node>] The interpolation array to convert.
+  # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
+  # @return [String]
+  def self._interp_or_var_to_src(interp, options)
+    interp = interp.reject {|v| v.is_a?(String) && v.empty?}
+    return interp[0].to_sass(options) if interp.length == 1 && interp[0].is_a?(Sass::Script::Variable)
+    interp.map do |r|
+      next r if r.is_a?(String)
+      "\#{#{r.to_sass(options)}}"
+    end.join
   end
 end
