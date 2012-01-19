@@ -2102,6 +2102,76 @@ CSS
     assert_equal css_str, render(sass_str)
   end
 
+  def test_eliminated_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  a: b; }
+CSS
+@media screen
+  a: b
+  @media print
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+CSS
+@media not print
+  a: b
+  @media print
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+CSS
+@media not print
+  a: b
+  @media not screen
+    c: d
+SASS
+  end
+
+  def test_non_eliminated_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  a: b; }
+@media screen and (a: b) {
+  c: d; }
+CSS
+@media screen
+  a: b
+  @media screen and (a: b)
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+@media screen {
+  c: d; }
+CSS
+@media not print
+  a: b
+  @media screen
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media only screen {
+  a: b; }
+@media only screen and (a: b) {
+  c: d; }
+CSS
+@media only screen
+  a: b
+  @media screen and (a: b)
+    c: d
+SASS
+  end
+
   def test_directive_interpolation
     assert_equal <<CSS, render(<<SASS)
 @foo bar12 qux {
