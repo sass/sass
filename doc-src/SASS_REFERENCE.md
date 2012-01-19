@@ -1097,6 +1097,19 @@ It's also possible to import multiple files in one `@import`. For example:
 
 would import both the `rounded-corners` and the `text-shadow` files.
 
+Imports may contain `#{}` interpolation, but only with certain restrictions.
+It's not possible to dynamically import a Sass file based on a variable;
+interpolation is only for CSS imports.
+As such, it only works with `url()` imports.
+For example:
+
+    $family: unquote("Droid+Sans");
+    @import url("http://fonts.googleapis.com/css?family=\#{$family}");
+
+would compile to
+
+    @import url("http://fonts.googleapis.com/css?family=Droid+Sans");
+
 #### Partials {#partials}
 
 If you have a SCSS or Sass file that you want to import
@@ -1190,6 +1203,29 @@ For example:
 is compiled to:
 
     @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
+Finally, `@media` queries can contain Sass variables in place of the media type,
+feature names, and feature values.
+For example:
+
+
+    $media: screen;
+    $feature: -webkit-min-device-pixel-ratio;
+    $value: 1.5;
+
+    @media $media and ($feature: $value) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
+is compiled to:
+
+    @media screen and (-webkit-min-device-pixel-ratio: 1.5) {
       .sidebar {
         width: 500px;
       }
