@@ -622,11 +622,13 @@ CSS
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 
-  def test_http_import_with_interpolation
-    assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
-      render("$family: unquote(\"Droid+Sans\")\n@import \"http://fonts.googleapis.com/css?family=\#{$family}\"\n"))
-    assert_equal("@import url(\"http://fonts.googleapis.com/css?family=Droid+Sans\");\n",
-      render("$family: unquote(\"Droid+Sans\")\n@import url(\"http://fonts.googleapis.com/css?family=\#{$family}\")\n"))
+  def test_import_with_interpolation
+    assert_equal(<<CSS, render(<<SASS))
+@import url("http://fonts.googleapis.com/css?family=Droid+Sans");
+CSS
+$family: unquote("Droid+Sans")
+@import url("http://fonts.googleapis.com/css?family=\#{$family}")
+SASS
   end
 
   def test_url_import

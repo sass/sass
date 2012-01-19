@@ -97,6 +97,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def visit_directive(node)
     res = "#{tab_str}#{interp_to_src(node.value)}"
+    res.gsub!(/^@import \#\{(.*)\}([^}]*)$/, '@import \1\2');
     return res + "#{semi}\n" unless node.has_children
     res + yield + "\n"
   end

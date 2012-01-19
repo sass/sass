@@ -290,14 +290,21 @@ module Sass
       end
 
       def import_arg
-        return unless arg = tok(STRING) || (uri = tok!(URI))
-        path = @scanner[1] || @scanner[2] || @scanner[3]
+        return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
+        if uri
+          str = sass_script(:parse_string)
+          media = str {media_query_list}.strip
+          media = " #{media}" unless media.empty?
+          ss
+          return node(Tree::DirectiveNode.new(["@import ", str, media]))
+        end
+
+        path = @scanner[1] || @scanner[2]
         ss
 
         media = str {media_query_list}.strip
-
-        if uri || path =~ /^http:\/\// || !media.strip.empty? || use_css_import?
-          return node(Sass::Tree::DirectiveNode.new(["@import #{arg} #{media}".strip]))
+        if path =~ /^http:\/\// || !media.empty? || use_css_import?
+          return node(Sass::Tree::DirectiveNode.new(["@import #{str} #{media}"]))
         end
 
         node(Sass::Tree::ImportNode.new(path.strip))

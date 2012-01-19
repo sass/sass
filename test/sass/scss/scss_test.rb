@@ -266,7 +266,7 @@ SCSS
     assert_equal "@import url(foo.css);\n", render('@import "foo.css";')
     assert_equal "@import url(foo.css);\n", render("@import 'foo.css';")
     assert_equal "@import url(\"foo.css\");\n", render('@import url("foo.css");')
-    assert_equal "@import url('foo.css');\n", render("@import url('foo.css');")
+    assert_equal "@import url(\"foo.css\");\n", render('@import url("foo.css");')
     assert_equal "@import url(foo.css);\n", render('@import url(foo.css);')
   end
 
@@ -277,6 +277,15 @@ SCSS
   def test_http_import
     assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";"))
+  end
+
+  def test_import_with_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@import url("http://fonts.googleapis.com/css?family=Droid+Sans");
+CSS
+$family: unquote("Droid+Sans");
+@import url("http://fonts.googleapis.com/css?family=\#{$family}");
+SCSS
   end
 
   def test_url_import

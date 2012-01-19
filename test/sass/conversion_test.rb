@@ -759,6 +759,18 @@ SASS
 SCSS
   end
 
+  def test_import_with_interpolation
+    assert_renders <<SASS, <<SCSS
+$family: unquote("Droid+Sans")
+
+@import url("http://fonts.googleapis.com/css?family=\#{$family}")
+SASS
+$family: unquote("Droid+Sans");
+
+@import url("http://fonts.googleapis.com/css?family=\#{$family}");
+SCSS
+  end
+
   def test_extend
     assert_renders <<SASS, <<SCSS
 .foo
