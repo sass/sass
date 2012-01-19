@@ -71,6 +71,27 @@ Is compiled to:
       font-size: 2em;
     }
 
+### Directive Interpolation
+
+`#{}` interpolation is now allowed in all plain CSS directives
+(such as `@font-face`, `@keyframes`, and of course `@media`).
+
+In addition, `@media` gets some special treatment.
+In addition to allowing `#{}` interpolation,
+variables may be used directly in media queries.
+This means that you can write e.g.:
+
+    $media: screen;
+    $feature: -webkit-min-device-pixel-ratio;
+    $value: 1.5;
+
+    @media $media and ($feature: $value) {
+      ...
+    }
+
+This is intended to allow authors to easily write mixins
+that make use of `@media` and other directives dynamically.
+
 ### `:any` Support
 
 Previously, only the `:-moz-any` selector was supported; this has been expanded
@@ -97,6 +118,9 @@ This variable should contain a colon-separated list of load paths
 * `#{}` interpolation is now allowed in all comments.
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
+
+* `#{}` interpolation is now disallowed in all `@import` statements
+  except for those using `url()`.
 
 ## 3.1.13 (Unreleased)
 

@@ -67,12 +67,12 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
 
   def visit_directive(node)
-    return node.value + ";" unless node.has_children
-    return node.value + " {}" if node.children.empty?
+    return node.resolved_value + ";" unless node.has_children
+    return node.resolved_value + " {}" if node.children.empty?
     result = if node.style == :compressed
-               "#{node.value}{"
+               "#{node.resolved_value}{"
              else
-               "#{'  ' * @tabs}#{node.value} {" + (node.style == :compact ? ' ' : "\n")
+               "#{'  ' * @tabs}#{node.resolved_value} {" + (node.style == :compact ? ' ' : "\n")
              end
     was_prop = false
     first = true
@@ -190,7 +190,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   private
 
   def debug_info_rule(debug_info, options)
-    node = Sass::Tree::DirectiveNode.new("@media -sass-debug-info")
+    node = Sass::Tree::DirectiveNode.resolved("@media -sass-debug-info")
     debug_info.map {|k, v| [k.to_s, v.to_s]}.sort.each do |k, v|
       rule = Sass::Tree::RuleNode.new([""])
       rule.resolved_rules = Sass::Selector::CommaSequence.new(

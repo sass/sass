@@ -130,6 +130,27 @@ module Sass
         raise e
       end
 
+      # Parse a single string value, possibly containing interpolation.
+      # Doesn't assert that the scanner is finished after parsing.
+      #
+      # @return [Script::Node] The root node of the parse tree.
+      # @raise [Sass::SyntaxError] if the string isn't valid SassScript
+      def parse_string
+        unless (peek = @lexer.peek) &&
+            (peek.type == :string ||
+            (peek.type == :funcall && peek.value.downcase == 'url'))
+          lexer.expected!("string")
+        end
+
+        expr = assert_expr :funcall
+        expr.options = @options
+        @lexer.unpeek!
+        expr
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
+        raise e
+      end
+
       # Parses a SassScript expression.
       #
       # @overload parse(str, line, offset, filename = nil)

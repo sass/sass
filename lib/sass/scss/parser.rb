@@ -40,6 +40,18 @@ module Sass
         interp_ident
       end
 
+      # Parses a media query list.
+      #
+      # @return [Sass::Media::QueryList] The parsed query list
+      # @raise [Sass::SyntaxError] if there's a syntax error in the query list,
+      #   or if it doesn't take up the entire input string.
+      def parse_media_query_list
+        init_scanner!
+        ql = media_query_list
+        expected("media query list") unless @scanner.eos?
+        ql
+      end
+
       private
 
       include Sass::SCSS::RX
@@ -122,10 +134,11 @@ module Sass
         end
 
         # Most at-rules take expressions (e.g. @import),
-        # but some (e.g. @page) take selector-like arguments
-        val = str {break unless expr}
-        val ||= CssParser.new(@scanner, @line).parse_selector_string
-        node = node(Sass::Tree::DirectiveNode.new("@#{name} #{val}".strip))
+        # but some (e.g. @page) take selector-like arguments.
+        # Some take no arguments at all.
+        val = expr || selector
+        val = val ? ["@#{name} "] + Sass::Util.strip_string_array(val) : ["@#{name}"]
+        node = node(Sass::Tree::DirectiveNode.new(val))
 
         if tok(/\{/)
           node.has_children = true
@@ -277,14 +290,21 @@ module Sass
       end
 
       def import_arg
-        return unless arg = tok(STRING) || (uri = tok!(URI))
-        path = @scanner[1] || @scanner[2] || @scanner[3]
+        return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
+        if uri
+          str = sass_script(:parse_string)
+          media = str {media_query_list}.strip
+          media = " #{media}" unless media.empty?
+          ss
+          return node(Tree::DirectiveNode.new(["@import ", str, media]))
+        end
+
+        path = @scanner[1] || @scanner[2]
         ss
 
         media = str {media_query_list}.strip
-
-        if uri || path =~ /^http:\/\// || !media.strip.empty? || use_css_import?
-          return node(Sass::Tree::DirectiveNode.new("@import #{arg} #{media}".strip))
+        if path =~ /^http:\/\// || !media.empty? || use_css_import?
+          return node(Sass::Tree::DirectiveNode.new(["@import #{str} #{media}"]))
         end
 
         node(Sass::Tree::ImportNode.new(path.strip))
@@ -298,52 +318,66 @@ module Sass
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
       def media_query_list
-        has_q = false
-        q = str {has_q = media_query}
-
-        return unless has_q
-        queries = [q.strip]
+        return unless query = media_query
+        queries = [query]
 
         ss
         while tok(/,/)
-          ss; queries << str {expr!(:media_query)}.strip; ss
+          ss; queries << expr!(:media_query)
         end
+        ss
 
-        queries
+        Sass::Media::QueryList.new(queries)
       end
 
       def media_query
-        if tok(/only|not/i)
+        if ident1 = interp_ident_or_var
           ss
-          @expected = "media type (e.g. print, screen)"
-          tok!(IDENT)
+          ident2 = interp_ident_or_var
           ss
-        elsif !tok(IDENT) && !media_expr
-          return
+          if ident2 && ident2.length == 1 && ident2[0].is_a?(String) && ident2[0].downcase == 'and'
+            query = Sass::Media::Query.new([], ident1, [])
+          else
+            if ident2
+              query = Sass::Media::Query.new(ident1, ident2, [])
+            else
+              query = Sass::Media::Query.new([], ident1, [])
+            end
+            return query unless tok(/and/i)
+            ss
+          end
         end
+
+        if query
+          expr = expr!(:media_expr)
+        else
+          return unless expr = media_expr
+        end
+        query ||= Sass::Media::Query.new([], [], [])
+        query.expressions << expr
 
         ss
         while tok(/and/i)
-          ss; expr!(:media_expr); ss
+          ss; query.expressions << expr!(:media_expr)
         end
 
-        true
+        query
       end
 
       def media_expr
         return unless tok(/\(/)
         ss
         @expected = "media feature (e.g. min-device-width, color)"
-        tok!(IDENT)
+        name = expr!(:interp_ident_or_var)
         ss
 
         if tok(/:/)
-          ss; expr!(:expr)
+          ss; value = expr!(:expr)
         end
         tok!(/\)/)
         ss
 
-        true
+        Sass::Media::Expression.new(name, value || [])
       end
 
       def charset_directive
@@ -369,10 +403,6 @@ module Sass
         # but they're included here for compatibility
         # with some proprietary MS properties
         str {ss if tok(/[\/,:.=]/)}
-      end
-
-      def unary_operator
-        tok(/[+-]/)
       end
 
       def ruleset
@@ -507,9 +537,9 @@ module Sass
 
       def simple_selector_sequence
         # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
-        return expr unless e = element_name || id_selector || class_selector ||
-          placeholder_selector || attrib || negation || pseudo || parent_selector ||
-          interpolation_selector
+        return expr(!:allow_var) unless e = element_name || id_selector ||
+          class_selector || placeholder_selector || attrib || negation ||
+          pseudo || parent_selector || interpolation_selector
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
@@ -709,41 +739,51 @@ MESSAGE
         block(node, :property)
       end
 
-      def expr
-        return unless t = term
+      def expr(allow_var = true)
+        return unless t = term(allow_var)
         res = [t, str{ss}]
 
-        while (o = operator) && (t = term)
+        while (o = operator) && (t = term(allow_var))
           res << o << t << str{ss}
         end
 
-        res
+        res.flatten
       end
 
-      def term
-        unless e = tok(NUMBER) ||
+      def term(allow_var)
+        if e = tok(NUMBER) ||
             tok(URI) ||
-            function ||
+            function(allow_var) ||
             tok(STRING) ||
             tok(UNICODERANGE) ||
-            tok(IDENT) ||
-            tok(HEXCOLOR)
-
-          return unless op = unary_operator
-          @expected = "number or function"
-          return [op, tok(NUMBER) || expr!(:function)]
+            interp_ident ||
+            tok(HEXCOLOR) ||
+            (allow_var && var_expr)
+          return e
         end
-        e
+
+        return unless op = tok(/[+-]/)
+        @expected = "number or function"
+        return [op, tok(NUMBER) || function(allow_var) ||
+          (allow_var && var_expr) || expr!(:interpolation)]
       end
 
-      def function
+      def function(allow_var)
         return unless name = tok(FUNCTION)
         if name == "expression(" || name == "calc("
           str, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
           [name, str]
         else
-          [name, str{ss}, expr, tok!(/\)/)]
+          [name, str{ss}, expr(allow_var), tok!(/\)/)]
         end
+      end
+
+      def var_expr
+        return unless tok(/\$/)
+        line = @line
+        var = Sass::Script::Variable.new(tok!(IDENT))
+        var.line = line
+        var
       end
 
       def interpolation
@@ -776,6 +816,11 @@ MESSAGE
           res << val
         end
         res
+      end
+
+      def interp_ident_or_var
+        (id = interp_ident) and return id
+        (var = var_expr) and return [var]
       end
 
       def interp_name
@@ -830,7 +875,7 @@ MESSAGE
 
       EXPR_NAMES = {
         :media_query => "media query (e.g. print, screen, print and screen)",
-        :media_expr => "media expression (e.g. (min-device-width: 800px)))",
+        :media_expr => "media expression (e.g. (min-device-width: 800px))",
         :pseudo_expr => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",
         :interp_name => "identifier",

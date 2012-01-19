@@ -6,9 +6,9 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class MediaNode < DirectiveNode
-    # The media query. A list of comma-separated queries (e.g. `print` or `screen`).
+    # The media query.
     #
-    # @return [Array<String>]
+    # @return [Sass::Media::Query]
     attr_accessor :query
 
     # @see RuleNode#tabs
@@ -17,7 +17,7 @@ module Sass::Tree
     # @see RuleNode#group_end
     attr_accessor :group_end
 
-    # @param query [Array<String>] See \{#query}
+    # @param query [Sass::Media::Query] See \{#query}
     def initialize(query)
       @query = query
       @tabs = 0
@@ -25,8 +25,11 @@ module Sass::Tree
     end
 
     # @see DirectiveNode#value
-    def value
-      "@media #{query.join(', ')}"
+    def value; raise NotImplementedError; end
+
+    # @see DirectiveNode#resolved_value
+    def resolved_value
+      @resolved_value ||= "@media #{query.to_css}"
     end
   end
 end

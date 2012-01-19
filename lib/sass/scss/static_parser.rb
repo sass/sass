@@ -27,6 +27,7 @@ module Sass
       def variable; nil; end
       def script_value; nil; end
       def interpolation; nil; end
+      def var_expr; nil; end
       def interp_string; s = tok(STRING) and [s]; end
       def interp_ident(ident = IDENT); s = tok(ident) and [s]; end
       def use_css_import?; true; end

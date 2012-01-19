@@ -479,7 +479,7 @@ SCSS
 
   def test_media_directive_with_keywords
     assert_parses <<SCSS
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
   a: b; }
 SCSS
     assert_parses <<SCSS
