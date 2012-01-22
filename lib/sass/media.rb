@@ -51,6 +51,20 @@ module Sass::Media
     def to_src(options)
       queries.map {|q| q.to_src(options)}.join(', ')
     end
+
+    # Returns a deep copy of this query list and all its children.
+    #
+    # @return [QueryList]
+    def deep_copy
+      QueryList.new(queries.map {|q| q.deep_copy})
+    end
+
+    # Sets the options hash for the script nodes in the media query.
+    #
+    # @param options [{Symbol => Object}] The options has to set.
+    def options=(options)
+      queries.each {|q| q.options = options}
+    end
   end
 
   # A single media query.
@@ -164,6 +178,25 @@ module Sass::Media
       src << expressions.map {|e| e.to_src(options)}.join(' and ')
       src
     end
+
+    # Returns a deep copy of this query and all its children.
+    #
+    # @return [Query]
+    def deep_copy
+      Query.new(
+        modifier.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c},
+        type.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c},
+        expressions.map {|q| q.deep_copy})
+    end
+
+    # Sets the options hash for the script nodes in the media query.
+    #
+    # @param options [{Symbol => Object}] The options has to set.
+    def options=(options)
+      modifier.each {|m| m.options = options if m.is_a?(Sass::Script::Node)}
+      type.each {|t| t.options = options if t.is_a?(Sass::Script::Node)}
+      expressions.each {|e| e.options = options}
+    end
   end
 
   # A media query expression.
@@ -231,6 +264,23 @@ module Sass::Media
       src << ': ' << Sass::Media._interp_or_var_to_src(value, options) unless value.empty?
       src << ')'
       src
+    end
+
+    # Returns a deep copy of this expression.
+    #
+    # @return [Expression]
+    def deep_copy
+      Expression.new(
+        name.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c},
+        value.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c})
+    end
+
+    # Sets the options hash for the script nodes in the expression.
+    #
+    # @param options [{Symbol => Object}] The options has to set.
+    def options=(options)
+      name.each {|n| n.options = options if n.is_a?(Sass::Script::Node)}
+      value.each {|v| v.options = options if v.is_a?(Sass::Script::Node)}
     end
   end
 
