@@ -295,6 +295,7 @@ END
   end
 
   def visit_media(node)
+    node.query = node.query.deep_copy
     node.query.perform {|interp| run_interp(interp)}
     yield
   end

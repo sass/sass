@@ -2212,6 +2212,27 @@ SASS
 
   # Regression tests
 
+  def test_variable_in_media_in_mixin
+    assert_equal <<CSS, render(<<SASS)
+@media screen and (min-width: 10px) {
+  body {
+    background: red; } }
+@media screen and (min-width: 20px) {
+  body {
+    background: blue; } }
+CSS
+@mixin respond-to($width)
+  @media screen and (min-width: $width)
+    @content
+
+body
+  @include respond-to(10px)
+    background: red
+  @include respond-to(20px)
+    background: blue
+SASS
+  end
+
   def test_tricky_mixin_loop_exception
     render <<SASS
 @mixin foo($a)
