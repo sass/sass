@@ -72,6 +72,14 @@ module Sass::Script
     # @raise [Sass::SyntaxError] if the operation is undefined for the operands
     def _perform(environment)
       literal1 = @operand1.perform(environment)
+
+      # Special-case :and and :or to support short-circuiting.
+      if @operator == :and
+        return literal1.to_bool ? @operand2.perform(environment) : literal1
+      elsif @operator == :or
+        return literal1.to_bool ? literal1 : @operand2.perform(environment)
+      end
+
       literal2 = @operand2.perform(environment)
 
       begin
