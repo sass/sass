@@ -36,7 +36,7 @@ module Sass
       # @return [String] A string representation of the function call
       def inspect
         args = @args.map {|a| a.inspect}.join(', ')
-        keywords = @keywords.sort_by {|k, v| k}.
+        keywords = Sass::Util.hash_to_a(@keywords).
             map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
         "#{name}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
       end
@@ -44,7 +44,7 @@ module Sass
       # @see Node#to_sass
       def to_sass(opts = {})
         args = @args.map {|a| a.to_sass(opts)}.join(', ')
-        keywords = @keywords.sort_by {|k, v| k}.
+        keywords = Sass::Util.hash_to_a(@keywords).
           map {|k, v| "$#{dasherize(k, opts)}: #{v.to_sass(opts)}"}.join(', ')
         "#{dasherize(name, opts)}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
       end

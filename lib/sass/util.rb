@@ -218,6 +218,20 @@ module Sass
       lcs_backtrace(lcs_table(x, y, &block), x, y, x.size-1, y.size-1, &block)
     end
 
+    # Converts a Hash to an Array. This is usually identical to `Hash#to_a`,
+    # with the following exceptions:
+    #
+    # * In Ruby 1.8, `Hash#to_a` is not deterministically ordered, but this is.
+    # * In Ruby 1.9 when running tests, this is ordered in the same way it would
+    #   be under Ruby 1.8 (sorted key order rather than insertion order).
+    #
+    # @param hash [Hash]
+    # @return [Array]
+    def hash_to_a(hash)
+      return has.to_a unless ruby1_8? || defined?(Test::Unit)
+      return hash.sort_by {|k, v| k}
+    end
+
     # Returns information about the caller of the previous method.
     #
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string

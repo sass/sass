@@ -177,7 +177,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def visit_mixin(node)
     unless node.args.empty? && node.keywords.empty?
       args = node.args.map {|a| a.to_sass(@options)}.join(", ")
-      keywords = node.keywords.map {|k, v| "$#{dasherize(k)}: #{v.to_sass(@options)}"}.join(', ')
+      keywords = Sass::Util.hash_to_a(node.keywords).
+        map {|k, v| "$#{dasherize(k)}: #{v.to_sass(@options)}"}.join(', ')
       arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
     end
     "#{tab_str}#{@format == :sass ? '+' : '@include '}#{dasherize(node.name)}#{arglist}#{semi}\n"
