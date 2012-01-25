@@ -226,6 +226,8 @@ END
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
+    rule = node.rule
+    rule = rule.map {|e| e.is_a?(String) && e != ' ' ? e.strip : e} if node.style == :compressed
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.filename, node.line)
     node.parsed_rules ||= parser.parse_selector
     if node.options[:trace_selectors]

@@ -2448,6 +2448,15 @@ CSS
 SASS
   end
 
+  def test_selector_compression
+    assert_equal <<CSS, render(<<SASS, :style => :compressed)
+a>b,c+d,:-moz-any(e,f,g){h:i}
+CSS
+a > b, c + d, :-moz-any(e, f, g)
+  h: i
+SASS
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?

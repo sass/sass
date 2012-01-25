@@ -132,7 +132,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
       joined_rules = node.resolved_rules.members.map do |seq|
         rule_part = seq.to_a.join
-        rule_part.gsub!(/\s*([^,])\s*\n\s*/m, '\1 ') if node.style == :compressed
+        if node.style == :compressed
+          rule_part.gsub!(/\s*([^,])\s*\n\s*/m, '\1 ')
+          rule_part.gsub!(/\s*([,+>])\s*/, '\1')
+        end
         rule_part
       end.join(rule_separator)
 

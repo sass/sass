@@ -346,7 +346,7 @@ module Sass
       attr_reader :selector
 
       # @param [String] The name of the pseudoclass
-      # @param [Selector::Sequence] The selector argument
+      # @param [Selector::CommaSequence] The selector argument
       def initialize(name, selector)
         @name = name
         @selector = selector

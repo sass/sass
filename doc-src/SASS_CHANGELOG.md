@@ -9,6 +9,7 @@
   character sets.
 * Fix a bug when using `@extend` with selectors containing newlines.
 * Make boolean operators short-circuit.
+* Remove unnecessary whitespace in selectors in `:compressed` mode.
 
 ## 3.1.12
 
