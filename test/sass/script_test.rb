@@ -432,6 +432,11 @@ SASS
     assert_raise_message(Sass::SyntaxError, "wrong number of arguments (1 for 0) for `arg-error'") {resolve("arg-error(1)")}
   end
 
+  def test_boolean_ops_short_circuit
+    assert_equal "false", resolve("$ie and $ie <= 7", {}, env('ie' => Sass::Script::Bool.new(false)))
+    assert_equal "true", resolve("$ie or $undef", {}, env('ie' => Sass::Script::Bool.new(true)))
+  end
+
   # Regression Tests
 
   def test_funcall_has_higher_precedence_than_color_name

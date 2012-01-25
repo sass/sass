@@ -103,6 +103,17 @@ This variable should contain a colon-separated list of load paths
 * Fix a smattering of subtle bugs that would crop up when using multibyte
   character sets.
 * Fix a bug when using `@extend` with selectors containing newlines.
+* Make boolean operators short-circuit.
+* Remove unnecessary whitespace in selectors in `:compressed` mode.
+* Don't output debug info within non-`@media` directives.
+* Make sure `:after` and `:before` selectors end up on the end of
+  selectors resulting from `@extend`.
+
+### Deprecations -- Must Read!
+
+* Using `#{}` interpolation in `@import` directives will, as of Sass 3.2,
+  require that the `@import` directive use `url()` rather than a plain string.
+  The old way is deprecated and will print a warning.
 
 ## 3.1.12
 

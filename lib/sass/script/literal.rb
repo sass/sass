@@ -55,26 +55,6 @@ The #options attribute is not set on this #{self.class}.
 MSG
     end
 
-    # The SassScript `and` operation.
-    #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Literal] The result of a logical and:
-    #   `other` if this literal isn't a false {Bool},
-    #   and this literal otherwise
-    def and(other)
-      to_bool ? other : self
-    end
-
-    # The SassScript `or` operation.
-    #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Literal] The result of the logical or:
-    #   this literal if it isn't a false {Bool},
-    #   and `other` otherwise
-    def or(other)
-      to_bool ? self : other
-    end
-
     # The SassScript `==` operation.
     # **Note that this returns a {Sass::Script::Bool} object,
     # not a Ruby boolean**.

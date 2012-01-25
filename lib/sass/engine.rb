@@ -223,7 +223,7 @@ module Sass
     # If you're compiling a single Sass file from the filesystem,
     # use \{Sass::Engine.for\_file}.
     # If you're compiling multiple files from the filesystem,
-    # use {Sass::Plugin.
+    # use {Sass::Plugin}.
     #
     # @param template [String] The Sass template.
     #   This template can be encoded using any encoding
@@ -791,7 +791,7 @@ WARNING
       elsif uri
         Tree::DirectiveNode.new("@import #{uri}")
       elsif val =~ /^http:\/\//
-        Tree::DirectiveNode.new("@import url(#{val})")
+        Tree::DirectiveNode.new("@import #{str}")
       else
         Tree::ImportNode.new(val)
       end

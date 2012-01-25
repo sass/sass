@@ -67,8 +67,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
 
   def visit_directive(node)
+    was_in_directive = @in_directive
     return node.value + ";" unless node.has_children
     return node.value + " {}" if node.children.empty?
+    @in_directive = @in_directive || !node.is_a?(Sass::Tree::MediaNode)
     result = if node.style == :compressed
                "#{node.value}{"
              else
@@ -101,6 +103,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
                     else
                       (node.style == :expanded ? "\n" : " ") + "}\n"
                     end
+  ensure
+    @in_directive = was_in_directive
   end
 
   def visit_media(node)
@@ -133,7 +137,11 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       joined_rules = node.resolved_rules.members.map do |seq|
         next if seq.has_placeholder?
         rule_part = seq.to_a.join
-        rule_part.gsub!(/\s*([^,])\s*\n\s*/m, '\1 ') if node.style == :compressed
+        if node.style == :compressed
+          rule_part.gsub!(/([^,])\s*\n\s*/m, '\1 ')
+          rule_part.gsub!(/\s*([,+>])\s*/m, '\1')
+          rule_part.strip!
+        end
         rule_part
       end.compact.join(rule_separator)
 
@@ -145,7 +153,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       old_spaces = '  ' * @tabs
       spaces = '  ' * (@tabs + 1)
       if node.style != :compressed
-        if node.options[:debug_info]
+        if node.options[:debug_info] && !@in_directive
           to_return << visit(debug_info_rule(node.debug_info, node.options)) << "\n"
         elsif node.options[:trace_selectors]
           to_return << "#{old_spaces}/* "

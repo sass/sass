@@ -247,6 +247,8 @@ END
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
+    rule = node.rule
+    rule = rule.map {|e| e.is_a?(String) && e != ' ' ? e.strip : e} if node.style == :compressed
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.filename, node.line)
     node.parsed_rules ||= parser.parse_selector
     if node.options[:trace_selectors]
@@ -291,6 +293,15 @@ END
 
   def visit_directive(node)
     if node.value['#{']
+      if node.value =~ /^@import (?!url\()/
+        Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
+@import directives using \#{} interpolation will need to use url() in Sass 3.2.
+For example:
+
+  @import url("http://\#{$url}/style.css");
+WARNING
+      end
       node.value = run_interp(Sass::Engine.parse_interp(node.value, node.line, 0, node.options))
     end
     yield
