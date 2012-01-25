@@ -287,6 +287,13 @@ module Sass
       # @return [Symbol]
       attr_reader :type
 
+      # Some psuedo-class-syntax selectors (`:after` and `:before)
+      # are actually considered pseudo-elements
+      # and must be at the end of the selector to function properly.
+      #
+      # @return [Array<String>]
+      FINAL_SELECTORS = %w[after before]
+
       # The name of the selector.
       #
       # @return [Array<String, Sass::Script::Node>]
@@ -312,6 +319,10 @@ module Sass
         @arg = arg
       end
 
+      def final?
+        type == :class && FINAL_SELECTORS.include?(name.first)
+      end
+
       # @see Selector#to_a
       def to_a
         res = [@type == :class ? ":" : "::"] + @name
@@ -319,8 +330,8 @@ module Sass
         res
       end
 
-      # Returns `nil` if this is a pseudoclass selector
-      # and `sels` contains a pseudoclass selector different than this one.
+      # Returns `nil` if this is a pseudoelement selector
+      # and `sels` contains a pseudoelement selector different than this one.
       #
       # @see Selector#unify
       def unify(sels)
@@ -328,6 +339,7 @@ module Sass
           sel.is_a?(Pseudo) && sel.type == :element &&
             (sel.name != self.name || sel.arg != self.arg)
         end
+        return sels + [self] if final?
         super
       end
     end

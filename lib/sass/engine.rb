@@ -782,7 +782,7 @@ WARNING
       elsif uri
         Tree::DirectiveNode.new("@import #{uri}")
       elsif val =~ /^http:\/\//
-        Tree::DirectiveNode.new("@import url(#{val})")
+        Tree::DirectiveNode.new("@import #{str}")
       else
         Tree::ImportNode.new(val)
       end
