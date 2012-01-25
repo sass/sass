@@ -10,6 +10,7 @@
 * Fix a bug when using `@extend` with selectors containing newlines.
 * Make boolean operators short-circuit.
 * Remove unnecessary whitespace in selectors in `:compressed` mode.
+* Don't output debug info within non-`@media` directives.
 
 ## 3.1.12
 

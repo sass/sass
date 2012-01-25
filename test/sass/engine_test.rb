@@ -1006,6 +1006,23 @@ foo
 SASS
   end
 
+  def test_debug_info_in_keyframes
+    assert_equal(<<CSS, render(<<SASS, :debug_info => true))
+@-webkit-keyframes warm {
+  from {
+    color: black; }
+
+  to {
+    color: red; } }
+CSS
+@-webkit-keyframes warm
+  from
+    color: black
+  to
+    color: red
+SASS
+  end
+
   def test_empty_first_line
     assert_equal("#a {\n  b: c; }\n", render("#a\n\n  b: c"))
   end
