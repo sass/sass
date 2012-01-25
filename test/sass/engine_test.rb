@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
-require 'test_helper'
-require 'sass/test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/engine'
 require 'stringio'
 require 'mock_importer'
