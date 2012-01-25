@@ -618,23 +618,17 @@ CSS
   end
 
   def test_http_import
-    assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
+    assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 
   def test_import_with_interpolation
-    assert_warning(<<WARNING) do
-DEPRECATION WARNING on line 2 of test_import_with_interpolation_inline.sass:
-@import directives using \#{} interpolation will need to use url() in Sass 3.2.
-For example:
-
-  @import url("http://\#{$url}/style.css");
-WARNING
-      assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
-        render("$family: unquote(\"Droid+Sans\")\n@import \"http://fonts.googleapis.com/css?family=\#{$family}\"\n"))
-    end
-    assert_equal("@import url(\"http://fonts.googleapis.com/css?family=Droid+Sans\");\n",
-      render("$family: unquote(\"Droid+Sans\")\n@import url(\"http://fonts.googleapis.com/css?family=\#{$family}\")\n"))
+    assert_equal(<<CSS, render(<<SASS))
+@import url("http://fonts.googleapis.com/css?family=Droid+Sans");
+CSS
+$family: unquote("Droid+Sans")
+@import url("http://fonts.googleapis.com/css?family=\#{$family}")
+SASS
   end
 
   def test_url_import
@@ -2028,12 +2022,12 @@ SASS
 
   def test_double_media_bubbling
     assert_equal <<CSS, render(<<SASS)
-@media bar and baz {
+@media bar and (a: b) {
   .foo {
     c: d; } }
 CSS
 @media bar
-  @media baz
+  @media (a: b)
     .foo
       c: d
 SASS
@@ -2042,26 +2036,26 @@ SASS
 @media bar {
   .foo {
     a: b; } }
-  @media bar and baz {
+  @media bar and (a: b) {
     .foo {
       c: d; } }
 CSS
 .foo
   @media bar
     a: b
-    @media baz
+    @media (a: b)
       c: d
 SASS
   end
 
   def test_double_media_bubbling_with_commas
     assert_equal <<CSS, render(<<SASS)
-@media foo and baz, foo and bang, bar and baz, bar and bang {
+@media (a: b) and (e: f), (c: d) and (e: f), (a: b) and (g: h), (c: d) and (g: h) {
   .foo {
     c: d; } }
 CSS
-@media foo, bar
-  @media baz, bang
+@media (a: b), (c: d)
+  @media (e: f), (g: h)
     .foo
       c: d
 SASS
@@ -2093,7 +2087,7 @@ SASS
   @media print {
     .outside {
       color: black; } }
-    @media print and nested {
+    @media print and (a: b) {
       .outside .inside {
         border: 1px solid black; } }
   .outside .middle {
@@ -2104,7 +2098,7 @@ CSS
   @media print
     color: black
     .inside
-      @media nested
+      @media (a: b)
         border: 1px solid black
   background: blue
   .middle
@@ -2127,7 +2121,134 @@ CSS
     assert_equal css_str, render(sass_str)
   end
 
+  def test_eliminated_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  a: b; }
+CSS
+@media screen
+  a: b
+  @media print
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+CSS
+@media not print
+  a: b
+  @media print
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+CSS
+@media not print
+  a: b
+  @media not screen
+    c: d
+SASS
+  end
+
+  def test_non_eliminated_media_bubbling
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  a: b; }
+@media screen and (a: b) {
+  c: d; }
+CSS
+@media screen
+  a: b
+  @media screen and (a: b)
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media not print {
+  a: b; }
+@media screen {
+  c: d; }
+CSS
+@media not print
+  a: b
+  @media screen
+    c: d
+SASS
+
+    assert_equal <<CSS, render(<<SASS)
+@media only screen {
+  a: b; }
+@media only screen and (a: b) {
+  c: d; }
+CSS
+@media only screen
+  a: b
+  @media screen and (a: b)
+    c: d
+SASS
+  end
+
+  def test_directive_interpolation
+    assert_equal <<CSS, render(<<SASS)
+@foo bar12 qux {
+  a: b; }
+CSS
+$baz: 12
+@foo bar\#{$baz} qux
+  a: b
+SASS
+  end
+
+  def test_media_interpolation
+    assert_equal <<CSS, render(<<SASS)
+@media bar12 {
+  a: b; }
+CSS
+$baz: 12
+@media bar\#{$baz}
+  a: b
+SASS
+  end
+
+  def test_variables_in_media
+    assert_equal <<CSS, render(<<SASS)
+@media screen and (-webkit-min-device-pixel-ratio: 20), only print {
+  a: b; }
+CSS
+$media1: screen
+$media2: print
+$var: -webkit-min-device-pixel-ratio
+$val: 20
+@media $media1 and ($var: $val), only $media2
+  a: b
+SASS
+  end
+
   # Regression tests
+
+  def test_variable_in_media_in_mixin
+    assert_equal <<CSS, render(<<SASS)
+@media screen and (min-width: 10px) {
+  body {
+    background: red; } }
+@media screen and (min-width: 20px) {
+  body {
+    background: blue; } }
+CSS
+@mixin respond-to($width)
+  @media screen and (min-width: $width)
+    @content
+
+body
+  @include respond-to(10px)
+    background: red
+  @include respond-to(20px)
+    background: blue
+SASS
+  end
 
   def test_tricky_mixin_loop_exception
     render <<SASS

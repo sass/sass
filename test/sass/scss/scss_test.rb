@@ -266,7 +266,7 @@ SCSS
     assert_equal "@import url(foo.css);\n", render('@import "foo.css";')
     assert_equal "@import url(foo.css);\n", render("@import 'foo.css';")
     assert_equal "@import url(\"foo.css\");\n", render('@import url("foo.css");')
-    assert_equal "@import url('foo.css');\n", render("@import url('foo.css');")
+    assert_equal "@import url(\"foo.css\");\n", render('@import url("foo.css");')
     assert_equal "@import url(foo.css);\n", render('@import url(foo.css);')
   end
 
@@ -277,6 +277,15 @@ SCSS
   def test_http_import
     assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";"))
+  end
+
+  def test_import_with_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@import url("http://fonts.googleapis.com/css?family=Droid+Sans");
+CSS
+$family: unquote("Droid+Sans");
+@import url("http://fonts.googleapis.com/css?family=\#{$family}");
+SCSS
   end
 
   def test_url_import
@@ -865,6 +874,39 @@ foo {\#{"baz" + "bang"}: blip}
 SCSS
   end
 
+  def test_directive_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@foo bar12 qux {
+  a: b; }
+CSS
+$baz: 12;
+@foo bar\#{$baz} qux {a: b}
+SCSS
+  end
+
+  def test_media_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@media bar12 {
+  a: b; }
+CSS
+$baz: 12;
+@media bar\#{$baz} {a: b}
+SCSS
+  end
+
+  def test_variables_in_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen and (-webkit-min-device-pixel-ratio: 20), only print {
+  a: b; }
+CSS
+$media1: screen;
+$media2: print;
+$var: -webkit-min-device-pixel-ratio;
+$val: 20;
+@media $media1 and ($var: $val), only $media2 {a: b}
+SCSS
+  end
+
   ## Errors
 
   def test_mixin_defs_only_at_toplevel
@@ -1060,26 +1102,6 @@ Invalid CSS after "  &": expected "{", was "& {a: b}"
 MESSAGE
 flim {
   && {a: b}
-}
-SCSS
-  end
-
-  def test_no_interpolation_in_media_queries
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "...nd (min-width: ": expected expression (e.g. 1px, bold), was "\#{100}px) {"
-MESSAGE
-@media screen and (min-width: \#{100}px) {
-  foo {bar: baz}
-}
-SCSS
-  end
-
-  def test_no_interpolation_in_unrecognized_directives
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "@foo ": expected selector or at-rule, was "\#{100} {"
-MESSAGE
-@foo \#{100} {
-  foo {bar: baz}
 }
 SCSS
   end

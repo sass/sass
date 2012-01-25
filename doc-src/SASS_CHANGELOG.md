@@ -71,6 +71,27 @@ Is compiled to:
       font-size: 2em;
     }
 
+### Directive Interpolation
+
+`#{}` interpolation is now allowed in all plain CSS directives
+(such as `@font-face`, `@keyframes`, and of course `@media`).
+
+In addition, `@media` gets some special treatment.
+In addition to allowing `#{}` interpolation,
+variables may be used directly in media queries.
+This means that you can write e.g.:
+
+    $media: screen;
+    $feature: -webkit-min-device-pixel-ratio;
+    $value: 1.5;
+
+    @media $media and ($feature: $value) {
+      ...
+    }
+
+This is intended to allow authors to easily write mixins
+that make use of `@media` and other directives dynamically.
+
 ### `:any` Support
 
 Previously, only the `:-moz-any` selector was supported; this has been expanded
@@ -98,6 +119,9 @@ This variable should contain a colon-separated list of load paths
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
 
+* `#{}` interpolation is now disallowed in all `@import` statements
+  except for those using `url()`.
+
 ## 3.1.13 (Unreleased)
 
 * Fix a smattering of subtle bugs that would crop up when using multibyte
@@ -108,12 +132,6 @@ This variable should contain a colon-separated list of load paths
 * Don't output debug info within non-`@media` directives.
 * Make sure `:after` and `:before` selectors end up on the end of
   selectors resulting from `@extend`.
-
-### Deprecations -- Must Read!
-
-* Using `#{}` interpolation in `@import` directives will, as of Sass 3.2,
-  require that the `@import` directive use `url()` rather than a plain string.
-  The old way is deprecated and will print a warning.
 
 ## 3.1.12
 

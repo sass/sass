@@ -135,7 +135,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # or parses and includes the imported Sass file.
   def visit_import(node)
     if path = node.css_import?
-      return Sass::Tree::DirectiveNode.new("@import url(#{path})")
+      return Sass::Tree::DirectiveNode.resolved("@import url(#{path})")
     end
     file = node.imported_file
     handle_import_loop!(node) if @stack.any? {|e| e[:filename] == file.options[:filename]}
@@ -292,20 +292,14 @@ END
   end
 
   def visit_directive(node)
-    if node.value['#{']
-      if node.value =~ /^@import (?!url\()/
-        Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
-@import directives using \#{} interpolation will need to use url() in Sass 3.2.
-For example:
-
-  @import url("http://\#{$url}/style.css");
-WARNING
-      end
-      node.value = run_interp(Sass::Engine.parse_interp(node.value, node.line, 0, node.options))
-    end
+    node.resolved_value = run_interp(node.value)
     yield
-    node
+  end
+
+  def visit_media(node)
+    node.query = node.query.deep_copy
+    node.query.perform {|interp| run_interp(interp)}
+    yield
   end
 
   private

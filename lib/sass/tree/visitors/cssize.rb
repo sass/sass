@@ -119,9 +119,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
     media = node.children.select {|c| c.is_a?(Sass::Tree::MediaNode)}
     node.children.reject! {|c| c.is_a?(Sass::Tree::MediaNode)}
-    media.each do |n|
-      n.query = node.query.map {|pq| n.query.map {|cq| "#{pq} and #{cq}"}}.flatten
-    end
+    media = media.select {|n| n.query = n.query.merge(node.query)}
     (node.children.empty? ? [] : [node]) + media
   end
 
