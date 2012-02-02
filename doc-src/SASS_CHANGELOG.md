@@ -14,6 +14,7 @@
 * Make sure `:after` and `:before` selectors end up on the end of
   selectors resulting from `@extend`.
 * Fix a bug when using imports containing invalid path characters on Windows.
+* Bubble CSS `@import` statements to the top of stylesheets.
 
 ### Deprecations -- Must Read!
 

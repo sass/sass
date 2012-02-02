@@ -1,4 +1,5 @@
 @charset "UTF-8";
+@import url(foo.css);
 .foo { a: b; }
 
 .bar { a: щ; }

@@ -52,12 +52,26 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   def visit_root(node)
     yield
 
-    # In Ruby 1.9 we can make all @charset nodes invisible
-    # and infer the final @charset from the encoding of the final string.
-    if Sass::Util.ruby1_8? && parent.nil?
-      charset = node.children.find {|c| c.is_a?(Sass::Tree::CharsetNode)}
-      node.children.reject! {|c| c.is_a?(Sass::Tree::CharsetNode)}
-      node.children.unshift charset if charset
+    if parent.nil?
+      # In Ruby 1.9 we can make all @charset nodes invisible
+      # and infer the final @charset from the encoding of the final string.
+      if Sass::Util.ruby1_8?
+        charset = node.children.find {|c| c.is_a?(Sass::Tree::CharsetNode)}
+        node.children.reject! {|c| c.is_a?(Sass::Tree::CharsetNode)}
+        node.children.unshift charset if charset
+      end
+
+      imports = Sass::Util.extract!(node.children) do |c|
+        c.is_a?(Sass::Tree::DirectiveNode) && c.value =~ /^@import /i
+      end
+      charset_and_index = Sass::Util.ruby1_8? &&
+        node.children.each_with_index.find {|c, _| c.is_a?(Sass::Tree::CharsetNode)}
+      if charset_and_index
+        index = charset_and_index.last
+        node.children = node.children[0..index] + imports + node.children[index+1..-1]
+      else
+        node.children = imports + node.children
+      end
     end
 
     return node, @extends
