@@ -13,6 +13,7 @@
 * Don't output debug info within non-`@media` directives.
 * Make sure `:after` and `:before` selectors end up on the end of
   selectors resulting from `@extend`.
+* Fix a bug when using imports containing invalid path characters on Windows.
 
 ### Deprecations -- Must Read!
 
