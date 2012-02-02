@@ -575,6 +575,24 @@ MSG
       ruby1_8? ? enum.enum_slice(n) : enum.each_slice(n)
     end
 
+    # Destructively removes all elements from an array that match a block, and
+    # returns the removed elements.
+    #
+    # @param array [Array] The array from which to remove elements.
+    # @yield [el] Called for each element.
+    # @yieldparam el [*] The element to test.
+    # @yieldreturn [Boolean] Whether or not to extract the element.
+    # @return [Array] The extracted elements.
+    def extract!(array)
+      out = []
+      array.reject! do |e|
+        next false unless yield e
+        out << e
+        true
+      end
+      out
+    end
+
     # Returns the ASCII code of the given character.
     #
     # @param c [String] All characters but the first are ignored.
