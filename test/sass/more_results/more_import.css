@@ -1,3 +1,5 @@
+@import url(basic.css);
+@import url(../results/complex.css);
 imported { otherconst: hello; myconst: goodbye; pre-mixin: here; }
 
 body { font: Arial; background: blue; }
@@ -22,8 +24,6 @@ body { font: Arial; background: blue; }
 #content.user.show #container.top #column.right { width: 600px; }
 #content.user.show #container.bottom { background: brown; }
 
-@import url(basic.css);
-@import url(../results/complex.css);
 #foo { background-color: #bbaaff; }
 
 nonimported { myconst: hello; otherconst: goodbye; post-mixin: here; }

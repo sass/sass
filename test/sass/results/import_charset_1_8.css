@@ -1,4 +1,5 @@
 @charset "IBM866";
+@import url(foo.css);
 .foo { a: b; }
 
 .bar { a: é; }
