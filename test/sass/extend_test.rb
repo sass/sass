@@ -1287,6 +1287,386 @@ CSS
 SCSS
   end
 
+  # Combinator Unification
+
+  def test_combinator_unification_for_hacky_combinators
+    assert_equal <<CSS, render(<<SCSS)
+.a > + x, .a .b > + y, .b .a > + y {
+  a: b; }
+CSS
+.a > + x {a: b}
+.b y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a x, .a .b > + y, .b .a > + y {
+  a: b; }
+CSS
+.a x {a: b}
+.b > + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a > + x, .a .b > + y, .b .a > + y {
+  a: b; }
+CSS
+.a > + x {a: b}
+.b > + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a ~ > + x, .a .b ~ > + y, .b .a ~ > + y {
+  a: b; }
+CSS
+.a ~ > + x {a: b}
+.b > + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + > x {
+  a: b; }
+CSS
+.a + > x {a: b}
+.b > + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + > x {
+  a: b; }
+CSS
+.a + > x {a: b}
+.b > + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a ~ > + .b > x, .a .c ~ > + .d.b > y, .c .a ~ > + .d.b > y {
+  a: b; }
+CSS
+.a ~ > + .b > x {a: b}
+.c > + .d > y {@extend x}
+SCSS
+  end
+
+  def test_combinator_unification_double_tilde
+    assert_equal <<CSS, render(<<SCSS)
+.a.b ~ x, .a.b ~ y {
+  a: b; }
+CSS
+.a.b ~ x {a: b}
+.a ~ y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a ~ x, .a.b ~ y {
+  a: b; }
+CSS
+.a ~ x {a: b}
+.a.b ~ y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a ~ x, .a ~ .b ~ y, .b ~ .a ~ y, .b.a ~ y {
+  a: b; }
+CSS
+.a ~ x {a: b}
+.b ~ y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a.a ~ x, a.a ~ b.b ~ y, b.b ~ a.a ~ y {
+  a: b; }
+CSS
+a.a ~ x {a: b}
+b.b ~ y {@extend x}
+SCSS
+  end
+
+  def test_combinator_unification_tilde_plus
+    assert_equal <<CSS, render(<<SCSS)
+.a.b + x, .a.b + y {
+  a: b; }
+CSS
+.a.b + x {a: b}
+.a ~ y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + x, .a.b ~ .a + y, .a.b + y {
+  a: b; }
+CSS
+.a + x {a: b}
+.a.b ~ y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + x, .b ~ .a + y, .b.a + y {
+  a: b; }
+CSS
+.a + x {a: b}
+.b ~ y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a.a + x, b.b ~ a.a + y {
+  a: b; }
+CSS
+a.a + x {a: b}
+b.b ~ y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a.b ~ x, .a.b ~ .a + y, .a.b + y {
+  a: b; }
+CSS
+.a.b ~ x {a: b}
+.a + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a ~ x, .a.b + y {
+  a: b; }
+CSS
+.a ~ x {a: b}
+.a.b + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a ~ x, .a ~ .b + y, .a.b + y {
+  a: b; }
+CSS
+.a ~ x {a: b}
+.b + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a.a ~ x, a.a ~ b.b + y {
+  a: b; }
+CSS
+a.a ~ x {a: b}
+b.b + y {@extend x}
+SCSS
+  end
+
+  def test_combinator_unification_angle_sibling
+    assert_equal <<CSS, render(<<SCSS)
+.a > x, .a > .b ~ y {
+  a: b; }
+CSS
+.a > x {a: b}
+.b ~ y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a > x, .a > .b + y {
+  a: b; }
+CSS
+.a > x {a: b}
+.b + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a ~ x, .b > .a ~ y {
+  a: b; }
+CSS
+.a ~ x {a: b}
+.b > y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + x, .b > .a + y {
+  a: b; }
+CSS
+.a + x {a: b}
+.b > y {@extend x}
+SCSS
+  end
+
+  def test_combinator_unification_double_angle
+    assert_equal <<CSS, render(<<SCSS)
+.a.b > x, .b.a > y {
+  a: b; }
+CSS
+.a.b > x {a: b}
+.b > y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a > x, .a.b > y {
+  a: b; }
+CSS
+.a > x {a: b}
+.a.b > y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a > x, .b.a > y {
+  a: b; }
+CSS
+.a > x {a: b}
+.b > y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a.a > x {
+  a: b; }
+CSS
+a.a > x {a: b}
+b.b > y {@extend x}
+SCSS
+  end
+
+  def test_combinator_unification_double_plus
+    assert_equal <<CSS, render(<<SCSS)
+.a.b + x, .b.a + y {
+  a: b; }
+CSS
+.a.b + x {a: b}
+.b + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + x, .a.b + y {
+  a: b; }
+CSS
+.a + x {a: b}
+.a.b + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + x, .b.a + y {
+  a: b; }
+CSS
+.a + x {a: b}
+.b + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a.a + x {
+  a: b; }
+CSS
+a.a + x {a: b}
+b.b + y {@extend x}
+SCSS
+  end
+
+  def test_combinator_unification_angle_space
+    assert_equal <<CSS, render(<<SCSS)
+.a.b > x, .a.b > y {
+  a: b; }
+CSS
+.a.b > x {a: b}
+.a y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a > x, .a.b .a > y {
+  a: b; }
+CSS
+.a > x {a: b}
+.a.b y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a > x, .b .a > y {
+  a: b; }
+CSS
+.a > x {a: b}
+.b y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a.b x, .a.b .a > y {
+  a: b; }
+CSS
+.a.b x {a: b}
+.a > y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a x, .a.b > y {
+  a: b; }
+CSS
+.a x {a: b}
+.a.b > y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a x, .a .b > y {
+  a: b; }
+CSS
+.a x {a: b}
+.b > y {@extend x}
+SCSS
+  end
+
+  def test_combinator_unification_plus_space
+    assert_equal <<CSS, render(<<SCSS)
+.a.b + x, .a .a.b + y {
+  a: b; }
+CSS
+.a.b + x {a: b}
+.a y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + x, .a.b .a + y {
+  a: b; }
+CSS
+.a + x {a: b}
+.a.b y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a + x, .b .a + y {
+  a: b; }
+CSS
+.a + x {a: b}
+.b y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a.b x, .a.b .a + y {
+  a: b; }
+CSS
+.a.b x {a: b}
+.a + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a x, .a .a.b + y {
+  a: b; }
+CSS
+.a x {a: b}
+.a.b + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a x, .a .b + y {
+  a: b; }
+CSS
+.a x {a: b}
+.b + y {@extend x}
+SCSS
+  end
+
+  def test_combinator_unification_nested
+    assert_equal <<CSS, render(<<SCSS)
+.a > .b + x, .c.a > .d.b + y {
+  a: b; }
+CSS
+.a > .b + x {a: b}
+.c > .d + y {@extend x}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.a > .b + x, .c.a > .b + y {
+  a: b; }
+CSS
+.a > .b + x {a: b}
+.c > y {@extend x}
+SCSS
+  end
+
   # Loops
 
   def test_extend_self_loop
