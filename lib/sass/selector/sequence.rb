@@ -171,13 +171,13 @@ module Sass
         lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
           next s1 if s1 == s2
           next unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
-          next s2 if superselector?(s1, s2)
-          next s1 if superselector?(s2, s1)
+          next s2 if subweave_superselector?(s1, s2)
+          next s1 if subweave_superselector?(s2, s1)
         end
 
         diff = [[init]]
         until lcs.empty?
-          diff << chunks(seq1, seq2) {|s| superselector?(s.first, lcs.first)} << [lcs.shift]
+          diff << chunks(seq1, seq2) {|s| subweave_superselector?(s.first, lcs.first)} << [lcs.shift]
           seq1.shift
           seq2.shift
         end
@@ -254,9 +254,9 @@ module Sass
           sel1 = seq1.pop
           sel2 = seq2.pop
           if op1 == '~' && op2 == '~'
-            if superselector?([sel1], [sel2])
+            if subweave_superselector?([sel1], [sel2])
               res.unshift sel2, '~'
-            elsif superselector?([sel2], [sel1])
+            elsif subweave_superselector?([sel2], [sel1])
               res.unshift sel1, '~'
             else
               merged = sel1.unify(sel2.members)
@@ -273,7 +273,7 @@ module Sass
               tilde_sel, plus_sel = sel2, sel1
             end
 
-            if superselector?([tilde_sel], [plus_sel])
+            if subweave_superselector?([tilde_sel], [plus_sel])
               res.unshift plus_sel, '+'
             else
               merged = plus_sel.unify(tilde_sel.members)
@@ -297,11 +297,11 @@ module Sass
           end
           return merge_final_ops(seq1, seq2, res)
         elsif op1
-          seq2.pop if op1 == '>' && seq2.last && superselector?([seq2.last], [seq1.last])
+          seq2.pop if op1 == '>' && seq2.last && subweave_superselector?([seq2.last], [seq1.last])
           res.unshift seq1.pop, op1
           return merge_final_ops(seq1, seq2, res)
         else # op2
-          seq1.pop if op2 == '>' && seq1.last && superselector?([seq1.last], [seq2.last])
+          seq1.pop if op2 == '>' && seq1.last && subweave_superselector?([seq1.last], [seq2.last])
           res.unshift seq2.pop, op2
           return merge_final_ops(seq1, seq2, res)
         end
@@ -372,7 +372,7 @@ module Sass
       # @param sseq1 [Array<SimpleSequence or String>]
       # @param sseq2 [Array<SimpleSequence or String>]
       # @return [Boolean]
-      def superselector?(sseq1, sseq2)
+      def subweave_superselector?(sseq1, sseq2)
         sseq1 = sseq1.reject {|e| e == "\n"}
         sseq2 = sseq2.reject {|e| e == "\n"}
         # Selectors with trailing operators are neither superselectors nor
@@ -384,10 +384,10 @@ module Sass
           # .foo ~ .bar is a superselector of .foo + .bar
           return unless sseq1[1] == "~" ? sseq2[1] != ">" : sseq2[1] == sseq1[1]
           return unless sseq1.first.superselector?(sseq2.first)
-          return superselector?(sseq1[2..-1], sseq2[2..-1])
+          return subweave_superselector?(sseq1[2..-1], sseq2[2..-1])
         elsif sseq2.size > 1
           return true if sseq2[1] == ">" && sseq1.first.superselector?(sseq2.first)
-          return superselector?(sseq1, sseq2[2..-1])
+          return subweave_superselector?(sseq1, sseq2[2..-1])
         else
           sseq1.first.superselector?(sseq2.first)
         end
