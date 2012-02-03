@@ -124,15 +124,15 @@ module Sass
       # @param path [Array<Array<SimpleSequence or String>>] A list of parenthesized selector groups.
       # @return [Array<Array<SimpleSequence or String>>] A list of fully-expanded selectors.
       def weave(path)
+        # This function works by moving through the selector path left-to-right,
+        # building all possible prefixes simultaneously. These prefixes are
+        # `befores`, while the remaining parenthesized suffixes is `afters`.
         befores = [[]]
         afters = path.dup
 
         until afters.empty?
           current = afters.shift.dup
           last_current = [current.pop]
-          while !current.empty? && last_current.first.is_a?(String) || current.last.is_a?(String)
-            last_current.unshift(current.pop)
-          end
           befores = Sass::Util.flatten(befores.map do |before|
               next [] unless sub = subweave(before, current)
               sub.map {|seqs| seqs + last_current}
@@ -160,20 +160,26 @@ module Sass
         return unless init = merge_initial_ops(seq1, seq2)
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
-        lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
-          next s1 if s1 == s2
-          next unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
-          next s2 if subweave_superselector?(s1, s2)
-          next s1 if subweave_superselector?(s2, s1)
-        end
+        lcs = Sass::Util.lcs(seq2, seq1) {|s1, s2| subselector s1, s2}
+
+        final_ss = final_subsequence(seq1, seq2)
+        lcs = final_ss if final_ss.size > lcs.size
 
         diff = [[init]]
         until lcs.empty?
-          diff << chunks(seq1, seq2) {|s| subweave_superselector?(s.first, lcs.first)} << [lcs.shift]
+          diff << chunks(seq1, seq2) do |s|
+            lcs.first.last.is_a?(String) || subweave_superselector?(s.first, lcs.first)
+          end << [lcs.shift]
           seq1.shift
           seq2.shift
         end
-        diff << chunks(seq1, seq2) {|s| s.empty?}
+        if seq1.last && seq1.last.last.is_a?(String)
+          diff << [seq2 + seq1]
+        elsif seq2.last && seq2.last.last.is_a?(String)
+          diff << [seq1 + seq2]
+        else
+          diff << chunks(seq1, seq2) {|s| s.empty?}
+        end
         diff.reject! {|c| c.empty?}
 
         Sass::Util.paths(diff).map {|p| p.flatten}
@@ -223,6 +229,7 @@ module Sass
       #   cutting off some initial subsequence.
       # @yieldreturn [Boolean] Whether or not to cut off the initial subsequence
       #   here.
+      # @return [Array<Array>] All possible orderings of the initial subsequences.
       def chunks(seq1, seq2)
         chunk1 = []
         chunk1 << seq1.shift until yield seq1
@@ -257,28 +264,67 @@ module Sass
       end
 
       # Given two sequences of simple selectors, returns whether `sseq1` is a
-      # superselector of `sseq2`.
+      # superselector of `sseq2`; that is, whether `sseq1` matches every element
+      # `sseq2` matches.
       #
-      # @param sseq1 [Array<SimpleSelector or String>]
-      # @param sseq2 [Array<SimpleSelector or String>]
+      # Both `sseq1` and `sseq2` are of the form
+      # `SimpleSelector (String SimpleSelector)* String*`, although selectors
+      # with a trailing operator are considered to be neither superselectors nor
+      # subselectors.
+      #
+      # @param sseq1 [Array<SimpleSequence or String>]
+      # @param sseq2 [Array<SimpleSequence or String>]
       # @return [Boolean]
       def subweave_superselector?(sseq1, sseq2)
+        # Selectors with trailing operators are neither superselectors nor
+        # subselectors.
+        return if sseq1.last.is_a?(String) || sseq2.last.is_a?(String)
         if sseq1.size > 1
           # More complex selectors are never superselectors of less complex ones
           return unless sseq2.size > 1
           # .foo ~ .bar is a superselector of .foo + .bar
           return unless sseq1[1] == "~" ? sseq2[1] != ">" : sseq2[1] == sseq1[1]
           return unless sseq1.first.superselector?(sseq2.first)
-          return true if sseq1.size == 2
-          return false if sseq2.size == 2
           return subweave_superselector?(sseq1[2..-1], sseq2[2..-1])
         elsif sseq2.size > 1
           return true if sseq2[1] == ">" && sseq1.first.superselector?(sseq2.first)
-          return false if sseq2.size == 2
           return subweave_superselector?(sseq1, sseq2[2..-1])
         else
           sseq1.first.superselector?(sseq2.first)
         end
+      end
+
+      def final_subsequence(seq1, seq2)
+        final_op1 = seq1.last.last if seq1.last && seq1.last.last.is_a?(String)
+        final_op2 = seq2.last.last if seq2.last && seq2.last.last.is_a?(String)
+        return [] unless final_op1 || final_op2
+
+        final_op = final_op1 unless final_op2
+        final_op = final_op2 unless final_op1
+        final_op = final_op1 if final_op1 == final_op2
+        final_op = '+' if (final_op1 == '~' && final_op2 == '+') ||
+          (final_op2 == '~' && final_op1 == '+')
+        return [] unless final_op
+
+        seq1, seq2 = seq1.dup, seq2.dup
+        seq1[-1], seq2[-1] = seq1.last.dup, seq2.last.dup
+        seq1.last.pop if final_op1
+        seq2.last.pop if final_op2
+
+        final_subseq = []
+        seq1.reverse.zip(seq2.reverse) do |s1, s2|
+          break unless subsel = subselector(s1, s2)
+          final_subseq.unshift subsel
+        end
+        final_subseq.last.push final_op unless final_subseq.empty?
+        final_subseq
+      end
+
+      def subselector(s1, s2)
+        return s1 if s1 == s2
+        return unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
+        return s2 if subweave_superselector?(s1, s2)
+        return s1 if subweave_superselector?(s2, s1)
       end
 
       def _hash
