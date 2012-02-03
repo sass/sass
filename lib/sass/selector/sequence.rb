@@ -168,26 +168,20 @@ module Sass
         return unless fin = merge_final_ops(seq1, seq2)
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
-        lcs = Sass::Util.lcs(seq2, seq1) {|s1, s2| subselector s1, s2}
-
-        final_ss = final_subsequence(seq1, seq2)
-        lcs = final_ss if final_ss.size > lcs.size
+        lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
+          next s1 if s1 == s2
+          next unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
+          next s2 if subweave_superselector?(s1, s2)
+          next s1 if subweave_superselector?(s2, s1)
+        end
 
         diff = [[init]]
         until lcs.empty?
-          diff << chunks(seq1, seq2) do |s|
-            lcs.first.last.is_a?(String) || subweave_superselector?(s.first, lcs.first)
-          end << [lcs.shift]
+          diff << chunks(seq1, seq2) {|s| subweave_superselector?(s.first, lcs.first)} << [lcs.shift]
           seq1.shift
           seq2.shift
         end
-        if seq1.last && seq1.last.last.is_a?(String)
-          diff << [seq2 + seq1]
-        elsif seq2.last && seq2.last.last.is_a?(String)
-          diff << [seq1 + seq2]
-        else
-          diff << chunks(seq1, seq2) {|s| s.empty?}
-        end
+        diff << chunks(seq1, seq2) {|s| s.empty?}
         diff += fin.map {|sel| sel.is_a?(Array) ? sel : [sel]}
         diff.reject! {|c| c.empty?}
 
@@ -384,39 +378,6 @@ module Sass
         else
           sseq1.first.superselector?(sseq2.first)
         end
-      end
-
-      def final_subsequence(seq1, seq2)
-        final_op1 = seq1.last.last if seq1.last && seq1.last.last.is_a?(String)
-        final_op2 = seq2.last.last if seq2.last && seq2.last.last.is_a?(String)
-        return [] unless final_op1 || final_op2
-
-        final_op = final_op1 unless final_op2
-        final_op = final_op2 unless final_op1
-        final_op = final_op1 if final_op1 == final_op2
-        final_op = '+' if (final_op1 == '~' && final_op2 == '+') ||
-          (final_op2 == '~' && final_op1 == '+')
-        return [] unless final_op
-
-        seq1, seq2 = seq1.dup, seq2.dup
-        seq1[-1], seq2[-1] = seq1.last.dup, seq2.last.dup
-        seq1.last.pop if final_op1
-        seq2.last.pop if final_op2
-
-        final_subseq = []
-        seq1.reverse.zip(seq2.reverse) do |s1, s2|
-          break unless subsel = subselector(s1, s2)
-          final_subseq.unshift subsel
-        end
-        final_subseq.last.push final_op unless final_subseq.empty?
-        final_subseq
-      end
-
-      def subselector(s1, s2)
-        return s1 if s1 == s2
-        return unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
-        return s2 if subweave_superselector?(s1, s2)
-        return s1 if subweave_superselector?(s2, s1)
       end
 
       def _hash
