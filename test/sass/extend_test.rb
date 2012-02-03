@@ -1176,6 +1176,76 @@ CSS
   .bar {@extend .foo}
 }
 SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar, .foo > .baz {
+  a: b; }
+CSS
+.foo {
+  .bar {a: b}
+  > .baz {@extend .bar}
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar, .foo .bip > .baz {
+  a: b; }
+CSS
+.foo {
+  .bar {a: b}
+  .bip > .baz {@extend .bar}
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bip .bar, .foo .bip .foo > .baz {
+  a: b; }
+CSS
+.foo {
+  .bip .bar {a: b}
+  > .baz {@extend .bar}
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo > .bar, .foo > .bip + .baz {
+  a: b; }
+CSS
+.foo > .bar {a: b}
+.bip + .baz {@extend .bar}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo + .bar, .bip > .foo + .baz {
+  a: b; }
+CSS
+.foo + .bar {a: b}
+.bip > .baz {@extend .bar}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo > .bar, .foo.bip > .baz {
+  a: b; }
+CSS
+.foo > .bar {a: b}
+.bip > .baz {@extend .bar}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo > a .bar, .foo.bip > a .baz {
+  a: b; }
+CSS
+.foo > a .bar {a: b}
+.bip > a .baz {@extend .bar}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo > a .bar, .foo > a .baz {
+  a: b; }
+CSS
+.foo a .bar {a: b}
+.foo > a .baz {@extend .bar}
+SCSS
   end
 
   def test_nested_extender_with_trailing_child_selector
@@ -1230,38 +1300,6 @@ SCSS
 CSS
 .foo > .bar .baz {a: b}
 .foo > .bar .bang {@extend .baz}
-SCSS
-  end
-
-  def test_nested_extender_with_child_selector_misc
-    assert_equal <<CSS, render(<<SCSS)
-.foo .bar, .foo > .baz {
-  a: b; }
-CSS
-.foo {
-  .bar {a: b}
-  > .baz {@extend .bar}
-}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo .bar, .foo .bip > .baz {
-  a: b; }
-CSS
-.foo {
-  .bar {a: b}
-  .bip > .baz {@extend .bar}
-}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo .bip .bar, .foo .bip .foo > .baz {
-  a: b; }
-CSS
-.foo {
-  .bip .bar {a: b}
-  > .baz {@extend .bar}
-}
 SCSS
   end
 
