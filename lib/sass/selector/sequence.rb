@@ -188,9 +188,9 @@ module Sass
         Sass::Util.paths(diff).map {|p| p.flatten}
       end
 
-      # Extracts initial selector operators (`"+"`, `">"`, `"~"`, and `"\n"`)
+      # Extracts initial selector combinators (`"+"`, `">"`, `"~"`, and `"\n"`)
       # from two sequences and merges them together into a single array of
-      # selector operators.
+      # selector combinators.
       #
       # @param seq1 [Array<SimpleSequence or String>]
       # @param seq2 [Array<SimpleSequence or String>]
@@ -213,6 +213,19 @@ module Sass
         return (newline ? ["\n"] : []) + (ops1.size > ops2.size ? ops1 : ops2)
       end
 
+      # Extracts final selector combinators (`"+"`, `">"`, `"~"`) and the
+      # selectors to which they apply from two sequences and merges them
+      # together into a single array.
+      #
+      # @param seq1 [Array<SimpleSequence or String>]
+      # @param seq2 [Array<SimpleSequence or String>]
+      # @return [Array<SimpleSequence or String or
+      #     Array<Array<SimpleSequence or String>>]
+      #   If there are no trailing combinators to be merged, this will be the
+      #   empty array. If the trailing combinators cannot be merged, this will
+      #   be nil. Otherwise, this will contained the merged selector. Array
+      #   elements are [Sass::Util#paths]-style options; conceptually, an "or"
+      #   of multiple selectors.
       def merge_final_ops(seq1, seq2, res = [])
         ops1, ops2 = [], []
         ops1 << seq1.pop while seq1.last.is_a?(String)
