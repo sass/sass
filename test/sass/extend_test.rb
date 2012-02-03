@@ -1667,6 +1667,22 @@ CSS
 SCSS
   end
 
+  def test_combinator_unification_with_newlines
+    assert_equal <<CSS, render(<<SCSS)
+.a >
+.b
++ x, .c.a > .d.b + y {
+  a: b; }
+CSS
+.a >
+.b
++ x {a: b}
+.c
+> .d +
+y {@extend x}
+SCSS
+  end
+
   # Loops
 
   def test_extend_self_loop
@@ -1874,6 +1890,20 @@ SCSS
   end
 
   # Regression Tests
+
+  def test_newline_near_combinator
+    assert_equal <<CSS, render(<<SCSS)
+.a +
+.b x, .a +
+.b .c y, .c .a +
+.b y {
+  a: b; }
+CSS
+.a +
+.b x {a: b}
+.c y {@extend x}
+SCSS
+  end
 
   def test_duplicated_selector_with_newlines
     assert_equal(<<CSS, render(<<SCSS))

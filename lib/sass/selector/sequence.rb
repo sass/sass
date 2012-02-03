@@ -224,6 +224,12 @@ module Sass
         ops1 << seq1.pop while seq1.last.is_a?(String)
         ops2 << seq2.pop while seq2.last.is_a?(String)
 
+        # Not worth the headache of trying to preserve newlines here. The most
+        # important use of newlines is at the beginning of the selector to wrap
+        # across lines anyway.
+        ops1.reject! {|o| o == "\n"}
+        ops2.reject! {|o| o == "\n"}
+
         return res if ops1.empty? && ops2.empty?
         if ops1.size > 1 || ops2.size > 1
           # If there are multiple operators, something hacky's going on. If one
@@ -360,6 +366,8 @@ module Sass
       # @param sseq2 [Array<SimpleSequence or String>]
       # @return [Boolean]
       def subweave_superselector?(sseq1, sseq2)
+        sseq1 = sseq1.reject {|e| e == "\n"}
+        sseq2 = sseq2.reject {|e| e == "\n"}
         # Selectors with trailing operators are neither superselectors nor
         # subselectors.
         return if sseq1.last.is_a?(String) || sseq2.last.is_a?(String)
