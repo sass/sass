@@ -150,6 +150,12 @@ module Sass
       # `.foo .baz .bar .bang`, `.foo .baz .bar.bang`, `.foo .baz .bang .bar`,
       # and so on until `.baz .bang .foo .bar`.
       #
+      # Semantically, for selectors A and B, this returns all selectors `AB_i`
+      # such that the union over all i of elements matched by `AB_i X` is
+      # identical to the intersection of all elements matched by `A X` and all
+      # elements matched by `B X`. Some `AB_i` are elided to reduce the size of
+      # the output.
+      #
       # @param seq1 [Array<SimpleSequence or String>]
       # @param seq2 [Array<SimpleSequence or String>]
       # @return [Array<Array<SimpleSequence or String>>]
