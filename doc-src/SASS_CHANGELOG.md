@@ -128,7 +128,7 @@ as much as possible.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
-## 3.1.13 (Unreleased)
+## 3.1.13
 
 * Fix a smattering of subtle bugs that would crop up when using multibyte
   character sets.
