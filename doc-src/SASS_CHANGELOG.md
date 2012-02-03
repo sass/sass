@@ -109,6 +109,12 @@ such that they're accessible to all {Sass::Engine} instances.
 This variable should contain a colon-separated list of load paths
 (semicolon-separated on Windows).
 
+### `@extend`ing Combinators
+
+There is now much more comprehensive support for using `@extend` alongside CSS3
+selector combinators (`+`, `~`, and `>`). These combinators will now be merged
+as much as possible.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Parent selectors followed immediately by identifiers (e.g. `&foo`)
