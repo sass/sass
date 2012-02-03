@@ -163,7 +163,9 @@ module Sass
         return [seq2] if seq1.empty?
         return [seq1] if seq2.empty?
 
+        seq1, seq2 = seq1.dup, seq2.dup
         return unless init = merge_initial_ops(seq1, seq2)
+        return unless fin = merge_final_ops(seq1, seq2)
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
         lcs = Sass::Util.lcs(seq2, seq1) {|s1, s2| subselector s1, s2}
@@ -186,6 +188,7 @@ module Sass
         else
           diff << chunks(seq1, seq2) {|s| s.empty?}
         end
+        diff += fin.map {|sel| sel.is_a?(Array) ? sel : [sel]}
         diff.reject! {|c| c.empty?}
 
         Sass::Util.paths(diff).map {|p| p.flatten}
@@ -214,6 +217,81 @@ module Sass
         lcs = Sass::Util.lcs(ops1, ops2)
         return unless lcs == ops1 || lcs == ops2
         return (newline ? ["\n"] : []) + (ops1.size > ops2.size ? ops1 : ops2)
+      end
+
+      def merge_final_ops(seq1, seq2, res = [])
+        ops1, ops2 = [], []
+        ops1 << seq1.pop while seq1.last.is_a?(String)
+        ops2 << seq2.pop while seq2.last.is_a?(String)
+
+        return res if ops1.empty? && ops2.empty?
+        if ops1.size > 1 || ops2.size > 1
+          # If there are multiple operators, something hacky's going on. If one
+          # is a supersequence of the other, use that, otherwise give up.
+          lcs = Sass::Util.lcs(ops1, ops2)
+          return unless lcs == ops1 || lcs == ops2
+          res.unshift *(ops1.size > ops2.size ? ops1 : ops2).reverse
+          return res
+        end
+
+        # This code looks complicated, but it's actually just a bunch of special
+        # cases for interactions between different combinators.
+        op1, op2 = ops1.first, ops2.first
+        if op1 && op2
+          sel1 = seq1.pop
+          sel2 = seq2.pop
+          if op1 == '~' && op2 == '~'
+            if subweave_superselector?([sel1], [sel2])
+              res.unshift sel2, '~'
+            elsif subweave_superselector?([sel2], [sel1])
+              res.unshift sel1, '~'
+            else
+              merged = sel1.unify(sel2.members)
+              res.unshift [
+                [sel1, '~', sel2, '~'],
+                [sel2, '~', sel1, '~'],
+                ([merged, '~'] if merged)
+              ].compact
+            end
+          elsif (op1 == '~' && op2 == '+') || (op1 == '+' && op2 == '~')
+            if op1 == '~'
+              tilde_sel, plus_sel = sel1, sel2
+            else
+              tilde_sel, plus_sel = sel2, sel1
+            end
+
+            if subweave_superselector?([tilde_sel], [plus_sel])
+              res.unshift plus_sel, '+'
+            else
+              merged = plus_sel.unify(tilde_sel.members)
+              res.unshift [
+                [tilde_sel, '~', plus_sel, '+'],
+                ([merged, '+'] if merged)
+              ].compact
+            end
+          elsif op1 == '>' && %w[~ +].include?(op2)
+            res.unshift sel2, op2
+            seq1.push sel1, op1
+          elsif op2 == '>' && %w[~ +].include?(op1)
+            res.unshift sel1, op1
+            seq2.push sel2, op2
+          elsif op1 == op2
+            return unless merged = sel1.unify(sel2.members)
+            res.unshift merged, op1
+          else
+            # Unknown selector combinators can't be unified
+            return
+          end
+          return merge_final_ops(seq1, seq2, res)
+        elsif op1
+          seq2.pop if op1 == '>' && seq2.last && subweave_superselector?([seq2.last], [seq1.last])
+          res.unshift seq1.pop, op1
+          return merge_final_ops(seq1, seq2, res)
+        else # op2
+          seq1.pop if op2 == '>' && seq1.last && subweave_superselector?([seq1.last], [seq2.last])
+          res.unshift seq2.pop, op2
+          return merge_final_ops(seq1, seq2, res)
+        end
       end
 
       # Takes initial subsequences of `seq1` and `seq2` and returns all

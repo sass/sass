@@ -1224,27 +1224,11 @@ CSS
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-.foo > .bar, .foo.bip > .baz {
+.foo > .bar, .bip.foo > .baz {
   a: b; }
 CSS
 .foo > .bar {a: b}
 .bip > .baz {@extend .bar}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo > a .bar, .foo.bip > a .baz {
-  a: b; }
-CSS
-.foo > a .bar {a: b}
-.bip > a .baz {@extend .bar}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo > a .bar, .foo > a .baz {
-  a: b; }
-CSS
-.foo a .bar {a: b}
-.foo > a .baz {@extend .bar}
 SCSS
   end
 
@@ -1266,7 +1250,7 @@ SCSS
 
   def test_nested_extender_with_hacky_selector
     assert_equal <<CSS, render(<<SCSS)
-.baz .foo, .baz foo + > > + bar {
+.baz .foo, .baz foo + > > + bar, foo .baz + > > + bar {
   a: b; }
 CSS
 .baz .foo {a: b}
