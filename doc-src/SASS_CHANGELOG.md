@@ -128,6 +128,10 @@ as much as possible.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
+## 3.1.14
+
+* Fix a typo that was causing crashes on Ruby 1.9.
+
 ## 3.1.13
 
 * Fix a smattering of subtle bugs that would crop up when using multibyte
