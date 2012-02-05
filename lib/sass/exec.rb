@@ -404,6 +404,7 @@ MSG
           raise error unless error.is_a?(::Sass::SyntaxError) && !@options[:stop_on_error]
           had_error = true
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
+          STDOUT.flush
         end
 
         if @options[:update]
@@ -414,9 +415,18 @@ MSG
 
         puts ">>> Sass is watching for changes. Press Ctrl-C to stop."
 
-        ::Sass::Plugin.on_template_modified {|template| puts ">>> Change detected to: #{template}"}
-        ::Sass::Plugin.on_template_created {|template| puts ">>> New template detected: #{template}"}
-        ::Sass::Plugin.on_template_deleted {|template| puts ">>> Deleted template detected: #{template}"}
+        ::Sass::Plugin.on_template_modified do |template|
+          puts ">>> Change detected to: #{template}"
+          STDOUT.flush
+        end
+        ::Sass::Plugin.on_template_created do |template|
+          puts ">>> New template detected: #{template}"
+          STDOUT.flush
+        end
+        ::Sass::Plugin.on_template_deleted do |template|
+          puts ">>> Deleted template detected: #{template}"
+          STDOUT.flush
+        end
 
         ::Sass::Plugin.watch(files)
       end
