@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.1.14 (Unreleased)
+
+* Fix a typo that was causing crashes on Ruby 1.9.
+
 ## 3.1.13
 
 * Fix a smattering of subtle bugs that would crop up when using multibyte
