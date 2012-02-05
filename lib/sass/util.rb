@@ -228,7 +228,7 @@ module Sass
     # @param hash [Hash]
     # @return [Array]
     def hash_to_a(hash)
-      return has.to_a unless ruby1_8? || defined?(Test::Unit)
+      return hash.to_a unless ruby1_8? || defined?(Test::Unit)
       return hash.sort_by {|k, v| k}
     end
 
