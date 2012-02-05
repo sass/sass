@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.14 (Unreleased)
+## 3.1.14
 
 * Fix a typo that was causing crashes on Ruby 1.9.
 
