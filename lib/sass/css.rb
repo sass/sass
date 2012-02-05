@@ -24,6 +24,9 @@ module Sass
     #     (`:color blue` as opposed to `color: blue`).
     #     This is only meaningful when generating Sass code,
     #     rather than SCSS.
+    # @option options :indent [String] (2)
+    #     Customize the indent size in written files. 2 by default.
+    #     Use "t" if you want to use real tab.
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
