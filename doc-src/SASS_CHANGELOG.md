@@ -5,17 +5,27 @@
 
 ## 3.2.0 (Unreleased)
 
+### Functions `ie-hex-str`
+
+A function that returns an IE compatible hex string for a color.
+Accepts color and upcases the hex string and adds the alpha layer as required by IE filters. E.g.:
+
+    ie-hex-str(#1Ab) => #FF11AABB
+
+    $translucent-green: rgba(0, 255, 0, 0.5);
+    ie-hex-str($translucent-green) => #8000FF00
+
 ### `@content`
 
 A mixin include can now accept a block of content ({file:SASS_REFERENCE.md#mixin-content Reference Documentation}).
 The style block will be passed to the mixin and can be placed at the point @content is used. E.g.:
-  
+
     @mixin iphone {
       @media only screen and (max-width: 480px) {
         @content;
       }
     }
-    
+
     @include iphone {
       body { color: red }
     }
@@ -25,7 +35,7 @@ Or in `.sass` syntax:
     =iphone
       @media only screen and (max-width: 480px)
         @content
-    
+
     +iphone
       body
         color: red
@@ -314,11 +324,11 @@ For example:
 
     $grid-width: 40px;
     $gutter-width: 10px;
-    
+
     @function grid-width($n) {
       @return $n * $grid-width + ($n - 1) * $gutter-width;
     }
-    
+
     #sidebar { width: grid-width(5); }
 
 Becomes:
@@ -2118,7 +2128,7 @@ the previous arguments in the declaration. For example:
     !default_width = 10px
     .small-default-box
       +my-fancy-mixin
-    
+
 
 compiles to:
 
@@ -2137,7 +2147,7 @@ compiles to:
     .small-default-box {
       width: 10px;
       height: 10px; }
-    
+
 
 ### Sass, Interactive
 
@@ -2467,7 +2477,7 @@ During compilation the following will be printed:
 
 #### Ruby 1.9 Support
 
-Sass now fully supports Ruby 1.9.1. 
+Sass now fully supports Ruby 1.9.1.
 
 #### Sass Cache
 

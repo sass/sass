@@ -241,7 +241,7 @@ module Sass::Script
     #   to {Sass::Script::Literal}s as the last argument.
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
-    # 
+    #
     # @example
     #   declare :rgba, [:hex, :alpha]
     #   declare :rgba, [:red, :green, :blue, :alpha]
@@ -732,6 +732,24 @@ module Sass::Script
       color.with(:hue => color.hue + degrees.value)
     end
     declare :adjust_hue, [:color, :degrees]
+
+    # Returns an IE hex string for a color with an alpha channel
+    # suitable for passing to IE filters.
+    #
+    # @example
+    #   ie-hex-str(#abc) => #FFAABBCC
+    #   ie-hex-str(#3322BB) => #FF3322BB
+    #   ie-hex-str(rgba(0, 255, 0, 0.5)) => #8000FF00
+    # @param color[Color]
+    # @return [String]
+    # @raise [ArgumentError] if `color` is not a color
+    def ie_hex_str(color)
+      assert_type color, :Color
+      alpha = (color.alpha * 255).round
+      alphastr = alpha.to_s(16).rjust(2, '0')
+      Sass::Script::String.new("##{alphastr}#{color.send(:hex_str)[1..-1]}".upcase)
+    end
+    declare :ie_hex_str, [:color]
 
     # Adjusts one or more properties of a color.
     # This can change the red, green, blue, hue, saturation, value, and alpha properties.
