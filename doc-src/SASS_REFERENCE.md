@@ -860,6 +860,24 @@ is compiled to:
       color: rgba(255, 0, 0, 0.9);
       background-color: rgba(255, 0, 0, 0.25); }
 
+IE filters require all colors include the alpha layer, and be in
+the strict format of #AABBCCDD. You can more easily convert the
+color using the {Sass::Script::Functions#ie_hex_str ie_hex_str}
+function.
+For example:
+
+    $translucent-red: rgba(255, 0, 0, 0.5);
+    $green: #00ff00;
+    div {
+      filter: progid:DXImageTransform.Microsoft.gradient(enabled='false', startColorstr='#{ie-hex-str($green)}', endColorstr='#{ie-hex-str($translucent-red)}');
+    }
+
+is compiled to:
+
+    div {
+      filter: progid:DXImageTransform.Microsoft.gradient(enabled='false', startColorstr=#FF00FF00, endColorstr=#80FF0000);
+    }
+
 #### String Operations
 
 The `+` operation can be used to concatenate strings:
@@ -1931,7 +1949,7 @@ The same mixins can be done in the `.sass` shorthand syntax:
     =apply-to-ie6-only
       * html
         @content
-    
+
     +apply-to-ie6-only
       #logo
         background-image: url(/logo.gif)
@@ -1981,11 +1999,11 @@ value or script context. For example:
 
     $grid-width: 40px;
     $gutter-width: 10px;
-    
+
     @function grid-width($n) {
       @return $n * $grid-width + ($n - 1) * $gutter-width;
     }
-    
+
     #sidebar { width: grid-width(5); }
 
 Becomes:

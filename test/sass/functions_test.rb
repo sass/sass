@@ -735,6 +735,13 @@ class SassFunctionTest < Test::Unit::TestCase
       "change-color(blue, $lightness: 10%, $red: 120)");
   end
 
+  def test_ie_hex_str
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#aa11cc)'))
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#a1c)'))
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#A1c)'))
+    assert_equal("#80FF0000", evaluate('ie-hex-str(rgba(255, 0, 0, 0.5))'))
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
