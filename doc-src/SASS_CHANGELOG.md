@@ -5,16 +5,6 @@
 
 ## 3.2.0 (Unreleased)
 
-### Functions `ie-hex-str`
-
-A function that returns an IE compatible hex string for a color.
-Accepts color and upcases the hex string and adds the alpha layer as required by IE filters. E.g.:
-
-    ie-hex-str(#1Ab) => #FF11AABB
-
-    $translucent-green: rgba(0, 255, 0, 0.5);
-    ie-hex-str($translucent-green) => #8000FF00
-
 ### `@content`
 
 A mixin include can now accept a block of content ({file:SASS_REFERENCE.md#mixin-content Reference Documentation}).
@@ -124,6 +114,11 @@ This variable should contain a colon-separated list of load paths
 There is now much more comprehensive support for using `@extend` alongside CSS3
 selector combinators (`+`, `~`, and `>`). These combinators will now be merged
 as much as possible.
+
+### `ie-hex-str` Function
+
+Sass 3.2 adds the \{Sass::Script::Functions#ie_hex_str `ie-hex-str`} function
+which returns a hex string for a color suitable for use with IE filters.
 
 ### Backwards Incompatibilities -- Must Read!
 
