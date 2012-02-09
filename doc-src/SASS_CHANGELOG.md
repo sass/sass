@@ -9,13 +9,13 @@
 
 A mixin include can now accept a block of content ({file:SASS_REFERENCE.md#mixin-content Reference Documentation}).
 The style block will be passed to the mixin and can be placed at the point @content is used. E.g.:
-  
+
     @mixin iphone {
       @media only screen and (max-width: 480px) {
         @content;
       }
     }
-    
+
     @include iphone {
       body { color: red }
     }
@@ -25,7 +25,7 @@ Or in `.sass` syntax:
     =iphone
       @media only screen and (max-width: 480px)
         @content
-    
+
     +iphone
       body
         color: red
@@ -114,6 +114,11 @@ This variable should contain a colon-separated list of load paths
 There is now much more comprehensive support for using `@extend` alongside CSS3
 selector combinators (`+`, `~`, and `>`). These combinators will now be merged
 as much as possible.
+
+### `ie-hex-str` Function
+
+Sass 3.2 adds the \{Sass::Script::Functions#ie_hex_str `ie-hex-str`} function
+which returns a hex string for a color suitable for use with IE filters.
 
 ### Backwards Incompatibilities -- Must Read!
 
@@ -314,11 +319,11 @@ For example:
 
     $grid-width: 40px;
     $gutter-width: 10px;
-    
+
     @function grid-width($n) {
       @return $n * $grid-width + ($n - 1) * $gutter-width;
     }
-    
+
     #sidebar { width: grid-width(5); }
 
 Becomes:
@@ -2118,7 +2123,7 @@ the previous arguments in the declaration. For example:
     !default_width = 10px
     .small-default-box
       +my-fancy-mixin
-    
+
 
 compiles to:
 
@@ -2137,7 +2142,7 @@ compiles to:
     .small-default-box {
       width: 10px;
       height: 10px; }
-    
+
 
 ### Sass, Interactive
 
@@ -2467,7 +2472,7 @@ During compilation the following will be printed:
 
 #### Ruby 1.9 Support
 
-Sass now fully supports Ruby 1.9.1. 
+Sass now fully supports Ruby 1.9.1.
 
 #### Sass Cache
 
