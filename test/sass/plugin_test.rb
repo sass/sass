@@ -110,6 +110,30 @@ CSS
     File.delete(tempfile_loc('bork1'))
   end
 
+  def test_single_level_import_loop
+    File.delete(tempfile_loc('single_import_loop'))
+    check_for_updates!
+    File.open(tempfile_loc('single_import_loop')) do |file|
+      assert_equal(<<CSS.strip, file.read.split("\n")[0...2].join("\n"))
+/*
+Sass::SyntaxError: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
+CSS
+    end
+  end
+
+  def test_double_level_import_loop
+    File.delete(tempfile_loc('double_import_loop1'))
+    check_for_updates!
+    File.open(tempfile_loc('double_import_loop1')) do |file|
+      assert_equal(<<CSS.strip, file.read.split("\n")[0...4].join("\n"))
+/*
+Sass::SyntaxError: An @import loop has been found:
+    #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
+    #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
+CSS
+    end
+  end
+
   def test_nonfull_exception_handling
     old_full_exception = Sass::Plugin.options[:full_exception]
     Sass::Plugin.options[:full_exception] = false

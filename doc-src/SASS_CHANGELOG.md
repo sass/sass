@@ -133,6 +133,15 @@ which returns a hex string for a color suitable for use with IE filters.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
+## 3.1.15 (Unreleased)
+
+* Support extending multiple comma-separated selectors (e.g. `@extend .foo, .bar`).
+  This is just a terser way to write multiple `@extend`s
+  (e.g. `@extend .foo; @extend .bar`).
+  This wasn't previously intended to work, but it did in the indented syntax only.
+* Avoid more stack overflows when there are import loops in files.
+* Update the bundled [FSSM](https://github.com/ttilley/fssm) to version 0.2.8.1.
+
 ## 3.1.14
 
 * Fix a typo that was causing crashes on Ruby 1.9.
