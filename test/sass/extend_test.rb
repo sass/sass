@@ -876,6 +876,20 @@ CSS
 SCSS
   end
 
+  def test_comma_extendee
+    assert_equal <<CSS, render(<<SCSS)
+.foo, .baz {
+  a: b; }
+
+.bar, .baz {
+  c: d; }
+CSS
+.foo {a: b}
+.bar {c: d}
+.baz {@extend .foo, .bar}
+SCSS
+  end
+
   ## Long Extendees
 
   def test_long_extendee

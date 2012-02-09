@@ -1346,6 +1346,10 @@ Thus, the styles defined later in the document take precedence:
 `.seriousError` has background color `#ff0` rather than `#fdd`,
 since `.attention` is defined later than `.error`.
 
+Multiple extends can also be written using a comma-separated list of selectors.
+For example, `@extend .error, .attention`
+is the same as `@extend .error; @extend.attention`.
+
 #### Chaining Extends
 
 It's possible for one selector to extend another selector

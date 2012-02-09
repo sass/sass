@@ -771,6 +771,16 @@ SASS
 SCSS
   end
 
+  def test_comma_extendee
+    assert_renders <<SASS, <<SCSS
+.baz
+  @extend .foo, .bar
+SASS
+.baz {
+  @extend .foo, .bar; }
+SCSS
+  end
+
   def test_argless_mixin_definition
     assert_renders <<SASS, <<SCSS
 =foo-bar
