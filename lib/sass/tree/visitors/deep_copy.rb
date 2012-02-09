@@ -91,7 +91,7 @@ class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
   end
 
   def visit_media(node)
-    node.query = query.deep_copy
+    node.query = node.query.deep_copy
     yield
   end
 end
