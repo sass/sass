@@ -9,6 +9,7 @@
   This is just a terser way to write multiple `@extend`s
   (e.g. `@extend .foo; @extend .bar`).
   This wasn't previously intended to work, but it did in the indented syntax only.
+* Avoid more stack overflows when there are import loops in files.
 
 ## 3.1.14
 

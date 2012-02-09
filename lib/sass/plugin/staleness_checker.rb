@@ -39,6 +39,10 @@ module Sass
       def initialize(options)
         @dependencies = self.class.dependencies_cache
 
+        # URIs that are being actively checked for staleness. Protects against
+        # import loops.
+        @actively_checking = Set.new
+
         # Entries in the following instance-level caches are never explicitly expired.
         # Instead they are supposed to automaticaly go out of scope when a series of staleness checks
         # (this instance of StalenessChecker was created for) is finished.
@@ -148,10 +152,16 @@ module Sass
 
       def dependency_updated?(css_mtime)
         Proc.new do |uri, importer|
-          sass_mtime = mtime(uri, importer)
-          !sass_mtime ||
-            sass_mtime > css_mtime ||
-            dependencies_stale?(uri, importer, css_mtime)
+          next true if @actively_checking.include?(uri)
+          begin
+            @actively_checking << uri
+            sass_mtime = mtime(uri, importer)
+            !sass_mtime ||
+              sass_mtime > css_mtime ||
+              dependencies_stale?(uri, importer, css_mtime)
+          ensure
+            @actively_checking.delete uri
+          end
         end
       end
 

@@ -318,7 +318,9 @@ WARNING
   def handle_import_loop!(node)
     msg = "An @import loop has been found:"
     files = @environment.stack.map {|s| s[:filename]}.compact
-    raise Sass::SyntaxError.new("#{msg} #{node.filename} imports itself") if files.size == 1
+    if node.filename == node.imported_file.options[:filename]
+      raise Sass::SyntaxError.new("#{msg} #{node.filename} imports itself")
+    end
 
     files << node.filename << node.imported_file.options[:filename]
     msg << "\n" << Sass::Util.enum_cons(files, 2).map do |m1, m2|
