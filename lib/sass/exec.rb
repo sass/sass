@@ -515,9 +515,9 @@ END
           @options[:for_tree][:dasherize] = true
         end
 
-        opts.on('--indent indent',
-          'Customize the indent size in written files. 2 by default.',
-          'Use "t" if you want to use real tab.') do |indent|
+        opts.on('--indent NUM',
+          'How many spaces to use for each level of indentation. Defaults to 2.',
+          '"t" means use hard tabs.') do |indent|
 
           if indent == 't'
             @options[:for_tree][:indent] = "\t"
