@@ -115,6 +115,12 @@ There is now much more comprehensive support for using `@extend` alongside CSS3
 selector combinators (`+`, `~`, and `>`). These combinators will now be merged
 as much as possible.
 
+### Extended Colors
+
+The full set of [extended color keywords](http://www.w3.org/TR/css3-color/#svg-color)
+are now supported by Sass. They may be used to refer to color objects,
+and colors will render using those color names when appropriate.
+
 ### `ie-hex-str` Function
 
 Sass 3.2 adds the \{Sass::Script::Functions#ie_hex_str `ie-hex-str`} function
