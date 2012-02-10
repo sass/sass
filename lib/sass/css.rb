@@ -24,6 +24,8 @@ module Sass
     #     (`:color blue` as opposed to `color: blue`).
     #     This is only meaningful when generating Sass code,
     #     rather than SCSS.
+    # @option options :indent [String] ("  ")
+    #     The string to use for indenting each line. Defaults to two spaces.
     def initialize(template, options = {})
       if template.is_a? IO
         template = template.read
