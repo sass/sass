@@ -790,8 +790,8 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_complement
     assert_equal("#ccbbaa", evaluate("complement(#abc)"))
-    assert_equal("aqua", evaluate("complement(red)"))
-    assert_equal("red", evaluate("complement(aqua)"))
+    assert_equal("cyan", evaluate("complement(red)"))
+    assert_equal("red", evaluate("complement(cyan)"))
     assert_equal("white", evaluate("complement(white)"))
     assert_equal("black", evaluate("complement(black)"))
     assert_equal("black", evaluate("complement($color: black)"))
