@@ -14,6 +14,7 @@
 * Make the `grayscale` function work with `-webkit-filter`.
 * Provide a better error message for selectors beginning with `/`
   in the indented syntax.
+* Flush standard output after printing notifications in `sass --watch`.
 
 ## 3.1.14
 
