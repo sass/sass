@@ -621,7 +621,7 @@ WARNING
         end
         Tree::CommentNode.new(value, silent, loud)
       else
-        Tree::RuleNode.new(parse_interp(line))
+        Tree::RuleNode.new(parse_interp(line.text))
       end
     end
 
