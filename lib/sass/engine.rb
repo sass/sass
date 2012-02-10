@@ -629,7 +629,7 @@ WARNING
         type = if silent then :silent elsif loud then :loud else :normal end
         Tree::CommentNode.new(value, type)
       else
-        Tree::RuleNode.new(parse_interp(line))
+        Tree::RuleNode.new(parse_interp(line.text))
       end
     end
 
