@@ -115,7 +115,8 @@ foo bar baz bang
 SASS
 foo bar
 baz bang {
-  baz: bang; }
+  baz: bang;
+}
 SCSS
 
     assert_scss_to_scss <<SCSS
@@ -204,7 +205,8 @@ foo bar {
   baz:
     bip
   bam
-        boon; }
+        boon;
+}
 SCSS
 
     assert_scss_to_scss <<OUT, <<IN
@@ -216,7 +218,8 @@ foo bar {
   baz:
     bip
   bam
-        boon; }
+        boon;
+}
 IN
   end
 
@@ -229,7 +232,8 @@ foo bar {
   baz:
     $bip
   "bam"
-        12px; }
+        12px;
+}
 SCSS
 
     assert_scss_to_scss <<OUT, <<IN
@@ -241,7 +245,8 @@ foo bar {
   baz:
     $bip
   "bam"
-        12px; }
+        12px;
+}
 IN
   end
 
@@ -387,7 +392,8 @@ SASS
    bang */
 
 foo bar {
-  a: b; }
+  a: b;
+}
 SCSS
 
     assert_scss_to_scss <<SCSS
@@ -477,7 +483,8 @@ foo {
   /* foo
 bar
     baz */
-  a: b; }
+  a: b;
+}
 SCSS
 
     assert_sass_to_scss <<SCSS, <<SASS
@@ -850,7 +857,8 @@ SCSS
   @extend .foo, .bar
 SASS
 .baz {
-  @extend .foo, .bar; }
+  @extend .foo, .bar;
+}
 SCSS
   end
 
@@ -874,7 +882,9 @@ SCSS
 SASS
 @mixin foo-bar() {
   baz {
-    a: b; } }
+    a: b;
+  }
+}
 SCSS
 
     assert_sass_to_scss <<SCSS, <<SASS
@@ -1133,7 +1143,8 @@ SASS
 $baz: 12;
 
 @foo bar\#{$baz} qux {
-  a: b; }
+  a: b;
+}
 SCSS
   end
 
@@ -1147,7 +1158,8 @@ SASS
 $baz: 12;
 
 @media bar\#{$baz} {
-  a: b; }
+  a: b;
+}
 SCSS
   end
 
@@ -1167,7 +1179,8 @@ $var: -webkit-min-device-pixel-ratio;
 $val: 20;
 
 @media $media1 and ($var: $val), only $media2 {
-  a: b; }
+  a: b;
+}
 SCSS
   end
 
@@ -1325,11 +1338,15 @@ $color: blue;
   .\#{$class} {
     background-color: $color;
     @content;
-    border-color: $color; } }
+    border-color: $color;
+  }
+}
 
 @include context(parent) {
   @include context(child, $color: yellow) {
-    color: $color; } }
+    color: $color;
+  }
+}
 SCSS
 
   end
@@ -1337,7 +1354,8 @@ SCSS
   def test_empty_content
     assert_scss_to_scss(<<SCSS)
 @mixin foo {
-  @content; }
+  @content;
+}
 
 @include foo {}
 SCSS
@@ -1349,7 +1367,8 @@ SCSS
   color: blue
 SASS
 #content a%foo.bar {
-  color: blue; }
+  color: blue;
+}
 SCSS
   end
 
@@ -1366,10 +1385,12 @@ SASS
 $foo: foo;
 
 %\#{$foo} {
-  color: blue; }
+  color: blue;
+}
 
 .bar {
-  @extend %foo; }
+  @extend %foo;
+}
 SCSS
   end
 
