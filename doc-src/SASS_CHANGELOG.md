@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.15 (Unreleased)
+## 3.1.15
 
 * Support extending multiple comma-separated selectors (e.g. `@extend .foo, .bar`).
   This is just a terser way to write multiple `@extend`s
