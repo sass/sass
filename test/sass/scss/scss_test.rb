@@ -708,6 +708,25 @@ CSS
 SCSS
   end
 
+  def test_mixin_arguments_color_without_quote
+    assert_equal <<CSS, render(<<SCSS, :style => :compressed)
+.foo{color:#ff0}
+CSS
+@mixin foo($var: yellow) {color: $var}
+.foo {@include foo;}
+SCSS
+  end
+
+  def test_mixin_arguments_color_with_quote
+    assert_equal <<CSS, render(<<SCSS, :style => :compressed)
+.foo{color:"yellow"}
+CSS
+@mixin foo($var: 'yellow') {color: $var}
+.foo {@include foo;}
+SCSS
+  end
+
+
   ## Functions
 
   def test_basic_function
