@@ -15,6 +15,7 @@
 * Provide a better error message for selectors beginning with `/`
   in the indented syntax.
 * Flush standard output after printing notifications in `sass --watch`.
+* Fix variable definitions in the REPL.
 
 ## 3.1.14
 
