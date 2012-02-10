@@ -772,6 +772,9 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("white", evaluate("grayscale(white)"))
     assert_equal("black", evaluate("grayscale(black)"))
     assert_equal("black", evaluate("grayscale($color: black)"))
+
+    assert_equal("grayscale(2)", evaluate("grayscale(2)"))
+    assert_equal("grayscale(-5px)", evaluate("grayscale(-5px)"))
   end
 
   def tets_grayscale_tests_types

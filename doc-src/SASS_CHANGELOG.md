@@ -11,6 +11,7 @@
   This wasn't previously intended to work, but it did in the indented syntax only.
 * Avoid more stack overflows when there are import loops in files.
 * Update the bundled [FSSM](https://github.com/ttilley/fssm) to version 0.2.8.1.
+* Make the `grayscale` function work with `-webkit-filter`.
 
 ## 3.1.14
 
