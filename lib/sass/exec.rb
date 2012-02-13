@@ -311,7 +311,11 @@ END
           @options[:for_engine][:syntax] ||= @default_syntax
           engine =
             if input.is_a?(File) && !@options[:check_syntax]
-              ::Sass::Engine.for_file(input.path, @options[:for_engine])
+              if File.directory? input
+                ::Sass::Engine.for_directory(input.path, @options[:for_engine])
+              else
+                ::Sass::Engine.for_file(input.path, @options[:for_engine])
+              end
             else
               # We don't need to do any special handling of @options[:check_syntax] here,
               # because the Sass syntax checking happens alongside evaluation
@@ -319,10 +323,17 @@ END
               ::Sass::Engine.new(input.read(), @options[:for_engine])
             end
 
-          input.close() if input.is_a?(File)
-
-          output.write(engine.render)
+          if engine.is_a?(Array)
+            input.close() if input.is_a?(File)
+            engine.each do |e|
+              output.write(e.render)
+            end
+          else
+            input.close() if input.is_a?(File)
+            output.write(engine.render)
+          end
           output.close() if output.is_a? File
+          
         rescue ::Sass::SyntaxError => e
           raise e if @options[:trace]
           raise e.sass_backtrace_str("standard input")

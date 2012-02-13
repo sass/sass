@@ -76,7 +76,9 @@ module Sass
   def self.compile_file(filename, *args)
     options = args.last.is_a?(Hash) ? args.pop : {}
     css_filename = args.shift
+
     result = Sass::Engine.for_file(filename, options).render
+
     if css_filename
       options[:css_filename] ||= css_filename
       open(css_filename,"w") {|css_file| css_file.write(result)}

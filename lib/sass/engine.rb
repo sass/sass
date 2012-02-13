@@ -212,6 +212,22 @@ module Sass
 
       Sass::Engine.new(File.read(filename), options.merge(:filename => filename))
     end
+    
+    def self.for_directory(directory, options)
+      results = []
+      Dir.glob(File.join(directory, '**')).grep(/\.(sass)|(scss)$/).each do |file|
+        _options = options
+
+        if file =~ /\.scss$/
+          _options.merge!(:syntax => :scss)
+        elsif file =~ /\.sass$/
+          _options.merge!(:syntax => :sass)
+        end
+        results << self.for_file(file, _options)
+      end
+      
+      results
+    end
 
     # The options for the Sass engine.
     # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
