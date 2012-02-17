@@ -92,39 +92,29 @@ This means that you can write e.g.:
 This is intended to allow authors to easily write mixins
 that make use of `@media` and other directives dynamically.
 
-### `:any` Support
+### Smaller Improvements
 
-Previously, only the `:-moz-any` selector was supported; this has been expanded
-to support any vendor prefix, as well as the plain `:any` selector.
+* Previously, only the `:-moz-any` selector was supported; this has been
+  expanded to support any vendor prefix, as well as the plain `:any` selector.
 
-### `Sass.load_paths`
+* Sass now supports a global list of load paths, accessible via
+  {Sass.load_paths}. This allows plugins and libraries to easily register their
+  Sass files such that they're accessible to all {Sass::Engine} instances.
 
-Sass now supports a global list of load paths, accessible via {Sass.load_paths}.
-This allows plugins and libraries to easily register their Sass files
-such that they're accessible to all {Sass::Engine} instances.
+* `Sass.load_paths` is initialized to the value of the `SASS_PATH`environment
+  variable. This variable should contain a colon-separated list of load paths
+  (semicolon-separated on Windows).
 
-#### `SASS_PATH`
+* There is now much more comprehensive support for using `@extend` alongside
+  CSS3 selector combinators (`+`, `~`, and `>`). These combinators will now be
+  merged as much as possible.
 
-`Sass.load_paths` is initialized to the value of the `SASS_PATH` environment variable.
-This variable should contain a colon-separated list of load paths
-(semicolon-separated on Windows).
+* The full set of [extended color keywords](http://www.w3.org/TR/css3-color/#svg-color)
+  are now supported by Sass. They may be used to refer to color objects, and
+  colors will render using those color names when appropriate.
 
-### `@extend`ing Combinators
-
-There is now much more comprehensive support for using `@extend` alongside CSS3
-selector combinators (`+`, `~`, and `>`). These combinators will now be merged
-as much as possible.
-
-### Extended Colors
-
-The full set of [extended color keywords](http://www.w3.org/TR/css3-color/#svg-color)
-are now supported by Sass. They may be used to refer to color objects,
-and colors will render using those color names when appropriate.
-
-### `ie-hex-str` Function
-
-Sass 3.2 adds the \{Sass::Script::Functions#ie_hex_str `ie-hex-str`} function
-which returns a hex string for a color suitable for use with IE filters.
+* Sass 3.2 adds the \{Sass::Script::Functions#ie_hex_str `ie-hex-str`} function
+  which returns a hex string for a color suitable for use with IE filters.
 
 ### Backwards Incompatibilities -- Must Read!
 
