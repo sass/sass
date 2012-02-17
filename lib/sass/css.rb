@@ -75,12 +75,27 @@ module Sass
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
       root = Sass::SCSS::CssParser.new(@template, @options[:filename]).parse
+      parse_selectors    root
       expand_commas      root
+      nest_seqs          root
       parent_ref_rules   root
-      remove_parent_refs root
       flatten_rules      root
       fold_commas        root
+      dump_selectors     root
       root
+    end
+
+    # Parse all the selectors in the document and assign them to
+    # {Sass::Tree::RuleNode#parsed_rules}.
+    #
+    # @param root [Tree::Node] The parent node
+    def parse_selectors(root)
+      root.children.each do |child|
+        next parse_selectors(child) if child.is_a?(Tree::DirectiveNode)
+        next unless child.is_a?(Tree::RuleNode)
+        parser = Sass::SCSS::CssParser.new(child.rule.first, child.filename, child.line)
+        child.parsed_rules = parser.parse_selector
+      end
     end
 
     # Transform
@@ -100,18 +115,70 @@ module Sass
     # @param root [Tree::Node] The parent node
     def expand_commas(root)
       root.children.map! do |child|
-        unless child.is_a?(Tree::RuleNode) && child.rule.first.include?(',')
+        # child.parsed_rules.members.size > 1 iff the rule contains a comma
+        unless child.is_a?(Tree::RuleNode) && child.parsed_rules.members.size > 1
           expand_commas(child) if child.is_a?(Tree::DirectiveNode)
           next child
         end
-        child.rule.first.split(',').map do |rule|
-          next if rule.strip.empty?
-          node = Tree::RuleNode.new([rule.strip])
+        child.parsed_rules.members.map do |seq|
+          node = Tree::RuleNode.new([])
+          node.parsed_rules = make_cseq(seq)
           node.children = child.children
           node
         end
       end
       root.children.flatten!
+    end
+
+    # Make rules use nesting so that
+    #
+    #     foo
+    #       color: green
+    #     foo bar
+    #       color: red
+    #     foo baz
+    #       color: blue
+    #
+    # becomes
+    #
+    #     foo
+    #       color: green
+    #       bar
+    #         color: red
+    #       baz
+    #         color: blue
+    #
+    # @param root [Tree::Node] The parent node
+    def nest_seqs(root)
+      current_rule = nil
+      root.children.map! do |child|
+        unless child.is_a?(Tree::RuleNode)
+          nest_seqs(child) if child.is_a?(Tree::DirectiveNode)
+          next child
+        end
+
+        seq = first_seq(child)
+        seq.members.reject! {|sseq| sseq == "\n"}
+        first, rest = seq.members.first, seq.members[1..-1]
+
+        if current_rule.nil? || first_sseq(current_rule) != first
+          current_rule = Tree::RuleNode.new([])
+          current_rule.parsed_rules = make_seq(first)
+        end
+
+        unless rest.empty?
+          child.parsed_rules = make_seq(*rest)
+          current_rule << child
+        else
+          current_rule.children += child.children
+        end
+
+        current_rule
+      end
+      root.children.compact!
+      root.children.uniq!
+
+      root.children.each {|v| nest_seqs(v)}
     end
 
     # Make rules use parent refs so that
@@ -128,25 +195,6 @@ module Sass
     #       &.bar
     #         color: blue
     #
-    # This has the side effect of nesting rules,
-    # so that
-    #
-    #     foo
-    #       color: green
-    #     foo bar
-    #       color: red
-    #     foo baz
-    #       color: blue
-    #
-    # becomes
-    #
-    #     foo
-    #       color: green
-    #       & bar
-    #         color: red
-    #       & baz
-    #         color: blue
-    #
     # @param root [Tree::Node] The parent node
     def parent_ref_rules(root)
       current_rule = nil
@@ -156,14 +204,20 @@ module Sass
           next child
         end
 
-        first, rest = child.rule.first.scan(/\A(&?(?: .|[^ ])[^.#: \[]*)([.#: \[].*)?\Z/m).first
+        sseq = first_sseq(child)
+        next child unless sseq.is_a?(Sass::Selector::SimpleSequence)
 
-        if current_rule.nil? || current_rule.rule.first != first
-          current_rule = Tree::RuleNode.new([first])
+        firsts, rest = [sseq.members.first], sseq.members[1..-1]
+        firsts.push rest.shift if firsts.first.is_a?(Sass::Selector::Parent)
+
+        if current_rule.nil? || first_sseq(current_rule).members != firsts
+          current_rule = Tree::RuleNode.new([])
+          current_rule.parsed_rules = make_sseq(*firsts)
         end
 
-        if rest
-          child.rule = ["&" + rest]
+        unless rest.empty?
+          rest.unshift Sass::Selector::Parent.new
+          child.parsed_rules = make_sseq(*rest)
           current_rule << child
         else
           current_rule.children += child.children
@@ -174,32 +228,7 @@ module Sass
       root.children.compact!
       root.children.uniq!
 
-      root.children.each { |v| parent_ref_rules(v) }
-    end
-
-    # Remove useless parent refs so that
-    #
-    #     foo
-    #       & bar
-    #         color: blue
-    #
-    # becomes
-    #
-    #     foo
-    #       bar
-    #         color: blue
-    #
-    # @param root [Tree::Node] The parent node
-    def remove_parent_refs(root)
-      root.children.each do |child|
-        case child
-        when Tree::RuleNode
-          child.rule.first.gsub! /^& +/, ''
-          remove_parent_refs child
-        when Tree::DirectiveNode
-          remove_parent_refs child
-        end
-      end
+      root.children.each {|v| parent_ref_rules(v)}
     end
 
     # Flatten rules so that
@@ -236,7 +265,7 @@ module Sass
       end
     end
 
-    # Flattens a single rule
+    # Flattens a single rule.
     #
     # @param rule [Tree::RuleNode] The candidate for flattening
     # @see #flatten_rules
@@ -244,10 +273,10 @@ module Sass
       while rule.children.size == 1 && rule.children.first.is_a?(Tree::RuleNode)
         child = rule.children.first
 
-        if child.rule.first[0] == ?&
-          rule.rule = [child.rule.first.gsub(/^&/, rule.rule.first)]
+        if first_simple_sel(child).is_a?(Sass::Selector::Parent)
+          rule.parsed_rules = child.parsed_rules.resolve_parent_refs(rule.parsed_rules)
         else
-          rule.rule = ["#{rule.rule.first} #{child.rule.first}"]
+          rule.parsed_rules = make_seq(first_sseq(rule), *first_seq(child).members)
         end
 
         rule.children = child.children
@@ -280,7 +309,7 @@ module Sass
         end
 
         if prev_rule && prev_rule.children == child.children
-          prev_rule.rule.first << ", #{child.rule.first}"
+          prev_rule.parsed_rules.members << first_seq(child)
           next nil
         end
 
@@ -289,6 +318,73 @@ module Sass
         child
       end
       root.children.compact!
+    end
+
+    # Dump all the parsed {Sass::Tree::RuleNode} selectors to strings.
+    #
+    # @param root [Tree::Node] The parent node
+    def dump_selectors(root)
+      root.children.each do |child|
+        next dump_selectors(child) if child.is_a?(Tree::DirectiveNode)
+        next unless child.is_a?(Tree::RuleNode)
+        child.rule = child.parsed_rules.to_s
+        dump_selectors(child)
+      end
+    end
+
+    # Create a {Sass::Selector::CommaSequence}.
+    #
+    # @param seqs [Array<Sass::Selector::Sequence>]
+    # @return [Sass::Selector::CommaSequence]
+    def make_cseq(*seqs)
+      Sass::Selector::CommaSequence.new(seqs)
+    end
+
+    # Create a {Sass::Selector::CommaSequence} containing only a single
+    # {Sass::Selector::Sequence}.
+    #
+    # @param sseqs [Array<Sass::Selector::Sequence, String>]
+    # @return [Sass::Selector::CommaSequence]
+    def make_seq(*sseqs)
+      make_cseq(Sass::Selector::Sequence.new(sseqs))
+    end
+
+    # Create a {Sass::Selector::CommaSequence} containing only a single
+    # {Sass::Selector::Sequence} which in turn contains only a single
+    # {Sass::Selector::SimpleSequence}.
+    #
+    # @param sseqs [Array<Sass::Selector::Sequence, String>]
+    # @return [Sass::Selector::CommaSequence]
+    def make_sseq(*sseqs)
+      make_seq(Sass::Selector::SimpleSequence.new(sseqs))
+    end
+
+    # Return the first {Sass::Selector::Sequence} in a {Sass::Tree::RuleNode}.
+    #
+    # @param rule [Sass::Tree::RuleNode]
+    # @return [Sass::Selector::Sequence]
+    def first_seq(rule)
+      rule.parsed_rules.members.first
+    end
+
+    # Return the first {Sass::Selector::SimpleSequence} in a
+    # {Sass::Tree::RuleNode}.
+    #
+    # @param rule [Sass::Tree::RuleNode]
+    # @return [Sass::Selector::SimpleSequence, String]
+    def first_sseq(rule)
+      first_seq(rule).members.first
+    end
+
+    # Return the first {Sass::Selector::Simple} in a {Sass::Tree::RuleNode},
+    # unless the rule begins with a combinator.
+    #
+    # @param rule [Sass::Tree::RuleNode]
+    # @return [Sass::Selector::Simple?]
+    def first_simple_sel(rule)
+      sseq = first_sseq(rule)
+      return unless sseq.is_a?(Sass::Selector::SimpleSequence)
+      sseq.members.first
     end
   end
 end

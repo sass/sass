@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.1.16 (Unreleased)
+
+* Fix some bugs in `sass-convert` selector parsing when converting from CSS.
+
 ## 3.1.15
 
 * Support extending multiple comma-separated selectors (e.g. `@extend .foo, .bar`).

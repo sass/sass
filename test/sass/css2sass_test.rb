@@ -277,6 +277,30 @@ foo, , bar { a: b }
 CSS
   end
 
+  def test_selector_splitting
+    assert_equal(<<SASS, css2sass(<<CSS))
+.foo >
+  .bar
+    a: b
+  .baz
+    c: d
+SASS
+.foo>.bar {a: b}
+.foo>.baz {c: d}
+CSS
+
+    assert_equal(<<SASS, css2sass(<<CSS))
+.foo
+  &::bar
+    a: b
+  &::baz
+    c: d
+SASS
+.foo::bar {a: b}
+.foo::baz {c: d}
+CSS
+  end
+
   # Error reporting
 
   def test_error_reporting

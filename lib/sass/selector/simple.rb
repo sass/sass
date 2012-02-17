@@ -33,6 +33,12 @@ module Sass
         to_a.map {|e| e.is_a?(Sass::Script::Node) ? "\#{#{e.to_sass}}" : e}.join
       end
 
+      # @see \{#inspect}
+      # @return [String]
+      def to_s
+        inspect
+      end
+
       # Returns a hash code for this selector object.
       #
       # By default, this is based on the value of \{#to\_a},
