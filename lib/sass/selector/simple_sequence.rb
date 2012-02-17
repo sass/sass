@@ -61,7 +61,8 @@ module Sass
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, seen = Set.new)
-        extends.get(members.to_set).map do |seq, sels|
+        Sass::Util.group_by_to_a(extends.get(members.to_set)) {|seq, _| seq}.map do |seq, group|
+          sels = group.map {|_, s| s}.flatten
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
 

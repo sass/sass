@@ -890,6 +890,17 @@ CSS
 SCSS
   end
 
+  def test_redundant_selector_elimination
+    assert_equal <<CSS, render(<<SCSS)
+.foo.bar, .x, .y {
+  a: b; }
+CSS
+.foo.bar {a: b}
+.x {@extend .foo, .bar}
+.y {@extend .foo, .bar}
+SCSS
+  end
+
   ## Long Extendees
 
   def test_long_extendee

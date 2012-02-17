@@ -105,6 +105,9 @@ that make use of `@media` and other directives dynamically.
   variable. This variable should contain a colon-separated list of load paths
   (semicolon-separated on Windows).
 
+* In certain cases, redundant selectors used to be created as a result of a
+  single rule having multiple `@extend`s. That redundancy has been eliminated.
+
 * There is now much more comprehensive support for using `@extend` alongside
   CSS3 selector combinators (`+`, `~`, and `>`). These combinators will now be
   merged as much as possible.
