@@ -792,11 +792,11 @@ MESSAGE
         @strs.pop
       end
 
-      def str?
+      def str?(&block)
         pos = @scanner.pos
         line = @line
         @strs.push ""
-        throw_error {yield} && @strs.last
+        throw_error(&block) && @strs.last
       rescue Sass::SyntaxError => e
         @scanner.pos = pos
         @line = line

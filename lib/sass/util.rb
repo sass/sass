@@ -212,11 +212,11 @@ module Sass
     # @yieldreturn [Object, nil] If the two values register as equal,
     #   this will return the value to use in the LCS array.
     # @return [Array] The LCS
-    def lcs(x, y)
+    def lcs(x, y, &block)
       x = [nil, *x]
       y = [nil, *y]
       block ||= proc {|a, b| a == b && a}
-      lcs_backtrace(lcs_table(x, y) {|a, b| yield a, b}, x, y, x.size-1, y.size-1) {|a, b| yield a, b}
+      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size-1, y.size-1, &block)
     end
 
     # Converts a Hash to an Array. This is usually identical to `Hash#to_a`,
@@ -740,14 +740,14 @@ MSG
 
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
-    def lcs_backtrace(c, x, y, i, j)
+    def lcs_backtrace(c, x, y, i, j, &block)
       return [] if i == 0 || j == 0
       if v = yield(x[i], y[j])
-        return lcs_backtrace(c, x, y, i-1, j-1) {|a, b| yield a, b} << v
+        return lcs_backtrace(c, x, y, i-1, j-1, &block) << v
       end
 
-      return lcs_backtrace(c, x, y, i, j-1) {|a, b| yield a, b} if c[i][j-1] > c[i-1][j]
-      return lcs_backtrace(c, x, y, i-1, j) {|a, b| yield a, b}
+      return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
+      return lcs_backtrace(c, x, y, i-1, j, &block)
     end
   end
 end
