@@ -85,8 +85,9 @@ module Sass
     # @return [Hash] The mapped hash
     # @see #map_keys
     # @see #map_vals
-    def map_hash(hash, &block)
-      to_hash(hash.map(&block))
+    def map_hash(hash)
+      # Using &block here completely hoses performance on 1.8.
+      to_hash(hash.map {|k, v| yield k, v})
     end
 
     # Computes the powerset of the given array.
