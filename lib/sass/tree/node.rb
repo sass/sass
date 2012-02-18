@@ -158,9 +158,9 @@ module Sass
       #
       # @yield node
       # @yieldparam node [Node] a node in the tree
-      def each(&block)
+      def each
         yield self
-        children.each {|c| c.each(&block)}
+        children.each {|c| c.each {|n| yield n}}
       end
 
       # Converts a node to Sass code that will generate it.
