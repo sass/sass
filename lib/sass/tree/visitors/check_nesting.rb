@@ -125,9 +125,9 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     return false
   end
 
-  def try_send(method, *args, &block)
+  def try_send(method, *args)
     return unless respond_to?(method)
-    send(method, *args, &block)
+    send(method, *args)
   end
 end
 
