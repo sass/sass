@@ -150,6 +150,7 @@ MSG
     "@content" => '@content may only be used within a mixin.',
     "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
     "=foo\n  @content\n+foo" => ["No @content passed.", 2],
+    "@import \"foo\" // bar" => "Invalid @import: \"\"foo\" // bar\"",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
