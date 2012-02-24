@@ -777,8 +777,10 @@ WARNING
 
       val = scanner[1] || scanner[2]
       scanner.scan(/\s*/)
-      if media = scanner.scan(/[^,;].*/)
+      if media = scanner.scan(/[a-zA-Z].*/)
         Tree::DirectiveNode.new("@import #{str || uri} #{media}")
+      elsif !scanner.match?(/[,;]|$/)
+        raise SyntaxError.new("Invalid @import: \"#{str || uri} #{scanner.rest}\"")
       elsif uri
         Tree::DirectiveNode.new("@import #{uri}")
       elsif val =~ /^http:\/\//

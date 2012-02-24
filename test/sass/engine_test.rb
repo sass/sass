@@ -140,6 +140,7 @@ MSG
     "$var: true\n@while $var\n  @extend .bar\n  $var: false" => ["Extend directives may only be used within rules.", 3],
     "@for $i from 0 to 1\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
+    "@import \"foo\" // bar" => "Invalid @import: \"\"foo\" // bar\"",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
