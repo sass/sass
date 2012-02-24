@@ -175,16 +175,15 @@ See `sass-convert --help` for further information and options.
 
 Sass was envisioned by [Hampton Catlin](http://hamptoncatlin.com) (hcatlin).
 However, Hampton doesn't even know his way around the code anymore and now
-occasionally consults on the language issues. Hampton lives in Jacksonville,
-Florida and is the lead mobile developer for Wikimedia.
+occasionally consults on the language issues. Hampton lives in Cambridge, UK and
+is the owner of [Catlin Software](http://www.catlinsoftware.com/).
 
 [Nathan Weizenbaum](http://nex-3.com) is the primary developer and architect of
 Sass. His hard work has kept the project alive by endlessly answering forum
 posts, fixing bugs, refactoring, finding speed improvements, writing
 documentation, implementing new features, and getting Hampton coffee (a fitting
-task for a boy-genius). Nathan lives in Seattle, Washington and while not being
-a student at the University of Washington or working at an internship, he
-consults for Unspace Interactive.
+task for a boy-genius). Nathan lives in Seattle, Washington and works on
+[Dart](http://dartlang.org) application libraries at Google.
 
 [Chris Eppstein](http://acts-as-architect.blogspot.com) is a core contributor to
 Sass and the creator of Compass, the first Sass-based framework. Chris focuses
