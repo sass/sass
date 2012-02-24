@@ -1227,9 +1227,8 @@ is compiled to:
     }
 
 Finally, `@media` queries can contain Sass variables in place of the media type,
-feature names, and feature values.
-For example:
-
+feature names, and feature values. The feature value can also contain more
+complex SassScript expressions, such as functions or operators. For example:
 
     $media: screen;
     $feature: -webkit-min-device-pixel-ratio;

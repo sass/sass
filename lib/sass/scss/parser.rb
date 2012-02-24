@@ -372,12 +372,12 @@ module Sass
         ss
 
         if tok(/:/)
-          ss; value = expr!(:expr)
+          ss; value = sass_script(:parse)
         end
         tok!(/\)/)
         ss
 
-        Sass::Media::Expression.new(name, value || [])
+        Sass::Media::Expression.new(name, value)
       end
 
       def charset_directive

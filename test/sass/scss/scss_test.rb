@@ -894,7 +894,7 @@ $baz: 12;
 SCSS
   end
 
-  def test_variables_in_media
+  def test_script_in_media
     assert_equal <<CSS, render(<<SCSS)
 @media screen and (-webkit-min-device-pixel-ratio: 20), only print {
   a: b; }
@@ -904,6 +904,14 @@ $media2: print;
 $var: -webkit-min-device-pixel-ratio;
 $val: 20;
 @media $media1 and ($var: $val), only $media2 {a: b}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+@media screen and (-webkit-min-device-pixel-ratio: 13) {
+  a: b; }
+CSS
+$vals: 1 2 3;
+@media screen and (-webkit-min-device-pixel-ratio: 5 + 6 + nth($vals, 2)) {a: b}
 SCSS
   end
 
