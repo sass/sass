@@ -31,5 +31,12 @@ module Sass::Tree
     def resolved_value
       @resolved_value ||= "@media #{query.to_css}"
     end
+
+    # True when the directive has no visible children.
+    #
+    # @return [Boolean]
+    def invisible?
+      children.all? {|c| c.invisible?}
+    end
   end
 end

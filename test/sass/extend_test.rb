@@ -1914,6 +1914,16 @@ $foo: foo;
 SCSS
   end
 
+  def test_media_in_placeholder_selector
+    assert_equal <<CSS, render(<<SCSS)
+.baz {
+  c: d; }
+CSS
+%foo {bar {@media screen {a: b}}}
+.baz {c: d}
+SCSS
+  end
+
   # Regression Tests
 
   def test_newline_near_combinator
