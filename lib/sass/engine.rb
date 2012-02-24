@@ -572,7 +572,7 @@ WARNING
     def parse_property_or_rule(line)
       scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
-      parser = Sass::SCSS::SassParser.new(scanner, @options[:filename], @line)
+      parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
 
       unless res = parser.parse_interp_ident
         return Tree::RuleNode.new(parse_interp(line.text))
@@ -692,7 +692,7 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
       elsif directive == "media"
-        parser = Sass::SCSS::SassParser.new(value, @options[:filename], @line)
+        parser = Sass::SCSS::Parser.new(value, @options[:filename], @line)
         Tree::MediaNode.new(parser.parse_media_query_list)
       else
         Tree::DirectiveNode.new(
