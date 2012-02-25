@@ -8,6 +8,7 @@ require 'sass/tree/comment_node'
 require 'sass/tree/prop_node'
 require 'sass/tree/directive_node'
 require 'sass/tree/media_node'
+require 'sass/tree/css_import_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
@@ -784,11 +785,11 @@ WARNING
       return if scanner.eos?
 
       if scanner.match?(/url\(/i)
-        parser = Sass::Script::Parser.new(scanner, @line, offset, @options)
-        str = parser.parse_string
-        media = scanner.scan(/\s*[^,;].*/)
-        media &&= " #{media}"
-        return Tree::DirectiveNode.new(["@import ", str, media || ''])
+        script_parser = Sass::Script::Parser.new(scanner, @line, offset, @options)
+        str = script_parser.parse_string
+        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
+        media = media_parser.parse_media_query_list
+        return Tree::CssImportNode.new(str, media)
       end
 
       unless str = scanner.scan(Sass::SCSS::RX::STRING)
@@ -797,12 +798,12 @@ WARNING
 
       val = scanner[1] || scanner[2]
       scanner.scan(/\s*/)
-      if media = scanner.scan(/[a-zA-Z].*/)
-        Tree::DirectiveNode.new(["@import #{str || uri} #{media}"])
-      elsif !scanner.match?(/[,;]|$/)
-        raise SyntaxError.new("Invalid @import: \"#{str || uri} #{scanner.rest}\"")
+      if !scanner.match?(/[,;]|$/)
+        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
+        media = media_parser.parse_media_query_list
+        Tree::CssImportNode.new(str || uri, media)
       elsif val =~ /^http:\/\//
-        Tree::DirectiveNode.new(["@import url(#{val})"])
+        Tree::CssImportNode.new("url(#{val})")
       else
         Tree::ImportNode.new(val)
       end

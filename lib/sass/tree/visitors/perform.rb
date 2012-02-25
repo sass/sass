@@ -135,7 +135,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # or parses and includes the imported Sass file.
   def visit_import(node)
     if path = node.css_import?
-      return Sass::Tree::DirectiveNode.resolved("@import url(#{path})")
+      return Sass::Tree::CssImportNode.resolved("url(#{path})")
     end
     file = node.imported_file
     handle_import_loop!(node) if @stack.any? {|e| e[:filename] == file.options[:filename]}
@@ -299,6 +299,15 @@ END
   def visit_media(node)
     node.query = node.query.deep_copy
     node.query.perform {|interp| run_interp(interp)}
+    yield
+  end
+
+  def visit_cssimport(node)
+    node.resolved_uri = run_interp([node.uri])
+    if node.query
+      node.query = node.query.deep_copy
+      node.query.perform {|interp| run_interp(interp)}
+    end
     yield
   end
 

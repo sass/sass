@@ -150,7 +150,7 @@ MSG
     "@content" => '@content may only be used within a mixin.',
     "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
     "=foo\n  @content\n+foo" => ["No @content passed.", 2],
-    "@import \"foo\" // bar" => "Invalid @import: \"\"foo\" // bar\"",
+    "@import \"foo\" // bar" => "Invalid CSS after \"\"foo\" \": expected media query list, was \"// bar\"",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
@@ -629,6 +629,17 @@ CSS
 CSS
 $family: unquote("Droid+Sans")
 @import url("http://fonts.googleapis.com/css?family=\#{$family}")
+SASS
+  end
+
+  def test_import_with_dynamic_media_query
+    assert_equal(<<CSS, render(<<SASS))
+@import "foo" print and (-webkit-min-device-pixel-ratio: 20);
+CSS
+$media: print
+$key: -webkit-min-device-pixel-ratio
+$value: 20
+@import "foo" $media and ($key: $value)
 SASS
   end
 

@@ -293,18 +293,17 @@ module Sass
         return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
         if uri
           str = sass_script(:parse_string)
-          media = str {media_query_list}.strip
-          media = " #{media}" unless media.empty?
+          media = media_query_list
           ss
-          return node(Tree::DirectiveNode.new(["@import ", str, media]))
+          return node(Tree::CssImportNode.new(str, media))
         end
 
         path = @scanner[1] || @scanner[2]
         ss
 
-        media = str {media_query_list}.strip
-        if path =~ /^http:\/\// || !media.empty? || use_css_import?
-          return node(Sass::Tree::DirectiveNode.new(["@import #{str} #{media}"]))
+        media = media_query_list
+        if path =~ /^http:\/\// || media || use_css_import?
+          return node(Sass::Tree::CssImportNode.new(str, media))
         end
 
         node(Sass::Tree::ImportNode.new(path.strip))

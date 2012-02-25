@@ -274,6 +274,17 @@ SCSS
     assert_equal("@import \"./fonts.sass\" all;\n", render("@import \"./fonts.sass\" all;"))
   end
 
+  def test_dynamic_media_import
+    assert_equal(<<CSS, render(<<SCSS))
+@import "foo" print and (-webkit-min-device-pixel-ratio: 20);
+CSS
+$media: print;
+$key: -webkit-min-device-pixel-ratio;
+$value: 20;
+@import "foo" $media and ($key: $value);
+SCSS
+  end
+
   def test_http_import
     assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";"))

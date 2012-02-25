@@ -150,6 +150,16 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     "#{tab_str}@media #{node.query.to_src(@options)}#{yield}"
   end
 
+  def visit_cssimport(node)
+    if node.uri.is_a?(Sass::Script::Node)
+      str = "#{tab_str}@import #{node.uri.to_sass(@options)}"
+    else
+      str = "#{tab_str}@import #{node.uri}"
+    end
+    str << " #{node.query.to_src(@options)}" if node.query
+    "#{str}#{semi}\n"
+  end
+
   def visit_mixindef(node)
     args =
       if node.args.empty?
