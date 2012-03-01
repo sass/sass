@@ -119,6 +119,10 @@ that make use of `@media` and other directives dynamically.
 * Sass 3.2 adds the \{Sass::Script::Functions#ie_hex_str `ie-hex-str`} function
   which returns a hex string for a color suitable for use with IE filters.
 
+* Sass 3.2 adds the \{Sass::Script::Functions#min `min`} and
+  \{Sass::Script::Functions#max `max`} functions, which return the minimum and
+  maximum of several values.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Parent selectors followed immediately by identifiers (e.g. `&foo`)
