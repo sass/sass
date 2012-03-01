@@ -586,6 +586,24 @@ CSS
 SCSS
   end
 
+  def test_moz_document_directive
+    assert_equal <<CSS, render(<<SCSS)
+@-moz-document url(http://www.w3.org/),
+               url-prefix(http://www.w3.org/Style/),
+               domain(mozilla.org),
+               regexp("^https:.*") {
+  .foo {
+    a: b; } }
+CSS
+@-moz-document url(http://www.w3.org/),
+               url-prefix(http://www.w3.org/Style/),
+               domain(mozilla.org),
+               regexp("^https:.*") {
+  .foo {a: b}
+}
+SCSS
+  end
+
   ## Selectors
 
   # Taken from http://www.w3.org/TR/css3-selectors/#selectors

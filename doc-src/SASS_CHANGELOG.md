@@ -7,6 +7,8 @@
 
 * Fix some bugs in `sass-convert` selector parsing when converting from CSS.
 * Substantially improve compilation performance on Ruby 1.8.
+* Support the `@-moz-document` directive's non-standard `url-prefix` and
+  `domain` function syntax.
 
 ## 3.1.15
 

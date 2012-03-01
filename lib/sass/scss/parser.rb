@@ -114,7 +114,7 @@ module Sass
       end
 
       DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
-        :each, :while, :if, :else, :extend, :import, :media, :charset]
+        :each, :while, :if, :else, :extend, :import, :media, :charset, :_moz_document]
 
       def directive
         return unless tok(/@/)
@@ -344,6 +344,37 @@ module Sass
         name = @scanner[1] || @scanner[2]
         ss
         node(Sass::Tree::CharsetNode.new(name))
+      end
+
+      # The document directive is specified in
+      # http://www.w3.org/TR/css3-conditional/, but Gecko allows the
+      # `url-prefix` and `domain` functions to omit quotation marks, contrary to
+      # the standard.
+      #
+      # We could parse all document directives according to Mozilla's syntax,
+      # but if someone's using e.g. @-webkit-document we don't want them to
+      # think WebKit works sans quotes.
+      def _moz_document_directive
+        value = str do
+          begin
+            ss
+            expr!(:moz_document_function)
+          end while tok(/,/)
+        end
+        ss
+
+        node = node(Sass::Tree::DirectiveNode.new("@-moz-document #{value}".strip))
+        tok!(/\{/)
+        node.has_children = true
+        block_contents(node, :directive)
+        tok!(/\}/)
+
+        node
+      end
+
+      def moz_document_function
+        return unless tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) || function
+        ss
       end
 
       def variable
@@ -841,6 +872,7 @@ MESSAGE
         :selector_comma_sequence => "selector",
         :simple_selector_sequence => "selector",
         :import_arg => "file to import (string or url())",
+        :moz_document_function => "matching function (e.g. url-prefix(), domain())",
       }
 
       TOK_NAMES = Sass::Util.to_hash(
