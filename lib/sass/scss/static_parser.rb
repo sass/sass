@@ -1,3 +1,5 @@
+require 'sass/script/css_parser'
+
 module Sass
   module SCSS
     # A parser for a static SCSS tree.
@@ -44,6 +46,9 @@ module Sass
         return unless %w[media import charset -moz-document].include?(name)
         super
       end
+
+      @sass_script_parser = Class.new(Sass::Script::CssParser)
+      @sass_script_parser.send(:include, ScriptParser)
     end
   end
 end
