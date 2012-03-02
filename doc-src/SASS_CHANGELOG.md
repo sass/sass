@@ -9,6 +9,7 @@
 * Substantially improve compilation performance on Ruby 1.8.
 * Support the `@-moz-document` directive's non-standard `url-prefix` and
   `domain` function syntax.
+* Support the [`@supports` directive](http://www.w3.org/TR/css3-conditional/#at-supports).
 
 ## 3.1.15
 
