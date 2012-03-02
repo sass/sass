@@ -926,6 +926,44 @@ $vals: 1 2 3;
 SCSS
   end
 
+  def test_moz_document_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@-moz-document url(http://sass-lang.com/),
+               url-prefix(http://sass-lang.com/docs),
+               domain(sass-lang.com),
+               domain("sass-lang.com") {
+  .foo {
+    a: b; } }
+CSS
+$domain: "sass-lang.com";
+@-moz-document url(http://\#{$domain}/),
+               url-prefix(http://\#{$domain}/docs),
+               domain(\#{$domain}),
+               \#{domain($domain)} {
+  .foo {a: b}
+}
+SCSS
+  end
+
+  def test_random_directive_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@foo url(http://sass-lang.com/),
+     domain("sass-lang.com"),
+     "foobarbaz",
+     foobarbaz {
+  .foo {
+    a: b; } }
+CSS
+$domain: "sass-lang.com";
+@foo url(http://\#{$domain}/),
+     \#{domain($domain)},
+     "foo\#{'ba' + 'r'}baz",
+     foo\#{'ba' + 'r'}baz {
+  .foo {a: b}
+}
+SCSS
+  end
+
   ## Errors
 
   def test_mixin_defs_only_at_toplevel

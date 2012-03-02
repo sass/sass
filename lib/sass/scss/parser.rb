@@ -409,18 +409,20 @@ module Sass
       # but if someone's using e.g. @-webkit-document we don't want them to
       # think WebKit works sans quotes.
       def _moz_document_directive
-        value = str do
-          begin
-            ss
-            expr!(:moz_document_function)
-          end while tok(/,/)
+        res = ["@-moz-document "]
+        loop do
+          res << str{ss} << expr!(:moz_document_function)
+          break unless c = tok(/,/)
+          res << c
         end
-        directive_body(["@-moz-document #{value}".strip])
+        directive_body(res.flatten)
       end
 
       def moz_document_function
-        return unless tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) || function(!:allow_var)
+        return unless val = interp_uri || _interp_string(:url_prefix) ||
+          _interp_string(:domain) || function(!:allow_var) || interpolation
         ss
+        val
       end
 
       # http://www.w3.org/TR/css3-conditional/
@@ -835,9 +837,9 @@ MESSAGE
 
       def term(allow_var)
         if e = tok(NUMBER) ||
-            tok(URI) ||
+            interp_uri ||
             function(allow_var) ||
-            tok(STRING) ||
+            interp_string ||
             tok(UNICODERANGE) ||
             interp_ident ||
             tok(HEXCOLOR) ||
@@ -876,6 +878,10 @@ MESSAGE
 
       def interp_string
         _interp_string(:double) || _interp_string(:single)
+      end
+
+      def interp_uri
+        _interp_string(:uri)
       end
 
       def _interp_string(type)
