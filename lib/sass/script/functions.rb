@@ -309,14 +309,21 @@ module Sass::Script
     class EvaluationContext
       include Functions
 
+
+      # The environment of the {Sass::Engine}
+      #
+      # @return [Environment]
+      attr_reader :environment
+
       # The options hash for the {Sass::Engine} that is processing the function call
       #
       # @return [{Symbol => Object}]
       attr_reader :options
 
-      # @param options [{Symbol => Object}] See \{#options}
-      def initialize(options)
-        @options = options
+      # @param environment [Environment] See \{#environment}
+      def initialize(environment)
+        @environment = environment
+        @options = environment.options
       end
 
       # Asserts that the type of a given SassScript value
