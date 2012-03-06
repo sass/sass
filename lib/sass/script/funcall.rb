@@ -103,7 +103,7 @@ module Sass
         unless Functions.callable?(ruby_name)
           opts(to_literal(args))
         else
-          opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
+          opts(Functions::EvaluationContext.new(environment).send(ruby_name, *args))
         end
       rescue ArgumentError => e
         # If this is a legitimate Ruby-raised argument error, re-raise it.
