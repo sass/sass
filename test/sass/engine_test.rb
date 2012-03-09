@@ -634,12 +634,12 @@ SASS
 
   def test_import_with_dynamic_media_query
     assert_equal(<<CSS, render(<<SASS))
-@import "foo" print and (-webkit-min-device-pixel-ratio: 20);
+@import "foo" print and (-webkit-min-device-pixel-ratio-foo: 25);
 CSS
 $media: print
 $key: -webkit-min-device-pixel-ratio
 $value: 20
-@import "foo" $media and ($key: $value)
+@import "foo" $media and ($key + "-foo": $value + 5)
 SASS
   end
 
@@ -2227,14 +2227,14 @@ SASS
 
   def test_variables_in_media
     assert_equal <<CSS, render(<<SASS)
-@media screen and (-webkit-min-device-pixel-ratio: 20), only print {
+@media screen and (-webkit-min-device-pixel-ratio-foo: 25), only print {
   a: b; }
 CSS
 $media1: screen
 $media2: print
 $var: -webkit-min-device-pixel-ratio
 $val: 20
-@media $media1 and ($var: $val), only $media2
+@media $media1 and ($var + "-foo": $val + 5), only $media2
   a: b
 SASS
   end

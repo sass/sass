@@ -205,7 +205,7 @@ module Sass::Media
   class Expression
     # The name of the feature being queried for.
     #
-    # @return [Array<String, Sass::Script::Node>]
+    # @return [Sass::Script::Node]
     attr_accessor :name
 
     # The name of the feature after any SassScript has been resolved.
@@ -225,7 +225,7 @@ module Sass::Media
     # @return [String]
     attr_accessor :resolved_value
 
-    # @param name [Array<String, Sass::Script::Node>] See \{#name}
+    # @param name [Sass::Script::Node] See \{#name}
     # @param value [Sass::Script::Node] See \{#value}
     def initialize(name, value)
       @name = name
@@ -239,7 +239,7 @@ module Sass::Media
     #   An interpolation array to perform.
     # @yieldreturn [String] The interpolated value.
     def perform
-      @resolved_name = yield name
+      @resolved_name = yield name ? [name] : []
       @resolved_value = yield value ? [value] : []
     end
 
@@ -260,7 +260,7 @@ module Sass::Media
     # @return [String]
     def to_src(options)
       src = '('
-      src << Sass::Media._interp_or_var_to_src(name, options)
+      src << name.to_sass(options)
       src << ': ' << value.to_sass(options) if value
       src << ')'
       src
@@ -270,16 +270,14 @@ module Sass::Media
     #
     # @return [Expression]
     def deep_copy
-      Expression.new(
-        name.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c},
-        value && value.deep_copy)
+      Expression.new(name.deep_copy, value && value.deep_copy)
     end
 
     # Sets the options hash for the script nodes in the expression.
     #
     # @param options [{Symbol => Object}] The options has to set.
     def options=(options)
-      name.each {|n| n.options = options if n.is_a?(Sass::Script::Node)}
+      name.options = options
       value.options = options if value
     end
   end

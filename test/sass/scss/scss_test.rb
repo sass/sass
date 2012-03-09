@@ -276,12 +276,12 @@ SCSS
 
   def test_dynamic_media_import
     assert_equal(<<CSS, render(<<SCSS))
-@import "foo" print and (-webkit-min-device-pixel-ratio: 20);
+@import "foo" print and (-webkit-min-device-pixel-ratio-foo: 25);
 CSS
 $media: print;
 $key: -webkit-min-device-pixel-ratio;
 $value: 20;
-@import "foo" $media and ($key: $value);
+@import "foo" $media and ($key + "-foo": $value + 5);
 SCSS
   end
 

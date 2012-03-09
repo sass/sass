@@ -1163,14 +1163,14 @@ $baz: 12;
 SCSS
   end
 
-  def test_media_with_variables
+  def test_media_with_expressions
     assert_renders <<SASS, <<SCSS
 $media1: screen
 $media2: print
 $var: -webkit-min-device-pixel-ratio
 $val: 20
 
-@media $media1 and ($var: $val), only $media2
+@media $media1 and ($var + "-foo": $val + 5), only $media2
   a: b
 SASS
 $media1: screen;
@@ -1178,7 +1178,7 @@ $media2: print;
 $var: -webkit-min-device-pixel-ratio;
 $val: 20;
 
-@media $media1 and ($var: $val), only $media2 {
+@media $media1 and ($var + "-foo": $val + 5), only $media2 {
   a: b;
 }
 SCSS

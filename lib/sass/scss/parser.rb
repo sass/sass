@@ -380,9 +380,7 @@ module Sass
       def media_expr
         return unless tok(/\(/)
         ss
-        @expected = "media feature (e.g. min-device-width, color)"
-        name = expr!(:interp_ident_or_var)
-        ss
+        name = sass_script(:parse)
 
         if tok(/:/)
           ss; value = sass_script(:parse)
