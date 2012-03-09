@@ -171,9 +171,9 @@ module Sass::Media
     # @return [String]
     def to_src(options)
       src = ''
-      src << Sass::Media._interp_or_var_to_src(modifier, options)
+      src << Sass::Media._interp_to_src(modifier, options)
       src << ' ' unless modifier.empty?
-      src << Sass::Media._interp_or_var_to_src(type, options)
+      src << Sass::Media._interp_to_src(type, options)
       src << ' and ' unless type.empty? || expressions.empty?
       src << expressions.map {|e| e.to_src(options)}.join(' and ')
       src
@@ -282,14 +282,12 @@ module Sass::Media
     end
   end
 
-  # Converts an interpolation array that may represent a single variable to source.
+  # Converts an interpolation array to source.
   #
   # @param [Array<String, Sass::Script::Node>] The interpolation array to convert.
   # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
   # @return [String]
-  def self._interp_or_var_to_src(interp, options)
-    interp = interp.reject {|v| v.is_a?(String) && v.empty?}
-    return interp[0].to_sass(options) if interp.length == 1 && interp[0].is_a?(Sass::Script::Variable)
+  def self._interp_to_src(interp, options)
     interp.map do |r|
       next r if r.is_a?(String)
       "\#{#{r.to_sass(options)}}"

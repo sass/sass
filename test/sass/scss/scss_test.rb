@@ -281,7 +281,7 @@ CSS
 $media: print;
 $key: -webkit-min-device-pixel-ratio;
 $value: 20;
-@import "foo" $media and ($key + "-foo": $value + 5);
+@import "foo" \#{$media} and ($key + "-foo": $value + 5);
 SCSS
   end
 
@@ -914,7 +914,7 @@ $media1: screen;
 $media2: print;
 $var: -webkit-min-device-pixel-ratio;
 $val: 20;
-@media $media1 and ($var: $val), only $media2 {a: b}
+@media \#{$media1} and ($var: $val), only \#{$media2} {a: b}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)

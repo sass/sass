@@ -1226,16 +1226,15 @@ is compiled to:
       }
     }
 
-Finally, `@media` queries can contain Sass variables in place of the media type,
-feature names, and feature values. The feature names and values can also contain
-more complex SassScript expressions, such as functions or operators. For
-example:
+Finally, `@media` queries can contain SassScript expressions (including
+variables, functions, and operators) in place of the feature names and feature
+values. For example:
 
     $media: screen;
     $feature: -webkit-min-device-pixel-ratio;
     $value: 1.5;
 
-    @media $media and ($feature: $value) {
+    @media #{$media} and ($feature: $value) {
       .sidebar {
         width: 500px;
       }

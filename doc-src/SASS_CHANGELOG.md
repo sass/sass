@@ -78,14 +78,14 @@ Is compiled to:
 
 In addition, `@media` gets some special treatment.
 In addition to allowing `#{}` interpolation,
-variables may be used directly in media queries.
+expressions may be used directly in media feature queries.
 This means that you can write e.g.:
 
     $media: screen;
     $feature: -webkit-min-device-pixel-ratio;
     $value: 1.5;
 
-    @media $media and ($feature: $value) {
+    @media #{$media} and ($feature: $value) {
       ...
     }
 

@@ -344,9 +344,9 @@ module Sass
       end
 
       def media_query
-        if ident1 = interp_ident_or_var
+        if ident1 = interp_ident
           ss
-          ident2 = interp_ident_or_var
+          ident2 = interp_ident
           ss
           if ident2 && ident2.length == 1 && ident2[0].is_a?(String) && ident2[0].downcase == 'and'
             query = Sass::Media::Query.new([], ident1, [])

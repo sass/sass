@@ -639,7 +639,7 @@ CSS
 $media: print
 $key: -webkit-min-device-pixel-ratio
 $value: 20
-@import "foo" $media and ($key + "-foo": $value + 5)
+@import "foo" \#{$media} and ($key + "-foo": $value + 5)
 SASS
   end
 
@@ -2234,7 +2234,7 @@ $media1: screen
 $media2: print
 $var: -webkit-min-device-pixel-ratio
 $val: 20
-@media $media1 and ($var + "-foo": $val + 5), only $media2
+@media \#{$media1} and ($var + "-foo": $val + 5), only \#{$media2}
   a: b
 SASS
   end

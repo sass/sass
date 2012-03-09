@@ -1170,7 +1170,7 @@ $media2: print
 $var: -webkit-min-device-pixel-ratio
 $val: 20
 
-@media $media1 and ($var + "-foo": $val + 5), only $media2
+@media \#{$media1} and ($var + "-foo": $val + 5), only \#{$media2}
   a: b
 SASS
 $media1: screen;
@@ -1178,7 +1178,7 @@ $media2: print;
 $var: -webkit-min-device-pixel-ratio;
 $val: 20;
 
-@media $media1 and ($var + "-foo": $val + 5), only $media2 {
+@media \#{$media1} and ($var + "-foo": $val + 5), only \#{$media2} {
   a: b;
 }
 SCSS
