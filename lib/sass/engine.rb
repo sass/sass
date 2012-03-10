@@ -8,6 +8,7 @@ require 'sass/tree/comment_node'
 require 'sass/tree/prop_node'
 require 'sass/tree/directive_node'
 require 'sass/tree/media_node'
+require 'sass/tree/supports_node'
 require 'sass/tree/css_import_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
@@ -41,6 +42,7 @@ require 'sass/error'
 require 'sass/importers'
 require 'sass/shared'
 require 'sass/media'
+require 'sass/supports'
 
 module Sass
 

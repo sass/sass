@@ -1184,6 +1184,28 @@ $val: 20;
 SCSS
   end
 
+  def test_supports_with_expressions
+    assert_renders <<SASS, <<SCSS
+$query: "(feature1: val)"
+$feature: feature2
+$val: val
+
+@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4))
+  foo
+    a: b
+SASS
+$query: "(feature1: val)";
+$feature: feature2;
+$val: val;
+
+@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4)) {
+  foo {
+    a: b;
+  }
+}
+SCSS
+  end
+
   # Hacks
 
   def test_declaration_hacks

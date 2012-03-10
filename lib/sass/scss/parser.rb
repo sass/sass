@@ -425,34 +425,46 @@ module Sass
 
       # http://www.w3.org/TR/css3-conditional/
       def supports_directive(name)
-        value = str {expr!(:supports_condition)}
-        directive_body(["@#{name} #{value}".strip])
+        condition = expr!(:supports_condition)
+        node = node(Sass::Tree::SupportsNode.new(name, condition))
+
+        tok!(/\{/)
+        node.has_children = true
+        block_contents(node, :directive)
+        tok!(/\}/)
+
+        node
       end
 
       def supports_condition
-        supports_negation || supports_operator || supports_declaration_condition
+        supports_negation || supports_operator || supports_declaration_condition ||
+          supports_interpolation
       end
 
       def supports_negation
         return unless tok(/not/i)
         ss
-        expr!(:supports_condition_in_parens)
+        Sass::Supports::Negation.new(expr!(:supports_condition_in_parens))
       end
 
       def supports_operator
-        return unless supports_condition_in_parens
-        tok!(/and|or/i)
+        return unless cond = supports_condition_in_parens
+        @expected = '"and" or "or"'
+        op = tok!(/and|or/i)
         begin
           ss
-          expr!(:supports_condition_in_parens)
-        end while tok(/and|or/i)
-        true
+          cond = Sass::Supports::Operator.new(
+            cond, expr!(:supports_condition_in_parens), op)
+        end while op = tok(/and|or/i)
+        cond
       end
 
       def supports_condition_in_parens
+        interp = supports_interpolation and return interp
         return unless tok(/\(/); ss
-        if supports_condition
+        if cond = supports_condition
           tok!(/\)/); ss
+          cond
         else
           supports_declaration_body
         end
@@ -464,10 +476,17 @@ module Sass
       end
 
       def supports_declaration_body
-        tok!(IDENT); ss
+        name = sass_script(:parse)
         tok!(/:/); ss
-        expr!(:expr); ss
+        value = sass_script(:parse)
         tok!(/\)/); ss
+        Sass::Supports::Declaration.new(name, value)
+      end
+
+      def supports_interpolation
+        return unless interp = interpolation
+        ss
+        Sass::Supports::Interpolation.new(interp)
       end
 
       def variable
