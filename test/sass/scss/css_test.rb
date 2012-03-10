@@ -609,8 +609,17 @@ SCSS
 @supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
   .foo {
     a: b; } }
+@supports (a: b) {
+  .foo {
+    a: b; } }
 CSS
 @supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+  .foo {
+    a: b;
+  }
+}
+
+@supports (a: b) {
   .foo {
     a: b;
   }

@@ -437,8 +437,7 @@ module Sass
       end
 
       def supports_condition
-        supports_negation || supports_operator || supports_declaration_condition ||
-          supports_interpolation
+        supports_negation || supports_operator || supports_interpolation
       end
 
       def supports_negation
@@ -449,8 +448,7 @@ module Sass
 
       def supports_operator
         return unless cond = supports_condition_in_parens
-        @expected = '"and" or "or"'
-        op = tok!(/and|or/i)
+        return cond unless op = tok(/and|or/i)
         begin
           ss
           cond = Sass::Supports::Operator.new(
@@ -466,21 +464,17 @@ module Sass
           tok!(/\)/); ss
           cond
         else
-          supports_declaration_body
+          name = sass_script(:parse)
+          tok!(/:/); ss
+          value = sass_script(:parse)
+          tok!(/\)/); ss
+          Sass::Supports::Declaration.new(name, value)
         end
       end
 
       def supports_declaration_condition
         return unless tok(/\(/); ss
         supports_declaration_body
-      end
-
-      def supports_declaration_body
-        name = sass_script(:parse)
-        tok!(/:/); ss
-        value = sass_script(:parse)
-        tok!(/\)/); ss
-        Sass::Supports::Declaration.new(name, value)
       end
 
       def supports_interpolation
