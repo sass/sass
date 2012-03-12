@@ -121,21 +121,17 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # Bubbles the `@media` directive up through RuleNodes
   # and merges it with other `@media` directives.
   def visit_media(node)
-    if parent.is_a?(Sass::Tree::RuleNode)
-      new_rule = parent.dup
-      new_rule.children = node.children
-      node.children = with_parent(node) {Array(visit(new_rule))}
-      # If the last child is actually the end of the group,
-      # the parent's cssize will set it properly
-      node.children.last.group_end = false unless node.children.empty?
-    else
-      yield
-    end
-
+    yield unless bubble(node)
     media = node.children.select {|c| c.is_a?(Sass::Tree::MediaNode)}
     node.children.reject! {|c| c.is_a?(Sass::Tree::MediaNode)}
     media = media.select {|n| n.query = n.query.merge(node.query)}
     (node.children.empty? ? [] : [node]) + media
+  end
+
+  # Bubbles the `@supports` directive up through RuleNodes.
+  def visit_supports(node)
+    yield unless bubble(node)
+    node
   end
 
   # Asserts that all the traced children are valid in their new location.
@@ -176,8 +172,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
     yield
 
-    rules = node.children.select {|c| c.is_a?(Sass::Tree::RuleNode) || c.is_a?(Sass::Tree::MediaNode)}
-    props = node.children.reject {|c| c.is_a?(Sass::Tree::RuleNode) || c.is_a?(Sass::Tree::MediaNode) || c.invisible?}
+    rules = node.children.select {|c| c.is_a?(Sass::Tree::RuleNode) || c.bubbles?}
+    props = node.children.reject {|c| c.is_a?(Sass::Tree::RuleNode) || c.bubbles? || c.invisible?}
 
     unless props.empty?
       node.children = props
@@ -188,5 +184,18 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     rules.last.group_end = true unless parent.is_a?(Sass::Tree::RuleNode) || rules.empty?
 
     rules
+  end
+
+  private
+
+  def bubble(node)
+    return unless parent.is_a?(Sass::Tree::RuleNode)
+    new_rule = parent.dup
+    new_rule.children = node.children
+    node.children = with_parent(node) {Array(visit(new_rule))}
+    # If the last child is actually the end of the group,
+    # the parent's cssize will set it properly
+    node.children.last.group_end = false unless node.children.empty?
+    true
   end
 end

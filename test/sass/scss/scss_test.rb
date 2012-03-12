@@ -960,6 +960,26 @@ $val: val;
 SCSS
   end
 
+  def test_supports_bubbling
+    assert_equal <<CSS, render(<<SCSS)
+@supports (foo: bar) {
+  a {
+    b: c; }
+    @supports (baz: bang) {
+      a {
+        d: e; } } }
+CSS
+a {
+  @supports (foo: bar) {
+    b: c;
+    @supports (baz: bang) {
+      d: e;
+    }
+  }
+}
+SCSS
+  end
+
   def test_random_directive_interpolation
     assert_equal <<CSS, render(<<SCSS)
 @foo url(http://sass-lang.com/),

@@ -188,6 +188,13 @@ module Sass
         Sass::Tree::Visitors::DeepCopy.visit(self)
       end
 
+      # Whether or not this node bubbles up through RuleNodes.
+      #
+      # @return [Boolean]
+      def bubbles?
+        false
+      end
+
       protected
 
       # @see Sass::Shared.balance

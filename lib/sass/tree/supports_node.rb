@@ -44,5 +44,8 @@ module Sass::Tree
     def invisible?
       children.all? {|c| c.invisible?}
     end
+
+    # @see Node#bubbles?
+    def bubbles?; true; end
   end
 end
