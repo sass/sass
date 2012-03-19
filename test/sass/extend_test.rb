@@ -1753,7 +1753,7 @@ SCSS
     assert_equal <<CSS, render(<<SCSS)
 .bar, .bar .foo {
   a: b; }
-  .bar .foo, .bar .foo .foo {
+  .bar .foo {
     c: d; }
 CSS
 .bar {
@@ -2007,6 +2007,40 @@ CSS
 > .foo {a: b}
 flip,
 > foo bar {@extend .foo}
+SCSS
+  end
+
+  def test_extended_parent_and_child_redundancy_elimination
+    assert_equal <<CSS, render(<<SCSS)
+a b, d b, a c, d c {
+  a: b; }
+CSS
+a {
+  b {a: b}
+  c {@extend b}
+}
+d {@extend a}
+SCSS
+  end
+
+  def test_extend_cross_branch_redundancy_elimination
+    assert_equal <<CSS, render(<<SCSS)
+a c d, b c a d {
+  a: b; }
+CSS
+%x c %y {a: b}
+a, b {@extend %x}
+a d {@extend %y}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+e a c d, a c e d, e b c a d, b c a e d {
+  a: b; }
+CSS
+e %z {a: b}
+%x c %y {@extend %z}
+a, b {@extend %x}
+a d {@extend %y}
 SCSS
   end
 

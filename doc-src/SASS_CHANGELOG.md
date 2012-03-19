@@ -108,6 +108,9 @@ that make use of `@media` and other directives dynamically.
 * In certain cases, redundant selectors used to be created as a result of a
   single rule having multiple `@extend`s. That redundancy has been eliminated.
 
+* Redundant selectors were also sometimes created by nested selectors
+  using `@extend`. That redundancy has been eliminated as well.
+
 * There is now much more comprehensive support for using `@extend` alongside
   CSS3 selector combinators (`+`, `~`, and `>`). These combinators will now be
   merged as much as possible.
