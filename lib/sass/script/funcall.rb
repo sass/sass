@@ -148,7 +148,7 @@ module Sass
         if keywords.any?
           unknown_args = keywords.keys - function.args.map {|var| var.first.underscored_name }
           if unknown_args.any?
-            raise Sass::SyntaxError.new("Function #{@name} doesn't have an arguments: #{unknwon_args.map{|name| "$#{name}"}}")
+            raise Sass::SyntaxError.new("Function #{@name} doesn't have an argument#{'s' if unknown_args.length > 1}: #{unknown_args.map{|name| "$#{name}"}.join ', '}")
           end
         end
 
