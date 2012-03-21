@@ -940,6 +940,32 @@ SCSS
 SASS
   end
 
+  def test_mixin_definition_with_glob
+    assert_renders <<SASS, <<SCSS
+=foo-bar($baz, *$bangs)
+  baz
+    a: $baz
+    @each $bang in $bangs
+      bang: $bang
+SASS
+@mixin foo-bar($baz, *$bangs) {
+  baz {
+    a: $baz;
+    @each $bang in $bangs {
+      bang: $bang; } } }
+SCSS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+@mixin foo-bar($baz, $bang: foo) {
+  baz {
+    a: $baz $bang; } }
+SCSS
+=foo-bar($baz, $bang: foo)
+  baz
+    a: $baz $bang
+SASS
+  end
+
   def test_argless_mixin_include
     assert_renders <<SASS, <<SCSS
 foo
@@ -1019,6 +1045,22 @@ SASS
     @return $var1 + $var2;
   }
 }
+SCSS
+  end
+
+  def test_function_definition_with_glob
+    assert_renders <<SASS, <<SCSS
+@function foo($var1, *$vars)
+  $result: $var1
+  @each $i in $vars
+    $result: $result + $i
+  @return $result
+SASS
+@function foo($var1, *$vars) {
+  $result: $var1;
+  @each $i in $vars {
+    $result: $result + $i; }
+  @return $result; }
 SCSS
   end
 

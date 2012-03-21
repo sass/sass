@@ -54,5 +54,9 @@ module Sass
         return val
       end
     end
+
+    # A special variable class for glob arguments in function deginitions
+    class GlobVariable < Variable
+    end
   end
 end

@@ -719,6 +719,62 @@ CSS
 SCSS
   end
 
+  def test_mixins_with_glob
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  a: 2; }
+CSS
+@mixin foo(*$a) {
+  @each $i in $a {
+    a: $i;
+  }
+}
+
+.foo {@include foo(1, 2)}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  b: 3;
+  c: 4; }
+CSS
+@mixin foo($a, *$b, $c) {
+  a: $a;
+  @each $i in $b {
+    b: $i;
+  }
+  c: $c; }
+
+.foo {@include foo(1, 2, 3, 4)}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3;
+  c: 4;
+  c: 5;
+  d: 6;
+  e: 7; }
+CSS
+@mixin foo($a, $b, *$c, $d, $e) {
+  a: $a;
+  b: $b;
+  @each $i in $c {
+    c: $i;
+  }
+  d: $d;
+  e: $e;
+}
+
+.foo {@include foo(2, $d: 6, 3, 4, $a: 1, 5, 7)}
+SCSS
+  end
+
   ## Functions
 
   def test_basic_function
