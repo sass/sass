@@ -830,6 +830,16 @@ $zzz: zzz;
 SCSS
   end
 
+  def test_selector_interpolation_at_attr_end
+    assert_equal <<CSS, render(<<SCSS)
+[foo=zzz] {
+  a: b; }
+CSS
+$zzz: zzz;
+[foo=\#{$zzz}] { a: b; }
+SCSS
+  end
+
   def test_selector_interpolation_at_dashes
     assert_equal <<CSS, render(<<SCSS)
 div {
