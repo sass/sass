@@ -1028,6 +1028,7 @@ module Sass::Script
         :green => (255 - color.green),
         :blue => (255 - color.blue))
     end
+    declare :invert, [:color]
 
     # Removes quotes from a string if the string is quoted,
     # or returns the same string if it's not.

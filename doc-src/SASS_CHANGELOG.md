@@ -12,6 +12,7 @@
 * Support the [`@supports` directive](http://www.w3.org/TR/css3-conditional/#at-supports).
 * Support bare interpolation in the value portion of attribute
   selectors (e.g. `[name=#{$value}]`).
+* Support keyword arguments for the `invert()` function.
 
 ## 3.1.15
 
