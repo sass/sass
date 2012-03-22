@@ -146,6 +146,9 @@ that make use of `@media` and other directives dynamically.
 * Support the `@-moz-document` directive's non-standard `url-prefix` and
   `domain` function syntax.
 * Support the [`@supports` directive](http://www.w3.org/TR/css3-conditional/#at-supports).
+* Support bare interpolation in the value portion of attribute
+  selectors (e.g. `[name=#{$value}]`).
+* Support keyword arguments for the `invert()` function.
 
 ## 3.1.15
 

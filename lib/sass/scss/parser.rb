@@ -708,11 +708,7 @@ module Sass
             tok(SUBSTRINGMATCH)
           @expected = "identifier or string"
           ss
-          if val = tok(IDENT)
-            val = [val]
-          else
-            val = expr!(:interp_string)
-          end
+          val = interp_ident || expr!(:interp_string)
           ss
         end
         tok(/\]/)
