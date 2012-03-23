@@ -145,10 +145,10 @@ module Sass
 
       def perform_sass_fn(function, args, keywords)
         # TODO: merge with mixin arg evaluation?
-        keywords.each do |name, value|
-          # TODO: Make this fast
-          unless function.args.find {|(var, default)| var.underscored_name == name}
-            raise Sass::SyntaxError.new("Function #{@name} doesn't have an argument named $#{name}")
+        if keywords.any?
+          unknown_args = keywords.keys - function.args.map {|var| var.first.underscored_name }
+          if unknown_args.any?
+            raise Sass::SyntaxError.new("Function #{@name} doesn't have #{unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'} #{unknown_args.map{|name| "$#{name}"}.join ', '}")
           end
         end
 
