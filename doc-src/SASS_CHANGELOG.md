@@ -10,6 +10,8 @@
 * Support the `@-moz-document` directive's non-standard `url-prefix` and
   `domain` function syntax.
 * Support the [`@supports` directive](http://www.w3.org/TR/css3-conditional/#at-supports).
+* Fix a performance issue when using `/*! */` comments with the Rails asset
+  pipeline.
 
 ## 3.1.15
 
