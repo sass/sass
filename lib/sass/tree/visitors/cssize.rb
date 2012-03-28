@@ -17,7 +17,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # If an exception is raised, this adds proper metadata to the backtrace.
   def visit(node)
-    super(node.dup)
+    super(node)
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.filename, :line => node.line)
     raise e
