@@ -2023,6 +2023,36 @@ d {@extend a}
 SCSS
   end
 
+  def test_extend_redundancy_elimination_when_it_would_reduce_specificity
+    assert_equal <<CSS, render(<<SCSS)
+a, a.foo {
+  x: y; }
+CSS
+a {x: y}
+a.foo {@extend a}
+SCSS
+  end
+
+  def test_extend_redundancy_elimination_when_it_would_preserve_specificity
+    assert_equal <<CSS, render(<<SCSS)
+.bar a {
+  x: y; }
+CSS
+.bar a {x: y}
+a.foo {@extend a}
+SCSS
+  end
+
+  def test_extend_redundancy_elimination_never_eliminates_base_selector
+    assert_equal <<CSS, render(<<SCSS)
+a.foo, .foo {
+  x: y; }
+CSS
+a.foo {x: y}
+.foo {@extend a}
+SCSS
+  end
+
   def test_extend_cross_branch_redundancy_elimination
     assert_equal <<CSS, render(<<SCSS)
 a c d, b c a d {
