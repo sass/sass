@@ -73,6 +73,22 @@ module Sass
       def to_s
         to_a.map {|e| e.is_a?(Sass::Script::Node) ? "\#{#{e.to_sass}}" : e}.join
       end
+
+      # Returns the specificity of the selector as an integer. The base is given
+      # by {Sass::Selector::SPECIFICITY_BASE}.
+      #
+      # @return [Fixnum]
+      def specificity
+        _specificity(members)
+      end
+
+      protected
+
+      def _specificity(arr)
+        spec = 0
+        arr.map {|m| spec += m.is_a?(String) ? 0 : m.specificity}
+        spec
+      end
     end
   end
 end
