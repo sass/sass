@@ -106,6 +106,8 @@ MSG
     "foo\n  @function bar()\n    @return 1" => ['Functions may only be defined at the root of a document.', 2],
     "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing parameter $a.',
     "@function foo()\n  @return 1\na\n  b: foo(2)" => 'Wrong number of arguments (1 for 0) for `foo\'',
+    "@function foo()\n  @return 1\na\n  b: foo($a: 1)" => "Function foo doesn't have an argument named $a",
+    "@function foo()\n  @return 1\na\n  b: foo($a: 1, $b: 2)" => "Function foo doesn't have the following arguments: $a, $b",
     "@return 1" => '@return may only be used within a function.',
     "@if true\n  @return 1" => '@return may only be used within a function.',
     "@mixin foo\n  @return 1\n@include foo" => ['@return may only be used within a function.', 2],

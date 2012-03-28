@@ -642,59 +642,60 @@ WARNING
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
-      if directive == "import"
+      case directive
+      when 'import'
         parse_import(line, value, offset)
-      elsif directive == "mixin"
+      when 'mixin'
         parse_mixin_definition(line)
-      elsif directive == "content"
+      when 'content'
         parse_content_directive(line)
-      elsif directive == "include"
+      when 'include'
         parse_mixin_include(line, root)
-      elsif directive == "function"
+      when 'function'
         parse_function(line, root)
-      elsif directive == "for"
+      when 'for'
         parse_for(line, root, value)
-      elsif directive == "each"
+      when 'each'
         parse_each(line, root, value)
-      elsif directive == "else"
+      when 'else'
         parse_else(parent, line, value)
-      elsif directive == "while"
+      when 'while'
         raise SyntaxError.new("Invalid while directive '@while': expected expression.") unless value
         Tree::WhileNode.new(parse_script(value, :offset => offset))
-      elsif directive == "if"
+      when 'if'
         raise SyntaxError.new("Invalid if directive '@if': expected expression.") unless value
         Tree::IfNode.new(parse_script(value, :offset => offset))
-      elsif directive == "debug"
+      when 'debug'
         raise SyntaxError.new("Invalid debug directive '@debug': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::DebugNode.new(parse_script(value, :offset => offset))
-      elsif directive == "extend"
+      when 'extend'
         raise SyntaxError.new("Invalid extend directive '@extend': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath extend directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::ExtendNode.new(parse_interp(value, offset))
-      elsif directive == "warn"
+      when 'warn'
         raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::WarnNode.new(parse_script(value, :offset => offset))
-      elsif directive == "return"
+      when 'return'
         raise SyntaxError.new("Invalid @return: expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath return directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::ReturnNode.new(parse_script(value, :offset => offset))
-      elsif directive == "charset"
+      when 'charset'
         name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
         raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath charset directives.",
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
-      elsif directive == "media"
+      when 'media'
         parser = Sass::SCSS::Parser.new(value, @options[:filename], @line)
         Tree::MediaNode.new(parser.parse_media_query_list)
       else
