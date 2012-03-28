@@ -181,591 +181,115 @@ SCSS
   end
 
   def test_class_unification
-    assert_equal <<CSS, render(<<SCSS)
-.foo.bar, .bar.baz {
-  a: b; }
-CSS
-.foo.bar {a: b}
-.baz {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.baz {
-  a: b; }
-CSS
-.foo.baz {a: b}
-.baz {@extend .foo}
-SCSS
+    assert_unification '.foo.bar', '.baz {@extend .foo}', '.foo.bar, .bar.baz' 
+    assert_unification '.foo.baz', '.baz {@extend .foo}', '.baz' 
   end
 
   def test_id_unification
-    assert_equal <<CSS, render(<<SCSS)
-.foo.bar, .bar#baz {
-  a: b; }
-CSS
-.foo.bar {a: b}
-#baz {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-#baz {
-  a: b; }
-CSS
-.foo#baz {a: b}
-#baz {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo#baz {
-  a: b; }
-CSS
-.foo#baz {a: b}
-#bar {@extend .foo}
-SCSS
+    assert_unification '.foo.bar', '#baz {@extend .foo}', '.foo.bar, .bar#baz'
+    assert_unification '.foo#baz', '#baz {@extend .foo}', '#baz'
+    assert_unification '.foo#baz', '#bar {@extend .foo}', '.foo#baz'
   end
 
   def test_universal_unification_with_simple_target
-    assert_equal <<CSS, render(<<SCSS)
-.foo, * {
-  a: b; }
-CSS
-.foo {a: b}
-* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo, *|* {
-  a: b; }
-CSS
-.foo {a: b}
-*|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.bar {
-  a: b; }
-CSS
-.foo.bar {a: b}
-* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.bar {
-  a: b; }
-CSS
-.foo.bar {a: b}
-*|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo.bar, ns|*.bar {
-  a: b; }
-CSS
-.foo.bar {a: b}
-ns|* {@extend .foo}
-SCSS
+    assert_unification '.foo', '* {@extend .foo}', '.foo, *'
+    assert_unification '.foo', '*|* {@extend .foo}', '.foo, *|*'
+    assert_unification '.foo.bar', '* {@extend .foo}', '.bar'
+    assert_unification '.foo.bar', '*|* {@extend .foo}', '.bar'
+    assert_unification '.foo.bar', 'ns|* {@extend .foo}', '.foo.bar, ns|*.bar'
   end
 
   def test_universal_unification_with_namespaceless_universal_target
-    assert_equal <<CSS, render(<<SCSS)
-* {
-  a: b; }
-CSS
-*.foo {a: b}
-* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-* {
-  a: b; }
-CSS
-*.foo {a: b}
-*|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|*.foo, * {
-  a: b; }
-CSS
-*|*.foo {a: b}
-* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|* {
-  a: b; }
-CSS
-*|*.foo {a: b}
-*|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*.foo, ns|* {
-  a: b; }
-CSS
-*.foo {a: b}
-ns|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|*.foo, ns|* {
-  a: b; }
-CSS
-*|*.foo {a: b}
-ns|* {@extend .foo}
-SCSS
+    assert_unification '*.foo', '* {@extend .foo}', '*'
+    assert_unification '*.foo', '*|* {@extend .foo}', '*'
+    assert_unification '*|*.foo', '* {@extend .foo}', '*|*.foo, *'
+    assert_unification '*|*.foo', '*|* {@extend .foo}', '*|*'
+    assert_unification '*.foo', 'ns|* {@extend .foo}', '*.foo, ns|*'
+    assert_unification '*|*.foo', 'ns|* {@extend .foo}', '*|*.foo, ns|*'
   end
 
   def test_universal_unification_with_namespaced_universal_target
-    assert_equal <<CSS, render(<<SCSS)
-ns|* {
-  a: b; }
-CSS
-ns|*.foo {a: b}
-* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns|* {
-  a: b; }
-CSS
-ns|*.foo {a: b}
-*|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns1|*.foo {
-  a: b; }
-CSS
-ns1|*.foo {a: b}
-ns2|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns|* {
-  a: b; }
-CSS
-ns|*.foo {a: b}
-ns|* {@extend .foo}
-SCSS
+    assert_unification 'ns|*.foo', '* {@extend .foo}', 'ns|*'
+    assert_unification 'ns|*.foo', '*|* {@extend .foo}', 'ns|*'
+    assert_unification 'ns1|*.foo', 'ns2|* {@extend .foo}', 'ns1|*.foo'
+    assert_unification 'ns|*.foo', 'ns|* {@extend .foo}', 'ns|*'
   end
 
   def test_universal_unification_with_namespaceless_element_target
-    assert_equal <<CSS, render(<<SCSS)
-a {
-  a: b; }
-CSS
-a.foo {a: b}
-* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-a {
-  a: b; }
-CSS
-a.foo {a: b}
-*|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|a.foo, a {
-  a: b; }
-CSS
-*|a.foo {a: b}
-* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|a {
-  a: b; }
-CSS
-*|a.foo {a: b}
-*|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-a.foo, ns|a {
-  a: b; }
-CSS
-a.foo {a: b}
-ns|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|a.foo, ns|a {
-  a: b; }
-CSS
-*|a.foo {a: b}
-ns|* {@extend .foo}
-SCSS
+    assert_unification 'a.foo', '* {@extend .foo}', 'a'
+    assert_unification 'a.foo', '*|* {@extend .foo}', 'a'
+    assert_unification '*|a.foo', '* {@extend .foo}', '*|a.foo, a'
+    assert_unification '*|a.foo', '*|* {@extend .foo}', '*|a'
+    assert_unification 'a.foo', 'ns|* {@extend .foo}', 'a.foo, ns|a'
+    assert_unification '*|a.foo', 'ns|* {@extend .foo}', '*|a.foo, ns|a'
   end
 
   def test_universal_unification_with_namespaced_element_target
-    assert_equal <<CSS, render(<<SCSS)
-ns|a {
-  a: b; }
-CSS
-ns|a.foo {a: b}
-* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns|a {
-  a: b; }
-CSS
-ns|a.foo {a: b}
-*|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns1|a.foo {
-  a: b; }
-CSS
-ns1|a.foo {a: b}
-ns2|* {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns|a {
-  a: b; }
-CSS
-ns|a.foo {a: b}
-ns|* {@extend .foo}
-SCSS
+    assert_unification 'ns|a.foo', '* {@extend .foo}', 'ns|a'
+    assert_unification 'ns|a.foo', '*|* {@extend .foo}', 'ns|a'
+    assert_unification 'ns1|a.foo', 'ns2|* {@extend .foo}', 'ns1|a.foo'
+    assert_unification 'ns|a.foo', 'ns|* {@extend .foo}', 'ns|a'
   end
 
   def test_element_unification_with_simple_target
-    assert_equal <<CSS, render(<<SCSS)
-.foo, a {
-  a: b; }
-CSS
-.foo {a: b}
-a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo.bar, a.bar {
-  a: b; }
-CSS
-.foo.bar {a: b}
-a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo.bar, *|a.bar {
-  a: b; }
-CSS
-.foo.bar {a: b}
-*|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.foo.bar, ns|a.bar {
-  a: b; }
-CSS
-.foo.bar {a: b}
-ns|a {@extend .foo}
-SCSS
+    assert_unification '.foo', 'a {@extend .foo}', '.foo, a'
+    assert_unification '.foo.bar', 'a {@extend .foo}', '.foo.bar, a.bar'
+    assert_unification '.foo.bar', '*|a {@extend .foo}', '.foo.bar, *|a.bar'
+    assert_unification '.foo.bar', 'ns|a {@extend .foo}', '.foo.bar, ns|a.bar'
   end
 
   def test_element_unification_with_namespaceless_universal_target
-    assert_equal <<CSS, render(<<SCSS)
-*.foo, a {
-  a: b; }
-CSS
-*.foo {a: b}
-a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*.foo, a {
-  a: b; }
-CSS
-*.foo {a: b}
-*|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|*.foo, a {
-  a: b; }
-CSS
-*|*.foo {a: b}
-a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|*.foo, *|a {
-  a: b; }
-CSS
-*|*.foo {a: b}
-*|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*.foo, ns|a {
-  a: b; }
-CSS
-*.foo {a: b}
-ns|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|*.foo, ns|a {
-  a: b; }
-CSS
-*|*.foo {a: b}
-ns|a {@extend .foo}
-SCSS
+    assert_unification '*.foo', 'a {@extend .foo}', '*.foo, a'
+    assert_unification '*.foo', '*|a {@extend .foo}', '*.foo, a'
+    assert_unification '*|*.foo', 'a {@extend .foo}', '*|*.foo, a'
+    assert_unification '*|*.foo', '*|a {@extend .foo}', '*|*.foo, *|a'
+    assert_unification '*.foo', 'ns|a {@extend .foo}', '*.foo, ns|a'
+    assert_unification '*|*.foo', 'ns|a {@extend .foo}', '*|*.foo, ns|a'
   end
 
   def test_element_unification_with_namespaced_universal_target
-    assert_equal <<CSS, render(<<SCSS)
-ns|*.foo, ns|a {
-  a: b; }
-CSS
-ns|*.foo {a: b}
-a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns|*.foo, ns|a {
-  a: b; }
-CSS
-ns|*.foo {a: b}
-*|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns1|*.foo {
-  a: b; }
-CSS
-ns1|*.foo {a: b}
-ns2|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns|*.foo, ns|a {
-  a: b; }
-CSS
-ns|*.foo {a: b}
-ns|a {@extend .foo}
-SCSS
+    assert_unification 'ns|*.foo', 'a {@extend .foo}', 'ns|*.foo, ns|a'
+    assert_unification 'ns|*.foo', '*|a {@extend .foo}', 'ns|*.foo, ns|a'
+    assert_unification 'ns1|*.foo', 'ns2|a {@extend .foo}', 'ns1|*.foo'
+    assert_unification 'ns|*.foo', 'ns|a {@extend .foo}', 'ns|*.foo, ns|a'
   end
 
   def test_element_unification_with_namespaceless_element_target
-    assert_equal <<CSS, render(<<SCSS)
-a {
-  a: b; }
-CSS
-a.foo {a: b}
-a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-a {
-  a: b; }
-CSS
-a.foo {a: b}
-*|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|a.foo, a {
-  a: b; }
-CSS
-*|a.foo {a: b}
-a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|a {
-  a: b; }
-CSS
-*|a.foo {a: b}
-*|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-a.foo, ns|a {
-  a: b; }
-CSS
-a.foo {a: b}
-ns|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-*|a.foo, ns|a {
-  a: b; }
-CSS
-*|a.foo {a: b}
-ns|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-a.foo {
-  a: b; }
-CSS
-a.foo {a: b}
-h1 {@extend .foo}
-SCSS
+    assert_unification 'a.foo', 'a {@extend .foo}', 'a'
+    assert_unification 'a.foo', '*|a {@extend .foo}', 'a'
+    assert_unification '*|a.foo', 'a {@extend .foo}', '*|a.foo, a'
+    assert_unification '*|a.foo', '*|a {@extend .foo}', '*|a'
+    assert_unification 'a.foo', 'ns|a {@extend .foo}', 'a.foo, ns|a'
+    assert_unification '*|a.foo', 'ns|a {@extend .foo}', '*|a.foo, ns|a'
+    assert_unification 'a.foo', 'h1 {@extend .foo}', 'a.foo'
   end
 
   def test_element_unification_with_namespaced_element_target
-    assert_equal <<CSS, render(<<SCSS)
-ns|a {
-  a: b; }
-CSS
-ns|a.foo {a: b}
-a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns|a {
-  a: b; }
-CSS
-ns|a.foo {a: b}
-*|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns1|a.foo {
-  a: b; }
-CSS
-ns1|a.foo {a: b}
-ns2|a {@extend .foo}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-ns|a {
-  a: b; }
-CSS
-ns|a.foo {a: b}
-ns|a {@extend .foo}
-SCSS
+    assert_unification 'ns|a.foo', 'a {@extend .foo}', 'ns|a'
+    assert_unification 'ns|a.foo', '*|a {@extend .foo}', 'ns|a'
+    assert_unification 'ns1|a.foo', 'ns2|a {@extend .foo}', 'ns1|a.foo'
+    assert_unification 'ns|a.foo', 'ns|a {@extend .foo}', 'ns|a'
   end
 
   def test_attribute_unification
-    assert_equal <<CSS, render(<<SCSS)
-[foo=bar].baz, [foo=bar][foo=baz] {
-  a: b; }
-CSS
-[foo=bar].baz {a: b}
-[foo=baz] {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-[foo=bar].baz, [foo=bar][foo^=bar] {
-  a: b; }
-CSS
-[foo=bar].baz {a: b}
-[foo^=bar] {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-[foo=bar].baz, [foo=bar][foot=bar] {
-  a: b; }
-CSS
-[foo=bar].baz {a: b}
-[foot=bar] {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-[foo=bar].baz, [foo=bar][ns|foo=bar] {
-  a: b; }
-CSS
-[foo=bar].baz {a: b}
-[ns|foo=bar] {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-[foo=bar] {
-  a: b; }
-CSS
-[foo=bar].baz {a: b}
-[foo=bar] {@extend .baz}
-SCSS
+    assert_unification '[foo=bar].baz', '[foo=baz] {@extend .baz}', '[foo=bar].baz, [foo=bar][foo=baz]'
+    assert_unification '[foo=bar].baz', '[foo^=bar] {@extend .baz}', '[foo=bar].baz, [foo=bar][foo^=bar]'
+    assert_unification '[foo=bar].baz', '[foot=bar] {@extend .baz}', '[foo=bar].baz, [foo=bar][foot=bar]'
+    assert_unification '[foo=bar].baz', '[ns|foo=bar] {@extend .baz}', '[foo=bar].baz, [foo=bar][ns|foo=bar]'
+    assert_unification '%-a [foo=bar].bar', '[foo=bar] {@extend .bar}', '-a [foo=bar]'
   end
 
   def test_pseudo_unification
-    assert_equal <<CSS, render(<<SCSS)
-:foo.baz, :foo:foo(2n+1) {
-  a: b; }
-CSS
-:foo.baz {a: b}
-:foo(2n+1) {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-:foo.baz, :foo::foo {
-  a: b; }
-CSS
-:foo.baz {a: b}
-::foo {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-::foo.baz {
-  a: b; }
-CSS
-::foo.baz {a: b}
-::bar {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-::foo.baz {
-  a: b; }
-CSS
-::foo.baz {a: b}
-::foo(2n+1) {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-::foo {
-  a: b; }
-CSS
-::foo.baz {a: b}
-::foo {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-::foo(2n+1) {
-  a: b; }
-CSS
-::foo(2n+1).baz {a: b}
-::foo(2n+1) {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-:foo.baz, :foo:bar {
-  a: b; }
-CSS
-:foo.baz {a: b}
-:bar {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.baz:foo, :foo:after {
-  a: b; }
-CSS
-.baz:foo {a: b}
-:after {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-.baz:after, :foo:after {
-  a: b; }
-CSS
-.baz:after {a: b}
-:foo {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-:foo {
-  a: b; }
-CSS
-:foo.baz {a: b}
-:foo {@extend .baz}
-SCSS
+    assert_unification ':foo.baz', ':foo(2n+1) {@extend .baz}', ':foo.baz, :foo:foo(2n+1)'
+    assert_unification ':foo.baz', '::foo {@extend .baz}', ':foo.baz, :foo::foo'
+    assert_unification '::foo.baz', '::bar {@extend .baz}', '::foo.baz'
+    assert_unification '::foo.baz', '::foo(2n+1) {@extend .baz}', '::foo.baz'
+    assert_unification '::foo.baz', '::foo {@extend .baz}', '::foo'
+    assert_unification '::foo(2n+1).baz', '::foo(2n+1) {@extend .baz}', '::foo(2n+1)'
+    assert_unification ':foo.baz', ':bar {@extend .baz}', ':foo.baz, :foo:bar'
+    assert_unification '.baz:foo', ':after {@extend .baz}', '.baz:foo, :foo:after'
+    assert_unification '.baz:after', ':foo {@extend .baz}', '.baz:after, :foo:after'
+    assert_unification ':foo.baz', ':foo {@extend .baz}', ':foo'
   end
 
   def test_pseudoelement_remains_at_end_of_selector
@@ -851,29 +375,9 @@ SCSS
   end
 
   def test_negation_unification
-    assert_equal <<CSS, render(<<SCSS)
-:not(.foo).baz, :not(.foo):not(.bar) {
-  a: b; }
-CSS
-:not(.foo).baz {a: b}
-:not(.bar) {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-:not(.foo) {
-  a: b; }
-CSS
-:not(.foo).baz {a: b}
-:not(.foo) {@extend .baz}
-SCSS
-
-    assert_equal <<CSS, render(<<SCSS)
-:not([a=b]) {
-  a: b; }
-CSS
-:not([a=b]).baz {a: b}
-:not([a = b]) {@extend .baz}
-SCSS
+    assert_unification ':not(.foo).baz', ':not(.bar) {@extend .baz}', ':not(.foo).baz, :not(.foo):not(.bar)'
+    assert_unification ':not(.foo).baz', ':not(.foo) {@extend .baz}', ':not(.foo)'
+    assert_unification ':not([a=b]).baz', ':not([a = b]) {@extend .baz}', ':not([a=b])'
   end
 
   def test_comma_extendee
@@ -2075,6 +1579,17 @@ SCSS
   end
 
   private
+
+  def assert_unification(selector, extension, unified)
+    assert_equal <<CSS, render(<<SCSS)
+#{unified.split(', ').map {|s| "-a #{s}"}.join(', ')} {
+  a: b; }
+CSS
+%-a #{selector} {a: b}
+#{extension}
+-a {@extend %-a}
+SCSS
+  end
 
   def render(sass, options = {})
     munge_filename options
