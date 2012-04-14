@@ -46,7 +46,6 @@ module Sass
       # @raise [ArgumentError] If `set` is empty.
       def []=(set, value)
         raise ArgumentError.new("SubsetMap keys may not be empty.") if set.empty?
-
         index = @vals.size
         @vals << value
         set.each do |k|
@@ -95,6 +94,28 @@ module Sass
       # @see #get
       def [](set)
         get(set).map {|v, _| v}
+      end
+
+      # Iterate over each key and the values to which it maps
+      #
+      # @yield [key, values] Yields the key and an array of values to which it is mapped.
+      def each
+        @hash.each do |k,v|
+          yield(k, v.map{|(_,_,i)| @vals[i]})
+        end
+      end
+
+      # Iterate over each value the keys which are mapped to it.
+      #
+      # @yield [value, keys] Yields the value and an array of keys.
+      def each_by_value
+        value_map = {}
+        each do |k,values|
+          values.each do |v|
+            (value_map[v] ||= []) << k
+          end
+        end
+        value_map.each {|v,k| yield v, k}
       end
     end
   end

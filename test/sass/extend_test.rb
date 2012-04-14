@@ -318,7 +318,13 @@ SCSS
   end
 
   def test_long_extendee_requires_all_selectors
-    assert_extends '.foo', '.baz {@extend .foo.bar}', '.foo'
+    assert_warning(<<MESSAGE) { assert_extends '.foo', '.baz {@extend .foo.bar}', '.foo' }
+WARNING on line 2 of test_long_extendee_requires_all_selectors_inline.scss:
+  Missing selector .foo.bar not found for @extend of .baz.
+  This will become an error in a future release.
+  To allow this condition, change to:
+    @extend .foo.bar !optional
+MESSAGE
   end
 
   def test_long_extendee_matches_supersets
@@ -903,6 +909,31 @@ a d {@extend %y}
 SCSS
   end
 
+  def test_extend_warns_when_base_class_not_found
+    assert_warning(<<MESSAGE) { render(".foo { @extend .base; }") }
+WARNING on line 1 of test_extend_warns_when_base_class_not_found_inline.scss:
+  Missing selector .base not found for @extend of .foo.
+  This will become an error in a future release.
+  To allow this condition, change to:
+    @extend .base !optional
+MESSAGE
+  end
+
+  def test_extend_does_not_warn_when_base_class_is_found
+    assert_no_warnings { render(".base {a:b;} .foo { @extend .base; }") }
+  end
+
+  def test_extend_does_not_warn_when_optional
+    assert_no_warnings { render(".foo { @extend .base !optional; }") }
+  end
+
+  def test_extend_does_not_warn_when_optional_in_sass
+    assert_no_warnings { render(<<SASS, :syntax => :sass) }
+.foo
+  @extend .base !optional
+SASS
+  end
+
   private
 
   def assert_unification(selector, extension, unified)
@@ -924,7 +955,8 @@ SCSS
   end
 
   def render(sass, options = {})
+    options = {:syntax => :scss}.merge(options)
     munge_filename options
-    Sass::Engine.new(sass, {:syntax => :scss}.merge(options)).render
+    Sass::Engine.new(sass, options).render
   end
 end

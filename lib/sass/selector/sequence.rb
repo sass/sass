@@ -9,6 +9,7 @@ module Sass
       # @param line [Fixnum]
       # @return [Fixnum]
       def line=(line)
+        @line = line
         members.each {|m| m.line = line if m.is_a?(SimpleSequence)}
         line
       end
@@ -20,6 +21,7 @@ module Sass
       # @param filename [String, nil]
       # @return [String, nil]
       def filename=(filename)
+        @filename = filename
         members.each {|m| m.filename = filename if m.is_a?(SimpleSequence)}
         filename
       end

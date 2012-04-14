@@ -20,8 +20,26 @@ module Sass
         result = Visitors::Perform.visit(self)
         Visitors::CheckNesting.visit(result) # Check again to validate mixins
         result, extends = Visitors::Cssize.visit(result)
-        result = result.do_extend(extends) unless extends.empty?
-        result.to_s
+        result.do_extend(extends).to_s
+      end
+
+      def do_extend(extends)
+        return self if extends.empty?
+        result = super
+        extends.each_by_value do |by, es|
+          next if es.all?{|e| e.extended?}
+          unless by.extension_optional?
+            selector = es.map{|e| e.inspect}.join
+            Sass::Util.sass_warn <<WARN
+WARNING on line #{by.line}#{" of #{by.filename}" if by.filename}:
+  Missing selector #{selector} not found for @extend of #{by.inspect}.
+  This will become an error in a future release.
+  To allow this condition, change to:
+    @extend #{selector} !optional
+WARN
+          end
+        end
+        result
       end
     end
   end
