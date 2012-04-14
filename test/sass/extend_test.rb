@@ -318,7 +318,13 @@ SCSS
   end
 
   def test_long_extendee_requires_all_selectors
-    assert_extends '.foo', '.baz {@extend .foo.bar}', '.foo'
+    assert_warning(<<MESSAGE) { assert_extends '.foo', '.baz {@extend .foo.bar}', '.foo' }
+WARNING on line 2 of test_long_extendee_requires_all_selectors_inline.scss:
+  Missing selector .foo.bar not found for @extend of .baz.
+  This will become an error in a future release.
+  To allow this condition, change to:
+    @extend .foo.bar !optional
+MESSAGE
   end
 
   def test_long_extendee_matches_supersets
