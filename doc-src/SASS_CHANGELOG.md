@@ -13,6 +13,7 @@
 * Fix a performance issue when using `/*! */` comments with the Rails asset
   pipeline.
 * Support `-moz-element`.
+* Properly handle empty lists in `sass-convert`.
 
 ## 3.1.15
 
