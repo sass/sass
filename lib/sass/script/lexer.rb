@@ -287,7 +287,7 @@ MESSAGE
       end
 
       def special_fun
-        return unless str1 = scan(/((-[\w-]+-)?calc|expression|progid:[a-z\.]*)\(/i)
+        return unless str1 = scan(/((-[\w-]+-)?(calc|element)|expression|progid:[a-z\.]*)\(/i)
         str2, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
         c = str2.count("\n")
         old_line = @line
