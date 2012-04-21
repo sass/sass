@@ -139,7 +139,7 @@ that make use of `@media` and other directives dynamically.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
-## 3.1.16 (Unreleased)
+## 3.1.16
 
 * Fix some bugs in `sass-convert` selector parsing when converting from CSS.
 * Substantially improve compilation performance on Ruby 1.8.
