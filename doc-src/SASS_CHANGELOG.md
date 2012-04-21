@@ -14,6 +14,8 @@
   pipeline.
 * Support `-moz-element`.
 * Properly handle empty lists in `sass-convert`.
+* Move from [FSSM](https://github.com/ttilley/fssm) to
+  [Listen](https://github.com/guard/listen) for file-system monitoring.
 
 ## 3.1.15
 
