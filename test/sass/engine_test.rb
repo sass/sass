@@ -1100,6 +1100,7 @@ SASS
   def test_guarded_assign
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b\n$foo: c !default\nfoo\n  a: $foo}))
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b !default\nfoo\n  a: $foo}))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: nil\n$foo: b !default\nfoo\n  a: $foo}))
   end
   
   def test_mixins

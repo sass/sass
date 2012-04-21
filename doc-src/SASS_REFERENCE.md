@@ -627,12 +627,13 @@ this still works, but it's deprecated and prints a warning.
 
 ### Data Types
 
-SassScript supports four main data types:
+SassScript supports six main data types:
 
 * numbers (e.g. `1.2`, `13`, `10px`)
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
+* nil values (e.g. `nil`)
 * lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
 
 SassScript also supports all other types of CSS property value,
@@ -1025,25 +1026,29 @@ is compiled to:
 
 You can assign to variables if they aren't already assigned
 by adding the `!default` flag to the end of the value.
-This means that if the variable has already been assigned to,
-it won't be re-assigned,
-but if it doesn't have a value yet, it will be given one.
+This means that if the variable has already been assigned a non-nil value,
+it won't be re-assigned. If it doesn't have a value yet (or it is nil),
+it will be given one.
 
 For example:
 
     $content: "First content";
     $content: "Second content?" !default;
-    $new_content: "First time reference" !default;
+    $non-nil-content: nil;
+    $non-nil-content: "Non-nil content" !default;
+    $new-content: "First time reference" !default;
 
     #main {
       content: $content;
-      new-content: $new_content;
+      non-nil-content: $non-nil-content;
+      new-content: $new-content;
     }
 
 is compiled to:
 
     #main {
       content: "First content";
+      non-nil-content: "Non-nil content";
       new-content: "First time reference"; }
 
 ## `@`-Rules and Directives {#directives}

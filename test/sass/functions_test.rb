@@ -871,6 +871,7 @@ MSG
     assert_equal("bool", evaluate("type-of(true)"))
     assert_equal("color", evaluate("type-of(#fff)"))
     assert_equal("color", evaluate("type-of($value: #fff)"))
+    assert_equal("nil", evaluate("type-of(nil)"))
   end
 
   def test_unit
@@ -1011,6 +1012,7 @@ MSG
   def test_if
     assert_equal("1px", evaluate("if(true, 1px, 2px)"))
     assert_equal("2px", evaluate("if(false, 1px, 2px)"))
+    assert_equal("2px", evaluate("if(nil, 1px, 2px)"))
   end
 
   def test_keyword_args_rgb

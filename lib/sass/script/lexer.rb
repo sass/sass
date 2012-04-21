@@ -90,6 +90,7 @@ module Sass
         :number => /(-)?(?:(\d*\.\d+)|(\d+))([a-zA-Z%]+)?/,
         :color => HEXCOLOR,
         :bool => /(true|false)\b/,
+        :nil => /(nil)\b/,
         :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")})})},
         :op => %r{(#{Regexp.union(*OP_NAMES)})},
       }
@@ -234,7 +235,7 @@ module Sass
         end
 
         variable || string(:double, false) || string(:single, false) || number ||
-          color || bool || string(:uri, false) || raw(UNICODERANGE) ||
+          color || bool || nil_value || string(:uri, false) || raw(UNICODERANGE) ||
           special_fun || special_val || ident_op || ident || op
       end
 
@@ -290,6 +291,11 @@ MESSAGE
       def bool
         return unless s = scan(REGULAR_EXPRESSIONS[:bool])
         [:bool, Script::Bool.new(s == 'true')]
+      end
+
+      def nil_value
+        return unless s = scan(REGULAR_EXPRESSIONS[:nil])
+        [:nil, Script::Nil.new]
       end
 
       def special_fun
