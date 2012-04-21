@@ -412,6 +412,15 @@ foo {
 SCSS
   end
 
+  def test_element_function
+    assert_parses <<SCSS
+foo {
+  a: -moz-element(#foo);
+  b: -webkit-element(#foo);
+  b: -foobar-element(#foo); }
+SCSS
+  end
+
   def test_unary_ops
     assert_equal <<CSS, render(<<SCSS)
 foo {

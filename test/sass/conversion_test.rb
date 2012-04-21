@@ -1515,6 +1515,16 @@ SCSS
   end
 
 
+  ## Regression Tests
+
+  def test_empty_lists
+    assert_renders(<<SASS, <<SCSS)
+$foo: ()
+SASS
+$foo: ();
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

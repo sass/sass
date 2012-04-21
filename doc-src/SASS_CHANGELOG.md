@@ -148,6 +148,10 @@ that make use of `@media` and other directives dynamically.
 * Support the [`@supports` directive](http://www.w3.org/TR/css3-conditional/#at-supports).
 * Fix a performance issue when using `/*! */` comments with the Rails asset
   pipeline.
+* Support `-moz-element`.
+* Properly handle empty lists in `sass-convert`.
+* Move from [FSSM](https://github.com/ttilley/fssm) to
+  [Listen](https://github.com/guard/listen) for file-system monitoring.
 
 ## 3.1.15
 

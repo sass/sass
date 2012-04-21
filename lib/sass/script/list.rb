@@ -46,6 +46,7 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass(opts = {})
+      return "()" if value.empty?
       precedence = Sass::Script::Parser.precedence_of(separator)
       value.map do |v|
         if v.is_a?(List) && Sass::Script::Parser.precedence_of(v.separator) <= precedence
