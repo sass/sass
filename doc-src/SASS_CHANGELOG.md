@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.16 (Unreleased)
+## 3.1.16
 
 * Fix some bugs in `sass-convert` selector parsing when converting from CSS.
 * Substantially improve compilation performance on Ruby 1.8.
