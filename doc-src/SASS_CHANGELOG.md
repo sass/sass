@@ -7,6 +7,8 @@
 
 * Don't crash when calling `#inspect` on an internal Sass tree object in Ruby
   1.9.
+* Fix some bugs in `sass --watch` introduces in 3.1.16. Thanks to [Maher
+  Sallam](https://github.com/Maher4Ever).
 
 ## 3.1.16
 
