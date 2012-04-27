@@ -132,6 +132,14 @@ module Sass
         Sass::Tree::Visitors::ToCss.visit(self)
       end
 
+      # Returns a representation of the node for debugging purposes.
+      #
+      # @return [String]
+      def inspect
+        return self.class.to_s unless has_children
+        "(#{self.class} #{children.map {|c| c.inspect}.join(' ')})"
+      end
+
       # Converts a static CSS tree (e.g. the output of \{Tree::Visitors::Cssize})
       # into another static CSS tree,
       # with the given extensions applied to all relevant {RuleNode}s.

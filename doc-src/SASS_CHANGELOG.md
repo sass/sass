@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.1.17 (Unreleased)
+
+* Don't crash when calling `#inspect` on an internal Sass tree object in Ruby
+  1.9.
+
 ## 3.1.16
 
 * Fix some bugs in `sass-convert` selector parsing when converting from CSS.
