@@ -96,6 +96,14 @@ module Sass
       def [](set)
         get(set).map {|v, _| v}
       end
+
+      # Iterates over each value in the subset map. Ignores keys completely. If
+      # multiple keys have the same value, this will return them multiple times.
+      #
+      # @yield [Object] Each value in the map.
+      def each_value
+        @vals.each {|v| yield v}
+      end
     end
   end
 end
