@@ -14,20 +14,20 @@ class Sass::Plugin::Listener
   end
 
   def directory(path, events)
-    (@directories[path] ||= []) << events
+    (@directories[File.expand_path(path)] ||= []) << events
   end
 
   def file(path, events)
     file_base = File.basename(path)
     directory(File.dirname(path), {
-        :modified => file_event_fn(events[:modified], file_base),
-        :added => file_event_fn(events[:added], file_base),
-        :removed => file_event_fn(events[:removed], file_base)
-      })
+      :modified => file_event_fn(events[:modified], file_base),
+      :added => file_event_fn(events[:added], file_base),
+      :removed => file_event_fn(events[:removed], file_base)
+    })
   end
 
   def start!
-    listener = Listen::MultiListener.new(*@directories.keys) do |modified, added, removed|
+    listener = Listen::MultiListener.new(*@directories.keys, :force_polling => Sass::Util.windows?) do |modified, added, removed|
       modified = modified.group_by {|path| File.dirname(path)}
       added = added.group_by {|path| File.dirname(path)}
       removed = removed.group_by {|path| File.dirname(path)}
