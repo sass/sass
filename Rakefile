@@ -55,7 +55,7 @@ task :sass => ".sass" do
 end
 
 file ".haml" do
-  sh %{git clone git://github.com/nex3/haml.git .haml}
+  sh %{git clone git://github.com/haml/haml.git .haml}
   Dir.chdir(".haml") {sh %{git checkout origin/stable}}
 end
 
