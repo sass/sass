@@ -627,12 +627,13 @@ this still works, but it's deprecated and prints a warning.
 
 ### Data Types
 
-SassScript supports four main data types:
+SassScript supports six main data types:
 
 * numbers (e.g. `1.2`, `13`, `10px`)
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
+* nulls, which are falsey (e.g. `null`)
 * lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
 
 SassScript also supports all other types of CSS property value,
@@ -710,6 +711,8 @@ They can't be output directly to CSS;
 if you try to do e.g. `font-family: ()`, Sass will raise an error.
 If a list contains empty lists, as in `1px 2px () 3px`,
 the empty list will be removed before it's turned into CSS.
+Null values are also be removed from lists, so `1px 2px null 3px`
+would be become `1px 2px 3px` in CSS.
 
 ### Operations
 
@@ -932,6 +935,20 @@ is compiled to:
     p:before {
       content: "I ate 15 pies!"; }
 
+Variables with a null value are treated as an empty string in
+string operations & interpolations:
+
+    $value: null;
+    p:before {
+      content: "I ate #{$value} pies!";
+      font-family: sans- + $value; }
+
+is compiled to:
+
+    p:before {
+      content: "I ate  pies!";
+      font-family: sans-; }
+
 #### Boolean Operations
 
 SassScript supports `and`, `or`, and `not` operators
@@ -1045,6 +1062,21 @@ is compiled to:
     #main {
       content: "First content";
       new-content: "First time reference"; }
+
+If variables are set to a `null` value, !default will treat
+them like they're unassigned:
+
+    $content: null;
+    $content: "Non-null content" !default;
+
+    #main {
+      content: $content;
+    }
+
+is compiled to:
+
+    #main {
+      content: "Non-null content"; }
 
 ## `@`-Rules and Directives {#directives}
 

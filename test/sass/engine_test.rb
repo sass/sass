@@ -1100,6 +1100,7 @@ SASS
   def test_guarded_assign
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b\n$foo: c !default\nfoo\n  a: $foo}))
     assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: b !default\nfoo\n  a: $foo}))
+    assert_equal("foo {\n  a: b; }\n", render(%Q{$foo: null\n$foo: b !default\nfoo\n  a: $foo}))
   end
   
   def test_mixins
@@ -1176,6 +1177,35 @@ three {
 CSS
 $a: 5px
 =foo($a, $b: 1px, $c: 3px + $b)
+  :color $a
+  :padding $b
+  :margin $c
+one
+  +foo(#fff)
+two
+  +foo(#fff, 2px)
+three
+  +foo(#fff, 2px, 3px)
+SASS
+    assert_equal(<<CSS, render(<<SASS))
+one {
+  color: white;
+  padding: 1px;
+  margin: 4px; }
+
+two {
+  color: white;
+  padding: 2px;
+  margin: 5px; }
+
+three {
+  color: white;
+  padding: 2px;
+  margin: 3px; }
+CSS
+$a: 5px
+=foo($a, $b: 1px, $c: null)
+  $c: 3px + $b !default
   :color $a
   :padding $b
   :margin $c
@@ -1741,6 +1771,13 @@ SASS
 WARNING on line 1 of test_empty_selector_warning_inline.sass:
 This selector doesn't have any properties and will not be rendered.
 END
+  end
+
+  def test_empty_property_error
+    assert_raise_message(Sass::SyntaxError, 'Invalid property: "b:" (no value).') {
+      render("a\n  b: null", :property_syntax => :new) }
+    assert_raise_message(Sass::SyntaxError, 'Invalid property: "b:" (no value).') {
+      render("a\n  b: (null, null)", :property_syntax => :new) }
   end
 
   def test_root_level_pseudo_class_with_new_properties
