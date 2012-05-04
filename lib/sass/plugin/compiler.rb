@@ -186,9 +186,6 @@ module Sass::Plugin
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
 
-      # Remove deleted files
-      individual_files = individual_files.select { |files| File.exists?(files.first) }
-
       template_location_array.each do |template_location, css_location|
         Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
