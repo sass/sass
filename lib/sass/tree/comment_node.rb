@@ -81,7 +81,7 @@ module Sass::Tree
       pre = str.split("\n").inject(str[/^[ \t]*/].split("")) do |pre, line|
         line[/^[ \t]*/].split("").zip(pre).inject([]) do |arr, (a, b)|
           break arr if a != b
-          arr + [a]
+          arr << a
         end
       end.join
       str.gsub(/^#{pre}/, '')
