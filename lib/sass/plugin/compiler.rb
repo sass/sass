@@ -5,6 +5,7 @@ require 'sass'
 require 'sass/callbacks'
 require 'sass/plugin/configuration'
 require 'sass/plugin/staleness_checker'
+require 'sass/plugin/listener'
 
 module Sass::Plugin
 
@@ -218,10 +219,10 @@ module Sass::Plugin
     #
     # Before the watching starts in earnest, `watch` calls \{#update\_stylesheets}.
     #
-    # Note that `watch` uses the [FSSM](http://github.com/ttilley/fssm) library
+    # Note that `watch` uses the [Listen](http://github.com/guard/listen) library
     # to monitor the filesystem for changes.
-    # FSSM isn't loaded until `watch` is run.
-    # The version of FSSM distributed with Sass is loaded by default,
+    # Listen isn't loaded until `watch` is run.
+    # The version of Listen distributed with Sass is loaded by default,
     # but if another version has already been loaded that will be used instead.
     #
     # @param individual_files [Array<(String, String)>]
@@ -234,15 +235,15 @@ module Sass::Plugin
       update_stylesheets(individual_files)
 
       begin
-        require 'fssm'
+        require 'listen'
       rescue LoadError => e
-        dir = Sass::Util.scope("vendor/fssm/lib")
+        dir = Sass::Util.scope("vendor/listen/lib")
         if $LOAD_PATH.include?(dir)
           e.message << "\n" <<
             if File.exists?(scope(".git"))
               'Run "git submodule update --init" to get the recommended version.'
             else
-              'Run "gem install fssm" to get it.'
+              'Run "gem install listen" to get it.'
             end
           raise e
         else
@@ -251,59 +252,51 @@ module Sass::Plugin
         end
       end
 
-      unless individual_files.empty? && FSSM::Backends::Default.name == "FSSM::Backends::FSEvents"
-        # As of FSSM 0.1.4, it doesn't support FSevents on individual files,
-        # but it also isn't smart enough to switch to polling itself.
-        require 'fssm/backends/polling'
-        Sass::Util.silence_warnings do
-          FSSM::Backends.const_set(:Default, FSSM::Backends::Polling)
-        end
-      end
-
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      FSSM.monitor do |mon|
+      Sass::Plugin::Listener.new do |l|
         template_location_array.each do |template_location, css_location|
-          mon.path template_location do |path|
-            path.glob '**/*.s[ac]ss'
-
-            path.update do |base, relative|
+          l.directory(template_location, {
+              :modified => lambda do |base, relative|
+              next if relative !~ /\.s[ac]ss$/
               run_template_modified File.join(base, relative)
               update_stylesheets(individual_files)
-            end
+            end,
 
-            path.create do |base, relative|
+            :added => lambda do |base, relative|
+              next if relative !~ /\.s[ac]ss$/
               run_template_created File.join(base, relative)
               update_stylesheets(individual_files)
-            end
+            end,
 
-            path.delete do |base, relative|
+            :removed => lambda do |base, relative|
+              next if relative !~ /\.s[ac]ss$/
               run_template_deleted File.join(base, relative)
               css = File.join(css_location, relative.gsub(/\.s[ac]ss$/, '.css'))
               try_delete_css css
               update_stylesheets(individual_files)
             end
-          end
+          })
         end
 
         individual_files.each do |template, css|
-          mon.file template do |path|
-            path.update do
+          l.file(template, {
+            :modified => lambda do
               run_template_modified template
               update_stylesheets(individual_files)
-            end
+            end,
 
-            path.create do
+            :added => lambda do
               run_template_created template
               update_stylesheets(individual_files)
-            end
+            end,
 
-            path.delete do
+            :removed => lambda do
               run_template_deleted template
               try_delete_css css
               update_stylesheets(individual_files)
             end
-          end
+          })
         end
       end
     end

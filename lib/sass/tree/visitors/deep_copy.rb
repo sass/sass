@@ -94,4 +94,9 @@ class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
     node.query = node.query.deep_copy
     yield
   end
+
+  def visit_supports(node)
+    node.condition = node.condition.deep_copy
+    yield
+  end
 end

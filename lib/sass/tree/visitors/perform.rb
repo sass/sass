@@ -302,6 +302,12 @@ END
     yield
   end
 
+  def visit_supports(node)
+    node.condition = node.condition.deep_copy
+    node.condition.perform(@environment)
+    yield
+  end
+
   def visit_cssimport(node)
     node.resolved_uri = run_interp([node.uri])
     if node.query

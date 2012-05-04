@@ -18,6 +18,13 @@ module Sass
   # Finally, {Simple} is the superclass of the simplest selectors,
   # such as `.foo` or `#bar`.
   module Selector
+    # The base used for calculating selector specificity. The spec says this
+    # should be "sufficiently high"; it's extremely unlikely that any single
+    # selector sequence will contain 1,000 simple selectors.
+    #
+    # @type [Fixnum]
+    SPECIFICITY_BASE = 1_000
+
     # A parent-referencing selector (`&` in Sass).
     # The function of this is to be replaced by the parent selector
     # in the nested hierarchy.
@@ -52,6 +59,11 @@ module Sass
       def to_a
         [".", *@name]
       end
+
+      # @see AbstractSequence#specificity
+      def specificity
+        SPECIFICITY_BASE
+      end
     end
 
     # An id selector (e.g. `#foo`).
@@ -79,6 +91,11 @@ module Sass
         return if sels.any? {|sel2| sel2.is_a?(Id) && self.name != sel2.name}
         super
       end
+
+      # @see AbstractSequence#specificity
+      def specificity
+        SPECIFICITY_BASE**2
+      end
     end
 
     # A placeholder selector (e.g. `%foo`).
@@ -99,6 +116,11 @@ module Sass
       # @see Selector#to_a
       def to_a
         ["%", *@name]
+      end
+
+      # @see AbstractSequence#specificity
+      def specificity
+        0
       end
     end
 
@@ -162,6 +184,11 @@ module Sass
         return unless accept
         [name == :universal ? Universal.new(ns) : Element.new(name, ns)] + sels[1..-1]
       end
+
+      # @see AbstractSequence#specificity
+      def specificity
+        0
+      end
     end
 
     # An element selector (e.g. `h1`).
@@ -223,6 +250,11 @@ module Sass
         ns, accept = unify_namespaces(namespace, sels.first.namespace)
         return unless accept
         [Element.new(name, ns)] + sels[1..-1]
+      end
+
+      # @see AbstractSequence#specificity
+      def specificity
+        1
       end
     end
 
@@ -296,6 +328,11 @@ module Sass
         (res << @operator).concat @value if @value
         res << "]"
       end
+
+      # @see AbstractSequence#specificity
+      def specificity
+        SPECIFICITY_BASE
+      end
     end
 
     # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`) selector.
@@ -363,6 +400,11 @@ module Sass
         return sels + [self] if final?
         super
       end
+
+      # @see AbstractSequence#specificity
+      def specificity
+        type == :class ? SPECIFICITY_BASE : 1
+      end
     end
 
     # A pseudoclass selector whose argument is itself a selector
@@ -388,6 +430,11 @@ module Sass
       # @see Selector#to_a
       def to_a
         [":", @name, "("] + @selector.to_a + [")"]
+      end
+
+      # @see AbstractSequence#specificity
+      def specificity
+        SPECIFICITY_BASE
       end
     end
   end

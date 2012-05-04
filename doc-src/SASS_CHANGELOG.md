@@ -141,16 +141,29 @@ that make use of `@media` and other directives dynamically.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
-## 3.1.16 (Unreleased)
+## 3.1.17 (Unreleased)
+
+* Don't crash when calling `#inspect` on an internal Sass tree object in Ruby
+  1.9.
+* Fix some bugs in `sass --watch` introduces in 3.1.16. Thanks to [Maher
+  Sallam](https://github.com/Maher4Ever).
+* Support bare interpolation in the value portion of attribute
+  selectors (e.g. `[name=#{$value}]`).
+* Support keyword arguments for the `invert()` function.
+
+## 3.1.16
 
 * Fix some bugs in `sass-convert` selector parsing when converting from CSS.
 * Substantially improve compilation performance on Ruby 1.8.
 * Support the `@-moz-document` directive's non-standard `url-prefix` and
   `domain` function syntax.
 * Support the [`@supports` directive](http://www.w3.org/TR/css3-conditional/#at-supports).
-* Support bare interpolation in the value portion of attribute
-  selectors (e.g. `[name=#{$value}]`).
-* Support keyword arguments for the `invert()` function.
+* Fix a performance issue when using `/*! */` comments with the Rails asset
+  pipeline.
+* Support `-moz-element`.
+* Properly handle empty lists in `sass-convert`.
+* Move from [FSSM](https://github.com/ttilley/fssm) to
+  [Listen](https://github.com/guard/listen) for file-system monitoring.
 
 ## 3.1.15
 

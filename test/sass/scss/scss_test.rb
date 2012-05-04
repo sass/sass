@@ -955,6 +955,41 @@ $domain: "sass-lang.com";
 SCSS
   end
 
+  def test_supports_with_expressions
+    assert_equal <<CSS, render(<<SCSS)
+@supports (feature1: val) and (feature2: val) or (not (feature23: val4)) {
+  foo {
+    a: b; } }
+CSS
+$query: "(feature1: val)";
+$feature: feature2;
+$val: val;
+@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4)) {
+  foo {a: b}
+}
+SCSS
+  end
+
+  def test_supports_bubbling
+    assert_equal <<CSS, render(<<SCSS)
+@supports (foo: bar) {
+  a {
+    b: c; }
+    @supports (baz: bang) {
+      a {
+        d: e; } } }
+CSS
+a {
+  @supports (foo: bar) {
+    b: c;
+    @supports (baz: bang) {
+      d: e;
+    }
+  }
+}
+SCSS
+  end
+
   def test_random_directive_interpolation
     assert_equal <<CSS, render(<<SCSS)
 @foo url(http://sass-lang.com/),

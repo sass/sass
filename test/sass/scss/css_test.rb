@@ -412,6 +412,15 @@ foo {
 SCSS
   end
 
+  def test_element_function
+    assert_parses <<SCSS
+foo {
+  a: -moz-element(#foo);
+  b: -webkit-element(#foo);
+  b: -foobar-element(#foo); }
+SCSS
+  end
+
   def test_unary_ops
     assert_equal <<CSS, render(<<SCSS)
 foo {
@@ -609,8 +618,17 @@ SCSS
 @supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
   .foo {
     a: b; } }
+@supports (a: b) {
+  .foo {
+    a: b; } }
 CSS
 @supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+  .foo {
+    a: b;
+  }
+}
+
+@supports (a: b) {
   .foo {
     a: b;
   }

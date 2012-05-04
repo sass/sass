@@ -150,6 +150,10 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     "#{tab_str}@media #{node.query.to_src(@options)}#{yield}"
   end
 
+  def visit_supports(node)
+    "#{tab_str}@#{node.name} #{node.condition.to_src(@options)}#{yield}"
+  end
+
   def visit_cssimport(node)
     if node.uri.is_a?(Sass::Script::Node)
       str = "#{tab_str}@import #{node.uri.to_sass(@options)}"

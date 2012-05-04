@@ -104,4 +104,9 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     node.query.options = @options
     yield
   end
+
+  def visit_supports(node)
+    node.condition.options = @options
+    yield
+  end
 end

@@ -113,6 +113,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     str
   end
 
+  def visit_supports(node)
+    visit_media(node)
+  end
+
   def visit_cssimport(node)
     visit_directive(node)
   end

@@ -115,6 +115,15 @@ module Sass
         members.map {|m| m.inspect}.join(" ")
       end
 
+      # Add to the {SimpleSequence#sources} sets of the child simple sequences.
+      # This destructively modifies this sequence's members array, but not the
+      # child simple sequences.
+      #
+      # @param sources [Set<Sequence>]
+      def add_sources!(sources)
+        members.map! {|m| m.is_a?(SimpleSequence) ? m.with_more_sources(sources) : m}
+      end
+
       private
 
       # Conceptually, this expands "parenthesized selectors".
@@ -430,9 +439,16 @@ module Sass
         # separate sequences should limit the quadratic behavior.
         seqses.map do |seqs1|
           seqs1.reject do |seq1|
+            min_spec = 0
+            _sources(seq1).map {|seq| min_spec += seq.specificity}
             seqses.any? do |seqs2|
-              next if seqs1.object_id == seqs2.object_id
-              seqs2.any? {|seq2| _superselector?(seq2, seq1)}
+              next if seqs1.equal?(seqs2)
+              # Second Law of Extend: the specificity of a generated selector
+              # should never be less than the specificity of the extending
+              # selector.
+              #
+              # See https://github.com/nex3/sass/issues/324.
+              seqs2.any? {|seq2| _specificity(seq2) >= min_spec && _superselector?(seq2, seq1)}
             end
           end
         end
@@ -447,6 +463,12 @@ module Sass
       end
 
       private
+
+      def _sources(seq)
+        s = Set.new
+        seq.map {|sseq_or_op| s.merge sseq_or_op.sources if sseq_or_op.is_a?(SimpleSequence)}
+        s
+      end
 
       def extended_not_expanded_to_s(extended_not_expanded)
         extended_not_expanded.map do |choices|
