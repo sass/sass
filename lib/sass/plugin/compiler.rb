@@ -251,13 +251,13 @@ module Sass::Plugin
         end
       end
 
-      templates_paths = template_locations # cache the locations
+      template_paths = template_locations # cache the locations
       individual_files_hash = individual_files.inject({}) do |h, files|
         parent = File.dirname(files.first)
-        (h[parent] ||= []) << files unless templates_paths.include?(parent)
+        (h[parent] ||= []) << files unless template_paths.include?(parent)
         h
       end
-      directories = templates_paths + individual_files_hash.keys +
+      directories = template_paths + individual_files_hash.keys +
         [{:relative_paths => true}]
 
       # TODO: Keep better track of what depends on what
@@ -265,35 +265,35 @@ module Sass::Plugin
       listener = Listen::MultiListener.new(*directories) do |modified, added, removed|
         modified.each do |f|
           parent = File.dirname(f)
-          if individual_files_hash[parent]
-            next if individual_files_hash[parent].first != f
+          if files = individual_files_hash[parent]
+            next unless files.first == f
           else
-            next if f !~ /\.s[ac]ss$/
+            next unless f =~ /\.s[ac]ss$/
           end
           run_template_modified(f)
-        end unless modified.empty?
+        end
 
         added.each do |f|
           parent = File.dirname(f)
-          if individual_files_hash[parent]
-            next if individual_files_hash[parent].first != f
+          if files = individual_files_hash[parent]
+            next unless files.first == f
           else
-            next if f !~ /\.s[ac]ss$/
+            next unless f =~ /\.s[ac]ss$/
           end
           run_template_created(f)
-        end unless added.empty?
+        end
 
         removed.each do |f|
           parent = File.dirname(f)
-          if individual_files_hash[parent]
-            next if individual_files_hash[parent].first != f
-            try_delete_css individual_files_hash[parent][1]
+          if files = individual_files_hash[parent]
+            next unless files.first == f
+            try_delete_css files[1]
           else
-            next if f !~ /\.s[ac]ss$/
+            next unless f =~ /\.s[ac]ss$/
             try_delete_css f.gsub(/\.s[ac]ss$/, '.css')
           end
           run_template_deleted(f)
-        end unless removed.empty?
+        end
 
         update_stylesheets(individual_files)
       end
