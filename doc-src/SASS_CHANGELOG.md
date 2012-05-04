@@ -126,6 +126,8 @@ that make use of `@media` and other directives dynamically.
   \{Sass::Script::Functions#max `max`} functions, which return the minimum and
   maximum of several values.
 
+* Sass functions are now more strict about how keyword arguments can be passed.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Parent selectors followed immediately by identifiers (e.g. `&foo`)

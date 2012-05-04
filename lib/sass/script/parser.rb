@@ -381,7 +381,9 @@ RUBY
 
         other_args, other_keywords = assert_expr(type)
         if keywords
-          if other_keywords[name.underscored_name]
+          if !other_args.empty?
+            raise SyntaxError.new("Positional arguments must come before keyword arguments")
+          elsif other_keywords[name.underscored_name]
             raise SyntaxError.new("Keyword argument \"#{name.to_sass}\" passed more than once")
           end
           return other_args, keywords.merge(other_keywords)

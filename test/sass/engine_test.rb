@@ -92,7 +92,7 @@ MSG
     "=a($b: 1, $c)" => "Required argument $c must come before any optional arguments.",
     "=a($b: 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
     "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c",
-    "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing parameter $b.",
+    "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing argument $b.",
     "@function foo()\n  1 + 2" => "Functions can only contain variable declarations and control directives.",
     "@function foo()\n  foo: bar" => "Functions can only contain variable declarations and control directives.",
     "@function foo()\n  foo: bar\n  @return 3" => ["Functions can only contain variable declarations and control directives.", 2],
@@ -104,7 +104,7 @@ MSG
     "@function foo()\n  @return" => 'Invalid @return: expected expression.',
     "@function foo()\n  @return 1\n    $var: val" => 'Illegal nesting: Nothing may be nested beneath return directives.',
     "foo\n  @function bar()\n    @return 1" => ['Functions may only be defined at the root of a document.', 2],
-    "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing parameter $a.',
+    "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing argument $a',
     "@function foo()\n  @return 1\na\n  b: foo(2)" => 'Wrong number of arguments (1 for 0) for `foo\'',
     "@return 1" => '@return may only be used within a function.',
     "@if true\n  @return 1" => '@return may only be used within a function.',
@@ -1267,6 +1267,58 @@ CSS
 bar
   a: plus($var2: bar)
 SASS
+  end
+
+  def test_function_with_missing_argument
+    render(<<SASS)
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus($var2: bar)
+SASS
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function plus is missing argument $var1", e.message)
+  end
+
+  def test_function_with_extra_argument
+    render(<<SASS)
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus($var1: foo, $var2: bar, $var3: baz)
+SASS
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function plus doesn't have an argument named $var3", e.message)
+  end
+
+  def test_function_with_positional_and_keyword_argument
+    render(<<SASS)
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus(foo, bar, $var2: baz)
+SASS
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function plus was passed argument $var2 both by position and by name", e.message)
+  end
+
+  def test_function_with_keyword_before_positional_argument
+    render(<<SASS)
+@function plus($var1, $var2)
+  @return $var1 + $var2
+
+bar
+  a: plus($var2: foo, bar)
+SASS
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Positional arguments must come before keyword arguments", e.message)
   end
 
   def test_function_with_if

@@ -1023,21 +1023,45 @@ MSG
   end
 
   def test_keyword_args_rgba_with_extra_args
-    assert_equal(%Q{rgba(255, 255, 255, 0.5)}, evaluate("rgba($red: 255, $green: 255, $blue: 255, $alpha: 0.5, $extra: error)"))
+    evaluate("rgba($red: 255, $green: 255, $blue: 255, $alpha: 0.5, $extra: error)")
+    flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Function rgba doesn't take an argument named $extra", e.message)
+    assert_equal("Function rgba doesn't have an argument named $extra", e.message)
   end
 
   def test_keyword_args_must_have_signature
     evaluate("no-kw-args($fake: value)")
+    flunk("Expected exception")
   rescue Sass::SyntaxError => e
     assert_equal("Function no_kw_args doesn't support keyword arguments", e.message)
   end
 
   def test_keyword_args_with_missing_argument
     evaluate("rgb($red: 255, $green: 255)")
+    flunk("Expected exception")
   rescue Sass::SyntaxError => e
     assert_equal("Function rgb requires an argument named $blue", e.message)
+  end
+
+  def test_keyword_args_with_extra_argument
+    evaluate("rgb($red: 255, $green: 255, $blue: 255, $purple: 255)")
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function rgb doesn't have an argument named $purple", e.message)
+  end
+
+  def test_keyword_args_with_positional_and_keyword_argument
+    evaluate("rgb(255, 255, 255, $red: 255)")
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function rgb was passed argument $red both by position and by name", e.message)
+  end
+
+  def test_keyword_args_with_keyword_before_positional_argument
+    evaluate("rgb($red: 255, 255, 255)")
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Positional arguments must come before keyword arguments", e.message)
   end
 
   def test_only_var_args

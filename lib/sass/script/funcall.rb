@@ -136,7 +136,12 @@ module Sass
           if signature.var_kwargs
             args << keywords
           else
-            raise Sass::SyntaxError.new("Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}")
+            argname = keywords.keys.sort.first
+            if signature.args.include?(argname)
+              raise Sass::SyntaxError.new("Function #{name} was passed argument $#{argname} both by position and by name")
+            else
+              raise Sass::SyntaxError.new("Function #{name} doesn't have an argument named $#{argname}")
+            end
           end
         end
 
@@ -158,9 +163,13 @@ module Sass
 
         environment = function.args.zip(args).
           inject(Sass::Environment.new(function.environment)) do |env, ((var, default), value)|
+          if value && keywords.include?(var.underscored_name)
+            raise Sass::SyntaxError.new("Function #{@name} was passed argument $#{var.name} both by position and by name")
+          end
+
           env.set_local_var(var.name,
             value || keywords[var.underscored_name] || (default && default.perform(env)))
-          raise Sass::SyntaxError.new("Function #{@name} is missing parameter #{var.inspect}.") unless env.var(var.name)
+          raise Sass::SyntaxError.new("Function #{@name} is missing argument #{var.inspect}") unless env.var(var.name)
           env
         end
 

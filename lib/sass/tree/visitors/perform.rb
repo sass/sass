@@ -198,7 +198,7 @@ END
         elsif default
           default.perform(env)
         end)
-      raise Sass::SyntaxError.new("Mixin #{node.name} is missing parameter #{var.inspect}.") unless env.var(var.name)
+      raise Sass::SyntaxError.new("Mixin #{node.name} is missing argument #{var.inspect}.") unless env.var(var.name)
       env
     end
     environment.caller = Sass::Environment.new(@environment)
