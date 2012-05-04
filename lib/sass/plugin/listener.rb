@@ -30,15 +30,11 @@ class Sass::Plugin::Listener
     args = @directories.keys.dup
     args << {:force_polling => Sass::Util.windows?}
     listener = Listen::MultiListener.new(*args) do |modified, added, removed|
-      modified = modified.group_by {|path| File.dirname(path)}
-      added = added.group_by {|path| File.dirname(path)}
-      removed = removed.group_by {|path| File.dirname(path)}
-
       @directories.each do |dir, events|
         events.each do |e|
-          run_events(modified[dir], e[:modified], dir)
-          run_events(added[dir], e[:added], dir)
-          run_events(removed[dir], e[:removed], dir)
+          run_events(modified, e[:modified], dir)
+          run_events(added, e[:added], dir)
+          run_events(removed, e[:removed], dir)
         end
       end
     end.start
@@ -54,8 +50,9 @@ class Sass::Plugin::Listener
     end
   end
 
-  def run_events(paths, event, path)
-    return if paths.nil? || event.nil?
-    paths.each {|p| event[File.dirname(p), File.basename(p)]}
+  def run_events(paths, event, dir)
+    return if paths.empty? || event.nil?
+    paths.select {|p| p.start_with?(dir)}.
+      each {|p| event[File.dirname(p), File.basename(p)]}
   end
 end

@@ -422,6 +422,14 @@ module Sass
       RUBY_ENGINE == "ironruby"
     end
 
+    # Like `Dir.glob`, but works with backslash-separated paths on Windows.
+    #
+    # @param path [String]
+    def glob(path)
+      path = path.gsub('\\', '/') if windows?
+      Dir.glob(path)
+    end
+
     ## Cross-Ruby-Version Compatibility
 
     # Whether or not this is running under Ruby 1.8 or lower.
