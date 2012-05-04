@@ -298,9 +298,6 @@ module Sass::Plugin
         update_stylesheets(individual_files)
       end
 
-      # Setup extra options for the listener
-      listener.force_polling(true).ignore(%r{\.sass-cache/.*})
-
       begin
         listener.start
       rescue Exception => e
