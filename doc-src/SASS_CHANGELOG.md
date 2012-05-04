@@ -12,6 +12,7 @@
 * Support bare interpolation in the value portion of attribute
   selectors (e.g. `[name=#{$value}]`).
 * Support keyword arguments for the `invert()` function.
+* Handle backslash-separated paths better on Windows.
 
 ## 3.1.16
 
