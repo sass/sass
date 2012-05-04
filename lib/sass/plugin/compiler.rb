@@ -5,7 +5,6 @@ require 'sass'
 require 'sass/callbacks'
 require 'sass/plugin/configuration'
 require 'sass/plugin/staleness_checker'
-require 'sass/plugin/listener'
 
 module Sass::Plugin
 
@@ -261,11 +260,12 @@ module Sass::Plugin
         (h[parent] ||= []) << files unless templates_paths.include?(parent)
         h
       end
-      directories = templates_paths + individual_files_hash.keys
+      directories = templates_paths + individual_files_hash.keys +
+        [{:relative_paths => true}]
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      listener = Listen::MultiListener.new(*directories, :relative_paths => true) do |modified, added, removed|
+      listener = Listen::MultiListener.new(*directories) do |modified, added, removed|
         modified.each do |f|
           parent = File.dirname(f)
           if individual_files_hash[parent]
