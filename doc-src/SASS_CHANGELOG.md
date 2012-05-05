@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.17 (Unreleased)
+## 3.1.17
 
 * Don't crash when calling `#inspect` on an internal Sass tree object in Ruby
   1.9.
