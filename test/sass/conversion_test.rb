@@ -1168,6 +1168,32 @@ $foo: ();
 SCSS
   end
 
+  def test_nested_if_statements
+    assert_renders(<<SASS, <<SCSS)
+@if $foo
+  one
+    a: b
+@else
+  @if $bar
+    two
+      a: b
+  @else
+    three
+      a: b
+SASS
+@if $foo {
+  one {
+    a: b; } }
+@else {
+  @if $bar {
+    two {
+      a: b; } }
+  @else {
+    three {
+      a: b; } } }
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

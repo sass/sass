@@ -138,6 +138,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       elsif node.expr; "else if"
       else; "else"
       end
+    @is_else = false
     str = "#{tab_str}@#{name}"
     str << " #{node.expr.to_sass(@options)}" if node.expr
     str << yield

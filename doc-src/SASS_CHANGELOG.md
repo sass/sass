@@ -14,6 +14,7 @@
 * Support keyword arguments for the `invert()` function.
 * Handle backslash-separated paths better on Windows.
 * Fix `rake install` on Ruby 1.9.
+* Properly convert nested `@if` statements with `sass-convert`.
 
 ## 3.1.16
 
