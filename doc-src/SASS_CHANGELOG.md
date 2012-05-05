@@ -13,6 +13,7 @@
   selectors (e.g. `[name=#{$value}]`).
 * Support keyword arguments for the `invert()` function.
 * Handle backslash-separated paths better on Windows.
+* Fix `rake install` on Ruby 1.9.
 
 ## 3.1.16
 
