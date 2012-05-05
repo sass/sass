@@ -76,7 +76,7 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_hsl_checks_bounds
     assert_error_message("Saturation -114 must be between 0% and 100% for `hsl'", "hsl(10, -114, 12)");
-    assert_error_message("Lightness 256 must be between 0% and 100% for `hsl'", "hsl(10, 10, 256%)");
+    assert_error_message("Lightness 256% must be between 0% and 100% for `hsl'", "hsl(10, 10, 256%)");
   end
 
   def test_hsl_checks_types
@@ -94,7 +94,7 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_hsla_checks_bounds
     assert_error_message("Saturation -114 must be between 0% and 100% for `hsla'", "hsla(10, -114, 12, 1)");
-    assert_error_message("Lightness 256 must be between 0% and 100% for `hsla'", "hsla(10, 10, 256%, 0)");
+    assert_error_message("Lightness 256% must be between 0% and 100% for `hsla'", "hsla(10, 10, 256%, 0)");
     assert_error_message("Alpha channel -0.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, -0.1)");
     assert_error_message("Alpha channel 1.1 must be between 0 and 1 for `hsla'", "hsla(10, 10, 10, 1.1)");
   end
@@ -169,24 +169,24 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_rgb_tests_bounds
-    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
+    assert_error_message("Color value 256 must be between 0 and 255 for `rgb'",
       "rgb(256, 1, 1)")
-    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
+    assert_error_message("Color value 256 must be between 0 and 255 for `rgb'",
       "rgb(1, 256, 1)")
-    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
+    assert_error_message("Color value 256 must be between 0 and 255 for `rgb'",
       "rgb(1, 1, 256)")
-    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgb'",
+    assert_error_message("Color value 256 must be between 0 and 255 for `rgb'",
       "rgb(1, 256, 257)")
-    assert_error_message("Color value -1 must be between 0 and 255 inclusive for `rgb'",
+    assert_error_message("Color value -1 must be between 0 and 255 for `rgb'",
       "rgb(-1, 1, 1)")
   end
 
   def test_rgb_test_percent_bounds
-    assert_error_message("Color value 100.1% must be between 0% and 100% inclusive for `rgb'",
+    assert_error_message("Color value 100.1% must be between 0% and 100% for `rgb'",
       "rgb(100.1%, 0, 0)")
-    assert_error_message("Color value -0.1% must be between 0% and 100% inclusive for `rgb'",
+    assert_error_message("Color value -0.1% must be between 0% and 100% for `rgb'",
       "rgb(0, -0.1%, 0)")
-    assert_error_message("Color value 101% must be between 0% and 100% inclusive for `rgb'",
+    assert_error_message("Color value 101% must be between 0% and 100% for `rgb'",
       "rgb(0, 0, 101%)")
   end
 
@@ -204,19 +204,19 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_rgb_tests_bounds
-    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+    assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(256, 1, 1, 0.3)")
-    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+    assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(1, 256, 1, 0.3)")
-    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+    assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(1, 1, 256, 0.3)")
-    assert_error_message("Color value 256 must be between 0 and 255 inclusive for `rgba'",
+    assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(1, 256, 257, 0.3)")
-    assert_error_message("Color value -1 must be between 0 and 255 inclusive for `rgba'",
+    assert_error_message("Color value -1 must be between 0 and 255 for `rgba'",
       "rgba(-1, 1, 1, 0.3)")
-    assert_error_message("Alpha channel -0.2 must be between 0 and 1 inclusive for `rgba'",
+    assert_error_message("Alpha channel -0.2 must be between 0 and 1 for `rgba'",
       "rgba(1, 1, 1, -0.2)")
-    assert_error_message("Alpha channel 1.2 must be between 0 and 1 inclusive for `rgba'",
+    assert_error_message("Alpha channel 1.2 must be between 0 and 1 for `rgba'",
       "rgba(1, 1, 1, 1.2)")
   end
 
@@ -713,15 +713,15 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_change_color_argument_errors
     # Range
-    assert_error_message("Saturation must be between 0 and 100 for `change-color'",
+    assert_error_message("Saturation 101% must be between 0% and 100% for `change-color'",
       "change-color(blue, $saturation: 101%)")
-    assert_error_message("Lightness must be between 0 and 100 for `change-color'",
+    assert_error_message("Lightness 101% must be between 0% and 100% for `change-color'",
       "change-color(blue, $lightness: 101%)")
-    assert_error_message("Red value must be between 0 and 255 for `change-color'",
+    assert_error_message("Red value -1 must be between 0 and 255 for `change-color'",
       "change-color(blue, $red: -1)")
-    assert_error_message("Green value must be between 0 and 255 for `change-color'",
+    assert_error_message("Green value 256 must be between 0 and 255 for `change-color'",
       "change-color(blue, $green: 256)")
-    assert_error_message("Blue value must be between 0 and 255 for `change-color'",
+    assert_error_message("Blue value 500 must be between 0 and 255 for `change-color'",
       "change-color(blue, $blue: 500)")
 
     # Unknown argument
@@ -1019,6 +1019,12 @@ MSG
 
   def test_only_kw_args
     assert_equal "only-kw-args(a, b, c)", evaluate("only-kw-args($a: 1, $b: 2, $c: 3)")
+  end
+
+  ## Regression Tests
+
+  def test_saturation_bounds
+    assert_equal "#fbfdff", evaluate("hsl(hue(#fbfdff), saturation(#fbfdff), lightness(#fbfdff))")
   end
 
   private

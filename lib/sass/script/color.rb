@@ -101,21 +101,16 @@ module Sass::Script
       [:red, :green, :blue].each do |k|
         next if @attrs[k].nil?
         @attrs[k] = @attrs[k].to_i
-        next if (0..255).include?(@attrs[k])
-        raise ArgumentError.new("#{k.to_s.capitalize} value must be between 0 and 255")
+        Sass::Util.check_range("#{k.to_s.capitalize} value", 0..255, @attrs[k])
       end
 
       [:saturation, :lightness].each do |k|
         next if @attrs[k].nil?
-        @attrs[k] = 0 if @attrs[k] < 0.00001 && @attrs[k] > -0.00001
-        @attrs[k] = 100 if @attrs[k] - 100 < 0.00001 && @attrs[k] - 100 > -0.00001
-        next if (0..100).include?(@attrs[k])
-        raise ArgumentError.new("#{k.to_s.capitalize} must be between 0 and 100")
+        value = Number.new(@attrs[k], ['%']) # Get correct unit for error messages
+        @attrs[k] = Sass::Util.check_range("#{k.to_s.capitalize}", 0..100, value, '%')
       end
 
-      unless (0..1).include?(@attrs[:alpha])
-        raise ArgumentError.new("Alpha channel must be between 0 and 1")
-      end
+      @attrs[:alpha] = Sass::Util.check_range("Alpha channel", 0..1, @attrs[:alpha])
     end
 
     # The red component of the color.
