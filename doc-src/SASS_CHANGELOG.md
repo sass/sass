@@ -141,7 +141,7 @@ that make use of `@media` and other directives dynamically.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
-## 3.1.17 (Unreleased)
+## 3.1.17
 
 * Don't crash when calling `#inspect` on an internal Sass tree object in Ruby
   1.9.
@@ -151,6 +151,8 @@ that make use of `@media` and other directives dynamically.
   selectors (e.g. `[name=#{$value}]`).
 * Support keyword arguments for the `invert()` function.
 * Handle backslash-separated paths better on Windows.
+* Fix `rake install` on Ruby 1.9.
+* Properly convert nested `@if` statements with `sass-convert`.
 
 ## 3.1.16
 
