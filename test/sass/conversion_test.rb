@@ -1540,14 +1540,21 @@ SCSS
 SASS
 @if $foo {
   one {
-    a: b; } }
+    a: b;
+  }
+}
 @else {
   @if $bar {
     two {
-      a: b; } }
+      a: b;
+    }
+  }
   @else {
     three {
-      a: b; } } }
+      a: b;
+    }
+  }
+}
 SCSS
   end
 
