@@ -141,6 +141,11 @@ that make use of `@media` and other directives dynamically.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
+## 3.1.18 (Unreleased)
+
+* Ruby 2.0 compatibility. Thanks to [Jeremy
+  Kemper](https://github.com/jeremy).
+
 ## 3.1.17
 
 * Don't crash when calling `#inspect` on an internal Sass tree object in Ruby
