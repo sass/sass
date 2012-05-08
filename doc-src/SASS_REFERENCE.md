@@ -1994,7 +1994,7 @@ passed block are related to the other styles around where the block is defined. 
     }
 
 
-## Function Directives {#functions}
+## Function Directives {#function_directives}
 
 It is possible to define your own functions in sass and use them in any
 value or script context. For example:
