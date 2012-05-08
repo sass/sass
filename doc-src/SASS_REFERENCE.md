@@ -1815,7 +1815,7 @@ providing many arguments without becoming difficult to call.
 Named arguments can be passed in any order, and arguments with default values can be omitted.
 Since the named arguments are variable names, underscores and dashes can be used interchangeably.
 
-## Function Directives {#functions}
+## Function Directives {#function_directives}
 
 It is possible to define your own functions in sass and use them in any
 value or script context. For example:
