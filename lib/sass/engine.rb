@@ -600,7 +600,14 @@ WARNING
       else
         expr = parse_script(value, :offset => line.offset + line.text.index(value))
       end
-      Tree::PropNode.new(parse_interp(name), expr, prop)
+      node = Tree::PropNode.new(parse_interp(name), expr, prop)
+      if value.strip.empty? && line.children.empty?
+        raise SyntaxError.new(
+          "Invalid property: \"#{node.declaration}\" (no value)." +
+          node.pseudo_class_selector_message)
+      end
+
+      node
     end
 
     def parse_variable(line)
