@@ -1011,7 +1011,7 @@ SASS
 
   def test_debug_info_without_filename
     assert_equal(<<CSS, Sass::Engine.new(<<SASS, :debug_info => true).render)
-@media -sass-debug-info{filename{font-family:}line{font-family:\\000031}}
+@media -sass-debug-info{filename{}line{font-family:\\000031}}
 foo {
   a: b; }
 CSS
@@ -1773,11 +1773,20 @@ This selector doesn't have any properties and will not be rendered.
 END
   end
 
-  def test_empty_property_error
-    assert_raise_message(Sass::SyntaxError, 'Invalid property: "b:" (no value).') {
-      render("a\n  b: null", :property_syntax => :new) }
-    assert_raise_message(Sass::SyntaxError, 'Invalid property: "b:" (no value).') {
-      render("a\n  b: (null, null)", :property_syntax => :new) }
+  def test_nonprinting_empty_property
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  e: f; }
+CSS
+$null-value: null
+$empty-string: ''
+$empty-list: (null)
+a
+  b: $null-value
+  c: $empty-string
+  d: $empty-list
+  e: f
+SASS
   end
 
   def test_root_level_pseudo_class_with_new_properties
