@@ -98,7 +98,7 @@ module Sass::Tree
       if @options[:property_syntax] && @options[:property_syntax] != @prop_syntax
         raise Sass::SyntaxError.new(
           "Illegal property syntax: can't use #{@prop_syntax} syntax when :property_syntax => #{@options[:property_syntax].inspect} is set.")
-      elsif resolved_value.empty?
+      elsif value.is_a?(Sass::Script::String) && value.to_s.empty?
         raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
           pseudo_class_selector_message)
       end

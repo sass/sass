@@ -9,6 +9,7 @@ module Sass::Script
     require 'sass/script/number'
     require 'sass/script/color'
     require 'sass/script/bool'
+    require 'sass/script/null'
     require 'sass/script/list'
 
     # Returns the Ruby value of the literal.
