@@ -320,12 +320,6 @@ SASS
     assert_equal "true-1", resolve('true - 1')
     assert_equal '"foo"/"bar"', resolve('"foo" / "bar"')
     assert_equal "true/1", resolve('true / 1')
-    assert_equal "foo", resolve('"foo" + null')
-    assert_equal "foo", resolve('null + "foo"')
-    assert_equal '"foo"-', resolve('"foo" - null')
-    assert_equal '-"foo"', resolve('null - "foo"')
-    assert_equal '"foo"/', resolve('"foo" / null')
-    assert_equal '/"foo"', resolve('null / "foo"')
 
     assert_equal '-"bar"', resolve("- 'bar'")
     assert_equal "-true", resolve('- true')
@@ -373,6 +367,10 @@ SASS
       'Invalid null operation: "1 gt null".') {eval("1 > null")}
     assert_raise_message(Sass::SyntaxError,
       'Invalid null operation: "null lt 1".') {eval("null < 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null plus null".') {eval("null + null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: ""foo" plus null".') {eval("foo + null")}
   end
 
   def test_equals

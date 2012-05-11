@@ -935,12 +935,11 @@ is compiled to:
     p:before {
       content: "I ate 15 pies!"; }
 
-Null values are treated as empty strings for string operations and interpolations:
+Null values are treated as empty strings for string interpolation:
 
     $value: null;
     p:before {
-      content: "I ate #{$value} pies!";
-      font-family: sans- + $value; }
+      content: "I ate #{$value} pies!"; }
 
 is compiled to:
 

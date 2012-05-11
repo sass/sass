@@ -82,8 +82,7 @@ module Sass::Script
 
       literal2 = @operand2.perform(environment)
 
-      literal_types = [literal1.class, literal2.class]
-      if !literal_types.include?(String) && literal_types.include?(Null)
+      if literal1.is_a?(Null) || literal2.is_a?(Null)
         raise Sass::SyntaxError.new("Invalid null operation: \"#{literal1.inspect} #{@operator} #{literal2.inspect}\".")
       end
 
