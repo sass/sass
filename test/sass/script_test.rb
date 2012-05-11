@@ -263,6 +263,10 @@ SASS
     assert_equal "false", resolve("false")
   end
 
+  def test_null
+    assert_equal "", resolve("null")
+  end
+
   def test_boolean_ops
     assert_equal "true", resolve("true and true")
     assert_equal "true", resolve("false or true")
@@ -281,6 +285,18 @@ SASS
     assert_equal "false", resolve("false and 1")
     assert_equal "2", resolve("2 or 3")
     assert_equal "3", resolve("2 and 3")
+
+    assert_equal "true", resolve("null or true")
+    assert_equal "true", resolve("true or null")
+    assert_equal "", resolve("null or null")
+    assert_equal "", resolve("null and true")
+    assert_equal "", resolve("true and null")
+    assert_equal "", resolve("null and null")
+
+    assert_equal "true", resolve("not null")
+
+    assert_equal "1", resolve("null or 1")
+    assert_equal "", resolve("null and 1")
   end
 
   def test_arithmetic_ops
@@ -304,6 +320,12 @@ SASS
     assert_equal "true-1", resolve('true - 1')
     assert_equal '"foo"/"bar"', resolve('"foo" / "bar"')
     assert_equal "true/1", resolve('true / 1')
+    assert_equal "foo", resolve('"foo" + null')
+    assert_equal "foo", resolve('null + "foo"')
+    assert_equal '"foo"-', resolve('"foo" - null')
+    assert_equal '-"foo"', resolve('null - "foo"')
+    assert_equal '"foo"/', resolve('"foo" / null')
+    assert_equal '/"foo"', resolve('null / "foo"')
 
     assert_equal '-"bar"', resolve("- 'bar'")
     assert_equal "-true", resolve('- true')
@@ -324,6 +346,33 @@ SASS
     assert_equal "true", resolve("1 <= 2")
     assert_equal "true", resolve("2 <= 2")
     assert_equal "false", resolve("3 <= 2")
+  end
+
+  def test_null_ops
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null plus 1".') {eval("null + 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null minus 1".') {eval("null - 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null times 1".') {eval("null * 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null div 1".') {eval("null / 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null mod 1".') {eval("null % 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 plus null".') {eval("1 + null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 minus null".') {eval("1 - null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 times null".') {eval("1 * null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 div null".') {eval("1 / null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 mod null".') {eval("1 % null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 gt null".') {eval("1 > null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null lt 1".') {eval("null < 1")}
   end
 
   def test_equals
@@ -422,6 +471,15 @@ SASS
     assert_equal "1 2 3", resolve("() 1 2 3")
     assert_raise_message(Sass::SyntaxError, "() isn't a valid CSS value.") {resolve("()")}
     assert_raise_message(Sass::SyntaxError, "() isn't a valid CSS value.") {resolve("nth(append((), ()), 1)")}
+  end
+
+  def test_list_with_nulls
+    assert_equal "1, 2, 3", resolve("1, 2, null, 3")
+    assert_equal "1 2 3", resolve("1 2 null 3")
+    assert_equal "1, 2, 3", resolve("1, 2, 3, null")
+    assert_equal "1 2 3", resolve("1 2 3 null")
+    assert_equal "1, 2, 3", resolve("null, 1, 2, 3")
+    assert_equal "1 2 3", resolve("null 1 2 3")
   end
 
   def test_deep_argument_error_not_unwrapped

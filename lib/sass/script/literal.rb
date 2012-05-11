@@ -9,6 +9,7 @@ module Sass::Script
     require 'sass/script/number'
     require 'sass/script/color'
     require 'sass/script/bool'
+    require 'sass/script/null'
     require 'sass/script/list'
 
     # Returns the Ruby value of the literal.
@@ -216,6 +217,13 @@ MSG
       raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Literal must implement #to_s.")
     end
     alias_method :to_sass, :to_s
+
+    # Returns whether or not this object is null.
+    #
+    # @return [Boolean] `false`
+    def null?
+      false
+    end
 
     protected
 

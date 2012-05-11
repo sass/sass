@@ -130,7 +130,7 @@ module Sass
       # about 50 characters. This mitigates the problem of exponential parsing
       # time when a value has a long string of valid, parsable content followed
       # by something invalid.
-      STATIC_VALUE = /(-?#{NMSTART}|#{STRING_NOINTERP}|[ \t](?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important){0,50}([;}])/i
+      STATIC_VALUE = /(-?#{NMSTART}|#{STRING_NOINTERP}|[ \t](?!%)|#[a-f0-9]|[,%]|#{NUM}|\!important){1,50}([;}])/i
       STATIC_SELECTOR = /(#{NMCHAR}|[ \t]|[,>+*]|[:#.]#{NMSTART}){0,50}([{])/i
     end
   end

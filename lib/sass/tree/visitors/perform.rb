@@ -261,7 +261,8 @@ END
 
   # Loads the new variable value into the environment.
   def visit_variable(node)
-    return [] if node.guarded && !@environment.var(node.name).nil?
+    var = @environment.var(node.name)
+    return [] if node.guarded && var && !var.null?
     val = node.expr.perform(@environment)
     @environment.set_var(node.name, val)
     []
