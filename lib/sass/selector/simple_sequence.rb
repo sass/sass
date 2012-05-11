@@ -8,7 +8,23 @@ module Sass
       # The array of individual selectors.
       #
       # @return [Array<Simple>]
-      attr_reader :members
+      attr_accessor :members
+
+      # The extending selectors that caused this selector sequence to be
+      # generated. For example:
+      #
+      #     a.foo { ... }
+      #     b.bar {@extend a}
+      #     c.baz {@extend b}
+      #
+      # The generated selector `b.foo.bar` has `{b.bar}` as its `sources` set,
+      # and the generated selector `c.foo.bar.baz` has `{b.bar, c.baz}` as its
+      # `sources` set.
+      #
+      # This is populated during the {#do_extend} process.
+      #
+      # @return {Set<Sequence>}
+      attr_accessor :sources
 
       # Returns the element or universal selector in this sequence,
       # if it exists.
@@ -26,8 +42,10 @@ module Sass
       end
 
       # @param selectors [Array<Simple>] See \{#members}
-      def initialize(selectors)
+      # @param sources [Set<Sequence>]
+      def initialize(selectors, sources = Set.new)
         @members = selectors
+        @sources = sources
       end
 
       # Resolves the {Parent} selectors within this selector
@@ -54,22 +72,24 @@ module Sass
       # Non-destrucively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload def do_extend(extends)
+      # @overload def do_extend(extends, sources)
       # @param extends [{Selector::Simple => Selector::Sequence}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, seen = Set.new)
-        extends.get(members.to_set).map do |seq, sels|
+        Sass::Util.group_by_to_a(extends.get(members.to_set)) {|seq, _| seq}.map do |seq, group|
+          sels = group.map {|_, s| s}.flatten
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
           next unless unified = seq.members.last.unify(self_without_sel)
-          [sels, seq.members[0...-1] + [unified]]
+          new_seq = Sequence.new(seq.members[0...-1] + [unified])
+          new_seq.add_sources!(sources + [seq])
+          [sels, new_seq]
         end.compact.map do |sels, seq|
-          seq = Sequence.new(seq)
           seen.include?(sels) ? [] : seq.do_extend(extends, seen + [sels])
         end.flatten.uniq
       end
@@ -118,6 +138,18 @@ module Sass
       # @return [String]
       def inspect
         members.map {|m| m.inspect}.join
+      end
+
+      # Return a copy of this simple sequence with `sources` merged into the
+      # {#sources} set.
+      #
+      # @param sources [Set<Sequence>]
+      # @return [SimpleSequence]
+      def with_more_sources(sources)
+        sseq = dup
+        sseq.members = members.dup
+        sseq.sources.merge sources
+        sseq
       end
 
       private

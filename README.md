@@ -54,7 +54,7 @@ To do so, just add
 
 to `config.ru`.
 Then any Sass files in `public/stylesheets/sass`
-will be compiled CSS files in `public/stylesheets` on every request.
+will be compiled into CSS files in `public/stylesheets` on every request.
 
 To use Sass programatically,
 check out the [YARD documentation](http://sass-lang.com/docs/yardoc/).

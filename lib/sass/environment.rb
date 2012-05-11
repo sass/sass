@@ -19,15 +19,25 @@ module Sass
     # @return [Environment]
     attr_reader :parent
     attr_writer :options
+    attr_writer :caller
+    attr_writer :content
 
     # @param parent [Environment] See \{#parent}
     def initialize(parent = nil)
       @parent = parent
-      unless parent
-        @stack = []
-        @mixins_in_use = Set.new
-        @files_in_use = Set.new
-      end
+    end
+
+    # The environment of the caller of this environment's mixin or function.
+    # @return {Environment?}
+    def caller
+      @caller || (@parent && @parent.caller)
+    end
+
+    # The content passed to this environmnet. This is naturally only set
+    # for mixin body environments with content passed in.
+    # @return {Environment?}
+    def content
+      @content || (@parent && @parent.content)
     end
 
     # The options hash.
@@ -38,87 +48,7 @@ module Sass
       @options || parent_options || {}
     end
 
-    # Push a new stack frame onto the mixin/include stack.
-    #
-    # @param frame_info [{Symbol => Object}]
-    #   Frame information has the following keys:
-    #
-    #   `:filename`
-    #   : The name of the file in which the lexical scope changed.
-    #
-    #   `:mixin`
-    #   : The name of the mixin in which the lexical scope changed,
-    #     or `nil` if it wasn't within in a mixin.
-    #
-    #   `:line`
-    #   : The line of the file on which the lexical scope changed. Never nil.
-    def push_frame(frame_info)
-      top_of_stack = stack.last
-      if top_of_stack && top_of_stack.delete(:prepared)
-        top_of_stack.merge!(frame_info)
-      else
-        stack.push(top_of_stack = frame_info)
-      end
-      mixins_in_use << top_of_stack[:mixin] if top_of_stack[:mixin]
-      files_in_use << top_of_stack[:filename] if top_of_stack[:filename]
-    end
-
-    # Like \{#push\_frame}, but next time a stack frame is pushed,
-    # it will be merged with this frame.
-    #
-    # @param frame_info [{Symbol => Object}] Same as for \{#push\_frame}.
-    def prepare_frame(frame_info)
-      push_frame(frame_info.merge(:prepared => true))
-    end
-
-    # Pop a stack frame from the mixin/include stack.
-    def pop_frame
-      pop_and_unuse if stack.last && stack.last[:prepared]
-      pop_and_unuse
-    end
-
-    # A list of stack frames in the mixin/include stack.
-    # The last element in the list is the most deeply-nested frame.
-    #
-    # @return [Array<{Symbol => Object}>] The stack frames,
-    #   of the form passed to \{#push\_frame}.
-    def stack
-      @stack ||= @parent.stack
-    end
-
-    # A set of names of mixins currently present in the stack.
-    #
-    # @return [Set<String>] The mixin names.
-    def mixins_in_use
-      @mixins_in_use ||= @parent.mixins_in_use
-    end
-
-    # A set of names of files currently present in the stack.
-    #
-    # @return [Set<String>] The filenames.
-    def files_in_use
-      @files_in_use ||= @parent.files_in_use
-    end
-
-    def stack_trace
-      trace = []
-      stack.reverse.each_with_index do |entry, i|
-        msg = "#{i == 0 ? "on" : "from"} line #{entry[:line]}"
-        msg << " of #{entry[:filename] || "an unknown file"}"
-        msg << ", in `#{entry[:mixin]}'" if entry[:mixin]
-        trace << msg
-      end
-      trace
-    end
-
     private
-
-    def pop_and_unuse
-      popped = stack.pop
-      mixins_in_use.delete(popped[:mixin]) if popped && popped[:mixin]
-      files_in_use.delete(popped[:filename]) if popped && popped[:filename]
-      popped
-    end
 
     def parent_options
       @parent_options ||= @parent && @parent.options

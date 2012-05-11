@@ -280,6 +280,8 @@ Available options are:
   These may be strings, `Pathname` objects, or subclasses of {Sass::Importers::Base}.
   This defaults to the working directory and, in Rack, Rails, or Merb,
   whatever `:template_location` is.
+  The load path is also informed by {Sass.load_paths}
+  and the `SASS_PATH` environment variable.
 
 {#filesystem_importer-option} `:filesystem_importer`
 : A {Sass::Importers::Base} subclass used to handle plain string load paths.
@@ -521,6 +523,16 @@ is compiled to:
         font-family: fantasy;
         font-size: 30em;
         font-weight: bold; }
+
+### Placeholder Selectors: `%foo`
+
+Sass supports a special type of selector called a "placeholder selector".
+These look like class and id selectors, except the `#` or `.` is replaced by `%`.
+They're meant to be used with the [`@extend` directive](#extend);
+for more information see [`@extend`-Only Selectors](#placeholders).
+
+On their own, without any use of `@extend`, rulesets that use placeholder selectors
+will not be rendered to CSS.
 
 ## Comments: `/* */` and `//` {#comments}
 
@@ -848,6 +860,24 @@ is compiled to:
       color: rgba(255, 0, 0, 0.9);
       background-color: rgba(255, 0, 0, 0.25); }
 
+IE filters require all colors include the alpha layer, and be in
+the strict format of #AABBCCDD. You can more easily convert the
+color using the {Sass::Script::Functions#ie_hex_str ie_hex_str}
+function.
+For example:
+
+    $translucent-red: rgba(255, 0, 0, 0.5);
+    $green: #00ff00;
+    div {
+      filter: progid:DXImageTransform.Microsoft.gradient(enabled='false', startColorstr='#{ie-hex-str($green)}', endColorstr='#{ie-hex-str($translucent-red)}');
+    }
+
+is compiled to:
+
+    div {
+      filter: progid:DXImageTransform.Microsoft.gradient(enabled='false', startColorstr=#FF00FF00, endColorstr=#80FF0000);
+    }
+
 #### String Operations
 
 The `+` operation can be used to concatenate strings:
@@ -1085,6 +1115,19 @@ It's also possible to import multiple files in one `@import`. For example:
 
 would import both the `rounded-corners` and the `text-shadow` files.
 
+Imports may contain `#{}` interpolation, but only with certain restrictions.
+It's not possible to dynamically import a Sass file based on a variable;
+interpolation is only for CSS imports.
+As such, it only works with `url()` imports.
+For example:
+
+    $family: unquote("Droid+Sans");
+    @import url("http://fonts.googleapis.com/css?family=\#{$family}");
+
+would compile to
+
+    @import url("http://fonts.googleapis.com/css?family=Droid+Sans");
+
 #### Partials {#partials}
 
 If you have a SCSS or Sass file that you want to import
@@ -1178,6 +1221,28 @@ For example:
 is compiled to:
 
     @media screen and (orientation: landscape) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
+Finally, `@media` queries can contain SassScript expressions (including
+variables, functions, and operators) in place of the feature names and feature
+values. For example:
+
+    $media: screen;
+    $feature: -webkit-min-device-pixel-ratio;
+    $value: 1.5;
+
+    @media #{$media} and ($feature: $value) {
+      .sidebar {
+        width: 500px;
+      }
+    }
+
+is compiled to:
+
+    @media screen and (-webkit-min-device-pixel-ratio: 1.5) {
       .sidebar {
         width: 500px;
       }
@@ -1458,6 +1523,47 @@ This is compiled to:
     #admin .tabbar .overview .fakelink,
     #admin .overview .tabbar .fakelink {
       font-weight: bold; }
+
+#### `@extend`-Only Selectors {#placeholders}
+
+Sometimes you'll write styles for a class
+that you only ever want to `@extend`,
+and never want to use directly in your HTML.
+This is especially true when writing a Sass library,
+where you may provide styles for users to `@extend` if they need
+and ignore if they don't.
+
+If you use normal classes for this, you end up creating a lot of extra CSS
+when the stylesheets are generated, and run the risk of colliding with other classes
+that are being used in the HTML.
+That's why Sass supports "placeholder selectors" (for example, `%foo`).
+
+Placeholder selectors look like class and id selectors,
+except the `#` or `.` is replaced by `%`.
+They can be used anywhere a class or id could,
+and on their own they prevent rulesets from being rendered to CSS.
+For example:
+
+    // This ruleset won't be rendered on its own.
+    #context a%extreme {
+      color: blue;
+      font-weight: bold;
+      font-size: 2em;
+    }
+
+However, placeholder selectors can be extended, just like classes and ids.
+The extended selectors will be generated, but the base placeholder selector will not.
+For example:
+
+    .notice { @extend %extreme; }
+
+Is compiled to:
+
+    #context a.notice {
+      color: blue;
+      font-weight: bold;
+      font-size: 2em;
+    }
 
 ### `@debug`
 
@@ -1815,6 +1921,79 @@ providing many arguments without becoming difficult to call.
 Named arguments can be passed in any order, and arguments with default values can be omitted.
 Since the named arguments are variable names, underscores and dashes can be used interchangeably.
 
+### Passing Content Blocks to a Mixin {#mixin-content}
+
+It is possible to pass a block of styles to the mixin for placement within the styles included by
+the mixin. The styles will appear at the location of any `@content` directives found within the mixin. This makes is possible to define abstractions relating to the construction of
+selectors and directives.
+
+For example:
+
+    @mixin apply-to-ie6-only {
+      * html {
+        @content;
+      }
+    }
+    @include apply-to-ie6-only {
+      #logo {
+        background-image: url(/logo.gif);
+      }
+    }
+
+Generates:
+
+    * html #logo {
+      background-image: url(/logo.gif);
+    }
+
+The same mixins can be done in the `.sass` shorthand syntax:
+
+    =apply-to-ie6-only
+      * html
+        @content
+
+    +apply-to-ie6-only
+      #logo
+        background-image: url(/logo.gif)
+
+**Note:** when the `@content` directive is specified more than once or in a loop, the style block will be duplicated with each invocation.
+
+#### Variable Scope and Content Blocks
+
+The block of content passed to a mixin are evaluated in the scope where the block is defined,
+not in the scope of the mixin. This means that variables local to the mixin **cannot** be used
+within the passed style block and variables will resolve to the global value:
+
+    $color: white;
+    @mixin colors($color: blue) {
+      background-color: $color;
+      @content;
+      border-color: $color;
+    }
+    .colors {
+      @include colors { color: $color; }
+    }
+
+Compiles to:
+
+    .colors {
+      background-color: blue;
+      color: white;
+      border-color: blue;
+    }
+
+Additionally, this makes it clear that the variables and mixins that are used within the
+passed block are related to the other styles around where the block is defined. For example:
+
+    #sidebar {
+      $sidebar-width: 300px;
+      width: $sidebar-width;
+      @include iphone {
+        width: $sidebar-width / 3;
+      }
+    }
+
+
 ## Function Directives {#function_directives}
 
 It is possible to define your own functions in sass and use them in any
@@ -1822,11 +2001,11 @@ value or script context. For example:
 
     $grid-width: 40px;
     $gutter-width: 10px;
-    
+
     @function grid-width($n) {
       @return $n * $grid-width + ($n - 1) * $gutter-width;
     }
-    
+
     #sidebar { width: grid-width(5); }
 
 Becomes:

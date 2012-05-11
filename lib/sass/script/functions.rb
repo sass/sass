@@ -99,6 +99,9 @@ module Sass::Script
   # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Changes one or more properties of a color.
   #
+  # \{#ie_hex_str ie-hex-str($color)}
+  # : Converts a color into the format understood by IE filters.
+  #
   # ## String Functions
   #
   # \{#unquote unquote($string)}
@@ -123,6 +126,12 @@ module Sass::Script
   #
   # \{#abs abs($value)}
   # : Returns the absolute value of a number.
+  #
+  # \{#min min($x1, $x2, ...)\}
+  # : Finds the minimum of several values.
+  #
+  # \{#max max($x1, $x2, ...)\}
+  # : Finds the maximum of several values.
   #
   # ## List Functions {#list-functions}
   #
@@ -241,7 +250,7 @@ module Sass::Script
     #   to {Sass::Script::Literal}s as the last argument.
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
-    # 
+    #
     # @example
     #   declare :rgba, [:hex, :alpha]
     #   declare :rgba, [:red, :green, :blue, :alpha]
@@ -366,11 +375,10 @@ module Sass::Script
       Color.new([red, green, blue].map do |c|
           v = c.value
           if c.numerator_units == ["%"] && c.denominator_units.empty?
-            next v * 255 / 100.0 if (0..100).include?(v)
-            raise ArgumentError.new("Color value #{c} must be between 0% and 100% inclusive")
+            v = Sass::Util.check_range("Color value", 0..100, c, '%')
+            v * 255 / 100.0
           else
-            next v if (0..255).include?(v)
-            raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
+            Sass::Util.check_range("Color value", 0..255, c)
           end
         end)
     end
@@ -410,10 +418,7 @@ module Sass::Script
         assert_type color, :Color
         assert_type alpha, :Number
 
-        unless (0..1).include?(alpha.value)
-          raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1 inclusive")
-        end
-
+        Sass::Util.check_range('Alpha channel', 0..1, alpha)
         color.with(:alpha => alpha.value)
       when 4
         red, green, blue, alpha = args
@@ -463,16 +468,11 @@ module Sass::Script
       assert_type lightness, :Number
       assert_type alpha, :Number
 
-      unless (0..1).include?(alpha.value)
-        raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1")
-      end
+      Sass::Util.check_range('Alpha channel', 0..1, alpha)
 
-      original_s = saturation
-      original_l = lightness
-      # This algorithm is from http://www.w3.org/TR/css3-color#hsl-color
-      h, s, l = [hue, saturation, lightness].map { |a| a.value }
-      raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") unless (0..100).include?(s)
-      raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") unless (0..100).include?(l)
+      h = hue.value
+      s = Sass::Util.check_range('Saturation', 0..100, saturation, '%')
+      l = Sass::Util.check_range('Lightness', 0..100, lightness, '%')
 
       Color.new(:hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
@@ -733,6 +733,23 @@ module Sass::Script
     end
     declare :adjust_hue, [:color, :degrees]
 
+    # Returns an IE hex string for a color with an alpha channel
+    # suitable for passing to IE filters.
+    #
+    # @example
+    #   ie-hex-str(#abc) => #FFAABBCC
+    #   ie-hex-str(#3322BB) => #FF3322BB
+    #   ie-hex-str(rgba(0, 255, 0, 0.5)) => #8000FF00
+    # @param color [Color]
+    # @return [String]
+    # @raise [ArgumentError] If `color` isn't a color
+    def ie_hex_str(color)
+      assert_type color, :Color
+      alpha = (color.alpha * 255).round.to_s(16).rjust(2, '0')
+      Sass::Script::String.new("##{alpha}#{color.send(:hex_str)[1..-1]}".upcase)
+    end
+    declare :ie_hex_str, [:color]
+
     # Adjusts one or more properties of a color.
     # This can change the red, green, blue, hue, saturation, value, and alpha properties.
     # The properties are specified as keyword arguments,
@@ -778,9 +795,7 @@ module Sass::Script
 
         next unless val = kwargs.delete(name)
         assert_type val, :Number, name
-        if range && !range.include?(val.value)
-          raise ArgumentError.new("$#{name}: Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
-        end
+        Sass::Util.check_range("$#{name}: Amount", range, val, units) if range
         adjusted = color.send(name) + val.value
         adjusted = [0, Sass::Util.restrict(adjusted, range)].max if range
         [name.to_sym, adjusted]
@@ -849,8 +864,8 @@ module Sass::Script
         assert_type val, :Number, name
         if !(val.numerator_units == ['%'] && val.denominator_units.empty?)
           raise ArgumentError.new("$#{name}: Amount #{val} must be a % (e.g. #{val.value}%)")
-        elsif !(-100..100).include?(val.value)
-          raise ArgumentError.new("$#{name}: Amount #{val} must be between -100% and 100%")
+        else
+          Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
         end
 
         current = color.send(name)
@@ -944,9 +959,7 @@ module Sass::Script
       assert_type color2, :Color
       assert_type weight, :Number
 
-      unless (0..100).include?(weight.value)
-        raise ArgumentError.new("Weight #{weight} must be between 0% and 100%")
-      end
+      Sass::Util.check_range("Weight", 0..100, weight, '%')
 
       # This algorithm factors in both the user-provided weight
       # and the difference between the alpha values of the two colors
@@ -1028,6 +1041,7 @@ module Sass::Script
         :green => (255 - color.green),
         :blue => (255 - color.blue))
     end
+    declare :invert, [:color]
 
     # Removes quotes from a string if the string is quoted,
     # or returns the same string if it's not.
@@ -1195,6 +1209,37 @@ module Sass::Script
       numeric_transformation(value) {|n| n.abs}
     end
     declare :abs, [:value]
+
+    # Finds the minimum of several values. This function takes any number of
+    # arguments.
+    #
+    # @example
+    #   min(1px, 4px) => 1px
+    #   min(5em, 3em, 4em) => 3em
+    # @param values [[Number]] The numbers
+    # @return [Number] The minimum value
+    # @raise [ArgumentError] if any argument isn't a number, or if not all of
+    #   the arguments have comparable units
+    def min(*values)
+      values.each {|v| assert_type v, :Number}
+      values.inject {|min, val| min.lt(val).to_bool ? min : val}
+    end
+    declare :min, [], :var_args => :true
+
+    # Finds the maximum of several values. This function takes any number of
+    # arguments.
+    #
+    # @example
+    #   max(1px, 4px) => 1px
+    #   max(5em, 3em, 4em) => 3em
+    # @return [Number] The maximum value
+    # @raise [ArgumentError] if any argument isn't a number, or if not all of
+    #   the arguments have comparable units
+    def max(*values)
+      values.each {|v| assert_type v, :Number}
+      values.inject {|max, val| max.gt(val).to_bool ? max : val}
+    end
+    declare :max, [], :var_args => :true
 
     # Return the length of a list.
     #
@@ -1381,9 +1426,7 @@ module Sass::Script
     def _adjust(color, amount, attr, range, op, units = "")
       assert_type color, :Color
       assert_type amount, :Number
-      unless range.include?(amount.value)
-        raise ArgumentError.new("Amount #{amount} must be between #{range.first}#{units} and #{range.last}#{units}")
-      end
+      Sass::Util.check_range('Amount', range, amount, units)
 
       # TODO: is it worth restricting here,
       # or should we do so in the Color constructor itself,

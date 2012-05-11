@@ -488,7 +488,7 @@ SCSS
 
   def test_media_directive_with_keywords
     assert_parses <<SCSS
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
   a: b; }
 SCSS
     assert_parses <<SCSS
@@ -618,8 +618,17 @@ SCSS
 @supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
   .foo {
     a: b; } }
+@supports (a: b) {
+  .foo {
+    a: b; } }
 CSS
 @supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+  .foo {
+    a: b;
+  }
+}
+
+@supports (a: b) {
   .foo {
     a: b;
   }
@@ -786,10 +795,12 @@ SCSS
     assert_selector_parses(':not(h1, h2, h3)')
   end
 
-  def test_moz_any_selector
+  def test_any_selector
     assert_selector_parses(':-moz-any(h1, h2, h3)')
     assert_selector_parses(':-moz-any(.foo)')
     assert_selector_parses(':-moz-any(foo bar, .baz > .bang)')
+    assert_selector_parses(':-webkit-any(foo bar, .baz > .bang)')
+    assert_selector_parses(':any(foo bar, .baz > .bang)')
   end
 
   def test_namespaced_selectors

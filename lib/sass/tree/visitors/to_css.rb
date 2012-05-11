@@ -62,19 +62,19 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     content = node.resolved_value.gsub(/^/, spaces).gsub(%r{^(\s*)//(.*)$}) do |md|
       "#{$1}/*#{$2} */"
     end
-    content.gsub!(/\n +(\* *(?!\/))?/, ' ') if (node.style == :compact || node.style == :compressed) && !node.loud
+    content.gsub!(/\n +(\* *(?!\/))?/, ' ') if (node.style == :compact || node.style == :compressed) && node.type != :loud
     content
   end
 
   def visit_directive(node)
     was_in_directive = @in_directive
-    return node.value + ";" unless node.has_children
-    return node.value + " {}" if node.children.empty?
+    return node.resolved_value + ";" unless node.has_children
+    return node.resolved_value + " {}" if node.children.empty?
     @in_directive = @in_directive || !node.is_a?(Sass::Tree::MediaNode)
     result = if node.style == :compressed
-               "#{node.value}{"
+               "#{node.resolved_value}{"
              else
-               "#{'  ' * @tabs}#{node.value} {" + (node.style == :compact ? ' ' : "\n")
+               "#{'  ' * @tabs}#{node.resolved_value} {" + (node.style == :compact ? ' ' : "\n")
              end
     was_prop = false
     first = true
@@ -113,6 +113,14 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     str
   end
 
+  def visit_supports(node)
+    visit_media(node)
+  end
+
+  def visit_cssimport(node)
+    visit_directive(node)
+  end
+
   def visit_prop(node)
     tab_str = '  ' * (@tabs + node.tabs)
     if node.style == :compressed
@@ -135,6 +143,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       per_rule_indent, total_indent = [:nested, :expanded].include?(node.style) ? [rule_indent, ''] : ['', rule_indent]
 
       joined_rules = node.resolved_rules.members.map do |seq|
+        next if seq.has_placeholder?
         rule_part = seq.to_a.join
         if node.style == :compressed
           rule_part.gsub!(/([^,])\s*\n\s*/m, '\1 ')
@@ -142,7 +151,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
           rule_part.strip!
         end
         rule_part
-      end.join(rule_separator)
+      end.compact.join(rule_separator)
 
       joined_rules.sub!(/\A\s*/, per_rule_indent)
       joined_rules.gsub!(/\s*\n\s*/, "#{line_separator}#{per_rule_indent}")
@@ -197,7 +206,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   private
 
   def debug_info_rule(debug_info, options)
-    node = Sass::Tree::DirectiveNode.new("@media -sass-debug-info")
+    node = Sass::Tree::DirectiveNode.resolved("@media -sass-debug-info")
     Sass::Util.hash_to_a(debug_info.map {|k, v| [k.to_s, v.to_s]}).each do |k, v|
       rule = Sass::Tree::RuleNode.new([""])
       rule.resolved_rules = Sass::Selector::CommaSequence.new(

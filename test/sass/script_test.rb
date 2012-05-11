@@ -21,13 +21,13 @@ class SassScriptTest < Test::Unit::TestCase
   include Sass::Script
 
   def test_color_checks_input
-    assert_raise_message(ArgumentError, "Blue value must be between 0 and 255") {Color.new([1, 2, -1])}
-    assert_raise_message(ArgumentError, "Red value must be between 0 and 255") {Color.new([256, 2, 3])}
+    assert_raise_message(ArgumentError, "Blue value -1 must be between 0 and 255") {Color.new([1, 2, -1])}
+    assert_raise_message(ArgumentError, "Red value 256 must be between 0 and 255") {Color.new([256, 2, 3])}
   end
 
   def test_color_checks_rgba_input
-    assert_raise_message(ArgumentError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, 1.1])}
-    assert_raise_message(ArgumentError, "Alpha channel must be between 0 and 1") {Color.new([1, 2, 3, -0.1])}
+    assert_raise_message(ArgumentError, "Alpha channel 1.1 must be between 0 and 1") {Color.new([1, 2, 3, 1.1])}
+    assert_raise_message(ArgumentError, "Alpha channel -0.1 must be between 0 and 1") {Color.new([1, 2, 3, -0.1])}
   end
 
   def test_string_escapes

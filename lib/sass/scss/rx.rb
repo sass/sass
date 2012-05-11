@@ -115,7 +115,7 @@ module Sass
       # Custom
       HEXCOLOR = /\#[0-9a-fA-F]+/
       INTERP_START = /#\{/
-      MOZ_ANY = quote(":-moz-any(", Regexp::IGNORECASE)
+      ANY = /:(-[-\w]+-)?any\(/i
 
       IDENT_HYPHEN_INTERP = /-(#\{)/
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/

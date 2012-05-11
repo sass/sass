@@ -84,4 +84,19 @@ class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
     node.expr = node.expr.deep_copy
     yield
   end
+
+  def visit_directive(node)
+    node.value = node.value.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c}
+    yield
+  end
+
+  def visit_media(node)
+    node.query = node.query.deep_copy
+    yield
+  end
+
+  def visit_supports(node)
+    node.condition = node.condition.deep_copy
+    yield
+  end
 end

@@ -136,7 +136,12 @@ module Sass
           if signature.var_kwargs
             args << keywords
           else
-            raise Sass::SyntaxError.new("Function #{name} doesn't take an argument named $#{keywords.keys.sort.first}")
+            argname = keywords.keys.sort.first
+            if signature.args.include?(argname)
+              raise Sass::SyntaxError.new("Function #{name} was passed argument $#{argname} both by position and by name")
+            else
+              raise Sass::SyntaxError.new("Function #{name} doesn't have an argument named $#{argname}")
+            end
           end
         end
 
@@ -145,10 +150,10 @@ module Sass
 
       def perform_sass_fn(function, args, keywords)
         # TODO: merge with mixin arg evaluation?
-        keywords.each do |name, value|
-          # TODO: Make this fast
-          unless function.args.find {|(var, default)| var.underscored_name == name}
-            raise Sass::SyntaxError.new("Function #{@name} doesn't have an argument named $#{name}")
+        if keywords.any?
+          unknown_args = keywords.keys - function.args.map {|var| var.first.underscored_name }
+          if unknown_args.any?
+            raise Sass::SyntaxError.new("Function #{@name} doesn't have #{unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'} #{unknown_args.map{|name| "$#{name}"}.join ', '}")
           end
         end
 
@@ -158,9 +163,13 @@ module Sass
 
         environment = function.args.zip(args).
           inject(Sass::Environment.new(function.environment)) do |env, ((var, default), value)|
+          if value && keywords.include?(var.underscored_name)
+            raise Sass::SyntaxError.new("Function #{@name} was passed argument $#{var.name} both by position and by name")
+          end
+
           env.set_local_var(var.name,
             value || keywords[var.underscored_name] || (default && default.perform(env)))
-          raise Sass::SyntaxError.new("Function #{@name} is missing parameter #{var.inspect}.") unless env.var(var.name)
+          raise Sass::SyntaxError.new("Function #{@name} is missing argument #{var.inspect}") unless env.var(var.name)
           env
         end
 

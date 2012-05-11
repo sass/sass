@@ -51,7 +51,7 @@ task :permissions do
 end
 
 task :revision_file do
-  require 'lib/sass'
+  require scope('lib/sass')
 
   release = Rake.application.top_level_tasks.include?('release') || File.exist?(scope('EDGE_GEM_VERSION'))
   if Sass.version[:rev] && !release

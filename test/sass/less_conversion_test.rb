@@ -13,7 +13,8 @@ $var2: $var1 + 7px;
 $var3: fizz;
 
 foo {
-  prop: $var1 $var2 $var3; }
+  prop: $var1 $var2 $var3;
+}
 SCSS
 @var1: 2px 3px;
 @var2: @var1 + 7px;
@@ -28,11 +29,13 @@ LESS
     assert_renders <<SCSS, <<LESS
 .foo {
   $var: 2px;
-  prop: $var; }
+  prop: $var;
+}
 SCSS
 .foo {
   @var: 2px;
-  prop: @var; }
+  prop: @var;
+}
 LESS
   end
 
@@ -64,7 +67,8 @@ LESS
 
 .baz {
   @extend .foo;
-  @include bar; }
+  @include bar;
+}
 SCSS
 @import "#{path}";
 
@@ -77,7 +81,8 @@ LESS
   def test_element_selector
     assert_renders <<SCSS, <<LESS
 foo {
-  a: b; }
+  a: b;
+}
 SCSS
 foo {a: b}
 LESS
@@ -86,7 +91,8 @@ LESS
   def test_class_selector
     assert_renders <<SCSS, <<LESS
 .foo {
-  a: b; }
+  a: b;
+}
 SCSS
 .foo {a: b}
 LESS
@@ -95,7 +101,8 @@ LESS
   def test_id_selector
     assert_renders <<SCSS, <<LESS
 #foo {
-  a: b; }
+  a: b;
+}
 SCSS
 #foo {a: b}
 LESS
@@ -104,7 +111,8 @@ LESS
   def test_pseudoclass_selector
     assert_renders <<SCSS, <<LESS
 :foo {
-  a: b; }
+  a: b;
+}
 SCSS
 :foo {a: b}
 LESS
@@ -113,7 +121,8 @@ LESS
   def test_pseudoelement_selector
     assert_renders <<SCSS, <<LESS
 ::foo {
-  a: b; }
+  a: b;
+}
 SCSS
 ::foo {a: b}
 LESS
@@ -122,7 +131,8 @@ LESS
   def test_comma_selector
     assert_renders <<SCSS, <<LESS
 foo, .bar .baz, :bang {
-  a: b; }
+  a: b;
+}
 SCSS
 foo, .bar .baz, :bang {a: b}
 LESS
@@ -132,17 +142,21 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo bar, .baz {
   .bang, &:bip bap {
-    a: b; } }
+    a: b;
+  }
+}
 SCSS
 foo bar, .baz {
-  .bang, :bip bap {a: b} }
+  .bang, :bip bap {a: b}
+}
 LESS
   end
 
   def test_simple_selector_sequence
     assert_renders <<SCSS, <<LESS
 a.foo#bar[attr=val] {
-  a: b; }
+  a: b;
+}
 SCSS
 a.foo#bar[attr=val] {a: b}
 LESS
@@ -151,7 +165,8 @@ LESS
   def test_descendant_selector
     assert_renders <<SCSS, <<LESS
 .foo .bar {
-  a: b; }
+  a: b;
+}
 SCSS
 .foo .bar {a: b}
 LESS
@@ -160,7 +175,8 @@ LESS
   def test_child_selector
     assert_renders <<SCSS, <<LESS
 .foo > .bar {
-  a: b; }
+  a: b;
+}
 SCSS
 .foo > .bar {a: b}
 LESS
@@ -169,7 +185,8 @@ LESS
   def test_adjacent_selector
     assert_renders <<SCSS, <<LESS
 .foo + .bar {
-  a: b; }
+  a: b;
+}
 SCSS
 .foo + .bar {a: b}
 LESS
@@ -178,7 +195,8 @@ LESS
   def test_pseudoclass_in_sequence
     assert_renders <<SCSS, <<LESS
 .foo:bar {
-  a: b; }
+  a: b;
+}
 SCSS
 .foo:bar {a: b}
 LESS
@@ -187,7 +205,8 @@ LESS
   def test_pseudoelement_in_sequence
     assert_renders <<SCSS, <<LESS
 .foo::bar {
-  a: b; }
+  a: b;
+}
 SCSS
 .foo::bar {a: b}
 LESS
@@ -198,7 +217,8 @@ LESS
   def test_space_separated_props
     assert_renders <<SCSS, <<LESS
 foo {
-  a: foo bar baz; }
+  a: foo bar baz;
+}
 SCSS
 foo {a: foo bar baz}
 LESS
@@ -207,7 +227,8 @@ LESS
   def test_comma_separated_props
     assert_renders <<SCSS, <<LESS
 foo {
-  a: foo, bar, baz; }
+  a: foo, bar, baz;
+}
 SCSS
 foo {a: foo, bar, baz}
 LESS
@@ -216,7 +237,8 @@ LESS
   def test_numbers
     assert_renders <<SCSS, <<LESS
 foo {
-  a: 1 2.3 -8 5px 3%; }
+  a: 1 2.3 -8 5px 3%;
+}
 SCSS
 foo {a: 1 2.3 -8 5px 3%}
 LESS
@@ -225,7 +247,8 @@ LESS
   def test_colors
     assert_renders <<SCSS, <<LESS
 foo {
-  a: red #abcdef blue; }
+  a: red #abcdef blue;
+}
 SCSS
 foo {a: #f00 #abcdef blue}
 LESS
@@ -234,7 +257,8 @@ LESS
   def test_strings
     assert_renders <<SCSS, <<LESS
 foo {
-  a: "foo @var bar" "baz bang" "quote'quote" 'quote"quote'; }
+  a: "foo @var bar" "baz bang" "quote'quote" 'quote"quote';
+}
 SCSS
 foo {a: "foo @var bar" 'baz bang' "quote'quote" 'quote"quote'}
 LESS
@@ -245,12 +269,14 @@ LESS
 foo {
   a: small/8px 7em/8px;
   b: 8/4;
-  c: (8 / 4); }
+  c: (8 / 4);
+}
 SCSS
 foo {
   a: small/8px 7em/8px;
   b: 8/4;
-  c: 8 / 4; }
+  c: 8 / 4;
+}
 LESS
   end
 
@@ -259,12 +285,14 @@ LESS
 foo {
   a: url("http://foobar.com/fizzle.html?foo=bar&bar=baz");
   b: url("http://foobar.com/fizzle.html?foo=bar&bar=baz");
-  c: url("http://foobar.com/fizzle.html?foo=bar&bar=baz"); }
+  c: url("http://foobar.com/fizzle.html?foo=bar&bar=baz");
+}
 SCSS
 foo {
   a: url(http://foobar.com/fizzle.html?foo=bar&bar=baz);
   b: url("http://foobar.com/fizzle.html?foo=bar&bar=baz");
-  c: url('http://foobar.com/fizzle.html?foo=bar&bar=baz'); }
+  c: url('http://foobar.com/fizzle.html?foo=bar&bar=baz');
+}
 LESS
   end
 
@@ -272,11 +300,13 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo {
   a: baz(12px) rgba(80, 70 120, 0.76);
-  b: faz(1px + 3px) bang($var, #aaaaaa * 3); }
+  b: faz(1px + 3px) bang($var, #aaaaaa * 3);
+}
 SCSS
 foo {
   a: baz(12px) rgba(80, 70 120, 0.76);
-  b: faz(1px + 3px) bang(@var, #aaa * 3); }
+  b: faz(1px + 3px) bang(@var, #aaa * 3);
+}
 LESS
   end
 
@@ -284,18 +314,21 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo {
   a: alpha(opacity=2px);
-  b: alpha(opacity = $var); }
+  b: alpha(opacity = $var);
+}
 SCSS
 foo {
   a: alpha(opacity=2px);
-  b: alpha(opacity=@var); }
+  b: alpha(opacity=@var);
+}
 LESS
   end
 
   def test_variables
     assert_renders <<SCSS, <<LESS
 foo {
-  a: $var1 $var-foo; }
+  a: $var1 $var-foo;
+}
 SCSS
 foo {a: @var1 @var-foo}
 LESS
@@ -307,13 +340,15 @@ foo {
   a: 1px + 2px;
   b: #bbaa88 - #aa1122;
   c: 5 * 3;
-  d: (8 / 4); }
+  d: (8 / 4);
+}
 SCSS
 foo {
   a: 1px + 2px;
   b: #ba8 - #a12;
   c: 5 * 3;
-  d: 8 / 4; }
+  d: 8 / 4;
+}
 LESS
   end
 
@@ -333,7 +368,8 @@ foo {
   k: 1 + 2 - (3 + 4);
   l: 1 / (2 - 3) / 4;
   m: (1 - 2) / (3 - 4);
-  n: 1 / (2 * 3) / 4; }
+  n: 1 / (2 * 3) / 4;
+}
 SCSS
 foo {
   a: 1 + 2 * 3 + 4;
@@ -349,7 +385,8 @@ foo {
   k: 1 + 2 - (3 + 4);
   l: 1 / (2 - 3) / 4;
   m: (1 - 2) / (3 - 4);
-  n: 1 / (2 * 3) / 4; }
+  n: 1 / (2 * 3) / 4;
+}
 LESS
   end
 
@@ -357,18 +394,21 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo {
   a: 1px + 2px * 3;
-  b: (1px - 2px) / 3; }
+  b: (1px - 2px) / 3;
+}
 SCSS
 foo {
   a: 1px + (2px * 3);
-  b: (1px - (2px)) / 3; }
+  b: (1px - (2px)) / 3;
+}
 LESS
   end
 
   def test_unary_minus
     assert_renders <<SCSS, <<LESS
 foo {
-  a: 1px + -3px; }
+  a: 1px + -3px;
+}
 SCSS
 foo {a: 1px + (- 3px)}
 LESS
@@ -379,7 +419,8 @@ LESS
   def test_single_nested_rule
     assert_renders <<SCSS, <<LESS
 foo bar {
-  a: b; }
+  a: b;
+}
 SCSS
 foo {bar {a: b}}
 LESS
@@ -389,14 +430,17 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo {
   bar {
-    a: b; }
+    a: b;
+  }
   c: d;
-  e: f; }
+  e: f;
+}
 SCSS
 foo {
   bar {a: b}
   c: d;
-  e: f; }
+  e: f;
+}
 LESS
   end
 
@@ -404,13 +448,17 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo {
   bar {
-    a: b; }
+    a: b;
+  }
   baz {
-    c: d; } }
+    c: d;
+  }
+}
 SCSS
 foo {
   bar {a: b}
-  baz {c: d} }
+  baz {c: d}
+}
 LESS
   end
 
@@ -418,17 +466,21 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo {
   bar {
-    a: b; }
+    a: b;
+  }
   baz {
-    c: d; }
+    c: d;
+  }
   e: f;
-  g: h; }
+  g: h;
+}
 SCSS
 foo {
   bar {a: b}
   baz {c: d}
   e: f;
-  g: h; }
+  g: h;
+}
 LESS
   end
 
@@ -436,13 +488,17 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo {
   > bar {
-    a: b; }
+    a: b;
+  }
   + baz {
-    c: d; } }
+    c: d;
+  }
+}
 SCSS
 foo {
   > bar {a: b}
-  + baz {c: d} }
+  + baz {c: d}
+}
 LESS
   end
 
@@ -450,13 +506,17 @@ LESS
     assert_renders <<SCSS, <<LESS
 foo {
   &:bar {
-    a: b; }
+    a: b;
+  }
   &::baz {
-    c: d; } }
+    c: d;
+  }
+}
 SCSS
 foo {
   :bar {a: b}
-  ::baz {c: d} }
+  ::baz {c: d}
+}
 LESS
   end
 
@@ -465,10 +525,12 @@ LESS
   def test_class_inheritance
     assert_renders <<SCSS, <<LESS
 .foo {
-  a: b; }
+  a: b;
+}
 
 .bar {
-  @extend .foo; }
+  @extend .foo;
+}
 SCSS
 .foo {a: b}
 .bar {.foo;}
@@ -478,14 +540,17 @@ LESS
   def test_multiple_class_inheritance
     assert_renders <<SCSS, <<LESS
 .foo {
-  a: b; }
+  a: b;
+}
 
 .bar {
-  c: d; }
+  c: d;
+}
 
 .baz {
   @extend .foo;
-  @extend .bar; }
+  @extend .bar;
+}
 SCSS
 .foo {a: b}
 .bar {c: d}
@@ -496,10 +561,12 @@ LESS
   def test_pseudoclass_inheritance
     assert_renders <<SCSS, <<LESS
 :foo {
-  a: b; }
+  a: b;
+}
 
 :bar {
-  @extend :foo; }
+  @extend :foo;
+}
 SCSS
 :foo {a: b}
 :bar {:foo;}
@@ -509,10 +576,12 @@ LESS
   def test_multiple_pseudoclass_inheritance
     assert_renders <<SCSS, <<LESS
 :foo:bar {
-  a: b; }
+  a: b;
+}
 
 :baz {
-  @extend :foo:bar; }
+  @extend :foo:bar;
+}
 SCSS
 :foo:bar {a: b}
 :baz {:foo:bar;}
@@ -522,10 +591,12 @@ LESS
   def test_abstract_mixin
     assert_renders <<SCSS, <<LESS
 @mixin foo {
-  a: b; }
+  a: b;
+}
 
 .bar {
-  @include foo; }
+  @include foo;
+}
 SCSS
 .foo() {a: b}
 .bar {.foo;}
@@ -535,10 +606,12 @@ LESS
   def test_mixin_with_args
     assert_renders <<SCSS, <<LESS
 @mixin foo($a: 2px, $b: red) {
-  a: $a; }
+  a: $a;
+}
 
 .bar {
-  @include foo; }
+  @include foo;
+}
 SCSS
 .foo(@a: 2px, @b: #f00) {a: @a}
 .bar {.foo;}
@@ -546,10 +619,12 @@ LESS
 
     assert_renders <<SCSS, <<LESS
 @mixin foo($a: 2px + 3px, $b: red) {
-  a: $a; }
+  a: $a;
+}
 
 .bar {
-  @include foo(5px); }
+  @include foo(5px);
+}
 SCSS
 .foo(@a: 2px + 3px, @b: #f00) {a: @a}
 .bar {.foo(5px);}
@@ -564,11 +639,13 @@ WARNING: Sass doesn't support mixing in selector sequences.
 Replacing ".foo .bar" with "@extend .bar"
 WARN
 .foo .bar {
-  a: b; }
+  a: b;
+}
 
 .bar {
   // .foo .bar;
-  @extend .bar; }
+  @extend .bar;
+}
 SCSS
 .foo .bar {a: b}
 .bar {.foo .bar;}
@@ -581,11 +658,13 @@ WARNING: Sass doesn't support mixing in selector sequences.
 Replacing "> .bar" with "@extend .bar"
 WARN
 .foo > .bar {
-  a: b; }
+  a: b;
+}
 
 .bar {
   // > .bar;
-  @extend .bar; }
+  @extend .bar;
+}
 SCSS
 .foo > .bar {a: b}
 .bar {> .bar;}
@@ -600,10 +679,12 @@ WARNING: Sass doesn't support attribute accessors.
 Ignoring .magic-box['content']
 WARN
 .magic-box {
-  content: "gold"; }
+  content: "gold";
+}
 
 .foo {
-  content: /* .magic-box['content'] */; }
+  content: /* .magic-box['content'] */;
+}
 SCSS
 .magic-box {content: "gold"}
 .foo {content: .magic-box['content']}
@@ -617,10 +698,12 @@ Ignoring .magic-box[@content]
 WARN
 .magic-box {
   $content: "gold";
-  content: $content; }
+  content: $content;
+}
 
 .foo {
-  content: /* .magic-box[@content] */; }
+  content: /* .magic-box[@content] */;
+}
 SCSS
 .magic-box {@content: "gold"; content: @content}
 .foo {content: .magic-box[@content]}

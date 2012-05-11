@@ -15,6 +15,10 @@ module Sass
       # @return [Array<(Script::Node, Script::Node)>]
       attr_accessor :args
 
+      # Whether the mixin uses `@content`. Set during the nesting check phase.
+      # @return [Boolean]
+      attr_accessor :has_content
+
       # @param name [String] The mixin name
       # @param args [Array<(Script::Node, Script::Node)>] See \{#args}
       def initialize(name, args)
