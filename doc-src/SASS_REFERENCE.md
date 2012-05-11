@@ -1651,11 +1651,12 @@ and so require substantial flexibility.
 
 The `@if` directive takes a SassScript expression
 and uses the styles nested beneath it if the expression returns
-anything other than `false`:
+anything other than `false` or `null`:
 
     p {
       @if 1 + 1 == 2 { border: 1px solid; }
       @if 5 < 3 { border: 2px dotted; }
+      @if null { border: 3px double; }
     }
 
 is compiled to:
