@@ -1160,8 +1160,8 @@ module Sass::Script
     # Rounds a number up to the nearest whole number.
     #
     # @example
-    #   ciel(10.4px) => 11px
-    #   ciel(10.6px) => 11px
+    #   ceil(10.4px) => 11px
+    #   ceil(10.6px) => 11px
     # @param value [Number] The number
     # @return [Number] The rounded number
     # @raise [ArgumentError] if `value` isn't a number
