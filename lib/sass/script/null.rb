@@ -14,7 +14,7 @@ module Sass::Script
     end
 
     # @return [Boolean] `true`
-    def nil?
+    def null?
       true
     end
 

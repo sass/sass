@@ -218,6 +218,13 @@ MSG
     end
     alias_method :to_sass, :to_s
 
+    # Returns whether or not this object is null.
+    #
+    # @return [Boolean] `false`
+    def null?
+      false
+    end
+
     protected
 
     # Evaluates the literal.

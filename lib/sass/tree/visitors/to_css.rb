@@ -122,7 +122,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
 
   def visit_prop(node)
-    return if node.resolved_value =~ /\A[\s'"()]*\Z/
+    return if node.resolved_value.empty?
     tab_str = '  ' * (@tabs + node.tabs)
     if node.style == :compressed
       "#{tab_str}#{node.resolved_name}:#{node.resolved_value}"
@@ -189,13 +189,13 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       end
 
       if node.style == :compact
-        properties = with_tabs(0) {node.children.map {|a| visit(a)}.compact.join(' ')}
+        properties = with_tabs(0) {node.children.map {|a| visit(a)}.join(' ')}
         to_return << "#{total_rule} { #{properties} }#{"\n" if node.group_end}"
       elsif node.style == :compressed
-        properties = with_tabs(0) {node.children.map {|a| visit(a)}.compact.join(';')}
+        properties = with_tabs(0) {node.children.map {|a| visit(a)}.join(';')}
         to_return << "#{total_rule}{#{properties}}"
       else
-        properties = with_tabs(@tabs + 1) {node.children.map {|a| visit(a)}.compact.join("\n")}
+        properties = with_tabs(@tabs + 1) {node.children.map {|a| visit(a)}.join("\n")}
         end_props = (node.style == :expanded ? "\n" + old_spaces : ' ')
         to_return << "#{total_rule} {\n#{properties}#{end_props}}#{"\n" if node.group_end}"
       end

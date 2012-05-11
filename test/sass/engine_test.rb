@@ -1206,9 +1206,9 @@ CSS
 $a: 5px
 =foo($a, $b: 1px, $c: null)
   $c: 3px + $b !default
-  :color $a
-  :padding $b
-  :margin $c
+  color: $a
+  padding: $b
+  margin: $c
 one
   +foo(#fff)
 two
@@ -1423,6 +1423,15 @@ SASS
   def test_if_directive
     assert_equal("a {\n  b: 1; }\n", render(<<SASS))
 $var: true
+a
+  @if $var
+    b: 1
+  @if not $var
+    b: 2
+SASS
+
+    assert_equal("a {\n  b: 2; }\n", render(<<SASS))
+$var: null
 a
   @if $var
     b: 1
@@ -1828,6 +1837,7 @@ END
   def test_nonprinting_empty_property
     assert_equal(<<CSS, render(<<SASS))
 a {
+  c: "";
   e: f; }
 CSS
 $null-value: null
@@ -1838,6 +1848,9 @@ a
   c: $empty-string
   d: $empty-list
   e: f
+
+g
+  h: null
 SASS
   end
 

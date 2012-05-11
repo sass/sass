@@ -633,7 +633,7 @@ SassScript supports six main data types:
 * strings of text, with and without quotes (e.g. `"foo"`, `'bar'`, `baz`)
 * colors (e.g. `blue`, `#04a3f9`, `rgba(255, 0, 0, 0.5)`)
 * booleans (e.g. `true`, `false`)
-* nulls, which are falsey (e.g. `null`)
+* nulls (e.g. `null`)
 * lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
 
 SassScript also supports all other types of CSS property value,
@@ -709,10 +709,10 @@ Lists can also have no items in them at all.
 These lists are represented as `()`.
 They can't be output directly to CSS;
 if you try to do e.g. `font-family: ()`, Sass will raise an error.
-If a list contains empty lists, as in `1px 2px () 3px`,
-the empty list will be removed before it's turned into CSS.
-Null values are also be removed from lists, so `1px 2px null 3px`
-would be become `1px 2px 3px` in CSS.
+If a list contains empty lists or null values,
+as in `1px 2px () 3px` or `1px 2px null 3px`,
+the empty lists and null values will be removed
+before the containing list is turned into CSS.
 
 ### Operations
 
@@ -935,8 +935,7 @@ is compiled to:
     p:before {
       content: "I ate 15 pies!"; }
 
-Variables with a null value are treated as an empty string in
-string operations & interpolations:
+Null values are treated as empty strings for string operations and interpolations:
 
     $value: null;
     p:before {
@@ -1063,8 +1062,7 @@ is compiled to:
       content: "First content";
       new-content: "First time reference"; }
 
-If variables are set to a `null` value, !default will treat
-them like they're unassigned:
+Variables with `null` values are treated as unassigned by !default:
 
     $content: null;
     $content: "Non-null content" !default;
