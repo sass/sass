@@ -82,6 +82,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Registers an extension in the `@extends` subset map.
   def visit_extend(node)
+    return [] if node.disabled?
     node.resolved_selector.members.each do |seq|
       if seq.members.size > 1
         raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: can't extend nested selectors")

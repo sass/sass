@@ -1369,6 +1369,43 @@ CSS
 SCSS
   end
 
+
+  def test_extend_in_media
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
+DEPRECATION WARNING on line 3 of test_extend_in_media_inline.sass:
+  Using @extend within directives (e.g. @media) is deprecated.
+  It will be an error in Sass 3.2.
+  This will only work once @extend is supported natively in the browser.
+WARN
+.foo {
+  a: b; }
+CSS
+.foo {a: b}
+@media screen {
+  .bar {@extend .foo}
+}
+SCSS
+  end
+
+  def test_extend_in_unknown_directive
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
+DEPRECATION WARNING on line 3 of test_extend_in_unknown_directive_inline.sass:
+  Using @extend within directives (e.g. @flooblehoof) is deprecated.
+  It will be an error in Sass 3.2.
+  This will only work once @extend is supported natively in the browser.
+WARN
+.foo {
+  a: b; }
+
+@flooblehoof {}
+CSS
+.foo {a: b}
+@flooblehoof {
+  .bar {@extend .foo}
+}
+SCSS
+  end
+
   # Regression Tests
 
   def test_duplicated_selector_with_newlines

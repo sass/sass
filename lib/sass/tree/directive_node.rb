@@ -19,5 +19,10 @@ module Sass::Tree
       @value = value
       super()
     end
+
+    # @return [String] The name of the directive, including `@`.
+    def name
+      value.gsub(/ .*$/, '')
+    end
   end
 end
