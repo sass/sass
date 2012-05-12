@@ -89,10 +89,6 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     raise e
   end
 
-  def invalid_import_real_parent?(parent, child)
-    
-  end
-
   def invalid_mixindef_parent?(parent, child)
     "Mixins may only be defined at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
