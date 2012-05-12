@@ -3,12 +3,23 @@
 * Table of contents
 {:toc}
 
-## 3.1.17 (Unreleased)
+## 3.1.18 (Unreleased)
+
+* Ruby 2.0 compatibility. Thanks to [Jeremy
+  Kemper](https://github.com/jeremy).
+
+## 3.1.17
 
 * Don't crash when calling `#inspect` on an internal Sass tree object in Ruby
   1.9.
-* Fix some bugs in `sass --watch` introduces in 3.1.16. Thanks to [Maher
+* Fix some bugs in `sass --watch` introduced in 3.1.16. Thanks to [Maher
   Sallam](https://github.com/Maher4Ever).
+* Support bare interpolation in the value portion of attribute
+  selectors (e.g. `[name=#{$value}]`).
+* Support keyword arguments for the `invert()` function.
+* Handle backslash-separated paths better on Windows.
+* Fix `rake install` on Ruby 1.9.
+* Properly convert nested `@if` statements with `sass-convert`.
 
 ## 3.1.16
 

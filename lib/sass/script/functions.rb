@@ -366,11 +366,10 @@ module Sass::Script
       Color.new([red, green, blue].map do |c|
           v = c.value
           if c.numerator_units == ["%"] && c.denominator_units.empty?
-            next v * 255 / 100.0 if (0..100).include?(v)
-            raise ArgumentError.new("Color value #{c} must be between 0% and 100% inclusive")
+            v = Sass::Util.check_range("Color value", 0..100, c, '%')
+            v * 255 / 100.0
           else
-            next v if (0..255).include?(v)
-            raise ArgumentError.new("Color value #{v} must be between 0 and 255 inclusive")
+            Sass::Util.check_range("Color value", 0..255, c)
           end
         end)
     end
@@ -410,10 +409,7 @@ module Sass::Script
         assert_type color, :Color
         assert_type alpha, :Number
 
-        unless (0..1).include?(alpha.value)
-          raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1 inclusive")
-        end
-
+        Sass::Util.check_range('Alpha channel', 0..1, alpha)
         color.with(:alpha => alpha.value)
       when 4
         red, green, blue, alpha = args
@@ -463,16 +459,11 @@ module Sass::Script
       assert_type lightness, :Number
       assert_type alpha, :Number
 
-      unless (0..1).include?(alpha.value)
-        raise ArgumentError.new("Alpha channel #{alpha.value} must be between 0 and 1")
-      end
+      Sass::Util.check_range('Alpha channel', 0..1, alpha)
 
-      original_s = saturation
-      original_l = lightness
-      # This algorithm is from http://www.w3.org/TR/css3-color#hsl-color
-      h, s, l = [hue, saturation, lightness].map { |a| a.value }
-      raise ArgumentError.new("Saturation #{s} must be between 0% and 100%") unless (0..100).include?(s)
-      raise ArgumentError.new("Lightness #{l} must be between 0% and 100%") unless (0..100).include?(l)
+      h = hue.value
+      s = Sass::Util.check_range('Saturation', 0..100, saturation, '%')
+      l = Sass::Util.check_range('Lightness', 0..100, lightness, '%')
 
       Color.new(:hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
@@ -778,9 +769,7 @@ module Sass::Script
 
         next unless val = kwargs.delete(name)
         assert_type val, :Number, name
-        if range && !range.include?(val.value)
-          raise ArgumentError.new("$#{name}: Amount #{val} must be between #{range.first}#{units} and #{range.last}#{units}")
-        end
+        Sass::Util.check_range("$#{name}: Amount", range, val, units) if range
         adjusted = color.send(name) + val.value
         adjusted = [0, Sass::Util.restrict(adjusted, range)].max if range
         [name.to_sym, adjusted]
@@ -849,8 +838,8 @@ module Sass::Script
         assert_type val, :Number, name
         if !(val.numerator_units == ['%'] && val.denominator_units.empty?)
           raise ArgumentError.new("$#{name}: Amount #{val} must be a % (e.g. #{val.value}%)")
-        elsif !(-100..100).include?(val.value)
-          raise ArgumentError.new("$#{name}: Amount #{val} must be between -100% and 100%")
+        else
+          Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
         end
 
         current = color.send(name)
@@ -944,9 +933,7 @@ module Sass::Script
       assert_type color2, :Color
       assert_type weight, :Number
 
-      unless (0..100).include?(weight.value)
-        raise ArgumentError.new("Weight #{weight} must be between 0% and 100%")
-      end
+      Sass::Util.check_range("Weight", 0..100, weight, '%')
 
       # This algorithm factors in both the user-provided weight
       # and the difference between the alpha values of the two colors
@@ -1028,6 +1015,7 @@ module Sass::Script
         :green => (255 - color.green),
         :blue => (255 - color.blue))
     end
+    declare :invert, [:color]
 
     # Removes quotes from a string if the string is quoted,
     # or returns the same string if it's not.
@@ -1381,9 +1369,7 @@ module Sass::Script
     def _adjust(color, amount, attr, range, op, units = "")
       assert_type color, :Color
       assert_type amount, :Number
-      unless range.include?(amount.value)
-        raise ArgumentError.new("Amount #{amount} must be between #{range.first}#{units} and #{range.last}#{units}")
-      end
+      Sass::Util.check_range('Amount', range, amount, units)
 
       # TODO: is it worth restricting here,
       # or should we do so in the Color constructor itself,

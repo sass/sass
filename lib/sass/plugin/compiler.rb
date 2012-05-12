@@ -5,7 +5,6 @@ require 'sass'
 require 'sass/callbacks'
 require 'sass/plugin/configuration'
 require 'sass/plugin/staleness_checker'
-require 'sass/plugin/listener'
 
 module Sass::Plugin
 
@@ -188,7 +187,7 @@ module Sass::Plugin
       staleness_checker = StalenessChecker.new(engine_options)
 
       template_location_array.each do |template_location, css_location|
-        Dir.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
+        Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
@@ -252,52 +251,61 @@ module Sass::Plugin
         end
       end
 
+      template_paths = template_locations # cache the locations
+      individual_files_hash = individual_files.inject({}) do |h, files|
+        parent = File.dirname(files.first)
+        (h[parent] ||= []) << files unless template_paths.include?(parent)
+        h
+      end
+      directories = template_paths + individual_files_hash.keys +
+        [{:relative_paths => true}]
+
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      Sass::Plugin::Listener.new do |l|
-        template_location_array.each do |template_location, css_location|
-          l.directory(template_location, {
-              :modified => lambda do |base, relative|
-              next if relative !~ /\.s[ac]ss$/
-              run_template_modified File.join(base, relative)
-              update_stylesheets(individual_files)
-            end,
-
-            :added => lambda do |base, relative|
-              next if relative !~ /\.s[ac]ss$/
-              run_template_created File.join(base, relative)
-              update_stylesheets(individual_files)
-            end,
-
-            :removed => lambda do |base, relative|
-              next if relative !~ /\.s[ac]ss$/
-              run_template_deleted File.join(base, relative)
-              css = File.join(css_location, relative.gsub(/\.s[ac]ss$/, '.css'))
-              try_delete_css css
-              update_stylesheets(individual_files)
-            end
-          })
+      listener = Listen::MultiListener.new(*directories) do |modified, added, removed|
+        modified.each do |f|
+          parent = File.dirname(f)
+          if files = individual_files_hash[parent]
+            next unless files.first == f
+          else
+            next unless f =~ /\.s[ac]ss$/
+          end
+          run_template_modified(f)
         end
 
-        individual_files.each do |template, css|
-          l.file(template, {
-            :modified => lambda do
-              run_template_modified template
-              update_stylesheets(individual_files)
-            end,
-
-            :added => lambda do
-              run_template_created template
-              update_stylesheets(individual_files)
-            end,
-
-            :removed => lambda do
-              run_template_deleted template
-              try_delete_css css
-              update_stylesheets(individual_files)
-            end
-          })
+        added.each do |f|
+          parent = File.dirname(f)
+          if files = individual_files_hash[parent]
+            next unless files.first == f
+          else
+            next unless f =~ /\.s[ac]ss$/
+          end
+          run_template_created(f)
         end
+
+        removed.each do |f|
+          parent = File.dirname(f)
+          if files = individual_files_hash[parent]
+            next unless files.first == f
+            try_delete_css files[1]
+          else
+            next unless f =~ /\.s[ac]ss$/
+            try_delete_css f.gsub(/\.s[ac]ss$/, '.css')
+          end
+          run_template_deleted(f)
+        end
+
+        update_stylesheets(individual_files)
+      end
+
+      # The native windows listener is much slower than the polling
+      # option, according to https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e#commitcomment-1295118
+      listener.force_polling(true) if Sass::Util.windows?
+
+      begin
+        listener.start
+      rescue Exception => e
+        raise e unless e.is_a?(Interrupt)
       end
     end
 

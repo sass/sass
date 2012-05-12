@@ -452,7 +452,7 @@ MSG
       def probably_dest_dir?(path)
         return false unless path
         return false if colon_path?(path)
-        return Dir.glob(File.join(path, "*.s[ca]ss")).empty?
+        return Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
       end
     end
 
@@ -584,7 +584,7 @@ END
         end
 
         ext = @options[:from]
-        Dir.glob("#{@options[:input]}/**/*.#{ext}") do |f|
+        Sass::Util.glob("#{@options[:input]}/**/*.#{ext}") do |f|
           output =
             if @options[:in_place]
               f
