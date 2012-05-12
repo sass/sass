@@ -147,7 +147,7 @@ def get_version
   version.map! {|n| n =~ /^[0-9]+$/ ? n.to_i : n}
   return written_version unless version.size == 5 && version[3] == "alpha" # prerelease
 
-  return written_version if (commit_count = `git log --pretty=oneline --first-parent stable.. | wc -l`).empty?
+  return written_version if (commit_count = `git log --pretty=oneline HEAD ^stable | wc -l`).empty?
   version[4] = commit_count.strip
   version.join('.')
 end
