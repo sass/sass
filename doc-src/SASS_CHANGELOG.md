@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.18 (Unreleased)
+## 3.1.18
 
 * Ruby 2.0 compatibility. Thanks to [Jeremy
   Kemper](https://github.com/jeremy).
