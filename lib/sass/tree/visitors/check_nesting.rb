@@ -2,13 +2,14 @@
 class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   protected
 
+  def initialize
+    @parents = []
+  end
+
   def visit(node)
-    if error = (@parent && (
-          try_send("invalid_#{node_name @parent}_child?", @parent, node) ||
-          try_send("invalid_#{node_name node}_parent?", @parent, node))) ||
-        (@real_parent && (
-          try_send("invalid_#{node_name @real_parent}_real_child?", @real_parent, node) ||
-          try_send("invalid_#{node_name node}_real_parent?", @real_parent, node)))
+    if error = @parent && (
+        try_send("invalid_#{node_name @parent}_child?", @parent, node) ||
+        try_send("invalid_#{node_name node}_parent?", @parent, node))
       raise Sass::SyntaxError.new(error)
     end
     super
@@ -23,11 +24,11 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   def visit_children(parent)
     old_parent = @parent
     @parent = parent unless is_any_of?(parent, SCRIPT_NODES)
-    old_real_parent, @real_parent = @real_parent, parent
+    @parents.push parent
     super
   ensure
     @parent = old_parent
-    @real_parent = old_real_parent
+    @parents.pop
   end
 
   def visit_root(node)
@@ -86,12 +87,10 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     end
   end
 
-  VALID_IMPORT_PARENTS = [
-    Sass::Tree::IfNode,   Sass::Tree::ForNode,      Sass::Tree::WhileNode,
-    Sass::Tree::EachNode, Sass::Tree::MixinDefNode, Sass::Tree::MixinNode
-  ]
+  INVALID_IMPORT_PARENTS = CONTROL_NODES +
+    [Sass::Tree::MixinDefNode, Sass::Tree::MixinNode]
   def invalid_import_parent?(parent, child)
-    if is_any_of?(@real_parent, VALID_IMPORT_PARENTS)
+    unless (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
       return "Import directives may not be used within control directives or mixins."
     end
     return if parent.is_a?(Sass::Tree::RootNode)
@@ -104,10 +103,6 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     e.modify_backtrace(:filename => child.imported_file.options[:filename])
     e.add_backtrace(:filename => child.filename, :line => child.line)
     raise e
-  end
-
-  def invalid_import_real_parent?(parent, child)
-    
   end
 
   def invalid_mixindef_parent?(parent, child)
