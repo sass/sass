@@ -27,6 +27,9 @@ module Sass::Tree
     # @see DirectiveNode#value
     def value; raise NotImplementedError; end
 
+    # @see DirectiveNode#name
+    def name; '@media'; end
+
     # @see DirectiveNode#resolved_value
     def resolved_value
       @resolved_value ||= "@media #{query.to_css}"

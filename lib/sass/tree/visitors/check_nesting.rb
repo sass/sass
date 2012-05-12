@@ -72,16 +72,12 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
       return "Extend directives may only be used within rules."
     end
 
-    if !child.disabled? &&
-        directive = @parents.find {|p| p.is_a?(Sass::Tree::DirectiveNode)}
-      child.disable!
-      Sass::Util.sass_warn <<WARNING
-DEPRECATION WARNING on line #{child.line}#{" of #{child.filename}" if child.filename}:
-  Using @extend within directives (e.g. #{directive.name}) is deprecated.
-  It will be an error in Sass 3.2.
-  This will only work once @extend is supported natively in the browser.
-WARNING
-      nil
+    if directive = @parents.find {|p| p.is_a?(Sass::Tree::DirectiveNode)}
+      return <<ERR.rstrip
+@extend may not be used within directives (e.g. #{directive.name}).
+
+This will only work once @extend is supported natively in the browser.
+ERR
     end
   end
 
