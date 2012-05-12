@@ -33,5 +33,10 @@ module Sass::Tree
       node.resolved_value = value
       node
     end
+
+    # @return [String] The name of the directive, including `@`.
+    def name
+      value.first.gsub(/ .*$/, '')
+    end
   end
 end

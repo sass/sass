@@ -146,6 +146,12 @@ that make use of `@media` and other directives dynamically.
 * Ruby 2.0 compatibility. Thanks to [Jeremy
   Kemper](https://github.com/jeremy).
 
+### Deprecations -- Must Read!
+
+* Deprecate the use of `@extend` within directives such as `@media`. This has
+  never worked correctly, and now it's officially deprecated. It will be an
+  error in 3.2.
+
 ## 3.1.17
 
 * Don't crash when calling `#inspect` on an internal Sass tree object in Ruby

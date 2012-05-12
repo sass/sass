@@ -1594,6 +1594,16 @@ Is compiled to:
       font-size: 2em;
     }
 
+#### `@extend` in Directives
+
+Unfortunately, `@extend` cannot be used within directives such as `@media`. Sass
+is unable to make CSS rules outside of the `@media` block apply to selectors
+inside it without creating a huge amount of stylesheet bloat by copying styles
+all over the place.
+
+Someday we hope to have `@extend` supported natively in the browser, which will
+allow it to be used within `@media` and other directives.
+
 ### `@debug`
 
 The `@debug` directive prints the value of a SassScript expression
