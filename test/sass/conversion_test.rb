@@ -1558,6 +1558,21 @@ SASS
 SCSS
   end
 
+  def test_comment_indentation
+    assert_renders(<<SASS, <<SCSS, :indent => '    ')
+foo
+    // bar
+    /* baz
+    a: b
+SASS
+foo {
+    // bar
+    /* baz */
+    a: b;
+}
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})
@@ -1580,7 +1595,7 @@ SCSS
     options ||= {}
 
     assert_equal(scss.rstrip, to_scss(in_scss, options.merge(:syntax => :scss)).rstrip,
-      "Expected SCSS to transform to #{scss == in_scss ? 'itself' : 'SCSS'}k")
+      "Expected SCSS to transform to #{scss == in_scss ? 'itself' : 'SCSS'}")
   end
 
   def assert_sass_to_scss(scss, sass, options = {})

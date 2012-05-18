@@ -81,7 +81,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       content.gsub!(/^/, tab_str)
       content.rstrip + "\n"
     else
-      spaces = ('  ' * [@tabs - value[/^ */].size, 0].max)
+      spaces = (@tab_chars * [@tabs - value[/^ */].size, 0].max)
       content = if node.type == :silent
         value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
       else
