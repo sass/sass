@@ -47,10 +47,14 @@ module Sass
       # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
       #                                       Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The directives containing this selector.
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`
-      def do_extend(extends)
-        CommaSequence.new(members.map {|seq| seq.do_extend(extends)}.flatten)
+      def do_extend(extends, parent_directives)
+        CommaSequence.new(members.map do |seq|
+            seq.do_extend(extends, parent_directives)
+          end.flatten)
       end
 
       # Returns a string representation of the sequence.

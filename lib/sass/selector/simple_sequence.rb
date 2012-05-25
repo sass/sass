@@ -54,24 +54,28 @@ module Sass
       # Non-destrucively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload def do_extend(extends)
+      # @overload def do_extend(extends, parent_directives)
       # @param extends [{Selector::Simple =>
       #                  Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The directives containing this selector.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
-      def do_extend(extends, seen = Set.new)
+      def do_extend(extends, parent_directives, seen = Set.new)
         extends.get(members.to_set).map do |ex, sels|
           # If A {@extend B} and C {...},
           # ex.extender is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
           next unless unified = ex.extender.members.last.unify(self_without_sel)
+          next unless check_directives_match!(ex, parent_directives)
           [sels, ex.extender.members[0...-1] + [unified]]
         end.compact.map do |sels, seq|
           seq = Sequence.new(seq)
-          seen.include?(sels) ? [] : seq.do_extend(extends, seen + [sels])
+          next [] if seen.include?(sels)
+          seq.do_extend(extends, parent_directives, seen + [sels])
         end.flatten.uniq
       end
 
@@ -122,6 +126,21 @@ module Sass
       end
 
       private
+
+      def check_directives_match!(extend, parent_directives)
+        dirs1 = extend.directives.map {|d| d.value}
+        dirs2 = parent_directives.map {|d| d.value}
+        return true if Sass::Util.subsequence?(dirs1, dirs2)
+
+        Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{extend.node.line}#{" of #{extend.node.filename}" if extend.node.filename}:
+  @extending an outer selector from within #{extend.directives.last.name} is deprecated.
+  You may only @extend selectors within the same directive.
+  This will be an error in Sass 3.2.
+  It can only work once @extend is supported natively in the browser.
+WARNING
+        return false
+      end
 
       def _hash
         [base, Sass::Util.set_hash(rest)].hash
