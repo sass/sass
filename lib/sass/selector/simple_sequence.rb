@@ -136,7 +136,7 @@ module Sass
 DEPRECATION WARNING on line #{extend.node.line}#{" of #{extend.node.filename}" if extend.node.filename}:
   @extending an outer selector from within #{extend.directives.last.name} is deprecated.
   You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.2.
+  This will be an error in Sass 3.3.
   It can only work once @extend is supported natively in the browser.
 WARNING
         return false

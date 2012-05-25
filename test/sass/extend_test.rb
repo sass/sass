@@ -1374,7 +1374,7 @@ SCSS
 DEPRECATION WARNING on line 3 of test_extend_out_of_media_inline.sass:
   @extending an outer selector from within @media is deprecated.
   You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.2.
+  This will be an error in Sass 3.3.
   It can only work once @extend is supported natively in the browser.
 WARN
 .foo {
@@ -1392,7 +1392,7 @@ SCSS
 DEPRECATION WARNING on line 3 of test_extend_out_of_unknown_directive_inline.sass:
   @extending an outer selector from within @flooblehoof is deprecated.
   You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.2.
+  This will be an error in Sass 3.3.
   It can only work once @extend is supported natively in the browser.
 WARN
 .foo {
@@ -1412,7 +1412,7 @@ SCSS
 DEPRECATION WARNING on line 4 of test_extend_out_of_nested_directives_inline.sass:
   @extending an outer selector from within @flooblehoof is deprecated.
   You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.2.
+  This will be an error in Sass 3.3.
   It can only work once @extend is supported natively in the browser.
 WARN
 @media screen {
@@ -1515,7 +1515,7 @@ SCSS
 DEPRECATION WARNING on line 4 of test_extend_within_and_without_media_inline.sass:
   @extending an outer selector from within @media is deprecated.
   You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.2.
+  This will be an error in Sass 3.3.
   It can only work once @extend is supported natively in the browser.
 WARN
 .foo {
@@ -1538,7 +1538,7 @@ SCSS
 DEPRECATION WARNING on line 4 of test_extend_within_and_without_unknown_directive_inline.sass:
   @extending an outer selector from within @flooblehoof is deprecated.
   You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.2.
+  This will be an error in Sass 3.3.
   It can only work once @extend is supported natively in the browser.
 WARN
 .foo {
@@ -1561,7 +1561,7 @@ SCSS
 DEPRECATION WARNING on line 5 of test_extend_within_and_without_nested_directives_inline.sass:
   @extending an outer selector from within @flooblehoof is deprecated.
   You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.2.
+  This will be an error in Sass 3.3.
   It can only work once @extend is supported natively in the browser.
 WARN
 @media screen {
