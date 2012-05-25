@@ -7,6 +7,8 @@
 
 * Fix an `uninitialized constant Sass::Exec::Sass::Util` error when using the
   command-line tool.
+* Allow `@extend` within directives such as `@media` as long as it only extends
+  selectors that are within the same directive.
 
 ## 3.1.18
 

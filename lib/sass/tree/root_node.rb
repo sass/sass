@@ -20,7 +20,7 @@ module Sass
         result = Visitors::Perform.visit(self)
         Visitors::CheckNesting.visit(result) # Check again to validate mixins
         result, extends = Visitors::Cssize.visit(result)
-        result = result.do_extend(extends) unless extends.empty?
+        Visitors::Extend.visit(result, extends)
         result.to_s
       end
     end

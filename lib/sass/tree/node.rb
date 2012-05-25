@@ -140,28 +140,6 @@ module Sass
         "(#{self.class} #{children.map {|c| c.inspect}.join(' ')})"
       end
 
-      # Converts a static CSS tree (e.g. the output of \{Tree::Visitors::Cssize})
-      # into another static CSS tree,
-      # with the given extensions applied to all relevant {RuleNode}s.
-      #
-      # @todo Link this to the reference documentation on `@extend`
-      #   when such a thing exists.
-      #
-      # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
-      #                                       Sass::Tree::Visitors::Cssize::Extend}]
-      #   The extensions to perform on this tree
-      # @return [Tree::Node] The resulting tree of static CSS nodes.
-      # @raise [Sass::SyntaxError] Only if there's a programmer error
-      #   and this is not a static CSS tree
-      def do_extend(extends)
-        node = dup
-        node.children = children.map {|c| c.do_extend(extends)}
-        node
-      rescue Sass::SyntaxError => e
-        e.modify_backtrace(:filename => filename, :line => line)
-        raise e
-      end
-
       # Iterates through each node in the tree rooted at this node
       # in a pre-order walk.
       #
