@@ -25,17 +25,5 @@ module Sass::Tree
       @selector = selector
       super()
     end
-
-    # Disables this `@extend` due to it being inside a directive.
-    def disable!
-      @disabled = true
-    end
-
-    # Whether this `@extend` is disabled due to it being inside a directive.
-    #
-    # @return [Boolean]
-    def disabled?
-      @disabled
-    end
   end
 end
