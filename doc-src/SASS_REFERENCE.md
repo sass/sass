@@ -1461,10 +1461,40 @@ This is compiled to:
 
 #### `@extend` in Directives
 
-Unfortunately, `@extend` cannot be used within directives such as `@media`. Sass
-is unable to make CSS rules outside of the `@media` block apply to selectors
-inside it without creating a huge amount of stylesheet bloat by copying styles
-all over the place.
+There are some restrictions on the use of `@extend` within directives such as
+`@media`. Sass is unable to make CSS rules outside of the `@media` block apply
+to selectors inside it without creating a huge amount of stylesheet bloat by
+copying styles all over the place. This means that if you use `@extend` within
+`@media` (or other CSS directives), you may only extend selectors that appear
+within the same directive block.
+
+For example, the following works fine:
+
+    @media print {
+      .error {
+        border: 1px #f00;
+        background-color: #fdd;
+      }
+      .seriousError {
+        @extend .error;
+        border-width: 3px;
+      }
+    }
+
+But this is an error:
+
+    .error {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+
+    @media print {
+      .seriousError {
+        // INVALID EXTEND: .error is used outside of the "@media print" directive
+        @extend .error;
+        border-width: 3px;
+      }
+    }
 
 Someday we hope to have `@extend` supported natively in the browser, which will
 allow it to be used within `@media` and other directives.
