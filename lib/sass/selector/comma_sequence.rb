@@ -44,7 +44,8 @@ module Sass
       # @todo Link this to the reference documentation on `@extend`
       #   when such a thing exists.
       #
-      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
+      #                                       Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
       # @return [CommaSequence] A copy of this selector,
       #   with extensions made according to `extends`

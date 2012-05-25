@@ -55,19 +55,20 @@ module Sass
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
       # @overload def do_extend(extends)
-      # @param extends [{Selector::Simple => Selector::Sequence}]
+      # @param extends [{Selector::Simple =>
+      #                  Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, seen = Set.new)
-        extends.get(members.to_set).map do |seq, sels|
+        extends.get(members.to_set).map do |ex, sels|
           # If A {@extend B} and C {...},
-          # seq is A, sels is B, and self is C
+          # ex.extender is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
-          next unless unified = seq.members.last.unify(self_without_sel)
-          [sels, seq.members[0...-1] + [unified]]
+          next unless unified = ex.extender.members.last.unify(self_without_sel)
+          [sels, ex.extender.members[0...-1] + [unified]]
         end.compact.map do |sels, seq|
           seq = Sequence.new(seq)
           seen.include?(sels) ? [] : seq.do_extend(extends, seen + [sels])

@@ -147,7 +147,8 @@ module Sass
       # @todo Link this to the reference documentation on `@extend`
       #   when such a thing exists.
       #
-      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
+      #                                       Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this tree
       # @return [Tree::Node] The resulting tree of static CSS nodes.
       # @raise [Sass::SyntaxError] Only if there's a programmer error
