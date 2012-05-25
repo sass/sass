@@ -69,7 +69,8 @@ module Sass
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
       # @overload def do_extend(extends)
-      # @param extends [Sass::Util::SubsetMap{Selector::Simple => Selector::Sequence}]
+      # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
+      #                                       Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.

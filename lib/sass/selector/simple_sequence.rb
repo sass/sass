@@ -73,16 +73,17 @@ module Sass
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
       # @overload def do_extend(extends, sources)
-      # @param extends [{Selector::Simple => Selector::Sequence}]
+      # @param extends [{Selector::Simple =>
+      #                  Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, seen = Set.new)
-        Sass::Util.group_by_to_a(extends.get(members.to_set)) {|seq, _| seq}.map do |seq, group|
+        Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}.map do |seq, group|
           sels = group.map {|_, s| s}.flatten
           # If A {@extend B} and C {...},
-          # seq is A, sels is B, and self is C
+          # ex.extender is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
           next unless unified = seq.members.last.unify(self_without_sel)

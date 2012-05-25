@@ -144,6 +144,11 @@ that make use of `@media` and other directives dynamically.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
+## 3.1.19 (Unreleased)
+
+* Fix an `uninitialized constant Sass::Exec::Sass::Util` error when using the
+  command-line tool.
+
 ## 3.1.18
 
 * Ruby 2.0 compatibility. Thanks to [Jeremy

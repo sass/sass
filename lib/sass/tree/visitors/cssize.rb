@@ -81,6 +81,16 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     raise e
   end
 
+  # A simple struct wrapping up information about a single `@extend` instance. A
+  # single [ExtendNode] can have multiple Extends if either the parent node or
+  # the extended selector is a comma sequence.
+  #
+  # @attr extender [Array<Sass::Selector::SimpleSequence, String>]
+  #   The selector of the CSS rule containing the `@extend`.
+  # @attr target [Array<Sass::Selector::Simple>] The selector being `@extend`ed.
+  # @attr node [Sass::Tree::ExtendNode] The node that produced this extend.
+  Extend = Struct.new(:extender, :target, :node)
+
   # Registers an extension in the `@extends` subset map.
   def visit_extend(node)
     node.resolved_selector.members.each do |seq|
@@ -101,7 +111,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
           raise Sass::SyntaxError.new("#{seq} can't extend: invalid selector")
         end
 
-        @extends[sel] = seq
+        @extends[sel] = Extend.new(seq, sel, node)
       end
     end
 
