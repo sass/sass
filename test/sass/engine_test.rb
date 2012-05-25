@@ -2492,6 +2492,22 @@ SASS
 SASS
   end
 
+  def test_nested_empty_directive
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  .foo {
+    a: b; }
+
+  @unknown-directive; }
+CSS
+@media screen
+  .foo
+    a: b
+
+  @unknown-directive
+SASS
+  end
+
   # Encodings
 
   unless Sass::Util.ruby1_8?
