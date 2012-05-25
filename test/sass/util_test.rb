@@ -120,6 +120,16 @@ class UtilTest < Test::Unit::TestCase
       lcs([-5, 3, 2, 8], [-4, 1, 8]) {|a, b| (a - b).abs <= 1 && [a, b].max})
   end
 
+  def test_subsequence
+    assert(subsequence?([1, 2, 3], [1, 2, 3]))
+    assert(subsequence?([1, 2, 3], [1, :a, 2, :b, 3]))
+    assert(subsequence?([1, 2, 3], [:a, 1, :b, :c, 2, :d, 3, :e, :f]))
+
+    assert(!subsequence?([1, 2, 3], [1, 2]))
+    assert(!subsequence?([1, 2, 3], [1, 3, 2]))
+    assert(!subsequence?([1, 2, 3], [3, 2, 1]))
+  end
+
   def test_silence_warnings
     old_stderr, $stderr = $stderr, StringIO.new
     warn "Out"
