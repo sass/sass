@@ -134,9 +134,6 @@ that make use of `@media` and other directives dynamically.
   are fully disallowed.
   They were deprecated in 3.1.8.
 
-* `@extend` may not be used within directives such as `@media`. This was
-  deprecated in 3.1.18.
-
 * `#{}` interpolation is now allowed in all comments.
 
 * The `!` flag may not be used with `//` comments (e.g. `//!`).
