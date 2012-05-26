@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.19 (Unreleased)
+## 3.1.19
 
 * Fix an `uninitialized constant Sass::Exec::Sass::Util` error when using the
   command-line tool.
