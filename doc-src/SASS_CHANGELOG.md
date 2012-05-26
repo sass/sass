@@ -141,7 +141,7 @@ that make use of `@media` and other directives dynamically.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
-## 3.1.19 (Unreleased)
+## 3.1.19
 
 * Fix an `uninitialized constant Sass::Exec::Sass::Util` error when using the
   command-line tool.
