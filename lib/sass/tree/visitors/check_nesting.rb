@@ -71,14 +71,6 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     unless is_any_of?(parent, VALID_EXTEND_PARENTS)
       return "Extend directives may only be used within rules."
     end
-
-    if directive = @parents.find {|p| p.is_a?(Sass::Tree::DirectiveNode)}
-      return <<ERR.rstrip
-@extend may not be used within directives (e.g. #{directive.name}).
-
-This will only work once @extend is supported natively in the browser.
-ERR
-    end
   end
 
   def invalid_function_parent?(parent, child)

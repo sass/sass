@@ -103,15 +103,6 @@ module Sass::Tree
       last.is_a?(String) && last[-1] == ?,
     end
 
-    # Extends this Rule's selector with the given `extends`.
-    #
-    # @see Node#do_extend
-    def do_extend(extends)
-      node = dup
-      node.resolved_rules = resolved_rules.do_extend(extends)
-      node
-    end
-
     # A hash that will be associated with this rule in the CSS document
     # if the {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option} is enabled.
     # This data is used by e.g. [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988).

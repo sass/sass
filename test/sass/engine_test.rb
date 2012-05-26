@@ -146,8 +146,6 @@ MSG
     "$var: true\n@while $var\n  @extend .bar\n  $var: false" => ["Extend directives may only be used within rules.", 3],
     "@for $i from 0 to 1\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
-    "@media screen\n  .bar\n    @extend .foo" => "@extend may not be used within directives (e.g. @media).\n\nThis will only work once @extend is supported natively in the browser.",
-    "@flooblehoof\n  .bar\n    @extend .foo" => "@extend may not be used within directives (e.g. @flooblehoof).\n\nThis will only work once @extend is supported natively in the browser.",
     "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a selector.", 2],
     "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a selector.", 2],
     "foo %\n  a: b" => ['Invalid CSS after "foo %": expected placeholder name, was ""', 1],
@@ -2721,6 +2719,22 @@ SASS
     assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "": expected selector, was "/ foo"') {render(<<SASS)}
 / foo
   a: b
+SASS
+  end
+
+  def test_nested_empty_directive
+    assert_equal <<CSS, render(<<SASS)
+@media screen {
+  .foo {
+    a: b; }
+
+  @unknown-directive; }
+CSS
+@media screen
+  .foo
+    a: b
+
+  @unknown-directive
 SASS
   end
 

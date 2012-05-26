@@ -276,6 +276,23 @@ module Sass
         "#{name} #{str} must be between #{range.first}#{unit} and #{range.last}#{unit}")
     end
 
+    # Returns whether or not `seq1` is a subsequence of `seq2`. That is, whether
+    # or not `seq2` contains every element in `seq1` in the same order (and
+    # possibly more elements besides).
+    #
+    # @param seq1 [Array]
+    # @param seq2 [Array]
+    # @return [Boolean]
+    def subsequence?(seq1, seq2)
+      i = j = 0
+      loop do
+        return true if i == seq1.size
+        return false if j == seq2.size
+        i += 1 if seq1[i] == seq2[j]
+        j += 1
+      end
+    end
+
     # Returns information about the caller of the previous method.
     #
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string

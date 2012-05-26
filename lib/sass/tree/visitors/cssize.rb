@@ -12,6 +12,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   attr_reader :parent
 
   def initialize
+    @parent_directives = []
     @extends = Sass::Util::SubsetMap.new
   end
 
@@ -38,9 +39,11 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # @yield A block in which the parent is set to `parent`.
   # @return [Object] The return value of the block.
   def with_parent(parent)
+    @parent_directives.push parent if parent.is_a?(Sass::Tree::DirectiveNode)
     old_parent, @parent = @parent, parent
     yield
   ensure
+    @parent_directives.pop if parent.is_a?(Sass::Tree::DirectiveNode)
     @parent = old_parent
   end
 
@@ -89,7 +92,9 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   #   The selector of the CSS rule containing the `@extend`.
   # @attr target [Array<Sass::Selector::Simple>] The selector being `@extend`ed.
   # @attr node [Sass::Tree::ExtendNode] The node that produced this extend.
-  Extend = Struct.new(:extender, :target, :node)
+  # @attr directives [Array<Sass::Tree::DirectiveNode>]
+  #   The directives containing the `@extend`.
+  Extend = Struct.new(:extender, :target, :node, :directives)
 
   # Registers an extension in the `@extends` subset map.
   def visit_extend(node)
@@ -111,7 +116,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
           raise Sass::SyntaxError.new("#{seq} can't extend: invalid selector")
         end
 
-        @extends[sel] = Extend.new(seq, sel, node)
+        @extends[sel] = Extend.new(seq, sel, node, @parent_directives.dup)
       end
     end
 

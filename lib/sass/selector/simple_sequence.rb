@@ -72,26 +72,29 @@ module Sass
       # Non-destrucively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload def do_extend(extends, sources)
+      # @overload def do_extend(extends, parent_directives)
       # @param extends [{Selector::Simple =>
       #                  Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The directives containing this selector.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
-      def do_extend(extends, seen = Set.new)
+      def do_extend(extends, parent_directives, seen = Set.new)
         Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}.map do |seq, group|
           sels = group.map {|_, s| s}.flatten
           # If A {@extend B} and C {...},
-          # ex.extender is A, sels is B, and self is C
+          # seq is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
           next unless unified = seq.members.last.unify(self_without_sel)
+          next if group.map {|e, _| check_directives_match!(e, parent_directives)}.none?
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
           new_seq.add_sources!(sources + [seq])
           [sels, new_seq]
         end.compact.map do |sels, seq|
-          seen.include?(sels) ? [] : seq.do_extend(extends, seen + [sels])
+          seen.include?(sels) ? [] : seq.do_extend(extends, parent_directives, seen + [sels])
         end.flatten.uniq
       end
 
@@ -154,6 +157,21 @@ module Sass
       end
 
       private
+
+      def check_directives_match!(extend, parent_directives)
+        dirs1 = extend.directives.map {|d| d.resolved_value}
+        dirs2 = parent_directives.map {|d| d.resolved_value}
+        return true if Sass::Util.subsequence?(dirs1, dirs2)
+
+        Sass::Util.sass_warn <<WARNING
+DEPRECATION WARNING on line #{extend.node.line}#{" of #{extend.node.filename}" if extend.node.filename}:
+  @extending an outer selector from within #{extend.directives.last.name} is deprecated.
+  You may only @extend selectors within the same directive.
+  This will be an error in Sass 3.3.
+  It can only work once @extend is supported natively in the browser.
+WARNING
+        return false
+      end
 
       def _hash
         [base, Sass::Util.set_hash(rest)].hash

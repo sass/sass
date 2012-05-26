@@ -68,18 +68,20 @@ module Sass
       # Non-destructively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload def do_extend(extends)
+      # @overload def do_extend(extends, parent_directives)
       # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
       #                                       Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
+      # @param parent_directives [Array<Sass::Tree::DirectiveNode>]
+      #   The directives containing this selector.
       # @return [Array<Sequence>] A list of selectors generated
       #   by extending this selector with `extends`.
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#do_extend
-      def do_extend(extends, seen = Set.new)
+      def do_extend(extends, parent_directives, seen = Set.new)
         extended_not_expanded = members.map do |sseq_or_op|
           next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-          extended = sseq_or_op.do_extend(extends, seen)
+          extended = sseq_or_op.do_extend(extends, parent_directives, seen)
           choices = extended.map {|seq| seq.members}
           choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
           choices
