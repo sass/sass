@@ -907,6 +907,18 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("#ff0000 is not a string for `str-index'", "str-index(asdf, #f00)")
   end
 
+  def test_to_lower_case
+    assert_equal('abcd', evaluate('to-lower-case(ABCD)'))
+    assert_equal('"abcd"', evaluate('to-lower-case("ABCD")'))
+    assert_error_message("#ff0000 is not a string for `to-lower-case'", "to-lower-case(#f00)")
+  end
+
+  def test_to_upper_case
+    assert_equal('ABCD', evaluate('to-upper-case(abcd)'))
+    assert_equal('"ABCD"', evaluate('to-upper-case("abcd")'))
+    assert_error_message("#ff0000 is not a string for `to-upper-case'", "to-upper-case(#f00)")
+  end
+
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
