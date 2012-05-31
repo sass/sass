@@ -881,6 +881,18 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("10px is not a unitless number for `str-insert'", "str-insert(foo, X, 10px)")
   end
 
+  def test_str_index
+    assert_equal('1', evaluate('str-index(abcd, a)'))
+    assert_equal('1', evaluate('str-index(abcd, ab)'))
+    assert_equal('0', evaluate('str-index(abcd, X)'))
+    assert_equal('3', evaluate('str-index(abcd, c)'))
+  end
+
+  def test_str_index_asserts_types
+    assert_error_message("#ff0000 is not a string for `str-index'", "str-index(#f00, X)")
+    assert_error_message("#ff0000 is not a string for `str-index'", "str-index(asdf, #f00)")
+  end
+
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
