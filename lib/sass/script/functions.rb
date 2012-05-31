@@ -116,6 +116,9 @@ module Sass::Script
   # \{#str_insert str-insert($string, $insert, $index)}
   # : Inserts a string $insert into $string at the specified $index.
   #
+  # \{#str_extract str-extract($string, $start, $end)}
+  # : Extracts a substring of characters from $string
+  #
   # \{#to_upper_case to-upper-case($string)}
   # : Converts a string to upper case.
   #
@@ -1147,6 +1150,49 @@ module Sass::Script
     end
     declare :str_index, [:string, :substring]
 
+
+    # Extract a substring from `string` from `start` index to `end` index.
+    #
+    # @return [Sass::Script::String]
+    # @raise [ArgumentError] if `string` isn't a string or `start` and `end` aren't unitless numbers
+    # @example
+    #  str-extract(abcd,2,3)    => bc
+    #  str-extract(abcd,2)      => cd
+    #  str-extract(abcd,-2)     => abc
+    #  str-extract(abcd,2,-2)   => bc
+    #  str-extract(abcd,3,-3)   => unquote("")
+    #  str-extract("abcd",3,-3) => ""
+    #  str-extract(abcd,1,1)    => a
+    #  str-extract(abcd,1,2)    => ab
+    #  str-extract(abcd,1,4)    => abcd
+    #  str-extract(abcd,-100,4) => abcd
+    #  str-extract(abcd,1,100)  => abcd
+    #  str-extract(abcd,2,1)    => unquote("")
+    #  str-extract("abcd",2,3)  => "bc"
+    def str_extract(string, start_at, end_at = nil)
+      assert_type string, :String
+      assert_type start_at, :Number
+      unless start_at.unitless?
+        raise ArgumentError.new("#{start_at.inspect} is not a unitless number")
+      end
+      if end_at.nil?
+        if start_at.value < 0
+          end_at = start_at
+          start_at = Sass::Script::Number.new(1)
+        else
+          end_at = Sass::Script::Number.new(-1)
+        end
+      end
+      assert_type end_at, :Number
+      unless end_at.unitless?
+        raise ArgumentError.new("#{end_at.inspect} is not a unitless number")
+      end
+      s = start_at.value > 0 ? start_at.value - 1 : start_at.value
+      e = end_at.value > 0 ? end_at.value - 1 : end_at.value
+      extracted = string.value.slice(s..e)
+      Sass::Script::String.new(extracted || "", string.type)
+    end
+    declare :str_index, [:string, :start, :end]
     # Convert a string to upper case
     #
     # @return [Sass::Script::String]

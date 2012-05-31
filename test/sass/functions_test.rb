@@ -905,6 +905,27 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("#ff0000 is not a string for `to-upper-case'", "to-upper-case(#f00)")
   end
 
+  def test_str_extract
+    assert_equal('bc',   evaluate('str-extract(abcd,2,3)'))    # in the middle of the string
+    assert_equal('a',    evaluate('str-extract(abcd,1,1)'))    # when start = end
+    assert_equal('ab',   evaluate('str-extract(abcd,1,2)'))    # for completeness
+    assert_equal('abcd', evaluate('str-extract(abcd,1,4)'))    # at the end points
+    assert_equal('abcd', evaluate('str-extract(abcd,0,4)'))    # when start is before the start of the string
+    assert_equal('abcd', evaluate('str-extract(abcd,1,100)'))  # when end is past the end of the string
+    assert_equal('',     evaluate('str-extract(abcd,2,1)'))    # when end is before start
+    assert_equal('"bc"', evaluate('str-extract("abcd",2,3)'))  # when used with a quoted string
+    assert_equal('bcd',  evaluate('str-extract(abcd,2)'))      # when end is omitted, you get the remainder of the string
+    assert_equal('abc',  evaluate('str-extract(abcd,-2)'))     # when end is omitted, and start is negative you get the start of the string
+    assert_equal('bc',   evaluate('str-extract(abcd,2,-2)'))   # when end is negative it counts in from the end
+    assert_equal('',     evaluate('str-extract(abcd,3,-3)'))   # when end is negative and comes before the start
+    assert_equal('bc',   evaluate('str-extract(abcd,-3,-2)'))  # when both are negative
+    assert_error_message("#ff0000 is not a string for `str-extract'", "str-extract(#f00,2,3)")
+    assert_error_message("#ff0000 is not a number for `str-extract'", "str-extract(abcd,#f00,3)")
+    assert_error_message("#ff0000 is not a number for `str-extract'", "str-extract(abcd,2,#f00)")
+    assert_error_message("3px is not a unitless number for `str-extract'", "str-extract(abcd,2,3px)")
+    assert_error_message("2px is not a unitless number for `str-extract'", "str-extract(abcd,2px,3)")
+  end
+
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
