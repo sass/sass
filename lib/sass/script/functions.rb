@@ -116,8 +116,11 @@ module Sass::Script
   # \{#str_insert str-insert($string, $insert, $index)}
   # : Inserts a string $insert into $string at the specified $index.
   #
-  # \{#str_index str-index($string, $substring)}
-  # : Returns the index where $substring is found in $string or 0 if not found.
+  # \{#to_upper_case to-upper-case($string)}
+  # : Converts a string to upper case.
+  #
+  # \{#to_lower_case to-lower-case($string)}
+  # : Converts a string to lower case.
   #
   # ## Number Functions
   #
@@ -1143,6 +1146,32 @@ module Sass::Script
       Sass::Script::Number.new(index + 1)
     end
     declare :str_index, [:string, :substring]
+
+    # Convert a string to upper case
+    #
+    # @return [Sass::Script::String]
+    # @raise [ArgumentError] if `string` isn't a string
+    # @example
+    #   to-upper-case(abcd) => ABCD
+    #   to-upper-case("abcd") => "ABCD"
+    def to_upper_case(string)
+      assert_type string, :String
+      Sass::Script::String.new(string.value.upcase, string.type)
+    end
+    declare :to_upper_case, [:string]
+
+    # Convert a string to lower case
+    #
+    # @return [Sass::Script::String]
+    # @raise [ArgumentError] if `string` isn't a string
+    # @example
+    #   to-lower-case(ABCD) => abcd
+    #   to-lower-case("ABCD") => "abcd"
+    def to_lower_case(string)
+      assert_type string, :String
+      Sass::Script::String.new(string.value.downcase, string.type)
+    end
+    declare :to_lower_case, [:string]
 
     # Inspects the type of the argument, returning it as an unquoted string.
     #
