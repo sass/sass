@@ -113,6 +113,9 @@ module Sass::Script
   # \{#str_length str-length($string)}
   # : Returns the number of characters in a string.
   #
+  # \{#str_insert str-insert($string, $insert, $index)}
+  # : Inserts a string $insert into $string at the specified $index.
+  #
   # ## Number Functions
   #
   # \{#percentage percentage($value)}
@@ -1092,6 +1095,33 @@ module Sass::Script
       Sass::Script::Number.new(string.value.size)
     end
     declare :str_length, [:string]
+
+    # inserts a string into another string
+    #
+    # Inserts the `insert` string before the character at the given index.
+    # Negative indices count from the end of the string.
+    # The inserted string will starts at the given index.
+    #
+    # @return [Sass::Script::String]
+    # @raise [ArgumentError] if `original` isn't a string, `insert` isn't a string, or `index` isn't a number.
+    # @example
+    #   str-insert("abcd", "X", 1) => "Xabcd"
+    #   str-insert("abcd", "X", 4) => "abcXd"
+    #   str-insert("abcd", "X", 100) => "abcdX"
+    #   str-insert("abcd", "X", -100) => "Xabcd"
+    #   str-insert("abcd", "X", -4) => "aXbcd"
+    #   str-insert("abcd", "X", -1) => "abcdX"
+    def str_insert(original, insert, index)
+      assert_type original, :String
+      assert_type insert, :String
+      assert_type index, :Number
+      unless index.unitless?
+        raise ArgumentError.new("#{index.inspect} is not a unitless number")
+      end
+      insertion_point = index.value > 0 ? [index.value - 1, original.value.size].min : [index.value, -original.value.size - 1].max
+      Sass::Script::String.new(original.value.dup.insert(insertion_point, insert.value), original.type)
+    end
+    declare :str_insert, [:original, :insert, :index]
 
     # Inspects the type of the argument, returning it as an unquoted string.
     #
