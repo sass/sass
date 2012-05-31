@@ -1174,9 +1174,9 @@ SCSS
 
   def test_parent_in_mid_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after ".foo": expected "{", was "&.bar"
+Invalid CSS after "  .foo": expected "{", was "&.bar {a: b}"
 
-"&" may only be used at the beginning of a selector.
+"&.bar" may only be used at the beginning of a selector.
 MESSAGE
 flim {
   .foo&.bar {a: b}
@@ -1184,7 +1184,7 @@ flim {
 SCSS
   end
 
-  def test_parent_in_mid_selector_error
+  def test_parent_after_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
 

@@ -47,25 +47,29 @@ class SassFunctionTest < Test::Unit::TestCase
     hsls, rgbs = chunk.strip.split("====")
     hsls.strip.split("\n").zip(rgbs.strip.split("\n")) do |hsl, rgb|
       hsl_method = "test_hsl: #{hsl} = #{rgb}"
-      define_method(hsl_method) do
-        assert_equal(evaluate(rgb), evaluate(hsl))
+      unless method_defined?(hsl_method)
+        define_method(hsl_method) do
+          assert_equal(evaluate(rgb), evaluate(hsl))
+        end
       end
 
       rgb_to_hsl_method = "test_rgb_to_hsl: #{rgb} = #{hsl}"
-      define_method(rgb_to_hsl_method) do
-        rgb_color = perform(rgb)
-        hsl_color = perform(hsl)
+      unless method_defined?(rgb_to_hsl_method)
+        define_method(rgb_to_hsl_method) do
+          rgb_color = perform(rgb)
+          hsl_color = perform(hsl)
 
-        white = hsl_color.lightness == 100
-        black = hsl_color.lightness == 0
-        grayscale = white || black || hsl_color.saturation == 0
+          white = hsl_color.lightness == 100
+          black = hsl_color.lightness == 0
+          grayscale = white || black || hsl_color.saturation == 0
 
-        assert_in_delta(hsl_color.hue, rgb_color.hue, 0.0001,
-          "Hues should be equal") unless grayscale
-        assert_in_delta(hsl_color.saturation, rgb_color.saturation, 0.0001,
-          "Saturations should be equal") unless white || black
-        assert_in_delta(hsl_color.lightness, rgb_color.lightness, 0.0001,
-          "Lightnesses should be equal")
+          assert_in_delta(hsl_color.hue, rgb_color.hue, 0.0001,
+            "Hues should be equal") unless grayscale
+          assert_in_delta(hsl_color.saturation, rgb_color.saturation, 0.0001,
+            "Saturations should be equal") unless white || black
+          assert_in_delta(hsl_color.lightness, rgb_color.lightness, 0.0001,
+            "Lightnesses should be equal")
+        end
       end
     end
   end
@@ -223,7 +227,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("rgba(0, 255, 127, 0)", evaluate("rgba($red: 0, $green: 255, $blue: 127, $alpha: 0)"))
   end
 
-  def test_rgb_tests_bounds
+  def test_rgba_tests_bounds
     assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(256, 1, 1, 0.3)")
     assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",

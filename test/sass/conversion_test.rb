@@ -152,17 +152,6 @@ foo bar {
 SCSS
   end
 
-  def test_property_name_interpolation
-    assert_renders <<SASS, <<SCSS
-foo bar
-  baz\#{$bang}bip\#{$bop}: 12
-SASS
-foo bar {
-  baz\#{$bang}bip\#{$bop}: 12;
-}
-SCSS
-  end
-
   def test_property_value_interpolation
     assert_renders <<SASS, <<SCSS
 foo bar

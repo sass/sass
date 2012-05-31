@@ -42,12 +42,6 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "\\02fa", resolve("'\\02fa'")
   end
 
-  def test_string_interpolation
-    assert_equal "foo2bar", resolve('\'foo#{1 + 1}bar\'')
-    assert_equal "foo2bar", resolve('"foo#{1 + 1}bar"')
-    assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
-  end
-
   def test_color_names
     assert_equal "white", resolve("white")
     assert_equal "white", resolve("#ffffff")
@@ -177,6 +171,9 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "foo bar baz bang", resolve('"foo #{"#{"ba" + "r"} baz"} bang"')
     assert_equal 'foo #{bar baz} bang', resolve('"foo \#{#{"ba" + "r"} baz} bang"')
     assert_equal 'foo #{baz bang', resolve('"foo #{"\#{" + "baz"} bang"')
+    assert_equal "foo2bar", resolve('\'foo#{1 + 1}bar\'')
+    assert_equal "foo2bar", resolve('"foo#{1 + 1}bar"')
+    assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
   end
 
   def test_rule_interpolation
