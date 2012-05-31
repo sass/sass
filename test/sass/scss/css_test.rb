@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
-require File.dirname(__FILE__) + '/test_helper'
+require 'sass/scss/test_helper'
 require 'sass/scss/css_parser'
 
 # These tests just test the parsing of CSS

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'test/unit'
-require File.dirname(__FILE__) + '/../test_helper'
+require 'test_helper'
 require 'sass/css'
 
 class CSS2SassTest < Test::Unit::TestCase

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
-require File.dirname(__FILE__) + '/../../test_helper'
+require 'test_helper'
 
 unless Sass::Util.ruby1_8?
   class MultibyteStringScannerTest < Test::Unit::TestCase

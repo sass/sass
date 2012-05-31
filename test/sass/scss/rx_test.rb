@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
-require File.dirname(__FILE__) + '/../../test_helper'
+require "sass/scss/test_helper"
 require 'sass/engine'
 
 class ScssRxTest < Test::Unit::TestCase
