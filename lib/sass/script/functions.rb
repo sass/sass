@@ -116,6 +116,9 @@ module Sass::Script
   # \{#str_insert str-insert($string, $insert, $index)}
   # : Inserts a string $insert into $string at the specified $index.
   #
+  # \{#str_index str-index($string, $substring)}
+  # : Returns the index where $substring is found in $string or 0 if not found.
+  #
   # ## Number Functions
   #
   # \{#percentage percentage($value)}
@@ -1127,6 +1130,24 @@ module Sass::Script
       Sass::Script::String.new(original.value.dup.insert(insertion_point, insert.value), original.type)
     end
     declare :str_insert, [:original, :insert, :index]
+
+    # Starting at the left, finds the index of the first location
+    # where `substring` is found in `string`.
+    #
+    # @return [Sass::Script::String]
+    # @raise [ArgumentError] if `original` isn't a string, `insert` isn't a string, or `index` isn't a number.
+    # @example
+    #   str-index(abcd, a)  => 1
+    #   str-index(abcd, ab) => 1
+    #   str-index(abcd, X)  => 0
+    #   str-index(abcd, c)  => 3
+    def str_index(string, substring)
+      assert_type string, :String
+      assert_type substring, :String
+      index = string.value.index(substring.value) || -1
+      Sass::Script::Number.new(index + 1)
+    end
+    declare :str_index, [:string, :substring]
 
     # Inspects the type of the argument, returning it as an unquoted string.
     #
