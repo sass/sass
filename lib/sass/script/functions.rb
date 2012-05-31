@@ -110,6 +110,9 @@ module Sass::Script
   # \{#quote quote($string)}
   # : Adds quotes to a string.
   #
+  # \{#str_length str-length($string)}
+  # : Returns the number of characters in a string.
+  #
   # ## Number Functions
   #
   # \{#percentage percentage($value)}
@@ -1077,6 +1080,18 @@ module Sass::Script
       Sass::Script::String.new(string.value, :string)
     end
     declare :quote, [:string]
+
+    # Returns the number of characters in a string.
+    #
+    # @return [Sass::Script::Number]
+    # @raise [ArgumentError] if `string` isn't a string
+    # @example
+    #   str-length("foo") => 3
+    def str_length(string)
+      assert_type string, :String
+      Sass::Script::Number.new(string.value.size)
+    end
+    declare :str_length, [:string]
 
     # Inspects the type of the argument, returning it as an unquoted string.
     #

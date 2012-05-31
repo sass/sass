@@ -850,6 +850,14 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("#ff0000 is not a string for `quote'", "quote(#f00)")
   end
 
+  def test_str_length
+    assert_equal('3', evaluate('str-length(foo)'))
+  end
+
+  def test_str_length_requires_a_string
+    assert_error_message("#ff0000 is not a string for `str-length'", "str-length(#f00)")
+  end
+
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
