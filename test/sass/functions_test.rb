@@ -872,6 +872,29 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("#ff0000 is not a string for `str-length'", "str-length(#f00)")
   end
 
+  def test_str_insert
+    assert_equal('Xabcd', evaluate('str-insert(abcd, X, 0)'))
+    assert_equal('Xabcd', evaluate('str-insert(abcd, X, 1)'))
+    assert_equal('abcXd', evaluate('str-insert(abcd, X, 4)'))
+    assert_equal('abcdX', evaluate('str-insert(abcd, X, 100)'))
+    assert_equal('Xabcd', evaluate('str-insert(abcd, X, -100)'))
+    assert_equal('aXbcd', evaluate('str-insert(abcd, X, -4)'))
+    assert_equal('abcdX', evaluate('str-insert(abcd, X, -1)'))
+  end
+
+  def test_str_insert_maintains_quote_of_primary_string
+    assert_equal('"Xfoo"', evaluate('str-insert("foo", X, 1)'))
+    assert_equal('"Xfoo"', evaluate('str-insert("foo", "X", 1)'))
+    assert_equal('Xfoo', evaluate('str-insert(foo, "X", 1)'))
+  end
+
+  def test_str_insert_asserts_types
+    assert_error_message("#ff0000 is not a string for `str-insert'", "str-insert(#f00, X, 1)")
+    assert_error_message("#ff0000 is not a string for `str-insert'", "str-insert(foo, #f00, 1)")
+    assert_error_message("#ff0000 is not a number for `str-insert'", "str-insert(foo, X, #f00)")
+    assert_error_message("10px is not a unitless number for `str-insert'", "str-insert(foo, X, 10px)")
+  end
+
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
