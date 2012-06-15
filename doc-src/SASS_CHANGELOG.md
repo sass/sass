@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.1.20 (Unreleased)
+
+* Don't crash if a UTF encoding isn't found. Thanks to [Andrew
+  Garbutt](http://github.com/techsplicer).
+
 ## 3.1.19
 
 * Fix an `uninitialized constant Sass::Exec::Sass::Util` error when using the
