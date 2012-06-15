@@ -672,7 +672,7 @@ MESSAGE
           val = interp_ident || expr!(:interp_string)
           ss
         end
-        tok(/\]/)
+        tok!(/\]/)
 
         Selector::Attribute.new(merge(name), merge(ns), op, merge(val))
       end
