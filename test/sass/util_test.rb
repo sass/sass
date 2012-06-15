@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require 'test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
 require 'pathname'
 
 class UtilTest < Test::Unit::TestCase

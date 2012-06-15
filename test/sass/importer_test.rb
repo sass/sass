@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
-require 'test_helper'
-require 'sass/test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 
 require 'sass/plugin'
 

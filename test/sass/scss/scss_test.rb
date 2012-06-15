@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
-require "sass/scss/test_helper"
+require File.dirname(__FILE__) + '/test_helper'
 
 class ScssTest < Test::Unit::TestCase
   include ScssTestHelper
