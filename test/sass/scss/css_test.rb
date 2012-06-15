@@ -957,6 +957,10 @@ SCSS
 
   ## Regressions
 
+  def test_selector_without_closing_bracket
+    assert_not_parses('"]"', "foo[bar <err>{a: b}")
+  end
+
   def test_closing_line_comment_end_with_compact_output
     assert_equal(<<CSS, render(<<SCSS, :style => :compact))
 /* foo */
