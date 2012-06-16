@@ -14,16 +14,6 @@ module Sass::Media
       @queries = queries
     end
 
-    # Runs the SassScript in the media query list.
-    #
-    # @yield [interp] A block that should perform interpolation.
-    # @yieldparam interp [Array<String, Sass::Script::Node>]
-    #   An interpolation array to perform.
-    # @yieldreturn [String] The interpolated value.
-    def perform(&run_interp)
-      @queries.each {|q| q.perform(&run_interp)}
-    end
-
     # Merges this query list with another. The returned query list
     # queries for the intersection between the two inputs.
     #
@@ -52,18 +42,21 @@ module Sass::Media
       queries.map {|q| q.to_src(options)}.join(', ')
     end
 
+    # Returns a representation of the query as an array of strings and
+    # potentially {Sass::Script::Node}s (if there's interpolation in it). When
+    # the interpolation is resolved and the strings are joined together, this
+    # will be the string representation of this query.
+    #
+    # @return [Array<String, Sass::Script::Node>]
+    def to_a
+      Sass::Util.intersperse(queries.map {|q| q.to_a}, ', ').flatten
+    end
+
     # Returns a deep copy of this query list and all its children.
     #
     # @return [QueryList]
     def deep_copy
       QueryList.new(queries.map {|q| q.deep_copy})
-    end
-
-    # Sets the options hash for the script nodes in the media query.
-    #
-    # @param options [{Symbol => Object}] The options has to set.
-    def options=(options)
-      queries.each {|q| q.options = options}
     end
   end
 
@@ -73,50 +66,51 @@ module Sass::Media
   class Query
     # The modifier for the query.
     #
+    # When parsed as Sass code, this contains strings and SassScript nodes. When
+    # parsed as CSS, it contains a single string (accessible via
+    # \{#resolved_modifier}).
+    #
     # @return [Array<String, Sass::Script::Node>]
     attr_accessor :modifier
 
-    # The modifier for the query after any SassScript has been resolved.
-    # Only set once \{Tree::Visitors::Perform} has been run.
-    #
-    # @return [String]
-    attr_accessor :resolved_modifier
-
     # The type of the query (e.g. `"screen"` or `"print"`).
+    #
+    # When parsed as Sass code, this contains strings and SassScript nodes. When
+    # parsed as CSS, it contains a single string (accessible via
+    # \{#resolved_type}).
     #
     # @return [Array<String, Sass::Script::Node>]
     attr_accessor :type
 
-    # The type of the query after any SassScript has been resolved.
-    # Only set once \{Tree::Visitors::Perform} has been run.
-    #
-    # @return [String]
-    attr_accessor :resolved_type
-
     # The trailing expressions in the query.
     #
-    # @return [Array<Expression>]
+    # When parsed as Sass code, each expression contains strings and SassScript
+    # nodes. When parsed as CSS, each one contains a single string.
+    #
+    # @return [Array<Array<String, Sass::Script::Node>>]
     attr_accessor :expressions
 
     # @param modifier [Array<String, Sass::Script::Node>] See \{#modifier}
     # @param type [Array<String, Sass::Script::Node>] See \{#type}
-    # @param expressions [Array<Expression>] See \{#expressions}
+    # @param expressions [Array<Array<String, Sass::Script::Node>>] See \{#expressions}
     def initialize(modifier, type, expressions)
       @modifier = modifier
       @type = type
       @expressions = expressions
     end
 
-    # Runs the SassScript in the media query.
-    #
-    # @yield [interp] A block that should perform interpolation.
-    # @yieldparam interp [Array<String, Sass::Script::Node>]
-    #   An interpolation array to perform.
-    # @yieldreturn [String] The interpolated value.
-    def perform(&run_interp)
-      @resolved_modifier = yield modifier
-      @resolved_type = yield type
-      expressions.each {|e| e.perform(&run_interp)}
+    # See \{#modifier}.
+    # @return [String]
+    def resolved_modifier
+      # modifier should contain only a single string
+      modifier.first || ''
+    end
+
+    # See \{#type}.
+    # @return [String]
+    def resolved_type
+      # type should contain only a single string
+      type.first || ''
     end
 
     # Merges this query with another. The returned query queries for
@@ -147,8 +141,8 @@ module Sass::Media
         mod = m1.empty? ? m2 : m1
       end
       q = Query.new([], [], other.expressions + expressions)
-      q.resolved_type = type
-      q.resolved_modifier = mod
+      q.type = [type]
+      q.modifier = [mod]
       return q
     end
 
@@ -161,7 +155,12 @@ module Sass::Media
       css << ' ' unless resolved_modifier.empty?
       css << resolved_type
       css << ' and ' unless resolved_type.empty? || expressions.empty?
-      css << expressions.map {|e| e.to_css}.join(' and ')
+      css << expressions.map do |e|
+        # It's possible for there to be script nodes in Expressions even when
+        # we're converting to CSS in the case where we parsed the document as
+        # CSS originally (as in css_test.rb).
+        e.map {|c| c.is_a?(Sass::Script::Node) ? c.to_sass : c.to_s}.join
+      end.join(' and ')
       css
     end
 
@@ -175,8 +174,21 @@ module Sass::Media
       src << ' ' unless modifier.empty?
       src << Sass::Media._interp_to_src(type, options)
       src << ' and ' unless type.empty? || expressions.empty?
-      src << expressions.map {|e| e.to_src(options)}.join(' and ')
+      src << expressions.map do |e|
+        Sass::Media._interp_to_src(e, options)
+      end.join(' and ')
       src
+    end
+
+    # @see \{MediaQuery#to\_a}
+    def to_a
+      res = []
+      res += modifier
+      res << ' ' unless modifier.empty?
+      res += type
+      res << ' and ' unless type.empty? || expressions.empty?
+      res += Sass::Util.intersperse(expressions, ' and ').flatten
+      res
     end
 
     # Returns a deep copy of this query and all its children.
@@ -186,99 +198,7 @@ module Sass::Media
       Query.new(
         modifier.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c},
         type.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c},
-        expressions.map {|q| q.deep_copy})
-    end
-
-    # Sets the options hash for the script nodes in the media query.
-    #
-    # @param options [{Symbol => Object}] The options has to set.
-    def options=(options)
-      modifier.each {|m| m.options = options if m.is_a?(Sass::Script::Node)}
-      type.each {|t| t.options = options if t.is_a?(Sass::Script::Node)}
-      expressions.each {|e| e.options = options}
-    end
-  end
-
-  # A media query expression.
-  #
-  #   '(' S* media_feature S* [ ':' S* expr ]? ')'
-  class Expression
-    # The name of the feature being queried for.
-    #
-    # @return [Sass::Script::Node]
-    attr_accessor :name
-
-    # The name of the feature after any SassScript has been resolved.
-    # Only set once \{Tree::Visitors::Perform} has been run.
-    #
-    # @return [String]
-    attr_accessor :resolved_name
-
-    # The value of the feature.
-    #
-    # @return [Sass::Script::Node]
-    attr_accessor :value
-
-    # The value of the feature after any SassScript has been resolved.
-    # Only set once \{Tree::Visitors::Perform} has been run.
-    #
-    # @return [String]
-    attr_accessor :resolved_value
-
-    # @param name [Sass::Script::Node] See \{#name}
-    # @param value [Sass::Script::Node] See \{#value}
-    def initialize(name, value)
-      @name = name
-      @value = value
-    end
-
-    # Runs the SassScript in the expression.
-    #
-    # @yield [interp] A block that should perform interpolation.
-    # @yieldparam interp [Array<String, Sass::Script::Node>]
-    #   An interpolation array to perform.
-    # @yieldreturn [String] The interpolated value.
-    def perform
-      @resolved_name = yield name ? [name] : []
-      @resolved_value = yield value ? [value] : []
-    end
-
-    # Returns the CSS for the expression.
-    #
-    # @return [String]
-    def to_css
-      css = '('
-      css << resolved_name
-      css << ': ' << resolved_value unless resolved_value.empty?
-      css << ')'
-      css
-    end
-
-    # Returns the Sass/SCSS code for the expression.
-    #
-    # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
-    # @return [String]
-    def to_src(options)
-      src = '('
-      src << name.to_sass(options)
-      src << ': ' << value.to_sass(options) if value
-      src << ')'
-      src
-    end
-
-    # Returns a deep copy of this expression.
-    #
-    # @return [Expression]
-    def deep_copy
-      Expression.new(name.deep_copy, value && value.deep_copy)
-    end
-
-    # Sets the options hash for the script nodes in the expression.
-    #
-    # @param options [{Symbol => Object}] The options has to set.
-    def options=(options)
-      name.options = options
-      value.options = options if value
+        expressions.map {|e| e.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c}})
     end
   end
 

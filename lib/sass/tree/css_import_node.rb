@@ -15,13 +15,21 @@ module Sass::Tree
     # @return [String]
     attr_accessor :resolved_uri
 
-    # The media query, or nil.
+    # The media query for this rule, interspersed with {Sass::Script::Node}s
+    # representing `#{}`-interpolation. Any adjacent strings will be merged
+    # together.
     #
-    # @return [Sass::Media::Query?]
+    # @return [Array<String, Sass::Script::Node>]
     attr_accessor :query
 
+    # The media query for this rule, without any unresolved interpolation. It's
+    # only set once {Tree::Node#perform} has been called.
+    #
+    # @return [Sass::Media::QueryList]
+    attr_accessor :resolved_query
+
     # @param uri [String, Sass::Script::Node] See \{#uri}
-    # @param query [Sass::Media::Query] See \{#query}
+    # @param query [Array<String, Sass::Script::Node>] See \{#query}
     def initialize(uri, query = nil)
       @uri = uri
       @query = query
@@ -44,7 +52,7 @@ module Sass::Tree
       @resolved_value ||=
         begin
           str = "@import #{resolved_uri}"
-          str << " #{query.to_css}" if query
+          str << " #{resolved_query.to_css}" if resolved_query
           str
         end
     end

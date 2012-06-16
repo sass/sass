@@ -705,7 +705,7 @@ WARNING
         Tree::CharsetNode.new(name)
       when 'media'
         parser = Sass::SCSS::Parser.new(value, @options[:filename], @line)
-        Tree::MediaNode.new(parser.parse_media_query_list)
+        Tree::MediaNode.new(parser.parse_media_query_list.to_a)
       else
         Tree::DirectiveNode.new(
           value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
@@ -800,7 +800,7 @@ WARNING
         str = script_parser.parse_string
         media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
         media = media_parser.parse_media_query_list
-        return Tree::CssImportNode.new(str, media)
+        return Tree::CssImportNode.new(str, media.to_a)
       end
 
       unless str = scanner.scan(Sass::SCSS::RX::STRING)
@@ -812,7 +812,7 @@ WARNING
       if !scanner.match?(/[,;]|$/)
         media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
         media = media_parser.parse_media_query_list
-        Tree::CssImportNode.new(str || uri, media)
+        Tree::CssImportNode.new(str || uri, media.to_a)
       elsif val =~ /^http:\/\//
         Tree::CssImportNode.new("url(#{val})")
       else

@@ -309,7 +309,7 @@ module Sass
           str = sass_script(:parse_string)
           media = media_query_list
           ss
-          return node(Tree::CssImportNode.new(str, media))
+          return node(Tree::CssImportNode.new(str, media.to_a))
         end
 
         path = @scanner[1] || @scanner[2]
@@ -317,7 +317,7 @@ module Sass
 
         media = media_query_list
         if path =~ /^http:\/\// || media || use_css_import?
-          return node(Sass::Tree::CssImportNode.new(str, media))
+          return node(Sass::Tree::CssImportNode.new(str, media.to_a))
         end
 
         node(Sass::Tree::ImportNode.new(path.strip))
@@ -326,7 +326,7 @@ module Sass
       def use_css_import?; false; end
 
       def media_directive
-        block(node(Sass::Tree::MediaNode.new(media_query_list)), :directive)
+        block(node(Sass::Tree::MediaNode.new(media_query_list.to_a)), :directive)
       end
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
@@ -378,17 +378,20 @@ module Sass
       end
 
       def media_expr
+        interp = interpolation and return interp
         return unless tok(/\(/)
+        res = ['(']
         ss
-        name = sass_script(:parse)
+        res << sass_script(:parse)
 
         if tok(/:/)
-          ss; value = sass_script(:parse)
+          res << ': '
+          ss
+          res << sass_script(:parse)
         end
-        tok!(/\)/)
+        res << tok!(/\)/)
         ss
-
-        Sass::Media::Expression.new(name, value)
+        res
       end
 
       def charset_directive

@@ -139,7 +139,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     yield unless bubble(node)
     media = node.children.select {|c| c.is_a?(Sass::Tree::MediaNode)}
     node.children.reject! {|c| c.is_a?(Sass::Tree::MediaNode)}
-    media = media.select {|n| n.query = n.query.merge(node.query)}
+    media = media.select {|n| n.resolved_query = n.resolved_query.merge(node.resolved_query)}
     (node.children.empty? ? [] : [node]) + media
   end
 

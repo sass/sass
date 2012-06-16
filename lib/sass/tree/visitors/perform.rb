@@ -298,8 +298,8 @@ END
   end
 
   def visit_media(node)
-    node.query = node.query.deep_copy
-    node.query.perform {|interp| run_interp(interp)}
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.query), node.filename, node.line)
+    node.resolved_query ||= parser.parse_media_query_list
     yield
   end
 
@@ -312,8 +312,8 @@ END
   def visit_cssimport(node)
     node.resolved_uri = run_interp([node.uri])
     if node.query
-      node.query = node.query.deep_copy
-      node.query.perform {|interp| run_interp(interp)}
+      parser = Sass::SCSS::StaticParser.new(run_interp(node.query), node.filename, node.line)
+      node.resolved_query ||= parser.parse_media_query_list
     end
     yield
   end

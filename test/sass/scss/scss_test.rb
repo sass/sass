@@ -936,6 +936,31 @@ $vals: 1 2 3;
 SCSS
   end
 
+  def test_media_interpolation_with_reparse
+    assert_equal <<CSS, render(<<SCSS)
+@media screen and (max-width: 300px) {
+  a: b; }
+@media screen and (max-width: 300px) {
+  a: b; }
+@media screen and (max-width: 300px) {
+  a: b; }
+@media screen and (max-width: 300px), print and (max-width: 300px) {
+  a: b; }
+CSS
+$constraint: "(max-width: 300px)";
+$fragment: "nd \#{$constraint}";
+$comma: "een, pri";
+@media screen and \#{$constraint} {a: b}
+@media screen {
+  @media \#{$constraint} {a: b}
+}
+@media screen a\#{$fragment} {a: b}
+@media scr\#{$comma}nt {
+  @media \#{$constraint} {a: b}
+}
+SCSS
+  end
+
   def test_moz_document_interpolation
     assert_equal <<CSS, render(<<SCSS)
 @-moz-document url(http://sass-lang.com/),

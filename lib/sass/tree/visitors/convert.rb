@@ -148,7 +148,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_media(node)
-    "#{tab_str}@media #{node.query.to_src(@options)}#{yield}"
+    "#{tab_str}@media #{interp_to_src(node.query)}#{yield}"
   end
 
   def visit_supports(node)
@@ -161,7 +161,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     else
       str = "#{tab_str}@import #{node.uri}"
     end
-    str << " #{node.query.to_src(@options)}" if node.query
+    str << " #{interp_to_src(node.query)}" unless node.query.empty?
     "#{str}#{semi}\n"
   end
 

@@ -6,10 +6,20 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class MediaNode < DirectiveNode
-    # The media query.
+    # TODO: parse and cache the query immediately if it has no dynamic elements
+
+    # The media query for this rule, interspersed with {Sass::Script::Node}s
+    # representing `#{}`-interpolation. Any adjacent strings will be merged
+    # together.
     #
-    # @return [Sass::Media::Query]
+    # @return [Array<String, Sass::Script::Node>]
     attr_accessor :query
+
+    # The media query for this rule, without any unresolved interpolation. It's
+    # only set once {Tree::Node#perform} has been called.
+    #
+    # @return [Sass::Media::QueryList]
+    attr_accessor :resolved_query
 
     # @see RuleNode#tabs
     attr_accessor :tabs
@@ -17,7 +27,7 @@ module Sass::Tree
     # @see RuleNode#group_end
     attr_accessor :group_end
 
-    # @param query [Sass::Media::Query] See \{#query}
+    # @param query [Array<String, Sass::Script::Node>] See \{#query}
     def initialize(query)
       @query = query
       @tabs = 0
@@ -32,7 +42,7 @@ module Sass::Tree
 
     # @see DirectiveNode#resolved_value
     def resolved_value
-      @resolved_value ||= "@media #{query.to_css}"
+      @resolved_value ||= "@media #{resolved_query.to_css}"
     end
 
     # True when the directive has no visible children.
