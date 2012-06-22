@@ -7,6 +7,8 @@
 
 * Don't crash if a UTF encoding isn't found. Thanks to [Andrew
   Garbutt](http://github.com/techsplicer).
+* Properly watch files recursively with `sass --watch`. Thanks to [Sébastien
+  Tisserant](https://github.com/sebweaver).
 
 ## 3.1.19
 
