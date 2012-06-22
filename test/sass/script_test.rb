@@ -385,6 +385,16 @@ SASS
     assert_equal "false", resolve('(1 (2 3)) == (1 2 3)')
     assert_equal "false", resolve('((1, 2) (3, 4)) == (1, 2 3, 4)')
     assert_equal "false", resolve('(1 2 3) == (1, 2, 3)')
+
+    assert_equal "true", resolve('null == null')
+    assert_equal "false", resolve('"null" == null')
+    assert_equal "false", resolve('0 == null')
+    assert_equal "false", resolve('() == null')
+
+    assert_equal "false", resolve('null != null')
+    assert_equal "true", resolve('"null" != null')
+    assert_equal "true", resolve('0 != null')
+    assert_equal "true", resolve('() != null')
   end
 
   def test_operation_precedence
