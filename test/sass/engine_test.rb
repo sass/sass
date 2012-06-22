@@ -2129,6 +2129,17 @@ CSS
 
   # Regression tests
 
+  def test_variable_and_subject_ambiguity
+    assert_equal <<CSS, render(<<SCSS)
+$foo:baz {
+  a: bar; }
+CSS
+$foo:bar
+$foo:baz
+  a: $foo
+SCSS
+  end
+
   def test_tricky_mixin_loop_exception
     render <<SASS
 @mixin foo($a)

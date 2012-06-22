@@ -641,91 +641,140 @@ SCSS
 
   ## Selectors
 
-  # Taken from http://www.w3.org/TR/css3-selectors/#selectors
+  # Taken from http://dev.w3.org/csswg/selectors4/#overview
   def test_summarized_selectors
     assert_selector_parses('*')
     assert_selector_parses('E')
+    assert_selector_parses('E:not(s)')
+    assert_selector_parses('E:not(s1, s2)')
+    assert_selector_parses('E:matches(s1, s2)')
+    assert_selector_parses('E.warning')
+    assert_selector_parses('E#myid')
     assert_selector_parses('E[foo]')
     assert_selector_parses('E[foo="bar"]')
+    assert_selector_parses('E[foo="bar" i]')
     assert_selector_parses('E[foo~="bar"]')
     assert_selector_parses('E[foo^="bar"]')
     assert_selector_parses('E[foo$="bar"]')
     assert_selector_parses('E[foo*="bar"]')
     assert_selector_parses('E[foo|="en"]')
-    assert_selector_parses('E:root')
-    assert_selector_parses('E:nth-child(n)')
-    assert_selector_parses('E:nth-last-child(n)')
-    assert_selector_parses('E:nth-of-type(n)')
-    assert_selector_parses('E:nth-last-of-type(n)')
-    assert_selector_parses('E:first-child')
-    assert_selector_parses('E:last-child')
-    assert_selector_parses('E:first-of-type')
-    assert_selector_parses('E:last-of-type')
-    assert_selector_parses('E:only-child')
-    assert_selector_parses('E:only-of-type')
-    assert_selector_parses('E:empty')
+    assert_selector_parses('E:dir(ltr)')
+    assert_selector_parses('E:lang(fr)')
+    assert_selector_parses('E:lang(zh, *-hant)')
+    assert_selector_parses('E:any-link')
     assert_selector_parses('E:link')
     assert_selector_parses('E:visited')
+    assert_selector_parses('E:local-link')
+    assert_selector_parses('E:local-link(0)')
+    assert_selector_parses('E:target')
+    assert_selector_parses('E:scope')
+    assert_selector_parses('E:current')
+    assert_selector_parses('E:current(s)')
+    assert_selector_parses('E:past')
+    assert_selector_parses('E:future')
     assert_selector_parses('E:active')
     assert_selector_parses('E:hover')
     assert_selector_parses('E:focus')
-    assert_selector_parses('E:target')
-    assert_selector_parses('E:lang(fr)')
     assert_selector_parses('E:enabled')
     assert_selector_parses('E:disabled')
     assert_selector_parses('E:checked')
-    assert_selector_parses('E::first-line')
-    assert_selector_parses('E::first-letter')
-    assert_selector_parses('E::before')
-    assert_selector_parses('E::after')
-    assert_selector_parses('E.warning')
-    assert_selector_parses('E#myid')
-    assert_selector_parses('E:not(s)')
+    assert_selector_parses('E:indeterminate')
+    assert_selector_parses('E:default')
+    assert_selector_parses('E:in-range')
+    assert_selector_parses('E:out-of-range')
+    assert_selector_parses('E:required')
+    assert_selector_parses('E:optional')
+    assert_selector_parses('E:read-only')
+    assert_selector_parses('E:read-write')
+    assert_selector_parses('E:root')
+    assert_selector_parses('E:empty')
+    assert_selector_parses('E:first-child')
+    assert_selector_parses('E:nth-child(n)')
+    assert_selector_parses('E:last-child')
+    assert_selector_parses('E:nth-last-child(n)')
+    assert_selector_parses('E:only-child')
+    assert_selector_parses('E:first-of-type')
+    assert_selector_parses('E:nth-of-type(n)')
+    assert_selector_parses('E:last-of-type')
+    assert_selector_parses('E:nth-last-of-type(n)')
+    assert_selector_parses('E:only-of-type')
+    assert_selector_parses('E:nth-match(n of selector)')
+    assert_selector_parses('E:nth-last-match(n of selector)')
+    assert_selector_parses('E:column(selector)')
+    assert_selector_parses('E:nth-column(n)')
+    assert_selector_parses('E:nth-last-column(n)')
     assert_selector_parses('E F')
     assert_selector_parses('E > F')
     assert_selector_parses('E + F')
     assert_selector_parses('E ~ F')
+    assert_selector_parses('E /foo/ F')
+    assert_selector_parses('E! > F')
+
+    assert_selector_parses('E /ns|foo/ F')
+    assert_selector_parses('E /*|foo/ F')
   end
 
-  # Taken from http://www.w3.org/TR/css3-selectors/#selectors,
-  # but without the element names
-  def test_lonely_selectors
+  # Taken from http://dev.w3.org/csswg/selectors4/#overview, but without element
+  # names.
+  def test_summarized_selectors
+    assert_selector_parses(':not(s)')
+    assert_selector_parses(':not(s1, s2)')
+    assert_selector_parses(':matches(s1, s2)')
+    assert_selector_parses('.warning')
+    assert_selector_parses('#myid')
     assert_selector_parses('[foo]')
     assert_selector_parses('[foo="bar"]')
+    assert_selector_parses('[foo="bar" i]')
     assert_selector_parses('[foo~="bar"]')
     assert_selector_parses('[foo^="bar"]')
     assert_selector_parses('[foo$="bar"]')
     assert_selector_parses('[foo*="bar"]')
     assert_selector_parses('[foo|="en"]')
-    assert_selector_parses(':root')
-    assert_selector_parses(':nth-child(n)')
-    assert_selector_parses(':nth-last-child(n)')
-    assert_selector_parses(':nth-of-type(n)')
-    assert_selector_parses(':nth-last-of-type(n)')
-    assert_selector_parses(':first-child')
-    assert_selector_parses(':last-child')
-    assert_selector_parses(':first-of-type')
-    assert_selector_parses(':last-of-type')
-    assert_selector_parses(':only-child')
-    assert_selector_parses(':only-of-type')
-    assert_selector_parses(':empty')
+    assert_selector_parses(':dir(ltr)')
+    assert_selector_parses(':lang(fr)')
+    assert_selector_parses(':lang(zh, *-hant)')
+    assert_selector_parses(':any-link')
     assert_selector_parses(':link')
     assert_selector_parses(':visited')
+    assert_selector_parses(':local-link')
+    assert_selector_parses(':local-link(0)')
+    assert_selector_parses(':target')
+    assert_selector_parses(':scope')
+    assert_selector_parses(':current')
+    assert_selector_parses(':current(s)')
+    assert_selector_parses(':past')
+    assert_selector_parses(':future')
     assert_selector_parses(':active')
     assert_selector_parses(':hover')
     assert_selector_parses(':focus')
-    assert_selector_parses(':target')
-    assert_selector_parses(':lang(fr)')
     assert_selector_parses(':enabled')
     assert_selector_parses(':disabled')
     assert_selector_parses(':checked')
-    assert_selector_parses('::first-line')
-    assert_selector_parses('::first-letter')
-    assert_selector_parses('::before')
-    assert_selector_parses('::after')
-    assert_selector_parses('.warning')
-    assert_selector_parses('#myid')
-    assert_selector_parses(':not(s)')
+    assert_selector_parses(':indeterminate')
+    assert_selector_parses(':default')
+    assert_selector_parses(':in-range')
+    assert_selector_parses(':out-of-range')
+    assert_selector_parses(':required')
+    assert_selector_parses(':optional')
+    assert_selector_parses(':read-only')
+    assert_selector_parses(':read-write')
+    assert_selector_parses(':root')
+    assert_selector_parses(':empty')
+    assert_selector_parses(':first-child')
+    assert_selector_parses(':nth-child(n)')
+    assert_selector_parses(':last-child')
+    assert_selector_parses(':nth-last-child(n)')
+    assert_selector_parses(':only-child')
+    assert_selector_parses(':first-of-type')
+    assert_selector_parses(':nth-of-type(n)')
+    assert_selector_parses(':last-of-type')
+    assert_selector_parses(':nth-last-of-type(n)')
+    assert_selector_parses(':only-of-type')
+    assert_selector_parses(':nth-match(n of selector)')
+    assert_selector_parses(':nth-last-match(n of selector)')
+    assert_selector_parses(':column(selector)')
+    assert_selector_parses(':nth-column(n)')
+    assert_selector_parses(':nth-last-column(n)')
   end
 
   def test_attribute_selectors_with_identifiers
@@ -762,34 +811,41 @@ CSS
 SCSS
   end
 
-  def test_negation_selectors
-    assert_selector_parses(':not(foo|bar)')
-    assert_selector_parses(':not(*|bar)')
-
-    assert_selector_parses(':not(foo|*)')
-    assert_selector_parses(':not(*|*)')
-
-    assert_selector_parses(':not(#blah)')
-    assert_selector_parses(':not(.blah)')
-
-    assert_selector_parses(':not([foo])')
-    assert_selector_parses(':not([foo^="bar"])')
-    assert_selector_parses(':not([baz|foo~="bar"])')
-
-    assert_selector_parses(':not(:hover)')
-    assert_selector_parses(':not(:nth-child(2n + 3))')
-
-    # Not technically allowed, but what the heck
-    assert_selector_parses(':not(:not(#foo))')
-    assert_selector_parses(':not(a#foo.bar)')
-    assert_selector_parses(':not(#foo .bar > baz)')
-    assert_selector_parses(':not(h1, h2, h3)')
+  def test_selectors_containing_selectors
+    assert_selector_can_contain_selectors(':not(<sel>)')
+    assert_selector_can_contain_selectors(':current(<sel>)')
+    assert_selector_can_contain_selectors(':nth-match(n of <sel>)')
+    assert_selector_can_contain_selectors(':nth-last-match(n of <sel>)')
+    assert_selector_can_contain_selectors(':column(<sel>)')
+    assert_selector_can_contain_selectors(':-moz-any(<sel>)')
   end
 
-  def test_moz_any_selector
-    assert_selector_parses(':-moz-any(h1, h2, h3)')
-    assert_selector_parses(':-moz-any(.foo)')
-    assert_selector_parses(':-moz-any(foo bar, .baz > .bang)')
+  def assert_selector_can_contain_selectors(sel)
+    try = lambda {|subsel| assert_selector_parses(sel.gsub('<sel>', subsel))}
+    
+    try['foo|bar']
+    try['*|bar']
+
+    try['foo|*']
+    try['*|*']
+
+    try['#blah']
+    try['.blah']
+
+    try['[foo]']
+    try['[foo^="bar"]']
+    try['[baz|foo~="bar"]']
+
+    try[':hover']
+    try[':nth-child(2n + 3)']
+
+    try['h1, h2, h3']
+    try['#foo, bar, [baz]']
+
+    # Not technically allowed for most selectors, but what the heck
+    try[':not(#foo)']
+    try['a#foo.bar']
+    try['#foo .bar > baz']
   end
 
   def test_namespaced_selectors

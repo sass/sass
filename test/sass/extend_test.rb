@@ -1154,6 +1154,32 @@ b c .c2 {@extend .c1}
 SCSS
   end
 
+  def test_nested_extender_doesnt_find_common_selectors_around_reference_selector
+    assert_equal <<CSS, render(<<SCSS)
+a /for/ b c .c1, a /for/ b a c .c2, a a /for/ b c .c2 {
+  a: b; }
+CSS
+a /for/ b c .c1 {a: b}
+a c .c2 {@extend .c1}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a /for/ b c .c1, a a /for/ b c .c2 {
+  a: b; }
+CSS
+a /for/ b c .c1 {a: b}
+a b .c2 {@extend .c1}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+a /for/ b c .c1, a /for/ b c .c2 {
+  a: b; }
+CSS
+a /for/ b c .c1 {a: b}
+b c .c2 {@extend .c1}
+SCSS
+  end
+
   def test_nested_extender_with_early_child_selectors_doesnt_subseq_them
     assert_equal <<CSS, render(<<SCSS)
 .bip > .bap .foo, .bip > .bap .grip > .bap .bar, .grip > .bap .bip > .bap .bar {
@@ -1579,6 +1605,74 @@ CSS
     .bar {@extend .foo}
   }
 }
+SCSS
+  end
+
+  def test_extend_with_subject_transfers_subject_to_extender
+    assert_equal(<<CSS, render(<<SCSS))
+foo bar! baz, foo .bip .bap! baz, .bip foo .bap! baz {
+  a: b; }
+CSS
+foo bar! baz {a: b}
+.bip .bap {@extend bar}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS))
+foo.x bar.y! baz.z, foo.x .bip bar.bap! baz.z, .bip foo.x bar.bap! baz.z {
+  a: b; }
+CSS
+foo.x bar.y! baz.z {a: b}
+.bip .bap {@extend .y}
+SCSS
+  end
+
+  def test_extend_with_subject_retains_subject_on_target
+    assert_equal(<<CSS, render(<<SCSS))
+.foo! .bar, .foo! .bip .bap, .bip .foo! .bap {
+  a: b; }
+CSS
+.foo! .bar {a: b}
+.bip .bap {@extend .bar}
+SCSS
+  end
+
+  def test_extend_with_subject_transfers_subject_to_target
+    assert_equal(<<CSS, render(<<SCSS))
+a.foo .bar, .bip a.bap! .bar {
+  a: b; }
+CSS
+a.foo .bar {a: b}
+.bip .bap! {@extend .foo}
+SCSS
+  end
+
+  def test_extend_with_subject_retains_subject_on_extender
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar, .foo .bip! .bap, .bip! .foo .bap {
+  a: b; }
+CSS
+.foo .bar {a: b}
+.bip! .bap {@extend .bar}
+SCSS
+  end
+
+  def test_extend_with_subject_fails_with_conflicting_subject
+    assert_equal(<<CSS, render(<<SCSS))
+x! .bar {
+  a: b; }
+CSS
+x! .bar {a: b}
+y! .bap {@extend .bar}
+SCSS
+  end
+
+  def test_extend_with_subject_succeeds_with_unifiable_subject
+    assert_equal(<<CSS, render(<<SCSS))
+.foo! .bar, .foo.baz! .bap {
+  a: b; }
+CSS
+.foo! .bar {a: b}
+.baz! .bap {@extend .bar}
 SCSS
   end
 

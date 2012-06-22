@@ -497,6 +497,22 @@ foo {
 SCSS
   end
 
+  def test_parent_selector_with_subject
+    assert_equal <<CSS, render(<<SCSS)
+bar foo.baz! .bip {
+  a: b; }
+
+bar foo bar.baz! .bip {
+  c: d; }
+CSS
+foo {
+  bar &.baz! .bip {a: b}}
+
+foo bar {
+  bar &.baz! .bip {c: d}}
+SCSS
+  end
+
   ## Namespace Properties
 
   def test_namespace_properties
@@ -848,6 +864,29 @@ CSS
 $a : a;
 $b : b;
 div { -foo-\#{$a}-\#{$b}-foo: foo }
+SCSS
+  end
+
+  def test_selector_interpolation_in_reference_combinator
+    assert_equal <<CSS, render(<<SCSS)
+.foo /a/ .bar /b|c/ .baz {
+  a: b; }
+CSS
+$a: a;
+$b: b;
+$c: c;
+.foo /\#{$a}/ .bar /\#{$b}|\#{$c}/ .baz {a: b}
+SCSS
+  end
+
+  def test_parent_selector_with_parent_and_subject
+    assert_equal <<CSS, render(<<SCSS)
+bar foo.baz! .bip {
+  c: d; }
+CSS
+$subject: "!";
+foo {
+  bar &.baz\#{$subject} .bip {c: d}}
 SCSS
   end
 
