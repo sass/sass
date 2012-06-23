@@ -256,15 +256,22 @@ module Sass
       # @return [Array<String, Sass::Script::Node>]
       attr_reader :value
 
+      # Flags for the attribute selector (e.g. `i`).
+      #
+      # @return [Array<String, Sass::Script::Node>]
+      attr_reader :flags
+
       # @param name [Array<String, Sass::Script::Node>] The attribute name
       # @param namespace [Array<String, Sass::Script::Node>, nil] See \{#namespace}
       # @param operator [String] The matching operator, e.g. `"="` or `"^="`
       # @param value [Array<String, Sass::Script::Node>] See \{#value}
-      def initialize(name, namespace, operator, value)
+      # @param value [Array<String, Sass::Script::Node>] See \{#flags}
+      def initialize(name, namespace, operator, value, flags)
         @name = name
         @namespace = namespace
         @operator = operator
         @value = value
+        @flags = flags
       end
 
       # @see Selector#to_a
@@ -273,6 +280,7 @@ module Sass
         res.concat(@namespace) << "|" if @namespace
         res.concat @name
         (res << @operator).concat @value if @value
+        (res << " ").concat @flags if @flags
         res << "]"
       end
     end

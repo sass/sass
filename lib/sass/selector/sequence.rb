@@ -24,17 +24,16 @@ module Sass
         filename
       end
 
-      # The array of {SimpleSequence simple selector sequences}, operators, and newlines.
-      # The operators are strings such as `"+"` and `">"`
-      # representing the corresponding CSS operators.
-      # Newlines are also newline strings;
-      # these aren't semantically relevant,
-      # but they do affect formatting.
+      # The array of {SimpleSequence simple selector sequences}, operators, and
+      # newlines. The operators are strings such as `"+"` and `">"` representing
+      # the corresponding CSS operators, or interpolated SassScript. Newlines
+      # are also newline strings; these aren't semantically relevant, but they
+      # do affect formatting.
       #
-      # @return [Array<SimpleSequence, String>]
+      # @return [Array<SimpleSequence, String|Array<Sass::Tree::Node, String>>]
       attr_reader :members
 
-      # @param seqs_and_ops [Array<SimpleSequence, String>] See \{#members}
+      # @param seqs_and_ops [Array<SimpleSequence, String|Array<Sass::Tree::Node, String>>] See \{#members}
       def initialize(seqs_and_ops)
         @members = seqs_and_ops
       end
@@ -54,7 +53,7 @@ module Sass
           end
           members = []
           members << nl if nl
-          members << SimpleSequence.new([Parent.new])
+          members << SimpleSequence.new([Parent.new], false)
           members += @members
         end
 

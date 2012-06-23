@@ -25,9 +25,20 @@ module Sass
         @rest ||= Set.new(base ? members[1..-1] : members)
       end
 
+      # Whether or not this compound selector is the subject of the parent
+      # selector; that is, whether it is prepended with `$` and represents the
+      # actual element that will be selected.
+      #
+      # @return [Boolean]
+      def subject?
+        @subject
+      end
+
       # @param selectors [Array<Simple>] See \{#members}
-      def initialize(selectors)
+      # @param subject [Boolean] See \{#subject?}
+      def initialize(selectors, subject)
         @members = selectors
+        @subject = subject
       end
 
       # Resolves the {Parent} selectors within this selector
@@ -48,7 +59,7 @@ module Sass
         end
 
         super_seq.members[0...-1] +
-          [SimpleSequence.new(super_seq.members.last.members + @members[1..-1])]
+          [SimpleSequence.new(super_seq.members.last.members + @members[1..-1], subject?)]
       end
 
       # Non-destrucively extends this selector with the extensions specified in a hash
@@ -69,7 +80,7 @@ module Sass
           # ex.extender is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
-          next unless unified = ex.extender.members.last.unify(self_without_sel)
+          next unless unified = ex.extender.members.last.unify(self_without_sel, subject?)
           next unless check_directives_match!(ex, parent_directives)
           [sels, ex.extender.members[0...-1] + [unified]]
         end.compact.map do |sels, seq|
@@ -84,6 +95,7 @@ module Sass
       # that matches both this selector and the input selector.
       #
       # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
+      # @param subject [Boolean] Whether the {SimpleSequence} being merged is a subject.
       # @return [SimpleSequence, nil] A {SimpleSequence} matching both `sels` and this selector,
       #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
       # @raise [Sass::SyntaxError] If this selector cannot be unified.
@@ -92,12 +104,12 @@ module Sass
       #   Since these selectors should be resolved
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
-      def unify(sels)
+      def unify(sels, other_subject)
         return unless sseq = members.inject(sels) do |sseq, sel|
           return unless sseq
           sel.unify(sseq)
         end
-        SimpleSequence.new(sseq)
+        SimpleSequence.new(sseq, other_subject || subject?)
       end
 
       # Returns whether or not this selector matches all elements
@@ -114,7 +126,9 @@ module Sass
 
       # @see Simple#to_a
       def to_a
-        @members.map {|sel| sel.to_a}.flatten
+        res = @members.map {|sel| sel.to_a}.flatten
+        res << '!' if subject?
+        res
       end
 
       # Returns a string representation of the sequence.
