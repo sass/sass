@@ -411,6 +411,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("#88aa88", evaluate("saturate(#8a8, 0%)"))
     assert_equal("rgba(158, 63, 63, 0.5)", evaluate("saturate(rgba(136, 85, 85, 0.5), 20%)"))
     assert_equal("rgba(158, 63, 63, 0.5)", evaluate("saturate($color: rgba(136, 85, 85, 0.5), $amount: 20%)"))
+    assert_equal("saturate(50%)", evaluate("saturate(50%)"))
   end
 
   def test_saturate_tests_bounds
