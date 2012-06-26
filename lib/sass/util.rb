@@ -466,6 +466,13 @@ module Sass
       ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
     end
 
+    # Whether or not this is running under MacRuby.
+    #
+    # @return [Boolean]
+    def macruby?
+      RUBY_ENGINE == 'macruby'
+    end
+
     # Checks that the encoding of a string is valid in Ruby 1.9
     # and cleans up potential encoding gotchas like the UTF-8 BOM.
     # If it's not, yields an error string describing the invalid character
