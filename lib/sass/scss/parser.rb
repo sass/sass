@@ -587,7 +587,9 @@ module Sass
         ns, name = expr!(:qualified_name)
         res << ns << '|' if ns
         res << name << tok!(/\//)
-        res.flatten
+        res = res.flatten
+        res = res.join '' if res.all? {|e| e.is_a?(String)}
+        res
       end
 
       def simple_selector_sequence

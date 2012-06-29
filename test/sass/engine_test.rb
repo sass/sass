@@ -2129,17 +2129,6 @@ CSS
 
   # Regression tests
 
-  def test_variable_and_subject_ambiguity
-    assert_equal <<CSS, render(<<SCSS)
-$foo:baz {
-  a: bar; }
-CSS
-$foo:bar
-$foo:baz
-  a: $foo
-SCSS
-  end
-
   def test_tricky_mixin_loop_exception
     render <<SASS
 @mixin foo($a)
@@ -2497,7 +2486,7 @@ SASS
   end
 
   def test_comment_like_selector
-    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "": expected selector, was "/ foo"') {render(<<SASS)}
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "/": expected identifier, was " foo"') {render(<<SASS)}
 / foo
   a: b
 SASS

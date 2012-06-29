@@ -1144,6 +1144,15 @@ SCSS
 
   # Regression
 
+  def test_reference_combinator_with_parent_ref
+    assert_equal <<CSS, render(<<SCSS)
+a /foo/ b {
+  c: d; }
+CSS
+a {& /foo/ b {c: d}}
+SCSS
+  end
+
   def test_prop_name_interpolation_after_hyphen
     assert_equal <<CSS, render(<<SCSS)
 a {
