@@ -247,10 +247,19 @@ CSS
       c: d
   .bar .bonk
     e: f
+
+.flip!
+  &.bar
+    a: b
+  &.baz
+    c: d
 SASS
 .foo .bar! .baz {a: b;}
 .foo .bar! .bip {c: d;}
 .foo .bar .bonk {e: f;}
+
+.flip.bar! {a: b;}
+.flip.baz! {c: d;}
 CSS
   end
 

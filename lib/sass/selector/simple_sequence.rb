@@ -10,6 +10,9 @@ module Sass
       # @return [Array<Simple>]
       attr_reader :members
 
+      # @see \{#subject?}
+      attr_writer :subject
+
       # Returns the element or universal selector in this sequence,
       # if it exists.
       #
@@ -161,7 +164,8 @@ WARNING
       end
 
       def _eql?(other)
-        other.base.eql?(self.base) && Sass::Util.set_eql?(other.rest, self.rest)
+        other.base.eql?(self.base) && Sass::Util.set_eql?(other.rest, self.rest) &&
+          other.subject? == self.subject?
       end
     end
   end
