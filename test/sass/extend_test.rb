@@ -1666,16 +1666,6 @@ y! .bap {@extend .bar}
 SCSS
   end
 
-  def test_extend_with_subject_succeeds_with_unifiable_subject
-    assert_equal(<<CSS, render(<<SCSS))
-.foo! .bar, .foo.baz! .bap {
-  a: b; }
-CSS
-.foo! .bar {a: b}
-.baz! .bap {@extend .bar}
-SCSS
-  end
-
   # Regression Tests
 
   def test_duplicated_selector_with_newlines
