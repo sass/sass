@@ -65,7 +65,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       end
 
       imports = Sass::Util.extract!(node.children) do |c|
-        c.is_a?(Sass::Tree::DirectiveNode) && c.value =~ /^@import /i
+        c.is_a?(Sass::Tree::DirectiveNode) && !c.is_a?(Sass::Tree::MediaNode) &&
+          c.resolved_value =~ /^@import /i
       end
       charset_and_index = Sass::Util.ruby1_8? &&
         node.children.each_with_index.find {|c, _| c.is_a?(Sass::Tree::CharsetNode)}
@@ -105,6 +106,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       sseq = seq.members.first
       if !sseq.is_a?(Sass::Selector::SimpleSequence)
         raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: invalid selector")
+      elsif sseq.members.any? {|ss| ss.is_a?(Sass::Selector::Parent)}
+        raise Sass::SyntaxError.new("Can't extend #{seq.to_a.join}: can't extend parent selectors")
       end
 
       sel = sseq.members
@@ -133,28 +136,22 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # Bubbles the `@media` directive up through RuleNodes
   # and merges it with other `@media` directives.
   def visit_media(node)
-    if parent.is_a?(Sass::Tree::RuleNode)
-      new_rule = parent.dup
-      new_rule.children = node.children
-      node.children = with_parent(node) {Array(visit(new_rule))}
-      # If the last child is actually the end of the group,
-      # the parent's cssize will set it properly
-      node.children.last.group_end = false unless node.children.empty?
-    else
-      yield
-    end
-
+    yield unless bubble(node)
     media = node.children.select {|c| c.is_a?(Sass::Tree::MediaNode)}
     node.children.reject! {|c| c.is_a?(Sass::Tree::MediaNode)}
-    media.each do |n|
-      n.query = node.query.map {|pq| n.query.map {|cq| "#{pq} and #{cq}"}}.flatten
-    end
+    media = media.select {|n| n.resolved_query = n.resolved_query.merge(node.resolved_query)}
     (node.children.empty? ? [] : [node]) + media
   end
 
-  # Asserts that all the mixin's children are valid in their new location.
-  def visit_mixin(node)
-    # Don't use #visit_children to avoid adding the mixin node to the list of parents.
+  # Bubbles the `@supports` directive up through RuleNodes.
+  def visit_supports(node)
+    yield unless bubble(node)
+    node
+  end
+
+  # Asserts that all the traced children are valid in their new location.
+  def visit_trace(node)
+    # Don't use #visit_children to avoid adding the trace node to the list of parents.
     node.children.map {|c| visit(c)}.flatten
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => node.name, :filename => node.filename, :line => node.line)
@@ -190,8 +187,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
     yield
 
-    rules = node.children.select {|c| c.is_a?(Sass::Tree::RuleNode) || c.is_a?(Sass::Tree::MediaNode)}
-    props = node.children.reject {|c| c.is_a?(Sass::Tree::RuleNode) || c.is_a?(Sass::Tree::MediaNode) || c.invisible?}
+    rules = node.children.select {|c| c.is_a?(Sass::Tree::RuleNode) || c.bubbles?}
+    props = node.children.reject {|c| c.is_a?(Sass::Tree::RuleNode) || c.bubbles? || c.invisible?}
 
     unless props.empty?
       node.children = props
@@ -202,5 +199,18 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     rules.last.group_end = true unless parent.is_a?(Sass::Tree::RuleNode) || rules.empty?
 
     rules
+  end
+
+  private
+
+  def bubble(node)
+    return unless parent.is_a?(Sass::Tree::RuleNode)
+    new_rule = parent.dup
+    new_rule.children = node.children
+    node.children = with_parent(node) {Array(visit(new_rule))}
+    # If the last child is actually the end of the group,
+    # the parent's cssize will set it properly
+    node.children.last.group_end = false unless node.children.empty?
+    true
   end
 end

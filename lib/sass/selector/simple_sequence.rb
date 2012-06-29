@@ -8,7 +8,23 @@ module Sass
       # The array of individual selectors.
       #
       # @return [Array<Simple>]
-      attr_reader :members
+      attr_accessor :members
+
+      # The extending selectors that caused this selector sequence to be
+      # generated. For example:
+      #
+      #     a.foo { ... }
+      #     b.bar {@extend a}
+      #     c.baz {@extend b}
+      #
+      # The generated selector `b.foo.bar` has `{b.bar}` as its `sources` set,
+      # and the generated selector `c.foo.bar.baz` has `{b.bar, c.baz}` as its
+      # `sources` set.
+      #
+      # This is populated during the {#do_extend} process.
+      #
+      # @return {Set<Sequence>}
+      attr_accessor :sources
 
       # @see \{#subject?}
       attr_writer :subject
@@ -39,9 +55,11 @@ module Sass
 
       # @param selectors [Array<Simple>] See \{#members}
       # @param subject [Boolean] See \{#subject?}
-      def initialize(selectors, subject)
+      # @param sources [Set<Sequence>]
+      def initialize(selectors, subject, sources = Set.new)
         @members = selectors
         @subject = subject
+        @sources = sources
       end
 
       # Resolves the {Parent} selectors within this selector
@@ -78,18 +96,19 @@ module Sass
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, parent_directives, seen = Set.new)
-        extends.get(members.to_set).map do |ex, sels|
+        Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}.map do |seq, group|
+          sels = group.map {|_, s| s}.flatten
           # If A {@extend B} and C {...},
-          # ex.extender is A, sels is B, and self is C
+          # seq is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
-          next unless unified = ex.extender.members.last.unify(self_without_sel, subject?)
-          next unless check_directives_match!(ex, parent_directives)
-          [sels, ex.extender.members[0...-1] + [unified]]
+          next unless unified = seq.members.last.unify(self_without_sel, subject?)
+          next if group.map {|e, _| check_directives_match!(e, parent_directives)}.none?
+          new_seq = Sequence.new(seq.members[0...-1] + [unified])
+          new_seq.add_sources!(sources + [seq])
+          [sels, new_seq]
         end.compact.map do |sels, seq|
-          seq = Sequence.new(seq)
-          next [] if seen.include?(sels)
-          seq.do_extend(extends, parent_directives, seen + [sels])
+          seen.include?(sels) ? [] : seq.do_extend(extends, parent_directives, seen + [sels])
         end.flatten.uniq
       end
 
@@ -142,11 +161,23 @@ module Sass
         members.map {|m| m.inspect}.join
       end
 
+      # Return a copy of this simple sequence with `sources` merged into the
+      # {#sources} set.
+      #
+      # @param sources [Set<Sequence>]
+      # @return [SimpleSequence]
+      def with_more_sources(sources)
+        sseq = dup
+        sseq.members = members.dup
+        sseq.sources.merge sources
+        sseq
+      end
+
       private
 
       def check_directives_match!(extend, parent_directives)
-        dirs1 = extend.directives.map {|d| d.value}
-        dirs2 = parent_directives.map {|d| d.value}
+        dirs1 = extend.directives.map {|d| d.resolved_value}
+        dirs2 = parent_directives.map {|d| d.resolved_value}
         return true if Sass::Util.subsequence?(dirs1, dirs2)
 
         Sass::Util.sass_warn <<WARNING

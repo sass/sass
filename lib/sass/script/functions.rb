@@ -99,6 +99,9 @@ module Sass::Script
   # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
   # : Changes one or more properties of a color.
   #
+  # \{#ie_hex_str ie-hex-str($color)}
+  # : Converts a color into the format understood by IE filters.
+  #
   # ## String Functions
   #
   # \{#unquote unquote($string)}
@@ -123,6 +126,12 @@ module Sass::Script
   #
   # \{#abs abs($value)}
   # : Returns the absolute value of a number.
+  #
+  # \{#min min($x1, $x2, ...)\}
+  # : Finds the minimum of several values.
+  #
+  # \{#max max($x1, $x2, ...)\}
+  # : Finds the maximum of several values.
   #
   # ## List Functions {#list-functions}
   #
@@ -241,7 +250,7 @@ module Sass::Script
     #   to {Sass::Script::Literal}s as the last argument.
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
-    # 
+    #
     # @example
     #   declare :rgba, [:hex, :alpha]
     #   declare :rgba, [:red, :green, :blue, :alpha]
@@ -724,6 +733,23 @@ module Sass::Script
     end
     declare :adjust_hue, [:color, :degrees]
 
+    # Returns an IE hex string for a color with an alpha channel
+    # suitable for passing to IE filters.
+    #
+    # @example
+    #   ie-hex-str(#abc) => #FFAABBCC
+    #   ie-hex-str(#3322BB) => #FF3322BB
+    #   ie-hex-str(rgba(0, 255, 0, 0.5)) => #8000FF00
+    # @param color [Color]
+    # @return [String]
+    # @raise [ArgumentError] If `color` isn't a color
+    def ie_hex_str(color)
+      assert_type color, :Color
+      alpha = (color.alpha * 255).round.to_s(16).rjust(2, '0')
+      Sass::Script::String.new("##{alpha}#{color.send(:hex_str)[1..-1]}".upcase)
+    end
+    declare :ie_hex_str, [:color]
+
     # Adjusts one or more properties of a color.
     # This can change the red, green, blue, hue, saturation, value, and alpha properties.
     # The properties are specified as keyword arguments,
@@ -1183,6 +1209,37 @@ module Sass::Script
       numeric_transformation(value) {|n| n.abs}
     end
     declare :abs, [:value]
+
+    # Finds the minimum of several values. This function takes any number of
+    # arguments.
+    #
+    # @example
+    #   min(1px, 4px) => 1px
+    #   min(5em, 3em, 4em) => 3em
+    # @param values [[Number]] The numbers
+    # @return [Number] The minimum value
+    # @raise [ArgumentError] if any argument isn't a number, or if not all of
+    #   the arguments have comparable units
+    def min(*values)
+      values.each {|v| assert_type v, :Number}
+      values.inject {|min, val| min.lt(val).to_bool ? min : val}
+    end
+    declare :min, [], :var_args => :true
+
+    # Finds the maximum of several values. This function takes any number of
+    # arguments.
+    #
+    # @example
+    #   max(1px, 4px) => 1px
+    #   max(5em, 3em, 4em) => 3em
+    # @return [Number] The maximum value
+    # @raise [ArgumentError] if any argument isn't a number, or if not all of
+    #   the arguments have comparable units
+    def max(*values)
+      values.each {|v| assert_type v, :Number}
+      values.inject {|max, val| max.gt(val).to_bool ? max : val}
+    end
+    declare :max, [], :var_args => :true
 
     # Return the length of a list.
     #

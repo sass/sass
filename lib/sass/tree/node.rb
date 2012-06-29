@@ -14,7 +14,8 @@ module Sass
   # The nodes in this state are in the same structure as the Sass document:
   # rules and properties are nested beneath one another.
   # Nodes that can be in this state or in the dynamic state
-  # are called **static nodes**.
+  # are called **static nodes**; nodes that can only be in this state
+  # are called **solely static nodes**.
   #
   # {Tree::Visitors::Cssize} is then used to create a static CSS tree.
   # This is like a static Sass tree,
@@ -172,6 +173,13 @@ module Sass
       # @return [Node]
       def deep_copy
         Sass::Tree::Visitors::DeepCopy.visit(self)
+      end
+
+      # Whether or not this node bubbles up through RuleNodes.
+      #
+      # @return [Boolean]
+      def bubbles?
+        false
       end
 
       protected

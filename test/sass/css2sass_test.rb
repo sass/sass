@@ -327,6 +327,22 @@ SASS
 CSS
   end
 
+  def test_triple_nesting
+    assert_equal(<<SASS, css2sass(<<CSS))
+.foo .bar .baz
+  a: b
+SASS
+.foo .bar .baz {a: b}
+CSS
+
+    assert_equal(<<SASS, css2sass(<<CSS))
+.bar > .baz
+  c: d
+SASS
+.bar > .baz {c: d}
+CSS
+  end
+
   # Error reporting
 
   def test_error_reporting

@@ -233,6 +233,29 @@ module Sass
       return hash.sort_by {|k, v| k}
     end
 
+    # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
+    # order. Unlike [#hash_to_a], the resulting order isn't sorted key order;
+    # instead, it's the same order as `#group_by` has under Ruby 1.9 (key
+    # appearance order).
+    #
+    # @param enum [Enumerable]
+    # @return [Array<[Object, Array]>] An array of pairs.
+    def group_by_to_a(enum, &block)
+      return enum.group_by(&block).to_a unless ruby1_8?
+      order = {}
+      arr = []
+      enum.group_by do |e|
+        res = block[e]
+        unless order.include?(res)
+          order[res] = order.size
+        end
+        res
+      end.each do |key, vals|
+        arr[order[key]] = [key, vals]
+      end
+      arr
+    end
+
     # Asserts that `value` falls within `range` (inclusive), leaving
     # room for slight floating-point errors.
     #

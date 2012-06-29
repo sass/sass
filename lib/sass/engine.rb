@@ -8,9 +8,13 @@ require 'sass/tree/comment_node'
 require 'sass/tree/prop_node'
 require 'sass/tree/directive_node'
 require 'sass/tree/media_node'
+require 'sass/tree/supports_node'
+require 'sass/tree/css_import_node'
 require 'sass/tree/variable_node'
 require 'sass/tree/mixin_def_node'
 require 'sass/tree/mixin_node'
+require 'sass/tree/trace_node'
+require 'sass/tree/content_node'
 require 'sass/tree/function_node'
 require 'sass/tree/return_node'
 require 'sass/tree/extend_node'
@@ -38,6 +42,8 @@ require 'sass/scss'
 require 'sass/error'
 require 'sass/importers'
 require 'sass/shared'
+require 'sass/media'
+require 'sass/supports'
 
 module Sass
 
@@ -58,7 +64,10 @@ module Sass
   #
   # `tree`: `Array<Tree::Node>`
   # : The parse tree for the mixin/function.
-  Callable = Struct.new(:name, :args, :environment, :tree)
+  #
+  # `has_content`: `Boolean`
+  # : Whether the callable accepts a content block.
+  Callable = Struct.new(:name, :args, :environment, :tree, :has_content)
 
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:
@@ -168,7 +177,7 @@ module Sass
       # for quite a long time.
       options[:line_comments] ||= options[:line_numbers]
 
-      options[:load_paths] = options[:load_paths].map do |p|
+      options[:load_paths] = (options[:load_paths] + Sass.load_paths).map do |p|
         next p unless p.is_a?(String) || (defined?(Pathname) && p.is_a?(Pathname))
         options[:filesystem_importer].new(p.to_s)
       end
@@ -491,7 +500,7 @@ MSG
           continued_rule = nil
         end
 
-        if child.is_a?(Tree::CommentNode) && child.silent
+        if child.is_a?(Tree::CommentNode) && child.type == :silent
           if continued_comment &&
               child.line == continued_comment.line +
               continued_comment.lines + 1
@@ -567,7 +576,7 @@ WARNING
     def parse_property_or_rule(line)
       scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
-      parser = Sass::SCSS::SassParser.new(scanner, @options[:filename], @line)
+      parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
 
       unless res = parser.parse_interp_ident
         return Tree::RuleNode.new(parse_interp(line.text))
@@ -592,7 +601,14 @@ WARNING
       else
         expr = parse_script(value, :offset => line.offset + line.text.index(value))
       end
-      Tree::PropNode.new(parse_interp(name), expr, prop)
+      node = Tree::PropNode.new(parse_interp(name), expr, prop)
+      if value.strip.empty? && line.children.empty?
+        raise SyntaxError.new(
+          "Invalid property: \"#{node.declaration}\" (no value)." +
+          node.pseudo_class_selector_message)
+      end
+
+      node
     end
 
     def parse_variable(line)
@@ -610,17 +626,19 @@ WARNING
     def parse_comment(line)
       if line.text[1] == CSS_COMMENT_CHAR || line.text[1] == SASS_COMMENT_CHAR
         silent = line.text[1] == SASS_COMMENT_CHAR
-        if loud = line.text[2] == SASS_LOUD_COMMENT_CHAR
-          value = self.class.parse_interp(line.text, line.index, line.offset, :filename => @filename)
-          value[0].slice!(2) # get rid of the "!"
-        else
+        loud = !silent && line.text[2] == SASS_LOUD_COMMENT_CHAR
+        if silent
           value = [line.text]
+        else
+          value = self.class.parse_interp(line.text, line.index, line.offset, :filename => @filename)
+          value[0].slice!(2) if loud # get rid of the "!"
         end
         value = with_extracted_values(value) do |str|
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
           format_comment_text(str, silent)
         end
-        Tree::CommentNode.new(value, silent, loud)
+        type = if silent then :silent elsif loud then :loud else :normal end
+        Tree::CommentNode.new(value, type)
       else
         Tree::RuleNode.new(parse_interp(line.text))
       end
@@ -632,60 +650,65 @@ WARNING
 
       # If value begins with url( or ",
       # it's a CSS @import rule and we don't want to touch it.
-      if directive == "import"
-        parse_import(line, value)
-      elsif directive == "mixin"
+      case directive
+      when 'import'
+        parse_import(line, value, offset)
+      when 'mixin'
         parse_mixin_definition(line)
-      elsif directive == "include"
+      when 'content'
+        parse_content_directive(line)
+      when 'include'
         parse_mixin_include(line, root)
-      elsif directive == "function"
+      when 'function'
         parse_function(line, root)
-      elsif directive == "for"
+      when 'for'
         parse_for(line, root, value)
-      elsif directive == "each"
+      when 'each'
         parse_each(line, root, value)
-      elsif directive == "else"
+      when 'else'
         parse_else(parent, line, value)
-      elsif directive == "while"
+      when 'while'
         raise SyntaxError.new("Invalid while directive '@while': expected expression.") unless value
         Tree::WhileNode.new(parse_script(value, :offset => offset))
-      elsif directive == "if"
+      when 'if'
         raise SyntaxError.new("Invalid if directive '@if': expected expression.") unless value
         Tree::IfNode.new(parse_script(value, :offset => offset))
-      elsif directive == "debug"
+      when 'debug'
         raise SyntaxError.new("Invalid debug directive '@debug': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::DebugNode.new(parse_script(value, :offset => offset))
-      elsif directive == "extend"
+      when 'extend'
         raise SyntaxError.new("Invalid extend directive '@extend': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath extend directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::ExtendNode.new(parse_interp(value, offset))
-      elsif directive == "warn"
+      when 'warn'
         raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::WarnNode.new(parse_script(value, :offset => offset))
-      elsif directive == "return"
+      when 'return'
         raise SyntaxError.new("Invalid @return: expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath return directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::ReturnNode.new(parse_script(value, :offset => offset))
-      elsif directive == "charset"
+      when 'charset'
         name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
         raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath charset directives.",
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
-      elsif directive == "media"
-        Tree::MediaNode.new(value.split(',').map {|s| s.strip})
+      when 'media'
+        parser = Sass::SCSS::Parser.new(value, @options[:filename], @line)
+        Tree::MediaNode.new(parser.parse_media_query_list.to_a)
       else
-        Tree::DirectiveNode.new(line.text)
+        Tree::DirectiveNode.new(
+          value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
       end
     end
 
@@ -745,7 +768,7 @@ WARNING
       nil
     end
 
-    def parse_import(line, value)
+    def parse_import(line, value, offset)
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
         :line => @line + 1) unless line.children.empty?
 
@@ -753,7 +776,7 @@ WARNING
       values = []
 
       loop do
-        unless node = parse_import_arg(scanner)
+        unless node = parse_import_arg(scanner, offset + scanner.pos)
           raise SyntaxError.new("Invalid @import: expected file to import, was #{scanner.rest.inspect}",
             :line => @line)
         end
@@ -769,23 +792,29 @@ WARNING
       return values
     end
 
-    def parse_import_arg(scanner)
+    def parse_import_arg(scanner, offset)
       return if scanner.eos?
-      unless (str = scanner.scan(Sass::SCSS::RX::STRING)) ||
-          (uri = scanner.scan(Sass::SCSS::RX::URI))
+
+      if scanner.match?(/url\(/i)
+        script_parser = Sass::Script::Parser.new(scanner, @line, offset, @options)
+        str = script_parser.parse_string
+        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
+        media = media_parser.parse_media_query_list
+        return Tree::CssImportNode.new(str, media.to_a)
+      end
+
+      unless str = scanner.scan(Sass::SCSS::RX::STRING)
         return Tree::ImportNode.new(scanner.scan(/[^,;]+/))
       end
 
       val = scanner[1] || scanner[2]
       scanner.scan(/\s*/)
-      if media = scanner.scan(/[a-zA-Z].*/)
-        Tree::DirectiveNode.new("@import #{str || uri} #{media}")
-      elsif !scanner.match?(/[,;]|$/)
-        raise SyntaxError.new("Invalid @import: \"#{str || uri} #{scanner.rest}\"")
-      elsif uri
-        Tree::DirectiveNode.new("@import #{uri}")
+      if !scanner.match?(/[,;]|$/)
+        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
+        media = media_parser.parse_media_query_list
+        Tree::CssImportNode.new(str || uri, media.to_a)
       elsif val =~ /^http:\/\//
-        Tree::DirectiveNode.new("@import #{str}")
+        Tree::CssImportNode.new("url(#{val})")
       else
         Tree::ImportNode.new(val)
       end
@@ -802,6 +831,15 @@ WARNING
       Tree::MixinDefNode.new(name, args)
     end
 
+    CONTENT_RE = /^@content\s*(.+)?$/
+    def parse_content_directive(line)
+      trailing = line.text.scan(CONTENT_RE).first.first
+      raise SyntaxError.new("Invalid content directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath @content directives.",
+        :line => line.index + 1) unless line.children.empty?
+      Tree::ContentNode.new
+    end
+
     MIXIN_INCLUDE_RE = /^(?:\+|@include)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_include(line, root)
       name, arg_string = line.text.scan(MIXIN_INCLUDE_RE).first
@@ -810,8 +848,6 @@ WARNING
       offset = line.offset + line.text.size - arg_string.size
       args, keywords = Script::Parser.new(arg_string.strip, @line, offset, @options).
         parse_mixin_include_arglist
-      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath mixin directives.",
-        :line => @line + 1) unless line.children.empty?
       Tree::MixinNode.new(name, args, keywords)
     end
 

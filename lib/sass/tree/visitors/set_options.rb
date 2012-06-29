@@ -94,4 +94,24 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     node.expr.options = @options
     yield
   end
+
+  def visit_directive(node)
+    node.value.each {|c| c.options = @options if c.is_a?(Sass::Script::Node)}
+    yield
+  end
+
+  def visit_media(node)
+    node.query.each {|c| c.options = @options if c.is_a?(Sass::Script::Node)}
+    yield
+  end
+
+  def visit_cssimport(node)
+    node.query.each {|c| c.options = @options if c.is_a?(Sass::Script::Node)} if node.query
+    yield
+  end
+
+  def visit_supports(node)
+    node.condition.options = @options
+    yield
+  end
 end

@@ -59,12 +59,35 @@ module Sass
       end
       alias_method :==, :eql?
 
+      # Whether or not this selector sequence contains a placeholder selector.
+      # Checks recursively.
+      def has_placeholder?
+        @has_placeholder ||=
+          members.any? {|m| m.is_a?(AbstractSequence) ? m.has_placeholder? : m.is_a?(Placeholder)}
+      end
+
       # Converts the selector into a string. This is the standard selector
       # string, along with any SassScript interpolation that may exist.
       #
       # @return [String]
       def to_s
         to_a.map {|e| e.is_a?(Sass::Script::Node) ? "\#{#{e.to_sass}}" : e}.join
+      end
+
+      # Returns the specificity of the selector as an integer. The base is given
+      # by {Sass::Selector::SPECIFICITY_BASE}.
+      #
+      # @return [Fixnum]
+      def specificity
+        _specificity(members)
+      end
+
+      protected
+
+      def _specificity(arr)
+        spec = 0
+        arr.map {|m| spec += m.is_a?(String) ? 0 : m.specificity}
+        spec
       end
     end
   end

@@ -488,7 +488,7 @@ SCSS
 
   def test_media_directive_with_keywords
     assert_parses <<SCSS
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
   a: b; }
 SCSS
     assert_parses <<SCSS
@@ -618,8 +618,17 @@ SCSS
 @supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
   .foo {
     a: b; } }
+@supports (a: b) {
+  .foo {
+    a: b; } }
 CSS
 @supports (a: b) and (c: d) or (not (d: e)) and ((not (f: g)) or (not ((h: i) and (j: k)))) {
+  .foo {
+    a: b;
+  }
+}
+
+@supports (a: b) {
   .foo {
     a: b;
   }

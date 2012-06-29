@@ -266,7 +266,7 @@ SCSS
     assert_equal "@import url(foo.css);\n", render('@import "foo.css";')
     assert_equal "@import url(foo.css);\n", render("@import 'foo.css';")
     assert_equal "@import url(\"foo.css\");\n", render('@import url("foo.css");')
-    assert_equal "@import url('foo.css');\n", render("@import url('foo.css');")
+    assert_equal "@import url(\"foo.css\");\n", render('@import url("foo.css");')
     assert_equal "@import url(foo.css);\n", render('@import url(foo.css);')
   end
 
@@ -274,9 +274,29 @@ SCSS
     assert_equal("@import \"./fonts.sass\" all;\n", render("@import \"./fonts.sass\" all;"))
   end
 
+  def test_dynamic_media_import
+    assert_equal(<<CSS, render(<<SCSS))
+@import "foo" print and (-webkit-min-device-pixel-ratio-foo: 25);
+CSS
+$media: print;
+$key: -webkit-min-device-pixel-ratio;
+$value: 20;
+@import "foo" \#{$media} and ($key + "-foo": $value + 5);
+SCSS
+  end
+
   def test_http_import
     assert_equal("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";"))
+  end
+
+  def test_import_with_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@import url("http://fonts.googleapis.com/css?family=Droid+Sans");
+CSS
+$family: unquote("Droid+Sans");
+@import url("http://fonts.googleapis.com/css?family=\#{$family}");
+SCSS
   end
 
   def test_url_import
@@ -914,6 +934,145 @@ foo {\#{"baz" + "bang"}: blip}
 SCSS
   end
 
+  def test_directive_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@foo bar12 qux {
+  a: b; }
+CSS
+$baz: 12;
+@foo bar\#{$baz} qux {a: b}
+SCSS
+  end
+
+  def test_media_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@media bar12 {
+  a: b; }
+CSS
+$baz: 12;
+@media bar\#{$baz} {a: b}
+SCSS
+  end
+
+  def test_script_in_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen and (-webkit-min-device-pixel-ratio: 20), only print {
+  a: b; }
+CSS
+$media1: screen;
+$media2: print;
+$var: -webkit-min-device-pixel-ratio;
+$val: 20;
+@media \#{$media1} and ($var: $val), only \#{$media2} {a: b}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+@media screen and (-webkit-min-device-pixel-ratio: 13) {
+  a: b; }
+CSS
+$vals: 1 2 3;
+@media screen and (-webkit-min-device-pixel-ratio: 5 + 6 + nth($vals, 2)) {a: b}
+SCSS
+  end
+
+  def test_media_interpolation_with_reparse
+    assert_equal <<CSS, render(<<SCSS)
+@media screen and (max-width: 300px) {
+  a: b; }
+@media screen and (max-width: 300px) {
+  a: b; }
+@media screen and (max-width: 300px) {
+  a: b; }
+@media screen and (max-width: 300px), print and (max-width: 300px) {
+  a: b; }
+CSS
+$constraint: "(max-width: 300px)";
+$fragment: "nd \#{$constraint}";
+$comma: "een, pri";
+@media screen and \#{$constraint} {a: b}
+@media screen {
+  @media \#{$constraint} {a: b}
+}
+@media screen a\#{$fragment} {a: b}
+@media scr\#{$comma}nt {
+  @media \#{$constraint} {a: b}
+}
+SCSS
+  end
+
+  def test_moz_document_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@-moz-document url(http://sass-lang.com/),
+               url-prefix(http://sass-lang.com/docs),
+               domain(sass-lang.com),
+               domain("sass-lang.com") {
+  .foo {
+    a: b; } }
+CSS
+$domain: "sass-lang.com";
+@-moz-document url(http://\#{$domain}/),
+               url-prefix(http://\#{$domain}/docs),
+               domain(\#{$domain}),
+               \#{domain($domain)} {
+  .foo {a: b}
+}
+SCSS
+  end
+
+  def test_supports_with_expressions
+    assert_equal <<CSS, render(<<SCSS)
+@supports (feature1: val) and (feature2: val) or (not (feature23: val4)) {
+  foo {
+    a: b; } }
+CSS
+$query: "(feature1: val)";
+$feature: feature2;
+$val: val;
+@supports \#{$query} and ($feature: $val) or (not ($feature + 3: $val + 4)) {
+  foo {a: b}
+}
+SCSS
+  end
+
+  def test_supports_bubbling
+    assert_equal <<CSS, render(<<SCSS)
+@supports (foo: bar) {
+  a {
+    b: c; }
+    @supports (baz: bang) {
+      a {
+        d: e; } } }
+CSS
+a {
+  @supports (foo: bar) {
+    b: c;
+    @supports (baz: bang) {
+      d: e;
+    }
+  }
+}
+SCSS
+  end
+
+  def test_random_directive_interpolation
+    assert_equal <<CSS, render(<<SCSS)
+@foo url(http://sass-lang.com/),
+     domain("sass-lang.com"),
+     "foobarbaz",
+     foobarbaz {
+  .foo {
+    a: b; } }
+CSS
+$domain: "sass-lang.com";
+@foo url(http://\#{$domain}/),
+     \#{domain($domain)},
+     "foo\#{'ba' + 'r'}baz",
+     foo\#{'ba' + 'r'}baz {
+  .foo {a: b}
+}
+SCSS
+  end
+
   ## Errors
 
   def test_mixin_defs_only_at_toplevel
@@ -941,8 +1100,7 @@ SCSS
   end
 
   def test_uses_property_exception_with_star_hack
-    # Silence the "beginning of selector" warning
-    Sass::Util.silence_warnings {render <<SCSS}
+    render <<SCSS
 foo {
   *bar:baz [fail]; }
 SCSS
@@ -1080,9 +1238,9 @@ SCSS
 
   def test_parent_in_mid_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after ".foo": expected "{", was "&.bar"
+Invalid CSS after "  .foo": expected "{", was "&.bar {a: b}"
 
-"&" may only be used at the beginning of a selector.
+"&.bar" may only be used at the beginning of a selector.
 MESSAGE
 flim {
   .foo&.bar {a: b}
@@ -1090,7 +1248,7 @@ flim {
 SCSS
   end
 
-  def test_parent_in_mid_selector_error
+  def test_parent_after_selector_error
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
 
@@ -1110,26 +1268,6 @@ Invalid CSS after "  &": expected "{", was "& {a: b}"
 MESSAGE
 flim {
   && {a: b}
-}
-SCSS
-  end
-
-  def test_no_interpolation_in_media_queries
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "...nd (min-width: ": expected expression (e.g. 1px, bold), was "\#{100}px) {"
-MESSAGE
-@media screen and (min-width: \#{100}px) {
-  foo {bar: baz}
-}
-SCSS
-  end
-
-  def test_no_interpolation_in_unrecognized_directives
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
-Invalid CSS after "@foo ": expected selector or at-rule, was "\#{100} {"
-MESSAGE
-@foo \#{100} {
-  foo {bar: baz}
 }
 SCSS
   end
@@ -1318,6 +1456,42 @@ foo {
   a: $var1;
   b: $var2;
   c: $var3; }
+SCSS
+  end
+
+  def test_mixin_content
+    assert_equal <<CSS, render(<<SASS)
+.parent {
+  background-color: red;
+  border-color: red; }
+  .parent .child {
+    background-color: yellow;
+    color: blue;
+    border-color: yellow; }
+CSS
+$color: blue;
+@mixin context($class, $color: red) {
+  .\#{$class} {
+    background-color: $color;
+    @content;
+    border-color: $color;
+  }
+}
+@include context(parent) {
+  @include context(child, $color: yellow) {
+    color: $color;
+  }
+}
+SASS
+  end
+
+  def test_empty_content
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  b: c; }
+CSS
+@mixin foo { @content }
+a { b: c; @include foo {} }
 SCSS
   end
 

@@ -113,6 +113,11 @@ module Sass::Tree
        :line => self.line}
     end
 
+    # A rule node is invisible if it has only placeholder selectors.
+    def invisible?
+      resolved_rules.members.all? {|seq| seq.has_placeholder?}
+    end
+
     private
 
     def try_to_parse_non_interpolated_rules

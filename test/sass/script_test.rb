@@ -42,12 +42,6 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "\\02fa", resolve("'\\02fa'")
   end
 
-  def test_string_interpolation
-    assert_equal "foo2bar", resolve('\'foo#{1 + 1}bar\'')
-    assert_equal "foo2bar", resolve('"foo#{1 + 1}bar"')
-    assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
-  end
-
   def test_color_names
     assert_equal "white", resolve("white")
     assert_equal "white", resolve("#ffffff")
@@ -177,6 +171,9 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "foo bar baz bang", resolve('"foo #{"#{"ba" + "r"} baz"} bang"')
     assert_equal 'foo #{bar baz} bang', resolve('"foo \#{#{"ba" + "r"} baz} bang"')
     assert_equal 'foo #{baz bang', resolve('"foo #{"\#{" + "baz"} bang"')
+    assert_equal "foo2bar", resolve('\'foo#{1 + 1}bar\'')
+    assert_equal "foo2bar", resolve('"foo#{1 + 1}bar"')
+    assert_equal "foo1bar5baz4bang", resolve('\'foo#{1 + "bar#{2 + 3}baz" + 4}bang\'')
   end
 
   def test_rule_interpolation
@@ -263,6 +260,10 @@ SASS
     assert_equal "false", resolve("false")
   end
 
+  def test_null
+    assert_equal "", resolve("null")
+  end
+
   def test_boolean_ops
     assert_equal "true", resolve("true and true")
     assert_equal "true", resolve("false or true")
@@ -281,6 +282,18 @@ SASS
     assert_equal "false", resolve("false and 1")
     assert_equal "2", resolve("2 or 3")
     assert_equal "3", resolve("2 and 3")
+
+    assert_equal "true", resolve("null or true")
+    assert_equal "true", resolve("true or null")
+    assert_equal "", resolve("null or null")
+    assert_equal "", resolve("null and true")
+    assert_equal "", resolve("true and null")
+    assert_equal "", resolve("null and null")
+
+    assert_equal "true", resolve("not null")
+
+    assert_equal "1", resolve("null or 1")
+    assert_equal "", resolve("null and 1")
   end
 
   def test_arithmetic_ops
@@ -326,6 +339,37 @@ SASS
     assert_equal "false", resolve("3 <= 2")
   end
 
+  def test_null_ops
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null plus 1".') {eval("null + 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null minus 1".') {eval("null - 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null times 1".') {eval("null * 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null div 1".') {eval("null / 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null mod 1".') {eval("null % 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 plus null".') {eval("1 + null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 minus null".') {eval("1 - null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 times null".') {eval("1 * null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 div null".') {eval("1 / null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 mod null".') {eval("1 % null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "1 gt null".') {eval("1 > null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null lt 1".') {eval("null < 1")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: "null plus null".') {eval("null + null")}
+    assert_raise_message(Sass::SyntaxError,
+      'Invalid null operation: ""foo" plus null".') {eval("foo + null")}
+  end
+
   def test_equals
     assert_equal("true", resolve('"foo" == $foo', {},
         env("foo" => Sass::Script::String.new("foo"))))
@@ -341,6 +385,16 @@ SASS
     assert_equal "false", resolve('(1 (2 3)) == (1 2 3)')
     assert_equal "false", resolve('((1, 2) (3, 4)) == (1, 2 3, 4)')
     assert_equal "false", resolve('(1 2 3) == (1, 2, 3)')
+
+    assert_equal "true", resolve('null == null')
+    assert_equal "false", resolve('"null" == null')
+    assert_equal "false", resolve('0 == null')
+    assert_equal "false", resolve('() == null')
+
+    assert_equal "false", resolve('null != null')
+    assert_equal "true", resolve('"null" != null')
+    assert_equal "true", resolve('0 != null')
+    assert_equal "true", resolve('() != null')
   end
 
   def test_operation_precedence
@@ -422,6 +476,15 @@ SASS
     assert_equal "1 2 3", resolve("() 1 2 3")
     assert_raise_message(Sass::SyntaxError, "() isn't a valid CSS value.") {resolve("()")}
     assert_raise_message(Sass::SyntaxError, "() isn't a valid CSS value.") {resolve("nth(append((), ()), 1)")}
+  end
+
+  def test_list_with_nulls
+    assert_equal "1, 2, 3", resolve("1, 2, null, 3")
+    assert_equal "1 2 3", resolve("1 2 null 3")
+    assert_equal "1, 2, 3", resolve("1, 2, 3, null")
+    assert_equal "1 2 3", resolve("1 2 3 null")
+    assert_equal "1, 2, 3", resolve("null, 1, 2, 3")
+    assert_equal "1 2 3", resolve("null 1 2 3")
   end
 
   def test_deep_argument_error_not_unwrapped

@@ -3,6 +3,144 @@
 * Table of contents
 {:toc}
 
+## 3.2.0 (Unreleased)
+
+### `@content`
+
+A mixin include can now accept a block of content ({file:SASS_REFERENCE.md#mixin-content Reference Documentation}).
+The style block will be passed to the mixin and can be placed at the point @content is used. E.g.:
+
+    @mixin iphone {
+      @media only screen and (max-width: 480px) {
+        @content;
+      }
+    }
+
+    @include iphone {
+      body { color: red }
+    }
+
+Or in `.sass` syntax:
+
+    =iphone
+      @media only screen and (max-width: 480px)
+        @content
+
+    +iphone
+      body
+        color: red
+
+Produces:
+
+    @media only screen and (max-width: 480px) {
+      body { color: red }
+    }
+
+Note that the contents passed to the mixin are evaluated in the scope they are used,
+not the scope of the mixin. {file:SASS_REFERENCE.md#variable_scope_and_content_blocks More on variable scoping.}
+
+### Placeholder Selectors: `%foo`
+
+Sass supports a new, special type of selector called a "placeholder selector".
+These look like class and id selectors, except the `#` or `.` is replaced by `%`.
+They're meant to be used with the {file:SASS_REFERENCE.md#extend `@extend` directive},
+when you want to write styles to be extended
+but you don't want the base styles to appear in the CSS.
+
+On its own, a placeholder selector just causes a ruleset not to be rendered.
+For example:
+
+    // This ruleset won't be rendered on its own.
+    #context a%extreme {
+      color: blue;
+      font-weight: bold;
+      font-size: 2em;
+    }
+
+However, placeholder selectors can be extended, just like classes and ids.
+The extended selectors will be generated, but the base placeholder selector will not.
+For example:
+
+    .notice { @extend %extreme; }
+
+Is compiled to:
+
+    #context a.notice {
+      color: blue;
+      font-weight: bold;
+      font-size: 2em;
+    }
+
+### Directive Interpolation
+
+`#{}` interpolation is now allowed in all plain CSS directives
+(such as `@font-face`, `@keyframes`, and of course `@media`).
+
+In addition, `@media` gets some special treatment.
+In addition to allowing `#{}` interpolation,
+expressions may be used directly in media feature queries.
+This means that you can write e.g.:
+
+    $media: screen;
+    $feature: -webkit-min-device-pixel-ratio;
+    $value: 1.5;
+
+    @media #{$media} and ($feature: $value) {
+      ...
+    }
+
+This is intended to allow authors to easily write mixins
+that make use of `@media` and other directives dynamically.
+
+### Smaller Improvements
+
+* Previously, only the `:-moz-any` selector was supported; this has been
+  expanded to support any vendor prefix, as well as the plain `:any` selector.
+
+* Sass now supports a global list of load paths, accessible via
+  {Sass.load_paths}. This allows plugins and libraries to easily register their
+  Sass files such that they're accessible to all {Sass::Engine} instances.
+
+* `Sass.load_paths` is initialized to the value of the `SASS_PATH`environment
+  variable. This variable should contain a colon-separated list of load paths
+  (semicolon-separated on Windows).
+
+* In certain cases, redundant selectors used to be created as a result of a
+  single rule having multiple `@extend`s. That redundancy has been eliminated.
+
+* Redundant selectors were also sometimes created by nested selectors
+  using `@extend`. That redundancy has been eliminated as well.
+
+* There is now much more comprehensive support for using `@extend` alongside
+  CSS3 selector combinators (`+`, `~`, and `>`). These combinators will now be
+  merged as much as possible.
+
+* The full set of [extended color keywords](http://www.w3.org/TR/css3-color/#svg-color)
+  are now supported by Sass. They may be used to refer to color objects, and
+  colors will render using those color names when appropriate.
+
+* Sass 3.2 adds the \{Sass::Script::Functions#ie_hex_str `ie-hex-str`} function
+  which returns a hex string for a color suitable for use with IE filters.
+
+* Sass 3.2 adds the \{Sass::Script::Functions#min `min`} and
+  \{Sass::Script::Functions#max `max`} functions, which return the minimum and
+  maximum of several values.
+
+* Sass functions are now more strict about how keyword arguments can be passed.
+
+### Backwards Incompatibilities -- Must Read!
+
+* Parent selectors followed immediately by identifiers (e.g. `&foo`)
+  are fully disallowed.
+  They were deprecated in 3.1.8.
+
+* `#{}` interpolation is now allowed in all comments.
+
+* The `!` flag may not be used with `//` comments (e.g. `//!`).
+
+* `#{}` interpolation is now disallowed in all `@import` statements
+  except for those using `url()`.
+
 ## 3.1.20 (Unreleased)
 
 * Don't crash if a UTF encoding isn't found. Thanks to [Andrew
@@ -85,12 +223,6 @@
   selectors resulting from `@extend`.
 * Fix a bug when using imports containing invalid path characters on Windows.
 * Bubble CSS `@import` statements to the top of stylesheets.
-
-### Deprecations -- Must Read!
-
-* Using `#{}` interpolation in `@import` directives will, as of Sass 3.2,
-  require that the `@import` directive use `url()` rather than a plain string.
-  The old way is deprecated and will print a warning.
 
 ## 3.1.12
 
@@ -261,11 +393,11 @@ For example:
 
     $grid-width: 40px;
     $gutter-width: 10px;
-    
+
     @function grid-width($n) {
       @return $n * $grid-width + ($n - 1) * $gutter-width;
     }
-    
+
     #sidebar { width: grid-width(5); }
 
 Becomes:
@@ -2065,7 +2197,7 @@ the previous arguments in the declaration. For example:
     !default_width = 10px
     .small-default-box
       +my-fancy-mixin
-    
+
 
 compiles to:
 
@@ -2084,7 +2216,7 @@ compiles to:
     .small-default-box {
       width: 10px;
       height: 10px; }
-    
+
 
 ### Sass, Interactive
 
@@ -2414,7 +2546,7 @@ During compilation the following will be printed:
 
 #### Ruby 1.9 Support
 
-Sass now fully supports Ruby 1.9.1. 
+Sass now fully supports Ruby 1.9.1.
 
 #### Sass Cache
 

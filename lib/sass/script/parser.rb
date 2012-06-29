@@ -130,6 +130,27 @@ module Sass
         raise e
       end
 
+      # Parse a single string value, possibly containing interpolation.
+      # Doesn't assert that the scanner is finished after parsing.
+      #
+      # @return [Script::Node] The root node of the parse tree.
+      # @raise [Sass::SyntaxError] if the string isn't valid SassScript
+      def parse_string
+        unless (peek = @lexer.peek) &&
+            (peek.type == :string ||
+            (peek.type == :funcall && peek.value.downcase == 'url'))
+          lexer.expected!("string")
+        end
+
+        expr = assert_expr :funcall
+        expr.options = @options
+        @lexer.unpeek!
+        expr
+      rescue Sass::SyntaxError => e
+        e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
+        raise e
+      end
+
       # Parses a SassScript expression.
       #
       # @overload parse(str, line, offset, filename = nil)
@@ -295,7 +316,7 @@ RUBY
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next
-        if color = Color::HTML4_COLORS[name.value.downcase]
+        if color = Color::COLOR_NAMES[name.value.downcase]
           return node(Color.new(color))
         end
         node(Script::String.new(name.value, :identifier))
@@ -360,7 +381,9 @@ RUBY
 
         other_args, other_keywords = assert_expr(type)
         if keywords
-          if other_keywords[name.underscored_name]
+          if !other_args.empty?
+            raise SyntaxError.new("Positional arguments must come before keyword arguments")
+          elsif other_keywords[name.underscored_name]
             raise SyntaxError.new("Keyword argument \"#{name.to_sass}\" passed more than once")
           end
           return other_args, keywords.merge(other_keywords)
@@ -432,7 +455,7 @@ RUBY
       end
 
       def literal
-        (t = try_tok(:color, :bool)) && (return t.value)
+        (t = try_tok(:color, :bool, :null)) && (return t.value)
       end
 
       # It would be possible to have unified #assert and #try methods,

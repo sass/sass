@@ -92,15 +92,19 @@ module Sass::Tree
       "#{initial}#{name}#{mid} #{self.class.val_to_sass(value, opts)}".rstrip
     end
 
+    # A property node is invisible if its value is empty.
+    #
+    # @return [Boolean]
+    def invisible?
+      resolved_value.empty?
+    end
+
     private
 
     def check!
       if @options[:property_syntax] && @options[:property_syntax] != @prop_syntax
         raise Sass::SyntaxError.new(
           "Illegal property syntax: can't use #{@prop_syntax} syntax when :property_syntax => #{@options[:property_syntax].inspect} is set.")
-      elsif resolved_value.empty?
-        raise Sass::SyntaxError.new("Invalid property: #{declaration.dump} (no value)." +
-          pseudo_class_selector_message)
       end
     end
 

@@ -67,7 +67,7 @@ module Sass
       # Non-destructively extends this selector with the extensions specified in a hash
       # (which should come from {Sass::Tree::Visitors::Cssize}).
       #
-      # @overload def do_extend(extends)
+      # @overload def do_extend(extends, parent_directives)
       # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
       #                                       Sass::Tree::Visitors::Cssize::Extend}]
       #   The extensions to perform on this selector
@@ -78,14 +78,15 @@ module Sass
       #   These correspond to a {CommaSequence}'s {CommaSequence#members members array}.
       # @see CommaSequence#do_extend
       def do_extend(extends, parent_directives, seen = Set.new)
-        paths = Sass::Util.paths(members.map do |sseq_or_op|
-            next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
-            extended = sseq_or_op.do_extend(extends, parent_directives, seen)
-            choices = extended.map {|seq| seq.members}
-            choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
-            choices
-          end)
-        Sass::Util.flatten(paths.map {|path| weave(path)}, 1).map {|p| Sequence.new(p)}
+        extended_not_expanded = members.map do |sseq_or_op|
+          next [[sseq_or_op]] unless sseq_or_op.is_a?(SimpleSequence)
+          extended = sseq_or_op.do_extend(extends, parent_directives, seen)
+          choices = extended.map {|seq| seq.members}
+          choices.unshift([sseq_or_op]) unless extended.any? {|seq| seq.superselector?(sseq_or_op)}
+          choices
+        end
+        weaves = Sass::Util.paths(extended_not_expanded).map {|path| weave(path)}
+        Sass::Util.flatten(trim(weaves), 1).map {|p| Sequence.new(p)}
       end
 
       # Returns whether or not this selector matches all elements
@@ -116,6 +117,15 @@ module Sass
         members.map {|m| m.inspect}.join(" ")
       end
 
+      # Add to the {SimpleSequence#sources} sets of the child simple sequences.
+      # This destructively modifies this sequence's members array, but not the
+      # child simple sequences.
+      #
+      # @param sources [Set<Sequence>]
+      def add_sources!(sources)
+        members.map! {|m| m.is_a?(SimpleSequence) ? m.with_more_sources(sources) : m}
+      end
+
       private
 
       # Conceptually, this expands "parenthesized selectors".
@@ -126,15 +136,15 @@ module Sass
       # @param path [Array<Array<SimpleSequence or String>>] A list of parenthesized selector groups.
       # @return [Array<Array<SimpleSequence or String>>] A list of fully-expanded selectors.
       def weave(path)
+        # This function works by moving through the selector path left-to-right,
+        # building all possible prefixes simultaneously. These prefixes are
+        # `befores`, while the remaining parenthesized suffixes is `afters`.
         befores = [[]]
         afters = path.dup
 
         until afters.empty?
           current = afters.shift.dup
           last_current = [current.pop]
-          while !current.empty? && last_current.first.is_a?(String) || current.last.is_a?(String)
-            last_current.unshift(current.pop)
-          end
           befores = Sass::Util.flatten(befores.map do |before|
               next [] unless sub = subweave(before, current)
               sub.map {|seqs| seqs + last_current}
@@ -152,6 +162,12 @@ module Sass
       # `.foo .baz .bar .bang`, `.foo .baz .bar.bang`, `.foo .baz .bang .bar`,
       # and so on until `.baz .bang .foo .bar`.
       #
+      # Semantically, for selectors A and B, this returns all selectors `AB_i`
+      # such that the union over all i of elements matched by `AB_i X` is
+      # identical to the intersection of all elements matched by `A X` and all
+      # elements matched by `B X`. Some `AB_i` are elided to reduce the size of
+      # the output.
+      #
       # @param seq1 [Array<SimpleSequence or String>]
       # @param seq2 [Array<SimpleSequence or String>]
       # @return [Array<Array<SimpleSequence or String>>]
@@ -159,31 +175,34 @@ module Sass
         return [seq2] if seq1.empty?
         return [seq1] if seq2.empty?
 
+        seq1, seq2 = seq1.dup, seq2.dup
         return unless init = merge_initial_ops(seq1, seq2)
+        return unless fin = merge_final_ops(seq1, seq2)
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
         lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
           next s1 if s1 == s2
           next unless s1.first.is_a?(SimpleSequence) && s2.first.is_a?(SimpleSequence)
-          next s2 if subweave_superselector?(s1, s2)
-          next s1 if subweave_superselector?(s2, s1)
+          next s2 if parent_superselector?(s1, s2)
+          next s1 if parent_superselector?(s2, s1)
         end
 
         diff = [[init]]
         until lcs.empty?
-          diff << chunks(seq1, seq2) {|s| subweave_superselector?(s.first, lcs.first)} << [lcs.shift]
+          diff << chunks(seq1, seq2) {|s| parent_superselector?(s.first, lcs.first)} << [lcs.shift]
           seq1.shift
           seq2.shift
         end
         diff << chunks(seq1, seq2) {|s| s.empty?}
+        diff += fin.map {|sel| sel.is_a?(Array) ? sel : [sel]}
         diff.reject! {|c| c.empty?}
 
         Sass::Util.paths(diff).map {|p| p.flatten}
       end
 
-      # Extracts initial selector operators (`"+"`, `">"`, `"~"`, and `"\n"`)
+      # Extracts initial selector combinators (`"+"`, `">"`, `"~"`, and `"\n"`)
       # from two sequences and merges them together into a single array of
-      # selector operators.
+      # selector combinators.
       #
       # @param seq1 [Array<SimpleSequence or String>]
       # @param seq2 [Array<SimpleSequence or String>]
@@ -206,6 +225,100 @@ module Sass
         return (newline ? ["\n"] : []) + (ops1.size > ops2.size ? ops1 : ops2)
       end
 
+      # Extracts final selector combinators (`"+"`, `">"`, `"~"`) and the
+      # selectors to which they apply from two sequences and merges them
+      # together into a single array.
+      #
+      # @param seq1 [Array<SimpleSequence or String>]
+      # @param seq2 [Array<SimpleSequence or String>]
+      # @return [Array<SimpleSequence or String or
+      #     Array<Array<SimpleSequence or String>>]
+      #   If there are no trailing combinators to be merged, this will be the
+      #   empty array. If the trailing combinators cannot be merged, this will
+      #   be nil. Otherwise, this will contained the merged selector. Array
+      #   elements are [Sass::Util#paths]-style options; conceptually, an "or"
+      #   of multiple selectors.
+      def merge_final_ops(seq1, seq2, res = [])
+        ops1, ops2 = [], []
+        ops1 << seq1.pop while seq1.last.is_a?(String)
+        ops2 << seq2.pop while seq2.last.is_a?(String)
+
+        # Not worth the headache of trying to preserve newlines here. The most
+        # important use of newlines is at the beginning of the selector to wrap
+        # across lines anyway.
+        ops1.reject! {|o| o == "\n"}
+        ops2.reject! {|o| o == "\n"}
+
+        return res if ops1.empty? && ops2.empty?
+        if ops1.size > 1 || ops2.size > 1
+          # If there are multiple operators, something hacky's going on. If one
+          # is a supersequence of the other, use that, otherwise give up.
+          lcs = Sass::Util.lcs(ops1, ops2)
+          return unless lcs == ops1 || lcs == ops2
+          res.unshift *(ops1.size > ops2.size ? ops1 : ops2).reverse
+          return res
+        end
+
+        # This code looks complicated, but it's actually just a bunch of special
+        # cases for interactions between different combinators.
+        op1, op2 = ops1.first, ops2.first
+        if op1 && op2
+          sel1 = seq1.pop
+          sel2 = seq2.pop
+          if op1 == '~' && op2 == '~'
+            if sel1.superselector?(sel2)
+              res.unshift sel2, '~'
+            elsif sel2.superselector?(sel1)
+              res.unshift sel1, '~'
+            else
+              merged = sel1.unify(sel2.members, sel2.subject?)
+              res.unshift [
+                [sel1, '~', sel2, '~'],
+                [sel2, '~', sel1, '~'],
+                ([merged, '~'] if merged)
+              ].compact
+            end
+          elsif (op1 == '~' && op2 == '+') || (op1 == '+' && op2 == '~')
+            if op1 == '~'
+              tilde_sel, plus_sel = sel1, sel2
+            else
+              tilde_sel, plus_sel = sel2, sel1
+            end
+
+            if tilde_sel.superselector?(plus_sel)
+              res.unshift plus_sel, '+'
+            else
+              merged = plus_sel.unify(tilde_sel.members, tilde_sel.subject?)
+              res.unshift [
+                [tilde_sel, '~', plus_sel, '+'],
+                ([merged, '+'] if merged)
+              ].compact
+            end
+          elsif op1 == '>' && %w[~ +].include?(op2)
+            res.unshift sel2, op2
+            seq1.push sel1, op1
+          elsif op2 == '>' && %w[~ +].include?(op1)
+            res.unshift sel1, op1
+            seq2.push sel2, op2
+          elsif op1 == op2
+            return unless merged = sel1.unify(sel2.members, sel2.subject?)
+            res.unshift merged, op1
+          else
+            # Unknown selector combinators can't be unified
+            return
+          end
+          return merge_final_ops(seq1, seq2, res)
+        elsif op1
+          seq2.pop if op1 == '>' && seq2.last && seq2.last.superselector?(seq1.last)
+          res.unshift seq1.pop, op1
+          return merge_final_ops(seq1, seq2, res)
+        else # op2
+          seq1.pop if op2 == '>' && seq1.last && seq1.last.superselector?(seq2.last)
+          res.unshift seq2.pop, op2
+          return merge_final_ops(seq1, seq2, res)
+        end
+      end
+
       # Takes initial subsequences of `seq1` and `seq2` and returns all
       # orderings of those subsequences. The initial subsequences are determined
       # by a block.
@@ -225,6 +338,7 @@ module Sass
       #   cutting off some initial subsequence.
       # @yieldreturn [Boolean] Whether or not to cut off the initial subsequence
       #   here.
+      # @return [Array<Array>] All possible orderings of the initial subsequences.
       def chunks(seq1, seq2)
         chunk1 = []
         chunk1 << seq1.shift until yield seq1
@@ -258,28 +372,87 @@ module Sass
         return newseq
       end
 
-      # Given two sequences of simple selectors, returns whether `sseq1` is a
-      # superselector of `sseq2`.
+      # Given two selector sequences, returns whether `seq1` is a
+      # superselector of `seq2`; that is, whether `seq1` matches every
+      # element `seq2` matches.
       #
-      # @param sseq1 [Array<SimpleSelector or String>]
-      # @param sseq2 [Array<SimpleSelector or String>]
+      # @param seq1 [Array<SimpleSequence or String>]
+      # @param seq2 [Array<SimpleSequence or String>]
       # @return [Boolean]
-      def subweave_superselector?(sseq1, sseq2)
-        if sseq1.size > 1
-          # More complex selectors are never superselectors of less complex ones
-          return unless sseq2.size > 1
+      def _superselector?(seq1, seq2)
+        seq1 = seq1.reject {|e| e == "\n"}
+        seq2 = seq2.reject {|e| e == "\n"}
+        # Selectors with leading or trailing operators are neither
+        # superselectors nor subselectors.
+        return if seq1.last.is_a?(String) || seq2.last.is_a?(String) ||
+          seq1.first.is_a?(String) || seq2.first.is_a?(String)
+        # More complex selectors are never superselectors of less complex ones
+        return if seq1.size > seq2.size
+        return seq1.first.superselector?(seq2.last) if seq1.size == 1
+
+        _, si = Sass::Util.enum_with_index(seq2).find do |e, i|
+          return if i == seq2.size - 1
+          next if e.is_a?(String)
+          seq1.first.superselector?(e)
+        end
+        return unless si
+
+        if seq1[1].is_a?(String)
+          return unless seq2[si+1].is_a?(String)
           # .foo ~ .bar is a superselector of .foo + .bar
-          return unless sseq1[1] == "~" ? sseq2[1] != ">" : sseq2[1] == sseq1[1]
-          return unless sseq1.first.superselector?(sseq2.first)
-          return true if sseq1.size == 2
-          return false if sseq2.size == 2
-          return subweave_superselector?(sseq1[2..-1], sseq2[2..-1])
-        elsif sseq2.size > 1
-          return true if sseq2[1] == ">" && sseq1.first.superselector?(sseq2.first)
-          return false if sseq2.size == 2
-          return subweave_superselector?(sseq1, sseq2[2..-1])
+          return unless seq1[1] == "~" ? seq2[si+1] != ">" : seq1[1] == seq2[si+1]
+          return _superselector?(seq1[2..-1], seq2[si+2..-1])
+        elsif seq2[si+1].is_a?(String)
+          return unless seq2[si+1] == ">"
+          return _superselector?(seq1[1..-1], seq2[si+2..-1])
         else
-          sseq1.first.superselector?(sseq2.first)
+          return _superselector?(seq1[1..-1], seq2[si+1..-1])
+        end
+      end
+
+      # Like \{#_superselector?}, but compares the selectors in the
+      # context of parent selectors, as though they shared an implicit
+      # base simple selector. For example, `B` is not normally a
+      # superselector of `B A`, since it doesn't match `A` elements.
+      # However, it is a parent superselector, since `B X` is a
+      # superselector of `B A X`.
+      #
+      # @param seq1 [Array<SimpleSequence or String>]
+      # @param seq2 [Array<SimpleSequence or String>]
+      # @return [Boolean]
+      def parent_superselector?(seq1, seq2)
+        base = Sass::Selector::SimpleSequence.new([Sass::Selector::Placeholder.new('<temp>')], false)
+        _superselector?(seq1 + [base], seq2 + [base])
+      end
+
+      # Removes redundant selectors from between multiple lists of
+      # selectors. This takes a list of lists of selector sequences;
+      # each individual list is assumed to have no redundancy within
+      # itself. A selector is only removed if it's redundant with a
+      # selector in another list.
+      #
+      # "Redundant" here means that one selector is a superselector of
+      # the other. The more specific selector is removed.
+      #
+      # @param seqses [Array<Array<Array<SimpleSequence or String>>>]
+      # @return [Array<Array<Array<SimpleSequence or String>>>]
+      def trim(seqses)
+        # This is n^2 on the sequences, but only comparing between
+        # separate sequences should limit the quadratic behavior.
+        seqses.map do |seqs1|
+          seqs1.reject do |seq1|
+            min_spec = 0
+            _sources(seq1).map {|seq| min_spec += seq.specificity}
+            seqses.any? do |seqs2|
+              next if seqs1.equal?(seqs2)
+              # Second Law of Extend: the specificity of a generated selector
+              # should never be less than the specificity of the extending
+              # selector.
+              #
+              # See https://github.com/nex3/sass/issues/324.
+              seqs2.any? {|seq2| _specificity(seq2) >= min_spec && _superselector?(seq2, seq1)}
+            end
+          end
         end
       end
 
@@ -289,6 +462,25 @@ module Sass
 
       def _eql?(other)
         other.members.reject {|m| m == "\n"}.eql?(self.members.reject {|m| m == "\n"})
+      end
+
+      private
+
+      def _sources(seq)
+        s = Set.new
+        seq.map {|sseq_or_op| s.merge sseq_or_op.sources if sseq_or_op.is_a?(SimpleSequence)}
+        s
+      end
+
+      def extended_not_expanded_to_s(extended_not_expanded)
+        extended_not_expanded.map do |choices|
+          choices = choices.map do |sel|
+            next sel.first.to_s if sel.size == 1
+            "#{sel.join ' '}"
+          end
+          next choices.first if choices.size == 1 && !choices.include?(' ')
+          "(#{choices.join ', '})"
+        end.join ' '
       end
     end
   end

@@ -47,25 +47,29 @@ class SassFunctionTest < Test::Unit::TestCase
     hsls, rgbs = chunk.strip.split("====")
     hsls.strip.split("\n").zip(rgbs.strip.split("\n")) do |hsl, rgb|
       hsl_method = "test_hsl: #{hsl} = #{rgb}"
-      define_method(hsl_method) do
-        assert_equal(evaluate(rgb), evaluate(hsl))
+      unless method_defined?(hsl_method)
+        define_method(hsl_method) do
+          assert_equal(evaluate(rgb), evaluate(hsl))
+        end
       end
 
       rgb_to_hsl_method = "test_rgb_to_hsl: #{rgb} = #{hsl}"
-      define_method(rgb_to_hsl_method) do
-        rgb_color = perform(rgb)
-        hsl_color = perform(hsl)
+      unless method_defined?(rgb_to_hsl_method)
+        define_method(rgb_to_hsl_method) do
+          rgb_color = perform(rgb)
+          hsl_color = perform(hsl)
 
-        white = hsl_color.lightness == 100
-        black = hsl_color.lightness == 0
-        grayscale = white || black || hsl_color.saturation == 0
+          white = hsl_color.lightness == 100
+          black = hsl_color.lightness == 0
+          grayscale = white || black || hsl_color.saturation == 0
 
-        assert_in_delta(hsl_color.hue, rgb_color.hue, 0.0001,
-          "Hues should be equal") unless grayscale
-        assert_in_delta(hsl_color.saturation, rgb_color.saturation, 0.0001,
-          "Saturations should be equal") unless white || black
-        assert_in_delta(hsl_color.lightness, rgb_color.lightness, 0.0001,
-          "Lightnesses should be equal")
+          assert_in_delta(hsl_color.hue, rgb_color.hue, 0.0001,
+            "Hues should be equal") unless grayscale
+          assert_in_delta(hsl_color.saturation, rgb_color.saturation, 0.0001,
+            "Saturations should be equal") unless white || black
+          assert_in_delta(hsl_color.lightness, rgb_color.lightness, 0.0001,
+            "Lightnesses should be equal")
+        end
       end
     end
   end
@@ -154,18 +158,38 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
 
+  def test_min
+    #assert_equal("1", evaluate("min(1, 2, 3)"))
+    assert_equal("1", evaluate("min(3px, 2px, 1)"))
+    assert_equal("4em", evaluate("min(4em)"))
+    assert_equal("10cm", evaluate("min(10cm, 6in)"))
+
+    assert_error_message("#aaaaaa is not a number for `min'", "min(#aaa)")
+    assert_error_message("Incompatible units: 'px' and 'em'.", "min(3em, 4em, 1px)")
+  end
+
+  def test_max
+    assert_equal("3", evaluate("max(1, 2, 3)"))
+    assert_equal("3", evaluate("max(3, 2px, 1px)"))
+    assert_equal("4em", evaluate("max(4em)"))
+    assert_equal("6in", evaluate("max(10cm, 6in)"))
+
+    assert_error_message("#aaaaaa is not a number for `max'", "max(#aaa)")
+    assert_error_message("Incompatible units: 'px' and 'em'.", "max(3em, 4em, 1px)")
+  end
+
   def test_rgb
     assert_equal("#123456", evaluate("rgb(18, 52, 86)"))
     assert_equal("#beaded", evaluate("rgb(190, 173, 237)"))
-    assert_equal("#00ff7f", evaluate("rgb(0, 255, 127)"))
-    assert_equal("#00ff7f", evaluate("rgb($red: 0, $green: 255, $blue: 127)"))
+    assert_equal("springgreen", evaluate("rgb(0, 255, 127)"))
+    assert_equal("springgreen", evaluate("rgb($red: 0, $green: 255, $blue: 127)"))
   end
 
   def test_rgb_percent
     assert_equal("#123456", evaluate("rgb(7.1%, 20.4%, 34%)"))
     assert_equal("#beaded", evaluate("rgb(74.7%, 173, 93%)"))
     assert_equal("#beaded", evaluate("rgb(190, 68%, 237)"))
-    assert_equal("#00ff7f", evaluate("rgb(0%, 100%, 50%)"))
+    assert_equal("springgreen", evaluate("rgb(0%, 100%, 50%)"))
   end
 
   def test_rgb_tests_bounds
@@ -203,7 +227,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("rgba(0, 255, 127, 0)", evaluate("rgba($red: 0, $green: 255, $blue: 127, $alpha: 0)"))
   end
 
-  def test_rgb_tests_bounds
+  def test_rgba_tests_bounds
     assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(256, 1, 1, 0.3)")
     assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
@@ -735,6 +759,13 @@ class SassFunctionTest < Test::Unit::TestCase
       "change-color(blue, $lightness: 10%, $red: 120)");
   end
 
+  def test_ie_hex_str
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#aa11cc)'))
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#a1c)'))
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#A1c)'))
+    assert_equal("#80FF0000", evaluate('ie-hex-str(rgba(255, 0, 0, 0.5))'))
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
@@ -783,8 +814,8 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_complement
     assert_equal("#ccbbaa", evaluate("complement(#abc)"))
-    assert_equal("aqua", evaluate("complement(red)"))
-    assert_equal("red", evaluate("complement(aqua)"))
+    assert_equal("cyan", evaluate("complement(red)"))
+    assert_equal("red", evaluate("complement(cyan)"))
     assert_equal("white", evaluate("complement(white)"))
     assert_equal("black", evaluate("complement(black)"))
     assert_equal("black", evaluate("complement($color: black)"))
@@ -844,6 +875,7 @@ MSG
     assert_equal("bool", evaluate("type-of(true)"))
     assert_equal("color", evaluate("type-of(#fff)"))
     assert_equal("color", evaluate("type-of($value: #fff)"))
+    assert_equal("null", evaluate("type-of(null)"))
   end
 
   def test_unit
@@ -984,6 +1016,7 @@ MSG
   def test_if
     assert_equal("1px", evaluate("if(true, 1px, 2px)"))
     assert_equal("2px", evaluate("if(false, 1px, 2px)"))
+    assert_equal("2px", evaluate("if(null, 1px, 2px)"))
   end
 
   def test_keyword_args_rgb
@@ -996,21 +1029,45 @@ MSG
   end
 
   def test_keyword_args_rgba_with_extra_args
-    assert_equal(%Q{rgba(255, 255, 255, 0.5)}, evaluate("rgba($red: 255, $green: 255, $blue: 255, $alpha: 0.5, $extra: error)"))
+    evaluate("rgba($red: 255, $green: 255, $blue: 255, $alpha: 0.5, $extra: error)")
+    flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Function rgba doesn't take an argument named $extra", e.message)
+    assert_equal("Function rgba doesn't have an argument named $extra", e.message)
   end
 
   def test_keyword_args_must_have_signature
     evaluate("no-kw-args($fake: value)")
+    flunk("Expected exception")
   rescue Sass::SyntaxError => e
     assert_equal("Function no_kw_args doesn't support keyword arguments", e.message)
   end
 
   def test_keyword_args_with_missing_argument
     evaluate("rgb($red: 255, $green: 255)")
+    flunk("Expected exception")
   rescue Sass::SyntaxError => e
     assert_equal("Function rgb requires an argument named $blue", e.message)
+  end
+
+  def test_keyword_args_with_extra_argument
+    evaluate("rgb($red: 255, $green: 255, $blue: 255, $purple: 255)")
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function rgb doesn't have an argument named $purple", e.message)
+  end
+
+  def test_keyword_args_with_positional_and_keyword_argument
+    evaluate("rgb(255, 255, 255, $red: 255)")
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Function rgb was passed argument $red both by position and by name", e.message)
+  end
+
+  def test_keyword_args_with_keyword_before_positional_argument
+    evaluate("rgb($red: 255, 255, 255)")
+    flunk("Expected exception")
+  rescue Sass::SyntaxError => e
+    assert_equal("Positional arguments must come before keyword arguments", e.message)
   end
 
   def test_only_var_args
