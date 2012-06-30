@@ -197,7 +197,7 @@ module Sass
         diff += fin.map {|sel| sel.is_a?(Array) ? sel : [sel]}
         diff.reject! {|c| c.empty?}
 
-        Sass::Util.paths(diff).map {|p| p.flatten}
+        Sass::Util.paths(diff).map {|p| p.flatten}.reject {|p| path_has_two_subjects?(p)}
       end
 
       # Extracts initial selector combinators (`"+"`, `">"`, `"~"`, and `"\n"`)
@@ -465,6 +465,17 @@ module Sass
       end
 
       private
+
+      def path_has_two_subjects?(path)
+        subject = false
+        path.each do |sseq_or_op|
+          next unless sseq_or_op.is_a?(SimpleSequence)
+          next unless sseq_or_op.subject?
+          return true if subject
+          subject = true
+        end
+        false
+      end
 
       def _sources(seq)
         s = Set.new
