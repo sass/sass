@@ -91,7 +91,7 @@ class Sass::Tree::Visitors::DeepCopy < Sass::Tree::Visitors::Base
   end
 
   def visit_media(node)
-    node.query = node.query.deep_copy
+    node.query = node.query.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c}
     yield
   end
 
