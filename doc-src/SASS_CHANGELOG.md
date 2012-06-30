@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.20 (Unreleased)
+## 3.1.20
 
 * Don't crash if a UTF encoding isn't found. Thanks to [Andrew
   Garbutt](http://github.com/techsplicer).
