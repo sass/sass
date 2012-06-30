@@ -685,10 +685,23 @@ module Sass::Script
     # @see #desaturate
     # @raise [ArgumentError] If `color` isn't a color,
     #   or `number` isn't a number between 0% and 100%
-    def saturate(color, amount)
-      _adjust(color, amount, :saturation, 0..100, :+, "%")
+    #
+    # @overload saturate(number)
+    #   Returns an unquoted string `saturate(number)`, as though the function
+    #   were not defined. This is for the `saturate` function used in
+    #   `-webkit-filter`.
+    #
+    #   @param number [Number]
+    #   @return [Sass::Script::String]
+    def saturate(color, amount = nil)
+      if amount.nil?
+        Sass::Script::String.new("saturate(#{color})")
+      else
+        _adjust(color, amount, :saturation, 0..100, :+, "%")
+      end
     end
     declare :saturate, [:color, :amount]
+    declare :saturate, [:amount]
 
     # Makes a color less saturated.
     # Takes a color and an amount between 0% and 100%,
