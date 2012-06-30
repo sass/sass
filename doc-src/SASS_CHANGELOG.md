@@ -155,6 +155,7 @@ that make use of `@media` and other directives dynamically.
   function.
 * Support the `saturate()`, `opacity()`, and `invert()` functions when used as
   in the [Filter Effects][filter] spec.
+* Support MacRuby. Thanks to [Will Glynn](http://github.com/delta407).
 
 [filter]: https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html
 

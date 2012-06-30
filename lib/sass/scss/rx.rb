@@ -51,6 +51,8 @@ module Sass
       UNICODE  = /\\#{H}{1,6}[ \t\r\n\f]?/
       s = if Sass::Util.ruby1_8?
             '\200-\377'
+          elsif Sass::Util.macruby?
+            '\u0080-\uD7FF\uE000-\uFFFD\U00010000-\U0010FFFF'
           else
             '\u{80}-\u{D7FF}\u{E000}-\u{FFFD}\u{10000}-\u{10FFFF}'
           end
