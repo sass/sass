@@ -576,7 +576,10 @@ module Sass::Script
         return Sass::Script::String.new("alpha(#{args.map {|a| a.to_s}.join(", ")})")
       end
 
-      opacity(*args)
+      raise ArgumentError.new("wrong number of arguments (#{args.size} for 1)") if args.size != 1
+
+      assert_type args.first, :Color
+      Sass::Script::Number.new(args.first.alpha)
     end
     declare :alpha, [:color]
 
@@ -589,6 +592,7 @@ module Sass::Script
     # @see #transparentize
     # @raise [ArgumentError] If `color` isn't a color
     def opacity(color)
+      return Sass::Script::String.new("opacity(#{color})") if color.is_a?(Sass::Script::Number)
       assert_type color, :Color
       Sass::Script::Number.new(color.alpha)
     end
@@ -1009,6 +1013,8 @@ module Sass::Script
     # @return [Color]
     # @raise [ArgumentError] if `color` isn't a color
     def invert(color)
+      return Sass::Script::String.new("invert(#{color})") if color.is_a?(Sass::Script::Number)
+
       assert_type color, :Color
       color.with(
         :red => (255 - color.red),

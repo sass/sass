@@ -11,8 +11,8 @@
   Tisserant](https://github.com/sebweaver).
 * Fix the documentation for the \{Sass::Script::Functions#append append()}
   function.
-* Support the `saturate()` function when used as in the [Filter Effects][filter]
-  spec.
+* Support the `saturate()`, `opacity()`, and `invert()` functions when used as
+  in the [Filter Effects][filter] spec.
 
 [filter]: https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html
 
