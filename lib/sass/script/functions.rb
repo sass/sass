@@ -977,21 +977,13 @@ module Sass::Script
     declare :mix, [:color_1, :color_2]
     declare :mix, [:color_1, :color_2, :weight]
 
-    # @overload grayscale(color)
-    #   Converts a color to grayscale.
-    #   This is identical to `desaturate(color, 100%)`.
+    # Converts a color to grayscale.
+    # This is identical to `desaturate(color, 100%)`.
     #
-    #   @param color [Color]
-    #   @return [Color]
-    #   @raise [ArgumentError] if `color` isn't a color
-    #   @see #desaturate
-    # @overload grayscale(number)
-    #   Returns an unquoted string `grayscale(number)`, as though the function
-    #   were not defined. This is for the `grayscale` function used in
-    #   `-webkit-filter`.
-    #
-    #   @param number [Number]
-    #   @return [Sass::Script::String]
+    # @param color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` isn't a color
+    # @see #desaturate
     def grayscale(color)
       return Sass::Script::String.new("grayscale(#{color})") if color.is_a?(Sass::Script::Number)
       desaturate color, Number.new(100)
