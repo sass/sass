@@ -144,6 +144,9 @@ module Sass::Script
   # \{#join join($list1, $list2, \[$separator\])}
   # : Joins together two lists into one.
   #
+  # \{#append append($list1, $val, \[$separator\])}
+  # : Appends a single value onto the end of a list.
+  #
   # ## Introspection Functions
   #
   # \{#type_of type-of($value)}
@@ -582,7 +585,10 @@ module Sass::Script
         return Sass::Script::String.new("alpha(#{args.map {|a| a.to_s}.join(", ")})")
       end
 
-      opacity(*args)
+      raise ArgumentError.new("wrong number of arguments (#{args.size} for 1)") if args.size != 1
+
+      assert_type args.first, :Color
+      Sass::Script::Number.new(args.first.alpha)
     end
     declare :alpha, [:color]
 
@@ -595,6 +601,7 @@ module Sass::Script
     # @see #transparentize
     # @raise [ArgumentError] If `color` isn't a color
     def opacity(color)
+      return Sass::Script::String.new("opacity(#{color})") if color.is_a?(Sass::Script::Number)
       assert_type color, :Color
       Sass::Script::Number.new(color.alpha)
     end
@@ -685,16 +692,21 @@ module Sass::Script
     # @example
     #   saturate(hsl(120, 30%, 90%), 20%) => hsl(120, 50%, 90%)
     #   saturate(#855, 20%) => #9e3f3f
-    # @param color [Color]
-    # @param amount [Number]
-    # @return [Color]
-    # @see #desaturate
-    # @raise [ArgumentError] If `color` isn't a color,
-    #   or `number` isn't a number between 0% and 100%
-    def saturate(color, amount)
+    # @overload saturate(color, amount)
+    #   @param color [Color]
+    #   @param amount [Number]
+    #   @return [Color]
+    #   @see #desaturate
+    #   @raise [ArgumentError] If `color` isn't a color,
+    #     or `number` isn't a number between 0% and 100%
+    def saturate(color, amount = nil)
+      # Support the filter effects definition of saturate.
+      # https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html
+      return Sass::Script::String.new("saturate(#{color})") if amount.nil?
       _adjust(color, amount, :saturation, 0..100, :+, "%")
     end
     declare :saturate, [:color, :amount]
+    declare :saturate, [:amount]
 
     # Makes a color less saturated.
     # Takes a color and an amount between 0% and 100%,
@@ -995,21 +1007,13 @@ module Sass::Script
     declare :mix, [:color_1, :color_2]
     declare :mix, [:color_1, :color_2, :weight]
 
-    # @overload grayscale(color)
-    #   Converts a color to grayscale.
-    #   This is identical to `desaturate(color, 100%)`.
+    # Converts a color to grayscale.
+    # This is identical to `desaturate(color, 100%)`.
     #
-    #   @param color [Color]
-    #   @return [Color]
-    #   @raise [ArgumentError] if `color` isn't a color
-    #   @see #desaturate
-    # @overload grayscale(number)
-    #   Returns an unquoted string `grayscale(number)`, as though the function
-    #   were not defined. This is for the `grayscale` function used in
-    #   `-webkit-filter`.
-    #
-    #   @param number [Number]
-    #   @return [Sass::Script::String]
+    # @param color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `color` isn't a color
+    # @see #desaturate
     def grayscale(color)
       return Sass::Script::String.new("grayscale(#{color})") if color.is_a?(Sass::Script::Number)
       desaturate color, Number.new(100)
@@ -1035,6 +1039,8 @@ module Sass::Script
     # @return [Color]
     # @raise [ArgumentError] if `color` isn't a color
     def invert(color)
+      return Sass::Script::String.new("invert(#{color})") if color.is_a?(Sass::Script::Number)
+
       assert_type color, :Color
       color.with(
         :red => (255 - color.red),
@@ -1328,14 +1334,14 @@ module Sass::Script
     #   append(10px 20px, 30px) => 10px 20px 30px
     #   append((blue, red), green) => blue, red, green
     #   append(10px 20px, 30px 40px) => 10px 20px (30px 40px)
-    #   join(10px, 20px, comma) => 10px, 20px
-    #   join((blue, red), green, space) => blue red green
-    # @overload join(list, val, separator: auto)
-    #   @param list1 [Literal] The first list to join
-    #   @param list2 [Literal] The second list to join
+    #   append(10px, 20px, comma) => 10px, 20px
+    #   append((blue, red), green, space) => blue red green
+    # @overload append(list, val, separator: auto)
+    #   @param list [Literal] The list to add the value to
+    #   @param val [Literal] The value to add to the end of the list
     #   @param separator [String] How the list separator (comma or space) should be determined.
     #     If this is `comma` or `space`, that is always the separator;
-    #     if this is `auto` (the default), the separator is determined as explained above.
+    #     if this is `auto` (the default), the separator is the same as that used by the list.
     def append(list, val, separator = Sass::Script::String.new("auto"))
       assert_type separator, :String
       unless %w[auto space comma].include?(separator.value)

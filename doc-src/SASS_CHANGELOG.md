@@ -151,6 +151,12 @@ that make use of `@media` and other directives dynamically.
   Garbutt](http://github.com/techsplicer).
 * Properly watch files recursively with `sass --watch`. Thanks to [Sébastien
   Tisserant](https://github.com/sebweaver).
+* Fix the documentation for the \{Sass::Script::Functions#append append()}
+  function.
+* Support the `saturate()`, `opacity()`, and `invert()` functions when used as
+  in the [Filter Effects][filter] spec.
+
+[filter]: https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html
 
 ## 3.1.19
 

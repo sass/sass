@@ -336,6 +336,18 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("12 is not a color for `alpha'", "alpha(12)")
   end
 
+  def test_opacity
+    assert_equal("1", evaluate("opacity(#123456)"))
+    assert_equal("0.34", evaluate("opacity(rgba(0, 1, 2, 0.34))"))
+    assert_equal("0", evaluate("opacity(hsla(0, 1, 2, 0))"))
+    assert_equal("0", evaluate("opacity($color: hsla(0, 1, 2, 0))"))
+    assert_equal("opacity(20%)", evaluate("opacity(20%)"))
+  end
+
+  def test_opacity_exception
+    assert_error_message("\"foo\" is not a color for `opacity'", "opacity(foo)")
+  end
+
   def test_opacify
     assert_equal("rgba(0, 0, 0, 0.75)", evaluate("opacify(rgba(0, 0, 0, 0.5), 0.25)"))
     assert_equal("rgba(0, 0, 0, 0.3)", evaluate("opacify(rgba(0, 0, 0, 0.2), 0.1)"))
@@ -435,6 +447,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("#88aa88", evaluate("saturate(#8a8, 0%)"))
     assert_equal("rgba(158, 63, 63, 0.5)", evaluate("saturate(rgba(136, 85, 85, 0.5), 20%)"))
     assert_equal("rgba(158, 63, 63, 0.5)", evaluate("saturate($color: rgba(136, 85, 85, 0.5), $amount: 20%)"))
+    assert_equal("saturate(50%)", evaluate("saturate(50%)"))
   end
 
   def test_saturate_tests_bounds
@@ -828,6 +841,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_invert
     assert_equal("#112233", evaluate("invert(#edc)"))
     assert_equal("rgba(245, 235, 225, 0.5)", evaluate("invert(rgba(10, 20, 30, 0.5))"))
+    assert_equal("invert(20%)", evaluate("invert(20%)"))
   end
 
   def test_invert_tests_types
