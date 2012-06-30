@@ -462,9 +462,9 @@ module Sass
     # Like `Dir.glob`, but works with backslash-separated paths on Windows.
     #
     # @param path [String]
-    def glob(path)
+    def glob(path, &block)
       path = path.gsub('\\', '/') if windows?
-      Dir.glob(path)
+      Dir.glob(path, &block)
     end
 
     ## Cross-Ruby-Version Compatibility

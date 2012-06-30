@@ -97,6 +97,10 @@ that make use of `@media` and other directives dynamically.
 * Previously, only the `:-moz-any` selector was supported; this has been
   expanded to support any vendor prefix, as well as the plain `:any` selector.
 
+* All proposed [CSS4 selectors](http://dev.w3.org/csswg/selectors4/) are now
+  supported, including reference selectors (e.g. `.foo /attr/ .bar`) and subject
+  selectors (e.g. `.foo!`).
+
 * Sass now supports a global list of load paths, accessible via
   {Sass.load_paths}. This allows plugins and libraries to easily register their
   Sass files such that they're accessible to all {Sass::Engine} instances.
@@ -145,6 +149,8 @@ that make use of `@media` and other directives dynamically.
 
 * Don't crash if a UTF encoding isn't found. Thanks to [Andrew
   Garbutt](http://github.com/techsplicer).
+* Properly watch files recursively with `sass --watch`. Thanks to [Sébastien
+  Tisserant](https://github.com/sebweaver).
 
 ## 3.1.19
 

@@ -541,7 +541,7 @@ module Sass
       end
 
       # This is a nasty hack, and the only place in the parser
-      # that requires backtracking.
+      # that requires a large amount of backtracking.
       # The reason is that we can't figure out if certain strings
       # are declarations or rulesets with fixed finite lookahead.
       # For example, "foo:bar baz baz baz..." could be either a property
@@ -631,19 +631,31 @@ module Sass
       end
 
       def combinator
-        tok(PLUS) || tok(GREATER) || tok(TILDE)
+        tok(PLUS) || tok(GREATER) || tok(TILDE) || reference_combinator
+      end
+
+      def reference_combinator
+        return unless tok(/\//)
+        res = ['/']
+        ns, name = expr!(:qualified_name)
+        res << ns << '|' if ns
+        res << name << tok!(/\//)
+        res = res.flatten
+        res = res.join '' if res.all? {|e| e.is_a?(String)}
+        res
       end
 
       def simple_selector_sequence
-        # This allows for stuff like http://www.w3.org/TR/css3-animations/#keyframes-
+        # Returning expr by default allows for stuff like
+        # http://www.w3.org/TR/css3-animations/#keyframes-
         return expr(!:allow_var) unless e = element_name || id_selector ||
-          class_selector || placeholder_selector || attrib || negation ||
-          pseudo || parent_selector || interpolation_selector
+          class_selector || placeholder_selector || attrib || pseudo ||
+          parent_selector || interpolation_selector
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
         while v = id_selector || class_selector || placeholder_selector || attrib ||
-            negation || pseudo || interpolation_selector ||
+            pseudo || interpolation_selector ||
             (tok(/\*/) && Selector::Universal.new(nil))
           res << v
         end
@@ -664,7 +676,7 @@ module Sass
           end
         end
 
-        Selector::SimpleSequence.new(res)
+        Selector::SimpleSequence.new(res, tok(/!/))
       end
 
       def parent_selector
@@ -691,18 +703,23 @@ module Sass
       end
 
       def element_name
-        return unless name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
-        if tok(/\|/)
-          @expected = "element name or *"
-          ns = name
-          name = interp_ident || tok!(/\*/)
-        end
+        ns, name = qualified_name(:allow_star_name)
+        return unless ns || name
 
         if name == '*'
           Selector::Universal.new(merge(ns))
         else
           Selector::Element.new(merge(name), merge(ns))
         end
+      end
+
+      def qualified_name(allow_star_name=false)
+        return unless name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
+        return nil, name unless tok(/\|/)
+
+        return name, expr!(:interp_ident) unless allow_star_name
+        @expected = "identifier or *"
+        return name, interp_ident || tok!(/\*/)
       end
 
       def interpolation_selector
@@ -727,9 +744,10 @@ module Sass
           val = interp_ident || expr!(:interp_string)
           ss
         end
+        flags = interp_ident || interp_string
         tok!(/\]/)
 
-        Selector::Attribute.new(merge(name), merge(ns), op, merge(val))
+        Selector::Attribute.new(merge(name), merge(ns), op, merge(val), merge(flags))
       end
 
       def attrib_name!
@@ -756,30 +774,51 @@ module Sass
         name = expr!(:interp_ident)
         if tok(/\(/)
           ss
-          arg = expr!(:pseudo_expr)
+          arg = expr!(:pseudo_arg)
+          while tok(/,/)
+            arg << ',' << str{ss}
+            arg.concat expr!(:pseudo_arg)
+          end
           tok!(/\)/)
         end
         Selector::Pseudo.new(s == ':' ? :class : :element, merge(name), merge(arg))
       end
 
+      def pseudo_arg
+        # In the CSS spec, every pseudo-class/element either takes a pseudo
+        # expression or a selector comma sequence as an argument. However, we
+        # don't want to have to know which takes which, so we handle both at
+        # once.
+        #
+        # However, there are some ambiguities between the two. For instance, "n"
+        # could start a pseudo expression like "n+1", or it could start a
+        # selector like "n|m". In order to handle this, we must regrettably
+        # backtrack.
+        expr, sel = nil
+        pseudo_err = catch_error do
+          expr = pseudo_expr
+          next if tok?(/[,)]/)
+          expr = nil
+          expected '")"'
+        end
+
+        return expr if expr
+        sel_err = catch_error {sel = selector}
+        return sel if sel
+        rethrow pseudo_err if pseudo_err
+        rethrow sel_err if sel_err
+        return
+      end
+
       def pseudo_expr
-        return unless e = tok(PLUS) || tok(/-/) || tok(NUMBER) ||
+        return unless e = tok(PLUS) || tok(/[-*]/) || tok(NUMBER) ||
           interp_string || tok(IDENT) || interpolation
         res = [e, str{ss}]
-        while e = tok(PLUS) || tok(/-/) || tok(NUMBER) ||
+        while e = tok(PLUS) || tok(/[-*]/) || tok(NUMBER) ||
             interp_string || tok(IDENT) || interpolation
           res << e << str{ss}
         end
         res
-      end
-
-      def negation
-        return unless name = tok(NOT) || tok(ANY)
-        ss
-        @expected = "selector"
-        sel = selector_comma_sequence
-        tok!(/\)/)
-        Selector::SelectorPseudoClass.new(name[1...-1], sel)
       end
 
       def declaration
@@ -980,12 +1019,12 @@ MESSAGE
       EXPR_NAMES = {
         :media_query => "media query (e.g. print, screen, print and screen)",
         :media_expr => "media expression (e.g. (min-device-width: 800px))",
-        :pseudo_expr => "expression (e.g. fr, 2n+1)",
+        :pseudo_arg => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",
         :interp_name => "identifier",
+        :qualified_name => "identifier",
         :expr => "expression (e.g. 1px, bold)",
         :_selector => "selector",
-        :selector_comma_sequence => "selector",
         :simple_selector_sequence => "selector",
         :import_arg => "file to import (string or url())",
         :moz_document_function => "matching function (e.g. url-prefix(), domain())",
@@ -1041,7 +1080,7 @@ MESSAGE
         pos = @scanner.pos
         line = @line
         expected = @expected
-        if catch(:_sass_parser_error, &block)
+        if catch(:_sass_parser_error) {yield; false}
           @scanner.pos = pos
           @line = line
           @expected = expected

@@ -74,8 +74,15 @@ SCSS
     assert_renders <<SASS, <<SCSS
 foo \#{$bar + "baz"}.bip
   baz: bang
+
+foo /\#{$bar + "baz"}/ .bip
+  baz: bang
 SASS
 foo \#{$bar + "baz"}.bip {
+  baz: bang;
+}
+
+foo /\#{$bar + "baz"}/ .bip {
   baz: bang;
 }
 SCSS
@@ -1403,6 +1410,28 @@ SASS
 SCSS
   end
 
+  def test_reference_selector
+    assert_renders(<<SASS, <<SCSS)
+foo /bar|baz/ bang
+  a: b
+SASS
+foo /bar|baz/ bang {
+  a: b;
+}
+SCSS
+  end
+
+  def test_subject
+    assert_renders(<<SASS, <<SCSS)
+foo bar! baz
+  a: b
+SASS
+foo bar! baz {
+  a: b;
+}
+SCSS
+  end
+
   def test_placeholder_interoplation_conversion
     assert_renders(<<SASS, <<SCSS)
 $foo: foo
@@ -1522,7 +1551,6 @@ foo bar {
 }
 SCSS
   end
-
 
   ## Regression Tests
 
