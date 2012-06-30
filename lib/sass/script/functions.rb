@@ -679,26 +679,18 @@ module Sass::Script
     # @example
     #   saturate(hsl(120, 30%, 90%), 20%) => hsl(120, 50%, 90%)
     #   saturate(#855, 20%) => #9e3f3f
-    # @param color [Color]
-    # @param amount [Number]
-    # @return [Color]
-    # @see #desaturate
-    # @raise [ArgumentError] If `color` isn't a color,
-    #   or `number` isn't a number between 0% and 100%
-    #
-    # @overload saturate(number)
-    #   Returns an unquoted string `saturate(number)`, as though the function
-    #   were not defined. This is for the `saturate` function used in
-    #   `-webkit-filter`.
-    #
-    #   @param number [Number]
-    #   @return [Sass::Script::String]
+    # @overload saturate(color, amount)
+    #   @param color [Color]
+    #   @param amount [Number]
+    #   @return [Color]
+    #   @see #desaturate
+    #   @raise [ArgumentError] If `color` isn't a color,
+    #     or `number` isn't a number between 0% and 100%
     def saturate(color, amount = nil)
-      if amount.nil?
-        Sass::Script::String.new("saturate(#{color})")
-      else
-        _adjust(color, amount, :saturation, 0..100, :+, "%")
-      end
+      # Support the filter effects definition of saturate.
+      # https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html
+      return Sass::Script::String.new("saturate(#{color})") if amount.nil?
+      _adjust(color, amount, :saturation, 0..100, :+, "%")
     end
     declare :saturate, [:color, :amount]
     declare :saturate, [:amount]
