@@ -145,7 +145,7 @@ that make use of `@media` and other directives dynamically.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
-## 3.1.20 (Unreleased)
+## 3.1.20
 
 * Don't crash if a UTF encoding isn't found. Thanks to [Andrew
   Garbutt](http://github.com/techsplicer).
