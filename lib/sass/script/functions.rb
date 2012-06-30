@@ -135,6 +135,9 @@ module Sass::Script
   # \{#join join($list1, $list2, \[$separator\])}
   # : Joins together two lists into one.
   #
+  # \{#append append($list1, $val, \[$separator\])}
+  # : Appends a single value onto the end of a list.
+  #
   # ## Introspection Functions
   #
   # \{#type_of type-of($value)}
@@ -1271,14 +1274,14 @@ module Sass::Script
     #   append(10px 20px, 30px) => 10px 20px 30px
     #   append((blue, red), green) => blue, red, green
     #   append(10px 20px, 30px 40px) => 10px 20px (30px 40px)
-    #   join(10px, 20px, comma) => 10px, 20px
-    #   join((blue, red), green, space) => blue red green
-    # @overload join(list, val, separator: auto)
-    #   @param list1 [Literal] The first list to join
-    #   @param list2 [Literal] The second list to join
+    #   append(10px, 20px, comma) => 10px, 20px
+    #   append((blue, red), green, space) => blue red green
+    # @overload append(list, val, separator: auto)
+    #   @param list [Literal] The list to add the value to
+    #   @param val [Literal] The value to add to the end of the list
     #   @param separator [String] How the list separator (comma or space) should be determined.
     #     If this is `comma` or `space`, that is always the separator;
-    #     if this is `auto` (the default), the separator is determined as explained above.
+    #     if this is `auto` (the default), the separator is the same as that used by the list.
     def append(list, val, separator = Sass::Script::String.new("auto"))
       assert_type separator, :String
       unless %w[auto space comma].include?(separator.value)

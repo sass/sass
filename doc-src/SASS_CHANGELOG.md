@@ -9,6 +9,8 @@
   Garbutt](http://github.com/techsplicer).
 * Properly watch files recursively with `sass --watch`. Thanks to [Sébastien
   Tisserant](https://github.com/sebweaver).
+* Fix the documentation for the \{Sass::Script::Functions#append append()}
+  function.
 
 ## 3.1.19
 
