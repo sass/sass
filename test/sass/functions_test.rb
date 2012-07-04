@@ -123,6 +123,33 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("\"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
+  def test_adjust_by
+    assert_equal "90px", evaluate("adjust-by(100px, -10%)")
+    assert_equal "110px", evaluate("adjust-by(100px, 10%)")
+
+    assert_equal "200%", evaluate("adjust-by(100%, 100%)")
+    assert_equal "0%", evaluate("adjust-by(100%, -100%)")
+
+    assert_equal "13.2pt", evaluate("adjust-by(12pt, 10%)")
+    assert_equal "13.32pt", evaluate("adjust-by(12pt, 11%)")
+    assert_equal "13.332pt", evaluate("adjust-by(12pt, 11.1%)")
+
+    begin
+      Sass::Script::Number.precision = 4
+      assert_equal "13.3332pt", evaluate("adjust-by(12pt, 11.11%)")
+      assert_equal "13.3333pt", evaluate("adjust-by(12pt, 11.111%)")
+    ensure
+      Sass::Script::Number.precision = 3
+    end
+
+    assert_equal "-900px", evaluate("adjust-by(100px, -1000%)")
+    assert_equal "2445px", evaluate("adjust-by(100px, 2345%)")
+
+    assert_error_message("#cccccc is not a number for `adjust-by'", "adjust-by(#cccccc, 10%)")
+    assert_error_message("#efefef is not a number for `adjust-by'", "adjust-by(10%, #efefef)")
+    assert_error_message("Amount 20px must be a % (e.g., 10%) for `adjust-by'", "adjust-by(10%, 20px)")
+  end
+
   def test_round
     assert_equal("5",   evaluate("round(4.8)"))
     assert_equal("5px", evaluate("round(4.8px)"))

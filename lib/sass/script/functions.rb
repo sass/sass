@@ -115,6 +115,9 @@ module Sass::Script
   # \{#percentage percentage($value)}
   # : Converts a unitless number to a percentage.
   #
+  # \{#adjust_by adjust-by($value, $amount)}
+  # : Adjusts a number by the given amount in percentage.
+  #
   # \{#round round($value)}
   # : Rounds a number to the nearest whole number.
   #
@@ -374,7 +377,7 @@ module Sass::Script
 
       Color.new([red, green, blue].map do |c|
           v = c.value
-          if c.numerator_units == ["%"] && c.denominator_units.empty?
+          if percentage?(c)
             v = Sass::Util.check_range("Color value", 0..100, c, '%')
             v * 255 / 100.0
           else
@@ -862,7 +865,7 @@ module Sass::Script
 
         next unless val = kwargs.delete(name)
         assert_type val, :Number, name
-        if !(val.numerator_units == ['%'] && val.denominator_units.empty?)
+        if !percentage?(val)
           raise ArgumentError.new("$#{name}: Amount #{val} must be a % (e.g. #{val.value}%)")
         else
           Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
@@ -1158,6 +1161,34 @@ module Sass::Script
     end
     declare :percentage, [:value]
 
+    # Adjusts a number by the given amount in percentage.
+    #
+    # @example
+    #   adjust-by(100px, 10%) => 110px
+    # @param value [Number]
+    # @param amount [Number]
+    # @return [Number]
+    # @raise [ArgumentError] if `value` isn't a number, or if `percentage`
+    #   is not a percentage
+    def adjust_by(value, amount)
+      assert_type value, :Number
+      assert_type amount, :Number
+      if !percentage?(amount)
+        raise ArgumentError.new("Amount #{amount} must be a % (e.g., #{value.value}%)")
+      end
+      numeric_transformation(value) do |n|
+        v = n.to_f * (1.0 + (amount.value / 100.0))
+        # Determine if the resulting Float is a whole number within the
+        # configured precision.
+        p = Sass::Script::Number.precision
+        v = (v * 10**p).round.to_f / 10**p
+        # Use Integer instead of Float if a whole number. See
+        # http://stackoverflow.com/a/1077648
+        v.to_i == v ? v.to_i : v
+      end
+    end
+    declare :adjust_by, [:value, :amount]
+
     # Rounds a number to the nearest whole number.
     #
     # @example
@@ -1421,6 +1452,11 @@ module Sass::Script
     def numeric_transformation(value)
       assert_type value, :Number
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
+    end
+
+    # Checks if a given [Number] value is a percentage.
+    def percentage?(value)
+      value.numerator_units == ['%'] && value.denominator_units.empty?
     end
 
     def _adjust(color, amount, attr, range, op, units = "")
