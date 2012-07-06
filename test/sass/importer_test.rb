@@ -36,7 +36,11 @@ class ImporterTest < Test::Unit::TestCase
   # This class proves that you can override the extension scheme for importers
   class ReversedExtImporter < Sass::Importers::Filesystem
     def extensions
-      {"sscs" => :scss, "ssas" => :sass}
+      {'sscs' => :scss, 'ssas' => :sass, 'css' => :scss}
+    end
+
+    def sorted_extensions
+      ['sscs', 'ssas', 'css']
     end
   end
 

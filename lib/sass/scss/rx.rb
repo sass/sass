@@ -99,6 +99,7 @@ module Sass
       NUMBER = /#{NUM}(?:#{IDENT}|%)?/
 
       URI = /url\(#{W}(?:#{STRING}|#{URL})#{W}\)/i
+      INLINE = /inline\(#{W}(?:#{STRING}|#{URL})#{W}\)/i
       FUNCTION = /#{IDENT}\(/
 
       UNICODERANGE = /u\+(?:#{H}{1,6}-#{H}{1,6}|#{RANGE})/i
