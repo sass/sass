@@ -26,6 +26,8 @@ body { font: Arial; background: blue; }
 #content.user.show #container.top #column.right { width: 600px; }
 #content.user.show #container.bottom { background: brown; }
 
+.inlined_css_rule { color: red; }
+
 #foo { background-color: #bbaaff; }
 
 nonimported { myconst: hello; otherconst: goodbye; post-mixin: here; }
