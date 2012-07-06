@@ -73,7 +73,15 @@ module Sass
       #
       # @return [{String => Symbol}]
       def extensions
-        {'sass' => :sass, 'scss' => :scss}
+        {'sass' => :sass, 'scss' => :scss, 'css' => :scss}
+      end
+
+      # The keys of the extensions hash, ordered by their import priority.
+      #
+      # @return [Array{string}] all the keys of the extensions hash, sorted in
+      #   the order used by import to resolve names without extensions.
+      def sorted_extensions
+        ['sass', 'scss', 'css']
       end
 
       # Given an `@import`ed path, returns an array of possible
@@ -86,11 +94,10 @@ module Sass
       def possible_files(name)
         name = escape_glob_characters(name)
         dirname, basename, extname = split(name)
-        sorted_exts = extensions.sort
         syntax = extensions[extname]
 
-        return [["#{dirname}/{_,}#{basename}.#{extensions.invert[syntax]}", syntax]] if syntax
-        sorted_exts.map {|ext, syn| ["#{dirname}/{_,}#{basename}.#{ext}", syn]}
+        return [["#{dirname}/{_,}#{basename}.#{extname}", syntax]] if syntax
+        sorted_extensions.map {|ext| ["#{dirname}/{_,}#{basename}.#{ext}", extensions[ext]]}
       end
 
       def escape_glob_characters(name)
