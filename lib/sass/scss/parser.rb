@@ -283,7 +283,7 @@ module Sass
       end
 
       def import_arg
-        return unless arg = tok(STRING) || (uri = tok!(URI))
+        return unless arg = tok(STRING) || (inline = tok(INLINE)) || (uri = tok!(URI))
         path = @scanner[1] || @scanner[2] || @scanner[3]
         ss
 
@@ -293,7 +293,11 @@ module Sass
           return node(Sass::Tree::DirectiveNode.new("@import #{arg} #{media}".strip))
         end
 
-        node(Sass::Tree::ImportNode.new(path.strip))
+        if inline
+          return node(Sass::Tree::ImportNode.new(path.strip, true))
+        end
+
+        node(Sass::Tree::ImportNode.new(path.strip))    
       end
 
       def use_css_import?; false; end

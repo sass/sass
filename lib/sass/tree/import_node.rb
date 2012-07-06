@@ -9,9 +9,15 @@ module Sass
       # @return [String]
       attr_reader :imported_filename
 
+      # True if the imported file is wrapped by an inline() directive.
+      # 
+      # @return [Boolean]
+      attr_reader :inline_directive
+
       # @param imported_filename [String] The name of the imported file
-      def initialize(imported_filename)
+      def initialize(imported_filename, inline_directive = false)
         @imported_filename = imported_filename
+        @inline_directive = inline_directive
         super(nil)
       end
 
@@ -29,6 +35,8 @@ module Sass
       #
       # @return [Boolean] Whether or not this is a simple CSS @import declaration.
       def css_import?
+        return false if @inline_directive
+
         if @imported_filename =~ /\.css$/
           @imported_filename
         elsif imported_file.is_a?(String) && imported_file =~ /\.css$/

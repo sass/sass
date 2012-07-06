@@ -270,6 +270,13 @@ SCSS
     assert_equal "@import url(foo.css);\n", render('@import url(foo.css);')
   end
 
+  def test_inline_import
+    imported = ".inlined_css_rule {\n  color: red; }\n"
+    assert_equal imported, render('@import inline(test/sass/templates/inlined.css);')
+    assert_equal imported, render('@import inline("test/sass/templates/inlined.css");')
+    assert_equal imported, render("@import inline('test/sass/templates/inlined.css');")
+  end
+
   def test_media_import
     assert_equal("@import \"./fonts.sass\" all;\n", render("@import \"./fonts.sass\" all;"))
   end
