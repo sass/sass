@@ -1594,6 +1594,22 @@ Is compiled to:
       font-size: 2em;
     }
 
+#### The `!optional` Flag
+
+Normally when you extend a selector, it's an error if that `@extend` doesn't
+work. For example, if you write `a.important {@extend .notice}`, it's an error
+if there are no selectors that contain `.notice`. It's also an error if the only
+selector containing `.notice` is `h1.notice`, since `h1` conflicts with `a` and
+so no new selector would be generated.
+
+Sometimes, though, you want to allow an `@extend` not to produce any new
+selectors. To do so, just add the `!optional` flag after the selector. For
+example:
+
+    a.important {
+      @extend .notice !optional;
+    }
+
 #### `@extend` in Directives
 
 There are some restrictions on the use of `@extend` within directives such as
