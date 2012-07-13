@@ -1027,6 +1027,21 @@ bar {baz: bang}
 SCSS
   end
 
+  def test_single_line_comment_within_multiline_comment
+    assert_equal(<<CSS, render(<<SCSS))
+body {
+  /*
+  //comment here
+  */ }
+CSS
+body {
+  /*
+  //comment here
+  */
+}
+SCSS
+  end
+
   private
 
   def assert_selector_parses(selector)

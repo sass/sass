@@ -171,6 +171,13 @@ This will not print a warning.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
+## 3.1.21 (Unreleased)
+
+* Preserve single-line comments that are embedded within multi-line comments.
+
+* Update the bundled version of [Listen](https://github.com/guard/listen) to
+  0.4.7.
+
 ## 3.1.20
 
 * Don't crash if a UTF encoding isn't found. Thanks to [Andrew
