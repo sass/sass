@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.1.21 (Unreleased)
+
+* Update the bundled version of [Listen](https://github.com/guard/listen) to
+  0.4.7.
+
 ## 3.1.20
 
 * Don't crash if a UTF encoding isn't found. Thanks to [Andrew
