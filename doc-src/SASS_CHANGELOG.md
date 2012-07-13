@@ -132,6 +132,9 @@ that make use of `@media` and other directives dynamically.
 
 * Sass functions are now more strict about how keyword arguments can be passed.
 
+* Decimal numbers now default to five digits of precision after the decimal
+  point.
+
 ### Backwards Incompatibilities -- Must Read!
 
 #### `@extend` Warnings

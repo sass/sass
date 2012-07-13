@@ -36,7 +36,7 @@ module Sass::Script
     attr_accessor :original
 
     def self.precision
-      @precision ||= 3
+      @precision ||= 5
     end
 
     # Sets the number of digits of precision
