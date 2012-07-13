@@ -5,6 +5,8 @@
 
 ## 3.1.21 (Unreleased)
 
+* Preserve single-line comments that are embedded within multi-line comments.
+
 * Update the bundled version of [Listen](https://github.com/guard/listen) to
   0.4.7.
 
