@@ -118,6 +118,7 @@ module Sass
       HEXCOLOR = /\#[0-9a-fA-F]+/
       INTERP_START = /#\{/
       ANY = /:(-[-\w]+-)?any\(/i
+      OPTIONAL = /!#{W}optional/i
 
       IDENT_HYPHEN_INTERP = /-(#\{)/
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/

@@ -289,7 +289,10 @@ module Sass
       end
 
       def extend_directive
-        node(Sass::Tree::ExtendNode.new(expr!(:selector_sequence)))
+        selector = expr!(:selector_sequence)
+        optional = tok(OPTIONAL)
+        ss
+        node(Sass::Tree::ExtendNode.new(selector, !!optional))
       end
 
       def import_directive

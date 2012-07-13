@@ -134,6 +134,29 @@ that make use of `@media` and other directives dynamically.
 
 ### Backwards Incompatibilities -- Must Read!
 
+#### `@extend` Warnings
+
+Any `@extend` that doesn't match any selectors in the document will now print a
+warning. These warnings will become errors in future versions of Sass. This will
+help protect against typos and make it clearer why broken styles aren't working.
+For example:
+
+    h1.notice {color: red}
+    a.important {@extend .notice}
+
+This will print a warning, since the only use of `.notice` can't be merged with
+`a`.
+
+You can declare that you don't want warnings for a specific `@extend` by using
+the `!optional` flag. For example:
+
+    h1.notice {color: red}
+    a.important {@extend .notice !optional}
+
+This will not print a warning.
+
+#### Smaller Incompatibilities
+
 * Parent selectors followed immediately by identifiers (e.g. `&foo`)
   are fully disallowed.
   They were deprecated in 3.1.8.

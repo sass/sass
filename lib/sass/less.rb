@@ -25,14 +25,14 @@ module Less
             sel = selector_str(path)
             base = selector_str(selector_base(path))
             if base == sel
-              env << Node::SassNode.new(Sass::Tree::ExtendNode.new([sel]))
+              env << Node::SassNode.new(Sass::Tree::ExtendNode.new([sel], false))
             else
               Sass::Util.sass_warn <<WARNING
 WARNING: Sass doesn't support mixing in selector sequences.
 Replacing "#{sel}" with "@extend #{base}"
 WARNING
               env << Node::SassNode.new(Sass::Tree::CommentNode.new(["// #{sel};"], :silent))
-              env << Node::SassNode.new(Sass::Tree::ExtendNode.new([base]))
+              env << Node::SassNode.new(Sass::Tree::ExtendNode.new([base], false))
             end
           end
         end

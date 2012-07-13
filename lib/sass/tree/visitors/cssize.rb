@@ -88,13 +88,17 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # single [ExtendNode] can have multiple Extends if either the parent node or
   # the extended selector is a comma sequence.
   #
-  # @attr extender [Array<Sass::Selector::SimpleSequence, String>]
+  # @attr extender [Sass::Selector::Sequence]
   #   The selector of the CSS rule containing the `@extend`.
   # @attr target [Array<Sass::Selector::Simple>] The selector being `@extend`ed.
   # @attr node [Sass::Tree::ExtendNode] The node that produced this extend.
   # @attr directives [Array<Sass::Tree::DirectiveNode>]
   #   The directives containing the `@extend`.
-  Extend = Struct.new(:extender, :target, :node, :directives)
+  # @attr result [Symbol]
+  #   The result of this extend. One of `:not_found` (the target doesn't exist
+  #   in the document), `:failed_to_unify` (the target exists but cannot be
+  #   unified with the extender), or `:succeeded`.
+  Extend = Struct.new(:extender, :target, :node, :directives, :result)
 
   # Registers an extension in the `@extends` subset map.
   def visit_extend(node)
@@ -116,7 +120,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
           raise Sass::SyntaxError.new("#{seq} can't extend: invalid selector")
         end
 
-        @extends[sel] = Extend.new(seq, sel, node, @parent_directives.dup)
+        @extends[sel] = Extend.new(seq, sel, node, @parent_directives.dup, :not_found)
       end
     end
 

@@ -17,12 +17,19 @@ module Sass::Tree
     # @return [Array<String, Sass::Script::Node>]
     attr_accessor :selector
 
+    # Whether the `@extend` is allowed to match no selectors or not.
+    #
+    # @return [Boolean]
+    def optional?; @optional; end
+
     # @param selector [Array<String, Sass::Script::Node>]
     #   The CSS selector to extend,
     #   interspersed with {Sass::Script::Node}s
     #   representing `#{}`-interpolation.
-    def initialize(selector)
+    # @param optional [Boolean] See \{#optional}
+    def initialize(selector, optional)
       @selector = selector
+      @optional = optional
       super()
     end
   end

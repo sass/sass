@@ -2,6 +2,9 @@
 #
 # Destructively modifies the tree.
 class Sass::Tree::Visitors::Extend < Sass::Tree::Visitors::Base
+  # Performs the given extensions on the static CSS tree based in `root`, then
+  # validates that all extends matched some selector.
+  #
   # @param root [Tree::Node] The root node of the tree to visit.
   # @param extends [Sass::Util::SubsetMap{Selector::Simple =>
   #                                       Sass::Tree::Visitors::Cssize::Extend}]
@@ -10,6 +13,7 @@ class Sass::Tree::Visitors::Extend < Sass::Tree::Visitors::Base
   def self.visit(root, extends)
     return if extends.empty?
     new(extends).send(:visit, root)
+    check_extends_fired! extends
   end
 
   protected
@@ -38,5 +42,26 @@ class Sass::Tree::Visitors::Extend < Sass::Tree::Visitors::Base
   # Applies the extend to a single rule's selector.
   def visit_rule(node)
     node.resolved_rules = node.resolved_rules.do_extend(@extends, @parent_directives)
+  end
+
+  private
+
+  def self.check_extends_fired!(extends)
+    extends.each_value do |ex|
+      next if ex.result == :succeeded || ex.node.optional?
+      warn = "\"#{ex.extender}\" failed to @extend \"#{ex.target}\"."
+      reason =
+        if ex.result == :not_found
+          "The selector \"#{ex.target}\" was not found."
+        else
+          "No selectors matching \"#{ex.target}\" could be unified with \"#{ex.extender}\"."
+        end
+
+      Sass::Util.sass_warn <<WARN
+WARNING on line #{ex.node.line}#{" of #{ex.node.filename}" if ex.node.filename}: #{warn}
+  #{reason}
+  This will be an error in future releases of Sass.
+WARN
+    end
   end
 end

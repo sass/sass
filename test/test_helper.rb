@@ -47,6 +47,15 @@ class Test::Unit::TestCase
     $stderr = the_real_stderr
   end
 
+  def assert_no_warning
+    the_real_stderr, $stderr = $stderr, StringIO.new
+    yield
+
+    assert_equal '', $stderr.string
+  ensure
+    $stderr = the_real_stderr
+  end
+
   def silence_warnings(&block)
     Sass::Util.silence_warnings(&block)
   end
