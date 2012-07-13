@@ -48,7 +48,7 @@ class Sass::Tree::Visitors::Extend < Sass::Tree::Visitors::Base
 
   def self.check_extends_fired!(extends)
     extends.each_value do |ex|
-      next if ex.result == :succeeded
+      next if ex.result == :succeeded || ex.node.optional?
       warn = "\"#{ex.extender}\" failed to @extend \"#{ex.target}\"."
       reason =
         if ex.result == :not_found

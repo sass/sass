@@ -1086,6 +1086,36 @@ b.foo {@extend .bar}
 SCSS
   end
 
+  def test_extend_does_not_warn_when_one_extension_fails_but_others_dont
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+a.bar {
+  a: b; }
+
+.bar, b.foo {
+  c: d; }
+CSS
+a.bar {a: b}
+.bar {c: d}
+b.foo {@extend .bar}
+SCSS
+  end
+
+  def test_optional_extend_does_not_warn_when_extendee_doesnt_exist
+    assert_no_warning {assert_equal("", render(<<SCSS))}
+.foo {@extend .bar !optional}
+SCSS
+  end
+
+  def test_optional_extend_does_not_warn_when_extension_fails
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+a.bar {
+  a: b; }
+CSS
+a.bar {a: b}
+b.foo {@extend .bar !optional}
+SCSS
+  end
+
   # Regression Tests
 
   def test_newline_near_combinator

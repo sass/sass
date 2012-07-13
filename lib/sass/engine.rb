@@ -683,8 +683,9 @@ WARNING
         raise SyntaxError.new("Invalid extend directive '@extend': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath extend directives.",
           :line => @line + 1) unless line.children.empty?
+        optional = !!value.gsub!(/\s+#{Sass::SCSS::RX::OPTIONAL}$/, '')
         offset = line.offset + line.text.index(value).to_i
-        Tree::ExtendNode.new(parse_interp(value, offset))
+        Tree::ExtendNode.new(parse_interp(value, offset), optional)
       when 'warn'
         raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",

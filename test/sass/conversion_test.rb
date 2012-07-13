@@ -1514,6 +1514,16 @@ foo bar {
 SCSS
   end
 
+  def test_extend_with_optional
+    assert_scss_to_sass <<SASS, <<SCSS
+foo
+  @extend .bar !optional
+SASS
+foo {
+  @extend .bar !optional;
+}
+SCSS
+  end
 
   ## Regression Tests
 
