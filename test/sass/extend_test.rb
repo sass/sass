@@ -1164,7 +1164,7 @@ SCSS
       if reason == :not_found
         "The selector \"#{target}\" was not found."
       else
-        "No selectors matching \"#{target}\" could be unified with \"#{extender}\""
+        "No selectors matching \"#{target}\" could be unified with \"#{extender}\"."
       end
 
     assert_warning(<<WARNING) {yield}

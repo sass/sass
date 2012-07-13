@@ -54,7 +54,7 @@ class Sass::Tree::Visitors::Extend < Sass::Tree::Visitors::Base
         if ex.result == :not_found
           "The selector \"#{ex.target}\" was not found."
         else
-          "No selectors matching \"#{ex.target}\" could be unified with \"#{ex.extender}\""
+          "No selectors matching \"#{ex.target}\" could be unified with \"#{ex.extender}\"."
         end
 
       Sass::Util.sass_warn <<WARN
