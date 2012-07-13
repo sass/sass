@@ -837,7 +837,7 @@ SCSS
 
   def test_extend_out_of_media
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 3 of test_extend_out_of_media_inline.sass:
+DEPRECATION WARNING on line 3 of test_extend_out_of_media_inline.scss:
   @extending an outer selector from within @media is deprecated.
   You may only @extend selectors within the same directive.
   This will be an error in Sass 3.3.
@@ -855,7 +855,7 @@ SCSS
 
   def test_extend_out_of_unknown_directive
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 3 of test_extend_out_of_unknown_directive_inline.sass:
+DEPRECATION WARNING on line 3 of test_extend_out_of_unknown_directive_inline.scss:
   @extending an outer selector from within @flooblehoof is deprecated.
   You may only @extend selectors within the same directive.
   This will be an error in Sass 3.3.
@@ -875,7 +875,7 @@ SCSS
 
   def test_extend_out_of_nested_directives
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 4 of test_extend_out_of_nested_directives_inline.sass:
+DEPRECATION WARNING on line 4 of test_extend_out_of_nested_directives_inline.scss:
   @extending an outer selector from within @flooblehoof is deprecated.
   You may only @extend selectors within the same directive.
   This will be an error in Sass 3.3.
@@ -978,7 +978,7 @@ SCSS
 
   def test_extend_within_and_without_media
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 4 of test_extend_within_and_without_media_inline.sass:
+DEPRECATION WARNING on line 4 of test_extend_within_and_without_media_inline.scss:
   @extending an outer selector from within @media is deprecated.
   You may only @extend selectors within the same directive.
   This will be an error in Sass 3.3.
@@ -1001,7 +1001,7 @@ SCSS
 
   def test_extend_within_and_without_unknown_directive
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 4 of test_extend_within_and_without_unknown_directive_inline.sass:
+DEPRECATION WARNING on line 4 of test_extend_within_and_without_unknown_directive_inline.scss:
   @extending an outer selector from within @flooblehoof is deprecated.
   You may only @extend selectors within the same directive.
   This will be an error in Sass 3.3.
@@ -1024,7 +1024,7 @@ SCSS
 
   def test_extend_within_and_without_nested_directives
     assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 5 of test_extend_within_and_without_nested_directives_inline.sass:
+DEPRECATION WARNING on line 5 of test_extend_within_and_without_nested_directives_inline.scss:
   @extending an outer selector from within @flooblehoof is deprecated.
   You may only @extend selectors within the same directive.
   This will be an error in Sass 3.3.
@@ -1158,7 +1158,7 @@ SCSS
 
   private
 
-  def assert_extend_doesnt_match(extender, target, reason, line, syntax = :sass)
+  def assert_extend_doesnt_match(extender, target, reason, line, syntax = :scss)
     warn = "\"#{extender}\" failed to @extend \"#{target}\"."
     reason = 
       if reason == :not_found
@@ -1193,7 +1193,8 @@ SCSS
   end
 
   def render(sass, options = {})
+    options = {:syntax => :scss}.merge(options)
     munge_filename options
-    Sass::Engine.new(sass, {:syntax => :scss}.merge(options)).render
+    Sass::Engine.new(sass, options).render
   end
 end
