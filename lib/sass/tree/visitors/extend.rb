@@ -49,12 +49,12 @@ class Sass::Tree::Visitors::Extend < Sass::Tree::Visitors::Base
   def self.check_extends_fired!(extends)
     extends.each_value do |ex|
       next if ex.result == :succeeded || ex.node.optional?
-      warn = "\"#{ex.extender}\" failed to @extend \"#{ex.target}\"."
+      warn = "\"#{ex.extender}\" failed to @extend \"#{ex.target.join}\"."
       reason =
         if ex.result == :not_found
-          "The selector \"#{ex.target}\" was not found."
+          "The selector \"#{ex.target.join}\" was not found."
         else
-          "No selectors matching \"#{ex.target}\" could be unified with \"#{ex.extender}\"."
+          "No selectors matching \"#{ex.target.join}\" could be unified with \"#{ex.extender}\"."
         end
 
       Sass::Util.sass_warn <<WARN
