@@ -1048,6 +1048,44 @@ CSS
 SCSS
   end
 
+  def test_extend_warns_when_extendee_doesnt_exist
+    assert_warning(<<WARN) {assert_equal("", render(<<SCSS))}
+WARNING on line 1 of test_extend_warns_when_extendee_doesnt_exist_inline.scss: ".foo" failed to @extend ".bar".
+  The selector ".bar" was not found.
+  This will be an error in future releases of Sass.
+WARN
+.foo {@extend .bar}
+SCSS
+  end
+
+  def test_extend_warns_when_extension_fails
+    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
+WARNING on line 2 of test_extend_warns_when_extension_fails_inline.scss: "b.foo" failed to @extend ".bar".
+  No selectors matching ".bar" could be unified with "b.foo".
+  This will be an error in future releases of Sass.
+WARN
+a.bar {
+  a: b; }
+CSS
+a.bar {a: b}
+b.foo {@extend .bar}
+SCSS
+  end
+
+  def test_extend_does_not_warn_when_one_extension_fails_but_others_dont
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+a.bar {
+  a: b; }
+
+.bar, b.foo {
+  c: d; }
+CSS
+a.bar {a: b}
+.bar {c: d}
+b.foo {@extend .bar}
+SCSS
+  end
+
   # Regression Tests
 
   def test_newline_near_combinator
