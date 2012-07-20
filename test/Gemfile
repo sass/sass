@@ -1,4 +1,3 @@
 source :gemcutter
 
 gem 'rake'
-gem 'less', '< 2.0.0'

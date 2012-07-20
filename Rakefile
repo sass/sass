@@ -194,7 +194,6 @@ OPTS
     t.files = FileList.new(scope('lib/**/*.rb')) do |list|
       list.exclude('lib/sass/plugin/merb.rb')
       list.exclude('lib/sass/plugin/rails.rb')
-      list.exclude('lib/sass/less.rb')
     end.to_a
     t.options << '--incremental' if Rake.application.top_level_tasks.include?('redoc')
     t.options += FileList.new(scope('yard/*.rb')).to_a.map {|f| ['-e', f]}.flatten

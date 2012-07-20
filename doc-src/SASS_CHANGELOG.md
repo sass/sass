@@ -175,6 +175,8 @@ This will not print a warning.
 * `#{}` interpolation is now disallowed in all `@import` statements
   except for those using `url()`.
 
+* `sass-convert` no longer supports converting files from LessCSS.
+
 ## 3.1.21 (Unreleased)
 
 * Preserve single-line comments that are embedded within multi-line comments.
