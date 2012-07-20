@@ -148,7 +148,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_media(node)
-    "#{tab_str}@media #{interp_to_src(node.query)}#{yield}"
+    "#{tab_str}@media #{media_interp_to_src(node.query)}#{yield}"
   end
 
   def visit_supports(node)
@@ -240,6 +240,22 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     interp.map do |r|
       next r if r.is_a?(String)
       "\#{#{r.to_sass(@options)}}"
+    end.join
+  end
+
+  # Like interp_to_src, but removes the unnecessary `#{}` around the keys and
+  # values in media expressions.
+  def media_interp_to_src(interp)
+    Sass::Util.enum_with_index(interp).map do |r, i|
+      next r if r.is_a?(String)
+      before, after = interp[i-1], interp[i+1]
+      if before.is_a?(String) && after.is_a?(String) &&
+          ((before[-1] == ?( && after[0] == ?:) ||
+           (before =~ /:\s*/ && after[0] == ?)))
+        r.to_sass(@options)
+      else
+        "\#{#{r.to_sass(@options)}}"
+      end
     end.join
   end
 

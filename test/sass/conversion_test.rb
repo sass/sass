@@ -1160,14 +1160,13 @@ SCSS
   end
 
   def test_media_with_expressions
-    # TODO: get rid of the #{} in the expression output
     assert_sass_to_scss <<SCSS, <<SASS
 $media1: screen;
 $media2: print;
 $var: -webkit-min-device-pixel-ratio;
 $val: 20;
 
-@media \#{$media1} and (\#{$var + "-foo"}: \#{$val + 5}), only \#{$media2} {
+@media \#{$media1} and ($var + "-foo": $val + 5), only \#{$media2} {
   a: b;
 }
 SCSS
@@ -1186,7 +1185,7 @@ $media2: print
 $var: -webkit-min-device-pixel-ratio
 $val: 20
 
-@media \#{$media1} and (\#{$var + "-foo"}: \#{$val + 5}), only \#{$media2}
+@media \#{$media1} and ($var + "-foo": $val + 5), only \#{$media2}
   a: b
 SASS
 $media1: screen;
@@ -1564,6 +1563,16 @@ SCSS
   end
 
   ## Regression Tests
+
+  def test_media_query_with_expr
+    assert_scss_to_sass <<SASS, <<SCSS
+@media foo and (bar: baz)
+  a: b
+SASS
+@media foo and (bar: baz) {
+  a: b; }
+SCSS
+  end
 
   def test_empty_lists
     assert_renders(<<SASS, <<SCSS)
