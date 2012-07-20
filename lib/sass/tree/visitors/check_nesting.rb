@@ -73,8 +73,30 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     end
   end
 
+  INVALID_IMPORT_PARENTS = CONTROL_NODES +
+    [Sass::Tree::MixinDefNode, Sass::Tree::MixinNode]
+  def invalid_import_parent?(parent, child)
+    unless (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
+      return "Import directives may not be used within control directives or mixins."
+    end
+    return if parent.is_a?(Sass::Tree::RootNode)
+    return "CSS import directives may only be used at the root of a document." if child.css_import?
+  rescue Sass::SyntaxError => e
+    e.modify_backtrace(:filename => child.imported_file.options[:filename])
+    e.add_backtrace(:filename => child.filename, :line => child.line)
+    raise e
+  end
+
+  def invalid_mixindef_parent?(parent, child)
+    unless (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
+      return "Mixins may not be defined within control directives or other mixins."
+    end
+  end
+
   def invalid_function_parent?(parent, child)
-    "Functions may only be defined at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
+    unless (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
+      return "Functions may not be defined within control directives or other mixins."
+    end
   end
 
   VALID_FUNCTION_CHILDREN = [
@@ -85,28 +107,6 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     unless is_any_of?(child, VALID_FUNCTION_CHILDREN)
       "Functions can only contain variable declarations and control directives."
     end
-  end
-
-  INVALID_IMPORT_PARENTS = CONTROL_NODES +
-    [Sass::Tree::MixinDefNode, Sass::Tree::MixinNode]
-  def invalid_import_parent?(parent, child)
-    unless (@parents.map {|p| p.class} & INVALID_IMPORT_PARENTS).empty?
-      return "Import directives may not be used within control directives or mixins."
-    end
-    return if parent.is_a?(Sass::Tree::RootNode)
-    return "CSS import directives may only be used at the root of a document." if child.css_import?
-    # If this is a nested @import, we need to make sure it doesn't have anything
-    # that's legal at top-level but not in the current context (e.g. mixin defs).
-    child.imported_file.to_tree.children.each {|c| visit(c)}
-    nil
-  rescue Sass::SyntaxError => e
-    e.modify_backtrace(:filename => child.imported_file.options[:filename])
-    e.add_backtrace(:filename => child.filename, :line => child.line)
-    raise e
-  end
-
-  def invalid_mixindef_parent?(parent, child)
-    "Mixins may only be defined at the root of a document." unless parent.is_a?(Sass::Tree::RootNode)
   end
 
   VALID_PROP_CHILDREN = [Sass::Tree::CommentNode, Sass::Tree::PropNode, Sass::Tree::MixinNode] + CONTROL_NODES

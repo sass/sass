@@ -113,7 +113,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Loads the function into the environment.
   def visit_function(node)
-    @environment.set_function(node.name,
+    @environment.set_local_function(node.name,
       Sass::Callable.new(node.name, node.args, @environment, node.children, !:has_content))
     []
   end
@@ -155,7 +155,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Loads a mixin into the environment.
   def visit_mixindef(node)
-    @environment.set_mixin(node.name,
+    @environment.set_local_mixin(node.name,
       Sass::Callable.new(node.name, node.args, @environment, node.children, node.has_content))
     []
   end

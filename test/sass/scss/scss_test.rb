@@ -1073,17 +1073,83 @@ $domain: "sass-lang.com";
 SCSS
   end
 
+  def test_nested_mixin_def
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b; }
+CSS
+foo {
+  @mixin bar {a: b}
+  @include bar; }
+SCSS
+  end
+
+  def test_nested_mixin_shadow
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  c: d; }
+
+baz {
+  a: b; }
+CSS
+@mixin bar {a: b}
+
+foo {
+  @mixin bar {c: d}
+  @include bar;
+}
+
+baz {@include bar}
+SCSS
+  end
+
+  def test_nested_function_def
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 1; }
+
+bar {
+  b: foo(); }
+CSS
+foo {
+  @function foo() {@return 1}
+  a: foo(); }
+
+bar {b: foo()}
+SCSS
+  end
+
+  def test_nested_function_shadow
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: 2; }
+
+baz {
+  b: 1; }
+CSS
+@function foo() {@return 1}
+
+foo {
+  @function foo() {@return 2}
+  a: foo();
+}
+
+baz {b: foo()}
+SCSS
+  end
+
   ## Errors
 
-  def test_mixin_defs_only_at_toplevel
+  def test_nested_mixin_def_is_scoped
     render <<SCSS
 foo {
   @mixin bar {a: b}}
+bar {@include bar}
 SCSS
     assert(false, "Expected syntax error")
   rescue Sass::SyntaxError => e
-    assert_equal "Mixins may only be defined at the root of a document.", e.message
-    assert_equal 2, e.sass_line
+    assert_equal "Undefined mixin 'bar'.", e.message
+    assert_equal 3, e.sass_line
   end
 
   def test_rules_beneath_properties

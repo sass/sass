@@ -94,6 +94,10 @@ that make use of `@media` and other directives dynamically.
 
 ### Smaller Improvements
 
+* Mixins and functions may now be defined in a nested context, for example
+  within `@media` rules. This also allows files containing them to be imported
+  in such contexts.
+
 * Previously, only the `:-moz-any` selector was supported; this has been
   expanded to support any vendor prefix, as well as the plain `:any` selector.
 

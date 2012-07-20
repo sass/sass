@@ -73,7 +73,7 @@ MSG
     "=foo\n  :color red\n.bar\n  +bang" => "Undefined mixin 'bang'.",
     "=foo\n  :color red\n.bar\n  +bang_bop" => "Undefined mixin 'bang_bop'.",
     "=foo\n  :color red\n.bar\n  +bang-bop" => "Undefined mixin 'bang-bop'.",
-    ".bar\n  =foo\n    :color red\n" => ["Mixins may only be defined at the root of a document.", 2],
+    ".foo\n  =foo\n    :color red\n.bar\n  +foo" => "Undefined mixin 'foo'.",
     "    a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 1],
     " \n   \n\t\n  a\n  b: c" => ["Indenting at the beginning of the document is illegal.", 4],
     "a\n  b: c\n b: c" => ["Inconsistent indentation: 1 space was used for indentation, but the rest of the document was indented using 2 spaces.", 3],
@@ -105,7 +105,6 @@ MSG
     "@function foo($)\n  @return 1" => ['Invalid CSS after "(": expected variable (e.g. $foo), was "$)"', 1],
     "@function foo()\n  @return" => 'Invalid @return: expected expression.',
     "@function foo()\n  @return 1\n    $var: val" => 'Illegal nesting: Nothing may be nested beneath return directives.',
-    "foo\n  @function bar()\n    @return 1" => ['Functions may only be defined at the root of a document.', 2],
     "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing argument $a',
     "@function foo()\n  @return 1\na\n  b: foo(2)" => 'Wrong number of arguments (1 for 0) for `foo\'',
     "@function foo()\n  @return 1\na\n  b: foo($a: 1)" => "Function foo doesn't have an argument named $a",
@@ -274,7 +273,7 @@ SASS
   end
 
   def test_imported_exception
-    [1, 2, 3, 4, 5].each do |i|
+    [1, 2, 3, 4].each do |i|
       begin
         Sass::Engine.new("@import bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -296,7 +295,7 @@ SASS
   end
 
   def test_double_imported_exception
-    [1, 2, 3, 4, 5].each do |i|
+    [1, 2, 3, 4].each do |i|
       begin
         Sass::Engine.new("@import nested_bork#{i}", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
       rescue Sass::SyntaxError => err
@@ -721,24 +720,6 @@ CSS
   a: b
   @import partial
 SASS
-  end
-
-  def test_nested_import_with_toplevel_constructs
-    Sass::Engine.new(".foo\n  @import importee", :load_paths => [File.dirname(__FILE__) + '/templates/']).render
-  rescue Sass::SyntaxError => err
-    assert_equal(3, err.sass_line)
-    assert_match(/(\/|^)importee\.sass$/, err.sass_filename)
-
-    assert_hash_has(err.sass_backtrace.first,
-      :filename => err.sass_filename, :line => err.sass_line)
-
-    assert_nil(err.sass_backtrace[1][:filename])
-    assert_equal(2, err.sass_backtrace[1][:line])
-
-    assert_match(/(\/|^)importee\.sass:3$/, err.backtrace.first)
-    assert_equal("(sass):2", err.backtrace[1])
-  else
-    assert(false, "Exception not raised for importing mixins nested")
   end
 
   def test_units
