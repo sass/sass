@@ -190,6 +190,42 @@ CSS
 SCSS
   end
 
+  def test_eq_operator
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b; }
+CSS
+@if "foo" eq "foo" {foo {a: b}}
+@else {bar {a: b}}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+bar {
+  a: b; }
+CSS
+@if "foo" eq "bar" {foo {a: b}}
+@else {bar {a: b}}
+SCSS
+  end
+
+  def test_ne_operator
+    assert_equal <<CSS, render(<<SCSS)
+bar {
+  a: b; }
+CSS
+@if "foo" ne "foo" {foo {a: b}}
+@else {bar {a: b}}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+foo {
+  a: b; }
+CSS
+@if "foo" ne "bar" {foo {a: b}}
+@else {bar {a: b}}
+SCSS
+  end
+
   def test_comment_after_if_directive
     assert_equal <<CSS, render(<<SCSS)
 foo {

@@ -139,6 +139,9 @@ that make use of `@media` and other directives dynamically.
 * Decimal numbers now default to five digits of precision after the decimal
   point.
 
+* Sass 3.2 adds the `eq` and `ne` operators which can be used in place of
+  `==` and `!=` respectively.
+
 ### Backwards Incompatibilities -- Must Read!
 
 #### `@extend` Warnings

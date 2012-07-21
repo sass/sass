@@ -716,7 +716,7 @@ before the containing list is turned into CSS.
 
 ### Operations
 
-All types support equality operations (`==` and `!=`).
+All types support equality operations (`==`, `!=`, `eq`, `ne`).
 In addition, each type has its own operations
 that it has special support for.
 
@@ -739,7 +739,7 @@ Relational operators
 (`<`, `>`, `<=`, `>=`)
 are also supported for numbers,
 and equality operators
-(`==`, `!=`)
+(`==`, `!=`, `eq`, `ne`)
 are supported for all types.
 
 ##### Division and `/`
