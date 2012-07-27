@@ -47,15 +47,15 @@ module Sass
       # @return [Sequence] This selector, with parent references resolved
       # @raise [Sass::SyntaxError] If a parent selector is invalid
       def resolve_parent_refs(super_seq)
-        members = @members
+        members = @members.dup
         nl = (members.first == "\n" && members.shift)
         unless members.any? do |seq_or_op|
             seq_or_op.is_a?(SimpleSequence) && seq_or_op.members.first.is_a?(Parent)
           end
-          members = []
+          old_members, members = members, []
           members << nl if nl
           members << SimpleSequence.new([Parent.new])
-          members += @members
+          members += old_members
         end
 
         Sequence.new(

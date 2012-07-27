@@ -1105,6 +1105,27 @@ SCSS
 
   # Regression
 
+  def test_newline_selector_rendered_multiple_times
+    assert_equal <<CSS, render(<<SCSS)
+form input,
+form select {
+  color: white; }
+
+form input,
+form select {
+  color: white; }
+CSS
+@for $i from 1 through 2 {
+  form {
+    input,
+    select {
+      color: white;
+    }
+  }
+}
+SCSS
+  end
+
   def test_prop_name_interpolation_after_hyphen
     assert_equal <<CSS, render(<<SCSS)
 a {
