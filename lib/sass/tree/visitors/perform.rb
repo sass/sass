@@ -25,7 +25,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Keeps track of the current environment.
   def visit_children(parent)
-    with_environment Sass::Environment.new(@environment) do
+    with_environment Sass::Environment.new(@environment, parent.options) do
       parent.children = super.flatten
       parent
     end
@@ -45,7 +45,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Sets the options on the environment if this is the top-level root.
   def visit_root(node)
-    @environment.options = node.options if @environment.options.nil? || @environment.options.empty?
     yield
   rescue Sass::SyntaxError => e
     e.sass_template ||= node.template
@@ -113,8 +112,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Loads the function into the environment.
   def visit_function(node)
+    env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_function(node.name,
-      Sass::Callable.new(node.name, node.args, @environment, node.children, !:has_content))
+      Sass::Callable.new(node.name, node.args, env, node.children, !:has_content))
     []
   end
 
@@ -155,8 +155,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   # Loads a mixin into the environment.
   def visit_mixindef(node)
+    env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_mixin(node.name,
-      Sass::Callable.new(node.name, node.args, @environment, node.children, node.has_content))
+      Sass::Callable.new(node.name, node.args, env, node.children, node.has_content))
     []
   end
 

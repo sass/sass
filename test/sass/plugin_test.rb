@@ -4,11 +4,18 @@ require File.dirname(__FILE__) + '/test_helper'
 require 'sass/plugin'
 require 'fileutils'
 
+module Sass::Script::Functions
+  def filename
+    filename = options[:filename].gsub(%r{.*((/[^/]+){4})}, '\1')
+    Sass::Script::String.new(filename)
+  end
+end
+
 class SassPluginTest < Test::Unit::TestCase
   @@templates = %w{
     complex script parent_ref import scss_import alt
     subdir/subdir subdir/nested_subdir/nested_subdir
-    options import_content
+    options import_content filename_fn
   }
   @@templates += %w[import_charset import_charset_ibm866] unless Sass::Util.ruby1_8?
   @@templates << 'import_charset_1_8' if Sass::Util.ruby1_8?

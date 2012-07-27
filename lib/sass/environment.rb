@@ -18,13 +18,16 @@ module Sass
     #
     # @return [Environment]
     attr_reader :parent
-    attr_writer :options
+    attr_reader :options
     attr_writer :caller
     attr_writer :content
 
+    # @param options [{Symbol => Object}] The options hash. See
+    #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     # @param parent [Environment] See \{#parent}
-    def initialize(parent = nil)
+    def initialize(parent = nil, options = nil)
       @parent = parent
+      @options = options || (parent && parent.options) || {}
     end
 
     # The environment of the caller of this environment's mixin or function.
@@ -40,19 +43,7 @@ module Sass
       @content || (@parent && @parent.content)
     end
 
-    # The options hash.
-    # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
-    #
-    # @return [{Symbol => Object}]
-    def options
-      @options || parent_options || {}
-    end
-
     private
-
-    def parent_options
-      @parent_options ||= @parent && @parent.options
-    end
 
     class << self
       private

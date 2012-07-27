@@ -139,6 +139,10 @@ that make use of `@media` and other directives dynamically.
 * Decimal numbers now default to five digits of precision after the decimal
   point.
 
+* The \{Sass::Script::Functions::EvaluationContext.options options hash}
+  available to Sass functions now contains the filename of the file that the
+  function was executed in, rather than the top-level file.
+
 ### Backwards Incompatibilities -- Must Read!
 
 #### `@extend` Warnings

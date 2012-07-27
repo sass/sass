@@ -554,9 +554,9 @@ SASS
 
   def eval(str, opts = {}, environment = env)
     munge_filename opts
-    environment.options = opts
     Sass::Script.parse(str, opts.delete(:line) || 1,
-      opts.delete(:offset) || 0, opts).perform(environment)
+      opts.delete(:offset) || 0, opts).
+      perform(Sass::Environment.new(environment, opts))
   end
 
   def render(sass, options = {})
