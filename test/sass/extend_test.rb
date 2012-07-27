@@ -1119,6 +1119,7 @@ end
 WARNING on line 1 of test_extend_warns_when_extendee_doesnt_exist_inline.scss: ".foo" failed to @extend ".bar".
   The selector ".bar" was not found.
   This will be an error in future releases of Sass.
+  Use "@extend .bar !optional" if the extend should be able to fail.
 WARN
 .foo {@extend .bar}
 SCSS
@@ -1129,6 +1130,7 @@ SCSS
 WARNING on line 2 of test_extend_warns_when_extension_fails_inline.scss: "b.foo" failed to @extend ".bar".
   No selectors matching ".bar" could be unified with "b.foo".
   This will be an error in future releases of Sass.
+  Use "@extend .bar !optional" if the extend should be able to fail.
 WARN
 a.bar {
   a: b; }
@@ -1305,6 +1307,7 @@ SCSS
 WARNING on line #{line} of #{filename_for_test syntax}: #{warn}
   #{reason}
   This will be an error in future releases of Sass.
+  Use "@extend #{target} !optional" if the extend should be able to fail.
 WARNING
   end
 

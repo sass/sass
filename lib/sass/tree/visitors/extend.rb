@@ -61,6 +61,7 @@ class Sass::Tree::Visitors::Extend < Sass::Tree::Visitors::Base
 WARNING on line #{ex.node.line}#{" of #{ex.node.filename}" if ex.node.filename}: #{warn}
   #{reason}
   This will be an error in future releases of Sass.
+  Use "@extend #{ex.target.join} !optional" if the extend should be able to fail.
 WARN
     end
   end
