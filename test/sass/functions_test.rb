@@ -1082,7 +1082,7 @@ MSG
     evaluate("rgb($red: 255, 255, 255)")
     flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Positional arguments must come before keyword arguments", e.message)
+    assert_equal("Positional arguments must come before keyword arguments.", e.message)
   end
 
   def test_only_var_args
