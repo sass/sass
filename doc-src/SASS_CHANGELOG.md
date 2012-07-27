@@ -10,6 +10,8 @@
 * Preserve newlines in nested selectors when those selectors are used multiple
   times in the same document.
 
+* Allow tests to be run without the `LANG` environment variable set.
+
 * Update the bundled version of [Listen](https://github.com/guard/listen) to
   0.4.7.
 
