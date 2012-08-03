@@ -24,7 +24,7 @@ end
 # Don't use Rake::GemPackageTast because we want prerequisites to run
 # before we load the gemspec.
 desc "Build all the packages."
-task :package => [:revision_file, :submodules, :permissions] do
+task :package => [:revision_file, :date_file, :submodules, :permissions] do
   version = get_version
   File.open(scope('VERSION'), 'w') {|f| f.puts(version)}
   load scope('sass.gemspec')
@@ -63,8 +63,17 @@ task :revision_file do
   end
 end
 
+task :date_file do
+  File.open(scope('VERSION_DATE'), 'w') do |f|
+    f.puts Time.now.utc.strftime('%d %B %Y %T %Z')
+  end
+end
+
 # We also need to get rid of this file after packaging.
-at_exit { File.delete(scope('REVISION')) rescue nil }
+at_exit do
+  File.delete(scope('REVISION')) rescue nil
+  File.delete(scope('VERSION_DATE')) rescue nil
+end
 
 desc "Install Sass as a gem. Use SUDO=1 to install with sudo."
 task :install => [:package] do

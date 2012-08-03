@@ -1,3 +1,5 @@
+require 'date'
+
 # This is necessary for loading Sass when Haml is required in Rails 3.
 # Once the split is complete, we can remove it.
 require File.dirname(__FILE__) + '/../sass'
@@ -16,6 +18,7 @@ module Sass
     # The `:name` key has the name of the version.
     # The `:string` key contains a human-readable string representation of the version.
     # The `:number` key is the major, minor, and teeny keys separated by periods.
+    # The `:date` key, which is not guaranteed to be defined, is the [DateTime] at which this release was cut.
     # If Sass is checked out from Git, the `:rev` key will have the revision hash.
     # For example:
     #
@@ -23,6 +26,7 @@ module Sass
     #       :string => "2.1.0.9616393",
     #       :rev    => "9616393b8924ef36639c7e82aa88a51a24d16949",
     #       :number => "2.1.0",
+    #       :date   => DateTime.parse("Apr 30 13:52:01 2009 -0700"),
     #       :major  => 2, :minor => 1, :teeny => 0
     #     }
     #
@@ -36,6 +40,7 @@ module Sass
     #     {
     #       :string => "3.0.beta.1",
     #       :number => "3.0.beta.1",
+    #       :date   => DateTime.parse("Mar 31 00:38:04 2010 -0700"),
     #       :major => 3, :minor => 0, :teeny => -1,
     #       :prerelease => "beta",
     #       :prerelease_number => 1
@@ -54,6 +59,10 @@ module Sass
         :teeny => numbers[2],
         :name => name
       }
+
+      if date = version_date
+        @@version[:date] = date
+      end
 
       if numbers[3].is_a?(String)
         @@version[:teeny] = -1
@@ -100,6 +109,11 @@ module Sass
         end
       end
       return nil
+    end
+
+    def version_date
+      return unless File.exists?(scope('VERSION_DATE'))
+      return DateTime.parse(File.read(scope('VERSION_DATE')).strip)
     end
   end
 
