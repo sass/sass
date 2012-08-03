@@ -26,4 +26,10 @@ module StaticMatic::Helpers
     return preserve(CGI.escapeHTML(content)) if content
     return h_and_preserve(capture_haml(&block).strip)
   end
+
+  def version_info
+    version = "<span class=\"version\">#{Sass.version[:number]}</span>"
+    return version unless date = Sass.version[:date]
+    version + ", <span class=\"date\">#{date.strftime("%d %B %Y")}</span>"
+  end
 end

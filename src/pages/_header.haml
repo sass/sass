@@ -22,6 +22,6 @@
 
   #latest
     %h2 Latest Release:
-    #{CGI.escapeHTML Sass.version[:name]} (<span class="version">#{Sass.version[:number]}</span>)
+    #{CGI.escapeHTML Sass.version[:name]} (#{version_info})
     %p= link "What's New?", "/docs/yardoc/file.SASS_CHANGELOG.html"
 
