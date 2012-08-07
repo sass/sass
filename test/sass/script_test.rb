@@ -359,6 +359,7 @@ SASS
 
   def test_operator_unit_conversion
     assert_equal "1.1cm", resolve("1cm + 1mm")
+    assert_equal "2in", resolve("1in + 96px")
     assert_equal "true", resolve("2mm < 1cm")
     assert_equal "true", resolve("10mm == 1cm")
     assert_equal "true", resolve("1 == 1cm")
