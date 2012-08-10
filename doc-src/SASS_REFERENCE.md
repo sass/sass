@@ -2007,6 +2007,70 @@ providing many arguments without becoming difficult to call.
 Named arguments can be passed in any order, and arguments with default values can be omitted.
 Since the named arguments are variable names, underscores and dashes can be used interchangeably.
 
+#### Variable Arguments
+
+Sometimes it makes sense for a mixin to take an unknown number of arguments. For
+example, a mixin for creating box shadows might take any number of shadows as
+arguments. For these situations, Sass supports "variable arguments," which are
+arguments at the end of a mixin declaration that take all leftover arguments and
+package them up as a [list](#lists). These arguments look just like normal
+arguments, but are followed by `...`. For example:
+
+    @mixin box-shadow($shadows...) {
+      -moz-box-shadow: $shadows;
+      -webkit-box-shadow: $shadows;
+      box-shadow: $shadows;      
+    }
+
+    .shadows {
+      @include box-shadow(0px 4px 5px #666, 2px 6px 10px #999);
+    }
+
+is compiled to:
+
+    .shadowed {
+      -moz-box-shadow: 0px 4px 5px #666, 2px 6px 10px #999;
+      -webkit-box-shadow: 0px 4px 5px #666, 2px 6px 10px #999;
+      box-shadow: 0px 4px 5px #666, 2px 6px 10px #999;
+    }
+
+Variable arguments can also be used when calling a mixin. Using the same syntax,
+you can expand a list of values so that each value is passed as a separate
+argument. For example:
+
+    @mixin colors($text, $background, $border) {
+      color: $text;
+      background-color: $background;
+      border-color: $border;
+    }
+
+    $values: #ff0000, #00ff00, #0000ff;
+    .primary {
+      @include colors($values...);
+    }
+
+is compiled to:
+
+    .primary {
+      color: #ff0000;
+      background-color: #00ff00;
+      border-color: #0000ff;
+    }
+
+You can use variable arguments to wrap a mixin and add additional styles without
+changing the argument signature of the mixin. If you do so, even keyword
+arguments will get passed through to the wrapped mixin. For example:
+
+    @mixin wrapped-stylish-mixin($args...) {
+      font-weight: bold;
+      @include stylish-mixin($args...);
+    }
+
+    .stylish {
+      // The $width argument will get passed on to "stylish-mixin" as a keyword
+      @include wrapped-stylish-mixin(#00ff00, $width: 100px);
+    }
+
 ### Passing Content Blocks to a Mixin {#mixin-content}
 
 It is possible to pass a block of styles to the mixin for placement within the styles included by
@@ -2111,6 +2175,9 @@ In the above example we could have called the function like this:
 
 It is recommended that you prefix your functions to avoid naming conflicts
 and so that readers of your stylesheets know they are not part of Sass or CSS. For example, if you work for ACME Corp, you might have named the function above `-acme-grid-width`.
+
+User-defined functions also support [variable arguments](#variable-arguments)
+in the same way as mixins.
 
 ## Output Style
 
