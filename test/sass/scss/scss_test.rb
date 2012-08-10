@@ -1499,7 +1499,7 @@ SCSS
   end
 
   def test_unknown_keyword_arg_raises_error
-    assert_raise_message(Sass::SyntaxError, "Mixin a doesn't have an argument named $c") {render <<SCSS}
+    assert_raise_message(Sass::SyntaxError, "Mixin a doesn't have an argument named $c.") {render <<SCSS}
 @mixin a($b: 1) { a: $b; }
 div { @include a(1, $c: 3); }
 SCSS

@@ -93,7 +93,7 @@ MSG
     "a-\#{$b\n  c: d" => ['Invalid CSS after "a-#{$b": expected "}", was ""', 1],
     "=a($b: 1, $c)" => "Required argument $c must come before any optional arguments.",
     "=a($b: 1)\n  a: $b\ndiv\n  +a(1,2)" => "Mixin a takes 1 argument but 2 were passed.",
-    "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c",
+    "=a($b: 1)\n  a: $b\ndiv\n  +a(1,$c: 3)" => "Mixin a doesn't have an argument named $c.",
     "=a($b)\n  a: $b\ndiv\n  +a" => "Mixin a is missing argument $b.",
     "@function foo()\n  1 + 2" => "Functions can only contain variable declarations and control directives.",
     "@function foo()\n  foo: bar" => "Functions can only contain variable declarations and control directives.",
@@ -105,10 +105,10 @@ MSG
     "@function foo($)\n  @return 1" => ['Invalid CSS after "(": expected variable (e.g. $foo), was "$)"', 1],
     "@function foo()\n  @return" => 'Invalid @return: expected expression.',
     "@function foo()\n  @return 1\n    $var: val" => 'Illegal nesting: Nothing may be nested beneath return directives.',
-    "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing argument $a',
-    "@function foo()\n  @return 1\na\n  b: foo(2)" => 'Wrong number of arguments (1 for 0) for `foo\'',
-    "@function foo()\n  @return 1\na\n  b: foo($a: 1)" => "Function foo doesn't have an argument named $a",
-    "@function foo()\n  @return 1\na\n  b: foo($a: 1, $b: 2)" => "Function foo doesn't have the following arguments: $a, $b",
+    "@function foo($a)\n  @return 1\na\n  b: foo()" => 'Function foo is missing argument $a.',
+    "@function foo()\n  @return 1\na\n  b: foo(2)" => 'Function foo takes 0 arguments but 1 was passed.',
+    "@function foo()\n  @return 1\na\n  b: foo($a: 1)" => "Function foo doesn't have an argument named $a.",
+    "@function foo()\n  @return 1\na\n  b: foo($a: 1, $b: 2)" => "Function foo doesn't have the following arguments: $a, $b.",
     "@return 1" => '@return may only be used within a function.',
     "@if true\n  @return 1" => '@return may only be used within a function.',
     "@mixin foo\n  @return 1\n@include foo" => ['@return may only be used within a function.', 2],
@@ -1294,7 +1294,7 @@ bar
 SASS
     flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Function plus is missing argument $var1", e.message)
+    assert_equal("Function plus is missing argument $var1.", e.message)
   end
 
   def test_function_with_extra_argument
@@ -1307,7 +1307,7 @@ bar
 SASS
     flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Function plus doesn't have an argument named $var3", e.message)
+    assert_equal("Function plus doesn't have an argument named $var3.", e.message)
   end
 
   def test_function_with_positional_and_keyword_argument
@@ -1320,7 +1320,7 @@ bar
 SASS
     flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Function plus was passed argument $var2 both by position and by name", e.message)
+    assert_equal("Function plus was passed argument $var2 both by position and by name.", e.message)
   end
 
   def test_function_with_keyword_before_positional_argument

@@ -67,7 +67,10 @@ module Sass
   #
   # `has_content`: `Boolean`
   # : Whether the callable accepts a content block.
-  Callable = Struct.new(:name, :args, :environment, :tree, :has_content)
+  #
+  # `type`: `String`
+  # : The user-friendly name of the type of the callable.
+  Callable = Struct.new(:name, :args, :environment, :tree, :has_content, :type)
 
   # This class handles the parsing and compilation of the Sass template.
   # Example usage:

@@ -7,6 +7,39 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     new(environment).send(:visit, root)
   end
 
+  # @api private
+  def self.perform_arguments(callable, args, keywords)
+    desc = "#{callable.type.capitalize} #{callable.name}"
+
+    if keywords.any?
+      unknown_args = keywords.keys - callable.args.map {|var| var.first.underscored_name }
+      if unknown_args.any?
+        raise Sass::SyntaxError.new("#{desc} doesn't have #{unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'} #{unknown_args.map{|name| "$#{name}"}.join ', '}.")
+      end
+    end
+
+    if args.size > callable.args.size
+      takes = callable.args.size
+      passed = args.size
+      raise Sass::SyntaxError.new(
+        "#{desc} takes #{takes} argument#{'s' unless takes == 1} " +
+        "but #{passed} #{passed == 1 ? 'was' : 'were'} passed.")
+    end
+
+    env = Sass::Environment.new(callable.environment)
+    callable.args.zip(args) do |(var, default), value|
+      if value && keywords.include?(var.underscored_name)
+        raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} both by position and by name.")
+      end
+
+      value ||= keywords[var.underscored_name]
+      value ||= default && default.perform(env)
+      raise Sass::SyntaxError.new("#{desc} is missing argument #{var.inspect}.") unless value
+      env.set_local_var(var.name, value)
+    end
+    env
+  end
+
   protected
 
   def initialize(env)
@@ -114,7 +147,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_function(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_function(node.name,
-      Sass::Callable.new(node.name, node.args, env, node.children, !:has_content))
+      Sass::Callable.new(node.name, node.args, env, node.children, !:has_content, "function"))
     []
   end
 
@@ -157,7 +190,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_mixindef(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_mixin(node.name,
-      Sass::Callable.new(node.name, node.args, env, node.children, node.has_content))
+      Sass::Callable.new(node.name, node.args, env, node.children, node.has_content, "mixin"))
     []
   end
 
@@ -174,34 +207,10 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       raise Sass::SyntaxError.new(%Q{Mixin "#{node.name}" does not accept a content block.})
     end
 
-    passed_args = node.args.dup
-    passed_keywords = node.keywords.dup
+    args = node.args.map {|a| a.perform(@environment)}
+    keywords = Sass::Util.map_hash(node.keywords) {|k, v| [k, v.perform(@environment)]}
 
-    raise Sass::SyntaxError.new(<<END.gsub("\n", "")) if mixin.args.size < passed_args.size
-Mixin #{node.name} takes #{mixin.args.size} argument#{'s' if mixin.args.size != 1}
- but #{node.args.size} #{node.args.size == 1 ? 'was' : 'were'} passed.
-END
-
-    passed_keywords.each do |name, value|
-      # TODO: Make this fast
-      unless mixin.args.find {|(var, default)| var.underscored_name == name}
-        raise Sass::SyntaxError.new("Mixin #{node.name} doesn't have an argument named $#{name}")
-      end
-    end
-
-    environment = mixin.args.zip(passed_args).
-      inject(Sass::Environment.new(mixin.environment)) do |env, ((var, default), value)|
-      env.set_local_var(var.name,
-        if value
-          value.perform(@environment)
-        elsif kv = passed_keywords[var.underscored_name]
-          kv.perform(@environment)
-        elsif default
-          default.perform(env)
-        end)
-      raise Sass::SyntaxError.new("Mixin #{node.name} is missing argument #{var.inspect}.") unless env.var(var.name)
-      env
-    end
+    environment = self.class.perform_arguments(mixin, args, keywords)
     environment.caller = Sass::Environment.new(@environment)
     environment.content = node.children if node.has_children
 

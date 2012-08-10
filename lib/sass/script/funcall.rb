@@ -149,30 +149,7 @@ module Sass
       end
 
       def perform_sass_fn(function, args, keywords)
-        # TODO: merge with mixin arg evaluation?
-        if keywords.any?
-          unknown_args = keywords.keys - function.args.map {|var| var.first.underscored_name }
-          if unknown_args.any?
-            raise Sass::SyntaxError.new("Function #{@name} doesn't have #{unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'} #{unknown_args.map{|name| "$#{name}"}.join ', '}")
-          end
-        end
-
-        if args.size > function.args.size
-          raise ArgumentError.new("Wrong number of arguments (#{args.size} for #{function.args.size})")
-        end
-
-        environment = function.args.zip(args).
-          inject(Sass::Environment.new(function.environment)) do |env, ((var, default), value)|
-          if value && keywords.include?(var.underscored_name)
-            raise Sass::SyntaxError.new("Function #{@name} was passed argument $#{var.name} both by position and by name")
-          end
-
-          env.set_local_var(var.name,
-            value || keywords[var.underscored_name] || (default && default.perform(env)))
-          raise Sass::SyntaxError.new("Function #{@name} is missing argument #{var.inspect}") unless env.var(var.name)
-          env
-        end
-
+        environment = Sass::Tree::Visitors::Perform.perform_arguments(function, args, keywords)
         val = catch :_sass_return do
           function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, environment)}
           raise Sass::SyntaxError.new("Function #{@name} finished without @return")
