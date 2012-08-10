@@ -167,12 +167,13 @@ module Sass
       end
 
       def perform_sass_fn(function, args, keywords, splat)
-        environment = Sass::Tree::Visitors::Perform.perform_arguments(function, args, keywords, splat)
-        val = catch :_sass_return do
-          function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, environment)}
-          raise Sass::SyntaxError.new("Function #{@name} finished without @return")
+        Sass::Tree::Visitors::Perform.perform_arguments(function, args, keywords, splat) do |env|
+          val = catch :_sass_return do
+            function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, env)}
+            raise Sass::SyntaxError.new("Function #{@name} finished without @return")
+          end
+          val
         end
-        val
       end
     end
   end
