@@ -24,7 +24,7 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "12px"
     assert_renders "12.45px"
 
-    assert_equal "12.346", render("12.345678901")
+    assert_equal "12.34568", render("12.345678901")
   end
 
   def test_string

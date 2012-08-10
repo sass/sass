@@ -82,7 +82,7 @@ class SassScriptTest < Test::Unit::TestCase
   end
 
   def test_rgba_rounding
-    assert_equal "rgba(10, 1, 0, 0.123)", resolve("rgba(10.0, 1.23456789, 0.0, 0.1234567)")
+    assert_equal "rgba(10, 1, 0, 0.12346)", resolve("rgba(10.0, 1.23456789, 0.0, 0.1234567)")
   end
 
   def test_compressed_colors

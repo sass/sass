@@ -122,7 +122,7 @@ MSG
     '@for $a from "foo" to 1' => '"foo" is not an integer.',
     '@for $a from 1 to "2"' => '"2" is not an integer.',
     '@for $a from 1 to "foo"' => '"foo" is not an integer.',
-    '@for $a from 1 to 1.232323' => '1.232 is not an integer.',
+    '@for $a from 1 to 1.232323' => '1.23232 is not an integer.',
     '@for $a from 1px to 3em' => "Incompatible units: 'em' and 'px'.",
     '@if' => "Invalid if directive '@if': expected expression.",
     '@while' => "Invalid while directive '@while': expected expression.",
@@ -1759,7 +1759,7 @@ SASS
 
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/* Hue: 327.216deg */
+/* Hue: 327.21649deg */
 CSS
 /*!
   Hue: \#{hue(#f836a0)}
@@ -2872,11 +2872,13 @@ SCSS
   end
 
   def test_deprecated_PRECISION
-    assert_warning(<<END) {assert_equal 1000.0, Sass::Script::Number::PRECISION}
+    assert_warning(<<END) {assert_equal 100_000.0, Sass::Script::Number::PRECISION}
 Sass::Script::Number::PRECISION is deprecated and will be removed in a future release. Use Sass::Script::Number.precision_factor instead.
 END
   end
+
   def test_changing_precision
+    old_precision = Sass::Script::Number.precision
     begin
       Sass::Script::Number.precision = 8
       assert_equal <<CSS, render(<<SASS)
@@ -2889,7 +2891,7 @@ div
   too-much: 1.000000001
 SASS
     ensure
-      Sass::Script::Number.precision = 3
+      Sass::Script::Number.precision = old_precision
     end
   end
 
