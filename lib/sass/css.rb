@@ -276,7 +276,7 @@ module Sass
         if first_simple_sel(child).is_a?(Sass::Selector::Parent)
           rule.parsed_rules = child.parsed_rules.resolve_parent_refs(rule.parsed_rules)
         else
-          rule.parsed_rules = make_seq(first_sseq(rule), *first_seq(child).members)
+          rule.parsed_rules = make_seq(rule.parsed_rules, *first_seq(child).members)
         end
 
         rule.children = child.children
