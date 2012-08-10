@@ -184,14 +184,14 @@ This will not print a warning.
 ## 3.1.21 (Unreleased)
 
 * Preserve single-line comments that are embedded within multi-line comments.
-
 * Preserve newlines in nested selectors when those selectors are used multiple
   times in the same document.
-
 * Allow tests to be run without the `LANG` environment variable set.
-
 * Update the bundled version of [Listen](https://github.com/guard/listen) to
   0.4.7.
+* Sass will now convert `px` to other absolute units using the
+  conversion ratio of `96px == 1in` as dictated by the
+  [CSS Spec](http://www.w3.org/TR/CSS21/syndata.html#length-units)
 
 ## 3.1.20
 
