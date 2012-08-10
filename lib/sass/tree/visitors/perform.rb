@@ -8,17 +8,20 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   # @api private
-  def self.perform_arguments(callable, args, keywords)
+  def self.perform_arguments(callable, args, keywords, splat)
     desc = "#{callable.type.capitalize} #{callable.name}"
+    downcase_desc = "#{callable.type} #{callable.name}"
 
     if keywords.any?
       unknown_args = keywords.keys - callable.args.map {|var| var.first.underscored_name }
-      if unknown_args.any?
+      if callable.splat && unknown_args.include?(callable.splat.underscored_name)
+        raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc} cannot be used as a named argument.")
+      elsif unknown_args.any?
         raise Sass::SyntaxError.new("#{desc} doesn't have #{unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'} #{unknown_args.map{|name| "$#{name}"}.join ', '}.")
       end
     end
 
-    if args.size > callable.args.size
+    if args.size > callable.args.size && !callable.splat
       takes = callable.args.size
       passed = args.size
       raise Sass::SyntaxError.new(
@@ -26,8 +29,14 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
         "but #{passed} #{passed == 1 ? 'was' : 'were'} passed.")
     end
 
+    splat_sep = :comma
+    if splat
+      args += splat.to_a
+      splat_sep = splat.separator if splat.is_a?(Sass::Script::List)
+    end
+
     env = Sass::Environment.new(callable.environment)
-    callable.args.zip(args) do |(var, default), value|
+    callable.args.zip(args[0...callable.args.length]) do |(var, default), value|
       if value && keywords.include?(var.underscored_name)
         raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} both by position and by name.")
       end
@@ -37,6 +46,14 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       raise Sass::SyntaxError.new("#{desc} is missing argument #{var.inspect}.") unless value
       env.set_local_var(var.name, value)
     end
+
+    if callable.splat
+      rest = args[callable.args.length..-1]
+      list = Sass::Script::List.new(rest, splat_sep)
+      list.options = env.options
+      env.set_local_var(callable.splat.name, list)
+    end
+
     env
   end
 
@@ -209,8 +226,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     args = node.args.map {|a| a.perform(@environment)}
     keywords = Sass::Util.map_hash(node.keywords) {|k, v| [k, v.perform(@environment)]}
+    splat = node.splat.perform(@environment) if node.splat
 
-    environment = self.class.perform_arguments(mixin, args, keywords)
+    environment = self.class.perform_arguments(mixin, args, keywords, splat)
     environment.caller = Sass::Environment.new(@environment)
     environment.content = node.children if node.has_children
 

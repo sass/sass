@@ -93,7 +93,8 @@ module Sass
         args = @args.map {|a| a.perform(environment)}
         if fn = environment.function(@name)
           keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
-          return perform_sass_fn(fn, args, keywords)
+          splat = @splat.perform(environment) if @splat
+          return perform_sass_fn(fn, args, keywords, splat)
         end
 
         ruby_name = @name.tr('-', '_')
@@ -165,8 +166,8 @@ module Sass
         args
       end
 
-      def perform_sass_fn(function, args, keywords)
-        environment = Sass::Tree::Visitors::Perform.perform_arguments(function, args, keywords)
+      def perform_sass_fn(function, args, keywords, splat)
+        environment = Sass::Tree::Visitors::Perform.perform_arguments(function, args, keywords, splat)
         val = catch :_sass_return do
           function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, environment)}
           raise Sass::SyntaxError.new("Function #{@name} finished without @return")
