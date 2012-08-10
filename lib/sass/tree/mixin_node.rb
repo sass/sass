@@ -19,13 +19,20 @@ module Sass::Tree
     # @return [{String => Script::Node}]
     attr_accessor :keywords
 
+    # The splat argument for this mixin, if one exists.
+    #
+    # @return [Script::Node?]
+    attr_accessor :splat
+
     # @param name [String] The name of the mixin
     # @param args [Array<Script::Node>] See \{#args}
+    # @param splat [Script::Node] See \{#splat}
     # @param keywords [{String => Script::Node}] See \{#keywords}
-    def initialize(name, args, keywords)
+    def initialize(name, args, keywords, splat)
       @name = name
       @args = args
       @keywords = keywords
+      @splat = splat
       super()
     end
   end

@@ -23,13 +23,20 @@ module Sass
       # @return [{String => Script::Node}]
       attr_reader :keywords
 
+      # The splat argument for this function, if one exists.
+      #
+      # @return [Script::Node?]
+      attr_accessor :splat
+
       # @param name [String] See \{#name}
       # @param args [Array<Script::Node>] See \{#args}
+      # @param splat [Script::Node] See \{#splat}
       # @param keywords [{String => Script::Node}] See \{#keywords}
-      def initialize(name, args, keywords)
+      def initialize(name, args, keywords, splat)
         @name = name
         @args = args
         @keywords = keywords
+        @splat = splat
         super()
       end
 
@@ -38,7 +45,11 @@ module Sass
         args = @args.map {|a| a.inspect}.join(', ')
         keywords = Sass::Util.hash_to_a(@keywords).
             map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
-        "#{name}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
+        if self.splat
+          splat = (args.empty? && keywords.empty?) ? "" : ", "
+          splat = "#{splat}#{self.splat.inspect}..."
+        end
+        "#{name}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
       end
 
       # @see Node#to_sass
@@ -46,7 +57,11 @@ module Sass
         args = @args.map {|a| a.to_sass(opts)}.join(', ')
         keywords = Sass::Util.hash_to_a(@keywords).
           map {|k, v| "$#{dasherize(k, opts)}: #{v.to_sass(opts)}"}.join(', ')
-        "#{dasherize(name, opts)}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords})"
+        if self.splat
+          splat = (args.empty? && keywords.empty?) ? "" : ", "
+          splat = "#{splat}#{self.splat.inspect}..."
+        end
+        "#{dasherize(name, opts)}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
       end
 
       # Returns the arguments to the function.
@@ -54,7 +69,9 @@ module Sass
       # @return [Array<Node>]
       # @see Node#children
       def children
-        @args + @keywords.values
+        res = @args + @keywords.values
+        res << @splat if @splat
+        res
       end
 
       # @see Node#deep_copy

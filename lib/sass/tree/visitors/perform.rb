@@ -147,7 +147,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_function(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_function(node.name,
-      Sass::Callable.new(node.name, node.args, env, node.children, !:has_content, "function"))
+      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, !:has_content, "function"))
     []
   end
 
@@ -190,7 +190,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_mixindef(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_mixin(node.name,
-      Sass::Callable.new(node.name, node.args, env, node.children, node.has_content, "mixin"))
+      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, node.has_content, "mixin"))
     []
   end
 

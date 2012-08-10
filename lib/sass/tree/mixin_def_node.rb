@@ -15,15 +15,22 @@ module Sass
       # @return [Array<(Script::Node, Script::Node)>]
       attr_accessor :args
 
+      # The splat argument for this mixin, if one exists.
+      #
+      # @return [Script::Node?]
+      attr_accessor :splat
+
       # Whether the mixin uses `@content`. Set during the nesting check phase.
       # @return [Boolean]
       attr_accessor :has_content
 
       # @param name [String] The mixin name
       # @param args [Array<(Script::Node, Script::Node)>] See \{#args}
-      def initialize(name, args)
+      # @param splat [Script::Node] See \{#splat}
+      def initialize(name, args, splat)
         @name = name
         @args = args
+        @splat = splat
         super()
       end
     end
