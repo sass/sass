@@ -1333,7 +1333,7 @@ bar
 SASS
     flunk("Expected exception")
   rescue Sass::SyntaxError => e
-    assert_equal("Positional arguments must come before keyword arguments", e.message)
+    assert_equal("Positional arguments must come before keyword arguments.", e.message)
   end
 
   def test_function_with_if

@@ -392,7 +392,7 @@ RUBY
         other_args, other_keywords, splat = assert_expr(type)
         if keywords
           if !other_args.empty? || splat
-            raise SyntaxError.new("Positional arguments must come before keyword arguments")
+            raise SyntaxError.new("Positional arguments must come before keyword arguments.")
           elsif other_keywords[name.underscored_name]
             raise SyntaxError.new("Keyword argument \"#{name.to_sass}\" passed more than once")
           end
