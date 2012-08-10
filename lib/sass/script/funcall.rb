@@ -91,14 +91,14 @@ module Sass
       # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
       def _perform(environment)
         args = @args.map {|a| a.perform(environment)}
+        splat = @splat.perform(environment) if @splat
         if fn = environment.function(@name)
           keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
-          splat = @splat.perform(environment) if @splat
           return perform_sass_fn(fn, args, keywords, splat)
         end
 
         ruby_name = @name.tr('-', '_')
-        args = construct_ruby_args(ruby_name, args, environment)
+        args = construct_ruby_args(ruby_name, args, splat, environment)
 
         unless Functions.callable?(ruby_name)
           opts(to_literal(args))
@@ -124,12 +124,23 @@ module Sass
 
       private
 
-      def construct_ruby_args(name, args, environment)
-        unless signature = Functions.signature(name.to_sym, args.size, @keywords.size)
-          return args if keywords.empty?
+      def construct_ruby_args(name, args, splat, environment)
+        args += splat.to_a if splat
+
+        # If variable arguments were passed, there won't be any explicit keywords.
+        if splat.is_a?(Sass::Script::ArgList)
+          kwargs_size = splat.keywords.size
+          splat.keywords_accessed = false
+        else
+          kwargs_size = @keywords.size
+        end
+
+        unless signature = Functions.signature(name.to_sym, args.size, kwargs_size)
+          return args if @keywords.empty?
           raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
         end
-        keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
+        keywords = splat.is_a?(Sass::Script::ArgList) ? splat.keywords :
+          Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
 
         # If the user passes more non-keyword args than the function expects,
         # but it does expect keyword args, Ruby's arg handling won't raise an error.

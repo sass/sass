@@ -9,7 +9,7 @@ module Sass::Script
     # were valid for the function that created this ArgList.
     #
     # @return [Boolean]
-    attr_reader :keywords_accessed
+    attr_accessor :keywords_accessed
 
     # Creates a new argument list.
     #
