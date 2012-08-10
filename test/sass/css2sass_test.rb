@@ -20,6 +20,15 @@ h1
 SASS
   end
 
+  def test_basic_css_multi_selectors
+    assert_equal <<SASS, css2sass(<<CSS)
+sel1 sel2 sel3
+  p: v
+SASS
+sel1 sel2 sel3 {p:v;}
+CSS
+  end
+
   def test_nesting
     assert_equal(<<SASS, css2sass(<<CSS))
 li
