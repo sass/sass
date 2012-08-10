@@ -71,6 +71,30 @@ Is compiled to:
       font-size: 2em;
     }
 
+### Variable Arguments
+
+Mixins and functions now both support variable arguments. When defining a mixin
+or function, you can add `...` after the final argument to have it accept an
+unbounded number of arguments and package them into a list. When calling a mixin
+or function, you can add `...` to expand the final argument (if it's a list) so
+that each value is passed as a separate argument. For example:
+
+    @mixin box-shadow($shadows...) {
+      // $shadows is a list of all arguments passed to box-shadow
+      -moz-box-shadow: $shadows;
+      -webkit-box-shadow: $shadows;
+      box-shadow: $shadows;      
+    }
+
+    // This is the same as "@include spacing(1, 2, 3);"
+    $values: 1, 2, 3;
+    @include spacing($values...);
+
+Finally, if a variable argument list is passed directly on to another mixin or
+function, it will also pass along any keyword arguments. This means that you can
+wrap a pre-existing mixin or function and add new functionality without changing
+the call signature.
+
 ### Directive Interpolation
 
 `#{}` interpolation is now allowed in all plain CSS directives

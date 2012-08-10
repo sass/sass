@@ -34,7 +34,7 @@ module Sass::Script
     # @see Node#eq
     def eq(other)
       Sass::Script::Bool.new(
-        self.class == other.class && self.value == other.value &&
+        other.is_a?(List) && self.value == other.value &&
         self.separator == other.separator)
     end
 

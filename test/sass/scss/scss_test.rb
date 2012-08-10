@@ -767,6 +767,364 @@ bar {
 SASS
   end
 
+  ## Var Args
+
+  def test_mixin_var_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2, 3, 4; }
+CSS
+@mixin foo($a, $b...) {
+  a: $a;
+  b: $b;
+}
+
+.foo {@include foo(1, 2, 3, 4)}
+SCSS
+  end
+
+  def test_mixin_empty_var_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 0; }
+CSS
+@mixin foo($a, $b...) {
+  a: $a;
+  b: length($b);
+}
+
+.foo {@include foo(1)}
+SCSS
+  end
+
+  def test_mixin_var_args_act_like_list
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 3;
+  b: 3; }
+CSS
+@mixin foo($a, $b...) {
+  a: length($b);
+  b: nth($b, 2);
+}
+
+.foo {@include foo(1, 2, 3, 4)}
+SCSS
+  end
+
+  def test_mixin_splat_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3;
+  d: 4; }
+CSS
+@mixin foo($a, $b, $c, $d) {
+  a: $a;
+  b: $b;
+  c: $c;
+  d: $d;
+}
+
+$list: 2, 3, 4;
+.foo {@include foo(1, $list...)}
+SCSS
+  end
+
+  def test_mixin_splat_expression
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3;
+  d: 4; }
+CSS
+@mixin foo($a, $b, $c, $d) {
+  a: $a;
+  b: $b;
+  c: $c;
+  d: $d;
+}
+
+.foo {@include foo(1, (2, 3, 4)...)}
+SCSS
+  end
+
+  def test_mixin_splat_args_with_var_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2, 3, 4; }
+CSS
+@mixin foo($a, $b...) {
+  a: $a;
+  b: $b;
+}
+
+$list: 2, 3, 4;
+.foo {@include foo(1, $list...)}
+SCSS
+  end
+
+  def test_mixin_splat_args_with_var_args_and_normal_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3, 4; }
+CSS
+@mixin foo($a, $b, $c...) {
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+$list: 2, 3, 4;
+.foo {@include foo(1, $list...)}
+SCSS
+  end
+
+  def test_mixin_splat_args_with_var_args_preserves_separator
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2 3 4 5; }
+CSS
+@mixin foo($a, $b...) {
+  a: $a;
+  b: $b;
+}
+
+$list: 3 4 5;
+.foo {@include foo(1, 2, $list...)}
+SCSS
+  end
+
+  def test_mixin_var_and_splat_args_pass_through_keywords
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 3;
+  b: 1;
+  c: 2; }
+CSS
+@mixin foo($a...) {
+  @include bar($a...);
+}
+
+@mixin bar($b, $c, $a) {
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+.foo {@include foo(1, $c: 2, $a: 3)}
+SCSS
+  end
+
+  def test_mixin_var_args_with_keyword
+    assert_raise_message(Sass::SyntaxError, "Positional arguments must come before keyword arguments.") {render <<SCSS}
+@mixin foo($a, $b...) {
+  a: $a;
+  b: $b;
+}
+
+.foo {@include foo($a: 1, 2, 3, 4)}
+SCSS
+  end
+
+  def test_mixin_keyword_for_var_arg
+    assert_raise_message(Sass::SyntaxError, "Argument $b of mixin foo cannot be used as a named argument.") {render <<SCSS}
+@mixin foo($a, $b...) {
+  a: $a;
+  b: $b;
+}
+
+.foo {@include foo(1, $b: 2 3 4)}
+SCSS
+  end
+
+  def test_mixin_keyword_for_unknown_arg_with_var_args
+    assert_raise_message(Sass::SyntaxError, "Mixin foo doesn't have an argument named $c.") {render <<SCSS}
+@mixin foo($a, $b...) {
+  a: $a;
+  b: $b;
+}
+
+.foo {@include foo(1, $c: 2 3 4)}
+SCSS
+  end
+
+  def test_function_var_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, 3, 4"; }
+CSS
+@function foo($a, $b...) {
+  @return "a: \#{$a}, b: \#{$b}";
+}
+
+.foo {val: foo(1, 2, 3, 4)}
+SCSS
+  end
+
+  def test_function_empty_var_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 0"; }
+CSS
+@function foo($a, $b...) {
+  @return "a: \#{$a}, b: \#{length($b)}";
+}
+
+.foo {val: foo(1)}
+SCSS
+  end
+
+  def test_function_var_args_act_like_list
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 3, b: 3"; }
+CSS
+@function foo($a, $b...) {
+  @return "a: \#{length($b)}, b: \#{nth($b, 2)}";
+}
+
+.foo {val: foo(1, 2, 3, 4)}
+SCSS
+  end
+
+  def test_function_splat_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: 3, d: 4"; }
+CSS
+@function foo($a, $b, $c, $d) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}, d: \#{$d}";
+}
+
+$list: 2, 3, 4;
+.foo {val: foo(1, $list...)}
+SCSS
+  end
+
+  def test_function_splat_expression
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: 3, d: 4"; }
+CSS
+@function foo($a, $b, $c, $d) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}, d: \#{$d}";
+}
+
+.foo {val: foo(1, (2, 3, 4)...)}
+SCSS
+  end
+
+  def test_function_splat_args_with_var_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, 3, 4"; }
+CSS
+@function foo($a, $b...) {
+  @return "a: \#{$a}, b: \#{$b}";
+}
+
+$list: 2, 3, 4;
+.foo {val: foo(1, $list...)}
+SCSS
+  end
+
+  def test_function_splat_args_with_var_args_and_normal_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: 3, 4"; }
+CSS
+@function foo($a, $b, $c...) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+$list: 2, 3, 4;
+.foo {val: foo(1, $list...)}
+SCSS
+  end
+
+  def test_function_splat_args_with_var_args_preserves_separator
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2 3 4 5"; }
+CSS
+@function foo($a, $b...) {
+  @return "a: \#{$a}, b: \#{$b}";
+}
+
+$list: 3 4 5;
+.foo {val: foo(1, 2, $list...)}
+SCSS
+  end
+
+  def test_function_var_and_splat_args_pass_through_keywords
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 3, b: 1, c: 2"; }
+CSS
+@function foo($a...) {
+  @return bar($a...);
+}
+
+@function bar($b, $c, $a) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {val: foo(1, $c: 2, $a: 3)}
+SCSS
+  end
+
+  def test_function_var_args_with_keyword
+    assert_raise_message(Sass::SyntaxError, "Positional arguments must come before keyword arguments.") {render <<SCSS}
+@function foo($a, $b...) {
+  @return "a: \#{$a}, b: $b";
+}
+
+.foo {val: foo($a: 1, 2, 3, 4)}
+SCSS
+  end
+
+  def test_function_keyword_for_var_arg
+    assert_raise_message(Sass::SyntaxError, "Argument $b of function foo cannot be used as a named argument.") {render <<SCSS}
+@function foo($a, $b...) {
+  @return "a: \#{$a}, b: \#{$b}";
+}
+
+.foo {val: foo(1, $b: 2 3 4)}
+SCSS
+  end
+
+  def test_function_keyword_for_unknown_arg_with_var_args
+    assert_raise_message(Sass::SyntaxError, "Function foo doesn't have an argument named $c.") {render <<SCSS}
+@function foo($a, $b...) {
+  @return "a: \#{$a}, b: \#{$b}";
+}
+
+.foo {val: foo(1, $c: 2 3 4)}
+SCSS
+  end
+
+  def test_function_var_args_passed_to_native
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: #102035; }
+CSS
+@function foo($args...) {
+  @return adjust-color($args...);
+}
+
+.foo {val: foo(#102030, $blue: 5)}
+SCSS
+  end
+
   ## Interpolation
 
   def test_basic_selector_interpolation

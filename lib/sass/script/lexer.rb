@@ -62,6 +62,7 @@ module Sass
         '}' => :end_interpolation,
         ';' => :semicolon,
         '{' => :lcurly,
+        '...' => :splat,
       }
 
       OPERATORS_REVERSE = Sass::Util.map_hash(OPERATORS) {|k, v| [v, k]}

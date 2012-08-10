@@ -1562,6 +1562,60 @@ foo {
 SCSS
   end
 
+  def test_mixin_var_args
+    assert_scss_to_sass <<SASS, <<SCSS
+=foo($args...)
+  a: b
+
+=bar($a, $args...)
+  a: b
+
+.foo
+  +foo($list...)
+  +bar(1, $list...)
+SASS
+@mixin foo($args...) {
+  a: b;
+}
+
+@mixin bar($a, $args...) {
+  a: b;
+}
+
+.foo {
+  @include foo($list...);
+  @include bar(1, $list...);
+}
+SCSS
+  end
+
+  def test_function_var_args
+    assert_scss_to_sass <<SASS, <<SCSS
+@function foo($args...)
+  @return foo
+
+@function bar($a, $args...)
+  @return bar
+
+.foo
+  a: foo($list...)
+  b: bar(1, $list...)
+SASS
+@function foo($args...) {
+  @return foo;
+}
+
+@function bar($a, $args...) {
+  @return bar;
+}
+
+.foo {
+  a: foo($list...);
+  b: bar(1, $list...);
+}
+SCSS
+  end
+
   ## Regression Tests
 
   def test_media_query_with_expr

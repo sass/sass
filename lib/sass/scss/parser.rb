@@ -170,16 +170,16 @@ module Sass
 
       def mixin_directive
         name = tok! IDENT
-        args = sass_script(:parse_mixin_definition_arglist)
+        args, splat = sass_script(:parse_mixin_definition_arglist)
         ss
-        block(node(Sass::Tree::MixinDefNode.new(name, args)), :directive)
+        block(node(Sass::Tree::MixinDefNode.new(name, args, splat)), :directive)
       end
 
       def include_directive
         name = tok! IDENT
-        args, keywords = sass_script(:parse_mixin_include_arglist)
+        args, keywords, splat = sass_script(:parse_mixin_include_arglist)
         ss
-        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords))
+        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords, splat))
         if tok?(/\{/)
           include_node.has_children = true
           block(include_node, :directive)
@@ -195,9 +195,9 @@ module Sass
 
       def function_directive
         name = tok! IDENT
-        args = sass_script(:parse_function_definition_arglist)
+        args, splat = sass_script(:parse_function_definition_arglist)
         ss
-        block(node(Sass::Tree::FunctionNode.new(name, args)), :function)
+        block(node(Sass::Tree::FunctionNode.new(name, args, splat)), :function)
       end
 
       def return_directive

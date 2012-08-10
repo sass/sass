@@ -15,11 +15,18 @@ module Sass
       # @return [Array<Script::Node>]
       attr_accessor :args
 
+      # The splat argument for this function, if one exists.
+      #
+      # @return [Script::Node?]
+      attr_accessor :splat
+
       # @param name [String] The function name
       # @param args [Array<(Script::Node, Script::Node)>] The arguments for the function.
-      def initialize(name, args)
+      # @param splat [Script::Node] See \{#splat}
+      def initialize(name, args, splat)
         @name = name
         @args = args
+        @splat = splat
         super()
       end
     end
