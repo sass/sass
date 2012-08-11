@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.0 (Unreleased)
+## 3.2.0 (10 August 2012)
 
 ### `@content`
 
