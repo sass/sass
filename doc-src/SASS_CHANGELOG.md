@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.1.21 (Unreleased)
+## 3.1.21 (10 August 2012)
 
 * Preserve single-line comments that are embedded within multi-line comments.
 * Preserve newlines in nested selectors when those selectors are used multiple
