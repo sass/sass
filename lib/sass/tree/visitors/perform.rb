@@ -274,7 +274,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   def visit_content(node)
-    return unless content = @environment.content
+    return [] unless content = @environment.content
     @stack.push(:filename => node.filename, :line => node.line, :name => '@content')
     trace_node = Sass::Tree::TraceNode.from_node('@content', node)
     with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}.flatten}

@@ -152,7 +152,6 @@ MSG
     "=foo\n  @content\n    b: c" => "Illegal nesting: Nothing may be nested beneath @content directives.",
     "@content" => '@content may only be used within a mixin.',
     "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
-    "=foo\n  @content\n+foo" => ["No @content passed.", 2],
     "@import \"foo\" // bar" => "Invalid CSS after \"\"foo\" \": expected media query list, was \"// bar\"",
 
     # Regression tests
@@ -3027,22 +3026,26 @@ SASS
   end
 
   def test_content_not_seen_through_mixin
-    render(<<SASS)
+    assert_equal <<CSS, render(<<SASS)
+a foo {
+  mixin: foo;
+  a: b; }
+  a foo bar {
+    mixin: bar; }
+CSS
 =foo
   foo
+    mixin: foo
     @content
     +bar
 =bar
   bar
+    mixin: bar
     @content
 a
   +foo
     a: b
 SASS
-    assert(false, "Expected exception")
-  rescue Sass::SyntaxError => e
-    assert_equal("No @content passed.", e.message)
-    assert_equal(7, e.sass_line)
   end
 
   def test_content_backtrace_for_perform
