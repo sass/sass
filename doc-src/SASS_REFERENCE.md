@@ -1081,7 +1081,7 @@ Sass supports all CSS3 `@`-rules,
 as well as some additional Sass-specific ones
 known as "directives."
 These have various effects in Sass, detailed below.
-See also [control directives](#control-directives)
+See also [control directives](#control_directives)
 and [mixin directives](#mixins).
 
 ### `@import` {#import}
