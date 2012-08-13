@@ -1081,7 +1081,7 @@ Sass supports all CSS3 `@`-rules,
 as well as some additional Sass-specific ones
 known as "directives."
 These have various effects in Sass, detailed below.
-See also [control directives](#control-directives)
+See also [control directives](#control_directives)
 and [mixin directives](#mixins).
 
 ### `@import` {#import}
@@ -2176,7 +2176,7 @@ In the above example we could have called the function like this:
 It is recommended that you prefix your functions to avoid naming conflicts
 and so that readers of your stylesheets know they are not part of Sass or CSS. For example, if you work for ACME Corp, you might have named the function above `-acme-grid-width`.
 
-User-defined functions also support [variable arguments](#variable-arguments)
+User-defined functions also support [variable arguments](#variable_arguments)
 in the same way as mixins.
 
 ## Output Style
