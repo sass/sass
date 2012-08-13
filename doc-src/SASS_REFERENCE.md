@@ -1013,7 +1013,7 @@ and property names using #{} interpolation syntax:
 
     $name: foo;
     $attr: border;
-    p.#{$name} { #{$attr}-color: blue }
+    p.#{$name} { #{$attr}-color: blue; }
 
 is compiled to:
 
@@ -1229,13 +1229,10 @@ For example:
 is compiled to:
 
     .sidebar {
-      width: 300px;
-    }
-    @media screen and (orientation: landscape) {
-      .sidebar {
-        width: 500px;
-      }
-    }
+      width: 300px; }
+      @media screen and (orientation: landscape) {
+        .sidebar {
+          width: 500px; } }
 
 `@media` queries can also be nested within one another.
 The queries will then be combined using the `and` operator.
@@ -1253,9 +1250,7 @@ is compiled to:
 
     @media screen and (orientation: landscape) {
       .sidebar {
-        width: 500px;
-      }
-    }
+        width: 500px; } }
 
 Finally, `@media` queries can contain SassScript expressions (including
 variables, functions, and operators) in place of the feature names and feature
@@ -1275,9 +1270,7 @@ is compiled to:
 
     @media screen and (-webkit-min-device-pixel-ratio: 1.5) {
       .sidebar {
-        width: 500px;
-      }
-    }
+        width: 500px; } }
 
 ### `@extend` {#extend}
 
