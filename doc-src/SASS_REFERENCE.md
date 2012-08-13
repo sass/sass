@@ -904,7 +904,8 @@ For example:
 
     p:before {
       content: "Foo " + Bar;
-      font-family: sans- + "serif"; }
+      font-family: sans- + "serif";
+    }
 
 is compiled to:
 
@@ -928,7 +929,8 @@ Within a string of text, #{} style interpolation can be used to
 place dynamic values within the string:
 
     p:before {
-      content: "I ate #{5 + 10} pies!"; }
+      content: "I ate #{5 + 10} pies!";
+    }
 
 is compiled to:
 
@@ -939,13 +941,13 @@ Null values are treated as empty strings for string interpolation:
 
     $value: null;
     p:before {
-      content: "I ate #{$value} pies!"; }
+      content: "I ate #{$value} pies!";
+    }
 
 is compiled to:
 
     p:before {
-      content: "I ate  pies!";
-      font-family: sans-; }
+      content: "I ate  pies!"; }
 
 #### Boolean Operations
 
