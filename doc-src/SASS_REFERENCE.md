@@ -658,7 +658,9 @@ For example:
 
     @mixin firefox-message($selector) {
       body.firefox #{$selector}:before {
-        content: "Hi, Firefox users!"; } }
+        content: "Hi, Firefox users!";
+      }
+    }
 
     @include firefox-message(".header");
 
@@ -791,8 +793,7 @@ For example:
 is compiled to:
 
     p {
-      font: 12px/30px;
-    }
+      font: 12px/30px; }
 
 #### Color Operations
 
@@ -904,7 +905,8 @@ For example:
 
     p:before {
       content: "Foo " + Bar;
-      font-family: sans- + "serif"; }
+      font-family: sans- + "serif";
+    }
 
 is compiled to:
 
@@ -928,7 +930,8 @@ Within a string of text, #{} style interpolation can be used to
 place dynamic values within the string:
 
     p:before {
-      content: "I ate #{5 + 10} pies!"; }
+      content: "I ate #{5 + 10} pies!";
+    }
 
 is compiled to:
 
@@ -939,13 +942,13 @@ Null values are treated as empty strings for string interpolation:
 
     $value: null;
     p:before {
-      content: "I ate #{$value} pies!"; }
+      content: "I ate #{$value} pies!";
+    }
 
 is compiled to:
 
     p:before {
-      content: "I ate  pies!";
-      font-family: sans-; }
+      content: "I ate  pies!"; }
 
 #### Boolean Operations
 
@@ -1011,7 +1014,9 @@ and property names using #{} interpolation syntax:
 
     $name: foo;
     $attr: border;
-    p.#{$name} { #{$attr}-color: blue }
+    p.#{$name} {
+      #{$attr}-color: blue;
+    }
 
 is compiled to:
 
@@ -1033,8 +1038,7 @@ For example:
 is compiled to:
 
     p {
-      font: 12px/30px;
-    }
+      font: 12px/30px; }
 
 ### Variable Defaults: `!default`
 
@@ -1227,13 +1231,10 @@ For example:
 is compiled to:
 
     .sidebar {
-      width: 300px;
-    }
-    @media screen and (orientation: landscape) {
-      .sidebar {
-        width: 500px;
-      }
-    }
+      width: 300px; }
+      @media screen and (orientation: landscape) {
+        .sidebar {
+          width: 500px; } }
 
 `@media` queries can also be nested within one another.
 The queries will then be combined using the `and` operator.
@@ -1251,9 +1252,7 @@ is compiled to:
 
     @media screen and (orientation: landscape) {
       .sidebar {
-        width: 500px;
-      }
-    }
+        width: 500px; } }
 
 Finally, `@media` queries can contain SassScript expressions (including
 variables, functions, and operators) in place of the feature names and feature
@@ -1273,9 +1272,7 @@ is compiled to:
 
     @media screen and (-webkit-min-device-pixel-ratio: 1.5) {
       .sidebar {
-        width: 500px;
-      }
-    }
+        width: 500px; } }
 
 ### `@extend` {#extend}
 
@@ -1376,30 +1373,42 @@ It's possible to extend any selector involving only a single element,
 such as `.special.cool`, `a:hover`, or `a.user[href^="http://"]`.
 For example:
 
-    .hoverlink {@extend a:hover}
+    .hoverlink {
+      @extend a:hover;
+    }
 
 Just like with classes, this means that all styles defined for `a:hover`
 are also applied to `.hoverlink`.
 For example:
 
-    .hoverlink {@extend a:hover}
-    a:hover {text-decoration: underline}
+    .hoverlink {
+      @extend a:hover;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
 
 is compiled to:
 
-    a:hover, .hoverlink {text-decoration: underline}
+    a:hover, .hoverlink {
+      text-decoration: underline; }
 
 Just like with `.error.intrusion` above,
 any rule that uses `a:hover` will also work for `.hoverlink`,
 even if they have other selectors as well.
 For example:
 
-    .hoverlink {@extend a:hover}
-    .comment a.user:hover {font-weight: bold}
+    .hoverlink {
+      @extend a:hover;
+    }
+    .comment a.user:hover {
+      font-weight: bold;
+    }
 
 is compiled to:
 
-    .comment a.user:hover, .comment .hoverlink.user {font-weight: bold}
+    .comment a.user:hover, .comment .user.hoverlink {
+      font-weight: bold; }
 
 #### Multiple Extends
 
@@ -1492,11 +1501,15 @@ Selector sequences, such as `.foo .bar` or `.foo + .bar`, currently can't be ext
 However, it is possible for nested selectors themselves to use `@extend`.
 For example:
 
-    #fake-links .link {@extend a}
+    #fake-links .link {
+      @extend a;
+    }
 
     a {
       color: blue;
-      &:hover {text-decoration: underline}
+      &:hover {
+        text-decoration: underline;
+      }
     }
 
 is compiled to
@@ -1512,8 +1525,12 @@ Sometimes a selector sequence extends another selector that appears in another s
 In this case, the two sequences need to be merged.
 For example:
 
-    #admin .tabbar a {font-weight: bold}
-    #demo .overview .fakelink {@extend a}
+    #admin .tabbar a {
+      font-weight: bold;
+    }
+    #demo .overview .fakelink {
+      @extend a;
+    }
 
 While it would technically be possible
 to generate all selectors that could possibly match either sequence,
@@ -1527,8 +1544,12 @@ one with the first sequence before the second,
 and one with the second sequence before the first.
 For example:
 
-    #admin .tabbar a {font-weight: bold}
-    #demo .overview .fakelink {@extend a}
+    #admin .tabbar a {
+      font-weight: bold;
+    }
+    #demo .overview .fakelink {
+      @extend a;
+    }
 
 is compiled to:
 
@@ -1543,8 +1564,12 @@ and only the differences (if any still exist) will alternate.
 In this example, both sequences contain the id `#admin`,
 so the resulting selectors will merge those two ids:
 
-    #admin .tabbar a {font-weight: bold}
-    #admin .overview .fakelink {@extend a}
+    #admin .tabbar a {
+      font-weight: bold;
+    }
+    #admin .overview .fakelink {
+      @extend a;
+    }
 
 This is compiled to:
 
@@ -1584,15 +1609,16 @@ However, placeholder selectors can be extended, just like classes and ids.
 The extended selectors will be generated, but the base placeholder selector will not.
 For example:
 
-    .notice { @extend %extreme; }
+    .notice {
+      @extend %extreme;
+    }
 
 Is compiled to:
 
     #context a.notice {
       color: blue;
       font-weight: bold;
-      font-size: 2em;
-    }
+      font-size: 2em; }
 
 #### The `!optional` Flag
 
@@ -1710,9 +1736,9 @@ and uses the styles nested beneath it if the expression returns
 anything other than `false` or `null`:
 
     p {
-      @if 1 + 1 == 2 { border: 1px solid; }
-      @if 5 < 3 { border: 2px dotted; }
-      @if null { border: 3px double; }
+      @if 1 + 1 == 2 { border: 1px solid;  }
+      @if 5 < 3      { border: 2px dotted; }
+      @if null       { border: 3px double; }
     }
 
 is compiled to:
@@ -2019,7 +2045,7 @@ arguments, but are followed by `...`. For example:
     @mixin box-shadow($shadows...) {
       -moz-box-shadow: $shadows;
       -webkit-box-shadow: $shadows;
-      box-shadow: $shadows;      
+      box-shadow: $shadows;
     }
 
     .shadows {
