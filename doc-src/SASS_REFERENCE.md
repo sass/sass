@@ -2164,7 +2164,7 @@ passed block are related to the other styles around where the block is defined. 
     #sidebar {
       $sidebar-width: 300px;
       width: $sidebar-width;
-      @include iphone {
+      @include smartphone {
         width: $sidebar-width / 3;
       }
     }
