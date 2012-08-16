@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.2.1 (Unreleased)
+
+* Fix a buggy interaction with Pow and Capybara that caused `EOFError`s.
+
 ## 3.2.0 (10 August 2012)
 
 ### `@content`
