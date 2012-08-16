@@ -10,13 +10,18 @@ module Sass
       #
       # @return [{Symbol => Object}]
       def default_options
-        @default_options ||= {
+        return @default_options if @default_options
+        @default_options = {
           :css_location       => './public/stylesheets',
           :always_update      => false,
           :always_check       => true,
           :full_exception     => true,
-          :cache_location     => ".sass-cache"
-        }.freeze
+          :cache_location     => ".sass-cache",
+          # This is bad. See Sass::Plugin::Configuration#default_options_default_proc.
+          # :cache_store      => Sass::CacheStores::Filesystem.new(options[:cache_location]),
+        }
+        @default_options.default_proc = Sass::Plugin::Configuration.default_options_default_proc
+        @default_options.freeze
       end
 
       # Resets the options and {Sass::Callbacks::InstanceMethods#clear_callbacks! clears all callbacks}.
@@ -103,6 +108,23 @@ module Sass
         options[:template_location]
       ensure
         options[:template_location] = old_template_location
+      end
+
+      class << self
+
+        # Delay instantiating default cache store until the last possible moment when it is needed.
+        # The :cache_store option should not be set by default as commented above.
+        # The above example would immediately use the :cache_location option value even before
+        # a user even has a chance to set :cache_location.
+        # This fixes that by not instantiating it until it is accessed for the first time.
+        def default_options_default_proc
+          proc do |hash, key|
+            if key == :cache_store
+              hash[key] = Sass::CacheStores::Filesystem.new(Sass::Plugin.options[:cache_location])
+            end
+          end
+        end
+
       end
 
       private

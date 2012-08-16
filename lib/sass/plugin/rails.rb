@@ -8,15 +8,16 @@ unless defined?(Sass::RAILS_LOADED)
       opts = {
         :quiet             => Sass::Util.rails_env != "production",
         :full_exception    => Sass::Util.rails_env != "production",
-        :cache_location    => Sass::Util.rails_root + '/tmp/sass-cache'
-      }
-
-      opts.merge!(
+        :cache_location    => Sass::Util.rails_root + '/tmp/sass-cache',
         :always_update     => false,
         :template_location => Sass::Util.rails_root + '/public/stylesheets/sass',
         :css_location      => Sass::Util.rails_root + '/public/stylesheets',
-        :always_check      => Sass::Util.rails_env == "development")
+        :always_check      => Sass::Util.rails_env == "development",
+        # This is bad. See Sass::Plugin::Configuration#default_options_default_proc.
+        # :cache_store     => Sass::CacheStores::Filesystem.new(Sass::Plugin.options[:cache_location])
+      }
 
+      @default_options.default_proc = Sass::Plugin::Configuration.default_options_default_proc
       @default_options = opts.freeze
     end
   end
