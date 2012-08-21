@@ -467,6 +467,19 @@ module Sass
       Dir.glob(path, &block)
     end
 
+    # Prepare a value for a destructuring assignment (e.g. `a, b =
+    # val`). This works around a performance bug when using
+    # ActiveSupport, and only needs to be called when `val` is likely
+    # to be `nil` reasonably often.
+    #
+    # See [this bug report](http://redmine.ruby-lang.org/issues/4917).
+    #
+    # @param val [Object]
+    # @return [Object]
+    def destructure(val)
+      val || []
+    end
+
     ## Cross-Ruby-Version Compatibility
 
     # Whether or not this is running under Ruby 1.8 or lower.

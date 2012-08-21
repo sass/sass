@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.2.2 (Unreleased)
+
+* Fix a performance issue with `@import` that only appears when
+  ActiveSupport is loaded.
+
 ## 3.2.1 (15 August 2012)
 
 * Fix a buggy interaction with Pow and Capybara that caused `EOFError`s.
