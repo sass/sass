@@ -16,12 +16,24 @@ module Sass
       # Runs the dynamic Sass code *and* computes the CSS for the tree.
       # @see #to_s
       def render
+        css_tree.css
+      end
+
+      # Runs the dynamic Sass code *and* computes the CSS for the tree along with the sourcemap.
+      # @see #render
+      def render_with_sourcemap
+        css_tree.css_with_sourcemap
+      end
+
+      private
+
+      def css_tree
         Visitors::CheckNesting.visit(self)
         result = Visitors::Perform.visit(self)
         Visitors::CheckNesting.visit(result) # Check again to validate mixins
         result, extends = Visitors::Cssize.visit(result)
         Visitors::Extend.visit(result, extends)
-        result.to_s
+        result
       end
     end
   end

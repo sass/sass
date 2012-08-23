@@ -293,6 +293,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     node.resolved_name = run_interp(node.name)
     val = node.value.perform(@environment)
     node.resolved_value = val.to_s
+    node.value_source_range = val.source_range if val.source_range
+    node.value_original_filename = val.filename if val.filename
     yield
   end
 
@@ -321,6 +323,11 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     var = @environment.var(node.name)
     return [] if node.guarded && var && !var.null?
     val = node.expr.perform(@environment)
+    if node.expr.source_range
+      val.source_range = node.expr.source_range
+    else
+      val.source_range = node.source_range
+    end
     @environment.set_var(node.name, val)
     []
   end

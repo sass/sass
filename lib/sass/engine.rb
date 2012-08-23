@@ -26,6 +26,9 @@ require 'sass/tree/debug_node'
 require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
 require 'sass/tree/charset_node'
+require 'sass/tree/source_position'
+require 'sass/tree/source_range'
+require 'sass/tree/source_map'
 require 'sass/tree/visitors/base'
 require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
@@ -259,9 +262,22 @@ module Sass
     #   cannot be converted to UTF-8
     # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
     def render
-      return _render unless @options[:quiet]
-      Sass::Util.silence_sass_warnings {_render}
+      return encode_and_set_charset(_to_tree.render) unless @options[:quiet]
+      Sass::Util.silence_sass_warnings {encode_and_set_charset(_to_tree.render)}
     end
+
+    # Render the template to CSS and return the source map.
+    #
+    # @return [(String, Sass::Tree::SourceMapping)] The rendered CSS and the associated source map
+    # @raise [Sass::SyntaxError] if there's an error in the document
+    # @raise [Encoding::UndefinedConversionError] if the source encoding
+    #   cannot be converted to UTF-8
+    # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
+    def render_with_sourcemap
+      return _render_with_sourcemap unless @options[:quiet]
+      Sass::Util.silence_sass_warnings {_render_with_sourcemap}
+    end
+
     alias_method :to_css, :render
 
     # Parses the document into its parse tree. Memoized.
@@ -311,8 +327,13 @@ module Sass
 
     private
 
-    def _render
-      rendered = _to_tree.render
+    def _render_with_sourcemap
+      rendered, sourcemap = _to_tree.render_with_sourcemap
+      rendered = encode_and_set_charset(rendered)
+      return rendered, sourcemap
+    end
+
+    def encode_and_set_charset(rendered)
       return rendered if ruby1_8?
       begin
         # Try to convert the result to the original encoding,
@@ -320,8 +341,9 @@ module Sass
         rendered = rendered.encode(source_encoding)
       rescue EncodingError
       end
-      rendered.gsub(Regexp.new('\A@charset "(.*?)"'.encode(source_encoding)),
+      rendered.gsub!(Regexp.new('\A@charset "(.*?)"'.encode(source_encoding)),
         "@charset \"#{source_encoding.name}\"".encode(source_encoding))
+      rendered
     end
 
     def _to_tree

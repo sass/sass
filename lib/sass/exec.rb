@@ -95,6 +95,7 @@ module Sass
 
       # Processes the options set by the command-line arguments.
       # In particular, sets `@options[:input]` and `@options[:output]`
+      # (and `@options[:sourcemap]` if one has been specified)
       # to appropriate IO streams.
       #
       # This is meant to be overridden by subclasses
@@ -108,7 +109,15 @@ module Sass
             @options[:filename] = filename
             open_file(filename) || $stdin
           end
-        output ||= open_file(args.shift, 'w') || $stdout
+        output_filename = args.shift
+        output ||= open_file(output_filename, 'w') || $stdout
+
+        @options[:output_filename] = output_filename
+        if @options[:sourcemap] && output_filename
+          sourcemap_filename = output_filename + ".map"
+          @options[:sourcemap] = open_file(sourcemap_filename, 'w')
+          @options[:sourcemap_filename] = sourcemap_filename
+        end
 
         @options[:input], @options[:output] = input, output
       end
@@ -276,6 +285,9 @@ END
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
           @options[:for_engine][:cache] = false
         end
+        opts.on('--sourcemap', 'Specifies that sourcemap files should be generated next to the CSS files.') do
+          @options[:sourcemap] = true
+        end
 
         unless ::Sass::Util.ruby1_8?
           opts.on('-E encoding', 'Specify the default encoding for Sass files.') do |encoding|
@@ -306,6 +318,7 @@ END
         begin
           input = @options[:input]
           output = @options[:output]
+          sourcemap = @options[:sourcemap]
 
           @options[:for_engine][:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
           @options[:for_engine][:syntax] ||= @default_syntax
@@ -321,11 +334,23 @@ END
 
           input.close() if input.is_a?(File)
 
-          output.write(engine.render)
-          output.close() if output.is_a? File
+          if sourcemap.is_a? File
+            rendered, mapping = engine.render_with_sourcemap
+            rendered << "\n" if rendered[-1] != ?\n
+            rendered << "/*@ sourceMappingURL="
+            rendered << URI::encode(@options[:sourcemap_filename])
+            rendered << " */"
+            output.write(rendered)
+            sourcemap.write(mapping.to_json(@options[:output_filename]))
+          else
+            output.write(engine.render)
+          end
         rescue ::Sass::SyntaxError => e
           raise e if @options[:trace]
           raise e.sass_backtrace_str("standard input")
+        ensure
+          output.close if output.is_a? File
+          sourcemap.close if sourcemap.is_a? File
         end
       end
 

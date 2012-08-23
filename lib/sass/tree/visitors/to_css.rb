@@ -1,9 +1,61 @@
 # A visitor for converting a Sass tree into CSS.
 class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
+  def render(node, build_source_mapping = false)
+    @build_source_mapping = build_source_mapping
+    visit(node)
+  end
+
+  def source_mapping
+    @source_mapping if @build_source_mapping
+  end
+
   protected
 
-  def initialize
+  class VisitorContext
+    attr_reader :source_mapping
+
+    attr_reader :parent
+
+    def get(name)
+      return @values[name] if @values.has_key?(name)
+      return nil if !@parent
+      @parent.get(name)
+    end
+
+    def []=(name, value)
+      @values[name] = value
+    end
+
+    def initialize(parent = nil)
+      @parent = parent
+      @values = {}
+    end
+  end
+
+  def push_context(opts = {})
+    @context = VisitorContext.new(@context)
+    opts.each {|k, v|  @context[k] = v}
+    @context
+  end
+
+  def push_lstrip_context
+    push_context(:lstrip => true)
+  end
+
+  def pop_context
+    child_context = @context
+    @context = @context.parent
+    child_context
+  end
+
+  def initialize()
     @tabs = 0
+    @line = 1
+    @column = 1
+    @result = String.new
+    @context = VisitorContext.new
+    @start_positions = []
+    @source_mapping = Sass::Tree::SourceMapping.new
   end
 
   def visit(node)
@@ -20,97 +72,217 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     @tabs = old_tabs
   end
 
-  def visit_root(node)
-    result = String.new
-    node.children.each do |child|
-      next if child.invisible?
-      child_str = visit(child)
-      result << child_str + (node.style == :compressed ? '' : "\n")
+  def mark_node_start
+    return if !@build_source_mapping
+    @start_positions.push(Sass::Tree::SourcePosition.new(@line - 1, @column - 1))
+  end
+
+  def mark_node_end(node, range_reader_name = :source_range, filename_reader_name = nil)
+    return if !@build_source_mapping
+    start_pos = @start_positions.pop
+    return if node.invisible? || !node.respond_to?(range_reader_name) || !node.send(range_reader_name)
+    original_range = node.send(range_reader_name)
+    generated_range = Sass::Tree::SourceRange.new(start_pos, Sass::Tree::SourcePosition.new(@line - 1, @column - 1))
+    @source_mapping.add(original_range, generated_range, filename_reader_name && node.respond_to?(filename_reader_name) && node.send(filename_reader_name) ? node.send(filename_reader_name) : node.options[:filename])
+  end
+
+  NEWLINE = "\n"
+
+  def strip_trailing_char!(char = nil)
+    return if char && (last_char = @result[@result.length - 1, 1]) != char
+    if last_char == NEWLINE
+      @line -= 1
+      @column = 1
+    else
+      @column -= 1
     end
-    result.rstrip!
-    return "" if result.empty?
-    result << "\n"
-    unless Sass::Util.ruby1_8? || result.ascii_only?
+
+    @result.slice!(@result.length - 1)
+  end
+
+  def output(s, opts = {})
+    return if !s
+    if @context.get(:lstrip)
+      s.gsub!(/\A\s+/, "")
+      pop_context
+    end
+
+    newline_count = s.count(NEWLINE)
+    if newline_count > 0
+      @line += newline_count
+      @column = Sass::Util::char_size(s.slice(s.rindex(NEWLINE), s.length))
+    else
+      @column += Sass::Util::char_size(s)
+    end
+    @result << s
+    if opts[:style] && opts[:style] != :compressed
+      insert_newline
+    end
+  end
+
+  def rstrip_output
+    suffix = @result.scan(/[\s\n]+\Z/)[0]
+    return if !suffix
+    suffix.reverse.each_char do |c|
+      if c == NEWLINE
+        # Encountered "\n"
+        @column = 1
+        @line -= 1
+      else
+        @column -= 1
+      end
+    end
+    @result.rstrip!
+
+    # Compute @column after [possibly] stripping newlines
+    last_line_column = 1
+    for idx in (1..@result.length)
+      char = @result[@result.length - idx, 1]
+      if !char.match(/\s/)
+        break
+      end
+      last_line_column += 1
+    end
+    @column = last_line_column
+  end
+
+  def insert_newline
+    output(NEWLINE)
+  end
+
+  def shift_source_mappings(prefix)
+    line_delta = prefix.count("\n")
+    first_line_col_delta = line_delta > 0 ? Sass::Util.char_size(prefix.slice(prefix.rindex(?\n), prefix.length)) + 1 : 0
+    @source_mapping.shift_to_ranges(line_delta, first_line_col_delta)
+  end
+
+  def visit_root(node)
+    node.children.each_index do |index|
+      next if node.children[index].invisible?
+      visit(node.children[index])
+      insert_newline unless node.style == :compressed
+    end
+    rstrip_output
+    return "" if @result.empty?
+    insert_newline
+    unless Sass::Util.ruby1_8? || @result.ascii_only?
       if node.children.first.is_a?(Sass::Tree::CharsetNode)
         begin
           encoding = node.children.first.name
           # Default to big-endian encoding, because we have to decide somehow
           encoding << 'BE' if encoding =~ /\Autf-(16|32)\Z/i
-          result = result.encode(Encoding.find(encoding))
+          @result = @result.encode(Encoding.find(encoding))
         rescue EncodingError
         end
       end
 
-      result = "@charset \"#{result.encoding.name}\";#{
+      charsetPrefix = "@charset \"#{@result.encoding.name}\";#{
         node.style == :compressed ? '' : "\n"
-      }".encode(result.encoding) + result
+      }"
+      shift_source_mappings(charsetPrefix)
+      @result = charsetPrefix.encode(@result.encoding) + @result
     end
-    result
+    @result
   rescue Sass::SyntaxError => e
     e.sass_template ||= node.template
     raise e
   end
 
   def visit_charset(node)
-    "@charset \"#{node.name}\";"
-  end 
+    mark_node_start
+    output("@charset \"#{node.name}\";")
+    mark_node_end(node)
+  end
 
   def visit_comment(node)
     return if node.invisible?
+    mark_node_start
     spaces = ('  ' * [@tabs - node.resolved_value[/^ */].size, 0].max)
 
     content = node.resolved_value.gsub(/^/, spaces)
     content.gsub!(%r{^(\s*)//(.*)$}) {|md| "#{$1}/*#{$2} */"} if node.type == :silent
     content.gsub!(/\n +(\* *(?!\/))?/, ' ') if (node.style == :compact || node.style == :compressed) && node.type != :loud
-    content
+    output(content)
+    mark_node_end(node)
+  end
+
+  def lstrip_output
+    context = push_lstrip_context
+    yield
+    pop_context if @context == context
   end
 
   def visit_directive(node)
     was_in_directive = @in_directive
     tab_str = '  ' * @tabs
-    return tab_str + node.resolved_value + ";" unless node.has_children
-    return tab_str + node.resolved_value + " {}" if node.children.empty?
+    if !node.has_children || node.children.empty?
+      output(tab_str)
+      mark_node_start
+      output(node.resolved_value)
+      mark_node_end(node)
+      return output(";") unless node.has_children
+      return output(" {}") if node.children.empty?
+      return
+    end
+
     @in_directive = @in_directive || !node.is_a?(Sass::Tree::MediaNode)
-    result = if node.style == :compressed
-               "#{node.resolved_value}{"
-             else
-               "#{tab_str}#{node.resolved_value} {" + (node.style == :compact ? ' ' : "\n")
-             end
+    output("#{tab_str}") if node.style != :compressed
+    mark_node_start
+    output(node.resolved_value)
+    mark_node_end(node)
+    output(node.style == :compressed ? "{" : " {")
+    output(node.style == :compact ? ' ' : "\n") if node.style != :compressed
+
     was_prop = false
     first = true
     node.children.each do |child|
       next if child.invisible?
       if node.style == :compact
         if child.is_a?(Sass::Tree::PropNode)
-          with_tabs(first || was_prop ? 0 : @tabs + 1) {result << visit(child) << ' '}
+          with_tabs(first || was_prop ? 0 : @tabs + 1) do
+            visit(child)
+            output(' ')
+          end
         else
-          result[-1] = "\n" if was_prop
-          rendered = with_tabs(@tabs + 1) {visit(child).dup}
-          rendered = rendered.lstrip if first
-          result << rendered.rstrip + "\n"
+          if was_prop
+            strip_trailing_char!
+            output(NEWLINE)
+          end
+
+          if first
+            lstrip_output {with_tabs(@tabs + 1) {visit(child)}}
+          else
+            with_tabs(@tabs + 1) {visit(child)}
+          end
+
+          rstrip_output
+          insert_newline
         end
         was_prop = child.is_a?(Sass::Tree::PropNode)
         first = false
       elsif node.style == :compressed
-        result << (was_prop ? ";" : "") << with_tabs(0) {visit(child)}
+        output(was_prop ? ";" : "")
+        with_tabs(0) {visit(child)}
         was_prop = child.is_a?(Sass::Tree::PropNode)
       else
-        result << with_tabs(@tabs + 1) {visit(child)} + "\n"
+        with_tabs(@tabs + 1) {visit(child)}
+        insert_newline
       end
     end
-    result.rstrip + if node.style == :compressed
-                      "}"
-                    else
-                      (node.style == :expanded ? "\n" : " ") + "}\n"
-                    end
+    rstrip_output
+    appended = if node.style == :compressed
+                 "}"
+               else
+                 (node.style == :expanded ? "\n" : " ") + "}\n"
+               end
+    output(appended)
   ensure
     @in_directive = was_in_directive
   end
 
   def visit_media(node)
-    str = with_tabs(@tabs + node.tabs) {visit_directive(node)}
-    str.gsub!(/\n\Z/, '') unless node.style == :compressed || node.group_end
-    str
+    with_tabs(@tabs + node.tabs) {visit_directive(node)}
+    strip_trailing_char!(NEWLINE) unless node.style == :compressed || node.group_end
   end
 
   def visit_supports(node)
@@ -124,10 +296,21 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   def visit_prop(node)
     return if node.resolved_value.empty?
     tab_str = '  ' * (@tabs + node.tabs)
+    output(tab_str)
+    mark_node_start
+    output(node.resolved_name)
+    mark_node_end(node)
     if node.style == :compressed
-      "#{tab_str}#{node.resolved_name}:#{node.resolved_value}"
+      output(":");
+      mark_node_start
+      output(node.resolved_value)
+      mark_node_end(node, :value_source_range, node.respond_to?(:value_original_filename) ? :value_original_filename : :filename)
     else
-      "#{tab_str}#{node.resolved_name}: #{node.resolved_value};"
+      output(": ")
+      mark_node_start
+      output(node.resolved_value)
+      mark_node_end(node, :value_source_range, node.respond_to?(:value_original_filename) ? :value_original_filename : :filename)
+      output(";")
     end
   end
 
@@ -158,18 +341,18 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       joined_rules.gsub!(/\s*\n\s*/, "#{line_separator}#{per_rule_indent}")
       total_rule = total_indent << joined_rules
 
-      to_return = ''
       old_spaces = '  ' * @tabs
       spaces = '  ' * (@tabs + 1)
       if node.style != :compressed
         if node.options[:debug_info] && !@in_directive
-          to_return << visit(debug_info_rule(node.debug_info, node.options)) << "\n"
+          visit(debug_info_rule(node.debug_info, node.options))
+          insert_newline
         elsif node.options[:trace_selectors]
-          to_return << "#{old_spaces}/* "
-          to_return << node.stack_trace.join("\n   #{old_spaces}")
-          to_return << " */\n"
+          output("#{old_spaces}/* ")
+          output(node.stack_trace.join("\n   #{old_spaces}"))
+          output(" */\n")
         elsif node.options[:line_comments]
-          to_return << "#{old_spaces}/* line #{node.line}"
+          output("#{old_spaces}/* line #{node.line}")
 
           if node.filename
             relative_filename = if node.options[:css_filename]
@@ -181,26 +364,47 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
               end
             end
             relative_filename ||= node.filename
-            to_return << ", #{relative_filename}"
+            output(", #{relative_filename}")
           end
 
-          to_return << " */\n"
+          output(" */\n")
         end
       end
 
+      end_props = ''
+      tabs = 0
+      trailer = ''
       if node.style == :compact
-        properties = with_tabs(0) {node.children.map {|a| visit(a)}.join(' ')}
-        to_return << "#{total_rule} { #{properties} }#{"\n" if node.group_end}"
+        separator = ' '
+        end_props = " "
+        trailer = "\n" if node.group_end
       elsif node.style == :compressed
-        properties = with_tabs(0) {node.children.map {|a| visit(a)}.join(';')}
-        to_return << "#{total_rule}{#{properties}}"
+        separator = ';'
       else
-        properties = with_tabs(@tabs + 1) {node.children.map {|a| visit(a)}.join("\n")}
+        tabs = @tabs + 1
+        separator = "\n"
+        trailer = "\n" if node.group_end
         end_props = (node.style == :expanded ? "\n" + old_spaces : ' ')
-        to_return << "#{total_rule} {\n#{properties}#{end_props}}#{"\n" if node.group_end}"
+      end
+      output(total_rule)
+      case node.style
+      when :compact
+        output(" { ")
+      when :compressed
+        output("{")
+      else
+        output(" {\n")
       end
 
-      to_return
+      with_tabs(tabs) do
+        node.children.each_index do |i|
+          output(separator) if i > 0
+          visit(node.children[i])
+        end
+      end
+
+      output(end_props) if end_props
+      output("}" + trailer)
     end
   end
 

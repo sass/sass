@@ -46,6 +46,11 @@ module Sass
       # @return [Fixnum]
       attr_accessor :line
 
+      # The source range in the document on which this node appeared.
+      #
+      # @return [Sass::Tree::SourceRange]
+      attr_accessor :source_range
+
       # The name of the document on which this node appeared.
       #
       # @return [String]
@@ -59,6 +64,11 @@ module Sass
 
       def initialize
         @children = []
+      end
+
+      def source_range=(value)
+        # puts("#{self.class.to_s}: range=#{value.to_s}") if (value)
+        @source_range = value
       end
 
       # Sets the options hash for the node and all its children.
@@ -125,12 +135,28 @@ module Sass
         @options[:style]
       end
 
+      def to_s
+        css
+      end
+
       # Computes the CSS corresponding to this static CSS tree.
       #
-      # @return [String, nil] The resulting CSS
+      # @return [String] The resulting CSS
       # @see Sass::Tree
-      def to_s
-        Sass::Tree::Visitors::ToCss.visit(self)
+      def css
+        visitor = Sass::Tree::Visitors::ToCss.new
+        visitor.render(self)
+      end
+
+      # Computes the CSS corresponding to this static CSS tree, along with
+      # the respective source map.
+      #
+      # @return [(String, Sass::Tree::SourceMapping)] The resulting CSS and the source map
+      # @see Sass::Tree
+      def css_with_sourcemap
+        visitor = Sass::Tree::Visitors::ToCss.new
+        result = visitor.render(self, true)
+        return result, visitor.source_mapping
       end
 
       # Returns a representation of the node for debugging purposes.

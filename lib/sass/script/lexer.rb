@@ -127,7 +127,7 @@ module Sass
       # @param str [String, StringScanner] The source text to lex
       # @param line [Fixnum] The line on which the SassScript appears.
       #   Used for error reporting
-      # @param offset [Fixnum] The number of characters in on which the SassScript appears.
+      # @param offset [Fixnum] The character (not byte) offset in the line on which the SassScript appears.
       #   Used for error reporting
       # @param options [{Symbol => Object}] An options hash;
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
@@ -306,11 +306,11 @@ MESSAGE
         old_line = @line
         old_offset = @offset
         @line += c
-        @offset = (c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size)
+        @offset = (c == 0 ? @offset + Sass::Util::char_size(str2) : Sass::Util::char_size(str2[/\n(.*)/, 1]))
         [:special_fun,
           Sass::Util.merge_adjacent_strings(
             [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
-          str1.size + str2.size]
+          Sass::Util::char_size(str1) + Sass::Util::char_size(str2)]
       end
 
       def special_val
@@ -338,7 +338,7 @@ MESSAGE
         return unless str = @scanner.scan(re)
         c = str.count("\n")
         @line += c
-        @offset = (c == 0 ? @offset + str.size : str[/\n(.*)/, 1].size)
+        @offset = (c == 0 ? @offset + Sass::Util::char_size(str) : Sass::Util::char_size(str[/\n(.*)/, 1]))
         str
       end
 

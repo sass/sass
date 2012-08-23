@@ -3,6 +3,12 @@ module Sass::Script
   #
   # @see Interpolation
   class StringInterpolation < Node
+
+    # The source range in the document on which this node appeared.
+    #
+    # @return [Scss::Tree::SourceRange]
+    attr_accessor :source_range
+
     # Interpolation in a string is of the form `"before #{mid} after"`,
     # where `before` and `after` may include more interpolation.
     #
