@@ -773,6 +773,10 @@ MSG
       inject_values(str, vals)
     end
 
+    # Counts characters in a (multibyte-encoded) string.
+    #
+    # @param str [String] Source string.
+    # @return [Numeric] The count of characters in the source string.
     def char_size(str)
       return ruby1_8? ? str.split(//).length : str.length
     end

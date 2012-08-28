@@ -152,7 +152,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   def shift_source_mappings(prefix)
     line_delta = prefix.count("\n")
-    first_line_col_delta = line_delta > 0 ? Sass::Util.char_size(prefix.slice(prefix.rindex(?\n), prefix.length)) + 1 : 0
+    first_line_col_delta = line_delta > 0 ? Sass::Util.char_size(prefix.slice(prefix.rindex(?\n), prefix.length)) - 1 : 0
     @source_mapping.shift_to_ranges(line_delta, first_line_col_delta)
   end
 

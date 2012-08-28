@@ -12,8 +12,6 @@ module Sass
       # @return [String]
       attr_reader :underscored_name
 
-      attr_accessor :source_range
-
       # @param name [String] See \{#name}
       def initialize(name)
         @name = name

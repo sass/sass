@@ -341,9 +341,8 @@ module Sass
         rendered = rendered.encode(source_encoding)
       rescue EncodingError
       end
-      rendered.gsub!(Regexp.new('\A@charset "(.*?)"'.encode(source_encoding)),
+      rendered.gsub(Regexp.new('\A@charset "(.*?)"'.encode(source_encoding)),
         "@charset \"#{source_encoding.name}\"".encode(source_encoding))
-      rendered
     end
 
     def _to_tree
