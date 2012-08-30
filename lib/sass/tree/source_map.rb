@@ -88,8 +88,16 @@ module Sass::Tree
 
         adjusted_target_range = adjust_target_range(m.to, offset_position)
         [[m.from.start_pos, adjusted_target_range.start_pos], [m.from.end_pos, adjusted_target_range.end_pos]].each do |source_pos, target_pos|
-          previous_target_column = 0 if target_pos.line != previous_target_line
-          new_target_line = previous_target_line && previous_target_line != target_pos.line
+
+          if previous_target_line != target_pos.line
+            line_data.push(segment_data_for_line.join(",")) if !segment_data_for_line.empty?
+            for i in (((previous_target_line || -1) + 1)...target_pos.line)
+              line_data.push("")
+            end
+            previous_target_line = target_pos.line
+            previous_target_column = 0
+            segment_data_for_line = []
+          end
 
           # |segment| is a data chunk for a single position mapping.
           segment = ""
@@ -110,17 +118,7 @@ module Sass::Tree
           segment << encode_vlq(source_pos.column - previous_source_column)
           previous_source_column = source_pos.column
 
-          for i in ((previous_target_line || 0)...target_pos.line)
-            line_data.push("")
-          end
-
-          if new_target_line
-            # Once the line changes, dump the segment data and prepare for the next line.
-            line_data.push(segment_data_for_line.join(","))
-            segment_data_for_line = [segment]
-          else
-            segment_data_for_line.push(segment)
-          end
+          segment_data_for_line.push(segment)
 
           previous_target_line = target_pos.line
         end

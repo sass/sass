@@ -9,14 +9,18 @@ class SourcemapTest < Test::Unit::TestCase
     assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
 a {
   foo: bar;
+/* SOME COMMENT */
+  font-size: 12px;
 }
 SCSS
 a {
-  foo: bar; }
+  foo: bar;
+  /* SOME COMMENT */
+  font-size: 12px; }
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAC,GAAI",
+"mappings": ";EACE,GAAG,EAAC,GAAI;;EAER,SAAS,EAAC,IAAK",
 "sources": ["test_simple_scss_mapping_inline.scss"],
 "sourceRoot": "",
 "file": "test.css"
