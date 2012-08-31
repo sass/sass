@@ -1,10 +1,7 @@
 module Sass::Tree
-  class SourceRangeMapping < Struct.new(:from, :to, :source_filename, :id)
+  class SourceRangeMapping < Struct.new(:from, :to, :source_filename)
     def initialize(from, to, source_filename = nil)
-      super
-      @from = from;
-      @to = to
-      @source_filename = source_filename
+      super(from, to, source_filename)
     end
 
     def to_s
@@ -28,10 +25,6 @@ module Sass::Tree
 
     def initialize
       @data = []
-    end
-
-    def append(other)
-      @data.concat other.data
     end
 
     # Adds a new range mapping. The |to| range should be located after the one
@@ -90,7 +83,7 @@ module Sass::Tree
         [[m.from.start_pos, adjusted_target_range.start_pos], [m.from.end_pos, adjusted_target_range.end_pos]].each do |source_pos, target_pos|
 
           if previous_target_line != target_pos.line
-            line_data.push(segment_data_for_line.join(",")) if !segment_data_for_line.empty?
+            line_data.push(segment_data_for_line.join(",")) unless segment_data_for_line.empty?
             for i in (((previous_target_line || -1) + 1)...target_pos.line)
               line_data.push("")
             end
