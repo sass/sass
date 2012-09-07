@@ -820,7 +820,7 @@ WARNING
         media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
         media = media_parser.parse_media_query_list
         Tree::CssImportNode.new(str || uri, media.to_a)
-      elsif val =~ /^http:\/\//
+      elsif val =~ /^(https?:)?\/\//
         Tree::CssImportNode.new("url(#{val})")
       else
         Tree::ImportNode.new(val)

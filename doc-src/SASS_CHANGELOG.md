@@ -17,6 +17,13 @@
 * Add a `--poll` option to force `sass --watch` to use the polling backend to
   [Listen](https://github.com/guard/listen).
 
+* Fix some error reporting bugs related to `@import`.
+
+* Treat [protocol-relative URLs](pru) in `@import`s as static URLs, just like
+  `http` and `https` URLs.
+
+[pru]: http://paulirish.com/2010/the-protocol-relative-url/
+
 ### Deprecations -- Must Read!
 
 * Sass will now print a warning when it encounters a single `@import` statement
