@@ -217,6 +217,10 @@ Available options are:
   Defaults to false in production mode, true otherwise.
   Only has meaning within Rack, Ruby on Rails, or Merb.
 
+{#poll-option} `:poll`
+: When true, always use the polling backend for {Sass::Plugin::Compiler#watch}
+  rather than the native filesystem backend.
+
 {#full_exception-option} `:full_exception`
 : Whether an error in the Sass code
   should cause Sass to provide a detailed description
@@ -1176,6 +1180,10 @@ and you can do
     @import "colors";
 
 and `_colors.scss` would be imported.
+
+Note that you may not include a partial and a non-partial with the same name in
+the same directory. For example, `_colors.scss` may not exist alongside
+`colors.scss`.
 
 #### Nested `@import` {#nested-import}
 

@@ -318,6 +318,7 @@ module Sass
       end
 
       def import_arg
+        line = @line
         return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
         if uri
           start_pos = source_position
@@ -333,11 +334,13 @@ module Sass
 
         start_pos = source_position
         media = media_query_list
-        if path =~ /^http:\/\// || media || use_css_import?
-          return node(Sass::Tree::CssImportNode.new(str, media.to_a), start_pos)
+        if path =~ /^(https?:)?\/\// || media || use_css_import?
+          node = node(Sass::Tree::CssImportNode.new(str, media.to_a), start_pos)
+        else
+          node = node(Sass::Tree::ImportNode.new(path.strip), start_pos)
         end
-
-        node(Sass::Tree::ImportNode.new(path.strip), start_pos)
+        node.line = line
+        node
       end
 
       def use_css_import?; false; end

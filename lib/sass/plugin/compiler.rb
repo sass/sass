@@ -300,7 +300,7 @@ module Sass::Plugin
 
       # The native windows listener is much slower than the polling
       # option, according to https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e#commitcomment-1295118
-      listener.force_polling(true) if Sass::Util.windows?
+      listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
       begin
         listener.start

@@ -217,7 +217,35 @@ MSG
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
                  render("p\n\ta: b\n\tq\n\t\tc: d\n"))
   end
-  
+
+  def test_import_same_name_different_ext
+    assert_raise_message Sass::SyntaxError, <<ERROR do
+It's not clear which file to import for '@import "same_name_different_ext"'.
+Candidates:
+  same_name_different_ext.sass
+  same_name_different_ext.scss
+Please delete or rename all but one of these files.
+ERROR
+      options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
+      munge_filename options
+      Sass::Engine.new("@import 'same_name_different_ext'", options).render
+    end
+  end
+
+  def test_import_same_name_different_partiality
+    assert_raise_message Sass::SyntaxError, <<ERROR do
+It's not clear which file to import for '@import "same_name_different_partiality"'.
+Candidates:
+  _same_name_different_partiality.scss
+  same_name_different_partiality.scss
+Please delete or rename all but one of these files.
+ERROR
+      options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
+      munge_filename options
+      Sass::Engine.new("@import 'same_name_different_partiality'", options).render
+    end
+  end
+
   EXCEPTION_MAP.each do |key, value|
     define_method("test_exception (#{key.inspect})") do
       line = 10
@@ -623,6 +651,11 @@ CSS
   def test_http_import
     assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
+  end
+
+  def test_protocol_relative_import
+    assert_equal("@import url(//fonts.googleapis.com/css?family=Droid+Sans);\n",
+      render("@import \"//fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 
   def test_import_with_interpolation

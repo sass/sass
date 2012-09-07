@@ -43,12 +43,12 @@ module Sass
 
         if @options[:importer]
           f = @options[:importer].find_relative(
-            @imported_filename, @options[:filename], @options.dup)
+            @imported_filename, @options[:filename], options_for_importer)
           return f if f
         end
 
         paths.each do |p|
-          if f = p.find(@imported_filename, @options.dup)
+          if f = p.find(@imported_filename, options_for_importer)
             return f
           end
         end
@@ -62,6 +62,10 @@ module Sass
         raise SyntaxError.new(message)
       rescue SyntaxError => e
         raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
+      end
+
+      def options_for_importer
+        @options.merge(:_from_import_node => true)
       end
     end
   end

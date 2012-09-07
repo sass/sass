@@ -218,15 +218,17 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     file = node.imported_file
     handle_import_loop!(node) if @stack.any? {|e| e[:filename] == file.options[:filename]}
 
-    @stack.push(:filename => node.filename, :line => node.line)
-    root = file.to_tree
-    Sass::Tree::Visitors::CheckNesting.visit(root)
-    node.children = root.children.map {|c| visit(c)}.flatten
-    node
-  rescue Sass::SyntaxError => e
-    e.modify_backtrace(:filename => node.imported_file.options[:filename])
-    e.add_backtrace(:filename => node.filename, :line => node.line)
-    raise e
+    begin
+      @stack.push(:filename => node.filename, :line => node.line)
+      root = file.to_tree
+      Sass::Tree::Visitors::CheckNesting.visit(root)
+      node.children = root.children.map {|c| visit(c)}.flatten
+      node
+    rescue Sass::SyntaxError => e
+      e.modify_backtrace(:filename => node.imported_file.options[:filename])
+      e.add_backtrace(:filename => node.filename, :line => node.line)
+      raise e
+    end
   ensure
     @stack.pop unless path
   end

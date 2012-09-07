@@ -123,7 +123,7 @@ CSS
     File.open(tempfile_loc('single_import_loop')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...2].join("\n"))
 /*
-Sass::SyntaxError: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
+Syntax error: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
 CSS
     end
   end
@@ -134,9 +134,9 @@ CSS
     File.open(tempfile_loc('double_import_loop1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...4].join("\n"))
 /*
-Sass::SyntaxError: An @import loop has been found:
-    #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
-    #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
+Syntax error: An @import loop has been found:
+                  #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
+                  #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
 CSS
     end
   end
@@ -208,6 +208,19 @@ CSS
     check_for_updates!
     assert_doesnt_need_update "more1", "more_"
     assert_needs_update "basic"
+  end
+
+  def test_import_same_name
+    assert_warning <<WARNING do
+WARNING: In #{template_loc}:
+  There are multiple files that match the name "same_name_different_partiality.scss":
+    _same_name_different_partiality.scss
+    same_name_different_partiality.scss
+  This will be an error in future versions of Sass.
+WARNING
+      touch "_same_name_different_partiality"
+      assert_needs_update "same_name_different_partiality"
+    end
   end
 
   # Callbacks
@@ -388,7 +401,7 @@ CSS
     end
 
     if block_given?
-      yield
+      Sass::Util.silence_sass_warnings {yield}
     else
       check_for_updates!
     end

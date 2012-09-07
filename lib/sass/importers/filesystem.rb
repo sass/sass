@@ -1,4 +1,5 @@
 require 'pathname'
+require 'set'
 
 module Sass
   module Importers
@@ -14,6 +15,7 @@ module Sass
       #   This importer will import files relative to this path.
       def initialize(root)
         @root = File.expand_path(root)
+        @same_name_warnings = Set.new
       end
 
       # @see Base#find_relative
@@ -28,7 +30,7 @@ module Sass
 
       # @see Base#mtime
       def mtime(name, options)
-        file, s = find_real_file(@root, name)
+        file, s = find_real_file(@root, name, options)
         File.mtime(file) if file
       rescue Errno::ENOENT
         nil
@@ -106,15 +108,44 @@ module Sass
       # @param dir [String] The directory relative to which to search.
       # @param name [String] The filename to search for.
       # @return [(String, Symbol)] A filename-syntax pair.
-      def find_real_file(dir, name)
-        for (f,s) in possible_files(remove_root(name))
+      def find_real_file(dir, name, options)
+        found = possible_files(remove_root(name)).map do |f, s|
           path = (dir == "." || Pathname.new(f).absolute?) ? f : "#{dir}/#{f}"
-          if full_path = Dir[path].first
-            full_path.gsub!(REDUNDANT_DIRECTORY,File::SEPARATOR)
-            return full_path, s
+          Dir[path].map do |full_path|
+            full_path.gsub!(REDUNDANT_DIRECTORY, File::SEPARATOR)
+            [full_path, s]
           end
         end
-        nil
+        found = Sass::Util.flatten(found, 1)
+        return if found.empty?
+  
+        if found.size > 1 && !@same_name_warnings.include?(found.first.first)
+          found.each {|(f, _)| @same_name_warnings << f}
+          relative_to = Pathname.new(dir)
+          if options[:_from_import_node]
+            # If _line exists, we're here due to an actual import in an
+            # import_node and we want to print a warning for a user writing an
+            # ambiguous import.
+            candidates = found.map {|(f, _)| "  " + Pathname.new(f).relative_path_from(relative_to).to_s}.join("\n")
+            raise Sass::SyntaxError.new(<<MESSAGE)
+It's not clear which file to import for '@import "#{name}"'.
+Candidates:
+#{candidates}
+Please delete or rename all but one of these files.
+MESSAGE
+          else
+            # Otherwise, we're here via StalenessChecker, and we want to print a
+            # warning for a user running `sass --watch` with two ambiguous files.
+            candidates = found.map {|(f, _)| "    " + File.basename(f)}.join("\n")
+            Sass::Util.sass_warn <<WARNING
+WARNING: In #{File.dirname(name)}:
+  There are multiple files that match the name "#{File.basename(name)}":
+#{candidates}
+  This will be an error in future versions of Sass.
+WARNING
+          end
+        end
+        found.first
       end
 
       # Splits a filename into three parts, a directory part, a basename, and an extension
@@ -132,7 +163,7 @@ module Sass
       private
 
       def _find(dir, name, options)
-        full_filename, syntax = find_real_file(dir, name)
+        full_filename, syntax = find_real_file(dir, name, options)
         return unless full_filename && File.readable?(full_filename)
 
         options[:syntax] = syntax

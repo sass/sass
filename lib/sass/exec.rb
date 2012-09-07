@@ -238,6 +238,10 @@ END
                                    'Only meaningful for --watch and --update.') do
           @options[:stop_on_error] = true
         end
+        opts.on('--poll', 'Check for file changes manually, rather than relying on the OS.',
+                          'Only meaningful for --watch.') do
+          @options[:poll] = true
+        end
         opts.on('-f', '--force', 'Recompile all Sass files, even if the CSS file is newer.',
                                  'Only meaningful for --update.') do
           @options[:force] = true
@@ -382,6 +386,7 @@ END
         require 'sass/plugin'
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
+        ::Sass::Plugin.options[:poll] = @options[:poll]
 
         if @options[:force]
           raise "The --force flag may only be used with --update." unless @options[:update]
