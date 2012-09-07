@@ -307,6 +307,7 @@ module Sass
       end
 
       def import_arg
+        line = @line
         return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
         if uri
           str = sass_script(:parse_string)
@@ -320,10 +321,12 @@ module Sass
 
         media = media_query_list
         if path =~ /^http:\/\// || media || use_css_import?
-          return node(Sass::Tree::CssImportNode.new(str, media.to_a))
+          node = Sass::Tree::CssImportNode.new(str, media.to_a)
+        else
+          node = Sass::Tree::ImportNode.new(path.strip)
         end
-
-        node(Sass::Tree::ImportNode.new(path.strip))
+        node.line = line
+        node
       end
 
       def use_css_import?; false; end

@@ -123,7 +123,7 @@ CSS
     File.open(tempfile_loc('single_import_loop')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...2].join("\n"))
 /*
-Sass::SyntaxError: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
+Syntax error: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
 CSS
     end
   end
@@ -134,9 +134,9 @@ CSS
     File.open(tempfile_loc('double_import_loop1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...4].join("\n"))
 /*
-Sass::SyntaxError: An @import loop has been found:
-    #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
-    #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
+Syntax error: An @import loop has been found:
+                  #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
+                  #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
 CSS
     end
   end

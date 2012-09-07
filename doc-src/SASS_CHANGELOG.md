@@ -8,6 +8,8 @@
 * Add a `--poll` option to force `sass --watch` to use the polling backend to
   [Listen](https://github.com/guard/listen).
 
+* Fix some error reporting bugs related to `@import`.
+
 ### Deprecations -- Must Read!
 
 * Sass will now print a warning when it encounters a single `@import` statement
