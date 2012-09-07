@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.2.2 (Unreleased)
+
+* Add a `--poll` option to force `sass --watch` to use the polling backend to
+  [Listen](https://github.com/guard/listen).
+
 ## 3.2.1 (15 August 2012)
 
 * Fix a buggy interaction with Pow and Capybara that caused `EOFError`s.
