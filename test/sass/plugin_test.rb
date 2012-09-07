@@ -210,6 +210,19 @@ CSS
     assert_needs_update "basic"
   end
 
+  def test_import_same_name
+    assert_warning <<WARNING do
+WARNING: In #{template_loc}:
+  There are multiple files that match the name "same_name_different_partiality.scss":
+    _same_name_different_partiality.scss
+    same_name_different_partiality.scss
+  This will be an error in future versions of Sass.
+WARNING
+      touch "_same_name_different_partiality"
+      assert_needs_update "same_name_different_partiality"
+    end
+  end
+
   # Callbacks
 
   def test_updating_stylesheets_callback
@@ -388,7 +401,7 @@ CSS
     end
 
     if block_given?
-      yield
+      Sass::Util.silence_sass_warnings {yield}
     else
       check_for_updates!
     end
