@@ -320,7 +320,7 @@ module Sass
         ss
 
         media = media_query_list
-        if path =~ /^http:\/\// || media || use_css_import?
+        if path =~ /^(https?:)?\/\// || media || use_css_import?
           node = Sass::Tree::CssImportNode.new(str, media.to_a)
         else
           node = Sass::Tree::ImportNode.new(path.strip)

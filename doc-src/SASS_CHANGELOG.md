@@ -10,6 +10,11 @@
 
 * Fix some error reporting bugs related to `@import`.
 
+* Treat [protocol-relative URLs](pru) in `@import`s as static URLs, just like
+  `http` and `https` URLs.
+
+[pru]: http://paulirish.com/2010/the-protocol-relative-url/
+
 ### Deprecations -- Must Read!
 
 * Sass will now print a warning when it encounters a single `@import` statement
