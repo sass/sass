@@ -217,7 +217,47 @@ MSG
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
                  render("p\n\ta: b\n\tq\n\t\tc: d\n"))
   end
-  
+
+  def test_import_same_name_different_ext
+    assert_warning <<WARNING do
+WARNING: On line 1 of test_import_same_name_different_ext_inline.sass:
+  It's not clear which file to import for '@import "same_name_different_ext"'.
+  Candidates:
+    same_name_different_ext.sass
+    same_name_different_ext.scss
+  For now I'll choose same_name_different_ext.sass.
+  This will be an error in future versions of Sass.
+WARNING
+      options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
+      munge_filename options
+      result = Sass::Engine.new("@import 'same_name_different_ext'", options).render
+      assert_equal(<<CSS, result)
+.foo {
+  ext: sass; }
+CSS
+    end
+  end
+
+  def test_import_same_name_different_partiality
+    assert_warning <<WARNING do
+WARNING: On line 1 of test_import_same_name_different_partiality_inline.sass:
+  It's not clear which file to import for '@import "same_name_different_partiality"'.
+  Candidates:
+    _same_name_different_partiality.scss
+    same_name_different_partiality.scss
+  For now I'll choose _same_name_different_partiality.scss.
+  This will be an error in future versions of Sass.
+WARNING
+      options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
+      munge_filename options
+      result = Sass::Engine.new("@import 'same_name_different_partiality'", options).render
+      assert_equal(<<CSS, result)
+.foo {
+  partial: yes; }
+CSS
+    end
+  end
+
   EXCEPTION_MAP.each do |key, value|
     define_method("test_exception (#{key.inspect})") do
       line = 10

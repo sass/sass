@@ -8,6 +8,13 @@
 * Add a `--poll` option to force `sass --watch` to use the polling backend to
   [Listen](https://github.com/guard/listen).
 
+### Deprecations -- Must Read!
+
+* Sass will now print a warning when it encounters a single `@import` statement
+  that tries to import more than one file. For example, if you have `@import
+  "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
+  printed. This will become an error in future versions of Sass.
+
 ## 3.2.1 (15 August 2012)
 
 * Fix a buggy interaction with Pow and Capybara that caused `EOFError`s.
