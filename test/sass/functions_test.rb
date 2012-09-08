@@ -1210,11 +1210,11 @@ MSG
   end
 
   def evaluate(value, environment = env)
-    Sass::Script::Parser.parse(value, 0, 0).perform(environment).to_s
+    perform(value, environment).to_s
   end
 
-  def perform(value)
-    Sass::Script::Parser.parse(value, 0, 0).perform(env)
+  def perform(value, environment = env)
+    Sass::Script::Parser.parse(value, 0, 0).perform(environment)
   end
 
   def assert_error_message(message, value)
