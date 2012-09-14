@@ -46,9 +46,9 @@
 
   %input.render{:type => "submit", :value => "Render"}
 
-  %input.radio{:type => "radio", :name => "syntax", :value => "scss", :id => "scss-radio", :checked => true}
+  %input.radio{:type => "radio", :name => "syntax", :value => "scss", :id => "scss-radio", :checked => params[:syntax] != 'sass'}
   %label{:for => "scss-radio"} SCSS
-  %input.radio{:type => "radio", :name => "syntax", :value => "sass", :id => "sass-radio"}
+  %input.radio{:type => "radio", :name => "syntax", :value => "sass", :id => "sass-radio", :checked => params[:syntax] == 'sass'}
   %label{:for => "sass-radio"} Indented Syntax
 
   %pre.result&= @result
