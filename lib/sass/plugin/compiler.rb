@@ -190,7 +190,7 @@ module Sass::Plugin
         Sass::Util.glob(File.join(template_location, "**", "[^_]*.s[ca]ss")).sort.each do |file|
           # Get the relative path to the file
           name = file.sub(Sass::Util.glob(template_location).to_s.sub(/\/*$/, '/'), "")
-          css = css_filename(name, Sass::Util.glob(css_location))
+          css = css_filename(name, css_location)
           individual_files << [file, css]
         end
       end
