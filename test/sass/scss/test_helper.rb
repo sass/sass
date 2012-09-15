@@ -6,12 +6,6 @@ module ScssTestHelper
     assert_equal scss.rstrip, render(scss).rstrip
   end
 
-  def assert_parses_with_sourcemap(scss, css, sourcemap_json)
-    rendered, sourcemap = render_with_sourcemap(scss)
-    assert_equal css.rstrip, rendered.rstrip
-    assert_equal sourcemap_json.rstrip, sourcemap.to_json("test.css")
-  end
-
   def assert_not_parses(expected, scss)
     raise "Template must include <err> where an error is expected" unless scss.include?("<err>")
 
@@ -39,13 +33,5 @@ module ScssTestHelper
     options[:syntax] ||= :scss
     munge_filename options
     Sass::Engine.new(scss, options).render
-  end
-
-  def render_with_sourcemap(scss, options = {})
-    options[:syntax] ||= :scss
-    munge_filename options
-    engine = Sass::Engine.new(scss, options)
-    engine.options[:cache] = false
-    engine.render_with_sourcemap
   end
 end

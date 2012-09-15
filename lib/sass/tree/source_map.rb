@@ -1,65 +1,76 @@
 module Sass::Tree
-  class SourceRangeMapping < Struct.new(:from, :to, :source_filename)
-    def initialize(from, to, source_filename = nil)
-      super(from, to, source_filename)
-    end
-
-    def to_s
-      "#{from} (#{source_filename if source_filename}) -> #{to}"
-    end
-
-    # @return [String] A string representation of the mapping
-    def inspect(opts = {})
-      to_s
-    end
-  end
-
   class SourceMapping
-    include Sass::Util
-    include Sass::Util::Base64VLQ
+    # A mapping from one source range to another. Indicates that `input` was
+    # compiled to `output`.
+    #
+    # @!attribute input
+    #   @return [Sass::Tree::SourceRange] The source range in the input document.
+    #
+    # @!attribute output
+    #   @return [Sass::Tree::SourceRange] The source range in the output document.
+    #
+    # @!attribute source_filename
+    #   @return [String] The name of the input document.
+    SourceRangeMapping = Struct.new(:input, :output, :source_filename)
 
     # The mapping data ordered by the location in the target.
     #
-    # @return [Array<Sass::Tree::SourceRangeMapping>]
+    # @return [Array<SourceRangeMapping>]
     attr_reader :data
 
     def initialize
       @data = []
     end
 
-    # Adds a new range mapping. The |to| range should be located after the one
-    # in the previous invocation of this method (if any).
+    # Adds a new mapping from one source range to another. Multiple invocations
+    # of this method should have each `to` range come after all previous ranges.
     #
-    # @param from [Sass::Tree::SourceRange]
-    # @param to [Sass::Tree::SourceRange]
-    # @param source_filename [String]
-    def add(from, to, source_filename)
-      @data.push(SourceRangeMapping.new(from, to, source_filename))
+    # @param input [Sass::Tree::SourceRange]
+    #   The source range in the input document.
+    # @param output [Sass::Tree::SourceRange]
+    #   The source range in the output document.
+    # @param source_filename [String] The name of the input document.
+    def add(input, output, source_filename)
+      @data.push(SourceRangeMapping.new(input, output, source_filename))
     end
 
-    def shift_to_ranges(line_delta, first_line_col_delta)
+    # Shifts all output source ranges forward one or more lines.
+    #
+    # @param delta [Fixnum] The number of lines to shift the ranges forward.
+    def shift_output_lines(delta)
+      return if delta == 0
       @data.each do |m|
-        m.to.start_pos.column += first_line_col_delta if m.to.start_pos.line == 0
-        m.to.start_pos.line += line_delta if m.to.start_pos.line > 0
-        m.to.end_pos.column += first_line_col_delta if m.to.end_pos.line == 0
-        m.to.end_pos.line += line_delta if m.to.end_pos.line > 0
+        m.output.start_pos.line += delta
+        m.output.end_pos.line += delta
       end
     end
 
-    def to_s
-      @data.join("\n")
+    # Shifts any output source ranges that lie on the first line forward one or
+    # more characters on that line.
+    #
+    # @param delta [Fixnum] The number of characters to shift the ranges
+    #   forward.
+    def shift_output_offsets(delta)
+      return if delta == 0
+      @data.each do |m|
+        break if m.output.start_pos.line > 0
+        m.output.start_pos.column += delta
+        m.output.end_pos.column += delta if m.output.end_pos.line > 0
+      end
     end
 
-    def to_json(target_filename, source_root = "", offset_position = nil)
-      last_mapping = nil
-      max_line = 0
-
+    # Returns the standard JSON representation of the source map.
+    #
+    # @param target_filename [String] The filename of the output file; that is,
+    #   the target of the mapping.
+    # @return [String] The JSON string.
+    def to_json(target_filename)
       result = "{\n"
       write_json_field(result, "version", "3", true)
 
       source_filename_to_id = {}
       id_to_source_filename = {}
-      filename_id = 0
+      next_source_id = 0
       line_data = []
       segment_data_for_line = []
 
@@ -68,47 +79,47 @@ module Sass::Tree
       previous_target_column = 0
       previous_source_line = 0
       previous_source_column = 0
-      previous_source_file_id = 0
+      previous_source_id = 0
 
       @data.each do |m|
         current_source_id = source_filename_to_id[m.source_filename]
-        if !current_source_id
-          source_filename_to_id[m.source_filename] = filename_id
-          id_to_source_filename[filename_id] = m.source_filename
-          current_source_id = filename_id
-          filename_id += 1
+        unless current_source_id
+          current_source_id = next_source_id
+          next_source_id += 1
+
+          source_filename_to_id[m.source_filename] = current_source_id
+          id_to_source_filename[current_source_id] = m.source_filename
         end
 
-        adjusted_target_range = adjust_target_range(m.to, offset_position)
-        [[m.from.start_pos, adjusted_target_range.start_pos], [m.from.end_pos, adjusted_target_range.end_pos]].each do |source_pos, target_pos|
-
+        [
+          [m.input.start_pos, m.output.start_pos],
+          [m.input.end_pos, m.output.end_pos]
+        ].each do |source_pos, target_pos|
           if previous_target_line != target_pos.line
             line_data.push(segment_data_for_line.join(",")) unless segment_data_for_line.empty?
-            for i in (((previous_target_line || -1) + 1)...target_pos.line)
-              line_data.push("")
-            end
+            (((previous_target_line || -1) + 1)...target_pos.line).each {line_data.push("")}
             previous_target_line = target_pos.line
             previous_target_column = 0
             segment_data_for_line = []
           end
 
-          # |segment| is a data chunk for a single position mapping.
+          # `segment` is a data chunk for a single position mapping.
           segment = ""
 
           # Field 1: zero-based starting column.
-          segment << encode_vlq(target_pos.column - previous_target_column)
+          segment << Sass::Util.encode_vlq(target_pos.column - previous_target_column)
           previous_target_column = target_pos.column
 
           # Field 2: zero-based index into the "sources" list.
-          segment << encode_vlq(current_source_id - previous_source_file_id)
-          previous_source_file_id = current_source_id
+          segment << Sass::Util.encode_vlq(current_source_id - previous_source_id)
+          previous_source_id = current_source_id
 
           # Field 3: zero-based starting line in the original source.
-          segment << encode_vlq(source_pos.line - previous_source_line)
+          segment << Sass::Util.encode_vlq(source_pos.line - previous_source_line)
           previous_source_line = source_pos.line
 
           # Field 4: zero-based starting column in the original source.
-          segment << encode_vlq(source_pos.column - previous_source_column)
+          segment << Sass::Util.encode_vlq(source_pos.column - previous_source_column)
           previous_source_column = source_pos.column
 
           segment_data_for_line.push(segment)
@@ -120,10 +131,8 @@ module Sass::Tree
       write_json_field(result, "mappings", line_data.join(";"))
 
       source_names = []
-      (0...filename_id).each {|id| source_names.push(id_to_source_filename[id].gsub(/\.\//, "") || "")}
+      (0...next_source_id).each {|id| source_names.push(id_to_source_filename[id].gsub(/\.\//, "") || "")}
       write_json_field(result, "sources", source_names)
-
-      write_json_field(result, "sourceRoot", source_root)
       write_json_field(result, "file", target_filename)
 
       result << "\n}"
@@ -133,22 +142,11 @@ module Sass::Tree
     private
 
     def write_json_field(out, name, value, is_first = false)
-      out << (is_first ? "" : ",\n") << "\"" << json_escape_string(name) << "\": " << json_value_of(value)
-    end
-
-    def adjust_target_range(range, offset_position = nil)
-      return range if !offset_position || (offset_position.line == 0 && offset_position.column == 0)
-      start_pos = range.start_pos
-      end_pos = range.end_pos
-      offset_line = offset_position.line
-      start_offset_column = offset_position.column
-      end_offset_column = offset_position.column
-      start_offset_column = 0 if start_pos.line > 0
-      end_offset_column = 0 if end_pos.line > 0
-
-      start_pos = SourcePosition.new(start_pos.line + offset_line, start_pos.column + start_offset_column)
-      end_pos = SourcePosition.new(end_pos.line + offset_line, end_pos.column + end_offset_column)
-      SourceRange.new(start_pos, end_pos)
+      out << (is_first ? "" : ",\n") <<
+        "\"" <<
+        Sass::Util.json_escape_string(name) <<
+        "\": " <<
+        Sass::Util.json_value_of(value)
     end
   end
 end

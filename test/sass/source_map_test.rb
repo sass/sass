@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
+require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 
 class SourcemapTest < Test::Unit::TestCase
-  include ScssTestHelper
-
   def test_simple_scss_mapping
     assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
 a {
@@ -22,7 +21,6 @@ CSS
 "version": "3",
 "mappings": ";EACE,GAAG,EAAC,GAAI;;EAER,SAAS,EAAC,IAAK",
 "sources": ["test_simple_scss_mapping_inline.scss"],
-"sourceRoot": "",
 "file": "test.css"
 }
 JSON
@@ -42,7 +40,6 @@ CSS
 "version": "3",
 "mappings": ";EACE,GAAG,EAAC,GAAI",
 "sources": ["test_simple_charset_scss_mapping_inline.scss"],
-"sourceRoot": "",
 "file": "test.css"
 }
 JSON
@@ -62,7 +59,6 @@ CSS
 "version": "3",
 "mappings": ";;EACE,GAAG,EAAC,GAAI",
 "sources": ["test_simple_charset_scss_mapping_inline.scss"],
-"sourceRoot": "",
 "file": "test.css"
 }
 JSON
@@ -85,10 +81,23 @@ SASS
 "version": "3",
 "mappings": ";;EAEE,CAAC,EAAC,CAAE",
 "sources": ["test_different_charset_than_encoding_inline.scss"],
-"sourceRoot": "",
 "file": "test.css"
 }
 JSON
     end
+  end
+
+  def assert_parses_with_sourcemap(scss, css, sourcemap_json)
+    rendered, sourcemap = render_with_sourcemap(scss)
+    assert_equal css.rstrip, rendered.rstrip
+    assert_equal sourcemap_json.rstrip, sourcemap.to_json("test.css")
+  end
+
+  def render_with_sourcemap(scss, options = {})
+    options[:syntax] ||= :scss
+    munge_filename options
+    engine = Sass::Engine.new(scss, options)
+    engine.options[:cache] = false
+    engine.render_with_sourcemap
   end
 end

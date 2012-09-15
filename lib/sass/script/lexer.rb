@@ -126,9 +126,9 @@ module Sass
 
       # @param str [String, StringScanner] The source text to lex
       # @param line [Fixnum] The line on which the SassScript appears.
-      #   Used for error reporting
+      #   Used for error reporting and sourcemap building
       # @param offset [Fixnum] The character (not byte) offset in the line on which the SassScript appears.
-      #   Used for error reporting
+      #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
       def initialize(str, line, offset, options)
@@ -306,7 +306,7 @@ MESSAGE
         old_line = @line
         old_offset = @offset
         @line += c
-        @offset = (c == 0 ? @offset + Sass::Util::char_size(str2) : Sass::Util::char_size(str2[/\n(.*)/, 1]))
+        @offset = c == 0 ? @offset + Sass::Util::char_size(str2) : Sass::Util::char_size(str2[/\n(.*)/, 1])
         [:special_fun,
           Sass::Util.merge_adjacent_strings(
             [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),

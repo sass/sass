@@ -4,7 +4,6 @@ require 'pathname'
 
 class UtilTest < Test::Unit::TestCase
   include Sass::Util
-  include Sass::Util::Base64VLQ
 
   def test_scope
     assert(File.exist?(scope("Rakefile")))
@@ -287,36 +286,17 @@ class UtilTest < Test::Unit::TestCase
       "UtilTest::FooBar must implement #foo") {FooBar.new.foo}
   end
 
-  def test_base64
-    for i in (0..63) do
-      assert_equal i, BASE64_DIGIT_MAP[BASE64_DIGITS[i]]
-    end
+  def test_vlq
+    assert_equal "A", encode_vlq(0)
+    assert_equal "e", encode_vlq(15)
+    assert_equal "gB", encode_vlq(16)
+    assert_equal "wH", encode_vlq(120)
   end
 
-  def test_base64_vlq
-    for i in (-1000..1000) do
-      assert_vlq_encode i
-    end
-  end
-
-  def assert_vlq_encode(decimal)
-    assert_equal decimal, decode_vlq(encode_vlq(decimal))[0]
-  end
-
-  def test_base64_vlq_twoway
-    assert_vlq_twoway [0], "A"
-    assert_vlq_twoway [15], "e"
-    assert_vlq_twoway [16], "gB"
-    assert_vlq_twoway [120], "wH"
-    assert_vlq_twoway [120, 0, 120, 120], "wHAwHwH"
-    assert_vlq_twoway [4, 2, 0, 2], "IEAE"
-  end
-
-  def assert_vlq_twoway(decimal_array, vlq)
+  def assert_vlq_encodes(int, vlq)
     vlq_from_decimal_array = decimal_array.map {|d| encode_vlq(d)}.join
     decimal_array_from_vlq = decode_vlq(vlq)
     assert_equal vlq, vlq_from_decimal_array
     assert_equal decimal_array, decimal_array_from_vlq
   end
-
 end

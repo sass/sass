@@ -42,11 +42,25 @@ module Sass::Tree
     # @return [Fixnum]
     attr_accessor :tabs
 
+    # The source range in which the property name appears.
+    #
     # @return [Sass::Tree::SourceRange]
-    attr_accessor :value_source_range;
+    attr_accessor :name_source_range
 
+    # The name of the file in which the property name originally appeared.
+    #
     # @return [String]
-    attr_accessor :value_original_filename;
+    attr_accessor :name_original_filename
+
+    # The source range in which the property value appears.
+    #
+    # @return [Sass::Tree::SourceRange]
+    attr_accessor :value_source_range
+
+    # The name of the file in which the property value originally appeared.
+    #
+    # @return [String]
+    attr_accessor :value_original_filename
 
     # @param name [Array<String, Sass::Script::Node>] See \{#name}
     # @param value [Sass::Script::Node] See \{#value}

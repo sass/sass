@@ -13,13 +13,18 @@ module Sass
         @template = template
       end
 
-      # Runs the dynamic Sass code *and* computes the CSS for the tree.
-      # @see #to_s
+      # Runs the dynamic Sass code and computes the CSS for the tree.
+      #
+      # @return [String] The compiled CSS.
       def render
         css_tree.css
       end
 
-      # Runs the dynamic Sass code *and* computes the CSS for the tree along with the sourcemap.
+      # Runs the dynamic Sass code and computes the CSS for the tree, along with
+      # the sourcemap.
+      #
+      # @return [(String, Sass::Tree::SourceMapping)] The compiled CSS, as well
+      #   as the source map.
       # @see #render
       def render_with_sourcemap
         css_tree.css_with_sourcemap

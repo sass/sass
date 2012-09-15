@@ -778,7 +778,7 @@ MSG
     # @param str [String] Source string.
     # @return [Numeric] The count of characters in the source string.
     def char_size(str)
-      return ruby1_8? ? str.split(//).length : str.length
+      ruby1_8? ? str.split(//).length : str.length
     end
 
     # Escapes certain characters so that the result can be used
@@ -786,29 +786,17 @@ MSG
     # no escaping is necessary.
     #
     # @param s [String] The string to be escaped
-    # @return [String] The escaping result (|s| if no escaping necessary)
+    # @return [String] The escaped string
     def json_escape_string(s)
       return s if s !~ /["\\\/\b\f\n\r\t]/
 
       result = ""
       s.split("").each do |c|
         case c
-        when "\""
-          result << "\\\""
-        when "\\"
-          result << "\\\\"
-        when "/"
-          result << "\\/"
-        when "\b"
-          result << "\\b"
-        when "\f"
-          result << "\\f"
-        when "\n"
-          result << "\\n"
-        when "\r"
-          result << "\\r"
-        when "\t"
-          result << "\\t"
+        when '"', "\\", "/"
+          result << "\\" << c
+        when "\b", "\f", "\n", "\r", "\t"
+          result << c.dump
         else
           result << c
         end
@@ -838,65 +826,41 @@ MSG
       end
     end
 
-    module Base64VLQ
-      extend self
+    VLQ_BASE_SHIFT = 5
+    VLQ_BASE = 1 << VLQ_BASE_SHIFT
+    VLQ_BASE_MASK = VLQ_BASE - 1
+    VLQ_CONTINUATION_BIT = VLQ_BASE
 
-      VLQ_BASE_SHIFT = 5
-      VLQ_BASE = 1 << VLQ_BASE_SHIFT
-      VLQ_BASE_MASK = VLQ_BASE - 1
-      VLQ_CONTINUATION_BIT = VLQ_BASE
+    BASE64_DIGITS = ('A'..'Z').to_a  + ('a'..'z').to_a + ('0'..'9').to_a  + ['+', '/']
+    BASE64_DIGIT_MAP = begin
+      map = {}
+      Sass::Util.enum_with_index(BASE64_DIGITS).map do |digit, i|
+        map[digit] = i
+      end
+      map
+    end
 
-      BASE64_DIGITS = ('A'..'Z').to_a  + ('a'..'z').to_a + ('0'..'9').to_a  + ['+', '/']
-      BASE64_DIGIT_MAP = begin
-        map = {}
-        Sass::Util.enum_with_index(BASE64_DIGITS).map do |digit, i|
-          map[digit] = i
-        end
-        map
+    # Encodes `value` as VLQ (http://en.wikipedia.org/wiki/VLQ).
+    #
+    # @param value [Fixnum]
+    # @return [String] The encoded value
+    def encode_vlq(value)
+      if value < 0
+        value = ((-value) << 1) | 1
+      else
+        value <<= 1
       end
 
-      def encode_vlq(value)
-        if value < 0
-          value = ((-value) << 1) | 1
-        else
-          value <<= 1
+      result = String.new
+      begin
+        digit = value & VLQ_BASE_MASK
+        value >>= VLQ_BASE_SHIFT
+        if value > 0
+          digit |= VLQ_CONTINUATION_BIT
         end
-
-        result = String.new
-        begin
-          digit = value & VLQ_BASE_MASK
-          value >>= VLQ_BASE_SHIFT
-          if value > 0
-            digit |= VLQ_CONTINUATION_BIT
-          end
-          result << BASE64_DIGITS[digit]
-        end while value > 0
-        result
-      end
-
-      def decode_vlq(value)
-        result = []
-        resultValue = 0
-        shift = 0
-        continuation = nil
-        value.split("").each do |c|
-          digit = BASE64_DIGIT_MAP[c]
-          continuation = digit & VLQ_CONTINUATION_BIT
-          digit &= VLQ_BASE_MASK
-          resultValue += digit << shift
-          shift += VLQ_BASE_SHIFT
-          if continuation == 0
-            negate = (resultValue & 1) == 1
-            resultValue >>= 1
-            result.push(negate ? -resultValue : resultValue)
-            resultValue = 0
-            shift = 0
-            continuation = nil
-          end
-        end
-        # assert continuation == 0
-        result
-      end
+        result << BASE64_DIGITS[digit]
+      end while value > 0
+      result
     end
 
     ## Static Method Stuff

@@ -11,13 +11,14 @@ module Sass
       # @param filename [String] The name of the file being parsed. Used for warnings.
       # @param line [Fixnum] The line on which the source string appeared,
       #   if it's part of another document.
-      # @param column [Fixnum] The column on which the source string started,
-      #   if it's part of another document.
-      def initialize(str, filename, line = 1, column = 1)
+      # @param offset [Fixnum] The character (not byte) offset in the line on
+      #   which the source string starts. Used for error reporting and sourcemap
+      #   building.
+      def initialize(str, filename, line = 1, offset = 1)
         @template = str
         @filename = filename
         @line = line
-        @column = column
+        @offset = offset
         @strs = []
       end
 
@@ -60,7 +61,7 @@ module Sass
       include Sass::SCSS::RX
 
       def source_position
-        Sass::Tree::SourcePosition.new(@line - 1, @column - 1)
+        Sass::Tree::SourcePosition.new(@line - 1, @offset - 1)
       end
 
       def init_scanner!
@@ -186,9 +187,8 @@ module Sass
       def include_directive(start_pos)
         name = tok! IDENT
         args, keywords, splat = sass_script(:parse_mixin_include_arglist)
-        end_pos = source_position
         ss
-        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords, splat), start_pos, end_pos)
+        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords, splat), start_pos)
         if tok?(/\{/)
           include_node.has_children = true
           block(include_node, :directive)
@@ -301,9 +301,8 @@ module Sass
       def extend_directive(start_pos)
         selector = expr!(:selector_sequence)
         optional = tok(OPTIONAL)
-        end_pos = source_position
         ss
-        node(Sass::Tree::ExtendNode.new(selector, !!optional), start_pos, end_pos)
+        node(Sass::Tree::ExtendNode.new(selector, !!optional), start_pos)
       end
 
       def import_directive(start_pos)
@@ -318,29 +317,24 @@ module Sass
       end
 
       def import_arg
-        line = @line
+        start_pos = source_position
         return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
         if uri
-          start_pos = source_position
           str = sass_script(:parse_string)
           media = media_query_list
-          end_pos = source_position
           ss
-          return node(Tree::CssImportNode.new(str, media.to_a), start_pos, end_pos)
+          return node(Tree::CssImportNode.new(str, media.to_a), start_pos)
         end
 
         path = @scanner[1] || @scanner[2]
         ss
 
-        start_pos = source_position
         media = media_query_list
         if path =~ /^(https?:)?\/\// || media || use_css_import?
-          node = node(Sass::Tree::CssImportNode.new(str, media.to_a), start_pos)
-        else
-          node = node(Sass::Tree::ImportNode.new(path.strip), start_pos)
+          return node(Sass::Tree::CssImportNode.new(str, media.to_a), start_pos)
         end
-        node.line = line
-        node
+
+        node(Sass::Tree::ImportNode.new(path.strip), start_pos)
       end
 
       def use_css_import?; false; end
@@ -417,9 +411,8 @@ module Sass
       def charset_directive(start_pos)
         tok! STRING
         name = @scanner[1] || @scanner[2]
-        end_pos = source_position
         ss
-        node(Sass::Tree::CharsetNode.new(name), start_pos, end_pos)
+        node(Sass::Tree::CharsetNode.new(name), start_pos)
       end
 
       # The document directive is specified in
@@ -511,13 +504,12 @@ module Sass
         return unless tok(/\$/)
         start_pos = source_position
         name = tok!(IDENT)
-        end_pos = source_position
         ss; tok!(/:/); ss
 
         expr = sass_script(:parse)
         guarded = tok(DEFAULT)
         result = Sass::Tree::VariableNode.new(name, expr, guarded)
-        node(result, start_pos, end_pos)
+        node(result, start_pos)
       end
 
       def operator
@@ -870,7 +862,8 @@ module Sass
         ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new), name_start_pos, name_end_pos)
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new), name_start_pos, value_end_pos)
+        node.name_source_range = Sass::Tree::SourceRange.new(name_start_pos, name_end_pos)
         node.value_source_range = Sass::Tree::SourceRange.new(value_start_pos, value_end_pos)
 
         return node unless require_block
@@ -1007,13 +1000,13 @@ MESSAGE
       def str?
         pos = @scanner.pos
         line = @line
-        column = @column
+        offset = @offset
         @strs.push ""
         throw_error {yield} && @strs.last
       rescue Sass::SyntaxError => e
         @scanner.pos = pos
         @line = line
-        @column = column
+        @offset = offset
         nil
       ensure
         @strs.pop
@@ -1021,7 +1014,7 @@ MESSAGE
 
       def node(node, start_pos, end_pos = source_position)
         node.line = @line
-        node.source_range = Sass::Tree::SourceRange.new(start_pos, end_pos) if start_pos && end_pos
+        node.source_range = Sass::Tree::SourceRange.new(start_pos, end_pos)
         node
       end
 
@@ -1031,8 +1024,7 @@ MESSAGE
       def self.sass_script_parser; @sass_script_parser; end
 
       def sass_script(*args)
-        parser = self.class.sass_script_parser.new(@scanner, @line,
-          @scanner.pos - (@scanner.string[0...@scanner.pos].rindex("\n") || 0), :filename => @filename)
+        parser = self.class.sass_script_parser.new(@scanner, @line, @offset, :filename => @filename)
         result = parser.send(*args)
         unless @strs.empty?
           # Convert to CSS manually so that comments are ignored.
@@ -1040,7 +1032,7 @@ MESSAGE
           @strs.each {|s| s << src}
         end
         @line = parser.line
-        @column = parser.offset
+        @offset = parser.offset
         result
       rescue Sass::SyntaxError => e
         throw(:_sass_parser_error, true) if @throw_error
@@ -1114,12 +1106,12 @@ MESSAGE
         old_throw_error, @throw_error = @throw_error, true
         pos = @scanner.pos
         line = @line
-        column = @column
+        offset = @offset
         expected = @expected
         if catch(:_sass_parser_error) {yield; false}
           @scanner.pos = pos
           @line = line
-          @column = column
+          @offset = offset
           @expected = expected
           {:pos => pos, :line => line, :expected => @expected, :block => block}
         end
@@ -1186,9 +1178,9 @@ MESSAGE
           newline_count = res.count(NEWLINE)
           if newline_count > 0
             @line += newline_count
-            @column = Sass::Util::char_size(res.slice(res.rindex(NEWLINE), res.length))
+            @offset = Sass::Util::char_size(res[res.rindex(NEWLINE)+1..-1])
           else
-            @column += Sass::Util::char_size(res)
+            @offset += Sass::Util::char_size(res)
           end
 
           @expected = nil

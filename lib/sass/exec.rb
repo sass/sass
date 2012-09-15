@@ -109,14 +109,12 @@ module Sass
             @options[:filename] = filename
             open_file(filename) || $stdin
           end
-        output_filename = args.shift
-        output ||= open_file(output_filename, 'w') || $stdout
+        @options[:output_filename] = args.shift
+        output ||= open_file(@options[:output_filename], 'w') || $stdout
 
-        @options[:output_filename] = output_filename
-        if @options[:sourcemap] && output_filename
-          sourcemap_filename = output_filename + ".map"
-          @options[:sourcemap] = open_file(sourcemap_filename, 'w')
-          @options[:sourcemap_filename] = sourcemap_filename
+        if @options[:sourcemap] && @options[:output_filename]
+          @options[:sourcemap_filename] = @options[:output_filename] + ".map"
+          @options[:sourcemap] = open_file(@options[:sourcemap_filename], 'w')
         end
 
         @options[:input], @options[:output] = input, output
@@ -289,7 +287,7 @@ END
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
           @options[:for_engine][:cache] = false
         end
-        opts.on('--sourcemap', 'Specifies that sourcemap files should be generated next to the CSS files.') do
+        opts.on('--sourcemap', 'Create sourcemap files next to the generated CSS files.') do
           @options[:sourcemap] = true
         end
 
@@ -339,13 +337,16 @@ END
           input.close() if input.is_a?(File)
 
           if sourcemap.is_a? File
+            compressed = @options[:for_engine][:style] == :compressed
             rendered, mapping = engine.render_with_sourcemap
             rendered << "\n" if rendered[-1] != ?\n
+            rendered << "\n" unless compressed
             rendered << "/*@ sourceMappingURL="
-            rendered << URI::encode(@options[:sourcemap_filename])
+            rendered << URI.encode(File.basename(@options[:sourcemap_filename]))
             rendered << " */"
+            rendered << "\n" unless compressed
             output.write(rendered)
-            sourcemap.write(mapping.to_json(@options[:output_filename]))
+            sourcemap.puts(mapping.to_json(File.basename(@options[:output_filename])))
           else
             output.write(engine.render)
           end
