@@ -60,7 +60,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     newlines = str.count("\n")
     if newlines > 0
       @line -= newlines
-      @column = (@result.rindex("\n") || @result.length) + 1
+      @column = Sass::Util::char_size(@result[@result.rindex("\n") || 0..-1])
     else
       @column -= chars
     end
@@ -77,7 +77,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     newlines = s.count("\n")
     if newlines > 0
       @line += newlines
-      @column = s.rindex("\n") + 1
+      @column = Sass::Util::char_size(s[s.rindex("\n")..-1])
     else
       @column += Sass::Util::char_size(s)
     end
