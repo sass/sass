@@ -286,6 +286,34 @@ class UtilTest < Test::Unit::TestCase
       "UtilTest::FooBar must implement #foo") {FooBar.new.foo}
   end
 
+  def test_json_escape_string
+    assert_json_string "", ""
+    alphanum = (("0".."9").to_a).concat(("a".."z").to_a).concat(("A".."Z").to_a).join
+    assert_json_string alphanum, alphanum
+    assert_json_string "'\"\\/'", "'\\\"\\\\\\/'"
+    assert_json_string "\b\f\n\r\t", "\\b\\f\\n\\r\\t"
+  end
+
+  def assert_json_string(source, target)
+    assert_equal target, json_escape_string(source)
+  end
+
+  def test_json_value_of
+    assert_json_value 0, "0"
+    assert_json_value -42, "-42"
+    assert_json_value 42, "42"
+    assert_json_value true, "true"
+    assert_json_value false, "false"
+    assert_json_value "", "\"\""
+    assert_json_value "\"\"", "\"\\\"\\\"\""
+    assert_json_value "Multi\nLine\rString", "\"Multi\\nLine\\rString\""
+    assert_json_value [1, "some\nstr,ing", false, nil], "[1,\"some\\nstr,ing\",false,null]"
+  end
+
+  def assert_json_value(source, target)
+    assert_equal target, json_value_of(source)
+  end
+
   def test_vlq
     assert_equal "A", encode_vlq(0)
     assert_equal "e", encode_vlq(15)

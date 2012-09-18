@@ -795,8 +795,11 @@ MSG
         case c
         when '"', "\\", "/"
           result << "\\" << c
-        when "\b", "\f", "\n", "\r", "\t"
-          result << c.dump
+        when "\n" then result << "\\n"
+        when "\t" then result << "\\t"
+        when "\r" then result << "\\r"
+        when "\f" then result << "\\f"
+        when "\b" then result << "\\b"
         else
           result << c
         end
@@ -807,10 +810,11 @@ MSG
     # Converts the argument into a valid JSON value.
     #
     # @param v [Fixnum, String, Array, Boolean, nil]
+    # @return [String]
     def json_value_of(v)
       case v
       when Fixnum
-        v
+        v.to_s
       when String
         "\"" + json_escape_string(v) + "\""
       when Array
