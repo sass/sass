@@ -17,13 +17,9 @@ module Sass::Tree
       @end_pos = end_pos
     end
 
-    def to_s
-      "[#{@start_pos}-#{@end_pos}]"
-    end
-
-    # @return [String] A string representation of the variable
-    def inspect(opts = {})
-      to_s
+    # @return [String] A string representation of the source range.
+    def inspect
+      "(#{start_pos.inspect} to #{end_pos.inspect})"
     end
   end
 end

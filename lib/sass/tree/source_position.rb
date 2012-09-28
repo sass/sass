@@ -17,5 +17,10 @@ module Sass::Tree
       @line = line
       @offset = offset
     end
+
+    # @return [String] A string representation of the source position.
+    def inspect
+      "#{line.inspect}:#{offset.inspect}"
+    end
   end
 end

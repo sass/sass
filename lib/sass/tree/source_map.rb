@@ -11,7 +11,12 @@ module Sass::Tree
     #
     # @!attribute source_filename
     #   @return [String] The name of the input document.
-    SourceRangeMapping = Struct.new(:input, :output, :source_filename)
+    class SourceRangeMapping < Struct.new(:input, :output, :source_filename)
+      # @return [String] A string representation of the mapping.
+      def inspect
+        "#{input.inspect} => #{output.inspect}"
+      end
+    end
 
     # The mapping data ordered by the location in the target.
     #
