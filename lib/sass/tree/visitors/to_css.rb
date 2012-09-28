@@ -11,7 +11,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   def initialize(build_source_mapping = false)
     @tabs = 0
     @line = 1
-    @column = 1
+    @offset = 1
     @result = ""
     @source_mapping = Sass::Tree::SourceMap.new if build_source_mapping
   end
@@ -40,14 +40,14 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # mapping.
   def for_node(node, attr_prefix = nil)
     return yield unless @source_mapping
-    start_pos = Sass::Tree::SourcePosition.new(@line - 1, @column - 1)
+    start_pos = Sass::Tree::SourcePosition.new(@line - 1, @offset - 1)
     yield
 
     range_attr = attr_prefix ? :"#{attr_prefix}_source_range" : :source_range
     filename_attr = attr_prefix ? :"#{attr_prefix}_original_filename" : :filename
     return if node.invisible? || !node.send(range_attr)
     source_range = node.send(range_attr)
-    target_range = Sass::Tree::SourceRange.new(start_pos, Sass::Tree::SourcePosition.new(@line - 1, @column - 1))
+    target_range = Sass::Tree::SourceRange.new(start_pos, Sass::Tree::SourcePosition.new(@line - 1, @offset - 1))
     source_filename = (filename_attr && node.send(filename_attr)) || node.options[:filename]
     @source_mapping.add(source_range, target_range, source_filename)
   end
@@ -59,9 +59,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     newlines = str.count("\n")
     if newlines > 0
       @line -= newlines
-      @column = @result[@result.rindex("\n") || 0..-1].size
+      @offset = @result[@result.rindex("\n") || 0..-1].size
     else
-      @column -= chars
+      @offset -= chars
     end
   end
   
@@ -69,7 +69,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # because `#output` is called all the time.
   NEWLINE = "\n"
 
-  # Add `s` to the output string and update the line and column information
+  # Add `s` to the output string and update the line and offset information
   # accordingly.
   def output(s)
     if @lstrip
@@ -80,9 +80,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     newlines = s.count(NEWLINE)
     if newlines > 0
       @line += newlines
-      @column = s[s.rindex(NEWLINE)..-1].size
+      @offset = s[s.rindex(NEWLINE)..-1].size
     else
-      @column += s.size
+      @offset += s.size
     end
 
     @result << s

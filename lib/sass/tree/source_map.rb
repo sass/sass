@@ -54,8 +54,8 @@ module Sass::Tree
       return if delta == 0
       @data.each do |m|
         break if m.output.start_pos.line > 0
-        m.output.start_pos.column += delta
-        m.output.end_pos.column += delta if m.output.end_pos.line > 0
+        m.output.start_pos.offset += delta
+        m.output.end_pos.offset += delta if m.output.end_pos.line > 0
       end
     end
 
@@ -76,9 +76,9 @@ module Sass::Tree
 
       # These track data necessary for the delta coding.
       previous_target_line = nil
-      previous_target_column = 0
+      previous_target_offset = 0
       previous_source_line = 0
-      previous_source_column = 0
+      previous_source_offset = 0
       previous_source_id = 0
 
       @data.each do |m|
@@ -99,16 +99,16 @@ module Sass::Tree
             line_data.push(segment_data_for_line.join(",")) unless segment_data_for_line.empty?
             (((previous_target_line || -1) + 1)...target_pos.line).each {line_data.push("")}
             previous_target_line = target_pos.line
-            previous_target_column = 0
+            previous_target_offset = 0
             segment_data_for_line = []
           end
 
           # `segment` is a data chunk for a single position mapping.
           segment = ""
 
-          # Field 1: zero-based starting column.
-          segment << Sass::Util.encode_vlq(target_pos.column - previous_target_column)
-          previous_target_column = target_pos.column
+          # Field 1: zero-based starting offset.
+          segment << Sass::Util.encode_vlq(target_pos.offset - previous_target_offset)
+          previous_target_offset = target_pos.offset
 
           # Field 2: zero-based index into the "sources" list.
           segment << Sass::Util.encode_vlq(current_source_id - previous_source_id)
@@ -118,9 +118,9 @@ module Sass::Tree
           segment << Sass::Util.encode_vlq(source_pos.line - previous_source_line)
           previous_source_line = source_pos.line
 
-          # Field 4: zero-based starting column in the original source.
-          segment << Sass::Util.encode_vlq(source_pos.column - previous_source_column)
-          previous_source_column = source_pos.column
+          # Field 4: zero-based starting offset in the original source.
+          segment << Sass::Util.encode_vlq(source_pos.offset - previous_source_offset)
+          previous_source_offset = source_pos.offset
 
           segment_data_for_line.push(segment)
 

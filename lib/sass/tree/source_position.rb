@@ -5,17 +5,17 @@ module Sass::Tree
     # @return [Fixnum]
     attr_accessor :line
 
-    # The column in the line of the document associated with the position
+    # The offset in the line of the document associated with the position
     # (zero-based).
     #
     # @return [Fixnum]
-    attr_accessor :column
+    attr_accessor :offset
 
     # @param line [Fixnum] The source line
-    # @param column [Fixnum] The source column
-    def initialize(line, column)
+    # @param offset [Fixnum] The source offset
+    def initialize(line, offset)
       @line = line
-      @column = column
+      @offset = offset
     end
   end
 end
