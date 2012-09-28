@@ -141,7 +141,7 @@ module Sass
       # Computes the CSS corresponding to this static CSS tree, along with
       # the respective source map.
       #
-      # @return [(String, Sass::Tree::SourceMapping)] The resulting CSS and the source map
+      # @return [(String, Sass::Tree::SourceMap)] The resulting CSS and the source map
       # @see Sass::Tree
       def css_with_sourcemap
         visitor = Sass::Tree::Visitors::ToCss.new(:build_source_mapping)

@@ -23,9 +23,8 @@ module Sass
       # Runs the dynamic Sass code and computes the CSS for the tree, along with
       # the sourcemap.
       #
-      # @return [(String, Sass::Tree::SourceMapping)] The compiled CSS, as well
-      #   as the source map.
-      # @see #render
+      # @return [(String, Sass::Tree::SourceMap)] The compiled CSS, as well as
+      #   the source map. @see #render
       def render_with_sourcemap
         css_tree.css_with_sourcemap
       end

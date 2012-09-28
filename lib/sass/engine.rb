@@ -268,7 +268,7 @@ module Sass
 
     # Render the template to CSS and return the source map.
     #
-    # @return [(String, Sass::Tree::SourceMapping)] The rendered CSS and the associated source map
+    # @return [(String, Sass::Tree::SourceMap)] The rendered CSS and the associated source map
     # @raise [Sass::SyntaxError] if there's an error in the document
     # @raise [Encoding::UndefinedConversionError] if the source encoding
     #   cannot be converted to UTF-8

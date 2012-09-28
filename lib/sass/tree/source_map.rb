@@ -1,5 +1,5 @@
 module Sass::Tree
-  class SourceMapping
+  class SourceMap
     # A mapping from one source range to another. Indicates that `input` was
     # compiled to `output`.
     #

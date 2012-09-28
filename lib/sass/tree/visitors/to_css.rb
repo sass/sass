@@ -6,15 +6,14 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   attr_reader :source_mapping
 
   # @param build_source_mapping [Boolean] Whether to build a
-  #   \{Sass::Tree::SourceMapping} while creating the CSS output. The mapping
-  #   will be available from \{#source\_mapping} after the visitor has
-  #   completed.
+  #   \{Sass::Tree::SourceMap} while creating the CSS output. The mapping will
+  #   be available from \{#source\_mapping} after the visitor has completed.
   def initialize(build_source_mapping = false)
     @tabs = 0
     @line = 1
     @column = 1
     @result = ""
-    @source_mapping = Sass::Tree::SourceMapping.new if build_source_mapping
+    @source_mapping = Sass::Tree::SourceMap.new if build_source_mapping
   end
 
   # Runs the visitor on `node`.
