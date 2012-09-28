@@ -64,6 +64,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       @column -= chars
     end
   end
+  
+  # Avoid allocating lots of new strings for `#output`. This is important
+  # because `#output` is called all the time.
+  NEWLINE = "\n"
 
   # Add `s` to the output string and update the line and column information
   # accordingly.
@@ -73,10 +77,10 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       @lstrip = false
     end
 
-    newlines = s.count("\n")
+    newlines = s.count(NEWLINE)
     if newlines > 0
       @line += newlines
-      @column = s[s.rindex("\n")..-1].size
+      @column = s[s.rindex(NEWLINE)..-1].size
     else
       @column += s.size
     end
