@@ -61,7 +61,7 @@ module Sass
       include Sass::SCSS::RX
 
       def source_position
-        Sass::Tree::SourcePosition.new(@line - 1, @offset - 1)
+        Sass::Tree::SourcePosition.new(@line, @offset)
       end
 
       def init_scanner!
@@ -1013,7 +1013,7 @@ MESSAGE
       end
 
       def node(node, start_pos, end_pos = source_position)
-        node.line = @line
+        node.line = start_pos.line
         node.source_range = Sass::Tree::SourceRange.new(start_pos, end_pos)
         node
       end

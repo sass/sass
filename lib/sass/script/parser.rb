@@ -246,7 +246,7 @@ RUBY
       private
 
       def source_position
-        Sass::Tree::SourcePosition.new(line - 1, offset - 1)
+        Sass::Tree::SourcePosition.new(line, offset)
       end
 
       # @private
@@ -507,7 +507,7 @@ RUBY
       end
 
       def node(node, start_pos = source_position, end_pos = nil)
-        node.line = start_pos.line + 1
+        node.line = start_pos.line
         node.filename = @options[:filename]
         node.source_range = Sass::Tree::SourceRange.new(start_pos, end_pos) if end_pos
         node

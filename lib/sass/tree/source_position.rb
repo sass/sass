@@ -1,12 +1,12 @@
 module Sass::Tree
   class SourcePosition
-    # The line of the document associated with the position (zero-based).
+    # The one-based line of the document associated with the position.
     #
     # @return [Fixnum]
     attr_accessor :line
 
-    # The offset in the line of the document associated with the position
-    # (zero-based).
+    # The one-based offset in the line of the document associated with the
+    # position.
     #
     # @return [Fixnum]
     attr_accessor :offset

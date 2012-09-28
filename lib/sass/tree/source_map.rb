@@ -58,9 +58,9 @@ module Sass::Tree
     def shift_output_offsets(delta)
       return if delta == 0
       @data.each do |m|
-        break if m.output.start_pos.line > 0
+        break if m.output.start_pos.line > 1
         m.output.start_pos.offset += delta
-        m.output.end_pos.offset += delta if m.output.end_pos.line > 0
+        m.output.end_pos.offset += delta if m.output.end_pos.line > 1
       end
     end
 
@@ -81,9 +81,9 @@ module Sass::Tree
 
       # These track data necessary for the delta coding.
       previous_target_line = nil
-      previous_target_offset = 0
-      previous_source_line = 0
-      previous_source_offset = 0
+      previous_target_offset = 1
+      previous_source_line = 1
+      previous_source_offset = 1
       previous_source_id = 0
 
       @data.each do |m|
@@ -102,9 +102,9 @@ module Sass::Tree
         ].each do |source_pos, target_pos|
           if previous_target_line != target_pos.line
             line_data.push(segment_data_for_line.join(",")) unless segment_data_for_line.empty?
-            (((previous_target_line || -1) + 1)...target_pos.line).each {line_data.push("")}
+            (target_pos.line - 1 - (previous_target_line || 0)).times {line_data.push("")}
             previous_target_line = target_pos.line
-            previous_target_offset = 0
+            previous_target_offset = 1
             segment_data_for_line = []
           end
 

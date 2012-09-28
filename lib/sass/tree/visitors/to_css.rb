@@ -40,14 +40,14 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # mapping.
   def for_node(node, attr_prefix = nil)
     return yield unless @source_mapping
-    start_pos = Sass::Tree::SourcePosition.new(@line - 1, @offset - 1)
+    start_pos = Sass::Tree::SourcePosition.new(@line, @offset)
     yield
 
     range_attr = attr_prefix ? :"#{attr_prefix}_source_range" : :source_range
     filename_attr = attr_prefix ? :"#{attr_prefix}_original_filename" : :filename
     return if node.invisible? || !node.send(range_attr)
     source_range = node.send(range_attr)
-    target_range = Sass::Tree::SourceRange.new(start_pos, Sass::Tree::SourcePosition.new(@line - 1, @offset - 1))
+    target_range = Sass::Tree::SourceRange.new(start_pos, Sass::Tree::SourcePosition.new(@line, @offset))
     source_filename = (filename_attr && node.send(filename_attr)) || node.options[:filename]
     @source_mapping.add(source_range, target_range, source_filename)
   end
