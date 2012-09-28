@@ -306,11 +306,11 @@ MESSAGE
         old_line = @line
         old_offset = @offset
         @line += c
-        @offset = c == 0 ? @offset + Sass::Util::char_size(str2) : Sass::Util::char_size(str2[/\n(.*)/, 1])
+        @offset = c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size
         [:special_fun,
           Sass::Util.merge_adjacent_strings(
             [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
-          Sass::Util::char_size(str1) + Sass::Util::char_size(str2)]
+          str1.size + str2.size]
       end
 
       def special_val
@@ -338,7 +338,7 @@ MESSAGE
         return unless str = @scanner.scan(re)
         c = str.count("\n")
         @line += c
-        @offset = (c == 0 ? @offset + Sass::Util::char_size(str) : Sass::Util::char_size(str[/\n(.*)/, 1]))
+        @offset = (c == 0 ? @offset + str.size : str[/\n(.*)/, 1].size)
         str
       end
 

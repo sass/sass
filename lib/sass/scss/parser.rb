@@ -1178,9 +1178,9 @@ MESSAGE
           newline_count = res.count(NEWLINE)
           if newline_count > 0
             @line += newline_count
-            @offset = Sass::Util::char_size(res[res.rindex(NEWLINE)..-1])
+            @offset = res[res.rindex(NEWLINE)..-1].size
           else
-            @offset += Sass::Util::char_size(res)
+            @offset += res.size
           end
 
           @expected = nil

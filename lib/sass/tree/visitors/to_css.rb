@@ -60,7 +60,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     newlines = str.count("\n")
     if newlines > 0
       @line -= newlines
-      @column = Sass::Util::char_size(@result[@result.rindex("\n") || 0..-1])
+      @column = @result[@result.rindex("\n") || 0..-1].size
     else
       @column -= chars
     end
@@ -77,9 +77,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     newlines = s.count("\n")
     if newlines > 0
       @line += newlines
-      @column = Sass::Util::char_size(s[s.rindex("\n")..-1])
+      @column = s[s.rindex("\n")..-1].size
     else
-      @column += Sass::Util::char_size(s)
+      @column += s.size
     end
 
     @result << s
@@ -105,7 +105,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     return unless @source_mapping
 
     line_delta = prefix.count("\n")
-    offset_delta = Sass::Util.char_size(prefix.gsub(/.*\n/, ''))
+    offset_delta = prefix.gsub(/.*\n/, '').size
     @source_mapping.shift_output_offsets(offset_delta)
     @source_mapping.shift_output_lines(line_delta)
   end
