@@ -26,6 +26,29 @@ CSS
 JSON
   end
 
+  def test_mapping_with_directory
+    options = {:filename => "scss/style.scss", :output => "css/style.css"}
+    assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON, options
+a {
+  foo: bar;
+/* SOME COMMENT */
+  font-size: 12px;
+}
+SCSS
+a {
+  foo: bar;
+  /* SOME COMMENT */
+  font-size: 12px; }
+CSS
+{
+"version": "3",
+"mappings": ";EACE,GAAG,EAAC,GAAI;;EAER,SAAS,EAAC,IAAK",
+"sources": ["..\\/scss\\/style.scss"],
+"file": "style.css"
+}
+JSON
+  end
+
   if Sass::Util.ruby1_8?
     def test_simple_charset_scss_mapping
       assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
@@ -87,13 +110,13 @@ JSON
     end
   end
 
-  def assert_parses_with_sourcemap(scss, css, sourcemap_json)
-    rendered, sourcemap = render_with_sourcemap(scss)
+  def assert_parses_with_sourcemap(scss, css, sourcemap_json, options={})
+    rendered, sourcemap = render_with_sourcemap(scss, options)
     assert_equal css.rstrip, rendered.rstrip
-    assert_equal sourcemap_json.rstrip, sourcemap.to_json("test.css")
+    assert_equal sourcemap_json.rstrip, sourcemap.to_json(options[:output] || "test.css")
   end
 
-  def render_with_sourcemap(scss, options = {})
+  def render_with_sourcemap(scss, options={})
     options[:syntax] ||= :scss
     munge_filename options
     engine = Sass::Engine.new(scss, options)

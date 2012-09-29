@@ -1,3 +1,5 @@
+require 'pathname'
+
 module Sass::Source
   class Map
     # A mapping from one source range to another. Indicates that `input` was
@@ -67,14 +69,15 @@ module Sass::Source
     # Returns the standard JSON representation of the source map.
     #
     # @param target_filename [String] The filename of the output file; that is,
-    #   the target of the mapping.
+    #   the target of the mapping. This should be relative to the working
+    #   directory.
     # @return [String] The JSON string.
     def to_json(target_filename)
       result = "{\n"
       write_json_field(result, "version", "3", true)
 
-      source_filename_to_id = {}
-      id_to_source_filename = {}
+      source_pathname_to_id = {}
+      id_to_source_pathname = {}
       next_source_id = 0
       line_data = []
       segment_data_for_line = []
@@ -86,14 +89,17 @@ module Sass::Source
       previous_source_offset = 1
       previous_source_id = 0
 
+      target_pathname = Pathname.pwd.join(Pathname.new(target_filename)).cleanpath
       @data.each do |m|
-        current_source_id = source_filename_to_id[m.source_filename]
+        source_pathname = Pathname.pwd.join(Pathname.new(m.source_filename)).cleanpath
+        source_pathname = source_pathname.relative_path_from(target_pathname.dirname)
+        current_source_id = source_pathname_to_id[source_pathname]
         unless current_source_id
           current_source_id = next_source_id
           next_source_id += 1
 
-          source_filename_to_id[m.source_filename] = current_source_id
-          id_to_source_filename[current_source_id] = m.source_filename
+          source_pathname_to_id[source_pathname] = current_source_id
+          id_to_source_pathname[current_source_id] = source_pathname
         end
 
         [
@@ -136,9 +142,9 @@ module Sass::Source
       write_json_field(result, "mappings", line_data.join(";"))
 
       source_names = []
-      (0...next_source_id).each {|id| source_names.push(id_to_source_filename[id].gsub(/\.\//, "") || "")}
+      (0...next_source_id).each {|id| source_names.push(id_to_source_pathname[id].to_s)}
       write_json_field(result, "sources", source_names)
-      write_json_field(result, "file", target_filename)
+      write_json_field(result, "file", target_pathname.basename.to_s)
 
       result << "\n}"
       result
