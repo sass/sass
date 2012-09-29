@@ -246,7 +246,7 @@ RUBY
       private
 
       def source_position
-        Sass::Tree::SourcePosition.new(line, offset)
+        Sass::Source::Position.new(line, offset)
       end
 
       # @private
@@ -290,7 +290,7 @@ RUBY
         start_pos = source_position
         interp = Script::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text)
         interp.line = @lexer.line
-        interp.source_range = Sass::Tree::SourceRange.new(start_pos, source_position)
+        interp.source_range = Sass::Source::Range.new(start_pos, source_position)
         return interp
       end
 
@@ -310,7 +310,7 @@ RUBY
       def space
         start_pos = source_position
         return unless e = or_expr
-        e.source_range = Sass::Tree::SourceRange.new(start_pos, source_position)
+        e.source_range = Sass::Source::Range.new(start_pos, source_position)
         arr = [e]
         while e = or_expr
           arr << e
@@ -366,7 +366,7 @@ RUBY
           start_pos = source_position
           c = assert_tok(:const)
           var = Script::Variable.new(c.value)
-          var.source_range = Sass::Tree::SourceRange.new(start_pos, source_position)
+          var.source_range = Sass::Source::Range.new(start_pos, source_position)
           if try_tok(:colon)
             val = assert_expr(:space)
             must_have_default = true
@@ -461,7 +461,7 @@ RUBY
         last = assert_expr(:string)
         interp = StringInterpolation.new(first.value, mid, last)
         interp.line = line
-        interp.source_range = Sass::Tree::SourceRange.new(start_pos, source_position)
+        interp.source_range = Sass::Source::Range.new(start_pos, source_position)
         interp
       end
 
@@ -509,7 +509,7 @@ RUBY
       def node(node, start_pos = source_position, end_pos = nil)
         node.line = start_pos.line
         node.filename = @options[:filename]
-        node.source_range = Sass::Tree::SourceRange.new(start_pos, end_pos) if end_pos
+        node.source_range = Sass::Source::Range.new(start_pos, end_pos) if end_pos
         node
       end
     end

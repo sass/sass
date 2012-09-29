@@ -1,17 +1,17 @@
-module Sass::Tree
-  class SourceMap
+module Sass::Source
+  class Map
     # A mapping from one source range to another. Indicates that `input` was
     # compiled to `output`.
     #
     # @!attribute input
-    #   @return [Sass::Tree::SourceRange] The source range in the input document.
+    #   @return [Sass::Source::Range] The source range in the input document.
     #
     # @!attribute output
-    #   @return [Sass::Tree::SourceRange] The source range in the output document.
+    #   @return [Sass::Source::Range] The source range in the output document.
     #
     # @!attribute source_filename
     #   @return [String] The name of the input document.
-    class SourceRangeMapping < Struct.new(:input, :output, :source_filename)
+    class Mapping < Struct.new(:input, :output, :source_filename)
       # @return [String] A string representation of the mapping.
       def inspect
         "#{input.inspect} => #{output.inspect}"
@@ -20,7 +20,7 @@ module Sass::Tree
 
     # The mapping data ordered by the location in the target.
     #
-    # @return [Array<SourceRangeMapping>]
+    # @return [Array<Mapping>]
     attr_reader :data
 
     def initialize
@@ -30,13 +30,13 @@ module Sass::Tree
     # Adds a new mapping from one source range to another. Multiple invocations
     # of this method should have each `to` range come after all previous ranges.
     #
-    # @param input [Sass::Tree::SourceRange]
+    # @param input [Sass::Source::Range]
     #   The source range in the input document.
-    # @param output [Sass::Tree::SourceRange]
+    # @param output [Sass::Source::Range]
     #   The source range in the output document.
     # @param source_filename [String] The name of the input document.
     def add(input, output, source_filename)
-      @data.push(SourceRangeMapping.new(input, output, source_filename))
+      @data.push(Mapping.new(input, output, source_filename))
     end
 
     # Shifts all output source ranges forward one or more lines.

@@ -44,7 +44,7 @@ module Sass::Tree
 
     # The source range in which the property name appears.
     #
-    # @return [Sass::Tree::SourceRange]
+    # @return [Sass::Source::Range]
     attr_accessor :name_source_range
 
     # The name of the file in which the property name originally appeared.
@@ -54,7 +54,7 @@ module Sass::Tree
 
     # The source range in which the property value appears.
     #
-    # @return [Sass::Tree::SourceRange]
+    # @return [Sass::Source::Range]
     attr_accessor :value_source_range
 
     # The name of the file in which the property value originally appeared.

@@ -61,7 +61,7 @@ module Sass
       include Sass::SCSS::RX
 
       def source_position
-        Sass::Tree::SourcePosition.new(@line, @offset)
+        Sass::Source::Position.new(@line, @offset)
       end
 
       def init_scanner!
@@ -531,7 +531,7 @@ module Sass
         tok!(/\{/)
         block_contents(node, context)
         tok!(/\}/)
-        node.source_range = Sass::Tree::SourceRange.new(node.source_range.start_pos, source_position) if node.source_range
+        node.source_range = Sass::Source::Range.new(node.source_range.start_pos, source_position) if node.source_range
         node
       end
 
@@ -863,8 +863,8 @@ module Sass
         require_block = tok?(/\{/)
 
         node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new), name_start_pos, value_end_pos)
-        node.name_source_range = Sass::Tree::SourceRange.new(name_start_pos, name_end_pos)
-        node.value_source_range = Sass::Tree::SourceRange.new(value_start_pos, value_end_pos)
+        node.name_source_range = Sass::Source::Range.new(name_start_pos, name_end_pos)
+        node.value_source_range = Sass::Source::Range.new(value_start_pos, value_end_pos)
 
         return node unless require_block
         nested_properties! node, space
@@ -1014,7 +1014,7 @@ MESSAGE
 
       def node(node, start_pos, end_pos = source_position)
         node.line = start_pos.line
-        node.source_range = Sass::Tree::SourceRange.new(start_pos, end_pos)
+        node.source_range = Sass::Source::Range.new(start_pos, end_pos)
         node
       end
 

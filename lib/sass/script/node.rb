@@ -15,7 +15,7 @@ module Sass::Script
 
     # The source range in the document on which this node appeared.
     #
-    # @return [Sass::Tree::SourceRange]
+    # @return [Sass::Source::Range]
     attr_accessor :source_range
 
     # The file name of the document on which this node appeared.

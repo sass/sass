@@ -1,5 +1,5 @@
-module Sass::Tree
-  class SourcePosition
+module Sass::Source
+  class Position
     # The one-based line of the document associated with the position.
     #
     # @return [Fixnum]
