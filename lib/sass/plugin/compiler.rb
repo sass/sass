@@ -337,7 +337,22 @@ module Sass::Plugin
       begin
         File.read(filename) unless File.readable?(filename) # triggers an error for handling
         engine_opts = engine_options(:css_filename => css, :filename => filename)
-        result = Sass::Engine.for_file(filename, engine_opts).render
+        sourcemap_filename = css + ".map" if engine_opts[:sourcemap]
+        mapping = nil
+        engine = Sass::Engine.for_file(filename, engine_opts)
+        if sourcemap_filename
+          compressed = engine_opts[:style] == :compressed
+          rendered, mapping = engine.render_with_sourcemap
+          rendered << "\n" if rendered[-1] != ?\n
+          rendered << "\n" unless compressed
+
+          # The sourceMappingURL comment must constitute the last line of the file.
+          rendered << "/*@ sourceMappingURL="
+          rendered << URI.encode(File.basename(sourcemap_filename))
+          rendered << " */"
+        else
+          rendered = engine.render
+        end
       rescue Exception => e
         compilation_error_occured = true
         run_compilation_error e, filename, css
@@ -346,14 +361,15 @@ module Sass::Plugin
         run_updating_stylesheet filename, css
       end
 
-      write_file(css, result)
+      write_file(css, rendered)
+      write_file(sourcemap_filename, mapping.to_json(File.basename(css))) if mapping
       run_updated_stylesheet(filename, css) unless compilation_error_occured
     end
 
-    def write_file(css, content)
+    def write_file(fileName, content)
       flag = 'w'
       flag = 'wb' if Sass::Util.windows? && options[:unix_newlines]
-      File.open(css, flag) do |file|
+      File.open(fileName, flag) do |file|
         file.set_encoding(content.encoding) unless Sass::Util.ruby1_8?
         file.print(content)
       end

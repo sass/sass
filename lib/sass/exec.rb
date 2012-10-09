@@ -341,10 +341,11 @@ END
             rendered, mapping = engine.render_with_sourcemap
             rendered << "\n" if rendered[-1] != ?\n
             rendered << "\n" unless compressed
+
+            # The sourceMappingURL comment must constitute the last line of the file.
             rendered << "/*@ sourceMappingURL="
             rendered << URI.encode(File.basename(@options[:sourcemap_filename]))
             rendered << " */"
-            rendered << "\n" unless compressed
             output.write(rendered)
             sourcemap.puts(mapping.to_json(File.basename(@options[:output_filename])))
           else
@@ -388,6 +389,7 @@ END
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
         ::Sass::Plugin.options[:poll] = @options[:poll]
+        ::Sass::Plugin.options[:sourcemap] = @options[:sourcemap]
 
         if @options[:force]
           raise "The --force flag may only be used with --update." unless @options[:update]
