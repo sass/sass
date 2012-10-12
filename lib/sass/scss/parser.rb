@@ -677,7 +677,7 @@ module Sass
             expected('"{"') if res.length == 1 && res[0].is_a?(Selector::Universal)
             throw_error {expected('"{"')}
           rescue Sass::SyntaxError => e
-            e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
+            e.message << "\n\n\"#{sel}\" may only be used at the beginning of a compound selector."
             raise e
           end
         end

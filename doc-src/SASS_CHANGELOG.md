@@ -13,6 +13,8 @@
 * Treat [protocol-relative URLs](pru) in `@import`s as static URLs, just like
   `http` and `https` URLs.
 
+* Improve the error message for misplaced simple selectors.
+
 [pru]: http://paulirish.com/2010/the-protocol-relative-url/
 
 ### Deprecations -- Must Read!
