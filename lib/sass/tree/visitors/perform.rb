@@ -296,7 +296,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     val = node.value.perform(@environment)
     node.resolved_value = val.to_s
     node.value_source_range = val.source_range if val.source_range
-    node.value_original_filename = val.filename if val.filename
     yield
   end
 
