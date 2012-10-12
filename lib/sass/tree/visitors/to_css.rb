@@ -44,12 +44,11 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     yield
 
     range_attr = attr_prefix ? :"#{attr_prefix}_source_range" : :source_range
-    filename_attr = attr_prefix ? :"#{attr_prefix}_original_filename" : :filename
     return if node.invisible? || !node.send(range_attr)
     source_range = node.send(range_attr)
-    target_range = Sass::Source::Range.new(start_pos, Sass::Source::Position.new(@line, @offset))
-    source_filename = (filename_attr && node.send(filename_attr)) || node.options[:filename]
-    @source_mapping.add(source_range, target_range, source_filename)
+    target_end_pos = Sass::Source::Position.new(@line, @offset)
+    target_range = Sass::Source::Range.new(start_pos, target_end_pos, nil)
+    @source_mapping.add(source_range, target_range)
   end
 
   # Move the output cursor back `chars` characters.

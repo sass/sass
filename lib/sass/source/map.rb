@@ -10,10 +10,7 @@ module Sass::Source
     #
     # @!attribute output
     #   @return [Sass::Source::Range] The source range in the output document.
-    #
-    # @!attribute source_filename
-    #   @return [String] The name of the input document.
-    class Mapping < Struct.new(:input, :output, :source_filename)
+    class Mapping < Struct.new(:input, :output)
       # @return [String] A string representation of the mapping.
       def inspect
         "#{input.inspect} => #{output.inspect}"
@@ -36,9 +33,8 @@ module Sass::Source
     #   The source range in the input document.
     # @param output [Sass::Source::Range]
     #   The source range in the output document.
-    # @param source_filename [String] The name of the input document.
-    def add(input, output, source_filename)
-      @data.push(Mapping.new(input, output, source_filename))
+    def add(input, output)
+      @data.push(Mapping.new(input, output))
     end
 
     # Shifts all output source ranges forward one or more lines.
@@ -91,7 +87,7 @@ module Sass::Source
 
       target_pathname = Pathname.pwd.join(Pathname.new(target_filename)).cleanpath
       @data.each do |m|
-        source_pathname = Pathname.pwd.join(Pathname.new(m.source_filename)).cleanpath
+        source_pathname = Pathname.pwd.join(Pathname.new(m.input.file)).cleanpath
         source_pathname = source_pathname.relative_path_from(target_pathname.dirname)
         current_source_id = source_pathname_to_id[source_pathname]
         unless current_source_id
