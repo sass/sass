@@ -65,6 +65,8 @@ module Sass::Plugin
     #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
+    # @yieldparam sourcemap [String]
+    #   The location of the sourcemap being generated.
     define_callback :updated_stylesheet
 
     # Register a callback to be run before a single stylesheet is updated.
@@ -81,6 +83,8 @@ module Sass::Plugin
     #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
+    # @yieldparam sourcemap [String]
+    #   The location of the sourcemap file being generated, if any.
     define_callback :updating_stylesheet
 
     def on_updating_stylesheet_with_deprecation_warning(&block)
@@ -191,17 +195,19 @@ module Sass::Plugin
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
-          individual_files << [file, css]
+          sourcemap = Util::sourcemap_name(css) if engine_options[:sourcemap]
+          individual_files << [file, css, sourcemap]
         end
       end
 
       run_updating_stylesheets individual_files
 
-      individual_files.each do |file, css|
+      individual_files.each do |file, css, sourcemap|
+        # TODO: Does staleness_checker need to check the sourcemap file as well?
         if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
-          update_stylesheet(file, css)
+          update_stylesheet(file, css, sourcemap)
         else
-          run_not_updating_stylesheet(file, css)
+          run_not_updating_stylesheet(file, css, sourcemap)
         end
       end
     end
@@ -327,7 +333,7 @@ module Sass::Plugin
 
     private
 
-    def update_stylesheet(filename, css)
+    def update_stylesheet(filename, css, sourcemap)
       dir = File.dirname(css)
       unless File.exists?(dir)
         run_creating_directory dir
@@ -337,33 +343,24 @@ module Sass::Plugin
       begin
         File.read(filename) unless File.readable?(filename) # triggers an error for handling
         engine_opts = engine_options(:css_filename => css, :filename => filename)
-        sourcemap_filename = css + ".map" if engine_opts[:sourcemap]
         mapping = nil
         engine = Sass::Engine.for_file(filename, engine_opts)
-        if sourcemap_filename
-          compressed = engine_opts[:style] == :compressed
-          rendered, mapping = engine.render_with_sourcemap
-          rendered << "\n" if rendered[-1] != ?\n
-          rendered << "\n" unless compressed
-
-          # The sourceMappingURL comment must constitute the last line of the file.
-          rendered << "/*@ sourceMappingURL="
-          rendered << URI.encode(File.basename(sourcemap_filename))
-          rendered << " */"
+        if sourcemap
+          rendered, mapping = engine.render_with_sourcemap(File.basename(sourcemap))
         else
           rendered = engine.render
         end
       rescue Exception => e
         compilation_error_occured = true
-        run_compilation_error e, filename, css
-        result = Sass::SyntaxError.exception_to_css(e, options)
+        run_compilation_error e, filename, css, sourcemap
+        rendered = Sass::SyntaxError.exception_to_css(e, options)
       else
-        run_updating_stylesheet filename, css
+        run_updating_stylesheet filename, css, sourcemap
       end
 
       write_file(css, rendered)
-      write_file(sourcemap_filename, mapping.to_json(File.basename(css))) if mapping
-      run_updated_stylesheet(filename, css) unless compilation_error_occured
+      write_file(sourcemap, mapping.to_json(File.basename(css))) if mapping
+      run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
     end
 
     def write_file(fileName, content)
