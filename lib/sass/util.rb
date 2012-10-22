@@ -773,6 +773,14 @@ MSG
       inject_values(str, vals)
     end
 
+    # Builds a sourcemap file name given the generated CSS file name.
+    #
+    # @param css [String] The generated CSS file name.
+    # @return [String] The source map file name.
+    def sourcemap_name(css)
+      css + ".map"
+    end
+
     # Escapes certain characters so that the result can be used
     # as the JSON string value. Returns the original string if
     # no escaping is necessary.

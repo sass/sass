@@ -268,14 +268,15 @@ module Sass
 
     # Render the template to CSS and return the source map.
     #
+    # @param sourcemap_uri [String] The sourcemap URI to use in the @sourceMappingURL comment
     # @return [(String, Sass::Source::Map)] The rendered CSS and the associated source map
     # @raise [Sass::SyntaxError] if there's an error in the document
     # @raise [Encoding::UndefinedConversionError] if the source encoding
     #   cannot be converted to UTF-8
     # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
-    def render_with_sourcemap
-      return _render_with_sourcemap unless @options[:quiet]
-      Sass::Util.silence_sass_warnings {_render_with_sourcemap}
+    def render_with_sourcemap(sourcemap_uri)
+      return _render_with_sourcemap(sourcemap_uri) unless @options[:quiet]
+      Sass::Util.silence_sass_warnings {_render_with_sourcemap(sourcemap_uri)}
     end
 
     alias_method :to_css, :render
@@ -327,8 +328,14 @@ module Sass
 
     private
 
-    def _render_with_sourcemap
+    def _render_with_sourcemap(sourcemap_uri)
       rendered, sourcemap = _to_tree.render_with_sourcemap
+      compressed = @options[:style] == :compressed
+      rendered << "\n" if rendered[-1] != ?\n
+      rendered << "\n" unless compressed
+      rendered << "/*@ sourceMappingURL="
+      rendered << URI.encode(sourcemap_uri)
+      rendered << " */"
       rendered = encode_and_set_charset(rendered)
       return rendered, sourcemap
     end

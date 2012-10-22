@@ -113,7 +113,7 @@ module Sass
         output ||= open_file(@options[:output_filename], 'w') || $stdout
 
         if @options[:sourcemap] && @options[:output_filename]
-          @options[:sourcemap_filename] = @options[:output_filename] + ".map"
+          @options[:sourcemap_filename] = Util::sourcemap_name(@options[:output_filename])
           @options[:sourcemap] = open_file(@options[:sourcemap_filename], 'w')
         end
 
@@ -337,14 +337,7 @@ END
           input.close() if input.is_a?(File)
 
           if sourcemap.is_a? File
-            compressed = @options[:for_engine][:style] == :compressed
-            rendered, mapping = engine.render_with_sourcemap
-            rendered << "\n" if rendered[-1] != ?\n
-            rendered << "\n" unless compressed
-            rendered << "/*@ sourceMappingURL="
-            rendered << URI.encode(File.basename(@options[:sourcemap_filename]))
-            rendered << " */"
-            rendered << "\n" unless compressed
+            rendered, mapping = engine.render_with_sourcemap(File.basename(@options[:sourcemap_filename]))
             output.write(rendered)
             sourcemap.puts(mapping.to_json(File.basename(@options[:output_filename])))
           else
@@ -388,6 +381,7 @@ END
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
         ::Sass::Plugin.options[:poll] = @options[:poll]
+        ::Sass::Plugin.options[:sourcemap] = @options[:sourcemap]
 
         if @options[:force]
           raise "The --force flag may only be used with --update." unless @options[:update]
@@ -416,15 +410,26 @@ MSG
 
         dirs, files = @args.map {|name| split_colon_path(name)}.
           partition {|i, _| File.directory? i}
-        files.map! {|from, to| [from, to || from.gsub(/\.[^.]*?$/, '.css')]}
+        files.map! do |from, to|
+          to ||= from.gsub(/\.[^.]*?$/, '.css')
+          sourcemap = Util::sourcemap_name(to) if @options[:sourcemap]
+          [from, to, sourcemap]
+        end
         dirs.map! {|from, to| [from, to || from]}
         ::Sass::Plugin.options[:template_location] = dirs
 
-        ::Sass::Plugin.on_updated_stylesheet do |_, css|
+        ::Sass::Plugin.on_updated_stylesheet do |_, css, sourcemap|
           if File.exists? css
             puts_action :overwrite, :yellow, css
           else
             puts_action :create, :green, css
+          end
+          if sourcemap
+            if File.exists? sourcemap
+              puts_action :overwrite, :yellow, sourcemap
+            else
+              puts_action :create, :green, sourcemap
+            end
           end
         end
 
