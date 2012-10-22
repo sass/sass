@@ -7,6 +7,8 @@
 
 * Fix a performance issue with `@import` that only appears when
   ActiveSupport is loaded.
+* Fix flushing of actions to stdout. Thanks to [Russell Davis]
+  (http://github.com/russelldavis).
 
 ## 3.2.1 (15 August 2012)
 
