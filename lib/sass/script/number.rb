@@ -428,6 +428,7 @@ module Sass::Script
         if i && !BASE_UNITS[i]
           @value /= conversion_factor("px", u)
           @numerator_units[0] = "px"
+          @original = nil
         end
       end
     end

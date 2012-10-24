@@ -859,7 +859,7 @@ module Sass
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
-        if val = tok(STATIC_VALUE, true)
+        if !tok?(/[^;}]*#{NUM}#{IDENT}[^;}]*[;}]/) and val = tok(STATIC_VALUE, true)
           return space, Sass::Script::String.new(val.strip)
         end
         return space, sass_script(:parse)
