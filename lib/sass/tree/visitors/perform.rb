@@ -66,6 +66,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     end
 
     yield env
+  rescue Exception => e
   ensure
     # If there's a keyword exception, we don't want to throw it immediately,
     # because the invalid keywords may be part of a glob argument that should be
@@ -77,10 +78,10 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     # non-Sass exceptions.
     if keyword_exception &&
         !(arg_list && arg_list.keywords_accessed) &&
-        ($!.nil? || $!.is_a?(Sass::SyntaxError))
+        (e.nil? || e.is_a?(Sass::SyntaxError))
       raise keyword_exception
-    elsif $!
-      raise $!
+    elsif e
+      raise e
     end
   end
 
