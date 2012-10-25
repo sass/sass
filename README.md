@@ -173,10 +173,11 @@ See `sass-convert --help` for further information and options.
 
 ## Authors
 
-Sass was envisioned by [Hampton Catlin](http://hamptoncatlin.com) (hcatlin).
-However, Hampton doesn't even know his way around the code anymore and now
-occasionally consults on the language issues. Hampton lives in Cambridge, UK and
-is the owner of [Catlin Software](http://www.catlinsoftware.com/).
+Sass was envisioned by [Hampton Catlin](http://www.hamptoncatlin.com)
+(@hcatlin). However, Hampton doesn't even know his way around the code anymore
+and now occasionally consults on the language issues. Hampton lives in San
+Francisco, California and works as VP of Technology
+at [Moovweb](http://www.moovweb.com/).
 
 [Nathan Weizenbaum](http://nex-3.com) is the primary developer and architect of
 Sass. His hard work has kept the project alive by endlessly answering forum
