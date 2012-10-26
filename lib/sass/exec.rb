@@ -339,7 +339,7 @@ END
           if sourcemap.is_a? File
             rendered, mapping = engine.render_with_sourcemap(File.basename(@options[:sourcemap_filename]))
             output.write(rendered)
-            sourcemap.puts(mapping.to_json(File.basename(@options[:output_filename])))
+            sourcemap.puts(mapping.to_json(@options[:output_filename]))
           else
             output.write(engine.render)
           end

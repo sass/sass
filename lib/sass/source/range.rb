@@ -10,8 +10,8 @@ module Sass::Source
     # @return [Sass::Source::Position]
     attr_accessor :end_pos
 
-    # The file in which this source range appears. This can be nil if the file
-    # is unknown or not yet generated.
+    # The file in which this source range appears, relative to the working
+    # directory. This can be nil if the file is unknown or not yet generated.
     #
     # @return [String]
     attr_accessor :file
