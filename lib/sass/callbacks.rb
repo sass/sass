@@ -48,7 +48,7 @@ module Sass
     # @param name [Symbol] The name of the callback
     # @return [void]
     def define_callback(name)
-      class_eval <<RUBY
+      class_eval <<RUBY, __FILE__, __LINE__ + 1
 def on_#{name}(&block)
   @_sass_callbacks ||= {}
   (@_sass_callbacks[#{name.inspect}] ||= []) << block

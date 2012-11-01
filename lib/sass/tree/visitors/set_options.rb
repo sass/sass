@@ -50,6 +50,14 @@ class Sass::Tree::Visitors::SetOptions < Sass::Tree::Visitors::Base
     yield
   end
 
+  def visit_import(node)
+    # We have no good way of propagating the new options through an Engine
+    # instance, so we just null it out. This also lets us avoid caching an
+    # imported Engine along with the importing source tree.
+    node.imported_file = nil
+    yield
+  end
+
   def visit_mixindef(node)
     node.args.each do |k, v|
       k.options = @options

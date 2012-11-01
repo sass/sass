@@ -9,6 +9,12 @@ module Sass::Script::Functions
     filename = options[:filename].gsub(%r{.*((/[^/]+){4})}, '\1')
     Sass::Script::String.new(filename)
   end
+
+  def whatever
+    custom = options[:custom]
+    whatever = custom && custom[:whatever]
+    Sass::Script::String.new(whatever || "incorrect")
+  end
 end
 
 class SassPluginTest < Test::Unit::TestCase
@@ -346,7 +352,24 @@ WARNING
     check_for_updates!
     assert_renders_correctly 'if'
   ensure
-    set_plugin_opts :cache_store => @@cache_store
+    set_plugin_opts
+  end
+
+  def test_cached_import_option
+    set_plugin_opts :custom => {:whatever => "correct"}
+    check_for_updates!
+    assert_renders_correctly "cached_import_option"
+
+    @@cache_store.reset!
+    set_plugin_opts :custom => nil, :always_update => false
+    check_for_updates!
+    assert_renders_correctly "cached_import_option"
+
+    set_plugin_opts :custom => {:whatever => "correct"}, :always_update => true
+    check_for_updates!
+    assert_renders_correctly "cached_import_option"
+  ensure
+    set_plugin_opts :custom => nil
   end
 
  private
