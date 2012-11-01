@@ -9,6 +9,9 @@ module Sass
       # @return [String]
       attr_reader :imported_filename
 
+      # Sets the imported file.
+      attr_writer :imported_file
+
       # @param imported_filename [String] The name of the imported file
       def initialize(imported_filename)
         @imported_filename = imported_filename
