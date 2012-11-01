@@ -140,7 +140,7 @@ module Sass
       end
 
       def dependencies(uri, importer)
-        stored_mtime, dependencies = @dependencies[[uri, importer]]
+        stored_mtime, dependencies = Sass::Util.destructure(@dependencies[[uri, importer]])
 
         if !stored_mtime || stored_mtime < mtime(uri, importer)
           dependencies = compute_dependencies(uri, importer)

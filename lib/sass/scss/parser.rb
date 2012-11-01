@@ -709,7 +709,7 @@ module Sass
       end
 
       def element_name
-        ns, name = qualified_name(:allow_star_name)
+        ns, name = Sass::Util.destructure(qualified_name(:allow_star_name))
         return unless ns || name
 
         if name == '*'
@@ -800,7 +800,7 @@ module Sass
         # could start a pseudo expression like "n+1", or it could start a
         # selector like "n|m". In order to handle this, we must regrettably
         # backtrack.
-        expr, sel = nil
+        expr, sel = nil, nil
         pseudo_err = catch_error do
           expr = pseudo_expr
           next if tok?(/[,)]/)

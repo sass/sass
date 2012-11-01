@@ -30,7 +30,7 @@ module Sass
 
       # @see Base#mtime
       def mtime(name, options)
-        file, s = find_real_file(@root, name, options)
+        file, s = Sass::Util.destructure(find_real_file(@root, name, options))
         File.mtime(file) if file
       rescue Errno::ENOENT
         nil
@@ -165,7 +165,7 @@ WARNING
       private
 
       def _find(dir, name, options)
-        full_filename, syntax = find_real_file(dir, name, options)
+        full_filename, syntax = Sass::Util.destructure(find_real_file(dir, name, options))
         return unless full_filename && File.readable?(full_filename)
 
         options[:syntax] = syntax
