@@ -27,6 +27,9 @@
 * Fix an option-handling bug that was causing errors with the Compass URL
   helpers.
 
+* Fix a performance issue with `@import` that only appears when
+  ActiveSupport is loaded.
+
 [pru]: http://paulirish.com/2010/the-protocol-relative-url/
 
 ### Deprecations -- Must Read!
