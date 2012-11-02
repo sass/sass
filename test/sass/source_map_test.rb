@@ -16,6 +16,8 @@ a {
   foo: bar;
   /* SOME COMMENT */
   font-size: 12px; }
+
+/*@ sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -39,6 +41,8 @@ a {
   foo: bar;
   /* SOME COMMENT */
   font-size: 12px; }
+
+/*@ sourceMappingURL=style.css.map */
 CSS
 {
 "version": "3",
@@ -58,6 +62,8 @@ a {
 SCSS
 a {
   fóó: bár; }
+
+/*@ sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -77,6 +83,8 @@ SCSS
 @charset "UTF-8";
 a {
   fóó: bár; }
+
+/*@ sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -99,6 +107,8 @@ CSS
 @charset "IBM866";
 f\x86\x86 {
   \x86: b; }
+
+/*@ sourceMappingURL=test.css.map */
 SASS
 {
 "version": "3",
@@ -121,6 +131,7 @@ JSON
     munge_filename options
     engine = Sass::Engine.new(scss, options)
     engine.options[:cache] = false
-    engine.render_with_sourcemap
+    sourcemap_path = Sass::Util.sourcemap_name(options[:output] || "test.css")
+    engine.render_with_sourcemap File.basename(sourcemap_path)
   end
 end

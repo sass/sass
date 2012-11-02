@@ -337,7 +337,9 @@ END
           input.close() if input.is_a?(File)
 
           if sourcemap.is_a? File
-            rendered, mapping = engine.render_with_sourcemap(File.basename(@options[:sourcemap_filename]))
+            relative_sourcemap_path = Pathname.new(@options[:sourcemap_filename]).
+              relative_path_from(Pathname.new(@options[:output_filename]))
+            rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path)
             output.write(rendered)
             sourcemap.puts(mapping.to_json(@options[:output_filename]))
           else
