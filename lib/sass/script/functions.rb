@@ -1235,8 +1235,8 @@ module Sass::Script
     # arguments.
     #
     # @example
-    #   max(1px, 4px) => 1px
-    #   max(5em, 3em, 4em) => 3em
+    #   max(1px, 4px) => 4px
+    #   max(5em, 3em, 4em) => 5em
     # @return [Number] The maximum value
     # @raise [ArgumentError] if any argument isn't a number, or if not all of
     #   the arguments have comparable units
