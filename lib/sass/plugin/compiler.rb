@@ -66,7 +66,7 @@ module Sass::Plugin
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
     # @yieldparam sourcemap [String]
-    #   The location of the sourcemap being generated.
+    #   The location of the sourcemap being generated, if any.
     define_callback :updated_stylesheet
 
     # Register a callback to be run before a single stylesheet is updated.

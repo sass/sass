@@ -419,16 +419,12 @@ MSG
         ::Sass::Plugin.options[:template_location] = dirs
 
         ::Sass::Plugin.on_updated_stylesheet do |_, css, sourcemap|
-          if File.exists? css
-            puts_action :overwrite, :yellow, css
-          else
-            puts_action :create, :green, css
-          end
-          if sourcemap
-            if File.exists? sourcemap
-              puts_action :overwrite, :yellow, sourcemap
+          [css, sourcemap].each do |file|
+            next unless file
+            if File.exists? file
+              puts_action :overwrite, :yellow, file
             else
-              puts_action :create, :green, sourcemap
+              puts_action :create, :green, file
             end
           end
         end
