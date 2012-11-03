@@ -12,7 +12,7 @@
   "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
   printed. This will become an error in future versions of Sass.
 
-## 3.2.2 (Unreleased)
+## 3.2.2
 
 * Add a `--poll` option to force `sass --watch` to use the polling backend to
   [Listen](https://github.com/guard/listen).
@@ -29,6 +29,13 @@
 
 * Fix a performance issue with `@import` that only appears when
   ActiveSupport is loaded.
+
+* Fix flushing of actions to stdout. Thanks to [Russell Davis]
+  (http://github.com/russelldavis).
+
+* Fix the documentation for the `max()` function.
+
+* Fix a `@media` parsing bug.
 
 [pru]: http://paulirish.com/2010/the-protocol-relative-url/
 

@@ -332,7 +332,7 @@ module Sass
       def use_css_import?; false; end
 
       def media_directive
-        block(node(Sass::Tree::MediaNode.new(media_query_list.to_a)), :directive)
+        block(node(Sass::Tree::MediaNode.new(expr!(:media_query_list).to_a)), :directive)
       end
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
@@ -1024,6 +1024,7 @@ MESSAGE
 
       EXPR_NAMES = {
         :media_query => "media query (e.g. print, screen, print and screen)",
+        :media_query_list => "media query (e.g. print, screen, print and screen)",
         :media_expr => "media expression (e.g. (min-device-width: 800px))",
         :pseudo_arg => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",
