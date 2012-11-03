@@ -10,7 +10,7 @@
 
 * Fix some error reporting bugs related to `@import`.
 
-* Treat [protocol-relative URLs](pru) in `@import`s as static URLs, just like
+* Treat [protocol-relative URLs][pru] in `@import`s as static URLs, just like
   `http` and `https` URLs.
 
 * Improve the error message for misplaced simple selectors.
