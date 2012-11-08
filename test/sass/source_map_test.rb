@@ -21,7 +21,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAC,GAAI;;EAER,SAAS,EAAC,IAAK",
+"mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["test_simple_scss_mapping_inline.scss"],
 "file": "test.css"
 }
@@ -46,34 +46,14 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAC,GAAI;;EAER,SAAS,EAAC,IAAK",
+"mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["..\\/scss\\/style.scss"],
 "file": "style.css"
 }
 JSON
   end
 
-  if Sass::Util.ruby1_8?
-    def test_simple_charset_scss_mapping
-      assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
-a {
-  fóó: bár;
-}
-SCSS
-a {
-  fóó: bár; }
-
-/*@ sourceMappingURL=test.css.map */
-CSS
-{
-"version": "3",
-"mappings": ";EACE,GAAG,EAAC,GAAI",
-"sources": ["test_simple_charset_scss_mapping_inline.scss"],
-"file": "test.css"
-}
-JSON
-    end
-  else
+  unless Sass::Util.ruby1_8?
     def test_simple_charset_scss_mapping
       assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
 a {
@@ -88,15 +68,13 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";;EACE,GAAG,EAAC,GAAI",
+"mappings": ";;EACE,GAAG,EAAE,GAAG",
 "sources": ["test_simple_charset_scss_mapping_inline.scss"],
 "file": "test.css"
 }
 JSON
     end
-  end
 
-  unless Sass::Util.ruby1_8?
     def test_different_charset_than_encoding
       assert_parses_with_sourcemap(<<CSS.force_encoding("IBM866"), <<SASS.force_encoding("IBM866"), <<JSON)
 @charset "IBM866";
@@ -112,7 +90,7 @@ f\x86\x86 {
 SASS
 {
 "version": "3",
-"mappings": ";;EAEE,CAAC,EAAC,CAAE",
+"mappings": ";;EAEE,CAAC,EAAE,CAAC",
 "sources": ["test_different_charset_than_encoding_inline.scss"],
 "file": "test.css"
 }
