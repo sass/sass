@@ -203,7 +203,7 @@ module Sass
         # sub is the name of the production beneath it,
         # and ops is a list of operators for this precedence level
         def production(name, sub, *ops)
-          class_eval <<RUBY
+          class_eval <<RUBY, __FILE__, __LINE__ + 1
             def #{name}
               interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}) and return interp
               return unless e = #{sub}
@@ -223,7 +223,7 @@ RUBY
         end
 
         def unary(op, sub)
-          class_eval <<RUBY
+          class_eval <<RUBY, __FILE__, __LINE__ + 1
             def unary_#{op}
               return #{sub} unless tok = try_tok(:#{op})
               interp = try_op_before_interp(tok) and return interp

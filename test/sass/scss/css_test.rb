@@ -1042,6 +1042,18 @@ body {
 SCSS
   end
 
+  def test_malformed_media
+    render <<SCSS
+@media {
+  margin: 0;
+}
+SCSS
+    assert(false, "Expected syntax error")
+  rescue Sass::SyntaxError => e
+    assert_equal 'Invalid CSS after "@media ": expected media query (e.g. print, screen, print and screen), was "{"', e.message
+    assert_equal 1, e.sass_line
+  end
+
   private
 
   def assert_selector_parses(selector)

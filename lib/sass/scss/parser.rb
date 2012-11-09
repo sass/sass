@@ -307,6 +307,7 @@ module Sass
       end
 
       def import_arg
+        line = @line
         return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
         if uri
           str = sass_script(:parse_string)
@@ -319,17 +320,19 @@ module Sass
         ss
 
         media = media_query_list
-        if path =~ /^http:\/\// || media || use_css_import?
-          return node(Sass::Tree::CssImportNode.new(str, media.to_a))
+        if path =~ /^(https?:)?\/\// || media || use_css_import?
+          node = Sass::Tree::CssImportNode.new(str, media.to_a)
+        else
+          node = Sass::Tree::ImportNode.new(path.strip)
         end
-
-        node(Sass::Tree::ImportNode.new(path.strip))
+        node.line = line
+        node
       end
 
       def use_css_import?; false; end
 
       def media_directive
-        block(node(Sass::Tree::MediaNode.new(media_query_list.to_a)), :directive)
+        block(node(Sass::Tree::MediaNode.new(expr!(:media_query_list).to_a)), :directive)
       end
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
@@ -674,7 +677,7 @@ module Sass
             expected('"{"') if res.length == 1 && res[0].is_a?(Selector::Universal)
             throw_error {expected('"{"')}
           rescue Sass::SyntaxError => e
-            e.message << "\n\n\"#{sel}\" may only be used at the beginning of a selector."
+            e.message << "\n\n\"#{sel}\" may only be used at the beginning of a compound selector."
             raise e
           end
         end
@@ -706,7 +709,7 @@ module Sass
       end
 
       def element_name
-        ns, name = qualified_name(:allow_star_name)
+        ns, name = Sass::Util.destructure(qualified_name(:allow_star_name))
         return unless ns || name
 
         if name == '*'
@@ -797,7 +800,7 @@ module Sass
         # could start a pseudo expression like "n+1", or it could start a
         # selector like "n|m". In order to handle this, we must regrettably
         # backtrack.
-        expr, sel = nil
+        expr, sel = nil, nil
         pseudo_err = catch_error do
           expr = pseudo_expr
           next if tok?(/[,)]/)
@@ -1021,6 +1024,7 @@ MESSAGE
 
       EXPR_NAMES = {
         :media_query => "media query (e.g. print, screen, print and screen)",
+        :media_query_list => "media query (e.g. print, screen, print and screen)",
         :media_expr => "media expression (e.g. (min-device-width: 800px))",
         :pseudo_arg => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",

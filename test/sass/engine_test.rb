@@ -145,8 +145,8 @@ MSG
     "$var: true\n@while $var\n  @extend .bar\n  $var: false" => ["Extend directives may only be used within rules.", 3],
     "@for $i from 0 to 1\n  @extend .bar" => ["Extend directives may only be used within rules.", 2],
     "@mixin foo\n  @extend .bar\n@include foo" => ["Extend directives may only be used within rules.", 2],
-    "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a selector.", 2],
-    "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a selector.", 2],
+    "foo\n  &a\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"a\"\n\n\"a\" may only be used at the beginning of a compound selector.", 2],
+    "foo\n  &1\n    b: c" => ["Invalid CSS after \"&\": expected \"{\", was \"1\"\n\n\"1\" may only be used at the beginning of a compound selector.", 2],
     "foo %\n  a: b" => ['Invalid CSS after "foo %": expected placeholder name, was ""', 1],
     "=foo\n  @content error" => "Invalid content directive. Trailing characters found: \"error\".",
     "=foo\n  @content\n    b: c" => "Illegal nesting: Nothing may be nested beneath @content directives.",
@@ -217,7 +217,47 @@ MSG
     assert_equal("p {\n  a: b; }\n  p q {\n    c: d; }\n",
                  render("p\n\ta: b\n\tq\n\t\tc: d\n"))
   end
-  
+
+  def test_import_same_name_different_ext
+    assert_warning <<WARNING do
+WARNING: On line 1 of test_import_same_name_different_ext_inline.sass:
+  It's not clear which file to import for '@import "same_name_different_ext"'.
+  Candidates:
+    same_name_different_ext.sass
+    same_name_different_ext.scss
+  For now I'll choose same_name_different_ext.sass.
+  This will be an error in future versions of Sass.
+WARNING
+      options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
+      munge_filename options
+      result = Sass::Engine.new("@import 'same_name_different_ext'", options).render
+      assert_equal(<<CSS, result)
+.foo {
+  ext: sass; }
+CSS
+    end
+  end
+
+  def test_import_same_name_different_partiality
+    assert_warning <<WARNING do
+WARNING: On line 1 of test_import_same_name_different_partiality_inline.sass:
+  It's not clear which file to import for '@import "same_name_different_partiality"'.
+  Candidates:
+    _same_name_different_partiality.scss
+    same_name_different_partiality.scss
+  For now I'll choose _same_name_different_partiality.scss.
+  This will be an error in future versions of Sass.
+WARNING
+      options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
+      munge_filename options
+      result = Sass::Engine.new("@import 'same_name_different_partiality'", options).render
+      assert_equal(<<CSS, result)
+.foo {
+  partial: yes; }
+CSS
+    end
+  end
+
   EXCEPTION_MAP.each do |key, value|
     define_method("test_exception (#{key.inspect})") do
       line = 10
@@ -623,6 +663,11 @@ CSS
   def test_http_import
     assert_equal("@import url(http://fonts.googleapis.com/css?family=Droid+Sans);\n",
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\""))
+  end
+
+  def test_protocol_relative_import
+    assert_equal("@import url(//fonts.googleapis.com/css?family=Droid+Sans);\n",
+      render("@import \"//fonts.googleapis.com/css?family=Droid+Sans\""))
   end
 
   def test_import_with_interpolation

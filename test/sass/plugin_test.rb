@@ -9,6 +9,12 @@ module Sass::Script::Functions
     filename = options[:filename].gsub(%r{.*((/[^/]+){4})}, '\1')
     Sass::Script::String.new(filename)
   end
+
+  def whatever
+    custom = options[:custom]
+    whatever = custom && custom[:whatever]
+    Sass::Script::String.new(whatever || "incorrect")
+  end
 end
 
 class SassPluginTest < Test::Unit::TestCase
@@ -123,7 +129,7 @@ CSS
     File.open(tempfile_loc('single_import_loop')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...2].join("\n"))
 /*
-Sass::SyntaxError: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
+Syntax error: An @import loop has been found: #{template_loc('single_import_loop')} imports itself
 CSS
     end
   end
@@ -134,9 +140,9 @@ CSS
     File.open(tempfile_loc('double_import_loop1')) do |file|
       assert_equal(<<CSS.strip, file.read.split("\n")[0...4].join("\n"))
 /*
-Sass::SyntaxError: An @import loop has been found:
-    #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
-    #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
+Syntax error: An @import loop has been found:
+                  #{template_loc('double_import_loop1')} imports #{template_loc('_double_import_loop2')}
+                  #{template_loc('_double_import_loop2')} imports #{template_loc('double_import_loop1')}
 CSS
     end
   end
@@ -210,17 +216,25 @@ CSS
     assert_needs_update "basic"
   end
 
+  def test_import_same_name
+    assert_warning <<WARNING do
+WARNING: In #{template_loc}:
+  There are multiple files that match the name "same_name_different_partiality.scss":
+    _same_name_different_partiality.scss
+    same_name_different_partiality.scss
+  This will be an error in future versions of Sass.
+WARNING
+      touch "_same_name_different_partiality"
+      assert_needs_update "same_name_different_partiality"
+    end
+  end
+
   # Callbacks
 
   def test_updating_stylesheets_callback
     # Should run even when there's nothing to update
     Sass::Plugin.options[:template_location] = nil
     assert_callback :updating_stylesheets, []
-  end
-
-  def test_updating_stylesheets_callback_with_individual_files
-    files = [[template_loc("basic"), tempfile_loc("basic")]]
-    assert_callback(:updating_stylesheets, files) {Sass::Util.silence_sass_warnings{Sass::Plugin.update_stylesheets(files)}}
   end
 
   def test_updating_stylesheets_callback_with_never_update
@@ -333,7 +347,24 @@ CSS
     check_for_updates!
     assert_renders_correctly 'if'
   ensure
-    set_plugin_opts :cache_store => @@cache_store
+    set_plugin_opts
+  end
+
+  def test_cached_import_option
+    set_plugin_opts :custom => {:whatever => "correct"}
+    check_for_updates!
+    assert_renders_correctly "cached_import_option"
+
+    @@cache_store.reset!
+    set_plugin_opts :custom => nil, :always_update => false
+    check_for_updates!
+    assert_renders_correctly "cached_import_option"
+
+    set_plugin_opts :custom => {:whatever => "correct"}, :always_update => true
+    check_for_updates!
+    assert_renders_correctly "cached_import_option"
+  ensure
+    set_plugin_opts :custom => nil
   end
 
  private
@@ -388,7 +419,7 @@ CSS
     end
 
     if block_given?
-      yield
+      Sass::Util.silence_sass_warnings {yield}
     else
       check_for_updates!
     end

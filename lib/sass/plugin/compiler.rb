@@ -183,6 +183,7 @@ module Sass::Plugin
     #   The first string in each pair is the location of the Sass/SCSS file,
     #   the second is the location of the CSS file that it should be compiled to.
     def update_stylesheets(individual_files = [])
+      individual_files = individual_files.dup
       Sass::Plugin.checked_for_updates = true
       staleness_checker = StalenessChecker.new(engine_options)
 
@@ -300,7 +301,7 @@ module Sass::Plugin
 
       # The native windows listener is much slower than the polling
       # option, according to https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e#commitcomment-1295118
-      listener.force_polling(true) if Sass::Util.windows?
+      listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
       begin
         listener.start

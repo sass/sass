@@ -290,6 +290,11 @@ SCSS
       render("@import \"http://fonts.googleapis.com/css?family=Droid+Sans\";"))
   end
 
+  def test_protocol_relative_import
+    assert_equal("@import \"//fonts.googleapis.com/css?family=Droid+Sans\";\n",
+      render("@import \"//fonts.googleapis.com/css?family=Droid+Sans\";"))
+  end
+
   def test_import_with_interpolation
     assert_equal <<CSS, render(<<SCSS)
 @import url("http://fonts.googleapis.com/css?family=Droid+Sans");
@@ -1664,7 +1669,7 @@ SCSS
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  .foo": expected "{", was "&.bar {a: b}"
 
-"&.bar" may only be used at the beginning of a selector.
+"&.bar" may only be used at the beginning of a compound selector.
 MESSAGE
 flim {
   .foo&.bar {a: b}
@@ -1676,7 +1681,7 @@ SCSS
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
 
-"&" may only be used at the beginning of a selector.
+"&" may only be used at the beginning of a compound selector.
 MESSAGE
 flim {
   .foo.bar& {a: b}
@@ -1688,7 +1693,7 @@ SCSS
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  &": expected "{", was "& {a: b}"
 
-"&" may only be used at the beginning of a selector.
+"&" may only be used at the beginning of a compound selector.
 MESSAGE
 flim {
   && {a: b}
@@ -1971,5 +1976,25 @@ SCSS
 }
 SCSS
     Sass::SCSS::Parser.new(template, "test.scss").parse
+  end
+
+  def test_extend_in_media_in_rule
+    assert_equal(<<CSS, render(<<SCSS))
+@media screen {
+  .foo {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @extend %bar;
+  }
+}
+
+@media screen {
+  %bar {
+    a: b;
+  }
+}
+SCSS
   end
 end

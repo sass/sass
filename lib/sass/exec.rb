@@ -125,6 +125,7 @@ module Sass
       def puts_action(name, color, arg)
         return if @options[:for_engine][:quiet]
         printf color(color, "%11s %s\n"), name, arg
+        STDOUT.flush
       end
 
       # Same as \{Kernel.puts}, but doesn't print anything if the `--quiet` option is set.
@@ -228,6 +229,10 @@ END
         opts.on('--stop-on-error', 'If a file fails to compile, exit immediately.',
                                    'Only meaningful for --watch and --update.') do
           @options[:stop_on_error] = true
+        end
+        opts.on('--poll', 'Check for file changes manually, rather than relying on the OS.',
+                          'Only meaningful for --watch.') do
+          @options[:poll] = true
         end
         opts.on('-f', '--force', 'Recompile all Sass files, even if the CSS file is newer.',
                                  'Only meaningful for --update.') do
@@ -357,6 +362,7 @@ END
         require 'sass/plugin'
         ::Sass::Plugin.options.merge! @options[:for_engine]
         ::Sass::Plugin.options[:unix_newlines] = @options[:unix_newlines]
+        ::Sass::Plugin.options[:poll] = @options[:poll]
 
         if @options[:force]
           raise "The --force flag may only be used with --update." unless @options[:update]
@@ -401,6 +407,13 @@ MSG
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
+          if error.is_a?(SystemCallError) && !@options[:stop_on_error]
+            had_error = true
+            puts_action :error, :red, error.message
+            STDOUT.flush
+            next
+          end
+
           raise error unless error.is_a?(::Sass::SyntaxError) && !@options[:stop_on_error]
           had_error = true
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"

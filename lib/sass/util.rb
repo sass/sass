@@ -298,7 +298,9 @@ module Sass
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
     # @return [[String, Fixnum, (String, nil)]] An array containing the filename, line, and method name of the caller.
     #   The method name may be nil
-    def caller_info(entry = caller[1])
+    def caller_info(entry = nil)
+      # JRuby evaluates `caller` incorrectly when it's in an actual default argument.
+      entry ||= caller[1]
       info = entry.scan(/^(.*?):(-?.*?)(?::.*`(.+)')?$/).first
       info[1] = info[1].to_i
       # This is added by Rubinius to designate a block, but we don't care about it.
@@ -465,6 +467,19 @@ module Sass
     def glob(path, &block)
       path = path.gsub('\\', '/') if windows?
       Dir.glob(path, &block)
+    end
+
+    # Prepare a value for a destructuring assignment (e.g. `a, b =
+    # val`). This works around a performance bug when using
+    # ActiveSupport, and only needs to be called when `val` is likely
+    # to be `nil` reasonably often.
+    #
+    # See [this bug report](http://redmine.ruby-lang.org/issues/4917).
+    #
+    # @param val [Object]
+    # @return [Object]
+    def destructure(val)
+      val || []
     end
 
     ## Cross-Ruby-Version Compatibility
