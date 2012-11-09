@@ -298,7 +298,9 @@ module Sass
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
     # @return [[String, Fixnum, (String, nil)]] An array containing the filename, line, and method name of the caller.
     #   The method name may be nil
-    def caller_info(entry = caller[1])
+    def caller_info(entry = nil)
+      # JRuby evaluates `caller` incorrectly when it's in an actual default argument.
+      entry ||= caller[1]
       info = entry.scan(/^(.*?):(-?.*?)(?::.*`(.+)')?$/).first
       info[1] = info[1].to_i
       # This is added by Rubinius to designate a block, but we don't care about it.

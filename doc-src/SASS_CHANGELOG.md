@@ -9,6 +9,8 @@
 
 * Allow `@extend` within bubbling nodes such as `@media`.
 
+* Fix various JRuby incompatibilities and test failures.
+
 ## 3.2.2
 
 * Add a `--poll` option to force `sass --watch` to use the polling backend to

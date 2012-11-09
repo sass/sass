@@ -489,6 +489,10 @@ SASS
   end
 
   def test_deep_argument_error_not_unwrapped
+    # JRuby (as of 1.6.7.2) offers no way of distinguishing between
+    # argument errors caused by programming errors in a function and
+    # argument errors explicitly thrown within that function.
+    return if RUBY_PLATFORM =~ /java/
     assert_raise_message(ArgumentError, 'wrong number of arguments (0 for 1)') {resolve("arg-error()")}
   end
 
