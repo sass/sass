@@ -109,10 +109,12 @@ module Sass
         # If this is a legitimate Ruby-raised argument error, re-raise it.
         # Otherwise, it's an error in the user's stylesheet, so wrap it.
         if e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
+            e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/ &&
             # JRuby (as of 1.6.7.2) doesn't put the actual method for
-            # which the argument error was thrown in the backtrace.
-            (RUBY_PLATFORM =~ /java/ ? e.backtrace[0] !~ /:in `send'$/ :
-              e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/)
+            # which the argument error was thrown in the backtrace, so
+            # we detect whether our send threw an argument error.
+            (RUBY_PLATFORM !~ /java/ || e.backtrace[0] !~ /:in `send'$/ ||
+             e.backtrace[1] !~ /:in `_perform'$/)
           raise e
         end
         raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
