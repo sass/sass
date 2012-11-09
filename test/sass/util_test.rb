@@ -243,6 +243,10 @@ class UtilTest < Test::Unit::TestCase
     test[['foo ', 1, "\n bar\n", [2, 3, 4], "\n baz"]]
   end
 
+  def nested_caller_info_fn
+    caller_info
+  end
+
   def test_caller_info
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, nil], caller_info("/tmp/foo.rb:12"))
@@ -250,6 +254,14 @@ class UtilTest < Test::Unit::TestCase
     assert_equal(["", 12, "boop"], caller_info(":12: in `boop'"))
     assert_equal(["/tmp/foo.rb", -12, "fizzle"], caller_info("/tmp/foo.rb:-12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle {}'"))
+
+    info = nested_caller_info_fn
+    assert_equal(__FILE__, info[0])
+    assert_equal("test_caller_info", info[2])
+
+    info = proc {nested_caller_info_fn}.call
+    assert_equal(__FILE__, info[0])
+    assert_equal("test_caller_info", info[2])
   end
 
   def test_version_gt
