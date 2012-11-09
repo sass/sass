@@ -219,42 +219,30 @@ MSG
   end
 
   def test_import_same_name_different_ext
-    assert_warning <<WARNING do
-WARNING: On line 1 of test_import_same_name_different_ext_inline.sass:
-  It's not clear which file to import for '@import "same_name_different_ext"'.
-  Candidates:
-    same_name_different_ext.sass
-    same_name_different_ext.scss
-  For now I'll choose same_name_different_ext.sass.
-  This will be an error in future versions of Sass.
-WARNING
+    assert_raise_message Sass::SyntaxError, <<ERROR do
+It's not clear which file to import for '@import "same_name_different_ext"'.
+Candidates:
+  same_name_different_ext.sass
+  same_name_different_ext.scss
+Please delete or rename all but one of these files.
+ERROR
       options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
       munge_filename options
-      result = Sass::Engine.new("@import 'same_name_different_ext'", options).render
-      assert_equal(<<CSS, result)
-.foo {
-  ext: sass; }
-CSS
+      Sass::Engine.new("@import 'same_name_different_ext'", options).render
     end
   end
 
   def test_import_same_name_different_partiality
-    assert_warning <<WARNING do
-WARNING: On line 1 of test_import_same_name_different_partiality_inline.sass:
-  It's not clear which file to import for '@import "same_name_different_partiality"'.
-  Candidates:
-    _same_name_different_partiality.scss
-    same_name_different_partiality.scss
-  For now I'll choose _same_name_different_partiality.scss.
-  This will be an error in future versions of Sass.
-WARNING
+    assert_raise_message Sass::SyntaxError, <<ERROR do
+It's not clear which file to import for '@import "same_name_different_partiality"'.
+Candidates:
+  _same_name_different_partiality.scss
+  same_name_different_partiality.scss
+Please delete or rename all but one of these files.
+ERROR
       options = {:load_paths => [File.dirname(__FILE__) + '/templates/']}
       munge_filename options
-      result = Sass::Engine.new("@import 'same_name_different_partiality'", options).render
-      assert_equal(<<CSS, result)
-.foo {
-  partial: yes; }
-CSS
+      Sass::Engine.new("@import 'same_name_different_partiality'", options).render
     end
   end
 

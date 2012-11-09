@@ -122,19 +122,17 @@ module Sass
         if found.size > 1 && !@same_name_warnings.include?(found.first.first)
           found.each {|(f, _)| @same_name_warnings << f}
           relative_to = Pathname.new(dir)
-          if options[:_line]
+          if options[:_from_import_node]
             # If _line exists, we're here due to an actual import in an
             # import_node and we want to print a warning for a user writing an
             # ambiguous import.
-            candidates = found.map {|(f, _)| "    " + Pathname.new(f).relative_path_from(relative_to).to_s}.join("\n")
-            Sass::Util.sass_warn <<WARNING
-WARNING: On line #{options[:_line]}#{" of #{options[:filename]}" if options[:filename]}:
-  It's not clear which file to import for '@import "#{name}"'.
-  Candidates:
+            candidates = found.map {|(f, _)| "  " + Pathname.new(f).relative_path_from(relative_to).to_s}.join("\n")
+            raise Sass::SyntaxError.new(<<MESSAGE)
+It's not clear which file to import for '@import "#{name}"'.
+Candidates:
 #{candidates}
-  For now I'll choose #{File.basename found.first.first}.
-  This will be an error in future versions of Sass.
-WARNING
+Please delete or rename all but one of these files.
+MESSAGE
           else
             # Otherwise, we're here via StalenessChecker, and we want to print a
             # warning for a user running `sass --watch` with two ambiguous files.
