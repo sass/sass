@@ -7,6 +7,8 @@
 
 * `sass --watch` no longer crashs when a file in a watched directory is deleted.
 
+* Allow `@extend` within bubbling nodes such as `@media`.
+
 ## 3.2.2
 
 * Add a `--poll` option to force `sass --watch` to use the polling backend to
