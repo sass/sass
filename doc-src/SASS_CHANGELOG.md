@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.2.3 (Unreleased)
+
+* `sass --watch` no longer crashs when a file in a watched directory is deleted.
+
 ## 3.2.2
 
 * Add a `--poll` option to force `sass --watch` to use the polling backend to
