@@ -17,10 +17,10 @@ module Sass
       # : The Ruby object corresponding to the value of the token.
       #
       # `line`: \[`Fixnum`\]
-      # : The line of the source file on which the token appears.
+      # : The line of the source file on which the token appears (1-based).
       #
       # `offset`: \[`Fixnum`\]
-      # : The number of bytes into the line the SassScript token appeared.
+      # : The number of characters into the line the SassScript token appeared (1-based).
       #
       # `pos`: \[`Fixnum`\]
       # : The scanner position at which the SassScript token appeared.
@@ -32,7 +32,7 @@ module Sass
       attr_reader :line
 
       # The number of bytes into the current line
-      # of the lexer's current position.
+      # of the lexer's current position (1-based).
       #
       # @return [Fixnum]
       attr_reader :offset
@@ -125,9 +125,9 @@ module Sass
       }
 
       # @param str [String, StringScanner] The source text to lex
-      # @param line [Fixnum] The line on which the SassScript appears.
+      # @param line [Fixnum] The 1-based line on which the SassScript appears.
       #   Used for error reporting and sourcemap building
-      # @param offset [Fixnum] The character (not byte) offset in the line on which the SassScript appears.
+      # @param offset [Fixnum] The 1-based character (not byte) offset in the line on which the SassScript appears.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
@@ -172,7 +172,11 @@ module Sass
       # Rewinds the underlying StringScanner
       # to before the token returned by \{#peek}.
       def unpeek!
-        @scanner.pos = @tok.pos if @tok
+        if @tok
+          @scanner.pos = @tok.pos
+          @line = @tok.line
+          @offset = @tok.offset
+        end
       end
 
       # @return [Boolean] Whether or not there's more source text to lex.
@@ -258,9 +262,11 @@ module Sass
       end
 
       def string(re, open)
+        start_pos = source_position
         return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
         if @scanner[2] == '#{' #'
           @scanner.pos -= 2 # Don't actually consume the #{
+          @offset -= 2
           @interpolation_stack << re
         end
         str =
@@ -273,30 +279,42 @@ module Sass
       end
 
       def number
+        start_pos = source_position
         return unless scan(REGULAR_EXPRESSIONS[:number])
         value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
         value = -value if @scanner[1]
-        [:number, Script::Number.new(value, Array(@scanner[4]))]
+        script_number = Script::Number.new(value, Array(@scanner[4]))
+        script_number.source_range = range(start_pos)
+        [:number, script_number]
       end
 
       def color
+        start_pos = source_position
         return unless s = scan(REGULAR_EXPRESSIONS[:color])
         raise Sass::SyntaxError.new(<<MESSAGE.rstrip) unless s.size == 4 || s.size == 7
 Colors must have either three or six digits: '#{s}'
 MESSAGE
         value = s.scan(/^#(..?)(..?)(..?)$/).first.
           map {|num| num.ljust(2, num).to_i(16)}
-        [:color, Script::Color.new(value)]
+        script_color = Script::Color.new(value)
+        script_color.source_range = range(start_pos)
+        [:color, script_color]
       end
 
       def bool
+        start_pos = source_position
         return unless s = scan(REGULAR_EXPRESSIONS[:bool])
-        [:bool, Script::Bool.new(s == 'true')]
+        script_bool = Script::Bool.new(s == 'true')
+        script_bool.source_range = range(start_pos)
+        [:bool, script_bool]
       end
 
       def null
+        start_pos = source_position
         return unless scan(REGULAR_EXPRESSIONS[:null])
-        [:null, Script::Null.new]
+        script_null = Script::Null.new
+        script_null.source_range = range(start_pos)
+        [:null, script_null]
       end
 
       def special_fun
@@ -306,7 +324,7 @@ MESSAGE
         old_line = @line
         old_offset = @offset
         @line += c
-        @offset = c == 0 ? @offset + str2.size : str2[/\n(.*)/, 1].size
+        @offset = c == 0 ? @offset + str2.size : str2[/\n([^\n]*)/, 1].size + 1
         [:special_fun,
           Sass::Util.merge_adjacent_strings(
             [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
@@ -338,12 +356,20 @@ MESSAGE
         return unless str = @scanner.scan(re)
         c = str.count("\n")
         @line += c
-        @offset = (c == 0 ? @offset + str.size : str[/\n(.*)/, 1].size)
+        @offset = (c == 0 ? @offset + str.size : str[/\n([^\n]*)/, 1].size + 1)
         str
       end
 
+      def range(start_pos, end_pos = source_position)
+        Sass::Source::Range.new(start_pos, end_pos, @options[:filename])
+      end
+
+      def source_position
+        Sass::Source::Position.new(@line, @offset)
+      end
+
       def current_position
-        @offset + 1
+        @offset
       end
     end
   end

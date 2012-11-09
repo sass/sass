@@ -220,9 +220,10 @@ module Sass
                   return other_interp
                 end
 
-                line = @lexer.line
+                start_pos = source_position
                 e = Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
-                e.line = line
+                e.line = start_pos.line
+                e.source_range = range(start_pos)
               end
               e
             end
@@ -314,7 +315,6 @@ RUBY
       def space
         start_pos = source_position
         return unless e = or_expr
-        e.source_range = range(start_pos)
         arr = [e]
         while e = or_expr
           arr << e
@@ -366,11 +366,10 @@ RUBY
         must_have_default = false
         loop do
           line = @lexer.line
-          offset = @lexer.offset + 1
-          start_pos = source_position
+          offset = @lexer.offset
           c = assert_tok(:const)
           var = Script::Variable.new(c.value)
-          var.source_range = range(start_pos)
+          var.source_range = range(c.offset)
           if try_tok(:colon)
             val = assert_expr(:space)
             must_have_default = true

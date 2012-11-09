@@ -9,9 +9,9 @@ module Sass
       #   Note that `Parser` *won't* raise a nice error message if this isn't properly parsed;
       #   for that, you should use the higher-level {Sass::Engine} or {Sass::CSS}.
       # @param filename [String] The name of the file being parsed. Used for warnings.
-      # @param line [Fixnum] The line on which the source string appeared,
+      # @param line [Fixnum] The 1-based line on which the source string appeared,
       #   if it's part of another document.
-      # @param offset [Fixnum] The character (not byte) offset in the line on
+      # @param offset [Fixnum] The 1-based character (not byte) offset in the line on
       #   which the source string starts. Used for error reporting and sourcemap
       #   building.
       def initialize(str, filename, line = 1, offset = 1)
