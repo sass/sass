@@ -247,6 +247,10 @@ class UtilTest < Test::Unit::TestCase
     caller_info
   end
 
+  def double_nested_caller_info_fn
+    nested_caller_info_fn
+  end
+
   def test_caller_info
     assert_equal(["/tmp/foo.rb", 12, "fizzle"], caller_info("/tmp/foo.rb:12: in `fizzle'"))
     assert_equal(["/tmp/foo.rb", 12, nil], caller_info("/tmp/foo.rb:12"))
@@ -261,7 +265,15 @@ class UtilTest < Test::Unit::TestCase
 
     info = proc {nested_caller_info_fn}.call
     assert_equal(__FILE__, info[0])
-    assert_equal("test_caller_info", info[2])
+    assert_match(/^(block in )?test_caller_info$/, info[2])
+
+    info = double_nested_caller_info_fn
+    assert_equal(__FILE__, info[0])
+    assert_equal("double_nested_caller_info_fn", info[2])
+
+    info = proc {double_nested_caller_info_fn}.call
+    assert_equal(__FILE__, info[0])
+    assert_equal("double_nested_caller_info_fn", info[2])
   end
 
   def test_version_gt
