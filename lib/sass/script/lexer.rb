@@ -224,8 +224,7 @@ module Sass
         size ||= @scanner.matched_size
 
         val.line = @line if val.is_a?(Script::Node)
-        Token.new(type, val, @line,
-          current_position - size, @scanner.pos - size)
+        Token.new(type, val, @line, @offset - size, @scanner.pos - size)
       end
 
       def whitespace
@@ -275,6 +274,7 @@ module Sass
           else
             Script::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
           end
+        str.source_range = range(start_pos)
         [:string, str]
       end
 
@@ -366,10 +366,6 @@ MESSAGE
 
       def source_position
         Sass::Source::Position.new(@line, @offset)
-      end
-
-      def current_position
-        @offset
       end
     end
   end

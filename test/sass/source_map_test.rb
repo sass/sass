@@ -352,53 +352,45 @@ CSS
 
   @private
 
-  ANNOTATION_REGEX = /\{\{(\/?)(\d+)\}\}/
+  ANNOTATION_REGEX = /\{\{(\/?)([^}]+)\}\}/
 
   def build_ranges(text, file_name = nil)
-    ranges = []
-    start_positions = []
-    line = 1
-    text.each_line do |line_text|
+    ranges = Hash.new {|h, k| h[k] = []}
+    start_positions = {}
+    text.split("\n").each_with_index do |line_text, line|
+      line += 1 # lines shoud be 1-based
       match_start = 0
       while match = line_text.match(ANNOTATION_REGEX)
         closing = !match[1].empty?
-        annotation_index = Integer(match[2])
+        name = match[2]
         match_offsets = match.offset(0)
         offset = match_offsets[0] + 1 # Offsets are 1-based in source maps.
-        assert(!closing || start_positions[annotation_index], "Closing annotation #{annotation_index} found before opening one.")
+        assert(!closing || start_positions[name], "Closing annotation #{name} found before opening one.")
         position = Sass::Source::Position.new(line, offset)
         if closing
-          ranges_for_index = ranges[annotation_index] || []
-          ranges_for_index.push(Sass::Source::Range.new(start_positions[annotation_index], position, file_name))
-          ranges[annotation_index] = ranges_for_index
-          start_positions[annotation_index] = nil
+          ranges[name] << Sass::Source::Range.new(start_positions[name], position, file_name)
+          start_positions.delete name
         else
-          assert(!start_positions[annotation_index], "Overlapping range annotation #{annotation_index} encountered on line #{line}")
-          start_positions[annotation_index] = position
+          assert(!start_positions[name], "Overlapping range annotation #{name} encountered on line #{line}")
+          start_positions[name] = position
         end
         line_text.slice!(match_offsets[0], match_offsets[1] - match_offsets[0])
       end
-      line += 1
     end
     ranges
   end
 
   def build_mapping_from_annotations(scss, css, source_file_name)
-    map = Sass::Source::Map.new
     source_ranges = build_ranges(scss, source_file_name)
     target_ranges = build_ranges(css)
-    (0...source_ranges.length).each do |i|
-      next if !source_ranges[i]
-      assert(source_ranges[i].length == 1, "Not a single source range encountered for annotation #{i}")
-      source_range = source_ranges[i][0]
-      assert(target_ranges[i], "No target ranges for annotation #{i}")
-      target_ranges[i].each { |target_range|  map.data.push(Sass::Source::Map::Mapping.new(source_range, target_range)) }
-    end
-    map.data.sort! do |x, y|
-      result = x.output.start_pos.line <=> y.output.start_pos.line
-      next result if result != 0
-      x.output.start_pos.offset <=> y.output.start_pos.offset
-    end
+    map = Sass::Source::Map.new
+    mappings = Sass::Util.flatten(source_ranges.map do |(name, sources)|
+        assert(sources.length == 1, "#{sources.length} source ranges encountered for annotation #{name}")
+        assert(target_ranges[name], "No target ranges for annotation #{name}")
+        target_ranges[name].map {|target_range| [sources.first, target_range]}
+      end, 1).
+      sort_by {|(source, target)| [target.start_pos.line, target.start_pos.offset]}.
+      each {|(source, target)| map.add(source, target)}
     map
   end
 
@@ -413,8 +405,12 @@ CSS
   end
 
   def assert_positions_equal(expected, actual, lines, message = nil)
-    assert_equal(expected.line, actual.line, "#{message ? message + ": " : ""}Expected #{expected.inspect} but was #{actual.inspect}")
-    assert_equal(expected.offset, actual.offset, "#{message ? message + ": " : ""}Expected #{expected.inspect} but was #{actual.inspect}\n" + lines[actual.line - 1] + "\n" + ("-" * (actual.offset - 1)) + "^")
+    prefix = message ? message + ": " : ""
+    assert_equal(expected.line, actual.line, prefix +
+      "Expected #{expected.inspect} but was #{actual.inspect}")
+    assert_equal(expected.offset, actual.offset, prefix +
+      "Expected #{expected.inspect} but was #{actual.inspect}\n" +
+      lines[actual.line - 1] + "\n" + ("-" * (actual.offset - 1)) + "^")
   end
 
   def assert_ranges_equal(expected, actual, lines, prefix)
@@ -427,9 +423,9 @@ CSS
     assert_equal(expected.data.length, actual.data.length, dump_sourcemap_as_expectation(actual))
     scss_lines = scss.split(/\n/)
     css_lines = css.split(/\n/)
-    (0...expected.data.length).each do |i|
-      assert_ranges_equal(expected.data[i].input, actual.data[i].input, scss_lines, "Input")
-      assert_ranges_equal(expected.data[i].output, actual.data[i].output, css_lines, "Output")
+    expected.data.zip(actual.data) do |expected_mapping, actual_mapping|
+      assert_ranges_equal(expected_mapping.input, actual_mapping.input, scss_lines, "Input")
+      assert_ranges_equal(expected_mapping.output, actual_mapping.output, css_lines, "Output")
     end
   end
 
@@ -448,36 +444,14 @@ CSS
     engine.render_with_sourcemap File.basename(sourcemap_path)
   end
 
-  # The result is an interleaved array of pairs:
-  #
-  # [source_start_position_line, source_start_position_column, source_end_position_line, source_end_position_offset],
-  # [target_start_position_line, target_start_position_column, target_end_position_line, target_end_position_offset]
-  def build_mapping_from_expectation(mappings_array, source_file)
-    map = Sass::Source::Map.new
-    (0...mappings_array.length).step(2) do |i|
-      m = Sass::Source::Map::Mapping.new(
-        Sass::Source::Range.new(
-          Sass::Source::Position.new(mappings_array[i][0], mappings_array[i][1]),
-          Sass::Source::Position.new(mappings_array[i][2], mappings_array[i][3]),
-          source_file),
-        Sass::Source::Range.new(
-          Sass::Source::Position.new(mappings_array[i + 1][0], mappings_array[i + 1][1]),
-          Sass::Source::Position.new(mappings_array[i + 1][2], mappings_array[i + 1][3]),
-          nil))
-      map.data.push(m)
-    end
-    map
-  end
-
   def dump_sourcemap_as_expectation(sourcemap)
-    result = ""
-    (0...sourcemap.data.length).each do |i|
-      input_start_pos = sourcemap.data[i].input.start_pos;
-      input_end_pos = sourcemap.data[i].input.end_pos;
-      output_start_pos = sourcemap.data[i].output.start_pos;
-      output_end_pos = sourcemap.data[i].output.end_pos;
-      result << "[#{input_start_pos.line}, #{input_start_pos.offset}, #{input_end_pos.line}, #{input_end_pos.offset}], [#{output_start_pos.line}, #{output_start_pos.offset}, #{output_end_pos.line}, #{output_end_pos.offset}]#{"," if i != sourcemap.data.length - 1}\n"
-    end
-    result
+    sourcemap.data.map do |mapping|
+      input_start_pos = mapping.input.start_pos;
+      input_end_pos = mapping.input.end_pos;
+      output_start_pos = mapping.output.start_pos;
+      output_end_pos = mapping.output.end_pos;
+      "[#{input_start_pos.line}, #{input_start_pos.offset}, #{input_end_pos.line}, #{input_end_pos.offset}], " +
+        "[#{output_start_pos.line}, #{output_start_pos.offset}, #{output_end_pos.line}, #{output_end_pos.offset}]"
+    end.join(",\n") + "\n"
   end
 end

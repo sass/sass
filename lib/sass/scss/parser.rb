@@ -874,9 +874,8 @@ module Sass
       end
 
       def value!
-        value_start_pos = source_position
         space = !str {ss}.empty?
-        value_start_pos = source_position if space
+        value_start_pos = source_position
         @use_property_exception ||= space || !tok?(IDENT)
 
         return value_start_pos, true, Sass::Script::String.new("") if tok?(/\{/)

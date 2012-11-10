@@ -27,7 +27,7 @@ module Sass::Source
     end
 
     # Adds a new mapping from one source range to another. Multiple invocations
-    # of this method should have each `to` range come after all previous ranges.
+    # of this method should have each `output` range come after all previous ranges.
     #
     # @param input [Sass::Source::Range]
     #   The source range in the input document.
