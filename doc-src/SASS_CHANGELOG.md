@@ -764,7 +764,7 @@ and distributing those stylesheets across multiple files.
 
 ## 3.0.25
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.25).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.25).
 
 * When displaying a Sass error in an imported stylesheet,
   use the imported stylesheet's contents rather than the top-level stylesheet.
@@ -778,7 +778,7 @@ and distributing those stylesheets across multiple files.
 
 ## 3.0.24
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.24).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.24).
 
 * Raise an error when `@else` appears without an `@if` in SCSS.
 
@@ -787,7 +787,7 @@ and distributing those stylesheets across multiple files.
 
 ## 3.0.23
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.23).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.23).
 
 * Fix the error message for unloadable modules when running the executables under Ruby 1.9.2.
 
@@ -828,7 +828,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.22
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.22).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.22).
 
 * Remove `vendor/sass`, which snuck into the gem by mistake
   and was causing trouble for Heroku users (thanks to [Jacques Crocker](http://railsjedi.com/)).
@@ -838,7 +838,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.21
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.21).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.21).
 
 * Fix the permissions errors for good.
 
@@ -846,7 +846,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.20
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.20).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.20).
 
 * Fix some permissions errors.
 
@@ -854,7 +854,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.19
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.19).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.19).
 
 * Make the alpha value for `rgba` colors respect {Sass::Script::Number::PRECISION}.
 
@@ -870,7 +870,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.18
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.18).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.18).
 
 * Don't require `rake` in the gemspec, for bundler compatibility under
   JRuby. Thanks to [Gordon McCreight](http://www.gmccreight.com/blog).
@@ -889,7 +889,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.17
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.17).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.17).
 
 * Disallow `#{}` interpolation in `@media` queries or unrecognized directives.
   This was never allowed, but now it explicitly throws an error
@@ -904,7 +904,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.16
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.16).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.16).
 
 * Fix a bug where certain sorts of comments would get improperly
   rendered in the `:compact` style.
@@ -919,7 +919,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.15
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.15).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.15).
 
 * Fix a bug where `sass --watch` and `sass --update` were completely broken.
 
@@ -927,7 +927,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.14
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.14).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.14).
 
 * Properly parse paths with drive letters on Windows (e.g. `C:\Foo\Bar.sass`)
   in the Sass executable.
@@ -939,7 +939,7 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 ## 3.0.13
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.13).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.13).
 
 ## CSS `@import` Directives
 
@@ -986,7 +986,7 @@ Upgrade to Rails 3.0.0.beta4 if you haven't already.
 
 ## 3.0.12
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.12).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.12).
 
 ## Rails 3 Support
 
@@ -1001,7 +1001,7 @@ Haml 3.0.13 will only support 3.0.0.beta.4.
 
 ## 3.0.11
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.11).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.11).
 
 There were no changes made to Haml between versions 3.0.10 and 3.0.11.
 
@@ -1018,7 +1018,7 @@ wasn't reloaded at the proper time.
 
 ## 3.0.10
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.10).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.10).
 
 ### Appengine-JRuby Support
 
@@ -1038,20 +1038,20 @@ even when no controllers are being accessed.
 
 ## 3.0.9
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.9).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.9).
 
 There were no changes made to Sass between versions 3.0.8 and 3.0.9.
 A bug in Gemcutter caused the gem to be uploaded improperly.
 
 ## 3.0.8
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.8).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.8).
 
 * Fix a bug with Rails versions prior to Rails 3.
 
 ## 3.0.7
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.7).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.7).
 
 ### Encoding Support
 
@@ -1073,13 +1073,13 @@ for specifying the encoding of Sass/SCSS/CSS files.
 
 ## 3.0.6
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.6).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.6).
 
 There were no changes made to Sass between versions 3.0.5 and 3.0.6.
 
 ## 3.0.5
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.5).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.5).
 
 ### `#{}` Interpolation in Properties
 
@@ -1138,7 +1138,7 @@ Make the `--no-cache` flag properly forbid Sass from writing `.sass-cache` files
 
 ## 3.0.4
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.4).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.4).
 
 * Raise an informative error when function arguments have a mispaced comma,
   as in `foo(bar, )`.
@@ -1148,7 +1148,7 @@ Make the `--no-cache` flag properly forbid Sass from writing `.sass-cache` files
 
 ## 3.0.3
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.3).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.3).
 
 ### Rails 3 Support
 
@@ -1175,7 +1175,7 @@ should *really* work with this release.
 
 ## 3.0.2
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.2).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.2).
 
 ### Merb 1.1.0 Support
 
@@ -1189,7 +1189,7 @@ Fixed a bug inserting the Sass plugin into the Merb 1.1.0 Rack application.
 
 ## 3.0.1
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.1).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.1).
 
 ### Installation in Rails
 
@@ -1227,7 +1227,7 @@ Thus, three new methods have been added for handling it:
 ## 3.0.0
 {#3-0-0}
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/3.0.0).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.0).
 
 ### Deprecations -- Must Read!
 {#3-0-0-deprecations}
@@ -1946,7 +1946,7 @@ This is also available via the `--debug-info` command-line flag.
 
 ## 2.2.24
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.24).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.24).
 
 * Parent references -- the `&` character --
   may only be placed at the beginning of simple selector sequences in Sass 3.
@@ -1955,7 +1955,7 @@ This is also available via the `--debug-info` command-line flag.
 
 ## 2.2.23
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.23).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.23).
 
 * Don't crash when `rake gems` is run in Rails with Sass installed.
   Thanks to [Florian Frank](http://github.com/flori).
@@ -1972,7 +1972,7 @@ This is also available via the `--debug-info` command-line flag.
 
 ## 2.2.22
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.22).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.22).
 
 * Add a railtie so Haml and Sass will be automatically loaded in Rails 3.
   Thanks to [Daniel Neighman](http://pancakestacks.wordpress.com/).
@@ -1981,7 +1981,7 @@ This is also available via the `--debug-info` command-line flag.
 
 ## 2.2.21
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.21).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.21).
 
 * Fix a few bugs in the git-revision-reporting in {Sass::Version#version}.
   In particular, it will still work if `git gc` has been called recently,
@@ -1993,7 +1993,7 @@ This is also available via the `--debug-info` command-line flag.
 
 ## 2.2.20
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.20).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.20).
 
 * If the cache file for a given Sass file is corrupt
   because it doesn't have enough content,
@@ -2006,13 +2006,13 @@ This is also available via the `--debug-info` command-line flag.
 
 ## 2.2.19
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.18).
 
 There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 
 ## 2.2.18
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.18).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.18).
 
 * Use `Rails.env` rather than `RAILS_ENV` when running under Rails 3.0.
   Thanks to [Duncan Grazier](http://duncangrazier.com/).
@@ -2036,7 +2036,7 @@ There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 
 ## 2.2.17
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.16).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.16).
 
 * When the {file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
   is false, raise the error in Ruby code rather than swallowing it
@@ -2066,7 +2066,7 @@ There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 
 ## 2.2.16
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.16).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.16).
 
 * Fixed a bug where modules containing user-defined Sass functions
   weren't made available when simply included in {Sass::Script::Functions}
@@ -2076,7 +2076,7 @@ There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 
 ## 2.2.15
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.15).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.15).
 
 * Added {Sass::Script::Color#with} for a way of setting color channels
   that's easier than manually constructing a new color
@@ -2088,7 +2088,7 @@ There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 
 ## 2.2.14
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.14).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.14).
 
 * All Sass functions now raise explicit errors if their inputs
   are of the incorrect type.
@@ -2125,19 +2125,19 @@ See the {Sass::Plugin::Rack} documentation for more details.
 
 ## 2.2.13
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.13).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.13).
 
 There were no changes made to Sass between versions 2.2.12 and 2.2.13.
 
 ## 2.2.12
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.12).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.12).
 
 * Fix a stupid bug introduced in 2.2.11 that broke the Sass Rails plugin.
 
 ## 2.2.11
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.11).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.11).
 
 * Added a note to errors on properties that could be pseudo-classes (e.g. `:focus`)
   indicating that they should be backslash-escaped.
@@ -2160,7 +2160,7 @@ There were no changes made to Sass between versions 2.2.12 and 2.2.13.
 
 ## 2.2.10
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.10).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.10).
 
 * Add support for attribute selectors with spaces around the `=`.
   For example:
@@ -2170,25 +2170,25 @@ There were no changes made to Sass between versions 2.2.12 and 2.2.13.
 
 ## 2.2.9
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.9).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.9).
 
 There were no changes made to Sass between versions 2.2.8 and 2.2.9.
 
 ## 2.2.8
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.8).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.8).
 
 There were no changes made to Sass between versions 2.2.7 and 2.2.8.
 
 ## 2.2.7
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.7).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.7).
 
 There were no changes made to Sass between versions 2.2.6 and 2.2.7.
 
 ## 2.2.6
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.6).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.6).
 
 * Don't crash when the `__FILE__` constant of a Ruby file is a relative path,
   as apparently happens sometimes in TextMate
@@ -2198,13 +2198,13 @@ There were no changes made to Sass between versions 2.2.6 and 2.2.7.
 
 ## 2.2.5
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.5).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.5).
 
 There were no changes made to Sass between versions 2.2.4 and 2.2.5.
 
 ## 2.2.4
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.4).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.4).
 
 * Don't add `require 'rubygems'` to the top of init.rb when installed
   via `sass --rails`. This isn't necessary, and actually gets
@@ -2215,14 +2215,14 @@ There were no changes made to Sass between versions 2.2.4 and 2.2.5.
 
 ## 2.2.3
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.3).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.3).
 
 Sass 2.2.3 prints line numbers for warnings about selectors
 with no properties.
 
 ## 2.2.2
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.2).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.2).
 
 Sass 2.2.2 is a minor bug-fix release.
 Notable changes include better parsing of mixin definitions and inclusions
@@ -2230,7 +2230,7 @@ and better support for Ruby 1.9.
 
 ## 2.2.1
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.1).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.1).
 
 Sass 2.2.1 is a minor bug-fix release.
 
@@ -2243,7 +2243,7 @@ Sass 2.2.1 is a minor bug-fix release.
 
 ## 2.2.0
 
-[Tagged on GitHub](http://github.com/nex3/haml/commit/2.2.0).
+[Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.0).
 
 The 2.2 release marks a significant step in the evolution of the Sass
 language. The focus has been to increase the power of Sass to keep
