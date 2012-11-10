@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.3 (Unreleased)
+## 3.2.3
 
 * `sass --watch` no longer crashs when a file in a watched directory is deleted.
 
