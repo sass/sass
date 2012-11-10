@@ -11,6 +11,9 @@
 
 * Fix various JRuby incompatibilities and test failures.
 
+* Work around a performance bug that arises from using `@extend` with
+  deeply-nested selectors.
+
 ## 3.2.2
 
 * Add a `--poll` option to force `sass --watch` to use the polling backend to
