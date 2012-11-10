@@ -437,6 +437,9 @@ module Sass
       # @param seqses [Array<Array<Array<SimpleSequence or String>>>]
       # @return [Array<Array<Array<SimpleSequence or String>>>]
       def trim(seqses)
+        # Avoid truly horrific quadratic behavior. TOOD: I think there
+        # may be a way to get perfect trimming without going quadratic.
+        return seqses if seqses.size > 100
         # This is n^2 on the sequences, but only comparing between
         # separate sequences should limit the quadratic behavior.
         seqses.map do |seqs1|
