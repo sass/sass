@@ -9,9 +9,9 @@ module Sass
       #   Note that `Parser` *won't* raise a nice error message if this isn't properly parsed;
       #   for that, you should use the higher-level {Sass::Engine} or {Sass::CSS}.
       # @param filename [String] The name of the file being parsed. Used for warnings.
-      # @param line [Fixnum] The line on which the source string appeared,
+      # @param line [Fixnum] The 1-based line on which the source string appeared,
       #   if it's part of another document.
-      # @param offset [Fixnum] The character (not byte) offset in the line on
+      # @param offset [Fixnum] The 1-based character (not byte) offset in the line on
       #   which the source string starts. Used for error reporting and sourcemap
       #   building.
       def initialize(str, filename, line = 1, offset = 1)
@@ -860,8 +860,7 @@ module Sass
         ss
 
         tok!(/:/)
-        value_start_pos = source_position
-        space, value = value!
+        value_start_pos, space, value = value!
         value_end_pos = source_position
         ss
         require_block = tok?(/\{/)
@@ -876,18 +875,19 @@ module Sass
 
       def value!
         space = !str {ss}.empty?
+        value_start_pos = source_position
         @use_property_exception ||= space || !tok?(IDENT)
 
-        return true, Sass::Script::String.new("") if tok?(/\{/)
+        return value_start_pos, true, Sass::Script::String.new("") if tok?(/\{/)
         # This is a bit of a dirty trick:
         # if the value is completely static,
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
         if val = tok(STATIC_VALUE, true)
-          return space, Sass::Script::String.new(val.strip)
+          return value_start_pos, space, Sass::Script::String.new(val.strip)
         end
-        return space, sass_script(:parse)
+        return value_start_pos, space, sass_script(:parse)
       end
 
       def nested_properties!(node, space)
