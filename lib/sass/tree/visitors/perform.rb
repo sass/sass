@@ -213,7 +213,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # or parses and includes the imported Sass file.
   def visit_import(node)
     if path = node.css_import?
-      return Sass::Tree::CssImportNode.resolved("url(#{path})")
+      resolved_node = Sass::Tree::CssImportNode.resolved("url(#{path})")
+      resolved_node.source_range = node.source_range
+      return resolved_node
     end
     file = node.imported_file
     handle_import_loop!(node) if @stack.any? {|e| e[:filename] == file.options[:filename]}
