@@ -271,13 +271,14 @@
     :preserve
       /* style.scss */
 
-      $side: top;
+      $vert: top;
+      $horz: left;
       $radius: 10px;
 
-      .rounded-#{$side} {
-        border-\#{$side}-radius: $radius;
-        -moz-border-radius-\#{$side}: $radius;
-        -webkit-border-\#{$side}-radius: $radius;
+      .rounded-\#{$vert}-\#{$horz} {
+        border-\#{$vert}-\#{$horz}-radius: $radius;
+        -moz-border-radius-\#{$vert}\#{$horz}: $radius;
+        -webkit-border-\#{$vert}-\#{$horz}-radius: $radius;
       }
 
   %pre.css
@@ -285,9 +286,9 @@
       /* style.css */
 
       .rounded-top {
-        border-top-radius: 10px;
-        -moz-border-radius-top: 10px;
-        -webkit-border-top-radius: 10px; }
+        border-top-left-radius: 10px;
+        -moz-border-radius-topleft: 10px;
+        -webkit-border-top-left-radius: 10px; }
 
 :maruku
   ## Mixins
@@ -306,31 +307,32 @@
     :preserve
       /* style.scss */
 
-      @mixin rounded-top {
-        $side: top;
+      @mixin rounded-top-left {
+        $vert: top;
+        $horz: left;
         $radius: 10px;
 
-        border-\#{$side}-radius: $radius;
-        -moz-border-radius-\#{$side}: $radius;
-        -webkit-border-\#{$side}-radius: $radius;
+        border-\#{$vert}-\#{$horz}-radius: $radius;
+        -moz-border-radius-\#{$vert}\#{$horz}: $radius;
+        -webkit-border-\#{$vert}-\#{$horz}-radius: $radius;
       }
 
-      #navbar li { @include rounded-top; }
-      #footer { @include rounded-top; }
+      #navbar li { @include rounded-top-left; }
+      #footer { @include rounded-top-left; }
 
   %pre.css
     :preserve
       /* style.css */
 
       #navbar li {
-        border-top-radius: 10px;
-        -moz-border-radius-top: 10px;
-        -webkit-border-top-radius: 10px; }
+        border-top-left-radius: 10px;
+        -moz-border-radius-topleft: 10px;
+        -webkit-border-top-left-radius: 10px; }
 
       #footer {
-        border-top-radius: 10px;
-        -moz-border-radius-top: 10px;
-        -webkit-border-top-radius: 10px; }
+        border-top-left-radius: 10px;
+        -moz-border-radius-topleft: 10px;
+        -webkit-border-top-left-radius: 10px; }
 
 :maruku
   ### Arguments
@@ -349,34 +351,34 @@
     :preserve
       /* style.scss */
 
-      @mixin rounded($side, $radius: 10px) {
-        border-\#{$side}-radius: $radius;
-        -moz-border-radius-\#{$side}: $radius;
-        -webkit-border-\#{$side}-radius: $radius;
+      @mixin rounded($vert, $horz, $radius: 10px) {
+        border-\#{$vert}-\#{$horz}-radius: $radius;
+        -moz-border-radius-\#{$vert}\#{$horz}: $radius;
+        -webkit-border-\#{$vert}-\#{$horz}-radius: $radius;
       }
 
-      #navbar li { @include rounded(top); }
-      #footer { @include rounded(top, 5px); }
-      #sidebar { @include rounded(left, 8px); }
+      #navbar li { @include rounded(top, left); }
+      #footer { @include rounded(top, left, 5px); }
+      #sidebar { @include rounded(top, left, 8px); }
 
   %pre.css
     :preserve
       /* style.css */
 
       #navbar li {
-        border-top-radius: 10px;
-        -moz-border-radius-top: 10px;
-        -webkit-border-top-radius: 10px; }
+        border-top-left-radius: 10px;
+        -moz-border-radius-topleft: 10px;
+        -webkit-border-top-left-radius: 10px; }
 
       #footer {
-        border-top-radius: 5px;
-        -moz-border-radius-top: 5px;
-        -webkit-border-top-radius: 5px; }
+        border-top-left-radius: 5px;
+        -moz-border-radius-topleft: 5px;
+        -webkit-border-top-left-radius: 5px; }
 
       #sidebar {
-        border-left-radius: 8px;
-        -moz-border-radius-left: 8px;
-        -webkit-border-left-radius: 8px; }
+        border-top-left-radius: 8px;
+        -moz-border-radius-topleft: 8px;
+        -webkit-border-top-left-radius: 8px; }
 
 :maruku
   ## `@import`
@@ -403,10 +405,10 @@
     :preserve
       /* _rounded.scss */
 
-      @mixin rounded($side, $radius: 10px) {
-        border-\#{$side}-radius: $radius;
-        -moz-border-radius-\#{$side}: $radius;
-        -webkit-border-\#{$side}-radius: $radius;
+      @mixin rounded($vert, $horz, $radius: 10px) {
+        border-\#{$vert}-\#{$horz}-radius: $radius;
+        -moz-border-radius-\#{$vert}\#{$horz}: $radius;
+        -webkit-border-\#{$vert}-\#{$horz}-radius: $radius;
       }
 
   %pre.css
@@ -414,19 +416,19 @@
       /* style.css */
 
       #navbar li {
-        border-top-radius: 10px;
-        -moz-border-radius-top: 10px;
-        -webkit-border-top-radius: 10px; }
+        border-top-left-radius: 10px;
+        -moz-border-radius-topleft: 10px;
+        -webkit-border-top-left-radius: 10px; }
 
       #footer {
-        border-top-radius: 5px;
-        -moz-border-radius-top: 5px;
-        -webkit-border-top-radius: 5px; }
+        border-top-left-radius: 5px;
+        -moz-border-radius-topleft: 5px;
+        -webkit-border-top-left-radius: 5px; }
 
       #sidebar {
-        border-left-radius: 8px;
-        -moz-border-radius-left: 8px;
-        -webkit-border-left-radius: 8px; }
+        border-top-left-radius: 8px;
+        -moz-border-radius-topleft: 8px;
+        -webkit-border-top-left-radius: 8px; }
 
   %pre.sass
     :preserve
@@ -434,9 +436,9 @@
 
       @import "rounded";
 
-      #navbar li { @include rounded(top); }
-      #footer { @include rounded(top, 5px); }
-      #sidebar { @include rounded(left, 8px); }
+      #navbar li { @include rounded(top, left); }
+      #footer { @include rounded(top, left, 5px); }
+      #sidebar { @include rounded(top, left, 8px); }
 
 :maruku
   ## Further Reading
