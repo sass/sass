@@ -140,7 +140,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   def try_send(method, *args)
-    return unless respond_to?(method)
+    return unless respond_to?(method, true)
     send(method, *args)
   end
 end
