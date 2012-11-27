@@ -33,7 +33,7 @@ JSON
 a
   foo: bar
   /* SOME COMMENT */
-  font-size: 12px
+  :font-size 12px
 SASS
 a {
   foo: bar;
@@ -44,7 +44,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"mappings": ";EACE,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
 "sources": ["test_simple_mapping_sass_inline.sass"],
 "file": "test.css"
 }
@@ -82,7 +82,7 @@ JSON
 a
   foo: bar
   /* SOME COMMENT */
-  font-size: 12px
+  :font-size 12px
 SASS
 a {
   foo: bar;
@@ -93,7 +93,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"mappings": ";EACE,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
 "sources": ["..\\/sass\\/style.sass"],
 "file": "style.css"
 }
@@ -189,10 +189,12 @@ JSON
   def test_import_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 @import {{1}}url(foo){{/1}},{{2}}url(moo)   {{/2}},       {{3}}url(bar) {{/3}};
+@import {{4}}url(baz) screen print{{/4}};
 SCSS
 {{1}}@import url(foo){{/1}};
 {{2}}@import url(moo){{/2}};
 {{3}}@import url(bar){{/3}};
+{{4}}@import url(baz) screen print{{/4}};
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -200,11 +202,15 @@ CSS
 
   def test_import_sourcemap_sass
     assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
-@import {{1}}foo.css{{/1}}, {{2}}moo.css{{/2}},  {{3}}bar.css{{/3}}
+@import {{1}}foo.css{{/1}},{{2}}moo.css{{/2}},      {{3}}bar.css{{/3}}
+@import {{4}}url(baz.css){{/4}}
+@import {{5}}url(qux.css) screen print{{/5}}
 SASS
 {{1}}@import url(foo.css){{/1}};
 {{2}}@import url(moo.css){{/2}};
 {{3}}@import url(bar.css){{/3}};
+{{4}}@import url(baz.css){{/4}};
+{{5}}@import url(qux.css) screen print{{/5}};
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -681,7 +687,27 @@ sidebar {
 CSS
   end
 
-  @private
+  # Regression tests
+
+  def test_properties_sass
+    assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass
+.foo
+  :{{1}}name{{/1}} {{2}}value{{/2}}
+  {{3}}name{{/3}}: {{4}}value{{/4}}
+  :{{5}}name{{/5}}  {{6}}value{{/6}}
+  {{7}}name{{/7}}:  {{8}}value{{/8}}
+SASS
+.foo {
+  {{1}}name{{/1}}: {{2}}value{{/2}};
+  {{3}}name{{/3}}: {{4}}value{{/4}};
+  {{5}}name{{/5}}: {{6}}value{{/6}};
+  {{7}}name{{/7}}: {{8}}value{{/8}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  private
 
   ANNOTATION_REGEX = /\{\{(\/?)([^}]+)\}\}/
 
@@ -711,8 +737,8 @@ CSS
     ranges
   end
 
-  def build_mapping_from_annotations(scss, css, source_file_name)
-    source_ranges = build_ranges(scss, source_file_name)
+  def build_mapping_from_annotations(source, css, source_file_name)
+    source_ranges = build_ranges(source, source_file_name)
     target_ranges = build_ranges(css)
     map = Sass::Source::Map.new
     mappings = Sass::Util.flatten(source_ranges.map do |(name, sources)|
@@ -725,15 +751,15 @@ CSS
     map
   end
 
-  def assert_parses_with_mapping(input, css, options={})
+  def assert_parses_with_mapping(source, css, options={})
     options[:syntax] ||= :scss
     input_filename = filename_for_test(options[:syntax])
-    mapping = build_mapping_from_annotations(input, css, input_filename)
-    input.gsub!(ANNOTATION_REGEX, "")
+    mapping = build_mapping_from_annotations(source, css, input_filename)
+    source.gsub!(ANNOTATION_REGEX, "")
     css.gsub!(ANNOTATION_REGEX, "")
-    rendered, sourcemap = render_with_sourcemap(input, options)
+    rendered, sourcemap = render_with_sourcemap(source, options)
     assert_equal css.rstrip, rendered.rstrip
-    assert_sourcemaps_equal input, css, mapping, sourcemap
+    assert_sourcemaps_equal source, css, mapping, sourcemap
   end
 
   def assert_positions_equal(expected, actual, lines, message = nil)
@@ -751,39 +777,61 @@ CSS
     assert_equal(expected.file, actual.file)
   end
 
-  def assert_sourcemaps_equal(scss, css, expected, actual)
-    assert_equal(expected.data.length, actual.data.length, dump_sourcemap_as_expectation(actual))
-    scss_lines = scss.split(/\n/)
-    css_lines = css.split(/\n/)
+  def assert_sourcemaps_equal(source, css, expected, actual)
+    assert_equal(expected.data.length, actual.data.length, <<MESSAGE)
+Wrong number of mappings. Expected:
+#{dump_sourcemap_as_expectation(source, css, expected).gsub(/^/, '| ')}
+
+Actual:
+#{dump_sourcemap_as_expectation(source, css, actual).gsub(/^/, '| ')}
+MESSAGE
+    source_lines = source.split("\n")
+    css_lines = css.split("\n")
     expected.data.zip(actual.data) do |expected_mapping, actual_mapping|
-      assert_ranges_equal(expected_mapping.input, actual_mapping.input, scss_lines, "Input")
+      assert_ranges_equal(expected_mapping.input, actual_mapping.input, source_lines, "Input")
       assert_ranges_equal(expected_mapping.output, actual_mapping.output, css_lines, "Output")
     end
   end
 
-  def assert_parses_with_sourcemap(scss, css, sourcemap_json, options={})
-    rendered, sourcemap = render_with_sourcemap(scss, options)
+  def assert_parses_with_sourcemap(source, css, sourcemap_json, options={})
+    rendered, sourcemap = render_with_sourcemap(source, options)
     assert_equal css.rstrip, rendered.rstrip
     assert_equal sourcemap_json.rstrip, sourcemap.to_json(options[:output] || "test.css")
   end
 
-  def render_with_sourcemap(scss, options={})
+  def render_with_sourcemap(source, options={})
     options[:syntax] ||= :scss
     munge_filename options
-    engine = Sass::Engine.new(scss, options)
+    engine = Sass::Engine.new(source, options)
     engine.options[:cache] = false
     sourcemap_path = Sass::Util.sourcemap_name(options[:output] || "test.css")
     engine.render_with_sourcemap File.basename(sourcemap_path)
   end
 
-  def dump_sourcemap_as_expectation(sourcemap)
-    sourcemap.data.map do |mapping|
-      input_start_pos = mapping.input.start_pos;
-      input_end_pos = mapping.input.end_pos;
-      output_start_pos = mapping.output.start_pos;
-      output_end_pos = mapping.output.end_pos;
-      "[#{input_start_pos.line}, #{input_start_pos.offset}, #{input_end_pos.line}, #{input_end_pos.offset}], " +
-        "[#{output_start_pos.line}, #{output_start_pos.offset}, #{output_end_pos.line}, #{output_end_pos.offset}]"
-    end.join(",\n") + "\n"
+  def dump_sourcemap_as_expectation(source, css, sourcemap)
+    mappings_to_annotations(source, sourcemap.data.map {|d| d.input}) + "\n\n" +
+      "=" * 20 + " maps to:\n\n" +
+      mappings_to_annotations(css, sourcemap.data.map {|d| d.output})
+  end
+
+  def mappings_to_annotations(source, ranges)
+    additional_offsets = Hash.new(0)
+    lines = source.split("\n")
+
+    add_annotation = lambda do |pos, str|
+      line_num = pos.line - 1
+      line = lines[line_num]
+      offset = pos.offset + additional_offsets[line_num] - 1
+      line << " " * (offset - line.length) if offset > line.length
+      line.insert(offset, str)
+      additional_offsets[line_num] += str.length
+    end
+
+    ranges.each_with_index do |range, i|
+      add_annotation[range.start_pos, "{{#{i + 1}}}"]
+      add_annotation[range.end_pos, "{{/#{i + 1}}}"]
+    end
+
+    return lines.join("\n")
   end
 end

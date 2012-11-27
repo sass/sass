@@ -55,10 +55,11 @@ module Sass
       # @return [Script::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse
+        start_pos = source_position
         expr = assert_expr :expr
         assert_done
         expr.options = @options
-        expr.options[:end_offset] = offset
+        expr.source_range = range(start_pos)
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]

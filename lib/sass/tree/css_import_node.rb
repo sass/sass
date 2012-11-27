@@ -30,7 +30,7 @@ module Sass::Tree
 
     # @param uri [String, Sass::Script::Node] See \{#uri}
     # @param query [Array<String, Sass::Script::Node>] See \{#query}
-    def initialize(uri, query = nil)
+    def initialize(uri, query = [])
       @uri = uri
       @query = query
       super('')

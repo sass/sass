@@ -582,15 +582,23 @@ WARNING
           # if we're using the new property syntax
           Tree::RuleNode.new(parse_interp(line.text))
         else
+          name_start_offset = line.offset + 1 # +1 for the leading ':'
           name, value = line.text.scan(PROPERTY_OLD)[0]
           raise SyntaxError.new("Invalid property: \"#{line.text}\".",
             :line => @line) if name.nil? || value.nil?
-          name_end_offset = line.offset + 1 + name.length # 1 stands for the leading ':'.
+
+          value_start_offset = name_end_offset = name_start_offset + name.length
           if !value.empty?
-            index = line.text.index(value, name_end_offset)
-            name_end_offset = index if index
+            # +1 and -1 both compensate for the leading ':', which is part of line.text
+            value_start_offset = name_start_offset + line.text.index(value, name.length + 1) - 1
           end
-          parse_property(name, parse_interp(name), value, :old, line, to_parser_offset(name_end_offset))
+
+          property = parse_property(name, parse_interp(name), value, :old, line, value_start_offset)
+          property.name_source_range = Sass::Source::Range.new(
+            Sass::Source::Position.new(@line, to_parser_offset(name_start_offset)),
+            Sass::Source::Position.new(@line, to_parser_offset(name_end_offset)),
+            @options[:filename])
+          property
         end
       when ?$
         parse_variable(line)
@@ -636,7 +644,7 @@ WARNING
       end
 
       name = line.text[0...scanner.pos]
-      if (scanned = scanner.scan(/\s*:(?:\s|$)/))
+      if scanned = scanner.scan(/\s*:(?:\s+|$)/)
         offset += scanned.length
         property = parse_property(name, res, scanner.rest, :new, line, offset)
         property.name_source_range = ident_range
@@ -647,19 +655,18 @@ WARNING
       end
     end
 
-    def parse_property(name, parsed_name, value, prop, line, offset)
-      start_offset = offset
+    def parse_property(name, parsed_name, value, prop, line, start_offset)
       if value.strip.empty?
         expr = Sass::Script::String.new("")
         end_offset = start_offset
       else
-        expr = parse_script(value, :offset => to_parser_offset(offset))
-        end_offset = expr.options[:end_offset]
+        expr = parse_script(value, :offset => to_parser_offset(start_offset))
+        end_offset = expr.source_range.end_pos.offset - 1
       end
       node = Tree::PropNode.new(parse_interp(name), expr, prop)
       node.value_source_range = Sass::Source::Range.new(
         Sass::Source::Position.new(line.index, to_parser_offset(start_offset)),
-        Sass::Source::Position.new(line.index, end_offset),
+        Sass::Source::Position.new(line.index, to_parser_offset(end_offset)),
         @options[:filename])
       if value.strip.empty? && line.children.empty?
         raise SyntaxError.new(
@@ -861,15 +868,20 @@ WARNING
     def parse_import_arg(scanner, offset)
       return if scanner.eos?
 
-      if (match_length = scanner.match?(/url\(/i))
-        offset += match_length
+      if match_length = scanner.match?(/url\(/i)
         script_parser = Sass::Script::Parser.new(scanner, @line, to_parser_offset(offset), @options)
         str = script_parser.parse_string
-        parser_offset = str.source_range.end_pos.offset if str.source_range
-        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line, parser_offset)
-        media = media_parser.parse_media_query_list
-        node = Tree::CssImportNode.new(str, media.to_a)
-        node.source_range = Sass::Source::Range.new(str.source_range.start_pos, media_parser.offset, @options[:filename])
+
+        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line, str.source_range.end_pos.offset)
+        if media = media_parser.parse_media_query_list
+          end_pos = Sass::Source::Position.new(@line, media_parser.offset + 1)
+          node = Tree::CssImportNode.new(str, media.to_a)
+        else
+          end_pos = str.source_range.end_pos
+          node = Tree::CssImportNode.new(str)
+        end
+
+        node.source_range = Sass::Source::Range.new(str.source_range.start_pos, end_pos, @options[:filename])
         return node
       end
 
