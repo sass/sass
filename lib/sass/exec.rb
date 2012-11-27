@@ -132,6 +132,7 @@ module Sass
       def puts_action(name, color, arg)
         return if @options[:for_engine][:quiet]
         printf color(color, "%11s %s\n"), name, arg
+        STDOUT.flush
       end
 
       # Same as \{Kernel.puts}, but doesn't print anything if the `--quiet` option is set.

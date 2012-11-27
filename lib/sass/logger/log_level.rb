@@ -36,11 +36,11 @@ module Sass
         end
 
         def define_logger(name, options = {})
-          class_eval %Q{
+          class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{name}(message)
               #{options.fetch(:to, :log)}(#{name.inspect}, message)
             end
-          }
+          RUBY
         end
       end
       

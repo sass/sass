@@ -90,13 +90,13 @@ module Sass::Script
   #
   # ## Other Color Functions
   #
-  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Increase or decrease any of the components of a color.
   #
-  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Fluidly scale one or more components of a color.
   #
-  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\]}
+  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Changes one or more properties of a color.
   #
   # \{#ie_hex_str ie-hex-str($color)}
@@ -1235,8 +1235,8 @@ module Sass::Script
     # arguments.
     #
     # @example
-    #   max(1px, 4px) => 1px
-    #   max(5em, 3em, 4em) => 3em
+    #   max(1px, 4px) => 4px
+    #   max(5em, 3em, 4em) => 5em
     # @return [Number] The maximum value
     # @raise [ArgumentError] if any argument isn't a number, or if not all of
     #   the arguments have comparable units

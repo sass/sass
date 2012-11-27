@@ -1669,7 +1669,7 @@ SCSS
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  .foo": expected "{", was "&.bar {a: b}"
 
-"&.bar" may only be used at the beginning of a selector.
+"&.bar" may only be used at the beginning of a compound selector.
 MESSAGE
 flim {
   .foo&.bar {a: b}
@@ -1681,7 +1681,7 @@ SCSS
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  .foo.bar": expected "{", was "& {a: b}"
 
-"&" may only be used at the beginning of a selector.
+"&" may only be used at the beginning of a compound selector.
 MESSAGE
 flim {
   .foo.bar& {a: b}
@@ -1693,7 +1693,7 @@ SCSS
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Invalid CSS after "  &": expected "{", was "& {a: b}"
 
-"&" may only be used at the beginning of a selector.
+"&" may only be used at the beginning of a compound selector.
 MESSAGE
 flim {
   && {a: b}
