@@ -338,8 +338,8 @@ END
 
           if sourcemap.is_a? File
             relative_sourcemap_path = Pathname.new(@options[:sourcemap_filename]).
-              relative_path_from(Pathname.new(@options[:output_filename]))
-            rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path)
+              relative_path_from(Pathname.new(@options[:output_filename]).dirname)
+            rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
             output.write(rendered)
             sourcemap.puts(mapping.to_json(@options[:output_filename]))
           else
