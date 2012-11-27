@@ -1977,4 +1977,24 @@ SCSS
 SCSS
     Sass::SCSS::Parser.new(template, "test.scss").parse
   end
+
+  def test_extend_in_media_in_rule
+    assert_equal(<<CSS, render(<<SCSS))
+@media screen {
+  .foo {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @extend %bar;
+  }
+}
+
+@media screen {
+  %bar {
+    a: b;
+  }
+}
+SCSS
+  end
 end

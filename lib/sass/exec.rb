@@ -436,6 +436,13 @@ MSG
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
+          if error.is_a?(SystemCallError) && !@options[:stop_on_error]
+            had_error = true
+            puts_action :error, :red, error.message
+            STDOUT.flush
+            next
+          end
+
           raise error unless error.is_a?(::Sass::SyntaxError) && !@options[:stop_on_error]
           had_error = true
           puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
