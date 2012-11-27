@@ -39,9 +39,11 @@ module Sass
       # @return [Script::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse_interpolated
+        start_pos = source_position
         expr = assert_expr :expr
         assert_tok :end_interpolation
         expr.options = @options
+        expr.source_range = range(start_pos)
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -56,6 +58,7 @@ module Sass
         expr = assert_expr :expr
         assert_done
         expr.options = @options
+        expr.options[:end_offset] = offset
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -250,6 +253,10 @@ RUBY
         Sass::Source::Position.new(line, offset)
       end
 
+      def token_start_position(token)
+        Sass::Source::Position.new(token.line, token.offset)
+      end
+
       def range(start_pos, end_pos=source_position)
         Sass::Source::Range.new(start_pos, end_pos, @options[:filename])
       end
@@ -338,19 +345,18 @@ RUBY
         return funcall unless @lexer.peek && @lexer.peek.type == :ident
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
-        start_pos = source_position
         name = @lexer.next
         if color = Color::COLOR_NAMES[name.value.downcase]
-          return node(Color.new(color), start_pos)
+          return node(Color.new(color), token_start_position(name), source_position)
         end
-        node(Script::String.new(name.value, :identifier), start_pos)
+        node(Script::String.new(name.value, :identifier), token_start_position(name), source_position)
       end
 
       def funcall
         return raw unless tok = try_tok(:funcall)
         args, keywords, splat = fn_arglist || [[], {}]
         assert_tok(:rparen)
-        node(Script::Funcall.new(tok.value, args, keywords, splat))
+        node(Script::Funcall.new(tok.value, args, keywords, splat), token_start_position(tok), source_position)
       end
 
       def defn_arglist!(must_have_parens)
