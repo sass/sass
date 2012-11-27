@@ -452,7 +452,7 @@ END
           raise SyntaxError.new(message, :line => index)
         end
 
-        lines << Line.new(line.strip, line_tabs, index, tab_str.size, @options[:filename], [])
+        lines << Line.new(line.strip, line_tabs, index, line_tab_str.size, @options[:filename], [])
       end
       lines
     end
@@ -496,6 +496,7 @@ MSG
 
     def build_tree(parent, line, root = false)
       @line = line.index
+      @offset = line.offset
       node_or_nodes = parse_line(parent, line, root)
 
       Array(node_or_nodes).each do |node|
@@ -584,7 +585,12 @@ WARNING
           name, value = line.text.scan(PROPERTY_OLD)[0]
           raise SyntaxError.new("Invalid property: \"#{line.text}\".",
             :line => @line) if name.nil? || value.nil?
-          parse_property(name, parse_interp(name), value, :old, line)
+          name_end_offset = line.offset + 1 + name.length # 1 stands for the leading ':'.
+          if !value.empty?
+            index = line.text.index(value, name_end_offset)
+            name_end_offset = index if index
+          end
+          parse_property(name, parse_interp(name), value, :old, line, to_parser_offset(name_end_offset))
         end
       when ?$
         parse_variable(line)
@@ -610,32 +616,51 @@ WARNING
     def parse_property_or_rule(line)
       scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
-      parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
+      offset = line.offset
+      offset += hack_char.length if hack_char
+      parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line, to_parser_offset(offset))
 
       unless res = parser.parse_interp_ident
-        return Tree::RuleNode.new(parse_interp(line.text))
+        return Tree::RuleNode.new(parse_interp(line.text, line.offset))
       end
+
+      ident_range = Sass::Source::Range.new(
+        Sass::Source::Position.new(@line, to_parser_offset(offset)),
+        Sass::Source::Position.new(@line, parser.offset),
+        @options[:filename])
+      offset = parser.offset - 1
       res.unshift(hack_char) if hack_char
       if comment = scanner.scan(Sass::SCSS::RX::COMMENT)
         res << comment
+        offset += comment.length
       end
 
       name = line.text[0...scanner.pos]
-      if scanner.scan(/\s*:(?:\s|$)/)
-        parse_property(name, res, scanner.rest, :new, line)
+      if (scanned = scanner.scan(/\s*:(?:\s|$)/))
+        offset += scanned.length
+        property = parse_property(name, res, scanner.rest, :new, line, offset)
+        property.name_source_range = ident_range
+        property
       else
         res.pop if comment
         Tree::RuleNode.new(res + parse_interp(scanner.rest))
       end
     end
 
-    def parse_property(name, parsed_name, value, prop, line)
+    def parse_property(name, parsed_name, value, prop, line, offset)
+      start_offset = offset
       if value.strip.empty?
         expr = Sass::Script::String.new("")
+        end_offset = start_offset
       else
-        expr = parse_script(value, :offset => line.offset + line.text.index(value))
+        expr = parse_script(value, :offset => to_parser_offset(offset))
+        end_offset = expr.options[:end_offset]
       end
       node = Tree::PropNode.new(parse_interp(name), expr, prop)
+      node.value_source_range = Sass::Source::Range.new(
+        Sass::Source::Position.new(line.index, to_parser_offset(start_offset)),
+        Sass::Source::Position.new(line.index, end_offset),
+        @options[:filename])
       if value.strip.empty? && line.children.empty?
         raise SyntaxError.new(
           "Invalid property: \"#{node.declaration}\" (no value)." +
@@ -652,7 +677,12 @@ WARNING
       raise SyntaxError.new("Invalid variable: \"#{line.text}\".",
         :line => @line) unless name && value
 
-      expr = parse_script(value, :offset => line.offset + line.text.index(value))
+      # This workaround is needed for the case when the variable value is part of the identifier,
+      # otherwise we end up with the offset equal to the value index inside the name:
+      # $red_color: red;
+      var_lhs_length = 1 + name.length # 1 stands for '$'
+      index = line.text.index(value, line.offset + var_lhs_length) || 0
+      expr = parse_script(value, :offset => to_parser_offset(line.offset + index))
 
       Tree::VariableNode.new(name, expr, default)
     end
@@ -664,7 +694,8 @@ WARNING
         if silent
           value = [line.text]
         else
-          value = self.class.parse_interp(line.text, line.index, line.offset, :filename => @filename)
+          value = self.class.parse_interp(
+            line.text, line.index, to_parser_offset(line.offset), :filename => @filename)
           value[0].slice!(2) if loud # get rid of the "!"
         end
         value = with_extracted_values(value) do |str|
@@ -739,7 +770,7 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
       when 'media'
-        parser = Sass::SCSS::Parser.new(value, @options[:filename], @line)
+        parser = Sass::SCSS::Parser.new(value, @options[:filename], @line, to_parser_offset(@offset))
         Tree::MediaNode.new(parser.parse_media_query_list.to_a)
       else
         Tree::DirectiveNode.new(
@@ -830,29 +861,56 @@ WARNING
     def parse_import_arg(scanner, offset)
       return if scanner.eos?
 
-      if scanner.match?(/url\(/i)
-        script_parser = Sass::Script::Parser.new(scanner, @line, offset, @options)
+      if (match_length = scanner.match?(/url\(/i))
+        offset += match_length
+        script_parser = Sass::Script::Parser.new(scanner, @line, to_parser_offset(offset), @options)
         str = script_parser.parse_string
-        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
+        parser_offset = str.source_range.end_pos.offset if str.source_range
+        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line, parser_offset)
         media = media_parser.parse_media_query_list
-        return Tree::CssImportNode.new(str, media.to_a)
+        node = Tree::CssImportNode.new(str, media.to_a)
+        node.source_range = Sass::Source::Range.new(str.source_range.start_pos, media_parser.offset, @options[:filename])
+        return node
       end
 
       unless str = scanner.scan(Sass::SCSS::RX::STRING)
-        return Tree::ImportNode.new(scanner.scan(/[^,;]+/))
+        scanned = scanner.scan(/[^,;]+/)
+        node = Tree::ImportNode.new(scanned)
+        start_parser_offset = to_parser_offset(offset)
+        node.source_range = Sass::Source::Range.new(
+          Sass::Source::Position.new(@line, start_parser_offset),
+          Sass::Source::Position.new(@line, start_parser_offset + scanned.length),
+          @options[:filename])
+        return node
       end
 
+      start_offset = offset
+      offset += str.length
       val = scanner[1] || scanner[2]
-      scanner.scan(/\s*/)
+      scanned = scanner.scan(/\s*/)
       if !scanner.match?(/[,;]|$/)
-        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line)
+        offset += scanned.length if scanned
+        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line, offset)
         media = media_parser.parse_media_query_list
-        Tree::CssImportNode.new(str || uri, media.to_a)
+        node = Tree::CssImportNode.new(str || uri, media.to_a)
+        node.source_range = Sass::Source::Range.new(
+          Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
+          Sass::Source::Position.new(@line, media_parser.offset),
+          @options[:filename])
       elsif val =~ /^(https?:)?\/\//
-        Tree::CssImportNode.new("url(#{val})")
+        node = Tree::CssImportNode.new("url(#{val})")
+        node.source_range = Sass::Source::Range.new(
+          Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
+          Sass::Source::Position.new(@line, to_parser_offset(offset)),
+          @options[:filename])
       else
-        Tree::ImportNode.new(val)
+        node = Tree::ImportNode.new(val)
+        node.source_range = Sass::Source::Range.new(
+          Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
+          Sass::Source::Position.new(@line, to_parser_offset(offset)),
+          @options[:filename])
       end
+      node
     end
 
     MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
@@ -861,7 +919,7 @@ WARNING
       raise SyntaxError.new("Invalid mixin \"#{line.text[1..-1]}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
-      args, splat = Script::Parser.new(arg_string.strip, @line, offset, @options).
+      args, splat = Script::Parser.new(arg_string.strip, @line, to_parser_offset(offset), @options).
         parse_mixin_definition_arglist
       Tree::MixinDefNode.new(name, args, splat)
     end
@@ -881,7 +939,7 @@ WARNING
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
-      args, keywords, splat = Script::Parser.new(arg_string.strip, @line, offset, @options).
+      args, keywords, splat = Script::Parser.new(arg_string.strip, @line, to_parser_offset(offset), @options).
         parse_mixin_include_arglist
       Tree::MixinNode.new(name, args, keywords, splat)
     end
@@ -892,14 +950,14 @@ WARNING
       raise SyntaxError.new("Invalid function definition \"#{line.text}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
-      args, splat = Script::Parser.new(arg_string.strip, @line, offset, @options).
+      args, splat = Script::Parser.new(arg_string.strip, @line, to_parser_offset(offset), @options).
         parse_function_definition_arglist
       Tree::FunctionNode.new(name, args, splat)
     end
 
     def parse_script(script, options = {})
       line = options[:line] || @line
-      offset = options[:offset] || 0
+      offset = options[:offset] || @offset + 1
       Script.parse(script, line, offset, @options)
     end
 
@@ -927,6 +985,11 @@ WARNING
       self.class.parse_interp(text, @line, offset, :filename => @filename)
     end
 
+    # Parser tracks 1-based line and offset, so our offset should be converted.
+    def to_parser_offset(offset)
+      offset + 1
+    end
+
     # It's important that this have strings (at least)
     # at the beginning, the end, and between each Script::Node.
     #
@@ -940,8 +1003,9 @@ WARNING
           res << "\\" * (escapes - 1) << '#{'
         else
           res << "\\" * [0, escapes - 1].max
+          # Add 1 to emulate to_parser_offset.
           res << Script::Parser.new(
-            scan, line, offset + scan.pos - scan.matched_size, options).
+            scan, line, offset + scan.pos - scan.matched_size + 1, options).
             parse_interpolated
         end
       end

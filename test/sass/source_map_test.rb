@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 
 class SourcemapTest < Test::Unit::TestCase
-  def test_simple_scss_mapping
+  def test_simple_mapping_scss
     assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
 a {
   foo: bar;
@@ -22,13 +22,36 @@ CSS
 {
 "version": "3",
 "mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
-"sources": ["test_simple_scss_mapping_inline.scss"],
+"sources": ["test_simple_mapping_scss_inline.scss"],
 "file": "test.css"
 }
 JSON
   end
 
-  def test_mapping_with_directory
+  def test_simple_mapping_sass
+    assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass
+a
+  foo: bar
+  /* SOME COMMENT */
+  font-size: 12px
+SASS
+a {
+  foo: bar;
+  /* SOME COMMENT */
+  font-size: 12px; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+{
+"version": "3",
+"mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"sources": ["test_simple_mapping_sass_inline.sass"],
+"file": "test.css"
+}
+JSON
+  end
+
+  def test_mapping_with_directory_scss
     options = {:filename => "scss/style.scss", :output => "css/style.css"}
     assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON, options
 a {
@@ -53,8 +76,32 @@ CSS
 JSON
   end
 
+  def test_mapping_with_directory_sass
+    options = {:filename => "sass/style.sass", :output => "css/style.css", :syntax => :sass}
+    assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, options
+a
+  foo: bar
+  /* SOME COMMENT */
+  font-size: 12px
+SASS
+a {
+  foo: bar;
+  /* SOME COMMENT */
+  font-size: 12px; }
+
+/*@ sourceMappingURL=style.css.map */
+CSS
+{
+"version": "3",
+"mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"sources": ["..\\/sass\\/style.sass"],
+"file": "style.css"
+}
+JSON
+  end
+
   unless Sass::Util.ruby1_8?
-    def test_simple_charset_scss_mapping
+    def test_simple_charset_mapping_scss
       assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
 a {
   fóó: bár;
@@ -69,36 +116,77 @@ CSS
 {
 "version": "3",
 "mappings": ";;EACE,GAAG,EAAE,GAAG",
-"sources": ["test_simple_charset_scss_mapping_inline.scss"],
+"sources": ["test_simple_charset_mapping_scss_inline.scss"],
 "file": "test.css"
 }
 JSON
     end
 
-    def test_different_charset_than_encoding
-      assert_parses_with_sourcemap(<<CSS.force_encoding("IBM866"), <<SASS.force_encoding("IBM866"), <<JSON)
+    def test_simple_charset_mapping_sass
+      assert_parses_with_sourcemap <<SASS, <<CSS, <<JSON, :syntax => :sass
+a
+  fóó: bár
+SASS
+@charset "UTF-8";
+a {
+  fóó: bár; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+{
+"version": "3",
+"mappings": ";;EACE,GAAG,EAAE,GAAG",
+"sources": ["test_simple_charset_mapping_sass_inline.sass"],
+"file": "test.css"
+}
+JSON
+    end
+
+    def test_different_charset_than_encoding_scss
+      assert_parses_with_sourcemap(<<SCSS.force_encoding("IBM866"), <<CSS.force_encoding("IBM866"), <<JSON)
 @charset "IBM866";
 f\x86\x86 {
   \x86: b;
 }
-CSS
+SCSS
 @charset "IBM866";
 f\x86\x86 {
   \x86: b; }
 
 /*@ sourceMappingURL=test.css.map */
-SASS
+CSS
 {
 "version": "3",
 "mappings": ";;EAEE,CAAC,EAAE,CAAC",
-"sources": ["test_different_charset_than_encoding_inline.scss"],
+"sources": ["test_different_charset_than_encoding_scss_inline.scss"],
+"file": "test.css"
+}
+JSON
+    end
+
+    def test_different_charset_than_encoding_sass
+      assert_parses_with_sourcemap(<<SASS.force_encoding("IBM866"), <<CSS.force_encoding("IBM866"), <<JSON, :syntax => :sass)
+@charset "IBM866"
+f\x86\x86
+  \x86: b
+SASS
+@charset "IBM866";
+f\x86\x86 {
+  \x86: b; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+{
+"version": "3",
+"mappings": ";;EAEE,CAAC,EAAE,CAAC",
+"sources": ["test_different_charset_than_encoding_sass_inline.sass"],
 "file": "test.css"
 }
 JSON
     end
   end
 
-  def test_import_sourcemap
+  def test_import_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 @import {{1}}url(foo){{/1}},{{2}}url(moo)   {{/2}},       {{3}}url(bar) {{/3}};
 SCSS
@@ -110,35 +198,77 @@ SCSS
 CSS
   end
 
-  def test_interpolation_and_vars_sourcemap
-    assert_parses_with_mapping <<'SCSS', <<'CSS'
-$te: "te";
-p {
-  {{1}}con#{$te}nt{{/1}}: {{2}}"I a#{$te} #{5 + 10} pies!"{{/2}};
-}
-
-
-$name: foo;
-$attr: border;
-p.#{$name} {
-  {{3}}#{$attr}-color{{/3}}: {{4}}blue{{/4}};
-  $font-size: 12px;
-  $line-height: 30px;
-  {{5}}font{{/5}}: {{6}}#{$font-size}/#{$line-height}{{/6}};
-}
-SCSS
-p {
-  {{1}}content{{/1}}: {{2}}"I ate 15 pies!"{{/2}}; }
-
-p.foo {
-  {{3}}border-color{{/3}}: {{4}}blue{{/4}};
-  {{5}}font{{/5}}: {{6}}12px/30px{{/6}}; }
+  def test_import_sourcemap_sass
+    assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+@import {{1}}foo.css{{/1}}, {{2}}moo.css{{/2}},  {{3}}bar.css{{/3}}
+SASS
+{{1}}@import url(foo.css){{/1}};
+{{2}}@import url(moo.css){{/2}};
+{{3}}@import url(bar.css){{/3}};
 
 /*@ sourceMappingURL=test.css.map */
 CSS
   end
 
-  def test_selectors_properties_sourcemap
+  def test_interpolation_and_vars_sourcemap_scss
+    assert_parses_with_mapping <<'SCSS', <<'CSS'
+$te: "te";
+$teal: {{4}}teal{{/4}};
+p {
+  {{1}}con#{$te}nt{{/1}}: {{2}}"I a#{$te} #{5 + 10} pies!"{{/2}};
+  {{3}}color{{/3}}: $teal;
+}
+
+$name: foo;
+$attr: border;
+p.#{$name} {
+  {{5}}#{$attr}-color{{/5}}: {{6}}blue{{/6}};
+  $font-size: 12px;
+  $line-height: 30px;
+  {{7}}font{{/7}}: {{8}}#{$font-size}/#{$line-height}{{/8}};
+}
+SCSS
+p {
+  {{1}}content{{/1}}: {{2}}"I ate 15 pies!"{{/2}};
+  {{3}}color{{/3}}: {{4}}teal{{/4}}; }
+
+p.foo {
+  {{5}}border-color{{/5}}: {{6}}blue{{/6}};
+  {{7}}font{{/7}}: {{8}}12px/30px{{/8}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_interpolation_and_vars_sourcemap_sass
+    assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+$te: "te"
+$teal: {{4}}teal{{/4}}
+p
+  {{1}}con#{$te}nt{{/1}}: {{2}}"I a#{$te} #{5 + 10} pies!"{{/2}}
+  {{3}}color{{/3}}: $teal
+
+$name: foo
+$attr: border
+p.#{$name}
+  {{5}}#{$attr}-color{{/5}}: {{6}}blue{{/6}}
+  $font-size: 12px
+  $line-height: 30px
+  {{7}}font{{/7}}: {{8}}#{$font-size}/#{$line-height}{{/8}}
+SASS
+p {
+  {{1}}content{{/1}}: {{2}}"I ate 15 pies!"{{/2}};
+  {{3}}color{{/3}}: {{4}}teal{{/4}}; }
+
+p.foo {
+  {{5}}border-color{{/5}}: {{6}}blue{{/6}};
+  {{7}}font{{/7}}: {{8}}12px/30px{{/8}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_selectors_properties_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 $width: 2px;
 $translucent-red: rgba(255, 0, 0, 0.5);
@@ -151,7 +281,7 @@ a {
       {{13}}color{{/13}}: {{14}}opacify($translucent-red, 0.3){{/14}};
     }
     &:after {
-      {{15}}content{{/15}}: {{16}}"I ate #{5 + 10} pies thick!"{{/16}};
+      {{15}}content{{/15}}: {{16}}"I ate #{5 + 10} pies #{$width} thick!"{{/16}};
     }
   }
   &:active {
@@ -177,7 +307,7 @@ a {
       {{11}}cursor{{/11}}: {{12}}e-resize{{/12}};
       {{13}}color{{/13}}: {{14}}rgba(255, 0, 0, 0.8){{/14}}; }
     a .special:after {
-      {{15}}content{{/15}}: {{16}}"I ate 15 pies thick!"{{/16}}; }
+      {{15}}content{{/15}}: {{16}}"I ate 15 pies 2px thick!"{{/16}}; }
   a:active {
     {{17}}color{{/17}}: {{18}}#050709{{/18}};
     {{19}}border{{/19}}: {{20}}2px solid black{{/20}}; }
@@ -186,7 +316,50 @@ a {
 CSS
   end
 
-  def test_extend_sourcemap
+  def test_selectors_properties_sourcemap_sass
+    assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+$width: 2px
+$translucent-red: rgba(255, 0, 0, 0.5)
+a
+  .special
+    {{7}}color{{/7}}: {{8}}red{{/8}}
+    &:hover
+      {{9}}foo{{/9}}: {{10}}bar{{/10}}
+      {{11}}cursor{{/11}}: {{12}}e + -resize{{/12}}
+      {{13}}color{{/13}}: {{14}}opacify($translucent-red, 0.3){{/14}}
+    &:after
+      {{15}}content{{/15}}: {{16}}"I ate #{5 + 10} pies #{$width} thick!"{{/16}}
+  &:active
+    {{17}}color{{/17}}: {{18}}#010203 + #040506{{/18}}
+    {{19}}border{{/19}}: {{20}}$width solid black{{/20}}
+
+  /* SOME COMMENT */
+  {{1}}font{{/1}}: {{2}}2px/3px{{/2}}
+    {{3}}family{{/3}}: {{4}}fantasy{{/4}}
+    {{5}}size{{/5}}: {{6}}1em + (2em * 3){{/6}}
+SASS
+a {
+  /* SOME COMMENT */
+  {{1}}font{{/1}}: {{2}}2px/3px{{/2}};
+    {{3}}font-family{{/3}}: {{4}}fantasy{{/4}};
+    {{5}}font-size{{/5}}: {{6}}7em{{/6}}; }
+  a .special {
+    {{7}}color{{/7}}: {{8}}red{{/8}}; }
+    a .special:hover {
+      {{9}}foo{{/9}}: {{10}}bar{{/10}};
+      {{11}}cursor{{/11}}: {{12}}e-resize{{/12}};
+      {{13}}color{{/13}}: {{14}}rgba(255, 0, 0, 0.8){{/14}}; }
+    a .special:after {
+      {{15}}content{{/15}}: {{16}}"I ate 15 pies 2px thick!"{{/16}}; }
+  a:active {
+    {{17}}color{{/17}}: {{18}}#050709{{/18}};
+    {{19}}border{{/19}}: {{20}}2px solid black{{/20}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_extend_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 .error {
   {{1}}border{{/1}}: {{2}}1px #f00{{/2}};
@@ -208,7 +381,28 @@ SCSS
 CSS
   end
 
-  def test_for_sourcemap
+  def test_extend_sourcemap_sass
+    assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+.error
+  {{1}}border{{/1}}: {{2}}1px #f00{{/2}}
+  {{3}}background-color{{/3}}: {{4}}#fdd{{/4}}
+
+.seriousError
+  @extend .error
+  {{5}}border-width{{/5}}: {{6}}3px{{/6}}
+SASS
+.error, .seriousError {
+  {{1}}border{{/1}}: {{2}}1px red{{/2}};
+  {{3}}background-color{{/3}}: {{4}}#ffdddd{{/4}}; }
+
+.seriousError {
+  {{5}}border-width{{/5}}: {{6}}3px{{/6}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_for_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 @for $i from 1 through 3 {
   .item-#{$i} { {{1}}width{{/1}}: {{2}}2em * $i{{/2}}; }
@@ -227,7 +421,26 @@ SCSS
 CSS
   end
 
-  def test_while_sourcemap
+  def test_for_sourcemap_sass
+    assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+@for $i from 1 through 3
+  .item-#{$i}
+    {{1}}width{{/1}}: {{2}}2em * $i{{/2}}
+SASS
+.item-1 {
+  {{1}}width{{/1}}: {{2}}2em{{/2}}; }
+
+.item-2 {
+  {{1}}width{{/1}}: {{2}}4em{{/2}}; }
+
+.item-3 {
+  {{1}}width{{/1}}: {{2}}6em{{/2}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_while_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 $i: 6;
 @while $i > 0 {
@@ -248,7 +461,28 @@ SCSS
 CSS
   end
 
-  def test_each_sourcemap
+def test_while_sourcemap_sass
+  assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+$i: 6
+@while $i > 0
+  .item-#{$i}
+    {{1}}width{{/1}}: {{2}}2em * $i{{/2}}
+  $i: $i - 2
+SASS
+.item-6 {
+  {{1}}width{{/1}}: {{2}}12em{{/2}}; }
+
+.item-4 {
+  {{1}}width{{/1}}: {{2}}8em{{/2}}; }
+
+.item-2 {
+  {{1}}width{{/1}}: {{2}}4em{{/2}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_each_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 @each $animal in puma, sea-slug, egret, salamander {
   .#{$animal}-icon {
@@ -272,7 +506,29 @@ SCSS
 CSS
   end
 
-  def test_mixin_sourcemap
+  def test_each_sourcemap_sass
+    assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+@each $animal in puma, sea-slug, egret, salamander
+  .#{$animal}-icon
+    {{1}}background-image{{/1}}: {{2}}url('/images/#{$animal}.png'){{/2}}
+SASS
+.puma-icon {
+  {{1}}background-image{{/1}}: {{2}}url("/images/puma.png"){{/2}}; }
+
+.sea-slug-icon {
+  {{1}}background-image{{/1}}: {{2}}url("/images/sea-slug.png"){{/2}}; }
+
+.egret-icon {
+  {{1}}background-image{{/1}}: {{2}}url("/images/egret.png"){{/2}}; }
+
+.salamander-icon {
+  {{1}}background-image{{/1}}: {{2}}url("/images/salamander.png"){{/2}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_mixin_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 @mixin large-text {
   font: {
@@ -289,14 +545,14 @@ CSS
 
 @mixin dashed-border($color, $width: {{24}}1in{{/24}}) {
   border: {
-    {{9}}color{{/9}}: {{10}}$color{{/10}};
+    {{9}}color{{/9}}: $color;
     {{11}}width{{/11}}: $width;
     {{13}}style{{/13}}: {{14}}dashed{{/14}};
   }
 }
 
-p { @include dashed-border(blue); }
-h1 { @include dashed-border(blue, {{25}}2in{{/25}}); }
+p { @include dashed-border({{10}}blue{{/10}}); }
+h1 { @include dashed-border({{25}}blue{{/25}}, {{26}}2in{{/26}}); }
 
 @mixin box-shadow($shadows...) {
   {{18}}-moz-box-shadow{{/18}}: {{19}}$shadows{{/19}};
@@ -320,8 +576,8 @@ p {
   {{13}}border-style{{/13}}: {{14}}dashed{{/14}}; }
 
 h1 {
-  {{9}}border-color{{/9}}: {{10}}blue{{/10}};
-  {{11}}border-width{{/11}}: {{25}}2in{{/25}};
+  {{9}}border-color{{/9}}: {{25}}blue{{/25}};
+  {{11}}border-width{{/11}}: {{26}}2in{{/26}};
   {{13}}border-style{{/13}}: {{14}}dashed{{/14}}; }
 
 .shadows {
@@ -333,7 +589,64 @@ h1 {
 CSS
   end
 
-  def test_function_sourcemap
+def test_mixin_sourcemap_sass
+  assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+=large-text
+  :font
+    {{1}}size{{/1}}: {{2}}20px{{/2}}
+    {{3}}weight{{/3}}: {{4}}bold{{/4}}
+  {{5}}color{{/5}}: {{6}}#ff0000{{/6}}
+
+.page-title
+  +large-text
+  {{7}}padding{{/7}}: {{8}}4px{{/8}}
+
+=dashed-border($color, $width: {{24}}1in{{/24}})
+  border:
+    {{9}}color{{/9}}: $color
+    {{11}}width{{/11}}: $width
+    {{13}}style{{/13}}: {{14}}dashed{{/14}}
+
+p
+  +dashed-border({{10}}blue{{/10}})
+
+h1
+  +dashed-border({{25}}blue{{/25}}, {{26}}2in{{/26}})
+
+=box-shadow($shadows...)
+  {{18}}-moz-box-shadow{{/18}}: {{19}}$shadows{{/19}}
+  {{20}}-webkit-box-shadow{{/20}}: {{21}}$shadows{{/21}}
+  {{22}}box-shadow{{/22}}: {{23}}$shadows{{/23}}
+
+.shadows
+  +box-shadow(0px 4px 5px #666, 2px 6px 10px #999)
+SASS
+.page-title {
+  {{1}}font-size{{/1}}: {{2}}20px{{/2}};
+  {{3}}font-weight{{/3}}: {{4}}bold{{/4}};
+  {{5}}color{{/5}}: {{6}}red{{/6}};
+  {{7}}padding{{/7}}: {{8}}4px{{/8}}; }
+
+p {
+  {{9}}border-color{{/9}}: {{10}}blue{{/10}};
+  {{11}}border-width{{/11}}: {{24}}1in{{/24}};
+  {{13}}border-style{{/13}}: {{14}}dashed{{/14}}; }
+
+h1 {
+  {{9}}border-color{{/9}}: {{25}}blue{{/25}};
+  {{11}}border-width{{/11}}: {{26}}2in{{/26}};
+  {{13}}border-style{{/13}}: {{14}}dashed{{/14}}; }
+
+.shadows {
+  {{18}}-moz-box-shadow{{/18}}: {{19}}0px 4px 5px #666666, 2px 6px 10px #999999{{/19}};
+  {{20}}-webkit-box-shadow{{/20}}: {{21}}0px 4px 5px #666666, 2px 6px 10px #999999{{/21}};
+  {{22}}box-shadow{{/22}}: {{23}}0px 4px 5px #666666, 2px 6px 10px #999999{{/23}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+end
+
+  def test_function_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 $grid-width: 20px;
 $gutter-width: 5px;
@@ -343,6 +656,24 @@ $gutter-width: 5px;
 }
 sidebar { {{1}}width{{/1}}: {{2}}grid-width(5){{/2}}; }
 SCSS
+sidebar {
+  {{1}}width{{/1}}: {{2}}120px{{/2}}; }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_function_sourcemap_sass
+    assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+$grid-width: 20px
+$gutter-width: 5px
+
+@function grid-width($n)
+  @return $n * $grid-width + ($n - 1) * $gutter-width
+
+sidebar
+  {{1}}width{{/1}}: {{2}}grid-width(5){{/2}}
+SASS
 sidebar {
   {{1}}width{{/1}}: {{2}}120px{{/2}}; }
 
@@ -394,14 +725,15 @@ CSS
     map
   end
 
-  def assert_parses_with_mapping(scss, css, options={})
-    scss_filename = filename_for_test(:scss)
-    mapping = build_mapping_from_annotations(scss, css, scss_filename)
-    scss.gsub!(ANNOTATION_REGEX, "")
+  def assert_parses_with_mapping(input, css, options={})
+    options[:syntax] ||= :scss
+    input_filename = filename_for_test(options[:syntax])
+    mapping = build_mapping_from_annotations(input, css, input_filename)
+    input.gsub!(ANNOTATION_REGEX, "")
     css.gsub!(ANNOTATION_REGEX, "")
-    rendered, sourcemap = render_with_sourcemap(scss, options)
+    rendered, sourcemap = render_with_sourcemap(input, options)
     assert_equal css.rstrip, rendered.rstrip
-    assert_sourcemaps_equal scss, css, mapping, sourcemap
+    assert_sourcemaps_equal input, css, mapping, sourcemap
   end
 
   def assert_positions_equal(expected, actual, lines, message = nil)
