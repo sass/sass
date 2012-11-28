@@ -181,7 +181,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
               end
             end
             relative_filename ||= node.filename
-            to_return << ", #{relative_filename}"
+            to_return << ", #{relative_filename}:#{node.line}"
           end
 
           to_return << " */\n"

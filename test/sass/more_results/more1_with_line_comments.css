@@ -1,26 +1,26 @@
-/* line 3, ../more_templates/more1.sass */
+/* line 3, ../more_templates/more1.sass:3 */
 body {
   font: Arial;
   background: blue; }
 
-/* line 7, ../more_templates/more1.sass */
+/* line 7, ../more_templates/more1.sass:7 */
 #page {
   width: 700px;
   height: 100; }
-  /* line 10, ../more_templates/more1.sass */
+  /* line 10, ../more_templates/more1.sass:10 */
   #page #header {
     height: 300px; }
-    /* line 12, ../more_templates/more1.sass */
+    /* line 12, ../more_templates/more1.sass:12 */
     #page #header h1 {
       font-size: 50px;
       color: blue; }
 
-/* line 18, ../more_templates/more1.sass */
+/* line 18, ../more_templates/more1.sass:18 */
 #content.user.show #container.top #column.left {
   width: 100px; }
-/* line 20, ../more_templates/more1.sass */
+/* line 20, ../more_templates/more1.sass:20 */
 #content.user.show #container.top #column.right {
   width: 600px; }
-/* line 22, ../more_templates/more1.sass */
+/* line 22, ../more_templates/more1.sass:22 */
 #content.user.show #container.bottom {
   background: brown; }
