@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.2.4 (Unreleased)
+
+* Fix imports from `.jar` files in JRuby. Thanks to [Alex
+  Hvostov](https://github.com/argv-minus-one).
+
 ## 3.2.3
 
 * `sass --watch` no longer crashs when a file in a watched directory is deleted.
