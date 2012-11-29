@@ -268,7 +268,9 @@ module Sass
 
     # Render the template to CSS and return the source map.
     #
-    # @param sourcemap_uri [String] The sourcemap URI to use in the @sourceMappingURL comment
+    # @param sourcemap_uri [String] The sourcemap URI to use in the
+    #   @sourceMappingURL comment. This should be relative to the location of
+    #   the CSS file.
     # @return [(String, Sass::Source::Map)] The rendered CSS and the associated source map
     # @raise [Sass::SyntaxError] if there's an error in the document
     # @raise [Encoding::UndefinedConversionError] if the source encoding
