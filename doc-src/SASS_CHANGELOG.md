@@ -3,6 +3,15 @@
 * Table of contents
 {:toc}
 
+## 3.3.0 (Unreleased)
+
+### Backwards Incompatibilities -- Must Read!
+
+* Sass will now throw an error when it encounters a single `@import` statement
+  that tries to import more than one file. For example, if you have `@import
+  "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
+  printed. This will become an error in future versions of Sass.
+
 ## 3.2.3
 
 * `sass --watch` no longer crashs when a file in a watched directory is deleted.
