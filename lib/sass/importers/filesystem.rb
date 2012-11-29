@@ -91,8 +91,13 @@ module Sass
         sorted_exts = extensions.sort
         syntax = extensions[extname]
 
-        return [["#{dirname}/{_,}#{basename}.#{extensions.invert[syntax]}", syntax]] if syntax
-        sorted_exts.map {|ext, syn| ["#{dirname}/{_,}#{basename}.#{ext}", syn]}
+        if syntax
+          ret = [["#{dirname}/{_,}#{basename}.#{extensions.invert[syntax]}", syntax]]
+        else
+          ret = sorted_exts.map {|ext, syn| ["#{dirname}/{_,}#{basename}.#{ext}", syn]}
+        end
+
+        ret.map {|f, s| [f.sub(%r{^\./}, ''), s]}
       end
 
       def escape_glob_characters(name)
@@ -118,7 +123,7 @@ module Sass
         end
         found = Sass::Util.flatten(found, 1)
         return if found.empty?
-  
+
         if found.size > 1 && !@same_name_warnings.include?(found.first.first)
           found.each {|(f, _)| @same_name_warnings << f}
           relative_to = Pathname.new(dir)
