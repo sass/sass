@@ -16,13 +16,21 @@ module Sass::Source
     # @return [String]
     attr_accessor :file
 
+    # The importer that imported the file in which this source range appears.
+    # This is nil for target ranges.
+    #
+    # @return [Sass::Importers::Base]
+    attr_accessor :importer
+
     # @param start_pos [Sass::Source::Position] See \{#start_pos}
     # @param end_pos [Sass::Source::Position] See \{#end_pos}
     # @param file [String] See \{#file}
-    def initialize(start_pos, end_pos, file)
+    # @param importer [Sass::Importers::Base] See \{#importer}
+    def initialize(start_pos, end_pos, file, importer=nil)
       @start_pos = start_pos
       @end_pos = end_pos
       @file = file
+      @importer = importer
     end
 
     # @return [String] A string representation of the source range.

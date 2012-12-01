@@ -369,7 +369,7 @@ module Sass
       check_encoding!
 
       if @options[:syntax] == :scss
-        root = Sass::SCSS::Parser.new(@template, @options[:filename]).parse
+        root = Sass::SCSS::Parser.new(@template, @options[:filename], @options[:importer]).parse
       else
         root = Tree::RootNode.new(@template)
         append_children(root, tree(tabulate(@template)).first, true)
@@ -599,7 +599,7 @@ WARNING
           property.name_source_range = Sass::Source::Range.new(
             Sass::Source::Position.new(@line, to_parser_offset(name_start_offset)),
             Sass::Source::Position.new(@line, to_parser_offset(name_end_offset)),
-            @options[:filename])
+            @options[:filename], @options[:importer])
           property
         end
       when ?$
@@ -628,7 +628,9 @@ WARNING
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
       offset = line.offset
       offset += hack_char.length if hack_char
-      parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line, to_parser_offset(offset))
+      parser = Sass::SCSS::Parser.new(scanner,
+        @options[:filename], @options[:importer],
+        @line, to_parser_offset(offset))
 
       unless res = parser.parse_interp_ident
         return Tree::RuleNode.new(parse_interp(line.text, line.offset))
@@ -637,7 +639,7 @@ WARNING
       ident_range = Sass::Source::Range.new(
         Sass::Source::Position.new(@line, to_parser_offset(offset)),
         Sass::Source::Position.new(@line, parser.offset),
-        @options[:filename])
+        @options[:filename], @options[:importer])
       offset = parser.offset - 1
       res.unshift(hack_char) if hack_char
       if comment = scanner.scan(Sass::SCSS::RX::COMMENT)
@@ -669,7 +671,7 @@ WARNING
       node.value_source_range = Sass::Source::Range.new(
         Sass::Source::Position.new(line.index, to_parser_offset(start_offset)),
         Sass::Source::Position.new(line.index, to_parser_offset(end_offset)),
-        @options[:filename])
+        @options[:filename], @options[:importer])
       if value.strip.empty? && line.children.empty?
         raise SyntaxError.new(
           "Invalid property: \"#{node.declaration}\" (no value)." +
@@ -779,7 +781,9 @@ WARNING
           :line => @line + 1) unless line.children.empty?
         Tree::CharsetNode.new(name)
       when 'media'
-        parser = Sass::SCSS::Parser.new(value, @options[:filename], @line, to_parser_offset(@offset))
+        parser = Sass::SCSS::Parser.new(value,
+          @options[:filename], @options[:importer],
+          @line, to_parser_offset(@offset))
         Tree::MediaNode.new(parser.parse_media_query_list.to_a)
       else
         Tree::DirectiveNode.new(
@@ -874,7 +878,9 @@ WARNING
         script_parser = Sass::Script::Parser.new(scanner, @line, to_parser_offset(offset), @options)
         str = script_parser.parse_string
 
-        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line, str.source_range.end_pos.offset)
+        media_parser = Sass::SCSS::Parser.new(scanner,
+          @options[:filename], @options[:importer],
+          @line, str.source_range.end_pos.offset)
         if media = media_parser.parse_media_query_list
           end_pos = Sass::Source::Position.new(@line, media_parser.offset + 1)
           node = Tree::CssImportNode.new(str, media.to_a)
@@ -883,7 +889,9 @@ WARNING
           node = Tree::CssImportNode.new(str)
         end
 
-        node.source_range = Sass::Source::Range.new(str.source_range.start_pos, end_pos, @options[:filename])
+        node.source_range = Sass::Source::Range.new(
+          str.source_range.start_pos, end_pos,
+          @options[:filename], @options[:importer])
         return node
       end
 
@@ -894,7 +902,7 @@ WARNING
         node.source_range = Sass::Source::Range.new(
           Sass::Source::Position.new(@line, start_parser_offset),
           Sass::Source::Position.new(@line, start_parser_offset + scanned.length),
-          @options[:filename])
+          @options[:filename], @options[:importer])
         return node
       end
 
@@ -904,25 +912,26 @@ WARNING
       scanned = scanner.scan(/\s*/)
       if !scanner.match?(/[,;]|$/)
         offset += scanned.length if scanned
-        media_parser = Sass::SCSS::Parser.new(scanner, @options[:filename], @line, offset)
+        media_parser = Sass::SCSS::Parser.new(scanner,
+          @options[:filename], @options[:importer], @line, offset)
         media = media_parser.parse_media_query_list
         node = Tree::CssImportNode.new(str || uri, media.to_a)
         node.source_range = Sass::Source::Range.new(
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
           Sass::Source::Position.new(@line, media_parser.offset),
-          @options[:filename])
+          @options[:filename], @options[:importer])
       elsif val =~ /^(https?:)?\/\//
         node = Tree::CssImportNode.new("url(#{val})")
         node.source_range = Sass::Source::Range.new(
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
           Sass::Source::Position.new(@line, to_parser_offset(offset)),
-          @options[:filename])
+          @options[:filename], @options[:importer])
       else
         node = Tree::ImportNode.new(val)
         node.source_range = Sass::Source::Range.new(
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
           Sass::Source::Position.new(@line, to_parser_offset(offset)),
-          @options[:filename])
+          @options[:filename], @options[:importer])
       end
       node
     end

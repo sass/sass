@@ -164,7 +164,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_extend(node)
-    parser = Sass::SCSS::StaticParser.new(run_interp(node.selector), node.filename, node.line)
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.selector),
+      node.filename, node.options[:importer], node.line)
     node.resolved_selector = parser.parse_selector
     node
   end
@@ -311,7 +312,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_rule(node)
     rule = node.rule
     rule = rule.map {|e| e.is_a?(String) && e != ' ' ? e.strip : e} if node.style == :compressed
-    parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.filename, node.line)
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
+      node.filename, node.options[:importer], node.line)
     node.parsed_rules ||= parser.parse_selector
     if node.options[:trace_selectors]
       @stack.push(:filename => node.filename, :line => node.line)
@@ -363,7 +365,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   def visit_media(node)
-    parser = Sass::SCSS::StaticParser.new(run_interp(node.query), node.filename, node.line)
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.query),
+      node.filename, node.options[:importer], node.line)
     node.resolved_query ||= parser.parse_media_query_list
     yield
   end
@@ -377,7 +380,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_cssimport(node)
     node.resolved_uri = run_interp([node.uri])
     if node.query
-      parser = Sass::SCSS::StaticParser.new(run_interp(node.query), node.filename, node.line)
+      parser = Sass::SCSS::StaticParser.new(run_interp(node.query),
+        node.filename, node.options[:importer], node.line)
       node.resolved_query ||= parser.parse_media_query_list
     end
     yield

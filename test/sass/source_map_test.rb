@@ -725,7 +725,9 @@ CSS
         assert(!closing || start_positions[name], "Closing annotation #{name} found before opening one.")
         position = Sass::Source::Position.new(line, offset)
         if closing
-          ranges[name] << Sass::Source::Range.new(start_positions[name], position, file_name)
+          ranges[name] << Sass::Source::Range.new(
+            start_positions[name], position, file_name,
+            Sass::Importers::Filesystem.new('.'))
           start_positions.delete name
         else
           assert(!start_positions[name], "Overlapping range annotation #{name} encountered on line #{line}")
