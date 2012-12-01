@@ -20,7 +20,6 @@ module Sass::Source
     # @param end_pos [Sass::Source::Position] See \{#end_pos}
     # @param file [String] See \{#file}
     def initialize(start_pos, end_pos, file)
-      raise 'hell' if end_pos.is_a?(Fixnum)
       @start_pos = start_pos
       @end_pos = end_pos
       @file = file
