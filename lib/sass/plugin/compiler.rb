@@ -371,11 +371,11 @@ module Sass::Plugin
     end
 
     def template_locations
-      template_location_array.to_a.map {|l| l.first}
+      Array(template_location_array).map {|l| l.first}
     end
 
     def css_locations
-      template_location_array.to_a.map {|l| l.last}
+      Array(template_location_array).map {|l| l.last}
     end
 
     def css_filename(name, path)
