@@ -20,7 +20,9 @@ module Sass
         begin
           parse
         rescue Exception => e
-          raise e if @options[:trace] || e.is_a?(SystemExit)
+          raise e if e.is_a?(SystemExit)
+          handle_json_err(e) if @options[:json_err]
+          raise e if @options[:trace]
 
           $stderr.print "#{e.class}: " unless e.class == RuntimeError
           $stderr.puts "#{e.message}"
@@ -70,11 +72,16 @@ module Sass
       #
       # @param opts [OptionParser]
       def set_opts(opts)
-        opts.on('-s', '--stdin', :NONE, 'Read input from standard input instead of an input file') do
+        opts.on('-s', '--stdin', :NONE, 'Read input from standard input instead of an input file.') do
           @options[:input] = $stdin
         end
 
-        opts.on('--trace', :NONE, 'Show a full traceback on error') do
+        opts.on('--trace', :NONE, 'Show a full traceback on error.') do
+          @options[:trace] = true
+        end
+
+        opts.on('--json-err', :NONE, 'Write all output to stderr in JSON format. This implies --trace.') do
+          @options[:json_err] = true
           @options[:trace] = true
         end
 
@@ -82,12 +89,12 @@ module Sass
           @options[:unix_newlines] = true if ::Sass::Util.windows?
         end
 
-        opts.on_tail("-?", "-h", "--help", "Show this message") do
+        opts.on_tail("-?", "-h", "--help", "Show this message.") do
           puts opts
           exit
         end
 
-        opts.on_tail("-v", "--version", "Print version") do
+        opts.on_tail("-v", "--version", "Print version.") do
           puts("Sass #{::Sass.version[:string]}")
           exit
         end
@@ -178,6 +185,18 @@ Required dependency #{dep} not found!
     Run "gem install #{dep}" to get it.
   Use --trace for backtrace.
 MESSAGE
+        exit 1
+      end
+
+      def handle_json_err(err)
+        json = {
+          :type => :error,
+          :subtype => err.class.to_s,
+          :message => err.message,
+          :backtrace => err.backtrace,
+        }
+        json[:sass_backtrace] = err.sass_backtrace if err.is_a?(::Sass::SyntaxError)
+        $stderr.puts ::Sass::Util.json_value_of(json)
         exit 1
       end
     end

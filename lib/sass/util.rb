@@ -830,10 +830,12 @@ MSG
       case v
       when Fixnum
         v.to_s
-      when String
-        "\"" + json_escape_string(v) + "\""
+      when String, Symbol
+        "\"" + json_escape_string(v.to_s) + "\""
       when Array
         "[" + v.map {|x| json_value_of(x)}.join(",") + "]"
+      when Hash
+        "{" + v.map {|k, v| json_value_of(k) + ":" + json_value_of(v)}.join(",") + "}"
       when NilClass
         "null"
       when TrueClass
