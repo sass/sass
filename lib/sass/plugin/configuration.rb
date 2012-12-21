@@ -33,17 +33,6 @@ module Sass
         @options ||= default_options.dup
       end
 
-      # Sets the options hash.
-      # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
-      # See {Sass::Plugin::Configuration#reset!}
-      # @deprecated Instead, modify the options hash in-place.
-      # @param value [{Symbol => Object}] The options hash
-      def options=(value)
-        Sass::Util.sass_warn("Setting Sass::Plugin.options is deprecated " +
-                             "and will be removed in a future release.")
-        options.merge!(value)
-      end
-
       # Adds a new template-location/css-location mapping.
       # This means that Sass/SCSS files in `template_location`
       # will be compiled to CSS files in `css_location`.
