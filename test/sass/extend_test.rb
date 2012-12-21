@@ -154,7 +154,7 @@ SCSS
     assert_unification '.foo#baz', '#baz {@extend .foo}', '#baz'
 
     assert_extend_doesnt_match('#bar', '.foo', :failed_to_unify, 2) do
-      assert_unification '.foo#baz', '#bar {@extend .foo}', '.foo#baz'
+      render_unification '.foo#baz', '#bar {@extend .foo}'
     end
   end
 
@@ -180,7 +180,7 @@ SCSS
     assert_unification 'ns|*.foo', '*|* {@extend .foo}', 'ns|*'
 
     assert_extend_doesnt_match('ns2|*', '.foo', :failed_to_unify, 2) do
-      assert_unification 'ns1|*.foo', 'ns2|* {@extend .foo}', 'ns1|*.foo'
+      render_unification 'ns1|*.foo', 'ns2|* {@extend .foo}'
     end
 
     assert_unification 'ns|*.foo', 'ns|* {@extend .foo}', 'ns|*'
@@ -200,7 +200,7 @@ SCSS
     assert_unification 'ns|a.foo', '*|* {@extend .foo}', 'ns|a'
 
     assert_extend_doesnt_match('ns2|*', '.foo', :failed_to_unify, 2) do
-      assert_unification 'ns1|a.foo', 'ns2|* {@extend .foo}', 'ns1|a.foo'
+      render_unification 'ns1|a.foo', 'ns2|* {@extend .foo}'
     end
 
     assert_unification 'ns|a.foo', 'ns|* {@extend .foo}', 'ns|a'
@@ -227,7 +227,7 @@ SCSS
     assert_unification 'ns|*.foo', '*|a {@extend .foo}', 'ns|*.foo, ns|a'
 
     assert_extend_doesnt_match('ns2|a', '.foo', :failed_to_unify, 2) do
-      assert_unification 'ns1|*.foo', 'ns2|a {@extend .foo}', 'ns1|*.foo'
+      render_unification 'ns1|*.foo', 'ns2|a {@extend .foo}'
     end
 
     assert_unification 'ns|*.foo', 'ns|a {@extend .foo}', 'ns|*.foo, ns|a'
@@ -242,7 +242,7 @@ SCSS
     assert_unification '*|a.foo', 'ns|a {@extend .foo}', '*|a.foo, ns|a'
 
     assert_extend_doesnt_match('h1', '.foo', :failed_to_unify, 2) do
-      assert_unification 'a.foo', 'h1 {@extend .foo}', 'a.foo'
+      render_unification 'a.foo', 'h1 {@extend .foo}'
     end
   end
 
@@ -251,7 +251,7 @@ SCSS
     assert_unification 'ns|a.foo', '*|a {@extend .foo}', 'ns|a'
 
     assert_extend_doesnt_match('ns2|a', '.foo', :failed_to_unify, 2) do
-      assert_unification 'ns1|a.foo', 'ns2|a {@extend .foo}', 'ns1|a.foo'
+      render_unification 'ns1|a.foo', 'ns2|a {@extend .foo}'
     end
 
     assert_unification 'ns|a.foo', 'ns|a {@extend .foo}', 'ns|a'
@@ -270,11 +270,11 @@ SCSS
     assert_unification ':foo.baz', '::foo {@extend .baz}', ':foo.baz, :foo::foo'
 
     assert_extend_doesnt_match('::bar', '.baz', :failed_to_unify, 2) do
-      assert_unification '::foo.baz', '::bar {@extend .baz}', '::foo.baz'
+      render_unification '::foo.baz', '::bar {@extend .baz}'
     end
 
     assert_extend_doesnt_match('::foo(2n+1)', '.baz', :failed_to_unify, 2) do
-      assert_unification '::foo.baz', '::foo(2n+1) {@extend .baz}', '::foo.baz'
+      render_unification '::foo.baz', '::foo(2n+1) {@extend .baz}'
     end
 
     assert_unification '::foo.baz', '::foo {@extend .baz}', '::foo'
@@ -348,7 +348,7 @@ SCSS
 
   def test_long_extendee_requires_all_selectors
     assert_extend_doesnt_match('.baz', '.foo.bar', :not_found, 2) do
-      assert_extends '.foo', '.baz {@extend .foo.bar}', '.foo'
+      render_extends '.foo', '.baz {@extend .foo.bar}'
     end
   end
 
@@ -372,11 +372,11 @@ SCSS
 
   def test_long_extender_aborts_unification
     assert_extend_doesnt_match('h1.baz', '.foo', :failed_to_unify, 2) do
-      assert_extends 'a.foo#bar', 'h1.baz {@extend .foo}', 'a.foo#bar'
+      render_extends 'a.foo#bar', 'h1.baz {@extend .foo}'
     end
 
     assert_extend_doesnt_match('.bang#baz', '.foo', :failed_to_unify, 2) do
-      assert_extends 'a.foo#bar', '.bang#baz {@extend .foo}', 'a.foo#bar'
+      render_extends 'a.foo#bar', '.bang#baz {@extend .foo}'
     end
   end
 
@@ -392,7 +392,7 @@ SCSS
 
   def test_nested_extender_aborts_unification
     assert_extend_doesnt_match('foo bar', '.foo', :failed_to_unify, 2) do
-      assert_extends 'baz.foo', 'foo bar {@extend .foo}', 'baz.foo'
+      render_extends 'baz.foo', 'foo bar {@extend .foo}'
     end
   end
 
@@ -810,10 +810,7 @@ SCSS
 
   def test_placeholder_selector_as_modifier
     assert_extend_doesnt_match('div', '%foo', :failed_to_unify, 3) do
-      assert_equal <<CSS, render(<<SCSS)
-a.baz.bar {
-  color: blue; }
-CSS
+      render(<<SCSS)
 a%foo.baz {color: blue}
 .bar {@extend %foo}
 div {@extend %foo}
@@ -1067,33 +1064,28 @@ SCSS
 end
 
   def test_extend_warns_when_extendee_doesnt_exist
-    assert_warning(<<WARN) {assert_equal("", render(<<SCSS))}
-WARNING on line 1 of test_extend_warns_when_extendee_doesnt_exist_inline.scss: ".foo" failed to @extend ".bar".
-  The selector ".bar" was not found.
-  This will be an error in future releases of Sass.
-  Use "@extend .bar !optional" if the extend should be able to fail.
-WARN
+    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
+".foo" failed to @extend ".bar".
+The selector ".bar" was not found.
+Use "@extend .bar !optional" if the extend should be able to fail.
+ERR
 .foo {@extend .bar}
 SCSS
   end
 
   def test_extend_warns_when_extension_fails
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-WARNING on line 2 of test_extend_warns_when_extension_fails_inline.scss: "b.foo" failed to @extend ".bar".
-  No selectors matching ".bar" could be unified with "b.foo".
-  This will be an error in future releases of Sass.
-  Use "@extend .bar !optional" if the extend should be able to fail.
-WARN
-a.bar {
-  a: b; }
-CSS
+    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
+"b.foo" failed to @extend ".bar".
+No selectors matching ".bar" could be unified with "b.foo".
+Use "@extend .bar !optional" if the extend should be able to fail.
+ERR
 a.bar {a: b}
 b.foo {@extend .bar}
 SCSS
   end
 
-  def test_extend_does_not_warn_when_one_extension_fails_but_others_dont
-    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+  def test_extend_succeeds_when_one_extension_fails_but_others_dont
+    assert_equal(<<CSS, render(<<SCSS))
 a.bar {
   a: b; }
 
@@ -1106,8 +1098,8 @@ b.foo {@extend .bar}
 SCSS
   end
 
-  def test_extend_does_not_warn_when_one_extension_fails_but_others_dont
-    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+  def test_extend_succeeds_when_one_extension_fails_but_others_dont
+    assert_equal(<<CSS, render(<<SCSS))
 a.bar {
   a: b; }
 
@@ -1120,14 +1112,14 @@ b.foo {@extend .bar}
 SCSS
   end
 
-  def test_optional_extend_does_not_warn_when_extendee_doesnt_exist
-    assert_no_warning {assert_equal("", render(<<SCSS))}
+  def test_optional_extend_succeeds_when_extendee_doesnt_exist
+    assert_equal("", render(<<SCSS))
 .foo {@extend .bar !optional}
 SCSS
   end
 
-  def test_optional_extend_does_not_warn_when_extension_fails
-    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+  def test_optional_extend_succeeds_when_extension_fails
+    assert_equal(<<CSS, render(<<SCSS))
 a.bar {
   a: b; }
 CSS
@@ -1247,7 +1239,7 @@ SCSS
   private
 
   def assert_extend_doesnt_match(extender, target, reason, line, syntax = :scss)
-    warn = "\"#{extender}\" failed to @extend \"#{target}\"."
+    message = "\"#{extender}\" failed to @extend \"#{target}\"."
     reason = 
       if reason == :not_found
         "The selector \"#{target}\" was not found."
@@ -1255,12 +1247,11 @@ SCSS
         "No selectors matching \"#{target}\" could be unified with \"#{extender}\"."
       end
 
-    assert_warning(<<WARNING) {yield}
-WARNING on line #{line} of #{filename_for_test syntax}: #{warn}
-  #{reason}
-  This will be an error in future releases of Sass.
-  Use "@extend #{target} !optional" if the extend should be able to fail.
-WARNING
+    assert_raise_message(Sass::SyntaxError, <<ERR) {yield}
+#{message}
+#{reason}
+Use "@extend #{target} !optional" if the extend should be able to fail.
+ERR
   end
 
   def assert_unification(selector, extension, unified)
@@ -1271,11 +1262,21 @@ WARNING
       unified.split(', ').map {|s| "-a #{s}"}.join(', '))
   end
 
+  def render_unification(selector, extension)
+    render_extends(
+      "%-a #{selector}",
+      extension + " -a {@extend %-a}")
+  end
+
   def assert_extends(selector, extension, result)
-    assert_equal <<CSS, render(<<SCSS)
+    assert_equal <<CSS, render_extends(selector, extension)
 #{result} {
   a: b; }
 CSS
+  end
+
+  def render_extends(selector, extension)
+    render(<<SCSS)
 #{selector} {a: b}
 #{extension}
 SCSS

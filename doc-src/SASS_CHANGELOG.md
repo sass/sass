@@ -16,6 +16,9 @@
       }
       .bar { color: blue; }
 
+* Sass will now throw an error when an `@extend` that has no effect is used. The
+  `!optional` flag may be used to avoid this behavior for a single `@extend`.
+
 * Sass will now throw an error when it encounters a single `@import` statement
   that tries to import more than one file. For example, if you have `@import
   "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
