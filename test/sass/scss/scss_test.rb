@@ -1711,6 +1711,18 @@ SCSS
 
   # Regression
 
+  def test_import_comments_in_imports
+    assert_equal(<<CSS, render(<<SCSS))
+@import url(foo.css);
+@import url(bar.css);
+@import url(baz.css);
+CSS
+@import "foo.css", // this is a comment
+        "bar.css", // this is another comment
+        "baz.css"; // this is a third comment
+SCSS
+  end
+
   def test_reference_combinator_with_parent_ref
     assert_equal <<CSS, render(<<SCSS)
 a /foo/ b {
