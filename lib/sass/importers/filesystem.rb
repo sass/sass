@@ -149,7 +149,6 @@ WARNING
 WARNING: In #{File.dirname(name)}:
   There are multiple files that match the name "#{File.basename(name)}":
 #{candidates}
-  This will be an error in future versions of Sass.
 WARNING
           end
         end
