@@ -10,6 +10,9 @@
 
 * Allow comments within `@import` statements in SCSS.
 
+* Fix a parsing performance bug where long decimals would occasionally take many
+  minutes to parse.
+
 ## 3.2.3
 
 * `sass --watch` no longer crashs when a file in a watched directory is deleted.

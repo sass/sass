@@ -1711,6 +1711,29 @@ SCSS
 
   # Regression
 
+  def test_parsing_decimals_followed_by_comments_doesnt_take_forever
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  padding: 4.21053% 4.21053% 5.63158%; }
+CSS
+.foo {
+  padding: 4.21052631578947% 4.21052631578947% 5.631578947368421% /**/
+}
+SCSS
+  end
+
+  def test_parsing_many_numbers_doesnt_take_forever
+    values = ["80% 90%"] * 1000
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  padding: #{values.join(', ')}; }
+CSS
+.foo {
+  padding: #{values.join(', ')};
+}
+SCSS
+  end
+
   def test_import_comments_in_imports
     assert_equal(<<CSS, render(<<SCSS))
 @import url(foo.css);
