@@ -230,17 +230,6 @@ WARNING
 
   # Callbacks
 
-  def test_updating_stylesheets_callback
-    # Should run even when there's nothing to update
-    Sass::Plugin.options[:template_location] = nil
-    assert_callback :updating_stylesheets, []
-  end
-
-  def test_updating_stylesheets_callback_with_never_update
-    Sass::Plugin.options[:never_update] = true
-    assert_no_callback :updating_stylesheets
-  end
-
   def test_updated_stylesheet_callback_for_updated_template
     Sass::Plugin.options[:always_update] = false
     touch 'basic'

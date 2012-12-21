@@ -12,6 +12,8 @@
   "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
   printed. This will become an error in future versions of Sass.
 
+* `Sass::Compiler.on_updating_stylesheet` has been removed.
+
 ## 3.2.4 (Unreleased)
 
 * Fix imports from `.jar` files in JRuby. Thanks to [Alex
