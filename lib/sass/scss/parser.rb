@@ -318,7 +318,9 @@ module Sass
 
         loop do
           values << expr!(:import_arg)
-          break if use_css_import? || !tok(/,\s*/)
+          break if use_css_import?
+          break unless tok(/,/)
+          ss
         end
 
         return values
