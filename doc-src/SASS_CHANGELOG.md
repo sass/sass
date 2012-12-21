@@ -7,10 +7,19 @@
 
 ### Backwards Incompatibilities -- Must Read!
 
+* Sass will now throw an error when `@extend` is used to extend a selector
+  outside the `@media` context of the extending selector. This means the
+  following will be an error:
+
+      @media screen {
+        .foo { @extend .bar; }
+      }
+      .bar { color: blue; }
+
 * Sass will now throw an error when it encounters a single `@import` statement
   that tries to import more than one file. For example, if you have `@import
   "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
-  printed. This will become an error in future versions of Sass.
+  printed.
 
 * `Sass::Compiler.on_updating_stylesheet` has been removed.
 

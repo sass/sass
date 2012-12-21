@@ -844,16 +844,11 @@ SCSS
   end
 
   def test_extend_out_of_media
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 3 of test_extend_out_of_media_inline.scss:
-  @extending an outer selector from within @media is deprecated.
-  You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.3.
-  It can only work once @extend is supported natively in the browser.
-WARN
-.foo {
-  a: b; }
-CSS
+    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
+You may not @extend an outer selector from within @media.
+You may only @extend selectors within the same directive.
+From "@extend .foo" on line 3 of test_extend_out_of_media_inline.scss.
+ERR
 .foo {a: b}
 @media screen {
   .bar {@extend .foo}
@@ -862,18 +857,11 @@ SCSS
   end
 
   def test_extend_out_of_unknown_directive
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 3 of test_extend_out_of_unknown_directive_inline.scss:
-  @extending an outer selector from within @flooblehoof is deprecated.
-  You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.3.
-  It can only work once @extend is supported natively in the browser.
-WARN
-.foo {
-  a: b; }
-
-@flooblehoof {}
-CSS
+    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
+You may not @extend an outer selector from within @flooblehoof.
+You may only @extend selectors within the same directive.
+From "@extend .foo" on line 3 of test_extend_out_of_unknown_directive_inline.scss.
+ERR
 .foo {a: b}
 @flooblehoof {
   .bar {@extend .foo}
@@ -882,19 +870,11 @@ SCSS
   end
 
   def test_extend_out_of_nested_directives
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 4 of test_extend_out_of_nested_directives_inline.scss:
-  @extending an outer selector from within @flooblehoof is deprecated.
-  You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.3.
-  It can only work once @extend is supported natively in the browser.
-WARN
-@media screen {
-  .foo {
-    a: b; }
-
-  @flooblehoof {} }
-CSS
+    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
+You may not @extend an outer selector from within @flooblehoof.
+You may only @extend selectors within the same directive.
+From "@extend .foo" on line 4 of test_extend_out_of_nested_directives_inline.scss.
+ERR
 @media screen {
   .foo {a: b}
   @flooblehoof {
@@ -985,20 +965,11 @@ SCSS
   end
 
   def test_extend_within_and_without_media
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 4 of test_extend_within_and_without_media_inline.scss:
-  @extending an outer selector from within @media is deprecated.
-  You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.3.
-  It can only work once @extend is supported natively in the browser.
-WARN
-.foo {
-  a: b; }
-
-@media screen {
-  .foo, .bar {
-    c: d; } }
-CSS
+    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
+You may not @extend an outer selector from within @media.
+You may only @extend selectors within the same directive.
+From "@extend .foo" on line 4 of test_extend_within_and_without_media_inline.scss.
+ERR
 .foo {a: b}
 @media screen {
   .foo {c: d}
@@ -1008,20 +979,11 @@ SCSS
   end
 
   def test_extend_within_and_without_unknown_directive
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 4 of test_extend_within_and_without_unknown_directive_inline.scss:
-  @extending an outer selector from within @flooblehoof is deprecated.
-  You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.3.
-  It can only work once @extend is supported natively in the browser.
-WARN
-.foo {
-  a: b; }
-
-@flooblehoof {
-  .foo, .bar {
-    c: d; } }
-CSS
+    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
+You may not @extend an outer selector from within @flooblehoof.
+You may only @extend selectors within the same directive.
+From "@extend .foo" on line 4 of test_extend_within_and_without_unknown_directive_inline.scss.
+ERR
 .foo {a: b}
 @flooblehoof {
   .foo {c: d}
@@ -1031,21 +993,11 @@ SCSS
   end
 
   def test_extend_within_and_without_nested_directives
-    assert_warning(<<WARN) {assert_equal(<<CSS, render(<<SCSS))}
-DEPRECATION WARNING on line 5 of test_extend_within_and_without_nested_directives_inline.scss:
-  @extending an outer selector from within @flooblehoof is deprecated.
-  You may only @extend selectors within the same directive.
-  This will be an error in Sass 3.3.
-  It can only work once @extend is supported natively in the browser.
-WARN
-@media screen {
-  .foo {
-    a: b; }
-
-  @flooblehoof {
-    .foo, .bar {
-      c: d; } } }
-CSS
+    assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
+You may not @extend an outer selector from within @flooblehoof.
+You may only @extend selectors within the same directive.
+From "@extend .foo" on line 5 of test_extend_within_and_without_nested_directives_inline.scss.
+ERR
 @media screen {
   .foo {a: b}
   @flooblehoof {
