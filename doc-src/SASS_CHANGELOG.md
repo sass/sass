@@ -16,6 +16,8 @@
 
 * `Sass::Plugin.options=` has been removed.
 
+* `Sass::Script::Number::PRECISION` has been removed.
+
 ## 3.2.4 (Unreleased)
 
 * Fix imports from `.jar` files in JRuby. Thanks to [Alex

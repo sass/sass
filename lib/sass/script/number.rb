@@ -53,17 +53,6 @@ module Sass::Script
       @precision_factor ||= 10.0**precision
     end
 
-    # Handles the deprecation warning for the PRECISION constant
-    # This can be removed in 3.2.
-    def self.const_missing(const)
-      if const == :PRECISION
-        Sass::Util.sass_warn("Sass::Script::Number::PRECISION is deprecated and will be removed in a future release. Use Sass::Script::Number.precision_factor instead.")
-        const_set(:PRECISION, self.precision_factor)
-      else
-        super
-      end
-    end
-
     # Used so we don't allocate two new arrays for each new number.
     NO_UNITS  = []
 
