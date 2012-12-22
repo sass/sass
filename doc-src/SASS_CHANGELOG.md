@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.4 (Unreleased)
+## 3.2.4
 
 * Fix imports from `.jar` files in JRuby. Thanks to [Alex
   Hvostov](https://github.com/argv-minus-one).
