@@ -26,7 +26,9 @@ module Sass
         File.unlink path_to(key)
         nil
       rescue EOFError, TypeError, ArgumentError => e
-        Sass::Util.sass_warn "Warning. Error encountered while reading cache #{path_to(key)}: #{e}"
+        Sass::Util.sass_warn(
+          "Warning. Error encountered while reading cache #{path_to(key)}: #{e}",
+          :cache, :path => path_to(key))
       end
 
       # @see Base#\_store

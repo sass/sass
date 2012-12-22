@@ -35,30 +35,36 @@ class Test::Unit::TestCase
     FileUtils.rm_r(path) if File.exist?(path)
   end
 
-  def assert_warning(message)
-    the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
-
+  def assert_warning(message, &block)
+    stderr = collect_stderr(&block)
     if message.is_a?(Regexp)
-      assert_match message, $stderr.string.strip
+      assert_match message, stderr.strip
     else
-      assert_equal message.strip, $stderr.string.strip
+      assert_equal message.strip, stderr.strip
     end
-  ensure
-    $stderr = the_real_stderr
   end
 
-  def assert_no_warning
-    the_real_stderr, $stderr = $stderr, StringIO.new
-    yield
+  def assert_no_warning(&block)
+    assert_equal '', collect_stderr(&block)
+  end
 
-    assert_equal '', $stderr.string
+  def collect_stderr
+    old_stderr, $stderr = $stderr, StringIO.new
+    yield
+    $stderr.string
   ensure
-    $stderr = the_real_stderr
+    $stderr = old_stderr
   end
 
   def silence_warnings(&block)
     Sass::Util.silence_warnings(&block)
+  end
+
+  def with_json_warnings
+    old_json_err, Sass.json_err = Sass.json_err?, true
+    yield
+  ensure
+    Sass.json_err = old_json_err
   end
 
   def assert_raise_message(klass, message)

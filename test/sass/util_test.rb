@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 require 'pathname'
+require 'json'
 
 class UtilTest < Test::Unit::TestCase
   include Sass::Util
@@ -149,6 +150,16 @@ class UtilTest < Test::Unit::TestCase
 
   def test_sass_warn
     assert_warning("Foo!") {sass_warn "Foo!"}
+  end
+
+  def test_sass_json_warn
+    with_json_warnings do
+      json = JSON.parse(collect_stderr {sass_warn "Foo!", :type1, :type2, :field => :value})
+      assert_equal(json["type"], ["warning", "type1", "type2"])
+      assert_equal(json["message"], "Foo!")
+      assert_not_nil(json["backtrace"])
+      assert_equal(json["field"], "value")
+    end
   end
 
   def test_silence_sass_warnings

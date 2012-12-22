@@ -375,11 +375,26 @@ module Sass
       Sass.logger.log_level = old_level
     end
 
-    # The same as `Kernel#warn`, but is silenced by \{#silence\_sass\_warnings}.
+    # Prints a warning to stderr. This is silenced by \{#silence\_sass\_warnings}.
     #
     # @param msg [String]
-    def sass_warn(msg)
-      Sass.logger.warn(msg)
+    # @param types_and_fields [Array] An array describing the type hierarchy of
+    #     the warning, followed by a hash of additional metadata fields. These
+    #     are used for JSON warnings.
+    def sass_warn(msg, *types_and_fields)
+      fields = types_and_fields.last.is_a?(Hash) ? types_and_fields.pop : {}
+      types = types_and_fields
+      unless Sass.json_err?
+        Sass.logger.warn(msg)
+        return
+      end
+
+      json = {
+        :type => [:warning] + types,
+        :message => msg,
+        :backtrace => caller,
+      }.merge fields
+      Sass.logger.warn(json_value_of(json))
     end
 
     ## Cross Rails Version Compatibility

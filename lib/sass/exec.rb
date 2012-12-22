@@ -21,7 +21,7 @@ module Sass
           parse
         rescue Exception => e
           raise e if e.is_a?(SystemExit)
-          handle_json_err(e) if @options[:json_err]
+          handle_json_err(e) if ::Sass.json_err?
           raise e if @options[:trace]
 
           $stderr.print "#{e.class}: " unless e.class == RuntimeError
@@ -81,7 +81,7 @@ module Sass
         end
 
         opts.on('--json-err', :NONE, 'Write all output to stderr in JSON format. This implies --trace.') do
-          @options[:json_err] = true
+          ::Sass.json_err = true
           @options[:trace] = true
         end
 
@@ -190,13 +190,12 @@ MESSAGE
 
       def handle_json_err(err)
         json = {
-          :type => :error,
-          :subtype => err.class.to_s,
+          :type => [:error, err.class.to_s],
           :message => err.message,
           :backtrace => err.backtrace,
         }
         json[:sass_backtrace] = err.sass_backtrace if err.is_a?(::Sass::SyntaxError)
-        $stderr.puts ::Sass::Util.json_value_of(json)
+        ::Sass.logger.error ::Sass::Util.json_value_of(json)
         exit 1
       end
     end

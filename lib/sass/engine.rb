@@ -566,10 +566,12 @@ MSG
 
     def check_for_no_children(node)
       return unless node.is_a?(Tree::RuleNode) && node.children.empty?
-      Sass::Util.sass_warn(<<WARNING.strip)
+      warning = <<WARNING.strip
 WARNING on line #{node.line}#{" of #{node.filename}" if node.filename}:
 This selector doesn't have any properties and will not be rendered.
 WARNING
+      Sass::Util.sass_warn(warning, :sass,
+        :filename => node.filename, :line => node.line)
     end
 
     def parse_line(parent, line, root)

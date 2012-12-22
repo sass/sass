@@ -143,11 +143,15 @@ MESSAGE
             # Otherwise, we're here via StalenessChecker, and we want to print a
             # warning for a user running `sass --watch` with two ambiguous files.
             candidates = found.map {|(f, _)| "    " + File.basename(f)}.join("\n")
-            Sass::Util.sass_warn <<WARNING
+            warning = <<WARNING
 WARNING: In #{File.dirname(name)}:
   There are multiple files that match the name "#{File.basename(name)}":
 #{candidates}
 WARNING
+            Sass::Util.sass_warn(warning, :ambiguous_import,
+              :dir => File.dirname(name),
+              :name => File.basename(name),
+              :candidates => found)
           end
         end
         found.first
