@@ -222,7 +222,6 @@ WARNING: In #{template_loc}:
   There are multiple files that match the name "same_name_different_partiality.scss":
     _same_name_different_partiality.scss
     same_name_different_partiality.scss
-  This will be an error in future versions of Sass.
 WARNING
       touch "_same_name_different_partiality"
       assert_needs_update "same_name_different_partiality"
