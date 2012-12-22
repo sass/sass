@@ -1741,7 +1741,7 @@ SCSS
 @import url(baz.css);
 CSS
 @import "foo.css", // this is a comment
-        "bar.css", // this is another comment
+        "bar.css", /* this is another comment */
         "baz.css"; // this is a third comment
 SCSS
   end
