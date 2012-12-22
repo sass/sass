@@ -141,10 +141,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_debug(node)
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::String)
-    if node.filename
-      $stderr.puts "#{node.filename}:#{node.line} DEBUG: #{res}"
+    if Sass.json_err?
+      Sass::Util.sass_warn res, :debug, :filename => node.filename, :line => node.line
+    elsif node.filename
+      Sass::Util.sass_warn "#{node.filename}:#{node.line} DEBUG: #{res}"
     else
-      $stderr.puts "Line #{node.line} DEBUG: #{res}"
+      Sass::Util.sass_warn "Line #{node.line} DEBUG: #{res}"
     end
     []
   end
