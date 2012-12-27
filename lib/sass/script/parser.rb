@@ -259,7 +259,7 @@ RUBY
       end
 
       def range(start_pos, end_pos=source_position)
-        Sass::Source::Range.new(start_pos, end_pos, @options[:filename])
+        Sass::Source::Range.new(start_pos, end_pos, @options[:filename], @options[:importer])
       end
 
       # @private

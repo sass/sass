@@ -342,7 +342,9 @@ END
               relative_path_from(Pathname.new(@options[:output_filename]).dirname)
             rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
             output.write(rendered)
-            sourcemap.puts(mapping.to_json(@options[:output_filename]))
+            sourcemap.puts(mapping.to_json(
+                :css_path => @options[:output_filename],
+                :sourcemap_path => @options[:sourcemap_filename]))
           else
             output.write(engine.render)
           end

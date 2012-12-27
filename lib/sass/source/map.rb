@@ -64,16 +64,49 @@ module Sass::Source
 
     # Returns the standard JSON representation of the source map.
     #
-    # @param target_filename [String] The filename of the output file; that is,
-    #   the target of the mapping. This should be relative to the working
-    #   directory.
+    # If the `:css_uri` option isn't specified, the `:css_path` and
+    # `:sourcemap_path` options must both be specified. Any options may also be
+    # specified alongside the `:css_uri` option. If `:css_uri` isn't specified,
+    # it will be inferred from `:css_path` and `:sourcemap_path` using the
+    # assumption that the local file system has the same layout as the server.
+    #
+    # If any source stylesheets use the default filesystem importer, sourcemap
+    # generation will fail unless the ``:sourcemap_path` option is specified.
+    # The layout of the local file system is assumed to be the same as the
+    # layout of the server for the purposes of linking to source stylesheets
+    # that use the filesystem importer.
+    #
+    # Regardless of which options are passed to this method, sourcemap
+    # generation will fail if the source stylesheet contains any import that
+    # uses a non-default importer that doesn't implement
+    # \{Sass::Importers::Base#public\_url\}.
+    #
+    # @option options :css_uri [String]
+    #   The publicly-visible URI of the CSS output file.
+    # @option options :css_path [String]
+    #   The local path of the CSS output file.
+    # @option options :sourcemap_path [String]
+    #   The (eventual) local path of the sourcemap file.
     # @return [String] The JSON string.
-    def to_json(target_filename)
+    # @raise [ArgumentError] If neither `:css_uri` nor `:css_path` are
+    #   specified.
+    # @raise [Sass::SyntaxError] If the public URL of a stylesheet cannot be
+    #   determined.
+    def to_json(options)
+      css_uri, css_path, sourcemap_path = [:css_uri, :css_path, :sourcemap_path].map {|o| options[o]}
+      unless css_uri || (css_path && sourcemap_path)
+        raise ArgumentError.new("Sass::Source::Map#to_json requires either " +
+          "the :css_uri option or both the :css_path and :soucemap_path options.")
+      end
+      css_path &&= Pathname.pwd.join(Pathname.new(css_path)).cleanpath
+      sourcemap_path &&= Pathname.pwd.join(Pathname.new(sourcemap_path)).cleanpath
+      css_uri ||= css_path.relative_path_from(sourcemap_path.dirname).to_s
+
       result = "{\n"
       write_json_field(result, "version", "3", true)
 
-      source_pathname_to_id = {}
-      id_to_source_pathname = {}
+      source_uri_to_id = {}
+      id_to_source_uri = {}
       next_source_id = 0
       line_data = []
       segment_data_for_line = []
@@ -85,17 +118,26 @@ module Sass::Source
       previous_source_offset = 1
       previous_source_id = 0
 
-      target_pathname = Pathname.pwd.join(Pathname.new(target_filename)).cleanpath
       @data.each do |m|
-        source_pathname = Pathname.pwd.join(Pathname.new(m.input.file)).cleanpath
-        source_pathname = source_pathname.relative_path_from(target_pathname.dirname)
-        current_source_id = source_pathname_to_id[source_pathname]
+        file, importer = m.input.file, m.input.importer
+        unless source_uri = importer && importer.public_url(file)
+          if importer.is_a?(Sass::Importers::Filesystem) && sourcemap_path
+            file_path = Pathname.new(importer.root).join(file)
+            source_uri = file_path.relative_path_from(sourcemap_path.dirname).to_s
+          else
+            raise Sass::SyntaxError.new(<<ERR)
+Error generating source map: couldn't determine public URL for "#{file}".
+ERR
+          end
+        end
+
+        current_source_id = source_uri_to_id[source_uri]
         unless current_source_id
           current_source_id = next_source_id
           next_source_id += 1
 
-          source_pathname_to_id[source_pathname] = current_source_id
-          id_to_source_pathname[current_source_id] = source_pathname
+          source_uri_to_id[source_uri] = current_source_id
+          id_to_source_uri[current_source_id] = source_uri
         end
 
         [
@@ -138,9 +180,9 @@ module Sass::Source
       write_json_field(result, "mappings", line_data.join(";"))
 
       source_names = []
-      (0...next_source_id).each {|id| source_names.push(id_to_source_pathname[id].to_s)}
+      (0...next_source_id).each {|id| source_names.push(id_to_source_uri[id].to_s)}
       write_json_field(result, "sources", source_names)
-      write_json_field(result, "file", target_pathname.basename.to_s)
+      write_json_field(result, "file", css_uri)
 
       result << "\n}"
       result
