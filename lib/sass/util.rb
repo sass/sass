@@ -803,12 +803,12 @@ MSG
     # @param s [String] The string to be escaped
     # @return [String] The escaped string
     def json_escape_string(s)
-      return s if s !~ /["\\\/\b\f\n\r\t]/
+      return s if s !~ /["\\\b\f\n\r\t]/
 
       result = ""
       s.split("").each do |c|
         case c
-        when '"', "\\", "/"
+        when '"', "\\"
           result << "\\" << c
         when "\n" then result << "\\n"
         when "\t" then result << "\\t"

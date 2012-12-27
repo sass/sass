@@ -4,6 +4,13 @@ require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 
 class SourcemapTest < Test::Unit::TestCase
+  def test_to_json_requires_args
+    rendered, sourcemap = render_with_sourcemap('')
+    assert_raise(ArgumentError) {sourcemap.to_json({})}
+    assert_raise(ArgumentError) {sourcemap.to_json({:css_path => 'foo'})}
+    assert_raise(ArgumentError) {sourcemap.to_json({:sourcemap_path => 'foo'})}
+  end
+
   def test_simple_mapping_scss
     assert_parses_with_sourcemap <<SCSS, <<CSS, <<JSON
 a {
@@ -70,7 +77,7 @@ CSS
 {
 "version": "3",
 "mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
-"sources": ["..\\/scss\\/style.scss"],
+"sources": ["../scss/style.scss"],
 "file": "style.css"
 }
 JSON
@@ -94,7 +101,7 @@ CSS
 {
 "version": "3",
 "mappings": ";EACE,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
-"sources": ["..\\/sass\\/style.sass"],
+"sources": ["../sass/style.sass"],
 "file": "style.css"
 }
 JSON
@@ -725,7 +732,9 @@ CSS
         assert(!closing || start_positions[name], "Closing annotation #{name} found before opening one.")
         position = Sass::Source::Position.new(line, offset)
         if closing
-          ranges[name] << Sass::Source::Range.new(start_positions[name], position, file_name)
+          ranges[name] << Sass::Source::Range.new(
+            start_positions[name], position, file_name,
+            Sass::Importers::Filesystem.new('.'))
           start_positions.delete name
         else
           assert(!start_positions[name], "Overlapping range annotation #{name} encountered on line #{line}")
@@ -795,8 +804,12 @@ MESSAGE
 
   def assert_parses_with_sourcemap(source, css, sourcemap_json, options={})
     rendered, sourcemap = render_with_sourcemap(source, options)
+    css_path = options[:output] || "test.css"
+    sourcemap_path = Sass::Util.sourcemap_name(css_path)
+    rendered_json = sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path)
+
     assert_equal css.rstrip, rendered.rstrip
-    assert_equal sourcemap_json.rstrip, sourcemap.to_json(options[:output] || "test.css")
+    assert_equal sourcemap_json.rstrip, rendered_json
   end
 
   def render_with_sourcemap(source, options={})

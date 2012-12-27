@@ -12,15 +12,19 @@ module Sass
       # @param str [String, StringScanner] The source document to parse.
       #   Note that `Parser` *won't* raise a nice error message if this isn't properly parsed;
       #   for that, you should use the higher-level {Sass::Engine} or {Sass::CSS}.
-      # @param filename [String] The name of the file being parsed. Used for warnings.
+      # @param filename [String] The name of the file being parsed. Used for
+      #   warnings and source maps.
+      # @param importer [Sass::Importers::Base] The importer used to import the
+      #   file being parsed. Used for source maps.
       # @param line [Fixnum] The 1-based line on which the source string appeared,
       #   if it's part of another document.
       # @param offset [Fixnum] The 1-based character (not byte) offset in the line on
       #   which the source string starts. Used for error reporting and sourcemap
       #   building.
-      def initialize(str, filename, line = 1, offset = 1)
+      def initialize(str, filename, importer, line = 1, offset = 1)
         @template = str
         @filename = filename
+        @importer = importer
         @line = line
         @offset = offset
         @strs = []
@@ -69,7 +73,7 @@ module Sass
       end
 
       def range(start_pos, end_pos=source_position)
-        Sass::Source::Range.new(start_pos, end_pos, @filename)
+        Sass::Source::Range.new(start_pos, end_pos, @filename, @importer)
       end
 
       def init_scanner!

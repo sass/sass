@@ -122,6 +122,18 @@ module Sass
         Sass::Util.abstract(self)
       end
 
+      # Get the publicly-visible URL for an imported file. This URL is used by
+      # source maps to link to the source stylesheet. This may return `nil` to
+      # indicate that no public URL is available; however, this will cause
+      # sourcemap generation to fail if any CSS is generated from files imported
+      # from this importer.
+      #
+      # @param uri [String] A URI known to be valid for this importer.
+      # @return [String?] The publicly-visible URL for this file.
+      def public_url(uri)
+        nil
+      end
+
       # A string representation of the importer.
       # Should be overridden by subclasses.
       #

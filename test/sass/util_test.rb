@@ -314,7 +314,7 @@ class UtilTest < Test::Unit::TestCase
     assert_json_string "", ""
     alphanum = (("0".."9").to_a).concat(("a".."z").to_a).concat(("A".."Z").to_a).join
     assert_json_string alphanum, alphanum
-    assert_json_string "'\"\\/'", "'\\\"\\\\\\/'"
+    assert_json_string "'\"\\'", "'\\\"\\\\'"
     assert_json_string "\b\f\n\r\t", "\\b\\f\\n\\r\\t"
   end
 

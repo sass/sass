@@ -76,7 +76,7 @@ module Sass
     #
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
-      root = Sass::SCSS::CssParser.new(@template, @options[:filename]).parse
+      root = Sass::SCSS::CssParser.new(@template, @options[:filename], nil).parse
       parse_selectors    root
       expand_commas      root
       nest_seqs          root
@@ -96,7 +96,7 @@ module Sass
       root.children.each do |child|
         next parse_selectors(child) if child.is_a?(Tree::DirectiveNode)
         next unless child.is_a?(Tree::RuleNode)
-        parser = Sass::SCSS::CssParser.new(child.rule.first, child.filename, child.line)
+        parser = Sass::SCSS::CssParser.new(child.rule.first, child.filename, nil, child.line)
         child.parsed_rules = parser.parse_selector
       end
     end
