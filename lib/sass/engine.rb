@@ -273,7 +273,8 @@ module Sass
     #   to the location of the CSS file.
     # @return [(String, Sass::Source::Map)] The rendered CSS and the associated
     #   source map
-    # @raise [Sass::SyntaxError] if there's an error in the document
+    # @raise [Sass::SyntaxError] if there's an error in the document, or if the
+    #   public URL for this document couldn't be determined.
     # @raise [Encoding::UndefinedConversionError] if the source encoding
     #   cannot be converted to UTF-8
     # @raise [ArgumentError] if the document uses an unknown encoding with `@charset`
@@ -332,6 +333,21 @@ module Sass
     private
 
     def _render_with_sourcemap(sourcemap_uri)
+      if @options[:filename].nil?
+        raise Sass::SyntaxError.new(<<ERR)
+Error generating source map: couldn't determine public URL for the source stylesheet.
+  No filename is available so there's nothing for the source map to link to.
+ERR
+      elsif @options[:importer].nil? ||
+        !(@options[:importer].public_url(@options[:filename]) ||
+          @options[:importer].is_a?(Sass::Importers::Filesystem))
+        raise Sass::SyntaxError.new(<<ERR)
+Error generating source map: couldn't determine public URL for "#{@options[:filename]}".
+  Without a public URL, there's nothing for the source map to link to.
+  Custom importers should define the #public_url method.
+ERR
+      end
+
       rendered, sourcemap = _to_tree.render_with_sourcemap
       compressed = @options[:style] == :compressed
       rendered << "\n" if rendered[-1] != ?\n

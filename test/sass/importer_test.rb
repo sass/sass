@@ -225,9 +225,11 @@ SCSS
 
     rendered, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
 
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {sourcemap.to_json(:css_uri => 'css_uri')}
-Error generating source map: couldn't determine public URL for "#{filename_for_test(:scss)}".
-MESSAGE
+    assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri')}
+WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
+  Without a public URL, there's nothing for the source map to link to.
+  Custom importers should define the #public_url method.
+WARNING
   end
 
   def test_source_map_with_css_uri_and_css_path_doesnt_support_filesystem_importer
@@ -244,9 +246,11 @@ SCSS
 
     rendered, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
 
-    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')}
-Error generating source map: couldn't determine public URL for "#{filename_for_test(:scss)}".
-MESSAGE
+    assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')}
+WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
+  Without a public URL, there's nothing for the source map to link to.
+  Custom importers should define the #public_url method.
+WARNING
   end
 
   def test_source_map_with_css_uri_and_sourcemap_path_supports_filesystem_importer
@@ -300,6 +304,24 @@ SCSS
 "file": "../static/style.css"
 }
 JSON
+  end
+
+  def test_render_with_sourcemap_requires_filename
+    file_system_importer = Sass::Importers::Filesystem.new('.')
+    engine = Sass::Engine.new(".foo {a: b}", :syntax => :scss, :importer => file_system_importer)
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {engine.render_with_sourcemap('sourcemap_url')}
+Error generating source map: couldn't determine public URL for the source stylesheet.
+  No filename is available so there's nothing for the source map to link to.
+MESSAGE
+  end
+
+  def test_render_with_sourcemap_requires_importer_with_public_url
+    class_importer = ClassImporter.new({"pear" => "color: green;"}, {"pear" => Time.now})
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {class_importer.find("pear", {}).render_with_sourcemap('sourcemap_url')}
+Error generating source map: couldn't determine public URL for "pear".
+  Without a public URL, there's nothing for the source map to link to.
+  Custom importers should define the #public_url method.
+MESSAGE
   end
 
   def fixture_dir
