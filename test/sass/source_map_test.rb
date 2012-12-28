@@ -375,7 +375,7 @@ CSS
   def test_extend_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 .error {
-  {{1}}border{{/1}}: {{2}}1px #f00{{/2}};
+  {{1}}border{{/1}}: {{2}}1px #ff00aa{{/2}};
   {{3}}background-color{{/3}}: {{4}}#fdd{{/4}};
 }
 .seriousError {
@@ -384,7 +384,7 @@ CSS
 }
 SCSS
 .error, .seriousError {
-  {{1}}border{{/1}}: {{2}}1px #f00{{/2}};
+  {{1}}border{{/1}}: {{2}}1px #ff00aa{{/2}};
   {{3}}background-color{{/3}}: {{4}}#fdd{{/4}}; }
 
 .seriousError {
