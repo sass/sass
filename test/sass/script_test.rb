@@ -420,6 +420,13 @@ SASS
     assert_equal "true", resolve("1.1cm == 11mm")
   end
 
+  def test_custom_unit_conversion
+    Sass::Script::Number.define_unit 42, "foo", 4, "px"
+    assert_equal "2.04762px", resolve("1px + 11foo")
+    assert_equal "1.04762px", resolve("11foo")
+    Sass::Script::Number.undefine_unit "foo"
+  end
+
   def test_operations_have_options
     assert_equal "Options defined!", resolve("assert_options(1 + 1)")
     assert_equal "Options defined!", resolve("assert_options('bar' + 'baz')")

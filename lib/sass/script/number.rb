@@ -17,7 +17,7 @@ module Sass::Script
 
     # A list of units in the numerator of the number.
     # For example, `1px*em/in*cm` would return `["px", "em"]`
-    # @return [Array<String>] 
+    # @return [Array<String>]
     attr_reader :numerator_units
 
     # A list of units in the denominator of the number.
@@ -403,13 +403,14 @@ module Sass::Script
         [this.numerator_units + other.numerator_units, this.denominator_units + other.denominator_units]
       when :/
         [this.numerator_units + other.denominator_units, this.denominator_units + other.numerator_units]
-      else  
+      else
         [this.numerator_units, this.denominator_units]
       end
     end
 
     def normalize!
       return if unitless?
+
       @numerator_units, @denominator_units = sans_common_units(@numerator_units, @denominator_units)
 
       @denominator_units.each_with_index do |d, i|
@@ -419,16 +420,64 @@ module Sass::Script
           @numerator_units.delete_at(@numerator_units.index(u))
         end
       end
+
+      # Convert to base units (BASE_UNITS)
+      if legal_units?
+        u = @numerator_units[0]
+        i = CONVERTABLE_UNITS[u]
+        if i && !BASE_UNITS[i]
+          @value /= conversion_factor("px", u)
+          @numerator_units[0] = "px"
+          @original = nil
+        end
+      end
     end
 
     # A hash of unit names to their index in the conversion table
-    CONVERTABLE_UNITS = {"in" => 0,        "cm" => 1,    "pc" => 2,    "mm" => 3,   "pt" => 4,  "px" => 5    }
-    CONVERSION_TABLE = [[ 1,                2.54,         6,            25.4,        72        , 96          ], # in
-                        [ nil,              1,            2.36220473,   10,          28.3464567, 37.795275591], # cm
-                        [ nil,              nil,          1,            4.23333333,  12        , 16          ], # pc
-                        [ nil,              nil,          nil,          1,           2.83464567, 3.7795275591], # mm
-                        [ nil,              nil,          nil,          nil,         1         , 1.3333333333], # pt
-                        [ nil,              nil,          nil,          nil,         nil       , 1           ]] # px
+    CONVERTABLE_UNITS = {"in" => 0}
+    BASE_UNITS = [true] # in is a base uint
+    CONVERSION_TABLE  = [[ 1.0 ]] # 1in == 1in
+
+    # Define a new convertable unit
+    # example: Defining 2.54cm as 1in
+    #   define_unit(2.54, "cm", 1, "in")
+    def self.define_unit(a_size, a_name, b_size, b_name, base=false)
+      a_index = CONVERTABLE_UNITS.size
+      b_index = CONVERTABLE_UNITS[b_name]
+      factor  = CONVERSION_TABLE[0][b_index] * (a_size.to_f / b_size.to_f)
+
+      conversions = CONVERSION_TABLE[0].map do |f|
+        factor / f
+      end
+      conversions.push 1.0
+
+      BASE_UNITS.push base
+      CONVERTABLE_UNITS[a_name] = a_index
+      CONVERSION_TABLE.push Array.new(a_index, nil)
+      conversions.each_with_index do |f, i|
+        CONVERSION_TABLE[i].push f
+      end
+    end
+
+    # Undefine a convertible unit
+    # example: Undefine cm
+    #   undefine_unit "cm"
+    def self.undefine_unit(name)
+      index = CONVERTABLE_UNITS[name]
+      CONVERSION_TABLE.delete_at(index)
+      CONVERSION_TABLE.each do |a|
+        a.delete_at(index)
+      end
+    end
+
+    # metric
+    define_unit  2.54, "cm", 1, "in", true
+    define_unit 10.00, "mm", 1, "cm", true
+
+    # points
+    define_unit  6.00, "pc", 1, "in", true
+    define_unit 12.00, "pt", 1, "pc", true
+    define_unit 16.00, "px", 1, "pc", true
 
     def conversion_factor(from_unit, to_unit)
       res = CONVERSION_TABLE[CONVERTABLE_UNITS[from_unit]][CONVERTABLE_UNITS[to_unit]]
