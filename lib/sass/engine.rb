@@ -426,7 +426,7 @@ ERR
       comment_tab_str = nil
       first = true
       lines = []
-      string.gsub(/\r|\n|\r\n|\r\n/, "\n").scan(/^[^\n]*?$/).each_with_index do |line, index|
+      string.gsub(/\r\n|\r|\n/, "\n").scan(/^[^\n]*?$/).each_with_index do |line, index|
         index += (@options[:line] || 1)
         if line.strip.empty?
           lines.last.text << "\n" if lines.last && lines.last.comment?

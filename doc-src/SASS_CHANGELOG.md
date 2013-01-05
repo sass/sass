@@ -30,7 +30,7 @@
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
-## 3.2.5 (Unreleased)
+## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.
 
@@ -39,6 +39,9 @@
 
 * Ruby 2.0.0-preview compatibility. Thanks to [Eric
   Saxby](http://www.livinginthepast.org/).
+
+* Fix incorrect line numbering when using DOS line endings with the indented
+  syntax.
 
 ## 3.2.4
 

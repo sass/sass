@@ -2369,6 +2369,21 @@ SASS
 
   # Regression tests
 
+  def test_line_numbers_with_dos_line_endings
+    assert_equal <<CSS, render(<<SASS, :line_comments => true)
+/* line 5, test_line_numbers_with_dos_line_endings_inline.sass */
+.foo {
+  a: b; }
+CSS
+\r
+\r
+\r
+\r
+.foo
+  a: b
+SASS
+  end
+
   def test_variable_in_media_in_mixin
     assert_equal <<CSS, render(<<SASS)
 @media screen and (min-width: 10px) {
