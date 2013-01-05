@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.5 (Unreleased)
+## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.
 
