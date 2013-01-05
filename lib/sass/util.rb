@@ -379,7 +379,7 @@ module Sass
     #
     # @param msg [String]
     def sass_warn(msg)
-      Sass.logger.warn(msg)
+      Sass.logger.warn(msg.strip)
     end
 
     ## Cross Rails Version Compatibility

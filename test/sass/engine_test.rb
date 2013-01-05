@@ -2038,7 +2038,6 @@ SASS
   expected_warning = <<EXPECTATION
 WARNING: this is a warning
          on line 4 of test_warn_directive_inline.sass
-
 WARNING: this is a mixin warning
          on line 2 of test_warn_directive_inline.sass, in `foo'
          from line 7 of test_warn_directive_inline.sass
@@ -2072,11 +2071,9 @@ SASS
     expected_warning = <<WARN
 WARNING: In the main file
          on line 1 of #{File.dirname(__FILE__)}/templates/warn.sass
-
 WARNING: Imported
          on line 1 of #{File.dirname(__FILE__)}/templates/warn_imported.sass
          from line 2 of #{File.dirname(__FILE__)}/templates/warn.sass
-
 WARNING: In an imported mixin
          on line 4 of #{File.dirname(__FILE__)}/templates/warn_imported.sass, in `emits-a-warning'
          from line 3 of #{File.dirname(__FILE__)}/templates/warn.sass
