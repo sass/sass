@@ -10,6 +10,9 @@
 * Fix an `@import` bug on Windows. Thanks to [Darryl
   Miles](https://github.com/dlmiles).
 
+* Ruby 2.0.0-preview compatibility. Thanks to [Eric
+  Saxby](http://www.livinginthepast.org/).
+
 ## 3.2.4
 
 * Fix imports from `.jar` files in JRuby. Thanks to [Alex
