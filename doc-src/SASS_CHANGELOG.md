@@ -13,6 +13,9 @@
 * Ruby 2.0.0-preview compatibility. Thanks to [Eric
   Saxby](http://www.livinginthepast.org/).
 
+* Fix incorrect line numbering when using DOS line endings with the indented
+  syntax.
+
 ## 3.2.4
 
 * Fix imports from `.jar` files in JRuby. Thanks to [Alex
