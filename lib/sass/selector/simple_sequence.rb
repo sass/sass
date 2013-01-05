@@ -102,7 +102,7 @@ module Sass
           # seq is A, sels is B, and self is C
 
           self_without_sel = self.members - sels
-          group.each {|e, _| e.result = :failed_to_unify}
+          group.each {|e, _| e.result = :failed_to_unify unless e.result == :succeeded}
           next unless unified = seq.members.last.unify(self_without_sel, subject?)
           group.each {|e, _| e.result = :succeeded}
           group.each {|e, _| check_directives_match!(e, parent_directives)}

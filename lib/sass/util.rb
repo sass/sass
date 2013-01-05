@@ -379,6 +379,7 @@ module Sass
     #
     # @param msg [String]
     def sass_warn(msg)
+      msg = msg + "\n" unless ruby1?
       Sass.logger.warn(msg)
     end
 
@@ -483,6 +484,13 @@ module Sass
     end
 
     ## Cross-Ruby-Version Compatibility
+
+    # Whether or not this is running under a Ruby version under 2.0.
+    #
+    # @return [Boolean]
+    def ruby1?
+      Sass::Util::RUBY_VERSION[0] <= 1
+    end
 
     # Whether or not this is running under Ruby 1.8 or lower.
     #

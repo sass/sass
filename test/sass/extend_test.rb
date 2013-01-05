@@ -1130,6 +1130,20 @@ SCSS
 
   # Regression Tests
 
+  def test_partially_failed_extend
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
+.rc, test {
+  color: white; }
+
+.prices span.pill span.rc {
+  color: red; }
+CSS
+test { @extend .rc; }
+.rc {color: white;}
+.prices span.pill span.rc {color: red;}
+SCSS
+  end
+
   def test_newline_near_combinator
     assert_equal <<CSS, render(<<SCSS)
 .a +
