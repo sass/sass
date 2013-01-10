@@ -7,25 +7,26 @@ else
   # multibyte character encodings. The native class deals only in bytes, not
   # characters, for methods like [#pos] and [#matched_size]. This class deals
   # only in characters, instead.
-  class Sass::Util::MultibyteStringScanner < StringScanner
+  class Sass::Util::MultibyteStringScanner
     def self.new(str)
       return StringScanner.new(str) if str.ascii_only?
       super
     end
 
     def initialize(str)
-      super
+      @scanner = StringScanner.new(str)
+
       @mb_pos = 0
       @mb_matched_size = nil
       @mb_last_pos = nil
     end
 
-    alias_method :byte_pos, :pos
-    alias_method :byte_matched_size, :matched_size
+    def byte_pos; @scanner.pos; end
+    def byte_matched_size; @scanner.matched_size; end
 
-    def check(pattern); _match super; end
-    def check_until(pattern); _matched super; end
-    def getch; _forward _match super; end
+    def check(pattern); _match @scanner.check(pattern); end
+    def check_until(pattern); _matched @scanner.check_until(pattern); end
+    def getch; _forward _match @scanner.getch; end
     def match?(pattern); _size check(pattern); end
     def matched_size; @mb_matched_size; end
     def peek(len); string[@mb_pos, len]; end
@@ -33,8 +34,8 @@ else
     def pos; @mb_pos; end
     alias_method :pointer, :pos
     def rest_size; rest.size; end
-    def scan(pattern); _forward _match super; end
-    def scan_until(pattern); _forward _matched super; end
+    def scan(pattern); _forward _match @scanner.scan(pattern); end
+    def scan_until(pattern); _forward _matched @scanner.scan_until(pattern); end
     def skip(pattern); _size scan(pattern); end
     def skip_until(pattern); _matched _size scan_until(pattern); end
 
@@ -61,10 +62,10 @@ else
       if @mb_pos - n < @mb_pos / 2
         # New position is close to old position
         byte_delta = @mb_pos > n ? -string[n...@mb_pos].bytesize : string[@mb_pos...n].bytesize
-        super(byte_pos + byte_delta)
+        @scanner.pos = byte_pos + byte_delta
       else
         # New position is close to BOS
-        super(string[0...n].bytesize)
+        @scanner.pos = string[0...n].bytesize
       end
       @mb_pos = n
     end
@@ -73,17 +74,17 @@ else
       @mb_pos = 0
       @mb_matched_size = nil
       @mb_last_pos = nil
-      super
+      @scanner.reset
     end
 
     def scan_full(pattern, advance_pointer_p, return_string_p)
-      res = _match super(pattern, advance_pointer_p, true)
+      res = _match @scanner.scan_full(pattern, advance_pointer_p, true)
       _forward res if advance_pointer_p
       return res if return_string_p
     end
 
     def search_full(pattern, advance_pointer_p, return_string_p)
-      res = super(pattern, advance_pointer_p, true)
+      res = @scanner.search_full(pattern, advance_pointer_p, true)
       _forward res if advance_pointer_p
       _matched((res if return_string_p))
     end
@@ -92,21 +93,30 @@ else
       @mb_pos = 0
       @mb_matched_size = nil
       @mb_last_pos = nil
-      super
+      @scanner.string = str
     end
 
     def terminate
       @mb_pos = string.size
       @mb_matched_size = nil
       @mb_last_pos = nil
-      super
+      @scanner.terminate
     end
     alias_method :clear, :terminate
 
     def unscan
-      super
+      @scanner.unscan
       @mb_pos = @mb_last_pos
       @mb_last_pos = @mb_matched_size = nil
+    end
+
+    def is_a?(klass)
+      # Pretend StringScanner
+      if klass == StringScanner
+        true
+      else
+        super
+      end
     end
 
     private
@@ -129,6 +139,14 @@ else
       @mb_last_pos = @mb_pos
       @mb_pos += str.size if str
       str
+    end
+
+    def method_missing(method_name, *args)
+      if @scanner.respond_to? method_name
+        @scanner.send(method_name, *args)
+      else
+        super
+      end
     end
   end
 end
