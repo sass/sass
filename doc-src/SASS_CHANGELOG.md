@@ -7,6 +7,9 @@
 
 * Support for Rubinius 2.0.0.rc1.
 
+* Support for symlinked executables. Thanks to [Yin-So
+  Chen](http://yinsochen.com/).
+
 ## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.
