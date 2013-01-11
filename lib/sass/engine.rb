@@ -293,7 +293,7 @@ module Sass
     # @return [[Sass::Engine]] The dependency documents.
     def dependencies
       _dependencies(Set.new, engines = Set.new)
-      engines - [self]
+      Sass::Util.array_minus(engines, [self])
     end
 
     # Helper for \{#dependencies}.

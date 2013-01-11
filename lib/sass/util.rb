@@ -256,6 +256,19 @@ module Sass
       arr
     end
 
+    # Returns a sub-array of `minuend` containing only elements that are also in
+    # `subtrahend`. Ensures that the return value has the same order as
+    # `minuend`, even on Rubinius where that's not guaranteed by {Array#-}.
+    #
+    # @param minuend [Array]
+    # @param subtrahend [Array]
+    # @return [Array]
+    def array_minus(minuend, subtrahend)
+      return minuend - subtrahend unless rbx?
+      set = Set.new(minuend) - subtrahend
+      minuend.select {|e| set.include?(e)}
+    end
+
     # Asserts that `value` falls within `range` (inclusive), leaving
     # room for slight floating-point errors.
     #
@@ -460,6 +473,13 @@ module Sass
     # @return [Boolean]
     def ironruby?
       RUBY_ENGINE == "ironruby"
+    end
+
+    # Whether or not this is running on Rubinius.
+    #
+    # @return [Boolean]
+    def rbx?
+      RUBY_ENGINE == "rbx"
     end
 
     # Like `Dir.glob`, but works with backslash-separated paths on Windows.
