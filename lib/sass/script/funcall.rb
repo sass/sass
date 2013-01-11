@@ -106,18 +106,32 @@ module Sass
           opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
         end
       rescue ArgumentError => e
+        message = e.message
+
         # If this is a legitimate Ruby-raised argument error, re-raise it.
         # Otherwise, it's an error in the user's stylesheet, so wrap it.
-        if e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
-            e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/ &&
-            # JRuby (as of 1.6.7.2) doesn't put the actual method for
-            # which the argument error was thrown in the backtrace, so
-            # we detect whether our send threw an argument error.
-            (RUBY_PLATFORM !~ /java/ || e.backtrace[0] !~ /:in `send'$/ ||
-             e.backtrace[1] !~ /:in `_perform'$/)
+        if Sass::Util.rbx?
+          # Rubinius has a different error report string than vanilla Ruby. It
+          # also doesn't put the actual method for which the argument error was
+          # thrown in the backtrace, nor does it include `send`, so we look for
+          # `_perform`.
+          if e.message =~ /^method '([^']+)': given (\d+), expected (\d+)/
+            error_name, given, expected = $1, $2, $3
+            raise e if error_name != ruby_name || e.backtrace[0] !~ /:in `_perform'$/
+            message = "wrong number of arguments (#{given} for #{expected})"
+          end
+        elsif Sass::Util.jruby?
+          # JRuby (as of 1.6.7.2) doesn't put the actual method for which the
+          # argument error was thrown in the backtrace, so we detect whether our
+          # send threw an argument error.
+          if !(e.backtrace[0] =~ /:in `send'$/ && e.backtrace[1] =~ /:in `_perform'$/)
+            raise e
+          end
+        elsif e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
+            e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
           raise e
         end
-        raise Sass::SyntaxError.new("#{e.message} for `#{name}'")
+        raise Sass::SyntaxError.new("#{message} for `#{name}'")
       end
 
       # This method is factored out from `_perform` so that compass can override

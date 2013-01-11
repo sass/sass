@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.2.6 (Unreleased)
+
+* Support for Rubinius 2.0.0.rc1.
+
 ## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.

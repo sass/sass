@@ -482,6 +482,13 @@ module Sass
       RUBY_ENGINE == "rbx"
     end
 
+    # Whether or not this is running on JRuby.
+    #
+    # @return [Boolean]
+    def jruby?
+      RUBY_PLATFORM =~ /java/
+    end
+
     # Like `Dir.glob`, but works with backslash-separated paths on Windows.
     #
     # @param path [String]
