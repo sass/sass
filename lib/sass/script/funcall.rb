@@ -121,10 +121,18 @@ module Sass
             message = "wrong number of arguments (#{given} for #{expected})"
           end
         elsif Sass::Util.jruby?
-          # JRuby (as of 1.6.7.2) doesn't put the actual method for which the
-          # argument error was thrown in the backtrace, so we detect whether our
-          # send threw an argument error.
-          if !(e.backtrace[0] =~ /:in `send'$/ && e.backtrace[1] =~ /:in `_perform'$/)
+          # JRuby (as of 1.6.7.2) usually doesn't put the actual method for
+          # which the argument error was thrown in the backtrace, so we detect
+          # whether our send threw an argument error.
+          #
+          # The one case where JRuby does include the Ruby name of the function
+          # is manually-thrown ArgumentErrors, which are indistinguishable from
+          # legitimate ArgumentErrors. We treat both of these as
+          # Sass::SyntaxErrors even though it can hide Ruby errors.
+          if e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
+              e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/ &&
+              !(e.backtrace[0] =~ /:in `send'$/ &&
+                e.backtrace[1] =~ /:in `_perform'$/)
             raise e
           end
         elsif e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
