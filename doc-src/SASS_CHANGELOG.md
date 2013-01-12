@@ -7,6 +7,8 @@
 
 * Support for Rubinius 2.0.0.rc1.
 
+* Support for JRuby 1.7.2.
+
 * Support for symlinked executables. Thanks to [Yin-So
   Chen](http://yinsochen.com/).
 
