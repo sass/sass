@@ -7,6 +7,8 @@
 
 ### Backwards Incompatibilities -- Must Read!
 
+* StalenessChecker now passes :staleness_check => true in options when calling importer's find.
+
 * Sass will now throw an error when `@extend` is used to extend a selector
   outside the `@media` context of the extending selector. This means the
   following will be an error:
