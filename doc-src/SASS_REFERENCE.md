@@ -337,8 +337,7 @@ like the `sass` program but it defaults to assuming the syntax is SCSS.
 
 ### Encodings
 
-When running on Ruby 1.9 and later, Sass is aware of the character encoding of documents
-and will handle them the same way that CSS would.
+When running on Ruby 1.9 and later, Sass is aware of the character encoding of documents.
 By default, Sass assumes that all stylesheets are encoded
 using whatever coding system your operating system defaults to.
 For many users this will be `UTF-8`, the de facto standard for the web.
