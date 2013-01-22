@@ -21,9 +21,9 @@ module Sass
 
       # @see Base#retrieve
       def retrieve(key, sha)
-        @caches.each_with_index do |c, i|
-          next unless obj = c.retrieve(key, sha)
-          @caches[0...i].each {|c| c.store(key, sha, obj)}
+        @caches.each_with_index do |c1, i|
+          next unless obj = c1.retrieve(key, sha)
+          @caches[0...i].each {|c2| c2.store(key, sha, obj)}
           return obj
         end
         nil

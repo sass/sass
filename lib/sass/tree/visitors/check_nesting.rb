@@ -4,6 +4,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
 
   def initialize
     @parents = []
+    @parent = nil
   end
 
   def visit(node)

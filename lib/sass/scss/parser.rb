@@ -986,7 +986,7 @@ MESSAGE
         line = @line
         @strs.push ""
         throw_error {yield} && @strs.last
-      rescue Sass::SyntaxError => e
+      rescue Sass::SyntaxError
         @scanner.pos = pos
         @line = line
         nil
