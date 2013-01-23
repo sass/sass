@@ -1038,7 +1038,7 @@ MESSAGE
       def self.sass_script_parser; @sass_script_parser; end
 
       def sass_script(*args)
-        parser = self.class.sass_script_parser.new(@scanner, @line, @offset, :filename => @filename)
+        parser = self.class.sass_script_parser.new(@scanner, @line, @offset, :filename => @filename, :importer => @importer)
         result = parser.send(*args)
         unless @strs.empty?
           # Convert to CSS manually so that comments are ignored.
