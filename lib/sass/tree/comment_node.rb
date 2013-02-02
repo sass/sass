@@ -70,13 +70,13 @@ module Sass::Tree
     private
 
     def normalize_indentation(str)
-      pre = str.split("\n").inject(str[/^[ \t]*/].split("")) do |pre, line|
+      ind = str.split("\n").inject(str[/^[ \t]*/].split("")) do |pre, line|
         line[/^[ \t]*/].split("").zip(pre).inject([]) do |arr, (a, b)|
           break arr if a != b
           arr << a
         end
       end.join
-      str.gsub(/^#{pre}/, '')
+      str.gsub(/^#{ind}/, '')
     end
   end
 end
