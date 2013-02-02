@@ -626,7 +626,7 @@ module Sass
             ws = ''
           end
         end
-        [rules, range(start_pos)]
+        return rules, range(start_pos)
       end
 
       def selector
@@ -712,7 +712,7 @@ module Sass
           end
         end
 
-        Selector::SimpleSequence.new(res, tok(/!/), Set.new, range(start_pos))
+        Selector::SimpleSequence.new(res, tok(/!/), range(start_pos))
       end
 
       def parent_selector

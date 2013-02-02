@@ -60,11 +60,11 @@ module Sass
 
       # @param selectors [Array<Simple>] See \{#members}
       # @param subject [Boolean] See \{#subject?}
-      # @param sources [Set<Sequence>]
-      def initialize(selectors, subject, sources = Set.new, source_range = nil)
+      # @param source_range [Sass::Source::Range]
+      def initialize(selectors, subject, source_range = nil)
         @members = selectors
         @subject = subject
-        @sources = sources
+        @sources = Set.new
         @source_range = source_range
       end
 

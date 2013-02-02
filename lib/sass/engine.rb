@@ -599,11 +599,7 @@ WARNING
           # which begin with ::,
           # as well as pseudo-classes
           # if we're using the new property syntax
-          selector_source_range = Sass::Source::Range.new(
-            Sass::Source::Position.new(@line, to_parser_offset(line.offset)),
-            Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
-            @options[:filename], @options[:importer])
-          Tree::RuleNode.new(parse_interp(line.text), selector_source_range)
+          Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
         else
           name_start_offset = line.offset + 1 # +1 for the leading ':'
           name, value = line.text.scan(PROPERTY_OLD)[0]
@@ -630,20 +626,12 @@ WARNING
       when DIRECTIVE_CHAR
         parse_directive(parent, line, root)
       when ESCAPE_CHAR
-        selector_source_range = Sass::Source::Range.new(
-          Sass::Source::Position.new(@line, to_parser_offset(line.offset)),
-          Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
-          @options[:filename], @options[:importer])
-        Tree::RuleNode.new(parse_interp(line.text[1..-1]), selector_source_range)
+        Tree::RuleNode.new(parse_interp(line.text[1..-1]), full_line_range(line))
       when MIXIN_DEFINITION_CHAR
         parse_mixin_definition(line)
       when MIXIN_INCLUDE_CHAR
         if line.text[1].nil? || line.text[1] == ?\s
-          selector_source_range = Sass::Source::Range.new(
-            Sass::Source::Position.new(@line, to_parser_offset(line.offset)),
-            Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
-            @options[:filename], @options[:importer])
-          Tree::RuleNode.new(parse_interp(line.text), selector_source_range)
+          Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
         else
           parse_mixin_include(line, root)
         end
@@ -663,11 +651,7 @@ WARNING
 
       unless res = parser.parse_interp_ident
         parsed = parse_interp(line.text, line.offset)
-        selector_range = Sass::Source::Range.new(
-          Sass::Source::Position.new(@line, to_parser_offset(line.offset)),
-          Sass::Source::Position.new(@line, to_parser_offset(offset) + line.text.length),
-          @options[:filename], @options[:importer])
-        return Tree::RuleNode.new(parsed, selector_range)
+        return Tree::RuleNode.new(parsed, full_line_range(line))
       end
 
       ident_range = Sass::Source::Range.new(
@@ -757,11 +741,7 @@ WARNING
         type = if silent then :silent elsif loud then :loud else :normal end
         Tree::CommentNode.new(value, type)
       else
-        selector_source_range = Sass::Source::Range.new(
-          Sass::Source::Position.new(@line, to_parser_offset(line.offset)),
-          Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
-          @options[:filename], @options[:importer])
-        Tree::RuleNode.new(parse_interp(line.text), selector_source_range)
+        Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
       end
     end
 
@@ -1062,6 +1042,13 @@ WARNING
     # Parser tracks 1-based line and offset, so our offset should be converted.
     def to_parser_offset(offset)
       offset + 1
+    end
+
+    def full_line_range(line)
+      Sass::Source::Range.new(
+        Sass::Source::Position.new(@line, to_parser_offset(line.offset)),
+        Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
+        @options[:filename], @options[:importer])
     end
 
     # It's important that this have strings (at least)

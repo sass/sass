@@ -17,6 +17,11 @@ module Sass::Tree
     # @return [Array<String, Sass::Script::Node>]
     attr_accessor :selector
 
+    # The extended selector source range.
+    #
+    # @return [Sass::Source::Range]
+    attr_accessor :selector_source_range
+
     # Whether the `@extend` is allowed to match no selectors or not.
     #
     # @return [Boolean]
@@ -31,7 +36,7 @@ module Sass::Tree
     def initialize(selector, optional, selector_source_range)
       @selector = selector
       @optional = optional
-      @source_range = selector_source_range
+      @selector_source_range = selector_source_range
       super()
     end
   end
