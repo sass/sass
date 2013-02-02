@@ -367,7 +367,6 @@ module Sass
     end
 
     def check_encoding!
-      @checked_encoding |= nil
       return if @checked_encoding
       @checked_encoding = true
       @template, @original_encoding = check_sass_encoding(@template) do |msg, line|

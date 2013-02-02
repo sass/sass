@@ -13,7 +13,6 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   def initialize
     @parent_directives = []
-    @parent = nil
     @extends = Sass::Util::SubsetMap.new
   end
 
