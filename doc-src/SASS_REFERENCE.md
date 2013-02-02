@@ -167,7 +167,7 @@ Available options are:
 {#property_syntax-option} `:property_syntax`
 : Forces indented-syntax documents to use one syntax for properties.
   If the correct syntax isn't used, an error is thrown.
-  `:new` forces the use of a colon or equals sign
+  `:new` forces the use of a colon
   after the property name.
   For example: `color: #0f3`
   or `width: $main_width`.
