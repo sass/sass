@@ -44,6 +44,10 @@ module Sass::Tree
     # @return [Fixnum]
     attr_accessor :tabs
 
+    # The entire selector source range for this rule.
+    # @return [Sass::Source::Range]
+    attr_accessor :selector_source_range
+
     # Whether or not this rule is the last rule in a nested group.
     # This is only set in a CSS tree.
     #
@@ -58,10 +62,12 @@ module Sass::Tree
     attr_accessor :stack_trace
 
     # @param rule [Array<String, Sass::Script::Node>]
+    # @param selector_source_range [Sass::Source::Range]
     #   The CSS rule. See \{#rule}
-    def initialize(rule)
+    def initialize(rule, selector_source_range = nil)
       merged = Sass::Util.merge_adjacent_strings(rule)
       @rule = Sass::Util.strip_string_array(merged)
+      @selector_source_range = selector_source_range
       @tabs = 0
       try_to_parse_non_interpolated_rules
       super()

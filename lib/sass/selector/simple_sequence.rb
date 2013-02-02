@@ -26,6 +26,11 @@ module Sass
       # @return {Set<Sequence>}
       attr_accessor :sources
 
+      # This sequence source range.
+      #
+      # @return [Sass::Source::Range]
+      attr_accessor :source_range
+
       # @see \{#subject?}
       attr_writer :subject
 
@@ -55,11 +60,12 @@ module Sass
 
       # @param selectors [Array<Simple>] See \{#members}
       # @param subject [Boolean] See \{#subject?}
-      # @param sources [Set<Sequence>]
-      def initialize(selectors, subject, sources = Set.new)
+      # @param source_range [Sass::Source::Range]
+      def initialize(selectors, subject, source_range = nil)
         @members = selectors
         @subject = subject
-        @sources = sources
+        @sources = Set.new
+        @source_range = source_range
       end
 
       # Resolves the {Parent} selectors within this selector

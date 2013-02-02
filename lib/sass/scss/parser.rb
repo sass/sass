@@ -311,10 +311,10 @@ module Sass
       end
 
       def extend_directive(start_pos)
-        selector = expr!(:selector_sequence)
+        selector, selector_range = expr!(:selector_sequence)
         optional = tok(OPTIONAL)
         ss
-        node(Sass::Tree::ExtendNode.new(selector, !!optional), start_pos)
+        node(Sass::Tree::ExtendNode.new(selector, !!optional, selector_range), start_pos)
       end
 
       def import_directive(start_pos)
@@ -536,8 +536,9 @@ module Sass
 
       def ruleset
         start_pos = source_position
-        return unless rules = selector_sequence
-        block(node(Sass::Tree::RuleNode.new(rules.flatten.compact), start_pos), :ruleset)
+        rules, source_range = selector_sequence
+        return unless rules
+        block(node(Sass::Tree::RuleNode.new(rules.flatten.compact, source_range), start_pos), :ruleset)
       end
 
       def block(node, context)
@@ -607,8 +608,9 @@ module Sass
       end
 
       def selector_sequence
+        start_pos = source_position
         if sel = tok(STATIC_SELECTOR, true)
-          return [sel]
+          return [sel], range(start_pos)
         end
 
         rules = []
@@ -624,7 +626,7 @@ module Sass
             ws = ''
           end
         end
-        rules
+        return rules, range(start_pos)
       end
 
       def selector
@@ -680,6 +682,8 @@ module Sass
       def simple_selector_sequence
         # Returning expr by default allows for stuff like
         # http://www.w3.org/TR/css3-animations/#keyframes-
+
+        start_pos = source_position
         return expr(!:allow_var) unless e = element_name || id_selector ||
           class_selector || placeholder_selector || attrib || pseudo ||
           parent_selector || interpolation_selector
@@ -708,7 +712,7 @@ module Sass
           end
         end
 
-        Selector::SimpleSequence.new(res, tok(/!/))
+        Selector::SimpleSequence.new(res, tok(/!/), range(start_pos))
       end
 
       def parent_selector
