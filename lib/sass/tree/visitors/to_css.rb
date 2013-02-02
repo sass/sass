@@ -270,9 +270,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
         rule_part
       end.compact.join(rule_separator)
 
-      joined_rules.sub!(/\A\s*/, per_rule_indent)
+      joined_rules.lstrip!
       joined_rules.gsub!(/\s*\n\s*/, "#{line_separator}#{per_rule_indent}")
-      total_rule = total_indent << joined_rules
 
       old_spaces = '  ' * @tabs
       spaces = '  ' * (@tabs + 1)
@@ -316,7 +315,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
         trailer = "\n" if node.group_end
         end_props = (node.style == :expanded ? "\n" + old_spaces : ' ')
       end
-      output(total_rule)
+      output(total_indent + per_rule_indent)
+      for_node(node, :selector) {output(joined_rules)}
       output(bracket)
 
       with_tabs(tabs) do

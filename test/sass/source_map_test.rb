@@ -28,7 +28,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["test_simple_mapping_scss_inline.scss"],
 "file": "test.css"
 }
@@ -51,7 +51,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
+"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
 "sources": ["test_simple_mapping_sass_inline.sass"],
 "file": "test.css"
 }
@@ -76,7 +76,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
+"mappings": "AAAA,CAAE;EACA,GAAG,EAAE,GAAG;;EAER,SAAS,EAAE,IAAI",
 "sources": ["../scss/style.scss"],
 "file": "style.css"
 }
@@ -100,7 +100,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";EACE,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
+"mappings": "AAAA,CAAC;EACC,GAAG,EAAE,GAAG;;EAEP,SAAS,EAAC,IAAI",
 "sources": ["../sass/style.sass"],
 "file": "style.css"
 }
@@ -122,7 +122,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";;EACE,GAAG,EAAE,GAAG",
+"mappings": ";AAAA,CAAE;EACA,GAAG,EAAE,GAAG",
 "sources": ["test_simple_charset_mapping_scss_inline.scss"],
 "file": "test.css"
 }
@@ -142,7 +142,7 @@ a {
 CSS
 {
 "version": "3",
-"mappings": ";;EACE,GAAG,EAAE,GAAG",
+"mappings": ";AAAA,CAAC;EACC,GAAG,EAAE,GAAG",
 "sources": ["test_simple_charset_mapping_sass_inline.sass"],
 "file": "test.css"
 }
@@ -164,7 +164,7 @@ f\x86\x86 {
 CSS
 {
 "version": "3",
-"mappings": ";;EAEE,CAAC,EAAE,CAAC",
+"mappings": ";AACA,GAAI;EACF,CAAC,EAAE,CAAC",
 "sources": ["test_different_charset_than_encoding_scss_inline.scss"],
 "file": "test.css"
 }
@@ -185,7 +185,7 @@ f\x86\x86 {
 CSS
 {
 "version": "3",
-"mappings": ";;EAEE,CAAC,EAAE,CAAC",
+"mappings": ";AACA,GAAG;EACD,CAAC,EAAE,CAAC",
 "sources": ["test_different_charset_than_encoding_sass_inline.sass"],
 "file": "test.css"
 }
@@ -226,28 +226,28 @@ CSS
   def test_interpolation_and_vars_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 $te: "te";
-$teal: {{4}}teal{{/4}};
-p {
-  {{1}}con#{$te}nt{{/1}}: {{2}}"I a#{$te} #{5 + 10} pies!"{{/2}};
-  {{3}}color{{/3}}: $teal;
+$teal: {{5}}teal{{/5}};
+{{1}}p {{/1}}{
+  {{2}}con#{$te}nt{{/2}}: {{3}}"I a#{$te} #{5 + 10} pies!"{{/3}};
+  {{4}}color{{/4}}: $teal;
 }
 
 $name: foo;
 $attr: border;
-p.#{$name} {
-  {{5}}#{$attr}-color{{/5}}: {{6}}blue{{/6}};
+{{6}}p.#{$name} {{/6}}{
+  {{7}}#{$attr}-color{{/7}}: {{8}}blue{{/8}};
   $font-size: 12px;
   $line-height: 30px;
-  {{7}}font{{/7}}: {{8}}#{$font-size}/#{$line-height}{{/8}};
+  {{9}}font{{/9}}: {{10}}#{$font-size}/#{$line-height}{{/10}};
 }
 SCSS
-p {
-  {{1}}content{{/1}}: {{2}}"I ate 15 pies!"{{/2}};
-  {{3}}color{{/3}}: {{4}}teal{{/4}}; }
+{{1}}p{{/1}} {
+  {{2}}content{{/2}}: {{3}}"I ate 15 pies!"{{/3}};
+  {{4}}color{{/4}}: {{5}}teal{{/5}}; }
 
-p.foo {
-  {{5}}border-color{{/5}}: {{6}}blue{{/6}};
-  {{7}}font{{/7}}: {{8}}12px/30px{{/8}}; }
+{{6}}p.foo{{/6}} {
+  {{7}}border-color{{/7}}: {{8}}blue{{/8}};
+  {{9}}font{{/9}}: {{10}}12px/30px{{/10}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -256,26 +256,26 @@ CSS
   def test_interpolation_and_vars_sourcemap_sass
     assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
 $te: "te"
-$teal: {{4}}teal{{/4}}
-p
-  {{1}}con#{$te}nt{{/1}}: {{2}}"I a#{$te} #{5 + 10} pies!"{{/2}}
-  {{3}}color{{/3}}: $teal
+$teal: {{5}}teal{{/5}}
+{{1}}p{{/1}}
+  {{2}}con#{$te}nt{{/2}}: {{3}}"I a#{$te} #{5 + 10} pies!"{{/3}}
+  {{4}}color{{/4}}: $teal
 
 $name: foo
 $attr: border
-p.#{$name}
-  {{5}}#{$attr}-color{{/5}}: {{6}}blue{{/6}}
+{{6}}p.#{$name}{{/6}}
+  {{7}}#{$attr}-color{{/7}}: {{8}}blue{{/8}}
   $font-size: 12px
   $line-height: 30px
-  {{7}}font{{/7}}: {{8}}#{$font-size}/#{$line-height}{{/8}}
+  {{9}}font{{/9}}: {{10}}#{$font-size}/#{$line-height}{{/10}}
 SASS
-p {
-  {{1}}content{{/1}}: {{2}}"I ate 15 pies!"{{/2}};
-  {{3}}color{{/3}}: {{4}}teal{{/4}}; }
+{{1}}p{{/1}} {
+  {{2}}content{{/2}}: {{3}}"I ate 15 pies!"{{/3}};
+  {{4}}color{{/4}}: {{5}}teal{{/5}}; }
 
-p.foo {
-  {{5}}border-color{{/5}}: {{6}}blue{{/6}};
-  {{7}}font{{/7}}: {{8}}12px/30px{{/8}}; }
+{{6}}p.foo{{/6}} {
+  {{7}}border-color{{/7}}: {{8}}blue{{/8}};
+  {{9}}font{{/9}}: {{10}}12px/30px{{/10}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -285,45 +285,45 @@ CSS
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 $width: 2px;
 $translucent-red: rgba(255, 0, 0, 0.5);
-a {
-  .special {
-    {{7}}color{{/7}}: {{8}}red{{/8}};
-    &:hover {
-      {{9}}foo{{/9}}: {{10}}bar{{/10}};
-      {{11}}cursor{{/11}}: {{12}}e + -resize{{/12}};
-      {{13}}color{{/13}}: {{14}}opacify($translucent-red, 0.3){{/14}};
+{{1}}a {{/1}}{
+  {{8}}.special {{/8}}{
+    {{9}}color{{/9}}: {{10}}red{{/10}};
+    {{11}}&:hover {{/11}}{
+      {{12}}foo{{/12}}: {{13}}bar{{/13}};
+      {{14}}cursor{{/14}}: {{15}}e + -resize{{/15}};
+      {{16}}color{{/16}}: {{17}}opacify($translucent-red, 0.3){{/17}};
     }
-    &:after {
-      {{15}}content{{/15}}: {{16}}"I ate #{5 + 10} pies #{$width} thick!"{{/16}};
+    {{18}}&:after {{/18}}{
+      {{19}}content{{/19}}: {{20}}"I ate #{5 + 10} pies #{$width} thick!"{{/20}};
     }
   }
-  &:active {
-    {{17}}color{{/17}}: {{18}}#010203 + #040506{{/18}};
-    {{19}}border{{/19}}: {{20}}$width solid black{{/20}};
+  {{21}}&:active {{/21}}{
+    {{22}}color{{/22}}: {{23}}#010203 + #040506{{/23}};
+    {{24}}border{{/24}}: {{25}}$width solid black{{/25}};
   }
 /* SOME COMMENT */
-  {{1}}font{{/1}}: {{2}}2px/3px {{/2}}{
-    {{3}}family{{/3}}: {{4}}fantasy{{/4}};
-    {{5}}size{{/5}}: {{6}}1em + (2em * 3){{/6}};
+  {{2}}font{{/2}}: {{3}}2px/3px {{/3}}{
+    {{4}}family{{/4}}: {{5}}fantasy{{/5}};
+    {{6}}size{{/6}}: {{7}}1em + (2em * 3){{/7}};
   }
 }
 SCSS
-a {
+{{1}}a{{/1}} {
   /* SOME COMMENT */
-  {{1}}font{{/1}}: {{2}}2px/3px{{/2}};
-    {{3}}font-family{{/3}}: {{4}}fantasy{{/4}};
-    {{5}}font-size{{/5}}: {{6}}7em{{/6}}; }
-  a .special {
-    {{7}}color{{/7}}: {{8}}red{{/8}}; }
-    a .special:hover {
-      {{9}}foo{{/9}}: {{10}}bar{{/10}};
-      {{11}}cursor{{/11}}: {{12}}e-resize{{/12}};
-      {{13}}color{{/13}}: {{14}}rgba(255, 0, 0, 0.8){{/14}}; }
-    a .special:after {
-      {{15}}content{{/15}}: {{16}}"I ate 15 pies 2px thick!"{{/16}}; }
-  a:active {
-    {{17}}color{{/17}}: {{18}}#050709{{/18}};
-    {{19}}border{{/19}}: {{20}}2px solid black{{/20}}; }
+  {{2}}font{{/2}}: {{3}}2px/3px{{/3}};
+    {{4}}font-family{{/4}}: {{5}}fantasy{{/5}};
+    {{6}}font-size{{/6}}: {{7}}7em{{/7}}; }
+  {{8}}a .special{{/8}} {
+    {{9}}color{{/9}}: {{10}}red{{/10}}; }
+    {{11}}a .special:hover{{/11}} {
+      {{12}}foo{{/12}}: {{13}}bar{{/13}};
+      {{14}}cursor{{/14}}: {{15}}e-resize{{/15}};
+      {{16}}color{{/16}}: {{17}}rgba(255, 0, 0, 0.8){{/17}}; }
+    {{18}}a .special:after{{/18}} {
+      {{19}}content{{/19}}: {{20}}"I ate 15 pies 2px thick!"{{/20}}; }
+  {{21}}a:active{{/21}} {
+    {{22}}color{{/22}}: {{23}}#050709{{/23}};
+    {{24}}border{{/24}}: {{25}}2px solid black{{/25}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -333,40 +333,40 @@ CSS
     assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
 $width: 2px
 $translucent-red: rgba(255, 0, 0, 0.5)
-a
-  .special
-    {{7}}color{{/7}}: {{8}}red{{/8}}
-    &:hover
-      {{9}}foo{{/9}}: {{10}}bar{{/10}}
-      {{11}}cursor{{/11}}: {{12}}e + -resize{{/12}}
-      {{13}}color{{/13}}: {{14}}opacify($translucent-red, 0.3){{/14}}
-    &:after
-      {{15}}content{{/15}}: {{16}}"I ate #{5 + 10} pies #{$width} thick!"{{/16}}
-  &:active
-    {{17}}color{{/17}}: {{18}}#010203 + #040506{{/18}}
-    {{19}}border{{/19}}: {{20}}$width solid black{{/20}}
+{{1}}a{{/1}}
+  {{8}}.special{{/8}}
+    {{9}}color{{/9}}: {{10}}red{{/10}}
+    {{11}}&:hover{{/11}}
+      {{12}}foo{{/12}}: {{13}}bar{{/13}}
+      {{14}}cursor{{/14}}: {{15}}e + -resize{{/15}}
+      {{16}}color{{/16}}: {{17}}opacify($translucent-red, 0.3){{/17}}
+    {{18}}&:after{{/18}}
+      {{19}}content{{/19}}: {{20}}"I ate #{5 + 10} pies #{$width} thick!"{{/20}}
+  {{21}}&:active{{/21}}
+    {{22}}color{{/22}}: {{23}}#010203 + #040506{{/23}}
+    {{24}}border{{/24}}: {{25}}$width solid black{{/25}}
 
   /* SOME COMMENT */
-  {{1}}font{{/1}}: {{2}}2px/3px{{/2}}
-    {{3}}family{{/3}}: {{4}}fantasy{{/4}}
-    {{5}}size{{/5}}: {{6}}1em + (2em * 3){{/6}}
+  {{2}}font{{/2}}: {{3}}2px/3px{{/3}}
+    {{4}}family{{/4}}: {{5}}fantasy{{/5}}
+    {{6}}size{{/6}}: {{7}}1em + (2em * 3){{/7}}
 SASS
-a {
+{{1}}a{{/1}} {
   /* SOME COMMENT */
-  {{1}}font{{/1}}: {{2}}2px/3px{{/2}};
-    {{3}}font-family{{/3}}: {{4}}fantasy{{/4}};
-    {{5}}font-size{{/5}}: {{6}}7em{{/6}}; }
-  a .special {
-    {{7}}color{{/7}}: {{8}}red{{/8}}; }
-    a .special:hover {
-      {{9}}foo{{/9}}: {{10}}bar{{/10}};
-      {{11}}cursor{{/11}}: {{12}}e-resize{{/12}};
-      {{13}}color{{/13}}: {{14}}rgba(255, 0, 0, 0.8){{/14}}; }
-    a .special:after {
-      {{15}}content{{/15}}: {{16}}"I ate 15 pies 2px thick!"{{/16}}; }
-  a:active {
-    {{17}}color{{/17}}: {{18}}#050709{{/18}};
-    {{19}}border{{/19}}: {{20}}2px solid black{{/20}}; }
+  {{2}}font{{/2}}: {{3}}2px/3px{{/3}};
+    {{4}}font-family{{/4}}: {{5}}fantasy{{/5}};
+    {{6}}font-size{{/6}}: {{7}}7em{{/7}}; }
+  {{8}}a .special{{/8}} {
+    {{9}}color{{/9}}: {{10}}red{{/10}}; }
+    {{11}}a .special:hover{{/11}} {
+      {{12}}foo{{/12}}: {{13}}bar{{/13}};
+      {{14}}cursor{{/14}}: {{15}}e-resize{{/15}};
+      {{16}}color{{/16}}: {{17}}rgba(255, 0, 0, 0.8){{/17}}; }
+    {{18}}a .special:after{{/18}} {
+      {{19}}content{{/19}}: {{20}}"I ate 15 pies 2px thick!"{{/20}}; }
+  {{21}}a:active{{/21}} {
+    {{22}}color{{/22}}: {{23}}#050709{{/23}};
+    {{24}}border{{/24}}: {{25}}2px solid black{{/25}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -374,21 +374,21 @@ CSS
 
   def test_extend_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
-.error {
-  {{1}}border{{/1}}: {{2}}1px #ff00aa{{/2}};
-  {{3}}background-color{{/3}}: {{4}}#fdd{{/4}};
+{{1}}.error {{/1}}{
+  {{2}}border{{/2}}: {{3}}1px #ff00aa{{/3}};
+  {{4}}background-color{{/4}}: {{5}}#fdd{{/5}};
 }
-.seriousError {
+{{6}}.seriousError {{/6}}{
   @extend .error;
-  {{5}}border-width{{/5}}: {{6}}3px{{/6}};
+  {{7}}border-width{{/7}}: {{8}}3px{{/8}};
 }
 SCSS
-.error, .seriousError {
-  {{1}}border{{/1}}: {{2}}1px #ff00aa{{/2}};
-  {{3}}background-color{{/3}}: {{4}}#fdd{{/4}}; }
+{{1}}.error, .seriousError{{/1}} {
+  {{2}}border{{/2}}: {{3}}1px #ff00aa{{/3}};
+  {{4}}background-color{{/4}}: {{5}}#fdd{{/5}}; }
 
-.seriousError {
-  {{5}}border-width{{/5}}: {{6}}3px{{/6}}; }
+{{6}}.seriousError{{/6}} {
+  {{7}}border-width{{/7}}: {{8}}3px{{/8}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -396,20 +396,20 @@ CSS
 
   def test_extend_sourcemap_sass
     assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
-.error
-  {{1}}border{{/1}}: {{2}}1px #f00{{/2}}
-  {{3}}background-color{{/3}}: {{4}}#fdd{{/4}}
+{{1}}.error{{/1}}
+  {{2}}border{{/2}}: {{3}}1px #f00{{/3}}
+  {{4}}background-color{{/4}}: {{5}}#fdd{{/5}}
 
-.seriousError
+{{6}}.seriousError{{/6}}
   @extend .error
-  {{5}}border-width{{/5}}: {{6}}3px{{/6}}
+  {{7}}border-width{{/7}}: {{8}}3px{{/8}}
 SASS
-.error, .seriousError {
-  {{1}}border{{/1}}: {{2}}1px red{{/2}};
-  {{3}}background-color{{/3}}: {{4}}#ffdddd{{/4}}; }
+{{1}}.error, .seriousError{{/1}} {
+  {{2}}border{{/2}}: {{3}}1px red{{/3}};
+  {{4}}background-color{{/4}}: {{5}}#ffdddd{{/5}}; }
 
-.seriousError {
-  {{5}}border-width{{/5}}: {{6}}3px{{/6}}; }
+{{6}}.seriousError{{/6}} {
+  {{7}}border-width{{/7}}: {{8}}3px{{/8}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -418,17 +418,17 @@ CSS
   def test_for_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 @for $i from 1 through 3 {
-  .item-#{$i} { {{1}}width{{/1}}: {{2}}2em * $i{{/2}}; }
+  {{1}}{{4}}{{7}}.item-#{$i} {{/1}}{{/4}}{{/7}}{ {{2}}{{5}}{{8}}width{{/2}}{{/5}}{{/8}}: {{3}}{{6}}{{9}}2em * $i{{/3}}{{/6}}{{/9}}; }
 }
 SCSS
-.item-1 {
-  {{1}}width{{/1}}: {{2}}2em{{/2}}; }
+{{1}}.item-1{{/1}} {
+  {{2}}width{{/2}}: {{3}}2em{{/3}}; }
 
-.item-2 {
-  {{1}}width{{/1}}: {{2}}4em{{/2}}; }
+{{4}}.item-2{{/4}} {
+  {{5}}width{{/5}}: {{6}}4em{{/6}}; }
 
-.item-3 {
-  {{1}}width{{/1}}: {{2}}6em{{/2}}; }
+{{7}}.item-3{{/7}} {
+  {{8}}width{{/8}}: {{9}}6em{{/9}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -437,17 +437,17 @@ CSS
   def test_for_sourcemap_sass
     assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
 @for $i from 1 through 3
-  .item-#{$i}
-    {{1}}width{{/1}}: {{2}}2em * $i{{/2}}
+  {{1}}{{4}}{{7}}.item-#{$i}{{/1}}{{/4}}{{/7}}
+    {{2}}{{5}}{{8}}width{{/2}}{{/5}}{{/8}}: {{3}}{{6}}{{9}}2em * $i{{/3}}{{/6}}{{/9}}
 SASS
-.item-1 {
-  {{1}}width{{/1}}: {{2}}2em{{/2}}; }
+{{1}}.item-1{{/1}} {
+  {{2}}width{{/2}}: {{3}}2em{{/3}}; }
 
-.item-2 {
-  {{1}}width{{/1}}: {{2}}4em{{/2}}; }
+{{4}}.item-2{{/4}} {
+  {{5}}width{{/5}}: {{6}}4em{{/6}}; }
 
-.item-3 {
-  {{1}}width{{/1}}: {{2}}6em{{/2}}; }
+{{7}}.item-3{{/7}} {
+  {{8}}width{{/8}}: {{9}}6em{{/9}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -457,18 +457,18 @@ CSS
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 $i: 6;
 @while $i > 0 {
-  .item-#{$i} { {{1}}width{{/1}}: {{2}}2em * $i{{/2}}; }
+  {{1}}{{4}}{{7}}.item-#{$i} {{/1}}{{/4}}{{/7}}{ {{2}}{{5}}{{8}}width{{/2}}{{/5}}{{/8}}: {{3}}{{6}}{{9}}2em * $i{{/3}}{{/6}}{{/9}}; }
   $i: $i - 2;
 }
 SCSS
-.item-6 {
-  {{1}}width{{/1}}: {{2}}12em{{/2}}; }
+{{1}}.item-6{{/1}} {
+  {{2}}width{{/2}}: {{3}}12em{{/3}}; }
 
-.item-4 {
-  {{1}}width{{/1}}: {{2}}8em{{/2}}; }
+{{4}}.item-4{{/4}} {
+  {{5}}width{{/5}}: {{6}}8em{{/6}}; }
 
-.item-2 {
-  {{1}}width{{/1}}: {{2}}4em{{/2}}; }
+{{7}}.item-2{{/7}} {
+  {{8}}width{{/8}}: {{9}}4em{{/9}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -478,18 +478,18 @@ def test_while_sourcemap_sass
   assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
 $i: 6
 @while $i > 0
-  .item-#{$i}
-    {{1}}width{{/1}}: {{2}}2em * $i{{/2}}
-  $i: $i - 2
+  {{1}}{{4}}{{7}}.item-#{$i}{{/1}}{{/4}}{{/7}}
+    {{2}}{{5}}{{8}}width{{/2}}{{/5}}{{/8}}: {{3}}{{6}}{{9}}2em * $i{{/3}}{{/6}}{{/9}}
+    $i: $i - 2
 SASS
-.item-6 {
-  {{1}}width{{/1}}: {{2}}12em{{/2}}; }
+{{1}}.item-6{{/1}} {
+  {{2}}width{{/2}}: {{3}}12em{{/3}}; }
 
-.item-4 {
-  {{1}}width{{/1}}: {{2}}8em{{/2}}; }
+{{4}}.item-4{{/4}} {
+  {{5}}width{{/5}}: {{6}}8em{{/6}}; }
 
-.item-2 {
-  {{1}}width{{/1}}: {{2}}4em{{/2}}; }
+{{7}}.item-2{{/7}} {
+  {{8}}width{{/8}}: {{9}}4em{{/9}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -498,22 +498,22 @@ CSS
   def test_each_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 @each $animal in puma, sea-slug, egret, salamander {
-  .#{$animal}-icon {
-    {{1}}background-image{{/1}}: {{2}}url('/images/#{$animal}.png'){{/2}};
+  {{1}}{{4}}{{7}}{{10}}.#{$animal}-icon {{/1}}{{/4}}{{/7}}{{/10}}{
+    {{2}}{{5}}{{8}}{{11}}background-image{{/2}}{{/5}}{{/8}}{{/11}}: {{3}}{{6}}{{9}}{{12}}url('/images/#{$animal}.png'){{/3}}{{/6}}{{/9}}{{/12}};
   }
 }
 SCSS
-.puma-icon {
-  {{1}}background-image{{/1}}: {{2}}url("/images/puma.png"){{/2}}; }
+{{1}}.puma-icon{{/1}} {
+  {{2}}background-image{{/2}}: {{3}}url("/images/puma.png"){{/3}}; }
 
-.sea-slug-icon {
-  {{1}}background-image{{/1}}: {{2}}url("/images/sea-slug.png"){{/2}}; }
+{{4}}.sea-slug-icon{{/4}} {
+  {{5}}background-image{{/5}}: {{6}}url("/images/sea-slug.png"){{/6}}; }
 
-.egret-icon {
-  {{1}}background-image{{/1}}: {{2}}url("/images/egret.png"){{/2}}; }
+{{7}}.egret-icon{{/7}} {
+  {{8}}background-image{{/8}}: {{9}}url("/images/egret.png"){{/9}}; }
 
-.salamander-icon {
-  {{1}}background-image{{/1}}: {{2}}url("/images/salamander.png"){{/2}}; }
+{{10}}.salamander-icon{{/10}} {
+  {{11}}background-image{{/11}}: {{12}}url("/images/salamander.png"){{/12}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -522,20 +522,20 @@ CSS
   def test_each_sourcemap_sass
     assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
 @each $animal in puma, sea-slug, egret, salamander
-  .#{$animal}-icon
-    {{1}}background-image{{/1}}: {{2}}url('/images/#{$animal}.png'){{/2}}
+  {{1}}{{4}}{{7}}{{10}}.#{$animal}-icon{{/1}}{{/4}}{{/7}}{{/10}}
+    {{2}}{{5}}{{8}}{{11}}background-image{{/2}}{{/5}}{{/8}}{{/11}}: {{3}}{{6}}{{9}}{{12}}url('/images/#{$animal}.png'){{/3}}{{/6}}{{/9}}{{/12}}
 SASS
-.puma-icon {
-  {{1}}background-image{{/1}}: {{2}}url("/images/puma.png"){{/2}}; }
+{{1}}.puma-icon{{/1}} {
+  {{2}}background-image{{/2}}: {{3}}url("/images/puma.png"){{/3}}; }
 
-.sea-slug-icon {
-  {{1}}background-image{{/1}}: {{2}}url("/images/sea-slug.png"){{/2}}; }
+{{4}}.sea-slug-icon{{/4}} {
+  {{5}}background-image{{/5}}: {{6}}url("/images/sea-slug.png"){{/6}}; }
 
-.egret-icon {
-  {{1}}background-image{{/1}}: {{2}}url("/images/egret.png"){{/2}}; }
+{{7}}.egret-icon{{/7}} {
+  {{8}}background-image{{/8}}: {{9}}url("/images/egret.png"){{/9}}; }
 
-.salamander-icon {
-  {{1}}background-image{{/1}}: {{2}}url("/images/salamander.png"){{/2}}; }
+{{10}}.salamander-icon{{/10}} {
+  {{11}}background-image{{/11}}: {{12}}url("/images/salamander.png"){{/12}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -545,58 +545,58 @@ CSS
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 @mixin large-text {
   font: {
-    {{1}}size{{/1}}: {{2}}20px{{/2}};
-    {{3}}weight{{/3}}: {{4}}bold{{/4}};
+    {{2}}size{{/2}}: {{3}}20px{{/3}};
+    {{4}}weight{{/4}}: {{5}}bold{{/5}};
   }
-  {{5}}color{{/5}}: {{6}}#ff0000{{/6}};
+  {{6}}color{{/6}}: {{7}}#ff0000{{/7}};
 }
 
-.page-title {
+{{1}}.page-title {{/1}}{
   @include large-text;
-  {{7}}padding{{/7}}: {{8}}4px{{/8}};
+  {{8}}padding{{/8}}: {{9}}4px{{/9}};
 }
 
-@mixin dashed-border($color, $width: {{24}}1in{{/24}}) {
+@mixin dashed-border($color, $width: {{14}}1in{{/14}}) {
   border: {
-    {{9}}color{{/9}}: $color;
-    {{11}}width{{/11}}: $width;
-    {{13}}style{{/13}}: {{14}}dashed{{/14}};
+    {{11}}{{18}}color{{/11}}{{/18}}: $color;
+    {{13}}{{20}}width{{/13}}{{/20}}: $width;
+    {{15}}{{22}}style{{/15}}{{/22}}: {{16}}{{23}}dashed{{/16}}{{/23}};
   }
 }
 
-p { @include dashed-border({{10}}blue{{/10}}); }
-h1 { @include dashed-border({{25}}blue{{/25}}, {{26}}2in{{/26}}); }
+{{10}}p {{/10}}{ @include dashed-border({{12}}blue{{/12}}); }
+{{17}}h1 {{/17}}{ @include dashed-border({{19}}blue{{/19}}, {{21}}2in{{/21}}); }
 
 @mixin box-shadow($shadows...) {
-  {{18}}-moz-box-shadow{{/18}}: {{19}}$shadows{{/19}};
-  {{20}}-webkit-box-shadow{{/20}}: {{21}}$shadows{{/21}};
-  {{22}}box-shadow{{/22}}: {{23}}$shadows{{/23}};
+  {{25}}-moz-box-shadow{{/25}}: {{26}}$shadows{{/26}};
+  {{27}}-webkit-box-shadow{{/27}}: {{28}}$shadows{{/28}};
+  {{29}}box-shadow{{/29}}: {{30}}$shadows{{/30}};
 }
 
-.shadows {
+{{24}}.shadows {{/24}}{
   @include box-shadow(0px 4px 5px #666, 2px 6px 10px #999);
 }
 SCSS
-.page-title {
-  {{1}}font-size{{/1}}: {{2}}20px{{/2}};
-  {{3}}font-weight{{/3}}: {{4}}bold{{/4}};
-  {{5}}color{{/5}}: {{6}}#ff0000{{/6}};
-  {{7}}padding{{/7}}: {{8}}4px{{/8}}; }
+{{1}}.page-title{{/1}} {
+  {{2}}font-size{{/2}}: {{3}}20px{{/3}};
+  {{4}}font-weight{{/4}}: {{5}}bold{{/5}};
+  {{6}}color{{/6}}: {{7}}#ff0000{{/7}};
+  {{8}}padding{{/8}}: {{9}}4px{{/9}}; }
 
-p {
-  {{9}}border-color{{/9}}: {{10}}blue{{/10}};
-  {{11}}border-width{{/11}}: {{24}}1in{{/24}};
-  {{13}}border-style{{/13}}: {{14}}dashed{{/14}}; }
+{{10}}p{{/10}} {
+  {{11}}border-color{{/11}}: {{12}}blue{{/12}};
+  {{13}}border-width{{/13}}: {{14}}1in{{/14}};
+  {{15}}border-style{{/15}}: {{16}}dashed{{/16}}; }
 
-h1 {
-  {{9}}border-color{{/9}}: {{25}}blue{{/25}};
-  {{11}}border-width{{/11}}: {{26}}2in{{/26}};
-  {{13}}border-style{{/13}}: {{14}}dashed{{/14}}; }
+{{17}}h1{{/17}} {
+  {{18}}border-color{{/18}}: {{19}}blue{{/19}};
+  {{20}}border-width{{/20}}: {{21}}2in{{/21}};
+  {{22}}border-style{{/22}}: {{23}}dashed{{/23}}; }
 
-.shadows {
-  {{18}}-moz-box-shadow{{/18}}: {{19}}0px 4px 5px #666666, 2px 6px 10px #999999{{/19}};
-  {{20}}-webkit-box-shadow{{/20}}: {{21}}0px 4px 5px #666666, 2px 6px 10px #999999{{/21}};
-  {{22}}box-shadow{{/22}}: {{23}}0px 4px 5px #666666, 2px 6px 10px #999999{{/23}}; }
+{{24}}.shadows{{/24}} {
+  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666666, 2px 6px 10px #999999{{/26}};
+  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666666, 2px 6px 10px #999999{{/28}};
+  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666666, 2px 6px 10px #999999{{/30}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -606,54 +606,54 @@ def test_mixin_sourcemap_sass
   assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
 =large-text
   :font
-    {{1}}size{{/1}}: {{2}}20px{{/2}}
-    {{3}}weight{{/3}}: {{4}}bold{{/4}}
-  {{5}}color{{/5}}: {{6}}#ff0000{{/6}}
+    {{2}}size{{/2}}: {{3}}20px{{/3}}
+    {{4}}weight{{/4}}: {{5}}bold{{/5}}
+  {{6}}color{{/6}}: {{7}}#ff0000{{/7}}
 
-.page-title
+{{1}}.page-title{{/1}}
   +large-text
-  {{7}}padding{{/7}}: {{8}}4px{{/8}}
+  {{8}}padding{{/8}}: {{9}}4px{{/9}}
 
-=dashed-border($color, $width: {{24}}1in{{/24}})
+=dashed-border($color, $width: {{14}}1in{{/14}})
   border:
-    {{9}}color{{/9}}: $color
-    {{11}}width{{/11}}: $width
-    {{13}}style{{/13}}: {{14}}dashed{{/14}}
+    {{11}}{{18}}color{{/11}}{{/18}}: $color
+    {{13}}{{20}}width{{/13}}{{/20}}: $width
+    {{15}}{{22}}style{{/15}}{{/22}}: {{16}}{{23}}dashed{{/16}}{{/23}}
 
-p
-  +dashed-border({{10}}blue{{/10}})
+{{10}}p{{/10}}
+  +dashed-border({{12}}blue{{/12}})
 
-h1
-  +dashed-border({{25}}blue{{/25}}, {{26}}2in{{/26}})
+{{17}}h1{{/17}}
+  +dashed-border({{19}}blue{{/19}}, {{21}}2in{{/21}})
 
 =box-shadow($shadows...)
-  {{18}}-moz-box-shadow{{/18}}: {{19}}$shadows{{/19}}
-  {{20}}-webkit-box-shadow{{/20}}: {{21}}$shadows{{/21}}
-  {{22}}box-shadow{{/22}}: {{23}}$shadows{{/23}}
+  {{25}}-moz-box-shadow{{/25}}: {{26}}$shadows{{/26}}
+  {{27}}-webkit-box-shadow{{/27}}: {{28}}$shadows{{/28}}
+  {{29}}box-shadow{{/29}}: {{30}}$shadows{{/30}}
 
-.shadows
+{{24}}.shadows{{/24}}
   +box-shadow(0px 4px 5px #666, 2px 6px 10px #999)
 SASS
-.page-title {
-  {{1}}font-size{{/1}}: {{2}}20px{{/2}};
-  {{3}}font-weight{{/3}}: {{4}}bold{{/4}};
-  {{5}}color{{/5}}: {{6}}red{{/6}};
-  {{7}}padding{{/7}}: {{8}}4px{{/8}}; }
+{{1}}.page-title{{/1}} {
+  {{2}}font-size{{/2}}: {{3}}20px{{/3}};
+  {{4}}font-weight{{/4}}: {{5}}bold{{/5}};
+  {{6}}color{{/6}}: {{7}}red{{/7}};
+  {{8}}padding{{/8}}: {{9}}4px{{/9}}; }
 
-p {
-  {{9}}border-color{{/9}}: {{10}}blue{{/10}};
-  {{11}}border-width{{/11}}: {{24}}1in{{/24}};
-  {{13}}border-style{{/13}}: {{14}}dashed{{/14}}; }
+{{10}}p{{/10}} {
+  {{11}}border-color{{/11}}: {{12}}blue{{/12}};
+  {{13}}border-width{{/13}}: {{14}}1in{{/14}};
+  {{15}}border-style{{/15}}: {{16}}dashed{{/16}}; }
 
-h1 {
-  {{9}}border-color{{/9}}: {{25}}blue{{/25}};
-  {{11}}border-width{{/11}}: {{26}}2in{{/26}};
-  {{13}}border-style{{/13}}: {{14}}dashed{{/14}}; }
+{{17}}h1{{/17}} {
+  {{18}}border-color{{/18}}: {{19}}blue{{/19}};
+  {{20}}border-width{{/20}}: {{21}}2in{{/21}};
+  {{22}}border-style{{/22}}: {{23}}dashed{{/23}}; }
 
-.shadows {
-  {{18}}-moz-box-shadow{{/18}}: {{19}}0px 4px 5px #666666, 2px 6px 10px #999999{{/19}};
-  {{20}}-webkit-box-shadow{{/20}}: {{21}}0px 4px 5px #666666, 2px 6px 10px #999999{{/21}};
-  {{22}}box-shadow{{/22}}: {{23}}0px 4px 5px #666666, 2px 6px 10px #999999{{/23}}; }
+{{24}}.shadows{{/24}} {
+  {{25}}-moz-box-shadow{{/25}}: {{26}}0px 4px 5px #666666, 2px 6px 10px #999999{{/26}};
+  {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666666, 2px 6px 10px #999999{{/28}};
+  {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666666, 2px 6px 10px #999999{{/30}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -667,10 +667,10 @@ $gutter-width: 5px;
 @function grid-width($n) {
   @return $n * $grid-width + ($n - 1) * $gutter-width;
 }
-sidebar { {{1}}width{{/1}}: {{2}}grid-width(5){{/2}}; }
+{{1}}sidebar {{/1}}{ {{2}}width{{/2}}: {{3}}grid-width(5){{/3}}; }
 SCSS
-sidebar {
-  {{1}}width{{/1}}: {{2}}120px{{/2}}; }
+{{1}}sidebar{{/1}} {
+  {{2}}width{{/2}}: {{3}}120px{{/3}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -684,11 +684,11 @@ $gutter-width: 5px
 @function grid-width($n)
   @return $n * $grid-width + ($n - 1) * $gutter-width
 
-sidebar
-  {{1}}width{{/1}}: {{2}}grid-width(5){{/2}}
+{{1}}sidebar{{/1}}
+  {{2}}width{{/2}}: {{3}}grid-width(5){{/3}}
 SASS
-sidebar {
-  {{1}}width{{/1}}: {{2}}120px{{/2}}; }
+{{1}}sidebar{{/1}} {
+  {{2}}width{{/2}}: {{3}}120px{{/3}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS
@@ -698,17 +698,17 @@ CSS
 
   def test_properties_sass
     assert_parses_with_mapping <<SASS, <<CSS, :syntax => :sass
-.foo
-  :{{1}}name{{/1}} {{2}}value{{/2}}
-  {{3}}name{{/3}}: {{4}}value{{/4}}
-  :{{5}}name{{/5}}  {{6}}value{{/6}}
-  {{7}}name{{/7}}:  {{8}}value{{/8}}
+{{1}}.foo{{/1}}
+  :{{2}}name{{/2}} {{3}}value{{/3}}
+  {{4}}name{{/4}}: {{5}}value{{/5}}
+  :{{6}}name{{/6}}  {{7}}value{{/7}}
+  {{8}}name{{/8}}:  {{9}}value{{/9}}
 SASS
-.foo {
-  {{1}}name{{/1}}: {{2}}value{{/2}};
-  {{3}}name{{/3}}: {{4}}value{{/4}};
-  {{5}}name{{/5}}: {{6}}value{{/6}};
-  {{7}}name{{/7}}: {{8}}value{{/8}}; }
+{{1}}.foo{{/1}} {
+  {{2}}name{{/2}}: {{3}}value{{/3}};
+  {{4}}name{{/4}}: {{5}}value{{/5}};
+  {{6}}name{{/6}}: {{7}}value{{/7}};
+  {{8}}name{{/8}}: {{9}}value{{/9}}; }
 
 /*@ sourceMappingURL=test.css.map */
 CSS

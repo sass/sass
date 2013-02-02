@@ -17,6 +17,11 @@ module Sass::Tree
     # @return [Array<String, Sass::Script::Node>]
     attr_accessor :selector
 
+    # The extended selector source range.
+    #
+    # @return [Sass::Source::Range]
+    attr_accessor :selector_source_range
+
     # Whether the `@extend` is allowed to match no selectors or not.
     #
     # @return [Boolean]
@@ -27,9 +32,11 @@ module Sass::Tree
     #   interspersed with {Sass::Script::Node}s
     #   representing `#{}`-interpolation.
     # @param optional [Boolean] See \{#optional}
-    def initialize(selector, optional)
+    # @param selector_source_range [Sass::Source::Range] The extended selector source range.
+    def initialize(selector, optional, selector_source_range)
       @selector = selector
       @optional = optional
+      @selector_source_range = selector_source_range
       super()
     end
   end
