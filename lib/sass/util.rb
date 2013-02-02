@@ -275,6 +275,8 @@ module Sass
     # @param [Encoding::UndefinedConversionError]
     # @return [String]
     def undefined_conversion_error_char(e)
+      # Rubinius (as of 2.0.0.rc1) pre-quotes the error character.
+      return e.error_char if rbx?
       # JRuby (as of 1.7.2) doesn't have an error_char field on
       # Encoding::UndefinedConversionError.
       return e.error_char.dump unless jruby?
