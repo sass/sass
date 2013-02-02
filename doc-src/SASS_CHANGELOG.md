@@ -5,7 +5,9 @@
 
 ## 3.2.6 (Unreleased)
 
-* Support for Rubinius 2.0.0.rc1.
+* Support for Rubinius 2.0.0.rc1. All tests pass in 1.8 mode. 1.9 mode has some
+  tests blocked on [Rubinius issue
+  2139](https://github.com/rubinius/rubinius/issues/2139).
 
 * Support for JRuby 1.7.2.
 
