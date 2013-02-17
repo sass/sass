@@ -57,9 +57,11 @@ module Sass::Script
     NO_UNITS  = []
 
     # @param value [Numeric] The value of the number
-    # @param numerator_units [Array<String>] See \{#numerator\_units}
-    # @param denominator_units [Array<String>] See \{#denominator\_units}
+    # @param numerator_units [::String, Array<::String>] See \{#numerator\_units}
+    # @param denominator_units [::String, Array<::String>] See \{#denominator\_units}
     def initialize(value, numerator_units = NO_UNITS, denominator_units = NO_UNITS)
+      numerator_units = [numerator_units] if numerator_units.is_a?(::String)
+      denominator_units = [denominator_units] if denominator_units.is_a?(::String)
       super(value)
       @numerator_units = numerator_units
       @denominator_units = denominator_units

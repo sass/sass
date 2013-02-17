@@ -535,6 +535,11 @@ SASS
     assert_equal "and-bang", resolve("and-bang")
   end
 
+  def test_number_initialization
+    assert_equal Sass::Script::Number.new(10, ["px"]), Sass::Script::Number.new(10, "px")
+    assert_equal Sass::Script::Number.new(10, ["px"], ["em"]), Sass::Script::Number.new(10, "px", "em")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)
