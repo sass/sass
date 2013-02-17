@@ -691,9 +691,9 @@ class SassFunctionTest < Test::Unit::TestCase
       "scale-color(blue, $alpha: -101%)")
 
     # Unit
-    assert_error_message("$saturation: Amount 80 must be a % (e.g. 80%) for `scale-color'",
+    assert_error_message("Expected $saturation to have a unit of % but got 80 for `scale-color'",
       "scale-color(blue, $saturation: 80)")
-    assert_error_message("$alpha: Amount 0.5 must be a % (e.g. 0.5%) for `scale-color'",
+    assert_error_message("Expected $alpha to have a unit of % but got 0.5 for `scale-color'",
       "scale-color(blue, $alpha: 0.5)")
 
     # Unknown argument
@@ -1167,6 +1167,24 @@ MSG
 
   def test_only_kw_args
     assert_equal "only-kw-args(a, b, c)", evaluate("only-kw-args($a: 1, $b: 2, $c: 3)")
+  end
+
+  def test_assert_unit
+    ctx = Sass::Script::Functions::EvaluationContext.new({})
+    ctx.assert_unit Sass::Script::Number.new(10, ["px"], []), "px"
+    ctx.assert_unit Sass::Script::Number.new(10, [], []), nil
+    begin
+      ctx.assert_unit Sass::Script::Number.new(10, [], []), "px"
+      fail
+    rescue ArgumentError => e
+      assert_equal "Expected 10 to have a unit of px", e.message
+    end
+    begin
+      ctx.assert_unit Sass::Script::Number.new(10, ["px"], []), nil
+      fail
+    rescue ArgumentError => e
+      assert_equal "Expected 10px to be unitless", e.message
+    end
   end
 
   ## Regression Tests

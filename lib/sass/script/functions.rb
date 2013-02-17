@@ -353,6 +353,33 @@ module Sass::Script
         err = "$#{name}: " + err if name
         raise ArgumentError.new(err)
       end
+
+      # Asserts that the unit of the number is as expected.
+      #
+      # @example
+      #   assert_unit number, "px"
+      #   assert_unit number, nil
+      # @param number [Number] The number to be validated.
+      # @param unit [::String]
+      #   The unit that the number must have.
+      #   If nil, the number must be unitless.
+      # @param name [::String] The name of the parameter being validated.
+      def assert_unit(number, unit, name = nil)
+        return if number.is_unit?(unit)
+        if unit
+          if name
+            raise ArgumentError.new("Expected $#{name} to have a unit of #{unit} but got #{number}")
+          else
+            raise ArgumentError.new("Expected #{number} to have a unit of #{unit}")
+          end
+        else
+          if name
+            raise ArgumentError.new("Expected $#{name} to be unitless but got #{number}")
+          else
+            raise ArgumentError.new("Expected #{number} to be unitless")
+          end
+        end
+      end
     end
 
     class << self
@@ -392,11 +419,13 @@ module Sass::Script
 
       Color.new([red, green, blue].map do |c|
           v = c.value
-          if c.numerator_units == ["%"] && c.denominator_units.empty?
+          if c.is_unit?("%")
             v = Sass::Util.check_range("Color value", 0..100, c, '%')
             v * 255 / 100.0
-          else
+          elsif c.unitless?
             Sass::Util.check_range("Color value", 0..255, c)
+          else
+            raise ArgumentError.new("Expected #{c} to be unitless or have a unit of % but got #{c}")
           end
         end)
     end
@@ -889,11 +918,8 @@ module Sass::Script
 
         next unless val = kwargs.delete(name)
         assert_type val, :Number, name
-        if !(val.numerator_units == ['%'] && val.denominator_units.empty?)
-          raise ArgumentError.new("$#{name}: Amount #{val} must be a % (e.g. #{val.value}%)")
-        else
-          Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
-        end
+        assert_unit val, '%', name
+        Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
 
         current = color.send(name)
         scale = val.value/100.0
