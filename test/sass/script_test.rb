@@ -540,6 +540,12 @@ SASS
     assert_equal Sass::Script::Number.new(10, ["px"], ["em"]), Sass::Script::Number.new(10, "px", "em")
   end
 
+  def test_is_unit
+    assert Sass::Script::Number.new(10, "px").is_unit?("px")
+    assert Sass::Script::Number.new(10).is_unit?(nil)
+    assert !Sass::Script::Number.new(10, "px", "em").is_unit?("px")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)

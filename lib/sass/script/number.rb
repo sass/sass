@@ -287,6 +287,24 @@ module Sass::Script
       @numerator_units.empty? && @denominator_units.empty?
     end
 
+    # Checks whether the number has the numerator unit specified.
+    #
+    # @example
+    #   number = Sass::Script::Number.new(10, "px")
+    #   number.is_unit?("px") => true
+    #   number.is_unit?(nil) => false
+    #
+    # @param number [Number] The number to check
+    # @param unit [::String, nil] The unit the number should have or nil if the number should be unitless.
+    # @see Number#unitless? The unitless? method may be more readable.
+    def is_unit?(unit)
+      if unit
+        denominator_units.size == 0 && numerator_units.size == 1 && numerator_units.first == unit
+      else
+        unitless?
+      end
+    end
+
     # @return [Boolean] Whether or not this number has units that can be represented in CSS
     #   (that is, zero or one \{#numerator\_units}).
     def legal_units?
