@@ -114,7 +114,7 @@ module Sass::Script
   # : Returns the number of characters in a string.
   #
   # \{#str_insert str-insert($string, $insert, $index)}
-  # : Inserts a string $insert into $string at the specified $index.
+  # : Inserts the second string into the first string at the specified index.
   #
   # \{#str_extract str-extract($string, $start, $end)}
   # : Extracts a substring of characters from $string
@@ -1029,7 +1029,7 @@ module Sass::Script
     # @raise [ArgumentError] if `color` isn't a color
     # @see #desaturate
     def grayscale(color)
-      return Sass::Script::String.new("grayscale(#{color})") if color.is_a?(Number)
+      return Sass::Script::String.new("grayscale(#{color})") if color.is_a?(Sass::Script::Number)
       desaturate color, Number.new(100)
     end
     declare :grayscale, [:color]
@@ -1110,21 +1110,24 @@ module Sass::Script
     end
     declare :str_length, [:string]
 
-    # inserts a string into another string
+    # Inserts a string into another string.
     #
-    # Inserts the `insert` string before the character at the given index.
-    # Negative indices count from the end of the string.
-    # The inserted string will starts at the given index.
+    # Inserts the `$insert` string into the `$original` before the character at
+    # the given `$index`.
     #
-    # @return [String]
-    # @raise [ArgumentError] if `original` isn't a string, `insert` isn't a string, or `index` isn't a number.
+    # @param [String] original The string that will receive the insertion.
+    # @param [String] insert The string that will be inserted.
+    # @param [Number] index
+    #   The position where inserted string will start.
+    #   Negative indices count from the end of the original string.
+    #
+    # @return [String] A new string
+    # @raise [ArgumentError] if `$original` isn't a string, `$insert` isn't a string, or `$index` isn't a number.
     # @example
     #   str-insert("abcd", "X", 1) => "Xabcd"
     #   str-insert("abcd", "X", 4) => "abcXd"
     #   str-insert("abcd", "X", 100) => "abcdX"
     #   str-insert("abcd", "X", -100) => "Xabcd"
-    #   str-insert("abcd", "X", -4) => "aXbcd"
-    #   str-insert("abcd", "X", -1) => "abcdX"
     def str_insert(original, insert, index)
       assert_type original, :String
       assert_type insert, :String
