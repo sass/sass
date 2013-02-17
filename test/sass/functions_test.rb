@@ -864,6 +864,82 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("#ff0000 is not a string for `quote'", "quote(#f00)")
   end
 
+  def test_str_length
+    assert_equal('3', evaluate('str-length(foo)'))
+  end
+
+  def test_str_length_requires_a_string
+    assert_error_message("#ff0000 is not a string for `str-length'", "str-length(#f00)")
+  end
+
+  def test_str_insert
+    assert_equal('Xabcd', evaluate('str-insert(abcd, X, 0)'))
+    assert_equal('Xabcd', evaluate('str-insert(abcd, X, 1)'))
+    assert_equal('abcXd', evaluate('str-insert(abcd, X, 4)'))
+    assert_equal('abcdX', evaluate('str-insert(abcd, X, 100)'))
+    assert_equal('Xabcd', evaluate('str-insert(abcd, X, -100)'))
+    assert_equal('aXbcd', evaluate('str-insert(abcd, X, -4)'))
+    assert_equal('abcdX', evaluate('str-insert(abcd, X, -1)'))
+  end
+
+  def test_str_insert_maintains_quote_of_primary_string
+    assert_equal('"Xfoo"', evaluate('str-insert("foo", X, 1)'))
+    assert_equal('"Xfoo"', evaluate('str-insert("foo", "X", 1)'))
+    assert_equal('Xfoo', evaluate('str-insert(foo, "X", 1)'))
+  end
+
+  def test_str_insert_asserts_types
+    assert_error_message("#ff0000 is not a string for `str-insert'", "str-insert(#f00, X, 1)")
+    assert_error_message("#ff0000 is not a string for `str-insert'", "str-insert(foo, #f00, 1)")
+    assert_error_message("#ff0000 is not a number for `str-insert'", "str-insert(foo, X, #f00)")
+    assert_error_message("10px is not a unitless number for `str-insert'", "str-insert(foo, X, 10px)")
+  end
+
+  def test_str_index
+    assert_equal('1', evaluate('str-index(abcd, a)'))
+    assert_equal('1', evaluate('str-index(abcd, ab)'))
+    assert_equal('0', evaluate('str-index(abcd, X)'))
+    assert_equal('3', evaluate('str-index(abcd, c)'))
+  end
+
+  def test_str_index_asserts_types
+    assert_error_message("#ff0000 is not a string for `str-index'", "str-index(#f00, X)")
+    assert_error_message("#ff0000 is not a string for `str-index'", "str-index(asdf, #f00)")
+  end
+
+  def test_to_lower_case
+    assert_equal('abcd', evaluate('to-lower-case(ABCD)'))
+    assert_equal('"abcd"', evaluate('to-lower-case("ABCD")'))
+    assert_error_message("#ff0000 is not a string for `to-lower-case'", "to-lower-case(#f00)")
+  end
+
+  def test_to_upper_case
+    assert_equal('ABCD', evaluate('to-upper-case(abcd)'))
+    assert_equal('"ABCD"', evaluate('to-upper-case("abcd")'))
+    assert_error_message("#ff0000 is not a string for `to-upper-case'", "to-upper-case(#f00)")
+  end
+
+  def test_str_extract
+    assert_equal('bc',   evaluate('str-extract(abcd,2,3)'))    # in the middle of the string
+    assert_equal('a',    evaluate('str-extract(abcd,1,1)'))    # when start = end
+    assert_equal('ab',   evaluate('str-extract(abcd,1,2)'))    # for completeness
+    assert_equal('abcd', evaluate('str-extract(abcd,1,4)'))    # at the end points
+    assert_equal('abcd', evaluate('str-extract(abcd,0,4)'))    # when start is before the start of the string
+    assert_equal('abcd', evaluate('str-extract(abcd,1,100)'))  # when end is past the end of the string
+    assert_equal('',     evaluate('str-extract(abcd,2,1)'))    # when end is before start
+    assert_equal('"bc"', evaluate('str-extract("abcd",2,3)'))  # when used with a quoted string
+    assert_equal('bcd',  evaluate('str-extract(abcd,2)'))      # when end is omitted, you get the remainder of the string
+    assert_equal('abc',  evaluate('str-extract(abcd,-2)'))     # when end is omitted, and start is negative you get the start of the string
+    assert_equal('bc',   evaluate('str-extract(abcd,2,-2)'))   # when end is negative it counts in from the end
+    assert_equal('',     evaluate('str-extract(abcd,3,-3)'))   # when end is negative and comes before the start
+    assert_equal('bc',   evaluate('str-extract(abcd,-3,-2)'))  # when both are negative
+    assert_error_message("#ff0000 is not a string for `str-extract'", "str-extract(#f00,2,3)")
+    assert_error_message("#ff0000 is not a number for `str-extract'", "str-extract(abcd,#f00,3)")
+    assert_error_message("#ff0000 is not a number for `str-extract'", "str-extract(abcd,2,#f00)")
+    assert_error_message("3px is not a unitless number for `str-extract'", "str-extract(abcd,2,3px)")
+    assert_error_message("2px is not a unitless number for `str-extract'", "str-extract(abcd,2px,3)")
+  end
+
   def test_user_defined_function
     assert_equal("I'm a user-defined string!", evaluate("user_defined()"))
   end
