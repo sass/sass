@@ -116,6 +116,9 @@ module Sass::Script
   # \{#str_insert str-insert($string, $insert, $index)}
   # : Inserts the second string into the first string at the specified index.
   #
+  # \{#str_index str-index($string, $substring)}
+  # : Returns the index where a substring is found in another string or 0 if not found.
+  #
   # \{#str_extract str-extract($string, $start, $end)}
   # : Extracts a substring of characters from $string
   #
@@ -1169,8 +1172,10 @@ module Sass::Script
     # Starting at the left, finds the index of the first location
     # where `substring` is found in `string`.
     #
-    # @return [String]
+    # @return [Number] The index of the substring, or 0 if not found.
     # @raise [ArgumentError] if `original` isn't a string, `insert` isn't a string, or `index` isn't a number.
+    # @param string The string to search
+    # @param substring The string to search for
     # @example
     #   str-index(abcd, a)  => 1
     #   str-index(abcd, ab) => 1
