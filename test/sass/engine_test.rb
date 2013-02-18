@@ -11,6 +11,11 @@ module Sass::Script::Functions::UserFunctions
   def option(name)
     Sass::Script::String.new(@options[name.value.to_sym].to_s)
   end
+
+  def set_a_local_variable
+    environment.set_var('variable', Sass::Script::Number.new(5))
+    return Sass::Script::Null.new
+  end
 end
 
 class SassEngineTest < Test::Unit::TestCase
@@ -1397,6 +1402,29 @@ CSS
 
 bar
   a: foo(1, 2)
+SASS
+  end
+
+  def test_user_defined_function_variable_scope
+    puts render(<<SASS)
+bar
+  -no-op: set_a_local_variable()
+  a: $variable
+SASS
+    flunk("Exception not raised for test_user_defined_function_variable_scope")
+  rescue Sass::SyntaxError => e
+    assert_equal('Undefined variable: "$variable".', e.message)
+  end
+
+  def test_user_defined_function_can_change_global_variable
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  a: 5; }
+CSS
+$variable: 0
+bar
+  -no-op: set_a_local_variable()
+  a: $variable
 SASS
   end
 

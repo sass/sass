@@ -33,6 +33,10 @@ module Sass::Script::Functions::UserFunctions
   def _preceding_underscore
     Sass::Script::String.new("I'm another user-defined string!")
   end
+
+  def fetch_the_variable
+    environment.var('variable')
+  end
 end
 
 module Sass::Script::Functions
@@ -949,6 +953,11 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("I'm another user-defined string!", evaluate("-preceding-underscore()"))
   end
 
+  def test_user_defined_function_using_environment
+    environment = env('variable' => Sass::Script::String.new('The variable'))
+    assert_equal("The variable", evaluate("fetch_the_variable()", environment))
+  end
+
   def test_options_on_new_literals_fails
     assert_error_message(<<MSG, "call-options-on-new-literal()")
 The #options attribute is not set on this Sass::Script::String.
@@ -1194,13 +1203,18 @@ MSG
   end
 
   private
-
-  def evaluate(value)
-    Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new).to_s
+  def env(hash = {})
+    env = Sass::Environment.new
+    hash.each {|k, v| env.set_var(k, v)}
+    env
   end
 
-  def perform(value)
-    Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new)
+  def evaluate(value, environment = env)
+    perform(value, environment).to_s
+  end
+
+  def perform(value, environment = env)
+    Sass::Script::Parser.parse(value, 0, 0).perform(environment)
   end
 
   def assert_error_message(message, value)
