@@ -103,7 +103,7 @@ module Sass
         unless Functions.callable?(ruby_name)
           opts(to_literal(args))
         else
-          local_environment = Environment.new(environment)
+          local_environment = Environment.new(environment.global_env, environment.options)
           opts(Functions::EvaluationContext.new(local_environment).send(ruby_name, *args))
         end
       rescue ArgumentError => e

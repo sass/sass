@@ -12,9 +12,13 @@ module Sass::Script::Functions::UserFunctions
     Sass::Script::String.new(@options[name.value.to_sym].to_s)
   end
 
-  def set_a_local_variable
-    environment.set_var('variable', Sass::Script::Number.new(5))
+  def set_a_variable(name, value)
+    environment.set_var(name.value, value)
     return Sass::Script::Null.new
+  end
+
+  def get_a_variable(name)
+    environment.var(name.value) || Sass::Script::String.new("undefined")
   end
 end
 
@@ -1406,9 +1410,9 @@ SASS
   end
 
   def test_user_defined_function_variable_scope
-    puts render(<<SASS)
+    render(<<SASS)
 bar
-  -no-op: set_a_local_variable()
+  -no-op: set-a-variable(variable, 5)
   a: $variable
 SASS
     flunk("Exception not raised for test_user_defined_function_variable_scope")
@@ -1423,8 +1427,23 @@ bar {
 CSS
 $variable: 0
 bar
-  -no-op: set_a_local_variable()
+  $local: 10
+  -no-op: set-a-variable(variable, 5)
   a: $variable
+SASS
+  end
+
+  def test_user_defined_function_cannot_read_local_variable
+    assert_equal(<<CSS, render(<<SASS))
+bar {
+  global: 0;
+  local: undefined; }
+CSS
+$global: 0
+bar
+  $local: 10
+  global: get-a-variable(global)
+  local: get-a-variable(local)
 SASS
   end
 
