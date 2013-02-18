@@ -350,6 +350,7 @@ module Sass::Script
       # @param value [Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
       # @param name [String, nil] The name of the argument.
+      # @raise [ArgumentError] if value is not of the correct type.
       def assert_type(value, type, name = nil)
         return if value.is_a?(Sass::Script.const_get(type))
         err = "#{value.inspect} is not a #{type.to_s.downcase}"
@@ -367,7 +368,9 @@ module Sass::Script
       #   The unit that the number must have.
       #   If nil, the number must be unitless.
       # @param name [::String] The name of the parameter being validated.
+      # @raise [ArgumentError] if number is not of the correct unit or is not a number.
       def assert_unit(number, unit, name = nil)
+        assert_type number, :Number, name
         return if number.is_unit?(unit)
         if unit
           if name
@@ -381,6 +384,24 @@ module Sass::Script
           else
             raise ArgumentError.new("Expected #{number} to be unitless")
           end
+        end
+      end
+
+      # Asserts that the value is an integer.
+      #
+      # @example
+      #   assert_unit number, "px"
+      #   assert_unit number, nil
+      # @param number [Literal] The literal to be validated.
+      # @param name [::String] The name of the parameter being validated.
+      # @raise [ArgumentError] if number is not an integer or is not a number.
+      def assert_integer(number, name = nil)
+        assert_type number, :Number, name
+        return if number.int?
+        if name
+          raise ArgumentError.new("Expected $#{name} to be an integer but got #{number}")
+        else
+          raise ArgumentError.new("Expected #{number} to be an integer")
         end
       end
     end
@@ -1158,12 +1179,10 @@ module Sass::Script
     #   str-insert("abcd", "X", 100) => "abcdX"
     #   str-insert("abcd", "X", -100) => "Xabcd"
     def str_insert(original, insert, index)
-      assert_type original, :String
-      assert_type insert, :String
-      assert_type index, :Number
-      unless index.unitless?
-        raise ArgumentError.new("#{index.inspect} is not a unitless number")
-      end
+      assert_type original, :String, "original"
+      assert_type insert, :String, "insert"
+      assert_integer index, "index"
+      assert_unit index, nil, "index"
       insertion_point = index.value > 0 ? [index.value - 1, original.value.size].min : [index.value, -original.value.size - 1].max
       Sass::Script::String.new(original.value.dup.insert(insertion_point, insert.value), original.type)
     end
@@ -1218,11 +1237,9 @@ module Sass::Script
     #  str-slice("abcd",  2,   3) => "bc"
     def str_slice(string, start_at, end_at = nil)
       assert_type string, :String
-      assert_type start_at, :Number
       assert_unit start_at, nil, "start-at"
 
       end_at = Sass::Script::Number.new(-1)if end_at.nil?
-      assert_type end_at, :Number
       assert_unit end_at, nil, "end-at"
 
       s = start_at.value > 0 ? start_at.value - 1 : start_at.value

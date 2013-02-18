@@ -889,10 +889,10 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_str_insert_asserts_types
-    assert_error_message("#ff0000 is not a string for `str-insert'", "str-insert(#f00, X, 1)")
-    assert_error_message("#ff0000 is not a string for `str-insert'", "str-insert(foo, #f00, 1)")
-    assert_error_message("#ff0000 is not a number for `str-insert'", "str-insert(foo, X, #f00)")
-    assert_error_message("10px is not a unitless number for `str-insert'", "str-insert(foo, X, 10px)")
+    assert_error_message("$original: #ff0000 is not a string for `str-insert'", "str-insert(#f00, X, 1)")
+    assert_error_message("$insert: #ff0000 is not a string for `str-insert'", "str-insert(foo, #f00, 1)")
+    assert_error_message("$index: #ff0000 is not a number for `str-insert'", "str-insert(foo, X, #f00)")
+    assert_error_message("Expected $index to be unitless but got 10px for `str-insert'", "str-insert(foo, X, 10px)")
   end
 
   def test_str_index
@@ -934,8 +934,8 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal('',     evaluate('str-slice(abcd,3,-3)'))   # when end is negative and comes before the start
     assert_equal('bc',   evaluate('str-slice(abcd,-3,-2)'))  # when both are negative
     assert_error_message("#ff0000 is not a string for `str-slice'", "str-slice(#f00,2,3)")
-    assert_error_message("#ff0000 is not a number for `str-slice'", "str-slice(abcd,#f00,3)")
-    assert_error_message("#ff0000 is not a number for `str-slice'", "str-slice(abcd,2,#f00)")
+    assert_error_message("$start-at: #ff0000 is not a number for `str-slice'", "str-slice(abcd,#f00,3)")
+    assert_error_message("$end-at: #ff0000 is not a number for `str-slice'", "str-slice(abcd,2,#f00)")
     assert_error_message("Expected $end-at to be unitless but got 3px for `str-slice'", "str-slice(abcd,2,3px)")
     assert_error_message("Expected $start-at to be unitless but got 2px for `str-slice'", "str-slice(abcd,2px,3)")
   end
