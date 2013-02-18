@@ -38,6 +38,10 @@
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
+* Custom ruby functions can now access the global environment, which
+  allows them the same power as sass-based functions with respect to
+  reading and setting variables defined elsewhere in the stylesheet.
+
 ## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.
