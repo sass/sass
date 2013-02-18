@@ -119,7 +119,7 @@ module Sass::Script
   # \{#str_index str-index($string, $substring)}
   # : Returns the index where a substring is found in another string or 0 if not found.
   #
-  # \{#str_extract str-extract($string, $start, $end)}
+  # \{#str_extract str-slice($string, $start, $end)}
   # : Extracts a substring of characters from $string
   #
   # \{#to_upper_case to-upper-case($string)}

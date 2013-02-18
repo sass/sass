@@ -24,6 +24,14 @@
   "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
   printed.
 
+* Sass now has numerous functions for working with strings: `str-length`
+  will return the length of a string; `str-insert` will insert one
+  string into another; `str-index` will return the index of a substring
+  within another string; `str-slice` will slice a substring from a
+  string; `to-upper-case` will transform a string to upper case
+  characters; and `to-lower-case` will transform a string to lower case
+  characters.
+
 * `Sass::Compiler.on_updating_stylesheet` has been removed.
 
 * `Sass::Plugin.options=` has been removed.
