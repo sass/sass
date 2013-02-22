@@ -19,6 +19,9 @@
 * Fix an incorrect warning when using `@extend` from within nested `@media`
   queries.
 
+* Update the bundled version of [listen](http://github.com/guard/listen) to
+  0.7.2.
+
 ## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.
