@@ -16,6 +16,9 @@
 
 * Support for bubbling `@supports` queries in the indented syntax.
 
+* Fix an incorrect warning when using `@extend` from within nested `@media`
+  queries.
+
 ## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.

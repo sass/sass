@@ -1186,6 +1186,21 @@ SCSS
 
   # Regression Tests
 
+  def test_extend_in_double_nested_media_query
+    assert_equal <<CSS, render(<<SCSS)
+@media all and (orientation: landscape) {
+  .bar {
+    color: blue; } }
+CSS
+@media all {
+  @media (orientation: landscape) {
+    %foo {color: blue}
+    .bar {@extend %foo}
+  }
+}
+SCSS
+  end
+
   def test_partially_failed_extend
     assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
 .rc, test {
