@@ -14,6 +14,8 @@
 * Support for symlinked executables. Thanks to [Yin-So
   Chen](http://yinsochen.com/).
 
+* Support for bubbling `@supports` queries in the indented syntax.
+
 ## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.

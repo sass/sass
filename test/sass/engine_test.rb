@@ -2381,6 +2381,22 @@ SASS
 
   # Regression tests
 
+  def test_supports_bubbles
+    assert_equal <<CSS, render(<<SASS)
+parent {
+  background: orange; }
+  @supports (perspective: 10px) or (-moz-perspective: 10px) {
+    parent child {
+      background: blue; } }
+CSS
+parent
+  background: orange
+  @supports (perspective: 10px) or (-moz-perspective: 10px)
+    child
+      background: blue
+SASS
+  end
+
   def test_line_numbers_with_dos_line_endings
     assert_equal <<CSS, render(<<SASS, :line_comments => true)
 /* line 5, test_line_numbers_with_dos_line_endings_inline.sass */

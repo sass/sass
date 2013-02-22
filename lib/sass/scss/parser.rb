@@ -52,6 +52,18 @@ module Sass
         ql
       end
 
+      # Parses a supports query condition.
+      #
+      # @return [Sass::Supports::Condition] The parsed condition
+      # @raise [Sass::SyntaxError] if there's a syntax error in the condition,
+      #   or if it doesn't take up the entire input string.
+      def parse_supports_condition
+        init_scanner!
+        condition = supports_condition
+        expected("supports condition") unless @scanner.eos?
+        condition
+      end
+
       private
 
       include Sass::SCSS::RX
