@@ -346,8 +346,6 @@ RUBY
         splat = nil
         must_have_default = false
         loop do
-          line = @lexer.line
-          offset = @lexer.offset + 1
           c = assert_tok(:const)
           var = Script::Variable.new(c.value)
           if try_tok(:colon)

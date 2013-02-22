@@ -30,7 +30,7 @@ module Sass
 
       # @see Base#mtime
       def mtime(name, options)
-        file, s = Sass::Util.destructure(find_real_file(@root, name, options))
+        file, _ = Sass::Util.destructure(find_real_file(@root, name, options))
         File.mtime(file) if file
       rescue Errno::ENOENT
         nil
