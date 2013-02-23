@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.6 (Unreleased)
+## 3.2.6
 
 * Support for Rubinius 2.0.0.rc1. All tests pass in 1.8 mode. 1.9 mode has some
   tests blocked on [Rubinius issue
