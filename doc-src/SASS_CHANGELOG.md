@@ -5,6 +5,24 @@
 
 ## 3.3.0 (Unreleased)
 
+* [listen](http://github.com/guard/listen) is now a standard Gem dependency.
+  It's no longer bundled with Sass.
+
+* Sass now has numerous functions for working with strings:
+  \{Sass::Script::Functions#str_length `str-length`} will return the length of a
+  string; \{Sass::Script::Functions#str_insert `str-insert`} will insert one
+  string into another; \{Sass::Script::Functions#str_index `str-index`} will
+  return the index of a substring within another string;
+  \{Sass::Script::Functions#str_slice `str-slice`} will slice a substring from a
+  string; \{Sass::Script::Functions#to_upper_case `to-upper-case`} will
+  transform a string to upper case characters; and
+  \{Sass::Script::Functions#to_lower_case `to-lower-case`} will transform a
+  string to lower case characters.
+
+* Custom Ruby functions can now access the global environment, which
+  allows them the same power as Sass-based functions with respect to
+  reading and setting variables defined elsewhere in the stylesheet.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
@@ -24,23 +42,11 @@
   "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
   printed.
 
-* Sass now has numerous functions for working with strings: `str-length`
-  will return the length of a string; `str-insert` will insert one
-  string into another; `str-index` will return the index of a substring
-  within another string; `str-slice` will slice a substring from a
-  string; `to-upper-case` will transform a string to upper case
-  characters; and `to-lower-case` will transform a string to lower case
-  characters.
-
 * `Sass::Compiler.on_updating_stylesheet` has been removed.
 
 * `Sass::Plugin.options=` has been removed.
 
 * `Sass::Script::Number::PRECISION` has been removed.
-
-* Custom ruby functions can now access the global environment, which
-  allows them the same power as sass-based functions with respect to
-  reading and setting variables defined elsewhere in the stylesheet.
 
 ## 3.2.6
 

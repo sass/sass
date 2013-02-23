@@ -379,18 +379,11 @@ module Sass::Script
       def assert_unit(number, unit, name = nil)
         assert_type number, :Number, name
         return if number.is_unit?(unit)
-        if unit
-          if name
-            raise ArgumentError.new("Expected $#{name} to have a unit of #{unit} but got #{number}")
-          else
-            raise ArgumentError.new("Expected #{number} to have a unit of #{unit}")
-          end
+        expectation = unit ? "have a unit of #{unit}" : "be unitless"
+        if name
+          raise ArgumentError.new("Expected $#{name} to #{expectation} but got #{number}")
         else
-          if name
-            raise ArgumentError.new("Expected $#{name} to be unitless but got #{number}")
-          else
-            raise ArgumentError.new("Expected #{number} to be unitless")
-          end
+          raise ArgumentError.new("Expected #{number} to #{expectation}")
         end
       end
 
