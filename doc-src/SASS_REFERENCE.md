@@ -167,7 +167,7 @@ Available options are:
 {#property_syntax-option} `:property_syntax`
 : Forces indented-syntax documents to use one syntax for properties.
   If the correct syntax isn't used, an error is thrown.
-  `:new` forces the use of a colon or equals sign
+  `:new` forces the use of a colon
   after the property name.
   For example: `color: #0f3`
   or `width: $main_width`.
@@ -337,8 +337,7 @@ like the `sass` program but it defaults to assuming the syntax is SCSS.
 
 ### Encodings
 
-When running on Ruby 1.9 and later, Sass is aware of the character encoding of documents
-and will handle them the same way that CSS would.
+When running on Ruby 1.9 and later, Sass is aware of the character encoding of documents.
 By default, Sass assumes that all stylesheets are encoded
 using whatever coding system your operating system defaults to.
 For many users this will be `UTF-8`, the de facto standard for the web.
@@ -1159,7 +1158,7 @@ As such, it only works with `url()` imports.
 For example:
 
     $family: unquote("Droid+Sans");
-    @import url("http://fonts.googleapis.com/css?family=\#{$family}");
+    @import url("http://fonts.googleapis.com/css?family=#{$family}");
 
 would compile to
 

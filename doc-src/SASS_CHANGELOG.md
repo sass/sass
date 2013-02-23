@@ -42,6 +42,25 @@
   allows them the same power as sass-based functions with respect to
   reading and setting variables defined elsewhere in the stylesheet.
 
+## 3.2.6
+
+* Support for Rubinius 2.0.0.rc1. All tests pass in 1.8 mode. 1.9 mode has some
+  tests blocked on [Rubinius issue
+  2139](https://github.com/rubinius/rubinius/issues/2139).
+
+* Support for JRuby 1.7.2.
+
+* Support for symlinked executables. Thanks to [Yin-So
+  Chen](http://yinsochen.com/).
+
+* Support for bubbling `@supports` queries in the indented syntax.
+
+* Fix an incorrect warning when using `@extend` from within nested `@media`
+  queries.
+
+* Update the bundled version of [listen](http://github.com/guard/listen) to
+  0.7.2.
+
 ## 3.2.5
 
 * Fix a bug where bogus `@extend` warnings were being generated.

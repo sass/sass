@@ -32,6 +32,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     end
   end
 
+  MERGEABLE_DIRECTIVES = [Sass::Tree::MediaNode]
+
   # Runs a block of code with the current parent node
   # replaced with the given node.
   #
@@ -39,11 +41,18 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # @yield A block in which the parent is set to `parent`.
   # @return [Object] The return value of the block.
   def with_parent(parent)
-    @parent_directives.push parent if parent.is_a?(Sass::Tree::DirectiveNode)
+    if parent.is_a?(Sass::Tree::DirectiveNode)
+      if MERGEABLE_DIRECTIVES.any? {|klass| parent.is_a?(klass)}
+        old_parent_directive = @parent_directives.pop
+      end
+      @parent_directives.push parent
+    end
+
     old_parent, @parent = @parent, parent
     yield
   ensure
     @parent_directives.pop if parent.is_a?(Sass::Tree::DirectiveNode)
+    @parent_directives.push old_parent_directive if old_parent_directive
     @parent = old_parent
   end
 

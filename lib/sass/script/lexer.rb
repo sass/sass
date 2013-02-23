@@ -248,8 +248,6 @@ module Sass
       end
 
       def _variable(rx)
-        line = @line
-        offset = @offset
         return unless scan(rx)
 
         [:const, @scanner[2]]

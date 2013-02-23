@@ -30,4 +30,5 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
   spec.homepage = 'http://sass-lang.com/'
   spec.has_rdoc = false
   spec.test_files = Dir['test/**/*_test.rb']
+  spec.license = "MIT"
 end

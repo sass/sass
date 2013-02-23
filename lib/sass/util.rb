@@ -256,6 +256,33 @@ module Sass
       arr
     end
 
+    # Returns a sub-array of `minuend` containing only elements that are also in
+    # `subtrahend`. Ensures that the return value has the same order as
+    # `minuend`, even on Rubinius where that's not guaranteed by {Array#-}.
+    #
+    # @param minuend [Array]
+    # @param subtrahend [Array]
+    # @return [Array]
+    def array_minus(minuend, subtrahend)
+      return minuend - subtrahend unless rbx?
+      set = Set.new(minuend) - subtrahend
+      minuend.select {|e| set.include?(e)}
+    end
+
+    # Returns a string description of the character that caused an
+    # `Encoding::UndefinedConversionError`.
+    #
+    # @param [Encoding::UndefinedConversionError]
+    # @return [String]
+    def undefined_conversion_error_char(e)
+      # Rubinius (as of 2.0.0.rc1) pre-quotes the error character.
+      return e.error_char if rbx?
+      # JRuby (as of 1.7.2) doesn't have an error_char field on
+      # Encoding::UndefinedConversionError.
+      return e.error_char.dump unless jruby?
+      e.message[/^"[^"]+"/] #"
+    end
+
     # Asserts that `value` falls within `range` (inclusive), leaving
     # room for slight floating-point errors.
     #
@@ -462,6 +489,27 @@ module Sass
       RUBY_ENGINE == "ironruby"
     end
 
+    # Whether or not this is running on Rubinius.
+    #
+    # @return [Boolean]
+    def rbx?
+      RUBY_ENGINE == "rbx"
+    end
+
+    # Whether or not this is running on JRuby.
+    #
+    # @return [Boolean]
+    def jruby?
+      RUBY_PLATFORM =~ /java/
+    end
+
+    # Returns an array of ints representing the JRuby version number.
+    #
+    # @return [Array<Fixnum>]
+    def jruby_version
+      $jruby_version ||= ::JRUBY_VERSION.split(".").map {|s| s.to_i}
+    end
+
     # Like `Dir.glob`, but works with backslash-separated paths on Windows.
     #
     # @param path [String]
@@ -512,6 +560,11 @@ module Sass
       ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
     end
 
+    # Wehter or not this is running under JRuby 1.6 or lower.
+    def jruby1_6?
+      jruby? && jruby_version[0] == 1 && jruby_version[1] < 7
+    end
+
     # Whether or not this is running under MacRuby.
     #
     # @return [Boolean]
@@ -548,7 +601,7 @@ module Sass
           line.encode(encoding)
         rescue Encoding::UndefinedConversionError => e
           yield <<MSG.rstrip, i + 1
-Invalid #{encoding.name} character #{e.error_char.dump}
+Invalid #{encoding.name} character #{undefined_conversion_error_char(e)}
 MSG
         end
       end

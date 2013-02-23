@@ -493,7 +493,9 @@ SASS
     # argument errors caused by programming errors in a function and
     # argument errors explicitly thrown within that function.
     return if RUBY_PLATFORM =~ /java/
-    assert_raise_message(ArgumentError, 'wrong number of arguments (0 for 1)') {resolve("arg-error()")}
+
+    # Don't validate the message; it's different on Rubinius.
+    assert_raise(ArgumentError) {resolve("arg-error()")}
   end
 
   def test_shallow_argument_error_unwrapped

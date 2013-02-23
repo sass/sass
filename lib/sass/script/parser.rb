@@ -372,8 +372,6 @@ RUBY
         splat = nil
         must_have_default = false
         loop do
-          line = @lexer.line
-          offset = @lexer.offset
           c = assert_tok(:const)
           var = Script::Variable.new(c.value)
           var.source_range = range(c.offset)
