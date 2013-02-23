@@ -1158,7 +1158,7 @@ As such, it only works with `url()` imports.
 For example:
 
     $family: unquote("Droid+Sans");
-    @import url("http://fonts.googleapis.com/css?family=\#{$family}");
+    @import url("http://fonts.googleapis.com/css?family=#{$family}");
 
 would compile to
 
