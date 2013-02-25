@@ -1179,7 +1179,7 @@ MSG
   end
 
   def test_assert_unit
-    ctx = Sass::Script::Functions::EvaluationContext.new({})
+    ctx = Sass::Script::Functions::EvaluationContext.new(Sass::Environment.new(nil, {}))
     ctx.assert_unit Sass::Script::Number.new(10, ["px"], []), "px"
     ctx.assert_unit Sass::Script::Number.new(10, [], []), nil
 
@@ -1198,14 +1198,14 @@ MSG
     end
 
     begin
-      ctx.assert_unit Sass::Script::Number.new(10, [], []), "px", "$arg"
+      ctx.assert_unit Sass::Script::Number.new(10, [], []), "px", "arg"
       fail
     rescue ArgumentError => e
       assert_equal "Expected $arg to have a unit of px but got 10", e.message
     end
 
     begin
-      ctx.assert_unit Sass::Script::Number.new(10, ["px"], []), nil, "$arg"
+      ctx.assert_unit Sass::Script::Number.new(10, ["px"], []), nil, "arg"
       fail
     rescue ArgumentError => e
       assert_equal "Expected $arg to be unitless but got 10px", e.message
