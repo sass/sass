@@ -317,6 +317,7 @@ END
         return watch_or_update if @options[:watch] || @options[:update]
         super
         @options[:for_engine][:filename] = @options[:filename]
+        @options[:for_engine][:css_filename] = @options[:output].path if @options[:output].is_a?(File)
 
         begin
           input = @options[:input]

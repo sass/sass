@@ -392,38 +392,41 @@ RUBY
       end
 
       def fn_arglist
-        arglist(:fn_arglist, :equals)
+        arglist(:equals, "function argument")
       end
 
       def mixin_arglist
-        arglist(:mixin_arglist, :interpolation)
+        arglist(:interpolation, "mixin argument")
       end
 
-      def arglist(type, subexpr)
+      def arglist(subexpr, description)
         return unless e = send(subexpr)
-        if @lexer.peek && @lexer.peek.type == :colon
-          name = e
-          @lexer.expected!("comma") unless name.is_a?(Variable)
-          assert_tok(:colon)
-          keywords = {name.underscored_name => assert_expr(subexpr, EXPR_NAMES[type])}
-        end
 
-        unless try_tok(:comma)
-          return [], keywords if keywords
-          return [], {}, e if try_tok(:splat)
-          return [e], {}
-        end
+        args = []
+        keywords = {}
+        loop do
+          if @lexer.peek && @lexer.peek.type == :colon
+            name = e
+            @lexer.expected!("comma") unless name.is_a?(Variable)
+            assert_tok(:colon)
+            value = assert_expr(subexpr, description)
 
-        other_args, other_keywords, splat = assert_expr(type)
-        if keywords
-          if !other_args.empty? || splat
-            raise SyntaxError.new("Positional arguments must come before keyword arguments.")
-          elsif other_keywords[name.underscored_name]
-            raise SyntaxError.new("Keyword argument \"#{name.to_sass}\" passed more than once")
+            if keywords[name.underscored_name]
+              raise SyntaxError.new("Keyword argument \"#{name.to_sass}\" passed more than once")
+            end
+
+            keywords[name.underscored_name] = value
+          else
+            if !keywords.empty?
+              raise SyntaxError.new("Positional arguments must come before keyword arguments.")
+            end
+
+            return args, keywords, e if try_tok(:splat)
+            args << e
           end
-          return other_args, keywords.merge(other_keywords), splat
-        else
-          return [e, *other_args], other_keywords, splat
+
+          return args, keywords unless try_tok(:comma)
+          e = assert_expr(subexpr, description)
         end
       end
 

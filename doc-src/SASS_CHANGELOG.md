@@ -78,6 +78,12 @@ extends \{Sass::Importers::Base} or \{Sass::Importers::Filesystem} and overrides
   `zip`} functions now work like all other list functions and treat individual
   values as single-element lists.
 
+* Avoid stack overflow errors caused by very long function or mixin argument
+  lists.
+
+* Emit relative paths when using the `--line-comments` flag of the `sass`
+  executable.
+
 ## 3.2.6
 
 * Support for Rubinius 2.0.0.rc1. All tests pass in 1.8 mode. 1.9 mode has some
