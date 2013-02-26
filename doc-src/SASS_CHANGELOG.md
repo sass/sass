@@ -3,6 +3,12 @@
 * Table of contents
 {:toc}
 
+## 3.2.7 (Unreleased)
+
+* The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip
+  `zip`} functions now work like all other list functions and treat individual
+  values as single-element lists.
+
 ## 3.2.6
 
 * Support for Rubinius 2.0.0.rc1. All tests pass in 1.8 mode. 1.9 mode has some

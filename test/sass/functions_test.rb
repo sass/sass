@@ -1018,14 +1018,17 @@ MSG
   def test_zip
     assert_equal("1 3 5, 2 4 6", evaluate("zip(1 2, 3 4, 5 6)"))
     assert_equal("1 4 7, 2 5 8", evaluate("zip(1 2 3, 4 5 6, 7 8)"))
+    assert_equal("1 2 3", evaluate("zip(1, 2, 3)"))
   end
 
   def test_index
     assert_equal("1", evaluate("index(1px solid blue, 1px)"))
     assert_equal("2", evaluate("index(1px solid blue, solid)"))
     assert_equal("3", evaluate("index(1px solid blue, #00f)"))
+    assert_equal("1", evaluate("index(1px, 1px)"))
     assert_equal("false", evaluate("index(1px solid blue, 1em)"))
     assert_equal("false", evaluate("index(1px solid blue, notfound)"))
+    assert_equal("false", evaluate("index(1px, #00f)"))
   end
 
   def test_if

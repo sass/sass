@@ -1371,9 +1371,9 @@ module Sass::Script
       length = nil
       values = []
       lists.each do |list|
-        assert_type list, :List
-        values << list.value.dup
-        length = length.nil? ? list.value.length : [length, list.value.length].min
+        array = list.to_a
+        values << array.dup
+        length = length.nil? ? array.length : [length, array.length].min
       end
       values.each do |value|
         value.slice!(length)
@@ -1391,8 +1391,7 @@ module Sass::Script
     #   index(1px solid red, solid) => 2
     #   index(1px solid red, dashed) => false
     def index(list, value)
-      assert_type list, :List
-      index = list.value.index {|e| e.eq(value).to_bool }
+      index = list.to_a.index {|e| e.eq(value).to_bool }
       if index
         Number.new(index + 1)
       else
