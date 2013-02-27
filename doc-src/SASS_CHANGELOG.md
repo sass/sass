@@ -25,6 +25,8 @@ filesystem. If this isn't the case, you'll need to make a custom class that
 extends \{Sass::Importers::Base} or \{Sass::Importers::Filesystem} and overrides
 \{Sass::Importers::Base#public\_url `#public_url`}.
 
+Thanks to Alexander Pavlov for implementing this.
+
 [source maps]: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?hl=en_US&pli=1&pli=1
 
 ### Smaller Improvements
