@@ -444,8 +444,7 @@ module Sass
         # separate sequences should limit the quadratic behavior.
         seqses.map do |seqs1|
           seqs1.reject do |seq1|
-            min_spec = 0
-            _sources(seq1).map {|seq| min_spec += seq.specificity}
+            min_spec = _sources(seq1).map {|seq| seq.specificity}.min || 0
             seqses.any? do |seqs2|
               next if seqs1.equal?(seqs2)
               # Second Law of Extend: the specificity of a generated selector
