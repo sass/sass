@@ -15,6 +15,9 @@
 * Emit relative paths when using the `--line-comments` flag of the `sass`
   executable.
 
+* Fix some edge cases where redundant selectors were emitted when using
+  `@extend`.
+
 ## 3.2.6
 
 * Support for Rubinius 2.0.0.rc1. All tests pass in 1.8 mode. 1.9 mode has some

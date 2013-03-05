@@ -1186,6 +1186,29 @@ SCSS
 
   # Regression Tests
 
+  def test_nested_double_extend_optimization
+    assert_equal <<CSS, render(<<SCSS)
+.parent1 .child {
+  a: b; }
+CSS
+%foo %bar {
+  a: b;
+}
+
+.parent1 {
+  @extend %foo;
+
+  .child {
+    @extend %bar;
+  }
+}
+
+.parent2 {
+  @extend %foo;
+}
+SCSS
+  end
+
   def test_extend_in_double_nested_media_query
     assert_equal <<CSS, render(<<SCSS)
 @media all and (orientation: landscape) {
