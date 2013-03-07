@@ -84,6 +84,9 @@ extends \{Sass::Importers::Base} or \{Sass::Importers::Filesystem} and overrides
 * Emit relative paths when using the `--line-comments` flag of the `sass`
   executable.
 
+* Fix a case where very long numbers would cause the SCSS parser to
+  take exponential time.
+
 ## 3.2.6
 
 * Support for Rubinius 2.0.0.rc1. All tests pass in 1.8 mode. 1.9 mode has some
