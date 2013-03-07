@@ -33,7 +33,7 @@ module Sass::Script
     # @see Node#to_s
     def to_s(opts = {})
       if @type == :identifier
-        return @value.tr("\n", " ")
+        return @value.gsub(/\s+/, " ")
       end
 
       return "\"#{value.gsub('"', "\\\"")}\"" if opts[:quote] == %q{"}
