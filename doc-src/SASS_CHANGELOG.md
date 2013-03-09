@@ -72,7 +72,7 @@ extends \{Sass::Importers::Base} or \{Sass::Importers::Filesystem} and overrides
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
-## 3.2.7 (Unreleased)
+## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip
   `zip`} functions now work like all other list functions and treat individual
