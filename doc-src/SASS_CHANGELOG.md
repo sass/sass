@@ -239,7 +239,7 @@ that make use of `@media` and other directives dynamically.
   {Sass.load_paths}. This allows plugins and libraries to easily register their
   Sass files such that they're accessible to all {Sass::Engine} instances.
 
-* `Sass.load_paths` is initialized to the value of the `SASS_PATH`environment
+* `Sass.load_paths` is initialized to the value of the `SASS_PATH` environment
   variable. This variable should contain a colon-separated list of load paths
   (semicolon-separated on Windows).
 
