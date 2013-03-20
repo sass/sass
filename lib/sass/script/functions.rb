@@ -1401,6 +1401,21 @@ module Sass::Script
     end
     declare :index, [:list, :value]
 
+    # Returns the separator of the given list
+    # If not a list, returns false.
+    #
+    # @example
+    #   separator(1px 2px 3px) => 'space'
+    #   separator('foo') => false
+    def separator(list)
+      if list.class == Sass::Script::List
+        String.new(list.separator)
+      else
+        Bool.new(false)
+      end
+    end
+    declare :separator, [:list]
+
     # Returns one of two values based on the truth value of the first argument.
     #
     # @example
