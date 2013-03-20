@@ -1116,6 +1116,16 @@ MSG
     assert_equal("false", evaluate("index(1px, #00f)"))
   end
 
+  def test_list_separator
+    assert_equal("space", evaluate("list-separator(1 2 3 4 5)"))
+    assert_equal("comma", evaluate("list-separator((foo, bar, baz, bip))"))
+    assert_equal("comma", evaluate("list-separator((foo, bar, baz bip))"))
+    assert_equal("comma", evaluate("list-separator((foo, bar, (baz, bip)))"))
+    assert_equal("space", evaluate("list-separator(#f00)"))
+    assert_equal("space", evaluate("list-separator(())"))
+    assert_equal("space", evaluate("list-separator(1 2 () 3)"))
+  end
+
   def test_if
     assert_equal("1px", evaluate("if(true, 1px, 2px)"))
     assert_equal("2px", evaluate("if(false, 1px, 2px)"))
