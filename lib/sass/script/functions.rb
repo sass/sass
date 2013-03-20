@@ -1401,7 +1401,7 @@ module Sass::Script
     end
     declare :index, [:list, :value]
 
-    # Returns the separator of the given list
+    # Returns the separator of the given list.
     # If not a list, returns false.
     #
     # @example
