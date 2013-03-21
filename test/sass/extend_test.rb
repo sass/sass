@@ -1061,7 +1061,7 @@ CSS
 x! .bar {a: b}
 y! .bap {@extend .bar}
 SCSS
-end
+  end
 
   def test_extend_warns_when_extendee_doesnt_exist
     assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
