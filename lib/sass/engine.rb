@@ -353,7 +353,7 @@ ERR
       rendered << "\n" if rendered[-1] != ?\n
       rendered << "\n" unless compressed
       rendered << "/*@ sourceMappingURL="
-      rendered << URI.encode(sourcemap_uri)
+      rendered << Sass::Util.escape_uri(sourcemap_uri)
       rendered << " */"
       rendered = encode_and_set_charset(rendered)
       return rendered, sourcemap
@@ -675,7 +675,6 @@ WARNING
         res.pop if comment
         scanner_start_pos = scanner.pos
         interp_parsed = parse_interp(scanner.rest)
-        scanned_size = scanner.pos - scanner_start_pos
         selector_range = Sass::Source::Range.new(
           ident_range.start_pos,
           Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
