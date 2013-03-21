@@ -5,11 +5,6 @@ module Sass::Script
   # are designed to be overridden by subclasses which may change the semantics somewhat.
   # The operations listed here are just the defaults.
   class Literal < Node
-    require 'sass/script/string'
-    require 'sass/script/number'
-    require 'sass/script/color'
-    require 'sass/script/bool'
-    require 'sass/script/null'
     require 'sass/script/list'
     require 'sass/script/arg_list'
 
