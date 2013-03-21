@@ -458,7 +458,7 @@ SCSS
     assert_extends 'a /for/ b c .c1', 'b c .c2 {@extend .c1}', 'a /for/ b c .c1, a /for/ b c .c2'
   end
 
-  def test_nested_extender_with_early_child_selectors_doesnt_subseq_them
+  def test_nested_extender_with_early_child_selectors_doesnt_subseq_them_XXX
     assert_extends('.bip > .bap .foo', '.grip > .bap .bar {@extend .foo}',
       '.bip > .bap .foo, .bip > .bap .grip > .bap .bar, .grip > .bap .bip > .bap .bar')
     assert_extends('.bap > .bip .foo', '.bap > .grip .bar {@extend .foo}',
