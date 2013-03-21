@@ -324,7 +324,7 @@ class UtilTest < Test::Unit::TestCase
 
   def test_json_value_of
     assert_json_value 0, "0"
-    assert_json_value -42, "-42"
+    assert_json_value(-42, "-42")
     assert_json_value 42, "42"
     assert_json_value true, "true"
     assert_json_value false, "false"
