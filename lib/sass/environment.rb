@@ -27,6 +27,8 @@ module Sass
     # @param parent [Environment] See \{#parent}
     def initialize(parent = nil, options = nil)
       @parent = parent
+      @caller = nil
+      @content = nil
       @options = options || (parent && parent.options) || {}
     end
 
@@ -62,7 +64,7 @@ module Sass
           end
 
           def _#{name}(name)
-            (@#{name}s && @#{name}s[name]) || @parent && @parent._#{name}(name)
+            (defined?(@#{name}s) && @#{name}s && @#{name}s[name]) || @parent && @parent._#{name}(name)
           end
           protected :_#{name}
 

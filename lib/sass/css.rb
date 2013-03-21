@@ -31,6 +31,7 @@ module Sass
         template = template.read
       end
 
+      @checked_encoding = nil
       @options = options.dup
       # Backwards compatibility
       @options[:old] = true if @options[:alternate] == false

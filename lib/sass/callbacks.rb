@@ -55,7 +55,7 @@ def on_#{name}(&block)
 end
 
 def run_#{name}(*args)
-  return unless @_sass_callbacks
+  return unless defined?(@_sass_callbacks) && @_sass_callbacks
   return unless @_sass_callbacks[#{name.inspect}]
   @_sass_callbacks[#{name.inspect}].each {|c| c[*args]}
 end

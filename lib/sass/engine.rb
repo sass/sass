@@ -252,6 +252,9 @@ module Sass
     def initialize(template, options={})
       @options = self.class.normalize_options(options)
       @template = template
+      @filename = nil
+      @checked_encoding = nil
+      @line = nil
     end
 
     # Render the template to CSS.

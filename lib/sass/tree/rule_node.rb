@@ -69,6 +69,7 @@ module Sass::Tree
       @rule = Sass::Util.strip_string_array(merged)
       @selector_source_range = selector_source_range
       @tabs = 0
+      @parsed_rules = nil
       try_to_parse_non_interpolated_rules
       super()
     end
