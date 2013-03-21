@@ -200,7 +200,7 @@ CSS
 }
 SCSS
 
-    rendered, sourcemap = engine.render_with_sourcemap('sourcemap_uri')
+    _, sourcemap = engine.render_with_sourcemap('sourcemap_uri')
     assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => 'css_uri')
 {
 "version": "3",
@@ -223,7 +223,7 @@ JSON
 .foo {a: b}
 SCSS
 
-    rendered, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
+    _, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
 
     assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri')}
 WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
@@ -244,7 +244,7 @@ WARNING
 .foo {a: b}
 SCSS
 
-    rendered, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
+    _, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
 
     assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')}
 WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
@@ -293,7 +293,7 @@ JSON
 .foo {a: b}
 SCSS
 
-    rendered, sourcemap = engine.render_with_sourcemap('http://map.example.com/map/style.map')
+    _, sourcemap = engine.render_with_sourcemap('http://map.example.com/map/style.map')
     css_path = 'static/style.css'
     sourcemap_path = 'map/style.map'
     assert_equal <<JSON.strip, sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path)

@@ -474,7 +474,7 @@ SCSS
 CSS
   end
 
-def test_while_sourcemap_sass
+  def test_while_sourcemap_sass
   assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
 $i: 6
 @while $i > 0
@@ -723,7 +723,6 @@ CSS
     start_positions = {}
     text.split("\n").each_with_index do |line_text, line|
       line += 1 # lines shoud be 1-based
-      match_start = 0
       while match = line_text.match(ANNOTATION_REGEX)
         closing = !match[1].empty?
         name = match[2]
@@ -750,7 +749,7 @@ CSS
     source_ranges = build_ranges(source, source_file_name)
     target_ranges = build_ranges(css)
     map = Sass::Source::Map.new
-    mappings = Sass::Util.flatten(source_ranges.map do |(name, sources)|
+    Sass::Util.flatten(source_ranges.map do |(name, sources)|
         assert(sources.length == 1, "#{sources.length} source ranges encountered for annotation #{name}")
         assert(target_ranges[name], "No target ranges for annotation #{name}")
         target_ranges[name].map {|target_range| [sources.first, target_range]}
