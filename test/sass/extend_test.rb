@@ -1098,20 +1098,6 @@ b.foo {@extend .bar}
 SCSS
   end
 
-  def test_extend_succeeds_when_one_extension_fails_but_others_dont
-    assert_equal(<<CSS, render(<<SCSS))
-a.bar {
-  a: b; }
-
-.bar, b.foo {
-  c: d; }
-CSS
-a.bar {a: b}
-.bar {c: d}
-b.foo {@extend .bar}
-SCSS
-  end
-
   def test_optional_extend_succeeds_when_extendee_doesnt_exist
     assert_equal("", render(<<SCSS))
 .foo {@extend .bar !optional}
