@@ -5,7 +5,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class SourcemapTest < Test::Unit::TestCase
   def test_to_json_requires_args
-    rendered, sourcemap = render_with_sourcemap('')
+    _, sourcemap = render_with_sourcemap('')
     assert_raise(ArgumentError) {sourcemap.to_json({})}
     assert_raise(ArgumentError) {sourcemap.to_json({:css_path => 'foo'})}
     assert_raise(ArgumentError) {sourcemap.to_json({:sourcemap_path => 'foo'})}
@@ -754,8 +754,8 @@ CSS
         assert(target_ranges[name], "No target ranges for annotation #{name}")
         target_ranges[name].map {|target_range| [sources.first, target_range]}
       end, 1).
-      sort_by {|(source, target)| [target.start_pos.line, target.start_pos.offset]}.
-      each {|(source, target)| map.add(source, target)}
+      sort_by {|(_, target)| [target.start_pos.line, target.start_pos.offset]}.
+      each {|(s2, target)| map.add(s2, target)}
     map
   end
 
