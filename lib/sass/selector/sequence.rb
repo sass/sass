@@ -255,7 +255,7 @@ module Sass
           # is a supersequence of the other, use that, otherwise give up.
           lcs = Sass::Util.lcs(ops1, ops2)
           return unless lcs == ops1 || lcs == ops2
-          res.unshift *(ops1.size > ops2.size ? ops1 : ops2).reverse
+          res.unshift(*(ops1.size > ops2.size ? ops1 : ops2).reverse)
           return res
         end
 
