@@ -3,6 +3,7 @@ require 'set'
 require 'enumerator'
 require 'stringio'
 require 'rbconfig'
+require 'uri'
 
 require 'sass/root'
 require 'sass/util/subset_map'
@@ -963,15 +964,12 @@ MSG
     end
 
 
-    # This is a hack around the fact that you can't instantiate a URI parser
-    # on 1.8, so we have to have this hacky stuff to work around it.  When
-    # 1.8 support is dropped, we can remove this method.
-    #
-    # **THIS IS NOT A PUBLIC METHOD, JUST A HACK** :-)
-    def escape_uri(uri) # :nodoc:
-      URI.const_defined?(:DEFAULT_PARSER) ?
-                   URI::DEFAULT_PARSER.escape(uri) :
-                   URI.escape(uri)
+    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ?
+                   URI::DEFAULT_PARSER :
+                   URI
+
+    def escape_uri(uri)
+      URI_ESCAPE.escape uri
     end
 
     private

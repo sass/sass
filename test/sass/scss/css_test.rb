@@ -651,7 +651,7 @@ SCSS
   ## Selectors
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview
-  def test_summarized_selectors_XXX
+  def test_summarized_selectors_with_element
     assert_selector_parses('*')
     assert_selector_parses('E')
     assert_selector_parses('E:not(s)')

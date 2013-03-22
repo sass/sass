@@ -1,5 +1,4 @@
 require 'pathname'
-require 'uri'
 
 module Sass::Tree
   # A static node reprenting a CSS rule.

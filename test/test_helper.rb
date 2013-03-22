@@ -10,8 +10,6 @@ Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
 if defined?(Encoding)
   $-w, w = false, $-w
-  # this seems suspect. Does sass require that users run in environments with
-  # UTF-8 as the encoding?
   Encoding.default_external = 'UTF-8'
   $-w = w
 end
