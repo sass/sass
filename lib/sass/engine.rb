@@ -676,7 +676,6 @@ WARNING
         property
       else
         res.pop if comment
-        scanner_start_pos = scanner.pos
         interp_parsed = parse_interp(scanner.rest)
         selector_range = Sass::Source::Range.new(
           ident_range.start_pos,
@@ -913,7 +912,7 @@ WARNING
     def parse_import_arg(scanner, offset)
       return if scanner.eos?
 
-      if match_length = scanner.match?(/url\(/i)
+      if scanner.match?(/url\(/i)
         script_parser = Sass::Script::Parser.new(scanner, @line, to_parser_offset(offset), @options)
         str = script_parser.parse_string
 
