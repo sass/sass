@@ -38,7 +38,6 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass(opts = {})
-      pred = Sass::Script::Parser.precedence_of(@operator)
       o1 = operand_to_sass @operand1, :left, opts
       o2 = operand_to_sass @operand2, :right, opts
       sep =

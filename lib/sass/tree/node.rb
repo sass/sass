@@ -32,7 +32,7 @@ module Sass
       # The child nodes of this node.
       #
       # @return [Array<Tree::Node>]
-      attr_accessor :children
+      attr_reader :children
 
       # Whether or not this node has child nodes.
       # This may be true even when \{#children} is empty,
