@@ -425,7 +425,7 @@ SCSS
     assert_equal <<CSS, render(<<SCSS)
 foo {
   a: -0.5em;
-  b: 0.5em;
+  b: +0.5em;
   c: -foo(12px);
   d: +foo(12px); }
 CSS
@@ -1010,6 +1010,17 @@ SCSS
   end
 
   ## Regressions
+
+  def test_very_long_number_with_important_doesnt_take_forever
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  width: 97.916666666666666666666666666667% !important; }
+CSS
+.foo {
+  width: 97.916666666666666666666666666667% !important;
+}
+SCSS
+  end
 
   def test_selector_without_closing_bracket
     assert_not_parses('"]"', "foo[bar <err>{a: b}")

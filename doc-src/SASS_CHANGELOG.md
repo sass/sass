@@ -74,7 +74,12 @@ Thanks to Alexander Pavlov for implementing this.
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
-## 3.2.7 (Unreleased)
+## 3.2.8 (Unreleased)
+
+* Fix some edge cases where redundant selectors were emitted when using
+  `@extend`.
+
+## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip
   `zip`} functions now work like all other list functions and treat individual
@@ -86,8 +91,8 @@ Thanks to Alexander Pavlov for implementing this.
 * Emit relative paths when using the `--line-comments` flag of the `sass`
   executable.
 
-* Fix some edge cases where redundant selectors were emitted when using
-  `@extend`.
+* Fix a case where very long numbers would cause the SCSS parser to
+  take exponential time.
 
 ## 3.2.6
 
@@ -310,7 +315,7 @@ that make use of `@media` and other directives dynamically.
   {Sass.load_paths}. This allows plugins and libraries to easily register their
   Sass files such that they're accessible to all {Sass::Engine} instances.
 
-* `Sass.load_paths` is initialized to the value of the `SASS_PATH`environment
+* `Sass.load_paths` is initialized to the value of the `SASS_PATH` environment
   variable. This variable should contain a colon-separated list of load paths
   (semicolon-separated on Windows).
 
