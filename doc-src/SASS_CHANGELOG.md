@@ -3,7 +3,12 @@
 * Table of contents
 {:toc}
 
-## 3.2.7 (Unreleased)
+## 3.2.8 (Unreleased)
+
+* Fix some edge cases where redundant selectors were emitted when using
+  `@extend`.
+
+## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip
   `zip`} functions now work like all other list functions and treat individual
@@ -15,8 +20,8 @@
 * Emit relative paths when using the `--line-comments` flag of the `sass`
   executable.
 
-* Fix some edge cases where redundant selectors were emitted when using
-  `@extend`.
+* Fix a case where very long numbers would cause the SCSS parser to
+  take exponential time.
 
 ## 3.2.6
 
