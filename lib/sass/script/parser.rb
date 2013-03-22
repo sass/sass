@@ -284,12 +284,15 @@ RUBY
 
       production :equals, :interpolation, :single_eq
 
+      WA = true # :nodoc:
+      WB = true # :nodoc:
+
       def try_op_before_interp(op, prev = nil)
         return unless @lexer.peek && @lexer.peek.type == :begin_interpolation
         wb = @lexer.whitespace?(op)
         str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
         str.line = @lexer.line
-        interp = Script::Interpolation.new(prev, str, nil, wb, !:wa, :originally_text)
+        interp = Script::Interpolation.new(prev, str, nil, wb, !WA, :originally_text)
         interp.line = @lexer.line
         interpolation(interp)
       end
@@ -303,7 +306,7 @@ RUBY
         str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
         str.line = @lexer.line
         start_pos = source_position
-        interp = Script::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text)
+        interp = Script::Interpolation.new(prev, str, assert_expr(name), !WB, wa, :originally_text)
         interp.line = @lexer.line
         interp.source_range = range(start_pos)
         return interp

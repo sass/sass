@@ -463,9 +463,11 @@ module Sass
         directive_body(res.flatten, start_pos)
       end
 
+      ALLOW_VAR = true # :nodoc:
+
       def moz_document_function
         return unless val = interp_uri || _interp_string(:url_prefix) ||
-          _interp_string(:domain) || function(!:allow_var) || interpolation
+          _interp_string(:domain) || function(!ALLOW_VAR) || interpolation
         ss
         val
       end
@@ -700,7 +702,7 @@ module Sass
         # http://www.w3.org/TR/css3-animations/#keyframes-
 
         start_pos = source_position
-        return expr(!:allow_var) unless e = element_name || id_selector ||
+        return expr(!ALLOW_VAR) unless e = element_name || id_selector ||
           class_selector || placeholder_selector || attrib || pseudo ||
           parent_selector || interpolation_selector
         res = [e]
