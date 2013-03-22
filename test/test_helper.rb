@@ -7,7 +7,14 @@ require 'sass'
 require 'mathn' if ENV['MATHN'] == 'true'
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
-Encoding.default_external = 'UTF-8' if defined?(Encoding)
+
+if defined?(Encoding)
+  $-w, w = false, $-w
+  # this seems suspect. Does sass require that users run in environments with
+  # UTF-8 as the encoding?
+  Encoding.default_external = 'UTF-8'
+  $-w = w
+end
 
 module Sass::Script::Functions
   def option(name)
