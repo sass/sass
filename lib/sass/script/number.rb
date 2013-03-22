@@ -1,5 +1,3 @@
-require 'sass/script/literal'
-
 module Sass::Script
   # A SassScript object representing a number.
   # SassScript numbers can have decimal values,

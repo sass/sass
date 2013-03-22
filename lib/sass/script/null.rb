@@ -1,5 +1,3 @@
-require 'sass/script/literal'
-
 module Sass::Script
   # A SassScript object representing a null value.
   class Null < Literal
