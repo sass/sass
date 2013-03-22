@@ -1112,7 +1112,7 @@ MESSAGE
       end
 
       def rethrow(err)
-        if @throw_err
+        if @throw_error
           throw :_sass_parser_error, err
         else
           @scanner = Sass::Util::MultibyteStringScanner.new(@scanner.string)
