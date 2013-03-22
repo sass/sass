@@ -16,6 +16,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     @options = options
     @format = format
     @tabs = 0
+    @is_else = nil
     # 2 spaces by default
     @tab_chars = @options[:indent] || "  "
   end

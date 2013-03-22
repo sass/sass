@@ -26,9 +26,11 @@ module Sass
 
       private
 
+      ALLOW_VAR = true # :nodoc:
+
       def moz_document_function
         return unless val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) ||
-          function(!:allow_var)
+          function(!ALLOW_VAR)
         ss
         [val]
       end

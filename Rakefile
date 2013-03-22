@@ -17,6 +17,7 @@ Rake::TestTask.new do |t|
   test_files.exclude(scope('test/plugins/*'))
   t.test_files = test_files
   t.verbose = true
+  t.warning = true
 end
 
 # ----- Packaging -----

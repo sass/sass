@@ -14,6 +14,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   def initialize
     @parent_directives = []
     @extends = Sass::Util::SubsetMap.new
+    @parent = nil
   end
 
   # If an exception is raised, this adds proper metadata to the backtrace.

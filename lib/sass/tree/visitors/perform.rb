@@ -191,11 +191,13 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     end
   end
 
+  HAS_CONTENT = true # :nodoc:
+
   # Loads the function into the environment.
   def visit_function(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_function(node.name,
-      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, !:has_content, "function"))
+      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, !HAS_CONTENT, "function"))
     []
   end
 
