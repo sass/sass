@@ -1,8 +1,4 @@
 require 'date'
-
-# This is necessary for loading Sass when Haml is required in Rails 3.
-# Once the split is complete, we can remove it.
-require File.dirname(__FILE__) + '/../sass'
 require 'sass/util'
 
 module Sass

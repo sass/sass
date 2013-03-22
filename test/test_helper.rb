@@ -7,7 +7,12 @@ require 'sass'
 require 'mathn' if ENV['MATHN'] == 'true'
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
-Encoding.default_external = 'UTF-8' if defined?(Encoding)
+
+if defined?(Encoding)
+  $-w, w = false, $-w
+  Encoding.default_external = 'UTF-8'
+  $-w = w
+end
 
 module Sass::Script::Functions
   def option(name)

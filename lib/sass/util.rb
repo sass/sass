@@ -3,6 +3,7 @@ require 'set'
 require 'enumerator'
 require 'stringio'
 require 'rbconfig'
+require 'uri'
 
 require 'sass/root'
 require 'sass/util/subset_map'
@@ -960,6 +961,15 @@ MSG
         super unless args.empty? && block.nil?
         @set.include?(name)
       end
+    end
+
+
+    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ?
+                   URI::DEFAULT_PARSER :
+                   URI
+
+    def escape_uri(uri)
+      URI_ESCAPE.escape uri
     end
 
     private

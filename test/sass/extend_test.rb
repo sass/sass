@@ -489,7 +489,7 @@ CSS
 SCSS
   end
 
-  def test_nested_extender_with_early_child_selectors_doesnt_subseq_them
+  def test_nested_extender_with_early_child_selector
     assert_equal <<CSS, render(<<SCSS)
 .foo .bar, .foo .bip > .baz {
   a: b; }
@@ -1061,7 +1061,7 @@ CSS
 x! .bar {a: b}
 y! .bap {@extend .bar}
 SCSS
-end
+  end
 
   def test_extend_warns_when_extendee_doesnt_exist
     assert_raise_message(Sass::SyntaxError, <<ERR) {render(<<SCSS)}
@@ -1080,20 +1080,6 @@ No selectors matching ".bar" could be unified with "b.foo".
 Use "@extend .bar !optional" if the extend should be able to fail.
 ERR
 a.bar {a: b}
-b.foo {@extend .bar}
-SCSS
-  end
-
-  def test_extend_succeeds_when_one_extension_fails_but_others_dont
-    assert_equal(<<CSS, render(<<SCSS))
-a.bar {
-  a: b; }
-
-.bar, b.foo {
-  c: d; }
-CSS
-a.bar {a: b}
-.bar {c: d}
 b.foo {@extend .bar}
 SCSS
   end

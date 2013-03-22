@@ -1,7 +1,10 @@
 require 'set'
+require 'sass/script/literal'
 require 'sass/script/string'
 require 'sass/script/number'
 require 'sass/script/color'
+require 'sass/script/bool'
+require 'sass/script/null'
 require 'sass/script/functions'
 require 'sass/script/unary_operation'
 require 'sass/script/interpolation'
@@ -35,7 +38,6 @@ module Sass::Script
 
     # @see Node#to_sass
     def to_sass(opts = {})
-      pred = Sass::Script::Parser.precedence_of(@operator)
       o1 = operand_to_sass @operand1, :left, opts
       o2 = operand_to_sass @operand2, :right, opts
       sep =

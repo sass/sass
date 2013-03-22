@@ -1,5 +1,4 @@
 require 'pathname'
-require 'uri'
 
 module Sass::Tree
   # A static node reprenting a CSS rule.
@@ -115,7 +114,7 @@ module Sass::Tree
     #
     # @return [{#to_s => #to_s}]
     def debug_info
-      {:filename => filename && ("file://" + URI.escape(File.expand_path(filename))),
+      {:filename => filename && ("file://" + Sass::Util.escape_uri(File.expand_path(filename))),
        :line => self.line}
     end
 

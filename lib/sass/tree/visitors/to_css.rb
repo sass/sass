@@ -274,7 +274,6 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       joined_rules.gsub!(/\s*\n\s*/, "#{line_separator}#{per_rule_indent}")
 
       old_spaces = '  ' * @tabs
-      spaces = '  ' * (@tabs + 1)
       if node.style != :compressed
         if node.options[:debug_info] && !@in_directive
           visit(debug_info_rule(node.debug_info, node.options))
