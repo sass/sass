@@ -8,6 +8,8 @@
 * Fix some edge cases where redundant selectors were emitted when using
   `@extend`.
 
+* Fix a bug where comma-separated lists with interpolation could lose elements.
+
 ## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip

@@ -242,18 +242,17 @@ RUBY
       def lexer_class; Lexer; end
 
       def expr
-        interp = try_ops_after_interp([:comma], :expr) and return interp
         line = @lexer.line
         return unless e = interpolation
-        arr = [e]
+        list = node(List.new([e], :comma), line)
         while tok = try_tok(:comma)
-          if interp = try_op_before_interp(tok, e)
+          if interp = try_op_before_interp(tok, list)
             return interp unless other_interp = try_ops_after_interp([:comma], :expr, interp)
             return other_interp
           end
-          arr << assert_expr(:interpolation)
+          list.value << assert_expr(:interpolation)
         end
-        arr.size == 1 ? arr.first : node(List.new(arr, :comma), line)
+        list.value.size == 1 ? list.value.first : list
       end
 
       production :equals, :interpolation, :single_eq

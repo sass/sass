@@ -134,6 +134,7 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal '3,7', resolve('#{1 + 2},#{3 + 4}')
     assert_equal '3, 7, 11', resolve('#{1 + 2}, #{3 + 4}, #{5 + 6}')
     assert_equal '3, 7, 11', resolve('3, #{3 + 4}, 11')
+    assert_equal '3, 7, 11', resolve('3, 7, #{5 + 6}')
 
     assert_equal '3 / 7', resolve('3 / #{3 + 4}')
     assert_equal '3 /7', resolve('3 /#{3 + 4}')
