@@ -165,6 +165,9 @@ module Sass::Script
   # \{#append append($list1, $val, \[$separator\])}
   # : Appends a single value onto the end of a list.
   #
+  # \{#list-separator list-separator(#list)}
+  # : Returns the separator of a list.
+  #
   # ## Introspection Functions
   #
   # \{#type_of type-of($value)}
@@ -1596,6 +1599,22 @@ module Sass::Script
       end
     end
     declare :index, [:list, :value]
+
+    # Returns the separator of the given list.
+    # If not a list, returns false.
+    #
+    # @example
+    #   list-separator(1px 2px 3px) => 'space'
+    #   list-separator(1px, 2px, 3px) => 'comma'
+    #   list-separator('foo') => 'space'
+    def list_separator(list)
+      if list.class == Sass::Script::List
+        String.new(list.separator)
+      else
+        String.new('space')
+      end
+    end
+    declare :separator, [:list]
 
     # Returns one of two values based on the truth value of the first argument.
     #
