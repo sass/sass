@@ -46,7 +46,7 @@ module Sass
       # @return [Literal] The SassScript object that is the value of the variable
       # @raise [Sass::SyntaxError] if the variable is undefined
       def _perform(environment)
-        raise SyntaxError.new("Undefined variable: \"$#{name}\".") unless val = environment.var(name)
+        raise SyntaxError.new("Undefined variable: \"$#{name}\". Did you forget to use a partial?") unless val = environment.var(name)
         if val.is_a?(Number)
           val = val.dup
           val.original = nil
