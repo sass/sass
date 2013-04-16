@@ -531,6 +531,28 @@ SASS
 SCSS
   end
 
+  def test_immediately_following_comments
+    assert_sass_to_scss <<SCSS, <<SASS
+.foobar {
+  // trailing comment
+  a: 1px;
+}
+SCSS
+.foobar // trailing comment
+  a: 1px
+SASS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+.foobar {
+  // trailing comment
+  a: 1px;
+}
+SCSS
+.foobar  /* trailing comment */
+  a: 1px
+SASS
+  end
+
   def test_debug
     assert_renders <<SASS, <<SCSS
 foo
