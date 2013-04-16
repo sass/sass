@@ -72,6 +72,9 @@ Thanks to Alexander Pavlov for implementing this.
 * You can call a function by name by passing the function name to the
   call function. For example, `call(nth, a b c, 2)` returns `b`.
 
+* Comments following selectors in the indented syntax will be correctly
+  converted using `sass-convert`.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector

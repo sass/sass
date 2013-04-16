@@ -668,25 +668,35 @@ WARNING
         @options[:filename], @options[:importer])
       offset = parser.offset - 1
       res.unshift(hack_char) if hack_char
+
+      # Handle comments after a property name but before the colon.
       if comment = scanner.scan(Sass::SCSS::RX::COMMENT)
         res << comment
         offset += comment.length
       end
 
       name = line.text[0...scanner.pos]
-      if scanned = scanner.scan(/\s*:(?:\s+|$)/)
+      if scanned = scanner.scan(/\s*:(?:\s+|$)/) # test for a property
         offset += scanned.length
         property = parse_property(name, res, scanner.rest, :new, line, offset)
         property.name_source_range = ident_range
         property
       else
         res.pop if comment
+
+        if trailing = (scanner.scan(/\s*#{Sass::SCSS::RX::COMMENT}/) ||
+                       scanner.scan(/\s*#{Sass::SCSS::RX::SINGLE_LINE_COMMENT}/))
+          offset += trailing.length # skip over comment for rule processing
+          trailing.strip!
+        end
         interp_parsed = parse_interp(scanner.rest)
         selector_range = Sass::Source::Range.new(
           ident_range.start_pos,
           Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
           @options[:filename], @options[:importer])
-        Tree::RuleNode.new(res + interp_parsed, selector_range)
+        rule = Tree::RuleNode.new(res + interp_parsed, selector_range)
+        rule << Tree::CommentNode.new([trailing], :silent) if trailing
+        rule
       end
     end
 
