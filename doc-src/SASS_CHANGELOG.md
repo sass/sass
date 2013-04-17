@@ -16,6 +16,10 @@
 * Fix a bug where multiple spaces in a string literal would sometimes be folded
   together.
 
+* `sass` and `sass-convert` won't create an empty file before writing to it.
+  This fixes a flash of unstyled content when using LiveReload and similar
+  tools.
+
 ## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip

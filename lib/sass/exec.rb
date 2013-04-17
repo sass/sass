@@ -108,7 +108,7 @@ module Sass
             @options[:filename] = filename
             open_file(filename) || $stdin
           end
-        output ||= open_file(args.shift, 'w') || $stdout
+        output ||= args.shift || $stdout
 
         @options[:input], @options[:output] = input, output
       end
@@ -153,6 +153,14 @@ module Sass
         # and not-real terminals, which aren't ttys.
         return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
         return "\e[#{COLORS[color]}m#{str}\e[0m"
+      end
+
+      def write_output(text, destination)
+        if destination.is_a?(String)
+          File.open(destination, 'w') {|file| file.write(text)}
+        else
+          destination.write(text)
+        end
       end
 
       private
@@ -307,7 +315,7 @@ END
         return watch_or_update if @options[:watch] || @options[:update]
         super
         @options[:for_engine][:filename] = @options[:filename]
-        @options[:for_engine][:css_filename] = @options[:output].path if @options[:output].is_a?(File)
+        @options[:for_engine][:css_filename] = @options[:output] if @options[:output].is_a?(String)
 
         begin
           input = @options[:input]
@@ -327,8 +335,7 @@ END
 
           input.close() if input.is_a?(File)
 
-          output.write(engine.render)
-          output.close() if output.is_a? File
+          write_output(engine.render, output)
         rescue ::Sass::SyntaxError => e
           raise e if @options[:trace]
           raise e.sass_backtrace_str("standard input")
@@ -633,7 +640,6 @@ END
           end
 
           input = open_file(f)
-          output = @options[:in_place] ? input : open_file(output, "w")
           process_file(input, output)
         end
       end
@@ -678,7 +684,7 @@ END
           end
 
         output = File.open(input.path, 'w') if @options[:in_place]
-        output.write(out)
+        write_output(out, output)
       rescue ::Sass::SyntaxError => e
         raise e if @options[:trace]
         file = " of #{e.sass_filename}" if e.sass_filename
