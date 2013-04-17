@@ -10,6 +10,9 @@
 
 * Fix a bug where comma-separated lists with interpolation could lose elements.
 
+* Fix a bug in `sass-convert` where lists being passed as arguments to functions
+  or mixins would lose their surrounding parentheses.
+
 ## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip
