@@ -45,6 +45,10 @@ Thanks to Alexander Pavlov for implementing this.
   \{Sass::Script::Functions#to_lower_case `to-lower-case`} will transform a
   string to lower case characters.
 
+* A \{Sass::Script::Functions#list_separator `list-separator`} function has been
+  added to determine what separator a list uses. Thanks to [Sam
+  Richard](https://github.com/Snugug).
+
 * Custom Ruby functions can now access the global environment, which
   allows them the same power as Sass-based functions with respect to
   reading and setting variables defined elsewhere in the stylesheet.
