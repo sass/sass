@@ -13,6 +13,9 @@
 * Fix a bug in `sass-convert` where lists being passed as arguments to functions
   or mixins would lose their surrounding parentheses.
 
+* Fix a bug where multiple spaces in a string literal would sometimes be folded
+  together.
+
 ## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip
