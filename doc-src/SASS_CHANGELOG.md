@@ -20,6 +20,9 @@
   This fixes a flash of unstyled content when using LiveReload and similar
   tools.
 
+* Fixed a case where a corrupted cache could produce fatal errors on some
+  versions of Ruby.
+
 ## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip
