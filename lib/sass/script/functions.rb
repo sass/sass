@@ -165,6 +165,12 @@ module Sass::Script
   # \{#append append($list1, $val, \[$separator\])}
   # : Appends a single value onto the end of a list.
   #
+  # \{#zip zip($list1, $list2, ...)}
+  # : Combines several lists into a single multidimensional list.
+  #
+  # \{#index index($list, $value)}
+  # : Returns the position of a value within a list, or false.
+  #
   # \{#list-separator list-separator(#list)}
   # : Returns the separator of a list.
   #
@@ -1558,8 +1564,8 @@ module Sass::Script
     declare :append, [:list, :val]
     declare :append, [:list, :val, :separator]
 
-    # Combines several lists into a single comma separated list
-    # space separated lists.
+    # Combines several lists into a single comma separated list, where the nth
+    # value is a space separated list of the source lists' nth values.
     #
     # The length of the resulting list is the length of the
     # shortest list.
@@ -1584,8 +1590,8 @@ module Sass::Script
     declare :zip, [], :var_args => true
 
 
-    # Returns the position of the given value within the given
-    # list. If not found, returns false.
+    # Returns the position of a value within a list. If not found, returns
+    # false.
     #
     # @example
     #   index(1px solid red, solid) => 2
