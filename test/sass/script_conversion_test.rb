@@ -69,6 +69,20 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "$flaznicate"
   end
 
+  def test_null
+    assert_renders "null"
+  end
+
+  def test_empty_list
+    assert_renders "()"
+  end
+
+  def test_list_in_args
+    assert_renders "foo((a, b, c))"
+    assert_renders "foo($arg: (a, b, c))"
+    assert_renders "foo(a, b, (a, b, c)...)"
+  end
+
   def self.test_precedence(outer, inner)
     op_outer = Sass::Script::Lexer::OPERATORS_REVERSE[outer]
     op_inner = Sass::Script::Lexer::OPERATORS_REVERSE[inner]

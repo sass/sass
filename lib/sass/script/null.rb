@@ -22,7 +22,10 @@ module Sass::Script
     def to_s(opts = {})
       ''
     end
-    alias_method :to_sass, :to_s
+
+    def to_sass
+      'null'
+    end
 
     # Returns a string representing a null value.
     #
