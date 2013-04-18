@@ -88,6 +88,8 @@ Thanks to Alexander Pavlov for implementing this.
 * Fix a bug in `sass-convert` where lists being passed as arguments to functions
   or mixins would lose their surrounding parentheses.
 
+* Fix a bug in `sass-convert` where `null` wasn't being converted correctly.
+
 * Fix a bug where multiple spaces in a string literal would sometimes be folded
   together.
 

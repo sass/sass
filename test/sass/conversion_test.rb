@@ -1620,20 +1620,12 @@ SCSS
 
   def test_list_in_args
     assert_renders(<<SASS, <<SCSS)
-$foo: foo((a, b, c))
-$foo: foo($arg: (a, b, c))
-$foo: foo(a, b, (c, d, e)...)
-
 +mixin((a, b, c))
 
 +mixin($arg: (a, b, c))
 
 +mixin(a, b, (c, d, e)...)
 SASS
-$foo: foo((a, b, c));
-$foo: foo($arg: (a, b, c));
-$foo: foo(a, b, (c, d, e)...);
-
 @include mixin((a, b, c));
 
 @include mixin($arg: (a, b, c));
@@ -1649,14 +1641,6 @@ SCSS
 SASS
 @media foo and (bar: baz) {
   a: b; }
-SCSS
-  end
-
-  def test_empty_lists
-    assert_renders(<<SASS, <<SCSS)
-$foo: ()
-SASS
-$foo: ();
 SCSS
   end
 
