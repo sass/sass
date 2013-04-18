@@ -1011,6 +1011,17 @@ SCSS
 
   ## Regressions
 
+  def test_double_space_string
+    assert_equal(<<CSS, render(<<SCSS))
+.a {
+  content: "  a"; }
+CSS
+.a {
+  content: "  a";
+}
+SCSS
+  end
+
   def test_very_long_number_with_important_doesnt_take_forever
     assert_equal(<<CSS, render(<<SCSS))
 .foo {

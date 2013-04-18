@@ -195,13 +195,19 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_mixin(node)
+    arg_to_sass = lambda do |arg|
+      sass = arg.to_sass(@options)
+      sass = "(#{sass})" if arg.is_a?(Sass::Script::List) && arg.separator == :comma
+      sass
+    end
+
     unless node.args.empty? && node.keywords.empty? && node.splat.nil?
-      args = node.args.map {|a| a.to_sass(@options)}.join(", ")
+      args = node.args.map(&arg_to_sass).join(", ")
       keywords = Sass::Util.hash_to_a(node.keywords).
-        map {|k, v| "$#{dasherize(k)}: #{v.to_sass(@options)}"}.join(', ')
+        map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}.join(', ')
       if node.splat
         splat = (args.empty? && keywords.empty?) ? "" : ", "
-        splat = "#{splat}#{node.splat.to_sass(@options)}..."
+        splat = "#{splat}#{arg_to_sass[node.splat]}..."
       end
       arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
     end

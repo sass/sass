@@ -83,6 +83,18 @@ Thanks to Alexander Pavlov for implementing this.
 * Fix some edge cases where redundant selectors were emitted when using
   `@extend`.
 
+* Fix a bug where comma-separated lists with interpolation could lose elements.
+
+* Fix a bug in `sass-convert` where lists being passed as arguments to functions
+  or mixins would lose their surrounding parentheses.
+
+* Fix a bug where multiple spaces in a string literal would sometimes be folded
+  together.
+
+* `sass` and `sass-convert` won't create an empty file before writing to it.
+  This fixes a flash of unstyled content when using LiveReload and similar
+  tools.
+
 ## 3.2.7
 
 * The \{Sass::Script::Functions#index `index`} and \{Sass::Script::Functions#zip

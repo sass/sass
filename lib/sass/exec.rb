@@ -110,11 +110,10 @@ module Sass
             open_file(filename) || $stdin
           end
         @options[:output_filename] = args.shift
-        output ||= open_file(@options[:output_filename], 'w') || $stdout
+        output ||= @options[:output_filename] || $stdout
 
         if @options[:sourcemap] && @options[:output_filename]
           @options[:sourcemap_filename] = Util::sourcemap_name(@options[:output_filename])
-          @options[:sourcemap] = open_file(@options[:sourcemap_filename], 'w')
         end
 
         @options[:input], @options[:output] = input, output
@@ -160,6 +159,14 @@ module Sass
         # and not-real terminals, which aren't ttys.
         return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
         return "\e[#{COLORS[color]}m#{str}\e[0m"
+      end
+
+      def write_output(text, destination)
+        if destination.is_a?(String)
+          File.open(destination, 'w') {|file| file.write(text)}
+        else
+          destination.write(text)
+        end
       end
 
       private
@@ -317,7 +324,7 @@ END
         return watch_or_update if @options[:watch] || @options[:update]
         super
         @options[:for_engine][:filename] = @options[:filename]
-        @options[:for_engine][:css_filename] = @options[:output].path if @options[:output].is_a?(File)
+        @options[:for_engine][:css_filename] = @options[:output] if @options[:output].is_a?(String)
 
         begin
           input = @options[:input]
@@ -342,12 +349,13 @@ END
             relative_sourcemap_path = Pathname.new(@options[:sourcemap_filename]).
               relative_path_from(Pathname.new(@options[:output_filename]).dirname)
             rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
-            output.write(rendered)
-            sourcemap.puts(mapping.to_json(
+            write_output(rendered, output)
+            write_output(mapping.to_json(
                 :css_path => @options[:output_filename],
-                :sourcemap_path => @options[:sourcemap_filename]))
+                :sourcemap_path => @options[:sourcemap_filename]) + "\n",
+              @options[:sourcemap_filename])
           else
-            output.write(engine.render)
+            write_output(engine.render, output)
           end
         rescue ::Sass::SyntaxError => e
           raise e if @options[:trace]
@@ -664,7 +672,6 @@ END
           end
 
           input = open_file(f)
-          output = @options[:in_place] ? input : open_file(output, "w")
           process_file(input, output)
         end
       end
@@ -709,7 +716,7 @@ END
           end
 
         output = File.open(input.path, 'w') if @options[:in_place]
-        output.write(out)
+        write_output(out, output)
       rescue ::Sass::SyntaxError => e
         raise e if @options[:trace]
         file = " of #{e.sass_filename}" if e.sass_filename
