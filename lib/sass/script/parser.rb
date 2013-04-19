@@ -494,10 +494,15 @@ RUBY
       end
 
       def number
-        return literal unless tok = try_tok(:number)
+        return selector unless tok = try_tok(:number)
         num = tok.value
         num.original = num.to_s unless @in_parens
         literal_node(num, tok.source_range.start_pos)
+      end
+
+      def selector
+        return literal unless tok = try_tok(:selector)
+        node(tok.value, tok.source_range.start_pos)
       end
 
       def literal
