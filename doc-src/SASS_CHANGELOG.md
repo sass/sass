@@ -95,8 +95,11 @@ Thanks to Alexander Pavlov for implementing this.
   This fixes a flash of unstyled content when using LiveReload and similar
   tools.
 
-* Fixed a case where a corrupted cache could produce fatal errors on some
-  versions of Ruby.
+* Fix a case where a corrupted cache could produce fatal errors on some versions
+  of Ruby.
+
+* Fix a case where a mixin loop error would be incorrectly reported when using
+  `@content`.
 
 ## 3.2.7
 
