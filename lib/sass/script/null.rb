@@ -23,7 +23,7 @@ module Sass::Script
       ''
     end
 
-    def to_sass
+    def to_sass(opts = {})
       'null'
     end
 
