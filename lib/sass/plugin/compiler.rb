@@ -171,7 +171,7 @@ module Sass::Plugin
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
-          sourcemap = Util::sourcemap_name(css) if engine_options[:sourcemap]
+          sourcemap = Sass::Util::sourcemap_name(css) if engine_options[:sourcemap]
           individual_files << [file, css, sourcemap]
         end
       end
