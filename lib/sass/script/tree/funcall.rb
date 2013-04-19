@@ -102,7 +102,7 @@ module Sass::Script::Tree
       splat = @splat.perform(environment) if @splat
       if fn = environment.function(@name)
         keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
-        return perform_sass_fn(fn, args, keywords, splat)
+        return perform_sass_fn(fn, args, keywords, splat, environment)
       end
 
       ruby_name = @name.tr('-', '_')
@@ -232,8 +232,10 @@ module Sass::Script::Tree
       args
     end
 
-    def perform_sass_fn(function, args, keywords, splat)
+    def perform_sass_fn(function, args, keywords, splat, environment)
       Sass::Tree::Visitors::Perform.perform_arguments(function, args, keywords, splat) do |env|
+        env.caller = Sass::Environment.new(environment)
+
         val = catch :_sass_return do
           function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, env)}
           raise Sass::SyntaxError.new("Function #{@name} finished without @return")

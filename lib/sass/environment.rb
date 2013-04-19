@@ -21,6 +21,7 @@ module Sass
     attr_reader :options
     attr_writer :caller
     attr_writer :content
+    attr_writer :selector
 
     # @param options [{Symbol => Object}] The options hash. See
     #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
@@ -43,6 +44,21 @@ module Sass
       @content || (@parent && @parent.content)
     end
 
+    # The selector for the current CSS rule, or nil if there is no
+    # current CSS rule.
+    #
+    # @return [Selector::CommaSequence?] The current selector, with any
+    #   nesting fully resolved.
+    def selector
+      parent_selector = caller ? caller.selector : (@parent && @parent.selector)
+      return parent_selector unless @selector
+      return @selector.resolve_parent_refs(parent_selector) if parent_selector
+      return @selector
+    end
+
+    # The top-level Environment object.
+    #
+    # @return [Environment]
     def global_env
       @global_env ||= parent.nil? ? self : parent.global_env
     end

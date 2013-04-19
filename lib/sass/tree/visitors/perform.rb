@@ -322,7 +322,11 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       node.stack_trace = stack_trace
       @stack.pop
     end
-    yield
+    with_environment Sass::Environment.new(@environment, node.options) do
+      @environment.selector = node.parsed_rules
+      node.children = node.children.map {|c| visit(c)}.flatten
+    end
+    node
   end
 
   # Loads the new variable value into the environment.
