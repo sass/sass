@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.8 (Unreleased)
+## 3.2.8
 
 * Fix some edge cases where redundant selectors were emitted when using
   `@extend`.
