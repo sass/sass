@@ -520,6 +520,21 @@ MESSAGE
     assert_hash_has(err.sass_backtrace[2], :mixin => "foo", :line => 2)
   end
 
+  def test_mixin_loop_with_content
+    render <<SASS
+=foo
+  @content
+=bar
+  +foo
+    +bar
++bar
+SASS
+    assert(false, "Exception not raised")
+  rescue Sass::SyntaxError => err
+    assert_equal("An @include loop has been found: bar includes itself", err.message)
+    assert_hash_has(err.sass_backtrace[0], :mixin => "@content", :line => 5)
+  end
+
   def test_basic_import_loop_exception
     import = filename_for_test
     importer = MockImporter.new
@@ -2415,6 +2430,24 @@ SASS
   end
 
   # Regression tests
+
+  def test_parent_mixin_in_content_nested
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: c; }
+CSS
+=foo
+  @content
+
+=bar
+  +foo
+    +foo
+      a
+        b: c
+
++bar
+SASS
+  end
 
   def test_supports_bubbles
     assert_equal <<CSS, render(<<SASS)
