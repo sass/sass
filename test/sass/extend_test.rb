@@ -1116,6 +1116,20 @@ SCSS
 
   # Regression Tests
 
+  def test_nested_extend_specificity
+    assert_equal <<CSS, render(<<SCSS)
+a :b, a :b:c {
+  a: b; }
+CSS
+%foo {a: b}
+
+a {
+  :b {@extend %foo}
+  :b:c {@extend %foo}
+}
+SCSS
+  end
+
   def test_nested_double_extend_optimization
     assert_equal <<CSS, render(<<SCSS)
 .parent1 .child {
