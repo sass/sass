@@ -53,6 +53,9 @@ Thanks to Alexander Pavlov for implementing this.
   allows them the same power as Sass-based functions with respect to
   reading and setting variables defined elsewhere in the stylesheet.
 
+* Add "grey" as a recognized SassScript color. Thanks to [Rob
+  Wierzbowski](https://github.com/robwierzbowski).
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
@@ -77,6 +80,9 @@ Thanks to Alexander Pavlov for implementing this.
 * `Sass::Plugin.options=` has been removed.
 
 * `Sass::Script::Number::PRECISION` has been removed.
+
+* `grey` is no longer interpreted as a string; it's now interpreted as a color,
+  as per the CSS spec.
 
 ## 3.2.9
 
