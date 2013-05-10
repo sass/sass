@@ -1239,7 +1239,9 @@ MSG
   end
 
   def evaluate(value, environment = env)
-    perform(value, environment).to_s
+    result = perform(value, environment)
+    assert_kind_of Sass::Script::Literal, result
+    return result.to_s
   end
 
   def perform(value, environment = env)

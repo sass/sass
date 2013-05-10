@@ -556,6 +556,7 @@ SASS
   def resolve(str, opts = {}, environment = env)
     munge_filename opts
     val = eval(str, opts, environment)
+    assert_kind_of Sass::Script::Literal, val
     val.is_a?(Sass::Script::String) ? val.value : val.to_s
   end
 
