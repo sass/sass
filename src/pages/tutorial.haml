@@ -93,6 +93,12 @@
   for all sorts of CSS formatting preferences.
   There's even one for compressing the CSS as much as possible!
 
+  Be aware that nesting selectors does have a cost in terms of code size and
+  maintainability. You don't want to exactly match the nesting of the HTML; that
+  makes it very difficult to update your CSS when the HTML changes in small
+  ways. It's generally a good idea to prefer only two or three levels of
+  nesting.
+
   You can also nest properties,
   so you don't have to repeat stuff like &#8220;`border-left-`" all the time.
 
