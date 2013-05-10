@@ -1037,6 +1037,12 @@ MSG
     assert_equal("2px", evaluate("if(null, 1px, 2px)"))
   end
 
+  def test_counter
+    assert_equal("counter(foo)", evaluate("counter(foo)"))
+    assert_equal('counter(item,".")', evaluate('counter(item, ".")'))
+    assert_equal('counter(item,".")', evaluate('counter(item,".")'))
+  end
+
   def test_keyword_args_rgb
     assert_equal(%Q{white}, evaluate("rgb($red: 255, $green: 255, $blue: 255)"))
   end
