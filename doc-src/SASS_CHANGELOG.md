@@ -8,6 +8,9 @@
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated
   with the incorrect specificity.
 
+* Avoid loading [listen](http://github.com/guard/listen) v1.0, even if it's
+  installed as a Gem (see [issue 719](https://github.com/nex3/sass/issues/719)).
+
 ## 3.2.8
 
 * Fix some edge cases where redundant selectors were emitted when using
