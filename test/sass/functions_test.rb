@@ -1105,7 +1105,9 @@ MSG
   private
 
   def evaluate(value)
-    Sass::Script::Parser.parse(value, 0, 0).perform(Sass::Environment.new).to_s
+    result = perform(value)
+    assert_kind_of Sass::Script::Literal, result
+    return result.to_s
   end
 
   def perform(value)
