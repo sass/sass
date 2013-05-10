@@ -1639,6 +1639,19 @@ module Sass::Script
     end
     declare :if, [:condition, :if_true, :if_false]
 
+    # This function only exists as a workaround for IE7's [`content:counter`
+    # bug][bug]. It works identically to any other plain-CSS function, except it
+    # avoids adding spaces between the argument commas.
+    #
+    # [bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
+    #
+    # @example
+    #   counter(item, ".") => counter(item,".")
+    def counter(*args)
+      Sass::Script::String.new("counter(#{args.map {|a| a.to_s(options)}.join(',')})")
+    end
+    declare :counter, [], :var_args => true
+
     private
 
     # This method implements the pattern of transforming a numeric value into

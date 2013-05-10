@@ -89,6 +89,10 @@ Thanks to Alexander Pavlov for implementing this.
 * Update the bundled version of [listen](http://github.com/guard/listen) to
   0.7.3.
 
+* Automatically avoid the [IE7 `content: counter` bug][cc bug].
+
+[cc bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
+
 ## 3.2.8
 
 * Fix some edge cases where redundant selectors were emitted when using
