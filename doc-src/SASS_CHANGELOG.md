@@ -78,7 +78,7 @@ Thanks to Alexander Pavlov for implementing this.
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
-## 3.2.9 (Unreleased)
+## 3.2.9
 
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated
   with the incorrect specificity.
