@@ -329,7 +329,6 @@ END
         begin
           input = @options[:input]
           output = @options[:output]
-          sourcemap = @options[:sourcemap]
 
           @options[:for_engine][:syntax] ||= :scss if input.is_a?(File) && input.path =~ /\.scss$/
           @options[:for_engine][:syntax] ||= @default_syntax
@@ -345,7 +344,7 @@ END
 
           input.close() if input.is_a?(File)
 
-          if sourcemap.is_a? File
+          if @options[:sourcemap]
             relative_sourcemap_path = Pathname.new(@options[:sourcemap_filename]).
               relative_path_from(Pathname.new(@options[:output_filename]).dirname)
             rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
@@ -362,7 +361,6 @@ END
           raise e.sass_backtrace_str("standard input")
         ensure
           output.close if output.is_a? File
-          sourcemap.close if sourcemap.is_a? File
         end
       end
 
