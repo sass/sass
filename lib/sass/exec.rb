@@ -157,7 +157,7 @@ module Sass
 
       def write_output(text, destination)
         if destination.is_a?(String)
-          File.open(destination, 'w') {|file| file.write(text)}
+          open_file(destination, 'w') {|file| file.write(text)}
         else
           destination.write(text)
         end
@@ -168,7 +168,10 @@ module Sass
       def open_file(filename, flag = 'r')
         return if filename.nil?
         flag = 'wb' if @options[:unix_newlines] && flag == 'w'
-        File.open(filename, flag)
+        file = File.open(filename, flag)
+        return file unless block_given?
+        yield file
+        file.close
       end
 
       def handle_load_error(err)
@@ -683,7 +686,7 @@ END
             end
           end
 
-        output = File.open(input.path, 'w') if @options[:in_place]
+        output = input.path if @options[:in_place]
         write_output(out, output)
       rescue ::Sass::SyntaxError => e
         raise e if @options[:trace]

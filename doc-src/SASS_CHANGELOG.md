@@ -8,6 +8,9 @@
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated
   with the incorrect specificity.
 
+* Fix a bug where `sass --unix-newlines` and `sass-convert --in-place` are not working on Windows
+  (thanks [SATO Kentaro](http://www.ranvis.com)).
+
 ## 3.2.8
 
 * Fix some edge cases where redundant selectors were emitted when using
