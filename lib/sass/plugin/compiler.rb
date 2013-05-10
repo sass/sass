@@ -213,23 +213,7 @@ module Sass::Plugin
     def watch(individual_files = [])
       update_stylesheets(individual_files)
 
-      begin
-        require 'listen'
-      rescue LoadError => e
-        dir = Sass::Util.scope("vendor/listen/lib")
-        if $LOAD_PATH.include?(dir)
-          e.message << "\n" <<
-            if File.exists?(scope(".git"))
-              'Run "git submodule update --init" to get the recommended version.'
-            else
-              'Run "gem install listen" to get it.'
-            end
-          raise e
-        else
-          $LOAD_PATH.unshift dir
-          retry
-        end
-      end
+      load_listen!
 
       template_paths = template_locations # cache the locations
       individual_files_hash = individual_files.inject({}) do |h, files|
@@ -306,6 +290,43 @@ module Sass::Plugin
     end
 
     private
+
+    def load_listen!
+      if defined?(gem)
+        begin
+          gem 'listen', '~> 0.7'
+          require 'listen'
+        rescue Gem::LoadError
+          dir = Sass::Util.scope("vendor/listen/lib")
+          $LOAD_PATH.unshift dir
+          begin
+            require 'listen'
+          rescue LoadError => e
+            e.message << "\n" <<
+              if File.exists?(scope(".git"))
+                'Run "git submodule update --init" to get the recommended version.'
+              else
+                'Run "gem install listen" to get it.'
+              end
+            raise e
+          end
+        end
+      else
+        begin
+          require 'listen'
+        rescue LoadError => e
+          dir = Sass::Util.scope("vendor/listen/lib")
+          if $LOAD_PATH.include?(dir)
+            raise e unless File.exists?(scope(".git"))
+            e.message << "\n" <<
+              'Run "git submodule update --init" to get the recommended version.'
+          else
+            $LOAD_PATH.unshift dir
+            retry
+          end
+        end
+      end
+    end
 
     def update_stylesheet(filename, css, sourcemap)
       dir = File.dirname(css)
