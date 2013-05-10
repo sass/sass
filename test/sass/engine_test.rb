@@ -2435,6 +2435,19 @@ SASS
 
   # Regression tests
 
+  def test_list_separator_with_arg_list
+    assert_equal(<<CSS, render(<<SASS))
+.test {
+  separator: comma; }
+CSS
+@mixin arglist-test($args...)
+  separator: list-separator($args)
+
+.test
+  @include arglist-test(this, is, comma, separated)
+SASS
+  end
+
   def test_parent_mixin_in_content_nested
     assert_equal(<<CSS, render(<<SASS))
 a {
