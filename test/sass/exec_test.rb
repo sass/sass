@@ -1,54 +1,86 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
-require 'sass/exec'
+require 'sass/util/test'
 require 'tmpdir'
 
 class ExecTest < Test::Unit::TestCase
+  include Sass::Util::Test
+
   def setup
-    @css_in = ".ruleset { margin: 0 }"
-    @css_out = ".ruleset {\n  margin: 0;\n}\n"
-    @sass_out = ".ruleset\n  margin: 0\n"
     @dir = Dir.mktmpdir
-    @src = File.join(@dir, "src.scss")
-    @dest = File.join(@dir, "dest.css")
-    open(@src, 'wb') {|f| f.write(@css_in)}
   end
 
   def teardown
     FileUtils.rm_rf(@dir)
+    clean_up_sassc
   end
 
-  def to_options(commandline)
-    return commandline.split(/\s+/).push(@src, @dest)
+  def test_scss_t_expanded
+    src = get_path("src.scss")
+    dest = get_path("dest.css")
+    write(src, ".ruleset { margin: 0 }")
+    assert(exec(*%w[scss -t expanded --unix-newlines].push(src, dest)))
+    assert_equal(".ruleset {\n  margin: 0;\n}\n", read(dest))
   end
 
-  def binread(file)
-    content = nil
-    open(@dest, 'rb') {|f| content = f.read}
-    return content
+  def test_sass_convert_T_sass
+    src = get_path("src.scss")
+    dest = get_path("dest.css")
+    write(src, ".ruleset { margin: 0 }")
+    assert(exec(*%w[sass-convert -T sass --unix-newlines].push(src, dest)))
+    assert_equal(".ruleset\n  margin: 0\n", read(dest))
   end
 
-  def test_exec
-    Sass::Exec::Scss.new(to_options("-t expanded --unix-newlines")).parse
-    assert_equal(@css_out, binread(@dest))
-    Sass::Exec::SassConvert.new(to_options("-T sass --unix-newlines")).parse
-    assert_equal(@sass_out, binread(@dest))
-    Sass::Exec::SassConvert.new(to_options("-T sass --in-place --unix-newlines")).parse
-    assert_equal(@sass_out, binread(@src))
+  def test_sass_convert_T_sass_in_place
+    src = get_path("src.scss")
+    write(src, ".ruleset { margin: 0 }")
+    assert(exec(*%w[sass-convert -T sass --in-place --unix-newlines].push(src)))
+    assert_equal(".ruleset\n  margin: 0\n", read(src))
   end
 
-  def test_no_unix_newlines
-    unless Sass::Util.windows?
-      skip "Can be run on Windows only" if respond_to?(:skip)
-      return
-    end
-    @css_out.gsub!(/\n/, "\r\n")
-    @sass_out.gsub!(/\n/, "\r\n")
-    Sass::Exec::Scss.new(to_options("-t expanded")).parse
-    assert_equal(@css_out, binread(@dest))
-    Sass::Exec::SassConvert.new(to_options("-T sass")).parse
-    assert_equal(@sass_out, binread(@dest))
-    Sass::Exec::SassConvert.new(to_options("-T sass --in-place")).parse
-    assert_equal(@sass_out, binread(@src))
+  def test_scss_t_expanded_no_unix_newlines
+    return skip "Can be run on Windows only" unless Sass::Util.windows?
+    src = get_path("src.scss")
+    dest = get_path("dest.css")
+    write(src, ".ruleset { margin: 0 }")
+    assert(exec(*%w[scss -t expanded].push(src, dest)))
+    assert_equal(".ruleset {\r\n  margin: 0;\r\n}\r\n", read(dest))
+  end
+
+  def test_sass_convert_T_sass_no_unix_newlines
+    return skip "Can be run on Windows only" unless Sass::Util.windows?
+    src = get_path("src.scss")
+    dest = get_path("dest.sass")
+    write(src, ".ruleset { margin: 0 }")
+    assert(exec(*%w[sass-convert -T sass].push(src, dest)))
+    assert_equal(".ruleset\r\n  margin: 0\r\n", read(dest))
+  end
+
+  def test_sass_convert_T_sass_in_place_no_unix_newlines
+    return skip "Can be run on Windows only" unless Sass::Util.windows?
+    src = get_path("src.scss")
+    write(src, ".ruleset { margin: 0 }")
+    assert(exec(*%w[sass-convert -T sass --in-place].push(src)))
+    assert_equal(".ruleset\r\n  margin: 0\r\n", read(src))
+  end
+
+  private
+
+  def get_path(name)
+    File.join(@dir, name)
+  end
+
+  def read(file)
+    open(file, 'rb') {|f| f.read}
+  end
+
+  def write(file, content)
+    open(file, 'wb') {|f| f.write(content)}
+  end
+
+  def exec(script, *args)
+    script = File.dirname(__FILE__) + '/../../bin/' + script
+    ruby = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
+    system(ruby, script, *args)
   end
 end
