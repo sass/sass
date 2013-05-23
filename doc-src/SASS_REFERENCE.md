@@ -1323,6 +1323,17 @@ For example:
       border-width: 3px;
     }
 
+is compiled to:
+
+    .error, .seriousError {
+      border: 1px #f00;
+      background-color: #fdd;
+    }
+
+    .seriousError {
+      border-width: 3px;
+    }
+
 This means that all styles defined for `.error`
 are also applied to `.seriousError`,
 in addition to the styles specific to `.seriousError`.
