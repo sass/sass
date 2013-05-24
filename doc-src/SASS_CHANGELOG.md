@@ -52,6 +52,8 @@ Thanks to Alexander Pavlov for implementing this.
 * Custom Ruby functions can now access the global environment, which
   allows them the same power as Sass-based functions with respect to
   reading and setting variables defined elsewhere in the stylesheet.
+  
+* `grey` added to the list of Sass colors.
 
 ### Backwards Incompatibilities -- Must Read!
 
