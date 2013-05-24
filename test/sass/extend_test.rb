@@ -489,7 +489,7 @@ CSS
 SCSS
   end
 
-  def test_nested_extender_with_early_child_selectors_doesnt_subseq_them
+  def test_another_nested_extender_with_early_child_selectors_doesnt_subseq_them
     assert_equal <<CSS, render(<<SCSS)
 .foo .bar, .foo .bip > .baz {
   a: b; }
@@ -1136,20 +1136,6 @@ a.bar {
   a: b; }
 CSS
 a.bar {a: b}
-b.foo {@extend .bar}
-SCSS
-  end
-
-  def test_extend_does_not_warn_when_one_extension_fails_but_others_dont
-    assert_no_warning {assert_equal(<<CSS, render(<<SCSS))}
-a.bar {
-  a: b; }
-
-.bar, b.foo {
-  c: d; }
-CSS
-a.bar {a: b}
-.bar {c: d}
 b.foo {@extend .bar}
 SCSS
   end

@@ -725,7 +725,7 @@ SCSS
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview, but without element
   # names.
-  def test_summarized_selectors
+  def test_more_summarized_selectors
     assert_selector_parses(':not(s)')
     assert_selector_parses(':not(s1, s2)')
     assert_selector_parses(':matches(s1, s2)')
