@@ -558,7 +558,6 @@ module Sass
         tok!(/\{/)
         block_contents(node, context)
         tok!(/\}/)
-        node.source_range.end_pos = source_position if node.source_range
         node
       end
 
