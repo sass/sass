@@ -223,6 +223,36 @@ SASS
 CSS
   end
 
+  def test_media_sourcemap_scss
+    assert_parses_with_mapping <<'SCSS', <<'CSS'
+{{1}}@media screen, tv  {{/1}}{
+  {{2}}body {{/2}}{
+    {{3}}max-width{{/3}}: {{4}}1070px{{/4}};
+  }
+}
+SCSS
+{{1}}@media screen, tv{{/1}} {
+  {{2}}body{{/2}} {
+    {{3}}max-width{{/3}}: {{4}}1070px{{/4}}; } }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
+  def test_media_sourcemap_sass
+    assert_parses_with_mapping <<'SASS', <<'CSS', :syntax => :sass
+{{1}}@media screen, tv{{/1}}
+  {{2}}body{{/2}}
+    {{3}}max-width{{/3}}: {{4}}1070px{{/4}}
+SASS
+{{1}}@media screen, tv{{/1}} {
+  {{2}}body{{/2}} {
+    {{3}}max-width{{/3}}: {{4}}1070px{{/4}}; } }
+
+/*@ sourceMappingURL=test.css.map */
+CSS
+  end
+
   def test_interpolation_and_vars_sourcemap_scss
     assert_parses_with_mapping <<'SCSS', <<'CSS'
 $te: "te";
