@@ -379,8 +379,8 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("rgba(0, 0, 0, 0.3)", evaluate("transparentize(rgba(0, 0, 0, 0.5), 0.2)"))
     assert_equal("rgba(0, 0, 0, 0.1)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0.1)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("fade-out(rgba(0, 0, 0, 0.5), 0.3px)"))
-    assert_equal("rgba(0, 0, 0, 0)", evaluate("fade_out(rgba(0, 0, 0, 0.2), 0.2)"))
-    assert_equal("rgba(0, 0, 0, 0)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 1)"))
+    assert_equal("transparent", evaluate("fade_out(rgba(0, 0, 0, 0.2), 0.2)"))
+    assert_equal("transparent", evaluate("transparentize(rgba(0, 0, 0, 0.2), 1)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize(rgba(0, 0, 0, 0.2), 0)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("transparentize($color: rgba(0, 0, 0, 0.2), $amount: 0)"))
     assert_equal("rgba(0, 0, 0, 0.2)", evaluate("fade-out($color: rgba(0, 0, 0, 0.2), $amount: 0)"))
@@ -815,8 +815,8 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_grayscale
     assert_equal("#bbbbbb", evaluate("grayscale(#abc)"))
-    assert_equal("gray", evaluate("grayscale(#f00)"))
-    assert_equal("gray", evaluate("grayscale(#00f)"))
+    assert_equal("grey", evaluate("grayscale(#f00)"))
+    assert_equal("grey", evaluate("grayscale(#00f)"))
     assert_equal("white", evaluate("grayscale(white)"))
     assert_equal("black", evaluate("grayscale(black)"))
     assert_equal("black", evaluate("grayscale($color: black)"))
