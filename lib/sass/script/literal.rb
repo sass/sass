@@ -4,7 +4,7 @@ module Sass::Script
   # Many of these methods, especially the ones that correspond to SassScript operations,
   # are designed to be overridden by subclasses which may change the semantics somewhat.
   # The operations listed here are just the defaults.
-  class Literal < Node
+  class Literal < Tree::Node
     require 'sass/script/string'
     require 'sass/script/number'
     require 'sass/script/color'
@@ -29,13 +29,13 @@ module Sass::Script
 
     # Returns an empty array.
     #
-    # @return [Array<Node>] empty
-    # @see Node#children
+    # @return [Array<Tree::Node>] empty
+    # @see Tree::Node#children
     def children
       []
     end
 
-    # @see Node#deep_copy
+    # @see Tree::Node#deep_copy
     def deep_copy
       dup
     end

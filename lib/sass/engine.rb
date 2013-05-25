@@ -55,12 +55,12 @@ module Sass
   # `name`: `String`
   # : The name of the mixin/function.
   #
-  # `args`: `Array<(Script::Node, Script::Node)>`
+  # `args`: `Array<(Script::Tree::Node, Script::Tree::Node)>`
   # : The arguments for the mixin/function.
   #   Each element is a tuple containing the variable node of the argument
   #   and the parse tree for the default value of the argument.
   #
-  # `splat`: `Script::Node?`
+  # `splat`: `Script::Tree::Node?`
   # : The variable node of the splat argument for this callable, or null.
   #
   # `environment`: {Sass::Environment}
@@ -1064,7 +1064,7 @@ WARNING
     end
 
     # It's important that this have strings (at least)
-    # at the beginning, the end, and between each Script::Node.
+    # at the beginning, the end, and between each Script::Tree::Node.
     #
     # @private
     def self.parse_interp(text, line, offset, options)

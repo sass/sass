@@ -9,11 +9,11 @@ module Sass::Tree
     PARENT = '&'
 
     # The CSS selector for this rule,
-    # interspersed with {Sass::Script::Node}s
+    # interspersed with {Sass::Script::Tree::Node}s
     # representing `#{}`-interpolation.
     # Any adjacent strings will be merged together.
     #
-    # @return [Array<String, Sass::Script::Node>]
+    # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :rule
 
     # The CSS selector for this rule,
@@ -60,7 +60,7 @@ module Sass::Tree
     # @return [Array<String>]
     attr_accessor :stack_trace
 
-    # @param rule [Array<String, Sass::Script::Node>]
+    # @param rule [Array<String, Sass::Script::Tree::Node>]
     # @param selector_source_range [Sass::Source::Range]
     #   The CSS rule. See \{#rule}
     def initialize(rule, selector_source_range = nil)

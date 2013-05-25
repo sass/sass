@@ -12,22 +12,22 @@ module Sass::Tree
     attr_reader :name
 
     # The arguments to the mixin.
-    # @return [Array<Script::Node>]
+    # @return [Array<Script::Tree::Node>]
     attr_accessor :args
 
     # A hash from keyword argument names to values.
-    # @return [{String => Script::Node}]
+    # @return [{String => Script::Tree::Node}]
     attr_accessor :keywords
 
     # The splat argument for this mixin, if one exists.
     #
-    # @return [Script::Node?]
+    # @return [Script::Tree::Node?]
     attr_accessor :splat
 
     # @param name [String] The name of the mixin
-    # @param args [Array<Script::Node>] See \{#args}
-    # @param splat [Script::Node] See \{#splat}
-    # @param keywords [{String => Script::Node}] See \{#keywords}
+    # @param args [Array<Script::Tree::Node>] See \{#args}
+    # @param splat [Script::Tree::Node] See \{#splat}
+    # @param keywords [{String => Script::Tree::Node}] See \{#keywords}
     def initialize(name, args, keywords, splat)
       @name = name
       @args = args

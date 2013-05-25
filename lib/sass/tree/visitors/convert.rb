@@ -160,7 +160,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_cssimport(node)
-    if node.uri.is_a?(Sass::Script::Node)
+    if node.uri.is_a?(Sass::Script::Tree::Node)
       str = "#{tab_str}@import #{node.uri.to_sass(@options)}"
     else
       str = "#{tab_str}@import #{node.uri}"

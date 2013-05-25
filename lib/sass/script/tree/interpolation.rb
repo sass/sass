@@ -1,4 +1,4 @@
-module Sass::Script
+module Sass::Script::Tree
   # A SassScript object representing `#{}` interpolation outside a string.
   #
   # @see StringInterpolation
@@ -8,9 +8,9 @@ module Sass::Script
     # @param before [Node] The SassScript before the interpolation
     # @param mid [Node] The SassScript within the interpolation
     # @param after [Node] The SassScript after the interpolation
-    # @param wb [Boolean] Whether there was whitespace between `before` and `#{`
-    # @param wa [Boolean] Whether there was whitespace between `}` and `after`
-    # @param originally_text [Boolean]
+    # @param wb [Sass::Script::Boolean] Whether there was whitespace between `before` and `#{`
+    # @param wa [Sass::Script::Boolean] Whether there was whitespace between `}` and `after`
+    # @param originally_text [Sass::Script::Boolean]
     #   Whether the original format of the interpolation was plain text,
     #   not an interpolation.
     #   This is used when converting back to SassScript.

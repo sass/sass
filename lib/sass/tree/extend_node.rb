@@ -11,10 +11,10 @@ module Sass::Tree
     # @return [Selector::CommaSequence]
     attr_accessor :resolved_selector
 
-    # The CSS selector to extend, interspersed with {Sass::Script::Node}s
+    # The CSS selector to extend, interspersed with {Sass::Script::Tree::Node}s
     # representing `#{}`-interpolation.
     #
-    # @return [Array<String, Sass::Script::Node>]
+    # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :selector
 
     # The extended selector source range.
@@ -27,9 +27,9 @@ module Sass::Tree
     # @return [Boolean]
     def optional?; @optional; end
 
-    # @param selector [Array<String, Sass::Script::Node>]
+    # @param selector [Array<String, Sass::Script::Tree::Node>]
     #   The CSS selector to extend,
-    #   interspersed with {Sass::Script::Node}s
+    #   interspersed with {Sass::Script::Tree::Node}s
     #   representing `#{}`-interpolation.
     # @param optional [Boolean] See \{#optional}
     # @param selector_source_range [Sass::Source::Range] The extended selector source range.

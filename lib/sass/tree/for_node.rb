@@ -10,11 +10,11 @@ module Sass::Tree
     attr_reader :var
 
     # The parse tree for the initial expression.
-    # @return [Script::Node]
+    # @return [Script::Tree::Node]
     attr_accessor :from
 
     # The parse tree for the final expression.
-    # @return [Script::Node]
+    # @return [Script::Tree::Node]
     attr_accessor :to
 
     # Whether to include `to` in the loop or stop just before.
@@ -22,8 +22,8 @@ module Sass::Tree
     attr_reader :exclusive
 
     # @param var [String] See \{#var}
-    # @param from [Script::Node] See \{#from}
-    # @param to [Script::Node] See \{#to}
+    # @param from [Script::Tree::Node] See \{#from}
+    # @param to [Script::Tree::Node] See \{#to}
     # @param exclusive [Boolean] See \{#exclusive}
     def initialize(var, from, to, exclusive)
       @var = var

@@ -223,7 +223,7 @@ module Sass
         type, val, size = value
         size ||= @scanner.matched_size
 
-        val.line = @line if val.is_a?(Script::Node)
+        val.line = @line if val.is_a?(Script::Tree::Node)
         Token.new(type, val, @line, @offset - size, @scanner.pos - size)
       end
 

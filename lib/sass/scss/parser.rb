@@ -45,7 +45,7 @@ module Sass
       # Note that this won't assert that the identifier takes up the entire input string;
       # it's meant to be used with `StringScanner`s as part of other parsers.
       #
-      # @return [Array<String, Sass::Script::Node>, nil]
+      # @return [Array<String, Sass::Script::Tree::Node>, nil]
       #   The interpolated identifier, or nil if none could be parsed
       def parse_interp_ident
         init_scanner!
@@ -968,7 +968,7 @@ MESSAGE
       def var_expr
         return unless tok(/\$/)
         line = @line
-        var = Sass::Script::Variable.new(tok!(IDENT))
+        var = Sass::Script::Tree::Variable.new(tok!(IDENT))
         var.line = line
         var
       end

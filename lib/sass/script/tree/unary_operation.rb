@@ -1,11 +1,10 @@
-module Sass::Script
+module Sass::Script::Tree
   # A SassScript parse node representing a unary operation,
   # such as `-$b` or `not true`.
   #
   # Currently only `-`, `/`, and `not` are unary operators.
   class UnaryOperation < Node
-    # @param operand [Script::Node] The parse-tree node
-    #   for the object of the operator
+    # @param operand [Node] The parse-tree node for the object of the operator
     # @param operator [Symbol] The operator to perform
     def initialize(operand, operator)
       @operand = operand
@@ -26,7 +25,7 @@ module Sass::Script
            (operand =~ Sass::SCSS::RX::IDENT) == 0)
         operand = "(#{@operand.to_sass(opts)})"
       end
-      op = Lexer::OPERATORS_REVERSE[@operator]
+      op = Sass::Script::Lexer::OPERATORS_REVERSE[@operator]
       op + (op =~ /[a-z]/ ? " " : "") + operand
     end
 
@@ -50,7 +49,7 @@ module Sass::Script
     # Evaluates the operation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Literal] The SassScript object that is the value of the operation
+    # @return [Sass::Script::Literal] The SassScript object that is the value of the operation
     # @raise [Sass::SyntaxError] if the operation is undefined for the operand
     def _perform(environment)
       operator = "unary_#{@operator}"

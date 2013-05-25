@@ -1,4 +1,4 @@
-module Sass::Script
+module Sass::Script::Tree
   # The abstract superclass for SassScript parse tree nodes.
   #
   # Use \{#perform} to evaluate a parse tree.
@@ -45,7 +45,7 @@ module Sass::Script
     # instead, override \{#\_perform}.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Literal] The SassScript object that is the value of the SassScript
+    # @return [Sass::Script::Literal] The SassScript object that is the value of the SassScript
     def perform(environment)
       _perform(environment)
     rescue Sass::SyntaxError => e
@@ -87,11 +87,11 @@ module Sass::Script
     end
 
     # Evaluates this node.
-    # Note that all {Literal} objects created within this method
+    # Note that all {Sass::Script::Literal} objects created within this method
     # should have their \{#options} attribute set, probably via \{#opts}.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Literal] The SassScript object that is the value of the SassScript
+    # @return [Sass::Script::Literal] The SassScript object that is the value of the SassScript
     # @see #perform
     def _perform(environment)
       Sass::Util.abstract(self)
@@ -99,8 +99,8 @@ module Sass::Script
 
     # Sets the \{#options} field on the given literal and returns it
     #
-    # @param literal [Literal]
-    # @return [Literal]
+    # @param literal [Sass::Script::Literal]
+    # @return [Sass::Script::Literal]
     def opts(literal)
       literal.options = options
       literal

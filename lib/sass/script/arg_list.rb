@@ -29,12 +29,12 @@ module Sass::Script
       @keywords
     end
 
-    # @see Node#children
+    # @see Tree::Node#children
     def children
       super + @keywords.values
     end
 
-    # @see Node#deep_copy
+    # @see Tree::Node#deep_copy
     def deep_copy
       node = super
       node.instance_variable_set('@keywords',
@@ -44,7 +44,7 @@ module Sass::Script
 
     protected
 
-    # @see Node#_perform
+    # @see Tree::Node#_perform
     def _perform(environment)
       self
     end

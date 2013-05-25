@@ -1,4 +1,4 @@
-module Sass::Script
+module Sass::Script::Tree
   # A SassScript object representing `#{}` interpolation within a string.
   #
   # @see Interpolation

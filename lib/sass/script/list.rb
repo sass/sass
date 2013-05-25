@@ -24,27 +24,27 @@ module Sass::Script
       @separator = separator
     end
 
-    # @see Node#deep_copy
+    # @see Tree::Node#deep_copy
     def deep_copy
       node = dup
       node.instance_variable_set('@value', value.map {|c| c.deep_copy})
       node
     end
 
-    # @see Node#eq
+    # @see Tree::Node#eq
     def eq(other)
       Sass::Script::Bool.new(
         other.is_a?(List) && self.value == other.value &&
         self.separator == other.separator)
     end
 
-    # @see Node#to_s
+    # @see Tree::Node#to_s
     def to_s(opts = {})
       raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
       return value.reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.map {|e| e.to_s(opts)}.join(sep_str)
     end
 
-    # @see Node#to_sass
+    # @see Tree::Node#to_sass
     def to_sass(opts = {})
       return "()" if value.empty?
       precedence = Sass::Script::Parser.precedence_of(separator)
@@ -57,14 +57,14 @@ module Sass::Script
       end.join(sep_str(nil))
     end
 
-    # @see Node#inspect
+    # @see Tree::Node#inspect
     def inspect
       "(#{to_sass})"
     end
 
     protected
 
-    # @see Node#_perform
+    # @see Tree::Node#_perform
     def _perform(environment)
       list = Sass::Script::List.new(
         value.map {|e| e.perform(environment)},

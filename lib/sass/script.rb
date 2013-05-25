@@ -1,9 +1,4 @@
-require 'sass/script/node'
-require 'sass/script/variable'
-require 'sass/script/funcall'
-require 'sass/script/operation'
-require 'sass/script/literal'
-require 'sass/script/parser'
+require 'sass/scss/rx'
 
 module Sass
   # SassScript is code that's embedded in Sass documents
@@ -26,7 +21,7 @@ module Sass
     #   Used for error reporting
     # @param options [{Symbol => Object}] An options hash;
     #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
-    # @return [Script::Node] The root node of the parse tree
+    # @return [Script::Tree::Node] The root node of the parse tree
     def self.parse(value, line, offset, options = {})
       Parser.parse(value, line, offset, options)
     rescue Sass::SyntaxError => e
@@ -37,3 +32,8 @@ module Sass
 
   end
 end
+
+require 'sass/script/functions'
+require 'sass/script/parser'
+require 'sass/script/tree'
+require 'sass/script/literal'

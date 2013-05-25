@@ -238,10 +238,10 @@ module Sass::Script
   #
   # ### Caveats
   #
-  # When creating new {Literal} objects within functions,
-  # be aware that it's not safe to call {Literal#to_s #to_s}
-  # (or other methods that use the string representation)
-  # on those objects without first setting {Node#options= the #options attribute}.
+  # When creating new {Literal} objects within functions, be aware that it's not
+  # safe to call {Literal#to_s #to_s} (or other methods that use the string
+  # representation) on those objects without first setting {Tree::Node#options=
+  # the #options attribute}.
   module Functions
     @signatures = {}
 

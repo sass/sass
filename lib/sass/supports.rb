@@ -135,7 +135,7 @@ module Sass::Supports
   class Declaration < Condition
     # The feature name.
     #
-    # @param [Sass::Script::Node]
+    # @param [Sass::Script::Tree::Node]
     attr_accessor :name
 
     # The name of the feature after any SassScript has been resolved.
@@ -146,7 +146,7 @@ module Sass::Supports
 
     # The feature value.
     #
-    # @param [Sass::Script::Node]
+    # @param [Sass::Script::Tree::Node]
     attr_accessor :value
 
     # The value of the feature after any SassScript has been resolved.
@@ -190,7 +190,7 @@ module Sass::Supports
   class Interpolation < Condition
     # The SassScript expression in the interpolation.
     #
-    # @param [Sass::Script::Node]
+    # @param [Sass::Script::Tree::Node]
     attr_accessor :value
 
     # The value of the expression after it's been resolved.
