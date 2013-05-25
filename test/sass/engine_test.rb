@@ -558,7 +558,7 @@ ERR
     importer.add_import("bar", "@import 'foo'")
 
     engine = Sass::Engine.new('@import "foo"', :filename => filename_for_test,
-      :load_paths => [importer])
+      :load_paths => [importer], :importer => importer)
 
     assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
 An @import loop has been found:
@@ -575,7 +575,7 @@ ERR
     importer.add_import("baz", "@import 'foo'")
 
     engine = Sass::Engine.new('@import "foo"', :filename => filename_for_test,
-      :load_paths => [importer])
+      :load_paths => [importer], :importer => importer)
 
     assert_raise_message(Sass::SyntaxError, <<ERR.rstrip) {engine.render}
 An @import loop has been found:
@@ -731,7 +731,7 @@ SASS
     importer.add_import("imported", "div{color:red}")
     Sass.load_paths << importer
 
-    assert_equal "div {\n  color: red; }\n", Sass::Engine.new('@import "imported"').render
+    assert_equal "div {\n  color: red; }\n", Sass::Engine.new('@import "imported"', :importer => importer).render
   ensure
     Sass.load_paths.clear
   end
@@ -3024,7 +3024,7 @@ SCSS
 
     original_filename = filename_for_test
     engine = Sass::Engine.new('@import "imported"; div{color:blue}',
-      :filename => original_filename, :load_paths => [importer], :syntax => :scss)
+      :filename => original_filename, :load_paths => [importer], :syntax => :scss, :importer => importer)
     engine.render
 
     assert_equal original_filename, engine.options[:original_filename]
@@ -3253,6 +3253,7 @@ SASS
 
   def render(sass, options = {})
     munge_filename options
+    options[:importer] ||= MockImporter.new
     Sass::Engine.new(sass, options).render
   end
 

@@ -813,7 +813,15 @@ WARNING
         parser = Sass::SCSS::Parser.new(value,
           @options[:filename], @options[:importer],
           @line, to_parser_offset(@offset))
-        Tree::MediaNode.new(parser.parse_media_query_list.to_a)
+        # -1 includes the '@' into the range.
+        offset = line.offset + line.text.index(directive).to_i - 1
+        parsed_media_query_list = parser.parse_media_query_list.to_a
+        node = Tree::MediaNode.new(parsed_media_query_list)
+        node.source_range = Sass::Source::Range.new(
+          Sass::Source::Position.new(@line, to_parser_offset(offset)),
+          Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
+          @options[:filename], @options[:importer])
+        node
       else
         unprefixed_directive = directive.gsub(/^-[a-z0-9]+-/i, '')
         if unprefixed_directive == 'supports'
