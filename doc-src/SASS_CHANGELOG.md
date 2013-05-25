@@ -53,7 +53,7 @@ Thanks to Alexander Pavlov for implementing this.
   allows them the same power as Sass-based functions with respect to
   reading and setting variables defined elsewhere in the stylesheet.
 
-* Add "grey" as a recognized SassScript color. Thanks to [Rob
+* Add "grey" and "transparent" as recognized SassScript colors. Thanks to [Rob
   Wierzbowski](https://github.com/robwierzbowski).
 
 ### Backwards Incompatibilities -- Must Read!
@@ -81,8 +81,8 @@ Thanks to Alexander Pavlov for implementing this.
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
-* `grey` is no longer interpreted as a string; it's now interpreted as a color,
-  as per the CSS spec.
+* `grey` and `transparent` are no longer interpreted as strings; they're now
+  interpreted as colors, as per the CSS spec.
 
 ## 3.2.9
 

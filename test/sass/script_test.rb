@@ -46,6 +46,8 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "white", resolve("white")
     assert_equal "white", resolve("#ffffff")
     assert_equal "#fffffe", resolve("white - #000001")
+    assert_equal "transparent", resolve("transparent")
+    assert_equal "transparent", resolve("rgba(0, 0, 0, 0)")
   end
 
   def test_rgba_color_literals
@@ -95,6 +97,7 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "navy", resolve("#000080", :style => :compressed)
     assert_equal "navy #fff", resolve("#000080 white", :style => :compressed)
     assert_equal "This color is #fff", resolve('"This color is #{ white }"', :style => :compressed)
+    assert_equal "transparent", resolve("rgba(0, 0, 0, 0)", :style => :compressed)
   end
 
   def test_compressed_comma
