@@ -74,7 +74,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     result = if node.style == :compressed
                "#{node.resolved_value}{"
              else
-               "#{tab_str}#{node.resolved_value} {" + (node.style == :compact ? ' ' : "\n")
+               "#{tab_str}#{node.resolved_value}" + (node.style == :compact ? '{' : " {\n")
              end
     was_prop = false
     first = true
@@ -124,7 +124,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   def visit_prop(node)
     return if node.resolved_value.empty?
     tab_str = '  ' * (@tabs + node.tabs)
-    if node.style == :compressed
+    if node.style == :compact || node.style == :compressed
       "#{tab_str}#{node.resolved_name}:#{node.resolved_value}"
     else
       "#{tab_str}#{node.resolved_name}: #{node.resolved_value};"
@@ -133,11 +133,11 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   def visit_rule(node)
     with_tabs(@tabs + node.tabs) do
-      rule_separator = node.style == :compressed ? ',' : ', '
+      rule_separator = ( node.style == :compact || node.style == :compressed ) ? ',' : ', '
       line_separator =
         case node.style
           when :nested, :expanded; "\n"
-          when :compressed; ""
+          when :compact, :compressed; ""
           else; " "
         end
       rule_indent = '  ' * @tabs
@@ -189,8 +189,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       end
 
       if node.style == :compact
-        properties = with_tabs(0) {node.children.map {|a| visit(a)}.join(' ')}
-        to_return << "#{total_rule} { #{properties} }#{"\n" if node.group_end}"
+        properties = with_tabs(0) {node.children.map {|a| visit(a)}.join(';')}
+        to_return << "#{total_rule}{#{properties}}"#{"\n" if node.group_end}"
       elsif node.style == :compressed
         properties = with_tabs(0) {node.children.map {|a| visit(a)}.join(';')}
         to_return << "#{total_rule}{#{properties}}"
