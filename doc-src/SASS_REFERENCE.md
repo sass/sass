@@ -969,13 +969,13 @@ Instead, they're manipulated using the
 Parentheses can be used to affect the order of operations:
 
     p {
-      width: 1em + (2em * 3);
+      width: (1em + 2em) * 3;
     }
 
 is compiled to:
 
     p {
-      width: 7em; }
+      width: 9em; }
 
 ### Functions
 
