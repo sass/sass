@@ -56,6 +56,9 @@ Thanks to Alexander Pavlov for implementing this.
 * Add "grey" and "transparent" as recognized SassScript colors. Thanks to [Rob
   Wierzbowski](https://github.com/robwierzbowski).
 
+* Add a function `unique-id()` that will return a CSS identifier that is
+  unique within the scope of a single CSS file.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
