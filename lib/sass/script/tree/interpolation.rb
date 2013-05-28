@@ -3,17 +3,34 @@ module Sass::Script::Tree
   #
   # @see StringInterpolation
   class Interpolation < Node
+    # @return [Node] The SassScript before the interpolation
+    attr_reader :before
+
+    # @return [Node] The SassScript within the interpolation
+    attr_reader :mid
+
+    # @return [Node] The SassScript after the interpolation
+    attr_reader :after
+
+    # @return [Boolean] Whether there was whitespace between `before` and `#{`
+    attr_reader :whitespace_before
+
+    # @return [Boolean] Whether there was whitespace between `}` and `after`
+    attr_reader :whitespace_after
+
+    # @return [Boolean] Whether the original format of the interpolation was
+    #   plain text, not an interpolation. This is used when converting back to
+    #   SassScript.
+    attr_reader :originally_text
+
     # Interpolation in a property is of the form `before #{mid} after`.
     #
-    # @param before [Node] The SassScript before the interpolation
-    # @param mid [Node] The SassScript within the interpolation
-    # @param after [Node] The SassScript after the interpolation
-    # @param wb [Boolean] Whether there was whitespace between `before` and `#{`
-    # @param wa [Boolean] Whether there was whitespace between `}` and `after`
-    # @param originally_text [Boolean]
-    #   Whether the original format of the interpolation was plain text,
-    #   not an interpolation.
-    #   This is used when converting back to SassScript.
+    # @param before [Node] See {#before}
+    # @param mid [Node] See {#mid}
+    # @param after [Node] See {#after}
+    # @param wb [Boolean] See {#whitespace\_before}
+    # @param wa [Boolean] See {#whitespace\_after}
+    # @param originally_text [Boolean] See {#originally\_text}
     def initialize(before, mid, after, wb, wa, originally_text = false)
       @before = before
       @mid = mid

@@ -39,11 +39,9 @@ module Sass
       # @return [Script::Tree::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse_interpolated
-        start_pos = source_position
         expr = assert_expr :expr
         assert_tok :end_interpolation
         expr.options = @options
-        expr.source_range = range(start_pos)
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -55,11 +53,9 @@ module Sass
       # @return [Script::Tree::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse
-        start_pos = source_position
         expr = assert_expr :expr
         assert_done
         expr.options = @options
-        expr.source_range = range(start_pos)
         expr
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
@@ -225,9 +221,7 @@ module Sass
                 end
 
                 start_pos = source_position
-                e = Tree::Operation.new(e, assert_expr(#{sub.inspect}), tok.type)
-                e.line = start_pos.line
-                e.source_range = range(start_pos)
+                e = node(Tree::Operation.new(e, assert_expr(#{sub.inspect}), tok.type), start_pos)
               end
               e
             end
@@ -239,10 +233,8 @@ RUBY
             def unary_#{op}
               return #{sub} unless tok = try_tok(:#{op})
               interp = try_op_before_interp(tok) and return interp
-              line = @lexer.line 
-              op = Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op})
-              op.line = line
-              op
+              start_pos = source_position
+              node(Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op}), start_pos)
             end
 RUBY
         end
@@ -281,10 +273,10 @@ RUBY
       def try_op_before_interp(op, prev = nil)
         return unless @lexer.peek && @lexer.peek.type == :begin_interpolation
         wb = @lexer.whitespace?(op)
-        str = Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type])
-        str.line = @lexer.line
-        interp = Script::Tree::Interpolation.new(prev, str, nil, wb, !:wa, :originally_text)
-        interp.line = @lexer.line
+        str = node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]), op.source_range)
+        interp = node(
+          Script::Tree::Interpolation.new(prev, str, nil, wb, !:wa, :originally_text),
+          (prev || str).source_range.start_pos)
         interpolation(interp)
       end
 
@@ -294,12 +286,11 @@ RUBY
         interp = try_op_before_interp(op, prev) and return interp
 
         wa = @lexer.whitespace?
-        str = Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type])
+        str = node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]), op.source_range)
         str.line = @lexer.line
-        start_pos = source_position
-        interp = Script::Tree::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text)
-        interp.line = @lexer.line
-        interp.source_range = range(start_pos)
+        interp = node(
+          Script::Tree::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text),
+          (prev || str).source_range.start_pos)
         return interp
       end
 
@@ -310,8 +301,9 @@ RUBY
           line = @lexer.line
           mid = parse_interpolated
           wa = @lexer.whitespace?
-          e = Script::Tree::Interpolation.new(e, mid, space, wb, wa)
-          e.line = line
+          e = node(
+            Script::Tree::Interpolation.new(e, mid, space, wb, wa),
+            (e || mid).source_range.start_pos)
         end
         e
       end
@@ -344,11 +336,9 @@ RUBY
 
         name = @lexer.next
         if color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase]
-          return node(Sass::Script::Value::Color.new(color),
-            name.source_range.start_pos, source_position)
+          return node(Sass::Script::Value::Color.new(color), name.source_range)
         end
-        node(Script::Value::String.new(name.value, :identifier),
-          name.source_range.start_pos, source_position)
+        node(Script::Value::String.new(name.value, :identifier), name.source_range)
       end
 
       def funcall
@@ -372,8 +362,7 @@ RUBY
         must_have_default = false
         loop do
           c = assert_tok(:const)
-          var = Script::Tree::Variable.new(c.value)
-          var.source_range = c.source_range
+          var = node(Script::Tree::Variable.new(c.value), c.source_range)
           if try_tok(:colon)
             val = assert_expr(:space)
             must_have_default = true
@@ -431,16 +420,24 @@ RUBY
 
       def raw
         return special_fun unless tok = try_tok(:raw)
-        node(Script::Value::String.new(tok.value))
+        node(Script::Value::String.new(tok.value), tok.source_range)
       end
 
       def special_fun
+        start_pos = source_position
         return paren unless tok = try_tok(:special_fun)
-        first = node(Script::Value::String.new(tok.value.first))
+        first = node(Script::Value::String.new(tok.value.first),
+          start_pos, start_pos.after(tok.value.first))
         Sass::Util.enum_slice(tok.value[1..-1], 2).inject(first) do |l, (i, r)|
-          Script::Tree::Interpolation.new(
-            l, i, r && node(Script::Value::String.new(r)),
-            false, false)
+          end_pos = i.source_range.end_pos
+          end_pos = end_pos.after(r) if r
+          node(
+            Script::Tree::Interpolation.new(
+              l, i,
+              r && node(Script::Value::String.new(r),
+                i.source_range.end_pos, end_pos),
+              false, false),
+            start_pos, end_pos)
         end
       end
 
@@ -459,27 +456,23 @@ RUBY
       def variable
         start_pos = source_position
         return string unless c = try_tok(:const)
-        node(Tree::Variable.new(*c.value), start_pos, source_position)
+        node(Tree::Variable.new(*c.value), start_pos)
       end
 
       def string
         return number unless first = try_tok(:string)
-        return first.value unless try_tok(:begin_interpolation)
-        start_pos = source_position
-        line = @lexer.line
+        str = node(first.value, first.source_range)
+        return str unless try_tok(:begin_interpolation)
         mid = parse_interpolated
         last = assert_expr(:string)
-        interp = Tree::StringInterpolation.new(first.value, mid, last)
-        interp.line = line
-        interp.source_range = range(start_pos)
-        interp
+        node(Tree::StringInterpolation.new(str, mid, last), first.source_range.start_pos)
       end
 
       def number
         return literal unless tok = try_tok(:number)
         num = tok.value
         num.original = num.to_s unless @in_parens
-        num
+        node(num, tok.source_range.start_pos)
       end
 
       def literal
@@ -516,10 +509,24 @@ RUBY
         @lexer.expected!(EXPR_NAMES[:default])
       end
 
-      def node(node, start_pos = source_position, end_pos = nil)
-        node.line = start_pos.line
+      # @overload node(node, source_range)
+      #   @param node [Sass::Script::Tree::Node]
+      #   @param source_range [Sass::Source::Range]
+      # @overload node(node, start_pos, end_pos = source_position)
+      #   @param node [Sass::Script::Tree::Node]
+      #   @param start_pos [Sass::Source::Position]
+      #   @param end_pos [Sass::Source::Position]
+      def node(node, source_range_or_start_pos, end_pos = source_position)
+        source_range =
+          if source_range_or_start_pos.is_a?(Sass::Source::Range)
+            source_range_or_start_pos
+          else
+            range(source_range_or_start_pos, end_pos)
+          end
+
+        node.line = source_range.start_pos.line
+        node.source_range = source_range
         node.filename = @options[:filename]
-        node.source_range = range(start_pos, end_pos) if end_pos
         node
       end
     end
