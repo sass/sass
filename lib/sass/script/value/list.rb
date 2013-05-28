@@ -59,7 +59,7 @@ module Sass::Script::Value
 
     # @see Sass::Script::Tree::Node#inspect
     def inspect
-      "(#{to_sass})"
+      "(#{value.map {|e| e.inspect}.join(sep_str(nil))})"
     end
 
     protected
