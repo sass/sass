@@ -1,10 +1,10 @@
 module Sass::Script
   # A SassScript object representing a CSS list.
   # This includes both comma-separated lists and space-separated lists.
-  class List < Literal
+  class List < Value
     # The Ruby array containing the contents of the list.
     #
-    # @return [Array<Literal>]
+    # @return [Array<Value>]
     attr_reader :value
     alias_method :children, :value
     alias_method :to_a, :value
@@ -17,7 +17,7 @@ module Sass::Script
 
     # Creates a new list.
     #
-    # @param value [Array<Literal>] See \{#value}
+    # @param value [Array<Value>] See \{#value}
     # @param separator [String] See \{#separator}
     def initialize(value, separator)
       super(value)

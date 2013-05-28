@@ -13,7 +13,7 @@ module Sass::Script
   # It's always stored, as 1 if nothing else is specified.
   # If only the alpha channel is modified using \{#with},
   # the cached RGB and HSL values are retained.
-  class Color < Literal
+  class Color < Value
     class << self; include Sass::Util; end
 
     # A hash from color names to `[red, green, blue]` value arrays.
@@ -348,8 +348,8 @@ module Sass::Script
     # **Note that this returns a {Sass::Script::Bool} object,
     # not a Ruby boolean**.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Bool] True if this literal is the same as the other,
+    # @param other [Value] The right-hand side of the operator
+    # @return [Bool] True if this value is the same as the other,
     #   false otherwise
     def eq(other)
       Sass::Script::Bool.new(
@@ -406,10 +406,10 @@ module Sass::Script
     # {Color}
     # : Adds each of the RGB color channels together.
     #
-    # {Literal}
-    # : See {Literal#plus}.
+    # {Value}
+    # : See {Value#plus}.
     #
-    # @param other [Literal] The right-hand side of the operator
+    # @param other [Value] The right-hand side of the operator
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def plus(other)
@@ -429,10 +429,10 @@ module Sass::Script
     # {Color}
     # : Subtracts each of the other color's RGB color channels from this color's.
     #
-    # {Literal}
-    # : See {Literal#minus}.
+    # {Value}
+    # : See {Value#minus}.
     #
-    # @param other [Literal] The right-hand side of the operator
+    # @param other [Value] The right-hand side of the operator
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def minus(other)
@@ -472,10 +472,10 @@ module Sass::Script
     # {Color}
     # : Divides each of this color's RGB color channels by the other color's.
     #
-    # {Literal}
-    # : See {Literal#div}.
+    # {Value}
+    # : See {Value#div}.
     #
-    # @param other [Literal] The right-hand side of the operator
+    # @param other [Value] The right-hand side of the operator
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def div(other)

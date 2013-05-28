@@ -42,7 +42,7 @@ module Sass::Script::Tree
     # Evaluates the variable.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::Literal] The SassScript object that is the value of the variable
+    # @return [Sass::Script::Value] The SassScript object that is the value of the variable
     # @raise [Sass::SyntaxError] if the variable is undefined
     def _perform(environment)
       raise Sass::SyntaxError.new("Undefined variable: \"$#{name}\".") unless val = environment.var(name)

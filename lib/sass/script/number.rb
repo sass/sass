@@ -7,7 +7,7 @@ module Sass::Script
   #
   # Numbers can also have more complex units, such as `1px*em/in`.
   # These cannot be inputted directly in Sass code at the moment.
-  class Number < Literal
+  class Number < Value
     # The Ruby value of the number.
     #
     # @return [Numeric]
@@ -75,11 +75,11 @@ module Sass::Script
     # {Color}
     # : Adds this number to each of the RGB color channels.
     #
-    # {Literal}
-    # : See {Literal#plus}.
+    # {Value}
+    # : See {Value#plus}.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Literal] The result of the operation
+    # @param other [Value] The right-hand side of the operator
+    # @return [Value] The result of the operation
     # @raise [Sass::UnitConversionError] if `other` is a number with incompatible units
     def plus(other)
       if other.is_a? Number
@@ -97,11 +97,11 @@ module Sass::Script
     # {Number}
     # : Subtracts this number from the other, converting units if possible.
     #
-    # {Literal}
-    # : See {Literal#minus}.
+    # {Value}
+    # : See {Value#minus}.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Literal] The result of the operation
+    # @param other [Value] The right-hand side of the operator
+    # @return [Value] The result of the operation
     # @raise [Sass::UnitConversionError] if `other` is a number with incompatible units
     def minus(other)
       if other.is_a? Number
@@ -153,11 +153,11 @@ module Sass::Script
     # {Number}
     # : Divides this number by the other, converting units appropriately.
     #
-    # {Literal}
-    # : See {Literal#div}.
+    # {Value}
+    # : See {Value#div}.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Literal] The result of the operation
+    # @param other [Value] The right-hand side of the operator
+    # @return [Value] The result of the operation
     def div(other)
       if other.is_a? Number
         res = operate(other, :/)
@@ -189,7 +189,7 @@ module Sass::Script
 
     # The SassScript `==` operation.
     #
-    # @param other [Literal] The right-hand side of the operator
+    # @param other [Value] The right-hand side of the operator
     # @return [Boolean] Whether this number is equal to the other object
     def eq(other)
       return Sass::Script::Bool.new(false) unless other.is_a?(Sass::Script::Number)

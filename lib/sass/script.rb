@@ -36,4 +36,4 @@ end
 require 'sass/script/functions'
 require 'sass/script/parser'
 require 'sass/script/tree'
-require 'sass/script/literal'
+require 'sass/script/value'

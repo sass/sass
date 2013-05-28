@@ -93,7 +93,7 @@ RUBY
     end
 
     # variable
-    # Script::Literal
+    # Script::Value
     inherited_hash :var
     # mixin
     # Sass::Callable

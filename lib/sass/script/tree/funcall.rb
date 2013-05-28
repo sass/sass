@@ -92,7 +92,7 @@ module Sass::Script::Tree
     # Evaluates the function call.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::Literal] The SassScript object that is the value of the function call
+    # @return [Sass::Script::Value] The SassScript object that is the value of the function call
     # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
     def _perform(environment)
       args = @args.map {|a| a.perform(environment)}
@@ -161,10 +161,16 @@ module Sass::Script::Tree
       raise Sass::SyntaxError.new("#{message} for `#{name}'")
     end
 
+    # Compass historically overrode this before it changed name to {#to\_value}.
+    # We should get rid of it in the future.
+    def to_literal(args)
+      to_value(args)
+    end
+
     # This method is factored out from `_perform` so that compass can override
     # it with a cross-browser implementation for functions that require vendor prefixes
     # in the generated css.
-    def to_literal(args)
+    def to_value(args)
       Sass::Script::String.new("#{name}(#{args.join(', ')})")
     end
 

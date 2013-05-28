@@ -4,7 +4,7 @@ module Sass::Script
   # Many of these methods, especially the ones that correspond to SassScript operations,
   # are designed to be overridden by subclasses which may change the semantics somewhat.
   # The operations listed here are just the defaults.
-  class Literal < Tree::Node
+  class Value < Tree::Node
     require 'sass/script/string'
     require 'sass/script/number'
     require 'sass/script/color'
@@ -13,13 +13,13 @@ module Sass::Script
     require 'sass/script/list'
     require 'sass/script/arg_list'
 
-    # Returns the Ruby value of the literal.
+    # Returns the Ruby value of the value.
     # The type of this value varies based on the subclass.
     #
     # @return [Object]
     attr_reader :value
 
-    # Creates a new literal.
+    # Creates a new value.
     #
     # @param value [Object] The object for \{#value}
     def initialize(value = nil)
@@ -44,7 +44,7 @@ module Sass::Script
     #
     # @return [{Symbol => Object}]
     # @raise [Sass::SyntaxError] if the options hash hasn't been set.
-    #   This should only happen when the literal was created
+    #   This should only happen when the value was created
     #   outside of the parser and \{#to\_s} was called on it
     def options
       opts = super
@@ -52,7 +52,7 @@ module Sass::Script
       raise Sass::SyntaxError.new(<<MSG)
 The #options attribute is not set on this #{self.class}.
   This error is probably occurring because #to_s was called
-  on this literal within a custom Sass function without first
+  on this value within a custom Sass function without first
   setting the #option attribute.
 MSG
     end
@@ -61,8 +61,8 @@ MSG
     # **Note that this returns a {Sass::Script::Bool} object,
     # not a Ruby boolean**.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Bool] True if this literal is the same as the other,
+    # @param other [Value] The right-hand side of the operator
+    # @return [Bool] True if this value is the same as the other,
     #   false otherwise
     def eq(other)
       Sass::Script::Bool.new(self.class == other.class && self.value == other.value)
@@ -72,8 +72,8 @@ MSG
     # **Note that this returns a {Sass::Script::Bool} object,
     # not a Ruby boolean**.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Bool] False if this literal is the same as the other,
+    # @param other [Value] The right-hand side of the operator
+    # @return [Bool] False if this value is the same as the other,
     #   true otherwise
     def neq(other)
       Sass::Script::Bool.new(!eq(other).to_bool)
@@ -83,8 +83,8 @@ MSG
     # **Note that this returns a {Sass::Script::Bool} object,
     # not a Ruby boolean**.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Bool] True if this literal is the same as the other,
+    # @param other [Value] The right-hand side of the operator
+    # @return [Bool] True if this value is the same as the other,
     #   false otherwise
     def unary_not
       Sass::Script::Bool.new(!to_bool)
@@ -93,8 +93,8 @@ MSG
     # The SassScript `=` operation
     # (used for proprietary MS syntax like `alpha(opacity=20)`).
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A string containing both literals
+    # @param other [Value] The right-hand side of the operator
+    # @return [Script::String] A string containing both values
     #   separated by `"="`
     def single_eq(other)
       Sass::Script::String.new("#{self.to_s}=#{other.to_s}")
@@ -102,8 +102,8 @@ MSG
 
     # The SassScript `+` operation.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A string containing both literals
+    # @param other [Value] The right-hand side of the operator
+    # @return [Script::String] A string containing both values
     #   without any separation
     def plus(other)
       if other.is_a?(Sass::Script::String)
@@ -114,8 +114,8 @@ MSG
 
     # The SassScript `-` operation.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A string containing both literals
+    # @param other [Value] The right-hand side of the operator
+    # @return [Script::String] A string containing both values
     #   separated by `"-"`
     def minus(other)
       Sass::Script::String.new("#{self.to_s}-#{other.to_s}")
@@ -123,8 +123,8 @@ MSG
 
     # The SassScript `/` operation.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A string containing both literals
+    # @param other [Value] The right-hand side of the operator
+    # @return [Script::String] A string containing both values
     #   separated by `"/"`
     def div(other)
       Sass::Script::String.new("#{self.to_s}/#{other.to_s}")
@@ -132,8 +132,8 @@ MSG
 
     # The SassScript unary `+` operation (e.g. `+$a`).
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A string containing the literal
+    # @param other [Value] The right-hand side of the operator
+    # @return [Script::String] A string containing the value
     #   preceded by `"+"`
     def unary_plus
       Sass::Script::String.new("+#{self.to_s}")
@@ -141,8 +141,8 @@ MSG
 
     # The SassScript unary `-` operation (e.g. `-$a`).
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A string containing the literal
+    # @param other [Value] The right-hand side of the operator
+    # @return [Script::String] A string containing the value
     #   preceded by `"-"`
     def unary_minus
       Sass::Script::String.new("-#{self.to_s}")
@@ -150,14 +150,14 @@ MSG
 
     # The SassScript unary `/` operation (e.g. `/$a`).
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Script::String] A string containing the literal
+    # @param other [Value] The right-hand side of the operator
+    # @return [Script::String] A string containing the value
     #   preceded by `"/"`
     def unary_div
       Sass::Script::String.new("/#{self.to_s}")
     end
 
-    # @return [String] A readable representation of the literal
+    # @return [String] A readable representation of the value
     def inspect
       value.inspect
     end
@@ -170,34 +170,34 @@ MSG
     # Compares this object with another.
     #
     # @param other [Object] The object to compare with
-    # @return [Boolean] Whether or not this literal is equivalent to `other`
+    # @return [Boolean] Whether or not this value is equivalent to `other`
     def ==(other)
       eq(other).to_bool
     end
 
-    # @return [Fixnum] The integer value of this literal
-    # @raise [Sass::SyntaxError] if this literal isn't an integer
+    # @return [Fixnum] The integer value of this value
+    # @raise [Sass::SyntaxError] if this value isn't an integer
     def to_i
       raise Sass::SyntaxError.new("#{self.inspect} is not an integer.")
     end
 
-    # @raise [Sass::SyntaxError] if this literal isn't an integer
+    # @raise [Sass::SyntaxError] if this value isn't an integer
     def assert_int!; to_i; end
 
-    # Returns the value of this literal as a list.
-    # Single literals are considered the same as single-element lists.
+    # Returns the value of this value as a list.
+    # Single values are considered the same as single-element lists.
     #
-    # @return [Array<Literal>] The of this literal as a list
+    # @return [Array<Value>] The of this value as a list
     def to_a
       [self]
     end
 
-    # Returns the string representation of this literal
+    # Returns the string representation of this value
     # as it would be output to the CSS document.
     #
     # @return [String]
     def to_s(opts = {})
-      raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Literal must implement #to_s.")
+      raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Value must implement #to_s.")
     end
     alias_method :to_sass, :to_s
 
@@ -210,10 +210,10 @@ MSG
 
     protected
 
-    # Evaluates the literal.
+    # Evaluates the value.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Literal] This literal
+    # @return [Value] This value
     def _perform(environment)
       self
     end

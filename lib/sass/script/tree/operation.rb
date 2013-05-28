@@ -58,30 +58,30 @@ module Sass::Script::Tree
     # Evaluates the operation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::Literal] The SassScript object that is the value of the operation
+    # @return [Sass::Script::Value] The SassScript object that is the value of the operation
     # @raise [Sass::SyntaxError] if the operation is undefined for the operands
     def _perform(environment)
-      literal1 = @operand1.perform(environment)
+      value1 = @operand1.perform(environment)
 
       # Special-case :and and :or to support short-circuiting.
       if @operator == :and
-        return literal1.to_bool ? @operand2.perform(environment) : literal1
+        return value1.to_bool ? @operand2.perform(environment) : value1
       elsif @operator == :or
-        return literal1.to_bool ? literal1 : @operand2.perform(environment)
+        return value1.to_bool ? value1 : @operand2.perform(environment)
       end
 
-      literal2 = @operand2.perform(environment)
+      value2 = @operand2.perform(environment)
 
-      if (literal1.is_a?(Sass::Script::Null) || literal2.is_a?(Sass::Script::Null)) &&
+      if (value1.is_a?(Sass::Script::Null) || value2.is_a?(Sass::Script::Null)) &&
           @operator != :eq && @operator != :neq
-        raise Sass::SyntaxError.new("Invalid null operation: \"#{literal1.inspect} #{@operator} #{literal2.inspect}\".")
+        raise Sass::SyntaxError.new("Invalid null operation: \"#{value1.inspect} #{@operator} #{value2.inspect}\".")
       end
 
       begin
-        opts(literal1.send(@operator, literal2))
+        opts(value1.send(@operator, value2))
       rescue NoMethodError => e
         raise e unless e.name.to_s == @operator.to_s
-        raise Sass::SyntaxError.new("Undefined operation: \"#{literal1} #{@operator} #{literal2}\".")
+        raise Sass::SyntaxError.new("Undefined operation: \"#{value1} #{@operator} #{value2}\".")
       end
     end
 

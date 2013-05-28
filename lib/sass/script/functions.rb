@@ -211,11 +211,11 @@ module Sass::Script
   # {declare} can also allow your function to take arbitrary keyword arguments.
   #
   # There are a few things to keep in mind when modifying this module.
-  # First of all, the arguments passed are {Literal} objects.
-  # Literal objects are also expected to be returned.
+  # First of all, the arguments passed are {Value} objects.
+  # Value objects are also expected to be returned.
   # This means that Ruby values must be unwrapped and wrapped.
   #
-  # Most Literal objects support the {Literal#value value} accessor
+  # Most Value objects support the {Value#value value} accessor
   # for getting their Ruby values.
   # Color objects, though, must be accessed using {Color#rgb rgb},
   # {Color#red red}, {Color#blue green}, or {Color#blue blue}.
@@ -238,8 +238,8 @@ module Sass::Script
   #
   # ### Caveats
   #
-  # When creating new {Literal} objects within functions, be aware that it's not
-  # safe to call {Literal#to_s #to_s} (or other methods that use the string
+  # When creating new {Value} objects within functions, be aware that it's not
+  # safe to call {Value#to_s #to_s} (or other methods that use the string
   # representation) on those objects without first setting {Tree::Node#options=
   # the #options attribute}.
   module Functions
@@ -277,7 +277,7 @@ module Sass::Script
     #   Whether the function accepts other keyword arguments
     #   in addition to those in `:args`.
     #   If this is true, the Ruby function will be passed a hash from strings
-    #   to {Literal}s as the last argument.
+    #   to {Value}s as the last argument.
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
     #
@@ -363,7 +363,7 @@ module Sass::Script
       # @example
       #   assert_type value, :String
       #   assert_type value, :Number
-      # @param value [Literal] A SassScript value
+      # @param value [Value] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
       # @param name [String, nil] The name of the argument.
       # @raise [ArgumentError] if value is not of the correct type.
@@ -401,7 +401,7 @@ module Sass::Script
       # @example
       #   assert_unit number, "px"
       #   assert_unit number, nil
-      # @param number [Literal] The literal to be validated.
+      # @param number [Value] The value to be validated.
       # @param name [::String] The name of the parameter being validated.
       # @raise [ArgumentError] if number is not an integer or is not a number.
       def assert_integer(number, name = nil)
@@ -1298,8 +1298,8 @@ module Sass::Script
     #   type-of(true)   => bool
     #   type-of(#fff)   => color
     #   type-of(blue)   => color
-    # @param value [Literal] The object to inspect
-    # @return [String] The unquoted string name of the literal's type
+    # @param value [Value] The object to inspect
+    # @return [String] The unquoted string name of the value's type
     def type_of(value)
       Sass::Script::String.new(value.class.name.gsub(/Sass::Script::/,'').downcase)
     end
@@ -1314,7 +1314,7 @@ module Sass::Script
     #   unit(3em) => "em"
     #   unit(10px * 5em) => "em*px"
     #   unit(10px * 5em / 30cm / 1rem) => "em*px/cm*rem"
-    # @param number [Literal] The number to inspect
+    # @param number [Value] The number to inspect
     # @return [String] The unit(s) of the number
     # @raise [ArgumentError] if `number` isn't a number
     def unit(number)
@@ -1328,7 +1328,7 @@ module Sass::Script
     # @example
     #   unitless(100) => true
     #   unitless(100px) => false
-    # @param number [Literal] The number to inspect
+    # @param number [Value] The number to inspect
     # @return [Bool] Whether or not the number is unitless
     # @raise [ArgumentError] if `number` isn't a number
     def unitless(number)
@@ -1457,7 +1457,7 @@ module Sass::Script
     # @example
     #   length(10px) => 1
     #   length(10px 20px 30px) => 3
-    # @param list [Literal] The list
+    # @param list [Value] The list
     # @return [Number] The length
     def length(list)
       Sass::Script::Number.new(list.to_a.size)
@@ -1472,9 +1472,9 @@ module Sass::Script
     # @example
     #   nth(10px 20px 30px, 1) => 10px
     #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
-    # @param list [Literal] The list
+    # @param list [Value] The list
     # @param n [Number] The index into the list
-    # @return [Literal] The nth item in the list
+    # @return [Value] The nth item in the list
     # @raise [ArgumentError] If `n` isn't an integer between 1 and the list's length.
     def nth(list, n)
       assert_type n, :Number
@@ -1506,8 +1506,8 @@ module Sass::Script
     #   join(10px, 20px, comma) => 10px, 20px
     #   join((blue, red), (#abc, #def), space) => blue red #abc #def
     # @overload join(list1, list2, separator: auto)
-    #   @param list1 [Literal] The first list to join
-    #   @param list2 [Literal] The second list to join
+    #   @param list1 [Value] The first list to join
+    #   @param list2 [Value] The second list to join
     #   @param separator [String] How the list separator (comma or space) should be determined.
     #     If this is `comma` or `space`, that is always the separator;
     #     if this is `auto` (the default), the separator is determined as explained above.
@@ -1542,8 +1542,8 @@ module Sass::Script
     #   append(10px, 20px, comma) => 10px, 20px
     #   append((blue, red), green, space) => blue red green
     # @overload append(list, val, separator: auto)
-    #   @param list [Literal] The list to add the value to
-    #   @param val [Literal] The value to add to the end of the list
+    #   @param list [Value] The list to add the value to
+    #   @param val [Value] The value to add to the end of the list
     #   @param separator [String] How the list separator (comma or space) should be determined.
     #     If this is `comma` or `space`, that is always the separator;
     #     if this is `auto` (the default), the separator is the same as that used by the list.
@@ -1628,8 +1628,8 @@ module Sass::Script
     #   if(true, 1px, 2px) => 1px
     #   if(false, 1px, 2px) => 2px
     # @param condition [Bool] Whether the first or second value will be returned.
-    # @param if_true [Literal] The value that will be returned if `$condition` is true.
-    # @param if_false [Literal] The value that will be returned if `$condition` is false.
+    # @param if_true [Value] The value that will be returned if `$condition` is true.
+    # @param if_false [Value] The value that will be returned if `$condition` is false.
     def if(condition, if_true, if_false)
       if condition.to_bool
         if_true

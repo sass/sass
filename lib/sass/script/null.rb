@@ -1,7 +1,7 @@
 module Sass::Script
   # A SassScript object representing a null value.
-  class Null < Literal
-    # Creates a new null literal.
+  class Null < Value
+    # Creates a new null value.
     def initialize
       super nil
     end

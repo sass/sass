@@ -1,6 +1,6 @@
 module Sass::Script
   # A SassScript object representing a CSS string *or* a CSS identifier.
-  class String < Literal
+  class String < Value
     # The Ruby value of the string.
     #
     # @return [String]
@@ -22,7 +22,7 @@ module Sass::Script
       @type = type
     end
 
-    # @see Literal#plus
+    # @see Value#plus
     def plus(other)
       other_str = other.is_a?(Sass::Script::String) ? other.value : other.to_s
       Sass::Script::String.new(self.value + other_str, self.type)

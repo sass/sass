@@ -45,7 +45,7 @@ module Sass::Script::Tree
     # instead, override \{#\_perform}.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::Literal] The SassScript object that is the value of the SassScript
+    # @return [Sass::Script::Value] The SassScript object that is the value of the SassScript
     def perform(environment)
       _perform(environment)
     rescue Sass::SyntaxError => e
@@ -87,23 +87,23 @@ module Sass::Script::Tree
     end
 
     # Evaluates this node.
-    # Note that all {Sass::Script::Literal} objects created within this method
+    # Note that all {Sass::Script::Value} objects created within this method
     # should have their \{#options} attribute set, probably via \{#opts}.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::Literal] The SassScript object that is the value of the SassScript
+    # @return [Sass::Script::Value] The SassScript object that is the value of the SassScript
     # @see #perform
     def _perform(environment)
       Sass::Util.abstract(self)
     end
 
-    # Sets the \{#options} field on the given literal and returns it
+    # Sets the \{#options} field on the given value and returns it
     #
-    # @param literal [Sass::Script::Literal]
-    # @return [Sass::Script::Literal]
-    def opts(literal)
-      literal.options = options
-      literal
+    # @param value [Sass::Script::Value]
+    # @return [Sass::Script::Value]
+    def opts(value)
+      value.options = options
+      value
     end
   end
 end

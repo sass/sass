@@ -13,8 +13,8 @@ module Sass::Script
 
     # Creates a new argument list.
     #
-    # @param value [Array<Literal>] See \{List#value}.
-    # @param keywords [Hash<String, Literal>] See \{#keywords}
+    # @param value [Array<Value>] See \{List#value}.
+    # @param keywords [Hash<String, Value>] See \{#keywords}
     # @param separator [String] See \{List#separator}.
     def initialize(value, keywords, separator)
       super(value, separator)
@@ -23,7 +23,7 @@ module Sass::Script
 
     # The keyword arguments attached to this list.
     #
-    # @return [Hash<String, Literal>]
+    # @return [Hash<String, Value>]
     def keywords
       @keywords_accessed = true
       @keywords

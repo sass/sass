@@ -20,7 +20,7 @@ module Sass::Script::Functions
 end
 
 module Sass::Script::Functions::UserFunctions
-  def call_options_on_new_literal
+  def call_options_on_new_value
     str = Sass::Script::String.new("foo")
     str.options[:foo]
     str
@@ -958,11 +958,11 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("The variable", evaluate("fetch_the_variable()", environment))
   end
 
-  def test_options_on_new_literals_fails
-    assert_error_message(<<MSG, "call-options-on-new-literal()")
+  def test_options_on_new_values_fails
+    assert_error_message(<<MSG, "call-options-on-new-value()")
 The #options attribute is not set on this Sass::Script::String.
   This error is probably occurring because #to_s was called
-  on this literal within a custom Sass function without first
+  on this value within a custom Sass function without first
   setting the #option attribute.
 MSG
   end
@@ -1246,7 +1246,7 @@ MSG
 
   def evaluate(value, environment = env)
     result = perform(value, environment)
-    assert_kind_of Sass::Script::Literal, result
+    assert_kind_of Sass::Script::Value, result
     return result.to_s
   end
 
