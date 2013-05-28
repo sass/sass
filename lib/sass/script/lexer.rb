@@ -16,15 +16,12 @@ module Sass
       # `value`: \[`Object`\]
       # : The Ruby object corresponding to the value of the token.
       #
-      # `line`: \[`Fixnum`\]
-      # : The line of the source file on which the token appears (1-based).
-      #
-      # `offset`: \[`Fixnum`\]
-      # : The number of characters into the line the SassScript token appeared (1-based).
+      # `source_range`: [`Sass::Source::Range`\]
+      # : The range in the source file in which the token appeared.
       #
       # `pos`: \[`Fixnum`\]
       # : The scanner position at which the SassScript token appeared.
-      Token = Struct.new(:type, :value, :line, :offset, :pos)
+      Token = Struct.new(:type, :value, :source_range, :pos)
 
       # The line number of the lexer's current position.
       #
@@ -174,8 +171,8 @@ module Sass
       def unpeek!
         if @tok
           @scanner.pos = @tok.pos
-          @line = @tok.line
-          @offset = @tok.offset
+          @line = @tok.source_range.start_pos.line
+          @offset = @tok.source_range.start_pos.offset
         end
       end
 
@@ -219,12 +216,16 @@ module Sass
 
       def read_token
         return if done?
+        start_pos = source_position
+        start_index = @scanner.pos
         return unless value = token
-        type, val, size = value
-        size ||= @scanner.matched_size
+        type, val = value
 
-        val.line = @line if val.is_a?(Script::Tree::Node)
-        Token.new(type, val, @line, @offset - size, @scanner.pos - size)
+        if val.is_a?(Script::Tree::Node)
+          val.line = start_pos.line
+          val.source_range = range(start_pos)
+        end
+        Token.new(type, val, range(start_pos), @scanner.pos - @scanner.matched_size)
       end
 
       def whitespace
@@ -259,7 +260,6 @@ module Sass
       end
 
       def string(re, open)
-        start_pos = source_position
         return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
         if @scanner[2] == '#{' #'
           @scanner.pos -= 2 # Don't actually consume the #{
@@ -272,22 +272,18 @@ module Sass
           else
             Script::Value::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
           end
-        str.source_range = range(start_pos)
         [:string, str]
       end
 
       def number
-        start_pos = source_position
         return unless scan(REGULAR_EXPRESSIONS[:number])
         value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
         value = -value if @scanner[1]
         script_number = Script::Value::Number.new(value, Array(@scanner[4]))
-        script_number.source_range = range(start_pos)
         [:number, script_number]
       end
 
       def color
-        start_pos = source_position
         return unless s = scan(REGULAR_EXPRESSIONS[:color])
         raise Sass::SyntaxError.new(<<MESSAGE.rstrip) unless s.size == 4 || s.size == 7
 Colors must have either three or six digits: '#{s}'
@@ -295,23 +291,18 @@ MESSAGE
         value = s.scan(/^#(..?)(..?)(..?)$/).first.
           map {|num| num.ljust(2, num).to_i(16)}
         script_color = Script::Value::Color.new(value)
-        script_color.source_range = range(start_pos)
         [:color, script_color]
       end
 
       def bool
-        start_pos = source_position
         return unless s = scan(REGULAR_EXPRESSIONS[:bool])
         script_bool = Script::Value::Bool.new(s == 'true')
-        script_bool.source_range = range(start_pos)
         [:bool, script_bool]
       end
 
       def null
-        start_pos = source_position
         return unless scan(REGULAR_EXPRESSIONS[:null])
         script_null = Script::Value::Null.new
-        script_null.source_range = range(start_pos)
         [:null, script_null]
       end
 

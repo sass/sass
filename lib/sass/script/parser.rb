@@ -254,10 +254,6 @@ RUBY
         Sass::Source::Position.new(line, offset)
       end
 
-      def token_start_position(token)
-        Sass::Source::Position.new(token.line, token.offset)
-      end
-
       def range(start_pos, end_pos=source_position)
         Sass::Source::Range.new(start_pos, end_pos, @options[:filename], @options[:importer])
       end
@@ -348,16 +344,19 @@ RUBY
 
         name = @lexer.next
         if color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase]
-          return node(Sass::Script::Value::Color.new(color), token_start_position(name), source_position)
+          return node(Sass::Script::Value::Color.new(color),
+            name.source_range.start_pos, source_position)
         end
-        node(Script::Value::String.new(name.value, :identifier), token_start_position(name), source_position)
+        node(Script::Value::String.new(name.value, :identifier),
+          name.source_range.start_pos, source_position)
       end
 
       def funcall
         return raw unless tok = try_tok(:funcall)
         args, keywords, splat = fn_arglist || [[], {}]
         assert_tok(:rparen)
-        node(Script::Tree::Funcall.new(tok.value, args, keywords, splat), token_start_position(tok), source_position)
+        node(Script::Tree::Funcall.new(tok.value, args, keywords, splat),
+          tok.source_range.start_pos, source_position)
       end
 
       def defn_arglist!(must_have_parens)
@@ -374,7 +373,7 @@ RUBY
         loop do
           c = assert_tok(:const)
           var = Script::Tree::Variable.new(c.value)
-          var.source_range = range(c.offset)
+          var.source_range = c.source_range
           if try_tok(:colon)
             val = assert_expr(:space)
             must_have_default = true
