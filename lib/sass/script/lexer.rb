@@ -26,13 +26,19 @@ module Sass
       # The line number of the lexer's current position.
       #
       # @return [Fixnum]
-      attr_reader :line
+      def line
+        return @line unless @tok
+        @tok.source_range.start_pos.line
+      end
 
       # The number of bytes into the current line
       # of the lexer's current position (1-based).
       #
       # @return [Fixnum]
-      attr_reader :offset
+      def offset
+        return @offset unless @tok
+        @tok.source_range.start_pos.offset
+      end
 
       # A hash from operator strings to the corresponding token types.
       OPERATORS = {
