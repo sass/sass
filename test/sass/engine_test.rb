@@ -9,16 +9,16 @@ require 'pathname'
 
 module Sass::Script::Functions::UserFunctions
   def option(name)
-    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+    Sass::Script::Value::String.new(@options[name.value.to_sym].to_s)
   end
 
   def set_a_variable(name, value)
     environment.set_var(name.value, value)
-    return Sass::Script::Null.new
+    return Sass::Script::Value::Null.new
   end
 
   def get_a_variable(name)
-    environment.var(name.value) || Sass::Script::String.new("undefined")
+    environment.var(name.value) || Sass::Script::Value::String.new("undefined")
   end
 end
 
@@ -3032,9 +3032,9 @@ SCSS
   end
 
   def test_changing_precision
-    old_precision = Sass::Script::Number.precision
+    old_precision = Sass::Script::Value::Number.precision
     begin
-      Sass::Script::Number.precision = 8
+      Sass::Script::Value::Number.precision = 8
       assert_equal <<CSS, render(<<SASS)
 div {
   maximum: 1.00000001;
@@ -3045,7 +3045,7 @@ div
   too-much: 1.000000001
 SASS
     ensure
-      Sass::Script::Number.precision = old_precision
+      Sass::Script::Value::Number.precision = old_precision
     end
   end
 

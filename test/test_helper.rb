@@ -16,7 +16,7 @@ end
 
 module Sass::Script::Functions
   def option(name)
-    Sass::Script::String.new(@options[name.value.to_sym].to_s)
+    Sass::Script::Value::String.new(@options[name.value.to_sym].to_s)
   end
 end
 

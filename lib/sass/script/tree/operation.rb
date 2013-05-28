@@ -72,7 +72,7 @@ module Sass::Script::Tree
 
       value2 = @operand2.perform(environment)
 
-      if (value1.is_a?(Sass::Script::Null) || value2.is_a?(Sass::Script::Null)) &&
+      if (value1.is_a?(Sass::Script::Value::Null) || value2.is_a?(Sass::Script::Value::Null)) &&
           @operator != :eq && @operator != :neq
         raise Sass::SyntaxError.new("Invalid null operation: \"#{value1.inspect} #{@operator} #{value2.inspect}\".")
       end
@@ -88,7 +88,7 @@ module Sass::Script::Tree
     private
 
     def operand_to_sass(op, side, opts)
-      return "(#{op.to_sass(opts)})" if op.is_a?(Sass::Script::List)
+      return "(#{op.to_sass(opts)})" if op.is_a?(Sass::Script::Value::List)
       return op.to_sass(opts) unless op.is_a?(Operation)
 
       pred = Sass::Script::Parser.precedence_of(@operator)

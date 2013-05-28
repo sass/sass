@@ -80,7 +80,7 @@ module Sass::Tree
     #
     # @return [String] The message
     def pseudo_class_selector_message
-      return "" if @prop_syntax == :new || !value.is_a?(Sass::Script::String) || !value.value.empty?
+      return "" if @prop_syntax == :new || !value.is_a?(Sass::Script::Value::String) || !value.value.empty?
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
@@ -148,13 +148,13 @@ module Sass::Tree
 
       def val_to_sass_div(node, opts)
         unless node.is_a?(Sass::Script::Tree::Operation) && node.operator == :div &&
-            node.operand1.is_a?(Sass::Script::Number) &&
-            node.operand2.is_a?(Sass::Script::Number) &&
+            node.operand1.is_a?(Sass::Script::Value::Number) &&
+            node.operand2.is_a?(Sass::Script::Value::Number) &&
             (!node.operand1.original || !node.operand2.original)
           return node
         end
 
-        Sass::Script::String.new("(#{node.to_sass(opts)})")
+        Sass::Script::Value::String.new("(#{node.to_sass(opts)})")
       end
 
     end

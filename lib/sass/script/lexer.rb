@@ -268,9 +268,9 @@ module Sass
         end
         str =
           if re == :uri
-            Script::String.new("#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2] == '#{'}")
+            Script::Value::String.new("#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2] == '#{'}")
           else
-            Script::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
+            Script::Value::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
           end
         str.source_range = range(start_pos)
         [:string, str]
@@ -281,7 +281,7 @@ module Sass
         return unless scan(REGULAR_EXPRESSIONS[:number])
         value = @scanner[2] ? @scanner[2].to_f : @scanner[3].to_i
         value = -value if @scanner[1]
-        script_number = Script::Number.new(value, Array(@scanner[4]))
+        script_number = Script::Value::Number.new(value, Array(@scanner[4]))
         script_number.source_range = range(start_pos)
         [:number, script_number]
       end
@@ -294,7 +294,7 @@ Colors must have either three or six digits: '#{s}'
 MESSAGE
         value = s.scan(/^#(..?)(..?)(..?)$/).first.
           map {|num| num.ljust(2, num).to_i(16)}
-        script_color = Script::Color.new(value)
+        script_color = Script::Value::Color.new(value)
         script_color.source_range = range(start_pos)
         [:color, script_color]
       end
@@ -302,7 +302,7 @@ MESSAGE
       def bool
         start_pos = source_position
         return unless s = scan(REGULAR_EXPRESSIONS[:bool])
-        script_bool = Script::Bool.new(s == 'true')
+        script_bool = Script::Value::Bool.new(s == 'true')
         script_bool.source_range = range(start_pos)
         [:bool, script_bool]
       end
@@ -310,7 +310,7 @@ MESSAGE
       def null
         start_pos = source_position
         return unless scan(REGULAR_EXPRESSIONS[:null])
-        script_null = Script::Null.new
+        script_null = Script::Value::Null.new
         script_null.source_range = range(start_pos)
         [:null, script_null]
       end
@@ -331,7 +331,7 @@ MESSAGE
 
       def special_val
         return unless scan(/!important/i)
-        [:string, Script::String.new("!important")]
+        [:string, Script::Value::String.new("!important")]
       end
 
       def ident_op

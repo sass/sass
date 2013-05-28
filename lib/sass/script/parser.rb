@@ -269,7 +269,7 @@ RUBY
         interp = try_ops_after_interp([:comma], :expr) and return interp
         start_pos = source_position
         return unless e = interpolation
-        list = node(List.new([e], :comma), start_pos)
+        list = node(Sass::Script::Value::List.new([e], :comma), start_pos)
         while tok = try_tok(:comma)
           if interp = try_op_before_interp(tok, list)
             return interp unless other_interp = try_ops_after_interp([:comma], :expr, interp)
@@ -285,7 +285,7 @@ RUBY
       def try_op_before_interp(op, prev = nil)
         return unless @lexer.peek && @lexer.peek.type == :begin_interpolation
         wb = @lexer.whitespace?(op)
-        str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
+        str = Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type])
         str.line = @lexer.line
         interp = Script::Tree::Interpolation.new(prev, str, nil, wb, !:wa, :originally_text)
         interp.line = @lexer.line
@@ -298,7 +298,7 @@ RUBY
         interp = try_op_before_interp(op, prev) and return interp
 
         wa = @lexer.whitespace?
-        str = Script::String.new(Lexer::OPERATORS_REVERSE[op.type])
+        str = Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type])
         str.line = @lexer.line
         start_pos = source_position
         interp = Script::Tree::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text)
@@ -327,7 +327,7 @@ RUBY
         while e = or_expr
           arr << e
         end
-        arr.size == 1 ? arr.first : node(List.new(arr, :space), start_pos)
+        arr.size == 1 ? arr.first : node(Sass::Script::Value::List.new(arr, :space), start_pos)
       end
 
       production :or_expr, :and_expr, :or
@@ -347,10 +347,10 @@ RUBY
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next
-        if color = Color::COLOR_NAMES[name.value.downcase]
-          return node(Color.new(color), token_start_position(name), source_position)
+        if color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase]
+          return node(Sass::Script::Value::Color.new(color), token_start_position(name), source_position)
         end
-        node(Script::String.new(name.value, :identifier), token_start_position(name), source_position)
+        node(Script::Value::String.new(name.value, :identifier), token_start_position(name), source_position)
       end
 
       def funcall
@@ -432,15 +432,15 @@ RUBY
 
       def raw
         return special_fun unless tok = try_tok(:raw)
-        node(Script::String.new(tok.value))
+        node(Script::Value::String.new(tok.value))
       end
 
       def special_fun
         return paren unless tok = try_tok(:special_fun)
-        first = node(Script::String.new(tok.value.first))
+        first = node(Script::Value::String.new(tok.value.first))
         Sass::Util.enum_slice(tok.value[1..-1], 2).inject(first) do |l, (i, r)|
           Script::Tree::Interpolation.new(
-            l, i, r && node(Script::String.new(r)),
+            l, i, r && node(Script::Value::String.new(r)),
             false, false)
         end
       end
@@ -452,7 +452,7 @@ RUBY
         start_pos = source_position
         e = expr
         assert_tok(:rparen)
-        return e || node(List.new([], :space), start_pos)
+        return e || node(Sass::Script::Value::List.new([], :space), start_pos)
       ensure
         @in_parens = was_in_parens
       end

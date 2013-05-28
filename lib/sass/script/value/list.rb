@@ -1,7 +1,7 @@
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a CSS list.
   # This includes both comma-separated lists and space-separated lists.
-  class List < Value
+  class List < Base
     # The Ruby array containing the contents of the list.
     #
     # @return [Array<Value>]
@@ -24,27 +24,27 @@ module Sass::Script
       @separator = separator
     end
 
-    # @see Tree::Node#deep_copy
+    # @see Sass::Script::Tree::Node#deep_copy
     def deep_copy
       node = dup
       node.instance_variable_set('@value', value.map {|c| c.deep_copy})
       node
     end
 
-    # @see Tree::Node#eq
+    # @see Sass::Script::Tree::Node#eq
     def eq(other)
-      Sass::Script::Bool.new(
+      Sass::Script::Value::Bool.new(
         other.is_a?(List) && self.value == other.value &&
         self.separator == other.separator)
     end
 
-    # @see Tree::Node#to_s
+    # @see Sass::Script::Tree::Node#to_s
     def to_s(opts = {})
       raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
       return value.reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.map {|e| e.to_s(opts)}.join(sep_str)
     end
 
-    # @see Tree::Node#to_sass
+    # @see Sass::Script::Tree::Node#to_sass
     def to_sass(opts = {})
       return "()" if value.empty?
       precedence = Sass::Script::Parser.precedence_of(separator)
@@ -57,16 +57,16 @@ module Sass::Script
       end.join(sep_str(nil))
     end
 
-    # @see Tree::Node#inspect
+    # @see Sass::Script::Tree::Node#inspect
     def inspect
       "(#{to_sass})"
     end
 
     protected
 
-    # @see Tree::Node#_perform
+    # @see Sass::Script::Tree::Node#_perform
     def _perform(environment)
-      list = Sass::Script::List.new(
+      list = Sass::Script::Value::List.new(
         value.map {|e| e.perform(environment)},
         separator)
       list.options = self.options

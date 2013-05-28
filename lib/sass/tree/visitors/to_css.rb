@@ -343,7 +343,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
                 false)
             ])
         ])
-      prop = Sass::Tree::PropNode.new([""], Sass::Script::String.new(''), :new)
+      prop = Sass::Tree::PropNode.new([""], Sass::Script::Value::String.new(''), :new)
       prop.resolved_name = "font-family"
       prop.resolved_value = Sass::SCSS::RX.escape_ident(v.to_s)
       rule << prop

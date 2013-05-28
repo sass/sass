@@ -263,7 +263,7 @@ END
         end
         opts.on('--precision NUMBER_OF_DIGITS', Integer,
                 'How many digits of precision to use when outputting decimal numbers. Defaults to 3.') do |precision|
-          ::Sass::Script::Number.precision = precision
+          ::Sass::Script::Value::Number.precision = precision
         end
         opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
           @options[:for_engine][:quiet] = true

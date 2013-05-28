@@ -1,4 +1,4 @@
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a number.
   # SassScript numbers can have decimal values,
   # and can also have units.
@@ -7,7 +7,7 @@ module Sass::Script
   #
   # Numbers can also have more complex units, such as `1px*em/in`.
   # These cannot be inputted directly in Sass code at the moment.
-  class Number < Value
+  class Number < Base
     # The Ruby value of the number.
     #
     # @return [Numeric]
@@ -192,7 +192,7 @@ module Sass::Script
     # @param other [Value] The right-hand side of the operator
     # @return [Boolean] Whether this number is equal to the other object
     def eq(other)
-      return Sass::Script::Bool.new(false) unless other.is_a?(Sass::Script::Number)
+      return Sass::Script::Value::Bool.new(false) unless other.is_a?(Sass::Script::Value::Number)
       this = self
       begin
         if unitless?
@@ -201,10 +201,10 @@ module Sass::Script
           other = other.coerce(@numerator_units, @denominator_units)
         end
       rescue Sass::UnitConversionError
-        return Sass::Script::Bool.new(false)
+        return Sass::Script::Value::Bool.new(false)
       end
 
-      Sass::Script::Bool.new(this.value == other.value)
+      Sass::Script::Value::Bool.new(this.value == other.value)
     end
 
     # The SassScript `>` operation.
@@ -288,7 +288,7 @@ module Sass::Script
     # Checks whether the number has the numerator unit specified.
     #
     # @example
-    #   number = Sass::Script::Number.new(10, "px")
+    #   number = Sass::Script::Value::Number.new(10, "px")
     #   number.is_unit?("px") => true
     #   number.is_unit?(nil) => false
     #

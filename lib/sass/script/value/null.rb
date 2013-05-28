@@ -1,6 +1,6 @@
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a null value.
-  class Null < Value
+  class Null < Base
     # Creates a new null value.
     def initialize
       super nil

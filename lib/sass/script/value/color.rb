@@ -1,4 +1,4 @@
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a CSS color.
   #
   # A color may be represented internally as RGBA, HSLA, or both.
@@ -13,7 +13,7 @@ module Sass::Script
   # It's always stored, as 1 if nothing else is specified.
   # If only the alpha channel is modified using \{#with},
   # the cached RGB and HSL values are retained.
-  class Color < Value
+  class Color < Base
     class << self; include Sass::Util; end
 
     # A hash from color names to `[red, green, blue]` value arrays.
@@ -345,14 +345,14 @@ module Sass::Script
     end
 
     # The SassScript `==` operation.
-    # **Note that this returns a {Sass::Script::Bool} object,
+    # **Note that this returns a {Sass::Script::Value::Bool} object,
     # not a Ruby boolean**.
     #
     # @param other [Value] The right-hand side of the operator
     # @return [Bool] True if this value is the same as the other,
     #   false otherwise
     def eq(other)
-      Sass::Script::Bool.new(
+      Sass::Script::Value::Bool.new(
         other.is_a?(Color) && rgb == other.rgb && alpha == other.alpha)
     end
 
@@ -413,7 +413,7 @@ module Sass::Script
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def plus(other)
-      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
+      if other.is_a?(Sass::Script::Value::Number) || other.is_a?(Sass::Script::Value::Color)
         piecewise(other, :+)
       else
         super
@@ -436,7 +436,7 @@ module Sass::Script
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def minus(other)
-      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
+      if other.is_a?(Sass::Script::Value::Number) || other.is_a?(Sass::Script::Value::Color)
         piecewise(other, :-)
       else
         super
@@ -456,7 +456,7 @@ module Sass::Script
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def times(other)
-      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
+      if other.is_a?(Sass::Script::Value::Number) || other.is_a?(Sass::Script::Value::Color)
         piecewise(other, :*)
       else
         raise NoMethodError.new(nil, :times)
@@ -479,7 +479,8 @@ module Sass::Script
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def div(other)
-      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
+      if other.is_a?(Sass::Script::Value::Number) ||
+          other.is_a?(Sass::Script::Value::Color)
         piecewise(other, :/)
       else
         super
@@ -499,7 +500,8 @@ module Sass::Script
     # @return [Color] The resulting color
     # @raise [Sass::SyntaxError] if `other` is a number with units
     def mod(other)
-      if other.is_a?(Sass::Script::Number) || other.is_a?(Sass::Script::Color)
+      if other.is_a?(Sass::Script::Value::Number) ||
+          other.is_a?(Sass::Script::Value::Color)
         piecewise(other, :%)
       else
         raise NoMethodError.new(nil, :mod)

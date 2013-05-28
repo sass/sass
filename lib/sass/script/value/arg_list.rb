@@ -1,4 +1,4 @@
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a variable argument list. This works just
   # like a normal list, but can also contain keyword arguments.
   #
@@ -29,12 +29,12 @@ module Sass::Script
       @keywords
     end
 
-    # @see Tree::Node#children
+    # @see Sass::Script::Tree::Node#children
     def children
       super + @keywords.values
     end
 
-    # @see Tree::Node#deep_copy
+    # @see Sass::Script::Tree::Node#deep_copy
     def deep_copy
       node = super
       node.instance_variable_set('@keywords',
@@ -44,7 +44,7 @@ module Sass::Script
 
     protected
 
-    # @see Tree::Node#_perform
+    # @see Sass::Script::Tree::Node#_perform
     def _perform(environment)
       self
     end

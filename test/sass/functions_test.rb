@@ -5,33 +5,33 @@ require 'sass/script'
 
 module Sass::Script::Functions
   def no_kw_args
-    Sass::Script::String.new("no-kw-args")
+    Sass::Script::Value::String.new("no-kw-args")
   end
 
   def only_var_args(*args)
-    Sass::Script::String.new("only-var-args("+args.map{|a| a.plus(Sass::Script::Number.new(1)).to_s }.join(", ")+")")
+    Sass::Script::Value::String.new("only-var-args("+args.map{|a| a.plus(Sass::Script::Value::Number.new(1)).to_s }.join(", ")+")")
   end
   declare :only_var_args, [], :var_args => true
 
   def only_kw_args(kwargs)
-    Sass::Script::String.new("only-kw-args(" + kwargs.keys.map {|a| a.to_s}.sort.join(", ") + ")")
+    Sass::Script::Value::String.new("only-kw-args(" + kwargs.keys.map {|a| a.to_s}.sort.join(", ") + ")")
   end
   declare :only_kw_args, [], :var_kwargs => true
 end
 
 module Sass::Script::Functions::UserFunctions
   def call_options_on_new_value
-    str = Sass::Script::String.new("foo")
+    str = Sass::Script::Value::String.new("foo")
     str.options[:foo]
     str
   end
 
   def user_defined
-    Sass::Script::String.new("I'm a user-defined string!")
+    Sass::Script::Value::String.new("I'm a user-defined string!")
   end
 
   def _preceding_underscore
-    Sass::Script::String.new("I'm another user-defined string!")
+    Sass::Script::Value::String.new("I'm another user-defined string!")
   end
 
   def fetch_the_variable
@@ -954,13 +954,13 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_user_defined_function_using_environment
-    environment = env('variable' => Sass::Script::String.new('The variable'))
+    environment = env('variable' => Sass::Script::Value::String.new('The variable'))
     assert_equal("The variable", evaluate("fetch_the_variable()", environment))
   end
 
   def test_options_on_new_values_fails
     assert_error_message(<<MSG, "call-options-on-new-value()")
-The #options attribute is not set on this Sass::Script::String.
+The #options attribute is not set on this Sass::Script::Value::String.
   This error is probably occurring because #to_s was called
   on this value within a custom Sass function without first
   setting the #option attribute.
@@ -1199,32 +1199,32 @@ MSG
 
   def test_assert_unit
     ctx = Sass::Script::Functions::EvaluationContext.new(Sass::Environment.new(nil, {}))
-    ctx.assert_unit Sass::Script::Number.new(10, ["px"], []), "px"
-    ctx.assert_unit Sass::Script::Number.new(10, [], []), nil
+    ctx.assert_unit Sass::Script::Value::Number.new(10, ["px"], []), "px"
+    ctx.assert_unit Sass::Script::Value::Number.new(10, [], []), nil
 
     begin
-      ctx.assert_unit Sass::Script::Number.new(10, [], []), "px"
+      ctx.assert_unit Sass::Script::Value::Number.new(10, [], []), "px"
       fail
     rescue ArgumentError => e
       assert_equal "Expected 10 to have a unit of px", e.message
     end
 
     begin
-      ctx.assert_unit Sass::Script::Number.new(10, ["px"], []), nil
+      ctx.assert_unit Sass::Script::Value::Number.new(10, ["px"], []), nil
       fail
     rescue ArgumentError => e
       assert_equal "Expected 10px to be unitless", e.message
     end
 
     begin
-      ctx.assert_unit Sass::Script::Number.new(10, [], []), "px", "arg"
+      ctx.assert_unit Sass::Script::Value::Number.new(10, [], []), "px", "arg"
       fail
     rescue ArgumentError => e
       assert_equal "Expected $arg to have a unit of px but got 10", e.message
     end
 
     begin
-      ctx.assert_unit Sass::Script::Number.new(10, ["px"], []), nil, "arg"
+      ctx.assert_unit Sass::Script::Value::Number.new(10, ["px"], []), nil, "arg"
       fail
     rescue ArgumentError => e
       assert_equal "Expected $arg to be unitless but got 10px", e.message
@@ -1246,7 +1246,7 @@ MSG
 
   def evaluate(value, environment = env)
     result = perform(value, environment)
-    assert_kind_of Sass::Script::Value, result
+    assert_kind_of Sass::Script::Value::Base, result
     return result.to_s
   end
 

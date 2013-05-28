@@ -7,13 +7,13 @@ require 'fileutils'
 module Sass::Script::Functions
   def filename
     filename = options[:filename].gsub(%r{.*((/[^/]+){4})}, '\1')
-    Sass::Script::String.new(filename)
+    Sass::Script::Value::String.new(filename)
   end
 
   def whatever
     custom = options[:custom]
     whatever = custom && custom[:whatever]
-    Sass::Script::String.new(whatever || "incorrect")
+    Sass::Script::Value::String.new(whatever || "incorrect")
   end
 end
 

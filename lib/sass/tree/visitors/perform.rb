@@ -41,10 +41,10 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     splat_sep = :comma
     if splat
       args += splat.to_a
-      splat_sep = splat.separator if splat.is_a?(Sass::Script::List)
+      splat_sep = splat.separator if splat.is_a?(Sass::Script::Value::List)
       # If the splat argument exists, there won't be any keywords passed in
       # manually, so we can safely overwrite rather than merge here.
-      keywords = splat.keywords if splat.is_a?(Sass::Script::ArgList)
+      keywords = splat.keywords if splat.is_a?(Sass::Script::Value::ArgList)
     end
 
     keywords = keywords.dup
@@ -62,7 +62,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     if callable.splat
       rest = args[callable.args.length..-1]
-      arg_list = Sass::Script::ArgList.new(rest, keywords.dup, splat_sep)
+      arg_list = Sass::Script::Value::ArgList.new(rest, keywords.dup, splat_sep)
       arg_list.options = env.options
       env.set_local_var(callable.splat.name, arg_list)
     end
@@ -142,7 +142,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Prints the expression to STDERR.
   def visit_debug(node)
     res = node.expr.perform(@environment)
-    res = res.value if res.is_a?(Sass::Script::String)
+    res = res.value if res.is_a?(Sass::Script::Value::String)
     if node.filename
       $stderr.puts "#{node.filename}:#{node.line} DEBUG: #{res}"
     else
@@ -185,7 +185,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     with_environment Sass::Environment.new(@environment) do
       range.map do |i|
         @environment.set_local_var(node.var,
-          Sass::Script::Number.new(i, from.numerator_units, from.denominator_units))
+          Sass::Script::Value::Number.new(i, from.numerator_units, from.denominator_units))
         node.children.map {|c| visit(c)}
       end.flatten
     end
@@ -343,7 +343,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_warn(node)
     @stack.push(:filename => node.filename, :line => node.line)
     res = node.expr.perform(@environment)
-    res = res.value if res.is_a?(Sass::Script::String)
+    res = res.value if res.is_a?(Sass::Script::Value::String)
     msg = "WARNING: #{res}\n         "
     msg << stack_trace.join("\n         ") << "\n"
     Sass::Util.sass_warn msg
@@ -409,7 +409,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       next r if r.is_a?(String)
       val = r.perform(@environment)
       # Interpolated strings should never render with quotes
-      next val.value if val.is_a?(Sass::Script::String)
+      next val.value if val.is_a?(Sass::Script::Value::String)
       val.to_s
     end.join
   end

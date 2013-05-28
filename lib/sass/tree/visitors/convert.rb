@@ -197,7 +197,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def visit_mixin(node)
     arg_to_sass = lambda do |arg|
       sass = arg.to_sass(@options)
-      sass = "(#{sass})" if arg.is_a?(Sass::Script::List) && arg.separator == :comma
+      sass = "(#{sass})" if arg.is_a?(Sass::Script::Value::List) && arg.separator == :comma
       sass
     end
 

@@ -46,7 +46,7 @@ module Sass::Script::Tree
     # @raise [Sass::SyntaxError] if the variable is undefined
     def _perform(environment)
       raise Sass::SyntaxError.new("Undefined variable: \"$#{name}\".") unless val = environment.var(name)
-      if val.is_a?(Sass::Script::Number)
+      if val.is_a?(Sass::Script::Value::Number)
         val = val.dup
         val.original = nil
       end

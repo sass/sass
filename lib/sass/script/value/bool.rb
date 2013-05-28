@@ -1,6 +1,6 @@
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a boolean (true or false) value.
-  class Bool < Value
+  class Bool < Base
     # The Ruby value of the boolean.
     #
     # @return [Boolean]

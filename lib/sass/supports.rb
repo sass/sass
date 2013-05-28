@@ -205,7 +205,7 @@ module Sass::Supports
 
     def perform(env)
       val = value.perform(env)
-      @resolved_value = val.is_a?(Sass::Script::String) ? val.value : val.to_s
+      @resolved_value = val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s
     end
 
     def to_css

@@ -289,14 +289,14 @@ module Sass
     #
     # @param name [String] The name of the value. Used in the error message.
     # @param range [Range] The allowed range of values.
-    # @param value [Numeric, Sass::Script::Number] The value to check.
+    # @param value [Numeric, Sass::Script::Value::Number] The value to check.
     # @param unit [String] The unit of the value. Used in error reporting.
     # @return [Numeric] `value` adjusted to fall within range, if it
     #   was outside by a floating-point margin.
     def check_range(name, range, value, unit='')
       grace = (-0.00001..0.00001)
       str = value.to_s
-      value = value.value if value.is_a?(Sass::Script::Number)
+      value = value.value if value.is_a?(Sass::Script::Value::Number)
       return value if range.include?(value)
       return range.first if grace.include?(value - range.first)
       return range.last if grace.include?(value - range.last)

@@ -55,7 +55,7 @@ module Sass::Script::Tree
     def to_sass(opts = {})
       arg_to_sass = lambda do |arg|
         sass = arg.to_sass(opts)
-        sass = "(#{sass})" if arg.is_a?(Sass::Script::List) && arg.separator == :comma
+        sass = "(#{sass})" if arg.is_a?(Sass::Script::Value::List) && arg.separator == :comma
         sass
       end
 
@@ -171,7 +171,7 @@ module Sass::Script::Tree
     # it with a cross-browser implementation for functions that require vendor prefixes
     # in the generated css.
     def to_value(args)
-      Sass::Script::String.new("#{name}(#{args.join(', ')})")
+      Sass::Script::Value::String.new("#{name}(#{args.join(', ')})")
     end
 
     private
@@ -180,7 +180,7 @@ module Sass::Script::Tree
       args += splat.to_a if splat
 
       # If variable arguments were passed, there won't be any explicit keywords.
-      if splat.is_a?(Sass::Script::ArgList)
+      if splat.is_a?(Sass::Script::Value::ArgList)
         kwargs_size = splat.keywords.size
         splat.keywords_accessed = false
       else
@@ -191,7 +191,7 @@ module Sass::Script::Tree
         return args if @keywords.empty?
         raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
       end
-      keywords = splat.is_a?(Sass::Script::ArgList) ? splat.keywords :
+      keywords = splat.is_a?(Sass::Script::Value::ArgList) ? splat.keywords :
         Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
 
       # If the user passes more non-keyword args than the function expects,

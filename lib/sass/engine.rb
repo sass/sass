@@ -684,7 +684,7 @@ WARNING
 
     def parse_property(name, parsed_name, value, prop, line, start_offset)
       if value.strip.empty?
-        expr = Sass::Script::String.new("")
+        expr = Sass::Script::Value::String.new("")
         end_offset = start_offset
       else
         expr = parse_script(value, :offset => to_parser_offset(start_offset))
