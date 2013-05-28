@@ -148,9 +148,11 @@ module Sass::Tree
 
       def val_to_sass_div(node, opts)
         unless node.is_a?(Sass::Script::Tree::Operation) && node.operator == :div &&
-            node.operand1.is_a?(Sass::Script::Value::Number) &&
-            node.operand2.is_a?(Sass::Script::Value::Number) &&
-            (!node.operand1.original || !node.operand2.original)
+            node.operand1.is_a?(Sass::Script::Tree::Literal) &&
+            node.operand1.value.is_a?(Sass::Script::Value::Number) &&
+            node.operand2.is_a?(Sass::Script::Tree::Literal) &&
+            node.operand2.value.is_a?(Sass::Script::Value::Number) &&
+            (!node.operand1.value.original || !node.operand2.value.original)
           return node
         end
 

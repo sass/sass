@@ -226,11 +226,6 @@ module Sass
         start_index = @scanner.pos
         return unless value = token
         type, val = value
-
-        if val.is_a?(Script::Tree::Node)
-          val.line = start_pos.line
-          val.source_range = range(start_pos)
-        end
         Token.new(type, val, range(start_pos), @scanner.pos - @scanner.matched_size)
       end
 

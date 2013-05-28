@@ -257,15 +257,15 @@ RUBY
         interp = try_ops_after_interp([:comma], :expr) and return interp
         start_pos = source_position
         return unless e = interpolation
-        list = node(Sass::Script::Value::List.new([e], :comma), start_pos)
+        list = node(Sass::Script::Tree::ListLiteral.new([e], :comma), start_pos)
         while tok = try_tok(:comma)
           if interp = try_op_before_interp(tok, list)
             return interp unless other_interp = try_ops_after_interp([:comma], :expr, interp)
             return other_interp
           end
-          list.value << assert_expr(:interpolation)
+          list.elements << assert_expr(:interpolation)
         end
-        list.value.size == 1 ? list.value.first : list
+        list.elements.size == 1 ? list.elements.first : list
       end
 
       production :equals, :interpolation, :single_eq
@@ -273,7 +273,7 @@ RUBY
       def try_op_before_interp(op, prev = nil)
         return unless @lexer.peek && @lexer.peek.type == :begin_interpolation
         wb = @lexer.whitespace?(op)
-        str = node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]), op.source_range)
+        str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]), op.source_range)
         interp = node(
           Script::Tree::Interpolation.new(prev, str, nil, wb, !:wa, :originally_text),
           (prev || str).source_range.start_pos)
@@ -286,7 +286,7 @@ RUBY
         interp = try_op_before_interp(op, prev) and return interp
 
         wa = @lexer.whitespace?
-        str = node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]), op.source_range)
+        str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]), op.source_range)
         str.line = @lexer.line
         interp = node(
           Script::Tree::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text),
@@ -315,7 +315,7 @@ RUBY
         while e = or_expr
           arr << e
         end
-        arr.size == 1 ? arr.first : node(Sass::Script::Value::List.new(arr, :space), start_pos)
+        arr.size == 1 ? arr.first : node(Sass::Script::Tree::ListLiteral.new(arr, :space), start_pos)
       end
 
       production :or_expr, :and_expr, :or
@@ -336,9 +336,9 @@ RUBY
 
         name = @lexer.next
         if color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase]
-          return node(Sass::Script::Value::Color.new(color), name.source_range)
+          return literal_node(Sass::Script::Value::Color.new(color), name.source_range)
         end
-        node(Script::Value::String.new(name.value, :identifier), name.source_range)
+        literal_node(Script::Value::String.new(name.value, :identifier), name.source_range)
       end
 
       def funcall
@@ -419,14 +419,15 @@ RUBY
       end
 
       def raw
+        start_pos = source_position
         return special_fun unless tok = try_tok(:raw)
-        node(Script::Value::String.new(tok.value), tok.source_range)
+        literal_node(Script::Value::String.new(tok.value), tok.source_range)
       end
 
       def special_fun
         start_pos = source_position
         return paren unless tok = try_tok(:special_fun)
-        first = node(Script::Value::String.new(tok.value.first),
+        first = literal_node(Script::Value::String.new(tok.value.first),
           start_pos, start_pos.after(tok.value.first))
         Sass::Util.enum_slice(tok.value[1..-1], 2).inject(first) do |l, (i, r)|
           end_pos = i.source_range.end_pos
@@ -434,7 +435,7 @@ RUBY
           node(
             Script::Tree::Interpolation.new(
               l, i,
-              r && node(Script::Value::String.new(r),
+              r && literal_node(Script::Value::String.new(r),
                 i.source_range.end_pos, end_pos),
               false, false),
             start_pos, end_pos)
@@ -447,8 +448,9 @@ RUBY
         @in_parens = true
         start_pos = source_position
         e = expr
+        end_pos = source_position
         assert_tok(:rparen)
-        return e || node(Sass::Script::Value::List.new([], :space), start_pos)
+        return e || node(Sass::Script::Tree::ListLiteral.new([], :space), start_pos, end_pos)
       ensure
         @in_parens = was_in_parens
       end
@@ -461,7 +463,7 @@ RUBY
 
       def string
         return number unless first = try_tok(:string)
-        str = node(first.value, first.source_range)
+        str = literal_node(first.value, first.source_range)
         return str unless try_tok(:begin_interpolation)
         mid = parse_interpolated
         last = assert_expr(:string)
@@ -472,11 +474,11 @@ RUBY
         return literal unless tok = try_tok(:number)
         num = tok.value
         num.original = num.to_s unless @in_parens
-        node(num, tok.source_range.start_pos)
+        literal_node(num, tok.source_range.start_pos)
       end
 
       def literal
-        (t = try_tok(:color, :bool, :null)) && (return t.value)
+        (t = try_tok(:color, :bool, :null)) && (return literal_node(t.value, t.source_range))
       end
 
       # It would be possible to have unified #assert and #try methods,
@@ -507,6 +509,17 @@ RUBY
       def assert_done
         return if @lexer.done?
         @lexer.expected!(EXPR_NAMES[:default])
+      end
+
+      # @overload node(value, source_range)
+      #   @param value [Sass::Script::Value::Base]
+      #   @param source_range [Sass::Source::Range]
+      # @overload node(value, start_pos, end_pos = source_position)
+      #   @param value [Sass::Script::Value::Base]
+      #   @param start_pos [Sass::Source::Position]
+      #   @param end_pos [Sass::Source::Position]
+      def literal_node(value, source_range_or_start_pos, end_pos = source_position)
+        node(Sass::Script::Tree::Literal.new(value), source_range_or_start_pos, end_pos)
       end
 
       # @overload node(node, source_range)

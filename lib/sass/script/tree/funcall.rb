@@ -55,7 +55,7 @@ module Sass::Script::Tree
     def to_sass(opts = {})
       arg_to_sass = lambda do |arg|
         sass = arg.to_sass(opts)
-        sass = "(#{sass})" if arg.is_a?(Sass::Script::Value::List) && arg.separator == :comma
+        sass = "(#{sass})" if arg.is_a?(Sass::Script::Tree::ListLiteral) && arg.separator == :comma
         sass
       end
 

@@ -18,7 +18,7 @@ module Sass::Script::Value
     # Creates a new list.
     #
     # @param value [Array<Value>] See \{#value}
-    # @param separator [String] See \{#separator}
+    # @param separator [Symbol] See \{#separator}
     def initialize(value, separator)
       super(value)
       @separator = separator

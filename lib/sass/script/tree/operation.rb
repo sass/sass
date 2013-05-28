@@ -88,7 +88,7 @@ module Sass::Script::Tree
     private
 
     def operand_to_sass(op, side, opts)
-      return "(#{op.to_sass(opts)})" if op.is_a?(Sass::Script::Value::List)
+      return "(#{op.to_sass(opts)})" if op.is_a?(Sass::Script::Tree::ListLiteral)
       return op.to_sass(opts) unless op.is_a?(Operation)
 
       pred = Sass::Script::Parser.precedence_of(@operator)
