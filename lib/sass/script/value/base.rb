@@ -45,7 +45,7 @@ module Sass::Script::Value
 The #options attribute is not set on this #{self.class}.
   This error is probably occurring because #to_s was called
   on this value within a custom Sass function without first
-  setting the #option attribute.
+  setting the #options attribute.
 MSG
     end
 

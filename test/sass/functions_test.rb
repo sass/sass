@@ -963,7 +963,7 @@ class SassFunctionTest < Test::Unit::TestCase
 The #options attribute is not set on this Sass::Script::Value::String.
   This error is probably occurring because #to_s was called
   on this value within a custom Sass function without first
-  setting the #option attribute.
+  setting the #options attribute.
 MSG
   end
 
