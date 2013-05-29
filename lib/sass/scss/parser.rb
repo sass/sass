@@ -903,14 +903,24 @@ module Sass
         value_start_pos = source_position
         @use_property_exception ||= space || !tok?(IDENT)
 
-        return value_start_pos, true, Sass::Script::Value::String.new("") if tok?(/\{/)
+        if tok?(/\{/)
+          str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
+          str.line = source_position.line
+          str.source_range = range(source_position)
+          return value_start_pos, true, str
+        end
+
+        start_pos = source_position
         # This is a bit of a dirty trick:
         # if the value is completely static,
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
         if val = tok(STATIC_VALUE, true)
-          return value_start_pos, space, Sass::Script::Value::String.new(val.strip)
+          str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(val.strip))
+          str.line = start_pos.line
+          str.source_range = range(start_pos)
+          return value_start_pos, space, str
         end
         return value_start_pos, space, sass_script(:parse)
       end

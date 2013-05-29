@@ -28,7 +28,7 @@ module Sass::Script::Value
       Sass::Script::Value::String.new(self.value + other_str, self.type)
     end
 
-    # @see Sass::Script::Tree::Node#to_s
+    # @see Value#to_s
     def to_s(opts = {})
       if @type == :identifier
         return @value.gsub(/\n\s*/, " ")
@@ -41,7 +41,7 @@ module Sass::Script::Value
       "\"#{value.gsub('"', "\\\"")}\"" #'
     end
 
-    # @see Sass::Script::Tree::Node#to_sass
+    # @see Value#to_sass
     def to_sass(opts = {})
       to_s
     end

@@ -80,7 +80,13 @@ module Sass::Tree
     #
     # @return [String] The message
     def pseudo_class_selector_message
-      return "" if @prop_syntax == :new || !value.is_a?(Sass::Script::Value::String) || !value.value.empty?
+      if @prop_syntax == :new ||
+          !value.is_a?(Sass::Script::Tree::Literal) ||
+          !value.value.is_a?(Sass::Script::Value::String) ||
+          !value.value.value.empty?
+        return ""
+      end
+
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 

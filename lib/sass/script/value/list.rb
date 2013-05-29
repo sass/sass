@@ -6,7 +6,6 @@ module Sass::Script::Value
     #
     # @return [Array<Value>]
     attr_reader :value
-    alias_method :children, :value
     alias_method :to_a, :value
 
     # The operator separating the values of the list.
@@ -24,27 +23,26 @@ module Sass::Script::Value
       @separator = separator
     end
 
-    # @see Sass::Script::Tree::Node#deep_copy
-    def deep_copy
-      node = dup
-      node.instance_variable_set('@value', value.map {|c| c.deep_copy})
-      node
+    # @see Value#options=
+    def options=(options)
+      super
+      value.each {|v| v.options = options}
     end
 
-    # @see Sass::Script::Tree::Node#eq
+    # @see Value#eq
     def eq(other)
       Sass::Script::Value::Bool.new(
         other.is_a?(List) && self.value == other.value &&
         self.separator == other.separator)
     end
 
-    # @see Sass::Script::Tree::Node#to_s
+    # @see Value#to_s
     def to_s(opts = {})
       raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
       return value.reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.map {|e| e.to_s(opts)}.join(sep_str)
     end
 
-    # @see Sass::Script::Tree::Node#to_sass
+    # @see Value#to_sass
     def to_sass(opts = {})
       return "()" if value.empty?
       precedence = Sass::Script::Parser.precedence_of(separator)
@@ -57,20 +55,9 @@ module Sass::Script::Value
       end.join(sep_str(nil))
     end
 
-    # @see Sass::Script::Tree::Node#inspect
+    # @see Value#inspect
     def inspect
       "(#{value.map {|e| e.inspect}.join(sep_str(nil))})"
-    end
-
-    protected
-
-    # @see Sass::Script::Tree::Node#_perform
-    def _perform(environment)
-      list = Sass::Script::Value::List.new(
-        value.map {|e| e.perform(environment)},
-        separator)
-      list.options = self.options
-      list
     end
 
     private

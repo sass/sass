@@ -326,7 +326,7 @@ module Sass
           next child
         end
 
-        if prev_rule && prev_rule.children == child.children
+        if prev_rule && prev_rule.children.map {|c| c.to_sass} == child.children.map {|c| c.to_sass}
           prev_rule.parsed_rules.members << first_seq(child)
           next nil
         end

@@ -29,24 +29,9 @@ module Sass::Script::Value
       @keywords
     end
 
-    # @see Sass::Script::Tree::Node#children
+    # @see Base#children
     def children
       super + @keywords.values
-    end
-
-    # @see Sass::Script::Tree::Node#deep_copy
-    def deep_copy
-      node = super
-      node.instance_variable_set('@keywords',
-        Sass::Util.map_hash(@keywords) {|k, v| [k, v.deep_copy]})
-      node
-    end
-
-    protected
-
-    # @see Sass::Script::Tree::Node#_perform
-    def _perform(environment)
-      self
     end
   end
 end

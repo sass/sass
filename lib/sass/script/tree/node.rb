@@ -97,7 +97,7 @@ module Sass::Script::Tree
       Sass::Util.abstract(self)
     end
 
-    # Sets the \{#options} field on the given value and returns it
+    # Sets the \{#options} field on the given value and returns it.
     #
     # @param value [Sass::Script::Value]
     # @return [Sass::Script::Value]

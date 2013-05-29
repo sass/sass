@@ -4,32 +4,42 @@ module Sass::Script::Value
   # Many of these methods, especially the ones that correspond to SassScript operations,
   # are designed to be overridden by subclasses which may change the semantics somewhat.
   # The operations listed here are just the defaults.
-  class Base < Sass::Script::Tree::Node
+  class Base
     # Returns the Ruby value of the value.
     # The type of this value varies based on the subclass.
     #
     # @return [Object]
     attr_reader :value
 
+    # The line of the document on which this node appeared.
+    #
+    # @return [Fixnum]
+    attr_accessor :line
+
+    # The source range in the document on which this node appeared.
+    #
+    # @return [Sass::Source::Range]
+    attr_accessor :source_range
+
+    # The file name of the document on which this node appeared.
+    #
+    # @return [String]
+    attr_accessor :filename
+
     # Creates a new value.
     #
     # @param value [Object] The object for \{#value}
     def initialize(value = nil)
       @value = value
-      super()
     end
 
-    # Returns an empty array.
+    # Sets the options hash for this node,
+    # as well as for all child nodes.
+    # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
-    # @return [Array<Sass::Script::Tree::Node>] empty
-    # @see Sass::Script::Tree::Node#children
-    def children
-      []
-    end
-
-    # @see Sass::Script::Tree::Node#deep_copy
-    def deep_copy
-      dup
+    # @param options [{Symbol => Object}] The options
+    def options=(options)
+      @options = options
     end
 
     # Returns the options hash for this node.
@@ -39,8 +49,7 @@ module Sass::Script::Value
     #   This should only happen when the value was created
     #   outside of the parser and \{#to\_s} was called on it
     def options
-      opts = super
-      return opts if opts
+      return @options if @options
       raise Sass::SyntaxError.new(<<MSG)
 The #options attribute is not set on this #{self.class}.
   This error is probably occurring because #to_s was called
@@ -189,7 +198,7 @@ MSG
     #
     # @return [String]
     def to_s(opts = {})
-      raise Sass::SyntaxError.new("[BUG] All subclasses of Sass::Value must implement #to_s.")
+      Sass::Util.abstract(self)
     end
     alias_method :to_sass, :to_s
 
