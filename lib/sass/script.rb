@@ -57,14 +57,7 @@ module Sass
     # @private
     def self.const_missing(name)
       super unless klass = CONST_RENAMES[name]
-      Sass::Util.sass_warn <<MESSAGE
-Sass::Script::#{name} has been renamed to #{klass}.
-Many other Sass::Script classes have been renamed as well.
-The old names will no longer be supported in future versions of Sass.
-MESSAGE
-
       CONST_RENAMES.each {|n, k| const_set(n, k)}
-
       klass
     end
   end
