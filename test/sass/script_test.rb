@@ -554,6 +554,19 @@ SASS
     assert !Sass::Script::Value::Number.new(10, ["px", "em"]).is_unit?("px")
   end
 
+  def test_rename_redirect
+    assert_warning(<<MESSAGE) {assert_equal Sass::Script::Value::Base, Sass::Script::Literal}
+Sass::Script::Literal has been renamed to Sass::Script::Value::Base.
+Many other Sass::Script classes have been renamed as well.
+The old names will no longer be supported in future versions of Sass.
+MESSAGE
+    assert_no_warning do
+      assert_equal Sass::Script::Tree::Node, Sass::Script::Node
+      assert_equal Sass::Script::Tree::Operation, Sass::Script::Operation
+      assert_equal Sass::Script::Value::String, Sass::Script::String
+    end
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)
