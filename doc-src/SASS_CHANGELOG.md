@@ -75,14 +75,26 @@ Thanks to Alexander Pavlov for implementing this.
   "screen"` and both `screen.scss` and `_screen.scss` exist, a warning will be
   printed.
 
+* `grey` and `transparent` are no longer interpreted as strings; they're now
+  interpreted as colors, as per the CSS spec.
+
 * `Sass::Compiler.on_updating_stylesheet` has been removed.
 
 * `Sass::Plugin.options=` has been removed.
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
-* `grey` and `transparent` are no longer interpreted as strings; they're now
-  interpreted as colors, as per the CSS spec.
+* Many classes in the \{Sass::Script} have been rearranged. All the value
+  classes have been moved into \{Sass::Script::Value} (e.g.
+  \{Sass::Script::Value::Color}, \{Sass::Script::Value::String}, etc). Their
+  base class is now \{Sass::Script::Value::Base} instead of
+  `Sass::Script::Literal`. All the parse tree classes have been moved into
+  \{Sass::Script::Tree} (e.g. \{Sass::Script::Tree::Node},
+  \{Sass::Script::Tree::Operation}, etc).
+
+  The old names will continue to work for the next couple releases, but they
+  will be removed eventually. Any code using them should upgrade to the new
+  names.
 
 ## 3.2.9
 
