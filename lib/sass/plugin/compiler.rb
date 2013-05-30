@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'pathname'
 
 require 'sass'
 # XXX CE: is this still necessary now that we have the compiler class?
@@ -215,51 +216,60 @@ module Sass::Plugin
 
       require 'listen'
 
-      template_paths = template_locations # cache the locations
-      individual_files_hash = individual_files.inject({}) do |h, files|
-        parent = File.dirname(files.first)
-        (h[parent] ||= []) << files unless template_paths.include?(parent)
-        h
+      directories = load_paths.map{|location| File.expand_path(location) }
+      individual_files.each do |(source, target, _)|
+        dir = File.dirname(File.expand_path(source))
+        # no need to add a directory that is already watched.
+        next if directories.any? {|d| dir[0...(d.size)] == d}
+        # get rid of any sub directories of this new directory
+        directories.reject!{|d| d[0...(dir.size)] == dir}
+        directories << dir
       end
-      directories = template_paths + individual_files_hash.keys +
-        [{:relative_paths => true}]
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      listener = Listen::MultiListener.new(*directories) do |modified, added, removed|
+      listener = Listen::Listener.new(*(directories + [{:relative_paths => false}])) do |modified, added, removed|
+        a_sass_file_changed = false
         modified.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
-          else
-            next unless f =~ /\.s[ac]ss$/
-          end
-          run_template_modified(f)
+          next unless f =~ /\.s[ac]ss$/
+          a_sass_file_changed = true
+          run_template_modified(relative_to_pwd(f))
         end
 
         added.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
-          else
-            next unless f =~ /\.s[ac]ss$/
-          end
-          run_template_created(f)
+          next unless f =~ /\.s[ac]ss$/
+          a_sass_file_changed = true
+          run_template_created(relative_to_pwd(f))
         end
 
         removed.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
+          if files = individual_files.detect{|(source,target,_)| File.expand_path(source) == f }
+            a_sass_file_changed = true
+            # This was a file we were watching explicitly and compiling to a particular location.
+            # Delete the corresponding file.
             try_delete_css files[1]
           else
             next unless f =~ /\.s[ac]ss$/
-            try_delete_css f.gsub(/\.s[ac]ss$/, '.css')
+            a_sass_file_changed = true
+            # Look for the sass directory that contained the sass file
+            # And try to remove the css file that corresponds to it
+            template_location_array.each do |(sass_dir, css_dir)|
+              sass_dir = File.expand_path(sass_dir)
+              if f[0...(sass_dir.size)] == sass_dir
+                remainder = f[(sass_dir.size)..-1]
+                try_delete_css(css_dir + remainder.gsub(/\.s[ac]ss$/, '.css'))
+                break
+              end
+            end
           end
-          run_template_deleted(f)
+          run_template_deleted(relative_to_pwd(f))
         end
 
-        update_stylesheets(individual_files)
+        if a_sass_file_changed
+          # In case a file we're watching is removed and then recreated we prune out the non-existance files here.
+          watched_files_remaining = individual_files.select{|(source, target, _)| File.exists?(source)}
+          update_stylesheets(watched_files_remaining)
+        end
       end
 
       # The native windows listener is much slower than the polling
@@ -267,7 +277,7 @@ module Sass::Plugin
       listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
       begin
-        listener.start
+        listener.start!
       rescue Exception => e
         raise e unless e.is_a?(Interrupt)
       end
@@ -348,6 +358,12 @@ module Sass::Plugin
 
     def css_filename(name, path)
       "#{path}/#{name}".gsub(/\.s[ac]ss$/, '.css')
+    end
+
+    def relative_to_pwd(f)
+      Pathname.new(f).relative_path_from(Pathname.new(Dir.pwd))
+    rescue ArgumentError # when a relative path cannot be computed
+      f
     end
   end
 end

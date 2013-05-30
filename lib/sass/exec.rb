@@ -509,7 +509,7 @@ MSG
 
       def default_sass_path
         if ENV['SASSPATH']
-          ENV['SASSPATH'].split(File::PATH_SEPARATOR)
+          ENV['SASSPATH'].split(File::PATH_SEPARATOR).select{|d| File.directory?(d)}
         else
           [::Sass::Importers::DeprecatedPath.new(".")]
         end
