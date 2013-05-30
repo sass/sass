@@ -445,6 +445,7 @@ MSG
         had_error = false
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
+        ::Sass::Plugin.on_deleting_sourcemap {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
           if error.is_a?(SystemCallError) && !@options[:stop_on_error]
             had_error = true

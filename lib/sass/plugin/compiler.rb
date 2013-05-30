@@ -149,6 +149,14 @@ module Sass::Plugin
     #   The location of the CSS file that was deleted.
     define_callback :deleting_css
 
+    # Register a callback to be run when Sass deletes a sourcemap file.
+    # This happens when the corresponding Sass/SCSS file has been deleted.
+    #
+    # @yield [filename]
+    # @yieldparam filename [String]
+    #   The location of the sourcemap file that was deleted.
+    define_callback :deleting_sourcemap
+
     # Updates out-of-date stylesheets.
     #
     # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
@@ -339,9 +347,15 @@ module Sass::Plugin
     end
 
     def try_delete_css(css)
-      return unless File.exists?(css)
-      run_deleting_css css
-      File.delete css
+      if File.exists?(css)
+        run_deleting_css css
+        File.delete css
+      end
+      map = Sass::Util.sourcemap_name(css)
+      if File.exists?(map)
+        run_deleting_sourcemap map
+        File.delete map
+      end
     end
 
     def load_paths(opts = options)
