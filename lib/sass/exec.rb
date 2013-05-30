@@ -197,7 +197,8 @@ MESSAGE
       def initialize(args)
         super
         @options[:for_engine] = {
-          :load_paths => ['.'] + (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
+          # The select here prevents errors when the environment's load paths specified do not exist.
+          :load_paths => default_sass_path
         }
         @default_syntax = :sass
       end
@@ -505,6 +506,15 @@ MSG
         return false if colon_path?(path)
         return ::Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
       end
+
+      def default_sass_path
+        if ENV['SASSPATH']
+          ENV['SASSPATH'].split(File::PATH_SEPARATOR)
+        else
+          [::Sass::Importers::DeprecatedPath.new(".")]
+        end
+      end
+
     end
 
     class Scss < Sass
