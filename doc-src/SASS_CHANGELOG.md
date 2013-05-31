@@ -10,6 +10,8 @@
 * When printing a Sass error into a CSS comment, escape `*/` so the comment
   doesn't end prematurely.
 
+* Preserve the `!` in `/*! ... */`-style comments.
+
 ## 3.2.9
 
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated
