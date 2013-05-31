@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## 3.2.10 (Unreleased)
+
+* Use the Sass logger infrastructure for `@debug` directives.
+
 ## 3.2.9
 
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated
