@@ -165,9 +165,9 @@ module Sass
 
         <<END
 /*
-#{header}
+#{header.gsub("*/", "*\\/")}
 
-Backtrace:\n#{e.backtrace.join("\n")}
+Backtrace:\n#{e.backtrace.join("\n").gsub("*/", "*\\/")}
 */
 body:before {
   white-space: pre;

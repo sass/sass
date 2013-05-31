@@ -7,6 +7,9 @@
 
 * Use the Sass logger infrastructure for `@debug` directives.
 
+* When printing a Sass error into a CSS comment, escape `*/` so the comment
+  doesn't end prematurely.
+
 ## 3.2.9
 
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated

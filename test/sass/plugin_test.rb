@@ -123,6 +123,23 @@ CSS
     File.delete(tempfile_loc('bork1'))
   end
 
+  def test_full_exception_with_block_comment
+    File.delete(tempfile_loc('bork5'))
+    check_for_updates!
+    File.open(tempfile_loc('bork5')) do |file|
+      assert_equal(<<CSS.strip, file.read.split("\n")[0...7].join("\n"))
+/*
+Syntax error: Undefined variable: "$bork".
+        on line 3 of #{template_loc('bork5')}
+
+1: bork
+2:   /* foo *\\/
+3:   :bork $bork
+CSS
+    end
+    File.delete(tempfile_loc('bork1'))
+  end
+
   def test_single_level_import_loop
     File.delete(tempfile_loc('single_import_loop'))
     check_for_updates!
