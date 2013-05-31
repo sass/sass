@@ -400,7 +400,10 @@ MSG
         dirs, files = @args.map {|name| split_colon_path(name)}.
           partition {|i, _| File.directory? i}
         files.map! {|from, to| [from, to || from.gsub(/\.[^.]*?$/, '.css')]}
-        dirs.map! {|from, to| [from, to || from]}
+        dirs.map! do |from, to|
+          to = File.expand_path to
+          [from, to || from]
+        end
         ::Sass::Plugin.options[:template_location] = dirs
 
         ::Sass::Plugin.on_updated_stylesheet do |_, css|
