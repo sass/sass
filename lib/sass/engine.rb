@@ -637,7 +637,6 @@ WARNING
           value = [line.text]
         else
           value = self.class.parse_interp(line.text, line.index, line.offset, :filename => @filename)
-          value[0].slice!(2) if loud # get rid of the "!"
         end
         value = with_extracted_values(value) do |str|
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
