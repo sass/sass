@@ -56,6 +56,9 @@ Thanks to Alexander Pavlov for implementing this.
 * Add "grey" and "transparent" as recognized SassScript colors. Thanks to [Rob
   Wierzbowski](https://github.com/robwierzbowski).
 
+* Loud comments no longer strip the leading exclamation mark. This
+  prevents loud comments from being strip by downstream processors.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector

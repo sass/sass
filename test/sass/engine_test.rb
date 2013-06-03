@@ -1843,7 +1843,7 @@ SASS
 
   def test_loud_comment_in_compressed_mode
     assert_equal <<CSS, render(<<SASS, :style => :compressed)
-foo{color:blue;/* foo
+foo{color:blue;/*! foo
  * bar
  */}
 CSS
@@ -1857,10 +1857,9 @@ SASS
 
   def test_loud_comment_is_evaluated
     assert_equal <<CSS, render(<<SASS)
-/* Hue: 327.21649deg */
+/*! Hue: 327.21649deg */
 CSS
-/*!
-  Hue: \#{hue(#f836a0)}
+/*! Hue: \#{hue(#f836a0)}
 SASS
   end
 
@@ -2538,15 +2537,15 @@ SASS
 
   def test_interpolated_comment_in_mixin
     assert_equal <<CSS, render(<<SASS)
-/* color: red */
+/*! color: red */
 .foo {
   color: red; }
 
-/* color: blue */
+/*! color: blue */
 .foo {
   color: blue; }
 
-/* color: green */
+/*! color: green */
 .foo {
   color: green; }
 CSS
@@ -2841,7 +2840,7 @@ CSS
 /* \\\#{foo}
 SASS
     assert_equal <<CSS, render(<<SASS)
-/* \#{foo} */
+/*! \#{foo} */
 CSS
 /*! \\\#{foo}
 SASS

@@ -89,7 +89,6 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       end.gsub(/^/, spaces) + "\n"
       content
     end
-    content.sub!(%r{^\s*(/\*)}, '/*!') if node.type == :loud #'
     content
   end
 
