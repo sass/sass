@@ -144,9 +144,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::Value::String)
     if node.filename
-      $stderr.puts "#{node.filename}:#{node.line} DEBUG: #{res}"
+      Sass::Util.sass_warn "#{node.filename}:#{node.line} DEBUG: #{res}"
     else
-      $stderr.puts "Line #{node.line} DEBUG: #{res}"
+      Sass::Util.sass_warn "Line #{node.line} DEBUG: #{res}"
     end
     []
   end

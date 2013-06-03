@@ -56,9 +56,6 @@ Thanks to Alexander Pavlov for implementing this.
 * Add "grey" and "transparent" as recognized SassScript colors. Thanks to [Rob
   Wierzbowski](https://github.com/robwierzbowski).
 
-* Loud comments no longer strip the leading exclamation mark. This
-  prevents loud comments from being strip by downstream processors.
-
 * Add a function `unique-id()` that will return a CSS identifier that is
   unique within the scope of a single CSS file.
 
@@ -101,6 +98,15 @@ Thanks to Alexander Pavlov for implementing this.
   The old names will continue to work for the next couple releases, but they
   will be removed eventually. Any code using them should upgrade to the new
   names.
+
+## 3.2.10 (Unreleased)
+
+* Use the Sass logger infrastructure for `@debug` directives.
+
+* When printing a Sass error into a CSS comment, escape `*/` so the comment
+  doesn't end prematurely.
+
+* Preserve the `!` in `/*! ... */`-style comments.
 
 ## 3.2.9
 

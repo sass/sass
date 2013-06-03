@@ -1711,6 +1711,14 @@ SCSS
 
   # Regression
 
+  def test_loud_comment_in_compressed_mode
+    assert_equal(<<CSS, render(<<SCSS))
+/*! foo */
+CSS
+/*! foo */
+SCSS
+  end
+
   def test_parsing_decimals_followed_by_comments_doesnt_take_forever
     assert_equal(<<CSS, render(<<SCSS))
 .foo {
