@@ -59,6 +59,9 @@ Thanks to Alexander Pavlov for implementing this.
 * Loud comments no longer strip the leading exclamation mark. This
   prevents loud comments from being strip by downstream processors.
 
+* Add a function `unique-id()` that will return a CSS identifier that is
+  unique within the scope of a single CSS file.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector

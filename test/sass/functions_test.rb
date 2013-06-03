@@ -1197,6 +1197,11 @@ MSG
     assert_equal "only-kw-args(a, b, c)", evaluate("only-kw-args($a: 1, $b: 2, $c: 3)")
   end
 
+  def test_unique_id
+    assert_match(/u[a-z0-9]{8}/, evaluate("unique-id()"))
+    assert evaluate("unique-id()") != evaluate("unique-id()")
+  end
+
   def test_assert_unit
     ctx = Sass::Script::Functions::EvaluationContext.new(Sass::Environment.new(nil, {}))
     ctx.assert_unit Sass::Script::Value::Number.new(10, ["px"], []), "px"

@@ -193,6 +193,9 @@ module Sass::Script
   # \{#if if($condition, $if-true, $if-false)}
   # : Returns one of two values, depending on whether or not a condition is true.
   #
+  # \{#unique-id unique-id()}
+  # : Returns a unique CSS identifier.
+  #
   # ## Adding Custom Functions
   #
   # New Sass functions can be added by adding Ruby methods to this module.
@@ -1652,6 +1655,20 @@ module Sass::Script
       end
     end
     declare :if, [:condition, :if_true, :if_false]
+
+    # Returns a unique string that is a legal CSS identifiers.
+    # The unique value returned is only guaranteed to be unique within the scope
+    # of a singe CSS file's output.
+    def unique_id
+      Thread.current[:sass_last_unique_id] ||= begin
+                                                 min = 78364164096  # 10000000 in base 36
+                                                 max = 156728328192 # 20000000 in base 36
+                                                 range = max - min
+                                                 rand(max - min) + min
+                                               end
+      value = (Thread.current[:sass_last_unique_id] += rand(10)) # avoid the temptation of trying to guess the next unique value.
+      Sass::Script::String.new("u"+value.to_s(36)) # the u makes this a legal identifier if it starts with a number.
+    end
 
     # This function only exists as a workaround for IE7's [`content:counter`
     # bug][bug]. It works identically to any other plain-CSS function, except it
