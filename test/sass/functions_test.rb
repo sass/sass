@@ -1199,7 +1199,7 @@ MSG
 
   def test_unique_id
     assert_match(/u[a-z0-9]{8}/, evaluate("unique-id()"))
-    assert evaluate("unique-id()") != evaluate("unique-id()")
+    assert_not_equal evaluate("unique-id()"), evaluate("unique-id()")
   end
 
   def test_assert_unit

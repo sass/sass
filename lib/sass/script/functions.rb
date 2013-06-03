@@ -206,7 +206,7 @@ module Sass::Script
   #         assert_type string, :String
   #         Sass::Script::Value::String.new(string.value.reverse)
   #       end
-  #       declare :reverse, :args => [:string]
+  #       declare :reverse, [:string]
   #     end
   #
   # Calling {declare} tells Sass the argument names for your function.
@@ -1656,19 +1656,17 @@ module Sass::Script
     end
     declare :if, [:condition, :if_true, :if_false]
 
-    # Returns a unique string that is a legal CSS identifiers.
-    # The unique value returned is only guaranteed to be unique within the scope
-    # of a singe CSS file's output.
+    # Returns a unique unquoted string that is a legal CSS identifier. The
+    # identifier returned is only guaranteed to be unique within the scope of a
+    # single Sass run.
     def unique_id
-      Thread.current[:sass_last_unique_id] ||= begin
-                                                 min = 78364164096  # 10000000 in base 36
-                                                 max = 156728328192 # 20000000 in base 36
-                                                 range = max - min
-                                                 rand(max - min) + min
-                                               end
-      value = (Thread.current[:sass_last_unique_id] += rand(10)) # avoid the temptation of trying to guess the next unique value.
-      Sass::Script::String.new("u"+value.to_s(36)) # the u makes this a legal identifier if it starts with a number.
+      Thread.current[:sass_last_unique_id] ||= rand(36**8)
+      # avoid the temptation of trying to guess the next unique value.
+      value = (Thread.current[:sass_last_unique_id] += rand(10))
+      # the u makes this a legal identifier if it would otherwise start with a number.
+      Sass::Script::String.new("u" + value.to_s(36).rjust(8, '0'))
     end
+    declare :unique_id, []
 
     # This function only exists as a workaround for IE7's [`content:counter`
     # bug][bug]. It works identically to any other plain-CSS function, except it
