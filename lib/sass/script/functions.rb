@@ -1662,7 +1662,7 @@ module Sass::Script
     def unique_id
       Thread.current[:sass_last_unique_id] ||= rand(36**8)
       # avoid the temptation of trying to guess the next unique value.
-      value = (Thread.current[:sass_last_unique_id] += rand(10))
+      value = (Thread.current[:sass_last_unique_id] += (rand(10) + 1))
       # the u makes this a legal identifier if it would otherwise start with a number.
       Sass::Script::String.new("u" + value.to_s(36).rjust(8, '0'))
     end

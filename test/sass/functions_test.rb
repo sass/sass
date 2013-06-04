@@ -1198,8 +1198,13 @@ MSG
   end
 
   def test_unique_id
-    assert_match(/u[a-z0-9]{8}/, evaluate("unique-id()"))
-    assert_not_equal evaluate("unique-id()"), evaluate("unique-id()")
+    last_id, current_id = nil, evaluate("unique-id()")
+
+    50.times do
+      last_id, current_id = current_id, evaluate("unique-id()")
+      assert_match(/u[a-z0-9]{8}/, current_id)
+      assert_not_equal last_id, current_id
+    end
   end
 
   def test_assert_unit
