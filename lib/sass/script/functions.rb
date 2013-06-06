@@ -1617,7 +1617,7 @@ module Sass::Script
       if index
         Sass::Script::Value::Number.new(index + 1)
       else
-        Sass::Script::Value::Bool.new(false)
+        Sass::Script::Value::Bool::FALSE
       end
     end
     declare :index, [:list, :value]
