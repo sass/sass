@@ -56,4 +56,20 @@ class ValueHelpersTest < Test::Unit::TestCase
       hex_color("FF007F", 50)
     end
   end
+
+  def test_hsl_color_without_alpha
+    no_alpha = hsl_color(1, 0.5, 1)
+    assert_equal 1, no_alpha.hue
+    assert_equal 0.5, no_alpha.saturation
+    assert_equal 1, no_alpha.lightness
+    assert_equal 1, no_alpha.alpha
+  end
+
+  def test_hsl_color_with_alpha
+    has_alpha = hsl_color(1, 0.5, 1, 0.5)
+    assert_equal 1, has_alpha.hue
+    assert_equal 0.5, has_alpha.saturation
+    assert_equal 1, has_alpha.lightness
+    assert_equal 0.5, has_alpha.alpha
+  end
 end
