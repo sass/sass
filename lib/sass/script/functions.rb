@@ -1,3 +1,5 @@
+require 'sass/script/value/helpers'
+
 module Sass::Script
   # Methods in this module are accessible from the SassScript context.
   # For example, you can write
@@ -373,6 +375,7 @@ module Sass::Script
     # are available to use in functions.
     class EvaluationContext
       include Functions
+      include Value::Helpers
 
       # The human-readable names for [Sass::Script::Value::Base]. The default is
       # just the downcased name of the type. The default is the downcased type
@@ -1494,7 +1497,7 @@ module Sass::Script
     def comparable(number_1, number_2)
       assert_type number_1, :Number, :number_1
       assert_type number_2, :Number, :number_2
-      Sass::Script::Value::Bool.new(number_1.comparable_to?(number_2))
+      bool(number_1.comparable_to?(number_2))
     end
     declare :comparable, [:number_1, :number_2]
 
@@ -1803,7 +1806,7 @@ module Sass::Script
       if index
         Sass::Script::Value::Number.new(index + 1)
       else
-        Sass::Script::Value::Bool::FALSE
+        bool(false)
       end
     end
     declare :index, [:list, :value]
