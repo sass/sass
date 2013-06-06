@@ -977,6 +977,12 @@ MSG
     assert_equal("null", evaluate("type-of(null)"))
   end
 
+  def test_sass_supports
+    assert_equal("true", evaluate("sass-supports(sourcemaps)"))
+    assert_equal("false", evaluate("sass-supports(whatisthisidontevenknow)"))
+    assert_equal("true", evaluate("sass-supports($feature: sourcemaps)"))
+  end
+
   def test_unit
     assert_equal(%Q{""}, evaluate("unit(100)"))
     assert_equal(%Q{"px"}, evaluate("unit(100px)"))

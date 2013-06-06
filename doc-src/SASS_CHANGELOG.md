@@ -59,6 +59,10 @@ Thanks to Alexander Pavlov for implementing this.
 * Add a function \{Sass::Script::Function#unique\_id `unique-id()`} that will
   return a CSS identifier that is unique within the scope of a single CSS file.
 
+* You can now detect the presence of a Sass feature using the new function
+  `sass-supports($feature)`. For now, `sass-supports(sourcemaps)` is the
+  only value for which the function returns true.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector

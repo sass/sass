@@ -1318,6 +1318,19 @@ module Sass::Script
     end
     declare :type_of, [:value]
 
+    # Returns true if the feature name specified exists in this version of Sass.
+    #
+    # @example
+    #   sass-supports(sourcemaps) => true
+    #   sass-supports(whatisthisidontknow) => false
+    # @param feature [Sass::Script::Value::String] The name of the feature to check
+    # @return [Sass::Script::Value::Bool] Whether the feature is supported in this version of Sass.
+    def sass_supports(feature)
+      Sass::Script::Value::Bool.new(Sass.has_feature?(feature.value))
+    end
+    declare :sass_supports, [:feature]
+
+
     # Inspects the unit of the number, returning it as a quoted string.
     # Complex units are sorted in alphabetical order by numerator and denominator.
     #
