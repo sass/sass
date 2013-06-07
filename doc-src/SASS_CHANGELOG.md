@@ -12,6 +12,8 @@
 
 * Preserve the `!` in `/*! ... */`-style comments.
 
+* Fix a bug where selectors were being incorrectly trimmed when using `@extend`.
+
 ## 3.2.9
 
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated

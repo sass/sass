@@ -1172,6 +1172,43 @@ SCSS
 
   # Regression Tests
 
+  def test_nested_sibling_extend
+    assert_equal <<CSS, render(<<SCSS)
+.parent .bar, .parent .foo {
+  width: 2000px; }
+CSS
+.foo {@extend .bar}
+
+.parent {
+  .bar {
+    width: 2000px;
+  }
+  .foo {
+    @extend .bar
+  }
+}
+SCSS
+  end
+
+  def test_parent_and_sibling_extend
+    assert_equal <<CSS, render(<<SCSS)
+.parent1 .parent2 .child1.child2, .parent2 .parent1 .child1.child2 {
+  c: d; }
+CSS
+%foo %bar%baz {c: d}
+
+.parent1 {
+  @extend %foo;
+  .child1 {@extend %bar}
+}
+
+.parent2 {
+  @extend %foo;
+  .child2 {@extend %baz}
+}
+SCSS
+  end
+
   def test_nested_extend_specificity
     assert_equal <<CSS, render(<<SCSS)
 a :b, a :b:c {
