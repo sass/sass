@@ -70,7 +70,7 @@ and indentation instead of braces.
 However, there are some cases where there are differences or subtleties,
 which are detailed below.
 
-## Property Synax
+## Property Syntax
 
 The indented syntax supports two ways of declaring CSS properties.
 The first is just like CSS, except without the semicolon.
