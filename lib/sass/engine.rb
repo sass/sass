@@ -352,7 +352,7 @@ ERR
       compressed = @options[:style] == :compressed
       rendered << "\n" if rendered[-1] != ?\n
       rendered << "\n" unless compressed
-      rendered << "/*@ sourceMappingURL="
+      rendered << "/*# sourceMappingURL="
       rendered << Sass::Util.escape_uri(sourcemap_uri)
       rendered << " */"
       rendered = encode_and_set_charset(rendered)
