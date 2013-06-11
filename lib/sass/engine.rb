@@ -269,7 +269,7 @@ module Sass
     # Render the template to CSS and return the source map.
     #
     # @param sourcemap_uri [String] The sourcemap URI to use in the
-    #   `@sourceMappingURL` comment. If this is relative, it should be relative
+    #   `#sourceMappingURL` comment. If this is relative, it should be relative
     #   to the location of the CSS file.
     # @return [(String, Sass::Source::Map)] The rendered CSS and the associated
     #   source map
