@@ -269,7 +269,7 @@ module Sass
     # Render the template to CSS and return the source map.
     #
     # @param sourcemap_uri [String] The sourcemap URI to use in the
-    #   `@sourceMappingURL` comment. If this is relative, it should be relative
+    #   `#sourceMappingURL` comment. If this is relative, it should be relative
     #   to the location of the CSS file.
     # @return [(String, Sass::Source::Map)] The rendered CSS and the associated
     #   source map
@@ -352,7 +352,7 @@ ERR
       compressed = @options[:style] == :compressed
       rendered << "\n" if rendered[-1] != ?\n
       rendered << "\n" unless compressed
-      rendered << "/*@ sourceMappingURL="
+      rendered << "/*# sourceMappingURL="
       rendered << Sass::Util.escape_uri(sourcemap_uri)
       rendered << " */"
       rendered = encode_and_set_charset(rendered)

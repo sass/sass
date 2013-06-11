@@ -24,7 +24,7 @@ a {
   /* SOME COMMENT */
   font-size: 12px; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -47,7 +47,7 @@ a {
   /* SOME COMMENT */
   font-size: 12px; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -72,7 +72,7 @@ a {
   /* SOME COMMENT */
   font-size: 12px; }
 
-/*@ sourceMappingURL=style.css.map */
+/*# sourceMappingURL=style.css.map */
 CSS
 {
 "version": "3",
@@ -96,7 +96,7 @@ a {
   /* SOME COMMENT */
   font-size: 12px; }
 
-/*@ sourceMappingURL=style.css.map */
+/*# sourceMappingURL=style.css.map */
 CSS
 {
 "version": "3",
@@ -118,7 +118,7 @@ SCSS
 a {
   fóó: bár; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -138,7 +138,7 @@ SASS
 a {
   fóó: bár; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -160,7 +160,7 @@ SCSS
 f\x86\x86 {
   \x86: b; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -181,7 +181,7 @@ SASS
 f\x86\x86 {
   \x86: b; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
 {
 "version": "3",
@@ -203,7 +203,7 @@ SCSS
 {{3}}@import url(bar){{/3}};
 {{4}}@import url(baz) screen print{{/4}};
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -219,7 +219,7 @@ SASS
 {{4}}@import url(baz.css){{/4}};
 {{5}}@import url(qux.css) screen print{{/5}};
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -235,7 +235,7 @@ SCSS
   {{2}}body{{/2}} {
     {{3}}max-width{{/3}}: {{4}}1070px{{/4}}; } }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -249,7 +249,7 @@ SASS
   {{2}}body{{/2}} {
     {{3}}max-width{{/3}}: {{4}}1070px{{/4}}; } }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -279,7 +279,7 @@ SCSS
   {{7}}border-color{{/7}}: {{8}}blue{{/8}};
   {{9}}font{{/9}}: {{10}}12px/30px{{/10}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -307,7 +307,7 @@ SASS
   {{7}}border-color{{/7}}: {{8}}blue{{/8}};
   {{9}}font{{/9}}: {{10}}12px/30px{{/10}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -355,7 +355,7 @@ SCSS
     {{22}}color{{/22}}: {{23}}#050709{{/23}};
     {{24}}border{{/24}}: {{25}}2px solid black{{/25}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -398,7 +398,7 @@ SASS
     {{22}}color{{/22}}: {{23}}#050709{{/23}};
     {{24}}border{{/24}}: {{25}}2px solid black{{/25}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -420,7 +420,7 @@ SCSS
 {{6}}.seriousError{{/6}} {
   {{7}}border-width{{/7}}: {{8}}3px{{/8}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -441,7 +441,7 @@ SASS
 {{6}}.seriousError{{/6}} {
   {{7}}border-width{{/7}}: {{8}}3px{{/8}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -460,7 +460,7 @@ SCSS
 {{7}}.item-3{{/7}} {
   {{8}}width{{/8}}: {{9}}6em{{/9}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -479,7 +479,7 @@ SASS
 {{7}}.item-3{{/7}} {
   {{8}}width{{/8}}: {{9}}6em{{/9}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -500,7 +500,7 @@ SCSS
 {{7}}.item-2{{/7}} {
   {{8}}width{{/8}}: {{9}}4em{{/9}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -521,7 +521,7 @@ SASS
 {{7}}.item-2{{/7}} {
   {{8}}width{{/8}}: {{9}}4em{{/9}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -545,7 +545,7 @@ SCSS
 {{10}}.salamander-icon{{/10}} {
   {{11}}background-image{{/11}}: {{12}}url("/images/salamander.png"){{/12}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -567,7 +567,7 @@ SASS
 {{10}}.salamander-icon{{/10}} {
   {{11}}background-image{{/11}}: {{12}}url("/images/salamander.png"){{/12}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -628,7 +628,7 @@ SCSS
   {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666666, 2px 6px 10px #999999{{/28}};
   {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666666, 2px 6px 10px #999999{{/30}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -685,7 +685,7 @@ SASS
   {{27}}-webkit-box-shadow{{/27}}: {{28}}0px 4px 5px #666666, 2px 6px 10px #999999{{/28}};
   {{29}}box-shadow{{/29}}: {{30}}0px 4px 5px #666666, 2px 6px 10px #999999{{/30}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
 end
 
@@ -702,7 +702,7 @@ SCSS
 {{1}}sidebar{{/1}} {
   {{2}}width{{/2}}: {{3}}120px{{/3}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -720,7 +720,7 @@ SASS
 {{1}}sidebar{{/1}} {
   {{2}}width{{/2}}: {{3}}120px{{/3}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
@@ -740,7 +740,7 @@ SASS
   {{6}}name{{/6}}: {{7}}value{{/7}};
   {{8}}name{{/8}}: {{9}}value{{/9}}; }
 
-/*@ sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.css.map */
 CSS
   end
 
