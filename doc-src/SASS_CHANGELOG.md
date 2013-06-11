@@ -60,8 +60,9 @@ Thanks to Alexander Pavlov for implementing this.
   return a CSS identifier that is unique within the scope of a single CSS file.
 
 * You can now detect the presence of a Sass feature using the new function
-  `sass-supports($feature)`. For now, `sass-supports(sourcemaps)` is the
-  only value for which the function returns true.
+  `sass-supports($feature-name)`. There are no detectable features in this
+  release, this is provided so that subsequent releases can begin to
+  use it.
 
 ### Backwards Incompatibilities -- Must Read!
 

@@ -7,7 +7,6 @@ module Sass
 
     # This is the set of features that can be detected.
     KNOWN_FEATURES = Set[*%w{
-      sourcemaps
     }]
 
     # Check if a feature exists by name. This is used to implement
