@@ -62,7 +62,10 @@ Thanks to Alexander Pavlov for implementing this.
 * You can now detect the presence of a Sass feature using the new function
   `sass-supports($feature-name)`. There are no detectable features in this
   release, this is provided so that subsequent releases can begin to
-  use it.
+  use it. Additionally, plugins can now expose their functionality
+  through `sass-supports` by calling `Sass.add_feature(feature_name)`. Features
+  exposed by plugins must begin with a dash to distinguish them from
+  official features.
 
 ### Backwards Incompatibilities -- Must Read!
 

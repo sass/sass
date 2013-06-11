@@ -978,10 +978,13 @@ MSG
   end
 
   def test_sass_supports
-    Sass::Features::KNOWN_FEATURES << "my-test-feature"
-    assert_equal("true", evaluate("sass-supports(my-test-feature)"))
+    assert_raises ArgumentError do
+      Sass.add_feature("my-test-feature")
+    end
+    Sass.add_feature("-my-test-feature")
+    assert_equal("true", evaluate("sass-supports(-my-test-feature)"))
     assert_equal("false", evaluate("sass-supports(whatisthisidontevenknow)"))
-    assert_equal("true", evaluate("sass-supports($feature: my-test-feature)"))
+    assert_equal("true", evaluate("sass-supports($feature: -my-test-feature)"))
   end
 
   def test_unit

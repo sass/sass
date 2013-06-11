@@ -19,6 +19,26 @@ module Sass
     def has_feature?(feature_name)
       KNOWN_FEATURES.include?(feature_name)
     end
+
+    # Add a feature to Sass. Plugins can use this to easily expose their
+    # availability to end users. Plugins must prefix their feature
+    # names with a dash to distinguish them from official features.
+    #
+    # @example
+    #   Sass.add_feature("-import-globbing")
+    #   Sass.add_feature("-math-cos")
+    #
+    #
+    # @param feature_name [String] The case sensitive name of the feature to
+    #        check if it exists in this version of Sass. Must begin with a dash.
+    #
+    # @return [Boolean] whether the feature of that name exists.
+    def add_feature(feature_name)
+      unless feature_name[0] == ?-
+        raise ArgumentError.new("Plugin feature names must begin with a dash")
+      end
+      KNOWN_FEATURES << feature_name
+    end
   end
 
   extend Features
