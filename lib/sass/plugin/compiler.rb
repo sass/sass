@@ -224,13 +224,13 @@ module Sass::Plugin
 
       require 'listen'
 
-      directories = load_paths.map{|location| File.expand_path(location) }
+      directories = load_paths.map {|location| File.expand_path(location) }
       individual_files.each do |(source, target, _)|
         dir = File.dirname(File.expand_path(source))
         # no need to add a directory that is already watched.
         next if directories.any? {|d| dir[0...(d.size)] == d}
         # get rid of any sub directories of this new directory
-        directories.reject!{|d| d[0...(dir.size)] == dir}
+        directories.reject! {|d| d[0...(dir.size)] == dir}
         directories << dir
       end
 
@@ -251,7 +251,7 @@ module Sass::Plugin
         end
 
         removed.each do |f|
-          if files = individual_files.detect{|(source,target,_)| File.expand_path(source) == f }
+          if files = individual_files.find {|(source,target,_)| File.expand_path(source) == f }
             a_sass_file_changed = true
             # This was a file we were watching explicitly and compiling to a particular location.
             # Delete the corresponding file.
@@ -274,8 +274,8 @@ module Sass::Plugin
         end
 
         if a_sass_file_changed
-          # In case a file we're watching is removed and then recreated we prune out the non-existance files here.
-          watched_files_remaining = individual_files.select{|(source, target, _)| File.exists?(source)}
+          # In case a file we're watching is removed and then recreated we prune out the non-existant files here.
+          watched_files_remaining = individual_files.select {|(source, target, _)| File.exists?(source)}
           update_stylesheets(watched_files_remaining)
         end
       end

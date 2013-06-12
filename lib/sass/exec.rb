@@ -197,7 +197,6 @@ MESSAGE
       def initialize(args)
         super
         @options[:for_engine] = {
-          # The select here prevents errors when the environment's load paths specified do not exist.
           :load_paths => default_sass_path
         }
         @default_syntax = :sass
@@ -510,7 +509,8 @@ MSG
 
       def default_sass_path
         if ENV['SASSPATH']
-          ENV['SASSPATH'].split(File::PATH_SEPARATOR).select{|d| File.directory?(d)}
+          # The select here prevents errors when the environment's load paths specified do not exist.
+          ENV['SASSPATH'].split(File::PATH_SEPARATOR).select {|d| File.directory?(d)}
         else
           [::Sass::Importers::DeprecatedPath.new(".")]
         end
