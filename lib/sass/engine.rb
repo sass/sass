@@ -191,6 +191,14 @@ module Sass
         options[:filesystem_importer].new(p.to_s)
       end
 
+      # Remove any deprecated importers if the location is imported explicitly
+      options[:load_paths].reject! do |importer|
+        importer.is_a?(Sass::Importers::DeprecatedPath) &&
+          options[:load_paths].find {|other_importer| other_importer.is_a?(Sass::Importers::Filesystem) &&
+                                                      other_importer != importer &&
+                                                      other_importer.root == importer.root}
+      end
+
       # Backwards compatibility
       options[:property_syntax] ||= options[:attribute_syntax]
       case options[:property_syntax]
