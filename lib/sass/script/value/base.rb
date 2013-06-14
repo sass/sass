@@ -158,6 +158,18 @@ MSG
       Sass::Script::Value::String.new("/#{self.to_s}")
     end
 
+    # Returns the hash code of this value. Two objects' hash codes should be
+    # equal if the objects are equal.
+    #
+    # @return [Fixnum] The hash code.
+    def hash
+      value.hash
+    end
+
+    def eql?(other)
+      self == other
+    end
+
     # @return [String] A readable representation of the value
     def inspect
       value.inspect

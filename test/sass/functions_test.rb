@@ -975,6 +975,10 @@ MSG
     assert_equal("color", evaluate("type-of(#fff)"))
     assert_equal("color", evaluate("type-of($value: #fff)"))
     assert_equal("null", evaluate("type-of(null)"))
+    assert_equal("list", evaluate("type-of(1 2 3)"))
+    assert_equal("list", evaluate("type-of((1, 2, 3))"))
+    assert_equal("list", evaluate("type-of(())"))
+    assert_equal("map", evaluate("type-of((foo: bar))"))
   end
 
   def test_feature_exists

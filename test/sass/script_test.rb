@@ -492,6 +492,47 @@ SASS
     assert_equal "1 2 3", resolve("null 1 2 3")
   end
 
+  def test_map_cannot_have_duplicate_keys
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key "foo" in map (foo: bar, foo: baz).') do
+      eval("(foo: bar, foo: baz)")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key "foo" in map (foo: bar, fo + o: baz).') do
+      eval("(foo: bar, fo + o: baz)")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key "foo" in map (foo: bar, "foo": baz).') do
+      eval("(foo: bar, 'foo': baz)")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key 2px in map (2px: bar, 1px + 1px: baz).') do
+      eval("(2px: bar, 1px + 1px: baz)")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Duplicate key #0000ff in map (blue: bar, blue: baz).') do
+      eval("(blue: bar, #00f: baz)")
+    end
+  end
+
+  def test_non_duplicate_map_keys
+    # These shouldn't throw errors
+    eval("(foo: foo, bar: bar)")
+    eval("(2px: foo, 2: bar)")
+    eval("(2px: foo, 2em: bar)")
+    eval("('2px': foo, 2px: bar)")
+  end
+
+  def test_map_syntax_errors
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "(foo:": expected expression (e.g. 1px, bold), was ")"') do
+      eval("(foo:)")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "(": expected ")", was ":bar)"') do
+      eval("(:bar)")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "(foo, bar": expected ")", was ": baz)"') do
+      eval("(foo, bar: baz)")
+    end
+    assert_raise_message(Sass::SyntaxError, 'Invalid CSS after "(foo: bar, baz": expected ":", was ")"') do
+      eval("(foo: bar, baz)")
+    end
+  end
+
   def test_deep_argument_error_not_unwrapped
     # JRuby (as of 1.6.7.2) offers no way of distinguishing between
     # argument errors caused by programming errors in a function and

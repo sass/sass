@@ -36,6 +36,10 @@ module Sass::Script::Value
         self.separator == other.separator)
     end
 
+    def hash
+      @hash ||= [value, separator].hash
+    end
+
     # @see Value#to_s
     def to_s(opts = {})
       raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
