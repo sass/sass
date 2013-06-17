@@ -1481,7 +1481,9 @@ module Sass::Script
     # Gets the nth item in a list.
     #
     # Note that unlike some languages, the first item in a Sass list is number 1,
-    # the second number 2, and so forth.
+    # the second number 2, and so forth. You can also use negative numbers to
+    # count from the end of the list. So -1 is the last item, -2 is the
+    # second-to-last item, etc.
     #
     # @example
     #   nth(10px 20px 30px, 1) => 10px
