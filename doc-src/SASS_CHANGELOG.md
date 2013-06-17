@@ -59,6 +59,8 @@ Thanks to Alexander Pavlov for implementing this.
 * Add a function \{Sass::Script::Function#unique\_id `unique-id()`} that will
   return a CSS identifier that is unique within the scope of a single CSS file.
 
+* Allow negative indices into lists when using `nth()`.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
