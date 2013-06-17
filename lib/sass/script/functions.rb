@@ -1481,28 +1481,30 @@ module Sass::Script
     # Gets the nth item in a list.
     #
     # Note that unlike some languages, the first item in a Sass list is number 1,
-    # the second number 2, and so forth.
+    # the second number 2, and so forth. You can also use negative numbers to
+    # count from the end of the list. So -1 is the last item, -2 is the
+    # second-to-last item, etc.
     #
     # @example
     #   nth(10px 20px 30px, 1) => 10px
     #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
+    #   nth((red, green, blue), -2) => green
     # @param list [Value] The list
     # @param n [Sass::Script::Value::Number] The index into the list
     # @return [Sass::Script::Value::Base] The nth item in the list
-    # @raise [ArgumentError] If `n` isn't an integer between 1 and the list's length.
+    # @raise [ArgumentError] If `n` isn't an integer whose absolute value is between 1 and the list's length.
     def nth(list, n)
       assert_type n, :Number
-      if !n.int?
-        raise ArgumentError.new("List index #{n} must be an integer")
-      elsif n.to_i < 1
-        raise ArgumentError.new("List index #{n} must be greater than or equal to 1")
+      if !n.int? || n.to_i == 0
+        raise ArgumentError.new("List index #{n} must be a non-zero integer")
       elsif list.to_a.size == 0
         raise ArgumentError.new("List index is #{n} but list has no items")
-      elsif n.to_i > (size = list.to_a.size)
+      elsif n.to_i.abs > (size = list.to_a.size)
         raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
       end
 
-      list.to_a[n.to_i - 1]
+      index = n.to_i > 0 ? n.to_i - 1 : n.to_i
+      list.to_a[index]
     end
     declare :nth, [:list, :n]
 
