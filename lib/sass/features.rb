@@ -14,7 +14,6 @@ module Sass
     #
     # @param feature_name [String] The case sensitive name of the feature to
     #        check if it exists in this version of Sass.
-    #
     # @return [Boolean] whether the feature of that name exists.
     def has_feature?(feature_name)
       KNOWN_FEATURES.include?(feature_name)
@@ -30,9 +29,7 @@ module Sass
     #
     #
     # @param feature_name [String] The case sensitive name of the feature to
-    #        check if it exists in this version of Sass. Must begin with a dash.
-    #
-    # @return [Boolean] whether the feature of that name exists.
+    #        to add to Sass. Must begin with a dash.
     def add_feature(feature_name)
       unless feature_name[0] == ?-
         raise ArgumentError.new("Plugin feature names must begin with a dash")
