@@ -1318,19 +1318,18 @@ module Sass::Script
     end
     declare :type_of, [:value]
 
-    # Returns true if the feature name specified exists in this version of Sass.
+    # Returns true if the feature name specified exists in the current Sass runtime.
     #
     # @example
-    #   sass-supports(some-feature-that-exists) => true
-    #   sass-supports(what-is-this-i-dont-know) => false
+    #   feature-exists(some-feature-that-exists) => true
+    #   feature-exists(what-is-this-i-dont-know) => false
     #
     # @param feature [Sass::Script::Value::String] The name of the feature to check
-    #
     # @return [Sass::Script::Value::Bool] Whether the feature is supported in this version of Sass.
-    def sass_supports(feature)
+    def feature_exists(feature)
       Sass::Script::Value::Bool.new(Sass.has_feature?(feature.value))
     end
-    declare :sass_supports, [:feature]
+    declare :feature_exists, [:feature]
 
 
     # Inspects the unit of the number, returning it as a quoted string.

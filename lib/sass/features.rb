@@ -10,7 +10,7 @@ module Sass
     }]
 
     # Check if a feature exists by name. This is used to implement
-    # the Sass function `sass-supports($feature)`
+    # the Sass function `feature-exists($feature)`
     #
     # @param feature_name [String] The case sensitive name of the feature to
     #        check if it exists in this version of Sass.

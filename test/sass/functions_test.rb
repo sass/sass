@@ -977,14 +977,14 @@ MSG
     assert_equal("null", evaluate("type-of(null)"))
   end
 
-  def test_sass_supports
+  def test_feature_exists
     assert_raises ArgumentError do
       Sass.add_feature("my-test-feature")
     end
     Sass.add_feature("-my-test-feature")
-    assert_equal("true", evaluate("sass-supports(-my-test-feature)"))
-    assert_equal("false", evaluate("sass-supports(whatisthisidontevenknow)"))
-    assert_equal("true", evaluate("sass-supports($feature: -my-test-feature)"))
+    assert_equal("true", evaluate("feature-exists(-my-test-feature)"))
+    assert_equal("false", evaluate("feature-exists(whatisthisidontevenknow)"))
+    assert_equal("true", evaluate("feature-exists($feature: -my-test-feature)"))
   end
 
   def test_unit
