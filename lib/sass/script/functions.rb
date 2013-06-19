@@ -176,6 +176,9 @@ module Sass::Script
   #
   # ## Introspection Functions
   #
+  # \{#feature_exists feature-exists($feature)}
+  # : Returns whether the named feature exists in the current sass runtime.
+  #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
