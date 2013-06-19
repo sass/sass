@@ -985,6 +985,8 @@ MSG
     assert_equal("true", evaluate("feature-exists(-my-test-feature)"))
     assert_equal("false", evaluate("feature-exists(whatisthisidontevenknow)"))
     assert_equal("true", evaluate("feature-exists($feature: -my-test-feature)"))
+  ensure
+    Sass::Features::KNOWN_FEATURES.delete("-my-test-feature")
   end
 
   def test_unit
