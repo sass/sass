@@ -59,6 +59,8 @@ Thanks to Alexander Pavlov for implementing this.
 * Add a function \{Sass::Script::Function#unique\_id `unique-id()`} that will
   return a CSS identifier that is unique within the scope of a single CSS file.
 
+* Allow negative indices into lists when using `nth()`.
+
 * You can now detect the presence of a Sass feature using the new function
   `feature-exists($feature-name)`. There are no detectable features in this
   release, this is provided so that subsequent releases can begin to
@@ -115,6 +117,8 @@ Thanks to Alexander Pavlov for implementing this.
   doesn't end prematurely.
 
 * Preserve the `!` in `/*! ... */`-style comments.
+
+* Fix a bug where selectors were being incorrectly trimmed when using `@extend`.
 
 ## 3.2.9
 

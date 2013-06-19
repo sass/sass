@@ -192,7 +192,7 @@ module Sass::Script::Value
     # @param other [Value] The right-hand side of the operator
     # @return [Boolean] Whether this number is equal to the other object
     def eq(other)
-      return Sass::Script::Value::Bool.new(false) unless other.is_a?(Sass::Script::Value::Number)
+      return Bool::FALSE unless other.is_a?(Sass::Script::Value::Number)
       this = self
       begin
         if unitless?
@@ -201,10 +201,9 @@ module Sass::Script::Value
           other = other.coerce(@numerator_units, @denominator_units)
         end
       rescue Sass::UnitConversionError
-        return Sass::Script::Value::Bool.new(false)
+        return Bool::FALSE
       end
-
-      Sass::Script::Value::Bool.new(this.value == other.value)
+      Bool.new(this.value == other.value)
     end
 
     # The SassScript `>` operation.
