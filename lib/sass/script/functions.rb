@@ -176,6 +176,9 @@ module Sass::Script
   #
   # ## Introspection Functions
   #
+  # \{#feature_exists feature-exists($feature)}
+  # : Returns whether the named feature exists in the current sass runtime.
+  #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
@@ -1317,6 +1320,20 @@ module Sass::Script
       Sass::Script::Value::String.new(value.class.name.gsub(/Sass::Script::Value::/,'').downcase)
     end
     declare :type_of, [:value]
+
+    # Returns true if the feature name specified exists in the current Sass runtime.
+    #
+    # @example
+    #   feature-exists(some-feature-that-exists) => true
+    #   feature-exists(what-is-this-i-dont-know) => false
+    #
+    # @param feature [Sass::Script::Value::String] The name of the feature to check
+    # @return [Sass::Script::Value::Bool] Whether the feature is supported in this version of Sass.
+    def feature_exists(feature)
+      Sass::Script::Value::Bool.new(Sass.has_feature?(feature.value))
+    end
+    declare :feature_exists, [:feature]
+
 
     # Inspects the unit of the number, returning it as a quoted string.
     # Complex units are sorted in alphabetical order by numerator and denominator.

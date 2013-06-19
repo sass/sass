@@ -61,6 +61,14 @@ Thanks to Alexander Pavlov for implementing this.
 
 * Allow negative indices into lists when using `nth()`.
 
+* You can now detect the presence of a Sass feature using the new function
+  `feature-exists($feature-name)`. There are no detectable features in this
+  release, this is provided so that subsequent releases can begin to
+  use it. Additionally, plugins can now expose their functionality
+  through `feature-exists` by calling `Sass.add_feature(feature_name)`. Features
+  exposed by plugins must begin with a dash to distinguish them from
+  official features.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
