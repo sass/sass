@@ -433,11 +433,7 @@ MSG
         ::Sass::Plugin.on_updated_stylesheet do |_, css, sourcemap|
           [css, sourcemap].each do |file|
             next unless file
-            if File.exists? file
-              puts_action :overwrite, :yellow, file
-            else
-              puts_action :create, :green, file
-            end
+            puts_action :write, :green, file
           end
         end
 
