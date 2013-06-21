@@ -205,7 +205,7 @@ module Sass::Script::Tree
         return args 
       end
 
-      args = args + signature.args[args.size..-1].map do |argname|
+      args = args + (signature.args[args.size..-1] || []).map do |argname|
         if keywords.has_key?(argname)
           keywords.delete(argname)
         else

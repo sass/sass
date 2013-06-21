@@ -192,6 +192,9 @@ module Sass::Script
   # \{#comparable comparable($number-1, $number-2)}
   # : Returns whether two numbers can be added, subtracted, or compared.
   #
+  # \{#call call($name, $args...)}
+  # : Dynamically calls a Sass function.
+  #
   # ## Miscellaneous Functions
   #
   # \{#if if($condition, $if-true, $if-false)}
@@ -1781,6 +1784,33 @@ module Sass::Script
       Sass::Script::String.new("u" + value.to_s(36).rjust(8, '0'))
     end
     declare :unique_id, []
+
+    # Dynamically calls a function. This can call user-defined
+    # functions, built-in functions, or plain CSS functions. It will
+    # pass along all arguments, including keyword arguments, to the
+    # called function.
+    #
+    # @example
+    #   call(rgb, 10, 100, 255) => #0a64ff
+    #   call(scale-color, #0a64ff, $lightness: -10%) => #0058ef
+    #
+    #   $fn: nth;
+    #   call($fn, 2, (a b c)) => b
+    #
+    # @overload call($name, $args...)
+    # @param $name [String] The name of the function to call.
+    def call(name, *args)
+      assert_type name, :String, :name
+      kwargs = args.last.is_a?(Hash) ? args.pop : {}
+      funcall = Sass::Script::Tree::Funcall.new(
+        name.value,
+        args.map {|a| Sass::Script::Tree::Literal.new(a)},
+        Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
+        nil)
+      funcall.options = options
+      funcall.perform(environment)
+    end
+    declare :call, [:name], :var_args => true, :var_kwargs => true
 
     # This function only exists as a workaround for IE7's [`content:counter`
     # bug](http://jes.st/2013/ie7s-css-breaking-content-counter-bug/).

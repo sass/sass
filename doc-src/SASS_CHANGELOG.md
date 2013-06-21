@@ -69,6 +69,9 @@ Thanks to Alexander Pavlov for implementing this.
   exposed by plugins must begin with a dash to distinguish them from
   official features.
 
+* You can call a function by name by passing the function name to the
+  call function. E.g. `call(nth, a b c, 2) => b`
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
