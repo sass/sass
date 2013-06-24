@@ -261,7 +261,8 @@ maps instead.
   official features.
 * The function `variable-exists($named)` can be used to check if a
   variable exists and `global-variable-exists($named)` can be used to
-  check if a global variable exists.
+  check if a global variable exists. To check if a function exists you
+  can use `function-exists($named)`.
 
 * You can call a function by name by passing the function name to the
   call function. For example, `call(nth, a b c, 2)` returns `b`.
