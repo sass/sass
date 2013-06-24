@@ -179,6 +179,9 @@ module Sass::Script
   # \{#feature_exists feature-exists($feature)}
   # : Returns whether the named feature exists in the current sass runtime.
   #
+  # \{#variable_exists variable-exists($named)}
+  # : Returns whether a variable with the given name resolves in the current scope.
+  #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
@@ -1699,6 +1702,26 @@ module Sass::Script
       Sass::Script::Value::String.new("counter(#{args.map {|a| a.to_s(options)}.join(',')})")
     end
     declare :counter, [], :var_args => true
+
+    # Check whether a variable of the given name resolves in the current
+    # scope.
+    #
+    # When this method returns false, guarded assignment (assigning a
+    # default value) to that variable name will succeed.
+    #
+    # @example
+    #   $a-false-value: false; variable-exists(a-false-value) => true
+    #   variable-exists(nonexistent) => false
+    #
+    # @param named [Sass::Script::String] The name of the variable to
+    #   check.
+    # @return [Sass::Script::Bool] Whether the variable is defined in
+    #   the current scope.
+    def variable_exists(named)
+      assert_type named, :String
+      Sass::Script::Value::Bool.new(environment.var(named.value))
+    end
+    declare :variable_exists, [:named]
 
     private
 

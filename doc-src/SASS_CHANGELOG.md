@@ -68,6 +68,8 @@ Thanks to Alexander Pavlov for implementing this.
   through `feature-exists` by calling `Sass.add_feature(feature_name)`. Features
   exposed by plugins must begin with a dash to distinguish them from
   official features.
+* The function `variable-exists($named)` can be used to check if a
+  variable exists.
 
 ### Backwards Incompatibilities -- Must Read!
 

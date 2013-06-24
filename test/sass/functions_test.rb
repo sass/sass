@@ -1255,6 +1255,12 @@ MSG
     end
   end
 
+  def test_variable_exists
+    assert_equal "false", evaluate("variable-exists(foo)")
+    assert_equal "true", evaluate("variable-exists(foo)", env("foo" => Sass::Script::Value::Null.new))
+    assert_equal "true", evaluate("variable-exists($named: foo)", env("foo" => Sass::Script::Value::Null.new))
+  end
+
   ## Regression Tests
 
   def test_saturation_bounds
