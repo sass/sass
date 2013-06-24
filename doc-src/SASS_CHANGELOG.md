@@ -260,7 +260,8 @@ maps instead.
   exposed by plugins must begin with a dash to distinguish them from
   official features.
 * The function `variable-exists($named)` can be used to check if a
-  variable exists.
+  variable exists and `global-variable-exists($named)` can be used to
+  check if a global variable exists.
 
 * You can call a function by name by passing the function name to the
   call function. For example, `call(nth, a b c, 2)` returns `b`.
