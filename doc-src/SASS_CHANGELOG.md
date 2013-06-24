@@ -259,6 +259,8 @@ maps instead.
   through `feature-exists` by calling `Sass.add_feature(feature_name)`. Features
   exposed by plugins must begin with a dash to distinguish them from
   official features.
+* The function `variable-exists($named)` can be used to check if a
+  variable exists.
 
 * You can call a function by name by passing the function name to the
   call function. For example, `call(nth, a b c, 2)` returns `b`.
