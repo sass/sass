@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/script'
+require 'mock_importer'
 
 module Sass::Script::Functions
   def no_kw_args
@@ -1271,6 +1273,25 @@ MSG
     assert_equal "false", evaluate("global-variable-exists(foo)", env({"foo" => Sass::Script::Value::Null.new}, Sass::Environment.new()))
   end
 
+  def test_function_exists
+    # built-ins
+    assert_equal "true", evaluate("function-exists(lighten)")
+    # with named argument
+    assert_equal "true", evaluate("function-exists($named: lighten)")
+    # user-defined
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  foo-exists: true;
+  bar-exists: false; }
+CSS
+@function foo() { @return "foo" }
+.test {
+  foo-exists: function-exists(foo);
+  bar-exists: function-exists(bar);
+}
+SCSS
+  end
+
 
   ## Regression Tests
 
@@ -1293,6 +1314,13 @@ MSG
 
   def perform(value, environment = env)
     Sass::Script::Parser.parse(value, 0, 0).perform(environment)
+  end
+
+  def render(sass, options = {})
+    options[:syntax] ||= :scss
+    munge_filename options
+    options[:importer] ||= MockImporter.new
+    Sass::Engine.new(sass, options).render
   end
 
   def assert_error_message(message, value)

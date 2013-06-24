@@ -185,6 +185,9 @@ module Sass::Script
   # \{#global_variable_exists global-variable-exists($named)}
   # : Returns whether a variable with the given name exists in the global scope.
   #
+  # \{#function_exists function-exists($named)}
+  # : Returns whether a function with the given name exists.
+  #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
@@ -1747,6 +1750,23 @@ module Sass::Script
     end
     declare :global_variable_exists, [:named]
 
+
+    # Check whether a function of the given name exists.
+    #
+    # @example
+    #   function-exists(lighten) => true
+    #   @function myfunc { @return "something"; } function-exists(myfunc) => true
+    #
+    # @param named [Sass::Script::String] The name of the function to
+    #   check.
+    # @return [Sass::Script::Bool] Whether the function is defined.
+    def function_exists(named)
+      assert_type named, :String
+      exists = Sass::Script::Functions.callable?(named.value.tr("-","_"))
+      exists ||= environment.function(named.value)
+      Sass::Script::Value::Bool.new(exists)
+    end
+    declare :function_exists, [:named]
 
     private
 

@@ -70,7 +70,8 @@ Thanks to Alexander Pavlov for implementing this.
   official features.
 * The function `variable-exists($named)` can be used to check if a
   variable exists and `global-variable-exists($named)` can be used to
-  check if a global variable exists.
+  check if a global variable exists. To check if a function exists you
+  can use `function-exists($named)`.
 
 ### Backwards Incompatibilities -- Must Read!
 
