@@ -182,6 +182,9 @@ module Sass::Script
   # \{#variable_exists variable-exists($named)}
   # : Returns whether a variable with the given name resolves in the current scope.
   #
+  # \{#global_variable_exists global-variable-exists($named)}
+  # : Returns whether a variable with the given name exists in the global scope.
+  #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
@@ -1722,6 +1725,28 @@ module Sass::Script
       Sass::Script::Value::Bool.new(environment.var(named.value))
     end
     declare :variable_exists, [:named]
+
+    # Check whether a variable of the given name exists in the global
+    # scope.
+    #
+    # When this method returns false, guarded assignment (assigning a
+    # default value) to that variable name will succeed.
+    #
+    # @example
+    #   $a-false-value: false; global-variable-exists(a-false-value) => true
+    #   .foo { $a-false-value: false; @if global-variable-exists(a-false-value) { /* false, doesn't run */ } }
+    #   variable-exists(nonexistent) => false
+    #
+    # @param named [Sass::Script::String] The name of the variable to
+    #   check.
+    # @return [Sass::Script::Bool] Whether the variable is defined in
+    #   the global scope.
+    def global_variable_exists(named)
+      assert_type named, :String
+      Sass::Script::Value::Bool.new(environment.global_env.var(named.value))
+    end
+    declare :global_variable_exists, [:named]
+
 
     private
 

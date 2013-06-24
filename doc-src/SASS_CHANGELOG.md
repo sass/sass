@@ -69,7 +69,8 @@ Thanks to Alexander Pavlov for implementing this.
   exposed by plugins must begin with a dash to distinguish them from
   official features.
 * The function `variable-exists($named)` can be used to check if a
-  variable exists.
+  variable exists and `global-variable-exists($named)` can be used to
+  check if a global variable exists.
 
 ### Backwards Incompatibilities -- Must Read!
 

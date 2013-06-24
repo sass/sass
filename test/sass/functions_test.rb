@@ -1261,6 +1261,17 @@ MSG
     assert_equal "true", evaluate("variable-exists($named: foo)", env("foo" => Sass::Script::Value::Null.new))
   end
 
+  def test_global_variable_exists
+    assert_equal "false", evaluate("global-variable-exists(foo)")
+    assert_equal "true", evaluate("global-variable-exists(foo)", env("foo" => Sass::Script::Value::Null.new))
+    assert_equal "true", evaluate("global-variable-exists($named: foo)", env("foo" => Sass::Script::Value::Null.new))
+    # when passed a local scope with it defined globally
+    assert_equal "true", evaluate("global-variable-exists(foo)", Sass::Environment.new(env("foo" => Sass::Script::Value::Null.new)))
+    # when passed a local scope without being defined globally
+    assert_equal "false", evaluate("global-variable-exists(foo)", env({"foo" => Sass::Script::Value::Null.new}, Sass::Environment.new()))
+  end
+
+
   ## Regression Tests
 
   def test_saturation_bounds
@@ -1268,8 +1279,8 @@ MSG
   end
 
   private
-  def env(hash = {})
-    env = Sass::Environment.new
+  def env(hash = {}, parent = nil)
+    env = Sass::Environment.new(parent)
     hash.each {|k, v| env.set_var(k, v)}
     env
   end
