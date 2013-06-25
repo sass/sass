@@ -68,10 +68,16 @@ Thanks to Alexander Pavlov for implementing this.
   through `feature-exists` by calling `Sass.add_feature(feature_name)`. Features
   exposed by plugins must begin with a dash to distinguish them from
   official features.
-* The function `variable-exists($named)` can be used to check if a
-  variable exists and `global-variable-exists($named)` can be used to
-  check if a global variable exists. To check if a function exists you
-  can use `function-exists($named)`.
+
+* It is now possible to determine the existence of different Sass
+  constructs using these new functions:
+
+  * `variable-exists($named)` check if a variable resolves in the
+    current scope.
+  * `global-variable-exists($named)` check if a global variable of the
+    given name exists.
+  * `function-exists($named)` check if a function exists.
+  * `mixin-exists($named)` check if a mixin exists.
 
 ### Backwards Incompatibilities -- Must Read!
 

@@ -188,6 +188,9 @@ module Sass::Script
   # \{#function_exists function-exists($named)}
   # : Returns whether a function with the given name exists.
   #
+  # \{#mixin_exists mixin-exists($named)}
+  # : Returns whether a mixin with the given name exists.
+  #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
@@ -1767,6 +1770,21 @@ module Sass::Script
       Sass::Script::Value::Bool.new(exists)
     end
     declare :function_exists, [:named]
+
+    # Check whether a mixin of the given name exists.
+    #
+    # @example
+    #   mixin-exists(lighten) => true
+    #   @mixin red-text { color: red; } mixin-exists(red-text) => true
+    #
+    # @param named [Sass::Script::String] The name of the mixin to
+    #   check.
+    # @return [Sass::Script::Bool] Whether the mixin is defined.
+    def mixin_exists(named)
+      assert_type named, :String
+      Sass::Script::Value::Bool.new(environment.mixin(named.value))
+    end
+    declare :mixin_exists, [:named]
 
     private
 
