@@ -1487,6 +1487,23 @@ CSS
 SCSS
   end
 
+  def test_mixin_exists
+    assert_equal "false", evaluate("mixin-exists(foo)")
+    # with named argument
+    assert_equal "false", evaluate("mixin-exists($named: foo)")
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  foo-exists: true;
+  bar-exists: false; }
+CSS
+@mixin foo() { foo: exists }
+.test {
+  foo-exists: mixin-exists(foo);
+  bar-exists: mixin-exists(bar);
+}
+SCSS
+  end
+
 
   ## Regression Tests
 
