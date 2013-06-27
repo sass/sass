@@ -47,6 +47,9 @@ if File.expand_path($0) == File.expand_path(__FILE__)
     opts.on("-w", "--wait NUMBER_OF_SECONDS", Float, "How long to wait for each script to complete (in seconds).") do |seconds|
       options[:wait_time] = seconds
     end
+    opts.on("-s", "--setup START_UP_SCRIPT", String, "A ruby script to load before starting the threads.") do |path|
+      load path
+    end
     opts.on("-c", "--[no-]clear-cache", "Clear the cache before running (default true).") do |clear|
       options[:clear_cache] = clear
     end
