@@ -35,7 +35,8 @@ if File.expand_path($0) == File.expand_path(__FILE__)
   options = {
     :threads => MultiThreadedRunner::DEFAULT_THREAD_COUNT,
     :script => nil,
-    :wait_time => MultiThreadedRunner::DEFAULT_WAIT_TIME
+    :wait_time => MultiThreadedRunner::DEFAULT_WAIT_TIME,
+    :clear_cache => true
   }
 
   parser = OptionParser.new do |opts|
@@ -46,6 +47,9 @@ if File.expand_path($0) == File.expand_path(__FILE__)
     opts.on("-w", "--wait NUMBER_OF_SECONDS", Float, "How long to wait for each script to complete (in seconds).") do |seconds|
       options[:wait_time] = seconds
     end
+    opts.on("-c", "--[no-]clear-cache", "Clear the cache before running (default true).") do |clear|
+      options[:clear_cache] = clear
+    end
     opts.on_tail("-h", "--help", "Print this message") do
       puts opts
     end
@@ -53,6 +57,11 @@ if File.expand_path($0) == File.expand_path(__FILE__)
   parser.parse!
 
   options[:script] ||= ARGV.first
+
+  if options[:clear_cache]
+    require 'fileutils'
+    FileUtils.rm_rf(".sass-cache")
+  end
 
   runner = MultiThreadedScriptRunner.new(options[:script], options[:threads])
   begin

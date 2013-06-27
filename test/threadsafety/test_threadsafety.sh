@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TEMP=`getopt hw:t:r: "$@"`
+TEMP=`getopt chw:t:r: "$@"`
 
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
@@ -10,6 +10,7 @@ RETRIES=100
 ARGLIST=
 while true; do
   case "$1" in
+    -c ) ARGLIST="$ARGLIST -c"; shift ;;
     -h ) ARGLIST="$ARGLIST -h"; shift ;;
     -w ) ARGLIST="$ARGLIST -w $2"; shift 2 ;;
     -t ) ARGLIST="$ARGLIST -t $2"; shift 2 ;;
