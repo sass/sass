@@ -4,6 +4,10 @@ module Sass::Script
   #
   # Currently only `-`, `/`, and `not` are unary operators.
   class UnaryOperation < Node
+
+    attr_reader :operator
+    attr_reader :operand
+
     # @param operand [Script::Node] The parse-tree node
     #   for the object of the operator
     # @param operator [Symbol] The operator to perform
