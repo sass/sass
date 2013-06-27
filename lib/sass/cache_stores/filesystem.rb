@@ -11,6 +11,7 @@ module Sass
 
       # @param cache_location [String] see \{#cache\_location}
       def initialize(cache_location)
+        require 'tempfile'
         @cache_location = cache_location
       end
 
@@ -36,7 +37,7 @@ module Sass
         # return if File.exists?(File.dirname(compiled_filename)) && !File.writable?(File.dirname(compiled_filename))
         # return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
         FileUtils.mkdir_p(File.dirname(compiled_filename))
-        File.open(compiled_filename, "wb") do |f|
+        atomic_create_and_write_file(compiled_filename) do |f|
           f.puts(version)
           f.puts(sha)
           f.write(contents)
@@ -46,6 +47,14 @@ module Sass
       end
 
       private
+
+      def atomic_create_and_write_file(filename)
+        tmpfile = Tempfile.new(File.basename(filename))
+        tmpfile.binmode if tmpfile.respond_to?(:binmode)
+        yield tmpfile
+        tmpfile.close
+        File.rename tmpfile.path, filename
+      end
 
       # Returns the path to a file for the given key.
       #
