@@ -5,6 +5,8 @@
 
 ## 3.2.10 (Unreleased)
 
+* Allow modulo arithmetic for numbers with units thanks to [Isaac Devine](http://www.devinesystems.co.nz)
+
 * Use the Sass logger infrastructure for `@debug` directives.
 
 * When printing a Sass error into a CSS comment, escape `*/` so the comment
