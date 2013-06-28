@@ -8,4 +8,5 @@ b {
   pt: -72pt;
   inches: 2in;
   more-inches: 3.5in;
-  mixed: 2.04167in; }
+  mixed: 2.04167in;
+  mod-with-same-units: 5px; }
