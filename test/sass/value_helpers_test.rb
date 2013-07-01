@@ -72,4 +72,43 @@ class ValueHelpersTest < Test::Unit::TestCase
     assert_equal 1, has_alpha.lightness
     assert_equal 0.5, has_alpha.alpha
   end
+
+  def test_number
+    n = number(1)
+    assert_equal 1, n.value
+    assert_equal "1", n.to_sass
+  end
+
+  def test_number_with_single_unit
+    n = number(1, "px")
+    assert_equal 1, n.value
+    assert_equal "1px", n.to_sass
+  end
+
+  def test_number_with_singal_numerator_and_denominator
+    ratio = number(1, "px/em")
+    assert_equal "1px/em", ratio.to_sass
+  end
+
+  def test_number_with_many_numerator_and_denominator_units
+    complex = number(1, "px*in/em*%")
+    assert_equal "1in*px/%*em", complex.to_sass
+  end
+
+  def test_number_with_many_numerator_and_denominator_units_with_spaces
+    complex = number(1, "px * in / em * %")
+    assert_equal "1in*px/%*em", complex.to_sass
+  end
+
+  def test_number_with_malformed_units
+    assert_raises ArgumentError do
+      number(1, "px/em/%")
+    end
+    assert_raises ArgumentError do
+      number(1, "/")
+    end
+    assert_raises ArgumentError do
+      number(1, "px/")
+    end
+  end
 end
