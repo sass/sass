@@ -134,9 +134,9 @@ module Sass
         STDOUT.flush
       end
 
-      # Same as \{Kernel.puts}, but doesn't print anything if the `--quiet` option is set.
+      # Same as `Kernel.puts`, but doesn't print anything if the `--quiet` option is set.
       #
-      # @param args [Array] Passed on to \{Kernel.puts}
+      # @param args [Array] Passed on to `Kernel.puts`
       def puts(*args)
         return if @options[:for_engine][:quiet]
         Kernel.puts(*args)

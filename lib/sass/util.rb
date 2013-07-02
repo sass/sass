@@ -235,7 +235,7 @@ module Sass
     end
 
     # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
-    # order. Unlike [#hash_to_a], the resulting order isn't sorted key order;
+    # order. Unlike {Util#hash_to_a}, the resulting order isn't sorted key order;
     # instead, it's the same order as `#group_by` has under Ruby 1.9 (key
     # appearance order).
     #
@@ -259,7 +259,7 @@ module Sass
 
     # Returns a sub-array of `minuend` containing only elements that are also in
     # `subtrahend`. Ensures that the return value has the same order as
-    # `minuend`, even on Rubinius where that's not guaranteed by {Array#-}.
+    # `minuend`, even on Rubinius where that's not guaranteed by `Array#-`.
     #
     # @param minuend [Array]
     # @param subtrahend [Array]
@@ -273,7 +273,7 @@ module Sass
     # Returns a string description of the character that caused an
     # `Encoding::UndefinedConversionError`.
     #
-    # @param [Encoding::UndefinedConversionError]
+    # @param e [Encoding::UndefinedConversionError]
     # @return [String]
     def undefined_conversion_error_char(e)
       # Rubinius (as of 2.0.0.rc1) pre-quotes the error character.

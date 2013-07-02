@@ -16,7 +16,7 @@ module Sass::Tree
     attr_accessor :query
 
     # The media query for this rule, without any unresolved interpolation. It's
-    # only set once {Tree::Node#perform} has been called.
+    # only set once {Tree::Visitors::Perform} has been run.
     #
     # @return [Sass::Media::QueryList]
     attr_accessor :resolved_query

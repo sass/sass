@@ -71,7 +71,7 @@ module Sass::Source
     # assumption that the local file system has the same layout as the server.
     #
     # If any source stylesheets use the default filesystem importer, sourcemap
-    # generation will fail unless the ``:sourcemap_path` option is specified.
+    # generation will fail unless the `:sourcemap_path` option is specified.
     # The layout of the local file system is assumed to be the same as the
     # layout of the server for the purposes of linking to source stylesheets
     # that use the filesystem importer.

@@ -19,7 +19,7 @@ require 'sass/version'
 module Sass
   # The global load paths for Sass files. This is meant for plugins and
   # libraries to register the paths to their Sass stylesheets to that they may
-  # be `@imported`. This load path is used by every instance of [Sass::Engine].
+  # be `@imported`. This load path is used by every instance of {Sass::Engine}.
   # They are lower-precedence than any load paths passed in via the
   # {file:SASS_REFERENCE.md#load_paths-option `:load_paths` option}.
   #
@@ -56,9 +56,6 @@ module Sass
 
   # Compile a file on disk to CSS.
   #
-  # @param filename [String] The path to the Sass, SCSS, or CSS file on disk.
-  # @param options [{Symbol => Object}] An options hash;
-  #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
   # @raise [Sass::SyntaxError] if there's an error in the document
   # @raise [Encoding::UndefinedConversionError] if the source encoding
   #   cannot be converted to UTF-8
@@ -67,11 +64,17 @@ module Sass
   # @overload compile_file(filename, options = {})
   #   Return the compiled CSS rather than writing it to a file.
   #
+  #   @param filename [String] The path to the Sass, SCSS, or CSS file on disk.
+  #   @param options [{Symbol => Object}] An options hash;
+  #     see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
   #   @return [String] The compiled CSS.
   #
   # @overload compile_file(filename, css_filename, options = {})
   #   Write the compiled CSS to a file.
   #
+  #   @param filename [String] The path to the Sass, SCSS, or CSS file on disk.
+  #   @param options [{Symbol => Object}] An options hash;
+  #     see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
   #   @param css_filename [String] The location to which to write the compiled CSS.
   def self.compile_file(filename, *args)
     options = args.last.is_a?(Hash) ? args.pop : {}

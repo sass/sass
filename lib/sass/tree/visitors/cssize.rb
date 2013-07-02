@@ -94,7 +94,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   end
 
   # A simple struct wrapping up information about a single `@extend` instance. A
-  # single [ExtendNode] can have multiple Extends if either the parent node or
+  # single {ExtendNode} can have multiple Extends if either the parent node or
   # the extended selector is a comma sequence.
   #
   # @attr extender [Sass::Selector::Sequence]

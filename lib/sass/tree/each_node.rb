@@ -10,7 +10,7 @@ module Sass::Tree
     attr_reader :var
 
     # The parse tree for the list.
-    # @param [Script::Tree::Node]
+    # @return [Script::Tree::Node]
     attr_accessor :list
 
     # @param var [String] The name of the loop variable

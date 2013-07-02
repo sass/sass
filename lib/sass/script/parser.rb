@@ -65,7 +65,7 @@ module Sass
       # Parses a SassScript expression,
       # ending it when it encounters one of the given identifier tokens.
       #
-      # @param [#include?(String)] A set of strings that delimit the expression.
+      # @param tokens [#include?(String)] A set of strings that delimit the expression.
       # @return [Script::Tree::Node] The root node of the parse tree
       # @raise [Sass::SyntaxError] if the expression isn't valid SassScript
       def parse_until(tokens)

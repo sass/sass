@@ -31,7 +31,7 @@ module Sass::Tree
     #   The CSS selector to extend,
     #   interspersed with {Sass::Script::Tree::Node}s
     #   representing `#{}`-interpolation.
-    # @param optional [Boolean] See \{#optional}
+    # @param optional [Boolean] See \{ExtendNode#optional?}
     # @param selector_source_range [Sass::Source::Range] The extended selector source range.
     def initialize(selector, optional, selector_source_range)
       @selector = selector

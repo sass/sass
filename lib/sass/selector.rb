@@ -21,8 +21,6 @@ module Sass
     # The base used for calculating selector specificity. The spec says this
     # should be "sufficiently high"; it's extremely unlikely that any single
     # selector sequence will contain 1,000 simple selectors.
-    #
-    # @type [Fixnum]
     SPECIFICITY_BASE = 1_000
 
     # A parent-referencing selector (`&` in Sass).
@@ -318,7 +316,7 @@ module Sass
       # @param namespace [Array<String, Sass::Script::Tree::Node>, nil] See \{#namespace}
       # @param operator [String] The matching operator, e.g. `"="` or `"^="`
       # @param value [Array<String, Sass::Script::Tree::Node>] See \{#value}
-      # @param value [Array<String, Sass::Script::Tree::Node>] See \{#flags}
+      # @param flags [Array<String, Sass::Script::Tree::Node>] See \{#flags}
       def initialize(name, namespace, operator, value, flags)
         @name = name
         @namespace = namespace
@@ -428,8 +426,8 @@ module Sass
       # @return [Selector::Sequence]
       attr_reader :selector
 
-      # @param [String] The name of the pseudoclass
-      # @param [Selector::CommaSequence] The selector argument
+      # @param name [String] The name of the pseudoclass
+      # @param selector [Selector::CommaSequence] The selector argument
       def initialize(name, selector)
         @name = name
         @selector = selector

@@ -16,7 +16,7 @@ module Sass
       # `value`: \[`Object`\]
       # : The Ruby object corresponding to the value of the token.
       #
-      # `source_range`: [`Sass::Source::Range`\]
+      # `source_range`: \[`Sass::Source::Range`\]
       # : The range in the source file in which the token appeared.
       #
       # `pos`: \[`Fixnum`\]

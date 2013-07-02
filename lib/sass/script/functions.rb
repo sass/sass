@@ -119,7 +119,7 @@ module Sass::Script
   # \{#str_index str-index($string, $substring)}
   # : Returns the index where a substring is found in another string or 0 if not found.
   #
-  # \{#str_extract str-slice($string, $start, $end)}
+  # \{#str_slice str-slice($string, $start, $end)}
   # : Extracts a substring of characters from $string
   #
   # \{#to_upper_case to-upper-case($string)}
@@ -171,7 +171,7 @@ module Sass::Script
   # \{#index index($list, $value)}
   # : Returns the position of a value within a list, or false.
   #
-  # \{#list-separator list-separator(#list)}
+  # \{#list_separator list-separator(#list)}
   # : Returns the separator of a list.
   #
   # ## Introspection Functions
@@ -196,7 +196,7 @@ module Sass::Script
   # \{#if if($condition, $if-true, $if-false)}
   # : Returns one of two values, depending on whether or not a condition is true.
   #
-  # \{#unique-id unique-id()}
+  # \{#unique_id unique-id()}
   # : Returns a unique CSS identifier.
   #
   # ## Adding Custom Functions
@@ -221,7 +221,7 @@ module Sass::Script
   # Value objects are also expected to be returned.
   # This means that Ruby values must be unwrapped and wrapped.
   #
-  # Most Value objects support the {Value#value value} accessor for getting
+  # Most Value objects support the {Value::Base#value value} accessor for getting
   # their Ruby values. Color objects, though, must be accessed using
   # {Sass::Script::Value::Color#rgb rgb}, {Sass::Script::Value::Color#red red},
   # {Sass::Script::Value::Color#blue green}, or {Sass::Script::Value::Color#blue
@@ -246,7 +246,7 @@ module Sass::Script
   # ### Caveats
   #
   # When creating new {Value} objects within functions, be aware that it's not
-  # safe to call {Value#to_s #to_s} (or other methods that use the string
+  # safe to call {Value::Base#to_s #to_s} (or other methods that use the string
   # representation) on those objects without first setting {Tree::Node#options=
   # the #options attribute}.
   module Functions
@@ -649,18 +649,21 @@ module Sass::Script
     end
     declare :lightness, [:color]
 
-    # Returns the alpha component (opacity) of a color.
-    # This is 1 unless otherwise specified.
+    # @overload alpha(color)
+    #   Returns the alpha component (opacity) of a color.
+    #   This is 1 unless otherwise specified.
     #
-    # This function also supports the proprietary Microsoft
-    # `alpha(opacity=20)` syntax.
+    #   @param color [Sass::Script::Value::Color]
+    #   @return [Sass::Script::Value::Number]
+    #   @see #opacify
+    #   @see #transparentize
+    #   @raise [ArgumentError] If `color` isn't a color
     #
-    # @overload def alpha(color)
-    # @param color [Sass::Script::Value::Color]
-    # @return [Sass::Script::Value::Number]
-    # @see #opacify
-    # @see #transparentize
-    # @raise [ArgumentError] If `color` isn't a color
+    # @overload alpha(microsoft_string)
+    #   Support for the proprietary Microsoft `alpha(opacity=20)` syntax.
+    #
+    #   @param microsoft_string A special literal representing the
+    #     css-incompatible microsoft syntax
     def alpha(*args)
       if args.all? do |a|
           a.is_a?(Sass::Script::Value::String) && a.type == :identifier &&
@@ -821,10 +824,10 @@ module Sass::Script
     #   adjust-hue(hsl(120, 30%, 90%), 60deg) => hsl(180, 30%, 90%)
     #   adjust-hue(hsl(120, 30%, 90%), 060deg) => hsl(60, 30%, 90%)
     #   adjust-hue(#811, 45deg) => #886a11
-    # @param color [Sass::Script::Value::Color]
-    # @param amount [Sass::Script::Value::Number]
-    # @return [Sass::Script::Value::Color]
-    # @raise [ArgumentError] If `color` isn't a color, or `number` isn't a number
+    # @param color [Sass::Script::Value::Color] The color to adjust.
+    # @param degrees [Sass::Script::Value::Number] The number of degrees to shift the hue.
+    # @return [Sass::Script::Value::Color] The transformed color.
+    # @raise [ArgumentError] If `color` isn't a color, or `degrees` isn't a number
     def adjust_hue(color, degrees)
       assert_type color, :Color
       assert_type degrees, :Number
@@ -867,13 +870,13 @@ module Sass::Script
     #   adjust-color(#102030, $red: -5, $blue: 5) => #0b2035
     #   adjust-color(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
     # @param color [Sass::Script::Value::Color]
-    # @param red [Sass::Script::Value::Number]
-    # @param green [Sass::Script::Value::Number]
-    # @param blue [Sass::Script::Value::Number]
-    # @param hue [Sass::Script::Value::Number]
-    # @param saturation [Sass::Script::Value::Number]
-    # @param lightness [Sass::Script::Value::Number]
-    # @param alpha [Sass::Script::Value::Number]
+    # @option kwargs [Sass::Script::Value::Number] "red" The amount by which the red component should change.
+    # @option kwargs [Sass::Script::Value::Number] "green" The amount by which the green component should change.
+    # @option kwargs [Sass::Script::Value::Number] "blue" The amount by which the blue component should change.
+    # @option kwargs [Sass::Script::Value::Number] "hue" The number of degrees by which the hue should change.
+    # @option kwargs [Sass::Script::Value::Number] "saturation" The amount by which the saturation should change.
+    # @option kwargs [Sass::Script::Value::Number] "lightness" The amount by which the lightness should change.
+    # @option kwargs [Sass::Script::Value::Number] "alpha" The amount by which the alpha channel should change.
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `color` is not a color,
     #   if any keyword argument is not a number,
@@ -937,12 +940,12 @@ module Sass::Script
     #   scale-color(rgb(200, 150, 170), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
     #   scale-color(hsl(200, 70, 80), $saturation: -90%, $alpha: -30%) => hsla(200, 7, 80, 0.7)
     # @param color [Sass::Script::Value::Color]
-    # @param red [Sass::Script::Value::Number]
-    # @param green [Sass::Script::Value::Number]
-    # @param blue [Sass::Script::Value::Number]
-    # @param saturation [Sass::Script::Value::Number]
-    # @param lightness [Sass::Script::Value::Number]
-    # @param alpha [Sass::Script::Value::Number]
+    # @option kwargs [Sass::Script::Value::Number] "red" The amount by which the red component should scale.
+    # @option kwargs [Sass::Script::Value::Number] "green" The amount by which the green component should scale.
+    # @option kwargs [Sass::Script::Value::Number] "blue" The amount by which the blue component should scale.
+    # @option kwargs [Sass::Script::Value::Number] "saturation" The amount by which the saturation should scale.
+    # @option kwargs [Sass::Script::Value::Number] "lightness" The amount by which the lightness should scale.
+    # @option kwargs [Sass::Script::Value::Number] "alpha" The amount by which the alpha channel should scale.
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `color` is not a color,
     #   if any keyword argument is not a percentage between 0% and 100%,
@@ -997,13 +1000,13 @@ module Sass::Script
     #   change-color(#102030, $red: 120, $blue: 5) => #782005
     #   change-color(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
     # @param color [Sass::Script::Value::Color]
-    # @param red [Sass::Script::Value::Number]
-    # @param green [Sass::Script::Value::Number]
-    # @param blue [Sass::Script::Value::Number]
-    # @param hue [Sass::Script::Value::Number]
-    # @param saturation [Sass::Script::Value::Number]
-    # @param lightness [Sass::Script::Value::Number]
-    # @param alpha [Sass::Script::Value::Number]
+    # @option kwargs [Sass::Script::Value::Number] "red" The amount by which the red component should change.
+    # @option kwargs [Sass::Script::Value::Number] "green" The amount by which the green component should change.
+    # @option kwargs [Sass::Script::Value::Number] "blue" The amount by which the blue component should change.
+    # @option kwargs [Sass::Script::Value::Number] "hue" The number of degrees by which the hue should change.
+    # @option kwargs [Sass::Script::Value::Number] "saturation" The amount by which the saturation should change.
+    # @option kwargs [Sass::Script::Value::Number] "lightness" The amount by which the lightness should change.
+    # @option kwargs [Sass::Script::Value::Number] "alpha" The amount by which the alpha channel should change.
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `color` is not a color,
     #   if any keyword argument is not a number,
@@ -1688,10 +1691,9 @@ module Sass::Script
     declare :unique_id, []
 
     # This function only exists as a workaround for IE7's [`content:counter`
-    # bug][bug]. It works identically to any other plain-CSS function, except it
+    # bug](http://jes.st/2013/ie7s-css-breaking-content-counter-bug/).
+    # It works identically to any other plain-CSS function, except it
     # avoids adding spaces between the argument commas.
-    #
-    # [bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
     #
     # @example
     #   counter(item, ".") => counter(item,".")
