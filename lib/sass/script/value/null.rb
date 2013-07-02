@@ -1,9 +1,19 @@
 module Sass::Script::Value
   # A SassScript object representing a null value.
   class Null < Base
-    # Creates a new null value.
-    def initialize
-      super nil
+
+    # The null value in SassScript.
+    #
+    # This is assigned before new is overridden below so that we use the default implementation.
+    NULL = new(nil)
+
+    # We override object creation so that users of the core API
+    # will not need to know that null is a specific constant.
+    #
+    # @private
+    # @return [Null] the {NULL} constant.
+    def self.new
+      NULL
     end
 
     # @return [Boolean] `false` (the Ruby boolean value)
