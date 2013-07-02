@@ -81,6 +81,23 @@ module Sass::Script::Value
       Sass::Script::Value::Null.new
     end
 
+    # Create a quoted string.
+    #
+    # @param str [::String] A ruby string.
+    # @return [Sass::Script::Value::String] A quoted string.
+    def quoted_string(str)
+      Sass::Script::String.new(str, :string)
+    end
+
+    # Create an unquoted string.
+    #
+    # @param str [::String] A ruby string.
+    # @return [Sass::Script::Value::String] An unquoted string.
+    def unquoted_string(str)
+      Sass::Script::String.new(str, :identifier)
+    end
+    alias_method :identifier, :unquoted_string
+
     private
 
     # @private

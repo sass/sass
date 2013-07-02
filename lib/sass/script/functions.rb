@@ -1265,7 +1265,11 @@ module Sass::Script
     # @raise [ArgumentError] if `$string` isn't a string
     def quote(string)
       assert_type string, :String, :string
-      Sass::Script::Value::String.new(string.value, :string)
+      if string.type != :string
+        quoted_string(string.value)
+      else
+        string
+      end
     end
     declare :quote, [:string]
 
@@ -1464,7 +1468,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$number` isn't a number
     def unit(number)
       assert_type number, :Number, :number
-      Sass::Script::Value::String.new(number.unit_str, :string)
+      quoted_string(number.unit_str)
     end
     declare :unit, [:number]
 
