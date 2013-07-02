@@ -52,6 +52,28 @@ module Sass::Script::Value
       Number.new(number, *parse_unit_string(unit_string))
     end
 
+    # @overload list(*elements, separator)
+    #   Create a space-separated list from the arguments given.
+    #   @param elements [Array<Sass::Script::Value::Base>] Each argument will be a list element.
+    #   @param separator [Symbol] Either :space or :comma.
+    #   @return [Sass::Script::Value::List] The space separated list.
+    #
+    # @overload list(array, separator)
+    #   Create a space-separated list from the array given.
+    #   @param array [Array<Sass::Script::Value::Base>] A ruby array of Sass values
+    #     to make into a list.
+    #   @return [Sass::Script::Value::List] The space separated list.
+    def list(*elements)
+      unless elements.last.is_a?(Symbol)
+        raise ArgumentError.new("A list type of :space or :comma must be specified.")
+      end
+      separator = elements.pop
+      if elements.size == 1 && elements.first.is_a?(Array)
+        elements = elements.first
+      end
+      Sass::Script::Value::List.new(elements, separator)
+    end
+
     private
 
     # @private

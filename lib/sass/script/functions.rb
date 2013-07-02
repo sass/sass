@@ -1779,8 +1779,7 @@ module Sass::Script
         value.slice!(length)
       end
       new_list_value = values.first.zip(*values[1..-1])
-      new_list_arry = new_list_value.map {|list| Sass::Script::Value::List.new(list, :space)}
-      Sass::Script::Value::List.new(new_list_arry, :comma)
+      list(new_list_value.map{|list| list(list, :space)}, :comma)
     end
     declare :zip, [], :var_args => true
 

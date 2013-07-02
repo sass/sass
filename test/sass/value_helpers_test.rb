@@ -111,4 +111,24 @@ class ValueHelpersTest < Test::Unit::TestCase
       number(1, "px/")
     end
   end
+
+  def test_space_list
+    l = list(number(1, "px"), hex_color("#f71"), :space)
+    l.options = {}
+    assert_kind_of Sass::Script::Value::List, l
+    assert_equal "1px #ff7711", l.to_sass
+  end
+
+  def test_comma_list
+    l = list(number(1, "px"), hex_color("#f71"), :comma)
+    l.options = {}
+    assert_kind_of Sass::Script::Value::List, l
+    assert_equal "1px, #ff7711", l.to_sass
+  end
+
+  def test_missing_list_type
+    assert_raises ArgumentError do
+      list(number(1, "px"), hex_color("#f71"))
+    end
+  end
 end
