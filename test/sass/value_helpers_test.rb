@@ -73,6 +73,22 @@ class ValueHelpersTest < Test::Unit::TestCase
     assert_equal 0.5, has_alpha.alpha
   end
 
+  def test_rgb_color_without_alpha
+    no_alpha = rgb_color(255, 0, 0)
+    assert_equal 255, no_alpha.red
+    assert_equal 0, no_alpha.green
+    assert_equal 0, no_alpha.blue
+    assert_equal 1, no_alpha.alpha
+  end
+
+  def test_rgb_color_with_alpha
+    has_alpha = rgb_color(255, 255, 255, 0.5)
+    assert_equal 255, has_alpha.red
+    assert_equal 255, has_alpha.green
+    assert_equal 255, has_alpha.blue
+    assert_equal 0.5, has_alpha.alpha
+  end
+
   def test_number
     n = number(1)
     assert_equal 1, n.value
