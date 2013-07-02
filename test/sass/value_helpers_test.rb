@@ -131,4 +131,8 @@ class ValueHelpersTest < Test::Unit::TestCase
       list(number(1, "px"), hex_color("#f71"))
     end
   end
+
+  def test_null
+    assert_kind_of Sass::Script::Value::Null, null
+  end
 end

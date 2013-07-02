@@ -74,6 +74,13 @@ module Sass::Script::Value
       Sass::Script::Value::List.new(elements, separator)
     end
 
+    # Create a sass null value.
+    #
+    # @return [Sass::Script::Value::Null]
+    def null
+      Sass::Script::Value::Null.new
+    end
+
     private
 
     # @private
