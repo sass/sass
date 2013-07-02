@@ -84,9 +84,9 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_hsl_checks_types
-    assert_error_message("\"foo\" is not a number for `hsl'", "hsl(\"foo\", 10, 12)");
-    assert_error_message("\"foo\" is not a number for `hsl'", "hsl(10, \"foo\", 12)");
-    assert_error_message("\"foo\" is not a number for `hsl'", "hsl(10, 10, \"foo\")");
+    assert_error_message("$hue: \"foo\" is not a number for `hsl'", "hsl(\"foo\", 10, 12)");
+    assert_error_message("$saturation: \"foo\" is not a number for `hsl'", "hsl(10, \"foo\", 12)");
+    assert_error_message("$lightness: \"foo\" is not a number for `hsl'", "hsl(10, 10, \"foo\")");
   end
 
   def test_hsla
@@ -104,10 +104,10 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_hsla_checks_types
-    assert_error_message("\"foo\" is not a number for `hsla'", "hsla(\"foo\", 10, 12, 0.3)");
-    assert_error_message("\"foo\" is not a number for `hsla'", "hsla(10, \"foo\", 12, 0)");
-    assert_error_message("\"foo\" is not a number for `hsla'", "hsla(10, 10, \"foo\", 1)");
-    assert_error_message("\"foo\" is not a number for `hsla'", "hsla(10, 10, 10, \"foo\")");
+    assert_error_message("$hue: \"foo\" is not a number for `hsla'", "hsla(\"foo\", 10, 12, 0.3)");
+    assert_error_message("$saturation: \"foo\" is not a number for `hsla'", "hsla(10, \"foo\", 12, 0)");
+    assert_error_message("$lightness: \"foo\" is not a number for `hsla'", "hsla(10, 10, \"foo\", 1)");
+    assert_error_message("$alpha: \"foo\" is not a number for `hsla'", "hsla(10, 10, 10, \"foo\")");
   end
 
   def test_percentage
@@ -118,9 +118,9 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_percentage_checks_types
-    assert_error_message("25px is not a unitless number for `percentage'", "percentage(25px)")
-    assert_error_message("#cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
-    assert_error_message("\"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
+    assert_error_message("$value: 25px is not a unitless number for `percentage'", "percentage(25px)")
+    assert_error_message("$value: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
+    assert_error_message("$value: \"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
   def test_round
@@ -129,7 +129,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5px", evaluate("round(5.49px)"))
     assert_equal("5px", evaluate("round($value: 5.49px)"))
 
-    assert_error_message("#cccccc is not a number for `round'", "round(#ccc)")
+    assert_error_message("$value: #cccccc is not a number for `round'", "round(#ccc)")
   end
 
   def test_floor
@@ -137,7 +137,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("4px", evaluate("floor(4.8px)"))
     assert_equal("4px", evaluate("floor($value: 4.8px)"))
 
-    assert_error_message("\"foo\" is not a number for `floor'", "floor(\"foo\")")
+    assert_error_message("$value: \"foo\" is not a number for `floor'", "floor(\"foo\")")
   end
 
   def test_ceil
@@ -145,7 +145,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5px", evaluate("ceil(4.8px)"))
     assert_equal("5px", evaluate("ceil($value: 4.8px)"))
 
-    assert_error_message("\"a\" is not a number for `ceil'", "ceil(\"a\")")
+    assert_error_message("$value: \"a\" is not a number for `ceil'", "ceil(\"a\")")
   end
 
   def test_abs
@@ -155,7 +155,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5px", evaluate("abs(5px)"))
     assert_equal("5px", evaluate("abs($value: 5px)"))
 
-    assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
+    assert_error_message("$value: #aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
 
   def test_min
@@ -193,31 +193,31 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_rgb_tests_bounds
-    assert_error_message("Color value 256 must be between 0 and 255 for `rgb'",
+    assert_error_message("$red: Color value 256 must be between 0 and 255 for `rgb'",
       "rgb(256, 1, 1)")
-    assert_error_message("Color value 256 must be between 0 and 255 for `rgb'",
+    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgb'",
       "rgb(1, 256, 1)")
-    assert_error_message("Color value 256 must be between 0 and 255 for `rgb'",
+    assert_error_message("$blue: Color value 256 must be between 0 and 255 for `rgb'",
       "rgb(1, 1, 256)")
-    assert_error_message("Color value 256 must be between 0 and 255 for `rgb'",
+    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgb'",
       "rgb(1, 256, 257)")
-    assert_error_message("Color value -1 must be between 0 and 255 for `rgb'",
+    assert_error_message("$red: Color value -1 must be between 0 and 255 for `rgb'",
       "rgb(-1, 1, 1)")
   end
 
   def test_rgb_test_percent_bounds
-    assert_error_message("Color value 100.1% must be between 0% and 100% for `rgb'",
+    assert_error_message("$red: Color value 100.1% must be between 0% and 100% for `rgb'",
       "rgb(100.1%, 0, 0)")
-    assert_error_message("Color value -0.1% must be between 0% and 100% for `rgb'",
+    assert_error_message("$green: Color value -0.1% must be between 0% and 100% for `rgb'",
       "rgb(0, -0.1%, 0)")
-    assert_error_message("Color value 101% must be between 0% and 100% for `rgb'",
+    assert_error_message("$blue: Color value 101% must be between 0% and 100% for `rgb'",
       "rgb(0, 0, 101%)")
   end
 
   def test_rgb_tests_types
-    assert_error_message("\"foo\" is not a number for `rgb'", "rgb(\"foo\", 10, 12)");
-    assert_error_message("\"foo\" is not a number for `rgb'", "rgb(10, \"foo\", 12)");
-    assert_error_message("\"foo\" is not a number for `rgb'", "rgb(10, 10, \"foo\")");
+    assert_error_message("$red: \"foo\" is not a number for `rgb'", "rgb(\"foo\", 10, 12)");
+    assert_error_message("$green: \"foo\" is not a number for `rgb'", "rgb(10, \"foo\", 12)");
+    assert_error_message("$blue: \"foo\" is not a number for `rgb'", "rgb(10, 10, \"foo\")");
   end
 
   def test_rgba
@@ -228,15 +228,15 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_rgba_tests_bounds
-    assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
+    assert_error_message("$red: Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(256, 1, 1, 0.3)")
-    assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
+    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(1, 256, 1, 0.3)")
-    assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
+    assert_error_message("$blue: Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(1, 1, 256, 0.3)")
-    assert_error_message("Color value 256 must be between 0 and 255 for `rgba'",
+    assert_error_message("$green: Color value 256 must be between 0 and 255 for `rgba'",
       "rgba(1, 256, 257, 0.3)")
-    assert_error_message("Color value -1 must be between 0 and 255 for `rgba'",
+    assert_error_message("$red: Color value -1 must be between 0 and 255 for `rgba'",
       "rgba(-1, 1, 1, 0.3)")
     assert_error_message("Alpha channel -0.2 must be between 0 and 1 for `rgba'",
       "rgba(1, 1, 1, -0.2)")
@@ -245,10 +245,10 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_rgba_tests_types
-    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(\"foo\", 10, 12, 0.2)");
-    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, \"foo\", 12, 0.1)");
-    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, 10, \"foo\", 0)");
-    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(10, 10, 10, \"foo\")");
+    assert_error_message("$red: \"foo\" is not a number for `rgba'", "rgba(\"foo\", 10, 12, 0.2)");
+    assert_error_message("$green: \"foo\" is not a number for `rgba'", "rgba(10, \"foo\", 12, 0.1)");
+    assert_error_message("$blue: \"foo\" is not a number for `rgba'", "rgba(10, 10, \"foo\", 0)");
+    assert_error_message("$alpha: \"foo\" is not a number for `rgba'", "rgba(10, 10, 10, \"foo\")");
   end
 
   def test_rgba_with_color
@@ -258,8 +258,8 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_rgba_with_color_tests_types
-    assert_error_message("\"foo\" is not a color for `rgba'", "rgba(\"foo\", 0.2)");
-    assert_error_message("\"foo\" is not a number for `rgba'", "rgba(blue, \"foo\")");
+    assert_error_message("$color: \"foo\" is not a color for `rgba'", "rgba(\"foo\", 0.2)");
+    assert_error_message("$alpha: \"foo\" is not a number for `rgba'", "rgba(blue, \"foo\")");
   end
 
   def test_rgba_tests_num_args
@@ -275,7 +275,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_red_exception
-    assert_error_message("12 is not a color for `red'", "red(12)")
+    assert_error_message("$color: 12 is not a color for `red'", "red(12)")
   end
 
   def test_green
@@ -284,7 +284,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_green_exception
-    assert_error_message("12 is not a color for `green'", "green(12)")
+    assert_error_message("$color: 12 is not a color for `green'", "green(12)")
   end
 
   def test_blue
@@ -293,7 +293,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_blue_exception
-    assert_error_message("12 is not a color for `blue'", "blue(12)")
+    assert_error_message("$color: 12 is not a color for `blue'", "blue(12)")
   end
 
   def test_hue
@@ -302,7 +302,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_hue_exception
-    assert_error_message("12 is not a color for `hue'", "hue(12)")
+    assert_error_message("$color: 12 is not a color for `hue'", "hue(12)")
   end
 
   def test_saturation
@@ -312,7 +312,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_saturation_exception
-    assert_error_message("12 is not a color for `saturation'", "saturation(12)")
+    assert_error_message("$color: 12 is not a color for `saturation'", "saturation(12)")
   end
 
   def test_lightness
@@ -322,7 +322,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_lightness_exception
-    assert_error_message("12 is not a color for `lightness'", "lightness(12)")
+    assert_error_message("$color: 12 is not a color for `lightness'", "lightness(12)")
   end
 
   def test_alpha
@@ -333,7 +333,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_alpha_exception
-    assert_error_message("12 is not a color for `alpha'", "alpha(12)")
+    assert_error_message("$color: 12 is not a color for `alpha'", "alpha(12)")
   end
 
   def test_opacity
@@ -345,7 +345,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_opacity_exception
-    assert_error_message("\"foo\" is not a color for `opacity'", "opacity(foo)")
+    assert_error_message("$color: \"foo\" is not a color for `opacity'", "opacity(foo)")
   end
 
   def test_opacify
@@ -367,8 +367,8 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_opacify_tests_types
-    assert_error_message("\"foo\" is not a color for `opacify'", "opacify(\"foo\", 10%)")
-    assert_error_message("\"foo\" is not a number for `opacify'", "opacify(#fff, \"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `opacify'", "opacify(\"foo\", 10%)")
+    assert_error_message("$amount: \"foo\" is not a number for `opacify'", "opacify(#fff, \"foo\")")
   end
 
   def test_transparentize
@@ -390,8 +390,8 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_transparentize_tests_types
-    assert_error_message("\"foo\" is not a color for `transparentize'", "transparentize(\"foo\", 10%)")
-    assert_error_message("\"foo\" is not a number for `transparentize'", "transparentize(#fff, \"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `transparentize'", "transparentize(\"foo\", 10%)")
+    assert_error_message("$amount: \"foo\" is not a number for `transparentize'", "transparentize(#fff, \"foo\")")
   end
 
   def test_lighten
@@ -412,8 +412,8 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_lighten_tests_types
-    assert_error_message("\"foo\" is not a color for `lighten'", "lighten(\"foo\", 10%)")
-    assert_error_message("\"foo\" is not a number for `lighten'", "lighten(#fff, \"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `lighten'", "lighten(\"foo\", 10%)")
+    assert_error_message("$amount: \"foo\" is not a number for `lighten'", "lighten(#fff, \"foo\")")
   end
 
   def test_darken
@@ -434,8 +434,8 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_darken_tests_types
-    assert_error_message("\"foo\" is not a color for `darken'", "darken(\"foo\", 10%)")
-    assert_error_message("\"foo\" is not a number for `darken'", "darken(#fff, \"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `darken'", "darken(\"foo\", 10%)")
+    assert_error_message("$amount: \"foo\" is not a number for `darken'", "darken(#fff, \"foo\")")
   end
 
   def test_saturate
@@ -458,8 +458,8 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_saturate_tests_types
-    assert_error_message("\"foo\" is not a color for `saturate'", "saturate(\"foo\", 10%)")
-    assert_error_message("\"foo\" is not a number for `saturate'", "saturate(#fff, \"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `saturate'", "saturate(\"foo\", 10%)")
+    assert_error_message("$amount: \"foo\" is not a number for `saturate'", "saturate(#fff, \"foo\")")
   end
 
   def test_desaturate
@@ -481,8 +481,8 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_desaturate_tests_types
-    assert_error_message("\"foo\" is not a color for `desaturate'", "desaturate(\"foo\", 10%)")
-    assert_error_message("\"foo\" is not a number for `desaturate'", "desaturate(#fff, \"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `desaturate'", "desaturate(\"foo\", 10%)")
+    assert_error_message("$amount: \"foo\" is not a number for `desaturate'", "desaturate(#fff, \"foo\")")
   end
 
   def test_adjust_hue
@@ -498,8 +498,8 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_adjust_hue_tests_types
-    assert_error_message("\"foo\" is not a color for `adjust-hue'", "adjust-hue(\"foo\", 10%)")
-    assert_error_message("\"foo\" is not a number for `adjust-hue'", "adjust-hue(#fff, \"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `adjust-hue'", "adjust-hue(\"foo\", 10%)")
+    assert_error_message("$degrees: \"foo\" is not a number for `adjust-hue'", "adjust-hue(#fff, \"foo\")")
   end
 
   def test_adjust_color
@@ -557,7 +557,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_adjust_color_tests_types
-    assert_error_message("\"foo\" is not a color for `adjust-color'", "adjust-color(foo, $hue: 10)")
+    assert_error_message("$color: \"foo\" is not a color for `adjust-color'", "adjust-color(foo, $hue: 10)")
     # HSL
     assert_error_message("$hue: \"foo\" is not a number for `adjust-color'",
       "adjust-color(blue, $hue: foo)")
@@ -663,7 +663,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_scale_color_tests_types
-    assert_error_message("\"foo\" is not a color for `scale-color'", "scale-color(foo, $red: 10%)")
+    assert_error_message("$color: \"foo\" is not a color for `scale-color'", "scale-color(foo, $red: 10%)")
     # HSL
     assert_error_message("$saturation: \"foo\" is not a number for `scale-color'",
       "scale-color(blue, $saturation: foo)")
@@ -734,7 +734,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_change_color_tests_types
-    assert_error_message("\"foo\" is not a color for `change-color'", "change-color(foo, $red: 10%)")
+    assert_error_message("$color: \"foo\" is not a color for `change-color'", "change-color(foo, $red: 10%)")
     # HSL
     assert_error_message("$saturation: \"foo\" is not a number for `change-color'",
       "change-color(blue, $saturation: foo)")
@@ -797,9 +797,9 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_mix_tests_types
-    assert_error_message("\"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
-    assert_error_message("\"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
-    assert_error_message("\"foo\" is not a number for `mix'", "mix(#f00, #baf, \"foo\")")
+    assert_error_message("$color-1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
+    assert_error_message("$color-2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
+    assert_error_message("$weight: \"foo\" is not a number for `mix'", "mix(#f00, #baf, \"foo\")")
   end
 
   def test_mix_tests_bounds
@@ -822,7 +822,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def tets_grayscale_tests_types
-    assert_error_message("\"foo\" is not a color for `grayscale'", "grayscale(\"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `grayscale'", "grayscale(\"foo\")")
   end
 
   def test_complement
@@ -835,7 +835,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def tets_complement_tests_types
-    assert_error_message("\"foo\" is not a color for `complement'", "complement(\"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `complement'", "complement(\"foo\")")
   end
 
   def test_invert
@@ -845,7 +845,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_invert_tests_types
-    assert_error_message("\"foo\" is not a color for `invert'", "invert(\"foo\")")
+    assert_error_message("$color: \"foo\" is not a color for `invert'", "invert(\"foo\")")
   end
 
   def test_unquote
@@ -861,7 +861,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_quote_tests_type
-    assert_error_message("#ff0000 is not a string for `quote'", "quote(#f00)")
+    assert_error_message("$string: #ff0000 is not a string for `quote'", "quote(#f00)")
   end
 
   def test_user_defined_function
@@ -900,14 +900,14 @@ MSG
     assert_equal(%Q{"em/rem"}, evaluate("unit(10px * 5em / 30cm / 1rem)"))
     assert_equal(%Q{"em*vh/cm*rem"}, evaluate("unit(10vh * 5em / 30cm / 1rem)"))
     assert_equal(%Q{"px"}, evaluate("unit($number: 100px)"))
-    assert_error_message("#ff0000 is not a number for `unit'", "unit(#f00)")
+    assert_error_message("$number: #ff0000 is not a number for `unit'", "unit(#f00)")
   end
 
   def test_unitless
     assert_equal(%Q{true}, evaluate("unitless(100)"))
     assert_equal(%Q{false}, evaluate("unitless(100px)"))
     assert_equal(%Q{false}, evaluate("unitless($number: 100px)"))
-    assert_error_message("#ff0000 is not a number for `unitless'", "unitless(#f00)")
+    assert_error_message("$number: #ff0000 is not a number for `unitless'", "unitless(#f00)")
   end
 
   def test_comparable
@@ -915,8 +915,8 @@ MSG
     assert_equal(%Q{true}, evaluate("comparable(10cm, 3mm)"))
     assert_equal(%Q{false}, evaluate("comparable(100px, 3em)"))
     assert_equal(%Q{false}, evaluate("comparable($number-1: 100px, $number-2: 3em)"))
-    assert_error_message("#ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
-    assert_error_message("#ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
+    assert_error_message("$number-1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
+    assert_error_message("$number-2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
   def test_length
@@ -941,6 +941,7 @@ MSG
     assert_error_message("List index is 5 but list is only 4 items long for `nth'", "nth(1 2 3 4, 5)")
     assert_error_message("List index is 2 but list is only 1 item long for `nth'", "nth(foo, 2)")
     assert_error_message("List index is 1 but list has no items for `nth'", "nth((), 1)")
+    assert_error_message("$n: \"foo\" is not a number for `nth'", "nth(1 2 3, foo)")
   end
 
   def test_join
@@ -979,6 +980,7 @@ MSG
     assert_equal("false", evaluate("(1, 2, ()) == join((), (1, 2))"))
 
     assert_error_message("Separator name must be space, comma, or auto for `join'", "join(1, 2, baboon)")
+    assert_error_message("$separator: 12 is not a string for `join'", "join(1, 2, 12)")
   end
 
   def test_append
@@ -1013,6 +1015,7 @@ MSG
     assert_equal("true", evaluate("(1 2) == nth(append((), 1 2), 1)"))
 
     assert_error_message("Separator name must be space, comma, or auto for `append'", "append(1, 2, baboon)")
+    assert_error_message("$separator: 12 is not a string for `append'", "append(1, 2, 12)")
   end
 
   def test_zip

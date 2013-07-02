@@ -2,7 +2,7 @@ module Sass::Script
   # Methods in this module are accessible from the SassScript context.
   # For example, you can write
   #
-  #     $color = hsl(120deg, 100%, 50%)
+  #     $color: hsl(120deg, 100%, 50%)
   #
   # and it will call {Sass::Script::Functions#hsl}.
   #
@@ -13,13 +13,10 @@ module Sass::Script
   # ## RGB Functions
   #
   # \{#rgb rgb($red, $green, $blue)}
-  # : Converts an `rgb(red, green, blue)` triplet into a color.
+  # : Creates a {Color} from red, green, and blue values.
   #
   # \{#rgba rgba($red, $green, $blue, $alpha)}
-  # : Converts an `rgba(red, green, blue, alpha)` quadruplet into a color.
-  #
-  # \{#rgba rgba($color, $alpha)}
-  # : Adds an alpha layer to any color value.
+  # : Creates a {Color} from red, green, blue, and alpha values.
   #
   # \{#red red($color)}
   # : Gets the red component of a color.
@@ -36,10 +33,11 @@ module Sass::Script
   # ## HSL Functions
   #
   # \{#hsl hsl($hue, $saturation, $lightness)}
-  # : Converts an `hsl(hue, saturation, lightness)` triplet into a color.
+  # : Creates a {Color} from hue, saturation, and lightness values.
   #
   # \{#hsla hsla($hue, $saturation, $lightness, $alpha)}
-  # : Converts an `hsla(hue, saturation, lightness, alpha)` quadruplet into a color.
+  # : Creates a {Color} from hue, saturation, lightness, lightness, and alpha
+  #   values.
   #
   # \{#hue hue($color)}
   # : Gets the hue component of a color.
@@ -80,7 +78,7 @@ module Sass::Script
   # : Gets the alpha component (opacity) of a color.
   #
   # \{#rgba rgba($color, $alpha)}
-  # : Add or change an alpha layer for any color value.
+  # : Changes the alpha component for a color.
   #
   # \{#opacify opacify($color, $amount)} / \{#fade_in fade-in($color, $amount)}
   # : Makes a color more opaque.
@@ -91,10 +89,10 @@ module Sass::Script
   # ## Other Color Functions
   #
   # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
-  # : Increase or decrease any of the components of a color.
+  # : Increases or decreases one or more components of a color.
   #
   # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\])}
-  # : Fluidly scale one or more components of a color.
+  # : Fluidly scales one or more properties of a color.
   #
   # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Changes one or more properties of a color.
@@ -105,7 +103,7 @@ module Sass::Script
   # ## String Functions
   #
   # \{#unquote unquote($string)}
-  # : Removes the quotes from a string.
+  # : Removes quotes from a string.
   #
   # \{#quote quote($string)}
   # : Adds quotes to a string.
@@ -119,19 +117,19 @@ module Sass::Script
   # : Rounds a number to the nearest whole number.
   #
   # \{#ceil ceil($value)}
-  # : Rounds a number up to the nearest whole number.
+  # : Rounds a number up to the next whole number.
   #
   # \{#floor floor($value)}
-  # : Rounds a number down to the nearest whole number.
+  # : Rounds a number down to the previous whole number.
   #
   # \{#abs abs($value)}
   # : Returns the absolute value of a number.
   #
-  # \{#min min($x1, $x2, ...)\}
-  # : Finds the minimum of several values.
+  # \{#min min($numbers...)\}
+  # : Finds the minimum of several numbers.
   #
-  # \{#max max($x1, $x2, ...)\}
-  # : Finds the maximum of several values.
+  # \{#max max($numbers...)\}
+  # : Finds the maximum of several numbers.
   #
   # ## List Functions {#list-functions}
   #
@@ -147,11 +145,11 @@ module Sass::Script
   # \{#append append($list1, $val, \[$separator\])}
   # : Appends a single value onto the end of a list.
   #
-  # \{#zip zip($list1, $list2, ...)}
+  # \{#zip zip($lists...)}
   # : Combines several lists into a single multidimensional list.
   #
   # \{#index index($list, $value)}
-  # : Returns the position of a value within a list, or false.
+  # : Returns the position of a value within a list.
   #
   # ## Introspection Functions
   #
@@ -159,18 +157,19 @@ module Sass::Script
   # : Returns the type of a value.
   #
   # \{#unit unit($number)}
-  # : Returns the units associated with a number.
+  # : Returns the unit(s) associated with a number.
   #
   # \{#unitless unitless($number)}
-  # : Returns whether a number has units or not.
+  # : Returns whether a number has units.
   #
   # \{#comparable comparable($number-1, $number-2)}
-  # : Returns whether two numbers can be added or compared.
+  # : Returns whether two numbers can be added, subtracted, or compared.
   #
   # ## Miscellaneous Functions
   #
   # \{#if if($condition, $if-true, $if-false)}
-  # : Returns one of two values, depending on whether or not a condition is true.
+  # : Returns one of two values, depending on whether or not `$condition` is
+  #   true.
   #
   # ## Adding Custom Functions
   #
@@ -246,6 +245,12 @@ module Sass::Script
     # but none of them but the first will be used
     # unless the user uses keyword arguments.
     #
+    # @example
+    #   declare :rgba, [:hex, :alpha]
+    #   declare :rgba, [:red, :green, :blue, :alpha]
+    #   declare :accepts_anything, [], :var_args => true, :var_kwargs => true
+    #   declare :some_func, [:foo, :bar, :baz], :var_kwargs => true
+    #
     # @param method_name [Symbol] The name of the method
     #   whose signature is being declared.
     # @param args [Array<Symbol>] The names of the arguments for the function signature.
@@ -259,12 +264,6 @@ module Sass::Script
     #   to {Sass::Script::Literal}s as the last argument.
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
-    #
-    # @example
-    #   declare :rgba, [:hex, :alpha]
-    #   declare :rgba, [:red, :green, :blue, :alpha]
-    #   declare :accepts_anything, [], :var_args => true, :var_kwargs => true
-    #   declare :some_func, [:foo, :bar, :baz], :var_kwargs => true
     def self.declare(method_name, args, options = {})
       @signatures[method_name] ||= []
       @signatures[method_name] << Signature.new(
@@ -337,11 +336,11 @@ module Sass::Script
       #   assert_type value, :Number
       # @param value [Sass::Script::Literal] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
-      # @param name [String, nil] The name of the argument.
+      # @param name [String, Symbol, nil] The name of the argument.
       def assert_type(value, type, name = nil)
         return if value.is_a?(Sass::Script.const_get(type))
         err = "#{value.inspect} is not a #{type.to_s.downcase}"
-        err = "$#{name}: " + err if name
+        err = "$#{name.to_s.gsub('_', '-')}: " + err if name
         raise ArgumentError.new(err)
       end
     end
@@ -365,67 +364,69 @@ module Sass::Script
 
     # Creates a {Color} object from red, green, and blue values.
     #
-    # @param red [Number]
-    #   A number between 0 and 255 inclusive,
-    #   or between 0% and 100% inclusive
-    # @param green [Number]
-    #   A number between 0 and 255 inclusive,
-    #   or between 0% and 100% inclusive
-    # @param blue [Number]
-    #   A number between 0 and 255 inclusive,
-    #   or between 0% and 100% inclusive
     # @see #rgba
+    # @overload rgb($red, $green, $blue)
+    # @param $red [Number] The amount of red in the color. Must be between 0 and
+    #   255 inclusive, or between `0%` and `100%` inclusive
+    # @param $green [Number] The amount of green in the color. Must be between 0
+    #   and 255 inclusive, or between `0%` and `100%` inclusive
+    # @param $blue [Number] The amount of blue in the color. Must be between 0
+    #   and 255 inclusive, or between `0%` and `100%` inclusive
     # @return [Color]
+    # @raise [ArgumentError] if any parameter is the wrong type or out of bounds
     def rgb(red, green, blue)
-      assert_type red, :Number
-      assert_type green, :Number
-      assert_type blue, :Number
+      assert_type red, :Number, :red
+      assert_type green, :Number, :green
+      assert_type blue, :Number, :blue
 
-      Color.new([red, green, blue].map do |c|
+      Color.new([[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
           v = c.value
           if c.numerator_units == ["%"] && c.denominator_units.empty?
-            v = Sass::Util.check_range("Color value", 0..100, c, '%')
+            v = Sass::Util.check_range("$#{name}: Color value", 0..100, c, '%')
             v * 255 / 100.0
           else
-            Sass::Util.check_range("Color value", 0..255, c)
+            Sass::Util.check_range("$#{name}: Color value", 0..255, c)
           end
         end)
     end
     declare :rgb, [:red, :green, :blue]
 
+    # Creates a {Color} from red, green, blue, and alpha values.
     # @see #rgb
-    # @overload rgba(red, green, blue, alpha)
-    #   Creates a {Color} object from red, green, and blue values,
-    #   as well as an alpha channel indicating opacity.
     #
-    #   @param red [Number]
-    #     A number between 0 and 255 inclusive
-    #   @param green [Number]
-    #     A number between 0 and 255 inclusive
-    #   @param blue [Number]
-    #     A number between 0 and 255 inclusive
-    #   @param alpha [Number]
-    #     A number between 0 and 1
+    # @overload rgba($red, $green, $blue, $alpha)
+    #   @param $red [Number] The amount of red in the color. Must be between 0
+    #     and 255 inclusive
+    #   @param $green [Number] The amount of green in the color. Must be between
+    #     0 and 255 inclusive
+    #   @param $blue [Number] The amount of blue in the color. Must be between 0
+    #     and 255 inclusive
+    #   @param $alpha [Number] The opacity of the color. Must be between 0 and 1
+    #     inclusive
     #   @return [Color]
+    #   @raise [ArgumentError] if any parameter is the wrong type or out of
+    #     bounds
     #
-    # @overload rgba(color, alpha)
-    #   Sets the opacity of a color.
+    # @overload rgba($color, $alpha)
+    #   Sets the opacity of an existing color.
     #
     #   @example
     #     rgba(#102030, 0.5) => rgba(16, 32, 48, 0.5)
     #     rgba(blue, 0.2)    => rgba(0, 0, 255, 0.2)
     #
-    #   @param color [Color]
-    #   @param alpha [Number]
-    #     A number between 0 and 1
+    #   @param $color [Color] The color whose opacity will be changed.
+    #   @param $alpha [Number] The new opacity of the color. Must be between 0
+    #     and 1 inclusive
     #   @return [Color]
+    #   @raise [ArgumentError] if `$alpha` is out of bounds or either parameter
+    #     is the wrong type
     def rgba(*args)
       case args.size
       when 2
         color, alpha = args
 
-        assert_type color, :Color
-        assert_type alpha, :Number
+        assert_type color, :Color, :color
+        assert_type alpha, :Number, :alpha
 
         Sass::Util.check_range('Alpha channel', 0..1, alpha)
         color.with(:alpha => alpha.value)
@@ -439,43 +440,50 @@ module Sass::Script
     declare :rgba, [:red, :green, :blue, :alpha]
     declare :rgba, [:color, :alpha]
 
-    # Creates a {Color} object from hue, saturation, and lightness.
-    # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
+    # Creates a {Color} from hue, saturation, and lightness values. Uses the
+    # algorithm from the [CSS3 spec][].
     #
-    # @param hue [Number] The hue of the color.
-    #   Should be between 0 and 360 degrees, inclusive
-    # @param saturation [Number] The saturation of the color.
-    #   Must be between `0%` and `100%`, inclusive
-    # @param lightness [Number] The lightness of the color.
-    #   Must be between `0%` and `100%`, inclusive
-    # @return [Color] The resulting color
+    # [CSS3 spec]: http://www.w3.org/TR/css3-color/#hsl-color
+    #
     # @see #hsla
-    # @raise [ArgumentError] if `saturation` or `lightness` are out of bounds
+    # @overload hsl($hue, $saturation, $lightness)
+    # @param $hue [Number] The hue of the color. Should be between 0 and 360
+    #   degrees, inclusive
+    # @param $saturation [Number] The saturation of the color. Must be between
+    #   `0%` and `100%`, inclusive
+    # @param $lightness [Number] The lightness of the color. Must be between
+    #   `0%` and `100%`, inclusive
+    # @return [Color]
+    # @raise [ArgumentError] if `$saturation` or `$lightness` are out of bounds
+    #   or any parameter is the wrong type
     def hsl(hue, saturation, lightness)
       hsla(hue, saturation, lightness, Number.new(1))
     end
     declare :hsl, [:hue, :saturation, :lightness]
 
-    # Creates a {Color} object from hue, saturation, and lightness,
-    # as well as an alpha channel indicating opacity.
-    # Uses the algorithm from the [CSS3 spec](http://www.w3.org/TR/css3-color/#hsl-color).
+    # Creates a {Color} from hue, saturation, lightness, lightness, and alpha
+    # values. Uses the algorithm from the [CSS3 spec][].
     #
-    # @param hue [Number] The hue of the color.
-    #   Should be between 0 and 360 degrees, inclusive
-    # @param saturation [Number] The saturation of the color.
-    #   Must be between `0%` and `100%`, inclusive
-    # @param lightness [Number] The lightness of the color.
-    #   Must be between `0%` and `100%`, inclusive
-    # @param alpha [Number] The opacity of the color.
-    #   Must be between 0 and 1, inclusive
-    # @return [Color] The resulting color
+    # [CSS3 spec]: http://www.w3.org/TR/css3-color/#hsl-color
+    #
     # @see #hsl
-    # @raise [ArgumentError] if `saturation`, `lightness`, or `alpha` are out of bounds
+    # @overload hsla($hue, $saturation, $lightness, $alpha)
+    # @param $hue [Number] The hue of the color. Should be between 0 and 360
+    #   degrees, inclusive
+    # @param $saturation [Number] The saturation of the color. Must be between
+    #   `0%` and `100%`, inclusive
+    # @param $lightness [Number] The lightness of the color. Must be between
+    #   `0%` and `100%`, inclusive
+    # @param $alpha [Number] The opacity of the color. Must be between 0 and 1,
+    #   inclusive
+    # @return [Color]
+    # @raise [ArgumentError] if `$saturation`, `$lightness`, or `$alpha` are out
+    #   of bounds or any parameter is the wrong type
     def hsla(hue, saturation, lightness, alpha)
-      assert_type hue, :Number
-      assert_type saturation, :Number
-      assert_type lightness, :Number
-      assert_type alpha, :Number
+      assert_type hue, :Number, :hue
+      assert_type saturation, :Number, :saturation
+      assert_type lightness, :Number, :lightness
+      assert_type alpha, :Number, :alpha
 
       Sass::Util.check_range('Alpha channel', 0..1, alpha)
 
@@ -487,101 +495,112 @@ module Sass::Script
     end
     declare :hsla, [:hue, :saturation, :lightness, :alpha]
 
-    # Returns the red component of a color.
+    # Gets the red component of a color. Calculated from HSL where necessary via
+    # [this algorithm][hsl-to-rgb].
     #
-    # @param color [Color]
-    # @return [Number]
-    # @raise [ArgumentError] If `color` isn't a color
+    # [hsl-to-rgb]: http://www.w3.org/TR/css3-color/#hsl-color
+    #
+    # @overload red($color)
+    # @param $color [Color]
+    # @return [Number] The red component, between 0 and 255 inclusive
+    # @raise [ArgumentError] if `$color` isn't a color
     def red(color)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       Sass::Script::Number.new(color.red)
     end
     declare :red, [:color]
 
-    # Returns the green component of a color.
+    # Gets the green component of a color. Calculated from HSL where necessary
+    # via [this algorithm][hsl-to-rgb].
     #
-    # @param color [Color]
-    # @return [Number]
-    # @raise [ArgumentError] If `color` isn't a color
+    # [hsl-to-rgb]: http://www.w3.org/TR/css3-color/#hsl-color
+    #
+    # @overload green($color)
+    # @param $color [Color]
+    # @return [Number] The green component, between 0 and 255 inclusive
+    # @raise [ArgumentError] if `$color` isn't a color
     def green(color)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       Sass::Script::Number.new(color.green)
     end
     declare :green, [:color]
 
-    # Returns the blue component of a color.
+    # Gets the blue component of a color. Calculated from HSL where necessary
+    # via [this algorithm][hsl-to-rgb].
     #
-    # @param color [Color]
-    # @return [Number]
-    # @raise [ArgumentError] If `color` isn't a color
+    # [hsl-to-rgb]: http://www.w3.org/TR/css3-color/#hsl-color
+    #
+    # @overload blue($color)
+    # @param $color [Color]
+    # @return [Number] The blue component, between 0 and 255 inclusive
+    # @raise [ArgumentError] if `$color` isn't a color
     def blue(color)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       Sass::Script::Number.new(color.blue)
     end
     declare :blue, [:color]
 
-    # Returns the hue component of a color.
+    # Returns the hue component of a color. See [the CSS3 HSL
+    # specification][hsl]. Calculated from RGB where necessary via [this
+    # algorithm][rgb-to-hsl].
     #
-    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    # [hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
+    # [rgb-to-hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
     #
-    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
-    #
-    # @param color [Color]
-    # @return [Number] between 0deg and 360deg
-    # @see #adjust_hue
-    # @raise [ArgumentError] if `color` isn't a color
+    # @overload hue($color)
+    # @param $color [Color]
+    # @return [Number] The hue component, between 0deg and 360deg
+    # @raise [ArgumentError] if `$color` isn't a color
     def hue(color)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       Sass::Script::Number.new(color.hue, ["deg"])
     end
     declare :hue, [:color]
 
-    # Returns the saturation component of a color.
+    # Returns the saturation component of a color. See [the CSS3 HSL
+    # specification][hsl]. Calculated from RGB where necessary via [this
+    # algorithm][rgb-to-hsl].
     #
-    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    # [hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
+    # [rgb-to-hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
     #
-    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
-    #
-    # @param color [Color]
-    # @return [Number] between 0% and 100%
-    # @see #saturate
-    # @see #desaturate
-    # @raise [ArgumentError] if `color` isn't a color
+    # @overload saturation($color)
+    # @param $color [Color]
+    # @return [Number] The saturation component, between 0% and 100%
+    # @raise [ArgumentError] if `$color` isn't a color
     def saturation(color)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       Sass::Script::Number.new(color.saturation, ["%"])
     end
     declare :saturation, [:color]
 
-    # Returns the hue component of a color.
+    # Returns the lightness component of a color. See [the CSS3 HSL
+    # specification][hsl]. Calculated from RGB where necessary via [this
+    # algorithm][rgb-to-hsl].
     #
-    # See [the CSS3 HSL specification](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
+    # [hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
+    # [rgb-to-hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
     #
-    # Calculated from RGB where necessary via [this algorithm](http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV).
-    #
-    # @param color [Color]
-    # @return [Number] between 0% and 100%
-    # @see #lighten
-    # @see #darken
-    # @raise [ArgumentError] if `color` isn't a color
+    # @overload lightness($color)
+    # @param $color [Color]
+    # @return [Number] The lightness component, between 0% and 100%
+    # @raise [ArgumentError] if `$color` isn't a color
     def lightness(color)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       Sass::Script::Number.new(color.lightness, ["%"])
     end
     declare :lightness, [:color]
 
-    # Returns the alpha component (opacity) of a color.
-    # This is 1 unless otherwise specified.
+    # Returns the alpha component (opacity) of a color. This is 1 unless
+    # otherwise specified.
     #
-    # This function also supports the proprietary Microsoft
-    # `alpha(opacity=20)` syntax.
+    # This function also supports the proprietary Microsoft `alpha(opacity=20)`
+    # syntax as a special case.
     #
-    # @overload def alpha(color)
-    # @param color [Color]
-    # @return [Number]
-    # @see #opacify
-    # @see #transparentize
-    # @raise [ArgumentError] If `color` isn't a color
+    # @overload alpha($color)
+    # @param $color [Color]
+    # @return [Number] The alpha component, between 0 and 1
+    # @raise [ArgumentError] if `$color` isn't a color
     def alpha(*args)
       if args.all? do |a|
           a.is_a?(Sass::Script::String) && a.type == :identifier &&
@@ -593,39 +612,39 @@ module Sass::Script
 
       raise ArgumentError.new("wrong number of arguments (#{args.size} for 1)") if args.size != 1
 
-      assert_type args.first, :Color
+      assert_type args.first, :Color, :color
       Sass::Script::Number.new(args.first.alpha)
     end
     declare :alpha, [:color]
 
-    # Returns the alpha component (opacity) of a color.
-    # This is 1 unless otherwise specified.
+    # Returns the alpha component (opacity) of a color. This is 1 unless
+    # otherwise specified.
     #
-    # @param color [Color]
-    # @return [Number]
-    # @see #opacify
-    # @see #transparentize
-    # @raise [ArgumentError] If `color` isn't a color
+    # @overload opacity($color)
+    # @param $color [Color]
+    # @return [Number] The alpha component, between 0 and 1
+    # @raise [ArgumentError] if `$color` isn't a color
     def opacity(color)
       return Sass::Script::String.new("opacity(#{color})") if color.is_a?(Sass::Script::Number)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       Sass::Script::Number.new(color.alpha)
     end
     declare :opacity, [:color]
 
-    # Makes a color more opaque.
-    # Takes a color and an amount between 0 and 1,
-    # and returns a color with the opacity increased by that value.
+    # Makes a color more opaque. Takes a color and a number between 0 and 1, and
+    # returns a color with the opacity increased by that amount.
     #
+    # @see #transparentize
     # @example
     #   opacify(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.6)
     #   opacify(rgba(0, 0, 17, 0.8), 0.2) => #001
-    # @param color [Color]
-    # @param amount [Number]
+    # @overload opacify($color, $amount)
+    # @param $color [Color]
+    # @param $amount [Number] The amount to increase the opacity by, between 0
+    #   and 1
     # @return [Color]
-    # @see #transparentize
-    # @raise [ArgumentError] If `color` isn't a color,
-    #   or `number` isn't a number between 0 and 1
+    # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
+    #   is the wrong type
     def opacify(color, amount)
       _adjust(color, amount, :alpha, 0..1, :+)
     end
@@ -634,19 +653,20 @@ module Sass::Script
     alias_method :fade_in, :opacify
     declare :fade_in, [:color, :amount]
 
-    # Makes a color more transparent.
-    # Takes a color and an amount between 0 and 1,
-    # and returns a color with the opacity decreased by that value.
+    # Makes a color more transparent. Takes a color and a number between 0 and
+    # 1, and returns a color with the opacity decreased by that amount.
     #
+    # @see #opacify
     # @example
     #   transparentize(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.4)
     #   transparentize(rgba(0, 0, 0, 0.8), 0.2) => rgba(0, 0, 0, 0.6)
-    # @param color [Color]
-    # @param amount [Number]
+    # @overload transparentize($color, $amount)
+    # @param $color [Color]
+    # @param $amount [Number] The amount to decrease the opacity by, between 0
+    #   and 1
     # @return [Color]
-    # @see #opacify
-    # @raise [ArgumentError] If `color` isn't a color,
-    #   or `number` isn't a number between 0 and 1
+    # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
+    #   is the wrong type
     def transparentize(color, amount)
       _adjust(color, amount, :alpha, 0..1, :-)
     end
@@ -655,56 +675,58 @@ module Sass::Script
     alias_method :fade_out, :transparentize
     declare :fade_out, [:color, :amount]
 
-    # Makes a color lighter.
-    # Takes a color and an amount between 0% and 100%,
-    # and returns a color with the lightness increased by that value.
+    # Makes a color lighter. Takes a color and a number between `0%` and `100%`,
+    # and returns a color with the lightness increased by that amount.
     #
+    # @see #darken
     # @example
     #   lighten(hsl(0, 0%, 0%), 30%) => hsl(0, 0, 30)
     #   lighten(#800, 20%) => #e00
-    # @param color [Color]
-    # @param amount [Number]
+    # @overload lighten($color, $amount)
+    # @param $color [Color]
+    # @param $amount [Number] The amount to increase the lightness by, between
+    #   `0%` and `100%`
     # @return [Color]
-    # @see #darken
-    # @raise [ArgumentError] If `color` isn't a color,
-    #   or `number` isn't a number between 0% and 100%
+    # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
+    #   is the wrong type
     def lighten(color, amount)
       _adjust(color, amount, :lightness, 0..100, :+, "%")
     end
     declare :lighten, [:color, :amount]
 
-    # Makes a color darker.
-    # Takes a color and an amount between 0% and 100%,
-    # and returns a color with the lightness decreased by that value.
+    # Makes a color darker. Takes a color and a number between 0% and 100%, and
+    # returns a color with the lightness decreased by that amount.
     #
+    # @see #lighten
     # @example
     #   darken(hsl(25, 100%, 80%), 30%) => hsl(25, 100%, 50%)
     #   darken(#800, 20%) => #200
-    # @param color [Color]
-    # @param amount [Number]
+    # @overload darken($color, $amount)
+    # @param $color [Color]
+    # @param $amount [Number] The amount to dencrease the lightness by, between
+    #   `0%` and `100%`
     # @return [Color]
-    # @see #lighten
-    # @raise [ArgumentError] If `color` isn't a color,
-    #   or `number` isn't a number between 0% and 100%
+    # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
+    #   is the wrong type
     def darken(color, amount)
       _adjust(color, amount, :lightness, 0..100, :-, "%")
     end
     declare :darken, [:color, :amount]
 
-    # Makes a color more saturated.
-    # Takes a color and an amount between 0% and 100%,
-    # and returns a color with the saturation increased by that value.
+    # Makes a color more saturated. Takes a color and a number between 0% and
+    # 100%, and returns a color with the saturation increased by that amount.
     #
+    # @see #desaturate
     # @example
     #   saturate(hsl(120, 30%, 90%), 20%) => hsl(120, 50%, 90%)
     #   saturate(#855, 20%) => #9e3f3f
-    # @overload saturate(color, amount)
-    #   @param color [Color]
-    #   @param amount [Number]
-    #   @return [Color]
-    #   @see #desaturate
-    #   @raise [ArgumentError] If `color` isn't a color,
-    #     or `number` isn't a number between 0% and 100%
+    # @overload saturate($color, $amount)
+    # @param $color [Color]
+    # @param $amount [Number] The amount to increase the saturation by, between
+    #   `0%` and `100%`
+    # @return [Color]
+    # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
+    #   is the wrong type
     def saturate(color, amount = nil)
       # Support the filter effects definition of saturate.
       # https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html
@@ -714,93 +736,97 @@ module Sass::Script
     declare :saturate, [:color, :amount]
     declare :saturate, [:amount]
 
-    # Makes a color less saturated.
-    # Takes a color and an amount between 0% and 100%,
-    # and returns a color with the saturation decreased by that value.
+    # Makes a color less saturated. Takes a color and a number between 0% and
+    # 100%, and returns a color with the saturation decreased by that value.
     #
+    # @see #saturate
     # @example
     #   desaturate(hsl(120, 30%, 90%), 20%) => hsl(120, 10%, 90%)
     #   desaturate(#855, 20%) => #726b6b
-    # @param color [Color]
-    # @param amount [Number]
+    # @overload desaturate($color, $amount)
+    # @param $color [Color]
+    # @param $amount [Number] The amount to decrease the saturation by, between
+    #   `0%` and `100%`
     # @return [Color]
-    # @see #saturate
-    # @raise [ArgumentError] If `color` isn't a color,
-    #   or `number` isn't a number between 0% and 100%
+    # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
+    #   is the wrong type
     def desaturate(color, amount)
       _adjust(color, amount, :saturation, 0..100, :-, "%")
     end
     declare :desaturate, [:color, :amount]
 
-    # Changes the hue of a color while retaining the lightness and saturation.
-    # Takes a color and a number of degrees (usually between -360deg and 360deg),
-    # and returns a color with the hue rotated by that value.
+    # Changes the hue of a color. Takes a color and a number of degrees (usually
+    # between `-360deg` and `360deg`), and returns a color with the hue rotated
+    # along the color wheel by that amount.
     #
     # @example
     #   adjust-hue(hsl(120, 30%, 90%), 60deg) => hsl(180, 30%, 90%)
     #   adjust-hue(hsl(120, 30%, 90%), 060deg) => hsl(60, 30%, 90%)
     #   adjust-hue(#811, 45deg) => #886a11
-    # @param color [Color]
-    # @param amount [Number]
+    # @overload adjust_hue($color, $degrees)
+    # @param $color [Color]
+    # @param $degrees [Number] The number of degrees to rotate the hue
     # @return [Color]
-    # @raise [ArgumentError] If `color` isn't a color, or `number` isn't a number
+    # @raise [ArgumentError] if either parameter is the wrong type
     def adjust_hue(color, degrees)
-      assert_type color, :Color
-      assert_type degrees, :Number
+      assert_type color, :Color, :color
+      assert_type degrees, :Number, :degrees
       color.with(:hue => color.hue + degrees.value)
     end
     declare :adjust_hue, [:color, :degrees]
 
-    # Returns an IE hex string for a color with an alpha channel
-    # suitable for passing to IE filters.
+    # Converts a color into the format understood by IE filters.
     #
     # @example
     #   ie-hex-str(#abc) => #FFAABBCC
     #   ie-hex-str(#3322BB) => #FF3322BB
     #   ie-hex-str(rgba(0, 255, 0, 0.5)) => #8000FF00
-    # @param color [Color]
-    # @return [String]
-    # @raise [ArgumentError] If `color` isn't a color
+    # @overload ie_hex_str($color)
+    # @param $color [Color]
+    # @return [String] The IE-formatted string representation of the color
+    # @raise [ArgumentError] if `$color` isn't a color
     def ie_hex_str(color)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       alpha = (color.alpha * 255).round.to_s(16).rjust(2, '0')
       Sass::Script::String.new("##{alpha}#{color.send(:hex_str)[1..-1]}".upcase)
     end
     declare :ie_hex_str, [:color]
 
-    # Adjusts one or more properties of a color.
-    # This can change the red, green, blue, hue, saturation, value, and alpha properties.
-    # The properties are specified as keyword arguments,
-    # and are added to or subtracted from the color's current value for that property.
+    # Increases or decreases one or more properties of a color. This can change
+    # the red, green, blue, hue, saturation, value, and alpha properties. The
+    # properties are specified as keyword arguments, and are added to or
+    # subtracted from the color's current value for that property.
     #
-    # `$red`, `$green`, and `$blue` properties should be between 0 and 255.
-    # `$saturation` and `$lightness` should be between 0% and 100%.
-    # `$alpha` should be between 0 and 1.
-    #
-    # All properties are optional.
-    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
-    # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
+    # All properties are optional. You can't specify both RGB properties
+    # (`$red`, `$green`, `$blue`) and HSL properties (`$hue`, `$saturation`,
+    # `$value`) at the same time.
     #
     # @example
     #   adjust-color(#102030, $blue: 5) => #102035
     #   adjust-color(#102030, $red: -5, $blue: 5) => #0b2035
     #   adjust-color(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
-    # @param color [Color]
-    # @param red [Number]
-    # @param green [Number]
-    # @param blue [Number]
-    # @param hue [Number]
-    # @param saturation [Number]
-    # @param lightness [Number]
-    # @param alpha [Number]
+    # @overload adjust_color($color, [$red], [$green], [$blue], [$hue], [$saturation], [$lightness], [$alpha])
+    # @param $color [Color]
+    # @param $red [Number] The adjustment to make on the red component, between
+    #   -255 and 255 inclusive
+    # @param $green [Number] The adjustment to make on the green component,
+    #   between -255 and 255 inclusive
+    # @param $blue [Number] The adjustment to make on the blue component, between
+    #   -255 and 255 inclusive
+    # @param $hue [Number] The adjustment to make on the hue component, in
+    #   degrees
+    # @param $saturation [Number] The adjustment to make on the saturation
+    #   component, between `-100%` and `100%` inclusive
+    # @param $lightness [Number] The adjustment to make on the lightness
+    #   component, between `-100%` and `100%` inclusive
+    # @param $alpha [Number] The adjustment to make on the alpha component,
+    #   between -1 and 1 inclusive
     # @return [Color]
-    # @raise [ArgumentError] if `color` is not a color,
-    #   if any keyword argument is not a number,
-    #   if any keyword argument is not in the legal range,
-    #   if an unexpected keyword argument is given,
-    #   or if both HSL and RGB properties are given.
+    # @raise [ArgumentError] if any parameter is the wrong type or out-of
+    #   bounds, or if RGB properties and HSL properties are adjusted at the
+    #   same time
     def adjust_color(color, kwargs)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       with = Sass::Util.map_hash({
           "red" => [-255..255, ""],
           "green" => [-255..255, ""],
@@ -828,47 +854,47 @@ module Sass::Script
     end
     declare :adjust_color, [:color], :var_kwargs => true
 
-    # Scales one or more properties of a color by a percentage value.
-    # Unlike \{#adjust_color adjust-color}, which changes a color's properties by fixed amounts,
-    # \{#scale_color scale-color} fluidly changes them based on how high or low they already are.
-    # That means that lightening an already-light color with \{#scale_color scale-color}
-    # won't change the lightness much,
-    # but lightening a dark color by the same amount will change it more dramatically.
-    # This has the benefit of making `scale-color($color, ...)` have a similar effect
-    # regardless of what `$color` is.
+    # Fluidly scales one or more properties of a color. Unlike
+    # \{#adjust_color adjust-color}, which changes a color's properties by fixed
+    # amounts, \{#scale_color scale-color} fluidly changes them based on how
+    # high or low they already are. That means that lightening an already-light
+    # color with \{#scale_color scale-color} won't change the lightness much,
+    # but lightening a dark color by the same amount will change it more
+    # dramatically. This has the benefit of making `scale-color($color, ...)`
+    # have a similar effect regardless of what `$color` is.
     #
-    # For example, the lightness of a color can be anywhere between 0 and 100.
-    # If `scale-color($color, $lightness: 40%)` is called, the resulting color's lightness
-    # will be 40% of the way between its original lightness and 100.
-    # If `scale-color($color, $lightness: -40%)` is called instead,
-    # the lightness will be 40% of the way between the original and 0.
+    # For example, the lightness of a color can be anywhere between `0%` and
+    # `100%`. If `scale-color($color, $lightness: 40%)` is called, the resulting
+    # color's lightness will be 40% of the way between its original lightness
+    # and 100. If `scale-color($color, $lightness: -40%)` is called instead, the
+    # lightness will be 40% of the way between the original and 0.
     #
-    # This can change the red, green, blue, saturation, value, and alpha properties.
-    # The properties are specified as keyword arguments.
-    # All arguments should be percentages between 0% and 100%.
+    # This can change the red, green, blue, saturation, value, and alpha
+    # properties. The properties are specified as keyword arguments. All
+    # arguments should be percentages between `0%` and `100%`.
     #
-    # All properties are optional.
-    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
-    # and HSL properties (`$saturation`, `$value`) at the same time.
+    # All properties are optional. You can't specify both RGB properties
+    # (`$red`, `$green`, `$blue`) and HSL properties (`$saturation`, `$value`)
+    # at the same time.
     #
     # @example
-    #   scale-color(hsl(120, 70, 80), $lightness: 50%) => hsl(120, 70, 90)
-    #   scale-color(rgb(200, 150, 170), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
-    #   scale-color(hsl(200, 70, 80), $saturation: -90%, $alpha: -30%) => hsla(200, 7, 80, 0.7)
-    # @param color [Color]
-    # @param red [Number]
-    # @param green [Number]
-    # @param blue [Number]
-    # @param saturation [Number]
-    # @param lightness [Number]
-    # @param alpha [Number]
+    #   scale-color(hsl(120, 70%, 80%), $lightness: 50%) => hsl(120, 70%, 90%)
+    #   scale-color(rgb(200, 150%, 170%), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
+    #   scale-color(hsl(200, 70%, 80%), $saturation: -90%, $alpha: -30%) => hsla(200, 7%, 80%, 0.7)
+    # @overload scale_color($color, [$red], [$green], [$blue], [$saturation], [$lightness], [$alpha])
+    # @param $color [Color]
+    # @param $red [Number]
+    # @param $green [Number]
+    # @param $blue [Number]
+    # @param $saturation [Number]
+    # @param $lightness [Number]
+    # @param $alpha [Number]
     # @return [Color]
-    # @raise [ArgumentError] if `color` is not a color,
-    #   if any keyword argument is not a percentage between 0% and 100%,
-    #   if an unexpected keyword argument is given,
-    #   or if both HSL and RGB properties are given.
+    # @raise [ArgumentError] if any parameter is the wrong type or out-of
+    #   bounds, or if RGB properties and HSL properties are adjusted at the
+    #   same time
     def scale_color(color, kwargs)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       with = Sass::Util.map_hash({
           "red" => 255,
           "green" => 255,
@@ -901,39 +927,40 @@ module Sass::Script
     end
     declare :scale_color, [:color], :var_kwargs => true
 
-    # Changes one or more properties of a color.
-    # This can change the red, green, blue, hue, saturation, value, and alpha properties.
-    # The properties are specified as keyword arguments,
-    # and replace the color's current value for that property.
+    # Changes one or more properties of a color. This can change the red, green,
+    # blue, hue, saturation, value, and alpha properties. The properties are
+    # specified as keyword arguments, and replace the color's current value for
+    # that property.
     #
-    # `$red`, `$green`, and `$blue` properties should be between 0 and 255.
-    # `$saturation` and `$lightness` should be between 0% and 100%.
-    # `$alpha` should be between 0 and 1.
-    #
-    # All properties are optional.
-    # You can't specify both RGB properties (`$red`, `$green`, `$blue`)
-    # and HSL properties (`$hue`, `$saturation`, `$value`) at the same time.
+    # All properties are optional. You can't specify both RGB properties
+    # (`$red`, `$green`, `$blue`) and HSL properties (`$hue`, `$saturation`,
+    # `$value`) at the same time.
     #
     # @example
     #   change-color(#102030, $blue: 5) => #102005
     #   change-color(#102030, $red: 120, $blue: 5) => #782005
     #   change-color(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
-    # @param color [Color]
-    # @param red [Number]
-    # @param green [Number]
-    # @param blue [Number]
-    # @param hue [Number]
-    # @param saturation [Number]
-    # @param lightness [Number]
-    # @param alpha [Number]
+    # @overload change_color($color, [$red], [$green], [$blue], [$hue], [$saturation], [$lightness], [$alpha])
+    # @param $color [Color]
+    # @param $red [Number] The new red component for the color, within 0 and 255
+    #   inclusive
+    # @param $green [Number] The new green component for the color, within 0 and
+    #   255 inclusive
+    # @param $blue [Number] The new blue component for the color, within 0 and
+    #   255 inclusive
+    # @param $hue [Number] The new hue component for the color, in degrees
+    # @param $saturation [Number] The new saturation component for the color,
+    #   between `0%` and `100%` inclusive
+    # @param $lightness [Number] The new lightness component for the color,
+    #   within `0%` and `100%` inclusive
+    # @param $alpha [Number] The new alpha component for the color, within 0 and
+    #   1 inclusive
     # @return [Color]
-    # @raise [ArgumentError] if `color` is not a color,
-    #   if any keyword argument is not a number,
-    #   if any keyword argument is not in the legal range,
-    #   if an unexpected keyword argument is given,
-    #   or if both HSL and RGB properties are given.
+    # @raise [ArgumentError] if any parameter is the wrong type or out-of
+    #   bounds, or if RGB properties and HSL properties are adjusted at the
+    #   same time
     def change_color(color, kwargs)
-      assert_type color, :Color
+      assert_type color, :Color, :color
       with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
         next unless val = kwargs.delete(name)
         assert_type val, :Number, name
@@ -949,33 +976,32 @@ module Sass::Script
     end
     declare :change_color, [:color], :var_kwargs => true
 
-    # Mixes together two colors.
-    # Specifically, takes the average of each of the RGB components,
-    # optionally weighted by the given percentage.
-    # The opacity of the colors is also considered when weighting the components.
+    # Mixes two colors together. Specifically, takes the average of each of the
+    # RGB components, optionally weighted by the given percentage. The opacity
+    # of the colors is also considered when weighting the components.
     #
     # The weight specifies the amount of the first color that should be included
-    # in the returned color.
-    # The default, 50%, means that half the first color
-    # and half the second color should be used.
-    # 25% means that a quarter of the first color
-    # and three quarters of the second color should be used.
+    # in the returned color. The default, `50%`, means that half the first color
+    # and half the second color should be used. `25%` means that a quarter of
+    # the first color and three quarters of the second color should be used.
     #
     # @example
     #   mix(#f00, #00f) => #7f007f
     #   mix(#f00, #00f, 25%) => #3f00bf
     #   mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
-    # @overload mix(color1, color2, weight: 50%)
-    #   @param color1 [Color]
-    #   @param color2 [Color]
-    #   @param weight [Number] between 0% and 100%
-    #   @return [Color]
-    #   @raise [ArgumentError] if `color1` or `color2` aren't colors,
-    #     or `weight` isn't a number between 0% and 100%
-    def mix(color1, color2, weight = Number.new(50))
-      assert_type color1, :Color
-      assert_type color2, :Color
-      assert_type weight, :Number
+    # @overload mix($color-1, $color-2, $weight: 50%)
+    # @param $color-1 [Color]
+    # @param $color-2 [Color]
+    # @param $weight [Number] The relative weight of each color. Closer to `0%`
+    #   gives more weight to `$color`, closer to `100%` gives more weight to
+    #   `$color2`
+    # @return [Color]
+    # @raise [ArgumentError] if `$weight` is out of bounds or any parameter is
+    #   the wrong type
+    def mix(color_1, color_2, weight = Number.new(50))
+      assert_type color_1, :Color, :color_1
+      assert_type color_2, :Color, :color_2
+      assert_type weight, :Number, :weight
 
       Sass::Util.check_range("Weight", 0..100, weight, '%')
 
@@ -984,11 +1010,11 @@ module Sass::Script
       # to perform the weighted average of the two RGB values.
       #
       # It works by first normalizing both parameters to be within [-1, 1],
-      # where 1 indicates "only use color1", -1 indicates "only use color2", and
+      # where 1 indicates "only use color_1", -1 indicates "only use color_2", and
       # all values in between indicated a proportionately weighted average.
       #
       # Once we have the normalized variables w and a, we apply the formula
-      # (w + a)/(1 + w*a) to get the combined weight (in [-1, 1]) of color1.
+      # (w + a)/(1 + w*a) to get the combined weight (in [-1, 1]) of color_1.
       # This formula has two especially nice properties:
       #
       #   * When either w or a are -1 or 1, the combined weight is also that number
@@ -996,57 +1022,60 @@ module Sass::Script
       #
       #   * When a is 0, the combined weight is w, and vice versa.
       #
-      # Finally, the weight of color1 is renormalized to be within [0, 1]
-      # and the weight of color2 is given by 1 minus the weight of color1.
+      # Finally, the weight of color_1 is renormalized to be within [0, 1]
+      # and the weight of color_2 is given by 1 minus the weight of color_1.
       p = (weight.value/100.0).to_f
       w = p*2 - 1
-      a = color1.alpha - color2.alpha
+      a = color_1.alpha - color_2.alpha
 
       w1 = (((w * a == -1) ? w : (w + a)/(1 + w*a)) + 1)/2.0
       w2 = 1 - w1
 
-      rgb = color1.rgb.zip(color2.rgb).map {|v1, v2| v1*w1 + v2*w2}
-      alpha = color1.alpha*p + color2.alpha*(1-p)
+      rgb = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1*w1 + v2*w2}
+      alpha = color_1.alpha*p + color_2.alpha*(1-p)
       Color.new(rgb + [alpha])
     end
     declare :mix, [:color_1, :color_2]
     declare :mix, [:color_1, :color_2, :weight]
 
-    # Converts a color to grayscale.
-    # This is identical to `desaturate(color, 100%)`.
+    # Converts a color to grayscale. This is identical to `desaturate(color,
+    # 100%)`.
     #
-    # @param color [Color]
-    # @return [Color]
-    # @raise [ArgumentError] if `color` isn't a color
     # @see #desaturate
+    # @overload grayscale($color)
+    # @param $color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `$color` isn't a color
     def grayscale(color)
       return Sass::Script::String.new("grayscale(#{color})") if color.is_a?(Sass::Script::Number)
       desaturate color, Number.new(100)
     end
     declare :grayscale, [:color]
 
-    # Returns the complement of a color.
-    # This is identical to `adjust-hue(color, 180deg)`.
+    # Returns the complement of a color. This is identical to `adjust-hue(color,
+    # 180deg)`.
     #
-    # @param color [Color]
-    # @return [Color]
-    # @raise [ArgumentError] if `color` isn't a color
     # @see #adjust_hue #adjust-hue
+    # @overload complement($color)
+    # @param $color [Color]
+    # @return [Color]
+    # @raise [ArgumentError] if `$color` isn't a color
     def complement(color)
       adjust_hue color, Number.new(180)
     end
     declare :complement, [:color]
 
-    # Returns the inverse (negative) of a color.
-    # The red, green, and blue values are inverted, while the opacity is left alone.
+    # Returns the inverse (negative) of a color. The red, green, and blue values
+    # are inverted, while the opacity is left alone.
     #
-    # @param color [Color]
+    # @overload invert($color)
+    # @param $color [Color]
     # @return [Color]
-    # @raise [ArgumentError] if `color` isn't a color
+    # @raise [ArgumentError] if `$color` isn't a color
     def invert(color)
       return Sass::Script::String.new("invert(#{color})") if color.is_a?(Sass::Script::Number)
 
-      assert_type color, :Color
+      assert_type color, :Color, :color
       color.with(
         :red => (255 - color.red),
         :green => (255 - color.green),
@@ -1054,16 +1083,17 @@ module Sass::Script
     end
     declare :invert, [:color]
 
-    # Removes quotes from a string if the string is quoted,
-    # or returns the same string if it's not.
+    # Removes quotes from a string. If the string is already unquoted, this will
+    # return it unmodified.
     #
-    # @param string [String]
-    # @return [String]
-    # @raise [ArgumentError] if `string` isn't a string
     # @see #quote
     # @example
     #   unquote("foo") => foo
     #   unquote(foo) => foo
+    # @overload unquote($string)
+    # @param $string [String]
+    # @return [String]
+    # @raise [ArgumentError] if `$string` isn't a string
     def unquote(string)
       if string.is_a?(Sass::Script::String)
         Sass::Script::String.new(string.value, :identifier)
@@ -1076,20 +1106,21 @@ module Sass::Script
     # Add quotes to a string if the string isn't quoted,
     # or returns the same string if it is.
     #
-    # @param string [String]
-    # @return [String]
-    # @raise [ArgumentError] if `string` isn't a string
     # @see #unquote
     # @example
     #   quote("foo") => "foo"
     #   quote(foo) => "foo"
+    # @overload quote($string)
+    # @param $string [String]
+    # @return [String]
+    # @raise [ArgumentError] if `$string` isn't a string
     def quote(string)
-      assert_type string, :String
+      assert_type string, :String, :string
       Sass::Script::String.new(string.value, :string)
     end
     declare :quote, [:string]
 
-    # Inspects the type of the argument, returning it as an unquoted string.
+    # Returns the type of a value.
     #
     # @example
     #   type-of(100px)  => number
@@ -1098,15 +1129,16 @@ module Sass::Script
     #   type-of(true)   => bool
     #   type-of(#fff)   => color
     #   type-of(blue)   => color
-    # @param value [Literal] The object to inspect
-    # @return [String] The unquoted string name of the literal's type
+    # @overload type_of($value)
+    # @param $value [Literal] The value to inspect
+    # @return [String] The unquoted string name of the value's type
     def type_of(value)
       Sass::Script::String.new(value.class.name.gsub(/Sass::Script::/,'').downcase)
     end
     declare :type_of, [:value]
 
-    # Inspects the unit of the number, returning it as a quoted string.
-    # Complex units are sorted in alphabetical order by numerator and denominator.
+    # Returns the unit(s) associated with a number. Complex units are sorted in
+    # alphabetical order by numerator and denominator.
     #
     # @example
     #   unit(100) => ""
@@ -1114,56 +1146,61 @@ module Sass::Script
     #   unit(3em) => "em"
     #   unit(10px * 5em) => "em*px"
     #   unit(10px * 5em / 30cm / 1rem) => "em*px/cm*rem"
-    # @param number [Literal] The number to inspect
-    # @return [String] The unit(s) of the number
-    # @raise [ArgumentError] if `number` isn't a number
+    # @overload unit($number)
+    # @param $number [Number]
+    # @return [String] The unit(s) of the number, as a quoted string
+    # @raise [ArgumentError] if `$number` isn't a number
     def unit(number)
-      assert_type number, :Number
+      assert_type number, :Number, :number
       Sass::Script::String.new(number.unit_str, :string)
     end
     declare :unit, [:number]
 
-    # Inspects the unit of the number, returning a boolean indicating if it is unitless.
+    # Returns whether a number has units.
     #
     # @example
     #   unitless(100) => true
     #   unitless(100px) => false
-    # @param number [Literal] The number to inspect
-    # @return [Bool] Whether or not the number is unitless
-    # @raise [ArgumentError] if `number` isn't a number
+    # @overload unitless($number)
+    # @param $number [Number]
+    # @return [Bool]
+    # @raise [ArgumentError] if `$number` isn't a number
     def unitless(number)
-      assert_type number, :Number
+      assert_type number, :Number, :number
       Sass::Script::Bool.new(number.unitless?)
     end
     declare :unitless, [:number]
 
-    # Returns true if two numbers are similar enough to be added, subtracted, or compared.
+    # Returns whether two numbers can added, subtracted, or compared.
     #
     # @example
     #   comparable(2px, 1px) => true
     #   comparable(100px, 3em) => false
     #   comparable(10cm, 3mm) => true
-    # @param number_1 [Number]
-    # @param number_2 [Number]
-    # @return [Bool] indicating if the numbers can be compared.
-    # @raise [ArgumentError] if `number_1` or `number_2` aren't numbers
+    # @overload comparable($number-1, $number-2)
+    # @param $number-1 [Number]
+    # @param $number-2 [Number]
+    # @return [Bool]
+    # @raise [ArgumentError] if either parameter is the wrong type
     def comparable(number_1, number_2)
-      assert_type number_1, :Number
-      assert_type number_2, :Number
+      assert_type number_1, :Number, :number_1
+      assert_type number_2, :Number, :number_2
       Sass::Script::Bool.new(number_1.comparable_to?(number_2))
     end
     declare :comparable, [:number_1, :number_2]
 
-    # Converts a decimal number to a percentage.
+    # Converts a unitless number to a percentage.
     #
     # @example
+    #   percentage(0.2) => 20%
     #   percentage(100px / 50px) => 200%
-    # @param value [Number] The decimal number to convert to a percentage
-    # @return [Number] The percentage
-    # @raise [ArgumentError] If `value` isn't a unitless number
+    # @overload percentage($value)
+    # @param $value [Number]
+    # @return [Number]
+    # @raise [ArgumentError] if `$value` isn't a unitless number
     def percentage(value)
       unless value.is_a?(Sass::Script::Number) && value.unitless?
-        raise ArgumentError.new("#{value.inspect} is not a unitless number")
+        raise ArgumentError.new("$value: #{value.inspect} is not a unitless number")
       end
       Sass::Script::Number.new(value.value * 100, ['%'])
     end
@@ -1174,76 +1211,83 @@ module Sass::Script
     # @example
     #   round(10.4px) => 10px
     #   round(10.6px) => 11px
-    # @param value [Number] The number
-    # @return [Number] The rounded number
-    # @raise [ArgumentError] if `value` isn't a number
+    # @overload round($value)
+    # @param $value [Number]
+    # @return [Number]
+    # @raise [ArgumentError] if `$value` isn't a number
     def round(value)
       numeric_transformation(value) {|n| n.round}
     end
     declare :round, [:value]
 
-    # Rounds a number up to the nearest whole number.
+    # Rounds a number up to the next whole number.
     #
     # @example
     #   ceil(10.4px) => 11px
     #   ceil(10.6px) => 11px
-    # @param value [Number] The number
-    # @return [Number] The rounded number
-    # @raise [ArgumentError] if `value` isn't a number
+    # @overload ceil($value)
+    # @param $value [Number]
+    # @return [Number]
+    # @raise [ArgumentError] if `$value` isn't a number
     def ceil(value)
       numeric_transformation(value) {|n| n.ceil}
     end
     declare :ceil, [:value]
 
-    # Rounds down to the nearest whole number.
+    # Rounds a number down to the previous whole number.
     #
     # @example
     #   floor(10.4px) => 10px
     #   floor(10.6px) => 10px
-    # @param value [Number] The number
-    # @return [Number] The rounded number
-    # @raise [ArgumentError] if `value` isn't a number
+    # @overload floor($value)
+    # @param $value [Number]
+    # @return [Number]
+    # @raise [ArgumentError] if `$value` isn't a number
     def floor(value)
       numeric_transformation(value) {|n| n.floor}
     end
     declare :floor, [:value]
 
-    # Finds the absolute value of a number.
+    # Returns the absolute value of a number.
     #
     # @example
     #   abs(10px) => 10px
     #   abs(-10px) => 10px
-    # @param value [Number] The number
-    # @return [Number] The absolute value
-    # @raise [ArgumentError] if `value` isn't a number
+    # @overload abs($value)
+    # @param $value [Number]
+    # @return [Number]
+    # @raise [ArgumentError] if `$value` isn't a number
     def abs(value)
       numeric_transformation(value) {|n| n.abs}
     end
     declare :abs, [:value]
 
-    # Finds the minimum of several values. This function takes any number of
+    # Finds the minimum of several numbers. This function takes any number of
     # arguments.
     #
     # @example
     #   min(1px, 4px) => 1px
     #   min(5em, 3em, 4em) => 3em
-    # @param values [[Number]] The numbers
-    # @return [Number] The minimum value
+    # @overload min($numbers...)
+    # @param $numbers [[Number]]
+    # @return [Number]
     # @raise [ArgumentError] if any argument isn't a number, or if not all of
     #   the arguments have comparable units
-    def min(*values)
-      values.each {|v| assert_type v, :Number}
-      values.inject {|min, val| min.lt(val).to_bool ? min : val}
+    def min(*numbers)
+      numbers.each {|n| assert_type n, :Number}
+      numbers.inject {|min, num| min.lt(num).to_bool ? min : num}
     end
     declare :min, [], :var_args => :true
 
-    # Finds the maximum of several values. This function takes any number of
+    # Finds the maximum of several numbers. This function takes any number of
     # arguments.
     #
     # @example
     #   max(1px, 4px) => 4px
     #   max(5em, 3em, 4em) => 5em
-    # @return [Number] The maximum value
+    # @overload max($numbers...)
+    # @param $numbers [[Number]]
+    # @return [Number]
     # @raise [ArgumentError] if any argument isn't a number, or if not all of
     #   the arguments have comparable units
     def max(*values)
@@ -1257,8 +1301,9 @@ module Sass::Script
     # @example
     #   length(10px) => 1
     #   length(10px 20px 30px) => 3
-    # @param list [Literal] The list
-    # @return [Number] The length
+    # @overload length($list)
+    # @param $list [Literal]
+    # @return [Number]
     def length(list)
       Sass::Script::Number.new(list.to_a.size)
     end
@@ -1266,18 +1311,20 @@ module Sass::Script
 
     # Gets the nth item in a list.
     #
-    # Note that unlike some languages, the first item in a Sass list is number 1,
-    # the second number 2, and so forth.
+    # Note that unlike some languages, the first item in a Sass list is number
+    # 1, the second number 2, and so forth.
     #
     # @example
     #   nth(10px 20px 30px, 1) => 10px
     #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
-    # @param list [Literal] The list
-    # @param n [Number] The index into the list
-    # @return [Literal] The nth item in the list
-    # @raise [ArgumentError] If `n` isn't an integer between 1 and the list's length.
+    # @overload nth($list, $n)
+    # @param $list [Literal]
+    # @param $n [Number] The index of the item to get
+    # @return [Literal]
+    # @raise [ArgumentError] if `$n` isn't an integer between 1 and the length
+    #   of `$list`
     def nth(list, n)
-      assert_type n, :Number
+      assert_type n, :Number, :n
       if !n.int?
         raise ArgumentError.new("List index #{n} must be an integer")
       elsif n.to_i < 1
@@ -1292,12 +1339,12 @@ module Sass::Script
     end
     declare :nth, [:list, :n]
 
-    # Joins together two lists into a new list.
+    # Joins together two lists into one.
     #
-    # Unless the `$separator` argument is passed,
-    # if one list is comma-separated and one is space-separated,
-    # the first parameter's separator is used for the resulting list.
-    # If the lists have only one item each, spaces are used for the resulting list.
+    # Unless `$separator` is passed, if one list is comma-separated and one is
+    # space-separated, the first parameter's separator is used for the resulting
+    # list. If both lists have fewer than two items, spaces are used for the
+    # resulting list.
     #
     # @example
     #   join(10px 20px, 30px 40px) => 10px 20px 30px 40px
@@ -1305,14 +1352,15 @@ module Sass::Script
     #   join(10px, 20px) => 10px 20px
     #   join(10px, 20px, comma) => 10px, 20px
     #   join((blue, red), (#abc, #def), space) => blue red #abc #def
-    # @overload join(list1, list2, separator: auto)
-    #   @param list1 [Literal] The first list to join
-    #   @param list2 [Literal] The second list to join
-    #   @param separator [String] How the list separator (comma or space) should be determined.
-    #     If this is `comma` or `space`, that is always the separator;
-    #     if this is `auto` (the default), the separator is determined as explained above.
+    # @overload join($list1, $list2, $separator: auto)
+    # @param $list1 [Literal]
+    # @param $list2 [Literal]
+    # @param $separator [String] The list separator to use. If this is `comma`
+    #   or `space`, that separator will be used. If this is `auto` (the
+    #   default), the separator is determined as explained above.
+    # @return [List]
     def join(list1, list2, separator = Sass::Script::String.new("auto"))
-      assert_type separator, :String
+      assert_type separator, :String, :separator
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
@@ -1331,8 +1379,7 @@ module Sass::Script
 
     # Appends a single value onto the end of a list.
     #
-    # Unless the `$separator` argument is passed,
-    # if the list has only one item,
+    # Unless the `$separator` argument is passed, if the list had only one item,
     # the resulting list will be space-separated.
     #
     # @example
@@ -1341,14 +1388,15 @@ module Sass::Script
     #   append(10px 20px, 30px 40px) => 10px 20px (30px 40px)
     #   append(10px, 20px, comma) => 10px, 20px
     #   append((blue, red), green, space) => blue red green
-    # @overload append(list, val, separator: auto)
-    #   @param list [Literal] The list to add the value to
-    #   @param val [Literal] The value to add to the end of the list
-    #   @param separator [String] How the list separator (comma or space) should be determined.
-    #     If this is `comma` or `space`, that is always the separator;
-    #     if this is `auto` (the default), the separator is the same as that used by the list.
+    # @overload append($list, $val, $separator: auto)
+    # @param $list [Literal]
+    # @param $val [Literal]
+    # @param $separator [String] The list separator to use. If this is `comma`
+    #   or `space`, that separator will be used. If this is `auto` (the
+    #   default), the separator is determined as explained above.
+    # @return [List]
     def append(list, val, separator = Sass::Script::String.new("auto"))
-      assert_type separator, :String
+      assert_type separator, :String, :separator
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
@@ -1364,8 +1412,9 @@ module Sass::Script
     declare :append, [:list, :val]
     declare :append, [:list, :val, :separator]
 
-    # Combines several lists into a single comma separated list, where the nth
-    # value is a space separated list of the source lists' nth values.
+    # Combines several lists into a single multidimensional list. The nth value
+    # of the resulting list is a space separated list of the source lists' nth
+    # values.
     #
     # The length of the resulting list is the length of the
     # shortest list.
@@ -1373,6 +1422,9 @@ module Sass::Script
     # @example
     #   zip(1px 1px 3px, solid dashed solid, red green blue)
     #   => 1px solid red, 1px dashed green, 3px solid blue
+    # @overload zip($lists...)
+    # @param $lists [[Literal]]
+    # @return [List]
     def zip(*lists)
       length = nil
       values = []
@@ -1390,12 +1442,20 @@ module Sass::Script
     declare :zip, [], :var_args => true
 
 
-    # Returns the position of a value within a list. If not found, returns
-    # false.
+    # Returns the position of a value within a list. If the value isn't found,
+    # returns false instead.
+    #
+    # Note that unlike some languages, the first item in a Sass list is number
+    # 1, the second number 2, and so forth.
     #
     # @example
     #   index(1px solid red, solid) => 2
     #   index(1px solid red, dashed) => false
+    # @overload index($list, $value)
+    # @param $list [Literal]
+    # @param $value [Literal]
+    # @return [Number, Bool] The 1-based index of `$value` in `$list`, or
+    #   `false`
     def index(list, value)
       index = list.to_a.index {|e| e.eq(value).to_bool }
       if index
@@ -1406,14 +1466,19 @@ module Sass::Script
     end
     declare :index, [:list, :value]
 
-    # Returns one of two values based on the truth value of the first argument.
+    # Returns one of two values, depending on whether or not `$condition` is
+    # true. Just like in `@if`, all values other than `false` and `null` are
+    # considered to be true.
     #
     # @example
     #   if(true, 1px, 2px) => 1px
     #   if(false, 1px, 2px) => 2px
-    # @param condition [Bool] Whether the first or second value will be returned.
-    # @param if_true [Literal] The value that will be returned if `$condition` is true.
-    # @param if_false [Literal] The value that will be returned if `$condition` is false.
+    # @overload if($condition, $if-true, $if-false)
+    # @param $condition [Literal] Whether the `$if-true` or `$if-false` will be
+    #   returned
+    # @param $if-true [Literal]
+    # @param $if-false [Literal]
+    # @return [Literal] `$if-true` or `$if-false`
     def if(condition, if_true, if_false)
       if condition.to_bool
         if_true
@@ -1431,6 +1496,8 @@ module Sass::Script
     #
     # @example
     #   counter(item, ".") => counter(item,".")
+    # @overload counter($args...)
+    # @return [String]
     def counter(*args)
       Sass::Script::String.new("counter(#{args.map {|a| a.to_s(options)}.join(',')})")
     end
@@ -1442,13 +1509,13 @@ module Sass::Script
     # another numeric value with the same units.
     # It yields a number to a block to perform the operation and return a number
     def numeric_transformation(value)
-      assert_type value, :Number
+      assert_type value, :Number, :value
       Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
     end
 
     def _adjust(color, amount, attr, range, op, units = "")
-      assert_type color, :Color
-      assert_type amount, :Number
+      assert_type color, :Color, :color
+      assert_type amount, :Number, :amount
       Sass::Util.check_range('Amount', range, amount, units)
 
       # TODO: is it worth restricting here,
