@@ -345,8 +345,13 @@ RUBY
         return raw unless tok = try_tok(:funcall)
         args, keywords, splat = fn_arglist
         assert_tok(:rparen)
-        node(Script::Tree::Funcall.new(tok.value, args, keywords, splat),
-          tok.source_range.start_pos, source_position)
+        fn_node = if tok.value == "if"
+                    raise SyntaxError.new("Cannot use ... with if()") if splat
+                    Script::Tree::IfFunction.new(args, keywords)
+                  else
+                    Script::Tree::Funcall.new(tok.value, args, keywords, splat)
+                  end
+        node(fn_node, tok.source_range.start_pos, source_position)
       end
 
       def defn_arglist!(must_have_parens)
@@ -420,7 +425,6 @@ RUBY
       end
 
       def raw
-        start_pos = source_position
         return special_fun unless tok = try_tok(:raw)
         literal_node(Script::Value::String.new(tok.value), tok.source_range)
       end

@@ -1710,6 +1710,17 @@ $foo: foo($dash-ed: 2px, $under_scored: 1px);
 SCSS
   end
 
+  def test_if_function
+    assert_renders(<<SASS, <<SCSS)
+$foo: if(true, 1px, 2px)
+$foo: if(true, 1px, $if-false: (a, b, c))
+SASS
+$foo: if(true, 1px, 2px);
+$foo: if(true, 1px, $if-false: (a, b, c));
+SCSS
+
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

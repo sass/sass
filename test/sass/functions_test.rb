@@ -1147,6 +1147,17 @@ MSG
     assert_equal("1px", evaluate("if(true, 1px, 2px)"))
     assert_equal("2px", evaluate("if(false, 1px, 2px)"))
     assert_equal("2px", evaluate("if(null, 1px, 2px)"))
+    assert_equal("1px", evaluate("if(true, 1px, $invalid)"))
+    assert_equal("2px", evaluate("if(false, $invalid, 2px)"))
+    assert_equal("1px", evaluate("if(true, $if-true: 1px, $if-false: 2px)"))
+    assert_equal("2px", evaluate("if(false, $if-true: 1px, $if-false: 2px)"))
+    assert_equal("2px", evaluate("if($condition: false, $if-true: 1px, $if-false: 2px)"))
+    assert_error_message("A condition is required for if()", "if()")
+    assert_error_message("A true value is required for if()", "if(false)")
+    assert_error_message("A false value is required for if()", "if(false,1px)")
+    assert_error_message("4 arguments provided to if() but only 3 are accepted.", "if(false, 1px, 2px, whatisthisidontknow)")
+    assert_error_message("Cannot use ... with if()", "if($foo...)")
+    assert_error_message("$whatisthisidontknow is not allowed as an argument to if()", "if($condition: false, $if-true: 1px, $if-false: 2px, $whatisthisidontknow: true)")
   end
 
   def test_counter
