@@ -57,6 +57,14 @@ module Sass
         Sass::Util.map_keys(@map) {|k| @key_strings[k] }
       end
 
+      # this is magically invoked by ruby, not sure why DelegateClass doesn't take care of it.
+      # @private
+      def initialize_dup(other)
+        super
+        @map = other.instance_variable_get("@map").dup
+        __setobj__(@map)
+      end
+
       # @private
       def deep_copy
         copy = self.class.new
