@@ -1,7 +1,7 @@
 # A visitor for converting a Sass tree into CSS.
 class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   # The source mapping for the generated CSS file. This is only set if
-  # `build_source_mapping` is passed to the constructor and \{#render} has been
+  # `build_source_mapping` is passed to the constructor and \{Sass::Engine#render} has been
   # run.
   attr_reader :source_mapping
 

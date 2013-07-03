@@ -13,10 +13,12 @@ module Sass::Script
   # ## RGB Functions
   #
   # \{#rgb rgb($red, $green, $blue)}
-  # : Creates a {Color} from red, green, and blue values.
+  # : Creates a {Sass::Script::Value::Color Color} from red, green, and blue
+  #   values.
   #
   # \{#rgba rgba($red, $green, $blue, $alpha)}
-  # : Creates a {Color} from red, green, blue, and alpha values.
+  # : Creates a {Sass::Script::Value::Color Color} from red, green, blue, and
+  #   alpha values.
   #
   # \{#red red($color)}
   # : Gets the red component of a color.
@@ -33,11 +35,12 @@ module Sass::Script
   # ## HSL Functions
   #
   # \{#hsl hsl($hue, $saturation, $lightness)}
-  # : Creates a {Color} from hue, saturation, and lightness values.
+  # : Creates a {Sass::Script::Value::Color Color} from hue, saturation, and
+  #   lightness values.
   #
   # \{#hsla hsla($hue, $saturation, $lightness, $alpha)}
-  # : Creates a {Color} from hue, saturation, lightness, lightness, and alpha
-  #   values.
+  # : Creates a {Sass::Script::Value::Color Color} from hue, saturation,
+  #   lightness, lightness, and alpha values.
   #
   # \{#hue hue($color)}
   # : Gets the hue component of a color.
@@ -169,10 +172,13 @@ module Sass::Script
   # \{#index index($list, $value)}
   # : Returns the position of a value within a list.
   #
-  # \{#list-separator list-separator(#list)}
+  # \{#list_separator list-separator(#list)}
   # : Returns the separator of a list.
   #
   # ## Introspection Functions
+  #
+  # \{#feature_exists feature-exists($feature)}
+  # : Returns whether a feature exists in the current Sass runtime.
   #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
@@ -192,7 +198,7 @@ module Sass::Script
   # : Returns one of two values, depending on whether or not `$condition` is
   #   true.
   #
-  # \{#unique-id unique-id()}
+  # \{#unique_id unique-id()}
   # : Returns a unique CSS identifier.
   #
   # ## Adding Custom Functions
@@ -217,7 +223,7 @@ module Sass::Script
   # Value objects are also expected to be returned.
   # This means that Ruby values must be unwrapped and wrapped.
   #
-  # Most Value objects support the {Value#value value} accessor for getting
+  # Most Value objects support the {Value::Base#value value} accessor for getting
   # their Ruby values. Color objects, though, must be accessed using
   # {Sass::Script::Value::Color#rgb rgb}, {Sass::Script::Value::Color#red red},
   # {Sass::Script::Value::Color#blue green}, or {Sass::Script::Value::Color#blue
@@ -242,7 +248,7 @@ module Sass::Script
   # ### Caveats
   #
   # When creating new {Value} objects within functions, be aware that it's not
-  # safe to call {Value#to_s #to_s} (or other methods that use the string
+  # safe to call {Value::Base#to_s #to_s} (or other methods that use the string
   # representation) on those objects without first setting {Tree::Node#options=
   # the #options attribute}.
   module Functions
@@ -1373,6 +1379,22 @@ module Sass::Script
     end
     declare :type_of, [:value]
 
+    # Returns whether a feature exists in the current Sass runtime.
+    #
+    # @example
+    #   feature-exists(some-feature-that-exists) => true
+    #   feature-exists(what-is-this-i-dont-know) => false
+    #
+    # @overload feature_exists($feature)
+    # @param $feature [Sass::Script::Value::String] The name of the feature
+    # @return [Sass::Script::Value::Bool] Whether the feature is supported in this version of Sass
+    # @raise [ArgumentError] if `$feature` isn't a string
+    def feature_exists(feature)
+      assert_type feature, :String, :feature
+      Sass::Script::Value::Bool.new(Sass.has_feature?(feature.value))
+    end
+    declare :feature_exists, [:feature]
+
     # Returns the unit(s) associated with a number. Complex units are sorted in
     # alphabetical order by numerator and denominator.
     #
@@ -1556,23 +1578,23 @@ module Sass::Script
     #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
     # @overload nth($list, $n)
     # @param $list [Sass::Script::Value::Base]
-    # @param $n [Sass::Script::Value::Number] The index of the item to get
+    # @param $n [Sass::Script::Value::Number] The index of the item to get.
+    #   Negative indices count from the end of the list.
     # @return [Sass::Script::Value::Base]
     # @raise [ArgumentError] if `$n` isn't an integer between 1 and the length
     #   of `$list`
     def nth(list, n)
       assert_type n, :Number, :n
-      if !n.int?
-        raise ArgumentError.new("List index #{n} must be an integer")
-      elsif n.to_i < 1
-        raise ArgumentError.new("List index #{n} must be greater than or equal to 1")
+      if !n.int? || n.to_i == 0
+        raise ArgumentError.new("List index #{n} must be a non-zero integer")
       elsif list.to_a.size == 0
         raise ArgumentError.new("List index is #{n} but list has no items")
-      elsif n.to_i > (size = list.to_a.size)
+      elsif n.to_i.abs > (size = list.to_a.size)
         raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
       end
 
-      list.to_a[n.to_i - 1]
+      index = n.to_i > 0 ? n.to_i - 1 : n.to_i
+      list.to_a[index]
     end
     declare :nth, [:list, :n]
 
@@ -1698,7 +1720,7 @@ module Sass::Script
       if index
         Sass::Script::Value::Number.new(index + 1)
       else
-        Sass::Script::Value::Bool.new(false)
+        Sass::Script::Value::Bool::FALSE
       end
     end
     declare :index, [:list, :value]
@@ -1760,10 +1782,9 @@ module Sass::Script
     declare :unique_id, []
 
     # This function only exists as a workaround for IE7's [`content:counter`
-    # bug][bug]. It works identically to any other plain-CSS function, except it
+    # bug](http://jes.st/2013/ie7s-css-breaking-content-counter-bug/).
+    # It works identically to any other plain-CSS function, except it
     # avoids adding spaces between the argument commas.
-    #
-    # [bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
     #
     # @example
     #   counter(item, ".") => counter(item,".")

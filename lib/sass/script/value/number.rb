@@ -76,7 +76,7 @@ module Sass::Script::Value
     # : Adds this number to each of the RGB color channels.
     #
     # {Value}
-    # : See {Value#plus}.
+    # : See {Value::Base#plus}.
     #
     # @param other [Value] The right-hand side of the operator
     # @return [Value] The result of the operation
@@ -98,7 +98,7 @@ module Sass::Script::Value
     # : Subtracts this number from the other, converting units if possible.
     #
     # {Value}
-    # : See {Value#minus}.
+    # : See {Value::Base#minus}.
     #
     # @param other [Value] The right-hand side of the operator
     # @return [Value] The result of the operation
@@ -154,7 +154,7 @@ module Sass::Script::Value
     # : Divides this number by the other, converting units appropriately.
     #
     # {Value}
-    # : See {Value#div}.
+    # : See {Value::Base#div}.
     #
     # @param other [Value] The right-hand side of the operator
     # @return [Value] The result of the operation
@@ -192,7 +192,7 @@ module Sass::Script::Value
     # @param other [Value] The right-hand side of the operator
     # @return [Boolean] Whether this number is equal to the other object
     def eq(other)
-      return Sass::Script::Value::Bool.new(false) unless other.is_a?(Sass::Script::Value::Number)
+      return Bool::FALSE unless other.is_a?(Sass::Script::Value::Number)
       this = self
       begin
         if unitless?
@@ -201,10 +201,9 @@ module Sass::Script::Value
           other = other.coerce(@numerator_units, @denominator_units)
         end
       rescue Sass::UnitConversionError
-        return Sass::Script::Value::Bool.new(false)
+        return Bool::FALSE
       end
-
-      Sass::Script::Value::Bool.new(this.value == other.value)
+      Bool.new(this.value == other.value)
     end
 
     # The SassScript `>` operation.
@@ -292,7 +291,6 @@ module Sass::Script::Value
     #   number.is_unit?("px") => true
     #   number.is_unit?(nil) => false
     #
-    # @param number [Number] The number to check
     # @param unit [::String, nil] The unit the number should have or nil if the number should be unitless.
     # @see Number#unitless? The unitless? method may be more readable.
     def is_unit?(unit)

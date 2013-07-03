@@ -977,6 +977,18 @@ MSG
     assert_equal("null", evaluate("type-of(null)"))
   end
 
+  def test_feature_exists
+    assert_raises ArgumentError do
+      Sass.add_feature("my-test-feature")
+    end
+    Sass.add_feature("-my-test-feature")
+    assert_equal("true", evaluate("feature-exists(-my-test-feature)"))
+    assert_equal("false", evaluate("feature-exists(whatisthisidontevenknow)"))
+    assert_equal("true", evaluate("feature-exists($feature: -my-test-feature)"))
+  ensure
+    Sass::Features::KNOWN_FEATURES.delete("-my-test-feature")
+  end
+
   def test_unit
     assert_equal(%Q{""}, evaluate("unit(100)"))
     assert_equal(%Q{"px"}, evaluate("unit(100px)"))
@@ -1017,12 +1029,14 @@ MSG
   def test_nth
     assert_equal("1", evaluate("nth(1 2 3, 1)"))
     assert_equal("2", evaluate("nth(1 2 3, 2)"))
+    assert_equal("3", evaluate("nth(1 2 3, -1)"))
+    assert_equal("1", evaluate("nth(1 2 3, -3)"))
     assert_equal("3", evaluate("nth((1, 2, 3), 3)"))
     assert_equal("foo", evaluate("nth(foo, 1)"))
     assert_equal("bar baz", evaluate("nth(foo (bar baz) bang, 2)"))
-    assert_error_message("List index 0 must be greater than or equal to 1 for `nth'", "nth(foo, 0)")
-    assert_error_message("List index -10 must be greater than or equal to 1 for `nth'", "nth(foo, -10)")
-    assert_error_message("List index 1.5 must be an integer for `nth'", "nth(foo, 1.5)")
+    assert_error_message("List index 0 must be a non-zero integer for `nth'", "nth(foo, 0)")
+    assert_error_message("List index is -10 but list is only 1 item long for `nth'", "nth(foo, -10)")
+    assert_error_message("List index 1.5 must be a non-zero integer for `nth'", "nth(foo, 1.5)")
     assert_error_message("List index is 5 but list is only 4 items long for `nth'", "nth(1 2 3 4, 5)")
     assert_error_message("List index is 2 but list is only 1 item long for `nth'", "nth(foo, 2)")
     assert_error_message("List index is 1 but list has no items for `nth'", "nth((), 1)")

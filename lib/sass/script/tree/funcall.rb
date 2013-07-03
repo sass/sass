@@ -161,7 +161,7 @@ module Sass::Script::Tree
       raise Sass::SyntaxError.new("#{message} for `#{name}'")
     end
 
-    # Compass historically overrode this before it changed name to {#to\_value}.
+    # Compass historically overrode this before it changed name to {Funcall#to_value}.
     # We should get rid of it in the future.
     def to_literal(args)
       to_value(args)

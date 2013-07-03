@@ -11,7 +11,8 @@ module Sass::Script::Tree
 
     # Creates a new literal value.
     #
-    # @param [Sass::Script::Value::Base] see {#value}
+    # @param value [Sass::Script::Value::Base]
+    # @see #value
     def initialize(value)
       @value = value
     end

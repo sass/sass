@@ -25,12 +25,12 @@ module Sass::Script::Tree
 
     # Interpolation in a property is of the form `before #{mid} after`.
     #
-    # @param before [Node] See {#before}
-    # @param mid [Node] See {#mid}
-    # @param after [Node] See {#after}
-    # @param wb [Boolean] See {#whitespace\_before}
-    # @param wa [Boolean] See {#whitespace\_after}
-    # @param originally_text [Boolean] See {#originally\_text}
+    # @param before [Node] See {Interpolation#before}
+    # @param mid [Node] See {Interpolation#mid}
+    # @param after [Node] See {Interpolation#after}
+    # @param wb [Boolean] See {Interpolation#whitespace_before}
+    # @param wa [Boolean] See {Interpolation#whitespace_after}
+    # @param originally_text [Boolean] See {Interpolation#originally_text}
     def initialize(before, mid, after, wb, wa, originally_text = false)
       @before = before
       @mid = mid

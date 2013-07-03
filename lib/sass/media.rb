@@ -2,7 +2,7 @@
 module Sass::Media
   # A comma-separated list of queries.
   #
-  #   media_query [ ',' S* media_query ]*
+  #     media_query [ ',' S* media_query ]*
   class QueryList
     # The queries contained in this list.
     #
@@ -62,7 +62,7 @@ module Sass::Media
 
   # A single media query.
   #
-  #   [ [ONLY | NOT]? S* media_type S* | expression ] [ AND S* expression ]*
+  #     [ [ONLY | NOT]? S* media_type S* | expression ] [ AND S* expression ]*
   class Query
     # The modifier for the query.
     #
@@ -201,7 +201,7 @@ module Sass::Media
 
   # Converts an interpolation array to source.
   #
-  # @param [Array<String, Sass::Script::Tree::Node>] The interpolation array to convert.
+  # @param interp [Array<String, Sass::Script::Tree::Node>] The interpolation array to convert.
   # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
   # @return [String]
   def self._interp_to_src(interp, options)

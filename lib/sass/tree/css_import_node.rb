@@ -10,7 +10,7 @@ module Sass::Tree
     attr_accessor :uri
 
     # The text of the URI being imported after any interpolated SassScript has
-    # been resolved. Only set once \{Tree::Visitors::Perform} has been run.
+    # been resolved. Only set once {Tree::Visitors::Perform} has been run.
     #
     # @return [String]
     attr_accessor :resolved_uri
@@ -22,8 +22,8 @@ module Sass::Tree
     # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :query
 
-    # The media query for this rule, without any unresolved interpolation. It's
-    # only set once {Tree::Node#perform} has been called.
+    # The media query for this rule, without any unresolved interpolation.
+    # It's only set once {Tree::Visitors::Perform} has been run.
     #
     # @return [Sass::Media::QueryList]
     attr_accessor :resolved_query

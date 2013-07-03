@@ -56,8 +56,18 @@ Thanks to Alexander Pavlov for implementing this.
 * Add "grey" and "transparent" as recognized SassScript colors. Thanks to [Rob
   Wierzbowski](https://github.com/robwierzbowski).
 
-* Add a function \{Sass::Script::Function#unique\_id `unique-id()`} that will
+* Add a function \{Sass::Script::Functions#unique\_id `unique-id()`} that will
   return a CSS identifier that is unique within the scope of a single CSS file.
+
+* Allow negative indices into lists when using `nth()`.
+
+* You can now detect the presence of a Sass feature using the new function
+  `feature-exists($feature-name)`. There are no detectable features in this
+  release, this is provided so that subsequent releases can begin to
+  use it. Additionally, plugins can now expose their functionality
+  through `feature-exists` by calling `Sass.add_feature(feature_name)`. Features
+  exposed by plugins must begin with a dash to distinguish them from
+  official features.
 
 ### Backwards Incompatibilities -- Must Read!
 
@@ -236,8 +246,8 @@ Thanks to Alexander Pavlov for implementing this.
 * Fix a performance issue with `@import` that only appears when
   ActiveSupport is loaded.
 
-* Fix flushing of actions to stdout. Thanks to [Russell Davis]
-  (http://github.com/russelldavis).
+* Fix flushing of actions to stdout. Thanks to
+  [Russell Davis](http://github.com/russelldavis).
 
 * Fix the documentation for the `max()` function.
 
@@ -416,7 +426,7 @@ that make use of `@media` and other directives dynamically.
 * Decimal numbers now default to five digits of precision after the decimal
   point.
 
-* The \{Sass::Script::Functions::EvaluationContext.options options hash}
+* The \{Sass::Script::Functions::EvaluationContext#options options hash}
   available to Sass functions now contains the filename of the file that the
   function was executed in, rather than the top-level file.
 
@@ -782,7 +792,7 @@ that use keywords to encompass a large amount of functionality in one function.
   it returns `$color` with its lightness increased by 10%.
 
 * The {Sass::Script::Functions#scale_color scale_color} function
-  is similar to {Sass::Script::Functions#adjust adjust},
+  is similar to {Sass::Script::Functions#adjust_color adjust_color},
   but instead of increasing and/or decreasing a color's properties by fixed amounts,
   it scales them fluidly by percentages.
   The closer the percentage is to 100% (or -100%),
@@ -1060,7 +1070,8 @@ This means that under Ruby 1.8 it's *not* safe to import files with different en
 
 [Tagged on GitHub](http://github.com/nex3/sass/commit/3.0.19).
 
-* Make the alpha value for `rgba` colors respect {Sass::Script::Number::PRECISION}.
+* Make the alpha value for `rgba` colors respect
+  {Sass::Script::Value::Number.precision}.
 
 * Remove all newlines in selectors in `:compressed` mode.
 
@@ -2282,7 +2293,7 @@ There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 
 [Tagged on GitHub](http://github.com/nex3/sass/commit/2.2.15).
 
-* Added {Sass::Script::Color#with} for a way of setting color channels
+* Added {Sass::Script::Value::Color#with} for a way of setting color channels
   that's easier than manually constructing a new color
   and is forwards-compatible with alpha-channel colors
   (to be introduced in Sass 2.4).
@@ -2308,8 +2319,8 @@ There were no changes made to Sass between versions 2.2.18 and 2.2.19.
 These changes only affect people defining their own Sass functions
 using {Sass::Script::Functions}.
 
-* Sass::Script::Color#value attribute is deprecated.
-  Use {Sass::Script::Color#rgb} instead.
+* `Sass::Script::Color#value` attribute is deprecated.
+  Use {Sass::Script::Value::Color#rgb} instead.
   The returned array is now frozen as well.
 
 * Add an `assert_type` function that's available to {Sass::Script::Functions}.

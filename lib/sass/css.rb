@@ -317,7 +317,7 @@ module Sass
     #       bar, baz
     #         color: blue
     #
-    # @param rule [Tree::RuleNode] The candidate for flattening
+    # @param root [Tree::Node] The parent node
     def fold_commas(root)
       prev_rule = nil
       root.children.map! do |child|

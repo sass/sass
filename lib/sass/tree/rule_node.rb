@@ -19,7 +19,8 @@ module Sass::Tree
     # The CSS selector for this rule,
     # without any unresolved interpolation
     # but with parent references still intact.
-    # It's only set once {Tree::Node#perform} has been called.
+    # It's only set once {Tree::Visitors::Perform} has been run.
+    #
     #
     # @return [Selector::CommaSequence]
     attr_accessor :parsed_rules

@@ -21,7 +21,7 @@ module Sass
       # and the generated selector `c.foo.bar.baz` has `{b.bar, c.baz}` as its
       # `sources` set.
       #
-      # This is populated during the {#do_extend} process.
+      # This is populated during the {Sequence#do_extend} process.
       #
       # @return {Set<Sequence>}
       attr_accessor :sources
@@ -125,7 +125,7 @@ module Sass
       # that matches both this selector and the input selector.
       #
       # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
-      # @param subject [Boolean] Whether the {SimpleSequence} being merged is a subject.
+      # @param other_subject [Boolean] Whether the other {SimpleSequence} being merged is a subject.
       # @return [SimpleSequence, nil] A {SimpleSequence} matching both `sels` and this selector,
       #   or `nil` if this is impossible (e.g. unifying `#foo` and `#bar`)
       # @raise [Sass::SyntaxError] If this selector cannot be unified.
@@ -170,7 +170,7 @@ module Sass
       end
 
       # Return a copy of this simple sequence with `sources` merged into the
-      # {#sources} set.
+      # {SimpleSequence#sources} set.
       #
       # @param sources [Set<Sequence>]
       # @return [SimpleSequence]
