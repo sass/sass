@@ -49,10 +49,13 @@ module Sass
       private
 
       def atomic_create_and_write_file(filename)
-        tmpfile = Tempfile.new(File.basename(filename))
-        tmpfile.binmode if tmpfile.respond_to?(:binmode)
-        yield tmpfile
-        tmpfile.close
+        tmpfile = Tempfile.new(File.basename(filename), File.dirname(filename))
+        begin
+          tmpfile.binmode if tmpfile.respond_to?(:binmode)
+          yield tmpfile
+        ensure
+          tmpfile.close
+        end
         File.rename tmpfile.path, filename
       end
 
