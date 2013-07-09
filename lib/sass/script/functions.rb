@@ -408,8 +408,9 @@ module Sass::Script
       # Asserts that the value is an integer.
       #
       # @example
-      #   assert_unit number, "px"
-      #   assert_unit number, nil
+      #   assert_integer 2px
+      #   assert_integer 2.5px => SyntaxError: "Expected 2.5px to be an integer"
+      #   assert_integer 2.5px, "width" => SyntaxError: "Expected width to be an integer but got 2.5px"
       # @param number [Sass::Script::Value::Base] The value to be validated.
       # @param name [::String] The name of the parameter being validated.
       # @raise [ArgumentError] if number is not an integer or is not a number.
