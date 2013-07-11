@@ -12,7 +12,8 @@ module Sass
 
       def string(re, *args)
         if re == :uri
-          return unless uri = scan(URI)
+          uri = scan(URI)
+          return unless uri
           return [:string, Script::Value::String.new(uri)]
         end
 
@@ -21,7 +22,8 @@ module Sass
       end
 
       def important
-        return unless s = scan(IMPORTANT)
+        s = scan(IMPORTANT)
+        return unless s
         [:raw, s]
       end
     end

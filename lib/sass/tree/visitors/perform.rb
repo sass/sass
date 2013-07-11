@@ -305,7 +305,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     include_loop = false
 
     @environment.stack.with_mixin(node.filename, node.line, node.name) do
-      raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
+      mixin = @environment.mixin(node.name)
+      raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin
 
       if node.children.any? && !mixin.has_content
         raise Sass::SyntaxError.new(%Q{Mixin "#{node.name}" does not accept a content block.})
@@ -333,7 +334,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   def visit_content(node)
-    return [] unless content = @environment.content
+    content = @environment.content
+    return [] unless content
     @environment.stack.with_mixin(node.filename, node.line, '@content') do
       trace_node = Sass::Tree::TraceNode.from_node('@content', node)
       with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}.flatten}

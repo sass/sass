@@ -461,7 +461,8 @@ module Sass::Script::Value
       units2 = units2.dup
       # Can't just use -, because we want px*px to coerce properly to px*mm
       return units1.map do |u|
-        next u unless j = units2.index(u)
+        j = units2.index(u)
+        next u unless j
         units2.delete_at(j)
         nil
       end.compact, units2

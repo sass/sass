@@ -114,7 +114,8 @@ module Sass
 
           self_without_sel = Sass::Util.array_minus(self.members, sels)
           group.each {|e, _| e.result = :failed_to_unify unless e.result == :succeeded}
-          next unless unified = seq.members.last.unify(self_without_sel, subject?)
+          unified = seq.members.last.unify(self_without_sel, subject?)
+          next unless unified
           group.each {|e, _| e.result = :succeeded}
           group.each {|e, _| check_directives_match!(e, parent_directives)}
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
@@ -140,10 +141,11 @@ module Sass
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels, other_subject)
-        return unless sseq = members.inject(sels) do |member, sel|
+        sseq = members.inject(sels) do |member, sel|
           return unless member
           sel.unify(member)
         end
+        return unless sseq
         SimpleSequence.new(sseq, other_subject || subject?)
       end
 

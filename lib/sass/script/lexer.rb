@@ -224,8 +224,8 @@ module Sass
       def read_token
         return if done?
         start_pos = source_position
-        start_index = @scanner.pos
-        return unless value = token
+        value = token
+        return unless value
         type, val = value
         Token.new(type, val, range(start_pos), @scanner.pos - @scanner.matched_size)
       end
@@ -286,7 +286,8 @@ module Sass
       end
 
       def color
-        return unless s = scan(REGULAR_EXPRESSIONS[:color])
+        s = scan(REGULAR_EXPRESSIONS[:color])
+        return unless s
         raise Sass::SyntaxError.new(<<MESSAGE.rstrip) unless s.size == 4 || s.size == 7
 Colors must have either three or six digits: '#{s}'
 MESSAGE
@@ -297,7 +298,8 @@ MESSAGE
       end
 
       def bool
-        return unless s = scan(REGULAR_EXPRESSIONS[:bool])
+        s = scan(REGULAR_EXPRESSIONS[:bool])
+        return unless s
         script_bool = Script::Value::Bool.new(s == 'true')
         [:bool, script_bool]
       end
@@ -317,7 +319,8 @@ MESSAGE
       end
 
       def special_fun
-        return unless str1 = scan(/((-[\w-]+-)?(calc|element)|expression|progid:[a-z\.]*)\(/i)
+        str1 = scan(/((-[\w-]+-)?(calc|element)|expression|progid:[a-z\.]*)\(/i)
+        return unless str1
         str2, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
         c = str2.count("\n")
         old_line = @line
@@ -336,23 +339,27 @@ MESSAGE
       end
 
       def ident_op
-        return unless op = scan(REGULAR_EXPRESSIONS[:ident_op])
+        op = scan(REGULAR_EXPRESSIONS[:ident_op])
+        return unless op
         [OPERATORS[op]]
       end
 
       def op
-        return unless op = scan(REGULAR_EXPRESSIONS[:op])
+        op = scan(REGULAR_EXPRESSIONS[:op])
+        return unless op
         @interpolation_stack << nil if op == :begin_interpolation
         [OPERATORS[op]]
       end
 
       def raw(rx)
-        return unless val = scan(rx)
+        val = scan(rx)
+        return unless val
         [:raw, val]
       end
 
       def scan(re)
-        return unless str = @scanner.scan(re)
+        str = @scanner.scan(re)
+        return unless str
         c = str.count("\n")
         @line += c
         @offset = (c == 0 ? @offset + str.size : str[/\n([^\n]*)/, 1].size + 1)

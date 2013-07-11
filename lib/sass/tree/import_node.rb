@@ -51,9 +51,8 @@ module Sass
         end
 
         paths.each do |p|
-          if f = p.find(@imported_filename, options_for_importer)
-            return f
-          end
+          f = p.find(@imported_filename, options_for_importer)
+          return f if f
         end
 
         message = "File to import not found or unreadable: #{@imported_filename}.\n"
