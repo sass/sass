@@ -1,0 +1,35 @@
+PATH
+  remote: .
+  specs:
+    sass (3.3.0.alpha.0)
+      listen (~> 0.7)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    ast (1.1.0)
+    listen (0.7.3)
+    maruku (0.6.1)
+      syntax (>= 1.0.0)
+    parser (2.0.0.pre1)
+      ast (~> 1.1)
+      slop (~> 3.4, >= 3.4.5)
+    rainbow (1.1.4)
+    rake (10.0.4)
+    rubocop (0.9.1)
+      parser (= 2.0.0.pre1)
+      rainbow (>= 1.1.4)
+    slop (3.4.5)
+    syntax (1.0.0)
+    yard (0.8.6.2)
+
+PLATFORMS
+  java
+  ruby
+
+DEPENDENCIES
+  maruku (>= 0.5.9)
+  rake
+  rubocop
+  sass!
+  yard (>= 0.5.3)
