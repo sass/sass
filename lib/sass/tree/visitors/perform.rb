@@ -266,7 +266,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Returns a static DirectiveNode if this is importing a CSS file,
   # or parses and includes the imported Sass file.
   def visit_import(node)
-    if path = node.css_import?
+    if (path = node.css_import?)
       resolved_node = Sass::Tree::CssImportNode.resolved("url(#{path})")
       resolved_node.source_range = node.source_range
       return resolved_node

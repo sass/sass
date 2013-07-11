@@ -256,12 +256,13 @@ RUBY
 
       def map
         start_pos = source_position
-        return unless e = interpolation
+        e = interpolation
+        return unless e
         return list e, start_pos unless @lexer.peek && @lexer.peek.type == :colon
 
         key, value = map_pair(e)
         map = node(Sass::Script::Tree::MapLiteral.new([[key, value]]), start_pos)
-        while tok = try_tok(:comma)
+        while (tok = try_tok(:comma))
           key, value = assert_expr(:map_pair)
           map.pairs << [key, value]
         end
@@ -282,8 +283,8 @@ RUBY
 
       def list(first, start_pos)
         list = node(Sass::Script::Tree::ListLiteral.new([first], :comma), start_pos)
-        while tok = try_tok(:comma)
-          if interp = try_op_before_interp(tok, list)
+        while (tok = try_tok(:comma))
+          if (interp = try_op_before_interp(tok, list))
             return interp unless other_interp = try_ops_after_interp([:comma], :expr, interp)
             return other_interp
           end
@@ -320,7 +321,7 @@ RUBY
 
       def interpolation(first = space)
         e = first
-        while interp = try_tok(:begin_interpolation)
+        while (interp = try_tok(:begin_interpolation))
           wb = @lexer.whitespace?(interp)
           mid = parse_interpolated
           wa = @lexer.whitespace?
@@ -335,7 +336,7 @@ RUBY
         start_pos = source_position
         return unless e = or_expr
         arr = [e]
-        while e = or_expr
+        while (e = or_expr)
           arr << e
         end
         arr.size == 1 ? arr.first : node(Sass::Script::Tree::ListLiteral.new(arr, :space), start_pos)
@@ -358,7 +359,7 @@ RUBY
         return if @stop_at && @stop_at.include?(@lexer.peek.value)
 
         name = @lexer.next
-        if color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase]
+        if (color = Sass::Script::Value::Color::COLOR_NAMES[name.value.downcase])
           return literal_node(Sass::Script::Value::Color.new(color), name.source_range)
         end
         literal_node(Script::Value::String.new(name.value, :identifier), name.source_range)

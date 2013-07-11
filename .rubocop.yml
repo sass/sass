@@ -13,6 +13,9 @@ AlignParameters:
   Enabled: false
 Lambda:
   Enabled: false
-
-
-
+ParenthesesAroundCondition:
+  # this mostly just triggers on safe assignment
+  Enabled: false
+ParameterLists:
+  # The default is 5, but we rarely have more than 4. Let's keep it that way.
+  Max: 4

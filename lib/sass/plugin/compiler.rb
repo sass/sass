@@ -246,7 +246,7 @@ module Sass::Plugin
         end
 
         removed.uniq.each do |f|
-          if files = individual_files.find {|(source,_,_)| File.expand_path(source) == f}
+          if (files = individual_files.find {|(source,_,_)| File.expand_path(source) == f})
             recompile_required = true
             # This was a file we were watching explicitly and compiling to a particular location.
             # Delete the corresponding file.

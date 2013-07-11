@@ -7,9 +7,9 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   def visit(node)
-    if error = @parent && (
+    if (error = @parent && (
         try_send("invalid_#{node_name @parent}_child?", @parent, node) ||
-        try_send("invalid_#{node_name node}_parent?", @parent, node))
+        try_send("invalid_#{node_name node}_parent?", @parent, node)))
       raise Sass::SyntaxError.new(error)
     end
     super

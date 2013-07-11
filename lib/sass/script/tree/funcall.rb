@@ -117,7 +117,7 @@ module Sass::Script::Tree
       args = @args.map {|a| a.perform(environment)}
       splat = Sass::Tree::Visitors::Perform.perform_splat(@splat, @kwarg_splat, environment)
       keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
-      if fn = environment.function(@name)
+      if (fn = environment.function(@name))
         return perform_sass_fn(fn, args, keywords, splat, environment)
       end
 
@@ -205,7 +205,7 @@ module Sass::Script::Tree
         splat.keywords_accessed = old_keywords_accessed
       end
 
-      unless signature = Sass::Script::Functions.signature(name.to_sym, args.size, keywords.size)
+      unless (signature = Sass::Script::Functions.signature(name.to_sym, args.size, keywords.size))
         return args if keywords.empty?
         raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
       end

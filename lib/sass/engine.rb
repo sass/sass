@@ -387,7 +387,7 @@ ERR
         key = sassc_key
         sha = Digest::SHA1.hexdigest(@template)
 
-        if root = @options[:cache_store].retrieve(key, sha)
+        if (root = @options[:cache_store].retrieve(key, sha))
           root.options = @options
           return root
         end
@@ -659,7 +659,7 @@ WARNING
         @options[:filename], @options[:importer],
         @line, to_parser_offset(offset))
 
-      unless res = parser.parse_interp_ident
+      unless (res = parser.parse_interp_ident)
         parsed = parse_interp(line.text, line.offset)
         return Tree::RuleNode.new(parsed, full_line_range(line))
       end
@@ -672,13 +672,13 @@ WARNING
       res.unshift(hack_char) if hack_char
 
       # Handle comments after a property name but before the colon.
-      if comment = scanner.scan(Sass::SCSS::RX::COMMENT)
+      if (comment = scanner.scan(Sass::SCSS::RX::COMMENT))
         res << comment
         offset += comment.length
       end
 
       name = line.text[0...scanner.pos]
-      if scanned = scanner.scan(/\s*:(?:\s+|$)/) # test for a property
+      if (scanned = scanner.scan(/\s*:(?:\s+|$)/)) # test for a property
         offset += scanned.length
         property = parse_property(name, res, scanner.rest, :new, line, offset)
         property.name_source_range = ident_range
@@ -686,8 +686,8 @@ WARNING
       else
         res.pop if comment
 
-        if trailing = (scanner.scan(/\s*#{Sass::SCSS::RX::COMMENT}/) ||
-                       scanner.scan(/\s*#{Sass::SCSS::RX::SINGLE_LINE_COMMENT}/))
+        if (trailing = (scanner.scan(/\s*#{Sass::SCSS::RX::COMMENT}/) ||
+                        scanner.scan(/\s*#{Sass::SCSS::RX::SINGLE_LINE_COMMENT}/)))
           offset += trailing.length # skip over comment for rule processing
           trailing.strip!
         end
@@ -945,7 +945,7 @@ WARNING
       values = []
 
       loop do
-        unless node = parse_import_arg(scanner, offset + scanner.pos)
+        unless (node = parse_import_arg(scanner, offset + scanner.pos))
           raise SyntaxError.new("Invalid @import: expected file to import, was #{scanner.rest.inspect}",
             :line => @line)
         end
@@ -971,7 +971,7 @@ WARNING
         media_parser = Sass::SCSS::Parser.new(scanner,
           @options[:filename], @options[:importer],
           @line, str.source_range.end_pos.offset)
-        if media = media_parser.parse_media_query_list
+        if (media = media_parser.parse_media_query_list)
           end_pos = Sass::Source::Position.new(@line, media_parser.offset + 1)
           node = Tree::CssImportNode.new(str, media.to_a)
         else
@@ -985,7 +985,7 @@ WARNING
         return node
       end
 
-      unless str = scanner.scan(Sass::SCSS::RX::STRING)
+      unless (str = scanner.scan(Sass::SCSS::RX::STRING))
         scanned = scanner.scan(/[^,;]+/)
         node = Tree::ImportNode.new(scanned)
         start_parser_offset = to_parser_offset(offset)

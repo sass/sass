@@ -56,7 +56,7 @@ module Sass
         :name => name
       }
 
-      if date = version_date
+      if (date = version_date)
         @@version[:date] = date
       end
 
@@ -69,7 +69,7 @@ module Sass
       @@version[:number] = numbers.join('.')
       @@version[:string] = @@version[:number].dup
 
-      if rev = revision_number
+      if (rev = revision_number)
         @@version[:rev] = rev
         unless rev[0] == ?(
           @@version[:string] << "." << rev[0...7]
