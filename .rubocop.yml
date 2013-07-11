@@ -1,0 +1,18 @@
+LineLength:
+  Enabled: true
+  Max: 129
+SpaceAroundBraces:
+  Enabled: false
+StringLiterals:
+  Enabled: false
+NestedTernaryOperator:
+  Enabled: false
+HashSyntax:
+  Enabled: false
+AlignParameters:
+  Enabled: false
+Lambda:
+  Enabled: false
+
+
+
