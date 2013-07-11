@@ -229,7 +229,7 @@ module Sass::Plugin
       listener = Listen::MultiListener.new(*directories) do |modified, added, removed|
         modified.each do |f|
           parent = File.dirname(f)
-          if files = individual_files_hash[parent]
+          if (files = individual_files_hash[parent])
             next unless files.first == f
           else
             next unless f =~ /\.s[ac]ss$/
@@ -239,7 +239,7 @@ module Sass::Plugin
 
         added.each do |f|
           parent = File.dirname(f)
-          if files = individual_files_hash[parent]
+          if (files = individual_files_hash[parent])
             next unless files.first == f
           else
             next unless f =~ /\.s[ac]ss$/
@@ -249,7 +249,7 @@ module Sass::Plugin
 
         removed.each do |f|
           parent = File.dirname(f)
-          if files = individual_files_hash[parent]
+          if (files = individual_files_hash[parent])
             next unless files.first == f
             try_delete_css files[1]
           else

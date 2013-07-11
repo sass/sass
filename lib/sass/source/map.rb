@@ -119,7 +119,7 @@ module Sass::Source
 
       @data.each do |m|
         file, importer = m.input.file, m.input.importer
-        unless source_uri = importer && importer.public_url(file)
+        unless (source_uri = importer && importer.public_url(file))
           if importer.is_a?(Sass::Importers::Filesystem) && sourcemap_path
             file_path = Pathname.new(importer.root).join(file)
             source_uri = file_path.relative_path_from(sourcemap_path.dirname).to_s

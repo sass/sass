@@ -639,7 +639,7 @@ MSG
       charset, bom = $1, $2
       if charset
         charset = charset.force_encoding(encoding).encode("UTF-8")
-        if endianness = encoding[/[BL]E$/]
+        if (endianness = encoding[/[BL]E$/])
           begin
             Encoding.find(charset + endianness)
             charset << endianness
@@ -997,7 +997,7 @@ MSG
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
     def lcs_backtrace(c, x, y, i, j, &block)
       return [] if i == 0 || j == 0
-      if v = yield(x[i], y[j])
+      if (v = yield(x[i], y[j]))
         return lcs_backtrace(c, x, y, i-1, j-1, &block) << v
       end
 

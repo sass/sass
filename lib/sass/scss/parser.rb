@@ -164,9 +164,9 @@ module Sass
         name = tok!(IDENT)
         ss
 
-        if dir = special_directive(name, start_pos)
+        if (dir = special_directive(name, start_pos))
           return dir
-        elsif dir = prefixed_directive(name, start_pos)
+        elsif (dir = prefixed_directive(name, start_pos))
           return dir
         end
 
@@ -383,7 +383,7 @@ module Sass
       end
 
       def media_query
-        if ident1 = interp_ident
+        if (ident1 = interp_ident)
           ss
           ident2 = interp_ident
           ss
@@ -489,20 +489,20 @@ module Sass
       end
 
       def supports_operator
-        return unless cond = supports_condition_in_parens
-        return cond unless op = tok(/and|or/i)
-        begin
+        cond = supports_condition_in_parens
+        return unless cond
+        while (op = tok(/and|or/i))
           ss
           cond = Sass::Supports::Operator.new(
             cond, expr!(:supports_condition_in_parens), op)
-        end while op = tok(/and|or/i)
+        end
         cond
       end
 
       def supports_condition_in_parens
         interp = supports_interpolation and return interp
         return unless tok(/\(/); ss
-        if cond = supports_condition
+        if (cond = supports_condition)
           tok!(/\)/); ss
           cond
         else
@@ -619,7 +619,7 @@ module Sass
 
       def selector_sequence
         start_pos = source_position
-        if sel = tok(STATIC_SELECTOR, true)
+        if (sel = tok(STATIC_SELECTOR, true))
           return [sel], range(start_pos)
         end
 
@@ -630,7 +630,7 @@ module Sass
         ws = ''
         while tok(/,/)
           ws << str {ss}
-          if v = selector
+          if (v = selector)
             rules << ',' << ws
             rules.concat v
             ws = ''
@@ -650,7 +650,7 @@ module Sass
         ws = ''
         while tok(/,/)
           ws << str{ss}
-          if sel = _selector
+          if (sel = _selector)
             selectors << sel
             selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
             ws = ''
@@ -667,7 +667,7 @@ module Sass
         res << val
         res << "\n" if nl
 
-        while val = combinator || simple_selector_sequence
+        while (val = combinator || simple_selector_sequence)
           res << val
           res << "\n" if str{ss}.include?("\n")
         end
@@ -694,21 +694,22 @@ module Sass
         # http://www.w3.org/TR/css3-animations/#keyframes-
 
         start_pos = source_position
-        return expr(!:allow_var) unless e = element_name || id_selector ||
+        e = element_name || id_selector ||
           class_selector || placeholder_selector || attrib || pseudo ||
           parent_selector || interpolation_selector
+        return expr(!:allow_var) unless e
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = id_selector || class_selector || placeholder_selector || attrib ||
-            pseudo || interpolation_selector ||
-            (tok(/\*/) && Selector::Universal.new(nil))
+        while (v = id_selector || class_selector || placeholder_selector ||
+                   attrib || pseudo || interpolation_selector ||
+                   (tok(/\*/) && Selector::Universal.new(nil)))
           res << v
         end
 
         pos = @scanner.pos
         line = @line
-        if sel = str? {simple_selector_sequence}
+        if (sel = str? {simple_selector_sequence})
           @scanner.pos = pos
           @line = line
           begin
@@ -769,8 +770,9 @@ module Sass
       end
 
       def interpolation_selector
-        return unless script = interpolation
-        Selector::Interpolation.new(script)
+        if (script = interpolation)
+          Selector::Interpolation.new(script)
+        end
       end
 
       def attrib
@@ -797,7 +799,7 @@ module Sass
       end
 
       def attrib_name!
-        if name_or_ns = interp_ident
+        if (name_or_ns = interp_ident)
           # E, E|E
           if tok(/\|(?!=)/)
             ns = name_or_ns
@@ -856,12 +858,14 @@ module Sass
         return
       end
 
+      def pseudo_expr_token
+        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || interp_string || tok(IDENT) || interpolation
+      end
+
       def pseudo_expr
-        return unless e = tok(PLUS) || tok(/[-*]/) || tok(NUMBER) ||
-          interp_string || tok(IDENT) || interpolation
+        return unless e = pseudo_expr_token
         res = [e, str{ss}]
-        while e = tok(PLUS) || tok(/[-*]/) || tok(NUMBER) ||
-            interp_string || tok(IDENT) || interpolation
+        while (e = pseudo_expr_token)
           res << e << str{ss}
         end
         res
@@ -870,14 +874,14 @@ module Sass
       def declaration
         # This allows the "*prop: val", ":prop: val", and ".prop: val" hacks
         name_start_pos = source_position
-        if s = tok(/[:\*\.]|\#(?!\{)/)
+        if (s = tok(/[:\*\.]|\#(?!\{)/))
           @use_property_exception = s !~ /[\.\#]/
           name = [s, str{ss}, *expr!(:interp_ident)]
         else
           return unless name = interp_ident
           name = [name] if name.is_a?(String)
         end
-        if comment = tok(COMMENT)
+        if (comment = tok(COMMENT))
           name << comment
         end
         name_end_pos = source_position
@@ -915,7 +919,7 @@ module Sass
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
-        if val = tok(STATIC_VALUE, true)
+        if (val = tok(STATIC_VALUE, true))
           str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(val.strip))
           str.line = start_pos.line
           str.source_range = range(start_pos)
@@ -1012,7 +1016,7 @@ MESSAGE
       def interp_ident(start = IDENT)
         return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
         res = [val]
-        while val = tok(NAME) || interpolation
+        while (val = tok(NAME) || interpolation)
           res << val
         end
         res
