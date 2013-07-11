@@ -793,12 +793,13 @@ module Sass
         ns, name = attrib_name!
         ss
 
-        if op = tok(/=/) ||
-            tok(INCLUDES) ||
-            tok(DASHMATCH) ||
-            tok(PREFIXMATCH) ||
-            tok(SUFFIXMATCH) ||
-            tok(SUBSTRINGMATCH)
+        op = tok(/=/) ||
+             tok(INCLUDES) ||
+             tok(DASHMATCH) ||
+             tok(PREFIXMATCH) ||
+             tok(SUFFIXMATCH) ||
+             tok(SUBSTRINGMATCH)
+        if op
           @expected = "identifier or string"
           ss
           val = interp_ident || expr!(:interp_string)
@@ -967,7 +968,7 @@ MESSAGE
       end
 
       def term(allow_var)
-        if e = tok(NUMBER) ||
+        e = tok(NUMBER) ||
             interp_uri ||
             function(allow_var) ||
             interp_string ||
