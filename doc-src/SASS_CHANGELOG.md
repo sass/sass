@@ -69,6 +69,16 @@ Thanks to Alexander Pavlov for implementing this.
   exposed by plugins must begin with a dash to distinguish them from
   official features.
 
+* It is now possible to determine the existence of different Sass
+  constructs using these new functions:
+
+  * `variable-exists($named)` check if a variable resolves in the
+    current scope.
+  * `global-variable-exists($named)` check if a global variable of the
+    given name exists.
+  * `function-exists($named)` check if a function exists.
+  * `mixin-exists($named)` check if a mixin exists.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector

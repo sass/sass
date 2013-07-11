@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/script'
+require 'mock_importer'
 
 module Sass::Script::Functions
   def no_kw_args
@@ -1258,6 +1260,59 @@ MSG
     end
   end
 
+  def test_variable_exists
+    assert_equal "false", evaluate("variable-exists(foo)")
+    assert_equal "true", evaluate("variable-exists(foo)", env("foo" => Sass::Script::Value::Null.new))
+    assert_equal "true", evaluate("variable-exists($named: foo)", env("foo" => Sass::Script::Value::Null.new))
+  end
+
+  def test_global_variable_exists
+    assert_equal "false", evaluate("global-variable-exists(foo)")
+    assert_equal "true", evaluate("global-variable-exists(foo)", env("foo" => Sass::Script::Value::Null.new))
+    assert_equal "true", evaluate("global-variable-exists($named: foo)", env("foo" => Sass::Script::Value::Null.new))
+    # when passed a local scope with it defined globally
+    assert_equal "true", evaluate("global-variable-exists(foo)", Sass::Environment.new(env("foo" => Sass::Script::Value::Null.new)))
+    # when passed a local scope without being defined globally
+    assert_equal "false", evaluate("global-variable-exists(foo)", env({"foo" => Sass::Script::Value::Null.new}, Sass::Environment.new()))
+  end
+
+  def test_function_exists
+    # built-ins
+    assert_equal "true", evaluate("function-exists(lighten)")
+    # with named argument
+    assert_equal "true", evaluate("function-exists($named: lighten)")
+    # user-defined
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  foo-exists: true;
+  bar-exists: false; }
+CSS
+@function foo() { @return "foo" }
+.test {
+  foo-exists: function-exists(foo);
+  bar-exists: function-exists(bar);
+}
+SCSS
+  end
+
+  def test_mixin_exists
+    assert_equal "false", evaluate("mixin-exists(foo)")
+    # with named argument
+    assert_equal "false", evaluate("mixin-exists($named: foo)")
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  foo-exists: true;
+  bar-exists: false; }
+CSS
+@mixin foo() { foo: exists }
+.test {
+  foo-exists: mixin-exists(foo);
+  bar-exists: mixin-exists(bar);
+}
+SCSS
+  end
+
+
   ## Regression Tests
 
   def test_saturation_bounds
@@ -1265,8 +1320,8 @@ MSG
   end
 
   private
-  def env(hash = {})
-    env = Sass::Environment.new
+  def env(hash = {}, parent = nil)
+    env = Sass::Environment.new(parent)
     hash.each {|k, v| env.set_var(k, v)}
     env
   end
@@ -1279,6 +1334,13 @@ MSG
 
   def perform(value, environment = env)
     Sass::Script::Parser.parse(value, 0, 0).perform(environment)
+  end
+
+  def render(sass, options = {})
+    options[:syntax] ||= :scss
+    munge_filename options
+    options[:importer] ||= MockImporter.new
+    Sass::Engine.new(sass, options).render
   end
 
   def assert_error_message(message, value)
