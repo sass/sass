@@ -145,10 +145,12 @@ module Sass
         until afters.empty?
           current = afters.shift.dup
           last_current = [current.pop]
-          befores = Sass::Util.flatten(befores.map do |before|
-              next [] unless sub = subweave(before, current)
-              sub.map {|seqs| seqs + last_current}
-            end, 1)
+          befores.map! do |before|
+            sub = subweave(before, current)
+            next [] unless sub
+            sub.map {|seqs| seqs + last_current}
+          end
+          befores = Sass::Util.flatten(befores, 1)
         end
         return befores
       end
@@ -176,8 +178,10 @@ module Sass
         return [seq1] if seq2.empty?
 
         seq1, seq2 = seq1.dup, seq2.dup
-        return unless init = merge_initial_ops(seq1, seq2)
-        return unless fin = merge_final_ops(seq1, seq2)
+        init = merge_initial_ops(seq1, seq2)
+        return unless init
+        fin = merge_final_ops(seq1, seq2)
+        return unless fin
         seq1 = group_selectors(seq1)
         seq2 = group_selectors(seq2)
         lcs = Sass::Util.lcs(seq2, seq1) do |s1, s2|
@@ -301,7 +305,8 @@ module Sass
             res.unshift sel1, op1
             seq2.push sel2, op2
           elsif op1 == op2
-            return unless merged = sel1.unify(sel2.members, sel2.subject?)
+            merged = sel1.unify(sel2.members, sel2.subject?)
+            return unless merged
             res.unshift merged, op1
           else
             # Unknown selector combinators can't be unified

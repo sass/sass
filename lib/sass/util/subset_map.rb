@@ -72,7 +72,8 @@ module Sass
       # @see #[]
       def get(set)
         res = set.map do |k|
-          next unless subsets = @hash[k]
+          subsets = @hash[k]
+          next unless subsets
           subsets.map do |subenum, subset, index|
             next unless subset.subset?(set)
             [index, subenum]

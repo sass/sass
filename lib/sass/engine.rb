@@ -321,7 +321,8 @@ module Sass
     #
     # @private
     def _dependencies(seen, engines)
-      return if seen.include?(key = [@options[:filename], @options[:importer]])
+      key = @options[:filename]
+      return if seen.include?([key, @options[:importer]])
       seen << key
       engines << self
       to_tree.grep(Tree::ImportNode) do |n|

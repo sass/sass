@@ -370,7 +370,8 @@ module Sass
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
       def media_query_list
-        return unless query = media_query
+        query = media_query
+        return unless query
         queries = [query]
 
         ss
@@ -403,7 +404,8 @@ module Sass
         if query
           expr = expr!(:media_expr)
         else
-          return unless expr = media_expr
+          expr = media_expr
+          return unless expr
         end
         query ||= Sass::Media::Query.new([], [], [])
         query.expressions << expr
@@ -452,15 +454,19 @@ module Sass
         res = ["@-moz-document "]
         loop do
           res << str{ss} << expr!(:moz_document_function)
-          break unless c = tok(/,/)
-          res << c
+          if (c = tok(/,/))
+            res << c
+          else
+            break
+          end
         end
         directive_body(res.flatten, start_pos)
       end
 
       def moz_document_function
-        return unless val = interp_uri || _interp_string(:url_prefix) ||
+        val = interp_uri || _interp_string(:url_prefix) ||
           _interp_string(:domain) || function(!:allow_var) || interpolation
+        return unless val
         ss
         val
       end
@@ -520,7 +526,8 @@ module Sass
       end
 
       def supports_interpolation
-        return unless interp = interpolation
+        interp = interpolation
+        return unless interp
         ss
         Sass::Supports::Interpolation.new(interp)
       end
@@ -624,7 +631,8 @@ module Sass
         end
 
         rules = []
-        return unless v = selector
+        v = selector
+        return unless v
         rules.concat v
 
         ws = ''
@@ -640,12 +648,14 @@ module Sass
       end
 
       def selector
-        return unless sel = _selector
+        sel = _selector
+        return unless sel
         sel.to_a
       end
 
       def selector_comma_sequence
-        return unless sel = _selector
+        sel = _selector
+        return unless sel
         selectors = [sel]
         ws = ''
         while tok(/,/)
@@ -661,7 +671,8 @@ module Sass
 
       def _selector
         # The combinator here allows the "> E" hack
-        return unless val = combinator || simple_selector_sequence
+        val = combinator || simple_selector_sequence
+        return unless val
         nl = str{ss}.include?("\n")
         res = []
         res << val
@@ -761,7 +772,8 @@ module Sass
       end
 
       def qualified_name(allow_star_name=false)
-        return unless name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
+        name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
+        return unless name
         return nil, name unless tok(/\|/)
 
         return name, expr!(:interp_ident) unless allow_star_name
@@ -817,7 +829,8 @@ module Sass
       end
 
       def pseudo
-        return unless s = tok(/::?/)
+        s = tok(/::?/)
+        return unless s
         @expected = "pseudoclass or pseudoelement"
         name = expr!(:interp_ident)
         if tok(/\(/)
@@ -863,7 +876,8 @@ module Sass
       end
 
       def pseudo_expr
-        return unless e = pseudo_expr_token
+        e = pseudo_expr_token
+        return unless e
         res = [e, str{ss}]
         while (e = pseudo_expr_token)
           res << e << str{ss}
@@ -878,7 +892,8 @@ module Sass
           @use_property_exception = s !~ /[\.\#]/
           name = [s, str{ss}, *expr!(:interp_ident)]
         else
-          return unless name = interp_ident
+          name = interp_ident
+          return unless name
           name = [name] if name.is_a?(String)
         end
         if (comment = tok(COMMENT))
@@ -940,7 +955,8 @@ MESSAGE
       end
 
       def expr(allow_var = true)
-        return unless t = term(allow_var)
+        t = term(allow_var)
+        return unless t
         res = [t, str{ss}]
 
         while (o = operator) && (t = term(allow_var))
@@ -959,17 +975,18 @@ MESSAGE
             interp_ident ||
             tok(HEXCOLOR) ||
             (allow_var && var_expr)
-          return e
-        end
+        return e if e
 
-        return unless op = tok(/[+-]/)
+        op = tok(/[+-]/)
+        return unless op
         @expected = "number or function"
         return [op, tok(NUMBER) || function(allow_var) ||
           (allow_var && var_expr) || expr!(:interpolation)]
       end
 
       def function(allow_var)
-        return unless name = tok(FUNCTION)
+        name = tok(FUNCTION)
+        return unless name
         if name == "expression(" || name == "calc("
           str, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
           [name, str]
@@ -1000,7 +1017,8 @@ MESSAGE
       end
 
       def _interp_string(type)
-        return unless start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, false]])
+        start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, false]])
+        return unless start
         res = [start]
 
         mid_re = Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, true]]
@@ -1014,7 +1032,8 @@ MESSAGE
       end
 
       def interp_ident(start = IDENT)
-        return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
+        val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
+        return unless val
         res = [val]
         while (val = tok(NAME) || interpolation)
           res << val

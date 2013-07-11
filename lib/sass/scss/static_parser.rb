@@ -27,8 +27,8 @@ module Sass
       private
 
       def moz_document_function
-        return unless val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) ||
-          function(!:allow_var)
+        val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) || function(!:allow_var)
+        return unless val
         ss
         [val]
       end

@@ -936,7 +936,8 @@ module Sass::Script
           "alpha" => [-1..1, ""]
         }) do |name, (range, units)|
 
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
         Sass::Util.check_range("$#{name}: Amount", range, val, units) if range
         adjusted = color.send(name) + val.value
@@ -1003,7 +1004,8 @@ module Sass::Script
           "alpha" => 1
         }) do |name, max|
 
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
         assert_unit val, '%', name
         Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
@@ -1059,7 +1061,8 @@ module Sass::Script
     def change_color(color, kwargs)
       assert_type color, :Color, :color
       with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
         [name.to_sym, val.value]
       end
