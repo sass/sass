@@ -298,7 +298,6 @@ RUBY
         e = first
         while interp = try_tok(:begin_interpolation)
           wb = @lexer.whitespace?(interp)
-          line = @lexer.line
           mid = parse_interpolated
           wa = @lexer.whitespace?
           e = node(
