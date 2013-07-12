@@ -42,7 +42,9 @@ SymbolName:
   # checks that symbols are snake_case. This is disabled because ruby constants
   # are not snake case and referring to them often requires the use of symbols.
   Enabled: false
-
+ParenthesesAroundCondition:
+  # this mostly just triggers on safe assignment
+  Enabled: false
 ParameterLists:
   # The default is 5, but we rarely have more than 4. Let's keep it that way.
   Max: 4
