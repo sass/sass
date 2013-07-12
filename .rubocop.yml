@@ -2,14 +2,21 @@ LineLength:
   Enabled: true
   Max: 129
 SpaceAroundBraces:
+  # block braces without spaces are plenty readable
   Enabled: false
 StringLiterals:
+  # they say to not use double quoted strings unless there is interpolation.
+  # While this gives a marginal parse time speedup, it makes working with
+  # strings annoying.
   Enabled: false
 HashSyntax:
+  # we are a 1.8 compatable project still
   Enabled: false
 AlignParameters:
+  # Nathan doesn't like to align parameters to the method call
   Enabled: false
 Lambda:
+  # we are a 1.8 compatable project still
   Enabled: false
 ParenthesesAroundCondition:
   # this mostly just triggers on safe assignment
@@ -18,7 +25,26 @@ ParameterLists:
   # The default is 5, but we rarely have more than 4. Let's keep it that way.
   Max: 4
 EndAlignment:
+  # Our alignment style differs significantly
+  # and this doesn't seem to be a big deal.
   Enabled: false
 MethodLength:
+  # This max should actually be 25.
+  # But that will require significant refactoring.
   Max: 50
   CountComments: false
+AvoidPerlBackrefs:
+  # It wants people to use MatchData instead of perl-style globals for regex matches.
+  # but with as much regex as we do, MatchData is clunky compared to $1, $2, etc.
+  Enabled: false
+CharacterLiteral:
+  # Character literals are pretty useful when working with text like we do.
+  Enabled: false
+DotPosition:
+  # It doesn't want chained method invocation to end with a dot.
+  # But we like to do that.
+  Enabled: false
+SymbolName:
+  # checks that symbols are snake_case. This is disabled because ruby constants
+  # are not snake case and referring to them often requires the use of symbols.
+  Enabled: false
