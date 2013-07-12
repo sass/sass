@@ -13,6 +13,8 @@ AlignParameters:
   Enabled: false
 Lambda:
   Enabled: false
+EndAlignment:
+  Enabled: false
 MethodLength:
   Max: 50
   CountComments: false
