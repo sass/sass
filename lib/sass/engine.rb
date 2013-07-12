@@ -505,7 +505,8 @@ MSG
       nodes = []
       while (line = arr[i]) && line.tabs >= base
         if line.tabs > base
-          raise SyntaxError.new("The line was indented #{line.tabs - base} levels deeper than the previous line.",
+          raise SyntaxError.new(
+            "The line was indented #{line.tabs - base} levels deeper than the previous line.",
             :line => line.index) if line.tabs > base + 1
 
           nodes.last.children, i = tree(arr, i)
@@ -781,13 +782,17 @@ WARNING
         raise SyntaxError.new("Invalid if directive '@if': expected expression.") unless value
         Tree::IfNode.new(parse_script(value, :offset => offset))
       when 'debug'
-        raise SyntaxError.new("Invalid debug directive '@debug': expected expression.") unless value
+        unless value
+          raise SyntaxError.new("Invalid debug directive '@debug': expected expression.")
+        end
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.",
           :line => @line + 1) unless line.children.empty?
         offset = line.offset + line.text.index(value).to_i
         Tree::DebugNode.new(parse_script(value, :offset => offset))
       when 'extend'
-        raise SyntaxError.new("Invalid extend directive '@extend': expected expression.") unless value
+        unless value
+          raise SyntaxError.new("Invalid extend directive '@extend': expected expression.")
+        end
         raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath extend directives.",
           :line => @line + 1) unless line.children.empty?
         optional = !!value.gsub!(/\s+#{Sass::SCSS::RX::OPTIONAL}$/, '')
@@ -845,7 +850,8 @@ WARNING
     #   rubocop:enable MethodLength
 
     def parse_for(line, root, text)
-      var, from_expr, to_name, to_expr = text.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
+      var, from_expr, to_name, to_expr =
+        text.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
 
       if var.nil? # scan failed, try to figure out why for error message
         if text !~ /^[^\s]+/
@@ -909,7 +915,8 @@ WARNING
 
       loop do
         unless (node = parse_import_arg(scanner, offset + scanner.pos))
-          raise SyntaxError.new("Invalid @import: expected file to import, was #{scanner.rest.inspect}",
+          raise SyntaxError.new(
+            "Invalid @import: expected file to import, was #{scanner.rest.inspect}",
             :line => @line)
         end
         values << node
@@ -1007,7 +1014,10 @@ WARNING
     CONTENT_RE = /^@content\s*(.+)?$/
     def parse_content_directive(line)
       trailing = line.text.scan(CONTENT_RE).first.first
-      raise SyntaxError.new("Invalid content directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
+      unless trailing.nil?
+        raise SyntaxError.new(
+          "Invalid content directive. Trailing characters found: \"#{trailing}\".")
+      end
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath @content directives.",
         :line => line.index + 1) unless line.children.empty?
       Tree::ContentNode.new
@@ -1019,8 +1029,9 @@ WARNING
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
-      args, keywords, splat = Script::Parser.new(arg_string.strip, @line, to_parser_offset(offset), @options).
-        parse_mixin_include_arglist
+      args, keywords, splat =
+        Script::Parser.new(arg_string.strip, @line, to_parser_offset(offset), @options).
+          parse_mixin_include_arglist
       Tree::MixinNode.new(name, args, keywords, splat)
     end
 

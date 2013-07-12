@@ -18,7 +18,8 @@ module Sass
         }.freeze
       end
 
-      # Resets the options and {Sass::Callbacks::InstanceMethods#clear_callbacks! clears all callbacks}.
+      # Resets the options and
+      # {Sass::Callbacks::InstanceMethods#clear_callbacks! clears all callbacks}.
       def reset!
         @options = nil
         clear_callbacks!
@@ -36,7 +37,8 @@ module Sass
       # This means that Sass/SCSS files in `template_location`
       # will be compiled to CSS files in `css_location`.
       #
-      # This is preferred over manually manipulating the {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
+      # This is preferred over manually manipulating the
+      # {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
       # since the option can be in multiple formats.
       #
       # Note that this method will change `options[:template_location]`
@@ -56,7 +58,8 @@ module Sass
       # This means that Sass/SCSS files in `template_location`
       # will no longer be compiled to CSS files in `css_location`.
       #
-      # This is preferred over manually manipulating the {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
+      # This is preferred over manually manipulating the
+      # {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
       # since the option can be in multiple formats.
       #
       # Note that this method will change `options[:template_location]`

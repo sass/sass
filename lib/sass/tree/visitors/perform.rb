@@ -19,10 +19,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
         unknown_args = Sass::Util.array_minus(keywords.keys,
           callable.args.map {|var| var.first.underscored_name})
         if callable.splat && unknown_args.include?(callable.splat.underscored_name)
-          raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc} cannot be used as a named argument.")
+          raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc}"+
+                                      " cannot be used as a named argument.")
         elsif unknown_args.any?
           description = unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'
-          raise Sass::SyntaxError.new("#{desc} doesn't have #{description} #{unknown_args.map {|name| "$#{name}"}.join ', '}.")
+          raise Sass::SyntaxError.new("#{desc} doesn't have #{description} "+
+                                      "#{unknown_args.map {|name| "$#{name}"}.join ', '}.")
         end
       end
     rescue Sass::SyntaxError => keyword_exception
@@ -53,7 +55,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     env = Sass::Environment.new(callable.environment)
     callable.args.zip(args[0...callable.args.length]) do |(var, default), value|
       if value && keywords.include?(var.underscored_name)
-        raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} both by position and by name.")
+        raise Sass::SyntaxError.new(
+          "#{desc} was passed argument $#{var.name} both by position and by name.")
       end
 
       value ||= keywords.delete(var.underscored_name)
@@ -199,7 +202,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_function(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_function(node.name,
-      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, !:has_content, "function"))
+      Sass::Callable.new(node.name, node.args, node.splat, env,
+                         node.children, !:has_content, "function"))
     []
   end
 
@@ -246,7 +250,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_mixindef(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_mixin(node.name,
-      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, node.has_content, "mixin"))
+      Sass::Callable.new(node.name, node.args, node.splat, env,
+                         node.children, node.has_content, "mixin"))
     []
   end
 
@@ -292,7 +297,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     return [] unless content
     @stack.push(:filename => node.filename, :line => node.line, :name => '@content')
     trace_node = Sass::Tree::TraceNode.from_node('@content', node)
-    with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}.flatten}
+    with_environment(@environment.caller) do
+      trace_node.children = content.map {|c| visit(c.dup)}.flatten
+    end
     trace_node
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => '@content', :line => node.line)

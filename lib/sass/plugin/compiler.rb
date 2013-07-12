@@ -150,7 +150,8 @@ module Sass::Plugin
 
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
+    # Checks each Sass/SCSS file in
+    # {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
     # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.
@@ -262,8 +263,8 @@ module Sass::Plugin
         update_stylesheets(individual_files)
       end
 
-      # The native windows listener is much slower than the polling
-      # option, according to https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e#commitcomment-1295118
+      # The native windows listener is much slower than the polling option, according to
+      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
       listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
       begin
@@ -315,7 +316,9 @@ module Sass::Plugin
       end
 
       write_file(css, rendered)
-      write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap)) if mapping
+      if mapping
+        write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap))
+      end
       run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
     end
 

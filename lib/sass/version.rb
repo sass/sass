@@ -14,7 +14,8 @@ module Sass
     # The `:name` key has the name of the version.
     # The `:string` key contains a human-readable string representation of the version.
     # The `:number` key is the major, minor, and teeny keys separated by periods.
-    # The `:date` key, which is not guaranteed to be defined, is the `DateTime` at which this release was cut.
+    # The `:date` key, which is not guaranteed to be defined, is the `DateTime`
+    #   at which this release was cut.
     # If Sass is checked out from Git, the `:rev` key will have the revision hash.
     # For example:
     #

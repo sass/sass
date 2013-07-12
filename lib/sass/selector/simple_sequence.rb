@@ -102,7 +102,8 @@ module Sass
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, parent_directives, seen = Set.new)
-        Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}.map do |seq, group|
+        groups = Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}
+        groups.map do |seq, group|
           sels = group.map {|_, s| s}.flatten
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
@@ -121,8 +122,8 @@ module Sass
         end.flatten.uniq
       end
 
-      # Unifies this selector with another {SimpleSequence}'s {SimpleSequence#members members array},
-      # returning another `SimpleSequence`
+      # Unifies this selector with another {SimpleSequence}'s
+      # {SimpleSequence#members members array}, returning another `SimpleSequence`
       # that matches both this selector and the input selector.
       #
       # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
@@ -189,13 +190,15 @@ module Sass
         dirs1 = extend.directives.map {|d| d.resolved_value}
         dirs2 = parent_directives.map {|d| d.resolved_value}
         return if Sass::Util.subsequence?(dirs1, dirs2)
+        line = extend.node.line
+        filename = extend.node.filename
 
         # TODO(nweiz): this should use the Sass stack trace of the extend node,
         # not the selector.
         raise Sass::SyntaxError.new(<<MESSAGE)
 You may not @extend an outer selector from within #{extend.directives.last.name}.
 You may only @extend selectors within the same directive.
-From "@extend #{extend.target.join(', ')}" on line #{extend.node.line}#{" of #{extend.node.filename}" if extend.node.filename}.
+From "@extend #{extend.target.join(', ')}" on line #{line}#{" of #{filename}" if filename}.
 MESSAGE
       end
 

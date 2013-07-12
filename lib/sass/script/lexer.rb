@@ -95,7 +95,8 @@ module Sass
         :color => HEXCOLOR,
         :bool => /(true|false)\b/,
         :null => /null\b/,
-        :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")})})},
+        :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s|
+          Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")})})},
         :op => %r{(#{Regexp.union(*OP_NAMES)})},
       }
 
@@ -130,7 +131,7 @@ module Sass
       # @param str [String, StringScanner] The source text to lex
       # @param line [Fixnum] The 1-based line on which the SassScript appears.
       #   Used for error reporting and sourcemap building
-      # @param offset [Fixnum] The 1-based character (not byte) offset in the line on which the SassScript appears.
+      # @param offset [Fixnum] The 1-based character (not byte) offset in the line in the source.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
@@ -269,7 +270,8 @@ module Sass
         end
         str =
           if re == :uri
-            Script::Value::String.new("#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2] == '#{'}")
+            url = "#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2] == '#{'}"
+            Script::Value::String.new(url)
           else
             Script::Value::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
           end

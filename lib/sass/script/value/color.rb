@@ -549,7 +549,8 @@ module Sass::Script::Value
     def piecewise(other, operation)
       other_num = other.is_a? Number
       if other_num && !other.unitless?
-        raise Sass::SyntaxError.new("Cannot add a number with units (#{other}) to a color (#{self}).")
+        raise Sass::SyntaxError.new(
+          "Cannot add a number with units (#{other}) to a color (#{self}).")
       end
 
       result = []

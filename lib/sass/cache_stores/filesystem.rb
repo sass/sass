@@ -30,11 +30,7 @@ module Sass
 
       # @see Base#\_store
       def _store(key, version, sha, contents)
-        # return unless File.writable?(File.dirname(@cache_location))
-        # return if File.exists?(@cache_location) && !File.writable?(@cache_location)
         compiled_filename = path_to(key)
-        # return if File.exists?(File.dirname(compiled_filename)) && !File.writable?(File.dirname(compiled_filename))
-        # return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
         FileUtils.mkdir_p(File.dirname(compiled_filename))
         File.open(compiled_filename, "wb") do |f|
           f.puts(version)

@@ -39,7 +39,9 @@ module Sass::Script::Value
     # @see Value#to_s
     def to_s(opts = {})
       raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
-      return value.reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.map {|e| e.to_s(opts)}.join(sep_str)
+      return value.
+        reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.
+        map {|e| e.to_s(opts)}.join(sep_str)
     end
 
     # @see Value#to_sass

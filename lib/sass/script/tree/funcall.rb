@@ -66,7 +66,8 @@ module Sass::Script::Tree
         splat = (args.empty? && keywords.empty?) ? "" : ", "
         splat = "#{splat}#{arg_to_sass[self.splat]}..."
       end
-      "#{dasherize(name, opts)}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
+      arglist = "#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat}"
+      "#{dasherize(name, opts)}(#{arglist})"
     end
 
     # Returns the arguments to the function.
@@ -109,7 +110,8 @@ module Sass::Script::Tree
         opts(to_literal(args))
       else
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
-        opts(Sass::Script::Functions::EvaluationContext.new(local_environment).send(ruby_name, *args))
+        opts(Sass::Script::Functions::EvaluationContext.new(
+          local_environment).send(ruby_name, *args))
       end
     rescue ArgumentError => e
       message = e.message
@@ -135,7 +137,8 @@ module Sass::Script::Tree
             # Sass::SyntaxErrors even though it can hide Ruby errors.
             e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
         else
-          should_maybe_raise = e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
+          should_maybe_raise =
+            e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
           given, expected = $1, $2
         end
 
@@ -219,9 +222,11 @@ module Sass::Script::Tree
         else
           argname = keywords.keys.sort.first
           if signature.args.include?(argname)
-            raise Sass::SyntaxError.new("Function #{name} was passed argument $#{argname} both by position and by name")
+            raise Sass::SyntaxError.new(
+              "Function #{name} was passed argument $#{argname} both by position and by name")
           else
-            raise Sass::SyntaxError.new("Function #{name} doesn't have an argument named $#{argname}")
+            raise Sass::SyntaxError.new(
+              "Function #{name} doesn't have an argument named $#{argname}")
           end
         end
       end

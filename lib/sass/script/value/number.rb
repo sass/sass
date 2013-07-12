@@ -179,7 +179,8 @@ module Sass::Script::Value
     def mod(other)
       if other.is_a?(Number)
         unless other.unitless?
-          raise Sass::UnitConversionError.new("Cannot modulo by a number with units: #{other.inspect}.")
+          raise Sass::UnitConversionError.new(
+            "Cannot modulo by a number with units: #{other.inspect}.")
         end
         operate(other, :%)
       else
@@ -291,7 +292,8 @@ module Sass::Script::Value
     #   number.is_unit?("px") => true
     #   number.is_unit?(nil) => false
     #
-    # @param unit [::String, nil] The unit the number should have or nil if the number should be unitless.
+    # @param unit [::String, nil] The unit the number should have or nil if the number
+    #   should be unitless.
     # @see Number#unitless? The unitless? method may be more readable.
     def is_unit?(unit)
       if unit
@@ -396,7 +398,8 @@ module Sass::Script::Value
       from_units, to_units = sans_common_units(from_units, to_units)
 
       if from_units.size != to_units.size || !convertable?(from_units | to_units)
-        raise Sass::UnitConversionError.new("Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
+        raise Sass::UnitConversionError.new(
+          "Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
       end
 
       from_units.zip(to_units).inject(1) {|m, p| m * conversion_factor(p[0], p[1]) }
@@ -405,9 +408,11 @@ module Sass::Script::Value
     def compute_units(this, other, operation)
       case operation
       when :*
-        [this.numerator_units + other.numerator_units, this.denominator_units + other.denominator_units]
+        [this.numerator_units + other.numerator_units,
+         this.denominator_units + other.denominator_units]
       when :/
-        [this.numerator_units + other.denominator_units, this.denominator_units + other.numerator_units]
+        [this.numerator_units + other.denominator_units,
+         this.denominator_units + other.numerator_units]
       else  
         [this.numerator_units, this.denominator_units]
       end
@@ -415,7 +420,8 @@ module Sass::Script::Value
 
     def normalize!
       return if unitless?
-      @numerator_units, @denominator_units = sans_common_units(@numerator_units, @denominator_units)
+      @numerator_units, @denominator_units =
+        sans_common_units(@numerator_units, @denominator_units)
 
       @denominator_units.each_with_index do |d, i|
         if convertable?(d) && (u = @numerator_units.detect(&method(:convertable?)))
@@ -427,13 +433,15 @@ module Sass::Script::Value
     end
 
     # A hash of unit names to their index in the conversion table
-    CONVERTABLE_UNITS = {"in" => 0,        "cm" => 1,    "pc" => 2,    "mm" => 3,   "pt" => 4,  "px" => 5    }
-    CONVERSION_TABLE = [[ 1,                2.54,         6,            25.4,        72        , 96          ], # in
-                        [ nil,              1,            2.36220473,   10,          28.3464567, 37.795275591], # cm
-                        [ nil,              nil,          1,            4.23333333,  12        , 16          ], # pc
-                        [ nil,              nil,          nil,          1,           2.83464567, 3.7795275591], # mm
-                        [ nil,              nil,          nil,          nil,         1         , 1.3333333333], # pt
-                        [ nil,              nil,          nil,          nil,         nil       , 1           ]] # px
+    CONVERTABLE_UNITS = %w(in cm pc mm pt px).inject({}) {|m,v| m[v] = m.size; m}
+
+    #                    in   cm    pc          mm          pt          px
+    CONVERSION_TABLE = [[1,   2.54, 6,          25.4,       72        , 96          ], # in
+                        [nil, 1,    2.36220473, 10,         28.3464567, 37.795275591], # cm
+                        [nil, nil,  1,          4.23333333, 12        , 16          ], # pc
+                        [nil, nil,  nil,        1,          2.83464567, 3.7795275591], # mm
+                        [nil, nil,  nil,        nil,        1         , 1.3333333333], # pt
+                        [nil, nil,  nil,        nil,        nil       , 1           ]] # px
 
     def conversion_factor(from_unit, to_unit)
       res = CONVERSION_TABLE[CONVERTABLE_UNITS[from_unit]][CONVERTABLE_UNITS[to_unit]]

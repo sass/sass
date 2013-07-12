@@ -84,7 +84,8 @@ module Sass
         sels_with_ix = Sass::Util.enum_with_index(sels)
         _, i =
           if self.is_a?(Pseudo) || self.is_a?(SelectorPseudoClass)
-            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && (sels.last.final? || sels.last.type == :element)}
+            sels_with_ix.find {|sel, _|
+              sel.is_a?(Pseudo) && (sels.last.final? || sels.last.type == :element)}
           else
             sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(SelectorPseudoClass)}
           end
