@@ -195,8 +195,8 @@ module Sass
       res = ary.dup
       i = 0
       while i < res.size
-        if res[i...i+from.size] == from
-          res[i...i+from.size] = to
+        if res[i...i + from.size] == from
+          res[i...i + from.size] = to
         end
         i += 1
       end
@@ -247,7 +247,7 @@ module Sass
       x = [nil, *x]
       y = [nil, *y]
       block ||= proc {|a, b| a == b && a}
-      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size-1, y.size-1, &block)
+      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size - 1, y.size - 1, &block)
     end
 
     # Converts a Hash to an Array. This is usually identical to `Hash#to_a`,
@@ -1020,9 +1020,9 @@ MSG
         (1...y.size).each do |j|
           c[i][j] =
             if yield x[i], y[j]
-              c[i-1][j-1] + 1
+              c[i - 1][j - 1] + 1
             else
-              [c[i][j-1], c[i-1][j]].max
+              [c[i][j - 1], c[i - 1][j]].max
             end
         end
       end
@@ -1038,11 +1038,11 @@ MSG
       # rubocop:enable ParameterList, LineLengths
       return [] if i == 0 || j == 0
       if (v = yield(x[i], y[j]))
-        return lcs_backtrace(c, x, y, i-1, j-1, &block) << v
+        return lcs_backtrace(c, x, y, i - 1, j - 1, &block) << v
       end
 
-      return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
-      return lcs_backtrace(c, x, y, i-1, j, &block)
+      return lcs_backtrace(c, x, y, i, j - 1, &block) if c[i][j - 1] > c[i - 1][j]
+      return lcs_backtrace(c, x, y, i - 1, j, &block)
     end
   end
 end

@@ -1052,9 +1052,9 @@ module Sass::Script
         Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
 
         current = color.send(name)
-        scale = val.value/100.0
+        scale = val.value / 100.0
         diff = scale > 0 ? max - current : current
-        [name.to_sym, current + diff*scale]
+        [name.to_sym, current + diff * scale]
       end
 
       unless kwargs.empty?
@@ -1166,15 +1166,15 @@ module Sass::Script
       #
       # Finally, the weight of color_1 is renormalized to be within [0, 1]
       # and the weight of color_2 is given by 1 minus the weight of color_1.
-      p = (weight.value/100.0).to_f
-      w = p*2 - 1
+      p = (weight.value / 100.0).to_f
+      w = p * 2 - 1
       a = color_1.alpha - color_2.alpha
 
-      w1 = (((w * a == -1) ? w : (w + a)/(1 + w*a)) + 1)/2.0
+      w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0
       w2 = 1 - w1
 
-      rgb = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1*w1 + v2*w2}
-      alpha = color_1.alpha*p + color_2.alpha*(1-p)
+      rgb = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
+      alpha = color_1.alpha * p + color_2.alpha * (1 - p)
       Sass::Script::Value::Color.new(rgb + [alpha])
     end
     declare :mix, [:color_1, :color_2]

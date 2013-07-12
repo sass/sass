@@ -26,7 +26,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     if @format == :sass
       "\n"  + super.join.rstrip + "\n"
     else
-      " {\n" + super.join.rstrip + "\n#{ @tab_chars * (@tabs-1)}}\n"
+      " {\n" + super.join.rstrip + "\n#{ @tab_chars * (@tabs - 1)}}\n"
     end
   ensure
     @tabs -= 1
@@ -287,7 +287,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def media_interp_to_src(interp)
     Sass::Util.enum_with_index(interp).map do |r, i|
       next r if r.is_a?(String)
-      before, after = interp[i-1], interp[i+1]
+      before, after = interp[i - 1], interp[i + 1]
       if before.is_a?(String) && after.is_a?(String) &&
           ((before[-1] == ?( && after[0] == ?:) ||
            (before =~ /:\s*/ && after[0] == ?)))

@@ -581,9 +581,9 @@ module Sass::Script::Value
       m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
       m1 = l * 2 - m2
       @attrs[:red], @attrs[:green], @attrs[:blue] = [
-        hue_to_rgb(m1, m2, h + 1.0/3),
+        hue_to_rgb(m1, m2, h + 1.0 / 3),
         hue_to_rgb(m1, m2, h),
-        hue_to_rgb(m1, m2, h - 1.0/3)
+        hue_to_rgb(m1, m2, h - 1.0 / 3)
       ].map {|c| (c * 0xff).round}
     end
 
@@ -592,7 +592,7 @@ module Sass::Script::Value
       h -= 1 if h > 1
       return m1 + (m2 - m1) * h * 6 if h * 6 < 1
       return m2 if h * 2 < 1
-      return m1 + (m2 - m1) * (2.0/3 - h) * 6 if h * 3 < 2
+      return m1 + (m2 - m1) * (2.0 / 3 - h) * 6 if h * 3 < 2
       return m1
     end
 
@@ -608,20 +608,20 @@ module Sass::Script::Value
       h =
         case max
         when min; 0
-        when r; 60 * (g-b)/d
-        when g; 60 * (b-r)/d + 120
-        when b; 60 * (r-g)/d + 240
+        when r; 60 * (g - b) / d
+        when g; 60 * (b - r) / d + 120
+        when b; 60 * (r - g) / d + 240
         end
 
-      l = (max + min)/2.0
+      l = (max + min) / 2.0
 
       s =
         if max == min
           0
         elsif l < 0.5
-          d/(2*l)
+          d / (2 * l)
         else
-          d/(2 - 2*l)
+          d / (2 - 2 * l)
         end
 
       @attrs[:hue] = h % 360
