@@ -157,8 +157,12 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     spaces = ('  ' * [@tabs - node.resolved_value[/^ */].size, 0].max)
 
     content = node.resolved_value.gsub(/^/, spaces)
-    content.gsub!(%r{^(\s*)//(.*)$}) {|md| "#{$1}/*#{$2} */"} if node.type == :silent
-    content.gsub!(/\n +(\* *(?!\/))?/, ' ') if (node.style == :compact || node.style == :compressed) && node.type != :loud
+    if node.type == :silent
+      content.gsub!(%r{^(\s*)//(.*)$}) {|md| "#{$1}/*#{$2} */"}
+    end
+    if (node.style == :compact || node.style == :compressed) && node.type != :loud
+      content.gsub!(/\n +(\* *(?!\/))?/, ' ')
+    end
     for_node(node) {output(content)}
   end
 
@@ -269,7 +273,11 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
           else; " "
         end
       rule_indent = '  ' * @tabs
-      per_rule_indent, total_indent = [:nested, :expanded].include?(node.style) ? [rule_indent, ''] : ['', rule_indent]
+      per_rule_indent, total_indent = if [:nested, :expanded].include?(node.style)
+                                        [rule_indent, '']
+                                      else
+                                        ['', rule_indent]
+                                      end
 
       joined_rules = node.resolved_rules.members.map do |seq|
         next if seq.has_placeholder?
@@ -363,7 +371,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       rule << prop
       node << rule
     end
-    node.options = options.merge(:debug_info => false, :line_comments => false, :style => :compressed)
+    node.options = options.merge(:debug_info => false,
+                                 :line_comments => false,
+                                 :style => :compressed)
     node
   end
 end

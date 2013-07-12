@@ -22,7 +22,7 @@ module Sass
       # @param str [String, StringScanner] The source text to parse
       # @param line [Fixnum] The line on which the SassScript appears.
       #   Used for error reporting and sourcemap building
-      # @param offset [Fixnum] The character (not byte) offset in the line on which the SassScript appears.
+      # @param offset [Fixnum] The character (not byte) offset where the script starts in the line.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
@@ -81,7 +81,10 @@ module Sass
 
       # Parses the argument list for a mixin include.
       #
-      # @return [(Array<Script::Tree::Node>, {String => Script::Tree::Node}, Script::Tree::Node, Script::Tree::Node)]
+      # @return [(Array<Script::Tree::Node>,
+      #          {String => Script::Tree::Node},
+      #          Script::Tree::Node,
+      #          Script::Tree::Node)]
       #   The root nodes of the positional arguments, keyword arguments, and
       #   splat argument(s). Keyword arguments are in a hash from names to values.
       # @raise [Sass::SyntaxError] if the argument list isn't valid SassScript
@@ -217,7 +220,8 @@ module Sass
               return unless e = #{sub}
               while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
                 if interp = try_op_before_interp(tok, e)
-                  return interp unless other_interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}, interp)
+                  other_interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}, interp)
+                  return interp unless other_interp
                   return other_interp
                 end
 
@@ -300,7 +304,8 @@ RUBY
       def try_op_before_interp(op, prev = nil)
         return unless @lexer.peek && @lexer.peek.type == :begin_interpolation
         wb = @lexer.whitespace?(op)
-        str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]), op.source_range)
+        str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]),
+                           op.source_range)
         interp = node(
           Script::Tree::Interpolation.new(prev, str, nil, wb, !:wa, :originally_text),
           (prev || str).source_range.start_pos)
@@ -314,7 +319,8 @@ RUBY
         interp = try_op_before_interp(op, prev) and return interp
 
         wa = @lexer.whitespace?
-        str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]), op.source_range)
+        str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]),
+                           op.source_range)
         str.line = @lexer.line
         interp = node(
           Script::Tree::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text),
@@ -343,7 +349,11 @@ RUBY
         while (e = or_expr)
           arr << e
         end
-        arr.size == 1 ? arr.first : node(Sass::Script::Tree::ListLiteral.new(arr, :space), start_pos)
+        if arr.size == 1
+          arr.first
+        else
+          node(Sass::Script::Tree::ListLiteral.new(arr, :space), start_pos)
+        end
       end
 
       production :or_expr, :and_expr, :or
@@ -396,7 +406,8 @@ RUBY
             val = assert_expr(:space)
             must_have_default = true
           elsif must_have_default
-            raise SyntaxError.new("Required argument #{var.inspect} must come before any optional arguments.")
+            raise SyntaxError.new(
+              "Required argument #{var.inspect} must come before any optional arguments.")
           elsif try_tok(:splat)
             splat = var
             break

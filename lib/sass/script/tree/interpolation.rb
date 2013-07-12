@@ -84,7 +84,8 @@ module Sass::Script::Tree
     # Evaluates the interpolation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::Value::String] The SassScript string that is the value of the interpolation
+    # @return [Sass::Script::Value::String]
+    #   The SassScript string that is the value of the interpolation
     def _perform(environment)
       res = ""
       res << @before.perform(environment).to_s if @before

@@ -23,7 +23,11 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def visit_children(parent)
     @tabs += 1
     return @format == :sass ? "\n" : " {}\n" if parent.children.empty?
-    (@format == :sass ? "\n" : " {\n") + super.join.rstrip + (@format == :sass ? "\n" : "\n#{ @tab_chars * (@tabs-1)}}\n")
+    if @format == :sass
+      "\n"  + super.join.rstrip + "\n"
+    else
+      " {\n" + super.join.rstrip + "\n#{ @tab_chars * (@tabs-1)}}\n"
+    end
   ensure
     @tabs -= 1
   end
@@ -109,7 +113,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_extend(node)
-    "#{tab_str}@extend #{selector_to_src(node.selector).lstrip}#{semi}#{" !optional" if node.optional?}\n"
+    "#{tab_str}@extend #{selector_to_src(node.selector).lstrip}#{semi}" + 
+      "#{" !optional" if node.optional?}\n"
   end
 
   def visit_for(node)
@@ -212,7 +217,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       end
       arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
     end
-    "#{tab_str}#{@format == :sass ? '+' : '@include '}#{dasherize(node.name)}#{arglist}#{node.has_children ? yield : semi}\n"
+    "#{tab_str}#{@format == :sass ? '+' : '@include '}" + 
+      "#{dasherize(node.name)}#{arglist}#{node.has_children ? yield : semi}\n"
   end
 
   def visit_content(node)
@@ -246,7 +252,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_variable(node)
-    "#{tab_str}$#{dasherize(node.name)}: #{node.expr.to_sass(@options)}#{' !default' if node.guarded}#{semi}\n"
+    "#{tab_str}$#{dasherize(node.name)}: #{node.expr.to_sass(@options)}" +
+      "#{' !default' if node.guarded}#{semi}\n"
   end
 
   def visit_warn(node)

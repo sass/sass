@@ -27,10 +27,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
           unknown_args = Sass::Util.array_minus(keywords.keys,
             callable.args.map {|var| var.first.underscored_name})
           if callable.splat && unknown_args.include?(callable.splat.underscored_name)
-            raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc} cannot be used as a named argument.")
+            raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc} " +
+                                        "cannot be used as a named argument.")
           elsif unknown_args.any?
             description = unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'
-            raise Sass::SyntaxError.new("#{desc} doesn't have #{description} #{unknown_args.map {|name| "$#{name}"}.join ', '}.")
+            raise Sass::SyntaxError.new("#{desc} doesn't have #{description} " +
+                                        "#{unknown_args.map {|name| "$#{name}"}.join ', '}.")
           end
         end
       rescue Sass::SyntaxError => keyword_exception
@@ -58,7 +60,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       env = Sass::Environment.new(callable.environment)
       callable.args.zip(args[0...callable.args.length]) do |(var, default), value|
         if value && keywords.include?(var.underscored_name)
-          raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} both by position and by name.")
+          raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} " +
+                                      "both by position and by name.")
         end
 
         value ||= keywords.delete(var.underscored_name)
@@ -113,7 +116,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
       kwarg_splat = kwarg_splat.perform(environment)
       unless kwarg_splat.is_a?(Sass::Script::Value::Map)
-        raise Sass::SyntaxError.new("Variable keyword arguments must be a map (was #{kwarg_splat.inspect}).")
+        raise Sass::SyntaxError.new("Variable keyword arguments must be a map " +
+                                    "(was #{kwarg_splat.inspect}).")
       end
 
       if splat.is_a?(Sass::Script::Value::ArgList)
@@ -250,7 +254,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_function(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_function(node.name,
-      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, !:has_content, "function"))
+      Sass::Callable.new(node.name, node.args, node.splat, env,
+                         node.children, !:has_content, "function"))
     []
   end
 
@@ -298,14 +303,17 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_mixindef(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_mixin(node.name,
-      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, node.has_content, "mixin"))
+      Sass::Callable.new(node.name, node.args, node.splat, env,
+                         node.children, node.has_content, "mixin"))
     []
   end
 
   # Runs a mixin.
   def visit_mixin(node)
     include_loop = true
-    handle_include_loop!(node) if @environment.stack.frames.any? {|f| f.is_mixin? && f.name == node.name}
+    if @environment.stack.frames.any? {|f| f.is_mixin? && f.name == node.name}
+      handle_include_loop!(node)
+    end
     include_loop = false
 
     @environment.stack.with_mixin(node.filename, node.line, node.name) do
@@ -342,7 +350,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     return [] unless content
     @environment.stack.with_mixin(node.filename, node.line, '@content') do
       trace_node = Sass::Tree::TraceNode.from_node('@content', node)
-      with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}.flatten}
+      with_environment(@environment.caller) do
+        trace_node.children = content.map {|c| visit(c.dup)}.flatten
+      end
       trace_node
     end
   rescue Sass::SyntaxError => e
@@ -461,7 +471,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def handle_include_loop!(node)
     msg = "An @include loop has been found:"
     content_count = 0
-    mixins = @environment.stack.frames.select {|f| f.is_mixin?}.reverse.map {|f| f.name}.select do |name|
+    mixins = @environment.stack.frames.select {|f| f.is_mixin?}.reverse!.map! {|f| f.name}
+    mixins.select! do |name|
       if name == '@content'
         content_count += 1
         false

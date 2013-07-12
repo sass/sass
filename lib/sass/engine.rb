@@ -196,9 +196,11 @@ module Sass
       # Remove any deprecated importers if the location is imported explicitly
       options[:load_paths].reject! do |importer|
         importer.is_a?(Sass::Importers::DeprecatedPath) &&
-          options[:load_paths].find {|other_importer| other_importer.is_a?(Sass::Importers::Filesystem) &&
-                                                      other_importer != importer &&
-                                                      other_importer.root == importer.root}
+          options[:load_paths].find do |other_importer|
+            other_importer.is_a?(Sass::Importers::Filesystem) &&
+            other_importer != importer &&
+            other_importer.root == importer.root
+          end
       end
 
       # Backwards compatibility
@@ -515,7 +517,8 @@ MSG
       nodes = []
       while (line = arr[i]) && line.tabs >= base
         if line.tabs > base
-          raise SyntaxError.new("The line was indented #{line.tabs - base} levels deeper than the previous line.",
+          raise SyntaxError.new(
+            "The line was indented #{line.tabs - base} levels deeper than the previous line.",
             :line => line.index) if line.tabs > base + 1
 
           nodes.last.children, i = tree(arr, i)
@@ -889,7 +892,8 @@ WARNING
     end
 
     def parse_for_directive(parent, line, root, value, offset)
-      var, from_expr, to_name, to_expr = value.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
+      var, from_expr, to_name, to_expr =
+        value.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
 
       if var.nil? # scan failed, try to figure out why for error message
         if value !~ /^[^\s]+/
@@ -957,7 +961,8 @@ WARNING
 
       loop do
         unless (node = parse_import_arg(scanner, offset + scanner.pos))
-          raise SyntaxError.new("Invalid @import: expected file to import, was #{scanner.rest.inspect}",
+          raise SyntaxError.new(
+            "Invalid @import: expected file to import, was #{scanner.rest.inspect}",
             :line => @line)
         end
         values << node
@@ -1059,7 +1064,10 @@ WARNING
     CONTENT_RE = /^@content\s*(.+)?$/
     def parse_content_directive(parent, line, root, value, offset)
       trailing = line.text.scan(CONTENT_RE).first.first
-      raise SyntaxError.new("Invalid content directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
+      unless trailing.nil?
+        raise SyntaxError.new(
+          "Invalid content directive. Trailing characters found: \"#{trailing}\".")
+      end
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath @content directives.",
         :line => line.index + 1) unless line.children.empty?
       Tree::ContentNode.new

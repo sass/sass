@@ -354,7 +354,8 @@ module Sass
     # Returns information about the caller of the previous method.
     #
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
-    # @return [[String, Fixnum, (String, nil)]] An array containing the filename, line, and method name of the caller.
+    # @return [[String, Fixnum, (String, nil)]]
+    #   An array containing the filename, line, and method name of the caller.
     #   The method name may be nil
     def caller_info(entry = nil)
       # JRuby evaluates `caller` incorrectly when it's in an actual default argument.
@@ -816,8 +817,9 @@ MSG
       set1.to_a.uniq.sort_by {|e| e.hash}.eql?(set2.to_a.uniq.sort_by {|e| e.hash})
     end
 
-    # Like `Object#inspect`, but preserves non-ASCII characters rather than escaping them under Ruby 1.9.2.
-    # This is necessary so that the precompiled Haml template can be `#encode`d into `@options[:encoding]`
+    # Like `Object#inspect`, but preserves non-ASCII characters rather than
+    # escaping them under Ruby 1.9.2.  This is necessary so that the
+    # precompiled Haml template can be `#encode`d into `@options[:encoding]`
     # before being evaluated.
     #
     # @param obj {Object}
@@ -1004,9 +1006,13 @@ MSG
 
     private
 
+    # rubocop:disable LineLength
+
+
     # Calculates the memoization table for the Least Common Subsequence algorithm.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
     def lcs_table(x, y)
+      # rubocop:enable LineLength
       c = Array.new(x.size) {[]}
       x.size.times {|i| c[i][0] = 0}
       y.size.times {|j| c[0][j] = 0}
@@ -1023,12 +1029,13 @@ MSG
       return c
     end
 
+    # rubocop:disable ParameterLists, LineLength
+
+
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
-    # @comment
-    #   rubocop:disable ParameterLists
     def lcs_backtrace(c, x, y, i, j, &block)
-      # rubocop:enable ParameterLists
+      # rubocop:enable ParameterList, LineLengths
       return [] if i == 0 || j == 0
       if (v = yield(x[i], y[j]))
         return lcs_backtrace(c, x, y, i-1, j-1, &block) << v

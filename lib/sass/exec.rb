@@ -58,7 +58,9 @@ module Sass
       def get_line(exception)
         # SyntaxErrors have weird line reporting
         # when there's trailing whitespace
-        return (exception.message.scan(/:(\d+)/).first || ["??"]).first if exception.is_a?(::SyntaxError)
+        if exception.is_a?(::SyntaxError)
+          return (exception.message.scan(/:(\d+)/).first || ["??"]).first
+        end
         (exception.backtrace[0].scan(/:(\d+)/).first || ["??"]).first
       end
 
@@ -70,7 +72,8 @@ module Sass
       #
       # @param opts [OptionParser]
       def set_opts(opts)
-        opts.on('-s', '--stdin', :NONE, 'Read input from standard input instead of an input file') do
+        opts.on('-s', '--stdin', :NONE,
+                'Read input from standard input instead of an input file') do
           @options[:input] = $stdin
         end
 
@@ -262,12 +265,13 @@ END
           @options[:check_syntax] = true
           @options[:output] = StringIO.new
         end
-        opts.on('-t', '--style NAME',
-                'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
+        style_desc = 'Output style. Can be nested (default), compact, compressed, or expanded.'
+        opts.on('-t', '--style NAME', style_desc) do |name|
           @options[:for_engine][:style] = name.to_sym
         end
         opts.on('--precision NUMBER_OF_DIGITS', Integer,
-                "How many digits of precision to use when outputting decimal numbers. Defaults to #{::Sass::Script::Value::Number.precision}.") do |precision|
+                "How many digits of precision to use when outputting decimal numbers."+
+                "Defaults to #{::Sass::Script::Value::Number.precision}.") do |precision|
           ::Sass::Script::Value::Number.precision = precision
         end
         opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
@@ -277,7 +281,7 @@ END
           @options[:compass] = true
         end
         opts.on('-g', '--debug-info',
-                'Emit extra information in the generated CSS that can be used by the FireSass Firebug plugin.') do
+                'Emit output that can be used by the FireSass Firebug plugin.') do
           @options[:for_engine][:debug_info] = true
         end
         opts.on('-l', '--line-numbers', '--line-comments',
@@ -294,7 +298,8 @@ END
         opts.on('-r', '--require LIB', 'Require a Ruby library before running Sass.') do |lib|
           require lib
         end
-        opts.on('--cache-location PATH', 'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
+        opts.on('--cache-location PATH',
+                'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
           @options[:for_engine][:cache_location] = loc
         end
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
@@ -468,7 +473,8 @@ MSG
 
           raise error unless error.is_a?(::Sass::SyntaxError) && !@options[:stop_on_error]
           had_error = true
-          puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
+          puts_action :error, :red,
+            "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
           STDOUT.flush
         end
 
@@ -524,7 +530,8 @@ MSG
 
       def default_sass_path
         if ENV['SASSPATH']
-          # The select here prevents errors when the environment's load paths specified do not exist.
+          # The select here prevents errors when the environment's
+          # load paths specified do not exist.
           ENV['SASSPATH'].split(File::PATH_SEPARATOR).select {|d| File.directory?(d)}
         else
           [::Sass::Importers::DeprecatedPath.new(".")]
@@ -625,7 +632,8 @@ END
         end
 
         unless ::Sass::Util.ruby1_8?
-          opts.on('-E encoding', 'Specify the default encoding for Sass and CSS files.') do |encoding|
+          opts.on('-E encoding',
+                  'Specify the default encoding for Sass and CSS files.') do |encoding|
             Encoding.default_external = encoding
           end
         end
@@ -647,7 +655,9 @@ END
 
         super
         input = @options[:input]
-        raise "Error: '#{input.path}' is a directory (did you mean to use --recursive?)" if File.directory?(input)
+        if File.directory?(input)
+          raise "Error: '#{input.path}' is a directory (did you mean to use --recursive?)"
+        end
         output = @options[:output]
         output = input if @options[:in_place]
         process_file(input, output)
@@ -663,8 +673,11 @@ END
         output = @options[:output] = @args.shift
         raise "Error: --from required when using --recursive." unless @options[:from]
         raise "Error: --to required when using --recursive." unless @options[:to]
-        raise "Error: '#{@options[:input]}' is not a directory" unless File.directory?(@options[:input])
-        if @options[:output] && File.exists?(@options[:output]) && !File.directory?(@options[:output])
+        unless File.directory?(@options[:input])
+          raise "Error: '#{@options[:input]}' is not a directory"
+        end
+        if @options[:output] && File.exists?(@options[:output]) &&
+          !File.directory?(@options[:output])
           raise "Error: '#{@options[:output]}' is not a directory"
         end
         @options[:output] ||= @options[:input]

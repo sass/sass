@@ -179,7 +179,8 @@ module Sass::Script::Value
     def mod(other)
       if other.is_a?(Number)
         unless other.unitless?
-          raise Sass::UnitConversionError.new("Cannot modulo by a number with units: #{other.inspect}.")
+          raise Sass::UnitConversionError.new(
+            "Cannot modulo by a number with units: #{other.inspect}.")
         end
         operate(other, :%)
       else
@@ -303,7 +304,8 @@ module Sass::Script::Value
     #   number.is_unit?("px") => true
     #   number.is_unit?(nil) => false
     #
-    # @param unit [::String, nil] The unit the number should have or nil if the number should be unitless.
+    # @param unit [::String, nil] The unit the number should have or nil if the number
+    #   should be unitless.
     # @see Number#unitless? The unitless? method may be more readable.
     def is_unit?(unit)
       if unit
@@ -408,7 +410,8 @@ module Sass::Script::Value
       from_units, to_units = sans_common_units(from_units, to_units)
 
       if from_units.size != to_units.size || !convertable?(from_units | to_units)
-        raise Sass::UnitConversionError.new("Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
+        raise Sass::UnitConversionError.new(
+          "Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
       end
 
       from_units.zip(to_units).inject(1) {|m, p| m * conversion_factor(p[0], p[1]) }
@@ -417,9 +420,11 @@ module Sass::Script::Value
     def compute_units(this, other, operation)
       case operation
       when :*
-        [this.numerator_units + other.numerator_units, this.denominator_units + other.denominator_units]
+        [this.numerator_units + other.numerator_units,
+         this.denominator_units + other.denominator_units]
       when :/
-        [this.numerator_units + other.denominator_units, this.denominator_units + other.numerator_units]
+        [this.numerator_units + other.denominator_units,
+         this.denominator_units + other.numerator_units]
       else  
         [this.numerator_units, this.denominator_units]
       end
@@ -427,7 +432,8 @@ module Sass::Script::Value
 
     def normalize!
       return if unitless?
-      @numerator_units, @denominator_units = sans_common_units(@numerator_units, @denominator_units)
+      @numerator_units, @denominator_units =
+        sans_common_units(@numerator_units, @denominator_units)
 
       @denominator_units.each_with_index do |d, i|
         if convertable?(d) && (u = @numerator_units.detect(&method(:convertable?)))

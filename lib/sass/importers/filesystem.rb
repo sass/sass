@@ -146,7 +146,9 @@ module Sass
             # If _line exists, we're here due to an actual import in an
             # import_node and we want to print a warning for a user writing an
             # ambiguous import.
-            candidates = found.map {|(f, _)| "  " + Pathname.new(f).relative_path_from(relative_to).to_s}.join("\n")
+            candidates = found.map do |(f, _)|
+              "  " + Pathname.new(f).relative_path_from(relative_to).to_s
+            end.join("\n")
             raise Sass::SyntaxError.new(<<MESSAGE)
 It's not clear which file to import for '@import "#{name}"'.
 Candidates:

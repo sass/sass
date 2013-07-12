@@ -74,7 +74,8 @@ module Sass::Script::Tree
 
       if (value1.is_a?(Sass::Script::Value::Null) || value2.is_a?(Sass::Script::Value::Null)) &&
           @operator != :eq && @operator != :neq
-        raise Sass::SyntaxError.new("Invalid null operation: \"#{value1.inspect} #{@operator} #{value2.inspect}\".")
+        raise Sass::SyntaxError.new(
+          "Invalid null operation: \"#{value1.inspect} #{@operator} #{value2.inspect}\".")
       end
 
       begin

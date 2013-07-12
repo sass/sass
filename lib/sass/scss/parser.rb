@@ -142,7 +142,8 @@ module Sass
         if silent
           value = [text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */']
         else
-          value = Sass::Engine.parse_interp(text, line, @scanner.pos - text.size, :filename => @filename)
+          value = Sass::Engine.parse_interp(
+            text, line, @scanner.pos - text.size, :filename => @filename)
           value.unshift(@scanner.
             string[0...@scanner.pos].
             reverse[/.*?\*\/(.*?)($|\Z)/, 1].
@@ -214,7 +215,8 @@ module Sass
         name = tok! IDENT
         args, keywords, splat, kwarg_splat = sass_script(:parse_mixin_include_arglist)
         ss
-        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords, splat, kwarg_splat), start_pos)
+        include_node = node(
+          Sass::Tree::MixinNode.new(name, args, keywords, splat, kwarg_splat), start_pos)
         if tok?(/\{/)
           include_node.has_children = true
           block(include_node, :directive)
@@ -573,7 +575,8 @@ module Sass
         start_pos = source_position
         rules, source_range = selector_sequence
         return unless rules
-        block(node(Sass::Tree::RuleNode.new(rules.flatten.compact, source_range), start_pos), :ruleset)
+        block(node(
+          Sass::Tree::RuleNode.new(rules.flatten.compact, source_range), start_pos), :ruleset)
       end
 
       def block(node, context)
@@ -679,7 +682,9 @@ module Sass
           ws << str{ss}
           if (sel = _selector)
             selectors << sel
-            selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
+            if ws.include?("\n")
+              selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
+            end
             ws = ''
           end
         end
@@ -926,7 +931,8 @@ module Sass
         ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new), name_start_pos, value_end_pos)
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+                    name_start_pos, value_end_pos)
         node.name_source_range = range(name_start_pos, name_end_pos)
         node.value_source_range = range(value_start_pos, value_end_pos)
 
@@ -1103,7 +1109,8 @@ MESSAGE
       def self.sass_script_parser; @sass_script_parser; end
 
       def sass_script(*args)
-        parser = self.class.sass_script_parser.new(@scanner, @line, @offset, :filename => @filename, :importer => @importer)
+        parser = self.class.sass_script_parser.new(@scanner, @line, @offset,
+                                                   :filename => @filename, :importer => @importer)
         result = parser.send(*args)
         unless @strs.empty?
           # Convert to CSS manually so that comments are ignored.

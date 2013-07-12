@@ -164,7 +164,8 @@ class OrderedHash < ::Hash
     dup.merge!(other_hash, &block)
   end
 
-  # When replacing with another hash, the initial order of our keys must come from the other hash -ordered or not.
+  # When replacing with another hash, the initial order of our keys must come from the other hash --
+  # ordered or not.
   def replace(other)
     super
     @keys = other.keys

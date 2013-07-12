@@ -159,7 +159,8 @@ module Sass::Plugin
 
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
+    # Checks each Sass/SCSS file in
+    # {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
     # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.
@@ -230,7 +231,8 @@ module Sass::Plugin
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      listener = create_listener(*(directories + [{:relative_paths => false}])) do |modified, added, removed|
+      listener_args = directories + [{:relative_paths => false}]
+      listener = create_listener(*listener_args) do |modified, added, removed|
         recompile_required = false
 
         modified.uniq.each do |f|
@@ -269,14 +271,15 @@ module Sass::Plugin
         end
 
         if recompile_required
-          # In case a file we're watching is removed and then recreated we prune out the non-existant files here.
+          # In case a file we're watching is removed and then recreated we
+          # prune out the non-existant files here.
           watched_files_remaining = individual_files.select {|(source, _, _)| File.exists?(source)}
           update_stylesheets(watched_files_remaining)
         end
       end
 
-      # The native windows listener is much slower than the polling
-      # option, according to https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e#commitcomment-1295118
+      # The native windows listener is much slower than the polling option, according to
+      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
       listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
       begin
@@ -313,9 +316,11 @@ module Sass::Plugin
       dedupped = []
       directories.each do |new_directory|
         # no need to add a directory that is already watched.
-        next if dedupped.any? {|existing_directory| child_of_directory?(existing_directory, new_directory)}
+        next if dedupped.any? {|existing_directory|
+          child_of_directory?(existing_directory, new_directory)}
         # get rid of any sub directories of this new directory
-        dedupped.reject! {|existing_directory| child_of_directory?(new_directory, existing_directory)}
+        dedupped.reject! {|existing_directory|
+          child_of_directory?(new_directory, existing_directory)}
         dedupped << new_directory
       end
       dedupped
@@ -345,7 +350,9 @@ module Sass::Plugin
       end
 
       write_file(css, rendered)
-      write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap)) if mapping
+      if mapping
+        write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap))
+      end
       run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
     end
 
@@ -379,7 +386,8 @@ module Sass::Plugin
     end
 
     def normalized_load_paths
-      @normalized_load_paths ||= Sass::Engine.normalize_options(:load_paths=> load_paths)[:load_paths]
+      @normalized_load_paths ||=
+        Sass::Engine.normalize_options(:load_paths=> load_paths)[:load_paths]
     end
 
     def load_paths(opts = options)
@@ -395,7 +403,8 @@ module Sass::Plugin
     end
 
     def css_filename(name, path)
-      "#{path}#{File::SEPARATOR unless path.end_with?(File::SEPARATOR)}#{name}".gsub(/\.s[ac]ss$/, '.css')
+      "#{path}#{File::SEPARATOR unless path.end_with?(File::SEPARATOR)}#{name}".
+        gsub(/\.s[ac]ss$/, '.css')
     end
 
     def relative_to_pwd(f)

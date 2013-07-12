@@ -1,6 +1,6 @@
 LineLength:
   Enabled: true
-  Max: 129
+  Max: 100
 SpaceAroundBraces:
   # block braces without spaces are plenty readable
   Enabled: false

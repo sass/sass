@@ -31,7 +31,8 @@ module Sass::Script::Tree
       precedence = Sass::Script::Parser.precedence_of(separator)
       elements.reject {|e| e.is_a?(Sass::Script::Value::Null)}.map do |v|
         if v.is_a?(ListLiteral) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
-            separator == :space && v.is_a?(UnaryOperation) && (v.operator == :minus || v.operator == :plus)
+            separator == :space && v.is_a?(UnaryOperation) &&
+            (v.operator == :minus || v.operator == :plus)
           "(#{v.to_sass(opts)})"
         else
           v.to_sass(opts)
