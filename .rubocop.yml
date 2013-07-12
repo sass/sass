@@ -5,8 +5,6 @@ SpaceAroundBraces:
   Enabled: false
 StringLiterals:
   Enabled: false
-NestedTernaryOperator:
-  Enabled: false
 HashSyntax:
   Enabled: false
 AlignParameters:
