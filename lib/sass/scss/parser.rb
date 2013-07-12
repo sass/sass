@@ -87,7 +87,7 @@ module Sass
         Sass::Source::Position.new(@line, @offset)
       end
 
-      def range(start_pos, end_pos=source_position)
+      def range(start_pos, end_pos = source_position)
         Sass::Source::Range.new(start_pos, end_pos, @filename, @importer)
       end
 
@@ -778,7 +778,7 @@ module Sass
         end
       end
 
-      def qualified_name(allow_star_name=false)
+      def qualified_name(allow_star_name = false)
         name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
         return unless name
         return nil, name unless tok(/\|/)

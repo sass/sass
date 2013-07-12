@@ -247,7 +247,7 @@ RUBY
         Sass::Source::Position.new(line, offset)
       end
 
-      def range(start_pos, end_pos=source_position)
+      def range(start_pos, end_pos = source_position)
         Sass::Source::Range.new(start_pos, end_pos, @options[:filename], @options[:importer])
       end
 

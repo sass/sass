@@ -26,7 +26,7 @@ module Sass::Source
     # @param end_pos [Sass::Source::Position] See \{#end_pos}
     # @param file [String] See \{#file}
     # @param importer [Sass::Importers::Base] See \{#importer}
-    def initialize(start_pos, end_pos, file, importer=nil)
+    def initialize(start_pos, end_pos, file, importer = nil)
       @start_pos = start_pos
       @end_pos = end_pos
       @file = file

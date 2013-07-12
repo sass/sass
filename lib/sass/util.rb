@@ -293,7 +293,7 @@ module Sass
     # @param unit [String] The unit of the value. Used in error reporting.
     # @return [Numeric] `value` adjusted to fall within range, if it
     #   was outside by a floating-point margin.
-    def check_range(name, range, value, unit='')
+    def check_range(name, range, value, unit = '')
       grace = (-0.00001..0.00001)
       str = value.to_s
       value = value.value if value.is_a?(Sass::Script::Value::Number)
