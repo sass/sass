@@ -261,7 +261,7 @@ module Sass
     #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     # @see {Sass::Engine.for_file}
     # @see {Sass::Plugin}
-    def initialize(template, options={})
+    def initialize(template, options = {})
       @options = self.class.normalize_options(options)
       @template = template
     end

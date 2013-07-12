@@ -251,7 +251,7 @@ RUBY
         Sass::Source::Position.new(line, offset)
       end
 
-      def range(start_pos, end_pos=source_position)
+      def range(start_pos, end_pos = source_position)
         Sass::Source::Range.new(start_pos, end_pos, @options[:filename], @options[:importer])
       end
 
@@ -273,7 +273,7 @@ RUBY
         map
       end
 
-      def map_pair(key=nil)
+      def map_pair(key = nil)
         return unless key ||= interpolation
         assert_tok :colon
         return key, assert_expr(:interpolation)
