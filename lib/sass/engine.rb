@@ -743,6 +743,8 @@ WARNING
       end
     end
 
+    # @comment
+    #   rubocop:disable MethodLength
     def parse_directive(parent, line, root)
       directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
       offset = directive.size + whitespace.size + 1 if whitespace
@@ -833,6 +835,8 @@ WARNING
           value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
       end
     end
+    # @comment
+    #   rubocop:enable MethodLength
 
     def parse_for(line, root, text)
       var, from_expr, to_name, to_expr = text.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
@@ -914,6 +918,8 @@ WARNING
       return values
     end
 
+    # @comment
+    #   rubocop:disable MethodLength
     def parse_import_arg(scanner, offset)
       return if scanner.eos?
 
@@ -978,6 +984,8 @@ WARNING
       end
       node
     end
+    # @comment
+    #   rubocop:enable MethodLength
 
     MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_definition(line)

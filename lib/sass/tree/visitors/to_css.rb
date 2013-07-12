@@ -157,6 +157,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     for_node(node) {output(content)}
   end
 
+  # @comment
+  #   rubocop:disable MethodLength
   def visit_directive(node)
     was_in_directive = @in_directive
     tab_str = '  ' * @tabs
@@ -218,6 +220,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   ensure
     @in_directive = was_in_directive
   end
+  # @comment
+  #   rubocop:enable MethodLength
 
   def visit_media(node)
     with_tabs(@tabs + node.tabs) {visit_directive(node)}
@@ -247,6 +251,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     end
   end
 
+  # @comment
+  #   rubocop:disable MethodLength
   def visit_rule(node)
     with_tabs(@tabs + node.tabs) do
       rule_separator = node.style == :compressed ? ',' : ', '
@@ -329,6 +335,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       output("}" + trailer)
     end
   end
+  # @comment
+  #   rubocop:enable MethodLength
 
   private
 
