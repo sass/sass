@@ -48,3 +48,6 @@ SymbolName:
   # checks that symbols are snake_case. This is disabled because ruby constants
   # are not snake case and referring to them often requires the use of symbols.
   Enabled: false
+EmptyLines:
+  # We need these empty lines to separate internal comments from docstrings.
+  Enabled: false
