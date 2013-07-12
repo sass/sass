@@ -1379,7 +1379,7 @@ module Sass::Script
     # @return [Sass::Script::Value::String] The unquoted string name of the
     #   value's type
     def type_of(value)
-      Sass::Script::Value::String.new(value.class.name.gsub(/Sass::Script::Value::/,'').downcase)
+      Sass::Script::Value::String.new(value.class.name.gsub(/Sass::Script::Value::/, '').downcase)
     end
     declare :type_of, [:value]
 

@@ -399,7 +399,7 @@ module Sass::Script::Value
         raise Sass::UnitConversionError.new("Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
       end
 
-      from_units.zip(to_units).inject(1) {|m,p| m * conversion_factor(p[0], p[1]) }
+      from_units.zip(to_units).inject(1) {|m, p| m * conversion_factor(p[0], p[1]) }
     end
 
     def compute_units(this, other, operation)
