@@ -349,7 +349,6 @@ module Sass::Script
     class EvaluationContext
       include Functions
 
-
       # The environment of the {Sass::Engine}
       #
       # @return [Environment]
@@ -1309,7 +1308,6 @@ module Sass::Script
     end
     declare :str_index, [:string, :substring]
 
-
     # Extracts a substring from `$string`. The substring will begin at index
     # `$start-at` and ends at index `$end-at`.
     #
@@ -1721,7 +1719,6 @@ module Sass::Script
       Sass::Script::Value::List.new(new_list_arry, :comma)
     end
     declare :zip, [], :var_args => true
-
 
     # Returns the position of a value within a list. If the value isn't found,
     # returns false instead.

@@ -48,3 +48,6 @@ ParenthesesAroundCondition:
 ParameterLists:
   # The default is 5, but we rarely have more than 4. Let's keep it that way.
   Max: 4
+EmptyLines:
+  # We need these empty lines to separate internal comments from docstrings.
+  Enabled: false
