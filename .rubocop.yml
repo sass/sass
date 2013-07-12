@@ -43,6 +43,6 @@ SymbolName:
   # are not snake case and referring to them often requires the use of symbols.
   Enabled: false
 
-
-
-
+ParameterLists:
+  # The default is 5, but we rarely have more than 4. Let's keep it that way.
+  Max: 4
