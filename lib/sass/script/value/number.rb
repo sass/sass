@@ -411,7 +411,7 @@ module Sass::Script::Value
         raise Sass::UnitConversionError.new("Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
       end
 
-      from_units.zip(to_units).inject(1) {|m,p| m * conversion_factor(p[0], p[1]) }
+      from_units.zip(to_units).inject(1) {|m, p| m * conversion_factor(p[0], p[1]) }
     end
 
     def compute_units(this, other, operation)
@@ -439,13 +439,15 @@ module Sass::Script::Value
     end
 
     # A hash of unit names to their index in the conversion table
-    CONVERTABLE_UNITS = {"in" => 0,        "cm" => 1,    "pc" => 2,    "mm" => 3,   "pt" => 4,  "px" => 5    }
-    CONVERSION_TABLE = [[ 1,                2.54,         6,            25.4,        72        , 96          ], # in
-                        [ nil,              1,            2.36220473,   10,          28.3464567, 37.795275591], # cm
-                        [ nil,              nil,          1,            4.23333333,  12        , 16          ], # pc
-                        [ nil,              nil,          nil,          1,           2.83464567, 3.7795275591], # mm
-                        [ nil,              nil,          nil,          nil,         1         , 1.3333333333], # pt
-                        [ nil,              nil,          nil,          nil,         nil       , 1           ]] # px
+    CONVERTABLE_UNITS = %w(in cm pc mm pt px).inject({}) {|m, v| m[v] = m.size; m}
+
+    #                    in   cm    pc          mm          pt          px
+    CONVERSION_TABLE = [[1,   2.54, 6,          25.4,       72        , 96          ], # in
+                        [nil, 1,    2.36220473, 10,         28.3464567, 37.795275591], # cm
+                        [nil, nil,  1,          4.23333333, 12        , 16          ], # pc
+                        [nil, nil,  nil,        1,          2.83464567, 3.7795275591], # mm
+                        [nil, nil,  nil,        nil,        1         , 1.3333333333], # pt
+                        [nil, nil,  nil,        nil,        nil       , 1           ]] # px
 
     def conversion_factor(from_unit, to_unit)
       res = CONVERSION_TABLE[CONVERTABLE_UNITS[from_unit]][CONVERTABLE_UNITS[to_unit]]

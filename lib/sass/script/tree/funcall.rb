@@ -101,7 +101,7 @@ module Sass::Script::Tree
       node = dup
       node.instance_variable_set('@args', args.map {|a| a.deep_copy})
       copied_keywords = Sass::Util::NormalizedMap.new
-      @keywords.as_stored.each {|k,v| copied_keywords[k] = v.deep_copy}
+      @keywords.as_stored.each {|k, v| copied_keywords[k] = v.deep_copy}
       node.instance_variable_set('@keywords', copied_keywords)
       node
     end

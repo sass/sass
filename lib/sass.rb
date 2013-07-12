@@ -82,7 +82,7 @@ module Sass
     result = Sass::Engine.for_file(filename, options).render
     if css_filename
       options[:css_filename] ||= css_filename
-      open(css_filename,"w") {|css_file| css_file.write(result)}
+      open(css_filename, "w") {|css_file| css_file.write(result)}
       nil
     else
       result
