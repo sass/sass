@@ -767,6 +767,8 @@ WARNING
       :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
       :at_root]
 
+    # @comment
+    #   rubocop:disable MethodLength
     def parse_directive(parent, line, root)
       directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
       offset = directive.size + whitespace.size + 1 if whitespace
@@ -818,6 +820,8 @@ WARNING
       )
       Tree::ExtendNode.new(interp_parsed, optional, selector_range)
     end
+    # @comment
+    #   rubocop:enable MethodLength
 
     def parse_warn_directive(parent, line, root, value, offset)
       raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
@@ -962,6 +966,8 @@ WARNING
       return values
     end
 
+    # @comment
+    #   rubocop:disable MethodLength
     def parse_import_arg(scanner, offset)
       return if scanner.eos?
 
@@ -1026,6 +1032,8 @@ WARNING
       end
       node
     end
+    # @comment
+    #   rubocop:enable MethodLength
 
     def parse_mixin_directive(parent, line, root, value, offset)
       parse_mixin_definition(line)

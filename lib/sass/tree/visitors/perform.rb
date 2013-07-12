@@ -9,6 +9,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     end
 
     # @api private
+    # @comment
+    #   rubocop:disable MethodLength
     def perform_arguments(callable, args, keywords, splat)
       desc = "#{callable.type.capitalize} #{callable.name}"
       downcase_desc = "#{callable.type} #{callable.name}"
@@ -132,6 +134,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       end
     end
   end
+  # @comment
+  #   rubocop:enable MethodLength
 
   protected
 

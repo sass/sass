@@ -19,3 +19,6 @@ ParenthesesAroundCondition:
 ParameterLists:
   # The default is 5, but we rarely have more than 4. Let's keep it that way.
   Max: 4
+MethodLength:
+  Max: 50
+  CountComments: false

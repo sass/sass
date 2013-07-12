@@ -210,6 +210,8 @@ MESSAGE
       # Tells optparse how to parse the arguments.
       #
       # @param opts [OptionParser]
+      # @comment
+      #   rubocop:disable MethodLength
       def set_opts(opts)
         super
 
@@ -316,6 +318,8 @@ END
           end
         end
       end
+      # @comment
+      #   rubocop:enable MethodLength
 
       # Processes the options set by the command-line arguments,
       # and runs the Sass compiler appropriately.
@@ -399,6 +403,8 @@ END
         ::Sass::Repl.new(@options).run
       end
 
+      # @comment
+      #   rubocop:disable MethodLength
       def watch_or_update
         require 'sass/plugin'
         ::Sass::Plugin.options.merge! @options[:for_engine]
@@ -489,6 +495,8 @@ MSG
 
         ::Sass::Plugin.watch(files)
       end
+      # @comment
+      #   rubocop:enable MethodLength
 
       def colon_path?(path)
         !split_colon_path(path)[1].nil?
@@ -546,6 +554,8 @@ MSG
       # Tells optparse how to parse the arguments.
       #
       # @param opts [OptionParser]
+      # @comment
+      #   rubocop:disable MethodLength
       def set_opts(opts)
         opts.banner = <<END
 Usage: sass-convert [options] [INPUT] [OUTPUT]
@@ -622,6 +632,8 @@ END
 
         super
       end
+      # @comment
+      #   rubocop:enable MethodLength
 
       # Processes the options set by the command-line arguments,
       # and runs the CSS compiler appropriately.
