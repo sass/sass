@@ -410,15 +410,15 @@ module Sass
         return unless si
 
         if seq1[1].is_a?(String)
-          return unless seq2[si+1].is_a?(String)
+          return unless seq2[si + 1].is_a?(String)
           # .foo ~ .bar is a superselector of .foo + .bar
-          return unless seq1[1] == "~" ? seq2[si+1] != ">" : seq1[1] == seq2[si+1]
-          return _superselector?(seq1[2..-1], seq2[si+2..-1])
-        elsif seq2[si+1].is_a?(String)
-          return unless seq2[si+1] == ">"
-          return _superselector?(seq1[1..-1], seq2[si+2..-1])
+          return unless seq1[1] == "~" ? seq2[si + 1] != ">" : seq1[1] == seq2[si + 1]
+          return _superselector?(seq1[2..-1], seq2[si + 2..-1])
+        elsif seq2[si + 1].is_a?(String)
+          return unless seq2[si + 1] == ">"
+          return _superselector?(seq1[1..-1], seq2[si + 2..-1])
         else
-          return _superselector?(seq1[1..-1], seq2[si+1..-1])
+          return _superselector?(seq1[1..-1], seq2[si + 1..-1])
         end
       end
 

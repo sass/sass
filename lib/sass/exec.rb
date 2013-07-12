@@ -267,7 +267,7 @@ END
           @options[:for_engine][:style] = name.to_sym
         end
         opts.on('--precision NUMBER_OF_DIGITS', Integer,
-                "How many digits of precision to use when outputting decimal numbers."+
+                "How many digits of precision to use when outputting decimal numbers." +
                 "Defaults to #{::Sass::Script::Value::Number.precision}.") do |precision|
           ::Sass::Script::Value::Number.precision = precision
         end

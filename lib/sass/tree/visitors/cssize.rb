@@ -81,7 +81,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
         node.children.each_with_index.find {|c, _| c.is_a?(Sass::Tree::CharsetNode)}
       if charset_and_index
         index = charset_and_index.last
-        node.children = node.children[0..index] + imports + node.children[index+1..-1]
+        node.children = node.children[0..index] + imports + node.children[index + 1..-1]
       else
         node.children = imports + node.children
       end

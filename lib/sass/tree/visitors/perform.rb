@@ -19,11 +19,11 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
         unknown_args = Sass::Util.array_minus(keywords.keys,
           callable.args.map {|var| var.first.underscored_name})
         if callable.splat && unknown_args.include?(callable.splat.underscored_name)
-          raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc}"+
+          raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc}" +
                                       " cannot be used as a named argument.")
         elsif unknown_args.any?
           description = unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'
-          raise Sass::SyntaxError.new("#{desc} doesn't have #{description} "+
+          raise Sass::SyntaxError.new("#{desc} doesn't have #{description} " +
                                       "#{unknown_args.map {|name| "$#{name}"}.join ', '}.")
         end
       end
