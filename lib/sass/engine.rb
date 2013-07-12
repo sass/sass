@@ -487,7 +487,10 @@ END
       lines
     end
 
+    # @comment
+    #   rubocop:disable ParameterLists
     def try_comment(line, last, tab_str, comment_tab_str, index)
+      # rubocop:enable ParameterLists
       return unless last && last.comment?
       # Nested comment stuff must be at least one whitespace char deeper
       # than the normal indentation
@@ -703,7 +706,10 @@ WARNING
       end
     end
 
+    # @comment
+    #   rubocop:disable ParameterLists
     def parse_property(name, parsed_name, value, prop, line, start_offset)
+      # rubocop:enable ParameterLists
       if value.strip.empty?
         expr = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
         end_offset = start_offset

@@ -21,7 +21,10 @@ module Sass
       # @param offset [Fixnum] The 1-based character (not byte) offset in the line on
       #   which the source string starts. Used for error reporting and sourcemap
       #   building.
+      # @comment
+      #   rubocop:disable ParameterLists
       def initialize(str, filename, importer, line = 1, offset = 1)
+        # rubocop:enable ParameterLists
         @template = str
         @filename = filename
         @importer = importer

@@ -1025,7 +1025,10 @@ MSG
 
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
+    # @comment
+    #   rubocop:disable ParameterLists
     def lcs_backtrace(c, x, y, i, j, &block)
+      # rubocop:enable ParameterLists
       return [] if i == 0 || j == 0
       if (v = yield(x[i], y[j]))
         return lcs_backtrace(c, x, y, i-1, j-1, &block) << v

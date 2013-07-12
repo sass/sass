@@ -1995,7 +1995,10 @@ module Sass::Script
       Sass::Script::Value::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
     end
 
+    # @comment
+    #   rubocop:disable ParameterLists
     def _adjust(color, amount, attr, range, op, units = "")
+      # rubocop:enable ParameterLists
       assert_type color, :Color, :color
       assert_type amount, :Number, :amount
       Sass::Util.check_range('Amount', range, amount, units)
