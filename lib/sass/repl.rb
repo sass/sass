@@ -18,7 +18,7 @@ module Sass
       @line = 0
       loop do
         @line += 1
-        unless text = Readline.readline('>> ')
+        unless (text = Readline.readline('>> '))
           puts
           return
         end

@@ -44,8 +44,8 @@ module Sass
         @actively_checking = Set.new
 
         # Entries in the following instance-level caches are never explicitly expired.
-        # Instead they are supposed to automaticaly go out of scope when a series of staleness checks
-        # (this instance of StalenessChecker was created for) is finished.
+        # Instead they are supposed to automaticaly go out of scope when a series of staleness
+        # checks (this instance of StalenessChecker was created for) is finished.
         @mtimes, @dependencies_stale, @parse_trees = {}, {}, {}
         @options = Sass::Engine.normalize_options(options)
       end

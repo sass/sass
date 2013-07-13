@@ -3,11 +3,13 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # @param root [Tree::Node] The root node of the tree to visit.
   # @param environment [Sass::Environment] The lexical environment.
   # @return [Tree::Node] The resulting tree of static nodes.
-  def self.visit(root, environment = Sass::Environment.new)
+  def self.visit(root, environment = nil)
     new(environment).send(:visit, root)
   end
 
   # @api private
+  # @comment
+  #   rubocop:disable MethodLength
   def self.perform_arguments(callable, args, keywords, splat)
     desc = "#{callable.type.capitalize} #{callable.name}"
     downcase_desc = "#{callable.type} #{callable.name}"
@@ -17,10 +19,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
         unknown_args = Sass::Util.array_minus(keywords.keys,
           callable.args.map {|var| var.first.underscored_name})
         if callable.splat && unknown_args.include?(callable.splat.underscored_name)
-          raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc} cannot be used as a named argument.")
+          raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc}" +
+                                      " cannot be used as a named argument.")
         elsif unknown_args.any?
           description = unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'
-          raise Sass::SyntaxError.new("#{desc} doesn't have #{description} #{unknown_args.map {|name| "$#{name}"}.join ', '}.")
+          raise Sass::SyntaxError.new("#{desc} doesn't have #{description} " +
+                                      "#{unknown_args.map {|name| "$#{name}"}.join ', '}.")
         end
       end
     rescue Sass::SyntaxError => keyword_exception
@@ -41,17 +45,18 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     splat_sep = :comma
     if splat
       args += splat.to_a
-      splat_sep = splat.separator if splat.is_a?(Sass::Script::List)
+      splat_sep = splat.separator if splat.is_a?(Sass::Script::Value::List)
       # If the splat argument exists, there won't be any keywords passed in
       # manually, so we can safely overwrite rather than merge here.
-      keywords = splat.keywords if splat.is_a?(Sass::Script::ArgList)
+      keywords = splat.keywords if splat.is_a?(Sass::Script::Value::ArgList)
     end
 
     keywords = keywords.dup
     env = Sass::Environment.new(callable.environment)
     callable.args.zip(args[0...callable.args.length]) do |(var, default), value|
       if value && keywords.include?(var.underscored_name)
-        raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} both by position and by name.")
+        raise Sass::SyntaxError.new(
+          "#{desc} was passed argument $#{var.name} both by position and by name.")
       end
 
       value ||= keywords.delete(var.underscored_name)
@@ -62,7 +67,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     if callable.splat
       rest = args[callable.args.length..-1]
-      arg_list = Sass::Script::ArgList.new(rest, keywords.dup, splat_sep)
+      arg_list = Sass::Script::Value::ArgList.new(rest, keywords.dup, splat_sep)
       arg_list.options = env.options
       env.set_local_var(callable.splat.name, arg_list)
     end
@@ -86,6 +91,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       raise e
     end
   end
+  # @comment
+  #   rubocop:enable MethodLength
 
   protected
 
@@ -142,7 +149,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Prints the expression to STDERR.
   def visit_debug(node)
     res = node.expr.perform(@environment)
-    res = res.value if res.is_a?(Sass::Script::String)
+    res = res.value if res.is_a?(Sass::Script::Value::String)
     if node.filename
       Sass::Util.sass_warn "#{node.filename}:#{node.line} DEBUG: #{res}"
     else
@@ -166,7 +173,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_extend(node)
-    parser = Sass::SCSS::StaticParser.new(run_interp(node.selector), node.filename, node.line)
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.selector),
+      node.filename, node.options[:importer], node.line)
     node.resolved_selector = parser.parse_selector
     node
   end
@@ -184,7 +192,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     with_environment Sass::Environment.new(@environment) do
       range.map do |i|
         @environment.set_local_var(node.var,
-          Sass::Script::Number.new(i, from.numerator_units, from.denominator_units))
+          Sass::Script::Value::Number.new(i, from.numerator_units, from.denominator_units))
         node.children.map {|c| visit(c)}
       end.flatten
     end
@@ -194,7 +202,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_function(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_function(node.name,
-      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, !:has_content, "function"))
+      Sass::Callable.new(node.name, node.args, node.splat, env,
+                         node.children, !:has_content, "function"))
     []
   end
 
@@ -214,8 +223,10 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Returns a static DirectiveNode if this is importing a CSS file,
   # or parses and includes the imported Sass file.
   def visit_import(node)
-    if path = node.css_import?
-      return Sass::Tree::CssImportNode.resolved("url(#{path})")
+    if (path = node.css_import?)
+      resolved_node = Sass::Tree::CssImportNode.resolved("url(#{path})")
+      resolved_node.source_range = node.source_range
+      return resolved_node
     end
     file = node.imported_file
     handle_import_loop!(node) if @stack.any? {|e| e[:filename] == file.options[:filename]}
@@ -239,7 +250,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_mixindef(node)
     env = Sass::Environment.new(@environment, node.options)
     @environment.set_local_mixin(node.name,
-      Sass::Callable.new(node.name, node.args, node.splat, env, node.children, node.has_content, "mixin"))
+      Sass::Callable.new(node.name, node.args, node.splat, env,
+                         node.children, node.has_content, "mixin"))
     []
   end
 
@@ -250,7 +262,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     include_loop = false
 
     @stack.push(:filename => node.filename, :line => node.line, :name => node.name)
-    raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
+
+    mixin = @environment.mixin(node.name)
+    raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin
 
     if node.children.any? && !mixin.has_content
       raise Sass::SyntaxError.new(%Q{Mixin "#{node.name}" does not accept a content block.})
@@ -279,10 +293,13 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   def visit_content(node)
-    return [] unless content = @environment.content
+    content = @environment.content
+    return [] unless content
     @stack.push(:filename => node.filename, :line => node.line, :name => '@content')
     trace_node = Sass::Tree::TraceNode.from_node('@content', node)
-    with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}.flatten}
+    with_environment(@environment.caller) do
+      trace_node.children = content.map {|c| visit(c.dup)}.flatten
+    end
     trace_node
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => '@content', :line => node.line)
@@ -297,6 +314,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     node.resolved_name = run_interp(node.name)
     val = node.value.perform(@environment)
     node.resolved_value = val.to_s
+    node.value_source_range = val.source_range if val.source_range
     yield
   end
 
@@ -310,7 +328,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_rule(node)
     rule = node.rule
     rule = rule.map {|e| e.is_a?(String) && e != ' ' ? e.strip : e} if node.style == :compressed
-    parser = Sass::SCSS::StaticParser.new(run_interp(node.rule), node.filename, node.line)
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
+      node.filename, node.options[:importer], node.line)
     node.parsed_rules ||= parser.parse_selector
     if node.options[:trace_selectors]
       @stack.push(:filename => node.filename, :line => node.line)
@@ -325,6 +344,11 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     var = @environment.var(node.name)
     return [] if node.guarded && var && !var.null?
     val = node.expr.perform(@environment)
+    if node.expr.source_range
+      val.source_range = node.expr.source_range
+    else
+      val.source_range = node.source_range
+    end
     @environment.set_var(node.name, val)
     []
   end
@@ -333,7 +357,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_warn(node)
     @stack.push(:filename => node.filename, :line => node.line)
     res = node.expr.perform(@environment)
-    res = res.value if res.is_a?(Sass::Script::String)
+    res = res.value if res.is_a?(Sass::Script::Value::String)
     msg = "WARNING: #{res}\n         "
     msg << stack_trace.join("\n         ") << "\n"
     Sass::Util.sass_warn msg
@@ -357,7 +381,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   def visit_media(node)
-    parser = Sass::SCSS::StaticParser.new(run_interp(node.query), node.filename, node.line)
+    parser = Sass::SCSS::StaticParser.new(run_interp(node.query),
+      node.filename, node.options[:importer], node.line)
     node.resolved_query ||= parser.parse_media_query_list
     yield
   end
@@ -371,7 +396,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_cssimport(node)
     node.resolved_uri = run_interp([node.uri])
     if node.query
-      parser = Sass::SCSS::StaticParser.new(run_interp(node.query), node.filename, node.line)
+      parser = Sass::SCSS::StaticParser.new(run_interp(node.query),
+        node.filename, node.options[:importer], node.line)
       node.resolved_query ||= parser.parse_media_query_list
     end
     yield
@@ -397,7 +423,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       next r if r.is_a?(String)
       val = r.perform(@environment)
       # Interpolated strings should never render with quotes
-      next val.value if val.is_a?(Sass::Script::String)
+      next val.value if val.is_a?(Sass::Script::Value::String)
       val.to_s
     end.join
   end

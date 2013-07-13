@@ -14,13 +14,12 @@ module Sass
       # @return [String, nil]
       attr_accessor :filename
 
-      # Returns a representation of the node
-      # as an array of strings and potentially {Sass::Script::Node}s
-      # (if there's interpolation in the selector).
-      # When the interpolation is resolved and the strings are joined together,
-      # this will be the string representation of this node.
+      # Returns a representation of the node as an array of strings and
+      # potentially {Sass::Script::Tree::Node}s (if there's interpolation in the
+      # selector). When the interpolation is resolved and the strings are joined
+      # together, this will be the string representation of this node.
       #
-      # @return [Array<String, Sass::Script::Node>]
+      # @return [Array<String, Sass::Script::Tree::Node>]
       def to_a
         Sass::Util.abstract(self)
       end
@@ -30,7 +29,7 @@ module Sass
       #
       # @return [String]
       def inspect
-        to_a.map {|e| e.is_a?(Sass::Script::Node) ? "\#{#{e.to_sass}}" : e}.join
+        to_a.map {|e| e.is_a?(Sass::Script::Tree::Node) ? "\#{#{e.to_sass}}" : e}.join
       end
 
       # @see \{#inspect}
@@ -85,7 +84,8 @@ module Sass
         sels_with_ix = Sass::Util.enum_with_index(sels)
         _, i =
           if self.is_a?(Pseudo) || self.is_a?(SelectorPseudoClass)
-            sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && (sels.last.final? || sels.last.type == :element)}
+            sels_with_ix.find {|sel, _|
+              sel.is_a?(Pseudo) && (sels.last.final? || sels.last.type == :element)}
           else
             sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(SelectorPseudoClass)}
           end

@@ -191,7 +191,7 @@ begin
     task :undocumented do
       opts = ENV["YARD_OPTS"] || ""
       ENV["YARD_OPTS"] = opts.dup + <<OPTS
- --list --query "
+ --list --tag comment --hide-tag comment --query "
   object.docstring.blank? &&
   !(object.type == :method && object.is_alias?)"
 OPTS

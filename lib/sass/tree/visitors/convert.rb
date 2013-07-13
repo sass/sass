@@ -23,7 +23,11 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def visit_children(parent)
     @tabs += 1
     return @format == :sass ? "\n" : " {}\n" if parent.children.empty?
-    (@format == :sass ? "\n" : " {\n") + super.join.rstrip + (@format == :sass ? "\n" : "\n#{ @tab_chars * (@tabs-1)}}\n")
+    if @format == :sass
+      "\n"  + super.join.rstrip + "\n"
+    else
+      " {\n" + super.join.rstrip + "\n#{ @tab_chars * (@tabs - 1)}}\n"
+    end
   ensure
     @tabs -= 1
   end
@@ -108,7 +112,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_extend(node)
-    "#{tab_str}@extend #{selector_to_src(node.selector).lstrip}#{semi}#{" !optional" if node.optional?}\n"
+    "#{tab_str}@extend #{selector_to_src(node.selector).lstrip}#{semi}" + 
+      "#{" !optional" if node.optional?}\n"
   end
 
   def visit_for(node)
@@ -159,7 +164,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_cssimport(node)
-    if node.uri.is_a?(Sass::Script::Node)
+    if node.uri.is_a?(Sass::Script::Tree::Node)
       str = "#{tab_str}@import #{node.uri.to_sass(@options)}"
     else
       str = "#{tab_str}@import #{node.uri}"
@@ -196,7 +201,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def visit_mixin(node)
     arg_to_sass = lambda do |arg|
       sass = arg.to_sass(@options)
-      sass = "(#{sass})" if arg.is_a?(Sass::Script::List) && arg.separator == :comma
+      sass = "(#{sass})" if arg.is_a?(Sass::Script::Tree::ListLiteral) && arg.separator == :comma
       sass
     end
 
@@ -210,7 +215,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       end
       arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
     end
-    "#{tab_str}#{@format == :sass ? '+' : '@include '}#{dasherize(node.name)}#{arglist}#{node.has_children ? yield : semi}\n"
+    "#{tab_str}#{@format == :sass ? '+' : '@include '}" + 
+      "#{dasherize(node.name)}#{arglist}#{node.has_children ? yield : semi}\n"
   end
 
   def visit_content(node)
@@ -244,7 +250,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_variable(node)
-    "#{tab_str}$#{dasherize(node.name)}: #{node.expr.to_sass(@options)}#{' !default' if node.guarded}#{semi}\n"
+    "#{tab_str}$#{dasherize(node.name)}: #{node.expr.to_sass(@options)}" +
+      "#{' !default' if node.guarded}#{semi}\n"
   end
 
   def visit_warn(node)
@@ -269,7 +276,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def media_interp_to_src(interp)
     Sass::Util.enum_with_index(interp).map do |r, i|
       next r if r.is_a?(String)
-      before, after = interp[i-1], interp[i+1]
+      before, after = interp[i - 1], interp[i + 1]
       if before.is_a?(String) && after.is_a?(String) &&
           ((before[-1] == ?( && after[0] == ?:) ||
            (before =~ /:\s*/ && after[0] == ?)))

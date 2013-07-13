@@ -3,6 +3,7 @@ require 'set'
 require 'enumerator'
 require 'stringio'
 require 'rbconfig'
+require 'uri'
 
 require 'sass/root'
 require 'sass/util/subset_map'
@@ -164,8 +165,8 @@ module Sass
       res = ary.dup
       i = 0
       while i < res.size
-        if res[i...i+from.size] == from
-          res[i...i+from.size] = to
+        if res[i...i + from.size] == from
+          res[i...i + from.size] = to
         end
         i += 1
       end
@@ -216,7 +217,7 @@ module Sass
       x = [nil, *x]
       y = [nil, *y]
       block ||= proc {|a, b| a == b && a}
-      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size-1, y.size-1, &block)
+      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size - 1, y.size - 1, &block)
     end
 
     # Converts a Hash to an Array. This is usually identical to `Hash#to_a`,
@@ -234,7 +235,7 @@ module Sass
     end
 
     # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
-    # order. Unlike [#hash_to_a], the resulting order isn't sorted key order;
+    # order. Unlike {Util#hash_to_a}, the resulting order isn't sorted key order;
     # instead, it's the same order as `#group_by` has under Ruby 1.9 (key
     # appearance order).
     #
@@ -258,7 +259,7 @@ module Sass
 
     # Returns a sub-array of `minuend` containing only elements that are also in
     # `subtrahend`. Ensures that the return value has the same order as
-    # `minuend`, even on Rubinius where that's not guaranteed by {Array#-}.
+    # `minuend`, even on Rubinius where that's not guaranteed by `Array#-`.
     #
     # @param minuend [Array]
     # @param subtrahend [Array]
@@ -272,7 +273,7 @@ module Sass
     # Returns a string description of the character that caused an
     # `Encoding::UndefinedConversionError`.
     #
-    # @param [Encoding::UndefinedConversionError]
+    # @param e [Encoding::UndefinedConversionError]
     # @return [String]
     def undefined_conversion_error_char(e)
       # Rubinius (as of 2.0.0.rc1) pre-quotes the error character.
@@ -280,7 +281,7 @@ module Sass
       # JRuby (as of 1.7.2) doesn't have an error_char field on
       # Encoding::UndefinedConversionError.
       return e.error_char.dump unless jruby?
-      e.message[/^"[^"]+"/] #"
+      e.message[/^"[^"]+"/] # "
     end
 
     # Asserts that `value` falls within `range` (inclusive), leaving
@@ -288,14 +289,14 @@ module Sass
     #
     # @param name [String] The name of the value. Used in the error message.
     # @param range [Range] The allowed range of values.
-    # @param value [Numeric, Sass::Script::Number] The value to check.
+    # @param value [Numeric, Sass::Script::Value::Number] The value to check.
     # @param unit [String] The unit of the value. Used in error reporting.
     # @return [Numeric] `value` adjusted to fall within range, if it
     #   was outside by a floating-point margin.
-    def check_range(name, range, value, unit='')
+    def check_range(name, range, value, unit = '')
       grace = (-0.00001..0.00001)
       str = value.to_s
-      value = value.value if value.is_a?(Sass::Script::Number)
+      value = value.value if value.is_a?(Sass::Script::Value::Number)
       return value if range.include?(value)
       return range.first if grace.include?(value - range.first)
       return range.last if grace.include?(value - range.last)
@@ -323,7 +324,8 @@ module Sass
     # Returns information about the caller of the previous method.
     #
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
-    # @return [[String, Fixnum, (String, nil)]] An array containing the filename, line, and method name of the caller.
+    # @return [[String, Fixnum, (String, nil)]]
+    #   An array containing the filename, line, and method name of the caller.
     #   The method name may be nil
     def caller_info(entry = nil)
       # JRuby evaluates `caller` incorrectly when it's in an actual default argument.
@@ -638,7 +640,7 @@ MSG
       charset, bom = $1, $2
       if charset
         charset = charset.force_encoding(encoding).encode("UTF-8")
-        if endianness = encoding[/[BL]E$/]
+        if (endianness = encoding[/[BL]E$/])
           begin
             Encoding.find(charset + endianness)
             charset << endianness
@@ -785,8 +787,9 @@ MSG
       set1.to_a.uniq.sort_by {|e| e.hash}.eql?(set2.to_a.uniq.sort_by {|e| e.hash})
     end
 
-    # Like `Object#inspect`, but preserves non-ASCII characters rather than escaping them under Ruby 1.9.2.
-    # This is necessary so that the precompiled Haml template can be `#encode`d into `@options[:encoding]`
+    # Like `Object#inspect`, but preserves non-ASCII characters rather than
+    # escaping them under Ruby 1.9.2.  This is necessary so that the
+    # precompiled Haml template can be `#encode`d into `@options[:encoding]`
     # before being evaluated.
     #
     # @param obj {Object}
@@ -849,6 +852,100 @@ MSG
       inject_values(str, vals)
     end
 
+    # Builds a sourcemap file name given the generated CSS file name.
+    #
+    # @param css [String] The generated CSS file name.
+    # @return [String] The source map file name.
+    def sourcemap_name(css)
+      css + ".map"
+    end
+
+    # Escapes certain characters so that the result can be used
+    # as the JSON string value. Returns the original string if
+    # no escaping is necessary.
+    #
+    # @param s [String] The string to be escaped
+    # @return [String] The escaped string
+    def json_escape_string(s)
+      return s if s !~ /["\\\b\f\n\r\t]/
+
+      result = ""
+      s.split("").each do |c|
+        case c
+        when '"', "\\"
+          result << "\\" << c
+        when "\n" then result << "\\n"
+        when "\t" then result << "\\t"
+        when "\r" then result << "\\r"
+        when "\f" then result << "\\f"
+        when "\b" then result << "\\b"
+        else
+          result << c
+        end
+      end
+      result
+    end
+
+    # Converts the argument into a valid JSON value.
+    #
+    # @param v [Fixnum, String, Array, Boolean, nil]
+    # @return [String]
+    def json_value_of(v)
+      case v
+      when Fixnum
+        v.to_s
+      when String
+        "\"" + json_escape_string(v) + "\""
+      when Array
+        "[" + v.map {|x| json_value_of(x)}.join(",") + "]"
+      when NilClass
+        "null"
+      when TrueClass
+        "true"
+      when FalseClass
+        "false"
+      else
+        raise ArgumentError.new("Unknown type: #{v.class.name}")
+      end
+    end
+
+    VLQ_BASE_SHIFT = 5
+    VLQ_BASE = 1 << VLQ_BASE_SHIFT
+    VLQ_BASE_MASK = VLQ_BASE - 1
+    VLQ_CONTINUATION_BIT = VLQ_BASE
+
+    BASE64_DIGITS = ('A'..'Z').to_a  + ('a'..'z').to_a + ('0'..'9').to_a  + ['+', '/']
+    BASE64_DIGIT_MAP = begin
+      map = {}
+      Sass::Util.enum_with_index(BASE64_DIGITS).map do |digit, i|
+        map[digit] = i
+      end
+      map
+    end
+
+    # Encodes `value` as VLQ (http://en.wikipedia.org/wiki/VLQ).
+    #
+    # @param value [Fixnum]
+    # @return [String] The encoded value
+    def encode_vlq(value)
+      if value < 0
+        value = ((-value) << 1) | 1
+      else
+        value <<= 1
+      end
+
+      result = String.new
+      begin
+        digit = value & VLQ_BASE_MASK
+        value >>= VLQ_BASE_SHIFT
+        if value > 0
+          digit |= VLQ_CONTINUATION_BIT
+        end
+        result << BASE64_DIGITS[digit]
+      end while value > 0
+      result
+    end
+
     ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.
@@ -868,11 +965,23 @@ MSG
       end
     end
 
+    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ?
+                   URI::DEFAULT_PARSER :
+                   URI
+
+    def escape_uri(uri)
+      URI_ESCAPE.escape uri
+    end
+
     private
+
+    # rubocop:disable LineLength
+
 
     # Calculates the memoization table for the Least Common Subsequence algorithm.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
     def lcs_table(x, y)
+      # rubocop:enable LineLength
       c = Array.new(x.size) {[]}
       x.size.times {|i| c[i][0] = 0}
       y.size.times {|j| c[0][j] = 0}
@@ -880,25 +989,29 @@ MSG
         (1...y.size).each do |j|
           c[i][j] =
             if yield x[i], y[j]
-              c[i-1][j-1] + 1
+              c[i - 1][j - 1] + 1
             else
-              [c[i][j-1], c[i-1][j]].max
+              [c[i][j - 1], c[i - 1][j]].max
             end
         end
       end
       return c
     end
 
+    # rubocop:disable ParameterLists, LineLength
+
+
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
     def lcs_backtrace(c, x, y, i, j, &block)
+      # rubocop:enable ParameterList, LineLengths
       return [] if i == 0 || j == 0
-      if v = yield(x[i], y[j])
-        return lcs_backtrace(c, x, y, i-1, j-1, &block) << v
+      if (v = yield(x[i], y[j]))
+        return lcs_backtrace(c, x, y, i - 1, j - 1, &block) << v
       end
 
-      return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
-      return lcs_backtrace(c, x, y, i-1, j, &block)
+      return lcs_backtrace(c, x, y, i, j - 1, &block) if c[i][j - 1] > c[i - 1][j]
+      return lcs_backtrace(c, x, y, i - 1, j, &block)
     end
   end
 end

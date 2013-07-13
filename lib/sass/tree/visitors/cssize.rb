@@ -81,7 +81,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
         node.children.each_with_index.find {|c, _| c.is_a?(Sass::Tree::CharsetNode)}
       if charset_and_index
         index = charset_and_index.last
-        node.children = node.children[0..index] + imports + node.children[index+1..-1]
+        node.children = node.children[0..index] + imports + node.children[index + 1..-1]
       else
         node.children = imports + node.children
       end
@@ -94,7 +94,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   end
 
   # A simple struct wrapping up information about a single `@extend` instance. A
-  # single [ExtendNode] can have multiple Extends if either the parent node or
+  # single {ExtendNode} can have multiple Extends if either the parent node or
   # the extended selector is a comma sequence.
   #
   # @attr extender [Sass::Selector::Sequence]
@@ -124,12 +124,12 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
       end
 
       sel = sseq.members
-      parent.resolved_rules.members.each do |seq|
-        if !seq.members.last.is_a?(Sass::Selector::SimpleSequence)
+      parent.resolved_rules.members.each do |member|
+        if !member.members.last.is_a?(Sass::Selector::SimpleSequence)
           raise Sass::SyntaxError.new("#{seq} can't extend: invalid selector")
         end
 
-        @extends[sel] = Extend.new(seq, sel, node, @parent_directives.dup, :not_found)
+        @extends[sel] = Extend.new(member, sel, node, @parent_directives.dup, :not_found)
       end
     end
 
@@ -195,7 +195,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # and updates the indentation of the rule node based on the nesting level.
   def visit_rule(node)
     parent_resolved_rules = parent.is_a?(Sass::Tree::RuleNode) ? parent.resolved_rules : nil
-    # It's possible for resolved_rules to be set if we've duplicated this node during @media bubbling
+    # It's possible for resolved_rules to be set
+    # if we've duplicated this node during @media bubbling
     node.resolved_rules ||= node.parsed_rules.resolve_parent_refs(parent_resolved_rules)
 
     yield

@@ -1,4 +1,4 @@
-module Sass::Script
+module Sass::Script::Tree
   # A SassScript object representing `#{}` interpolation within a string.
   #
   # @see Interpolation
@@ -74,15 +74,16 @@ module Sass::Script
     # Evaluates the interpolation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::String] The SassScript string that is the value of the interpolation
+    # @return [Sass::Script::Value::String]
+    #   The SassScript string that is the value of the interpolation
     def _perform(environment)
       res = ""
       before = @before.perform(environment)
       res << before.value
       mid = @mid.perform(environment)
-      res << (mid.is_a?(Sass::Script::String) ? mid.value : mid.to_s)
+      res << (mid.is_a?(Sass::Script::Value::String) ? mid.value : mid.to_s)
       res << @after.perform(environment).value
-      opts(Sass::Script::String.new(res, before.type))
+      opts(Sass::Script::Value::String.new(res, before.type))
     end
 
     private

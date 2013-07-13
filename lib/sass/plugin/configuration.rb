@@ -1,9 +1,8 @@
-# We keep configuration in its own self-contained file
-# so that we can load it independently in Rails 3,
-# where the full plugin stuff is lazy-loaded.
-
 module Sass
   module Plugin
+    # We keep configuration in its own self-contained file
+    # so that we can load it independently in Rails 3,
+    # where the full plugin stuff is lazy-loaded.
     module Configuration
 
       # Returns the default options for a {Sass::Plugin::Compiler}.
@@ -19,7 +18,8 @@ module Sass
         }.freeze
       end
 
-      # Resets the options and {Sass::Callbacks::InstanceMethods#clear_callbacks! clears all callbacks}.
+      # Resets the options and
+      # {Sass::Callbacks::InstanceMethods#clear_callbacks! clears all callbacks}.
       def reset!
         @options = nil
         clear_callbacks!
@@ -33,22 +33,12 @@ module Sass
         @options ||= default_options.dup
       end
 
-      # Sets the options hash.
-      # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
-      # See {Sass::Plugin::Configuration#reset!}
-      # @deprecated Instead, modify the options hash in-place.
-      # @param value [{Symbol => Object}] The options hash
-      def options=(value)
-        Sass::Util.sass_warn("Setting Sass::Plugin.options is deprecated " +
-                             "and will be removed in a future release.")
-        options.merge!(value)
-      end
-
       # Adds a new template-location/css-location mapping.
       # This means that Sass/SCSS files in `template_location`
       # will be compiled to CSS files in `css_location`.
       #
-      # This is preferred over manually manipulating the {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
+      # This is preferred over manually manipulating the
+      # {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
       # since the option can be in multiple formats.
       #
       # Note that this method will change `options[:template_location]`
@@ -68,7 +58,8 @@ module Sass
       # This means that Sass/SCSS files in `template_location`
       # will no longer be compiled to CSS files in `css_location`.
       #
-      # This is preferred over manually manipulating the {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
+      # This is preferred over manually manipulating the
+      # {file:SASS_REFERENCE.md#template_location-option `:template_location` option}
       # since the option can be in multiple formats.
       #
       # Note that this method will change `options[:template_location]`

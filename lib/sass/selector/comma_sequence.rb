@@ -24,10 +24,12 @@ module Sass
         if super_cseq.nil?
           if @members.any? do |sel|
               sel.members.any? do |sel_or_op|
-                sel_or_op.is_a?(SimpleSequence) && sel_or_op.members.any? {|ssel| ssel.is_a?(Parent)}
+                sel_or_op.is_a?(SimpleSequence) &&
+                  sel_or_op.members.any? {|ssel| ssel.is_a?(Parent)}
               end
             end
-            raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '&'.")
+            raise Sass::SyntaxError.new(
+              "Base-level rules cannot contain the parent-selector-referencing character '&'.")
           end
           return self
         end

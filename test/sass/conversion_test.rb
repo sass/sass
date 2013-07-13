@@ -1347,7 +1347,7 @@ div
 SASS
   end
 
-   def test_loud_comment_conversion
+  def test_loud_comment_conversion
     assert_renders(<<SASS, <<SCSS)
 /*! \#{"interpolated"}
 SASS

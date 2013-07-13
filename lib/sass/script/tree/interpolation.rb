@@ -1,20 +1,40 @@
-module Sass::Script
+module Sass::Script::Tree
   # A SassScript object representing `#{}` interpolation outside a string.
   #
   # @see StringInterpolation
   class Interpolation < Node
+    # @return [Node] The SassScript before the interpolation
+    attr_reader :before
+
+    # @return [Node] The SassScript within the interpolation
+    attr_reader :mid
+
+    # @return [Node] The SassScript after the interpolation
+    attr_reader :after
+
+    # @return [Boolean] Whether there was whitespace between `before` and `#{`
+    attr_reader :whitespace_before
+
+    # @return [Boolean] Whether there was whitespace between `}` and `after`
+    attr_reader :whitespace_after
+
+    # @return [Boolean] Whether the original format of the interpolation was
+    #   plain text, not an interpolation. This is used when converting back to
+    #   SassScript.
+    attr_reader :originally_text
+
     # Interpolation in a property is of the form `before #{mid} after`.
     #
-    # @param before [Node] The SassScript before the interpolation
-    # @param mid [Node] The SassScript within the interpolation
-    # @param after [Node] The SassScript after the interpolation
-    # @param wb [Boolean] Whether there was whitespace between `before` and `#{`
-    # @param wa [Boolean] Whether there was whitespace between `}` and `after`
-    # @param originally_text [Boolean]
-    #   Whether the original format of the interpolation was plain text,
-    #   not an interpolation.
-    #   This is used when converting back to SassScript.
+    # @param before [Node] See {Interpolation#before}
+    # @param mid [Node] See {Interpolation#mid}
+    # @param after [Node] See {Interpolation#after}
+    # @param wb [Boolean] See {Interpolation#whitespace_before}
+    # @param wa [Boolean] See {Interpolation#whitespace_after}
+    # @param originally_text [Boolean] See {Interpolation#originally_text}
+    # @comment
+    #   rubocop:disable ParameterLists
     def initialize(before, mid, after, wb, wa, originally_text = false)
+      # rubocop:enable ParameterLists
       @before = before
       @mid = mid
       @after = after
@@ -64,16 +84,17 @@ module Sass::Script
     # Evaluates the interpolation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::String] The SassScript string that is the value of the interpolation
+    # @return [Sass::Script::Value::String]
+    #   The SassScript string that is the value of the interpolation
     def _perform(environment)
       res = ""
       res << @before.perform(environment).to_s if @before
       res << " " if @before && @whitespace_before
       val = @mid.perform(environment)
-      res << (val.is_a?(Sass::Script::String) ? val.value : val.to_s)
+      res << (val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s)
       res << " " if @after && @whitespace_after
       res << @after.perform(environment).to_s if @after
-      opts(Sass::Script::String.new(res))
+      opts(Sass::Script::Value::String.new(res))
     end
   end
 end

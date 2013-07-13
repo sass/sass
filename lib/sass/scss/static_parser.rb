@@ -27,8 +27,8 @@ module Sass
       private
 
       def moz_document_function
-        return unless val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) ||
-          function(!:allow_var)
+        val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) || function(!:allow_var)
+        return unless val
         ss
         [val]
       end
@@ -42,7 +42,7 @@ module Sass
       def interp_ident(ident = IDENT); s = tok(ident) and [s]; end
       def use_css_import?; true; end
 
-      def special_directive(name)
+      def special_directive(name, start_pos)
         return unless %w[media import charset -moz-document].include?(name)
         super
       end

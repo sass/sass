@@ -71,7 +71,7 @@ module Sass
       #
       # @return [String]
       def to_s
-        to_a.map {|e| e.is_a?(Sass::Script::Node) ? "\#{#{e.to_sass}}" : e}.join
+        to_a.map {|e| e.is_a?(Sass::Script::Tree::Node) ? "\#{#{e.to_sass}}" : e}.join
       end
 
       # Returns the specificity of the selector as an integer. The base is given

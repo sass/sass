@@ -43,6 +43,10 @@ module Sass
       @content || (@parent && @parent.content)
     end
 
+    def global_env
+      @global_env ||= parent.nil? ? self : parent.global_env
+    end
+
     private
 
     class << self
@@ -89,7 +93,7 @@ RUBY
     end
 
     # variable
-    # Script::Literal
+    # Script::Value
     inherited_hash :var
     # mixin
     # Sass::Callable

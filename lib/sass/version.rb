@@ -1,8 +1,4 @@
 require 'date'
-
-# This is necessary for loading Sass when Haml is required in Rails 3.
-# Once the split is complete, we can remove it.
-require File.dirname(__FILE__) + '/../sass'
 require 'sass/util'
 
 module Sass
@@ -18,7 +14,8 @@ module Sass
     # The `:name` key has the name of the version.
     # The `:string` key contains a human-readable string representation of the version.
     # The `:number` key is the major, minor, and teeny keys separated by periods.
-    # The `:date` key, which is not guaranteed to be defined, is the [DateTime] at which this release was cut.
+    # The `:date` key, which is not guaranteed to be defined, is the `DateTime`
+    #   at which this release was cut.
     # If Sass is checked out from Git, the `:rev` key will have the revision hash.
     # For example:
     #
@@ -60,7 +57,7 @@ module Sass
         :name => name
       }
 
-      if date = version_date
+      if (date = version_date)
         @@version[:date] = date
       end
 
@@ -73,7 +70,7 @@ module Sass
       @@version[:number] = numbers.join('.')
       @@version[:string] = @@version[:number].dup
 
-      if rev = revision_number
+      if (rev = revision_number)
         @@version[:rev] = rev
         unless rev[0] == ?(
           @@version[:string] << "." << rev[0...7]
