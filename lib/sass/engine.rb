@@ -849,7 +849,7 @@ WARNING
     end
 
     def parse_charset_directive(parent, line, root, value, offset)
-      name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
+      name = value && value[/\A(["'])(.*)\1\Z/, 2] # "
       raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath charset directives.",
         :line => @line + 1) unless line.children.empty?

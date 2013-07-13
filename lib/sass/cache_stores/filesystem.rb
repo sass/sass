@@ -38,7 +38,7 @@ module Sass
           f.write(contents)
         end
       rescue Errno::EACCES
-        #pass
+        # pass
       end
 
       private
