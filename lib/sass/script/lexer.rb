@@ -263,7 +263,7 @@ module Sass
 
       def string(re, open)
         return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
-        if @scanner[2] == '#{' #'
+        if @scanner[2] == '#{' # '
           @scanner.pos -= 2 # Don't actually consume the #{
           @offset -= 2
           @interpolation_stack << re

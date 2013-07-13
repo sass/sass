@@ -281,7 +281,7 @@ module Sass
       # JRuby (as of 1.7.2) doesn't have an error_char field on
       # Encoding::UndefinedConversionError.
       return e.error_char.dump unless jruby?
-      e.message[/^"[^"]+"/] #"
+      e.message[/^"[^"]+"/] # "
     end
 
     # Asserts that `value` falls within `range` (inclusive), leaving

@@ -38,7 +38,7 @@ module Sass::Script::Value
       return "'#{value.gsub("'", "\\'")}'" if opts[:quote] == %q{'}
       return "\"#{value}\"" unless value.include?('"')
       return "'#{value}'" unless value.include?("'")
-      "\"#{value.gsub('"', "\\\"")}\"" #'
+      "\"#{value.gsub('"', "\\\"")}\"" # '
     end
 
     # @see Value#to_sass
