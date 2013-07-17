@@ -1258,6 +1258,41 @@ MSG
     end
   end
 
+  def test_call_with_positional_arguments
+    assert_equal evaluate("lighten(blue, 5%)"), evaluate("call(lighten, blue, 5%)")
+  end
+
+  def test_call_with_keyword_arguments
+    assert_equal(
+      evaluate("lighten($color: blue, $amount: 5%)"),
+      evaluate("call(lighten, $color: blue, $amount: 5%)"))
+  end
+
+  def test_call_with_keyword_and_positional_arguments
+    assert_equal(
+      evaluate("lighten(blue, $amount: 5%)"),
+      evaluate("call(lighten, blue, $amount: 5%)"))
+  end
+
+  def test_call_with_dynamic_name
+    assert_equal(
+      evaluate("lighten($color: blue, $amount: 5%)"),
+      evaluate("call($fn, $color: blue, $amount: 5%)",
+        env("fn" => Sass::Script::String.new("lighten"))))
+  end
+
+  def test_call_unknown_function
+    assert_equal evaluate("unknown(red, blue)"), evaluate("call(unknown, red, blue)")
+  end
+
+  def test_call_with_non_string_argument
+    assert_error_message "$name: 3px is not a string for `call'", "call(3px)"
+  end
+
+  def test_errors_in_called_function
+    assert_error_message "3px is not a color for `lighten'", "call(lighten, 3px, 5%)"
+  end
+
   ## Regression Tests
 
   def test_saturation_bounds
