@@ -231,7 +231,6 @@ module Sass::Plugin
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
       listener = create_listener(*(directories + [{:relative_paths => false}])) do |modified, added, removed|
-
         recompile_required = false
 
         modified.uniq.each do |f|
@@ -247,7 +246,7 @@ module Sass::Plugin
         end
 
         removed.uniq.each do |f|
-          if files = individual_files.find {|(source,_,_)| File.expand_path(source) == f }
+          if files = individual_files.find {|(source,_,_)| File.expand_path(source) == f}
             recompile_required = true
             # This was a file we were watching explicitly and compiling to a particular location.
             # Delete the corresponding file.
@@ -316,7 +315,7 @@ module Sass::Plugin
         # no need to add a directory that is already watched.
         next if dedupped.any? {|existing_directory| child_of_directory?(existing_directory, new_directory)}
         # get rid of any sub directories of this new directory
-        dedupped.reject! {|existing_directory| child_of_directory?(new_directory, existing_directory) }
+        dedupped.reject! {|existing_directory| child_of_directory?(new_directory, existing_directory)}
         dedupped << new_directory
       end
       dedupped
@@ -372,11 +371,11 @@ module Sass::Plugin
     end
 
     def watched_file?(file)
-      normalized_load_paths.find {|lp| lp.watched_file?(file) }
+      normalized_load_paths.find {|lp| lp.watched_file?(file)}
     end
 
     def watched_paths
-      @watched_paths ||= normalized_load_paths.map {|lp| lp.directories_to_watch }.compact.flatten
+      @watched_paths ||= normalized_load_paths.map {|lp| lp.directories_to_watch}.compact.flatten
     end
 
     def normalized_load_paths

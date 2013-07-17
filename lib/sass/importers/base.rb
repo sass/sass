@@ -154,9 +154,11 @@ module Sass
         []
       end
 
-      # If this importer is based on files on the local filesystem
-      # This method should return true if the file changed should
-      # trigger a recompile.
+      # If this importer is based on files on the local filesystem This method
+      # should return true if the file, when changed, should trigger a
+      # recompile.
+      #
+      # It is acceptable for non-sass files to be watched and trigger a recompile.
       #
       # @param filename [String] The absolute filename for a file that has changed.
       # @return [Boolean] When the file changed should cause a recompile.
@@ -166,5 +168,3 @@ module Sass
     end
   end
 end
-
-      

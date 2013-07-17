@@ -5,12 +5,14 @@ module Sass
     # directory from the list of automatic sass load paths.
     class DeprecatedPath < Filesystem
 
+      # @param root [String] The absolute, expanded path to the folder that is deprecated.
       def initialize(root)
         @specified_root = root
         @warning_given = false
         super
       end
 
+      # @see Sass::Importers::Base#find
       def find(*args)
         found = super
         if found && !@warning_given
@@ -20,6 +22,15 @@ module Sass
         found
       end
 
+      # @see Sass::Importers::Base#to_s
+      def to_s
+        "#{@root} (DEPRECATED)"
+      end
+
+      protected
+
+      # @return [String] The deprecation warning that will be printed the first
+      #   time an import occurs.
       def deprecation_warning
         path = (@specified_root == ".") ? "the current working directory" : @specified_root
         <<WARNING
@@ -28,10 +39,6 @@ automatic in future versions of Sass.  To avoid future errors, you can add it
 to your environment explicitly by setting `SASSPATH=#{@specified_root}`, by using the -I command
 line option, or by changing your Sass configuration options.
 WARNING
-      end
-
-      def to_s
-        "#{@root} (DEPRECATED)"
       end
     end
   end
