@@ -2,6 +2,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 require 'sass/engine'
+require 'json'
 
 class CacheTest < Test::Unit::TestCase
   @@cache_dir = "tmp/file_cache"
@@ -64,6 +65,40 @@ class CacheTest < Test::Unit::TestCase
     an_object = {:foo => :bar}
     cache.store("an_object", "", an_object)
     assert_equal an_object, cache.retrieve("an_object", "")
+  end
+
+  class FaultyStore < Sass::CacheStores::Base
+    def _store(a, b, c, d)
+      raise LoadError.new("LOAD_ERROR")
+    end
+
+    def _retrieve(a, b, c)
+      raise TypeError.new("TYPE_ERROR")
+    end
+
+    def path_to(key)
+      "PATH"
+    end
+  end
+
+  def test_storage_error_gives_metadata_in_json_warning
+    cache = FaultyStore.new
+    with_json_warnings do
+      json = JSON.parse(collect_stderr {cache.store("_", "_", "_")})
+      assert_equal json["type"], ["warning", "cache"]
+      assert_equal json["message"], "Warning. Error encountered while saving cache PATH: LOAD_ERROR"
+      assert_not_nil json["backtrace"]
+    end
+  end
+
+  def test_retrieval_error_gives_metadata_in_json_warning
+    cache = FaultyStore.new
+    with_json_warnings do
+      json = JSON.parse(collect_stderr {cache.retrieve("_", "_")})
+      assert_equal json["type"], ["warning", "cache"]
+      assert_equal json["message"], "Warning. Error encountered while reading cache PATH: TYPE_ERROR"
+      assert_not_nil json["backtrace"]
+    end
   end
 
   class Unmarshalable

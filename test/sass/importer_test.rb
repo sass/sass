@@ -3,9 +3,10 @@ require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
 
 require 'sass/plugin'
+require 'json'
 
 class ImporterTest < Test::Unit::TestCase
-  
+
   class FruitImporter < Sass::Importers::Base
     def find(name, context = nil)
       if name =~ %r{fruits/(\w+)(\.s[ac]ss)?}
@@ -188,5 +189,27 @@ CSS
   def test_absolute_files_across_template_locations
     importer = Sass::Importers::Filesystem.new(absolutize 'templates')
     assert_not_nil importer.mtime(absolutize('more_templates/more1.sass'), {})
+  end
+
+  def test_ambiguous_imports_sends_json_metadata
+    with_json_warnings do
+      expected_dir = absolutize "templates"
+      template_name = "same_name_different_ext"
+      stderr = collect_stderr do
+        importer = Sass::Importers::Filesystem.new(expected_dir)
+        importer.mtime(absolutize("templates/#{template_name}"), {})
+      end
+      json = JSON.parse stderr
+      assert_equal json["type"], ["warning", "ambiguous_import"]
+      assert_equal json["message"], <<MESSAGE
+WARNING: In #{expected_dir}:
+  There are multiple files that match the name "#{template_name}":
+    #{template_name}.sass
+    #{template_name}.scss
+MESSAGE
+      assert_equal expected_dir, json["dir"]
+      assert_equal template_name, json["name"]
+      assert_equal [[absolutize("templates/#{template_name}.sass"), "sass"], [absolutize("templates/#{template_name}.scss"), "scss"]], json["candidates"]
+    end
   end
 end
