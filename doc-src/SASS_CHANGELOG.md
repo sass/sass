@@ -5,6 +5,11 @@
 
 ## 3.3.0 (Unreleased)
 
+* Add a `--json-err` option that causes errors and warnings to be output as JSON.
+ Check the
+ [reference for details on the JSON format](file:SASS_REFERENCE.md#json_err-option Reference Documentation).
+ (thanks [Eric Wendelin](http://www.eriwen.com))
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
@@ -169,7 +174,7 @@ that each value is passed as a separate argument. For example:
       // $shadows is a list of all arguments passed to box-shadow
       -moz-box-shadow: $shadows;
       -webkit-box-shadow: $shadows;
-      box-shadow: $shadows;      
+      box-shadow: $shadows;
     }
 
     // This is the same as "@include spacing(1, 2, 3);"

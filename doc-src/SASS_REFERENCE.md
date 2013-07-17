@@ -319,6 +319,48 @@ Available options are:
   for displaying the Sass filename and line number.
   Automatically disabled when using the `:compressed` output style.
 
+{#trace-option} `:trace`
+: Show a full traceback on error.
+
+{#json_err-option} `:json_err`
+: When set to true, errors are written to stderr in JSON format.
+  This implies --trace.
+
+#### JSON format
+: All warnings and errors have a `type`, `message`, and `backtrace`. Some may
+  have some additional fields pertinent to the particular warning.
+
+    {
+        "type": ["warning", "WarningType"],
+        "message": "Warning message",
+        "backtrace": ["bar.sass:3:in `foo'", "qux.sass:72", ...],
+        "additional_field1": "value"
+    }
+
+: In addition to `type`, `message`, and `backtrace`, all `Sass::SyntaxError`s
+ have a `sass_backtrace`, `filename`, `line`, and a `mixin` (if the error
+ occurred within a mixin).
+
+    {
+        "type": ["error", "Sass::SyntaxError"],
+        "message": "Undefined mixin 'foo'.",
+        "backtrace": ["bar.sass:3:in `foo'", "qux.sass:72", ...],
+        "filename": "bar.sass",
+        "line": 3,
+        "mixin": "foo",
+        "sass_backtrace": [
+            {
+                "filename": "bar.sass"
+                "mixin": "foo",
+                "line": 3
+            },
+            {
+                "filename": "qux.sass"
+                "line": 72
+            }
+        ]
+    }
+
 {#custom-option} `:custom`
 : An option that's available for individual applications to set
   to make data available to {Sass::Script::Functions custom Sass functions}.
