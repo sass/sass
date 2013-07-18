@@ -94,6 +94,11 @@ Thanks to Alexander Pavlov for implementing this.
 * `grey` and `transparent` are no longer interpreted as strings; they're now
   interpreted as colors, as per the CSS spec.
 
+* The automatic placement of the current working directory onto the Sass
+  load path is now deprecated as this causes unpredictable build
+  processes.  If you need the current working directory to be available,
+  set `SASSPATH=.` in your shell's environment.
+
 * `Sass::Compiler.on_updating_stylesheet` has been removed.
 
 * `Sass::Plugin.options=` has been removed.

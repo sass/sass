@@ -55,6 +55,17 @@ module Sass
         root.eql?(other.root)
       end
 
+      # @see Base#directories_to_watch
+      def directories_to_watch
+        [root]
+      end
+
+      # @see Base#watched_file?
+      def watched_file?(filename)
+        filename =~ /\.s[ac]ss$/ &&
+          filename.start_with?(root + File::SEPARATOR)
+      end
+
       protected
 
       # If a full uri is passed, this removes the root from it
