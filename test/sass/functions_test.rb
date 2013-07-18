@@ -1290,7 +1290,7 @@ MSG
   end
 
   def test_errors_in_called_function
-    assert_error_message "3px is not a color for `lighten'", "call(lighten, 3px, 5%)"
+    assert_error_message "$color: 3px is not a color for `lighten'", "call(lighten, 3px, 5%)"
   end
 
   ## Regression Tests
