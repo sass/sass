@@ -197,7 +197,7 @@ MESSAGE
       def initialize(args)
         super
         @options[:for_engine] = {
-          :load_paths => ['.'] + (ENV['SASSPATH'] || '').split(File::PATH_SEPARATOR)
+          :load_paths => default_sass_path
         }
         @default_syntax = :sass
       end
@@ -433,17 +433,14 @@ MSG
         ::Sass::Plugin.on_updated_stylesheet do |_, css, sourcemap|
           [css, sourcemap].each do |file|
             next unless file
-            if File.exists? file
-              puts_action :overwrite, :yellow, file
-            else
-              puts_action :create, :green, file
-            end
+            puts_action :write, :green, file
           end
         end
 
         had_error = false
         ::Sass::Plugin.on_creating_directory {|dirname| puts_action :directory, :green, dirname}
         ::Sass::Plugin.on_deleting_css {|filename| puts_action :delete, :yellow, filename}
+        ::Sass::Plugin.on_deleting_sourcemap {|filename| puts_action :delete, :yellow, filename}
         ::Sass::Plugin.on_compilation_error do |error, _, _|
           if error.is_a?(SystemCallError) && !@options[:stop_on_error]
             had_error = true
@@ -505,6 +502,16 @@ MSG
         return false if colon_path?(path)
         return ::Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
       end
+
+      def default_sass_path
+        if ENV['SASSPATH']
+          # The select here prevents errors when the environment's load paths specified do not exist.
+          ENV['SASSPATH'].split(File::PATH_SEPARATOR).select {|d| File.directory?(d)}
+        else
+          [::Sass::Importers::DeprecatedPath.new(".")]
+        end
+      end
+
     end
 
     class Scss < Sass
