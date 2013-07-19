@@ -473,7 +473,7 @@ RUBY
         e = map
         end_pos = source_position
         assert_tok(:rparen)
-        return e || node(Sass::Script::Tree::ListLiteral.new([], :space), start_pos, end_pos)
+        return e || node(Sass::Script::Tree::ListLiteral.new([], nil), start_pos, end_pos)
       ensure
         @in_parens = was_in_parens
       end

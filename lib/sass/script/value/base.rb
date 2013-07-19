@@ -197,10 +197,17 @@ MSG
     # @raise [Sass::SyntaxError] if this value isn't an integer
     def assert_int!; to_i; end
 
+    # Returns the separator for this value. For non-list-like values or the
+    # empty list, this will be `nil`. For lists or maps, it will be `:space` or
+    # `:comma`.
+    #
+    # @return [Symbol]
+    def separator; nil; end
+
     # Returns the value of this value as a list.
     # Single values are considered the same as single-element lists.
     #
-    # @return [Array<Value>] The of this value as a list
+    # @return [Array<Value>] This value as a list
     def to_a
       [self]
     end

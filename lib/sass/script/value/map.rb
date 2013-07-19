@@ -23,6 +23,20 @@ module Sass::Script::Value
       end
     end
 
+    # @see Value#separator
+    def separator
+      :comma unless value.empty?
+    end
+
+    # @see Value#to_a
+    def to_a
+      value.map do |k, v|
+        list = List.new([k, v], :space)
+        list.options = options
+        list
+      end
+    end
+
     # @see Value#eq
     def eq(other)
       Bool.new(other.is_a?(Map) && self.value == other.value)

@@ -154,6 +154,8 @@ module Sass::Script
   #
   # ## List Functions {#list-functions}
   #
+  # All list functions work for maps as well, treating them as lists of pairs.
+  #
   # \{#length length($list)}
   # : Returns the length of a list.
   #
@@ -1561,9 +1563,12 @@ module Sass::Script
 
     # Return the length of a list.
     #
+    # This can return the number of pairs in a map as well.
+    #
     # @example
     #   length(10px) => 1
     #   length(10px 20px 30px) => 3
+    #   length((width: 10px, height: 20px)) => 2
     # @overload length($list)
     # @param $list [Sass::Script::Value::Base]
     # @return [Sass::Script::Value::Number]
@@ -1577,9 +1582,12 @@ module Sass::Script
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
     #
+    # This can return the nth pair in a map as well.
+    #
     # @example
     #   nth(10px 20px 30px, 1) => 10px
     #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
+    #   nth((width: 10px, length: 20px), 2) => length, 20px
     # @overload nth($list, $n)
     # @param $list [Sass::Script::Value::Base]
     # @param $n [Sass::Script::Value::Number] The index of the item to get.
@@ -1627,12 +1635,10 @@ module Sass::Script
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep1 = list1.separator if list1.is_a?(Sass::Script::Value::List) && !list1.value.empty?
-      sep2 = list2.separator if list2.is_a?(Sass::Script::Value::List) && !list2.value.empty?
       Sass::Script::Value::List.new(
         list1.to_a + list2.to_a,
         if separator.value == 'auto'
-          sep1 || sep2 || :space
+          list1.separator || list2.separator || :space
         else
           separator.value.to_sym
         end)
@@ -1663,11 +1669,10 @@ module Sass::Script
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep = list.separator if list.is_a?(Sass::Script::Value::List)
       Sass::Script::Value::List.new(
         list.to_a + [val],
         if separator.value == 'auto'
-          sep || :space
+          list.separator || :space
         else
           separator.value.to_sym
         end)
@@ -1711,9 +1716,12 @@ module Sass::Script
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
     #
+    # This can return the position of a pair in a map as well.
+    #
     # @example
     #   index(1px solid red, solid) => 2
     #   index(1px solid red, dashed) => false
+    #   index((width: 10px, height: 20px), (height, 20px)) => 2
     # @overload index($list, $value)
     # @param $list [Sass::Script::Value::Base]
     # @param $value [Sass::Script::Value::Base]
@@ -1740,11 +1748,7 @@ module Sass::Script
     # @param $list [Sass::Script::Value::Base]
     # @return [Sass::Script::Value::String] `comma` or `space`
     def list_separator(list)
-      if list.is_a?(Sass::Script::Value::List)
-        Sass::Script::Value::String.new(list.separator.to_s)
-      else
-        Sass::Script::Value::String.new('space')
-      end
+      Sass::Script::Value::String.new((list.separator || :space).to_s)
     end
     declare :separator, [:list]
 
