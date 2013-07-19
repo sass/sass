@@ -6,6 +6,7 @@ module Sass::Script::Value
     #
     # @return [Hash<Node, Node>]
     attr_reader :value
+    alias_method :to_h, :value
 
     # Creates a new map.
     #

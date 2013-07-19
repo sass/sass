@@ -212,6 +212,15 @@ MSG
       [self]
     end
 
+    # Returns the value of this value as a hash. Most values don't have hash
+    # representations, but [Map]s and empty [List]s do.
+    #
+    # @return [Hash<Value, Value>] This value as a hash
+    # @raise [Sass::SyntaxError] if this value doesn't have a hash representation
+    def to_h
+      raise Sass::SyntaxError.new("#{self.inspect} is not a map.")
+    end
+
     # Returns the string representation of this value
     # as it would be output to the CSS document.
     #

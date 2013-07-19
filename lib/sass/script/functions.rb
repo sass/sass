@@ -382,7 +382,13 @@ module Sass::Script
       # @param name [String, Symbol, nil] The name of the argument.
       # @raise [ArgumentError] if value is not of the correct type.
       def assert_type(value, type, name = nil)
-        return if value.is_a?(Sass::Script::Value.const_get(type))
+        klass = Sass::Script::Value.const_get(type)
+        if value.is_a?(klass) ||
+            (klass == Sass::Script::Value::Map &&
+             value.is_a?(Sass::Script::Value::List) &&
+             value.value.empty?)
+          return
+        end
         err = "#{value.inspect} is not a #{type.to_s.downcase}"
         err = "$#{name.to_s.gsub('_', '-')}: " + err if name
         raise ArgumentError.new(err)

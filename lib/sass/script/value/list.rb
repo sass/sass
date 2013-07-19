@@ -61,6 +61,12 @@ module Sass::Script::Value
       end.join(sep_str(nil))
     end
 
+    # @see Value#to_h
+    def to_h
+      return Sass::Util.ordered_hash if value.empty?
+      super
+    end
+
     # @see Value#inspect
     def inspect
       "(#{value.map {|e| e.inspect}.join(sep_str(nil))})"
