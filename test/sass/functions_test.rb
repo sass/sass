@@ -1258,6 +1258,41 @@ MSG
     end
   end
 
+  def test_map_get
+    assert_equal "1", evaluate("map-get((foo: 1, bar: 2), foo)")
+    assert_equal "2", evaluate("map-get((foo: 1, bar: 2), bar)")
+    assert_equal "null", perform("map-get((foo: 1, bar: 2), baz)").to_sass
+    assert_equal "null", perform("map-get((), foo)").to_sass
+  end
+
+  def test_map_merge
+    assert_equal("(foo: 1, bar: 2, baz: 3)",
+      perform("map-merge((foo: 1, bar: 2), (baz: 3))").to_sass)
+    assert_equal("(foo: 1, bar: 2)",
+      perform("map-merge((), (foo: 1, bar: 2))").to_sass)
+    assert_equal("(foo: 1, bar: 2)",
+      perform("map-merge((foo: 1, bar: 2), ())").to_sass)
+  end
+
+  def test_map_keys
+    assert_equal("foo, bar",
+      perform("map-keys((foo: 1, bar: 2))").to_sass)
+    assert_equal("()", perform("map-keys(())").to_sass)
+  end
+
+  def test_map_values
+    assert_equal("1, 2", perform("map-values((foo: 1, bar: 2))").to_sass)
+    assert_equal("1, 2, 2",
+      perform("map-values((foo: 1, bar: 2, baz: 2))").to_sass)
+    assert_equal("()", perform("map-values(())").to_sass)
+  end
+
+  def test_map_has_key
+    assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
+    assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
+    assert_equal "false", evaluate("map-has-key((), foo)")
+  end
+
   def test_assert_unit
     ctx = Sass::Script::Functions::EvaluationContext.new(Sass::Environment.new(nil, {}))
     ctx.assert_unit Sass::Script::Value::Number.new(10, ["px"], []), "px"

@@ -177,6 +177,23 @@ module Sass::Script
   # \{#list_separator list-separator(#list)}
   # : Returns the separator of a list.
   #
+  # ## Map Functions {#map-functions}
+  #
+  # \{#map_get map-get($map, $key)}
+  # : Returns the value in a map associated with a given key.
+  #
+  # \{#map_merge map-merge($map1, $map2)}
+  # : Merges two maps together into a new map.
+  #
+  # \{#map_keys map-keys($map)}
+  # : Returns a list of all keys in a map.
+  #
+  # \{#map_values map-values($map)}
+  # : Returns a list of all values in a map.
+  #
+  # \{#map_has_key map-has-key($key)}
+  # : Returns whether a map has a value associated with a given key.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -1757,6 +1774,94 @@ module Sass::Script
       Sass::Script::Value::String.new((list.separator || :space).to_s)
     end
     declare :separator, [:list]
+
+    # Returns the value in a map associated with the given key. If the map
+    # doesn't have such a key, returns `null`.
+    #
+    # @example
+    #   map-get(("foo": 1, "bar": 2), "foo") => 1
+    #   map-get(("foo": 1, "bar": 2), "bar") => 2
+    #   map-get(("foo": 1, "bar": 2), "baz") => null
+    # @overload map_get($map, $key)
+    # @param $map [Sass::Script::Value::Map]
+    # @param $key [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Base] The value indexed by `$key`, or `null`
+    #   if the map doesn't contain the given key
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_get(map, key)
+      assert_type map, :Map
+      map.to_h[key] || Sass::Script::Value::Null.new
+    end
+    declare :map_get, [:map, :key]
+
+    # Merges two maps together into a new map. Keys in `$map2` will take
+    # precedence over keys in `$map1`.
+    #
+    # This is the best way to add new values to a map.
+    #
+    # All keys in the returned map that also appear in `$map1` will have the
+    # same order as in `$map1`. New keys from `$map2` will be placed at the end
+    # of the map.
+    #
+    # @example
+    #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
+    #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
+    # @overload map_merge($map1, $map2)
+    # @param $map1 [Sass::Script::Value::Map]
+    # @param $map2 [Sass::Script::Value::Map]
+    # @return [Sass::Script::Value::Map]
+    # @raise [ArgumentError] if either parameter is not a map
+    def map_merge(map1, map2)
+      assert_type map1, :Map
+      assert_type map2, :Map
+      Sass::Script::Value::Map.new(map1.to_h.merge(map2.to_h))
+    end
+    declare :map_get, [:map1, :map2]
+
+    # Returns a list of all keys in a map.
+    #
+    # @example
+    #   map-keys(("foo": 1, "bar": 2)) => "foo", "bar"
+    # @overload map_keys($map)
+    # @param $map [Map]
+    # @return [List] the list of keys, comma-separated
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_keys(map)
+      assert_type map, :Map
+      Sass::Script::Value::List.new(map.to_h.keys, :comma)
+    end
+    declare :map_keys, [:map]
+
+    # Returns a list of all values in a map. This list may include duplicate
+    # values, if multiple keys have the same value.
+    #
+    # @example
+    #   map-keys(("foo": 1, "bar": 2)) => 1, 2
+    #   map-keys(("foo": 1, "bar": 2, "baz": 1)) => 1, 2, 1
+    # @overload map_values($map)
+    # @param $map [Map]
+    # @return [List] the list of values, comma-separated
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_values(map)
+      assert_type map, :Map
+      Sass::Script::Value::List.new(map.to_h.values, :comma)
+    end
+    declare :map_values, [:map]
+
+    # Returns whether a map has a value associated with a given key.
+    #
+    # @example
+    #   map-has-key(("foo": 1, "bar": 2), "foo") => true
+    #   map-has-key(("foo": 1, "bar": 2), "baz") => false
+    # @overload map_has_key($map, $key)
+    # @param $map [Sass::Script::Value::Map]
+    # @param $key [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Bool]
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_has_key(map, key)      assert_type map, :Map
+      Sass::Script::Value::Bool.new(map.to_h.has_key?(key))
+    end
+    declare :map_has_key, [:map, :key]
 
     # Returns one of two values, depending on whether or not `$condition` is
     # true. Just like in `@if`, all values other than `false` and `null` are
