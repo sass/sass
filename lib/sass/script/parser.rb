@@ -420,7 +420,6 @@ RUBY
       end
 
       def raw
-        start_pos = source_position
         return special_fun unless tok = try_tok(:raw)
         literal_node(Script::Value::String.new(tok.value), tok.source_range)
       end
