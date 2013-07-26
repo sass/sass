@@ -70,7 +70,7 @@ Thanks to Alexander Pavlov for implementing this.
   official features.
 
 * You can call a function by name by passing the function name to the
-  call function. E.g. `call(nth, a b c, 2) => b`
+  call function. For example, `call(nth, a b c, 2)` returns `b`.
 
 ### Backwards Incompatibilities -- Must Read!
 
