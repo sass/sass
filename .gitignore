@@ -9,3 +9,4 @@
 /site
 *.rbc
 /.sass
+Gemfile.lock
