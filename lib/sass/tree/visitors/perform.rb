@@ -155,8 +155,14 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     list = node.list.perform(@environment)
 
     with_environment Sass::Environment.new(@environment) do
-      list.to_a.map do |v|
-        @environment.set_local_var(node.var, v)
+      list.to_a.map do |value|
+        if node.vars.length == 1
+          @environment.set_local_var(node.vars.first, value)
+        else
+          node.vars.zip(value.to_a) do |(var, sub_value)|
+            @environment.set_local_var(var, sub_value || Sass::Script::Value::Null.new)
+          end
+        end
         node.children.map {|c| visit(c)}
       end.flatten
     end

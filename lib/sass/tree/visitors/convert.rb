@@ -104,7 +104,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_each(node)
-    "#{tab_str}@each $#{dasherize(node.var)} in #{node.list.to_sass(@options)}#{yield}"
+    vars = node.vars.map {|var| "$#{dasherize(var)}"}.join(", ")
+    "#{tab_str}@each #{vars} in #{node.list.to_sass(@options)}#{yield}"
   end
 
   def visit_extend(node)

@@ -263,14 +263,20 @@ module Sass
 
       def each_directive(start_pos)
         tok!(/\$/)
-        var = tok! IDENT
+        vars = [tok!(IDENT)]
         ss
+        while tok(/,/)
+          ss
+          tok!(/\$/)
+          vars << tok!(IDENT)
+          ss
+        end
 
         tok!(/in/)
         list = sass_script(:parse)
         ss
 
-        block(node(Sass::Tree::EachNode.new(var, list), start_pos), :directive)
+        block(node(Sass::Tree::EachNode.new(vars, list), start_pos), :directive)
       end
 
       def while_directive(start_pos)

@@ -874,21 +874,25 @@ WARNING
     end
 
     def parse_each(line, root, text)
-      var, list_expr = text.scan(/^([^\s]+)\s+in\s+(.+)$/).first
+      vars, list_expr = text.scan(/^([^\s]+(?:\s*,\s*[^\s]+)*)\s+in\s+(.+)$/).first
 
-      if var.nil? # scan failed, try to figure out why for error message
+      if vars.nil? # scan failed, try to figure out why for error message
         if text !~ /^[^\s]+/
           expected = "variable name"
-        elsif text !~ /^[^\s]+\s+from\s+.+/
+        elsif text !~ /^[^\s]+(?:\s*,\s*[^\s]+)*[^\s]+\s+from\s+.+/
           expected = "'in <expr>'"
         end
-        raise SyntaxError.new("Invalid for directive '@each #{text}': expected #{expected}.")
+        raise SyntaxError.new("Invalid each directive '@each #{text}': expected #{expected}.")
       end
-      raise SyntaxError.new("Invalid variable \"#{var}\".") unless var =~ Script::VALIDATE
 
-      var = var[1..-1]
+      vars = vars.split(',').map do |var|
+        var.strip!
+        raise SyntaxError.new("Invalid variable \"#{var}\".") unless var =~ Script::VALIDATE
+        var[1..-1]
+      end
+
       parsed_list = parse_script(list_expr, :offset => line.offset + line.text.index(list_expr))
-      Tree::EachNode.new(var, parsed_list)
+      Tree::EachNode.new(vars, parsed_list)
     end
 
     def parse_else(parent, line, text)

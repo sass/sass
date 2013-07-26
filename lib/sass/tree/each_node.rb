@@ -5,18 +5,18 @@ module Sass::Tree
   #
   # @see Sass::Tree
   class EachNode < Node
-    # The name of the loop variable.
-    # @return [String]
-    attr_reader :var
+    # The names of the loop variables.
+    # @return [Array<String>]
+    attr_reader :vars
 
     # The parse tree for the list.
     # @return [Script::Tree::Node]
     attr_accessor :list
 
-    # @param var [String] The name of the loop variable
+    # @param vars [Array<String>] The names of the loop variables
     # @param list [Script::Tree::Node] The parse tree for the list
-    def initialize(var, list)
-      @var = var
+    def initialize(vars, list)
+      @vars = vars
       @list = list
       super()
     end
