@@ -131,6 +131,9 @@ Thanks to Alexander Pavlov for implementing this.
 
 * Fix a bug where selectors were being incorrectly trimmed when using `@extend`.
 
+* Fix a bug where `sass --unix-newlines` and `sass-convert --in-place` are not
+  working on Windows (thanks [SATO Kentaro](http://www.ranvis.com)).
+
 ## 3.2.9
 
 * Fix a bug where `@extend`s would occasionally cause a selector to be generated
