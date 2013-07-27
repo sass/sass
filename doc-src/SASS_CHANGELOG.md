@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.10 (Unreleased)
+## 3.2.10
 
 * Use the Sass logger infrastructure for `@debug` directives.
 
