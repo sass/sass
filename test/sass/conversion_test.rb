@@ -1714,6 +1714,35 @@ foo {
 SCSS
   end
 
+  def test_keyword_arguments
+    assert_renders(<<SASS, <<SCSS, :dasherize => true)
+$foo: foo($dash-ed: 2px)
+SASS
+$foo: foo($dash-ed: 2px);
+SCSS
+    assert_renders(<<SASS, <<SCSS, :dasherize => false)
+$foo: foo($under_scored: 1px)
+SASS
+$foo: foo($under_scored: 1px);
+SCSS
+    assert_renders(<<SASS, <<SCSS)
+$foo: foo($dash-ed: 2px, $under_scored: 1px)
+SASS
+$foo: foo($dash-ed: 2px, $under_scored: 1px);
+SCSS
+  end
+
+  def test_if_function
+    assert_renders(<<SASS, <<SCSS)
+$foo: if(true, 1px, 2px)
+$foo: if(true, 1px, $if-false: (a, b, c))
+SASS
+$foo: if(true, 1px, 2px);
+$foo: if(true, 1px, $if-false: (a, b, c));
+SCSS
+
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})
