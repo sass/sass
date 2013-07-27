@@ -120,7 +120,7 @@ Thanks to Alexander Pavlov for implementing this.
   will be removed eventually. Any code using them should upgrade to the new
   names.
 
-## 3.2.10 (Unreleased)
+## 3.2.10
 
 * Use the Sass logger infrastructure for `@debug` directives.
 
