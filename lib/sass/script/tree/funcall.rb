@@ -43,7 +43,7 @@ module Sass::Script::Tree
     # @return [String] A string representation of the function call
     def inspect
       args = @args.map {|a| a.inspect}.join(', ')
-      keywords = Sass::Util.hash_to_a(@keywords).
+      keywords = Sass::Util.hash_to_a(@keywords.as_stored).
           map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
       if self.splat
         splat = (args.empty? && keywords.empty?) ? "" : ", "

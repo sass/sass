@@ -6,11 +6,12 @@ module Sass
     # A hash that normalizes its string keys while still allowing you to get back
     # to the original keys that were stored. If several different values normalize
     # to the same value, whichever is stored last wins.
+    require 'sass/util/ordered_hash' if ruby1_8?
     class NormalizedMap < DelegateClass(ruby1_8? ? OrderedHash : Hash)
       # Create a normalized map
-      def initialize(hash = nil)
+      def initialize
         @key_strings = {}
-        @map = {}
+        @map = Util.ruby1_8? ? OrderedHash.new : {}
 
         # We delegate all hash methods that are not overridden here to @map.
         super(@map)
