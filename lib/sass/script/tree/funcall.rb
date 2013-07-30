@@ -1,4 +1,5 @@
 require 'sass/script/functions'
+require 'sass/util/normalized_map'
 
 module Sass::Script::Tree
   # A SassScript parse node representing a function call.
@@ -29,8 +30,8 @@ module Sass::Script::Tree
 
     # @param name [String] See \{#name}
     # @param args [Array<Node>] See \{#args}
+    # @param keywords [Sass::Util::NormalizedMap<Node>] See \{#keywords}
     # @param splat [Node] See \{#splat}
-    # @param keywords [{String => Node}] See \{#keywords}
     def initialize(name, args, keywords, splat)
       @name = name
       @args = args
@@ -60,7 +61,7 @@ module Sass::Script::Tree
       end
 
       args = @args.map(&arg_to_sass).join(', ')
-      keywords = Sass::Util.hash_to_a(@keywords).
+      keywords = Sass::Util.hash_to_a(@keywords.as_stored).
         map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}.join(', ')
       if self.splat
         splat = (args.empty? && keywords.empty?) ? "" : ", "
@@ -83,7 +84,9 @@ module Sass::Script::Tree
     def deep_copy
       node = dup
       node.instance_variable_set('@args', args.map {|a| a.deep_copy})
-      node.instance_variable_set('@keywords', Hash[keywords.map {|k, v| [k, v.deep_copy]}])
+      copied_keywords = Sass::Util::NormalizedMap.new
+      @keywords.as_stored.each {|k,v| copied_keywords[k] = v.deep_copy}
+      node.instance_variable_set('@keywords', copied_keywords)
       node
     end
 

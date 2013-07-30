@@ -88,7 +88,7 @@ module Sass
       def parse_mixin_include_arglist
         args, keywords = [], {}
         if try_tok(:lparen)
-          args, keywords, splat = mixin_arglist || [[], {}]
+          args, keywords, splat = mixin_arglist
           assert_tok(:rparen)
         end
         assert_done
@@ -343,7 +343,7 @@ RUBY
 
       def funcall
         return raw unless tok = try_tok(:funcall)
-        args, keywords, splat = fn_arglist || [[], {}]
+        args, keywords, splat = fn_arglist
         assert_tok(:rparen)
         node(Script::Tree::Funcall.new(tok.value, args, keywords, splat),
           tok.source_range.start_pos, source_position)
@@ -388,10 +388,11 @@ RUBY
       end
 
       def arglist(subexpr, description)
-        return unless e = send(subexpr)
-
         args = []
-        keywords = {}
+        keywords = Sass::Util::NormalizedMap.new
+
+        return [args, keywords] unless e = send(subexpr)
+
         loop do
           if @lexer.peek && @lexer.peek.type == :colon
             name = e
@@ -399,11 +400,11 @@ RUBY
             assert_tok(:colon)
             value = assert_expr(subexpr, description)
 
-            if keywords[name.underscored_name]
+            if keywords[name.name]
               raise SyntaxError.new("Keyword argument \"#{name.to_sass}\" passed more than once")
             end
 
-            keywords[name.underscored_name] = value
+            keywords[name.name] = value
           else
             if !keywords.empty?
               raise SyntaxError.new("Positional arguments must come before keyword arguments.")
