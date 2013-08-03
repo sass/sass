@@ -1172,6 +1172,41 @@ SCSS
 
   # Regression Tests
 
+  def test_pseudo_element_superselector
+    # Pseudo-elements shouldn't be removed in superselector calculations.
+    assert_equal <<CSS, render(<<SCSS)
+a#bar, a#bar::fblthp {
+  a: b; }
+CSS
+%x#bar {a: b} // Add an id to make the results have high specificity
+%y, %y::fblthp {@extend %x}
+a {@extend %y}
+SCSS
+
+    # Pseudo-classes can be removed when the second law allows.
+    assert_equal <<CSS, render(<<SCSS)
+a#bar {
+  a: b; }
+CSS
+%x#bar {a: b}
+%y, %y:fblthp {@extend %x}
+a {@extend %y}
+SCSS
+
+    # A few pseudo-elements can be written as pseudo-elements for historical
+    # reasons. See http://www.w3.org/TR/selectors4/#pseudo-elements.
+    %w[first-line first-letter before after].each do |pseudo|
+      assert_equal <<CSS, render(<<SCSS)
+a#bar, a#bar:#{pseudo} {
+  a: b; }
+CSS
+%x#bar {a: b}
+%y, %y:#{pseudo} {@extend %x}
+a {@extend %y}
+SCSS
+    end
+  end
+
   def test_nested_sibling_extend
     assert_equal <<CSS, render(<<SCSS)
 .parent .bar, .parent .foo {
