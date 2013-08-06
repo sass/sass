@@ -42,11 +42,16 @@ module Sass
         @base ||= (members.first if members.first.is_a?(Element) || members.first.is_a?(Universal))
       end
 
-      # Returns the non-base selectors in this sequence.
+      def pseudo_elements
+        @pseudo_elements ||= (members - [base]).
+          select {|sel| sel.is_a?(Pseudo) && sel.type == :element}
+      end
+
+      # Returns the non-base, non-pseudo-class selectors in this sequence.
       #
       # @return [Set<Simple>]
       def rest
-        @rest ||= Set.new(base ? members[1..-1] : members)
+        @rest ||= Set.new(members - [base] - pseudo_elements)
       end
 
       # Whether or not this compound selector is the subject of the parent
@@ -151,7 +156,9 @@ module Sass
       # @param sseq [SimpleSequence]
       # @return [Boolean]
       def superselector?(sseq)
-        (base.nil? || base.eql?(sseq.base)) && rest.subset?(sseq.rest)
+        (base.nil? || base.eql?(sseq.base)) &&
+          pseudo_elements.eql?(sseq.pseudo_elements) &&
+          rest.subset?(sseq.rest)
       end
 
       # @see Simple#to_a
@@ -202,8 +209,8 @@ MESSAGE
       end
 
       def _eql?(other)
-        other.base.eql?(self.base) && Sass::Util.set_eql?(other.rest, self.rest) &&
-          other.subject? == self.subject?
+        other.base.eql?(self.base) && other.pseudo_elements == pseudo_elements &&
+          Sass::Util.set_eql?(other.rest, self.rest) && other.subject? == self.subject?
       end
     end
   end

@@ -120,6 +120,11 @@ Thanks to Alexander Pavlov for implementing this.
   will be removed eventually. Any code using them should upgrade to the new
   names.
 
+## 3.2.11 (Unreleased)
+
+* Fix `@extend`'s semantics with respect to pseudo-elements. They are no longer
+  treated identically to pseudo-classes.
+
 ## 3.2.10
 
 * Use the Sass logger infrastructure for `@debug` directives.

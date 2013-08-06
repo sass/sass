@@ -344,19 +344,19 @@ module Sass
     # A pseudoclass (e.g. `:visited`) or pseudoelement (e.g. `::first-line`) selector.
     # It can have arguments (e.g. `:nth-child(2n+1)`).
     class Pseudo < Simple
-      # The type of the selector.
-      # `:class` if this is a pseudoclass selector,
-      # `:element` if it's a pseudoelement.
-      #
-      # @return [Symbol]
-      attr_reader :type
-
-      # Some psuedo-class-syntax selectors (`:after` and `:before)
-      # are actually considered pseudo-elements
-      # and must be at the end of the selector to function properly.
+      # Some psuedo-class-syntax selectors are actually considered
+      # pseudo-elements and must be treated differently. This is a list of such
+      # selectors
       #
       # @return [Array<String>]
-      FINAL_SELECTORS = %w[after before]
+      ACTUALLY_ELEMENTS = %w[after before first-line first-letter]
+
+      # Like \{#type}, but returns the type of selector this looks like, rather
+      # than the type it is semantically. This only differs from type for
+      # selectors in \{ACTUALLY\_ELEMENTS}.
+      #
+      # @return [Symbol]
+      attr_reader :syntactic_type
 
       # The name of the selector.
       #
@@ -378,18 +378,22 @@ module Sass
       # @param arg [nil, Array<String, Sass::Script::Tree::Node>] The argument to the selector,
       #   or nil if no argument was given
       def initialize(type, name, arg)
-        @type = type
+        @syntactic_type = type
         @name = name
         @arg = arg
       end
 
-      def final?
-        type == :class && FINAL_SELECTORS.include?(name.first)
+      # The type of the selector. `:class` if this is a pseudoclass selector,
+      # `:element` if it's a pseudoelement.
+      #
+      # @return [Symbol]
+      def type
+        ACTUALLY_ELEMENTS.include?(name.first) ? :element : syntactic_type
       end
 
       # @see Selector#to_a
       def to_a
-        res = [@type == :class ? ":" : "::"] + @name
+        res = [syntactic_type == :class ? ":" : "::"] + @name
         (res << "(").concat(Sass::Util.strip_string_array(@arg)) << ")" if @arg
         res
       end
@@ -403,7 +407,6 @@ module Sass
           sel.is_a?(Pseudo) && sel.type == :element &&
             (sel.name != self.name || sel.arg != self.arg)
         end
-        return sels + [self] if final?
         super
       end
 

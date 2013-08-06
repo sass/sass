@@ -1,4 +1,4 @@
-# Sass
+# Sass [![Gem Version](https://badge.fury.io/rb/sass.png)](http://badge.fury.io/rb/sass)
 
 **Sass makes CSS fun again**. Sass is an extension of CSS3,
 adding nested rules, variables, mixins, selector inheritance, and more.
