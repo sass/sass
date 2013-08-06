@@ -30,6 +30,36 @@ module Sass
       File.join(Sass::ROOT_DIR, file)
     end
 
+    # Converts a hash or a list of pairs into an order-preserving hash.
+    #
+    # On Ruby 1.8.7, this uses the orderedhash gem to simulate an
+    # order-preserving hash. On Ruby 1.9 and up, it just uses the native Hash
+    # class, since that preserves the order itself.
+    #
+    # @overload ordered_hash(hash)
+    #   @param hash [Hash] a normal hash to convert to an ordered hash
+    #   @return [Hash]
+    # @overload ordered_hash(*pairs)
+    #   @example
+    #     ordered_hash([:foo, "bar"], [:baz, "bang"])
+    #       #=> {:foo => "bar", :baz => "bang"}
+    #     ordered_hash #=> {}
+    #   @param pairs [Array<(Object, Object)>] the list of key/value pairs for
+    #     the hash.
+    #   @return [Hash]
+    def ordered_hash(*pairs_or_hash)
+      require 'sass/util/ordered_hash' if ruby1_8?
+
+      if pairs_or_hash.length == 1 && pairs_or_hash.first.is_a?(Hash)
+        hash = pairs_or_hash.first
+        return hash unless ruby1_8?
+        return OrderedHash.new.merge hash
+      end
+
+      return Hash[pairs_or_hash] unless ruby1_8?
+      return OrderedHash[*flatten(pairs_or_hash, 1)]
+    end
+
     # Converts an array of `[key, value]` pairs to a hash.
     #
     # @example
@@ -38,7 +68,7 @@ module Sass
     # @param arr [Array<(Object, Object)>] An array of pairs
     # @return [Hash] A hash
     def to_hash(arr)
-      Hash[arr.compact]
+      ordered_hash(*arr.compact)
     end
 
     # Maps the keys in a hash according to a block.
@@ -1008,3 +1038,4 @@ MSG
 end
 
 require 'sass/util/multibyte_string_scanner'
+require 'sass/util/normalized_map'
