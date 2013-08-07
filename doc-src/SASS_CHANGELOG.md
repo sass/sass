@@ -7,6 +7,8 @@
 
 * Fix `@extend`'s semantics with respect to pseudo-elements. They are no longer
   treated identically to pseudo-classes.
+* A more understandable error is now provided when the `-E` option is
+  passed to the Sass command line in ruby 1.8
 
 ## 3.2.10
 
