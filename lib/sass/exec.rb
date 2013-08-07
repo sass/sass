@@ -302,8 +302,16 @@ END
           @options[:sourcemap] = true
         end
 
-        unless ::Sass::Util.ruby1_8?
-          opts.on('-E encoding', 'Specify the default encoding for Sass files.') do |encoding|
+        encoding_desc = if ::Sass::Util.ruby1_8?
+          'Does not work in ruby 1.8.'
+        else
+          'Specify the default encoding for Sass files.'
+        end
+        opts.on('-E encoding', encoding_desc) do |encoding|
+          if ::Sass::Util.ruby1_8?
+            $stderr.puts "Specifying the encoding is not supported in ruby 1.8."
+            exit 1
+          else
             Encoding.default_external = encoding
           end
         end
@@ -649,7 +657,6 @@ END
         end
         @options[:output] ||= @options[:input]
 
-        from = @options[:from]
         if @options[:to] == @options[:from] && !@options[:in_place]
           fmt = @options[:from]
           raise "Error: converting from #{fmt} to #{fmt} without --in-place"
