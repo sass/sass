@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.2.11 (Unreleased)
+
+* Fixed a bug in the output of lists containing unary plus or minus
+  operations during sass <=> scss conversion.
+
 ## 3.2.10 (Unreleased)
 
 * Use the Sass logger infrastructure for `@debug` directives.
