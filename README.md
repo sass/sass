@@ -56,7 +56,7 @@ to `config.ru`.
 Then any Sass files in `public/stylesheets/sass`
 will be compiled into CSS files in `public/stylesheets` on every request.
 
-To use Sass programatically,
+To use Sass programmatically,
 check out the [YARD documentation](http://sass-lang.com/docs/yardoc/).
 
 ## Formatting
