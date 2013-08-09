@@ -47,8 +47,7 @@ module Sass::Script::Value
       return "()" if value.empty?
       precedence = Sass::Script::Parser.precedence_of(separator)
       value.reject {|e| e.is_a?(Null)}.map do |v|
-        if v.is_a?(List) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
-            separator == :space && v.is_a?(UnaryOperation) && (v.operator == :minus || v.operator == :plus)
+        if v.is_a?(List) && Sass::Script::Parser.precedence_of(v.separator) <= precedence
           "(#{v.to_sass(opts)})"
         else
           v.to_sass(opts)

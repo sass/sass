@@ -124,12 +124,8 @@ Thanks to Alexander Pavlov for implementing this.
 
 * Fix `@extend`'s semantics with respect to pseudo-elements. They are no longer
   treated identically to pseudo-classes.
-
 * A more understandable error is now provided when the `-E` option is
   passed to the Sass command line in ruby 1.8
-
-* Fixed a bug in the output of lists containing unary plus or minus
-  operations during sass <=> scss conversion.
 
 ## 3.2.10
 

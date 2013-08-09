@@ -1742,23 +1742,6 @@ $foo: foo($dash-ed: 2px, $under_scored: 1px);
 SCSS
   end
 
-  def test_ambiguous_negation
-    assert_renders(<<SASS, <<SCSS, :indent => '    ')
-foo
-    ok: -$foo
-    comma: 10px, -$foo
-    needs-parens: 10px (-$foo)
-    no-parens: a 50px + 60px b
-SASS
-foo {
-    ok: -$foo;
-    comma: 10px, -$foo;
-    needs-parens: 10px (-$foo);
-    no-parens: a 50px + 60px b;
-}
-SCSS
-  end
-
   private
 
   def assert_sass_to_sass(sass, options = {})

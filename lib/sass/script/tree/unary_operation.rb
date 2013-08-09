@@ -4,14 +4,9 @@ module Sass::Script::Tree
   #
   # Currently only `-`, `/`, and `not` are unary operators.
   class UnaryOperation < Node
-    # @return [Symbol] The operation to perform
-    attr_reader :operator
-
-    # @return [Script::Node] The parse-tree node for the object of the operator
-    attr_reader :operand
-
-    # @param operand [Script::Node] See \{#operand}
-    # @param operator [Symbol] See \{#operator}
+    # @param operand [Script::Node] The parse-tree node
+    #   for the object of the operator
+    # @param operator [Symbol] The operator to perform
     def initialize(operand, operator)
       @operand = operand
       @operator = operator
