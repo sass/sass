@@ -25,18 +25,20 @@ module Sass::Script::Tree
     # @see Node#children
     def children; elements; end
 
-    # @see Node#to_sass
+    # @see Value#to_sass
     def to_sass(opts = {})
       return "()" if elements.empty?
       precedence = Sass::Script::Parser.precedence_of(separator)
-      elements.map do |v|
-        if v.is_a?(ListLiteral) && Sass::Script::Parser.precedence_of(v.separator) <= precedence
+      elements.reject {|e| e.is_a?(Sass::Script::Value::Null)}.map do |v|
+        if v.is_a?(ListLiteral) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
+            separator == :space && v.is_a?(UnaryOperation) && (v.operator == :minus || v.operator == :plus)
           "(#{v.to_sass(opts)})"
         else
           v.to_sass(opts)
         end
-      end.join(separator == :space ? ' ' : ', ')
+      end.join(sep_str(nil))
     end
+
 
     # @see Node#deep_copy
     def deep_copy
@@ -60,6 +62,14 @@ module Sass::Script::Tree
       list.filename = filename
       list.options = self.options
       list
+    end
+
+    private
+
+    def sep_str(opts = self.options)
+      return ' ' if separator == :space
+      return ',' if opts && opts[:style] == :compressed
+      return ', '
     end
   end
 end
