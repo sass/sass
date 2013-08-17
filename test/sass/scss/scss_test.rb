@@ -1736,6 +1736,57 @@ SCSS
 
   # Regression
 
+  def test_nested_unknown_directive
+    assert_equal(<<CSS, render(<<SCSS, :style => :nested))
+.foo {
+  @fblthp {
+    .bar {
+      a: b; } } }
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS, :style => :compressed))
+.foo{@fblthp{.bar{a:b}}}
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS, :style => :compact))
+.foo { @fblthp { .bar { a: b; } } }
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS, :style => :expanded))
+.foo {
+  @fblthp {
+    .bar {
+      a: b;
+    }
+  }
+}
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+  end
+
   def test_loud_comment_in_compressed_mode
     assert_equal(<<CSS, render(<<SCSS))
 /*! foo */
