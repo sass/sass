@@ -29,6 +29,7 @@ require 'sass/tree/debug_node'
 require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
 require 'sass/tree/charset_node'
+require 'sass/tree/at_root_node'
 require 'sass/tree/visitors/base'
 require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
@@ -840,6 +841,25 @@ WARNING
           Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
           @options[:filename], @options[:importer])
         node
+      when 'at-root'
+        at_root_node = Sass::Tree::AtRootNode.new
+        return at_root_node unless value
+
+        parsed = parse_interp(value, offset)
+        selector_range = Sass::Source::Range.new(
+          Sass::Source::Position.new(@line, to_parser_offset(offset)),
+          Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
+          @options[:filename], @options[:importer])
+        rule_node = Tree::RuleNode.new(parsed, full_line_range(line))
+
+        # The caller expects to automatically add children to the returned node
+        # and we want it to add children to the rule node instead, so we
+        # manually handle the wiring here and return nil so the caller doesn't
+        # duplicate our efforts.
+        append_children(rule_node, line.children, false)
+        at_root_node << rule_node
+        parent << at_root_node
+        nil
       else
         unprefixed_directive = directive.gsub(/^-[a-z0-9]+-/i, '')
         if unprefixed_directive == 'supports'

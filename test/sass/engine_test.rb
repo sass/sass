@@ -2453,6 +2453,29 @@ $val: 20
 SASS
   end
 
+  def test_at_root
+    assert_equal <<CSS, render(<<SASS)
+.bar {
+  a: b; }
+CSS
+.foo
+  @at-root
+    .bar
+      a: b
+SASS
+  end
+
+  def test_at_root_with_selector
+    assert_equal <<CSS, render(<<SASS)
+.bar {
+  a: b; }
+CSS
+.foo
+  @at-root .bar
+    a: b
+SASS
+  end
+
   # Regression tests
 
   def test_list_separator_with_arg_list
