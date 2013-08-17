@@ -1,6 +1,4 @@
-require 'sass/script/literal'
-
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a number.
   # SassScript numbers can have decimal values,
   # and can also have units.
@@ -9,7 +7,7 @@ module Sass::Script
   #
   # Numbers can also have more complex units, such as `1px*em/in`.
   # These cannot be inputted directly in Sass code at the moment.
-  class Number < Literal
+  class Number < Base
     # The Ruby value of the number.
     #
     # @return [Numeric]
@@ -53,24 +51,15 @@ module Sass::Script
       @precision_factor ||= 10.0**precision
     end
 
-    # Handles the deprecation warning for the PRECISION constant
-    # This can be removed in 3.2.
-    def self.const_missing(const)
-      if const == :PRECISION
-        Sass::Util.sass_warn("Sass::Script::Number::PRECISION is deprecated and will be removed in a future release. Use Sass::Script::Number.precision_factor instead.")
-        const_set(:PRECISION, self.precision_factor)
-      else
-        super
-      end
-    end
-
     # Used so we don't allocate two new arrays for each new number.
     NO_UNITS  = []
 
     # @param value [Numeric] The value of the number
-    # @param numerator_units [Array<String>] See \{#numerator\_units}
-    # @param denominator_units [Array<String>] See \{#denominator\_units}
+    # @param numerator_units [::String, Array<::String>] See \{#numerator\_units}
+    # @param denominator_units [::String, Array<::String>] See \{#denominator\_units}
     def initialize(value, numerator_units = NO_UNITS, denominator_units = NO_UNITS)
+      numerator_units = [numerator_units] if numerator_units.is_a?(::String)
+      denominator_units = [denominator_units] if denominator_units.is_a?(::String)
       super(value)
       @numerator_units = numerator_units
       @denominator_units = denominator_units
@@ -86,11 +75,11 @@ module Sass::Script
     # {Color}
     # : Adds this number to each of the RGB color channels.
     #
-    # {Literal}
-    # : See {Literal#plus}.
+    # {Value}
+    # : See {Value::Base#plus}.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Literal] The result of the operation
+    # @param other [Value] The right-hand side of the operator
+    # @return [Value] The result of the operation
     # @raise [Sass::UnitConversionError] if `other` is a number with incompatible units
     def plus(other)
       if other.is_a? Number
@@ -108,11 +97,11 @@ module Sass::Script
     # {Number}
     # : Subtracts this number from the other, converting units if possible.
     #
-    # {Literal}
-    # : See {Literal#minus}.
+    # {Value}
+    # : See {Value::Base#minus}.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Literal] The result of the operation
+    # @param other [Value] The right-hand side of the operator
+    # @return [Value] The result of the operation
     # @raise [Sass::UnitConversionError] if `other` is a number with incompatible units
     def minus(other)
       if other.is_a? Number
@@ -164,11 +153,11 @@ module Sass::Script
     # {Number}
     # : Divides this number by the other, converting units appropriately.
     #
-    # {Literal}
-    # : See {Literal#div}.
+    # {Value}
+    # : See {Value::Base#div}.
     #
-    # @param other [Literal] The right-hand side of the operator
-    # @return [Literal] The result of the operation
+    # @param other [Value] The right-hand side of the operator
+    # @return [Value] The result of the operation
     def div(other)
       if other.is_a? Number
         res = operate(other, :/)
@@ -200,10 +189,10 @@ module Sass::Script
 
     # The SassScript `==` operation.
     #
-    # @param other [Literal] The right-hand side of the operator
+    # @param other [Value] The right-hand side of the operator
     # @return [Boolean] Whether this number is equal to the other object
     def eq(other)
-      return Sass::Script::Bool.new(false) unless other.is_a?(Sass::Script::Number)
+      return Bool::FALSE unless other.is_a?(Sass::Script::Value::Number)
       this = self
       begin
         if unitless?
@@ -212,10 +201,9 @@ module Sass::Script
           other = other.coerce(@numerator_units, @denominator_units)
         end
       rescue Sass::UnitConversionError
-        return Sass::Script::Bool.new(false)
+        return Bool::FALSE
       end
-
-      Sass::Script::Bool.new(this.value == other.value)
+      Bool.new(this.value == other.value)
     end
 
     # The SassScript `>` operation.
@@ -294,6 +282,23 @@ module Sass::Script
     # @return [Boolean] Whether or not this number has no units.
     def unitless?
       @numerator_units.empty? && @denominator_units.empty?
+    end
+
+    # Checks whether the number has the numerator unit specified.
+    #
+    # @example
+    #   number = Sass::Script::Value::Number.new(10, "px")
+    #   number.is_unit?("px") => true
+    #   number.is_unit?(nil) => false
+    #
+    # @param unit [::String, nil] The unit the number should have or nil if the number should be unitless.
+    # @see Number#unitless? The unitless? method may be more readable.
+    def is_unit?(unit)
+      if unit
+        denominator_units.size == 0 && numerator_units.size == 1 && numerator_units.first == unit
+      else
+        unitless?
+      end
     end
 
     # @return [Boolean] Whether or not this number has units that can be represented in CSS

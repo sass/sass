@@ -531,6 +531,28 @@ SASS
 SCSS
   end
 
+  def test_immediately_following_comments
+    assert_sass_to_scss <<SCSS, <<SASS
+.foobar {
+  // trailing comment
+  a: 1px;
+}
+SCSS
+.foobar // trailing comment
+  a: 1px
+SASS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+.foobar {
+  // trailing comment
+  a: 1px;
+}
+SCSS
+.foobar  /* trailing comment */
+  a: 1px
+SASS
+  end
+
   def test_debug
     assert_renders <<SASS, <<SCSS
 foo
@@ -1347,7 +1369,7 @@ div
 SASS
   end
 
-   def test_loud_comment_conversion
+  def test_loud_comment_conversion
     assert_renders(<<SASS, <<SCSS)
 /*! \#{"interpolated"}
 SASS
@@ -1616,6 +1638,42 @@ SASS
 SCSS
   end
 
+  def test_at_root
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root
+    .bar
+      a: b
+    .baz
+      c: d
+SASS
+.foo {
+  @at-root {
+    .bar {
+      a: b;
+    }
+    .baz {
+      c: d;
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_selector
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root .bar
+    a: b
+SASS
+.foo {
+  @at-root .bar {
+    a: b;
+  }
+}
+SCSS
+  end
+
   ## Regression Tests
 
   def test_list_in_args
@@ -1692,20 +1750,31 @@ foo {
 SCSS
   end
 
-  def test_ambiguous_negation
-    assert_renders(<<SASS, <<SCSS, :indent => '    ')
-foo
-    ok: -$foo
-    comma: 10px, -$foo
-    needs-parens: 10px (-$foo)
-    no-parens: a 50px + 60px b
+  def test_keyword_arguments
+    assert_renders(<<SASS, <<SCSS, :dasherize => true)
+$foo: foo($dash-ed: 2px)
 SASS
-foo {
-    ok: -$foo;
-    comma: 10px, -$foo;
-    needs-parens: 10px (-$foo);
-    no-parens: a 50px + 60px b;
-}
+$foo: foo($dash-ed: 2px);
+SCSS
+    assert_scss_to_sass(<<SASS, <<SCSS, :dasherize => true)
+$foo: foo($dash-ed: 2px)
+SASS
+$foo: foo($dash_ed: 2px);
+SCSS
+    assert_sass_to_scss(<<SCSS, <<SASS, :dasherize => true)
+$foo: foo($dash-ed: 2px);
+SCSS
+$foo: foo($dash_ed: 2px)
+SASS
+    assert_renders(<<SASS, <<SCSS)
+$foo: foo($under_scored: 1px)
+SASS
+$foo: foo($under_scored: 1px);
+SCSS
+    assert_renders(<<SASS, <<SCSS)
+$foo: foo($dash-ed: 2px, $under_scored: 1px)
+SASS
+$foo: foo($dash-ed: 2px, $under_scored: 1px);
 SCSS
   end
 

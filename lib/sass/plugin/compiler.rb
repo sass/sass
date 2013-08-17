@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'pathname'
 
 require 'sass'
 # XXX CE: is this still necessary now that we have the compiler class?
@@ -65,30 +66,9 @@ module Sass::Plugin
     #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]
     #   The location of the CSS file being generated.
+    # @yieldparam sourcemap [String]
+    #   The location of the sourcemap being generated, if any.
     define_callback :updated_stylesheet
-
-    # Register a callback to be run before a single stylesheet is updated.
-    # The callback is only run if the stylesheet is guaranteed to be updated;
-    # if the CSS file is fresh, this won't be run.
-    #
-    # Even if the \{file:SASS_REFERENCE.md#full_exception-option `:full_exception` option}
-    # is enabled, this callback won't be run
-    # when an exception CSS file is being written.
-    # To run an action for those files, use \{#on\_compilation\_error}.
-    #
-    # @yield [template, css]
-    # @yieldparam template [String]
-    #   The location of the Sass/SCSS file being updated.
-    # @yieldparam css [String]
-    #   The location of the CSS file being generated.
-    define_callback :updating_stylesheet
-
-    def on_updating_stylesheet_with_deprecation_warning(&block)
-      Sass::Util.sass_warn("Sass::Compiler#on_updating_stylesheet callback is deprecated and will be removed in a future release. Use Sass::Compiler#on_updated_stylesheet instead, which is run after stylesheet compilation.")
-      on_updating_stylesheet_without_deprecation_warning(&block)
-    end
-    alias_method :on_updating_stylesheet_without_deprecation_warning, :on_updating_stylesheet
-    alias_method :on_updating_stylesheet, :on_updating_stylesheet_with_deprecation_warning
 
     # Register a callback to be run when Sass decides not to update a stylesheet.
     # In particular, the callback is run when Sass finds that
@@ -169,6 +149,14 @@ module Sass::Plugin
     #   The location of the CSS file that was deleted.
     define_callback :deleting_css
 
+    # Register a callback to be run when Sass deletes a sourcemap file.
+    # This happens when the corresponding Sass/SCSS file has been deleted.
+    #
+    # @yield [filename]
+    # @yieldparam filename [String]
+    #   The location of the sourcemap file that was deleted.
+    define_callback :deleting_sourcemap
+
     # Updates out-of-date stylesheets.
     #
     # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
@@ -192,17 +180,17 @@ module Sass::Plugin
           # Get the relative path to the file
           name = file.sub(template_location.to_s.sub(/\/*$/, '/'), "")
           css = css_filename(name, css_location)
-          individual_files << [file, css]
+          sourcemap = Sass::Util.sourcemap_name(css) if engine_options[:sourcemap]
+          individual_files << [file, css, sourcemap]
         end
       end
 
-      run_updating_stylesheets individual_files
-
-      individual_files.each do |file, css|
+      individual_files.each do |file, css, sourcemap|
+        # TODO: Does staleness_checker need to check the sourcemap file as well?
         if options[:always_update] || staleness_checker.stylesheet_needs_update?(css, file)
-          update_stylesheet(file, css)
+          update_stylesheet(file, css, sourcemap)
         else
-          run_not_updating_stylesheet(file, css)
+          run_not_updating_stylesheet(file, css, sourcemap)
         end
       end
     end
@@ -234,53 +222,57 @@ module Sass::Plugin
     def watch(individual_files = [])
       update_stylesheets(individual_files)
 
-      load_listen!
-
-      template_paths = template_locations # cache the locations
-      individual_files_hash = individual_files.inject({}) do |h, files|
-        parent = File.dirname(files.first)
-        (h[parent] ||= []) << files unless template_paths.include?(parent)
-        h
+      directories = watched_paths
+      individual_files.each do |(source, _, _)|
+        directories << File.dirname(File.expand_path(source))
       end
-      directories = template_paths + individual_files_hash.keys +
-        [{:relative_paths => true}]
+      directories = remove_redundant_directories(directories)
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      listener = Listen::MultiListener.new(*directories) do |modified, added, removed|
-        modified.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
-          else
-            next unless f =~ /\.s[ac]ss$/
-          end
-          run_template_modified(f)
+      listener = create_listener(*(directories + [{:relative_paths => false}])) do |modified, added, removed|
+        recompile_required = false
+
+        modified.uniq.each do |f|
+          next unless watched_file?(f)
+          recompile_required = true
+          run_template_modified(relative_to_pwd(f))
         end
 
-        added.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
-          else
-            next unless f =~ /\.s[ac]ss$/
-          end
-          run_template_created(f)
+        added.uniq.each do |f|
+          next unless watched_file?(f)
+          recompile_required = true
+          run_template_created(relative_to_pwd(f))
         end
 
-        removed.each do |f|
-          parent = File.dirname(f)
-          if files = individual_files_hash[parent]
-            next unless files.first == f
+        removed.uniq.each do |f|
+          if files = individual_files.find {|(source,_,_)| File.expand_path(source) == f}
+            recompile_required = true
+            # This was a file we were watching explicitly and compiling to a particular location.
+            # Delete the corresponding file.
             try_delete_css files[1]
           else
-            next unless f =~ /\.s[ac]ss$/
-            try_delete_css f.gsub(/\.s[ac]ss$/, '.css')
+            next unless watched_file?(f)
+            recompile_required = true
+            # Look for the sass directory that contained the sass file
+            # And try to remove the css file that corresponds to it
+            template_location_array.each do |(sass_dir, css_dir)|
+              sass_dir = File.expand_path(sass_dir)
+              if child_of_directory?(sass_dir, f)
+                remainder = f[(sass_dir.size + 1)..-1]
+                try_delete_css(css_filename(remainder, css_dir))
+                break
+              end
+            end
           end
-          run_template_deleted(f)
+          run_template_deleted(relative_to_pwd(f))
         end
 
-        update_stylesheets(individual_files)
+        if recompile_required
+          # In case a file we're watching is removed and then recreated we prune out the non-existant files here.
+          watched_files_remaining = individual_files.select {|(source, _, _)| File.exists?(source)}
+          update_stylesheets(watched_files_remaining)
+        end
       end
 
       # The native windows listener is much slower than the polling
@@ -288,7 +280,7 @@ module Sass::Plugin
       listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
       begin
-        listener.start
+        listener.start!
       rescue Exception => e
         raise e unless e.is_a?(Interrupt)
       end
@@ -312,44 +304,24 @@ module Sass::Plugin
 
     private
 
-    def load_listen!
-      if defined?(gem)
-        begin
-          gem 'listen', '~> 0.7'
-          require 'listen'
-        rescue Gem::LoadError
-          dir = Sass::Util.scope("vendor/listen/lib")
-          $LOAD_PATH.unshift dir
-          begin
-            require 'listen'
-          rescue LoadError => e
-            e.message << "\n" <<
-              if File.exists?(scope(".git"))
-                'Run "git submodule update --init" to get the recommended version.'
-              else
-                'Run "gem install listen" to get it.'
-              end
-            raise e
-          end
-        end
-      else
-        begin
-          require 'listen'
-        rescue LoadError => e
-          dir = Sass::Util.scope("vendor/listen/lib")
-          if $LOAD_PATH.include?(dir)
-            raise e unless File.exists?(scope(".git"))
-            e.message << "\n" <<
-              'Run "git submodule update --init" to get the recommended version.'
-          else
-            $LOAD_PATH.unshift dir
-            retry
-          end
-        end
-      end
+    def create_listener(*args, &block)
+      require 'listen'
+      Listen::Listener.new(*args, &block)
     end
 
-    def update_stylesheet(filename, css)
+    def remove_redundant_directories(directories)
+      dedupped = []
+      directories.each do |new_directory|
+        # no need to add a directory that is already watched.
+        next if dedupped.any? {|existing_directory| child_of_directory?(existing_directory, new_directory)}
+        # get rid of any sub directories of this new directory
+        dedupped.reject! {|existing_directory| child_of_directory?(new_directory, existing_directory)}
+        dedupped << new_directory
+      end
+      dedupped
+    end
+
+    def update_stylesheet(filename, css, sourcemap)
       dir = File.dirname(css)
       unless File.exists?(dir)
         run_creating_directory dir
@@ -359,32 +331,55 @@ module Sass::Plugin
       begin
         File.read(filename) unless File.readable?(filename) # triggers an error for handling
         engine_opts = engine_options(:css_filename => css, :filename => filename)
-        result = Sass::Engine.for_file(filename, engine_opts).render
+        mapping = nil
+        engine = Sass::Engine.for_file(filename, engine_opts)
+        if sourcemap
+          rendered, mapping = engine.render_with_sourcemap(File.basename(sourcemap))
+        else
+          rendered = engine.render
+        end
       rescue Exception => e
         compilation_error_occured = true
-        run_compilation_error e, filename, css
-        result = Sass::SyntaxError.exception_to_css(e, options)
-      else
-        run_updating_stylesheet filename, css
+        run_compilation_error e, filename, css, sourcemap
+        rendered = Sass::SyntaxError.exception_to_css(e, options)
       end
 
-      write_file(css, result)
-      run_updated_stylesheet(filename, css) unless compilation_error_occured
+      write_file(css, rendered)
+      write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap)) if mapping
+      run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
     end
 
-    def write_file(css, content)
+    def write_file(fileName, content)
       flag = 'w'
       flag = 'wb' if Sass::Util.windows? && options[:unix_newlines]
-      File.open(css, flag) do |file|
+      File.open(fileName, flag) do |file|
         file.set_encoding(content.encoding) unless Sass::Util.ruby1_8?
         file.print(content)
       end
     end
 
     def try_delete_css(css)
-      return unless File.exists?(css)
-      run_deleting_css css
-      File.delete css
+      if File.exists?(css)
+        run_deleting_css css
+        File.delete css
+      end
+      map = Sass::Util.sourcemap_name(css)
+      if File.exists?(map)
+        run_deleting_sourcemap map
+        File.delete map
+      end
+    end
+
+    def watched_file?(file)
+      normalized_load_paths.find {|lp| lp.watched_file?(file)}
+    end
+
+    def watched_paths
+      @watched_paths ||= normalized_load_paths.map {|lp| lp.directories_to_watch}.compact.flatten
+    end
+
+    def normalized_load_paths
+      @normalized_load_paths ||= Sass::Engine.normalize_options(:load_paths=> load_paths)[:load_paths]
     end
 
     def load_paths(opts = options)
@@ -400,7 +395,18 @@ module Sass::Plugin
     end
 
     def css_filename(name, path)
-      "#{path}/#{name}".gsub(/\.s[ac]ss$/, '.css')
+      "#{path}#{File::SEPARATOR unless path.end_with?(File::SEPARATOR)}#{name}".gsub(/\.s[ac]ss$/, '.css')
+    end
+
+    def relative_to_pwd(f)
+      Pathname.new(f).relative_path_from(Pathname.new(Dir.pwd)).to_s
+    rescue ArgumentError # when a relative path cannot be computed
+      f
+    end
+
+    def child_of_directory?(parent, child)
+      parent_dir = parent.end_with?(File::SEPARATOR) ? parent : (parent + File::SEPARATOR)
+      child.start_with?(parent_dir) || parent == child
     end
   end
 end

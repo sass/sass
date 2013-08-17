@@ -122,6 +122,18 @@ module Sass
         Sass::Util.abstract(self)
       end
 
+      # Get the publicly-visible URL for an imported file. This URL is used by
+      # source maps to link to the source stylesheet. This may return `nil` to
+      # indicate that no public URL is available; however, this will cause
+      # sourcemap generation to fail if any CSS is generated from files imported
+      # from this importer.
+      #
+      # @param uri [String] A URI known to be valid for this importer.
+      # @return [String?] The publicly-visible URL for this file.
+      def public_url(uri)
+        nil
+      end
+
       # A string representation of the importer.
       # Should be overridden by subclasses.
       #
@@ -132,8 +144,27 @@ module Sass
       def to_s
         Sass::Util.abstract(self)
       end
+
+      # If the importer is based on files on the local filesystem
+      # this method should return folders which should be watched
+      # for changes.
+      #
+      # @return [Array<String>] List of absolute paths of directories to watch
+      def directories_to_watch
+        []
+      end
+
+      # If this importer is based on files on the local filesystem This method
+      # should return true if the file, when changed, should trigger a
+      # recompile.
+      #
+      # It is acceptable for non-sass files to be watched and trigger a recompile.
+      #
+      # @param filename [String] The absolute filename for a file that has changed.
+      # @return [Boolean] When the file changed should cause a recompile.
+      def watched_file?(filename)
+        false
+      end
     end
   end
 end
-
-      

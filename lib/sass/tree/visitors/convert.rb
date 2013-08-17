@@ -159,7 +159,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_cssimport(node)
-    if node.uri.is_a?(Sass::Script::Node)
+    if node.uri.is_a?(Sass::Script::Tree::Node)
       str = "#{tab_str}@import #{node.uri.to_sass(@options)}"
     else
       str = "#{tab_str}@import #{node.uri}"
@@ -196,7 +196,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   def visit_mixin(node)
     arg_to_sass = lambda do |arg|
       sass = arg.to_sass(@options)
-      sass = "(#{sass})" if arg.is_a?(Sass::Script::List) && arg.separator == :comma
+      sass = "(#{sass})" if arg.is_a?(Sass::Script::Tree::ListLiteral) && arg.separator == :comma
       sass
     end
 
@@ -253,6 +253,15 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def visit_while(node)
     "#{tab_str}@while #{node.expr.to_sass(@options)}#{yield}"
+  end
+
+  def visit_atroot(node)
+    if node.children.length == 1 && node.children.first.is_a?(Sass::Tree::RuleNode)
+      rule = node.children.first
+      "#{tab_str}@at-root #{selector_to_src(rule.rule)}#{visit_children(rule)}"
+    else
+      "#{tab_str}@at-root#{yield}"
+    end
   end
 
   private

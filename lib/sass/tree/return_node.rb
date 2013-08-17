@@ -5,10 +5,11 @@ module Sass
     # @see Sass::Tree
     class ReturnNode < Node
       # The expression to return.
-      # @type [Script::Node]
+      #
+      # @return [Script::Tree::Node]
       attr_accessor :expr
 
-      # @param expr [Script::Node] The expression to return
+      # @param expr [Script::Tree::Node] The expression to return
       def initialize(expr)
         @expr = expr
         super()

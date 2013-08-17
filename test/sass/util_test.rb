@@ -310,4 +310,45 @@ class UtilTest < Test::Unit::TestCase
       "UtilTest::FooBar must implement #foo") {FooBar.new.foo}
   end
 
+  def test_json_escape_string
+    assert_json_string "", ""
+    alphanum = (("0".."9").to_a).concat(("a".."z").to_a).concat(("A".."Z").to_a).join
+    assert_json_string alphanum, alphanum
+    assert_json_string "'\"\\'", "'\\\"\\\\'"
+    assert_json_string "\b\f\n\r\t", "\\b\\f\\n\\r\\t"
+  end
+
+  def assert_json_string(source, target)
+    assert_equal target, json_escape_string(source)
+  end
+
+  def test_json_value_of
+    assert_json_value 0, "0"
+    assert_json_value(-42, "-42")
+    assert_json_value 42, "42"
+    assert_json_value true, "true"
+    assert_json_value false, "false"
+    assert_json_value "", "\"\""
+    assert_json_value "\"\"", "\"\\\"\\\"\""
+    assert_json_value "Multi\nLine\rString", "\"Multi\\nLine\\rString\""
+    assert_json_value [1, "some\nstr,ing", false, nil], "[1,\"some\\nstr,ing\",false,null]"
+  end
+
+  def assert_json_value(source, target)
+    assert_equal target, json_value_of(source)
+  end
+
+  def test_vlq
+    assert_equal "A", encode_vlq(0)
+    assert_equal "e", encode_vlq(15)
+    assert_equal "gB", encode_vlq(16)
+    assert_equal "wH", encode_vlq(120)
+  end
+
+  def assert_vlq_encodes(int, vlq)
+    vlq_from_decimal_array = decimal_array.map {|d| encode_vlq(d)}.join
+    decimal_array_from_vlq = decode_vlq(vlq)
+    assert_equal vlq, vlq_from_decimal_array
+    assert_equal decimal_array, decimal_array_from_vlq
+  end
 end

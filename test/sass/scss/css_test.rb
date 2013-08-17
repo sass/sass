@@ -651,7 +651,7 @@ SCSS
   ## Selectors
 
   # Taken from http://dev.w3.org/csswg/selectors4/#overview
-  def test_summarized_selectors
+  def test_summarized_selectors_with_element
     assert_selector_parses('*')
     assert_selector_parses('E')
     assert_selector_parses('E:not(s)')
@@ -1086,7 +1086,7 @@ SCSS
   end
 
   def render(scss, options = {})
-    tree = Sass::SCSS::CssParser.new(scss, options[:filename]).parse
+    tree = Sass::SCSS::CssParser.new(scss, options[:filename], nil).parse
     tree.options = Sass::Engine::DEFAULT_OPTIONS.merge(options)
     tree.render
   end

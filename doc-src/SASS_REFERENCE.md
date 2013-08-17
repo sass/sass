@@ -294,6 +294,16 @@ Available options are:
   with a constructor that takes a single string argument (the load path).
   Defaults to {Sass::Importers::Filesystem}.
 
+{#sourcemap-option} `:sourcemap`
+: When set to true, causes Sass to generate standard JSON [source maps][]
+  alongside its compiled CSS files. These source maps tell the browser how to
+  find the Sass styles that caused each CSS style to be generated. Sass assumes
+  that the source stylesheets will be made available on whatever server you're
+  using, and that their relative location will be the same as it is on the local
+  filesystem. If this isn't the case, you'll need to make a custom class that
+  extends \{Sass::Importers::Base} or \{Sass::Importers::Filesystem} and
+  overrides \{Sass::Importers::Base#public\_url `#public_url`}.
+
 {#line_numbers-option} `:line_numbers`
 : When set to true, causes the line number and file
   where a selector is defined to be emitted into the compiled CSS
@@ -325,6 +335,8 @@ Available options are:
 
 {#quiet-option} `:quiet`
 : When set to true, causes warnings to be disabled.
+
+[source maps]: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?hl=en_US&pli=1&pli=1
 
 ### Syntax Selection
 
@@ -430,7 +442,7 @@ is compiled to:
       #main pre {
         font-size: 3em; }
 
-### Referencing Parent Selectors: `&`
+### Referencing Parent Selectors: `&` {#parent-selector}
 
 Sometimes it's useful to use a nested rule's parent selector
 in other ways than the default.
@@ -969,13 +981,13 @@ Instead, they're manipulated using the
 Parentheses can be used to affect the order of operations:
 
     p {
-      width: (1em + 2em) * 3;
+      width: 1em + (2em * 3);
     }
 
 is compiled to:
 
     p {
-      width: 9em; }
+      width: 7em; }
 
 ### Functions
 
@@ -1042,6 +1054,37 @@ is compiled to:
 
     p {
       font: 12px/30px; }
+
+### `&` in SassScript {#parent-script}
+
+Just like when it's used [in selectors](#parent-selector), `&` in SassScript
+refers to the current parent selector. It's a comma-separated list of
+space-separated lists. For example:
+
+    .foo.bar .baz.bang, .bip.qux {
+      $selector: &;
+    }
+
+The value of `$selector` is now `((".foo.bar" ".baz.bang"), ".bip.qux")`. The
+compound selectors are quoted here to indicate that they're strings, but in
+reality they would be unquoted. Even if the parent selector doesn't contain a
+comma or a space, `&` will always have two levels of nesting, so it can be
+accessed consistently.
+
+The SassScript `&` may be used in selectors using `#{}` interpolation. Because
+it's often not possible for Sass to detect that you're using it, you need to
+explicitly tell Sass not to do the normal nesting for the selector using the
+[`@at-root` directive](#at-root). For example:
+
+    .badge {
+      @at-root #{&}-info { ... }
+      @at-root #{&}-header { ... }
+    }
+
+Produces:
+
+    .badge-info { ... }
+    .badge-header { ... }
 
 ### Variable Defaults: `!default`
 
@@ -1693,6 +1736,40 @@ But this is an error:
 
 Someday we hope to have `@extend` supported natively in the browser, which will
 allow it to be used within `@media` and other directives.
+
+### `@at-root` {#at-root}
+
+The `@at-root` directive causes one or more rules to be emitted at the root of
+the document, rather than being nested beneath their parent selectors. It can
+either be used with a single inline selector:
+
+    .parent {
+      @at-root .child { ... }
+    }
+
+or with a block containing multiple selectors:
+
+    .parent {
+      @at-root {
+        .child1 { ... }
+        .child2 { ... }
+      }
+    }
+
+These produce, respectively:
+
+    .child { ... }
+
+    .child1 { ... }
+    .child2 { ... }
+
+`@at-root` is most commonly used with [the SassScript parent selector
+`&`](#parent-script), to ensure that the parent selector isn't duplicated.
+
+Currently, `@at-root` will only ignore parent *selectors*, not any other
+directives such as `@media`. It may be extended in the future to allow other
+directives to be ignored, but the default will continue to ignore only
+selectors.
 
 ### `@debug`
 

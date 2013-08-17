@@ -8,28 +8,36 @@ class ImporterTest < Test::Unit::TestCase
   
   class FruitImporter < Sass::Importers::Base
     def find(name, context = nil)
-      if name =~ %r{fruits/(\w+)(\.s[ac]ss)?}
-        fruit = $1
-        color = case $1
-        when "apple"
-          "red"
-        when "orange"
-          "orange"
-        else
-          "blue"
-        end
-        contents = %Q{
-          $#{fruit}-color: #{color} !default;
-          @mixin #{fruit} {
-            color: $#{fruit}-color;
-          }
-        }
-        Sass::Engine.new(contents, :filename => name, :syntax => :scss, :importer => self)
+      return unless fruit = parse(name)
+      color = case fruit
+      when "apple"
+        "red"
+      when "orange"
+        "orange"
+      else
+        "blue"
       end
+      contents = %Q{
+        $#{fruit}-color: #{color} !default;
+        @mixin #{fruit} {
+          color: $#{fruit}-color;
+        }
+      }
+      Sass::Engine.new(contents, :filename => name, :syntax => :scss, :importer => self)
     end
 
     def key(name, context)
       [self.class.name, name]
+    end
+
+    def public_url(name)
+      "http://#{parse(name)}.example.com/style.scss"
+    end
+
+    private
+
+    def parse(name)
+      name[%r{fruits/(\w+)(\.s[ac]ss)?}, 1]
     end
   end
 
@@ -175,6 +183,145 @@ CSS
       fixture_file("test_staleness_check_across_importers.scss"),
       file_system_importer
     )
+  end
+
+  def test_source_map_with_only_css_uri_supports_public_url_imports
+    fruit_importer = FruitImporter.new
+
+    options = {
+      :filename => 'fruits/orange',
+      :importer => fruit_importer,
+      :syntax => :scss
+    }
+
+    engine = Sass::Engine.new(<<SCSS, options)
+.orchard {
+  color: blue;
+}
+SCSS
+
+    _, sourcemap = engine.render_with_sourcemap('sourcemap_uri')
+    assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => 'css_uri')
+{
+"version": "3",
+"mappings": "AAAA,QAAS;EACP,KAAK,EAAE,IAAI",
+"sources": ["http://orange.example.com/style.scss"],
+"file": "css_uri"
+}
+JSON
+  end
+
+  def test_source_map_with_only_css_uri_doesnt_support_filesystem_importer
+    file_system_importer = Sass::Importers::Filesystem.new('.')
+    options = {
+      :filename => filename_for_test(:scss),
+      :importer => file_system_importer,
+      :syntax => :scss
+    }
+
+    engine = Sass::Engine.new(<<SCSS, options)
+.foo {a: b}
+SCSS
+
+    _, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
+
+    assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri')}
+WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
+  Without a public URL, there's nothing for the source map to link to.
+  Custom importers should define the #public_url method.
+WARNING
+  end
+
+  def test_source_map_with_css_uri_and_css_path_doesnt_support_filesystem_importer
+    file_system_importer = Sass::Importers::Filesystem.new('.')
+    options = {
+      :filename => filename_for_test(:scss),
+      :importer => file_system_importer,
+      :syntax => :scss
+    }
+
+    engine = Sass::Engine.new(<<SCSS, options)
+.foo {a: b}
+SCSS
+
+    _, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
+
+    assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')}
+WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
+  Without a public URL, there's nothing for the source map to link to.
+  Custom importers should define the #public_url method.
+WARNING
+  end
+
+  def test_source_map_with_css_uri_and_sourcemap_path_supports_filesystem_importer
+    file_system_importer = Sass::Importers::Filesystem.new('.')
+    options = {
+      :filename => 'sass/style.scss',
+      :importer => file_system_importer,
+      :syntax => :scss
+    }
+
+    engine = Sass::Engine.new(<<SCSS, options)
+.foo {a: b}
+SCSS
+
+    rendered, sourcemap = engine.render_with_sourcemap('http://1.example.com/style.map')
+
+
+    rendered, sourcemap = engine.render_with_sourcemap('http://map.example.com/map/style.map')
+    css_uri = 'css_uri'
+    sourcemap_path = 'map/style.map'
+    assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => css_uri, :sourcemap_path => sourcemap_path)
+{
+"version": "3",
+"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
+"sources": ["../sass/style.scss"],
+"file": "css_uri"
+}
+JSON
+  end
+
+  def test_source_map_with_css_path_and_sourcemap_path_supports_file_system_importer
+    file_system_importer = Sass::Importers::Filesystem.new('.')
+    options = {
+      :filename => 'sass/style.scss',
+      :importer => file_system_importer,
+      :syntax => :scss
+    }
+
+    engine = Sass::Engine.new(<<SCSS, options)
+.foo {a: b}
+SCSS
+
+    _, sourcemap = engine.render_with_sourcemap('http://map.example.com/map/style.map')
+    css_path = 'static/style.css'
+    sourcemap_path = 'map/style.map'
+    assert_equal <<JSON.strip, sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path)
+{
+"version": "3",
+"mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
+"sources": ["../sass/style.scss"],
+"file": "../static/style.css"
+}
+JSON
+  end
+
+  def test_render_with_sourcemap_requires_filename
+    file_system_importer = Sass::Importers::Filesystem.new('.')
+    engine = Sass::Engine.new(".foo {a: b}", :syntax => :scss, :importer => file_system_importer)
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {engine.render_with_sourcemap('sourcemap_url')}
+Error generating source map: couldn't determine public URL for the source stylesheet.
+  No filename is available so there's nothing for the source map to link to.
+MESSAGE
+  end
+
+  def test_render_with_sourcemap_requires_importer_with_public_url
+    class_importer = ClassImporter.new({"pear" => "color: green;"}, {"pear" => Time.now})
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE) {class_importer.find("pear", {}).render_with_sourcemap('sourcemap_url')}
+Error generating source map: couldn't determine public URL for "pear".
+  Without a public URL, there's nothing for the source map to link to.
+  Custom importers should define the #public_url method.
+MESSAGE
   end
 
   def fixture_dir

@@ -32,7 +32,7 @@ module Sass
       # The child nodes of this node.
       #
       # @return [Array<Tree::Node>]
-      attr_accessor :children
+      attr_reader :children
 
       # Whether or not this node has child nodes.
       # This may be true even when \{#children} is empty,
@@ -45,6 +45,11 @@ module Sass
       #
       # @return [Fixnum]
       attr_accessor :line
+
+      # The source range in the document on which this node appeared.
+      #
+      # @return [Sass::Source::Range]
+      attr_accessor :source_range
 
       # The name of the document on which this node appeared.
       #
@@ -127,10 +132,21 @@ module Sass
 
       # Computes the CSS corresponding to this static CSS tree.
       #
-      # @return [String, nil] The resulting CSS
+      # @return [String] The resulting CSS
       # @see Sass::Tree
-      def to_s
-        Sass::Tree::Visitors::ToCss.visit(self)
+      def css
+        Sass::Tree::Visitors::ToCss.new.visit(self)
+      end
+
+      # Computes the CSS corresponding to this static CSS tree, along with
+      # the respective source map.
+      #
+      # @return [(String, Sass::Source::Map)] The resulting CSS and the source map
+      # @see Sass::Tree
+      def css_with_sourcemap
+        visitor = Sass::Tree::Visitors::ToCss.new(:build_source_mapping)
+        result = visitor.visit(self)
+        return result, visitor.source_mapping
       end
 
       # Returns a representation of the node for debugging purposes.

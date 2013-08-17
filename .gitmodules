@@ -1,3 +1,0 @@
-[submodule "vendor/listen"]
-	path = vendor/listen
-	url = git://github.com/guard/listen.git

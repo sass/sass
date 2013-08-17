@@ -1,9 +1,7 @@
-require 'sass/script/literal'
-
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a null value.
-  class Null < Literal
-    # Creates a new null literal.
+  class Null < Base
+    # Creates a new null value.
     def initialize
       super nil
     end

@@ -83,6 +83,10 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "foo(a, b, (a, b, c)...)"
   end
 
+  def test_selector
+    assert_renders "&"
+  end
+
   def self.test_precedence(outer, inner)
     op_outer = Sass::Script::Lexer::OPERATORS_REVERSE[outer]
     op_inner = Sass::Script::Lexer::OPERATORS_REVERSE[inner]
