@@ -1501,6 +1501,104 @@ baz {b: foo()}
 SCSS
   end
 
+  ## @at-root
+
+  def test_simple_at_root
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root {
+    .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_selector
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root .bar {a: b}
+}
+SCSS
+  end
+
+  def test_at_root_in_mixin
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+@mixin bar {
+  @at-root .bar {a: b}
+}
+
+.foo {
+  @include bar;
+}
+SCSS
+  end
+
+  def test_at_root_in_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+@media screen {
+  .foo {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_in_bubbled_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_in_unknown_directive
+    assert_equal <<CSS, render(<<SCSS)
+@fblthp {
+  .bar {
+    a: b; } }
+CSS
+@fblthp {
+  .foo {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_in_nested_unknown_directive
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  @fblthp {
+    .bar {
+      a: b; } } }
+CSS
+.foo {
+  @fblthp {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
   ## Errors
 
   def test_nested_mixin_def_is_scoped

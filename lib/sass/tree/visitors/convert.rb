@@ -255,6 +255,15 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     "#{tab_str}@while #{node.expr.to_sass(@options)}#{yield}"
   end
 
+  def visit_atroot(node)
+    if node.children.length == 1 && node.children.first.is_a?(Sass::Tree::RuleNode)
+      rule = node.children.first
+      "#{tab_str}@at-root #{selector_to_src(rule.rule)}#{visit_children(rule)}"
+    else
+      "#{tab_str}@at-root#{yield}"
+    end
+  end
+
   private
 
   def interp_to_src(interp)

@@ -214,6 +214,10 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     rules
   end
 
+  def visit_atroot(node)
+    yield.children
+  end
+
   private
 
   def bubble(node)

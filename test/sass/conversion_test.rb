@@ -1638,6 +1638,42 @@ SASS
 SCSS
   end
 
+  def test_at_root
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root
+    .bar
+      a: b
+    .baz
+      c: d
+SASS
+.foo {
+  @at-root {
+    .bar {
+      a: b;
+    }
+    .baz {
+      c: d;
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_selector
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root .bar
+    a: b
+SASS
+.foo {
+  @at-root .bar {
+    a: b;
+  }
+}
+SCSS
+  end
+
   ## Regression Tests
 
   def test_list_in_args
