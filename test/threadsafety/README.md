@@ -2,7 +2,7 @@ Reproducing Threadsafety Issues
 ===============================
 
 Write a script that exercises the code with the threadsafety issue and
-place it in the `issues` directory. Write code that is as targetted as
+place it in the `issues` directory. Write code that is as targeted as
 possible. This increases the chances of reproducing the condition in
 reasonable timeframes.
 
@@ -43,6 +43,3 @@ For example:
     
     # In a single ruby vm, run issues/dependencies_cache.rb in 4 threads after executing the sass_boot.rb script.
     bundle exec ./test_threadsafety.rb -w 60 -t 4 -s issues/sass_boot.rb issues/dependencies_cache.rb
-
-
-

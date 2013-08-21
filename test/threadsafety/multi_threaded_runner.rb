@@ -10,13 +10,14 @@ class MultiThreadedRunner
 
   def run(wait_time = DEFAULT_WAIT_TIME)
     start_time = Time.now
-    threads = (0...@thread_count).map{|threadnumber| Thread.new(&@work_to_do) }
+    threads = (0...@thread_count).map {|_| Thread.new(&@work_to_do)}
+    # reject the threads that complete on time.
     threads.reject! do |t|
       wait = [0.01, wait_time - (Time.now - start_time)].max
       t.join(wait)
     end
     if threads.any?
-      raise RuntimeError, "#{threads.size} threads failed to complete in #{@wait_time} seconds"
+      raise RuntimeError.new("#{threads.size} threads failed to complete in #{@wait_time} seconds")
     end
   end
 end
@@ -47,19 +48,33 @@ if File.expand_path($0) == File.expand_path(__FILE__)
     opts.on("-w", "--wait NUMBER_OF_SECONDS", Float, "How long to wait for each script to complete (in seconds).") do |seconds|
       options[:wait_time] = seconds
     end
-    opts.on("-s", "--setup START_UP_SCRIPT", String, "A ruby script to load before starting the threads.") do |path|
+    opts.on("-s", "--setup START_UP_SCRIPT", String, "A Ruby script to load before starting the threads.") do |path|
       load path
     end
     opts.on("-c", "--[no-]clear-cache", "Clear the cache before running (default true).") do |clear|
       options[:clear_cache] = clear
     end
+    opts.on("--trace", "Print a stack trace upon error.") do
+      options[:trace] = true
+    end
     opts.on_tail("-h", "--help", "Print this message") do
       puts opts
+      exit
     end
   end
   parser.parse!
 
-  options[:script] ||= ARGV.first
+  if ARGV.size == 1
+    options[:script] ||= ARGV.first
+  elsif ARGV.size == 0
+    $stderr.puts "A script to run is required."
+    $stderr.puts parser
+    exit 1
+  else
+    $stderr.puts "Only one script may be ran at a time. Got: #{ARGV.join(', ')}"
+    $stderr.puts parser
+    exit 1
+  end
 
   if options[:clear_cache]
     require 'fileutils'
@@ -71,6 +86,9 @@ if File.expand_path($0) == File.expand_path(__FILE__)
     runner.run(options[:wait_time])
   rescue RuntimeError => e
     $stderr.puts e.message
+    if options[:trace]
+      $stderr.puts e.backtrace.join("\n")
+    end
     exit 1
   end
 end

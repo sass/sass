@@ -48,15 +48,29 @@ module Sass
 
       private
 
+      # This creates a temp file and yields it for writing. When the
+      # write is complete, the file is moved into the desired location
+      # the atomicity of this operation is provided by the filesystem's
+      # rename operation.
+      #
+      # @param filename the file to write to.
+      # @yieldparam tmpfile the tmpfile that can be written to.
       def atomic_create_and_write_file(filename)
         tmpfile = Tempfile.new(File.basename(filename), File.dirname(filename))
+        tmp_path = tmpfile.path
         begin
-          tmpfile.binmode if tmpfile.respond_to?(:binmode)
-          yield tmpfile
+          begin
+            tmpfile.binmode if tmpfile.respond_to?(:binmode)
+            yield tmpfile
+          ensure
+            tmpfile.close
+          end
+          File.rename tmpfile.path, filename
         ensure
-          tmpfile.close
+          # remove the tempfile if it still exists, presumably due to an error during write
+          FileUtils.rm_f tmp_path
         end
-        File.rename tmpfile.path, filename
+        nil
       end
 
       # Returns the path to a file for the given key.
