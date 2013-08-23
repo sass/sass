@@ -64,7 +64,22 @@ module Sass::Script::Value
     # @see Value#to_h
     def to_h
       return Sass::Util.ordered_hash if value.empty?
+      return @map ||= Sass::Util.to_hash(value.map {|e| e.to_a}) if is_pseudo_map?
       super
+    end
+
+    # Returns whether a warning still needs to be printed for this list being used as a map.
+    #
+    # @return [Boolean]
+    def needs_map_warning?
+      !@value.empty? && !@map
+    end
+
+    # Returns whether this is a list of pairs that can be used as a map.
+    #
+    # @return [Boolean]
+    def is_pseudo_map?
+      @is_pseudo_map ||= value.all? {|e| e.is_a?(Sass::Script::Value::List) && e.to_a.length == 2}
     end
 
     # @see Value#inspect

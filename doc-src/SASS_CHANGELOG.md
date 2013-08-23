@@ -108,6 +108,35 @@ Produces:
       font-size: 1.2em;
     }
 
+The new map functions work on lists of pairs as well, for the time being. This
+feature exists to help libraries that previously used lists of pairs to simulate
+maps. These libraries can now use map functions internally without introducing
+backwards-incompatibility. For example:
+
+    $themes: (
+      mist (
+        header #DCFAC0,
+        text   #00968B,
+        border #85C79C
+      ),
+      spring (
+        header #F4FAC7,
+        text   #C2454E,
+        border #FFB158
+      ),
+      // ...
+    );
+
+    @mixin themed-header($theme-name) {
+      h1 {
+        color: map-get(map-get($themes, $theme-name), header);
+      }
+    }
+
+Since it's just a migration feature, using lists of pairs in place of maps is
+already deprecated. Library authors should encourage their users to use actual
+maps instead.
+
 ### Smaller Improvements
 
 * [listen](http://github.com/guard/listen) is now a standard Gem dependency.
