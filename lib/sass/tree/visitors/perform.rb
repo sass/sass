@@ -321,7 +321,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
       node.filename, node.options[:importer], node.line)
     node.parsed_rules ||= parser.parse_selector
-    node.stack_trace = stack_trace if node.options[:trace_selectors]
+    node.stack_trace = @environment.stack.to_s if node.options[:trace_selectors]
     yield
   end
 
@@ -344,7 +344,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::Value::String)
     msg = "WARNING: #{res}\n         "
-    msg << stack_trace.join("\n         ") << "\n"
+    msg << @environment.stack.to_s.gsub("\n", "\n         ") << "\n"
     Sass::Util.sass_warn msg
     []
   end
@@ -387,15 +387,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   private
-
-  def stack_trace
-    Sass::Util.enum_with_index(Sass::Util.enum_cons(@environment.stack.frames.reverse + [nil], 2)).
-        map do |(frame, caller), i|
-      "#{i == 0 ? "on" : "from"} line #{frame.line}" +
-        " of #{frame.filename || "an unknown file"}" +
-        (caller && caller.name ? ", in `#{caller.name}'" : "")
-    end
-  end
 
   def run_interp_no_strip(text)
     text.map do |r|
