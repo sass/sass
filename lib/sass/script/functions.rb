@@ -367,8 +367,7 @@ module Sass::Script
     class EvaluationContext
       include Functions
 
-
-      # The environment of the {Sass::Engine}
+      # The global environment.
       #
       # @return [Environment]
       attr_reader :environment

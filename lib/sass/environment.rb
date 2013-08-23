@@ -28,6 +28,7 @@ module Sass
     def initialize(parent = nil, options = nil)
       @parent = parent
       @options = options || (parent && parent.options) || {}
+      @stack = Sass::Stack.new if @parent.nil?
     end
 
     # The environment of the caller of this environment's mixin or function.
@@ -45,6 +46,13 @@ module Sass
 
     def global_env
       @global_env ||= parent.nil? ? self : parent.global_env
+    end
+
+    # The import/mixin stack.
+    #
+    # @return [Sass::Stack]
+    def stack
+      @stack || global_env.stack
     end
 
     private
