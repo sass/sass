@@ -42,6 +42,20 @@ module Sass::Script::Value
       return value.reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.map {|e| e.to_s(opts)}.join(sep_str)
     end
 
+    # @see Value#to_sass
+    def to_sass(opts = {})
+      return "()" if value.empty?
+      precedence = Sass::Script::Parser.precedence_of(separator)
+      value.reject {|e| e.is_a?(Null)}.map do |v|
+        if v.is_a?(List) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
+            separator == :space && v.is_a?(UnaryOperation) && (v.operator == :minus || v.operator == :plus)
+          "(#{v.to_sass(opts)})"
+        else
+          v.to_sass(opts)
+        end
+      end.join(sep_str(nil))
+    end
+
     # @see Value#inspect
     def inspect
       "(#{value.map {|e| e.inspect}.join(sep_str(nil))})"
