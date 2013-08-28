@@ -727,6 +727,15 @@ that it has special support for.
 
 #### Number Operations
 
+Random number generation to be used with random(max) (default 100).
+eg.
+
+  rotate(random(360) + deg);
+
+  or
+
+  width: random() px;
+
 SassScript supports the standard arithmetic operations on numbers
 (`+`, `-`, `*`, `/`, `%`),
 and will automatically convert between units if it can:

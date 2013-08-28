@@ -14,6 +14,8 @@
 * Fixed a bug in the output of lists containing unary plus or minus
   operations during sass <=> scss conversion.
 
+* Added random number generator. Uses random(max) syntax. Taken from https://gist.github.com/chriseppstein/1561650 so all kudos to him.
+
 ## 3.2.10
 
 * Use the Sass logger infrastructure for `@debug` directives.

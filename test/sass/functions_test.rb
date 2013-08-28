@@ -1130,4 +1130,8 @@ MSG
     assert_equal(message, e.message)
   end
 
+  def test_random
+    assert_equal(1, random(1))
+  end
+
 end
