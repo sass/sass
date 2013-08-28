@@ -739,7 +739,7 @@ that it has special support for.
 
 #### Number Operations
 
-Random number generation to be used with random(max) (default 100).
+Random number generation to be used with random(max), (default 100).
 eg.
 
   rotate(random(360) + deg);
