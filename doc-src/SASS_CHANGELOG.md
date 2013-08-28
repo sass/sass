@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## Additions 
+
+* Random number generator stolen from https://gist.github.com/chriseppstein/1561650. All credit to him.
+
 ## 3.3.0 (Unreleased)
 
 ### Source Maps
@@ -130,8 +134,6 @@ Thanks to Alexander Pavlov for implementing this.
 
 * Fixed a bug in the output of lists containing unary plus or minus
   operations during sass <=> scss conversion.
-
-* Added random number generator. Uses random(max) syntax. Taken from https://gist.github.com/chriseppstein/1561650 so all kudos to him.
 
 ## 3.2.10
 
