@@ -5,7 +5,7 @@ require 'sass/engine'
 module Sass::Script::Functions::UserFunctions
   def assert_options(val)
     val.options[:foo]
-    Sass::Script::String.new("Options defined!")
+    Sass::Script::Value::String.new("Options defined!")
   end
 
   def arg_error
@@ -21,13 +21,13 @@ class SassScriptTest < Test::Unit::TestCase
   include Sass::Script
 
   def test_color_checks_input
-    assert_raise_message(ArgumentError, "Blue value -1 must be between 0 and 255") {Color.new([1, 2, -1])}
-    assert_raise_message(ArgumentError, "Red value 256 must be between 0 and 255") {Color.new([256, 2, 3])}
+    assert_raise_message(ArgumentError, "Blue value -1 must be between 0 and 255") {Sass::Script::Value::Color.new([1, 2, -1])}
+    assert_raise_message(ArgumentError, "Red value 256 must be between 0 and 255") {Sass::Script::Value::Color.new([256, 2, 3])}
   end
 
   def test_color_checks_rgba_input
-    assert_raise_message(ArgumentError, "Alpha channel 1.1 must be between 0 and 1") {Color.new([1, 2, 3, 1.1])}
-    assert_raise_message(ArgumentError, "Alpha channel -0.1 must be between 0 and 1") {Color.new([1, 2, 3, -0.1])}
+    assert_raise_message(ArgumentError, "Alpha channel 1.1 must be between 0 and 1") {Sass::Script::Value::Color.new([1, 2, 3, 1.1])}
+    assert_raise_message(ArgumentError, "Alpha channel -0.1 must be between 0 and 1") {Sass::Script::Value::Color.new([1, 2, 3, -0.1])}
   end
 
   def test_string_escapes
@@ -46,17 +46,19 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "white", resolve("white")
     assert_equal "white", resolve("#ffffff")
     assert_equal "#fffffe", resolve("white - #000001")
+    assert_equal "transparent", resolve("transparent")
+    assert_equal "transparent", resolve("rgba(0, 0, 0, 0)")
   end
 
   def test_rgba_color_literals
-    assert_equal Sass::Script::Color.new([1, 2, 3, 0.75]), eval("rgba(1, 2, 3, 0.75)")
+    assert_equal Sass::Script::Value::Color.new([1, 2, 3, 0.75]), eval("rgba(1, 2, 3, 0.75)")
     assert_equal "rgba(1, 2, 3, 0.75)", resolve("rgba(1, 2, 3, 0.75)")
 
-    assert_equal Sass::Script::Color.new([1, 2, 3, 0]), eval("rgba(1, 2, 3, 0)")
+    assert_equal Sass::Script::Value::Color.new([1, 2, 3, 0]), eval("rgba(1, 2, 3, 0)")
     assert_equal "rgba(1, 2, 3, 0)", resolve("rgba(1, 2, 3, 0)")
 
-    assert_equal Sass::Script::Color.new([1, 2, 3]), eval("rgba(1, 2, 3, 1)")
-    assert_equal Sass::Script::Color.new([1, 2, 3, 1]), eval("rgba(1, 2, 3, 1)")
+    assert_equal Sass::Script::Value::Color.new([1, 2, 3]), eval("rgba(1, 2, 3, 1)")
+    assert_equal Sass::Script::Value::Color.new([1, 2, 3, 1]), eval("rgba(1, 2, 3, 1)")
     assert_equal "#010203", resolve("rgba(1, 2, 3, 1)")
     assert_equal "white", resolve("rgba(255, 255, 255, 1)")
   end
@@ -95,6 +97,7 @@ class SassScriptTest < Test::Unit::TestCase
     assert_equal "navy", resolve("#000080", :style => :compressed)
     assert_equal "navy #fff", resolve("#000080 white", :style => :compressed)
     assert_equal "This color is #fff", resolve('"This color is #{ white }"', :style => :compressed)
+    assert_equal "transparent", resolve("rgba(0, 0, 0, 0)", :style => :compressed)
   end
 
   def test_compressed_comma
@@ -104,8 +107,8 @@ class SassScriptTest < Test::Unit::TestCase
   end
 
   def test_implicit_strings
-    assert_equal Sass::Script::String.new("foo"), eval("foo")
-    assert_equal Sass::Script::String.new("foo/bar"), eval("foo/bar")
+    assert_equal Sass::Script::Value::String.new("foo"), eval("foo")
+    assert_equal Sass::Script::Value::String.new("foo/bar"), eval("foo/bar")
   end
 
   def test_basic_interpolation
@@ -229,9 +232,9 @@ SASS
   end
 
   def test_dynamic_url
-    assert_equal "url(foo-bar)", resolve("url($foo)", {}, env('foo' => Sass::Script::String.new("foo-bar")))
-    assert_equal "url(foo-bar baz)", resolve("url($foo $bar)", {}, env('foo' => Sass::Script::String.new("foo-bar"), 'bar' => Sass::Script::String.new("baz")))
-    assert_equal "url(foo baz)", resolve("url(foo $bar)", {}, env('bar' => Sass::Script::String.new("baz")))
+    assert_equal "url(foo-bar)", resolve("url($foo)", {}, env('foo' => Sass::Script::Value::String.new("foo-bar")))
+    assert_equal "url(foo-bar baz)", resolve("url($foo $bar)", {}, env('foo' => Sass::Script::Value::String.new("foo-bar"), 'bar' => Sass::Script::Value::String.new("baz")))
+    assert_equal "url(foo baz)", resolve("url(foo $bar)", {}, env('bar' => Sass::Script::Value::String.new("baz")))
     assert_equal "url(foo bar)", resolve("url(foo    bar)")
   end
 
@@ -243,7 +246,7 @@ SASS
   end
 
   def test_hyphenated_variables
-    assert_equal("a-b", resolve("$a-b", {}, env("a-b" => Sass::Script::String.new("a-b"))))
+    assert_equal("a-b", resolve("$a-b", {}, env("a-b" => Sass::Script::Value::String.new("a-b"))))
   end
 
   def test_ruby_equality
@@ -373,7 +376,7 @@ SASS
 
   def test_equals
     assert_equal("true", resolve('"foo" == $foo', {},
-        env("foo" => Sass::Script::String.new("foo"))))
+        env("foo" => Sass::Script::Value::String.new("foo"))))
     assert_equal "true", resolve("1 == 1.0")
     assert_equal "true", resolve("false != true")
     assert_equal "false", resolve("1em == 1px")
@@ -504,8 +507,8 @@ SASS
   end
 
   def test_boolean_ops_short_circuit
-    assert_equal "false", resolve("$ie and $ie <= 7", {}, env('ie' => Sass::Script::Bool.new(false)))
-    assert_equal "true", resolve("$ie or $undef", {}, env('ie' => Sass::Script::Bool.new(true)))
+    assert_equal "false", resolve("$ie and $ie <= 7", {}, env('ie' => Sass::Script::Value::Bool.new(false)))
+    assert_equal "true", resolve("$ie or $undef", {}, env('ie' => Sass::Script::Value::Bool.new(true)))
   end
 
   # Regression Tests
@@ -538,26 +541,48 @@ SASS
     assert_equal "and-bang", resolve("and-bang")
   end
 
+  def test_number_initialization
+    assert_equal Sass::Script::Value::Number.new(10, ["px"]), Sass::Script::Value::Number.new(10, "px")
+    assert_equal Sass::Script::Value::Number.new(10, ["px"], ["em"]), Sass::Script::Value::Number.new(10, "px", "em")
+  end
+
+  def test_is_unit
+    assert Sass::Script::Value::Number.new(10, "px").is_unit?("px")
+    assert Sass::Script::Value::Number.new(10).is_unit?(nil)
+    assert !Sass::Script::Value::Number.new(10, "px", "em").is_unit?("px")
+    assert !Sass::Script::Value::Number.new(10, [], "em").is_unit?("em")
+    assert !Sass::Script::Value::Number.new(10, ["px", "em"]).is_unit?("px")
+  end
+
+  def test_rename_redirect
+    assert_no_warning do
+      assert_equal Sass::Script::Value::Base, Sass::Script::Literal
+      assert_equal Sass::Script::Tree::Node, Sass::Script::Node
+      assert_equal Sass::Script::Tree::Operation, Sass::Script::Operation
+      assert_equal Sass::Script::Value::String, Sass::Script::String
+    end
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)
     munge_filename opts
     val = eval(str, opts, environment)
-    assert_kind_of Sass::Script::Literal, val
-    val.is_a?(Sass::Script::String) ? val.value : val.to_s
+    assert_kind_of Sass::Script::Value::Base, val
+    val.is_a?(Sass::Script::Value::String) ? val.value : val.to_s
   end
 
   def assert_unquoted(str, opts = {}, environment = env)
     munge_filename opts
     val = eval(str, opts, environment)
-    assert_kind_of Sass::Script::String, val
+    assert_kind_of Sass::Script::Value::String, val
     assert_equal :identifier, val.type
   end
 
   def assert_quoted(str, opts = {}, environment = env)
     munge_filename opts
     val = eval(str, opts, environment)
-    assert_kind_of Sass::Script::String, val
+    assert_kind_of Sass::Script::Value::String, val
     assert_equal :string, val.type
   end
 

@@ -13,11 +13,11 @@ module Sass
       def string(re, *args)
         if re == :uri
           return unless uri = scan(URI)
-          return [:string, Script::String.new(uri)]
+          return [:string, Script::Value::String.new(uri)]
         end
 
         return unless scan(STRING)
-        [:string, Script::String.new((@scanner[1] || @scanner[2]).gsub(/\\(['"])/, '\1'), :string)]
+        [:string, Script::Value::String.new((@scanner[1] || @scanner[2]).gsub(/\\(['"])/, '\1'), :string)]
       end
 
       def important

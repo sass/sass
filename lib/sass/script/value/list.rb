@@ -1,12 +1,11 @@
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a CSS list.
   # This includes both comma-separated lists and space-separated lists.
-  class List < Literal
+  class List < Base
     # The Ruby array containing the contents of the list.
     #
-    # @return [Array<Literal>]
+    # @return [Array<Value>]
     attr_reader :value
-    alias_method :children, :value
     alias_method :to_a, :value
 
     # The operator separating the values of the list.
@@ -17,34 +16,33 @@ module Sass::Script
 
     # Creates a new list.
     #
-    # @param value [Array<Literal>] See \{#value}
-    # @param separator [String] See \{#separator}
+    # @param value [Array<Value>] See \{#value}
+    # @param separator [Symbol] See \{#separator}
     def initialize(value, separator)
       super(value)
       @separator = separator
     end
 
-    # @see Node#deep_copy
-    def deep_copy
-      node = dup
-      node.instance_variable_set('@value', value.map {|c| c.deep_copy})
-      node
+    # @see Value#options=
+    def options=(options)
+      super
+      value.each {|v| v.options = options}
     end
 
-    # @see Node#eq
+    # @see Value#eq
     def eq(other)
-      Sass::Script::Bool.new(
+      Sass::Script::Value::Bool.new(
         other.is_a?(List) && self.value == other.value &&
         self.separator == other.separator)
     end
 
-    # @see Node#to_s
+    # @see Value#to_s
     def to_s(opts = {})
       raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
       return value.reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.map {|e| e.to_s(opts)}.join(sep_str)
     end
 
-    # @see Node#to_sass
+    # @see Value#to_sass
     def to_sass(opts = {})
       return "()" if value.empty?
       precedence = Sass::Script::Parser.precedence_of(separator)
@@ -58,20 +56,9 @@ module Sass::Script
       end.join(sep_str(nil))
     end
 
-    # @see Node#inspect
+    # @see Value#inspect
     def inspect
-      "(#{to_sass})"
-    end
-
-    protected
-
-    # @see Node#_perform
-    def _perform(environment)
-      list = Sass::Script::List.new(
-        value.map {|e| e.perform(environment)},
-        separator)
-      list.options = self.options
-      list
+      "(#{value.map {|e| e.inspect}.join(sep_str(nil))})"
     end
 
     private

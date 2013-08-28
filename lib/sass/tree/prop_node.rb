@@ -1,14 +1,14 @@
 module Sass::Tree
-  # A static node reprenting a CSS property.
+  # A static node representing a CSS property.
   #
   # @see Sass::Tree
   class PropNode < Node
     # The name of the property,
-    # interspersed with {Sass::Script::Node}s
+    # interspersed with {Sass::Script::Tree::Node}s
     # representing `#{}`-interpolation.
     # Any adjacent strings will be merged together.
     #
-    # @return [Array<String, Sass::Script::Node>]
+    # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :name
 
     # The name of the property
@@ -20,7 +20,7 @@ module Sass::Tree
 
     # The value of the property.
     #
-    # @return [Sass::Script::Node]
+    # @return [Sass::Script::Tree::Node]
     attr_accessor :value
 
     # The value of the property
@@ -42,8 +42,18 @@ module Sass::Tree
     # @return [Fixnum]
     attr_accessor :tabs
 
-    # @param name [Array<String, Sass::Script::Node>] See \{#name}
-    # @param value [Sass::Script::Node] See \{#value}
+    # The source range in which the property name appears.
+    #
+    # @return [Sass::Source::Range]
+    attr_accessor :name_source_range
+
+    # The source range in which the property value appears.
+    #
+    # @return [Sass::Source::Range]
+    attr_accessor :value_source_range
+
+    # @param name [Array<String, Sass::Script::Tree::Node>] See \{#name}
+    # @param value [Sass::Script::Tree::Node] See \{#value}
     # @param prop_syntax [Symbol] `:new` if this property uses `a: b`-style syntax,
     #   `:old` if it uses `:a b`-style syntax
     def initialize(name, value, prop_syntax)
@@ -70,7 +80,13 @@ module Sass::Tree
     #
     # @return [String] The message
     def pseudo_class_selector_message
-      return "" if @prop_syntax == :new || !value.is_a?(Sass::Script::String) || !value.value.empty?
+      if @prop_syntax == :new ||
+          !value.is_a?(Sass::Script::Tree::Literal) ||
+          !value.value.is_a?(Sass::Script::Value::String) ||
+          !value.value.value.empty?
+        return ""
+      end
+
       "\nIf #{declaration.dump} should be a selector, use \"\\#{declaration}\" instead."
     end
 
@@ -117,34 +133,36 @@ module Sass::Tree
       private
 
       def val_to_sass_comma(node, opts)
-        return node unless node.is_a?(Sass::Script::Operation)
+        return node unless node.is_a?(Sass::Script::Tree::Operation)
         return val_to_sass_concat(node, opts) unless node.operator == :comma
 
-        Sass::Script::Operation.new(
+        Sass::Script::Tree::Operation.new(
           val_to_sass_concat(node.operand1, opts),
           val_to_sass_comma(node.operand2, opts),
           node.operator)
       end
 
       def val_to_sass_concat(node, opts)
-        return node unless node.is_a?(Sass::Script::Operation)
+        return node unless node.is_a?(Sass::Script::Tree::Operation)
         return val_to_sass_div(node, opts) unless node.operator == :space
 
-        Sass::Script::Operation.new(
+        Sass::Script::Tree::Operation.new(
           val_to_sass_div(node.operand1, opts),
           val_to_sass_concat(node.operand2, opts),
           node.operator)
       end
 
       def val_to_sass_div(node, opts)
-        unless node.is_a?(Sass::Script::Operation) && node.operator == :div &&
-            node.operand1.is_a?(Sass::Script::Number) &&
-            node.operand2.is_a?(Sass::Script::Number) &&
-            (!node.operand1.original || !node.operand2.original)
+        unless node.is_a?(Sass::Script::Tree::Operation) && node.operator == :div &&
+            node.operand1.is_a?(Sass::Script::Tree::Literal) &&
+            node.operand1.value.is_a?(Sass::Script::Value::Number) &&
+            node.operand2.is_a?(Sass::Script::Tree::Literal) &&
+            node.operand2.value.is_a?(Sass::Script::Value::Number) &&
+            (!node.operand1.value.original || !node.operand2.value.original)
           return node
         end
 
-        Sass::Script::String.new("(#{node.to_sass(opts)})")
+        Sass::Script::Value::String.new("(#{node.to_sass(opts)})")
       end
 
     end

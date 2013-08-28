@@ -1,8 +1,6 @@
-require 'sass/script/literal'
-
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a CSS string *or* a CSS identifier.
-  class String < Literal
+  class String < Base
     # The Ruby value of the string.
     #
     # @return [String]
@@ -24,13 +22,13 @@ module Sass::Script
       @type = type
     end
 
-    # @see Literal#plus
+    # @see Value#plus
     def plus(other)
-      other_str = other.is_a?(Sass::Script::String) ? other.value : other.to_s
-      Sass::Script::String.new(self.value + other_str, self.type)
+      other_str = other.is_a?(Sass::Script::Value::String) ? other.value : other.to_s
+      Sass::Script::Value::String.new(self.value + other_str, self.type)
     end
 
-    # @see Node#to_s
+    # @see Value#to_s
     def to_s(opts = {})
       if @type == :identifier
         return @value.gsub(/\n\s*/, " ")
@@ -43,7 +41,7 @@ module Sass::Script
       "\"#{value.gsub('"', "\\\"")}\"" #'
     end
 
-    # @see Node#to_sass
+    # @see Value#to_sass
     def to_sass(opts = {})
       to_s
     end

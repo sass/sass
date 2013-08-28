@@ -2018,7 +2018,7 @@ SCSS
   @extend .bbb;
 }
 SCSS
-    Sass::SCSS::Parser.new(template, "test.scss").parse
+    Sass::SCSS::Parser.new(template, "test.scss", nil).parse
   end
 
   def test_extend_in_media_in_rule

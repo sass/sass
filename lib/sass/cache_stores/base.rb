@@ -46,7 +46,7 @@ module Sass
       #
       # @param key [String] The key to store it under.
       # @param sha [String] The checksum for the contents that are being stored.
-      # @param obj [Object] The object to cache.
+      # @param root [Object] The root node to cache.
       def store(key, sha, root)
         _store(key, Sass::VERSION, sha, Marshal.dump(root))
       rescue TypeError, LoadError => e
