@@ -728,7 +728,7 @@ that it has special support for.
 #### Number Operations
 
 SassScript supports the standard arithmetic operations on numbers
-(`+`, `-`, `*`, `/`, `%`),
+(addition `+`, subtraction `-`, multiplication `*`, division `/`, and modulo `%`),
 and will automatically convert between units if it can:
 
     p {
