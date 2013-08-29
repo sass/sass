@@ -739,6 +739,16 @@ that it has special support for.
 
 #### Number Operations
 
+Random number generation to be used with random(max), default 100.
+To exclude 0, use +1.
+eg.
+
+  rotate(random(360) + deg);
+
+  or
+
+  width: (random(99) +1) px;  // Between 1 and 100
+
 SassScript supports the standard arithmetic operations on numbers
 (`+`, `-`, `*`, `/`, `%`),
 and will automatically convert between units if it can:

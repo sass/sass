@@ -1826,6 +1826,11 @@ module Sass::Script
     end
     declare :counter, [], :var_args => true
 
+	# Generates a random number between 0 and max-1 (inclusive). Default 100. Stolen from https://gist.github.com/chriseppstein/1561650
+	def random(max = Sass::Script::Number.new(100))
+		Sass::Script::Number.new(rand(max.value), max.numerator_units, max.denominator_units)
+	end
+	
     private
 
     # This method implements the pattern of transforming a numeric value into

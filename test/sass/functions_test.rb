@@ -78,6 +78,14 @@ class SassFunctionTest < Test::Unit::TestCase
     end
   end
 
+  #def test_random
+  #  assert_equal("0" , evaluate("random()*0"))
+  #end
+  
+  def test_random_alt
+  	assert_equal("0", evaluate("random(1)"))
+  end
+  	
   def test_hsl_kwargs
     assert_equal "#33cccc", evaluate("hsl($hue: 180, $saturation: 60%, $lightness: 50%)")
   end

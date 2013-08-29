@@ -3,6 +3,10 @@
 * Table of contents
 {:toc}
 
+## Additions 
+
+* Random number generator stolen from https://gist.github.com/chriseppstein/1561650. All credit to him.
+
 ## 3.3.0 (Unreleased)
 
 ### Source Maps
