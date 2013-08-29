@@ -77,6 +77,11 @@ class SassFunctionTest < Test::Unit::TestCase
       end
     end
   end
+  
+  
+  def test_random
+       assert_equal("0", evaluate("random()*0"))
+  end
 
   def test_hsl_kwargs
     assert_equal "#33cccc", evaluate("hsl($hue: 180, $saturation: 60%, $lightness: 50%)")
@@ -1321,10 +1326,6 @@ MSG
     flunk("Error message expected but not raised: #{message}")
   rescue Sass::SyntaxError => e
     assert_equal(message, e.message)
-  end
-
-  def test_random
-    assert_equal(1, random(1))
   end
 
 end
