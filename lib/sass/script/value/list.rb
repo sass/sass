@@ -36,6 +36,10 @@ module Sass::Script::Value
         self.separator == other.separator)
     end
 
+    def hash
+      @hash ||= [value, separator].hash
+    end
+
     # @see Value#to_s
     def to_s(opts = {})
       raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
@@ -48,12 +52,34 @@ module Sass::Script::Value
       precedence = Sass::Script::Parser.precedence_of(separator)
       value.reject {|e| e.is_a?(Null)}.map do |v|
         if v.is_a?(List) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
-            separator == :space && v.is_a?(UnaryOperation) && (v.operator == :minus || v.operator == :plus)
+            separator == :space && v.is_a?(Sass::Script::Tree::UnaryOperation) &&
+            (v.operator == :minus || v.operator == :plus)
           "(#{v.to_sass(opts)})"
         else
           v.to_sass(opts)
         end
       end.join(sep_str(nil))
+    end
+
+    # @see Value#to_h
+    def to_h
+      return Sass::Util.ordered_hash if value.empty?
+      return @map ||= Sass::Util.to_hash(value.map {|e| e.to_a}) if is_pseudo_map?
+      super
+    end
+
+    # Returns whether a warning still needs to be printed for this list being used as a map.
+    #
+    # @return [Boolean]
+    def needs_map_warning?
+      !@value.empty? && !@map
+    end
+
+    # Returns whether this is a list of pairs that can be used as a map.
+    #
+    # @return [Boolean]
+    def is_pseudo_map?
+      @is_pseudo_map ||= value.all? {|e| e.is_a?(Sass::Script::Value::List) && e.to_a.length == 2}
     end
 
     # @see Value#inspect

@@ -747,6 +747,10 @@ a
 c
   @each $str in foo, bar, baz, bang
     d: $str
+
+c
+  @each $key, $value in (foo: 1, bar: 2, baz: 3)
+    \#{$key}: $value
 SASS
 a {
   @each $number in 1px 2px 3px 4px {
@@ -757,6 +761,12 @@ a {
 c {
   @each $str in foo, bar, baz, bang {
     d: $str;
+  }
+}
+
+c {
+  @each $key, $value in (foo: 1, bar: 2, baz: 3) {
+    \#{$key}: $value;
   }
 }
 SCSS

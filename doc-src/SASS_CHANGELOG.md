@@ -29,6 +29,114 @@ Thanks to Alexander Pavlov for implementing this.
 
 [source maps]: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?hl=en_US&pli=1&pli=1
 
+### SassScript Maps
+
+SassScript has a new data type: maps. These are associations from SassScript
+values (often strings, but potentially any value) to other SassScript values.
+They look like this:
+
+    $map: (key1: value1, key2: value2, key3: value3);
+
+Unlike lists, maps must always be surrounded by parentheses. `()` is now an
+empty map in addition to an empty list.
+
+Maps will allow users to collect values into named groups and access those
+groups dynamically. For example, you could use them to manage themes for your
+stylesheet:
+
+    $themes: (
+      mist: (
+        header: #DCFAC0,
+        text:   #00968B,
+        border: #85C79C
+      ),
+      spring: (
+        header: #F4FAC7,
+        text:   #C2454E,
+        border: #FFB158
+      ),
+      // ...
+    );
+
+    @mixin themed-header($theme-name) {
+      h1 {
+        color: map-get(map-get($themes, $theme-name), header);
+      }
+    }
+
+There are a variety of functions for working with maps:
+
+* The {Sass::Script::Functions#map_get `map-get($map, $key)` function} returns
+  the value in the map associated with the given key. If no value is found, it
+  returns `null`.
+
+* The {Sass::Script::Functions#map_merge `map-merge($map1, $map2)` function}
+  merges two maps together into a new map. If there are any conflicts, the
+  second map takes precedence, making this a good way to modify values in a map
+  as well.
+
+* The {Sass::Script::Functions#map_keys `map-keys($map)` function} returns all
+  the keys in a map as a comma-separated list.
+
+* The {Sass::Script::Functions#map_values `map-values($map)` function} returns
+  all the values in a map as a comma-separated list.
+
+* The {Sass::Script::Functions#map_has_key `map-has-key($map, $key)` function}
+  returns whether or not a map contains a pair with the given key.
+
+All the existing list functions also work on maps, treating them as lists of
+pairs. For example, `nth((foo: 1, bar: 2), 1)` returns `foo 1`. Maps can also be
+used with `@each`, using the new multiple assignment feature (see below):
+
+    @each $header, $size in (h1: 2em, h2: 1.5em, h3: 1.2em) {
+      #{$header} {
+        font-size: $size;
+      }
+    }
+
+Produces:
+
+    h1 {
+      font-size: 2em;
+    }
+
+    h2 {
+      font-size: 1.5em;
+    }
+
+    h3 {
+      font-size: 1.2em;
+    }
+
+The new map functions work on lists of pairs as well, for the time being. This
+feature exists to help libraries that previously used lists of pairs to simulate
+maps. These libraries can now use map functions internally without introducing
+backwards-incompatibility. For example:
+
+    $themes: (
+      mist (
+        header #DCFAC0,
+        text   #00968B,
+        border #85C79C
+      ),
+      spring (
+        header #F4FAC7,
+        text   #C2454E,
+        border #FFB158
+      ),
+      // ...
+    );
+
+    @mixin themed-header($theme-name) {
+      h1 {
+        color: map-get(map-get($themes, $theme-name), header);
+      }
+    }
+
+Since it's just a migration feature, using lists of pairs in place of maps is
+already deprecated. Library authors should encourage their users to use actual
+maps instead.
+
 ### Smaller Improvements
 
 * [listen](http://github.com/guard/listen) is now a standard Gem dependency.
@@ -74,6 +182,13 @@ Thanks to Alexander Pavlov for implementing this.
 
 * Comments following selectors in the indented syntax will be correctly
   converted using `sass-convert`.
+
+* `@each` now supports "multiple assignment", which makes it easier to iterate
+  over lists of lists. If you write `@each $var1, $var2, $var3 in a b c, d e f,
+  g h i`, the elements of the sub-lists will be assigned individually to the
+  variables. `$var1`, `$var2`, and `$var3` will be `a`, `b` and `c`; then `d`,
+  `e`, and `f`; and then `g`, `h`, and `i`. For more information, see
+  {file:SASS_REFERENCE.md#each-multi-assign the `@each` reference}.
 
 ### Backwards Incompatibilities -- Must Read!
 

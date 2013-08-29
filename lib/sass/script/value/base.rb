@@ -158,6 +158,18 @@ MSG
       Sass::Script::Value::String.new("/#{self.to_s}")
     end
 
+    # Returns the hash code of this value. Two objects' hash codes should be
+    # equal if the objects are equal.
+    #
+    # @return [Fixnum] The hash code.
+    def hash
+      value.hash
+    end
+
+    def eql?(other)
+      self == other
+    end
+
     # @return [String] A readable representation of the value
     def inspect
       value.inspect
@@ -185,12 +197,28 @@ MSG
     # @raise [Sass::SyntaxError] if this value isn't an integer
     def assert_int!; to_i; end
 
+    # Returns the separator for this value. For non-list-like values or the
+    # empty list, this will be `nil`. For lists or maps, it will be `:space` or
+    # `:comma`.
+    #
+    # @return [Symbol]
+    def separator; nil; end
+
     # Returns the value of this value as a list.
     # Single values are considered the same as single-element lists.
     #
-    # @return [Array<Value>] The of this value as a list
+    # @return [Array<Value>] This value as a list
     def to_a
       [self]
+    end
+
+    # Returns the value of this value as a hash. Most values don't have hash
+    # representations, but [Map]s and empty [List]s do.
+    #
+    # @return [Hash<Value, Value>] This value as a hash
+    # @raise [Sass::SyntaxError] if this value doesn't have a hash representation
+    def to_h
+      raise Sass::SyntaxError.new("#{self.inspect} is not a map.")
     end
 
     # Returns the string representation of this value

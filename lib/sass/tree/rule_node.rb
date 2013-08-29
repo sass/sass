@@ -58,7 +58,7 @@ module Sass::Tree
     # This is only readable in a CSS tree as it is written during the perform step
     # and only when the :trace_selectors option is set.
     #
-    # @return [Array<String>]
+    # @return [String]
     attr_accessor :stack_trace
 
     # @param rule [Array<String, Sass::Script::Tree::Node>]
