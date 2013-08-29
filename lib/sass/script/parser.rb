@@ -81,14 +81,14 @@ module Sass
 
       # Parses the argument list for a mixin include.
       #
-      # @return [(Array<Script::Tree::Node>, {String => Script::Tree::Node}, Script::Tree::Node)]
+      # @return [(Array<Script::Tree::Node>, {String => Script::Tree::Node}, Script::Tree::Node, Script::Tree::Node)]
       #   The root nodes of the positional arguments, keyword arguments, and
-      #   splat argument. Keyword arguments are in a hash from names to values.
+      #   splat argument(s). Keyword arguments are in a hash from names to values.
       # @raise [Sass::SyntaxError] if the argument list isn't valid SassScript
       def parse_mixin_include_arglist
         args, keywords = [], {}
         if try_tok(:lparen)
-          args, keywords, splat = mixin_arglist
+          args, keywords, splat, kwarg_splat = mixin_arglist
           assert_tok(:rparen)
         end
         assert_done
@@ -96,7 +96,8 @@ module Sass
         args.each {|a| a.options = @options}
         keywords.each {|k, v| v.options = @options}
         splat.options = @options if splat
-        return args, keywords, splat
+        kwarg_splat.options = @options if kwarg_splat
+        return args, keywords, splat, kwarg_splat
       rescue Sass::SyntaxError => e
         e.modify_backtrace :line => @lexer.line, :filename => @options[:filename]
         raise e
@@ -366,9 +367,9 @@ RUBY
 
       def funcall
         return raw unless tok = try_tok(:funcall)
-        args, keywords, splat = fn_arglist
+        args, keywords, splat, kwarg_splat = fn_arglist
         assert_tok(:rparen)
-        node(Script::Tree::Funcall.new(tok.value, args, keywords, splat),
+        node(Script::Tree::Funcall.new(tok.value, args, keywords, splat, kwarg_splat),
           tok.source_range.start_pos, source_position)
       end
 
@@ -433,7 +434,13 @@ RUBY
               raise SyntaxError.new("Positional arguments must come before keyword arguments.")
             end
 
-            return args, keywords, e if try_tok(:splat)
+            if try_tok(:splat)
+              splat = e
+              return args, keywords, splat unless try_tok(:comma)
+              kwarg_splat = assert_expr(subexpr, description)
+              assert_tok(:splat)
+              return args, keywords, splat, kwarg_splat
+            end
             args << e
           end
 
@@ -517,6 +524,7 @@ RUBY
         :default => "expression (e.g. 1px, bold)",
         :mixin_arglist => "mixin argument",
         :fn_arglist => "function argument",
+        :splat => "...",
       }
 
       def assert_expr(name, expected = nil)

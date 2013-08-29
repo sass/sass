@@ -208,6 +208,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       if node.splat
         splat = (args.empty? && keywords.empty?) ? "" : ", "
         splat = "#{splat}#{arg_to_sass[node.splat]}..."
+        splat = "#{splat}, #{node.kwarg_splat.inspect}..." if node.kwarg_splat
       end
       arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
     end

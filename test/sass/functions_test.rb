@@ -1350,6 +1350,12 @@ WARNING
     end
   end
 
+  def test_keywords
+    # The actual functionality is tested in tests where real arglists are passed.
+    assert_error_message("12 is not a variable argument list for `keywords'", "keywords(12)")
+    assert_error_message("(1 2 3) is not a variable argument list for `keywords'", "keywords(1 2 3)")
+  end
+
   def test_partial_list_of_pairs_doesnt_work_as_a_map
     assert_raises(Sass::SyntaxError) {evaluate("map-get((foo bar, baz bang, bip), 1)")}
     assert_raises(Sass::SyntaxError) {evaluate("map-get((foo bar, baz bang, bip bap bop), 1)")}
