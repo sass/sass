@@ -740,7 +740,7 @@ that it has special support for.
 #### Number Operations
 
 SassScript supports the standard arithmetic operations on numbers
-(`+`, `-`, `*`, `/`, `%`),
+(addition `+`, subtraction `-`, multiplication `*`, division `/`, and modulo `%`),
 and will automatically convert between units if it can:
 
     p {
@@ -1986,7 +1986,10 @@ For example:
     @mixin highlighted-background { background-color: #fc0; }
     @mixin header-text { font-size: 20px; }
 
-Mixins that only define descendent selectors, can be safely mixed
+A mixin may not include itself, directly or indirectly. That is,
+mixin recursion is forbidden.
+
+Mixins that only define descendent selectors can be safely mixed
 into the top most level of a document.
 
 ### Arguments {#mixin-arguments}

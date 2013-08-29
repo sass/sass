@@ -40,7 +40,7 @@ module Sass::Script
   #
   # \{#hsla hsla($hue, $saturation, $lightness, $alpha)}
   # : Creates a {Sass::Script::Value::Color Color} from hue, saturation,
-  #   lightness, lightness, and alpha values.
+  #   lightness, and alpha values.
   #
   # \{#hue hue($color)}
   # : Gets the hue component of a color.
@@ -552,9 +552,9 @@ module Sass::Script
     end
     declare :hsl, [:hue, :saturation, :lightness]
 
-    # Creates a {Sass::Script::Value::Color Color} from hue, saturation,
-    # lightness, lightness, and alpha values. Uses the algorithm from the [CSS3
-    # spec][].
+    # Creates a {Sass::Script::Value::Color Color} from hue,
+    # saturation, lightness, and alpha values. Uses the algorithm from
+    # the [CSS3 spec][].
     #
     # [CSS3 spec]: http://www.w3.org/TR/css3-color/#hsl-color
     #
