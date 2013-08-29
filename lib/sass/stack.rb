@@ -98,6 +98,15 @@ module Sass
       with_frame(filename, line, :mixin, name) {yield}
     end
 
+    def to_s
+      Sass::Util.enum_with_index(Sass::Util.enum_cons(frames.reverse + [nil], 2)).
+          map do |(frame, caller), i|
+        "#{i == 0 ? "on" : "from"} line #{frame.line}" +
+          " of #{frame.filename || "an unknown file"}" +
+          (caller && caller.name ? ", in `#{caller.name}'" : "")
+      end.join("\n")
+    end
+
     private
 
     def with_frame(filename, line, type, name = nil)

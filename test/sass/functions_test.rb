@@ -975,6 +975,10 @@ MSG
     assert_equal("color", evaluate("type-of(#fff)"))
     assert_equal("color", evaluate("type-of($value: #fff)"))
     assert_equal("null", evaluate("type-of(null)"))
+    assert_equal("list", evaluate("type-of(1 2 3)"))
+    assert_equal("list", evaluate("type-of((1, 2, 3))"))
+    assert_equal("list", evaluate("type-of(())"))
+    assert_equal("map", evaluate("type-of((foo: bar))"))
   end
 
   def test_feature_exists
@@ -1024,6 +1028,8 @@ MSG
     assert_equal("1", evaluate("length(#f00)"))
     assert_equal("0", evaluate("length(())"))
     assert_equal("4", evaluate("length(1 2 () 3)"))
+
+    assert_equal("2", evaluate("length((foo: bar, bar: baz))"))
   end
 
   def test_nth
@@ -1041,6 +1047,9 @@ MSG
     assert_error_message("List index is 2 but list is only 1 item long for `nth'", "nth(foo, 2)")
     assert_error_message("List index is 1 but list has no items for `nth'", "nth((), 1)")
     assert_error_message("$n: \"foo\" is not a number for `nth'", "nth(1 2 3, foo)")
+
+    assert_equal("foo bar", evaluate("nth((foo: bar, bar: baz), 1)"))
+    assert_equal("bar baz", evaluate("nth((foo: bar, bar: baz), 2)"))
   end
 
   def test_join
@@ -1080,6 +1089,19 @@ MSG
 
     assert_error_message("Separator name must be space, comma, or auto for `join'", "join(1, 2, baboon)")
     assert_error_message("$separator: 12 is not a string for `join'", "join(1, 2, 12)")
+
+    assert_equal("foo bar, bar baz, baz bip, bip bop",
+      perform("join((foo: bar, bar: baz), (baz: bip, bip: bop))").to_sass)
+    assert_equal("(foo bar) (bar baz) (baz bip) (bip bop)",
+      perform("join((foo: bar, bar: baz), (baz: bip, bip: bop), space)").to_sass)
+    assert_equal("foo bar (baz bip) (bip bop)",
+      perform("join(foo bar, (baz: bip, bip: bop))").to_sass)
+    assert_equal("foo bar, bar baz, bip, bop",
+      perform("join((foo: bar, bar: baz), bip bop)").to_sass)
+    assert_equal("baz bip, bip bop",
+      perform("join((), (baz: bip, bip: bop))").to_sass)
+    assert_equal("foo bar, bar baz",
+      perform("join((foo: bar, bar: baz), ())").to_sass)
   end
 
   def test_append
@@ -1115,12 +1137,19 @@ MSG
 
     assert_error_message("Separator name must be space, comma, or auto for `append'", "append(1, 2, baboon)")
     assert_error_message("$separator: 12 is not a string for `append'", "append(1, 2, 12)")
+
+    assert_equal("1 2 (foo: bar)", perform("append(1 2, (foo: bar))").to_sass)
+    assert_equal("foo bar, bar baz, 1", perform("append((foo: bar, bar: baz), 1)").to_sass)
+    assert_equal("foo bar, bar baz, (baz: bip)",
+      perform("append((foo: bar, bar: baz), (baz: bip))").to_sass)
   end
 
   def test_zip
     assert_equal("1 3 5, 2 4 6", evaluate("zip(1 2, 3 4, 5 6)"))
     assert_equal("1 4 7, 2 5 8", evaluate("zip(1 2 3, 4 5 6, 7 8)"))
     assert_equal("1 2 3", evaluate("zip(1, 2, 3)"))
+    assert_equal("(foo bar) 1 3, (bar baz) 2 4",
+      perform("zip((foo: bar, bar: baz), 1 2, 3 4)").to_sass)
   end
 
   def test_index
@@ -1131,6 +1160,9 @@ MSG
     assert_equal("false", evaluate("index(1px solid blue, 1em)"))
     assert_equal("false", evaluate("index(1px solid blue, notfound)"))
     assert_equal("false", evaluate("index(1px, #00f)"))
+
+    assert_equal("1", evaluate("index((foo: bar, bar: baz), (foo bar))"))
+    assert_equal("false", evaluate("index((foo: bar, bar: baz), (foo: bar))"))
   end
 
   def test_list_separator
@@ -1141,6 +1173,8 @@ MSG
     assert_equal("space", evaluate("list-separator(#f00)"))
     assert_equal("space", evaluate("list-separator(())"))
     assert_equal("space", evaluate("list-separator(1 2 () 3)"))
+
+    assert_equal("comma", evaluate("list-separator((foo: bar, bar: baz))"))
   end
 
   def test_if
@@ -1222,6 +1256,98 @@ MSG
       assert_match(/u[a-z0-9]{8}/, current_id)
       assert_not_equal last_id, current_id
     end
+  end
+
+  def test_map_get
+    assert_equal "1", evaluate("map-get((foo: 1, bar: 2), foo)")
+    assert_equal "2", evaluate("map-get((foo: 1, bar: 2), bar)")
+    assert_equal "null", perform("map-get((foo: 1, bar: 2), baz)").to_sass
+    assert_equal "null", perform("map-get((), foo)").to_sass
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: Passing lists of pairs to map-get is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      assert_equal "1", evaluate("map-get((foo 1) (bar 2), foo)")
+    end
+  end
+
+  def test_map_merge
+    assert_equal("(foo: 1, bar: 2, baz: 3)",
+      perform("map-merge((foo: 1, bar: 2), (baz: 3))").to_sass)
+    assert_equal("(foo: 1, bar: 2)",
+      perform("map-merge((), (foo: 1, bar: 2))").to_sass)
+    assert_equal("(foo: 1, bar: 2)",
+      perform("map-merge((foo: 1, bar: 2), ())").to_sass)
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      assert_equal("(foo: 1, bar: 2, baz: 3)",
+        perform("map-merge((foo 1, bar 2), (baz: 3))").to_sass)
+    end
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: Passing lists of pairs to map-merge is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      assert_equal("(baz: 3, foo: 1, bar: 2)",
+        perform("map-merge((baz: 3), (foo 1, bar 2))").to_sass)
+    end
+  end
+
+  def test_map_keys
+    assert_equal("foo, bar",
+      perform("map-keys((foo: 1, bar: 2))").to_sass)
+    assert_equal("()", perform("map-keys(())").to_sass)
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: Passing lists of pairs to map-keys is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      assert_equal("foo, bar",
+        perform("map-keys((foo 1, bar 2))").to_sass)
+    end
+  end
+
+  def test_map_values
+    assert_equal("1, 2", perform("map-values((foo: 1, bar: 2))").to_sass)
+    assert_equal("1, 2, 2",
+      perform("map-values((foo: 1, bar: 2, baz: 2))").to_sass)
+    assert_equal("()", perform("map-values(())").to_sass)
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: Passing lists of pairs to map-values is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      assert_equal("1, 2", perform("map-values((foo 1, bar 2))").to_sass)
+    end
+  end
+
+  def test_map_has_key
+    assert_equal "true", evaluate("map-has-key((foo: 1, bar: 1), foo)")
+    assert_equal "false", evaluate("map-has-key((foo: 1, bar: 1), baz)")
+    assert_equal "false", evaluate("map-has-key((), foo)")
+
+    assert_warning(<<WARNING) do
+DEPRECATION WARNING: Passing lists of pairs to map-has-key is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      assert_equal("true", evaluate("map-has-key((foo 1, bar 1), foo)"))
+    end
+  end
+
+  def test_partial_list_of_pairs_doesnt_work_as_a_map
+    assert_raises(Sass::SyntaxError) {evaluate("map-get((foo bar, baz bang, bip), 1)")}
+    assert_raises(Sass::SyntaxError) {evaluate("map-get((foo bar, baz bang, bip bap bop), 1)")}
+    assert_raises(Sass::SyntaxError) {evaluate("map-get((foo bar), 1)")}
   end
 
   def test_assert_unit

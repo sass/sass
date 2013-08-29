@@ -154,6 +154,8 @@ module Sass::Script
   #
   # ## List Functions {#list-functions}
   #
+  # All list functions work for maps as well, treating them as lists of pairs.
+  #
   # \{#length length($list)}
   # : Returns the length of a list.
   #
@@ -174,6 +176,23 @@ module Sass::Script
   #
   # \{#list_separator list-separator(#list)}
   # : Returns the separator of a list.
+  #
+  # ## Map Functions {#map-functions}
+  #
+  # \{#map_get map-get($map, $key)}
+  # : Returns the value in a map associated with a given key.
+  #
+  # \{#map_merge map-merge($map1, $map2)}
+  # : Merges two maps together into a new map.
+  #
+  # \{#map_keys map-keys($map)}
+  # : Returns a list of all keys in a map.
+  #
+  # \{#map_values map-values($map)}
+  # : Returns a list of all values in a map.
+  #
+  # \{#map_has_key map-has-key($key)}
+  # : Returns whether a map has a value associated with a given key.
   #
   # ## Introspection Functions
   #
@@ -348,8 +367,7 @@ module Sass::Script
     class EvaluationContext
       include Functions
 
-
-      # The environment of the {Sass::Engine}
+      # The global environment.
       #
       # @return [Environment]
       attr_reader :environment
@@ -380,7 +398,9 @@ module Sass::Script
       # @param name [String, Symbol, nil] The name of the argument.
       # @raise [ArgumentError] if value is not of the correct type.
       def assert_type(value, type, name = nil)
-        return if value.is_a?(Sass::Script::Value.const_get(type))
+        klass = Sass::Script::Value.const_get(type)
+        return if value.is_a?(klass)
+        return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.is_pseudo_map?
         err = "#{value.inspect} is not a #{type.to_s.downcase}"
         err = "$#{name.to_s.gsub('_', '-')}: " + err if name
         raise ArgumentError.new(err)
@@ -1561,9 +1581,12 @@ module Sass::Script
 
     # Return the length of a list.
     #
+    # This can return the number of pairs in a map as well.
+    #
     # @example
     #   length(10px) => 1
     #   length(10px 20px 30px) => 3
+    #   length((width: 10px, height: 20px)) => 2
     # @overload length($list)
     # @param $list [Sass::Script::Value::Base]
     # @return [Sass::Script::Value::Number]
@@ -1577,9 +1600,12 @@ module Sass::Script
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
     #
+    # This can return the nth pair in a map as well.
+    #
     # @example
     #   nth(10px 20px 30px, 1) => 10px
     #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
+    #   nth((width: 10px, length: 20px), 2) => length, 20px
     # @overload nth($list, $n)
     # @param $list [Sass::Script::Value::Base]
     # @param $n [Sass::Script::Value::Number] The index of the item to get.
@@ -1627,12 +1653,10 @@ module Sass::Script
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep1 = list1.separator if list1.is_a?(Sass::Script::Value::List) && !list1.value.empty?
-      sep2 = list2.separator if list2.is_a?(Sass::Script::Value::List) && !list2.value.empty?
       Sass::Script::Value::List.new(
         list1.to_a + list2.to_a,
         if separator.value == 'auto'
-          sep1 || sep2 || :space
+          list1.separator || list2.separator || :space
         else
           separator.value.to_sym
         end)
@@ -1663,11 +1687,10 @@ module Sass::Script
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep = list.separator if list.is_a?(Sass::Script::Value::List)
       Sass::Script::Value::List.new(
         list.to_a + [val],
         if separator.value == 'auto'
-          sep || :space
+          list.separator || :space
         else
           separator.value.to_sym
         end)
@@ -1711,9 +1734,12 @@ module Sass::Script
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
     #
+    # This can return the position of a pair in a map as well.
+    #
     # @example
     #   index(1px solid red, solid) => 2
     #   index(1px solid red, dashed) => false
+    #   index((width: 10px, height: 20px), (height, 20px)) => 2
     # @overload index($list, $value)
     # @param $list [Sass::Script::Value::Base]
     # @param $value [Sass::Script::Value::Base]
@@ -1740,13 +1766,98 @@ module Sass::Script
     # @param $list [Sass::Script::Value::Base]
     # @return [Sass::Script::Value::String] `comma` or `space`
     def list_separator(list)
-      if list.is_a?(Sass::Script::Value::List)
-        Sass::Script::Value::String.new(list.separator.to_s)
-      else
-        Sass::Script::Value::String.new('space')
-      end
+      Sass::Script::Value::String.new((list.separator || :space).to_s)
     end
     declare :separator, [:list]
+
+    # Returns the value in a map associated with the given key. If the map
+    # doesn't have such a key, returns `null`.
+    #
+    # @example
+    #   map-get(("foo": 1, "bar": 2), "foo") => 1
+    #   map-get(("foo": 1, "bar": 2), "bar") => 2
+    #   map-get(("foo": 1, "bar": 2), "baz") => null
+    # @overload map_get($map, $key)
+    # @param $map [Sass::Script::Value::Map]
+    # @param $key [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Base] The value indexed by `$key`, or `null`
+    #   if the map doesn't contain the given key
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_get(map, key)
+      assert_type map, :Map
+      to_h(map)[key] || Sass::Script::Value::Null.new
+    end
+    declare :map_get, [:map, :key]
+
+    # Merges two maps together into a new map. Keys in `$map2` will take
+    # precedence over keys in `$map1`.
+    #
+    # This is the best way to add new values to a map.
+    #
+    # All keys in the returned map that also appear in `$map1` will have the
+    # same order as in `$map1`. New keys from `$map2` will be placed at the end
+    # of the map.
+    #
+    # @example
+    #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
+    #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
+    # @overload map_merge($map1, $map2)
+    # @param $map1 [Sass::Script::Value::Map]
+    # @param $map2 [Sass::Script::Value::Map]
+    # @return [Sass::Script::Value::Map]
+    # @raise [ArgumentError] if either parameter is not a map
+    def map_merge(map1, map2)
+      assert_type map1, :Map
+      assert_type map2, :Map
+      Sass::Script::Value::Map.new(to_h(map1).merge(to_h(map2)))
+    end
+    declare :map_get, [:map1, :map2]
+
+    # Returns a list of all keys in a map.
+    #
+    # @example
+    #   map-keys(("foo": 1, "bar": 2)) => "foo", "bar"
+    # @overload map_keys($map)
+    # @param $map [Map]
+    # @return [List] the list of keys, comma-separated
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_keys(map)
+      assert_type map, :Map
+      Sass::Script::Value::List.new(to_h(map).keys, :comma)
+    end
+    declare :map_keys, [:map]
+
+    # Returns a list of all values in a map. This list may include duplicate
+    # values, if multiple keys have the same value.
+    #
+    # @example
+    #   map-keys(("foo": 1, "bar": 2)) => 1, 2
+    #   map-keys(("foo": 1, "bar": 2, "baz": 1)) => 1, 2, 1
+    # @overload map_values($map)
+    # @param $map [Map]
+    # @return [List] the list of values, comma-separated
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_values(map)
+      assert_type map, :Map
+      Sass::Script::Value::List.new(to_h(map).values, :comma)
+    end
+    declare :map_values, [:map]
+
+    # Returns whether a map has a value associated with a given key.
+    #
+    # @example
+    #   map-has-key(("foo": 1, "bar": 2), "foo") => true
+    #   map-has-key(("foo": 1, "bar": 2), "baz") => false
+    # @overload map_has_key($map, $key)
+    # @param $map [Sass::Script::Value::Map]
+    # @param $key [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Bool]
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_has_key(map, key)
+      assert_type map, :Map
+      Sass::Script::Value::Bool.new(to_h(map).has_key?(key))
+    end
+    declare :map_has_key, [:map, :key]
 
     # Returns one of two values, depending on whether or not `$condition` is
     # true. Just like in `@if`, all values other than `false` and `null` are
@@ -1846,6 +1957,18 @@ module Sass::Script
       # and allow clipping in rgb() et al?
       color.with(attr => Sass::Util.restrict(
           color.send(attr).send(op, amount.value), range))
+    end
+
+    def to_h(obj)
+      return obj.to_h unless obj.is_a?(Sass::Script::Value::List) && obj.needs_map_warning?
+
+      fn_name = Sass::Util.caller_info.last.gsub('_', '-')
+      Sass::Util.sass_warn <<WARNING + environment.stack.to_s.gsub(/^/, '        ')
+DEPRECATION WARNING: Passing lists of pairs to #{fn_name} is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      return obj.to_h
     end
   end
 end

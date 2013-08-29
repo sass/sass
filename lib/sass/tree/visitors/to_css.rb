@@ -280,7 +280,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
           output "\n"
         elsif node.options[:trace_selectors]
           output("#{old_spaces}/* ")
-          output(node.stack_trace.join("\n   #{old_spaces}"))
+          output(node.stack_trace.gsub("\n", "\n   #{old_spaces}"))
           output(" */\n")
         elsif node.options[:line_comments]
           output("#{old_spaces}/* line #{node.line}")

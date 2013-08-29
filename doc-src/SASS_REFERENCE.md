@@ -650,6 +650,7 @@ SassScript supports six main data types:
 * booleans (e.g. `true`, `false`)
 * nulls (e.g. `null`)
 * lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
+* maps from one value to another (e.g. `(key1: value1, key2: value2)`)
 
 SassScript also supports all other types of CSS property value,
 such as Unicode ranges and `!important` declarations.
@@ -696,12 +697,12 @@ Lists are just a series of other values, separated by either spaces or commas.
 In fact, individual values count as lists, too: they're just lists with one item.
 
 On their own, lists don't do much,
-but the [Sass list functions](Sass/Script/Functions.html#list-functions)
+but the [SassScript list functions](Sass/Script/Functions.html#list-functions)
 make them useful.
-The {Sass::Script::Functions#nth nth function} can access items in a list,
-the {Sass::Script::Functions#join join function} can join multiple lists together,
-and the {Sass::Script::Functions#append append function} can add items to lists.
-The [`@each` rule](#each-directive) can also add styles for each item in a list.
+The {Sass::Script::Functions#nth `nth` function} can access items in a list,
+the {Sass::Script::Functions#join `join` function} can join multiple lists together,
+and the {Sass::Script::Functions#append `append` function} can add items to lists.
+The [`@each` directive](#each-directive) can also add styles for each item in a list.
 
 In addition to containing simple values, lists can contain other lists.
 For example, `1px 2px, 5px 6px` is a two-item list
@@ -722,14 +723,43 @@ However, they aren't the same when they're Sass:
 the first is a list containing two lists,
 while the second is a list containing four numbers.
 
-Lists can also have no items in them at all.
-These lists are represented as `()`.
-They can't be output directly to CSS;
-if you try to do e.g. `font-family: ()`, Sass will raise an error.
-If a list contains empty lists or null values,
-as in `1px 2px () 3px` or `1px 2px null 3px`,
-the empty lists and null values will be removed
-before the containing list is turned into CSS.
+Lists can also have no items in them at all. These lists are represented as `()`
+(which is also an empty [map](#maps)). They can't be output directly to CSS; if
+you try to do e.g. `font-family: ()`, Sass will raise an error. If a list
+contains empty lists or null values, as in `1px 2px () 3px` or `1px 2px null
+3px`, the empty lists and null values will be removed before the containing list
+is turned into CSS.
+
+#### Maps
+
+Maps represent an association between keys and values, where keys are used to
+look up values. They make it easy to collect values into named groups and access
+those groups dynamically. They have no direct parallel in CSS, although they're
+syntactically similar to media query expressions:
+
+    $map: (key1: value1, key2: value2, key3: value3);
+
+Unlike lists, maps must always be surrounded by parentheses and must always be
+comma-separated. Both the keys and values in maps can be any SassScript object.
+A map may only have one value associated with a given key (although that value
+may be a list). A given value may be associated with many keys, though.
+
+Like lists, maps are mostly manipulated using [SassScript
+functions](Sass/Script/Functions.html#map-functions). The
+{Sass::Script::Functions#map-get `map-get` function} looks up values in a map
+and the {Sass::Script::Functions#map-merge `map-merge` function} adds values to
+a map. The [`@each` directive](#each-multi-assign) can be used to add styles
+for each key/value pair in a map. The order of pairs in a map is always the
+same as when the map was created.
+
+Maps can also be used anywhere lists can. When used by a list function, a map is
+treated as a list of pairs. For example, `(key1: value1, key2: value2)` would be
+treated as the nested list `key1 value1, key2 value2` by list functions. Lists
+cannot be treated as maps, though, with the exception of the empty list. `()`
+represents both a map with no key/value pairs and a list with no elements.
+
+Maps cannot be converted to plain CSS. Using one as the value of a variable or
+an argument to a CSS function will cause an error.
 
 ### Operations
 
@@ -1831,11 +1861,11 @@ is compiled to:
 
 ### `@each` {#each-directive}
 
-The `@each` rule has the form `@each $var in <list>`.
-`$var` can be any variable name, like `$length` or `$name`,
-and `<list>` is a SassScript expression that returns a list.
+The `@each` directive usually has the form `@each $var in <list or map>`. `$var`
+can be any variable name, like `$length` or `$name`, and `<list or map>` is a
+SassScript expression that returns a list or a map.
 
-The `@each` rule sets `$var` to each item in the list,
+The `@each` rule sets `$var` to each item in the list or map,
 then outputs the styles it contains using that value of `$var`.
 For example:
 
@@ -1855,6 +1885,55 @@ is compiled to:
       background-image: url('/images/egret.png'); }
     .salamander-icon {
       background-image: url('/images/salamander.png'); }
+
+#### Multiple Assignment {#each-multi-assign}
+
+The `@each` directive can also use multiple variables, as in `@each $var1,
+$var2, ... in <list>`. If `<list>` is a list of lists, each element of the
+sub-lists is assigned to the respective variable. For example:
+
+    @each $animal, $color, $cursor in (puma, black, default),
+                                      (sea-slug, blue, pointer),
+                                      (egret, white, move) {
+      .#{$animal}-icon {
+        background-image: url('/images/#{$animal}.png');
+        border: 2px solid $color;
+        cursor: $cursor;
+      }
+    }
+
+is compiled to:
+
+    .puma-icon {
+      background-image: url('/images/puma.png');
+      border: 2px solid black;
+      cursor: default; }
+    .sea-slug-icon {
+      background-image: url('/images/sea-slug.png');
+      border: 2px solid blue;
+      cursor: pointer; }
+    .egret-icon {
+      background-image: url('/images/egret.png');
+      border: 2px solid white;
+      cursor: move; }
+
+Since [maps](#maps) are treated as lists of pairs, multiple assignment works
+with them as well. For example:
+
+    @each $header, $size in (h1: 2em, h2: 1.5em, h3: 1.2em) {
+      #{$header} {
+        font-size: $size;
+      }
+    }
+
+is compiled to:
+
+    h1 {
+      font-size: 2em; }
+    h2 {
+      font-size: 1.5em; }
+    h3 {
+      font-size: 1.2em; }
 
 ### `@while`
 

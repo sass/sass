@@ -253,11 +253,34 @@ RUBY
       # @private
       def lexer_class; Lexer; end
 
-      def expr
-        interp = try_ops_after_interp([:comma], :expr) and return interp
+      def map
         start_pos = source_position
         return unless e = interpolation
-        list = node(Sass::Script::Tree::ListLiteral.new([e], :comma), start_pos)
+        return list e, start_pos unless @lexer.peek && @lexer.peek.type == :colon
+
+        key, value = map_pair(e)
+        map = node(Sass::Script::Tree::MapLiteral.new([[key, value]]), start_pos)
+        while tok = try_tok(:comma)
+          key, value = assert_expr(:map_pair)
+          map.pairs << [key, value]
+        end
+        map
+      end
+
+      def map_pair(key=nil)
+        return unless key ||= interpolation
+        assert_tok :colon
+        return key, assert_expr(:interpolation)
+      end
+
+      def expr
+        start_pos = source_position
+        return unless e = interpolation
+        list e, start_pos
+      end
+
+      def list(first, start_pos)
+        list = node(Sass::Script::Tree::ListLiteral.new([first], :comma), start_pos)
         while tok = try_tok(:comma)
           if interp = try_op_before_interp(tok, list)
             return interp unless other_interp = try_ops_after_interp([:comma], :expr, interp)
@@ -447,10 +470,10 @@ RUBY
         was_in_parens = @in_parens
         @in_parens = true
         start_pos = source_position
-        e = expr
+        e = map
         end_pos = source_position
         assert_tok(:rparen)
-        return e || node(Sass::Script::Tree::ListLiteral.new([], :space), start_pos, end_pos)
+        return e || node(Sass::Script::Tree::ListLiteral.new([], nil), start_pos, end_pos)
       ensure
         @in_parens = was_in_parens
       end
@@ -502,7 +525,7 @@ RUBY
       end
 
       def try_tok(*names)
-        peeked =  @lexer.peek
+        peeked = @lexer.peek
         peeked && names.include?(peeked.type) && @lexer.next
       end
 

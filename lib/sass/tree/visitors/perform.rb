@@ -91,12 +91,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def initialize(env)
     @environment = env
-    @stack = Sass::Stack.new
   end
 
   # If an exception is raised, this adds proper metadata to the backtrace.
   def visit(node)
-    @stack.with_base(node.filename, node.line) {super(node.dup)}
+    return super(node.dup) unless @environment
+    @environment.stack.with_base(node.filename, node.line) {super(node.dup)}
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.filename, :line => node.line)
     raise e
@@ -155,8 +155,14 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     list = node.list.perform(@environment)
 
     with_environment Sass::Environment.new(@environment) do
-      list.to_a.map do |v|
-        @environment.set_local_var(node.var, v)
+      list.to_a.map do |value|
+        if node.vars.length == 1
+          @environment.set_local_var(node.vars.first, value)
+        else
+          node.vars.zip(value.to_a) do |(var, sub_value)|
+            @environment.set_local_var(var, sub_value || Sass::Script::Value::Null.new)
+          end
+        end
         node.children.map {|c| visit(c)}
       end.flatten
     end
@@ -220,12 +226,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       return resolved_node
     end
     file = node.imported_file
-    if @stack.frames.any? {|f| f.is_import? && f.filename == file.options[:filename]}
+    if @environment.stack.frames.any? {|f| f.is_import? && f.filename == file.options[:filename]}
       handle_import_loop!(node)
     end
 
     begin
-      @stack.with_import(node.filename, node.line) do
+      @environment.stack.with_import(node.filename, node.line) do
         root = file.to_tree
         Sass::Tree::Visitors::CheckNesting.visit(root)
         node.children = root.children.map {|c| visit(c)}.flatten
@@ -249,10 +255,10 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs a mixin.
   def visit_mixin(node)
     include_loop = true
-    handle_include_loop!(node) if @stack.frames.any? {|f| f.is_mixin? && f.name == node.name}
+    handle_include_loop!(node) if @environment.stack.frames.any? {|f| f.is_mixin? && f.name == node.name}
     include_loop = false
 
-    @stack.with_mixin(node.filename, node.line, node.name) do
+    @environment.stack.with_mixin(node.filename, node.line, node.name) do
       raise Sass::SyntaxError.new("Undefined mixin '#{node.name}'.") unless mixin = @environment.mixin(node.name)
 
       if node.children.any? && !mixin.has_content
@@ -282,7 +288,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def visit_content(node)
     return [] unless content = @environment.content
-    @stack.with_mixin(node.filename, node.line, '@content') do
+    @environment.stack.with_mixin(node.filename, node.line, '@content') do
       trace_node = Sass::Tree::TraceNode.from_node('@content', node)
       with_environment(@environment.caller) {trace_node.children = content.map {|c| visit(c.dup)}.flatten}
       trace_node
@@ -315,7 +321,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
       node.filename, node.options[:importer], node.line)
     node.parsed_rules ||= parser.parse_selector
-    node.stack_trace = stack_trace if node.options[:trace_selectors]
+    node.stack_trace = @environment.stack.to_s if node.options[:trace_selectors]
     yield
   end
 
@@ -338,7 +344,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     res = node.expr.perform(@environment)
     res = res.value if res.is_a?(Sass::Script::Value::String)
     msg = "WARNING: #{res}\n         "
-    msg << stack_trace.join("\n         ") << "\n"
+    msg << @environment.stack.to_s.gsub("\n", "\n         ") << "\n"
     Sass::Util.sass_warn msg
     []
   end
@@ -382,15 +388,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   private
 
-  def stack_trace
-    Sass::Util.enum_with_index(Sass::Util.enum_cons(@stack.frames.reverse + [nil], 2)).
-        map do |(frame, caller), i|
-      "#{i == 0 ? "on" : "from"} line #{frame.line}" +
-        " of #{frame.filename || "an unknown file"}" +
-        (caller && caller.name ? ", in `#{caller.name}'" : "")
-    end
-  end
-
   def run_interp_no_strip(text)
     text.map do |r|
       next r if r.is_a?(String)
@@ -408,7 +405,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def handle_include_loop!(node)
     msg = "An @include loop has been found:"
     content_count = 0
-    mixins = @stack.frames.select {|f| f.is_mixin?}.reverse.map {|f| f.name}.select do |name|
+    mixins = @environment.stack.frames.select {|f| f.is_mixin?}.reverse.map {|f| f.name}.select do |name|
       if name == '@content'
         content_count += 1
         false
@@ -431,7 +428,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def handle_import_loop!(node)
     msg = "An @import loop has been found:"
-    files = @stack.frames.select {|f| f.is_import?}.map {|f| f.filename}.compact
+    files = @environment.stack.frames.select {|f| f.is_import?}.map {|f| f.filename}.compact
     if node.filename == node.imported_file.options[:filename]
       raise Sass::SyntaxError.new("#{msg} #{node.filename} imports itself")
     end

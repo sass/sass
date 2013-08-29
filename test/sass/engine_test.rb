@@ -1646,6 +1646,27 @@ a
 SASS
   end
 
+  def test_destructuring_each
+    assert_equal <<CSS, render(<<SCSS)
+a {
+  foo: 1px;
+  bar: 2px;
+  baz: 3px; }
+
+c {
+  foo: "Value is bar";
+  bar: "Value is baz";
+  bang: "Value is "; }
+CSS
+a
+  @each $name, $number in (foo: 1px, bar: 2px, baz: 3px)
+    \#{$name}: $number
+c
+  @each $key, $value in (foo bar) (bar, baz) bang
+    \#{$key}: "Value is \#{$value}"
+SCSS
+  end
+
   def test_variable_reassignment
     assert_equal(<<CSS, render(<<SASS))
 a {
