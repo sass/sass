@@ -23,20 +23,33 @@ module Sass::Script::Tree
     # @return [{String => Node}]
     attr_reader :keywords
 
-    # The splat argument for this function, if one exists.
+    # The first splat argument for this function, if one exists.
+    #
+    # This could be a lsit of positional arguments, a map of keyword
+    # arguments, or an arglist containing both.
     #
     # @return [Node?]
     attr_accessor :splat
+
+    # The second splat argument for this function, if one exists.
+    #
+    # If this exists, it's always a map of keyword arguments, and
+    # \{#splat} is always either a list or an arglist.
+    #
+    # @return [Node?]
+    attr_accessor :kwarg_splat
 
     # @param name [String] See \{#name}
     # @param args [Array<Node>] See \{#args}
     # @param keywords [Sass::Util::NormalizedMap<Node>] See \{#keywords}
     # @param splat [Node] See \{#splat}
-    def initialize(name, args, keywords, splat)
+    # @param kwarg_splat [Node] See \{#kwarg_splat}
+    def initialize(name, args, keywords, splat, kwarg_splat)
       @name = name
       @args = args
       @keywords = keywords
       @splat = splat
+      @kwarg_splat = kwarg_splat
       super()
     end
 
@@ -48,6 +61,7 @@ module Sass::Script::Tree
       if self.splat
         splat = (args.empty? && keywords.empty?) ? "" : ", "
         splat = "#{splat}#{self.splat.inspect}..."
+        splat = "#{splat}, #{kwarg_splat.inspect}..." if kwarg_splat
       end
       "#{name}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
     end
@@ -66,6 +80,7 @@ module Sass::Script::Tree
       if self.splat
         splat = (args.empty? && keywords.empty?) ? "" : ", "
         splat = "#{splat}#{arg_to_sass[self.splat]}..."
+        splat = "#{splat}, #{arg_to_sass[kwarg_splat]}..." if kwarg_splat
       end
       "#{dasherize(name, opts)}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
     end
@@ -77,6 +92,7 @@ module Sass::Script::Tree
     def children
       res = @args + @keywords.values
       res << @splat if @splat
+      res << @kwarg_splat if @kwarg_splat
       res
     end
 
@@ -99,14 +115,14 @@ module Sass::Script::Tree
     # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
     def _perform(environment)
       args = @args.map {|a| a.perform(environment)}
-      splat = @splat.perform(environment) if @splat
+      splat = Sass::Tree::Visitors::Perform.perform_splat(@splat, @kwarg_splat, environment)
+      keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
       if fn = environment.function(@name)
-        keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
         return perform_sass_fn(fn, args, keywords, splat, environment)
       end
 
       ruby_name = @name.tr('-', '_')
-      args = construct_ruby_args(ruby_name, args, splat, environment)
+      args = construct_ruby_args(ruby_name, args, keywords, splat, environment)
 
       unless Sass::Script::Functions.callable?(ruby_name)
         opts(to_literal(args))
@@ -179,23 +195,20 @@ module Sass::Script::Tree
 
     private
 
-    def construct_ruby_args(name, args, splat, environment)
+    def construct_ruby_args(name, args, keywords, splat, environment)
       args += splat.to_a if splat
 
       # If variable arguments were passed, there won't be any explicit keywords.
-      if splat.is_a?(Sass::Script::Value::ArgList)
-        kwargs_size = splat.keywords.size
-        splat.keywords_accessed = false
-      else
-        kwargs_size = @keywords.size
+      if splat && !splat.keywords.empty?
+        old_keywords_accessed = splat.keywords_accessed
+        keywords = splat.keywords
+        splat.keywords_accessed = old_keywords_accessed
       end
 
-      unless signature = Sass::Script::Functions.signature(name.to_sym, args.size, kwargs_size)
-        return args if @keywords.empty?
+      unless signature = Sass::Script::Functions.signature(name.to_sym, args.size, keywords.size)
+        return args if keywords.empty?
         raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
       end
-      keywords = splat.is_a?(Sass::Script::Value::ArgList) ? splat.keywords :
-        Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
 
       # If the user passes more non-keyword args than the function expects,
       # but it does expect keyword args, Ruby's arg handling won't raise an error.

@@ -1621,6 +1621,26 @@ SASS
 SCSS
   end
 
+  def test_mixin_var_kwargs
+    assert_scss_to_sass <<SASS, <<SCSS
+=foo($a: b, $c: d)
+  a: $a
+  c: $c
+
+.foo
+  +foo($list..., $map...)
+SASS
+@mixin foo($a: b, $c: d) {
+  a: $a;
+  c: $c;
+}
+
+.foo {
+  @include foo($list..., $map...);
+}
+SCSS
+  end
+
   def test_function_var_args
     assert_scss_to_sass <<SASS, <<SCSS
 @function foo($args...)
@@ -1644,6 +1664,24 @@ SASS
 .foo {
   a: foo($list...);
   b: bar(1, $list...);
+}
+SCSS
+  end
+
+  def test_function_var_kwargs
+    assert_scss_to_sass <<SASS, <<SCSS
+@function foo($a: b, $c: d)
+  @return foo
+
+.foo
+  a: foo($list..., $map...)
+SASS
+@function foo($a: b, $c: d) {
+  @return foo;
+}
+
+.foo {
+  a: foo($list..., $map...);
 }
 SCSS
   end
@@ -1680,6 +1718,24 @@ SASS
   @at-root .bar {
     a: b;
   }
+}
+SCSS
+  end
+
+  def test_function_var_kwargs_with_list
+    assert_scss_to_sass <<SASS, <<SCSS
+@function foo($a: b, $c: d)
+  @return $a, $c
+
+.foo
+  a: foo($list..., $map...)
+SASS
+@function foo($a: b, $c: d) {
+  @return $a, $c;
+}
+
+.foo {
+  a: foo($list..., $map...);
 }
 SCSS
   end

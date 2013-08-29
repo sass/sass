@@ -194,6 +194,9 @@ module Sass::Script
   # \{#map_has_key map-has-key($key)}
   # : Returns whether a map has a value associated with a given key.
   #
+  # \{#keywords keywords($args)}
+  # : Returns the keywords passed to a function that takes variable arguments.
+  #
   # ## Introspection Functions
   #
   # \{#feature_exists feature-exists($feature)}
@@ -367,6 +370,11 @@ module Sass::Script
     class EvaluationContext
       include Functions
 
+      # The human-readable names for [Sass::Script::Value::Base]. The default is
+      # just the downcased name of the type. The default is the downcased type
+      # name.
+      TYPE_NAMES = {:ArgList => 'variable argument list'}
+
       # The global environment.
       #
       # @return [Environment]
@@ -401,7 +409,7 @@ module Sass::Script
         klass = Sass::Script::Value.const_get(type)
         return if value.is_a?(klass)
         return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.is_pseudo_map?
-        err = "#{value.inspect} is not a #{type.to_s.downcase}"
+        err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
         err = "$#{name.to_s.gsub('_', '-')}: " + err if name
         raise ArgumentError.new(err)
       end
@@ -1859,6 +1867,26 @@ module Sass::Script
     end
     declare :map_has_key, [:map, :key]
 
+    # Returns the map of named arguments passed to a function or mixin that
+    # takes a variable argument list. The argument names are strings, and they
+    # do not contain the leading `$`.
+    #
+    # @example
+    #   @mixin foo($args...) {
+    #     @debug keywords($args); //=> (arg1: val, arg2: val)
+    #   }
+    #
+    #   @include foo($arg1: val, $arg2: val);
+    # @overload keywords($args)
+    # @param $args [Sass::Script::Value::ArgList]
+    # @return [Sass::Script::Value::Map]
+    # @raise [ArgumentError] if `$args` isn't a variable argument list
+    def keywords(args)
+      assert_type args, :ArgList
+      Sass::Script::Value::Map.new(Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
+    end
+    declare :keywords, [:args]
+
     # Returns one of two values, depending on whether or not `$condition` is
     # true. Just like in `@if`, all values other than `false` and `null` are
     # considered to be true.
@@ -1917,6 +1945,7 @@ module Sass::Script
         name.value,
         args.map {|a| Sass::Script::Tree::Literal.new(a)},
         Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
+        nil,
         nil)
       funcall.options = options
       funcall.perform(environment)

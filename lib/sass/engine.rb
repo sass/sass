@@ -1060,9 +1060,10 @@ WARNING
       raise SyntaxError.new("Invalid mixin include \"#{line.text}\".") if name.nil?
 
       offset = line.offset + line.text.size - arg_string.size
-      args, keywords, splat = Script::Parser.new(arg_string.strip, @line, to_parser_offset(offset), @options).
-        parse_mixin_include_arglist
-      Tree::MixinNode.new(name, args, keywords, splat)
+      args, keywords, splat, kwarg_splat =
+        Script::Parser.new(arg_string.strip, @line, to_parser_offset(offset), @options).
+          parse_mixin_include_arglist
+      Tree::MixinNode.new(name, args, keywords, splat, kwarg_splat)
     end
 
     FUNCTION_RE = /^@function\s*(#{Sass::SCSS::RX::IDENT})(.*)$/

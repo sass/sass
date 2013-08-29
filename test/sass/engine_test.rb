@@ -3282,6 +3282,26 @@ SASS
       ], e.sass_backtrace)
   end
 
+  def test_mixin_with_args_and_varargs_passed_no_var_args
+    assert_equal <<CSS, render(<<SASS, :syntax => :scss)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3; }
+CSS
+@mixin three-or-more-args($a, $b, $c, $rest...) {
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+.foo {
+  @include three-or-more-args($a: 1, $b: 2, $c: 3);
+}
+SASS
+
+  end
+
   private
 
   def assert_hash_has(hash, expected)
