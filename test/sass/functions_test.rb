@@ -77,11 +77,10 @@ class SassFunctionTest < Test::Unit::TestCase
       end
     end
   end
-  
-  
-  def test_random
-    assert_equal("0" , evaluate("random()*0"))
-  end
+
+  #def test_random
+  #  assert_equal("0" , evaluate("random()*0"))
+  #end
   
   def test_random_alt
   	assert_equal("0", evaluate("random(1)"))
