@@ -134,9 +134,9 @@ module Sass
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels, other_subject)
-        return unless sseq = members.inject(sels) do |sseq, sel|
-          return unless sseq
-          sel.unify(sseq)
+        return unless sseq = members.inject(sels) do |_sseq, sel|
+          return unless _sseq
+          sel.unify(_sseq)
         end
         SimpleSequence.new(sseq, other_subject || subject?)
       end
