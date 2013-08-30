@@ -160,7 +160,6 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
       to_return = ''
       old_spaces = '  ' * @tabs
-      spaces = '  ' * (@tabs + 1)
       if node.style != :compressed
         if node.options[:debug_info] && !@in_directive
           to_return << visit(debug_info_rule(node.debug_info, node.options)) << "\n"
