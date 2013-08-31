@@ -14,6 +14,9 @@
 * Fixed a bug in the output of lists containing unary plus or minus
   operations during sass <=> scss conversion.
 
+* Avoid the [IE7 `content: counter` bug][cc bug] with `content: counters` as
+  well.
+
 ## 3.2.10
 
 * Use the Sass logger infrastructure for `@debug` directives.
