@@ -14,6 +14,8 @@
 * Fixed a bug in the output of lists containing unary plus or minus
   operations during sass <=> scss conversion.
 
+* Use system temporary directory for default cache_location (thanks Osric Wilkinson)
+
 ## 3.2.10
 
 * Use the Sass logger infrastructure for `@debug` directives.
