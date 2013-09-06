@@ -1046,6 +1046,12 @@ MSG
     assert_equal('counter(item,".")', evaluate('counter(item,".")'))
   end
 
+  def test_counters
+    assert_equal("counters(foo)", evaluate("counters(foo)"))
+    assert_equal('counters(item,".")', evaluate('counters(item, ".")'))
+    assert_equal('counters(item,".")', evaluate('counters(item,".")'))
+  end
+
   def test_keyword_args_rgb
     assert_equal(%Q{white}, evaluate("rgb($red: 255, $green: 255, $blue: 255)"))
   end
