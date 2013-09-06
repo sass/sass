@@ -1923,10 +1923,11 @@ module Sass::Script
     end
     declare :call, [:name], :var_args => true, :var_kwargs => true
 
-    # This function only exists as a workaround for IE7's [`content:counter`
-    # bug](http://jes.st/2013/ie7s-css-breaking-content-counter-bug/).
-    # It works identically to any other plain-CSS function, except it
+    # This function only exists as a workaround for IE7's [`content: counter`
+    # bug][bug]. It works identically to any other plain-CSS function, except it
     # avoids adding spaces between the argument commas.
+    #
+    # [bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
     #
     # @example
     #   counter(item, ".") => counter(item,".")
@@ -1936,6 +1937,21 @@ module Sass::Script
       Sass::Script::Value::String.new("counter(#{args.map {|a| a.to_s(options)}.join(',')})")
     end
     declare :counter, [], :var_args => true
+
+    # This function only exists as a workaround for IE7's [`content: counters`
+    # bug][bug]. It works identically to any other plain-CSS function, except it
+    # avoids adding spaces between the argument commas.
+    #
+    # [bug]: http://jes.st/2013/ie7s-css-breaking-content-counter-bug/
+    #
+    # @example
+    #   counters(item, ".") => counters(item,".")
+    # @overload counters($args...)
+    # @return [String]
+    def counters(*args)
+      Sass::Script::String.new("counters(#{args.map {|a| a.to_s(options)}.join(',')})")
+    end
+    declare :counters, [], :var_args => true
 
     private
 
