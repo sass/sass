@@ -1,5 +1,6 @@
 require 'set'
 require 'digest/sha1'
+require 'tmpdir'
 require 'sass/cache_stores'
 require 'sass/tree/node'
 require 'sass/tree/root_node'
@@ -155,7 +156,7 @@ module Sass
       :style => :nested,
       :load_paths => ['.'],
       :cache => true,
-      :cache_location => './.sass-cache',
+      :cache_location => File.join(Dir::tmpdir, '.sass-cache'),
       :syntax => :sass,
       :filesystem_importer => Sass::Importers::Filesystem
     }.freeze
