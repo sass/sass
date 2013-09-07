@@ -442,7 +442,7 @@ is compiled to:
       #main pre {
         font-size: 3em; }
 
-### Referencing Parent Selectors: `&`
+### Referencing Parent Selectors: `&` {#parent-selector}
 
 Sometimes it's useful to use a nested rule's parent selector
 in other ways than the default.
@@ -1084,6 +1084,37 @@ is compiled to:
 
     p {
       font: 12px/30px; }
+
+### `&` in SassScript {#parent-script}
+
+Just like when it's used [in selectors](#parent-selector), `&` in SassScript
+refers to the current parent selector. It's a comma-separated list of
+space-separated lists. For example:
+
+    .foo.bar .baz.bang, .bip.qux {
+      $selector: &;
+    }
+
+The value of `$selector` is now `((".foo.bar" ".baz.bang"), ".bip.qux")`. The
+compound selectors are quoted here to indicate that they're strings, but in
+reality they would be unquoted. Even if the parent selector doesn't contain a
+comma or a space, `&` will always have two levels of nesting, so it can be
+accessed consistently.
+
+The SassScript `&` may be used in selectors using `#{}` interpolation. Because
+it's often not possible for Sass to detect that you're using it, you need to
+explicitly tell Sass not to do the normal nesting for the selector using the
+[`@at-root` directive](#at-root). For example:
+
+    .badge {
+      @at-root #{&}-info { ... }
+      @at-root #{&}-header { ... }
+    }
+
+Produces:
+
+    .badge-info { ... }
+    .badge-header { ... }
 
 ### Variable Defaults: `!default`
 
@@ -1735,6 +1766,40 @@ But this is an error:
 
 Someday we hope to have `@extend` supported natively in the browser, which will
 allow it to be used within `@media` and other directives.
+
+### `@at-root` {#at-root}
+
+The `@at-root` directive causes one or more rules to be emitted at the root of
+the document, rather than being nested beneath their parent selectors. It can
+either be used with a single inline selector:
+
+    .parent {
+      @at-root .child { ... }
+    }
+
+or with a block containing multiple selectors:
+
+    .parent {
+      @at-root {
+        .child1 { ... }
+        .child2 { ... }
+      }
+    }
+
+These produce, respectively:
+
+    .child { ... }
+
+    .child1 { ... }
+    .child2 { ... }
+
+`@at-root` is most commonly used with [the SassScript parent selector
+`&`](#parent-script), to ensure that the parent selector isn't duplicated.
+
+Currently, `@at-root` will only ignore parent *selectors*, not any other
+directives such as `@media`. It may be extended in the future to allow other
+directives to be ignored, but the default will continue to ignore only
+selectors.
 
 ### `@debug`
 
