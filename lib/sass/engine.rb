@@ -29,6 +29,7 @@ require 'sass/tree/debug_node'
 require 'sass/tree/warn_node'
 require 'sass/tree/import_node'
 require 'sass/tree/charset_node'
+require 'sass/tree/at_root_node'
 require 'sass/tree/visitors/base'
 require 'sass/tree/visitors/perform'
 require 'sass/tree/visitors/cssize'
@@ -761,109 +762,133 @@ WARNING
       end
     end
 
+    DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
+      :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
+      :at_root]
+
     def parse_directive(parent, line, root)
       directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
       offset = directive.size + whitespace.size + 1 if whitespace
 
-      # If value begins with url( or ",
-      # it's a CSS @import rule and we don't want to touch it.
-      case directive
-      when 'import'
-        parse_import(line, value, offset)
-      when 'mixin'
-        parse_mixin_definition(line)
-      when 'content'
-        parse_content_directive(line)
-      when 'include'
-        parse_mixin_include(line, root)
-      when 'function'
-        parse_function(line, root)
-      when 'for'
-        parse_for(line, root, value)
-      when 'each'
-        parse_each(line, root, value)
-      when 'else'
-        parse_else(parent, line, value)
-      when 'while'
-        raise SyntaxError.new("Invalid while directive '@while': expected expression.") unless value
-        Tree::WhileNode.new(parse_script(value, :offset => offset))
-      when 'if'
-        raise SyntaxError.new("Invalid if directive '@if': expected expression.") unless value
-        Tree::IfNode.new(parse_script(value, :offset => offset))
-      when 'debug'
-        raise SyntaxError.new("Invalid debug directive '@debug': expected expression.") unless value
-        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.",
-          :line => @line + 1) unless line.children.empty?
-        offset = line.offset + line.text.index(value).to_i
-        Tree::DebugNode.new(parse_script(value, :offset => offset))
-      when 'extend'
-        raise SyntaxError.new("Invalid extend directive '@extend': expected expression.") unless value
-        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath extend directives.",
-          :line => @line + 1) unless line.children.empty?
-        optional = !!value.gsub!(/\s+#{Sass::SCSS::RX::OPTIONAL}$/, '')
-        offset = line.offset + line.text.index(value).to_i
-        interp_parsed = parse_interp(value, offset)
-        selector_range = Sass::Source::Range.new(
-          Sass::Source::Position.new(@line, to_parser_offset(offset)),
-          Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
-          @options[:filename], @options[:importer]
-        )
-        Tree::ExtendNode.new(interp_parsed, optional, selector_range)
-      when 'warn'
-        raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
-        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",
-          :line => @line + 1) unless line.children.empty?
-        offset = line.offset + line.text.index(value).to_i
-        Tree::WarnNode.new(parse_script(value, :offset => offset))
-      when 'return'
-        raise SyntaxError.new("Invalid @return: expected expression.") unless value
-        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath return directives.",
-          :line => @line + 1) unless line.children.empty?
-        offset = line.offset + line.text.index(value).to_i
-        Tree::ReturnNode.new(parse_script(value, :offset => offset))
-      when 'charset'
-        name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
-        raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name
-        raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath charset directives.",
-          :line => @line + 1) unless line.children.empty?
-        Tree::CharsetNode.new(name)
-      when 'media'
-        parser = Sass::SCSS::Parser.new(value,
-          @options[:filename], @options[:importer],
-          @line, to_parser_offset(@offset))
-        # -1 includes the '@' into the range.
-        offset = line.offset + line.text.index(directive).to_i - 1
-        parsed_media_query_list = parser.parse_media_query_list.to_a
-        node = Tree::MediaNode.new(parsed_media_query_list)
-        node.source_range = Sass::Source::Range.new(
-          Sass::Source::Position.new(@line, to_parser_offset(offset)),
-          Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
-          @options[:filename], @options[:importer])
-        node
-      else
-        unprefixed_directive = directive.gsub(/^-[a-z0-9]+-/i, '')
-        if unprefixed_directive == 'supports'
-          parser = Sass::SCSS::Parser.new(value, @options[:filename], @line)
-          return Tree::SupportsNode.new(directive, parser.parse_supports_condition)
-        end
-
-        Tree::DirectiveNode.new(
-          value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
+      directive_name = directive.gsub('-', '_').to_sym
+      if DIRECTIVES.include?(directive_name)
+        return send("parse_#{directive_name}_directive", parent, line, root, value, offset)
       end
+
+      unprefixed_directive = directive.gsub(/^-[a-z0-9]+-/i, '')
+      if unprefixed_directive == 'supports'
+        parser = Sass::SCSS::Parser.new(value, @options[:filename], @line)
+        return Tree::SupportsNode.new(directive, parser.parse_supports_condition)
+      end
+
+      return Tree::DirectiveNode.new(
+        value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
     end
 
-    def parse_for(line, root, text)
-      var, from_expr, to_name, to_expr = text.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
+    def parse_while_directive(parent, line, root, value, offset)
+      raise SyntaxError.new("Invalid while directive '@while': expected expression.") unless value
+      Tree::WhileNode.new(parse_script(value, :offset => offset))
+    end
+
+    def parse_if_directive(parent, line, root, value, offset)
+      raise SyntaxError.new("Invalid if directive '@if': expected expression.") unless value
+      Tree::IfNode.new(parse_script(value, :offset => offset))
+    end
+
+    def parse_debug_directive(parent, line, root, value, offset)
+      raise SyntaxError.new("Invalid debug directive '@debug': expected expression.") unless value
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath debug directives.",
+        :line => @line + 1) unless line.children.empty?
+      offset = line.offset + line.text.index(value).to_i
+      Tree::DebugNode.new(parse_script(value, :offset => offset))
+    end
+
+    def parse_extend_directive(parent, line, root, value, offset)
+      raise SyntaxError.new("Invalid extend directive '@extend': expected expression.") unless value
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath extend directives.",
+        :line => @line + 1) unless line.children.empty?
+      optional = !!value.gsub!(/\s+#{Sass::SCSS::RX::OPTIONAL}$/, '')
+      offset = line.offset + line.text.index(value).to_i
+      interp_parsed = parse_interp(value, offset)
+      selector_range = Sass::Source::Range.new(
+        Sass::Source::Position.new(@line, to_parser_offset(offset)),
+        Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
+        @options[:filename], @options[:importer]
+      )
+      Tree::ExtendNode.new(interp_parsed, optional, selector_range)
+    end
+
+    def parse_warn_directive(parent, line, root, value, offset)
+      raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath warn directives.",
+        :line => @line + 1) unless line.children.empty?
+      offset = line.offset + line.text.index(value).to_i
+      Tree::WarnNode.new(parse_script(value, :offset => offset))
+    end
+
+    def parse_return_directive(parent, line, root, value, offset)
+      raise SyntaxError.new("Invalid @return: expected expression.") unless value
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath return directives.",
+        :line => @line + 1) unless line.children.empty?
+      offset = line.offset + line.text.index(value).to_i
+      Tree::ReturnNode.new(parse_script(value, :offset => offset))
+    end
+
+    def parse_charset_directive(parent, line, root, value, offset)
+      name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
+      raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name
+      raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath charset directives.",
+        :line => @line + 1) unless line.children.empty?
+      Tree::CharsetNode.new(name)
+    end
+
+    def parse_media_directive(parent, line, root, value, offset)
+      parser = Sass::SCSS::Parser.new(value,
+        @options[:filename], @options[:importer],
+        @line, to_parser_offset(@offset))
+      offset = line.offset + line.text.index('media').to_i - 1
+      parsed_media_query_list = parser.parse_media_query_list.to_a
+      node = Tree::MediaNode.new(parsed_media_query_list)
+      node.source_range = Sass::Source::Range.new(
+        Sass::Source::Position.new(@line, to_parser_offset(offset)),
+        Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
+        @options[:filename], @options[:importer])
+      node
+    end
+
+    def parse_at_root_directive(parent, line, root, value, offset)
+      at_root_node = Sass::Tree::AtRootNode.new
+      return at_root_node unless value
+
+      parsed = parse_interp(value, offset)
+      selector_range = Sass::Source::Range.new(
+        Sass::Source::Position.new(@line, to_parser_offset(offset)),
+        Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
+        @options[:filename], @options[:importer])
+      rule_node = Tree::RuleNode.new(parsed, full_line_range(line))
+
+      # The caller expects to automatically add children to the returned node
+      # and we want it to add children to the rule node instead, so we
+      # manually handle the wiring here and return nil so the caller doesn't
+      # duplicate our efforts.
+      append_children(rule_node, line.children, false)
+      at_root_node << rule_node
+      parent << at_root_node
+      nil
+    end
+
+    def parse_for_directive(parent, line, root, value, offset)
+      var, from_expr, to_name, to_expr = value.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
 
       if var.nil? # scan failed, try to figure out why for error message
-        if text !~ /^[^\s]+/
+        if value !~ /^[^\s]+/
           expected = "variable name"
-        elsif text !~ /^[^\s]+\s+from\s+.+/
+        elsif value !~ /^[^\s]+\s+from\s+.+/
           expected = "'from <expr>'"
         else
           expected = "'to <expr>' or 'through <expr>'"
         end
-        raise SyntaxError.new("Invalid for directive '@for #{text}': expected #{expected}.")
+        raise SyntaxError.new("Invalid for directive '@for #{value}': expected #{expected}.")
       end
       raise SyntaxError.new("Invalid variable \"#{var}\".") unless var =~ Script::VALIDATE
 
@@ -873,16 +898,16 @@ WARNING
       Tree::ForNode.new(var, parsed_from, parsed_to, to_name == 'to')
     end
 
-    def parse_each(line, root, text)
-      vars, list_expr = text.scan(/^([^\s]+(?:\s*,\s*[^\s]+)*)\s+in\s+(.+)$/).first
+    def parse_each_directive(parent, line, root, value, offset)
+      vars, list_expr = value.scan(/^([^\s]+(?:\s*,\s*[^\s]+)*)\s+in\s+(.+)$/).first
 
       if vars.nil? # scan failed, try to figure out why for error message
-        if text !~ /^[^\s]+/
+        if value !~ /^[^\s]+/
           expected = "variable name"
-        elsif text !~ /^[^\s]+(?:\s*,\s*[^\s]+)*[^\s]+\s+from\s+.+/
+        elsif value !~ /^[^\s]+(?:\s*,\s*[^\s]+)*[^\s]+\s+from\s+.+/
           expected = "'in <expr>'"
         end
-        raise SyntaxError.new("Invalid each directive '@each #{text}': expected #{expected}.")
+        raise SyntaxError.new("Invalid each directive '@each #{value}': expected #{expected}.")
       end
 
       vars = vars.split(',').map do |var|
@@ -895,13 +920,13 @@ WARNING
       Tree::EachNode.new(vars, parsed_list)
     end
 
-    def parse_else(parent, line, text)
+    def parse_else_directive(parent, line, root, value, offset)
       previous = parent.children.last
       raise SyntaxError.new("@else must come after @if.") unless previous.is_a?(Tree::IfNode)
 
-      if text
-        if text !~ /^if\s+(.+)/
-          raise SyntaxError.new("Invalid else directive '@else #{text}': expected 'if <expr>'.")
+      if value
+        if value !~ /^if\s+(.+)/
+          raise SyntaxError.new("Invalid else directive '@else #{value}': expected 'if <expr>'.")
         end
         expr = parse_script($1, :offset => line.offset + line.text.index($1))
       end
@@ -912,7 +937,7 @@ WARNING
       nil
     end
 
-    def parse_import(line, value, offset)
+    def parse_import_directive(parent, line, root, value, offset)
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath import directives.",
         :line => @line + 1) unless line.children.empty?
 
@@ -1001,6 +1026,10 @@ WARNING
       node
     end
 
+    def parse_mixin_directive(parent, line, root, value, offset)
+      parse_mixin_definition(line)
+    end
+
     MIXIN_DEF_RE = /^(?:=|@mixin)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
     def parse_mixin_definition(line)
       name, arg_string = line.text.scan(MIXIN_DEF_RE).first
@@ -1013,12 +1042,16 @@ WARNING
     end
 
     CONTENT_RE = /^@content\s*(.+)?$/
-    def parse_content_directive(line)
+    def parse_content_directive(parent, line, root, value, offset)
       trailing = line.text.scan(CONTENT_RE).first.first
       raise SyntaxError.new("Invalid content directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath @content directives.",
         :line => line.index + 1) unless line.children.empty?
       Tree::ContentNode.new
+    end
+
+    def parse_include_directive(parent, line, root, value, offset)
+      parse_mixin_include(line, root)
     end
 
     MIXIN_INCLUDE_RE = /^(?:\+|@include)\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
@@ -1033,7 +1066,7 @@ WARNING
     end
 
     FUNCTION_RE = /^@function\s*(#{Sass::SCSS::RX::IDENT})(.*)$/
-    def parse_function(line, root)
+    def parse_function_directive(parent, line, root, value, offset)
       name, arg_string = line.text.scan(FUNCTION_RE).first
       raise SyntaxError.new("Invalid function definition \"#{line.text}\".") if name.nil?
 

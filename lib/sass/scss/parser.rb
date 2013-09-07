@@ -154,7 +154,7 @@ module Sass
 
       DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
         :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
-        :_moz_document]
+        :_moz_document, :at_root]
 
       PREFIXED_DIRECTIVES = Set[:supports]
 
@@ -469,6 +469,13 @@ module Sass
           _interp_string(:domain) || function(!:allow_var) || interpolation
         ss
         val
+      end
+
+      def at_root_directive(start_pos)
+        at_root_node = node(Sass::Tree::AtRootNode.new, start_pos)
+        return block(at_root_node, :stylesheet) unless rule_node = ruleset
+        at_root_node << rule_node
+        return at_root_node
       end
 
       # http://www.w3.org/TR/css3-conditional/

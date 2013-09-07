@@ -1526,6 +1526,251 @@ baz {b: foo()}
 SCSS
   end
 
+  ## @at-root
+
+  def test_simple_at_root
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root {
+    .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_selector
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root .bar {a: b}
+}
+SCSS
+  end
+
+  def test_at_root_in_mixin
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+@mixin bar {
+  @at-root .bar {a: b}
+}
+
+.foo {
+  @include bar;
+}
+SCSS
+  end
+
+  def test_at_root_in_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+@media screen {
+  .foo {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_in_bubbled_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_in_unknown_directive
+    assert_equal <<CSS, render(<<SCSS)
+@fblthp {
+  .bar {
+    a: b; } }
+CSS
+@fblthp {
+  .foo {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_in_nested_unknown_directive
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  @fblthp {
+    .bar {
+      a: b; } } }
+CSS
+.foo {
+  @fblthp {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
+  ## Selector Script
+
+  def test_selector_script
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar {
+  content: ".foo .bar"; }
+CSS
+.foo .bar {
+  content: "\#{&}";
+}
+SCSS
+  end
+
+  def test_nested_selector_script
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar {
+  content: ".foo .bar"; }
+CSS
+.foo {
+  .bar {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_nested_selector_script_with_outer_comma_selector
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .baz, .bar .baz {
+  content: ".foo .baz, .bar .baz"; }
+CSS
+.foo, .bar {
+  .baz {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_nested_selector_script_with_inner_comma_selector
+    assert_equal(<<CSS, render(<<SCSS))
+.foo .bar, .foo .baz {
+  content: ".foo .bar, .foo .baz"; }
+CSS
+.foo {
+  .bar, .baz {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_through_mixin
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@mixin mixin {
+  content: "\#{&}";
+}
+
+.foo {
+  @include mixin;
+}
+SCSS
+  end
+
+  def test_selector_script_through_content
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@mixin mixin {
+  @content;
+}
+
+.foo {
+  @include mixin {
+    content: "\#{&}";
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_through_function
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: ".foo"; }
+CSS
+@function fn() {
+  @return "\#{&}";
+}
+
+.foo {
+  content: fn();
+}
+SCSS
+  end
+
+  def test_selector_script_through_media
+    assert_equal(<<CSS, render(<<SCSS))
+.foo {
+  content: "outer"; }
+  @media screen {
+    .foo .bar {
+      content: ".foo .bar"; } }
+CSS
+.foo {
+  content: "outer";
+  @media screen {
+    .bar {
+      content: "\#{&}";
+    }
+  }
+}
+SCSS
+  end
+
+  def test_selector_script_save_and_reuse
+    assert_equal(<<CSS, render(<<SCSS))
+.bar {
+  content: ".foo"; }
+CSS
+$var: null;
+.foo {
+  $var: &;
+}
+
+.bar {
+  content: "\#{$var}";
+}
+SCSS
+  end
+
+  def test_selector_script_with_at_root
+    assert_equal(<<CSS, render(<<SCSS))
+.foo-bar {
+  a: b; }
+CSS
+.foo {
+  @at-root \#{&}-bar {
+    a: b;
+  }
+}
+SCSS
+  end
+
   ## Errors
 
   def test_nested_mixin_def_is_scoped
@@ -1735,6 +1980,57 @@ SCSS
   end
 
   # Regression
+
+  def test_nested_unknown_directive
+    assert_equal(<<CSS, render(<<SCSS, :style => :nested))
+.foo {
+  @fblthp {
+    .bar {
+      a: b; } } }
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS, :style => :compressed))
+.foo{@fblthp{.bar{a:b}}}
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS, :style => :compact))
+.foo { @fblthp { .bar { a: b; } } }
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+
+    assert_equal(<<CSS, render(<<SCSS, :style => :expanded))
+.foo {
+  @fblthp {
+    .bar {
+      a: b;
+    }
+  }
+}
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+  end
 
   def test_loud_comment_in_compressed_mode
     assert_equal(<<CSS, render(<<SCSS))
