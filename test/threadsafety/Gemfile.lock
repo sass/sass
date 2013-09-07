@@ -1,0 +1,14 @@
+PATH
+  remote: ../../
+  specs:
+    sass (3.2.9)
+
+GEM
+  specs:
+
+PLATFORMS
+  java
+  ruby
+
+DEPENDENCIES
+  sass!

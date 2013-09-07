@@ -1,10 +1,28 @@
+PATH
+  remote: /Users/ceppstei/Projects/sass
+  specs:
+    sass (3.2.9)
+      thread_safe (>= 0.1.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
+    atomic (1.1.10)
+    atomic (1.1.10-java)
+    maruku (0.6.1)
+      syntax (>= 1.0.0)
     rake (0.9.2)
+    syntax (1.0.0)
+    thread_safe (0.1.0)
+      atomic
+    yard (0.8.6.1)
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
+  maruku (>= 0.5.9)
   rake
+  sass!
+  yard (>= 0.5.3)

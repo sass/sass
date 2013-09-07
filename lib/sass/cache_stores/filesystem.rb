@@ -11,6 +11,7 @@ module Sass
 
       # @param cache_location [String] see \{#cache\_location}
       def initialize(cache_location)
+        require 'tempfile'
         @cache_location = cache_location
       end
 
@@ -36,7 +37,7 @@ module Sass
         # return if File.exists?(File.dirname(compiled_filename)) && !File.writable?(File.dirname(compiled_filename))
         # return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
         FileUtils.mkdir_p(File.dirname(compiled_filename))
-        File.open(compiled_filename, "wb") do |f|
+        atomic_create_and_write_file(compiled_filename) do |f|
           f.puts(version)
           f.puts(sha)
           f.write(contents)
@@ -46,6 +47,31 @@ module Sass
       end
 
       private
+
+      # This creates a temp file and yields it for writing. When the
+      # write is complete, the file is moved into the desired location
+      # the atomicity of this operation is provided by the filesystem's
+      # rename operation.
+      #
+      # @param filename the file to write to.
+      # @yieldparam tmpfile the tmpfile that can be written to.
+      def atomic_create_and_write_file(filename)
+        tmpfile = Tempfile.new(File.basename(filename), File.dirname(filename))
+        tmp_path = tmpfile.path
+        begin
+          begin
+            tmpfile.binmode if tmpfile.respond_to?(:binmode)
+            yield tmpfile
+          ensure
+            tmpfile.close
+          end
+          File.rename tmpfile.path, filename
+        ensure
+          # remove the tempfile if it still exists, presumably due to an error during write
+          FileUtils.rm_f tmp_path
+        end
+        nil
+      end
 
       # Returns the path to a file for the given key.
       #

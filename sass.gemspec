@@ -19,6 +19,7 @@ SASS_GEMSPEC = Gem::Specification.new do |spec|
     END
 
   spec.required_ruby_version = '>= 1.8.7'
+  spec.add_dependency 'thread_safe', '>= 0.1.0'
   spec.add_development_dependency 'yard', '>= 0.5.3'
   spec.add_development_dependency 'maruku', '>= 0.5.9'
 

@@ -1,3 +1,5 @@
+require 'thread_safe/cache'
+
 module Sass
   module Plugin
     # The class handles `.s[ca]ss` file staleness checks via their mtime timestamps.
@@ -23,7 +25,7 @@ module Sass
     #   *WARNING*: It is important not to retain the instance for too long,
     #   as its instance-level caches are never explicitly expired.
     class StalenessChecker
-      @dependencies_cache = {}
+      @dependencies_cache = ThreadSafe::Cache.new
 
       class << self
         # TODO: attach this to a compiler instance.
