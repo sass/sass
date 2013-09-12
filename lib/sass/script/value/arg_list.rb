@@ -28,10 +28,5 @@ module Sass::Script::Value
       @keywords_accessed = true
       @keywords
     end
-
-    # @see Base#children
-    def children
-      super + @keywords.values
-    end
   end
 end
