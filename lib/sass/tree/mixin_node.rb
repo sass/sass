@@ -21,7 +21,7 @@ module Sass::Tree
 
     # The first splat argument for this mixin, if one exists.
     #
-    # This could be a lsit of positional arguments, a map of keyword
+    # This could be a list of positional arguments, a map of keyword
     # arguments, or an arglist containing both.
     #
     # @return [Node?]
