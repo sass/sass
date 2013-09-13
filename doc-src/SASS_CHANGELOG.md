@@ -167,6 +167,26 @@ Produces:
       font-size: 1.2em;
     }
 
+#### Variable Keyword Arguments
+
+Maps can be passed as variable arguments, just like lists. For example, if
+`$map` is `(lightness: 10%, blue: -30%)`, you can write `scale-color($color,
+$map...)` and it will do the same thing as `scale-color($color, $lightness: 10%,
+$blue: 30%)`. To pass a variable argument list and map at the same time, just do
+the list first, then the map, as in `fn($list..., $map...)`.
+
+You can also access the keywords passed to a function that accepts a variable
+argument list using the new {Sass::Script::Functions#keywords `keywords($args)`
+function}. For example:
+
+    @function create-map($args...) {
+      @return keywords($args);
+    }
+
+    create-map($foo: 10, $bar: 11); // returns (foo: 10, bar: 11)
+
+#### Lists of Pairs as Maps
+
 The new map functions work on lists of pairs as well, for the time being. This
 feature exists to help libraries that previously used lists of pairs to simulate
 maps. These libraries can now use map functions internally without introducing

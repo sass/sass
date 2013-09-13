@@ -2212,12 +2212,13 @@ Since the named arguments are variable names, underscores and dashes can be used
 
 #### Variable Arguments
 
-Sometimes it makes sense for a mixin to take an unknown number of arguments. For
-example, a mixin for creating box shadows might take any number of shadows as
-arguments. For these situations, Sass supports "variable arguments," which are
-arguments at the end of a mixin declaration that take all leftover arguments and
-package them up as a [list](#lists). These arguments look just like normal
-arguments, but are followed by `...`. For example:
+Sometimes it makes sense for a mixin or function to take an unknown number of
+arguments. For example, a mixin for creating box shadows might take any number
+of shadows as arguments. For these situations, Sass supports "variable
+arguments," which are arguments at the end of a mixin or function declaration
+that take all leftover arguments and package them up as a [list](#lists). These
+arguments look just like normal arguments, but are followed by `...`. For
+example:
 
     @mixin box-shadow($shadows...) {
       -moz-box-shadow: $shadows;
@@ -2237,8 +2238,14 @@ is compiled to:
       box-shadow: 0px 4px 5px #666, 2px 6px 10px #999;
     }
 
+Variable arguments also contain any keyword arguments passed to the mixin or
+function. These can be accessed using the {Sass::Script::Functions#keywords
+`keywords($args)` function}, which returns them as a map from strings (without
+`$`) to values.
+
 Variable arguments can also be used when calling a mixin. Using the same syntax,
 you can expand a list of values so that each value is passed as a separate
+argument, or expand a map of values so that each pair is treated as a keyword
 argument. For example:
 
     @mixin colors($text, $background, $border) {
@@ -2252,6 +2259,11 @@ argument. For example:
       @include colors($values...);
     }
 
+    $value-map: (text: #00ff00, background: #0000ff, border: #ff0000);
+    .secondary {
+      @include colors($value-map...);
+    }
+
 is compiled to:
 
     .primary {
@@ -2260,9 +2272,18 @@ is compiled to:
       border-color: #0000ff;
     }
 
+    .secondary {
+      color: #0000ff;
+      background-color: #ff0000;
+      border-color: #00ff00;
+    }
+
+You can pass both an argument list and a map as long as the list comes before
+the map, as in `@include colors($values..., $map...)`.
+
 You can use variable arguments to wrap a mixin and add additional styles without
-changing the argument signature of the mixin. If you do so, even keyword
-arguments will get passed through to the wrapped mixin. For example:
+changing the argument signature of the mixin. If you do, keyword arguments will
+get directly passed through to the wrapped mixin. For example:
 
     @mixin wrapped-stylish-mixin($args...) {
       font-weight: bold;
