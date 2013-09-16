@@ -2661,6 +2661,14 @@ RESULT
 SOURCE
   end
 
+  def test_compressed_integer_zeros
+    assert_equal ".foo{width:0;height:10em}\n", render(<<SOURCE, :style => :compressed)
+.foo
+  width: 0px
+  height: 10em
+SOURCE
+  end
+
   def test_comment_with_crazy_indentation
     assert_equal(<<CSS, render(<<SASS))
 /* This is a loud comment:
