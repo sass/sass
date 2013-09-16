@@ -15,7 +15,7 @@ module Sass::Script::Value
 
     # A list of units in the numerator of the number.
     # For example, `1px*em/in*cm` would return `["px", "em"]`
-    # @return [Array<String>] 
+    # @return [Array<String>]
     attr_reader :numerator_units
 
     # A list of units in the denominator of the number.

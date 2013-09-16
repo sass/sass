@@ -1903,7 +1903,8 @@ counter variable is used to adjust the output. The directive has two forms:
 `@for $var from <start> through <end>` and `@for $var from <start> to <end>`.
 Note the difference in the keywords `through` and `to`. `$var` can be any
 variable name, like `$i`; `<start>` and `<end>` are SassScript expressions that
-should return integers.
+should return integers. When `<start>` is greater than `<end>` the counter will
+decrement instead of increment.
 
 The `@for` statement sets `$var` to each successive number in the specified
 range and each time outputs the nested styles using that value of `$var`. For

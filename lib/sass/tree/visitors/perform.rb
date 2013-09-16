@@ -185,13 +185,14 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     to.assert_int!
 
     to = to.coerce(from.numerator_units, from.denominator_units)
-    range = Range.new(from.to_i, to.to_i, node.exclusive)
+    direction = from.to_i > to.to_i ? -1 : 1
+    range = Range.new(direction * from.to_i, direction * to.to_i, node.exclusive)
 
     with_environment Sass::Environment.new(@environment) do
       range.map do |i|
         @environment.set_local_var(node.var,
-          Sass::Script::Value::Number.new(i, from.numerator_units, from.denominator_units))
-        node.children.map {|c| visit(c)}
+          Sass::Script::Value::Number.new(direction * i, from.numerator_units, from.denominator_units))
+        node.children.map { |c| visit(c) }
       end.flatten
     end
   end

@@ -5,6 +5,27 @@
 
 ## 3.3.0 (Unreleased)
 
+### Decrementing for-loops
+
+It is now possible to create decrementing loops using the default `@for`
+directive by having the `from` number be larger than the `to` number. For
+example:
+
+    .foo {
+      @for $var from 5 through 1 { a: $var }
+    }
+
+Produces:
+
+    .foo {
+      a: 5;
+      a: 4;
+      a: 3;
+      a: 2;
+      a: 1; }
+
+Thanks to [Robin Roestenburg](http://twitter.com/robinroest).
+
 ### Using `&` in SassScript
 
 For a long time, Sass has supported a special
