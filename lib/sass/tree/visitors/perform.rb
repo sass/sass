@@ -66,7 +66,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       end
 
       if callable.splat
-        rest = args[callable.args.length..-1]
+        rest = args[callable.args.length..-1] || []
         arg_list = Sass::Script::Value::ArgList.new(rest, keywords.dup, splat_sep)
         arg_list.options = env.options
         env.set_local_var(callable.splat.name, arg_list)
