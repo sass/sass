@@ -170,8 +170,8 @@ Produces:
 #### Variable Keyword Arguments
 
 Maps can be passed as variable arguments, just like lists. For example, if
-`$map` is `(lightness: 10%, blue: -30%)`, you can write `scale-color($color,
-$map...)` and it will do the same thing as `scale-color($color, $lightness: 10%,
+`$map` is `(alpha: -10%, "blue": 30%)`, you can write `scale-color($color,
+$map...)` and it will do the same thing as `scale-color($color, $alpha: -10%,
 $blue: 30%)`. To pass a variable argument list and map at the same time, just do
 the list first, then the map, as in `fn($list..., $map...)`.
 
