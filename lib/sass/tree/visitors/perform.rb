@@ -1,89 +1,135 @@
 # A visitor for converting a dynamic Sass tree into a static Sass tree.
 class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
-  # @param root [Tree::Node] The root node of the tree to visit.
-  # @param environment [Sass::Environment] The lexical environment.
-  # @return [Tree::Node] The resulting tree of static nodes.
-  def self.visit(root, environment = nil)
-    new(environment).send(:visit, root)
-  end
+  class << self
+    # @param root [Tree::Node] The root node of the tree to visit.
+    # @param environment [Sass::Environment] The lexical environment.
+    # @return [Tree::Node] The resulting tree of static nodes.
+    def visit(root, environment = nil)
+      new(environment).send(:visit, root)
+    end
 
-  # @api private
-  def self.perform_arguments(callable, args, keywords, splat)
-    desc = "#{callable.type.capitalize} #{callable.name}"
-    downcase_desc = "#{callable.type} #{callable.name}"
+    # @api private
+    def perform_arguments(callable, args, keywords, splat)
+      desc = "#{callable.type.capitalize} #{callable.name}"
+      downcase_desc = "#{callable.type} #{callable.name}"
 
-    begin
-      unless keywords.empty?
-        unknown_args = Sass::Util.array_minus(keywords.keys,
-          callable.args.map {|var| var.first.underscored_name})
-        if callable.splat && unknown_args.include?(callable.splat.underscored_name)
-          raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc} cannot be used as a named argument.")
-        elsif unknown_args.any?
-          description = unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'
-          raise Sass::SyntaxError.new("#{desc} doesn't have #{description} #{unknown_args.map {|name| "$#{name}"}.join ', '}.")
+      # If variable arguments were passed, there won't be any explicit keywords.
+      if splat && !splat.keywords.empty?
+        old_keywords_accessed = splat.keywords_accessed
+        keywords = splat.keywords
+        splat.keywords_accessed = old_keywords_accessed
+      end
+
+      begin
+        unless keywords.empty?
+          unknown_args = Sass::Util.array_minus(keywords.keys,
+            callable.args.map {|var| var.first.underscored_name})
+          if callable.splat && unknown_args.include?(callable.splat.underscored_name)
+            raise Sass::SyntaxError.new("Argument $#{callable.splat.name} of #{downcase_desc} cannot be used as a named argument.")
+          elsif unknown_args.any?
+            description = unknown_args.length > 1 ? 'the following arguments:' : 'an argument named'
+            raise Sass::SyntaxError.new("#{desc} doesn't have #{description} #{unknown_args.map {|name| "$#{name}"}.join ', '}.")
+          end
         end
-      end
-    rescue Sass::SyntaxError => keyword_exception
-    end
-
-    # If there's no splat, raise the keyword exception immediately. The actual
-    # raising happens in the ensure clause at the end of this function.
-    return if keyword_exception && !callable.splat
-
-    if args.size > callable.args.size && !callable.splat
-      takes = callable.args.size
-      passed = args.size
-      raise Sass::SyntaxError.new(
-        "#{desc} takes #{takes} argument#{'s' unless takes == 1} " +
-        "but #{passed} #{passed == 1 ? 'was' : 'were'} passed.")
-    end
-
-    splat_sep = :comma
-    if splat
-      args += splat.to_a
-      splat_sep = splat.separator if splat.is_a?(Sass::Script::Value::List)
-      # If the splat argument exists, there won't be any keywords passed in
-      # manually, so we can safely overwrite rather than merge here.
-      keywords = splat.keywords if splat.is_a?(Sass::Script::Value::ArgList)
-    end
-
-    keywords = keywords.dup
-    env = Sass::Environment.new(callable.environment)
-    callable.args.zip(args[0...callable.args.length]) do |(var, default), value|
-      if value && keywords.include?(var.underscored_name)
-        raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} both by position and by name.")
+      rescue Sass::SyntaxError => keyword_exception
       end
 
-      value ||= keywords.delete(var.underscored_name)
-      value ||= default && default.perform(env)
-      raise Sass::SyntaxError.new("#{desc} is missing argument #{var.inspect}.") unless value
-      env.set_local_var(var.name, value)
+      # If there's no splat, raise the keyword exception immediately. The actual
+      # raising happens in the ensure clause at the end of this function.
+      return if keyword_exception && !callable.splat
+
+      if args.size > callable.args.size && !callable.splat
+        takes = callable.args.size
+        passed = args.size
+        raise Sass::SyntaxError.new(
+          "#{desc} takes #{takes} argument#{'s' unless takes == 1} " +
+          "but #{passed} #{passed == 1 ? 'was' : 'were'} passed.")
+      end
+
+      splat_sep = :comma
+      if splat
+        args += splat.to_a
+        splat_sep = splat.separator
+      end
+
+      keywords = keywords.dup
+      env = Sass::Environment.new(callable.environment)
+      callable.args.zip(args[0...callable.args.length]) do |(var, default), value|
+        if value && keywords.include?(var.underscored_name)
+          raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} both by position and by name.")
+        end
+
+        value ||= keywords.delete(var.underscored_name)
+        value ||= default && default.perform(env)
+        raise Sass::SyntaxError.new("#{desc} is missing argument #{var.inspect}.") unless value
+        env.set_local_var(var.name, value)
+      end
+
+      if callable.splat
+        rest = args[callable.args.length..-1] || []
+        arg_list = Sass::Script::Value::ArgList.new(rest, keywords.dup, splat_sep)
+        arg_list.options = env.options
+        env.set_local_var(callable.splat.name, arg_list)
+      end
+
+      yield env
+    rescue Exception => e
+    ensure
+      # If there's a keyword exception, we don't want to throw it immediately,
+      # because the invalid keywords may be part of a glob argument that should be
+      # passed on to another function. So we only raise it if we reach the end of
+      # this function *and* the keywords attached to the argument list glob object
+      # haven't been accessed.
+      #
+      # The keyword exception takes precedence over any Sass errors, but not over
+      # non-Sass exceptions.
+      if keyword_exception &&
+          !(arg_list && arg_list.keywords_accessed) &&
+          (e.nil? || e.is_a?(Sass::SyntaxError))
+        raise keyword_exception
+      elsif e
+        raise e
+      end
     end
 
-    if callable.splat
-      rest = args[callable.args.length..-1]
-      arg_list = Sass::Script::Value::ArgList.new(rest, keywords.dup, splat_sep)
-      arg_list.options = env.options
-      env.set_local_var(callable.splat.name, arg_list)
+    # @api private
+    # @return [Sass::Script::Value::ArgList]
+    def perform_splat(splat, kwarg_splat, environment)
+      return unless splat
+      splat = splat.perform(environment)
+      unless kwarg_splat
+        return splat if splat.is_a?(Sass::Script::Value::ArgList)
+        if splat.is_a?(Sass::Script::Value::Map)
+          args = []
+          kwargs = arg_hash(splat)
+        else
+          args = splat.to_a
+          kwargs = {}
+        end
+        return Sass::Script::Value::ArgList.new(args, kwargs, splat.separator || :comma)
+      end
+
+      kwarg_splat = kwarg_splat.perform(environment)
+      unless kwarg_splat.is_a?(Sass::Script::Value::Map)
+        raise Sass::SyntaxError.new("Variable keyword arguments must be a map (was #{kwarg_splat.inspect}).")
+      end
+
+      if splat.is_a?(Sass::Script::Value::ArgList)
+        return Sass::Script::Value::ArgList.new(
+          splat.value, splat.keywords.merge(arg_hash(kwarg_splat)), splat.separator)
+      else
+        return Sass::Script::Value::ArgList.new(splat.to_a, arg_hash(kwarg_splat), splat.separator)
+      end
     end
 
-    yield env
-  rescue Exception => e
-  ensure
-    # If there's a keyword exception, we don't want to throw it immediately,
-    # because the invalid keywords may be part of a glob argument that should be
-    # passed on to another function. So we only raise it if we reach the end of
-    # this function *and* the keywords attached to the argument list glob object
-    # haven't been accessed.
-    #
-    # The keyword exception takes precedence over any Sass errors, but not over
-    # non-Sass exceptions.
-    if keyword_exception &&
-        !(arg_list && arg_list.keywords_accessed) &&
-        (e.nil? || e.is_a?(Sass::SyntaxError))
-      raise keyword_exception
-    elsif e
-      raise e
+    private
+
+    def arg_hash(map)
+      Sass::Util.map_keys(map.to_h) do |key|
+        next key.value if key.is_a?(Sass::Script::Value::String)
+        raise Sass::SyntaxError.new("Variable keyword argument map must have string keys.\n" +
+          "#{key.inspect} is not a string in #{map.inspect}.");
+      end
     end
   end
 
@@ -267,7 +313,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
       args = node.args.map {|a| a.perform(@environment)}
       keywords = Sass::Util.map_hash(node.keywords) {|k, v| [k, v.perform(@environment)]}
-      splat = node.splat.perform(@environment) if node.splat
+      splat = self.class.perform_splat(node.splat, node.kwarg_splat, @environment)
 
       self.class.perform_arguments(mixin, args, keywords, splat) do |env|
         env.caller = Sass::Environment.new(@environment)

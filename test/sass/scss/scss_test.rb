@@ -954,6 +954,139 @@ CSS
 SCSS
   end
 
+  def test_mixin_var_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3; }
+CSS
+@mixin foo($args...) {
+  a: map-get(keywords($args), a);
+  b: map-get(keywords($args), b);
+  c: map-get(keywords($args), c);
+}
+
+.foo {@include foo($a: 1, $b: 2, $c: 3)}
+SCSS
+  end
+
+  def test_mixin_empty_var_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  length: 0; }
+CSS
+@mixin foo($args...) {
+  length: length(keywords($args));
+}
+
+.foo {@include foo}
+SCSS
+  end
+
+  def test_mixin_map_splat
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3; }
+CSS
+@mixin foo($a, $b, $c) {
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+.foo {
+  $map: (a: 1, b: 2, c: 3);
+  @include foo($map...);
+}
+SCSS
+  end
+
+  def test_mixin_map_and_list_splat
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: x;
+  b: y;
+  c: z;
+  d: 1;
+  e: 2;
+  f: 3; }
+CSS
+@mixin foo($a, $b, $c, $d, $e, $f) {
+  a: $a;
+  b: $b;
+  c: $c;
+  d: $d;
+  e: $e;
+  f: $f;
+}
+
+.foo {
+  $list: x y z;
+  $map: (d: 1, e: 2, f: 3);
+  @include foo($list..., $map...);
+}
+SCSS
+  end
+
+  def test_mixin_map_splat_takes_precedence_over_pass_through
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: z; }
+CSS
+@mixin foo($args...) {
+  $map: (c: z);
+  @include bar($args..., $map...);
+}
+
+@mixin bar($a, $b, $c) {
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+.foo {
+  @include foo(1, $b: 2, $c: 3);
+}
+SCSS
+  end
+
+  def test_mixin_list_of_pairs_splat_treated_as_list
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: a 1;
+  b: b 2;
+  c: c 3; }
+CSS
+@mixin foo($a, $b, $c) {
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+.foo {
+  @include foo((a 1, b 2, c 3)...);
+}
+SCSS
+  end
+
+  def test_mixin_keyword_splat_must_have_string_keys
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Variable keyword argument map must have string keys.
+12 is not a string in (12: 1).
+MESSAGE
+@mixin foo($a) {
+  a: $a;
+}
+
+.foo {@include foo((12: 1)...)}
+SCSS
+  end
+
   def test_mixin_var_args_with_keyword
     assert_raise_message(Sass::SyntaxError, "Positional arguments must come before keyword arguments.") {render <<SCSS}
 @mixin foo($a, $b...) {
@@ -984,6 +1117,46 @@ SCSS
 }
 
 .foo {@include foo(1, $c: 2 3 4)}
+SCSS
+  end
+
+  def test_mixin_map_splat_before_list_splat
+    assert_raise_message(Sass::SyntaxError, "Variable keyword arguments must be a map (was (2 3)).") {render <<SCSS}
+@mixin foo($a, $b, $c) {
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+.foo {
+  @include foo((a: 1)..., (2 3)...);
+}
+SCSS
+  end
+
+  def test_mixin_map_splat_with_unknown_keyword
+    assert_raise_message(Sass::SyntaxError, "Mixin foo doesn't have an argument named $c.") {render <<SCSS}
+@mixin foo($a, $b) {
+  a: $a;
+  b: $b;
+}
+
+.foo {
+  @include foo(1, 2, (c: 1)...);
+}
+SCSS
+  end
+
+  def test_mixin_map_splat_with_wrong_type
+    assert_raise_message(Sass::SyntaxError, "Variable keyword arguments must be a map (was 12).") {render <<SCSS}
+@mixin foo($a, $b) {
+  a: $a;
+  b: $b;
+}
+
+.foo {
+  @include foo((1, 2)..., 12...);
+}
 SCSS
   end
 
@@ -1112,10 +1285,122 @@ CSS
 SCSS
   end
 
+  def test_function_var_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: 3"; }
+CSS
+@function foo($args...) {
+  @return "a: \#{map-get(keywords($args), a)}, " +
+    "b: \#{map-get(keywords($args), b)}, " +
+    "c: \#{map-get(keywords($args), c)}";
+}
+
+.foo {val: foo($a: 1, $b: 2, $c: 3)}
+SCSS
+  end
+
+  def test_function_empty_var_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  length: 0; }
+CSS
+@function foo($args...) {
+  @return length(keywords($args));
+}
+
+.foo {length: foo()}
+SCSS
+  end
+
+  def test_function_map_splat
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: 3"; }
+CSS
+@function foo($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  $map: (a: 1, b: 2, c: 3);
+  val: foo($map...);
+}
+SCSS
+  end
+
+  def test_function_map_and_list_splat
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: x, b: y, c: z, d: 1, e: 2, f: 3"; }
+CSS
+@function foo($a, $b, $c, $d, $e, $f) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}, d: \#{$d}, e: \#{$e}, f: \#{$f}";
+}
+
+.foo {
+  $list: x y z;
+  $map: (d: 1, e: 2, f: 3);
+  val: foo($list..., $map...);
+}
+SCSS
+  end
+
+  def test_function_map_splat_takes_precedence_over_pass_through
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: z"; }
+CSS
+@function foo($args...) {
+  $map: (c: z);
+  @return bar($args..., $map...);
+}
+
+@function bar($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  val: foo(1, $b: 2, $c: 3);
+}
+SCSS
+  end
+
+  def test_ruby_function_map_splat_takes_precedence_over_pass_through
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: 1 2 3 z; }
+CSS
+@function foo($args...) {
+  $map: (val: z);
+  @return append($args..., $map...);
+}
+
+.foo {
+  val: foo(1 2 3, $val: 4)
+}
+SCSS
+  end
+
+  def test_function_list_of_pairs_splat_treated_as_list
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: a 1, b: b 2, c: c 3"; }
+CSS
+@function foo($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  val: foo((a 1, b 2, c 3)...);
+}
+SCSS
+  end
+
   def test_function_var_args_with_keyword
     assert_raise_message(Sass::SyntaxError, "Positional arguments must come before keyword arguments.") {render <<SCSS}
 @function foo($a, $b...) {
-  @return "a: \#{$a}, b: $b";
+  @return "a: \#{$a}, b: \#{$b}";
 }
 
 .foo {val: foo($a: 1, 2, 3, 4)}
@@ -1135,7 +1420,7 @@ SCSS
   def test_function_keyword_for_unknown_arg_with_var_args
     assert_raise_message(Sass::SyntaxError, "Function foo doesn't have an argument named $c.") {render <<SCSS}
 @function foo($a, $b...) {
-  @return "a: \#{$a}, b: \#{$b}";
+  @return "a: \#{$a}, b: \#{length($b)}";
 }
 
 .foo {val: foo(1, $c: 2 3 4)}
@@ -1152,6 +1437,55 @@ CSS
 }
 
 .foo {val: foo(#102030, $blue: 5)}
+SCSS
+  end
+
+  def test_function_map_splat_before_list_splat
+    assert_raise_message(Sass::SyntaxError, "Variable keyword arguments must be a map (was (2 3)).") {render <<SCSS}
+@function foo($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  val: foo((a: 1)..., (2 3)...);
+}
+SCSS
+  end
+
+  def test_function_map_splat_with_unknown_keyword
+    assert_raise_message(Sass::SyntaxError, "Function foo doesn't have an argument named $c.") {render <<SCSS}
+@function foo($a, $b) {
+  @return "a: \#{$a}, b: \#{$b}";
+}
+
+.foo {
+  val: foo(1, 2, (c: 1)...);
+}
+SCSS
+  end
+
+  def test_function_map_splat_with_wrong_type
+    assert_raise_message(Sass::SyntaxError, "Variable keyword arguments must be a map (was 12).") {render <<SCSS}
+@function foo($a, $b) {
+  @return "a: \#{$a}, b: \#{$b}";
+}
+
+.foo {
+  val: foo((1, 2)..., 12...);
+}
+SCSS
+  end
+
+  def test_function_keyword_splat_must_have_string_keys
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
+Variable keyword argument map must have string keys.
+12 is not a string in (12: 1).
+MESSAGE
+@function foo($a) {
+  @return $a;
+}
+
+.foo {val: foo((12: 1)...)}
 SCSS
   end
 

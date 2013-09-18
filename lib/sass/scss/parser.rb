@@ -209,9 +209,9 @@ module Sass
 
       def include_directive(start_pos)
         name = tok! IDENT
-        args, keywords, splat = sass_script(:parse_mixin_include_arglist)
+        args, keywords, splat, kwarg_splat = sass_script(:parse_mixin_include_arglist)
         ss
-        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords, splat), start_pos)
+        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords, splat, kwarg_splat), start_pos)
         if tok?(/\{/)
           include_node.has_children = true
           block(include_node, :directive)
