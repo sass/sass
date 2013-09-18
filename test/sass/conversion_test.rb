@@ -1722,7 +1722,7 @@ SASS
 SCSS
   end
 
-  def test_function_var_kwargs
+  def test_function_var_kwargs_with_list
     assert_scss_to_sass <<SASS, <<SCSS
 @function foo($a: b, $c: d)
   @return $a, $c
