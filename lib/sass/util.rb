@@ -534,11 +534,16 @@ module Sass
       RUBY_PLATFORM =~ /java/
     end
 
+    # @see #jruby_version-class_method
+    def jruby_version
+      Sass::Util.jruby_version
+    end
+
     # Returns an array of ints representing the JRuby version number.
     #
     # @return [Array<Fixnum>]
-    def jruby_version
-      $jruby_version ||= ::JRUBY_VERSION.split(".").map {|s| s.to_i}
+    def self.jruby_version
+      @jruby_version ||= ::JRUBY_VERSION.split(".").map {|s| s.to_i}
     end
 
     # Like `Dir.glob`, but works with backslash-separated paths on Windows.
