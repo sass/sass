@@ -216,7 +216,8 @@ module Sass
         def production(name, sub, *ops)
           class_eval <<RUBY, __FILE__, __LINE__ + 1
             def #{name}
-              interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}) and return interp
+              interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect})
+              return interp if interp
               return unless e = #{sub}
               while tok = try_tok(#{ops.map {|o| o.inspect}.join(', ')})
                 if interp = try_op_before_interp(tok, e)
@@ -237,7 +238,8 @@ RUBY
           class_eval <<RUBY, __FILE__, __LINE__ + 1
             def unary_#{op}
               return #{sub} unless tok = try_tok(:#{op})
-              interp = try_op_before_interp(tok) and return interp
+              interp = try_op_before_interp(tok)
+              return interp if interp
               start_pos = source_position
               node(Tree::UnaryOperation.new(assert_expr(:unary_#{op}), :#{op}), start_pos)
             end
@@ -316,7 +318,8 @@ RUBY
         return unless @lexer.after_interpolation?
         op = try_tok(*ops)
         return unless op
-        interp = try_op_before_interp(op, prev) and return interp
+        interp = try_op_before_interp(op, prev)
+        return interp if interp
 
         wa = @lexer.whitespace?
         str = literal_node(Script::Value::String.new(Lexer::OPERATORS_REVERSE[op.type]),
@@ -536,7 +539,8 @@ RUBY
       end
 
       def literal
-        (t = try_tok(:color, :bool, :null)) && (return literal_node(t.value, t.source_range))
+        t = try_tok(:color, :bool, :null)
+        return literal_node(t.value, t.source_range) if t
       end
 
       # It would be possible to have unified #assert and #try methods,
@@ -551,12 +555,14 @@ RUBY
       }
 
       def assert_expr(name, expected = nil)
-        (e = send(name)) && (return e)
+        e = send(name)
+        return e if e
         @lexer.expected!(expected || EXPR_NAMES[name] || EXPR_NAMES[:default])
       end
 
       def assert_tok(*names)
-        (t = try_tok(*names)) && (return t)
+        t = try_tok(*names)
+        return t if t
         @lexer.expected!(names.map {|tok| Lexer::TOKEN_NAMES[tok] || tok}.join(" or "))
       end
 

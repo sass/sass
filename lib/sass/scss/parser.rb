@@ -430,7 +430,8 @@ module Sass
       end
 
       def media_expr
-        interp = interpolation and return interp
+        interp = interpolation
+        return interp if interp
         return unless tok(/\(/)
         res = ['(']
         ss
@@ -525,7 +526,8 @@ module Sass
       end
 
       def supports_condition_in_parens
-        interp = supports_interpolation and return interp
+        interp = supports_interpolation
+        return interp if interp
         return unless tok(/\(/); ss
         if (cond = supports_condition)
           tok!(/\)/); ss
@@ -1066,8 +1068,10 @@ MESSAGE
       end
 
       def interp_ident_or_var
-        (id = interp_ident) and return id
-        (var = var_expr) and return [var]
+        id = interp_ident
+        return id if id
+        var = var_expr
+        return [var] if var
       end
 
       def interp_name
@@ -1156,12 +1160,14 @@ MESSAGE
       end
 
       def expr!(name)
-        (e = send(name)) && (return e)
+        e = send(name)
+        return e if e
         expected(EXPR_NAMES[name] || name.to_s)
       end
 
       def tok!(rx)
-        (t = tok(rx)) && (return t)
+        t = tok(rx)
+        return t if t
         name = TOK_NAMES[rx]
 
         unless name

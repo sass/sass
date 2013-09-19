@@ -37,9 +37,9 @@ module Sass
       def script_value; nil; end
       def interpolation; nil; end
       def var_expr; nil; end
-      def interp_string; s = tok(STRING) and [s]; end
-      def interp_uri; s = tok(URI) and [s]; end
-      def interp_ident(ident = IDENT); s = tok(ident) and [s]; end
+      def interp_string; (s = tok(STRING)) && [s]; end
+      def interp_uri; (s = tok(URI)) && [s]; end
+      def interp_ident(ident = IDENT); (s = tok(ident)) && [s]; end
       def use_css_import?; true; end
 
       def special_directive(name, start_pos)
