@@ -423,7 +423,6 @@ module Sass
       $stderr = the_real_stderr
     end
 
-    @@silence_warnings = false
     # Silences all Sass warnings within a block.
     #
     # @yield A block in which no Sass warnings will be printed
