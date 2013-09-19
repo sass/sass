@@ -137,7 +137,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   private
 
   def is_any_of?(val, classes)
-    for c in classes
+    classes.each do |c|
       return true if val.is_a?(c)
     end
     return false
