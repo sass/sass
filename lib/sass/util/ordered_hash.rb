@@ -48,7 +48,7 @@ class OrderedHash < ::Hash
       return ordered_hash
     end
 
-    unless (args.size % 2 == 0)
+    unless args.size.even?
       raise ArgumentError.new("odd number of arguments for Hash")
     end
 

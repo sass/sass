@@ -1151,7 +1151,7 @@ WARNING
       rest = Sass::Shared.handle_interpolation text do |scan|
         escapes = scan[2].size
         res << scan.matched[0...-2 - escapes]
-        if escapes % 2 == 1
+        if escapes.odd?
           res << "\\" * (escapes - 1) << '#{'
         else
           res << "\\" * [0, escapes - 1].max
