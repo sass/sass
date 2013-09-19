@@ -963,7 +963,7 @@ MSG
         value <<= 1
       end
 
-      result = String.new
+      result = ''
       begin
         digit = value & VLQ_BASE_MASK
         value >>= VLQ_BASE_SHIFT
