@@ -269,9 +269,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       rule_separator = node.style == :compressed ? ',' : ', '
       line_separator =
         case node.style
-          when :nested, :expanded; "\n"
-          when :compressed; ""
-          else; " "
+        when :nested, :expanded; "\n"
+        when :compressed; ""
+        else; " "
         end
       rule_indent = '  ' * @tabs
       per_rule_indent, total_indent = if [:nested, :expanded].include?(node.style)
