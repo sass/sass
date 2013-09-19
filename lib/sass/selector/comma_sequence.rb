@@ -27,7 +27,7 @@ module Sass
                 sel_or_op.is_a?(SimpleSequence) &&
                   sel_or_op.members.any? {|ssel| ssel.is_a?(Parent)}
               end
-            end
+             end
             raise Sass::SyntaxError.new(
               "Base-level rules cannot contain the parent-selector-referencing character '&'.")
           end
@@ -55,14 +55,14 @@ module Sass
       #   with extensions made according to `extends`
       def do_extend(extends, parent_directives)
         CommaSequence.new(members.map do |seq|
-            extended = seq.do_extend(extends, parent_directives)
-            # First Law of Extend: the result of extending a selector should
-            # always contain the base selector.
-            #
-            # See https://github.com/nex3/sass/issues/324.
-            extended.unshift seq unless seq.has_placeholder? || extended.include?(seq)
-            extended
-          end.flatten)
+          extended = seq.do_extend(extends, parent_directives)
+          # First Law of Extend: the result of extending a selector should
+          # always contain the base selector.
+          #
+          # See https://github.com/nex3/sass/issues/324.
+          extended.unshift seq unless seq.has_placeholder? || extended.include?(seq)
+          extended
+        end.flatten)
       end
 
       # Returns a string representation of the sequence.

@@ -738,9 +738,9 @@ module Sass::Script
     # @raise [ArgumentError] if `$color` isn't a color
     def alpha(*args)
       if args.all? do |a|
-          a.is_a?(Sass::Script::Value::String) && a.type == :identifier &&
-            a.value =~ /^[a-zA-Z]+\s*=/
-        end
+           a.is_a?(Sass::Script::Value::String) && a.type == :identifier &&
+             a.value =~ /^[a-zA-Z]+\s*=/
+         end
         # Support the proprietary MS alpha() function
         return Sass::Script::Value::String.new("alpha(#{args.map {|a| a.to_s}.join(", ")})")
       end

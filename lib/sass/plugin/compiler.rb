@@ -316,11 +316,13 @@ module Sass::Plugin
       dedupped = []
       directories.each do |new_directory|
         # no need to add a directory that is already watched.
-        next if dedupped.any? {|existing_directory|
-          child_of_directory?(existing_directory, new_directory)}
+        next if dedupped.any? do |existing_directory|
+          child_of_directory?(existing_directory, new_directory)
+        end
         # get rid of any sub directories of this new directory
-        dedupped.reject! {|existing_directory|
-          child_of_directory?(new_directory, existing_directory)}
+        dedupped.reject! do |existing_directory|
+          child_of_directory?(new_directory, existing_directory)
+        end
         dedupped << new_directory
       end
       dedupped

@@ -50,8 +50,8 @@ module Sass
         members = @members.dup
         nl = (members.first == "\n" && members.shift)
         unless members.any? do |seq_or_op|
-            seq_or_op.is_a?(SimpleSequence) && seq_or_op.members.first.is_a?(Parent)
-          end
+                 seq_or_op.is_a?(SimpleSequence) && seq_or_op.members.first.is_a?(Parent)
+               end
           old_members, members = members, []
           members << nl if nl
           members << SimpleSequence.new([Parent.new], false)
@@ -106,8 +106,9 @@ module Sass
 
       # @see Simple#to_a
       def to_a
-        ary = @members.map {|seq_or_op|
-          seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a : seq_or_op}
+        ary = @members.map do |seq_or_op|
+          seq_or_op.is_a?(SimpleSequence) ? seq_or_op.to_a : seq_or_op
+        end
         Sass::Util.intersperse(ary, " ").flatten.compact
       end
 

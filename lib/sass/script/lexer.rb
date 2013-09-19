@@ -96,8 +96,9 @@ module Sass
         :bool => /(true|false)\b/,
         :null => /null\b/,
         :selector => /&/,
-        :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s|
-          Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")})})},
+        :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map do |s|
+          Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")
+        end)})},
         :op => %r{(#{Regexp.union(*OP_NAMES)})},
       }
 
