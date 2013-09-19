@@ -39,7 +39,7 @@ module Sass
       # @see Base#key
       def key(name, options)
         [self.class.name + ":" + File.dirname(File.expand_path(name)),
-          File.basename(name)]
+         File.basename(name)]
       end
 
       # @see Base#to_s

@@ -20,7 +20,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
   end
 
   CONTROL_NODES = [Sass::Tree::EachNode, Sass::Tree::ForNode, Sass::Tree::IfNode,
-    Sass::Tree::WhileNode, Sass::Tree::TraceNode]
+                   Sass::Tree::WhileNode, Sass::Tree::TraceNode]
   SCRIPT_NODES = [Sass::Tree::ImportNode] + CONTROL_NODES
   def visit_children(parent)
     old_parent = @parent

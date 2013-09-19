@@ -332,9 +332,9 @@ MESSAGE
         @line += c
         @offset = c == 0 ? @offset + str2.size : str2[/\n([^\n]*)/, 1].size + 1
         [:special_fun,
-          Sass::Util.merge_adjacent_strings(
+         Sass::Util.merge_adjacent_strings(
             [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
-          str1.size + str2.size]
+         str1.size + str2.size]
       end
 
       def special_val
