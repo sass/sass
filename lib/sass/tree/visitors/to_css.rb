@@ -263,6 +263,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
   # @comment
   #   rubocop:disable MethodLength
+  #   rubocop:disable BlockNesting
   def visit_rule(node)
     with_tabs(@tabs + node.tabs) do
       rule_separator = node.style == :compressed ? ',' : ', '
@@ -351,6 +352,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   end
   # @comment
   #   rubocop:enable MethodLength
+  #   rubocop:enable BlockNesting
 
   private
 

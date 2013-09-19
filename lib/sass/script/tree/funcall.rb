@@ -144,7 +144,9 @@ module Sass::Script::Tree
         # `_perform`.
         if e.message =~ /^method '([^']+)': given (\d+), expected (\d+)/
           error_name, given, expected = $1, $2, $3
+          # rubocop:disable BlockNesting
           raise e if error_name != ruby_name || e.backtrace[0] !~ /:in `_perform'$/
+          # rubocop:enable BlockNesting
           message = "wrong number of arguments (#{given} for #{expected})"
         end
       elsif Sass::Util.jruby?
@@ -161,6 +163,7 @@ module Sass::Script::Tree
           given, expected = $1, $2
         end
 
+        # rubocop:disable BlockNesting
         if should_maybe_raise
           # JRuby 1.7 includes __send__ before send and _perform.
           trace = e.backtrace.dup
@@ -176,6 +179,7 @@ module Sass::Script::Tree
             message = "wrong number of arguments (#{given} for #{expected})"
           end
         end
+        # rubocop:enable BlockNesting
       elsif e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
           e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
         raise e
