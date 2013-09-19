@@ -450,7 +450,7 @@ RUBY
 
             keywords[name.name] = value
           else
-            if !keywords.empty?
+            unless keywords.empty?
               raise SyntaxError.new("Positional arguments must come before keyword arguments.")
             end
 

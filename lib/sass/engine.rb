@@ -624,7 +624,7 @@ WARNING
             :line => @line) if name.nil? || value.nil?
 
           value_start_offset = name_end_offset = name_start_offset + name.length
-          if !value.empty?
+          unless value.empty?
             # +1 and -1 both compensate for the leading ':', which is part of line.text
             value_start_offset = name_start_offset + line.text.index(value, name.length + 1) - 1
           end
