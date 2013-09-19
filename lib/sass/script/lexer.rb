@@ -102,7 +102,9 @@ module Sass
       }
 
       class << self
+
         private
+
         def string_re(open, close)
           /#{open}((?:\\.|\#(?!\{)|[^#{close}\\#])*)(#{close}|#\{)/
         end

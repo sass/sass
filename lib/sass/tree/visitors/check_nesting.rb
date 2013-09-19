@@ -1,5 +1,6 @@
 # A visitor for checking that all nodes are properly nested.
 class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
+
   protected
 
   def initialize

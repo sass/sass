@@ -181,7 +181,8 @@ class OrderedHash < ::Hash
   end
 
   private
-    def sync_keys!
-      @keys.delete_if {|k| !has_key?(k)}
-    end
+
+  def sync_keys!
+    @keys.delete_if {|k| !has_key?(k)}
+  end
 end

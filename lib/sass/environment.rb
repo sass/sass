@@ -74,7 +74,9 @@ module Sass
     private
 
     class << self
+
       private
+
       UNDERSCORE, DASH = '_', '-'
 
       # Note: when updating this,

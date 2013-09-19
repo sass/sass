@@ -30,6 +30,7 @@ module Sass
     def self.extended(base)
       base.send(:include, InstanceMethods)
     end
+
     protected
 
     module InstanceMethods

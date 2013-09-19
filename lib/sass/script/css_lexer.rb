@@ -4,6 +4,7 @@ module Sass
     #
     # @see Sass::SCSS::CssParser
     class CssLexer < Lexer
+
       private
 
       def token

@@ -7,6 +7,7 @@ module Sass
     #
     # @see Sass::SCSS::CssParser
     class CssParser < Parser
+
       private
 
       # @private

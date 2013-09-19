@@ -470,6 +470,7 @@ module Sass::Script
       alias_method :callable?, :public_method_defined?
 
       private
+
       def include(*args)
         r = super
         # We have to re-include ourselves into EvaluationContext to work around
