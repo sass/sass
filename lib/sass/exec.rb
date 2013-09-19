@@ -116,7 +116,7 @@ module Sass
         output ||= @options[:output_filename] || $stdout
 
         if @options[:sourcemap] && @options[:output_filename]
-          @options[:sourcemap_filename] = Util::sourcemap_name(@options[:output_filename])
+          @options[:sourcemap_filename] = Util.sourcemap_name(@options[:output_filename])
         end
 
         @options[:input], @options[:output] = input, output
@@ -446,7 +446,7 @@ MSG
           partition {|i, _| File.directory? i}
         files.map! do |from, to|
           to ||= from.gsub(/\.[^.]*?$/, '.css')
-          sourcemap = Util::sourcemap_name(to) if @options[:sourcemap]
+          sourcemap = Util.sourcemap_name(to) if @options[:sourcemap]
           [from, to, sourcemap]
         end
         dirs.map! {|from, to| [from, to || from]}

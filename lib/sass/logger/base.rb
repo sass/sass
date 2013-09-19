@@ -26,7 +26,7 @@ class Sass::Logger::Base
   end
 
   def _log(level, message)
-    Kernel::warn(message)
+    Kernel.warn(message)
   end
 
 end
