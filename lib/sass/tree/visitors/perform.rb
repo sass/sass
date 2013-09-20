@@ -134,7 +134,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       Sass::Util.map_keys(map.to_h) do |key|
         next key.value if key.is_a?(Sass::Script::Value::String)
         raise Sass::SyntaxError.new("Variable keyword argument map must have string keys.\n" +
-          "#{key.inspect} is not a string in #{map.inspect}.");
+          "#{key.inspect} is not a string in #{map.inspect}.")
       end
     end
   end

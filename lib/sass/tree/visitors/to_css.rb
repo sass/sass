@@ -252,7 +252,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     output(tab_str)
     for_node(node, :name) {output(node.resolved_name)}
     if node.style == :compressed
-      output(":");
+      output(":")
       for_node(node, :value) {output(node.resolved_value)}
     else
       output(": ")
