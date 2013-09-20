@@ -151,7 +151,7 @@ module Sass
       end
 
       def dependency_updated?(css_mtime)
-        Proc.new do |uri, importer|
+        proc do |uri, importer|
           next true if @actively_checking.include?(uri)
           begin
             @actively_checking << uri
