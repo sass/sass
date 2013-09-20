@@ -275,13 +275,14 @@ module Sass
       return enum.group_by(&block).to_a unless ruby1_8?
       order = {}
       arr = []
-      enum.group_by do |e|
+      groups = enum.group_by do |e|
         res = block[e]
         unless order.include?(res)
           order[res] = order.size
         end
         res
-      end.each do |key, vals|
+      end
+      groups.each do |key, vals|
         arr[order[key]] = [key, vals]
       end
       arr

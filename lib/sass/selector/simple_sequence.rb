@@ -108,7 +108,7 @@ module Sass
       # @see CommaSequence#do_extend
       def do_extend(extends, parent_directives, seen = Set.new)
         groups = Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}
-        groups.map do |seq, group|
+        groups.map! do |seq, group|
           sels = group.map {|_, s| s}.flatten
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
@@ -122,9 +122,14 @@ module Sass
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
           new_seq.add_sources!(sources + [seq])
           [sels, new_seq]
-        end.compact.map do |sels, seq|
+        end
+        groups.compact!
+        groups.map! do |sels, seq|
           seen.include?(sels) ? [] : seq.do_extend(extends, parent_directives, seen + [sels])
-        end.flatten.uniq
+        end
+        groups.flatten!
+        groups.uniq!
+        groups
       end
 
       # Unifies this selector with another {SimpleSequence}'s
