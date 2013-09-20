@@ -56,7 +56,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def visit_comment(node)
     value = interp_to_src(node.value)
-    content = if @format == :sass
+    if @format == :sass
       content = value.gsub(/\*\/$/, '').rstrip
       if content =~ /\A[ \t]/
         # Re-indent SCSS comments like this:
@@ -67,31 +67,27 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
         content.sub!(/\A([ \t]*)\/\*/, '/*\1')
       end
 
-      content =
-        unless content.include?("\n")
-          content
+      if content.include?("\n")
+        content.gsub!(/\n( \*|\/\/)/, "\n  ")
+        spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
+        sep = node.type == :silent ? "\n//" : "\n *"
+        if spaces >= 2
+          content.gsub!(/\n  /, sep)
         else
-          content.gsub!(/\n( \*|\/\/)/, "\n  ")
-          spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
-          sep = node.type == :silent ? "\n//" : "\n *"
-          if spaces >= 2
-            content.gsub(/\n  /, sep)
-          else
-            content.gsub(/\n#{' ' * spaces}/, sep)
-          end
+          content.gsub!(/\n#{' ' * spaces}/, sep)
         end
+      end
 
       content.gsub!(/\A\/\*/, '//') if node.type == :silent
       content.gsub!(/^/, tab_str)
-      content.rstrip + "\n"
+      content = content.rstrip + "\n"
     else
       spaces = (@tab_chars * [@tabs - value[/^ */].size, 0].max)
       content = if node.type == :silent
-        value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
-      else
-        value
-      end.gsub(/^/, spaces) + "\n"
-      content
+                  value.gsub(/^[\/ ]\*/, '//').gsub(/ *\*\/$/, '')
+                else
+                  value
+                end.gsub(/^/, spaces) + "\n"
     end
     content
   end

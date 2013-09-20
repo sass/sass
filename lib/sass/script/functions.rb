@@ -1307,10 +1307,10 @@ module Sass::Script
       assert_integer index, :index
       assert_unit index, nil, :index
       insertion_point = if index.value > 0
-        [index.value - 1, original.value.size].min
-      else
-        [index.value, -original.value.size - 1].max
-      end
+                          [index.value - 1, original.value.size].min
+                        else
+                          [index.value, -original.value.size - 1].max
+                        end
       result = original.value.dup.insert(insertion_point, insert.value)
       Sass::Script::Value::String.new(result, original.type)
     end

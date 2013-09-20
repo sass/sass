@@ -308,13 +308,13 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
           if node.filename
             relative_filename = if node.options[:css_filename]
-              begin
-                Pathname.new(node.filename).relative_path_from(
-                  Pathname.new(File.dirname(node.options[:css_filename]))).to_s
-              rescue ArgumentError
-                nil
-              end
-            end
+                                  begin
+                                    Pathname.new(node.filename).relative_path_from(
+                                      Pathname.new(File.dirname(node.options[:css_filename]))).to_s
+                                  rescue ArgumentError
+                                    nil
+                                  end
+                                end
             relative_filename ||= node.filename
             output(", #{relative_filename}")
           end

@@ -36,10 +36,10 @@ module Sass
   # @return [Array<String, Pathname, Sass::Importers::Base>]
   def self.load_paths
     @load_paths ||= if ENV['SASS_PATH']
-      ENV['SASS_PATH'].split(Sass::Util.windows? ? ';' : ':')
-    else
-      []
-    end
+                      ENV['SASS_PATH'].split(Sass::Util.windows? ? ';' : ':')
+                    else
+                      []
+                    end
   end
 
   # Compile a Sass or SCSS string to CSS.
