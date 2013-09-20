@@ -70,7 +70,7 @@ module Sass::Script::Tree
     def sep_str(opts = self.options)
       return ' ' if separator == :space
       return ',' if opts && opts[:style] == :compressed
-      return ', '
+      ', '
     end
   end
 end

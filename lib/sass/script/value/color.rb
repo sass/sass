@@ -520,7 +520,7 @@ module Sass::Script::Value
     def to_s(opts = {})
       return smallest if options[:style] == :compressed
       return COLOR_NAMES_REVERSE[rgba] if COLOR_NAMES_REVERSE[rgba]
-      return alpha? ? rgba_str : hex_str
+      alpha? ? rgba_str : hex_str
     end
     alias_method :to_sass, :to_s
 
@@ -537,7 +537,7 @@ module Sass::Script::Value
       small_explicit_str = alpha? ? rgba_str : hex_str.gsub(/^#(.)\1(.)\2(.)\3$/, '#\1\2\3')
       return small_explicit_str unless (color = COLOR_NAMES_REVERSE[rgba]) &&
         color.size <= small_explicit_str.size
-      return color
+      color
     end
 
     def rgba_str
@@ -593,7 +593,7 @@ module Sass::Script::Value
       return m1 + (m2 - m1) * h * 6 if h * 6 < 1
       return m2 if h * 2 < 1
       return m1 + (m2 - m1) * (2.0 / 3 - h) * 6 if h * 3 < 2
-      return m1
+      m1
     end
 
     def rgb_to_hsl!

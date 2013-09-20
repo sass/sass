@@ -84,7 +84,7 @@ module Sass
         res.uniq!
         res.sort!
         res.map! {|i, s| [@vals[i], s]}
-        return res
+        res
       end
 
       # Same as \{#get}, but doesn't return the subsets of the argument

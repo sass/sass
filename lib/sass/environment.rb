@@ -54,7 +54,7 @@ module Sass
       parent_selector = caller ? caller.selector : (@parent && @parent.selector)
       return parent_selector unless @selector
       return @selector.resolve_parent_refs(parent_selector) if parent_selector
-      return @selector
+      @selector
     end
 
     # The top-level Environment object.

@@ -371,7 +371,7 @@ ERR
       rendered << Sass::Util.escape_uri(sourcemap_uri)
       rendered << " */"
       rendered = encode_and_set_charset(rendered)
-      return rendered, sourcemap
+      [rendered, sourcemap]
     end
 
     def encode_and_set_charset(rendered)
@@ -529,7 +529,7 @@ MSG
           i += 1
         end
       end
-      return nodes, i
+      [nodes, i]
     end
 
     def build_tree(parent, line, root = false)
@@ -801,7 +801,7 @@ WARNING
         return Tree::SupportsNode.new(directive, parser.parse_supports_condition)
       end
 
-      return Tree::DirectiveNode.new(
+      Tree::DirectiveNode.new(
         value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
     end
 
@@ -982,7 +982,7 @@ WARNING
           :line => @line)
       end
 
-      return values
+      values
     end
 
     # @comment

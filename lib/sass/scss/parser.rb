@@ -355,7 +355,7 @@ module Sass
           ss
         end
 
-        return values
+        values
       end
 
       def import_arg
@@ -494,7 +494,7 @@ module Sass
         rule_node = ruleset
         return block(at_root_node, :stylesheet) unless rule_node
         at_root_node << rule_node
-        return at_root_node
+        at_root_node
       end
 
       # http://www.w3.org/TR/css3-conditional/
@@ -615,7 +615,7 @@ module Sass
       def has_children?(child_or_array)
         return false unless child_or_array
         return child_or_array.last.has_children if child_or_array.is_a?(Array)
-        return child_or_array.has_children
+        child_or_array.has_children
       end
 
       # This is a nasty hack, and the only place in the parser
@@ -672,7 +672,7 @@ module Sass
             ws = ''
           end
         end
-        return rules, range(start_pos)
+        [rules, range(start_pos)]
       end
 
       def selector
@@ -808,7 +808,7 @@ module Sass
 
         return name, expr!(:interp_ident) unless allow_star_name
         @expected = "identifier or *"
-        return name, interp_ident || tok!(/\*/)
+        [name, interp_ident || tok!(/\*/)]
       end
 
       def interpolation_selector
@@ -856,7 +856,7 @@ module Sass
           tok!(/\|/)
           name = expr!(:interp_ident)
         end
-        return ns, name
+        [ns, name]
       end
 
       def pseudo
@@ -899,7 +899,7 @@ module Sass
         return sel if sel
         rethrow pseudo_err if pseudo_err
         rethrow sel_err if sel_err
-        return
+        nil
       end
 
       def pseudo_expr_token
@@ -972,7 +972,7 @@ module Sass
           str.source_range = range(start_pos)
           return value_start_pos, space, str
         end
-        return value_start_pos, space, sass_script(:parse)
+        [value_start_pos, space, sass_script(:parse)]
       end
 
       def nested_properties!(node, space)
@@ -1012,8 +1012,8 @@ MESSAGE
         op = tok(/[+-]/)
         return unless op
         @expected = "number or function"
-        return [op, tok(NUMBER) || function(allow_var) ||
-          (allow_var && var_expr) || expr!(:interpolation)]
+        [op,
+         tok(NUMBER) || function(allow_var) || (allow_var && var_expr) || expr!(:interpolation)]
       end
 
       def function(allow_var)

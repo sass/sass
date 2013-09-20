@@ -155,7 +155,7 @@ module Sass
         @tok ||= read_token
         @tok, tok = nil, @tok
         @prev = tok
-        return tok
+        tok
       end
 
       # Returns whether or not there's whitespace before the next token.

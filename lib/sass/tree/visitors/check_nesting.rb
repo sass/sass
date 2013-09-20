@@ -140,7 +140,7 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     classes.each do |c|
       return true if val.is_a?(c)
     end
-    return false
+    false
   end
 
   def try_send(method, *args)

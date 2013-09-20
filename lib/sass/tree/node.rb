@@ -146,7 +146,7 @@ module Sass
       def css_with_sourcemap
         visitor = Sass::Tree::Visitors::ToCss.new(:build_source_mapping)
         result = visitor.visit(self)
-        return result, visitor.source_mapping
+        [result, visitor.source_mapping]
       end
 
       # Returns a representation of the node for debugging purposes.

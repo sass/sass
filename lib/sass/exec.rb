@@ -161,7 +161,7 @@ module Sass
         # so we just filter for Windows terms (which don't set TERM)
         # and not-real terminals, which aren't ttys.
         return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
-        return "\e[#{COLORS[color]}m#{str}\e[0m"
+        "\e[#{COLORS[color]}m#{str}\e[0m"
       end
 
       def write_output(text, destination)
@@ -517,7 +517,7 @@ MSG
           one2, two = two.split(':', 2)
           one = one + ':' + one2
         end
-        return one, two
+        [one, two]
       end
 
       # Whether path is likely to be meant as the destination
@@ -525,7 +525,7 @@ MSG
       def probably_dest_dir?(path)
         return false unless path
         return false if colon_path?(path)
-        return ::Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
+        ::Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
       end
 
       def default_sass_path

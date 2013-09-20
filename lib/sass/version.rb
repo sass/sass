@@ -108,12 +108,12 @@ module Sass
           return sha
         end
       end
-      return nil
+      nil
     end
 
     def version_date
       return unless File.exists?(scope('VERSION_DATE'))
-      return DateTime.parse(File.read(scope('VERSION_DATE')).strip)
+      DateTime.parse(File.read(scope('VERSION_DATE')).strip)
     end
   end
 

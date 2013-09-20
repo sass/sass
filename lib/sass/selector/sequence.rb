@@ -156,7 +156,7 @@ module Sass
           end
           befores = Sass::Util.flatten(befores, 1)
         end
-        return befores
+        befores
       end
 
       # This interweaves two lists of selectors,
@@ -230,7 +230,7 @@ module Sass
         # merged successfully
         lcs = Sass::Util.lcs(ops1, ops2)
         return unless lcs == ops1 || lcs == ops2
-        return (newline ? ["\n"] : []) + (ops1.size > ops2.size ? ops1 : ops2)
+        (newline ? ["\n"] : []) + (ops1.size > ops2.size ? ops1 : ops2)
       end
 
       # Extracts final selector combinators (`"+"`, `">"`, `"~"`) and the
@@ -384,7 +384,7 @@ module Sass
           end while !tail.empty? && head.last.is_a?(String) || tail.first.is_a?(String)
           newseq << head
         end
-        return newseq
+        newseq
       end
 
       # Given two selector sequences, returns whether `seq1` is a

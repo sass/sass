@@ -284,7 +284,7 @@ module Sass::Script::Value
     # @raise [Sass::SyntaxError] if the number isn't an integer
     def to_i
       super unless int?
-      return value
+      value
     end
 
     # @return [Boolean] Whether or not this number is an integer.
@@ -466,12 +466,14 @@ module Sass::Script::Value
     def sans_common_units(units1, units2)
       units2 = units2.dup
       # Can't just use -, because we want px*px to coerce properly to px*mm
-      return units1.map do |u|
+      units1 = units1.map do |u|
         j = units2.index(u)
         next u unless j
         units2.delete_at(j)
         nil
-      end.compact, units2
+      end
+      units1.compact!
+      [units1, units2]
     end
   end
 end

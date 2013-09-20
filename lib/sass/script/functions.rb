@@ -2038,7 +2038,7 @@ DEPRECATION WARNING: Passing lists of pairs to #{fn_name} is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
 http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
 WARNING
-      return obj.to_h
+      obj.to_h
     end
   end
 end

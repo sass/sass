@@ -89,7 +89,7 @@ module Sass
             sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(SelectorPseudoClass)}
           end
         return sels + [self] unless i
-        return sels[0...i] + [self] + sels[i..-1]
+        sels[0...i] + [self] + sels[i..-1]
       end
 
       protected
@@ -111,7 +111,7 @@ module Sass
         return nil, false unless ns1 == ns2 || ns1.nil? || ns1 == ['*'] || ns2.nil? || ns2 == ['*']
         return ns2, true if ns1 == ['*']
         return ns1, true if ns2 == ['*']
-        return ns1 || ns2, true
+        [ns1 || ns2, true]
       end
     end
   end

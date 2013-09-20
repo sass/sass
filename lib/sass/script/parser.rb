@@ -278,7 +278,7 @@ RUBY
       def map_pair(key = nil)
         return unless key ||= interpolation
         assert_tok :colon
-        return key, assert_expr(:interpolation)
+        [key, assert_expr(:interpolation)]
       end
 
       def expr
@@ -328,7 +328,7 @@ RUBY
         interp = node(
           Script::Tree::Interpolation.new(prev, str, assert_expr(name), !:wb, wa, :originally_text),
           (prev || str).source_range.start_pos)
-        return interp
+        interp
       end
 
       def interpolation(first = space)
@@ -419,7 +419,7 @@ RUBY
           break unless try_tok(:comma)
         end
         assert_tok(:rparen)
-        return res, splat
+        [res, splat]
       end
 
       def fn_arglist

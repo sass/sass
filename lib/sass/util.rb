@@ -57,7 +57,7 @@ module Sass
       end
 
       return Hash[pairs_or_hash] unless ruby1_8?
-      return OrderedHash[*flatten(pairs_or_hash, 1)]
+      OrderedHash[*flatten(pairs_or_hash, 1)]
     end
 
     # Converts an array of `[key, value]` pairs to a hash.
@@ -261,7 +261,7 @@ module Sass
     # @return [Array]
     def hash_to_a(hash)
       return hash.to_a unless ruby1_8? || defined?(Test::Unit)
-      return hash.sort_by {|k, v| k}
+      hash.sort_by {|k, v| k}
     end
 
     # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
@@ -455,7 +455,7 @@ module Sass
         raise "ERROR: Rails.root is nil!"
       end
       return RAILS_ROOT.to_s if defined?(RAILS_ROOT)
-      return nil
+      nil
     end
 
     # Returns the environment of the Rails application,
@@ -466,7 +466,7 @@ module Sass
     def rails_env
       return ::Rails.env.to_s if defined?(::Rails.env)
       return RAILS_ENV.to_s if defined?(RAILS_ENV)
-      return nil
+      nil
     end
 
     # Returns whether this environment is using ActionPack
@@ -502,7 +502,7 @@ module Sass
     #   or `ActionView::Template::Error`.
     def av_template_class(name)
       return ActionView.const_get("Template#{name}") if ActionView.const_defined?("Template#{name}")
-      return ActionView::Template.const_get(name.to_s)
+      ActionView::Template.const_get(name.to_s)
     end
 
     ## Cross-OS Compatibility
@@ -642,7 +642,7 @@ Invalid #{encoding.name} character #{undefined_conversion_error_char(e)}
 MSG
         end
       end
-      return str
+      str
     end
 
     # Like {\#check\_encoding}, but also checks for a `@charset` declaration
@@ -688,7 +688,7 @@ MSG
       end
 
       str = check_encoding(str, &block)
-      return str.encode("UTF-8"), str.encoding
+      [str.encode("UTF-8"), str.encoding]
     end
 
     unless ruby1_8?
@@ -850,11 +850,12 @@ MSG
     # @return [(String, Array)] The resulting string, and an array of extracted values.
     def extract_values(arr)
       values = []
-      return arr.map do |e|
+      mapped = arr.map do |e|
         next e.gsub('{', '{{') if e.is_a?(String)
         values << e
         next "{#{values.count - 1}}"
-      end.join, values
+      end
+      [mapped.join, values]
     end
 
     # Undoes \{#extract\_values} by transforming a string with escape sequences
@@ -1028,7 +1029,7 @@ MSG
             end
         end
       end
-      return c
+      c
     end
 
     # rubocop:disable ParameterLists, LineLength
@@ -1044,7 +1045,7 @@ MSG
       end
 
       return lcs_backtrace(c, x, y, i, j - 1, &block) if c[i][j - 1] > c[i - 1][j]
-      return lcs_backtrace(c, x, y, i - 1, j, &block)
+      lcs_backtrace(c, x, y, i - 1, j, &block)
     end
   end
 end

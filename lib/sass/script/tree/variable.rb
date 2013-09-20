@@ -51,7 +51,7 @@ module Sass::Script::Tree
         val = val.dup
         val.original = nil
       end
-      return val
+      val
     end
   end
 end

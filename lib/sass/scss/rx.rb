@@ -22,7 +22,7 @@ module Sass
           out << escape_char(value.slice!(0...1))
         end
         out << value.gsub(/[^a-zA-Z0-9_-]/) {|c| escape_char c}
-        return out
+        out
       end
 
       # Escapes a single character for a CSS identifier.
@@ -32,7 +32,7 @@ module Sass
       # @private
       def self.escape_char(c)
         return "\\%06x" % Sass::Util.ord(c) unless c =~ /[ -\/:-~]/
-        return "\\#{c}"
+        "\\#{c}"
       end
 
       # Creates a Regexp from a plain text string,
