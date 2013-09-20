@@ -1036,7 +1036,7 @@ WARNING
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
           Sass::Source::Position.new(@line, media_parser.offset),
           @options[:filename], @options[:importer])
-      elsif val =~ /^(https?:)?\/\//
+      elsif val =~ %r{^(https?:)?//}
         node = Tree::CssImportNode.new("url(#{val})")
         node.source_range = Sass::Source::Range.new(
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
@@ -1123,7 +1123,7 @@ WARNING
       end
 
       return silent ? "//" : "/* */" if content.empty?
-      content.last.gsub!(%r{ ?\*/ *$}, '')
+      content.last.gsub!(/ ?\*\/ *$/, '')
       content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
       if silent

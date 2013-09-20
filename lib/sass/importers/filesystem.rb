@@ -109,7 +109,7 @@ module Sass
         end
 
         # JRuby chokes when trying to import files from JARs when the path starts with './'.
-        ret.map {|f, s| [f.sub(%r{^\./}, ''), s]}
+        ret.map {|f, s| [f.sub(/^\.\//, ''), s]}
       end
 
       def escape_glob_characters(name)
@@ -118,7 +118,7 @@ module Sass
         end
       end
 
-      REDUNDANT_DIRECTORY = %r{#{Regexp.escape(File::SEPARATOR)}\.#{Regexp.escape(File::SEPARATOR)}}
+      REDUNDANT_DIRECTORY = /#{Regexp.escape(File::SEPARATOR)}\.#{Regexp.escape(File::SEPARATOR)}/
       # Given a base directory and an `@import`ed name,
       # finds an existant file that matches the name.
       #
