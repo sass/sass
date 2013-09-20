@@ -32,8 +32,8 @@ module Sass::Script::Value
     # @see Value#eq
     def eq(other)
       Sass::Script::Value::Bool.new(
-        other.is_a?(List) && self.value == other.value &&
-        self.separator == other.separator)
+        other.is_a?(List) && value == other.value &&
+        separator == other.separator)
     end
 
     def hash
@@ -91,7 +91,7 @@ module Sass::Script::Value
 
     private
 
-    def sep_str(opts = self.options)
+    def sep_str(opts = options)
       return ' ' if separator == :space
       return ',' if opts && opts[:style] == :compressed
       ', '

@@ -113,7 +113,7 @@ module Sass
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
 
-          self_without_sel = Sass::Util.array_minus(self.members, sels)
+          self_without_sel = Sass::Util.array_minus(members, sels)
           group.each {|e, _| e.result = :failed_to_unify unless e.result == :succeeded}
           unified = seq.members.last.unify(self_without_sel, subject?)
           next unless unified
@@ -219,8 +219,8 @@ MESSAGE
       end
 
       def _eql?(other)
-        other.base.eql?(self.base) && other.pseudo_elements == pseudo_elements &&
-          Sass::Util.set_eql?(other.rest, self.rest) && other.subject? == self.subject?
+        other.base.eql?(base) && other.pseudo_elements == pseudo_elements &&
+          Sass::Util.set_eql?(other.rest, rest) && other.subject? == subject?
       end
     end
   end

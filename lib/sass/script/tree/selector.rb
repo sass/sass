@@ -12,7 +12,7 @@ module Sass::Script::Tree
     end
 
     def deep_copy
-      self.dup
+      dup
     end
 
     protected

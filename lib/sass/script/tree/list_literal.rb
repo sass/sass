@@ -61,13 +61,13 @@ module Sass::Script::Tree
       list.line = line
       list.source_range = source_range
       list.filename = filename
-      list.options = self.options
+      list.options = options
       list
     end
 
     private
 
-    def sep_str(opts = self.options)
+    def sep_str(opts = options)
       return ' ' if separator == :space
       return ',' if opts && opts[:style] == :compressed
       ', '

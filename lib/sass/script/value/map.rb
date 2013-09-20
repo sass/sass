@@ -40,7 +40,7 @@ module Sass::Script::Value
 
     # @see Value#eq
     def eq(other)
-      Bool.new(other.is_a?(Map) && self.value == other.value)
+      Bool.new(other.is_a?(Map) && value == other.value)
     end
 
     def hash

@@ -33,10 +33,10 @@ module Sass::Plugin
 
     # Creates a new compiler.
     #
-    # @param options [{Symbol => Object}]
+    # @param opts [{Symbol => Object}]
     #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
-    def initialize(options = {})
-      self.options.merge!(options)
+    def initialize(opts = {})
+      options.merge!(opts)
     end
 
     # Register a callback to be run after stylesheets are mass-updated.

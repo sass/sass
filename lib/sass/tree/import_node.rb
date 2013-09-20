@@ -63,7 +63,7 @@ module Sass
         end
         raise SyntaxError.new(message)
       rescue SyntaxError => e
-        raise SyntaxError.new(e.message, :line => self.line, :filename => @filename)
+        raise SyntaxError.new(e.message, :line => line, :filename => @filename)
       end
 
       def options_for_importer

@@ -486,7 +486,7 @@ module Sass
       end
 
       def _eql?(other)
-        other.members.reject {|m| m == "\n"}.eql?(self.members.reject {|m| m == "\n"})
+        other.members.reject {|m| m == "\n"}.eql?(members.reject {|m| m == "\n"})
       end
 
       private

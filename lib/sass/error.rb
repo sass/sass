@@ -138,7 +138,7 @@ module Sass
     # @see #sass_backtrace
     # @return [String]
     def sass_backtrace_str(default_filename = "an unknown file")
-      lines = self.message.split("\n")
+      lines = message.split("\n")
       msg = lines[0] + lines[1..-1].
         map {|l| "\n" + (" " * "Syntax error: ".size) + l}.join
       "Syntax error: #{msg}" +

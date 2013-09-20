@@ -87,7 +87,7 @@ module Sass
       end
 
       def _eql?(other)
-        other.class == self.class && other.members.eql?(self.members)
+        other.class == self.class && other.members.eql?(members)
       end
     end
   end

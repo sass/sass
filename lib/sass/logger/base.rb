@@ -22,7 +22,7 @@ class Sass::Logger::Base
   end
 
   def log(level, message)
-    self._log(level, message) if logging_level?(level)
+    _log(level, message) if logging_level?(level)
   end
 
   def _log(level, message)

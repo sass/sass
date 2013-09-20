@@ -161,8 +161,8 @@ module Sass::Script::Value
     def div(other)
       if other.is_a? Number
         res = operate(other, :/)
-        if self.original && other.original
-          res.original = "#{self.original}/#{other.original}"
+        if original && other.original
+          res.original = "#{original}/#{other.original}"
         end
         res
       else
@@ -215,8 +215,8 @@ module Sass::Script::Value
     # Hash-equality must be transitive, so it just compares the exact value,
     # numerator units, and denominator units.
     def eql?(other)
-      self.value == other.value && self.numerator_units == other.numerator_units &&
-        self.denominator_units == other.denominator_units
+      value == other.value && numerator_units == other.numerator_units &&
+        denominator_units == other.denominator_units
     end
 
     # The SassScript `>` operation.
@@ -339,9 +339,9 @@ module Sass::Script::Value
     #   current units
     def coerce(num_units, den_units)
       Number.new(if unitless?
-                   self.value
+                   value
                  else
-                   self.value * coercion_factor(@numerator_units, num_units) /
+                   value * coercion_factor(@numerator_units, num_units) /
                      coercion_factor(@denominator_units, den_units)
                  end, num_units, den_units)
     end
@@ -377,7 +377,7 @@ module Sass::Script::Value
       elsif num % 1 == 0.0
         num.to_i
       else
-        ((num * self.precision_factor).round / self.precision_factor).to_f
+        ((num * precision_factor).round / precision_factor).to_f
       end
     end
 

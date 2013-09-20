@@ -117,7 +117,7 @@ module Sass::Tree
     # @return [{#to_s => #to_s}]
     def debug_info
       {:filename => filename && ("file://" + Sass::Util.escape_uri(File.expand_path(filename))),
-       :line => self.line}
+       :line => line}
     end
 
     # A rule node is invisible if it has only placeholder selectors.
