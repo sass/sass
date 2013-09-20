@@ -132,7 +132,9 @@ module Sass::Tree
         # We don't use real filename/line info because we don't have it yet.
         # When we get it, we'll set it on the parsed rules if possible.
         parser = Sass::SCSS::StaticParser.new(@rule.join.strip, '', nil, 1)
+        # rubocop:disable RescueModifier
         @parsed_rules = parser.parse_selector rescue nil
+        # rubocop:enable RescueModifier
       end
     end
   end
