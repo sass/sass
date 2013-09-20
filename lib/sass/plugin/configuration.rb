@@ -103,10 +103,15 @@ module Sass
         options[:template_location] =
           case options[:template_location]
           when nil
-            options[:css_location] ?
-              [[File.join(options[:css_location], 'sass'), options[:css_location]]] : []
-          when String; [[options[:template_location], options[:css_location]]]
-          else; options[:template_location].to_a
+            if options[:css_location]
+              [[File.join(options[:css_location], 'sass'), options[:css_location]]]
+            else
+              []
+            end
+          when String
+            [[options[:template_location], options[:css_location]]]
+          else
+            options[:template_location].to_a
           end
       end
     end

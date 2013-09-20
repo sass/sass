@@ -1000,9 +1000,7 @@ MSG
       end
     end
 
-    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ?
-                   URI::DEFAULT_PARSER :
-                   URI
+    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ? URI::DEFAULT_PARSER : URI
 
     def escape_uri(uri)
       URI_ESCAPE.escape uri

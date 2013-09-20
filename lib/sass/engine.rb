@@ -302,9 +302,11 @@ module Sass
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
-      @tree ||= @options[:quiet] ?
-        Sass::Util.silence_sass_warnings {_to_tree} :
-        _to_tree
+      @tree ||= if @options[:quiet]
+                  Sass::Util.silence_sass_warnings {_to_tree}
+                else
+                  _to_tree
+                end
     end
 
     # Returns the original encoding of the document,
