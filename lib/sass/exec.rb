@@ -17,6 +17,7 @@ module Sass
       #
       # @see #parse
       def parse!
+        # rubocop:disable RescueException
         begin
           parse
         rescue Exception => e
@@ -28,6 +29,7 @@ module Sass
           exit 1
         end
         exit 0
+        # rubocop:enable RescueException
       end
 
       # Parses the command-line arguments and runs the executable.

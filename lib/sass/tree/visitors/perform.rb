@@ -78,7 +78,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       end
 
       yield env
-    rescue Exception => e
+    rescue StandardError => e
     ensure
       # If there's a keyword exception, we don't want to throw it immediately,
       # because the invalid keywords may be part of a glob argument that should be

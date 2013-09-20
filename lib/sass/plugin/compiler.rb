@@ -282,11 +282,13 @@ module Sass::Plugin
       # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
       listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
+      # rubocop:disable RescueException
       begin
         listener.start!
       rescue Exception => e
         raise e unless e.is_a?(Interrupt)
       end
+      # rubocop:enable RescueException
     end
 
     # Non-destructively modifies \{#options} so that default values are properly set,
@@ -345,7 +347,7 @@ module Sass::Plugin
         else
           rendered = engine.render
         end
-      rescue Exception => e
+      rescue StandardError => e
         compilation_error_occured = true
         run_compilation_error e, filename, css, sourcemap
         rendered = Sass::SyntaxError.exception_to_css(e, options)
