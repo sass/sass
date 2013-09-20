@@ -359,10 +359,10 @@ END
               # We don't need to do any special handling of @options[:check_syntax] here,
               # because the Sass syntax checking happens alongside evaluation
               # and evaluation doesn't actually evaluate any code anyway.
-              ::Sass::Engine.new(input.read(), @options[:for_engine])
+              ::Sass::Engine.new(input.read, @options[:for_engine])
             end
 
-          input.close() if input.is_a?(File)
+          input.close if input.is_a?(File)
 
           if @options[:sourcemap]
             relative_sourcemap_path = Pathname.new(@options[:sourcemap_filename]).
