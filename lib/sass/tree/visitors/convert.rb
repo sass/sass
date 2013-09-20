@@ -136,9 +136,12 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def visit_if(node)
     name =
-      if !@is_else; "if"
-      elsif node.expr; "else if"
-      else; "else"
+      if !@is_else
+        "if"
+      elsif node.expr
+        "else if"
+      else
+        "else"
       end
     @is_else = false
     str = "#{tab_str}@#{name}"
