@@ -150,7 +150,13 @@ module Sass
             reverse.gsub(/[^\s]/, ' '))
         end
 
-        type = if silent then :silent elsif loud then :loud else :normal end
+        type = if silent
+                 :silent
+               elsif loud
+                 :loud
+               else
+                 :normal
+               end
         comment = Sass::Tree::CommentNode.new(value, type)
         comment.line = line
         node << comment

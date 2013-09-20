@@ -767,7 +767,13 @@ WARNING
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
           format_comment_text(str, silent)
         end
-        type = if silent then :silent elsif loud then :loud else :normal end
+        type = if silent
+                 :silent
+               elsif loud
+                 :loud
+               else
+                 :normal
+               end
         Tree::CommentNode.new(value, type)
       else
         Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
