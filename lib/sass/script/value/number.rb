@@ -349,12 +349,10 @@ module Sass::Script::Value
     # @param other [Number] A number to decide if it can be compared with this number.
     # @return [Boolean] Whether or not this number can be compared with the other.
     def comparable_to?(other)
-      begin
-        operate(other, :+)
-        true
-      rescue Sass::UnitConversionError
-        false
-      end
+      operate(other, :+)
+      true
+    rescue Sass::UnitConversionError
+      false
     end
 
     # Returns a human readable representation of the units in this number.
