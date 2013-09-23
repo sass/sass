@@ -391,7 +391,7 @@ module Sass::Plugin
 
     def normalized_load_paths
       @normalized_load_paths ||=
-        Sass::Engine.normalize_options(:load_paths=> load_paths)[:load_paths]
+        Sass::Engine.normalize_options(:load_paths => load_paths)[:load_paths]
     end
 
     def load_paths(opts = options)
