@@ -38,9 +38,7 @@ module Sass::Script::Value
     # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
     # @param options [{Symbol => Object}] The options
-    def options=(options)
-      @options = options
-    end
+    attr_writer :options
 
     # Returns the options hash for this node.
     #

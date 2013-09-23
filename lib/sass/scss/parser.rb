@@ -1116,7 +1116,9 @@ MESSAGE
       @sass_script_parser = Class.new(Sass::Script::Parser)
       @sass_script_parser.send(:include, ScriptParser)
       # @private
-      def self.sass_script_parser; @sass_script_parser; end
+      class << self
+        attr_accessor :sass_script_parser
+      end
 
       def sass_script(*args)
         parser = self.class.sass_script_parser.new(@scanner, @line, @offset,
