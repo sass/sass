@@ -268,7 +268,7 @@ RUBY
 
         key, value = map_pair(e)
         map = node(Sass::Script::Tree::MapLiteral.new([[key, value]]), start_pos)
-        while (tok = try_tok(:comma))
+        while try_tok(:comma)
           key, value = assert_expr(:map_pair)
           map.pairs << [key, value]
         end

@@ -502,7 +502,6 @@ module Sass::Script
       assert_type blue, :Number, :blue
 
       color_attrs = [[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
-        v = c.value
         if c.is_unit?("%")
           v = Sass::Util.check_range("$#{name}: Color value", 0..100, c, '%')
           v * 255 / 100.0

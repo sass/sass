@@ -660,6 +660,7 @@ WARNING
     end
 
     def parse_property_or_rule(line)
+      # rubocop:disable UselessAssignment
       scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
       offset = line.offset
@@ -709,6 +710,7 @@ WARNING
         rule << Tree::CommentNode.new([trailing], :silent) if trailing
         rule
       end
+      # rubocop:enable UselessAssignment
     end
 
     # @comment
@@ -883,10 +885,6 @@ WARNING
       return at_root_node unless value
 
       parsed = parse_interp(value, offset)
-      selector_range = Sass::Source::Range.new(
-        Sass::Source::Position.new(@line, to_parser_offset(offset)),
-        Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
-        @options[:filename], @options[:importer])
       rule_node = Tree::RuleNode.new(parsed, full_line_range(line))
 
       # The caller expects to automatically add children to the returned node
