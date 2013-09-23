@@ -169,11 +169,11 @@ module Sass
           current_rule.parsed_rules = make_seq(first)
         end
 
-        unless rest.empty?
+        if rest.empty?
+          current_rule.children += child.children
+        else
           child.parsed_rules = make_seq(*rest)
           current_rule << child
-        else
-          current_rule.children += child.children
         end
 
         current_rule
@@ -220,12 +220,12 @@ module Sass
           current_rule.parsed_rules = make_sseq(last_simple_subject, *firsts)
         end
 
-        unless rest.empty?
+        if rest.empty?
+          current_rule.children += child.children
+        else
           rest.unshift Sass::Selector::Parent.new
           child.parsed_rules = make_sseq(sseq.subject?, *rest)
           current_rule << child
-        else
-          current_rule.children += child.children
         end
 
         current_rule

@@ -129,12 +129,12 @@ module Sass::Script::Tree
       ruby_name = @name.tr('-', '_')
       args = construct_ruby_args(ruby_name, args, keywords, splat, environment)
 
-      unless Sass::Script::Functions.callable?(ruby_name)
-        opts(to_literal(args))
-      else
+      if Sass::Script::Functions.callable?(ruby_name)
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
         opts(Sass::Script::Functions::EvaluationContext.new(
           local_environment).send(ruby_name, *args))
+      else
+        opts(to_literal(args))
       end
     rescue ArgumentError => e
       message = e.message
