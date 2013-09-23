@@ -1,9 +1,6 @@
 LineLength:
   Enabled: true
   Max: 100
-SpaceAroundBraces:
-  # block braces without spaces are plenty readable
-  Enabled: false
 StringLiterals:
   # they say to not use double quoted strings unless there is interpolation.
   # While this gives a marginal parse time speedup, it makes working with
@@ -21,9 +18,6 @@ Lambda:
 ParenthesesAroundCondition:
   # this mostly just triggers on safe assignment
   Enabled: false
-ParameterLists:
-  # The default is 5, but we rarely have more than 4. Let's keep it that way.
-  Max: 4
 EndAlignment:
   # Our alignment style differs significantly
   # and this doesn't seem to be a big deal.
@@ -33,10 +27,6 @@ MethodLength:
   # But that will require significant refactoring.
   Max: 50
   CountComments: false
-AvoidPerlBackrefs:
-  # It wants people to use MatchData instead of perl-style globals for regex matches.
-  # but with as much regex as we do, MatchData is clunky compared to $1, $2, etc.
-  Enabled: false
 CharacterLiteral:
   # Character literals are pretty useful when working with text like we do.
   Enabled: false
@@ -51,7 +41,65 @@ SymbolName:
 EmptyLines:
   # We need these empty lines to separate internal comments from docstrings.
   Enabled: false
+HandleExceptions:
+  # We legitimately ignore exceptions in some cases and this is easy to catch in code review.
+  Enabled: false
+PerlBackrefs:
+  # We like perl backrefs
+  Enabled: false
+Loop:
+  # This isn't a big deal.
+  Enabled: false
+Documentation:
+  # We need to add a bunch of docs before we can enable this
+  Enabled: false
+IfUnlessModifier:
+  # We don't feel strongly about this.
+  Enabled: false
+WhileUntilModifier:
+  # We don't feel strongly about this.
+  Enabled: false
+HashMethods:
+  # has_xxx? reads better.
+  Enabled: false
+CollectionMethods:
+  PreferredMethods:
+    collect: 'map'
+    reduce: 'inject'
+    detect: 'find'
+    find_all: 'select'
+ModuleFunction:
+  # module function makes things private so it means you can't use the module as a module.
+  Enabled: false
+ReduceArguments:
+  # We prefer to name things well.
+  Enabled: false
 SpaceAroundBlockBraces:
   NoSpaceBeforeBlockParameters: true
   NoSpaceBeforeClosingCurly: true
   NoSpaceAfterOpeningCurly: true
+SingleLineMethods:
+  # We like single line methods for simple methods.
+  Enabled: false
+EmptyLineBetweenDefs:
+  AllowAdjacentOneLineDefs: true
+TrivialAccessors:
+  AllowPredicates: true
+  ExactNameMatch: true
+SpaceInsideHashLiteralBraces:
+  EnforcedStyleIsWithSpaces: false
+SignalException:
+  # We like saying raise.
+  Enabled: false
+WhenThen:
+  # We like semi-colons
+  Enabled: false
+FavorSprintf:
+  # We like the string % operator.
+  Enabled: false
+Semicolon:
+  # Makes a good line separator
+  Enabled: false
+NumericLiterals:
+  # Fails for hex literals. A patch for this should be released soon.
+  Enabled: false
