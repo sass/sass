@@ -100,7 +100,7 @@ class OrderedHash < ::Hash
   end
 
   def values
-    @keys.collect { |key| self[key] }
+    @keys.collect {|key| self[key]}
   end
 
   def to_hash
@@ -108,18 +108,18 @@ class OrderedHash < ::Hash
   end
 
   def to_a
-    @keys.map { |key| [ key, self[key] ] }
+    @keys.map {|key| [ key, self[key] ]}
   end
 
   def each_key
     return to_enum(:each_key) unless block_given?
-    @keys.each { |key| yield key }
+    @keys.each {|key| yield key}
     self
   end
 
   def each_value
     return to_enum(:each_value) unless block_given?
-    @keys.each { |key| yield self[key]}
+    @keys.each {|key| yield self[key]}
     self
   end
 
@@ -151,9 +151,9 @@ class OrderedHash < ::Hash
 
   def merge!(other_hash)
     if block_given?
-      other_hash.each { |k, v| self[k] = key?(k) ? yield(k, self[k], v) : v }
+      other_hash.each {|k, v| self[k] = key?(k) ? yield(k, self[k], v) : v}
     else
-      other_hash.each { |k, v| self[k] = v }
+      other_hash.each {|k, v| self[k] = v}
     end
     self
   end
@@ -173,7 +173,7 @@ class OrderedHash < ::Hash
   end
 
   def invert
-    OrderedHash[to_a.map!{|key_value_pair| key_value_pair.reverse}]
+    OrderedHash[to_a.map! {|key_value_pair| key_value_pair.reverse}]
   end
 
   def inspect

@@ -1751,7 +1751,7 @@ module Sass::Script
         value.slice!(length)
       end
       new_list_value = values.first.zip(*values[1..-1])
-      new_list_arry = new_list_value.map{|list| Sass::Script::Value::List.new(list, :space)}
+      new_list_arry = new_list_value.map {|list| Sass::Script::Value::List.new(list, :space)}
       Sass::Script::Value::List.new(new_list_arry, :comma)
     end
     declare :zip, [], :var_args => true
@@ -1774,7 +1774,7 @@ module Sass::Script
     # @return [Sass::Script::Value::Number, Sass::Script::Value::Bool] The
     #   1-based index of `$value` in `$list`, or `false`
     def index(list, value)
-      index = list.to_a.index {|e| e.eq(value).to_bool }
+      index = list.to_a.index {|e| e.eq(value).to_bool}
       if index
         Sass::Script::Value::Number.new(index + 1)
       else

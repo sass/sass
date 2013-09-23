@@ -471,7 +471,7 @@ module Sass
       def _moz_document_directive(start_pos)
         res = ["@-moz-document "]
         loop do
-          res << str{ss} << expr!(:moz_document_function)
+          res << str {ss} << expr!(:moz_document_function)
           if (c = tok(/,/))
             res << c
           else
@@ -687,7 +687,7 @@ module Sass
         selectors = [sel]
         ws = ''
         while tok(/,/)
-          ws << str{ss}
+          ws << str {ss}
           if (sel = _selector)
             selectors << sel
             if ws.include?("\n")
@@ -703,14 +703,14 @@ module Sass
         # The combinator here allows the "> E" hack
         val = combinator || simple_selector_sequence
         return unless val
-        nl = str{ss}.include?("\n")
+        nl = str {ss}.include?("\n")
         res = []
         res << val
         res << "\n" if nl
 
         while (val = combinator || simple_selector_sequence)
           res << val
-          res << "\n" if str{ss}.include?("\n")
+          res << "\n" if str {ss}.include?("\n")
         end
         Selector::Sequence.new(res.compact)
       end
@@ -868,7 +868,7 @@ module Sass
           ss
           arg = expr!(:pseudo_arg)
           while tok(/,/)
-            arg << ',' << str{ss}
+            arg << ',' << str {ss}
             arg.concat expr!(:pseudo_arg)
           end
           tok!(/\)/)
@@ -909,9 +909,9 @@ module Sass
       def pseudo_expr
         e = pseudo_expr_token
         return unless e
-        res = [e, str{ss}]
+        res = [e, str {ss}]
         while (e = pseudo_expr_token)
-          res << e << str{ss}
+          res << e << str {ss}
         end
         res
       end
@@ -921,7 +921,7 @@ module Sass
         name_start_pos = source_position
         if (s = tok(/[:\*\.]|\#(?!\{)/))
           @use_property_exception = s !~ /[\.\#]/
-          name = [s, str{ss}, *expr!(:interp_ident)]
+          name = [s, str {ss}, *expr!(:interp_ident)]
         else
           name = interp_ident
           return unless name
@@ -989,10 +989,10 @@ MESSAGE
       def expr(allow_var = true)
         t = term(allow_var)
         return unless t
-        res = [t, str{ss}]
+        res = [t, str {ss}]
 
         while (o = operator) && (t = term(allow_var))
-          res << o << t << str{ss}
+          res << o << t << str {ss}
         end
 
         res.flatten
@@ -1023,7 +1023,7 @@ MESSAGE
           str, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
           [name, str]
         else
-          [name, str{ss}, expr(allow_var), tok!(/\)/)]
+          [name, str {ss}, expr(allow_var), tok!(/\)/)]
         end
       end
 

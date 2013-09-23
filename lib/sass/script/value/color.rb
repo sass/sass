@@ -546,7 +546,7 @@ module Sass::Script::Value
     end
 
     def hex_str
-      red, green, blue = rgb.map { |num| num.to_s(16).rjust(2, '0') }
+      red, green, blue = rgb.map {|num| num.to_s(16).rjust(2, '0')}
       "##{red}#{green}#{blue}"
     end
 

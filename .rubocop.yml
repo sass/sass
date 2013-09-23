@@ -51,3 +51,7 @@ SymbolName:
 EmptyLines:
   # We need these empty lines to separate internal comments from docstrings.
   Enabled: false
+SpaceAroundBlockBraces:
+  NoSpaceBeforeBlockParameters: true
+  NoSpaceBeforeClosingCurly: true
+  NoSpaceAfterOpeningCurly: true

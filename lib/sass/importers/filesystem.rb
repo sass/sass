@@ -174,7 +174,7 @@ WARNING
       def split(name)
         extension = nil
         dirname, basename = File.dirname(name), File.basename(name)
-        if basename =~ /^(.*)\.(#{extensions.keys.map{|e| Regexp.escape(e)}.join('|')})$/
+        if basename =~ /^(.*)\.(#{extensions.keys.map {|e| Regexp.escape(e)}.join('|')})$/
           basename = $1
           extension = $2
         end
