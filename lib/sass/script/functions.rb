@@ -360,7 +360,7 @@ module Sass::Script
           t_arg_arity = sig_arity
         end
 
-        if (  t_arg_arity == sig_arity ||   t_arg_arity > sig_arity && signature.var_args  ) &&
+        if   (t_arg_arity == sig_arity ||   t_arg_arity > sig_arity && signature.var_args) &&
            (t_kwarg_arity == 0         || t_kwarg_arity > 0         && signature.var_kwargs)
           return signature
         end
