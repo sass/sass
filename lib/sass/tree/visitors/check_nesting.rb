@@ -148,4 +148,3 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
     send(method, *args)
   end
 end
-

@@ -39,5 +39,3 @@ module Sass
 
   extend Features
 end
-
-
