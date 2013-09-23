@@ -5,7 +5,7 @@ module Sass
       def self.included(base)
         base.extend(ClassMethods)
       end
-      
+
       module ClassMethods
         def inherited(subclass)
           subclass.log_levels = subclass.superclass.log_levels.dup
@@ -43,7 +43,7 @@ module Sass
           RUBY
         end
       end
-      
+
     end
   end
 end

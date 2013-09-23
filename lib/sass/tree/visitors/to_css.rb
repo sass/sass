@@ -63,7 +63,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       @offset -= chars
     end
   end
-  
+
   # Avoid allocating lots of new strings for `#output`. This is important
   # because `#output` is called all the time.
   NEWLINE = "\n"
