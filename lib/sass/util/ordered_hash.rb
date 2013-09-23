@@ -108,7 +108,7 @@ class OrderedHash < ::Hash
   end
 
   def to_a
-    @keys.map {|key| [ key, self[key] ]}
+    @keys.map {|key| [key, self[key]]}
   end
 
   def each_key

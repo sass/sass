@@ -446,12 +446,12 @@ module Sass::Script::Value
     CONVERTABLE_UNITS = %w(in cm pc mm pt px).inject({}) {|m, v| m[v] = m.size; m}
 
     #                    in   cm    pc          mm          pt          px
-    CONVERSION_TABLE = [[1,   2.54, 6,          25.4,       72        , 96          ], # in
+    CONVERSION_TABLE = [[1,   2.54, 6,          25.4,       72        , 96],           # in
                         [nil, 1,    2.36220473, 10,         28.3464567, 37.795275591], # cm
-                        [nil, nil,  1,          4.23333333, 12        , 16          ], # pc
+                        [nil, nil,  1,          4.23333333, 12        , 16],           # pc
                         [nil, nil,  nil,        1,          2.83464567, 3.7795275591], # mm
                         [nil, nil,  nil,        nil,        1         , 1.3333333333], # pt
-                        [nil, nil,  nil,        nil,        nil       , 1           ]] # px
+                        [nil, nil,  nil,        nil,        nil       , 1]]            # px
 
     def conversion_factor(from_unit, to_unit)
       res = CONVERSION_TABLE[CONVERTABLE_UNITS[from_unit]][CONVERTABLE_UNITS[to_unit]]
