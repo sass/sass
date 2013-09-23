@@ -19,6 +19,16 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
+# ----- Code Style Enforcement -----
+
+require 'rubocop/rake_task'
+require "#{File.dirname(__FILE__)}/test/rubocop_extensions.rb"
+Rubocop::RakeTask.new do |t|
+  t.patterns = FileList["lib/**/*"]
+end
+
+task :test => :rubocop
+
 # ----- Packaging -----
 
 # Don't use Rake::GemPackageTast because we want prerequisites to run
