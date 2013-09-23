@@ -100,7 +100,7 @@ class OrderedHash < ::Hash
   end
 
   def values
-    @keys.collect {|key| self[key]}
+    @keys.map {|key| self[key]}
   end
 
   def to_hash
