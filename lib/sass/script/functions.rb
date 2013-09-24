@@ -298,10 +298,12 @@ module Sass::Script
 
     # A class representing a Sass function signature.
     #
-    # @attr args [Array<Symbol>] The names of the arguments to the function.
+    # @attr args [Array<String>] The names of the arguments to the function.
+    # @attr delayed_args [Array<String>] The names of the arguments whose evaluation should be
+    #   delayed.
     # @attr var_args [Boolean] Whether the function takes a variable number of arguments.
     # @attr var_kwargs [Boolean] Whether the function takes an arbitrary set of keyword arguments.
-    Signature = Struct.new(:args, :var_args, :var_kwargs)
+    Signature = Struct.new(:args, :delayed_args, :var_args, :var_kwargs)
 
     # Declare a Sass signature for a Ruby-defined function.
     # This includes the names of the arguments,
@@ -338,9 +340,23 @@ module Sass::Script
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
     def self.declare(method_name, args, options = {})
+      delayed_args = []
+      args = args.map do |a|
+        a = a.to_s
+        if a[0] == ?&
+          a = a[1..-1]
+          delayed_args << a
+        end
+        a
+      end
+      # We don't expose this functionality except to certain builtin methods.
+      if delayed_args.any? && method_name != :if
+        raise ArgumentError.new("Delayed arguments are not allowed for method #{method_name}")
+      end
       @signatures[method_name] ||= []
       @signatures[method_name] << Signature.new(
-        args.map {|s| s.to_s},
+        args,
+        delayed_args,
         options[:var_args],
         options[:var_kwargs])
     end
@@ -476,6 +492,24 @@ module Sass::Script
           raise ArgumentError.new("Expected $#{name} to be an integer but got #{number}")
         else
           raise ArgumentError.new("Expected #{number} to be an integer")
+        end
+      end
+
+      # Performs a node that has been delayed for execution.
+      #
+      # @private
+      # @param node [Sass::Script::Tree::Node,
+      #   Sass::Script::Value::Base] When this is a tree node, it's
+      #   performed in the caller's environment. When it's a value
+      #   (which can happen when the value had to be performed already
+      #   -- like for a splat), it's returned as-is.
+      # @param env [Sass::Environment] The environment within which to perform the node.
+      #   Defaults to the (read-only) environment of the caller.
+      def perform(node, env = environment.caller)
+        if node.is_a?(Sass::Script::Value::Base)
+          node
+        else
+          node.perform(env)
         end
       end
     end
