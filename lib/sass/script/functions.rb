@@ -91,13 +91,16 @@ module Sass::Script
   #
   # ## Other Color Functions
   #
-  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\],
+  #   \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Increases or decreases one or more components of a color.
   #
-  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\],
+  #   \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Fluidly scales one or more properties of a color.
   #
-  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\],
+  #   \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Changes one or more properties of a color.
   #
   # \{#ie_hex_str ie-hex-str($color)}
@@ -342,22 +345,23 @@ module Sass::Script
     def self.signature(method_name, arg_arity, kwarg_arity)
       return unless @signatures[method_name]
       @signatures[method_name].each do |signature|
-        return signature if signature.args.size == arg_arity + kwarg_arity
-        next unless signature.args.size < arg_arity + kwarg_arity
+        sig_arity = signature.args.size
+        return signature if sig_arity == arg_arity + kwarg_arity
+        next unless sig_arity < arg_arity + kwarg_arity
 
         # We have enough args.
         # Now we need to figure out which args are varargs
         # and if the signature allows them.
         t_arg_arity, t_kwarg_arity = arg_arity, kwarg_arity
-        if signature.args.size > t_arg_arity
+        if sig_arity > t_arg_arity
           # we transfer some kwargs arity to args arity
           # if it does not have enough args -- assuming the names will work out.
-          t_kwarg_arity -= (signature.args.size - t_arg_arity)
-          t_arg_arity = signature.args.size
+          t_kwarg_arity -= (sig_arity - t_arg_arity)
+          t_arg_arity = sig_arity
         end
 
-        if (  t_arg_arity == signature.args.size ||   t_arg_arity > signature.args.size && signature.var_args  ) &&
-           (t_kwarg_arity == 0                   || t_kwarg_arity > 0                   && signature.var_kwargs)
+        if   (t_arg_arity == sig_arity ||   t_arg_arity > sig_arity && signature.var_args) &&
+           (t_kwarg_arity == 0         || t_kwarg_arity > 0         && signature.var_kwargs)
           return signature
         end
       end
@@ -440,8 +444,10 @@ module Sass::Script
       #
       # @example
       #   assert_integer 2px
-      #   assert_integer 2.5px => SyntaxError: "Expected 2.5px to be an integer"
-      #   assert_integer 2.5px, "width" => SyntaxError: "Expected width to be an integer but got 2.5px"
+      #   assert_integer 2.5px
+      #     => SyntaxError: "Expected 2.5px to be an integer"
+      #   assert_integer 2.5px, "width"
+      #     => SyntaxError: "Expected width to be an integer but got 2.5px"
       # @param number [Sass::Script::Value::Base] The value to be validated.
       # @param name [::String] The name of the parameter being validated.
       # @raise [ArgumentError] if number is not an integer or is not a number.
@@ -464,6 +470,7 @@ module Sass::Script
       alias_method :callable?, :public_method_defined?
 
       private
+
       def include(*args)
         r = super
         # We have to re-include ourselves into EvaluationContext to work around
@@ -494,17 +501,17 @@ module Sass::Script
       assert_type green, :Number, :green
       assert_type blue, :Number, :blue
 
-      Sass::Script::Value::Color.new([[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
-          v = c.value
-          if c.is_unit?("%")
-            v = Sass::Util.check_range("$#{name}: Color value", 0..100, c, '%')
-            v * 255 / 100.0
-          elsif c.unitless?
-            Sass::Util.check_range("$#{name}: Color value", 0..255, c)
-          else
-            raise ArgumentError.new("Expected #{c} to be unitless or have a unit of % but got #{c}")
-          end
-        end)
+      color_attrs = [[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
+        if c.is_unit?("%")
+          v = Sass::Util.check_range("$#{name}: Color value", 0..100, c, '%')
+          v * 255 / 100.0
+        elsif c.unitless?
+          Sass::Util.check_range("$#{name}: Color value", 0..255, c)
+        else
+          raise ArgumentError.new("Expected #{c} to be unitless or have a unit of % but got #{c}")
+        end
+      end
+      Sass::Script::Value::Color.new(color_attrs)
     end
     declare :rgb, [:red, :green, :blue]
 
@@ -611,7 +618,8 @@ module Sass::Script
       s = Sass::Util.check_range('Saturation', 0..100, saturation, '%')
       l = Sass::Util.check_range('Lightness', 0..100, lightness, '%')
 
-      Sass::Script::Value::Color.new(:hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
+      Sass::Script::Value::Color.new(
+        :hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
     declare :hsla, [:hue, :saturation, :lightness, :alpha]
 
@@ -729,9 +737,9 @@ module Sass::Script
     # @raise [ArgumentError] if `$color` isn't a color
     def alpha(*args)
       if args.all? do |a|
-          a.is_a?(Sass::Script::Value::String) && a.type == :identifier &&
-            a.value =~ /^[a-zA-Z]+\s*=/
-        end
+           a.is_a?(Sass::Script::Value::String) && a.type == :identifier &&
+             a.value =~ /^[a-zA-Z]+\s*=/
+         end
         # Support the proprietary MS alpha() function
         return Sass::Script::Value::String.new("alpha(#{args.map {|a| a.to_s}.join(", ")})")
       end
@@ -935,7 +943,8 @@ module Sass::Script
     #   adjust-color(#102030, $blue: 5) => #102035
     #   adjust-color(#102030, $red: -5, $blue: 5) => #0b2035
     #   adjust-color(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
-    # @overload adjust_color($color, [$red], [$green], [$blue], [$hue], [$saturation], [$lightness], [$alpha])
+    # @overload adjust_color($color, [$red], [$green], [$blue],
+    #   [$hue], [$saturation], [$lightness], [$alpha])
     # @param $color [Sass::Script::Value::Color]
     # @param $red [Sass::Script::Value::Number] The adjustment to make on the
     #   red component, between -255 and 255 inclusive
@@ -967,7 +976,8 @@ module Sass::Script
           "alpha" => [-1..1, ""]
         }) do |name, (range, units)|
 
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
         Sass::Util.check_range("$#{name}: Amount", range, val, units) if range
         adjusted = color.send(name) + val.value
@@ -1011,7 +1021,8 @@ module Sass::Script
     #   scale-color(hsl(120, 70%, 80%), $lightness: 50%) => hsl(120, 70%, 90%)
     #   scale-color(rgb(200, 150%, 170%), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
     #   scale-color(hsl(200, 70%, 80%), $saturation: -90%, $alpha: -30%) => hsla(200, 7%, 80%, 0.7)
-    # @overload scale_color($color, [$red], [$green], [$blue], [$saturation], [$lightness], [$alpha])
+    # @overload scale_color($color, [$red], [$green], [$blue],
+    #   [$saturation], [$lightness], [$alpha])
     # @param $color [Sass::Script::Value::Color]
     # @param $red [Sass::Script::Value::Number]
     # @param $green [Sass::Script::Value::Number]
@@ -1034,15 +1045,16 @@ module Sass::Script
           "alpha" => 1
         }) do |name, max|
 
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
         assert_unit val, '%', name
         Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
 
         current = color.send(name)
-        scale = val.value/100.0
+        scale = val.value / 100.0
         diff = scale > 0 ? max - current : current
-        [name.to_sym, current + diff*scale]
+        [name.to_sym, current + diff * scale]
       end
 
       unless kwargs.empty?
@@ -1067,7 +1079,8 @@ module Sass::Script
     #   change-color(#102030, $blue: 5) => #102005
     #   change-color(#102030, $red: 120, $blue: 5) => #782005
     #   change-color(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
-    # @overload change_color($color, [$red], [$green], [$blue], [$hue], [$saturation], [$lightness], [$alpha])
+    # @overload change_color($color, [$red], [$green], [$blue], [$hue],
+    #   [$saturation], [$lightness], [$alpha])
     # @param $color [Sass::Script::Value::Color]
     # @param $red [Sass::Script::Value::Number] The new red component for the
     #   color, within 0 and 255 inclusive
@@ -1090,7 +1103,8 @@ module Sass::Script
     def change_color(color, kwargs)
       assert_type color, :Color, :color
       with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
         [name.to_sym, val.value]
       end
@@ -1152,15 +1166,15 @@ module Sass::Script
       #
       # Finally, the weight of color_1 is renormalized to be within [0, 1]
       # and the weight of color_2 is given by 1 minus the weight of color_1.
-      p = (weight.value/100.0).to_f
-      w = p*2 - 1
+      p = (weight.value / 100.0).to_f
+      w = p * 2 - 1
       a = color_1.alpha - color_2.alpha
 
-      w1 = (((w * a == -1) ? w : (w + a)/(1 + w*a)) + 1)/2.0
+      w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0
       w2 = 1 - w1
 
-      rgb = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1*w1 + v2*w2}
-      alpha = color_1.alpha*p + color_2.alpha*(1-p)
+      rgb = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
+      alpha = color_1.alpha * p + color_2.alpha * (1 - p)
       Sass::Script::Value::Color.new(rgb + [alpha])
     end
     declare :mix, [:color_1, :color_2]
@@ -1291,8 +1305,13 @@ module Sass::Script
       assert_type insert, :String, :insert
       assert_integer index, :index
       assert_unit index, nil, :index
-      insertion_point = index.value > 0 ? [index.value - 1, original.value.size].min : [index.value, -original.value.size - 1].max
-      Sass::Script::Value::String.new(original.value.dup.insert(insertion_point, insert.value), original.type)
+      insertion_point = if index.value > 0
+                          [index.value - 1, original.value.size].min
+                        else
+                          [index.value, -original.value.size - 1].max
+                        end
+      result = original.value.dup.insert(insertion_point, insert.value)
+      Sass::Script::Value::String.new(result, original.type)
     end
     declare :str_insert, [:string, :insert, :index]
 
@@ -1320,7 +1339,6 @@ module Sass::Script
       Sass::Script::Value::Number.new(index + 1)
     end
     declare :str_index, [:string, :substring]
-
 
     # Extracts a substring from `$string`. The substring will begin at index
     # `$start-at` and ends at index `$end-at`.
@@ -1407,7 +1425,7 @@ module Sass::Script
     # @return [Sass::Script::Value::String] The unquoted string name of the
     #   value's type
     def type_of(value)
-      Sass::Script::Value::String.new(value.class.name.gsub(/Sass::Script::Value::/,'').downcase)
+      Sass::Script::Value::String.new(value.class.name.gsub(/Sass::Script::Value::/, '').downcase)
     end
     declare :type_of, [:value]
 
@@ -1628,7 +1646,8 @@ module Sass::Script
       elsif list.to_a.size == 0
         raise ArgumentError.new("List index is #{n} but list has no items")
       elsif n.to_i.abs > (size = list.to_a.size)
-        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
+        raise ArgumentError.new(
+          "List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
       end
 
       index = n.to_i > 0 ? n.to_i - 1 : n.to_i
@@ -1731,10 +1750,10 @@ module Sass::Script
         value.slice!(length)
       end
       new_list_value = values.first.zip(*values[1..-1])
-      Sass::Script::Value::List.new(new_list_value.map{|list| Sass::Script::Value::List.new(list, :space)}, :comma)
+      new_list_arry = new_list_value.map {|list| Sass::Script::Value::List.new(list, :space)}
+      Sass::Script::Value::List.new(new_list_arry, :comma)
     end
     declare :zip, [], :var_args => true
-
 
     # Returns the position of a value within a list. If the value isn't found,
     # returns false instead.
@@ -1754,7 +1773,7 @@ module Sass::Script
     # @return [Sass::Script::Value::Number, Sass::Script::Value::Bool] The
     #   1-based index of `$value` in `$list`, or `false`
     def index(list, value)
-      index = list.to_a.index {|e| e.eq(value).to_bool }
+      index = list.to_a.index {|e| e.eq(value).to_bool}
       if index
         Sass::Script::Value::Number.new(index + 1)
       else
@@ -1883,7 +1902,8 @@ module Sass::Script
     # @raise [ArgumentError] if `$args` isn't a variable argument list
     def keywords(args)
       assert_type args, :ArgList
-      Sass::Script::Value::Map.new(Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
+      Sass::Script::Value::Map.new(
+        Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
     end
     declare :keywords, [:args]
 
@@ -1989,10 +2009,14 @@ module Sass::Script
     # It yields a number to a block to perform the operation and return a number
     def numeric_transformation(value)
       assert_type value, :Number, :value
-      Sass::Script::Value::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
+      Sass::Script::Value::Number.new(
+        yield(value.value), value.numerator_units, value.denominator_units)
     end
 
+    # @comment
+    #   rubocop:disable ParameterLists
     def _adjust(color, amount, attr, range, op, units = "")
+      # rubocop:enable ParameterLists
       assert_type color, :Color, :color
       assert_type amount, :Number, :amount
       Sass::Util.check_range('Amount', range, amount, units)
@@ -2013,7 +2037,7 @@ DEPRECATION WARNING: Passing lists of pairs to #{fn_name} is deprecated and will
 be removed in future versions of Sass. Use Sass maps instead. For details, see
 http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
 WARNING
-      return obj.to_h
+      obj.to_h
     end
   end
 end

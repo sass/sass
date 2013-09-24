@@ -17,6 +17,7 @@ module Sass
       #
       # @see #parse
       def parse!
+        # rubocop:disable RescueException
         begin
           parse
         rescue Exception => e
@@ -28,6 +29,7 @@ module Sass
           exit 1
         end
         exit 0
+        # rubocop:enable RescueException
       end
 
       # Parses the command-line arguments and runs the executable.
@@ -58,7 +60,9 @@ module Sass
       def get_line(exception)
         # SyntaxErrors have weird line reporting
         # when there's trailing whitespace
-        return (exception.message.scan(/:(\d+)/).first || ["??"]).first if exception.is_a?(::SyntaxError)
+        if exception.is_a?(::SyntaxError)
+          return (exception.message.scan(/:(\d+)/).first || ["??"]).first
+        end
         (exception.backtrace[0].scan(/:(\d+)/).first || ["??"]).first
       end
 
@@ -70,7 +74,8 @@ module Sass
       #
       # @param opts [OptionParser]
       def set_opts(opts)
-        opts.on('-s', '--stdin', :NONE, 'Read input from standard input instead of an input file') do
+        opts.on('-s', '--stdin', :NONE,
+                'Read input from standard input instead of an input file') do
           @options[:input] = $stdin
         end
 
@@ -113,13 +118,13 @@ module Sass
         output ||= @options[:output_filename] || $stdout
 
         if @options[:sourcemap] && @options[:output_filename]
-          @options[:sourcemap_filename] = Util::sourcemap_name(@options[:output_filename])
+          @options[:sourcemap_filename] = Util.sourcemap_name(@options[:output_filename])
         end
 
         @options[:input], @options[:output] = input, output
       end
 
-      COLORS = { :red => 31, :green => 32, :yellow => 33 }
+      COLORS = {:red => 31, :green => 32, :yellow => 33}
 
       # Prints a status message about performing the given action,
       # colored using the given color (via terminal escapes) if possible.
@@ -158,7 +163,7 @@ module Sass
         # so we just filter for Windows terms (which don't set TERM)
         # and not-real terminals, which aren't ttys.
         return str if ENV["TERM"].nil? || ENV["TERM"].empty? || !STDOUT.tty?
-        return "\e[#{COLORS[color]}m#{str}\e[0m"
+        "\e[#{COLORS[color]}m#{str}\e[0m"
       end
 
       def write_output(text, destination)
@@ -210,6 +215,8 @@ MESSAGE
       # Tells optparse how to parse the arguments.
       #
       # @param opts [OptionParser]
+      # @comment
+      #   rubocop:disable MethodLength
       def set_opts(opts)
         super
 
@@ -260,12 +267,13 @@ END
           @options[:check_syntax] = true
           @options[:output] = StringIO.new
         end
-        opts.on('-t', '--style NAME',
-                'Output style. Can be nested (default), compact, compressed, or expanded.') do |name|
+        style_desc = 'Output style. Can be nested (default), compact, compressed, or expanded.'
+        opts.on('-t', '--style NAME', style_desc) do |name|
           @options[:for_engine][:style] = name.to_sym
         end
         opts.on('--precision NUMBER_OF_DIGITS', Integer,
-                "How many digits of precision to use when outputting decimal numbers. Defaults to #{::Sass::Script::Value::Number.precision}.") do |precision|
+                "How many digits of precision to use when outputting decimal numbers." +
+                "Defaults to #{::Sass::Script::Value::Number.precision}.") do |precision|
           ::Sass::Script::Value::Number.precision = precision
         end
         opts.on('-q', '--quiet', 'Silence warnings and status messages during compilation.') do
@@ -275,7 +283,7 @@ END
           @options[:compass] = true
         end
         opts.on('-g', '--debug-info',
-                'Emit extra information in the generated CSS that can be used by the FireSass Firebug plugin.') do
+                'Emit output that can be used by the FireSass Firebug plugin.') do
           @options[:for_engine][:debug_info] = true
         end
         opts.on('-l', '--line-numbers', '--line-comments',
@@ -292,7 +300,8 @@ END
         opts.on('-r', '--require LIB', 'Require a Ruby library before running Sass.') do |lib|
           require lib
         end
-        opts.on('--cache-location PATH', 'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
+        opts.on('--cache-location PATH',
+                'The path to put cached Sass files. Defaults to .sass-cache.') do |loc|
           @options[:for_engine][:cache_location] = loc
         end
         opts.on('-C', '--no-cache', "Don't cache to sassc files.") do
@@ -303,10 +312,10 @@ END
         end
 
         encoding_desc = if ::Sass::Util.ruby1_8?
-          'Does not work in ruby 1.8.'
-        else
-          'Specify the default encoding for Sass files.'
-        end
+                          'Does not work in ruby 1.8.'
+                        else
+                          'Specify the default encoding for Sass files.'
+                        end
         opts.on('-E encoding', encoding_desc) do |encoding|
           if ::Sass::Util.ruby1_8?
             $stderr.puts "Specifying the encoding is not supported in ruby 1.8."
@@ -316,6 +325,8 @@ END
           end
         end
       end
+      # @comment
+      #   rubocop:enable MethodLength
 
       # Processes the options set by the command-line arguments,
       # and runs the Sass compiler appropriately.
@@ -350,10 +361,10 @@ END
               # We don't need to do any special handling of @options[:check_syntax] here,
               # because the Sass syntax checking happens alongside evaluation
               # and evaluation doesn't actually evaluate any code anyway.
-              ::Sass::Engine.new(input.read(), @options[:for_engine])
+              ::Sass::Engine.new(input.read, @options[:for_engine])
             end
 
-          input.close() if input.is_a?(File)
+          input.close if input.is_a?(File)
 
           if @options[:sourcemap]
             relative_sourcemap_path = Pathname.new(@options[:sourcemap_filename]).
@@ -399,6 +410,8 @@ END
         ::Sass::Repl.new(@options).run
       end
 
+      # @comment
+      #   rubocop:disable MethodLength
       def watch_or_update
         require 'sass/plugin'
         ::Sass::Plugin.options.merge! @options[:for_engine]
@@ -435,7 +448,7 @@ MSG
           partition {|i, _| File.directory? i}
         files.map! do |from, to|
           to ||= from.gsub(/\.[^.]*?$/, '.css')
-          sourcemap = Util::sourcemap_name(to) if @options[:sourcemap]
+          sourcemap = Util.sourcemap_name(to) if @options[:sourcemap]
           [from, to, sourcemap]
         end
         dirs.map! {|from, to| [from, to || from]}
@@ -462,7 +475,8 @@ MSG
 
           raise error unless error.is_a?(::Sass::SyntaxError) && !@options[:stop_on_error]
           had_error = true
-          puts_action :error, :red, "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
+          puts_action :error, :red,
+            "#{error.sass_filename} (Line #{error.sass_line}: #{error.message})"
           STDOUT.flush
         end
 
@@ -489,6 +503,8 @@ MSG
 
         ::Sass::Plugin.watch(files)
       end
+      # @comment
+      #   rubocop:enable MethodLength
 
       def colon_path?(path)
         !split_colon_path(path)[1].nil?
@@ -503,7 +519,7 @@ MSG
           one2, two = two.split(':', 2)
           one = one + ':' + one2
         end
-        return one, two
+        [one, two]
       end
 
       # Whether path is likely to be meant as the destination
@@ -511,12 +527,13 @@ MSG
       def probably_dest_dir?(path)
         return false unless path
         return false if colon_path?(path)
-        return ::Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
+        ::Sass::Util.glob(File.join(path, "*.s[ca]ss")).empty?
       end
 
       def default_sass_path
         if ENV['SASSPATH']
-          # The select here prevents errors when the environment's load paths specified do not exist.
+          # The select here prevents errors when the environment's
+          # load paths specified do not exist.
           ENV['SASSPATH'].split(File::PATH_SEPARATOR).select {|d| File.directory?(d)}
         else
           [::Sass::Importers::DeprecatedPath.new(".")]
@@ -546,6 +563,8 @@ MSG
       # Tells optparse how to parse the arguments.
       #
       # @param opts [OptionParser]
+      # @comment
+      #   rubocop:disable MethodLength
       def set_opts(opts)
         opts.banner = <<END
 Usage: sass-convert [options] [INPUT] [OUTPUT]
@@ -615,13 +634,16 @@ END
         end
 
         unless ::Sass::Util.ruby1_8?
-          opts.on('-E encoding', 'Specify the default encoding for Sass and CSS files.') do |encoding|
+          opts.on('-E encoding',
+                  'Specify the default encoding for Sass and CSS files.') do |encoding|
             Encoding.default_external = encoding
           end
         end
 
         super
       end
+      # @comment
+      #   rubocop:enable MethodLength
 
       # Processes the options set by the command-line arguments,
       # and runs the CSS compiler appropriately.
@@ -635,7 +657,9 @@ END
 
         super
         input = @options[:input]
-        raise "Error: '#{input.path}' is a directory (did you mean to use --recursive?)" if File.directory?(input)
+        if File.directory?(input)
+          raise "Error: '#{input.path}' is a directory (did you mean to use --recursive?)"
+        end
         output = @options[:output]
         output = input if @options[:in_place]
         process_file(input, output)
@@ -644,15 +668,18 @@ END
       private
 
       def process_directory
-        unless input = @options[:input] = @args.shift
+        unless (input = @options[:input] = @args.shift)
           raise "Error: directory required when using --recursive."
         end
 
         output = @options[:output] = @args.shift
         raise "Error: --from required when using --recursive." unless @options[:from]
         raise "Error: --to required when using --recursive." unless @options[:to]
-        raise "Error: '#{@options[:input]}' is not a directory" unless File.directory?(@options[:input])
-        if @options[:output] && File.exists?(@options[:output]) && !File.directory?(@options[:output])
+        unless File.directory?(@options[:input])
+          raise "Error: '#{@options[:input]}' is not a directory"
+        end
+        if @options[:output] && File.exists?(@options[:output]) &&
+          !File.directory?(@options[:output])
           raise "Error: '#{@options[:output]}' is not a directory"
         end
         @options[:output] ||= @options[:input]

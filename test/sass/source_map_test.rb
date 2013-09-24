@@ -753,7 +753,7 @@ CSS
     start_positions = {}
     text.split("\n").each_with_index do |line_text, line|
       line += 1 # lines shoud be 1-based
-      while match = line_text.match(ANNOTATION_REGEX)
+      while (match = line_text.match(ANNOTATION_REGEX))
         closing = !match[1].empty?
         name = match[2]
         match_offsets = match.offset(0)

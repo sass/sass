@@ -90,8 +90,11 @@ module Sass::Source
     # @return [String] The JSON string.
     # @raise [ArgumentError] If neither `:css_uri` nor `:css_path` and
     #   `:sourcemap_path` are specified.
+    # @comment
+    #   rubocop:disable MethodLength
     def to_json(options)
-      css_uri, css_path, sourcemap_path = [:css_uri, :css_path, :sourcemap_path].map {|o| options[o]}
+      css_uri, css_path, sourcemap_path =
+        [:css_uri, :css_path, :sourcemap_path].map {|o| options[o]}
       unless css_uri || (css_path && sourcemap_path)
         raise ArgumentError.new("Sass::Source::Map#to_json requires either " +
           "the :css_uri option or both the :css_path and :soucemap_path options.")
@@ -119,7 +122,7 @@ module Sass::Source
 
       @data.each do |m|
         file, importer = m.input.file, m.input.importer
-        unless source_uri = importer && importer.public_url(file)
+        unless (source_uri = importer && importer.public_url(file))
           if importer.is_a?(Sass::Importers::Filesystem) && sourcemap_path
             file_path = Pathname.new(importer.root).join(file)
             source_uri = file_path.relative_path_from(sourcemap_path.dirname).to_s
@@ -192,6 +195,8 @@ WARNING
       result << "\n}"
       result
     end
+    # @comment
+    #   rubocop:enable MethodLength
 
     private
 

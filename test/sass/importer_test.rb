@@ -8,7 +8,8 @@ class ImporterTest < Test::Unit::TestCase
   
   class FruitImporter < Sass::Importers::Base
     def find(name, context = nil)
-      return unless fruit = parse(name)
+      fruit = parse(name)
+      return unless fruit
       color = case fruit
       when "apple"
         "red"

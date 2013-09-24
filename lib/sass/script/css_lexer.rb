@@ -4,6 +4,7 @@ module Sass
     #
     # @see Sass::SCSS::CssParser
     class CssLexer < Lexer
+
       private
 
       def token
@@ -12,16 +13,20 @@ module Sass
 
       def string(re, *args)
         if re == :uri
-          return unless uri = scan(URI)
+          uri = scan(URI)
+          return unless uri
           return [:string, Script::Value::String.new(uri)]
         end
 
         return unless scan(STRING)
-        [:string, Script::Value::String.new((@scanner[1] || @scanner[2]).gsub(/\\(['"])/, '\1'), :string)]
+        string_value = (@scanner[1] || @scanner[2]).gsub(/\\(['"])/, '\1')
+        value = Script::Value::String.new(string_value, :string)
+        [:string, value]
       end
 
       def important
-        return unless s = scan(IMPORTANT)
+        s = scan(IMPORTANT)
+        return unless s
         [:raw, s]
       end
     end

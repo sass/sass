@@ -96,12 +96,16 @@ module Sass
         :bool => /(true|false)\b/,
         :null => /null\b/,
         :selector => /&/,
-        :ident_op => %r{(#{Regexp.union(*IDENT_OP_NAMES.map{|s| Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")})})},
-        :op => %r{(#{Regexp.union(*OP_NAMES)})},
+        :ident_op => /(#{Regexp.union(*IDENT_OP_NAMES.map do |s|
+          Regexp.new(Regexp.escape(s) + "(?!#{NMCHAR}|\Z)")
+        end)})/,
+        :op => /(#{Regexp.union(*OP_NAMES)})/,
       }
 
       class << self
+
         private
+
         def string_re(open, close)
           /#{open}((?:\\.|\#(?!\{)|[^#{close}\\#])*)(#{close}|#\{)/
         end
@@ -131,7 +135,7 @@ module Sass
       # @param str [String, StringScanner] The source text to lex
       # @param line [Fixnum] The 1-based line on which the SassScript appears.
       #   Used for error reporting and sourcemap building
-      # @param offset [Fixnum] The 1-based character (not byte) offset in the line on which the SassScript appears.
+      # @param offset [Fixnum] The 1-based character (not byte) offset in the line in the source.
       #   Used for error reporting and sourcemap building
       # @param options [{Symbol => Object}] An options hash;
       #   see {file:SASS_REFERENCE.md#sass_options the Sass options documentation}
@@ -151,7 +155,7 @@ module Sass
         @tok ||= read_token
         @tok, tok = nil, @tok
         @prev = tok
-        return tok
+        tok
       end
 
       # Returns whether or not there's whitespace before the next token.
@@ -224,8 +228,8 @@ module Sass
       def read_token
         return if done?
         start_pos = source_position
-        start_index = @scanner.pos
-        return unless value = token
+        value = token
+        return unless value
         type, val = value
         Token.new(type, val, range(start_pos), @scanner.pos - @scanner.matched_size)
       end
@@ -263,14 +267,15 @@ module Sass
 
       def string(re, open)
         return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
-        if @scanner[2] == '#{' #'
+        if @scanner[2] == '#{' # '
           @scanner.pos -= 2 # Don't actually consume the #{
           @offset -= 2
           @interpolation_stack << re
         end
         str =
           if re == :uri
-            Script::Value::String.new("#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2] == '#{'}")
+            url = "#{'url(' unless open}#{@scanner[1]}#{')' unless @scanner[2] == '#{'}"
+            Script::Value::String.new(url)
           else
             Script::Value::String.new(@scanner[1].gsub(/\\(['"]|\#\{)/, '\1'), :string)
           end
@@ -286,7 +291,8 @@ module Sass
       end
 
       def color
-        return unless s = scan(REGULAR_EXPRESSIONS[:color])
+        s = scan(REGULAR_EXPRESSIONS[:color])
+        return unless s
         raise Sass::SyntaxError.new(<<MESSAGE.rstrip) unless s.size == 4 || s.size == 7
 Colors must have either three or six digits: '#{s}'
 MESSAGE
@@ -297,7 +303,8 @@ MESSAGE
       end
 
       def bool
-        return unless s = scan(REGULAR_EXPRESSIONS[:bool])
+        s = scan(REGULAR_EXPRESSIONS[:bool])
+        return unless s
         script_bool = Script::Value::Bool.new(s == 'true')
         [:bool, script_bool]
       end
@@ -317,7 +324,8 @@ MESSAGE
       end
 
       def special_fun
-        return unless str1 = scan(/((-[\w-]+-)?(calc|element)|expression|progid:[a-z\.]*)\(/i)
+        str1 = scan(/((-[\w-]+-)?(calc|element)|expression|progid:[a-z\.]*)\(/i)
+        return unless str1
         str2, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
         c = str2.count("\n")
         old_line = @line
@@ -325,9 +333,9 @@ MESSAGE
         @line += c
         @offset = c == 0 ? @offset + str2.size : str2[/\n([^\n]*)/, 1].size + 1
         [:special_fun,
-          Sass::Util.merge_adjacent_strings(
+         Sass::Util.merge_adjacent_strings(
             [str1] + Sass::Engine.parse_interp(str2, old_line, old_offset, @options)),
-          str1.size + str2.size]
+         str1.size + str2.size]
       end
 
       def special_val
@@ -336,23 +344,27 @@ MESSAGE
       end
 
       def ident_op
-        return unless op = scan(REGULAR_EXPRESSIONS[:ident_op])
+        op = scan(REGULAR_EXPRESSIONS[:ident_op])
+        return unless op
         [OPERATORS[op]]
       end
 
       def op
-        return unless op = scan(REGULAR_EXPRESSIONS[:op])
+        op = scan(REGULAR_EXPRESSIONS[:op])
+        return unless op
         @interpolation_stack << nil if op == :begin_interpolation
         [OPERATORS[op]]
       end
 
       def raw(rx)
-        return unless val = scan(rx)
+        val = scan(rx)
+        return unless val
         [:raw, val]
       end
 
       def scan(re)
-        return unless str = @scanner.scan(re)
+        str = @scanner.scan(re)
+        return unless str
         c = str.count("\n")
         @line += c
         @offset = (c == 0 ? @offset + str.size : str[/\n([^\n]*)/, 1].size + 1)

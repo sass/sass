@@ -19,6 +19,22 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
+# ----- Code Style Enforcement -----
+
+$: << scope("lib")
+require 'sass/util'
+if !Sass::Util.ruby1_8? && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
+  require 'rubocop/rake_task'
+  require "#{File.dirname(__FILE__)}/test/rubocop_extensions.rb"
+  Rubocop::RakeTask.new do |t|
+    t.patterns = FileList["lib/**/*"]
+  end
+
+  task :test => :rubocop
+else
+  puts "Skipping rubocop style check."
+end
+
 # ----- Packaging -----
 
 # Don't use Rake::GemPackageTast because we want prerequisites to run
@@ -191,7 +207,7 @@ begin
     task :undocumented do
       opts = ENV["YARD_OPTS"] || ""
       ENV["YARD_OPTS"] = opts.dup + <<OPTS
- --list --query "
+ --list --tag comment --hide-tag comment --query "
   object.docstring.blank? &&
   !(object.type == :method && object.is_alias?)"
 OPTS

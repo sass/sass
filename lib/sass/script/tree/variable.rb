@@ -14,7 +14,7 @@ module Sass::Script::Tree
     # @param name [String] See \{#name}
     def initialize(name)
       @name = name
-      @underscored_name = name.gsub(/-/,"_")
+      @underscored_name = name.gsub(/-/, "_")
       super()
     end
 
@@ -45,12 +45,13 @@ module Sass::Script::Tree
     # @return [Sass::Script::Value] The SassScript object that is the value of the variable
     # @raise [Sass::SyntaxError] if the variable is undefined
     def _perform(environment)
-      raise Sass::SyntaxError.new("Undefined variable: \"$#{name}\".") unless val = environment.var(name)
+      val = environment.var(name)
+      raise Sass::SyntaxError.new("Undefined variable: \"$#{name}\".") unless val
       if val.is_a?(Sass::Script::Value::Number)
         val = val.dup
         val.original = nil
       end
-      return val
+      val
     end
   end
 end

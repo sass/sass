@@ -138,15 +138,15 @@ module Sass
     # @see #sass_backtrace
     # @return [String]
     def sass_backtrace_str(default_filename = "an unknown file")
-      lines = self.message.split("\n")
+      lines = message.split("\n")
       msg = lines[0] + lines[1..-1].
         map {|l| "\n" + (" " * "Syntax error: ".size) + l}.join
       "Syntax error: #{msg}" +
         Sass::Util.enum_with_index(sass_backtrace).map do |entry, i|
-        "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
-          " of #{entry[:filename] || default_filename}" +
-          (entry[:mixin] ? ", in `#{entry[:mixin]}'" : "")
-      end.join
+          "\n        #{i == 0 ? "on" : "from"} line #{entry[:line]}" +
+            " of #{entry[:filename] || default_filename}" +
+            (entry[:mixin] ? ", in `#{entry[:mixin]}'" : "")
+        end.join
     end
 
     class << self

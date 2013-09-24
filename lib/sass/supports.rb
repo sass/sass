@@ -81,12 +81,12 @@ module Sass::Supports
 
     def left_parens(str)
       return "(#{str})" if @left.is_a?(Negation)
-      return str
+      str
     end
 
     def right_parens(str)
       return "(#{str})" if @right.is_a?(Negation) || @right.is_a?(Operator)
-      return str
+      str
     end
   end
 
@@ -127,7 +127,7 @@ module Sass::Supports
 
     def parens(str)
       return "(#{str})" if @condition.is_a?(Negation) || @condition.is_a?(Operator)
-      return str
+      str
     end
   end
 

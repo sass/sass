@@ -196,9 +196,11 @@ module Sass
       # Remove any deprecated importers if the location is imported explicitly
       options[:load_paths].reject! do |importer|
         importer.is_a?(Sass::Importers::DeprecatedPath) &&
-          options[:load_paths].find {|other_importer| other_importer.is_a?(Sass::Importers::Filesystem) &&
-                                                      other_importer != importer &&
-                                                      other_importer.root == importer.root}
+          options[:load_paths].find do |other_importer|
+            other_importer.is_a?(Sass::Importers::Filesystem) &&
+            other_importer != importer &&
+            other_importer.root == importer.root
+          end
       end
 
       # Backwards compatibility
@@ -259,7 +261,7 @@ module Sass
     #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     # @see {Sass::Engine.for_file}
     # @see {Sass::Plugin}
-    def initialize(template, options={})
+    def initialize(template, options = {})
       @options = self.class.normalize_options(options)
       @template = template
     end
@@ -300,9 +302,11 @@ module Sass
     # @return [Sass::Tree::Node] The root of the parse tree.
     # @raise [Sass::SyntaxError] if there's an error in the document
     def to_tree
-      @tree ||= @options[:quiet] ?
-        Sass::Util.silence_sass_warnings {_to_tree} :
-        _to_tree
+      @tree ||= if @options[:quiet]
+                  Sass::Util.silence_sass_warnings {_to_tree}
+                else
+                  _to_tree
+                end
     end
 
     # Returns the original encoding of the document,
@@ -331,7 +335,8 @@ module Sass
     #
     # @private
     def _dependencies(seen, engines)
-      return if seen.include?(key = [@options[:filename], @options[:importer]])
+      key = @options[:filename]
+      return if seen.include?([key, @options[:importer]])
       seen << key
       engines << self
       to_tree.grep(Tree::ImportNode) do |n|
@@ -366,7 +371,7 @@ ERR
       rendered << Sass::Util.escape_uri(sourcemap_uri)
       rendered << " */"
       rendered = encode_and_set_charset(rendered)
-      return rendered, sourcemap
+      [rendered, sourcemap]
     end
 
     def encode_and_set_charset(rendered)
@@ -387,7 +392,7 @@ ERR
         key = sassc_key
         sha = Digest::SHA1.hexdigest(@template)
 
-        if root = @options[:cache_store].retrieve(key, sha)
+        if (root = @options[:cache_store].retrieve(key, sha))
           root.options = @options
           return root
         end
@@ -486,7 +491,10 @@ END
       lines
     end
 
+    # @comment
+    #   rubocop:disable ParameterLists
     def try_comment(line, last, tab_str, comment_tab_str, index)
+      # rubocop:enable ParameterLists
       return unless last && last.comment?
       # Nested comment stuff must be at least one whitespace char deeper
       # than the normal indentation
@@ -511,7 +519,8 @@ MSG
       nodes = []
       while (line = arr[i]) && line.tabs >= base
         if line.tabs > base
-          raise SyntaxError.new("The line was indented #{line.tabs - base} levels deeper than the previous line.",
+          raise SyntaxError.new(
+            "The line was indented #{line.tabs - base} levels deeper than the previous line.",
             :line => line.index) if line.tabs > base + 1
 
           nodes.last.children, i = tree(arr, i)
@@ -520,7 +529,7 @@ MSG
           i += 1
         end
       end
-      return nodes, i
+      [nodes, i]
     end
 
     def build_tree(parent, line, root = false)
@@ -617,7 +626,7 @@ WARNING
             :line => @line) if name.nil? || value.nil?
 
           value_start_offset = name_end_offset = name_start_offset + name.length
-          if !value.empty?
+          unless value.empty?
             # +1 and -1 both compensate for the leading ':', which is part of line.text
             value_start_offset = name_start_offset + line.text.index(value, name.length + 1) - 1
           end
@@ -651,6 +660,7 @@ WARNING
     end
 
     def parse_property_or_rule(line)
+      # rubocop:disable UselessAssignment
       scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
       offset = line.offset
@@ -659,7 +669,7 @@ WARNING
         @options[:filename], @options[:importer],
         @line, to_parser_offset(offset))
 
-      unless res = parser.parse_interp_ident
+      unless (res = parser.parse_interp_ident)
         parsed = parse_interp(line.text, line.offset)
         return Tree::RuleNode.new(parsed, full_line_range(line))
       end
@@ -672,13 +682,13 @@ WARNING
       res.unshift(hack_char) if hack_char
 
       # Handle comments after a property name but before the colon.
-      if comment = scanner.scan(Sass::SCSS::RX::COMMENT)
+      if (comment = scanner.scan(Sass::SCSS::RX::COMMENT))
         res << comment
         offset += comment.length
       end
 
       name = line.text[0...scanner.pos]
-      if scanned = scanner.scan(/\s*:(?:\s+|$)/) # test for a property
+      if (scanned = scanner.scan(/\s*:(?:\s+|$)/)) # test for a property
         offset += scanned.length
         property = parse_property(name, res, scanner.rest, :new, line, offset)
         property.name_source_range = ident_range
@@ -686,8 +696,8 @@ WARNING
       else
         res.pop if comment
 
-        if trailing = (scanner.scan(/\s*#{Sass::SCSS::RX::COMMENT}/) ||
-                       scanner.scan(/\s*#{Sass::SCSS::RX::SINGLE_LINE_COMMENT}/))
+        if (trailing = (scanner.scan(/\s*#{Sass::SCSS::RX::COMMENT}/) ||
+                        scanner.scan(/\s*#{Sass::SCSS::RX::SINGLE_LINE_COMMENT}/)))
           offset += trailing.length # skip over comment for rule processing
           trailing.strip!
         end
@@ -700,9 +710,13 @@ WARNING
         rule << Tree::CommentNode.new([trailing], :silent) if trailing
         rule
       end
+      # rubocop:enable UselessAssignment
     end
 
+    # @comment
+    #   rubocop:disable ParameterLists
     def parse_property(name, parsed_name, value, prop, line, start_offset)
+      # rubocop:enable ParameterLists
       if value.strip.empty?
         expr = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
         end_offset = start_offset
@@ -755,7 +769,13 @@ WARNING
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
           format_comment_text(str, silent)
         end
-        type = if silent then :silent elsif loud then :loud else :normal end
+        type = if silent
+                 :silent
+               elsif loud
+                 :loud
+               else
+                 :normal
+               end
         Tree::CommentNode.new(value, type)
       else
         Tree::RuleNode.new(parse_interp(line.text), full_line_range(line))
@@ -766,6 +786,8 @@ WARNING
       :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
       :at_root]
 
+    # @comment
+    #   rubocop:disable MethodLength
     def parse_directive(parent, line, root)
       directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
       offset = directive.size + whitespace.size + 1 if whitespace
@@ -781,7 +803,7 @@ WARNING
         return Tree::SupportsNode.new(directive, parser.parse_supports_condition)
       end
 
-      return Tree::DirectiveNode.new(
+      Tree::DirectiveNode.new(
         value.nil? ? ["@#{directive}"] : ["@#{directive} "] + parse_interp(value, offset))
     end
 
@@ -817,6 +839,8 @@ WARNING
       )
       Tree::ExtendNode.new(interp_parsed, optional, selector_range)
     end
+    # @comment
+    #   rubocop:enable MethodLength
 
     def parse_warn_directive(parent, line, root, value, offset)
       raise SyntaxError.new("Invalid warn directive '@warn': expected expression.") unless value
@@ -835,7 +859,7 @@ WARNING
     end
 
     def parse_charset_directive(parent, line, root, value, offset)
-      name = value && value[/\A(["'])(.*)\1\Z/, 2] #"
+      name = value && value[/\A(["'])(.*)\1\Z/, 2] # "
       raise SyntaxError.new("Invalid charset directive '@charset': expected string.") unless name
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath charset directives.",
         :line => @line + 1) unless line.children.empty?
@@ -861,10 +885,6 @@ WARNING
       return at_root_node unless value
 
       parsed = parse_interp(value, offset)
-      selector_range = Sass::Source::Range.new(
-        Sass::Source::Position.new(@line, to_parser_offset(offset)),
-        Sass::Source::Position.new(@line, to_parser_offset(line.offset) + line.text.length),
-        @options[:filename], @options[:importer])
       rule_node = Tree::RuleNode.new(parsed, full_line_range(line))
 
       # The caller expects to automatically add children to the returned node
@@ -878,7 +898,8 @@ WARNING
     end
 
     def parse_for_directive(parent, line, root, value, offset)
-      var, from_expr, to_name, to_expr = value.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
+      var, from_expr, to_name, to_expr =
+        value.scan(/^([^\s]+)\s+from\s+(.+)\s+(to|through)\s+(.+)$/).first
 
       if var.nil? # scan failed, try to figure out why for error message
         if value !~ /^[^\s]+/
@@ -945,8 +966,9 @@ WARNING
       values = []
 
       loop do
-        unless node = parse_import_arg(scanner, offset + scanner.pos)
-          raise SyntaxError.new("Invalid @import: expected file to import, was #{scanner.rest.inspect}",
+        unless (node = parse_import_arg(scanner, offset + scanner.pos))
+          raise SyntaxError.new(
+            "Invalid @import: expected file to import, was #{scanner.rest.inspect}",
             :line => @line)
         end
         values << node
@@ -958,9 +980,11 @@ WARNING
           :line => @line)
       end
 
-      return values
+      values
     end
 
+    # @comment
+    #   rubocop:disable MethodLength
     def parse_import_arg(scanner, offset)
       return if scanner.eos?
 
@@ -971,7 +995,7 @@ WARNING
         media_parser = Sass::SCSS::Parser.new(scanner,
           @options[:filename], @options[:importer],
           @line, str.source_range.end_pos.offset)
-        if media = media_parser.parse_media_query_list
+        if (media = media_parser.parse_media_query_list)
           end_pos = Sass::Source::Position.new(@line, media_parser.offset + 1)
           node = Tree::CssImportNode.new(str, media.to_a)
         else
@@ -985,7 +1009,7 @@ WARNING
         return node
       end
 
-      unless str = scanner.scan(Sass::SCSS::RX::STRING)
+      unless (str = scanner.scan(Sass::SCSS::RX::STRING))
         scanned = scanner.scan(/[^,;]+/)
         node = Tree::ImportNode.new(scanned)
         start_parser_offset = to_parser_offset(offset)
@@ -1010,7 +1034,7 @@ WARNING
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
           Sass::Source::Position.new(@line, media_parser.offset),
           @options[:filename], @options[:importer])
-      elsif val =~ /^(https?:)?\/\//
+      elsif val =~ %r{^(https?:)?//}
         node = Tree::CssImportNode.new("url(#{val})")
         node.source_range = Sass::Source::Range.new(
           Sass::Source::Position.new(@line, to_parser_offset(start_offset)),
@@ -1025,6 +1049,8 @@ WARNING
       end
       node
     end
+    # @comment
+    #   rubocop:enable MethodLength
 
     def parse_mixin_directive(parent, line, root, value, offset)
       parse_mixin_definition(line)
@@ -1044,7 +1070,10 @@ WARNING
     CONTENT_RE = /^@content\s*(.+)?$/
     def parse_content_directive(parent, line, root, value, offset)
       trailing = line.text.scan(CONTENT_RE).first.first
-      raise SyntaxError.new("Invalid content directive. Trailing characters found: \"#{trailing}\".") unless trailing.nil?
+      unless trailing.nil?
+        raise SyntaxError.new(
+          "Invalid content directive. Trailing characters found: \"#{trailing}\".")
+      end
       raise SyntaxError.new("Illegal nesting: Nothing may be nested beneath @content directives.",
         :line => line.index + 1) unless line.children.empty?
       Tree::ContentNode.new
@@ -1092,7 +1121,7 @@ WARNING
       end
 
       return silent ? "//" : "/* */" if content.empty?
-      content.last.gsub!(%r{ ?\*/ *$}, '')
+      content.last.gsub!(/ ?\*\/ *$/, '')
       content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
       if silent
@@ -1128,7 +1157,7 @@ WARNING
       rest = Sass::Shared.handle_interpolation text do |scan|
         escapes = scan[2].size
         res << scan.matched[0...-2 - escapes]
-        if escapes % 2 == 1
+        if escapes.odd?
           res << "\\" * (escapes - 1) << '#{'
         else
           res << "\\" * [0, escapes - 1].max

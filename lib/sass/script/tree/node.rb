@@ -32,7 +32,7 @@ module Sass::Script::Tree
       @options = options
       children.each do |c|
         if c.is_a? Hash
-          c.values.each {|v| v.options = options }
+          c.values.each {|v| v.options = options}
         else
           c.options = options
         end
@@ -80,7 +80,7 @@ module Sass::Script::Tree
     # Converts underscores to dashes if the :dasherize option is set.
     def dasherize(s, opts)
       if opts[:dasherize]
-        s.gsub(/_/,'-')
+        s.gsub(/_/, '-')
       else
         s
       end

@@ -86,7 +86,7 @@ module Sass
       #
       # @see Selector#unify
       def unify(sels)
-        return if sels.any? {|sel2| sel2.is_a?(Id) && self.name != sel2.name}
+        return if sels.any? {|sel2| sel2.is_a?(Id) && name != sel2.name}
         super
       end
 
@@ -317,7 +317,10 @@ module Sass
       # @param operator [String] The matching operator, e.g. `"="` or `"^="`
       # @param value [Array<String, Sass::Script::Tree::Node>] See \{#value}
       # @param flags [Array<String, Sass::Script::Tree::Node>] See \{#flags}
+      # @comment
+      #   rubocop:disable ParameterLists
       def initialize(name, namespace, operator, value, flags)
+        # rubocop:enable ParameterLists
         @name = name
         @namespace = namespace
         @operator = operator
@@ -405,7 +408,7 @@ module Sass
       def unify(sels)
         return if type == :element && sels.any? do |sel|
           sel.is_a?(Pseudo) && sel.type == :element &&
-            (sel.name != self.name || sel.arg != self.arg)
+            (sel.name != name || sel.arg != arg)
         end
         super
       end

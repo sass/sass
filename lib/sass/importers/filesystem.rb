@@ -39,7 +39,7 @@ module Sass
       # @see Base#key
       def key(name, options)
         [self.class.name + ":" + File.dirname(File.expand_path(name)),
-          File.basename(name)]
+         File.basename(name)]
       end
 
       # @see Base#to_s
@@ -109,7 +109,7 @@ module Sass
         end
 
         # JRuby chokes when trying to import files from JARs when the path starts with './'.
-        ret.map {|f, s| [f.sub(%r{^\./}, ''), s]}
+        ret.map {|f, s| [f.sub(/^\.\//, ''), s]}
       end
 
       def escape_glob_characters(name)
@@ -118,7 +118,7 @@ module Sass
         end
       end
 
-      REDUNDANT_DIRECTORY = %r{#{Regexp.escape(File::SEPARATOR)}\.#{Regexp.escape(File::SEPARATOR)}}
+      REDUNDANT_DIRECTORY = /#{Regexp.escape(File::SEPARATOR)}\.#{Regexp.escape(File::SEPARATOR)}/
       # Given a base directory and an `@import`ed name,
       # finds an existant file that matches the name.
       #
@@ -146,7 +146,9 @@ module Sass
             # If _line exists, we're here due to an actual import in an
             # import_node and we want to print a warning for a user writing an
             # ambiguous import.
-            candidates = found.map {|(f, _)| "  " + Pathname.new(f).relative_path_from(relative_to).to_s}.join("\n")
+            candidates = found.map do |(f, _)|
+              "  " + Pathname.new(f).relative_path_from(relative_to).to_s
+            end.join("\n")
             raise Sass::SyntaxError.new(<<MESSAGE)
 It's not clear which file to import for '@import "#{name}"'.
 Candidates:
@@ -172,7 +174,7 @@ WARNING
       def split(name)
         extension = nil
         dirname, basename = File.dirname(name), File.basename(name)
-        if basename =~ /^(.*)\.(#{extensions.keys.map{|e| Regexp.escape(e)}.join('|')})$/
+        if basename =~ /^(.*)\.(#{extensions.keys.map {|e| Regexp.escape(e)}.join('|')})$/
           basename = $1
           extension = $2
         end

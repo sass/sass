@@ -35,8 +35,11 @@ module Sass
   #   Sass.load_paths << File.dirname(__FILE__ + '/sass')
   # @return [Array<String, Pathname, Sass::Importers::Base>]
   def self.load_paths
-    @load_paths ||= ENV['SASS_PATH'] ?
-      ENV['SASS_PATH'].split(Sass::Util.windows? ? ';' : ':') : []
+    @load_paths ||= if ENV['SASS_PATH']
+                      ENV['SASS_PATH'].split(Sass::Util.windows? ? ';' : ':')
+                    else
+                      []
+                    end
   end
 
   # Compile a Sass or SCSS string to CSS.
@@ -82,7 +85,7 @@ module Sass
     result = Sass::Engine.for_file(filename, options).render
     if css_filename
       options[:css_filename] ||= css_filename
-      open(css_filename,"w") {|css_file| css_file.write(result)}
+      open(css_filename, "w") {|css_file| css_file.write(result)}
       nil
     else
       result

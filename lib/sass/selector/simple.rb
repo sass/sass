@@ -58,7 +58,7 @@ module Sass
       # @param other [Object] The object to test equality against
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
-        other.class == self.class && other.hash == self.hash && other.to_a.eql?(to_a)
+        other.class == self.class && other.hash == hash && other.to_a.eql?(to_a)
       end
       alias_method :==, :eql?
 
@@ -83,13 +83,13 @@ module Sass
         return sels if sels.any? {|sel2| eql?(sel2)}
         sels_with_ix = Sass::Util.enum_with_index(sels)
         _, i =
-          if self.is_a?(Pseudo) || self.is_a?(SelectorPseudoClass)
+          if is_a?(Pseudo) || is_a?(SelectorPseudoClass)
             sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) && (sels.last.type == :element)}
           else
             sels_with_ix.find {|sel, _| sel.is_a?(Pseudo) || sel.is_a?(SelectorPseudoClass)}
           end
         return sels + [self] unless i
-        return sels[0...i] + [self] + sels[i..-1]
+        sels[0...i] + [self] + sels[i..-1]
       end
 
       protected
@@ -111,7 +111,7 @@ module Sass
         return nil, false unless ns1 == ns2 || ns1.nil? || ns1 == ['*'] || ns2.nil? || ns2 == ['*']
         return ns2, true if ns1 == ['*']
         return ns1, true if ns2 == ['*']
-        return ns1 || ns2, true
+        [ns1 || ns2, true]
       end
     end
   end

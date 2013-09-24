@@ -58,11 +58,13 @@ module Sass::Script::Tree
       args = @args.map {|a| a.inspect}.join(', ')
       keywords = Sass::Util.hash_to_a(@keywords.as_stored).
           map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
+      # rubocop:disable RedundantSelf
       if self.splat
         splat = (args.empty? && keywords.empty?) ? "" : ", "
         splat = "#{splat}#{self.splat.inspect}..."
         splat = "#{splat}, #{kwarg_splat.inspect}..." if kwarg_splat
       end
+      # rubocop:enable RedundantSelf
       "#{name}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
     end
 
@@ -77,12 +79,15 @@ module Sass::Script::Tree
       args = @args.map(&arg_to_sass).join(', ')
       keywords = Sass::Util.hash_to_a(@keywords.as_stored).
         map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}.join(', ')
+      # rubocop:disable RedundantSelf
       if self.splat
         splat = (args.empty? && keywords.empty?) ? "" : ", "
         splat = "#{splat}#{arg_to_sass[self.splat]}..."
         splat = "#{splat}, #{arg_to_sass[kwarg_splat]}..." if kwarg_splat
       end
-      "#{dasherize(name, opts)}(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
+      # rubocop:enable RedundantSelf
+      arglist = "#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat}"
+      "#{dasherize(name, opts)}(#{arglist})"
     end
 
     # Returns the arguments to the function.
@@ -101,7 +106,7 @@ module Sass::Script::Tree
       node = dup
       node.instance_variable_set('@args', args.map {|a| a.deep_copy})
       copied_keywords = Sass::Util::NormalizedMap.new
-      @keywords.as_stored.each {|k,v| copied_keywords[k] = v.deep_copy}
+      @keywords.as_stored.each {|k, v| copied_keywords[k] = v.deep_copy}
       node.instance_variable_set('@keywords', copied_keywords)
       node
     end
@@ -117,18 +122,19 @@ module Sass::Script::Tree
       args = @args.map {|a| a.perform(environment)}
       splat = Sass::Tree::Visitors::Perform.perform_splat(@splat, @kwarg_splat, environment)
       keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
-      if fn = environment.function(@name)
+      if (fn = environment.function(@name))
         return perform_sass_fn(fn, args, keywords, splat, environment)
       end
 
       ruby_name = @name.tr('-', '_')
       args = construct_ruby_args(ruby_name, args, keywords, splat, environment)
 
-      unless Sass::Script::Functions.callable?(ruby_name)
-        opts(to_literal(args))
-      else
+      if Sass::Script::Functions.callable?(ruby_name)
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
-        opts(Sass::Script::Functions::EvaluationContext.new(local_environment).send(ruby_name, *args))
+        opts(Sass::Script::Functions::EvaluationContext.new(
+          local_environment).send(ruby_name, *args))
+      else
+        opts(to_literal(args))
       end
     rescue ArgumentError => e
       message = e.message
@@ -142,7 +148,9 @@ module Sass::Script::Tree
         # `_perform`.
         if e.message =~ /^method '([^']+)': given (\d+), expected (\d+)/
           error_name, given, expected = $1, $2, $3
+          # rubocop:disable BlockNesting
           raise e if error_name != ruby_name || e.backtrace[0] !~ /:in `_perform'$/
+          # rubocop:enable BlockNesting
           message = "wrong number of arguments (#{given} for #{expected})"
         end
       elsif Sass::Util.jruby?
@@ -154,10 +162,12 @@ module Sass::Script::Tree
             # Sass::SyntaxErrors even though it can hide Ruby errors.
             e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
         else
-          should_maybe_raise = e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
+          should_maybe_raise =
+            e.message =~ /^wrong number of arguments calling `[^`]+` \((\d+) for (\d+)\)/
           given, expected = $1, $2
         end
 
+        # rubocop:disable BlockNesting
         if should_maybe_raise
           # JRuby 1.7 includes __send__ before send and _perform.
           trace = e.backtrace.dup
@@ -173,6 +183,7 @@ module Sass::Script::Tree
             message = "wrong number of arguments (#{given} for #{expected})"
           end
         end
+        # rubocop:enable BlockNesting
       elsif e.message =~ /^wrong number of arguments \(\d+ for \d+\)/ &&
           e.backtrace[0] !~ /:in `(block in )?#{ruby_name}'$/
         raise e
@@ -205,7 +216,7 @@ module Sass::Script::Tree
         splat.keywords_accessed = old_keywords_accessed
       end
 
-      unless signature = Sass::Script::Functions.signature(name.to_sym, args.size, keywords.size)
+      unless (signature = Sass::Script::Functions.signature(name.to_sym, args.size, keywords.size))
         return args if keywords.empty?
         raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
       end
@@ -218,7 +229,7 @@ module Sass::Script::Tree
         raise Sass::SyntaxError.new(
           "#{args[signature.args.size].inspect} is not a keyword argument for `#{name}'")
       elsif keywords.empty?
-        return args 
+        return args
       end
 
       args = args + (signature.args[args.size..-1] || []).map do |argname|
@@ -235,9 +246,11 @@ module Sass::Script::Tree
         else
           argname = keywords.keys.sort.first
           if signature.args.include?(argname)
-            raise Sass::SyntaxError.new("Function #{name} was passed argument $#{argname} both by position and by name")
+            raise Sass::SyntaxError.new(
+              "Function #{name} was passed argument $#{argname} both by position and by name")
           else
-            raise Sass::SyntaxError.new("Function #{name} doesn't have an argument named $#{argname}")
+            raise Sass::SyntaxError.new(
+              "Function #{name} doesn't have an argument named $#{argname}")
           end
         end
       end

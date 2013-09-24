@@ -25,7 +25,7 @@ module Sass::Script::Value
     # @see Value#plus
     def plus(other)
       other_str = other.is_a?(Sass::Script::Value::String) ? other.value : other.to_s
-      Sass::Script::Value::String.new(self.value + other_str, self.type)
+      Sass::Script::Value::String.new(value + other_str, type)
     end
 
     # @see Value#to_s
@@ -38,7 +38,7 @@ module Sass::Script::Value
       return "'#{value.gsub("'", "\\'")}'" if opts[:quote] == %q{'}
       return "\"#{value}\"" unless value.include?('"')
       return "'#{value}'" unless value.include?("'")
-      "\"#{value.gsub('"', "\\\"")}\"" #'
+      "\"#{value.gsub('"', "\\\"")}\"" # '
     end
 
     # @see Value#to_sass
