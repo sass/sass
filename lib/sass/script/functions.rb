@@ -1997,17 +1997,17 @@ module Sass::Script
     # @overload if($condition, $if-true, $if-false)
     # @param $condition [Sass::Script::Value::Base] Whether the `$if-true` or
     #   `$if-false` will be returned
-    # @param $if-true [Sass::Script::Value::Base]
-    # @param $if-false [Sass::Script::Value::Base]
+    # @param $if-true [Sass::Script::Tree::Node]
+    # @param $if-false [Sass::Script::Tree::Node]
     # @return [Sass::Script::Value::Base] `$if-true` or `$if-false`
     def if(condition, if_true, if_false)
       if condition.to_bool
-        if_true
+        perform(if_true)
       else
-        if_false
+        perform(if_false)
       end
     end
-    declare :if, [:condition, :if_true, :if_false]
+    declare :if, [:condition, :"&if_true", :"&if_false"]
 
     # Returns a unique CSS identifier. The identifier is returned as an unquoted
     # string. The identifier returned is only guaranteed to be unique within the
