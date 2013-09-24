@@ -21,6 +21,7 @@ end
 
 # ----- Code Style Enforcement -----
 
+$: << scope("lib")
 require 'sass/util'
 if !Sass::Util.ruby1_8? && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
   require 'rubocop/rake_task'
