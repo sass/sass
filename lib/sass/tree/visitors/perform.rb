@@ -470,7 +470,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     msg = "An @include loop has been found:"
     content_count = 0
     mixins = @environment.stack.frames.select {|f| f.is_mixin?}.reverse!.map! {|f| f.name}
-    mixins.select! do |name|
+    mixins = mixins.select do |name|
       if name == '@content'
         content_count += 1
         false
