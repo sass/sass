@@ -21,13 +21,18 @@ end
 
 # ----- Code Style Enforcement -----
 
-require 'rubocop/rake_task'
-require "#{File.dirname(__FILE__)}/test/rubocop_extensions.rb"
-Rubocop::RakeTask.new do |t|
-  t.patterns = FileList["lib/**/*"]
-end
+require 'sass/util'
+if !Sass::Util.ruby1_8? && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
+  require 'rubocop/rake_task'
+  require "#{File.dirname(__FILE__)}/test/rubocop_extensions.rb"
+  Rubocop::RakeTask.new do |t|
+    t.patterns = FileList["lib/**/*"]
+  end
 
-task :test => :rubocop
+  task :test => :rubocop
+else
+  puts "Skipping rubocop style check."
+end
 
 # ----- Packaging -----
 
