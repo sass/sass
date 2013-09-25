@@ -36,7 +36,7 @@ module Sass
         # return if File.exists?(File.dirname(compiled_filename)) && !File.writable?(File.dirname(compiled_filename))
         # return if File.exists?(compiled_filename) && !File.writable?(compiled_filename)
         FileUtils.mkdir_p(File.dirname(compiled_filename))
-        File.open(compiled_filename, "wb") do |f|
+        Sass::Util.atomic_create_and_write_file(compiled_filename) do |f|
           f.puts(version)
           f.puts(sha)
           f.write(contents)
