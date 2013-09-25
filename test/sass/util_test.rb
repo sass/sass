@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 require 'pathname'
+require 'tmpdir'
 
 class UtilTest < Test::Unit::TestCase
   include Sass::Util
@@ -310,4 +311,53 @@ class UtilTest < Test::Unit::TestCase
       "UtilTest::FooBar must implement #foo") {FooBar.new.foo}
   end
 
+  def test_atomic_writes
+    # when using normal writes, this test fails about 90% of the time.
+    filename = File.join(Dir.tmpdir, "test_atomic")
+    5.times do
+      writes_to_perform = %w(1 2 3 4 5 6 7 8 9).map {|i| "#{i}\n" * 100_000}
+      threads = writes_to_perform.map do |to_write|
+        Thread.new do
+          # To see this test fail with a normal write,
+          # change to the standard file open mechanism:
+          # open(filename, "w") do |f|
+          atomic_create_and_write_file(filename) do |f|
+            f.write(to_write)
+          end
+        end
+      end
+      loop do
+        contents = File.exist?(filename) ? File.read(filename) : nil
+        next if contents.nil? || contents.size == 0
+        unless writes_to_perform.include?(contents)
+          if contents.size != writes_to_perform.first.size
+            fail "Incomplete write detected: was #{contents.size} characters, " +
+                 "should have been #{writes_to_perform.first.size}"
+          else
+            fail "Corrupted read/write detected"
+          end
+        end
+        break if threads.all? {|t| !t.alive?}
+      end
+      threads.each {|t| t.join}
+    end
+  end
+
+  class FakeError < RuntimeError; end
+
+  def test_atomic_writes_handles_exceptions
+    filename = File.join(Dir.tmpdir, "test_atomic_exception")
+    FileUtils.rm_f(filename)
+    tmp_filename = nil
+    begin
+      atomic_create_and_write_file(filename) do |f|
+        tmp_filename = f.path
+        raise FakeError.new "Borken"
+      end
+    rescue FakeError
+      # pass
+    end
+    assert !File.exist?(filename)
+    assert !File.exist?(tmp_filename)
+  end
 end

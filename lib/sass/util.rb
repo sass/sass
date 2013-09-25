@@ -868,6 +868,32 @@ MSG
       end
     end
 
+    # This creates a temp file and yields it for writing. When the
+    # write is complete, the file is moved into the desired location
+    # the atomicity of this operation is provided by the filesystem's
+    # rename operation.
+    #
+    # @param filename The file to write to.
+    # @yieldparam tmpfile The temp file that can be written to.
+    def atomic_create_and_write_file(filename)
+      require 'tempfile'
+      tmpfile = Tempfile.new(File.basename(filename), File.dirname(filename))
+      tmp_path = tmpfile.path
+      begin
+        begin
+          tmpfile.binmode if tmpfile.respond_to?(:binmode)
+          yield tmpfile
+        ensure
+          tmpfile.close
+        end
+        File.rename tmpfile.path, filename
+      ensure
+        # remove the tempfile if it still exists, presumably due to an error during write
+        FileUtils.rm_f tmp_path
+      end
+      nil
+    end
+
     private
 
     # Calculates the memoization table for the Least Common Subsequence algorithm.
