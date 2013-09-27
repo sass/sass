@@ -1453,26 +1453,58 @@ WARNING
   end
 
   def test_variable_exists
-    assert_equal "false", evaluate("variable-exists(foo)")
-    assert_equal "true", evaluate("variable-exists(foo)", env("foo" => Sass::Script::Value::Null.new))
-    assert_equal "true", evaluate("variable-exists($named: foo)", env("foo" => Sass::Script::Value::Null.new))
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  false: false;
+  true: true;
+  true: true; }
+CSS
+$global-var: has-value;
+.test {
+  false: variable-exists(foo);
+  $foo: has-value;
+  true: variable-exists(foo);
+  true: variable-exists($name: foo);
+  true: variable-exists(global);
+  true: variable-exists($name: global);
+}
+SCSS
+    #assert_equal "false", evaluate("")
+    #assert_equal "true", evaluate("", env("foo" => Sass::Script::Value::Null.new))
+    #assert_equal "true", evaluate("", env("foo" => Sass::Script::Value::Null.new))
   end
 
   def test_global_variable_exists
-    assert_equal "false", evaluate("global-variable-exists(foo)")
-    assert_equal "true", evaluate("global-variable-exists(foo)", env("foo" => Sass::Script::Value::Null.new))
-    assert_equal "true", evaluate("global-variable-exists($named: foo)", env("foo" => Sass::Script::Value::Null.new))
-    # when passed a local scope with it defined globally
-    assert_equal "true", evaluate("global-variable-exists(foo)", Sass::Environment.new(env("foo" => Sass::Script::Value::Null.new)))
-    # when passed a local scope without being defined globally
-    assert_equal "false", evaluate("global-variable-exists(foo)", env({"foo" => Sass::Script::Value::Null.new}, Sass::Environment.new()))
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  false: false;
+  false: false;
+  true: true;
+  true: true;
+  false: false;
+  true: true; }
+CSS
+$g: something;
+$h: null;
+$false: global-variable-exists(foo);
+$true: global-variable-exists(g);
+.test {
+  $foo: locally-defined;
+  false: global-variable-exists(foo);
+  false: global-variable-exists(foo2);
+  true: global-variable-exists(g);
+  true: global-variable-exists(h);
+  false: $false;
+  true: $true;
+}
+SCSS
   end
 
   def test_function_exists
     # built-ins
     assert_equal "true", evaluate("function-exists(lighten)")
     # with named argument
-    assert_equal "true", evaluate("function-exists($named: lighten)")
+    assert_equal "true", evaluate("function-exists($name: lighten)")
     # user-defined
     assert_equal <<CSS, render(<<SCSS)
 .test {
@@ -1490,7 +1522,7 @@ SCSS
   def test_mixin_exists
     assert_equal "false", evaluate("mixin-exists(foo)")
     # with named argument
-    assert_equal "false", evaluate("mixin-exists($named: foo)")
+    assert_equal "false", evaluate("mixin-exists($name: foo)")
     assert_equal <<CSS, render(<<SCSS)
 .test {
   foo-exists: true;
@@ -1502,6 +1534,13 @@ CSS
   bar-exists: mixin-exists(bar);
 }
 SCSS
+  end
+
+  def test_existence_functions_check_argument_type
+    assert_error_message("2px is not a string for `function-exists'", "function-exists(2px)")
+    assert_error_message("2px is not a string for `mixin-exists'", "mixin-exists(2px)")
+    assert_error_message("2px is not a string for `global-variable-exists'", "global-variable-exists(2px)")
+    assert_error_message("2px is not a string for `variable-exists'", "variable-exists(2px)")
   end
 
 
