@@ -185,7 +185,7 @@ module Sass
       # Get access to the global dependency cache in a threadsafe manner.
       # Inside the block, no other thread can access the dependency cache.
       #
-      # @yieldparam cache
+      # @yieldparam cache [Hash] The hash that is the global dependency cache
       # @return The value returned by the block to which this method yields
       def with_dependency_cache
         StalenessChecker.dependency_cache_mutex.synchronize do
