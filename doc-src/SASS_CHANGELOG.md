@@ -17,6 +17,8 @@
 * Avoid the [IE7 `content: counter` bug][cc bug] with `content: counters` as
   well.
 
+* Fix some thread-safety issues.
+
 ## 3.2.10
 
 * Use the Sass logger infrastructure for `@debug` directives.
