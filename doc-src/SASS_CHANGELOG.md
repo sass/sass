@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.11 (Unreleased)
+## 3.2.11
 
 * Fix `@extend`'s semantics with respect to pseudo-elements. They are no longer
   treated identically to pseudo-classes.
