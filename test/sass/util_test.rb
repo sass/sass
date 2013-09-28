@@ -349,13 +349,11 @@ class UtilTest < Test::Unit::TestCase
     filename = File.join(Dir.tmpdir, "test_atomic_exception")
     FileUtils.rm_f(filename)
     tmp_filename = nil
-    begin
+    assert_raises FakeError do
       atomic_create_and_write_file(filename) do |f|
         tmp_filename = f.path
         raise FakeError.new "Borken"
       end
-    rescue FakeError
-      # pass
     end
     assert !File.exist?(filename)
     assert !File.exist?(tmp_filename)
