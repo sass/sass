@@ -25,4 +25,5 @@ matrix:
   include:
     - rvm: 2.0.0
       env: MATHN=true RUBOCOP=true
-      gemfile: gemfile_with_rubocop
+    - rvm: 1.9.3
+      env: MATHN=true RUBOCOP=true
