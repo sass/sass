@@ -974,6 +974,23 @@ MSG
       result
     end
 
+    # This is a hack around the fact that you can't instantiate a URI parser on
+    # 1.8, so we have to have this hacky stuff to work around it. When 1.8
+    # support is dropped, we can remove this method.
+    #
+    # @private
+    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ?
+                   URI::DEFAULT_PARSER :
+                   URI
+
+    # URI-escape `string`.
+    #
+    # @param string [String]
+    # @return [String]
+    def escape_uri(string)
+      URI_ESCAPE.escape string
+    end
+
     ## Static Method Stuff
 
     # The context in which the ERB for \{#def\_static\_method} will be run.
@@ -991,15 +1008,6 @@ MSG
         super unless args.empty? && block.nil?
         @set.include?(name)
       end
-    end
-
-
-    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ?
-                   URI::DEFAULT_PARSER :
-                   URI
-
-    def escape_uri(uri)
-      URI_ESCAPE.escape uri
     end
 
     private
