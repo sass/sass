@@ -314,7 +314,7 @@ maps instead.
   will be removed eventually. Any code using them should upgrade to the new
   names.
 
-## 3.2.11 (Unreleased)
+## 3.2.11
 
 * Fix `@extend`'s semantics with respect to pseudo-elements. They are no longer
   treated identically to pseudo-classes.
@@ -327,6 +327,8 @@ maps instead.
 
 * Avoid the [IE7 `content: counter` bug][cc bug] with `content: counters` as
   well.
+
+* Fix some thread-safety issues.
 
 ## 3.2.10
 
