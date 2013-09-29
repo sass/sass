@@ -4,6 +4,7 @@ module Rubocop
   module Cop
     module Style
       # Common functionality for checking surrounding space.
+      # # This is monkeypatching an existing class.
       class SpaceAroundBlockBraces < Cop
         MSG_RIGHT_SPACE = "Space found to the left of '}'."
         MSG_LEFT_SPACE = "Space found to the right of '{'."

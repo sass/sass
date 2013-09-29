@@ -198,8 +198,8 @@ module Sass
         importer.is_a?(Sass::Importers::DeprecatedPath) &&
           options[:load_paths].find do |other_importer|
             other_importer.is_a?(Sass::Importers::Filesystem) &&
-            other_importer != importer &&
-            other_importer.root == importer.root
+              other_importer != importer &&
+              other_importer.root == importer.root
           end
       end
 
@@ -335,8 +335,8 @@ module Sass
     #
     # @private
     def _dependencies(seen, engines)
-      key = @options[:filename]
-      return if seen.include?([key, @options[:importer]])
+      key = [@options[:filename], @options[:importer]]
+      return if seen.include?(key)
       seen << key
       engines << self
       to_tree.grep(Tree::ImportNode) do |n|
@@ -660,7 +660,6 @@ WARNING
     end
 
     def parse_property_or_rule(line)
-      # rubocop:disable UselessAssignment
       scanner = Sass::Util::MultibyteStringScanner.new(line.text)
       hack_char = scanner.scan(/[:\*\.]|\#(?!\{)/)
       offset = line.offset
@@ -698,7 +697,6 @@ WARNING
 
         if (trailing = (scanner.scan(/\s*#{Sass::SCSS::RX::COMMENT}/) ||
                         scanner.scan(/\s*#{Sass::SCSS::RX::SINGLE_LINE_COMMENT}/)))
-          offset += trailing.length # skip over comment for rule processing
           trailing.strip!
         end
         interp_parsed = parse_interp(scanner.rest)
@@ -710,7 +708,6 @@ WARNING
         rule << Tree::CommentNode.new([trailing], :silent) if trailing
         rule
       end
-      # rubocop:enable UselessAssignment
     end
 
     # @comment

@@ -1115,8 +1115,9 @@ MESSAGE
 
       @sass_script_parser = Class.new(Sass::Script::Parser)
       @sass_script_parser.send(:include, ScriptParser)
-      # @private
+
       class << self
+        # @private
         attr_accessor :sass_script_parser
       end
 

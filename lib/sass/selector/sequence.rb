@@ -248,7 +248,6 @@ module Sass
       #   of multiple selectors.
       # @comment
       #   rubocop:disable MethodLength
-      #   rubocop:disable BlockNesting
       def merge_final_ops(seq1, seq2, res = [])
         ops1, ops2 = [], []
         ops1 << seq1.pop while seq1.last.is_a?(String)
@@ -332,7 +331,6 @@ module Sass
       end
       # @comment
       #   rubocop:enable MethodLength
-      #   rubocop:enable BlockNesting
 
       # Takes initial subsequences of `seq1` and `seq2` and returns all
       # orderings of those subsequences. The initial subsequences are determined

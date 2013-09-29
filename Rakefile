@@ -21,19 +21,23 @@ end
 
 # ----- Code Style Enforcement -----
 
-$: << scope("lib")
-require 'sass/util'
-if !Sass::Util.ruby1_8? && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
+if RUBY_VERSION !~ /^1.8/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
   require 'rubocop/rake_task'
   require "#{File.dirname(__FILE__)}/test/rubocop_extensions.rb"
   Rubocop::RakeTask.new do |t|
     t.patterns = FileList["lib/**/*"]
   end
-
-  task :test => :rubocop
 else
-  puts "Skipping rubocop style check."
+  task :rubocop do
+    puts "Skipping rubocop style check."
+    if !ENV.has_key?("RUBOCOP")
+      puts "Passing this check is required in order for your patch to be accepted."
+      puts "Use ruby 1.9 or greater and then run the style check with: rake rubocop"
+    end
+  end
 end
+
+task :test => :rubocop
 
 # ----- Packaging -----
 
