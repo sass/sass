@@ -210,7 +210,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       keywords = Sass::Util.hash_to_a(node.keywords).
         map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}.join(', ')
       if node.splat
-        splat = (args.empty? && keywords.empty?) ? "" : ", "
+        splat = args.empty? && keywords.empty? ? "" : ", "
         splat = "#{splat}#{arg_to_sass[node.splat]}..."
         splat = "#{splat}, #{node.kwarg_splat.inspect}..." if node.kwarg_splat
       end

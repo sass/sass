@@ -1170,7 +1170,7 @@ module Sass::Script
       w = p * 2 - 1
       a = color_1.alpha - color_2.alpha
 
-      w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0
+      w1 = ((w * a == -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0
       w2 = 1 - w1
 
       rgb = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}

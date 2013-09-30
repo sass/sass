@@ -67,8 +67,7 @@ NumericLiterals:
   # TODO: Reenable this after the next rubocop release.
   Enabled: false
 ParenthesesAroundCondition:
-  # This mostly just triggers on safe assignment.
-  Enabled: false
+  AllowSafeAssignment: true
 PerlBackrefs:
   # We like perl backrefs.
   Enabled: false

@@ -39,9 +39,9 @@ class OrderedHash < ::Hash
   def self.[](*args)
     ordered_hash = new
 
-    if (args.length == 1 && args.first.is_a?(Array))
+    if args.length == 1 && args.first.is_a?(Array)
       args.first.each do |key_value_pair|
-        next unless (key_value_pair.is_a?(Array))
+        next unless key_value_pair.is_a?(Array)
         ordered_hash[key_value_pair[0]] = key_value_pair[1]
       end
 

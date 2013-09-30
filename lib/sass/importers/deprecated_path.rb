@@ -32,7 +32,7 @@ module Sass
       # @return [String] The deprecation warning that will be printed the first
       #   time an import occurs.
       def deprecation_warning
-        path = (@specified_root == ".") ? "the current working directory" : @specified_root
+        path = @specified_root == "." ? "the current working directory" : @specified_root
         <<WARNING
 DEPRECATION WARNING: Importing from #{path} will not be
 automatic in future versions of Sass.  To avoid future errors, you can add it

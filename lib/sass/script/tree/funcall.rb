@@ -60,7 +60,7 @@ module Sass::Script::Tree
           map {|k, v| "$#{k}: #{v.inspect}"}.join(', ')
       # rubocop:disable RedundantSelf
       if self.splat
-        splat = (args.empty? && keywords.empty?) ? "" : ", "
+        splat = args.empty? && keywords.empty? ? "" : ", "
         splat = "#{splat}#{self.splat.inspect}..."
         splat = "#{splat}, #{kwarg_splat.inspect}..." if kwarg_splat
       end
@@ -81,7 +81,7 @@ module Sass::Script::Tree
         map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}.join(', ')
       # rubocop:disable RedundantSelf
       if self.splat
-        splat = (args.empty? && keywords.empty?) ? "" : ", "
+        splat = args.empty? && keywords.empty? ? "" : ", "
         splat = "#{splat}#{arg_to_sass[self.splat]}..."
         splat = "#{splat}, #{arg_to_sass[kwarg_splat]}..." if kwarg_splat
       end

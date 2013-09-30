@@ -393,7 +393,7 @@ module Sass::Script::Value
         end
       end
       # avoid integer division
-      value = (:/ == operation) ? this.value.to_f : this.value
+      value = :/ == operation ? this.value.to_f : this.value
       result = value.send(operation, other.value)
 
       if result.is_a?(Numeric)

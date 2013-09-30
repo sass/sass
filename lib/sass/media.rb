@@ -125,7 +125,7 @@ module Sass::Media
       m2, t2 = other.resolved_modifier.downcase, other.resolved_type.downcase
       t1 = t2 if t1.empty?
       t2 = t1 if t2.empty?
-      if ((m1 == 'not') ^ (m2 == 'not'))
+      if (m1 == 'not') ^ (m2 == 'not')
         return if t1 == t2
         type = m1 == 'not' ? t2 : t1
         mod = m1 == 'not' ? m2 : m1
