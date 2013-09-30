@@ -1613,30 +1613,23 @@ module Sass::Script
     # in the list.
     #
     # @example
-    #   set-nth(10px 20px 30px, 2, -20px) => 10px -20px 30px
+    #   set-nth($list: 10px 20px 30px, $n: 2, $value: -20px) => 10px -20px 30px
     # @overload nth($list, $n, $value)
     # @param $list [Sass::Script::Value::Base] The list that will be copied, having the element
     #   at index `$n` changed.
     # @param $n [Sass::Script::Value::Number] The index of the item to set.
     #   Negative indices count from the end of the list.
-    # @param $value The new value at index `$n`.
+    # @param $value [Sass::Script::Value::Base] The new value at index `$n`.
     # @return [Sass::Script::Value::List]
     # @raise [ArgumentError] if `$n` isn't an integer between 1 and the length
     #   of `$list`
     def set_nth(list, n, value)
       assert_type n, :Number, :n
-      if !n.int? || n.to_i == 0
-        raise ArgumentError.new("List index #{n} must be a non-zero integer")
-      elsif list.to_a.size == 0
-        raise ArgumentError.new("List index is #{n} but list has no items")
-      elsif n.to_i.abs > (size = list.to_a.size)
-        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
-      end
+      Sass::Script::Value::List.assert_valid_index(list, n)
       index = n.to_i > 0 ? n.to_i - 1 : n.to_i
       new_list = list.to_a.dup
       new_list[index] = value
-      Sass::Script::Value::List.new(new_list,
-                                    list.respond_to?(:separator) ? list.separator : :space)
+      Sass::Script::Value::List.new(new_list, list.separator)
     end
     declare :set_nth, [:list, :n, :value]
 
@@ -1663,13 +1656,7 @@ module Sass::Script
     #   of `$list`
     def nth(list, n)
       assert_type n, :Number, :n
-      if !n.int? || n.to_i == 0
-        raise ArgumentError.new("List index #{n} must be a non-zero integer")
-      elsif list.to_a.size == 0
-        raise ArgumentError.new("List index is #{n} but list has no items")
-      elsif n.to_i.abs > (size = list.to_a.size)
-        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
-      end
+      Sass::Script::Value::List.assert_valid_index(list, n)
 
       index = n.to_i > 0 ? n.to_i - 1 : n.to_i
       list.to_a[index]

@@ -87,6 +87,22 @@ module Sass::Script::Value
       "(#{value.map {|e| e.inspect}.join(sep_str(nil))})"
     end
 
+    # Asserts an index is within the list.
+    #
+    # @private
+    #
+    # @param list [Sass::Script::Value::List] The list for which the index should be checked.
+    # @param n [Sass::Script::Value::Number] The index being checked.
+    def self.assert_valid_index(list, n)
+      if !n.int? || n.to_i == 0
+        raise ArgumentError.new("List index #{n} must be a non-zero integer")
+      elsif list.to_a.size == 0
+        raise ArgumentError.new("List index is #{n} but list has no items")
+      elsif n.to_i.abs > (size = list.to_a.size)
+        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
+      end
+    end
+
     private
 
     def sep_str(opts = self.options)
