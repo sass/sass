@@ -987,9 +987,7 @@ MSG
     # support is dropped, we can remove this method.
     #
     # @private
-    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ?
-                   URI::DEFAULT_PARSER :
-                   URI
+    URI_ESCAPE = URI.const_defined?("DEFAULT_PARSER") ? URI::DEFAULT_PARSER : URI
 
     # URI-escape `string`.
     #
@@ -1038,12 +1036,6 @@ MSG
       # presumably due to an error during write
       tmpfile.close if tmpfile
       tmpfile.unlink if tmpfile
-    end
-
-    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ? URI::DEFAULT_PARSER : URI
-
-    def escape_uri(uri)
-      URI_ESCAPE.escape uri
     end
 
     private

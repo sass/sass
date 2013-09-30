@@ -100,7 +100,7 @@ SymbolName:
   # Checks that symbols are snake_case. This is disabled because ruby constants
   # are not snake case and referring to them often requires the use of symbols.
   # TODO: Re-enable this by adding an option to allow CamelCase and SCREAMING_SNAKE_CASE.
-  Enabled: false
+  AllowCamelCase: true
 TrivialAccessors:
   AllowPredicates: true
   ExactNameMatch: true
