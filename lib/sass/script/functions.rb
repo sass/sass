@@ -1621,12 +1621,52 @@ module Sass::Script
     end
     declare :length, [:list]
 
+    # Return a new list, based on the list provided, but with the nth
+    # element changed to the value given.
+    #
+    # Note that unlike some languages, the first item in a Sass list is number
+    # 1, the second number 2, and so forth.
+    #
+    # Negative index values address elements in reverse order, starting with the last element
+    # in the list.
+    #
+    # @example
+    #   set-nth(10px 20px 30px, 2, -20px) => 10px -20px 30px
+    # @overload nth($list, $n, $value)
+    # @param $list [Sass::Script::Value::Base] The list that will be copied, having the element
+    #   at index `$n` changed.
+    # @param $n [Sass::Script::Value::Number] The index of the item to set.
+    #   Negative indices count from the end of the list.
+    # @param $value The new value at index `$n`.
+    # @return [Sass::Script::Value::List]
+    # @raise [ArgumentError] if `$n` isn't an integer between 1 and the length
+    #   of `$list`
+    def set_nth(list, n, value)
+      assert_type n, :Number, :n
+      if !n.int? || n.to_i == 0
+        raise ArgumentError.new("List index #{n} must be a non-zero integer")
+      elsif list.to_a.size == 0
+        raise ArgumentError.new("List index is #{n} but list has no items")
+      elsif n.to_i.abs > (size = list.to_a.size)
+        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
+      end
+      index = n.to_i > 0 ? n.to_i - 1 : n.to_i
+      new_list = list.to_a.dup
+      new_list[index] = value
+      Sass::Script::Value::List.new(new_list,
+                                    list.respond_to?(:separator) ? list.separator : :space)
+    end
+    declare :set_nth, [:list, :n, :value]
+
     # Gets the nth item in a list.
     #
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
     #
     # This can return the nth pair in a map as well.
+    #
+    # Negative index values address elements in reverse order, starting with the last element in
+    # the list.
     #
     # @example
     #   nth(10px 20px 30px, 1) => 10px
