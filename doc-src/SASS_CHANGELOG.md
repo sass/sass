@@ -240,6 +240,10 @@ maps instead.
   allows them the same power as Sass-based functions with respect to
   reading and setting variables defined elsewhere in the stylesheet.
 
+* The `set-nth($list, $n, $value)` function lets you construct a new
+  list based on `$list`, with the nth element changed to the value
+  specified.
+
 * Add "grey" and "transparent" as recognized SassScript colors. Thanks to [Rob
   Wierzbowski](https://github.com/robwierzbowski).
 

@@ -1038,6 +1038,7 @@ MSG
     assert_equal("3", evaluate("nth(1 2 3, -1)"))
     assert_equal("1", evaluate("nth(1 2 3, -3)"))
     assert_equal("3", evaluate("nth((1, 2, 3), 3)"))
+    assert_equal("3", evaluate("nth($list: (1, 2, 3), $n: 3)"))
     assert_equal("foo", evaluate("nth(foo, 1)"))
     assert_equal("bar baz", evaluate("nth(foo (bar baz) bang, 2)"))
     assert_error_message("List index 0 must be a non-zero integer for `nth'", "nth(foo, 0)")
@@ -1050,6 +1051,24 @@ MSG
 
     assert_equal("foo bar", evaluate("nth((foo: bar, bar: baz), 1)"))
     assert_equal("bar baz", evaluate("nth((foo: bar, bar: baz), 2)"))
+  end
+
+  def test_set_nth
+    assert_equal("a 2 3", evaluate("set-nth(1 2 3, 1, a)"))
+    assert_equal("1 a 3", evaluate("set-nth(1 2 3, 2, a)"))
+    assert_equal("1 2 a", evaluate("set-nth(1 2 3, -1, a)"))
+    assert_equal("a 2 3", evaluate("set-nth(1 2 3, -3, a)"))
+    assert_equal("a 2 3", evaluate("set-nth($list: 1 2 3, $n: -3, $value: a)"))
+    assert_equal("1, 2, a", evaluate("set-nth((1, 2, 3), 3, a)"))
+    assert_equal("a", evaluate("set-nth(foo, 1, a)"))
+    assert_equal("foo, a b, baz", evaluate("set-nth((foo, bar, baz), 2, (a b))"))
+    assert_error_message("List index 0 must be a non-zero integer for `set-nth'", "set-nth(foo, 0, a)")
+    assert_error_message("List index is -10 but list is only 1 item long for `set-nth'", "set-nth(foo, -10, a)")
+    assert_error_message("List index 1.5 must be a non-zero integer for `set-nth'", "set-nth(foo, 1.5, a)")
+    assert_error_message("List index is 5 but list is only 4 items long for `set-nth'", "set-nth(1 2 3 4, 5, a)")
+    assert_error_message("List index is 2 but list is only 1 item long for `set-nth'", "set-nth(foo, 2, a)")
+    assert_error_message("List index is 1 but list has no items for `set-nth'", "set-nth((), 1, a)")
+    assert_error_message("$n: \"foo\" is not a number for `set-nth'", "set-nth(1 2 3, foo, a)")
   end
 
   def test_join
