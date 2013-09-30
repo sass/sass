@@ -688,7 +688,7 @@ MSG
       end
 
       str = check_encoding(str, &block)
-      [str.encode("UTF-8"), str.encoding]
+      return str.encode("UTF-8"), str.encoding
     end
 
     unless ruby1_8?
@@ -855,7 +855,7 @@ MSG
         values << e
         next "{#{values.count - 1}}"
       end
-      [mapped.join, values]
+      return mapped.join, values
     end
 
     # Undoes \{#extract\_values} by transforming a string with escape sequences

@@ -4,7 +4,7 @@ module Rubocop
   module Cop
     module Style
       # Common functionality for checking surrounding space.
-      # # This is monkeypatching an existing class.
+      # This is monkeypatching an existing class.
       class SpaceAroundBlockBraces < Cop
         MSG_RIGHT_SPACE = "Space found to the left of '}'."
         MSG_LEFT_SPACE = "Space found to the right of '{'."
@@ -40,9 +40,31 @@ module Rubocop
           convention(nil, t1.pos, msg) if space_between?(t1, t2)
         end
       end
+
+      # This is monkeypatching an existing class.
+      class RedundantReturn < Cop
+        def check(node)
+          return unless node
+
+          if node.type == :return
+            convention(node, :keyword)
+          elsif node.type == :begin
+            expressions = *node
+            last_expr = expressions.last
+
+            if last_expr && last_expr.type == :return
+              if cop_config['AllowMultipleReturnValues']
+                return if last_expr.children.size > 1
+              end
+              convention(last_expr, :keyword)
+            end
+          end
+        end
+      end
     end
   end
 end
 
 Rubocop::Config.default_configuration["SpaceAroundBlockBraces"]["NoSpaceBeforeClosingCurly"] = false
 Rubocop::Config.default_configuration["SpaceAroundBlockBraces"]["NoSpaceAfterOpeningCurly"] = false
+Rubocop::Config.default_configuration["RedundantReturn"]["AllowMultipleReturnValues"] = false

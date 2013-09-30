@@ -519,7 +519,7 @@ MSG
           one2, two = two.split(':', 2)
           one = one + ':' + one2
         end
-        [one, two]
+        return one, two
       end
 
       # Whether path is likely to be meant as the destination

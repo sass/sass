@@ -473,7 +473,7 @@ module Sass::Script::Value
         nil
       end
       units1.compact!
-      [units1, units2]
+      return units1, units2
     end
   end
 end

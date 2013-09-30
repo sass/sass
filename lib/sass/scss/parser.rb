@@ -672,7 +672,7 @@ module Sass
             ws = ''
           end
         end
-        [rules, range(start_pos)]
+        return rules, range(start_pos)
       end
 
       def selector
@@ -808,7 +808,7 @@ module Sass
 
         return name, expr!(:interp_ident) unless allow_star_name
         @expected = "identifier or *"
-        [name, interp_ident || tok!(/\*/)]
+        return name, interp_ident || tok!(/\*/)
       end
 
       def interpolation_selector
@@ -856,7 +856,7 @@ module Sass
           tok!(/\|/)
           name = expr!(:interp_ident)
         end
-        [ns, name]
+        return ns, name
       end
 
       def pseudo
@@ -972,7 +972,7 @@ module Sass
           str.source_range = range(start_pos)
           return value_start_pos, space, str
         end
-        [value_start_pos, space, sass_script(:parse)]
+        return value_start_pos, space, sass_script(:parse)
       end
 
       def nested_properties!(node, space)

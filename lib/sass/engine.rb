@@ -371,7 +371,7 @@ ERR
       rendered << Sass::Util.escape_uri(sourcemap_uri)
       rendered << " */"
       rendered = encode_and_set_charset(rendered)
-      [rendered, sourcemap]
+      return rendered, sourcemap
     end
 
     def encode_and_set_charset(rendered)
@@ -529,7 +529,7 @@ MSG
           i += 1
         end
       end
-      [nodes, i]
+      return nodes, i
     end
 
     def build_tree(parent, line, root = false)

@@ -75,6 +75,8 @@ PerlBackrefs:
 ReduceArguments:
   # We prefer to name things well.
   Enabled: false
+RedundantReturn:
+  AllowMultipleReturnValues: true
 Semicolon:
   # Makes a good line separator
   Enabled: false

@@ -278,7 +278,7 @@ RUBY
       def map_pair(key = nil)
         return unless key ||= interpolation
         assert_tok :colon
-        [key, assert_expr(:interpolation)]
+        return key, assert_expr(:interpolation)
       end
 
       def expr
@@ -419,7 +419,7 @@ RUBY
           break unless try_tok(:comma)
         end
         assert_tok(:rparen)
-        [res, splat]
+        return res, splat
       end
 
       def fn_arglist
