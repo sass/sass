@@ -26,6 +26,9 @@ EmptyLines:
   Enabled: false
 EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
+Encoding:
+  # We use utf-8 comments when utf-8 characters are in use.
+  Enabled: false
 EndAlignment:
   # Our alignment style differs significantly
   # and this doesn't seem to be a big deal.
