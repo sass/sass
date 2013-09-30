@@ -46,7 +46,7 @@ IfUnlessModifier:
   # We don't feel strongly about this.
   Enabled: false
 Lambda:
-  # We are a 1.8 compatable project still.
+  # We are a 1.8 compatible project still.
   Enabled: false
 LineLength:
   Enabled: true

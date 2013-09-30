@@ -53,7 +53,7 @@ class OrderedHash < ::Hash
     end
 
     args.each_with_index do |val, ind|
-      next if (ind % 2 != 0)
+      next if ind.odd?
       ordered_hash[val] = args[ind + 1]
     end
 
