@@ -11,7 +11,8 @@ module Sass
   # This module is used as the primary interface with Sass
   # when it's used as a plugin for various frameworks.
   # All Rack-enabled frameworks are supported out of the box.
-  # The plugin is {file:SASS_REFERENCE.md#rails_merb_plugin automatically activated for Rails and Merb}.
+  # The plugin is
+  # {file:SASS_REFERENCE.md#rails_merb_plugin automatically activated for Rails and Merb}.
   # Other frameworks must enable it explicitly; see {Sass::Plugin::Rack}.
   #
   # This module has a large set of callbacks available
@@ -65,7 +66,8 @@ module Sass
 
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
+    # Checks each Sass/SCSS file in
+    # {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
     # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.

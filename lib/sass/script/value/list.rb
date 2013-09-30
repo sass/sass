@@ -32,8 +32,8 @@ module Sass::Script::Value
     # @see Value#eq
     def eq(other)
       Sass::Script::Value::Bool.new(
-        other.is_a?(List) && self.value == other.value &&
-        self.separator == other.separator)
+        other.is_a?(List) && value == other.value &&
+        separator == other.separator)
     end
 
     def hash
@@ -43,7 +43,9 @@ module Sass::Script::Value
     # @see Value#to_s
     def to_s(opts = {})
       raise Sass::SyntaxError.new("() isn't a valid CSS value.") if value.empty?
-      return value.reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.map {|e| e.to_s(opts)}.join(sep_str)
+      value.
+        reject {|e| e.is_a?(Null) || e.is_a?(List) && e.value.empty?}.
+        map {|e| e.to_s(opts)}.join(sep_str)
     end
 
     # @see Value#to_sass
@@ -89,10 +91,10 @@ module Sass::Script::Value
 
     private
 
-    def sep_str(opts = self.options)
+    def sep_str(opts = options)
       return ' ' if separator == :space
       return ',' if opts && opts[:style] == :compressed
-      return ', '
+      ', '
     end
   end
 end

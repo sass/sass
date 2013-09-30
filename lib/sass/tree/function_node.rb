@@ -21,7 +21,8 @@ module Sass
       attr_accessor :splat
 
       # @param name [String] The function name
-      # @param args [Array<(Script::Tree::Node, Script::Tree::Node)>] The arguments for the function.
+      # @param args [Array<(Script::Tree::Node, Script::Tree::Node)>]
+      #   The arguments for the function.
       # @param splat [Script::Tree::Node] See \{#splat}
       def initialize(name, args, splat)
         @name = name

@@ -1,0 +1,113 @@
+AlignParameters:
+  # Nathan doesn't like to align parameters to the method call.
+  Enabled: false
+BlockNesting:
+  # We'll catch this in code review. There are some legitimate uses.
+  Enabled: false
+CharacterLiteral:
+  # Character literals are pretty useful when working with text like we do.
+  Enabled: false
+CollectionMethods:
+  PreferredMethods:
+    collect: 'map'
+    reduce: 'inject'
+    detect: 'find'
+    find_all: 'select'
+Documentation:
+  # TODO: We need to add a bunch of docs before we can enable this.
+  Enabled: false
+DotPosition:
+  # This check doesn't want chained method invocation to end with a dot.
+  # But we like to do that.
+  Enabled: false
+EmptyLines:
+  # We need these empty lines to separate internal comments from docstrings.
+  # TODO: Re-enable this by adding an option do ignore empty lines between comments.
+  Enabled: false
+EmptyLineBetweenDefs:
+  AllowAdjacentOneLineDefs: true
+EndAlignment:
+  # Our alignment style differs significantly
+  # and this doesn't seem to be a big deal.
+  Enabled: false
+FavorSprintf:
+  # We like the string % operator.
+  Enabled: false
+HandleExceptions:
+  # We legitimately ignore exceptions in some cases and this is easy to catch in code review.
+  Enabled: false
+HashSyntax:
+  # We are a 1.8 compatable project still.
+  Enabled: false
+HashMethods:
+  # has_xxx? reads better.
+  Enabled: false
+IfUnlessModifier:
+  # We don't feel strongly about this.
+  Enabled: false
+Lambda:
+  # We are a 1.8 compatable project still.
+  Enabled: false
+LineLength:
+  Enabled: true
+  Max: 100
+Loop:
+  # This isn't a big deal.
+  Enabled: false
+MethodLength:
+  # TODO: This max should actually be 25 but that will require significant refactoring.
+  Max: 50
+  CountComments: false
+ModuleFunction:
+  # The module_function declaration makes methods private so it means you can't use the module as a module.
+  Enabled: false
+NumericLiterals:
+  # Fails for hex literals.
+  # Bug reported: https://github.com/bbatsov/rubocop/issues/502
+  # TODO: Reenable this after the next rubocop release.
+  Enabled: false
+ParenthesesAroundCondition:
+  # This mostly just triggers on safe assignment.
+  Enabled: false
+PerlBackrefs:
+  # We like perl backrefs.
+  Enabled: false
+ReduceArguments:
+  # We prefer to name things well.
+  Enabled: false
+RedundantReturn:
+  AllowMultipleReturnValues: true
+Semicolon:
+  # Makes a good line separator
+  Enabled: false
+SignalException:
+  # We like saying raise.
+  Enabled: false
+SingleLineMethods:
+  # We like single line methods for simple methods.
+  Enabled: false
+SpaceAroundBlockBraces:
+  NoSpaceBeforeBlockParameters: true
+  NoSpaceBeforeClosingCurly: true
+  NoSpaceAfterOpeningCurly: true
+SpaceInsideHashLiteralBraces:
+  EnforcedStyleIsWithSpaces: false
+StringLiterals:
+  # They say to not use double quoted strings unless there is interpolation.
+  # While this gives a marginal parse time speedup, it makes working with
+  # strings annoying.
+  Enabled: false
+SymbolName:
+  # Checks that symbols are snake_case. This is disabled because ruby constants
+  # are not snake case and referring to them often requires the use of symbols.
+  # TODO: Re-enable this by adding an option to allow CamelCase and SCREAMING_SNAKE_CASE.
+  Enabled: false
+TrivialAccessors:
+  AllowPredicates: true
+  ExactNameMatch: true
+WhenThen:
+  # We like semi-colons.
+  Enabled: false
+WhileUntilModifier:
+  # We don't feel strongly about this.
+  Enabled: false

@@ -15,7 +15,7 @@ module Sass::Script::Value
 
     # A list of units in the numerator of the number.
     # For example, `1px*em/in*cm` would return `["px", "em"]`
-    # @return [Array<String>] 
+    # @return [Array<String>]
     attr_reader :numerator_units
 
     # A list of units in the denominator of the number.
@@ -161,8 +161,8 @@ module Sass::Script::Value
     def div(other)
       if other.is_a? Number
         res = operate(other, :/)
-        if self.original && other.original
-          res.original = "#{self.original}/#{other.original}"
+        if original && other.original
+          res.original = "#{original}/#{other.original}"
         end
         res
       else
@@ -179,7 +179,8 @@ module Sass::Script::Value
     def mod(other)
       if other.is_a?(Number)
         unless other.unitless?
-          raise Sass::UnitConversionError.new("Cannot modulo by a number with units: #{other.inspect}.")
+          raise Sass::UnitConversionError.new(
+            "Cannot modulo by a number with units: #{other.inspect}.")
         end
         operate(other, :%)
       else
@@ -214,8 +215,8 @@ module Sass::Script::Value
     # Hash-equality must be transitive, so it just compares the exact value,
     # numerator units, and denominator units.
     def eql?(other)
-      self.value == other.value && self.numerator_units == other.numerator_units &&
-        self.denominator_units == other.denominator_units
+      value == other.value && numerator_units == other.numerator_units &&
+        denominator_units == other.denominator_units
     end
 
     # The SassScript `>` operation.
@@ -283,7 +284,7 @@ module Sass::Script::Value
     # @raise [Sass::SyntaxError] if the number isn't an integer
     def to_i
       super unless int?
-      return value
+      value
     end
 
     # @return [Boolean] Whether or not this number is an integer.
@@ -303,7 +304,8 @@ module Sass::Script::Value
     #   number.is_unit?("px") => true
     #   number.is_unit?(nil) => false
     #
-    # @param unit [::String, nil] The unit the number should have or nil if the number should be unitless.
+    # @param unit [::String, nil] The unit the number should have or nil if the number
+    #   should be unitless.
     # @see Number#unitless? The unitless? method may be more readable.
     def is_unit?(unit)
       if unit
@@ -337,9 +339,9 @@ module Sass::Script::Value
     #   current units
     def coerce(num_units, den_units)
       Number.new(if unitless?
-                   self.value
+                   value
                  else
-                   self.value * coercion_factor(@numerator_units, num_units) /
+                   value * coercion_factor(@numerator_units, num_units) /
                      coercion_factor(@denominator_units, den_units)
                  end, num_units, den_units)
     end
@@ -347,12 +349,10 @@ module Sass::Script::Value
     # @param other [Number] A number to decide if it can be compared with this number.
     # @return [Boolean] Whether or not this number can be compared with the other.
     def comparable_to?(other)
-      begin
-        operate(other, :+)
-        true
-      rescue Sass::UnitConversionError
-        false
-      end
+      operate(other, :+)
+      true
+    rescue Sass::UnitConversionError
+      false
     end
 
     # Returns a human readable representation of the units in this number.
@@ -377,7 +377,7 @@ module Sass::Script::Value
       elsif num % 1 == 0.0
         num.to_i
       else
-        ((num * self.precision_factor).round / self.precision_factor).to_f
+        ((num * precision_factor).round / precision_factor).to_f
       end
     end
 
@@ -408,29 +408,33 @@ module Sass::Script::Value
       from_units, to_units = sans_common_units(from_units, to_units)
 
       if from_units.size != to_units.size || !convertable?(from_units | to_units)
-        raise Sass::UnitConversionError.new("Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
+        raise Sass::UnitConversionError.new(
+          "Incompatible units: '#{from_units.join('*')}' and '#{to_units.join('*')}'.")
       end
 
-      from_units.zip(to_units).inject(1) {|m,p| m * conversion_factor(p[0], p[1]) }
+      from_units.zip(to_units).inject(1) {|m, p| m * conversion_factor(p[0], p[1])}
     end
 
     def compute_units(this, other, operation)
       case operation
       when :*
-        [this.numerator_units + other.numerator_units, this.denominator_units + other.denominator_units]
+        [this.numerator_units + other.numerator_units,
+         this.denominator_units + other.denominator_units]
       when :/
-        [this.numerator_units + other.denominator_units, this.denominator_units + other.numerator_units]
-      else  
+        [this.numerator_units + other.denominator_units,
+         this.denominator_units + other.numerator_units]
+      else
         [this.numerator_units, this.denominator_units]
       end
     end
 
     def normalize!
       return if unitless?
-      @numerator_units, @denominator_units = sans_common_units(@numerator_units, @denominator_units)
+      @numerator_units, @denominator_units =
+        sans_common_units(@numerator_units, @denominator_units)
 
       @denominator_units.each_with_index do |d, i|
-        if convertable?(d) && (u = @numerator_units.detect(&method(:convertable?)))
+        if convertable?(d) && (u = @numerator_units.find(&method(:convertable?)))
           @value /= conversion_factor(d, u)
           @denominator_units.delete_at(i)
           @numerator_units.delete_at(@numerator_units.index(u))
@@ -439,13 +443,15 @@ module Sass::Script::Value
     end
 
     # A hash of unit names to their index in the conversion table
-    CONVERTABLE_UNITS = {"in" => 0,        "cm" => 1,    "pc" => 2,    "mm" => 3,   "pt" => 4,  "px" => 5    }
-    CONVERSION_TABLE = [[ 1,                2.54,         6,            25.4,        72        , 96          ], # in
-                        [ nil,              1,            2.36220473,   10,          28.3464567, 37.795275591], # cm
-                        [ nil,              nil,          1,            4.23333333,  12        , 16          ], # pc
-                        [ nil,              nil,          nil,          1,           2.83464567, 3.7795275591], # mm
-                        [ nil,              nil,          nil,          nil,         1         , 1.3333333333], # pt
-                        [ nil,              nil,          nil,          nil,         nil       , 1           ]] # px
+    CONVERTABLE_UNITS = %w(in cm pc mm pt px).inject({}) {|m, v| m[v] = m.size; m}
+
+    #                    in   cm    pc          mm          pt          px
+    CONVERSION_TABLE = [[1,   2.54, 6,          25.4,       72        , 96],           # in
+                        [nil, 1,    2.36220473, 10,         28.3464567, 37.795275591], # cm
+                        [nil, nil,  1,          4.23333333, 12        , 16],           # pc
+                        [nil, nil,  nil,        1,          2.83464567, 3.7795275591], # mm
+                        [nil, nil,  nil,        nil,        1         , 1.3333333333], # pt
+                        [nil, nil,  nil,        nil,        nil       , 1]]            # px
 
     def conversion_factor(from_unit, to_unit)
       res = CONVERSION_TABLE[CONVERTABLE_UNITS[from_unit]][CONVERTABLE_UNITS[to_unit]]
@@ -460,11 +466,14 @@ module Sass::Script::Value
     def sans_common_units(units1, units2)
       units2 = units2.dup
       # Can't just use -, because we want px*px to coerce properly to px*mm
-      return units1.map do |u|
-        next u unless j = units2.index(u)
+      units1 = units1.map do |u|
+        j = units2.index(u)
+        next u unless j
         units2.delete_at(j)
         nil
-      end.compact, units2
+      end
+      units1.compact!
+      return units1, units2
     end
   end
 end

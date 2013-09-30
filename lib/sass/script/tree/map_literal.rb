@@ -57,7 +57,7 @@ module Sass::Script::Tree
         keys << k
         [k, v]
       end))
-      map.options = self.options
+      map.options = options
       map
     end
   end

@@ -9,8 +9,8 @@ rvm:
   - ree
 gemfile: Gemfile
 env:
-  - MATHN=true
-  - MATHN=false
+  - MATHN=true RUBOCOP=false
+  - MATHN=false RUBOCOP=false
 branches:
   only:
     - master
@@ -21,3 +21,8 @@ matrix:
   allow_failures:
     - rvm: jruby-18mode
     - rvm: jruby-19mode
+  include:
+    - rvm: 2.0.0
+      env: MATHN=true RUBOCOP=true
+    - rvm: 1.9.3
+      env: MATHN=true RUBOCOP=true

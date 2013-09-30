@@ -33,10 +33,10 @@ module Sass::Plugin
 
     # Creates a new compiler.
     #
-    # @param options [{Symbol => Object}]
+    # @param opts [{Symbol => Object}]
     #   See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
-    def initialize(options = {})
-      self.options.merge!(options)
+    def initialize(opts = {})
+      options.merge!(opts)
     end
 
     # Register a callback to be run after stylesheets are mass-updated.
@@ -159,7 +159,8 @@ module Sass::Plugin
 
     # Updates out-of-date stylesheets.
     #
-    # Checks each Sass/SCSS file in {file:SASS_REFERENCE.md#template_location-option `:template_location`}
+    # Checks each Sass/SCSS file in
+    # {file:SASS_REFERENCE.md#template_location-option `:template_location`}
     # to see if it's been modified more recently than the corresponding CSS file
     # in {file:SASS_REFERENCE.md#css_location-option `:css_location`}.
     # If it has, it updates the CSS file.
@@ -230,7 +231,8 @@ module Sass::Plugin
 
       # TODO: Keep better track of what depends on what
       # so we don't have to run a global update every time anything changes.
-      listener = create_listener(*(directories + [{:relative_paths => false}])) do |modified, added, removed|
+      listener_args = directories + [{:relative_paths => false}]
+      listener = create_listener(*listener_args) do |modified, added, removed|
         recompile_required = false
 
         modified.uniq.each do |f|
@@ -246,7 +248,7 @@ module Sass::Plugin
         end
 
         removed.uniq.each do |f|
-          if files = individual_files.find {|(source,_,_)| File.expand_path(source) == f}
+          if (files = individual_files.find {|(source, _, _)| File.expand_path(source) == f})
             recompile_required = true
             # This was a file we were watching explicitly and compiling to a particular location.
             # Delete the corresponding file.
@@ -269,21 +271,24 @@ module Sass::Plugin
         end
 
         if recompile_required
-          # In case a file we're watching is removed and then recreated we prune out the non-existant files here.
+          # In case a file we're watching is removed and then recreated we
+          # prune out the non-existant files here.
           watched_files_remaining = individual_files.select {|(source, _, _)| File.exists?(source)}
           update_stylesheets(watched_files_remaining)
         end
       end
 
-      # The native windows listener is much slower than the polling
-      # option, according to https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e#commitcomment-1295118
+      # The native windows listener is much slower than the polling option, according to
+      # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
       listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
+      # rubocop:disable RescueException
       begin
         listener.start!
       rescue Exception => e
         raise e unless e.is_a?(Interrupt)
       end
+      # rubocop:enable RescueException
     end
 
     # Non-destructively modifies \{#options} so that default values are properly set,
@@ -313,9 +318,13 @@ module Sass::Plugin
       dedupped = []
       directories.each do |new_directory|
         # no need to add a directory that is already watched.
-        next if dedupped.any? {|existing_directory| child_of_directory?(existing_directory, new_directory)}
+        next if dedupped.any? do |existing_directory|
+          child_of_directory?(existing_directory, new_directory)
+        end
         # get rid of any sub directories of this new directory
-        dedupped.reject! {|existing_directory| child_of_directory?(new_directory, existing_directory)}
+        dedupped.reject! do |existing_directory|
+          child_of_directory?(new_directory, existing_directory)
+        end
         dedupped << new_directory
       end
       dedupped
@@ -338,14 +347,16 @@ module Sass::Plugin
         else
           rendered = engine.render
         end
-      rescue Exception => e
+      rescue StandardError => e
         compilation_error_occured = true
         run_compilation_error e, filename, css, sourcemap
         rendered = Sass::SyntaxError.exception_to_css(e, options)
       end
 
       write_file(css, rendered)
-      write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap)) if mapping
+      if mapping
+        write_file(sourcemap, mapping.to_json(:css_path => css, :sourcemap_path => sourcemap))
+      end
       run_updated_stylesheet(filename, css, sourcemap) unless compilation_error_occured
     end
 
@@ -379,7 +390,8 @@ module Sass::Plugin
     end
 
     def normalized_load_paths
-      @normalized_load_paths ||= Sass::Engine.normalize_options(:load_paths=> load_paths)[:load_paths]
+      @normalized_load_paths ||=
+        Sass::Engine.normalize_options(:load_paths => load_paths)[:load_paths]
     end
 
     def load_paths(opts = options)
@@ -395,7 +407,8 @@ module Sass::Plugin
     end
 
     def css_filename(name, path)
-      "#{path}#{File::SEPARATOR unless path.end_with?(File::SEPARATOR)}#{name}".gsub(/\.s[ac]ss$/, '.css')
+      "#{path}#{File::SEPARATOR unless path.end_with?(File::SEPARATOR)}#{name}".
+        gsub(/\.s[ac]ss$/, '.css')
     end
 
     def relative_to_pwd(f)

@@ -107,26 +107,33 @@ module Sass
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, parent_directives, seen = Set.new)
-        Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}.map do |seq, group|
+        groups = Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}
+        groups.map! do |seq, group|
           sels = group.map {|_, s| s}.flatten
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
 
-          self_without_sel = Sass::Util.array_minus(self.members, sels)
+          self_without_sel = Sass::Util.array_minus(members, sels)
           group.each {|e, _| e.result = :failed_to_unify unless e.result == :succeeded}
-          next unless unified = seq.members.last.unify(self_without_sel, subject?)
+          unified = seq.members.last.unify(self_without_sel, subject?)
+          next unless unified
           group.each {|e, _| e.result = :succeeded}
           group.each {|e, _| check_directives_match!(e, parent_directives)}
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
           new_seq.add_sources!(sources + [seq])
           [sels, new_seq]
-        end.compact.map do |sels, seq|
+        end
+        groups.compact!
+        groups.map! do |sels, seq|
           seen.include?(sels) ? [] : seq.do_extend(extends, parent_directives, seen + [sels])
-        end.flatten.uniq
+        end
+        groups.flatten!
+        groups.uniq!
+        groups
       end
 
-      # Unifies this selector with another {SimpleSequence}'s {SimpleSequence#members members array},
-      # returning another `SimpleSequence`
+      # Unifies this selector with another {SimpleSequence}'s
+      # {SimpleSequence#members members array}, returning another `SimpleSequence`
       # that matches both this selector and the input selector.
       #
       # @param sels [Array<Simple>] A {SimpleSequence}'s {SimpleSequence#members members array}
@@ -140,10 +147,11 @@ module Sass
       #   by the time extension and unification happen,
       #   this exception will only ever be raised as a result of programmer error
       def unify(sels, other_subject)
-        return unless sseq = members.inject(sels) do |member, sel|
+        sseq = members.inject(sels) do |member, sel|
           return unless member
           sel.unify(member)
         end
+        return unless sseq
         SimpleSequence.new(sseq, other_subject || subject?)
       end
 
@@ -194,13 +202,15 @@ module Sass
         dirs1 = extend.directives.map {|d| d.resolved_value}
         dirs2 = parent_directives.map {|d| d.resolved_value}
         return if Sass::Util.subsequence?(dirs1, dirs2)
+        line = extend.node.line
+        filename = extend.node.filename
 
         # TODO(nweiz): this should use the Sass stack trace of the extend node,
         # not the selector.
         raise Sass::SyntaxError.new(<<MESSAGE)
 You may not @extend an outer selector from within #{extend.directives.last.name}.
 You may only @extend selectors within the same directive.
-From "@extend #{extend.target.join(', ')}" on line #{extend.node.line}#{" of #{extend.node.filename}" if extend.node.filename}.
+From "@extend #{extend.target.join(', ')}" on line #{line}#{" of #{filename}" if filename}.
 MESSAGE
       end
 
@@ -209,8 +219,8 @@ MESSAGE
       end
 
       def _eql?(other)
-        other.base.eql?(self.base) && other.pseudo_elements == pseudo_elements &&
-          Sass::Util.set_eql?(other.rest, self.rest) && other.subject? == self.subject?
+        other.base.eql?(base) && other.pseudo_elements == pseudo_elements &&
+          Sass::Util.set_eql?(other.rest, rest) && other.subject? == subject?
       end
     end
   end

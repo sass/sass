@@ -57,7 +57,7 @@ module Sass
       end
 
       return Hash[pairs_or_hash] unless ruby1_8?
-      return OrderedHash[*flatten(pairs_or_hash, 1)]
+      OrderedHash[*flatten(pairs_or_hash, 1)]
     end
 
     # Converts an array of `[key, value]` pairs to a hash.
@@ -195,8 +195,8 @@ module Sass
       res = ary.dup
       i = 0
       while i < res.size
-        if res[i...i+from.size] == from
-          res[i...i+from.size] = to
+        if res[i...i + from.size] == from
+          res[i...i + from.size] = to
         end
         i += 1
       end
@@ -247,7 +247,7 @@ module Sass
       x = [nil, *x]
       y = [nil, *y]
       block ||= proc {|a, b| a == b && a}
-      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size-1, y.size-1, &block)
+      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size - 1, y.size - 1, &block)
     end
 
     # Converts a Hash to an Array. This is usually identical to `Hash#to_a`,
@@ -261,7 +261,7 @@ module Sass
     # @return [Array]
     def hash_to_a(hash)
       return hash.to_a unless ruby1_8? || defined?(Test::Unit)
-      return hash.sort_by {|k, v| k}
+      hash.sort_by {|k, v| k}
     end
 
     # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
@@ -275,13 +275,14 @@ module Sass
       return enum.group_by(&block).to_a unless ruby1_8?
       order = {}
       arr = []
-      enum.group_by do |e|
+      groups = enum.group_by do |e|
         res = block[e]
         unless order.include?(res)
           order[res] = order.size
         end
         res
-      end.each do |key, vals|
+      end
+      groups.each do |key, vals|
         arr[order[key]] = [key, vals]
       end
       arr
@@ -311,7 +312,7 @@ module Sass
       # JRuby (as of 1.7.2) doesn't have an error_char field on
       # Encoding::UndefinedConversionError.
       return e.error_char.dump unless jruby?
-      e.message[/^"[^"]+"/] #"
+      e.message[/^"[^"]+"/] # "
     end
 
     # Asserts that `value` falls within `range` (inclusive), leaving
@@ -323,7 +324,7 @@ module Sass
     # @param unit [String] The unit of the value. Used in error reporting.
     # @return [Numeric] `value` adjusted to fall within range, if it
     #   was outside by a floating-point margin.
-    def check_range(name, range, value, unit='')
+    def check_range(name, range, value, unit = '')
       grace = (-0.00001..0.00001)
       str = value.to_s
       value = value.value if value.is_a?(Sass::Script::Value::Number)
@@ -354,7 +355,8 @@ module Sass
     # Returns information about the caller of the previous method.
     #
     # @param entry [String] An entry in the `#caller` list, or a similarly formatted string
-    # @return [[String, Fixnum, (String, nil)]] An array containing the filename, line, and method name of the caller.
+    # @return [[String, Fixnum, (String, nil)]]
+    #   An array containing the filename, line, and method name of the caller.
     #   The method name may be nil
     def caller_info(entry = nil)
       # JRuby evaluates `caller` incorrectly when it's in an actual default argument.
@@ -422,7 +424,6 @@ module Sass
       $stderr = the_real_stderr
     end
 
-    @@silence_warnings = false
     # Silences all Sass warnings within a block.
     #
     # @yield A block in which no Sass warnings will be printed
@@ -454,7 +455,7 @@ module Sass
         raise "ERROR: Rails.root is nil!"
       end
       return RAILS_ROOT.to_s if defined?(RAILS_ROOT)
-      return nil
+      nil
     end
 
     # Returns the environment of the Rails application,
@@ -465,7 +466,7 @@ module Sass
     def rails_env
       return ::Rails.env.to_s if defined?(::Rails.env)
       return RAILS_ENV.to_s if defined?(RAILS_ENV)
-      return nil
+      nil
     end
 
     # Returns whether this environment is using ActionPack
@@ -501,7 +502,7 @@ module Sass
     #   or `ActionView::Template::Error`.
     def av_template_class(name)
       return ActionView.const_get("Template#{name}") if ActionView.const_defined?("Template#{name}")
-      return ActionView::Template.const_get(name.to_s)
+      ActionView::Template.const_get(name.to_s)
     end
 
     ## Cross-OS Compatibility
@@ -534,11 +535,16 @@ module Sass
       RUBY_PLATFORM =~ /java/
     end
 
+    # @see #jruby_version-class_method
+    def jruby_version
+      Sass::Util.jruby_version
+    end
+
     # Returns an array of ints representing the JRuby version number.
     #
     # @return [Array<Fixnum>]
-    def jruby_version
-      $jruby_version ||= ::JRUBY_VERSION.split(".").map {|s| s.to_i}
+    def self.jruby_version
+      @jruby_version ||= ::JRUBY_VERSION.split(".").map {|s| s.to_i}
     end
 
     # Like `Dir.glob`, but works with backslash-separated paths on Windows.
@@ -636,7 +642,7 @@ Invalid #{encoding.name} character #{undefined_conversion_error_char(e)}
 MSG
         end
       end
-      return str
+      str
     end
 
     # Like {\#check\_encoding}, but also checks for a `@charset` declaration
@@ -669,7 +675,7 @@ MSG
       charset, bom = $1, $2
       if charset
         charset = charset.force_encoding(encoding).encode("UTF-8")
-        if endianness = encoding[/[BL]E$/]
+        if (endianness = encoding[/[BL]E$/])
           begin
             Encoding.find(charset + endianness)
             charset << endianness
@@ -816,8 +822,9 @@ MSG
       set1.to_a.uniq.sort_by {|e| e.hash}.eql?(set2.to_a.uniq.sort_by {|e| e.hash})
     end
 
-    # Like `Object#inspect`, but preserves non-ASCII characters rather than escaping them under Ruby 1.9.2.
-    # This is necessary so that the precompiled Haml template can be `#encode`d into `@options[:encoding]`
+    # Like `Object#inspect`, but preserves non-ASCII characters rather than
+    # escaping them under Ruby 1.9.2.  This is necessary so that the
+    # precompiled Haml template can be `#encode`d into `@options[:encoding]`
     # before being evaluated.
     #
     # @param obj {Object}
@@ -843,11 +850,12 @@ MSG
     # @return [(String, Array)] The resulting string, and an array of extracted values.
     def extract_values(arr)
       values = []
-      return arr.map do |e|
+      mapped = arr.map do |e|
         next e.gsub('{', '{{') if e.is_a?(String)
         values << e
         next "{#{values.count - 1}}"
-      end.join, values
+      end
+      return mapped.join, values
     end
 
     # Undoes \{#extract\_values} by transforming a string with escape sequences
@@ -962,7 +970,7 @@ MSG
         value <<= 1
       end
 
-      result = String.new
+      result = ''
       begin
         digit = value & VLQ_BASE_MASK
         value >>= VLQ_BASE_SHIFT
@@ -1033,11 +1041,21 @@ MSG
       tmpfile.unlink if tmpfile
     end
 
+    URI_ESCAPE = URI.const_defined?(:DEFAULT_PARSER) ? URI::DEFAULT_PARSER : URI
+
+    def escape_uri(uri)
+      URI_ESCAPE.escape uri
+    end
+
     private
+
+    # rubocop:disable LineLength
+
 
     # Calculates the memoization table for the Least Common Subsequence algorithm.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
     def lcs_table(x, y)
+      # rubocop:enable LineLength
       c = Array.new(x.size) {[]}
       x.size.times {|i| c[i][0] = 0}
       y.size.times {|j| c[0][j] = 0}
@@ -1045,25 +1063,29 @@ MSG
         (1...y.size).each do |j|
           c[i][j] =
             if yield x[i], y[j]
-              c[i-1][j-1] + 1
+              c[i - 1][j - 1] + 1
             else
-              [c[i][j-1], c[i-1][j]].max
+              [c[i][j - 1], c[i - 1][j]].max
             end
         end
       end
-      return c
+      c
     end
+
+    # rubocop:disable ParameterLists, LineLength
+
 
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
     def lcs_backtrace(c, x, y, i, j, &block)
+      # rubocop:enable ParameterList, LineLengths
       return [] if i == 0 || j == 0
-      if v = yield(x[i], y[j])
-        return lcs_backtrace(c, x, y, i-1, j-1, &block) << v
+      if (v = yield(x[i], y[j]))
+        return lcs_backtrace(c, x, y, i - 1, j - 1, &block) << v
       end
 
-      return lcs_backtrace(c, x, y, i, j-1, &block) if c[i][j-1] > c[i-1][j]
-      return lcs_backtrace(c, x, y, i-1, j, &block)
+      return lcs_backtrace(c, x, y, i, j - 1, &block) if c[i][j - 1] > c[i - 1][j]
+      lcs_backtrace(c, x, y, i - 1, j, &block)
     end
   end
 end

@@ -5,7 +5,7 @@ unless defined?(Sass::MERB_LOADED)
     # Different default options in a m envirionment.
     def default_options
       @default_options ||= begin
-        version = Merb::VERSION.split('.').map { |n| n.to_i }
+        version = Merb::VERSION.split('.').map {|n| n.to_i}
         if version[0] <= 0 && version[1] < 5
           root = MERB_ROOT
           env  = MERB_ENV

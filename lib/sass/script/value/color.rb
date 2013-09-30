@@ -520,7 +520,7 @@ module Sass::Script::Value
     def to_s(opts = {})
       return smallest if options[:style] == :compressed
       return COLOR_NAMES_REVERSE[rgba] if COLOR_NAMES_REVERSE[rgba]
-      return alpha? ? rgba_str : hex_str
+      alpha? ? rgba_str : hex_str
     end
     alias_method :to_sass, :to_s
 
@@ -537,7 +537,7 @@ module Sass::Script::Value
       small_explicit_str = alpha? ? rgba_str : hex_str.gsub(/^#(.)\1(.)\2(.)\3$/, '#\1\2\3')
       return small_explicit_str unless (color = COLOR_NAMES_REVERSE[rgba]) &&
         color.size <= small_explicit_str.size
-      return color
+      color
     end
 
     def rgba_str
@@ -546,20 +546,21 @@ module Sass::Script::Value
     end
 
     def hex_str
-      red, green, blue = rgb.map { |num| num.to_s(16).rjust(2, '0') }
+      red, green, blue = rgb.map {|num| num.to_s(16).rjust(2, '0')}
       "##{red}#{green}#{blue}"
     end
 
     def piecewise(other, operation)
       other_num = other.is_a? Number
       if other_num && !other.unitless?
-        raise Sass::SyntaxError.new("Cannot add a number with units (#{other}) to a color (#{self}).")
+        raise Sass::SyntaxError.new(
+          "Cannot add a number with units (#{other}) to a color (#{self}).")
       end
 
       result = []
-      for i in (0...3)
+      (0...3).each do |i|
         res = rgb[i].send(operation, other_num ? other.value : other.rgb[i])
-        result[i] = [ [res, 255].min, 0 ].max
+        result[i] = [[res, 255].min, 0].max
       end
 
       if !other_num && other.alpha != alpha
@@ -580,9 +581,9 @@ module Sass::Script::Value
       m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s
       m1 = l * 2 - m2
       @attrs[:red], @attrs[:green], @attrs[:blue] = [
-        hue_to_rgb(m1, m2, h + 1.0/3),
+        hue_to_rgb(m1, m2, h + 1.0 / 3),
         hue_to_rgb(m1, m2, h),
-        hue_to_rgb(m1, m2, h - 1.0/3)
+        hue_to_rgb(m1, m2, h - 1.0 / 3)
       ].map {|c| (c * 0xff).round}
     end
 
@@ -591,8 +592,8 @@ module Sass::Script::Value
       h -= 1 if h > 1
       return m1 + (m2 - m1) * h * 6 if h * 6 < 1
       return m2 if h * 2 < 1
-      return m1 + (m2 - m1) * (2.0/3 - h) * 6 if h * 3 < 2
-      return m1
+      return m1 + (m2 - m1) * (2.0 / 3 - h) * 6 if h * 3 < 2
+      m1
     end
 
     def rgb_to_hsl!
@@ -607,20 +608,20 @@ module Sass::Script::Value
       h =
         case max
         when min; 0
-        when r; 60 * (g-b)/d
-        when g; 60 * (b-r)/d + 120
-        when b; 60 * (r-g)/d + 240
+        when r; 60 * (g - b) / d
+        when g; 60 * (b - r) / d + 120
+        when b; 60 * (r - g) / d + 240
         end
 
-      l = (max + min)/2.0
+      l = (max + min) / 2.0
 
       s =
         if max == min
           0
         elsif l < 0.5
-          d/(2*l)
+          d / (2 * l)
         else
-          d/(2 - 2*l)
+          d / (2 - 2 * l)
         end
 
       @attrs[:hue] = h % 360

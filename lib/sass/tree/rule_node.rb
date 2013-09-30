@@ -111,12 +111,13 @@ module Sass::Tree
 
     # A hash that will be associated with this rule in the CSS document
     # if the {file:SASS_REFERENCE.md#debug_info-option `:debug_info` option} is enabled.
-    # This data is used by e.g. [the FireSass Firebug extension](https://addons.mozilla.org/en-US/firefox/addon/103988).
+    # This data is used by e.g. [the FireSass Firebug
+    # extension](https://addons.mozilla.org/en-US/firefox/addon/103988).
     #
     # @return [{#to_s => #to_s}]
     def debug_info
       {:filename => filename && ("file://" + Sass::Util.escape_uri(File.expand_path(filename))),
-       :line => self.line}
+       :line => line}
     end
 
     # A rule node is invisible if it has only placeholder selectors.
@@ -131,7 +132,9 @@ module Sass::Tree
         # We don't use real filename/line info because we don't have it yet.
         # When we get it, we'll set it on the parsed rules if possible.
         parser = Sass::SCSS::StaticParser.new(@rule.join.strip, '', nil, 1)
+        # rubocop:disable RescueModifier
         @parsed_rules = parser.parse_selector rescue nil
+        # rubocop:enable RescueModifier
       end
     end
   end

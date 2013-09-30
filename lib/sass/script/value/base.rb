@@ -38,9 +38,7 @@ module Sass::Script::Value
     # See {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
     #
     # @param options [{Symbol => Object}] The options
-    def options=(options)
-      @options = options
-    end
+    attr_writer :options
 
     # Returns the options hash for this node.
     #
@@ -66,7 +64,7 @@ MSG
     # @return [Sass::Script::Value::Bool] True if this value is the same as the other,
     #   false otherwise
     def eq(other)
-      Sass::Script::Value::Bool.new(self.class == other.class && self.value == other.value)
+      Sass::Script::Value::Bool.new(self.class == other.class && value == other.value)
     end
 
     # The SassScript `!=` operation.
@@ -98,7 +96,7 @@ MSG
     # @return [Script::Value::String] A string containing both values
     #   separated by `"="`
     def single_eq(other)
-      Sass::Script::Value::String.new("#{self.to_s}=#{other.to_s}")
+      Sass::Script::Value::String.new("#{to_s}=#{other.to_s}")
     end
 
     # The SassScript `+` operation.
@@ -108,9 +106,9 @@ MSG
     #   without any separation
     def plus(other)
       if other.is_a?(Sass::Script::Value::String)
-        return Sass::Script::Value::String.new(self.to_s + other.value, other.type)
+        return Sass::Script::Value::String.new(to_s + other.value, other.type)
       end
-      Sass::Script::Value::String.new(self.to_s + other.to_s)
+      Sass::Script::Value::String.new(to_s + other.to_s)
     end
 
     # The SassScript `-` operation.
@@ -119,7 +117,7 @@ MSG
     # @return [Script::Value::String] A string containing both values
     #   separated by `"-"`
     def minus(other)
-      Sass::Script::Value::String.new("#{self.to_s}-#{other.to_s}")
+      Sass::Script::Value::String.new("#{to_s}-#{other.to_s}")
     end
 
     # The SassScript `/` operation.
@@ -128,7 +126,7 @@ MSG
     # @return [Script::Value::String] A string containing both values
     #   separated by `"/"`
     def div(other)
-      Sass::Script::Value::String.new("#{self.to_s}/#{other.to_s}")
+      Sass::Script::Value::String.new("#{to_s}/#{other.to_s}")
     end
 
     # The SassScript unary `+` operation (e.g. `+$a`).
@@ -137,7 +135,7 @@ MSG
     # @return [Script::Value::String] A string containing the value
     #   preceded by `"+"`
     def unary_plus
-      Sass::Script::Value::String.new("+#{self.to_s}")
+      Sass::Script::Value::String.new("+#{to_s}")
     end
 
     # The SassScript unary `-` operation (e.g. `-$a`).
@@ -146,7 +144,7 @@ MSG
     # @return [Script::Value::String] A string containing the value
     #   preceded by `"-"`
     def unary_minus
-      Sass::Script::Value::String.new("-#{self.to_s}")
+      Sass::Script::Value::String.new("-#{to_s}")
     end
 
     # The SassScript unary `/` operation (e.g. `/$a`).
@@ -155,7 +153,7 @@ MSG
     # @return [Script::Value::String] A string containing the value
     #   preceded by `"/"`
     def unary_div
-      Sass::Script::Value::String.new("/#{self.to_s}")
+      Sass::Script::Value::String.new("/#{to_s}")
     end
 
     # Returns the hash code of this value. Two objects' hash codes should be
@@ -191,7 +189,7 @@ MSG
     # @return [Fixnum] The integer value of this value
     # @raise [Sass::SyntaxError] if this value isn't an integer
     def to_i
-      raise Sass::SyntaxError.new("#{self.inspect} is not an integer.")
+      raise Sass::SyntaxError.new("#{inspect} is not an integer.")
     end
 
     # @raise [Sass::SyntaxError] if this value isn't an integer
@@ -218,7 +216,7 @@ MSG
     # @return [Hash<Value, Value>] This value as a hash
     # @raise [Sass::SyntaxError] if this value doesn't have a hash representation
     def to_h
-      raise Sass::SyntaxError.new("#{self.inspect} is not a map.")
+      raise Sass::SyntaxError.new("#{inspect} is not a map.")
     end
 
     # Returns the string representation of this value

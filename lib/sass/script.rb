@@ -56,7 +56,8 @@ module Sass
 
     # @private
     def self.const_missing(name)
-      super unless klass = CONST_RENAMES[name]
+      klass = CONST_RENAMES[name]
+      super unless klass
       CONST_RENAMES.each {|n, k| const_set(n, k)}
       klass
     end

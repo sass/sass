@@ -55,7 +55,7 @@ module Sass
       # @param other [Object] The object to test equality against
       # @return [Boolean] Whether or not this is equal to `other`
       def eql?(other)
-        other.class == self.class && other.hash == self.hash && _eql?(other)
+        other.class == self.class && other.hash == hash && _eql?(other)
       end
       alias_method :==, :eql?
 

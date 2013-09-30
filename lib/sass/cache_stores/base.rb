@@ -27,7 +27,7 @@ module Sass
 
       # Retrieved cached contents.
       # Must be implemented by all subclasses.
-      # 
+      #
       # Note: if the key exists but the sha or version have changed,
       # then the key may be deleted by the cache store, if it wants to do so.
       #

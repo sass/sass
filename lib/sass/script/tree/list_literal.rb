@@ -31,7 +31,8 @@ module Sass::Script::Tree
       precedence = Sass::Script::Parser.precedence_of(separator)
       elements.reject {|e| e.is_a?(Sass::Script::Value::Null)}.map do |v|
         if v.is_a?(ListLiteral) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
-            separator == :space && v.is_a?(UnaryOperation) && (v.operator == :minus || v.operator == :plus)
+            separator == :space && v.is_a?(UnaryOperation) &&
+            (v.operator == :minus || v.operator == :plus)
           "(#{v.to_sass(opts)})"
         else
           v.to_sass(opts)
@@ -60,16 +61,16 @@ module Sass::Script::Tree
       list.line = line
       list.source_range = source_range
       list.filename = filename
-      list.options = self.options
+      list.options = options
       list
     end
 
     private
 
-    def sep_str(opts = self.options)
+    def sep_str(opts = options)
       return ' ' if separator == :space
       return ',' if opts && opts[:style] == :compressed
-      return ', '
+      ', '
     end
   end
 end

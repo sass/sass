@@ -63,7 +63,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       @offset -= chars
     end
   end
-  
+
   # Avoid allocating lots of new strings for `#output`. This is important
   # because `#output` is called all the time.
   NEWLINE = "\n"
@@ -157,11 +157,17 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     spaces = ('  ' * [@tabs - node.resolved_value[/^ */].size, 0].max)
 
     content = node.resolved_value.gsub(/^/, spaces)
-    content.gsub!(%r{^(\s*)//(.*)$}) {|md| "#{$1}/*#{$2} */"} if node.type == :silent
-    content.gsub!(/\n +(\* *(?!\/))?/, ' ') if (node.style == :compact || node.style == :compressed) && node.type != :loud
+    if node.type == :silent
+      content.gsub!(%r{^(\s*)//(.*)$}) {|md| "#{$1}/*#{$2} */"}
+    end
+    if (node.style == :compact || node.style == :compressed) && node.type != :loud
+      content.gsub!(/\n +(\* *(?!\/))?/, ' ')
+    end
     for_node(node) {output(content)}
   end
 
+  # @comment
+  #   rubocop:disable MethodLength
   def visit_directive(node)
     was_in_directive = @in_directive
     tab_str = '  ' * @tabs
@@ -224,6 +230,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
   ensure
     @in_directive = was_in_directive
   end
+  # @comment
+  #   rubocop:enable MethodLength
 
   def visit_media(node)
     with_tabs(@tabs + node.tabs) {visit_directive(node)}
@@ -244,7 +252,7 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     output(tab_str)
     for_node(node, :name) {output(node.resolved_name)}
     if node.style == :compressed
-      output(":");
+      output(":")
       for_node(node, :value) {output(node.resolved_value)}
     else
       output(": ")
@@ -253,17 +261,23 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
     end
   end
 
+  # @comment
+  #   rubocop:disable MethodLength
   def visit_rule(node)
     with_tabs(@tabs + node.tabs) do
       rule_separator = node.style == :compressed ? ',' : ', '
       line_separator =
         case node.style
-          when :nested, :expanded; "\n"
-          when :compressed; ""
-          else; " "
+        when :nested, :expanded; "\n"
+        when :compressed; ""
+        else; " "
         end
       rule_indent = '  ' * @tabs
-      per_rule_indent, total_indent = [:nested, :expanded].include?(node.style) ? [rule_indent, ''] : ['', rule_indent]
+      per_rule_indent, total_indent = if [:nested, :expanded].include?(node.style)
+                                        [rule_indent, '']
+                                      else
+                                        ['', rule_indent]
+                                      end
 
       joined_rules = node.resolved_rules.members.map do |seq|
         next if seq.has_placeholder?
@@ -293,13 +307,13 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
 
           if node.filename
             relative_filename = if node.options[:css_filename]
-              begin
-                Pathname.new(node.filename).relative_path_from(
-                  Pathname.new(File.dirname(node.options[:css_filename]))).to_s
-              rescue ArgumentError
-                nil
-              end
-            end
+                                  begin
+                                    Pathname.new(node.filename).relative_path_from(
+                                      Pathname.new(File.dirname(node.options[:css_filename]))).to_s
+                                  rescue ArgumentError
+                                    nil
+                                  end
+                                end
             relative_filename ||= node.filename
             output(", #{relative_filename}")
           end
@@ -335,6 +349,8 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       output("}" + trailer)
     end
   end
+  # @comment
+  #   rubocop:enable MethodLength
 
   private
 
@@ -355,7 +371,9 @@ class Sass::Tree::Visitors::ToCss < Sass::Tree::Visitors::Base
       rule << prop
       node << rule
     end
-    node.options = options.merge(:debug_info => false, :line_comments => false, :style => :compressed)
+    node.options = options.merge(:debug_info => false,
+                                 :line_comments => false,
+                                 :style => :compressed)
     node
   end
 end

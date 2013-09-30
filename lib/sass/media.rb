@@ -140,7 +140,7 @@ module Sass::Media
         type = t1
         mod = m1.empty? ? m2 : m1
       end
-      return Query.new([mod], [type], other.expressions + expressions)
+      Query.new([mod], [type], other.expressions + expressions)
     end
 
     # Returns the CSS for the media query.

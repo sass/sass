@@ -7,6 +7,7 @@ module Sass
     # parent references, nested selectors, and so forth.
     # It does support all the same CSS hacks as the SCSS parser, though.
     class CssParser < StaticParser
+
       private
 
       def placeholder_selector; nil; end
@@ -26,7 +27,7 @@ module Sass
       end
 
       def nested_properties!(node, space)
-        expected('expression (e.g. 1px, bold)');
+        expected('expression (e.g. 1px, bold)')
       end
 
       @sass_script_parser = Class.new(Sass::Script::CssParser)

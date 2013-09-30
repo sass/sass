@@ -1,5 +1,5 @@
 # Copyright (c) 2005-2013 David Heinemeier Hansson
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -7,10 +7,10 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -48,7 +48,7 @@ class OrderedHash < ::Hash
       return ordered_hash
     end
 
-    unless (args.size % 2 == 0)
+    unless args.size.even?
       raise ArgumentError.new("odd number of arguments for Hash")
     end
 
@@ -100,7 +100,7 @@ class OrderedHash < ::Hash
   end
 
   def values
-    @keys.collect { |key| self[key] }
+    @keys.map {|key| self[key]}
   end
 
   def to_hash
@@ -108,18 +108,18 @@ class OrderedHash < ::Hash
   end
 
   def to_a
-    @keys.map { |key| [ key, self[key] ] }
+    @keys.map {|key| [key, self[key]]}
   end
 
   def each_key
     return to_enum(:each_key) unless block_given?
-    @keys.each { |key| yield key }
+    @keys.each {|key| yield key}
     self
   end
 
   def each_value
     return to_enum(:each_value) unless block_given?
-    @keys.each { |key| yield self[key]}
+    @keys.each {|key| yield self[key]}
     self
   end
 
@@ -151,9 +151,9 @@ class OrderedHash < ::Hash
 
   def merge!(other_hash)
     if block_given?
-      other_hash.each { |k, v| self[k] = key?(k) ? yield(k, self[k], v) : v }
+      other_hash.each {|k, v| self[k] = key?(k) ? yield(k, self[k], v) : v}
     else
-      other_hash.each { |k, v| self[k] = v }
+      other_hash.each {|k, v| self[k] = v}
     end
     self
   end
@@ -164,7 +164,8 @@ class OrderedHash < ::Hash
     dup.merge!(other_hash, &block)
   end
 
-  # When replacing with another hash, the initial order of our keys must come from the other hash -ordered or not.
+  # When replacing with another hash, the initial order of our keys must come from the other hash --
+  # ordered or not.
   def replace(other)
     super
     @keys = other.keys
@@ -172,7 +173,7 @@ class OrderedHash < ::Hash
   end
 
   def invert
-    OrderedHash[self.to_a.map!{|key_value_pair| key_value_pair.reverse}]
+    OrderedHash[to_a.map! {|key_value_pair| key_value_pair.reverse}]
   end
 
   def inspect
@@ -180,7 +181,8 @@ class OrderedHash < ::Hash
   end
 
   private
-    def sync_keys!
-      @keys.delete_if {|k| !has_key?(k)}
-    end
+
+  def sync_keys!
+    @keys.delete_if {|k| !has_key?(k)}
+  end
 end

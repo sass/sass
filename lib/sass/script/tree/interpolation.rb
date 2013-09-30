@@ -31,7 +31,10 @@ module Sass::Script::Tree
     # @param wb [Boolean] See {Interpolation#whitespace_before}
     # @param wa [Boolean] See {Interpolation#whitespace_after}
     # @param originally_text [Boolean] See {Interpolation#originally_text}
+    # @comment
+    #   rubocop:disable ParameterLists
     def initialize(before, mid, after, wb, wa, originally_text = false)
+      # rubocop:enable ParameterLists
       @before = before
       @mid = mid
       @after = after
@@ -81,7 +84,8 @@ module Sass::Script::Tree
     # Evaluates the interpolation.
     #
     # @param environment [Sass::Environment] The environment in which to evaluate the SassScript
-    # @return [Sass::Script::Value::String] The SassScript string that is the value of the interpolation
+    # @return [Sass::Script::Value::String]
+    #   The SassScript string that is the value of the interpolation
     def _perform(environment)
       res = ""
       res << @before.perform(environment).to_s if @before

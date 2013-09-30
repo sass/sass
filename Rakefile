@@ -19,6 +19,26 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
+# ----- Code Style Enforcement -----
+
+if RUBY_VERSION !~ /^1.8/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
+  require 'rubocop/rake_task'
+  require "#{File.dirname(__FILE__)}/test/rubocop_extensions.rb"
+  Rubocop::RakeTask.new do |t|
+    t.patterns = FileList["lib/**/*"]
+  end
+else
+  task :rubocop do
+    puts "Skipping rubocop style check."
+    if !ENV.has_key?("RUBOCOP")
+      puts "Passing this check is required in order for your patch to be accepted."
+      puts "Use ruby 1.9 or greater and then run the style check with: rake rubocop"
+    end
+  end
+end
+
+task :test => :rubocop
+
 # ----- Packaging -----
 
 # Don't use Rake::GemPackageTast because we want prerequisites to run
@@ -191,7 +211,7 @@ begin
     task :undocumented do
       opts = ENV["YARD_OPTS"] || ""
       ENV["YARD_OPTS"] = opts.dup + <<OPTS
- --list --query "
+ --list --tag comment --hide-tag comment --query "
   object.docstring.blank? &&
   !(object.type == :method && object.is_alias?)"
 OPTS

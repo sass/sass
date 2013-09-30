@@ -21,7 +21,10 @@ module Sass
       # @param offset [Fixnum] The 1-based character (not byte) offset in the line on
       #   which the source string starts. Used for error reporting and sourcemap
       #   building.
+      # @comment
+      #   rubocop:disable ParameterLists
       def initialize(str, filename, importer, line = 1, offset = 1)
+        # rubocop:enable ParameterLists
         @template = str
         @filename = filename
         @importer = importer
@@ -84,7 +87,7 @@ module Sass
         Sass::Source::Position.new(@line, @offset)
       end
 
-      def range(start_pos, end_pos=source_position)
+      def range(start_pos, end_pos = source_position)
         Sass::Source::Range.new(start_pos, end_pos, @filename, @importer)
       end
 
@@ -132,21 +135,28 @@ module Sass
       end
 
       def process_comment(text, node)
-        silent = text =~ /^\/\//
+        silent = text =~ %r{^//}
         loud = !silent && text =~ %r{^/[/*]!}
         line = @line - text.count("\n")
 
         if silent
-          value = [text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */']
+          value = [text.sub(%r{^\s*//}, '/*').gsub(%r{^\s*//}, ' *') + ' */']
         else
-          value = Sass::Engine.parse_interp(text, line, @scanner.pos - text.size, :filename => @filename)
+          value = Sass::Engine.parse_interp(
+            text, line, @scanner.pos - text.size, :filename => @filename)
           value.unshift(@scanner.
             string[0...@scanner.pos].
             reverse[/.*?\*\/(.*?)($|\Z)/, 1].
             reverse.gsub(/[^\s]/, ' '))
         end
 
-        type = if silent then :silent elsif loud then :loud else :normal end
+        type = if silent
+                 :silent
+               elsif loud
+                 :loud
+               else
+                 :normal
+               end
         comment = Sass::Tree::CommentNode.new(value, type)
         comment.line = line
         node << comment
@@ -164,9 +174,9 @@ module Sass
         name = tok!(IDENT)
         ss
 
-        if dir = special_directive(name, start_pos)
+        if (dir = special_directive(name, start_pos))
           return dir
-        elsif dir = prefixed_directive(name, start_pos)
+        elsif (dir = prefixed_directive(name, start_pos))
           return dir
         end
 
@@ -211,7 +221,8 @@ module Sass
         name = tok! IDENT
         args, keywords, splat, kwarg_splat = sass_script(:parse_mixin_include_arglist)
         ss
-        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords, splat, kwarg_splat), start_pos)
+        include_node = node(
+          Sass::Tree::MixinNode.new(name, args, keywords, splat, kwarg_splat), start_pos)
         if tok?(/\{/)
           include_node.has_children = true
           block(include_node, :directive)
@@ -344,7 +355,7 @@ module Sass
           ss
         end
 
-        return values
+        values
       end
 
       def import_arg
@@ -361,7 +372,7 @@ module Sass
         ss
 
         media = media_query_list
-        if path =~ /^(https?:)?\/\// || media || use_css_import?
+        if path =~ %r{^(https?:)?//} || media || use_css_import?
           return node(Sass::Tree::CssImportNode.new(str, media.to_a), start_pos)
         end
 
@@ -376,7 +387,8 @@ module Sass
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
       def media_query_list
-        return unless query = media_query
+        query = media_query
+        return unless query
         queries = [query]
 
         ss
@@ -389,7 +401,7 @@ module Sass
       end
 
       def media_query
-        if ident1 = interp_ident
+        if (ident1 = interp_ident)
           ss
           ident2 = interp_ident
           ss
@@ -409,7 +421,8 @@ module Sass
         if query
           expr = expr!(:media_expr)
         else
-          return unless expr = media_expr
+          expr = media_expr
+          return unless expr
         end
         query ||= Sass::Media::Query.new([], [], [])
         query.expressions << expr
@@ -423,7 +436,8 @@ module Sass
       end
 
       def media_expr
-        interp = interpolation and return interp
+        interp = interpolation
+        return interp if interp
         return unless tok(/\(/)
         res = ['(']
         ss
@@ -457,25 +471,30 @@ module Sass
       def _moz_document_directive(start_pos)
         res = ["@-moz-document "]
         loop do
-          res << str{ss} << expr!(:moz_document_function)
-          break unless c = tok(/,/)
-          res << c
+          res << str {ss} << expr!(:moz_document_function)
+          if (c = tok(/,/))
+            res << c
+          else
+            break
+          end
         end
         directive_body(res.flatten, start_pos)
       end
 
       def moz_document_function
-        return unless val = interp_uri || _interp_string(:url_prefix) ||
+        val = interp_uri || _interp_string(:url_prefix) ||
           _interp_string(:domain) || function(!:allow_var) || interpolation
+        return unless val
         ss
         val
       end
 
       def at_root_directive(start_pos)
         at_root_node = node(Sass::Tree::AtRootNode.new, start_pos)
-        return block(at_root_node, :stylesheet) unless rule_node = ruleset
+        rule_node = ruleset
+        return block(at_root_node, :stylesheet) unless rule_node
         at_root_node << rule_node
-        return at_root_node
+        at_root_node
       end
 
       # http://www.w3.org/TR/css3-conditional/
@@ -502,20 +521,21 @@ module Sass
       end
 
       def supports_operator
-        return unless cond = supports_condition_in_parens
-        return cond unless op = tok(/and|or/i)
-        begin
+        cond = supports_condition_in_parens
+        return unless cond
+        while (op = tok(/and|or/i))
           ss
           cond = Sass::Supports::Operator.new(
             cond, expr!(:supports_condition_in_parens), op)
-        end while op = tok(/and|or/i)
+        end
         cond
       end
 
       def supports_condition_in_parens
-        interp = supports_interpolation and return interp
+        interp = supports_interpolation
+        return interp if interp
         return unless tok(/\(/); ss
-        if cond = supports_condition
+        if (cond = supports_condition)
           tok!(/\)/); ss
           cond
         else
@@ -533,7 +553,8 @@ module Sass
       end
 
       def supports_interpolation
-        return unless interp = interpolation
+        interp = interpolation
+        return unless interp
         ss
         Sass::Supports::Interpolation.new(interp)
       end
@@ -562,7 +583,8 @@ module Sass
         start_pos = source_position
         rules, source_range = selector_sequence
         return unless rules
-        block(node(Sass::Tree::RuleNode.new(rules.flatten.compact, source_range), start_pos), :ruleset)
+        block(node(
+          Sass::Tree::RuleNode.new(rules.flatten.compact, source_range), start_pos), :ruleset)
       end
 
       def block(node, context)
@@ -593,7 +615,7 @@ module Sass
       def has_children?(child_or_array)
         return false unless child_or_array
         return child_or_array.last.has_children if child_or_array.is_a?(Array)
-        return child_or_array.has_children
+        child_or_array.has_children
       end
 
       # This is a nasty hack, and the only place in the parser
@@ -632,18 +654,19 @@ module Sass
 
       def selector_sequence
         start_pos = source_position
-        if sel = tok(STATIC_SELECTOR, true)
+        if (sel = tok(STATIC_SELECTOR, true))
           return [sel], range(start_pos)
         end
 
         rules = []
-        return unless v = selector
+        v = selector
+        return unless v
         rules.concat v
 
         ws = ''
         while tok(/,/)
           ws << str {ss}
-          if v = selector
+          if (v = selector)
             rules << ',' << ws
             rules.concat v
             ws = ''
@@ -653,19 +676,23 @@ module Sass
       end
 
       def selector
-        return unless sel = _selector
+        sel = _selector
+        return unless sel
         sel.to_a
       end
 
       def selector_comma_sequence
-        return unless sel = _selector
+        sel = _selector
+        return unless sel
         selectors = [sel]
         ws = ''
         while tok(/,/)
-          ws << str{ss}
-          if sel = _selector
+          ws << str {ss}
+          if (sel = _selector)
             selectors << sel
-            selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
+            if ws.include?("\n")
+              selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
+            end
             ws = ''
           end
         end
@@ -674,15 +701,16 @@ module Sass
 
       def _selector
         # The combinator here allows the "> E" hack
-        return unless val = combinator || simple_selector_sequence
-        nl = str{ss}.include?("\n")
+        val = combinator || simple_selector_sequence
+        return unless val
+        nl = str {ss}.include?("\n")
         res = []
         res << val
         res << "\n" if nl
 
-        while val = combinator || simple_selector_sequence
+        while (val = combinator || simple_selector_sequence)
           res << val
-          res << "\n" if str{ss}.include?("\n")
+          res << "\n" if str {ss}.include?("\n")
         end
         Selector::Sequence.new(res.compact)
       end
@@ -707,21 +735,22 @@ module Sass
         # http://www.w3.org/TR/css3-animations/#keyframes-
 
         start_pos = source_position
-        return expr(!:allow_var) unless e = element_name || id_selector ||
+        e = element_name || id_selector ||
           class_selector || placeholder_selector || attrib || pseudo ||
           parent_selector || interpolation_selector
+        return expr(!:allow_var) unless e
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = id_selector || class_selector || placeholder_selector || attrib ||
-            pseudo || interpolation_selector ||
-            (tok(/\*/) && Selector::Universal.new(nil))
+        while (v = id_selector || class_selector || placeholder_selector ||
+                   attrib || pseudo || interpolation_selector ||
+                   (tok(/\*/) && Selector::Universal.new(nil)))
           res << v
         end
 
         pos = @scanner.pos
         line = @line
-        if sel = str? {simple_selector_sequence}
+        if (sel = str? {simple_selector_sequence})
           @scanner.pos = pos
           @line = line
           begin
@@ -772,8 +801,9 @@ module Sass
         end
       end
 
-      def qualified_name(allow_star_name=false)
-        return unless name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
+      def qualified_name(allow_star_name = false)
+        name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
+        return unless name
         return nil, name unless tok(/\|/)
 
         return name, expr!(:interp_ident) unless allow_star_name
@@ -782,8 +812,9 @@ module Sass
       end
 
       def interpolation_selector
-        return unless script = interpolation
-        Selector::Interpolation.new(script)
+        if (script = interpolation)
+          Selector::Interpolation.new(script)
+        end
       end
 
       def attrib
@@ -792,12 +823,13 @@ module Sass
         ns, name = attrib_name!
         ss
 
-        if op = tok(/=/) ||
-            tok(INCLUDES) ||
-            tok(DASHMATCH) ||
-            tok(PREFIXMATCH) ||
-            tok(SUFFIXMATCH) ||
-            tok(SUBSTRINGMATCH)
+        op = tok(/=/) ||
+             tok(INCLUDES) ||
+             tok(DASHMATCH) ||
+             tok(PREFIXMATCH) ||
+             tok(SUFFIXMATCH) ||
+             tok(SUBSTRINGMATCH)
+        if op
           @expected = "identifier or string"
           ss
           val = interp_ident || expr!(:interp_string)
@@ -810,7 +842,7 @@ module Sass
       end
 
       def attrib_name!
-        if name_or_ns = interp_ident
+        if (name_or_ns = interp_ident)
           # E, E|E
           if tok(/\|(?!=)/)
             ns = name_or_ns
@@ -828,14 +860,15 @@ module Sass
       end
 
       def pseudo
-        return unless s = tok(/::?/)
+        s = tok(/::?/)
+        return unless s
         @expected = "pseudoclass or pseudoelement"
         name = expr!(:interp_ident)
         if tok(/\(/)
           ss
           arg = expr!(:pseudo_arg)
           while tok(/,/)
-            arg << ',' << str{ss}
+            arg << ',' << str {ss}
             arg.concat expr!(:pseudo_arg)
           end
           tok!(/\)/)
@@ -866,16 +899,19 @@ module Sass
         return sel if sel
         rethrow pseudo_err if pseudo_err
         rethrow sel_err if sel_err
-        return
+        nil
+      end
+
+      def pseudo_expr_token
+        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || interp_string || tok(IDENT) || interpolation
       end
 
       def pseudo_expr
-        return unless e = tok(PLUS) || tok(/[-*]/) || tok(NUMBER) ||
-          interp_string || tok(IDENT) || interpolation
-        res = [e, str{ss}]
-        while e = tok(PLUS) || tok(/[-*]/) || tok(NUMBER) ||
-            interp_string || tok(IDENT) || interpolation
-          res << e << str{ss}
+        e = pseudo_expr_token
+        return unless e
+        res = [e, str {ss}]
+        while (e = pseudo_expr_token)
+          res << e << str {ss}
         end
         res
       end
@@ -883,14 +919,15 @@ module Sass
       def declaration
         # This allows the "*prop: val", ":prop: val", and ".prop: val" hacks
         name_start_pos = source_position
-        if s = tok(/[:\*\.]|\#(?!\{)/)
+        if (s = tok(/[:\*\.]|\#(?!\{)/))
           @use_property_exception = s !~ /[\.\#]/
-          name = [s, str{ss}, *expr!(:interp_ident)]
+          name = [s, str {ss}, *expr!(:interp_ident)]
         else
-          return unless name = interp_ident
+          name = interp_ident
+          return unless name
           name = [name] if name.is_a?(String)
         end
-        if comment = tok(COMMENT)
+        if (comment = tok(COMMENT))
           name << comment
         end
         name_end_pos = source_position
@@ -902,7 +939,8 @@ module Sass
         ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new), name_start_pos, value_end_pos)
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+                    name_start_pos, value_end_pos)
         node.name_source_range = range(name_start_pos, name_end_pos)
         node.value_source_range = range(value_start_pos, value_end_pos)
 
@@ -928,7 +966,7 @@ module Sass
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
-        if val = tok(STATIC_VALUE, true)
+        if (val = tok(STATIC_VALUE, true))
           str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(val.strip))
           str.line = start_pos.line
           str.source_range = range(start_pos)
@@ -949,18 +987,19 @@ MESSAGE
       end
 
       def expr(allow_var = true)
-        return unless t = term(allow_var)
-        res = [t, str{ss}]
+        t = term(allow_var)
+        return unless t
+        res = [t, str {ss}]
 
         while (o = operator) && (t = term(allow_var))
-          res << o << t << str{ss}
+          res << o << t << str {ss}
         end
 
         res.flatten
       end
 
       def term(allow_var)
-        if e = tok(NUMBER) ||
+        e = tok(NUMBER) ||
             interp_uri ||
             function(allow_var) ||
             interp_string ||
@@ -968,22 +1007,23 @@ MESSAGE
             interp_ident ||
             tok(HEXCOLOR) ||
             (allow_var && var_expr)
-          return e
-        end
+        return e if e
 
-        return unless op = tok(/[+-]/)
+        op = tok(/[+-]/)
+        return unless op
         @expected = "number or function"
-        return [op, tok(NUMBER) || function(allow_var) ||
-          (allow_var && var_expr) || expr!(:interpolation)]
+        [op,
+         tok(NUMBER) || function(allow_var) || (allow_var && var_expr) || expr!(:interpolation)]
       end
 
       def function(allow_var)
-        return unless name = tok(FUNCTION)
+        name = tok(FUNCTION)
+        return unless name
         if name == "expression(" || name == "calc("
           str, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
           [name, str]
         else
-          [name, str{ss}, expr(allow_var), tok!(/\)/)]
+          [name, str {ss}, expr(allow_var), tok!(/\)/)]
         end
       end
 
@@ -1009,7 +1049,8 @@ MESSAGE
       end
 
       def _interp_string(type)
-        return unless start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, false]])
+        start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, false]])
+        return unless start
         res = [start]
 
         mid_re = Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, true]]
@@ -1023,17 +1064,20 @@ MESSAGE
       end
 
       def interp_ident(start = IDENT)
-        return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
+        val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
+        return unless val
         res = [val]
-        while val = tok(NAME) || interpolation
+        while (val = tok(NAME) || interpolation)
           res << val
         end
         res
       end
 
       def interp_ident_or_var
-        (id = interp_ident) and return id
-        (var = var_expr) and return [var]
+        id = interp_ident
+        return id if id
+        var = var_expr
+        return [var] if var
       end
 
       def interp_name
@@ -1071,11 +1115,15 @@ MESSAGE
 
       @sass_script_parser = Class.new(Sass::Script::Parser)
       @sass_script_parser.send(:include, ScriptParser)
-      # @private
-      def self.sass_script_parser; @sass_script_parser; end
+
+      class << self
+        # @private
+        attr_accessor :sass_script_parser
+      end
 
       def sass_script(*args)
-        parser = self.class.sass_script_parser.new(@scanner, @line, @offset, :filename => @filename, :importer => @importer)
+        parser = self.class.sass_script_parser.new(@scanner, @line, @offset,
+                                                   :filename => @filename, :importer => @importer)
         result = parser.send(*args)
         unless @strs.empty?
           # Convert to CSS manually so that comments are ignored.
@@ -1121,12 +1169,14 @@ MESSAGE
       end
 
       def expr!(name)
-        (e = send(name)) && (return e)
+        e = send(name)
+        return e if e
         expected(EXPR_NAMES[name] || name.to_s)
       end
 
       def tok!(rx)
-        (t = tok(rx)) && (return t)
+        t = tok(rx)
+        return t if t
         name = TOK_NAMES[rx]
 
         unless name
