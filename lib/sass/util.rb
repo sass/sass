@@ -1029,7 +1029,6 @@ MSG
     def atomic_create_and_write_file(filename)
       require 'tempfile'
       tmpfile = Tempfile.new(File.basename(filename), File.dirname(filename))
-      tmp_path = tmpfile.path
       tmpfile.binmode if tmpfile.respond_to?(:binmode)
       result = yield tmpfile
       File.rename tmpfile.path, filename
