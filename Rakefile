@@ -21,7 +21,7 @@ end
 
 # ----- Code Style Enforcement -----
 
-if RUBY_VERSION !~ /^1.8/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
+if RUBY_VERSION !~ /^(1\.8|2\.1)/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
   require 'rubocop/rake_task'
   require "#{File.dirname(__FILE__)}/test/rubocop_extensions.rb"
   Rubocop::RakeTask.new do |t|

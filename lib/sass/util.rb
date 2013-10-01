@@ -1016,6 +1016,9 @@ MSG
       end
     end
 
+    # @private
+    ATOMIC_WRITE_MUTEX = Mutex.new
+
     # This creates a temp file and yields it for writing. When the
     # write is complete, the file is moved into the desired location.
     # The atomicity of this operation is provided by the filesystem's
@@ -1029,7 +1032,10 @@ MSG
       tmpfile = Tempfile.new(File.basename(filename), File.dirname(filename))
       tmpfile.binmode if tmpfile.respond_to?(:binmode)
       result = yield tmpfile
-      File.rename tmpfile.path, filename
+      tmpfile.close
+      ATOMIC_WRITE_MUTEX.synchronize do
+        File.rename tmpfile.path, filename
+      end
       result
     ensure
       # close and remove the tempfile if it still exists,
