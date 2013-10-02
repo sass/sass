@@ -2059,7 +2059,7 @@ module Sass::Script
     #   the current scope.
     def variable_exists(name)
       assert_type name, :String
-      Sass::Script::Value::Bool.new(environment.var(name.value))
+      Sass::Script::Value::Bool.new(environment.caller.var(name.value))
     end
     declare :variable_exists, [:name]
 

@@ -1457,6 +1457,8 @@ WARNING
 .test {
   false: false;
   true: true;
+  true: true;
+  true: true;
   true: true; }
 CSS
 $global-var: has-value;
@@ -1465,13 +1467,10 @@ $global-var: has-value;
   $foo: has-value;
   true: variable-exists(foo);
   true: variable-exists($name: foo);
-  true: variable-exists(global);
-  true: variable-exists($name: global);
+  true: variable-exists(global-var);
+  true: variable-exists($name: global-var);
 }
 SCSS
-    #assert_equal "false", evaluate("")
-    #assert_equal "true", evaluate("", env("foo" => Sass::Script::Value::Null.new))
-    #assert_equal "true", evaluate("", env("foo" => Sass::Script::Value::Null.new))
   end
 
   def test_global_variable_exists
@@ -1482,12 +1481,14 @@ SCSS
   true: true;
   true: true;
   false: false;
+  true: true;
   true: true; }
 CSS
 $g: something;
 $h: null;
 $false: global-variable-exists(foo);
 $true: global-variable-exists(g);
+$named: global-variable-exists($name: g);
 .test {
   $foo: locally-defined;
   false: global-variable-exists(foo);
@@ -1496,6 +1497,7 @@ $true: global-variable-exists(g);
   true: global-variable-exists(h);
   false: $false;
   true: $true;
+  true: $named;
 }
 SCSS
   end
