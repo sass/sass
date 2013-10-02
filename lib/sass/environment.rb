@@ -1,26 +1,82 @@
 require 'set'
 
 module Sass
-  # The lexical environment for SassScript.
-  # This keeps track of variable, mixin, and function definitions.
-  #
-  # A new environment is created for each level of Sass nesting.
-  # This allows variables to be lexically scoped.
-  # The new environment refers to the environment in the upper scope,
-  # so it has access to variables defined in enclosing scopes,
-  # but new variables are defined locally.
-  #
-  # Environment also keeps track of the {Engine} options
-  # so that they can be made available to {Sass::Script::Functions}.
-  class Environment
-    # The enclosing environment,
-    # or nil if this is the global environment.
-    #
-    # @return [Environment]
-    attr_reader :parent
+
+  # Provides class methods for declaring a class has hashes that inherit from a parent instance.
+  module HashInheritance
+    private
+    UNDERSCORE, DASH = '_', '-'
+
+    # Note: when updating this,
+    # update sass/yard/inherited_hash.rb as well.
+    def inherited_hash_accessor(name)
+      inherited_hash_reader(name)
+      inherited_hash_writer(name)
+    end
+
+    def inherited_hash_reader(name)
+      class_eval <<RUBY, __FILE__, __LINE__ + 1
+        def #{name}(name)
+          _#{name}(name.tr(UNDERSCORE, DASH))
+        end
+
+        def _#{name}(name)
+          (@#{name}s && @#{name}s[name]) || @parent && @parent._#{name}(name)
+        end
+        protected :_#{name}
+RUBY
+    end
+
+    def inherited_hash_writer(name)
+      class_eval <<RUBY, __FILE__, __LINE__ + 1
+        def set_#{name}(name, value)
+          name = name.tr(UNDERSCORE, DASH)
+          @#{name}s[name] = value unless try_set_#{name}(name, value)
+        end
+
+        def try_set_#{name}(name, value)
+          @#{name}s ||= {}
+          if @#{name}s.include?(name)
+            @#{name}s[name] = value
+            true
+          elsif @parent
+            @parent.try_set_#{name}(name, value)
+          else
+            false
+          end
+        end
+        protected :try_set_#{name}
+
+        def set_local_#{name}(name, value)
+          @#{name}s ||= {}
+          @#{name}s[name.tr(UNDERSCORE, DASH)] = value
+        end
+RUBY
+    end
+  end
+
+  # The base class for lexical environments for SassScript.
+  class BasicEnvironment
+    extend HashInheritance
+
+    # The options passed to the Sass Engine.
     attr_reader :options
+    # [Environment] The caller environment
     attr_writer :caller
+    # [Environment] The content environment
     attr_writer :content
+
+    # variable
+    # Script::Value
+    inherited_hash_reader :var
+
+    # mixin
+    # Sass::Callable
+    inherited_hash_reader :mixin
+
+    # function
+    # Sass::Callable
+    inherited_hash_reader :function
 
     # @param options [{Symbol => Object}] The options hash. See
     #   {file:SASS_REFERENCE.md#sass_options the Sass options documentation}.
@@ -36,7 +92,7 @@ module Sass
       @caller || (@parent && @parent.caller)
     end
 
-    # The content passed to this environmnet. This is naturally only set
+    # The content passed to this environment. This is naturally only set
     # for mixin body environments with content passed in.
     # @return {Environment?}
     def content
@@ -47,59 +103,62 @@ module Sass
       @global_env ||= parent.nil? ? self : parent.global_env
     end
 
-    private
+  end
 
-    class << self
-      private
-      UNDERSCORE, DASH = '_', '-'
+  # The lexical environment for SassScript.
+  # This keeps track of variable, mixin, and function definitions.
+  #
+  # A new environment is created for each level of Sass nesting.
+  # This allows variables to be lexically scoped.
+  # The new environment refers to the environment in the upper scope,
+  # so it has access to variables defined in enclosing scopes,
+  # but new variables are defined locally.
+  #
+  # Environment also keeps track of the {Engine} options
+  # so that they can be made available to {Sass::Script::Functions}.
+  class Environment < BasicEnvironment
+    # The enclosing environment,
+    # or nil if this is the global environment.
+    #
+    # @return [Environment]
+    attr_reader :parent
 
-      # Note: when updating this,
-      # update sass/yard/inherited_hash.rb as well.
-      def inherited_hash(name)
-        class_eval <<RUBY, __FILE__, __LINE__ + 1
-          def #{name}(name)
-            _#{name}(name.tr(UNDERSCORE, DASH))
-          end
-
-          def _#{name}(name)
-            (@#{name}s && @#{name}s[name]) || @parent && @parent._#{name}(name)
-          end
-          protected :_#{name}
-
-          def set_#{name}(name, value)
-            name = name.tr(UNDERSCORE, DASH)
-            @#{name}s[name] = value unless try_set_#{name}(name, value)
-          end
-
-          def try_set_#{name}(name, value)
-            @#{name}s ||= {}
-            if @#{name}s.include?(name)
-              @#{name}s[name] = value
-              true
-            elsif @parent
-              @parent.try_set_#{name}(name, value)
-            else
-              false
-            end
-          end
-          protected :try_set_#{name}
-
-          def set_local_#{name}(name, value)
-            @#{name}s ||= {}
-            @#{name}s[name.tr(UNDERSCORE, DASH)] = value
-          end
-RUBY
-      end
-    end
+    extend HashInheritance
 
     # variable
     # Script::Value
-    inherited_hash :var
+    inherited_hash_writer :var
+
     # mixin
     # Sass::Callable
-    inherited_hash :mixin
+    inherited_hash_writer :mixin
+
     # function
     # Sass::Callable
-    inherited_hash :function
+    inherited_hash_writer :function
+  end
+
+  # A read-only wrapper for a lexical environment for SassScript.
+  class ReadOnlyEnvironment < BasicEnvironment
+    # The read-only environment of the caller of this environment's mixin or function.
+    #
+    # @see BasicEnvironment#caller
+    # @return {ReadOnlyEnvironment}
+    def caller
+      return @caller if @caller
+      env = super
+      @caller ||= env.is_a?(ReadOnlyEnvironment) ? env : ReadOnlyEnvironment.new(env, env.options)
+    end
+
+    # The read-only content passed to this environment.
+    #
+    # @see BasicEnvironment#content
+    # @return {ReadOnlyEnvironment}
+    def content
+      return @content if @content
+      env = super
+      @content ||= env.is_a?(ReadOnlyEnvironment) ? env : ReadOnlyEnvironment.new(env, env.options)
+    end
+
   end
 end

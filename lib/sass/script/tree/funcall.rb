@@ -109,7 +109,7 @@ module Sass::Script::Tree
         opts(to_literal(args))
       else
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
-        local_environment.caller = environment
+        local_environment.caller = Sass::ReadOnlyEnvironment.new(environment, environment.options)
         opts(Sass::Script::Functions::EvaluationContext.new(local_environment).send(ruby_name, *args))
       end
     rescue ArgumentError => e
