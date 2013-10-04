@@ -296,9 +296,7 @@ module Sass
         raise Sass::SyntaxError.new(<<MESSAGE.rstrip) unless s.size == 4 || s.size == 7
 Colors must have either three or six digits: '#{s}'
 MESSAGE
-        value = s.scan(/^#(..?)(..?)(..?)$/).first.
-          map {|num| num.ljust(2, num).to_i(16)}
-        script_color = Script::Value::Color.new(value)
+        script_color = Script::Value::Color.from_hex(s)
         [:color, script_color]
       end
 
