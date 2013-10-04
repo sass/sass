@@ -4,6 +4,7 @@ require 'enumerator'
 require 'stringio'
 require 'rbconfig'
 require 'uri'
+require 'thread'
 
 require 'sass/root'
 require 'sass/util/subset_map'
