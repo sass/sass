@@ -1177,9 +1177,9 @@ module Sass::Script
       w1 = ((w * a == -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0
       w2 = 1 - w1
 
-      rgb = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
-      alpha = color_1.alpha * p + color_2.alpha * (1 - p)
-      rgb_color(*rgb, alpha)
+      rgba = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
+      rgba << color_1.alpha * p + color_2.alpha * (1 - p)
+      rgb_color(*rgba)
     end
     declare :mix, [:color_1, :color_2]
     declare :mix, [:color_1, :color_2, :weight]
