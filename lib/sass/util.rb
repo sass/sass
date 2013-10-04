@@ -3,6 +3,7 @@ require 'set'
 require 'enumerator'
 require 'stringio'
 require 'rbconfig'
+require 'thread'
 
 require 'sass/root'
 require 'sass/util/subset_map'
