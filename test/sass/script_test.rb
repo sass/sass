@@ -681,4 +681,8 @@ SASS
     assert_equal "-Infinity", eval("-1.0/0.0")
     assert_equal "NaN", eval("0.0/0.0")
   end
+
+  def test_null_is_a_singleton
+    assert_same Sass::Script::Value::Null.new, Sass::Script::Value::Null.new
+  end
 end

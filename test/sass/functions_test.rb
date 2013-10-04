@@ -163,7 +163,7 @@ class SassFunctionTest < Test::Unit::TestCase
   end
 
   def test_min
-    #assert_equal("1", evaluate("min(1, 2, 3)"))
+    assert_equal("1", evaluate("min(1, 2, 3)"))
     assert_equal("1", evaluate("min(3px, 2px, 1)"))
     assert_equal("4em", evaluate("min(4em)"))
     assert_equal("10cm", evaluate("min(10cm, 6in)"))
