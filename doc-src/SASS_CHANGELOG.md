@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.2.12 (Unreleased)
+
+* Add a couple missing `require`s, fixing some load errors, especially when
+  using the command-line interface.
+
 ## 3.2.11
 
 * Fix `@extend`'s semantics with respect to pseudo-elements. They are no longer
