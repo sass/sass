@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.12 (Unreleased)
+## 3.2.12
 
 * Add a couple missing `require`s, fixing some load errors, especially when
   using the command-line interface.
