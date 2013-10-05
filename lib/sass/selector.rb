@@ -120,7 +120,7 @@ module Sass
 
       # @see AbstractSequence#specificity
       def specificity
-        0
+        SPECIFICITY_BASE
       end
     end
 

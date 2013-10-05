@@ -8,6 +8,11 @@
 * Add a couple missing `require`s, fixing some load errors, especially when
   using the command-line interface.
 
+* Tune up some heuristics for eliminating redundant generated selectors. This
+  will prevent some selector elimination in cases where multi-layered `@extend`
+  is being used and where it seems intuitively like selectors shouldn't be
+  eliminated.
+
 ## 3.2.11
 
 * Fix `@extend`'s semantics with respect to pseudo-elements. They are no longer

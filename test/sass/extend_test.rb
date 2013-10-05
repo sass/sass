@@ -1207,6 +1207,27 @@ SCSS
     end
   end
 
+  def test_multiple_source_redundancy_elimination
+    assert_equal <<CSS, render(<<SCSS)
+.test-case, .test-case:active {
+  color: red; }
+
+.test-case:hover {
+  color: green; }
+CSS
+%default-color {color: red}
+%alt-color {color: green}
+
+%default-style {
+  @extend %default-color;
+  &:hover {@extend %alt-color}
+  &:active {@extend %default-color}
+}
+
+.test-case {@extend %default-style}
+SCSS
+  end
+
   def test_nested_sibling_extend
     assert_equal <<CSS, render(<<SCSS)
 .parent .bar, .parent .foo {
@@ -1397,22 +1418,22 @@ SCSS
 
   def test_extend_cross_branch_redundancy_elimination
     assert_equal <<CSS, render(<<SCSS)
-a c d, b c a d {
+.a .c .d, .b .c .a .d {
   a: b; }
 CSS
-%x c %y {a: b}
-a, b {@extend %x}
-a d {@extend %y}
+%x .c %y {a: b}
+.a, .b {@extend %x}
+.a .d {@extend %y}
 SCSS
 
     assert_equal <<CSS, render(<<SCSS)
-e a c d, a c e d, e b c a d, b c a e d {
+.e .a .c .d, .a .c .e .d, .e .b .c .a .d, .b .c .a .e .d {
   a: b; }
 CSS
-e %z {a: b}
-%x c %y {@extend %z}
-a, b {@extend %x}
-a d {@extend %y}
+.e %z {a: b}
+%x .c %y {@extend %z}
+.a, .b {@extend %x}
+.a .d {@extend %y}
 SCSS
   end
 
