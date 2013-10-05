@@ -2096,7 +2096,7 @@ module Sass::Script
     # @return [Sass::Script::Bool] Whether the function is defined.
     def function_exists(name)
       assert_type name, :String
-      exists = Sass::Script::Functions.callable?(name.value.tr("-","_"))
+      exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
       exists ||= environment.function(name.value)
       Sass::Script::Value::Bool.new(exists)
     end
