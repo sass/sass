@@ -7,6 +7,9 @@ BlockNesting:
 CharacterLiteral:
   # Character literals are pretty useful when working with text like we do.
   Enabled: false
+ClassLength:
+  # It's not worth bending over backwards to avoid long classes.
+  Enabled: false
 CollectionMethods:
   PreferredMethods:
     collect: 'map'
@@ -74,10 +77,14 @@ ParenthesesAroundCondition:
 PerlBackrefs:
   # We like perl backrefs.
   Enabled: false
+RaiseArgs:
+  # We prefer "raise Exception.new(msg)".
+  EnforcedStyle: compact
 ReduceArguments:
   # We prefer to name things well.
   Enabled: false
 RedundantReturn:
+  # We allow explicit returns for multiple return values.
   AllowMultipleReturnValues: true
 Semicolon:
   # Makes a good line separator
@@ -89,9 +96,9 @@ SingleLineMethods:
   # We like single line methods for simple methods.
   Enabled: false
 SpaceAroundBlockBraces:
-  NoSpaceBeforeBlockParameters: true
-  NoSpaceBeforeClosingCurly: true
-  NoSpaceAfterOpeningCurly: true
+  # We prefer "foo {|arg| body}".
+  EnforcedStyle: no_space_inside_braces
+  SpaceBeforeBlockParameters: false
 SpaceInsideHashLiteralBraces:
   EnforcedStyleIsWithSpaces: false
 StringLiterals:
