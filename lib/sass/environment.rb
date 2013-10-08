@@ -103,7 +103,7 @@ module Sass
     # @return [Selector::CommaSequence?] The current selector, with any
     #   nesting fully resolved.
     def selector
-      parent_selector = caller ? caller.selector : (@parent && @parent.selector)
+      parent_selector = @caller ? @caller.selector : (@parent && @parent.selector)
       return parent_selector unless @selector
       return @selector.resolve_parent_refs(parent_selector) if parent_selector
       @selector

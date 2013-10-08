@@ -2105,6 +2105,23 @@ CSS
 SCSS
   end
 
+  def test_at_root_with_at_root_through_mixin
+    assert_equal(<<CSS, render(<<SCSS))
+.bar-baz {
+  a: b; }
+CSS
+@mixin foo {
+  .bar {
+    @at-root \#{&}-baz {
+      a: b;
+    }
+  }
+}
+
+@include foo;
+SCSS
+  end
+
   ## Errors
 
   def test_nested_mixin_def_is_scoped
