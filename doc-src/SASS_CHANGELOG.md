@@ -260,6 +260,16 @@ maps instead.
   exposed by plugins must begin with a dash to distinguish them from
   official features.
 
+* It is now possible to determine the existence of different Sass
+  constructs using these new functions:
+
+  * `variable-exists($name)` checks if a variable resolves in the
+    current scope.
+  * `global-variable-exists($name)` checks if a global variable of the
+    given name exists.
+  * `function-exists($name)` checks if a function exists.
+  * `mixin-exists($name)` checks if a mixin exists.
+
 * You can call a function by name by passing the function name to the
   call function. For example, `call(nth, a b c, 2)` returns `b`.
 

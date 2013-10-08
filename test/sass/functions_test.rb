@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(__FILE__) + '/test_helper'
 require 'sass/script'
+require 'mock_importer'
 
 module Sass::Script::Functions
   def no_kw_args
@@ -1450,6 +1452,100 @@ WARNING
     assert_error_message "$color: 3px is not a color for `lighten'", "call(lighten, 3px, 5%)"
   end
 
+  def test_variable_exists
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  false: false;
+  true: true;
+  true: true;
+  true: true;
+  true: true; }
+CSS
+$global-var: has-value;
+.test {
+  false: variable-exists(foo);
+  $foo: has-value;
+  true: variable-exists(foo);
+  true: variable-exists($name: foo);
+  true: variable-exists(global-var);
+  true: variable-exists($name: global-var);
+}
+SCSS
+  end
+
+  def test_global_variable_exists
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  false: false;
+  false: false;
+  true: true;
+  true: true;
+  false: false;
+  true: true;
+  true: true; }
+CSS
+$g: something;
+$h: null;
+$false: global-variable-exists(foo);
+$true: global-variable-exists(g);
+$named: global-variable-exists($name: g);
+.test {
+  $foo: locally-defined;
+  false: global-variable-exists(foo);
+  false: global-variable-exists(foo2);
+  true: global-variable-exists(g);
+  true: global-variable-exists(h);
+  false: $false;
+  true: $true;
+  true: $named;
+}
+SCSS
+  end
+
+  def test_function_exists
+    # built-ins
+    assert_equal "true", evaluate("function-exists(lighten)")
+    # with named argument
+    assert_equal "true", evaluate("function-exists($name: lighten)")
+    # user-defined
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  foo-exists: true;
+  bar-exists: false; }
+CSS
+@function foo() { @return "foo" }
+.test {
+  foo-exists: function-exists(foo);
+  bar-exists: function-exists(bar);
+}
+SCSS
+  end
+
+  def test_mixin_exists
+    assert_equal "false", evaluate("mixin-exists(foo)")
+    # with named argument
+    assert_equal "false", evaluate("mixin-exists($name: foo)")
+    assert_equal <<CSS, render(<<SCSS)
+.test {
+  foo-exists: true;
+  bar-exists: false; }
+CSS
+@mixin foo() { foo: exists }
+.test {
+  foo-exists: mixin-exists(foo);
+  bar-exists: mixin-exists(bar);
+}
+SCSS
+  end
+
+  def test_existence_functions_check_argument_type
+    assert_error_message("2px is not a string for `function-exists'", "function-exists(2px)")
+    assert_error_message("2px is not a string for `mixin-exists'", "mixin-exists(2px)")
+    assert_error_message("2px is not a string for `global-variable-exists'", "global-variable-exists(2px)")
+    assert_error_message("2px is not a string for `variable-exists'", "variable-exists(2px)")
+  end
+
+
   ## Regression Tests
 
   def test_saturation_bounds
@@ -1457,8 +1553,8 @@ WARNING
   end
 
   private
-  def env(hash = {})
-    env = Sass::Environment.new
+  def env(hash = {}, parent = nil)
+    env = Sass::Environment.new(parent)
     hash.each {|k, v| env.set_var(k, v)}
     env
   end
@@ -1471,6 +1567,13 @@ WARNING
 
   def perform(value, environment = env)
     Sass::Script::Parser.parse(value, 0, 0).perform(environment)
+  end
+
+  def render(sass, options = {})
+    options[:syntax] ||= :scss
+    munge_filename options
+    options[:importer] ||= MockImporter.new
+    Sass::Engine.new(sass, options).render
   end
 
   def assert_error_message(message, value)

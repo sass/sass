@@ -207,6 +207,18 @@ module Sass::Script
   # \{#feature_exists feature-exists($feature)}
   # : Returns whether a feature exists in the current Sass runtime.
   #
+  # \{#variable_exists variable-exists($name)}
+  # : Returns whether a variable with the given name exists in the current scope.
+  #
+  # \{#global_variable_exists global-variable-exists($name)}
+  # : Returns whether a variable with the given name exists in the global scope.
+  #
+  # \{#function_exists function-exists($name)}
+  # : Returns whether a function with the given name exists.
+  #
+  # \{#mixin_exists mixin-exists($name)}
+  # : Returns whether a mixin with the given name exists.
+  #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
@@ -2032,6 +2044,79 @@ module Sass::Script
       Sass::Script::String.new("counters(#{args.map {|a| a.to_s(options)}.join(',')})")
     end
     declare :counters, [], :var_args => true
+
+    # Check whether a variable with the given name exists in the current
+    # scope or in the global scope.
+    #
+    # @example
+    #   $a-false-value: false;
+    #   variable-exists(a-false-value) => true
+    #
+    #   variable-exists(nonexistent) => false
+    # @param name [Sass::Script::String] The name of the variable to
+    #   check. The name should not include the `$`.
+    # @return [Sass::Script::Bool] Whether the variable is defined in
+    #   the current scope.
+    def variable_exists(name)
+      assert_type name, :String
+      Sass::Script::Value::Bool.new(environment.caller.var(name.value))
+    end
+    declare :variable_exists, [:name]
+
+    # Check whether a variable with the given name exists in the global
+    # scope (at the top level of the file).
+    #
+    # @example
+    #   $a-false-value: false;
+    #   global-variable-exists(a-false-value) => true
+    #
+    #   .foo {
+    #     $some-var: false;
+    #     @if global-variable-exists(some-var) { /* false, doesn't run */ }
+    #   }
+    # @param name [Sass::Script::String] The name of the variable to
+    #   check.  The name should not include the `$`.
+    # @return [Sass::Script::Bool] Whether the variable is defined in
+    #   the global scope.
+    def global_variable_exists(name)
+      assert_type name, :String
+      Sass::Script::Value::Bool.new(environment.global_env.var(name.value))
+    end
+    declare :global_variable_exists, [:name]
+
+    # Check whether a function with the given name exists.
+    #
+    # @example
+    #   function-exists(lighten) => true
+    #
+    #   @function myfunc { @return "something"; }
+    #   function-exists(myfunc) => true
+    # @param name [Sass::Script::String] The name of the function to
+    #   check.
+    # @return [Sass::Script::Bool] Whether the function is defined.
+    def function_exists(name)
+      assert_type name, :String
+      exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
+      exists ||= environment.function(name.value)
+      Sass::Script::Value::Bool.new(exists)
+    end
+    declare :function_exists, [:name]
+
+    # Check whether a mixin with the given name exists.
+    #
+    # @example
+    #   mixin-exists(nonexistent) => false
+    #
+    #   @mixin red-text { color: red; }
+    #   mixin-exists(red-text) => true
+    # @param name [Sass::Script::String] The name of the mixin to
+    #   check.
+    # @return [Sass::Script::Bool] Whether the mixin is defined.
+    def mixin_exists(name)
+      assert_type name, :String
+      Sass::Script::Value::Bool.new(environment.mixin(name.value))
+    end
+    declare :mixin_exists, [:name]
 
     private
 
