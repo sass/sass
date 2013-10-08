@@ -394,7 +394,10 @@ module Sass::Script
       # name.
       TYPE_NAMES = {:ArgList => 'variable argument list'}
 
-      # The global environment.
+      # The environment for this function. This environment's
+      # {Environment#parent} is the global environment, and its
+      # {Environment#caller} is a read-only view of the local environment of the
+      # caller of this function.
       #
       # @return [Environment]
       attr_reader :environment
