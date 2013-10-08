@@ -1655,7 +1655,7 @@ module Sass::Script
     #
     # @example
     #   set-nth($list: 10px 20px 30px, $n: 2, $value: -20px) => 10px -20px 30px
-    # @overload nth($list, $n, $value)
+    # @overload set-nth($list, $n, $value)
     # @param $list [Sass::Script::Value::Base] The list that will be copied, having the element
     #   at index `$n` changed.
     # @param $n [Sass::Script::Value::Number] The index of the item to set.
@@ -1904,8 +1904,8 @@ module Sass::Script
     # values, if multiple keys have the same value.
     #
     # @example
-    #   map-keys(("foo": 1, "bar": 2)) => 1, 2
-    #   map-keys(("foo": 1, "bar": 2, "baz": 1)) => 1, 2, 1
+    #   map-values(("foo": 1, "bar": 2)) => 1, 2
+    #   map-values(("foo": 1, "bar": 2, "baz": 1)) => 1, 2, 1
     # @overload map_values($map)
     # @param $map [Map]
     # @return [List] the list of values, comma-separated
