@@ -1296,7 +1296,7 @@ module Sass::Script
     # @example
     #   str-insert("abcd", "X", 1) => "Xabcd"
     #   str-insert("abcd", "X", 4) => "abcXd"
-    #   str-insert("abcd", "X", 5) => "abcXd"
+    #   str-insert("abcd", "X", 5) => "abcdX"
     #
     # @overload str_insert($string, $insert, $index)
     # @param $string [Sass::Script::Value::String]
