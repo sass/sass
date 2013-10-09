@@ -18,9 +18,12 @@ module Sass
       # handling commas appropriately.
       #
       # @param super_cseq [CommaSequence] The parent selector
+      # @param implicit_parent [Boolean] Whether the the parent
+      #   selector should automatically be prepended to the resolved
+      #   selector if it contains no parent refs.
       # @return [CommaSequence] This selector, with parent references resolved
       # @raise [Sass::SyntaxError] If a parent selector is invalid
-      def resolve_parent_refs(super_cseq)
+      def resolve_parent_refs(super_cseq, implicit_parent = true)
         if super_cseq.nil?
           if @members.any? do |sel|
                sel.members.any? do |sel_or_op|
@@ -36,7 +39,7 @@ module Sass
 
         CommaSequence.new(
           super_cseq.members.map do |super_seq|
-            @members.map {|seq| seq.resolve_parent_refs(super_seq)}
+            @members.map {|seq| seq.resolve_parent_refs(super_seq, implicit_parent)}
           end.flatten)
       end
 

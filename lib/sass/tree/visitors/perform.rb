@@ -330,7 +330,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
       self.class.perform_arguments(mixin, args, keywords, splat) do |env|
         env.caller = Sass::Environment.new(@environment)
-        env.content = node.children if node.has_children
+        env.content = [node.children, @environment] if node.has_children
 
         trace_node = Sass::Tree::TraceNode.from_node(node.name, node)
         with_environment(env) {trace_node.children = mixin.tree.map {|c| visit(c)}.flatten}
@@ -346,11 +346,13 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   end
 
   def visit_content(node)
-    content = @environment.content
+    content, content_env = @environment.content
     return [] unless content
     @environment.stack.with_mixin(node.filename, node.line, '@content') do
       trace_node = Sass::Tree::TraceNode.from_node('@content', node)
-      with_environment(@environment.caller) do
+      content_env = Sass::Environment.new(content_env)
+      content_env.caller = Sass::Environment.new(@environment)
+      with_environment(content_env) do
         trace_node.children = content.map {|c| visit(c.dup)}.flatten
       end
       trace_node
@@ -378,15 +380,28 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
+    old_at_root, @at_root = @at_root, false
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
       node.filename, node.options[:importer], node.line)
     node.parsed_rules ||= parser.parse_selector
+    node.resolved_rules = node.parsed_rules.resolve_parent_refs(@environment.selector, !old_at_root)
     node.stack_trace = @environment.stack.to_s if node.options[:trace_selectors]
     with_environment Sass::Environment.new(@environment, node.options) do
-      @environment.selector = node.parsed_rules
+      @environment.selector = node.resolved_rules
       node.children = node.children.map {|c| visit(c)}.flatten
     end
     node
+  ensure
+    @at_root = old_at_root
+  end
+
+  # Sets a variable that indicates that the first level of rule nodes
+  # shouldn't include the parent selector by default.
+  def visit_atroot(node)
+    old_at_root, @at_root = @at_root, true
+    yield.children
+  ensure
+    @at_root = old_at_root
   end
 
   # Loads the new variable value into the environment.
@@ -424,7 +439,11 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
   def visit_directive(node)
     node.resolved_value = run_interp(node.value)
-    yield
+    with_environment Sass::Environment.new(@environment) do
+      @environment.no_selector!
+      node.children = node.children.map {|c| visit(c)}.flatten
+      node
+    end
   end
 
   def visit_media(node)
