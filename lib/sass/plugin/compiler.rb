@@ -281,13 +281,8 @@ module Sass::Plugin
       # https://github.com/nex3/sass/commit/a3031856b22bc834a5417dedecb038b7be9b9e3e
       listener.force_polling(true) if @options[:poll] || Sass::Util.windows?
 
-      # rubocop:disable RescueException
-      begin
-        listener.start!
-      rescue Exception => e
-        raise e unless e.is_a?(Interrupt)
-      end
-      # rubocop:enable RescueException
+      listener.start
+      listener.thread.join
     end
 
     # Non-destructively modifies \{#options} so that default values are properly set,
@@ -310,7 +305,7 @@ module Sass::Plugin
 
     def create_listener(*args, &block)
       require 'listen'
-      Listen::Listener.new(*args, &block)
+      Listen.to(*args, &block)
     end
 
     def remove_redundant_directories(directories)
