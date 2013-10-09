@@ -16,18 +16,17 @@ module Sass::Tree
     # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :rule
 
-    # The CSS selector for this rule,
-    # without any unresolved interpolation
-    # but with parent references still intact.
-    # It's only set once {Tree::Visitors::Perform} has been run.
-    #
+    # The CSS selector for this rule, without any unresolved
+    # interpolation but with parent references still intact. It's only
+    # guaranteed to be set once {Tree::Visitors::Perform} has been
+    # run, but it may be set before then for optimization reasons.
     #
     # @return [Selector::CommaSequence]
     attr_accessor :parsed_rules
 
-    # The CSS selector for this rule,
-    # without any unresolved interpolation or parent references.
-    # It's only set once {Tree::Visitors::Cssize} has been run.
+    # The CSS selector for this rule, without any unresolved
+    # interpolation or parent references. It's only set once
+    # {Tree::Visitors::Perform} has been run.
     #
     # @return [Selector::CommaSequence]
     attr_accessor :resolved_rules
