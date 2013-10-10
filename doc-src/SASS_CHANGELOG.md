@@ -286,6 +286,9 @@ maps instead.
 * There is a new {Sass::Script::Value::Helpers convenience API} for creating
   Sass values from within ruby extensions.
 
+* The `if()` function now only evaluates the argument corresponding to
+  the value of the first argument.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
