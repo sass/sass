@@ -284,6 +284,7 @@ module Sass::Plugin
 
       listener.start
       listener.thread.join
+      listener.stop # Partially work around guard/listen#146
     end
 
     # Non-destructively modifies \{#options} so that default values are properly set,
