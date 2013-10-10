@@ -1958,6 +1958,51 @@ CSS
 SCSS
   end
 
+  def test_at_root_with_parent_ref
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: b; }
+CSS
+.foo {
+  @at-root & {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_multi_level_at_root_with_parent_ref
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar {
+  a: b; }
+CSS
+.foo {
+  @at-root & {
+    .bar {
+      @at-root & {
+        a: b;
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_multi_level_at_root_with_inner_parent_ref
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root .bar {
+    @at-root & {
+      a: b;
+    }
+  }
+}
+SCSS
+  end
+
   ## Selector Script
 
   def test_selector_script
@@ -2100,6 +2145,21 @@ CSS
 .foo {
   @at-root \#{&}-bar {
     a: b;
+  }
+}
+SCSS
+  end
+
+  def test_multi_level_at_root_with_inner_selector_script
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root .bar {
+    @at-root \#{&} {
+      a: b;
+    }
   }
 }
 SCSS

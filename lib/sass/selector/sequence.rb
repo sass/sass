@@ -44,14 +44,20 @@ module Sass
       # handling commas appropriately.
       #
       # @param super_seq [Sequence] The parent selector sequence
+      # @param implicit_parent [Boolean] Whether the the parent
+      #   selector should automatically be prepended to the resolved
+      #   selector if it contains no parent refs.
       # @return [Sequence] This selector, with parent references resolved
       # @raise [Sass::SyntaxError] If a parent selector is invalid
-      def resolve_parent_refs(super_seq)
+      def resolve_parent_refs(super_seq, implicit_parent)
         members = @members.dup
         nl = (members.first == "\n" && members.shift)
-        unless members.any? do |seq_or_op|
-                 seq_or_op.is_a?(SimpleSequence) && seq_or_op.members.first.is_a?(Parent)
-               end
+        contains_parent_ref = members.any? do |seq_or_op|
+          seq_or_op.is_a?(SimpleSequence) && seq_or_op.members.first.is_a?(Parent)
+        end
+        return self if !implicit_parent && !contains_parent_ref
+
+        unless contains_parent_ref
           old_members, members = members, []
           members << nl if nl
           members << SimpleSequence.new([Parent.new], false)
