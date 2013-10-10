@@ -70,11 +70,10 @@ module Sass
 
       OPERATORS_REVERSE = Sass::Util.map_hash(OPERATORS) {|k, v| [v, k]}
 
-      TOKEN_NAMES = Sass::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge({
+      TOKEN_NAMES = Sass::Util.map_hash(OPERATORS_REVERSE) {|k, v| [k, v.inspect]}.merge(
           :const => "variable (e.g. $foo)",
           :ident => "identifier (e.g. middle)",
-          :bool => "boolean (e.g. true, false)",
-        })
+          :bool => "boolean (e.g. true, false)")
 
       # A list of operator strings ordered with longer names first
       # so that `>` and `<` don't clobber `>=` and `<=`.

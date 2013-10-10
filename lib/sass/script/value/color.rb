@@ -17,7 +17,7 @@ module Sass::Script::Value
     class << self; include Sass::Util; end
 
     # A hash from color names to `[red, green, blue]` value arrays.
-    COLOR_NAMES = map_vals({
+    COLOR_NAMES = map_vals(
         'aliceblue'            => 0xF0F8FFFF,
         'antiquewhite'         => 0xFAEBD7FF,
         'aqua'                 => 0x00FFFFFF,
@@ -166,7 +166,7 @@ module Sass::Script::Value
         'whitesmoke'           => 0xF5F5F5FF,
         'yellow'               => 0xFFFF00FF,
         'yellowgreen'          => 0x9ACD32FF
-      }) do |color|
+      ) do |color|
         rgba = (0..3).map {|n| color >> (n << 3) & 0xff}.reverse
         rgba[-1] = rgba[-1] / 255.0
         rgba
