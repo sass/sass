@@ -1074,6 +1074,108 @@ CSS
 SCSS
   end
 
+  def test_mixin_splat_after_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3; }
+CSS
+@mixin foo($a, $b, $c) {
+  a: 1;
+  b: 2;
+  c: 3;
+}
+
+.foo {
+  @include foo(1, $c: 3, 2...);
+}
+SCSS
+  end
+
+  def test_mixin_keyword_args_after_splat
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3; }
+CSS
+@mixin foo($a, $b, $c) {
+  a: 1;
+  b: 2;
+  c: 3;
+}
+
+.foo {
+  @include foo(1, 2..., $c: 3);
+}
+SCSS
+  end
+
+  def test_mixin_keyword_splat_after_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1;
+  b: 2;
+  c: 3; }
+CSS
+@mixin foo($a, $b, $c) {
+  a: 1;
+  b: 2;
+  c: 3;
+}
+
+.foo {
+  @include foo(1, $b: 2, (c: 3)...);
+}
+SCSS
+  end
+
+  def test_mixin_triple_keyword_splat_merge
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  foo: 1;
+  bar: 2;
+  kwarg: 3;
+  a: 3;
+  b: 2;
+  c: 3; }
+CSS
+@mixin foo($foo, $bar, $kwarg, $a, $b, $c) {
+  foo: $foo;
+  bar: $bar;
+  kwarg: $kwarg;
+  a: $a;
+  b: $b;
+  c: $c;
+}
+
+@mixin bar($args...) {
+  @include foo($args..., $bar: 2, $a: 2, $b: 2, (kwarg: 3, a: 3, c: 3)...);
+}
+
+.foo {
+  @include bar($foo: 1, $a: 1, $b: 1, $c: 1);
+}
+SCSS
+  end
+
+  def test_mixin_conflicting_splat_after_keyword_args
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Mixin foo was passed argument $b both by position and by name.
+MESSAGE
+@mixin foo($a, $b, $c) {
+  a: 1;
+  b: 2;
+  c: 3;
+}
+
+.foo {
+  @include foo(1, $b: 2, 3...);
+}
+SCSS
+  end
+
   def test_mixin_keyword_splat_must_have_string_keys
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render <<SCSS}
 Variable keyword argument map must have string keys.
@@ -1084,6 +1186,22 @@ MESSAGE
 }
 
 .foo {@include foo((12: 1)...)}
+SCSS
+  end
+
+  def test_mixin_positional_arg_after_splat
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Only keyword arguments may follow variable arguments (...).
+MESSAGE
+@mixin foo($a, $b, $c) {
+  a: 1;
+  b: 2;
+  c: 3;
+}
+
+.foo {
+  @include foo(1, 2..., 3);
+}
 SCSS
   end
 
@@ -1393,6 +1511,98 @@ CSS
 
 .foo {
   val: foo((a 1, b 2, c 3)...);
+}
+SCSS
+  end
+
+  def test_function_splat_after_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: 3"; }
+CSS
+@function foo($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  val: foo(1, $c: 3, 2...);
+}
+SCSS
+  end
+
+  def test_function_keyword_args_after_splat
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: 3"; }
+CSS
+@function foo($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  val: foo(1, 2..., $c: 3);
+}
+SCSS
+  end
+
+  def test_function_keyword_splat_after_keyword_args
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "a: 1, b: 2, c: 3"; }
+CSS
+@function foo($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  val: foo(1, $b: 2, (c: 3)...);
+}
+SCSS
+  end
+
+  def test_function_triple_keyword_splat_merge
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  val: "foo: 1, bar: 2, kwarg: 3, a: 3, b: 2, c: 3"; }
+CSS
+@function foo($foo, $bar, $kwarg, $a, $b, $c) {
+  @return "foo: \#{$foo}, bar: \#{$bar}, kwarg: \#{$kwarg}, a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+@function bar($args...) {
+  @return foo($args..., $bar: 2, $a: 2, $b: 2, (kwarg: 3, a: 3, c: 3)...);
+}
+
+.foo {
+  val: bar($foo: 1, $a: 1, $b: 1, $c: 1);
+}
+SCSS
+  end
+
+  def test_function_conflicting_splat_after_keyword_args
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Function foo was passed argument $b both by position and by name.
+MESSAGE
+@function foo($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  val: foo(1, $b: 2, 3...);
+}
+SCSS
+  end
+
+  def test_function_positional_arg_after_splat
+    assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
+Only keyword arguments may follow variable arguments (...).
+MESSAGE
+@function foo($a, $b, $c) {
+  @return "a: \#{$a}, b: \#{$b}, c: \#{$c}";
+}
+
+.foo {
+  val: foo(1, 2..., 3);
 }
 SCSS
   end
