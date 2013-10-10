@@ -119,9 +119,12 @@ module Sass::Script::Tree
     # @return [Sass::Script::Value] The SassScript object that is the value of the function call
     # @raise [Sass::SyntaxError] if the function call raises an ArgumentError
     def _perform(environment)
-      args = @args.map {|a| a.perform(environment)}
+      args = Sass::Util.enum_with_index(@args).
+        map {|a, i| perform_arg(a, environment, signature && signature.args[i])}
       splat = Sass::Tree::Visitors::Perform.perform_splat(@splat, @kwarg_splat, environment)
-      keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
+      keywords = Sass::Util.map_hash(@keywords) do |k, v|
+        [k, perform_arg(v, environment, k.tr('-', '_'))]
+      end
       if (fn = environment.function(@name))
         return perform_sass_fn(fn, args, keywords, splat, environment)
       end
@@ -202,6 +205,15 @@ module Sass::Script::Tree
     end
 
     private
+
+    def perform_arg(argument, environment, name)
+      return argument if signature && signature.delayed_args.include?(name)
+      argument.perform(environment)
+    end
+
+    def signature
+      @signature ||= Sass::Script::Functions.signature(name.to_sym, @args.size, @keywords.size)
+    end
 
     def construct_ruby_args(name, args, keywords, splat, environment)
       args += splat.to_a if splat

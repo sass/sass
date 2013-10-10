@@ -1842,17 +1842,26 @@ Usage Example:
       position: relative; left: $x; top: $y;
     }
 
-## Control Directives
+## Control Directives & Expressions
 
 SassScript supports basic control directives
-for including styles only under some conditions
+and expressions for including styles only under some conditions
 or including the same style several times with variations.
 
-**Note that control directives are an advanced feature,
-and are not recommended in the course of day-to-day styling**.
-They exist mainly for use in [mixins](#mixins),
-particularly those that are part of libraries like [Compass](http://compass-style.org),
-and so require substantial flexibility.
+**Note:** Control directives are an advanced feature, and are uncommon
+ in day-to-day styling.  They exist mainly for use in [mixins](#mixins),
+particularly those that are part of libraries like
+[Compass](http://compass-style.org), and so require substantial
+flexibility.
+
+### `if()`
+
+The builtin `if()` function allows you to branch on a condition and
+returns only one of two possible outcomes. It can be used in any script
+context. The `if` function only evaluates the argument corresponding to
+the one that it will return -- this allows you to refer to variables
+that may not be defined or to have calculations that would otherwise
+cause an error (E.g. divide by zero).
 
 ### `@if`
 
