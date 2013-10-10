@@ -44,6 +44,9 @@ class CompilerTest < Test::Unit::TestCase
       @thread = Thread.new {@run_during_start.call(self) if @run_during_start}
     end
 
+    def stop
+    end
+
     def reset_events!
       @modified = []
       @added = []
