@@ -294,6 +294,16 @@ Available options are:
   with a constructor that takes a single string argument (the load path).
   Defaults to {Sass::Importers::Filesystem}.
 
+{#sourcemap-option} `:sourcemap`
+: When set to true, causes Sass to generate standard JSON [source maps][]
+  alongside its compiled CSS files. These source maps tell the browser how to
+  find the Sass styles that caused each CSS style to be generated. Sass assumes
+  that the source stylesheets will be made available on whatever server you're
+  using, and that their relative location will be the same as it is on the local
+  filesystem. If this isn't the case, you'll need to make a custom class that
+  extends \{Sass::Importers::Base} or \{Sass::Importers::Filesystem} and
+  overrides \{Sass::Importers::Base#public\_url `#public_url`}.
+
 {#line_numbers-option} `:line_numbers`
 : When set to true, causes the line number and file
   where a selector is defined to be emitted into the compiled CSS
@@ -325,6 +335,8 @@ Available options are:
 
 {#quiet-option} `:quiet`
 : When set to true, causes warnings to be disabled.
+
+[source maps]: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?hl=en_US&pli=1&pli=1
 
 ### Syntax Selection
 
@@ -430,7 +442,7 @@ is compiled to:
       #main pre {
         font-size: 3em; }
 
-### Referencing Parent Selectors: `&`
+### Referencing Parent Selectors: `&` {#parent-selector}
 
 Sometimes it's useful to use a nested rule's parent selector
 in other ways than the default.
@@ -638,6 +650,7 @@ SassScript supports six main data types:
 * booleans (e.g. `true`, `false`)
 * nulls (e.g. `null`)
 * lists of values, separated by spaces or commas (e.g. `1.5em 1em 0 2em`, `Helvetica, Arial, sans-serif`)
+* maps from one value to another (e.g. `(key1: value1, key2: value2)`)
 
 SassScript also supports all other types of CSS property value,
 such as Unicode ranges and `!important` declarations.
@@ -684,12 +697,12 @@ Lists are just a series of other values, separated by either spaces or commas.
 In fact, individual values count as lists, too: they're just lists with one item.
 
 On their own, lists don't do much,
-but the [Sass list functions](Sass/Script/Functions.html#list-functions)
+but the [SassScript list functions](Sass/Script/Functions.html#list-functions)
 make them useful.
-The {Sass::Script::Functions#nth nth function} can access items in a list,
-the {Sass::Script::Functions#join join function} can join multiple lists together,
-and the {Sass::Script::Functions#append append function} can add items to lists.
-The [`@each` rule](#each-directive) can also add styles for each item in a list.
+The {Sass::Script::Functions#nth `nth` function} can access items in a list,
+the {Sass::Script::Functions#join `join` function} can join multiple lists together,
+and the {Sass::Script::Functions#append `append` function} can add items to lists.
+The [`@each` directive](#each-directive) can also add styles for each item in a list.
 
 In addition to containing simple values, lists can contain other lists.
 For example, `1px 2px, 5px 6px` is a two-item list
@@ -710,14 +723,43 @@ However, they aren't the same when they're Sass:
 the first is a list containing two lists,
 while the second is a list containing four numbers.
 
-Lists can also have no items in them at all.
-These lists are represented as `()`.
-They can't be output directly to CSS;
-if you try to do e.g. `font-family: ()`, Sass will raise an error.
-If a list contains empty lists or null values,
-as in `1px 2px () 3px` or `1px 2px null 3px`,
-the empty lists and null values will be removed
-before the containing list is turned into CSS.
+Lists can also have no items in them at all. These lists are represented as `()`
+(which is also an empty [map](#maps)). They can't be output directly to CSS; if
+you try to do e.g. `font-family: ()`, Sass will raise an error. If a list
+contains empty lists or null values, as in `1px 2px () 3px` or `1px 2px null
+3px`, the empty lists and null values will be removed before the containing list
+is turned into CSS.
+
+#### Maps
+
+Maps represent an association between keys and values, where keys are used to
+look up values. They make it easy to collect values into named groups and access
+those groups dynamically. They have no direct parallel in CSS, although they're
+syntactically similar to media query expressions:
+
+    $map: (key1: value1, key2: value2, key3: value3);
+
+Unlike lists, maps must always be surrounded by parentheses and must always be
+comma-separated. Both the keys and values in maps can be any SassScript object.
+A map may only have one value associated with a given key (although that value
+may be a list). A given value may be associated with many keys, though.
+
+Like lists, maps are mostly manipulated using [SassScript
+functions](Sass/Script/Functions.html#map-functions). The
+{Sass::Script::Functions#map-get `map-get` function} looks up values in a map
+and the {Sass::Script::Functions#map-merge `map-merge` function} adds values to
+a map. The [`@each` directive](#each-multi-assign) can be used to add styles
+for each key/value pair in a map. The order of pairs in a map is always the
+same as when the map was created.
+
+Maps can also be used anywhere lists can. When used by a list function, a map is
+treated as a list of pairs. For example, `(key1: value1, key2: value2)` would be
+treated as the nested list `key1 value1, key2 value2` by list functions. Lists
+cannot be treated as maps, though, with the exception of the empty list. `()`
+represents both a map with no key/value pairs and a list with no elements.
+
+Maps cannot be converted to plain CSS. Using one as the value of a variable or
+an argument to a CSS function will cause an error.
 
 ### Operations
 
@@ -969,13 +1011,13 @@ Instead, they're manipulated using the
 Parentheses can be used to affect the order of operations:
 
     p {
-      width: (1em + 2em) * 3;
+      width: 1em + (2em * 3);
     }
 
 is compiled to:
 
     p {
-      width: 9em; }
+      width: 7em; }
 
 ### Functions
 
@@ -1042,6 +1084,37 @@ is compiled to:
 
     p {
       font: 12px/30px; }
+
+### `&` in SassScript {#parent-script}
+
+Just like when it's used [in selectors](#parent-selector), `&` in SassScript
+refers to the current parent selector. It's a comma-separated list of
+space-separated lists. For example:
+
+    .foo.bar .baz.bang, .bip.qux {
+      $selector: &;
+    }
+
+The value of `$selector` is now `((".foo.bar" ".baz.bang"), ".bip.qux")`. The
+compound selectors are quoted here to indicate that they're strings, but in
+reality they would be unquoted. Even if the parent selector doesn't contain a
+comma or a space, `&` will always have two levels of nesting, so it can be
+accessed consistently.
+
+The SassScript `&` may be used in selectors using `#{}` interpolation. Because
+it's often not possible for Sass to detect that you're using it, you need to
+explicitly tell Sass not to do the normal nesting for the selector using the
+[`@at-root` directive](#at-root). For example:
+
+    .badge {
+      @at-root #{&}-info { ... }
+      @at-root #{&}-header { ... }
+    }
+
+Produces:
+
+    .badge-info { ... }
+    .badge-header { ... }
 
 ### Variable Defaults: `!default`
 
@@ -1694,6 +1767,40 @@ But this is an error:
 Someday we hope to have `@extend` supported natively in the browser, which will
 allow it to be used within `@media` and other directives.
 
+### `@at-root` {#at-root}
+
+The `@at-root` directive causes one or more rules to be emitted at the root of
+the document, rather than being nested beneath their parent selectors. It can
+either be used with a single inline selector:
+
+    .parent {
+      @at-root .child { ... }
+    }
+
+or with a block containing multiple selectors:
+
+    .parent {
+      @at-root {
+        .child1 { ... }
+        .child2 { ... }
+      }
+    }
+
+These produce, respectively:
+
+    .child { ... }
+
+    .child1 { ... }
+    .child2 { ... }
+
+`@at-root` is most commonly used with [the SassScript parent selector
+`&`](#parent-script), to ensure that the parent selector isn't duplicated.
+
+Currently, `@at-root` will only ignore parent *selectors*, not any other
+directives such as `@media`. It may be extended in the future to allow other
+directives to be ignored, but the default will continue to ignore only
+selectors.
+
 ### `@debug`
 
 The `@debug` directive prints the value of a SassScript expression
@@ -1819,11 +1926,11 @@ is compiled to:
 
 ### `@each` {#each-directive}
 
-The `@each` rule has the form `@each $var in <list>`.
-`$var` can be any variable name, like `$length` or `$name`,
-and `<list>` is a SassScript expression that returns a list.
+The `@each` directive usually has the form `@each $var in <list or map>`. `$var`
+can be any variable name, like `$length` or `$name`, and `<list or map>` is a
+SassScript expression that returns a list or a map.
 
-The `@each` rule sets `$var` to each item in the list,
+The `@each` rule sets `$var` to each item in the list or map,
 then outputs the styles it contains using that value of `$var`.
 For example:
 
@@ -1843,6 +1950,55 @@ is compiled to:
       background-image: url('/images/egret.png'); }
     .salamander-icon {
       background-image: url('/images/salamander.png'); }
+
+#### Multiple Assignment {#each-multi-assign}
+
+The `@each` directive can also use multiple variables, as in `@each $var1,
+$var2, ... in <list>`. If `<list>` is a list of lists, each element of the
+sub-lists is assigned to the respective variable. For example:
+
+    @each $animal, $color, $cursor in (puma, black, default),
+                                      (sea-slug, blue, pointer),
+                                      (egret, white, move) {
+      .#{$animal}-icon {
+        background-image: url('/images/#{$animal}.png');
+        border: 2px solid $color;
+        cursor: $cursor;
+      }
+    }
+
+is compiled to:
+
+    .puma-icon {
+      background-image: url('/images/puma.png');
+      border: 2px solid black;
+      cursor: default; }
+    .sea-slug-icon {
+      background-image: url('/images/sea-slug.png');
+      border: 2px solid blue;
+      cursor: pointer; }
+    .egret-icon {
+      background-image: url('/images/egret.png');
+      border: 2px solid white;
+      cursor: move; }
+
+Since [maps](#maps) are treated as lists of pairs, multiple assignment works
+with them as well. For example:
+
+    @each $header, $size in (h1: 2em, h2: 1.5em, h3: 1.2em) {
+      #{$header} {
+        font-size: $size;
+      }
+    }
+
+is compiled to:
+
+    h1 {
+      font-size: 2em; }
+    h2 {
+      font-size: 1.5em; }
+    h3 {
+      font-size: 1.2em; }
 
 ### `@while`
 
@@ -2056,12 +2212,13 @@ Since the named arguments are variable names, underscores and dashes can be used
 
 #### Variable Arguments
 
-Sometimes it makes sense for a mixin to take an unknown number of arguments. For
-example, a mixin for creating box shadows might take any number of shadows as
-arguments. For these situations, Sass supports "variable arguments," which are
-arguments at the end of a mixin declaration that take all leftover arguments and
-package them up as a [list](#lists). These arguments look just like normal
-arguments, but are followed by `...`. For example:
+Sometimes it makes sense for a mixin or function to take an unknown number of
+arguments. For example, a mixin for creating box shadows might take any number
+of shadows as arguments. For these situations, Sass supports "variable
+arguments," which are arguments at the end of a mixin or function declaration
+that take all leftover arguments and package them up as a [list](#lists). These
+arguments look just like normal arguments, but are followed by `...`. For
+example:
 
     @mixin box-shadow($shadows...) {
       -moz-box-shadow: $shadows;
@@ -2081,8 +2238,14 @@ is compiled to:
       box-shadow: 0px 4px 5px #666, 2px 6px 10px #999;
     }
 
+Variable arguments also contain any keyword arguments passed to the mixin or
+function. These can be accessed using the {Sass::Script::Functions#keywords
+`keywords($args)` function}, which returns them as a map from strings (without
+`$`) to values.
+
 Variable arguments can also be used when calling a mixin. Using the same syntax,
 you can expand a list of values so that each value is passed as a separate
+argument, or expand a map of values so that each pair is treated as a keyword
 argument. For example:
 
     @mixin colors($text, $background, $border) {
@@ -2096,6 +2259,11 @@ argument. For example:
       @include colors($values...);
     }
 
+    $value-map: (text: #00ff00, background: #0000ff, border: #ff0000);
+    .secondary {
+      @include colors($value-map...);
+    }
+
 is compiled to:
 
     .primary {
@@ -2104,9 +2272,18 @@ is compiled to:
       border-color: #0000ff;
     }
 
+    .secondary {
+      color: #0000ff;
+      background-color: #ff0000;
+      border-color: #00ff00;
+    }
+
+You can pass both an argument list and a map as long as the list comes before
+the map, as in `@include colors($values..., $map...)`.
+
 You can use variable arguments to wrap a mixin and add additional styles without
-changing the argument signature of the mixin. If you do so, even keyword
-arguments will get passed through to the wrapped mixin. For example:
+changing the argument signature of the mixin. If you do, keyword arguments will
+get directly passed through to the wrapped mixin. For example:
 
     @mixin wrapped-stylish-mixin($args...) {
       font-weight: bold;

@@ -5,16 +5,31 @@ module Sass
     # The parser for SCSS.
     # It parses a string of code into a tree of {Sass::Tree::Node}s.
     class Parser
+
+      # Expose for the SASS parser.
+      attr_accessor :offset
+
       # @param str [String, StringScanner] The source document to parse.
       #   Note that `Parser` *won't* raise a nice error message if this isn't properly parsed;
       #   for that, you should use the higher-level {Sass::Engine} or {Sass::CSS}.
-      # @param filename [String] The name of the file being parsed. Used for warnings.
-      # @param line [Fixnum] The line on which the source string appeared,
+      # @param filename [String] The name of the file being parsed. Used for
+      #   warnings and source maps.
+      # @param importer [Sass::Importers::Base] The importer used to import the
+      #   file being parsed. Used for source maps.
+      # @param line [Fixnum] The 1-based line on which the source string appeared,
       #   if it's part of another document.
-      def initialize(str, filename, line = 1)
+      # @param offset [Fixnum] The 1-based character (not byte) offset in the line on
+      #   which the source string starts. Used for error reporting and sourcemap
+      #   building.
+      # @comment
+      #   rubocop:disable ParameterLists
+      def initialize(str, filename, importer, line = 1, offset = 1)
+        # rubocop:enable ParameterLists
         @template = str
         @filename = filename
+        @importer = importer
         @line = line
+        @offset = offset
         @strs = []
       end
 
@@ -33,7 +48,7 @@ module Sass
       # Note that this won't assert that the identifier takes up the entire input string;
       # it's meant to be used with `StringScanner`s as part of other parsers.
       #
-      # @return [Array<String, Sass::Script::Node>, nil]
+      # @return [Array<String, Sass::Script::Tree::Node>, nil]
       #   The interpolated identifier, or nil if none could be parsed
       def parse_interp_ident
         init_scanner!
@@ -68,6 +83,14 @@ module Sass
 
       include Sass::SCSS::RX
 
+      def source_position
+        Sass::Source::Position.new(@line, @offset)
+      end
+
+      def range(start_pos, end_pos = source_position)
+        Sass::Source::Range.new(start_pos, end_pos, @filename, @importer)
+      end
+
       def init_scanner!
         @scanner =
           if @template.is_a?(StringScanner)
@@ -78,7 +101,7 @@ module Sass
       end
 
       def stylesheet
-        node = node(Sass::Tree::RootNode.new(@scanner.string))
+        node = node(Sass::Tree::RootNode.new(@scanner.string), source_position)
         block_contents(node, :stylesheet) {s(node)}
       end
 
@@ -112,21 +135,28 @@ module Sass
       end
 
       def process_comment(text, node)
-        silent = text =~ /^\/\//
+        silent = text =~ %r{^//}
         loud = !silent && text =~ %r{^/[/*]!}
         line = @line - text.count("\n")
 
         if silent
-          value = [text.sub(/^\s*\/\//, '/*').gsub(/^\s*\/\//, ' *') + ' */']
+          value = [text.sub(%r{^\s*//}, '/*').gsub(%r{^\s*//}, ' *') + ' */']
         else
-          value = Sass::Engine.parse_interp(text, line, @scanner.pos - text.size, :filename => @filename)
+          value = Sass::Engine.parse_interp(
+            text, line, @scanner.pos - text.size, :filename => @filename)
           value.unshift(@scanner.
             string[0...@scanner.pos].
             reverse[/.*?\*\/(.*?)($|\Z)/, 1].
             reverse.gsub(/[^\s]/, ' '))
         end
 
-        type = if silent then :silent elsif loud then :loud else :normal end
+        type = if silent
+                 :silent
+               elsif loud
+                 :loud
+               else
+                 :normal
+               end
         comment = Sass::Tree::CommentNode.new(value, type)
         comment.line = line
         node << comment
@@ -134,18 +164,19 @@ module Sass
 
       DIRECTIVES = Set[:mixin, :include, :function, :return, :debug, :warn, :for,
         :each, :while, :if, :else, :extend, :import, :media, :charset, :content,
-        :_moz_document]
+        :_moz_document, :at_root]
 
       PREFIXED_DIRECTIVES = Set[:supports]
 
       def directive
+        start_pos = source_position
         return unless tok(/@/)
         name = tok!(IDENT)
         ss
 
-        if dir = special_directive(name)
+        if (dir = special_directive(name, start_pos))
           return dir
-        elsif dir = prefixed_directive(name)
+        elsif (dir = prefixed_directive(name, start_pos))
           return dir
         end
 
@@ -154,11 +185,11 @@ module Sass
         # Some take no arguments at all.
         val = expr || selector
         val = val ? ["@#{name} "] + Sass::Util.strip_string_array(val) : ["@#{name}"]
-        directive_body(val)
+        directive_body(val, start_pos)
       end
 
-      def directive_body(value)
-        node = node(Sass::Tree::DirectiveNode.new(value))
+      def directive_body(value, start_pos)
+        node = Sass::Tree::DirectiveNode.new(value)
 
         if tok(/\{/)
           node.has_children = true
@@ -166,31 +197,32 @@ module Sass
           tok!(/\}/)
         end
 
-        node
+        node(node, start_pos)
       end
 
-      def special_directive(name)
+      def special_directive(name, start_pos)
         sym = name.gsub('-', '_').to_sym
-        DIRECTIVES.include?(sym) && send("#{sym}_directive")
+        DIRECTIVES.include?(sym) && send("#{sym}_directive", start_pos)
       end
 
-      def prefixed_directive(name)
+      def prefixed_directive(name, start_pos)
         sym = name.gsub(/^-[a-z0-9]+-/i, '').gsub('-', '_').to_sym
-        PREFIXED_DIRECTIVES.include?(sym) && send("#{sym}_directive", name)
+        PREFIXED_DIRECTIVES.include?(sym) && send("#{sym}_directive", name, start_pos)
       end
 
-      def mixin_directive
+      def mixin_directive(start_pos)
         name = tok! IDENT
         args, splat = sass_script(:parse_mixin_definition_arglist)
         ss
-        block(node(Sass::Tree::MixinDefNode.new(name, args, splat)), :directive)
+        block(node(Sass::Tree::MixinDefNode.new(name, args, splat), start_pos), :directive)
       end
 
-      def include_directive
+      def include_directive(start_pos)
         name = tok! IDENT
-        args, keywords, splat = sass_script(:parse_mixin_include_arglist)
+        args, keywords, splat, kwarg_splat = sass_script(:parse_mixin_include_arglist)
         ss
-        include_node = node(Sass::Tree::MixinNode.new(name, args, keywords, splat))
+        include_node = node(
+          Sass::Tree::MixinNode.new(name, args, keywords, splat, kwarg_splat), start_pos)
         if tok?(/\{/)
           include_node.has_children = true
           block(include_node, :directive)
@@ -199,31 +231,31 @@ module Sass
         end
       end
 
-      def content_directive
+      def content_directive(start_pos)
         ss
-        node(Sass::Tree::ContentNode.new)
+        node(Sass::Tree::ContentNode.new, start_pos)
       end
 
-      def function_directive
+      def function_directive(start_pos)
         name = tok! IDENT
         args, splat = sass_script(:parse_function_definition_arglist)
         ss
-        block(node(Sass::Tree::FunctionNode.new(name, args, splat)), :function)
+        block(node(Sass::Tree::FunctionNode.new(name, args, splat), start_pos), :function)
       end
 
-      def return_directive
-        node(Sass::Tree::ReturnNode.new(sass_script(:parse)))
+      def return_directive(start_pos)
+        node(Sass::Tree::ReturnNode.new(sass_script(:parse)), start_pos)
       end
 
-      def debug_directive
-        node(Sass::Tree::DebugNode.new(sass_script(:parse)))
+      def debug_directive(start_pos)
+        node(Sass::Tree::DebugNode.new(sass_script(:parse)), start_pos)
       end
 
-      def warn_directive
-        node(Sass::Tree::WarnNode.new(sass_script(:parse)))
+      def warn_directive(start_pos)
+        node(Sass::Tree::WarnNode.new(sass_script(:parse)), start_pos)
       end
 
-      def for_directive
+      def for_directive(start_pos)
         tok!(/\$/)
         var = tok! IDENT
         ss
@@ -237,31 +269,37 @@ module Sass
         to = sass_script(:parse)
         ss
 
-        block(node(Sass::Tree::ForNode.new(var, from, to, exclusive)), :directive)
+        block(node(Sass::Tree::ForNode.new(var, from, to, exclusive), start_pos), :directive)
       end
 
-      def each_directive
+      def each_directive(start_pos)
         tok!(/\$/)
-        var = tok! IDENT
+        vars = [tok!(IDENT)]
         ss
+        while tok(/,/)
+          ss
+          tok!(/\$/)
+          vars << tok!(IDENT)
+          ss
+        end
 
         tok!(/in/)
         list = sass_script(:parse)
         ss
 
-        block(node(Sass::Tree::EachNode.new(var, list)), :directive)
+        block(node(Sass::Tree::EachNode.new(vars, list), start_pos), :directive)
       end
 
-      def while_directive
+      def while_directive(start_pos)
         expr = sass_script(:parse)
         ss
-        block(node(Sass::Tree::WhileNode.new(expr)), :directive)
+        block(node(Sass::Tree::WhileNode.new(expr), start_pos), :directive)
       end
 
-      def if_directive
+      def if_directive(start_pos)
         expr = sass_script(:parse)
         ss
-        node = block(node(Sass::Tree::IfNode.new(expr)), :directive)
+        node = block(node(Sass::Tree::IfNode.new(expr), start_pos), :directive)
         pos = @scanner.pos
         line = @line
         ss
@@ -276,10 +314,11 @@ module Sass
       end
 
       def else_block(node)
+        start_pos = source_position
         return unless tok(/@else/)
         ss
         else_node = block(
-          Sass::Tree::IfNode.new((sass_script(:parse) if tok(/if/))),
+          node(Sass::Tree::IfNode.new((sass_script(:parse) if tok(/if/))), start_pos),
           :directive)
         node.add_else(else_node)
         pos = @scanner.pos
@@ -295,18 +334,18 @@ module Sass
           end
       end
 
-      def else_directive
+      def else_directive(start_pos)
         err("Invalid CSS: @else must come after @if")
       end
 
-      def extend_directive
-        selector = expr!(:selector_sequence)
+      def extend_directive(start_pos)
+        selector, selector_range = expr!(:selector_sequence)
         optional = tok(OPTIONAL)
         ss
-        node(Sass::Tree::ExtendNode.new(selector, !!optional))
+        node(Sass::Tree::ExtendNode.new(selector, !!optional, selector_range), start_pos)
       end
 
-      def import_directive
+      def import_directive(start_pos)
         values = []
 
         loop do
@@ -316,41 +355,40 @@ module Sass
           ss
         end
 
-        return values
+        values
       end
 
       def import_arg
-        line = @line
+        start_pos = source_position
         return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
         if uri
           str = sass_script(:parse_string)
           media = media_query_list
           ss
-          return node(Tree::CssImportNode.new(str, media.to_a))
+          return node(Tree::CssImportNode.new(str, media.to_a), start_pos)
         end
 
         path = @scanner[1] || @scanner[2]
         ss
 
         media = media_query_list
-        if path =~ /^(https?:)?\/\// || media || use_css_import?
-          node = Sass::Tree::CssImportNode.new(str, media.to_a)
-        else
-          node = Sass::Tree::ImportNode.new(path.strip)
+        if path =~ %r{^(https?:)?//} || media || use_css_import?
+          return node(Sass::Tree::CssImportNode.new(str, media.to_a), start_pos)
         end
-        node.line = line
-        node
+
+        node(Sass::Tree::ImportNode.new(path.strip), start_pos)
       end
 
       def use_css_import?; false; end
 
-      def media_directive
-        block(node(Sass::Tree::MediaNode.new(expr!(:media_query_list).to_a)), :directive)
+      def media_directive(start_pos)
+        block(node(Sass::Tree::MediaNode.new(expr!(:media_query_list).to_a), start_pos), :directive)
       end
 
       # http://www.w3.org/TR/css3-mediaqueries/#syntax
       def media_query_list
-        return unless query = media_query
+        query = media_query
+        return unless query
         queries = [query]
 
         ss
@@ -363,7 +401,7 @@ module Sass
       end
 
       def media_query
-        if ident1 = interp_ident
+        if (ident1 = interp_ident)
           ss
           ident2 = interp_ident
           ss
@@ -383,7 +421,8 @@ module Sass
         if query
           expr = expr!(:media_expr)
         else
-          return unless expr = media_expr
+          expr = media_expr
+          return unless expr
         end
         query ||= Sass::Media::Query.new([], [], [])
         query.expressions << expr
@@ -397,7 +436,8 @@ module Sass
       end
 
       def media_expr
-        interp = interpolation and return interp
+        interp = interpolation
+        return interp if interp
         return unless tok(/\(/)
         res = ['(']
         ss
@@ -413,11 +453,11 @@ module Sass
         res
       end
 
-      def charset_directive
+      def charset_directive(start_pos)
         tok! STRING
         name = @scanner[1] || @scanner[2]
         ss
-        node(Sass::Tree::CharsetNode.new(name))
+        node(Sass::Tree::CharsetNode.new(name), start_pos)
       end
 
       # The document directive is specified in
@@ -428,34 +468,46 @@ module Sass
       # We could parse all document directives according to Mozilla's syntax,
       # but if someone's using e.g. @-webkit-document we don't want them to
       # think WebKit works sans quotes.
-      def _moz_document_directive
+      def _moz_document_directive(start_pos)
         res = ["@-moz-document "]
         loop do
-          res << str{ss} << expr!(:moz_document_function)
-          break unless c = tok(/,/)
-          res << c
+          res << str {ss} << expr!(:moz_document_function)
+          if (c = tok(/,/))
+            res << c
+          else
+            break
+          end
         end
-        directive_body(res.flatten)
+        directive_body(res.flatten, start_pos)
       end
 
       def moz_document_function
-        return unless val = interp_uri || _interp_string(:url_prefix) ||
+        val = interp_uri || _interp_string(:url_prefix) ||
           _interp_string(:domain) || function(!:allow_var) || interpolation
+        return unless val
         ss
         val
       end
 
+      def at_root_directive(start_pos)
+        at_root_node = node(Sass::Tree::AtRootNode.new, start_pos)
+        rule_node = ruleset
+        return block(at_root_node, :stylesheet) unless rule_node
+        at_root_node << rule_node
+        at_root_node
+      end
+
       # http://www.w3.org/TR/css3-conditional/
-      def supports_directive(name)
+      def supports_directive(name, start_pos)
         condition = expr!(:supports_condition)
-        node = node(Sass::Tree::SupportsNode.new(name, condition))
+        node = Sass::Tree::SupportsNode.new(name, condition)
 
         tok!(/\{/)
         node.has_children = true
         block_contents(node, :directive)
         tok!(/\}/)
 
-        node
+        node(node, start_pos)
       end
 
       def supports_condition
@@ -469,20 +521,21 @@ module Sass
       end
 
       def supports_operator
-        return unless cond = supports_condition_in_parens
-        return cond unless op = tok(/and|or/i)
-        begin
+        cond = supports_condition_in_parens
+        return unless cond
+        while (op = tok(/and|or/i))
           ss
           cond = Sass::Supports::Operator.new(
             cond, expr!(:supports_condition_in_parens), op)
-        end while op = tok(/and|or/i)
+        end
         cond
       end
 
       def supports_condition_in_parens
-        interp = supports_interpolation and return interp
+        interp = supports_interpolation
+        return interp if interp
         return unless tok(/\(/); ss
-        if cond = supports_condition
+        if (cond = supports_condition)
           tok!(/\)/); ss
           cond
         else
@@ -500,19 +553,22 @@ module Sass
       end
 
       def supports_interpolation
-        return unless interp = interpolation
+        interp = interpolation
+        return unless interp
         ss
         Sass::Supports::Interpolation.new(interp)
       end
 
       def variable
         return unless tok(/\$/)
+        start_pos = source_position
         name = tok!(IDENT)
         ss; tok!(/:/); ss
 
         expr = sass_script(:parse)
         guarded = tok(DEFAULT)
-        node(Sass::Tree::VariableNode.new(name, expr, guarded))
+        result = Sass::Tree::VariableNode.new(name, expr, guarded)
+        node(result, start_pos)
       end
 
       def operator
@@ -524,8 +580,11 @@ module Sass
       end
 
       def ruleset
-        return unless rules = selector_sequence
-        block(node(Sass::Tree::RuleNode.new(rules.flatten.compact)), :ruleset)
+        start_pos = source_position
+        rules, source_range = selector_sequence
+        return unless rules
+        block(node(
+          Sass::Tree::RuleNode.new(rules.flatten.compact, source_range), start_pos), :ruleset)
       end
 
       def block(node, context)
@@ -556,7 +615,7 @@ module Sass
       def has_children?(child_or_array)
         return false unless child_or_array
         return child_or_array.last.has_children if child_or_array.is_a?(Array)
-        return child_or_array.has_children
+        child_or_array.has_children
       end
 
       # This is a nasty hack, and the only place in the parser
@@ -594,40 +653,46 @@ module Sass
       end
 
       def selector_sequence
-        if sel = tok(STATIC_SELECTOR, true)
-          return [sel]
+        start_pos = source_position
+        if (sel = tok(STATIC_SELECTOR, true))
+          return [sel], range(start_pos)
         end
 
         rules = []
-        return unless v = selector
+        v = selector
+        return unless v
         rules.concat v
 
         ws = ''
         while tok(/,/)
           ws << str {ss}
-          if v = selector
+          if (v = selector)
             rules << ',' << ws
             rules.concat v
             ws = ''
           end
         end
-        rules
+        return rules, range(start_pos)
       end
 
       def selector
-        return unless sel = _selector
+        sel = _selector
+        return unless sel
         sel.to_a
       end
 
       def selector_comma_sequence
-        return unless sel = _selector
+        sel = _selector
+        return unless sel
         selectors = [sel]
         ws = ''
         while tok(/,/)
-          ws << str{ss}
-          if sel = _selector
+          ws << str {ss}
+          if (sel = _selector)
             selectors << sel
-            selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members) if ws.include?("\n")
+            if ws.include?("\n")
+              selectors[-1] = Selector::Sequence.new(["\n"] + selectors.last.members)
+            end
             ws = ''
           end
         end
@@ -636,15 +701,16 @@ module Sass
 
       def _selector
         # The combinator here allows the "> E" hack
-        return unless val = combinator || simple_selector_sequence
-        nl = str{ss}.include?("\n")
+        val = combinator || simple_selector_sequence
+        return unless val
+        nl = str {ss}.include?("\n")
         res = []
         res << val
         res << "\n" if nl
 
-        while val = combinator || simple_selector_sequence
+        while (val = combinator || simple_selector_sequence)
           res << val
-          res << "\n" if str{ss}.include?("\n")
+          res << "\n" if str {ss}.include?("\n")
         end
         Selector::Sequence.new(res.compact)
       end
@@ -667,21 +733,24 @@ module Sass
       def simple_selector_sequence
         # Returning expr by default allows for stuff like
         # http://www.w3.org/TR/css3-animations/#keyframes-
-        return expr(!:allow_var) unless e = element_name || id_selector ||
+
+        start_pos = source_position
+        e = element_name || id_selector ||
           class_selector || placeholder_selector || attrib || pseudo ||
           parent_selector || interpolation_selector
+        return expr(!:allow_var) unless e
         res = [e]
 
         # The tok(/\*/) allows the "E*" hack
-        while v = id_selector || class_selector || placeholder_selector || attrib ||
-            pseudo || interpolation_selector ||
-            (tok(/\*/) && Selector::Universal.new(nil))
+        while (v = id_selector || class_selector || placeholder_selector ||
+                   attrib || pseudo || interpolation_selector ||
+                   (tok(/\*/) && Selector::Universal.new(nil)))
           res << v
         end
 
         pos = @scanner.pos
         line = @line
-        if sel = str? {simple_selector_sequence}
+        if (sel = str? {simple_selector_sequence})
           @scanner.pos = pos
           @line = line
           begin
@@ -695,7 +764,7 @@ module Sass
           end
         end
 
-        Selector::SimpleSequence.new(res, tok(/!/))
+        Selector::SimpleSequence.new(res, tok(/!/), range(start_pos))
       end
 
       def parent_selector
@@ -732,8 +801,9 @@ module Sass
         end
       end
 
-      def qualified_name(allow_star_name=false)
-        return unless name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
+      def qualified_name(allow_star_name = false)
+        name = interp_ident || tok(/\*/) || (tok?(/\|/) && "")
+        return unless name
         return nil, name unless tok(/\|/)
 
         return name, expr!(:interp_ident) unless allow_star_name
@@ -742,8 +812,9 @@ module Sass
       end
 
       def interpolation_selector
-        return unless script = interpolation
-        Selector::Interpolation.new(script)
+        if (script = interpolation)
+          Selector::Interpolation.new(script)
+        end
       end
 
       def attrib
@@ -752,12 +823,13 @@ module Sass
         ns, name = attrib_name!
         ss
 
-        if op = tok(/=/) ||
-            tok(INCLUDES) ||
-            tok(DASHMATCH) ||
-            tok(PREFIXMATCH) ||
-            tok(SUFFIXMATCH) ||
-            tok(SUBSTRINGMATCH)
+        op = tok(/=/) ||
+             tok(INCLUDES) ||
+             tok(DASHMATCH) ||
+             tok(PREFIXMATCH) ||
+             tok(SUFFIXMATCH) ||
+             tok(SUBSTRINGMATCH)
+        if op
           @expected = "identifier or string"
           ss
           val = interp_ident || expr!(:interp_string)
@@ -770,7 +842,7 @@ module Sass
       end
 
       def attrib_name!
-        if name_or_ns = interp_ident
+        if (name_or_ns = interp_ident)
           # E, E|E
           if tok(/\|(?!=)/)
             ns = name_or_ns
@@ -788,14 +860,15 @@ module Sass
       end
 
       def pseudo
-        return unless s = tok(/::?/)
+        s = tok(/::?/)
+        return unless s
         @expected = "pseudoclass or pseudoelement"
         name = expr!(:interp_ident)
         if tok(/\(/)
           ss
           arg = expr!(:pseudo_arg)
           while tok(/,/)
-            arg << ',' << str{ss}
+            arg << ',' << str {ss}
             arg.concat expr!(:pseudo_arg)
           end
           tok!(/\)/)
@@ -826,40 +899,50 @@ module Sass
         return sel if sel
         rethrow pseudo_err if pseudo_err
         rethrow sel_err if sel_err
-        return
+        nil
+      end
+
+      def pseudo_expr_token
+        tok(PLUS) || tok(/[-*]/) || tok(NUMBER) || interp_string || tok(IDENT) || interpolation
       end
 
       def pseudo_expr
-        return unless e = tok(PLUS) || tok(/[-*]/) || tok(NUMBER) ||
-          interp_string || tok(IDENT) || interpolation
-        res = [e, str{ss}]
-        while e = tok(PLUS) || tok(/[-*]/) || tok(NUMBER) ||
-            interp_string || tok(IDENT) || interpolation
-          res << e << str{ss}
+        e = pseudo_expr_token
+        return unless e
+        res = [e, str {ss}]
+        while (e = pseudo_expr_token)
+          res << e << str {ss}
         end
         res
       end
 
       def declaration
         # This allows the "*prop: val", ":prop: val", and ".prop: val" hacks
-        if s = tok(/[:\*\.]|\#(?!\{)/)
+        name_start_pos = source_position
+        if (s = tok(/[:\*\.]|\#(?!\{)/))
           @use_property_exception = s !~ /[\.\#]/
-          name = [s, str{ss}, *expr!(:interp_ident)]
+          name = [s, str {ss}, *expr!(:interp_ident)]
         else
-          return unless name = interp_ident
+          name = interp_ident
+          return unless name
           name = [name] if name.is_a?(String)
         end
-        if comment = tok(COMMENT)
+        if (comment = tok(COMMENT))
           name << comment
         end
+        name_end_pos = source_position
         ss
 
         tok!(/:/)
-        space, value = value!
+        value_start_pos, space, value = value!
+        value_end_pos = source_position
         ss
         require_block = tok?(/\{/)
 
-        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new))
+        node = node(Sass::Tree::PropNode.new(name.flatten.compact, value, :new),
+                    name_start_pos, value_end_pos)
+        node.name_source_range = range(name_start_pos, name_end_pos)
+        node.value_source_range = range(value_start_pos, value_end_pos)
 
         return node unless require_block
         nested_properties! node, space
@@ -867,18 +950,29 @@ module Sass
 
       def value!
         space = !str {ss}.empty?
+        value_start_pos = source_position
         @use_property_exception ||= space || !tok?(IDENT)
 
-        return true, Sass::Script::String.new("") if tok?(/\{/)
+        if tok?(/\{/)
+          str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(""))
+          str.line = source_position.line
+          str.source_range = range(source_position)
+          return value_start_pos, true, str
+        end
+
+        start_pos = source_position
         # This is a bit of a dirty trick:
         # if the value is completely static,
         # we don't parse it at all, and instead return a plain old string
         # containing the value.
         # This results in a dramatic speed increase.
-        if val = tok(STATIC_VALUE, true)
-          return space, Sass::Script::String.new(val.strip)
+        if (val = tok(STATIC_VALUE, true))
+          str = Sass::Script::Tree::Literal.new(Sass::Script::Value::String.new(val.strip))
+          str.line = start_pos.line
+          str.source_range = range(start_pos)
+          return value_start_pos, space, str
         end
-        return space, sass_script(:parse)
+        return value_start_pos, space, sass_script(:parse)
       end
 
       def nested_properties!(node, space)
@@ -893,18 +987,19 @@ MESSAGE
       end
 
       def expr(allow_var = true)
-        return unless t = term(allow_var)
-        res = [t, str{ss}]
+        t = term(allow_var)
+        return unless t
+        res = [t, str {ss}]
 
         while (o = operator) && (t = term(allow_var))
-          res << o << t << str{ss}
+          res << o << t << str {ss}
         end
 
         res.flatten
       end
 
       def term(allow_var)
-        if e = tok(NUMBER) ||
+        e = tok(NUMBER) ||
             interp_uri ||
             function(allow_var) ||
             interp_string ||
@@ -912,29 +1007,30 @@ MESSAGE
             interp_ident ||
             tok(HEXCOLOR) ||
             (allow_var && var_expr)
-          return e
-        end
+        return e if e
 
-        return unless op = tok(/[+-]/)
+        op = tok(/[+-]/)
+        return unless op
         @expected = "number or function"
-        return [op, tok(NUMBER) || function(allow_var) ||
-          (allow_var && var_expr) || expr!(:interpolation)]
+        [op,
+         tok(NUMBER) || function(allow_var) || (allow_var && var_expr) || expr!(:interpolation)]
       end
 
       def function(allow_var)
-        return unless name = tok(FUNCTION)
+        name = tok(FUNCTION)
+        return unless name
         if name == "expression(" || name == "calc("
           str, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
           [name, str]
         else
-          [name, str{ss}, expr(allow_var), tok!(/\)/)]
+          [name, str {ss}, expr(allow_var), tok!(/\)/)]
         end
       end
 
       def var_expr
         return unless tok(/\$/)
         line = @line
-        var = Sass::Script::Variable.new(tok!(IDENT))
+        var = Sass::Script::Tree::Variable.new(tok!(IDENT))
         var.line = line
         var
       end
@@ -953,7 +1049,8 @@ MESSAGE
       end
 
       def _interp_string(type)
-        return unless start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, false]])
+        start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, false]])
+        return unless start
         res = [start]
 
         mid_re = Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, true]]
@@ -967,17 +1064,20 @@ MESSAGE
       end
 
       def interp_ident(start = IDENT)
-        return unless val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
+        val = tok(start) || interpolation || tok(IDENT_HYPHEN_INTERP, true)
+        return unless val
         res = [val]
-        while val = tok(NAME) || interpolation
+        while (val = tok(NAME) || interpolation)
           res << val
         end
         res
       end
 
       def interp_ident_or_var
-        (id = interp_ident) and return id
-        (var = var_expr) and return [var]
+        id = interp_ident
+        return id if id
+        var = var_expr
+        return [var] if var
       end
 
       def interp_name
@@ -995,29 +1095,35 @@ MESSAGE
       def str?
         pos = @scanner.pos
         line = @line
+        offset = @offset
         @strs.push ""
         throw_error {yield} && @strs.last
       rescue Sass::SyntaxError
         @scanner.pos = pos
         @line = line
+        @offset = offset
         nil
       ensure
         @strs.pop
       end
 
-      def node(node)
-        node.line = @line
+      def node(node, start_pos, end_pos = source_position)
+        node.line = start_pos.line
+        node.source_range = range(start_pos, end_pos)
         node
       end
 
       @sass_script_parser = Class.new(Sass::Script::Parser)
       @sass_script_parser.send(:include, ScriptParser)
-      # @private
-      def self.sass_script_parser; @sass_script_parser; end
+
+      class << self
+        # @private
+        attr_accessor :sass_script_parser
+      end
 
       def sass_script(*args)
-        parser = self.class.sass_script_parser.new(@scanner, @line,
-          @scanner.pos - (@scanner.string[0...@scanner.pos].rindex("\n") || 0))
+        parser = self.class.sass_script_parser.new(@scanner, @line, @offset,
+                                                   :filename => @filename, :importer => @importer)
         result = parser.send(*args)
         unless @strs.empty?
           # Convert to CSS manually so that comments are ignored.
@@ -1025,6 +1131,7 @@ MESSAGE
           @strs.each {|s| s << src}
         end
         @line = parser.line
+        @offset = parser.offset
         result
       rescue Sass::SyntaxError => e
         throw(:_sass_parser_error, true) if @throw_error
@@ -1062,12 +1169,14 @@ MESSAGE
       end
 
       def expr!(name)
-        (e = send(name)) && (return e)
+        e = send(name)
+        return e if e
         expected(EXPR_NAMES[name] || name.to_s)
       end
 
       def tok!(rx)
-        (t = tok(rx)) && (return t)
+        t = tok(rx)
+        return t if t
         name = TOK_NAMES[rx]
 
         unless name
@@ -1100,10 +1209,12 @@ MESSAGE
         old_throw_error, @throw_error = @throw_error, true
         pos = @scanner.pos
         line = @line
+        offset = @offset
         expected = @expected
         if catch(:_sass_parser_error) {yield; false}
           @scanner.pos = pos
           @line = line
+          @offset = offset
           @expected = expected
           {:pos => pos, :line => line, :expected => @expected, :block => block}
         end
@@ -1166,7 +1277,15 @@ MESSAGE
             @scanner.pos -= @scanner[-1].length
             res.slice!(-@scanner[-1].length..-1)
           end
-          @line += res.count(NEWLINE)
+
+          newline_count = res.count(NEWLINE)
+          if newline_count > 0
+            @line += newline_count
+            @offset = res[res.rindex(NEWLINE)..-1].size
+          else
+            @offset += res.size
+          end
+
           @expected = nil
           if !@strs.empty? && rx != COMMENT && rx != SINGLE_LINE_COMMENT
             @strs.each {|s| s << res}

@@ -1,11 +1,19 @@
-require 'sass/script/literal'
-
-module Sass::Script
+module Sass::Script::Value
   # A SassScript object representing a null value.
-  class Null < Literal
-    # Creates a new null literal.
-    def initialize
-      super nil
+  class Null < Base
+
+    # The null value in SassScript.
+    #
+    # This is assigned before new is overridden below so that we use the default implementation.
+    NULL = new(nil)
+
+    # We override object creation so that users of the core API
+    # will not need to know that null is a specific constant.
+    #
+    # @private
+    # @return [Null] the {NULL} constant.
+    def self.new
+      NULL
     end
 
     # @return [Boolean] `false` (the Ruby boolean value)

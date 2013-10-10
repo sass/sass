@@ -5,10 +5,10 @@ module Sass
     # @see Sass::Tree
     class DebugNode < Node
       # The expression to print.
-      # @return [Script::Node] 
+      # @return [Script::Tree::Node]
       attr_accessor :expr
 
-      # @param expr [Script::Node] The expression to print
+      # @param expr [Script::Tree::Node] The expression to print
       def initialize(expr)
         @expr = expr
         super()

@@ -7,13 +7,13 @@ require 'fileutils'
 module Sass::Script::Functions
   def filename
     filename = options[:filename].gsub(%r{.*((/[^/]+){4})}, '\1')
-    Sass::Script::String.new(filename)
+    Sass::Script::Value::String.new(filename)
   end
 
   def whatever
     custom = options[:custom]
     whatever = custom && custom[:whatever]
-    Sass::Script::String.new(whatever || "incorrect")
+    Sass::Script::Value::String.new(whatever || "incorrect")
   end
 end
 
@@ -246,17 +246,6 @@ WARNING
   end
 
   # Callbacks
-
-  def test_updating_stylesheets_callback
-    # Should run even when there's nothing to update
-    Sass::Plugin.options[:template_location] = nil
-    assert_callback :updating_stylesheets, []
-  end
-
-  def test_updating_stylesheets_callback_with_never_update
-    Sass::Plugin.options[:never_update] = true
-    assert_no_callback :updating_stylesheets
-  end
 
   def test_updated_stylesheet_callback_for_updated_template
     Sass::Plugin.options[:always_update] = false

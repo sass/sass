@@ -1,10 +1,12 @@
+require 'sass/script/value/helpers'
+
 module Sass::Script
   # Methods in this module are accessible from the SassScript context.
   # For example, you can write
   #
   #     $color: hsl(120deg, 100%, 50%)
   #
-  # and it will call {Sass::Script::Functions#hsl}.
+  # and it will call {Functions#hsl}.
   #
   # The following functions are provided:
   #
@@ -13,10 +15,12 @@ module Sass::Script
   # ## RGB Functions
   #
   # \{#rgb rgb($red, $green, $blue)}
-  # : Creates a {Color} from red, green, and blue values.
+  # : Creates a {Sass::Script::Value::Color Color} from red, green, and blue
+  #   values.
   #
   # \{#rgba rgba($red, $green, $blue, $alpha)}
-  # : Creates a {Color} from red, green, blue, and alpha values.
+  # : Creates a {Sass::Script::Value::Color Color} from red, green, blue, and
+  #   alpha values.
   #
   # \{#red red($color)}
   # : Gets the red component of a color.
@@ -33,11 +37,12 @@ module Sass::Script
   # ## HSL Functions
   #
   # \{#hsl hsl($hue, $saturation, $lightness)}
-  # : Creates a {Color} from hue, saturation, and lightness values.
+  # : Creates a {Sass::Script::Value::Color Color} from hue, saturation, and
+  #   lightness values.
   #
   # \{#hsla hsla($hue, $saturation, $lightness, $alpha)}
-  # : Creates a {Color} from hue, saturation, lightness, and alpha
-  #   values.
+  # : Creates a {Sass::Script::Value::Color Color} from hue, saturation,
+  #   lightness, and alpha values.
   #
   # \{#hue hue($color)}
   # : Gets the hue component of a color.
@@ -88,13 +93,16 @@ module Sass::Script
   #
   # ## Other Color Functions
   #
-  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#adjust_color adjust-color($color, \[$red\], \[$green\], \[$blue\],
+  #   \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Increases or decreases one or more components of a color.
   #
-  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\], \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#scale_color scale-color($color, \[$red\], \[$green\], \[$blue\],
+  #   \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Fluidly scales one or more properties of a color.
   #
-  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\], \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
+  # \{#change_color change-color($color, \[$red\], \[$green\], \[$blue\],
+  #   \[$hue\], \[$saturation\], \[$lightness\], \[$alpha\])}
   # : Changes one or more properties of a color.
   #
   # \{#ie_hex_str ie-hex-str($color)}
@@ -107,6 +115,24 @@ module Sass::Script
   #
   # \{#quote quote($string)}
   # : Adds quotes to a string.
+  #
+  # \{#str_length str-length($string)}
+  # : Returns the number of characters in a string.
+  #
+  # \{#str_insert str-insert($string, $insert, $index)}
+  # : Inserts `$insert` into `$string` at `$index`.
+  #
+  # \{#str_index str-index($string, $substring)}
+  # : Returns the index of the first occurance of `$substring` in `$string`.
+  #
+  # \{#str_slice str-slice($string, $start-at, [$end-at])}
+  # : Extracts a substring from `$string`.
+  #
+  # \{#to_upper_case to-upper-case($string)}
+  # : Converts a string to upper case.
+  #
+  # \{#to_lower_case to-lower-case($string)}
+  # : Converts a string to lower case.
   #
   # ## Number Functions
   #
@@ -133,6 +159,8 @@ module Sass::Script
   #
   # ## List Functions {#list-functions}
   #
+  # All list functions work for maps as well, treating them as lists of pairs.
+  #
   # \{#length length($list)}
   # : Returns the length of a list.
   #
@@ -151,7 +179,45 @@ module Sass::Script
   # \{#index index($list, $value)}
   # : Returns the position of a value within a list.
   #
+  # \{#list_separator list-separator(#list)}
+  # : Returns the separator of a list.
+  #
+  # ## Map Functions {#map-functions}
+  #
+  # \{#map_get map-get($map, $key)}
+  # : Returns the value in a map associated with a given key.
+  #
+  # \{#map_merge map-merge($map1, $map2)}
+  # : Merges two maps together into a new map.
+  #
+  # \{#map_keys map-keys($map)}
+  # : Returns a list of all keys in a map.
+  #
+  # \{#map_values map-values($map)}
+  # : Returns a list of all values in a map.
+  #
+  # \{#map_has_key map-has-key($key)}
+  # : Returns whether a map has a value associated with a given key.
+  #
+  # \{#keywords keywords($args)}
+  # : Returns the keywords passed to a function that takes variable arguments.
+  #
   # ## Introspection Functions
+  #
+  # \{#feature_exists feature-exists($feature)}
+  # : Returns whether a feature exists in the current Sass runtime.
+  #
+  # \{#variable_exists variable-exists($name)}
+  # : Returns whether a variable with the given name exists in the current scope.
+  #
+  # \{#global_variable_exists global-variable-exists($name)}
+  # : Returns whether a variable with the given name exists in the global scope.
+  #
+  # \{#function_exists function-exists($name)}
+  # : Returns whether a function with the given name exists.
+  #
+  # \{#mixin_exists mixin-exists($name)}
+  # : Returns whether a mixin with the given name exists.
   #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
@@ -165,11 +231,17 @@ module Sass::Script
   # \{#comparable comparable($number-1, $number-2)}
   # : Returns whether two numbers can be added, subtracted, or compared.
   #
+  # \{#call call($name, $args...)}
+  # : Dynamically calls a Sass function.
+  #
   # ## Miscellaneous Functions
   #
   # \{#if if($condition, $if-true, $if-false)}
   # : Returns one of two values, depending on whether or not `$condition` is
   #   true.
+  #
+  # \{#unique_id unique-id()}
+  # : Returns a unique CSS identifier.
   #
   # ## Adding Custom Functions
   #
@@ -179,9 +251,9 @@ module Sass::Script
   #     module Sass::Script::Functions
   #       def reverse(string)
   #         assert_type string, :String
-  #         Sass::Script::String.new(string.value.reverse)
+  #         Sass::Script::Value::String.new(string.value.reverse)
   #       end
-  #       declare :reverse, :args => [:string]
+  #       declare :reverse, [:string]
   #     end
   #
   # Calling {declare} tells Sass the argument names for your function.
@@ -189,14 +261,15 @@ module Sass::Script
   # {declare} can also allow your function to take arbitrary keyword arguments.
   #
   # There are a few things to keep in mind when modifying this module.
-  # First of all, the arguments passed are {Sass::Script::Literal} objects.
-  # Literal objects are also expected to be returned.
+  # First of all, the arguments passed are {Value} objects.
+  # Value objects are also expected to be returned.
   # This means that Ruby values must be unwrapped and wrapped.
   #
-  # Most Literal objects support the {Sass::Script::Literal#value value} accessor
-  # for getting their Ruby values.
-  # Color objects, though, must be accessed using {Sass::Script::Color#rgb rgb},
-  # {Sass::Script::Color#red red}, {Sass::Script::Color#blue green}, or {Sass::Script::Color#blue blue}.
+  # Most Value objects support the {Value::Base#value value} accessor for getting
+  # their Ruby values. Color objects, though, must be accessed using
+  # {Sass::Script::Value::Color#rgb rgb}, {Sass::Script::Value::Color#red red},
+  # {Sass::Script::Value::Color#blue green}, or {Sass::Script::Value::Color#blue
+  # blue}.
   #
   # Second, making Ruby functions accessible from Sass introduces the temptation
   # to do things like database access within stylesheets.
@@ -216,10 +289,10 @@ module Sass::Script
   #
   # ### Caveats
   #
-  # When creating new {Literal} objects within functions,
-  # be aware that it's not safe to call {Literal#to_s #to_s}
-  # (or other methods that use the string representation)
-  # on those objects without first setting {Node#options= the #options attribute}.
+  # When creating new {Value} objects within functions, be aware that it's not
+  # safe to call {Value::Base#to_s #to_s} (or other methods that use the string
+  # representation) on those objects without first setting {Tree::Node#options=
+  # the #options attribute}.
   module Functions
     @signatures = {}
 
@@ -261,7 +334,7 @@ module Sass::Script
     #   Whether the function accepts other keyword arguments
     #   in addition to those in `:args`.
     #   If this is true, the Ruby function will be passed a hash from strings
-    #   to {Sass::Script::Literal}s as the last argument.
+    #   to {Value}s as the last argument.
     #   In addition, if this is true and `:var_args` is not,
     #   Sass will ensure that the last argument passed is a hash.
     def self.declare(method_name, args, options = {})
@@ -277,8 +350,8 @@ module Sass::Script
     # If no signatures match, the first signature is returned for error messaging.
     #
     # @param method_name [Symbol] The name of the Ruby function to be called.
-    # @param arg_arity [Number] The number of unnamed arguments the function was passed.
-    # @param kwarg_arity [Number] The number of keyword arguments the function was passed.
+    # @param arg_arity [Fixnum] The number of unnamed arguments the function was passed.
+    # @param kwarg_arity [Fixnum] The number of keyword arguments the function was passed.
     #
     # @return [{Symbol => Object}, nil]
     #   The signature options for the matching signature,
@@ -286,22 +359,23 @@ module Sass::Script
     def self.signature(method_name, arg_arity, kwarg_arity)
       return unless @signatures[method_name]
       @signatures[method_name].each do |signature|
-        return signature if signature.args.size == arg_arity + kwarg_arity
-        next unless signature.args.size < arg_arity + kwarg_arity
+        sig_arity = signature.args.size
+        return signature if sig_arity == arg_arity + kwarg_arity
+        next unless sig_arity < arg_arity + kwarg_arity
 
         # We have enough args.
         # Now we need to figure out which args are varargs
         # and if the signature allows them.
         t_arg_arity, t_kwarg_arity = arg_arity, kwarg_arity
-        if signature.args.size > t_arg_arity
+        if sig_arity > t_arg_arity
           # we transfer some kwargs arity to args arity
           # if it does not have enough args -- assuming the names will work out.
-          t_kwarg_arity -= (signature.args.size - t_arg_arity)
-          t_arg_arity = signature.args.size
+          t_kwarg_arity -= (sig_arity - t_arg_arity)
+          t_arg_arity = sig_arity
         end
 
-        if (  t_arg_arity == signature.args.size ||   t_arg_arity > signature.args.size && signature.var_args  ) &&
-           (t_kwarg_arity == 0                   || t_kwarg_arity > 0                   && signature.var_kwargs)
+        if   (t_arg_arity == sig_arity ||   t_arg_arity > sig_arity && signature.var_args) &&
+           (t_kwarg_arity == 0         || t_kwarg_arity > 0         && signature.var_kwargs)
           return signature
         end
       end
@@ -313,15 +387,30 @@ module Sass::Script
     # are available to use in functions.
     class EvaluationContext
       include Functions
+      include Value::Helpers
+
+      # The human-readable names for [Sass::Script::Value::Base]. The default is
+      # just the downcased name of the type. The default is the downcased type
+      # name.
+      TYPE_NAMES = {:ArgList => 'variable argument list'}
+
+      # The environment for this function. This environment's
+      # {Environment#parent} is the global environment, and its
+      # {Environment#caller} is a read-only view of the local environment of the
+      # caller of this function.
+      #
+      # @return [Environment]
+      attr_reader :environment
 
       # The options hash for the {Sass::Engine} that is processing the function call
       #
       # @return [{Symbol => Object}]
       attr_reader :options
 
-      # @param options [{Symbol => Object}] See \{#options}
-      def initialize(options)
-        @options = options
+      # @param environment [Environment] See \{#environment}
+      def initialize(environment)
+        @environment = environment
+        @options = environment.options
       end
 
       # Asserts that the type of a given SassScript value
@@ -334,14 +423,60 @@ module Sass::Script
       # @example
       #   assert_type value, :String
       #   assert_type value, :Number
-      # @param value [Sass::Script::Literal] A SassScript value
+      # @param value [Sass::Script::Value::Base] A SassScript value
       # @param type [Symbol] The name of the type the value is expected to be
       # @param name [String, Symbol, nil] The name of the argument.
+      # @raise [ArgumentError] if value is not of the correct type.
       def assert_type(value, type, name = nil)
-        return if value.is_a?(Sass::Script.const_get(type))
-        err = "#{value.inspect} is not a #{type.to_s.downcase}"
+        klass = Sass::Script::Value.const_get(type)
+        return if value.is_a?(klass)
+        return if value.is_a?(Sass::Script::Value::List) && type == :Map && value.is_pseudo_map?
+        err = "#{value.inspect} is not a #{TYPE_NAMES[type] || type.to_s.downcase}"
         err = "$#{name.to_s.gsub('_', '-')}: " + err if name
         raise ArgumentError.new(err)
+      end
+
+      # Asserts that the unit of the number is as expected.
+      #
+      # @example
+      #   assert_unit number, "px"
+      #   assert_unit number, nil
+      # @param number [Sass::Script::Value::Number] The number to be validated.
+      # @param unit [::String]
+      #   The unit that the number must have.
+      #   If nil, the number must be unitless.
+      # @param name [::String] The name of the parameter being validated.
+      # @raise [ArgumentError] if number is not of the correct unit or is not a number.
+      def assert_unit(number, unit, name = nil)
+        assert_type number, :Number, name
+        return if number.is_unit?(unit)
+        expectation = unit ? "have a unit of #{unit}" : "be unitless"
+        if name
+          raise ArgumentError.new("Expected $#{name} to #{expectation} but got #{number}")
+        else
+          raise ArgumentError.new("Expected #{number} to #{expectation}")
+        end
+      end
+
+      # Asserts that the value is an integer.
+      #
+      # @example
+      #   assert_integer 2px
+      #   assert_integer 2.5px
+      #     => SyntaxError: "Expected 2.5px to be an integer"
+      #   assert_integer 2.5px, "width"
+      #     => SyntaxError: "Expected width to be an integer but got 2.5px"
+      # @param number [Sass::Script::Value::Base] The value to be validated.
+      # @param name [::String] The name of the parameter being validated.
+      # @raise [ArgumentError] if number is not an integer or is not a number.
+      def assert_integer(number, name = nil)
+        assert_type number, :Number, name
+        return if number.int?
+        if name
+          raise ArgumentError.new("Expected $#{name} to be an integer but got #{number}")
+        else
+          raise ArgumentError.new("Expected #{number} to be an integer")
+        end
       end
     end
 
@@ -353,6 +488,7 @@ module Sass::Script
       alias_method :callable?, :public_method_defined?
 
       private
+
       def include(*args)
         r = super
         # We have to re-include ourselves into EvaluationContext to work around
@@ -362,48 +498,55 @@ module Sass::Script
       end
     end
 
-    # Creates a {Color} object from red, green, and blue values.
+    # Creates a {Sass::Script::Value::Color Color} object from red, green, and
+    # blue values.
     #
     # @see #rgba
     # @overload rgb($red, $green, $blue)
-    # @param $red [Number] The amount of red in the color. Must be between 0 and
-    #   255 inclusive, or between `0%` and `100%` inclusive
-    # @param $green [Number] The amount of green in the color. Must be between 0
-    #   and 255 inclusive, or between `0%` and `100%` inclusive
-    # @param $blue [Number] The amount of blue in the color. Must be between 0
-    #   and 255 inclusive, or between `0%` and `100%` inclusive
-    # @return [Color]
+    # @param $red [Sass::Script::Value::Number] The amount of red in the color.
+    #   Must be between 0 and 255 inclusive, or between `0%` and `100%`
+    #   inclusive
+    # @param $green [Sass::Script::Value::Number] The amount of green in the
+    #   color. Must be between 0 and 255 inclusive, or between `0%` and `100%`
+    #   inclusive
+    # @param $blue [Sass::Script::Value::Number] The amount of blue in the
+    #   color. Must be between 0 and 255 inclusive, or between `0%` and `100%`
+    #   inclusive
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if any parameter is the wrong type or out of bounds
     def rgb(red, green, blue)
       assert_type red, :Number, :red
       assert_type green, :Number, :green
       assert_type blue, :Number, :blue
 
-      Color.new([[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
-          v = c.value
-          if c.numerator_units == ["%"] && c.denominator_units.empty?
-            v = Sass::Util.check_range("$#{name}: Color value", 0..100, c, '%')
-            v * 255 / 100.0
-          else
-            Sass::Util.check_range("$#{name}: Color value", 0..255, c)
-          end
-        end)
+      color_attrs = [[red, :red], [green, :green], [blue, :blue]].map do |(c, name)|
+        if c.is_unit?("%")
+          v = Sass::Util.check_range("$#{name}: Color value", 0..100, c, '%')
+          v * 255 / 100.0
+        elsif c.unitless?
+          Sass::Util.check_range("$#{name}: Color value", 0..255, c)
+        else
+          raise ArgumentError.new("Expected #{c} to be unitless or have a unit of % but got #{c}")
+        end
+      end
+      Sass::Script::Value::Color.new(color_attrs)
     end
     declare :rgb, [:red, :green, :blue]
 
-    # Creates a {Color} from red, green, blue, and alpha values.
+    # Creates a {Sass::Script::Value::Color Color} from red, green, blue, and
+    # alpha values.
     # @see #rgb
     #
     # @overload rgba($red, $green, $blue, $alpha)
-    #   @param $red [Number] The amount of red in the color. Must be between 0
-    #     and 255 inclusive
-    #   @param $green [Number] The amount of green in the color. Must be between
-    #     0 and 255 inclusive
-    #   @param $blue [Number] The amount of blue in the color. Must be between 0
-    #     and 255 inclusive
-    #   @param $alpha [Number] The opacity of the color. Must be between 0 and 1
-    #     inclusive
-    #   @return [Color]
+    #   @param $red [Sass::Script::Value::Number] The amount of red in the
+    #     color. Must be between 0 and 255 inclusive
+    #   @param $green [Sass::Script::Value::Number] The amount of green in the
+    #     color. Must be between 0 and 255 inclusive
+    #   @param $blue [Sass::Script::Value::Number] The amount of blue in the
+    #     color. Must be between 0 and 255 inclusive
+    #   @param $alpha [Sass::Script::Value::Number] The opacity of the color.
+    #     Must be between 0 and 1 inclusive
+    #   @return [Sass::Script::Value::Color]
     #   @raise [ArgumentError] if any parameter is the wrong type or out of
     #     bounds
     #
@@ -414,10 +557,11 @@ module Sass::Script
     #     rgba(#102030, 0.5) => rgba(16, 32, 48, 0.5)
     #     rgba(blue, 0.2)    => rgba(0, 0, 255, 0.2)
     #
-    #   @param $color [Color] The color whose opacity will be changed.
-    #   @param $alpha [Number] The new opacity of the color. Must be between 0
-    #     and 1 inclusive
-    #   @return [Color]
+    #   @param $color [Sass::Script::Value::Color] The color whose opacity will
+    #     be changed.
+    #   @param $alpha [Sass::Script::Value::Number] The new opacity of the
+    #     color. Must be between 0 and 1 inclusive
+    #   @return [Sass::Script::Value::Color]
     #   @raise [ArgumentError] if `$alpha` is out of bounds or either parameter
     #     is the wrong type
     def rgba(*args)
@@ -440,43 +584,44 @@ module Sass::Script
     declare :rgba, [:red, :green, :blue, :alpha]
     declare :rgba, [:color, :alpha]
 
-    # Creates a {Color} from hue, saturation, and lightness values. Uses the
-    # algorithm from the [CSS3 spec][].
+    # Creates a {Sass::Script::Value::Color Color} from hue, saturation, and
+    # lightness values. Uses the algorithm from the [CSS3 spec][].
     #
     # [CSS3 spec]: http://www.w3.org/TR/css3-color/#hsl-color
     #
     # @see #hsla
     # @overload hsl($hue, $saturation, $lightness)
-    # @param $hue [Number] The hue of the color. Should be between 0 and 360
-    #   degrees, inclusive
-    # @param $saturation [Number] The saturation of the color. Must be between
-    #   `0%` and `100%`, inclusive
-    # @param $lightness [Number] The lightness of the color. Must be between
-    #   `0%` and `100%`, inclusive
-    # @return [Color]
+    # @param $hue [Sass::Script::Value::Number] The hue of the color. Should be
+    #   between 0 and 360 degrees, inclusive
+    # @param $saturation [Sass::Script::Value::Number] The saturation of the
+    #   color. Must be between `0%` and `100%`, inclusive
+    # @param $lightness [Sass::Script::Value::Number] The lightness of the
+    #   color. Must be between `0%` and `100%`, inclusive
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$saturation` or `$lightness` are out of bounds
     #   or any parameter is the wrong type
     def hsl(hue, saturation, lightness)
-      hsla(hue, saturation, lightness, Number.new(1))
+      hsla(hue, saturation, lightness, number(1))
     end
     declare :hsl, [:hue, :saturation, :lightness]
 
-    # Creates a {Color} from hue, saturation, lightness, and alpha
-    # values. Uses the algorithm from the [CSS3 spec][].
+    # Creates a {Sass::Script::Value::Color Color} from hue,
+    # saturation, lightness, and alpha values. Uses the algorithm from
+    # the [CSS3 spec][].
     #
     # [CSS3 spec]: http://www.w3.org/TR/css3-color/#hsl-color
     #
     # @see #hsl
     # @overload hsla($hue, $saturation, $lightness, $alpha)
-    # @param $hue [Number] The hue of the color. Should be between 0 and 360
-    #   degrees, inclusive
-    # @param $saturation [Number] The saturation of the color. Must be between
-    #   `0%` and `100%`, inclusive
-    # @param $lightness [Number] The lightness of the color. Must be between
-    #   `0%` and `100%`, inclusive
-    # @param $alpha [Number] The opacity of the color. Must be between 0 and 1,
-    #   inclusive
-    # @return [Color]
+    # @param $hue [Sass::Script::Value::Number] The hue of the color. Should be
+    #   between 0 and 360 degrees, inclusive
+    # @param $saturation [Sass::Script::Value::Number] The saturation of the
+    #   color. Must be between `0%` and `100%`, inclusive
+    # @param $lightness [Sass::Script::Value::Number] The lightness of the
+    #   color. Must be between `0%` and `100%`, inclusive
+    # @param $alpha [Sass::Script::Value::Number] The opacity of the color. Must
+    #   be between 0 and 1, inclusive
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$saturation`, `$lightness`, or `$alpha` are out
     #   of bounds or any parameter is the wrong type
     def hsla(hue, saturation, lightness, alpha)
@@ -491,7 +636,8 @@ module Sass::Script
       s = Sass::Util.check_range('Saturation', 0..100, saturation, '%')
       l = Sass::Util.check_range('Lightness', 0..100, lightness, '%')
 
-      Color.new(:hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
+      Sass::Script::Value::Color.new(
+        :hue => h, :saturation => s, :lightness => l, :alpha => alpha.value)
     end
     declare :hsla, [:hue, :saturation, :lightness, :alpha]
 
@@ -501,12 +647,13 @@ module Sass::Script
     # [hsl-to-rgb]: http://www.w3.org/TR/css3-color/#hsl-color
     #
     # @overload red($color)
-    # @param $color [Color]
-    # @return [Number] The red component, between 0 and 255 inclusive
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Number] The red component, between 0 and 255
+    #   inclusive
     # @raise [ArgumentError] if `$color` isn't a color
     def red(color)
       assert_type color, :Color, :color
-      Sass::Script::Number.new(color.red)
+      number(color.red)
     end
     declare :red, [:color]
 
@@ -516,12 +663,13 @@ module Sass::Script
     # [hsl-to-rgb]: http://www.w3.org/TR/css3-color/#hsl-color
     #
     # @overload green($color)
-    # @param $color [Color]
-    # @return [Number] The green component, between 0 and 255 inclusive
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Number] The green component, between 0 and
+    #   255 inclusive
     # @raise [ArgumentError] if `$color` isn't a color
     def green(color)
       assert_type color, :Color, :color
-      Sass::Script::Number.new(color.green)
+      number(color.green)
     end
     declare :green, [:color]
 
@@ -531,12 +679,13 @@ module Sass::Script
     # [hsl-to-rgb]: http://www.w3.org/TR/css3-color/#hsl-color
     #
     # @overload blue($color)
-    # @param $color [Color]
-    # @return [Number] The blue component, between 0 and 255 inclusive
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Number] The blue component, between 0 and
+    #   255 inclusive
     # @raise [ArgumentError] if `$color` isn't a color
     def blue(color)
       assert_type color, :Color, :color
-      Sass::Script::Number.new(color.blue)
+      number(color.blue)
     end
     declare :blue, [:color]
 
@@ -548,12 +697,14 @@ module Sass::Script
     # [rgb-to-hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
     #
     # @overload hue($color)
-    # @param $color [Color]
-    # @return [Number] The hue component, between 0deg and 360deg
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Number] The hue component, between 0deg and
+    #   360deg
     # @raise [ArgumentError] if `$color` isn't a color
     def hue(color)
       assert_type color, :Color, :color
-      Sass::Script::Number.new(color.hue, ["deg"])
+      assert_type color, :Color
+      number(color.hue, "deg")
     end
     declare :hue, [:color]
 
@@ -565,12 +716,13 @@ module Sass::Script
     # [rgb-to-hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
     #
     # @overload saturation($color)
-    # @param $color [Color]
-    # @return [Number] The saturation component, between 0% and 100%
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Number] The saturation component, between 0%
+    #   and 100%
     # @raise [ArgumentError] if `$color` isn't a color
     def saturation(color)
       assert_type color, :Color, :color
-      Sass::Script::Number.new(color.saturation, ["%"])
+      number(color.saturation, "%")
     end
     declare :saturation, [:color]
 
@@ -582,12 +734,13 @@ module Sass::Script
     # [rgb-to-hsl]: http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_RGB_to_HSL_or_HSV
     #
     # @overload lightness($color)
-    # @param $color [Color]
-    # @return [Number] The lightness component, between 0% and 100%
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Number] The lightness component, between 0%
+    #   and 100%
     # @raise [ArgumentError] if `$color` isn't a color
     def lightness(color)
       assert_type color, :Color, :color
-      Sass::Script::Number.new(color.lightness, ["%"])
+      number(color.lightness, "%")
     end
     declare :lightness, [:color]
 
@@ -598,22 +751,22 @@ module Sass::Script
     # syntax as a special case.
     #
     # @overload alpha($color)
-    # @param $color [Color]
-    # @return [Number] The alpha component, between 0 and 1
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Number] The alpha component, between 0 and 1
     # @raise [ArgumentError] if `$color` isn't a color
     def alpha(*args)
       if args.all? do |a|
-          a.is_a?(Sass::Script::String) && a.type == :identifier &&
-            a.value =~ /^[a-zA-Z]+\s*=/
-        end
+           a.is_a?(Sass::Script::Value::String) && a.type == :identifier &&
+             a.value =~ /^[a-zA-Z]+\s*=/
+         end
         # Support the proprietary MS alpha() function
-        return Sass::Script::String.new("alpha(#{args.map {|a| a.to_s}.join(", ")})")
+        return identifier("alpha(#{args.map {|a| a.to_s}.join(", ")})")
       end
 
       raise ArgumentError.new("wrong number of arguments (#{args.size} for 1)") if args.size != 1
 
       assert_type args.first, :Color, :color
-      Sass::Script::Number.new(args.first.alpha)
+      number(args.first.alpha)
     end
     declare :alpha, [:color]
 
@@ -621,13 +774,15 @@ module Sass::Script
     # otherwise specified.
     #
     # @overload opacity($color)
-    # @param $color [Color]
-    # @return [Number] The alpha component, between 0 and 1
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Number] The alpha component, between 0 and 1
     # @raise [ArgumentError] if `$color` isn't a color
     def opacity(color)
-      return Sass::Script::String.new("opacity(#{color})") if color.is_a?(Sass::Script::Number)
+      if color.is_a?(Sass::Script::Value::Number)
+        return identifier("opacity(#{color})")
+      end
       assert_type color, :Color, :color
-      Sass::Script::Number.new(color.alpha)
+      number(color.alpha)
     end
     declare :opacity, [:color]
 
@@ -639,10 +794,10 @@ module Sass::Script
     #   opacify(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.6)
     #   opacify(rgba(0, 0, 17, 0.8), 0.2) => #001
     # @overload opacify($color, $amount)
-    # @param $color [Color]
-    # @param $amount [Number] The amount to increase the opacity by, between 0
-    #   and 1
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @param $amount [Sass::Script::Value::Number] The amount to increase the
+    #   opacity by, between 0 and 1
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
     #   is the wrong type
     def opacify(color, amount)
@@ -661,10 +816,10 @@ module Sass::Script
     #   transparentize(rgba(0, 0, 0, 0.5), 0.1) => rgba(0, 0, 0, 0.4)
     #   transparentize(rgba(0, 0, 0, 0.8), 0.2) => rgba(0, 0, 0, 0.6)
     # @overload transparentize($color, $amount)
-    # @param $color [Color]
-    # @param $amount [Number] The amount to decrease the opacity by, between 0
-    #   and 1
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @param $amount [Sass::Script::Value::Number] The amount to decrease the
+    #   opacity by, between 0 and 1
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
     #   is the wrong type
     def transparentize(color, amount)
@@ -683,10 +838,10 @@ module Sass::Script
     #   lighten(hsl(0, 0%, 0%), 30%) => hsl(0, 0, 30)
     #   lighten(#800, 20%) => #e00
     # @overload lighten($color, $amount)
-    # @param $color [Color]
-    # @param $amount [Number] The amount to increase the lightness by, between
-    #   `0%` and `100%`
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @param $amount [Sass::Script::Value::Number] The amount to increase the
+    #   lightness by, between `0%` and `100%`
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
     #   is the wrong type
     def lighten(color, amount)
@@ -702,10 +857,10 @@ module Sass::Script
     #   darken(hsl(25, 100%, 80%), 30%) => hsl(25, 100%, 50%)
     #   darken(#800, 20%) => #200
     # @overload darken($color, $amount)
-    # @param $color [Color]
-    # @param $amount [Number] The amount to dencrease the lightness by, between
-    #   `0%` and `100%`
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @param $amount [Sass::Script::Value::Number] The amount to dencrease the
+    #   lightness by, between `0%` and `100%`
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
     #   is the wrong type
     def darken(color, amount)
@@ -721,16 +876,16 @@ module Sass::Script
     #   saturate(hsl(120, 30%, 90%), 20%) => hsl(120, 50%, 90%)
     #   saturate(#855, 20%) => #9e3f3f
     # @overload saturate($color, $amount)
-    # @param $color [Color]
-    # @param $amount [Number] The amount to increase the saturation by, between
-    #   `0%` and `100%`
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @param $amount [Sass::Script::Value::Number] The amount to increase the
+    #   saturation by, between `0%` and `100%`
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
     #   is the wrong type
     def saturate(color, amount = nil)
       # Support the filter effects definition of saturate.
       # https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html
-      return Sass::Script::String.new("saturate(#{color})") if amount.nil?
+      return identifier("saturate(#{color})") if amount.nil?
       _adjust(color, amount, :saturation, 0..100, :+, "%")
     end
     declare :saturate, [:color, :amount]
@@ -744,10 +899,10 @@ module Sass::Script
     #   desaturate(hsl(120, 30%, 90%), 20%) => hsl(120, 10%, 90%)
     #   desaturate(#855, 20%) => #726b6b
     # @overload desaturate($color, $amount)
-    # @param $color [Color]
-    # @param $amount [Number] The amount to decrease the saturation by, between
-    #   `0%` and `100%`
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @param $amount [Sass::Script::Value::Number] The amount to decrease the
+    #   saturation by, between `0%` and `100%`
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$amount` is out of bounds, or either parameter
     #   is the wrong type
     def desaturate(color, amount)
@@ -764,9 +919,10 @@ module Sass::Script
     #   adjust-hue(hsl(120, 30%, 90%), 060deg) => hsl(60, 30%, 90%)
     #   adjust-hue(#811, 45deg) => #886a11
     # @overload adjust_hue($color, $degrees)
-    # @param $color [Color]
-    # @param $degrees [Number] The number of degrees to rotate the hue
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @param $degrees [Sass::Script::Value::Number] The number of degrees to
+    #   rotate the hue
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if either parameter is the wrong type
     def adjust_hue(color, degrees)
       assert_type color, :Color, :color
@@ -782,13 +938,14 @@ module Sass::Script
     #   ie-hex-str(#3322BB) => #FF3322BB
     #   ie-hex-str(rgba(0, 255, 0, 0.5)) => #8000FF00
     # @overload ie_hex_str($color)
-    # @param $color [Color]
-    # @return [String] The IE-formatted string representation of the color
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::String] The IE-formatted string
+    #   representation of the color
     # @raise [ArgumentError] if `$color` isn't a color
     def ie_hex_str(color)
       assert_type color, :Color, :color
       alpha = (color.alpha * 255).round.to_s(16).rjust(2, '0')
-      Sass::Script::String.new("##{alpha}#{color.send(:hex_str)[1..-1]}".upcase)
+      identifier("##{alpha}#{color.send(:hex_str)[1..-1]}".upcase)
     end
     declare :ie_hex_str, [:color]
 
@@ -805,23 +962,24 @@ module Sass::Script
     #   adjust-color(#102030, $blue: 5) => #102035
     #   adjust-color(#102030, $red: -5, $blue: 5) => #0b2035
     #   adjust-color(hsl(25, 100%, 80%), $lightness: -30%, $alpha: -0.4) => hsla(25, 100%, 50%, 0.6)
-    # @overload adjust_color($color, [$red], [$green], [$blue], [$hue], [$saturation], [$lightness], [$alpha])
-    # @param $color [Color]
-    # @param $red [Number] The adjustment to make on the red component, between
-    #   -255 and 255 inclusive
-    # @param $green [Number] The adjustment to make on the green component,
-    #   between -255 and 255 inclusive
-    # @param $blue [Number] The adjustment to make on the blue component, between
-    #   -255 and 255 inclusive
-    # @param $hue [Number] The adjustment to make on the hue component, in
-    #   degrees
-    # @param $saturation [Number] The adjustment to make on the saturation
-    #   component, between `-100%` and `100%` inclusive
-    # @param $lightness [Number] The adjustment to make on the lightness
-    #   component, between `-100%` and `100%` inclusive
-    # @param $alpha [Number] The adjustment to make on the alpha component,
-    #   between -1 and 1 inclusive
-    # @return [Color]
+    # @overload adjust_color($color, [$red], [$green], [$blue],
+    #   [$hue], [$saturation], [$lightness], [$alpha])
+    # @param $color [Sass::Script::Value::Color]
+    # @param $red [Sass::Script::Value::Number] The adjustment to make on the
+    #   red component, between -255 and 255 inclusive
+    # @param $green [Sass::Script::Value::Number] The adjustment to make on the
+    #   green component, between -255 and 255 inclusive
+    # @param $blue [Sass::Script::Value::Number] The adjustment to make on the
+    #   blue component, between -255 and 255 inclusive
+    # @param $hue [Sass::Script::Value::Number] The adjustment to make on the
+    #   hue component, in degrees
+    # @param $saturation [Sass::Script::Value::Number] The adjustment to make on
+    #   the saturation component, between `-100%` and `100%` inclusive
+    # @param $lightness [Sass::Script::Value::Number] The adjustment to make on
+    #   the lightness component, between `-100%` and `100%` inclusive
+    # @param $alpha [Sass::Script::Value::Number] The adjustment to make on the
+    #   alpha component, between -1 and 1 inclusive
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if any parameter is the wrong type or out-of
     #   bounds, or if RGB properties and HSL properties are adjusted at the
     #   same time
@@ -837,7 +995,8 @@ module Sass::Script
           "alpha" => [-1..1, ""]
         }) do |name, (range, units)|
 
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
         Sass::Util.check_range("$#{name}: Amount", range, val, units) if range
         adjusted = color.send(name) + val.value
@@ -881,15 +1040,16 @@ module Sass::Script
     #   scale-color(hsl(120, 70%, 80%), $lightness: 50%) => hsl(120, 70%, 90%)
     #   scale-color(rgb(200, 150%, 170%), $green: -40%, $blue: 70%) => rgb(200, 90, 229)
     #   scale-color(hsl(200, 70%, 80%), $saturation: -90%, $alpha: -30%) => hsla(200, 7%, 80%, 0.7)
-    # @overload scale_color($color, [$red], [$green], [$blue], [$saturation], [$lightness], [$alpha])
-    # @param $color [Color]
-    # @param $red [Number]
-    # @param $green [Number]
-    # @param $blue [Number]
-    # @param $saturation [Number]
-    # @param $lightness [Number]
-    # @param $alpha [Number]
-    # @return [Color]
+    # @overload scale_color($color, [$red], [$green], [$blue],
+    #   [$saturation], [$lightness], [$alpha])
+    # @param $color [Sass::Script::Value::Color]
+    # @param $red [Sass::Script::Value::Number]
+    # @param $green [Sass::Script::Value::Number]
+    # @param $blue [Sass::Script::Value::Number]
+    # @param $saturation [Sass::Script::Value::Number]
+    # @param $lightness [Sass::Script::Value::Number]
+    # @param $alpha [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if any parameter is the wrong type or out-of
     #   bounds, or if RGB properties and HSL properties are adjusted at the
     #   same time
@@ -904,18 +1064,16 @@ module Sass::Script
           "alpha" => 1
         }) do |name, max|
 
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
-        if !(val.numerator_units == ['%'] && val.denominator_units.empty?)
-          raise ArgumentError.new("$#{name}: Amount #{val} must be a % (e.g. #{val.value}%)")
-        else
-          Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
-        end
+        assert_unit val, '%', name
+        Sass::Util.check_range("$#{name}: Amount", -100..100, val, '%')
 
         current = color.send(name)
-        scale = val.value/100.0
+        scale = val.value / 100.0
         diff = scale > 0 ? max - current : current
-        [name.to_sym, current + diff*scale]
+        [name.to_sym, current + diff * scale]
       end
 
       unless kwargs.empty?
@@ -940,29 +1098,32 @@ module Sass::Script
     #   change-color(#102030, $blue: 5) => #102005
     #   change-color(#102030, $red: 120, $blue: 5) => #782005
     #   change-color(hsl(25, 100%, 80%), $lightness: 40%, $alpha: 0.8) => hsla(25, 100%, 40%, 0.8)
-    # @overload change_color($color, [$red], [$green], [$blue], [$hue], [$saturation], [$lightness], [$alpha])
-    # @param $color [Color]
-    # @param $red [Number] The new red component for the color, within 0 and 255
-    #   inclusive
-    # @param $green [Number] The new green component for the color, within 0 and
-    #   255 inclusive
-    # @param $blue [Number] The new blue component for the color, within 0 and
-    #   255 inclusive
-    # @param $hue [Number] The new hue component for the color, in degrees
-    # @param $saturation [Number] The new saturation component for the color,
-    #   between `0%` and `100%` inclusive
-    # @param $lightness [Number] The new lightness component for the color,
-    #   within `0%` and `100%` inclusive
-    # @param $alpha [Number] The new alpha component for the color, within 0 and
-    #   1 inclusive
-    # @return [Color]
+    # @overload change_color($color, [$red], [$green], [$blue], [$hue],
+    #   [$saturation], [$lightness], [$alpha])
+    # @param $color [Sass::Script::Value::Color]
+    # @param $red [Sass::Script::Value::Number] The new red component for the
+    #   color, within 0 and 255 inclusive
+    # @param $green [Sass::Script::Value::Number] The new green component for
+    #   the color, within 0 and 255 inclusive
+    # @param $blue [Sass::Script::Value::Number] The new blue component for the
+    #   color, within 0 and 255 inclusive
+    # @param $hue [Sass::Script::Value::Number] The new hue component for the
+    #   color, in degrees
+    # @param $saturation [Sass::Script::Value::Number] The new saturation
+    #   component for the color, between `0%` and `100%` inclusive
+    # @param $lightness [Sass::Script::Value::Number] The new lightness
+    #   component for the color, within `0%` and `100%` inclusive
+    # @param $alpha [Sass::Script::Value::Number] The new alpha component for
+    #   the color, within 0 and 1 inclusive
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if any parameter is the wrong type or out-of
     #   bounds, or if RGB properties and HSL properties are adjusted at the
     #   same time
     def change_color(color, kwargs)
       assert_type color, :Color, :color
       with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
-        next unless val = kwargs.delete(name)
+        val = kwargs.delete(name)
+        next unless val
         assert_type val, :Number, name
         [name.to_sym, val.value]
       end
@@ -990,15 +1151,15 @@ module Sass::Script
     #   mix(#f00, #00f, 25%) => #3f00bf
     #   mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
     # @overload mix($color-1, $color-2, $weight: 50%)
-    # @param $color-1 [Color]
-    # @param $color-2 [Color]
-    # @param $weight [Number] The relative weight of each color. Closer to `0%`
-    #   gives more weight to `$color`, closer to `100%` gives more weight to
-    #   `$color2`
-    # @return [Color]
+    # @param $color-1 [Sass::Script::Value::Color]
+    # @param $color-2 [Sass::Script::Value::Color]
+    # @param $weight [Sass::Script::Value::Number] The relative weight of each
+    #   color. Closer to `0%` gives more weight to `$color`, closer to `100%`
+    #   gives more weight to `$color2`
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$weight` is out of bounds or any parameter is
     #   the wrong type
-    def mix(color_1, color_2, weight = Number.new(50))
+    def mix(color_1, color_2, weight = number(50))
       assert_type color_1, :Color, :color_1
       assert_type color_2, :Color, :color_2
       assert_type weight, :Number, :weight
@@ -1024,16 +1185,16 @@ module Sass::Script
       #
       # Finally, the weight of color_1 is renormalized to be within [0, 1]
       # and the weight of color_2 is given by 1 minus the weight of color_1.
-      p = (weight.value/100.0).to_f
-      w = p*2 - 1
+      p = (weight.value / 100.0).to_f
+      w = p * 2 - 1
       a = color_1.alpha - color_2.alpha
 
-      w1 = (((w * a == -1) ? w : (w + a)/(1 + w*a)) + 1)/2.0
+      w1 = ((w * a == -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0
       w2 = 1 - w1
 
-      rgb = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1*w1 + v2*w2}
-      alpha = color_1.alpha*p + color_2.alpha*(1-p)
-      Color.new(rgb + [alpha])
+      rgba = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
+      rgba << color_1.alpha * p + color_2.alpha * (1 - p)
+      rgb_color(*rgba)
     end
     declare :mix, [:color_1, :color_2]
     declare :mix, [:color_1, :color_2, :weight]
@@ -1043,12 +1204,14 @@ module Sass::Script
     #
     # @see #desaturate
     # @overload grayscale($color)
-    # @param $color [Color]
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$color` isn't a color
     def grayscale(color)
-      return Sass::Script::String.new("grayscale(#{color})") if color.is_a?(Sass::Script::Number)
-      desaturate color, Number.new(100)
+      if color.is_a?(Sass::Script::Value::Number)
+        return identifier("grayscale(#{color})")
+      end
+      desaturate color, number(100)
     end
     declare :grayscale, [:color]
 
@@ -1057,11 +1220,11 @@ module Sass::Script
     #
     # @see #adjust_hue #adjust-hue
     # @overload complement($color)
-    # @param $color [Color]
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$color` isn't a color
     def complement(color)
-      adjust_hue color, Number.new(180)
+      adjust_hue color, number(180)
     end
     declare :complement, [:color]
 
@@ -1069,11 +1232,13 @@ module Sass::Script
     # are inverted, while the opacity is left alone.
     #
     # @overload invert($color)
-    # @param $color [Color]
-    # @return [Color]
+    # @param $color [Sass::Script::Value::Color]
+    # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$color` isn't a color
     def invert(color)
-      return Sass::Script::String.new("invert(#{color})") if color.is_a?(Sass::Script::Number)
+      if color.is_a?(Sass::Script::Value::Number)
+        return identifier("invert(#{color})")
+      end
 
       assert_type color, :Color, :color
       color.with(
@@ -1091,12 +1256,12 @@ module Sass::Script
     #   unquote("foo") => foo
     #   unquote(foo) => foo
     # @overload unquote($string)
-    # @param $string [String]
-    # @return [String]
+    # @param $string [Sass::Script::Value::String]
+    # @return [Sass::Script::Value::String]
     # @raise [ArgumentError] if `$string` isn't a string
     def unquote(string)
-      if string.is_a?(Sass::Script::String)
-        Sass::Script::String.new(string.value, :identifier)
+      if string.is_a?(Sass::Script::Value::String) && string.type != :identifier
+        identifier(string.value)
       else
         string
       end
@@ -1111,14 +1276,163 @@ module Sass::Script
     #   quote("foo") => "foo"
     #   quote(foo) => "foo"
     # @overload quote($string)
-    # @param $string [String]
-    # @return [String]
+    # @param $string [Sass::Script::Value::String]
+    # @return [Sass::Script::Value::String]
     # @raise [ArgumentError] if `$string` isn't a string
     def quote(string)
       assert_type string, :String, :string
-      Sass::Script::String.new(string.value, :string)
+      if string.type != :string
+        quoted_string(string.value)
+      else
+        string
+      end
     end
     declare :quote, [:string]
+
+    # Returns the number of characters in a string.
+    #
+    # @example
+    #   str-length("foo") => 3
+    # @overload str_length($string)
+    # @param $string [Sass::Script::Value::String]
+    # @return [Sass::Script::Value::Number]
+    # @raise [ArgumentError] if `$string` isn't a string
+    def str_length(string)
+      assert_type string, :String, :string
+      number(string.value.size)
+    end
+    declare :str_length, [:string]
+
+    # Inserts `$insert` into `$string` at `$index`.
+    #
+    # Note that unlike some languages, the first character in a Sass string is
+    # number 1, the second number 2, and so forth.
+    #
+    # @example
+    #   str-insert("abcd", "X", 1) => "Xabcd"
+    #   str-insert("abcd", "X", 4) => "abcXd"
+    #   str-insert("abcd", "X", 5) => "abcdX"
+    #
+    # @overload str_insert($string, $insert, $index)
+    # @param $string [Sass::Script::Value::String]
+    # @param $insert [Sass::Script::Value::String]
+    # @param $index [Sass::Script::Value::Number] The position at which
+    #   `$insert` will be inserted. Negative indices count from the end of
+    #   `$string`. An index that's outside the bounds of the string will insert
+    #   `$insert` at the front or back of the string
+    # @return [Sass::Script::Value::String] The result string. This will be
+    #   quoted if and only if `$string` was quoted
+    # @raise [ArgumentError] if any parameter is the wrong type
+    def str_insert(original, insert, index)
+      assert_type original, :String, :string
+      assert_type insert, :String, :insert
+      assert_integer index, :index
+      assert_unit index, nil, :index
+      insertion_point = if index.value > 0
+                          [index.value - 1, original.value.size].min
+                        else
+                          [index.value, -original.value.size - 1].max
+                        end
+      result = original.value.dup.insert(insertion_point, insert.value)
+      Sass::Script::Value::String.new(result, original.type)
+    end
+    declare :str_insert, [:string, :insert, :index]
+
+    # Returns the index of the first occurance of `$substring` in `$string`. If
+    # there is no such occurance, returns 0.
+    #
+    # Note that unlike some languages, the first character in a Sass string is
+    # number 1, the second number 2, and so forth.
+    #
+    # @example
+    #   str-index(abcd, a)  => 1
+    #   str-index(abcd, ab) => 1
+    #   str-index(abcd, X)  => 0
+    #   str-index(abcd, c)  => 3
+    #
+    # @overload str_index($string, $substring)
+    # @param $string [Sass::Script::Value::String]
+    # @param $substring [Sass::Script::Value::String]
+    # @return [Sass::Script::Value::Number]
+    # @raise [ArgumentError] if any parameter is the wrong type
+    def str_index(string, substring)
+      assert_type string, :String, :string
+      assert_type substring, :String, :substring
+      index = string.value.index(substring.value) || -1
+      number(index + 1)
+    end
+    declare :str_index, [:string, :substring]
+
+    # Extracts a substring from `$string`. The substring will begin at index
+    # `$start-at` and ends at index `$end-at`.
+    #
+    # Note that unlike some languages, the first character in a Sass string is
+    # number 1, the second number 2, and so forth.
+    #
+    # @example
+    #  str-slice("abcd", 2, 3)   => "bc"
+    #  str-slice("abcd", 2)      => "bcd"
+    #  str-slice("abcd", -3, -2) => "bc"
+    #  str-slice("abcd", 2, -2)  => "bc"
+    #
+    # @overload str_slice($string, $start-at, $end-at: -1)
+    # @param $start-at [Sass::Script::Value::Number] The index of the first
+    #   character of the substring. If this is negative, it counts from the end
+    #   of `$string`
+    # @param $end-before [Sass::Script::Value::Number] The index of the last
+    #   character of the substring. If this is negative, it counts from the end
+    #   of `$string`. Defaults to -1
+    # @return [Sass::Script::Value::String] The substring. This will be quoted
+    #   if and only if `$string` was quoted
+    # @raise [ArgumentError] if any parameter is the wrong type
+    def str_slice(string, start_at, end_at = nil)
+      assert_type string, :String, :string
+      assert_unit start_at, nil, "start-at"
+
+      end_at = number(-1) if end_at.nil?
+      assert_unit end_at, nil, "end-at"
+
+      s = start_at.value > 0 ? start_at.value - 1 : start_at.value
+      e = end_at.value > 0 ? end_at.value - 1 : end_at.value
+      s = string.value.length + s if s < 0
+      s = 0 if s < 0
+      e = string.value.length + e if e < 0
+      e = 0 if s < 0
+      extracted = string.value.slice(s..e)
+      Sass::Script::Value::String.new(extracted || "", string.type)
+    end
+    declare :str_slice, [:string, :start_at]
+    declare :str_slice, [:string, :start_at, :end_at]
+
+    # Converts a string to upper case.
+    #
+    # @example
+    #   to-upper-case(abcd) => ABCD
+    #
+    # @overload to_upper_case($string)
+    # @param $string [Sass::Script::Value::String]
+    # @return [Sass::Script::Value::String]
+    # @raise [ArgumentError] if `$string` isn't a string
+    def to_upper_case(string)
+      assert_type string, :String, :string
+      Sass::Script::Value::String.new(string.value.upcase, string.type)
+    end
+    declare :to_upper_case, [:string]
+
+    # Convert a string to lower case,
+    #
+    # @example
+    #   to-lower-case(ABCD) => abcd
+    #
+    # @overload to_lower_case($string)
+    # @param $string [Sass::Script::Value::String]
+    # @return [Sass::Script::Value::String]
+    # @raise [ArgumentError] if `$string` isn't a string
+    def to_lower_case(string)
+      assert_type string, :String, :string
+      Sass::Script::Value::String.new(string.value.downcase, string.type)
+    end
+    declare :to_lower_case, [:string]
 
     # Returns the type of a value.
     #
@@ -1130,12 +1444,29 @@ module Sass::Script
     #   type-of(#fff)   => color
     #   type-of(blue)   => color
     # @overload type_of($value)
-    # @param $value [Literal] The value to inspect
-    # @return [String] The unquoted string name of the value's type
+    # @param $value [Sass::Script::Value::Base] The value to inspect
+    # @return [Sass::Script::Value::String] The unquoted string name of the
+    #   value's type
     def type_of(value)
-      Sass::Script::String.new(value.class.name.gsub(/Sass::Script::/,'').downcase)
+      identifier(value.class.name.gsub(/Sass::Script::Value::/, '').downcase)
     end
     declare :type_of, [:value]
+
+    # Returns whether a feature exists in the current Sass runtime.
+    #
+    # @example
+    #   feature-exists(some-feature-that-exists) => true
+    #   feature-exists(what-is-this-i-dont-know) => false
+    #
+    # @overload feature_exists($feature)
+    # @param $feature [Sass::Script::Value::String] The name of the feature
+    # @return [Sass::Script::Value::Bool] Whether the feature is supported in this version of Sass
+    # @raise [ArgumentError] if `$feature` isn't a string
+    def feature_exists(feature)
+      assert_type feature, :String, :feature
+      bool(Sass.has_feature?(feature.value))
+    end
+    declare :feature_exists, [:feature]
 
     # Returns the unit(s) associated with a number. Complex units are sorted in
     # alphabetical order by numerator and denominator.
@@ -1147,12 +1478,13 @@ module Sass::Script
     #   unit(10px * 5em) => "em*px"
     #   unit(10px * 5em / 30cm / 1rem) => "em*px/cm*rem"
     # @overload unit($number)
-    # @param $number [Number]
-    # @return [String] The unit(s) of the number, as a quoted string
+    # @param $number [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::String] The unit(s) of the number, as a
+    #   quoted string
     # @raise [ArgumentError] if `$number` isn't a number
     def unit(number)
       assert_type number, :Number, :number
-      Sass::Script::String.new(number.unit_str, :string)
+      quoted_string(number.unit_str)
     end
     declare :unit, [:number]
 
@@ -1162,12 +1494,12 @@ module Sass::Script
     #   unitless(100) => true
     #   unitless(100px) => false
     # @overload unitless($number)
-    # @param $number [Number]
-    # @return [Bool]
+    # @param $number [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if `$number` isn't a number
     def unitless(number)
       assert_type number, :Number, :number
-      Sass::Script::Bool.new(number.unitless?)
+      bool(number.unitless?)
     end
     declare :unitless, [:number]
 
@@ -1178,14 +1510,14 @@ module Sass::Script
     #   comparable(100px, 3em) => false
     #   comparable(10cm, 3mm) => true
     # @overload comparable($number-1, $number-2)
-    # @param $number-1 [Number]
-    # @param $number-2 [Number]
-    # @return [Bool]
+    # @param $number-1 [Sass::Script::Value::Number]
+    # @param $number-2 [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if either parameter is the wrong type
     def comparable(number_1, number_2)
       assert_type number_1, :Number, :number_1
       assert_type number_2, :Number, :number_2
-      Sass::Script::Bool.new(number_1.comparable_to?(number_2))
+      bool(number_1.comparable_to?(number_2))
     end
     declare :comparable, [:number_1, :number_2]
 
@@ -1195,14 +1527,14 @@ module Sass::Script
     #   percentage(0.2) => 20%
     #   percentage(100px / 50px) => 200%
     # @overload percentage($value)
-    # @param $value [Number]
-    # @return [Number]
+    # @param $value [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a unitless number
     def percentage(value)
-      unless value.is_a?(Sass::Script::Number) && value.unitless?
+      unless value.is_a?(Sass::Script::Value::Number) && value.unitless?
         raise ArgumentError.new("$value: #{value.inspect} is not a unitless number")
       end
-      Sass::Script::Number.new(value.value * 100, ['%'])
+      number(value.value * 100, '%')
     end
     declare :percentage, [:value]
 
@@ -1212,8 +1544,8 @@ module Sass::Script
     #   round(10.4px) => 10px
     #   round(10.6px) => 11px
     # @overload round($value)
-    # @param $value [Number]
-    # @return [Number]
+    # @param $value [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a number
     def round(value)
       numeric_transformation(value) {|n| n.round}
@@ -1226,8 +1558,8 @@ module Sass::Script
     #   ceil(10.4px) => 11px
     #   ceil(10.6px) => 11px
     # @overload ceil($value)
-    # @param $value [Number]
-    # @return [Number]
+    # @param $value [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a number
     def ceil(value)
       numeric_transformation(value) {|n| n.ceil}
@@ -1240,8 +1572,8 @@ module Sass::Script
     #   floor(10.4px) => 10px
     #   floor(10.6px) => 10px
     # @overload floor($value)
-    # @param $value [Number]
-    # @return [Number]
+    # @param $value [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a number
     def floor(value)
       numeric_transformation(value) {|n| n.floor}
@@ -1254,8 +1586,8 @@ module Sass::Script
     #   abs(10px) => 10px
     #   abs(-10px) => 10px
     # @overload abs($value)
-    # @param $value [Number]
-    # @return [Number]
+    # @param $value [Sass::Script::Value::Number]
+    # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a number
     def abs(value)
       numeric_transformation(value) {|n| n.abs}
@@ -1269,8 +1601,8 @@ module Sass::Script
     #   min(1px, 4px) => 1px
     #   min(5em, 3em, 4em) => 3em
     # @overload min($numbers...)
-    # @param $numbers [[Number]]
-    # @return [Number]
+    # @param $numbers [[Sass::Script::Value::Number]]
+    # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if any argument isn't a number, or if not all of
     #   the arguments have comparable units
     def min(*numbers)
@@ -1286,8 +1618,8 @@ module Sass::Script
     #   max(1px, 4px) => 4px
     #   max(5em, 3em, 4em) => 5em
     # @overload max($numbers...)
-    # @param $numbers [[Number]]
-    # @return [Number]
+    # @param $numbers [[Sass::Script::Value::Number]]
+    # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if any argument isn't a number, or if not all of
     #   the arguments have comparable units
     def max(*values)
@@ -1298,44 +1630,77 @@ module Sass::Script
 
     # Return the length of a list.
     #
+    # This can return the number of pairs in a map as well.
+    #
     # @example
     #   length(10px) => 1
     #   length(10px 20px 30px) => 3
+    #   length((width: 10px, height: 20px)) => 2
     # @overload length($list)
-    # @param $list [Literal]
-    # @return [Number]
+    # @param $list [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Number]
     def length(list)
-      Sass::Script::Number.new(list.to_a.size)
+      number(list.to_a.size)
     end
     declare :length, [:list]
+
+    # Return a new list, based on the list provided, but with the nth
+    # element changed to the value given.
+    #
+    # Note that unlike some languages, the first item in a Sass list is number
+    # 1, the second number 2, and so forth.
+    #
+    # Negative index values address elements in reverse order, starting with the last element
+    # in the list.
+    #
+    # @example
+    #   set-nth($list: 10px 20px 30px, $n: 2, $value: -20px) => 10px -20px 30px
+    # @overload set-nth($list, $n, $value)
+    # @param $list [Sass::Script::Value::Base] The list that will be copied, having the element
+    #   at index `$n` changed.
+    # @param $n [Sass::Script::Value::Number] The index of the item to set.
+    #   Negative indices count from the end of the list.
+    # @param $value [Sass::Script::Value::Base] The new value at index `$n`.
+    # @return [Sass::Script::Value::List]
+    # @raise [ArgumentError] if `$n` isn't an integer between 1 and the length
+    #   of `$list`
+    def set_nth(list, n, value)
+      assert_type n, :Number, :n
+      Sass::Script::Value::List.assert_valid_index(list, n)
+      index = n.to_i > 0 ? n.to_i - 1 : n.to_i
+      new_list = list.to_a.dup
+      new_list[index] = value
+      Sass::Script::Value::List.new(new_list, list.separator)
+    end
+    declare :set_nth, [:list, :n, :value]
 
     # Gets the nth item in a list.
     #
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
     #
+    # This can return the nth pair in a map as well.
+    #
+    # Negative index values address elements in reverse order, starting with the last element in
+    # the list.
+    #
     # @example
     #   nth(10px 20px 30px, 1) => 10px
     #   nth((Helvetica, Arial, sans-serif), 3) => sans-serif
+    #   nth((width: 10px, length: 20px), 2) => length, 20px
     # @overload nth($list, $n)
-    # @param $list [Literal]
-    # @param $n [Number] The index of the item to get
-    # @return [Literal]
+    # @param $list [Sass::Script::Value::Base]
+    # @param $n [Sass::Script::Value::Number] The index of the item to get.
+    #   Negative indices count from the end of the list.
+    # @return [Sass::Script::Value::Base]
     # @raise [ArgumentError] if `$n` isn't an integer between 1 and the length
     #   of `$list`
     def nth(list, n)
       assert_type n, :Number, :n
-      if !n.int?
-        raise ArgumentError.new("List index #{n} must be an integer")
-      elsif n.to_i < 1
-        raise ArgumentError.new("List index #{n} must be greater than or equal to 1")
-      elsif list.to_a.size == 0
-        raise ArgumentError.new("List index is #{n} but list has no items")
-      elsif n.to_i > (size = list.to_a.size)
-        raise ArgumentError.new("List index is #{n} but list is only #{size} item#{'s' if size != 1} long")
-      end
+      Sass::Script::Value::List.assert_valid_index(list, n)
 
-      list.to_a[n.to_i - 1]
+      index = n.to_i > 0 ? n.to_i - 1 : n.to_i
+      list.to_a[index]
     end
     declare :nth, [:list, :n]
 
@@ -1353,26 +1718,23 @@ module Sass::Script
     #   join(10px, 20px, comma) => 10px, 20px
     #   join((blue, red), (#abc, #def), space) => blue red #abc #def
     # @overload join($list1, $list2, $separator: auto)
-    # @param $list1 [Literal]
-    # @param $list2 [Literal]
-    # @param $separator [String] The list separator to use. If this is `comma`
-    #   or `space`, that separator will be used. If this is `auto` (the
-    #   default), the separator is determined as explained above.
-    # @return [List]
-    def join(list1, list2, separator = Sass::Script::String.new("auto"))
+    # @param $list1 [Sass::Script::Value::Base]
+    # @param $list2 [Sass::Script::Value::Base]
+    # @param $separator [Sass::Script::Value::String] The list separator to use.
+    #   If this is `comma` or `space`, that separator will be used. If this is
+    #   `auto` (the default), the separator is determined as explained above.
+    # @return [Sass::Script::Value::List]
+    def join(list1, list2, separator = identifier("auto"))
       assert_type separator, :String, :separator
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep1 = list1.separator if list1.is_a?(Sass::Script::List) && !list1.value.empty?
-      sep2 = list2.separator if list2.is_a?(Sass::Script::List) && !list2.value.empty?
-      Sass::Script::List.new(
-        list1.to_a + list2.to_a,
-        if separator.value == 'auto'
-          sep1 || sep2 || :space
-        else
-          separator.value.to_sym
-        end)
+      sep = if separator.value == 'auto'
+              list1.separator || list2.separator || :space
+            else
+              separator.value.to_sym
+            end
+      list(list1.to_a + list2.to_a, sep)
     end
     declare :join, [:list1, :list2]
     declare :join, [:list1, :list2, :separator]
@@ -1389,25 +1751,23 @@ module Sass::Script
     #   append(10px, 20px, comma) => 10px, 20px
     #   append((blue, red), green, space) => blue red green
     # @overload append($list, $val, $separator: auto)
-    # @param $list [Literal]
-    # @param $val [Literal]
-    # @param $separator [String] The list separator to use. If this is `comma`
-    #   or `space`, that separator will be used. If this is `auto` (the
-    #   default), the separator is determined as explained above.
-    # @return [List]
-    def append(list, val, separator = Sass::Script::String.new("auto"))
+    # @param $list [Sass::Script::Value::Base]
+    # @param $val [Sass::Script::Value::Base]
+    # @param $separator [Sass::Script::Value::String] The list separator to use.
+    #   If this is `comma` or `space`, that separator will be used. If this is
+    #   `auto` (the default), the separator is determined as explained above.
+    # @return [Sass::Script::Value::List]
+    def append(list, val, separator = identifier("auto"))
       assert_type separator, :String, :separator
       unless %w[auto space comma].include?(separator.value)
         raise ArgumentError.new("Separator name must be space, comma, or auto")
       end
-      sep = list.separator if list.is_a?(Sass::Script::List)
-      Sass::Script::List.new(
-        list.to_a + [val],
-        if separator.value == 'auto'
-          sep || :space
-        else
-          separator.value.to_sym
-        end)
+      sep = if separator.value == 'auto'
+              list.separator || :space
+            else
+              separator.value.to_sym
+            end
+      list(list.to_a + [val], sep)
     end
     declare :append, [:list, :val]
     declare :append, [:list, :val, :separator]
@@ -1423,8 +1783,8 @@ module Sass::Script
     #   zip(1px 1px 3px, solid dashed solid, red green blue)
     #   => 1px solid red, 1px dashed green, 3px solid blue
     # @overload zip($lists...)
-    # @param $lists [[Literal]]
-    # @return [List]
+    # @param $lists [[Sass::Script::Value::Base]]
+    # @return [Sass::Script::Value::List]
     def zip(*lists)
       length = nil
       values = []
@@ -1437,10 +1797,9 @@ module Sass::Script
         value.slice!(length)
       end
       new_list_value = values.first.zip(*values[1..-1])
-      List.new(new_list_value.map{|list| List.new(list, :space)}, :comma)
+      list(new_list_value.map {|list| list(list, :space)}, :comma)
     end
     declare :zip, [], :var_args => true
-
 
     # Returns the position of a value within a list. If the value isn't found,
     # returns false instead.
@@ -1448,23 +1807,151 @@ module Sass::Script
     # Note that unlike some languages, the first item in a Sass list is number
     # 1, the second number 2, and so forth.
     #
+    # This can return the position of a pair in a map as well.
+    #
     # @example
     #   index(1px solid red, solid) => 2
     #   index(1px solid red, dashed) => false
+    #   index((width: 10px, height: 20px), (height, 20px)) => 2
     # @overload index($list, $value)
-    # @param $list [Literal]
-    # @param $value [Literal]
-    # @return [Number, Bool] The 1-based index of `$value` in `$list`, or
-    #   `false`
+    # @param $list [Sass::Script::Value::Base]
+    # @param $value [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Number, Sass::Script::Value::Bool] The
+    #   1-based index of `$value` in `$list`, or `false`
     def index(list, value)
-      index = list.to_a.index {|e| e.eq(value).to_bool }
+      index = list.to_a.index {|e| e.eq(value).to_bool}
       if index
-        Number.new(index + 1)
+        number(index + 1)
       else
-        Bool.new(false)
+        bool(false)
       end
     end
     declare :index, [:list, :value]
+
+    # Returns the separator of a list. If the list doesn't have a separator due
+    # to having fewer than two elements, returns `space`.
+    #
+    # @example
+    #   list-separator(1px 2px 3px) => space
+    #   list-separator(1px, 2px, 3px) => comma
+    #   list-separator('foo') => space
+    # @overload list_separator($list)
+    # @param $list [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::String] `comma` or `space`
+    def list_separator(list)
+      identifier((list.separator || :space).to_s)
+    end
+    declare :separator, [:list]
+
+    # Returns the value in a map associated with the given key. If the map
+    # doesn't have such a key, returns `null`.
+    #
+    # @example
+    #   map-get(("foo": 1, "bar": 2), "foo") => 1
+    #   map-get(("foo": 1, "bar": 2), "bar") => 2
+    #   map-get(("foo": 1, "bar": 2), "baz") => null
+    # @overload map_get($map, $key)
+    # @param $map [Sass::Script::Value::Map]
+    # @param $key [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Base] The value indexed by `$key`, or `null`
+    #   if the map doesn't contain the given key
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_get(map, key)
+      assert_type map, :Map
+      to_h(map)[key] || Sass::Script::Value::Null.new
+    end
+    declare :map_get, [:map, :key]
+
+    # Merges two maps together into a new map. Keys in `$map2` will take
+    # precedence over keys in `$map1`.
+    #
+    # This is the best way to add new values to a map.
+    #
+    # All keys in the returned map that also appear in `$map1` will have the
+    # same order as in `$map1`. New keys from `$map2` will be placed at the end
+    # of the map.
+    #
+    # @example
+    #   map-merge(("foo": 1), ("bar": 2)) => ("foo": 1, "bar": 2)
+    #   map-merge(("foo": 1, "bar": 2), ("bar": 3)) => ("foo": 1, "bar": 3)
+    # @overload map_merge($map1, $map2)
+    # @param $map1 [Sass::Script::Value::Map]
+    # @param $map2 [Sass::Script::Value::Map]
+    # @return [Sass::Script::Value::Map]
+    # @raise [ArgumentError] if either parameter is not a map
+    def map_merge(map1, map2)
+      assert_type map1, :Map
+      assert_type map2, :Map
+      Sass::Script::Value::Map.new(to_h(map1).merge(to_h(map2)))
+    end
+    declare :map_get, [:map1, :map2]
+
+    # Returns a list of all keys in a map.
+    #
+    # @example
+    #   map-keys(("foo": 1, "bar": 2)) => "foo", "bar"
+    # @overload map_keys($map)
+    # @param $map [Map]
+    # @return [List] the list of keys, comma-separated
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_keys(map)
+      assert_type map, :Map
+      Sass::Script::Value::List.new(to_h(map).keys, :comma)
+    end
+    declare :map_keys, [:map]
+
+    # Returns a list of all values in a map. This list may include duplicate
+    # values, if multiple keys have the same value.
+    #
+    # @example
+    #   map-values(("foo": 1, "bar": 2)) => 1, 2
+    #   map-values(("foo": 1, "bar": 2, "baz": 1)) => 1, 2, 1
+    # @overload map_values($map)
+    # @param $map [Map]
+    # @return [List] the list of values, comma-separated
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_values(map)
+      assert_type map, :Map
+      Sass::Script::Value::List.new(to_h(map).values, :comma)
+    end
+    declare :map_values, [:map]
+
+    # Returns whether a map has a value associated with a given key.
+    #
+    # @example
+    #   map-has-key(("foo": 1, "bar": 2), "foo") => true
+    #   map-has-key(("foo": 1, "bar": 2), "baz") => false
+    # @overload map_has_key($map, $key)
+    # @param $map [Sass::Script::Value::Map]
+    # @param $key [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Bool]
+    # @raise [ArgumentError] if `$map` is not a map
+    def map_has_key(map, key)
+      assert_type map, :Map
+      Sass::Script::Value::Bool.new(to_h(map).has_key?(key))
+    end
+    declare :map_has_key, [:map, :key]
+
+    # Returns the map of named arguments passed to a function or mixin that
+    # takes a variable argument list. The argument names are strings, and they
+    # do not contain the leading `$`.
+    #
+    # @example
+    #   @mixin foo($args...) {
+    #     @debug keywords($args); //=> (arg1: val, arg2: val)
+    #   }
+    #
+    #   @include foo($arg1: val, $arg2: val);
+    # @overload keywords($args)
+    # @param $args [Sass::Script::Value::ArgList]
+    # @return [Sass::Script::Value::Map]
+    # @raise [ArgumentError] if `$args` isn't a variable argument list
+    def keywords(args)
+      assert_type args, :ArgList
+      Sass::Script::Value::Map.new(
+        Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
+    end
+    declare :keywords, [:args]
 
     # Returns one of two values, depending on whether or not `$condition` is
     # true. Just like in `@if`, all values other than `false` and `null` are
@@ -1474,11 +1961,11 @@ module Sass::Script
     #   if(true, 1px, 2px) => 1px
     #   if(false, 1px, 2px) => 2px
     # @overload if($condition, $if-true, $if-false)
-    # @param $condition [Literal] Whether the `$if-true` or `$if-false` will be
-    #   returned
-    # @param $if-true [Literal]
-    # @param $if-false [Literal]
-    # @return [Literal] `$if-true` or `$if-false`
+    # @param $condition [Sass::Script::Value::Base] Whether the `$if-true` or
+    #   `$if-false` will be returned
+    # @param $if-true [Sass::Script::Value::Base]
+    # @param $if-false [Sass::Script::Value::Base]
+    # @return [Sass::Script::Value::Base] `$if-true` or `$if-false`
     def if(condition, if_true, if_false)
       if condition.to_bool
         if_true
@@ -1487,6 +1974,49 @@ module Sass::Script
       end
     end
     declare :if, [:condition, :if_true, :if_false]
+
+    # Returns a unique CSS identifier. The identifier is returned as an unquoted
+    # string. The identifier returned is only guaranteed to be unique within the
+    # scope of a single Sass run.
+    #
+    # @overload unique_id()
+    # @return [Sass::Script::Value::String]
+    def unique_id
+      Thread.current[:sass_last_unique_id] ||= rand(36**8)
+      # avoid the temptation of trying to guess the next unique value.
+      value = (Thread.current[:sass_last_unique_id] += (rand(10) + 1))
+      # the u makes this a legal identifier if it would otherwise start with a number.
+      identifier("u" + value.to_s(36).rjust(8, '0'))
+    end
+    declare :unique_id, []
+
+    # Dynamically calls a function. This can call user-defined
+    # functions, built-in functions, or plain CSS functions. It will
+    # pass along all arguments, including keyword arguments, to the
+    # called function.
+    #
+    # @example
+    #   call(rgb, 10, 100, 255) => #0a64ff
+    #   call(scale-color, #0a64ff, $lightness: -10%) => #0058ef
+    #
+    #   $fn: nth;
+    #   call($fn, 2, (a b c)) => b
+    #
+    # @overload call($name, $args...)
+    # @param $name [String] The name of the function to call.
+    def call(name, *args)
+      assert_type name, :String, :name
+      kwargs = args.last.is_a?(Hash) ? args.pop : {}
+      funcall = Sass::Script::Tree::Funcall.new(
+        name.value,
+        args.map {|a| Sass::Script::Tree::Literal.new(a)},
+        Sass::Util.map_vals(kwargs) {|v| Sass::Script::Tree::Literal.new(v)},
+        nil,
+        nil)
+      funcall.options = options
+      funcall.perform(environment)
+    end
+    declare :call, [:name], :var_args => true, :var_kwargs => true
 
     # This function only exists as a workaround for IE7's [`content: counter`
     # bug][bug]. It works identically to any other plain-CSS function, except it
@@ -1499,7 +2029,7 @@ module Sass::Script
     # @overload counter($args...)
     # @return [String]
     def counter(*args)
-      Sass::Script::String.new("counter(#{args.map {|a| a.to_s(options)}.join(',')})")
+      identifier("counter(#{args.map {|a| a.to_s(options)}.join(',')})")
     end
     declare :counter, [], :var_args => true
 
@@ -1518,6 +2048,79 @@ module Sass::Script
     end
     declare :counters, [], :var_args => true
 
+    # Check whether a variable with the given name exists in the current
+    # scope or in the global scope.
+    #
+    # @example
+    #   $a-false-value: false;
+    #   variable-exists(a-false-value) => true
+    #
+    #   variable-exists(nonexistent) => false
+    # @param name [Sass::Script::String] The name of the variable to
+    #   check. The name should not include the `$`.
+    # @return [Sass::Script::Bool] Whether the variable is defined in
+    #   the current scope.
+    def variable_exists(name)
+      assert_type name, :String
+      Sass::Script::Value::Bool.new(environment.caller.var(name.value))
+    end
+    declare :variable_exists, [:name]
+
+    # Check whether a variable with the given name exists in the global
+    # scope (at the top level of the file).
+    #
+    # @example
+    #   $a-false-value: false;
+    #   global-variable-exists(a-false-value) => true
+    #
+    #   .foo {
+    #     $some-var: false;
+    #     @if global-variable-exists(some-var) { /* false, doesn't run */ }
+    #   }
+    # @param name [Sass::Script::String] The name of the variable to
+    #   check.  The name should not include the `$`.
+    # @return [Sass::Script::Bool] Whether the variable is defined in
+    #   the global scope.
+    def global_variable_exists(name)
+      assert_type name, :String
+      Sass::Script::Value::Bool.new(environment.global_env.var(name.value))
+    end
+    declare :global_variable_exists, [:name]
+
+    # Check whether a function with the given name exists.
+    #
+    # @example
+    #   function-exists(lighten) => true
+    #
+    #   @function myfunc { @return "something"; }
+    #   function-exists(myfunc) => true
+    # @param name [Sass::Script::String] The name of the function to
+    #   check.
+    # @return [Sass::Script::Bool] Whether the function is defined.
+    def function_exists(name)
+      assert_type name, :String
+      exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
+      exists ||= environment.function(name.value)
+      Sass::Script::Value::Bool.new(exists)
+    end
+    declare :function_exists, [:name]
+
+    # Check whether a mixin with the given name exists.
+    #
+    # @example
+    #   mixin-exists(nonexistent) => false
+    #
+    #   @mixin red-text { color: red; }
+    #   mixin-exists(red-text) => true
+    # @param name [Sass::Script::String] The name of the mixin to
+    #   check.
+    # @return [Sass::Script::Bool] Whether the mixin is defined.
+    def mixin_exists(name)
+      assert_type name, :String
+      Sass::Script::Value::Bool.new(environment.mixin(name.value))
+    end
+    declare :mixin_exists, [:name]
+
     private
 
     # This method implements the pattern of transforming a numeric value into
@@ -1525,10 +2128,14 @@ module Sass::Script
     # It yields a number to a block to perform the operation and return a number
     def numeric_transformation(value)
       assert_type value, :Number, :value
-      Sass::Script::Number.new(yield(value.value), value.numerator_units, value.denominator_units)
+      Sass::Script::Value::Number.new(
+        yield(value.value), value.numerator_units, value.denominator_units)
     end
 
+    # @comment
+    #   rubocop:disable ParameterLists
     def _adjust(color, amount, attr, range, op, units = "")
+      # rubocop:enable ParameterLists
       assert_type color, :Color, :color
       assert_type amount, :Number, :amount
       Sass::Util.check_range('Amount', range, amount, units)
@@ -1538,6 +2145,18 @@ module Sass::Script
       # and allow clipping in rgb() et al?
       color.with(attr => Sass::Util.restrict(
           color.send(attr).send(op, amount.value), range))
+    end
+
+    def to_h(obj)
+      return obj.to_h unless obj.is_a?(Sass::Script::Value::List) && obj.needs_map_warning?
+
+      fn_name = Sass::Util.caller_info.last.gsub('_', '-')
+      Sass::Util.sass_warn <<WARNING + environment.stack.to_s.gsub(/^/, '        ')
+DEPRECATION WARNING: Passing lists of pairs to #{fn_name} is deprecated and will
+be removed in future versions of Sass. Use Sass maps instead. For details, see
+http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#maps.
+WARNING
+      obj.to_h
     end
   end
 end

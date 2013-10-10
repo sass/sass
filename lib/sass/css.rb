@@ -76,7 +76,7 @@ module Sass
     #
     # @return [Tree::Node] The root node of the parsed tree
     def build_tree
-      root = Sass::SCSS::CssParser.new(@template, @options[:filename]).parse
+      root = Sass::SCSS::CssParser.new(@template, @options[:filename], nil).parse
       parse_selectors    root
       expand_commas      root
       nest_seqs          root
@@ -96,7 +96,7 @@ module Sass
       root.children.each do |child|
         next parse_selectors(child) if child.is_a?(Tree::DirectiveNode)
         next unless child.is_a?(Tree::RuleNode)
-        parser = Sass::SCSS::CssParser.new(child.rule.first, child.filename, child.line)
+        parser = Sass::SCSS::CssParser.new(child.rule.first, child.filename, nil, child.line)
         child.parsed_rules = parser.parse_selector
       end
     end
@@ -169,11 +169,11 @@ module Sass
           current_rule.parsed_rules = make_seq(first)
         end
 
-        unless rest.empty?
+        if rest.empty?
+          current_rule.children += child.children
+        else
           child.parsed_rules = make_seq(*rest)
           current_rule << child
-        else
-          current_rule.children += child.children
         end
 
         current_rule
@@ -220,12 +220,12 @@ module Sass
           current_rule.parsed_rules = make_sseq(last_simple_subject, *firsts)
         end
 
-        unless rest.empty?
+        if rest.empty?
+          current_rule.children += child.children
+        else
           rest.unshift Sass::Selector::Parent.new
           child.parsed_rules = make_sseq(sseq.subject?, *rest)
           current_rule << child
-        else
-          current_rule.children += child.children
         end
 
         current_rule
@@ -317,7 +317,7 @@ module Sass
     #       bar, baz
     #         color: blue
     #
-    # @param rule [Tree::RuleNode] The candidate for flattening
+    # @param root [Tree::Node] The parent node
     def fold_commas(root)
       prev_rule = nil
       root.children.map! do |child|
@@ -326,7 +326,7 @@ module Sass
           next child
         end
 
-        if prev_rule && prev_rule.children == child.children
+        if prev_rule && prev_rule.children.map {|c| c.to_sass} == child.children.map {|c| c.to_sass}
           prev_rule.parsed_rules.members << first_seq(child)
           next nil
         end

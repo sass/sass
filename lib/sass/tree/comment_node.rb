@@ -6,10 +6,10 @@ module Sass::Tree
   # @see Sass::Tree
   class CommentNode < Node
     # The text of the comment, not including `/*` and `*/`.
-    # Interspersed with {Sass::Script::Node}s representing `#{}`-interpolation
+    # Interspersed with {Sass::Script::Tree::Node}s representing `#{}`-interpolation
     # if this is a loud comment.
     #
-    # @return [Array<String, Sass::Script::Node>]
+    # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :value
 
     # The text of the comment
@@ -26,7 +26,7 @@ module Sass::Tree
     # @return [Symbol]
     attr_accessor :type
 
-    # @param value [Array<String, Sass::Script::Node>] See \{#value}
+    # @param value [Array<String, Sass::Script::Tree::Node>] See \{#value}
     # @param type [Symbol] See \{#type}
     def initialize(value, type)
       @value = Sass::Util.with_extracted_values(value) {|str| normalize_indentation str}

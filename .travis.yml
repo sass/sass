@@ -2,13 +2,27 @@ rvm:
   - 1.8.7
   - 1.9.2
   - 1.9.3
-gemfile: test/Gemfile
+  - 2.0.0
+  - jruby-18mode
+  - jruby-19mode
+  - rbx
+  - ree
+gemfile: Gemfile
 env:
-  - MATHN=true
-  - MATHN=false
+  - MATHN=true RUBOCOP=false
+  - MATHN=false RUBOCOP=false
 branches:
   only:
     - master
     - stable
 notifications:
   irc: {channels: "irc.freenode.org#sass"}
+matrix:
+  allow_failures:
+    - rvm: jruby-18mode
+    - rvm: jruby-19mode
+  include:
+    - rvm: 2.0.0
+      env: MATHN=true RUBOCOP=true
+    - rvm: 1.9.3
+      env: MATHN=true RUBOCOP=true

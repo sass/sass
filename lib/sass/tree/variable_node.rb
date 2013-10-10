@@ -9,7 +9,7 @@ module Sass
       attr_reader :name
 
       # The parse tree for the variable value.
-      # @return [Script::Node]
+      # @return [Script::Tree::Node]
       attr_accessor :expr
 
       # Whether this is a guarded variable assignment (`!default`).
@@ -17,7 +17,7 @@ module Sass
       attr_reader :guarded
 
       # @param name [String] The name of the variable
-      # @param expr [Script::Node] See \{#expr}
+      # @param expr [Script::Tree::Node] See \{#expr}
       # @param guarded [Boolean] See \{#guarded}
       def initialize(name, expr, guarded)
         @name = name

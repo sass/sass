@@ -1,7 +1,9 @@
 require 'strscan'
 
 if Sass::Util.ruby1_8?
+  # rubocop:disable ConstantName
   Sass::Util::MultibyteStringScanner = StringScanner
+  # rubocop:enable ConstantName
 else
   if Sass::Util.rbx?
     # Rubinius's StringScanner class implements some of its methods in terms of

@@ -171,6 +171,18 @@ When converting from CSS to Sass or SCSS,
 nesting is applied where appropriate.
 See `sass-convert --help` for further information and options.
 
+### Running locally
+
+To run the Sass executables from a source checkout instead of from rubygems:
+
+```
+$ cd <SASS_CHECKOUT_DIRECTORY>
+$ bundle
+$ bundle exec sass ...
+$ bundle exec scss ...
+$ bundle exec sass-convert ...
+```
+
 ## Authors
 
 Sass was envisioned by [Hampton Catlin](http://www.hamptoncatlin.com)
