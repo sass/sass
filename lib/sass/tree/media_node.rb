@@ -21,16 +21,9 @@ module Sass::Tree
     # @return [Sass::Media::QueryList]
     attr_accessor :resolved_query
 
-    # @see RuleNode#tabs
-    attr_accessor :tabs
-
-    # @see RuleNode#group_end
-    attr_accessor :group_end
-
     # @param query [Array<String, Sass::Script::Tree::Node>] See \{#query}
     def initialize(query)
       @query = query
-      @tabs = 0
       super('')
     end
 
@@ -51,8 +44,5 @@ module Sass::Tree
     def invisible?
       children.all? {|c| c.invisible?}
     end
-
-    # @see Node#bubbles?
-    def bubbles?; true; end
   end
 end

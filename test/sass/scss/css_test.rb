@@ -566,7 +566,6 @@ SCSS
     assert_parses <<SCSS
 @foo bar {
   a: b; }
-
 @bar baz {
   c: d; }
 SCSS
@@ -586,7 +585,6 @@ SCSS
     assert_equal <<CSS, render(<<SCSS)
 @foo {
   a: b; }
-
 @bar {
   a: b; }
 CSS

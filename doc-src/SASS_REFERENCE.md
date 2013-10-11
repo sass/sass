@@ -1801,6 +1801,48 @@ directives such as `@media`. It may be extended in the future to allow other
 directives to be ignored, but the default will continue to ignore only
 selectors.
 
+#### `@at-root (without: ...)` and `@at-root (with: ...)`
+
+By default, `@at-root` just excludes selectors to allow `#{&}` to work
+similarly to just including `&` in a selector. However, it's also
+possible to use `@at-root` to move outside of nested directives such
+as `@media` as well. For example:
+
+    @media print {
+      .page {
+        width: 8in;
+        @at-root (without: media) {
+          color: red;
+        }
+      }
+    }
+
+produces:
+
+    @media print {
+      .page {
+        width: 8in;
+      }
+    }
+    .page {
+      color: red;
+    }
+
+You can use `@at-root (without: ...)` to move outside of any
+directive. You can also do it with multiple directives separated by a
+space: `@at-root (without: media supports)` moves outside of both
+`@media` and `@supports` queries.
+
+There are two special values you can pass to `@at-root`. "rule" refers
+to normal CSS rules; `@at-root (without: rule)` is the same as
+`@at-root` with no query. `@at-root (without: all)` means that the
+styles should be moved outside of *all* directives and CSS rules.
+
+If you want to specify which directives or rules to include, rather
+than listing which ones should be excluded, you can use `with` instead
+of `without`. For example, `@at-root (with: rule)` will move outside
+of all directives, but will preserve any CSS rules.
+
 ### `@debug`
 
 The `@debug` directive prints the value of a SassScript expression

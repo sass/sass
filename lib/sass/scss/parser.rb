@@ -67,6 +67,18 @@ module Sass
         ql
       end
 
+      # Parses an at-root query.
+      #
+      # @return [Array<String, Sass::Script;:Tree::Node>] The interpolated query.
+      # @raise [Sass::SyntaxError] if there's a syntax error in the query,
+      #   or if it doesn't take up the entire input string.
+      def parse_at_root_query
+        init_scanner!
+        query = at_root_query
+        expected("@at-root query list") unless @scanner.eos?
+        query
+      end
+
       # Parses a supports query condition.
       #
       # @return [Sass::Supports::Condition] The parsed condition
@@ -435,7 +447,7 @@ module Sass
         query
       end
 
-      def media_expr
+      def query_expr
         interp = interpolation
         return interp if interp
         return unless tok(/\(/)
@@ -452,6 +464,11 @@ module Sass
         ss
         res
       end
+
+      # Aliases allow us to use different descriptions if the same
+      # expression fails in different contexts.
+      alias_method :media_expr, :query_expr
+      alias_method :at_root_query, :query_expr
 
       def charset_directive(start_pos)
         tok! STRING
@@ -490,11 +507,26 @@ module Sass
       end
 
       def at_root_directive(start_pos)
+        if tok?(/\(/) && (expr = at_root_query)
+          return block(node(Sass::Tree::AtRootNode.new(expr), start_pos), :directive)
+        end
+
         at_root_node = node(Sass::Tree::AtRootNode.new, start_pos)
         rule_node = ruleset
         return block(at_root_node, :stylesheet) unless rule_node
         at_root_node << rule_node
         at_root_node
+      end
+
+      def at_root_directive_list
+        return unless (first = tok(IDENT))
+        arr = [first]
+        ss
+        while (e = tok(IDENT))
+          arr << e
+          ss
+        end
+        arr
       end
 
       # http://www.w3.org/TR/css3-conditional/
@@ -1146,6 +1178,8 @@ MESSAGE
         :media_query => "media query (e.g. print, screen, print and screen)",
         :media_query_list => "media query (e.g. print, screen, print and screen)",
         :media_expr => "media expression (e.g. (min-device-width: 800px))",
+        :at_root_query => "@at-root query (e.g. (without: media))",
+        :at_root_directive_list => '* or identifier',
         :pseudo_arg => "expression (e.g. fr, 2n+1)",
         :interp_ident => "identifier",
         :interp_name => "identifier",
@@ -1160,9 +1194,13 @@ MESSAGE
         :supports_condition_in_parens => "@supports condition (e.g. (display: flexbox))",
       }
 
-      TOK_NAMES = Sass::Util.to_hash(
-        Sass::SCSS::RX.constants.map {|c| [Sass::SCSS::RX.const_get(c), c.downcase]}).
-        merge(IDENT => "identifier", /[;}]/ => '";"')
+      TOK_NAMES = Sass::Util.to_hash(Sass::SCSS::RX.constants.map do |c|
+        [Sass::SCSS::RX.const_get(c), c.downcase]
+      end).merge(
+        IDENT => "identifier",
+        /[;}]/ => '";"',
+        /\b(without|with)\b/ => '"with" or "without"'
+      )
 
       def tok?(rx)
         @scanner.match?(rx)
