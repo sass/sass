@@ -159,6 +159,11 @@ task :release_edge do
     sh %{git reset --hard origin/master}
     sh %{rake package}
     version = get_version
+    if version.include?('.rc.')
+      puts "#{'=' * 20} Not releasing edge gem for RC version"
+      next
+    end
+
     sh %{rubyforge add_release sass sass "Bleeding Edge (v#{version})" pkg/sass-#{version}.gem}
     sh %{gem push pkg/sass-#{version}.gem}
   end
