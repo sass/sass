@@ -730,6 +730,12 @@ contains empty lists or null values, as in `1px 2px () 3px` or `1px 2px null
 3px`, the empty lists and null values will be removed before the containing list
 is turned into CSS.
 
+Comma-separated lists may have a trailing comma. This is especially
+useful because it allows you to represent a single-element list. For
+example, `(1,)` is a list containing `1` and `(1 2 3,)` is a
+comma-separated list containing a space-separated list containing `1`,
+`2`, and `3`.
+
 #### Maps
 
 Maps represent an association between keys and values, where keys are used to

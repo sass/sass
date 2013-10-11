@@ -83,6 +83,12 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "foo(a, b, (a, b, c)...)"
   end
 
+  def test_singleton_list
+    assert_renders "(1,)"
+    assert_renders "(1 2 3,)"
+    assert_renders "((1, 2, 3),)"
+  end
+
   def test_map
     assert_renders "(foo: bar)"
     assert_renders "(foo: bar, baz: bip)"

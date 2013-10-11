@@ -52,7 +52,7 @@ module Sass::Script::Value
     def to_sass(opts = {})
       return "()" if value.empty?
       precedence = Sass::Script::Parser.precedence_of(separator)
-      value.reject {|e| e.is_a?(Null)}.map do |v|
+      members = value.reject {|e| e.is_a?(Null)}.map do |v|
         if v.is_a?(List) && Sass::Script::Parser.precedence_of(v.separator) <= precedence ||
             separator == :space && v.is_a?(Sass::Script::Tree::UnaryOperation) &&
             (v.operator == :minus || v.operator == :plus)
@@ -60,7 +60,9 @@ module Sass::Script::Value
         else
           v.to_sass(opts)
         end
-      end.join(sep_str(nil))
+      end
+      return "(#{members.first},)" if members.length == 1 && separator == :comma
+      members.join(sep_str(nil))
     end
 
     # @see Value#to_h

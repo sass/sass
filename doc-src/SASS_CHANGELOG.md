@@ -289,6 +289,11 @@ maps instead.
 * The `if()` function now only evaluates the argument corresponding to
   the value of the first argument.
 
+* Comma-separated lists may now have trailing commas (e.g. `1, 2,
+  3,`). This also allows you to use a trailing comma to distinguish a
+  list with a single element from that element itself -- for example,
+  `(1,)` is explicitly a list containing the value `1`.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
