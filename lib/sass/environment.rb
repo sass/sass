@@ -126,7 +126,7 @@ module Sass
     #
     # @return [Environment]
     def global_env
-      @global_env ||= parent.nil? ? self : parent.global_env
+      @global_env ||= @parent.nil? ? self : @parent.global_env
     end
 
     # The import/mixin stack.
