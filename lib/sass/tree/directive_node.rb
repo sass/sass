@@ -20,9 +20,16 @@ module Sass::Tree
     # @return [String]
     attr_accessor :resolved_value
 
+    # @see RuleNode#tabs
+    attr_accessor :tabs
+
+    # @see RuleNode#group_end
+    attr_accessor :group_end
+
     # @param value [Array<String, Sass::Script::Tree::Node>] See \{#value}
     def initialize(value)
       @value = value
+      @tabs = 0
       super()
     end
 
@@ -37,6 +44,10 @@ module Sass::Tree
     # @return [String] The name of the directive, including `@`.
     def name
       value.first.gsub(/ .*$/, '')
+    end
+
+    def bubbles?
+      has_children
     end
   end
 end

@@ -380,11 +380,12 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Runs SassScript interpolation in the selector,
   # and then parses the result into a {Sass::Selector::CommaSequence}.
   def visit_rule(node)
-    old_at_root, @at_root = @at_root, false
+    old_at_root_without_rule, @at_root_without_rule = @at_root_without_rule, false
     parser = Sass::SCSS::StaticParser.new(run_interp(node.rule),
       node.filename, node.options[:importer], node.line)
     node.parsed_rules ||= parser.parse_selector
-    node.resolved_rules = node.parsed_rules.resolve_parent_refs(@environment.selector, !old_at_root)
+    node.resolved_rules = node.parsed_rules.resolve_parent_refs(
+      @environment.selector, !old_at_root_without_rule)
     node.stack_trace = @environment.stack.to_s if node.options[:trace_selectors]
     with_environment Sass::Environment.new(@environment, node.options) do
       @environment.selector = node.resolved_rules
@@ -392,16 +393,25 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     end
     node
   ensure
-    @at_root = old_at_root
+    @at_root_without_rule = old_at_root_without_rule
   end
 
   # Sets a variable that indicates that the first level of rule nodes
   # shouldn't include the parent selector by default.
   def visit_atroot(node)
-    old_at_root, @at_root = @at_root, true
-    yield.children
+    if node.query
+      parser = Sass::SCSS::StaticParser.new(run_interp(node.query),
+        node.filename, node.options[:importer], node.line)
+      node.resolved_type, node.resolved_value = parser.parse_static_at_root_query
+    else
+      node.resolved_type, node.resolved_value = :without, ['rule']
+    end
+
+    old_at_root_without_rule = @at_root_without_rule
+    @at_root_without_rule = true if node.exclude?('rule')
+    yield
   ensure
-    @at_root = old_at_root
+    @at_root_without_rule = old_at_root_without_rule
   end
 
   # Loads the new variable value into the environment.
@@ -440,7 +450,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_directive(node)
     node.resolved_value = run_interp(node.value)
     with_environment Sass::Environment.new(@environment) do
-      @environment.no_selector!
       node.children = node.children.map {|c| visit(c)}.flatten
       node
     end

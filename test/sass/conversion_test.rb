@@ -1726,6 +1726,34 @@ SASS
 SCSS
   end
 
+  def test_at_root_without
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root (without: media rule)
+    a: b
+SASS
+.foo {
+  @at-root (without: media rule) {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root (with: media rule)
+    a: b
+SASS
+.foo {
+  @at-root (with: media rule) {
+    a: b;
+  }
+}
+SCSS
+  end
+
   def test_function_var_kwargs_with_list
     assert_scss_to_sass <<SASS, <<SCSS
 @function foo($a: b, $c: d)

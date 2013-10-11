@@ -2476,6 +2476,19 @@ CSS
 SASS
   end
 
+  def test_at_root_with_query
+    assert_equal <<CSS, render(<<SASS)
+.foo .bar {
+  a: b; }
+CSS
+.foo
+  @media screen
+    @at-root (without: media)
+      .bar
+        a: b
+SASS
+  end
+
   # Regression tests
 
   def test_list_separator_with_arg_list

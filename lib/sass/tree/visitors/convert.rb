@@ -156,7 +156,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_media(node)
-    "#{tab_str}@media #{media_interp_to_src(node.query)}#{yield}"
+    "#{tab_str}@media #{query_interp_to_src(node.query)}#{yield}"
   end
 
   def visit_supports(node)
@@ -265,7 +265,9 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   def visit_atroot(node)
-    if node.children.length == 1 && node.children.first.is_a?(Sass::Tree::RuleNode)
+    if node.query
+      "#{tab_str}@at-root #{query_interp_to_src(node.query)}#{yield}"
+    elsif node.children.length == 1 && node.children.first.is_a?(Sass::Tree::RuleNode)
       rule = node.children.first
       "#{tab_str}@at-root #{selector_to_src(rule.rule)}#{visit_children(rule)}"
     else
@@ -283,8 +285,8 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
   end
 
   # Like interp_to_src, but removes the unnecessary `#{}` around the keys and
-  # values in media expressions.
-  def media_interp_to_src(interp)
+  # values in query expressions.
+  def query_interp_to_src(interp)
     Sass::Util.enum_with_index(interp).map do |r, i|
       next r if r.is_a?(String)
       before, after = interp[i - 1], interp[i + 1]

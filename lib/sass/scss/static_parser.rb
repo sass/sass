@@ -24,6 +24,23 @@ module Sass
         seq
       end
 
+      # Parses a static at-root query.
+      #
+      # @return [(Symbol, Array<String>)] The type of the query
+      #   (`:with` or `:without`) and the values that are being filtered.
+      # @raise [Sass::SyntaxError] if there's a syntax error in the query,
+      #   or if it doesn't take up the entire input string.
+      def parse_static_at_root_query
+        init_scanner!
+        tok!(/\(/); ss
+        type = tok!(/\b(without|with)\b/).to_sym; ss
+        tok!(/:/); ss
+        directives = expr!(:at_root_directive_list); ss
+        tok!(/\)/)
+        expected("@at-root query list") unless @scanner.eos?
+        return type, directives
+      end
+
       private
 
       def moz_document_function

@@ -64,6 +64,48 @@ Also produces:
     .badge-info { ... }
     .badge-header { ... }
 
+#### `@at-root (without: ...)` and `@at-root (with: ...)`
+
+By default, `@at-root` just excludes selectors to allow `#{&}` to work
+similarly to just including `&` in a selector. However, it's also
+possible to use `@at-root` to move outside of nested directives such
+as `@media` as well. For example:
+
+    @media print {
+      .page {
+        width: 8in;
+        @at-root (without: media) {
+          color: red;
+        }
+      }
+    }
+
+produces:
+
+    @media print {
+      .page {
+        width: 8in;
+      }
+    }
+    .page {
+      color: red;
+    }
+
+You can use `@at-root (without: ...)` to move outside of any
+directive. You can also do it with multiple directives separated by a
+space: `@at-root (without: media supports)` moves outside of both
+`@media` and `@supports` queries.
+
+There are two special values you can pass to `@at-root`. "rule" refers
+to normal CSS rules; `@at-root (without: rule)` is the same as
+`@at-root` with no query. `@at-root (without: all)` means that the
+styles should be moved outside of *all* directives and CSS rules.
+
+If you want to specify which directives or rules to include, rather
+than listing which ones should be excluded, you can use `with` instead
+of `without`. For example, `@at-root (with: rule)` will move outside
+of all directives, but will preserve any CSS rules.
+
 ### Source Maps
 
 Sass now has the ability to generate standard JSON [source maps][] of a format
@@ -293,6 +335,10 @@ maps instead.
   3,`). This also allows you to use a trailing comma to distinguish a
   list with a single element from that element itself -- for example,
   `(1,)` is explicitly a list containing the value `1`.
+
+* All directives that are nested in CSS rules or properties and that
+  contain more CSS rules or properties are now bubbled up through
+  their parent rules.
 
 ### Backwards Incompatibilities -- Must Read!
 

@@ -878,9 +878,17 @@ WARNING
     end
 
     def parse_at_root_directive(parent, line, root, value, offset)
-      at_root_node = Sass::Tree::AtRootNode.new
-      return at_root_node unless value
+      return Sass::Tree::AtRootNode.new unless value
 
+      if value.start_with?('(')
+        parser = Sass::SCSS::Parser.new(value,
+          @options[:filename], @options[:importer],
+          @line, to_parser_offset(@offset))
+        offset = line.offset + line.text.index('at-root').to_i - 1
+        return Tree::AtRootNode.new(parser.parse_at_root_query)
+      end
+
+      at_root_node = Tree::AtRootNode.new
       parsed = parse_interp(value, offset)
       rule_node = Tree::RuleNode.new(parsed, full_line_range(line))
 
