@@ -27,9 +27,18 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # Keeps track of the current parent node.
   def visit_children(parent)
     with_parent parent do
-      parent.children = super.flatten
+      parent.children = visit_children_without_parent(parent)
       parent
     end
+  end
+
+  # Like {#visit\_children}, but doesn't set {#parent}.
+  #
+  # @param node [Sass::Tree::Node]
+  # @return [Array<Sass::Tree::Node>] the flattened results of
+  #   visiting all the children of `node`
+  def visit_children_without_parent(node)
+    node.children.map {|c| visit(c)}.flatten
   end
 
   MERGEABLE_DIRECTIVES = [Sass::Tree::MediaNode]
@@ -138,8 +147,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Modifies exception backtraces to include the imported file.
   def visit_import(node)
-    # Don't use #visit_children to avoid adding the import node to the list of parents.
-    node.children.map {|c| visit(c)}.flatten
+    visit_children_without_parent(node)
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.children.first.filename)
     e.add_backtrace(:filename => node.filename, :line => node.line)
@@ -150,21 +158,30 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   # and merges it with other `@media` directives.
   def visit_media(node)
     yield unless bubble(node)
-    media = node.children.select {|c| c.is_a?(Sass::Tree::MediaNode)}
-    node.children.reject! {|c| c.is_a?(Sass::Tree::MediaNode)}
-    media = media.select {|n| n.resolved_query = n.resolved_query.merge(node.resolved_query)}
-    (node.children.empty? ? [] : [node]) + media
+
+    bubbled = node.children.select do |n|
+      n.is_a?(Sass::Tree::AtRootNode) || n.is_a?(Sass::Tree::MediaNode)
+    end
+    node.children -= bubbled
+
+    bubbled = bubbled.map do |n|
+      next visit(n) if n.is_a?(Sass::Tree::AtRootNode)
+      # Otherwise, n should be a MediaNode.
+      next [] unless n.resolved_query = n.resolved_query.merge(node.resolved_query)
+      n
+    end.flatten
+
+    (node.children.empty? ? [] : [node]) + bubbled
   end
 
   # Bubbles the `@supports` directive up through RuleNodes.
   def visit_supports(node)
-    visit_directive(node)
+    visit_directive(node) {yield}
   end
 
   # Asserts that all the traced children are valid in their new location.
   def visit_trace(node)
-    # Don't use #visit_children to avoid adding the trace node to the list of parents.
-    node.children.map {|c| visit(c)}.flatten
+    visit_children_without_parent(node)
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:mixin => node.name, :filename => node.filename, :line => node.line)
     e.add_backtrace(:filename => node.filename, :line => node.line)
@@ -173,8 +190,12 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Bubbles a directive up through RuleNodes.
   def visit_directive(node)
+    return yield unless node.has_children
     yield unless (bubbled = bubble(node))
-    bubbled && node.children.empty? ? [] : [node]
+    at_roots = node.children.select {|n| n.is_a?(Sass::Tree::AtRootNode)}
+    node.children -= at_roots
+    at_roots.map! {|n| visit(n)}.flatten
+    (bubbled && node.children.empty? ? [] : [node]) + at_roots
   end
 
   # Converts nested properties into flat properties
@@ -204,6 +225,8 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     rules = node.children.select {|c| c.is_a?(Sass::Tree::RuleNode) || c.bubbles?}
     props = node.children.reject {|c| c.is_a?(Sass::Tree::RuleNode) || c.bubbles? || c.invisible?}
 
+    rules.map {|c| c.is_a?(Sass::Tree::AtRootNode) ? visit(c) : c}.flatten
+
     unless props.empty?
       node.children = props
       rules.each {|r| r.tabs += 1} if node.style == :nested
@@ -216,7 +239,19 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
   end
 
   def visit_atroot(node)
-    yield.children
+    if @parent_directives.any? {|n| node.exclude_node?(n)}
+      return node if node.exclude_node?(parent)
+
+      new_rule = parent.dup
+      new_rule.children = node.children
+      node.children = [new_rule]
+      return node
+    end
+
+    results = visit_children_without_parent(node)
+    results.each {|n| n.tabs += node.tabs}
+    results.last.group_end = node.group_end
+    results
   end
 
   private

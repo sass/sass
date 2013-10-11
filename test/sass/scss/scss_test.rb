@@ -1957,21 +1957,6 @@ CSS
 SCSS
   end
 
-  def test_at_root_in_nested_unknown_directive
-    assert_equal <<CSS, render(<<SCSS)
-.foo {
-  @fblthp {
-    .bar {
-      a: b; } } }
-CSS
-.foo {
-  @fblthp {
-    @at-root .bar {a: b}
-  }
-}
-SCSS
-  end
-
   def test_at_root_with_parent_ref
     assert_equal <<CSS, render(<<SCSS)
 .foo {
@@ -2011,6 +1996,287 @@ CSS
   @at-root .bar {
     @at-root & {
       a: b;
+    }
+  }
+}
+SCSS
+  end
+
+  ## @at-root (...)
+
+  def test_at_root_without_media
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar {
+  a: b; }
+CSS
+.foo {
+  @media screen {
+    @at-root (without: media) {
+      .bar {
+        a: b;
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_without_supports
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar {
+  a: b; }
+CSS
+.foo {
+  @supports (foo: bar) {
+    @at-root (without: supports) {
+      .bar {
+        a: b;
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_without_rule
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @at-root (without: rule) {
+      .bar {
+        a: b;
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_without_unknown_directive
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar {
+  a: b; }
+CSS
+.foo {
+  @fblthp {
+    @at-root (without: fblthp) {
+      .bar {
+        a: b;
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_without_multiple
+    assert_equal <<CSS, render(<<SCSS)
+@supports (foo: bar) {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @supports (foo: bar) {
+      @at-root (without: media rule) {
+        .bar {
+          a: b;
+        }
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_without_all
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @supports (foo: bar) {
+    @fblthp {
+      @at-root (without: all) {
+        .bar {
+          a: b;
+        }
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @fblthp {
+      @supports (foo: bar) {
+        @at-root (with: media) {
+          .bar {
+            a: b;
+          }
+        }
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_rule
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar {
+  a: b; }
+CSS
+.foo {
+  @media screen {
+    @fblthp {
+      @supports (foo: bar) {
+        @at-root (with: rule) {
+          .bar {
+            a: b;
+          }
+        }
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_supports
+    assert_equal <<CSS, render(<<SCSS)
+@supports (foo: bar) {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @fblthp {
+      @supports (foo: bar) {
+        @at-root (with: supports) {
+          .bar {
+            a: b;
+          }
+        }
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_unknown_directive
+    assert_equal <<CSS, render(<<SCSS)
+@fblthp {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @fblthp {
+      @supports (foo: bar) {
+        @at-root (with: fblthp) {
+          .bar {
+            a: b;
+          }
+        }
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_multiple
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .foo .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @fblthp {
+      @supports (foo: bar) {
+        @at-root (with: media rule) {
+          .bar {
+            a: b;
+          }
+        }
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_all
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  @fblthp {
+    @supports (foo: bar) {
+      .foo .bar {
+        a: b; } } } }
+CSS
+.foo {
+  @media screen {
+    @fblthp {
+      @supports (foo: bar) {
+        @at-root (with: all) {
+          .bar {
+            a: b;
+          }
+        }
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_dynamic_values
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+$key: with;
+$value: media;
+.foo {
+  @media screen {
+    @at-root ($key: $value) {
+      .bar {
+        a: b;
+      }
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_interpolated_query
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @media screen {
+    @at-root (\#{"with: media"}) {
+      .bar {
+        a: b;
+      }
     }
   }
 }
@@ -2405,57 +2671,6 @@ SCSS
   end
 
   # Regression
-
-  def test_nested_unknown_directive
-    assert_equal(<<CSS, render(<<SCSS, :style => :nested))
-.foo {
-  @fblthp {
-    .bar {
-      a: b; } } }
-CSS
-.foo {
-  @fblthp {
-    .bar {a: b}
-  }
-}
-SCSS
-
-    assert_equal(<<CSS, render(<<SCSS, :style => :compressed))
-.foo{@fblthp{.bar{a:b}}}
-CSS
-.foo {
-  @fblthp {
-    .bar {a: b}
-  }
-}
-SCSS
-
-    assert_equal(<<CSS, render(<<SCSS, :style => :compact))
-.foo { @fblthp { .bar { a: b; } } }
-CSS
-.foo {
-  @fblthp {
-    .bar {a: b}
-  }
-}
-SCSS
-
-    assert_equal(<<CSS, render(<<SCSS, :style => :expanded))
-.foo {
-  @fblthp {
-    .bar {
-      a: b;
-    }
-  }
-}
-CSS
-.foo {
-  @fblthp {
-    .bar {a: b}
-  }
-}
-SCSS
-  end
 
   def test_loud_comment_in_compressed_mode
     assert_equal(<<CSS, render(<<SCSS))
