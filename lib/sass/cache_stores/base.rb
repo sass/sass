@@ -27,7 +27,7 @@ module Sass
 
       # Retrieved cached contents.
       # Must be implemented by all subclasses.
-      # 
+      #
       # Note: if the key exists but the sha or version have changed,
       # then the key may be deleted by the cache store, if it wants to do so.
       #
@@ -46,7 +46,7 @@ module Sass
       #
       # @param key [String] The key to store it under.
       # @param sha [String] The checksum for the contents that are being stored.
-      # @param obj [Object] The object to cache.
+      # @param root [Object] The root node to cache.
       def store(key, sha, root)
         _store(key, Sass::VERSION, sha, Marshal.dump(root))
       rescue TypeError, LoadError => e

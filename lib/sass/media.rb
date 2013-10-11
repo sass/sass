@@ -2,7 +2,7 @@
 module Sass::Media
   # A comma-separated list of queries.
   #
-  #   media_query [ ',' S* media_query ]*
+  #     media_query [ ',' S* media_query ]*
   class QueryList
     # The queries contained in this list.
     #
@@ -43,11 +43,11 @@ module Sass::Media
     end
 
     # Returns a representation of the query as an array of strings and
-    # potentially {Sass::Script::Node}s (if there's interpolation in it). When
-    # the interpolation is resolved and the strings are joined together, this
-    # will be the string representation of this query.
+    # potentially {Sass::Script::Tree::Node}s (if there's interpolation in it).
+    # When the interpolation is resolved and the strings are joined together,
+    # this will be the string representation of this query.
     #
-    # @return [Array<String, Sass::Script::Node>]
+    # @return [Array<String, Sass::Script::Tree::Node>]
     def to_a
       Sass::Util.intersperse(queries.map {|q| q.to_a}, ', ').flatten
     end
@@ -62,7 +62,7 @@ module Sass::Media
 
   # A single media query.
   #
-  #   [ [ONLY | NOT]? S* media_type S* | expression ] [ AND S* expression ]*
+  #     [ [ONLY | NOT]? S* media_type S* | expression ] [ AND S* expression ]*
   class Query
     # The modifier for the query.
     #
@@ -70,7 +70,7 @@ module Sass::Media
     # parsed as CSS, it contains a single string (accessible via
     # \{#resolved_modifier}).
     #
-    # @return [Array<String, Sass::Script::Node>]
+    # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :modifier
 
     # The type of the query (e.g. `"screen"` or `"print"`).
@@ -79,7 +79,7 @@ module Sass::Media
     # parsed as CSS, it contains a single string (accessible via
     # \{#resolved_type}).
     #
-    # @return [Array<String, Sass::Script::Node>]
+    # @return [Array<String, Sass::Script::Tree::Node>]
     attr_accessor :type
 
     # The trailing expressions in the query.
@@ -87,12 +87,12 @@ module Sass::Media
     # When parsed as Sass code, each expression contains strings and SassScript
     # nodes. When parsed as CSS, each one contains a single string.
     #
-    # @return [Array<Array<String, Sass::Script::Node>>]
+    # @return [Array<Array<String, Sass::Script::Tree::Node>>]
     attr_accessor :expressions
 
-    # @param modifier [Array<String, Sass::Script::Node>] See \{#modifier}
-    # @param type [Array<String, Sass::Script::Node>] See \{#type}
-    # @param expressions [Array<Array<String, Sass::Script::Node>>] See \{#expressions}
+    # @param modifier [Array<String, Sass::Script::Tree::Node>] See \{#modifier}
+    # @param type [Array<String, Sass::Script::Tree::Node>] See \{#type}
+    # @param expressions [Array<Array<String, Sass::Script::Tree::Node>>] See \{#expressions}
     def initialize(modifier, type, expressions)
       @modifier = modifier
       @type = type
@@ -125,7 +125,7 @@ module Sass::Media
       m2, t2 = other.resolved_modifier.downcase, other.resolved_type.downcase
       t1 = t2 if t1.empty?
       t2 = t1 if t2.empty?
-      if ((m1 == 'not') ^ (m2 == 'not'))
+      if (m1 == 'not') ^ (m2 == 'not')
         return if t1 == t2
         type = m1 == 'not' ? t2 : t1
         mod = m1 == 'not' ? m2 : m1
@@ -140,7 +140,7 @@ module Sass::Media
         type = t1
         mod = m1.empty? ? m2 : m1
       end
-      return Query.new([mod], [type], other.expressions + expressions)
+      Query.new([mod], [type], other.expressions + expressions)
     end
 
     # Returns the CSS for the media query.
@@ -156,7 +156,7 @@ module Sass::Media
         # It's possible for there to be script nodes in Expressions even when
         # we're converting to CSS in the case where we parsed the document as
         # CSS originally (as in css_test.rb).
-        e.map {|c| c.is_a?(Sass::Script::Node) ? c.to_sass : c.to_s}.join
+        e.map {|c| c.is_a?(Sass::Script::Tree::Node) ? c.to_sass : c.to_s}.join
       end.join(' and ')
       css
     end
@@ -193,15 +193,15 @@ module Sass::Media
     # @return [Query]
     def deep_copy
       Query.new(
-        modifier.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c},
-        type.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c},
-        expressions.map {|e| e.map {|c| c.is_a?(Sass::Script::Node) ? c.deep_copy : c}})
+        modifier.map {|c| c.is_a?(Sass::Script::Tree::Node) ? c.deep_copy : c},
+        type.map {|c| c.is_a?(Sass::Script::Tree::Node) ? c.deep_copy : c},
+        expressions.map {|e| e.map {|c| c.is_a?(Sass::Script::Tree::Node) ? c.deep_copy : c}})
     end
   end
 
   # Converts an interpolation array to source.
   #
-  # @param [Array<String, Sass::Script::Node>] The interpolation array to convert.
+  # @param interp [Array<String, Sass::Script::Tree::Node>] The interpolation array to convert.
   # @param options [{Symbol => Object}] An options hash (see {Sass::CSS#initialize}).
   # @return [String]
   def self._interp_to_src(interp, options)

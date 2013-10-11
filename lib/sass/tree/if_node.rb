@@ -36,7 +36,7 @@ module Sass::Tree
     end
 
     def _dump(f)
-      Marshal.dump([self.expr, self.else, self.children])
+      Marshal.dump([expr, self.else, children])
     end
 
     def self._load(data)

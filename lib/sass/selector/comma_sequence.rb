@@ -18,23 +18,28 @@ module Sass
       # handling commas appropriately.
       #
       # @param super_cseq [CommaSequence] The parent selector
+      # @param implicit_parent [Boolean] Whether the the parent
+      #   selector should automatically be prepended to the resolved
+      #   selector if it contains no parent refs.
       # @return [CommaSequence] This selector, with parent references resolved
       # @raise [Sass::SyntaxError] If a parent selector is invalid
-      def resolve_parent_refs(super_cseq)
+      def resolve_parent_refs(super_cseq, implicit_parent = true)
         if super_cseq.nil?
           if @members.any? do |sel|
-              sel.members.any? do |sel_or_op|
-                sel_or_op.is_a?(SimpleSequence) && sel_or_op.members.any? {|ssel| ssel.is_a?(Parent)}
-              end
-            end
-            raise Sass::SyntaxError.new("Base-level rules cannot contain the parent-selector-referencing character '&'.")
+               sel.members.any? do |sel_or_op|
+                 sel_or_op.is_a?(SimpleSequence) &&
+                   sel_or_op.members.any? {|ssel| ssel.is_a?(Parent)}
+               end
+             end
+            raise Sass::SyntaxError.new(
+              "Base-level rules cannot contain the parent-selector-referencing character '&'.")
           end
           return self
         end
 
         CommaSequence.new(
           super_cseq.members.map do |super_seq|
-            @members.map {|seq| seq.resolve_parent_refs(super_seq)}
+            @members.map {|seq| seq.resolve_parent_refs(super_seq, implicit_parent)}
           end.flatten)
       end
 
@@ -53,14 +58,14 @@ module Sass
       #   with extensions made according to `extends`
       def do_extend(extends, parent_directives)
         CommaSequence.new(members.map do |seq|
-            extended = seq.do_extend(extends, parent_directives)
-            # First Law of Extend: the result of extending a selector should
-            # always contain the base selector.
-            #
-            # See https://github.com/nex3/sass/issues/324.
-            extended.unshift seq unless seq.has_placeholder? || extended.include?(seq)
-            extended
-          end.flatten)
+          extended = seq.do_extend(extends, parent_directives)
+          # First Law of Extend: the result of extending a selector should
+          # always contain the base selector.
+          #
+          # See https://github.com/nex3/sass/issues/324.
+          extended.unshift seq unless seq.has_placeholder? || extended.include?(seq)
+          extended
+        end.flatten)
       end
 
       # Returns a string representation of the sequence.
@@ -85,7 +90,7 @@ module Sass
       end
 
       def _eql?(other)
-        other.class == self.class && other.members.eql?(self.members)
+        other.class == self.class && other.members.eql?(members)
       end
     end
   end

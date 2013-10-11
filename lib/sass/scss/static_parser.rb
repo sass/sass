@@ -24,11 +24,28 @@ module Sass
         seq
       end
 
+      # Parses a static at-root query.
+      #
+      # @return [(Symbol, Array<String>)] The type of the query
+      #   (`:with` or `:without`) and the values that are being filtered.
+      # @raise [Sass::SyntaxError] if there's a syntax error in the query,
+      #   or if it doesn't take up the entire input string.
+      def parse_static_at_root_query
+        init_scanner!
+        tok!(/\(/); ss
+        type = tok!(/\b(without|with)\b/).to_sym; ss
+        tok!(/:/); ss
+        directives = expr!(:at_root_directive_list); ss
+        tok!(/\)/)
+        expected("@at-root query list") unless @scanner.eos?
+        return type, directives
+      end
+
       private
 
       def moz_document_function
-        return unless val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) ||
-          function(!:allow_var)
+        val = tok(URI) || tok(URL_PREFIX) || tok(DOMAIN) || function(!:allow_var)
+        return unless val
         ss
         [val]
       end
@@ -37,12 +54,12 @@ module Sass
       def script_value; nil; end
       def interpolation; nil; end
       def var_expr; nil; end
-      def interp_string; s = tok(STRING) and [s]; end
-      def interp_uri; s = tok(URI) and [s]; end
-      def interp_ident(ident = IDENT); s = tok(ident) and [s]; end
+      def interp_string; (s = tok(STRING)) && [s]; end
+      def interp_uri; (s = tok(URI)) && [s]; end
+      def interp_ident(ident = IDENT); (s = tok(ident)) && [s]; end
       def use_css_import?; true; end
 
-      def special_directive(name)
+      def special_directive(name, start_pos)
         return unless %w[media import charset -moz-document].include?(name)
         super
       end

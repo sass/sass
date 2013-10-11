@@ -83,6 +83,26 @@ class SassScriptConversionTest < Test::Unit::TestCase
     assert_renders "foo(a, b, (a, b, c)...)"
   end
 
+  def test_map
+    assert_renders "(foo: bar)"
+    assert_renders "(foo: bar, baz: bip)"
+    assert_renders "(foo: bar, baz: (bip: bap))"
+  end
+
+  def test_map_in_list
+    assert_renders "(foo: bar) baz"
+    assert_renders "(foo: bar), (baz: bip)"
+  end
+
+  def test_list_in_map
+    assert_renders "(foo: bar baz)"
+    assert_renders "(foo: (bar, baz), bip: bop)"
+  end
+
+  def test_selector
+    assert_renders "&"
+  end
+
   def self.test_precedence(outer, inner)
     op_outer = Sass::Script::Lexer::OPERATORS_REVERSE[outer]
     op_inner = Sass::Script::Lexer::OPERATORS_REVERSE[inner]

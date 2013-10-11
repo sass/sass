@@ -531,6 +531,28 @@ SASS
 SCSS
   end
 
+  def test_immediately_following_comments
+    assert_sass_to_scss <<SCSS, <<SASS
+.foobar {
+  // trailing comment
+  a: 1px;
+}
+SCSS
+.foobar // trailing comment
+  a: 1px
+SASS
+
+    assert_sass_to_scss <<SCSS, <<SASS
+.foobar {
+  // trailing comment
+  a: 1px;
+}
+SCSS
+.foobar  /* trailing comment */
+  a: 1px
+SASS
+  end
+
   def test_debug
     assert_renders <<SASS, <<SCSS
 foo
@@ -725,6 +747,10 @@ a
 c
   @each $str in foo, bar, baz, bang
     d: $str
+
+c
+  @each $key, $value in (foo: 1, bar: 2, baz: 3)
+    \#{$key}: $value
 SASS
 a {
   @each $number in 1px 2px 3px 4px {
@@ -735,6 +761,12 @@ a {
 c {
   @each $str in foo, bar, baz, bang {
     d: $str;
+  }
+}
+
+c {
+  @each $key, $value in (foo: 1, bar: 2, baz: 3) {
+    \#{$key}: $value;
   }
 }
 SCSS
@@ -1347,7 +1379,7 @@ div
 SASS
   end
 
-   def test_loud_comment_conversion
+  def test_loud_comment_conversion
     assert_renders(<<SASS, <<SCSS)
 /*! \#{"interpolated"}
 SASS
@@ -1589,6 +1621,26 @@ SASS
 SCSS
   end
 
+  def test_mixin_var_kwargs
+    assert_scss_to_sass <<SASS, <<SCSS
+=foo($a: b, $c: d)
+  a: $a
+  c: $c
+
+.foo
+  +foo($list..., $map...)
+SASS
+@mixin foo($a: b, $c: d) {
+  a: $a;
+  c: $c;
+}
+
+.foo {
+  @include foo($list..., $map...);
+}
+SCSS
+  end
+
   def test_function_var_args
     assert_scss_to_sass <<SASS, <<SCSS
 @function foo($args...)
@@ -1612,6 +1664,106 @@ SASS
 .foo {
   a: foo($list...);
   b: bar(1, $list...);
+}
+SCSS
+  end
+
+  def test_function_var_kwargs
+    assert_scss_to_sass <<SASS, <<SCSS
+@function foo($a: b, $c: d)
+  @return foo
+
+.foo
+  a: foo($list..., $map...)
+SASS
+@function foo($a: b, $c: d) {
+  @return foo;
+}
+
+.foo {
+  a: foo($list..., $map...);
+}
+SCSS
+  end
+
+  def test_at_root
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root
+    .bar
+      a: b
+    .baz
+      c: d
+SASS
+.foo {
+  @at-root {
+    .bar {
+      a: b;
+    }
+    .baz {
+      c: d;
+    }
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with_selector
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root .bar
+    a: b
+SASS
+.foo {
+  @at-root .bar {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_at_root_without
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root (without: media rule)
+    a: b
+SASS
+.foo {
+  @at-root (without: media rule) {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_at_root_with
+    assert_scss_to_sass <<SASS, <<SCSS
+.foo
+  @at-root (with: media rule)
+    a: b
+SASS
+.foo {
+  @at-root (with: media rule) {
+    a: b;
+  }
+}
+SCSS
+  end
+
+  def test_function_var_kwargs_with_list
+    assert_scss_to_sass <<SASS, <<SCSS
+@function foo($a: b, $c: d)
+  @return $a, $c
+
+.foo
+  a: foo($list..., $map...)
+SASS
+@function foo($a: b, $c: d) {
+  @return $a, $c;
+}
+
+.foo {
+  a: foo($list..., $map...);
 }
 SCSS
   end
@@ -1689,6 +1841,34 @@ foo {
     /* baz */
     a: b;
 }
+SCSS
+  end
+
+  def test_keyword_arguments
+    assert_renders(<<SASS, <<SCSS, :dasherize => true)
+$foo: foo($dash-ed: 2px)
+SASS
+$foo: foo($dash-ed: 2px);
+SCSS
+    assert_scss_to_sass(<<SASS, <<SCSS, :dasherize => true)
+$foo: foo($dash-ed: 2px)
+SASS
+$foo: foo($dash_ed: 2px);
+SCSS
+    assert_sass_to_scss(<<SCSS, <<SASS, :dasherize => true)
+$foo: foo($dash-ed: 2px);
+SCSS
+$foo: foo($dash_ed: 2px)
+SASS
+    assert_renders(<<SASS, <<SCSS)
+$foo: foo($under_scored: 1px)
+SASS
+$foo: foo($under_scored: 1px);
+SCSS
+    assert_renders(<<SASS, <<SCSS)
+$foo: foo($dash-ed: 2px, $under_scored: 1px)
+SASS
+$foo: foo($dash-ed: 2px, $under_scored: 1px);
 SCSS
   end
 

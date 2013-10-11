@@ -18,7 +18,7 @@ module Sass
       @line = 0
       loop do
         @line += 1
-        unless text = Readline.readline('>> ')
+        unless (text = Readline.readline('>> '))
           puts
           return
         end
@@ -48,8 +48,8 @@ module Sass
     rescue Sass::SyntaxError => e
       puts "SyntaxError: #{e.message}"
       if @options[:trace]
-        e.backtrace.each do |e|
-          puts "\tfrom #{e}"
+        e.backtrace.each do |line|
+          puts "\tfrom #{line}"
         end
       end
     end
