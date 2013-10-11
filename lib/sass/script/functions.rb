@@ -1704,7 +1704,7 @@ module Sass::Script
       index = n.to_i > 0 ? n.to_i - 1 : n.to_i
       new_list = list.to_a.dup
       new_list[index] = value
-      list(new_list, list.separator)
+      Sass::Script::Value::List.new(new_list, list.separator)
     end
     declare :set_nth, [:list, :n, :value]
 
