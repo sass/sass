@@ -437,6 +437,7 @@ RUBY
 
         return [args, keywords] unless e
 
+        splat = nil
         loop do
           if @lexer.peek && @lexer.peek.type == :colon
             name = e
@@ -450,21 +451,19 @@ RUBY
 
             keywords[name.name] = value
           else
-            unless keywords.empty?
+            if try_tok(:splat)
+              return args, keywords, splat, e if splat
+              splat, e = e, nil
+            elsif splat
+              raise SyntaxError.new("Only keyword arguments may follow variable arguments (...).")
+            elsif !keywords.empty?
               raise SyntaxError.new("Positional arguments must come before keyword arguments.")
             end
 
-            if try_tok(:splat)
-              splat = e
-              return args, keywords, splat unless try_tok(:comma)
-              kwarg_splat = assert_expr(subexpr, description)
-              assert_tok(:splat)
-              return args, keywords, splat, kwarg_splat
-            end
-            args << e
+            args << e if e
           end
 
-          return args, keywords unless try_tok(:comma)
+          return args, keywords, splat unless try_tok(:comma)
           e = assert_expr(subexpr, description)
         end
       end

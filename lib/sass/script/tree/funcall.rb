@@ -76,17 +76,18 @@ module Sass::Script::Tree
         sass
       end
 
-      args = @args.map(&arg_to_sass).join(', ')
+      args = @args.map(&arg_to_sass)
       keywords = Sass::Util.hash_to_a(@keywords.as_stored).
-        map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}.join(', ')
+        map {|k, v| "$#{dasherize(k, opts)}: #{arg_to_sass[v]}"}
+
       # rubocop:disable RedundantSelf
       if self.splat
-        splat = args.empty? && keywords.empty? ? "" : ", "
-        splat = "#{splat}#{arg_to_sass[self.splat]}..."
-        splat = "#{splat}, #{arg_to_sass[kwarg_splat]}..." if kwarg_splat
+        splat = "#{arg_to_sass[self.splat]}..."
+        kwarg_splat = "#{arg_to_sass[self.kwarg_splat]}..." if self.kwarg_splat
       end
       # rubocop:enable RedundantSelf
-      arglist = "#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat}"
+
+      arglist = [args, splat, keywords, kwarg_splat].flatten.compact.join(', ')
       "#{dasherize(name, opts)}(#{arglist})"
     end
 
@@ -121,16 +122,16 @@ module Sass::Script::Tree
     def _perform(environment)
       args = Sass::Util.enum_with_index(@args).
         map {|a, i| perform_arg(a, environment, signature && signature.args[i])}
-      splat = Sass::Tree::Visitors::Perform.perform_splat(@splat, @kwarg_splat, environment)
       keywords = Sass::Util.map_hash(@keywords) do |k, v|
         [k, perform_arg(v, environment, k.tr('-', '_'))]
       end
+      splat = Sass::Tree::Visitors::Perform.perform_splat(
+        @splat, keywords, @kwarg_splat, environment)
       if (fn = environment.function(@name))
-        return perform_sass_fn(fn, args, keywords, splat, environment)
+        return perform_sass_fn(fn, args, splat, environment)
       end
 
-      ruby_name = @name.tr('-', '_')
-      args = construct_ruby_args(ruby_name, args, keywords, splat, environment)
+      args = construct_ruby_args(ruby_name, args, splat, environment)
 
       if Sass::Script::Functions.callable?(ruby_name)
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
@@ -141,6 +142,101 @@ module Sass::Script::Tree
         opts(to_literal(args))
       end
     rescue ArgumentError => e
+      reformat_argument_error(e)
+    end
+
+    # Compass historically overrode this before it changed name to {Funcall#to_value}.
+    # We should get rid of it in the future.
+    def to_literal(args)
+      to_value(args)
+    end
+
+    # This method is factored out from `_perform` so that compass can override
+    # it with a cross-browser implementation for functions that require vendor prefixes
+    # in the generated css.
+    def to_value(args)
+      Sass::Script::Value::String.new("#{name}(#{args.join(', ')})")
+    end
+
+    private
+
+    def ruby_name
+      @ruby_name ||= @name.tr('-', '_')
+    end
+
+    def perform_arg(argument, environment, name)
+      return argument if signature && signature.delayed_args.include?(name)
+      argument.perform(environment)
+    end
+
+    def signature
+      @signature ||= Sass::Script::Functions.signature(name.to_sym, @args.size, @keywords.size)
+    end
+
+    def construct_ruby_args(name, args, splat, environment)
+      args += splat.to_a if splat
+
+      # All keywords are contained in splat.keywords for consistency,
+      # even if there were no splats passed in.
+      old_keywords_accessed = splat.keywords_accessed
+      keywords = splat.keywords
+      splat.keywords_accessed = old_keywords_accessed
+
+      unless (signature = Sass::Script::Functions.signature(name.to_sym, args.size, keywords.size))
+        return args if keywords.empty?
+        raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
+      end
+
+      # If the user passes more non-keyword args than the function expects,
+      # but it does expect keyword args, Ruby's arg handling won't raise an error.
+      # Since we don't want to make functions think about this,
+      # we'll handle it for them here.
+      if signature.var_kwargs && !signature.var_args && args.size > signature.args.size
+        raise Sass::SyntaxError.new(
+          "#{args[signature.args.size].inspect} is not a keyword argument for `#{name}'")
+      elsif keywords.empty?
+        return args
+      end
+
+      args = args + (signature.args[args.size..-1] || []).map do |argname|
+        if keywords.has_key?(argname)
+          keywords.delete(argname)
+        else
+          raise Sass::SyntaxError.new("Function #{name} requires an argument named $#{argname}")
+        end
+      end
+
+      if keywords.size > 0
+        if signature.var_kwargs
+          args << keywords
+        else
+          argname = keywords.keys.sort.first
+          if signature.args.include?(argname)
+            raise Sass::SyntaxError.new(
+              "Function #{name} was passed argument $#{argname} both by position and by name")
+          else
+            raise Sass::SyntaxError.new(
+              "Function #{name} doesn't have an argument named $#{argname}")
+          end
+        end
+      end
+
+      args
+    end
+
+    def perform_sass_fn(function, args, splat, environment)
+      Sass::Tree::Visitors::Perform.perform_arguments(function, args, splat) do |env|
+        env.caller = Sass::Environment.new(environment)
+
+        val = catch :_sass_return do
+          function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, env)}
+          raise Sass::SyntaxError.new("Function #{@name} finished without @return")
+        end
+        val
+      end
+    end
+
+    def reformat_argument_error(e)
       message = e.message
 
       # If this is a legitimate Ruby-raised argument error, re-raise it.
@@ -189,94 +285,6 @@ module Sass::Script::Tree
         raise e
       end
       raise Sass::SyntaxError.new("#{message} for `#{name}'")
-    end
-
-    # Compass historically overrode this before it changed name to {Funcall#to_value}.
-    # We should get rid of it in the future.
-    def to_literal(args)
-      to_value(args)
-    end
-
-    # This method is factored out from `_perform` so that compass can override
-    # it with a cross-browser implementation for functions that require vendor prefixes
-    # in the generated css.
-    def to_value(args)
-      Sass::Script::Value::String.new("#{name}(#{args.join(', ')})")
-    end
-
-    private
-
-    def perform_arg(argument, environment, name)
-      return argument if signature && signature.delayed_args.include?(name)
-      argument.perform(environment)
-    end
-
-    def signature
-      @signature ||= Sass::Script::Functions.signature(name.to_sym, @args.size, @keywords.size)
-    end
-
-    def construct_ruby_args(name, args, keywords, splat, environment)
-      args += splat.to_a if splat
-
-      # If variable arguments were passed, there won't be any explicit keywords.
-      if splat && !splat.keywords.empty?
-        old_keywords_accessed = splat.keywords_accessed
-        keywords = splat.keywords
-        splat.keywords_accessed = old_keywords_accessed
-      end
-
-      unless (signature = Sass::Script::Functions.signature(name.to_sym, args.size, keywords.size))
-        return args if keywords.empty?
-        raise Sass::SyntaxError.new("Function #{name} doesn't support keyword arguments")
-      end
-
-      # If the user passes more non-keyword args than the function expects,
-      # but it does expect keyword args, Ruby's arg handling won't raise an error.
-      # Since we don't want to make functions think about this,
-      # we'll handle it for them here.
-      if signature.var_kwargs && !signature.var_args && args.size > signature.args.size
-        raise Sass::SyntaxError.new(
-          "#{args[signature.args.size].inspect} is not a keyword argument for `#{name}'")
-      elsif keywords.empty?
-        return args
-      end
-
-      args = args + (signature.args[args.size..-1] || []).map do |argname|
-        if keywords.has_key?(argname)
-          keywords.delete(argname)
-        else
-          raise Sass::SyntaxError.new("Function #{name} requires an argument named $#{argname}")
-        end
-      end
-
-      if keywords.size > 0
-        if signature.var_kwargs
-          args << keywords
-        else
-          argname = keywords.keys.sort.first
-          if signature.args.include?(argname)
-            raise Sass::SyntaxError.new(
-              "Function #{name} was passed argument $#{argname} both by position and by name")
-          else
-            raise Sass::SyntaxError.new(
-              "Function #{name} doesn't have an argument named $#{argname}")
-          end
-        end
-      end
-
-      args
-    end
-
-    def perform_sass_fn(function, args, keywords, splat, environment)
-      Sass::Tree::Visitors::Perform.perform_arguments(function, args, keywords, splat) do |env|
-        env.caller = Sass::Environment.new(environment)
-
-        val = catch :_sass_return do
-          function.tree.each {|c| Sass::Tree::Visitors::Perform.visit(c, env)}
-          raise Sass::SyntaxError.new("Function #{@name} finished without @return")
-        end
-        val
-      end
     end
   end
 end

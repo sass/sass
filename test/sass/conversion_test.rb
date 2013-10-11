@@ -1629,6 +1629,7 @@ SCSS
 
 .foo
   +foo($list..., $map...)
+  +foo(pos, $list..., $kwd: val, $map...)
 SASS
 @mixin foo($a: b, $c: d) {
   a: $a;
@@ -1637,6 +1638,7 @@ SASS
 
 .foo {
   @include foo($list..., $map...);
+  @include foo(pos, $list..., $kwd: val, $map...);
 }
 SCSS
   end
@@ -1675,6 +1677,7 @@ SCSS
 
 .foo
   a: foo($list..., $map...)
+  b: foo(pos, $list..., $kwd: val, $map...)
 SASS
 @function foo($a: b, $c: d) {
   @return foo;
@@ -1682,6 +1685,7 @@ SASS
 
 .foo {
   a: foo($list..., $map...);
+  b: foo(pos, $list..., $kwd: val, $map...);
 }
 SCSS
   end

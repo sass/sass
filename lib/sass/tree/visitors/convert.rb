@@ -206,15 +206,16 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
     end
 
     unless node.args.empty? && node.keywords.empty? && node.splat.nil?
-      args = node.args.map(&arg_to_sass).join(", ")
+      args = node.args.map(&arg_to_sass)
       keywords = Sass::Util.hash_to_a(node.keywords).
-        map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}.join(', ')
+        map {|k, v| "$#{dasherize(k)}: #{arg_to_sass[v]}"}
+
       if node.splat
-        splat = args.empty? && keywords.empty? ? "" : ", "
-        splat = "#{splat}#{arg_to_sass[node.splat]}..."
-        splat = "#{splat}, #{node.kwarg_splat.inspect}..." if node.kwarg_splat
+        splat = "#{arg_to_sass[node.splat]}..."
+        kwarg_splat = "#{arg_to_sass[node.kwarg_splat]}..." if node.kwarg_splat
       end
-      arglist = "(#{args}#{', ' unless args.empty? || keywords.empty?}#{keywords}#{splat})"
+
+      arglist = "(#{[args, splat, keywords, kwarg_splat].flatten.compact.join(', ')})"
     end
     "#{tab_str}#{@format == :sass ? '+' : '@include '}" +
       "#{dasherize(node.name)}#{arglist}#{node.has_children ? yield : semi}\n"

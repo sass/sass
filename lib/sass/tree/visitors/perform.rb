@@ -11,16 +11,15 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     # @api private
     # @comment
     #   rubocop:disable MethodLength
-    def perform_arguments(callable, args, keywords, splat)
+    def perform_arguments(callable, args, splat)
       desc = "#{callable.type.capitalize} #{callable.name}"
       downcase_desc = "#{callable.type} #{callable.name}"
 
-      # If variable arguments were passed, there won't be any explicit keywords.
-      if splat && !splat.keywords.empty?
-        old_keywords_accessed = splat.keywords_accessed
-        keywords = splat.keywords
-        splat.keywords_accessed = old_keywords_accessed
-      end
+      # All keywords are contained in splat.keywords for consistency,
+      # even if there were no splats passed in.
+      old_keywords_accessed = splat.keywords_accessed
+      keywords = splat.keywords
+      splat.keywords_accessed = old_keywords_accessed
 
       begin
         unless keywords.empty?
@@ -99,33 +98,34 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
     # @api private
     # @return [Sass::Script::Value::ArgList]
-    def perform_splat(splat, kwarg_splat, environment)
-      return unless splat
-      splat = splat.perform(environment)
-      unless kwarg_splat
-        return splat if splat.is_a?(Sass::Script::Value::ArgList)
-        if splat.is_a?(Sass::Script::Value::Map)
-          args = []
+    def perform_splat(splat, performed_keywords, kwarg_splat, environment)
+      args, kwargs, separator = [], Sass::Util.ordered_hash, :comma
+
+      if splat
+        splat = splat.perform(environment)
+        separator = splat.separator || separator
+        if splat.is_a?(Sass::Script::Value::ArgList)
+          args = splat.to_a
+          kwargs = splat.keywords
+        elsif splat.is_a?(Sass::Script::Value::Map)
           kwargs = arg_hash(splat)
         else
           args = splat.to_a
-          kwargs = {}
         end
-        return Sass::Script::Value::ArgList.new(args, kwargs, splat.separator || :comma)
       end
 
-      kwarg_splat = kwarg_splat.perform(environment)
-      unless kwarg_splat.is_a?(Sass::Script::Value::Map)
-        raise Sass::SyntaxError.new("Variable keyword arguments must be a map " +
-                                    "(was #{kwarg_splat.inspect}).")
+      kwargs = kwargs.merge(performed_keywords)
+
+      if kwarg_splat
+        kwarg_splat = kwarg_splat.perform(environment)
+        unless kwarg_splat.is_a?(Sass::Script::Value::Map)
+          raise Sass::SyntaxError.new("Variable keyword arguments must be a map " +
+                                      "(was #{kwarg_splat.inspect}).")
+        end
+        kwargs = kwargs.merge(arg_hash(kwarg_splat))
       end
 
-      if splat.is_a?(Sass::Script::Value::ArgList)
-        return Sass::Script::Value::ArgList.new(
-          splat.value, splat.keywords.merge(arg_hash(kwarg_splat)), splat.separator)
-      else
-        return Sass::Script::Value::ArgList.new(splat.to_a, arg_hash(kwarg_splat), splat.separator)
-      end
+      Sass::Script::Value::ArgList.new(args, kwargs, separator)
     end
 
     private
@@ -326,9 +326,9 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
       args = node.args.map {|a| a.perform(@environment)}
       keywords = Sass::Util.map_hash(node.keywords) {|k, v| [k, v.perform(@environment)]}
-      splat = self.class.perform_splat(node.splat, node.kwarg_splat, @environment)
+      splat = self.class.perform_splat(node.splat, keywords, node.kwarg_splat, @environment)
 
-      self.class.perform_arguments(mixin, args, keywords, splat) do |env|
+      self.class.perform_arguments(mixin, args, splat) do |env|
         env.caller = Sass::Environment.new(@environment)
         env.content = [node.children, @environment] if node.has_children
 
