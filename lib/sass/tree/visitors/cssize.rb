@@ -250,7 +250,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
     results = visit_children_without_parent(node)
     results.each {|n| n.tabs += node.tabs}
-    results.last.group_end = node.group_end
+    results.last.group_end = node.group_end unless results.empty?
     results
   end
 

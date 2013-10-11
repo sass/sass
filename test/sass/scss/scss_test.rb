@@ -2283,6 +2283,27 @@ CSS
 SCSS
   end
 
+  def test_at_root_plus_extend
+    assert_equal <<CSS, render(<<SCSS)
+.foo .bar {
+  a: b; }
+CSS
+%base {
+  a: b;
+}
+
+.foo {
+  @media screen {
+    @at-root (without: media) {
+      .bar {
+        @extend %base;
+      }
+    }
+  }
+}
+SCSS
+  end
+
   ## Selector Script
 
   def test_selector_script
