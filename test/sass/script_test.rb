@@ -492,6 +492,18 @@ SASS
     assert_equal "1 2 3", resolve("null 1 2 3")
   end
 
+  def test_map_can_have_trailing_comma
+    assert_equal("(foo: 1, bar: 2)", eval("(foo: 1, bar: 2,)").to_sass)
+  end
+
+  def test_list_can_have_trailing_comma
+    assert_equal("1, 2, 3", resolve("1, 2, 3,"))
+  end
+
+  def test_trailing_comma_defines_singleton_list
+    assert_equal("1 2 3", resolve("nth((1 2 3,), 1)"))
+  end
+
   def test_map_cannot_have_duplicate_keys
     assert_raise_message(Sass::SyntaxError, 'Duplicate key "foo" in map (foo: bar, foo: baz).') do
       eval("(foo: bar, foo: baz)")

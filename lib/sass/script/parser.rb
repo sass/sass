@@ -269,7 +269,8 @@ RUBY
         key, value = map_pair(e)
         map = node(Sass::Script::Tree::MapLiteral.new([[key, value]]), start_pos)
         while try_tok(:comma)
-          key, value = assert_expr(:map_pair)
+          return map unless (pair = map_pair)
+          key, value = pair
           map.pairs << [key, value]
         end
         map
@@ -289,16 +290,20 @@ RUBY
       end
 
       def list(first, start_pos)
+        return first unless @lexer.peek && @lexer.peek.type == :comma
+
         list = node(Sass::Script::Tree::ListLiteral.new([first], :comma), start_pos)
         while (tok = try_tok(:comma))
-          if (interp = try_op_before_interp(tok, list))
+          element_before_interp = list.elements.length == 1 ? list.elements.first : list
+          if (interp = try_op_before_interp(tok, element_before_interp))
             other_interp = try_ops_after_interp([:comma], :expr, interp)
             return interp unless other_interp
             return other_interp
           end
-          list.elements << assert_expr(:interpolation)
+          return list unless (e = interpolation)
+          list.elements << e
         end
-        list.elements.size == 1 ? list.elements.first : list
+        list
       end
 
       production :equals, :interpolation, :single_eq
