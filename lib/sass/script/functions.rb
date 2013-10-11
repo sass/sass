@@ -1704,7 +1704,7 @@ module Sass::Script
       index = n.to_i > 0 ? n.to_i - 1 : n.to_i
       new_list = list.to_a.dup
       new_list[index] = value
-      Sass::Script::Value::List.new(new_list, list.separator)
+      list(new_list, list.separator)
     end
     declare :set_nth, [:list, :n, :value]
 
@@ -1892,7 +1892,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_get(map, key)
       assert_type map, :Map
-      to_h(map)[key] || Sass::Script::Value::Null.new
+      to_h(map)[key] || null
     end
     declare :map_get, [:map, :key]
 
@@ -1916,7 +1916,7 @@ module Sass::Script
     def map_merge(map1, map2)
       assert_type map1, :Map
       assert_type map2, :Map
-      Sass::Script::Value::Map.new(to_h(map1).merge(to_h(map2)))
+      map(to_h(map1).merge(to_h(map2)))
     end
     declare :map_get, [:map1, :map2]
 
@@ -1930,7 +1930,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_keys(map)
       assert_type map, :Map
-      Sass::Script::Value::List.new(to_h(map).keys, :comma)
+      list(to_h(map).keys, :comma)
     end
     declare :map_keys, [:map]
 
@@ -1946,7 +1946,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_values(map)
       assert_type map, :Map
-      Sass::Script::Value::List.new(to_h(map).values, :comma)
+      list(to_h(map).values, :comma)
     end
     declare :map_values, [:map]
 
@@ -1962,7 +1962,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$map` is not a map
     def map_has_key(map, key)
       assert_type map, :Map
-      Sass::Script::Value::Bool.new(to_h(map).has_key?(key))
+      bool(to_h(map).has_key?(key))
     end
     declare :map_has_key, [:map, :key]
 
@@ -1982,8 +1982,7 @@ module Sass::Script
     # @raise [ArgumentError] if `$args` isn't a variable argument list
     def keywords(args)
       assert_type args, :ArgList
-      Sass::Script::Value::Map.new(
-        Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
+      map(Sass::Util.map_keys(args.keywords) {|k| Sass::Script::String.new(k)})
     end
     declare :keywords, [:args]
 
@@ -2078,7 +2077,7 @@ module Sass::Script
     # @overload counters($args...)
     # @return [String]
     def counters(*args)
-      Sass::Script::String.new("counters(#{args.map {|a| a.to_s(options)}.join(',')})")
+      identifier("counters(#{args.map {|a| a.to_s(options)}.join(',')})")
     end
     declare :counters, [], :var_args => true
 
@@ -2096,7 +2095,7 @@ module Sass::Script
     #   the current scope.
     def variable_exists(name)
       assert_type name, :String
-      Sass::Script::Value::Bool.new(environment.caller.var(name.value))
+      bool(environment.caller.var(name.value))
     end
     declare :variable_exists, [:name]
 
@@ -2117,7 +2116,7 @@ module Sass::Script
     #   the global scope.
     def global_variable_exists(name)
       assert_type name, :String
-      Sass::Script::Value::Bool.new(environment.global_env.var(name.value))
+      bool(environment.global_env.var(name.value))
     end
     declare :global_variable_exists, [:name]
 
@@ -2135,7 +2134,7 @@ module Sass::Script
       assert_type name, :String
       exists = Sass::Script::Functions.callable?(name.value.tr("-", "_"))
       exists ||= environment.function(name.value)
-      Sass::Script::Value::Bool.new(exists)
+      bool(exists)
     end
     declare :function_exists, [:name]
 
@@ -2151,7 +2150,7 @@ module Sass::Script
     # @return [Sass::Script::Bool] Whether the mixin is defined.
     def mixin_exists(name)
       assert_type name, :String
-      Sass::Script::Value::Bool.new(environment.mixin(name.value))
+      bool(environment.mixin(name.value))
     end
     declare :mixin_exists, [:name]
 
