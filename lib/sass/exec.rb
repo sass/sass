@@ -367,6 +367,10 @@ END
           input.close if input.is_a?(File)
 
           if @options[:sourcemap]
+            unless @options[:sourcemap_filename]
+              raise "Can't generate a sourcemap for an input without a path."
+            end
+
             relative_sourcemap_path = Pathname.new(@options[:sourcemap_filename]).
               relative_path_from(Pathname.new(@options[:output_filename]).dirname)
             rendered, mapping = engine.render_with_sourcemap(relative_sourcemap_path.to_s)
