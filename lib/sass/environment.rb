@@ -57,6 +57,7 @@ module Sass
 
     attr_writer :caller
     attr_writer :content
+    attr_writer :selector
 
     # variable
     # Script::Value
@@ -100,26 +101,7 @@ module Sass
     # @return [Selector::CommaSequence?] The current selector, with any
     #   nesting fully resolved.
     def selector
-      return if @no_selector
-      return @selector if @selector
-      return @caller.selector if @caller
-      return @parent.selector if @parent
-      nil
-    end
-
-    def selector=(value)
-      @selector = value
-      @no_selector = false
-    end
-
-    # Mark this environment as having no selector information. Unlike setting
-    # {#selector} to nil, this indicates that this environment should not
-    # inherit its {#parent}'s or {#caller}'s selector.
-    #
-    # This will be overwritten if {#selector} is set.
-    def no_selector!
-      @selector = nil
-      @no_selector = true
+      @selector || (@caller && @caller.selector) || (@parent && @parent.selector)
     end
 
     # The top-level Environment object.

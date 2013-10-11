@@ -563,6 +563,20 @@ foo bar {
 SCSS
   end
 
+  def test_unknown_directive_bubbling
+    assert_equal(<<CSS, render(<<SCSS, :style => :nested))
+@fblthp {
+  .foo .bar {
+    a: b; } }
+CSS
+.foo {
+  @fblthp {
+    .bar {a: b}
+  }
+}
+SCSS
+  end
+
   ## Namespace Properties
 
   def test_namespace_properties

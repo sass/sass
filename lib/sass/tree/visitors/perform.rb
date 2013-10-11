@@ -440,7 +440,6 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   def visit_directive(node)
     node.resolved_value = run_interp(node.value)
     with_environment Sass::Environment.new(@environment) do
-      @environment.no_selector!
       node.children = node.children.map {|c| visit(c)}.flatten
       node
     end

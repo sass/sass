@@ -939,7 +939,6 @@ SCSS
 @flooblehoof {
   .foo, .bar {
     a: b; } }
-
 @flooblehoof {}
 CSS
 @flooblehoof {.foo {a: b}}

@@ -289,6 +289,10 @@ maps instead.
 * The `if()` function now only evaluates the argument corresponding to
   the value of the first argument.
 
+* All directives that are nested in CSS rules or properties and that
+  contain more CSS rules or properties are now bubbled up through
+  their parent rules.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector

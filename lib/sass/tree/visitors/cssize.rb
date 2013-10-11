@@ -158,8 +158,7 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
 
   # Bubbles the `@supports` directive up through RuleNodes.
   def visit_supports(node)
-    yield unless bubble(node)
-    node
+    visit_directive(node)
   end
 
   # Asserts that all the traced children are valid in their new location.
@@ -170,6 +169,12 @@ class Sass::Tree::Visitors::Cssize < Sass::Tree::Visitors::Base
     e.modify_backtrace(:mixin => node.name, :filename => node.filename, :line => node.line)
     e.add_backtrace(:filename => node.filename, :line => node.line)
     raise e
+  end
+
+  # Bubbles a directive up through RuleNodes.
+  def visit_directive(node)
+    yield unless (bubbled = bubble(node))
+    bubbled && node.children.empty? ? [] : [node]
   end
 
   # Converts nested properties into flat properties
