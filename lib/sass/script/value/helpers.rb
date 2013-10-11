@@ -88,6 +88,15 @@ module Sass::Script::Value
       Sass::Script::Value::List.new(elements, separator)
     end
 
+    # Construct a Sass map.
+    #
+    # @param hash [Hash<Sass::Script::Value::Base,
+    #   Sass::Script::Value::Base>] A Ruby map to convert to a Sass map.
+    # @return [Sass::Script::Value::Map] The map.
+    def map(hash)
+      Map.new(hash)
+    end
+
     # Create a sass null value.
     #
     # @return [Sass::Script::Value::Null]
