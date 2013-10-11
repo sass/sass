@@ -19,6 +19,7 @@ notifications:
   irc: {channels: "irc.freenode.org#sass"}
 matrix:
   allow_failures:
+    - rvm: rbx
     - rvm: jruby-18mode
     - rvm: jruby-19mode
   include:
