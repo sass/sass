@@ -40,10 +40,16 @@ class CompilerTest < Test::Unit::TestCase
       @run_during_start = run_during_start
     end
 
+    # used for Listen < 2.0
+    def start!
+      @run_during_start.call(self) if @run_during_start
+    end
+    
+    # used for Listen >= 2.0
     def start
       @thread = Thread.new {@run_during_start.call(self) if @run_during_start}
     end
-
+    
     def stop
     end
 

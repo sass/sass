@@ -487,6 +487,15 @@ module Sass
       version_geq(ActionPack::VERSION::STRING, version)
     end
 
+    # Returns whether this environment is using Listen
+    # version 2.0.0 or greater.
+    #
+    # @return [Boolean]
+    def listen_geq_2?
+      require 'listen/version'
+      version_geq(::Listen::VERSION, '2.0.0')
+    end
+
     # Returns an ActionView::Template* class.
     # In pre-3.0 versions of Rails, most of these classes
     # were of the form `ActionView::TemplateFoo`,
