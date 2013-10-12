@@ -1579,7 +1579,7 @@ $a: 5
 @while $a != 0
   a-\#{$a}
     blooble: gloop
-  $a: $a - 1
+  $a: $a - 1 !global
 SASS
   end
 
@@ -1673,8 +1673,8 @@ a {
   b: 1;
   c: 2; }
 CSS
-$a: 1
 a
+  $a: 1
   b: $a
   $a: 2
   c: $a
@@ -1682,7 +1682,7 @@ SASS
   end
 
   def test_variable_scope
-    assert_equal(<<CSS, render(<<SASS))
+    silence_warnings {assert_equal(<<CSS, render(<<SASS))}
 a {
   b-1: c;
   b-2: c;
@@ -1708,9 +1708,6 @@ SASS
 
   def test_hyphen_underscore_insensitive_variables
     assert_equal(<<CSS, render(<<SASS))
-a {
-  b: c; }
-
 d {
   e: 13;
   f: foobar; }
@@ -1718,10 +1715,8 @@ CSS
 $var-hyphen: 12
 $var_under: foo
 
-a
-  $var_hyphen: 1 + $var_hyphen
-  $var-under: $var-under + bar
-  b: c
+$var_hyphen: 1 + $var_hyphen
+$var-under: $var-under + bar
 
 d
   e: $var-hyphen
@@ -2486,6 +2481,25 @@ CSS
     @at-root (without: media)
       .bar
         a: b
+SASS
+  end
+
+  def test_variable_assignment_with_global
+    assert_no_warning {assert_equal(<<CSS, render(<<SASS))}
+.foo {
+  a: x; }
+
+.bar {
+  b: x; }
+CSS
+$var: 1
+
+.foo
+  $var: x !global
+  a: $var
+
+.bar
+  b: $var
 SASS
   end
 

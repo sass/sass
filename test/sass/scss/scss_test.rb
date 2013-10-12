@@ -229,7 +229,7 @@ $i: 1;
 .foo {
   @while $i != 5 {
     a: $i;
-    $i: $i + 1;
+    $i: $i + 1 !global;
   }
 }
 SCSS
@@ -2639,7 +2639,7 @@ SCSS
 CSS
 $var: null;
 .foo {
-  $var: &;
+  $var: & !global;
 }
 
 .bar {

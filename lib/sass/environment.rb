@@ -21,6 +21,11 @@ module Sass
             (@#{name}s && @#{name}s[name]) || @parent && @parent._#{name}(name)
           end
           protected :_#{name}
+
+          def is_#{name}_global?(name)
+            return !@parent if @#{name}s && @#{name}s.has_key?(name)
+            @parent && @parent.is_#{name}_global?(name)
+          end
         RUBY
       end
 

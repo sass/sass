@@ -253,7 +253,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
 
   def visit_variable(node)
     "#{tab_str}$#{dasherize(node.name)}: #{node.expr.to_sass(@options)}" +
-      "#{' !default' if node.guarded}#{semi}\n"
+      "#{' !global' if node.global}#{' !default' if node.guarded}#{semi}\n"
   end
 
   def visit_warn(node)

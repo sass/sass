@@ -1893,6 +1893,23 @@ foo {
 SCSS
   end
 
+  def test_variable_with_global
+    assert_renders(<<SASS, <<SCSS)
+$var: 1
+
+foo
+  $var: 2 !global
+  $var: 3 !global !default
+SASS
+$var: 1;
+
+foo {
+  $var: 2 !global;
+  $var: 3 !global !default;
+}
+SCSS
+  end
+
   private
 
   def assert_sass_to_sass(sass, options = {})

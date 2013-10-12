@@ -16,13 +16,19 @@ module Sass
       # @return [Boolean]
       attr_reader :guarded
 
+      # Whether this is a global variable assignment (`!global`).
+      # @return [Boolean]
+      attr_reader :global
+
       # @param name [String] The name of the variable
       # @param expr [Script::Tree::Node] See \{#expr}
       # @param guarded [Boolean] See \{#guarded}
-      def initialize(name, expr, guarded)
+      # @param global [Boolean] See \{#global}
+      def initialize(name, expr, guarded, global)
         @name = name
         @expr = expr
         @guarded = guarded
+        @global = global
         super()
       end
     end

@@ -385,6 +385,15 @@ maps instead.
   will be removed eventually. Any code using them should upgrade to the new
   names.
 
+* As part of a migration to cleaner variable semantics, assigning to
+  global variables in a local context by default is deprecated. If
+  there's a global variable named `$color` and you write `$color:
+  blue` within a CSS rule, Sass will now print a warning; in the
+  future, it will create a new local variable named `$color`. You may
+  now explicitly assign to global variables using the `!global` flag;
+  for example, `$color: blue !global` will always assign to the global
+  `$color` variable.
+
 ## 3.2.12
 
 * Add a couple missing `require`s, fixing some load errors, especially when

@@ -585,6 +585,105 @@ SASS
     assert_equal ".bar", resolve("nth(nth(&, 1), 3)", {}, env)
   end
 
+  def test_setting_global_variable_locally_warns
+    assert_warning(<<WARNING) {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
+DEPRECATION WARNING on line 4 of test_setting_global_variable_locally_warns_inline.scss:
+Assigning to global variable "$var" by default is deprecated.
+In future versions of Sass, this will create a new local variable.
+If you want to assign to the global variable, use "$var: x !global" instead.
+WARNING
+.foo {
+  a: x; }
+
+.bar {
+  b: x; }
+CSS
+$var: 1;
+
+.foo {
+  $var: x;
+  a: $var;
+}
+
+.bar {
+  b: $var;
+}
+SCSS
+  end
+
+  def test_setting_global_variable_globally
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
+.foo {
+  a: 1; }
+
+.bar {
+  b: 2; }
+CSS
+$var: 1;
+
+.foo {
+  a: $var;
+}
+
+$var: 2;
+
+.bar {
+  b: $var;
+}
+SCSS
+  end
+
+  def test_setting_global_variable_with_flag
+    assert_no_warning {assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))}
+.bar {
+  a: x;
+  b: y;
+  c: z; }
+CSS
+$var1: 1;
+$var3: 3;
+
+.foo {
+  $var1: x !global;
+  $var2: y !global;
+  @each $var3 in _ {
+    $var3: z !global;
+  }
+}
+
+.bar {
+  a: $var1;
+  b: $var2;
+  c: $var3;
+}
+SCSS
+  end
+
+  def test_setting_global_variable_with_flag_and_default
+    assert_equal(<<CSS, render(<<SCSS, :syntax => :scss))
+.bar {
+  a: 1;
+  b: y;
+  c: z; }
+CSS
+$var1: 1;
+
+.foo {
+  $var1: x !global !default;
+  $var2: y !global !default;
+  @each $var3 in _ {
+    $var3: z !global !default;
+  }
+}
+
+.bar {
+  a: $var1;
+  b: $var2;
+  c: $var3;
+}
+SCSS
+  end
+
   # Regression Tests
 
   def test_funcall_has_higher_precedence_than_color_name

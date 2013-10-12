@@ -598,8 +598,19 @@ module Sass
         ss; tok!(/:/); ss
 
         expr = sass_script(:parse)
-        guarded = tok(DEFAULT)
-        result = Sass::Tree::VariableNode.new(name, expr, guarded)
+        while tok(/!/)
+          flag_name = tok!(IDENT)
+          if flag_name == 'default'
+            guarded ||= true
+          elsif flag_name == 'global'
+            global ||= true
+          else
+            raise Sass::SyntaxError.new("Invalid flag \"!#{flag_name}\".", :line => @line)
+          end
+          ss
+        end
+
+        result = Sass::Tree::VariableNode.new(name, expr, guarded, global)
         node(result, start_pos)
       end
 
