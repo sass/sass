@@ -419,7 +419,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     env = @environment
     if node.global
       env = env.global_env
-    elsif env.parent && env.is_var_global?(node.name)
+    elsif env.parent && env.is_var_global?(node.name) && !node.global_warning_given
+      node.global_warning_given = true
       var_expr = "$#{node.name}: #{node.expr.to_sass(env.options)} !global"
       var_expr << " !default" if node.guarded
       location = "on line #{node.line}"
