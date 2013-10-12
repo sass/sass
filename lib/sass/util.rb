@@ -58,7 +58,7 @@ module Sass
       end
 
       return Hash[pairs_or_hash] unless ruby1_8?
-      OrderedHash[*flatten(pairs_or_hash, 1)]
+      (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*flatten(pairs_or_hash, 1)]
     end
 
     # Converts an array of `[key, value]` pairs to a hash.
