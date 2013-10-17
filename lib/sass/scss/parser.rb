@@ -75,6 +75,7 @@ module Sass
           else
             Sass::Util::MultibyteStringScanner.new(@template.gsub("\r", ""))
           end
+        @location_finder = Sass::Util::SourceLocationFinder.new(@scanner.string)
       end
 
       def stylesheet
@@ -1017,7 +1018,7 @@ MESSAGE
 
       def sass_script(*args)
         parser = self.class.sass_script_parser.new(@scanner, @line,
-          @scanner.pos - (@scanner.string[0...@scanner.pos].rindex("\n") || 0))
+          @location_finder.column(@scanner.pos))
         result = parser.send(*args)
         unless @strs.empty?
           # Convert to CSS manually so that comments are ignored.

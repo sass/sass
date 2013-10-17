@@ -7,6 +7,7 @@ require 'thread'
 
 require 'sass/root'
 require 'sass/util/subset_map'
+require 'sass/util/source_location_finder'
 
 module Sass
   # A module containing various useful functions.
