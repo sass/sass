@@ -1,3 +1,5 @@
+require 'strscan'
+
 module Sass
   module Util
     # When processing a user-provided file, error messages should
@@ -12,9 +14,28 @@ module Sass
       end
 
       def column(index)
-        substr = source_string[0...index]
-        previous_newline_index = substr.rindex("\n") || 0
+        preceding_newlines = newline_positions.take_while {|pos| pos < index}
+        # I think the length of this array is the line number
+        previous_newline_index = preceding_newlines.last || 0
         index - previous_newline_index
+      end
+
+      private
+
+      def newline_positions
+        # Memoize this as walking through the string multiple times
+        # might be very expensive.
+        @newline_positions ||= build_newline_positions
+      end
+
+      def build_newline_positions
+        scanner = StringScanner.new(source_string)
+        newline_positions = []
+        while scanner.scan_until(/\n/)
+          start_position_of_newline = scanner.pos - scanner.matched_size
+          newline_positions << start_position_of_newline
+        end
+        newline_positions
       end
     end
   end
