@@ -195,7 +195,11 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
   # Prints the expression to STDERR.
   def visit_debug(node)
     res = node.expr.perform(@environment)
-    res = res.value if res.is_a?(Sass::Script::Value::String)
+    if res.is_a?(Sass::Script::Value::String)
+      res = res.value
+    else
+      res = res.to_sass
+    end
     if node.filename
       Sass::Util.sass_warn "#{node.filename}:#{node.line} DEBUG: #{res}"
     else

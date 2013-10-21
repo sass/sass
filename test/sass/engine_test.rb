@@ -3329,6 +3329,15 @@ SASS
 
   end
 
+  def test_debug_inspects_sass_objects
+    assert_warning(<<END) {render("@debug (a: 1, b: 2)")}
+test_debug_inspects_sass_objects_inline.sass:1 DEBUG: (a: 1, b: 2)
+END
+    assert_warning(<<END) {render("$map: (a: 1, b: 2); @debug $map", :syntax => :scss)}
+test_debug_inspects_sass_objects_inline.scss:1 DEBUG: (a: 1, b: 2)
+END
+  end
+
   private
 
   def assert_hash_has(hash, expected)
