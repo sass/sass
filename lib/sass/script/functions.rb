@@ -219,6 +219,9 @@ module Sass::Script
   # \{#mixin_exists mixin-exists($name)}
   # : Returns whether a mixin with the given name exists.
   #
+  # \{#inspect inspect($value)}
+  # : Returns the string representation of a value as it would be represented in Sass.
+  #
   # \{#type_of type-of($value)}
   # : Returns the type of a value.
   #
@@ -2153,6 +2156,17 @@ module Sass::Script
       bool(environment.mixin(name.value))
     end
     declare :mixin_exists, [:name]
+
+
+    # Return a string containing the value as its Sass representation.
+    #
+    # @param value [Sass::Script::Value::Base] The value to inspect.
+    # @return [Sass::Script::Value::String] A respresentation of the value as
+    #   it would be written in Sass.
+    def inspect(value)
+      unquoted_string(value.to_sass)
+    end
+    declare :inspect, [:value]
 
     private
 
