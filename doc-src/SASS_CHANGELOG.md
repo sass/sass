@@ -340,6 +340,12 @@ maps instead.
   contain more CSS rules or properties are now bubbled up through
   their parent rules.
 
+* A new function inspect($value) is provided for debugging the current
+  sass representation of a value.
+
+* The @debug directive now automatically inspects sass objects that are not
+  strings.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
