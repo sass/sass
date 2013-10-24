@@ -2256,6 +2256,7 @@ WARNING
         def initialize(seed = nil)
           srand(seed) if seed
         end
+
         def rand(*args)
           Kernel.rand(*args)
         end
