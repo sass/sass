@@ -1582,7 +1582,7 @@ SCSS
 
   def test_random_works_without_a_seed
     if Sass::Script::Functions.instance_variable_defined?("@random_number_generator")
-      Sass::Script::Functions.remove_instance_variable("@random_number_generator")
+      Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
     end
     assert_nothing_raised do
       evaluate("random()")

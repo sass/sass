@@ -2249,5 +2249,17 @@ WARNING
     def generator
       Sass::Script::Functions.random_number_generator
     end
+
+    unless defined?(::Random)
+      # Shim for ruby 1.8.7 support.
+      class Random
+        def initialize(seed = nil)
+          srand(seed) if seed
+        end
+        def rand(*args)
+          Kernel.rand(*args)
+        end
+      end
+    end
   end
 end
