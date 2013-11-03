@@ -298,7 +298,7 @@ END
         else
           'Specify the default encoding for Sass files.'
         end
-        opts.on('-E encoding', encoding_desc) do |encoding|
+        opts.on('-E', '--default-encoding ENCODING', encoding_desc) do |encoding|
           if ::Sass::Util.ruby1_8?
             $stderr.puts "Specifying the encoding is not supported in ruby 1.8."
             exit 1
