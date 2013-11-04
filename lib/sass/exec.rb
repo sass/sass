@@ -124,7 +124,7 @@ module Sass
       #   Can be `:red`, `:green`, or `:yellow`.
       def puts_action(name, color, arg)
         return if @options[:for_engine][:quiet]
-        printf "\a" if @options[:bell]
+        printf "\a" if @options[:bell] and name != :error
         printf color(color, "%11s %s\n"), name, arg
         STDOUT.flush
       end
