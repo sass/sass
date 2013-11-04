@@ -239,8 +239,8 @@ END
         end
         opts.on('--bwatch', 'Watches file or directories for changes and outputs a bell after compilation is finished.',
                             'The location of the generated CSS can be set using a colon:',
-                            "  #{@default_syntax} --watch input.#{@default_syntax}:output.css",
-                            "  #{@default_syntax} --watch input-dir:output-dir") do
+                            "  #{@default_syntax} --bwatch input.#{@default_syntax}:output.css",
+                            "  #{@default_syntax} --bwatch input-dir:output-dir") do
           @options[:watch] = true
           @options[:bell] = true
 		end
