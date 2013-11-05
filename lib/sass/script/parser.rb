@@ -413,12 +413,12 @@ RUBY
           if try_tok(:colon)
             val = assert_expr(:space)
             must_have_default = true
-          elsif must_have_default
-            raise SyntaxError.new(
-              "Required argument #{var.inspect} must come before any optional arguments.")
           elsif try_tok(:splat)
             splat = var
             break
+          elsif must_have_default
+            raise SyntaxError.new(
+              "Required argument #{var.inspect} must come before any optional arguments.")
           end
           res << [var, val]
           break unless try_tok(:comma)

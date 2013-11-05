@@ -3338,6 +3338,34 @@ test_debug_inspects_sass_objects_inline.scss:1 DEBUG: (a: 1, b: 2)
 END
   end
 
+  def test_default_arg_before_splat
+    assert_equal <<CSS, render(<<SASS, :syntax => :scss)
+.foo-positional {
+  a: 1;
+  b: 2;
+  positional-arguments: 3, 4;
+  keyword-arguments: (); }
+
+.foo-keywords {
+  a: true;
+  positional-arguments: ();
+  keyword-arguments: (c: c, d: d); }
+CSS
+@mixin foo($a: true, $b: null, $arguments...) {
+  a: $a;
+  b: $b;
+  positional-arguments: inspect($arguments);
+  keyword-arguments: inspect(keywords($arguments));
+}
+.foo-positional {
+  @include foo(1, 2, 3, 4);
+}
+.foo-keywords {
+  @include foo($c: c, $d: d);
+}
+SASS
+  end
+
   private
 
   def assert_hash_has(hash, expected)
