@@ -512,28 +512,44 @@ module Sass
     #
     # @return [Boolean]
     def windows?
-      RbConfig::CONFIG['host_os'] =~ /mswin|windows|mingw/i
+      if defined?(@windows)
+        @windows
+      else
+        @windows = (RbConfig::CONFIG['host_os'] =~ /mswin|windows|mingw/i)
+      end
     end
 
     # Whether or not this is running on IronRuby.
     #
     # @return [Boolean]
     def ironruby?
-      RUBY_ENGINE == "ironruby"
+      if defined?(@ironruby)
+        @ironruby
+      else
+        @ironruby = RUBY_ENGINE == "ironruby"
+      end
     end
 
     # Whether or not this is running on Rubinius.
     #
     # @return [Boolean]
     def rbx?
-      RUBY_ENGINE == "rbx"
+      if defined?(@rbx)
+        @rbx
+      else
+        @rbx = RUBY_ENGINE == "rbx"
+      end
     end
 
     # Whether or not this is running on JRuby.
     #
     # @return [Boolean]
     def jruby?
-      RUBY_PLATFORM =~ /java/
+      if defined?(@jruby)
+        @jruby
+      else
+        @jruby = RUBY_PLATFORM =~ /java/
+      end
     end
 
     # @see #jruby_version-class_method
@@ -575,7 +591,11 @@ module Sass
     #
     # @return [Boolean]
     def ruby1?
-      Sass::Util::RUBY_VERSION[0] <= 1
+      if defined?(@ruby1)
+        @ruby1
+      else
+        @ruby1 = Sass::Util::RUBY_VERSION[0] <= 1
+      end
     end
 
     # Whether or not this is running under Ruby 1.8 or lower.
@@ -587,7 +607,12 @@ module Sass
     def ruby1_8?
       # IronRuby says its version is 1.9, but doesn't support any of the encoding APIs.
       # We have to fall back to 1.8 behavior.
-      ironruby? || (Sass::Util::RUBY_VERSION[0] == 1 && Sass::Util::RUBY_VERSION[1] < 9)
+      if defined?(@ruby1_8)
+        @ruby1_8
+      else
+        @ruby1_8 = ironruby? ||
+                     (Sass::Util::RUBY_VERSION[0] == 1 && Sass::Util::RUBY_VERSION[1] < 9)
+      end
     end
 
     # Whether or not this is running under Ruby 1.8.6 or lower.
@@ -595,19 +620,31 @@ module Sass
     #
     # @return [Boolean]
     def ruby1_8_6?
-      ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
+      if defined?(@ruby1_8_6)
+        @ruby1_8_6
+      else
+        @ruby1_8_6 = ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
+      end
     end
 
     # Wehter or not this is running under JRuby 1.6 or lower.
     def jruby1_6?
-      jruby? && jruby_version[0] == 1 && jruby_version[1] < 7
+      if defined?(@jruby1_6)
+        @jruby1_6
+      else
+        @jruby1_6 = jruby? && jruby_version[0] == 1 && jruby_version[1] < 7
+      end
     end
 
     # Whether or not this is running under MacRuby.
     #
     # @return [Boolean]
     def macruby?
-      RUBY_ENGINE == 'macruby'
+      if defined?(@macruby)
+        @macruby
+      else
+        @macruby = RUBY_ENGINE == 'macruby'
+      end
     end
 
     # Checks that the encoding of a string is valid in Ruby 1.9
