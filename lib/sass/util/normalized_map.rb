@@ -7,14 +7,11 @@ module Sass
     # to the original keys that were stored. If several different values normalize
     # to the same value, whichever is stored last wins.
     require 'sass/util/ordered_hash' if ruby1_8?
-    class NormalizedMap < DelegateClass(ruby1_8? ? OrderedHash : Hash)
+    class NormalizedMap
       # Create a normalized map
       def initialize
         @key_strings = {}
         @map = Util.ruby1_8? ? OrderedHash.new : {}
-
-        # We delegate all hash methods that are not overridden here to @map.
-        super(@map)
       end
 
       # Specifies how to transform the key.
@@ -27,25 +24,26 @@ module Sass
       # @private
       def []=(k, v)
         normalized = normalize(k)
-        super(normalized, v)
+        @map[normalized] = v
         @key_strings[normalized] = k
+        v
       end
 
       # @private
       def [](k)
-        super(normalize(k))
+        @map[normalize(k)]
       end
 
       # @private
       def has_key?(k)
-        super(normalize(k))
+        @map.has_key?(normalize(k))
       end
 
       # @private
       def delete(k)
         normalized = normalize(k)
         @key_strings.delete(normalized)
-        super(normalized)
+        @map.delete(normalized)
       end
 
       # @return [Hash] Hash with the keys as they were stored (before normalization).
@@ -53,12 +51,42 @@ module Sass
         Sass::Util.map_keys(@map) {|k| @key_strings[k]}
       end
 
-      # this is magically invoked by ruby, not sure why DelegateClass doesn't take care of it.
-      # @private
-      def initialize_dup(other)
-        super
-        @map = other.instance_variable_get("@map").dup
-        __setobj__(@map)
+      def empty?
+        @map.empty?
+      end
+
+      def values
+        @map.values
+      end
+
+      def keys
+        @map.keys
+      end
+
+      def each
+        @map.each {|k, v| yield(k, v)}
+      end
+
+      def size
+        @map.size
+      end
+
+      def to_hash
+        @map.dup
+      end
+
+      def to_a
+        @map.to_a
+      end
+
+      def map
+        @map.map {|h, k| yield(h, k)}
+      end
+
+      def dup
+        d = super
+        d.send(:instance_variable_set, "@map", @map.dup)
+        d
       end
     end
   end
