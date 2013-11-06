@@ -49,8 +49,6 @@ module Sass
     #     the hash.
     #   @return [Hash]
     def ordered_hash(*pairs_or_hash)
-      require 'sass/util/ordered_hash' if ruby1_8?
-
       if pairs_or_hash.length == 1 && pairs_or_hash.first.is_a?(Hash)
         hash = pairs_or_hash.first
         return hash unless ruby1_8?
@@ -1131,6 +1129,8 @@ MSG
       return lcs_backtrace(c, x, y, i, j - 1, &block) if c[i][j - 1] > c[i - 1][j]
       lcs_backtrace(c, x, y, i - 1, j, &block)
     end
+
+    require 'sass/util/ordered_hash' if ruby1_8?
   end
 end
 
