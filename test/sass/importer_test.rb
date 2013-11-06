@@ -204,7 +204,7 @@ SCSS
     _, sourcemap = engine.render_with_sourcemap('sourcemap_uri')
     assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => 'css_uri')
 {
-"version": "3",
+"version": 3,
 "mappings": "AAAA,QAAS;EACP,KAAK,EAAE,IAAI",
 "sources": ["http://orange.example.com/style.scss"],
 "file": "css_uri"
@@ -274,7 +274,7 @@ SCSS
     sourcemap_path = 'map/style.map'
     assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => css_uri, :sourcemap_path => sourcemap_path)
 {
-"version": "3",
+"version": 3,
 "mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
 "sources": ["../sass/style.scss"],
 "file": "css_uri"
@@ -299,7 +299,7 @@ SCSS
     sourcemap_path = 'map/style.map'
     assert_equal <<JSON.strip, sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path)
 {
-"version": "3",
+"version": 3,
 "mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
 "sources": ["../sass/style.scss"],
 "file": "../static/style.css"

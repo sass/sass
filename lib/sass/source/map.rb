@@ -104,7 +104,7 @@ module Sass::Source
       css_uri ||= css_path.relative_path_from(sourcemap_path.dirname).to_s
 
       result = "{\n"
-      write_json_field(result, "version", "3", true)
+      write_json_field(result, "version", 3, true)
 
       source_uri_to_id = {}
       id_to_source_uri = {}
