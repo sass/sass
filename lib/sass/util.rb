@@ -85,7 +85,7 @@ module Sass
     # @see #map_vals
     # @see #map_hash
     def map_keys(hash)
-      to_hash(hash.map {|k, v| [yield(k), v]})
+      map_hash(hash) {|k, v| [yield(k), v]}
     end
 
     # Maps the values in a hash according to a block.
@@ -101,7 +101,11 @@ module Sass
     # @see #map_keys
     # @see #map_hash
     def map_vals(hash)
-      to_hash(hash.map {|k, v| [k, yield(v)]})
+      rv = hash.dup
+      hash.each do |k, v|
+        rv[k] = yield(v)
+      end
+      rv
     end
 
     # Maps the key-value pairs of a hash according to a block.
@@ -118,8 +122,13 @@ module Sass
     # @see #map_keys
     # @see #map_vals
     def map_hash(hash)
-      # Using &block here completely hoses performance on 1.8.
-      to_hash(hash.map {|k, v| yield k, v})
+      rv = hash.dup
+      hash.each do |k, v|
+        new_key, new_value = yield(k, v)
+        rv.delete(k)
+        rv[new_key] = new_value
+      end
+      rv
     end
 
     # Computes the powerset of the given array.

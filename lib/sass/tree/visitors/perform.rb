@@ -329,7 +329,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       end
 
       args = node.args.map {|a| a.perform(@environment)}
-      keywords = Sass::Util.map_hash(node.keywords) {|k, v| [k, v.perform(@environment)]}
+      keywords = Sass::Util.map_vals(node.keywords) {|v| v.perform(@environment)}
       splat = self.class.perform_splat(node.splat, keywords, node.kwarg_splat, @environment)
 
       self.class.perform_arguments(mixin, args, splat) do |env|
