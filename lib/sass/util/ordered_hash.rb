@@ -31,7 +31,7 @@ class OrderedHash < ::Hash
   # For instance, we cannot use the inherited #merge! because albeit the algorithm
   # itself would work, our []= is not being called at all by the C code.
 
-  def initialize(*args, &block)
+  def initialize(*args)
     super
     @keys = []
   end
@@ -91,8 +91,8 @@ class OrderedHash < ::Hash
     self
   end
 
-  def reject(&block)
-    dup.reject!(&block)
+  def reject
+    dup.reject! {|e| yield e}
   end
 
   def keys
@@ -160,8 +160,12 @@ class OrderedHash < ::Hash
 
   alias_method :update, :merge!
 
-  def merge(other_hash, &block)
-    dup.merge!(other_hash, &block)
+  def merge(other_hash)
+    if block_given?
+      dup.merge!(other_hash) {|k, v1, v2| yield k, v1, v2}
+    else
+      dup.merge!(other_hash)
+    end
   end
 
   # When replacing with another hash, the initial order of our keys must come from the other hash --

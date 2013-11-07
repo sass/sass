@@ -279,12 +279,12 @@ module Sass
     #
     # @param enum [Enumerable]
     # @return [Array<[Object, Array]>] An array of pairs.
-    def group_by_to_a(enum, &block)
-      return enum.group_by(&block).to_a unless ruby1_8?
+    def group_by_to_a(enum)
+      return enum.group_by {|e| yield(e)}.to_a unless ruby1_8?
       order = {}
       arr = []
       groups = enum.group_by do |e|
-        res = block[e]
+        res = yield(e)
         unless order.include?(res)
           order[res] = order.size
         end
@@ -574,9 +574,13 @@ module Sass
     # Like `Dir.glob`, but works with backslash-separated paths on Windows.
     #
     # @param path [String]
-    def glob(path, &block)
+    def glob(path)
       path = path.gsub('\\', '/') if windows?
-      Dir.glob(path, &block)
+      if block_given?
+        Dir.glob(path) {|f| yield(f)}
+      else
+        Dir.glob(path)
+      end
     end
 
     # Prepare a value for a destructuring assignment (e.g. `a, b =
@@ -1055,8 +1059,8 @@ MSG
       #
       # @param name [Symbol] The name of the variable
       # @return [Boolean]
-      def method_missing(name, *args, &block)
-        super unless args.empty? && block.nil?
+      def method_missing(name, *args)
+        super unless args.empty? && !block_given?
         @set.include?(name)
       end
     end
