@@ -32,7 +32,7 @@ module Sass::Tree::Visitors
     # @param node [Tree::Node] The node to visit.
     # @return [Object] The return value of the `visit_*` method for this node.
     def visit(node)
-      method = "visit_#{self.class.node_name node}"
+      method = :"visit_#{Base.node_name(node.class)}"
       if respond_to?(method, true)
         send(method, node) {visit_children(node)}
       else
@@ -59,9 +59,9 @@ module Sass::Tree::Visitors
     #
     # @param [Tree::Node] node The node.
     # @return [String] The name.
-    def self.node_name(node)
+    def self.node_name(node_class)
       @node_names ||= {}
-      @node_names[node.class] ||= node.class.name.gsub(NODE_NAME_RE, '\\1').downcase
+      @node_names[node_class] ||= node_class.name.gsub(NODE_NAME_RE, '\\1').downcase
     end
 
     # `yield`s, then runs the visitor on the `@else` clause if the node has one.
