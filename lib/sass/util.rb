@@ -251,11 +251,16 @@ module Sass
     # @yieldreturn [Object, nil] If the two values register as equal,
     #   this will return the value to use in the LCS array.
     # @return [Array] The LCS
-    def lcs(x, y, &block)
+    def lcs(x, y)
       x = [nil, *x]
       y = [nil, *y]
-      block ||= proc {|a, b| a == b && a}
-      lcs_backtrace(lcs_table(x, y, &block), x, y, x.size - 1, y.size - 1, &block)
+      if block_given?
+        lcs_backtrace(lcs_table(x, y) {|xx, yy| yield(xx, yy)},
+                      x, y, x.size - 1, y.size - 1) {|xx, yy| yield(xx, yy)}
+      else
+        lcs_backtrace(lcs_table(x, y) {|a, b| a == b && a},
+                      x, y, x.size - 1, y.size - 1) {|a, b| a == b && a}
+      end
     end
 
     # Converts a Hash to an Array. This is usually identical to `Hash#to_a`,
@@ -1123,15 +1128,24 @@ MSG
 
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
-    def lcs_backtrace(c, x, y, i, j, &block)
+    def lcs_backtrace(c, x, y, i, j)
       # rubocop:enable ParameterList, LineLengths
       return [] if i == 0 || j == 0
       if (v = yield(x[i], y[j]))
-        return lcs_backtrace(c, x, y, i - 1, j - 1, &block) << v
+        if block_given?
+          return lcs_backtrace(c, x, y, i - 1, j - 1) {|xx, yy| yield(xx, yy)} << v
+        else
+          return lcs_backtrace(c, x, y, i - 1, j - 1) << v
+        end
       end
 
-      return lcs_backtrace(c, x, y, i, j - 1, &block) if c[i][j - 1] > c[i - 1][j]
-      lcs_backtrace(c, x, y, i - 1, j, &block)
+      if block_given?
+        return lcs_backtrace(c, x, y, i, j - 1) {|xx, yy| yield(xx, yy)} if c[i][j - 1] > c[i - 1][j]
+        lcs_backtrace(c, x, y, i - 1, j) {|xx, yy| yield(xx, yy)}
+      else
+        return lcs_backtrace(c, x, y, i, j - 1) if c[i][j - 1] > c[i - 1][j]
+        lcs_backtrace(c, x, y, i - 1, j)
+      end
     end
 
     require 'sass/util/ordered_hash' if ruby1_8?
