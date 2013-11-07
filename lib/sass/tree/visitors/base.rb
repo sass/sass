@@ -60,8 +60,7 @@ module Sass::Tree::Visitors
     # @param [Tree::Node] node The node.
     # @return [String] The name.
     def self.node_name(node_class)
-      @node_names ||= {}
-      @node_names[node_class] ||= node_class.name.gsub(NODE_NAME_RE, '\\1').downcase
+      node_class.node_name ||= node_class.name.gsub(NODE_NAME_RE, '\\1').downcase
     end
 
     # `yield`s, then runs the visitor on the `@else` clause if the node has one.

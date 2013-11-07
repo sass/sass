@@ -30,6 +30,11 @@ module Sass
     class Node
       include Enumerable
 
+      class << self
+        # store the node name here for caching by the visitors.
+        attr_accessor :node_name
+      end
+
       # The child nodes of this node.
       #
       # @return [Array<Tree::Node>]
