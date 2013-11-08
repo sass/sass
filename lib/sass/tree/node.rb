@@ -30,9 +30,27 @@ module Sass
     class Node
       include Enumerable
 
-      class << self
-        # store the node name here for caching by the visitors.
-        attr_accessor :node_name
+      def self.inherited(base)
+        node_name = base.name.gsub(/.*::(.*?)Node$/, '\\1').downcase
+        base.instance_eval <<-METHODS
+          # @return [Symbol] The name that is used for this node when visiting.
+          def node_name
+            :#{node_name}
+          end
+          # @return [Symbol] The method that is used on the visitor to visit nodes of this type.
+          def visit_method
+            :visit_#{node_name}
+          end
+          # @return [Symbol] The method name that determines if the parent is invalid.
+          def invalid_child_method_name
+            :"invalid_#{node_name}_child?"
+          end
+
+          # @return [Symbol] The method name that determines if the node is an invalid parent.
+          def invalid_parent_method_name
+            :"invalid_#{node_name}_parent?"
+          end
+        METHODS
       end
 
       # The child nodes of this node.

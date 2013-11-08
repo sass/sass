@@ -9,24 +9,14 @@ class Sass::Tree::Visitors::CheckNesting < Sass::Tree::Visitors::Base
 
   def visit(node)
     if (error = @parent && (
-        try_send(invalid_child_method_name(@parent), @parent, node) ||
-        try_send(invalid_parent_method_name(node), @parent, node)))
+        try_send(@parent.class.invalid_child_method_name, @parent, node) ||
+        try_send(node.class.invalid_parent_method_name, @parent, node)))
       raise Sass::SyntaxError.new(error)
     end
     super
   rescue Sass::SyntaxError => e
     e.modify_backtrace(:filename => node.filename, :line => node.line)
     raise e
-  end
-
-  # @return [String] The method name that determines if the parent is invalid.
-  def invalid_child_method_name(parent)
-    "invalid_#{Sass::Tree::Visitors::Base.node_name parent.class}_child?"
-  end
-
-  # @return [String] The method name that determines if the node is an invalid parent.
-  def invalid_parent_method_name(node)
-    "invalid_#{Sass::Tree::Visitors::Base.node_name node.class}_parent?"
   end
 
   CONTROL_NODES = [Sass::Tree::EachNode, Sass::Tree::ForNode, Sass::Tree::IfNode,
