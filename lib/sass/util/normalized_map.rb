@@ -80,13 +80,17 @@ module Sass
       end
 
       def map
-        @map.map {|h, k| yield(h, k)}
+        @map.map {|k, v| yield(k, v)}
       end
 
       def dup
         d = super
         d.send(:instance_variable_set, "@map", @map.dup)
         d
+      end
+
+      def sort_by
+        @map.sort_by {|k, v| yield k, v}
       end
     end
   end
