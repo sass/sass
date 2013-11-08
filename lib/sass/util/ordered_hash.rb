@@ -92,7 +92,7 @@ class OrderedHash < ::Hash
   end
 
   def reject
-    dup.reject! {|h,k| yield h, k}
+    dup.reject! {|h, k| yield h, k}
   end
 
   def keys
