@@ -173,7 +173,7 @@ module Sass::Script::Value
       end
 
     # A hash from `[red, green, blue, alpha]` value arrays to color names.
-    COLOR_NAMES_REVERSE = map_hash(COLOR_NAMES) {|k, v| [v, k]}
+    COLOR_NAMES_REVERSE = COLOR_NAMES.invert
 
     # Constructs an RGB or HSL color object,
     # optionally with an alpha channel.
