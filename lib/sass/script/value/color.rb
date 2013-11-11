@@ -14,10 +14,9 @@ module Sass::Script::Value
   # If only the alpha channel is modified using \{#with},
   # the cached RGB and HSL values are retained.
   class Color < Base
-    class << self; include Sass::Util; end
 
     # A hash from color names to `[red, green, blue]` value arrays.
-    COLOR_NAMES = map_vals(
+    COLOR_NAMES = Sass::Util.map_vals(
         'aliceblue'            => 0xF0F8FFFF,
         'antiquewhite'         => 0xFAEBD7FF,
         'aqua'                 => 0x00FFFFFF,

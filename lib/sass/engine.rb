@@ -88,8 +88,6 @@ module Sass
   #     output = sass_engine.render
   #     puts output
   class Engine
-    include Sass::Util
-
     # A line of Sass code.
     #
     # `text`: `String`
@@ -147,7 +145,7 @@ module Sass
     # Designates block as mixin definition rather than CSS rules to output
     MIXIN_DEFINITION_CHAR = ?=
 
-    # Includes named mixin declared using MIXIN_DEFINITION_CHAR
+    # uncludes named mixin declared using MIXIN_DEFINITION_CHAR
     MIXIN_INCLUDE_CHAR    = ?+
 
     # The regex that matches and extracts data from
@@ -375,7 +373,7 @@ ERR
     end
 
     def encode_and_set_charset(rendered)
-      return rendered if ruby1_8?
+      return rendered if Sass::Util.ruby1_8?
       begin
         # Try to convert the result to the original encoding,
         # but if that doesn't work fall back on UTF-8
@@ -431,7 +429,7 @@ ERR
     def check_encoding!
       return if @checked_encoding
       @checked_encoding = true
-      @template, @original_encoding = check_sass_encoding(@template) do |msg, line|
+      @template, @original_encoding = Sass::Util.check_sass_encoding(@template) do |msg, line|
         raise Sass::SyntaxError.new(msg, :line => line)
       end
     end
@@ -766,7 +764,7 @@ WARNING
           value = self.class.parse_interp(
             line.text, line.index, to_parser_offset(line.offset), :filename => @filename)
         end
-        value = with_extracted_values(value) do |str|
+        value = Sass::Util.with_extracted_values(value) do |str|
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
           format_comment_text(str, silent)
         end
