@@ -507,6 +507,9 @@ WARNING
     end
 
     ## Cross-OS Compatibility
+    #
+    # These methods are cached because some of them are called quite frequently
+    # and even basic checks like String#== are too costly to be called repeatedly.
 
     # Whether or not this is running on Windows.
     #
