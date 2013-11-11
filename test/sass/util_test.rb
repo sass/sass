@@ -304,11 +304,29 @@ class UtilTest < Test::Unit::TestCase
     def foo
       Sass::Util.abstract(self)
     end
+    def old_method
+      Sass::Util.deprecated(self)
+    end
+    def old_method_with_custom_message
+      Sass::Util.deprecated(self, "Call FooBar#new_method instead.")
+    end
+    def self.another_old_method
+      Sass::Util.deprecated(self)
+    end
   end
 
   def test_abstract
     assert_raise_message(NotImplementedError,
       "UtilTest::FooBar must implement #foo") {FooBar.new.foo}
+  end
+
+  def test_deprecated
+    assert_warning("DEPRECATION WARNING: UtilTest::FooBar#old_method will be removed.") { FooBar.new.old_method }
+    assert_warning(<<WARNING) { FooBar.new.old_method_with_custom_message }
+DEPRECATION WARNING: UtilTest::FooBar#old_method_with_custom_message will be removed.
+Call FooBar#new_method instead.
+WARNING
+    assert_warning("DEPRECATION WARNING: UtilTest::FooBar.another_old_method will be removed.") { FooBar.another_old_method }
   end
 
   def test_json_escape_string
