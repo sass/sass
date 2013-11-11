@@ -71,6 +71,8 @@ module Sass
     # @see #map_keys
     # @see #map_hash
     def map_vals(hash)
+      # We don't delegate to map_hash for performance here
+      # because map_hash does more than is necessary.
       rv = hash.dup
       hash.each do |k, v|
         rv[k] = yield(v)
@@ -92,7 +94,9 @@ module Sass
     # @see #map_keys
     # @see #map_vals
     def map_hash(hash)
-      rv = hash.dup
+      # Copy and modify is more performant than mapping to an array and using
+      # to_hash on the result.
+      rv = hash.dup # calling dup allows this method to work with hash-like objects.
       hash.each do |k, v|
         new_key, new_value = yield(k, v)
         rv.delete(k)
@@ -224,6 +228,7 @@ module Sass
     #   this will return the value to use in the LCS array.
     # @return [Array] The LCS
     def lcs(x, y)
+      # This method does not take a block as an explicit parameter for performance reasons.
       x = [nil, *x]
       y = [nil, *y]
       if block_given?
@@ -1093,6 +1098,7 @@ MSG
     # Calculates the memoization table for the Least Common Subsequence algorithm.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
     def lcs_table(x, y)
+      # This method does not take a block as an explicit parameter for performance reasons.
       # rubocop:enable LineLength
       c = Array.new(x.size) {[]}
       x.size.times {|i| c[i][0] = 0}
@@ -1116,6 +1122,7 @@ MSG
     # Computes a single longest common subsequence for arrays x and y.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_an_LCS)
     def lcs_backtrace(c, x, y, i, j)
+      # This method does not take a block as an explicit parameter for performance reasons.
       # rubocop:enable ParameterList, LineLengths
       return [] if i == 0 || j == 0
       if (v = yield(x[i], y[j]))
