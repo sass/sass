@@ -266,12 +266,12 @@ RUBY
         return unless e
         return list e, start_pos unless @lexer.peek && @lexer.peek.type == :colon
 
-        key, value = map_pair(e)
-        map = node(Sass::Script::Tree::MapLiteral.new([[key, value]]), start_pos)
+        pair = map_pair(e)
+        map = node(Sass::Script::Tree::MapLiteral.new([pair]), start_pos)
         while try_tok(:comma)
-          return map unless (pair = map_pair)
-          key, value = pair
-          map.pairs << [key, value]
+          pair = map_pair
+          return map unless pair
+          map.pairs << pair
         end
         map
       end
