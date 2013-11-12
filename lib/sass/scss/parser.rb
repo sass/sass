@@ -1092,11 +1092,11 @@ MESSAGE
       end
 
       def _interp_string(type)
-        start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, false]])
+        start = tok(Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[type][false])
         return unless start
         res = [start]
 
-        mid_re = Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[[type, true]]
+        mid_re = Sass::Script::Lexer::STRING_REGULAR_EXPRESSIONS[type][true]
         # @scanner[2].empty? means we've started an interpolated section
         while @scanner[2] == '#{'
           @scanner.pos -= 2 # Don't consume the #{

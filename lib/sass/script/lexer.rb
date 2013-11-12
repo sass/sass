@@ -117,18 +117,28 @@ module Sass
       # while the boolean represents whether or not the string
       # is following an interpolated segment.
       STRING_REGULAR_EXPRESSIONS = {
-        [:double, false] => string_re('"', '"'),
-        [:single, false] => string_re("'", "'"),
-        [:double, true] => string_re('', '"'),
-        [:single, true] => string_re('', "'"),
-        [:uri, false] => /url\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
-        [:uri, true] => /(#{URLCHAR}*?)(#{W}\)|#\{)/,
+        :double => {
+          false => string_re('"', '"'),
+          true => string_re('', '"')
+        },
+        :single => {
+          false => string_re("'", "'"),
+          true => string_re('', "'")
+        },
+        :uri => {
+          false => /url\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
+          true => /(#{URLCHAR}*?)(#{W}\)|#\{)/
+        },
         # Defined in https://developer.mozilla.org/en/CSS/@-moz-document as a
         # non-standard version of http://www.w3.org/TR/css3-conditional/
-        [:url_prefix, false] => /url-prefix\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
-        [:url_prefix, true] => /(#{URLCHAR}*?)(#{W}\)|#\{)/,
-        [:domain, false] => /domain\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
-        [:domain, true] => /(#{URLCHAR}*?)(#{W}\)|#\{)/,
+        :url_prefix => {
+          false => /url-prefix\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
+          true => /(#{URLCHAR}*?)(#{W}\)|#\{)/
+        },
+        :domain => {
+          false => /domain\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
+          true => /(#{URLCHAR}*?)(#{W}\)|#\{)/
+        }
       }
 
       # @param str [String, StringScanner] The source text to lex
@@ -265,7 +275,7 @@ module Sass
       end
 
       def string(re, open)
-        return unless scan(STRING_REGULAR_EXPRESSIONS[[re, open]])
+        return unless scan(STRING_REGULAR_EXPRESSIONS[re][open])
         if @scanner[2] == '#{' # '
           @scanner.pos -= 2 # Don't actually consume the #{
           @offset -= 2
