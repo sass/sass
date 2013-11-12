@@ -30,7 +30,7 @@ module Sass::Script::Value
     #
     # @param value [Object] The object for \{#value}
     def initialize(value = nil)
-      @value = value
+      @value = value.freeze
     end
 
     # Sets the options hash for this node,
