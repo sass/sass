@@ -374,7 +374,7 @@ MESSAGE
         return unless str
         c = str.count("\n")
         @line += c
-        @offset = (c == 0 ? @offset + str.size : str[/\n([^\n]*)/, 1].size + 1)
+        @offset = (c == 0 ? @offset + str.size : (str.size - str.rindex("\n")) + 1)
         str
       end
 
