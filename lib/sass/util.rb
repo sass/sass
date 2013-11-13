@@ -404,9 +404,9 @@ module Sass
     # @param message [String] A message describing what to do instead.
     def deprecated(obj, message = nil)
       obj_class = obj.is_a?(Class) ? "#{obj}." : "#{obj.class}#"
-      Sass::Util.sass_warn <<WARNING[0...-1]
-DEPRECATION WARNING: #{obj_class}#{caller_info[2]} will be removed.#{("\n" + message) if message}
-WARNING
+      full_message = "DEPRECATION WARNING: #{obj_class}#{caller_info[2]} " +
+        "will be removed in a future version of Sass.#{("\n" + message) if message}"
+      Sass::Util.sass_warn full_message
     end
 
     # Silence all output to STDERR within a block.

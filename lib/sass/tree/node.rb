@@ -37,10 +37,12 @@ module Sass
           def node_name
             :#{node_name}
           end
+
           # @return [Symbol] The method that is used on the visitor to visit nodes of this type.
           def visit_method
             :visit_#{node_name}
           end
+
           # @return [Symbol] The method name that determines if the parent is invalid.
           def invalid_child_method_name
             :"invalid_#{node_name}_child?"

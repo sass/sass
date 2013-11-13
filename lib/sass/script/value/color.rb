@@ -14,6 +14,8 @@ module Sass::Script::Value
   # If only the alpha channel is modified using \{#with},
   # the cached RGB and HSL values are retained.
   class Color < Base
+    # @private
+    #
     # Convert a ruby integer to a rgba components
     # @param color [Fixnum]
     # @return [Array<Fixnum>] Array of 4 numbers representing r,g,b and alpha
@@ -182,7 +184,7 @@ module Sass::Script::Value
     COLOR_NAMES_REVERSE = COLOR_NAMES.invert.freeze
 
     # We add the alternate color names after inverting because
-    # different ruby implementations and versions vary on the result of invert.
+    # different ruby implementations and versions vary on the ordering of the result of invert.
     COLOR_NAMES.update(ALTERNATE_COLOR_NAMES).freeze
 
     # Constructs an RGB or HSL color object,
