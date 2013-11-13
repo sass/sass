@@ -73,7 +73,7 @@ module Sass
     def map_vals(hash)
       # We don't delegate to map_hash for performance here
       # because map_hash does more than is necessary.
-      rv = hash.dup
+      rv = hash.class.new
       hash.each do |k, v|
         rv[k] = yield(v)
       end
@@ -96,7 +96,7 @@ module Sass
     def map_hash(hash)
       # Copy and modify is more performant than mapping to an array and using
       # to_hash on the result.
-      rv = hash.dup # calling dup allows this method to work with hash-like objects.
+      rv = hash.class.new
       hash.each do |k, v|
         new_key, new_value = yield(k, v)
         rv.delete(k)
