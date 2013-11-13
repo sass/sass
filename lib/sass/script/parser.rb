@@ -565,7 +565,7 @@ RUBY
       end
 
       def assert_tok(name)
-        # Avoids an array allocation caused by argument globbing in the assert_several_tokens method.
+        # Avoids an array allocation caused by argument globbing in assert_several_tokens.
         t = try_tok(name)
         return t if t
         @lexer.expected!(Lexer::TOKEN_NAMES[name] || name.to_s)
