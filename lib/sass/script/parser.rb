@@ -219,7 +219,7 @@ module Sass
               interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect})
               return interp if interp
               return unless e = #{sub}
-              while tok = try_several_tokens(#{ops.map {|o| o.inspect}.join(', ')})
+              while tok = try_toks(#{ops.map {|o| o.inspect}.join(', ')})
                 if interp = try_op_before_interp(tok, e)
                   other_interp = try_ops_after_interp(#{ops.inspect}, #{name.inspect}, interp)
                   return interp unless other_interp
@@ -321,7 +321,7 @@ RUBY
 
       def try_ops_after_interp(ops, name, prev = nil)
         return unless @lexer.after_interpolation?
-        op = try_several_tokens(*ops)
+        op = try_toks(*ops)
         return unless op
         interp = try_op_before_interp(op, prev)
         return interp if interp
@@ -543,7 +543,7 @@ RUBY
       end
 
       def literal
-        t = try_several_tokens(:color, :bool, :null)
+        t = try_toks(:color, :bool, :null)
         return literal_node(t.value, t.source_range) if t
       end
 
@@ -565,25 +565,25 @@ RUBY
       end
 
       def assert_tok(name)
-        # Avoids an array allocation caused by argument globbing in assert_several_tokens.
+        # Avoids an array allocation caused by argument globbing in assert_toks.
         t = try_tok(name)
         return t if t
         @lexer.expected!(Lexer::TOKEN_NAMES[name] || name.to_s)
       end
 
-      def assert_several_tokens(*names)
-        t = try_several_tokens(*names)
+      def assert_toks(*names)
+        t = try_toks(*names)
         return t if t
         @lexer.expected!(names.map {|tok| Lexer::TOKEN_NAMES[tok] || tok}.join(" or "))
       end
 
       def try_tok(name)
-        # Avoids an array allocation caused by argument globbing in the try_several_tokens method.
+        # Avoids an array allocation caused by argument globbing in the try_toks method.
         peeked = @lexer.peek
         peeked && name == peeked.type && @lexer.next
       end
 
-      def try_several_tokens(*names)
+      def try_toks(*names)
         peeked = @lexer.peek
         peeked && names.include?(peeked.type) && @lexer.next
       end

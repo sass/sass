@@ -145,7 +145,7 @@ module Sass
     # Designates block as mixin definition rather than CSS rules to output
     MIXIN_DEFINITION_CHAR = ?=
 
-    # uncludes named mixin declared using MIXIN_DEFINITION_CHAR
+    # Includes named mixin declared using MIXIN_DEFINITION_CHAR
     MIXIN_INCLUDE_CHAR    = ?+
 
     # The regex that matches and extracts data from
