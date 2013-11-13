@@ -92,6 +92,23 @@ module Sass
       def sort_by
         @map.sort_by {|k, v| yield k, v}
       end
+
+      def method_missing(method, *args, &block)
+        if $sass_tests_running
+          raise ArgumentError.new("The method #{method} must be implemented explicitly")
+        end
+        @map.send(method, *args, &block)
+      end
+
+      if Sass::Util.ruby1_8?
+        def respond_to?(method, include_private = false)
+          super || @map.respond_to?(method, include_private)
+        end
+      end
+
+      def respond_to_missing?(method, include_private = false)
+        @map.respond_to?(method, include_private)
+      end
     end
   end
 end

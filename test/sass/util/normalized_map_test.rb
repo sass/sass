@@ -3,6 +3,28 @@ require File.dirname(__FILE__) + '/../../test_helper'
 require 'sass/util/normalized_map'
 
 class NormalizedMapTest < Test::Unit::TestCase
+  extend PublicApiLinter
+
+  lint_api Hash, Sass::Util::NormalizedMap
+
+  def lint_instance
+    Sass::Util::NormalizedMap.new
+  end
+
+  def test_normalized_map_errors_unless_explicitly_implemented
+    assert $sass_tests_running
+    assert_raise_message(ArgumentError, "The method invert must be implemented explicitly") do
+      Sass::Util::NormalizedMap.new.invert
+    end
+  end
+
+  def test_normalized_map_errors_unless_explicitly_implemented
+    $sass_tests_running = false
+    assert_equal({}, Sass::Util::NormalizedMap.new.invert)
+  ensure
+    $sass_tests_running = true
+  end
+
   def test_basic_lifecycle
     m = Sass::Util::NormalizedMap.new
     m["a-b"] = 1

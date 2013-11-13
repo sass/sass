@@ -8,6 +8,8 @@ require 'mathn' if ENV['MATHN'] == 'true'
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
+$sass_tests_running = true
+
 if defined?(Encoding)
   $-w, w = false, $-w
   Encoding.default_external = 'UTF-8'
@@ -81,5 +83,19 @@ class Test::Unit::TestCase
     assert_equal(line, e.sass_line)
   else
     flunk "Expected exception on line #{line}, none raised"
+  end
+end
+
+module PublicApiLinter
+  def lint_api(api_class, duck_type_class)
+    define_method :test_lint_instance do
+      assert lint_instance.is_a?(duck_type_class)
+    end
+    api_class.instance_methods.each do |meth|
+      define_method :"test_has_#{meth}" do
+        assert lint_instance.respond_to?(meth),
+          "#{duck_type_class.name} does not implement #{meth}"
+      end
+    end
   end
 end
