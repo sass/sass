@@ -18,7 +18,7 @@ class NormalizedMapTest < Test::Unit::TestCase
     end
   end
 
-  def test_normalized_map_errors_unless_explicitly_implemented
+  def test_normalized_map_does_not_error_when_released
     $sass_tests_running = false
     assert_equal({}, Sass::Util::NormalizedMap.new.invert)
   ensure
