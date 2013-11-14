@@ -12,17 +12,17 @@ class NormalizedMapTest < Test::Unit::TestCase
   end
 
   def test_normalized_map_errors_unless_explicitly_implemented
-    assert $sass_tests_running
+    assert Sass.tests_running
     assert_raise_message(ArgumentError, "The method invert must be implemented explicitly") do
       Sass::Util::NormalizedMap.new.invert
     end
   end
 
   def test_normalized_map_does_not_error_when_released
-    $sass_tests_running = false
+    Sass.tests_running = false
     assert_equal({}, Sass::Util::NormalizedMap.new.invert)
   ensure
-    $sass_tests_running = true
+    Sass.tests_running = true
   end
 
   def test_basic_lifecycle
@@ -48,5 +48,4 @@ class NormalizedMapTest < Test::Unit::TestCase
     assert !m.has_key?("a-b")
     assert m2.has_key?("a-b")
   end
-
 end

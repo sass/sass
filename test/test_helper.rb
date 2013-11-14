@@ -8,7 +8,7 @@ require 'mathn' if ENV['MATHN'] == 'true'
 
 Sass::RAILS_LOADED = true unless defined?(Sass::RAILS_LOADED)
 
-$sass_tests_running = true
+Sass.tests_running = true
 
 if defined?(Encoding)
   $-w, w = false, $-w

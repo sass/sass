@@ -94,7 +94,7 @@ module Sass
       end
 
       def method_missing(method, *args, &block)
-        if $sass_tests_running
+        if Sass.tests_running
           raise ArgumentError.new("The method #{method} must be implemented explicitly")
         end
         @map.send(method, *args, &block)
