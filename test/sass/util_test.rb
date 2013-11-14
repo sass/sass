@@ -321,12 +321,12 @@ class UtilTest < Test::Unit::TestCase
   end
 
   def test_deprecated
-    assert_warning("DEPRECATION WARNING: UtilTest::FooBar#old_method will be removed.") { FooBar.new.old_method }
+    assert_warning("DEPRECATION WARNING: UtilTest::FooBar#old_method will be removed in a future version of Sass.") { FooBar.new.old_method }
     assert_warning(<<WARNING) { FooBar.new.old_method_with_custom_message }
-DEPRECATION WARNING: UtilTest::FooBar#old_method_with_custom_message will be removed.
+DEPRECATION WARNING: UtilTest::FooBar#old_method_with_custom_message will be removed in a future version of Sass.
 Call FooBar#new_method instead.
 WARNING
-    assert_warning("DEPRECATION WARNING: UtilTest::FooBar.another_old_method will be removed.") { FooBar.another_old_method }
+    assert_warning("DEPRECATION WARNING: UtilTest::FooBar.another_old_method will be removed in a future version of Sass.") { FooBar.another_old_method }
   end
 
   def test_json_escape_string
