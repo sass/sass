@@ -31,36 +31,6 @@ module Sass
       File.join(Sass::ROOT_DIR, file)
     end
 
-    # Converts a hash or a list of pairs into an order-preserving hash.
-    #
-    # On Ruby 1.8.7, this uses the orderedhash gem to simulate an
-    # order-preserving hash. On Ruby 1.9 and up, it just uses the native Hash
-    # class, since that preserves the order itself.
-    #
-    # @overload ordered_hash(hash)
-    #   @param hash [Hash] a normal hash to convert to an ordered hash
-    #   @return [Hash]
-    # @overload ordered_hash(*pairs)
-    #   @example
-    #     ordered_hash([:foo, "bar"], [:baz, "bang"])
-    #       #=> {:foo => "bar", :baz => "bang"}
-    #     ordered_hash #=> {}
-    #   @param pairs [Array<(Object, Object)>] the list of key/value pairs for
-    #     the hash.
-    #   @return [Hash]
-    def ordered_hash(*pairs_or_hash)
-      require 'sass/util/ordered_hash' if ruby1_8?
-
-      if pairs_or_hash.length == 1 && pairs_or_hash.first.is_a?(Hash)
-        hash = pairs_or_hash.first
-        return hash unless ruby1_8?
-        return OrderedHash.new.merge hash
-      end
-
-      return Hash[pairs_or_hash] unless ruby1_8?
-      (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*flatten(pairs_or_hash, 1)]
-    end
-
     # Converts an array of `[key, value]` pairs to a hash.
     #
     # @example
@@ -85,7 +55,7 @@ module Sass
     # @see #map_vals
     # @see #map_hash
     def map_keys(hash)
-      to_hash(hash.map {|k, v| [yield(k), v]})
+      map_hash(hash) {|k, v| [yield(k), v]}
     end
 
     # Maps the values in a hash according to a block.
@@ -101,7 +71,13 @@ module Sass
     # @see #map_keys
     # @see #map_hash
     def map_vals(hash)
-      to_hash(hash.map {|k, v| [k, yield(v)]})
+      # We don't delegate to map_hash for performance here
+      # because map_hash does more than is necessary.
+      rv = hash.class.new
+      hash.each do |k, v|
+        rv[k] = yield(v)
+      end
+      rv
     end
 
     # Maps the key-value pairs of a hash according to a block.
@@ -118,8 +94,15 @@ module Sass
     # @see #map_keys
     # @see #map_vals
     def map_hash(hash)
-      # Using &block here completely hoses performance on 1.8.
-      to_hash(hash.map {|k, v| yield k, v})
+      # Copy and modify is more performant than mapping to an array and using
+      # to_hash on the result.
+      rv = hash.class.new
+      hash.each do |k, v|
+        new_key, new_value = yield(k, v)
+        rv.delete(k)
+        rv[new_key] = new_value
+      end
+      rv
     end
 
     # Computes the powerset of the given array.
@@ -272,12 +255,12 @@ module Sass
     #
     # @param enum [Enumerable]
     # @return [Array<[Object, Array]>] An array of pairs.
-    def group_by_to_a(enum, &block)
-      return enum.group_by(&block).to_a unless ruby1_8?
+    def group_by_to_a(enum)
+      return enum.group_by {|e| yield(e)}.to_a unless ruby1_8?
       order = {}
       arr = []
       groups = enum.group_by do |e|
-        res = block[e]
+        res = yield(e)
         unless order.include?(res)
           order[res] = order.size
         end
@@ -415,6 +398,17 @@ module Sass
       raise NotImplementedError.new("#{obj.class} must implement ##{caller_info[2]}")
     end
 
+    # Prints a deprecation warning for the caller method.
+    #
+    # @param obj [Object] `self`
+    # @param message [String] A message describing what to do instead.
+    def deprecated(obj, message = nil)
+      obj_class = obj.is_a?(Class) ? "#{obj}." : "#{obj.class}#"
+      full_message = "DEPRECATION WARNING: #{obj_class}#{caller_info[2]} " +
+        "will be removed in a future version of Sass.#{("\n" + message) if message}"
+      Sass::Util.sass_warn full_message
+    end
+
     # Silence all output to STDERR within a block.
     #
     # @yield A block in which no output will be printed to STDERR
@@ -507,33 +501,40 @@ module Sass
     end
 
     ## Cross-OS Compatibility
+    #
+    # These methods are cached because some of them are called quite frequently
+    # and even basic checks like String#== are too costly to be called repeatedly.
 
     # Whether or not this is running on Windows.
     #
     # @return [Boolean]
     def windows?
-      RbConfig::CONFIG['host_os'] =~ /mswin|windows|mingw/i
+      return @windows if defined?(@windows)
+      @windows = (RbConfig::CONFIG['host_os'] =~ /mswin|windows|mingw/i)
     end
 
     # Whether or not this is running on IronRuby.
     #
     # @return [Boolean]
     def ironruby?
-      RUBY_ENGINE == "ironruby"
+      return @ironruby if defined?(@ironruby)
+      @ironruby = RUBY_ENGINE == "ironruby"
     end
 
     # Whether or not this is running on Rubinius.
     #
     # @return [Boolean]
     def rbx?
-      RUBY_ENGINE == "rbx"
+      return @rbx if defined?(@rbx)
+      @rbx = RUBY_ENGINE == "rbx"
     end
 
     # Whether or not this is running on JRuby.
     #
     # @return [Boolean]
     def jruby?
-      RUBY_PLATFORM =~ /java/
+      return @jruby if defined?(@jruby)
+      @jruby = RUBY_PLATFORM =~ /java/
     end
 
     # @see #jruby_version-class_method
@@ -551,9 +552,13 @@ module Sass
     # Like `Dir.glob`, but works with backslash-separated paths on Windows.
     #
     # @param path [String]
-    def glob(path, &block)
+    def glob(path)
       path = path.gsub('\\', '/') if windows?
-      Dir.glob(path, &block)
+      if block_given?
+        Dir.glob(path) {|f| yield(f)}
+      else
+        Dir.glob(path)
+      end
     end
 
     # Prepare a value for a destructuring assignment (e.g. `a, b =
@@ -575,7 +580,8 @@ module Sass
     #
     # @return [Boolean]
     def ruby1?
-      Sass::Util::RUBY_VERSION[0] <= 1
+      return @ruby1 if defined?(@ruby1)
+      @ruby1 = Sass::Util::RUBY_VERSION[0] <= 1
     end
 
     # Whether or not this is running under Ruby 1.8 or lower.
@@ -587,7 +593,9 @@ module Sass
     def ruby1_8?
       # IronRuby says its version is 1.9, but doesn't support any of the encoding APIs.
       # We have to fall back to 1.8 behavior.
-      ironruby? || (Sass::Util::RUBY_VERSION[0] == 1 && Sass::Util::RUBY_VERSION[1] < 9)
+      return @ruby1_8 if defined?(@ruby1_8)
+      @ruby1_8 = ironruby? ||
+                   (Sass::Util::RUBY_VERSION[0] == 1 && Sass::Util::RUBY_VERSION[1] < 9)
     end
 
     # Whether or not this is running under Ruby 1.8.6 or lower.
@@ -595,20 +603,54 @@ module Sass
     #
     # @return [Boolean]
     def ruby1_8_6?
-      ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
+      return @ruby1_8_6 if defined?(@ruby1_8_6)
+      @ruby1_8_6 = ruby1_8? && Sass::Util::RUBY_VERSION[2] < 7
     end
 
     # Wehter or not this is running under JRuby 1.6 or lower.
     def jruby1_6?
-      jruby? && jruby_version[0] == 1 && jruby_version[1] < 7
+      return @jruby1_6 if defined?(@jruby1_6)
+      @jruby1_6 = jruby? && jruby_version[0] == 1 && jruby_version[1] < 7
     end
 
     # Whether or not this is running under MacRuby.
     #
     # @return [Boolean]
     def macruby?
-      RUBY_ENGINE == 'macruby'
+      return @macruby if defined?(@macruby)
+      @macruby = RUBY_ENGINE == 'macruby'
     end
+
+    require 'sass/util/ordered_hash' if ruby1_8?
+
+    # Converts a hash or a list of pairs into an order-preserving hash.
+    #
+    # On Ruby 1.8.7, this uses the orderedhash gem to simulate an
+    # order-preserving hash. On Ruby 1.9 and up, it just uses the native Hash
+    # class, since that preserves the order itself.
+    #
+    # @overload ordered_hash(hash)
+    #   @param hash [Hash] a normal hash to convert to an ordered hash
+    #   @return [Hash]
+    # @overload ordered_hash(*pairs)
+    #   @example
+    #     ordered_hash([:foo, "bar"], [:baz, "bang"])
+    #       #=> {:foo => "bar", :baz => "bang"}
+    #     ordered_hash #=> {}
+    #   @param pairs [Array<(Object, Object)>] the list of key/value pairs for
+    #     the hash.
+    #   @return [Hash]
+    def ordered_hash(*pairs_or_hash)
+      if pairs_or_hash.length == 1 && pairs_or_hash.first.is_a?(Hash)
+        hash = pairs_or_hash.first
+        return hash unless ruby1_8?
+        return OrderedHash.new.merge hash
+      end
+
+      return Hash[pairs_or_hash] unless ruby1_8?
+      (pairs_or_hash.is_a?(NormalizedMap) ? NormalizedMap : OrderedHash)[*flatten(pairs_or_hash, 1)]
+    end
+
 
     # Checks that the encoding of a string is valid in Ruby 1.9
     # and cleans up potential encoding gotchas like the UTF-8 BOM.
@@ -1011,8 +1053,8 @@ MSG
       #
       # @param name [Symbol] The name of the variable
       # @return [Boolean]
-      def method_missing(name, *args, &block)
-        super unless args.empty? && block.nil?
+      def method_missing(name, *args)
+        super unless args.empty? && !block_given?
         @set.include?(name)
       end
     end
@@ -1053,6 +1095,7 @@ MSG
     # Calculates the memoization table for the Least Common Subsequence algorithm.
     # Algorithm from [Wikipedia](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Computing_the_length_of_the_LCS)
     def lcs_table(x, y)
+      # This method does not take a block as an explicit parameter for performance reasons.
       # rubocop:enable LineLength
       c = Array.new(x.size) {[]}
       x.size.times {|i| c[i][0] = 0}
@@ -1085,6 +1128,8 @@ MSG
       return lcs_backtrace(c, x, y, i, j - 1, &block) if c[i][j - 1] > c[i - 1][j]
       lcs_backtrace(c, x, y, i - 1, j, &block)
     end
+
+    (Sass::Util.methods - Module.methods).each {|method| module_function method}
   end
 end
 

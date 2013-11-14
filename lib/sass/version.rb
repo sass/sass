@@ -7,8 +7,6 @@ module Sass
   # but its Git revision hash as well,
   # if it was installed from Git.
   module Version
-    include Sass::Util
-
     # Returns a hash representing the version of Sass.
     # The `:major`, `:minor`, and `:teeny` keys have their respective numbers as Fixnums.
     # The `:name` key has the name of the version.
@@ -49,9 +47,9 @@ module Sass
     def version
       return @@version if defined?(@@version)
 
-      numbers = File.read(scope('VERSION')).strip.split('.').
+      numbers = File.read(Sass::Util.scope('VERSION')).strip.split('.').
         map {|n| n =~ /^[0-9]+$/ ? n.to_i : n}
-      name = File.read(scope('VERSION_NAME')).strip
+      name = File.read(Sass::Util.scope('VERSION_NAME')).strip
       @@version = {
         :major => numbers[0],
         :minor => numbers[1],
@@ -87,18 +85,18 @@ module Sass
     private
 
     def revision_number
-      if File.exists?(scope('REVISION'))
-        rev = File.read(scope('REVISION')).strip
+      if File.exists?(Sass::Util.scope('REVISION'))
+        rev = File.read(Sass::Util.scope('REVISION')).strip
         return rev unless rev =~ /^([a-f0-9]+|\(.*\))$/ || rev == '(unknown)'
       end
 
-      return unless File.exists?(scope('.git/HEAD'))
-      rev = File.read(scope('.git/HEAD')).strip
+      return unless File.exists?(Sass::Util.scope('.git/HEAD'))
+      rev = File.read(Sass::Util.scope('.git/HEAD')).strip
       return rev unless rev =~ /^ref: (.*)$/
 
       ref_name = $1
-      ref_file = scope(".git/#{ref_name}")
-      info_file = scope(".git/info/refs")
+      ref_file = Sass::Util.scope(".git/#{ref_name}")
+      info_file = Sass::Util.scope(".git/info/refs")
       return File.read(ref_file).strip if File.exists?(ref_file)
       return unless File.exists?(info_file)
       File.open(info_file) do |f|
@@ -112,8 +110,8 @@ module Sass
     end
 
     def version_date
-      return unless File.exists?(scope('VERSION_DATE'))
-      DateTime.parse(File.read(scope('VERSION_DATE')).strip)
+      return unless File.exists?(Sass::Util.scope('VERSION_DATE'))
+      DateTime.parse(File.read(Sass::Util.scope('VERSION_DATE')).strip)
     end
   end
 

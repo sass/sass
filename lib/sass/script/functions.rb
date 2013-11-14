@@ -1158,12 +1158,12 @@ module Sass::Script
     #   same time
     def change_color(color, kwargs)
       assert_type color, :Color, :color
-      with = Sass::Util.map_hash(%w[red green blue hue saturation lightness alpha]) do |name, max|
+      with = Sass::Util.to_hash(%w[red green blue hue saturation lightness alpha].map do |name|
         val = kwargs.delete(name)
         next unless val
         assert_type val, :Number, name
         [name.to_sym, val.value]
-      end
+      end)
 
       unless kwargs.empty?
         name, val = kwargs.to_a.first

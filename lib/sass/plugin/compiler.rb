@@ -27,7 +27,6 @@ module Sass::Plugin
   # * `:never_update`
   # * `:always_check`
   class Compiler
-    include Sass::Util
     include Configuration
     extend Sass::Callbacks
 

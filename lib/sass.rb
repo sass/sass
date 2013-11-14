@@ -17,6 +17,11 @@ require 'sass/version'
 #
 # Also see the {file:SASS_REFERENCE.md full Sass reference}.
 module Sass
+  class << self
+    # @private
+    attr_accessor :tests_running
+  end
+
   # The global load paths for Sass files. This is meant for plugins and
   # libraries to register the paths to their Sass stylesheets to that they may
   # be `@imported`. This load path is used by every instance of {Sass::Engine}.
