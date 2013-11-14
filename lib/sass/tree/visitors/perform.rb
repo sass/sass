@@ -99,7 +99,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
     # @api private
     # @return [Sass::Script::Value::ArgList]
     def perform_splat(splat, performed_keywords, kwarg_splat, environment)
-      args, kwargs, separator = [], Sass::Util.ordered_hash, :comma
+      args, kwargs, separator = [], nil, :comma
 
       if splat
         splat = splat.perform(environment)
@@ -113,8 +113,8 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
           args = splat.to_a
         end
       end
-
-      kwargs = kwargs.merge(performed_keywords)
+      kwargs ||= Sass::Util.ordered_hash
+      kwargs.update(performed_keywords)
 
       if kwarg_splat
         kwarg_splat = kwarg_splat.perform(environment)
@@ -122,7 +122,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
           raise Sass::SyntaxError.new("Variable keyword arguments must be a map " +
                                       "(was #{kwarg_splat.inspect}).")
         end
-        kwargs = kwargs.merge(arg_hash(kwarg_splat))
+        kwargs.update(arg_hash(kwarg_splat))
       end
 
       Sass::Script::Value::ArgList.new(args, kwargs, separator)
@@ -329,7 +329,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       end
 
       args = node.args.map {|a| a.perform(@environment)}
-      keywords = Sass::Util.map_hash(node.keywords) {|k, v| [k, v.perform(@environment)]}
+      keywords = Sass::Util.map_vals(node.keywords) {|v| v.perform(@environment)}
       splat = self.class.perform_splat(node.splat, keywords, node.kwarg_splat, @environment)
 
       self.class.perform_arguments(mixin, args, splat) do |env|

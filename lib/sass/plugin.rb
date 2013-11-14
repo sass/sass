@@ -33,7 +33,6 @@ module Sass
   #     #=> Compiling app/sass/ie.scss to public/stylesheets/ie.css
   # @see Sass::Plugin::Compiler
   module Plugin
-    include Sass::Util
     extend self
 
     @checked_for_updates = false
