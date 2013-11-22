@@ -379,6 +379,14 @@ maps instead.
 
 * `Sass::Script::Number::PRECISION` has been removed.
 
+* The methods in the `Sass::Util` module can no longer be used by
+  including it. They must be invoked on the module itself for
+  performance reasons.
+
+* Sass values have always been immutable. The ruby object that backs
+  each sass value is now "frozen" to prevent accidental modification and
+  for performance.
+
 * Many classes in the \{Sass::Script} have been rearranged. All the value
   classes have been moved into \{Sass::Script::Value} (e.g.
   \{Sass::Script::Value::Color}, \{Sass::Script::Value::String}, etc). Their
