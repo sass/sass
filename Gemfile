@@ -8,3 +8,5 @@ gem 'rake'
 # incremental releases and we don't want out builds going red because
 # of that.
 gem 'rubocop', '= 0.14.1' unless RUBY_VERSION =~ /^1.8/
+
+gem 'rubyforge', :group => :development
