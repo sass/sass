@@ -276,7 +276,14 @@ module Sass::Script::Value
     # @return [String] The representation
     def inspect(opts = {})
       value = self.class.round(self.value)
-      unitless? ? value.to_s : "#{value}#{unit_str}"
+      str = value.to_s
+
+      # Ruby will occasionally print in scientific notation if the number is
+      # small enough. That's technically valid CSS, but it's not well-supported
+      # and confusing.
+      str = ("%0.#{self.class.precision}f" % value).gsub(/0*$/, '') if str.include?('e')
+
+      unitless? ? str : "#{str}#{unit_str}"
     end
     alias_method :to_sass, :inspect
 

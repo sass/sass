@@ -736,6 +736,18 @@ SCSS
     end
   end
 
+  def test_number_printing
+    assert_equal "1", resolve("1")
+    assert_equal "1", resolve("1.0")
+    assert_equal "1000000000", resolve("1000000000")
+    assert_equal "0.00001", resolve("0.00001")
+    assert_equal "1.12121", resolve("1.121214")
+    assert_equal "1.12122", resolve("1.121215")
+    assert_equal "Infinity", resolve("(1.0/0.0)")
+    assert_equal "-Infinity", resolve("(-1.0/0.0)")
+    assert_equal "NaN", resolve("(0.0/0.0)")
+  end
+
   private
 
   def resolve(str, opts = {}, environment = env)
@@ -781,16 +793,6 @@ SCSS
     parser = Sass::SCSS::StaticParser.new(
       str, filename_for_test, Sass::Importers::Filesystem.new('.'))
     parser.parse_selector
-  end
-
-  def test_number_printing
-    assert_equal "1", eval("1")
-    assert_equal "1", eval("1.0")
-    assert_equal "1.121", eval("1.1214")
-    assert_equal "1.122", eval("1.1215")
-    assert_equal "Infinity", eval("1.0/0.0")
-    assert_equal "-Infinity", eval("-1.0/0.0")
-    assert_equal "NaN", eval("0.0/0.0")
   end
 
   def test_null_is_a_singleton

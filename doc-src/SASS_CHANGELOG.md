@@ -346,6 +346,8 @@ maps instead.
 * The `@debug` directive now automatically inspects sass objects that are not
   strings.
 
+* Numbers will no longer be emitted in scientific notation.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
