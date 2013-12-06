@@ -68,7 +68,7 @@ class Sass::Tree::Visitors::Convert < Sass::Tree::Visitors::Base
       end
 
       if content.include?("\n")
-        content.gsub!(%r{\n( \*|//)}, "\n  ")
+        content.gsub!(%r{\n \*}, "\n  ")
         spaces = content.scan(/\n( *)/).map {|s| s.first.size}.min
         sep = node.type == :silent ? "\n//" : "\n *"
         if spaces >= 2

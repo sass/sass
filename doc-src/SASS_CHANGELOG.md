@@ -348,6 +348,9 @@ maps instead.
 
 * Numbers will no longer be emitted in scientific notation.
 
+* `sass-convert` will now correctly handle silent (`//`-style) comments
+  contained within loud (`/* */`-style) comments.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
