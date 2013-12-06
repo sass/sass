@@ -9,9 +9,11 @@ module Sass
     require 'sass/util/ordered_hash' if ruby1_8?
     class NormalizedMap
       # Create a normalized map
-      def initialize
+      def initialize(map = nil)
         @key_strings = {}
         @map = Util.ruby1_8? ? OrderedHash.new : {}
+
+        map.each {|key, value| self[key] = value} if map
       end
 
       # Specifies how to transform the key.
