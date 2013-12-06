@@ -8,6 +8,8 @@
 * Numbers returned by user-defined functions now trigger division, just like
   numbers stored in variables.
 
+* Support importing files in paths with open brackets.
+
 ## 3.2.12
 
 * Add a couple missing `require`s, fixing some load errors, especially when
