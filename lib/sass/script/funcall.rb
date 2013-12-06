@@ -100,16 +100,17 @@ module Sass
         splat = @splat.perform(environment) if @splat
         if fn = environment.function(@name)
           keywords = Sass::Util.map_hash(@keywords) {|k, v| [k, v.perform(environment)]}
-          return perform_sass_fn(fn, args, keywords, splat)
+          return without_original(perform_sass_fn(fn, args, keywords, splat))
         end
 
         ruby_name = @name.tr('-', '_')
         args = construct_ruby_args(ruby_name, args, splat, environment)
 
         unless Functions.callable?(ruby_name)
-          opts(to_literal(args))
+          without_original(opts(to_literal(args)))
         else
-          opts(Functions::EvaluationContext.new(environment.options).send(ruby_name, *args))
+          without_original(opts(Functions::EvaluationContext.new(environment.options)
+              .send(ruby_name, *args)))
         end
       rescue ArgumentError => e
         message = e.message
@@ -169,6 +170,13 @@ module Sass
       end
 
       private
+
+      def without_original(value)
+        return value unless value.is_a?(Number)
+        value = value.dup
+        value.original = nil
+        return value
+      end
 
       def construct_ruby_args(name, args, splat, environment)
         args += splat.to_a if splat

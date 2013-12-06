@@ -3,6 +3,11 @@
 * Table of contents
 {:toc}
 
+## 3.2.13 (Unreleased)
+
+* Numbers returned by user-defined functions now trigger division, just like
+  numbers stored in variables.
+
 ## 3.2.12
 
 * Add a couple missing `require`s, fixing some load errors, especially when
