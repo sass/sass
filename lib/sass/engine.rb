@@ -575,8 +575,8 @@ MSG
           if continued_comment &&
               child.line == continued_comment.line +
               continued_comment.lines + 1
-            continued_comment.value.last.sub!(%r{ \*/\Z}, '')
-            child.value.first.gsub!(%r{\A/\*}, ' *')
+            continued_comment.value.last.sub!(/ \*\/\Z/, '')
+            child.value.first.gsub!(/\A\/\*/, ' *')
             continued_comment.value += ["\n"] + child.value
             next
           end
