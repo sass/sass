@@ -124,6 +124,7 @@ module Sass
       #   Can be `:red`, `:green`, or `:yellow`.
       def puts_action(name, color, arg)
         return if @options[:for_engine][:quiet]
+        printf "\a" if @options[:bell] and name != :error
         printf color(color, "%11s %s\n"), name, arg
         STDOUT.flush
       end
@@ -232,6 +233,9 @@ END
                            "  #{@default_syntax} --watch input.#{@default_syntax}:output.css",
                            "  #{@default_syntax} --watch input-dir:output-dir") do
           @options[:watch] = true
+        end
+        opts.on('--bell', 'Output bell when compilation is finished.') do
+          @options[:bell] = true
         end
         opts.on('--update', 'Compile files or directories to CSS.',
                             'Locations are set like --watch.') do
