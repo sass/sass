@@ -316,12 +316,11 @@ module Sass::Plugin
         listener.thread.join
         listener.stop # Partially work around guard/listen#146
       else
-        # rubocop:disable RescueException
         begin
           listener.start!
         rescue Interrupt
+          # Squelch Interrupt for clean exit from Listen::Listener
         end
-        # rubocop:enable RescueException
       end
     end
 
