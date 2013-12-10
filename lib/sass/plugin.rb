@@ -124,9 +124,7 @@ module Sass
   end
 end
 
-if defined?(ActionController)
-  require 'sass/plugin/rails'
-elsif defined?(Merb::Plugins)
+if defined?(Merb::Plugins)
   require 'sass/plugin/merb'
 else
   require 'sass/plugin/generic'
