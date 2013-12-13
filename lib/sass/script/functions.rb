@@ -1551,12 +1551,12 @@ module Sass::Script
     # @param $number-2 [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if either parameter is the wrong type
-    def comparable(number_1, number_2)
-      assert_type number_1, :Number, :number_1
-      assert_type number_2, :Number, :number_2
-      bool(number_1.comparable_to?(number_2))
+    def comparable(number1, number2)
+      assert_type number1, :Number, :number1
+      assert_type number2, :Number, :number2
+      bool(number1.comparable_to?(number2))
     end
-    declare :comparable, [:number_1, :number_2]
+    declare :comparable, [:number1, :number2]
 
     # Converts a unitless number to a percentage.
     #

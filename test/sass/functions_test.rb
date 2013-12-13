@@ -1017,9 +1017,9 @@ MSG
     assert_equal(%Q{true}, evaluate("comparable(2px, 1px)"))
     assert_equal(%Q{true}, evaluate("comparable(10cm, 3mm)"))
     assert_equal(%Q{false}, evaluate("comparable(100px, 3em)"))
-    assert_equal(%Q{false}, evaluate("comparable($number-1: 100px, $number-2: 3em)"))
-    assert_error_message("$number-1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
-    assert_error_message("$number-2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
+    assert_equal(%Q{false}, evaluate("comparable($number1: 100px, $number2: 3em)"))
+    assert_error_message("$number1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
+    assert_error_message("$number2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
   def test_length
