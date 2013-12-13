@@ -231,7 +231,7 @@ module Sass::Script
   # \{#unitless unitless($number)}
   # : Returns whether a number has units.
   #
-  # \{#comparable comparable($number-1, $number-2)}
+  # \{#comparable comparable($number1, $number2)}
   # : Returns whether two numbers can be added, subtracted, or compared.
   #
   # \{#call call($name, $args...)}
@@ -1546,9 +1546,9 @@ module Sass::Script
     #   comparable(2px, 1px) => true
     #   comparable(100px, 3em) => false
     #   comparable(10cm, 3mm) => true
-    # @overload comparable($number-1, $number-2)
-    # @param $number-1 [Sass::Script::Value::Number]
-    # @param $number-2 [Sass::Script::Value::Number]
+    # @overload comparable($number1, $number2)
+    # @param $number1 [Sass::Script::Value::Number]
+    # @param $number2 [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Bool]
     # @raise [ArgumentError] if either parameter is the wrong type
     def comparable(number1, number2)
