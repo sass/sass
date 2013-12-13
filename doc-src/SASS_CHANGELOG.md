@@ -13,6 +13,8 @@
 * Fix `sass-convert`'s handling of rules with empty bodies when converting from
   CSS.
 
+* Fix CSS imports using `url()` with a quoted string and media queries.
+
 ## 3.2.12
 
 * Add a couple missing `require`s, fixing some load errors, especially when

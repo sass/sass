@@ -270,6 +270,20 @@ SCSS
     assert_equal "@import url(foo.css);\n", render('@import url(foo.css);')
   end
 
+  def test_css_string_import_directive_with_media
+    assert_parses '@import "foo.css" screen;'
+    assert_parses '@import "foo.css" screen, print;'
+    assert_parses '@import "foo.css" screen, print and (foo: 0);'
+    assert_parses '@import "foo.css" screen, only print, screen and (foo: 0);'
+  end
+
+  def test_css_url_import_directive_with_media
+    assert_parses '@import url("foo.css") screen;'
+    assert_parses '@import url("foo.css") screen, print;'
+    assert_parses '@import url("foo.css") screen, print and (foo: 0);'
+    assert_parses '@import url("foo.css") screen, only print, screen and (foo: 0);'
+  end
+
   def test_media_import
     assert_equal("@import \"./fonts.sass\" all;\n", render("@import \"./fonts.sass\" all;"))
   end
