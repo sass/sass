@@ -2157,7 +2157,6 @@ module Sass::Script
     end
     declare :mixin_exists, [:name]
 
-
     # Return a string containing the value as its Sass representation.
     #
     # @param value [Sass::Script::Value::Base] The value to inspect.
