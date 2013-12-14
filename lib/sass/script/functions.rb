@@ -139,7 +139,7 @@ module Sass::Script
   # \{#percentage percentage($number)}
   # : Converts a unitless number to a percentage.
   #
-  # \{#round round($value)}
+  # \{#round round($number)}
   # : Rounds a number to the nearest whole number.
   #
   # \{#ceil ceil($value)}
@@ -1580,10 +1580,10 @@ module Sass::Script
     # @example
     #   round(10.4px) => 10px
     #   round(10.6px) => 11px
-    # @overload round($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload round($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a number
+    # @raise [ArgumentError] if `$number` isn't a number
     def round(number)
       numeric_transformation(number) {|n| n.round}
     end
