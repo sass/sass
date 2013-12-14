@@ -159,7 +159,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5px", evaluate("abs(-5px)"))
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
-    assert_equal("5px", evaluate("abs($value: 5px)"))
+    assert_equal("5px", evaluate("abs($number: 5px)"))
 
     assert_error_message("$value: #aaaaaa is not a number for `abs'", "abs(#aaa)")
   end

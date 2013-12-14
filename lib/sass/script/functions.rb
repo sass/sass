@@ -1626,10 +1626,10 @@ module Sass::Script
     # @param $value [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a number
-    def abs(value)
-      numeric_transformation(value) {|n| n.abs}
+    def abs(number)
+      numeric_transformation(number) {|n| n.abs}
     end
-    declare :abs, [:value]
+    declare :abs, [:number]
 
     # Finds the minimum of several numbers. This function takes any number of
     # arguments.
