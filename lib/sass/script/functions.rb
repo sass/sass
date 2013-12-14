@@ -1567,13 +1567,13 @@ module Sass::Script
     # @param $value [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a unitless number
-    def percentage(value)
-      unless value.is_a?(Sass::Script::Value::Number) && value.unitless?
-        raise ArgumentError.new("$value: #{value.inspect} is not a unitless number")
+    def percentage(number)
+      unless number.is_a?(Sass::Script::Value::Number) && number.unitless?
+        raise ArgumentError.new("$number: #{number.inspect} is not a unitless number")
       end
-      number(value.value * 100, '%')
+      number(number.value * 100, '%')
     end
-    declare :percentage, [:value]
+    declare :percentage, [:number]
 
     # Rounds a number to the nearest whole number.
     #

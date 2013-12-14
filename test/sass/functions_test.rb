@@ -120,13 +120,13 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))
     assert_equal("25%",  evaluate("percentage(25px / 100px)"))
-    assert_equal("50%",  evaluate("percentage($value: 0.5)"))
+    assert_equal("50%",  evaluate("percentage($number: 0.5)"))
   end
 
   def test_percentage_checks_types
-    assert_error_message("$value: 25px is not a unitless number for `percentage'", "percentage(25px)")
-    assert_error_message("$value: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
-    assert_error_message("$value: \"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
+    assert_error_message("$number: 25px is not a unitless number for `percentage'", "percentage(25px)")
+    assert_error_message("$number: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
+    assert_error_message("$number: \"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
   def test_round
