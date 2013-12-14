@@ -799,12 +799,12 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("blue", evaluate("mix(transparentize(#f00, 1), #00f, 0%)"))
     assert_equal("rgba(0, 0, 255, 0)", evaluate("mix(#f00, transparentize(#00f, 1), 0%)"))
     assert_equal("rgba(255, 0, 0, 0)", evaluate("mix(transparentize(#f00, 1), #00f, 100%)"))
-    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f, $weight: 100%)"))
+    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color1: transparentize(#f00, 1), $color2: #00f, $weight: 100%)"))
   end
 
   def test_mix_tests_types
-    assert_error_message("$color-1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
-    assert_error_message("$color-2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
+    assert_error_message("$color1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
+    assert_error_message("$color2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
     assert_error_message("$weight: \"foo\" is not a number for `mix'", "mix(#f00, #baf, \"foo\")")
   end
 

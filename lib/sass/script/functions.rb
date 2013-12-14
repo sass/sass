@@ -1196,9 +1196,9 @@ module Sass::Script
     # @return [Sass::Script::Value::Color]
     # @raise [ArgumentError] if `$weight` is out of bounds or any parameter is
     #   the wrong type
-    def mix(color_1, color_2, weight = number(50))
-      assert_type color_1, :Color, :color_1
-      assert_type color_2, :Color, :color_2
+    def mix(color1, color2, weight = number(50))
+      assert_type color1, :Color, :color1
+      assert_type color2, :Color, :color2
       assert_type weight, :Number, :weight
 
       Sass::Util.check_range("Weight", 0..100, weight, '%')
@@ -1208,11 +1208,11 @@ module Sass::Script
       # to perform the weighted average of the two RGB values.
       #
       # It works by first normalizing both parameters to be within [-1, 1],
-      # where 1 indicates "only use color_1", -1 indicates "only use color_2", and
+      # where 1 indicates "only use color1", -1 indicates "only use color2", and
       # all values in between indicated a proportionately weighted average.
       #
       # Once we have the normalized variables w and a, we apply the formula
-      # (w + a)/(1 + w*a) to get the combined weight (in [-1, 1]) of color_1.
+      # (w + a)/(1 + w*a) to get the combined weight (in [-1, 1]) of color1.
       # This formula has two especially nice properties:
       #
       #   * When either w or a are -1 or 1, the combined weight is also that number
@@ -1220,21 +1220,21 @@ module Sass::Script
       #
       #   * When a is 0, the combined weight is w, and vice versa.
       #
-      # Finally, the weight of color_1 is renormalized to be within [0, 1]
-      # and the weight of color_2 is given by 1 minus the weight of color_1.
+      # Finally, the weight of color1 is renormalized to be within [0, 1]
+      # and the weight of color2 is given by 1 minus the weight of color1.
       p = (weight.value / 100.0).to_f
       w = p * 2 - 1
-      a = color_1.alpha - color_2.alpha
+      a = color1.alpha - color2.alpha
 
       w1 = ((w * a == -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0
       w2 = 1 - w1
 
-      rgba = color_1.rgb.zip(color_2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
-      rgba << color_1.alpha * p + color_2.alpha * (1 - p)
+      rgba = color1.rgb.zip(color2.rgb).map {|v1, v2| v1 * w1 + v2 * w2}
+      rgba << color1.alpha * p + color2.alpha * (1 - p)
       rgb_color(*rgba)
     end
-    declare :mix, [:color_1, :color_2]
-    declare :mix, [:color_1, :color_2, :weight]
+    declare :mix, [:color1, :color2]
+    declare :mix, [:color1, :color2, :weight]
 
     # Converts a color to grayscale. This is identical to `desaturate(color,
     # 100%)`.
