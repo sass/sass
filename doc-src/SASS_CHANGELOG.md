@@ -5,6 +5,12 @@
 
 ## 3.3.0 (Unreleased)
 
+  * mix()'s arguments now use $name1, $name2 format, in keeping with other functions
+
+  * arguments for percentage(), round(), ceil(), floor(), and abs() now use 'number' instead of 'value' for arguments
+
+  * comparable()'s arguments now use $name1, $name2 format, in keeping with other functions
+
 ### Using `&` in SassScript
 
 For a long time, Sass has supported a special
