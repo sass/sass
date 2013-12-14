@@ -141,7 +141,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_floor
     assert_equal("4",   evaluate("floor(4.8)"))
     assert_equal("4px", evaluate("floor(4.8px)"))
-    assert_equal("4px", evaluate("floor($value: 4.8px)"))
+    assert_equal("4px", evaluate("floor($number: 4.8px)"))
 
     assert_error_message("$value: \"foo\" is not a number for `floor'", "floor(\"foo\")")
   end

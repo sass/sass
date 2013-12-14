@@ -1612,10 +1612,10 @@ module Sass::Script
     # @param $value [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a number
-    def floor(value)
-      numeric_transformation(value) {|n| n.floor}
+    def floor(number)
+      numeric_transformation(number) {|n| n.floor}
     end
-    declare :floor, [:value]
+    declare :floor, [:number]
 
     # Returns the absolute value of a number.
     #
