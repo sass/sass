@@ -31,7 +31,7 @@ module Sass::Script
   # \{#blue blue($color)}
   # : Gets the blue component of a color.
   #
-  # \{#mix mix($color-1, $color-2, \[$weight\])}
+  # \{#mix mix($color1, $color2, \[$weight\])}
   # : Mixes two colors together.
   #
   # ## HSL Functions
@@ -1187,9 +1187,9 @@ module Sass::Script
     #   mix(#f00, #00f) => #7f007f
     #   mix(#f00, #00f, 25%) => #3f00bf
     #   mix(rgba(255, 0, 0, 0.5), #00f) => rgba(63, 0, 191, 0.75)
-    # @overload mix($color-1, $color-2, $weight: 50%)
-    # @param $color-1 [Sass::Script::Value::Color]
-    # @param $color-2 [Sass::Script::Value::Color]
+    # @overload mix($color1, $color2, $weight: 50%)
+    # @param $color1 [Sass::Script::Value::Color]
+    # @param $color2 [Sass::Script::Value::Color]
     # @param $weight [Sass::Script::Value::Number] The relative weight of each
     #   color. Closer to `0%` gives more weight to `$color`, closer to `100%`
     #   gives more weight to `$color2`
