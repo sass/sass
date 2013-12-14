@@ -136,7 +136,7 @@ module Sass::Script
   #
   # ## Number Functions
   #
-  # \{#percentage percentage($value)}
+  # \{#percentage percentage($number)}
   # : Converts a unitless number to a percentage.
   #
   # \{#round round($value)}
@@ -1563,10 +1563,10 @@ module Sass::Script
     # @example
     #   percentage(0.2) => 20%
     #   percentage(100px / 50px) => 200%
-    # @overload percentage($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload percentage($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a unitless number
+    # @raise [ArgumentError] if `$number` isn't a unitless number
     def percentage(number)
       unless number.is_a?(Sass::Script::Value::Number) && number.unitless?
         raise ArgumentError.new("$number: #{number.inspect} is not a unitless number")
