@@ -133,7 +133,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5",   evaluate("round(4.8)"))
     assert_equal("5px", evaluate("round(4.8px)"))
     assert_equal("5px", evaluate("round(5.49px)"))
-    assert_equal("5px", evaluate("round($value: 5.49px)"))
+    assert_equal("5px", evaluate("round($number: 5.49px)"))
 
     assert_error_message("$value: #cccccc is not a number for `round'", "round(#ccc)")
   end

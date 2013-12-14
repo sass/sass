@@ -1584,10 +1584,10 @@ module Sass::Script
     # @param $value [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a number
-    def round(value)
-      numeric_transformation(value) {|n| n.round}
+    def round(number)
+      numeric_transformation(number) {|n| n.round}
     end
-    declare :round, [:value]
+    declare :round, [:number]
 
     # Rounds a number up to the next whole number.
     #
