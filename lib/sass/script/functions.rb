@@ -142,7 +142,7 @@ module Sass::Script
   # \{#round round($number)}
   # : Rounds a number to the nearest whole number.
   #
-  # \{#ceil ceil($value)}
+  # \{#ceil ceil($number)}
   # : Rounds a number up to the next whole number.
   #
   # \{#floor floor($value)}
@@ -1594,10 +1594,10 @@ module Sass::Script
     # @example
     #   ceil(10.4px) => 11px
     #   ceil(10.6px) => 11px
-    # @overload ceil($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload ceil($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a number
+    # @raise [ArgumentError] if `$number` isn't a number
     def ceil(number)
       numeric_transformation(number) {|n| n.ceil}
     end
