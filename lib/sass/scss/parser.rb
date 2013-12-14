@@ -375,6 +375,7 @@ module Sass
         return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
         if uri
           str = sass_script(:parse_string)
+          ss
           media = media_query_list
           ss
           return node(Tree::CssImportNode.new(str, media.to_a), start_pos)
