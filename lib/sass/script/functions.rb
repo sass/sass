@@ -1598,10 +1598,10 @@ module Sass::Script
     # @param $value [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
     # @raise [ArgumentError] if `$value` isn't a number
-    def ceil(value)
-      numeric_transformation(value) {|n| n.ceil}
+    def ceil(number)
+      numeric_transformation(number) {|n| n.ceil}
     end
-    declare :ceil, [:value]
+    declare :ceil, [:number]
 
     # Rounds a number down to the previous whole number.
     #

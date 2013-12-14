@@ -149,7 +149,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_ceil
     assert_equal("5",   evaluate("ceil(4.1)"))
     assert_equal("5px", evaluate("ceil(4.8px)"))
-    assert_equal("5px", evaluate("ceil($value: 4.8px)"))
+    assert_equal("5px", evaluate("ceil($number: 4.8px)"))
 
     assert_error_message("$value: \"a\" is not a number for `ceil'", "ceil(\"a\")")
   end
