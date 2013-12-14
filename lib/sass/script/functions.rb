@@ -148,7 +148,7 @@ module Sass::Script
   # \{#floor floor($number)}
   # : Rounds a number down to the previous whole number.
   #
-  # \{#abs abs($value)}
+  # \{#abs abs($number)}
   # : Returns the absolute value of a number.
   #
   # \{#min min($numbers...)\}
@@ -1622,10 +1622,10 @@ module Sass::Script
     # @example
     #   abs(10px) => 10px
     #   abs(-10px) => 10px
-    # @overload abs($value)
-    # @param $value [Sass::Script::Value::Number]
+    # @overload abs($number)
+    # @param $number [Sass::Script::Value::Number]
     # @return [Sass::Script::Value::Number]
-    # @raise [ArgumentError] if `$value` isn't a number
+    # @raise [ArgumentError] if `$number` isn't a number
     def abs(number)
       numeric_transformation(number) {|n| n.abs}
     end
