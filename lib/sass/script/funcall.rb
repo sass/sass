@@ -109,8 +109,8 @@ module Sass
         unless Functions.callable?(ruby_name)
           without_original(opts(to_literal(args)))
         else
-          without_original(opts(Functions::EvaluationContext.new(environment.options)
-              .send(ruby_name, *args)))
+          without_original(opts(Functions::EvaluationContext.new(environment.options).
+              send(ruby_name, *args)))
         end
       rescue ArgumentError => e
         message = e.message
