@@ -36,7 +36,7 @@ module Sass
         <<WARNING
 DEPRECATION WARNING: Importing from #{path} will not be
 automatic in future versions of Sass.  To avoid future errors, you can add it
-to your environment explicitly by setting `SASSPATH=#{@specified_root}`, by using the -I command
+to your environment explicitly by setting `SASS_PATH=#{@specified_root}`, by using the -I command
 line option, or by changing your Sass configuration options.
 WARNING
       end
