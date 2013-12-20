@@ -3,7 +3,7 @@
 * Table of contents
 {:toc}
 
-## 3.2.13 (Unreleased)
+## 3.2.13
 
 * Numbers returned by user-defined functions now trigger division, just like
   numbers stored in variables.
