@@ -5,5 +5,6 @@ if defined?(ActiveSupport) && Sass::Util.has?(:public_method, ActiveSupport, :on
   ActiveSupport.on_load(:before_configuration) do
     require 'sass'
     require 'sass/plugin'
+    require 'sass/plugin/rails'
   end
 end

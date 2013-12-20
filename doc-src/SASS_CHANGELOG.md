@@ -413,7 +413,7 @@ maps instead.
   for example, `$color: blue !global` will always assign to the global
   `$color` variable.
 
-## 3.2.13 (Unreleased)
+## 3.2.13
 
 * Numbers returned by user-defined functions now trigger division, just like
   numbers stored in variables.
