@@ -190,6 +190,7 @@ WARNING
       source_names = []
       (0...next_source_id).each {|id| source_names.push(id_to_source_uri[id].to_s)}
       write_json_field(result, "sources", source_names)
+      write_json_field(result, "names", [])
       write_json_field(result, "file", css_uri)
 
       result << "\n}"

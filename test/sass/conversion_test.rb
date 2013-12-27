@@ -499,6 +499,29 @@ foo
 SASS
   end
 
+  def test_loud_comment_containing_silent_comment
+    assert_scss_to_sass <<SASS, <<SCSS
+/*
+ *// foo bar
+SASS
+/*
+// foo bar
+*/
+SCSS
+  end
+
+  def test_silent_comment_containing_loud_comment
+    assert_scss_to_sass <<SASS, <<SCSS
+// /*
+//  * foo bar
+//  */
+SASS
+// /*
+//  * foo bar
+//  */
+SCSS
+  end
+
   def test_immediately_preceding_comments
     assert_renders <<SASS, <<SCSS
 /* Foo

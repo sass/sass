@@ -5,7 +5,7 @@ require File.dirname(__FILE__) + '/test_helper'
 require 'sass/plugin'
 
 class ImporterTest < Test::Unit::TestCase
-  
+
   class FruitImporter < Sass::Importers::Base
     def find(name, context = nil)
       fruit = parse(name)
@@ -207,6 +207,7 @@ SCSS
 "version": 3,
 "mappings": "AAAA,QAAS;EACP,KAAK,EAAE,IAAI",
 "sources": ["http://orange.example.com/style.scss"],
+"names": [],
 "file": "css_uri"
 }
 JSON
@@ -277,6 +278,7 @@ SCSS
 "version": 3,
 "mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
 "sources": ["../sass/style.scss"],
+"names": [],
 "file": "css_uri"
 }
 JSON
@@ -302,6 +304,7 @@ SCSS
 "version": 3,
 "mappings": "AAAA,IAAK;EAAC,CAAC,EAAE,CAAC",
 "sources": ["../sass/style.scss"],
+"names": [],
 "file": "../static/style.css"
 }
 JSON

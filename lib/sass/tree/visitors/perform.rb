@@ -18,7 +18,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
       # All keywords are contained in splat.keywords for consistency,
       # even if there were no splats passed in.
       old_keywords_accessed = splat.keywords_accessed
-      keywords = splat.keywords
+      keywords = Sass::Util::NormalizedMap.new(splat.keywords)
       splat.keywords_accessed = old_keywords_accessed
 
       begin
@@ -55,15 +55,14 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
         splat_sep = splat.separator
       end
 
-      keywords = keywords.dup
       env = Sass::Environment.new(callable.environment)
       callable.args.zip(args[0...callable.args.length]) do |(var, default), value|
-        if value && keywords.include?(var.underscored_name)
+        if value && keywords.has_key?(var.name)
           raise Sass::SyntaxError.new("#{desc} was passed argument $#{var.name} " +
                                       "both by position and by name.")
         end
 
-        value ||= keywords.delete(var.underscored_name)
+        value ||= keywords.delete(var.name)
         value ||= default && default.perform(env)
         raise Sass::SyntaxError.new("#{desc} is missing argument #{var.inspect}.") unless value
         env.set_local_var(var.name, value)
@@ -71,7 +70,7 @@ class Sass::Tree::Visitors::Perform < Sass::Tree::Visitors::Base
 
       if callable.splat
         rest = args[callable.args.length..-1] || []
-        arg_list = Sass::Script::Value::ArgList.new(rest, keywords.dup, splat_sep)
+        arg_list = Sass::Script::Value::ArgList.new(rest, keywords.as_stored, splat_sep)
         arg_list.options = env.options
         env.set_local_var(callable.splat.name, arg_list)
       end

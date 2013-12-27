@@ -575,6 +575,8 @@ MSG
           if continued_comment &&
               child.line == continued_comment.line +
               continued_comment.lines + 1
+            continued_comment.value.last.sub!(/ \*\/\Z/, '')
+            child.value.first.gsub!(/\A\/\*/, ' *')
             continued_comment.value += ["\n"] + child.value
             next
           end
@@ -1127,12 +1129,12 @@ WARNING
         content.shift
       end
 
-      return silent ? "//" : "/* */" if content.empty?
+      return "/* */" if content.empty?
       content.last.gsub!(/ ?\*\/ *$/, '')
       content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
       if silent
-        "//" + content.join("\n//")
+        "/*" + content.join("\n *") + " */"
       else
         # The #gsub fixes the case of a trailing */
         "/*" + content.join("\n *").gsub(/ \*\Z/, '') + " */"

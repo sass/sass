@@ -686,6 +686,30 @@ SCSS
 
   # Regression Tests
 
+  def test_user_defined_function_forces_division
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: 10px; }
+CSS
+@function foo()
+  @return 20px
+
+a
+  b: (foo() / 2)
+SASS
+
+    assert_equal(<<CSS, render(<<SASS))
+a {
+  b: 10px; }
+CSS
+@function foo()
+  @return 20px
+
+a
+  b: foo() / 2
+SASS
+end
+
   def test_funcall_has_higher_precedence_than_color_name
     assert_equal "teal(12)", resolve("teal(12)")
     assert_equal "tealbang(12)", resolve("tealbang(12)")

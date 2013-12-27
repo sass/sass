@@ -147,12 +147,12 @@ module Sass
       end
 
       def process_comment(text, node)
-        silent = text =~ %r{^//}
-        loud = !silent && text =~ %r{^/[/*]!}
+        silent = text =~ %r{\A//}
+        loud = !silent && text =~ %r{\A/[/*]!}
         line = @line - text.count("\n")
 
         if silent
-          value = [text.sub(%r{^\s*//}, '/*').gsub(%r{^\s*//}, ' *') + ' */']
+          value = [text.sub(%r{\A\s*//}, '/*').gsub(%r{^\s*//}, ' *') + ' */']
         else
           value = Sass::Engine.parse_interp(
             text, line, @scanner.pos - text.size, :filename => @filename)
@@ -375,6 +375,7 @@ module Sass
         return unless (str = tok(STRING)) || (uri = tok?(/url\(/i))
         if uri
           str = sass_script(:parse_string)
+          ss
           media = media_query_list
           ss
           return node(Tree::CssImportNode.new(str, media.to_a), start_pos)
