@@ -1129,7 +1129,7 @@ MSG
       lcs_backtrace(c, x, y, i - 1, j, &block)
     end
 
-    (Sass::Util.methods - Module.methods).each {|method| module_function method}
+    (Sass::Util.methods - Module.methods - Object.methods).each {|method| module_function method}
   end
 end
 
