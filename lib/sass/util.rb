@@ -537,15 +537,10 @@ module Sass
       @jruby = RUBY_PLATFORM =~ /java/
     end
 
-    # @see #jruby_version-class_method
-    def jruby_version
-      Sass::Util.jruby_version
-    end
-
     # Returns an array of ints representing the JRuby version number.
     #
     # @return [Array<Fixnum>]
-    def self.jruby_version
+    def jruby_version
       @jruby_version ||= ::JRUBY_VERSION.split(".").map {|s| s.to_i}
     end
 
@@ -1129,7 +1124,7 @@ MSG
       lcs_backtrace(c, x, y, i - 1, j, &block)
     end
 
-    (Sass::Util.methods - Module.methods - Object.methods).each {|method| module_function method}
+    singleton_methods.each {|method| module_function method}
   end
 end
 
