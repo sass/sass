@@ -1585,7 +1585,42 @@ SCSS
       Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
     end
     assert_nothing_raised do
-      evaluate("random()")
+      result = perform("random()")
+      assert_kind_of Sass::Script::Number, result
+      assert result.value >= 0, "Random number was below 0"
+      assert result.value <= 1, "Random number was above 1"
+    end
+  end
+
+  def test_random_works_with_limit
+    if Sass::Script::Functions.instance_variable_defined?("@random_number_generator")
+      Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
+    end
+    assert_nothing_raised do
+      # Passing 1 as the limit should always return 1, since limit calls return
+      # integers from 1 to the argument, so when the argument is 1, its a predicatble
+      # outcome
+      assert "1", evaluate("random(1)")
+    end
+
+    # Limit must be 1 or greater
+    assert_raises Sass::SyntaxError do
+      evaluate("random(0)")
+    end
+
+    # Limit cannot be negative
+    assert_raises Sass::SyntaxError do
+      evaluate("random(-1)")
+    end
+  end
+
+  # This could *possibly* fail, but exceedingly unlikely
+  def test_random_is_semi_unique
+    if Sass::Script::Functions.instance_variable_defined?("@random_number_generator")
+      Sass::Script::Functions.send(:remove_instance_variable, "@random_number_generator")
+    end
+    assert_nothing_raised do
+      assert_not_equal evaluate("random()"), evaluate("random()")
     end
   end
 

@@ -410,7 +410,6 @@ module Sass::Script
     # @return [Integer] The same seed.
     def self.random_seed=(seed)
       @random_number_generator = Random.new(seed)
-      seed
     end
 
     # Get Sass's internal random number generator.
@@ -2187,16 +2186,19 @@ module Sass::Script
     declare :inspect, [:value]
 
     # @overload random()
-    #   Return a decimal between 0 and 1.
-    #   @param $limit The maximum of the random integer to be returned.
+    #   Return a decimal between 0 and 1, inclusive of 0, but not 1.
     #   @return [Sass::Script::Number] A decimal value.
     # @overload random($limit)
     #   Return an integer between 1 and $limit inclusive.
-    #   @param $limit The maximum of the random integer to be returned.
+    #   @param $limit The maximum of the random integer to be returned, a positive integer.
     #   @return [Sass::Script::Number] An integer.
+    #   @raise [ArgumentError] if the limit is not 1 or greater
     def random(limit = nil)
       if limit
         assert_integer limit, "limit"
+        if limit.value < 1
+          raise ArgumentError.new("Expected the limit to be 1 or greater")
+        end
         number(1 + generator.rand(limit.value))
       else
         number(generator.rand)
@@ -2248,19 +2250,6 @@ WARNING
     # @return [Random]
     def generator
       Sass::Script::Functions.random_number_generator
-    end
-
-    unless defined?(::Random)
-      # Shim for ruby 1.8.7 support.
-      class Random
-        def initialize(seed = nil)
-          srand(seed) if seed
-        end
-
-        def rand(*args)
-          Kernel.rand(*args)
-        end
-      end
     end
   end
 end
