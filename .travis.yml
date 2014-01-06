@@ -24,6 +24,8 @@ matrix:
     - rvm: jruby-18mode
     - rvm: jruby-19mode
   include:
+    - rvm: 2.1.0
+      env: MATHN=true RUBOCOP=true
     - rvm: 2.0.0
       env: MATHN=true RUBOCOP=true
     - rvm: 1.9.3
