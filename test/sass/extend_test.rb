@@ -108,10 +108,8 @@ CSS
 .bang {@extend .bar}
 SCSS
 
-    assert_equal <<CSS, render(<<SCSS)
-.foo.bar, .bar.baz, .baz.bang, .foo.bang {
-  a: b; }
-CSS
+    assert_match /\.foo\.bar, \.bar\.baz, \.(baz\.bang|bang\.baz), \.foo\.bang {
+  a: b; }/, render(<<SCSS)
 .foo.bar {a: b}
 .baz {@extend .foo}
 .bang {@extend .bar}
@@ -1190,10 +1188,8 @@ SCSS
   end
 
   def test_parent_and_sibling_extend
-    assert_equal <<CSS, render(<<SCSS)
-.parent1 .parent2 .child1.child2, .parent2 .parent1 .child1.child2 {
-  c: d; }
-CSS
+    assert_match /\.parent1 \.parent2 \.(child1\.child2|child2\.child1), \.parent2 \.parent1 \.(child1\.child2|child2\.child1) {
+  c: d; }/, render(<<SCSS)
 %foo %bar%baz {c: d}
 
 .parent1 {
