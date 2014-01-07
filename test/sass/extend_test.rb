@@ -108,8 +108,10 @@ CSS
 .bang {@extend .bar}
 SCSS
 
-    assert_match /\.foo\.bar, \.bar\.baz, \.(baz\.bang|bang\.baz), \.foo\.bang {
-  a: b; }/, render(<<SCSS)
+    assert_permutation <<CSS, render(<<SCSS)
+.foo.bar, .bar.baz, .baz.bang, .foo.bang {
+  a: b; }
+CSS
 .foo.bar {a: b}
 .baz {@extend .foo}
 .bang {@extend .bar}
@@ -1188,8 +1190,10 @@ SCSS
   end
 
   def test_parent_and_sibling_extend
-    assert_match /\.parent1 \.parent2 \.(child1\.child2|child2\.child1), \.parent2 \.parent1 \.(child1\.child2|child2\.child1) {
-  c: d; }/, render(<<SCSS)
+    assert_permutation <<CSS, render(<<SCSS)
+.parent1 .parent2 .child1.child2, .parent2 .parent1 .child1.child2 {
+  c: d; }
+CSS
 %foo %bar%baz {c: d}
 
 .parent1 {
@@ -1377,6 +1381,17 @@ SCSS
   end
 
   private
+
+  def assert_permutation(selector, extension)
+    # match ignoring class order (.a.b .b.a)
+    regex = Regexp.quote(selector).gsub /(\\\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*){2,}/ do |match|
+      classes = match.split(/\\\./).reject(&:empty?)
+      # (\\.a\\b|\\.b\\.a)
+      '(' + classes.permutation.map { |p| '\\.' + p.join('\\.') }.join('|') + ')'
+    end
+
+    assert_match /^#{regex}$/, extension
+  end
 
   def assert_extend_doesnt_match(extender, target, reason, line, syntax = :scss)
     message = "\"#{extender}\" failed to @extend \"#{target}\"."
