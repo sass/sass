@@ -5,27 +5,6 @@
 
 ## 3.3.0 (Unreleased)
 
-### Decrementing for-loops
-
-It is now possible to create decrementing loops using the default `@for`
-directive by having the `from` number be larger than the `to` number. For
-example:
-
-    .foo {
-      @for $var from 5 through 1 { a: $var }
-    }
-
-Produces:
-
-    .foo {
-      a: 5;
-      a: 4;
-      a: 3;
-      a: 2;
-      a: 1; }
-
-Thanks to [Robin Roestenburg](http://twitter.com/robinroest).
-
 ### Using `&` in SassScript
 
 For a long time, Sass has supported a special
@@ -269,6 +248,10 @@ maps instead.
   variables. `$var1`, `$var2`, and `$var3` will be `a`, `b` and `c`; then `d`,
   `e`, and `f`; and then `g`, `h`, and `i`. For more information, see
   {file:SASS_REFERENCE.md#each-multi-assign the `@each` reference}.
+
+* `@for` loops can now go downward as well as upward. For example,
+  `@for $var from 5 through 1` will set `$var` to `5`, `4`, `3`, `2`,
+  and `1`. Thanks to [Robin Roestenburg](http://twitter.com/robinroest).
 
 ### Backwards Incompatibilities -- Must Read!
 
