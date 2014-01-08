@@ -161,7 +161,9 @@ CSS
   @for $var from 1 through 5 {a: $var;}
 }
 SCSS
+  end
 
+  def test_for_directive_with_same_start_and_end
     assert_equal <<CSS, render(<<SCSS)
 CSS
 .foo {
@@ -177,7 +179,9 @@ CSS
   @for $var from 1 through 1 {a: $var;}
 }
 SCSS
+  end
 
+  def test_decrementing_estfor_directive
     assert_equal <<CSS, render(<<SCSS)
 .foo {
   a: 5;
