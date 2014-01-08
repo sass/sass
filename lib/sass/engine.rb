@@ -712,6 +712,8 @@ WARNING
       when 'media'
         parser = Sass::SCSS::Parser.new(value, @options[:filename], @line)
         Tree::MediaNode.new(parser.parse_media_query_list.to_a)
+      when nil
+        raise SyntaxError.new("Invalid directive: '@'.")
       else
         unprefixed_directive = directive.gsub(/^-[a-z0-9]+-/i, '')
         if unprefixed_directive == 'supports'
