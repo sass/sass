@@ -401,6 +401,12 @@ SASS
     assert_equal "true", resolve('() != null')
   end
 
+  def test_mod
+    assert_equal "5", resolve("29 % 12")
+    assert_equal "5px", resolve("29px % 12")
+    assert_equal "5px", resolve("29px % 12px")
+  end
+
   def test_operation_precedence
     assert_equal "false true", resolve("true and false false or true")
     assert_equal "true", resolve("false and true or true and true")

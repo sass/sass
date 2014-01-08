@@ -175,13 +175,9 @@ module Sass::Script::Value
     # @param other [Number] The right-hand side of the operator
     # @return [Number] This number modulo the other
     # @raise [NoMethodError] if `other` is an invalid type
-    # @raise [Sass::UnitConversionError] if `other` has any units
+    # @raise [Sass::UnitConversionError] if `other` has incompatible units
     def mod(other)
       if other.is_a?(Number)
-        unless other.unitless?
-          raise Sass::UnitConversionError.new(
-            "Cannot modulo by a number with units: #{other.inspect}.")
-        end
         operate(other, :%)
       else
         raise NoMethodError.new(nil, :mod)
@@ -388,7 +384,7 @@ module Sass::Script::Value
       end
     end
 
-    OPERATIONS = [:+, :-, :<=, :<, :>, :>=]
+    OPERATIONS = [:+, :-, :<=, :<, :>, :>=, :%]
 
     def operate(other, operation)
       this = self
