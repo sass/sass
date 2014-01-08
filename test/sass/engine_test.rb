@@ -54,7 +54,7 @@ MSG
     "$a: 1b <= 2c" => "Incompatible units: 'c' and 'b'.",
     "$a: 1b >= 2c" => "Incompatible units: 'c' and 'b'.",
     "a\n  b: 1b * 2c" => "2b*c isn't a valid CSS value.",
-    "a\n  b: 1b % 2c" => "Cannot modulo by a number with units: 2c.",
+    "a\n  b: 1b % 2c" => "Incompatible units: 'c' and 'b'.",
     "$a: 2px + #ccc" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "$a: #ccc + 2px" => "Cannot add a number with units (2px) to a color (#cccccc).",
     "& a\n  :b c" => ["Base-level rules cannot contain the parent-selector-referencing character '&'.", 1],
