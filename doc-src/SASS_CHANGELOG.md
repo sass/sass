@@ -355,6 +355,9 @@ maps instead.
 * `sass-convert` will now correctly handle silent (`//`-style) comments
   contained within loud (`/* */`-style) comments.
 
+* Allow modulo arithmetic for numbers with compatible units. Thanks to
+  [Isaac Devine](http://www.devinesystems.co.nz).
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
@@ -456,8 +459,6 @@ maps instead.
 * Fix some thread-safety issues.
 
 ## 3.2.10
-
-* Allow modulo arithmetic for numbers with units thanks to [Isaac Devine](http://www.devinesystems.co.nz)
 
 * Use the Sass logger infrastructure for `@debug` directives.
 
