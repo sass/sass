@@ -107,18 +107,18 @@ module Sass
       #   by extending this selector with `extends`.
       # @see CommaSequence#do_extend
       def do_extend(extends, parent_directives, seen = Set.new)
-        groups = Sass::Util.group_by_to_a(extends.get(members.to_set)) {|ex, _| ex.extender}
+        groups = Sass::Util.group_by_to_a(extends[members.to_set]) {|ex| ex.extender}
         groups.map! do |seq, group|
-          sels = group.map {|_, s| s}.flatten
+          sels = group.map {|e| e.target}.flatten
           # If A {@extend B} and C {...},
           # seq is A, sels is B, and self is C
 
           self_without_sel = Sass::Util.array_minus(members, sels)
-          group.each {|e, _| e.result = :failed_to_unify unless e.result == :succeeded}
+          group.each {|e| e.result = :failed_to_unify unless e.result == :succeeded}
           unified = seq.members.last.unify(self_without_sel, subject?)
           next unless unified
-          group.each {|e, _| e.result = :succeeded}
-          group.each {|e, _| check_directives_match!(e, parent_directives)}
+          group.each {|e| e.result = :succeeded}
+          group.each {|e| check_directives_match!(e, parent_directives)}
           new_seq = Sequence.new(seq.members[0...-1] + [unified])
           new_seq.add_sources!(sources + [seq])
           [sels, new_seq]

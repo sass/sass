@@ -27,7 +27,6 @@ module Sass::Plugin
   # * `:never_update`
   # * `:always_check`
   class Compiler
-    include Sass::Util
     include Configuration
     extend Sass::Callbacks
 
@@ -61,7 +60,7 @@ module Sass::Plugin
     # when an exception CSS file is being written.
     # To run an action for those files, use \{#on\_compilation\_error}.
     #
-    # @yield [template, css]
+    # @yield [template, css, sourcemap]
     # @yieldparam template [String]
     #   The location of the Sass/SCSS file being updated.
     # @yieldparam css [String]

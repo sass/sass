@@ -505,11 +505,18 @@ SCSS
     assert_parses '@import url(foo.css);'
   end
 
-  def test_import_directive_with_media
+  def test_string_import_directive_with_media
     assert_parses '@import "foo.css" screen;'
     assert_parses '@import "foo.css" screen, print;'
     assert_parses '@import "foo.css" screen, print and (foo: 0);'
     assert_parses '@import "foo.css" screen, only print, screen and (foo: 0);'
+  end
+
+  def test_url_import_directive_with_media
+    assert_parses '@import url("foo.css") screen;'
+    assert_parses '@import url("foo.css") screen, print;'
+    assert_parses '@import url("foo.css") screen, print and (foo: 0);'
+    assert_parses '@import url("foo.css") screen, only print, screen and (foo: 0);'
   end
 
   def test_page_directive

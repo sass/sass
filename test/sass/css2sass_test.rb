@@ -265,6 +265,25 @@ CSS
 
   # Regressions
 
+  def test_empty_rule
+    assert_equal(<<SASS, css2sass(<<CSS))
+a
+SASS
+a {}
+CSS
+  end
+
+  def test_empty_rule_with_selector_combinator
+    assert_equal(<<SASS, css2sass(<<CSS))
+a
+  color: red
+  > b
+SASS
+a {color: red}
+a > b {}
+CSS
+  end
+
   def test_nesting_within_media
     assert_equal(<<SASS, css2sass(<<CSS))
 @media all

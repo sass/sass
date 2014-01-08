@@ -340,6 +340,17 @@ maps instead.
   contain more CSS rules or properties are now bubbled up through
   their parent rules.
 
+* A new function `inspect($value)` is provided for debugging the current Sass
+  representation of a value.
+
+* The `@debug` directive now automatically inspects sass objects that are not
+  strings.
+
+* Numbers will no longer be emitted in scientific notation.
+
+* `sass-convert` will now correctly handle silent (`//`-style) comments
+  contained within loud (`/* */`-style) comments.
+
 ### Backwards Incompatibilities -- Must Read!
 
 * Sass will now throw an error when `@extend` is used to extend a selector
@@ -365,13 +376,21 @@ maps instead.
 * The automatic placement of the current working directory onto the Sass
   load path is now deprecated as this causes unpredictable build
   processes.  If you need the current working directory to be available,
-  set `SASSPATH=.` in your shell's environment.
+  set `SASS_PATH=.` in your shell's environment.
 
 * `Sass::Compiler.on_updating_stylesheet` has been removed.
 
 * `Sass::Plugin.options=` has been removed.
 
 * `Sass::Script::Number::PRECISION` has been removed.
+
+* The methods in the `Sass::Util` module can no longer be used by
+  including it. They must be invoked on the module itself for
+  performance reasons.
+
+* Sass values have always been immutable. The ruby object that backs
+  each sass value is now "frozen" to prevent accidental modification and
+  for performance.
 
 * Many classes in the \{Sass::Script} have been rearranged. All the value
   classes have been moved into \{Sass::Script::Value} (e.g.
@@ -393,6 +412,18 @@ maps instead.
   now explicitly assign to global variables using the `!global` flag;
   for example, `$color: blue !global` will always assign to the global
   `$color` variable.
+
+## 3.2.13
+
+* Numbers returned by user-defined functions now trigger division, just like
+  numbers stored in variables.
+
+* Support importing files in paths with open brackets.
+
+* Fix `sass-convert`'s handling of rules with empty bodies when converting from
+  CSS.
+
+* Fix CSS imports using `url()` with a quoted string and media queries.
 
 ## 3.2.12
 

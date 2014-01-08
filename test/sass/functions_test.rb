@@ -817,8 +817,8 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_grayscale
     assert_equal("#bbbbbb", evaluate("grayscale(#abc)"))
-    assert_equal("grey", evaluate("grayscale(#f00)"))
-    assert_equal("grey", evaluate("grayscale(#00f)"))
+    assert_equal("gray", evaluate("grayscale(#f00)"))
+    assert_equal("gray", evaluate("grayscale(#00f)"))
     assert_equal("white", evaluate("grayscale(white)"))
     assert_equal("black", evaluate("grayscale(black)"))
     assert_equal("black", evaluate("grayscale($color: black)"))
@@ -1565,6 +1565,13 @@ SCSS
     assert_error_message("2px is not a string for `mixin-exists'", "mixin-exists(2px)")
     assert_error_message("2px is not a string for `global-variable-exists'", "global-variable-exists(2px)")
     assert_error_message("2px is not a string for `variable-exists'", "variable-exists(2px)")
+  end
+
+  def test_inspect
+    assert_equal "()", evaluate("inspect(())")
+    assert_equal "null", evaluate("inspect(null)")
+    assert_equal "1px null 3px", evaluate("inspect(1px null 3px)")
+    assert_equal "(a: 1, b: 2)", evaluate("inspect((a: 1, b: 2))")
   end
 
 

@@ -93,7 +93,7 @@ module Sass
           choices
         end
         weaves = Sass::Util.paths(extended_not_expanded).map {|path| weave(path)}
-        Sass::Util.flatten(trim(weaves), 1).map {|p| Sequence.new(p)}
+        trim(weaves).map {|p| Sequence.new(p)}
       end
 
       # Returns whether or not this selector matches all elements
@@ -137,32 +137,31 @@ module Sass
 
       private
 
-      # Conceptually, this expands "parenthesized selectors".
-      # That is, if we have `.A .B {@extend .C}` and `.D .C {...}`,
-      # this conceptually expands into `.D .C, .D (.A .B)`,
-      # and this function translates `.D (.A .B)` into `.D .A .B, .A.D .B, .D .A .B`.
+      # Conceptually, this expands "parenthesized selectors". That is, if we
+      # have `.A .B {@extend .C}` and `.D .C {...}`, this conceptually expands
+      # into `.D .C, .D (.A .B)`, and this function translates `.D (.A .B)` into
+      # `.D .A .B, .A .D .B`. For thoroughness, `.A.D .B` would also be
+      # required, but including merged selectors results in exponential output
+      # for very little gain.
       #
       # @param path [Array<Array<SimpleSequence or String>>]
       #   A list of parenthesized selector groups.
       # @return [Array<Array<SimpleSequence or String>>] A list of fully-expanded selectors.
       def weave(path)
         # This function works by moving through the selector path left-to-right,
-        # building all possible prefixes simultaneously. These prefixes are
-        # `befores`, while the remaining parenthesized suffixes is `afters`.
-        befores = [[]]
-        afters = path.dup
+        # building all possible prefixes simultaneously.
+        prefixes = [[]]
 
-        until afters.empty?
-          current = afters.shift.dup
+        path.each do |current|
+          current = current.dup
           last_current = [current.pop]
-          befores.map! do |before|
-            sub = subweave(before, current)
+          prefixes = Sass::Util.flatten(prefixes.map do |prefix|
+            sub = subweave(prefix, current)
             next [] unless sub
             sub.map {|seqs| seqs + last_current}
-          end
-          befores = Sass::Util.flatten(befores, 1)
+          end, 1)
         end
-        befores
+        prefixes
       end
 
       # This interweaves two lists of selectors,
@@ -455,11 +454,11 @@ module Sass
       # the other. The more specific selector is removed.
       #
       # @param seqses [Array<Array<Array<SimpleSequence or String>>>]
-      # @return [Array<Array<Array<SimpleSequence or String>>>]
+      # @return [Array<Array<SimpleSequence or String>>]
       def trim(seqses)
         # Avoid truly horrific quadratic behavior. TODO: I think there
         # may be a way to get perfect trimming without going quadratic.
-        return seqses if seqses.size > 100
+        return Sass::Util.flatten(seqses, 1) if seqses.size > 100
 
         # Keep the results in a separate array so we can be sure we aren't
         # comparing against an already-trimmed selector. This ensures that two
@@ -482,7 +481,7 @@ module Sass
             end
           end
         end
-        result
+        Sass::Util.flatten(result, 1)
       end
 
       def _hash

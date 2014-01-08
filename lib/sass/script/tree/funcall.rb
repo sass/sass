@@ -128,7 +128,7 @@ module Sass::Script::Tree
       splat = Sass::Tree::Visitors::Perform.perform_splat(
         @splat, keywords, @kwarg_splat, environment)
       if (fn = environment.function(@name))
-        return perform_sass_fn(fn, args, splat, environment)
+        return without_original(perform_sass_fn(fn, args, splat, environment))
       end
 
       args = construct_ruby_args(ruby_name, args, splat, environment)
@@ -136,8 +136,9 @@ module Sass::Script::Tree
       if Sass::Script::Functions.callable?(ruby_name)
         local_environment = Sass::Environment.new(environment.global_env, environment.options)
         local_environment.caller = Sass::ReadOnlyEnvironment.new(environment, environment.options)
-        opts(Sass::Script::Functions::EvaluationContext.new(
+        result = opts(Sass::Script::Functions::EvaluationContext.new(
           local_environment).send(ruby_name, *args))
+        without_original(result)
       else
         opts(to_literal(args))
       end
@@ -171,6 +172,13 @@ module Sass::Script::Tree
 
     def signature
       @signature ||= Sass::Script::Functions.signature(name.to_sym, @args.size, @keywords.size)
+    end
+
+    def without_original(value)
+      return value unless value.is_a?(Sass::Script::Value::Number)
+      value = value.dup
+      value.original = nil
+      value
     end
 
     def construct_ruby_args(name, args, splat, environment)

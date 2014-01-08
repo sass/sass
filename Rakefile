@@ -21,7 +21,7 @@ end
 
 # ----- Code Style Enforcement -----
 
-if RUBY_VERSION !~ /^(1\.8|2\.1)/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !ENV.has_key?("RUBOCOP"))
+if RUBY_VERSION !~ /^(1\.8)/ && (ENV.has_key?("RUBOCOP") && ENV["RUBOCOP"] == "true" || !(ENV.has_key?("RUBOCOP") || ENV.has_key?("TEST")))
   require 'rubocop/rake_task'
   Rubocop::RakeTask.new do |t|
     t.patterns = FileList["lib/**/*"]

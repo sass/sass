@@ -88,8 +88,6 @@ module Sass
   #     output = sass_engine.render
   #     puts output
   class Engine
-    include Sass::Util
-
     # A line of Sass code.
     #
     # `text`: `String`
@@ -375,7 +373,7 @@ ERR
     end
 
     def encode_and_set_charset(rendered)
-      return rendered if ruby1_8?
+      return rendered if Sass::Util.ruby1_8?
       begin
         # Try to convert the result to the original encoding,
         # but if that doesn't work fall back on UTF-8
@@ -431,7 +429,7 @@ ERR
     def check_encoding!
       return if @checked_encoding
       @checked_encoding = true
-      @template, @original_encoding = check_sass_encoding(@template) do |msg, line|
+      @template, @original_encoding = Sass::Util.check_sass_encoding(@template) do |msg, line|
         raise Sass::SyntaxError.new(msg, :line => line)
       end
     end
@@ -577,6 +575,8 @@ MSG
           if continued_comment &&
               child.line == continued_comment.line +
               continued_comment.lines + 1
+            continued_comment.value.last.sub!(/ \*\/\Z/, '')
+            child.value.first.gsub!(/\A\/\*/, ' *')
             continued_comment.value += ["\n"] + child.value
             next
           end
@@ -766,7 +766,7 @@ WARNING
           value = self.class.parse_interp(
             line.text, line.index, to_parser_offset(line.offset), :filename => @filename)
         end
-        value = with_extracted_values(value) do |str|
+        value = Sass::Util.with_extracted_values(value) do |str|
           str = str.gsub(/^#{line.comment_tab_str}/m, '')[2..-1] # get rid of // or /*
           format_comment_text(str, silent)
         end
@@ -1129,12 +1129,12 @@ WARNING
         content.shift
       end
 
-      return silent ? "//" : "/* */" if content.empty?
+      return "/* */" if content.empty?
       content.last.gsub!(/ ?\*\/ *$/, '')
       content.map! {|l| l.gsub!(/^\*( ?)/, '\1') || (l.empty? ? "" : " ") + l}
       content.first.gsub!(/^ /, '') unless removed_first
       if silent
-        "//" + content.join("\n//")
+        "/*" + content.join("\n *") + " */"
       else
         # The #gsub fixes the case of a trailing */
         "/*" + content.join("\n *").gsub(/ \*\Z/, '') + " */"
