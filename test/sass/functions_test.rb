@@ -120,20 +120,20 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("50%",  evaluate("percentage(.5)"))
     assert_equal("100%", evaluate("percentage(1)"))
     assert_equal("25%",  evaluate("percentage(25px / 100px)"))
-    assert_equal("50%",  evaluate("percentage($value: 0.5)"))
+    assert_equal("50%",  evaluate("percentage($number: 0.5)"))
   end
 
   def test_percentage_checks_types
-    assert_error_message("$value: 25px is not a unitless number for `percentage'", "percentage(25px)")
-    assert_error_message("$value: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
-    assert_error_message("$value: \"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
+    assert_error_message("$number: 25px is not a unitless number for `percentage'", "percentage(25px)")
+    assert_error_message("$number: #cccccc is not a unitless number for `percentage'", "percentage(#ccc)")
+    assert_error_message("$number: \"string\" is not a unitless number for `percentage'", %Q{percentage("string")})
   end
 
   def test_round
     assert_equal("5",   evaluate("round(4.8)"))
     assert_equal("5px", evaluate("round(4.8px)"))
     assert_equal("5px", evaluate("round(5.49px)"))
-    assert_equal("5px", evaluate("round($value: 5.49px)"))
+    assert_equal("5px", evaluate("round($number: 5.49px)"))
 
     assert_error_message("$value: #cccccc is not a number for `round'", "round(#ccc)")
   end
@@ -141,7 +141,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_floor
     assert_equal("4",   evaluate("floor(4.8)"))
     assert_equal("4px", evaluate("floor(4.8px)"))
-    assert_equal("4px", evaluate("floor($value: 4.8px)"))
+    assert_equal("4px", evaluate("floor($number: 4.8px)"))
 
     assert_error_message("$value: \"foo\" is not a number for `floor'", "floor(\"foo\")")
   end
@@ -149,7 +149,7 @@ class SassFunctionTest < Test::Unit::TestCase
   def test_ceil
     assert_equal("5",   evaluate("ceil(4.1)"))
     assert_equal("5px", evaluate("ceil(4.8px)"))
-    assert_equal("5px", evaluate("ceil($value: 4.8px)"))
+    assert_equal("5px", evaluate("ceil($number: 4.8px)"))
 
     assert_error_message("$value: \"a\" is not a number for `ceil'", "ceil(\"a\")")
   end
@@ -159,7 +159,7 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("5px", evaluate("abs(-5px)"))
     assert_equal("5",   evaluate("abs(5)"))
     assert_equal("5px", evaluate("abs(5px)"))
-    assert_equal("5px", evaluate("abs($value: 5px)"))
+    assert_equal("5px", evaluate("abs($number: 5px)"))
 
     assert_error_message("$value: #aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
@@ -799,12 +799,12 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_equal("blue", evaluate("mix(transparentize(#f00, 1), #00f, 0%)"))
     assert_equal("rgba(0, 0, 255, 0)", evaluate("mix(#f00, transparentize(#00f, 1), 0%)"))
     assert_equal("rgba(255, 0, 0, 0)", evaluate("mix(transparentize(#f00, 1), #00f, 100%)"))
-    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color-1: transparentize(#f00, 1), $color-2: #00f, $weight: 100%)"))
+    assert_equal("rgba(255, 0, 0, 0)", evaluate("mix($color1: transparentize(#f00, 1), $color2: #00f, $weight: 100%)"))
   end
 
   def test_mix_tests_types
-    assert_error_message("$color-1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
-    assert_error_message("$color-2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
+    assert_error_message("$color1: \"foo\" is not a color for `mix'", "mix(\"foo\", #f00, 10%)")
+    assert_error_message("$color2: \"foo\" is not a color for `mix'", "mix(#f00, \"foo\", 10%)")
     assert_error_message("$weight: \"foo\" is not a number for `mix'", "mix(#f00, #baf, \"foo\")")
   end
 
@@ -1017,9 +1017,9 @@ MSG
     assert_equal(%Q{true}, evaluate("comparable(2px, 1px)"))
     assert_equal(%Q{true}, evaluate("comparable(10cm, 3mm)"))
     assert_equal(%Q{false}, evaluate("comparable(100px, 3em)"))
-    assert_equal(%Q{false}, evaluate("comparable($number-1: 100px, $number-2: 3em)"))
-    assert_error_message("$number-1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
-    assert_error_message("$number-2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
+    assert_equal(%Q{false}, evaluate("comparable($number1: 100px, $number2: 3em)"))
+    assert_error_message("$number1: #ff0000 is not a number for `comparable'", "comparable(#f00, 1px)")
+    assert_error_message("$number2: #ff0000 is not a number for `comparable'", "comparable(1px, #f00)")
   end
 
   def test_length
