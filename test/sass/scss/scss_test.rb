@@ -163,6 +163,51 @@ CSS
 SCSS
   end
 
+  def test_for_directive_with_same_start_and_end
+    assert_equal <<CSS, render(<<SCSS)
+CSS
+.foo {
+  @for $var from 1 to 1 {a: $var;}
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 1; }
+CSS
+.foo {
+  @for $var from 1 through 1 {a: $var;}
+}
+SCSS
+  end
+
+  def test_decrementing_estfor_directive
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 5;
+  a: 4;
+  a: 3;
+  a: 2;
+  a: 1; }
+CSS
+.foo {
+  @for $var from 5 through 1 {a: $var;}
+}
+SCSS
+
+    assert_equal <<CSS, render(<<SCSS)
+.foo {
+  a: 5;
+  a: 4;
+  a: 3;
+  a: 2; }
+CSS
+.foo {
+  @for $var from 5 to 1 {a: $var;}
+}
+SCSS
+  end
+
   def test_if_directive
     assert_equal <<CSS, render(<<SCSS)
 foo {

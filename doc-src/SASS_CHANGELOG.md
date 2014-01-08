@@ -325,6 +325,10 @@ maps instead.
   `e`, and `f`; and then `g`, `h`, and `i`. For more information, see
   {file:SASS_REFERENCE.md#each-multi-assign the `@each` reference}.
 
+* `@for` loops can now go downward as well as upward. For example,
+  `@for $var from 5 through 1` will set `$var` to `5`, `4`, `3`, `2`,
+  and `1`. Thanks to [Robin Roestenburg](http://twitter.com/robinroest).
+
 * There is a new {Sass::Script::Value::Helpers convenience API} for creating
   Sass values from within ruby extensions.
 
