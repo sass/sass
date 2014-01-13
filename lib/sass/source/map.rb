@@ -94,7 +94,7 @@ module Sass::Source
     #   rubocop:disable MethodLength
     def to_json(options)
       css_uri, css_path, sourcemap_path =
-        [:css_uri, :css_path, :sourcemap_path].map {|o| options[o]}
+        options[:css_uri], options[:css_path], options[:sourcemap_path]
       unless css_uri || (css_path && sourcemap_path)
         raise ArgumentError.new("Sass::Source::Map#to_json requires either " \
           "the :css_uri option or both the :css_path and :soucemap_path options.")
@@ -111,7 +111,6 @@ module Sass::Source
       next_source_id = 0
       line_data = []
       segment_data_for_line = []
-      no_public_url = Set.new
 
       # These track data necessary for the delta coding.
       previous_target_line = nil
@@ -122,22 +121,9 @@ module Sass::Source
 
       @data.each do |m|
         file, importer = m.input.file, m.input.importer
-        unless (source_uri = importer && importer.public_url(file))
-          if importer.is_a?(Sass::Importers::Filesystem) && sourcemap_path
-            file_path = Pathname.new(importer.root).join(file)
-            source_uri = file_path.relative_path_from(sourcemap_path.dirname).to_s
-          elsif no_public_url.include?(file)
-            next
-          else
-            no_public_url << file
-            Sass::Util.sass_warn <<WARNING
-WARNING: Couldn't determine public URL for "#{file}" while generating sourcemap.
-  Without a public URL, there's nothing for the source map to link to.
-  Custom importers should define the #public_url method.
-WARNING
-            next
-          end
-        end
+        source_uri = importer &&
+          importer.public_url(file, sourcemap_path && sourcemap_path.dirname.to_s)
+        next unless source_uri
 
         current_source_id = source_uri_to_id[source_uri]
         unless current_source_id

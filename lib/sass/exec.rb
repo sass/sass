@@ -347,6 +347,7 @@ END
         super
         @options[:for_engine][:filename] = @options[:filename]
         @options[:for_engine][:css_filename] = @options[:output] if @options[:output].is_a?(String)
+        @options[:for_engine][:sourcemap_filename] = @options[:sourcemap_filename]
 
         begin
           input = @options[:input]

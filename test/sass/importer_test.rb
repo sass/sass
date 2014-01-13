@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../test_helper'
 require File.dirname(__FILE__) + '/test_helper'
-
+require 'mock_importer'
 require 'sass/plugin'
 
 class ImporterTest < Test::Unit::TestCase
@@ -31,7 +31,7 @@ class ImporterTest < Test::Unit::TestCase
       [self.class.name, name]
     end
 
-    def public_url(name)
+    def public_url(name, sourcemap_directory = nil)
       "http://#{parse(name)}.example.com/style.scss"
     end
 
@@ -39,6 +39,18 @@ class ImporterTest < Test::Unit::TestCase
 
     def parse(name)
       name[%r{fruits/(\w+)(\.s[ac]ss)?}, 1]
+    end
+  end
+
+  class NoPublicUrlImporter < FruitImporter
+    def public_url(name, sourcemap_directory = nil)
+      nil
+    end
+
+    private
+
+    def parse(name)
+      name[%r{ephemeral/(\w+)(\.s[ac]ss)?}, 1]
     end
   end
 
@@ -213,10 +225,55 @@ SCSS
 JSON
   end
 
+  def test_source_map_with_only_css_uri_can_have_no_public_url_without_warning
+    ephemeral_importer = NoPublicUrlImporter.new
+    mock_importer = MockImporter.new
+    def mock_importer.public_url(name, sourcemap_directory = nil)
+      "css_uri"
+    end
+
+    options = {
+      :filename => filename_for_test,
+      :sourcemap_filename => sourcemap_filename_for_test,
+      :importer => mock_importer,
+      :syntax => :scss,
+      :load_paths => [ephemeral_importer],
+      :cache => false
+    }
+
+    engine = Sass::Engine.new(<<SCSS, options)
+@import "ephemeral/orange";
+.orange {
+  @include orange;
+}
+SCSS
+
+    assert_warning("") do
+      css_output, sourcemap = engine.render_with_sourcemap('sourcemap_uri')
+      assert_equal <<CSS.strip, css_output.strip
+.orange {
+  color: orange; }
+
+/*# sourceMappingURL=sourcemap_uri */
+CSS
+      map = sourcemap.to_json(:css_uri => 'css_uri')
+      assert_equal <<JSON.strip, map
+{
+"version": 3,
+"mappings": "AACA,OAAQ",
+"sources": ["css_uri"],
+"names": [],
+"file": "css_uri"
+}
+JSON
+    end
+  end
+
   def test_source_map_with_only_css_uri_doesnt_support_filesystem_importer
     file_system_importer = Sass::Importers::Filesystem.new('.')
     options = {
       :filename => filename_for_test(:scss),
+      :sourcemap_filename => sourcemap_filename_for_test,
       :importer => file_system_importer,
       :syntax => :scss
     }
@@ -230,7 +287,6 @@ SCSS
     assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri')}
 WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
   Without a public URL, there's nothing for the source map to link to.
-  Custom importers should define the #public_url method.
 WARNING
   end
 
@@ -238,6 +294,7 @@ WARNING
     file_system_importer = Sass::Importers::Filesystem.new('.')
     options = {
       :filename => filename_for_test(:scss),
+      :sourcemap_filename => sourcemap_filename_for_test,
       :importer => file_system_importer,
       :syntax => :scss
     }
@@ -251,14 +308,16 @@ SCSS
     assert_warning(<<WARNING) {sourcemap.to_json(:css_uri => 'css_uri', :css_path => 'css_path')}
 WARNING: Couldn't determine public URL for "#{filename_for_test(:scss)}" while generating sourcemap.
   Without a public URL, there's nothing for the source map to link to.
-  Custom importers should define the #public_url method.
 WARNING
   end
 
   def test_source_map_with_css_uri_and_sourcemap_path_supports_filesystem_importer
     file_system_importer = Sass::Importers::Filesystem.new('.')
+    css_uri = 'css_uri'
+    sourcemap_path = 'map/style.map'
     options = {
       :filename => 'sass/style.scss',
+      :sourcemap_filename => sourcemap_path,
       :importer => file_system_importer,
       :syntax => :scss
     }
@@ -271,8 +330,6 @@ SCSS
 
 
     rendered, sourcemap = engine.render_with_sourcemap('http://map.example.com/map/style.map')
-    css_uri = 'css_uri'
-    sourcemap_path = 'map/style.map'
     assert_equal <<JSON.strip, sourcemap.to_json(:css_uri => css_uri, :sourcemap_path => sourcemap_path)
 {
 "version": 3,
@@ -286,8 +343,12 @@ JSON
 
   def test_source_map_with_css_path_and_sourcemap_path_supports_file_system_importer
     file_system_importer = Sass::Importers::Filesystem.new('.')
+    sass_path = 'sass/style.scss'
+    css_path = 'static/style.css'
+    sourcemap_path = 'map/style.map'
     options = {
-      :filename => 'sass/style.scss',
+      :filename => sass_path,
+      :sourcemap_filename => sourcemap_path,
       :importer => file_system_importer,
       :syntax => :scss
     }
@@ -297,8 +358,6 @@ JSON
 SCSS
 
     _, sourcemap = engine.render_with_sourcemap('http://map.example.com/map/style.map')
-    css_path = 'static/style.css'
-    sourcemap_path = 'map/style.map'
     assert_equal <<JSON.strip, sourcemap.to_json(:css_path => css_path, :sourcemap_path => sourcemap_path)
 {
 "version": 3,

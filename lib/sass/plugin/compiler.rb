@@ -348,7 +348,9 @@ module Sass::Plugin
 
       begin
         File.read(filename) unless File.readable?(filename) # triggers an error for handling
-        engine_opts = engine_options(:css_filename => css, :filename => filename)
+        engine_opts = engine_options(:css_filename => css,
+                                     :filename => filename,
+                                     :sourcemap_filename => sourcemap)
         mapping = nil
         engine = Sass::Engine.for_file(filename, engine_opts)
         if sourcemap
