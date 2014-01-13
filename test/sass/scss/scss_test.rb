@@ -1650,42 +1650,6 @@ CSS
 SCSS
   end
 
-  def test_mixin_map_splat_converts_hyphens_and_underscores_for_real_args
-    assert_equal <<CSS, render(<<SCSS)
-.foo {
-  val: "a: 1, b: 2, c: 3, d: 4"; }
-CSS
-@function foo($a-1, $b-2, $c_3, $d_4) {
-  @return "a: \#{$a-1}, b: \#{$b-2}, c: \#{$c_3}, d: \#{$d_4}";
-}
-
-.foo {
-  $map: (a-1: 1, b_2: 2, c-3: 3, d_4: 4);
-  val: foo($map...);
-}
-SCSS
-  end
-
-  def test_mixin_map_splat_doesnt_convert_hyphens_and_underscores_for_var_args
-    assert_equal <<CSS, render(<<SCSS)
-.foo {
-  val: ", a-1: 1, b_2: 2, c-3: 3, d_4: 4"; }
-CSS
-@function foo($args...) {
-  $str: "";
-  @each $key, $value in keywords($args) {
-    $str: "\#{$str}, \#{$key}: \#{$value}";
-  }
-  @return $str;
-}
-
-.foo {
-  $map: (a-1: 1, b_2: 2, c-3: 3, d_4: 4);
-  val: foo($map...);
-}
-SCSS
-  end
-
   def test_function_conflicting_splat_after_keyword_args
     assert_raise_message(Sass::SyntaxError, <<MESSAGE.rstrip) {render(<<SCSS)}
 Function foo was passed argument $b both by position and by name.

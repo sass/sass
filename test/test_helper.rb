@@ -24,8 +24,9 @@ end
 
 class Test::Unit::TestCase
   def munge_filename(opts = {})
-    return if opts.has_key?(:filename)
-    opts[:filename] = filename_for_test(opts[:syntax] || :sass)
+    opts[:filename] ||= filename_for_test(opts[:syntax] || :sass)
+    opts[:sourcemap_filename] ||= sourcemap_filename_for_test
+    opts
   end
 
   def filename_for_test(syntax = :sass)
@@ -35,6 +36,15 @@ class Test::Unit::TestCase
       map {|c| c.sub(/^(block|rescue) in /, '')}.
       find {|c| c =~ /^test_/}
     "#{test_name}_inline.#{syntax}"
+  end
+
+  def sourcemap_filename_for_test(syntax = :sass)
+    test_name = caller.
+      map {|c| Sass::Util.caller_info(c)[2]}.
+      compact.
+      map {|c| c.sub(/^(block|rescue) in /, '')}.
+      find {|c| c =~ /^test_/}
+    "#{test_name}.css.map"
   end
 
   def clean_up_sassc

@@ -346,16 +346,24 @@ module Sass
     private
 
     def _render_with_sourcemap(sourcemap_uri)
-      if @options[:filename].nil?
+      filename = @options[:filename]
+      importer = @options[:importer]
+      sourcemap_filename = @options[:sourcemap_filename] &&
+        File.dirname(File.expand_path(@options[:sourcemap_filename]))
+      if filename.nil?
         raise Sass::SyntaxError.new(<<ERR)
 Error generating source map: couldn't determine public URL for the source stylesheet.
   No filename is available so there's nothing for the source map to link to.
 ERR
-      elsif @options[:importer].nil? ||
-        !(@options[:importer].public_url(@options[:filename]) ||
-          @options[:importer].is_a?(Sass::Importers::Filesystem))
+      elsif importer.nil?
         raise Sass::SyntaxError.new(<<ERR)
-Error generating source map: couldn't determine public URL for "#{@options[:filename]}".
+Error generating source map: couldn't determine public URL for "#{filename}".
+  Without a public URL, there's nothing for the source map to link to.
+  An importer was not set for this file.
+ERR
+      elsif Sass::Util.silence_warnings {!importer.public_url(filename, sourcemap_filename)}
+        raise Sass::SyntaxError.new(<<ERR)
+Error generating source map: couldn't determine public URL for "#{filename}".
   Without a public URL, there's nothing for the source map to link to.
   Custom importers should define the #public_url method.
 ERR

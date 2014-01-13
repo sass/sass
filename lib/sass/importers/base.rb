@@ -129,8 +129,12 @@ module Sass
       # from this importer.
       #
       # @param uri [String] A URI known to be valid for this importer.
+      # @param relative_to_directory [String, NilClass] A directory (on disk) the url
+      #   should be made relative to, if possible. This directory may not be
+      #   provided.
       # @return [String?] The publicly-visible URL for this file.
-      def public_url(uri)
+      def public_url(uri, relative_to_directory = nil)
+        warn_about_public_url(uri)
         nil
       end
 
@@ -164,6 +168,25 @@ module Sass
       # @return [Boolean] When the file changed should cause a recompile.
       def watched_file?(filename)
         false
+      end
+
+      protected
+
+      # Issues a warning about being unable to determine a public url.
+      #
+      # @param uri [String] A URI known to be valid for this importer.
+      # @return [NilClass] nil
+      def warn_about_public_url(uri)
+        @warnings_issued ||= Set.new
+        unless @warnings_issued.include?(uri)
+          Sass::Util.sass_warn <<WARNING
+WARNING: Couldn't determine public URL for "#{uri}" while generating sourcemap.
+  Without a public URL, there's nothing for the source map to link to.
+  Custom importers should define the #public_url method.
+WARNING
+          @warnings_issued << uri
+        end
+        nil
       end
     end
   end
