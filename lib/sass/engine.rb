@@ -791,6 +791,7 @@ WARNING
     #   rubocop:disable MethodLength
     def parse_directive(parent, line, root)
       directive, whitespace, value = line.text[1..-1].split(/(\s+)/, 2)
+      raise SyntaxError.new("Invalid directive: '@'.") unless directive
       offset = directive.size + whitespace.size + 1 if whitespace
 
       directive_name = directive.gsub('-', '_').to_sym
