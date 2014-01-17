@@ -2305,6 +2305,123 @@ CSS
 SCSS
   end
 
+  def test_comments_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+/* foo */
+.bar {
+  a: b; }
+
+/* baz */
+CSS
+.foo {
+  @at-root {
+    /* foo */
+    .bar {a: b}
+    /* baz */
+  }
+}
+SCSS
+  end
+
+  def test_comments_in_at_root_in_media
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  /* foo */
+  .bar {
+    a: b; }
+
+  /* baz */ }
+CSS
+@media screen {
+  .foo {
+    @at-root {
+      /* foo */
+      .bar {a: b}
+      /* baz */
+    }
+  }
+}
+SCSS
+  end
+
+  def test_comments_in_at_root_in_unknown_directive
+    assert_equal <<CSS, render(<<SCSS)
+@fblthp {
+  /* foo */
+  .bar {
+    a: b; }
+
+  /* baz */ }
+CSS
+@fblthp {
+  .foo {
+    @at-root {
+      /* foo */
+      .bar {a: b}
+      /* baz */
+    }
+  }
+}
+SCSS
+  end
+
+  def test_media_directive_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @at-root {
+    @media screen {.bar {a: b}}
+  }
+}
+SCSS
+  end
+
+  def test_bubbled_media_directive_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  .bar .baz {
+    a: b; } }
+CSS
+.foo {
+  @at-root {
+    .bar {
+      @media screen {.baz {a: b}}
+    }
+  }
+}
+SCSS
+  end
+
+  def test_unknown_directive_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+@fblthp {
+  .bar {
+    a: b; } }
+CSS
+.foo {
+  @at-root {
+    @fblthp {.bar {a: b}}
+  }
+}
+SCSS
+  end
+
+  def test_at_root_in_at_root
+    assert_equal <<CSS, render(<<SCSS)
+.bar {
+  a: b; }
+CSS
+.foo {
+  @at-root {
+    @at-root .bar {a: b}
+  }
+}
+SCSS
+  end
+
   def test_at_root_with_parent_ref
     assert_equal <<CSS, render(<<SCSS)
 .foo {
@@ -2406,6 +2523,7 @@ SCSS
 
   def test_at_root_without_unknown_directive
     assert_equal <<CSS, render(<<SCSS)
+@fblthp {}
 .foo .bar {
   a: b; }
 CSS
@@ -2443,6 +2561,8 @@ SCSS
 
   def test_at_root_without_all
     assert_equal <<CSS, render(<<SCSS)
+@supports (foo: bar) {
+  @fblthp {} }
 .bar {
   a: b; }
 CSS
@@ -2463,6 +2583,7 @@ SCSS
   def test_at_root_with_media
     assert_equal <<CSS, render(<<SCSS)
 @media screen {
+  @fblthp {}
   .bar {
     a: b; } }
 CSS
@@ -2484,6 +2605,8 @@ SCSS
 
   def test_at_root_with_rule
     assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  @fblthp {} }
 .foo .bar {
   a: b; }
 CSS
@@ -2505,6 +2628,8 @@ SCSS
 
   def test_at_root_with_supports
     assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  @fblthp {} }
 @supports (foo: bar) {
   .bar {
     a: b; } }
@@ -2527,6 +2652,8 @@ SCSS
 
   def test_at_root_with_unknown_directive
     assert_equal <<CSS, render(<<SCSS)
+@media screen {
+  @fblthp {} }
 @fblthp {
   .bar {
     a: b; } }
@@ -2550,6 +2677,7 @@ SCSS
   def test_at_root_with_multiple
     assert_equal <<CSS, render(<<SCSS)
 @media screen {
+  @fblthp {}
   .foo .bar {
     a: b; } }
 CSS

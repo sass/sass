@@ -166,6 +166,7 @@ MSG
     "@content" => '@content may only be used within a mixin.',
     "=simple\n  .simple\n    color: red\n+simple\n  color: blue" => ['Mixin "simple" does not accept a content block.', 4],
     "@import \"foo\" // bar" => "Invalid CSS after \"\"foo\" \": expected media query list, was \"// bar\"",
+    "@at-root\n  a: b" => "Properties are only allowed within rules, directives, mixin includes, or other properties.",
 
     # Regression tests
     "a\n  b:\n    c\n    d" => ["Illegal nesting: Only properties may be nested beneath properties.", 3],
@@ -2309,9 +2310,10 @@ SASS
   @media print {
     .outside {
       color: black; } }
-    @media print and (a: b) {
-      .outside .inside {
-        border: 1px solid black; } }
+  @media print and (a: b) {
+    .outside .inside {
+      border: 1px solid black; } }
+
   .outside .middle {
     display: block; }
 CSS
